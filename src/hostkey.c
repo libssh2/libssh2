@@ -485,7 +485,10 @@ LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void)
 }
 
 /* {{{ libssh2_hostkey_hash
- * Returns NULL terminated hash signature
+ * Returns hash signature
+ * Returned buffer should NOT be freed
+ * Length of buffer is determined by hash type
+ * i.e. MD5 == 16, SHA1 == 20
  */
 LIBSSH2_API char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_type)
 {
