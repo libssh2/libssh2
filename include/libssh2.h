@@ -43,7 +43,7 @@
 #include <sys/stat.h>
 
 #define LIBSSH2_VERSION								"0.1"
-#define LIBSSH2_APINO								200412091007
+#define LIBSSH2_APINO								200412091107
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER							"SSH-2.0-libssh2_" LIBSSH2_VERSION
@@ -51,6 +51,51 @@
 /* We *could* add a comment here if we so chose */
 #define LIBSSH2_SSH_DEFAULT_BANNER					LIBSSH2_SSH_BANNER
 #define LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF		LIBSSH2_SSH_DEFAULT_BANNER "\r\n"
+
+/* Capabilities */
+#define LIBSSH2_KEX_DH_GROUP1
+#define LIBSSH2_KEX_DH_GROUP14
+#define LIBSSH2_KEX_DH_GROUP_EXCHANGE
+
+#ifndef OPENSSL_NO_RSA
+#define LIBSSH2_HOSTKEY_RSA
+#endif
+#ifndef OPENSSL_NO_DSA
+#define LIBSSH2_HOSTKEY_DSA
+#endif
+
+#ifndef OPENSSL_NO_AES
+#define LIBSSH2_CRYPT_AES256_CBC
+#define LIBSSH2_CRYPT_RIJNDAEL_CBC_LYSATOR_LIU_SE
+#define LIBSSH2_CRYPT_AES192_CBC
+#define LIBSSH2_CRYPT_AES128_CBC
+#endif
+#ifndef OPENSSL_NO_BLOWFISH
+#define LIBSSH2_CRYPT_BLOWFISH_CBC
+#endif
+#ifndef OPENSSL_NO_RC4
+#define LIBSSH2_CRYPT_ARCFOUR
+#endif
+#ifndef OPENSSL_NO_CAST
+#define LIBSSH2_CRYPT_CAST128_CBC
+#endif
+#ifndef OPENSSL_NO_DES
+#define LIBSSH2_CRYPT_3DES_CBC
+#endif
+/* LIBSSH2_CRYPT_NONE already defined (or not) by ./configure */
+
+#ifdef LIBSSH2_HAVE_ZLIB
+#define LIBSSH2_COMP_ZLIB
+#endif
+#define LIBSSH2_COMP_NONE
+
+#define LIBSSH2_MAC_SHA1
+#define LIBSSH2_MAC_SHA1_96
+#ifndef OPENSSL_NO_RIPEMD
+#define LIBSSH2_MAC_RIPEMD160
+#define LIBSSH2_MAC_RIPEMD160_OPENSSH_COM
+#endif
+/* LIBSSH2_MAC_NONE already defined (or not) by ./configure */
 
 /* Enable the "new" version of diffie-hellman-group-exchange-sha1 */
 #define LIBSSH2_DH_GEX_NEW
