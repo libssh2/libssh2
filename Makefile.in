@@ -48,3 +48,15 @@ dist:
 		$(DISTLIB)/include/libssh2.h $(DISTLIB)/include/libssh2_priv.h $(DISTLIB)/include/libssh2_sftp.h \
 		$(DISTLIB)/include/libssh2_config.h.in
 	rm -f $(DISTLIB)
+dist_nmake:
+	autoheader
+	autoconf
+	rm -f $(DISTLIB)
+	ln -s . $(DISTLIB)
+	tar -zcf $(DISTLIB)-win32.tar.gz \
+		$(DISTLIB)/NMakefile $(DISTLIB)/ssh2_sample.c $(DISTLIB)/src/*.c \
+		$(DISTLIB)/LICENSE $(DISTLIB)/README $(DISTLIB)/TODO $(DISTLIB)/INSTALL \
+		$(DISTLIB)/include/libssh2.h $(DISTLIB)/include/libssh2_priv.h $(DISTLIB)/include/libssh2_sftp.h \
+		$(DISTLIB)/win32/config.mk $(DISTLIB)/win32/libssh2_config.h $(DISTLIB)/win32/rules.mk
+	rm -f $(DISTLIB)
+
