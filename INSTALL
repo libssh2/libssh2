@@ -1,0 +1,9 @@
+Installing libssh2
+==================
+
+ * Untar this tarball (which, if you're reading this, you've already done)
+
+ * Run: ./configure (passing additional options as desired)
+
+ * Run: make all install
+
