@@ -136,12 +136,12 @@ static int libssh2_comp_method_zlib_comp(LIBSSH2_SESSION *session, int compress,
 	z_stream *strm = *abstract;
 	/* A short-term alloc of a full data chunk is better than a series of reallocs */
 	char *out;
-	int out_maxlen = compress ? src_len : (2 * src_len);
+	int out_maxlen = compress ? (src_len + 4) : (2 * src_len);
 	int limiter = 0;
 
 	/* In practice they never come smaller than this */
-	if (out_maxlen < 21) {
-		out_maxlen = 21;
+	if (out_maxlen < 25) {
+		out_maxlen = 25;
 	}
 
 	if (out_maxlen > payload_limit) {
@@ -172,11 +172,11 @@ static int libssh2_comp_method_zlib_comp(LIBSSH2_SESSION *session, int compress,
 		if (strm->avail_in) {
 			unsigned long out_ofs = out_maxlen - strm->avail_out;
 
-			out_maxlen += compress ? strm->avail_in : (2 * strm->avail_in);
+			out_maxlen += compress ? (strm->avail_in + 4) : (2 * strm->avail_in);
 
 			if ((out_maxlen > payload_limit) && !compress && limiter++) {
 				libssh2_error(session, LIBSSH2_ERROR_ZLIB, "Excessive growth in decompression phase", 0);
-				LIBSSH2_FREE(session, strm->next_out);
+				LIBSSH2_FREE(session, out);
 				return -1;
 			}
 
@@ -186,7 +186,43 @@ static int libssh2_comp_method_zlib_comp(LIBSSH2_SESSION *session, int compress,
 				return -1;
 			}
 			strm->next_out = out + out_ofs;
-			strm->avail_out += compress ? strm->avail_in : (2 * strm->avail_in);
+			strm->avail_out += compress ? (strm->avail_in + 4) : (2 * strm->avail_in);
+		} else while (!strm->avail_out) {
+			/* Done with input, might be a byte or two in internal buffer during compress
+			 * Or potentially many bytes if it's a decompress
+			 */
+			int grow_size = compress ? 8 : 1024;
+
+			if (out_maxlen >= payload_limit) {
+				libssh2_error(session, LIBSSH2_ERROR_ZLIB, "Excessive growth in decompression phase", 0);
+				LIBSSH2_FREE(session, out);
+				return -1;
+			}
+
+			if (grow_size > (payload_limit - out_maxlen)) {
+				grow_size = payload_limit - out_maxlen;
+			}
+
+			out_maxlen += grow_size;
+			strm->avail_out = grow_size;
+
+			out = LIBSSH2_REALLOC(session, out, out_maxlen);
+			if (!out) {
+				libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to expand final compress/decompress buffer", 0);
+				return -1;
+			}
+			strm->next_out = out + out_maxlen - grow_size;
+
+			if (compress) {
+				status = deflate(strm, Z_PARTIAL_FLUSH);
+			} else {
+				status = inflate(strm, Z_PARTIAL_FLUSH);
+			}
+			if (status != Z_OK) {
+				libssh2_error(session, LIBSSH2_ERROR_ZLIB, "compress/decompression failure", 0);
+				LIBSSH2_FREE(session, strm->next_out);
+				return -1;
+			}
 		}
 	}
 

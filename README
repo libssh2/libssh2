@@ -4,6 +4,8 @@ libssh2 - SSH2 library
 Version 0.6
 -----------
 
+  Fix zlib compression issue when internal buffer state misses partial sync.
+
   Fix segfault when libssh2_session_methods() is called prior to session_startup().
 
   Fixed client to server channel windowing.  Pervent send queue overruns.
