@@ -1,6 +1,11 @@
 libssh2 - SSH2 library
 ======================
 
+Version 0.4
+-----------
+
+  Fixed crash when trying to free sftp_dirhandle data from a filehandle struct.
+
 Version 0.3
 -----------
 

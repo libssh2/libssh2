@@ -950,7 +950,8 @@ LIBSSH2_API int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
 		handle->next->prev = NULL;
 	}
 
-	if (handle->u.dir.names_left) {
+	if ((handle->handle_type == LIBSSH2_SFTP_HANDLE_DIR) &&
+		handle->u.dir.names_left) {
 		LIBSSH2_FREE(session, handle->u.dir.names_packet);
 	}
 
