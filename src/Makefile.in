@@ -57,7 +57,7 @@ libssh2.a: $(OBJECTS)
 	ar q libssh2.a $(OBJECTS)
 	@RANLIB@ libssh2.a
 install: all
-	$(INSTALL) libssh2.@SHLIB_SUFFIX_NAME@ $(libdir)
+	$(INSTALL) libssh2.@SHLIB_SUFFIX_NAME@ $(DESTDIR)$(libdir)
 clean:
 	rm -f *~ libssh2.a libssh2.@SHLIB_SUFFIX_NAME@ *.o
 
