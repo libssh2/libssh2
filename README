@@ -10,6 +10,8 @@ Version 0.3
 
   Fixed degree of indirection in macerror callback.
 
+  Changed packet read mechanism to use a fixed buffer and avoid unnecessary alloc/free calls. (especially while non-block looping)
+
   Added channel close callback.
 
   Added SFTP support (Using its own header file: libssh2_sftp.h)

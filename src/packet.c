@@ -317,7 +317,10 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 
 	fcntl(session->socket_fd, F_SETFL, O_NONBLOCK);
 	if (session->newkeys) {
-		unsigned char *block, *payload, *s, tmp[6];
+		/* Temporary Buffer
+		 * The largest blocksize (currently) is 32, the largest MAC (currently) is 20
+		 */
+		unsigned char block[2 * 32], *payload, *s, tmp[6];
 		long read_len;
 		unsigned long blocksize = session->remote.crypt->blocksize;
 		unsigned long packet_len, payload_len;
@@ -327,9 +330,6 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		/* Safely ignored in CUSTOM cipher mode */
 		EVP_CIPHER_CTX *ctx = (EVP_CIPHER_CTX *)session->remote.crypt_abstract;
 
-		/* Temporary Buffer */
-		block = LIBSSH2_ALLOC(session, 2 * (blocksize > session->remote.mac->mac_len ? blocksize : session->remote.mac->mac_len));
-
 		/* Note: If we add any cipher with a blocksize less than 6 we'll need to get more creative with this
 		 * For now, all blocksize sizes are 8+
 		 */
@@ -338,13 +338,11 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		} else {
 			read_len = read(session->socket_fd, block, 1);
 			if (read_len <= 0) {
-				LIBSSH2_FREE(session, block);
 				return 0;
 			}
 			read_len += libssh2_blocking_read(session, block + read_len, blocksize - read_len);
 		}
 		if (read_len < blocksize) {
-			LIBSSH2_FREE(session, block);
 			return (session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) ? 0 : -1;
 		}
 
@@ -354,7 +352,6 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		} else {
 			if (session->remote.crypt->crypt(session, block, &session->remote.crypt_abstract)) {
 				libssh2_error(session, LIBSSH2_ERROR_DECRYPT, "Error decrypting packet preamble", 0);
-				LIBSSH2_FREE(session, block);
 				return -1;
 			}
 		}
@@ -368,7 +365,6 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		if ((payload_len > LIBSSH2_PACKET_MAXPAYLOAD) ||
 			((packet_len + 4) % blocksize)) {
 			/* If something goes horribly wrong during the decryption phase, just bailout and die gracefully */
-			LIBSSH2_FREE(session, block);
 			session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
 			libssh2_error(session, LIBSSH2_ERROR_PROTO, "Fatal protocol error, invalid payload size", 0);
 			return -1;
@@ -381,7 +377,6 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		while ((s - payload) < payload_len) {
 			read_len = libssh2_blocking_read(session, block, blocksize);
 			if (read_len < blocksize) {
-				LIBSSH2_FREE(session, block);
 				LIBSSH2_FREE(session, payload);
 				return -1;
 			}
@@ -391,7 +386,6 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 			} else {
 				if (session->remote.crypt->crypt(session, block, &session->remote.crypt_abstract)) {
 					libssh2_error(session, LIBSSH2_ERROR_DECRYPT, "Error decrypting packet preamble", 0);
-					LIBSSH2_FREE(session, block);
 					LIBSSH2_FREE(session, payload);
 					return -1;
 				}
@@ -403,7 +397,6 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 
 		read_len = libssh2_blocking_read(session, block, session->remote.mac->mac_len);
 		if (read_len < session->remote.mac->mac_len) {
-			LIBSSH2_FREE(session, block);
 			LIBSSH2_FREE(session, payload);
 			return -1;
 		}
@@ -412,12 +405,8 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
  		session->remote.mac->hash(session, block + session->remote.mac->mac_len, session->remote.seqno, tmp, 5, payload, payload_len, &session->remote.mac_abstract);
 
 		macstate =  (strncmp(block, block + session->remote.mac->mac_len, session->remote.mac->mac_len) == 0) ? LIBSSH2_MAC_CONFIRMED : LIBSSH2_MAC_INVALID;
-/* SMG */
-if (macstate == LIBSSH2_MAC_INVALID) libssh2_error(session, -255, "EEEK an error!", 0);
 
 		session->remote.seqno++;
-
-		LIBSSH2_FREE(session, block);
 
 		/* Ignore padding */
 		payload_len -= padding_len;
@@ -451,7 +440,6 @@ if (macstate == LIBSSH2_MAC_INVALID) libssh2_error(session, -255, "EEEK an error
 					payload = LIBSSH2_ALLOC(session, data_len);
 					if (!payload) {
 						libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for copy of uncompressed data", 0);
-						LIBSSH2_FREE(session, block);
 						return -1;
 					}
 					memcpy(payload, data, data_len);
