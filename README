@@ -8,6 +8,8 @@ Version 0.4
 
   Fixed leak in sftp_open_ex(), handle->handle not freed in handle_close().
 
+  Fixed leak in sftp_symlink_ex(), result for READLINK and REALPATH not freed unless there was an error.
+
 Version 0.3
 -----------
 

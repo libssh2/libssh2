@@ -1336,6 +1336,7 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path, in
 		link_len = target_len;
 	}
 	memcpy(target, data + 13, link_len);
+	LIBSSH2_FREE(session, data);
 
 	return link_len;
 }
