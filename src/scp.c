@@ -76,6 +76,8 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, char *pa
 		LIBSSH2_FREE(session, command);
 		return NULL;
 	}
+	/* Use blocking I/O for negotiation phase */
+	libssh2_channel_set_blocking(channel, 1);
 
 	/* Request SCP for the desired file */
 	if (libssh2_channel_process_startup(channel, "exec", sizeof("exec") - 1, command, command_len)) {
@@ -307,7 +309,8 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, char *pa
 		sb->st_size = size;
 		sb->st_mode = mode;
 	}
-	/* Let the data BEGIN! */
+	/* Revert to non-blocking and let the data BEGIN! */
+	libssh2_channel_set_blocking(channel, 0);
 
 	return channel;
 }
@@ -347,6 +350,8 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, char 
 		LIBSSH2_FREE(session, command);
 		return NULL;
 	}
+	/* Use blocking I/O for negotiation phase */
+	libssh2_channel_set_blocking(channel, 1);
 
 	/* Request SCP for the desired file */
 	if (libssh2_channel_process_startup(channel, "exec", sizeof("exec") - 1, command, command_len)) {
@@ -400,7 +405,8 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, char 
 		return NULL;
 	}
 
-	/* Ready to send file */
+	/* Ready to start, switch to non-blocking and let calling app send file */
+	libssh2_channel_set_blocking(channel, 0);
 
 	return channel;
 }

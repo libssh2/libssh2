@@ -6,6 +6,12 @@ Version 0.3
 
   Fixed libssh2_channel_read_ex().  Packet loop initialized BEFORE transport polled for new packets (should have been after).
 
+  Fixed blocking issues in scp_send()/scp_recv().
+
+  Fixed degree of indirection in macerror callback.
+
+  Added channel close callback.
+
 Version 0.2
 -----------
 

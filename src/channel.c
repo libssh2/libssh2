@@ -734,6 +734,10 @@ LIBSSH2_API int libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 		return 0;
 	}
 
+	if (channel->close_cb) {
+		LIBSSH2_CHANNEL_CLOSE(session, channel);
+	}
+
 	packet[0] = SSH_MSG_CHANNEL_CLOSE;
 	libssh2_htonu32(packet + 1, channel->remote.id);
 	if (libssh2_packet_write(session, packet, 5)) {

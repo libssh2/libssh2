@@ -137,6 +137,8 @@
 #define LIBSSH2_PASSWD_CHANGEREQ_FUNC(name)			void name(LIBSSH2_SESSION *session, char **newpw, int *newpw_len, void **abstract)
 #define LIBSSH2_MACERROR_FUNC(name)					int	 name(LIBSSH2_SESSION *session, const char *packet, int packet_len, void **abstract)
 
+#define LIBSSH2_CHANNEL_CLOSE_FUNC(name)			int	 name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, void **abstract)
+
 /* libssh2_session_callback_set() constants */
 #define LIBSSH2_CALLBACK_IGNORE				0
 #define LIBSSH2_CALLBACK_DEBUG				1

@@ -55,7 +55,9 @@
 #define LIBSSH2_DISCONNECT(session, reason, message, message_len, language, language_len)	\
 				session->ssh_msg_disconnect((session), (reason), (message), (message_len), (language), (language_len), &(session)->abstract)
 
-#define LIBSSH2_MACERROR(session, data, datalen)					session->macerror((session), (data), (datalen), (session)->abstract)
+#define LIBSSH2_MACERROR(session, data, datalen)					session->macerror((session), (data), (datalen), &(session)->abstract)
+
+#define LIBSSH2_CHANNEL_CLOSE(session, channel)						channel->close_cb((session), (channel), &(session)->abstract)
 
 typedef struct _LIBSSH2_KEX_METHOD			LIBSSH2_KEX_METHOD;
 typedef struct _LIBSSH2_HOSTKEY_METHOD		LIBSSH2_HOSTKEY_METHOD;
@@ -112,6 +114,8 @@ struct _LIBSSH2_CHANNEL {
 	LIBSSH2_SESSION *session;
 
 	LIBSSH2_CHANNEL *next, *prev;
+
+	LIBSSH2_CHANNEL_CLOSE_FUNC((*close_cb));
 };
 
 struct _LIBSSH2_CHANNEL_BRIGADE {
