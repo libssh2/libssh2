@@ -82,7 +82,7 @@ struct _LIBSSH2_SFTP_ATTRIBUTES {
 	 */
 	unsigned long flags;
 
-	unsigned long long filesize;
+	libssh2_uint64_t filesize;
 	unsigned long uid, gid;
 	unsigned long permissions;
 	unsigned long atime, mtime;

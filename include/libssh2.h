@@ -58,6 +58,14 @@
 #endif
 #endif
 
+#if _MSC_VER < 1300
+typedef unsigned __int64 libssh2_uint64_t;
+typedef __int64 libssh2_int64_t;
+#else
+typedef unsigned long long libssh2_uint64_t;
+typedef long long libssh2_int64_t;
+#endif
+
 #define LIBSSH2_VERSION								"0.4"
 #define LIBSSH2_APINO								200412301450
 

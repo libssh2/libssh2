@@ -100,7 +100,7 @@ struct _LIBSSH2_SFTP_HANDLE {
 
 	union _libssh2_sftp_handle_data {
 		struct _libssh2_sftp_handle_file_data {
-			unsigned long long offset;
+			libssh2_uint64_t offset;
 		} file;
 		struct _libssh2_sftp_handle_dir_data {
 			unsigned long names_left;
