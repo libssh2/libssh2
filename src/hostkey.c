@@ -371,16 +371,16 @@ static int libssh2_hostkey_method_ssh_dss_sign(LIBSSH2_SESSION *session, unsigne
 																		 const unsigned char *buf, unsigned long buf_len, void **abstract)
 {
 	DSA *dsactx = (DSA*)(*abstract);
-	int ret;
+	DSA_SIG *sig;
 	unsigned char hash[SHA_DIGEST_LENGTH];
 	SHA_CTX ctx;
-	char *sig;
-	int sig_len;
+	int r_len, s_len, rs_pad;
 
-	sig_len = DSA_size(dsactx);
-	sig = LIBSSH2_ALLOC(session, sig_len);
+	*signature = LIBSSH2_ALLOC(session, 2 * SHA_DIGEST_LENGTH);
+	*signature_len = 2 * SHA_DIGEST_LENGTH;
+	memset(*signature, 0, 2 * SHA_DIGEST_LENGTH);
 
-	if (!sig) {
+	if (!(*signature)) {
 		return -1;
 	}
 
@@ -388,14 +388,25 @@ static int libssh2_hostkey_method_ssh_dss_sign(LIBSSH2_SESSION *session, unsigne
 	SHA1_Update(&ctx, buf, buf_len);
 	SHA1_Final(hash, &ctx);	
 
-	ret = DSA_sign(NID_sha1, hash, SHA_DIGEST_LENGTH, sig, &sig_len, dsactx);
-	if (!ret) {
-		LIBSSH2_FREE(session, sig);
+	sig = DSA_do_sign(hash, SHA_DIGEST_LENGTH, dsactx);
+	if (!sig) {
+		LIBSSH2_FREE(session, *signature);
 		return -1;
 	}
 
-	*signature = sig;
-	*signature_len = sig_len;
+	r_len = BN_num_bytes(sig->r);
+	s_len = BN_num_bytes(sig->s);
+	rs_pad = (2 * SHA_DIGEST_LENGTH) - (r_len + s_len);
+	if (rs_pad < 0) {
+		DSA_SIG_free(sig);
+		LIBSSH2_FREE(session, *signature);
+		return -1;
+	}
+
+	BN_bn2bin(sig->r, *signature + rs_pad);
+	BN_bn2bin(sig->s, *signature + rs_pad + r_len);
+
+	DSA_SIG_free(sig);
 
 	return 0;
 }
@@ -408,16 +419,16 @@ static int libssh2_hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session, unsign
 																		  unsigned long veccount, const struct iovec datavec[], void **abstract)
 {
 	DSA *dsactx = (DSA*)(*abstract);
-	int ret, i;
+	DSA_SIG *sig;
 	unsigned char hash[SHA_DIGEST_LENGTH];
 	SHA_CTX ctx;
-	char *sig;
-	int sig_len;
+	int r_len, s_len, rs_pad, i;
 
-	sig_len = DSA_size(dsactx);
-	sig = LIBSSH2_ALLOC(session, sig_len);
+	*signature = LIBSSH2_ALLOC(session, 2 * SHA_DIGEST_LENGTH);
+	*signature_len = 2 * SHA_DIGEST_LENGTH;
+	memset(*signature, 0, 2 * SHA_DIGEST_LENGTH);
 
-	if (!sig) {
+	if (!(*signature)) {
 		return -1;
 	}
 
@@ -427,15 +438,25 @@ static int libssh2_hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session, unsign
 	}
 	SHA1_Final(hash, &ctx);	
 
-	ret = DSA_sign(NID_sha1, hash, SHA_DIGEST_LENGTH, sig, &sig_len, dsactx);
-
-	if (!ret) {
-		LIBSSH2_FREE(session, sig);
+	sig = DSA_do_sign(hash, SHA_DIGEST_LENGTH, dsactx);
+	if (!sig) {
+		LIBSSH2_FREE(session, *signature);
 		return -1;
 	}
 
-	*signature = sig;
-	*signature_len = sig_len;
+	r_len = BN_num_bytes(sig->r);
+	s_len = BN_num_bytes(sig->s);
+	rs_pad = (2 * SHA_DIGEST_LENGTH) - (r_len + s_len);
+	if (rs_pad < 0) {
+		DSA_SIG_free(sig);
+		LIBSSH2_FREE(session, *signature);
+		return -1;
+	}
+
+	BN_bn2bin(sig->r, *signature + rs_pad);
+	BN_bn2bin(sig->s, *signature + rs_pad + r_len);
+
+	DSA_SIG_free(sig);
 
 	return 0;
 }
