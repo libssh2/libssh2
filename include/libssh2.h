@@ -43,7 +43,7 @@
 #include <sys/stat.h>
 
 #define LIBSSH2_VERSION								"0.1"
-#define LIBSSH2_APINO								200412080954
+#define LIBSSH2_APINO								200412091007
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER							"SSH-2.0-libssh2_" LIBSSH2_VERSION
@@ -88,6 +88,12 @@
 #define LIBSSH2_DISCONNECT_FUNC(name)				void name(LIBSSH2_SESSION *session, int reason, const char *message, int message_len, const char *language, int language_len, void **abstract)
 #define LIBSSH2_PASSWD_CHANGEREQ_FUNC(name)			void name(LIBSSH2_SESSION *session, char **newpw, int *newpw_len, void **abstract)
 #define LIBSSH2_MACERROR_FUNC(name)					int	 name(LIBSSH2_SESSION *session, const char *packet, int packet_len, void **abstract)
+
+/* libssh2_session_callback_set() constants */
+#define LIBSSH2_CALLBACK_IGNORE				0
+#define LIBSSH2_CALLBACK_DEBUG				1
+#define LIBSSH2_CALLBACK_DISCONNECT			2
+#define LIBSSH2_CALLBACK_MACERROR			3
 
 typedef struct _LIBSSH2_SESSION						LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL						LIBSSH2_CHANNEL;
@@ -153,6 +159,8 @@ typedef struct _LIBSSH2_CHANNEL						LIBSSH2_CHANNEL;
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)), LIBSSH2_FREE_FUNC((*my_free)), LIBSSH2_REALLOC_FUNC((*my_realloc)), void *abstract);
 #define libssh2_session_init()						libssh2_session_init_ex(NULL, NULL, NULL, NULL)
+
+LIBSSH2_API void *libssh2_session_callback_set(LIBSSH2_SESSION *session, int cbtype, void *callback);
 
 LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
 LIBSSH2_API void libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason, char *description, char *lang);

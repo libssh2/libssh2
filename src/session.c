@@ -160,6 +160,41 @@ LIBSSH2_API LIBSSH2_SESSION *libssh2_session_init_ex(
 }
 /* }}} */
 
+/* {{{ libssh2_session_callback_set
+ * Set (or reset) a callback function
+ * Returns the prior address
+ */
+LIBSSH2_API void* libssh2_session_callback_set(LIBSSH2_SESSION *session, int cbtype, void *callback)
+{
+	void *oldcb;
+
+	switch (cbtype) {
+		case LIBSSH2_CALLBACK_IGNORE:
+			oldcb = session->ssh_msg_ignore;
+			session->ssh_msg_ignore = callback;
+			return oldcb;
+			break;
+		case LIBSSH2_CALLBACK_DEBUG:
+			oldcb = session->ssh_msg_debug;
+			session->ssh_msg_debug = callback;
+			return oldcb;
+			break;
+		case LIBSSH2_CALLBACK_DISCONNECT:
+			oldcb = session->ssh_msg_disconnect;
+			session->ssh_msg_disconnect = callback;
+			return oldcb;
+			break;
+		case LIBSSH2_CALLBACK_MACERROR:
+			oldcb = session->macerror;
+			session->macerror = callback;
+			return oldcb;
+			break;
+	}
+
+	return NULL;
+}
+/* }}} */
+
 /* {{{ proto libssh2_session_startup
  * session: LIBSSH2_SESSION struct allocated and owned by the calling program
  * Returns: 0 on success, or non-zero on failure

@@ -20,6 +20,8 @@ Version 0.2
       LIBSSH2_CHANNEL_FLUSH_ALL                Flush all streams
       LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA      Flush all streams EXCEPT the standard data stream
 
+  Added libssh2_session_callback_set() for setting ignore/debug/disconnect/macerror callbacks
+
 Version 0.1
 -----------
 
