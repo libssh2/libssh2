@@ -1,6 +1,13 @@
 libssh2 - SSH2 library
 ======================
 
+Version 0.6
+-----------
+
+  Fixed client to server channel windowing.  Pervent send queue overruns.
+
+  Swapped banner send/receive order (send first, then wait for response).
+
 Version 0.5
 -----------
 
