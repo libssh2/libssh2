@@ -1,5 +1,6 @@
 /*
- * methods.c -- test all available key exchange, hostkey, encryption, mac and compression methods
+ * methods.c -- test all available key exchange, hostkey, encryption, mac
+ * and compression methods
  *
  * Copyright (C) 2005 Bert Vermeulen <bert@biot.com>
  * All rights reserved.
@@ -61,13 +62,13 @@ static char *hostkey_methods[] = {
 };
 
 static char *crypt_methods[] = {
+     "3des-cbc",
      "aes256-cbc",
      "aes192-cbc",
      "aes128-cbc",
      "blowfish-cbc",
      "arcfour",
      "cast128-cbc",
-     "3des-cbc",
      NULL
 };
 
@@ -81,6 +82,7 @@ static char *mac_methods[] = {
 };
 
 static char *compression_methods[] = {
+     "none",
      "zlib",
      NULL
 };
@@ -119,77 +121,68 @@ static void dump_methods(LIBSSH2_SESSION *session)
 static void cycle_methods(void)
 {
      LIBSSH2_SESSION *session;
-     int sock, size, methods_done, i, res;
-     struct methodlist *method;
-     char methodstring[256], *errmsg;
+     int sock, size, res, method_type, method, i;
+     char *errmsg;
 
-     while(1)
+     method_type = 0;
+     method = 0;
+     while(methods[method_type].description)
      {
-	  increase_progress();
-	  sock = new_socket();
-	  if(sock == -1)
+	  while(methods[method_type].list[method])
 	  {
-	       log_line(ERROR, "new_socket() failed");
-	       return;
-	  }
-
-	  session = libssh2_session_init();
-
-	  i = 0;
-	  methodstring[0] = '\0';
-	  while(methods[i].description)
-	  {
-	       method = &methods[i];
-	       strncat(methodstring, method->list[method->cursor], 256);
-	       strncat(methodstring, " ", 256);
-	       res = libssh2_session_method_pref(session, method->method_type, method->list[method->cursor]);
-	       if(res != 0)
+	       increase_progress();
+	       sock = new_socket();
+	       if(sock == -1)
 	       {
-		    libssh2_session_last_error(session, &errmsg, &size, 0);
-		    log_line(ERROR, "%s method set to '%s' failed: %s\n",
-			     method->description, method->list[method->cursor], errmsg);
+		    log_line(ERROR, "new_socket() failed");
 		    return;
 	       }
 
-	       i++;
-	  }
+	       session = libssh2_session_init();
 
-	  res = libssh2_session_startup(session, sock);
-	  if(res == 0)
-	  {
-	       if(libssh2_userauth_password(session, auth.username, auth.password))
+
+
+	       for(i = 0; methods[i].description; i++)
 	       {
-		    log_line(ERROR, "Authentication failed\n");
+		    res = libssh2_session_method_pref(session, methods[i].method_type,
+						      methods[i].list[ i == method_type ? method : 0 ]);
+		    if(res != 0)
+		    {
+			 libssh2_session_last_error(session, &errmsg, &size, 0);
+			 log_line(ERROR, "%s method set to '%s' failed: %s\n",
+				  methods[i].description,
+				  methods[i].list[ i == method_type ? method : 0 ], errmsg);
+			 return;
+		    }
+
+		    i++;
+	       }
+
+	       res = libssh2_session_startup(session, sock);
+	       if(res == 0)
+	       {
+		    if(libssh2_userauth_password(session, auth.username, auth.password))
+		    {
+			 log_line(ERROR, "Authentication failed\n");
+		    }
+		    else
+			 step_successful();
 	       }
 	       else
-		    step_successful();
-	  }
-	  else
-	  {
-	       libssh2_session_last_error(session, &errmsg, &size, 0);
-	       log_line(ERROR, "session startup with methods [ %s] failed: %s\n", methodstring, errmsg);
-	  }
-
-	  libssh2_session_disconnect(session, "All done.");
-	  libssh2_session_free(session);
-	  close(sock);
-
-	  /* increment method cursors */
-	  i = 0;
-	  methods_done = 0;
-	  while( (method = &methods[i++]) && method->description )
-	  {
-	       if(!method->list[++method->cursor])
 	       {
-		    method->done = 1;
-		    method->cursor = 0;
+		    libssh2_session_last_error(session, &errmsg, &size, 0);
+		    log_line(ERROR, "session startup for %s method %s failed: %s\n",
+			     methods[method_type].description, methods[method_type].list[method], errmsg);
 	       }
 
-	       methods_done += method->done;
-	  }
-	  if(--i == methods_done)
-	       break;
+	       libssh2_session_disconnect(session, "All done.");
+	       libssh2_session_free(session);
+	       close(sock);
 
+	       method++;
+	  }
+	  method_type++;
+	  method = 1;
      }
      printf("\n");
 
@@ -198,20 +191,18 @@ static void cycle_methods(void)
 
 void runtest_methods(void)
 {
-     struct methodlist *method;
-     int i, j, max;
+     int i, j, num_steps;
 
-     max = 0;
+     num_steps = 0;
      for(i = 0; methods[i].description; i++)
      {
-	  method = &methods[i];
-	  for(j = 0; method->list[j]; j++)
+	  for(j = 0; methods[i].list[j]; j++)
 	       ;
-	  if(j > max)
-	       max = j;
+	  num_steps += j - 1;
      }
+     num_steps++;
 
-     init_test("kex/hostkey/crypt/max/compression methods", max);
+     init_test("kex/hostkey/crypt/max/compression methods", num_steps);
 
      cycle_methods();
 

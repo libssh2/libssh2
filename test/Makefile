@@ -9,11 +9,11 @@ libssh2-test: $(OBJS)
 	$(CC) -o libssh2-test $(OBJS) $(LIBS)
 
 
-main.o: main.c libssh2.h
-util.o: util.c libssh2.h
-methods.o: methods.c libssh2.h
-auth.o: auth.c libssh2.h
-forward.o: forward.c libssh2.h
+main.o: main.c libssh2-test.h
+util.o: util.c libssh2-test.h
+methods.o: methods.c libssh2-test.h
+auth.o: auth.c libssh2-test.h
+forward.o: forward.c libssh2-test.h
 
 clean:
 	rm -f $(OBJS) libssh2-test
