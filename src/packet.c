@@ -40,6 +40,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <openssl/evp.h>
+#include <openssl/rand.h>
 
 /* {{{ libssh2_packet_new
  * Create a new packet and attach it to the brigade
@@ -627,7 +628,7 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 		/* Copy packet to encoding buffer */
 		memcpy(encbuf, buf, 5);
 		memcpy(encbuf + 5, data, data_len);
-		memcpy(encbuf + 5 + data_len, buf + 5, padding_length);
+		RAND_bytes(encbuf + 5 + data_len, padding_length);
 		if (free_data) {
 			LIBSSH2_FREE(session, data);
 		}

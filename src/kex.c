@@ -39,6 +39,7 @@
 #include <openssl/bn.h>
 #include <openssl/sha.h>
 #include <openssl/evp.h>
+#include <openssl/rand.h>
 
 /* TODO: Switch this to an inline and handle alloc() failures */
 /* Helper macro called from libssh2_kex_method_diffie_hellman_group1_sha1_key_exchange */
@@ -720,8 +721,7 @@ static int libssh2_kexinit(LIBSSH2_SESSION *session)
 
 	*(s++) = SSH_MSG_KEXINIT;
 
-	/* TODO: Build a better cookie (and the mice will beat a path to my door...) */
-	memcpy(s, "mysecretMYSECRET", 16);
+	RAND_bytes(s, 16);
 	s += 16;
 
 	/* Ennumerating through these lists twice is probably (certainly?) inefficient from a CPU standpoint, but it saves multiple malloc/realloc calls */

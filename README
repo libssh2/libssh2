@@ -4,6 +4,8 @@ libssh2 - SSH2 library
 Version 0.5
 -----------
 
+  Fixed KEX_INIT cookie and packet padding to use actual random data
+
   Added DESTDIR support to makefiles (Adam Go³êbiowski -- I hope that character set translates right)
 
 Version 0.4
