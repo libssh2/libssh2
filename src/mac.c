@@ -54,6 +54,7 @@ static int libssh2_mac_none_MAC(LIBSSH2_SESSION *session, unsigned char *buf, un
 static LIBSSH2_MAC_METHOD libssh2_mac_method_none = {
 	"none",
 	0,
+	0,
 	NULL,
 	libssh2_mac_none_MAC,
 	NULL
@@ -98,7 +99,7 @@ static int libssh2_mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session, unsigned 
 
 	libssh2_htonu32(seqno_buf, seqno);
 
-	HMAC_Init(&ctx, *abstract, session->kex->key_len, EVP_sha1());
+	HMAC_Init(&ctx, *abstract, 20, EVP_sha1());
 	HMAC_Update(&ctx, seqno_buf, 4);
 	HMAC_Update(&ctx, packet, packet_len);
 	if (addtl && addtl_len) {
@@ -113,7 +114,8 @@ static int libssh2_mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session, unsigned 
 
 static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_sha1 = {
 	"hmac-sha1",
-	SHA_DIGEST_LENGTH,
+	20,
+	20,
 	libssh2_mac_method_common_init,
 	libssh2_mac_method_hmac_sha1_hash,
 	libssh2_mac_method_common_dtor,
@@ -137,13 +139,13 @@ static int libssh2_mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION *session, unsign
 
 static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_sha1_96 = {
 	"hmac-sha1-96",
-	96 / 8,
+	12,
+	20,
 	libssh2_mac_method_common_init,
 	libssh2_mac_method_hmac_sha1_96_hash,
 	libssh2_mac_method_common_dtor,
 };
 
-#ifdef WHY_DOESNT_MD5_WORK
 /* {{{ libssh2_mac_method_hmac_md5_hash
  * Calculate hash using full md5 value
  */
@@ -156,7 +158,7 @@ static int libssh2_mac_method_hmac_md5_hash(LIBSSH2_SESSION *session, unsigned c
 
 	libssh2_htonu32(seqno_buf, seqno);
 
-	HMAC_Init(&ctx, *abstract, session->kex->key_len, EVP_md5());
+	HMAC_Init(&ctx, *abstract, 16, EVP_md5());
 	HMAC_Update(&ctx, seqno_buf, 4);
 	HMAC_Update(&ctx, packet, packet_len);
 	if (addtl && addtl_len) {
@@ -171,7 +173,8 @@ static int libssh2_mac_method_hmac_md5_hash(LIBSSH2_SESSION *session, unsigned c
 
 static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_md5 = {
 	"hmac-md5",
-	MD5_DIGEST_LENGTH,
+	16,
+	16,
 	libssh2_mac_method_common_init,
 	libssh2_mac_method_hmac_md5_hash,
 	libssh2_mac_method_common_dtor,
@@ -180,8 +183,8 @@ static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_md5 = {
 /* {{{ libssh2_mac_method_hmac_md5_96_hash
  * Calculate hash using first 96 bits of md5 value
  */
-static int libssh2_mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session, unsigned char *buf, unsigned seqno,
-																		 const unsigned char *packet, unsigned packet_len,
+static int libssh2_mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session, unsigned char *buf, unsigned long seqno,
+																		 const unsigned char *packet, unsigned long packet_len,
 																		 const unsigned char *addtl, unsigned long addtl_len, void **abstract)
 {
 	char temp[MD5_DIGEST_LENGTH];
@@ -195,12 +198,12 @@ static int libssh2_mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session, unsigne
 
 static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_md5_96 = {
 	"hmac-md5-96",
-	96 / 8,
+	12,
+	16,
 	libssh2_mac_method_common_init,
 	libssh2_mac_method_hmac_md5_96_hash,
 	libssh2_mac_method_common_dtor,
 };
-#endif /* WHY_DOESNT_MD5_WORK */
 
 #ifndef OPENSSL_NO_RIPEMD
 /* {{{ libssh2_mac_method_hmac_ripemd160_hash
@@ -215,7 +218,7 @@ static int libssh2_mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session, unsi
 
 	libssh2_htonu32(seqno_buf, seqno);
 
-	HMAC_Init(&ctx, *abstract, session->kex->key_len, EVP_ripemd160());
+	HMAC_Init(&ctx, *abstract, 20, EVP_ripemd160());
 	HMAC_Update(&ctx, seqno_buf, 4);
 	HMAC_Update(&ctx, packet, packet_len);
 	if (addtl && addtl_len) {
@@ -230,7 +233,8 @@ static int libssh2_mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session, unsi
 
 static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160 = {
 	"hmac-ripemd160",
-	160 / 8,
+	20,
+	20,
 	libssh2_mac_method_common_init,
 	libssh2_mac_method_hmac_ripemd160_hash,
 	libssh2_mac_method_common_dtor,
@@ -238,7 +242,8 @@ static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160 = {
 
 static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160_openssh_com = {
 	"hmac-ripemd160@openssh.com",
-	160 / 8,
+	20,
+	20,
 	libssh2_mac_method_common_init,
 	libssh2_mac_method_hmac_ripemd160_hash,
 	libssh2_mac_method_common_dtor,
@@ -248,10 +253,8 @@ static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160_openssh_com = {
 static LIBSSH2_MAC_METHOD *_libssh2_mac_methods[] = {
 	&libssh2_mac_method_hmac_sha1,
 	&libssh2_mac_method_hmac_sha1_96,
-#ifdef WHY_DOESNT_MD5_WORK
 	&libssh2_mac_method_hmac_md5,
 	&libssh2_mac_method_hmac_md5_96,
-#endif /* WHY_DOESNT_MD5_WORK */
 #ifndef OPENSSL_NO_RIPEMD
 	&libssh2_mac_method_hmac_ripemd160,
 	&libssh2_mac_method_hmac_ripemd160_openssh_com,

@@ -234,9 +234,6 @@ struct _LIBSSH2_SESSION {
 struct _LIBSSH2_KEX_METHOD {
 	char *name;
 
-	/* integrity key length */
-	unsigned long key_len;
-
 	/* Key exchange, populates session->* and returns 0 on success, non-0 on error */
 	int (*exchange_keys)(LIBSSH2_SESSION *session);
 
@@ -292,6 +289,9 @@ struct _LIBSSH2_MAC_METHOD {
 
 	/* The length of a given MAC packet */
 	int mac_len;
+
+	/* integrity key length */
+	int key_len;
 
 	/* Message Authentication Code Hashing algo */
 	int (*init)(LIBSSH2_SESSION *session, unsigned char *key, int *free_key, void **abstract);

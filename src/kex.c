@@ -385,11 +385,11 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		unsigned char *key = NULL;
 		int free_key = 0;
 
-		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(key, session->kex->key_len, "E");
+		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(key, session->local.mac->key_len, "E");
 		session->local.mac->init(session, key, &free_key, &session->local.mac_abstract);
 
 		if (free_key) {
-			memset(key, 0, session->kex->key_len);
+			memset(key, 0, session->local.mac->key_len);
 			LIBSSH2_FREE(session, key);
 		}
 	}
@@ -402,11 +402,11 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		unsigned char *key = NULL;
 		int free_key = 0;
 
-		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(key, session->kex->key_len, "F");
+		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(key, session->remote.mac->key_len, "F");
 		session->remote.mac->init(session, key, &free_key, &session->remote.mac_abstract);
 
 		if (free_key) {
-			memset(key, 0, session->kex->key_len);
+			memset(key, 0, session->remote.mac->key_len);
 			LIBSSH2_FREE(session, key);
 		}
 	}
@@ -596,21 +596,18 @@ static int libssh2_kex_method_diffie_hellman_group_exchange_sha1_key_exchange(LI
 
 LIBSSH2_KEX_METHOD libssh2_kex_method_diffie_helman_group1_sha1 = {
 	"diffie-hellman-group1-sha1",
-	SHA_DIGEST_LENGTH,
 	libssh2_kex_method_diffie_hellman_group1_sha1_key_exchange,
 	LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 LIBSSH2_KEX_METHOD libssh2_kex_method_diffie_helman_group14_sha1 = {
 	"diffie-hellman-group14-sha1",
-	SHA_DIGEST_LENGTH,
 	libssh2_kex_method_diffie_hellman_group14_sha1_key_exchange,
 	LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 LIBSSH2_KEX_METHOD libssh2_kex_method_diffie_helman_group_exchange_sha1 = {
 	"diffie-hellman-group-exchange-sha1",
-	SHA_DIGEST_LENGTH,
 	libssh2_kex_method_diffie_hellman_group_exchange_sha1_key_exchange,
 	LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
