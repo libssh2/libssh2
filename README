@@ -28,6 +28,7 @@ Version 0.2
 
   Added libssh2_session_abstract() for retreiving &session->abstract
 
+  Added libssh2_session_last_error() for retreiving error codes/messages
 
 Version 0.1
 -----------

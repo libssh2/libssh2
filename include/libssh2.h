@@ -43,7 +43,7 @@
 #include <sys/stat.h>
 
 #define LIBSSH2_VERSION								"0.1"
-#define LIBSSH2_APINO								200412091526
+#define LIBSSH2_APINO								200412161442
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER							"SSH-2.0-libssh2_" LIBSSH2_VERSION
@@ -233,6 +233,8 @@ LIBSSH2_API void libssh2_session_methods(LIBSSH2_SESSION *session,	char **kex,		
 																	char **mac_cs,			char **mac_sc,
 																	char **comp_cs,			char **comp_sc,
 																	char **lang_cs,			char **lang_sc);
+
+LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errmsg, int *errmsg_len, int want_buf);
 
 /* Userauth API */
 LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, char *username, int username_len);

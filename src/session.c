@@ -493,3 +493,58 @@ LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session)
 	return &session->abstract;
 }
 /* }}} */
+
+/* {{{ libssh2_session_last_error
+ * Returns error code and populates an error string into errmsg
+ * If want_buf is non-zero then the string placed into errmsg must be freed by the calling program
+ * Otherwise it is assumed to be owned by libssh2
+ */
+LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errmsg, int *errmsg_len, int want_buf)
+{
+	/* No error to report */
+	if (!session->err_code) {
+		if (errmsg) {
+			if (want_buf) {
+				*errmsg = LIBSSH2_ALLOC(session, 1);
+				if (*errmsg) {
+					**errmsg = 0;
+				}
+			} else {
+				*errmsg = "";
+			}
+		}
+		if (errmsg_len) {
+			*errmsg_len = 0;
+		}
+		return 0;
+	}
+
+	if (errmsg) {
+		char *serrmsg = session->err_msg ? session->err_msg : "";
+		int ownbuf = session->err_msg ? session->err_should_free : 0;
+
+		if (want_buf) {
+			if (ownbuf) {
+				/* Just give the calling program the buffer */
+				*errmsg = serrmsg;
+				session->err_should_free = 0;
+			} else {
+				/* Make a copy so the calling program can own it */
+				*errmsg = LIBSSH2_ALLOC(session, session->err_msglen + 1);
+				if (*errmsg) {
+					memcpy(*errmsg, session->err_msg, session->err_msglen);
+					(*errmsg)[session->err_msglen] = 0;
+				}
+			}
+		} else {
+			*errmsg = serrmsg;
+		}
+	}
+
+	if (errmsg_len) {
+		*errmsg_len = session->err_msglen;
+	}
+
+	return session->err_code;
+}
+/* }}} */
