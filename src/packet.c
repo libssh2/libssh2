@@ -153,6 +153,24 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 					LIBSSH2_FREE(session, data);
 					return 0;
 				}
+				if (channel->remote.ignore_extended_data && (data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
+					/* Pretend we didn't receive this */
+					LIBSSH2_FREE(session, data);
+
+					if (channel->remote.window_size_initial) {
+						/* Adjust the window based on the block we just freed */
+						unsigned char adjust[9];
+
+						adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
+						libssh2_htonu32(adjust + 1, channel->remote.id);
+						libssh2_htonu32(adjust + 5, datalen - 13);
+
+						if (libssh2_packet_write(channel->session, adjust, 9)) {
+							libssh2_error(channel->session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send transfer-window adjustment packet", 0);
+						}
+					}
+					return 0;
+				}
 
 				/* REMEMBER! remote means remote as source of data, NOT remote window! */
 				if (channel->remote.packet_size < (datalen - data_head)) {

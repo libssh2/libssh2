@@ -434,6 +434,56 @@ LIBSSH2_API void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int bloc
 }
 /* }}} */
 
+/* {{{ libssh2_channel_ignore_extended_data
+ * Ignore (or stop ignoring) extended data
+ */
+LIBSSH2_API void libssh2_channel_ignore_extended_data(LIBSSH2_CHANNEL *channel, int ignore)
+{
+	channel->remote.ignore_extended_data = ignore;
+
+	if (ignore) {
+		/* Flush queued extended data */
+		LIBSSH2_PACKET *packet = channel->session->packets.head;
+		unsigned long refund_bytes = 0;
+
+		while (packet) {
+			LIBSSH2_PACKET *next = packet->next;
+
+			if ((packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (libssh2_ntohu32(packet->data + 1) == channel->local.id)) {
+				refund_bytes += packet->data_len - 13;
+				LIBSSH2_FREE(channel->session, packet->data);
+				if (packet->prev) {
+					packet->prev->next = packet->next;
+				} else {
+					channel->session->packets.head = packet->next;
+				}
+				if (packet->next) {
+					packet->next->prev = packet->prev;
+				} else {
+					channel->session->packets.tail = packet->prev;
+				}
+				LIBSSH2_FREE(channel->session, packet);
+			}
+			packet = next;
+		}
+		if (refund_bytes && channel->remote.window_size_initial) {
+			unsigned char adjust[9]; /* packet_type(1) + channel(4) + adjustment(4) */
+
+			/* Adjust the window based on the block we just freed */
+			adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
+			libssh2_htonu32(adjust + 1, channel->remote.id);
+			libssh2_htonu32(adjust + 5, refund_bytes);
+
+			if (libssh2_packet_write(channel->session, adjust, 9)) {
+				libssh2_error(channel->session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send transfer-window adjustment packet", 0);
+			} else {
+				channel->remote.window_size += refund_bytes;
+			}
+		}
+	}
+}
+/* }}} */
+
 /* {{{ libssh2_channel_read_ex
  * Read data from a channel
  */
@@ -481,16 +531,18 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 					}
 					LIBSSH2_FREE(session, packet->data);
 
-					/* Adjust the window based on the block we just freed */
-					adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
-					libssh2_htonu32(adjust + 1, channel->remote.id);
-					libssh2_htonu32(adjust + 5, packet->data_len - (stream_id ? 13 : 9));
+					if (channel->remote.window_size_initial) {
+						/* Adjust the window based on the block we just freed */
+						adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
+						libssh2_htonu32(adjust + 1, channel->remote.id);
+						libssh2_htonu32(adjust + 5, packet->data_len - (stream_id ? 13 : 9));
 
-					if (libssh2_packet_write(session, adjust, 9)) {
-						libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send transfer-window adjustment packet", 0);
+						if (libssh2_packet_write(session, adjust, 9)) {
+							libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send transfer-window adjustment packet", 0);
+						}
+
+						LIBSSH2_FREE(session, packet);
 					}
-
-					LIBSSH2_FREE(session, packet);
 				}
 			}
 			packet = next;
