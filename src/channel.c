@@ -577,6 +577,8 @@ LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *t
 }
 /* }}} */
 
+/* Keep this an even number */
+#define LIBSSH2_X11_RANDOM_COOKIE_LEN		32
 /* {{{ libssh2_channel_x11_req_ex
  * Request X11 forwarding
  */
@@ -585,7 +587,7 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_
 	LIBSSH2_SESSION *session = channel->session;
 	unsigned char *s, *packet;
 	unsigned long proto_len = auth_proto ? strlen(auth_proto) : (sizeof("MIT-MAGIC-COOKIE-1") - 1);
-	unsigned long cookie_len = auth_cookie ? strlen(auth_cookie) : 32;
+	unsigned long cookie_len = auth_cookie ? strlen(auth_cookie) : LIBSSH2_X11_RANDOM_COOKIE_LEN;
 	unsigned long packet_len = proto_len + cookie_len + 41; /*  packet_type(1) + channel(4) + x11_req_len(4) + "x11-req"(7) + want_reply(1) + 
 																single_cnx(4) + proto_len(4) + cookie_len(4) + screen_num(4) */
 
@@ -611,7 +613,13 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_
 	if (auth_cookie) {
 		memcpy(s, auth_cookie, cookie_len);
 	} else {
-		RAND_bytes(s, cookie_len);
+		int i;
+		char buffer[LIBSSH2_X11_RANDOM_COOKIE_LEN / 2];
+
+		RAND_bytes(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
+		for (i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++) {
+			snprintf(s + (i * 2), 2, "%02X", buffer[i]);
+		}
 	}
 	s += cookie_len;
 
