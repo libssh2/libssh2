@@ -121,7 +121,7 @@ static void dump_methods(LIBSSH2_SESSION *session)
 static void cycle_methods(void)
 {
      LIBSSH2_SESSION *session;
-     int sock, size, res, method_type, method, i;
+     int sock, size, res, method_type, method, i, methods_set;
      char *errmsg;
 
      method_type = 0;
@@ -140,8 +140,7 @@ static void cycle_methods(void)
 
 	       session = libssh2_session_init();
 
-
-
+	       methods_set = 1;
 	       for(i = 0; methods[i].description; i++)
 	       {
 		    res = libssh2_session_method_pref(session, methods[i].method_type,
@@ -152,27 +151,32 @@ static void cycle_methods(void)
 			 log_line(ERROR, "%s method set to '%s' failed: %s\n",
 				  methods[i].description,
 				  methods[i].list[ i == method_type ? method : 0 ], errmsg);
-			 return;
+
+			 methods_set = 0;
+			 break;
 		    }
 
 		    i++;
 	       }
 
-	       res = libssh2_session_startup(session, sock);
-	       if(res == 0)
+	       if(methods_set)
 	       {
-		    if(libssh2_userauth_password(session, auth.username, auth.password))
+		    res = libssh2_session_startup(session, sock);
+		    if(res == 0)
 		    {
-			 log_line(ERROR, "Authentication failed\n");
+			 if(libssh2_userauth_password(session, auth.username, auth.password))
+			 {
+			      log_line(ERROR, "Authentication failed\n");
+			 }
+			 else
+			      step_successful();
 		    }
 		    else
-			 step_successful();
-	       }
-	       else
-	       {
-		    libssh2_session_last_error(session, &errmsg, &size, 0);
-		    log_line(ERROR, "session startup for %s method %s failed: %s\n",
-			     methods[method_type].description, methods[method_type].list[method], errmsg);
+		    {
+			 libssh2_session_last_error(session, &errmsg, &size, 0);
+			 log_line(ERROR, "Session startup for %s method %s failed: %s\n",
+				  methods[method_type].description, methods[method_type].list[method], errmsg);
+		    }
 	       }
 
 	       libssh2_session_disconnect(session, "All done.");
@@ -202,7 +206,7 @@ void runtest_methods(void)
      }
      num_steps++;
 
-     init_test("kex/hostkey/crypt/max/compression methods", num_steps);
+     init_test("kex/hostkey/crypt/mac/compression methods", num_steps);
 
      cycle_methods();
 
