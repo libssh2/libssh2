@@ -128,6 +128,37 @@ static int libssh2_banner_send(LIBSSH2_SESSION *session)
 }
 /* }}} */
 
+/* {{{ libssh2_banner_set
+ * Set the local banner
+ */
+LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION *session, char *banner)
+{
+	int banner_len = banner ? strlen(banner) : 0;
+
+	if (session->local.banner) {
+		LIBSSH2_FREE(session, session->local.banner);
+		session->local.banner = NULL;
+	}
+
+	if (!banner_len) {
+		return 0;
+	}
+
+	session->local.banner = LIBSSH2_ALLOC(session, banner_len + 3);
+	if (!session->local.banner) {
+		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for local banner", 0);
+		return -1;
+	}
+
+	memcpy(session->local.banner, banner, banner_len);
+	session->local.banner[banner_len++] = '\r';
+	session->local.banner[banner_len++] = '\n';
+	session->local.banner[banner_len++] = '\0';
+
+	return 0;
+}
+/* }}} */
+
 /* {{{ proto libssh2_session_init
  * Allocate and initialize a libssh2 session structure
  * Allows for malloc callbacks in case the calling program has its own memory manager
@@ -390,10 +421,6 @@ LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session)
 		/* free */
 		LIBSSH2_FREE(session, tmp->data);
 		LIBSSH2_FREE(session, tmp);
-	}
-
-	if (session->local.banner) {
-		LIBSSH2_FREE(session, session->local.banner);
 	}
 
 	LIBSSH2_FREE(session, session);

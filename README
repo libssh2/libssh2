@@ -10,6 +10,8 @@ Version 0.4
 
   Fixed leak in sftp_symlink_ex(), result for READLINK and REALPATH not freed unless there was an error.
 
+  Added libssh2_banner_set(), specify an arbitrary banner to send on introduction.
+
 Version 0.3
 -----------
 
