@@ -1,4 +1,4 @@
-/* Copyright (c) 2004, Sara Golemon <sarag@users.sourceforge.net>
+/* Copyright (c) 2004, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
