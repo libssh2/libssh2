@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WIN32" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "include" /I "win32" /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WIN32" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\win32" /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WIN32" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -64,7 +64,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WIN32" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "include" /I "win32" /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WIN32" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\win32" /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WIN32" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -72,7 +72,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo
+# ADD LIB32 /nologo /out:"Debug\libssh2d.lib"
 
 !ENDIF 
 
@@ -85,51 +85,51 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\src\channel.c
+SOURCE=..\src\channel.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\comp.c
+SOURCE=..\src\comp.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\crypt.c
+SOURCE=..\src\crypt.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\hostkey.c
+SOURCE=..\src\hostkey.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\kex.c
+SOURCE=..\src\kex.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\mac.c
+SOURCE=..\src\mac.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\misc.c
+SOURCE=..\src\misc.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\packet.c
+SOURCE=..\src\packet.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\scp.c
+SOURCE=..\src\scp.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\session.c
+SOURCE=..\src\session.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\sftp.c
+SOURCE=..\src\sftp.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\userauth.c
+SOURCE=..\src\userauth.c
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -137,19 +137,19 @@ SOURCE=.\src\userauth.c
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\include\libssh2.h
+SOURCE=..\include\libssh2.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\win32\libssh2_config.h
+SOURCE=.\libssh2_config.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\libssh2_priv.h
+SOURCE=..\include\libssh2_priv.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\include\libssh2_sftp.h
+SOURCE=..\include\libssh2_sftp.h
 # End Source File
 # End Group
 # End Target
