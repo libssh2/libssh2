@@ -7,6 +7,8 @@ Version 0.5
   *** BC Break ***
   Reimplemented libssh2_session_methods() to match libssh2_session_method_pref() style
 
+  Fixed libssh2_attr2bin() (effects any setstat style call).
+
   Fixed authenticating with encrypted private key.
 
   Fixed authenticating via ssh-dss public key.

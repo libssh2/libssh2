@@ -318,13 +318,16 @@ static int libssh2_sftp_attrsize(LIBSSH2_SFTP_ATTRIBUTES *attrs)
 static int libssh2_sftp_attr2bin(unsigned char *p, LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
 	unsigned char *s = p;
+	unsigned long flag_mask = LIBSSH2_SFTP_ATTR_SIZE | LIBSSH2_SFTP_ATTR_UIDGID | LIBSSH2_SFTP_ATTR_PERMISSIONS | LIBSSH2_SFTP_ATTR_ACMODTIME;
+
+	/* TODO: When we add SFTP4+ functionality flag_mask can get additional bits */
 
 	if (!attrs) {
 		libssh2_htonu32(s, 0);
 		return 4;
 	}
 
-	libssh2_htonu32(s, attrs->flags & 0x0000000);				s += 4;
+	libssh2_htonu32(s, attrs->flags & flag_mask);				s += 4;
 
 	if (attrs->flags & LIBSSH2_SFTP_ATTR_SIZE) {
 		libssh2_htonu64(s, attrs->filesize);					s += 8;
