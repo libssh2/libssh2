@@ -81,7 +81,7 @@ static int libssh2_banner_receive(LIBSSH2_SESSION *session)
 		char c = '\0';
 		int ret;
 
-		ret = recv(session->socket_fd, &c, 1, 0);
+		ret = recv(session->socket_fd, &c, 1, LIBSSH2_SOCKET_RECV_FLAGS(session));
 
 		if ((ret < 0) && (ret != EAGAIN)) {
 			/* Some kinda error, but don't break for non-blocking issues */
@@ -126,7 +126,7 @@ static int libssh2_banner_send(LIBSSH2_SESSION *session)
 		banner = session->local.banner;
 	}
 
-	return (send(session->socket_fd, banner, banner_len, 0) == banner_len) ? 0 : 1;
+	return (send(session->socket_fd, banner, banner_len, LIBSSH2_SOCKET_SEND_FLAGS(session)) == banner_len) ? 0 : 1;
 }
 /* }}} */
 
@@ -598,5 +598,21 @@ LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errm
 	}
 
 	return session->err_code;
+}
+/* }}} */
+
+/* {{{ libssh2_session_flag
+ * Set/Get session flags
+ * Passing flag==0 will avoid changing session->flags while still returning its current value
+ */
+LIBSSH2_API int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int value)
+{
+	if (value) {
+		session->flags |= flag;
+	} else {
+		session->flags &= ~flag;
+	}
+
+	return session->flags;
 }
 /* }}} */

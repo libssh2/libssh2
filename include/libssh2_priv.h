@@ -181,6 +181,7 @@ struct _LIBSSH2_SESSION {
 	char *hostkey_prefs;
 
 	int state;
+	int flags;
 
 	/* Agreed Key Exchange Method */
 	LIBSSH2_KEX_METHOD *kex;
@@ -235,6 +236,16 @@ struct _LIBSSH2_SESSION {
 #define LIBSSH2_STATE_EXCHANGING_KEYS	0x00000001
 #define LIBSSH2_STATE_NEWKEYS			0x00000002
 #define LIBSSH2_STATE_AUTHENTICATED		0x00000004
+
+/* session.flag helpers */
+#ifdef MSG_NOSIGNAL
+#define LIBSSH2_SOCKET_SEND_FLAGS(session)		(((session)->flags & LIBSSH2_FLAG_SIGPIPE) ? 0 : MSG_NOSIGNAL)
+#define LIBSSH2_SOCKET_RECV_FLAGS(session)		(((session)->flags & LIBSSH2_FLAG_SIGPIPE) ? 0 : MSG_NOSIGNAL)
+#else
+/* If MSG_NOSIGNAL isn't defined we're SOL on blocking SIGPIPE */
+#define LIBSSH2_SOCKET_SEND_FLAGS(session)		0
+#define LIBSSH2_SOCKET_RECV_FLAGS(session)		0
+#endif
 
 /* libssh2 extensible ssh api, ultimately I'd like to allow loading additional methods via .so/.dll */
 

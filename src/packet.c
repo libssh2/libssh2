@@ -534,7 +534,7 @@ static int libssh2_blocking_read(LIBSSH2_SESSION *session, unsigned char *buf, s
 	while (bytes_read < count) {
 		int ret;
 
-		ret = recv(session->socket_fd, buf + bytes_read, count - bytes_read, 0);
+		ret = recv(session->socket_fd, buf + bytes_read, count - bytes_read, LIBSSH2_SOCKET_RECV_FLAGS(session));
 		if (ret < 0) {
 #ifdef WIN32
 			switch (WSAGetLastError()) {
@@ -611,7 +611,7 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		if (should_block) {
 			read_len = libssh2_blocking_read(session, block, blocksize);
 		} else {
-			read_len = recv(session->socket_fd, block, 1, 0);
+			read_len = recv(session->socket_fd, block, 1, LIBSSH2_SOCKET_RECV_FLAGS(session));
 			if (read_len <= 0) {
 				return 0;
 			}
@@ -736,7 +736,7 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		if (should_block) {
 			buf_len = libssh2_blocking_read(session, buf, 5);
 		} else {
-			buf_len = recv(session->socket_fd, buf, 1, 0);
+			buf_len = recv(session->socket_fd, buf, 1, LIBSSH2_SOCKET_RECV_FLAGS(session));
 			if (buf_len <= 0) {
 				return 0;
 			}
@@ -936,7 +936,7 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 		session->local.seqno++;
 
 		/* Send It */
-		ret = ((4 + packet_length + session->local.mac->mac_len) == send(session->socket_fd, encbuf, 4 + packet_length + session->local.mac->mac_len, 0)) ? 0 : -1;
+		ret = ((4 + packet_length + session->local.mac->mac_len) == send(session->socket_fd, encbuf, 4 + packet_length + session->local.mac->mac_len, LIBSSH2_SOCKET_SEND_FLAGS(session))) ? 0 : -1;
 
 		/* Cleanup environment */
 		LIBSSH2_FREE(session, encbuf);

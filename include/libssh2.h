@@ -67,7 +67,7 @@ typedef long long libssh2_int64_t;
 #endif
 
 #define LIBSSH2_VERSION								"0.5"
-#define LIBSSH2_APINO								200412301450
+#define LIBSSH2_APINO								200502022145
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER							"SSH-2.0-libssh2_" LIBSSH2_VERSION
@@ -180,6 +180,9 @@ typedef long long libssh2_int64_t;
 #define LIBSSH2_METHOD_LANG_CS		8
 #define LIBSSH2_METHOD_LANG_SC		9
 
+/* session.flags bits */
+#define LIBSSH2_FLAG_SIGPIPE		0x00000001
+
 typedef struct _LIBSSH2_SESSION						LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL						LIBSSH2_CHANNEL;
 typedef struct _LIBSSH2_LISTENER					LIBSSH2_LISTENER;
@@ -258,6 +261,8 @@ LIBSSH2_API char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_type);
 LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type, char *prefs);
 LIBSSH2_API char *libssh2_session_methods(LIBSSH2_SESSION *session, int method_type);
 LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errmsg, int *errmsg_len, int want_buf);
+
+LIBSSH2_API int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int value);
 
 /* Userauth API */
 LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, char *username, int username_len);
