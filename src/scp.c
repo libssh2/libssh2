@@ -347,6 +347,7 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, char 
 
 	/* Allocate a channel */
 	if ((channel = libssh2_channel_open_session(session)) == NULL) {
+	        /* previous call set libssh2_session_last_error(), pass it through */
 		LIBSSH2_FREE(session, command);
 		return NULL;
 	}
@@ -355,6 +356,7 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, char 
 
 	/* Request SCP for the desired file */
 	if (libssh2_channel_process_startup(channel, "exec", sizeof("exec") - 1, command, command_len)) {
+	        /* previous call set libssh2_session_last_error(), pass it through */
 		LIBSSH2_FREE(session, command);
 		libssh2_channel_free(channel);
 		return NULL;
