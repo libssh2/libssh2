@@ -827,7 +827,7 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 			 * or the standard stream (and data was available),
 			 * or the standard stream with extended_data_merge enabled and data was available
 			 */
-			if ((stream_id  && (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (channel->local.id == libssh2_ntohu32(packet->data + 1) && (stream_id == libssh2_ntohu32(packet->data + 5))) ||
+			if ((stream_id  && (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (channel->local.id == libssh2_ntohu32(packet->data + 1)) && (stream_id == libssh2_ntohu32(packet->data + 5))) ||
 				(!stream_id && (packet->data[0] == SSH_MSG_CHANNEL_DATA) && (channel->local.id == libssh2_ntohu32(packet->data + 1))) ||
 				(!stream_id && (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (channel->local.id == libssh2_ntohu32(packet->data + 1)) && (channel->remote.extended_data_ignore_mode == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
 				int want = buflen - bytes_read;
@@ -864,6 +864,9 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 
 					if (libssh2_packet_write(session, adjust, 9)) {
 						libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send transfer-window adjustment packet", 0);
+					} else {
+						/* Don't forget to acknowledge the adjust on this end */
+						channel->remote.window_size += (packet->data_len - (stream_id ? 13 : 9));
 					}
 
 					LIBSSH2_FREE(session, packet);

@@ -1,6 +1,16 @@
 libssh2 - SSH2 library
 ======================
 
+Version 0.7
+-----------
+
+  Fixed extended data identification in libssh2_channel_read().
+
+  Fixed window adjust code.  Hadn't acknowledged adjustments correctly.
+
+  Removed initial_window_size requirement for sending window adjust packet.
+
+
 Version 0.6
 -----------
 
