@@ -44,18 +44,19 @@
 
 /* Allow alternate API prefix from CFLAGS or calling app */
 #ifndef LIBSSH2_API
-#ifdef LIBSSH2_WIN32
-# ifdef LIBSSH2_LIBRARY
-#  define LIBSSH2_API __declspec(dllexport)
-# else
-#  define LIBSSH2_API __declspec(dllimport)
-# endif
-# ifndef _MSC_VER
-#  include <sys/uio.h>
-# endif
-#else
-# define LIBSSH2_API
-#endif
+# ifdef LIBSSH2_WIN32
+#  ifdef LIBSSH2_LIBRARY
+#   define LIBSSH2_API __declspec(dllexport)
+#  else
+#   define LIBSSH2_API __declspec(dllimport)
+#  endif /* LIBSSH2_LIBRARY */
+# else /* !LIBSSH2_WIN32 */
+#  define LIBSSH2_API
+# endif /* LIBSSH2_WIN32 */
+#endif /* LIBSSH2_API */
+
+#if defined(LIBSSH2_DARWIN) || (defined(LIBSSH2_WIN32) && !defined(_MSC_VER))
+# include <sys/uio.h>
 #endif
 
 #if defined(LIBSSH2_WIN32) && _MSC_VER < 1300

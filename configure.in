@@ -11,6 +11,11 @@ case "$host" in
 	SHLIB_LDFLAGS="-shared"
 	CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
     ;;
+	*darwin*)
+	SHLIB_SUFFIX_NAME="dylib"
+	SHLIB_LDFLAGS="-dynamiclib -flat_namespace"
+	CFLAGS="$CFLAGS -DLIBSSH2_DARWIN"
+	;;
     *)
     SHLIB_SUFFIX_NAME="so"
     SHLIB_LDFLAGS="-shared"

@@ -6,6 +6,8 @@ Version 0.7
 
   Added libssh2_userauth_hostbased_fromfile_ex() for authenticating from hostkey.
 
+  Added configure recognition for MacOSX (Darwin) (Thanks Gabe)
+
   Fixed extended data identification in libssh2_channel_read().
 
   Fixed window adjust code.  Hadn't acknowledged adjustments correctly.
