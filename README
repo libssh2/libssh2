@@ -4,6 +4,9 @@ libssh2 - SSH2 library
 Version 0.5
 -----------
 
+  *** BC Break ***
+  Reimplemented libssh2_session_methods() to match libssh2_session_method_pref() style
+
   Fixed KEX_INIT cookie and packet padding to use actual random data
 
   Added DESTDIR support to makefiles (Adam Go³êbiowski -- I hope that character set translates right)
