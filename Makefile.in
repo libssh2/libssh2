@@ -10,7 +10,7 @@ CC = @CC@
 CFLAGS = -c @CFLAGS@ -Iinclude/ -Wall -g
 LIBS = -lssh2 -Lsrc/
 INSTALL = @INSTALL@
-VERSION=0.3
+VERSION=0.4
 DISTLIB=libssh2-$(VERSION)
 
 all:
