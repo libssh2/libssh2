@@ -893,11 +893,6 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 	libssh2_htonu32(buf, packet_length);
 	buf[4] = padding_length;
 
-	for (i = 0; i < padding_length; i++) {
-		/* Make random */
-		buf[5 + i] = '\0';
-	}
-
 	if (session->state & LIBSSH2_STATE_NEWKEYS) {
 		/* Encryption is in effect */
 		unsigned char *encbuf, *s;
