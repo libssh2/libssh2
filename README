@@ -6,6 +6,8 @@ Version 0.4
 
   Fixed crash when trying to free sftp_dirhandle data from a filehandle struct.
 
+  Fixed leak in sftp_open_ex(), handle->handle not freed in handle_close().
+
 Version 0.3
 -----------
 

@@ -955,6 +955,7 @@ LIBSSH2_API int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
 		LIBSSH2_FREE(session, handle->u.dir.names_packet);
 	}
 
+	LIBSSH2_FREE(session, handle->handle);
 	LIBSSH2_FREE(session, handle);
 
 	return 0;
