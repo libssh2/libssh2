@@ -827,7 +827,7 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 			 * or the standard stream (and data was available),
 			 * or the standard stream with extended_data_merge enabled and data was available
 			 */
-			if ((stream_id  && (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (channel->local.id == libssh2_ntohu32(packet->data + 1))) ||
+			if ((stream_id  && (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (channel->local.id == libssh2_ntohu32(packet->data + 1) && (stream_id == libssh2_ntohu32(packet->data + 5))) ||
 				(!stream_id && (packet->data[0] == SSH_MSG_CHANNEL_DATA) && (channel->local.id == libssh2_ntohu32(packet->data + 1))) ||
 				(!stream_id && (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (channel->local.id == libssh2_ntohu32(packet->data + 1)) && (channel->remote.extended_data_ignore_mode == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
 				int want = buflen - bytes_read;
@@ -857,18 +857,16 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 					}
 					LIBSSH2_FREE(session, packet->data);
 
-					if (channel->remote.window_size_initial) {
-						/* Adjust the window based on the block we just freed */
-						adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
-						libssh2_htonu32(adjust + 1, channel->remote.id);
-						libssh2_htonu32(adjust + 5, packet->data_len - (stream_id ? 13 : 9));
+					/* Adjust the window based on the block we just freed */
+					adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
+					libssh2_htonu32(adjust + 1, channel->remote.id);
+					libssh2_htonu32(adjust + 5, packet->data_len - (stream_id ? 13 : 9));
 
-						if (libssh2_packet_write(session, adjust, 9)) {
-							libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send transfer-window adjustment packet", 0);
-						}
-
-						LIBSSH2_FREE(session, packet);
+					if (libssh2_packet_write(session, adjust, 9)) {
+						libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send transfer-window adjustment packet", 0);
 					}
+
+					LIBSSH2_FREE(session, packet);
 				}
 			}
 			packet = next;
