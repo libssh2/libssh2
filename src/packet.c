@@ -44,6 +44,10 @@
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 
+/* Needed for struct iovec on some platforms */
+#ifdef HAVE_SYS_UIO_H
+#include <sys/uio.h>
+#endif
 
 /* {{{ libssh2_packet_queue_listener
  * Queue a connection request for a listener

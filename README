@@ -10,6 +10,10 @@ Version 0.8
 
   Swapped order of none,zlib compression modes to prefer no compression by default.
 
+  Added sys/uio.h for platforms (FBSD) which need it in order to define struct iovec.
+
+  Removed unnecessary inclusion of stdio.h (holdover from debugging)
+
 Version 0.7
 -----------
 

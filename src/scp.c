@@ -37,7 +37,6 @@
 
 #include "libssh2_priv.h"
 #include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #define LIBSSH2_SCP_RESPONSE_BUFLEN		256

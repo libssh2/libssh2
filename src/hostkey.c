@@ -40,6 +40,11 @@
 #include <openssl/pem.h>
 #include <openssl/evp.h>
 
+/* Needed for struct iovec on some platforms */
+#ifdef HAVE_SYS_UIO_H
+#include <sys/uio.h>
+#endif
+
 #ifndef OPENSSL_NO_RSA
 /* ***********
    * ssh-rsa *
