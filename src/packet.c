@@ -882,7 +882,7 @@ int libssh2_packet_requirev_ex(LIBSSH2_SESSION *session, unsigned char *packet_t
 		return 0;
 	}
 
-	while (session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) {
+	while (session->socket_state != LIBSSH2_SOCKET_DISCONNECTED) {
 		int ret = libssh2_packet_read(session, 1);
 		if (ret < 0) {
 			return -1;
