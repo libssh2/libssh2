@@ -217,6 +217,11 @@ LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel, 
 /* DEPRECATED */
 #define libssh2_channel_ignore_extended_data(channel, ignore)		libssh2_channel_handle_extended_data((channel), (ignore) ? LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE : LIBSSH2_CHANNEL_EXTENDED_DATA_NORMAL )
 
+#define LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA 	-1
+#define LIBSSH2_CHANNEL_FLUSH_ALL				-2
+LIBSSH2_API int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid);
+#define libssh2_channel_flush(channel)			libssh2_channel_flush_ex((channel), 0)
+#define libssh2_channel_flush_stderr(channel)	libssh2_channel_flush_ex((channel), SSH_EXTENDED_DATA_STDERR)
 
 LIBSSH2_API int libssh2_channel_send_eof(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_eof(LIBSSH2_CHANNEL *channel);

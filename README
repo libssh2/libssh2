@@ -15,6 +15,11 @@ Version 0.2
       LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE      Calls to channel_read() will check both the standard data stream
                                                and the extended data stream(s) for the first available packet
 
+  Added libssh2_channel_flush_ex() and basic macros: ..._flush() ..._flush_stderr()
+    flush_ex accepts either the streamid (0 for standard data, 1 for stderr) or one of the two following constants:
+      LIBSSH2_CHANNEL_FLUSH_ALL                Flush all streams
+      LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA      Flush all streams EXCEPT the standard data stream
+
 Version 0.1
 -----------
 

@@ -434,27 +434,30 @@ LIBSSH2_API void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int bloc
 }
 /* }}} */
 
-/* {{{ libssh2_channel_handle_extended_data
- * How should extended data look to the calling app?
- * Keep it in separate channels[_read() _read_stdder()]? (NORMAL)
- * Merge the extended data to the standard data? [everything via _read()]? (MERGE)
- * 
-Ignore it entirely [toss out packets as they come in]? (IGNORE)
+/* {{{ libssh2_channel_flush_ex
+ * Flush data from one (or all) stream
+ * Returns number of bytes flushed, or -1 on failure
  */
-LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
+LIBSSH2_API int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid)
 {
-	channel->remote.extended_data_ignore_mode = ignore_mode;
+	LIBSSH2_PACKET *packet = channel->session->packets.head;
+	unsigned long refund_bytes = 0, flush_bytes = 0;
 
-	if (ignore_mode == LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) {
-		/* Flush queued extended data */
-		LIBSSH2_PACKET *packet = channel->session->packets.head;
-		unsigned long refund_bytes = 0;
+	while (packet) {
+		LIBSSH2_PACKET *next = packet->next;
+		unsigned char packet_type = packet->data[0];
 
-		while (packet) {
-			LIBSSH2_PACKET *next = packet->next;
+		if (((packet_type == SSH_MSG_CHANNEL_DATA) || (packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA)) &&
+			(libssh2_ntohu32(packet->data + 1) == channel->local.id)) {
+			/* It's our channel at least */
+			if ((streamid == LIBSSH2_CHANNEL_FLUSH_ALL) ||
+				((packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA) && ((streamid == LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA) || (streamid = libssh2_ntohu32(packet->data + 5)))) ||
+				((packet_type == SSH_MSG_CHANNEL_DATA) && (streamid == 0))) {
 
-			if ((packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (libssh2_ntohu32(packet->data + 1) == channel->local.id)) {
+				/* It's one of the streams we wanted to flush */
 				refund_bytes += packet->data_len - 13;
+				flush_bytes += packet->data_len - packet->data_head;
+
 				LIBSSH2_FREE(channel->session, packet->data);
 				if (packet->prev) {
 					packet->prev->next = packet->next;
@@ -468,22 +471,42 @@ LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel, 
 				}
 				LIBSSH2_FREE(channel->session, packet);
 			}
-			packet = next;
 		}
-		if (refund_bytes && channel->remote.window_size_initial) {
-			unsigned char adjust[9]; /* packet_type(1) + channel(4) + adjustment(4) */
+		packet = next;
+	}
 
-			/* Adjust the window based on the block we just freed */
-			adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
-			libssh2_htonu32(adjust + 1, channel->remote.id);
-			libssh2_htonu32(adjust + 5, refund_bytes);
+	if (refund_bytes && channel->remote.window_size_initial) {
+		unsigned char adjust[9]; /* packet_type(1) + channel(4) + adjustment(4) */
 
-			if (libssh2_packet_write(channel->session, adjust, 9)) {
-				libssh2_error(channel->session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send transfer-window adjustment packet", 0);
-			} else {
-				channel->remote.window_size += refund_bytes;
-			}
+		/* Adjust the window based on the block we just freed */
+		adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
+		libssh2_htonu32(adjust + 1, channel->remote.id);
+		libssh2_htonu32(adjust + 5, refund_bytes);
+
+		if (libssh2_packet_write(channel->session, adjust, 9)) {
+			libssh2_error(channel->session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send transfer-window adjustment packet", 0);
+			return -1;
+		} else {
+			channel->remote.window_size += refund_bytes;
 		}
+	}
+
+	return flush_bytes;
+}
+/* }}} */
+
+/* {{{ libssh2_channel_handle_extended_data
+ * How should extended data look to the calling app?
+ * Keep it in separate channels[_read() _read_stdder()]? (NORMAL)
+ * Merge the extended data to the standard data? [everything via _read()]? (MERGE)
+ * Ignore it entirely [toss out packets as they come in]? (IGNORE)
+ */
+LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
+{
+	channel->remote.extended_data_ignore_mode = ignore_mode;
+
+	if (ignore_mode == LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) {
+		libssh2_channel_flush_ex(channel, LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA);
 	}
 }
 /* }}} */
