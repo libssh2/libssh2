@@ -42,6 +42,26 @@
 #endif
 #include <stdlib.h>
 
+#ifdef HAVE_GETTIMEOFDAY
+#include <sys/time.h>
+#include <math.h>
+#endif
+
+#ifdef HAVE_POLL
+# include <sys/poll.h>
+#else
+# ifdef HAVE_SELECT
+#  ifdef HAVE_SYS_SELECT_H
+#   include <sys/select.h>
+#  else
+#   include <sys/time.h>
+#   include <sys/types.h>
+#  endif
+# endif
+#endif
+
+
+
 /* {{{ libssh2_default_alloc
  */
 static LIBSSH2_ALLOC_FUNC(libssh2_default_alloc)
@@ -616,3 +636,275 @@ LIBSSH2_API int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int val
 	return session->flags;
 }
 /* }}} */
+
+/* {{{ libssh2_poll_channel_read
+ * Returns 0 if no data is waiting on channel,
+ * non-0 if data is available
+ */
+static int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
+{
+	LIBSSH2_SESSION *session = channel->session;
+	LIBSSH2_PACKET *packet = session->packets.head;
+
+	while (packet) {
+		if (((packet->data[0] == SSH_MSG_CHANNEL_DATA) && (extended == 0) && (channel->local.id == libssh2_ntohu32(packet->data + 1))) ||
+			((packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (extended != 0) && (channel->local.id == libssh2_ntohu32(packet->data + 1)))) {
+			/* Found data waiting to be read */
+			return 1;
+		}
+		packet = packet->next;
+	}	
+
+	return 0;
+}
+/* }}} */
+
+/* {{{ libssh2_poll_channel_write
+ * Returns 0 if writing to channel would block,
+ * non-0 if data can be written without blocking
+ */
+inline int libssh2_poll_channel_write(LIBSSH2_CHANNEL *channel)
+{
+	return channel->local.window_size ? 1 : 0;
+}
+/* }}} */
+
+/* {{{ libssh2_poll_listener_queued
+ * Returns 0 if no connections are waiting to be accepted
+ * non-0 if one or more connections are available
+ */
+inline int libssh2_poll_listener_queued(LIBSSH2_LISTENER *listener)
+{
+	return listener->queue ? 1 : 0;
+}
+/* }}} */
+
+/* {{{ libssh2_poll
+ * Poll sockets, channels, and listeners for activity
+ */
+LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout)
+{
+	long timeout_remaining;
+	int i, active_fds;
+#ifdef HAVE_POLL
+	LIBSSH2_SESSION *session = NULL;
+	struct pollfd sockets[nfds];
+
+	/* Setup sockets for polling */
+	for(i = 0; i < nfds; i++) {
+		fds[i].revents = 0;
+		switch (fds[i].type) {
+			case LIBSSH2_POLLFD_SOCKET:
+				sockets[i].fd = fds[i].fd.socket;
+				sockets[i].events  = fds[i].events;
+				sockets[i].revents = 0;
+				break;
+			case LIBSSH2_POLLFD_CHANNEL:
+				sockets[i].fd = fds[i].fd.channel->session->socket_fd;
+				sockets[i].events  = POLLIN;
+				sockets[i].revents = 0;
+				if (!session) session = fds[i].fd.channel->session;
+				break;
+			case LIBSSH2_POLLFD_LISTENER:
+				sockets[i].fd = fds[i].fd.listener->session->socket_fd;
+				sockets[i].events  = POLLIN;
+				sockets[i].revents = 0;
+				if (!session) session = fds[i].fd.listener->session;
+				break;
+			default:
+				if (session) libssh2_error(session, LIBSSH2_ERROR_INVALID_POLL_TYPE, "Invalid descriptor passed to libssh2_poll()", 0);
+				return -1;
+		}
+	}
+#elif defined(HAVE_SELECT)
+	LIBSSH2_SESSION *session = NULL;
+	int maxfd = 0;
+	fd_set rfds,wfds;
+	struct timeval tv;
+
+	FD_ZERO(&rfds);
+	FD_ZERO(&wfds);
+	for(i = 0; i < nfds; i++) {
+		fds[i].revents = 0;
+		switch (fds[i].type) {
+			case LIBSSH2_POLLFD_SOCKET:
+				if (fds[i].events & LIBSSH2_POLLFD_POLLIN) {
+					FD_SET(fds[i].fd.socket, &rfds);
+					if (fds[i].fd.socket > maxfd) maxfd = fds[i].fd.socket;
+				}
+				if (fds[i].events & LIBSSH2_POLLFD_POLLOUT) {
+					FD_SET(fds[i].fd.socket, &wfds);
+					if (fds[i].fd.socket > maxfd) maxfd = fds[i].fd.socket;
+				}
+				break;
+			case LIBSSH2_POLLFD_CHANNEL:
+				FD_SET(fds[i].fd.channel->session->socket_fd, &rfds);
+				if (fds[i].fd.channel->session->socket_fd > maxfd) maxfd = fds[i].fd.channel->session->socket_fd;
+				if (!session) session = fds[i].fd.channel->session;
+				break;
+			case LIBSSH2_POLLFD_LISTENER:
+				FD_SET(fds[i].fd.listener->session->socket_fd, &rfds);
+				if (fds[i].fd.listener->session->socket_fd > maxfd) maxfd = fds[i].fd.listener->session->socket_fd;
+				if (!session) session = fds[i].fd.listener->session;
+				break;
+			default:
+				if (session) libssh2_error(session, LIBSSH2_ERROR_INVALID_POLL_TYPE, "Invalid descriptor passed to libssh2_poll()", 0);
+				return -1;
+		}
+	}
+#else
+	/* No select() or poll()
+	 * no sockets sturcture to setup
+	 */
+
+	timeout = 0;
+#endif /* HAVE_POLL or HAVE_SELECT */
+
+	timeout_remaining = timeout;
+	do {
+#if defined(HAVE_POLL) || defined(HAVE_SELECT)
+		int sysret;
+#endif
+
+		active_fds = 0;
+
+		for (i = 0; i < nfds; i++) {
+			if (fds[i].events != fds[i].revents) {
+				switch (fds[i].type) {
+					case LIBSSH2_POLLFD_CHANNEL:
+						if ((fds[i].events & LIBSSH2_POLLFD_POLLIN) && /* Want to be ready for read */
+							((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) { /* Not yet known to be ready for read */
+							fds[i].revents |= libssh2_poll_channel_read(fds[i].fd.channel, 0) ? LIBSSH2_POLLFD_POLLIN : 0;
+						}
+						if ((fds[i].events & LIBSSH2_POLLFD_POLLEXT) && /* Want to be ready for extended read */
+							((fds[i].revents & LIBSSH2_POLLFD_POLLEXT) == 0)) { /* Not yet known to be ready for extended read */
+							fds[i].revents |= libssh2_poll_channel_read(fds[i].fd.channel, 1) ? LIBSSH2_POLLFD_POLLEXT : 0;
+						}
+						if ((fds[i].events & LIBSSH2_POLLFD_POLLOUT) && /* Want to be ready for write */
+							((fds[i].revents & LIBSSH2_POLLFD_POLLOUT) == 0)) { /* Not yet known to be ready for write */
+							fds[i].revents |= libssh2_poll_channel_write(fds[i].fd.channel) ? LIBSSH2_POLLFD_POLLOUT : 0;
+						}
+						break;
+					case LIBSSH2_POLLFD_LISTENER: 
+						if ((fds[i].events & LIBSSH2_POLLFD_POLLIN) && /* Want a connection */
+							((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) { /* No connections known of yet */
+							fds[i].revents |= libssh2_poll_listener_queued(fds[i].fd.listener) ? LIBSSH2_POLLFD_POLLIN : 0;
+						}
+						break;
+				}
+			}
+			if (fds[i].revents) {
+				active_fds++;
+			}
+		}
+
+		if (active_fds) {
+			/* Don't block on the sockets if we have channels/listeners which are ready */
+			timeout_remaining = 0;
+		}
+
+#ifdef HAVE_POLL
+
+#ifdef HAVE_GETTIMEOFDAY
+{
+		struct timeval tv_begin, tv_end;
+
+		gettimeofday((struct timeval *)&tv_begin, NULL);
+		sysret = poll(sockets, nfds, timeout_remaining);
+		gettimeofday((struct timeval *)&tv_end, NULL);
+		timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
+		timeout_remaining -= ceil((tv_end.tv_usec - tv_begin.tv_usec) / 1000);
+}
+#else
+		/* If the platform doesn't support gettimeofday,
+		 * then just make the call non-blocking and walk away
+		 */
+		sysret = poll(sockets, nfds, timeout_remaining);
+		timeout_remaining = 0;
+#endif /* HAVE_GETTIMEOFDAY */
+
+		if (sysret > 0) {
+			for (i = 0; i < nfds; i++) {
+				switch (fds[i].type) {
+					case LIBSSH2_POLLFD_SOCKET:
+						fds[i].revents = sockets[i].revents;
+						sockets[i].revents = 0; /* In case we loop again, be nice */
+						if (fds[i].revents) {
+							active_fds++;
+						}
+						break;
+					case LIBSSH2_POLLFD_CHANNEL:
+						if (sockets[i].events & POLLIN) {
+							/* Spin session until no data available */
+							while (libssh2_packet_read(fds[i].fd.channel->session, 0) > 0);
+						}
+						sockets[i].revents = 0;
+						break;
+					case LIBSSH2_POLLFD_LISTENER:
+						if (sockets[i].events & POLLIN) {
+							/* Spin session until no data available */
+							while (libssh2_packet_read(fds[i].fd.listener->session, 0) > 0);
+						}
+						sockets[i].revents = 0;
+						break;
+				}
+			}
+		}
+#elif defined(HAVE_SELECT)
+		tv.tv_sec = timeout_remaining / 1000;
+		tv.tv_usec = (timeout_remaining % 1000) * 1000;
+#ifdef HAVE_GETTIMEOFDAY
+{
+		struct timeval tv_begin, tv_end;
+
+		gettimeofday((struct timeval *)&tv_begin, NULL);
+		sysret = select(maxfd, &rfds, &wfds, NULL, &tv);
+		gettimeofday((struct timeval *)&tv_end, NULL);
+
+		timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
+		timeout_remaining -= ceil((tv_end.tv_usec - tv_begin.tv_usec) / 1000);
+}
+#else
+		/* If the platform doesn't support gettimeofday,
+		 * then just make the call non-blocking and walk away
+		 */
+		sysret = select(maxfd, &rfds, &wfds, NULL, &tv);
+		timeout_remaining = 0;
+#endif
+
+		if (sysret > 0) {
+			for (i = 0; i < nfds; i++) {
+				switch (fds[i].type) {
+					case LIBSSH2_POLLFD_SOCKET:
+						if (FD_ISSET(fds[i].fd.socket, &rfds)) {
+							fds[i].revents |= LIBSSH2_POLLFD_POLLIN;
+						}
+						if (FD_ISSET(fds[i].fd.socket, &wfds)) {
+							fds[i].revents |= LIBSSH2_POLLFD_POLLOUT;
+						}
+						if (fds[i].revents) {
+							active_fds++;
+						}
+						break;
+					case LIBSSH2_POLLFD_CHANNEL:
+						if (FD_ISSET(fds[i].fd.channel->session->socket_fd, &rfds)) {
+							/* Spin session until no data available */
+							while (libssh2_packet_read(fds[i].fd.channel->session, 0) > 0);
+						}
+						break;
+					case LIBSSH2_POLLFD_LISTENER:
+						if (FD_ISSET(fds[i].fd.listener->session->socket_fd, &rfds)) {
+							/* Spin session until no data available */
+							while (libssh2_packet_read(fds[i].fd.listener->session, 0) > 0);
+						}
+						break;
+				}
+			}
+		}
+#endif /* else no select() or poll() -- timeout (and by extension timeout_remaining) will be equal to 0 */
+	} while ((timeout_remaining > 0) && !active_fds);
+
+	return active_fds;
+}
+/* }}} */
+

@@ -12,6 +12,8 @@ Version 0.8
 
   Added sys/uio.h for platforms (FBSD) which need it in order to define struct iovec.
 
+  Added libssh2_poll() to check status of sockets/channels/listeners.
+
   Removed unnecessary inclusion of stdio.h (holdover from debugging)
 
 Version 0.7

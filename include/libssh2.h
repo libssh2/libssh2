@@ -68,7 +68,7 @@ typedef long long libssh2_int64_t;
 #endif
 
 #define LIBSSH2_VERSION								"0.7"
-#define LIBSSH2_APINO								200502132140
+#define LIBSSH2_APINO								200503221619
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER							"SSH-2.0-libssh2_" LIBSSH2_VERSION
@@ -143,6 +143,37 @@ typedef struct _LIBSSH2_SESSION						LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL						LIBSSH2_CHANNEL;
 typedef struct _LIBSSH2_LISTENER					LIBSSH2_LISTENER;
 
+typedef struct _LIBSSH2_POLLFD {
+	unsigned char type; /* LIBSSH2_POLLFD_* below */
+
+	union {
+		int socket; /* File descriptors -- examined with system select() call */
+		LIBSSH2_CHANNEL *channel; /* Examined by checking internal state */
+		LIBSSH2_LISTENER *listener; /* Read polls only -- are inbound connections waiting to be accepted? */
+	} fd;
+
+	unsigned long events; /* Requested Events */
+	unsigned long revents; /* Returned Events */
+} LIBSSH2_POLLFD;
+
+/* Poll FD Descriptor Types */
+#define LIBSSH2_POLLFD_SOCKET		1
+#define LIBSSH2_POLLFD_CHANNEL		2
+#define LIBSSH2_POLLFD_LISTENER		3
+
+/* Note: Win32 Doesn't actually have a poll() implementation, so some of these values are faked with select() data */
+/* Poll FD events/revents -- Match sys/poll.h where possible */
+#define LIBSSH2_POLLFD_POLLIN		0x0001		/* Data available to be read or connection available -- All */
+#define LIBSSH2_POLLFD_POLLPRI		0x0002		/* Priority data available to be read -- Socket only */
+#define LIBSSH2_POLLFD_POLLEXT		0x0002		/* Extended data available to be read -- Channel only */
+#define LIBSSH2_POLLFD_POLLOUT		0x0004		/* Can may be written -- Socket/Channel */
+/* revents only */
+#define LIBSSH2_POLLFD_POLLERR		0x0008		/* Error Condition -- Socket */
+#define LIBSSH2_POLLFD_POLLHUP		0x0010		/* HangUp/EOF -- Socket/Channel */
+#define LIBSSH2_POLLFD_POLLNVAL		0x0020		/* Invalid request -- Socket Only */
+#define LIBSSH2_POLLFD_POLLEX		0x0040		/* Exception Condition -- Socket/Win32 */
+
+/* Hash Types */
 #define LIBSSH2_HOSTKEY_HASH_MD5							1
 #define LIBSSH2_HOSTKEY_HASH_SHA1							2
 
@@ -198,6 +229,7 @@ typedef struct _LIBSSH2_LISTENER					LIBSSH2_LISTENER;
 #define LIBSSH2_ERROR_REQUEST_DENIED			-32
 #define LIBSSH2_ERROR_METHOD_NOT_SUPPORTED		-33
 #define LIBSSH2_ERROR_INVAL						-34
+#define LIBSSH2_ERROR_INVALID_POLL_TYPE			-35
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)), LIBSSH2_FREE_FUNC((*my_free)), LIBSSH2_REALLOC_FUNC((*my_realloc)), void *abstract);
@@ -238,6 +270,8 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 																				 char *local_username, int local_username_len);
 #define libssh2_userauth_hostbased_fromfile(session, username, publickey, privatekey, passphrase, hostname)	\
 		libssh2_userauth_hostbased_fromfile_ex((session), (username), strlen(username), (publickey), (privatekey), (passphrase), (hostname), strlen(hostname), (username), strlen(username))
+
+LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout);
 
 /* Channel API */
 #define LIBSSH2_CHANNEL_WINDOW_DEFAULT	65536
