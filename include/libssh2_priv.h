@@ -38,7 +38,7 @@
 #ifndef LIBSSH2_PRIV_H
 #define LIBSSH2_PRIV_H 1
 
-/* Definitions shared with the public */
+#define LIBSSH2_LIBRARY
 #include "libssh2_config.h"
 #include "libssh2.h"
 

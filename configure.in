@@ -3,9 +3,19 @@ AC_INIT(libssh2,0.4,sarag@libssh2.org)
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADER([include/libssh2_config.h])
 
-SHLIB_SUFFIX_NAME="so"
-SHLIB_LDFLAGS="-shared"
-
+# Check for the OS.
+AC_CANONICAL_HOST
+case "$host" in
+	*-cygwin)
+	SHLIB_SUFFIX_NAME="dll"
+	SHLIB_LDFLAGS="-shared"
+	CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
+    ;;
+    *)
+    SHLIB_SUFFIX_NAME="so"
+    SHLIB_LDFLAGS="-shared"
+    ;;
+esac
 AC_SUBST(SHLIB_SUFFIX_NAME)
 AC_SUBST(SHLIB_LDFLAGS)
 

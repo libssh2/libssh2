@@ -42,6 +42,17 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#ifdef LIBSSH2_WIN32
+#ifdef LIBSSH2_LIBRARY
+#define LIBSSH2_API __declspec(dllexport)
+#else
+#define LIBSSH2_API __declspec(dllimport)
+#endif
+#include <sys/uio.h>
+#else
+#define LIBSSH2_API
+#endif
+
 #define LIBSSH2_VERSION								"0.4"
 #define LIBSSH2_APINO								200412301450
 
@@ -157,12 +168,6 @@
 typedef struct _LIBSSH2_SESSION						LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL						LIBSSH2_CHANNEL;
 typedef struct _LIBSSH2_LISTENER					LIBSSH2_LISTENER;
-
-#ifdef WIN_32
-#define LIBSSH2_API __declspec(dllexport)
-#else
-#define LIBSSH2_API
-#endif
 
 #define LIBSSH2_HOSTKEY_HASH_MD5							1
 #define LIBSSH2_HOSTKEY_HASH_SHA1							2
