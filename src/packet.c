@@ -863,7 +863,6 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 	unsigned long padding_length;
 	int free_data = 0;
 	unsigned char buf[246]; /* 6 byte header plus max padding size(240) */
-	int i;
 
 	if ((session->state & LIBSSH2_STATE_NEWKEYS) &&
 		strcmp(session->local.comp->name, "none")) {
