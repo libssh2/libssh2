@@ -7,3 +7,6 @@
 Debug
 Release
 *.exp
+*.ncb
+*.opt
+*.plg
