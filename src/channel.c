@@ -902,7 +902,7 @@ LIBSSH2_API int libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id
 		libssh2_error(session, LIBSSH2_ERROR_CHANNEL_EOF_SENT, "EOF has already been sight, data might be ignored", 0);
 	}
 
-	if (channel->blocking && channel->local.window_size_initial && (channel->local.window_size <= 0)) {
+	if (channel->blocking && (channel->local.window_size <= 0)) {
 		/* twiddle our thumbs until there's window space available */
 		if (libssh2_packet_read(session, 1) < 0) {
 			/* Error occured, disconnect? */
@@ -925,7 +925,7 @@ LIBSSH2_API int libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id
 
 	/* Don't exceed the remote end's limits */
 	/* REMEMBER local means local as the SOURCE of the data */
-	if (channel->local.window_size_initial && (buflen > channel->local.window_size)) {
+	if (buflen > channel->local.window_size) {
 		buflen = channel->local.window_size;
 	}
 	if (buflen > channel->local.packet_size) {

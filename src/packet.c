@@ -475,6 +475,19 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 				return retval;
 			}
 			break;
+		case SSH_MSG_CHANNEL_WINDOW_ADJUST:
+			{
+				LIBSSH2_CHANNEL *channel = libssh2_channel_locate(session, libssh2_ntohu32(data + 1));
+				unsigned long bytestoadd = libssh2_ntohu32(data + 5);
+
+				if (channel && bytestoadd) {
+					channel->local.window_size += bytestoadd;
+				}
+
+				LIBSSH2_FREE(session, data);
+				return 0;
+			}
+			break;
 	}
 
 	packet = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_PACKET));
