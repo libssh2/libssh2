@@ -542,11 +542,11 @@ static int libssh2_blocking_read(LIBSSH2_SESSION *session, unsigned char *buf, s
 		if (ret < 0) {
 #ifdef WIN32
 			switch (WSAGetLastError()) {
-				case WSAEWOULDBLOCK:	errno = EAGAIN;
+				case WSAEWOULDBLOCK:	errno = EAGAIN;		break;
 				case WSAENOTCONN:
 				case WSAENOTSOCK:
-				case WSAECONNABORTED:	errno = EBADF;
-				case WSAEINTR:			errno = EINTR;
+				case WSAECONNABORTED:	errno = EBADF;		break;
+				case WSAEINTR:			errno = EINTR;		break;
 			}
 #endif
 			if (errno == EAGAIN) {
