@@ -42,6 +42,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
+/* Allow alternate API prefix from CFLAGS or calling app */
+#ifndef LIBSSH2_API
 #ifdef LIBSSH2_WIN32
 # ifdef LIBSSH2_LIBRARY
 #  define LIBSSH2_API __declspec(dllexport)
@@ -53,6 +55,7 @@
 # endif
 #else
 # define LIBSSH2_API
+#endif
 #endif
 
 #define LIBSSH2_VERSION								"0.4"
