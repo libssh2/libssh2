@@ -166,7 +166,7 @@ static int libssh2_comp_method_zlib_comp(LIBSSH2_SESSION *session, int compress,
 		}
 		if (status != Z_OK) {
 			libssh2_error(session, LIBSSH2_ERROR_ZLIB, "compress/decompression failure", 0);
-			LIBSSH2_FREE(session, strm->next_out);
+			LIBSSH2_FREE(session, out);
 			return -1;
 		}
 		if (strm->avail_in) {
@@ -220,7 +220,7 @@ static int libssh2_comp_method_zlib_comp(LIBSSH2_SESSION *session, int compress,
 			}
 			if (status != Z_OK) {
 				libssh2_error(session, LIBSSH2_ERROR_ZLIB, "compress/decompression failure", 0);
-				LIBSSH2_FREE(session, strm->next_out);
+				LIBSSH2_FREE(session, out);
 				return -1;
 			}
 		}
