@@ -300,7 +300,7 @@ static int libssh2_file_read_privatekey(LIBSSH2_SESSION *session,	LIBSSH2_HOSTKE
 																	char *method, int method_len,
 																	char *privkeyfile, char *passphrase)
 {
-	LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail = session->hostkey_prefs ? session->hostkey_prefs : libssh2_hostkey_methods();
+	LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail = libssh2_hostkey_methods();
 
 	*hostkey_method = NULL;
 	*hostkey_abstract = NULL;
