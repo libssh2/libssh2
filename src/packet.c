@@ -821,9 +821,27 @@ int libssh2_packet_ask_ex(LIBSSH2_SESSION *session, unsigned char packet_type, u
 }
 /* }}} */
 
+/* {{{ libssh2_packet_askv
+ * Scan for any of a list of packet types in the brigade, optionally poll the socket for a packet first
+ */
+int libssh2_packet_askv_ex(LIBSSH2_SESSION *session, unsigned char *packet_types, unsigned char **data, unsigned long *data_len, 
+													 unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len, int poll_socket)
+{
+	int i, packet_types_len = strlen(packet_types);
+
+	for(i = 0; i < packet_types_len; i++) {
+		if (0 == libssh2_packet_ask_ex(session, packet_types[i], data, data_len, match_ofs, match_buf, match_len, i ? 0 : poll_socket)) {
+			return 0;
+		}
+	}
+
+	return -1;
+}
+/* }}} */
+
 /* {{{ libssh2_packet_require
  * Loops libssh2_packet_read() until the packet requested is available
- * SSH_DISCONNECT will cause a bailout though
+ * SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause a bailout
  */
 int libssh2_packet_require_ex(LIBSSH2_SESSION *session, unsigned char packet_type, unsigned char **data, unsigned long *data_len,
 														unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len)
@@ -843,6 +861,39 @@ int libssh2_packet_require_ex(LIBSSH2_SESSION *session, unsigned char packet_typ
 		if (packet_type == ret) {
 			/* Be lazy, let packet_ask pull it out of the brigade */
 			return libssh2_packet_ask_ex(session, packet_type, data, data_len, match_ofs, match_buf, match_len, 0);
+		}
+	}
+
+	/* Only reached if the socket died */
+	return -1;
+}
+/* }}} */
+
+/* {{{ libssh2_packet_requirev
+ * Loops libssh2_packet_read() until one of a list of packet types requested is available
+ * SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause a bailout
+ * packet_types is a null terminated list of packet_type numbers
+ */
+int libssh2_packet_requirev_ex(LIBSSH2_SESSION *session, unsigned char *packet_types, unsigned char **data, unsigned long *data_len,
+														 unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len)
+{
+	if (libssh2_packet_askv_ex(session, packet_types, data, data_len, match_ofs, match_buf, match_len, 0) == 0) {
+		/* One of the packets listed was available in the packet brigade */
+		return 0;
+	}
+
+	while (session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) {
+		int ret = libssh2_packet_read(session, 1);
+		if (ret < 0) {
+			return -1;
+		}
+		if (ret == 0) {
+			continue;
+		}
+
+		if (strchr(packet_types, ret)) {
+			/* Be lazy, let packet_ask pull it out of the brigade */
+			return libssh2_packet_askv_ex(session, packet_types, data, data_len, match_ofs, match_buf, match_len, 0);
 		}
 	}
 
