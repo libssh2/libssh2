@@ -1069,3 +1069,53 @@ LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 	return 0;
 }
 /* }}} */
+
+/* {{{ libssh2_channel_window_read_ex
+ * Check the status of the read window
+ * Returns the number of bytes which the remote end may send without overflowing the window limit
+ * read_avail (if passed) will be populated with the number of bytes actually available to be read
+ * window_size_initial (if passed) will be populated with the window_size_initial as defined by the channel_open request
+ */
+LIBSSH2_API unsigned long libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel, unsigned long *read_avail, unsigned long *window_size_initial)
+{
+	if (window_size_initial) {
+		*window_size_initial = channel->remote.window_size_initial;
+	}
+
+	if (read_avail) {
+		unsigned long bytes_queued = 0;
+		LIBSSH2_PACKET *packet = channel->session->packets.head;
+
+		while (packet) {
+			unsigned char packet_type = packet->data[0];
+
+			if (((packet_type == SSH_MSG_CHANNEL_DATA) || (packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA)) &&
+				(libssh2_ntohu32(packet->data + 1) == channel->local.id)) {
+				bytes_queued += packet->data_len - packet->data_head;
+			}
+
+			packet = packet->next;
+		}
+
+		*read_avail = bytes_queued;
+	}
+
+	return channel->remote.window_size;
+}
+/* }}} */
+
+/* {{{ libssh2_channel_window_write_ex
+ * Check the status of the write window
+ * Returns the number of bytes which may be safely writen on the channel without blocking
+ * window_size_initial (if passed) will be populated with the size of the initial window as defined by the channel_open request
+ */
+LIBSSH2_API unsigned long libssh2_channel_window_write_ex(LIBSSH2_CHANNEL *channel, unsigned long *window_size_initial)
+{
+	if (window_size_initial) {
+		/* For locally initiated channels this is very often 0, so it's not *that* useful as information goes */
+		*window_size_initial = channel->local.window_size_initial;
+	}
+
+	return channel->local.window_size;
+}
+/* }}} */

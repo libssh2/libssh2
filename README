@@ -6,6 +6,9 @@ Version 0.9
 
   Fixed libssh2_poll() to recognized closed sessions/channels.
 
+  Added libssh2_channel_window_read_ex() and libssh2_channel_window_write_ex()
+  for examining the ssh transport windowing states.
+
 Version 0.8
 -----------
 

@@ -68,7 +68,7 @@ typedef long long libssh2_int64_t;
 #endif
 
 #define LIBSSH2_VERSION								"0.8"
-#define LIBSSH2_APINO								200503221619
+#define LIBSSH2_APINO								200503281457
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER							"SSH-2.0-libssh2_" LIBSSH2_VERSION
@@ -318,9 +318,15 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 #define libssh2_channel_read(channel, buf, buflen)					libssh2_channel_read_ex((channel), 0, (buf), (buflen))
 #define libssh2_channel_read_stderr(channel, buf, buflen)			libssh2_channel_read_ex((channel), SSH_EXTENDED_DATA_STDERR, (buf), (buflen))
 
+LIBSSH2_API unsigned long libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel, unsigned long *read_avail, unsigned long *window_size_initial);
+#define libssh2_channel_window_read(channel)			libssh2_channel_window_read_ex((channel), NULL, NULL)
+
 LIBSSH2_API int libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id, const char *buf, size_t buflen);
 #define libssh2_channel_write(channel, buf, buflen)					libssh2_channel_write_ex((channel), 0, (buf), (buflen))
 #define libssh2_channel_write_stderr(channel, buf, buflen)			libssh2_channel_write_ex((channel), SSH_EXTENDED_DATA_STDERR, (buf), (buflen))
+
+LIBSSH2_API unsigned long libssh2_channel_window_write_ex(LIBSSH2_CHANNEL *channel, unsigned long *window_size_initial);
+#define libssh2_channel_window_write(channel)			libssh2_channel_window_write_ex((channel), NULL)
 
 LIBSSH2_API void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking);
 LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode);
