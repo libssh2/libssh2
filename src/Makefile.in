@@ -1,4 +1,4 @@
-OBJECTS = channel.o comp.o crypt.o hostkey.o kex.o mac.o misc.o packet.o scp.o session.o userauth.o
+OBJECTS = channel.o comp.o crypt.o hostkey.o kex.o mac.o misc.o packet.o scp.o session.o sftp.o userauth.o
 
 top_srcdir = @top_srcdir@
 prefix = @prefix@
@@ -41,6 +41,9 @@ scp.o: scp.c
 
 session.o: session.c
 	$(CC) -o session.o session.c $(CFLAGS) $(LIBS)
+
+sftp.o: sftp.c
+	$(CC) -o sftp.o sftp.c $(CFLAGS) $(LIBS)
 
 userauth.o: userauth.c
 	$(CC) -o userauth.o userauth.c $(CFLAGS) $(LIBS)

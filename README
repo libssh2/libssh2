@@ -12,6 +12,8 @@ Version 0.3
 
   Added channel close callback.
 
+  Added SFTP support (Using its own header file: libssh2_sftp.h)
+
 Version 0.2
 -----------
 

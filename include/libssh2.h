@@ -43,7 +43,7 @@
 #include <sys/stat.h>
 
 #define LIBSSH2_VERSION								"0.2"
-#define LIBSSH2_APINO								200412161500
+#define LIBSSH2_APINO								200412211608
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER							"SSH-2.0-libssh2_" LIBSSH2_VERSION
@@ -217,6 +217,7 @@ typedef struct _LIBSSH2_CHANNEL						LIBSSH2_CHANNEL;
 #define LIBSSH2_ERROR_SCP_PROTOCOL				-28
 #define LIBSSH2_ERROR_ZLIB						-29
 #define LIBSSH2_ERROR_SOCKET_TIMEOUT			-30
+#define LIBSSH2_ERROR_SFTP_PROTOCOL				-31
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)), LIBSSH2_FREE_FUNC((*my_free)), LIBSSH2_REALLOC_FUNC((*my_realloc)), void *abstract);

@@ -360,7 +360,9 @@ struct _LIBSSH2_MAC_METHOD {
 void libssh2_session_shutdown(LIBSSH2_SESSION *session);
 
 unsigned long libssh2_ntohu32(const unsigned char *buf);
+unsigned long long libssh2_ntohu64(const unsigned char *buf);
 void libssh2_htonu32(unsigned char *buf, unsigned long val);
+void libssh2_htonu64(unsigned char *buf, unsigned long long val);
 
 int libssh2_packet_read(LIBSSH2_SESSION *session, int block);
 int libssh2_packet_ask_ex(LIBSSH2_SESSION *session, unsigned char packet_type, unsigned char **data, unsigned long *data_len, unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len, int poll_socket);
