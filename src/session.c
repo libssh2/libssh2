@@ -784,11 +784,20 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeou
 							((fds[i].revents & LIBSSH2_POLLFD_POLLOUT) == 0)) { /* Not yet known to be ready for write */
 							fds[i].revents |= libssh2_poll_channel_write(fds[i].fd.channel) ? LIBSSH2_POLLFD_POLLOUT : 0;
 						}
+						if (fds[i].fd.channel->remote.close || fds[i].fd.channel->local.close) {
+							fds[i].revents |= LIBSSH2_POLLFD_CHANNEL_CLOSED;
+						}
+						if (fds[i].fd.channel->session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) {
+							fds[i].revents |= LIBSSH2_POLLFD_CHANNEL_CLOSED | LIBSSH2_POLLFD_SESSION_CLOSED;
+						}
 						break;
 					case LIBSSH2_POLLFD_LISTENER: 
 						if ((fds[i].events & LIBSSH2_POLLFD_POLLIN) && /* Want a connection */
 							((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) { /* No connections known of yet */
 							fds[i].revents |= libssh2_poll_listener_queued(fds[i].fd.listener) ? LIBSSH2_POLLFD_POLLIN : 0;
+						}
+						if (fds[i].fd.listener->session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) {
+							fds[i].revents |= LIBSSH2_POLLFD_LISTENER_CLOSED | LIBSSH2_POLLFD_SESSION_CLOSED;
 						}
 						break;
 				}
@@ -838,12 +847,18 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeou
 							/* Spin session until no data available */
 							while (libssh2_packet_read(fds[i].fd.channel->session, 0) > 0);
 						}
+						if (sockets[i].revents & POLLHUP) {
+							fds[i].revents |= LIBSSH2_POLLFD_CHANNEL_CLOSED | LIBSSH2_POLLFD_SESSION_CLOSED;
+						}
 						sockets[i].revents = 0;
 						break;
 					case LIBSSH2_POLLFD_LISTENER:
 						if (sockets[i].events & POLLIN) {
 							/* Spin session until no data available */
 							while (libssh2_packet_read(fds[i].fd.listener->session, 0) > 0);
+						}
+						if (sockets[i].revents & POLLHUP) {
+							fds[i].revents |= LIBSSH2_POLLFD_LISTENER_CLOSED | LIBSSH2_POLLFD_SESSION_CLOSED;
 						}
 						sockets[i].revents = 0;
 						break;

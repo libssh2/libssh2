@@ -163,15 +163,18 @@ typedef struct _LIBSSH2_POLLFD {
 
 /* Note: Win32 Doesn't actually have a poll() implementation, so some of these values are faked with select() data */
 /* Poll FD events/revents -- Match sys/poll.h where possible */
-#define LIBSSH2_POLLFD_POLLIN		0x0001		/* Data available to be read or connection available -- All */
-#define LIBSSH2_POLLFD_POLLPRI		0x0002		/* Priority data available to be read -- Socket only */
-#define LIBSSH2_POLLFD_POLLEXT		0x0002		/* Extended data available to be read -- Channel only */
-#define LIBSSH2_POLLFD_POLLOUT		0x0004		/* Can may be written -- Socket/Channel */
+#define LIBSSH2_POLLFD_POLLIN			0x0001		/* Data available to be read or connection available -- All */
+#define LIBSSH2_POLLFD_POLLPRI			0x0002		/* Priority data available to be read -- Socket only */
+#define LIBSSH2_POLLFD_POLLEXT			0x0002		/* Extended data available to be read -- Channel only */
+#define LIBSSH2_POLLFD_POLLOUT			0x0004		/* Can may be written -- Socket/Channel */
 /* revents only */
-#define LIBSSH2_POLLFD_POLLERR		0x0008		/* Error Condition -- Socket */
-#define LIBSSH2_POLLFD_POLLHUP		0x0010		/* HangUp/EOF -- Socket/Channel */
-#define LIBSSH2_POLLFD_POLLNVAL		0x0020		/* Invalid request -- Socket Only */
-#define LIBSSH2_POLLFD_POLLEX		0x0040		/* Exception Condition -- Socket/Win32 */
+#define LIBSSH2_POLLFD_POLLERR			0x0008		/* Error Condition -- Socket */
+#define LIBSSH2_POLLFD_POLLHUP			0x0010		/* HangUp/EOF -- Socket */
+#define LIBSSH2_POLLFD_SESSION_CLOSED	0x0010		/* Session Disconnect */
+#define LIBSSH2_POLLFD_POLLNVAL			0x0020		/* Invalid request -- Socket Only */
+#define LIBSSH2_POLLFD_POLLEX			0x0040		/* Exception Condition -- Socket/Win32 */
+#define LIBSSH2_POLLFD_CHANNEL_CLOSED	0x0080		/* Channel Disconnect */
+#define LIBSSH2_POLLFD_LISTENER_CLOSED	0x0080		/* Listener Disconnect */
 
 /* Hash Types */
 #define LIBSSH2_HOSTKEY_HASH_MD5							1

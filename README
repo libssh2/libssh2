@@ -1,6 +1,11 @@
 libssh2 - SSH2 library
 ======================
 
+Version 0.9
+-----------
+
+  Fixed libssh2_poll() to recognized closed sessions/channels.
+
 Version 0.8
 -----------
 
