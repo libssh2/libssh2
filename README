@@ -1,8 +1,22 @@
 libssh2 - SSH2 library
 ======================
 
-Version 0.1-dev
----------------
+Version 0.2
+-----------
+
+  Changed extended data ignorance mechanism:
+    libssh2_channel_ignore_extended_data() changed to libssh2_channel_handle_extended_data()
+    Macro introduced for backward compatability during beta phase.
+    *** THE LIBSSH2_CHANNEL_IGNORE_EXTENDED_DATA() MACRO WILL BE REMOVED PRIOR TO 1.0 RELEASE ***
+    libssh2_channel_handle_extended_data() may be passed one of three "ignore_mode" constants
+      LIBSSH2_CHANNEL_EXTENDED_DATA_NONE       Default behavior, queue ED packets and return them with read_ex
+      LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE     Equivalent to libssh2_channel_ignore_extended_data()
+                                               IGNORE will implicitly flush the extended data stream(s)
+      LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE      Calls to channel_read() will check both the standard data stream
+                                               and the extended data stream(s) for the first available packet
+
+Version 0.1
+-----------
 
   Initial Release:
     KEX methods: diffie-hellman-group14-sha1, diffie-hellman-group-exchange-sha1, diffie-hellman-group1-sha1
