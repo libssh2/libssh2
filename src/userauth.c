@@ -51,6 +51,7 @@
  */
 LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, char *username, int username_len)
 {
+	unsigned char reply_codes[3] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
 	unsigned long data_len = username_len + 31; /* packet_type(1) + username_len(4) + service_len(4) + service(14)"ssh-connection" +
 												   method_len(4) + method(4)"none" */
 	unsigned long methods_len;
@@ -81,19 +82,15 @@ LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, char *username
 	}
 	LIBSSH2_FREE(session, data);
 
-	while (1) {
-		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_SUCCESS, &data, &data_len, 1) == 0) {
-			/* Wow, who'dve thought... */
-			LIBSSH2_FREE(session, data);
-			session->state |= LIBSSH2_STATE_AUTHENTICATED;
-			return NULL;
-		}
+	if (libssh2_packet_requirev(session, reply_codes, &data, &data_len)) {
+		return NULL;
+	}
 
-		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_FAILURE, &data, &data_len, 0) == 0) {
-			/* What we *actually* wanted to happen */
-			break;
-		}
-		/* TODO: Timeout? */
+	if (data[0] == SSH_MSG_USERAUTH_SUCCESS) {
+		/* Wow, who'dve thought... */
+		LIBSSH2_FREE(session, data);
+		session->state |= LIBSSH2_STATE_AUTHENTICATED;
+		return NULL;
 	}
 
 	methods_len = libssh2_ntohu32(data + 1);
@@ -121,7 +118,7 @@ LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION *session, char *use
 																					  char *password, int password_len,
 																					  LIBSSH2_PASSWD_CHANGEREQ_FUNC((*passwd_change_cb)))
 {
-	unsigned char *data, *s;
+	unsigned char *data, *s, reply_codes[4] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_PASSWD_CHANGEREQ, 0 };
 	unsigned long data_len = username_len + password_len + 40; /* packet_type(1) + username_len(4) + service_len(4) + service(14)"ssh-connection" + 
 																  method_len(4) + method(8)"password" + chgpwdbool(1) + password_len(4) */
 
@@ -153,71 +150,72 @@ LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION *session, char *use
 	}
 	LIBSSH2_FREE(session, data);
 
-	while (1) {
-		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_SUCCESS, &data, &data_len, 1) == 0) {
-			LIBSSH2_FREE(session, data);
-			session->state |= LIBSSH2_STATE_AUTHENTICATED;
-			return 0;
-		}
-
-		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_FAILURE, &data, &data_len, 0) == 0) {
-			LIBSSH2_FREE(session, data);
-			return -1;
-		}
-
-		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_PASSWD_CHANGEREQ, &data, &data_len, 0) == 0) {
-			char *newpw = NULL;
-			int newpw_len = 0;
-
-			LIBSSH2_FREE(session, data);
-			if (passwd_change_cb) {
-				passwd_change_cb(session, &newpw, &newpw_len, &session->abstract);
-				if (!newpw) {
-					libssh2_error(session, LIBSSH2_ERROR_PASSWORD_EXPIRED, "Password expired, and callback failed", 0);
-					return -1;
-				}
-				data_len = username_len + password_len + 44 + newpw_len; /* basic data_len + newpw_len(4) */
-				s = data = LIBSSH2_ALLOC(session, data_len);
-				if (!data) {
-					libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for userauth-password-change request", 0);
-					return -1;
-				}
-
-				*(s++) = SSH_MSG_USERAUTH_REQUEST;
-				libssh2_htonu32(s, username_len);							s += 4;
-				memcpy(s, username, username_len);							s += username_len;
-
-				libssh2_htonu32(s, sizeof("ssh-connection") - 1);			s += 4;
-				memcpy(s, "ssh-connection", sizeof("ssh-connection") - 1);	s += sizeof("ssh-connection") - 1;
-
-				libssh2_htonu32(s, sizeof("password") - 1);					s += 4;
-				memcpy(s, "password", sizeof("password") - 1);				s += sizeof("password") - 1;
-
-				*s = 0xFF;													s++;
-
-				libssh2_htonu32(s, password_len);							s += 4;
-				memcpy(s, password, password_len);							s += password_len;
-
-				libssh2_htonu32(s, newpw_len);								s += 4;
-				memcpy(s, newpw, newpw_len);								s += newpw_len;
-
-				if (libssh2_packet_write(session, data, data_len)) {
-					libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send userauth-password-change request", 0);
-					LIBSSH2_FREE(session, data);
-					return -1;
-				}
-				LIBSSH2_FREE(session, data);
-				LIBSSH2_FREE(session, newpw);
-				/* TODO: Reset timeout? */
-			} else {
-				libssh2_error(session, LIBSSH2_ERROR_PASSWORD_EXPIRED, "Password Expired, and no callback specified", 0);
-				return -1;
-			}
-		}
-		/* TODO: Timeout? */
+ password_response:
+	if (libssh2_packet_requirev(session, reply_codes, &data, &data_len)) {
+		return -1;
 	}
 
-	return 0;
+	if (data[0] == SSH_MSG_USERAUTH_SUCCESS) {
+		LIBSSH2_FREE(session, data);
+		session->state |= LIBSSH2_STATE_AUTHENTICATED;
+		return 0;
+	}
+
+	if (data[0] == SSH_MSG_USERAUTH_PASSWD_CHANGEREQ) {
+		char *newpw = NULL;
+		int newpw_len = 0;
+
+		LIBSSH2_FREE(session, data);
+		if (passwd_change_cb) {
+			passwd_change_cb(session, &newpw, &newpw_len, &session->abstract);
+			if (!newpw) {
+				libssh2_error(session, LIBSSH2_ERROR_PASSWORD_EXPIRED, "Password expired, and callback failed", 0);
+				return -1;
+			}
+			data_len = username_len + password_len + 44 + newpw_len; /* basic data_len + newpw_len(4) */
+			s = data = LIBSSH2_ALLOC(session, data_len);
+			if (!data) {
+				libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for userauth-password-change request", 0);
+				return -1;
+			}
+
+			*(s++) = SSH_MSG_USERAUTH_REQUEST;
+			libssh2_htonu32(s, username_len);							s += 4;
+			memcpy(s, username, username_len);							s += username_len;
+
+			libssh2_htonu32(s, sizeof("ssh-connection") - 1);			s += 4;
+			memcpy(s, "ssh-connection", sizeof("ssh-connection") - 1);	s += sizeof("ssh-connection") - 1;
+
+			libssh2_htonu32(s, sizeof("password") - 1);					s += 4;
+			memcpy(s, "password", sizeof("password") - 1);				s += sizeof("password") - 1;
+
+			*s = 0xFF;													s++;
+
+			libssh2_htonu32(s, password_len);							s += 4;
+			memcpy(s, password, password_len);							s += password_len;
+
+			libssh2_htonu32(s, newpw_len);								s += 4;
+			memcpy(s, newpw, newpw_len);								s += newpw_len;
+
+			if (libssh2_packet_write(session, data, data_len)) {
+				libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send userauth-password-change request", 0);
+				LIBSSH2_FREE(session, data);
+				return -1;
+			}
+			LIBSSH2_FREE(session, data);
+			LIBSSH2_FREE(session, newpw);
+
+			/* Ugliest use of goto ever.  Blame it on the askN => requirev migration. */
+			goto password_response;
+		} else {
+			libssh2_error(session, LIBSSH2_ERROR_PASSWORD_EXPIRED, "Password Expired, and no callback specified", 0);
+			return -1;
+		}
+	}
+
+	/* FAILURE */
+	LIBSSH2_FREE(session, data);
+	return -1;
 }
 /* }}} */
 
@@ -344,8 +342,8 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 	void *abstract;
 	unsigned char buf[5];
 	struct iovec datavec[4];
-	unsigned char *method, *pubkeydata, *packet, *s, *sig;
-	unsigned long method_len, pubkeydata_len, packet_len, sig_len;
+	unsigned char *method, *pubkeydata, *packet, *s, *sig, *data, reply_codes[3] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
+	unsigned long method_len, pubkeydata_len, packet_len, sig_len, data_len;
 
 	if (libssh2_file_read_publickey(session, &method, &method_len, &pubkeydata, &pubkeydata_len, publickey)) {
 		return -1;
@@ -438,27 +436,21 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 	}
 	LIBSSH2_FREE(session, packet);
 
-	while (1) {
-		unsigned char *data;
-		unsigned long data_len;
-
-		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_SUCCESS, &data, &data_len, 1) == 0) {
-			/* We are us and we've proved it. */
-			LIBSSH2_FREE(session, data);
-			session->state |= LIBSSH2_STATE_AUTHENTICATED;
-			return 0;
-		}
-
-		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_FAILURE, &data, &data_len, 0) == 0) {
-			/* This public key is not allowed for this user on this server */
-			LIBSSH2_FREE(session, data);
-			libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED, "Invalid signature for supplied public key, or bad username/public key combination", 0);
-			return -1;
-		}
-		/* TODO: Timeout? */
+	if (libssh2_packet_requirev(session, reply_codes, &data, &data_len)) {
+		return -1;
 	}
-	
-	return 0;
+
+	if (data[0] == SSH_MSG_USERAUTH_SUCCESS) {
+		/* We are us and we've proved it. */
+		LIBSSH2_FREE(session, data);
+		session->state |= LIBSSH2_STATE_AUTHENTICATED;
+		return 0;
+	}
+
+	/* This public key is not allowed for this user on this server */
+	LIBSSH2_FREE(session, data);
+	libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED, "Invalid signature for supplied public key, or bad username/public key combination", 0);
+	return -1;
 }
 /* }}} */
 
@@ -473,8 +465,9 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 	void *abstract;
 	unsigned char buf[5];
 	struct iovec datavec[4];
-	unsigned char *method, *pubkeydata, *packet, *s, *b, *sig;
-	unsigned long method_len, pubkeydata_len, packet_len, sig_len;
+	unsigned char *method, *pubkeydata, *packet, *s, *b, *sig, *data;
+	unsigned char reply_codes[4] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_PK_OK, 0 };
+	unsigned long method_len, pubkeydata_len, packet_len, sig_len, data_len;
 
 	if (libssh2_file_read_publickey(session, &method, &method_len, &pubkeydata, &pubkeydata_len, publickey)) {
 		return -1;
@@ -515,45 +508,35 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 		return -1;
 	}
 
-	while (1) {
-		unsigned char *data;
-		unsigned long data_len;
-
-		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_SUCCESS, &data, &data_len, 1) == 0) {
-			/* God help any SSH server that allows an UNVERIFIED public key to validate the user */
-			LIBSSH2_FREE(session, data);
-			LIBSSH2_FREE(session, packet);
-			LIBSSH2_FREE(session, method);
-			LIBSSH2_FREE(session, pubkeydata);
-			session->state |= LIBSSH2_STATE_AUTHENTICATED;
-			return 0;
-		}
-
-		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_FAILURE, &data, &data_len, 0) == 0) {
-			/* This public key is not allowed for this user on this server */
-			LIBSSH2_FREE(session, data);
-			LIBSSH2_FREE(session, packet);
-			LIBSSH2_FREE(session, method);
-			LIBSSH2_FREE(session, pubkeydata);
-			libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED, "Username/PublicKey combination invalid", 0);
-			return -1;
-		}
-
-		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_PK_OK, &data, &data_len, 0) == 0) {
-			/* Semi-Success! */
-			if ((libssh2_ntohu32(data + 1) != method_len) ||
-				strncmp(data + 5, method, method_len) ||
-				(libssh2_ntohu32(data + 5 + method_len) != pubkeydata_len) ||
-				strncmp(data + 5 + method_len + 4, pubkeydata, pubkeydata_len)) {
-				/* Unlikely but possible, the server has responded to a different userauth public key request */
-				LIBSSH2_FREE(session, data);
-				continue;
-			}
-			LIBSSH2_FREE(session, data);
-			break;
-		}
-		/* TODO: Timeout? */
+	if (libssh2_packet_requirev(session, reply_codes, &data, &data_len)) {
+		LIBSSH2_FREE(session, packet);
+		LIBSSH2_FREE(session, method);
+		LIBSSH2_FREE(session, pubkeydata);
+		return -1;
 	}
+
+	if (data[0] == SSH_MSG_USERAUTH_SUCCESS) {
+		/* God help any SSH server that allows an UNVERIFIED public key to validate the user */
+		LIBSSH2_FREE(session, data);
+		LIBSSH2_FREE(session, packet);
+		LIBSSH2_FREE(session, method);
+		LIBSSH2_FREE(session, pubkeydata);
+		session->state |= LIBSSH2_STATE_AUTHENTICATED;
+		return 0;
+	}
+
+	if (data[0] == SSH_MSG_USERAUTH_FAILURE) {
+		/* This public key is not allowed for this user on this server */
+		LIBSSH2_FREE(session, data);
+		LIBSSH2_FREE(session, packet);
+		LIBSSH2_FREE(session, method);
+		LIBSSH2_FREE(session, pubkeydata);
+		libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED, "Username/PublicKey combination invalid", 0);
+		return -1;
+	}
+
+	/* Semi-Success! */
+	LIBSSH2_FREE(session, data);
 	LIBSSH2_FREE(session, pubkeydata);
 
 	if (libssh2_file_read_privatekey(session, &privkeyobj, &abstract, method, method_len, privatekey, passphrase)) {
@@ -614,26 +597,23 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 	}
 	LIBSSH2_FREE(session, packet);
 
-	while (1) {
-		unsigned char *data;
-		unsigned long data_len;
+	/* PK_OK is no longer valid */
+	reply_codes[2] = 0;
 
-		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_SUCCESS, &data, &data_len, 1) == 0) {
-			/* We are us and we've proved it. */
-			LIBSSH2_FREE(session, data);
-			session->state |= LIBSSH2_STATE_AUTHENTICATED;
-			return 0;
-		}
-
-		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_FAILURE, &data, &data_len, 0) == 0) {
-			/* This public key is not allowed for this user on this server */
-			LIBSSH2_FREE(session, data);
-			libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED, "Invalid signature for supplied public key, or bad username/public key combination", 0);
-			return -1;
-		}
-		/* TODO: Timeout? */
+	if (libssh2_packet_requirev(session, reply_codes, &data, &data_len)) {
+		return -1;
 	}
-	
-	return 0;
+
+	if (data[0] == SSH_MSG_USERAUTH_SUCCESS) {
+		/* We are us and we've proved it. */
+		LIBSSH2_FREE(session, data);
+		session->state |= LIBSSH2_STATE_AUTHENTICATED;
+		return 0;
+	}
+
+	/* This public key is not allowed for this user on this server */
+	LIBSSH2_FREE(session, data);
+	libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED, "Invalid signature for supplied public key, or bad username/public key combination", 0);
+	return -1;
 }
 /* }}} */
