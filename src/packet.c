@@ -364,6 +364,16 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		memcpy(tmp, block, 5); /* Use this for MAC later */
 
 		payload_len = packet_len - 1; /* padding_len(1) */
+		/* Sanity Check */
+		if ((payload_len > LIBSSH2_PACKET_MAXPAYLOAD) ||
+			((packet_len + 4) % blocksize)) {
+			/* If something goes horribly wrong during the decryption phase, just bailout and die gracefully */
+			LIBSSH2_FREE(session, block);
+			session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
+			libssh2_error(session, LIBSSH2_ERROR_PROTO, "Fatal protocol error, invalid payload size", 0);
+			return -1;
+		}
+
 		s = payload = LIBSSH2_ALLOC(session, payload_len);
 		memcpy(s, block + 5, blocksize - 5);
 		s += blocksize - 5;

@@ -117,10 +117,13 @@
 #define LIBSSH2_SOCKET_POLL_MAXLOOPS	120
 
 /* Maximum size to allow a payload to compress to, plays it safe by falling short of spec limits */
-#define LIBSSH2_PACKET_MAXCOMP 32000
+#define LIBSSH2_PACKET_MAXCOMP		32000
 
 /* Maximum size to allow a payload to deccompress to, plays it safe by allowing more than spec requires */
-#define LIBSSH2_PACKET_MAXDECOMP 40000
+#define LIBSSH2_PACKET_MAXDECOMP	40000
+
+/* Maximum size for an inbound compressed payload, plays it safe by overshooting spec limits */
+#define LIBSSH2_PACKET_MAXPAYLOAD	40000
 
 /* Malloc callbacks */
 #define LIBSSH2_ALLOC_FUNC(name)					void *name(size_t count, void **abstract)
