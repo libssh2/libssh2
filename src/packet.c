@@ -535,6 +535,15 @@ static int libssh2_blocking_read(LIBSSH2_SESSION *session, unsigned char *buf, s
 	size_t bytes_read = 0;
 	int polls = 0;
 
+#ifndef WIN32
+	fcntl(session->socket_fd, F_SETFL, 0);
+#else
+	{
+		u_long block = FALSE;
+		ioctlsocket(session->socket_fd, FIONBIO, &block);
+	}
+#endif
+
 	while (bytes_read < count) {
 		int ret;
 
