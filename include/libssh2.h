@@ -42,7 +42,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#define LIBSSH2_VERSION								"0.2"
+#define LIBSSH2_VERSION								"0.3"
 #define LIBSSH2_APINO								200412211608
 
 /* Part of every banner, user specified or not */
