@@ -38,6 +38,7 @@
 #include "libssh2_priv.h"
 #include <openssl/bn.h>
 #include <openssl/pem.h>
+#include <openssl/evp.h>
 
 #ifndef OPENSSL_NO_RSA
 /* ***********
@@ -86,7 +87,8 @@ static int libssh2_hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session, unsigne
 /* {{{ libssh2_hostkey_method_ssh_rsa_passphrase_cb
  * TODO: Optionally call a passphrase callback specified by the calling program
  */
-static int libssh2_hostkey_method_ssh_rsadsa_passphrase_cb(char *buf, int size, int rwflag, char *passphrase){
+static int libssh2_hostkey_method_ssh_rsadsa_passphrase_cb(char *buf, int size, int rwflag, char *passphrase)
+{
 	int passphrase_len = strlen(passphrase);
 
 	if (passphrase_len > (size - 1)) {
@@ -115,6 +117,14 @@ static int libssh2_hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session, unsi
 	fp = fopen(privkeyfile, "r");
 	if (!fp) {
 		return -1;
+	}
+
+	if (!EVP_get_cipherbyname("des")) {
+		/* If this cipher isn't loaded it's a pretty good indication that none are.
+		 * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
+		 * Someone buy me an OpenSSL manual and I'll read up on it.
+		 */
+		OPENSSL_add_all_algorithms_noconf();
 	}
 	rsactx = PEM_read_RSAPrivateKey(fp, NULL, (void*)libssh2_hostkey_method_ssh_rsadsa_passphrase_cb, passphrase);
 	if (!rsactx) {
@@ -321,6 +331,14 @@ static int libssh2_hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session, unsi
 	fp = fopen(privkeyfile, "r");
 	if (!fp) {
 		return -1;
+	}
+
+	if (!EVP_get_cipherbyname("des")) {
+		/* If this cipher isn't loaded it's a pretty good indication that none are.
+		 * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
+		 * Someone buy me an OpenSSL manual and I'll read up on it.
+		 */
+		OPENSSL_add_all_algorithms_noconf();
 	}
 	dsactx = PEM_read_DSAPrivateKey(fp, NULL, (void*)libssh2_hostkey_method_ssh_rsadsa_passphrase_cb, passphrase);
 	if (!dsactx) {

@@ -7,6 +7,8 @@ Version 0.5
   *** BC Break ***
   Reimplemented libssh2_session_methods() to match libssh2_session_method_pref() style
 
+  Fixed authenticating with encrypted private key.
+
   Fixed authenticating via ssh-dss public key.
 
   Fixed KEX_INIT cookie and packet padding to use actual random data
