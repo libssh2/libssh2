@@ -4,6 +4,8 @@ libssh2 - SSH2 library
 Version 0.6
 -----------
 
+  Collapsed exchanging_keys/newkeys/authenticated flags into single state attribute.
+
   Fix zlib compression issue when internal buffer state misses partial sync.
 
   Fix segfault when libssh2_session_methods() is called prior to session_startup().

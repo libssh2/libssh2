@@ -510,7 +510,7 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 		packet->prev = NULL;
 	}
 
-	if (data[0] == SSH_MSG_KEXINIT && !session->exchanging_keys) {
+	if (data[0] == SSH_MSG_KEXINIT && !(session->state & LIBSSH2_STATE_EXCHANGING_KEYS)) {
 		/* Remote wants new keys
 		 * Well, it's already in the brigade,
 		 * let's just call back into ourselves
@@ -591,7 +591,7 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		ioctlsocket(session->socket_fd, FIONBIO, &non_block);
 	}
 #endif
-	if (session->newkeys) {
+	if (session->state & LIBSSH2_STATE_NEWKEYS) {
 		/* Temporary Buffer
 		 * The largest blocksize (currently) is 32, the largest MAC (currently) is 20
 		 */
@@ -854,14 +854,14 @@ int libssh2_packet_require_ex(LIBSSH2_SESSION *session, unsigned char packet_typ
 int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned long data_len)
 {
 	unsigned long packet_length = data_len + 1;
-	unsigned long block_size = (session->newkeys) ? session->local.crypt->blocksize : 8;
+	unsigned long block_size = (session->state & LIBSSH2_STATE_NEWKEYS) ? session->local.crypt->blocksize : 8;
 	/* At this point packet_length doesn't include the packet_len field itself */
 	unsigned long padding_length;
 	int free_data = 0;
 	unsigned char buf[246]; /* 6 byte header plus max padding size(240) */
 	int i;
 
-	if (session->newkeys &&
+	if ((session->state & LIBSSH2_STATE_NEWKEYS) &&
 		strcmp(session->local.comp->name, "none")) {
 
 		if (session->local.comp->comp(session, 1, &data, &data_len, LIBSSH2_PACKET_MAXCOMP, &free_data, data, data_len, &session->local.comp_abstract)) {
@@ -894,7 +894,7 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 		buf[5 + i] = '\0';
 	}
 
-	if (session->newkeys) {
+	if (session->state & LIBSSH2_STATE_NEWKEYS) {
 		/* Encryption is in effect */
 		unsigned char *encbuf, *s;
 		int ret;

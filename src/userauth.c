@@ -80,7 +80,7 @@ LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, char *username
 		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_SUCCESS, &data, &data_len, 1) == 0) {
 			/* Wow, who'dve thought... */
 			LIBSSH2_FREE(session, data);
-			session->authenticated = 1;
+			session->state |= LIBSSH2_STATE_AUTHENTICATED;
 			return NULL;
 		}
 
@@ -105,7 +105,7 @@ LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, char *username
  */
 LIBSSH2_API int libssh2_userauth_authenticated(LIBSSH2_SESSION *session)
 {
-	return session->authenticated;
+	return session->state & LIBSSH2_STATE_AUTHENTICATED;
 }
 /* }}} */
 
@@ -151,7 +151,7 @@ LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION *session, char *use
 	while (1) {
 		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_SUCCESS, &data, &data_len, 1) == 0) {
 			LIBSSH2_FREE(session, data);
-			session->authenticated = 1;
+			session->state |= LIBSSH2_STATE_AUTHENTICATED;
 			return 0;
 		}
 
@@ -389,7 +389,7 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 			LIBSSH2_FREE(session, packet);
 			LIBSSH2_FREE(session, method);
 			LIBSSH2_FREE(session, pubkeydata);
-			session->authenticated = 1;
+			session->state |= LIBSSH2_STATE_AUTHENTICATED;
 			return 0;
 		}
 
@@ -485,7 +485,7 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 		if (libssh2_packet_ask(session, SSH_MSG_USERAUTH_SUCCESS, &data, &data_len, 1) == 0) {
 			/* We are us and we've proved it. */
 			LIBSSH2_FREE(session, data);
-			session->authenticated = 1;
+			session->state |= LIBSSH2_STATE_AUTHENTICATED;
 			return 0;
 		}
 

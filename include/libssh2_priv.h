@@ -180,9 +180,7 @@ struct _LIBSSH2_SESSION {
 	char *kex_prefs;
 	char *hostkey_prefs;
 
-	int exchanging_keys;
-	int newkeys;
-	int authenticated;
+	int state;
 
 	/* Agreed Key Exchange Method */
 	LIBSSH2_KEX_METHOD *kex;
@@ -232,6 +230,11 @@ struct _LIBSSH2_SESSION {
 	int err_should_free;
 	int err_code;
 };
+
+/* session.state bits */
+#define LIBSSH2_STATE_EXCHANGING_KEYS	0x00000001
+#define LIBSSH2_STATE_NEWKEYS			0x00000002
+#define LIBSSH2_STATE_AUTHENTICATED		0x00000004
 
 /* libssh2 extensible ssh api, ultimately I'd like to allow loading additional methods via .so/.dll */
 

@@ -263,7 +263,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		goto clean_exit;
 	}
 	/* The first key exchange has been performed, switch to active crypt/comp/mac mode */
-	session->newkeys = 1;
+	session->state |= LIBSSH2_STATE_NEWKEYS;
 
 	/* This will actually end up being just packet_type(1) for this packet type anyway */
 	LIBSSH2_FREE(session, tmp);
@@ -1145,7 +1145,7 @@ int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange) /* session->f
 	unsigned long data_len;
 
 	/* Prevent loop in packet_add() */
-	session->exchanging_keys = 1;
+	session->state |= LIBSSH2_STATE_EXCHANGING_KEYS;
 
 	if (reexchange) {
 		session->kex = NULL;
@@ -1191,7 +1191,7 @@ int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange) /* session->f
 		session->remote.kexinit = NULL;
 	}
 
-	session->exchanging_keys = 0;
+	session->state &= ~LIBSSH2_STATE_EXCHANGING_KEYS;
 
 	return 0;
 }
