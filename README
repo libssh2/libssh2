@@ -1,6 +1,13 @@
 libssh2 - SSH2 library
 ======================
 
+Version 0.8
+-----------
+
+  Fix potential segfault in compression/decompression.
+
+  Fix compatability with older versions of OpenSSL
+
 Version 0.7
 -----------
 
