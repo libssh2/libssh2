@@ -1251,6 +1251,7 @@ LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method
 			mlist = NULL;
 			break;
 		default:
+			libssh2_error(session, LIBSSH2_ERROR_INVAL, "Invalid parameter specified for method_type", 0);
 			return -1;
 	}
 
@@ -1282,6 +1283,7 @@ LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method
 	}
 
 	if (strlen(newprefs) == 0) {
+		libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED, "The requested method(s) are not currently supported", 0);
 		LIBSSH2_FREE(session, newprefs);
 		return -1;
 	}
