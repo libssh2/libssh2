@@ -337,6 +337,7 @@ LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *t
 		LIBSSH2_FREE(session, packet);
 		return -1;
 	}
+	LIBSSH2_FREE(session, packet);
 
 	while (1) {
 		unsigned char *data;
@@ -661,6 +662,11 @@ LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 	while  ((libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_DATA, 		  &data, &data_len, 1, channel_id, 4, 1) >= 0) ||
 			(libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_EXTENDED_DATA, &data, &data_len, 1, channel_id, 4, 1) >= 0)) {
 		LIBSSH2_FREE(session, data);
+	}
+
+	/* free "channel_type" */
+	if (channel->channel_type) {
+		LIBSSH2_FREE(session, channel->channel_type);
 	}
 
 	/* Unlink from channel brigade */
