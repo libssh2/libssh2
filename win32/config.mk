@@ -1,10 +1,10 @@
 
 # Tweak these for your system
-OPENSSLINC=\local\php\php_build\include
-OPENSSLLIB=\local\php\php_build\lib
+OPENSSLINC=..\libssh2_build\include
+OPENSSLLIB=..\libssh2_build\lib
 
-ZLIBINC=-DLIBSSH2_HAVE_ZLIB=1 /I\local\php\php_build\include
-ZLIBLIB=\local\php\php_build\lib
+ZLIBINC=-DLIBSSH2_HAVE_ZLIB=1 /I..\libssh2_build\include
+ZLIBLIB=..\libssh2_build\lib
 
 !if "$(TARGET)" == ""
 TARGET=Release
