@@ -42,7 +42,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#define LIBSSH2_VERSION								"0.1dev"
+#define LIBSSH2_VERSION								"0.1"
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER							"SSH-2.0-libssh2_" LIBSSH2_VERSION
