@@ -97,9 +97,6 @@
 #endif
 /* LIBSSH2_MAC_NONE already defined (or not) by ./configure */
 
-/* Enable the "new" version of diffie-hellman-group-exchange-sha1 */
-#define LIBSSH2_DH_GEX_NEW
-
 /* Default generate and safe prime sizes for diffie-hellman-group-exchange-sha1 */
 #define LIBSSH2_DH_GEX_MINGROUP     1024
 #define LIBSSH2_DH_GEX_OPTGROUP     1536

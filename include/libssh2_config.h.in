@@ -39,6 +39,9 @@
 /* Enable "none" cipher -- NOT RECOMMENDED */
 #undef LIBSSH2_CRYPT_NONE
 
+/* Enable newer diffie-hellman-group-exchange-sha1 syntax */
+#undef LIBSSH2_DH_GEX_NEW
+
 /* Compile in zlib support */
 #undef LIBSSH2_HAVE_ZLIB
 

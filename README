@@ -13,6 +13,8 @@ Version 0.5
 
   Added libssh2_channel_forward_listen_ex(), libssh2_channel_forward_cancel(), and libssh2_channel_forward_accept().
 
+  Added ./configure option '--disable-gex-new' to allow using the older group-exchange format
+
 Version 0.4
 -----------
 
