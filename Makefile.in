@@ -40,8 +40,8 @@ dist:
 	rm -f $(DISTLIB)
 	ln -s . $(DISTLIB)
 	tar -zcf $(DISTLIB).tar.gz \
-		$(DISTLIB)/configure.in $(DISTLIB)/configure $(DISTLIB)/Makefile.in $(DISTLIB)/ssh2_sample.c \
-		$(DISTLIB)/LICENSE $(DISTLIB)/README $(DISTLIB)/TODO \
+		$(DISTLIB)/configure $(DISTLIB)/Makefile.in $(DISTLIB)/ssh2_sample.c \
+		$(DISTLIB)/LICENSE $(DISTLIB)/README $(DISTLIB)/TODO $(DISTLIB)/INSTALL \
 		$(DISTLIB)/mkinstalldirs $(DISTLIB)/install-sh \
 		$(DISTLIB)/src/*.c $(DISTLIB)/src/Makefile.in \
 		$(DISTLIB)/include/libssh2.h $(DISTLIB)/include/libssh2_priv.h $(DISTLIB)/include/libssh2_config.h.in
