@@ -1,0 +1,27 @@
+This is meant to test the libssh2 code's protocol compliance against other
+implementations. If you want to add a test, you will need to do the following:
+
+* create a new source file, and add it to the Makefile
+
+* call your main function (runtest_yourtest) from main() in main.c
+
+* at the top of your source file, put:
+
+	#include <libssh2.h>
+	#include "libssh2-test.h"
+
+	extern struct authdefs auth;
+
+
+* call init_test("description of your test", number_of_steps)
+
+* before every step in your test, call increase_progress()
+
+* after every step, if it was successful, call step_successful()
+
+
+
+
+
+
+
