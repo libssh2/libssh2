@@ -57,7 +57,7 @@
 
 #define LIBSSH2_MACERROR(session, data, datalen)					session->macerror((session), (data), (datalen), &(session)->abstract)
 
-#define LIBSSH2_CHANNEL_CLOSE(session, channel)						channel->close_cb((session), (channel), &(session)->abstract)
+#define LIBSSH2_CHANNEL_CLOSE(session, channel)						channel->close_cb((session), &(session)->abstract, &(channel)->abstract)
 
 typedef struct _LIBSSH2_KEX_METHOD			LIBSSH2_KEX_METHOD;
 typedef struct _LIBSSH2_HOSTKEY_METHOD		LIBSSH2_HOSTKEY_METHOD;
@@ -115,6 +115,7 @@ struct _LIBSSH2_CHANNEL {
 
 	LIBSSH2_CHANNEL *next, *prev;
 
+	void *abstract;
 	LIBSSH2_CHANNEL_CLOSE_FUNC((*close_cb));
 };
 
