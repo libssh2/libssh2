@@ -222,6 +222,11 @@ LIBSSH2_API void* libssh2_session_callback_set(LIBSSH2_SESSION *session, int cbt
 			session->macerror = callback;
 			return oldcb;
 			break;
+		case LIBSSH2_CALLBACK_X11:
+			oldcb = session->x11;
+			session->x11 = callback;
+			return oldcb;
+			break;
 	}
 
 	return NULL;

@@ -36,6 +36,7 @@
  */
 
 #include "libssh2_priv.h"
+#include <openssl/rand.h>
 #ifndef WIN32
 #include <unistd.h>
 #endif
@@ -567,6 +568,77 @@ LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *t
 		if (libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_FAILURE, &data, &data_len, 1, local_channel, 4, 1) == 0) {
 			LIBSSH2_FREE(session, data);
 			libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED, "Unable to complete request for channel request-pty", 0);
+			return -1;
+		}
+	}
+
+	/* Never reached, just giving the compiler something to not complain about */
+	return -1;
+}
+/* }}} */
+
+/* {{{ libssh2_channel_x11_req_ex
+ * Request X11 forwarding
+ */
+LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection, char *auth_proto, char *auth_cookie, int screen_number)
+{
+	LIBSSH2_SESSION *session = channel->session;
+	unsigned char *s, *packet;
+	unsigned long proto_len = auth_proto ? strlen(auth_proto) : (sizeof("MIT-MAGIC-COOKIE-1") - 1);
+	unsigned long cookie_len = auth_cookie ? strlen(auth_cookie) : 32;
+	unsigned long packet_len = proto_len + cookie_len + 41; /*  packet_type(1) + channel(4) + x11_req_len(4) + "x11-req"(7) + want_reply(1) + 
+																single_cnx(4) + proto_len(4) + cookie_len(4) + screen_num(4) */
+
+	s = packet = LIBSSH2_ALLOC(session, packet_len);
+	if (!packet) {
+		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for pty-request", 0);
+		return -1;
+	}
+
+	*(s++) = SSH_MSG_CHANNEL_REQUEST;
+	libssh2_htonu32(s, channel->remote.id);						s += 4;
+	libssh2_htonu32(s, sizeof("x11-req") - 1);					s += 4;
+	memcpy(s, "x11-req", sizeof("x11-req") - 1);				s += sizeof("x11-req") - 1;
+
+	*(s++) = 0xFF; /* want_reply */
+	*(s++) = single_connection ? 0xFF : 0x00;
+
+	libssh2_htonu32(s, proto_len);								s += 4;
+	memcpy(s, auth_proto ? auth_proto : "MIT-MAGIC-COOKIE-1", proto_len);
+																s += proto_len;
+
+	libssh2_htonu32(s, cookie_len);
+	if (auth_cookie) {
+		memcpy(s, auth_cookie, cookie_len);
+	} else {
+		RAND_bytes(s, cookie_len);
+	}
+	s += cookie_len;
+
+	libssh2_htonu32(s, screen_number);							s += 4;
+
+	if (libssh2_packet_write(session, packet, packet_len)) {
+		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send pty-request packet", 0);
+		LIBSSH2_FREE(session, packet);
+		return -1;
+	}
+	LIBSSH2_FREE(session, packet);
+
+	while (1) {
+		unsigned char *data;
+		unsigned long data_len;
+		unsigned char local_channel[4];
+
+		libssh2_htonu32(local_channel, channel->local.id);
+
+		if (libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_SUCCESS, &data, &data_len, 1, local_channel, 4, 1) == 0) {
+			LIBSSH2_FREE(session, data);
+			return 0;
+		}
+
+		if (libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_FAILURE, &data, &data_len, 1, local_channel, 4, 1) == 0) {
+			LIBSSH2_FREE(session, data);
+			libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED, "Unable to complete request for channel x11-req", 0);
 			return -1;
 		}
 	}

@@ -146,6 +146,7 @@
 #define LIBSSH2_DISCONNECT_FUNC(name)				void name(LIBSSH2_SESSION *session, int reason, const char *message, int message_len, const char *language, int language_len, void **abstract)
 #define LIBSSH2_PASSWD_CHANGEREQ_FUNC(name)			void name(LIBSSH2_SESSION *session, char **newpw, int *newpw_len, void **abstract)
 #define LIBSSH2_MACERROR_FUNC(name)					int	 name(LIBSSH2_SESSION *session, const char *packet, int packet_len, void **abstract)
+#define LIBSSH2_X11_OPEN_FUNC(name)					void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, char *shost, int sport, void **abstract)
 
 #define LIBSSH2_CHANNEL_CLOSE_FUNC(name)			void name(LIBSSH2_SESSION *session, void **session_abstract, LIBSSH2_CHANNEL *channel, void **channel_abstract)
 
@@ -154,6 +155,7 @@
 #define LIBSSH2_CALLBACK_DEBUG				1
 #define LIBSSH2_CALLBACK_DISCONNECT			2
 #define LIBSSH2_CALLBACK_MACERROR			3
+#define LIBSSH2_CALLBACK_X11				4
 
 /* libssh2_session_method_pref() constants */
 #define LIBSSH2_METHOD_KEX			0
@@ -287,6 +289,9 @@ LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varnam
 
 LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *term, int term_len, char *modes, int modes_len, int width, int height, int width_px, int height_px);
 #define libssh2_channel_request_pty(channel, term)	libssh2_channel_request_pty_ex((channel), (term), strlen(term), NULL, 0, LIBSSH2_TERM_WIDTH, LIBSSH2_TERM_HEIGHT, LIBSSH2_TERM_WIDTH_PX, LIBSSH2_TERM_HEIGHT_PX)
+
+LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection, char *auth_proto, char *auth_cookie, int screen_number);
+#define libssh2_channel_x11_req(channel, screen_number)	libssh2_channel_x11_req_ex((channel), 0, NULL, NULL, (screen_number))
 
 LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel, char *request, int request_len, char *message, int message_len);
 #define libssh2_channel_shell(channel)					libssh2_channel_process_startup((channel), "shell", sizeof("shell") - 1, NULL, 0)

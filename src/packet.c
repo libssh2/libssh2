@@ -99,7 +99,7 @@ inline int libssh2_packet_queue_listener(LIBSSH2_SESSION *session, unsigned char
 			channel->session = session;
 			channel->channel_type_len = sizeof("forwarded-tcpip") - 1;
 			channel->channel_type = LIBSSH2_ALLOC(session, channel->channel_type_len + 1);
-			if (!channel) {
+			if (!channel->channel_type) {
 				libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate a channel for new connection", 0);
 				LIBSSH2_FREE(session, channel);
 				failure_code = 4; /* SSH_OPEN_RESOURCE_SHORTAGE */
@@ -169,6 +169,105 @@ inline int libssh2_packet_queue_listener(LIBSSH2_SESSION *session, unsigned char
 }
 /* }}} */
 
+/* {{{ libssh2_packet_x11_open
+ * Accept a forwarded X11 connection
+ */
+inline int libssh2_packet_x11_open(LIBSSH2_SESSION *session, unsigned char *data, unsigned long datalen)
+{
+	int failure_code = 2; /* SSH_OPEN_CONNECT_FAILED */
+	unsigned char *s = data + (sizeof("x11") - 1) + 5;
+	unsigned long packet_len = 17 + (sizeof("X11 Forward Unavailable") - 1);
+	unsigned char *p, packet[17 + (sizeof("X11 Forward Unavailable") - 1)];
+					/* packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
+	LIBSSH2_CHANNEL *channel;
+	unsigned long sender_channel, initial_window_size, packet_size;
+	unsigned char *shost;
+	unsigned long sport, shost_len;
+
+	sender_channel = libssh2_ntohu32(s);			s += 4;
+	initial_window_size = libssh2_ntohu32(s);		s += 4;
+	packet_size = libssh2_ntohu32(s);				s += 4;
+	shost_len = libssh2_ntohu32(s);					s += 4;
+	shost = s;										s += shost_len;
+	sport = libssh2_ntohu32(s);						s += 4;
+
+	if (session->x11) {
+		channel = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
+		if (!channel) {
+			libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate a channel for new connection", 0);
+			failure_code = 4; /* SSH_OPEN_RESOURCE_SHORTAGE */
+			goto x11_exit;
+		}
+		memset(channel, 0, sizeof(LIBSSH2_CHANNEL));
+
+		channel->session = session;
+		channel->channel_type_len = sizeof("x11") - 1;
+		channel->channel_type = LIBSSH2_ALLOC(session, channel->channel_type_len + 1);
+		if (!channel->channel_type) {
+			libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate a channel for new connection", 0);
+			LIBSSH2_FREE(session, channel);
+			failure_code = 4; /* SSH_OPEN_RESOURCE_SHORTAGE */
+			goto x11_exit;
+		}
+		memcpy(channel->channel_type, "x11", channel->channel_type_len + 1);
+
+		channel->remote.id = sender_channel;
+		channel->remote.window_size_initial = LIBSSH2_CHANNEL_WINDOW_DEFAULT;
+		channel->remote.window_size = LIBSSH2_CHANNEL_WINDOW_DEFAULT;
+		channel->remote.packet_size = LIBSSH2_CHANNEL_PACKET_DEFAULT;
+
+		channel->local.id = libssh2_channel_nextid(session);
+		channel->local.window_size_initial = initial_window_size;
+		channel->local.window_size = initial_window_size;
+		channel->local.packet_size = packet_size;
+
+		p = packet;
+		*(p++) = SSH_MSG_CHANNEL_OPEN_CONFIRMATION;
+		libssh2_htonu32(p, channel->remote.id);						p += 4;
+		libssh2_htonu32(p, channel->local.id);						p += 4;
+		libssh2_htonu32(p, channel->remote.window_size_initial);	p += 4;
+		libssh2_htonu32(p, channel->remote.packet_size);			p += 4;
+
+		if (libssh2_packet_write(session, packet, 17)) {
+			libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send channel open confirmation", 0);
+			return -1;				
+		}
+
+		/* Link the channel into the session */
+		if (session->channels.tail) {
+			session->channels.tail->next = channel;
+			channel->prev = session->channels.tail;
+		} else {
+			session->channels.head = channel;
+			channel->prev = NULL;
+		}
+		channel->next = NULL;
+		session->channels.tail = channel;
+
+		/* Pass control to the callback, they may turn right around and free the channel, or actually use it */
+		LIBSSH2_X11_OPEN(channel, shost, sport);
+
+		return 0;
+	} else {
+		failure_code = 4; /* SSH_OPEN_RESOURCE_SHORTAGE */
+	}
+
+ x11_exit:
+	p = packet;
+	*(p++) = SSH_MSG_CHANNEL_OPEN_FAILURE;
+	libssh2_htonu32(p, sender_channel);				p += 4;
+	libssh2_htonu32(p, failure_code);				p += 4;
+	libssh2_htonu32(p, sizeof("X11 Forward Unavailable") - 1);		p += 4;
+	memcpy(s, "X11 Forward Unavailable", sizeof("X11 Forward Unavailable") - 1); p += sizeof("X11 Forward Unavailable") - 1;
+	libssh2_htonu32(p, 0);
+
+	if (libssh2_packet_write(session, packet, packet_len)) {
+		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send open failure", 0);
+		return -1;
+	}
+	return 0;
+}
+/* }}} */
 
 /* {{{ libssh2_packet_new
  * Create a new packet and attach it to the brigade
@@ -363,6 +462,14 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 				((sizeof("forwarded-tcpip")-1) == libssh2_ntohu32(data + 1)) &&
 				(memcmp(data + 5, "forwarded-tcpip", sizeof("forwarded-tcpip") - 1) == 0)) {
 				int retval = libssh2_packet_queue_listener(session, data, datalen);
+
+				LIBSSH2_FREE(session, data);
+				return retval;
+			}
+			if ((datalen >= (sizeof("x11") + 4)) &&
+				((sizeof("x11")-1) == libssh2_ntohu32(data + 1)) &&
+				(memcmp(data + 5, "x11", sizeof("x11") - 1) == 0)) {
+				int retval = libssh2_packet_x11_open(session, data, datalen);
 
 				LIBSSH2_FREE(session, data);
 				return retval;

@@ -58,6 +58,7 @@
 				session->ssh_msg_disconnect((session), (reason), (message), (message_len), (language), (language_len), &(session)->abstract)
 
 #define LIBSSH2_MACERROR(session, data, datalen)					session->macerror((session), (data), (datalen), &(session)->abstract)
+#define LIBSSH2_X11_OPEN(channel, shost, sport)						channel->session->x11(((channel)->session), (channel), (shost), (sport), (&(channel)->session->abstract))
 
 #define LIBSSH2_CHANNEL_CLOSE(session, channel)						channel->close_cb((session), &(session)->abstract, (channel), &(channel)->abstract)
 
@@ -173,6 +174,7 @@ struct _LIBSSH2_SESSION {
 	LIBSSH2_DEBUG_FUNC((*ssh_msg_debug));
 	LIBSSH2_DISCONNECT_FUNC((*ssh_msg_disconnect));
 	LIBSSH2_MACERROR_FUNC((*macerror));
+	LIBSSH2_X11_OPEN_FUNC((*x11));
 
 	/* Method preferences -- NULL yields "load order" */
 	char *kex_prefs;
