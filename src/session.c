@@ -488,46 +488,52 @@ LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reas
  */
 LIBSSH2_API char *libssh2_session_methods(LIBSSH2_SESSION *session, int method_type)
 {
-	char *methodlist = NULL;
+	/* All methods have char *name as their first element */
+	LIBSSH2_KEX_METHOD *method = NULL;
 
 	switch(method_type) {
 		case LIBSSH2_METHOD_KEX:
-			methodlist = session->kex->name;
+			method = session->kex;
 		break;
 		case LIBSSH2_METHOD_HOSTKEY:
-			methodlist = session->hostkey->name;
+			method = (LIBSSH2_KEX_METHOD*)session->hostkey;
 		break;
 		case LIBSSH2_METHOD_CRYPT_CS:
-			methodlist = session->local.crypt->name;
+			method = (LIBSSH2_KEX_METHOD*)session->local.crypt;
 		break;
 		case LIBSSH2_METHOD_CRYPT_SC:
-			methodlist = session->remote.crypt->name;
+			method = (LIBSSH2_KEX_METHOD*)session->remote.crypt;
 		break;
 		case LIBSSH2_METHOD_MAC_CS:
-			methodlist = session->local.mac->name;
+			method = (LIBSSH2_KEX_METHOD*)session->local.mac;
 		break;
 		case LIBSSH2_METHOD_MAC_SC:
-			methodlist = session->remote.mac->name;
+			method = (LIBSSH2_KEX_METHOD*)session->remote.mac;
 		break;
 		case LIBSSH2_METHOD_COMP_CS:
-			methodlist = session->local.comp->name;
+			method = (LIBSSH2_KEX_METHOD*)session->local.comp;
 		break;
 		case LIBSSH2_METHOD_COMP_SC:
-			methodlist = session->remote.comp->name;
+			method = (LIBSSH2_KEX_METHOD*)session->remote.comp;
 		break;
 		case LIBSSH2_METHOD_LANG_CS:
-			methodlist = "";
+			return "";
 		break;
 		case LIBSSH2_METHOD_LANG_SC:
-			methodlist = "";
+			return "";
 		break;
 		default:
 			libssh2_error(session, LIBSSH2_ERROR_INVAL, "Invalid parameter specified for method_type", 0);
-			methodlist = NULL;
+			return NULL;
 		break;
 	}
 
-	return(methodlist);
+	if (!method) {
+		libssh2_error(session, LIBSSH2_ERROR_METHOD_NONE, "No method negotiated", 0);
+		return NULL;
+	}
+
+	return method->name;
 }
 /* }}} */
 
