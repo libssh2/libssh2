@@ -315,6 +315,10 @@ LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session)
 		}
 	}
 
+	while (session->listeners) {
+		libssh2_channel_forward_cancel(session->listeners);
+	}
+
 	if (session->newkeys) {
 		/* hostkey */
 		if (session->hostkey && session->hostkey->dtor) {

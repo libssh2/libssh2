@@ -123,6 +123,19 @@ struct _LIBSSH2_CHANNEL_BRIGADE {
 	LIBSSH2_CHANNEL *head, *tail;
 };
 
+struct _LIBSSH2_LISTENER {
+	LIBSSH2_SESSION *session;
+
+	char *host;
+	int port;
+
+	LIBSSH2_CHANNEL *queue;
+	int queue_size;
+	int queue_maxsize;
+
+	LIBSSH2_LISTENER *prev, *next;
+};
+
 typedef struct _libssh2_endpoint_data {
 	unsigned char *banner;
 
@@ -201,6 +214,8 @@ struct _LIBSSH2_SESSION {
 	/* Active connection channels */
 	LIBSSH2_CHANNEL_BRIGADE channels;
 	unsigned long next_channel;
+
+	LIBSSH2_LISTENER *listeners;
 
 	/* Actual I/O socket */
 	int socket_fd;
@@ -373,6 +388,7 @@ int libssh2_packet_require_ex(LIBSSH2_SESSION *session, unsigned char packet_typ
 		libssh2_packet_require_ex((session), (packet_type), (data), (data_len), 0, NULL, 0)
 int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned long data_len);
 int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange);
+unsigned long libssh2_channel_nextid(LIBSSH2_SESSION *session);
 LIBSSH2_CHANNEL *libssh2_channel_locate(LIBSSH2_SESSION *session, unsigned long channel_id);
 
 /* Let crypt.c/hostkey.c/comp.c/mac.c expose their method structs */

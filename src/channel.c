@@ -41,7 +41,7 @@
 /* {{{ libssh2_channel_nextid
  * Determine the next channel ID we can use at our end
  */
-static unsigned long libssh2_channel_nextid(LIBSSH2_SESSION *session)
+unsigned long libssh2_channel_nextid(LIBSSH2_SESSION *session)
 {
 	unsigned long id = session->next_channel;
 	LIBSSH2_CHANNEL *channel;
@@ -254,6 +254,191 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *se
 	LIBSSH2_FREE(session, message);
 
 	return channel;
+}
+/* }}} */
+
+/* {{{ libssh2_channel_forward_listen_ex
+ * Bind a port on the remote host and listen for connections
+ */
+LIBSSH2_API LIBSSH2_LISTENER *libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, char *host, int port, int *bound_port, int queue_maxsize)
+{
+	unsigned char *packet, *s;
+	unsigned long host_len = (host ? strlen(host) : (sizeof("0.0.0.0") - 1));
+	unsigned long packet_len = host_len + (sizeof("tcpip-forward") - 1) + 14;
+					/* packet_type(1) + request_len(4) + want_replay(1) + host_len(4) + port(4) */
+
+	s = packet = LIBSSH2_ALLOC(session, packet_len);
+	if (!packet) {
+		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memeory for setenv packet", 0);
+		return NULL;
+	}
+
+	*(s++) = SSH_MSG_GLOBAL_REQUEST;
+	libssh2_htonu32(s, sizeof("tcpip-forward") - 1);			s += 4;
+	memcpy(s, "tcpip-forward", sizeof("tcpip-forward") - 1);	s += sizeof("tcpip-forward") - 1;
+	*(s++) = 0xFF;		/* want_reply */
+
+	libssh2_htonu32(s, host_len);								s += 4;
+	memcpy(s, host ? host : "0.0.0.0", host_len);				s += host_len;
+	libssh2_htonu32(s, port);									s += 4;
+
+	if (libssh2_packet_write(session, packet, packet_len)) {
+		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send global-request packet for forward listen request", 0);
+		LIBSSH2_FREE(session, packet);
+		return NULL;
+	}
+	LIBSSH2_FREE(session, packet);
+
+	while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
+		unsigned char *data;
+		unsigned long data_len;
+
+		if (libssh2_packet_ask(session, SSH_MSG_REQUEST_SUCCESS, &data, &data_len, 1) == 0) {
+			LIBSSH2_LISTENER *listener;
+
+			listener = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_LISTENER));
+			if (!listener) {
+				libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for listener queue", 0);
+				LIBSSH2_FREE(session, data);
+				return NULL;
+			}
+			memset(listener, 0, sizeof(LIBSSH2_LISTENER));
+			listener->session = session;
+			listener->host = LIBSSH2_ALLOC(session, host_len + 1);
+			if (!listener->host) {
+				libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for listener queue", 0);
+				LIBSSH2_FREE(session, listener);
+				LIBSSH2_FREE(session, data);
+				return NULL;
+			}
+			memcpy(listener->host, host ? host : "0.0.0.0", host_len);
+			listener->host[host_len] = 0;
+			if (data_len >= 5 && !port) {
+				listener->port = libssh2_ntohu32(data + 1);
+			} else {
+				listener->port = port;
+			}
+
+			listener->queue_size = 0;
+			listener->queue_maxsize = queue_maxsize;
+
+			listener->next = session->listeners;
+			listener->prev = NULL;
+			if (session->listeners) {
+				session->listeners->prev = listener;
+			}
+			session->listeners = listener;
+
+			if (bound_port) {
+				*bound_port = listener->port;
+			}
+
+			LIBSSH2_FREE(session, data);
+			return listener;
+		}
+
+		if (libssh2_packet_ask(session, SSH_MSG_REQUEST_FAILURE, &data, &data_len, 0) == 0) {
+			LIBSSH2_FREE(session, data);
+			libssh2_error(session, LIBSSH2_ERROR_REQUEST_DENIED, "Unable to complete request for forward-listen", 0);
+			return NULL;
+		}
+	}
+
+	return NULL;
+}
+/* }}} */
+
+/* {{{ libssh2_channel_forward_cancel
+ * Stop listening on a remote port and free the listener
+ * Toss out any pending (un-accept()ed) connections
+ */
+LIBSSH2_API int libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
+{
+	LIBSSH2_SESSION *session = listener->session;
+	LIBSSH2_CHANNEL *queued = listener->queue;
+	unsigned char *packet, *s;
+	unsigned long host_len = strlen(listener->host);
+	unsigned long packet_len = host_len + 14 + sizeof("cancel-tcpip-forward") - 1;
+					/* packet_type(1) + request_len(4) + want_replay(1) + host_len(4) + port(4) */
+
+	s = packet = LIBSSH2_ALLOC(session, packet_len);
+	if (!packet) {
+		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memeory for setenv packet", 0);
+		return -1;
+	}
+
+	*(s++) = SSH_MSG_GLOBAL_REQUEST;
+	libssh2_htonu32(s, sizeof("cancel-tcpip-forward") - 1);					s += 4;
+	memcpy(s, "cancel-tcpip-forward", sizeof("cancel-tcpip-forward") - 1);	s += sizeof("cancel-tcpip-forward") - 1;
+	*(s++) = 0x00;		/* want_reply */
+
+	libssh2_htonu32(s, host_len);										s += 4;
+	memcpy(s, listener->host, host_len);								s += host_len;
+	libssh2_htonu32(s, listener->port);									s += 4;
+
+	if (libssh2_packet_write(session, packet, packet_len)) {
+		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send global-request packet for forward listen request", 0);
+		LIBSSH2_FREE(session, packet);
+		return -1;
+	}
+	LIBSSH2_FREE(session, packet);
+
+	while (queued) {
+		LIBSSH2_CHANNEL *next = queued->next;
+
+		libssh2_channel_free(queued);
+		queued = next;
+	}
+	LIBSSH2_FREE(session, listener->host);
+
+	if (listener->next) {
+		listener->next->prev = listener->prev;
+	}
+	if (listener->prev) {
+		listener->prev->next = listener->next;
+	} else {
+		session->listeners = listener->next;
+	}
+
+	LIBSSH2_FREE(session, listener);
+
+	return 0;
+}
+/* }}} */
+
+/* {{{ libssh2_channel_forward_accept
+ * Accept a connection
+ */
+LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener)
+{
+	while (libssh2_packet_read(listener->session, 0) > 0);
+
+	if (listener->queue) {
+		LIBSSH2_SESSION *session = listener->session;
+		LIBSSH2_CHANNEL *channel;
+
+		channel = listener->queue;
+
+		listener->queue = listener->queue->next;
+		if (listener->queue) {
+			listener->queue->prev = NULL;
+		}
+
+		channel->prev = NULL;
+		channel->next = session->channels.head;
+		session->channels.head = channel;
+
+		if (channel->next) {
+			channel->next->prev = channel;
+		} else {
+			session->channels.tail = channel;
+		}
+		listener->queue_size--;
+
+		return channel;
+	}
+
+	return NULL;
 }
 /* }}} */
 

@@ -8,6 +8,8 @@ Version 0.5
 
   Added DESTDIR support to makefiles (Adam Go³êbiowski -- I hope that character set translates right)
 
+  Added libssh2_channel_forward_listen_ex(), libssh2_channel_forward_cancel(), and libssh2_channel_forward_accept().
+
 Version 0.4
 -----------
 

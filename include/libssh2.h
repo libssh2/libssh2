@@ -159,6 +159,7 @@
 
 typedef struct _LIBSSH2_SESSION						LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL						LIBSSH2_CHANNEL;
+typedef struct _LIBSSH2_LISTENER					LIBSSH2_LISTENER;
 
 #ifdef WIN_32
 #define LIBSSH2_API __declspec(dllexport)
@@ -218,6 +219,7 @@ typedef struct _LIBSSH2_CHANNEL						LIBSSH2_CHANNEL;
 #define LIBSSH2_ERROR_ZLIB						-29
 #define LIBSSH2_ERROR_SOCKET_TIMEOUT			-30
 #define LIBSSH2_ERROR_SFTP_PROTOCOL				-31
+#define LIBSSH2_ERROR_REQUEST_DENIED			-32
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)), LIBSSH2_FREE_FUNC((*my_free)), LIBSSH2_REALLOC_FUNC((*my_realloc)), void *abstract);
@@ -268,8 +270,16 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session, char *channel_type, int channel_type_len, int window_size, int packet_size, char *message, int message_len);
 #define libssh2_channel_open_session(session)	libssh2_channel_open_ex((session), "session", sizeof("session") - 1, LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0)
+
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, char *host, int port, char *shost, int sport);
 #define libssh2_channel_direct_tcpip(session, host, port)	libssh2_channel_direct_tcpip_ex((session), (host), (port), "127.0.0.1", 22) 
+
+LIBSSH2_API LIBSSH2_LISTENER *libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, char *host, int port, int *bound_port, int queue_maxsize);
+#define libssh2_channel_forward_listen(session, port)			libssh2_channel_forward_listen_ex((session), NULL, (port), NULL, 16)
+
+LIBSSH2_API int libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener);
+
+LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener);
 
 LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varname, int varname_len, char *value, int value_len);
 #define libssh2_channel_setenv(channel, varname, value) libssh2_channel_setenv_ex((channel), (varname), strlen(varname), (value), strlen(value))
