@@ -484,3 +484,12 @@ LIBSSH2_API void libssh2_session_methods(LIBSSH2_SESSION *session,	char **kex,		
 	}
 }
 /* }}} */
+
+/* {{{ libssh2_session_abstract
+ * Retreive a pointer to the abstract property
+ */
+LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session)
+{
+	return &session->abstract;
+}
+/* }}} */

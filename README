@@ -26,6 +26,9 @@ Version 0.2
 
   Added libssh2_session_methods() to determine what methods were negotiated.
 
+  Added libssh2_session_abstract() for retreiving &session->abstract
+
+
 Version 0.1
 -----------
 

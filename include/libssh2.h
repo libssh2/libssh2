@@ -43,7 +43,7 @@
 #include <sys/stat.h>
 
 #define LIBSSH2_VERSION								"0.1"
-#define LIBSSH2_APINO								200412091407
+#define LIBSSH2_APINO								200412091526
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER							"SSH-2.0-libssh2_" LIBSSH2_VERSION
@@ -216,6 +216,7 @@ typedef struct _LIBSSH2_CHANNEL						LIBSSH2_CHANNEL;
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)), LIBSSH2_FREE_FUNC((*my_free)), LIBSSH2_REALLOC_FUNC((*my_realloc)), void *abstract);
 #define libssh2_session_init()						libssh2_session_init_ex(NULL, NULL, NULL, NULL)
+LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session);
 
 LIBSSH2_API void *libssh2_session_callback_set(LIBSSH2_SESSION *session, int cbtype, void *callback);
 
