@@ -58,7 +58,7 @@
 #endif
 #endif
 
-#if _MSC_VER < 1300
+#if defined(LIBSSH2_WIN32) && _MSC_VER < 1300
 typedef unsigned __int64 libssh2_uint64_t;
 typedef __int64 libssh2_int64_t;
 #else
