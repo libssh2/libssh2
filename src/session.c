@@ -476,51 +476,57 @@ LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reas
 /* }}} */
 
 /* {{{ libssh2_session_methods
- * Return the currently active methods
+ * Return the currently active methods for method_type
  * NOTE: Currently lang_cs and lang_sc are ALWAYS set to empty string regardless of actual negotiation
  * Strings should NOT be freed
  */
-LIBSSH2_API void libssh2_session_methods(LIBSSH2_SESSION *session,	char **kex,				char **hostkey,
-																	char **crypt_cs,		char **crypt_sc,
-																	char **mac_cs,			char **mac_sc,
-																	char **comp_cs,			char **comp_sc,
-																	char **lang_cs,			char **lang_sc)
+LIBSSH2_API char *libssh2_session_methods(LIBSSH2_SESSION *session, int method_type)
 {
-	if (kex) {
-		*kex = session->kex->name;
+	char *methodlist = NULL;
+
+	switch(method_type) {
+		case LIBSSH2_METHOD_KEX:
+			methodlist = session->kex->name;
+		break;
+		case LIBSSH2_METHOD_HOSTKEY:
+			methodlist = session->hostkey->name;
+		break;
+		case LIBSSH2_METHOD_CRYPT_CS:
+			methodlist = session->local.crypt->name;
+		break;
+		case LIBSSH2_METHOD_CRYPT_SC:
+			methodlist = session->remote.crypt->name;
+		break;
+		case LIBSSH2_METHOD_MAC_CS:
+			methodlist = session->local.mac->name;
+		break;
+		case LIBSSH2_METHOD_MAC_SC:
+			methodlist = session->remote.mac->name;
+		break;
+		case LIBSSH2_METHOD_COMP_CS:
+			methodlist = session->local.comp->name;
+		break;
+		case LIBSSH2_METHOD_COMP_SC:
+			methodlist = session->remote.comp->name;
+		break;
+		case LIBSSH2_METHOD_LANG_CS:
+			methodlist = "";
+		break;
+		case LIBSSH2_METHOD_LANG_SC:
+			methodlist = "";
+		break;
+		default:
+			libssh2_error(session, LIBSSH2_ERROR_INVAL, "Invalid parameter specified for method_type", 0);
+			methodlist = NULL;
+		break;
 	}
-	if (hostkey) {
-		*hostkey = session->hostkey->name;
-	}
-	if (crypt_cs) {
-		*crypt_cs = session->local.crypt->name;
-	}
-	if (crypt_sc) {
-		*crypt_sc = session->remote.crypt->name;
-	}
-	if (mac_cs) {
-		*mac_cs = session->local.mac->name;
-	}
-	if (mac_sc) {
-		*mac_sc = session->remote.mac->name;
-	}
-	if (comp_cs) {
-		*comp_cs = session->local.comp->name;
-	}
-	if (comp_sc) {
-		*comp_sc = session->remote.comp->name;
-	}
-	if (lang_cs) {
-		*lang_cs = "";
-	}
-	if (lang_sc) {
-		*lang_sc = "";
-	}
+
+	return(methodlist);
 }
 /* }}} */
 
 /* {{{ libssh2_session_abstract
- * Retreive a pointer to the abstract property
+ * Retrieve a pointer to the abstract property
  */
 LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session)
 {

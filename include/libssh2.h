@@ -239,12 +239,7 @@ LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session);
 LIBSSH2_API char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_type);
 
 LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type, char *prefs);
-LIBSSH2_API void libssh2_session_methods(LIBSSH2_SESSION *session,	char **kex,				char **hostkey,
-																	char **crypt_cs,		char **crypt_sc,
-																	char **mac_cs,			char **mac_sc,
-																	char **comp_cs,			char **comp_sc,
-																	char **lang_cs,			char **lang_sc);
-
+LIBSSH2_API char *libssh2_session_methods(LIBSSH2_SESSION *session, int method_type);
 LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errmsg, int *errmsg_len, int want_buf);
 
 /* Userauth API */
