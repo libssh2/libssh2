@@ -254,16 +254,16 @@ LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int socket)
 	session->socket_fd = socket;
 
 	/* TODO: Liveness check */
-	if (libssh2_banner_receive(session)) {
-		/* Unable to receive banner from remote */
-		libssh2_error(session, LIBSSH2_ERROR_BANNER_NONE, "Timeout waiting for banner", 0);
-		return LIBSSH2_ERROR_BANNER_NONE;
-	}
-
 	if (libssh2_banner_send(session)) {
 		/* Unable to send banner? */
 		libssh2_error(session, LIBSSH2_ERROR_BANNER_SEND, "Error sending banner to remote host", 0);
 		return LIBSSH2_ERROR_BANNER_SEND;
+	}
+
+	if (libssh2_banner_receive(session)) {
+		/* Unable to receive banner from remote */
+		libssh2_error(session, LIBSSH2_ERROR_BANNER_NONE, "Timeout waiting for banner", 0);
+		return LIBSSH2_ERROR_BANNER_NONE;
 	}
 
 	if (libssh2_kex_exchange(session, 0)) {
