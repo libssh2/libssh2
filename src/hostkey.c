@@ -124,7 +124,7 @@ static int libssh2_hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session, unsi
 		 * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
 		 * Someone buy me an OpenSSL manual and I'll read up on it.
 		 */
-		OPENSSL_add_all_algorithms_noconf();
+		OpenSSL_add_all_ciphers();
 	}
 	rsactx = PEM_read_RSAPrivateKey(fp, NULL, (void*)libssh2_hostkey_method_ssh_rsadsa_passphrase_cb, passphrase);
 	if (!rsactx) {
@@ -338,7 +338,7 @@ static int libssh2_hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session, unsi
 		 * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
 		 * Someone buy me an OpenSSL manual and I'll read up on it.
 		 */
-		OPENSSL_add_all_algorithms_noconf();
+		OpenSSL_add_all_ciphers();
 	}
 	dsactx = PEM_read_DSAPrivateKey(fp, NULL, (void*)libssh2_hostkey_method_ssh_rsadsa_passphrase_cb, passphrase);
 	if (!dsactx) {
