@@ -402,9 +402,9 @@ LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session)
 
 /* {{{ libssh2_session_disconnect_ex
  */
-LIBSSH2_API void libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason, char *description, char *lang)
+LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason, char *description, char *lang)
 {
-	unsigned char *data;
+	unsigned char *s, *data;
 	unsigned long data_len, descr_len = 0, lang_len = 0;
 
 	if (description) {
@@ -415,29 +415,32 @@ LIBSSH2_API void libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int rea
 	}
 	data_len = descr_len + lang_len + 13; /* packet_type(1) + reason code(4) + descr_len(4) + lang_len(4) */
 
-	data = LIBSSH2_ALLOC(session, data_len);
-	if (data) {
-		unsigned char *s = data;
-
-		*(s++) = SSH_MSG_DISCONNECT;
-		libssh2_htonu32(s, reason);				s += 4;
-
-		libssh2_htonu32(s, descr_len);			s += 4;
-		if (description) {
-			memcpy(s, description, descr_len);
-			s += descr_len;
-		}
-
-		libssh2_htonu32(s, lang_len);			s += 4;
-		if (lang) {
-			memcpy(s, lang, lang_len);
-			s += lang_len;
-		}
-
-		libssh2_packet_write(session, data, data_len);
-
-		LIBSSH2_FREE(session, data);
+	s = data = LIBSSH2_ALLOC(session, data_len);
+	if (!data) {
+		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for disconnect packet", 0);
+		return -1;
 	}
+
+	*(s++) = SSH_MSG_DISCONNECT;
+	libssh2_htonu32(s, reason);				s += 4;
+
+	libssh2_htonu32(s, descr_len);			s += 4;
+	if (description) {
+		memcpy(s, description, descr_len);
+		s += descr_len;
+	}
+
+	libssh2_htonu32(s, lang_len);			s += 4;
+	if (lang) {
+		memcpy(s, lang, lang_len);
+		s += lang_len;
+	}
+
+	libssh2_packet_write(session, data, data_len);
+
+	LIBSSH2_FREE(session, data);
+
+	return 0;
 }
 /* }}} */
 
