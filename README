@@ -8,6 +8,8 @@ Version 0.8
 
   Fix compatability with older versions of OpenSSL
 
+  Swapped order of none,zlib compression modes to prefer no compression by default.
+
 Version 0.7
 -----------
 

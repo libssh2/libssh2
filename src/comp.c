@@ -272,10 +272,10 @@ static LIBSSH2_COMP_METHOD libssh2_comp_method_zlib = {
    *********************** */
 
 static LIBSSH2_COMP_METHOD *_libssh2_comp_methods[] = {
+	&libssh2_comp_method_none,
 #ifdef LIBSSH2_HAVE_ZLIB
 	&libssh2_comp_method_zlib,
 #endif /* LIBSSH2_HAVE_ZLIB */
-	&libssh2_comp_method_none,
 	NULL
 };
 
