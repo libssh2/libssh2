@@ -67,7 +67,7 @@ typedef long long libssh2_int64_t;
 #endif
 
 #define LIBSSH2_VERSION								"0.6"
-#define LIBSSH2_APINO								200502091118
+#define LIBSSH2_APINO								200502132140
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER							"SSH-2.0-libssh2_" LIBSSH2_VERSION
@@ -230,6 +230,13 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 																				 char *passphrase);
 #define libssh2_userauth_publickey_fromfile(session, username, publickey, privatekey, passphrase)	\
 		libssh2_userauth_publickey_fromfile_ex((session), (username), strlen(username), (publickey), (privatekey), (passphrase))
+LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session, char *username, int username_len,
+																				 char *publickey, char *privatekey,
+																				 char *passphrase,
+																				 char *hostname, int hostname_len,
+																				 char *local_username, int local_username_len);
+#define libssh2_userauth_hostbased_fromfile(session, username, publickey, privatekey, passphrase, hostname)	\
+		libssh2_userauth_hostbased_fromfile_ex((session), (username), strlen(username), (publickey), (privatekey), (passphrase), (hostname), strlen(hostname), (username), strlen(username))
 
 /* Channel API */
 #define LIBSSH2_CHANNEL_WINDOW_DEFAULT	65536
