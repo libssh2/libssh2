@@ -408,7 +408,7 @@ int libssh2_packet_require_ex(LIBSSH2_SESSION *session, unsigned char packet_typ
 #define libssh2_packet_require(session, packet_type, data, data_len)			\
 		libssh2_packet_require_ex((session), (packet_type), (data), (data_len), 0, NULL, 0)
 int libssh2_packet_requirev_ex(LIBSSH2_SESSION *session, unsigned char *packet_types, unsigned char **data, unsigned long *data_len, unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len);
-#define libssh2_packet_requirev(session, packet_type, data, data_len)			\
+#define libssh2_packet_requirev(session, packet_types, data, data_len)			\
 		libssh2_packet_requirev_ex((session), (packet_types), (data), (data_len), 0, NULL, 0)
 int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned long data_len);
 int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange);
