@@ -1,4 +1,6 @@
+#ifndef WIN32
 #define WIN32
+#endif
 #include <winsock2.h>
 #include <mswsock.h>
 #include <ws2tcpip.h>
@@ -29,3 +31,8 @@ static inline int usleep(int udelay)
 
 #define snprintf	_snprintf
 
+/* Compile in zlib support */
+#define LIBSSH2_HAVE_ZLIB 1
+
+/* Enable newer diffie-hellman-group-exchange-sha1 syntax */
+#define LIBSSH2_DH_GEX_NEW 1
