@@ -43,7 +43,7 @@
 #include <sys/stat.h>
 
 #define LIBSSH2_VERSION								"0.1"
-#define LIBSSH2_APINO								200412091107
+#define LIBSSH2_APINO								200412091407
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER							"SSH-2.0-libssh2_" LIBSSH2_VERSION
@@ -140,6 +140,18 @@
 #define LIBSSH2_CALLBACK_DISCONNECT			2
 #define LIBSSH2_CALLBACK_MACERROR			3
 
+/* libssh2_session_method_pref() constants */
+#define LIBSSH2_METHOD_KEX			0
+#define LIBSSH2_METHOD_HOSTKEY		1
+#define LIBSSH2_METHOD_CRYPT_CS		2
+#define LIBSSH2_METHOD_CRYPT_SC		3
+#define LIBSSH2_METHOD_MAC_CS		4
+#define LIBSSH2_METHOD_MAC_SC		5
+#define LIBSSH2_METHOD_COMP_CS		6
+#define LIBSSH2_METHOD_COMP_SC		7
+#define LIBSSH2_METHOD_LANG_CS		8
+#define LIBSSH2_METHOD_LANG_SC		9
+
 typedef struct _LIBSSH2_SESSION						LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL						LIBSSH2_CHANNEL;
 
@@ -213,6 +225,13 @@ LIBSSH2_API void libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int rea
 LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session);
 
 LIBSSH2_API char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_type);
+
+LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type, char *prefs);
+LIBSSH2_API void libssh2_session_methods(LIBSSH2_SESSION *session,	char **kex,				char **hostkey,
+																	char **crypt_cs,		char **crypt_sc,
+																	char **mac_cs,			char **mac_sc,
+																	char **comp_cs,			char **comp_sc,
+																	char **lang_cs,			char **lang_sc);
 
 /* Userauth API */
 LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, char *username, int username_len);

@@ -22,6 +22,10 @@ Version 0.2
 
   Added libssh2_session_callback_set() for setting ignore/debug/disconnect/macerror callbacks
 
+  Added libssh2_session_method_pref() to selectively set methods and method preferences.
+
+  Added libssh2_session_methods() to determine what methods were negotiated.
+
 Version 0.1
 -----------
 

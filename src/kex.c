@@ -671,16 +671,16 @@ static size_t libssh2_kex_method_list(unsigned char *buf, size_t list_strlen, LI
 }
 /* }}} */
 
-#define LIBSSH2_METHOD_PREFS	\
-	LIBSSH2_KEX_METHOD		**kex_prefs			= session->kex_prefs			? session->kex_prefs			: libssh2_kex_methods; \
-	LIBSSH2_HOSTKEY_METHOD	**hostkey_prefs		= session->hostkey_prefs		? session->hostkey_prefs		: libssh2_hostkey_methods(); \
-	LIBSSH2_CRYPT_METHOD	**crypt_cs_prefs	= session->local.crypt_prefs	? session->local.crypt_prefs	: libssh2_crypt_methods(); \
-	LIBSSH2_CRYPT_METHOD	**crypt_sc_prefs	= session->remote.crypt_prefs	? session->remote.crypt_prefs	: libssh2_crypt_methods(); \
-	LIBSSH2_COMP_METHOD		**comp_cs_prefs		= session->local.comp_prefs		? session->local.comp_prefs		: libssh2_comp_methods(); \
-	LIBSSH2_COMP_METHOD		**comp_sc_prefs		= session->remote.comp_prefs	? session->remote.comp_prefs	: libssh2_comp_methods(); \
-	LIBSSH2_MAC_METHOD		**mac_cs_prefs		= session->local.mac_prefs		? session->local.mac_prefs		: libssh2_mac_methods(); \
-	LIBSSH2_MAC_METHOD		**mac_sc_prefs		= session->remote.mac_prefs		? session->remote.mac_prefs		: libssh2_mac_methods();
-
+#define LIBSSH2_METHOD_PREFS_LEN(prefvar, defaultvar)	((prefvar) ? strlen(prefvar) : libssh2_kex_method_strlen((LIBSSH2_COMMON_METHOD**)(defaultvar)))
+#define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)	\
+	if (prefvar) {	\
+		libssh2_htonu32((buf), (prefvarlen));	\
+		buf += 4;	\
+		memcpy((buf), (prefvar), (prefvarlen));	\
+		buf += (prefvarlen);	\
+	} else {	\
+		buf += libssh2_kex_method_list((buf), (prefvarlen),	(LIBSSH2_COMMON_METHOD**)(defaultvar));	\
+	}
 
 /* {{{ libssh2_kexinit
  * Send SSH_MSG_KEXINIT packet
@@ -694,18 +694,17 @@ static int libssh2_kexinit(LIBSSH2_SESSION *session)
 	size_t mac_cs_len,		mac_sc_len;
 	size_t lang_cs_len,		lang_sc_len;
 	unsigned char *data, *s;
-	LIBSSH2_METHOD_PREFS
 
-	kex_len			= libssh2_kex_method_strlen((LIBSSH2_COMMON_METHOD**)kex_prefs);
-	hostkey_len		= libssh2_kex_method_strlen((LIBSSH2_COMMON_METHOD**)hostkey_prefs);
-	crypt_cs_len	= libssh2_kex_method_strlen((LIBSSH2_COMMON_METHOD**)crypt_cs_prefs);
-	crypt_sc_len	= libssh2_kex_method_strlen((LIBSSH2_COMMON_METHOD**)crypt_sc_prefs);
-	mac_cs_len		= libssh2_kex_method_strlen((LIBSSH2_COMMON_METHOD**)mac_cs_prefs);
-	mac_sc_len		= libssh2_kex_method_strlen((LIBSSH2_COMMON_METHOD**)mac_sc_prefs);
-	comp_cs_len		= libssh2_kex_method_strlen((LIBSSH2_COMMON_METHOD**)comp_cs_prefs);
-	comp_sc_len		= libssh2_kex_method_strlen((LIBSSH2_COMMON_METHOD**)comp_sc_prefs);
-	lang_cs_len		= 0; /* No langs in this version */
-	lang_sc_len		= 0; /* No langs in this version */
+	kex_len			= LIBSSH2_METHOD_PREFS_LEN(session->kex_prefs,			libssh2_kex_methods);
+	hostkey_len		= LIBSSH2_METHOD_PREFS_LEN(session->hostkey_prefs,		libssh2_hostkey_methods());
+	crypt_cs_len	= LIBSSH2_METHOD_PREFS_LEN(session->local.crypt_prefs,	libssh2_crypt_methods());
+	crypt_sc_len	= LIBSSH2_METHOD_PREFS_LEN(session->remote.crypt_prefs,	libssh2_crypt_methods());
+	mac_cs_len		= LIBSSH2_METHOD_PREFS_LEN(session->local.mac_prefs,	libssh2_mac_methods());
+	mac_sc_len		= LIBSSH2_METHOD_PREFS_LEN(session->remote.mac_prefs,	libssh2_mac_methods());
+	comp_cs_len		= LIBSSH2_METHOD_PREFS_LEN(session->local.comp_prefs,	libssh2_comp_methods());
+	comp_sc_len		= LIBSSH2_METHOD_PREFS_LEN(session->remote.comp_prefs,	libssh2_comp_methods());
+	lang_cs_len		= LIBSSH2_METHOD_PREFS_LEN(session->local.lang_prefs,	NULL);
+	lang_sc_len		= LIBSSH2_METHOD_PREFS_LEN(session->remote.lang_prefs,	NULL);
 
 	data_len += kex_len			+ hostkey_len + \
 				crypt_cs_len	+ crypt_sc_len + \
@@ -726,16 +725,16 @@ static int libssh2_kexinit(LIBSSH2_SESSION *session)
 	s += 16;
 
 	/* Ennumerating through these lists twice is probably (certainly?) inefficient from a CPU standpoint, but it saves multiple malloc/realloc calls */
-	s += libssh2_kex_method_list(s, kex_len,		(LIBSSH2_COMMON_METHOD**)kex_prefs);
-	s += libssh2_kex_method_list(s, hostkey_len,	(LIBSSH2_COMMON_METHOD**)hostkey_prefs);
-	s += libssh2_kex_method_list(s, crypt_cs_len,	(LIBSSH2_COMMON_METHOD**)crypt_cs_prefs);
-	s += libssh2_kex_method_list(s, crypt_sc_len,	(LIBSSH2_COMMON_METHOD**)crypt_sc_prefs);
-	s += libssh2_kex_method_list(s, mac_cs_len,	(LIBSSH2_COMMON_METHOD**)mac_cs_prefs);
-	s += libssh2_kex_method_list(s, mac_sc_len,	(LIBSSH2_COMMON_METHOD**)mac_sc_prefs);
-	s += libssh2_kex_method_list(s, comp_cs_len,	(LIBSSH2_COMMON_METHOD**)comp_cs_prefs);
-	s += libssh2_kex_method_list(s, comp_sc_len,	(LIBSSH2_COMMON_METHOD**)comp_sc_prefs);
-	s += libssh2_kex_method_list(s, lang_cs_len,	NULL);
-	s += libssh2_kex_method_list(s, lang_sc_len,	NULL);
+	LIBSSH2_METHOD_PREFS_STR(s, kex_len,		session->kex_prefs,				libssh2_kex_methods);
+	LIBSSH2_METHOD_PREFS_STR(s, hostkey_len,	session->hostkey_prefs,			libssh2_hostkey_methods());
+	LIBSSH2_METHOD_PREFS_STR(s, crypt_cs_len,	session->local.crypt_prefs,		libssh2_crypt_methods());
+	LIBSSH2_METHOD_PREFS_STR(s, crypt_sc_len,	session->remote.crypt_prefs,	libssh2_crypt_methods());
+	LIBSSH2_METHOD_PREFS_STR(s, mac_cs_len,		session->local.mac_prefs,		libssh2_mac_methods());
+	LIBSSH2_METHOD_PREFS_STR(s, mac_sc_len,		session->remote.mac_prefs,		libssh2_mac_methods());
+	LIBSSH2_METHOD_PREFS_STR(s, comp_cs_len,	session->local.comp_prefs,		libssh2_comp_methods());
+	LIBSSH2_METHOD_PREFS_STR(s, comp_sc_len,	session->remote.comp_prefs,		libssh2_comp_methods());
+	LIBSSH2_METHOD_PREFS_STR(s, lang_cs_len,	session->local.lang_prefs,		NULL);
+	LIBSSH2_METHOD_PREFS_STR(s, lang_sc_len,	session->remote.lang_prefs,		NULL);
 
 	/* No optimistic KEX packet follows */
 	/* Deal with optimistic packets
@@ -803,13 +802,60 @@ static unsigned char *libssh2_kex_agree_instr(unsigned char *haystack, unsigned 
 }
 /* }}} */
 
+/* {{{ libssh2_get_method_by_name
+ */
+static LIBSSH2_COMMON_METHOD *libssh2_get_method_by_name(char *name, int name_len, LIBSSH2_COMMON_METHOD **methodlist)
+{
+	while (*methodlist) {
+		if ((strlen((*methodlist)->name) == name_len) &&
+			(strncmp((*methodlist)->name, name, name_len) == 0)) {
+			return *methodlist;
+		}
+		methodlist++;
+	}
+	return NULL;
+}
+/* }}} */
+
 /* {{{ libssh2_kex_agree_hostkey
  * Agree on a Hostkey which works with this kex
  */
 static int libssh2_kex_agree_hostkey(LIBSSH2_SESSION *session, unsigned long kex_flags, unsigned char *hostkey, unsigned long hostkey_len)
 {
-	LIBSSH2_HOSTKEY_METHOD	**hostkeyp	= session->hostkey_prefs	? session->hostkey_prefs	: libssh2_hostkey_methods();
+	LIBSSH2_HOSTKEY_METHOD	**hostkeyp	= libssh2_hostkey_methods();
 	unsigned char *s;
+
+	if (session->hostkey_prefs) {
+		s = session->hostkey_prefs;
+
+		while (s && *s) {
+			unsigned char *p = strchr(s, ',');
+			int method_len = (p ? (p - s) : strlen(s));
+			if (libssh2_kex_agree_instr(hostkey, hostkey_len, s, method_len)) {
+				LIBSSH2_HOSTKEY_METHOD *method = (LIBSSH2_HOSTKEY_METHOD*)libssh2_get_method_by_name(s, method_len, (LIBSSH2_COMMON_METHOD**)hostkeyp);
+
+				if (!method) {
+					/* Invalid method -- Should never be reached */
+					return -1;
+				}
+
+				/* So far so good, but does it suit our purposes? (Encrypting vs Signing) */
+				if (((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
+					(method->encrypt)) {
+					/* Either this hostkey can do encryption or this kex just doesn't require it */
+					if (((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY) == 0) ||
+						(method->sig_verify)) {
+						/* Either this hostkey can do signing or this kex just doesn't require it */
+						session->hostkey = method;
+						return 0;
+					}
+				}
+			}
+
+			s = p ? p + 1 : NULL;
+		}
+		return -1;
+	}
 
 	while ((*hostkeyp)->name) {
 		s = libssh2_kex_agree_instr(hostkey, hostkey_len, (*hostkeyp)->name, strlen((*hostkeyp)->name));
@@ -839,8 +885,36 @@ static int libssh2_kex_agree_hostkey(LIBSSH2_SESSION *session, unsigned long kex
 static int libssh2_kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char *kex, unsigned long kex_len,
 																   unsigned char *hostkey, unsigned long hostkey_len)
 {
-	LIBSSH2_KEX_METHOD		**kexp		= session->kex_prefs		? session->kex_prefs		: libssh2_kex_methods;
+	LIBSSH2_KEX_METHOD **kexp = libssh2_kex_methods;
 	unsigned char *s;
+
+	if (session->kex_prefs) {
+		s = session->kex_prefs;
+
+		while (s && *s) {
+			unsigned char *p = strchr(s, ',');
+			int method_len = (p ? (p - s) : strlen(s));
+			if (libssh2_kex_agree_instr(kex, kex_len, s, method_len)) {
+				LIBSSH2_KEX_METHOD *method = (LIBSSH2_KEX_METHOD*)libssh2_get_method_by_name(s, method_len, (LIBSSH2_COMMON_METHOD**)kexp);
+
+				if (!method) {
+					/* Invalid method -- Should never be reached */
+					return -1;
+				}
+
+				/* We've agreed on a key exchange method,
+				 * Can we agree on a hostkey that works with this kex?
+				 */
+				if (libssh2_kex_agree_hostkey(session, method->flags, hostkey, hostkey_len) == 0) {
+					session->kex = method;
+					return 0;
+				}
+			}
+
+			s = p ? p + 1 : NULL;
+		}
+		return -1;
+	}
 
 	while (*kexp && (*kexp)->name) {
 		s = libssh2_kex_agree_instr(kex, kex_len, (*kexp)->name, strlen((*kexp)->name));
@@ -864,8 +938,32 @@ static int libssh2_kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char
  */
 static int libssh2_kex_agree_crypt(LIBSSH2_SESSION *session, libssh2_endpoint_data *endpoint, unsigned char *crypt, unsigned long crypt_len)
 {
-	LIBSSH2_CRYPT_METHOD		**cryptp	= endpoint->crypt_prefs		? endpoint->crypt_prefs		: libssh2_crypt_methods();
+	LIBSSH2_CRYPT_METHOD **cryptp = libssh2_crypt_methods();
 	unsigned char *s;
+
+	if (endpoint->crypt_prefs) {
+		s = endpoint->crypt_prefs;
+
+		while (s && *s) {
+			unsigned char *p = strchr(s, ',');
+			int method_len = (p ? (p - s) : strlen(s));
+
+			if (libssh2_kex_agree_instr(crypt, crypt_len, s, method_len)) {
+				LIBSSH2_CRYPT_METHOD *method = (LIBSSH2_CRYPT_METHOD*)libssh2_get_method_by_name(s, method_len, (LIBSSH2_COMMON_METHOD**)cryptp);
+
+				if (!method) {
+					/* Invalid method -- Should never be reached */
+					return -1;
+				}
+
+				endpoint->crypt = method;
+				return 0;
+			}
+
+			s = p ? p + 1 : NULL;
+		}
+		return -1;
+	}
 
 	while ((*cryptp)->name) {
 		s = libssh2_kex_agree_instr(crypt, crypt_len, (*cryptp)->name, strlen((*cryptp)->name));
@@ -885,8 +983,32 @@ static int libssh2_kex_agree_crypt(LIBSSH2_SESSION *session, libssh2_endpoint_da
  */
 static int libssh2_kex_agree_mac(LIBSSH2_SESSION *session, libssh2_endpoint_data *endpoint, unsigned char *mac, unsigned long mac_len)
 {
-	LIBSSH2_MAC_METHOD		**macp	= endpoint->mac_prefs		? endpoint->mac_prefs		: libssh2_mac_methods();
+	LIBSSH2_MAC_METHOD **macp = libssh2_mac_methods();
 	unsigned char *s;
+
+	if (endpoint->mac_prefs) {
+		s = endpoint->mac_prefs;
+
+		while (s && *s) {
+			unsigned char *p = strchr(s, ',');
+			int method_len = (p ? (p - s) : strlen(s));
+
+			if (libssh2_kex_agree_instr(mac, mac_len, s, method_len)) {
+				LIBSSH2_MAC_METHOD *method = (LIBSSH2_MAC_METHOD*)libssh2_get_method_by_name(s, method_len, (LIBSSH2_COMMON_METHOD**)macp);
+
+				if (!method) {
+					/* Invalid method -- Should never be reached */
+					return -1;
+				}
+
+				endpoint->mac = method;
+				return 0;
+			}
+
+			s = p ? p + 1 : NULL;
+		}
+		return -1;
+	}
 
 	while ((*macp)->name) {
 		s = libssh2_kex_agree_instr(mac, mac_len, (*macp)->name, strlen((*macp)->name));
@@ -906,8 +1028,32 @@ static int libssh2_kex_agree_mac(LIBSSH2_SESSION *session, libssh2_endpoint_data
  */
 static int libssh2_kex_agree_comp(LIBSSH2_SESSION *session, libssh2_endpoint_data *endpoint, unsigned char *comp, unsigned long comp_len)
 {
-	LIBSSH2_COMP_METHOD		**compp	= endpoint->comp_prefs		? endpoint->comp_prefs		: libssh2_comp_methods();
+	LIBSSH2_COMP_METHOD **compp = libssh2_comp_methods();
 	unsigned char *s;
+
+	if (endpoint->comp_prefs) {
+		s = endpoint->comp_prefs;
+
+		while (s && *s) {
+			unsigned char *p = strchr(s, ',');
+			int method_len = (p ? (p - s) : strlen(s));
+
+			if (libssh2_kex_agree_instr(comp, comp_len, s, method_len)) {
+				LIBSSH2_COMP_METHOD *method = (LIBSSH2_COMP_METHOD*)libssh2_get_method_by_name(s, method_len, (LIBSSH2_COMMON_METHOD**)compp);
+
+				if (!method) {
+					/* Invalid method -- Should never be reached */
+					return -1;
+				}
+
+				endpoint->comp = method;
+				return 0;
+			}
+
+			s = p ? p + 1 : NULL;
+		}
+		return -1;
+	}
 
 	while ((*compp)->name) {
 		s = libssh2_kex_agree_instr(comp, comp_len, (*compp)->name, strlen((*compp)->name));
@@ -1054,3 +1200,97 @@ int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange) /* session->f
 }
 /* }}} */
 
+/* {{{ libssh2_session_method_pref
+ * Set preferred method
+ */
+LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type, char *prefs)
+{
+	char **prefvar, *s, *newprefs;
+	int prefs_len = strlen(prefs);
+	LIBSSH2_COMMON_METHOD **mlist;
+
+	switch (method_type) {
+		case LIBSSH2_METHOD_KEX:
+			prefvar = &session->kex_prefs;
+			mlist = (LIBSSH2_COMMON_METHOD**)libssh2_kex_methods;
+			break;
+		case LIBSSH2_METHOD_HOSTKEY:
+			prefvar = &session->hostkey_prefs;
+			mlist = (LIBSSH2_COMMON_METHOD**)libssh2_hostkey_methods();
+			break;
+		case LIBSSH2_METHOD_CRYPT_CS:
+			prefvar = &session->local.crypt_prefs;
+			mlist = (LIBSSH2_COMMON_METHOD**)libssh2_crypt_methods();
+			break;
+		case LIBSSH2_METHOD_CRYPT_SC:
+			prefvar = &session->remote.crypt_prefs;
+			mlist = (LIBSSH2_COMMON_METHOD**)libssh2_crypt_methods();
+			break;
+		case LIBSSH2_METHOD_MAC_CS:
+			prefvar = &session->local.mac_prefs;
+			mlist = (LIBSSH2_COMMON_METHOD**)libssh2_mac_methods();
+			break;
+		case LIBSSH2_METHOD_MAC_SC:
+			prefvar = &session->remote.mac_prefs;
+			mlist = (LIBSSH2_COMMON_METHOD**)libssh2_mac_methods();
+			break;
+		case LIBSSH2_METHOD_COMP_CS:
+			prefvar = &session->local.comp_prefs;
+			mlist = (LIBSSH2_COMMON_METHOD**)libssh2_comp_methods();
+			break;
+		case LIBSSH2_METHOD_COMP_SC:
+			prefvar = &session->remote.comp_prefs;
+			mlist = (LIBSSH2_COMMON_METHOD**)libssh2_comp_methods();
+			break;
+		case LIBSSH2_METHOD_LANG_CS:
+			prefvar = &session->local.lang_prefs;
+			mlist = NULL;
+			break;
+		case LIBSSH2_METHOD_LANG_SC:
+			prefvar = &session->remote.lang_prefs;
+			mlist = NULL;
+			break;
+		default:
+			return -1;
+	}
+
+	s = newprefs = LIBSSH2_ALLOC(session, prefs_len + 1);
+	if (!newprefs) {
+		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Error allocated space for method preferences", 0);
+		return -1;
+	}
+	memcpy(s, prefs, prefs_len + 1);
+
+	while (s && *s) {
+		char *p = strchr(s, ',');
+		int method_len = p ? (p - s) : strlen(s);
+
+		if (!libssh2_get_method_by_name(s, method_len, mlist)) {
+			/* Strip out unsupported method */
+			if (p) {
+				memcpy(s, p + 1, strlen(s) - method_len);
+			} else {
+				if (s > newprefs) {
+					*(--s) = '\0';
+				} else {
+					*s = '\0';
+				}
+			}
+		}
+
+		s = p ? (p + 1) : NULL;
+	}
+
+	if (strlen(newprefs) == 0) {
+		LIBSSH2_FREE(session, newprefs);
+		return -1;
+	}
+
+	if (*prefvar) {
+		LIBSSH2_FREE(session, *prefvar);
+	}
+	*prefvar = newprefs;
+
+	return 0;
+}
+/* }}} */

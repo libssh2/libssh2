@@ -338,11 +338,46 @@ LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session)
 		}
 	}
 
+	/* Free banner(s) */
 	if (session->remote.banner) {
 		LIBSSH2_FREE(session, session->remote.banner);
 	}
 	if (session->local.banner) {
 		LIBSSH2_FREE(session, session->local.banner);
+	}
+
+	/* Free preference(s) */
+	if (session->kex_prefs) {
+		LIBSSH2_FREE(session, session->kex_prefs);
+	}
+	if (session->hostkey_prefs) {
+		LIBSSH2_FREE(session, session->hostkey_prefs);
+	}
+
+	if (session->local.crypt_prefs) {
+		LIBSSH2_FREE(session, session->local.crypt_prefs);
+	}
+	if (session->local.mac_prefs) {
+		LIBSSH2_FREE(session, session->local.mac_prefs);
+	}
+	if (session->local.comp_prefs) {
+		LIBSSH2_FREE(session, session->local.comp_prefs);
+	}
+	if (session->local.lang_prefs) {
+		LIBSSH2_FREE(session, session->local.lang_prefs);
+	}
+
+	if (session->remote.crypt_prefs) {
+		LIBSSH2_FREE(session, session->remote.crypt_prefs);
+	}
+	if (session->remote.mac_prefs) {
+		LIBSSH2_FREE(session, session->remote.mac_prefs);
+	}
+	if (session->remote.comp_prefs) {
+		LIBSSH2_FREE(session, session->remote.comp_prefs);
+	}
+	if (session->remote.lang_prefs) {
+		LIBSSH2_FREE(session, session->remote.lang_prefs);
 	}
 
 	/* Cleanup any remaining packets */
@@ -402,6 +437,50 @@ LIBSSH2_API void libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int rea
 		libssh2_packet_write(session, data, data_len);
 
 		LIBSSH2_FREE(session, data);
+	}
+}
+/* }}} */
+
+/* {{{ libssh2_session_methods
+ * Return the currently active methods
+ * NOTE: Currently lang_cs and lang_sc are ALWAYS set to empty string regardless of actual negotiation
+ * Strings should NOT be freed
+ */
+LIBSSH2_API void libssh2_session_methods(LIBSSH2_SESSION *session,	char **kex,				char **hostkey,
+																	char **crypt_cs,		char **crypt_sc,
+																	char **mac_cs,			char **mac_sc,
+																	char **comp_cs,			char **comp_sc,
+																	char **lang_cs,			char **lang_sc)
+{
+	if (kex) {
+		*kex = session->kex->name;
+	}
+	if (hostkey) {
+		*hostkey = session->hostkey->name;
+	}
+	if (crypt_cs) {
+		*crypt_cs = session->local.crypt->name;
+	}
+	if (crypt_sc) {
+		*crypt_sc = session->remote.crypt->name;
+	}
+	if (mac_cs) {
+		*mac_cs = session->local.mac->name;
+	}
+	if (mac_sc) {
+		*mac_sc = session->remote.mac->name;
+	}
+	if (comp_cs) {
+		*comp_cs = session->local.comp->name;
+	}
+	if (comp_sc) {
+		*comp_sc = session->remote.comp->name;
+	}
+	if (lang_cs) {
+		*lang_cs = "";
+	}
+	if (lang_sc) {
+		*lang_sc = "";
 	}
 }
 /* }}} */

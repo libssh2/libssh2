@@ -135,9 +135,10 @@ typedef struct _libssh2_endpoint_data {
 	void *comp_abstract;
 
 	/* Method Preferences -- NULL yields "load order" */
-	LIBSSH2_CRYPT_METHOD **crypt_prefs;
-	LIBSSH2_MAC_METHOD **mac_prefs;
-	LIBSSH2_COMP_METHOD **comp_prefs;
+	char *crypt_prefs;
+	char *mac_prefs;
+	char *comp_prefs;
+	char *lang_prefs;
 } libssh2_endpoint_data;
 
 struct _LIBSSH2_SESSION {
@@ -154,8 +155,8 @@ struct _LIBSSH2_SESSION {
 	LIBSSH2_MACERROR_FUNC((*macerror));
 
 	/* Method preferences -- NULL yields "load order" */
-	LIBSSH2_KEX_METHOD **kex_prefs;
-	LIBSSH2_HOSTKEY_METHOD **hostkey_prefs;
+	char *kex_prefs;
+	char *hostkey_prefs;
 
 	int exchanging_keys;
 	int newkeys;
