@@ -612,7 +612,7 @@ LIBSSH2_API int libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id
 		/* twiddle our thumbs until there's window space available */
 		if (libssh2_packet_read(session, 1) < 0) {
 			/* Error occured, disconnect? */
-			return 0;
+			return -1;
 		}
 	}
 
