@@ -72,7 +72,6 @@ static unsigned long libssh2_channel_nextid(LIBSSH2_SESSION *session)
 LIBSSH2_CHANNEL *libssh2_channel_locate(LIBSSH2_SESSION *session, unsigned long channel_id)
 {
 	LIBSSH2_CHANNEL *channel = session->channels.head;
-
 	while (channel) {
 		if (channel->local.id == channel_id) {
 			return channel;
@@ -104,14 +103,38 @@ LIBSSH2_CHANNEL *libssh2_channel_locate(LIBSSH2_SESSION *session, unsigned long 
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session, char *channel_type, int channel_type_len, int window_size, int packet_size,
 																			   char *message, int message_len)
 {
-	LIBSSH2_CHANNEL *channel;
+	LIBSSH2_CHANNEL *channel = NULL;
 	unsigned long local_channel = libssh2_channel_nextid(session);
-	unsigned char *s, *packet;
+	unsigned char *s, *packet = NULL;
 	unsigned long packet_len = channel_type_len + message_len + 17; /* packet_type(1) + channel_type_len(4) + sender_channel(4) + 
 																	   window_size(4) + packet_size(4) */
-	unsigned char *data;
+	unsigned char *data = NULL;
 	unsigned long data_len;
 	int polls = 0;
+
+	channel = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
+	if (!channel) {
+		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate space for channel data", 0);
+		return NULL;
+	}
+	memset(channel, 0, sizeof(LIBSSH2_CHANNEL));
+
+	channel->channel_type_len	= channel_type_len;
+	channel->channel_type		= LIBSSH2_ALLOC(session, channel_type_len);
+	if (!channel->channel_type) {
+		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Failed allocating memory for channel type name", 0);
+		LIBSSH2_FREE(session, channel);
+		return NULL;
+	}
+	memcpy(channel->channel_type, channel_type, channel_type_len);
+
+	/* REMEMBER: local as in locally sourced */
+	channel->local.id					= local_channel;
+	channel->remote.window_size 		= window_size;
+	channel->remote.window_size_initial	= window_size;
+	channel->remote.packet_size 		= packet_size;
+
+	libssh2_channel_add(session, channel);
 
 	s = packet = LIBSSH2_ALLOC(session, packet_len);
 	if (!packet) {
@@ -132,8 +155,7 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session, c
 
 	if (libssh2_packet_write(session, packet, packet_len)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send channel-open request", 0);
-		LIBSSH2_FREE(session, packet);
-		return NULL;
+		goto channel_error;
 	}
 
 	while (session->socket_state != LIBSSH2_SOCKET_DISCONNECTED) {
@@ -146,62 +168,62 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session, c
 
 			/* TODO: provide reason code and description */
 			libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE, "Channel open failure", 0);
-			LIBSSH2_FREE(session, data);
-			LIBSSH2_FREE(session, packet);
-			return NULL;
+			goto channel_error;
 		}
 		usleep(LIBSSH2_SOCKET_POLL_UDELAY);
 		if (polls++ > LIBSSH2_SOCKET_POLL_MAXLOOPS) {
 			/* Give up waiting */
 			libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT, "Timed out waiting for response", 0);
-			LIBSSH2_FREE(session, packet);
-			return NULL;
+			goto channel_error;
 		}
 	}
-	LIBSSH2_FREE(session, packet);
 
-	channel = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
-	if (!channel) {
-		/* Play nice and close that channel that we're not going to use after all */
-		data[3] = SSH_MSG_CHANNEL_CLOSE;
-		libssh2_packet_write(session, data + 3, 5);
-
-		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate space for channel data", 0);
-		LIBSSH2_FREE(session, data);
-
-		return NULL;
-	}
-	memset(channel, 0, sizeof(LIBSSH2_CHANNEL));
-
-	channel->channel_type_len	= channel_type_len;
-	channel->channel_type		= LIBSSH2_ALLOC(session, channel_type_len);
-	if (!channel->channel_type) {
-		/* Play nice and close that channel that we're not going to use after all */
-		data[4] = SSH_MSG_CHANNEL_CLOSE;
-		libssh2_packet_write(session, data + 4, 5);
-
-		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Failed allocating memory for channel type name", 0);
-		LIBSSH2_FREE(session, channel);
-		return NULL;
-	}
-	memcpy(channel->channel_type, channel_type, channel_type_len);
-
-	/* REMEMBER: local as in locally sourced */
-	channel->local.id					= local_channel;
+	channel->remote.id					= libssh2_ntohu32(data + 5);
 	channel->local.window_size			= libssh2_ntohu32(data + 9);
 	channel->local.window_size_initial	= libssh2_ntohu32(data + 9);
 	channel->local.packet_size			= libssh2_ntohu32(data + 13);
 
-	channel->remote.id					= libssh2_ntohu32(data + 5);
-	channel->remote.window_size 		= window_size;
-	channel->remote.window_size_initial	= window_size;
-	channel->remote.packet_size 		= packet_size;
-
+	LIBSSH2_FREE(session, packet);
 	LIBSSH2_FREE(session, data);
 
-	libssh2_channel_add(session, channel);
-
 	return channel;
+
+ channel_error:
+
+	if (data) {
+		LIBSSH2_FREE(session, data);
+	}
+	if (packet) {
+		LIBSSH2_FREE(session, packet);
+	}
+	if (channel) {
+		unsigned char channel_id[4];
+		LIBSSH2_FREE(session, channel->channel_type);
+
+		if (channel->next) {
+			channel->next->prev = channel->prev;
+		}
+		if (channel->prev) {
+			channel->prev->next = channel->next;
+		}
+		if (session->channels.head == channel) {
+			session->channels.head = channel->next;
+		}
+		if (session->channels.tail == channel) {
+			session->channels.tail = channel->prev;
+		}
+
+		/* Clear out packets meant for this channel */
+		libssh2_htonu32(channel_id, channel->local.id);
+		while  ((libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_DATA, 		  &data, &data_len, 1, channel_id, 4, 1) >= 0) ||
+				(libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_EXTENDED_DATA, &data, &data_len, 1, channel_id, 4, 1) >= 0)) {
+			LIBSSH2_FREE(session, data);
+		}
+
+		LIBSSH2_FREE(session, channel);
+	}
+
+	return NULL;
 }
 /* }}} */
 
@@ -210,6 +232,7 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session, c
  */
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, char *host, int port, char *shost, int sport)
 {
+	LIBSSH2_CHANNEL *channel;
 	unsigned char *message, *s;
 	unsigned long host_len = strlen(host), shost_len = strlen(shost);
 	unsigned long message_len = host_len + shost_len + 16; /* host_len(4) + port(4) + shost_len(4) + sport(4) */
@@ -227,7 +250,10 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *se
 	memcpy(s, shost, shost_len);					s += shost_len;
 	libssh2_htonu32(s, sport);						s += 4;
 
-	return libssh2_channel_open_ex(session, "direct-tcpip", sizeof("direct-tcpip") - 1, LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, message, message_len);
+	channel = libssh2_channel_open_ex(session, "direct-tcpip", sizeof("direct-tcpip") - 1, LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, message, message_len);
+	LIBSSH2_FREE(session, message);
+
+	return channel;
 }
 /* }}} */
 
