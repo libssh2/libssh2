@@ -43,14 +43,16 @@
 #include <sys/stat.h>
 
 #ifdef LIBSSH2_WIN32
-#ifdef LIBSSH2_LIBRARY
-#define LIBSSH2_API __declspec(dllexport)
+# ifdef LIBSSH2_LIBRARY
+#  define LIBSSH2_API __declspec(dllexport)
+# else
+#  define LIBSSH2_API __declspec(dllimport)
+# endif
+# ifndef _MSC_VER
+#  include <sys/uio.h>
+# endif
 #else
-#define LIBSSH2_API __declspec(dllimport)
-#endif
-#include <sys/uio.h>
-#else
-#define LIBSSH2_API
+# define LIBSSH2_API
 #endif
 
 #define LIBSSH2_VERSION								"0.4"

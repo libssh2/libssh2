@@ -37,7 +37,9 @@
 
 #include "libssh2_priv.h"
 #include <errno.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <stdlib.h>
 
 /* {{{ libssh2_default_alloc
@@ -79,7 +81,7 @@ static int libssh2_banner_receive(LIBSSH2_SESSION *session)
 		char c = '\0';
 		int ret;
 
-		ret = read(session->socket_fd, &c, 1);
+		ret = recv(session->socket_fd, &c, 1, 0);
 
 		if ((ret < 0) && (ret != EAGAIN)) {
 			/* Some kinda error, but don't break for non-blocking issues */
@@ -124,7 +126,7 @@ static int libssh2_banner_send(LIBSSH2_SESSION *session)
 		banner = session->local.banner;
 	}
 
-	return (write(session->socket_fd, banner, banner_len) == banner_len) ? 0 : 1;
+	return (send(session->socket_fd, banner, banner_len, 0) == banner_len) ? 0 : 1;
 }
 /* }}} */
 
@@ -247,7 +249,6 @@ LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int socket)
 	session->socket_fd = socket;
 
 	/* TODO: Liveness check */
-
 	if (libssh2_banner_receive(session)) {
 		/* Unable to receive banner from remote */
 		libssh2_error(session, LIBSSH2_ERROR_BANNER_NONE, "Timeout waiting for banner", 0);

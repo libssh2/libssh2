@@ -1,0 +1,16 @@
+!include "win32/config.mk"
+
+SUBDIRS=src
+
+all: all-sub ssh2_sample.exe
+
+ssh2_sample.exe: ssh2_sample.c
+	$(CC) $(CFLAGS) -DWIN32 -o ssh2_sample.exe ssh2_sample.c libssh2$(SUFFIX).lib $(LIBS)
+
+all-sub:
+	-for %D in ($(SUBDIRS)) do $(MAKE) /nologo /f %D/NMakefile BUILD=$(BUILD) SUBDIR=%D all-sub
+	
+clean: 
+	rmdir /s/q $(TARGET)
+
+

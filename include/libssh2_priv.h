@@ -42,7 +42,9 @@
 #include "libssh2_config.h"
 #include "libssh2.h"
 
+#ifndef WIN32
 #include <sys/socket.h>
+#endif
 #include <openssl/evp.h>
 
 #define LIBSSH2_ALLOC(session, count)								session->alloc((count), &(session)->abstract)

@@ -36,7 +36,9 @@
  */
 
 #include "libssh2_priv.h"
+#ifndef WIN32
 #include <unistd.h>
+#endif
 
 /* {{{ libssh2_channel_nextid
  * Determine the next channel ID we can use at our end

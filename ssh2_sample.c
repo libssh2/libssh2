@@ -1,11 +1,17 @@
 #include "libssh2.h"
-#include <netinet/in.h>
-#include <sys/socket.h>
+
+#ifndef WIN32
+# include <netinet/in.h>
+# include <sys/socket.h>
+# include <unistd.h>
+#else
+# include <winsock2.h>
+#endif
+
 #include <sys/types.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <ctype.h>
 
 int main(int argc, char *argv[]) {
@@ -14,16 +20,26 @@ int main(int argc, char *argv[]) {
 	char *fingerprint;
 	LIBSSH2_SESSION *session;
 	LIBSSH2_CHANNEL *channel;
+#ifdef WIN32
+	WSADATA wsadata;
+
+	WSAStartup(WINSOCK_VERSION, &wsadata);
+#endif
 
 	/* Ultra basic "connect to port 22 on localhost"
 	 * Your code is responsible for creating the socket establishing the connection
 	 */
 	sock = socket(AF_INET, SOCK_STREAM, 0);
+#ifndef WIN32
 	fcntl(sock, F_SETFL, 0);
+#endif
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(22);
 	sin.sin_addr.s_addr = htonl(0x7F000001);
-	connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in));
+	if (connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0) {
+		fprintf(stderr, "failed to connect!\n");
+		return -1;
+	}
 
 	/* Create a session instance and start it up
 	 * This will trade welcome banners, exchange keys, and setup crypto, compression, and MAC layers
@@ -114,8 +130,13 @@ int main(int argc, char *argv[]) {
 	libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing");
 	libssh2_session_free(session);
 
+#ifdef WIN32
+	Sleep(1000);
+	closesocket(sock);
+#else
 	sleep(1);
 	close(sock);
-
+#endif
+printf("all done\n");
 	return 0;
 }

@@ -38,7 +38,9 @@
 #include "libssh2_priv.h"
 #include <errno.h>
 #include <fcntl.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 
@@ -412,8 +414,17 @@ static int libssh2_blocking_read(LIBSSH2_SESSION *session, unsigned char *buf, s
 	while (bytes_read < count) {
 		int ret;
 
-		ret = read(session->socket_fd, buf + bytes_read, count - bytes_read);
+		ret = recv(session->socket_fd, buf + bytes_read, count - bytes_read, 0);
 		if (ret < 0) {
+#ifdef WIN32
+			switch (WSAGetLastError()) {
+				case WSAEWOULDBLOCK:	errno = EAGAIN;
+				case WSAENOTCONN:
+				case WSAENOTSOCK:
+				case WSAECONNABORTED:	errno = EBADF;
+				case WSAEINTR:			errno = EINTR;
+			}
+#endif
 			if (errno == EAGAIN) {
 				if (polls++ > LIBSSH2_SOCKET_POLL_MAXLOOPS) {
 					return -1;
@@ -452,7 +463,14 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		return 0;
 	}
 
+#ifndef WIN32
 	fcntl(session->socket_fd, F_SETFL, O_NONBLOCK);
+#else
+	{
+		u_long non_block = TRUE;
+		ioctlsocket(session->socket_fd, FIONBIO, &non_block);
+	}
+#endif
 	if (session->newkeys) {
 		/* Temporary Buffer
 		 * The largest blocksize (currently) is 32, the largest MAC (currently) is 20
@@ -473,7 +491,7 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		if (should_block) {
 			read_len = libssh2_blocking_read(session, block, blocksize);
 		} else {
-			read_len = read(session->socket_fd, block, 1);
+			read_len = recv(session->socket_fd, block, 1, 0);
 			if (read_len <= 0) {
 				return 0;
 			}
@@ -598,7 +616,7 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		if (should_block) {
 			buf_len = libssh2_blocking_read(session, buf, 5);
 		} else {
-			buf_len = read(session->socket_fd, buf, 1);
+			buf_len = recv(session->socket_fd, buf, 1, 0);
 			if (buf_len <= 0) {
 				return 0;
 			}
@@ -618,8 +636,13 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 			return (session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) ? 0 : -1;
 		}
 		while (padding_length) {
+			int l;
 			/* Flush padding */
-			padding_length -= libssh2_blocking_read(session, buf, padding_length);
+			l = libssh2_blocking_read(session, buf, padding_length);
+			if (l > 0)
+				padding_length -= l;
+			else
+				break;
 		}
 
 		/* MACs don't exist in non-encrypted mode */
@@ -726,7 +749,15 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 		}
 	}
 
+#ifndef WIN32
 	fcntl(session->socket_fd, F_SETFL, 0);
+#else
+	{
+		u_long non_block = FALSE;
+		ioctlsocket(session->socket_fd, FIONBIO, &non_block);
+	}
+#endif
+
 	packet_length = data_len + 1; /* padding_length(1) -- MAC doesn't count -- Padding to be added soon */
 	padding_length = block_size - ((packet_length + 4) % block_size);
 	if (padding_length < 4) {
@@ -785,7 +816,7 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 		session->local.seqno++;
 
 		/* Send It */
-		ret = ((4 + packet_length + session->local.mac->mac_len) == write(session->socket_fd, encbuf, 4 + packet_length + session->local.mac->mac_len)) ? 0 : -1;
+		ret = ((4 + packet_length + session->local.mac->mac_len) == send(session->socket_fd, encbuf, 4 + packet_length + session->local.mac->mac_len, 0)) ? 0 : -1;
 
 		/* Cleanup environment */
 		LIBSSH2_FREE(session, encbuf);

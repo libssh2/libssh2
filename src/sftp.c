@@ -83,7 +83,7 @@ struct _LIBSSH2_SFTP {
 
 	LIBSSH2_SFTP_HANDLE *handles;
 
-	unsigned long errno;
+	unsigned long last_errno;
 };
 
 #define LIBSSH2_SFTP_HANDLE_FILE	0
@@ -542,7 +542,7 @@ LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, char *
 
 	if (data[0] == SSH_FXP_STATUS) {
 		libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "Failed opening remote file", 0);
-		sftp->errno = libssh2_ntohu32(data + 5);
+		sftp->last_errno = libssh2_ntohu32(data + 5);
 		LIBSSH2_FREE(session, data);
 		return NULL;
 	}
@@ -627,7 +627,7 @@ LIBSSH2_API size_t libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle, char *buffer, 
 
 	switch (data[0]) {
 		case SSH_FXP_STATUS:
-			sftp->errno = libssh2_ntohu32(data + 5);
+			sftp->last_errno = libssh2_ntohu32(data + 5);
 			libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
 			LIBSSH2_FREE(session, data);
 			return -1;
@@ -722,7 +722,7 @@ LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer, 
 		if (retcode == LIBSSH2_FX_EOF) {
 			return 0;
 		} else {
-			sftp->errno = retcode;
+			sftp->last_errno = retcode;
 			libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
 			return -1;
 		}
@@ -809,7 +809,7 @@ LIBSSH2_API size_t libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *b
 		return count;
 	}
 	libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
-	sftp->errno = retcode;
+	sftp->last_errno = retcode;
 
 	return -1;
 }
@@ -865,7 +865,7 @@ LIBSSH2_API int libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_
 		if (retcode == LIBSSH2_FX_OK) {
 			return 0;
 		} else {
-			sftp->errno = retcode;
+			sftp->last_errno = retcode;
 			libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
 			return -1;
 		}
@@ -938,7 +938,7 @@ LIBSSH2_API int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
 	LIBSSH2_FREE(session, data);
 
 	if (retcode != LIBSSH2_FX_OK) {
-		sftp->errno = retcode;
+		sftp->last_errno = retcode;
 		libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
 		return -1;
 	}
@@ -1008,7 +1008,7 @@ LIBSSH2_API int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp, char *filename, int f
 	if (retcode == LIBSSH2_FX_OK) {
 		return 0;
 	} else {
-		sftp->errno = retcode;
+		sftp->last_errno = retcode;
 		libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
 		return -1;
 	}
@@ -1066,17 +1066,17 @@ LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,  char *source_filenam
 			break;
 		case LIBSSH2_FX_FILE_ALREADY_EXISTS:
 			libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "File already exists and SSH_FXP_RENAME_OVERWRITE not specified", 0);
-			sftp->errno = retcode;
+			sftp->last_errno = retcode;
 			retcode = -1;
 			break;
 		case LIBSSH2_FX_OP_UNSUPPORTED:
 			libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "Operation Not Supported", 0);
-			sftp->errno = retcode;
+			sftp->last_errno = retcode;
 			retcode = -1;
 			break;
 		default:
 			libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
-			sftp->errno = retcode;
+			sftp->last_errno = retcode;
 			retcode = -1;
 	}
 
@@ -1131,7 +1131,7 @@ LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, char *path, int path_l
 		return 0;
 	} else {
 		libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
-		sftp->errno = retcode;
+		sftp->last_errno = retcode;
 		return -1;
 	}
 }
@@ -1179,7 +1179,7 @@ LIBSSH2_API int libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, char *path, int path_l
 	if (retcode == LIBSSH2_FX_OK) {
 		return 0;
 	} else {
-		sftp->errno = retcode;
+		sftp->last_errno = retcode;
 		libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
 		return -1;
 	}
@@ -1245,7 +1245,7 @@ LIBSSH2_API int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, char *path, int path_le
 		if (retcode == LIBSSH2_FX_OK) {
 			return 0;
 		} else {
-			sftp->errno = retcode;
+			sftp->last_errno = retcode;
 			libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
 			return -1;
 		}
@@ -1319,7 +1319,7 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path, in
 		if (retcode == LIBSSH2_FX_OK) {
 			return 0;
 		} else {
-			sftp->errno = retcode;
+			sftp->last_errno = retcode;
 			libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
 			return -1;
 		}
@@ -1347,6 +1347,6 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path, in
  */
 LIBSSH2_API unsigned long libssh2_sftp_last_error(LIBSSH2_SFTP *sftp)
 {
-	return sftp->errno;
+	return sftp->last_errno;
 }
 /* }}} */
