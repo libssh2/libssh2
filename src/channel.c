@@ -546,10 +546,11 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 	int bytes_read = 0, blocking_read = 0;
 
 	do {
-		LIBSSH2_PACKET *packet = session->packets.head;
+		LIBSSH2_PACKET *packet;
 
 		/* Process any waiting packets */
 		while (libssh2_packet_read(session, blocking_read) > 0) blocking_read = 0;
+		packet = session->packets.head;
 
 		while (packet && (bytes_read < buflen)) {
 			/* In case packet gets destroyed during this iteration */
