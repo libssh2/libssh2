@@ -434,14 +434,18 @@ LIBSSH2_API void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int bloc
 }
 /* }}} */
 
-/* {{{ libssh2_channel_ignore_extended_data
- * Ignore (or stop ignoring) extended data
+/* {{{ libssh2_channel_handle_extended_data
+ * How should extended data look to the calling app?
+ * Keep it in separate channels[_read() _read_stdder()]? (NORMAL)
+ * Merge the extended data to the standard data? [everything via _read()]? (MERGE)
+ * 
+Ignore it entirely [toss out packets as they come in]? (IGNORE)
  */
-LIBSSH2_API void libssh2_channel_ignore_extended_data(LIBSSH2_CHANNEL *channel, int ignore)
+LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
 {
-	channel->remote.ignore_extended_data = ignore;
+	channel->remote.extended_data_ignore_mode = ignore_mode;
 
-	if (ignore) {
+	if (ignore_mode == LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) {
 		/* Flush queued extended data */
 		LIBSSH2_PACKET *packet = channel->session->packets.head;
 		unsigned long refund_bytes = 0;
@@ -502,8 +506,13 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 			/* In case packet gets destroyed during this iteration */
 			LIBSSH2_PACKET *next = packet->next;
 
+			/* Either we asked for a specific extended data stream (and data was available),
+			 * or the standard stream (and data was available),
+			 * or the standard stream with extended_data_merge enabled and data was available
+			 */
 			if ((stream_id  && (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (channel->local.id == libssh2_ntohu32(packet->data + 1))) ||
-				(!stream_id && (packet->data[0] == SSH_MSG_CHANNEL_DATA) && (channel->local.id == libssh2_ntohu32(packet->data + 1)))) {
+				(!stream_id && (packet->data[0] == SSH_MSG_CHANNEL_DATA) && (channel->local.id == libssh2_ntohu32(packet->data + 1))) ||
+				(!stream_id && (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) && (channel->local.id == libssh2_ntohu32(packet->data + 1)) && (channel->remote.extended_data_ignore_mode == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
 				int want = buflen - bytes_read;
 				int unlink_packet = 0;
 

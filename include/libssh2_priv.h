@@ -98,7 +98,7 @@ typedef struct _libssh2_channel_data {
 	unsigned long window_size_initial, window_size, packet_size;
 
 	/* Set to 1 when CHANNEL_CLOSE / CHANNEL_EOF sent/received */
-	char close, eof, ignore_extended_data;
+	char close, eof, extended_data_ignore_mode;
 } libssh2_channel_data;
 
 struct _LIBSSH2_CHANNEL {

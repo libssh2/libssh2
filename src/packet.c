@@ -153,7 +153,7 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 					LIBSSH2_FREE(session, data);
 					return 0;
 				}
-				if (channel->remote.ignore_extended_data && (data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
+				if ((channel->remote.extended_data_ignore_mode == LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) && (data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
 					/* Pretend we didn't receive this */
 					LIBSSH2_FREE(session, data);
 
