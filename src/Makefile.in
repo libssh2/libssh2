@@ -1,0 +1,60 @@
+OBJECTS = channel.o comp.o crypt.o hostkey.o kex.o mac.o misc.o packet.o scp.o session.o userauth.o
+
+top_srcdir = @top_srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+libdir = @exec_prefix@/lib
+incldir = @prefix@/include
+
+CC = @CC@
+CFLAGS = -c @CFLAGS@ -Wall -g -I../include/ -fPIC
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+INSTALL = @INSTALL@
+
+channel.o: channel.c
+	$(CC) -o channel.o channel.c $(CFLAGS) $(LIBS)
+
+comp.o: comp.c
+	$(CC) -o comp.o comp.c $(CFLAGS) $(LIBS)
+
+crypt.o: crypt.c
+	$(CC) -o crypt.o crypt.c $(CFLAGS) $(LIBS)
+
+hostkey.o: hostkey.c
+	$(CC) -o hostkey.o hostkey.c $(CFLAGS) $(LIBS)
+
+kex.o: kex.c
+	$(CC) -o kex.o kex.c $(CFLAGS) $(LIBS)
+
+mac.o: mac.c
+	$(CC) -o mac.o mac.c $(CFLAGS) $(LIBS)
+
+misc.o: misc.c
+	$(CC) -o misc.o misc.c $(CFLAGS) $(LIBS)
+
+packet.o: packet.c
+	$(CC) -o packet.o packet.c $(CFLAGS) $(LIBS)
+
+scp.o: scp.c
+	$(CC) -o scp.o scp.c $(CFLAGS) $(LIBS)
+
+session.o: session.c
+	$(CC) -o session.o session.c $(CFLAGS) $(LIBS)
+
+userauth.o: userauth.c
+	$(CC) -o userauth.o userauth.c $(CFLAGS) $(LIBS)
+
+all: libssh2.@SHLIB_SUFFIX_NAME@
+
+libssh2.@SHLIB_SUFFIX_NAME@: $(OBJECTS)
+	$(CC) -o libssh2.@SHLIB_SUFFIX_NAME@ $(SHLIB_LDFLAGS) $(OBJECTS) $(LIBS) $(LDFLAGS) @SHLIB_LDFLAGS@
+libssh2.a: $(OBJECTS)
+	rm -f libssh2.a
+	ar q libssh2.a $(OBJECTS)
+	@RANLIB@ libssh2.a
+install: all
+	$(INSTALL) libssh2.@SHLIB_SUFFIX_NAME@ $(libdir)
+clean:
+	rm -f *~ libssh2.a libssh2.@SHLIB_SUFFIX_NAME@ *.o
+

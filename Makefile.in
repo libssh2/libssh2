@@ -1,0 +1,48 @@
+subdirs = src/
+top_srcdir = @top_srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+libdir = @exec_prefix@/lib
+incldir = @prefix@/include
+distdir = @top_srcdir@/dist
+
+CC = @CC@
+CFLAGS = -c @CFLAGS@ -Iinclude/ -Wall -g
+LIBS = -lssh2 -Lsrc/
+INSTALL = @INSTALL@
+VERSION=0.1-dev
+DISTLIB=libssh2-$(VERSION)
+
+all:
+	@for dir in ${subdirs}; do \
+		(cd $$dir && $(MAKE) all) \
+		|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+	$(CC) -o ssh2_sample.o ssh2_sample.c $(CFLAGS)
+	$(CC) -o ssh2_sample ssh2_sample.o $(LIBS)
+install:
+	$(top_srcdir)/mkinstalldirs $(incldir)
+	$(top_srcdir)/mkinstalldirs $(libdir)
+	@for dir in ${subdirs}; do \
+		(cd $$dir && $(MAKE) install) \
+		|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+	$(INSTALL) -m 644 include/libssh2.h $(incldir)/
+clean:
+	@for dir in ${subdirs}; do \
+		(cd $$dir && $(MAKE) clean) \
+		|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
+	done && test -z "$$fail"
+	rm -f ssh2_sample.o ssh2_sample
+dist:
+	autoheader
+	autoconf
+	rm -f $(DISTLIB)
+	ln -s . $(DISTLIB)
+	tar -zcf $(DISTLIB).tar.gz \
+		$(DISTLIB)/configure.in $(DISTLIB)/configure $(DISTLIB)/Makefile.in $(DISTLIB)/ssh2_sample.c \
+		$(DISTLIB)/LICENSE $(DISTLIB)/README $(DISTLIB)/TODO \
+		$(DISTLIB)/mkinstalldirs $(DISTLIB)/install-sh \
+		$(DISTLIB)/src/*.c $(DISTLIB)/src/Makefile.in \
+		$(DISTLIB)/include/libssh2.h $(DISTLIB)/include/libssh2_priv.h $(DISTLIB)/include/libssh2_config.h.in
+	rm -f $(DISTLIB)

@@ -1,0 +1,150 @@
+# AC_PREREQ(2.57)
+AC_INIT(libssh2, 0.1 , pollita@php.net)
+AC_CONFIG_SRCDIR([src])
+AC_CONFIG_HEADER([include/libssh2_config.h])
+
+SHLIB_SUFFIX_NAME="so"
+SHLIB_LDFLAGS="-shared"
+
+AC_SUBST(SHLIB_SUFFIX_NAME)
+AC_SUBST(SHLIB_LDFLAGS)
+
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+AC_C_BIGENDIAN
+if test -z "$PKG_CONFIG"; then
+  AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+fi
+
+#
+# Look for OpenSSL
+#
+AC_ARG_WITH(openssl,
+  AC_HELP_STRING([--with-openssl=DIR],[Look for OpenSSL in PATH]),
+  [LIBSSH2_OPENSSL_DIR=$withval],[LIBSSH2_OPENSSL_DIR=yes])
+
+if test "$LIBSSH2_OPENSSL_DIR" = "no" || test "$LIBSSH2_OPENSSL_DIR" = "yes"; then
+  unset LIBSSH2_OPENSSL_DIR
+fi
+
+found_openssl=no
+unset OPENSSL_INCDIR
+unset OPENSSL_LIBDIR
+
+AC_MSG_CHECKING([for OpenSSL])
+
+# Explicit path given, use it rather than pkg-config
+if test ! -z "$LIBSSH2_OPENSSL_DIR"; then
+  found_openssl=yes
+  OPENSSL_LIBDIR=$LIBSSH2_OPENSSL_DIR/lib
+  OPENSSL_INCDIR=$LIBSSH2_OPENSSL_DIR/include
+  AC_MSG_RESULT([Using explicit path $LIBSSH2_OPENSSL_DIR])
+fi
+
+# If pkg-config is found try using it
+if test "$found_openssl" = "no" && test -x "$PKG_CONFIG" && $PKG_CONFIG --exists openssl; then
+  found_openssl=yes
+  OPENSSL_LIBDIR=`$PKG_CONFIG --libs openssl`
+  OPENSSL_INCDIR=`$PKG_CONFIG --variable=includedir openssl`
+  AC_MSG_RESULT([Using paths from pkg-config])
+fi
+
+# Elsewise, search for OpenSSL wherever it might be
+if test "$found_openssl" = "no"; then
+  OPENSSL_SEARCH_PATH="/usr/local/ssl /usr/local /usr /usr/local/openssl"
+
+  for i in $OPENSSL_SEARCH_PATH; do
+    if test -r $i/include/openssl/evp.h; then
+      OPENSSL_INCDIR=$i/include
+    fi
+    if test -r $i/include/openssl/hmac.h; then
+      OPENSSL_INCDIR=$i/include
+    fi
+    if test -r $i/lib/libcrypto.a -o -r $i/lib/libcrypto.$SHLIB_SUFFIX_NAME; then
+      OPENSSL_LIBDIR=$i/lib
+    fi
+    test -n "$OPENSSL_INCDIR" && test -n "$OPENSSL_LIBDIR" && break
+  done
+
+  if test -z "$OPENSSL_INCDIR"; then
+    AC_MSG_ERROR([Cannot find OpenSSL's <evp.h> or <hmac.h>])
+  fi
+
+  if test -z "$OPENSSL_LIBDIR"; then
+    AC_MSG_ERROR([Cannot find OpenSSL's libcrypto])
+  fi
+
+  AC_MSG_RESULT([$OPENSSL_INCDIR $OPENSSL_LIBDIR])
+fi
+
+#
+# Confirm required OpenSSL libs
+#
+if test ! -r $OPENSSL_INCDIR/openssl/bn.h || test ! -r $OPENSSL_INCDIR/openssl/evp.h || \
+   test ! -r $OPENSSL_INCDIR/openssl/hmac.h || test ! -r $OPENSSL_INCDIR/openssl/pem.h || \
+   test ! -r $OPENSSL_INCDIR/openssl/sha.h; then
+     AC_MSG_ERROR([Missing one or more of <openssl/bn.h>, <openssl/evp.h>, <openssl/hmac.h>, <openssl/pem.h>, <openssl/sha.h>])
+fi
+
+CFLAGS="$CFLAGS -I$OPENSSL_INCDIR"
+LDFLAGS="$LDFLAGS -L$OPENSSL_LIBDIR -lcrypto"
+
+#
+# zlib
+#
+AC_ARG_WITH(libz,
+  AC_HELP_STRING([--with-libz=PATH],[Look for libz in PATH]),
+  [LIBSSH2_LIBZ_DIR=$withval],[LIBSSH2_LIBZ_DIR="/usr/local /usr /usr/local/libz /usr/libz /usr/local/zlib /usr/zlib"])
+
+if test "$LIBSSH2_LIBZ_DIR" = "no" || test "$LIBSSH2_LIBZ_DIR" = "yes"; then
+  unset LIBSSH2_LIBZ_DIR
+fi
+
+unset LIBZ_INCDIR
+unset LIBZ_LIBDIR
+
+AC_MSG_CHECKING([for libz])
+
+for i in $LIBSSH2_LIBZ_DIR; do
+  if test -r $i/include/zlib.h; then
+    LIBZ_INCDIR=$i/include
+  fi
+  if test -r $i/lib/libz.a -o -r $i/lib/libz.$SHLIB_SUFFIX_NAME; then
+    LIBZ_LIBDIR=$i/lib
+  fi
+  test -n "$LIBZ_INCDIR" && test -n "$LIBZ_LIBDIR" && break
+done
+
+if test -n "$LIBZ_INCDIR" && test -n "$LIBZ_LIBDIR"; then
+  AC_MSG_RESULT([Found in $LIBZ_INCDIR $LIBZ_LIBDIR])
+  CFLAGS="$CFLAGS -I$LIBZ_INCDIR"
+  LDFLAGS="$LDFLAGS -L$LIBZ_LIBDIR -lz"
+  AC_DEFINE(LIBSSH2_HAVE_ZLIB, 1, [Compile in zlib support])
+else
+  AC_MSG_RESULT([Cannot find libz's <zlib.h>])
+fi
+
+#
+# Optional Settings
+#
+AC_ARG_ENABLE(crypt-none,
+  AC_HELP_STRING([--enable-crypt-none],[Permit "none" cipher -- NOT RECOMMENDED]),
+  [AC_DEFINE(LIBSSH2_CRYPT_NONE, 1, [Enable "none" cipher -- NOT RECOMMENDED])])
+
+AC_ARG_ENABLE(mac-none,
+  AC_HELP_STRING([--enable-mac-none],[Permit "none" MAC -- NOT RECOMMENDED]),
+  [AC_DEFINE(LIBSSH2_MAC_NONE, 1, [Enable "none" MAC -- NOT RECOMMENDED])])
+
+# Checks for header files.
+# AC_HEADER_STDC
+AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+
+AC_CONFIG_FILES([Makefile
+                 src/Makefile])
+AC_OUTPUT

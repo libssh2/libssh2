@@ -1,0 +1,138 @@
+/* Copyright (c) 2004, Sara Golemon <sarag@users.sourceforge.net>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms,
+ * with or without modification, are permitted provided
+ * that the following conditions are met:
+ *
+ *   Redistributions of source code must retain the above
+ *   copyright notice, this list of conditions and the
+ *   following disclaimer.
+ *
+ *   Redistributions in binary form must reproduce the above
+ *   copyright notice, this list of conditions and the following
+ *   disclaimer in the documentation and/or other materials
+ *   provided with the distribution.
+ *
+ *   Neither the name of the copyright holder nor the names
+ *   of any other contributors may be used to endorse or
+ *   promote products derived from this software without
+ *   specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+ * OF SUCH DAMAGE.
+ */
+
+#include "libssh2_priv.h"
+
+/* {{{ libssh2_ntohu32
+ */
+unsigned long libssh2_ntohu32(const unsigned char *buf)
+{
+	return (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
+}
+/* }}} */
+
+/* {{{ libssh2_htonu32
+ */
+void libssh2_htonu32(unsigned char *buf, unsigned long value)
+{
+	buf[0] = (value >> 24) & 0xFF;
+	buf[1] = (value >> 16) & 0xFF;
+	buf[2] = (value >> 8) & 0xFF;
+	buf[3] = value & 0xFF;
+}
+/* }}} */
+
+/* Base64 Conversion */
+
+/* {{{ */
+static const char libssh2_base64_table[] =
+    { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+      'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+      'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/', '\0'
+    };
+
+static const char libssh2_base64_pad = '=';
+
+static const short libssh2_base64_reverse_table[256] = {
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,
+    52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1,
+    -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
+    15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,
+    -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+    41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+};
+/* }}} */
+
+
+/* {{{ libssh2_base64_decode
+ * Decode a base64 chunk and store it into a newly alloc'd buffer
+ */
+LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **data, int *datalen,
+																char *src, int src_len)
+{
+	unsigned char *s, *d;
+	short v;
+	int i = 0, len = 0;
+
+	*data = d = LIBSSH2_ALLOC(session, (3 * src_len / 4) + 1);
+	if (!d) {
+		return -1;
+	}
+
+	for(s = src; ((char*)s) < (src + src_len); s++) {
+		if ((v = libssh2_base64_reverse_table[*s]) < 0) continue;
+		switch (i % 4) {
+			case 0:
+				d[len] = v << 2;
+				break;
+			case 1:
+				d[len++] |= v >> 4;
+				d[len] = v << 4;
+				break;
+			case 2:
+				d[len++] |= v >> 2;
+				d[len] = v << 6;
+				break;
+			case 3:
+				d[len++] |= v;
+				break;
+		}
+		i++;
+	}
+	if ((i % 4) == 1) {
+		/* Invalid -- We have a byte which belongs exclusively to a partial octet */
+		LIBSSH2_FREE(session, *data);
+		return -1;
+	}
+
+	*datalen = len;
+	return 0;
+}
+/* }}} */
+

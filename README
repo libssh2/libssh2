@@ -1,0 +1,14 @@
+libssh2 - SSH2 library
+======================
+
+Version 0.1-dev
+---------------
+
+  Initial Release:
+    KEX methods: diffie-hellman-group14-sha1, diffie-hellman-group-exchange-sha1, diffie-hellman-group1-sha1
+    Hostkey methods: ssh-rsa, ssh-dss
+    Cipher methods: aes256-cbc, rijndael-cbc@lysator.liu.se, aes192-cbc, aes128-cbc, blowfish-cbc, arcfour, cast128-cbc, 3des-cbc, none*
+    Compression methods: zlib, none
+    MAC methods: hmac-sha1, hmac-sha1-96, hmac-ripemd160, hmac-ripemd160@openssh.com none*
+    *Cipher/MAC "none" is disabled by default for security purposes,
+     Use --enable-crypt-none and/or --enable-mac-none with ./configure to enable
