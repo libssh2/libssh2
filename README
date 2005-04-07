@@ -4,6 +4,8 @@ libssh2 - SSH2 library
 Version 0.9
 -----------
 
+  Fixed SFTP to be properly BC with version 1 and 2 servers.
+
   Fixed libssh2_poll() to recognized closed sessions/channels.
 
   Added libssh2_channel_window_read_ex() and libssh2_channel_window_write_ex()

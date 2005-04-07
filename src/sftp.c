@@ -1032,6 +1032,11 @@ LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,  char *source_filenam
 																				source_filename_len(4) + dest_filename_len(4) + flags(4) */
 	unsigned char *packet, *s, *data;
 
+	if (sftp->version < 2) {
+		libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "Server does not support RENAME", 0);
+		return -1;
+	}
+
 	s = packet = LIBSSH2_ALLOC(session, packet_len);
 	if (!packet) {
 		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_RENAME packet", 0);
@@ -1274,6 +1279,12 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path, in
 									/* packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
 	unsigned char *packet, *s, *data;
 	unsigned char link_responses[2] = { SSH_FXP_NAME,		SSH_FXP_STATUS	};
+
+	if ((sftp->version < 3) &&
+		(link_type != LIBSSH2_SFTP_REALPATH)) {
+		libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "Server does not support SYMLINK or READLINK", 0);
+		return -1;
+	}
 
 	s = packet = LIBSSH2_ALLOC(session, packet_len);
 	if (!packet) {
