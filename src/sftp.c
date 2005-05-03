@@ -206,6 +206,7 @@ static int libssh2_sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type
 	LIBSSH2_SESSION *session = sftp->channel->session;
 	LIBSSH2_PACKET *packet = sftp->packets.head;
 	unsigned char match_buf[5];
+	int match_len = 5;
 
 	if (poll_channel) {
 		if (libssh2_sftp_packet_read(sftp, 0) < 0) {
@@ -214,10 +215,15 @@ static int libssh2_sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type
 	}
 
 	match_buf[0] = packet_type;
-	libssh2_htonu32(match_buf + 1, request_id);
+	if (packet_type == LIBSSH2_FXP_VERSION) {
+		/* Special consideration when matching VERSION packet */
+		match_len = 1;
+	} else {
+		libssh2_htonu32(match_buf + 1, request_id);
+	}
 
 	while (packet) {
-		if (strncmp(packet->data, match_buf, 5) == 0) {
+		if (strncmp(packet->data, match_buf, match_len) == 0) {
 			*data = packet->data;
 			*data_len = packet->data_len;
 
@@ -409,7 +415,7 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 	LIBSSH2_SFTP *sftp;
 	LIBSSH2_CHANNEL *channel;
 	unsigned char *data, *s, buffer[13]; /* sftp_header(9) + version_id(4) */
-	unsigned long data_len, request_id;
+	unsigned long data_len;
 
 	channel = libssh2_channel_open_session(session);
 	if (!channel) {
@@ -432,12 +438,11 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 	}
 	memset(sftp, 0, sizeof(LIBSSH2_SFTP));
 	sftp->channel = channel;
+	sftp->request_id = 0;
 
-	request_id = sftp->request_id++;
-	libssh2_htonu32(buffer, 4 + 5);
+	libssh2_htonu32(buffer, 5);
 	buffer[4] = SSH_FXP_INIT;
-	libssh2_htonu32(buffer + 5, request_id);
-	libssh2_htonu32(buffer + 9, 6);
+	libssh2_htonu32(buffer + 5, LIBSSH2_SFTP_VERSION);
 
 	if (13 != libssh2_channel_write(channel, buffer, 13)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send SSH_FXP_INIT", 0);
@@ -446,7 +451,7 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 		return NULL;
 	}
 
-	if (libssh2_sftp_packet_require(sftp, SSH_FXP_VERSION, request_id, &data, &data_len)) {
+	if (libssh2_sftp_packet_require(sftp, SSH_FXP_VERSION, 0, &data, &data_len)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT, "Timeout waiting for response from SFTP subsystem", 0);
 		libssh2_channel_free(channel);
 		LIBSSH2_FREE(session, sftp);
