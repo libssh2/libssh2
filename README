@@ -4,6 +4,8 @@ libssh2 - SSH2 library
 Version 0.9
 -----------
 
+  Fixed SFTP INIT/VERSION to exclude request_id and send correct maximum version number.
+
   Fixed SFTP to be properly BC with version 1 and 2 servers.
 
   Fixed libssh2_poll() to recognized closed sessions/channels.
