@@ -849,8 +849,8 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 LIBSSH2_API int libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id, const char *buf, size_t buflen)
 {
 	LIBSSH2_SESSION *session = channel->session;
-	unsigned char *packet, *s;
-	unsigned long packet_len;
+	unsigned char *packet;
+	unsigned long packet_len, bufwrote = 0;
 
 	if (channel->local.close) {
 		libssh2_error(session, LIBSSH2_ERROR_CHANNEL_CLOSED, "We've already closed this channel", 0);
@@ -870,39 +870,54 @@ LIBSSH2_API int libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id
 	}
 
 	packet_len = buflen + (stream_id ? 13 : 9); /* packet_type(1) + channelno(4) [ + streamid(4) ] + buflen(4) */
-	s = packet = LIBSSH2_ALLOC(session, packet_len);
+	packet = LIBSSH2_ALLOC(session, packet_len);
 	if (!packet) {
 		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocte space for data transmission packet", 0);
 		return -1;
 	}
 
-	*(s++) = stream_id ? SSH_MSG_CHANNEL_EXTENDED_DATA : SSH_MSG_CHANNEL_DATA;
-	libssh2_htonu32(s, channel->remote.id);					s += 4;
-	if (stream_id) {
-		libssh2_htonu32(s, stream_id);						s += 4;
-	}
+	while (buflen > 0) {
+		size_t bufwrite = buflen;
+		unsigned char *s = packet;
 
-	/* Don't exceed the remote end's limits */
-	/* REMEMBER local means local as the SOURCE of the data */
-	if (buflen > channel->local.window_size) {
-		buflen = channel->local.window_size;
-	}
-	if (buflen > channel->local.packet_size) {
-		buflen = channel->local.packet_size;
-	}
-	libssh2_htonu32(s, buflen);							s += 4;
-	memcpy(s, buf, buflen);								s += buflen;
+		*(s++) = stream_id ? SSH_MSG_CHANNEL_EXTENDED_DATA : SSH_MSG_CHANNEL_DATA;
+		libssh2_htonu32(s, channel->remote.id);					s += 4;
+		if (stream_id) {
+			libssh2_htonu32(s, stream_id);						s += 4;
+		}
 
-	if (libssh2_packet_write(session, packet, s - packet)) {
-		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send channel data", 0);
-		return -1;
+		/* Don't exceed the remote end's limits */
+		/* REMEMBER local means local as the SOURCE of the data */
+		if (bufwrite > channel->local.window_size) {
+			bufwrite = channel->local.window_size;
+		}
+		if (bufwrite > channel->local.packet_size) {
+			bufwrite = channel->local.packet_size;
+		}
+		libssh2_htonu32(s, bufwrite);							s += 4;
+		memcpy(s, buf, bufwrite);								s += bufwrite;
+
+		if (libssh2_packet_write(session, packet, s - packet)) {
+			libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send channel data", 0);
+			LIBSSH2_FREE(session, packet);
+			return -1;
+		}
+		/* Shrink local window size */
+		channel->local.window_size -= bufwrite;
+
+		/* Adjust buf for next iteration */
+		buflen -= bufwrite;
+		buf += bufwrite;
+		bufwrote += bufwrite;
+
+		if (!channel->blocking) {
+			break;
+		}
 	}
-	/* Shrink local window size */
-	channel->local.window_size -= buflen;
 
 	LIBSSH2_FREE(session, packet);
 
-	return buflen;
+	return bufwrote;
 }
 /* }}} */
 
