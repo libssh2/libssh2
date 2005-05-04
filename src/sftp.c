@@ -215,7 +215,7 @@ static int libssh2_sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type
 	}
 
 	match_buf[0] = packet_type;
-	if (packet_type == LIBSSH2_FXP_VERSION) {
+	if (packet_type == SSH_FXP_VERSION) {
 		/* Special consideration when matching VERSION packet */
 		match_len = 1;
 	} else {
