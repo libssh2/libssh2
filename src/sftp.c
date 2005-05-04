@@ -89,6 +89,11 @@ struct _LIBSSH2_SFTP {
 #define LIBSSH2_SFTP_HANDLE_FILE	0
 #define LIBSSH2_SFTP_HANDLE_DIR		1
 
+/* S_IFREG */
+#define LIBSSH2_SFTP_ATTR_PFILETYPE_FILE	0100000
+/* S_IFDIR */
+#define LIBSSH2_SFTP_ATTR_PFILETYPE_DIR		0040000
+
 struct _LIBSSH2_SFTP_HANDLE {
 	LIBSSH2_SFTP *sftp;
 	LIBSSH2_SFTP_HANDLE *prev, *next;
@@ -523,7 +528,8 @@ LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, char *
 		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_REMOVE packet", 0);
 		return NULL;
 	}
-	attrs.permissions = mode;
+	/* Filetype in SFTP 3 and earlier */
+	attrs.permissions = mode | ((open_type == LIBSSH2_SFTP_OPENFILE) ? LIBSSH2_SFTP_ATTR_PFILETYPE_FILE : LIBSSH2_SFTP_ATTR_PFILETYPE_DIR);
 
 	libssh2_htonu32(s, packet_len - 4);					s += 4;
 	*(s++) = (open_type == LIBSSH2_SFTP_OPENFILE) ? SSH_FXP_OPEN : SSH_FXP_OPENDIR;
@@ -1115,7 +1121,8 @@ LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, char *path, int path_l
 		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_MKDIR packet", 0);
 		return -1;
 	}
-	attrs.permissions = mode;
+	/* Filetype in SFTP 3 and earlier */
+	attrs.permissions = mode | LIBSSH2_SFTP_ATTR_PFILETYPE_DIR;
 
 	libssh2_htonu32(s, packet_len - 4);					s += 4;
 	*(s++) = SSH_FXP_MKDIR;
