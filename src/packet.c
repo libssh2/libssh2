@@ -49,6 +49,19 @@
 #include <sys/uio.h>
 #endif
 
+#ifdef HAVE_POLL
+# include <sys/poll.h>
+#else
+# ifdef HAVE_SELECT
+#  ifdef HAVE_SYS_SELECT_H
+#   include <sys/select.h>
+#  else
+#   include <sys/time.h>
+#   include <sys/types.h>
+#  endif
+# endif
+#endif
+
 /* {{{ libssh2_packet_queue_listener
  * Queue a connection request for a listener
  */
@@ -533,7 +546,9 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 static int libssh2_blocking_read(LIBSSH2_SESSION *session, unsigned char *buf, size_t count)
 {
 	size_t bytes_read = 0;
+#if !defined(HAVE_POLL) && !defined(HAVE_SELECT)
 	int polls = 0;
+#endif
 
 #ifndef WIN32
 	fcntl(session->socket_fd, F_SETFL, 0);
@@ -559,10 +574,34 @@ static int libssh2_blocking_read(LIBSSH2_SESSION *session, unsigned char *buf, s
 			}
 #endif
 			if (errno == EAGAIN) {
+#ifdef HAVE_POLL
+				struct pollfd read_socket;
+
+				read_socket.fd = session->socket_fd;
+				read_socket.events = POLLIN;
+
+				if (poll(&read_socket, 1, 30000) <= 0) {
+					return -1;
+				}
+#elif defined(HAVE_SELECT)
+				fd_set read_socket;
+				struct timeval timeout;
+
+				FD_ZERO(&read_socket);
+				FD_SET(session->socket_fd, &read_socket);
+
+				timeout.tv_sec = 30;
+				timeout.tv_usec = 0;
+
+				if (select(session->socket_fd + 1, &read_socket, NULL, NULL, &timeout) <= 0) {
+					return -1;
+				}
+#else
 				if (polls++ > LIBSSH2_SOCKET_POLL_MAXLOOPS) {
 					return -1;
 				}
 				usleep(LIBSSH2_SOCKET_POLL_UDELAY);
+#endif /* POLL/SELECT/SLEEP */
 				continue;
 			}
 			if (errno == EINTR) {
