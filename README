@@ -14,6 +14,8 @@ Version 0.9
 
   Fixed libssh2_channel_write_ex() to fully block when set to blocking mode.  Return actual bytes written as well.  (Thanks deadem)
 
+  Added tests for -lm and -lsocket and add them when necessary.
+
   Added libssh2_channel_window_read_ex() and libssh2_channel_window_write_ex()
   for examining the ssh transport windowing states.
 
