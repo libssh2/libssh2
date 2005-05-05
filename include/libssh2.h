@@ -67,7 +67,7 @@ typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
 #endif
 
-#define LIBSSH2_VERSION								"0.8"
+#define LIBSSH2_VERSION								"0.9"
 #define LIBSSH2_APINO								200503281457
 
 /* Part of every banner, user specified or not */
