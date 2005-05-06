@@ -861,12 +861,9 @@ LIBSSH2_API int libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id
 		libssh2_error(session, LIBSSH2_ERROR_CHANNEL_EOF_SENT, "EOF has already been sight, data might be ignored", 0);
 	}
 
-	if (channel->blocking && (channel->local.window_size <= 0)) {
-		/* twiddle our thumbs until there's window space available */
-		if (libssh2_packet_read(session, 1) < 0) {
-			/* Error occured, disconnect? */
-			return -1;
-		}
+	if (!channel->blocking && (channel->local.window_size <= 0)) {
+		/* Can't write anything */
+		return 0;
 	}
 
 	packet_len = buflen + (stream_id ? 13 : 9); /* packet_type(1) + channelno(4) [ + streamid(4) ] + buflen(4) */
@@ -884,6 +881,15 @@ LIBSSH2_API int libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id
 		libssh2_htonu32(s, channel->remote.id);					s += 4;
 		if (stream_id) {
 			libssh2_htonu32(s, stream_id);						s += 4;
+		}
+
+		/* twiddle our thumbs until there's window space available */
+		while (channel->local.window_size <= 0) {
+			/* Don't worry -- This is never hit unless it's a blocking channel anyway */
+			if (libssh2_packet_read(session, 1) < 0) {
+				/* Error occured, disconnect? */
+				return -1;
+			}
 		}
 
 		/* Don't exceed the remote end's limits */
