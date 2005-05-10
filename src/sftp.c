@@ -435,6 +435,8 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 
 	libssh2_channel_set_blocking(channel, 1);
 
+	libssh2_channel_handle_extended_data(channel, LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE);
+
 	sftp = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_SFTP));
 	if (!sftp) {
 		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate a new SFTP structure", 0);

@@ -4,6 +4,8 @@ libssh2 - SSH2 library
 Version 0.10
 ------------
 
+  Ignore extended data in the SFTP layer.  With no other mechanism to deal with that data it'd just fill up and get stuck.
+
   (Re)Fixed channel_write() to provide an opportunity for window space to become available again.
 
   (Re)Fixed SFTP INIT to send the correct SFTP packet length.
