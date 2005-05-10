@@ -419,7 +419,7 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 {
 	LIBSSH2_SFTP *sftp;
 	LIBSSH2_CHANNEL *channel;
-	unsigned char *data, *s, buffer[13]; /* sftp_header(9) + version_id(4) */
+	unsigned char *data, *s, buffer[9]; /* sftp_header(5){excludes request_id} + version_id(4) */
 	unsigned long data_len;
 
 	channel = libssh2_channel_open_session(session);
@@ -449,7 +449,7 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 	buffer[4] = SSH_FXP_INIT;
 	libssh2_htonu32(buffer + 5, LIBSSH2_SFTP_VERSION);
 
-	if (13 != libssh2_channel_write(channel, buffer, 13)) {
+	if (9 != libssh2_channel_write(channel, buffer, 9)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send SSH_FXP_INIT", 0);
 		libssh2_channel_free(channel);
 		LIBSSH2_FREE(session, sftp);

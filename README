@@ -6,6 +6,8 @@ Version 0.10
 
   (Re)Fixed channel_write() to provide an opportunity for window space to become available again.
 
+  (Re)Fixed SFTP INIT to send the correct SFTP packet length.
+
 Version 0.9
 -----------
 
