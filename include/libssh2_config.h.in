@@ -54,6 +54,27 @@
 /* Enable "none" cipher -- NOT RECOMMENDED */
 #undef LIBSSH2_CRYPT_NONE
 
+/* Output connection layer debugging info to stderr */
+#undef LIBSSH2_DEBUG_CONNECTION
+
+/* Output failure events to stderr */
+#undef LIBSSH2_DEBUG_ERRORS
+
+/* Output Key Exchange debugging info to stderr */
+#undef LIBSSH2_DEBUG_KEX
+
+/* Output scp subsystem debugging info to stderr */
+#undef LIBSSH2_DEBUG_SCP
+
+/* Output sftp subsystem debugging info to stderr */
+#undef LIBSSH2_DEBUG_SFTP
+
+/* Output transport layer debugging info to stderr */
+#undef LIBSSH2_DEBUG_TRANSPORT
+
+/* Output userauth layer debugging info to stderr */
+#undef LIBSSH2_DEBUG_USERAUTH
+
 /* Enable newer diffie-hellman-group-exchange-sha1 syntax */
 #undef LIBSSH2_DH_GEX_NEW
 

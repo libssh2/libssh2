@@ -317,6 +317,37 @@ struct _LIBSSH2_MAC_METHOD {
 	int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
 };
 
+#if defined(LIBSSH2_DEBUG_TRANSPORT) || defined(LIBSSH2_DEBUG_KEX) || defined(LIBSSH2_DEBUG_USERAUTH) || defined(LIBSSH2_DEBUG_CONNECTION) || defined(LIBSSH2_DEBUG_SCP) || defined(LIBSSH2_DEBUG_SFTP) || defined(LIBSSH2_DEBUG_ERRORS)
+#define LIBSSH2_DEBUG_ENABLED
+
+/* Internal debugging contexts -- Used with --enable-debug-* */
+#define LIBSSH2_DBG_TRANS						1
+#define LIBSSH2_DBG_KEX							2
+#define LIBSSH2_DBG_AUTH						3
+#define LIBSSH2_DBG_CONN						4
+#define LIBSSH2_DBG_SCP							5
+#define LIBSSH2_DBG_SFTP						6
+#define LIBSSH2_DBG_ERROR						7
+
+void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, ...);
+
+#endif /* LIBSSH2_DEBUG_ENABLED */
+
+#ifdef LIBSSH2_DEBUG_ERRORS
+#define libssh2_error(session, errcode, errmsg, should_free)	\
+{ \
+	if (session->err_msg && session->err_should_free) { \
+		LIBSSH2_FREE(session, session->err_msg); \
+	} \
+	session->err_msg = errmsg; \
+	session->err_msglen = strlen(errmsg); \
+	session->err_should_free = should_free; \
+	session->err_code = errcode; \
+	_libssh2_debug(session, LIBSSH2_DBG_ERROR, "%d - %s", session->err_code, session->err_msg); \
+}
+
+#else /* ! LIBSSH2_DEBUG_ERRORS */
+
 #define libssh2_error(session, errcode, errmsg, should_free)	\
 { \
 	if (session->err_msg && session->err_should_free) { \
@@ -327,6 +358,9 @@ struct _LIBSSH2_MAC_METHOD {
 	session->err_should_free = should_free; \
 	session->err_code = errcode; \
 }
+
+#endif /* LIBSSH2_DEBUG_ENABLED */
+
 
 #define LIBSSH2_SOCKET_UNKNOWN					 1
 #define LIBSSH2_SOCKET_CONNECTED				 0

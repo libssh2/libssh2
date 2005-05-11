@@ -109,6 +109,9 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		BN_bn2bin(e, e_packet + 6);
 	}
 
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sending KEX packet %d", (int)packet_type_init);
+#endif
 	if (libssh2_packet_write(session, e_packet, e_packet_len)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send KEX init message", 0);
 		ret = -11;
@@ -143,7 +146,18 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
     MD5_Update(&fingerprint_ctx, session->server_hostkey, session->server_hostkey_len);
     MD5_Final(session->server_hostkey_md5, &fingerprint_ctx);
 }
-#endif
+#ifdef LIBSSH2_DEBUG_KEX
+{
+	char fingerprint[50], *fprint = fingerprint;
+	int i;
+	for(i = 0; i < 16; i++, fprint += 3) {
+		snprintf(fprint, 4, "%02x:", session->server_hostkey_md5[i]);
+	}
+	*(--fprint) = '\0';
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Server's MD5 Fingerprint: %s", fingerprint);
+}
+#endif /* LIBSSH2_DEBUG_KEX */
+#endif /* ! OPENSSL_NO_MD5 */
 
 #ifndef OPENSSL_NO_SHA
 {
@@ -153,14 +167,24 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
     SHA1_Update(&fingerprint_ctx, session->server_hostkey, session->server_hostkey_len);
     SHA1_Final(session->server_hostkey_sha1, &fingerprint_ctx);
 }
-#endif
+#ifdef LIBSSH2_DEBUG_KEX
+{
+	char fingerprint[64], *fprint = fingerprint;
+	int i;
+	for(i = 0; i < 20; i++, fprint += 3) {
+		snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
+	}
+	*(--fprint) = '\0';
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Server's SHA1 Fingerprint: %s", fingerprint);
+}
+#endif /* LIBSSH2_DEBUG_KEX */
+#endif /* ! OPENSSL_NO_SHA */
 
 	if (session->hostkey->init(session, session->server_hostkey, session->server_hostkey_len, &session->server_hostkey_abstract)) {
 		libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT, "Unable to initialize hostkey importer", 0);
 		ret = -1;
 		goto clean_exit;
 	}
-
 
 	f_value_len = libssh2_ntohu32(s);							s += 4;
 	f_value = s;												s += f_value_len;
@@ -250,6 +274,9 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		goto clean_exit;
 	}
 
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sending NEWKEYS message");
+#endif
 	c = SSH_MSG_NEWKEYS;
 	if (libssh2_packet_write(session, &c, 1)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send NEWKEYS message", 0);
@@ -264,6 +291,9 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 	}
 	/* The first key exchange has been performed, switch to active crypt/comp/mac mode */
 	session->state |= LIBSSH2_STATE_NEWKEYS;
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Received NEWKEYS message");
+#endif
 
 	/* This will actually end up being just packet_type(1) for this packet type anyway */
 	LIBSSH2_FREE(session, tmp);
@@ -276,6 +306,9 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		}
 		memcpy(session->session_id, h_sig_comp, SHA_DIGEST_LENGTH);
 		session->session_id_len = SHA_DIGEST_LENGTH;
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "session_id calculated");
+#endif
 	}
 
 	/* Calculate IV/Secret/Key for each direction */
@@ -327,6 +360,9 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 			LIBSSH2_FREE(session, secret);
 		}
 	}
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Client to Server IV and Key calculated");
+#endif
 
 	if (session->remote.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP) {
 		if (session->remote.crypt_abstract) {
@@ -376,6 +412,9 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 			LIBSSH2_FREE(session, secret);
 		}
 	}
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Server to Client IV and Key calculated");
+#endif
 
 	if (session->local.mac->dtor) {
 		session->local.mac->dtor(session, &session->local.mac_abstract);
@@ -393,6 +432,9 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 			LIBSSH2_FREE(session, key);
 		}
 	}
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Client to Server HMAC Key calculated");
+#endif
 
 	if (session->remote.mac->dtor) {
 		session->remote.mac->dtor(session, &session->remote.mac_abstract);
@@ -410,6 +452,9 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 			LIBSSH2_FREE(session, key);
 		}
 	}
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Server to Client HMAC Key calculated");
+#endif
 
  clean_exit:
 	BN_clear_free(x);
@@ -470,6 +515,9 @@ static int libssh2_kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SE
 	BN_set_word(g, 2);
 	BN_bin2bn(p_value, 128, p);
 
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Initiating Diffie-Hellman Group1 Key Exchange");
+#endif
 	ret = libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(session, g, p, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY, NULL, 0);
 
 	BN_clear_free(p);
@@ -526,6 +574,9 @@ static int libssh2_kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_S
 	BN_set_word(g, 2);
 	BN_bin2bn(p_value, 256, p);
 
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Initiating Diffie-Hellman Group14 Key Exchange");
+#endif
 	ret = libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(session, g, p, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY, NULL, 0);
 
 	BN_clear_free(p);
@@ -554,10 +605,16 @@ static int libssh2_kex_method_diffie_hellman_group_exchange_sha1_key_exchange(LI
 	libssh2_htonu32(request + 5, LIBSSH2_DH_GEX_OPTGROUP);
 	libssh2_htonu32(request	+ 9, LIBSSH2_DH_GEX_MAXGROUP);
 	request_len = 13;
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Initiating Diffie-Hellman Group-Exchange (New Method)");
+#endif
 #else
 	request[0] = SSH_MSG_KEX_DH_GEX_REQUEST_OLD;
 	libssh2_htonu32(request + 1, LIBSSH2_DH_GEX_OPTGROUP);
 	request_len = 5;
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Initiating Diffie-Hellman Group-Exchange (Old Method)");
+#endif
 #endif
 
 	if (libssh2_packet_write(session, request, request_len)) {
@@ -746,6 +803,23 @@ static int libssh2_kexinit(LIBSSH2_SESSION *session)
 	*(s++) = 0;
 	*(s++) = 0;
 
+#ifdef LIBSSH2_DEBUG_KEX
+{
+	/* Funnily enough, they'll all "appear" to be '\0' terminated */
+	char *p = data + 21; /* type(1) + cookie(16) + len(4) */
+
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sent KEX: %s", p);				p += kex_len + 4;
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sent HOSTKEY: %s", p);			p += hostkey_len + 4;
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sent CRYPT_CS: %s", p);			p += crypt_cs_len + 4;
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sent CRYPT_SC: %s", p);			p += crypt_sc_len + 4;
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sent MAC_CS: %s", p);				p += mac_cs_len + 4;
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sent MAC_SC: %s", p);				p += mac_sc_len + 4;
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sent COMP_CS: %s", p);			p += comp_cs_len + 4;
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sent COMP_SC: %s", p);			p += comp_sc_len + 4;
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sent LANG_CS: %s", p);			p += lang_cs_len + 4;
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sent LANG_SC: %s", p);			p += lang_sc_len + 4;
+}
+#endif /* LIBSSH2_DEBUG_KEX */
 	if (libssh2_packet_write(session, data, data_len)) {
 		LIBSSH2_FREE(session, data);
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send KEXINIT packet to remote host", 0);
@@ -1119,6 +1193,19 @@ static int libssh2_kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *da
 		libssh2_kex_agree_lang(session, &session->remote, lang_sc, lang_sc_len)) {
 		return -1;
 	}
+
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Agreed on KEX method: %s", session->kex->name);
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Agreed on HOSTKEY method: %s", session->hostkey->name);
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Agreed on CRYPT_CS method: %s", session->local.crypt->name);
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Agreed on CRYPT_SC method: %s", session->remote.crypt->name);
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Agreed on MAC_CS method: %s", session->local.mac->name);
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Agreed on MAC_SC method: %s", session->remote.mac->name);
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Agreed on COMP_CS method: %s", session->local.comp->name);
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Agreed on COMP_SC method: %s", session->remote.comp->name);
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Agreed on LANG_CS method:"); /* None yet */
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Agreed on LANG_SC method:"); /* None yet */
+#endif
 
 	/* Initialize compression layer */
 	if (session->local.comp && session->local.comp->init &&

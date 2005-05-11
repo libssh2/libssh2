@@ -70,6 +70,9 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, char *pa
 	}
 	command[command_len - 1] = '\0';
 
+#ifdef LIBSSH2_DEBUG_SCP
+	_libssh2_debug(session, LIBSSH2_DBG_SCP, "Opening channel for SCP receive");
+#endif
 	/* Allocate a channel */
 	if ((channel = libssh2_channel_open_session(session)) == NULL) {
 		LIBSSH2_FREE(session, command);
@@ -86,6 +89,9 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, char *pa
 	}
 	LIBSSH2_FREE(session, command);
 
+#ifdef LIBSSH2_DEBUG_SCP
+	_libssh2_debug(session, LIBSSH2_DBG_SCP, "Sending initial wakeup");
+#endif
 	/* SCP ACK */
 	response[0] = '\0';
 	if (libssh2_channel_write(channel, response, 1) != 1) {
@@ -197,6 +203,9 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, char *pa
 			libssh2_channel_free(channel);
 			return NULL;
 		}
+#ifdef LIBSSH2_DEBUG_SCP
+		_libssh2_debug(session, LIBSSH2_DBG_SCP, "mtime = %ld, atime = %ld", mtime, atime);
+#endif
 
 		/* We *should* check that atime.usec is valid, but why let that stop use? */
 		break;
@@ -295,6 +304,9 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, char *pa
 			libssh2_channel_free(channel);
 			return NULL;
 		}
+#ifdef LIBSSH2_DEBUG_SCP
+	_libssh2_debug(session, LIBSSH2_DBG_SCP, "mod = 0%lo size = %ld", mode, size);
+#endif
 
 		/* We *should* check that basename is valid, but why let that stop us? */
 		break;
@@ -344,6 +356,9 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, char 
 	}
 	command[command_len - 1] = '\0';
 
+#ifdef LIBSSH2_DEBUG_SCP
+	_libssh2_debug(session, LIBSSH2_DBG_SCP, "Opening channel for SCP send");
+#endif
 	/* Allocate a channel */
 	if ((channel = libssh2_channel_open_session(session)) == NULL) {
 	        /* previous call set libssh2_session_last_error(), pass it through */
@@ -372,6 +387,9 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, char 
 	/* Send mtime and atime to be used for file */
 	if (mtime || atime) {
 		response_len = snprintf(response, LIBSSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n", mtime, atime);
+#ifdef LIBSSH2_DEBUG_SCP
+		_libssh2_debug(session, LIBSSH2_DBG_SCP, "Sent %s", response);
+#endif
 		if (libssh2_channel_write(channel, response, response_len) != response_len) {
 			libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send time data for SCP file", 0);
 			libssh2_channel_free(channel);
@@ -394,6 +412,9 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, char 
 	}
 
 	response_len = snprintf(response, LIBSSH2_SCP_RESPONSE_BUFLEN, "C0%o %lu %s\n", mode, (unsigned long)size, base);
+#ifdef LIBSSH2_DEBUG_SCP
+	_libssh2_debug(session, LIBSSH2_DBG_SCP, "Sent %s", response);
+#endif
 	if (libssh2_channel_write(channel, response, response_len) != response_len) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send core file data for SCP file", 0);
 		libssh2_channel_free(channel);

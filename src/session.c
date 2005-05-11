@@ -128,6 +128,9 @@ static int libssh2_banner_receive(LIBSSH2_SESSION *session)
 	session->remote.banner = LIBSSH2_ALLOC(session, banner_len + 1);
 	memcpy(session->remote.banner, banner, banner_len);
 	session->remote.banner[banner_len] = '\0';
+#ifdef LIBSSH2_DEBUG_TRANSPORT
+	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "Received Banner: %s", session->remote.banner);
+#endif
 	return 0;
 }
 /* }}} */
@@ -145,6 +148,22 @@ static int libssh2_banner_send(LIBSSH2_SESSION *session)
 		banner_len = strlen(session->local.banner);
 		banner = session->local.banner;
 	}
+#ifdef LIBSSH2_DEBUG_TRANSPORT
+{
+	/* Hack and slash to avoid sending CRLF in debug output */
+	char banner_dup[256];
+
+	if (banner_len < 256) {
+		memcpy(banner_dup, banner, banner_len - 2);
+		banner_dup[banner_len - 2] = '\0';
+	} else {
+		memcpy(banner_dup, banner, 255);
+		banner[255] = '\0';
+	}
+
+	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "Sending Banner: %s", banner_dup);
+}
+#endif
 
 	return (send(session->socket_fd, banner, banner_len, LIBSSH2_SOCKET_SEND_FLAGS(session)) == banner_len) ? 0 : 1;
 }
@@ -173,6 +192,10 @@ LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION *session, char *banner)
 	}
 
 	memcpy(session->local.banner, banner, banner_len);
+#ifdef LIBSSH2_DEBUG_TRANSPORT
+	session->local.banner[banner_len] = '\0';
+	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "Setting local Banner: %s", session->local.banner);
+#endif
 	session->local.banner[banner_len++] = '\r';
 	session->local.banner[banner_len++] = '\n';
 	session->local.banner[banner_len++] = '\0';
@@ -208,6 +231,9 @@ LIBSSH2_API LIBSSH2_SESSION *libssh2_session_init_ex(
 	session->free		= local_free;
 	session->realloc	= local_realloc;
 	session->abstract	= abstract;
+#ifdef LIBSSH2_DEBUG_TRANSPORT
+	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "New session resource allocated");
+#endif
 
 	return session;
 }
@@ -248,6 +274,9 @@ LIBSSH2_API void* libssh2_session_callback_set(LIBSSH2_SESSION *session, int cbt
 			return oldcb;
 			break;
 	}
+#ifdef LIBSSH2_DEBUG_TRANSPORT
+	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "Setting Callback %d", cbtype);
+#endif
 
 	return NULL;
 }
@@ -266,6 +295,9 @@ LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int socket)
 	unsigned char service[sizeof("ssh-userauth") + 5 - 1];
 	unsigned long service_length;
 
+#ifdef LIBSSH2_DEBUG_TRANSPORT
+	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "session_startup for socket %d", socket);
+#endif
 	if (socket <= 0) {
 		/* Did we forget something? */
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_NONE, "No socket provided", 0);
@@ -291,6 +323,9 @@ LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int socket)
 		return LIBSSH2_ERROR_KEX_FAILURE;
 	}
 
+#ifdef LIBSSH2_DEBUG_TRANSPORT
+	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "Requesting userauth service");
+#endif
 	/* Request the userauth service */
 	service[0] = SSH_MSG_SERVICE_REQUEST;
 	libssh2_htonu32(service + 1, sizeof("ssh-userauth") - 1);
@@ -323,6 +358,9 @@ LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int socket)
  */
 LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session)
 {
+#ifdef LIBSSH2_DEBUG_TRANSPORT
+	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "Freeing session resource", session->remote.banner);
+#endif
 	while (session->channels.head) {
 		LIBSSH2_CHANNEL *tmp = session->channels.head;
 
@@ -464,6 +502,9 @@ LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reas
 	unsigned char *s, *data;
 	unsigned long data_len, descr_len = 0, lang_len = 0;
 
+#ifdef LIBSSH2_DEBUG_TRANSPORT
+	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "Disconnecting: reason=%d, desc=%s, lang=%s", reason, description, lang);
+#endif
 	if (description) {
 		descr_len = strlen(description);
 	}

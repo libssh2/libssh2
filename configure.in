@@ -169,6 +169,44 @@ if test "$GEX_NEW" != "no"; then
   AC_DEFINE(LIBSSH2_DH_GEX_NEW, 1, [Enable newer diffie-hellman-group-exchange-sha1 syntax])
 fi
 
+#
+# Optional debugging -- Meant for developer maintenance only
+# When enabled, the relevant debugging information will be written on stderr
+#
+AC_ARG_ENABLE(debug-transport,
+	AC_HELP_STRING([--enable-debug-transport],[Output transport layer debugging info to stderr]),
+	[AC_DEFINE(LIBSSH2_DEBUG_TRANSPORT, 1, [Output transport layer debugging info to stderr])])
+AC_ARG_ENABLE(debug-kex,
+	AC_HELP_STRING([--enable-debug-kex],[Output Key Exchange debugging info to stderr]),
+	[AC_DEFINE(LIBSSH2_DEBUG_KEX, 1, [Output Key Exchange debugging info to stderr])])
+AC_ARG_ENABLE(debug-userauth,
+	AC_HELP_STRING([--enable-debug-userauth],[Output userauth debugging info to stderr]),
+	[AC_DEFINE(LIBSSH2_DEBUG_USERAUTH, 1, [Output userauth layer debugging info to stderr])])
+AC_ARG_ENABLE(debug-channel,
+	AC_HELP_STRING([--enable-debug-connection],[Output connection layer debugging info to stderr]),
+	[AC_DEFINE(LIBSSH2_DEBUG_CONNECTION, 1, [Output connection layer debugging info to stderr])])
+AC_ARG_ENABLE(debug-scp,
+	AC_HELP_STRING([--enable-debug-scp],[Output scp subsystem debugging info to stderr]),
+	[AC_DEFINE(LIBSSH2_DEBUG_SCP, 1, [Output scp subsystem debugging info to stderr])])
+AC_ARG_ENABLE(debug-sftp,
+	AC_HELP_STRING([--enable-debug-sftp],[Output sftp subsystem debugging info to stderr]),
+	[AC_DEFINE(LIBSSH2_DEBUG_SFTP, 1, [Output sftp subsystem debugging info to stderr])])
+AC_ARG_ENABLE(debug-errors,
+	AC_HELP_STRING([--enable-debug-errors],[Output failure events to stderr]),
+	[AC_DEFINE(LIBSSH2_DEBUG_ERRORS, 1, [Output failure events to stderr])])
+AC_ARG_ENABLE(debug-all,
+	AC_HELP_STRING([--enable-debug-all],[Output debugging info for all layers to stderr]),
+	[
+		AC_DEFINE(LIBSSH2_DEBUG_TRANSPORT, 1, [Output transport layer debugging info to stderr])
+		AC_DEFINE(LIBSSH2_DEBUG_KEX, 1, [Output Key Exchange debugging info to stderr])
+		AC_DEFINE(LIBSSH2_DEBUG_USERAUTH, 1, [Output userauth layer debugging info to stderr])
+		AC_DEFINE(LIBSSH2_DEBUG_CONNECTION, 1, [Output connection layer debugging info to stderr])
+		AC_DEFINE(LIBSSH2_DEBUG_SCP, 1, [Output scp subsystem debugging info to stderr])
+		AC_DEFINE(LIBSSH2_DEBUG_SFTP, 1, [Output sftp subsystem debugging info to stderr])
+		AC_DEFINE(LIBSSH2_DEBUG_ERRORS, 1, [Output failure events to stderr])
+	])
+
+
 # Checks for header files.
 # AC_HEADER_STDC
 AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h sys/select.h])

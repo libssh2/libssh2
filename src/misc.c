@@ -169,3 +169,29 @@ LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **data, int
 }
 /* }}} */
 
+#ifdef LIBSSH2_DEBUG_ENABLED
+/* {{{ _libssh2_debug
+ * Internal debug logging facility
+ * Just writes to stderr until a good reason comes up to support anything else
+ */
+void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, ...)
+{
+	char buffer[1536];
+	int len;
+	va_list vargs;
+	char *contexts[8] = { "Unknown", "Transport", "Key Exhange", "Userauth", "Connection", "scp", "SFTP", "Failure Event" };
+
+	if (context < 1 || context > 6) {
+		context = 0;
+	}
+
+	len = snprintf(buffer, 1535, "[libssh2] %s: ", contexts[context]);
+
+	va_start(vargs, format);
+	len += vsnprintf(buffer, 1535 - len, format, vargs);
+	buffer[len] = '\n';
+	va_end(vargs);
+	write(2, buffer, len + 1);
+}
+/* }}} */
+#endif
