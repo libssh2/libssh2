@@ -928,7 +928,7 @@ static int libssh2_kex_agree_hostkey(LIBSSH2_SESSION *session, unsigned long kex
 		return -1;
 	}
 
-	while ((*hostkeyp)->name) {
+	while (hostkeyp && (*hostkeyp)->name) {
 		s = libssh2_kex_agree_instr(hostkey, hostkey_len, (*hostkeyp)->name, strlen((*hostkeyp)->name));
 		if (s) {
 			/* So far so good, but does it suit our purposes? (Encrypting vs Signing) */
@@ -1036,7 +1036,7 @@ static int libssh2_kex_agree_crypt(LIBSSH2_SESSION *session, libssh2_endpoint_da
 		return -1;
 	}
 
-	while ((*cryptp)->name) {
+	while (*cryptp && (*cryptp)->name) {
 		s = libssh2_kex_agree_instr(crypt, crypt_len, (*cryptp)->name, strlen((*cryptp)->name));
 		if (s) {
 			endpoint->crypt = *cryptp;
@@ -1081,7 +1081,7 @@ static int libssh2_kex_agree_mac(LIBSSH2_SESSION *session, libssh2_endpoint_data
 		return -1;
 	}
 
-	while ((*macp)->name) {
+	while (*macp && (*macp)->name) {
 		s = libssh2_kex_agree_instr(mac, mac_len, (*macp)->name, strlen((*macp)->name));
 		if (s) {
 			endpoint->mac = *macp;
@@ -1126,7 +1126,7 @@ static int libssh2_kex_agree_comp(LIBSSH2_SESSION *session, libssh2_endpoint_dat
 		return -1;
 	}
 
-	while ((*compp)->name) {
+	while (*compp && (*compp)->name) {
 		s = libssh2_kex_agree_instr(comp, comp_len, (*compp)->name, strlen((*compp)->name));
 		if (s) {
 			endpoint->comp = *compp;

@@ -12,6 +12,8 @@ Version 0.10
 
   (Re)Fixed SFTP INIT to send the correct SFTP packet length.
 
+  Fixed segfault when client and host can't agree on a hostkey/crypt/mac/comp method. (Thanks puudeli)
+
 Version 0.9
 -----------
 
