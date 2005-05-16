@@ -306,12 +306,21 @@ static int libssh2_sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_respon
 {
 	int i;
 
+	/* Flush */
+	while (libssh2_sftp_packet_read(sftp, 0) > 0);
+
 	while (sftp->channel->session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
+		int ret;
 		for(i = 0; i < num_valid_responses; i++) {
-			if (libssh2_sftp_packet_ask(sftp, valid_responses[i], request_id, data, data_len, !i) == 0) {
+			if (libssh2_sftp_packet_ask(sftp, valid_responses[i], request_id, data, data_len, 0) == 0) {
 				return 0;
 			}
 		}
+		ret = libssh2_sftp_packet_read(sftp, 1);
+		if (ret < 0) {
+			return -1;
+		}
+		if (ret == 0) continue;
 	}
 
 	return -1;
