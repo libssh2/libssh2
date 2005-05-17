@@ -159,7 +159,7 @@ static int libssh2_sftp_packet_read(LIBSSH2_SFTP *sftp, int should_block)
 	LIBSSH2_SESSION *session = channel->session;
 	unsigned char buffer[4]; /* To store the packet length */
 	unsigned char *packet;
-	unsigned long packet_len, packet_remaining;
+	unsigned long packet_len, packet_received;
 
 #ifdef LIBSSH2_DEBUG_SFTP
 	_libssh2_debug(session, LIBSSH2_DBG_SFTP, "Waiting for packet: %s block", should_block ? "will" : "willnot");
