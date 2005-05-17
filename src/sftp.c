@@ -159,7 +159,7 @@ static int libssh2_sftp_packet_read(LIBSSH2_SFTP *sftp, int should_block)
 	LIBSSH2_SESSION *session = channel->session;
 	unsigned char buffer[4]; /* To store the packet length */
 	unsigned char *packet;
-	unsigned long packet_len;
+	unsigned long packet_len, packet_remaining;
 
 #ifdef LIBSSH2_DEBUG_SFTP
 	_libssh2_debug(session, LIBSSH2_DBG_SFTP, "Waiting for packet: %s block", should_block ? "will" : "willnot");
@@ -197,10 +197,16 @@ static int libssh2_sftp_packet_read(LIBSSH2_SFTP *sftp, int should_block)
 		return -1;
 	}
 
-	if (packet_len != libssh2_channel_read(channel, packet, packet_len)) {
-		libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT, "Timeout waiting for SFTP packet", 0);
-		LIBSSH2_FREE(session, packet);
-		return -1;
+	packet_received = 0;
+	while (packet_len > packet_received) {
+		long bytes_received = libssh2_channel_read(channel, packet + packet_received, packet_len - packet_received);
+
+		if (bytes_received < 0) {
+			libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT, "Receive error waiting for SFTP packet", 0);
+			LIBSSH2_FREE(session, packet);
+			return -1;
+		}
+		packet_received += bytes_received;
 	}
 
 	if (libssh2_sftp_packet_add(sftp, packet, packet_len)) {

@@ -14,6 +14,8 @@ Version 0.10
 
   Fixed segfault when client and host can't agree on a hostkey/crypt/mac/comp method. (Thanks puudeli)
 
+  Fixed major issue with sftp packet buffering mechanism.  Using wrong blocking semantics. (No puudeli, YOU the man)
+
   Reduced busy-looping of libssh2_sftp_packet_requirev.
 
 Version 0.9
