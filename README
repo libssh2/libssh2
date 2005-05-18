@@ -1,6 +1,13 @@
 libssh2 - SSH2 library
 ======================
 
+Version 0.11
+------------
+
+  Added libssh2_channel_receive_window_adjust() to be able to increase the size of the receive window.
+
+  Added queueing for small window_adjust packets to avoid unnecessary packet conversation.
+
 Version 0.10
 ------------
 
