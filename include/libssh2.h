@@ -67,7 +67,7 @@ typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
 #endif
 
-#define LIBSSH2_VERSION								"0.9"
+#define LIBSSH2_VERSION								"0.10"
 #define LIBSSH2_APINO								200503281457
 
 /* Part of every banner, user specified or not */
@@ -279,6 +279,7 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeou
 /* Channel API */
 #define LIBSSH2_CHANNEL_WINDOW_DEFAULT	65536
 #define LIBSSH2_CHANNEL_PACKET_DEFAULT	16384
+#define LIBSSH2_CHANNEL_MINADJUST		1024
 
 /* Extended Data Handling */
 #define LIBSSH2_CHANNEL_EXTENDED_DATA_NORMAL		0
@@ -320,6 +321,8 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 
 LIBSSH2_API unsigned long libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel, unsigned long *read_avail, unsigned long *window_size_initial);
 #define libssh2_channel_window_read(channel)			libssh2_channel_window_read_ex((channel), NULL, NULL)
+
+LIBSSH2_API unsigned long libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel, unsigned long adjustment, unsigned char force);
 
 LIBSSH2_API int libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id, const char *buf, size_t buflen);
 #define libssh2_channel_write(channel, buf, buflen)					libssh2_channel_write_ex((channel), 0, (buf), (buflen))

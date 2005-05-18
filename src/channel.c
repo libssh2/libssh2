@@ -780,25 +780,56 @@ LIBSSH2_API int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid)
 	}
 
 	if (refund_bytes && channel->remote.window_size_initial) {
-		unsigned char adjust[9]; /* packet_type(1) + channel(4) + adjustment(4) */
-
-		/* Adjust the window based on the block we just freed */
-		adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
-		libssh2_htonu32(adjust + 1, channel->remote.id);
-		libssh2_htonu32(adjust + 5, refund_bytes);
-#ifdef LIBSSH2_DEBUG_CONNECTION
-	_libssh2_debug(channel->session, LIBSSH2_DBG_CONN, "Adjusting window %lu bytes for data flushed from channel %lu/%lu", refund_bytes, channel->local.id, channel->remote.id);
-#endif
-
-		if (libssh2_packet_write(channel->session, adjust, 9)) {
-			libssh2_error(channel->session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send transfer-window adjustment packet", 0);
-			return -1;
-		} else {
-			channel->remote.window_size += refund_bytes;
-		}
+		libssh2_channel_receive_window_adjust(channel, refund_bytes, 0);
 	}
 
 	return flush_bytes;
+}
+/* }}} */
+
+/* {{{ libssh2_channel_receive_window_adjust
+ * Adjust the receive window for a channel by adjustment bytes
+ * If the amount to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0
+ * The adjustment amount will be queued for a later packet
+ *
+ * Returns the new size of the receive window (as understood by remote end)
+ */
+LIBSSH2_API unsigned long libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel, unsigned long adjustment, unsigned char force)
+{
+	unsigned char adjust[9]; /* packet_type(1) + channel(4) + adjustment(4) */
+
+	if (!force && (adjustment + channel->adjust_queue < LIBSSH2_CHANNEL_MINADJUST)) {
+#ifdef LIBSSH2_DEBUG_CONNECTION
+		_libssh2_debug(channel->session, LIBSSH2_DBG_CONN, "Queing %lu bytes for receive window adjustment for channel %lu/%lu", adjustment, channel->local.id, channel->remote.id);
+#endif
+		channel->adjust_queue += adjustment;
+		return channel->remote.window_size;
+	}
+
+	if (!adjustment && !channel->adjust_queue) {
+		return channel->remote.window_size;
+	}
+
+	adjustment += channel->adjust_queue;
+	channel->adjust_queue = 0;
+
+
+	/* Adjust the window based on the block we just freed */
+	adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
+	libssh2_htonu32(adjust + 1, channel->remote.id);
+	libssh2_htonu32(adjust + 5, adjustment);
+#ifdef LIBSSH2_DEBUG_CONNECTION
+	_libssh2_debug(channel->session, LIBSSH2_DBG_CONN, "Adjusting window %lu bytes for data flushed from channel %lu/%lu", adjustment, channel->local.id, channel->remote.id);
+#endif
+
+	if (libssh2_packet_write(channel->session, adjust, 9)) {
+		libssh2_error(channel->session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send transfer-window adjustment packet, deferring", 0);
+		channel->adjust_queue = adjustment;
+	} else {
+		channel->remote.window_size += adjustment;
+	}
+
+	return channel->remote.window_size;
 }
 /* }}} */
 
@@ -866,8 +897,6 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 				bytes_read += want;
 
 				if (unlink_packet) {
-					unsigned char adjust[9]; /* packet_type(1) + channel(4) + adjustment(4) */
-
 					if (packet->prev) {
 						packet->prev->next = packet->next;
 					} else {
@@ -881,20 +910,9 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 					LIBSSH2_FREE(session, packet->data);
 
 #ifdef LIBSSH2_DEBUG_CONNECTION
-	_libssh2_debug(session, LIBSSH2_DBG_CONN, "Unlinking empty packet buffer from channel %lu/%lu sending window adjust for %d bytes", channel->local.id, channel->remote.id, (int)(packet->data_len - (stream_id ? 13 : 9)));
+	_libssh2_debug(session, LIBSSH2_DBG_CONN, "Unlinking empty packet buffer from channel %lu/%lu", channel->local.id, channel->remote.id);
 #endif
-					/* Adjust the window based on the block we just freed */
-					adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
-					libssh2_htonu32(adjust + 1, channel->remote.id);
-					libssh2_htonu32(adjust + 5, packet->data_len - (stream_id ? 13 : 9));
-
-					if (libssh2_packet_write(session, adjust, 9)) {
-						libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send transfer-window adjustment packet", 0);
-					} else {
-						/* Don't forget to acknowledge the adjust on this end */
-						channel->remote.window_size += (packet->data_len - (stream_id ? 13 : 9));
-					}
-
+					libssh2_channel_receive_window_adjust(channel, packet->data_len - (stream_id ? 13 : 9), 0);
 					LIBSSH2_FREE(session, packet);
 				}
 			}
