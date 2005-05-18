@@ -445,13 +445,12 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 					/* Pretend we didn't receive this */
 					LIBSSH2_FREE(session, data);
 
-					if (channel->remote.window_size_initial) {
 #ifdef LIBSSH2_DEBUG_CONNECTION
 	_libssh2_debug(session, LIBSSH2_DBG_CONN, "Ignoring extended data and refunding %d bytes", (int)(datalen - 13));
 #endif
-						/* Adjust the window based on the block we just freed */
-						libssh2_channel_receive_window_adjust(channel, datalen - 13, 0);
-					}
+					/* Adjust the window based on the block we just freed */
+					libssh2_channel_receive_window_adjust(channel, datalen - 13, 0);
+
 					return 0;
 				}
 
@@ -461,7 +460,7 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 					libssh2_error(session, LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED, "Packet contains more data than we offered to receive, truncating", 0);
 					datalen = channel->remote.packet_size + data_head;
 				}
-				if (channel->remote.window_size_initial && (channel->remote.window_size <= 0)) {
+				if (channel->remote.window_size <= 0) {
 					/* Spec says we MAY ignore bytes sent beyond window_size */
 					libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED, "The current receive window is full, data ignored", 0);
 					LIBSSH2_FREE(session, data);
@@ -470,7 +469,7 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 				/* Reset EOF status */
 				channel->remote.eof = 0;
 
-				if (channel->remote.window_size_initial && ((datalen - data_head) > channel->remote.window_size)) {
+				if ((datalen - data_head) > channel->remote.window_size) {
 					libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED, "Remote sent more data than current window allows, truncating", 0);
 					datalen = channel->remote.window_size + data_head;
 				} else {

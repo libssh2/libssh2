@@ -779,7 +779,7 @@ LIBSSH2_API int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid)
 		packet = next;
 	}
 
-	if (refund_bytes && channel->remote.window_size_initial) {
+	if (refund_bytes) {
 		libssh2_channel_receive_window_adjust(channel, refund_bytes, 0);
 	}
 
