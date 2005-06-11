@@ -107,6 +107,22 @@ typedef long long libssh2_int64_t;
 #define LIBSSH2_REALLOC_FUNC(name)					void *name(void *ptr, size_t count, void **abstract)
 #define LIBSSH2_FREE_FUNC(name)						void name(void *ptr, void **abstract)
 
+typedef struct _LIBSSH2_USERAUTH_KBDINT_PROMPT
+{
+	char* text;
+	unsigned int length;
+	unsigned char echo;
+} LIBSSH2_USERAUTH_KBDINT_PROMPT;
+
+typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
+{
+	char* text;
+	unsigned int length;
+} LIBSSH2_USERAUTH_KBDINT_RESPONSE;
+
+/* 'keyboard-interactive' authentication callback */
+#define LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(name_) void name_(const char* name, int name_len, const char* instruction, int instruction_len, int num_prompts, const LIBSSH2_USERAUTH_KBDINT_PROMPT* prompts, LIBSSH2_USERAUTH_KBDINT_RESPONSE* responses)
+
 /* Callbacks for special SSH packets */
 #define LIBSSH2_IGNORE_FUNC(name)					void name(LIBSSH2_SESSION *session, const char *message, int message_len, void **abstract)
 #define LIBSSH2_DEBUG_FUNC(name)					void name(LIBSSH2_SESSION *session, int always_display, const char *message, int message_len, const char *language, int language_len,void **abstract)
@@ -273,6 +289,17 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 																				 char *local_username, int local_username_len);
 #define libssh2_userauth_hostbased_fromfile(session, username, publickey, privatekey, passphrase, hostname)	\
 		libssh2_userauth_hostbased_fromfile_ex((session), (username), strlen(username), (publickey), (privatekey), (passphrase), (hostname), strlen(hostname), (username), strlen(username))
+
+/*
+ * response_callback is provided with filled by library prompts array,
+ * but client must allocate and fill individual responses. Responses
+ * array is already allocated. Responses data will be freed by libssh2
+ * after callback return, but before subsequent callback invokation.
+ */
+LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION* session, const char* username, int username_len,
+														 LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC((*response_callback)));
+#define libssh2_userauth_keyboard_interactive(session, username, response_callback) \
+        libssh2_userauth_keyboard_interactive_ex((session), (username), strlen(username), (response_callback))
 
 LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout);
 

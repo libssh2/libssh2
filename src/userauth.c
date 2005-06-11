@@ -652,3 +652,194 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 	return -1;
 }
 /* }}} */
+
+/* {{{ libssh2_userauth_keyboard_interactive
+ * Authenticate using a challenge-response authentication
+ */
+LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session, const char *username, int username_len,
+														 LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC((*response_callback)))
+{
+	unsigned char *s, *data; /* packet */
+	unsigned long packet_len;
+
+	packet_len = 1         /* byte      SSH_MSG_USERAUTH_REQUEST */
+		+ 4 + username_len /* string    user name (ISO-10646 UTF-8, as defined in [RFC-3629]) */
+		+ 4 + 14           /* string    service name (US-ASCII) */
+		+ 4 + 20           /* string    "keyboard-interactive" (US-ASCII) */
+		+ 4 + 0            /* string    language tag (as defined in [RFC-3066]) */
+		+ 4 + 0            /* string    submethods (ISO-10646 UTF-8) */
+		;
+
+	if (!(data = s = LIBSSH2_ALLOC(session, packet_len))) {
+		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for keyboard-interactive authentication", 0);
+		return -1;
+	}
+
+	*s++ = SSH_MSG_USERAUTH_REQUEST;
+
+	/* user name */
+	libssh2_htonu32(s, username_len);										s += 4;
+	memcpy(s, username, username_len);										s += username_len;
+
+	/* service name */
+	libssh2_htonu32(s, sizeof("ssh-connection"));							s += 4;
+	memcpy(s, "ssh-connection", sizeof("ssh-connection"));					s += sizeof("ssh-connection");
+
+	/* "keyboard-interactive" */
+	libssh2_htonu32(s, sizeof("keyboard-interactive"));						s += 4;
+	memcpy(s, "keyboard-interactive", sizeof("keyboard-interactive"));		s += sizeof("keyboard-interactive");
+
+	/* language tag */
+	libssh2_htonu32(s, 0);													s += 4;
+
+	/* submethods */
+	libssh2_htonu32(s, 0);													s += 4;
+
+	if (libssh2_packet_write(session, data, packet_len)) {
+		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send keyboard-interactive request", 0);
+		LIBSSH2_FREE(session, data);
+		return -1;
+	}
+	LIBSSH2_FREE(session, data);
+
+	for (;;) {
+		unsigned char reply_codes[4] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST, 0 };
+		unsigned int auth_name_len;
+		char* auth_name = NULL;
+		unsigned auth_instruction_len;
+		char* auth_instruction = NULL;
+		unsigned int language_tag_len;
+		unsigned long data_len;
+		unsigned int num_prompts = 0;
+		unsigned int i;
+		int auth_failure = 1;
+		LIBSSH2_USERAUTH_KBDINT_PROMPT* prompts = NULL;
+		LIBSSH2_USERAUTH_KBDINT_RESPONSE* responses = NULL;
+
+		if (libssh2_packet_requirev(session, reply_codes, &data, &data_len)) {
+			return -1;
+		}
+
+		if (data[0] == SSH_MSG_USERAUTH_SUCCESS) {
+			LIBSSH2_FREE(session, data);
+			session->state |= LIBSSH2_STATE_AUTHENTICATED;
+			return 0;
+		}
+
+		if (data[0] == SSH_MSG_USERAUTH_FAILURE) {
+			LIBSSH2_FREE(session, data);
+			return -1;
+		}
+
+		/* server requested PAM-like conversation */
+
+		s = data + 1;
+
+		/* string    name (ISO-10646 UTF-8) */
+		auth_name_len = libssh2_ntohu32(s);								s += 4;
+		if (!(auth_name = LIBSSH2_ALLOC(session, auth_name_len))) {
+			libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for keyboard-interactive 'name' request field", 0);
+			goto cleanup;
+		}
+		memcpy(auth_name, s, auth_name_len);							s += auth_name_len;
+
+		/* string    instruction (ISO-10646 UTF-8) */
+		auth_instruction_len = libssh2_ntohu32(s); s += 4;
+		if (!(auth_instruction = LIBSSH2_ALLOC(session, auth_instruction_len))) {
+			libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for keyboard-interactive 'instruction' request field", 0);
+			goto cleanup;
+		}
+		memcpy(auth_instruction, s, auth_instruction_len);				s += auth_instruction_len;
+
+		/* string    language tag (as defined in [RFC-3066]) */
+		language_tag_len = libssh2_ntohu32(s);							s += 4;
+		/* ignoring this field as deprecated */							s += language_tag_len;
+
+		/* int       num-prompts */
+		num_prompts = libssh2_ntohu32(s);								s += 4;
+
+		prompts = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_USERAUTH_KBDINT_PROMPT) * num_prompts);
+		if (!prompts) {
+			libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for keyboard-interactive prompts array", 0);
+			goto cleanup;
+		}
+		memset(prompts, 0, sizeof(LIBSSH2_USERAUTH_KBDINT_PROMPT) * num_prompts);
+
+		responses = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_USERAUTH_KBDINT_RESPONSE) * num_prompts);
+		if (!responses) {
+			libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for keyboard-interactive responses array", 0);
+			goto cleanup;
+		}
+		memset(responses, 0, sizeof(LIBSSH2_USERAUTH_KBDINT_RESPONSE) * num_prompts);
+
+		for(i = 0; i != num_prompts; ++i) {
+			/* string    prompt[1] (ISO-10646 UTF-8) */
+			prompts[i].length = libssh2_ntohu32(s);						s += 4;
+			if (!(prompts[i].text = LIBSSH2_ALLOC(session, prompts[i].length))) {
+				libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for keyboard-interactive prompt message", 0);
+				goto cleanup;
+			}
+			memcpy(prompts[i].text, s, prompts[i].length);				s += prompts[i].length;
+
+			/* boolean   echo[1] */
+			prompts[i].echo = *s++;
+		}
+
+		response_callback(auth_name, auth_name_len,  auth_instruction, auth_instruction_len, num_prompts, prompts, responses);
+
+		packet_len = 1 /* byte      SSH_MSG_USERAUTH_INFO_RESPONSE */
+			+ 4        /* int       num-responses */
+			;
+
+		for (i = 0; i != num_prompts; ++i) {
+			packet_len += 4 + responses[i].length; /* string    response[1] (ISO-10646 UTF-8) */
+		}
+
+		if (!(data = s = LIBSSH2_ALLOC(session, packet_len))) {
+			libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for keyboard-interactive response packet", 0);
+			goto cleanup;
+		}
+
+		*s = SSH_MSG_USERAUTH_INFO_RESPONSE; s++;
+		libssh2_htonu32(s, num_prompts);								s += 4;
+
+		for (i = 0; i != num_prompts; ++i) {
+			libssh2_htonu32(s, responses[i].length);					s += 4;
+			memcpy(s, responses[i].text, responses[i].length);			s += responses[i].length;
+		}
+
+		if (libssh2_packet_write(session, data, packet_len)) {
+			libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send userauth-keyboard-interactive request", 0);
+			goto cleanup;
+		}
+
+		auth_failure = 0;
+
+	cleanup:
+		/* It's safe to clean all the data here, because unallocated pointers
+		 * are filled by zeroes
+		 */
+
+		LIBSSH2_FREE(session, data);
+
+		if (prompts) {
+			for (i = 0; i != num_prompts; ++i) {
+				LIBSSH2_FREE(session, prompts[i].text);
+			}
+		}
+
+		if (responses) {
+			for (i = 0; i != num_prompts; ++i) {
+				LIBSSH2_FREE(session, responses[i].text);
+			}
+		}
+
+		LIBSSH2_FREE(session, prompts);
+		LIBSSH2_FREE(session, responses);
+
+		if (auth_failure) {
+			return -1;
+		}
+	}
+}
+/* }}} */

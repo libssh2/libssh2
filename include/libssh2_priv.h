@@ -407,6 +407,9 @@ void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, .
 #define SSH_MSG_USERAUTH_PK_OK						60
 /* "password" method */
 #define SSH_MSG_USERAUTH_PASSWD_CHANGEREQ			60
+/* "keyboard-interactive" method */
+#define SSH_MSG_USERAUTH_INFO_REQUEST				60
+#define SSH_MSG_USERAUTH_INFO_RESPONSE				61
 
 /* Channels */
 #define SSH_MSG_GLOBAL_REQUEST						80
