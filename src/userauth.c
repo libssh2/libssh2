@@ -785,7 +785,7 @@ LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *sessio
 			prompts[i].echo = *s++;
 		}
 
-		response_callback(auth_name, auth_name_len,  auth_instruction, auth_instruction_len, num_prompts, prompts, responses);
+		response_callback(auth_name, auth_name_len,  auth_instruction, auth_instruction_len, num_prompts, prompts, responses, &session->abstract);
 
 		packet_len = 1 /* byte      SSH_MSG_USERAUTH_INFO_RESPONSE */
 			+ 4        /* int       num-responses */
