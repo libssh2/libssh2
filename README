@@ -10,6 +10,9 @@ Version 0.11
 
   Added queueing for small window_adjust packets to avoid unnecessary packet conversation.
 
+  Fixed libssh2_sftp_rename_ex() to only send flags parameter if version >= 5 negotiated
+	(not currently possible, but will be and might as well keep the API consistent).
+
 Version 0.10
 ------------
 

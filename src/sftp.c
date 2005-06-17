@@ -1139,9 +1139,12 @@ LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,  char *source_filenam
 	memcpy(s, source_filename, source_filename_len);	s += source_filename_len;
 	libssh2_htonu32(s, dest_filename_len);				s += 4;
 	memcpy(s, dest_filename, dest_filename_len);		s += dest_filename_len;
-	libssh2_htonu32(s, flags);							s += 4;
 
-	if (packet_len != libssh2_channel_write(channel, packet, packet_len)) {
+	if (sftp->version >= 5) {
+		libssh2_htonu32(s, flags);						s += 4;
+	}
+
+	if (packet_len != libssh2_channel_write(channel, packet, s - packet)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_REMOVE command", 0);
 		LIBSSH2_FREE(session, packet);
 		return -1;
