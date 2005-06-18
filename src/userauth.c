@@ -682,12 +682,12 @@ LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *sessio
 	memcpy(s, username, username_len);										s += username_len;
 
 	/* service name */
-	libssh2_htonu32(s, sizeof("ssh-connection"));							s += 4;
-	memcpy(s, "ssh-connection", sizeof("ssh-connection"));					s += sizeof("ssh-connection");
+	libssh2_htonu32(s, sizeof("ssh-connection") - 1);						s += 4;
+	memcpy(s, "ssh-connection", sizeof("ssh-connection") - 1);				s += sizeof("ssh-connection") - 1;
 
 	/* "keyboard-interactive" */
-	libssh2_htonu32(s, sizeof("keyboard-interactive"));						s += 4;
-	memcpy(s, "keyboard-interactive", sizeof("keyboard-interactive"));		s += sizeof("keyboard-interactive");
+	libssh2_htonu32(s, sizeof("keyboard-interactive") - 1);					s += 4;
+	memcpy(s, "keyboard-interactive", sizeof("keyboard-interactive") - 1);	s += sizeof("keyboard-interactive") - 1;
 
 	/* language tag */
 	libssh2_htonu32(s, 0);													s += 4;
@@ -695,6 +695,9 @@ LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *sessio
 	/* submethods */
 	libssh2_htonu32(s, 0);													s += 4;
 
+#ifdef LIBSSH2_DEBUG_USERAUTH
+	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Attempting keyboard-interactive authentication");
+#endif
 	if (libssh2_packet_write(session, data, packet_len)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send keyboard-interactive request", 0);
 		LIBSSH2_FREE(session, data);
@@ -721,6 +724,9 @@ LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *sessio
 		}
 
 		if (data[0] == SSH_MSG_USERAUTH_SUCCESS) {
+#ifdef LIBSSH2_DEBUG_USERAUTH
+			_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Keyboard-interactive authentication successful");
+#endif
 			LIBSSH2_FREE(session, data);
 			session->state |= LIBSSH2_STATE_AUTHENTICATED;
 			return 0;
@@ -786,6 +792,10 @@ LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *sessio
 		}
 
 		response_callback(auth_name, auth_name_len,  auth_instruction, auth_instruction_len, num_prompts, prompts, responses, &session->abstract);
+
+#ifdef LIBSSH2_DEBUG_USERAUTH
+		_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Keyboard-interactive response callback function invoked");
+#endif
 
 		packet_len = 1 /* byte      SSH_MSG_USERAUTH_INFO_RESPONSE */
 			+ 4        /* int       num-responses */
