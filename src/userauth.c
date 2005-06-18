@@ -49,7 +49,7 @@
  * Not a common configuration for any SSH server though
  * username should be NULL, or a null terminated string
  */
-LIBSSH2_API const char *libssh2_userauth_list(LIBSSH2_SESSION *session, const char *username, int username_len)
+LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, const char *username, int username_len)
 {
 	unsigned char reply_codes[3] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
 	unsigned long data_len = username_len + 31; /* packet_type(1) + username_len(4) + service_len(4) + service(14)"ssh-connection" +

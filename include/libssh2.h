@@ -272,7 +272,7 @@ LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errm
 LIBSSH2_API int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int value);
 
 /* Userauth API */
-LIBSSH2_API const char *libssh2_userauth_list(LIBSSH2_SESSION *session, const char *username, int username_len);
+LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, const char *username, int username_len);
 LIBSSH2_API int libssh2_userauth_authenticated(LIBSSH2_SESSION *session);
 LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username, int username_len, const char *password, int password_len, LIBSSH2_PASSWD_CHANGEREQ_FUNC((*passwd_change_cb)));
 #define libssh2_userauth_password(session, username, password)	libssh2_userauth_password_ex((session), (username), strlen(username), (password), strlen(password), NULL)
