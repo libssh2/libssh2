@@ -1287,7 +1287,7 @@ int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange) /* session->f
 /* {{{ libssh2_session_method_pref
  * Set preferred method
  */
-LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type, char *prefs)
+LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type, const char *prefs)
 {
 	char **prefvar, *s, *newprefs;
 	int prefs_len = strlen(prefs);

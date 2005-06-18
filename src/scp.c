@@ -44,7 +44,7 @@
 /* {{{ libssh2_scp_recv
  * Open a channel and request a remote file via SCP
  */
-LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, char *path, struct stat *sb)
+LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb)
 {
 	int path_len = strlen(path);
 	unsigned char *command, response[LIBSSH2_SCP_RESPONSE_BUFLEN];
@@ -330,11 +330,12 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, char *pa
 /* {{{ libssh2_scp_send_ex
  * Send a file using SCP
  */
-LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, char *path, int mode, size_t size, long mtime, long atime)
+LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode, size_t size, long mtime, long atime)
 {
 	int path_len = strlen(path);
-	unsigned char *command, *base, response[LIBSSH2_SCP_RESPONSE_BUFLEN];
+	unsigned char *command, response[LIBSSH2_SCP_RESPONSE_BUFLEN];
 	unsigned long response_len, command_len = path_len + sizeof("scp -t ");
+	unsigned const char *base;
 	LIBSSH2_CHANNEL *channel;
 
 	if (mtime || atime) {

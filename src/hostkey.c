@@ -109,7 +109,7 @@ static int libssh2_hostkey_method_ssh_rsadsa_passphrase_cb(char *buf, int size, 
 /* {{{ libssh2_hostkey_method_ssh_rsa_initPEM
  * Load a Private Key from a PEM file
  */
-static int libssh2_hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session, unsigned char *privkeyfile, unsigned char *passphrase, void **abstract)
+static int libssh2_hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session, unsigned const char *privkeyfile, unsigned const char *passphrase, void **abstract)
 {
 	RSA *rsactx;
 	FILE *fp;
@@ -131,7 +131,7 @@ static int libssh2_hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session, unsi
 		 */
 		OpenSSL_add_all_ciphers();
 	}
-	rsactx = PEM_read_RSAPrivateKey(fp, NULL, (void*)libssh2_hostkey_method_ssh_rsadsa_passphrase_cb, passphrase);
+	rsactx = PEM_read_RSAPrivateKey(fp, NULL, (void*)libssh2_hostkey_method_ssh_rsadsa_passphrase_cb, (void*)passphrase);
 	if (!rsactx) {
 		fclose(fp);
 		return -1;
@@ -323,7 +323,7 @@ static int libssh2_hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session, unsigne
 /* {{{ libssh2_hostkey_method_ssh_dss_initPEM
  * Load a Private Key from a PEM file
  */
-static int libssh2_hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session, unsigned char *privkeyfile, unsigned char *passphrase, void **abstract)
+static int libssh2_hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session, unsigned const char *privkeyfile, unsigned const char *passphrase, void **abstract)
 {
 	DSA *dsactx;
 	FILE *fp;
@@ -345,7 +345,7 @@ static int libssh2_hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session, unsi
 		 */
 		OpenSSL_add_all_ciphers();
 	}
-	dsactx = PEM_read_DSAPrivateKey(fp, NULL, (void*)libssh2_hostkey_method_ssh_rsadsa_passphrase_cb, passphrase);
+	dsactx = PEM_read_DSAPrivateKey(fp, NULL, (void*)libssh2_hostkey_method_ssh_rsadsa_passphrase_cb, (void*)passphrase);
 	if (!dsactx) {
 		fclose(fp);
 		return -1;
@@ -523,7 +523,7 @@ LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void)
  * Length of buffer is determined by hash type
  * i.e. MD5 == 16, SHA1 == 20
  */
-LIBSSH2_API char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_type)
+LIBSSH2_API const char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_type)
 {
 	switch (hash_type) {
 #ifndef OPENSSL_NO_MD5

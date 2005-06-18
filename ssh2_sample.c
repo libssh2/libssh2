@@ -17,7 +17,7 @@
 int main(int argc, char *argv[]) {
 	int sock, i, auth_pw = 1;
 	struct sockaddr_in sin;
-	char *fingerprint;
+	const char *fingerprint;
 	LIBSSH2_SESSION *session;
 	LIBSSH2_CHANNEL *channel;
 #ifdef WIN32

@@ -172,7 +172,7 @@ static int libssh2_banner_send(LIBSSH2_SESSION *session)
 /* {{{ libssh2_banner_set
  * Set the local banner
  */
-LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION *session, char *banner)
+LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION *session, const char *banner)
 {
 	int banner_len = banner ? strlen(banner) : 0;
 
@@ -497,7 +497,7 @@ LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session)
 
 /* {{{ libssh2_session_disconnect_ex
  */
-LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason, char *description, char *lang)
+LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason, const char *description, const char *lang)
 {
 	unsigned char *s, *data;
 	unsigned long data_len, descr_len = 0, lang_len = 0;
@@ -547,7 +547,7 @@ LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reas
  * NOTE: Currently lang_cs and lang_sc are ALWAYS set to empty string regardless of actual negotiation
  * Strings should NOT be freed
  */
-LIBSSH2_API char *libssh2_session_methods(LIBSSH2_SESSION *session, int method_type)
+LIBSSH2_API const char *libssh2_session_methods(LIBSSH2_SESSION *session, int method_type)
 {
 	/* All methods have char *name as their first element */
 	LIBSSH2_KEX_METHOD *method = NULL;
