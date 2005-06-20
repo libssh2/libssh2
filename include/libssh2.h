@@ -38,6 +38,10 @@
 #ifndef LIBSSH2_H
 #define LIBSSH2_H 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -383,5 +387,9 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, const
 #define libssh2_scp_send(session, path, mode, size)					libssh2_scp_send_ex((session), (path), (mode), (size), 0, 0)
 
 LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest, int *dest_len, char *src, int src_len);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* LIBSSH2_H */
