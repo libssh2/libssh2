@@ -511,6 +511,9 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 #endif
 						channel->exit_status = libssh2_ntohu32(data + 9 + sizeof("exit-status"));
 					}
+
+					LIBSSH2_FREE(session, data);
+					return 0;
 				}
 			}
 			break;
