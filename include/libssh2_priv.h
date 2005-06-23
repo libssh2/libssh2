@@ -112,6 +112,9 @@ struct _LIBSSH2_CHANNEL {
 
 	int blocking;
 
+	/* channel's program exit status */
+	int exit_status;
+
 	libssh2_channel_data local, remote;
 	unsigned long adjust_queue; /* Amount of bytes to be refunded to receive window (but not yet sent) */
 

@@ -7,17 +7,17 @@
  *
  *   Redistributions of source code must retain the above
  *   copyright notice, this list of conditions and the
- *   following disclaimer. 
+ *   following disclaimer.
  *
  *   Redistributions in binary form must reproduce the above
  *   copyright notice, this list of conditions and the following
  *   disclaimer in the documentation and/or other materials
- *   provided with the distribution. 
+ *   provided with the distribution.
  *
  *   Neither the name of the copyright holder nor the names
- *   of any other contributors may be used to endorse or 
- *   promote products derived from this software without 
- *   specific prior written permission. 
+ *   of any other contributors may be used to endorse or
+ *   promote products derived from this software without
+ *   specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
  * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -99,7 +99,7 @@ LIBSSH2_CHANNEL *libssh2_channel_locate(LIBSSH2_SESSION *session, unsigned long 
 	}	\
 	(channel)->next = NULL;	\
 	(session)->channels.tail = (channel);	\
-	(channel)->session = (session);	\
+	(channel)->session = (session); \
 }
 
 /* {{{ libssh2_channel_open_session
@@ -112,7 +112,7 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session, c
 	LIBSSH2_CHANNEL *channel = NULL;
 	unsigned long local_channel = libssh2_channel_nextid(session);
 	unsigned char *s, *packet = NULL;
-	unsigned long packet_len = channel_type_len + message_len + 17; /* packet_type(1) + channel_type_len(4) + sender_channel(4) + 
+	unsigned long packet_len = channel_type_len + message_len + 17; /* packet_type(1) + channel_type_len(4) + sender_channel(4) +
 																	   window_size(4) + packet_size(4) */
 	unsigned char *data = NULL;
 	unsigned long data_len;
@@ -468,7 +468,7 @@ LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varnam
 	LIBSSH2_SESSION *session = channel->session;
 	unsigned char *s, *packet, *data, reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 }, local_channel[4];
 	unsigned long data_len;
-	unsigned long packet_len = varname_len + value_len + 21; /* packet_type(1) + channel_id(4) + request_len(4) + request(3)"env" + 
+	unsigned long packet_len = varname_len + value_len + 21; /* packet_type(1) + channel_id(4) + request_len(4) + request(3)"env" +
 																want_reply(1) + varname_len(4) + value_len(4) */
 
 #ifdef LIBSSH2_DEBUG_CONNECTION
@@ -528,7 +528,7 @@ LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *t
 	LIBSSH2_SESSION *session = channel->session;
 	unsigned char *s, *packet, *data, reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 }, local_channel[4];
 	unsigned long data_len;
-	unsigned long packet_len = term_len + modes_len + 41; /*  packet_type(1) + channel(4) + pty_req_len(4) + "pty_req"(7) + want_reply(1) + 
+	unsigned long packet_len = term_len + modes_len + 41; /*  packet_type(1) + channel(4) + pty_req_len(4) + "pty_req"(7) + want_reply(1) +
 															  term_len(4) + width(4) + height(4) + width_px(4) + height_px(4) + modes_len(4) */
 
 #ifdef LIBSSH2_DEBUG_CONNECTION
@@ -598,7 +598,7 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_
 	unsigned long data_len;
 	unsigned long proto_len = auth_proto ? strlen(auth_proto) : (sizeof("MIT-MAGIC-COOKIE-1") - 1);
 	unsigned long cookie_len = auth_cookie ? strlen(auth_cookie) : LIBSSH2_X11_RANDOM_COOKIE_LEN;
-	unsigned long packet_len = proto_len + cookie_len + 41; /*  packet_type(1) + channel(4) + x11_req_len(4) + "x11-req"(7) + want_reply(1) + 
+	unsigned long packet_len = proto_len + cookie_len + 41; /*  packet_type(1) + channel(4) + x11_req_len(4) + "x11-req"(7) + want_reply(1) +
 																single_cnx(4) + proto_len(4) + cookie_len(4) + screen_num(4) */
 
 #ifdef LIBSSH2_DEBUG_CONNECTION
@@ -785,6 +785,16 @@ LIBSSH2_API int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid)
 
 	return flush_bytes;
 }
+/* }}} */
+
+/* {{{ libssh2_channel_get_exit_status
+ * Return the channel's program exit status
+ */
+LIBSSH2_API int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL* channel)
+{
+	return channel->exit_status;
+}
+
 /* }}} */
 
 /* {{{ libssh2_channel_receive_window_adjust
@@ -1057,7 +1067,7 @@ LIBSSH2_API int libssh2_channel_eof(LIBSSH2_CHANNEL *channel)
 	LIBSSH2_PACKET *packet = session->packets.head;
 
 	while (packet) {
-		if (((packet->data[0] == SSH_MSG_CHANNEL_DATA) || (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)) && 
+		if (((packet->data[0] == SSH_MSG_CHANNEL_DATA) || (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)) &&
 			(channel->local.id == libssh2_ntohu32(packet->data + 1))) {
 			/* There's data waiting to be read yet, mask the EOF status */
 			return 0;
@@ -1122,7 +1132,7 @@ LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 		return -1;
 	}
 
-	/* channel->remote.close *might* not be set yet, Well... 
+	/* channel->remote.close *might* not be set yet, Well...
 	 * We've sent the close packet, what more do you want?
 	 * Just let packet_add ignore it when it finally arrives
 	 */

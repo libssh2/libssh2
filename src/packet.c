@@ -156,7 +156,7 @@ inline int libssh2_packet_queue_listener(LIBSSH2_SESSION *session, unsigned char
 
 			if (libssh2_packet_write(session, packet, 17)) {
 				libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send channel open confirmation", 0);
-				return -1;				
+				return -1;
 			}
 
 			/* Link the channel into the end of the queue list */
@@ -269,7 +269,7 @@ inline int libssh2_packet_x11_open(LIBSSH2_SESSION *session, unsigned char *data
 
 		if (libssh2_packet_write(session, packet, 17)) {
 			libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send channel open confirmation", 0);
-			return -1;				
+			return -1;
 		}
 
 		/* Link the channel into the session */
@@ -495,6 +495,23 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 
 				LIBSSH2_FREE(session, data);
 				return 0;
+			}
+			break;
+	    case SSH_MSG_CHANNEL_REQUEST:
+		    {
+				if (libssh2_ntohu32(data+5) == sizeof("exit-status") - 1
+					&& !memcmp("exit-status", data + 9, sizeof("exit-status") - 1)) {
+
+					/* we've got "exit-status" packet. Set the session value */
+					LIBSSH2_CHANNEL *channel = libssh2_channel_locate(session, libssh2_ntohu32(data+1));
+
+					if (channel) {
+#ifdef LIBSSH2_DEBUG_CONNECTION
+						_libssh2_debug(session, LIBSSH2_DBG_CONN, "Exit status received for channel %lu/%lu", channel->local.id, channel->remote.id);
+#endif
+						channel->exit_status = libssh2_ntohu32(data + 9 + sizeof("exit-status"));
+					}
+				}
 			}
 			break;
 		case SSH_MSG_CHANNEL_CLOSE:
@@ -900,7 +917,7 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 /* {{{ libssh2_packet_ask
  * Scan the brigade for a matching packet type, optionally poll the socket for a packet first
  */
-int libssh2_packet_ask_ex(LIBSSH2_SESSION *session, unsigned char packet_type, unsigned char **data, unsigned long *data_len, 
+int libssh2_packet_ask_ex(LIBSSH2_SESSION *session, unsigned char packet_type, unsigned char **data, unsigned long *data_len,
 													unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len, int poll_socket)
 {
 	LIBSSH2_PACKET *packet = session->packets.head;
@@ -945,7 +962,7 @@ int libssh2_packet_ask_ex(LIBSSH2_SESSION *session, unsigned char packet_type, u
 /* {{{ libssh2_packet_askv
  * Scan for any of a list of packet types in the brigade, optionally poll the socket for a packet first
  */
-int libssh2_packet_askv_ex(LIBSSH2_SESSION *session, unsigned char *packet_types, unsigned char **data, unsigned long *data_len, 
+int libssh2_packet_askv_ex(LIBSSH2_SESSION *session, unsigned char *packet_types, unsigned char **data, unsigned long *data_len,
 													 unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len, int poll_socket)
 {
 	int i, packet_types_len = strlen(packet_types);

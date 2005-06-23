@@ -323,7 +323,7 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session, c
 #define libssh2_channel_open_session(session)	libssh2_channel_open_ex((session), "session", sizeof("session") - 1, LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0)
 
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, char *host, int port, char *shost, int sport);
-#define libssh2_channel_direct_tcpip(session, host, port)	libssh2_channel_direct_tcpip_ex((session), (host), (port), "127.0.0.1", 22) 
+#define libssh2_channel_direct_tcpip(session, host, port)	libssh2_channel_direct_tcpip_ex((session), (host), (port), "127.0.0.1", 22)
 
 LIBSSH2_API LIBSSH2_LISTENER *libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, char *host, int port, int *bound_port, int queue_maxsize);
 #define libssh2_channel_forward_listen(session, port)			libssh2_channel_forward_listen_ex((session), NULL, (port), NULL, 16)
@@ -376,6 +376,7 @@ LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel, 
 LIBSSH2_API int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid);
 #define libssh2_channel_flush(channel)			libssh2_channel_flush_ex((channel), 0)
 #define libssh2_channel_flush_stderr(channel)	libssh2_channel_flush_ex((channel), SSH_EXTENDED_DATA_STDERR)
+LIBSSH2_API int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL* channel);
 
 LIBSSH2_API int libssh2_channel_send_eof(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_eof(LIBSSH2_CHANNEL *channel);
