@@ -381,6 +381,7 @@ LIBSSH2_API int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL* channel);
 LIBSSH2_API int libssh2_channel_send_eof(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_eof(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_close(LIBSSH2_CHANNEL *channel);
+LIBSSH2_API int libssh2_channel_wait_closed(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL *channel);
 
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb);

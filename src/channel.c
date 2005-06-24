@@ -1114,6 +1114,35 @@ LIBSSH2_API int libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 }
 /* }}} */
 
+/* {{{ libssh2_channel_wait_closed
+ * Awaiting channel close after EOF
+ */
+LIBSSH2_API int libssh2_channel_wait_closed(LIBSSH2_CHANNEL *channel)
+{
+	LIBSSH2_SESSION* session = channel->session;
+
+	if (!libssh2_channel_eof(channel)) {
+		libssh2_error(session, LIBSSH2_ERROR_INVAL, "libssh2_channel_wait_closed() invoked when channel is not in EOF state", 0);
+		return -1;
+	}
+
+#ifdef LIBSSH2_DEBUG_CONNECTION
+	_libssh2_debug(session, LIBSSH2_DBG_CONN, "Awaiting close of channel %lu/%lu", channel->local.id, channel->remote.id);
+#endif
+
+	/* while channel is not closed, read more
+	 * packets from the network.
+	 * Either or channel will be closed
+	 * or network timeout will occur
+	 */
+	while (!channel->remote.close && libssh2_packet_read(session, 1) > 0)
+		;
+
+	return 1;
+}
+/* }}} */
+
+
 /* {{{ libssh2_channel_free
  * Make sure a channel is closed, then remove the channel from the session and free its resource(s)
  */
