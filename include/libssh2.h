@@ -350,6 +350,8 @@ LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 #define libssh2_channel_read(channel, buf, buflen)					libssh2_channel_read_ex((channel), 0, (buf), (buflen))
 #define libssh2_channel_read_stderr(channel, buf, buflen)			libssh2_channel_read_ex((channel), SSH_EXTENDED_DATA_STDERR, (buf), (buflen))
 
+LIBSSH2_API int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended);
+
 LIBSSH2_API unsigned long libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel, unsigned long *read_avail, unsigned long *window_size_initial);
 #define libssh2_channel_window_read(channel)			libssh2_channel_window_read_ex((channel), NULL, NULL)
 

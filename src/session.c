@@ -682,7 +682,7 @@ LIBSSH2_API int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int val
  * Returns 0 if no data is waiting on channel,
  * non-0 if data is available
  */
-static int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
+LIBSSH2_API int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
 {
 	LIBSSH2_SESSION *session = channel->session;
 	LIBSSH2_PACKET *packet = session->packets.head;
@@ -694,7 +694,7 @@ static int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
 			return 1;
 		}
 		packet = packet->next;
-	}	
+	}
 
 	return 0;
 }
@@ -832,7 +832,7 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeou
 							fds[i].revents |= LIBSSH2_POLLFD_CHANNEL_CLOSED | LIBSSH2_POLLFD_SESSION_CLOSED;
 						}
 						break;
-					case LIBSSH2_POLLFD_LISTENER: 
+					case LIBSSH2_POLLFD_LISTENER:
 						if ((fds[i].events & LIBSSH2_POLLFD_POLLIN) && /* Want a connection */
 							((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) { /* No connections known of yet */
 							fds[i].revents |= libssh2_poll_listener_queued(fds[i].fd.listener) ? LIBSSH2_POLLFD_POLLIN : 0;
