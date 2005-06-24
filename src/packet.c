@@ -506,10 +506,10 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 					LIBSSH2_CHANNEL *channel = libssh2_channel_locate(session, libssh2_ntohu32(data+1));
 
 					if (channel) {
-#ifdef LIBSSH2_DEBUG_CONNECTION
-						_libssh2_debug(session, LIBSSH2_DBG_CONN, "Exit status received for channel %lu/%lu", channel->local.id, channel->remote.id);
-#endif
 						channel->exit_status = libssh2_ntohu32(data + 9 + sizeof("exit-status"));
+#ifdef LIBSSH2_DEBUG_CONNECTION
+						_libssh2_debug(session, LIBSSH2_DBG_CONN, "Exit status %lu received for channel %lu/%lu", channel->exit_status, channel->local.id, channel->remote.id);
+#endif
 					}
 
 					LIBSSH2_FREE(session, data);
