@@ -4,7 +4,11 @@ libssh2 - SSH2 library
 Version 0.11
 ------------
 
-  Added libssh2_userauth_keyboard_interactive_ex() -- Code contributed by Mikhail Gusarov
+  Added libssh2_chnnale_get_exit_status() -- Mikhail
+
+  Added libssh2_channel_wait_closed() -- Mikhail
+
+  Added libssh2_userauth_keyboard_interactive_ex() -- Mikhail
 
   Added libssh2_channel_receive_window_adjust() to be able to increase the size of the receive window.
 
