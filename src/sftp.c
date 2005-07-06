@@ -569,7 +569,7 @@ LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, char *
 
 	s = packet = LIBSSH2_ALLOC(session, packet_len);
 	if (!packet) {
-		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_REMOVE packet", 0);
+		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_OPEN or FXP_OPENDIR packet", 0);
 		return NULL;
 	}
 	/* Filetype in SFTP 3 and earlier */
@@ -590,7 +590,7 @@ LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, char *
 	_libssh2_debug(session, LIBSSH2_DBG_SFTP, "Sending %s open request", (open_type == LIBSSH2_SFTP_OPENFILE) ? "file" : "directory");
 #endif
 	if (packet_len != libssh2_channel_write(channel, packet, packet_len)) {
-		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_REMOVE command", 0);
+		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_OPEN or FXP_OPENDIR command", 0);
 		LIBSSH2_FREE(session, packet);
 		return NULL;
 	}
@@ -1145,7 +1145,7 @@ LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,  char *source_filenam
 	}
 
 	if (packet_len != libssh2_channel_write(channel, packet, s - packet)) {
-		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_REMOVE command", 0);
+		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_RENAME command", 0);
 		LIBSSH2_FREE(session, packet);
 		return -1;
 	}
@@ -1216,7 +1216,7 @@ LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, char *path, int path_l
 	s += libssh2_sftp_attr2bin(s, &attrs);
 
 	if (packet_len != libssh2_channel_write(channel, packet, packet_len)) {
-		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_REMOVE command", 0);
+		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_MKDIR command", 0);
 		LIBSSH2_FREE(session, packet);
 		return -1;
 	}
@@ -1268,7 +1268,7 @@ LIBSSH2_API int libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, char *path, int path_l
 	memcpy(s, path, path_len);							s += path_len;
 
 	if (packet_len != libssh2_channel_write(channel, packet, packet_len)) {
-		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_REMOVE command", 0);
+		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_MKDIR command", 0);
 		LIBSSH2_FREE(session, packet);
 		return -1;
 	}
