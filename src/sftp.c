@@ -1113,8 +1113,9 @@ LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,  char *source_filenam
 	LIBSSH2_CHANNEL *channel = sftp->channel;
 	LIBSSH2_SESSION *session = channel->session;
 	unsigned long data_len, retcode = -1, request_id;
-	unsigned long packet_len = source_filename_len + dest_filename_len + 21; /* packet_len(4) + packet_type(1) + request_id(4) + 
-																				source_filename_len(4) + dest_filename_len(4) + flags(4) */
+	unsigned long packet_len = source_filename_len + dest_filename_len + 17 + (sftp->version >= 5 ? 4 : 0);
+																			 /* packet_len(4) + packet_type(1) + request_id(4) + 
+																				source_filename_len(4) + dest_filename_len(4) + flags(4){SFTP5+) */
 	unsigned char *packet, *s, *data;
 
 	if (sftp->version < 2) {
