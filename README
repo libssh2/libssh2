@@ -4,6 +4,9 @@ libssh2 - SSH2 library
 Version 0.12
 ------------
 
+  Fix generation of 'e' portion of Diffie-Hellman keyset.
+	Use appropriate order for BN_rand() rather than fixed group1-specific value.
+
   Re-fixed libssh2_sftp_rename_ex()
     Transport had right packet_len, but sftp layer still had extra 4 bytes.
 

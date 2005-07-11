@@ -68,7 +68,7 @@
 /* {{{ libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange
  * Diffie Hellman Key Exchange, Group Agnostic
  */
-static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session, BIGNUM *g, BIGNUM *p,
+static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session, BIGNUM *g, BIGNUM *p, int group_order,
 																		unsigned char packet_type_init, unsigned char packet_type_reply,
 																		unsigned char *midhash, unsigned long midhash_len)
 {
@@ -85,7 +85,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 	SHA_CTX exchange_hash;
 
 	/* Generate x and e */
-	BN_rand(x, 128, 0, -1);
+	BN_rand(x, group_order, 0, -1);
 	BN_mod_exp(e, g, x, p, ctx);
 
 	/* Send KEX init */
@@ -518,7 +518,7 @@ static int libssh2_kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SE
 #ifdef LIBSSH2_DEBUG_KEX
 	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Initiating Diffie-Hellman Group1 Key Exchange");
 #endif
-	ret = libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(session, g, p, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY, NULL, 0);
+	ret = libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(session, g, p, 128, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY, NULL, 0);
 
 	BN_clear_free(p);
 	BN_clear_free(g);
@@ -577,7 +577,7 @@ static int libssh2_kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_S
 #ifdef LIBSSH2_DEBUG_KEX
 	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Initiating Diffie-Hellman Group14 Key Exchange");
 #endif
-	ret = libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(session, g, p, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY, NULL, 0);
+	ret = libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(session, g, p, 256, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY, NULL, 0);
 
 	BN_clear_free(p);
 	BN_clear_free(g);
@@ -593,7 +593,7 @@ static int libssh2_kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_S
 static int libssh2_kex_method_diffie_hellman_group_exchange_sha1_key_exchange(LIBSSH2_SESSION *session)
 {
 	unsigned char request[13], *s, *data;
-	unsigned long data_len, len, request_len;
+	unsigned long data_len, p_len, g_len, request_len;
 	BIGNUM *p = BN_new();
 	BIGNUM *g = BN_new();
 	int ret;
@@ -630,13 +630,13 @@ static int libssh2_kex_method_diffie_hellman_group_exchange_sha1_key_exchange(LI
 	}
 
 	s = data + 1;
-	len = libssh2_ntohu32(s);						s += 4;
-	BN_bin2bn(s, len, p);							s += len;
+	p_len = libssh2_ntohu32(s);						s += 4;
+	BN_bin2bn(s, p_len, p);							s += p_len;
 
-	len = libssh2_ntohu32(s);						s += 4;
-	BN_bin2bn(s, len, g);							s += len;
+	g_len = libssh2_ntohu32(s);						s += 4;
+	BN_bin2bn(s, g_len, g);							s += g_len;
 
-	ret = libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(session, g, p, SSH_MSG_KEX_DH_GEX_INIT, SSH_MSG_KEX_DH_GEX_REPLY, data + 1, data_len - 1);
+	ret = libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(session, g, p, p_len, SSH_MSG_KEX_DH_GEX_INIT, SSH_MSG_KEX_DH_GEX_REPLY, data + 1, data_len - 1);
 
 	LIBSSH2_FREE(session, data);
 
