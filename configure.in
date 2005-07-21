@@ -191,6 +191,9 @@ AC_ARG_ENABLE(debug-scp,
 AC_ARG_ENABLE(debug-sftp,
 	AC_HELP_STRING([--enable-debug-sftp],[Output sftp subsystem debugging info to stderr]),
 	[AC_DEFINE(LIBSSH2_DEBUG_SFTP, 1, [Output sftp subsystem debugging info to stderr])])
+AC_ARG_ENABLE(debug-publickey,
+	AC_HELP_STRING([--enable-debug-publickey],[Output publickey subsystem debugging info to stderr]),
+	[AC_DEFINE(LIBSSH2_DEBUG_PUBLICKEY, 1, [Output publickey subsystem debugging info to stderr])])
 AC_ARG_ENABLE(debug-errors,
 	AC_HELP_STRING([--enable-debug-errors],[Output failure events to stderr]),
 	[AC_DEFINE(LIBSSH2_DEBUG_ERRORS, 1, [Output failure events to stderr])])
@@ -203,6 +206,7 @@ AC_ARG_ENABLE(debug-all,
 		AC_DEFINE(LIBSSH2_DEBUG_CONNECTION, 1, [Output connection layer debugging info to stderr])
 		AC_DEFINE(LIBSSH2_DEBUG_SCP, 1, [Output scp subsystem debugging info to stderr])
 		AC_DEFINE(LIBSSH2_DEBUG_SFTP, 1, [Output sftp subsystem debugging info to stderr])
+		AC_DEFINE(LIBSSH2_DEBUG_PUBLICKEY, 1, [Output publickey subsystem debugging info to stderr])
 		AC_DEFINE(LIBSSH2_DEBUG_ERRORS, 1, [Output failure events to stderr])
 	])
 

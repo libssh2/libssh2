@@ -4,6 +4,8 @@ libssh2 - SSH2 library
 Version 0.12
 ------------
 
+  Added support for publickey subsytem (not the same as publickey auth).
+
   Fix generation of 'e' portion of Diffie-Hellman keyset.
 	Use appropriate order for BN_rand() rather than fixed group1-specific value.
 

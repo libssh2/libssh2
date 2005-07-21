@@ -63,6 +63,9 @@
 /* Output Key Exchange debugging info to stderr */
 #undef LIBSSH2_DEBUG_KEX
 
+/* Output publickey subsystem debugging info to stderr */
+#undef LIBSSH2_DEBUG_PUBLICKEY
+
 /* Output scp subsystem debugging info to stderr */
 #undef LIBSSH2_DEBUG_SCP
 

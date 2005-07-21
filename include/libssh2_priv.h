@@ -48,7 +48,7 @@
 #include <openssl/evp.h>
 
 #define LIBSSH2_ALLOC(session, count)								session->alloc((count), &(session)->abstract)
-#define LIBSSH2_REALLOC(session, ptr, count)						session->realloc((ptr), (count), &(session)->abstract)
+#define LIBSSH2_REALLOC(session, ptr, count)						((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : session->alloc((count), &(session)->abstract))
 #define LIBSSH2_FREE(session, ptr)									session->free((ptr), &(session)->abstract)
 
 #define LIBSSH2_IGNORE(session, data, datalen)						session->ssh_msg_ignore((session), (data), (datalen), &(session)->abstract)
@@ -332,6 +332,7 @@ struct _LIBSSH2_MAC_METHOD {
 #define LIBSSH2_DBG_SCP							5
 #define LIBSSH2_DBG_SFTP						6
 #define LIBSSH2_DBG_ERROR						7
+#define LIBSSH2_DBG_PUBLICKEY					8
 
 void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, ...);
 

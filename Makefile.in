@@ -29,6 +29,7 @@ install:
 	done && test -z "$$fail"
 	$(INSTALL) -m 644 include/libssh2.h $(DESTDIR)$(incldir)/
 	$(INSTALL) -m 644 include/libssh2_sftp.h $(DESTDIR)$(incldir)/
+	$(INSTALL) -m 644 include/libssh2_publickey.h $(DESTDIR)$(incldir)/
 clean:
 	@for dir in ${subdirs}; do \
 		(cd $$dir && $(MAKE) clean) \
@@ -46,7 +47,7 @@ dist:
 		$(DISTLIB)/mkinstalldirs $(DISTLIB)/install-sh $(DISTLIB)/config.sub $(DISTLIB)/config.guess \
 		$(DISTLIB)/src/*.c $(DISTLIB)/src/Makefile.in \
 		$(DISTLIB)/include/libssh2.h $(DISTLIB)/include/libssh2_priv.h $(DISTLIB)/include/libssh2_sftp.h \
-		$(DISTLIB)/include/libssh2_config.h.in \
+		$(DISTLIB)/include/libssh2_publickey.h $(DISTLIB)/include/libssh2_config.h.in \
 		$(DISTLIB)/win32/config.mk $(DISTLIB)/win32/libssh2_config.h $(DISTLIB)/win32/rules.mk \
 		$(DISTLIB)/win32/libssh2.dsp $(DISTLIB)/win32/libssh2.dsw $(DISTLIB)/win32/ssh2_sample.dsp
 	rm -f $(DISTLIB)
@@ -59,6 +60,7 @@ dist_nmake:
 		$(DISTLIB)/NMakefile $(DISTLIB)/ssh2_sample.c $(DISTLIB)/src/*.c \
 		$(DISTLIB)/LICENSE $(DISTLIB)/README $(DISTLIB)/TODO $(DISTLIB)/INSTALL \
 		$(DISTLIB)/include/libssh2.h $(DISTLIB)/include/libssh2_priv.h $(DISTLIB)/include/libssh2_sftp.h \
+		$(DISTLIB)/include/libssh2_publickey.h \
 		$(DISTLIB)/win32/config.mk $(DISTLIB)/win32/libssh2_config.h $(DISTLIB)/win32/rules.mk
 	rm -f $(DISTLIB)
 

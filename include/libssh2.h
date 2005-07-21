@@ -72,7 +72,7 @@ typedef long long libssh2_int64_t;
 #endif
 
 #define LIBSSH2_VERSION								"0.11"
-#define LIBSSH2_APINO								200507041839
+#define LIBSSH2_APINO								200507211326
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER							"SSH-2.0-libssh2_" LIBSSH2_VERSION
@@ -253,6 +253,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_METHOD_NOT_SUPPORTED		-33
 #define LIBSSH2_ERROR_INVAL						-34
 #define LIBSSH2_ERROR_INVALID_POLL_TYPE			-35
+#define LIBSSH2_ERROR_PUBLICKEY_PROTOCOL		-36
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)), LIBSSH2_FREE_FUNC((*my_free)), LIBSSH2_REALLOC_FUNC((*my_realloc)), void *abstract);
