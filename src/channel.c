@@ -598,8 +598,8 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_
 	unsigned long data_len;
 	unsigned long proto_len = auth_proto ? strlen(auth_proto) : (sizeof("MIT-MAGIC-COOKIE-1") - 1);
 	unsigned long cookie_len = auth_cookie ? strlen(auth_cookie) : LIBSSH2_X11_RANDOM_COOKIE_LEN;
-	unsigned long packet_len = proto_len + cookie_len + 41; /*  packet_type(1) + channel(4) + x11_req_len(4) + "x11-req"(7) + want_reply(1) +
-																single_cnx(4) + proto_len(4) + cookie_len(4) + screen_num(4) */
+	unsigned long packet_len = proto_len + cookie_len + 30; /*  packet_type(1) + channel(4) + x11_req_len(4) + "x11-req"(7) + want_reply(1) +
+																single_cnx(1) + proto_len(4) + cookie_len(4) + screen_num(4) */
 
 #ifdef LIBSSH2_DEBUG_CONNECTION
 	_libssh2_debug(session, LIBSSH2_DBG_CONN, "Requesting x11-req for channel %lu/%lu: single=%d proto=%s cookie=%s screen=%d",
@@ -626,7 +626,7 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_
 	memcpy(s, auth_proto ? auth_proto : "MIT-MAGIC-COOKIE-1", proto_len);
 																s += proto_len;
 
-	libssh2_htonu32(s, cookie_len);
+	libssh2_htonu32(s, cookie_len);								s += 4;
 	if (auth_cookie) {
 		memcpy(s, auth_cookie, cookie_len);
 	} else {
@@ -643,14 +643,19 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_
 	libssh2_htonu32(s, screen_number);							s += 4;
 
 	if (libssh2_packet_write(session, packet, packet_len)) {
-		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send pty-request packet", 0);
+		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send x11-req packet", 0);
 		LIBSSH2_FREE(session, packet);
 		return -1;
 	}
 	LIBSSH2_FREE(session, packet);
 
 	libssh2_htonu32(local_channel, channel->local.id);
+
 	if (libssh2_packet_requirev_ex(session, reply_codes, &data, &data_len, 1, local_channel, 4)) {
+		return -1;
+	}
+
+	if (data[0] == SSH_MSG_CHANNEL_SUCCESS) {
 		LIBSSH2_FREE(session, data);
 		return 0;
 	}
