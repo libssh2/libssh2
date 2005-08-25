@@ -46,6 +46,12 @@
 #include <sys/socket.h>
 #endif
 #include <openssl/evp.h>
+#ifndef OPENSSL_NO_SHA
+#include <openssl/sha.h>
+#endif
+#ifndef OPENSSL_NO_MD5
+#include <openssl/md5.h>
+#endif
 
 #define LIBSSH2_ALLOC(session, count)								session->alloc((count), &(session)->abstract)
 #define LIBSSH2_REALLOC(session, ptr, count)						((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : session->alloc((count), &(session)->abstract))
