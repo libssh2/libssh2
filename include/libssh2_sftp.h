@@ -38,6 +38,10 @@
 #ifndef LIBSSH2_SFTP_H
 #define LIBSSH2_SFTP_H 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Note: Version 6 was documented at the time of writing
  * However it was marked as "DO NOT IMPLEMENT" due to pending changes
  *
@@ -186,5 +190,9 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path, in
 #define libssh2_sftp_symlink(sftp, orig, linkpath)			libssh2_sftp_symlink_ex((sftp), (orig), strlen(orig), (linkpath), strlen(linkpath), LIBSSH2_SFTP_SYMLINK)
 #define libssh2_sftp_readlink(sftp, path, target, maxlen)	libssh2_sftp_symlink_ex((sftp), (path), strlen(path), (target), (maxlen), LIBSSH2_SFTP_READLINK)
 #define libssh2_sftp_realpath(sftp, path, target, maxlen)	libssh2_sftp_symlink_ex((sftp), (path), strlen(path), (target), (maxlen), LIBSSH2_SFTP_REALPATH)
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* LIBSSH2_SFTP_H */
