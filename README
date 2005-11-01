@@ -15,6 +15,10 @@ Version 0.12
   Re-fixed libssh2_sftp_rename_ex()
     Transport had right packet_len, but sftp layer still had extra 4 bytes.
 
+  Fixed build with newer OpenSSL headers.
+
+  Added extern "C" declarations to libssh2_sftp.h for C++ compatability.
+
 Version 0.11
 ------------
 
