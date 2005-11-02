@@ -893,6 +893,10 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 
 		payload_len = packet_length - padding_length - 1; /* padding_length(1) */
 		payload = LIBSSH2_ALLOC(session, payload_len);
+		if (!payload) {
+			libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for copy of plaintext data", 0);
+			return -1;
+		}
 
 		if (libssh2_blocking_read(session, payload, payload_len) < payload_len) {
 			return (session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) ? 0 : -1;

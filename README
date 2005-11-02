@@ -1,6 +1,13 @@
 libssh2 - SSH2 library
 ======================
 
+Version 0.13
+------------
+
+  Fixed channel not being marked closed when CHANNEL_CLOSE package cannot be sent. (David Robins)
+
+  Fixed payload packet allocation bug when invalid packet length received. (David Robins)
+
 Version 0.12
 ------------
 

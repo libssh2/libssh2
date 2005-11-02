@@ -1104,6 +1104,7 @@ LIBSSH2_API int libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 	if (channel->close_cb) {
 		LIBSSH2_CHANNEL_CLOSE(session, channel);
 	}
+	channel->local.close = 1;
 
 	packet[0] = SSH_MSG_CHANNEL_CLOSE;
 	libssh2_htonu32(packet + 1, channel->remote.id);
@@ -1111,7 +1112,6 @@ LIBSSH2_API int libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send close-channel request", 0);
 		return -1;
 	}
-	channel->local.close = 1;
 
 	/* TODO: Wait up to a timeout value for a CHANNEL_CLOSE to come back, to avoid the problem alluded to in channel_nextid */
 
