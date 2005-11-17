@@ -8,6 +8,8 @@ Version 0.13
 
   Fixed payload packet allocation bug when invalid packet length received. (David Robins)
 
+  Add terminating NULL character to readlink()/realpath() results.
+
 Version 0.12
 ------------
 

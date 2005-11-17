@@ -1452,10 +1452,11 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path, in
 	}
 
 	link_len = libssh2_ntohu32(data + 9);
-	if (link_len > target_len) {
-		link_len = target_len;
+	if (link_len >= target_len) {
+		link_len = target_len - 1;
 	}
 	memcpy(target, data + 13, link_len);
+	target[link_len] = 0;
 	LIBSSH2_FREE(session, data);
 
 	return link_len;
