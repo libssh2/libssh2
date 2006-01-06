@@ -20,7 +20,7 @@ all:
 	done && test -z "$$fail"
 	$(CC) -o ssh2_sample.o ssh2_sample.c $(CFLAGS)
 	$(CC) -o ssh2_sample ssh2_sample.o $(LIBS)
-install:
+install: all
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(incldir)
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(libdir)
 	@for dir in ${subdirs}; do \
