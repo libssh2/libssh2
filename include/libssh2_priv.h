@@ -53,6 +53,10 @@
 #include <openssl/md5.h>
 #endif
 
+#ifdef __hpux
+# define inline 
+#endif
+
 #define LIBSSH2_ALLOC(session, count)								session->alloc((count), &(session)->abstract)
 #define LIBSSH2_REALLOC(session, ptr, count)						((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : session->alloc((count), &(session)->abstract))
 #define LIBSSH2_FREE(session, ptr)									session->free((ptr), &(session)->abstract)

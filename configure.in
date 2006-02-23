@@ -3,6 +3,9 @@ AC_INIT(libssh2,0.12,sarag@libssh2.org)
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADER([include/libssh2_config.h])
 
+# Default to the same as CC
+LDCC="\$(CC)"
+
 # Check for the OS.
 AC_CANONICAL_HOST
 case "$host" in
@@ -16,6 +19,11 @@ case "$host" in
 	SHLIB_LDFLAGS="-dynamiclib -flat_namespace"
 	CFLAGS="$CFLAGS -DLIBSSH2_DARWIN"
 	;;
+    *hpux*)
+    SHLIB_SUFFIX_NAME="sl"
+    SHLIB_LDFLAGS="-b +vnocompatwarnings -L/lib/pa20_64"
+	LDCC="ld"
+    ;;
     *)
     SHLIB_SUFFIX_NAME="so"
     SHLIB_LDFLAGS="-shared"
@@ -31,6 +39,7 @@ AC_CHECK_LIB(m, ceil, [ SHLIB_LDFLAGS="$SHLIB_LDFLAGS -lm" ])
 
 AC_SUBST(SHLIB_SUFFIX_NAME)
 AC_SUBST(SHLIB_LDFLAGS)
+AC_SUBST(LDCC)
 AC_SUBST(LIBS)
 
 AC_PROG_CC

@@ -18,6 +18,7 @@ all:
 		(cd $$dir && $(MAKE) all) \
 		|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
 	done && test -z "$$fail"
+sample:
 	$(CC) -o ssh2_sample.o ssh2_sample.c $(CFLAGS)
 	$(CC) -o ssh2_sample ssh2_sample.o $(LIBS)
 install: all

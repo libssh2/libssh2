@@ -7,8 +7,10 @@ libdir = @exec_prefix@/lib
 incldir = @prefix@/include
 
 CC = @CC@
+LDCC = @LDCC@
 CFLAGS = -c @CFLAGS@ -Wall -g -I../include/ -fPIC
 LDFLAGS = @LDFLAGS@
+SHLIB_LDFLAGS = @SHLIB_LDFLAGS@
 LIBS = @LIBS@
 INSTALL = @INSTALL@
 
@@ -54,7 +56,7 @@ userauth.o: userauth.c
 all: libssh2.@SHLIB_SUFFIX_NAME@
 
 libssh2.@SHLIB_SUFFIX_NAME@: $(OBJECTS)
-	$(CC) -o libssh2.@SHLIB_SUFFIX_NAME@ $(SHLIB_LDFLAGS) $(OBJECTS) $(LIBS) $(LDFLAGS) @SHLIB_LDFLAGS@
+	$(LDCC) -o libssh2.@SHLIB_SUFFIX_NAME@ $(SHLIB_LDFLAGS) $(OBJECTS) $(LIBS) $(LDFLAGS)
 libssh2.a: $(OBJECTS)
 	rm -f libssh2.a
 	ar q libssh2.a $(OBJECTS)

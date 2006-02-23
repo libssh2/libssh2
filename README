@@ -12,6 +12,8 @@ Version 0.13
 
   Add terminating NULL character to readlink()/realpath() results.
 
+  BugFix#1436593: Apply build options for HPUX targets.
+
 Version 0.12
 ------------
 
