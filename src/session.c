@@ -298,9 +298,9 @@ LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int socket)
 #ifdef LIBSSH2_DEBUG_TRANSPORT
 	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "session_startup for socket %d", socket);
 #endif
-	if (socket <= 0) {
+	if (socket < 0) {
 		/* Did we forget something? */
-		libssh2_error(session, LIBSSH2_ERROR_SOCKET_NONE, "No socket provided", 0);
+		libssh2_error(session, LIBSSH2_ERROR_SOCKET_NONE, "Bad socket provided", 0);
 		return LIBSSH2_ERROR_SOCKET_NONE;
 	}
 	session->socket_fd = socket;

@@ -1,6 +1,11 @@
 libssh2 - SSH2 library
 ======================
 
+Version 0.14
+------------
+
+  Allow socket_fd == 0 in libssh2_session_startup(). (puudeli)
+
 Version 0.13
 ------------
 
