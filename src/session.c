@@ -103,9 +103,26 @@ static int libssh2_banner_receive(LIBSSH2_SESSION *session)
 
 		ret = recv(session->socket_fd, &c, 1, LIBSSH2_SOCKET_RECV_FLAGS(session));
 
-		if ((ret < 0) && (ret != EAGAIN)) {
-			/* Some kinda error, but don't break for non-blocking issues */
-			return 1;
+		if (ret < 0) {
+#ifdef WIN32
+			switch (WSAGetLastError()) {
+				case WSAEWOULDBLOCK:
+					errno = EAGAIN;
+					break;
+				case WSAENOTCONN:
+				case WSAENOTSOCK:
+				case WSAECONNABORTED:
+					errno = EBADF;
+					break;
+				case WSAEINTR:
+					errno = EINTR;
+					break;
+			}
+#endif /* WIN32 */
+			if (errno != EAGAIN) {
+				/* Some kinda error, but don't break for non-blocking issues */
+				return 1;
+			}
 		}
 
 		if (ret <= 0) continue;
