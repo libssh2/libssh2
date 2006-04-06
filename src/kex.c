@@ -314,6 +314,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 	/* Calculate IV/Secret/Key for each direction */
 	if (session->local.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP) {
 		if (session->local.crypt_abstract) {
+			EVP_CIPHER_CTX_cleanup(session->local.crypt_abstract);
 			LIBSSH2_FREE(session, session->local.crypt_abstract);
 			session->local.crypt_abstract = NULL;
 		}
@@ -342,6 +343,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 				ret = -1;
 				goto clean_exit;
 			}
+			EVP_CIPHER_CTX_init(ctx);
 			EVP_CipherInit(ctx, cipher, secret, iv, 1);
 			session->local.crypt_abstract = ctx;
 			free_iv = 1;
@@ -366,6 +368,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 
 	if (session->remote.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP) {
 		if (session->remote.crypt_abstract) {
+			EVP_CIPHER_CTX_cleanup(session->remote.crypt_abstract);
 			LIBSSH2_FREE(session, session->remote.crypt_abstract);
 			session->remote.crypt_abstract = NULL;
 		}
@@ -394,6 +397,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 				ret = -1;
 				goto clean_exit;
 			}
+			EVP_CIPHER_CTX_init(ctx);
 			EVP_CipherInit(ctx, cipher, secret, iv, 0);
 			session->remote.crypt_abstract = ctx;
 			free_iv = 1;

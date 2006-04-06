@@ -4,6 +4,8 @@ libssh2 - SSH2 library
 Version 0.14
 ------------
 
+  Plug leaks in EVP cipher init/shutdown. (Selcuk Gueney)
+
   Allow socket_fd == 0 in libssh2_session_startup(). (puudeli)
 
 Version 0.13
