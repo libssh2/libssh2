@@ -7,7 +7,7 @@ incldir = @prefix@/include
 distdir = @top_srcdir@/dist
 
 CC = @CC@
-CFLAGS = -c @CFLAGS@ -Iinclude/ -Wall -g
+CFLAGS = -c @CFLAGS@ -Iinclude/ -Wall
 LIBS = -lssh2 -Lsrc/
 INSTALL = @INSTALL@
 VERSION=@PACKAGE_VERSION@

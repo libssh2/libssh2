@@ -8,7 +8,7 @@ incldir = @prefix@/include
 
 CC = @CC@
 LDCC = @LDCC@
-CFLAGS = -c @CFLAGS@ -Wall -g -I../include/ -fPIC
+CFLAGS = -c @CFLAGS@ -Wall -I../include/ -fPIC
 LDFLAGS = @LDFLAGS@
 SHLIB_LDFLAGS = @SHLIB_LDFLAGS@
 LIBS = @LIBS@
