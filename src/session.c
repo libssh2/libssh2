@@ -109,10 +109,12 @@ static int libssh2_banner_receive(LIBSSH2_SESSION *session)
 				case WSAEWOULDBLOCK:
 					errno = EAGAIN;
 					break;
-				case WSAENOTCONN:
 				case WSAENOTSOCK:
-				case WSAECONNABORTED:
 					errno = EBADF;
+					break;
+				case WSAENOTCONN:
+				case WSAECONNABORTED:
+					errno = ENOTCONN;
 					break;
 				case WSAEINTR:
 					errno = EINTR;

@@ -640,9 +640,9 @@ static int libssh2_blocking_read(LIBSSH2_SESSION *session, unsigned char *buf, s
 #ifdef WIN32
 			switch (WSAGetLastError()) {
 				case WSAEWOULDBLOCK:	errno = EAGAIN;		break;
+				case WSAENOTSOCK:		errno = EBADF;		break;
 				case WSAENOTCONN:
-				case WSAENOTSOCK:
-				case WSAECONNABORTED:	errno = EBADF;		break;
+				case WSAECONNABORTED:	errno = ENOTCONN;	break;
 				case WSAEINTR:			errno = EINTR;		break;
 			}
 #endif
@@ -680,7 +680,7 @@ static int libssh2_blocking_read(LIBSSH2_SESSION *session, unsigned char *buf, s
 			if (errno == EINTR) {
 				continue;
 			}
-			if ((errno == EBADF) || (errno == EIO)) {
+			if ((errno == EBADF) || (errno == EIO) || (errno == ENOTCONN)) {
 				session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
 			}
 			return -1;
