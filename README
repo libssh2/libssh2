@@ -8,6 +8,10 @@ Version 0.14
 
   Allow socket_fd == 0 in libssh2_session_startup(). (puudeli)
 
+  Swap ordering of packet_add/packet-inspection to avoid inspect after free. (Selcuk)
+
+  Fix OpenSSL detection using pkg-config. (Dan Casey)
+
 Version 0.13
 ------------
 

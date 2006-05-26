@@ -862,9 +862,9 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 			}
 		}
 
+		packet_type = payload[0];
 		libssh2_packet_add(session, payload, payload_len, macstate);
 
-		packet_type = payload[0];
 	} else { /* No cipher active */
 		unsigned char *payload;
 		unsigned char buf[24];
@@ -911,11 +911,11 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 				break;
 		}
 
+		packet_type = payload[0];
+
 		/* MACs don't exist in non-encrypted mode */
 		libssh2_packet_add(session, payload, payload_len, LIBSSH2_MAC_CONFIRMED);
 		session->remote.seqno++;
-
-		packet_type = payload[0];
 	}
 	return packet_type;
 }

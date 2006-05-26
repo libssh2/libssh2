@@ -64,15 +64,18 @@ if test "$LIBSSH2_OPENSSL_DIR" = "no" || test "$LIBSSH2_OPENSSL_DIR" = "yes"; th
 fi
 
 found_openssl=no
+pkgcfg_openssl=no
 unset OPENSSL_INCDIR
-unset OPENSSL_LIBDIR
+unset OPENSSL_INCLINE
+unset OPENSSL_LIBLINE
 
 AC_MSG_CHECKING([for OpenSSL])
 
 # Explicit path given, use it rather than pkg-config
 if test ! -z "$LIBSSH2_OPENSSL_DIR"; then
   found_openssl=yes
-  OPENSSL_LIBDIR=$LIBSSH2_OPENSSL_DIR/lib
+  OPENSSL_LIBLINE="-L$LIBSSH2_OPENSSL_DIR/lib -lcrypto"
+  OPENSSL_INCLINE="-I$LIBSSH2_OPENSSL_DIR/include"
   OPENSSL_INCDIR=$LIBSSH2_OPENSSL_DIR/include
   AC_MSG_RESULT([Using explicit path $LIBSSH2_OPENSSL_DIR])
 fi
@@ -80,8 +83,9 @@ fi
 # If pkg-config is found try using it
 if test "$found_openssl" = "no" && test -x "$PKG_CONFIG" && $PKG_CONFIG --exists openssl; then
   found_openssl=yes
-  OPENSSL_LIBDIR=`$PKG_CONFIG --libs openssl`
-  OPENSSL_INCDIR=`$PKG_CONFIG --variable=includedir openssl`
+  pkgcfg_openssl=yes
+  OPENSSL_LIBLINE=`$PKG_CONFIG --libs openssl`
+  OPENSSL_INCLINE=`$PKG_CONFIG --variable=includedir openssl`
   AC_MSG_RESULT([Using paths from pkg-config])
 fi
 
@@ -91,39 +95,43 @@ if test "$found_openssl" = "no"; then
 
   for i in $OPENSSL_SEARCH_PATH; do
     if test -r $i/include/openssl/evp.h; then
+      OPENSSL_INCLINE="-I$i/include"
       OPENSSL_INCDIR=$i/include
     fi
     if test -r $i/include/openssl/hmac.h; then
+      OPENSSL_INCLINE="-I$i/include"
       OPENSSL_INCDIR=$i/include
     fi
     if test -r $i/lib/libcrypto.a -o -r $i/lib/libcrypto.$SHLIB_SUFFIX_NAME; then
-      OPENSSL_LIBDIR=$i/lib
+      OPENSSL_LIBLINE="-L$i/lib -lcrypto"
     fi
-    test -n "$OPENSSL_INCDIR" && test -n "$OPENSSL_LIBDIR" && break
+    test -n "$OPENSSL_INCLINE" && test -n "$OPENSSL_LIBLINE" && break
   done
 
-  if test -z "$OPENSSL_INCDIR"; then
+  if test -z "$OPENSSL_INCLINE"; then
     AC_MSG_ERROR([Cannot find OpenSSL's <evp.h> or <hmac.h>])
   fi
 
-  if test -z "$OPENSSL_LIBDIR"; then
+  if test -z "$OPENSSL_LIBLINE"; then
     AC_MSG_ERROR([Cannot find OpenSSL's libcrypto])
   fi
 
-  AC_MSG_RESULT([$OPENSSL_INCDIR $OPENSSL_LIBDIR])
+  AC_MSG_RESULT([$OPENSSL_INCLINE $OPENSSL_LIBLINE])
 fi
 
 #
 # Confirm required OpenSSL libs
 #
-if test ! -r $OPENSSL_INCDIR/openssl/bn.h || test ! -r $OPENSSL_INCDIR/openssl/evp.h || \
-   test ! -r $OPENSSL_INCDIR/openssl/hmac.h || test ! -r $OPENSSL_INCDIR/openssl/pem.h || \
-   test ! -r $OPENSSL_INCDIR/openssl/sha.h; then
-     AC_MSG_ERROR([Missing one or more of <openssl/bn.h>, <openssl/evp.h>, <openssl/hmac.h>, <openssl/pem.h>, <openssl/sha.h>])
+if test ! "$pkgcfg_openssl" = "yes"; then
+  if test ! -r $OPENSSL_INCDIR/openssl/bn.h || test ! -r $OPENSSL_INCDIR/openssl/evp.h || \
+     test ! -r $OPENSSL_INCDIR/openssl/hmac.h || test ! -r $OPENSSL_INCDIR/openssl/pem.h || \
+     test ! -r $OPENSSL_INCDIR/openssl/sha.h; then
+       AC_MSG_ERROR([Missing one or more of <openssl/bn.h>, <openssl/evp.h>, <openssl/hmac.h>, <openssl/pem.h>, <openssl/sha.h>])
+  fi
 fi
 
-CFLAGS="$CFLAGS -I$OPENSSL_INCDIR"
-LDFLAGS="$LDFLAGS -L$OPENSSL_LIBDIR -lcrypto"
+CFLAGS="$CFLAGS $OPENSSL_INCLINE"
+LDFLAGS="$LDFLAGS $OPENSSL_LIBLINE"
 
 #
 # zlib
