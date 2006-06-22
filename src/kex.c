@@ -118,6 +118,26 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		goto clean_exit;
 	}
 
+	if (session->burn_optimistic_kexinit) {
+		/* The first KEX packet to come along will be the guess initially sent by the server
+		 * That guess turned out to be wrong so we need to silently ignore it */
+		int burn_type;
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Waiting for badly guessed KEX packet (to be ignored)");
+#endif
+		burn_type = libssh2_packet_burn(session);
+		if (burn_type <= 0) {
+			/* Failed to receive a packet */
+			ret = -1;
+			goto clean_exit;
+		}
+		session->burn_optimistic_kexinit = 0;
+
+#ifdef LIBSSH2_DEBUG_KEX
+	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Burnt packet of type: %02x", (unsigned int)burn_type);
+#endif
+	}
+
 	/* Wait for KEX reply */
 	if (libssh2_packet_require(session, packet_type_reply, &s_packet, &s_packet_len)) {
 		libssh2_error(session, LIBSSH2_ERROR_TIMEOUT, "Timed out waiting for KEX reply", 0);
@@ -967,9 +987,9 @@ static int libssh2_kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char
 		s = session->kex_prefs;
 
 		while (s && *s) {
-			unsigned char *p = strchr(s, ',');
+			unsigned char *q, *p = strchr(s, ',');
 			int method_len = (p ? (p - s) : strlen(s));
-			if (libssh2_kex_agree_instr(kex, kex_len, s, method_len)) {
+			if ((q = libssh2_kex_agree_instr(kex, kex_len, s, method_len))) {
 				LIBSSH2_KEX_METHOD *method = (LIBSSH2_KEX_METHOD*)libssh2_get_method_by_name(s, method_len, (LIBSSH2_COMMON_METHOD**)kexp);
 
 				if (!method) {
@@ -982,6 +1002,12 @@ static int libssh2_kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char
 				 */
 				if (libssh2_kex_agree_hostkey(session, method->flags, hostkey, hostkey_len) == 0) {
 					session->kex = method;
+					if (session->burn_optimistic_kexinit && (kex == q)) {
+						/* Server sent an optimistic packet,
+						 * and client agrees with preference
+						 * cancel burning the first KEX_INIT packet that comes in */
+						session->burn_optimistic_kexinit = 0;
+					}
 					return 0;
 				}
 			}
@@ -999,6 +1025,12 @@ static int libssh2_kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char
 			 */
 			if (libssh2_kex_agree_hostkey(session, (*kexp)->flags, hostkey, hostkey_len) == 0) {
 				session->kex = *kexp;
+				if (session->burn_optimistic_kexinit && (kex == s)) {
+					/* Server sent an optimistic packet,
+					 * and client agrees with preference
+					 * cancel burning the first KEX_INIT packet that comes in */
+					session->burn_optimistic_kexinit = 0;
+				}
 				return 0;
 			}
 		}
@@ -1174,6 +1206,12 @@ static int libssh2_kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *da
 	lang_cs_len		= libssh2_ntohu32(s);		lang_cs		= s + 4;		s += 4 + lang_cs_len;
 	lang_sc_len		= libssh2_ntohu32(s);		lang_sc		= s + 4;		s += 4 + lang_sc_len;
 
+	/* If the server sent an optimistic packet, assume that it guessed wrong.
+	 * If the guess is determined to be right (by libssh2_kex_agree_kex_hostkey)
+	 * This flag will be reset to zero so that it's not ignored */
+	session->burn_optimistic_kexinit = *(s++);
+	/* Next uint32 in packet is all zeros (reserved) */
+
 	if (libssh2_kex_agree_kex_hostkey(session, kex, kex_len, hostkey, hostkey_len)) {
 		return -1;
 	}
@@ -1248,7 +1286,23 @@ int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange) /* session->f
 	}
 
 	if (!session->kex || !session->hostkey) {
+		/* Preserve in case of failure */
+		unsigned char *oldlocal = session->local.kexinit;
+		unsigned long oldlocal_len = session->local.kexinit_len;
+
+		session->local.kexinit = NULL;
+		if (libssh2_kexinit(session)) {
+			session->local.kexinit = oldlocal;
+			session->local.kexinit_len = oldlocal_len;
+			return -1;
+		}
+
 		if (libssh2_packet_require(session, SSH_MSG_KEXINIT, &data, &data_len)) {
+			if (session->local.kexinit) {
+				LIBSSH2_FREE(session, session->local.kexinit);
+			}
+			session->local.kexinit = oldlocal;
+			session->local.kexinit_len = oldlocal_len;
 			return -1;
 		}
 
@@ -1257,10 +1311,6 @@ int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange) /* session->f
 		}
 		session->remote.kexinit = data;
 		session->remote.kexinit_len = data_len;
-
-		if (libssh2_kexinit(session)) {
-			return -1;
-		}
 
 		if (libssh2_kex_agree_methods(session, data, data_len)) {
 			return -1;

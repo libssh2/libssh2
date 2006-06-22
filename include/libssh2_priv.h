@@ -199,6 +199,7 @@ struct _LIBSSH2_SESSION {
 
 	/* Agreed Key Exchange Method */
 	LIBSSH2_KEX_METHOD *kex;
+	int burn_optimistic_kexinit:1;
 
 	unsigned char *session_id;
 	unsigned long session_id_len;
@@ -462,6 +463,7 @@ int libssh2_packet_require_ex(LIBSSH2_SESSION *session, unsigned char packet_typ
 int libssh2_packet_requirev_ex(LIBSSH2_SESSION *session, unsigned char *packet_types, unsigned char **data, unsigned long *data_len, unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len);
 #define libssh2_packet_requirev(session, packet_types, data, data_len)			\
 		libssh2_packet_requirev_ex((session), (packet_types), (data), (data_len), 0, NULL, 0)
+int libssh2_packet_burn(LIBSSH2_SESSION *session);
 int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned long data_len);
 int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange);
 unsigned long libssh2_channel_nextid(LIBSSH2_SESSION *session);

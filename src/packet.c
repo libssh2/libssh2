@@ -1017,6 +1017,48 @@ int libssh2_packet_require_ex(LIBSSH2_SESSION *session, unsigned char packet_typ
 }
 /* }}} */
 
+/* {{{ libssh2_packet_burn
+ * Loops libssh2_packet_read() until any packet is available and promptly discards it
+ * Used during KEX exchange to discard badly guessed KEX_INIT packets
+ */
+int libssh2_packet_burn(LIBSSH2_SESSION *session)
+{
+	unsigned char *data;
+	unsigned long data_len;
+	char all_packets[255];
+	int i;
+	for(i = 1; i < 256; i++) all_packets[i - 1] = i;
+
+	if (libssh2_packet_askv_ex(session, all_packets, &data, &data_len, 0, NULL, 0, 0) == 0) {
+		i = data[0];
+		/* A packet was available in the packet brigade, burn it */
+		LIBSSH2_FREE(session, data);
+		return i;
+	}
+
+#ifdef LIBSSH2_DEBUG_TRANSPORT
+	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "Blocking until packet becomes available to burn");
+#endif
+	while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
+		int ret = libssh2_packet_read(session, 1);
+		if (ret < 0) {
+			return -1;
+		}
+		if (ret == 0) continue;
+
+		/* Be lazy, let packet_ask pull it out of the brigade */
+		if (0 == libssh2_packet_ask_ex(session, ret, &data, &data_len, 0, NULL, 0, 0)) {
+			/* Smoke 'em if you got 'em */
+			LIBSSH2_FREE(session, data);
+			return ret;
+		}
+	}
+
+	/* Only reached if the socket died */
+	return -1;
+}
+/* }}} */
+
 /* {{{ libssh2_packet_requirev
  * Loops libssh2_packet_read() until one of a list of packet types requested is available
  * SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause a bailout

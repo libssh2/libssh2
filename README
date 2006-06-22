@@ -10,6 +10,10 @@ Version 0.14
 
   Swap ordering of packet_add/packet-inspection to avoid inspect after free. (Selcuk)
 
+  Swap KEX_INIT ordering, send our KEX_INIT first.
+
+  Add check for oportunistic KEX_INIT packets.  Burn bad guess if necessary.
+
   Fix OpenSSL detection using pkg-config. (Dan Casey)
 
 Version 0.13
