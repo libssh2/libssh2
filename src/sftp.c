@@ -555,7 +555,7 @@ LIBSSH2_API int libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp) {
 /* {{{ libssh2_sftp_open_ex
  *
  */
-LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, char *filename, int filename_len, unsigned long flags, long mode, int open_type)
+LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, char *filename, unsigned int filename_len, unsigned long flags, long mode, int open_type)
 {
 	LIBSSH2_CHANNEL *channel = sftp->channel;
 	LIBSSH2_SESSION *session = channel->session;
@@ -1054,7 +1054,7 @@ LIBSSH2_API int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
 /* {{{ libssh2_sftp_unlink_ex
  * Delete a file from the remote server
  */
-LIBSSH2_API int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp, char *filename, int filename_len)
+LIBSSH2_API int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp, char *filename, unsigned int filename_len)
 {
 	LIBSSH2_CHANNEL *channel = sftp->channel;
 	LIBSSH2_SESSION *session = channel->session;
@@ -1106,8 +1106,8 @@ LIBSSH2_API int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp, char *filename, int f
 /* {{{ libssh2_sftp_rename_ex
  * Rename a file on the remote server
  */
-LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,  char *source_filename,	int source_filename_len,
-															char *dest_filename,	int dest_filename_len,
+LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,  char *source_filename,	unsigned int source_filename_len,
+															char *dest_filename,	unsigned int dest_filename_len,
 															long flags)
 {
 	LIBSSH2_CHANNEL *channel = sftp->channel;
@@ -1187,7 +1187,7 @@ LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,  char *source_filenam
 /* {{{ libssh2_sftp_mkdir_ex
  * Create a directory
  */
-LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, char *path, int path_len, long mode)
+LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, char *path, unsigned int path_len, long mode)
 {
 	LIBSSH2_CHANNEL *channel = sftp->channel;
 	LIBSSH2_SESSION *session = channel->session;
@@ -1244,7 +1244,7 @@ LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, char *path, int path_l
 /* {{{ libssh2_sftp_rmdir_ex
  * Remove a directory
  */
-LIBSSH2_API int libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, char *path, int path_len)
+LIBSSH2_API int libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, char *path, unsigned int path_len)
 {
 	LIBSSH2_CHANNEL *channel = sftp->channel;
 	LIBSSH2_SESSION *session = channel->session;
@@ -1296,7 +1296,7 @@ LIBSSH2_API int libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, char *path, int path_l
 /* {{{ libssh2_sftp_stat_ex
  * Stat a file or symbolic link
  */
-LIBSSH2_API int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, char *path, int path_len, int stat_type, LIBSSH2_SFTP_ATTRIBUTES *attrs)
+LIBSSH2_API int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, char *path, unsigned int path_len, int stat_type, LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
 	LIBSSH2_CHANNEL *channel = sftp->channel;
 	LIBSSH2_SESSION *session = channel->session;
@@ -1372,7 +1372,7 @@ LIBSSH2_API int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, char *path, int path_le
 /* {{{ libssh2_sftp_symlink_ex
  * Read or set a symlink
  */
-LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path, int path_len, char *target, int target_len, int link_type)
+LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path, unsigned int path_len, char *target, unsigned int target_len, int link_type)
 {
 	LIBSSH2_CHANNEL *channel = sftp->channel;
 	LIBSSH2_SESSION *session = channel->session;

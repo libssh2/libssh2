@@ -105,8 +105,8 @@ LIBSSH2_CHANNEL *libssh2_channel_locate(LIBSSH2_SESSION *session, unsigned long 
 /* {{{ libssh2_channel_open_session
  * Establish a generic session channel
  */
-LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type, int channel_type_len, int window_size, int packet_size,
-																			   const char *message, int message_len)
+LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type, unsigned int channel_type_len, unsigned int window_size, 
+																			   unsigned int packet_size, const char *message, unsigned int message_len)
 {
 	unsigned char reply_codes[3] = { SSH_MSG_CHANNEL_OPEN_CONFIRMATION, SSH_MSG_CHANNEL_OPEN_FAILURE, 0 };
 	LIBSSH2_CHANNEL *channel = NULL;
@@ -463,7 +463,7 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_forward_accept(LIBSSH2_LISTENER *li
 /* {{{ libssh2_channel_setenv_ex
  * Set an environment variable prior to requesting a shell/program/subsystem
  */
-LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varname, int varname_len, char *value, int value_len)
+LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varname, unsigned int varname_len, char *value, unsigned int value_len)
 {
 	LIBSSH2_SESSION *session = channel->session;
 	unsigned char *s, *packet, *data, reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 }, local_channel[4];
@@ -520,8 +520,8 @@ LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varnam
 /* {{{ libssh2_channel_request_pty_ex
  * Duh... Request a PTY
  */
-LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *term, int term_len,
-																		 char *modes, int modes_len,
+LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *term, unsigned int term_len,
+																		 char *modes, unsigned int modes_len,
 																		 int width, int height,
 																		 int width_px, int height_px)
 {
@@ -669,7 +669,7 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_
 /* {{{ libssh2_channel_process_startup
  * Primitive for libssh2_channel_(shell|exec|subsystem)
  */
-LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel, const char *request, int request_len, const char *message, int message_len)
+LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel, const char *request, unsigned int request_len, const char *message, unsigned int message_len)
 {
 	LIBSSH2_SESSION *session = channel->session;
 	unsigned char *s, *packet, *data, reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 }, local_channel[4];

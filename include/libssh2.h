@@ -277,21 +277,21 @@ LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errm
 LIBSSH2_API int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int value);
 
 /* Userauth API */
-LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, const char *username, int username_len);
+LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, const char *username, unsigned int username_len);
 LIBSSH2_API int libssh2_userauth_authenticated(LIBSSH2_SESSION *session);
-LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username, int username_len, const char *password, int password_len, LIBSSH2_PASSWD_CHANGEREQ_FUNC((*passwd_change_cb)));
+LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username, unsigned int username_len, const char *password, unsigned int password_len, LIBSSH2_PASSWD_CHANGEREQ_FUNC((*passwd_change_cb)));
 #define libssh2_userauth_password(session, username, password)	libssh2_userauth_password_ex((session), (username), strlen(username), (password), strlen(password), NULL)
 
-LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session, const char *username, int username_len,
+LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session, const char *username, unsigned int username_len,
 																				 const char *publickey, const char *privatekey,
 																				 const char *passphrase);
 #define libssh2_userauth_publickey_fromfile(session, username, publickey, privatekey, passphrase)	\
 		libssh2_userauth_publickey_fromfile_ex((session), (username), strlen(username), (publickey), (privatekey), (passphrase))
-LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session, const char *username, int username_len,
+LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session, const char *username, unsigned int username_len,
 																				 const char *publickey, const char *privatekey,
 																				 const char *passphrase,
-																				 const char *hostname, int hostname_len,
-																				 const char *local_username, int local_username_len);
+																				 const char *hostname, unsigned int hostname_len,
+																				 const char *local_username, unsigned int local_username_len);
 #define libssh2_userauth_hostbased_fromfile(session, username, publickey, privatekey, passphrase, hostname)	\
 		libssh2_userauth_hostbased_fromfile_ex((session), (username), strlen(username), (publickey), (privatekey), (passphrase), (hostname), strlen(hostname), (username), strlen(username))
 
@@ -301,7 +301,7 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
  * array is already allocated. Responses data will be freed by libssh2
  * after callback return, but before subsequent callback invokation.
  */
-LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION* session, const char *username, int username_len,
+LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION* session, const char *username, unsigned int username_len,
 														 LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC((*response_callback)));
 #define libssh2_userauth_keyboard_interactive(session, username, response_callback) \
         libssh2_userauth_keyboard_interactive_ex((session), (username), strlen(username), (response_callback))
@@ -320,7 +320,7 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeou
 
 #define SSH_EXTENDED_DATA_STDERR 1
 
-LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type, int channel_type_len, int window_size, int packet_size, const char *message, int message_len);
+LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type, unsigned int channel_type_len, unsigned int window_size, unsigned int packet_size, const char *message, unsigned int message_len);
 #define libssh2_channel_open_session(session)	libssh2_channel_open_ex((session), "session", sizeof("session") - 1, LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0)
 
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, char *host, int port, char *shost, int sport);
@@ -333,16 +333,16 @@ LIBSSH2_API int libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener);
 
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener);
 
-LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varname, int varname_len, char *value, int value_len);
+LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varname, unsigned int varname_len, char *value, unsigned int value_len);
 #define libssh2_channel_setenv(channel, varname, value) libssh2_channel_setenv_ex((channel), (varname), strlen(varname), (value), strlen(value))
 
-LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *term, int term_len, char *modes, int modes_len, int width, int height, int width_px, int height_px);
+LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *term, unsigned int term_len, char *modes, unsigned int modes_len, int width, int height, int width_px, int height_px);
 #define libssh2_channel_request_pty(channel, term)	libssh2_channel_request_pty_ex((channel), (term), strlen(term), NULL, 0, LIBSSH2_TERM_WIDTH, LIBSSH2_TERM_HEIGHT, LIBSSH2_TERM_WIDTH_PX, LIBSSH2_TERM_HEIGHT_PX)
 
 LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection, char *auth_proto, char *auth_cookie, int screen_number);
 #define libssh2_channel_x11_req(channel, screen_number)	libssh2_channel_x11_req_ex((channel), 0, NULL, NULL, (screen_number))
 
-LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel, const char *request, int request_len, const char *message, int message_len);
+LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel, const char *request, unsigned int request_len, const char *message, unsigned int message_len);
 #define libssh2_channel_shell(channel)					libssh2_channel_process_startup((channel), "shell", sizeof("shell") - 1, NULL, 0)
 #define libssh2_channel_exec(channel, command)			libssh2_channel_process_startup((channel), "exec", sizeof("exec") - 1, (command), strlen(command))
 #define libssh2_channel_subsystem(channel, subsystem)	libssh2_channel_process_startup((channel), "subsystem", sizeof("subsystem") - 1, (subsystem), strlen(subsystem))
@@ -391,7 +391,7 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, const ch
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode, size_t size, long mtime, long atime);
 #define libssh2_scp_send(session, path, mode, size)					libssh2_scp_send_ex((session), (path), (mode), (size), 0, 0)
 
-LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest, int *dest_len, char *src, int src_len);
+LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest, unsigned int *dest_len, char *src, unsigned int src_len);
 
 #ifdef __cplusplus
 } /* extern "C" */
