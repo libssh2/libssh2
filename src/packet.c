@@ -62,6 +62,15 @@
 # endif
 #endif
 
+/* RFC4253 section 6.1 Maximum Packet Length says:
+ *
+ * "All implementations MUST be able to process packets with
+ * uncompressed payload length of 32768 bytes or less and
+ * total packet size of 35000 bytes or less (including length,
+ * padding length, payload, padding, and MAC.)."
+ */
+#define MAX_SSH_PACKET_LEN 35000
+
 /* {{{ libssh2_packet_queue_listener
  * Queue a connection request for a listener
  */
@@ -765,6 +774,18 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		}
 
 		packet_len = libssh2_ntohu32(block);
+		
+		/* RFC4253 section 6.1 Maximum Packet Length says:
+		 *
+		 * "All implementations MUST be able to process packets with
+		 * uncompressed payload length of 32768 bytes or less and
+		 * total packet size of 35000 bytes or less (including length,
+		 * padding length, payload, padding, and MAC.)."
+		 */
+		if(packet_len > MAX_SSH_PACKET_LEN) {
+			return -1;
+		}
+		
 		padding_len = block[4];
 #ifdef LIBSSH2_DEBUG_TRANSPORT
 	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "Processing packet %lu bytes long (with %lu bytes padding)", packet_len, padding_len);
@@ -886,6 +907,18 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 			return -1;
 		}
 		packet_length = libssh2_ntohu32(buf);
+		
+		/* RFC4253 section 6.1 Maximum Packet Length says:
+		 *
+		 * "All implementations MUST be able to process packets with
+		 * uncompressed payload length of 32768 bytes or less and
+		 * total packet size of 35000 bytes or less (including length,
+		 * padding length, payload, padding, and MAC.)."
+		 */
+		if(packet_length > MAX_SSH_PACKET_LEN) {
+			return -1;
+		}
+		
 		padding_length = buf[4];
 #ifdef LIBSSH2_DEBUG_TRANSPORT
 	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "Processing plaintext packet %lu bytes long (with %lu bytes padding)", packet_length, padding_length);
