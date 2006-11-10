@@ -740,6 +740,11 @@ LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer, 
 			filename_len = buffer_maxlen;
 		}
 		memcpy(buffer, s, filename_len);			s += real_filename_len;
+		
+		/* The filename is not null terminated, make it so if possible */
+		if (filename_len < buffer_maxlen) {
+			buffer[filename_len] = '\0';
+		}
 
 		/* Skip longname */
 		s += 4 + libssh2_ntohu32(s);
@@ -819,6 +824,11 @@ LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer, 
 		}
 		memcpy(buffer, data + 13, filename_len);
 
+		/* The filename is not null terminated, make it so if possible */
+		if (filename_len < buffer_maxlen) {
+			buffer[filename_len] = '\0';
+		}
+		
 		if (attrs) {
 			memset(attrs, 0, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
 			libssh2_sftp_bin2attr(attrs, data + 13 + real_filename_len + (4 + libssh2_ntohu32(data + 13 + real_filename_len)));
