@@ -37,6 +37,8 @@
 
 #include "libssh2_priv.h"
 
+#include <ctype.h>
+
 /* Needed for struct iovec on some platforms */
 #ifdef HAVE_SYS_UIO_H
 #include <sys/uio.h>
@@ -239,7 +241,8 @@ static int libssh2_file_read_publickey(LIBSSH2_SESSION *session, unsigned char *
 {
 	FILE *fd;
 	char *pubkey = NULL, c, *sp1, *sp2, *tmp;
-	int pubkey_len = 0, tmp_len;
+	size_t pubkey_len = 0;
+	unsigned int tmp_len;
 
 #ifdef LIBSSH2_DEBUG_USERAUTH
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Loading public key file: %s", pubkeyfile);
@@ -252,7 +255,11 @@ static int libssh2_file_read_publickey(LIBSSH2_SESSION *session, unsigned char *
 	}
 	while (!feof(fd) && (c = fgetc(fd)) != '\r' && c != '\n')	pubkey_len++;
 	rewind(fd);
-
+	if (feof(fd)) {
+		/* the last character was EOF */
+		pubkey_len--;
+	}
+	
 	if (pubkey_len <= 1) {
 		libssh2_error(session, LIBSSH2_ERROR_FILE, "Invalid data in public key file", 0);
 		fclose(fd);
@@ -272,7 +279,10 @@ static int libssh2_file_read_publickey(LIBSSH2_SESSION *session, unsigned char *
 		return -1;
 	}
 	fclose(fd);
-	while (pubkey_len && (pubkey[pubkey_len-1] == '\r' || pubkey[pubkey_len-1] == '\n')) pubkey_len--;
+	/*
+	 * Remove trailing whitespace
+	 */
+	while (pubkey_len && isspace(pubkey[pubkey_len-1])) pubkey_len--;
 
 	if (!pubkey_len) {
 		libssh2_error(session, LIBSSH2_ERROR_FILE, "Missing public key data", 0);
