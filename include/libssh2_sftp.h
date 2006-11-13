@@ -103,6 +103,39 @@ struct _LIBSSH2_SFTP_ATTRIBUTES {
 #define LIBSSH2_SFTP_TYPE_BLOCK_DEVICE		8
 #define LIBSSH2_SFTP_TYPE_FIFO				9
 
+/*
+ * Reproduce the POSIX file modes here for systems that are not
+ * POSIX compliant.  
+ *
+ * These is used in "permissions" of "struct _LIBSSH2_SFTP_ATTRIBUTES"
+ */
+/* File type */
+#define	LIBSSH2_SFTP_S_IFMT			0170000		/* type of file mask */
+#define	LIBSSH2_SFTP_S_IFIFO		0010000		/* named pipe (fifo) */
+#define	LIBSSH2_SFTP_S_IFCHR		0020000		/* character special */
+#define	LIBSSH2_SFTP_S_IFDIR		0040000		/* directory */
+#define	LIBSSH2_SFTP_S_IFBLK		0060000		/* block special */
+#define	LIBSSH2_SFTP_S_IFREG		0100000		/* regular */
+#define	LIBSSH2_SFTP_S_IFLNK		0120000		/* symbolic link */
+#define	LIBSSH2_SFTP_S_IFSOCK		0140000		/* socket */
+
+/* File mode */
+/* Read, write, execute/search by owner */
+#define	LIBSSH2_SFTP_S_IRWXU		0000700		/* RWX mask for owner */
+#define	LIBSSH2_SFTP_S_IRUSR		0000400		/* R for owner */
+#define	LIBSSH2_SFTP_S_IWUSR		0000200		/* W for owner */
+#define	LIBSSH2_SFTP_S_IXUSR		0000100		/* X for owner */
+/* Read, write, execute/search by group */
+#define	LIBSSH2_SFTP_S_IRWXG		0000070		/* RWX mask for group */
+#define	LIBSSH2_SFTP_S_IRGRP		0000040		/* R for group */
+#define	LIBSSH2_SFTP_S_IWGRP		0000020		/* W for group */
+#define	LIBSSH2_SFTP_S_IXGRP		0000010		/* X for group */
+/* Read, write, execute/search by others */
+#define	LIBSSH2_SFTP_S_IRWXO		0000007		/* RWX mask for other */
+#define	LIBSSH2_SFTP_S_IROTH		0000004		/* R for other */
+#define	LIBSSH2_SFTP_S_IWOTH		0000002		/* W for other */
+#define	LIBSSH2_SFTP_S_IXOTH		0000001		/* X for other */
+
 /* SFTP File Transfer Flags -- (e.g. flags parameter to sftp_open())
  * Danger will robinson... APPEND doesn't have any effect on OpenSSH servers */
 #define LIBSSH2_FXF_READ						0x00000001
