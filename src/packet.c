@@ -62,6 +62,8 @@
 # endif
 #endif
 
+#include <inttypes.h>
+
 /* RFC4253 section 6.1 Maximum Packet Length says:
  *
  * "All implementations MUST be able to process packets with
@@ -71,6 +73,9 @@
  */
 #define MAX_SSH_PACKET_LEN 35000
 
+inline int libssh2_packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data, unsigned long datalen);
+inline int libssh2_packet_x11_open(LIBSSH2_SESSION *session, unsigned char *data, unsigned long datalen);
+
 /* {{{ libssh2_packet_queue_listener
  * Queue a connection request for a listener
  */
@@ -78,14 +83,14 @@ inline int libssh2_packet_queue_listener(LIBSSH2_SESSION *session, unsigned char
 {
 	/* Look for a matching listener */
 	unsigned char *s = data + (sizeof("forwarded-tcpip") - 1) + 5;
+	/* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
 	unsigned long packet_len = 17 + (sizeof("Forward not requested") - 1);
 	unsigned char *p, packet[17 + (sizeof("Forward not requested") - 1)];
-					/* packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
 	LIBSSH2_LISTENER *l = session->listeners;
 	char failure_code = 1; /* SSH_OPEN_ADMINISTRATIVELY_PROHIBITED */
-	unsigned long sender_channel, initial_window_size, packet_size;
+        uint32_t sender_channel, initial_window_size, packet_size;
 	unsigned char *host, *shost;
-	unsigned long port, sport, host_len, shost_len;
+        uint32_t port, sport, host_len, shost_len;
 
 	sender_channel = libssh2_ntohu32(s);		s += 4;
 
@@ -291,10 +296,13 @@ inline int libssh2_packet_x11_open(LIBSSH2_SESSION *session, unsigned char *data
 		}
 		channel->next = NULL;
 		session->channels.tail = channel;
-
-		/* Pass control to the callback, they may turn right around and free the channel, or actually use it */
-		LIBSSH2_X11_OPEN(channel, shost, sport);
-
+		
+		/*
+		 * Pass control to the callback, they may turn right around and 
+		 * free the channel, or actually use it 
+		 */
+		LIBSSH2_X11_OPEN(channel, (char *)shost, sport);
+		
 		return 0;
 	} else {
 		failure_code = 4; /* SSH_OPEN_RESOURCE_SHORTAGE */
@@ -330,7 +338,7 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 #endif
 	if (macstate == LIBSSH2_MAC_INVALID) {
 		if (session->macerror) {
-			if (LIBSSH2_MACERROR(session, data, datalen) == 0) {
+			if (LIBSSH2_MACERROR(session, (char *)data, datalen) == 0) {
 				/* Calling app has given the OK, Process it anyway */
 				macstate = LIBSSH2_MAC_CONFIRMED;
 			} else {
@@ -358,7 +366,7 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 
 			reason = libssh2_ntohu32(data + 1);
 			message_len = libssh2_ntohu32(data + 5);
-			message = data + 9; /* packet_type(1) + reason(4) + message_len(4) */
+			message = (char *)data + 9; /* packet_type(1) + reason(4) + message_len(4) */
 			language_len = libssh2_ntohu32(data + 9 + message_len);
 			/* This is where we hack on the data a little,
 			 * Use the MSB of language_len to to a terminating NULL (In all liklihood it is already)
@@ -367,7 +375,7 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 			 * With the lengths passed this isn't *REALLY* necessary, but it's "kind"
 			 */
 			message[message_len] = '\0';
-			language = data + 9 + message_len + 3;
+			language = (char *)data + 9 + message_len + 3;
 			if (language_len) {
 				memcpy(language, language + 1, language_len);
 			}
@@ -389,9 +397,9 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 			memcpy(data + 4, data + 5, datalen - 5);
 			data[datalen] = '\0';
 			if (session->ssh_msg_ignore) {
-				LIBSSH2_IGNORE(session, data + 4, datalen - 5);
+				LIBSSH2_IGNORE(session, (char *)data + 4, datalen - 5);
 			}
-			LIBSSH2_FREE(session, data);
+			LIBSSH2_FREE(session, (char *)data);
 			return 0;
 			break;
 		case SSH_MSG_DEBUG:
@@ -401,7 +409,7 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 			int message_len, language_len;
 
 			message_len = libssh2_ntohu32(data + 2);
-			message = data + 6; /* packet_type(1) + display(1) + message_len(4) */
+			message = (char *)data + 6; /* packet_type(1) + display(1) + message_len(4) */
 			language_len = libssh2_ntohu32(data + 6 + message_len);
 			/* This is where we hack on the data a little,
 			 * Use the MSB of language_len to to a terminating NULL (In all liklihood it is already)
@@ -410,7 +418,7 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 			 * With the lengths passed this isn't *REALLY* necessary, but it's "kind"
 			 */
 			message[message_len] = '\0';
-			language = data + 6 + message_len + 3;
+			language = (char *)data + 6 + message_len + 3;
 			if (language_len) {
 				memcpy(language, language + 1, language_len);
 			}
@@ -621,7 +629,7 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 /* {{{ libssh2_blocking_read
  * Force a blocking read, regardless of socket settings
  */
-static int libssh2_blocking_read(LIBSSH2_SESSION *session, unsigned char *buf, size_t count)
+static ssize_t libssh2_blocking_read(LIBSSH2_SESSION *session, unsigned char *buf, size_t count)
 {
 	size_t bytes_read = 0;
 #if !defined(HAVE_POLL) && !defined(HAVE_SELECT)
@@ -738,12 +746,13 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		 * The largest blocksize (currently) is 32, the largest MAC (currently) is 20
 		 */
 		unsigned char block[2 * 32], *payload, *s, tmp[6];
-		long read_len;
+		ssize_t read_len;
 		unsigned long blocksize = session->remote.crypt->blocksize;
 		unsigned long packet_len, payload_len;
 		int padding_len;
 		int macstate;
 		int free_payload = 1;
+
 		/* Safely ignored in CUSTOM cipher mode */
 		EVP_CIPHER_CTX *ctx = (EVP_CIPHER_CTX *)session->remote.crypt_abstract;
 
@@ -752,12 +761,19 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		 */
 		if (should_block) {
 			read_len = libssh2_blocking_read(session, block, blocksize);
+			if(read_len <= 0)
+				return read_len;
 		} else {
+                        ssize_t nread;
 			read_len = recv(session->socket_fd, block, 1, LIBSSH2_SOCKET_RECV_FLAGS(session));
 			if (read_len <= 0) {
 				return 0;
 			}
-			read_len += libssh2_blocking_read(session, block + read_len, blocksize - read_len);
+			nread = libssh2_blocking_read(session, block + read_len, blocksize - read_len);
+			if(nread <= 0)
+				return nread;
+
+			read_len += nread;
 		}
 		if (read_len < blocksize) {
 			return (session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) ? 0 : -1;
@@ -836,7 +852,7 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		/* Calculate MAC hash */
  		session->remote.mac->hash(session, block + session->remote.mac->mac_len, session->remote.seqno, tmp, 5, payload, payload_len, &session->remote.mac_abstract);
 
-		macstate =  (strncmp(block, block + session->remote.mac->mac_len, session->remote.mac->mac_len) == 0) ? LIBSSH2_MAC_CONFIRMED : LIBSSH2_MAC_INVALID;
+		macstate =  (strncmp((char *)block, (char *)block + session->remote.mac->mac_len, session->remote.mac->mac_len) == 0) ? LIBSSH2_MAC_CONFIRMED : LIBSSH2_MAC_INVALID;
 
 		session->remote.seqno++;
 
@@ -889,18 +905,24 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 	} else { /* No cipher active */
 		unsigned char *payload;
 		unsigned char buf[24];
-		unsigned long buf_len, payload_len;
-		unsigned long packet_length;
+		ssize_t buf_len;
+		unsigned long payload_len;
+		uint32_t packet_length;
 		unsigned long padding_length;
 
 		if (should_block) {
 			buf_len = libssh2_blocking_read(session, buf, 5);
 		} else {
+			ssize_t nread;
 			buf_len = recv(session->socket_fd, buf, 1, LIBSSH2_SOCKET_RECV_FLAGS(session));
 			if (buf_len <= 0) {
-				return 0;
+                                return buf_len;
 			}
-			buf_len += libssh2_blocking_read(session, buf, 5 - buf_len);
+			nread = libssh2_blocking_read(session, buf, 5 - buf_len);
+			if(nread <= 0)
+				return -1;
+
+			buf_len += nread;
 		}
 		if (buf_len < 5) {
 			/* Something bad happened */
@@ -1002,10 +1024,15 @@ int libssh2_packet_ask_ex(LIBSSH2_SESSION *session, unsigned char packet_type, u
 /* {{{ libssh2_packet_askv
  * Scan for any of a list of packet types in the brigade, optionally poll the socket for a packet first
  */
-int libssh2_packet_askv_ex(LIBSSH2_SESSION *session, unsigned char *packet_types, unsigned char **data, unsigned long *data_len,
-													 unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len, int poll_socket)
+int libssh2_packet_askv_ex(LIBSSH2_SESSION *session,
+						   unsigned char *packet_types,
+						   unsigned char **data,
+						   unsigned long *data_len,
+						   unsigned long match_ofs,
+						   const unsigned char *match_buf,
+						   unsigned long match_len, int poll_socket)
 {
-	int i, packet_types_len = strlen(packet_types);
+	int i, packet_types_len = strlen((char *)packet_types);
 
 	for(i = 0; i < packet_types_len; i++) {
 		if (0 == libssh2_packet_ask_ex(session, packet_types[i], data, data_len, match_ofs, match_buf, match_len, i ? 0 : poll_socket)) {
@@ -1058,7 +1085,7 @@ int libssh2_packet_burn(LIBSSH2_SESSION *session)
 {
 	unsigned char *data;
 	unsigned long data_len;
-	char all_packets[255];
+	unsigned char all_packets[255];
 	int i;
 	for(i = 1; i < 256; i++) all_packets[i - 1] = i;
 
@@ -1114,7 +1141,7 @@ int libssh2_packet_requirev_ex(LIBSSH2_SESSION *session, unsigned char *packet_t
 			continue;
 		}
 
-		if (strchr(packet_types, ret)) {
+		if (strchr((char *)packet_types, ret)) {
 			/* Be lazy, let packet_ask pull it out of the brigade */
 			return libssh2_packet_askv_ex(session, packet_types, data, data_len, match_ofs, match_buf, match_len, 0);
 		}
