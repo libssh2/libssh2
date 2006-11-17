@@ -85,7 +85,7 @@ if test "$found_openssl" = "no" && test -x "$PKG_CONFIG" && $PKG_CONFIG --exists
   found_openssl=yes
   pkgcfg_openssl=yes
   OPENSSL_LIBLINE=`$PKG_CONFIG --libs openssl`
-  OPENSSL_INCLINE=`$PKG_CONFIG --variable=includedir openssl`
+  OPENSSL_INCLINE=`$PKG_CONFIG --cflags-only-I openssl`
   AC_MSG_RESULT([Using paths from pkg-config])
 fi
 
