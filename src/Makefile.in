@@ -14,6 +14,8 @@ SHLIB_LDFLAGS = @SHLIB_LDFLAGS@
 LIBS = @LIBS@
 INSTALL = @INSTALL@
 
+all: libssh2.@SHLIB_SUFFIX_NAME@
+
 channel.o: channel.c
 	$(CC) -o channel.o channel.c $(CFLAGS) $(LIBS)
 
@@ -52,8 +54,6 @@ sftp.o: sftp.c
 
 userauth.o: userauth.c
 	$(CC) -o userauth.o userauth.c $(CFLAGS) $(LIBS)
-
-all: libssh2.@SHLIB_SUFFIX_NAME@
 
 libssh2.@SHLIB_SUFFIX_NAME@: $(OBJECTS)
 	$(LDCC) -o libssh2.@SHLIB_SUFFIX_NAME@ $(SHLIB_LDFLAGS) $(OBJECTS) $(LIBS) $(LDFLAGS)
