@@ -147,7 +147,7 @@ static int libssh2_publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey, unsigned ch
 	unsigned long packet_len;
 	unsigned char *packet;
 
-	if (libssh2_channel_read(channel, buffer, 4) != 4) {
+	if (libssh2_channel_read(channel, (char *)buffer, 4) != 4) {
 		libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL, "Invalid response from publickey subsystem", 0);
 		return -1;
 	}
@@ -159,7 +159,7 @@ static int libssh2_publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey, unsigned ch
 		return -1;
 	}
 
-	if (libssh2_channel_read(channel, packet, packet_len) != packet_len) {
+	if (libssh2_channel_read(channel, (char *)packet, packet_len) != packet_len) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT, "Timeout waiting for publickey subsystem response packet", 0);
 		LIBSSH2_FREE(session, packet);
 		return -1;
@@ -194,7 +194,7 @@ static int libssh2_publickey_response_id(unsigned char **pdata, int data_len)
 
 	while (codes->name) {
 		if (codes->name_len == response_len &&
-			strncmp(codes->name, data, response_len) == 0) {
+			strncmp(codes->name, (char *)data, response_len) == 0) {
 			*pdata = data + response_len;
 			return codes->code;
 		}
@@ -322,7 +322,7 @@ LIBSSH2_API LIBSSH2_PUBLICKEY *libssh2_publickey_init(LIBSSH2_SESSION *session)
 #ifdef LIBSSH2_DEBUG_PUBLICKEY
 	_libssh2_debug(session, LIBSSH2_DBG_PUBLICKEY, "Sending publickey version packet advertising version %d support", (int)LIBSSH2_PUBLICKEY_VERSION);
 #endif
-    if ((s - buffer) != libssh2_channel_write(channel, buffer, (s - buffer))) {
+    if ((s - buffer) != libssh2_channel_write(channel, (char*)buffer, (s - buffer))) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send publickey version packet", 0);
 		goto err_exit;
     }
@@ -427,7 +427,7 @@ LIBSSH2_API int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned
 			/* Search for a comment attribute */
 			if (attrs[i].name_len == (sizeof("comment") - 1) &&
 				strncmp(attrs[i].name, "comment", sizeof("comment") - 1) == 0) {
-				comment = attrs[i].value;
+				comment = (unsigned char *)attrs[i].value;
 				comment_len = attrs[i].value_len;
 				break;
 			}
@@ -482,7 +482,7 @@ LIBSSH2_API int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned
 #ifdef LIBSSH2_DEBUG_PUBLICKEY
 	_libssh2_debug(session, LIBSSH2_DBG_PUBLICKEY, "Sending publickey \"add\" packet: type=%s blob_len=%ld num_attrs=%ld", name, blob_len, num_attrs);
 #endif
-    if ((s - packet) != libssh2_channel_write(channel, packet, (s - packet))) {
+    if ((s - packet) != libssh2_channel_write(channel, (char *)packet, (s - packet))) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send publickey add packet", 0);
 		LIBSSH2_FREE(session, packet);
 		return -1;
@@ -530,7 +530,7 @@ LIBSSH2_API int libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY *pkey, const unsig
 #ifdef LIBSSH2_DEBUG_PUBLICKEY
 	_libssh2_debug(session, LIBSSH2_DBG_PUBLICKEY, "Sending publickey \"remove\" packet: type=%s blob_len=%ld", name, blob_len);
 #endif
-    if ((s - packet) != libssh2_channel_write(channel, packet, (s - packet))) {
+    if ((s - packet) != libssh2_channel_write(channel, (char *)packet, (s - packet))) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send publickey remove packet", 0);
 		LIBSSH2_FREE(session, packet);
 		return -1;
@@ -564,7 +564,7 @@ LIBSSH2_API int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey, unsigned l
 #ifdef LIBSSH2_DEBUG_PUBLICKEY
 	_libssh2_debug(session, LIBSSH2_DBG_PUBLICKEY, "Sending publickey \"list\" packet");
 #endif
-    if ((s - buffer) != libssh2_channel_write(channel, buffer, (s - buffer))) {
+    if ((s - buffer) != libssh2_channel_write(channel, (char *)buffer, (s - buffer))) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send publickey list packet", 0);
 		return -1;
     }
@@ -633,7 +633,7 @@ LIBSSH2_API int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey, unsigned l
 						}
 						list[keys].attrs[0].name = "comment";
 						list[keys].attrs[0].name_len = sizeof("comment") - 1;
-						list[keys].attrs[0].value = s;
+						list[keys].attrs[0].value = (char *)s;
 						list[keys].attrs[0].value_len = comment_len;
 						list[keys].attrs[0].mandatory = 0;
 
@@ -661,9 +661,9 @@ LIBSSH2_API int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey, unsigned l
 						}
 						for(i = 0; i < list[keys].num_attrs; i++) {
 							list[keys].attrs[i].name_len = libssh2_ntohu32(s);			s += 4;
-							list[keys].attrs[i].name = s;								s += list[keys].attrs[i].name_len;
+							list[keys].attrs[i].name = (char *)s;								s += list[keys].attrs[i].name_len;
 							list[keys].attrs[i].value_len = libssh2_ntohu32(s);			s += 4;
-							list[keys].attrs[i].value = s;								s += list[keys].attrs[i].value_len;
+							list[keys].attrs[i].value = (char *)s;								s += list[keys].attrs[i].value_len;
 							list[keys].attrs[i].mandatory = 0;	/* actually an ignored value */
 						}
 					} else {
