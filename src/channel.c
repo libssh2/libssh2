@@ -257,7 +257,11 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *se
 	memcpy(s, shost, shost_len);					s += shost_len;
 	libssh2_htonu32(s, sport);						s += 4;
 
-	channel = libssh2_channel_open_ex(session, "direct-tcpip", sizeof("direct-tcpip") - 1, LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, message, message_len);
+	channel = libssh2_channel_open_ex(session, "direct-tcpip",
+                                          sizeof("direct-tcpip") - 1,
+                                          LIBSSH2_CHANNEL_WINDOW_DEFAULT,
+                                          LIBSSH2_CHANNEL_PACKET_DEFAULT,
+                                          (char *)message, message_len);
 	LIBSSH2_FREE(session, message);
 
 	return channel;
@@ -631,11 +635,11 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_
 		memcpy(s, auth_cookie, cookie_len);
 	} else {
 		int i;
-		char buffer[LIBSSH2_X11_RANDOM_COOKIE_LEN / 2];
+		unsigned char buffer[LIBSSH2_X11_RANDOM_COOKIE_LEN / 2];
 
 		RAND_bytes(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
 		for (i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++) {
-			snprintf(s + (i * 2), 2, "%02X", buffer[i]);
+			snprintf((char *)s + (i * 2), 2, "%02X", buffer[i]);
 		}
 	}
 	s += cookie_len;
