@@ -225,6 +225,7 @@ AC_CHECK_FUNCS(poll gettimeofday select)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
+AC_C_INLINE
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile])
