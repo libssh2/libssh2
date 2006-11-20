@@ -8,7 +8,10 @@ EXTRA_DIST = libssh2_config.h.in
 
 lib_LTLIBRARIES = libssh2.la
 
-INCLUDES = -I$(top_srcdir)/include
+# srcdir/include for the shipped headers
+# builddir/src for the generated config header when building out of the source
+# tree
+INCLUDES = -I$(top_srcdir)/include -I$(top_builddir)/src
 
 VERSION=-version-info 0:0:0
 
