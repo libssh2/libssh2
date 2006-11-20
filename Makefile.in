@@ -44,24 +44,12 @@ dist:
 	ln -s . $(DISTLIB)
 	tar -zcf $(DISTLIB).tar.gz \
 		$(DISTLIB)/configure $(DISTLIB)/Makefile.in $(DISTLIB)/ssh2_sample.c \
+		$(DISTLIB)/NMakefile \
 		$(DISTLIB)/LICENSE $(DISTLIB)/README $(DISTLIB)/INSTALL \
 		$(DISTLIB)/mkinstalldirs $(DISTLIB)/install-sh $(DISTLIB)/config.sub $(DISTLIB)/config.guess \
-		$(DISTLIB)/src/*.c $(DISTLIB)/src/Makefile.in \
-		$(DISTLIB)/include/libssh2.h $(DISTLIB)/include/libssh2_priv.h $(DISTLIB)/include/libssh2_sftp.h \
-		$(DISTLIB)/include/libssh2_publickey.h $(DISTLIB)/include/libssh2_config.h.in \
+		$(DISTLIB)/src/libssh2_config.h.in \
+		$(DISTLIB)/src/*.[ch] $(DISTLIB)/src/Makefile.in \
+		$(DISTLIB)/include/*.h \
 		$(DISTLIB)/win32/config.mk $(DISTLIB)/win32/libssh2_config.h $(DISTLIB)/win32/rules.mk \
 		$(DISTLIB)/win32/libssh2.dsp $(DISTLIB)/win32/libssh2.dsw $(DISTLIB)/win32/ssh2_sample.dsp
 	rm -f $(DISTLIB)
-dist_nmake:
-	autoheader
-	autoconf
-	rm -f $(DISTLIB)
-	ln -s . $(DISTLIB)
-	tar -zcf $(DISTLIB)-win32.tar.gz \
-		$(DISTLIB)/NMakefile $(DISTLIB)/ssh2_sample.c $(DISTLIB)/src/*.c \
-		$(DISTLIB)/LICENSE $(DISTLIB)/README $(DISTLIB)/TODO $(DISTLIB)/INSTALL \
-		$(DISTLIB)/include/libssh2.h $(DISTLIB)/include/libssh2_priv.h $(DISTLIB)/include/libssh2_sftp.h \
-		$(DISTLIB)/include/libssh2_publickey.h \
-		$(DISTLIB)/win32/config.mk $(DISTLIB)/win32/libssh2_config.h $(DISTLIB)/win32/rules.mk
-	rm -f $(DISTLIB)
-

@@ -1,7 +1,7 @@
 # AC_PREREQ(2.57)
-AC_INIT(libssh2,0.14,sarag@libssh2.org)
+AC_INIT(libssh2, 0.15, libssh2-devel@lists.sourceforge.net)
 AC_CONFIG_SRCDIR([src])
-AC_CONFIG_HEADER([include/libssh2_config.h])
+AC_CONFIG_HEADER([src/libssh2_config.h])
 
 # Default to the same as CC
 LDCC="\$(CC)"
