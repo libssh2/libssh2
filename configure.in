@@ -1,32 +1,23 @@
 # AC_PREREQ(2.57)
 AC_INIT(libssh2, 0.15, libssh2-devel@lists.sourceforge.net)
+AM_INIT_AUTOMAKE(libssh2, 0.15)
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADER([src/libssh2_config.h])
 
-# Default to the same as CC
-LDCC="\$(CC)"
-
 # Check for the OS.
+# Daniel's note: this should not be necessary and we need to work to
+# get this removed.
 AC_CANONICAL_HOST
 case "$host" in
 	*-cygwin)
-	SHLIB_SUFFIX_NAME="dll"
-	SHLIB_LDFLAGS="-shared"
 	CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
     ;;
 	*darwin*)
-	SHLIB_SUFFIX_NAME="dylib"
-	SHLIB_LDFLAGS="-dynamiclib -flat_namespace"
 	CFLAGS="$CFLAGS -DLIBSSH2_DARWIN"
 	;;
     *hpux*)
-    SHLIB_SUFFIX_NAME="sl"
-    SHLIB_LDFLAGS="-b +vnocompatwarnings -L/lib/pa20_64"
-	LDCC="ld"
     ;;
     *)
-    SHLIB_SUFFIX_NAME="so"
-    SHLIB_LDFLAGS="-shared"
     ;;
 esac
 
@@ -39,14 +30,13 @@ AC_CHECK_LIB(m, ceil, [ SHLIB_LDFLAGS="$SHLIB_LDFLAGS -lm" ])
 
 AC_SUBST(SHLIB_SUFFIX_NAME)
 AC_SUBST(SHLIB_LDFLAGS)
-AC_SUBST(LDCC)
 AC_SUBST(LIBS)
 
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
+AC_PROG_LIBTOOL
 AC_C_BIGENDIAN
 if test -z "$PKG_CONFIG"; then
   AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
