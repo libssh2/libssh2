@@ -1,6 +1,20 @@
 libssh2 - SSH2 library
 ======================
 
+  libssh2 is a library implementing the SSH2 protocol 
+
+Version 
+------------
+
+  maximum SSH packet size is now some 35000 bytes
+
+  private include files are now in src/ and only public headers are in include/
+
+  automake and libtool are being used (increased portability)
+
+  fixed OpenSSL detection using pkg-config
+  
+
 Version 0.14
 ------------
 
