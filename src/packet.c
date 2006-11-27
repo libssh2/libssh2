@@ -1212,7 +1212,7 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 	if (session->state & LIBSSH2_STATE_NEWKEYS) {
 		/* Encryption is in effect */
 		unsigned char *encbuf, *s;
-		int ret;
+		int ret, size, written = 0;
 
 		/* Safely ignored in CUSTOM cipher mode */
 		EVP_CIPHER_CTX *ctx = (EVP_CIPHER_CTX *)session->local.crypt_abstract;
@@ -1251,7 +1251,16 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 		session->local.seqno++;
 
 		/* Send It */
-		ret = ((4 + packet_length + session->local.mac->mac_len) == send(session->socket_fd, encbuf, 4 + packet_length + session->local.mac->mac_len, LIBSSH2_SOCKET_SEND_FLAGS(session))) ? 0 : -1;
+		size = 4 + packet_length + session->local.mac->mac_len;
+		written = 0;
+
+		while(written < size) {
+		    ret = send(session->socket_fd, encbuf + written, size - written, LIBSSH2_SOCKET_SEND_FLAGS(session));
+		    if(ret > 0) written += ret;
+		    else break;
+		}
+
+		ret = written == size ? 0 : -1;
 
 		/* Cleanup environment */
 		LIBSSH2_FREE(session, encbuf);
