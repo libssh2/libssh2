@@ -745,7 +745,7 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		/* Temporary Buffer
 		 * The largest blocksize (currently) is 32, the largest MAC (currently) is 20
 		 */
-		unsigned char block[2 * 32], *payload, *s, tmp[6];
+		unsigned char block[2 * 32], *payload, *s, *p, tmp[6];
 		ssize_t read_len;
 		unsigned long blocksize = session->remote.crypt->blocksize;
 		unsigned long packet_len, payload_len;
@@ -822,25 +822,35 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		memcpy(s, block + 5, blocksize - 5);
 		s += blocksize - 5;
 
-		while ((s - payload) < payload_len) {
-			read_len = libssh2_blocking_read(session, block, blocksize);
-			if (read_len < blocksize) {
+		p = s;
+		while (p - payload < payload_len) {
+			read_len = payload_len - (p - payload);
+			if (read_len > 4096) read_len = 4096;
+
+			if (libssh2_blocking_read(session, p, read_len) < read_len) {
 				LIBSSH2_FREE(session, payload);
 				return -1;
 			}
-			if (session->remote.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP) {
-				EVP_Cipher(ctx, block + blocksize, block, blocksize);
-				memcpy(s, block + blocksize, blocksize);
-			} else {
-				if (session->remote.crypt->crypt(session, block, &session->remote.crypt_abstract)) {
-					libssh2_error(session, LIBSSH2_ERROR_DECRYPT, "Error decrypting packet preamble", 0);
-					LIBSSH2_FREE(session, payload);
-					return -1;
-				}
-				memcpy(s, block, blocksize);
-			}
 
-			s += blocksize;
+			p += read_len;
+
+    			while (s < p) {
+				memcpy(block, s, blocksize);
+
+				if (session->remote.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP) {
+					EVP_Cipher(ctx, block + blocksize, block, blocksize);
+					memcpy(s, block + blocksize, blocksize);
+				} else {
+					if (session->remote.crypt->crypt(session, block, &session->remote.crypt_abstract)) {
+						libssh2_error(session, LIBSSH2_ERROR_DECRYPT, "Error decrypting packet preamble", 0);
+						LIBSSH2_FREE(session, payload);
+						return -1;
+					}
+					memcpy(s, block, blocksize);
+				}
+
+				s += blocksize;
+			}
 		}
 
 		read_len = libssh2_blocking_read(session, block, session->remote.mac->mac_len);
