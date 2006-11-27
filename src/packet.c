@@ -548,6 +548,7 @@ static int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, siz
 #endif
 
 				channel->remote.close = 1;
+				channel->remote.eof = 1;
 				/* TODO: Add a callback for this */
 
 				LIBSSH2_FREE(session, data);
