@@ -41,7 +41,6 @@
 #ifndef WIN32
 #include <unistd.h>
 #endif
-#include <openssl/evp.h>
 #include <openssl/rand.h>
 
 /* Needed for struct iovec on some platforms */
@@ -754,9 +753,6 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		int macstate;
 		int free_payload = 1;
 
-		/* Safely ignored in CUSTOM cipher mode */
-		EVP_CIPHER_CTX *ctx = (EVP_CIPHER_CTX *)session->remote.crypt_abstract;
-
 		/* Note: If we add any cipher with a blocksize less than 6 we'll need to get more creative with this
 		 * For now, all blocksize sizes are 8+
 		 */
@@ -780,14 +776,9 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 			return (session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) ? 0 : -1;
 		}
 
-		if (session->remote.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP) {
-			EVP_Cipher(ctx, block + blocksize, block, blocksize);
-			memcpy(block, block + blocksize, blocksize);
-		} else {
-			if (session->remote.crypt->crypt(session, block, &session->remote.crypt_abstract)) {
-				libssh2_error(session, LIBSSH2_ERROR_DECRYPT, "Error decrypting packet preamble", 0);
-				return -1;
-			}
+		if (session->remote.crypt->crypt(session, block, &session->remote.crypt_abstract)) {
+		  libssh2_error(session, LIBSSH2_ERROR_DECRYPT, "Error decrypting packet preamble", 0);
+		  return -1;
 		}
 
 		packet_len = libssh2_ntohu32(block);
@@ -838,17 +829,12 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
     			while (s < p) {
 				memcpy(block, s, blocksize);
 
-				if (session->remote.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP) {
-					EVP_Cipher(ctx, block + blocksize, block, blocksize);
-					memcpy(s, block + blocksize, blocksize);
-				} else {
-					if (session->remote.crypt->crypt(session, block, &session->remote.crypt_abstract)) {
-						libssh2_error(session, LIBSSH2_ERROR_DECRYPT, "Error decrypting packet preamble", 0);
-						LIBSSH2_FREE(session, payload);
-						return -1;
-					}
-					memcpy(s, block, blocksize);
+				if (session->remote.crypt->crypt(session, block, &session->remote.crypt_abstract)) {
+				  libssh2_error(session, LIBSSH2_ERROR_DECRYPT, "Error decrypting packet preamble", 0);
+				  LIBSSH2_FREE(session, payload);
+				  return -1;
 				}
+				memcpy(s, block, blocksize);
 
 				s += blocksize;
 			}
@@ -1225,9 +1211,6 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 		unsigned char *encbuf, *s;
 		int ret, size, written = 0;
 
-		/* Safely ignored in CUSTOM cipher mode */
-		EVP_CIPHER_CTX *ctx = (EVP_CIPHER_CTX *)session->local.crypt_abstract;
-
 		/* include packet_length(4) itself and room for the hash at the end */
 		encbuf = LIBSSH2_ALLOC(session, 4 + packet_length + session->local.mac->mac_len);
 		if (!encbuf) {
@@ -1251,12 +1234,7 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 
 		/* Encrypt data */
 		for(s = encbuf; (s - encbuf) < (4 + packet_length) ; s += session->local.crypt->blocksize) {
-			if (session->local.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP) {
-				EVP_Cipher(ctx, buf, s, session->local.crypt->blocksize);
-				memcpy(s, buf, session->local.crypt->blocksize);
-			} else {
-				session->local.crypt->crypt(session, s, &session->local.crypt_abstract);
-			}
+		  session->local.crypt->crypt(session, s, &session->local.crypt_abstract);
 		}
 
 		session->local.seqno++;

@@ -38,7 +38,6 @@
 #include "libssh2_priv.h"
 #include <openssl/bn.h>
 #include <openssl/sha.h>
-#include <openssl/evp.h>
 #include <openssl/rand.h>
 
 /* TODO: Switch this to an inline and handle alloc() failures */
@@ -331,45 +330,23 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 #endif
 	}
 
-	/* Calculate IV/Secret/Key for each direction */
-	if (session->local.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP) {
-		if (session->local.crypt_abstract) {
-			EVP_CIPHER_CTX_cleanup(session->local.crypt_abstract);
-			LIBSSH2_FREE(session, session->local.crypt_abstract);
-			session->local.crypt_abstract = NULL;
-		}
-	} else {
-		if (session->local.crypt->dtor) {
-			/* Cleanup any existing cipher */
-			session->local.crypt->dtor(session, &session->local.crypt_abstract);
-		}
+	/* Cleanup any existing cipher */
+	if (session->local.crypt->dtor) {
+	  session->local.crypt->dtor(session, &session->local.crypt_abstract);
 	}
 
-	if (session->local.crypt->init || (session->local.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP)) {
+	/* Calculate IV/Secret/Key for each direction */
+	if (session->local.crypt->init) {
 		unsigned char *iv = NULL, *secret = NULL;
 		int free_iv = 0, free_secret = 0;
 
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(iv, session->local.crypt->iv_len, "A");
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(secret, session->local.crypt->secret_len, "C");
-		if (session->local.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP) {
-			EVP_CIPHER *(*get_cipher)(void) = (void*)session->local.crypt->crypt;
-			EVP_CIPHER *cipher = get_cipher();
-			EVP_CIPHER_CTX *ctx;
-
-			ctx = LIBSSH2_ALLOC(session, sizeof(EVP_CIPHER_CTX));
-			if (!ctx) {
-				LIBSSH2_FREE(session, iv);
-				LIBSSH2_FREE(session, secret);
-				ret = -1;
-				goto clean_exit;
-			}
-			EVP_CIPHER_CTX_init(ctx);
-			EVP_CipherInit(ctx, cipher, secret, iv, 1);
-			session->local.crypt_abstract = ctx;
-			free_iv = 1;
-			free_secret = 1;
-		} else {
-			session->local.crypt->init(session, iv, &free_iv, secret, &free_secret, 1, &session->local.crypt_abstract);
+		if (session->local.crypt->init(session, iv, &free_iv, secret, &free_secret, 1, &session->local.crypt_abstract)) {
+		  LIBSSH2_FREE(session, iv);
+		  LIBSSH2_FREE(session, secret);
+		  ret = -1;
+		  goto clean_exit;
 		}
 
 		if (free_iv) {
@@ -386,44 +363,22 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Client to Server IV and Key calculated");
 #endif
 
-	if (session->remote.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP) {
-		if (session->remote.crypt_abstract) {
-			EVP_CIPHER_CTX_cleanup(session->remote.crypt_abstract);
-			LIBSSH2_FREE(session, session->remote.crypt_abstract);
-			session->remote.crypt_abstract = NULL;
-		}
-	} else {
-		if (session->remote.crypt->dtor) {
-			/* Cleanup any existing cipher */
-			session->remote.crypt->dtor(session, &session->remote.crypt_abstract);
-		}
+	if (session->remote.crypt->dtor) {
+	  /* Cleanup any existing cipher */
+	  session->remote.crypt->dtor(session, &session->remote.crypt_abstract);
 	}
 
-	if (session->remote.crypt->init || (session->remote.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP)) {
+	if (session->remote.crypt->init) {
 		unsigned char *iv = NULL, *secret = NULL;
 		int free_iv = 0, free_secret = 0;
 
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(iv, session->remote.crypt->iv_len, "B");
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(secret, session->remote.crypt->secret_len, "D");
-		if (session->remote.crypt->flags & LIBSSH2_CRYPT_METHOD_FLAG_EVP) {
-			EVP_CIPHER *(*get_cipher)(void) = (void*)session->remote.crypt->crypt;
-			EVP_CIPHER *cipher = get_cipher();
-			EVP_CIPHER_CTX *ctx;
-
-			ctx = LIBSSH2_ALLOC(session, sizeof(EVP_CIPHER_CTX));
-			if (!ctx) {
-				LIBSSH2_FREE(session, iv);
-				LIBSSH2_FREE(session, secret);
-				ret = -1;
-				goto clean_exit;
-			}
-			EVP_CIPHER_CTX_init(ctx);
-			EVP_CipherInit(ctx, cipher, secret, iv, 0);
-			session->remote.crypt_abstract = ctx;
-			free_iv = 1;
-			free_secret = 1;
-		} else {
-			session->remote.crypt->init(session, iv, &free_iv, secret, &free_secret, 0, &session->remote.crypt_abstract);
+		if (session->remote.crypt->init(session, iv, &free_iv, secret, &free_secret, 0, &session->remote.crypt_abstract)) {
+		  LIBSSH2_FREE(session, iv);
+		  LIBSSH2_FREE(session, secret);
+		  ret = -1;
+		  goto clean_exit;
 		}
 
 		if (free_iv) {

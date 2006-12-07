@@ -61,15 +61,66 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_none = {
 };
 #endif
 
+#define MAKE_INIT(name, cipher)		     \
+  static int name (LIBSSH2_SESSION *session,	    \
+		   unsigned char *iv, int *free_iv,	    \
+		   unsigned char *secret, int *free_secret, \
+		   int encrypt, void **abstract)	    \
+  {									\
+    EVP_CIPHER_CTX *ctx = LIBSSH2_ALLOC(session, sizeof(EVP_CIPHER_CTX)); \
+    if (!ctx)								\
+      return -1;							\
+    EVP_CIPHER_CTX_init(ctx);						\
+    EVP_CipherInit(ctx, cipher, secret, iv, encrypt);			\
+    *abstract = ctx;							\
+    *free_iv = 1;							\
+    *free_secret = 1;							\
+    return 0;								\
+  }
+
+MAKE_INIT(aes256_init, EVP_aes_256_cbc())
+MAKE_INIT(aes192_init, EVP_aes_192_cbc())
+MAKE_INIT(aes128_init, EVP_aes_128_cbc())
+MAKE_INIT(blowfish_init, EVP_bf_cbc())
+MAKE_INIT(arcfour_init, EVP_rc4())
+MAKE_INIT(cast128_init, EVP_cast5_cbc())
+MAKE_INIT(des3_init, EVP_des_ede3_cbc())
+
+int crypt(LIBSSH2_SESSION *session, unsigned char *block, void **abstract)
+{
+  EVP_CIPHER_CTX *ctx = *(EVP_CIPHER_CTX **)abstract;
+  int blocksize = ctx->cipher->block_size;
+  unsigned char buf[EVP_MAX_BLOCK_LENGTH];
+  int ret;
+  if (blocksize == 1) /* Hack for arcfour. */
+    blocksize = 8;
+  ret = EVP_Cipher(ctx, buf, block, blocksize);
+  if (ret == 1)
+    memcpy(block, buf, blocksize);
+  return ret == 1 ? 0 : 1;
+}
+
+int dtor(LIBSSH2_SESSION *session, void **abstract)
+{
+  EVP_CIPHER_CTX **ctx = (EVP_CIPHER_CTX **)abstract;
+  if (ctx && *ctx)
+    {
+      EVP_CIPHER_CTX_cleanup(*ctx);
+      LIBSSH2_FREE(session, *ctx);
+      *abstract = NULL;
+    }
+  return 0;
+}
+
 static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_3des_cbc = {
 	"3des-cbc",
 	8, /* blocksize */
 	8, /* initial value length */
 	24, /* secret length */
-	LIBSSH2_CRYPT_METHOD_FLAG_EVP,
-	NULL,
-	(void*)EVP_des_ede3_cbc,
-	NULL,
+	0, /* flags */
+	&des3_init,
+	&crypt,
+	&dtor
 };
 
 #if OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES)
@@ -78,10 +129,10 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_cbc = {
 	16, /* blocksize */
 	16, /* initial value length */
 	16, /* secret length -- 16*8 == 128bit */
-	LIBSSH2_CRYPT_METHOD_FLAG_EVP,
-	NULL,
-	(void*)EVP_aes_128_cbc,
-	NULL,
+	0, /* flags */
+	&aes128_init,
+	&crypt,
+	&dtor
 };
 
 static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes192_cbc = {
@@ -89,10 +140,10 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes192_cbc = {
 	16, /* blocksize */
 	16, /* initial value length */
 	24, /* secret length -- 24*8 == 192bit */
-	LIBSSH2_CRYPT_METHOD_FLAG_EVP,
-	NULL,
-	(void*)EVP_aes_192_cbc,
-	NULL,
+	0, /* flags */
+	&aes192_init,
+	&crypt,
+	&dtor
 };
 
 static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_cbc = {
@@ -100,10 +151,10 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_cbc = {
 	16, /* blocksize */
 	16, /* initial value length */
 	32, /* secret length -- 32*8 == 256bit */
-	LIBSSH2_CRYPT_METHOD_FLAG_EVP,
-	NULL,
-	(void*)EVP_aes_256_cbc,
-	NULL,
+	0, /* flags */
+	&aes256_init,
+	&crypt,
+	&dtor
 };
 
 /* rijndael-cbc@lysator.liu.se == aes256-cbc */
@@ -112,10 +163,10 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_rijndael_cbc_lysator_liu_se = {
 	16, /* blocksize */
 	16, /* initial value length */
 	32, /* secret length -- 32*8 == 256bit */
-	LIBSSH2_CRYPT_METHOD_FLAG_EVP,
-	NULL,
-	(void*)EVP_aes_256_cbc,
-	NULL,
+	0, /* flags */
+	&aes256_init,
+	&crypt,
+	&dtor
 };
 #endif /* OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES)*/
 
@@ -125,10 +176,10 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_blowfish_cbc = {
 	8, /* blocksize */
 	8, /* initial value length */
 	16, /* secret length */
-	LIBSSH2_CRYPT_METHOD_FLAG_EVP,
-	NULL,
-	(void*)EVP_bf_cbc,
-	NULL,
+	0, /* flags */
+	&blowfish_init,
+	&crypt,
+	&dtor
 };
 #endif /* ! OPENSSL_NO_BLOWFISH */
 
@@ -138,10 +189,10 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_cast128_cbc = {
 	8, /* blocksize */
 	8, /* initial value length */
 	16, /* secret length */
-	LIBSSH2_CRYPT_METHOD_FLAG_EVP,
-	NULL,
-	(void*)EVP_cast5_cbc,
-	NULL,
+	0, /* flags */
+	&cast128_init,
+	&crypt,
+	&dtor
 };
 #endif /* ! OPENSSL_NO_CAST */
 
@@ -151,10 +202,10 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour = {
 	8, /* blocksize */
 	8, /* initial value length */
 	16, /* secret length */
-	LIBSSH2_CRYPT_METHOD_FLAG_EVP,
-	NULL,
-	(void*)EVP_rc4,
-	NULL,
+	0, /* flags */
+	&arcfour_init,
+	&crypt,
+	&dtor
 };
 #endif /* ! OPENSSL_NO_RC4 */
 

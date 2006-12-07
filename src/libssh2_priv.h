@@ -282,12 +282,6 @@ struct _LIBSSH2_HOSTKEY_METHOD {
 	int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
 };
 
-/* When FLAG_EVP is set, crypt contains a pointer to an EVP_CIPHER generator and init and dtor are ignored
- * Yes, I know it's a hack.
-  */
-
-#define LIBSSH2_CRYPT_METHOD_FLAG_EVP	0x0001
-
 struct _LIBSSH2_CRYPT_METHOD {
 	char *name;
 
