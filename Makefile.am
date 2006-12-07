@@ -15,3 +15,5 @@ ssh2_sample_SOURCES = ssh2_sample.c
 ssh2_sample_LDADD = src/libssh2.la
 
 EXTRA_DIST = LICENSE win32
+
+ACLOCAL_AMFLAGS = -I m4
