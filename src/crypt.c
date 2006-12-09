@@ -61,21 +61,22 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_none = {
 };
 #endif
 
-#define MAKE_INIT(name, cipher)		     \
-  static int name (LIBSSH2_SESSION *session,	    \
-		   unsigned char *iv, int *free_iv,	    \
-		   unsigned char *secret, int *free_secret, \
-		   int encrypt, void **abstract)	    \
+#define MAKE_INIT(name, cipher)						\
+	static int name (LIBSSH2_SESSION *session,			\
+			 unsigned char *iv, int *free_iv,		\
+			 unsigned char *secret, int *free_secret,	\
+			 int encrypt, void **abstract)			\
   {									\
-    EVP_CIPHER_CTX *ctx = LIBSSH2_ALLOC(session, sizeof(EVP_CIPHER_CTX)); \
-    if (!ctx)								\
-      return -1;							\
-    EVP_CIPHER_CTX_init(ctx);						\
-    EVP_CipherInit(ctx, cipher, secret, iv, encrypt);			\
-    *abstract = ctx;							\
-    *free_iv = 1;							\
-    *free_secret = 1;							\
-    return 0;								\
+	EVP_CIPHER_CTX *ctx = LIBSSH2_ALLOC(session, sizeof(EVP_CIPHER_CTX)); \
+	if (!ctx) {							\
+		return -1;						\
+	}								\
+	EVP_CIPHER_CTX_init(ctx);                                       \
+	EVP_CipherInit(ctx, cipher, secret, iv, encrypt);               \
+	*abstract = ctx;                                                \
+	*free_iv = 1;							\
+	*free_secret = 1;                                               \
+	return 0;                                                       \
   }
 
 MAKE_INIT(aes256_init, EVP_aes_256_cbc())
@@ -88,27 +89,30 @@ MAKE_INIT(des3_init, EVP_des_ede3_cbc())
 
 int crypt(LIBSSH2_SESSION *session, unsigned char *block, void **abstract)
 {
-  EVP_CIPHER_CTX *ctx = *(EVP_CIPHER_CTX **)abstract;
-  int blocksize = ctx->cipher->block_size;
-  unsigned char buf[EVP_MAX_BLOCK_LENGTH];
-  int ret;
-  if (blocksize == 1) /* Hack for arcfour. */
-    blocksize = 8;
-  ret = EVP_Cipher(ctx, buf, block, blocksize);
-  if (ret == 1)
-    memcpy(block, buf, blocksize);
-  return ret == 1 ? 0 : 1;
+	EVP_CIPHER_CTX *ctx = *(EVP_CIPHER_CTX **)abstract;
+	int blocksize = ctx->cipher->block_size;
+	unsigned char buf[EVP_MAX_BLOCK_LENGTH];
+	int ret;
+
+	if (blocksize == 1) {
+		/* Hack for arcfour. */
+		blocksize = 8;
+	}
+	ret = EVP_Cipher(ctx, buf, block, blocksize);
+	if (ret == 1) {
+		memcpy(block, buf, blocksize);
+	}
+	return ret == 1 ? 0 : 1;
 }
 
 int dtor(LIBSSH2_SESSION *session, void **abstract)
 {
   EVP_CIPHER_CTX **ctx = (EVP_CIPHER_CTX **)abstract;
-  if (ctx && *ctx)
-    {
-      EVP_CIPHER_CTX_cleanup(*ctx);
-      LIBSSH2_FREE(session, *ctx);
-      *abstract = NULL;
-    }
+  if (ctx && *ctx) {
+	EVP_CIPHER_CTX_cleanup(*ctx);
+	LIBSSH2_FREE(session, *ctx);
+	*abstract = NULL;
+  }
   return 0;
 }
 

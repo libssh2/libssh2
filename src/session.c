@@ -411,7 +411,7 @@ LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session)
 		/* Client to Server */
 		/* crypt */
 		if (session->local.crypt && session->local.crypt->dtor) {
-		  session->local.crypt->dtor(session, &session->local.crypt_abstract);
+			session->local.crypt->dtor(session, &session->local.crypt_abstract);
 		}
 		/* comp */
 		if (session->local.comp && session->local.comp->dtor) {
@@ -425,7 +425,7 @@ LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session)
 		/* Server to Client */
 		/* crypt */
 		if (session->remote.crypt && session->remote.crypt->dtor) {
-		  session->remote.crypt->dtor(session, &session->remote.crypt_abstract);
+			session->remote.crypt->dtor(session, &session->remote.crypt_abstract);
 		}
 		/* comp */
 		if (session->remote.comp && session->remote.comp->dtor) {

@@ -332,7 +332,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 
 	/* Cleanup any existing cipher */
 	if (session->local.crypt->dtor) {
-	  session->local.crypt->dtor(session, &session->local.crypt_abstract);
+		session->local.crypt->dtor(session, &session->local.crypt_abstract);
 	}
 
 	/* Calculate IV/Secret/Key for each direction */
@@ -364,8 +364,8 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 #endif
 
 	if (session->remote.crypt->dtor) {
-	  /* Cleanup any existing cipher */
-	  session->remote.crypt->dtor(session, &session->remote.crypt_abstract);
+		/* Cleanup any existing cipher */
+		session->remote.crypt->dtor(session, &session->remote.crypt_abstract);
 	}
 
 	if (session->remote.crypt->init) {

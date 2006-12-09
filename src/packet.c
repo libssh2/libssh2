@@ -777,8 +777,8 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 		}
 
 		if (session->remote.crypt->crypt(session, block, &session->remote.crypt_abstract)) {
-		  libssh2_error(session, LIBSSH2_ERROR_DECRYPT, "Error decrypting packet preamble", 0);
-		  return -1;
+			libssh2_error(session, LIBSSH2_ERROR_DECRYPT, "Error decrypting packet preamble", 0);
+			return -1;
 		}
 
 		packet_len = libssh2_ntohu32(block);
@@ -830,9 +830,9 @@ int libssh2_packet_read(LIBSSH2_SESSION *session, int should_block)
 				memcpy(block, s, blocksize);
 
 				if (session->remote.crypt->crypt(session, block, &session->remote.crypt_abstract)) {
-				  libssh2_error(session, LIBSSH2_ERROR_DECRYPT, "Error decrypting packet preamble", 0);
-				  LIBSSH2_FREE(session, payload);
-				  return -1;
+					libssh2_error(session, LIBSSH2_ERROR_DECRYPT, "Error decrypting packet preamble", 0);
+					LIBSSH2_FREE(session, payload);
+					return -1;
 				}
 				memcpy(s, block, blocksize);
 
@@ -1234,7 +1234,7 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 
 		/* Encrypt data */
 		for(s = encbuf; (s - encbuf) < (4 + packet_length) ; s += session->local.crypt->blocksize) {
-		  session->local.crypt->crypt(session, s, &session->local.crypt_abstract);
+			session->local.crypt->crypt(session, s, &session->local.crypt_abstract);
 		}
 
 		session->local.seqno++;
