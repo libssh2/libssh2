@@ -868,7 +868,7 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeou
 		sysret = poll(sockets, nfds, timeout_remaining);
 		gettimeofday((struct timeval *)&tv_end, NULL);
 		timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
-		timeout_remaining -= ceil((tv_end.tv_usec - tv_begin.tv_usec) / 1000);
+		timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
 }
 #else
 		/* If the platform doesn't support gettimeofday,
@@ -923,7 +923,7 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeou
 		gettimeofday((struct timeval *)&tv_end, NULL);
 
 		timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
-		timeout_remaining -= ceil((tv_end.tv_usec - tv_begin.tv_usec) / 1000);
+		timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
 }
 #else
 		/* If the platform doesn't support gettimeofday,
