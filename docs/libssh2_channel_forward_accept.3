@@ -1,0 +1,16 @@
+.\" $Id: libssh2_channel_forward_accept.3,v 1.1 2006/12/21 14:09:12 bagder Exp $
+.\"
+.TH libssh2_channel_forward_accept 3 "14 Dec 2006" "libssh2 0.15" "libssh2 manual"
+.SH NAME
+libssh2_channel_forward_accept - accept a queued connection
+.SH SYNOPSIS
+.B #include <libssh2.h>
+
+.B LIBSSH2_CHANNEL * libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener);
+.SH DESCRIPTION
+\fIlistener\fP is a forwarding listener instance as returned by
+\fBlibssh2_channel_forward_listen(3)\fP.
+.SH RETURN VALUE
+A newly allocated channel instance or NULL on failure.
+.SH "SEE ALSO"
+.BI libssh2_channel_forward_listen(3)
