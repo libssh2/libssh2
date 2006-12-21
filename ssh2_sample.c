@@ -14,12 +14,15 @@
 #include <stdio.h>
 #include <ctype.h>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 	int sock, i, auth_pw = 1;
 	struct sockaddr_in sin;
 	const char *fingerprint;
 	LIBSSH2_SESSION *session;
 	LIBSSH2_CHANNEL *channel;
+	char *username=(char *)"username";
+	char *password=(char *)"password";
 #ifdef WIN32
 	WSADATA wsadata;
 
@@ -61,15 +64,22 @@ int main(int argc, char *argv[]) {
 	}
 	printf("\n");
 
+	if(argc > 1) {
+		username = argv[1];
+	}
+	if(argc > 2) {
+		password = argv[2];
+	}
+
 	if (auth_pw) {
 		/* We could authenticate via password */
-		if (libssh2_userauth_password(session, "username", "password")) {
+		if (libssh2_userauth_password(session, username, password)) {
 			printf("Authentication by password failed.\n");
 			goto shutdown;
 		}
 	} else {
 		/* Or by public key */
-		if (libssh2_userauth_publickey_fromfile(session, "username", "/home/username/.ssh/id_rsa.pub", "/home/username/.ssh/id_rsa", "pasphrase")) {
+		if (libssh2_userauth_publickey_fromfile(session, username, "/home/username/.ssh/id_rsa.pub", "/home/username/.ssh/id_rsa", password)) {
 			printf("\tAuthentication by public key failed\n");
 			goto shutdown;
 		}
@@ -84,12 +94,12 @@ int main(int argc, char *argv[]) {
 	/* Some environment variables may be set,
 	 * It's up to the server which ones it'll allow though
 	 */
-	libssh2_channel_setenv(channel, "FOO", "bar");
+	libssh2_channel_setenv(channel, (char *)"FOO", (char *)"bar");
 
 	/* Request a terminal with 'vanilla' terminal emulation
 	 * See /etc/termcap for more options
 	 */
-	if (libssh2_channel_request_pty(channel, "vanilla")) {
+	if (libssh2_channel_request_pty(channel, (char *)"vanilla")) {
 		fprintf(stderr, "Failed requesting pty\n");
 		goto skip_shell;
 	}
