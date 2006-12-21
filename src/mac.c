@@ -68,6 +68,7 @@ static int libssh2_mac_method_common_init(LIBSSH2_SESSION *session, unsigned cha
 {
 	*abstract = key;
 	*free_key = 0;
+	(void)session;
 
 	return 0;
 }
@@ -96,6 +97,7 @@ static int libssh2_mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session, unsigned 
 {
 	HMAC_CTX ctx;
 	unsigned char seqno_buf[4];
+	(void)session;
 
 	libssh2_htonu32(seqno_buf, seqno);
 

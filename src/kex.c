@@ -235,18 +235,22 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 
 	SHA1_Init(&exchange_hash);
 	if (session->local.banner) {
-		libssh2_htonu32(h_sig_comp, strlen(session->local.banner) - 2);
-		SHA1_Update(&exchange_hash, h_sig_comp,							4);
-		SHA1_Update(&exchange_hash,	session->local.banner,				strlen(session->local.banner) - 2);
+		libssh2_htonu32(h_sig_comp,
+				strlen((char *)session->local.banner) - 2);
+		SHA1_Update(&exchange_hash, h_sig_comp, 4);
+		SHA1_Update(&exchange_hash, (char *)session->local.banner,
+			    strlen((char *)session->local.banner) - 2);
 	} else {
 		libssh2_htonu32(h_sig_comp, sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-		SHA1_Update(&exchange_hash, h_sig_comp,							4);
-		SHA1_Update(&exchange_hash,	LIBSSH2_SSH_DEFAULT_BANNER,	sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
+		SHA1_Update(&exchange_hash, h_sig_comp, 4);
+		SHA1_Update(&exchange_hash, LIBSSH2_SSH_DEFAULT_BANNER,
+			    sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
 	}
 
-	libssh2_htonu32(h_sig_comp, strlen(session->remote.banner));
-	SHA1_Update(&exchange_hash,		h_sig_comp,							4);
-	SHA1_Update(&exchange_hash,		session->remote.banner,				strlen(session->remote.banner));
+	libssh2_htonu32(h_sig_comp, strlen((char *)session->remote.banner));
+	SHA1_Update(&exchange_hash, h_sig_comp, 4);
+	SHA1_Update(&exchange_hash, session->remote.banner,
+		    strlen((char *)session->remote.banner));
 
 	libssh2_htonu32(h_sig_comp, session->local.kexinit_len);
 	SHA1_Update(&exchange_hash,		h_sig_comp,							4);
@@ -998,7 +1002,10 @@ static int libssh2_kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char
 /* {{{ libssh2_kex_agree_crypt
  * Agree on a cipher algo
  */
-static int libssh2_kex_agree_crypt(LIBSSH2_SESSION *session, libssh2_endpoint_data *endpoint, unsigned char *crypt, unsigned long crypt_len)
+static int libssh2_kex_agree_crypt(LIBSSH2_SESSION *session,
+				   libssh2_endpoint_data *endpoint,
+				   unsigned char *crypt,
+				   unsigned long crypt_len)
 {
 	LIBSSH2_CRYPT_METHOD **cryptp = libssh2_crypt_methods();
 	unsigned char *s;
@@ -1011,7 +1018,8 @@ static int libssh2_kex_agree_crypt(LIBSSH2_SESSION *session, libssh2_endpoint_da
 			int method_len = (p ? (p - s) : strlen(s));
 
 			if (libssh2_kex_agree_instr(crypt, crypt_len, s, method_len)) {
-				LIBSSH2_CRYPT_METHOD *method = (LIBSSH2_CRYPT_METHOD*)libssh2_get_method_by_name(s, method_len, (LIBSSH2_COMMON_METHOD**)cryptp);
+				LIBSSH2_CRYPT_METHOD *method =
+					(LIBSSH2_CRYPT_METHOD*)libssh2_get_method_by_name(s, method_len, (LIBSSH2_COMMON_METHOD**)cryptp);
 
 				if (!method) {
 					/* Invalid method -- Should never be reached */

@@ -133,12 +133,13 @@ LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **data, uns
 	short v;
 	int i = 0, len = 0;
 
-	*data = d = LIBSSH2_ALLOC(session, (3 * src_len / 4) + 1);
+	*data = LIBSSH2_ALLOC(session, (3 * src_len / 4) + 1);
+	d = (unsigned char *)*data;
 	if (!d) {
 		return -1;
 	}
 
-	for(s = src; ((char*)s) < (src + src_len); s++) {
+	for(s = (unsigned char *)src; ((char*)s) < (src + src_len); s++) {
 		if ((v = libssh2_base64_reverse_table[*s]) < 0) continue;
 		switch (i % 4) {
 			case 0:
