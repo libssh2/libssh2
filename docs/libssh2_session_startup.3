@@ -1,4 +1,4 @@
-.\" $Id: libssh2_session_startup.3,v 1.1 2006/12/21 14:09:13 bagder Exp $
+.\" $Id: libssh2_session_startup.3,v 1.2 2007/01/02 05:47:00 gusarov Exp $
 .\"
 .TH libssh2_session_startup 3 "14 Dec 2006" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -10,7 +10,7 @@ int libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
 .SH DESCRIPTION
 Begin transport layer protocol negotiation with the connected host.
 .SH RETURN VALUE
-0 on success, -1 on failure
+0 on success, \-1 on failure
 .SH "SEE ALSO"
 .BI libssh2_session_free(3),
 .BI libssh2_session_init(3)
