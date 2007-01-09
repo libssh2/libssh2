@@ -254,5 +254,6 @@ AC_C_CONST
 AC_C_INLINE
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+                 tests/Makefile])
 AC_OUTPUT
