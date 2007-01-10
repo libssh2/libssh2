@@ -178,7 +178,6 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 #endif /* LIBSSH2_DEBUG_KEX */
 #endif /* ! OPENSSL_NO_MD5 */
 
-#ifndef OPENSSL_NO_SHA
 {
 	SHA_CTX fingerprint_ctx;
 
@@ -197,7 +196,6 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Server's SHA1 Fingerprint: %s", fingerprint);
 }
 #endif /* LIBSSH2_DEBUG_KEX */
-#endif /* ! OPENSSL_NO_SHA */
 
 	if (session->hostkey->init(session, session->server_hostkey, session->server_hostkey_len, &session->server_hostkey_abstract)) {
 		libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT, "Unable to initialize hostkey importer", 0);

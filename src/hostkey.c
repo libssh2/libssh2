@@ -567,11 +567,9 @@ LIBSSH2_API const char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_
 			return (char *)session->server_hostkey_md5;
 			break;
 #endif /* ! OPENSSL_NO_MD5 */
-#ifndef OPENSSL_NO_SHA
 		case LIBSSH2_HOSTKEY_HASH_SHA1:
 			return (char *)session->server_hostkey_sha1;
 			break;
-#endif /* ! OPENSSL_NO_SHA */
 		default:
 			return NULL;
 	}

@@ -46,9 +46,7 @@
 #include <sys/socket.h>
 #endif
 #include <openssl/evp.h>
-#ifndef OPENSSL_NO_SHA
 #include <openssl/sha.h>
-#endif
 #ifndef OPENSSL_NO_MD5
 #include <openssl/md5.h>
 #endif
@@ -212,9 +210,7 @@ struct _LIBSSH2_SESSION {
 #ifndef OPENSSL_NO_MD5
 	unsigned char server_hostkey_md5[MD5_DIGEST_LENGTH];
 #endif /* ! OPENSSL_NO_MD5 */
-#ifndef OPENSSL_NO_SHA
 	unsigned char server_hostkey_sha1[SHA_DIGEST_LENGTH];
-#endif
 
 	/* (remote as source of data -- packet_read ) */
 	libssh2_endpoint_data remote;
