@@ -43,6 +43,19 @@ if test -z "$PKG_CONFIG"; then
   AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
 fi
 
+# Look for libgcrypt.
+AC_ARG_WITH(libgcrypt,
+  AC_HELP_STRING([--with-libgcrypt],[Use libgcrypt for crypto]),
+  use_libgcrypt=$withval,use_libgcrypt=no)
+if test "$use_libgcrypt" != "no"; then
+  AM_PATH_LIBGCRYPT(1:1.2.2,,use_libgcrypt=no)
+fi
+if test "$use_libgcrypt" != "no"; then
+  CFLAGS="$CFLAGS $LIBGCRYPT_CFLAGS"
+  LDFLAGS="$LDFLAGS $LIBGCRYPT_LIBS"
+  AC_DEFINE(LIBSSH2_LIBGCRYPT, 1, [Use libgcrypt])
+fi
+
 #
 # Look for OpenSSL
 #
