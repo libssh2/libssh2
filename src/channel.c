@@ -36,7 +36,6 @@
  */
 
 #include "libssh2_priv.h"
-#include <openssl/rand.h>
 #ifndef WIN32
 #include <unistd.h>
 #endif
@@ -637,7 +636,7 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_
 		int i;
 		unsigned char buffer[LIBSSH2_X11_RANDOM_COOKIE_LEN / 2];
 
-		RAND_bytes(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
+		libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
 		for (i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++) {
 			snprintf((char *)s + (i * 2), 2, "%02X", buffer[i]);
 		}

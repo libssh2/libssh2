@@ -41,7 +41,6 @@
 #ifndef WIN32
 #include <unistd.h>
 #endif
-#include <openssl/rand.h>
 
 /* Needed for struct iovec on some platforms */
 #ifdef HAVE_SYS_UIO_H
@@ -1224,7 +1223,7 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned
 		/* Copy packet to encoding buffer */
 		memcpy(encbuf, buf, 5);
 		memcpy(encbuf + 5, data, data_len);
-		RAND_bytes(encbuf + 5 + data_len, padding_length);
+		libssh2_random(encbuf + 5 + data_len, padding_length);
 		if (free_data) {
 			LIBSSH2_FREE(session, data);
 		}

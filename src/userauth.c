@@ -38,6 +38,7 @@
 #include "libssh2_priv.h"
 
 #include <ctype.h>
+#include <stdio.h>
 
 /* Needed for struct iovec on some platforms */
 #ifdef HAVE_SYS_UIO_H

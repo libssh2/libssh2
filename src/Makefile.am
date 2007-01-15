@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = foreign nostdinc
 
 libssh2_la_SOURCES = channel.c comp.c crypt.c hostkey.c kex.c mac.c	\
 misc.c packet.c publickey.c scp.c session.c sftp.c userauth.c		\
-libssh2_priv.h
+libssh2_priv.h openssl.h libgcrypt.h
 
 EXTRA_DIST = libssh2_config.h.in
 

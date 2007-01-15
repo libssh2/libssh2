@@ -254,6 +254,8 @@ LIBSSH2_API LIBSSH2_SESSION *libssh2_session_init_ex(
 	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "New session resource allocated");
 #endif
 
+	libssh2_crypto_init ();
+
 	return session;
 }
 /* }}} */

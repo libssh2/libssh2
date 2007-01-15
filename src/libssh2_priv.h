@@ -45,10 +45,11 @@
 #ifndef WIN32
 #include <sys/socket.h>
 #endif
-#include <openssl/evp.h>
-#include <openssl/sha.h>
-#ifndef OPENSSL_NO_MD5
-#include <openssl/md5.h>
+
+#if LIBSSH2_LIBGCRYPT
+#include "libgcrypt.h"
+#else
+#include "openssl.h"
 #endif
 
 #define LIBSSH2_ALLOC(session, count)								session->alloc((count), &(session)->abstract)

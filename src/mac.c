@@ -36,7 +36,6 @@
  */
 
 #include "libssh2_priv.h"
-#include <openssl/hmac.h>
 
 #ifdef LIBSSH2_MAC_NONE
 /* {{{ libssh2_mac_none_MAC
@@ -95,20 +94,20 @@ static int libssh2_mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session, unsigned 
 																	   const unsigned char *packet, unsigned long packet_len, 
 																	   const unsigned char *addtl, unsigned long addtl_len, void **abstract)
 {
-	HMAC_CTX ctx;
+	libssh2_hmac_ctx ctx;
 	unsigned char seqno_buf[4];
 	(void)session;
 
 	libssh2_htonu32(seqno_buf, seqno);
 
-	HMAC_Init(&ctx, *abstract, 20, EVP_sha1());
-	HMAC_Update(&ctx, seqno_buf, 4);
-	HMAC_Update(&ctx, packet, packet_len);
+	libssh2_hmac_sha1_init(&ctx, *abstract, 20);
+	libssh2_hmac_update(ctx, seqno_buf, 4);
+	libssh2_hmac_update(ctx, packet, packet_len);
 	if (addtl && addtl_len) {
-		HMAC_Update(&ctx, addtl, addtl_len);
+		libssh2_hmac_update(ctx, addtl, addtl_len);
 	}
-	HMAC_Final(&ctx, buf, NULL);
-	HMAC_cleanup(&ctx);
+	libssh2_hmac_final(ctx, buf);
+	libssh2_hmac_cleanup(&ctx);
 
 	return 0;
 }
@@ -155,19 +154,19 @@ static int libssh2_mac_method_hmac_md5_hash(LIBSSH2_SESSION *session, unsigned c
 																	  const unsigned char *packet, unsigned long packet_len, 
 																	  const unsigned char *addtl, unsigned long addtl_len, void **abstract)
 {
-	HMAC_CTX ctx;
+	libssh2_hmac_ctx ctx;
 	unsigned char seqno_buf[4];
 
 	libssh2_htonu32(seqno_buf, seqno);
 
-	HMAC_Init(&ctx, *abstract, 16, EVP_md5());
-	HMAC_Update(&ctx, seqno_buf, 4);
-	HMAC_Update(&ctx, packet, packet_len);
+	libssh2_hmac_md5_init(&ctx, *abstract, 16);
+	libssh2_hmac_update(ctx, seqno_buf, 4);
+	libssh2_hmac_update(ctx, packet, packet_len);
 	if (addtl && addtl_len) {
-		HMAC_Update(&ctx, addtl, addtl_len);
+		libssh2_hmac_update(ctx, addtl, addtl_len);
 	}
-	HMAC_Final(&ctx, buf, NULL);
-	HMAC_cleanup(&ctx);
+	libssh2_hmac_final(ctx, buf);
+	libssh2_hmac_cleanup(&ctx);
 
 	return 0;
 }
@@ -215,19 +214,19 @@ static int libssh2_mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session, unsi
 																			const unsigned char *packet, unsigned long packet_len,
 																			const unsigned char *addtl, unsigned long addtl_len, void **abstract)
 {
-	HMAC_CTX ctx;
+	libssh2_hmac_ctx ctx;
 	unsigned char seqno_buf[4];
 
 	libssh2_htonu32(seqno_buf, seqno);
 
-	HMAC_Init(&ctx, *abstract, 20, EVP_ripemd160());
-	HMAC_Update(&ctx, seqno_buf, 4);
-	HMAC_Update(&ctx, packet, packet_len);
+	libssh2_hmac_ripemd160_init(&ctx, *abstract, 20);
+	libssh2_hmac_update(ctx, seqno_buf, 4);
+	libssh2_hmac_update(ctx, packet, packet_len);
 	if (addtl && addtl_len) {
-		HMAC_Update(&ctx, addtl, addtl_len);
+		libssh2_hmac_update(ctx, addtl, addtl_len);
 	}
-	HMAC_Final(&ctx, buf, NULL);
-	HMAC_cleanup(&ctx);
+	libssh2_hmac_final(ctx, buf);
+	libssh2_hmac_cleanup(&ctx);
 
 	return 0;
 }

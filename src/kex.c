@@ -37,31 +37,29 @@
 
 #include "libssh2_priv.h"
 #include <openssl/bn.h>
-#include <openssl/sha.h>
-#include <openssl/rand.h>
 
 /* TODO: Switch this to an inline and handle alloc() failures */
 /* Helper macro called from libssh2_kex_method_diffie_hellman_group1_sha1_key_exchange */
 #define LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(value, reqlen, version)	\
 {	\
-	SHA_CTX hash; \
+	libssh2_sha1_ctx hash;	\
 	unsigned long len = 0;	\
 	if (!(value)) {	\
 		value = LIBSSH2_ALLOC(session, reqlen + SHA_DIGEST_LENGTH); \
-	}	\
-	while (len < reqlen) {	\
-		SHA1_Init(&hash);	\
-		SHA1_Update(&hash, k_value, k_value_len);	\
-		SHA1_Update(&hash, h_sig_comp, SHA_DIGEST_LENGTH);	\
-		if (len > 0) {	\
-			SHA1_Update(&hash, value, len);	\
-		}	else {	\
-			SHA1_Update(&hash, (version), 1);	\
-			SHA1_Update(&hash, session->session_id, session->session_id_len);	\
-		}	\
-		SHA1_Final((value) + len, &hash);	\
-		len += SHA_DIGEST_LENGTH;	\
-	}	\
+	}								\
+	while (len < reqlen) {						\
+		libssh2_sha1_init(&hash);				\
+		libssh2_sha1_update(hash, k_value, k_value_len);	\
+		libssh2_sha1_update(hash, h_sig_comp, SHA_DIGEST_LENGTH); \
+		if (len > 0) {						\
+			libssh2_sha1_update(hash, value, len);		\
+		}	else {						\
+			libssh2_sha1_update(hash, (version), 1);	\
+			libssh2_sha1_update(hash, session->session_id, session->session_id_len); \
+		}							\
+		libssh2_sha1_final(hash, (value) + len);		\
+		len += SHA_DIGEST_LENGTH;				\
+	}								\
 }
 
 /* {{{ libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange
@@ -81,7 +79,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 	BIGNUM *k = BN_new(); /* The shared secret: f^x mod p */
 	unsigned char *s, *f_value, *k_value = NULL, *h_sig;
 	unsigned long f_value_len, k_value_len, h_sig_len;
-	SHA_CTX exchange_hash;
+	libssh2_sha1_ctx exchange_hash;
 
 	/* Generate x and e */
 	BN_rand(x, group_order, 0, -1);
@@ -159,11 +157,11 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 
 #ifndef OPENSSL_NO_MD5
 {
-	MD5_CTX fingerprint_ctx;
+	libssh2_md5_ctx fingerprint_ctx;
 
-    MD5_Init(&fingerprint_ctx);
-    MD5_Update(&fingerprint_ctx, session->server_hostkey, session->server_hostkey_len);
-    MD5_Final(session->server_hostkey_md5, &fingerprint_ctx);
+	libssh2_md5_init(&fingerprint_ctx);
+	libssh2_md5_update(fingerprint_ctx, session->server_hostkey, session->server_hostkey_len);
+	libssh2_md5_final(fingerprint_ctx, session->server_hostkey_md5);
 }
 #ifdef LIBSSH2_DEBUG_KEX
 {
@@ -179,11 +177,11 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 #endif /* ! OPENSSL_NO_MD5 */
 
 {
-	SHA_CTX fingerprint_ctx;
+	libssh2_sha1_ctx fingerprint_ctx;
 
-    SHA1_Init(&fingerprint_ctx);
-    SHA1_Update(&fingerprint_ctx, session->server_hostkey, session->server_hostkey_len);
-    SHA1_Final(session->server_hostkey_sha1, &fingerprint_ctx);
+	libssh2_sha1_init(&fingerprint_ctx);
+	libssh2_sha1_update (fingerprint_ctx, session->server_hostkey, session->server_hostkey_len);
+	libssh2_sha1_final(fingerprint_ctx, session->server_hostkey_sha1);
 }
 #ifdef LIBSSH2_DEBUG_KEX
 {
@@ -231,36 +229,36 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		BN_bn2bin(k, k_value + 5);
 	}
 
-	SHA1_Init(&exchange_hash);
+	libssh2_sha1_init(&exchange_hash);
 	if (session->local.banner) {
 		libssh2_htonu32(h_sig_comp,
 				strlen((char *)session->local.banner) - 2);
-		SHA1_Update(&exchange_hash, h_sig_comp, 4);
-		SHA1_Update(&exchange_hash, (char *)session->local.banner,
+		libssh2_sha1_update(exchange_hash, h_sig_comp, 4);
+		libssh2_sha1_update(exchange_hash, (char *)session->local.banner,
 			    strlen((char *)session->local.banner) - 2);
 	} else {
 		libssh2_htonu32(h_sig_comp, sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-		SHA1_Update(&exchange_hash, h_sig_comp, 4);
-		SHA1_Update(&exchange_hash, LIBSSH2_SSH_DEFAULT_BANNER,
+		libssh2_sha1_update(exchange_hash, h_sig_comp, 4);
+		libssh2_sha1_update(exchange_hash, LIBSSH2_SSH_DEFAULT_BANNER,
 			    sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
 	}
 
 	libssh2_htonu32(h_sig_comp, strlen((char *)session->remote.banner));
-	SHA1_Update(&exchange_hash, h_sig_comp, 4);
-	SHA1_Update(&exchange_hash, session->remote.banner,
+	libssh2_sha1_update(exchange_hash, h_sig_comp, 4);
+	libssh2_sha1_update(exchange_hash, session->remote.banner,
 		    strlen((char *)session->remote.banner));
 
 	libssh2_htonu32(h_sig_comp, session->local.kexinit_len);
-	SHA1_Update(&exchange_hash,		h_sig_comp,							4);
-	SHA1_Update(&exchange_hash,		session->local.kexinit,				session->local.kexinit_len);
+	libssh2_sha1_update(exchange_hash,		h_sig_comp,							4);
+	libssh2_sha1_update(exchange_hash,		session->local.kexinit,				session->local.kexinit_len);
 
 	libssh2_htonu32(h_sig_comp, session->remote.kexinit_len);
-	SHA1_Update(&exchange_hash,		h_sig_comp,							4);
-	SHA1_Update(&exchange_hash,		session->remote.kexinit,			session->remote.kexinit_len);
+	libssh2_sha1_update(exchange_hash,		h_sig_comp,							4);
+	libssh2_sha1_update(exchange_hash,		session->remote.kexinit,			session->remote.kexinit_len);
 
 	libssh2_htonu32(h_sig_comp, session->server_hostkey_len);
-	SHA1_Update(&exchange_hash,		h_sig_comp,							4);
-	SHA1_Update(&exchange_hash,		session->server_hostkey,			session->server_hostkey_len);
+	libssh2_sha1_update(exchange_hash,		h_sig_comp,							4);
+	libssh2_sha1_update(exchange_hash,		session->server_hostkey,			session->server_hostkey_len);
 
 	if (packet_type_init == SSH_MSG_KEX_DH_GEX_INIT) {
 		/* diffie-hellman-group-exchange hashes additional fields */
@@ -268,26 +266,26 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		libssh2_htonu32(h_sig_comp,		LIBSSH2_DH_GEX_MINGROUP);
 		libssh2_htonu32(h_sig_comp + 4,	LIBSSH2_DH_GEX_OPTGROUP);
 		libssh2_htonu32(h_sig_comp + 8, LIBSSH2_DH_GEX_MAXGROUP);
-		SHA1_Update(&exchange_hash,	h_sig_comp,							12);
+		libssh2_sha1_update(exchange_hash,	h_sig_comp,							12);
 #else
 		libssh2_htonu32(h_sig_comp,		LIBSSH2_DH_GEX_OPTGROUP);
-		SHA1_Update(&exchange_hash,	h_sig_comp,							4);
+		libssh2_sha1_update(exchange_hash,	h_sig_comp,							4);
 #endif
 	}
 
 	if (midhash) {
-		SHA1_Update(&exchange_hash, midhash,							midhash_len);
+		libssh2_sha1_update(exchange_hash, midhash,							midhash_len);
 	}
 
-	SHA1_Update(&exchange_hash,		e_packet + 1,						e_packet_len - 1);
+	libssh2_sha1_update(exchange_hash,		e_packet + 1,						e_packet_len - 1);
 
 	libssh2_htonu32(h_sig_comp, f_value_len);
-	SHA1_Update(&exchange_hash,		h_sig_comp,							4);
-	SHA1_Update(&exchange_hash,		f_value,							f_value_len);
+	libssh2_sha1_update(exchange_hash,		h_sig_comp,							4);
+	libssh2_sha1_update(exchange_hash,		f_value,							f_value_len);
 
-	SHA1_Update(&exchange_hash,		k_value,							k_value_len);
+	libssh2_sha1_update(exchange_hash,		k_value,							k_value_len);
 
-	SHA1_Final(h_sig_comp, &exchange_hash);
+	libssh2_sha1_final(exchange_hash, h_sig_comp);
 
 	if (session->hostkey->sig_verify(session, h_sig, h_sig_len, h_sig_comp, 20, &session->server_hostkey_abstract)) {
 		libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN, "Unable to verify hostkey signature", 0);
@@ -756,7 +754,7 @@ static int libssh2_kexinit(LIBSSH2_SESSION *session)
 
 	*(s++) = SSH_MSG_KEXINIT;
 
-	RAND_bytes(s, 16);
+	libssh2_random(s, 16);
 	s += 16;
 
 	/* Ennumerating through these lists twice is probably (certainly?) inefficient from a CPU standpoint, but it saves multiple malloc/realloc calls */
