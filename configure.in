@@ -55,6 +55,7 @@ if test "$use_libgcrypt" != "no"; then
   LDFLAGS="$LDFLAGS $LIBGCRYPT_LIBS"
   AC_DEFINE(LIBSSH2_LIBGCRYPT, 1, [Use libgcrypt])
 fi
+AM_CONDITIONAL(LIBGCRYPT, test "$use_libgcrypt" != "no")
 
 #
 # Look for OpenSSL
