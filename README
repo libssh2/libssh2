@@ -13,7 +13,10 @@ Version
   automake and libtool are being used (increased portability)
 
   fixed OpenSSL detection using pkg-config
-  
+
+  simple self test added to tests/
+
+  libgcrypt is supported (work in progress)
 
 Version 0.14
 ------------
