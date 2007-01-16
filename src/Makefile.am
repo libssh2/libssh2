@@ -4,6 +4,12 @@ libssh2_la_SOURCES = channel.c comp.c crypt.c hostkey.c kex.c mac.c	\
 misc.c packet.c publickey.c scp.c session.c sftp.c userauth.c		\
 libssh2_priv.h openssl.h libgcrypt.h
 
+if LIBGCRYPT
+libssh2_la_SOURCES += libgcrypt.c
+else
+libssh2_la_SOURCES += openssl.c
+endif
+
 EXTRA_DIST = libssh2_config.h.in
 
 lib_LTLIBRARIES = libssh2.la
