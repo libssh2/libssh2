@@ -77,3 +77,18 @@
 #define libssh2_hmac_cleanup(ctx) gcry_md_close (*ctx);
 
 #define libssh2_crypto_init() gcry_control (GCRYCTL_DISABLE_SECMEM)
+
+#define libssh2_rsa_ctx struct gcry_sexp
+
+int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
+		     const unsigned char *edata,
+		     unsigned long elen,
+		     const unsigned char *ndata,
+		     unsigned long nlen);
+int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
+			     const unsigned char *sig,
+			     unsigned long sig_len,
+			     const unsigned char *m,
+			     unsigned long m_len);
+
+#define _libssh2_rsa_free(rsactx)  gcry_sexp_release (rsactx)

@@ -61,7 +61,7 @@ libssh2_hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
 				    unsigned long hostkey_data_len,
 				    void **abstract)
 {
-	RSA *rsactx;
+	libssh2_rsa_ctx *rsactx;
 	unsigned char *s, *e, *n;
 	unsigned long len, e_len, n_len;
 
@@ -88,11 +88,7 @@ libssh2_hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
 	n_len = libssh2_ntohu32(s);					s += 4;
 	n = s;										s += n_len;
 
-	rsactx = RSA_new();
-	rsactx->e = BN_new();
-	BN_bin2bn(e, e_len, rsactx->e);
-	rsactx->n = BN_new();
-	BN_bin2bn(n, n_len, rsactx->n);
+	_libssh2_rsa_new (&rsactx, e, e_len, n, n_len);
 
 	*abstract = rsactx;
 
@@ -169,18 +165,12 @@ static int libssh2_hostkey_method_ssh_rsa_sig_verify(LIBSSH2_SESSION *session,
 						     unsigned long m_len,
 						     void **abstract)
 {
-	RSA *rsactx = (RSA*)(*abstract);
-	unsigned char hash[SHA_DIGEST_LENGTH];
-	int ret;
+	libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx*)(*abstract);
 	(void)session;
 
 	/* Skip past keyname_len(4) + keyname(7){"ssh-rsa"} + signature_len(4) */
 	sig += 15; sig_len -= 15;
-	SHA1(m, m_len, hash);
-	ret = RSA_verify(NID_sha1, hash, SHA_DIGEST_LENGTH,
-			 (unsigned char *)sig, sig_len, rsactx);
-
-	return (ret == 1) ? 0 : -1;
+	return _libssh2_rsa_sha1_verify (rsactx, sig, sig_len, m, m_len);
 }
 /* }}} */
 
@@ -269,10 +259,10 @@ static int libssh2_hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session, unsign
 static int libssh2_hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
 					       void **abstract)
 {
-	RSA *rsactx = (RSA*)(*abstract);
+	libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx*)(*abstract);
 	(void)session;
 
-	RSA_free(rsactx);
+	_libssh2_rsa_free(rsactx);
 
 	*abstract = NULL;
 

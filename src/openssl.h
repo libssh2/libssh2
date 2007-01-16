@@ -43,6 +43,8 @@
 #endif
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
+#include <openssl/bn.h>
+#include <openssl/pem.h>
 
 #define libssh2_random(buf, len)		\
   RAND_bytes ((buf), (len))
@@ -72,3 +74,18 @@
 #define libssh2_hmac_cleanup(ctx) HMAC_cleanup(ctx)
 
 #define libssh2_crypto_init() 1
+
+#define libssh2_rsa_ctx RSA
+
+void _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
+		      const unsigned char *edata,
+		      unsigned long elen,
+		      const unsigned char *ndata,
+		      unsigned long nlen);
+int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
+			     const unsigned char *sig,
+			     unsigned long sig_len,
+			     const unsigned char *m,
+			     unsigned long m_len);
+
+#define _libssh2_rsa_free(rsactx) RSA_free(rsactx)
