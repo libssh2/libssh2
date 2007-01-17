@@ -183,7 +183,7 @@ static int libssh2_hostkey_method_ssh_rsa_sign(LIBSSH2_SESSION *session, unsigne
 	RSA *rsactx = (RSA*)(*abstract);
 	int ret;
 	unsigned char hash[SHA_DIGEST_LENGTH];
-	SHA_CTX ctx;
+	libssh2_sha1_ctx ctx;
 	unsigned char *sig;
 	unsigned int sig_len;
 
@@ -222,7 +222,7 @@ static int libssh2_hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session, unsign
 	int ret;
 	unsigned int i;
 	unsigned char hash[SHA_DIGEST_LENGTH];
-	SHA_CTX ctx;
+	libssh2_sha1_ctx ctx;
 	unsigned char *sig;
 	unsigned int sig_len;
 
@@ -419,7 +419,7 @@ static int libssh2_hostkey_method_ssh_dss_sign(LIBSSH2_SESSION *session, unsigne
 	DSA *dsactx = (DSA*)(*abstract);
 	DSA_SIG *sig;
 	unsigned char hash[SHA_DIGEST_LENGTH];
-	SHA_CTX ctx;
+	libssh2_sha1_ctx ctx;
 
 	*signature = LIBSSH2_ALLOC(session, 2 * SHA_DIGEST_LENGTH);
 	*signature_len = 2 * SHA_DIGEST_LENGTH;
@@ -456,7 +456,7 @@ static int libssh2_hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session, unsign
 	DSA *dsactx = (DSA*)(*abstract);
 	DSA_SIG *sig;
 	unsigned char hash[SHA_DIGEST_LENGTH];
-	SHA_CTX ctx;
+	libssh2_sha1_ctx ctx;
 	int r_len, s_len, rs_pad;
 	unsigned int i;
 
