@@ -93,7 +93,7 @@
 # define LIBSSH2_CAST 1
 #endif
 
-#ifdef OPENSSL_NO_3DES
+#ifdef OPENSSL_NO_DES
 # define LIBSSH2_3DES 0
 #else
 # define LIBSSH2_3DES 1
