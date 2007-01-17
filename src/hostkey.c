@@ -403,7 +403,7 @@ static int libssh2_hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session, c
 	dsasig.s = BN_new();
 	BN_bin2bn(sig + 20, 20, dsasig.s);
 
-	SHA1(m, m_len, hash);
+	libssh2_sha1(m, m_len, hash);
 	ret = DSA_do_verify(hash, SHA_DIGEST_LENGTH, &dsasig, dsactx);
 
 	return (ret == 1) ? 0 : -1;
