@@ -1,3 +1,5 @@
+.deps
+.libs
 *.lib
 *.pdb
 *.dll
@@ -7,3 +9,10 @@
 Debug
 Release
 *.exp
+Makefile
+Makefile.in
+*.lo
+libssh2.la
+libssh2_config.h
+libssh2_config.h.in
+stamp-h1
