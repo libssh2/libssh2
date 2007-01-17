@@ -38,7 +38,7 @@
 #include "libssh2_priv.h"
 #include <openssl/evp.h>
 
-#ifdef LIBSSH2_CRYPT_NONE
+#if LIBSSH2_CRYPT_NONE
 /* {{{ libssh2_crypt_none_crypt
  * Minimalist cipher: VERY secure *wink*
  */
@@ -59,7 +59,7 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_none = {
 	libssh2_crypt_none_crypt,
 	NULL
 };
-#endif
+#endif /* LIBSSH2_CRYPT_NONE */
 
 #define MAKE_INIT(name, cipher)						\
 	static int name (LIBSSH2_SESSION *session,			\
@@ -127,7 +127,7 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_3des_cbc = {
 	&dtor
 };
 
-#if OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES)
+#if LIBSSH2_AES
 static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_cbc = {
 	"aes128-cbc",
 	16, /* blocksize */
@@ -172,9 +172,9 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_rijndael_cbc_lysator_liu_se = {
 	&crypt,
 	&dtor
 };
-#endif /* OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES)*/
+#endif /* LIBSSH2_AES */
 
-#ifndef OPENSSL_NO_BLOWFISH
+#if LIBSSH2_BLOWFISH
 static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_blowfish_cbc = {
 	"blowfish-cbc",
 	8, /* blocksize */
@@ -185,9 +185,9 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_blowfish_cbc = {
 	&crypt,
 	&dtor
 };
-#endif /* ! OPENSSL_NO_BLOWFISH */
+#endif /* LIBSSH2_BLOWFISH */
 
-#ifndef OPENSSL_NO_CAST
+#if LIBSSH2_CAST
 static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_cast128_cbc = {
 	"cast128-cbc",
 	8, /* blocksize */
@@ -198,9 +198,9 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_cast128_cbc = {
 	&crypt,
 	&dtor
 };
-#endif /* ! OPENSSL_NO_CAST */
+#endif /* LIBSSH2_CAST */
 
-#ifndef OPENSSL_NO_RC4
+#if LIBSSH2_RC4
 static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour = {
 	"arcfour",
 	8, /* blocksize */
@@ -211,29 +211,29 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour = {
 	&crypt,
 	&dtor
 };
-#endif /* ! OPENSSL_NO_RC4 */
+#endif /* LIBSSH2_RC4 */
 
 static LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
-#if OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES)
+#if LIBSSH2_AES
 	&libssh2_crypt_method_aes256_cbc,
 	&libssh2_crypt_method_rijndael_cbc_lysator_liu_se, /* == aes256-cbc */
 	&libssh2_crypt_method_aes192_cbc,
 	&libssh2_crypt_method_aes128_cbc,
-#endif /* OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES) */
-#ifndef OPENSSL_NO_BLOWFISH
+#endif /* LIBSSH2_AES */
+#if LIBSSH2_BLOWFISH
 	&libssh2_crypt_method_blowfish_cbc,
-#endif /* ! OPENSSL_NO_BLOWFISH */
-#ifndef OPENSSL_NO_RC4
+#endif /* LIBSSH2_BLOWFISH */
+#if LIBSSH2_RC4
 	&libssh2_crypt_method_arcfour,
-#endif /* ! OPENSSL_NO_RC4 */
-#ifndef OPENSSL_NO_CAST
+#endif /* LIBSSH2_RC4 */
+#if LIBSSH2_CAST
 	&libssh2_crypt_method_cast128_cbc,
-#endif /* ! OPENSSL_NO_CAST */
-#ifndef OPENSSL_NO_DES
+#endif /* LIBSSH2_CAST */
+#if LIBSSH2_3DES
 	&libssh2_crypt_method_3des_cbc,
-#endif /* ! OPENSSL_NO_DES */
-#ifdef LIBSSH2_CRYPT_NONE
- 	&libssh2_crypt_method_none,
+#endif /*  LIBSSH2_DES */
+#if LIBSSH2_CRYPT_NONE
+	&libssh2_crypt_method_none,
 #endif
 	NULL
 };

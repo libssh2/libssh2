@@ -39,6 +39,17 @@
 
 #define LIBSSH2_MD5 1
 
+#define LIBSSH2_HMAC_RIPEMD 1
+
+#define LIBSSH2_AES 1
+#define LIBSSH2_BLOWFISH 1
+#define LIBSSH2_RC4 1
+#define LIBSSH2_CAST 1
+#define LIBSSH2_3DES 1
+
+#define LIBSSH2_RSA 1
+#define LIBSSH2_DSA 1
+
 #define MD5_DIGEST_LENGTH 16
 #define SHA_DIGEST_LENGTH 20
 

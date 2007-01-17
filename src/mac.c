@@ -37,7 +37,7 @@
 
 #include "libssh2_priv.h"
 
-#ifdef LIBSSH2_MAC_NONE
+#if LIBSSH2_MAC_NONE
 /* {{{ libssh2_mac_none_MAC
  * Minimalist MAC: No MAC
  */
@@ -206,7 +206,7 @@ static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_md5_96 = {
 	libssh2_mac_method_common_dtor,
 };
 
-#ifndef OPENSSL_NO_RIPEMD
+#if LIBSSH2_HMAC_RIPEMD
 /* {{{ libssh2_mac_method_hmac_ripemd160_hash
  * Calculate hash using ripemd160 value
  */
@@ -249,18 +249,18 @@ static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160_openssh_com = {
 	libssh2_mac_method_hmac_ripemd160_hash,
 	libssh2_mac_method_common_dtor,
 };
-#endif /* ! OPENSSL_NO_RIPEMD */
+#endif /* LIBSSH2_HMAC_RIPEMD */
 
 static LIBSSH2_MAC_METHOD *_libssh2_mac_methods[] = {
 	&libssh2_mac_method_hmac_sha1,
 	&libssh2_mac_method_hmac_sha1_96,
 	&libssh2_mac_method_hmac_md5,
 	&libssh2_mac_method_hmac_md5_96,
-#ifndef OPENSSL_NO_RIPEMD
+#if LIBSSH2_HMAC_RIPEMD
 	&libssh2_mac_method_hmac_ripemd160,
 	&libssh2_mac_method_hmac_ripemd160_openssh_com,
-#endif /* ! OPENSSL_NO_RIPEMD */
-#ifdef LIBSSH2_MAC_NONE
+#endif /* LIBSSH2_HMAC_RIPEMD */
+#if LIBSSH2_MAC_NONE
 	&libssh2_mac_method_none,
 #endif /* LIBSSH2_MAC_NONE */
 	NULL

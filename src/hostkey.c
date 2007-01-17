@@ -45,7 +45,7 @@
 #include <sys/uio.h>
 #endif
 
-#ifndef OPENSSL_NO_RSA
+#if LIBSSH2_RSA
 /* ***********
    * ssh-rsa *
    *********** */
@@ -281,9 +281,9 @@ static LIBSSH2_HOSTKEY_METHOD libssh2_hostkey_method_ssh_rsa = {
 	NULL, /* encrypt */
 	libssh2_hostkey_method_ssh_rsa_dtor,
 };
-#endif /* ! OPENSSL_NO_RSA */
+#endif /* LIBSSH2_RSA */
 
-#ifndef OPENSSL_NO_DSA
+#if LIBSSH2_DSA
 /* ***********
    * ssh-dss *
    *********** */
@@ -526,15 +526,15 @@ static LIBSSH2_HOSTKEY_METHOD libssh2_hostkey_method_ssh_dss = {
 	NULL, /* encrypt */
 	libssh2_hostkey_method_ssh_dss_dtor,
 };
-#endif /* ! OPENSSL_NO_DSA */
+#endif /* LIBSSH2_DSA */
 
 static LIBSSH2_HOSTKEY_METHOD *_libssh2_hostkey_methods[] = {
-#ifndef OPENSSL_NO_RSA
+#if LIBSSH2_RSA
 	&libssh2_hostkey_method_ssh_rsa,
-#endif /* ! OPENSSL_NO_RSA */
-#ifndef OPENSSL_NO_DSA
+#endif /* LIBSSH2_RSA */
+#if LIBSSH2_DSA
 	&libssh2_hostkey_method_ssh_dss,
-#endif /* ! OPENSSL_NO_DSA */
+#endif /* LIBSSH2_DSA */
 	NULL
 };
 
@@ -556,7 +556,7 @@ LIBSSH2_API const char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_
 		case LIBSSH2_HOSTKEY_HASH_MD5:
 			return (char *)session->server_hostkey_md5;
 			break;
-#endif /* ! LIBSSH2_MD5 */
+#endif /* LIBSSH2_MD5 */
 		case LIBSSH2_HOSTKEY_HASH_SHA1:
 			return (char *)session->server_hostkey_sha1;
 			break;

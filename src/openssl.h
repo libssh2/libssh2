@@ -35,6 +35,7 @@
  * OF SUCH DAMAGE.
  */
 
+#include <openssl/opensslconf.h>
 #include <openssl/sha.h>
 #ifndef OPENSSL_NO_MD5
 #include <openssl/md5.h>
@@ -44,10 +45,58 @@
 #include <openssl/bn.h>
 #include <openssl/pem.h>
 
-#ifndef OPENSSL_NO_MD5
+#ifdef OPENSSL_NO_RSA
+# define LIBSSH2_RSA 0
+#else
+# define LIBSSH2_RSA 1
+#endif
+
+#ifdef OPENSSL_NO_DSA
+# define LIBSSH2_DSA 0
+#else
+# define LIBSSH2_DSA 1
+#endif
+
+#ifdef OPENSSL_NO_MD5
 # define LIBSSH2_MD5 0
 #else
 # define LIBSSH2_MD5 1
+#endif
+
+#ifdef OPENSSL_NO_RIPEMD
+# define LIBSSH2_HMAC_RIPEMD 0
+#else
+# define LIBSSH2_HMAC_RIPEMD 1
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES)
+# define LIBSSH2_AES 1
+#else
+# define LIBSSH2_AES 0
+#endif
+
+#ifdef OPENSSL_NO_BLOWFISH
+# define LIBSSH2_BLOWFISH 0
+#else
+# define LIBSSH2_BLOWFISH 1
+#endif
+
+#ifdef OPENSSL_NO_RC4
+# define LIBSSH2_RC4 0
+#else
+# define LIBSSH2_RC4 1
+#endif
+
+#ifdef OPENSSL_NO_CAST
+# define LIBSSH2_CAST 0
+#else
+# define LIBSSH2_CAST 1
+#endif
+
+#ifdef OPENSSL_NO_3DES
+# define LIBSSH2_3DES 0
+#else
+# define LIBSSH2_3DES 1
 #endif
 
 #define libssh2_random(buf, len)		\
