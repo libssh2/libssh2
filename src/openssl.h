@@ -44,6 +44,12 @@
 #include <openssl/bn.h>
 #include <openssl/pem.h>
 
+#ifndef OPENSSL_NO_MD5
+# define LIBSSH2_MD5 0
+#else
+# define LIBSSH2_MD5 1
+#endif
+
 #define libssh2_random(buf, len)		\
   RAND_bytes ((buf), (len))
 

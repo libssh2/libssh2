@@ -37,6 +37,8 @@
 
 #include <gcrypt.h>
 
+#define LIBSSH2_MD5 1
+
 #define MD5_DIGEST_LENGTH 16
 #define SHA_DIGEST_LENGTH 20
 

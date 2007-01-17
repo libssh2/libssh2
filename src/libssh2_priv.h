@@ -208,9 +208,9 @@ struct _LIBSSH2_SESSION {
 	 */
 	unsigned char *server_hostkey;
 	unsigned long server_hostkey_len;
-#ifndef OPENSSL_NO_MD5
+#if LIBSSH2_MD5
 	unsigned char server_hostkey_md5[MD5_DIGEST_LENGTH];
-#endif /* ! OPENSSL_NO_MD5 */
+#endif /* ! LIBSSH2_MD5 */
 	unsigned char server_hostkey_sha1[SHA_DIGEST_LENGTH];
 
 	/* (remote as source of data -- packet_read ) */

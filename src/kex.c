@@ -155,7 +155,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 	memcpy(session->server_hostkey, s, session->server_hostkey_len);
 	s += session->server_hostkey_len;
 
-#ifndef OPENSSL_NO_MD5
+#if LIBSSH2_MD5
 {
 	libssh2_md5_ctx fingerprint_ctx;
 
@@ -174,7 +174,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Server's MD5 Fingerprint: %s", fingerprint);
 }
 #endif /* LIBSSH2_DEBUG_KEX */
-#endif /* ! OPENSSL_NO_MD5 */
+#endif /* ! LIBSSH2_MD5 */
 
 {
 	libssh2_sha1_ctx fingerprint_ctx;

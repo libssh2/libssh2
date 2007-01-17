@@ -552,11 +552,11 @@ LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void)
 LIBSSH2_API const char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_type)
 {
 	switch (hash_type) {
-#ifndef OPENSSL_NO_MD5
+#if LIBSSH2_MD5
 		case LIBSSH2_HOSTKEY_HASH_MD5:
 			return (char *)session->server_hostkey_md5;
 			break;
-#endif /* ! OPENSSL_NO_MD5 */
+#endif /* ! LIBSSH2_MD5 */
 		case LIBSSH2_HOSTKEY_HASH_SHA1:
 			return (char *)session->server_hostkey_sha1;
 			break;
