@@ -35,9 +35,7 @@
  * OF SUCH DAMAGE.
  */
 
-#ifndef OPENSSL_NO_SHA
 #include <openssl/sha.h>
-#endif
 #ifndef OPENSSL_NO_MD5
 #include <openssl/md5.h>
 #endif
