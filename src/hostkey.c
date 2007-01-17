@@ -194,9 +194,9 @@ static int libssh2_hostkey_method_ssh_rsa_sign(LIBSSH2_SESSION *session, unsigne
 		return -1;
 	}
 
-	SHA1_Init(&ctx);
-	SHA1_Update(&ctx, buf, buf_len);
-	SHA1_Final(hash, &ctx);
+	libssh2_sha1_init(&ctx);
+	libssh2_sha1_update(ctx, buf, buf_len);
+	libssh2_sha1_final(ctx, hash);
 
 	ret = RSA_sign(NID_sha1, hash, SHA_DIGEST_LENGTH, sig,
 		       &sig_len, rsactx);
@@ -233,11 +233,11 @@ static int libssh2_hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION *session, unsign
 		return -1;
 	}
 
-	SHA1_Init(&ctx);
+	libssh2_sha1_init(&ctx);
 	for(i = 0; i < veccount; i++) {
-		SHA1_Update(&ctx, datavec[i].iov_base, datavec[i].iov_len);
+		libssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
 	}
-	SHA1_Final(hash, &ctx);
+	libssh2_sha1_final(ctx, hash);
 
 	ret = RSA_sign(NID_sha1, hash, SHA_DIGEST_LENGTH, sig, &sig_len, rsactx);
 
@@ -428,9 +428,9 @@ static int libssh2_hostkey_method_ssh_dss_sign(LIBSSH2_SESSION *session, unsigne
 		return -1;
 	}
 
-	SHA1_Init(&ctx);
-	SHA1_Update(&ctx, buf, buf_len);
-	SHA1_Final(hash, &ctx);
+	libssh2_sha1_init(&ctx);
+	libssh2_sha1_update(ctx, buf, buf_len);
+	libssh2_sha1_final(ctx, hash);
 
 	sig = DSA_do_sign(hash, SHA_DIGEST_LENGTH, dsactx);
 	if (!sig) {
@@ -468,11 +468,11 @@ static int libssh2_hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session, unsign
 		return -1;
 	}
 
-	SHA1_Init(&ctx);
+	libssh2_sha1_init(&ctx);
 	for(i = 0; i < veccount; i++) {
-		SHA1_Update(&ctx, datavec[i].iov_base, datavec[i].iov_len);
+		libssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
 	}
-	SHA1_Final(hash, &ctx);
+	libssh2_sha1_final(ctx, &hash);
 
 	sig = DSA_do_sign(hash, SHA_DIGEST_LENGTH, dsactx);
 	if (!sig) {
