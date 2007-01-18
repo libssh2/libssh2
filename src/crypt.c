@@ -215,7 +215,6 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour = {
 #endif /* LIBSSH2_RC4 */
 
 static LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
-	&libssh2_crypt_method_aes256_cbc,
 #if LIBSSH2_AES
 	&libssh2_crypt_method_aes256_cbc,
 	&libssh2_crypt_method_rijndael_cbc_lysator_liu_se, /* == aes256-cbc */
