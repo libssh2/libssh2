@@ -342,7 +342,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(iv, session->local.crypt->iv_len, "A");
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(secret, session->local.crypt->secret_len, "C");
-		if (session->local.crypt->init(session, iv, &free_iv, secret, &free_secret, 1, &session->local.crypt_abstract)) {
+		if (session->local.crypt->init(session, session->local.crypt, iv, &free_iv, secret, &free_secret, 1, &session->local.crypt_abstract)) {
 		  LIBSSH2_FREE(session, iv);
 		  LIBSSH2_FREE(session, secret);
 		  ret = -1;
@@ -374,7 +374,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(iv, session->remote.crypt->iv_len, "B");
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(secret, session->remote.crypt->secret_len, "D");
-		if (session->remote.crypt->init(session, iv, &free_iv, secret, &free_secret, 0, &session->remote.crypt_abstract)) {
+		if (session->remote.crypt->init(session, session->remote.crypt, iv, &free_iv, secret, &free_secret, 0, &session->remote.crypt_abstract)) {
 		  LIBSSH2_FREE(session, iv);
 		  LIBSSH2_FREE(session, secret);
 		  ret = -1;
