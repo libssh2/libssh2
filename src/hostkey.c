@@ -88,7 +88,8 @@ libssh2_hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
 	n_len = libssh2_ntohu32(s);					s += 4;
 	n = s;										s += n_len;
 
-	_libssh2_rsa_new (&rsactx, e, e_len, n, n_len);
+	if (_libssh2_rsa_new (&rsactx, e, e_len, n, n_len))
+	  return -1;
 
 	*abstract = rsactx;
 
@@ -472,7 +473,7 @@ static int libssh2_hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session, unsign
 	for(i = 0; i < veccount; i++) {
 		libssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
 	}
-	libssh2_sha1_final(ctx, &hash);
+	libssh2_sha1_final(ctx, hash);
 
 	sig = DSA_do_sign(hash, SHA_DIGEST_LENGTH, dsactx);
 	if (!sig) {
