@@ -36,7 +36,6 @@
  */
 
 #include "libssh2_priv.h"
-#include <openssl/evp.h>
 
 #if LIBSSH2_CRYPT_NONE
 /* {{{ libssh2_crypt_none_crypt
@@ -109,18 +108,6 @@ int dtor(LIBSSH2_SESSION *session, void **abstract)
 	return 0;
 }
 
-static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_3des_cbc = {
-	"3des-cbc",
-	8, /* blocksize */
-	8, /* initial value length */
-	24, /* secret length */
-	0, /* flags */
-	&init,
-	&crypt,
-	&dtor,
-	_libssh2_cipher_3des
-};
-
 #if LIBSSH2_AES
 static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_cbc = {
 	"aes128-cbc",
@@ -186,6 +173,20 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_blowfish_cbc = {
 };
 #endif /* LIBSSH2_BLOWFISH */
 
+#if LIBSSH2_RC4
+static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour = {
+	"arcfour",
+	8, /* blocksize */
+	8, /* initial value length */
+	16, /* secret length */
+	0, /* flags */
+	&init,
+	&crypt,
+	&dtor,
+	_libssh2_cipher_arcfour
+};
+#endif /* LIBSSH2_RC4 */
+
 #if LIBSSH2_CAST
 static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_cast128_cbc = {
 	"cast128-cbc",
@@ -200,19 +201,19 @@ static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_cast128_cbc = {
 };
 #endif /* LIBSSH2_CAST */
 
-#if LIBSSH2_RC4
-static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour = {
-	"arcfour",
+#if LIBSSH2_3DES
+static LIBSSH2_CRYPT_METHOD libssh2_crypt_method_3des_cbc = {
+	"3des-cbc",
 	8, /* blocksize */
 	8, /* initial value length */
-	16, /* secret length */
+	24, /* secret length */
 	0, /* flags */
 	&init,
 	&crypt,
 	&dtor,
-	_libssh2_cipher_arcfour
+	_libssh2_cipher_3des
 };
-#endif /* LIBSSH2_RC4 */
+#endif
 
 static LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
 #if LIBSSH2_AES
