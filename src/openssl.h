@@ -161,3 +161,27 @@ int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 			     unsigned long m_len);
 
 #define _libssh2_dsa_free(dsactx) DSA_free(dsactx)
+
+#define _libssh2_cipher_type(name) const EVP_CIPHER *(*name)(void)
+#define _libssh2_cipher_ctx EVP_CIPHER_CTX
+
+#define _libssh2_cipher_aes256 EVP_aes_256_cbc
+#define _libssh2_cipher_aes192 EVP_aes_192_cbc
+#define _libssh2_cipher_aes128 EVP_aes_128_cbc
+#define _libssh2_cipher_blowfish EVP_bf_cbc
+#define _libssh2_cipher_arcfour EVP_rc4
+#define _libssh2_cipher_cast5 EVP_cast5_cbc
+#define _libssh2_cipher_3des EVP_des_ede3_cbc
+
+int _libssh2_cipher_init (_libssh2_cipher_ctx *h,
+			  _libssh2_cipher_type(algo),
+			  unsigned char *iv,
+			  unsigned char *secret,
+			  int encrypt);
+
+int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
+			  _libssh2_cipher_type(algo),
+			  int encrypt,
+			  unsigned char *block);
+
+#define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_cleanup(ctx)

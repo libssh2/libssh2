@@ -108,3 +108,34 @@ int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 
 	return (ret == 1) ? 0 : -1;
 }
+
+int _libssh2_cipher_init (_libssh2_cipher_ctx *h,
+			  _libssh2_cipher_type(algo),
+			  unsigned char *iv,
+			  unsigned char *secret,
+			  int encrypt)
+{
+	EVP_CIPHER_CTX_init(h);
+	EVP_CipherInit(h, algo(), secret, iv, encrypt);
+	return 0;
+}
+
+int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
+			  _libssh2_cipher_type(algo),
+			  int encrypt,
+			  unsigned char *block)
+{
+	int blocksize = ctx->cipher->block_size;
+	unsigned char buf[EVP_MAX_BLOCK_LENGTH];
+	int ret;
+
+	if (blocksize == 1) {
+/* Hack for arcfour. */
+		blocksize = 8;
+	}
+	ret = EVP_Cipher(ctx, buf, block, blocksize);
+	if (ret == 1) {
+		memcpy(block, buf, blocksize);
+	}
+	return ret == 1 ? 0 : 1;
+}

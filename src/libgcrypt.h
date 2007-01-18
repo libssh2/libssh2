@@ -124,3 +124,27 @@ int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
 			     unsigned long m_len);
 
 #define _libssh2_dsa_free(dsactx)  gcry_sexp_release (dsactx)
+
+#define _libssh2_cipher_type(name) int name
+#define _libssh2_cipher_ctx gcry_cipher_hd_t
+
+#define _libssh2_cipher_aes256 GCRY_CIPHER_AES256
+#define _libssh2_cipher_aes192 GCRY_CIPHER_AES192
+#define _libssh2_cipher_aes128 GCRY_CIPHER_AES128
+#define _libssh2_cipher_blowfish GCRY_CIPHER_BLOWFISH
+#define _libssh2_cipher_arcfour GCRY_CIPHER_ARCFOUR
+#define _libssh2_cipher_cast5 GCRY_CIPHER_CAST5
+#define _libssh2_cipher_3des GCRY_CIPHER_3DES
+
+int _libssh2_cipher_init (_libssh2_cipher_ctx *h,
+			  _libssh2_cipher_type(algo),
+			  unsigned char *iv,
+			  unsigned char *secret,
+			  int encrypt);
+
+int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
+			  _libssh2_cipher_type(algo),
+			  int encrypt,
+			  unsigned char *block);
+
+#define _libssh2_cipher_dtor(ctx) gcry_cipher_close(*(ctx))
