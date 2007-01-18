@@ -300,7 +300,7 @@ libssh2_hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
 				    unsigned long hostkey_data_len,
 				    void **abstract)
 {
-	DSA *dsactx;
+	libssh2_dsa_ctx *dsactx;
 	unsigned char *p, *q, *g, *y, *s;
 	unsigned long p_len, q_len, g_len, y_len, len;
 	(void)hostkey_data_len;
@@ -325,15 +325,7 @@ libssh2_hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
 	y_len = libssh2_ntohu32(s);					s += 4;
 	y = s;										s += y_len;
 
-	dsactx = DSA_new();
-	dsactx->p = BN_new();
-	BN_bin2bn(p, p_len, dsactx->p);
-	dsactx->q = BN_new();
-	BN_bin2bn(q, q_len, dsactx->q);
-	dsactx->g = BN_new();
-	BN_bin2bn(g, g_len, dsactx->g);
-	dsactx->pub_key = BN_new();
-	BN_bin2bn(y, y_len, dsactx->pub_key);
+	_libssh2_dsa_new(&dsactx, p, p_len, q, q_len, g, g_len, y, y_len);
 
 	*abstract = dsactx;
 
@@ -388,10 +380,7 @@ static int libssh2_hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
 static int libssh2_hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session, const unsigned char *sig, unsigned long sig_len,
 																			   const unsigned char *m, unsigned long m_len, void **abstract)
 {
-	DSA *dsactx = (DSA*)(*abstract);
-	unsigned char hash[SHA_DIGEST_LENGTH];
-	DSA_SIG dsasig;
-	int ret;
+	libssh2_dsa_ctx *dsactx = (libssh2_dsa_ctx*)(*abstract);
 
 	/* Skip past keyname_len(4) + keyname(7){"ssh-dss"} + signature_len(4) */
 	sig += 15; sig_len -= 15;
@@ -399,15 +388,7 @@ static int libssh2_hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session, c
 		libssh2_error(session, LIBSSH2_ERROR_PROTO, "Invalid DSS signature length", 0);
 		return -1;
 	}
-	dsasig.r = BN_new();
-	BN_bin2bn(sig, 20, dsasig.r);
-	dsasig.s = BN_new();
-	BN_bin2bn(sig + 20, 20, dsasig.s);
-
-	libssh2_sha1(m, m_len, hash);
-	ret = DSA_do_verify(hash, SHA_DIGEST_LENGTH, &dsasig, dsactx);
-
-	return (ret == 1) ? 0 : -1;
+	return _libssh2_dsa_sha1_verify(dsactx, sig, sig_len, m, m_len);
 }
 /* }}} */
 
@@ -505,10 +486,10 @@ static int libssh2_hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session, unsign
 static int libssh2_hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
 					       void **abstract)
 {
-	DSA *dsactx = (DSA*)(*abstract);
+	libssh2_dsa_ctx *dsactx = (libssh2_dsa_ctx*)(*abstract);
 	(void)session;
 
-	DSA_free(dsactx);
+	_libssh2_dsa_free(dsactx);
 
 	*abstract = NULL;
 

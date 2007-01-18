@@ -130,7 +130,7 @@
 
 #define libssh2_rsa_ctx RSA
 
-void _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
+int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
 		      const unsigned char *edata,
 		      unsigned long elen,
 		      const unsigned char *ndata,
@@ -142,3 +142,22 @@ int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
 			     unsigned long m_len);
 
 #define _libssh2_rsa_free(rsactx) RSA_free(rsactx)
+
+#define libssh2_dsa_ctx DSA
+
+int _libssh2_dsa_new(libssh2_dsa_ctx **dsa,
+		     const unsigned char *pdata,
+		     unsigned long plen,
+		     const unsigned char *qdata,
+		     unsigned long qlen,
+		     const unsigned char *gdata,
+		     unsigned long glen,
+		     const unsigned char *ydata,
+		     unsigned long ylen);
+int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
+			     const unsigned char *sig,
+			     unsigned long sig_len,
+			     const unsigned char *m,
+			     unsigned long m_len);
+
+#define _libssh2_dsa_free(dsactx) DSA_free(dsactx)

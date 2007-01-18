@@ -105,3 +105,22 @@ int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
 			     unsigned long m_len);
 
 #define _libssh2_rsa_free(rsactx)  gcry_sexp_release (rsactx)
+
+#define libssh2_dsa_ctx struct gcry_sexp
+
+int _libssh2_dsa_new(libssh2_dsa_ctx **dsa,
+		     const unsigned char *pdata,
+		     unsigned long plen,
+		     const unsigned char *qdata,
+		     unsigned long qlen,
+		     const unsigned char *gdata,
+		     unsigned long glen,
+		     const unsigned char *ydata,
+		     unsigned long ylen);
+int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
+			     const unsigned char *sig,
+			     unsigned long sig_len,
+			     const unsigned char *m,
+			     unsigned long m_len);
+
+#define _libssh2_dsa_free(dsactx)  gcry_sexp_release (dsactx)

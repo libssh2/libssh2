@@ -91,3 +91,63 @@ int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
 
 	return (rc == 0) ? 0 : -1;
 }
+
+int _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
+		     const unsigned char *p,
+		     unsigned long p_len,
+		     const unsigned char *q,
+		     unsigned long q_len,
+		     const unsigned char *g,
+		     unsigned long g_len,
+		     const unsigned char *y,
+		     unsigned long y_len)
+{
+  int rc;
+
+  rc = gcry_sexp_build (dsactx, NULL, "(public-key(dsa(p%b)(q%b)(g%b)(y%b)))",
+			p_len, p, q_len, q, g_len, g, y_len, y);
+  if (rc)
+    {
+      *dsactx = NULL;
+      return -1;
+    }
+
+  return 0;
+}
+
+
+int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
+			     const unsigned char *sig,
+			     unsigned long sig_len,
+			     const unsigned char *m,
+			     unsigned long m_len)
+{
+  unsigned char hash[SHA_DIGEST_LENGTH+1];
+  int ret;
+  gcry_sexp_t s_sig, s_hash;
+  int rc = -1;
+
+  libssh2_sha1(m, m_len, hash+1);
+  hash[0] = 0;
+
+  rc = gcry_sexp_build (&s_hash, NULL, "(data(flags raw)(value %b))",
+			SHA_DIGEST_LENGTH+1, hash);
+  if (rc != 0)
+    {
+      return -1;
+    }
+
+  rc = gcry_sexp_build (&s_sig, NULL, "(sig-val(dsa(r %b)(s %b)))",
+			20, sig, 20, sig + 20);
+  if (rc != 0)
+    {
+      gcry_sexp_release (s_hash);
+      return -1;
+    }
+
+  rc = gcry_pk_verify (s_sig, s_hash, dsactx);
+  gcry_sexp_release (s_sig);
+  gcry_sexp_release (s_hash);
+
+  return (rc == 0) ? 0 : -1;
+}

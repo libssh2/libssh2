@@ -37,17 +37,18 @@
 
 #include "openssl.h"
 
-void _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
-		      const unsigned char *edata,
-		      unsigned long elen,
-		      const unsigned char *ndata,
-		      unsigned long nlen)
+int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
+		     const unsigned char *edata,
+		     unsigned long elen,
+		     const unsigned char *ndata,
+		     unsigned long nlen)
 {
 	*rsa = RSA_new();
 	(*rsa)->e = BN_new();
 	BN_bin2bn(edata, elen, (*rsa)->e);
 	(*rsa)->n = BN_new();
 	BN_bin2bn(ndata, nlen, (*rsa)->n);
+	return 0;
 }
 
 int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
@@ -62,5 +63,48 @@ int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
 	SHA1(m, m_len, hash);
 	ret = RSA_verify(NID_sha1, hash, SHA_DIGEST_LENGTH,
 			 (unsigned char *)sig, sig_len, rsactx);
+	return (ret == 1) ? 0 : -1;
+}
+
+int _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
+		     const unsigned char *p,
+		     unsigned long p_len,
+		     const unsigned char *q,
+		     unsigned long q_len,
+		     const unsigned char *g,
+		     unsigned long g_len,
+		     const unsigned char *y,
+		     unsigned long y_len)
+{
+	*dsactx = DSA_new();
+	(*dsactx)->p = BN_new();
+	BN_bin2bn(p, p_len, (*dsactx)->p);
+	(*dsactx)->q = BN_new();
+	BN_bin2bn(q, q_len, (*dsactx)->q);
+	(*dsactx)->g = BN_new();
+	BN_bin2bn(g, g_len, (*dsactx)->g);
+	(*dsactx)->pub_key = BN_new();
+	BN_bin2bn(y, y_len, (*dsactx)->pub_key);
+	return 0;
+}
+
+int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
+			     const unsigned char *sig,
+			     unsigned long sig_len,
+			     const unsigned char *m,
+			     unsigned long m_len)
+{
+	unsigned char hash[SHA_DIGEST_LENGTH];
+	DSA_SIG dsasig;
+	int ret;
+
+	dsasig.r = BN_new();
+	BN_bin2bn(sig, 20, dsasig.r);
+	dsasig.s = BN_new();
+	BN_bin2bn(sig + 20, 20, dsasig.s);
+
+	libssh2_sha1(m, m_len, hash);
+	ret = DSA_do_verify(hash, SHA_DIGEST_LENGTH, &dsasig, dsactx);
+
 	return (ret == 1) ? 0 : -1;
 }
