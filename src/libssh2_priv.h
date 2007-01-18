@@ -290,9 +290,11 @@ struct _LIBSSH2_CRYPT_METHOD {
 
 	long flags;
 
-	int (*init)(LIBSSH2_SESSION *session, unsigned char *iv, int *free_iv, unsigned char *secret, int *free_secret, int encrypt, void **abstract);
+	int (*init)(LIBSSH2_SESSION *session, LIBSSH2_CRYPT_METHOD *method, unsigned char *iv, int *free_iv, unsigned char *secret, int *free_secret, int encrypt, void **abstract);
 	int (*crypt)(LIBSSH2_SESSION *session, unsigned char *block, void **abstract);
 	int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
+
+	_libssh2_cipher_type(algo);
 };
 
 struct _LIBSSH2_COMP_METHOD {
