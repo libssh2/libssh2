@@ -35,6 +35,7 @@
  * OF SUCH DAMAGE.
  */
 
+#include <string.h>
 #include "openssl.h"
 
 int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
