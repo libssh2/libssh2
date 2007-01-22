@@ -175,44 +175,6 @@ static int libssh2_hostkey_method_ssh_rsa_sig_verify(LIBSSH2_SESSION *session,
 }
 /* }}} */
 
-/* {{{ libssh2_hostkey_method_ssh_rsa_sign
- * Sign data to send to remote
- */
-static int libssh2_hostkey_method_ssh_rsa_sign(LIBSSH2_SESSION *session, unsigned char **signature, unsigned long *signature_len,
-																		 const unsigned char *buf, unsigned long buf_len, void **abstract)
-{
-	RSA *rsactx = (RSA*)(*abstract);
-	int ret;
-	unsigned char hash[SHA_DIGEST_LENGTH];
-	libssh2_sha1_ctx ctx;
-	unsigned char *sig;
-	unsigned int sig_len;
-
-	sig_len = RSA_size(rsactx);
-	sig = LIBSSH2_ALLOC(session, sig_len);
-
-	if (!sig) {
-		return -1;
-	}
-
-	libssh2_sha1_init(&ctx);
-	libssh2_sha1_update(ctx, buf, buf_len);
-	libssh2_sha1_final(ctx, hash);
-
-	ret = RSA_sign(NID_sha1, hash, SHA_DIGEST_LENGTH, sig,
-		       &sig_len, rsactx);
-	if (!ret) {
-		LIBSSH2_FREE(session, sig);
-		return -1;
-	}
-
-	*signature = sig;
-	*signature_len = sig_len;
-
-	return 0;
-}
-/* }}} */
-
 /* {{{ libssh2_hostkey_method_ssh_rsa_signv
  * Construct a signature from an array of vectors
  */
@@ -277,7 +239,6 @@ static LIBSSH2_HOSTKEY_METHOD libssh2_hostkey_method_ssh_rsa = {
 	libssh2_hostkey_method_ssh_rsa_init,
 	libssh2_hostkey_method_ssh_rsa_initPEM,
 	libssh2_hostkey_method_ssh_rsa_sig_verify,
-	libssh2_hostkey_method_ssh_rsa_sign,
 	libssh2_hostkey_method_ssh_rsa_signv,
 	NULL, /* encrypt */
 	libssh2_hostkey_method_ssh_rsa_dtor,
@@ -392,43 +353,6 @@ static int libssh2_hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session, c
 }
 /* }}} */
 
-/* {{{ libssh2_hostkey_method_ssh_dss_sign
- * Sign data to send to remote
- */
-static int libssh2_hostkey_method_ssh_dss_sign(LIBSSH2_SESSION *session, unsigned char **signature, unsigned long *signature_len,
-																		 const unsigned char *buf, unsigned long buf_len, void **abstract)
-{
-	DSA *dsactx = (DSA*)(*abstract);
-	DSA_SIG *sig;
-	unsigned char hash[SHA_DIGEST_LENGTH];
-	libssh2_sha1_ctx ctx;
-
-	*signature = LIBSSH2_ALLOC(session, 2 * SHA_DIGEST_LENGTH);
-	*signature_len = 2 * SHA_DIGEST_LENGTH;
-
-	if (!(*signature)) {
-		return -1;
-	}
-
-	libssh2_sha1_init(&ctx);
-	libssh2_sha1_update(ctx, buf, buf_len);
-	libssh2_sha1_final(ctx, hash);
-
-	sig = DSA_do_sign(hash, SHA_DIGEST_LENGTH, dsactx);
-	if (!sig) {
-		LIBSSH2_FREE(session, *signature);
-		return -1;
-	}
-
-	BN_bn2bin(sig->r, *signature);
-	BN_bn2bin(sig->s, *signature + SHA_DIGEST_LENGTH);
-
-	DSA_SIG_free(sig);
-
-	return 0;
-}
-/* }}} */
-
 /* {{{ libssh2_hostkey_method_ssh_dss_signv
  * Construct a signature from an array of vectors
  */
@@ -503,7 +427,6 @@ static LIBSSH2_HOSTKEY_METHOD libssh2_hostkey_method_ssh_dss = {
 	libssh2_hostkey_method_ssh_dss_init,
 	libssh2_hostkey_method_ssh_dss_initPEM,
 	libssh2_hostkey_method_ssh_dss_sig_verify,
-	libssh2_hostkey_method_ssh_dss_sign,
 	libssh2_hostkey_method_ssh_dss_signv,
 	NULL, /* encrypt */
 	libssh2_hostkey_method_ssh_dss_dtor,
