@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -46,7 +46,7 @@
 #include <sys/socket.h>
 #endif
 
-#if LIBSSH2_LIBGCRYPT
+#ifdef LIBSSH2_LIBGCRYPT
 #include "libgcrypt.h"
 #else
 #include "openssl.h"
