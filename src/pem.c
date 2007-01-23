@@ -63,7 +63,6 @@ int _libssh2_pem_parse (LIBSSH2_SESSION *session,
 			char **data, unsigned int *datalen)
 {
 	char line[LINE_SIZE];
-	int err;
 	char *b64data = NULL;
 	unsigned int b64datalen = 0;
 
