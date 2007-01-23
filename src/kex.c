@@ -65,29 +65,29 @@
 /* {{{ libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange
  * Diffie Hellman Key Exchange, Group Agnostic
  */
-static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session, BIGNUM *g, BIGNUM *p, int group_order,
+static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session, _libssh2_bn *g, _libssh2_bn *p, int group_order,
 																		unsigned char packet_type_init, unsigned char packet_type_reply,
 																		unsigned char *midhash, unsigned long midhash_len)
 {
 	unsigned char *e_packet = NULL, *s_packet = NULL, *tmp, h_sig_comp[SHA_DIGEST_LENGTH], c;
 	unsigned long e_packet_len, s_packet_len, tmp_len;
 	int ret = 0;
-	BN_CTX *ctx = BN_CTX_new();
-	BIGNUM *x = BN_new(); /* Random from client */
-	BIGNUM *e = BN_new(); /* g^x mod p */
-	BIGNUM *f = BN_new(); /* g^(Random from server) mod p */
-	BIGNUM *k = BN_new(); /* The shared secret: f^x mod p */
+	_libssh2_bn_ctx *ctx = _libssh2_bn_ctx_new();
+	_libssh2_bn *x = _libssh2_bn_init(); /* Random from client */
+	_libssh2_bn *e = _libssh2_bn_init(); /* g^x mod p */
+	_libssh2_bn *f = _libssh2_bn_init(); /* g^(Random from server) mod p */
+	_libssh2_bn *k = _libssh2_bn_init(); /* The shared secret: f^x mod p */
 	unsigned char *s, *f_value, *k_value = NULL, *h_sig;
 	unsigned long f_value_len, k_value_len, h_sig_len;
 	libssh2_sha1_ctx exchange_hash;
 
 	/* Generate x and e */
-	BN_rand(x, group_order, 0, -1);
-	BN_mod_exp(e, g, x, p, ctx);
+	_libssh2_bn_rand(x, group_order, 0, -1);
+	_libssh2_bn_mod_exp(e, g, x, p, ctx);
 
 	/* Send KEX init */
-	e_packet_len = BN_num_bytes(e) + 6; /* packet_type(1) + String Length(4) + leading 0(1) */
-	if (BN_num_bits(e) % 8) {
+	e_packet_len = _libssh2_bn_bytes(e) + 6; /* packet_type(1) + String Length(4) + leading 0(1) */
+	if (_libssh2_bn_bits(e) % 8) {
 		/* Leading 00 not needed */
 		e_packet_len--;
 	}
@@ -99,11 +99,11 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 	}
 	e_packet[0] = packet_type_init;
 	libssh2_htonu32(e_packet + 1, e_packet_len - 5);
-	if (BN_num_bits(e) % 8) {
-		BN_bn2bin(e, e_packet + 5);
+	if (_libssh2_bn_bits(e) % 8) {
+		_libssh2_bn_to_bin(e, e_packet + 5);
 	} else {
 		e_packet[5] = 0;
-		BN_bn2bin(e, e_packet + 6);
+		_libssh2_bn_to_bin(e, e_packet + 6);
 	}
 
 #ifdef LIBSSH2_DEBUG_KEX
@@ -203,15 +203,15 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 
 	f_value_len = libssh2_ntohu32(s);							s += 4;
 	f_value = s;												s += f_value_len;
-	BN_bin2bn(f_value, f_value_len, f);
+	_libssh2_bn_from_bin(f, f_value_len, f_value);
 
 	h_sig_len = libssh2_ntohu32(s);								s += 4;
 	h_sig = s;
 
 	/* Compute the shared secret */
-	BN_mod_exp(k, f, x, p, ctx);
-	k_value_len = BN_num_bytes(k) + 5;
-	if (BN_num_bits(k) % 8) {
+	_libssh2_bn_mod_exp(k, f, x, p, ctx);
+	k_value_len = _libssh2_bn_bytes(k) + 5;
+	if (_libssh2_bn_bits(k) % 8) {
 		/* don't need leading 00 */
 		k_value_len--;
 	}
@@ -222,11 +222,11 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		goto clean_exit;
 	}
 	libssh2_htonu32(k_value, k_value_len - 4);
-	if (BN_num_bits(k) % 8) {
-		BN_bn2bin(k, k_value + 4);
+	if (_libssh2_bn_bits(k) % 8) {
+		_libssh2_bn_to_bin(k, k_value + 4);
 	} else {
 		k_value[4] = 0;
-		BN_bn2bin(k, k_value + 5);
+		_libssh2_bn_to_bin(k, k_value + 5);
 	}
 
 	libssh2_sha1_init(&exchange_hash);
@@ -436,11 +436,11 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 #endif
 
  clean_exit:
-	BN_clear_free(x);
-	BN_clear_free(e);
-	BN_clear_free(f);
-	BN_clear_free(k);
-	BN_CTX_free(ctx);
+	_libssh2_bn_free(x);
+	_libssh2_bn_free(e);
+	_libssh2_bn_free(f);
+	_libssh2_bn_free(k);
+	_libssh2_bn_ctx_free(ctx);
 
 	if (e_packet) {
 		LIBSSH2_FREE(session, e_packet);
@@ -486,21 +486,21 @@ static int libssh2_kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SE
 		0x49, 0x28, 0x66, 0x51, 0xEC, 0xE6, 0x53, 0x81,
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 	/* g == 2 */
-	BIGNUM *p = BN_new(); /* SSH2 defined value (p_value) */
-	BIGNUM *g = BN_new(); /* SSH2 defined value (2) */
+	_libssh2_bn *p = _libssh2_bn_init(); /* SSH2 defined value (p_value) */
+	_libssh2_bn *g = _libssh2_bn_init(); /* SSH2 defined value (2) */
 	int ret;
 
 	/* Initialize P and G */
-	BN_set_word(g, 2);
-	BN_bin2bn(p_value, 128, p);
+	_libssh2_bn_set_word(g, 2);
+	_libssh2_bn_from_bin(p, 128, p_value);
 
 #ifdef LIBSSH2_DEBUG_KEX
 	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Initiating Diffie-Hellman Group1 Key Exchange");
 #endif
 	ret = libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(session, g, p, 128, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY, NULL, 0);
 
-	BN_clear_free(p);
-	BN_clear_free(g);
+	_libssh2_bn_free(p);
+	_libssh2_bn_free(g);
 
 	return ret;
 }
@@ -545,21 +545,21 @@ static int libssh2_kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_S
 		0x15, 0x72, 0x8E, 0x5A, 0x8A, 0xAC, 0xAA, 0x68,
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 	/* g == 2 */
-	BIGNUM *p = BN_new(); /* SSH2 defined value (p_value) */
-	BIGNUM *g = BN_new(); /* SSH2 defined value (2) */
+	_libssh2_bn *p = _libssh2_bn_init(); /* SSH2 defined value (p_value) */
+	_libssh2_bn *g = _libssh2_bn_init(); /* SSH2 defined value (2) */
 	int ret;
 
 	/* Initialize P and G */
-	BN_set_word(g, 2);
-	BN_bin2bn(p_value, 256, p);
+	_libssh2_bn_set_word(g, 2);
+	_libssh2_bn_from_bin(p, 256, p_value);
 
 #ifdef LIBSSH2_DEBUG_KEX
 	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Initiating Diffie-Hellman Group14 Key Exchange");
 #endif
 	ret = libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(session, g, p, 256, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY, NULL, 0);
 
-	BN_clear_free(p);
-	BN_clear_free(g);
+	_libssh2_bn_free(p);
+	_libssh2_bn_free(g);
 
 	return ret;
 }
@@ -573,8 +573,8 @@ static int libssh2_kex_method_diffie_hellman_group_exchange_sha1_key_exchange(LI
 {
 	unsigned char request[13], *s, *data;
 	unsigned long data_len, p_len, g_len, request_len;
-	BIGNUM *p = BN_new();
-	BIGNUM *g = BN_new();
+	_libssh2_bn *p = _libssh2_bn_init ();
+	_libssh2_bn *g = _libssh2_bn_init ();
 	int ret;
 
 	/* Ask for a P and G pair */
@@ -610,18 +610,18 @@ static int libssh2_kex_method_diffie_hellman_group_exchange_sha1_key_exchange(LI
 
 	s = data + 1;
 	p_len = libssh2_ntohu32(s);						s += 4;
-	BN_bin2bn(s, p_len, p);							s += p_len;
+	_libssh2_bn_from_bin(p, p_len, s);					s += p_len;
 
 	g_len = libssh2_ntohu32(s);						s += 4;
-	BN_bin2bn(s, g_len, g);							s += g_len;
+	_libssh2_bn_from_bin(g, g_len, s);					s += g_len;
 
 	ret = libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(session, g, p, p_len, SSH_MSG_KEX_DH_GEX_INIT, SSH_MSG_KEX_DH_GEX_REPLY, data + 1, data_len - 1);
 
 	LIBSSH2_FREE(session, data);
 
  dh_gex_clean_exit:
-	BN_clear_free(g);
-	BN_clear_free(p);
+	_libssh2_bn_free(g);
+	_libssh2_bn_free(p);
 
 	return ret;
 }
