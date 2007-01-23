@@ -229,7 +229,7 @@ int _libssh2_rsa_new_private (libssh2_rsa_ctx **rsa,
 		goto fail;
 	}
 
-	if (_libssh2_rsa_new (rsa, n, nlen, e, elen, d, dlen, p, plen,
+	if (_libssh2_rsa_new (rsa, e, elen, n, nlen, d, dlen, p, plen,
 			      q, qlen, e1, e1len, e2, e2len,
 			      coeff, coefflen)) {
 		ret = -1;
