@@ -99,7 +99,7 @@ libssh2_hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
  * Load a Private Key from a PEM file
  */
 static int libssh2_hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION *session,
-						  const char *privkeyfile, unsigned const char *passphrase, void **abstract)
+						  unsigned const char *privkeyfile, unsigned const char *passphrase, void **abstract)
 {
 	libssh2_rsa_ctx *rsactx;
 	FILE *fp;
@@ -257,7 +257,7 @@ libssh2_hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
  * Load a Private Key from a PEM file
  */
 static int libssh2_hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION *session,
-						  const char *privkeyfile,
+						  unsigned const char *privkeyfile,
 						  unsigned const char *passphrase,
 						  void **abstract)
 {
