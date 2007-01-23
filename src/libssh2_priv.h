@@ -42,6 +42,8 @@
 #include "libssh2_config.h"
 #include "libssh2.h"
 
+#include <stdio.h>
+
 #ifndef WIN32
 #include <sys/socket.h>
 #endif
@@ -465,5 +467,15 @@ LIBSSH2_MAC_METHOD **libssh2_mac_methods(void);
 
 /* Language API doesn't exist yet.  Just act like we've agreed on a language */
 #define libssh2_kex_agree_lang(session, endpoint, str, str_len)	0
+
+/* pem.c */
+int _libssh2_pem_parse (LIBSSH2_SESSION *session,
+			const char *headerbegin,
+			const char *headerend,
+			FILE *fp,
+			char **data, unsigned int *datalen);
+int _libssh2_pem_decode_sequence (char **data, unsigned int *datalen);
+int _libssh2_pem_decode_integer (char **data, unsigned int *datalen,
+				 char **i, unsigned int *ilen);
 
 #endif /* LIBSSH2_H */
