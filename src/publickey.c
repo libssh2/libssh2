@@ -212,7 +212,8 @@ static int libssh2_publickey_response_success(LIBSSH2_PUBLICKEY *pkey)
 {
 	LIBSSH2_SESSION *session = pkey->channel->session;
 	unsigned char *data, *s;
-	unsigned long data_len, response;
+	unsigned long data_len;
+	int response;
 
 	while (1) {
 		if (libssh2_publickey_packet_receive(pkey, &data, &data_len)) {
@@ -551,10 +552,11 @@ LIBSSH2_API int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey, unsigned l
 	LIBSSH2_SESSION *session = channel->session;
 	libssh2_publickey_list *list = NULL;
 	unsigned char *s, buffer[12], *data = NULL;
-	unsigned long buffer_len = 12, keys = 0, max_keys = 0, data_len, i, response;
-	/*	packet_len(4) + 
+	unsigned long buffer_len = 12, keys = 0, max_keys = 0, data_len, i;
+	/*	packet_len(4) +
 		list_len(4) +
 		"list"(4) */
+	int response;
 
 	s = buffer;
 	libssh2_htonu32(s, buffer_len - 4);							s += 4;

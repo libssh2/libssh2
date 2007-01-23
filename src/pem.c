@@ -155,7 +155,7 @@ static int read_asn1_length (const unsigned char *data,
 int _libssh2_pem_decode_sequence (char **data, unsigned int *datalen)
 {
 	unsigned int len;
-	unsigned int lenlen;
+	int lenlen;
 
 	if (*datalen < 1)
 	{
@@ -186,7 +186,7 @@ int _libssh2_pem_decode_integer (char **data, unsigned int *datalen,
 				 char **i, unsigned int *ilen)
 {
 	unsigned int len;
-	unsigned int lenlen;
+	int lenlen;
 
 	if (*datalen < 1)
 	{

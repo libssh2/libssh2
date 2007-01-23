@@ -256,8 +256,6 @@ int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
 			   unsigned long *signature_len)
 {
 	int ret;
-	unsigned int i;
-	libssh2_sha1_ctx ctx;
 	unsigned char *sig;
 	unsigned int sig_len;
 
