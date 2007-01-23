@@ -380,7 +380,7 @@ int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
 	unsigned char zhash[SHA_DIGEST_LENGTH+1];
 	gcry_sexp_t sig_sexp;
 	gcry_sexp_t data;
-	int rc;
+	int ret;
 	const char *tmp;
 	size_t size;
 
@@ -396,23 +396,26 @@ int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
 		return -1;
 	}
 
-	rc = gcry_pk_sign (&sig_sexp, data, dsactx);
+	ret = gcry_pk_sign (&sig_sexp, data, dsactx);
 
 	gcry_sexp_release (data);
 
-	if (rc != 0) {
+	if (ret != 0) {
 		return -1;
 	}
 
+/* Extract R. */
 
 	data = gcry_sexp_find_token(sig_sexp, "r", 0);
 	if (!data) {
-		return -1;
+		ret = -1;
+		goto out;
 	}
 
 	tmp = gcry_sexp_nth_data(data, 1, &size);
 	if (!tmp) {
-		return -1;
+		ret = -1;
+		goto out;
 	}
 
 	if (tmp[0] == '\0') {
@@ -421,19 +424,26 @@ int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
 	}
 
 	if (size != 20) {
-		return -1;
+		ret = -1;
+		goto out;
 	}
 
 	memcpy (sig, tmp, 20);
 
-	data = gcry_sexp_find_token(sig_sexp,"s",0);
+	gcry_sexp_release (data);
+
+/* Extract S. */
+
+	data = gcry_sexp_find_token(sig_sexp, "s",0);
 	if (!data) {
-		return -1;
+		ret = -1;
+		goto out;
 	}
 
 	tmp = gcry_sexp_nth_data(data, 1, &size);
 	if (!tmp) {
-		return -1;
+		ret = -1;
+		goto out;
 	}
 
 	if (tmp[0] == '\0') {
@@ -442,12 +452,21 @@ int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
 	}
 
 	if (size != 20) {
-		return -1;
+		ret = -1;
+		goto out;
 	}
 
 	memcpy (sig + 20, tmp, 20);
 
-	return rc;
+	ret = 0;
+out:
+	if (sig_sexp) {
+		gcry_sexp_release (sig_sexp);
+	}
+	if (data) {
+		gcry_sexp_release (data);
+	}
+	return ret;
 }
 
 int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
