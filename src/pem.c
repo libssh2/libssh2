@@ -161,7 +161,7 @@ static int read_asn1_length (const unsigned char *data,
 	return nextpos;
 }
 
-int _libssh2_pem_decode_sequence (char **data, unsigned int *datalen)
+int _libssh2_pem_decode_sequence (unsigned char **data, unsigned int *datalen)
 {
 	unsigned int len;
 	int lenlen;
@@ -191,8 +191,8 @@ int _libssh2_pem_decode_sequence (char **data, unsigned int *datalen)
 	return 0;
 }
 
-int _libssh2_pem_decode_integer (char **data, unsigned int *datalen,
-				 char **i, unsigned int *ilen)
+int _libssh2_pem_decode_integer (unsigned char **data, unsigned int *datalen,
+				 unsigned char **i, unsigned int *ilen)
 {
 	unsigned int len;
 	int lenlen;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -37,7 +37,7 @@
 
 #include "libssh2_priv.h"
 
-#if LIBSSH2_MAC_NONE
+#ifdef LIBSSH2_MAC_NONE
 /* {{{ libssh2_mac_none_MAC
  * Minimalist MAC: No MAC
  */
@@ -129,10 +129,10 @@ static int libssh2_mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION *session, unsign
 																		  const unsigned char *packet, unsigned long packet_len, 
 																		  const unsigned char *addtl, unsigned long addtl_len, void **abstract)
 {
-	char temp[SHA_DIGEST_LENGTH];
+	unsigned char temp[SHA_DIGEST_LENGTH];
 
 	libssh2_mac_method_hmac_sha1_hash(session, temp, seqno, packet, packet_len, addtl, addtl_len, abstract);
-	memcpy(buf, temp, 96 / 8);
+	memcpy(buf, (char *)temp, 96 / 8);
 
 	return 0;
 }
@@ -156,6 +156,7 @@ static int libssh2_mac_method_hmac_md5_hash(LIBSSH2_SESSION *session, unsigned c
 {
 	libssh2_hmac_ctx ctx;
 	unsigned char seqno_buf[4];
+	(void)session;
 
 	libssh2_htonu32(seqno_buf, seqno);
 
@@ -188,10 +189,10 @@ static int libssh2_mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session, unsigne
 																		 const unsigned char *packet, unsigned long packet_len,
 																		 const unsigned char *addtl, unsigned long addtl_len, void **abstract)
 {
-	char temp[MD5_DIGEST_LENGTH];
+	unsigned char temp[MD5_DIGEST_LENGTH];
 
 	libssh2_mac_method_hmac_md5_hash(session, temp, seqno, packet, packet_len, addtl, addtl_len, abstract);
-	memcpy(buf, temp, 96 / 8);
+	memcpy(buf, (char *)temp, 96 / 8);
 
 	return 0;
 }
@@ -216,6 +217,7 @@ static int libssh2_mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session, unsi
 {
 	libssh2_hmac_ctx ctx;
 	unsigned char seqno_buf[4];
+	(void)session;
 
 	libssh2_htonu32(seqno_buf, seqno);
 
@@ -256,11 +258,11 @@ static LIBSSH2_MAC_METHOD *_libssh2_mac_methods[] = {
 	&libssh2_mac_method_hmac_sha1_96,
 	&libssh2_mac_method_hmac_md5,
 	&libssh2_mac_method_hmac_md5_96,
-#if LIBSSH2_HMAC_RIPEMD
+#ifdef LIBSSH2_HMAC_RIPEMD
 	&libssh2_mac_method_hmac_ripemd160,
 	&libssh2_mac_method_hmac_ripemd160_openssh_com,
 #endif /* LIBSSH2_HMAC_RIPEMD */
-#if LIBSSH2_MAC_NONE
+#ifdef LIBSSH2_MAC_NONE
 	&libssh2_mac_method_none,
 #endif /* LIBSSH2_MAC_NONE */
 	NULL

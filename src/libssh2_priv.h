@@ -474,8 +474,8 @@ int _libssh2_pem_parse (LIBSSH2_SESSION *session,
 			const char *headerend,
 			FILE *fp,
 			char **data, unsigned int *datalen);
-int _libssh2_pem_decode_sequence (char **data, unsigned int *datalen);
-int _libssh2_pem_decode_integer (char **data, unsigned int *datalen,
-				 char **i, unsigned int *ilen);
+int _libssh2_pem_decode_sequence (unsigned char **data, unsigned int *datalen);
+int _libssh2_pem_decode_integer (unsigned char **data, unsigned int *datalen,
+				 unsigned char **i, unsigned int *ilen);
 
 #endif /* LIBSSH2_H */

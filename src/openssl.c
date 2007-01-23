@@ -176,6 +176,8 @@ int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
 	int blocksize = ctx->cipher->block_size;
 	unsigned char buf[EVP_MAX_BLOCK_LENGTH];
 	int ret;
+	(void)algo;
+	(void)encrypt;
 
 	if (blocksize == 1) {
 /* Hack for arcfour. */
@@ -212,6 +214,7 @@ int _libssh2_rsa_new_private (libssh2_rsa_ctx **rsa,
 			      FILE *fp,
 			      unsigned const char *passphrase)
 {
+	(void)session;
 	if (!EVP_get_cipherbyname("des")) {
 /* If this cipher isn't loaded it's a pretty good indication that none are.
  * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
@@ -232,6 +235,7 @@ int _libssh2_dsa_new_private (libssh2_dsa_ctx **dsa,
 			      FILE *fp,
 			      unsigned const char *passphrase)
 {
+	(void)session;
 	if (!EVP_get_cipherbyname("des")) {
 /* If this cipher isn't loaded it's a pretty good indication that none are.
  * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
@@ -285,6 +289,7 @@ int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
 {
 	DSA_SIG *sig;
 	int r_len, s_len, rs_pad;
+	(void)hash_len;
 
 	sig = DSA_do_sign(hash, SHA_DIGEST_LENGTH, dsactx);
 	if (!sig) {
