@@ -57,6 +57,10 @@ int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
 		     unsigned long coefflen)
 {
 	int rc;
+	(void)e1data;
+	(void)e1len;
+	(void)e2data;
+	(void)e2len;
 
 	if (ddata) {
 		rc = gcry_sexp_build
@@ -79,11 +83,11 @@ int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
 
 int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
 			     const unsigned char *sig,
+			     unsigned long sig_len,
 			     const unsigned char *m,
 			     unsigned long m_len)
 {
 	unsigned char hash[SHA_DIGEST_LENGTH];
-	int ret;
 	gcry_sexp_t s_sig, s_hash;
 	int rc = -1;
 
@@ -153,6 +157,8 @@ int _libssh2_rsa_new_private (libssh2_rsa_ctx **rsa,
 	int ret;
 	char *n, *e, *d, *p, *q, *e1, *e2, *coeff;
 	unsigned int nlen, elen, dlen, plen, qlen, e1len, e2len, coefflen;
+
+	(void)passphrase;
 
 	ret = _libssh2_pem_parse (session,
 				  "-----BEGIN RSA PRIVATE KEY-----",
@@ -247,6 +253,8 @@ int _libssh2_dsa_new_private (libssh2_dsa_ctx **dsa,
 	int ret;
 	char *p, *q, *g, *y, *x;
 	unsigned int plen, qlen, glen, ylen, xlen;
+
+	(void)passphrase;
 
 	ret = _libssh2_pem_parse (session,
 				  "-----BEGIN DSA PRIVATE KEY-----",
@@ -470,12 +478,10 @@ out:
 
 int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 			     const unsigned char *sig,
-			     unsigned long sig_len,
 			     const unsigned char *m,
 			     unsigned long m_len)
 {
 	unsigned char hash[SHA_DIGEST_LENGTH+1];
-	int ret;
 	gcry_sexp_t s_sig, s_hash;
 	int rc = -1;
 
@@ -508,6 +514,8 @@ int _libssh2_cipher_init (_libssh2_cipher_ctx *h,
 {
 	int mode = 0, ret;
 	int keylen = gcry_cipher_get_algo_keylen (algo);
+
+	(void)encrypt;
 
 	if (algo != GCRY_CIPHER_ARCFOUR) {
 		mode = GCRY_CIPHER_MODE_CBC;

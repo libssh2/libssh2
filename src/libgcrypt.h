@@ -149,10 +149,10 @@ int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
 			     const unsigned char *sig,
 			     const unsigned char *m,
 			     unsigned long m_len);
-int _libssh2_dsa_sign(libssh2_dsa_ctx *dsactx,
-		      const unsigned char *hash,
-		      unsigned long hash_len,
-		      unsigned char *sig);
+int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
+			   const unsigned char *hash,
+			   unsigned long hash_len,
+			   unsigned char *sig);
 
 #define _libssh2_dsa_free(dsactx)  gcry_sexp_release (dsactx)
 
