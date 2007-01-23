@@ -36,7 +36,6 @@
  */
 
 #include "libssh2_priv.h"
-#include <openssl/bn.h>
 
 /* TODO: Switch this to an inline and handle alloc() failures */
 /* Helper macro called from libssh2_kex_method_diffie_hellman_group1_sha1_key_exchange */
