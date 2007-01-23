@@ -90,14 +90,14 @@ static int init (LIBSSH2_SESSION *session,
 	return 0;
 }
 
-int crypt(LIBSSH2_SESSION *session, unsigned char *block, void **abstract)
+static int crypt(LIBSSH2_SESSION *session, unsigned char *block, void **abstract)
 {
 	struct crypt_ctx *cctx = *(struct crypt_ctx **)abstract;
 	return _libssh2_cipher_crypt(&cctx->h, cctx->algo,
 				     cctx->encrypt, block);
 }
 
-int dtor(LIBSSH2_SESSION *session, void **abstract)
+static int dtor(LIBSSH2_SESSION *session, void **abstract)
 {
 	struct crypt_ctx **cctx = (struct crypt_ctx **)abstract;
 	if (cctx && *cctx) {

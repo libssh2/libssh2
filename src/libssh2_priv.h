@@ -260,7 +260,7 @@ struct _LIBSSH2_SESSION {
 /* libssh2 extensible ssh api, ultimately I'd like to allow loading additional methods via .so/.dll */
 
 struct _LIBSSH2_KEX_METHOD {
-	char *name;
+	const char *name;
 
 	/* Key exchange, populates session->* and returns 0 on success, non-0 on error */
 	int (*exchange_keys)(LIBSSH2_SESSION *session);
@@ -269,11 +269,11 @@ struct _LIBSSH2_KEX_METHOD {
 };
 
 struct _LIBSSH2_HOSTKEY_METHOD {
-	char *name;
+	const char *name;
 	unsigned long hash_len;
 
 	int (*init)(LIBSSH2_SESSION *session, unsigned char *hostkey_data, unsigned long hostkey_data_len, void **abstract);
-	int (*initPEM)(LIBSSH2_SESSION *session, unsigned const char *privkeyfile, unsigned const char *passphrase, void **abstract);
+	int (*initPEM)(LIBSSH2_SESSION *session, const char *privkeyfile, unsigned const char *passphrase, void **abstract);
 	int (*sig_verify)(LIBSSH2_SESSION *session, const unsigned char *sig, unsigned long sig_len, const unsigned char *m, unsigned long m_len, void **abstract);
 	int (*signv)(LIBSSH2_SESSION *session, unsigned char **signature, unsigned long *signature_len, unsigned long veccount, const struct iovec datavec[], void **abstract);
 	int (*encrypt)(LIBSSH2_SESSION *session, unsigned char **dst, unsigned long *dst_len, const unsigned char *src, unsigned long src_len, void **abstract);
@@ -281,7 +281,7 @@ struct _LIBSSH2_HOSTKEY_METHOD {
 };
 
 struct _LIBSSH2_CRYPT_METHOD {
-	char *name;
+	const char *name;
 
 	int blocksize;
 
@@ -299,7 +299,7 @@ struct _LIBSSH2_CRYPT_METHOD {
 };
 
 struct _LIBSSH2_COMP_METHOD {
-	char *name;
+	const char *name;
 
 	int (*init)(LIBSSH2_SESSION *session, int compress, void **abstract);
 	int (*comp)(LIBSSH2_SESSION *session, int compress, unsigned char **dest, unsigned long *dest_len, unsigned long payload_limit, int *free_dest,
@@ -308,7 +308,7 @@ struct _LIBSSH2_COMP_METHOD {
 };
 
 struct _LIBSSH2_MAC_METHOD {
-	char *name;
+	const char *name;
 
 	/* The length of a given MAC packet */
 	int mac_len;

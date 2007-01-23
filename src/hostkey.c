@@ -301,7 +301,7 @@ static int libssh2_hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION *session, c
 		libssh2_error(session, LIBSSH2_ERROR_PROTO, "Invalid DSS signature length", 0);
 		return -1;
 	}
-	return _libssh2_dsa_sha1_verify(dsactx, sig, sig_len, m, m_len);
+	return _libssh2_dsa_sha1_verify(dsactx, sig, m, m_len);
 }
 /* }}} */
 
