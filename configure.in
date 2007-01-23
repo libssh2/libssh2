@@ -64,6 +64,8 @@ AC_ARG_WITH(openssl,
   AC_HELP_STRING([--with-openssl=DIR],[Look for OpenSSL in PATH]),
   [LIBSSH2_OPENSSL_DIR=$withval],[LIBSSH2_OPENSSL_DIR=yes])
 
+if test "$use_libgcrypt" = "no"; then
+
 if test "$LIBSSH2_OPENSSL_DIR" = "no" || test "$LIBSSH2_OPENSSL_DIR" = "yes"; then
   unset LIBSSH2_OPENSSL_DIR
 fi
@@ -137,6 +139,8 @@ fi
 
 CFLAGS="$CFLAGS $OPENSSL_INCLINE"
 LDFLAGS="$LDFLAGS $OPENSSL_LIBLINE"
+
+fi
 
 #
 # zlib
