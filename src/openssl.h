@@ -127,7 +127,7 @@
 #define libssh2_hmac_final(ctx, data) HMAC_Final(&(ctx), data, NULL)
 #define libssh2_hmac_cleanup(ctx) HMAC_cleanup(ctx)
 
-#define libssh2_crypto_init()
+#define libssh2_crypto_init() 1
 
 #define libssh2_rsa_ctx RSA
 
@@ -148,21 +148,11 @@ int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
 		     unsigned long e2len,
 		     const unsigned char *coeffdata,
 		     unsigned long coefflen);
-int _libssh2_rsa_new_private (libssh2_rsa_ctx **rsa,
-			      LIBSSH2_SESSION *session,
-			      FILE *fp,
-			      unsigned const char *passphrase);
 int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
 			     const unsigned char *sig,
 			     unsigned long sig_len,
 			     const unsigned char *m,
 			     unsigned long m_len);
-int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-			   libssh2_rsa_ctx *rsactx,
-			   const unsigned char *hash,
-			   unsigned long hash_len,
-			   unsigned char **signature,
-			   unsigned long *signature_len);
 
 #define _libssh2_rsa_free(rsactx) RSA_free(rsactx)
 
@@ -179,10 +169,6 @@ int _libssh2_dsa_new(libssh2_dsa_ctx **dsa,
 		     unsigned long ylen,
 		     const unsigned char *x,
 		     unsigned long x_len);
-int _libssh2_dsa_new_private (libssh2_dsa_ctx **dsa,
-			      LIBSSH2_SESSION *session,
-			      FILE *fp,
-			      unsigned const char *passphrase);
 int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 			     const unsigned char *sig,
 			     unsigned long sig_len,
