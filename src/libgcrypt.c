@@ -151,78 +151,91 @@ int _libssh2_rsa_new_private (libssh2_rsa_ctx **rsa,
 {
 	char *data, *save_data;
 	unsigned int datalen;
-	int err;
+	int ret;
 	char *n, *e, *d, *p, *q, *e1, *e2, *coeff;
 	unsigned int nlen, elen, dlen, plen, qlen, e1len, e2len, coefflen;
 
-	err = _libssh2_pem_parse (session,
+	ret = _libssh2_pem_parse (session,
 				  "-----BEGIN RSA PRIVATE KEY-----",
 				  "-----END RSA PRIVATE KEY-----",
 				  fp, &data, &datalen);
-	if (err) {
+	if (ret) {
 		return -1;
 	}
 
 	save_data = data;
 
 	if (_libssh2_pem_decode_sequence (&data, &datalen)) {
-		return -1;
+		ret = -1;
+		goto fail;
 	}
 /* First read Version field (should be 0). */
-	err = _libssh2_pem_decode_integer (&data, &datalen, &n, &nlen);
-	if (err != 0 || (nlen != 1 && *n != '\0')) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &n, &nlen);
+	if (ret != 0 || (nlen != 1 && *n != '\0')) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &n, &nlen);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &n, &nlen);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &e, &elen);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &e, &elen);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &d, &dlen);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &d, &dlen);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &p, &plen);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &p, &plen);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &q, &qlen);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &q, &qlen);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &e1, &e1len);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &e1, &e1len);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &e2, &e2len);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &e2, &e2len);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &coeff, &coefflen);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &coeff, &coefflen);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
 	if (_libssh2_rsa_new (rsa, n, nlen, e, elen, d, dlen, p, plen,
 			      q, qlen, e1, e1len, e2, e2len,
 			      coeff, coefflen)) {
-		return -1;
+		ret = -1;
+		goto fail;
 	}
 
-	LIBSSH2_FREE (session, save_data);
+	ret = 0;
 
-	return 0;
+fail:
+	LIBSSH2_FREE (session, save_data);
+	return ret;
 }
 
 int _libssh2_dsa_new_private (libssh2_dsa_ctx **dsa,
@@ -232,67 +245,78 @@ int _libssh2_dsa_new_private (libssh2_dsa_ctx **dsa,
 {
 	char *data, *save_data;
 	unsigned int datalen;
-	int err;
+	int ret;
 	char *p, *q, *g, *y, *x;
 	unsigned int plen, qlen, glen, ylen, xlen;
 
-	err = _libssh2_pem_parse (session,
+	ret = _libssh2_pem_parse (session,
 				  "-----BEGIN DSA PRIVATE KEY-----",
 				  "-----END DSA PRIVATE KEY-----",
 				  fp, &data, &datalen);
-	if (err) {
+	if (ret) {
 		return -1;
 	}
 
 	save_data = data;
 
 	if (_libssh2_pem_decode_sequence (&data, &datalen)) {
-		return -1;
+		ret = -1;
+		goto fail;
 	}
 
 /* First read Version field (should be 0). */
-	err = _libssh2_pem_decode_integer (&data, &datalen, &p, &plen);
-	if (err != 0 || (plen != 1 && *p != '\0')) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &p, &plen);
+	if (ret != 0 || (plen != 1 && *p != '\0')) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &p, &plen);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &p, &plen);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &q, &qlen);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &q, &qlen);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &g, &glen);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &g, &glen);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &y, &ylen);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &y, &ylen);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
-	err = _libssh2_pem_decode_integer (&data, &datalen, &x, &xlen);
-	if (err != 0) {
-		return -1;
+	ret = _libssh2_pem_decode_integer (&data, &datalen, &x, &xlen);
+	if (ret != 0) {
+		ret = -1;
+		goto fail;
 	}
 
 	if (datalen != 0) {
-		return -1;
+		ret = -1;
+		goto fail;
 	}
 
 	if (_libssh2_dsa_new (dsa, p, plen, q, qlen,
 			      g, glen, y, ylen, x, xlen)) {
-		return -1;
+		ret = -1;
+		goto fail;
 	}
 
-	LIBSSH2_FREE (session, save_data);
+	ret = 0;
 
-	return 0;
+fail:
+	LIBSSH2_FREE (session, save_data);
+	return ret;
 }
 
 int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
@@ -308,15 +332,13 @@ int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
 	const char *tmp;
 	size_t size;
 
-	if (hash_len != SHA_DIGEST_LENGTH)
-	{
+	if (hash_len != SHA_DIGEST_LENGTH) {
 		return -1;
 	}
 
-	rc = gcry_sexp_build (&data, NULL,
-			      "(data (flags pkcs1) (hash sha1 %b))",
-			      hash_len, hash);
-	if (rc != 0) {
+	if (gcry_sexp_build (&data, NULL,
+			     "(data (flags pkcs1) (hash sha1 %b))",
+			     hash_len, hash)) {
 		return -1;
 	}
 
@@ -362,17 +384,15 @@ int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
 	const char *tmp;
 	size_t size;
 
-	if (hash_len != SHA_DIGEST_LENGTH)
-	{
+	if (hash_len != SHA_DIGEST_LENGTH) {
 		return -1;
 	}
 
 	memcpy (zhash + 1, hash, hash_len);
 	zhash[0] = 0;
 
-	rc = gcry_sexp_build (&data, NULL, "(data (value %b))",
-			      hash_len + 1, zhash);
-	if (rc != 0) {
+	if (gcry_sexp_build (&data, NULL, "(data (value %b))",
+			     hash_len + 1, zhash)) {
 		return -1;
 	}
 
@@ -444,15 +464,13 @@ int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 	libssh2_sha1(m, m_len, hash+1);
 	hash[0] = 0;
 
-	rc = gcry_sexp_build (&s_hash, NULL, "(data(flags raw)(value %b))",
-			      SHA_DIGEST_LENGTH+1, hash);
-	if (rc != 0) {
+	if (gcry_sexp_build (&s_hash, NULL, "(data(flags raw)(value %b))",
+			     SHA_DIGEST_LENGTH+1, hash)) {
 		return -1;
 	}
 
-	rc = gcry_sexp_build (&s_sig, NULL, "(sig-val(dsa(r %b)(s %b)))",
-			      20, sig, 20, sig + 20);
-	if (rc != 0) {
+	if (gcry_sexp_build (&s_sig, NULL, "(sig-val(dsa(r %b)(s %b)))",
+			     20, sig, 20, sig + 20)) {
 		gcry_sexp_release (s_hash);
 		return -1;
 	}
@@ -470,28 +488,28 @@ int _libssh2_cipher_init (_libssh2_cipher_ctx *h,
 			  unsigned char *secret,
 			  int encrypt)
 {
-	int mode = 0, err;
+	int mode = 0, ret;
 	int keylen = gcry_cipher_get_algo_keylen (algo);
 
 	if (algo != GCRY_CIPHER_ARCFOUR) {
 		mode = GCRY_CIPHER_MODE_CBC;
 	}
 
-	err = gcry_cipher_open (h, algo, mode, 0);
-	if (err) {
+	ret = gcry_cipher_open (h, algo, mode, 0);
+	if (ret) {
 		return -1;
 	}
 
-	err = gcry_cipher_setkey (*h, secret, keylen);
-	if (err) {
+	ret = gcry_cipher_setkey (*h, secret, keylen);
+	if (ret) {
 		gcry_cipher_close (*h);
 		return -1;
 	}
 
 	if (algo != GCRY_CIPHER_ARCFOUR) {
 		int blklen = gcry_cipher_get_algo_blklen (algo);
-		err = gcry_cipher_setiv (*h, iv, blklen);
-		if (err) {
+		ret = gcry_cipher_setiv (*h, iv, blklen);
+		if (ret) {
 			gcry_cipher_close (*h);
 			return -1;
 		}
@@ -506,18 +524,18 @@ int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
 			  unsigned char *block)
 {
 	size_t blklen = gcry_cipher_get_algo_blklen (algo);
-	int err;
+	int ret;
 	if (blklen == 1) {
 /* Hack for arcfour. */
 		blklen = 8;
 	}
 
 	if (encrypt) {
-		err = gcry_cipher_encrypt (*ctx, block, blklen,
+		ret = gcry_cipher_encrypt (*ctx, block, blklen,
 					   block, blklen);
 	} else {
-		err = gcry_cipher_decrypt (*ctx, block, blklen,
+		ret = gcry_cipher_decrypt (*ctx, block, blklen,
 					   block, blklen);
 	}
-	return err;
+	return ret;
 }
