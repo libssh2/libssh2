@@ -65,6 +65,7 @@ int _libssh2_pem_parse (LIBSSH2_SESSION *session,
 	char line[LINE_SIZE];
 	char *b64data = NULL;
 	unsigned int b64datalen = 0;
+	int ret;
 
 	do
 	{
@@ -89,7 +90,8 @@ int _libssh2_pem_parse (LIBSSH2_SESSION *session,
 					       b64datalen + linelen);
 			if (!tmp)
 			{
-				return -1;
+				ret = -1;
+				goto out;
 			}
 			memcpy (tmp + b64datalen, line, linelen);
 			b64data = tmp;
@@ -98,17 +100,24 @@ int _libssh2_pem_parse (LIBSSH2_SESSION *session,
 
 		if (readline(line, LINE_SIZE, fp))
 		{
-			return -1;
+			ret = -1;
+			goto out;
 		}
 	} while (strcmp (line, headerend) != 0);
 
 	if (libssh2_base64_decode(session, data, datalen,
 				  b64data, b64datalen))
 	{
-		return -1;
+		ret = -1;
+		goto out;
 	}
 
-	return 0;
+	ret = 0;
+out:
+	if (b64data) {
+		LIBSSH2_FREE (session, b64data);
+	}
+	return ret;
 }
 
 static int read_asn1_length (const unsigned char *data,
