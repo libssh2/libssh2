@@ -1,5 +1,5 @@
 /*
- * $Id: scp.c,v 1.1 2007/01/30 11:07:14 bagder Exp $
+ * $Id: scp.c,v 1.2 2007/01/30 11:10:26 bagder Exp $
  *
  * Sample showing how to do a simple SCP transfer.
  */
@@ -53,16 +53,6 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "failed to connect!\n");
 		return -1;
 	}
-
-	/* We set the socket non-blocking. We do it after the connect just to
-	   simplify the example code. */
-#ifdef F_SETFL
-	/* FIXME: this can/should be done in a more portable manner */
-	rc = fcntl(sock, F_GETFL, 0);
-	fcntl(sock, F_SETFL, rc | O_NONBLOCK);
-#else
-#error "add support for setting the socket non-blocking here"
-#endif
 
 	/* Create a session instance
 	 */
