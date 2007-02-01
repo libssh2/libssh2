@@ -1,5 +1,5 @@
 /*
- * $Id: scp.c,v 1.2 2007/01/30 11:10:26 bagder Exp $
+ * $Id: scp.c,v 1.3 2007/02/01 22:39:45 bagder Exp $
  *
  * Sample showing how to do a simple SCP transfer.
  */
@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
 	char *scppath=(char *)"/tmp/TEST";
 	struct stat fileinfo;
 	int rc;
+	off_t got=0;
 
 #ifdef WIN32
 	WSADATA wsadata;
@@ -116,16 +117,26 @@ int main(int argc, char *argv[])
 		goto shutdown;
 	}
 
-	do {
+
+	while(got < fileinfo.st_size) {
 		char mem[1024];
-		/* loop until we fail */
-		rc = libssh2_channel_read(channel, mem, sizeof(mem));
-		fprintf(stderr, "libssh2_channel_read returned %d\n",
-			rc);
-		if(rc > 0) {
+		int amount=sizeof(mem);
+
+		if((fileinfo.st_size -got) < amount) {
+			amount = fileinfo.st_size -got;
+		}
+
+		rc = libssh2_channel_read(channel, mem, amount);
+		if(rc == amount) {
 			write(2, mem, rc);
 		}
-	} while (rc > 0);
+		else {
+			fprintf(stderr, "libssh2_channel_read() failed: %d\n",
+				rc);
+			break;
+		}
+		got += rc;
+	}
 
 	libssh2_channel_free(channel);
 	channel = NULL;
