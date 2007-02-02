@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -37,7 +37,7 @@
 
 #include "libssh2_priv.h"
 
-#if LIBSSH2_CRYPT_NONE
+#ifdef LIBSSH2_CRYPT_NONE
 /* {{{ libssh2_crypt_none_crypt
  * Minimalist cipher: VERY secure *wink*
  */
@@ -93,6 +93,7 @@ static int init (LIBSSH2_SESSION *session,
 static int crypt(LIBSSH2_SESSION *session, unsigned char *block, void **abstract)
 {
 	struct crypt_ctx *cctx = *(struct crypt_ctx **)abstract;
+	(void)session;
 	return _libssh2_cipher_crypt(&cctx->h, cctx->algo,
 				     cctx->encrypt, block);
 }
@@ -234,7 +235,7 @@ static LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
 #if LIBSSH2_3DES
 	&libssh2_crypt_method_3des_cbc,
 #endif /*  LIBSSH2_DES */
-#if LIBSSH2_CRYPT_NONE
+#ifdef LIBSSH2_CRYPT_NONE
 	&libssh2_crypt_method_none,
 #endif
 	NULL

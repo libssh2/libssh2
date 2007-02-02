@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -79,6 +79,7 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 	unsigned char *s, *f_value, *k_value = NULL, *h_sig;
 	unsigned long f_value_len, k_value_len, h_sig_len;
 	libssh2_sha1_ctx exchange_hash;
+	int rc;
 
 	/* Generate x and e */
 	_libssh2_bn_rand(x, group_order, 0, -1);
@@ -108,7 +109,8 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 #ifdef LIBSSH2_DEBUG_KEX
 	_libssh2_debug(session, LIBSSH2_DBG_KEX, "Sending KEX packet %d", (int)packet_type_init);
 #endif
-	if (libssh2_packet_write(session, e_packet, e_packet_len)) {
+	rc = libssh2_packet_write(session, e_packet, e_packet_len);
+	if (rc) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send KEX init message", 0);
 		ret = -11;
 		goto clean_exit;
@@ -135,8 +137,11 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 	}
 
 	/* Wait for KEX reply */
-	if (libssh2_packet_require(session, packet_type_reply, &s_packet, &s_packet_len)) {
-		libssh2_error(session, LIBSSH2_ERROR_TIMEOUT, "Timed out waiting for KEX reply", 0);
+	rc = libssh2_packet_require(session, packet_type_reply, &s_packet,
+				    &s_packet_len);
+	if (rc) {
+		libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
+			      "Timed out waiting for KEX reply", 0);
 		ret = -1;
 		goto clean_exit;
 	}
@@ -514,7 +519,7 @@ static int libssh2_kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_S
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 		0xC9, 0x0F, 0xDA, 0xA2, 0x21, 0x68, 0xC2, 0x34,
 		0xC4, 0xC6, 0x62, 0x8B, 0x80, 0xDC, 0x1C, 0xD1,
- 		0x29, 0x02, 0x4E, 0x08, 0x8A, 0x67, 0xCC, 0x74,
+		0x29, 0x02, 0x4E, 0x08, 0x8A, 0x67, 0xCC, 0x74,
 		0x02, 0x0B, 0xBE, 0xA6, 0x3B, 0x13, 0x9B, 0x22,
 		0x51, 0x4A, 0x08, 0x79, 0x8E, 0x34, 0x04, 0xDD,
 		0xEF, 0x95, 0x19, 0xB3, 0xCD, 0x3A, 0x43, 0x1B,
@@ -599,7 +604,7 @@ static int libssh2_kex_method_diffie_hellman_group_exchange_sha1_key_exchange(LI
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send Group Exchange Request", 0);
 		ret = -1;
 		goto dh_gex_clean_exit;
-	}	
+	}
 
 	if (libssh2_packet_require(session, SSH_MSG_KEX_DH_GEX_GROUP, &data, &data_len)) {
 		libssh2_error(session, LIBSSH2_ERROR_TIMEOUT, "Timeout waiting for GEX_GROUP reply", 0);
@@ -813,7 +818,7 @@ static int libssh2_kexinit(LIBSSH2_SESSION *session)
 
 	return 0;
 }
-/* }}}  */
+/* }}}	*/
 
 /* {{{ libssh2_kex_agree_instr
  * Kex specific variant of strstr()
@@ -907,7 +912,9 @@ static int libssh2_kex_agree_hostkey(LIBSSH2_SESSION *session, unsigned long kex
 	}
 
 	while (hostkeyp && (*hostkeyp)->name) {
-		s = libssh2_kex_agree_instr(hostkey, hostkey_len, (*hostkeyp)->name, strlen((*hostkeyp)->name));
+		s = libssh2_kex_agree_instr(hostkey, hostkey_len,
+					    (unsigned char *)(*hostkeyp)->name,
+					    strlen((*hostkeyp)->name));
 		if (s) {
 			/* So far so good, but does it suit our purposes? (Encrypting vs Signing) */
 			if (((kex_flags & LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY) == 0) ||
@@ -972,7 +979,9 @@ static int libssh2_kex_agree_kex_hostkey(LIBSSH2_SESSION *session, unsigned char
 	}
 
 	while (*kexp && (*kexp)->name) {
-		s = libssh2_kex_agree_instr(kex, kex_len, (*kexp)->name, strlen((*kexp)->name));
+		s = libssh2_kex_agree_instr(kex, kex_len,
+					    (unsigned char *)(*kexp)->name,
+					    strlen((*kexp)->name));
 		if (s) {
 			/* We've agreed on a key exchange method,
 			 * Can we agree on a hostkey that works with this kex?
@@ -1014,7 +1023,7 @@ static int libssh2_kex_agree_crypt(LIBSSH2_SESSION *session,
 
 			if (libssh2_kex_agree_instr(crypt, crypt_len, s, method_len)) {
 				LIBSSH2_CRYPT_METHOD *method =
-					(LIBSSH2_CRYPT_METHOD*)libssh2_get_method_by_name(s, method_len, (LIBSSH2_COMMON_METHOD**)cryptp);
+					(LIBSSH2_CRYPT_METHOD*)libssh2_get_method_by_name((char *)s, method_len, (LIBSSH2_COMMON_METHOD**)cryptp);
 
 				if (!method) {
 					/* Invalid method -- Should never be reached */
@@ -1031,7 +1040,9 @@ static int libssh2_kex_agree_crypt(LIBSSH2_SESSION *session,
 	}
 
 	while (*cryptp && (*cryptp)->name) {
-		s = libssh2_kex_agree_instr(crypt, crypt_len, (*cryptp)->name, strlen((*cryptp)->name));
+		s = libssh2_kex_agree_instr(crypt, crypt_len,
+					    (unsigned char *)(*cryptp)->name,
+					    strlen((*cryptp)->name));
 		if (s) {
 			endpoint->crypt = *cryptp;
 			return 0;
@@ -1076,7 +1087,9 @@ static int libssh2_kex_agree_mac(LIBSSH2_SESSION *session, libssh2_endpoint_data
 	}
 
 	while (*macp && (*macp)->name) {
-		s = libssh2_kex_agree_instr(mac, mac_len, (*macp)->name, strlen((*macp)->name));
+		s = libssh2_kex_agree_instr(mac, mac_len,
+					    (unsigned char *)(*macp)->name,
+					    strlen((*macp)->name));
 		if (s) {
 			endpoint->mac = *macp;
 			return 0;
@@ -1121,7 +1134,9 @@ static int libssh2_kex_agree_comp(LIBSSH2_SESSION *session, libssh2_endpoint_dat
 	}
 
 	while (*compp && (*compp)->name) {
-		s = libssh2_kex_agree_instr(comp, comp_len, (*compp)->name, strlen((*compp)->name));
+		s = libssh2_kex_agree_instr(comp, comp_len,
+					    (unsigned char *)(*compp)->name,
+					    strlen((*compp)->name));
 		if (s) {
 			endpoint->comp = *compp;
 			return 0;
@@ -1261,7 +1276,7 @@ int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange) /* session->f
 			}
 			session->local.kexinit = oldlocal;
 			session->local.kexinit_len = oldlocal_len;
-			return -1;
+			return -2;
 		}
 
 		if (session->remote.kexinit) {
@@ -1271,13 +1286,13 @@ int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange) /* session->f
 		session->remote.kexinit_len = data_len;
 
 		if (libssh2_kex_agree_methods(session, data, data_len)) {
-			return -1;
+			return -3;
 		}
 	}
 
 	if (session->kex->exchange_keys(session)) {
 		libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE, "Unrecoverable error exchanging keys", 0);
-		return -1;
+		return -4;
 	}
 
 	/* Done with kexinit buffers */

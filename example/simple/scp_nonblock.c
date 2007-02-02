@@ -1,11 +1,10 @@
 /*
- * $Id: sftp.c,v 1.2 2007/02/02 16:21:20 bagder Exp $
+ * $Id: scp_nonblock.c,v 1.1 2007/02/02 16:21:20 bagder Exp $
  *
- * Sample showing how to do SFTP transfers.
+ * Sample showing how to do SCP transfers in a non-blocking manner.
  */
 
 #include <libssh2.h>
-#include <libssh2_sftp.h>
 
 #ifndef WIN32
 # include <netinet/in.h>
@@ -27,12 +26,13 @@ int main(int argc, char *argv[])
 	struct sockaddr_in sin;
 	const char *fingerprint;
 	LIBSSH2_SESSION *session;
+	LIBSSH2_CHANNEL *channel;
 	char *username=(char *)"username";
 	char *password=(char *)"password";
-	char *sftppath=(char *)"/tmp/TEST";
+	char *scppath=(char *)"/tmp/TEST";
+	struct stat fileinfo;
 	int rc;
-	LIBSSH2_SFTP *sftp_session;
-	LIBSSH2_SFTP_HANDLE *sftp_handle;
+	off_t got=0;
 
 #ifdef WIN32
 	WSADATA wsadata;
@@ -54,6 +54,16 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "failed to connect!\n");
 		return -1;
 	}
+
+	/* We set the socket non-blocking. We do it after the connect just to
+	   simplify the example code. */
+#ifdef F_SETFL
+	/* FIXME: this can/should be done in a more portable manner */
+	rc = fcntl(sock, F_GETFL, 0);
+	fcntl(sock, F_SETFL, rc | O_NONBLOCK);
+#else
+#error "add support for setting the socket non-blocking here"
+#endif
 
 	/* Create a session instance
 	 */
@@ -89,7 +99,7 @@ int main(int argc, char *argv[])
 		password = argv[2];
 	}
 	if(argc > 3) {
-		sftppath = argv[3];
+		scppath = argv[3];
 	}
 
 	if (auth_pw) {
@@ -109,45 +119,66 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	fprintf(stderr, "libssh2_sftp_init()!\n");
-	sftp_session = libssh2_sftp_init(session);
+	/* Request a file via SCP */
+	channel = libssh2_scp_recv(session, scppath, &fileinfo);
 
-	if (!sftp_session) {
-		fprintf(stderr, "Unable to init SFTP session\n");
+	if (!channel) {
+		fprintf(stderr, "Unable to open a session\n");
 		goto shutdown;
 	}
+	fprintf(stderr, "libssh2_scp_recv() is done, now receive data!\n");
 
-	fprintf(stderr, "libssh2_sftp_open()!\n");
-	/* Request a file via SFTP */
-	sftp_handle =
-		libssh2_sftp_open(sftp_session, sftppath, LIBSSH2_FXF_READ, 0);
+	while(got < fileinfo.st_size) {
+		char mem[1000];
 
-	if (!sftp_handle) {
-		fprintf(stderr, "Unable to open file with SFTP\n");
-		goto shutdown;
-	}
-	fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
-	do {
-		char mem[512];
+		struct timeval timeout;
+		int rc;
+		fd_set fd;
 
-		/* loop until we fail */
-		fprintf(stderr, "libssh2_sftp_read()!\n");
-		rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
-		if(rc > 0) {
-			write(2, mem, rc);
+		do {
+			int amount=sizeof(mem);
+
+			if((fileinfo.st_size -got) < amount) {
+				amount = fileinfo.st_size -got;
+			}
+
+			/* loop until we block */
+			rc = libssh2_channel_readnb(channel, mem, amount);
+			if(rc > 0) {
+				write(2, mem, rc);
+				got += rc;
+			}
+		} while (rc > 0);
+
+		if(rc == LIBSSH2CHANNEL_EAGAIN) {
+			/* this is due to blocking that would occur otherwise
+			   so we loop on this condition */
+
+			timeout.tv_sec = 10;
+			timeout.tv_usec = 0;
+
+			FD_ZERO(&fd);
+
+			FD_SET(sock, &fd);
+
+			rc = select(sock+1, &fd, &fd, NULL, &timeout);
+			if(rc <= 0) {
+				/* negative is error
+				   0 is timeout */
+				fprintf(stderr, "SCP timed out: %d\n", rc);
+			}
+			continue;
 		}
-		else
-			break;
 		break;
+	}
 
-	} while (1);
-
-	libssh2_sftp_close(sftp_handle);
-	libssh2_sftp_shutdown(sftp_session);
+	libssh2_channel_free(channel);
+	channel = NULL;
 
  shutdown:
 
-	libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing");
+	libssh2_session_disconnect(session,
+				   "Normal Shutdown, Thank you for playing");
 	libssh2_session_free(session);
 
 #ifdef WIN32

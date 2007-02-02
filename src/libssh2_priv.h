@@ -54,6 +54,15 @@
 #include "openssl.h"
 #endif
 
+/* RFC4253 section 6.1 Maximum Packet Length says:
+ *
+ * "All implementations MUST be able to process packets with
+ * uncompressed payload length of 32768 bytes or less and
+ * total packet size of 35000 bytes or less (including length,
+ * padding length, payload, padding, and MAC.)."
+ */
+#define MAX_SSH_PACKET_LEN 35000
+
 #define LIBSSH2_ALLOC(session, count)								session->alloc((count), &(session)->abstract)
 #define LIBSSH2_REALLOC(session, ptr, count)						((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : session->alloc((count), &(session)->abstract))
 #define LIBSSH2_FREE(session, ptr)									session->free((ptr), &(session)->abstract)
@@ -173,6 +182,43 @@ typedef struct _libssh2_endpoint_data {
 	char *lang_prefs;
 } libssh2_endpoint_data;
 
+#define PACKETBUFSIZE 4096
+
+struct transportpacket {
+	/* ------------- for incoming data --------------- */
+	unsigned char buf[PACKETBUFSIZE];
+	unsigned char init[5]; /* first 5 bytes of the incoming data stream,
+				  still encrypted */
+	int writeidx;	    /* at what array index we do the next write into
+			       the buffer */
+	int readidx;	    /* at what array index we do the next read from
+			       the buffer */
+	int packet_length;  /* the most recent packet_length as read from the
+			       network data */
+	int padding_length; /* the most recent padding_length as read from the
+			       network data */
+	int data_num;	    /* How much of the total package that has been read
+			       so far. */
+	int total_num;	    /* How much a total package is supposed to be, in
+			       number of bytes. A full package is
+			       packet_length + padding_length + 4 +
+			       mac_length. */
+	unsigned char *payload; /* this is a pointer to a LIBSSH2_ALLOC()
+				   area to which we write decrypted data */
+	unsigned char *wptr;  /* write pointer into the payload to where we
+				 are currently writing decrypted data */
+
+	/* ------------- for outgoing data --------------- */
+	unsigned char *outbuf; /* pointer to a LIBSSH2_ALLOC() area for the
+				  outgoing data */
+	int ototal_num;       /* size of outbuf in number of bytes */
+	unsigned char *odata; /* original pointer to the data we stored in
+				 outbuf */
+	unsigned long olen;   /* original size of the data we stored in
+				 outbuf */
+	unsigned long osent;  /* number of bytes already sent */
+};
+
 struct _LIBSSH2_SESSION {
 	/* Memory management callbacks */
 	void *abstract;
@@ -240,6 +286,9 @@ struct _LIBSSH2_SESSION {
 	unsigned long err_msglen;
 	int err_should_free;
 	int err_code;
+
+	/* struct members for packet-level reading */
+	struct transportpacket packet;
 };
 
 /* session.state bits */
@@ -345,7 +394,7 @@ void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, .
 	if (session->err_msg && session->err_should_free) { \
 		LIBSSH2_FREE(session, session->err_msg); \
 	} \
-	session->err_msg = errmsg; \
+	session->err_msg = (char *)errmsg; \
 	session->err_msglen = strlen(errmsg); \
 	session->err_should_free = should_free; \
 	session->err_code = errcode; \
@@ -359,7 +408,7 @@ void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, .
 	if (session->err_msg && session->err_should_free) { \
 		LIBSSH2_FREE(session, session->err_msg); \
 	} \
-	session->err_msg = errmsg; \
+	session->err_msg = (char *)errmsg; \
 	session->err_msglen = strlen(errmsg); \
 	session->err_should_free = should_free; \
 	session->err_code = errcode; \
@@ -440,7 +489,27 @@ libssh2_uint64_t libssh2_ntohu64(const unsigned char *buf);
 void libssh2_htonu32(unsigned char *buf, unsigned long val);
 void libssh2_htonu64(unsigned char *buf, libssh2_uint64_t val);
 
-int libssh2_packet_read(LIBSSH2_SESSION *session, int block);
+#define LIBSSH2_READ_TIMEOUT 60 /* generic timeout in seconds used when
+				   waiting for more data to arrive */
+int libssh2_waitsocket(LIBSSH2_SESSION *session, long seconds);
+
+
+/* CAUTION: some of these error codes are returned in the public API and is
+   there known with other #defined names from the public header file. They
+   should not be changed. */
+typedef int libssh2pack_t;
+
+#define PACKET_TIMEOUT -7
+#define PACKET_BADUSE -6
+#define PACKET_COMPRESS -5
+#define PACKET_TOOBIG -4
+#define PACKET_ENOMEM -3
+#define PACKET_EAGAIN -2
+#define PACKET_FAIL -1
+#define PACKET_NONE 0
+
+libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION *session);
+
 int libssh2_packet_ask_ex(LIBSSH2_SESSION *session, unsigned char packet_type, unsigned char **data, unsigned long *data_len, unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len, int poll_socket);
 #define libssh2_packet_ask(session, packet_type, data, data_len, poll_socket)	\
 		libssh2_packet_ask_ex((session), (packet_type), (data), (data_len), 0, NULL, 0, (poll_socket))
@@ -448,16 +517,32 @@ int libssh2_packet_askv_ex(LIBSSH2_SESSION *session, unsigned char *packet_types
 #define libssh2_packet_askv(session, packet_types, data, data_len, poll_socket)	\
 		libssh2_packet_askv_ex((session), (packet_types), (data), (data_len), 0, NULL, 0, (poll_socket))
 int libssh2_packet_require_ex(LIBSSH2_SESSION *session, unsigned char packet_type, unsigned char **data, unsigned long *data_len, unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len);
-#define libssh2_packet_require(session, packet_type, data, data_len)			\
-		libssh2_packet_require_ex((session), (packet_type), (data), (data_len), 0, NULL, 0)
+#define libssh2_packet_require(session, packet_type, data, data_len) \
+ libssh2_packet_require_ex((session), (packet_type), (data), (data_len), 0, NULL, 0)
 int libssh2_packet_requirev_ex(LIBSSH2_SESSION *session, unsigned char *packet_types, unsigned char **data, unsigned long *data_len, unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len);
 #define libssh2_packet_requirev(session, packet_types, data, data_len)			\
 		libssh2_packet_requirev_ex((session), (packet_types), (data), (data_len), 0, NULL, 0)
 int libssh2_packet_burn(LIBSSH2_SESSION *session);
 int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data, unsigned long data_len);
+int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t datalen, int macstate);
 int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange);
 unsigned long libssh2_channel_nextid(LIBSSH2_SESSION *session);
 LIBSSH2_CHANNEL *libssh2_channel_locate(LIBSSH2_SESSION *session, unsigned long channel_id);
+ssize_t _libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel,
+				 int stream_id, char *buf, size_t buflen);
+#define _libssh2_channel_read(channel, buf, buflen) \
+  _libssh2_channel_read_ex((channel), 0, (buf), (buflen))
+#undef libssh2_channel_read /* never use this internally */
+#define libssh2_channel_read fix this code
+
+int _libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel,
+			      int stream_id,
+			      const char *buf, size_t buflen);
+#define _libssh2_channel_write(channel, buf, buflen) \
+  _libssh2_channel_write_ex((channel), 0, (buf), (buflen))
+
+/* this is the lib-internal set blocking function */
+int _libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking);
 
 /* Let crypt.c/hostkey.c/comp.c/mac.c expose their method structs */
 LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);

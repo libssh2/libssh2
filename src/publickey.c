@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -147,7 +147,7 @@ static int libssh2_publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey, unsigned ch
 	unsigned long packet_len;
 	unsigned char *packet;
 
-	if (libssh2_channel_read(channel, (char *)buffer, 4) != 4) {
+	if (_libssh2_channel_read(channel, (char *)buffer, 4) != 4) {
 		libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL, "Invalid response from publickey subsystem", 0);
 		return -1;
 	}
@@ -159,7 +159,7 @@ static int libssh2_publickey_packet_receive(LIBSSH2_PUBLICKEY *pkey, unsigned ch
 		return -1;
 	}
 
-	if (libssh2_channel_read(channel, (char *)packet, packet_len) != packet_len) {
+	if (_libssh2_channel_read(channel, (char *)packet, packet_len) != packet_len) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT, "Timeout waiting for publickey subsystem response packet", 0);
 		LIBSSH2_FREE(session, packet);
 		return -1;

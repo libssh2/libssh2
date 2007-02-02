@@ -181,15 +181,15 @@ void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, .
 	int len;
 	va_list vargs;
 	char *contexts[9] = {	"Unknown",
-							"Transport",
-							"Key Exhange",
-							"Userauth",
-							"Connection",
-							"scp",
-							"SFTP Subsystem",
-							"Failure Event",
-							"Publickey Subsystem",
-						 };
+				"Transport",
+				"Key Exhange",
+				"Userauth",
+				"Connection",
+				"scp",
+				"SFTP Subsystem",
+				"Failure Event",
+				"Publickey Subsystem",
+	};
 
 	if (context < 1 || context > 8) {
 		context = 0;
