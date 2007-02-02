@@ -16,7 +16,7 @@ Version
 
   simple self test added to tests/
 
-  libgcrypt is supported (work in progress)
+  libgcrypt is fully supported
 
 Version 0.14
 ------------
