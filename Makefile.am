@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign nostdinc
 
-SUBDIRS = src example tests
+SUBDIRS = src example tests docs
 
 include_HEADERS = include/libssh2.h include/libssh2_publickey.h	\
  include/libssh2_sftp.h
