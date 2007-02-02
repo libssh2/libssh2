@@ -289,6 +289,9 @@ struct _LIBSSH2_SESSION {
 
 	/* struct members for packet-level reading */
 	struct transportpacket packet;
+#ifdef LIBSSH2DEBUG
+	int showmask; /* what debug/trace messages to display */
+#endif
 };
 
 /* session.state bits */
@@ -371,24 +374,31 @@ struct _LIBSSH2_MAC_METHOD {
 	int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
 };
 
-#if defined(LIBSSH2_DEBUG_TRANSPORT) || defined(LIBSSH2_DEBUG_KEX) || defined(LIBSSH2_DEBUG_USERAUTH) || defined(LIBSSH2_DEBUG_CONNECTION) || defined(LIBSSH2_DEBUG_SCP) || defined(LIBSSH2_DEBUG_SFTP) || defined(LIBSSH2_DEBUG_ERRORS)
-#define LIBSSH2_DEBUG_ENABLED
-
-/* Internal debugging contexts -- Used with --enable-debug-* */
-#define LIBSSH2_DBG_TRANS						1
-#define LIBSSH2_DBG_KEX							2
-#define LIBSSH2_DBG_AUTH						3
-#define LIBSSH2_DBG_CONN						4
-#define LIBSSH2_DBG_SCP							5
-#define LIBSSH2_DBG_SFTP						6
-#define LIBSSH2_DBG_ERROR						7
-#define LIBSSH2_DBG_PUBLICKEY					8
-
+#ifdef LIBSSH2DEBUG
 void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, ...);
+#define LIBSSH2_DBG_TRANS	1
+#define LIBSSH2_DBG_KEX		2
+#define LIBSSH2_DBG_AUTH	3
+#define LIBSSH2_DBG_CONN	4
+#define LIBSSH2_DBG_SCP		5
+#define LIBSSH2_DBG_SFTP	6
+#define LIBSSH2_DBG_ERROR	7
+#define LIBSSH2_DBG_PUBLICKEY	8
+#else
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+/* C99 style */
+#define _libssh2_debug(x,y,z, __VA_ARGS__) do {} while (0)
+#elif defined(__GNUC__)
+/* GNU style */
+#define _libssh2_debug(x,y,z,...) do {} while (0)
+#else
+/* no gcc and not C99, do static and hopefully inline */
+static inline void _libssh2_debug(LIBSSH2_SESSION *session, int context,
+				  const char *format, ...) {}
+#endif
+#endif
 
-#endif /* LIBSSH2_DEBUG_ENABLED */
-
-#ifdef LIBSSH2_DEBUG_ERRORS
+#ifdef LIBSSH2DEBUG
 #define libssh2_error(session, errcode, errmsg, should_free)	\
 { \
 	if (session->err_msg && session->err_should_free) { \
@@ -401,7 +411,7 @@ void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, .
 	_libssh2_debug(session, LIBSSH2_DBG_ERROR, "%d - %s", session->err_code, session->err_msg); \
 }
 
-#else /* ! LIBSSH2_DEBUG_ERRORS */
+#else /* ! LIBSSH2DEBUG */
 
 #define libssh2_error(session, errcode, errmsg, should_free)	\
 { \

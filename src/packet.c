@@ -100,9 +100,7 @@ inline int libssh2_packet_queue_listener(LIBSSH2_SESSION *session,
         shost = s;                                                                      s += shost_len;
         sport = libssh2_ntohu32(s);                                     s += 4;
 
-#ifdef LIBSSH2_DEBUG_CONNECTION
         _libssh2_debug(session, LIBSSH2_DBG_CONN, "Remote received connection from %s:%ld to %s:%ld", shost, sport, host, port);
-#endif
 
         while (l) {
                 if ((l->port == (int)port) &&
@@ -115,9 +113,7 @@ inline int libssh2_packet_queue_listener(LIBSSH2_SESSION *session,
                                 (l->queue_maxsize <= l->queue_size)) {
                                 /* Queue is full */
                                 failure_code = 4; /* SSH_OPEN_RESOURCE_SHORTAGE */
-#ifdef LIBSSH2_DEBUG_CONNECTION
         _libssh2_debug(session, LIBSSH2_DBG_CONN, "Listener queue full, ignoring");
-#endif
                                 break;
                         }
 
@@ -150,12 +146,10 @@ inline int libssh2_packet_queue_listener(LIBSSH2_SESSION *session,
                         channel->local.window_size = initial_window_size;
                         channel->local.packet_size = packet_size;
 
-#ifdef LIBSSH2_DEBUG_CONNECTION
         _libssh2_debug(session, LIBSSH2_DBG_CONN, "Connection queued: channel %lu/%lu win %lu/%lu packet %lu/%lu",
                                                                                                                 channel->local.id, channel->remote.id,
                                                                                                                 channel->local.window_size, channel->remote.window_size,
                                                                                                                 channel->local.packet_size, channel->remote.packet_size);
-#endif
 
                         p = packet;
                         *(p++) = SSH_MSG_CHANNEL_OPEN_CONFIRMATION;
@@ -233,9 +227,7 @@ inline int libssh2_packet_x11_open(LIBSSH2_SESSION *session,
         shost = s;                                                                              s += shost_len;
         sport = libssh2_ntohu32(s);                                             s += 4;
 
-#ifdef LIBSSH2_DEBUG_CONNECTION
         _libssh2_debug(session, LIBSSH2_DBG_CONN, "X11 Connection Received from %s:%ld on channel %lu", shost, sport, sender_channel);
-#endif
         if (session->x11) {
                 channel = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
                 if (!channel) {
@@ -266,12 +258,10 @@ inline int libssh2_packet_x11_open(LIBSSH2_SESSION *session,
                 channel->local.window_size = initial_window_size;
                 channel->local.packet_size = packet_size;
 
-#ifdef LIBSSH2_DEBUG_CONNECTION
         _libssh2_debug(session, LIBSSH2_DBG_CONN, "X11 Connection established: channel %lu/%lu win %lu/%lu packet %lu/%lu",
                                                                                                                 channel->local.id, channel->remote.id,
                                                                                                                 channel->local.window_size, channel->remote.window_size,
                                                                                                                 channel->local.packet_size, channel->remote.packet_size);
-#endif
                 p = packet;
                 *(p++) = SSH_MSG_CHANNEL_OPEN_CONFIRMATION;
                 libssh2_htonu32(p, channel->remote.id);                                         p += 4;
@@ -331,9 +321,7 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
         LIBSSH2_PACKET *packet;
         unsigned long data_head = 0;
 
-#ifdef LIBSSH2_DEBUG_TRANSPORT
         _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Packet type %d received, length=%d", (int)data[0], (int)datalen);
-#endif
         if (macstate == LIBSSH2_MAC_INVALID) {
                 if (session->macerror) {
                         if (LIBSSH2_MACERROR(session, (char *)data, datalen) == 0) {
@@ -382,9 +370,7 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
                         if (session->ssh_msg_disconnect) {
                                 LIBSSH2_DISCONNECT(session, reason, message, message_len, language, language_len);
                         }
-#ifdef LIBSSH2_DEBUG_TRANSPORT
-        _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Disconnect(%d): %s(%s)", reason, message, language);
-#endif
+			_libssh2_debug(session, LIBSSH2_DBG_TRANS, "Disconnect(%d): %s(%s)", reason, message, language);
                         LIBSSH2_FREE(session, data);
                         session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
                         return -1;
@@ -425,10 +411,8 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
                         if (session->ssh_msg_debug) {
                                 LIBSSH2_DEBUG(session, always_display, message, message_len, language, language_len);
                         }
-#ifdef LIBSSH2_DEBUG_TRANSPORT
         /* _libssh2_debug will actually truncate this for us so that it's not an inordinate about of data */
         _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Debug Packet: %s", message);
-#endif
                         LIBSSH2_FREE(session, data);
                         return 0;
                 }
@@ -445,7 +429,7 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
                                         LIBSSH2_FREE(session, data);
                                         return 0;
                                 }
-#ifdef LIBSSH2_DEBUG_CONNECTION
+#ifdef LIBSSH2DEBUG
 {
         unsigned long stream_id = 0;
 
@@ -460,9 +444,7 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
                                         /* Pretend we didn't receive this */
                                         LIBSSH2_FREE(session, data);
 
-#ifdef LIBSSH2_DEBUG_CONNECTION
         _libssh2_debug(session, LIBSSH2_DBG_CONN, "Ignoring extended data and refunding %d bytes", (int)(datalen - 13));
-#endif
                                         /* Adjust the window based on the block we just freed */
                                         libssh2_channel_receive_window_adjust(channel, datalen - 13, 0);
 
@@ -503,9 +485,7 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
                                         return 0;
                                 }
 
-#ifdef LIBSSH2_DEBUG_CONNECTION
-        _libssh2_debug(session, LIBSSH2_DBG_CONN, "EOF received for channel %lu/%lu", channel->local.id, channel->remote.id);
-#endif
+				_libssh2_debug(session, LIBSSH2_DBG_CONN, "EOF received for channel %lu/%lu", channel->local.id, channel->remote.id);
                                 channel->remote.eof = 1;
 
                                 LIBSSH2_FREE(session, data);
@@ -522,9 +502,7 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
 
                                         if (channel) {
                                                 channel->exit_status = libssh2_ntohu32(data + 9 + sizeof("exit-status"));
-#ifdef LIBSSH2_DEBUG_CONNECTION
                                                 _libssh2_debug(session, LIBSSH2_DBG_CONN, "Exit status %lu received for channel %lu/%lu", channel->exit_status, channel->local.id, channel->remote.id);
-#endif
                                         }
 
                                         LIBSSH2_FREE(session, data);
@@ -541,9 +519,7 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
                                         LIBSSH2_FREE(session, data);
                                         return 0;
                                 }
-#ifdef LIBSSH2_DEBUG_CONNECTION
         _libssh2_debug(session, LIBSSH2_DBG_CONN, "Close received for channel %lu/%lu", channel->local.id, channel->remote.id);
-#endif
 
                                 channel->remote.close = 1;
                                 channel->remote.eof = 1;
@@ -579,9 +555,7 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
                                 if (channel && bytestoadd) {
                                         channel->local.window_size += bytestoadd;
                                 }
-#ifdef LIBSSH2_DEBUG_CONNECTION
         _libssh2_debug(session, LIBSSH2_DBG_CONN, "Window adjust received for channel %lu/%lu, adding %lu bytes, new window_size=%lu", channel->local.id, channel->remote.id, bytestoadd, channel->local.window_size);
-#endif
 
                                 LIBSSH2_FREE(session, data);
                                 return 0;
@@ -614,9 +588,8 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
                  * Well, it's already in the brigade,
                  * let's just call back into ourselves
                  */
-#ifdef LIBSSH2_DEBUG_TRANSPORT
-        _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Renegotiating Keys");
-#endif
+		_libssh2_debug(session, LIBSSH2_DBG_TRANS,
+			       "Renegotiating Keys");
                 libssh2_kex_exchange(session, 1);
                 /* If there was a key reexchange failure, let's just hope we didn't send NEWKEYS yet, otherwise remote will drop us like a rock */
         }
@@ -643,9 +616,9 @@ int libssh2_packet_ask_ex(LIBSSH2_SESSION *session, unsigned char packet_type,
                         return rc;
                 }
         }
-#ifdef LIBSSH2_DEBUG_TRANSPORT
-        _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Looking for packet of type: %d", (int)packet_type);
-#endif
+        _libssh2_debug(session, LIBSSH2_DBG_TRANS,
+		       "Looking for packet of type: %d", (int)packet_type);
+
         while (packet) {
                 if (packet->data[0] == packet_type &&
                     (packet->data_len >= (match_ofs + match_len)) &&
@@ -754,11 +727,10 @@ int libssh2_packet_require_ex(LIBSSH2_SESSION *session,
                 return 0;
         }
 
-#ifdef LIBSSH2_DEBUG_TRANSPORT
         _libssh2_debug(session, LIBSSH2_DBG_TRANS,
                        "Blocking until packet of type %d becomes available",
                        (int)packet_type);
-#endif
+
         while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
                 libssh2pack_t ret = libssh2_packet_read(session);
                 if ((ret < 0)  && (ret != PACKET_EAGAIN)) {
@@ -811,9 +783,9 @@ int libssh2_packet_burn(LIBSSH2_SESSION *session)
                 return i;
         }
 
-#ifdef LIBSSH2_DEBUG_TRANSPORT
-        _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Blocking until packet becomes available to burn");
-#endif
+        _libssh2_debug(session, LIBSSH2_DBG_TRANS,
+		       "Blocking until packet becomes available to burn");
+
         while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
                 int ret = libssh2_packet_read(session);
                 if (ret < 0) {

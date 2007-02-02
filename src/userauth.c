@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -99,9 +99,7 @@ LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, const char *us
 	methods_len = libssh2_ntohu32(data + 1);
 	memcpy(data, data + 5, methods_len);
 	data[methods_len] = '\0';
-#ifdef LIBSSH2_DEBUG_USERAUTH
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Permitted auth methods: %s", data);
-#endif
 	return data;
 }
 /* }}} */
@@ -148,9 +146,7 @@ LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const cha
 	libssh2_htonu32(s, password_len);							s += 4;
 	memcpy(s, password, password_len);							s += password_len;
 
-#ifdef LIBSSH2_DEBUG_USERAUTH
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Attempting to login using password authentication");
-#endif
 	if (libssh2_packet_write(session, data, data_len)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send userauth-password request", 0);
 		LIBSSH2_FREE(session, data);
@@ -164,9 +160,7 @@ LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const cha
 	}
 
 	if (data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-#ifdef LIBSSH2_DEBUG_USERAUTH
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Password authentication successful");
-#endif
 		LIBSSH2_FREE(session, data);
 		session->state |= LIBSSH2_STATE_AUTHENTICATED;
 		return 0;
@@ -176,9 +170,7 @@ LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const cha
 		char *newpw = NULL;
 		int newpw_len = 0;
 
-#ifdef LIBSSH2_DEBUG_USERAUTH
 		_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Password change required");
-#endif
 		LIBSSH2_FREE(session, data);
 		if (passwd_change_cb) {
 			passwd_change_cb(session, &newpw, &newpw_len, &session->abstract);
@@ -245,9 +237,7 @@ static int libssh2_file_read_publickey(LIBSSH2_SESSION *session, unsigned char *
 	size_t pubkey_len = 0;
 	unsigned int tmp_len;
 
-#ifdef LIBSSH2_DEBUG_USERAUTH
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Loading public key file: %s", pubkeyfile);
-#endif
 	/* Read Public Key */
 	fd = fopen(pubkeyfile, "r");
 	if (!fd) {
@@ -330,9 +320,7 @@ static int libssh2_file_read_privatekey(LIBSSH2_SESSION *session,	LIBSSH2_HOSTKE
 {
 	LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail = libssh2_hostkey_methods();
 
-#ifdef LIBSSH2_DEBUG_USERAUTH
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Loading private key file: %s", privkeyfile);
-#endif
 	*hostkey_method = NULL;
 	*hostkey_abstract = NULL;
 	while (*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
@@ -457,9 +445,7 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 	memcpy(s, sig, sig_len);							s += sig_len;
 	LIBSSH2_FREE(session, sig);
 
-#ifdef LIBSSH2_DEBUG_USERAUTH
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Attempting hostbased authentication");
-#endif
 	if (libssh2_packet_write(session, packet, s - packet)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send userauth-hostbased request", 0);
 		LIBSSH2_FREE(session, packet);
@@ -472,9 +458,8 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 	}
 
 	if (data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-#ifdef LIBSSH2_DEBUG_USERAUTH
-	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Hostbased authentication successful");
-#endif
+		_libssh2_debug(session, LIBSSH2_DBG_AUTH,
+			       "Hostbased authentication successful");
 		/* We are us and we've proved it. */
 		LIBSSH2_FREE(session, data);
 		session->state |= LIBSSH2_STATE_AUTHENTICATED;
@@ -534,9 +519,7 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 	libssh2_htonu32(s, pubkeydata_len);				s += 4;
 	memcpy(s, pubkeydata, pubkeydata_len);			s += pubkeydata_len;
 
-#ifdef LIBSSH2_DEBUG_USERAUTH
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Attempting publickey authentication");
-#endif
 	if (libssh2_packet_write(session, packet, packet_len)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send userauth-publickey request", 0);
 		LIBSSH2_FREE(session, packet);
@@ -553,9 +536,7 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 	}
 
 	if (data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-#ifdef LIBSSH2_DEBUG_USERAUTH
 		_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Pubkey authentication prematurely successful");
-#endif
 		/* God help any SSH server that allows an UNVERIFIED public key to validate the user */
 		LIBSSH2_FREE(session, data);
 		LIBSSH2_FREE(session, packet);
@@ -630,9 +611,7 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 	memcpy(s, sig, sig_len);							s += sig_len;
 	LIBSSH2_FREE(session, sig);
 
-#ifdef LIBSSH2_DEBUG_USERAUTH
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Attempting publickey authentication -- phase 2");
-#endif
 	if (libssh2_packet_write(session, packet, s - packet)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send userauth-publickey request", 0);
 		LIBSSH2_FREE(session, packet);
@@ -648,9 +627,7 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 	}
 
 	if (data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-#ifdef LIBSSH2_DEBUG_USERAUTH
 		_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Publickey authentication successful");
-#endif
 		/* We are us and we've proved it. */
 		LIBSSH2_FREE(session, data);
 		session->state |= LIBSSH2_STATE_AUTHENTICATED;
@@ -706,9 +683,7 @@ LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *sessio
 	/* submethods */
 	libssh2_htonu32(s, 0);													s += 4;
 
-#ifdef LIBSSH2_DEBUG_USERAUTH
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Attempting keyboard-interactive authentication");
-#endif
 	if (libssh2_packet_write(session, data, packet_len)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send keyboard-interactive request", 0);
 		LIBSSH2_FREE(session, data);
@@ -735,9 +710,7 @@ LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *sessio
 		}
 
 		if (data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-#ifdef LIBSSH2_DEBUG_USERAUTH
 			_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Keyboard-interactive authentication successful");
-#endif
 			LIBSSH2_FREE(session, data);
 			session->state |= LIBSSH2_STATE_AUTHENTICATED;
 			return 0;
@@ -804,9 +777,7 @@ LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *sessio
 
 		response_callback(auth_name, auth_name_len,  auth_instruction, auth_instruction_len, num_prompts, prompts, responses, &session->abstract);
 
-#ifdef LIBSSH2_DEBUG_USERAUTH
 		_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Keyboard-interactive response callback function invoked");
-#endif
 
 		packet_len = 1 /* byte      SSH_MSG_USERAUTH_INFO_RESPONSE */
 			+ 4        /* int       num-responses */

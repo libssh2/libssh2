@@ -123,9 +123,7 @@ static int libssh2_sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data, unsi
         LIBSSH2_SESSION *session = sftp->channel->session;
         LIBSSH2_PACKET *packet;
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Received packet %d", (int)data[0]);
-#endif
         packet = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_PACKET));
         if (!packet) {
                 libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate datablock for SFTP packet", 0);
@@ -161,9 +159,7 @@ static int libssh2_sftp_packet_read(LIBSSH2_SFTP *sftp, int should_block)
         unsigned char *packet;
         unsigned long packet_len, packet_received;
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Waiting for packet: %s block", should_block ? "will" : "willnot");
-#endif
 	libssh2_channel_set_blocking(channel, should_block);
 	if (4 != _libssh2_channel_read(channel, (char *)buffer, 4)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
@@ -172,10 +168,8 @@ static int libssh2_sftp_packet_read(LIBSSH2_SFTP *sftp, int should_block)
 	}
 
         packet_len = libssh2_ntohu32(buffer);
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP,
                        "Data begin - Packet Length: %lu", packet_len);
-#endif
         if (packet_len > LIBSSH2_SFTP_PACKET_MAXLEN) {
                 libssh2_error(session, LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED, "SFTP packet too large", 0);
                 return -1;
@@ -221,9 +215,7 @@ static int libssh2_sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type
         unsigned char match_buf[5];
         int match_len = 5;
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Asking for %d packet", (int)packet_type);
-#endif
         if (poll_channel) {
                 if (libssh2_sftp_packet_read(sftp, 0) < 0) {
                         return -1;
@@ -272,10 +264,8 @@ static int libssh2_sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type
 static int libssh2_sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type, unsigned long request_id, unsigned char **data, unsigned long *data_len)
 {
         LIBSSH2_SESSION *session = sftp->channel->session;
-
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Requiring %d packet", (int)packet_type);
-#endif
+
         if (libssh2_sftp_packet_ask(sftp, packet_type, request_id, data, data_len, 0) == 0) {
                 /* A packet was available in the packet brigade */
                 return 0;
@@ -470,9 +460,7 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
         unsigned char *data, *s, buffer[9]; /* sftp_header(5){excludes request_id} + version_id(4) */
         unsigned long data_len;
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Initializing SFTP subsystem");
-#endif
         channel = libssh2_channel_open_session(session);
         if (!channel) {
                 libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE, "Unable to startup channel", 0);
@@ -503,9 +491,7 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
         buffer[4] = SSH_FXP_INIT;
         libssh2_htonu32(buffer + 5, LIBSSH2_SFTP_VERSION);
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Sending FXP_INIT packet advertising version %d support", (int)LIBSSH2_SFTP_VERSION);
-#endif
         if (9 != libssh2_channel_write(channel, (char *)buffer, 9)) {
                 libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                               "Unable to send SSH_FXP_INIT", 0);
@@ -532,14 +518,10 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
         s = data + 1;
         sftp->version = libssh2_ntohu32(s);                                     s += 4;
         if (sftp->version > LIBSSH2_SFTP_VERSION) {
-#ifdef LIBSSH2_DEBUG_SFTP
                 _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Truncating remote SFTP version from %lu", sftp->version);
-#endif
                 sftp->version = LIBSSH2_SFTP_VERSION;
         }
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Enabling SFTP version %lu compatability", sftp->version);
-#endif
         while (s < (data + data_len)) {
                 unsigned char *extension_name, *extension_data;
                 unsigned long extname_len, extdata_len;
@@ -612,9 +594,7 @@ LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, char *
                 s += libssh2_sftp_attr2bin(s, &attrs);
         }
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Sending %s open request", (open_type == LIBSSH2_SFTP_OPENFILE) ? "file" : "directory");
-#endif
         if (packet_len != _libssh2_channel_write(channel, (char *)packet,
 						 packet_len)) {
                 libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_OPEN or FXP_OPENDIR command", 0);
@@ -668,9 +648,7 @@ LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, char *
 
         fp->u.file.offset = 0;
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Open command successful");
-#endif
         return fp;
 }
 /* }}} */
@@ -691,9 +669,7 @@ static ssize_t _libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
         unsigned char read_responses[2] = { SSH_FXP_DATA,               SSH_FXP_STATUS };
         size_t bytes_read = 0;
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Reading %lu bytes from SFTP handle", (unsigned long)buffer_maxlen);
-#endif
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
                 libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_CLOSE packet", 0);
@@ -746,11 +722,9 @@ static ssize_t _libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                         if (bytes_read > (data_len - 9)) {
                                 return -1;
                         }
-#ifdef LIBSSH2_DEBUG_SFTP
                         _libssh2_debug(session, LIBSSH2_DBG_SFTP,
                                        "%lu bytes returned",
                                        (unsigned long)bytes_read);
-#endif
                         memcpy(buffer, data + 9, bytes_read);
                         handle->u.file.offset += bytes_read;
                         LIBSSH2_FREE(session, data);
@@ -870,9 +844,7 @@ LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer, 
         libssh2_htonu32(s, handle->handle_len);                         s += 4;
         memcpy(s, handle->handle, handle->handle_len);          s += handle->handle_len;
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Reading entries from directory handle");
-#endif
         if (packet_len != libssh2_channel_write(channel, (char *)packet,
 						packet_len)) {
                 libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_READ command", 0);
@@ -901,9 +873,7 @@ LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer, 
         }
 
         num_names = libssh2_ntohu32(data + 5);
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "%lu entries returned", num_names);
-#endif
         if (num_names <= 0) {
                 LIBSSH2_FREE(session, data);
                 return (num_names == 0) ? 0 : -1;
@@ -955,9 +925,7 @@ static ssize_t _libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *handle,
         ssize_t packet_len = handle->handle_len + count + 25; /* packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) + offset(8) + count(4) */
         unsigned char *packet, *s, *data;
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Writing %lu bytes", (unsigned long)count);
-#endif
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
                 libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_WRITE packet", 0);
@@ -1058,9 +1026,7 @@ LIBSSH2_API int libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_
         unsigned char *packet, *s, *data;
         unsigned char fstat_responses[2] = { SSH_FXP_ATTRS,             SSH_FXP_STATUS };
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Issuing %s command", setstat ? "set-stat" : "stat");
-#endif
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
                 libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FSTAT/FSETSTAT packet", 0);
@@ -1141,9 +1107,7 @@ LIBSSH2_API int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         ssize_t packet_len = handle->handle_len + 13; /* packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
         unsigned char *packet, *s, *data;
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Closing handle");
-#endif
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
                 libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_CLOSE packet", 0);
@@ -1212,9 +1176,7 @@ LIBSSH2_API int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp, char *filename, unsig
         ssize_t packet_len = filename_len + 13; /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) */
         unsigned char *packet, *s, *data;
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Unlinking %s", filename);
-#endif
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
                 libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_REMOVE packet", 0);
@@ -1274,9 +1236,7 @@ LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,  char *source_filenam
                 return -1;
         }
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Renaming %s to %s", source_filename, dest_filename);
-#endif
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
                 libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_RENAME packet", 0);
@@ -1351,9 +1311,7 @@ LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, char *path, unsigned i
                         /* packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
         unsigned char *packet, *s, *data;
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Creating directory %s with mode 0%lo", path, mode);
-#endif
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
                 libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_MKDIR packet", 0);
@@ -1407,9 +1365,7 @@ LIBSSH2_API int libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, char *path, unsigned i
         ssize_t packet_len = path_len + 13; /* packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
         unsigned char *packet, *s, *data;
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Removing directory: %s", path);
-#endif
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
                 libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_MKDIR packet", 0);
@@ -1461,9 +1417,7 @@ LIBSSH2_API int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, char *path, unsigned in
         unsigned char *packet, *s, *data;
         unsigned char stat_responses[2] = { SSH_FXP_ATTRS,              SSH_FXP_STATUS  };
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "%s %s", (stat_type == LIBSSH2_SFTP_SETSTAT) ? "Set-statting" : (stat_type == LIBSSH2_SFTP_LSTAT ? "LStatting" : "Statting"), path);
-#endif
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
                 libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_MKDIR packet", 0);
@@ -1550,10 +1504,8 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path, un
                 return -1;
         }
 
-#ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "%s %s on %s", (link_type == LIBSSH2_SFTP_SYMLINK) ? "Creating" : "Reading",
                                                                                                                          (link_type == LIBSSH2_SFTP_REALPATH) ? "realpath" : "symlink", path);
-#endif
         libssh2_htonu32(s, packet_len - 4);                                     s += 4;
         switch (link_type) {
                 case LIBSSH2_SFTP_REALPATH:

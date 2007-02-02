@@ -1,5 +1,5 @@
 /*
- * $Id: scp.c,v 1.3 2007/02/01 22:39:45 bagder Exp $
+ * $Id: scp.c,v 1.4 2007/02/02 23:23:36 bagder Exp $
  *
  * Sample showing how to do a simple SCP transfer.
  */
@@ -60,6 +60,9 @@ int main(int argc, char *argv[])
 	session = libssh2_session_init();
 	if(!session)
 		return -1;
+
+	/* trace transport layer stuff*/
+	libssh2_trace(session, LIBSSH2_TRACE_TRANS);
 
 	/* ... start it up. This will trade welcome banners, exchange keys,
 	 * and setup crypto, compression, and MAC layers

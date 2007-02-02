@@ -417,6 +417,20 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session, const
 
 LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest, unsigned int *dest_len, char *src, unsigned int src_len);
 
+/* NOTE NOTE NOTE
+   libssh2_trace() has no function in builds that aren't built with debug
+   enabled
+ */
+LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
+#define LIBSSH2_TRACE_TRANS	(1<<1)
+#define LIBSSH2_TRACE_KEX	(1<<2)
+#define LIBSSH2_TRACE_AUTH	(1<<3)
+#define LIBSSH2_TRACE_CONN	(1<<4)
+#define LIBSSH2_TRACE_SCP	(1<<5)
+#define LIBSSH2_TRACE_SFTP	(1<<6)
+#define LIBSSH2_TRACE_ERROR	(1<<7)
+#define LIBSSH2_TRACE_PUBLICKEY	(1<<8)
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

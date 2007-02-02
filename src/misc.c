@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -36,6 +36,7 @@
  */
 
 #include "libssh2_priv.h"
+#include <unistd.h>
 
 /* {{{ libssh2_ntohu32
  */
@@ -170,29 +171,37 @@ LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **data, uns
 }
 /* }}} */
 
-#ifdef LIBSSH2_DEBUG_ENABLED
-/* {{{ _libssh2_debug
- * Internal debug logging facility
- * Just writes to stderr until a good reason comes up to support anything else
- */
-void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, ...)
+#ifdef LIBSSH2DEBUG
+LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
+{
+	session->showmask = bitmask;
+	return 0;
+}
+
+void _libssh2_debug(LIBSSH2_SESSION *session, int context,
+		    const char *format, ...)
 {
 	char buffer[1536];
 	int len;
 	va_list vargs;
-	char *contexts[9] = {	"Unknown",
-				"Transport",
-				"Key Exhange",
-				"Userauth",
-				"Connection",
-				"scp",
-				"SFTP Subsystem",
-				"Failure Event",
-				"Publickey Subsystem",
+	static const char *contexts[9] = {
+		"Unknown",
+		"Transport",
+		"Key Exhange",
+		"Userauth",
+		"Connection",
+		"scp",
+		"SFTP Subsystem",
+		"Failure Event",
+		"Publickey Subsystem",
 	};
 
 	if (context < 1 || context > 8) {
 		context = 0;
+	}
+	if(!(session->showmask & (1<<context))) {
+		/* no such output asked for */
+		return;
 	}
 
 	len = snprintf(buffer, 1535, "[libssh2] %s: ", contexts[context]);
@@ -202,6 +211,14 @@ void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, .
 	buffer[len] = '\n';
 	va_end(vargs);
 	write(2, buffer, len + 1);
+
 }
-/* }}} */
+
+#else
+LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
+{
+	(void)session;
+	(void)bitmask;
+	return 0;
+}
 #endif

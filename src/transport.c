@@ -48,13 +48,19 @@
 
 #ifdef LIBSSH2DEBUG
 #define UNPRINTABLE_CHAR '.'
-static void debugdump(const char *desc, unsigned char *ptr, unsigned long size)
+static void debugdump(LIBSSH2_SESSION *session,
+		      const char *desc, unsigned char *ptr,
+		      unsigned long size)
 {
   size_t i;
   size_t c;
   FILE *stream = stdout;
-
   unsigned int width=0x10;
+
+  if(!(session->showmask & (1<< LIBSSH2_DBG_TRANS))) {
+	  /* not asked for, bail out */
+	  return;
+  }
 
   fprintf(stream, "=> %s (%d bytes)\n", desc, (int)size);
 
@@ -80,7 +86,7 @@ static void debugdump(const char *desc, unsigned char *ptr, unsigned long size)
   fflush(stream);
 }
 #else
-#define debugdump(x,y,z)
+#define debugdump(a,x,y,z)
 #endif
 
 
@@ -207,7 +213,7 @@ static libssh2pack_t fullpacket(LIBSSH2_SESSION *session,
 
         packet_type = p->payload[0];
 
-	debugdump("libssh2_packet_read() plain",
+	debugdump(session, "libssh2_packet_read() plain",
 		  p->payload, payload_len);
         libssh2_packet_add(session, p->payload, payload_len, macstate);
 
@@ -303,7 +309,7 @@ libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION *session)
                                 }
                                 return PACKET_FAIL;
                         }
-			debugdump("libssh2_packet_read() raw",
+			debugdump(session, "libssh2_packet_read() raw",
 				  &p->buf[remainbuf], nread);
                         /* advance write pointer */
                         p->writeidx += nread;
@@ -530,7 +536,7 @@ static libssh2pack_t send_existing(LIBSSH2_SESSION *session,
                 return PACKET_EAGAIN;
         }
 
-	debugdump("libssh2_packet_write send()",
+	debugdump(session, "libssh2_packet_write send()",
 		  &p->outbuf[p->osent], length);
         p->osent += length; /* we sent away this much data */
 
@@ -568,7 +574,7 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data,
         unsigned char *orgdata = data;
         unsigned long orgdata_len = data_len;
 
-        debugdump("libssh2_packet_write plain", data, data_len);
+        debugdump(session, "libssh2_packet_write plain", data, data_len);
 
         /* FIRST, check if we have a pending write to complete */
         rc = send_existing(session, data, data_len, &ret);
@@ -677,7 +683,7 @@ int libssh2_packet_write(LIBSSH2_SESSION *session, unsigned char *data,
                    total_length, LIBSSH2_SOCKET_SEND_FLAGS(session));
 
 	if(ret != -1) {
-		debugdump("libssh2_packet_write send()",
+		debugdump(session, "libssh2_packet_write send()",
 			  p->outbuf, ret);
 	}
         if(ret != total_length) {
