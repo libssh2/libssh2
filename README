@@ -6,6 +6,14 @@ libssh2 - SSH2 library
 Version 
 ------------
 
+  added the following functions for non-blocking operations:
+   libssh2_channel_readnb_ex()
+   libssh2_channel_writenb_ex()
+   libssh2_sftp_readnb()
+   libssh2_sftp_writenb()
+
+  added (a few) man pages in docs/
+
   maximum SSH packet size is now some 35000 bytes
 
   private include files are now in src/ and only public headers are in include/
