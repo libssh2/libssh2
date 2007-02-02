@@ -65,7 +65,7 @@ int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
 	if (ddata) {
 		rc = gcry_sexp_build
 			(rsa, NULL,
-			 "(private-key(rsa(n%b)(e%b)(d%b)(p%b)(q%b)(u%b)))",
+			 "(private-key(rsa(n%b)(e%b)(d%b)(q%b)(p%b)(u%b)))",
 			 nlen, ndata, elen, edata, dlen, ddata, plen, pdata,
 			 qlen, qdata, coefflen, coeffdata);
 	} else {
