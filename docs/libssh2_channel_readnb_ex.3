@@ -1,4 +1,4 @@
-.\" $Id: libssh2_channel_read_ex.3,v 1.3 2007/02/02 16:09:12 bagder Exp $
+.\" $Id: libssh2_channel_readnb_ex.3,v 1.1 2007/02/02 16:09:12 bagder Exp $
 .\"
 .TH libssh2_channel_read_ex 3 "14 Dec 2006" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -6,13 +6,13 @@ libssh2_channel_read_ex - read data from a channel stream
 .SH SYNOPSIS
 #include <libssh2.h>
 
-int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
+int libssh2_channel_readnb_ex(LIBSSH2_CHANNEL *channel, int stream_id,
                             char *buf, size_t buflen);
 
-int libssh2_channel_read(LIBSSH2_CHANNEL *channel, char *buf,
+int libssh2_channel_readnb(LIBSSH2_CHANNEL *channel, char *buf,
                          size_t buflen);
 
-int libssh2_channel_read_stderr(LIBSSH2_CHANNEL *channel, char *buf,
+int libssh2_channel_readnb_stderr(LIBSSH2_CHANNEL *channel, char *buf,
                                 size_t buflen);
 .SH DESCRIPTION
 Attempt to read data from an active channel stream. All channel streams have
@@ -31,7 +31,7 @@ currently defines a stream ID of 1 to be the stderr substream.
 \fIlibssh2_channel_read(3)\fP and \fIlibssh2_channel_read_stderr(3)\fP are
 macros.
 .SH RETURN VALUE
-Actual number of bytes read or negative on failure. Since version 0.15 it
-returns LIBSSH2CHANNEL_EAGAIN when it would otherwise block.
+Actual number of bytes read or negative on failure. It returns
+LIBSSH2CHANNEL_EAGAIN when it would otherwise block. While
+LIBSSH2CHANNEL_EAGAIN is a negative number, it isn't really a failure per se.
 .SH "SEE ALSO"
-
