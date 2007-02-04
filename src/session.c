@@ -44,7 +44,6 @@
 
 #ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
-#include <math.h>
 #endif
 
 #ifdef HAVE_POLL
