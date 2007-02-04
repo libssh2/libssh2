@@ -24,7 +24,7 @@ Version
 
   simple self test added to tests/
 
-  libgcrypt is fully supported
+  Libgcrypt can now be used instead of OpenSSL if you specify --with-libgcrypt
 
 Version 0.14
 ------------
