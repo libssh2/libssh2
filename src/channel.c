@@ -834,7 +834,6 @@ LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel, const 
 int _libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel,
 				  int blocking)
 {
-	int rc;
 	int bl = channel->blocking;
 	_libssh2_debug(channel->session, LIBSSH2_DBG_CONN,
 		       "Setting blocking mode on channel %lu/%lu to %d",
