@@ -227,6 +227,8 @@ AC_CHECK_FUNCS(poll gettimeofday select)
 AC_C_CONST
 AC_C_INLINE
 
+CURL_CHECK_NONBLOCKING_SOCKET
+
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  tests/Makefile
