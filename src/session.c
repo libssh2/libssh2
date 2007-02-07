@@ -971,13 +971,13 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
 					case LIBSSH2_POLLFD_CHANNEL:
 						if (FD_ISSET(fds[i].fd.channel->session->socket_fd, &rfds)) {
 							/* Spin session until no data available */
-							while (libssh2_packet_read(fds[i].fd.channel->session, 0) > 0);
+							while (libssh2_packet_read(fds[i].fd.channel->session) > 0);
 						}
 						break;
 					case LIBSSH2_POLLFD_LISTENER:
 						if (FD_ISSET(fds[i].fd.listener->session->socket_fd, &rfds)) {
 							/* Spin session until no data available */
-							while (libssh2_packet_read(fds[i].fd.listener->session, 0) > 0);
+							while (libssh2_packet_read(fds[i].fd.listener->session) > 0);
 						}
 						break;
 				}

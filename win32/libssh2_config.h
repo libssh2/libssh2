@@ -5,6 +5,11 @@
 #include <mswsock.h>
 #include <ws2tcpip.h>
 
+#ifdef __MINGW32__
+#define ENOTCONN WSAENOTCONN
+#define WINSOCK_VERSION MAKEWORD(2,0)
+#endif
+
 /* same as WSABUF */
 struct iovec {
 	u_long iov_len;
@@ -36,3 +41,4 @@ static inline int usleep(int udelay)
 
 /* Enable newer diffie-hellman-group-exchange-sha1 syntax */
 #define LIBSSH2_DH_GEX_NEW 1
+

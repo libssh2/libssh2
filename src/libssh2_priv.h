@@ -374,8 +374,6 @@ struct _LIBSSH2_MAC_METHOD {
 	int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
 };
 
-#ifdef LIBSSH2DEBUG
-void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, ...);
 #define LIBSSH2_DBG_TRANS	1
 #define LIBSSH2_DBG_KEX		2
 #define LIBSSH2_DBG_AUTH	3
@@ -384,6 +382,8 @@ void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, .
 #define LIBSSH2_DBG_SFTP	6
 #define LIBSSH2_DBG_ERROR	7
 #define LIBSSH2_DBG_PUBLICKEY	8
+#ifdef LIBSSH2DEBUG
+void _libssh2_debug(LIBSSH2_SESSION *session, int context, const char *format, ...);
 #else
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
 /* C99 style */
