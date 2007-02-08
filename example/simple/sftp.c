@@ -1,5 +1,5 @@
 /*
- * $Id: sftp.c,v 1.3 2007/02/08 14:44:32 bagder Exp $
+ * $Id: sftp.c,v 1.4 2007/02/08 14:50:33 bagder Exp $
  *
  * Sample showing how to do SFTP transfers.
  *
@@ -16,9 +16,12 @@
 # include <netinet/in.h>
 # include <sys/socket.h>
 # include <unistd.h>
+# include <arpa/inet.h>
 #else
 # include <winsock2.h>
 #endif
+
+
 
 #include <sys/types.h>
 #include <fcntl.h>
