@@ -1,7 +1,12 @@
 /*
- * $Id: sftp.c,v 1.2 2007/02/02 16:21:20 bagder Exp $
+ * $Id: sftp.c,v 1.3 2007/02/08 14:44:32 bagder Exp $
  *
  * Sample showing how to do SFTP transfers.
+ *
+ * The sample code has default values for host name, user name, password
+ * and path to copy, but you can specify them on the command line like:
+ *
+ * "sftp 192.168.0.1 user password /tmp/secrets"
  */
 
 #include <libssh2.h>
@@ -23,6 +28,7 @@
 
 int main(int argc, char *argv[])
 {
+	unsigned long hostaddr;
 	int sock, i, auth_pw = 1;
 	struct sockaddr_in sin;
 	const char *fingerprint;
@@ -40,15 +46,30 @@ int main(int argc, char *argv[])
 	WSAStartup(WINSOCK_VERSION, &wsadata);
 #endif
 
-	/* Ultra basic "connect to port 22 on localhost"
-	 * Your code is responsible for creating the socket establishing the
-	 * connection
+	if (argc > 1) {
+		hostaddr = inet_addr(argv[1]);
+	} else {
+		hostaddr = htonl(0x7F000001);
+	}
+
+	if(argc > 2) {
+		username = argv[2];
+	}
+	if(argc > 3) {
+		password = argv[3];
+	}
+	if(argc > 4) {
+		sftppath = argv[4];
+	}
+	/*
+	 * The application code is responsible for creating the socket
+	 * and establishing the connection
 	 */
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(22);
-	sin.sin_addr.s_addr = htonl(0x7F000001);
+	sin.sin_addr.s_addr = hostaddr;
 	if (connect(sock, (struct sockaddr*)(&sin),
 		    sizeof(struct sockaddr_in)) != 0) {
 		fprintf(stderr, "failed to connect!\n");
@@ -81,16 +102,6 @@ int main(int argc, char *argv[])
 		printf("%02X ", (unsigned char)fingerprint[i]);
 	}
 	printf("\n");
-
-	if(argc > 1) {
-		username = argv[1];
-	}
-	if(argc > 2) {
-		password = argv[2];
-	}
-	if(argc > 3) {
-		sftppath = argv[3];
-	}
 
 	if (auth_pw) {
 		/* We could authenticate via password */
