@@ -17,13 +17,15 @@ ifndef OPENSSL_PATH
 OPENSSL_PATH = ../../openssl-0.9.8d
 endif
 
+# Edit the var below to enable static linking of libssh2 and libz
+LINK_STATIC = 1
+
 # Edit the vars below to change target settings.
-#TARGETS	= ssh2_sample sftp ssh2
-TARGET	= ssh2_sample
+TARGETS	= scp.exe sftp.exe ssh2.exe
 VERSION	= $(LIBSSH2_VERSION)
 COPYR	= (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
 WWWURL	= http://www.libssh2.org/
-DESCR	= libssh2 sample $(LIBSSH2_VERSION_STR)
+DESCR	= libssh2 $(subst .def,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
 #STACK	= 64000
 
 # must be equal to DEBUG or NDEBUG
@@ -85,22 +87,25 @@ endif
 
 INCLUDES = -I. -I.. -I../../include
 INCLUDES += -I$(OPENSSL_PATH)/outinc -I$(OPENSSL_PATH)/outinc/openssl
+#LIBPATH += -L$(OPENSSL_PATH)/out
+LIBPATH += -L..
 
 ifdef LINK_STATIC
-	LDLIBS += ../libssh2.$(LIBEXT)
+	LDLIBS += -llibssh2
+	#LDLIBS += $(OPENSSL_PATH)/out/libcrypto.$(LIBEXT) $(OPENSSL_PATH)/out/libssl.$(LIBEXT)
 else
-	LDLIBS += ../libssh2dll.$(LIBEXT)
+	LDLIBS += -llibssh2dll
+	#LDLIBS += $(OPENSSL_PATH)/out/libeay32.$(LIBEXT) $(OPENSSL_PATH)/out/libssl32.$(LIBEXT)
 endif
-
-#ifdef LINK_STATIC
-#LDLIBS += $(OPENSSL_PATH)/out/libcrypto.$(LIBEXT) $(OPENSSL_PATH)/out/libssl.$(LIBEXT)
-#else
-#LDLIBS += $(OPENSSL_PATH)/out/libeay32.$(LIBEXT) $(OPENSSL_PATH)/out/libssl32.$(LIBEXT)
-#endif
 
 ifdef WITH_ZLIB
 	INCLUDES += -I$(ZLIB_PATH)
-	LDLIBS += $(ZLIB_PATH)/libz.$(LIBEXT)
+	#LIBPATH = -L$(ZLIB_PATH)
+#ifdef LINK_STATIC
+#	LDLIBS += $(ZLIB_PATH)/libz.$(LIBEXT)
+#else
+#	LDLIBS += $(ZLIB_PATH)/libzdll.$(LIBEXT)
+#endif
 endif
 
 CFLAGS	+= $(INCLUDES)
@@ -113,18 +118,14 @@ else
 DS	= \\
 endif
 
-vpath %.c ../.. ../../example/simple
+vpath %.c ../../example/simple
 
-#OBJS	:= $(addprefix $(OBJDIR)/,$(OBJECTS))
-OBJS = $(OBJDIR)/$(TARGET).o
+.PRECIOUS: $(OBJDIR)/%.o $(OBJDIR)/%.rc $(OBJDIR)/%.res
 
 
-all: exe
-
-exe: prebuild $(TARGET).exe
+all: prebuild $(TARGETS)
 
 prebuild: $(OBJDIR) $(OBJDIR)/version.inc
-# libssh2_config.h
 
 $(OBJDIR)/%.o: %.c
 #	@echo Compiling $<
@@ -142,61 +143,59 @@ devclean: clean
 	-$(RM) -r $(DEVLDIR)
 	-$(RM) $(DEVLARC)
 
-objclean: all
+objclean:
 	-$(RM) -r $(OBJDIR)
 
-clean:
-#	-$(RM) libssh2_config.h
-	-$(RM) $(TARGET).exe
-	-$(RM) -r $(OBJDIR)
+clean: objclean
+	-$(RM) $(TARGETS)
 
 $(OBJDIR):
 	@mkdir $@
 
-$(TARGET).exe: $(OBJDIR)/$(TARGET).res $(OBJS)
+%.exe: $(OBJDIR)/%.o $(OBJDIR)/%.res
 	@echo Linking $@
 	@-$(RM) $@
-	@$(LD) $(LDFLAGS) $^ -o $@ $(LIBPATH) $(LDLIBS)
+	$(LD) $(LDFLAGS) $^ -o $@ $(LIBPATH) $(LDLIBS)
 
 $(OBJDIR)/%.res: $(OBJDIR)/%.rc
 	@echo Creating $@
 	@$(RC) $(RCFLAGS) $< -o $@
 
 $(OBJDIR)/%.rc: Makefile.win32 $(OBJDIR)/version.inc
-	@echo 1 VERSIONINFO > $@
-	@echo  FILEVERSION $(LIBSSH2_VERSION),0 >> $@
-	@echo  PRODUCTVERSION $(LIBSSH2_VERSION),0 >> $@
-	@echo  FILEFLAGSMASK 0x3fL >> $@
-	@echo  FILEOS 0x40004L >> $@
-	@echo  FILEFLAGS 0x0L >> $@
-	@echo  FILETYPE 0x1L >> $@
-	@echo  FILESUBTYPE 0x0L >> $@
-	@echo BEGIN >> $@
-	@echo   BLOCK "StringFileInfo" >> $@
-	@echo   BEGIN >> $@
-	@echo     BLOCK "040904E4" >> $@
-	@echo     BEGIN >> $@
-	@echo       VALUE "LegalCopyright","$(COPYR)\0" >> $@
+	@echo $(DL)1 VERSIONINFO$(DL) > $@
+	@echo $(DL) FILEVERSION $(LIBSSH2_VERSION),0$(DL) >> $@
+	@echo $(DL) PRODUCTVERSION $(LIBSSH2_VERSION),0$(DL) >> $@
+	@echo $(DL) FILEFLAGSMASK 0x3fL$(DL) >> $@
+	@echo $(DL) FILEOS 0x40004L$(DL) >> $@
+	@echo $(DL) FILEFLAGS 0x0L$(DL) >> $@
+	@echo $(DL) FILETYPE 0x1L$(DL) >> $@
+	@echo $(DL) FILESUBTYPE 0x0L$(DL) >> $@
+	@echo $(DL)BEGIN$(DL) >> $@
+	@echo $(DL)  BLOCK "StringFileInfo"$(DL) >> $@
+	@echo $(DL)  BEGIN$(DL) >> $@
+	@echo $(DL)    BLOCK "040904E4"$(DL) >> $@
+	@echo $(DL)    BEGIN$(DL) >> $@
+	@echo $(DL)      VALUE "LegalCopyright","$(COPYR)\0"$(DL) >> $@
 ifdef COMPANY
-	@echo       VALUE "CompanyName","$(COMPANY)\0" >> $@
+	@echo $(DL)      VALUE "CompanyName","$(COMPANY)\0"$(DL) >> $@
 endif
-	@echo       VALUE "ProductName","$(notdir $(@:.rc=.exe))\0" >> $@
-	@echo       VALUE "ProductVersion","$(LIBSSH2_VERSION_STR)\0" >> $@
-	@echo       VALUE "License","Released under GPL.\0" >> $@
-	@echo       VALUE "FileDescription","$(DESCR)\0" >> $@
-	@echo       VALUE "FileVersion","$(LIBSSH2_VERSION_STR)\0" >> $@
-	@echo       VALUE "InternalName","$(notdir $(@:.rc=))\0" >> $@
-	@echo       VALUE "OriginalFilename","$(notdir $(@:.rc=.exe))\0" >> $@
-	@echo       VALUE "WWW","$(WWWURL)\0" >> $@
-	@echo     END >> $@
-	@echo   END >> $@
-	@echo   BLOCK "VarFileInfo" >> $@
-	@echo   BEGIN >> $@
-	@echo     VALUE "Translation", 0x409, 1252 >> $@
-	@echo   END >> $@
-	@echo END >> $@
+	@echo $(DL)      VALUE "ProductName","$(notdir $(@:.rc=.exe))\0"$(DL) >> $@
+	@echo $(DL)      VALUE "ProductVersion","$(LIBSSH2_VERSION_STR)\0"$(DL) >> $@
+	@echo $(DL)      VALUE "License","Released under GPL.\0"$(DL) >> $@
+	@echo $(DL)      VALUE "FileDescription","$(DESCR)\0"$(DL) >> $@
+	@echo $(DL)      VALUE "FileVersion","$(LIBSSH2_VERSION_STR)\0"$(DL) >> $@
+	@echo $(DL)      VALUE "InternalName","$(notdir $(@:.rc=))\0"$(DL) >> $@
+	@echo $(DL)      VALUE "OriginalFilename","$(notdir $(@:.rc=.exe))\0"$(DL) >> $@
+	@echo $(DL)      VALUE "WWW","$(WWWURL)\0"$(DL) >> $@
+	@echo $(DL)    END$(DL) >> $@
+	@echo $(DL)  END$(DL) >> $@
+	@echo $(DL)  BLOCK "VarFileInfo"$(DL) >> $@
+	@echo $(DL)  BEGIN$(DL) >> $@
+	@echo $(DL)    VALUE "Translation", 0x409, 1252$(DL) >> $@
+	@echo $(DL)  END$(DL) >> $@
+	@echo $(DL)END$(DL) >> $@
 ifdef ICON
-	@echo 10 ICON DISCARDABLE "$(ICON)" >> $@
+	@echo $(DL)10 ICON DISCARDABLE "$(ICON)"$(DL) >> $@
 endif
 
 help: $(OBJDIR)/version.inc

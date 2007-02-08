@@ -22,16 +22,21 @@ ifndef OPENSSL_PATH
 OPENSSL_PATH = ../../openssl-0.9.8d
 endif
 
+# Edit the var below to enable static linking of libssh2 and libz
+LINK_STATIC = 1
+
 # Edit the vars below to change NLM target settings.
-#TARGETS	= ssh2_sample sftp ssh2
-TARGET	= ssh2_sample
+TARGETS	= scp.nlm sftp.nlm ssh2.nlm
 VERSION	= $(LIBSSH2_VERSION)
 COPYR	= Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
 WWWURL	= http://www.libssh2.org/
-DESCR	= libssh2 sample $(LIBSSH2_VERSION_STR) - $(WWWURL)
+DESCR	= libssh2 $(notdir $(@:.def=)) $(LIBSSH2_VERSION_STR) - $(WWWURL)
 MTSAFE	= YES
 STACK	= 64000
-SCREEN	= none
+SCREEN	= NONE
+#SCREEN	= libssh2 $(notdir $(@:.def=))
+# Comment the line below if you dont want to load protected automatically.
+LDRING	= 3
 
 # Edit the var below to point to your lib architecture.
 ifndef LIBARCH
@@ -72,7 +77,7 @@ CFLAGS	= $(OPT) -D$(DB) -DNETWARE -nostdinc # -DHAVE_CONFIG_H
 
 ifeq ($(CC),mwccnlm)
 LD	= mwldnlm
-LDFLAGS	= -nostdlib $(PRELUDE) $(OBJS) -o $@ -commandfile
+LDFLAGS	= -nostdlib $(PRELUDE) $(LDLIBS) $(<:.def=.o) -o $@ -commandfile
 AR	= mwldnlm
 ARFLAGS	= -type library -w nocmdline $(OBJS) -o
 LIBEXT	= lib
@@ -125,8 +130,8 @@ endif
 
 ifdef WITH_ZLIB
 	INCLUDES += -I$(ZLIB_PATH)
-ifdef Z_LINK_STATIC
-	LDLIBS += @$(ZLIB_PATH)/nw/libz.$(LIBEXT)
+ifdef LINK_STATIC
+	LDLIBS += $(ZLIB_PATH)/nw/libz.$(LIBEXT)
 else
 	IMPORTS += @$(ZLIB_PATH)/nw/libz.imp
 	MODULES += libz.nlm
@@ -153,23 +158,18 @@ endif
 ifeq ($(MTSAFE),NO)
 	XDCOPT = -u
 endif
-ifdef XDCOPT
-	XDCDATA = $(OBJDIR)/$(TARGET).xdc
-endif
 
 ifeq ($(findstring linux,$(OSTYPE)),linux)
 DL	= '
 #-include $(NDKBASE)/nlmconv/ncpfs.inc
 endif
 
-vpath %.c ../.. ../../example/simple
+vpath %.c ../../example/simple
 
-OBJS = $(OBJDIR)/$(TARGET).o $(LDLIBS)
+.PRECIOUS: $(OBJDIR)/%.o $(OBJDIR)/%.def $(OBJDIR)/%.xdc
 
 
-all: nlm
-
-nlm: prebuild $(TARGET).nlm
+all: prebuild $(TARGETS) 
 
 prebuild: $(OBJDIR) $(OBJDIR)/version.inc
 
@@ -181,17 +181,16 @@ $(OBJDIR)/version.inc: ../../include/libssh2.h $(OBJDIR)
 	@echo Creating $@
 	@$(AWK) -f ../../get_ver.awk $< > $@
 
-objclean: all
+objclean:
 	-$(RM) -r $(OBJDIR)
 
-clean:
-	-$(RM) $(TARGET).exe
-	-$(RM) -r $(OBJDIR)
+clean: objclean
+	-$(RM) $(TARGETS)
 
 $(OBJDIR):
 	@mkdir $@
 
-$(TARGET).nlm: $(OBJDIR)/$(TARGET).def $(OBJS) $(XDCDATA)
+%.nlm: $(OBJDIR)/%.def $(OBJDIR)/%.o $(OBJDIR)/%.xdc
 	@echo Linking $@
 	@-$(RM) $@
 	@$(LD) $(LDFLAGS) $<
@@ -222,9 +221,15 @@ endif
 ifeq ($(DB),DEBUG)
 	@echo $(DL)debug$(DL) >> $@
 endif
-	@echo $(DL)threadname "$(TARGET)"$(DL) >> $@
-ifdef XDCDATA
-	@echo $(DL)xdcdata $(XDCDATA)$(DL) >> $@
+	@echo $(DL)threadname "$(notdir $(@:.def=))"$(DL) >> $@
+ifdef XDCOPT
+	@echo $(DL)xdcdata $(@:.def=.xdc)$(DL) >> $@
+endif
+ifeq ($(LDRING),0)
+	@echo $(DL)flag_on 16$(DL) >> $@
+endif
+ifeq ($(LDRING),3)
+	@echo $(DL)flag_on 512$(DL) >> $@
 endif
 ifeq ($(LIBARCH),CLIB)
 	@echo $(DL)start _Prelude$(DL) >> $@
@@ -265,7 +270,7 @@ ifdef WITH_SSL
 endif
 	@echo $(DL)input $(OBJS)$(DL) >> $@
 	@echo $(DL)input $(PRELUDE)$(DL) >> $@
-	@echo $(DL)output $(TARGET).nlm$(DL) >> $@
+	@echo $(DL)output $(notdir $(@:.def=.nlm))$(DL) >> $@
 endif
 
 

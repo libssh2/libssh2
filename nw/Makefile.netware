@@ -241,17 +241,16 @@ devclean: clean
 	-$(RM) -r $(DEVLDIR)
 	-$(RM) $(DEVLARC)
 
-objclean: all
+objclean:
 	-$(RM) -r $(OBJDIR)
 
 testclean: clean
 	$(MAKE) -C test -f Makefile.netware clean
 
-clean:
+clean: objclean
 	-$(RM) libssh2_config.h
 	-$(RM) libssh2.imp
 	-$(RM) $(TARGET).nlm $(TARGET).$(LIBEXT)
-	-$(RM) -r $(OBJDIR)
 
 $(OBJDIR):
 	@mkdir $@
@@ -412,6 +411,7 @@ libssh2_config.h: Makefile.netware
 	@echo $(DL)#define HAVE_OPENSSL_ERR_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_OPENSSL_CRYPTO_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_OPENSSL_ENGINE_H 1$(DL) >> $@
+	@echo $(DL)#define HAVE_O_NONBLOCK 1$(DL) >> $@
 	@echo $(DL)#define HAVE_LIBSSL 1$(DL) >> $@
 	@echo $(DL)#define HAVE_LIBCRYPTO 1$(DL) >> $@
 	@echo $(DL)#define OPENSSL_NO_KRB5 1$(DL) >> $@
@@ -494,6 +494,7 @@ libssh2.imp: Makefile.netware
 	@echo $(DL)  libssh2_sftp_tell,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_unlink_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_write,$(DL) >> $@
+	@echo $(DL)  libssh2_trace,$(DL) >> $@
 	@echo $(DL)  libssh2_userauth_authenticated,$(DL) >> $@
 	@echo $(DL)  libssh2_userauth_keyboard_interactive_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_userauth_list,$(DL) >> $@
