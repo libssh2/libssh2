@@ -100,6 +100,11 @@ static libssh2pack_t decrypt(LIBSSH2_SESSION *session, unsigned char *source,
 {
         struct transportpacket *p = &session->packet;
         int blocksize = session->remote.crypt->blocksize;
+
+	/* if we get called with a len that isn't an even number of blocksizes
+	   we risk losing those extra bytes */
+	assert((len % blocksize) == 0);
+
         while(len >= blocksize) {
                 if (session->remote.crypt->crypt(session, source,
                                                  &session->remote.crypt_abstract)) {
@@ -427,7 +432,17 @@ libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION *session)
                                         p->data_num;
                         }
                         else {
+				int frac;
                                 numdecrypt = numbytes;
+				frac = numdecrypt % blocksize;
+				if(frac) {
+					/* not an aligned amount of blocks,
+					   align it */
+					numdecrypt -= frac;
+					/* and make it no unencrypted data
+					   after it */
+					numbytes = 0;
+				}
                         }
                 }
                 else {
