@@ -1,0 +1,19 @@
+.\" $Id: libssh2_poll.3,v 1.1 2007/02/23 10:20:56 bagder Exp $
+.\"
+.TH libssh2_poll 3 "14 Dec 2006" "libssh2 0.15" "libssh2 manual"
+.SH NAME
+libssh2_poll - poll for activity on a socket, channel or listener
+.SH SYNOPSIS
+#include <libssh2.h>
+
+int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout);
+.SH DESCRIPTION
+Poll for activity on a socket, channel, listener, or any combination of these
+three types. The calling semantics for this function generally match
+\fIpoll(2)\fP however the structure of fds is somewhat more complex in order
+to accomodate the disparate datatypes, POLLFD constants have been namespaced
+to avoid platform discrepencies, and revents has additional values defined.
+.SH "RETURN VALUE"
+Number of fds with interresting events.
+.SH "SEE ALSO"
+.BR libssh2_poll_channel_read(3)

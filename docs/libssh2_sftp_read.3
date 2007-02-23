@@ -1,0 +1,26 @@
+.\" $Id: libssh2_sftp_read.3,v 1.1 2007/02/23 10:20:56 bagder Exp $
+.\"
+.TH libssh2_sftp_read 3 "6 Feb 2007" "libssh2 0.15" "libssh2 manual"
+.SH NAME
+libssh2_sftp_read - read data from an SFTP handle
+.SH SYNOPSIS
+#include <libssh2.h>
+
+ssize_t libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
+                          char *buffer, size_t buffer_maxlen);
+.SH DESCRIPTION
+Reads a block of data from an LIBSSH2_SFTP_HANDLE. This method is modeled
+after the POSIX \Iread(3)\fP function and uses the same calling
+semantics. \fIlibssh2_sftp_read(3)\fP will attempt to read as much as possible
+however it may not fill all of buffer if the file pointer reaches the end or
+if further reads would cause the socket to block.
+
+\fIhandle\fP is the SFTP File Handle as returned by \fIlibssh2_sftp_open(3)\fP.
+
+\fIbuffer\fP is a pointer to a pre-allocated buffer of at least
+\fIbuffer_maxlen\fP bytes to read data into.
+.SH RETURN VALUE
+Number of bytes actually populated into buffer, or -1 on failure.
+.SH "SEE ALSO"
+.BR libssh2_sftp_open(3)
+.BR libssh2_sftp_readnb(3)
