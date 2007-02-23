@@ -1,4 +1,4 @@
-.\" $Id: libssh2_sftp_open_ex.3,v 1.1 2007/02/02 16:09:12 bagder Exp $
+.\" $Id: libssh2_sftp_open_ex.3,v 1.2 2007/02/23 10:38:14 bagder Exp $
 .\"
 .TH libssh2_sftp_open_ex 3 "23 Jan 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -16,29 +16,20 @@ LIBSSH2_SFTP_HANDLE *libssh2_sftp_open(LIBSSH2_SFTP *sftp,
 LIBSSH2_SFTP_HANDLE *libssh2_sftp_opendir(LIBSSH2_SFTP *sftp,
                      char *path);
 .SH DESCRIPTION
-    *  sftp
+\fIsftp\fP - SFTP instance as returned by libssh2_sftp_init(). 
 
-          SFTP instance as returned by libssh2_sftp_init(). 
+\fIfilename\fP - Remote file/directory resource to open 
 
-    * filename
+\fIfilename_len\fP - Length of filename 
 
-          Remote file/directory resource to open 
+\fIflags\fP - Any (reasonable) combination of the LIBSSH2_FXF_* constants
+corresponding fopen modes.
 
-    * filename_len
+\fImode\fP - POSIX file permissions to assign if the file is being newly
+created.
 
-          Length of filename 
-
-    * flags
-
-          Any (reasonable) combination of the LIBSSH2_FXF_* constants corresponding fopen modes. 
-
-    * mode
-
-          POSIX file permissions to assign if the file is being newly created. 
-
-    * open_type
-
-          Either of LIBSSH2_SFTP_OPENFILE (to open a file) or LIBSSH2_SFTP_OPENDIR (to open a directory). 
+\fIopen_type\fP - Either of LIBSSH2_SFTP_OPENFILE (to open a file) or
+LIBSSH2_SFTP_OPENDIR (to open a directory).
 .SH RETURN VALUE
 A pointer to the newly created LIBSSH2_SFTP_HANDLE instance or NULL on
 failure.
