@@ -39,6 +39,10 @@
 #include "libssh2_priv.h"
 #include <string.h>
 
+#ifndef EVP_MAX_BLOCK_LENGTH
+#define EVP_MAX_BLOCK_LENGTH 32
+#endif
+
 int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
 		     const unsigned char *edata,
 		     unsigned long elen,
