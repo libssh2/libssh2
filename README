@@ -6,25 +6,31 @@ libssh2 - SSH2 library
 Version 
 ------------
 
-  added the following functions for non-blocking operations:
+  added the following functions for non-blocking operations: (Daniel Stenberg)
    libssh2_channel_readnb_ex()
    libssh2_channel_writenb_ex()
    libssh2_sftp_readnb()
    libssh2_sftp_writenb()
 
-  added (a few) man pages in docs/
+  added (a few) man pages in docs/ (Daniel Stenberg)
 
   maximum SSH packet size is now some 35000 bytes
 
   private include files are now in src/ and only public headers are in include/
+  (Daniel Stenberg)
 
-  automake and libtool are being used (increased portability)
+  automake and libtool are being used (increased portability) (Daniel Stenberg)
 
-  fixed OpenSSL detection using pkg-config
+  fixed OpenSSL detection using pkg-config (Daniel Stenberg)
 
-  simple self test added to tests/
+  simple self test added to tests/ (Simon Josefsson)
 
   Libgcrypt can now be used instead of OpenSSL if you specify --with-libgcrypt
+  (Simon Josefsson)
+
+  fixed a memory leak in the packet handling (Dan Fandrich)
+
+  made libssh2 build with OpenSSL 0.9.6 (Dan Fandrich)
 
 Version 0.14
 ------------
