@@ -157,6 +157,8 @@ int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
 
 	libssh2_sha1(m, m_len, hash);
 	ret = DSA_do_verify(hash, SHA_DIGEST_LENGTH, &dsasig, dsactx);
+	BN_clear_free(dsasig.s);
+	BN_clear_free(dsasig.r);
 
 	return (ret == 1) ? 0 : -1;
 }
