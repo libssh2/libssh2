@@ -332,6 +332,7 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
                                 if (session->ssh_msg_disconnect) {
                                         LIBSSH2_DISCONNECT(session, SSH_DISCONNECT_MAC_ERROR, "Invalid MAC received", sizeof("Invalid MAC received") - 1, "", 0);
                                 }
+				LIBSSH2_FREE(session, data);
                                 return -1;
                         }
                 } else {
@@ -339,6 +340,7 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
                         if (session->ssh_msg_disconnect) {
                                 LIBSSH2_DISCONNECT(session, SSH_DISCONNECT_MAC_ERROR, "Invalid MAC received", sizeof("Invalid MAC received") - 1, "", 0);
                         }
+			LIBSSH2_FREE(session, data);
                         return -1;
                 }
         }
