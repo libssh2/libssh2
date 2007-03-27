@@ -7,6 +7,9 @@ Version
    libssh2_sftp_readnb()
    libssh2_sftp_writenb()
 
+  Size parameter changed from 'int' to 'unsigned int' in several
+  public APIs.
+
   Added (a few) man pages in docs/. (Daniel Stenberg)
 
   Maximum SSH packet size is now some 35000 bytes.

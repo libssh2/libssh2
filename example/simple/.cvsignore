@@ -1,0 +1,10 @@
+Makefile
+Makefile.in
+.deps
+.libs
+scp
+scp_nonblock
+sftp
+sftp_nonblock
+sftpdir
+ssh2
