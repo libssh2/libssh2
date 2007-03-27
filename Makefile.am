@@ -5,7 +5,7 @@ include_HEADERS =			\
 	include/libssh2_publickey.h	\
 	include/libssh2_sftp.h
 
-EXTRA_DIST = win32
+EXTRA_DIST = win32 buildconf
 
 ACLOCAL_AMFLAGS = -I m4
 
