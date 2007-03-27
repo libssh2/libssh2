@@ -55,6 +55,10 @@ if test "$use_libgcrypt" != "no"; then
 fi
 AM_CONDITIONAL(LIBGCRYPT, test "$use_libgcrypt" != "no")
 
+# Need to define SHLIB_SUFFIX_NAME before checking for libcrypt and libz
+# $shrext_cmds (from libtool) can contain commands so it must be eval'd
+eval SHLIB_SUFFIX_NAME=\"$shrext_cmds\"
+
 #
 # Look for OpenSSL
 #
@@ -107,7 +111,7 @@ if test "$found_openssl" = "no"; then
       OPENSSL_INCLINE="-I$i/include"
       OPENSSL_INCDIR=$i/include
     fi
-    if test -r $i/lib/libcrypto.a -o -r $i/lib/libcrypto.$SHLIB_SUFFIX_NAME; then
+    if test -r $i/lib/libcrypto.a -o -r $i/lib/libcrypto$SHLIB_SUFFIX_NAME; then
       OPENSSL_LIBLINE="-L$i/lib -lcrypto"
     fi
     test -n "$OPENSSL_INCLINE" && test -n "$OPENSSL_LIBLINE" && break
@@ -160,7 +164,7 @@ for i in $LIBSSH2_LIBZ_DIR; do
   if test -r $i/include/zlib.h; then
     LIBZ_INCDIR=$i/include
   fi
-  if test -r $i/lib/libz.a -o -r $i/lib/libz.$SHLIB_SUFFIX_NAME; then
+  if test -r $i/lib/libz.a -o -r $i/lib/libz$SHLIB_SUFFIX_NAME; then
     LIBZ_LIBDIR=$i/lib
   fi
   test -n "$LIBZ_INCDIR" && test -n "$LIBZ_LIBDIR" && break
