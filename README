@@ -1,267 +1,93 @@
 libssh2 - SSH2 library
 ======================
 
-  libssh2 is a library implementing the SSH2 protocol 
+libssh2 is a library implementing the SSH2 protocol, available under
+the revised BSD license.
 
-Version 
-------------
+Generic installation instructions are in INSTALL.  Some ./configure
+options deserve additional comments:
 
-  added the following functions for non-blocking operations: (Daniel Stenberg)
-   libssh2_channel_readnb_ex()
-   libssh2_channel_writenb_ex()
-   libssh2_sftp_readnb()
-   libssh2_sftp_writenb()
+	* --enable-crypt-none
 
-  added (a few) man pages in docs/ (Daniel Stenberg)
+		The SSH2 Transport allows for unencrypted data
+		transmission using the "none" cipher.  Because this is
+		such a huge security hole, it is typically disabled on
+		SSH2 implementations and is diabled in libssh2 by
+		default as well.
 
-  maximum SSH packet size is now some 35000 bytes
+		Enabling this option will allow for "none" as a
+		negotiable method, however it still requires that the
+		method be advertized by the remote end and that no
+		more-prefferable methods are available.
 
-  private include files are now in src/ and only public headers are in include/
-  (Daniel Stenberg)
+	* --enable-mac-none
 
-  automake and libtool are being used (increased portability) (Daniel Stenberg)
+		The SSH2 Transport also allows implementations to
+		forego a message authentication code.  While this is
+		less of a security risk than using a "none" cipher, it
+		is still not recommended as disabling MAC hashes
+		removes a layer of security.
 
-  fixed OpenSSL detection using pkg-config (Daniel Stenberg)
+		Enabling this option will allow for "none" as a
+		negotiable method, however it still requires that the
+		method be advertized by the remote end and that no
+		more-prefferable methods are available.
 
-  simple self test added to tests/ (Simon Josefsson)
+	* --disable-gex-new
 
-  Libgcrypt can now be used instead of OpenSSL if you specify --with-libgcrypt
-  (Simon Josefsson)
+		The diffie-hellman-group-exchange-sha1 (dh-gex) key
+		exchange method originally defined an exchange
+		negotiation using packet type 30 to request a
+		generation pair based on a single target value.  Later
+		refinement of dh-gex provided for range and target
+		values.  By default libssh2 will use the newer range
+		method.
 
-  fixed a memory leak in the packet handling (Dan Fandrich)
+		If you experience trouble connecting to an old SSH
+		server using dh-gex, try this option to fallback on
+		the older more reliable method.
 
-  made libssh2 build with OpenSSL 0.9.6 (Dan Fandrich)
+  	* --with-libgcrypt
+	* --with-libgcrypt-prefix=DIR
 
-Version 0.14
-------------
+		libssh2 can use the Libgcrypt library
+		(http://www.gnupg.org/) for cryptographic operations.
 
-  Plug leaks in EVP cipher init/shutdown. (Selcuk Gueney)
+		Configure will attempt to locate Libgcrypt in the
+		default location, but if you have installed it
+		somewhere else, use the --with-libgrypt-prefic=DIR
+		parameter.
 
-  Allow socket_fd == 0 in libssh2_session_startup(). (puudeli)
+	* --with-openssl=[DIR]
 
-  Swap ordering of packet_add/packet-inspection to avoid inspect after free. (Selcuk)
+		libssh2 can use the OpenSSL library
+		(http://www.openssl.org) for cryptographic operations.
 
-  Swap KEX_INIT ordering, send our KEX_INIT first.
+		Configure will attempt to locate OpenSSL in a number
+		of default locations:
 
-  Add check for oportunistic KEX_INIT packets.  Burn bad guess if necessary.
+			/usr/local/ssl
+			/usr/local
+			/usr
+			/usr/local/openssl
 
-  Fix OpenSSL detection using pkg-config. (Dan Casey)
+		If your installation of OpenSSL is in another
+		location, specify it here.
 
-Version 0.13
-------------
+	* --with-zlib=[DIR]
 
-  Fixed channel not being marked closed when CHANNEL_CLOSE package cannot be sent. (David Robins)
+		If present, libssh2 will attempt to use the zlib (http://www.zlib.org)
+		for payload compression, however zlib is not required.
 
-  Fixed payload packet allocation bug when invalid packet length received. (David Robins)
+		Configure will attempt to location a zlib installation
+		in a number of default locations:
 
-  Fixed `make install' target for MacOSX.
+			/usr/local
+			/usr
+			/usr/local/libz
+			/usr/libz
+			/usr/local/zlib
+			/usr/zlib
 
-  Add terminating NULL character to readlink()/realpath() results.
-
-  BugFix#1436593: Apply build options for HPUX targets.
-
-Version 0.12
-------------
-
-  Added support for publickey subsytem (not the same as publickey auth).
-
-  Fix x11_req.  Multiple packet_len issues and error handling logic.
-    (Thanks Simon Hart)
-
-  Fix generation of 'e' portion of Diffie-Hellman keyset.
-	Use appropriate order for BN_rand() rather than fixed group1-specific value.
-
-  Re-fixed libssh2_sftp_rename_ex()
-    Transport had right packet_len, but sftp layer still had extra 4 bytes.
-
-  Fixed build with newer OpenSSL headers.
-
-  Added extern "C" declarations to libssh2_sftp.h for C++ compatability.
-
-Version 0.11
-------------
-
-  Added libssh2_chnnale_get_exit_status() -- Mikhail
-
-  Added libssh2_channel_wait_closed() -- Mikhail
-
-  Added libssh2_userauth_keyboard_interactive_ex() -- Mikhail
-
-  Added libssh2_channel_receive_window_adjust() to be able to increase the size of the receive window.
-
-  Added queueing for small window_adjust packets to avoid unnecessary packet conversation.
-
-  Fixed libssh2_sftp_rename_ex() to only send flags parameter if version >= 5 negotiated
-	(not currently possible, but will be and might as well keep the API consistent).
-
-Version 0.10
-------------
-
-  Added developer debugging hooks.  See --enable-debug-* options to ./configure
-
-  Ignore extended data in the SFTP layer.  With no other mechanism to deal with that data it'd just fill up and get stuck.
-
-  (Re)Fixed channel_write() to provide an opportunity for window space to become available again.
-
-  (Re)Fixed SFTP INIT to send the correct SFTP packet length.
-
-  Fixed segfault when client and host can't agree on a hostkey/crypt/mac/comp method. (Thanks puudeli)
-
-  Fixed major issue with sftp packet buffering mechanism.  Using wrong blocking semantics. (No puudeli, YOU the man)
-
-  Reduced busy-looping of libssh2_sftp_packet_requirev.
-
-Version 0.9
------------
-
-  Changed blocking_read to only block as much as necessary and not an arbitrary length of time. (Thanks Felix)
-
-  Fixed SFTP INIT/VERSION to exclude request_id and send correct maximum version number.
-
-  Fixed SFTP to be properly BC with version 1 and 2 servers.
-
-  Fixed libssh2_poll() to recognized closed sessions/channels.
-
-  Fixed libssh2_channel_write_ex() to fully block when set to blocking mode.  Return actual bytes written as well.  (Thanks deadem)
-
-  Added tests for -lm and -lsocket and add them when necessary.
-
-  Added libssh2_channel_window_read_ex() and libssh2_channel_window_write_ex()
-  for examining the ssh transport windowing states.
-
-Version 0.8
------------
-
-  Fix potential segfault in compression/decompression.
-
-  Fix compatability with older versions of OpenSSL
-
-  Swapped order of none,zlib compression modes to prefer no compression by default.
-
-  Added sys/uio.h for platforms (FBSD) which need it in order to define struct iovec.
-
-  Added libssh2_poll() to check status of sockets/channels/listeners.
-
-  Removed unnecessary inclusion of stdio.h (holdover from debugging)
-
-Version 0.7
------------
-
-  Added libssh2_userauth_hostbased_fromfile_ex() for authenticating from hostkey.
-
-  Added configure recognition for MacOSX (Darwin) (Thanks Gabe)
-
-  Fixed extended data identification in libssh2_channel_read().
-
-  Fixed window adjust code.  Hadn't acknowledged adjustments correctly.
-
-  Removed initial_window_size requirement for sending window adjust packet.
-
-
-Version 0.6
------------
-
-  Added LIBSSH2_FLAG_SIGPIPE to enable/disable SIGPIPE generated by send()/recv() calls. Default off.
-
-  Added libssh2_session_flag() to set optional session flags.
-
-  Collapsed exchanging_keys/newkeys/authenticated flags into single state attribute.
-
-  Fix zlib compression issue when internal buffer state misses partial sync.
-
-  Fix segfault when libssh2_session_methods() is called prior to session_startup().
-
-  Fixed client to server channel windowing.  Pervent send queue overruns.
-
-  Swapped banner send/receive order (send first, then wait for response).
-
-Version 0.5
------------
-
-  *** BC Break ***
-  Reimplemented libssh2_session_methods() to match libssh2_session_method_pref() style
-
-  Fixed libssh2_attr2bin() (effects any setstat style call).
-
-  Fixed authenticating with encrypted private key.
-
-  Fixed authenticating via ssh-dss public key.
-
-  Fixed KEX_INIT cookie and packet padding to use actual random data
-
-  Added DESTDIR support to makefiles (Adam Go³êbiowski -- I hope that character set translates right)
-
-  Added libssh2_channel_forward_listen_ex(), libssh2_channel_forward_cancel(), and libssh2_channel_forward_accept().
-
-  Added ./configure option '--disable-gex-new' to allow using the older group-exchange format
-
-  Added MAC methods hmac-md5 and hmac-md5-96.
-
-Version 0.4
------------
-
-  Fixed crash when trying to free sftp_dirhandle data from a filehandle struct.
-
-  Fixed leak in sftp_open_ex(), handle->handle not freed in handle_close().
-
-  Fixed leak in sftp_symlink_ex(), result for READLINK and REALPATH not freed unless there was an error.
-
-  Added libssh2_banner_set(), specify an arbitrary banner to send on introduction.
-
-Version 0.3
------------
-
-  Fixed libssh2_channel_read_ex().  Packet loop initialized BEFORE transport polled for new packets (should have been after).
-
-  Fixed blocking issues in scp_send()/scp_recv().
-
-  Fixed degree of indirection in macerror callback.
-
-  Changed packet read mechanism to use a fixed buffer and avoid unnecessary alloc/free calls. (especially while non-block looping)
-
-  Added channel close callback.
-
-  Added SFTP support (Using its own header file: libssh2_sftp.h)
-
-Version 0.2
------------
-
-  Changed extended data ignorance mechanism:
-    libssh2_channel_ignore_extended_data() changed to libssh2_channel_handle_extended_data()
-    Macro introduced for backward compatability during beta phase.
-    *** THE LIBSSH2_CHANNEL_IGNORE_EXTENDED_DATA() MACRO WILL BE REMOVED PRIOR TO 1.0 RELEASE ***
-    libssh2_channel_handle_extended_data() may be passed one of three "ignore_mode" constants
-      LIBSSH2_CHANNEL_EXTENDED_DATA_NONE       Default behavior, queue ED packets and return them with read_ex
-      LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE     Equivalent to libssh2_channel_ignore_extended_data()
-                                               IGNORE will implicitly flush the extended data stream(s)
-      LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE      Calls to channel_read() will check both the standard data stream
-                                               and the extended data stream(s) for the first available packet
-
-  Changed libssh2_session_disconnect_ex() to return an error code when alloc fails
-
-  Added libssh2_channel_flush_ex() and basic macros: ..._flush() ..._flush_stderr()
-    flush_ex accepts either the streamid (0 for standard data, 1 for stderr) or one of the two following constants:
-      LIBSSH2_CHANNEL_FLUSH_ALL                Flush all streams
-      LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA      Flush all streams EXCEPT the standard data stream
-
-  Added libssh2_session_callback_set() for setting ignore/debug/disconnect/macerror callbacks
-
-  Added libssh2_session_method_pref() to selectively set methods and method preferences.
-
-  Added libssh2_session_methods() to determine what methods were negotiated.
-
-  Added libssh2_session_abstract() for retreiving &session->abstract
-
-  Added libssh2_session_last_error() for retreiving error codes/messages
-
-Version 0.1
------------
-
-  Initial Release:
-    KEX methods: diffie-hellman-group14-sha1, diffie-hellman-group-exchange-sha1, diffie-hellman-group1-sha1
-    Hostkey methods: ssh-rsa, ssh-dss
-    Cipher methods: aes256-cbc, rijndael-cbc@lysator.liu.se, aes192-cbc, aes128-cbc, blowfish-cbc, arcfour, cast128-cbc, 3des-cbc, none*
-    Compression methods: zlib, none
-    MAC methods: hmac-sha1, hmac-sha1-96, hmac-ripemd160, hmac-ripemd160@openssh.com none*
-    *Cipher/MAC "none" is disabled by default for security purposes,
-     Use --enable-crypt-none and/or --enable-mac-none with ./configure to enable
+		If your installation of zlib is in another location,
+		you may specify it here.
