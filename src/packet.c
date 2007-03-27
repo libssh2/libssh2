@@ -65,15 +65,12 @@
 
 #include <inttypes.h>
 
-inline int libssh2_packet_queue_listener(LIBSSH2_SESSION *session, unsigned char *data, unsigned long datalen);
-inline int libssh2_packet_x11_open(LIBSSH2_SESSION *session, unsigned char *data, unsigned long datalen);
-
 /* {{{ libssh2_packet_queue_listener
  * Queue a connection request for a listener
  */
-inline int libssh2_packet_queue_listener(LIBSSH2_SESSION *session,
-                                         unsigned char *data,
-                                         unsigned long datalen)
+static inline int libssh2_packet_queue_listener(LIBSSH2_SESSION *session,
+                                                unsigned char *data,
+                                                unsigned long datalen)
 {
         /* Look for a matching listener */
         unsigned char *s = data + (sizeof("forwarded-tcpip") - 1) + 5;
@@ -206,8 +203,8 @@ inline int libssh2_packet_queue_listener(LIBSSH2_SESSION *session,
 /* {{{ libssh2_packet_x11_open
  * Accept a forwarded X11 connection
  */
-inline int libssh2_packet_x11_open(LIBSSH2_SESSION *session,
-                                   unsigned char *data, unsigned long datalen)
+static inline int libssh2_packet_x11_open(LIBSSH2_SESSION *session,
+                                          unsigned char *data, unsigned long datalen)
 {
         int failure_code = 2; /* SSH_OPEN_CONNECT_FAILED */
         unsigned char *s = data + (sizeof("x11") - 1) + 5;
