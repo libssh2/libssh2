@@ -34,6 +34,8 @@ Version
   Clean up of README, INSTALL, NEWS, added ChangeLog. (Simon
   Josefsson)
 
+  Improve debugging code.  Avoids many #ifdef's.
+
 Version 0.14
 ------------
 
