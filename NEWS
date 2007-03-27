@@ -7,27 +7,32 @@ Version
    libssh2_sftp_readnb()
    libssh2_sftp_writenb()
 
-  Added (a few) man pages in docs/ (Daniel Stenberg)
+  Added (a few) man pages in docs/. (Daniel Stenberg)
 
-  Maximum SSH packet size is now some 35000 bytes
+  Maximum SSH packet size is now some 35000 bytes.
 
-  Private include files are now in src/ and only public headers are in include/
-  (Daniel Stenberg)
+  Private include files are now in src/ and only public headers are in
+  include/.  (Daniel Stenberg)
 
-  Automake and libtool are being used (increased portability) (Daniel Stenberg)
+  Automake and libtool are being used (increased portability). (Daniel
+  Stenberg)
 
-  Fixed OpenSSL detection using pkg-config (Daniel Stenberg)
+  Fixed OpenSSL detection using pkg-config. (Daniel Stenberg)
 
-  Simple self test added to tests/ (Simon Josefsson)
+  Simple self test added to tests/. (Simon Josefsson)
 
-  Libgcrypt can now be used instead of OpenSSL if you specify --with-libgcrypt
-  (Simon Josefsson)
+  Libgcrypt can now be used instead of OpenSSL if you specify
+  --with-libgcrypt.  (Simon Josefsson)
 
-  Fixed a memory leak in the packet handling (Dan Fandrich)
+  Fixed a memory leak in the packet handling. (Dan Fandrich)
 
-  Made libssh2 build with OpenSSL 0.9.6 (Dan Fandrich)
+  Made libssh2 build with OpenSSL 0.9.6. (Dan Fandrich)
 
-  Clean up of README, INSTALL, NEWS, added ChangeLog (Simon Josefsson)
+  Improved portability to Solaris related to -lsocket and
+  -lnsl. (Simon Josefsson)
+
+  Clean up of README, INSTALL, NEWS, added ChangeLog. (Simon
+  Josefsson)
 
 Version 0.14
 ------------
