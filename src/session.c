@@ -718,14 +718,11 @@ LIBSSH2_API int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended
 }
 /* }}} */
 
-inline int libssh2_poll_channel_write(LIBSSH2_CHANNEL *channel);
-inline int libssh2_poll_listener_queued(LIBSSH2_LISTENER *listener);
-
 /* {{{ libssh2_poll_channel_write
  * Returns 0 if writing to channel would block,
  * non-0 if data can be written without blocking
  */
-inline int libssh2_poll_channel_write(LIBSSH2_CHANNEL *channel)
+static inline int libssh2_poll_channel_write(LIBSSH2_CHANNEL *channel)
 {
 	return channel->local.window_size ? 1 : 0;
 }
@@ -735,7 +732,7 @@ inline int libssh2_poll_channel_write(LIBSSH2_CHANNEL *channel)
  * Returns 0 if no connections are waiting to be accepted
  * non-0 if one or more connections are available
  */
-inline int libssh2_poll_listener_queued(LIBSSH2_LISTENER *listener)
+static inline int libssh2_poll_listener_queued(LIBSSH2_LISTENER *listener)
 {
 	return listener->queue ? 1 : 0;
 }
