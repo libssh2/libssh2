@@ -27,6 +27,9 @@ SHLIB_LDFLAGS="$SHLIB_LDFLAGS -lsocket"
 LIBS="$LIBS -lsocket"
 ])
 
+# Solaris has inet_addr in -lnsl.
+AC_SEARCH_LIB(inet_addr, nsl)
+
 AC_SUBST(SHLIB_SUFFIX_NAME)
 AC_SUBST(SHLIB_LDFLAGS)
 AC_SUBST(LIBS)
