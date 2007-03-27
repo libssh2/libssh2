@@ -74,7 +74,7 @@ options deserve additional comments:
 		If your installation of OpenSSL is in another
 		location, specify it here.
 
-	* --with-zlib=[DIR]
+	* --with-libz=[DIR]
 
 		If present, libssh2 will attempt to use the zlib (http://www.zlib.org)
 		for payload compression, however zlib is not required.
