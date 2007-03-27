@@ -28,7 +28,6 @@ AC_SEARCH_LIBS(socket, socket)
 # Solaris has inet_addr() in -lnsl.
 AC_SEARCH_LIBS(inet_addr, nsl)
 
-AC_SUBST(SHLIB_SUFFIX_NAME)
 AC_SUBST(LIBS)
 
 AC_PROG_CC
@@ -57,7 +56,10 @@ AM_CONDITIONAL(LIBGCRYPT, test "$use_libgcrypt" != "no")
 
 # Need to define SHLIB_SUFFIX_NAME before checking for libcrypt and libz
 # $shrext_cmds (from libtool) can contain commands so it must be eval'd
+# Simon's note: replace the find-openssl/libz logic with Bruno's
+# AC_LIB_LINKFLAGS which is more portable and flexible.
 eval SHLIB_SUFFIX_NAME=\"$shrext_cmds\"
+AC_SUBST(SHLIB_SUFFIX_NAME)
 
 #
 # Look for OpenSSL
