@@ -1,0 +1,9 @@
+* Sara Golemon: Author / Project Manager
+
+* Simon Josefsson: libgcrypt support
+
+* Daniel Stenberg: Nonblocking fixes, Build Improvements, and Daily snapshot artist
+
+* Mikhail Gusarov: Keyboard Interactive Authentication
+
+* Wez Furlong & Edink Kadribasic: Windows Port
