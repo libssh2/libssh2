@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.7 2007/02/02 22:09:30 bagder Exp $
+# $Id: Makefile.am,v 1.8 2007/03/29 08:10:22 jas4711 Exp $
 AUTOMAKE_OPTIONS = foreign nostdinc
 
 libssh2_la_SOURCES = channel.c comp.c crypt.c hostkey.c kex.c mac.c	\
@@ -50,4 +50,4 @@ VERSION=-version-info 1:0:0
 # set age to 0. (c:r:a=0)
 #
 
-libssh2_la_LDFLAGS = $(VERSION)
+libssh2_la_LDFLAGS = $(VERSION) -no-undefined
