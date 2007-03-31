@@ -317,10 +317,10 @@ libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type,
 		libssh2_htonu32(channel_id, channel->local.id);
 		while  ((libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_DATA,
 					       &data, &data_len, 1, channel_id,
-					       4, 1) >= 0) ||
+					       4, 0) >= 0) ||
 			(libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_EXTENDED_DATA,
 					       &data, &data_len, 1, channel_id,
-					       4, 1) >= 0)) {
+					       4, 0) >= 0)) {
 			LIBSSH2_FREE(session, data);
 		}
 
@@ -1457,8 +1457,8 @@ LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 
 	/* Clear out packets meant for this channel */
 	libssh2_htonu32(channel_id, channel->local.id);
-	while  ((libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_DATA,		  &data, &data_len, 1, channel_id, 4, 1) >= 0) ||
-			(libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_EXTENDED_DATA, &data, &data_len, 1, channel_id, 4, 1) >= 0)) {
+	while  ((libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_DATA,		  &data, &data_len, 1, channel_id, 4, 0) >= 0) ||
+			(libssh2_packet_ask_ex(session, SSH_MSG_CHANNEL_EXTENDED_DATA, &data, &data_len, 1, channel_id, 4, 0) >= 0)) {
 		LIBSSH2_FREE(session, data);
 	}
 
