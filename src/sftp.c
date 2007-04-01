@@ -711,8 +711,7 @@ static ssize_t _libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
         }
 
         switch (data[0]) {
-                case SSH_FXP_STATUS:
-                {
+                case SSH_FXP_STATUS: {
                         int retcode = libssh2_ntohu32(data + 5);
                         LIBSSH2_FREE(session, data);
 
@@ -723,6 +722,7 @@ static ssize_t _libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                                 libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
                                 return -1;
                         }
+                }
                         
                 case SSH_FXP_DATA:
                         bytes_read = libssh2_ntohu32(data + 5);
