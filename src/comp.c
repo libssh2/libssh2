@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -36,7 +36,9 @@
  */
 
 #include "libssh2_priv.h"
-#include <zlib.h>
+#ifdef LIBSSH2_HAVE_ZLIB
+# include <zlib.h>
+#endif
 
 /* ********
    * none *
