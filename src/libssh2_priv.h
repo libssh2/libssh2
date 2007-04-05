@@ -70,6 +70,7 @@
 
 #ifndef WIN32
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #endif
 
 #ifdef LIBSSH2_LIBGCRYPT
