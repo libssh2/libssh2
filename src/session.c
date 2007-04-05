@@ -46,21 +46,6 @@
 #include <sys/time.h>
 #endif
 
-#ifdef HAVE_POLL
-# include <sys/poll.h>
-#else
-# ifdef HAVE_SELECT
-#  ifdef HAVE_SYS_SELECT_H
-#   include <sys/select.h>
-#  else
-#   include <sys/time.h>
-#   include <sys/types.h>
-#  endif
-# endif
-#endif
-
-
-
 /* {{{ libssh2_default_alloc
  */
 static LIBSSH2_ALLOC_FUNC(libssh2_default_alloc)

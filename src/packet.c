@@ -49,20 +49,6 @@
 
 #include <sys/time.h>
 #include <sys/types.h>
-
-#ifdef HAVE_POLL
-# include <sys/poll.h>
-#else
-# ifdef HAVE_SELECT
-#  ifdef HAVE_SYS_SELECT_H
-#   include <sys/select.h>
-#  else
-#   include <sys/time.h>
-#   include <sys/types.h>
-#  endif
-# endif
-#endif
-
 #include <inttypes.h>
 
 /* {{{ libssh2_packet_queue_listener

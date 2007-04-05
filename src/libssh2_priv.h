@@ -40,6 +40,30 @@
 
 #define LIBSSH2_LIBRARY
 #include "libssh2_config.h"
+
+/* The following CPP block should really only be in session.c and
+   packet.c.  However, AIX have #define's for 'events' and 'revents'
+   and we are using those names in libssh2.h, so we need to include
+   the AIX headers first, to make sure all code is compiled with
+   consistent names of these fields.  While arguable the best would to
+   change libssh2.h to use other names, that would break backwards
+   compatibility.  For more information, see:
+   http://www.mail-archive.com/libssh2-devel%40lists.sourceforge.net/msg00003.html
+   http://www.mail-archive.com/libssh2-devel%40lists.sourceforge.net/msg00224.html
+*/
+#ifdef HAVE_POLL
+# include <sys/poll.h>
+#else
+# ifdef HAVE_SELECT
+# ifdef HAVE_SYS_SELECT_H
+# include <sys/select.h>
+# else
+# include <sys/time.h>
+# include <sys/types.h>
+# endif
+# endif
+#endif
+
 #include "libssh2.h"
 
 #include <stdio.h>
