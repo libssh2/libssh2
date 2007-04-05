@@ -45,11 +45,10 @@ AC_ARG_WITH(libgcrypt,
   AC_HELP_STRING([--with-libgcrypt],[Use libgcrypt for crypto]),
   use_libgcrypt=$withval,use_libgcrypt=no)
 if test "$use_libgcrypt" != "no"; then
-  AM_PATH_LIBGCRYPT(1:1.2.2,,use_libgcrypt=no)
+  AC_LIB_HAVE_LINKFLAGS([gcrypt], [], [#include <gcrypt.h>])
 fi
-if test "$use_libgcrypt" != "no"; then
-  CFLAGS="$CFLAGS $LIBGCRYPT_CFLAGS"
-  LDFLAGS="$LDFLAGS $LIBGCRYPT_LIBS"
+if test "$ac_cv_libgcrypt" = yes; then
+  use_libgcrypt=yes
   AC_DEFINE(LIBSSH2_LIBGCRYPT, 1, [Use libgcrypt])
 fi
 AM_CONDITIONAL(LIBGCRYPT, test "$use_libgcrypt" != "no")
