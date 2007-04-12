@@ -37,7 +37,7 @@
 
 #include "libssh2_priv.h"
 #include <errno.h>
-#ifndef WIN32
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 #include <stdlib.h>
@@ -101,7 +101,7 @@ static int libssh2_banner_receive(LIBSSH2_SESSION *session)
 					break;
 				case WSAENOTCONN:
 				case WSAECONNABORTED:
-					errno = ENOTCONN;
+					errno = WSAENOTCONN;
 					break;
 				case WSAEINTR:
 					errno = EINTR;
