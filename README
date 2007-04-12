@@ -91,3 +91,9 @@ options deserve additional comments:
 
 		If your installation of zlib is in another location,
 		you may specify it here.
+
+	* --enable-debug
+
+		Will make the build use more pedantic and strict compiler
+		options as well as enable the libssh2_trace() function (for
+		showing debug traces).
