@@ -19,7 +19,7 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8d
+OPENSSL_PATH = ../../openssl-0.9.8e
 endif
 
 # Edit the path below to point to your Distribution folder.
@@ -107,8 +107,9 @@ LDFLAGS	= -T
 AR	= ar
 ARFLAGS	= -cq
 LIBEXT	= a
-CFLAGS	+= -fno-builtin -fpack-struct -fpcc-struct-return
-CFLAGS	+= -fno-strict-aliasing -Wall -Wno-unused # -pedantic
+CFLAGS	+= -fno-builtin -fpcc-struct-return -fno-strict-aliasing
+CFLAGS	+= -Wall -Wno-unused # -pedantic
+#CFLAGS	+= -Wno-pointer-sign
 ifeq ($(LIBARCH),LIBC)
 	PRELUDE = $(SDK_LIBC)/imports/libcpre.gcc.o
 else
@@ -126,15 +127,18 @@ SDK_LDAP = $(NDK_ROOT)/cldapsdk/netware
 
 INCLUDES = -I. -I../include
 
-INCLUDES += -I$(OPENSSL_PATH)/outinc_nw_libc -I$(OPENSSL_PATH)/outinc_nw_libc/openssl
-LDLIBS += $(OPENSSL_PATH)/out_nw_libc/crypto.$(LIBEXT) $(OPENSSL_PATH)/out_nw_libc/ssl.$(LIBEXT)
-IMPORTS += GetProcessSwitchCount RunningProcess
-
 ifdef WITH_ZLIB
 	INCLUDES += -I$(ZLIB_PATH)
-	IMPORTS += @$(ZLIB_PATH)/nw/libz.imp
+ifdef LINK_STATIC
+	LDLIBS += $(ZLIB_PATH)/nw/libz.$(LIBEXT)
+else
 	MODULES += libz.nlm
+	IMPORTS += @$(ZLIB_PATH)/nw/libz.imp
 endif
+endif
+INCLUDES += -I$(OPENSSL_PATH)/outinc_nw_libc -I$(OPENSSL_PATH)/outinc_nw_libc/openssl
+LDLIBS += $(OPENSSL_PATH)/out_nw_libc/ssl.$(LIBEXT) $(OPENSSL_PATH)/out_nw_libc/crypto.$(LIBEXT)
+IMPORTS += GetProcessSwitchCount RunningProcess
 
 ifeq ($(LIBARCH),LIBC)
 	INCLUDES += -I$(SDK_LIBC)/include -I$(SDK_LIBC)/include/nks
@@ -188,8 +192,8 @@ OBJECTS = \
 	transport.o \
 	userauth.o
 
-OBJS	:= $(addprefix $(OBJDIR)/,$(OBJECTS)) $(LDLIBS)
-OBJL	= $(OBJS) $(OBJDIR)/nwlibc.o
+OBJS	:= $(addprefix $(OBJDIR)/,$(OBJECTS))
+OBJL	= $(OBJS) $(OBJDIR)/nwlibc.o $(LDLIBS)
 
 all: lib nlm
 
@@ -249,8 +253,7 @@ testclean: clean
 
 clean: objclean
 	-$(RM) libssh2_config.h
-	-$(RM) libssh2.imp
-	-$(RM) $(TARGET).nlm $(TARGET).$(LIBEXT)
+	-$(RM) $(TARGET).nlm $(TARGET).$(LIBEXT) $(TARGET).imp
 
 $(OBJDIR):
 	@mkdir $@
@@ -461,10 +464,13 @@ libssh2.imp: Makefile.netware
 	@echo $(DL)  libssh2_channel_open_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_process_startup,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_read_ex,$(DL) >> $@
+	@echo $(DL)  libssh2_channel_readnb_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_request_pty_ex,$(DL) >> $@
+	@echo $(DL)  libssh2_channel_send_eof,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_set_blocking,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_setenv_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_write_ex,$(DL) >> $@
+	@echo $(DL)  libssh2_channel_writenb_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_hostkey_hash,$(DL) >> $@
 	@echo $(DL)  libssh2_scp_recv,$(DL) >> $@
 	@echo $(DL)  libssh2_scp_send_ex,$(DL) >> $@
@@ -485,6 +491,7 @@ libssh2.imp: Makefile.netware
 	@echo $(DL)  libssh2_sftp_open_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_read,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_readdir,$(DL) >> $@
+	@echo $(DL)  libssh2_sftp_readnb,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_rename_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_rmdir_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_seek,$(DL) >> $@
