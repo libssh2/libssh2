@@ -182,6 +182,7 @@ LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const cha
 			s = data = LIBSSH2_ALLOC(session, data_len);
 			if (!data) {
 				libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for userauth-password-change request", 0);
+				LIBSSH2_FREE(session, newpw);
 				return -1;
 			}
 
@@ -206,6 +207,7 @@ LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const cha
 			if (libssh2_packet_write(session, data, data_len)) {
 				libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send userauth-password-change request", 0);
 				LIBSSH2_FREE(session, data);
+				LIBSSH2_FREE(session, newpw);
 				return -1;
 			}
 			LIBSSH2_FREE(session, data);
@@ -373,6 +375,10 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 	/* Preallocate space for an overall length,  method name again,
 	 * and the signature, which won't be any larger than the size of the publickeydata itself */
 	s = packet = LIBSSH2_ALLOC(session, packet_len + 4 + (4 + method_len) + (4 + pubkeydata_len));
+	if (!packet) {
+		LIBSSH2_FREE(session, method);
+		return -1;
+	}
 
 	*(s++) = SSH_MSG_USERAUTH_REQUEST;
 	libssh2_htonu32(s, username_len);				s += 4;
@@ -423,14 +429,18 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 		privkeyobj->dtor(session, &abstract);
 	}
 
-	if (sig_len > pubkeydata_len ) {
+	if (sig_len > pubkeydata_len) {
+		unsigned char *newpacket;
 		/* Should *NEVER* happen, but...well.. better safe than sorry */
-		packet = LIBSSH2_REALLOC(session, packet, packet_len + 4 + (4 + method_len) + (4 + sig_len)); /* PK sigblob */
-		if (!packet) {
+		newpacket = LIBSSH2_REALLOC(session, packet, packet_len + 4 + (4 + method_len) + (4 + sig_len)); /* PK sigblob */
+		if (!newpacket) {
 			libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Failed allocating additional space for userauth-hostbased packet", 0);
+			LIBSSH2_FREE(session, sig);
+			LIBSSH2_FREE(session, packet);
 			LIBSSH2_FREE(session, method);
 			return -1;
 		}
+		packet = newpacket;
 	}
 
 	s = packet + packet_len;
@@ -499,6 +509,11 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 	/* Preallocate space for an overall length,  method name again,
 	 * and the signature, which won't be any larger than the size of the publickeydata itself */
 	s = packet = LIBSSH2_ALLOC(session, packet_len + 4 + (4 + method_len) + (4 + pubkeydata_len));
+	if (!packet) {
+		LIBSSH2_FREE(session, method);
+		LIBSSH2_FREE(session, pubkeydata);
+		return -1;
+	}
 
 	*(s++) = SSH_MSG_USERAUTH_REQUEST;
 	libssh2_htonu32(s, username_len);				s += 4;
@@ -518,20 +533,19 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 
 	libssh2_htonu32(s, pubkeydata_len);				s += 4;
 	memcpy(s, pubkeydata, pubkeydata_len);			s += pubkeydata_len;
+	LIBSSH2_FREE(session, pubkeydata);
 
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Attempting publickey authentication");
 	if (libssh2_packet_write(session, packet, packet_len)) {
 		libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send userauth-publickey request", 0);
 		LIBSSH2_FREE(session, packet);
 		LIBSSH2_FREE(session, method);
-		LIBSSH2_FREE(session, pubkeydata);
 		return -1;
 	}
 
 	if (libssh2_packet_requirev(session, reply_codes, &data, &data_len)) {
 		LIBSSH2_FREE(session, packet);
 		LIBSSH2_FREE(session, method);
-		LIBSSH2_FREE(session, pubkeydata);
 		return -1;
 	}
 
@@ -541,7 +555,6 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 		LIBSSH2_FREE(session, data);
 		LIBSSH2_FREE(session, packet);
 		LIBSSH2_FREE(session, method);
-		LIBSSH2_FREE(session, pubkeydata);
 		session->state |= LIBSSH2_STATE_AUTHENTICATED;
 		return 0;
 	}
@@ -551,14 +564,12 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 		LIBSSH2_FREE(session, data);
 		LIBSSH2_FREE(session, packet);
 		LIBSSH2_FREE(session, method);
-		LIBSSH2_FREE(session, pubkeydata);
 		libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED, "Username/PublicKey combination invalid", 0);
 		return -1;
 	}
 
 	/* Semi-Success! */
 	LIBSSH2_FREE(session, data);
-	LIBSSH2_FREE(session, pubkeydata);
 
 	if (libssh2_file_read_privatekey(session, &privkeyobj, &abstract, method, method_len, privatekey, passphrase)) {
 		LIBSSH2_FREE(session, method);
@@ -590,13 +601,17 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 	}
 
 	if (sig_len > pubkeydata_len) {
+		unsigned char *newpacket;
 		/* Should *NEVER* happen, but...well.. better safe than sorry */
-		packet = LIBSSH2_REALLOC(session, packet, packet_len + 4 + (4 + method_len) + (4 + sig_len)); /* PK sigblob */
-		if (!packet) {
+		newpacket = LIBSSH2_REALLOC(session, packet, packet_len + 4 + (4 + method_len) + (4 + sig_len)); /* PK sigblob */
+		if (!newpacket) {
 			libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Failed allocating additional space for userauth-publickey packet", 0);
+			LIBSSH2_FREE(session, sig);
+			LIBSSH2_FREE(session, packet);
 			LIBSSH2_FREE(session, method);
 			return -1;
 		}
+		packet = newpacket;
 	}
 
 	s = packet + packet_len;

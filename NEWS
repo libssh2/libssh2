@@ -27,7 +27,8 @@ Version
   Libgcrypt can now be used instead of OpenSSL if you specify
   --with-libgcrypt.  (Simon Josefsson)
 
-  Fixed a memory leak in the packet handling. (Dan Fandrich)
+  Fixed a memory leak in the packet handling, and better handle out of
+  memory situations. (Dan Fandrich)
 
   Made libssh2 build with OpenSSL 0.9.6. (Dan Fandrich)
 

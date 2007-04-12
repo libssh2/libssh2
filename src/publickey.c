@@ -600,13 +600,15 @@ LIBSSH2_API int libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY *pkey, unsigned l
 			case LIBSSH2_PUBLICKEY_RESPONSE_PUBLICKEY:
 				/* What we want */
 				if (keys >= max_keys) {
+					libssh2_publickey_list *newlist;
 					/* Grow the key list if necessary */
 					max_keys += 8;
-					list = LIBSSH2_REALLOC(session, list, (max_keys + 1) * sizeof(libssh2_publickey_list));
-					if (!list) {
+					newlist = LIBSSH2_REALLOC(session, list, (max_keys + 1) * sizeof(libssh2_publickey_list));
+					if (!newlist) {
 						libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for publickey list", 0);
 						goto err_exit;
 					}
+					list = newlist;
 				}
 				if (pkey->version == 1) {
 					unsigned long comment_len;

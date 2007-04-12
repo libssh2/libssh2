@@ -191,6 +191,7 @@ static int libssh2_comp_method_zlib_comp(LIBSSH2_SESSION *session,
 		}
 		if (strm->avail_in) {
 			unsigned long out_ofs = out_maxlen - strm->avail_out;
+			char *newout;
 
 			out_maxlen += compress ? (strm->avail_in + 4) : (2 * strm->avail_in);
 
@@ -202,11 +203,13 @@ static int libssh2_comp_method_zlib_comp(LIBSSH2_SESSION *session,
 				return -1;
 			}
 
-			out = LIBSSH2_REALLOC(session, out, out_maxlen);
-			if (!out) {
+			newout = LIBSSH2_REALLOC(session, out, out_maxlen);
+			if (!newout) {
 				libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to expand compress/decompression buffer", 0);
+				LIBSSH2_FREE(session, out);
 				return -1;
 			}
+			out = newout;
 			strm->next_out = (unsigned char *)out + out_ofs;
 			strm->avail_out += compress ? (strm->avail_in + 4) : (2 * strm->avail_in);
 		} else while (!strm->avail_out) {
@@ -214,6 +217,7 @@ static int libssh2_comp_method_zlib_comp(LIBSSH2_SESSION *session,
 			 * Or potentially many bytes if it's a decompress
 			 */
 			int grow_size = compress ? 8 : 1024;
+			char *newout;
 
 			if (out_maxlen >= (int)payload_limit) {
 				libssh2_error(session, LIBSSH2_ERROR_ZLIB, "Excessive growth in decompression phase", 0);
@@ -228,11 +232,13 @@ static int libssh2_comp_method_zlib_comp(LIBSSH2_SESSION *session,
 			out_maxlen += grow_size;
 			strm->avail_out = grow_size;
 
-			out = LIBSSH2_REALLOC(session, out, out_maxlen);
-			if (!out) {
+			newout = LIBSSH2_REALLOC(session, out, out_maxlen);
+			if (!newout) {
 				libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to expand final compress/decompress buffer", 0);
+				LIBSSH2_FREE(session, out);
 				return -1;
 			}
+			out = newout;
 			strm->next_out = (unsigned char *)out + out_maxlen -
 				grow_size;
 

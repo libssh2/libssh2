@@ -368,7 +368,7 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
                         if (session->ssh_msg_ignore) {
                                 LIBSSH2_IGNORE(session, (char *)data + 4, datalen - 5);
                         }
-                        LIBSSH2_FREE(session, (char *)data);
+                        LIBSSH2_FREE(session, data);
                         return 0;
                         break;
                 case SSH_MSG_DEBUG:
@@ -549,6 +549,11 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
         }
 
         packet = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_PACKET));
+        if (!packet) {
+		_libssh2_debug(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for LIBSSH2_PACKET");
+		LIBSSH2_FREE(session, data);
+		return -1;
+        }
         memset(packet, 0, sizeof(LIBSSH2_PACKET));
 
         packet->data = data;

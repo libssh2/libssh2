@@ -233,7 +233,7 @@ libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type,
 		libssh2_error(session, LIBSSH2_ERROR_ALLOC,
 			      "Unable to allocate temporary space for packet",
 			      0);
-		return NULL;
+		goto channel_error;
 	}
 	*(s++) = SSH_MSG_CHANNEL_OPEN;
 	libssh2_htonu32(s, channel_type_len);
@@ -958,7 +958,7 @@ LIBSSH2_API unsigned long libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL 
 	unsigned char adjust[9]; /* packet_type(1) + channel(4) + adjustment(4) */
 
 	if (!force && (adjustment + channel->adjust_queue < LIBSSH2_CHANNEL_MINADJUST)) {
-		_libssh2_debug(channel->session, LIBSSH2_DBG_CONN, "Queing %lu bytes for receive window adjustment for channel %lu/%lu", adjustment, channel->local.id, channel->remote.id);
+		_libssh2_debug(channel->session, LIBSSH2_DBG_CONN, "Queueing %lu bytes for receive window adjustment for channel %lu/%lu", adjustment, channel->local.id, channel->remote.id);
 		channel->adjust_queue += adjustment;
 		return channel->remote.window_size;
 	}
@@ -1240,7 +1240,7 @@ int _libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel,
 			rc = libssh2_packet_read(session);
 
 			if (rc < 0) {
-				/* Error or EAGAIN occured, disconnect? */
+				/* Error or EAGAIN occurred, disconnect? */
 				return rc;
 			}
 

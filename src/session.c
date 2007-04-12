@@ -132,6 +132,10 @@ static int libssh2_banner_receive(LIBSSH2_SESSION *session)
 	if (!banner_len) return 1;
 
 	session->remote.banner = LIBSSH2_ALLOC(session, banner_len + 1);
+	if (!session->remote.banner) {
+		libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Error allocating space for remote banner", 0);
+		return 1;
+	}
 	memcpy(session->remote.banner, banner, banner_len);
 	session->remote.banner[banner_len] = '\0';
 	_libssh2_debug(session, LIBSSH2_DBG_TRANS, "Received Banner: %s", session->remote.banner);
@@ -233,15 +237,16 @@ LIBSSH2_API LIBSSH2_SESSION *libssh2_session_init_ex(
 		local_realloc	= my_realloc;
 
 	session = local_alloc(sizeof(LIBSSH2_SESSION), abstract);
-	memset(session, 0, sizeof(LIBSSH2_SESSION));
-	session->alloc		= local_alloc;
-	session->free		= local_free;
-	session->realloc	= local_realloc;
-	session->abstract	= abstract;
-	_libssh2_debug(session, LIBSSH2_DBG_TRANS,
-		       "New session resource allocated");
-	libssh2_crypto_init ();
-
+	if (session) {
+		memset(session, 0, sizeof(LIBSSH2_SESSION));
+		session->alloc		= local_alloc;
+		session->free		= local_free;
+		session->realloc	= local_realloc;
+		session->abstract	= abstract;
+		_libssh2_debug(session, LIBSSH2_DBG_TRANS,
+			       "New session resource allocated");
+		libssh2_crypto_init ();
+	}
 	return session;
 }
 /* }}} */

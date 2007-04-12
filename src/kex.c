@@ -44,21 +44,22 @@
 	libssh2_sha1_ctx hash;	\
 	unsigned long len = 0;	\
 	if (!(value)) {	\
-		value = LIBSSH2_ALLOC(session, reqlen + SHA_DIGEST_LENGTH); \
-	}								\
-	while (len < reqlen) {						\
-		libssh2_sha1_init(&hash);				\
-		libssh2_sha1_update(hash, k_value, k_value_len);	\
-		libssh2_sha1_update(hash, h_sig_comp, SHA_DIGEST_LENGTH); \
-		if (len > 0) {						\
-			libssh2_sha1_update(hash, value, len);		\
-		}	else {						\
-			libssh2_sha1_update(hash, (version), 1);	\
-			libssh2_sha1_update(hash, session->session_id, session->session_id_len); \
-		}							\
-		libssh2_sha1_final(hash, (value) + len);		\
-		len += SHA_DIGEST_LENGTH;				\
-	}								\
+		value = LIBSSH2_ALLOC(session, reqlen + SHA_DIGEST_LENGTH);	\
+	}									\
+	if (value)								\
+		while (len < reqlen) {						\
+			libssh2_sha1_init(&hash);				\
+			libssh2_sha1_update(hash, k_value, k_value_len);	\
+			libssh2_sha1_update(hash, h_sig_comp, SHA_DIGEST_LENGTH); \
+			if (len > 0) {						\
+				libssh2_sha1_update(hash, value, len);		\
+			}	else {						\
+				libssh2_sha1_update(hash, (version), 1);	\
+				libssh2_sha1_update(hash, session->session_id, session->session_id_len); \
+			}							\
+			libssh2_sha1_final(hash, (value) + len);		\
+			len += SHA_DIGEST_LENGTH;				\
+		}								\
 }
 
 /* {{{ libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange
@@ -334,7 +335,16 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		int free_iv = 0, free_secret = 0;
 
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(iv, session->local.crypt->iv_len, "A");
+		if (!iv) {
+		  ret = -1;
+		  goto clean_exit;
+		}
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(secret, session->local.crypt->secret_len, "C");
+		if (!secret) {
+		  LIBSSH2_FREE(session, iv);
+		  ret = -1;
+		  goto clean_exit;
+		}
 		if (session->local.crypt->init(session, session->local.crypt, iv, &free_iv, secret, &free_secret, 1, &session->local.crypt_abstract)) {
 		  LIBSSH2_FREE(session, iv);
 		  LIBSSH2_FREE(session, secret);
@@ -365,7 +375,16 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		int free_iv = 0, free_secret = 0;
 
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(iv, session->remote.crypt->iv_len, "B");
+		if (!iv) {
+		  ret = -1;
+		  goto clean_exit;
+		}
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(secret, session->remote.crypt->secret_len, "D");
+		if (!secret) {
+		  LIBSSH2_FREE(session, iv);
+		  ret = -1;
+		  goto clean_exit;
+		}
 		if (session->remote.crypt->init(session, session->remote.crypt, iv, &free_iv, secret, &free_secret, 0, &session->remote.crypt_abstract)) {
 		  LIBSSH2_FREE(session, iv);
 		  LIBSSH2_FREE(session, secret);
@@ -394,6 +413,10 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		int free_key = 0;
 
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(key, session->local.mac->key_len, "E");
+		if (!key) {
+		  ret = -1;
+		  goto clean_exit;
+		}
 		session->local.mac->init(session, key, &free_key, &session->local.mac_abstract);
 
 		if (free_key) {
@@ -412,6 +435,10 @@ static int libssh2_kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_S
 		int free_key = 0;
 
 		LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(key, session->remote.mac->key_len, "F");
+		if (!key) {
+		  ret = -1;
+		  goto clean_exit;
+		}
 		session->remote.mac->init(session, key, &free_key, &session->remote.mac_abstract);
 
 		if (free_key) {
@@ -1218,6 +1245,7 @@ int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange) /* session->f
 {
 	unsigned char *data;
 	unsigned long data_len;
+	int rc = 0;
 
 	/* Prevent loop in packet_add() */
 	session->state |= LIBSSH2_STATE_EXCHANGING_KEYS;
@@ -1259,13 +1287,15 @@ int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange) /* session->f
 		session->remote.kexinit_len = data_len;
 
 		if (libssh2_kex_agree_methods(session, data, data_len)) {
-			return -3;
+			rc = -3;
 		}
 	}
 
-	if (session->kex->exchange_keys(session)) {
-		libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE, "Unrecoverable error exchanging keys", 0);
-		return -4;
+	if (rc == 0) {
+		if (session->kex->exchange_keys(session)) {
+			libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE, "Unrecoverable error exchanging keys", 0);
+			rc = -4;
+		}
 	}
 
 	/* Done with kexinit buffers */
@@ -1280,7 +1310,7 @@ int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange) /* session->f
 
 	session->state &= ~LIBSSH2_STATE_EXCHANGING_KEYS;
 
-	return 0;
+	return rc;
 }
 /* }}} */
 
