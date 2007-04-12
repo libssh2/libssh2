@@ -12,13 +12,13 @@ options deserve additional comments:
 		The SSH2 Transport allows for unencrypted data
 		transmission using the "none" cipher.  Because this is
 		such a huge security hole, it is typically disabled on
-		SSH2 implementations and is diabled in libssh2 by
+		SSH2 implementations and is disabled in libssh2 by
 		default as well.
 
 		Enabling this option will allow for "none" as a
 		negotiable method, however it still requires that the
 		method be advertized by the remote end and that no
-		more-prefferable methods are available.
+		more-preferable methods are available.
 
 	* --enable-mac-none
 
@@ -31,7 +31,7 @@ options deserve additional comments:
 		Enabling this option will allow for "none" as a
 		negotiable method, however it still requires that the
 		method be advertized by the remote end and that no
-		more-prefferable methods are available.
+		more-preferable methods are available.
 
 	* --disable-gex-new
 
@@ -55,7 +55,7 @@ options deserve additional comments:
 
 		Configure will attempt to locate Libgcrypt in the
 		default location, but if you have installed it
-		somewhere else, use the --with-libgrypt-prefic=DIR
+		somewhere else, use the --with-libgrypt-prefix=DIR
 		parameter.
 
 	* --with-openssl=[DIR]

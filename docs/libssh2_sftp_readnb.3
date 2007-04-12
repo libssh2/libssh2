@@ -1,4 +1,4 @@
-.\" $Id: libssh2_sftp_readnb.3,v 1.1 2007/02/23 10:20:56 bagder Exp $
+.\" $Id: libssh2_sftp_readnb.3,v 1.2 2007/04/12 21:30:03 dfandrich Exp $
 .\"
 .TH libssh2_sftp_read 3 "6 Feb 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -10,7 +10,7 @@ ssize_t libssh2_sftp_readnb(LIBSSH2_SFTP_HANDLE *handle,
                             char *buffer, size_t buffer_maxlen);
 .SH DESCRIPTION
 Reads a block of data from an LIBSSH2_SFTP_HANDLE non-blocking. This method is
-modeled after the POSIX \Iread(3)\fP function and uses the same calling
+modelled after the POSIX \Iread(3)\fP function and uses the same calling
 semantics. \fIlibssh2_sftp_read(3)\fP will attempt to read as much as possible
 however it may not fill all of buffer if the file pointer reaches the end or
 if further reads would cause the socket to block.

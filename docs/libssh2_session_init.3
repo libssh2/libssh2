@@ -1,4 +1,4 @@
-.\" $Id: libssh2_session_init.3,v 1.1 2006/12/21 14:09:13 bagder Exp $
+.\" $Id: libssh2_session_init.3,v 1.2 2007/04/12 21:30:03 dfandrich Exp $
 .\"
 .TH libssh2_session_init 3 "14 Dec 2006" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -15,7 +15,7 @@ LIBSSH2_SESSION *libssh2_session_init_ex(
 LIBSSH2_SESSION *libssh2_session_init(void);
 .SH DESCRIPTION
 Initializes an SSH session object. By default system memory allocators
-(malloc(), free(), realloc()) will be used for any dynamicly allocated memory
+(malloc(), free(), realloc()) will be used for any dynamically allocated memory
 blocks. Alternate memory allocation functions may be specified using the
 extended version of this API call, and/or optional application specific data
 may be attached to the session object.
