@@ -36,12 +36,13 @@
  */
 
 #include "libssh2_priv.h"
-#ifndef WIN32
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#include <fcntl.h>
 #endif
-
+#include <fcntl.h>
+#ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
+#endif
 
 
 /*

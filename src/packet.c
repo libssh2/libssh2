@@ -38,8 +38,17 @@
 #include "libssh2_priv.h"
 #include <errno.h>
 #include <fcntl.h>
-#ifndef WIN32
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
 #endif
 
 /* Needed for struct iovec on some platforms */
@@ -47,9 +56,7 @@
 #include <sys/uio.h>
 #endif
 
-#include <sys/time.h>
 #include <sys/types.h>
-#include <inttypes.h>
 
 /* {{{ libssh2_packet_queue_listener
  * Queue a connection request for a listener

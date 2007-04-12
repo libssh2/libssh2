@@ -36,7 +36,9 @@
  */
 
 #include "libssh2_priv.h"
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 /* {{{ libssh2_ntohu32
  */
