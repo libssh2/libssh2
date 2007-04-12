@@ -506,7 +506,7 @@ libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION *session)
 static libssh2pack_t send_existing(LIBSSH2_SESSION *session,
                                    unsigned char *data,
                                    unsigned long data_len,
-                                   int *ret)
+                                   ssize_t *ret)
 {
         ssize_t rc;
         ssize_t length;
