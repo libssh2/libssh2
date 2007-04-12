@@ -14,7 +14,7 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8d
+OPENSSL_PATH = ../../openssl-0.9.8e
 endif
 
 # Edit the path below to point to your Distribution folder.
@@ -65,7 +65,6 @@ ZIP	= zip -qzr9
 
 # Global flags for all compilers
 CFLAGS	= $(OPT) -D$(DB) -DWIN32 -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
-CFLAGS	+= -DHAVE_IOCTLSOCKET
 
 ifeq ($(CC),mwcc)
 LD	= mwld
