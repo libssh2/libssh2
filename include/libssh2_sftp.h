@@ -38,7 +38,9 @@
 #ifndef LIBSSH2_SFTP_H
 #define LIBSSH2_SFTP_H 1
 
+#ifndef WIN32
 #include <unistd.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
