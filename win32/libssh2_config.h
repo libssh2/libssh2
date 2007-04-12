@@ -1,3 +1,6 @@
+#ifndef LIBSSH2_CONFIG_H
+#define LIBSSH2_CONFIG_H
+
 #ifndef WIN32
 #define WIN32
 #endif
@@ -6,9 +9,13 @@
 #include <ws2tcpip.h>
 
 #ifdef __MINGW32__
-#define ENOTCONN WSAENOTCONN
 #define WINSOCK_VERSION MAKEWORD(2,0)
+#define HAVE_UNISTD_H
+#define HAVE_INTTYPES_H
+#define HAVE_SYS_TIME_H
 #endif
+
+#define HAVE_IOCTLSOCKET
 
 /* same as WSABUF */
 struct iovec {
@@ -34,11 +41,14 @@ static inline int usleep(int udelay)
 	return 0;
 }
 
-#define snprintf	_snprintf
+#define snprintf _snprintf
 
 /* Compile in zlib support */
 #define LIBSSH2_HAVE_ZLIB 1
 
 /* Enable newer diffie-hellman-group-exchange-sha1 syntax */
 #define LIBSSH2_DH_GEX_NEW 1
+
+#endif /* LIBSSH2_CONFIG_H */
+
 
