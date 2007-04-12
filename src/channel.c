@@ -1381,6 +1381,7 @@ LIBSSH2_API int libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 {
 	LIBSSH2_SESSION *session = channel->session;
 	unsigned char packet[5];
+	int rc = 0;
 
 	if (channel->local.close) {
 		/* Already closed, act like we sent another close, even though we didn't... shhhhhh */
@@ -1401,9 +1402,22 @@ LIBSSH2_API int libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 		return -1;
 	}
 
-	/* TODO: Wait up to a timeout value for a CHANNEL_CLOSE to come back, to avoid the problem alluded to in channel_nextid */
+	/* We must wait for the remote SSH_MSG_CHANNEL_CLOSE message */
+	if (!channel->remote.close) {
+		libssh2pack_t ret;
+		/* set blocking mode */
+		int bl = _libssh2_channel_set_blocking(channel, 1);
+		do {
+			ret = libssh2_packet_read(session);
+			if ((ret < 0)  && (ret != PACKET_EAGAIN)) {
+				rc = -1;
+			}
+		} while (ret != SSH_MSG_CHANNEL_CLOSE && rc == 0);
 
-	return 0;
+		_libssh2_channel_set_blocking(channel, bl);
+	}
+
+	return rc;
 }
 /* }}} */
 

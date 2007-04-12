@@ -39,6 +39,9 @@ Version
 
   Improve debugging code.  Avoids many #ifdef's.
 
+  Improved session closing to avoid potentially truncated files on
+  OpenSSH servers (Dan Fandrich)
+
 Version 0.14
 ------------
 
