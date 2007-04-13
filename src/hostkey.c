@@ -317,12 +317,12 @@ static int libssh2_hostkey_method_ssh_dss_signv(LIBSSH2_SESSION *session, unsign
 	unsigned int i;
 
 	*signature = LIBSSH2_ALLOC(session, 2 * SHA_DIGEST_LENGTH);
-	*signature_len = 2 * SHA_DIGEST_LENGTH;
-	memset(*signature, 0, 2 * SHA_DIGEST_LENGTH);
-
-	if (!(*signature)) {
+	if (!*signature) {
 		return -1;
 	}
+
+	*signature_len = 2 * SHA_DIGEST_LENGTH;
+	memset(*signature, 0, 2 * SHA_DIGEST_LENGTH);
 
 	libssh2_sha1_init(&ctx);
 	for(i = 0; i < veccount; i++) {

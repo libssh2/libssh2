@@ -1036,6 +1036,10 @@ ssize_t _libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel,
 	do {
 		rc = libssh2_packet_read(session);
 	} while (rc > 0);
+
+	if((rc < 0) && (rc != PACKET_EAGAIN)) {
+		return rc;
+	}
 	rc = 0;
 
 	/* restore blocking state */

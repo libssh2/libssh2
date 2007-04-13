@@ -220,7 +220,8 @@ static libssh2pack_t fullpacket(LIBSSH2_SESSION *session,
 
 	debugdump(session, "libssh2_packet_read() plain",
 		  p->payload, payload_len);
-        libssh2_packet_add(session, p->payload, payload_len, macstate);
+        if (libssh2_packet_add(session, p->payload, payload_len, macstate) < 0)
+		return PACKET_FAIL;
 
         return packet_type;
 }
