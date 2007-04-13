@@ -9,5 +9,6 @@ EXTRA_DIST = win32 buildconf
 
 ACLOCAL_AMFLAGS = -I m4
 
+.PHONY: ChangeLog
 ChangeLog:
 	cvs2cl --utc --fsf --FSF --usermap .cvsusers -I ChangeLog -I .cvs
