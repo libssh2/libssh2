@@ -14,19 +14,19 @@ endif
 
 # Edit the path below to point to the base of your Zlib sources.
 ifndef ZLIB_PATH
-ZLIB_PATH = ../../zlib-1.2.3
+ZLIB_PATH = ../../../zlib-1.2.3
 endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8d
+OPENSSL_PATH = ../../../openssl-0.9.8e
 endif
 
 # Edit the var below to enable static linking of libssh2 and libz
 LINK_STATIC = 1
 
 # Edit the vars below to change NLM target settings.
-TARGETS	= scp.nlm sftp.nlm ssh2.nlm
+TARGETS	= scp.nlm sftp.nlm sftpdir.nlm ssh2.nlm
 VERSION	= $(LIBSSH2_VERSION)
 COPYR	= Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
 WWWURL	= http://www.libssh2.org/
@@ -118,7 +118,7 @@ INCLUDES = -I. -I.. -I../../include
 LDLIBS =
  
 INCLUDES += -I$(OPENSSL_PATH)/outinc_nw_libc -I$(OPENSSL_PATH)/outinc_nw_libc/openssl
-#LDLIBS = $(OPENSSL_PATH)/out_nw_libc/crypto.$(LIBEXT) $(OPENSSL_PATH)/out_nw_libc/ssl.$(LIBEXT)
+LDLIBS += $(OPENSSL_PATH)/out_nw_libc/ssl.$(LIBEXT) $(OPENSSL_PATH)/out_nw_libc/crypto.$(LIBEXT)
 IMPORTS += GetProcessSwitchCount RunningProcess
 
 ifdef LINK_STATIC
