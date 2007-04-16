@@ -73,6 +73,7 @@ LDFLAGS	= -nostdlib
 AR	= $(LD)
 ARFLAGS	= -type library -w nocmdline $(OBJS) -o
 LIBEXT	= lib
+#RANLIB	=
 LIBPATH	+= -lr "$(METROWERKS)/MSL" -lr "$(METROWERKS)/Win32-x86 Support"
 LDLIBS	+= -lMSL_Runtime_x86.lib -lMSL_C_x86.lib -lMSL_Extras_x86.lib
 LDLIBS	+= -lkernel32.lib -luser32.lib -lwsock32.lib
@@ -87,10 +88,12 @@ LDFLAGS	= -s -shared -Wl,--out-implib,$(TARGET)dll.a
 AR	= ar
 ARFLAGS	= -cq
 LIBEXT	= a
+RANLIB	= ranlib
 #LDLIBS	+= -lwsock32
 LDLIBS	+= -lws2_32
 RCFLAGS	= -O coff -i
-CFLAGS	+= -fno-strict-aliasing -Wall -Wno-unused # -pedantic
+CFLAGS	+= -fno-strict-aliasing
+CFLAGS	+= -Wall # -pedantic
 endif
 
 INCLUDES = -I. -I../include
@@ -214,6 +217,9 @@ $(TARGET).$(LIBEXT): $(OBJS)
 	@echo Creating $@
 	@-$(RM) $@
 	@$(AR) $(ARFLAGS) $@ $^
+ifdef RANLIB
+	@$(RANLIB) $@
+endif
 
 $(TARGET).dll $(TARGET)dll.a: $(OBJL)
 	@echo Linking $@
