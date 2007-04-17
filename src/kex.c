@@ -1190,6 +1190,9 @@ static int libssh2_kex_agree_methods(LIBSSH2_SESSION *session, unsigned char *da
 	session->burn_optimistic_kexinit = *(s++);
 	/* Next uint32 in packet is all zeros (reserved) */
 
+	if (data_len < (unsigned)(s - data))
+		return -1; /* short packet */
+
 	if (libssh2_kex_agree_kex_hostkey(session, kex, kex_len, hostkey, hostkey_len)) {
 		return -1;
 	}
