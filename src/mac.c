@@ -113,7 +113,7 @@ static int libssh2_mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session, unsigned 
 }
 /* }}} */
 
-static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_sha1 = {
+static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_sha1 = {
 	"hmac-sha1",
 	20,
 	20,
@@ -138,7 +138,7 @@ static int libssh2_mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION *session, unsign
 }
 /* }}} */
 
-static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_sha1_96 = {
+static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_sha1_96 = {
 	"hmac-sha1-96",
 	12,
 	20,
@@ -173,7 +173,7 @@ static int libssh2_mac_method_hmac_md5_hash(LIBSSH2_SESSION *session, unsigned c
 }
 /* }}} */
 
-static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_md5 = {
+static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_md5 = {
 	"hmac-md5",
 	16,
 	16,
@@ -198,7 +198,7 @@ static int libssh2_mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session, unsigne
 }
 /* }}} */
 
-static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_md5_96 = {
+static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_md5_96 = {
 	"hmac-md5-96",
 	12,
 	16,
@@ -234,7 +234,7 @@ static int libssh2_mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session, unsi
 }
 /* }}} */
 
-static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160 = {
+static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160 = {
 	"hmac-ripemd160",
 	20,
 	20,
@@ -243,7 +243,7 @@ static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160 = {
 	libssh2_mac_method_common_dtor,
 };
 
-static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160_openssh_com = {
+static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160_openssh_com = {
 	"hmac-ripemd160@openssh.com",
 	20,
 	20,
@@ -253,7 +253,7 @@ static LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160_openssh_com = {
 };
 #endif /* LIBSSH2_HMAC_RIPEMD */
 
-static LIBSSH2_MAC_METHOD *_libssh2_mac_methods[] = {
+static const LIBSSH2_MAC_METHOD *_libssh2_mac_methods[] = {
 	&libssh2_mac_method_hmac_sha1,
 	&libssh2_mac_method_hmac_sha1_96,
 	&libssh2_mac_method_hmac_md5,
@@ -268,7 +268,7 @@ static LIBSSH2_MAC_METHOD *_libssh2_mac_methods[] = {
 	NULL
 };
 
-LIBSSH2_MAC_METHOD **libssh2_mac_methods(void) {
+const LIBSSH2_MAC_METHOD **libssh2_mac_methods(void) {
 	return _libssh2_mac_methods;
 }
 

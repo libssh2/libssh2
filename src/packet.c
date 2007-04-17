@@ -651,7 +651,7 @@ int libssh2_packet_ask_ex(LIBSSH2_SESSION *session, unsigned char packet_type,
  * socket for a packet first
  */
 int libssh2_packet_askv_ex(LIBSSH2_SESSION *session,
-                           unsigned char *packet_types,
+                           const unsigned char *packet_types,
                            unsigned char **data,
                            unsigned long *data_len,
                            unsigned long match_ofs,
@@ -816,7 +816,7 @@ int libssh2_packet_burn(LIBSSH2_SESSION *session)
  */
 
 int libssh2_packet_requirev_ex(LIBSSH2_SESSION *session,
-                               unsigned char *packet_types,
+                               const unsigned char *packet_types,
                                unsigned char **data, unsigned long *data_len,
                                unsigned long match_ofs,
                                const unsigned char *match_buf,

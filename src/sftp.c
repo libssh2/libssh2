@@ -293,7 +293,7 @@ static int libssh2_sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_
  */
 static int libssh2_sftp_packet_requirev(LIBSSH2_SFTP *sftp,
                                         int num_valid_responses,
-                                        unsigned char *valid_responses,
+                                        const unsigned char *valid_responses,
                                         unsigned long request_id,
                                         unsigned char **data,
                                         unsigned long *data_len)
@@ -572,7 +572,7 @@ LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, char *
 	ssize_t packet_len = filename_len + 13 + ((open_type == LIBSSH2_SFTP_OPENFILE) ? (4 + libssh2_sftp_attrsize(&attrs)) : 0);
                                                         /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) + flags(4) */
         unsigned char *packet, *data, *s;
-        unsigned char fopen_responses[2] = { SSH_FXP_HANDLE,    SSH_FXP_STATUS  };
+        static const unsigned char fopen_responses[2] = { SSH_FXP_HANDLE,    SSH_FXP_STATUS  };
         unsigned long request_id;
 
         s = packet = LIBSSH2_ALLOC(session, packet_len);
@@ -666,7 +666,7 @@ static ssize_t _libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
         unsigned long data_len, request_id;
         ssize_t packet_len = handle->handle_len + 25; /* packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) + offset(8) + length(4) */
         unsigned char *packet, *s, *data;
-        unsigned char read_responses[2] = { SSH_FXP_DATA,               SSH_FXP_STATUS };
+        static const unsigned char read_responses[2] = { SSH_FXP_DATA,               SSH_FXP_STATUS };
         size_t bytes_read = 0;
         size_t bytes_requested = 0;
         size_t total_read = 0;
@@ -822,7 +822,7 @@ LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer, 
         unsigned long data_len, request_id, filename_len, num_names;
         ssize_t packet_len = handle->handle_len + 13; /* packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
         unsigned char *packet, *s, *data;
-        unsigned char read_responses[2] = { SSH_FXP_NAME,               SSH_FXP_STATUS };
+        static const unsigned char read_responses[2] = { SSH_FXP_NAME,               SSH_FXP_STATUS };
 
         if (handle->u.dir.names_left) {
                 /* A prior request returned more than one directory entry, feed it back from the buffer */
@@ -1051,7 +1051,7 @@ LIBSSH2_API int libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_
         ssize_t packet_len = handle->handle_len + 13 + (setstat ? libssh2_sftp_attrsize(attrs) : 0);
                                                                                         /* packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
         unsigned char *packet, *s, *data;
-        unsigned char fstat_responses[2] = { SSH_FXP_ATTRS,             SSH_FXP_STATUS };
+        static const unsigned char fstat_responses[2] = { SSH_FXP_ATTRS,             SSH_FXP_STATUS };
 
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Issuing %s command", setstat ? "set-stat" : "stat");
         s = packet = LIBSSH2_ALLOC(session, packet_len);
@@ -1442,7 +1442,7 @@ LIBSSH2_API int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, char *path, unsigned in
         ssize_t packet_len = path_len + 13 + ((stat_type == LIBSSH2_SFTP_SETSTAT) ? libssh2_sftp_attrsize(attrs) : 0);
                                                                         /* packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
         unsigned char *packet, *s, *data;
-        unsigned char stat_responses[2] = { SSH_FXP_ATTRS,              SSH_FXP_STATUS  };
+        static const unsigned char stat_responses[2] = { SSH_FXP_ATTRS,              SSH_FXP_STATUS  };
 
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "%s %s", (stat_type == LIBSSH2_SFTP_SETSTAT) ? "Set-statting" : (stat_type == LIBSSH2_SFTP_LSTAT ? "LStatting" : "Statting"), path);
         s = packet = LIBSSH2_ALLOC(session, packet_len);
@@ -1517,7 +1517,7 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path, un
         ssize_t packet_len = path_len + 13 + ((link_type == LIBSSH2_SFTP_SYMLINK) ? (4 + target_len) : 0);
                                                                         /* packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
         unsigned char *packet, *s, *data;
-        unsigned char link_responses[2] = { SSH_FXP_NAME,               SSH_FXP_STATUS  };
+        static const unsigned char link_responses[2] = { SSH_FXP_NAME,               SSH_FXP_STATUS  };
 
         if ((sftp->version < 3) &&
                 (link_type != LIBSSH2_SFTP_REALPATH)) {

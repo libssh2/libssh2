@@ -186,10 +186,10 @@ void _libssh2_debug(LIBSSH2_SESSION *session, int context,
 	char buffer[1536];
 	int len;
 	va_list vargs;
-	static const char *contexts[9] = {
+	static const char * const contexts[9] = {
 		"Unknown",
 		"Transport",
-		"Key Exhange",
+		"Key Exchange",
 		"Userauth",
 		"Connection",
 		"scp",

@@ -54,7 +54,7 @@
  */
 LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, const char *username, unsigned int username_len)
 {
-	unsigned char reply_codes[3] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
+	static const unsigned char reply_codes[3] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
 	unsigned long data_len = username_len + 31; /* packet_type(1) + username_len(4) + service_len(4) + service(14)"ssh-connection" +
 												   method_len(4) + method(4)"none" */
 	unsigned long methods_len;
@@ -121,7 +121,8 @@ LIBSSH2_API int libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const cha
 																	   const char *password, unsigned int password_len,
 																	   LIBSSH2_PASSWD_CHANGEREQ_FUNC((*passwd_change_cb)))
 {
-	unsigned char *data, *s, reply_codes[4] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_PASSWD_CHANGEREQ, 0 };
+	unsigned char *data, *s;
+	static const unsigned char reply_codes[4] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_PASSWD_CHANGEREQ, 0 };
 	unsigned long data_len = username_len + password_len + 40; /* packet_type(1) + username_len(4) + service_len(4) + service(14)"ssh-connection" + 
 																  method_len(4) + method(8)"password" + chgpwdbool(1) + password_len(4) */
 
@@ -316,11 +317,11 @@ static int libssh2_file_read_publickey(LIBSSH2_SESSION *session, unsigned char *
 /* {{{ libssh2_file_read_privatekey
  * Read a PEM encoded private key from an id_??? style file
  */
-static int libssh2_file_read_privatekey(LIBSSH2_SESSION *session,	LIBSSH2_HOSTKEY_METHOD **hostkey_method, void **hostkey_abstract,
+static int libssh2_file_read_privatekey(LIBSSH2_SESSION *session,	const LIBSSH2_HOSTKEY_METHOD **hostkey_method, void **hostkey_abstract,
 																	const char *method, int method_len,
 																	const char *privkeyfile, const char *passphrase)
 {
-	LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail = libssh2_hostkey_methods();
+	const LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail = libssh2_hostkey_methods();
 
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Loading private key file: %s", privkeyfile);
 	*hostkey_method = NULL;
@@ -356,11 +357,12 @@ LIBSSH2_API int libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 																				 const char *hostname, unsigned int hostname_len,
 																				 const char *local_username, unsigned int local_username_len)
 {
-	LIBSSH2_HOSTKEY_METHOD *privkeyobj;
+	const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
 	void *abstract;
 	unsigned char buf[5];
 	struct iovec datavec[4];
-	unsigned char *method, *pubkeydata, *packet, *s, *sig, *data, reply_codes[3] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
+	unsigned char *method, *pubkeydata, *packet, *s, *sig, *data;
+	static const unsigned char reply_codes[3] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
 	unsigned long method_len, pubkeydata_len, packet_len, sig_len, data_len;
 
 	if (libssh2_file_read_publickey(session, &method, &method_len, &pubkeydata, &pubkeydata_len, publickey)) {
@@ -490,7 +492,7 @@ LIBSSH2_API int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
                                                                                  const char *publickey, const char *privatekey,
                                                                                  const char *passphrase)
 {
-	LIBSSH2_HOSTKEY_METHOD *privkeyobj;
+	const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
 	void *abstract;
 	unsigned char buf[5];
 	struct iovec datavec[4];
@@ -707,7 +709,7 @@ LIBSSH2_API int libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *sessio
 	LIBSSH2_FREE(session, data);
 
 	for (;;) {
-		unsigned char reply_codes[4] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST, 0 };
+		static const unsigned char reply_codes[4] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST, 0 };
 		unsigned int auth_name_len;
 		char* auth_name = NULL;
 		unsigned auth_instruction_len;

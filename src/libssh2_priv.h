@@ -192,14 +192,14 @@ typedef struct _libssh2_endpoint_data {
 	unsigned char *kexinit;
 	unsigned long kexinit_len;
 
-	LIBSSH2_CRYPT_METHOD *crypt;
+	const LIBSSH2_CRYPT_METHOD *crypt;
 	void *crypt_abstract;
 
-	LIBSSH2_MAC_METHOD *mac;
+	const LIBSSH2_MAC_METHOD *mac;
 	unsigned long seqno;
 	void *mac_abstract;
 
-	LIBSSH2_COMP_METHOD *comp;
+	const LIBSSH2_COMP_METHOD *comp;
 	void *comp_abstract;
 
 	/* Method Preferences -- NULL yields "load order" */
@@ -268,14 +268,14 @@ struct _LIBSSH2_SESSION {
 	int flags;
 
 	/* Agreed Key Exchange Method */
-	LIBSSH2_KEX_METHOD *kex;
+	const LIBSSH2_KEX_METHOD *kex;
 	int burn_optimistic_kexinit:1;
 
 	unsigned char *session_id;
 	unsigned long session_id_len;
 
 	/* Server's public key */
-	LIBSSH2_HOSTKEY_METHOD *hostkey;
+	const LIBSSH2_HOSTKEY_METHOD *hostkey;
 	void *server_hostkey_abstract;
 
 	/* Either set with libssh2_session_hostkey() (for server mode)
@@ -370,7 +370,7 @@ struct _LIBSSH2_CRYPT_METHOD {
 
 	long flags;
 
-	int (*init)(LIBSSH2_SESSION *session, LIBSSH2_CRYPT_METHOD *method, unsigned char *iv, int *free_iv, unsigned char *secret, int *free_secret, int encrypt, void **abstract);
+	int (*init)(LIBSSH2_SESSION *session, const LIBSSH2_CRYPT_METHOD *method, unsigned char *iv, int *free_iv, unsigned char *secret, int *free_secret, int encrypt, void **abstract);
 	int (*crypt)(LIBSSH2_SESSION *session, unsigned char *block, void **abstract);
 	int (*dtor)(LIBSSH2_SESSION *session, void **abstract);
 
@@ -550,13 +550,13 @@ libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION *session);
 int libssh2_packet_ask_ex(LIBSSH2_SESSION *session, unsigned char packet_type, unsigned char **data, unsigned long *data_len, unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len, int poll_socket);
 #define libssh2_packet_ask(session, packet_type, data, data_len, poll_socket)	\
 		libssh2_packet_ask_ex((session), (packet_type), (data), (data_len), 0, NULL, 0, (poll_socket))
-int libssh2_packet_askv_ex(LIBSSH2_SESSION *session, unsigned char *packet_types, unsigned char **data, unsigned long *data_len, unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len, int poll_socket);
+int libssh2_packet_askv_ex(LIBSSH2_SESSION *session, const unsigned char *packet_types, unsigned char **data, unsigned long *data_len, unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len, int poll_socket);
 #define libssh2_packet_askv(session, packet_types, data, data_len, poll_socket)	\
 		libssh2_packet_askv_ex((session), (packet_types), (data), (data_len), 0, NULL, 0, (poll_socket))
 int libssh2_packet_require_ex(LIBSSH2_SESSION *session, unsigned char packet_type, unsigned char **data, unsigned long *data_len, unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len);
 #define libssh2_packet_require(session, packet_type, data, data_len) \
  libssh2_packet_require_ex((session), (packet_type), (data), (data_len), 0, NULL, 0)
-int libssh2_packet_requirev_ex(LIBSSH2_SESSION *session, unsigned char *packet_types, unsigned char **data, unsigned long *data_len, unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len);
+int libssh2_packet_requirev_ex(LIBSSH2_SESSION *session, const unsigned char *packet_types, unsigned char **data, unsigned long *data_len, unsigned long match_ofs, const unsigned char *match_buf, unsigned long match_len);
 #define libssh2_packet_requirev(session, packet_types, data, data_len)			\
 		libssh2_packet_requirev_ex((session), (packet_types), (data), (data_len), 0, NULL, 0)
 int libssh2_packet_burn(LIBSSH2_SESSION *session);
@@ -582,10 +582,10 @@ int _libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel,
 int _libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking);
 
 /* Let crypt.c/hostkey.c/comp.c/mac.c expose their method structs */
-LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);
-LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void);
-LIBSSH2_COMP_METHOD **libssh2_comp_methods(void);
-LIBSSH2_MAC_METHOD **libssh2_mac_methods(void);
+const LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);
+const LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void);
+const LIBSSH2_COMP_METHOD **libssh2_comp_methods(void);
+const LIBSSH2_MAC_METHOD **libssh2_mac_methods(void);
 
 /* Language API doesn't exist yet.  Just act like we've agreed on a language */
 #define libssh2_kex_agree_lang(session, endpoint, str, str_len)	0

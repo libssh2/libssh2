@@ -70,8 +70,8 @@ static int libssh2_comp_method_none_comp(LIBSSH2_SESSION *session,
 }
 /* }}} */
 
-static LIBSSH2_COMP_METHOD libssh2_comp_method_none = {
-	(char *)"none",
+static const LIBSSH2_COMP_METHOD libssh2_comp_method_none = {
+	"none",
 	NULL,
 	libssh2_comp_method_none_comp,
 	NULL
@@ -288,8 +288,8 @@ static int libssh2_comp_method_zlib_dtor(LIBSSH2_SESSION *session, int compress,
 }
 /* }}} */
 
-static LIBSSH2_COMP_METHOD libssh2_comp_method_zlib = {
-	(char *)"zlib",
+static const LIBSSH2_COMP_METHOD libssh2_comp_method_zlib = {
+	"zlib",
 	libssh2_comp_method_zlib_init,
 	libssh2_comp_method_zlib_comp,
 	libssh2_comp_method_zlib_dtor,
@@ -300,7 +300,7 @@ static LIBSSH2_COMP_METHOD libssh2_comp_method_zlib = {
    * Compression Methods *
    *********************** */
 
-static LIBSSH2_COMP_METHOD *_libssh2_comp_methods[] = {
+static const LIBSSH2_COMP_METHOD *_libssh2_comp_methods[] = {
 	&libssh2_comp_method_none,
 #ifdef LIBSSH2_HAVE_ZLIB
 	&libssh2_comp_method_zlib,
@@ -308,7 +308,7 @@ static LIBSSH2_COMP_METHOD *_libssh2_comp_methods[] = {
 	NULL
 };
 
-LIBSSH2_COMP_METHOD **libssh2_comp_methods(void) {
+const LIBSSH2_COMP_METHOD **libssh2_comp_methods(void) {
 	return _libssh2_comp_methods;
 }
 

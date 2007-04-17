@@ -191,7 +191,7 @@ static int libssh2_hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session,
 }
 /* }}} */
 
-static LIBSSH2_HOSTKEY_METHOD libssh2_hostkey_method_ssh_rsa = {
+static const LIBSSH2_HOSTKEY_METHOD libssh2_hostkey_method_ssh_rsa = {
 	"ssh-rsa",
 	MD5_DIGEST_LENGTH,
 	libssh2_hostkey_method_ssh_rsa_init,
@@ -358,7 +358,7 @@ static int libssh2_hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session,
 }
 /* }}} */
 
-static LIBSSH2_HOSTKEY_METHOD libssh2_hostkey_method_ssh_dss = {
+static const LIBSSH2_HOSTKEY_METHOD libssh2_hostkey_method_ssh_dss = {
 	"ssh-dss",
 	MD5_DIGEST_LENGTH,
 	libssh2_hostkey_method_ssh_dss_init,
@@ -370,7 +370,7 @@ static LIBSSH2_HOSTKEY_METHOD libssh2_hostkey_method_ssh_dss = {
 };
 #endif /* LIBSSH2_DSA */
 
-static LIBSSH2_HOSTKEY_METHOD *_libssh2_hostkey_methods[] = {
+static const LIBSSH2_HOSTKEY_METHOD *_libssh2_hostkey_methods[] = {
 #if LIBSSH2_RSA
 	&libssh2_hostkey_method_ssh_rsa,
 #endif /* LIBSSH2_RSA */
@@ -380,7 +380,7 @@ static LIBSSH2_HOSTKEY_METHOD *_libssh2_hostkey_methods[] = {
 	NULL
 };
 
-LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void)
+const LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void)
 {
 	return _libssh2_hostkey_methods;
 }

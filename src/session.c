@@ -555,7 +555,7 @@ LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reas
 LIBSSH2_API const char *libssh2_session_methods(LIBSSH2_SESSION *session, int method_type)
 {
 	/* All methods have char *name as their first element */
-	LIBSSH2_KEX_METHOD *method = NULL;
+	const LIBSSH2_KEX_METHOD *method = NULL;
 
 	switch(method_type) {
 		case LIBSSH2_METHOD_KEX:

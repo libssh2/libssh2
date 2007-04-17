@@ -183,7 +183,7 @@ libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type,
 			unsigned int packet_size, const char *message,
 			unsigned int message_len)
 {
-	unsigned char reply_codes[3] = {
+	static const unsigned char reply_codes[3] = {
 		SSH_MSG_CHANNEL_OPEN_CONFIRMATION,
 		SSH_MSG_CHANNEL_OPEN_FAILURE,
 		0
@@ -373,7 +373,8 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *se
  */
 LIBSSH2_API LIBSSH2_LISTENER *libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, char *host, int port, int *bound_port, int queue_maxsize)
 {
-	unsigned char *packet, *s, *data, reply_codes[3] = { SSH_MSG_REQUEST_SUCCESS, SSH_MSG_REQUEST_FAILURE, 0 };
+	unsigned char *packet, *s, *data;
+	static const unsigned char reply_codes[3] = { SSH_MSG_REQUEST_SUCCESS, SSH_MSG_REQUEST_FAILURE, 0 };
 	unsigned long data_len;
 	unsigned long host_len = (host ? strlen(host) : (sizeof("0.0.0.0") - 1));
 	unsigned long packet_len = host_len + (sizeof("tcpip-forward") - 1) + 14;
@@ -575,7 +576,8 @@ libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener)
 LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varname, unsigned int varname_len, char *value, unsigned int value_len)
 {
 	LIBSSH2_SESSION *session = channel->session;
-	unsigned char *s, *packet, *data, reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 }, local_channel[4];
+	unsigned char *s, *packet, *data, local_channel[4];
+	static const unsigned char reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
 	unsigned long data_len;
 	unsigned long packet_len = varname_len + value_len + 21; /* packet_type(1) + channel_id(4) + request_len(4) + request(3)"env" +
 																want_reply(1) + varname_len(4) + value_len(4) */
@@ -634,7 +636,8 @@ LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *t
 																		 int width_px, int height_px)
 {
 	LIBSSH2_SESSION *session = channel->session;
-	unsigned char *s, *packet, *data, reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 }, local_channel[4];
+	unsigned char *s, *packet, *data, local_channel[4];
+	static const unsigned char reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
 	unsigned long data_len;
 	unsigned long packet_len = term_len + modes_len + 41; /*  packet_type(1) + channel(4) + pty_req_len(4) + "pty_req"(7) + want_reply(1) +
 															  term_len(4) + width(4) + height(4) + width_px(4) + height_px(4) + modes_len(4) */
@@ -700,7 +703,8 @@ LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *t
 LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection, char *auth_proto, char *auth_cookie, int screen_number)
 {
 	LIBSSH2_SESSION *session = channel->session;
-	unsigned char *s, *packet, *data, reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 }, local_channel[4];
+	unsigned char *s, *packet, *data, local_channel[4];
+	static const unsigned char reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
 	unsigned long data_len;
 	unsigned long proto_len = auth_proto ? strlen(auth_proto) : (sizeof("MIT-MAGIC-COOKIE-1") - 1);
 	unsigned long cookie_len = auth_cookie ? strlen(auth_cookie) : LIBSSH2_X11_RANDOM_COOKIE_LEN;
@@ -776,7 +780,8 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_
 LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel, const char *request, unsigned int request_len, const char *message, unsigned int message_len)
 {
 	LIBSSH2_SESSION *session = channel->session;
-	unsigned char *s, *packet, *data, reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 }, local_channel[4];
+	unsigned char *s, *packet, *data, local_channel[4];
+	static const unsigned char reply_codes[3] = { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
 	unsigned long data_len;
 	unsigned long packet_len = request_len + 10; /* packet_type(1) + channel(4) + request_len(4) + want_reply(1) */
 	libssh2pack_t rc;
