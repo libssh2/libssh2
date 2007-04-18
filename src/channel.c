@@ -335,7 +335,7 @@ libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type,
 /* {{{ libssh2_channel_direct_tcpip_ex
  * Tunnel TCP/IP connect through the SSH session to direct host/port
  */
-LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, char *host, int port, char *shost, int sport)
+LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, const char *host, int port, const char *shost, int sport)
 {
 	LIBSSH2_CHANNEL *channel;
 	unsigned char *message, *s;
@@ -371,7 +371,7 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *se
 /* {{{ libssh2_channel_forward_listen_ex
  * Bind a port on the remote host and listen for connections
  */
-LIBSSH2_API LIBSSH2_LISTENER *libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, char *host, int port, int *bound_port, int queue_maxsize)
+LIBSSH2_API LIBSSH2_LISTENER *libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, const char *host, int port, int *bound_port, int queue_maxsize)
 {
 	unsigned char *packet, *s, *data;
 	static const unsigned char reply_codes[3] = { SSH_MSG_REQUEST_SUCCESS, SSH_MSG_REQUEST_FAILURE, 0 };
@@ -573,7 +573,7 @@ libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener)
 /* {{{ libssh2_channel_setenv_ex
  * Set an environment variable prior to requesting a shell/program/subsystem
  */
-LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varname, unsigned int varname_len, char *value, unsigned int value_len)
+LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varname, unsigned int varname_len, const char *value, unsigned int value_len)
 {
 	LIBSSH2_SESSION *session = channel->session;
 	unsigned char *s, *packet, *data, local_channel[4];
@@ -630,8 +630,8 @@ LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varnam
 /* {{{ libssh2_channel_request_pty_ex
  * Duh... Request a PTY
  */
-LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *term, unsigned int term_len,
-																		 char *modes, unsigned int modes_len,
+LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, const char *term, unsigned int term_len,
+																		 const char *modes, unsigned int modes_len,
 																		 int width, int height,
 																		 int width_px, int height_px)
 {
@@ -700,7 +700,7 @@ LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, char *t
 /* {{{ libssh2_channel_x11_req_ex
  * Request X11 forwarding
  */
-LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection, char *auth_proto, char *auth_cookie, int screen_number)
+LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection, const char *auth_proto, const char *auth_cookie, int screen_number)
 {
 	LIBSSH2_SESSION *session = channel->session;
 	unsigned char *s, *packet, *data, local_channel[4];

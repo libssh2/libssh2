@@ -43,6 +43,8 @@ Version
   Improved session closing to avoid potentially truncated files on
   OpenSSH servers (Dan Fandrich)
 
+  Made some function parameters in the API const (Dan Fandrich)
+
 Version 0.14
 ------------
 

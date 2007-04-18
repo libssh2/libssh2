@@ -130,7 +130,7 @@ static const short libssh2_base64_reverse_table[256] = {
  * Decode a base64 chunk and store it into a newly alloc'd buffer
  */
 LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **data, unsigned int *datalen,
-																char *src, unsigned int src_len)
+																const char *src, unsigned int src_len)
 {
 	unsigned char *s, *d;
 	short v;

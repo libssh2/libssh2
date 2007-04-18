@@ -100,7 +100,7 @@ LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session, const char *us
 	memcpy(data, data + 5, methods_len);
 	data[methods_len] = '\0';
 	_libssh2_debug(session, LIBSSH2_DBG_AUTH, "Permitted auth methods: %s", data);
-	return data;
+	return (char *)data;
 }
 /* }}} */
 
@@ -236,7 +236,8 @@ static int libssh2_file_read_publickey(LIBSSH2_SESSION *session, unsigned char *
 																 const char *pubkeyfile)
 {
 	FILE *fd;
-	char *pubkey = NULL, c, *sp1, *sp2, *tmp;
+	char c;
+	unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
 	size_t pubkey_len = 0;
 	unsigned int tmp_len;
 
@@ -302,7 +303,7 @@ static int libssh2_file_read_publickey(LIBSSH2_SESSION *session, unsigned char *
 		sp2 = pubkey + pubkey_len;
 	}
 
-	if (libssh2_base64_decode(session, &tmp, &tmp_len, sp1, sp2 - sp1)) {
+	if (libssh2_base64_decode(session, &tmp, &tmp_len, (char *)sp1, sp2 - sp1)) {
 		libssh2_error(session, LIBSSH2_ERROR_FILE, "Invalid key data, not base64 encoded", 0);
 		LIBSSH2_FREE(session, pubkey);
 		return -1;
@@ -318,7 +319,7 @@ static int libssh2_file_read_publickey(LIBSSH2_SESSION *session, unsigned char *
  * Read a PEM encoded private key from an id_??? style file
  */
 static int libssh2_file_read_privatekey(LIBSSH2_SESSION *session,	const LIBSSH2_HOSTKEY_METHOD **hostkey_method, void **hostkey_abstract,
-																	const char *method, int method_len,
+																	const unsigned char *method, int method_len,
 																	const char *privkeyfile, const char *passphrase)
 {
 	const LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail = libssh2_hostkey_methods();
@@ -328,7 +329,7 @@ static int libssh2_file_read_privatekey(LIBSSH2_SESSION *session,	const LIBSSH2_
 	*hostkey_abstract = NULL;
 	while (*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
 		if ((*hostkey_methods_avail)->initPEM &&
-			strncmp((*hostkey_methods_avail)->name, method, method_len) == 0) {
+			strncmp((*hostkey_methods_avail)->name, (const char *)method, method_len) == 0) {
 			*hostkey_method = *hostkey_methods_avail;
 			break;
 		}

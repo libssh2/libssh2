@@ -179,7 +179,7 @@ LIBSSH2_API int libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp);
 LIBSSH2_API unsigned long libssh2_sftp_last_error(LIBSSH2_SFTP *sftp);
 
 /* File / Directory Ops */
-LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, char *filename, unsigned int filename_len, unsigned long flags, long mode, int open_type);
+LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, const char *filename, unsigned int filename_len, unsigned long flags, long mode, int open_type);
 #define libssh2_sftp_open(sftp, filename, flags, mode)			libssh2_sftp_open_ex((sftp), (filename), strlen(filename), (flags), (mode), LIBSSH2_SFTP_OPENFILE)
 #define libssh2_sftp_opendir(sftp, path)						libssh2_sftp_open_ex((sftp), (path), strlen(path), 0, 0, LIBSSH2_SFTP_OPENDIR)
 
@@ -213,22 +213,22 @@ LIBSSH2_API int libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_
 
 
 /* Miscellaneous Ops */
-LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,	char *source_filename,	unsigned int srouce_filename_len,
-															char *dest_filename,	unsigned int dest_filename_len,
+LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,	const char *source_filename,	unsigned int srouce_filename_len,
+															const char *dest_filename,		unsigned int dest_filename_len,
 															long flags);
 #define libssh2_sftp_rename(sftp, sourcefile, destfile)		libssh2_sftp_rename_ex((sftp), (sourcefile), strlen(sourcefile), (destfile), strlen(destfile), \
 															LIBSSH2_SFTP_RENAME_OVERWRITE | LIBSSH2_SFTP_RENAME_ATOMIC | LIBSSH2_SFTP_RENAME_NATIVE)
 
-LIBSSH2_API int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp, char *filename, unsigned int filename_len);
+LIBSSH2_API int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp, const char *filename, unsigned int filename_len);
 #define libssh2_sftp_unlink(sftp, filename)					libssh2_sftp_unlink_ex((sftp), (filename), strlen(filename))
 
-LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, char *path, unsigned int path_len, long mode);
+LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, const char *path, unsigned int path_len, long mode);
 #define libssh2_sftp_mkdir(sftp, path, mode)				libssh2_sftp_mkdir_ex((sftp), (path), strlen(path), (mode))
 
-LIBSSH2_API int libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, char *path, unsigned int path_len);
+LIBSSH2_API int libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, const char *path, unsigned int path_len);
 #define libssh2_sftp_rmdir(sftp, path)						libssh2_sftp_rmdir_ex((sftp), (path), strlen(path))
 
-LIBSSH2_API int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, char *path, unsigned int path_len, int stat_type, LIBSSH2_SFTP_ATTRIBUTES *attrs);
+LIBSSH2_API int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, const char *path, unsigned int path_len, int stat_type, LIBSSH2_SFTP_ATTRIBUTES *attrs);
 #define libssh2_sftp_stat(sftp, path, attrs)				libssh2_sftp_stat_ex((sftp), (path), strlen(path), LIBSSH2_SFTP_STAT, (attrs))
 #define libssh2_sftp_lstat(sftp, path, attrs)				libssh2_sftp_stat_ex((sftp), (path), strlen(path), LIBSSH2_SFTP_LSTAT, (attrs))
 #define libssh2_sftp_setstat(sftp, path, attrs)				libssh2_sftp_stat_ex((sftp), (path), strlen(path), LIBSSH2_SFTP_SETSTAT, (attrs))

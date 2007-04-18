@@ -80,7 +80,7 @@ LIBSSH2_API LIBSSH2_PUBLICKEY *libssh2_publickey_init(LIBSSH2_SESSION *session);
 
 LIBSSH2_API int libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name, unsigned long name_len,
 															const unsigned char *blob, unsigned long blob_len, char overwrite,
-															unsigned long num_attrs, libssh2_publickey_attribute attrs[]);
+															unsigned long num_attrs, const libssh2_publickey_attribute attrs[]);
 #define libssh2_publickey_add(pkey, name, blob, blob_len, overwrite, num_attrs, attrs) \
 		libssh2_publickey_add_ex((pkey), (name), strlen(name), (blob), (blob_len), (overwrite), (num_attrs), (attrs))
 

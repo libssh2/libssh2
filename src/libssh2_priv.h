@@ -351,7 +351,7 @@ struct _LIBSSH2_HOSTKEY_METHOD {
 	const char *name;
 	unsigned long hash_len;
 
-	int (*init)(LIBSSH2_SESSION *session, unsigned char *hostkey_data, unsigned long hostkey_data_len, void **abstract);
+	int (*init)(LIBSSH2_SESSION *session, const unsigned char *hostkey_data, unsigned long hostkey_data_len, void **abstract);
 	int (*initPEM)(LIBSSH2_SESSION *session, const char *privkeyfile, unsigned const char *passphrase, void **abstract);
 	int (*sig_verify)(LIBSSH2_SESSION *session, const unsigned char *sig, unsigned long sig_len, const unsigned char *m, unsigned long m_len, void **abstract);
 	int (*signv)(LIBSSH2_SESSION *session, unsigned char **signature, unsigned long *signature_len, unsigned long veccount, const struct iovec datavec[], void **abstract);

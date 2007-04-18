@@ -54,12 +54,12 @@ static int libssh2_hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION *session, void **
  */
 static int
 libssh2_hostkey_method_ssh_rsa_init(LIBSSH2_SESSION *session,
-				    unsigned char *hostkey_data,
+				    const unsigned char *hostkey_data,
 				    unsigned long hostkey_data_len,
 				    void **abstract)
 {
 	libssh2_rsa_ctx *rsactx;
-	unsigned char *s, *e, *n;
+	const unsigned char *s, *e, *n;
 	unsigned long len, e_len, n_len;
 
 	(void)hostkey_data_len;
@@ -215,12 +215,12 @@ static int libssh2_hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION *session, void **
  */
 static int
 libssh2_hostkey_method_ssh_dss_init(LIBSSH2_SESSION *session,
-				    unsigned char *hostkey_data,
+				    const unsigned char *hostkey_data,
 				    unsigned long hostkey_data_len,
 				    void **abstract)
 {
 	libssh2_dsa_ctx *dsactx;
-	unsigned char *p, *q, *g, *y, *s;
+	const unsigned char *p, *q, *g, *y, *s;
 	unsigned long p_len, q_len, g_len, y_len, len;
 	(void)hostkey_data_len;
 
