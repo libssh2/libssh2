@@ -636,25 +636,25 @@ static int libssh2_kex_method_diffie_hellman_group_exchange_sha1_key_exchange(LI
 #define LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY		0x0001
 #define LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY	0x0002
 
-const LIBSSH2_KEX_METHOD libssh2_kex_method_diffie_helman_group1_sha1 = {
+static const LIBSSH2_KEX_METHOD libssh2_kex_method_diffie_helman_group1_sha1 = {
 	"diffie-hellman-group1-sha1",
 	libssh2_kex_method_diffie_hellman_group1_sha1_key_exchange,
 	LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-const LIBSSH2_KEX_METHOD libssh2_kex_method_diffie_helman_group14_sha1 = {
+static const LIBSSH2_KEX_METHOD libssh2_kex_method_diffie_helman_group14_sha1 = {
 	"diffie-hellman-group14-sha1",
 	libssh2_kex_method_diffie_hellman_group14_sha1_key_exchange,
 	LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-const LIBSSH2_KEX_METHOD libssh2_kex_method_diffie_helman_group_exchange_sha1 = {
+static const LIBSSH2_KEX_METHOD libssh2_kex_method_diffie_helman_group_exchange_sha1 = {
 	"diffie-hellman-group-exchange-sha1",
 	libssh2_kex_method_diffie_hellman_group_exchange_sha1_key_exchange,
 	LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
-const LIBSSH2_KEX_METHOD *libssh2_kex_methods[] = {
+static const LIBSSH2_KEX_METHOD *libssh2_kex_methods[] = {
 	&libssh2_kex_method_diffie_helman_group14_sha1,
 	&libssh2_kex_method_diffie_helman_group_exchange_sha1,
 	&libssh2_kex_method_diffie_helman_group1_sha1,
@@ -1110,7 +1110,7 @@ static int libssh2_kex_agree_mac(LIBSSH2_SESSION *session, libssh2_endpoint_data
  */
 static int libssh2_kex_agree_comp(LIBSSH2_SESSION *session, libssh2_endpoint_data *endpoint, unsigned char *comp, unsigned long comp_len)
 {
-	LIBSSH2_COMP_METHOD **compp = libssh2_comp_methods();
+	const LIBSSH2_COMP_METHOD **compp = libssh2_comp_methods();
 	unsigned char *s;
 	(void)session;
 

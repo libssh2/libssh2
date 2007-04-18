@@ -303,7 +303,7 @@ static int libssh2_file_read_publickey(LIBSSH2_SESSION *session, unsigned char *
 		sp2 = pubkey + pubkey_len;
 	}
 
-	if (libssh2_base64_decode(session, &tmp, &tmp_len, (char *)sp1, sp2 - sp1)) {
+	if (libssh2_base64_decode(session, (char **)&tmp, &tmp_len, (char *)sp1, sp2 - sp1)) {
 		libssh2_error(session, LIBSSH2_ERROR_FILE, "Invalid key data, not base64 encoded", 0);
 		LIBSSH2_FREE(session, pubkey);
 		return -1;

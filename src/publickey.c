@@ -52,11 +52,11 @@ struct _LIBSSH2_PUBLICKEY {
 
 typedef struct _LIBSSH2_PUBLICKEY_CODE_LIST {
 	int code;
-	char *name;
+	const char *name;
 	int name_len;
 } LIBSSH2_PUBLICKEY_CODE_LIST;
 
-static LIBSSH2_PUBLICKEY_CODE_LIST libssh2_publickey_response_codes[] = {
+static const LIBSSH2_PUBLICKEY_CODE_LIST libssh2_publickey_response_codes[] = {
 	{ LIBSSH2_PUBLICKEY_RESPONSE_STATUS, "status", sizeof("status") - 1 },
 	{ LIBSSH2_PUBLICKEY_RESPONSE_VERSION, "version", sizeof("version") - 1 },
 	{ LIBSSH2_PUBLICKEY_RESPONSE_PUBLICKEY, "publickey", sizeof("publickey") - 1 },
@@ -76,7 +76,7 @@ static LIBSSH2_PUBLICKEY_CODE_LIST libssh2_publickey_response_codes[] = {
 
 #define LIBSSH2_PUBLICKEY_STATUS_CODE_MAX		8
 
-static LIBSSH2_PUBLICKEY_CODE_LIST libssh2_publickey_status_codes[] = {
+static const LIBSSH2_PUBLICKEY_CODE_LIST libssh2_publickey_status_codes[] = {
 	{ LIBSSH2_PUBLICKEY_SUCCESS,				"success",					sizeof("success") - 1 },
 	{ LIBSSH2_PUBLICKEY_ACCESS_DENIED,			"access denied",			sizeof("access denied") - 1 },
 	{ LIBSSH2_PUBLICKEY_STORAGE_EXCEEDED,		"storage exceeded",			sizeof("storage exceeded") - 1 },
@@ -95,9 +95,9 @@ static LIBSSH2_PUBLICKEY_CODE_LIST libssh2_publickey_status_codes[] = {
 #define LIBSSH2_PUBLICKEY_STATUS_TEXT_START		"Publickey Subsystem Error: \""
 #define LIBSSH2_PUBLICKEY_STATUS_TEXT_MID		"\" Server Resports: \""
 #define LIBSSH2_PUBLICKEY_STATUS_TEXT_END		"\""
-static void libssh2_publickey_status_error(LIBSSH2_PUBLICKEY *pkey, LIBSSH2_SESSION *session, int status, unsigned char *message, int message_len)
+static void libssh2_publickey_status_error(const LIBSSH2_PUBLICKEY *pkey, LIBSSH2_SESSION *session, int status, const unsigned char *message, int message_len)
 {
-	char *status_text;
+	const char *status_text;
 	int status_text_len;
 	char *m, *s;
 	int m_len;
@@ -180,7 +180,7 @@ static int libssh2_publickey_response_id(unsigned char **pdata, int data_len)
 {
 	unsigned long response_len;
 	unsigned char *data = *pdata;
-	LIBSSH2_PUBLICKEY_CODE_LIST *codes = libssh2_publickey_response_codes;
+	const LIBSSH2_PUBLICKEY_CODE_LIST *codes = libssh2_publickey_response_codes;
 
 	if (data_len < 4) {
 		/* Malformed response */
