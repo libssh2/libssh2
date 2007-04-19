@@ -49,9 +49,9 @@
 typedef struct _LIBSSH2_PUBLICKEY				LIBSSH2_PUBLICKEY;
 
 typedef struct _libssh2_publickey_attribute {
-	char *name;
+	const char *name;
 	unsigned long name_len;
-	char *value;
+	const char *value;
 	unsigned long value_len;
 	char mandatory;
 } libssh2_publickey_attribute;
@@ -59,9 +59,9 @@ typedef struct _libssh2_publickey_attribute {
 typedef struct _libssh2_publickey_list {
 	unsigned char *packet; /* For freeing */
 
-	unsigned char *name;
+	const unsigned char *name;
 	unsigned long name_len;
-	unsigned char *blob;
+	const unsigned char *blob;
 	unsigned long blob_len;
 	unsigned long num_attrs;
 	libssh2_publickey_attribute *attrs; /* free me */
