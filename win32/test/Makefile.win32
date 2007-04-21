@@ -1,20 +1,22 @@
-#################################################################
+#########################################################################
 #
-## Makefile for building libssh2 sample (Win32 version - gnu make)
+## Makefile for building libssh2 samples (Win32 version - gnu make)
 ## Use: make -f Makefile.win32 [help]
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
+##
+## $Id: Makefile.win32,v 1.4 2007/04/21 21:27:32 gknauf Exp $
 #
-#################################################################
+#########################################################################
 
 # Edit the path below to point to the base of your Zlib sources.
 ifndef ZLIB_PATH
-ZLIB_PATH = ../../zlib-1.2.3
+ZLIB_PATH = ../../../zlib-1.2.3
 endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8d
+OPENSSL_PATH = ../../../openssl-0.9.8e
 endif
 
 # Edit the var below to enable static linking of libssh2 and libz
@@ -137,14 +139,6 @@ $(OBJDIR)/version.inc: ../../include/libssh2.h $(OBJDIR)
 	@echo Creating $@
 	@$(AWK) -f ../../get_ver.awk $< > $@
 
-distclean: clean
-	-$(RM) -r $(DISTDIR)
-	-$(RM) $(DISTARC)
-
-devclean: clean
-	-$(RM) -r $(DEVLDIR)
-	-$(RM) $(DEVLARC)
-
 objclean:
 	-$(RM) -r $(OBJDIR)
 
@@ -207,7 +201,6 @@ help: $(OBJDIR)/version.inc
 	@echo $(DL)===========================================================$(DL)
 	@echo $(DL)libssh $(LIBSSH2_VERSION_STR) - available targets are:$(DL)
 	@echo $(DL)$(MAKE) all$(DL)
-	@echo $(DL)$(MAKE) exe$(DL)
 	@echo $(DL)$(MAKE) clean$(DL)
 	@echo $(DL)$(MAKE) objclean$(DL)
 	@echo $(DL)===========================================================$(DL)

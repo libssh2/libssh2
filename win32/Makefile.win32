@@ -1,11 +1,13 @@
-#################################################################
+#########################################################################
 #
 ## Makefile for building libssh2 (Win32 version - gnu make)
-## Use: make -f Makefile.win32 [help|all|clean|dev|devclean|dist|distclean|objclean]
+## Use: make -f Makefile.win32 [help|all|clean|dev|devclean|dist|distclean|dll|objclean]
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
+##
+## $Id: Makefile.win32,v 1.6 2007/04/21 21:27:31 gknauf Exp $
 #
-#################################################################
+#########################################################################
 
 # Edit the path below to point to the base of your Zlib sources.
 ifndef ZLIB_PATH
@@ -115,7 +117,8 @@ endif
 
 CFLAGS	+= $(INCLUDES)
 
-ifeq ($(findstring msys,$(OSTYPE)),msys)
+#ifeq ($(findstring msys,$(OSTYPE)),msys)
+ifdef __MSYS__
 DL	= '
 DS	= /
 else
@@ -302,6 +305,7 @@ help: $(OBJDIR)/version.inc
 	@echo $(DL)$(MAKE) dist$(DL)
 	@echo $(DL)$(MAKE) distclean$(DL)
 	@echo $(DL)$(MAKE) objclean$(DL)
+	@echo $(DL)$(MAKE) test$(DL)
 	@echo $(DL)===========================================================$(DL)
 
 

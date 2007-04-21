@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.netware,v 1.4 2007/04/21 20:15:33 gknauf Exp $
+## $Id: Makefile.netware,v 1.5 2007/04/21 21:26:54 gknauf Exp $
 #
 #########################################################################
 
@@ -83,7 +83,7 @@ CFLAGS	= $(OPT) -D$(DB) -DNETWARE -nostdinc # -DHAVE_CONFIG_H
 
 ifeq ($(CC),mwccnlm)
 LD	= mwldnlm
-LDFLAGS	= -nostdlib $(PRELUDE) $(LDLIBS) $(<:.def=.o) -o $@ -commandfile
+LDFLAGS	= -nostdlib $(<:.def=.o) $(PRELUDE) $(LDLIBS) -o $@ -commandfile
 AR	= mwldnlm
 ARFLAGS	= -type library -w nocmdline $(OBJS) -o
 LIBEXT	= lib
@@ -244,9 +244,6 @@ ifeq ($(LIBARCH),CLIB)
 	@echo $(DL)import @$(SDK_CLIB)/imports/threads.imp$(DL) >> $@
 	@echo $(DL)import @$(SDK_CLIB)/imports/nlmlib.imp$(DL) >> $@
 	@echo $(DL)import @$(SDK_CLIB)/imports/socklib.imp$(DL) >> $@
-#	@echo $(DL)import @$(SDK_LDAP)/clib/imports/ldapsdk.imp$(DL) >> $@
-#	@echo $(DL)import @$(SDK_LDAP)/clib/imports/ldapssl.imp$(DL) >> $@
-#	@echo $(DL)import @$(SDK_LDAP)/clib/imports/ldapx.imp$(DL) >> $@
 	@echo $(DL)module clib$(DL) >> $@
 else
 	@echo $(DL)flag_on 64$(DL) >> $@
@@ -256,9 +253,6 @@ else
 	@echo $(DL)check _LibCCheckUnload$(DL) >> $@
 	@echo $(DL)import @$(SDK_LIBC)/imports/libc.imp$(DL) >> $@
 	@echo $(DL)import @$(SDK_LIBC)/imports/netware.imp$(DL) >> $@
-#	@echo $(DL)import @$(SDK_LDAP)/libc/imports/lldapsdk.imp$(DL) >> $@
-#	@echo $(DL)import @$(SDK_LDAP)/libc/imports/lldapssl.imp$(DL) >> $@
-#	@echo $(DL)import @$(SDK_LDAP)/libc/imports/lldapx.imp$(DL) >> $@
 	@echo $(DL)module libc$(DL) >> $@
 endif
 ifdef MODULES
@@ -271,12 +265,23 @@ ifdef IMPORTS
 	@echo $(DL)import $(IMPORTS)$(DL) >> $@
 endif
 ifeq ($(LD),nlmconv)
-ifdef WITH_SSL
-	@echo $(DL)input $(LIBSSL)$(DL) >> $@
-endif
-	@echo $(DL)input $(OBJS)$(DL) >> $@
+	@echo $(DL)input $(<:.def=.o)$(DL) >> $@
 	@echo $(DL)input $(PRELUDE)$(DL) >> $@
+ifdef LDLIBS
+	@echo $(DL)input $(LDLIBS)$(DL) >> $@
+endif
 	@echo $(DL)output $(notdir $(@:.def=.nlm))$(DL) >> $@
 endif
+
+help: $(OBJDIR)/version.inc
+	@echo $(DL)===========================================================$(DL)
+	@echo $(DL)OpenSSL path    = $(OPENSSL_PATH)$(DL)
+	@echo $(DL)Zlib path       = $(ZLIB_PATH)$(DL)
+	@echo $(DL)===========================================================$(DL)
+	@echo $(DL)libssh $(LIBSSH2_VERSION_STR) - available targets are:$(DL)
+	@echo $(DL)$(MAKE) all$(DL)
+	@echo $(DL)$(MAKE) clean$(DL)
+	@echo $(DL)$(MAKE) objclean$(DL)
+	@echo $(DL)===========================================================$(DL)
 
 
