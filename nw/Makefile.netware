@@ -88,7 +88,7 @@ ifeq ($(CC),mwccnlm)
 LD	= mwldnlm
 LDFLAGS	= -nostdlib $(PRELUDE) $(OBJL) -o $@ -commandfile
 AR	= mwldnlm
-ARFLAGS	= -type library -w nocmdline $(OBJS) -o
+ARFLAGS	= -nostdlib -type library -o
 LIBEXT	= lib
 CFLAGS	+= -msgstyle gcc -gccinc -inline on -opt nointrinsics -proc 586
 CFLAGS	+= -relax_pointers
@@ -315,9 +315,6 @@ ifeq ($(LIBARCH),CLIB)
 	@echo $(DL)import @$(SDK_CLIB)/imports/threads.imp$(DL) >> $@
 	@echo $(DL)import @$(SDK_CLIB)/imports/nlmlib.imp$(DL) >> $@
 	@echo $(DL)import @$(SDK_CLIB)/imports/socklib.imp$(DL) >> $@
-#	@echo $(DL)import @$(SDK_LDAP)/clib/imports/ldapsdk.imp$(DL) >> $@
-#	@echo $(DL)import @$(SDK_LDAP)/clib/imports/ldapssl.imp$(DL) >> $@
-#	@echo $(DL)import @$(SDK_LDAP)/clib/imports/ldapx.imp$(DL) >> $@
 	@echo $(DL)module clib$(DL) >> $@
 else
 	@echo $(DL)flag_on 64$(DL) >> $@
@@ -327,9 +324,6 @@ else
 	@echo $(DL)check _LibCCheckUnload$(DL) >> $@
 	@echo $(DL)import @$(SDK_LIBC)/imports/libc.imp$(DL) >> $@
 	@echo $(DL)import @$(SDK_LIBC)/imports/netware.imp$(DL) >> $@
-#	@echo $(DL)import @$(SDK_LDAP)/libc/imports/lldapsdk.imp$(DL) >> $@
-#	@echo $(DL)import @$(SDK_LDAP)/libc/imports/lldapssl.imp$(DL) >> $@
-#	@echo $(DL)import @$(SDK_LDAP)/libc/imports/lldapx.imp$(DL) >> $@
 	@echo $(DL)module libc$(DL) >> $@
 endif
 ifdef MODULES
@@ -505,6 +499,7 @@ libssh2.imp: Makefile.netware
 	@echo $(DL)  libssh2_sftp_tell,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_unlink_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_write,$(DL) >> $@
+	@echo $(DL)  libssh2_sftp_writenb,$(DL) >> $@
 	@echo $(DL)  libssh2_trace,$(DL) >> $@
 	@echo $(DL)  libssh2_userauth_authenticated,$(DL) >> $@
 	@echo $(DL)  libssh2_userauth_keyboard_interactive_ex,$(DL) >> $@
