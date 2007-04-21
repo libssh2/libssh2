@@ -7,4 +7,5 @@ scp_nonblock
 sftp
 sftp_nonblock
 sftpdir
+sftpdir_nonblock
 ssh2
