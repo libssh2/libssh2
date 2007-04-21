@@ -1,11 +1,13 @@
-#################################################################
+#########################################################################
 #
 ## Makefile for building libssh2 (NetWare version - gnu make)
 ## Use: make -f Makefile.netware
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
+##
+## $Id: Makefile.netware,v 1.4 2007/04/21 20:15:33 gknauf Exp $
 #
-#################################################################
+#########################################################################
 
 # Edit the path below to point to the base of your Novell NDK.
 ifndef NDKBASE
@@ -44,8 +46,10 @@ LIBARCH = LIBC
 endif
 
 # must be equal to DEBUG or NDEBUG
-DB	= NDEBUG
-# DB	= DEBUG
+ifndef DB
+	DB	= NDEBUG
+	# DB	= DEBUG
+endif
 # Optimization: -O<n> or debugging: -g
 ifeq ($(DB),NDEBUG)
 	OPT	= -O2
@@ -66,10 +70,12 @@ else
 endif
 CP	= cp -afv
 # RM	= rm -f
+# Here you can find a native Win32 binary of the original awk:
+# http://www.gknw.net/development/prgtools/awk.zip
 AWK	= awk
 # if you want to mark the target as MTSAFE you will need a tool for
 # generating the xdc data for the linker; here's a minimal tool:
-# http://www.gknw.de/development/prgtools/mkxdc.zip
+# http://www.gknw.net/development/prgtools/mkxdc.zip
 MPKXDC	= mkxdc
 
 # Global flags for all compilers

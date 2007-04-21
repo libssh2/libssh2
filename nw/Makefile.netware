@@ -1,11 +1,13 @@
-#################################################################
+#########################################################################
 #
 ## Makefile for building libssh2 (NetWare version - gnu make)
-## Use: make -f Makefile.netware [help|all|clean|dev|devclean|dist|distclean|objclean]
+## Use: make -f Makefile.netware [help|all|clean|dev|devclean|dist|distclean|lib|nlm|objclean]
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
+##
+## $Id: Makefile.netware,v 1.6 2007/04/21 20:15:33 gknauf Exp $
 #
-#################################################################
+#########################################################################
 
 # Edit the path below to point to the base of your Novell NDK.
 ifndef NDKBASE
@@ -51,14 +53,17 @@ LIBARCH = LIBC
 endif
 
 # must be equal to DEBUG or NDEBUG
-DB	= NDEBUG
-# DB	= DEBUG
+ifndef DB
+	DB	= NDEBUG
+	# DB	= DEBUG
+endif
 # Optimization: -O<n> or debugging: -g
 ifeq ($(DB),NDEBUG)
 	OPT	= -O2
 	OBJDIR	= release
 else
 	OPT	= -g
+	OPT	+= -DLIBSSH2DEBUG
 	OBJDIR	= debug
 endif
 
@@ -73,16 +78,17 @@ else
 endif
 CP	= cp -afv
 # RM	= rm -f
+# Here you can find a native Win32 binary of the original awk:
+# http://www.gknw.net/development/prgtools/awk.zip
 AWK	= awk
-ZIP	= zip -qzr9
 # if you want to mark the target as MTSAFE you will need a tool for
 # generating the xdc data for the linker; here's a minimal tool:
-# http://www.gknw.de/development/prgtools/mkxdc.zip
+# http://www.gknw.net/development/prgtools/mkxdc.zip
 MPKXDC	= mkxdc
+ZIP	= zip -qzr9
 
 # Global flags for all compilers
 CFLAGS	= $(OPT) -D$(DB) -DNETWARE -nostdinc # -DHAVE_CONFIG_H
-CFLAGS	+= -DLIBSSH2DEBUG
 
 ifeq ($(CC),mwccnlm)
 LD	= mwldnlm
@@ -531,7 +537,7 @@ help: $(OBJDIR)/version.inc
 	@echo $(DL)===========================================================$(DL)
 	@echo $(DL)libssh $(LIBSSH2_VERSION_STR) - available targets are:$(DL)
 	@echo $(DL)$(MAKE) all$(DL)
-	@echo $(DL)$(MAKE) dll$(DL)
+	@echo $(DL)$(MAKE) nlm$(DL)
 	@echo $(DL)$(MAKE) lib$(DL)
 	@echo $(DL)$(MAKE) clean$(DL)
 	@echo $(DL)$(MAKE) dev$(DL)
@@ -539,6 +545,7 @@ help: $(OBJDIR)/version.inc
 	@echo $(DL)$(MAKE) dist$(DL)
 	@echo $(DL)$(MAKE) distclean$(DL)
 	@echo $(DL)$(MAKE) objclean$(DL)
+	@echo $(DL)$(MAKE) test$(DL)
 	@echo $(DL)===========================================================$(DL)
 
 

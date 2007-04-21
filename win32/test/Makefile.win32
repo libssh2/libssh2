@@ -29,8 +29,10 @@ DESCR	= libssh2 $(subst .def,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
 #STACK	= 64000
 
 # must be equal to DEBUG or NDEBUG
-DB	= NDEBUG
-# DB	= DEBUG
+ifndef DB
+	DB	= NDEBUG
+	# DB	= DEBUG
+endif
 # Optimization: -O<n> or debugging: -g
 ifeq ($(DB),NDEBUG)
 	OPT	= -O2
