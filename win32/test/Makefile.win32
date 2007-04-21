@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.win32,v 1.4 2007/04/21 21:27:32 gknauf Exp $
+## $Id: Makefile.win32,v 1.5 2007/04/21 23:36:51 gknauf Exp $
 #
 #########################################################################
 
@@ -23,7 +23,7 @@ endif
 LINK_STATIC = 1
 
 # Edit the vars below to change target settings.
-TARGETS	= scp.exe sftp.exe ssh2.exe
+TARGETS	= scp.exe sftp.exe sftpdir.exe ssh2.exe
 VERSION	= $(LIBSSH2_VERSION)
 COPYR	= (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
 WWWURL	= http://www.libssh2.org/
@@ -67,7 +67,7 @@ LD	= mwld
 RC	= mwwinrc
 LDFLAGS	= -nostdlib
 AR	= $(LD)
-ARFLAGS	= -type library -w nocmdline $(OBJS) -o
+ARFLAGS	= -nostdlib -library -o
 LIBEXT	= lib
 LIBPATH	+= -lr "$(METROWERKS)/MSL" -lr "$(METROWERKS)/Win32-x86 Support"
 LDLIBS	+= -lMSL_Runtime_x86.lib -lMSL_C_x86.lib -lMSL_Extras_x86.lib

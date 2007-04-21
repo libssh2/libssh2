@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.win32,v 1.6 2007/04/21 21:27:31 gknauf Exp $
+## $Id: Makefile.win32,v 1.7 2007/04/21 23:36:51 gknauf Exp $
 #
 #########################################################################
 
@@ -76,7 +76,7 @@ LD	= mwld
 RC	= mwwinrc
 LDFLAGS	= -nostdlib
 AR	= $(LD)
-ARFLAGS	= -type library -w nocmdline $(OBJS) -o
+ARFLAGS	= -nostdlib -library -o
 LIBEXT	= lib
 #RANLIB	=
 LIBPATH	+= -lr "$(METROWERKS)/MSL" -lr "$(METROWERKS)/Win32-x86 Support"
