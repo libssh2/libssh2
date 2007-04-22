@@ -1454,20 +1454,20 @@ LIBSSH2_API int libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_
 /* {{{ libssh2_sftp_seek
  * Set the read/write pointer to an arbitrary position within the file
  */
-/* libssh2_sftp_seek - NB-UNSAFE?? */
+/* libssh2_sftp_seek - NB-SAFE */
 LIBSSH2_API void libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle, size_t offset)
 {
-        handle->u.file.offset = offset;
+    handle->u.file.offset = offset;
 }
 /* }}} */
 
 /* {{{ libssh2_sftp_tell
  * Return the current read/write pointer's offset
  */
-/* libssh2_sftp_tell - NB-UNSAFE?? */
+/* libssh2_sftp_tell - NB-SAFE */
 LIBSSH2_API size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle)
 {
-        return handle->u.file.offset;
+    return handle->u.file.offset;
 }
 /* }}} */
 
