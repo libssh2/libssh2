@@ -1,10 +1,11 @@
-.\" $Id: libssh2_sftp_readnb.3,v 1.2 2007/04/12 21:30:03 dfandrich Exp $
+.\" $Id: libssh2_sftp_readnb.3,v 1.3 2007/04/22 17:18:03 jehousley Exp $
 .\"
 .TH libssh2_sftp_read 3 "6 Feb 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
 libssh2_sftp_readnb - read data from an SFTP handle non-blocking
 .SH SYNOPSIS
 #include <libssh2.h>
+#include <libssh2_sftp.h>
 
 ssize_t libssh2_sftp_readnb(LIBSSH2_SFTP_HANDLE *handle,
                             char *buffer, size_t buffer_maxlen);
