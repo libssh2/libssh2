@@ -9,3 +9,9 @@ sftp_nonblock
 sftpdir
 sftpdir_nonblock
 ssh2
+sftp_RW_nonblock
+sftp_mkdir
+sftp_mkdir_nonblock
+sftp_write
+sftp_write_nonblock
+
