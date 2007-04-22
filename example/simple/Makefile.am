@@ -5,6 +5,7 @@ noinst_PROGRAMS = ssh2 \
 		scp scp_nonblock \
 		sftp sftp_nonblock \
 		sftp_write sftp_write_nonblock \
+		sftp_mkdir sftp_mkdir_nonblock \
 		sftp_RW_nonblock \
 		sftpdir sftpdir_nonblock
 
@@ -24,6 +25,10 @@ sftp_nonblock_SOURCES = sftp_nonblock.c
 sftp_write_SOURCES = sftp_write.c
 
 sftp_write_nonblock_SOURCES = sftp_write_nonblock.c
+
+sftp_mkdir_SOURCES = sftp_mkdir.c
+
+sftp_mkdir_nonblock_SOURCES = sftp_mkdir_nonblock.c
 
 sftpdir_SOURCES = sftpdir.c
 
