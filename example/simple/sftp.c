@@ -1,5 +1,5 @@
 /*
- * $Id: sftp.c,v 1.4 2007/02/08 14:50:33 bagder Exp $
+ * $Id: sftp.c,v 1.5 2007/04/22 13:10:48 jehousley Exp $
  *
  * Sample showing how to do SFTP transfers.
  *
@@ -131,6 +131,9 @@ int main(int argc, char *argv[])
 		goto shutdown;
 	}
 
+	/* Since we have not set non-blocking, tell libssh2 we are blocking */
+	libssh2_sftp_set_blocking(sftp_session, 1);
+    
 	fprintf(stderr, "libssh2_sftp_open()!\n");
 	/* Request a file via SFTP */
 	sftp_handle =
@@ -142,18 +145,16 @@ int main(int argc, char *argv[])
 	}
 	fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
 	do {
-		char mem[512];
+		char mem[1024];
 
 		/* loop until we fail */
 		fprintf(stderr, "libssh2_sftp_read()!\n");
 		rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
-		if(rc > 0) {
+		if (rc > 0) {
 			write(2, mem, rc);
-		}
-		else
+		} else {
 			break;
-		break;
-
+        }
 	} while (1);
 
 	libssh2_sftp_close(sftp_handle);
