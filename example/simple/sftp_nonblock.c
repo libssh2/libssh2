@@ -1,7 +1,7 @@
 /*
- * $Id: sftp_nonblock.c,v 1.2 2007/04/22 14:16:26 jehousley Exp $
+ * $Id: sftp_nonblock.c,v 1.3 2007/04/22 14:47:27 jehousley Exp $
  *
- * Sample showing how to do SFTP transfers.
+ * Sample showing how to do SFTP non-blocking transfers.
  *
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
