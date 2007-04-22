@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign nostdinc
 
 # samples
-noinst_PROGRAMS = ssh2 scp_nonblock sftp_nonblock sftp scp sftpdir sftpdir_nonblock
+noinst_PROGRAMS = ssh2 scp_nonblock sftp_nonblock sftp sftp_RW_nonblock scp sftpdir sftpdir_nonblock
 
 INCLUDES = -I$(top_srcdir)/include
 LDADD = $(top_builddir)/src/libssh2.la
@@ -15,6 +15,8 @@ sftpdir_SOURCES = sftpdir.c
 scp_nonblock_SOURCES = scp_nonblock.c
 
 sftp_nonblock_SOURCES = sftp_nonblock.c
+
+sftp_RW_nonblock_SOURCES = sftp_RW_nonblock.c
 
 sftpdir_nonblock_SOURCES = sftpdir_nonblock.c
 
