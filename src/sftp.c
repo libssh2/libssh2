@@ -93,6 +93,12 @@ typedef enum {
     sftp_write_packet_sent
 } libssh2_sftp_write_state;
 
+typedef enum {
+    sftp_mkdir_idle = 0,
+    sftp_mkdir_packet_created,
+    sftp_mkdir_packet_sent
+} libssh2_sftp_mkdir_state;
+
 struct _LIBSSH2_SFTP {
     LIBSSH2_CHANNEL *channel;
 
@@ -127,6 +133,11 @@ struct _LIBSSH2_SFTP {
     libssh2_sftp_write_state    write_state;
     unsigned char               *write_packet;
     unsigned long               write_request_id;
+    
+    /* State variables used in _libssh2_sftp_mkdir() */
+    libssh2_sftp_mkdir_state    mkdir_state;
+    unsigned char               *mkdir_packet;
+    unsigned long               mkdir_request_id;
     
 };
 
@@ -1355,6 +1366,12 @@ LIBSSH2_API ssize_t libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *handle,
     /* restore state */
     libssh2_channel_set_blocking(ch, bl);
     
+    if(rc < 0) {
+        /* precent accidental returning of other return codes since
+        this API does not support/provide those */
+        return -1;
+    }
+    
     return rc;
 }
 /* }}} */
@@ -1692,67 +1709,145 @@ LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,  const char *source_f
 }
 /* }}} */
 
-/* {{{ libssh2_sftp_mkdir_ex
- * Create a directory
+/* {{{ _libssh2_sftp_mkdir_ex
+ * Create an SFTP directory using blocking/non-blocking depending on state
  */
-/* libssh2_sftp_mkdir_ex - NB-UNSAFE?? */
-LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, const char *path, unsigned int path_len, long mode)
+/* _libssh2_sftp_mkdir_ex - NB-SAFE */
+static int _libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, const char *path, unsigned int path_len, long mode)
 {
-        LIBSSH2_CHANNEL *channel = sftp->channel;
-        LIBSSH2_SESSION *session = channel->session;
+    LIBSSH2_CHANNEL *channel = sftp->channel;
+    LIBSSH2_SESSION *session = channel->session;
 	LIBSSH2_SFTP_ATTRIBUTES attrs = {
 		LIBSSH2_SFTP_ATTR_PERMISSIONS, 0, 0, 0, 0, 0, 0
 	};
-        unsigned long data_len, retcode, request_id;
-        ssize_t packet_len = path_len + 13 + libssh2_sftp_attrsize(&attrs);
-                        /* packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
-        unsigned char *packet, *s, *data;
-		int rc;
-
+    unsigned long data_len, retcode, request_id;
+    ssize_t packet_len = path_len + 13 + libssh2_sftp_attrsize(&attrs);
+    /* packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
+    unsigned char *packet, *s, *data;
+    int rc;
+    
+    if (sftp->mkdir_state == sftp_mkdir_idle) {
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Creating directory %s with mode 0%lo", path, mode);
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
-                libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_MKDIR packet", 0);
-                return -1;
+            libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_MKDIR packet", 0);
+            return -1;
         }
         /* Filetype in SFTP 3 and earlier */
         attrs.permissions = mode | LIBSSH2_SFTP_ATTR_PFILETYPE_DIR;
-
-        libssh2_htonu32(s, packet_len - 4);                                     s += 4;
+        
+        libssh2_htonu32(s, packet_len - 4);         s += 4;
         *(s++) = SSH_FXP_MKDIR;
         request_id = sftp->request_id++;
-        libssh2_htonu32(s, request_id);                                         s += 4;
-        libssh2_htonu32(s, path_len);                                           s += 4;
-        memcpy(s, path, path_len);                                                      s += path_len;
+        libssh2_htonu32(s, request_id);             s += 4;
+        libssh2_htonu32(s, path_len);               s += 4;
+        memcpy(s, path, path_len);                  s += path_len;
         s += libssh2_sftp_attr2bin(s, &attrs);
-
-        if (packet_len != libssh2_channel_write(channel, (char *)packet,
-						packet_len)) {
-                libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_MKDIR command", 0);
+        
+        sftp->mkdir_state = sftp_mkdir_packet_created;
+    } else {
+        packet = sftp->mkdir_packet;
+        request_id = sftp->mkdir_request_id;
+    }
+    
+    if (sftp->mkdir_state != sftp_mkdir_packet_sent) {
+        if (libssh2_channel_get_blocking(channel)) {
+            if (packet_len != libssh2_channel_write(channel, (char *)packet, packet_len)) {
+                libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_READ command", 0);
                 LIBSSH2_FREE(session, packet);
+                sftp->mkdir_state = sftp_mkdir_idle;
                 return -1;
+            }
+        } else {
+            if ((rc = libssh2_channel_writenb(channel, (char *)packet, packet_len)) == PACKET_EAGAIN) {
+                sftp->mkdir_packet = packet;
+                sftp->mkdir_request_id = request_id;
+                return PACKET_EAGAIN;
+            }
+            if (packet_len != rc) {
+                libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_READ command", 0);
+                LIBSSH2_FREE(session, packet);
+                sftp->mkdir_state = sftp_mkdir_idle;
+                return -1;
+            }
         }
         LIBSSH2_FREE(session, packet);
+        sftp->mkdir_state = sftp_mkdir_packet_sent;
+        sftp->mkdir_packet = NULL;
+    }
+    
+    rc = libssh2_sftp_packet_require(sftp, SSH_FXP_STATUS, request_id, &data, &data_len);
+	if (rc == PACKET_EAGAIN) {
+		return PACKET_EAGAIN;
+	}
+	else if (rc) {
+		libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT, "Timeout waiting for status message", 0);
+        sftp->mkdir_state = sftp_mkdir_idle;
+		return -1;
+	}
+    
+    sftp->mkdir_state = sftp_mkdir_idle;
+    
+    retcode = libssh2_ntohu32(data + 5);
+    LIBSSH2_FREE(session, data);
+    
+    if (retcode == LIBSSH2_FX_OK) {
+        return 0;
+    } else {
+        libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
+        sftp->last_errno = retcode;
+        return -1;
+    }
+}
+/* }}} */
 
-/* #warning "XXX - Looping on PACKET_EAGAIN (blocking) until fix is migrated up farther" */
-		while ((rc = libssh2_sftp_packet_require(sftp, SSH_FXP_STATUS, request_id, &data, &data_len)) == PACKET_EAGAIN) {
-			;
-		}
-        if (rc) {
-                libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT, "Timeout waiting for status message", 0);
-                return -1;
-        }
+/* {{{ libssh2_sftp_mkdir_ex
+* Create a directory
+*/
+/* libssh2_sftp_mkdir_ex - NB-UNSAFE */
+LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, const char *path, unsigned int path_len, long mode)
+{
+    ssize_t rc;
+    LIBSSH2_CHANNEL *ch = sftp->channel;
+    int bl = libssh2_channel_get_blocking(ch);
+    
+    /* set blocking */
+    libssh2_channel_set_blocking(ch, 1);
+    
+    rc = _libssh2_sftp_mkdir_ex(sftp, path, path_len, mode);
+    
+    /* restore state */
+    libssh2_channel_set_blocking(ch, bl);
+    
+    if(rc < 0) {
+        /* precent accidental returning of other return codes since
+        this API does not support/provide those */
+        return -1;
+    }
+    
+    return rc;
+}
+/* }}} */
 
-        retcode = libssh2_ntohu32(data + 5);
-        LIBSSH2_FREE(session, data);
-
-        if (retcode == LIBSSH2_FX_OK) {
-                return 0;
-        } else {
-                libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "SFTP Protocol Error", 0);
-                sftp->last_errno = retcode;
-                return -1;
-        }
+/* {{{ libssh2_sftp_mkdirnb_ex
+* Create a directory
+*/
+/* libssh2_sftp_mkdirnb_ex - NB-SAFE */
+LIBSSH2_API int libssh2_sftp_mkdirnb_ex(LIBSSH2_SFTP *sftp, const char *path, unsigned int path_len, long mode)
+{
+    ssize_t rc;
+    LIBSSH2_CHANNEL *ch = sftp->channel;
+    int bl = libssh2_channel_get_blocking(ch);
+    
+    /* set non-blocking */
+    libssh2_channel_set_blocking(ch, 0);
+    
+    rc = _libssh2_sftp_mkdir_ex(sftp, path, path_len, mode);
+    
+    /* restore state */
+    libssh2_channel_set_blocking(ch, bl);
+    
+    return rc;
 }
 /* }}} */
 
