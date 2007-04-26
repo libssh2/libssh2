@@ -1,4 +1,17 @@
-#include "libssh2.h"
+/*
+ * $Id: ssh2.c,v 1.3 2007/04/26 23:59:15 gknauf Exp $
+ *
+ * Sample showing how to do SSH2 connect.
+ *
+ * The sample code has default values for host name, user name, password
+ * and path to copy, but you can specify them on the command line like:
+ *
+ * "ssh2 host user password"
+ */
+
+#include <libssh2.h>
+#include <libssh2_sftp.h>
+#include <libssh2_config.h>
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
@@ -21,6 +34,7 @@
 
 int main(int argc, char *argv[])
 {
+	unsigned long hostaddr;
 	int sock, i, auth_pw = 1;
 	struct sockaddr_in sin;
 	const char *fingerprint;
@@ -34,6 +48,19 @@ int main(int argc, char *argv[])
 	WSAStartup(WINSOCK_VERSION, &wsadata);
 #endif
 
+	if (argc > 1) {
+		hostaddr = inet_addr(argv[1]);
+	} else {
+		hostaddr = htonl(0x7F000001);
+	}
+
+	if(argc > 2) {
+		username = argv[2];
+	}
+	if(argc > 3) {
+		password = argv[3];
+	}
+
 	/* Ultra basic "connect to port 22 on localhost"
 	 * Your code is responsible for creating the socket establishing the connection
 	 */
@@ -43,8 +70,9 @@ int main(int argc, char *argv[])
 #endif
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(22);
-	sin.sin_addr.s_addr = htonl(0x7F000001);
-	if (connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in)) != 0) {
+	sin.sin_addr.s_addr = hostaddr;
+	if (connect(sock, (struct sockaddr*)(&sin),
+			sizeof(struct sockaddr_in)) != 0) {
 		fprintf(stderr, "failed to connect!\n");
 		return -1;
 	}
@@ -68,13 +96,6 @@ int main(int argc, char *argv[])
 		printf("%02X ", (unsigned char)fingerprint[i]);
 	}
 	printf("\n");
-
-	if(argc > 1) {
-		username = argv[1];
-	}
-	if(argc > 2) {
-		password = argv[2];
-	}
 
 	if (auth_pw) {
 		/* We could authenticate via password */

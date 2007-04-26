@@ -1,10 +1,11 @@
 /*
- * $Id: scp_nonblock.c,v 1.2 2007/04/26 22:59:29 gknauf Exp $
+ * $Id: scp_nonblock.c,v 1.3 2007/04/26 23:59:14 gknauf Exp $
  *
  * Sample showing how to do SCP transfers in a non-blocking manner.
  */
 
 #include <libssh2.h>
+#include <libssh2_config.h>
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>

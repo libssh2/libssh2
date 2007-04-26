@@ -1,5 +1,5 @@
 /*
- * $Id: sftpdir.c,v 1.3 2007/04/26 22:59:29 gknauf Exp $
+ * $Id: sftpdir.c,v 1.4 2007/04/26 23:59:15 gknauf Exp $
  *
  * Sample doing an SFTP directory listing.
  *
@@ -11,6 +11,7 @@
 
 #include <libssh2.h>
 #include <libssh2_sftp.h>
+#include <libssh2_config.h>
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>

@@ -1,10 +1,11 @@
 /*
- * $Id: scp.c,v 1.5 2007/04/26 22:59:29 gknauf Exp $
+ * $Id: scp.c,v 1.6 2007/04/26 23:59:14 gknauf Exp $
  *
  * Sample showing how to do a simple SCP transfer.
  */
 
 #include <libssh2.h>
+#include <libssh2_config.h>
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
