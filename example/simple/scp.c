@@ -1,17 +1,25 @@
 /*
- * $Id: scp.c,v 1.4 2007/02/02 23:23:36 bagder Exp $
+ * $Id: scp.c,v 1.5 2007/04/26 22:59:29 gknauf Exp $
  *
  * Sample showing how to do a simple SCP transfer.
  */
 
 #include <libssh2.h>
 
-#ifndef WIN32
-# include <netinet/in.h>
-# include <sys/socket.h>
-# include <unistd.h>
-#else
+#ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
+# include <sys/socket.h>
+#endif
+# ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#ifdef HAVE_SYS_TIME_H
+# include <sys/time.h>
 #endif
 
 #include <sys/types.h>

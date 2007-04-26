@@ -15,6 +15,7 @@
 #define HAVE_SYS_TIME_H
 #endif
 
+#define HAVE_WINSOCK2_H
 #define HAVE_IOCTLSOCKET
 
 /* same as WSABUF */

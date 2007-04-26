@@ -1,5 +1,5 @@
 /*
- * $Id: sftpdir_nonblock.c,v 1.2 2007/04/22 11:00:02 jehousley Exp $
+ * $Id: sftpdir_nonblock.c,v 1.3 2007/04/26 22:59:29 gknauf Exp $
  *
  * Sample doing an SFTP directory listing.
  *
@@ -12,13 +12,20 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifndef WIN32
-# include <netinet/in.h>
-# include <sys/socket.h>
-# include <unistd.h>
-# include <arpa/inet.h>
-#else
+#ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
+# include <sys/socket.h>
+#endif
+# ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
+# include <arpa/inet.h>
 #endif
 
 #include <sys/types.h>

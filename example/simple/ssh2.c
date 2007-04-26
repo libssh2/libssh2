@@ -1,11 +1,16 @@
 #include "libssh2.h"
 
-#ifndef WIN32
-# include <netinet/in.h>
-# include <sys/socket.h>
-# include <unistd.h>
-#else
+#ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
+# include <sys/socket.h>
+#endif
+# ifdef HAVE_UNISTD_H
+#include <unistd.h>
 #endif
 
 #include <sys/types.h>
