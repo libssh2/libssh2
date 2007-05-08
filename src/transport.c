@@ -252,6 +252,7 @@ libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION *session)
         int numdecrypt;
         unsigned char block[MAX_BLOCKSIZE];
         int blocksize;
+        int minimum;
         int encrypted = 1;
 
         do {
@@ -269,6 +270,7 @@ libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION *session)
                                           here to make the checks below work
                                           fine still */
                 }
+                minimum = p->total_num ? p->total_num - p->data_num : blocksize;
 
                 /* read/use a whole big chunk into a temporary area stored in
                    the LIBSSH2_SESSION struct. We will decrypt data from that
@@ -283,9 +285,9 @@ libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION *session)
                 /* if remainbuf turns negative we have a bad internal error */
                 assert(remainbuf >= 0);
 
-                if(remainbuf < blocksize) {
-                        /* If we have less than a blocksize left, it is too
-                           little data to deal with, read more */
+                while(remainbuf < minimum) {
+                        /* While there is too little data to deal with, read
+                           more */
                         ssize_t nread;
 
                         /* move any remainder to the start of the buffer so
@@ -326,11 +328,6 @@ libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION *session)
 
                 /* how much data to deal with from the buffer */
                 numbytes = remainbuf;
-
-                if(numbytes < blocksize) {
-                        /* we can't act on anything less than blocksize */
-                        return PACKET_EAGAIN;
-                }
 
                 if(!p->total_num) {
                         /* No payload package area allocated yet. To know the
@@ -401,7 +398,7 @@ libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION *session)
 
                         /* init the data_num field to the number of bytes of
                            the package read so far */
-                        p->data_num = blocksize-5;
+                        p->data_num = p->wptr - p->payload;
 
                         /* we already dealt with a blocksize worth of data */
                         numbytes -= blocksize;
