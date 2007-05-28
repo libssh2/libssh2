@@ -44,7 +44,7 @@
  */
 unsigned long libssh2_ntohu32(const unsigned char *buf)
 {
-	return (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
+    return (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
 }
 /* }}} */
 
@@ -54,12 +54,12 @@ unsigned long libssh2_ntohu32(const unsigned char *buf)
  */
 libssh2_uint64_t libssh2_ntohu64(const unsigned char *buf)
 {
-	unsigned long msl, lsl;
+    unsigned long msl, lsl;
 
-	msl = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
-	lsl = (buf[4] << 24) | (buf[5] << 16) | (buf[6] << 8) | buf[7];
+    msl = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
+    lsl = (buf[4] << 24) | (buf[5] << 16) | (buf[6] << 8) | buf[7];
 
-	return ((msl * 65536) * 65536) + lsl;
+    return ((msl * 65536) * 65536) + lsl;
 }
 /* }}} */
 
@@ -67,10 +67,10 @@ libssh2_uint64_t libssh2_ntohu64(const unsigned char *buf)
  */
 void libssh2_htonu32(unsigned char *buf, unsigned long value)
 {
-	buf[0] = (value >> 24) & 0xFF;
-	buf[1] = (value >> 16) & 0xFF;
-	buf[2] = (value >> 8) & 0xFF;
-	buf[3] = value & 0xFF;
+    buf[0] = (value >> 24) & 0xFF;
+    buf[1] = (value >> 16) & 0xFF;
+    buf[2] = (value >> 8) & 0xFF;
+    buf[3] = value & 0xFF;
 }
 /* }}} */
 
@@ -78,17 +78,17 @@ void libssh2_htonu32(unsigned char *buf, unsigned long value)
  */
 void libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
 {
-	unsigned long msl = (value / 65536) / 65536;
+    unsigned long msl = (value / 65536) / 65536;
 
-	buf[0] = (msl >> 24) & 0xFF;
-	buf[1] = (msl >> 16) & 0xFF;
-	buf[2] = (msl >> 8) & 0xFF;
-	buf[3] = msl & 0xFF;
+    buf[0] = (msl >> 24) & 0xFF;
+    buf[1] = (msl >> 16) & 0xFF;
+    buf[2] = (msl >> 8) & 0xFF;
+    buf[3] = msl & 0xFF;
 
-	buf[4] = (value >> 24) & 0xFF;
-	buf[5] = (value >> 16) & 0xFF;
-	buf[6] = (value >> 8) & 0xFF;
-	buf[7] = value & 0xFF;
+    buf[4] = (value >> 24) & 0xFF;
+    buf[5] = (value >> 16) & 0xFF;
+    buf[6] = (value >> 8) & 0xFF;
+    buf[7] = value & 0xFF;
 }
 /* }}} */
 
@@ -130,97 +130,97 @@ static const short libssh2_base64_reverse_table[256] = {
  * Decode a base64 chunk and store it into a newly alloc'd buffer
  */
 LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **data, unsigned int *datalen,
-																const char *src, unsigned int src_len)
+                                                                const char *src, unsigned int src_len)
 {
-	unsigned char *s, *d;
-	short v;
-	int i = 0, len = 0;
+    unsigned char *s, *d;
+    short v;
+    int i = 0, len = 0;
 
-	*data = LIBSSH2_ALLOC(session, (3 * src_len / 4) + 1);
-	d = (unsigned char *)*data;
-	if (!d) {
-		return -1;
-	}
+    *data = LIBSSH2_ALLOC(session, (3 * src_len / 4) + 1);
+    d = (unsigned char *)*data;
+    if (!d) {
+        return -1;
+    }
 
-	for(s = (unsigned char *)src; ((char*)s) < (src + src_len); s++) {
-		if ((v = libssh2_base64_reverse_table[*s]) < 0) continue;
-		switch (i % 4) {
-			case 0:
-				d[len] = v << 2;
-				break;
-			case 1:
-				d[len++] |= v >> 4;
-				d[len] = v << 4;
-				break;
-			case 2:
-				d[len++] |= v >> 2;
-				d[len] = v << 6;
-				break;
-			case 3:
-				d[len++] |= v;
-				break;
-		}
-		i++;
-	}
-	if ((i % 4) == 1) {
-		/* Invalid -- We have a byte which belongs exclusively to a partial octet */
-		LIBSSH2_FREE(session, *data);
-		return -1;
-	}
+    for(s = (unsigned char *)src; ((char*)s) < (src + src_len); s++) {
+        if ((v = libssh2_base64_reverse_table[*s]) < 0) continue;
+        switch (i % 4) {
+            case 0:
+                d[len] = v << 2;
+                break;
+            case 1:
+                d[len++] |= v >> 4;
+                d[len] = v << 4;
+                break;
+            case 2:
+                d[len++] |= v >> 2;
+                d[len] = v << 6;
+                break;
+            case 3:
+                d[len++] |= v;
+                break;
+        }
+        i++;
+    }
+    if ((i % 4) == 1) {
+        /* Invalid -- We have a byte which belongs exclusively to a partial octet */
+        LIBSSH2_FREE(session, *data);
+        return -1;
+    }
 
-	*datalen = len;
-	return 0;
+    *datalen = len;
+    return 0;
 }
 /* }}} */
 
 #ifdef LIBSSH2DEBUG
 LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
-	session->showmask = bitmask;
-	return 0;
+    session->showmask = bitmask;
+    return 0;
 }
 
 void _libssh2_debug(LIBSSH2_SESSION *session, int context,
-		    const char *format, ...)
+            const char *format, ...)
 {
-	char buffer[1536];
-	int len;
-	va_list vargs;
-	static const char * const contexts[9] = {
-		"Unknown",
-		"Transport",
-		"Key Exchange",
-		"Userauth",
-		"Connection",
-		"scp",
-		"SFTP Subsystem",
-		"Failure Event",
-		"Publickey Subsystem",
-	};
+    char buffer[1536];
+    int len;
+    va_list vargs;
+    static const char * const contexts[9] = {
+        "Unknown",
+        "Transport",
+        "Key Exchange",
+        "Userauth",
+        "Connection",
+        "scp",
+        "SFTP Subsystem",
+        "Failure Event",
+        "Publickey Subsystem",
+    };
 
-	if (context < 1 || context > 8) {
-		context = 0;
-	}
-	if(!(session->showmask & (1<<context))) {
-		/* no such output asked for */
-		return;
-	}
+    if (context < 1 || context > 8) {
+        context = 0;
+    }
+    if(!(session->showmask & (1<<context))) {
+        /* no such output asked for */
+        return;
+    }
 
-	len = snprintf(buffer, 1535, "[libssh2] %s: ", contexts[context]);
+    len = snprintf(buffer, 1535, "[libssh2] %s: ", contexts[context]);
 
-	va_start(vargs, format);
-	len += vsnprintf(buffer + len, 1535 - len, format, vargs);
-	buffer[len] = '\n';
-	va_end(vargs);
-	write(2, buffer, len + 1);
+    va_start(vargs, format);
+    len += vsnprintf(buffer + len, 1535 - len, format, vargs);
+    buffer[len] = '\n';
+    va_end(vargs);
+    write(2, buffer, len + 1);
 
 }
 
 #else
 LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
 {
-	(void)session;
-	(void)bitmask;
-	return 0;
+    (void)session;
+    (void)bitmask;
+    return 0;
 }
 #endif

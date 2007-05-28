@@ -44,156 +44,155 @@
 #endif
 
 int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
-		     const unsigned char *edata,
-		     unsigned long elen,
-		     const unsigned char *ndata,
-		     unsigned long nlen,
-		     const unsigned char *ddata,
-		     unsigned long dlen,
-		     const unsigned char *pdata,
-		     unsigned long plen,
-		     const unsigned char *qdata,
-		     unsigned long qlen,
-		     const unsigned char *e1data,
-		     unsigned long e1len,
-		     const unsigned char *e2data,
-		     unsigned long e2len,
-		     const unsigned char *coeffdata,
-		     unsigned long coefflen)
+             const unsigned char *edata,
+             unsigned long elen,
+             const unsigned char *ndata,
+             unsigned long nlen,
+             const unsigned char *ddata,
+             unsigned long dlen,
+             const unsigned char *pdata,
+             unsigned long plen,
+             const unsigned char *qdata,
+             unsigned long qlen,
+             const unsigned char *e1data,
+             unsigned long e1len,
+             const unsigned char *e2data,
+             unsigned long e2len,
+             const unsigned char *coeffdata,
+             unsigned long coefflen)
 {
-	*rsa = RSA_new();
+    *rsa = RSA_new();
 
-	(*rsa)->e = BN_new();
-	BN_bin2bn(edata, elen, (*rsa)->e);
+    (*rsa)->e = BN_new();
+    BN_bin2bn(edata, elen, (*rsa)->e);
 
-	(*rsa)->n = BN_new();
-	BN_bin2bn(ndata, nlen, (*rsa)->n);
+    (*rsa)->n = BN_new();
+    BN_bin2bn(ndata, nlen, (*rsa)->n);
 
-	if (ddata)
-	  {
-	    (*rsa)->d = BN_new();
-	    BN_bin2bn(ddata, dlen, (*rsa)->d);
+    if (ddata) {
+        (*rsa)->d = BN_new();
+        BN_bin2bn(ddata, dlen, (*rsa)->d);
 
-	    (*rsa)->p = BN_new();
-	    BN_bin2bn(pdata, plen, (*rsa)->p);
+        (*rsa)->p = BN_new();
+        BN_bin2bn(pdata, plen, (*rsa)->p);
 
-	    (*rsa)->q = BN_new();
-	    BN_bin2bn(qdata, qlen, (*rsa)->q);
+        (*rsa)->q = BN_new();
+        BN_bin2bn(qdata, qlen, (*rsa)->q);
 
-	    (*rsa)->dmp1 = BN_new();
-	    BN_bin2bn(e1data, e1len, (*rsa)->dmp1);
+        (*rsa)->dmp1 = BN_new();
+        BN_bin2bn(e1data, e1len, (*rsa)->dmp1);
 
-	    (*rsa)->dmq1 = BN_new();
-	    BN_bin2bn(e2data, e2len, (*rsa)->dmq1);
+        (*rsa)->dmq1 = BN_new();
+        BN_bin2bn(e2data, e2len, (*rsa)->dmq1);
 
-	    (*rsa)->iqmp = BN_new();
-	    BN_bin2bn(coeffdata, coefflen, (*rsa)->iqmp);
-	  }
-	return 0;
+        (*rsa)->iqmp = BN_new();
+        BN_bin2bn(coeffdata, coefflen, (*rsa)->iqmp);
+    }
+    return 0;
 }
 
 int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
-			     const unsigned char *sig,
-			     unsigned long sig_len,
-			     const unsigned char *m,
-			     unsigned long m_len)
+                 const unsigned char *sig,
+                 unsigned long sig_len,
+                 const unsigned char *m,
+                 unsigned long m_len)
 {
-	unsigned char hash[SHA_DIGEST_LENGTH];
-	int ret;
+    unsigned char hash[SHA_DIGEST_LENGTH];
+    int ret;
 
-	SHA1(m, m_len, hash);
-	ret = RSA_verify(NID_sha1, hash, SHA_DIGEST_LENGTH,
-			 (unsigned char *)sig, sig_len, rsactx);
-	return (ret == 1) ? 0 : -1;
+    SHA1(m, m_len, hash);
+    ret = RSA_verify(NID_sha1, hash, SHA_DIGEST_LENGTH,
+             (unsigned char *)sig, sig_len, rsactx);
+    return (ret == 1) ? 0 : -1;
 }
 
 int _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
-		     const unsigned char *p,
-		     unsigned long p_len,
-		     const unsigned char *q,
-		     unsigned long q_len,
-		     const unsigned char *g,
-		     unsigned long g_len,
-		     const unsigned char *y,
-		     unsigned long y_len,
-		     const unsigned char *x,
-		     unsigned long x_len)
+             const unsigned char *p,
+             unsigned long p_len,
+             const unsigned char *q,
+             unsigned long q_len,
+             const unsigned char *g,
+             unsigned long g_len,
+             const unsigned char *y,
+             unsigned long y_len,
+             const unsigned char *x,
+             unsigned long x_len)
 {
-	*dsactx = DSA_new();
+    *dsactx = DSA_new();
 
-	(*dsactx)->p = BN_new();
-	BN_bin2bn(p, p_len, (*dsactx)->p);
+    (*dsactx)->p = BN_new();
+    BN_bin2bn(p, p_len, (*dsactx)->p);
 
-	(*dsactx)->q = BN_new();
-	BN_bin2bn(q, q_len, (*dsactx)->q);
+    (*dsactx)->q = BN_new();
+    BN_bin2bn(q, q_len, (*dsactx)->q);
 
-	(*dsactx)->g = BN_new();
-	BN_bin2bn(g, g_len, (*dsactx)->g);
+    (*dsactx)->g = BN_new();
+    BN_bin2bn(g, g_len, (*dsactx)->g);
 
-	(*dsactx)->pub_key = BN_new();
-	BN_bin2bn(y, y_len, (*dsactx)->pub_key);
+    (*dsactx)->pub_key = BN_new();
+    BN_bin2bn(y, y_len, (*dsactx)->pub_key);
 
-	if (x_len) {
-		(*dsactx)->priv_key = BN_new();
-		BN_bin2bn(x, x_len, (*dsactx)->priv_key);
-	}
+    if (x_len) {
+        (*dsactx)->priv_key = BN_new();
+        BN_bin2bn(x, x_len, (*dsactx)->priv_key);
+    }
 
-	return 0;
+    return 0;
 }
 
 int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
-			     const unsigned char *sig,
-			     const unsigned char *m,
-			     unsigned long m_len)
+                 const unsigned char *sig,
+                 const unsigned char *m,
+                 unsigned long m_len)
 {
-	unsigned char hash[SHA_DIGEST_LENGTH];
-	DSA_SIG dsasig;
-	int ret;
+    unsigned char hash[SHA_DIGEST_LENGTH];
+    DSA_SIG dsasig;
+    int ret;
 
-	dsasig.r = BN_new();
-	BN_bin2bn(sig, 20, dsasig.r);
-	dsasig.s = BN_new();
-	BN_bin2bn(sig + 20, 20, dsasig.s);
+    dsasig.r = BN_new();
+    BN_bin2bn(sig, 20, dsasig.r);
+    dsasig.s = BN_new();
+    BN_bin2bn(sig + 20, 20, dsasig.s);
 
-	libssh2_sha1(m, m_len, hash);
-	ret = DSA_do_verify(hash, SHA_DIGEST_LENGTH, &dsasig, dsactx);
-	BN_clear_free(dsasig.s);
-	BN_clear_free(dsasig.r);
+    libssh2_sha1(m, m_len, hash);
+    ret = DSA_do_verify(hash, SHA_DIGEST_LENGTH, &dsasig, dsactx);
+    BN_clear_free(dsasig.s);
+    BN_clear_free(dsasig.r);
 
-	return (ret == 1) ? 0 : -1;
+    return (ret == 1) ? 0 : -1;
 }
 
 int _libssh2_cipher_init (_libssh2_cipher_ctx *h,
-			  _libssh2_cipher_type(algo),
-			  unsigned char *iv,
-			  unsigned char *secret,
-			  int encrypt)
+              _libssh2_cipher_type(algo),
+              unsigned char *iv,
+              unsigned char *secret,
+              int encrypt)
 {
-	EVP_CIPHER_CTX_init(h);
-	EVP_CipherInit(h, algo(), secret, iv, encrypt);
-	return 0;
+    EVP_CIPHER_CTX_init(h);
+    EVP_CipherInit(h, algo(), secret, iv, encrypt);
+    return 0;
 }
 
 int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
-			  _libssh2_cipher_type(algo),
-			  int encrypt,
-			  unsigned char *block)
+              _libssh2_cipher_type(algo),
+              int encrypt,
+              unsigned char *block)
 {
-	int blocksize = ctx->cipher->block_size;
-	unsigned char buf[EVP_MAX_BLOCK_LENGTH];
-	int ret;
-	(void)algo;
-	(void)encrypt;
+    int blocksize = ctx->cipher->block_size;
+    unsigned char buf[EVP_MAX_BLOCK_LENGTH];
+    int ret;
+    (void)algo;
+    (void)encrypt;
 
-	if (blocksize == 1) {
+    if (blocksize == 1) {
 /* Hack for arcfour. */
-		blocksize = 8;
-	}
-	ret = EVP_Cipher(ctx, buf, block, blocksize);
-	if (ret == 1) {
-		memcpy(block, buf, blocksize);
-	}
-	return ret == 1 ? 0 : 1;
+        blocksize = 8;
+    }
+    ret = EVP_Cipher(ctx, buf, block, blocksize);
+    if (ret == 1) {
+        memcpy(block, buf, blocksize);
+    }
+    return ret == 1 ? 0 : 1;
 }
 
 /* TODO: Optionally call a passphrase callback specified by the
@@ -201,119 +200,119 @@ int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
  */
 static int
 passphrase_cb(char *buf, int size,
-	      int rwflag, char *passphrase)
+          int rwflag, char *passphrase)
 {
-	int passphrase_len = strlen(passphrase);
-	(void)rwflag;
+    int passphrase_len = strlen(passphrase);
+    (void)rwflag;
 
-	if (passphrase_len > (size - 1)) {
-		passphrase_len = size - 1;
-	}
-	memcpy(buf, passphrase, passphrase_len);
-	buf[passphrase_len] = '\0';
+    if (passphrase_len > (size - 1)) {
+        passphrase_len = size - 1;
+    }
+    memcpy(buf, passphrase, passphrase_len);
+    buf[passphrase_len] = '\0';
 
-	return passphrase_len;
+    return passphrase_len;
 }
 
 int _libssh2_rsa_new_private (libssh2_rsa_ctx **rsa,
-			      LIBSSH2_SESSION *session,
-			      FILE *fp,
-			      unsigned const char *passphrase)
+                  LIBSSH2_SESSION *session,
+                  FILE *fp,
+                  unsigned const char *passphrase)
 {
-	(void)session;
-	if (!EVP_get_cipherbyname("des")) {
+    (void)session;
+    if (!EVP_get_cipherbyname("des")) {
 /* If this cipher isn't loaded it's a pretty good indication that none are.
  * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
  * Someone buy me an OpenSSL manual and I'll read up on it.
  */
-		OpenSSL_add_all_ciphers();
-	}
-	*rsa = PEM_read_RSAPrivateKey(fp, NULL, (void*)passphrase_cb,
-				      (void*)passphrase);
-	if (!*rsa) {
-		return -1;
-	}
-	return 0;
+        OpenSSL_add_all_ciphers();
+    }
+    *rsa = PEM_read_RSAPrivateKey(fp, NULL, (void*)passphrase_cb,
+                      (void*)passphrase);
+    if (!*rsa) {
+        return -1;
+    }
+    return 0;
 }
 
 int _libssh2_dsa_new_private (libssh2_dsa_ctx **dsa,
-			      LIBSSH2_SESSION *session,
-			      FILE *fp,
-			      unsigned const char *passphrase)
+                  LIBSSH2_SESSION *session,
+                  FILE *fp,
+                  unsigned const char *passphrase)
 {
-	(void)session;
-	if (!EVP_get_cipherbyname("des")) {
+    (void)session;
+    if (!EVP_get_cipherbyname("des")) {
 /* If this cipher isn't loaded it's a pretty good indication that none are.
  * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
  * Someone buy me an OpenSSL manual and I'll read up on it.
  */
-		OpenSSL_add_all_ciphers();
-	}
-	*dsa = PEM_read_DSAPrivateKey(fp, NULL, (void*)passphrase_cb,
-				      (void*)passphrase);
-	if (!*dsa) {
-		return -1;
-	}
-	return 0;
+        OpenSSL_add_all_ciphers();
+    }
+    *dsa = PEM_read_DSAPrivateKey(fp, NULL, (void*)passphrase_cb,
+                      (void*)passphrase);
+    if (!*dsa) {
+        return -1;
+    }
+    return 0;
 }
 
 int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-			   libssh2_rsa_ctx *rsactx,
-			   const unsigned char *hash,
-			   unsigned long hash_len,
-			   unsigned char **signature,
-			   unsigned long *signature_len)
+               libssh2_rsa_ctx *rsactx,
+               const unsigned char *hash,
+               unsigned long hash_len,
+               unsigned char **signature,
+               unsigned long *signature_len)
 {
-	int ret;
-	unsigned char *sig;
-	unsigned int sig_len;
+    int ret;
+    unsigned char *sig;
+    unsigned int sig_len;
 
-	sig_len = RSA_size(rsactx);
-	sig = LIBSSH2_ALLOC(session, sig_len);
+    sig_len = RSA_size(rsactx);
+    sig = LIBSSH2_ALLOC(session, sig_len);
 
-	if (!sig) {
-		return -1;
-	}
+    if (!sig) {
+        return -1;
+    }
 
-	ret = RSA_sign(NID_sha1, hash, hash_len, sig, &sig_len, rsactx);
+    ret = RSA_sign(NID_sha1, hash, hash_len, sig, &sig_len, rsactx);
 
-	if (!ret) {
-		LIBSSH2_FREE(session, sig);
-		return -1;
-	}
+    if (!ret) {
+        LIBSSH2_FREE(session, sig);
+        return -1;
+    }
 
-	*signature = sig;
-	*signature_len = sig_len;
+    *signature = sig;
+    *signature_len = sig_len;
 
-	return 0;
+    return 0;
 }
 
 int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
-			   const unsigned char *hash,
-			   unsigned long hash_len,
-			   unsigned char *signature)
+               const unsigned char *hash,
+               unsigned long hash_len,
+               unsigned char *signature)
 {
-	DSA_SIG *sig;
-	int r_len, s_len, rs_pad;
-	(void)hash_len;
+    DSA_SIG *sig;
+    int r_len, s_len, rs_pad;
+    (void)hash_len;
 
-	sig = DSA_do_sign(hash, SHA_DIGEST_LENGTH, dsactx);
-	if (!sig) {
-		return -1;
-	}
+    sig = DSA_do_sign(hash, SHA_DIGEST_LENGTH, dsactx);
+    if (!sig) {
+        return -1;
+    }
 
-	r_len = BN_num_bytes(sig->r);
-	s_len = BN_num_bytes(sig->s);
-	rs_pad = (2 * SHA_DIGEST_LENGTH) - (r_len + s_len);
-	if (rs_pad < 0) {
-		DSA_SIG_free(sig);
-		return -1;
-	}
+    r_len = BN_num_bytes(sig->r);
+    s_len = BN_num_bytes(sig->s);
+    rs_pad = (2 * SHA_DIGEST_LENGTH) - (r_len + s_len);
+    if (rs_pad < 0) {
+        DSA_SIG_free(sig);
+        return -1;
+    }
 
-	BN_bn2bin(sig->r, signature + rs_pad);
-	BN_bn2bin(sig->s, signature + rs_pad + r_len);
+    BN_bn2bin(sig->r, signature + rs_pad);
+    BN_bn2bin(sig->s, signature + rs_pad + r_len);
 
-	DSA_SIG_free(sig);
+    DSA_SIG_free(sig);
 
-	return 0;
+    return 0;
 }

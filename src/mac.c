@@ -42,21 +42,21 @@
  * Minimalist MAC: No MAC
  */
 static int libssh2_mac_none_MAC(LIBSSH2_SESSION *session, unsigned char *buf, unsigned long seqno, 
-														  const unsigned char *packet, unsigned long packet_len,
-														  const unsigned char *addtl, unsigned long addtl_len, void **abstract)
+                                                          const unsigned char *packet, unsigned long packet_len,
+                                                          const unsigned char *addtl, unsigned long addtl_len, void **abstract)
 {
-	return 0;
+    return 0;
 }
 /* }}} */
 
 
 static LIBSSH2_MAC_METHOD libssh2_mac_method_none = {
-	"none",
-	0,
-	0,
-	NULL,
-	libssh2_mac_none_MAC,
-	NULL
+    "none",
+    0,
+    0,
+    NULL,
+    libssh2_mac_none_MAC,
+    NULL
 };
 #endif /* LIBSSH2_MAC_NONE */
 
@@ -65,11 +65,11 @@ static LIBSSH2_MAC_METHOD libssh2_mac_method_none = {
  */
 static int libssh2_mac_method_common_init(LIBSSH2_SESSION *session, unsigned char *key, int *free_key, void **abstract)
 {
-	*abstract = key;
-	*free_key = 0;
-	(void)session;
+    *abstract = key;
+    *free_key = 0;
+    (void)session;
 
-	return 0;
+    return 0;
 }
 /* }}} */
 
@@ -78,12 +78,12 @@ static int libssh2_mac_method_common_init(LIBSSH2_SESSION *session, unsigned cha
  */
 static int libssh2_mac_method_common_dtor(LIBSSH2_SESSION *session, void **abstract)
 {
-	if (*abstract) {
-		LIBSSH2_FREE(session, *abstract);
-	}
-	*abstract = NULL;
+    if (*abstract) {
+        LIBSSH2_FREE(session, *abstract);
+    }
+    *abstract = NULL;
 
-	return 0;
+    return 0;
 }
 /* }}} */
 
@@ -91,120 +91,120 @@ static int libssh2_mac_method_common_dtor(LIBSSH2_SESSION *session, void **abstr
  * Calculate hash using full sha1 value
  */
 static int libssh2_mac_method_hmac_sha1_hash(LIBSSH2_SESSION *session, unsigned char *buf, unsigned long seqno,
-																	   const unsigned char *packet, unsigned long packet_len, 
-																	   const unsigned char *addtl, unsigned long addtl_len, void **abstract)
+                                                                       const unsigned char *packet, unsigned long packet_len, 
+                                                                       const unsigned char *addtl, unsigned long addtl_len, void **abstract)
 {
-	libssh2_hmac_ctx ctx;
-	unsigned char seqno_buf[4];
-	(void)session;
+    libssh2_hmac_ctx ctx;
+    unsigned char seqno_buf[4];
+    (void)session;
 
-	libssh2_htonu32(seqno_buf, seqno);
+    libssh2_htonu32(seqno_buf, seqno);
 
-	libssh2_hmac_sha1_init(&ctx, *abstract, 20);
-	libssh2_hmac_update(ctx, seqno_buf, 4);
-	libssh2_hmac_update(ctx, packet, packet_len);
-	if (addtl && addtl_len) {
-		libssh2_hmac_update(ctx, addtl, addtl_len);
-	}
-	libssh2_hmac_final(ctx, buf);
-	libssh2_hmac_cleanup(&ctx);
+    libssh2_hmac_sha1_init(&ctx, *abstract, 20);
+    libssh2_hmac_update(ctx, seqno_buf, 4);
+    libssh2_hmac_update(ctx, packet, packet_len);
+    if (addtl && addtl_len) {
+        libssh2_hmac_update(ctx, addtl, addtl_len);
+    }
+    libssh2_hmac_final(ctx, buf);
+    libssh2_hmac_cleanup(&ctx);
 
-	return 0;
+    return 0;
 }
 /* }}} */
 
 static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_sha1 = {
-	"hmac-sha1",
-	20,
-	20,
-	libssh2_mac_method_common_init,
-	libssh2_mac_method_hmac_sha1_hash,
-	libssh2_mac_method_common_dtor,
+    "hmac-sha1",
+    20,
+    20,
+    libssh2_mac_method_common_init,
+    libssh2_mac_method_hmac_sha1_hash,
+    libssh2_mac_method_common_dtor,
 };
 
 /* {{{ libssh2_mac_method_hmac_sha1_96_hash
  * Calculate hash using first 96 bits of sha1 value
  */
 static int libssh2_mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION *session, unsigned char *buf, unsigned long seqno,
-																		  const unsigned char *packet, unsigned long packet_len, 
-																		  const unsigned char *addtl, unsigned long addtl_len, void **abstract)
+                                                                          const unsigned char *packet, unsigned long packet_len, 
+                                                                          const unsigned char *addtl, unsigned long addtl_len, void **abstract)
 {
-	unsigned char temp[SHA_DIGEST_LENGTH];
+    unsigned char temp[SHA_DIGEST_LENGTH];
 
-	libssh2_mac_method_hmac_sha1_hash(session, temp, seqno, packet, packet_len, addtl, addtl_len, abstract);
-	memcpy(buf, (char *)temp, 96 / 8);
+    libssh2_mac_method_hmac_sha1_hash(session, temp, seqno, packet, packet_len, addtl, addtl_len, abstract);
+    memcpy(buf, (char *)temp, 96 / 8);
 
-	return 0;
+    return 0;
 }
 /* }}} */
 
 static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_sha1_96 = {
-	"hmac-sha1-96",
-	12,
-	20,
-	libssh2_mac_method_common_init,
-	libssh2_mac_method_hmac_sha1_96_hash,
-	libssh2_mac_method_common_dtor,
+    "hmac-sha1-96",
+    12,
+    20,
+    libssh2_mac_method_common_init,
+    libssh2_mac_method_hmac_sha1_96_hash,
+    libssh2_mac_method_common_dtor,
 };
 
 /* {{{ libssh2_mac_method_hmac_md5_hash
  * Calculate hash using full md5 value
  */
 static int libssh2_mac_method_hmac_md5_hash(LIBSSH2_SESSION *session, unsigned char *buf, unsigned long seqno,
-																	  const unsigned char *packet, unsigned long packet_len, 
-																	  const unsigned char *addtl, unsigned long addtl_len, void **abstract)
+                                                                      const unsigned char *packet, unsigned long packet_len, 
+                                                                      const unsigned char *addtl, unsigned long addtl_len, void **abstract)
 {
-	libssh2_hmac_ctx ctx;
-	unsigned char seqno_buf[4];
-	(void)session;
+    libssh2_hmac_ctx ctx;
+    unsigned char seqno_buf[4];
+    (void)session;
 
-	libssh2_htonu32(seqno_buf, seqno);
+    libssh2_htonu32(seqno_buf, seqno);
 
-	libssh2_hmac_md5_init(&ctx, *abstract, 16);
-	libssh2_hmac_update(ctx, seqno_buf, 4);
-	libssh2_hmac_update(ctx, packet, packet_len);
-	if (addtl && addtl_len) {
-		libssh2_hmac_update(ctx, addtl, addtl_len);
-	}
-	libssh2_hmac_final(ctx, buf);
-	libssh2_hmac_cleanup(&ctx);
+    libssh2_hmac_md5_init(&ctx, *abstract, 16);
+    libssh2_hmac_update(ctx, seqno_buf, 4);
+    libssh2_hmac_update(ctx, packet, packet_len);
+    if (addtl && addtl_len) {
+        libssh2_hmac_update(ctx, addtl, addtl_len);
+    }
+    libssh2_hmac_final(ctx, buf);
+    libssh2_hmac_cleanup(&ctx);
 
-	return 0;
+    return 0;
 }
 /* }}} */
 
 static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_md5 = {
-	"hmac-md5",
-	16,
-	16,
-	libssh2_mac_method_common_init,
-	libssh2_mac_method_hmac_md5_hash,
-	libssh2_mac_method_common_dtor,
+    "hmac-md5",
+    16,
+    16,
+    libssh2_mac_method_common_init,
+    libssh2_mac_method_hmac_md5_hash,
+    libssh2_mac_method_common_dtor,
 };
 
 /* {{{ libssh2_mac_method_hmac_md5_96_hash
  * Calculate hash using first 96 bits of md5 value
  */
 static int libssh2_mac_method_hmac_md5_96_hash(LIBSSH2_SESSION *session, unsigned char *buf, unsigned long seqno,
-																		 const unsigned char *packet, unsigned long packet_len,
-																		 const unsigned char *addtl, unsigned long addtl_len, void **abstract)
+                                                                         const unsigned char *packet, unsigned long packet_len,
+                                                                         const unsigned char *addtl, unsigned long addtl_len, void **abstract)
 {
-	unsigned char temp[MD5_DIGEST_LENGTH];
+    unsigned char temp[MD5_DIGEST_LENGTH];
 
-	libssh2_mac_method_hmac_md5_hash(session, temp, seqno, packet, packet_len, addtl, addtl_len, abstract);
-	memcpy(buf, (char *)temp, 96 / 8);
+    libssh2_mac_method_hmac_md5_hash(session, temp, seqno, packet, packet_len, addtl, addtl_len, abstract);
+    memcpy(buf, (char *)temp, 96 / 8);
 
-	return 0;
+    return 0;
 }
 /* }}} */
 
 static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_md5_96 = {
-	"hmac-md5-96",
-	12,
-	16,
-	libssh2_mac_method_common_init,
-	libssh2_mac_method_hmac_md5_96_hash,
-	libssh2_mac_method_common_dtor,
+    "hmac-md5-96",
+    12,
+    16,
+    libssh2_mac_method_common_init,
+    libssh2_mac_method_hmac_md5_96_hash,
+    libssh2_mac_method_common_dtor,
 };
 
 #if LIBSSH2_HMAC_RIPEMD
@@ -212,63 +212,63 @@ static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_md5_96 = {
  * Calculate hash using ripemd160 value
  */
 static int libssh2_mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION *session, unsigned char *buf, unsigned long seqno,
-																			const unsigned char *packet, unsigned long packet_len,
-																			const unsigned char *addtl, unsigned long addtl_len, void **abstract)
+                                                                            const unsigned char *packet, unsigned long packet_len,
+                                                                            const unsigned char *addtl, unsigned long addtl_len, void **abstract)
 {
-	libssh2_hmac_ctx ctx;
-	unsigned char seqno_buf[4];
-	(void)session;
+    libssh2_hmac_ctx ctx;
+    unsigned char seqno_buf[4];
+    (void)session;
 
-	libssh2_htonu32(seqno_buf, seqno);
+    libssh2_htonu32(seqno_buf, seqno);
 
-	libssh2_hmac_ripemd160_init(&ctx, *abstract, 20);
-	libssh2_hmac_update(ctx, seqno_buf, 4);
-	libssh2_hmac_update(ctx, packet, packet_len);
-	if (addtl && addtl_len) {
-		libssh2_hmac_update(ctx, addtl, addtl_len);
-	}
-	libssh2_hmac_final(ctx, buf);
-	libssh2_hmac_cleanup(&ctx);
+    libssh2_hmac_ripemd160_init(&ctx, *abstract, 20);
+    libssh2_hmac_update(ctx, seqno_buf, 4);
+    libssh2_hmac_update(ctx, packet, packet_len);
+    if (addtl && addtl_len) {
+        libssh2_hmac_update(ctx, addtl, addtl_len);
+    }
+    libssh2_hmac_final(ctx, buf);
+    libssh2_hmac_cleanup(&ctx);
 
-	return 0;
+    return 0;
 }
 /* }}} */
 
 static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160 = {
-	"hmac-ripemd160",
-	20,
-	20,
-	libssh2_mac_method_common_init,
-	libssh2_mac_method_hmac_ripemd160_hash,
-	libssh2_mac_method_common_dtor,
+    "hmac-ripemd160",
+    20,
+    20,
+    libssh2_mac_method_common_init,
+    libssh2_mac_method_hmac_ripemd160_hash,
+    libssh2_mac_method_common_dtor,
 };
 
 static const LIBSSH2_MAC_METHOD libssh2_mac_method_hmac_ripemd160_openssh_com = {
-	"hmac-ripemd160@openssh.com",
-	20,
-	20,
-	libssh2_mac_method_common_init,
-	libssh2_mac_method_hmac_ripemd160_hash,
-	libssh2_mac_method_common_dtor,
+    "hmac-ripemd160@openssh.com",
+    20,
+    20,
+    libssh2_mac_method_common_init,
+    libssh2_mac_method_hmac_ripemd160_hash,
+    libssh2_mac_method_common_dtor,
 };
 #endif /* LIBSSH2_HMAC_RIPEMD */
 
 static const LIBSSH2_MAC_METHOD *_libssh2_mac_methods[] = {
-	&libssh2_mac_method_hmac_sha1,
-	&libssh2_mac_method_hmac_sha1_96,
-	&libssh2_mac_method_hmac_md5,
-	&libssh2_mac_method_hmac_md5_96,
+    &libssh2_mac_method_hmac_sha1,
+    &libssh2_mac_method_hmac_sha1_96,
+    &libssh2_mac_method_hmac_md5,
+    &libssh2_mac_method_hmac_md5_96,
 #ifdef LIBSSH2_HMAC_RIPEMD
-	&libssh2_mac_method_hmac_ripemd160,
-	&libssh2_mac_method_hmac_ripemd160_openssh_com,
+    &libssh2_mac_method_hmac_ripemd160,
+    &libssh2_mac_method_hmac_ripemd160_openssh_com,
 #endif /* LIBSSH2_HMAC_RIPEMD */
 #ifdef LIBSSH2_MAC_NONE
-	&libssh2_mac_method_none,
+    &libssh2_mac_method_none,
 #endif /* LIBSSH2_MAC_NONE */
-	NULL
+    NULL
 };
 
 const LIBSSH2_MAC_METHOD **libssh2_mac_methods(void) {
-	return _libssh2_mac_methods;
+    return _libssh2_mac_methods;
 }
 
