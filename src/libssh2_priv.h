@@ -447,31 +447,6 @@ struct _LIBSSH2_PUBLICKEY {
     unsigned long               listFetch_data_len;
 };
 
-typedef enum {
-    sftp_read_idle = 0,
-    sftp_read_packet_allocated,
-    sftp_read_packet_created,
-    sftp_read_packet_sent
-} libssh2_sftp_read_state;
-
-typedef enum {
-    sftp_readdir_idle = 0,
-    sftp_readdir_packet_created,
-    sftp_readdir_packet_sent
-} libssh2_sftp_readdir_state;
-
-typedef enum {
-    sftp_write_idle = 0,
-    sftp_write_packet_created,
-    sftp_write_packet_sent
-} libssh2_sftp_write_state;
-
-typedef enum {
-    sftp_mkdir_idle = 0,
-    sftp_mkdir_packet_created,
-    sftp_mkdir_packet_sent
-} libssh2_sftp_mkdir_state;
-
 struct _LIBSSH2_SFTP_HANDLE {
     LIBSSH2_SFTP *sftp;
     LIBSSH2_SFTP_HANDLE *prev, *next;
@@ -513,23 +488,23 @@ struct _LIBSSH2_SFTP {
     time_t requirev_start;
     
     /* State variables used in _libssh2_sftp_read() */
-    libssh2_sftp_read_state read_state;
-    unsigned char           *read_packet;
-    unsigned long           read_request_id;
+    libssh2_nonblocking_states  read_state;
+    unsigned char               *read_packet;
+    unsigned long                   read_request_id;
     size_t                  read_total_read;
     
     /* State variables used in _libssh2_sftp_readdir() */
-    libssh2_sftp_readdir_state  readdir_state;
+    libssh2_nonblocking_states  readdir_state;
     unsigned char               *readdir_packet;
     unsigned long               readdir_request_id;
     
     /* State variables used in _libssh2_sftp_write() */
-    libssh2_sftp_write_state    write_state;
+    libssh2_nonblocking_states  write_state;
     unsigned char               *write_packet;
     unsigned long               write_request_id;
     
     /* State variables used in _libssh2_sftp_mkdir() */
-    libssh2_sftp_mkdir_state    mkdir_state;
+    libssh2_nonblocking_states  mkdir_state;
     unsigned char               *mkdir_packet;
     unsigned long               mkdir_request_id;
     
