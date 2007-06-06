@@ -312,7 +312,7 @@ libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION *session)
                 /* check if this is due to EAGAIN and return
                    the special return code if so, error out
                    normally otherwise */
-                if(errno == EAGAIN) {
+                if ((nread < 0) && (errno == EAGAIN)) {
                     return PACKET_EAGAIN;
                 }
                 return PACKET_FAIL;
