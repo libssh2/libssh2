@@ -76,7 +76,7 @@ typedef long long libssh2_int64_t;
 #endif
 
 #define LIBSSH2_VERSION                             "0.15-CVS"
-#define LIBSSH2_APINO                               200507211326
+#define LIBSSH2_APINO                               200706012030
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER                          "SSH-2.0-libssh2_" LIBSSH2_VERSION
@@ -222,6 +222,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define SSH_DISCONNECT_ILLEGAL_USER_NAME                    15
 
 /* Error Codes (defined by libssh2) */
+#define LIBSSH2_ERROR_NONE                      0
 #define LIBSSH2_ERROR_SOCKET_NONE               -1
 #define LIBSSH2_ERROR_BANNER_NONE               -2
 #define LIBSSH2_ERROR_BANNER_SEND               -3
@@ -258,6 +259,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_INVAL                     -34
 #define LIBSSH2_ERROR_INVALID_POLL_TYPE         -35
 #define LIBSSH2_ERROR_PUBLICKEY_PROTOCOL        -36
+#define LIBSSH2_ERROR_EAGAIN                    -37
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)), LIBSSH2_FREE_FUNC((*my_free)), LIBSSH2_REALLOC_FUNC((*my_realloc)), void *abstract);
@@ -277,6 +279,7 @@ LIBSSH2_API const char *libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_
 LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type, const char *prefs);
 LIBSSH2_API const char *libssh2_session_methods(LIBSSH2_SESSION *session, int method_type);
 LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errmsg, int *errmsg_len, int want_buf);
+LIBSSH2_API int libssh2_session_last_errno(LIBSSH2_SESSION *session);
 
 LIBSSH2_API int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int value);
 
@@ -351,50 +354,45 @@ LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel, const 
 #define libssh2_channel_exec(channel, command)          libssh2_channel_process_startup((channel), "exec", sizeof("exec") - 1, (command), strlen(command))
 #define libssh2_channel_subsystem(channel, subsystem)   libssh2_channel_process_startup((channel), "subsystem", sizeof("subsystem") - 1, (subsystem), strlen(subsystem))
 
-LIBSSH2_API int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel,
-                    int stream_id, char *buf,
-                    size_t buflen);
-LIBSSH2_API int libssh2_channel_readnb_ex(LIBSSH2_CHANNEL *channel,
-                      int stream_id, char *buf,
-                      size_t buflen);
+LIBSSH2_API ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel,
+                                            int stream_id, char *buf,
+                                            size_t buflen);
+#define libssh2_channel_read(channel, buf, buflen) \
+            libssh2_channel_read_ex((channel), 0, (buf), (buflen))
+#define libssh2_channel_read_stderr(channel, buf, buflen) \
+            libssh2_channel_read_ex((channel), SSH_EXTENDED_DATA_STDERR, (buf), (buflen))
 
 /* This is a public error code from libssh2_channel_read() that is returned
    when it would otherwise block. */
 #define LIBSSH2CHANNEL_EAGAIN -2
 
-#define libssh2_channel_read(channel, buf, buflen) \
-  libssh2_channel_read_ex((channel), 0, (buf), (buflen))
-#define libssh2_channel_read_stderr(channel, buf, buflen)           libssh2_channel_read_ex((channel), SSH_EXTENDED_DATA_STDERR, (buf), (buflen))
-#define libssh2_channel_readnb(channel, buf, buflen) \
-  libssh2_channel_readnb_ex((channel), 0, (buf), (buflen))
-
 LIBSSH2_API int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended);
 
 LIBSSH2_API unsigned long libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel, unsigned long *read_avail, unsigned long *window_size_initial);
-#define libssh2_channel_window_read(channel)            libssh2_channel_window_read_ex((channel), NULL, NULL)
+#define libssh2_channel_window_read(channel) \
+            libssh2_channel_window_read_ex((channel), NULL, NULL)
 
 LIBSSH2_API unsigned long libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel, unsigned long adjustment, unsigned char force);
 
-LIBSSH2_API int libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel,
-                     int stream_id, const char *buf,
-                     size_t buflen);
-LIBSSH2_API int libssh2_channel_writenb_ex(LIBSSH2_CHANNEL *channel,
-                       int stream_id, const char *buf,
-                       size_t buflen);
+LIBSSH2_API size_t libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel,
+                                            int stream_id, const char *buf,
+                                            size_t buflen);
 
 #define libssh2_channel_write(channel, buf, buflen) \
-  libssh2_channel_write_ex((channel), 0, (buf), (buflen))
-#define libssh2_channel_writenb(channel, buf, buflen) \
-  libssh2_channel_writenb_ex((channel), 0, (buf), (buflen))
-#define libssh2_channel_write_stderr(channel, buf, buflen)          libssh2_channel_write_ex((channel), SSH_EXTENDED_DATA_STDERR, (buf), (buflen))
+    libssh2_channel_write_ex((channel), 0, (buf), (buflen))
+#define libssh2_channel_write_stderr(channel, buf, buflen) \
+    libssh2_channel_write_ex((channel), SSH_EXTENDED_DATA_STDERR, (buf), (buflen))
 
 LIBSSH2_API unsigned long libssh2_channel_window_write_ex(LIBSSH2_CHANNEL *channel, unsigned long *window_size_initial);
 #define libssh2_channel_window_write(channel)           libssh2_channel_window_write_ex((channel), NULL)
 
+LIBSSH2_API void libssh2_session_set_blocking(LIBSSH2_SESSION* session, int blocking);
+LIBSSH2_API int libssh2_session_get_blocking(LIBSSH2_SESSION* session);
+
 LIBSSH2_API void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking);
-LIBSSH2_API int libssh2_channel_get_blocking(LIBSSH2_CHANNEL *channel);
 
 LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode);
+LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel, int ignore_mode);
 /* libssh2_channel_ignore_extended_data() is defined below for BC with version 0.1
  * Future uses should use libssh2_channel_handle_extended_data() directly
  * if LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE is passed, extended data will be read (FIFO) from the standard data channel
@@ -411,6 +409,7 @@ LIBSSH2_API int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL* channel);
 
 LIBSSH2_API int libssh2_channel_send_eof(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_eof(LIBSSH2_CHANNEL *channel);
+LIBSSH2_API int libssh2_channel_wait_eof(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_close(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_wait_closed(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL *channel);

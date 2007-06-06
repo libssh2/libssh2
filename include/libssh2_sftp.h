@@ -166,8 +166,10 @@ struct _LIBSSH2_SFTP_ATTRIBUTES {
 #define LIBSSH2_FX_NO_MEDIA                 13
 #define LIBSSH2_FX_NO_SPACE_ON_FILESYSTEM   14
 #define LIBSSH2_FX_QUOTA_EXCEEDED           15
-#define LIBSSH2_FX_UNKNOWN_PRINCIPLE        16
-#define LIBSSH2_FX_LOCK_CONFlICT            17
+#define LIBSSH2_FX_UNKNOWN_PRINCIPLE        16 /* Initial mis-spelling */
+#define LIBSSH2_FX_UNKNOWN_PRINCIPAL        16
+#define LIBSSH2_FX_LOCK_CONFlICT            17 /* Initial mis-spelling */
+#define LIBSSH2_FX_LOCK_CONFLICT            17
 #define LIBSSH2_FX_DIR_NOT_EMPTY            18
 #define LIBSSH2_FX_NOT_A_DIRECTORY          19
 #define LIBSSH2_FX_INVALID_FILENAME         20
@@ -243,9 +245,6 @@ LIBSSH2_API int libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path, un
 #define libssh2_sftp_symlink(sftp, orig, linkpath)          libssh2_sftp_symlink_ex((sftp), (orig), strlen(orig), (linkpath), strlen(linkpath), LIBSSH2_SFTP_SYMLINK)
 #define libssh2_sftp_readlink(sftp, path, target, maxlen)   libssh2_sftp_symlink_ex((sftp), (path), strlen(path), (target), (maxlen), LIBSSH2_SFTP_READLINK)
 #define libssh2_sftp_realpath(sftp, path, target, maxlen)   libssh2_sftp_symlink_ex((sftp), (path), strlen(path), (target), (maxlen), LIBSSH2_SFTP_REALPATH)
-
-LIBSSH2_API void libssh2_sftp_set_blocking(LIBSSH2_SFTP *session, int blocking);
-LIBSSH2_API int libssh2_sftp_get_blocking(LIBSSH2_SFTP *session);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -201,7 +201,7 @@ void _libssh2_debug(LIBSSH2_SESSION *session, int context,
     if (context < 1 || context > 8) {
         context = 0;
     }
-    if(!(session->showmask & (1<<context))) {
+    if (!(session->showmask & (1<<context))) {
         /* no such output asked for */
         return;
     }

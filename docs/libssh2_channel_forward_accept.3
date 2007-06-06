@@ -1,6 +1,6 @@
-.\" $Id: libssh2_channel_forward_accept.3,v 1.1 2006/12/21 14:09:12 bagder Exp $
+.\" $Id: libssh2_channel_forward_accept.3,v 1.2 2007/06/06 12:34:06 jehousley Exp $
 .\"
-.TH libssh2_channel_forward_accept 3 "14 Dec 2006" "libssh2 0.15" "libssh2 manual"
+.TH libssh2_channel_forward_accept 3 "1 June 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
 libssh2_channel_forward_accept - accept a queued connection
 .SH SYNOPSIS
@@ -12,5 +12,8 @@ libssh2_channel_forward_accept - accept a queued connection
 \fBlibssh2_channel_forward_listen(3)\fP.
 .SH RETURN VALUE
 A newly allocated channel instance or NULL on failure.
+.SH ERRORS
+LIBSSH2_ERROR_EAGAIN
+Marked for non-blocking I/O but the call would block.
 .SH "SEE ALSO"
 .BI libssh2_channel_forward_listen(3)

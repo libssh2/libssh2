@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_RW_nonblock.c,v 1.3 2007/04/26 23:59:15 gknauf Exp $
+ * $Id: sftp_RW_nonblock.c,v 1.4 2007/06/06 12:34:08 jehousley Exp $
  *
  * Sample showing how to do SFTP transfers in a non-blocking manner.
  *
@@ -105,6 +105,8 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
                 return -1;
         }
+
+	libssh2_session_set_blocking(session, 0);
 
         /* At this point we havn't yet authenticated.  The first thing to do
          * is check the hostkey's fingerprint against our known hosts Your app

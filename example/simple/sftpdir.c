@@ -1,5 +1,5 @@
 /*
- * $Id: sftpdir.c,v 1.4 2007/04/26 23:59:15 gknauf Exp $
+ * $Id: sftpdir.c,v 1.5 2007/06/06 12:34:09 jehousley Exp $
  *
  * Sample doing an SFTP directory listing.
  *
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Since we have not set non-blocking, tell libssh2 we are blocking */
-	libssh2_sftp_set_blocking(sftp_session, 1);
+	libssh2_session_set_blocking(session, 1);
     
 	fprintf(stderr, "libssh2_sftp_opendir()!\n");
 	/* Request a dir listing via SFTP */

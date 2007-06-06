@@ -1,5 +1,5 @@
 /*
- * $Id: sftp.c,v 1.7 2007/04/26 23:59:14 gknauf Exp $
+ * $Id: sftp.c,v 1.8 2007/06/06 12:34:08 jehousley Exp $
  *
  * Sample showing how to do SFTP transfers.
  *
@@ -94,6 +94,9 @@ int main(int argc, char *argv[])
 	if(!session)
 		return -1;
 
+	/* Since we have set non-blocking, tell libssh2 we are blocking */
+	libssh2_session_set_blocking(session, 1);
+        
 	/* ... start it up. This will trade welcome banners, exchange keys,
 	 * and setup crypto, compression, and MAC layers
 	 */
@@ -103,22 +106,25 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	/* Since we have not set non-blocking, tell libssh2 we are blocking */
+	libssh2_session_set_blocking(session, 1);
+
 	/* At this point we havn't yet authenticated.  The first thing to do
 	 * is check the hostkey's fingerprint against our known hosts Your app
 	 * may have it hard coded, may go to a file, may present it to the
 	 * user, that's your call
 	 */
 	fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
-	printf("Fingerprint: ");
+	fprintf(stderr, "Fingerprint: ");
 	for(i = 0; i < 16; i++) {
-		printf("%02X ", (unsigned char)fingerprint[i]);
+		fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
 	}
-	printf("\n");
+	fprintf(stderr, "\n");
 
 	if (auth_pw) {
 		/* We could authenticate via password */
 		if (libssh2_userauth_password(session, username, password)) {
-			printf("Authentication by password failed.\n");
+			fprintf(stderr, "Authentication by password failed.\n");
 			goto shutdown;
 		}
 	} else {
@@ -127,7 +133,7 @@ int main(int argc, char *argv[])
 							"/home/username/.ssh/id_rsa.pub",
 							"/home/username/.ssh/id_rsa",
 							password)) {
-			printf("\tAuthentication by public key failed\n");
+			fprintf(stderr, "\tAuthentication by public key failed\n");
 			goto shutdown;
 		}
 	}
@@ -141,7 +147,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Since we have not set non-blocking, tell libssh2 we are blocking */
-	libssh2_sftp_set_blocking(sftp_session, 1);
+	libssh2_session_set_blocking(session, 1);
     
 	fprintf(stderr, "libssh2_sftp_open()!\n");
 	/* Request a file via SFTP */
@@ -160,7 +166,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "libssh2_sftp_read()!\n");
 		rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
 		if (rc > 0) {
-			write(2, mem, rc);
+			write(1, mem, rc);
 		} else {
 			break;
         }
@@ -181,6 +187,6 @@ int main(int argc, char *argv[])
 	sleep(1);
 	close(sock);
 #endif
-printf("all done\n");
+fprintf(stderr, "all done\n");
 	return 0;
 }

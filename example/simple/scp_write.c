@@ -1,16 +1,10 @@
 /*
- * $Id: sftp_mkdir_nonblock.c,v 1.4 2007/06/06 12:34:09 jehousley Exp $
+ * $Id: scp_write.c,v 1.1 2007/06/06 12:34:08 jehousley Exp $
  *
- * Sample showing how to do SFTP non-blocking mkdir.
- *
- * The sample code has default values for host name, user name, password
- * and path to copy, but you can specify them on the command line like:
- *
- * "sftp 192.168.0.1 user password /tmp/sftp_write_nonblock.c"
+ * Sample showing how to do a simple SCP transfer.
  */
 
 #include <libssh2.h>
-#include <libssh2_sftp.h>
 #include <libssh2_config.h>
 
 #ifdef HAVE_WINSOCK2_H
@@ -28,6 +22,9 @@
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
 #endif
+#ifdef HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
 
 #include <sys/types.h>
 #include <fcntl.h>
@@ -42,11 +39,17 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
+    LIBSSH2_CHANNEL *channel;
     char *username=(char *)"username";
     char *password=(char *)"password";
-    char *sftppath=(char *)"/tmp/sftp_mkdir_nonblock";
+    char *loclfile=(char *)"scp_write.c";
+    char *scppath=(char *)"/tmp/TEST";
+    FILE *local;
     int rc;
-    LIBSSH2_SFTP *sftp_session;
+    char mem[1024];
+    size_t nread;
+    char *ptr;
+    struct stat fileinfo;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -59,41 +62,41 @@ int main(int argc, char *argv[])
     } else {
         hostaddr = htonl(0x7F000001);
     }
-
-    if(argc > 2) {
+    if (argc > 2) {
         username = argv[2];
     }
-    if(argc > 3) {
+    if (argc > 3) {
         password = argv[3];
     }
     if(argc > 4) {
-        sftppath = argv[4];
+        loclfile = argv[4];
+    }
+    if (argc > 5) {
+        scppath = argv[5];
     }
     
-    /*
-     * The application code is responsible for creating the socket
-     * and establishing the connection
+    local = fopen(loclfile, "rb");
+    if (!local) {
+        fprintf(stderr, "Can't local file %s\n", loclfile);
+        goto shutdown;
+    }
+    
+    stat(loclfile, &fileinfo);
+    
+    /* Ultra basic "connect to port 22 on localhost"
+     * Your code is responsible for creating the socket establishing the
+     * connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if (connect(sock, (struct sockaddr*)(&sin), 
+    if (connect(sock, (struct sockaddr*)(&sin),
             sizeof(struct sockaddr_in)) != 0) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
-
-    /* We set the socket non-blocking. We do it after the connect just to
-       simplify the example code. */
-#ifdef F_SETFL
-    /* FIXME: this can/should be done in a more portable manner */
-    rc = fcntl(sock, F_GETFL, 0);
-    fcntl(sock, F_SETFL, rc | O_NONBLOCK);
-#else
-#error "add support for setting the socket non-blocking here"
-#endif
 
     /* Create a session instance
      */
@@ -116,16 +119,16 @@ int main(int argc, char *argv[])
      * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
-    printf("Fingerprint: ");
+    fprintf(stderr, "Fingerprint: ");
     for(i = 0; i < 16; i++) {
-        printf("%02X ", (unsigned char)fingerprint[i]);
+        fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     }
-    printf("\n");
+    fprintf(stderr, "\n");
 
     if (auth_pw) {
         /* We could authenticate via password */
         if (libssh2_userauth_password(session, username, password)) {
-            printf("Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
         }
     } else {
@@ -134,33 +137,52 @@ int main(int argc, char *argv[])
                             "/home/username/.ssh/id_rsa.pub",
                             "/home/username/.ssh/id_rsa",
                             password)) {
-            printf("\tAuthentication by public key failed\n");
+            fprintf(stderr, "\tAuthentication by public key failed\n");
             goto shutdown;
         }
     }
 
-    fprintf(stderr, "libssh2_sftp_init()!\n");
-    sftp_session = libssh2_sftp_init(session);
+    //libssh2_trace(session, 0xFFFF);
+    
+    /* Request a file via SCP */
+    channel = libssh2_scp_send(session, scppath, 0x1FF & fileinfo.st_mode, (unsigned long)fileinfo.st_size);
 
-    if (!sftp_session) {
-        fprintf(stderr, "Unable to init SFTP session\n");
+    if (!channel) {
+        fprintf(stderr, "Unable to open a session\n");
         goto shutdown;
     }
 
-    /* Since we have set non-blocking, tell libssh2 we are non-blocking */
-    libssh2_session_set_blocking(session, 0);
-    
-    fprintf(stderr, "libssh2_sftp_mkdirnb()!\n");
-    /* Make a directory via SFTP */
-    while ((rc = libssh2_sftp_mkdirnb(sftp_session, sftppath,
-                                      LIBSSH2_SFTP_S_IRWXU|
-                                      LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IXGRP|
-                                      LIBSSH2_SFTP_S_IROTH|LIBSSH2_SFTP_S_IXOTH))
-           == LIBSSH2SFTP_EAGAIN) {
-        ;
-    }
+    fprintf(stderr, "SCP session waiting to send file\n");
+    do {
+        nread = fread(mem, 1, sizeof(mem), local);
+        if (nread <= 0) {
+            /* end of file */
+            break;
+        }
+        ptr = mem;
+        
+        do {
+            /* write data in a loop until we block */
+            rc = libssh2_channel_write(channel, ptr, nread);
+            ptr += rc;
+            nread -= nread;
+        } while (rc > 0);
+    } while (1);
 
-    libssh2_sftp_shutdown(sftp_session);
+    fprintf(stderr, "Sending EOF\n");
+    libssh2_channel_send_eof(channel);
+    
+    fprintf(stderr, "Waiting for EOF\n");
+    libssh2_channel_wait_eof(channel);
+    
+    fprintf(stderr, "Waiting for channel to close\n");
+    libssh2_channel_wait_closed(channel);
+    
+//    fprintf(stderr, "Closing channel\n");
+//    libssh2_channel_close(channel);
+    
+    libssh2_channel_free(channel);
+    channel = NULL;
 
  shutdown:
 
@@ -174,6 +196,6 @@ int main(int argc, char *argv[])
     sleep(1);
     close(sock);
 #endif
-printf("all done\n");
+    fprintf(stderr, "all done\n");
     return 0;
 }

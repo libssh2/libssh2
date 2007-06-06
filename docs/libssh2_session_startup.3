@@ -1,6 +1,6 @@
-.\" $Id: libssh2_session_startup.3,v 1.2 2007/01/02 05:47:00 gusarov Exp $
+.\" $Id: libssh2_session_startup.3,v 1.3 2007/06/06 12:34:07 jehousley Exp $
 .\"
-.TH libssh2_session_startup 3 "14 Dec 2006" "libssh2 0.15" "libssh2 manual"
+.TH libssh2_session_startup 3 "1 June 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
 libssh2_session_startup - begin transport layer
 .SH SYNOPSIS
@@ -11,6 +11,27 @@ int libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
 Begin transport layer protocol negotiation with the connected host.
 .SH RETURN VALUE
 0 on success, \-1 on failure
+.SH ERRORS
+LIBSSH2_ERROR_SOCKET_NONE
+Bad socket provided.
+.br
+LIBSSH2_ERROR_BANNER_SEND
+Error sending banner to remote host.
+.br
+LIBSSH2_ERROR_KEX_FAILURE
+Unable to exchange encryption keys.
+.br
+LIBSSH2_ERROR_SOCKET_SEND
+Unable to ask for ssh-userauth service.
+.br
+LIBSSH2_ERROR_SOCKET_DISCONNECT
+Connection was lost.
+.br
+LIBSSH2_ERROR_PROTO
+Invalid response received from server.
+.br
+LIBSSH2_ERROR_EAGAIN
+Marked for non-blocking I/O but the call would block.
 .SH "SEE ALSO"
 .BI libssh2_session_free(3),
 .BI libssh2_session_init(3)

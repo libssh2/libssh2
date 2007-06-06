@@ -3,6 +3,7 @@ AUTOMAKE_OPTIONS = foreign nostdinc
 # samples
 noinst_PROGRAMS = ssh2 \
 		scp scp_nonblock \
+		scp_write scp_write_nonblock \
 		sftp sftp_nonblock \
 		sftp_write sftp_write_nonblock \
 		sftp_mkdir sftp_mkdir_nonblock \
@@ -17,6 +18,10 @@ ssh2_SOURCES = ssh2.c
 scp_SOURCES = scp.c
 
 scp_nonblock_SOURCES = scp_nonblock.c
+
+scp_write_SOURCES = scp_write.c
+
+scp_write_nonblock_SOURCES = scp_write_nonblock.c
 
 sftp_SOURCES = sftp.c
 

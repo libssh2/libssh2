@@ -1,0 +1,20 @@
+.\" $Id: libssh2_session_disconnect_ex.3,v 1.1 2007/06/06 12:34:07 jehousley Exp $
+.\"
+.TH libssh2_session_disconnect_ex 3 "1 June 2007" "libssh2 0.15" "libssh2 manual"
+.SH NAME
+libssh2_session_disconnect_ex - terminate transport layer
+.SH SYNOPSIS
+#include <libssh2.h>
+
+int ibssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason, const char *description, const char *lang);
+.SH DESCRIPTION
+Terminates the transport layer connection with the remote host. 
+Note that all authentication and connection layer objects become unusable 
+at this point and should be explicitly freed prior to disconnection.
+.SH RETURN VALUE
+0 on success, \-1 on failure
+.SH ERRORS
+LIBSSH2_ERROR_EAGAIN
+Marked for non-blocking I/O but the call would block.
+.SH "SEE ALSO"
+.BI libssh2_session_init(3)
