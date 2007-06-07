@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.6 2007/06/06 12:34:06 jehousley Exp $
+# $Id: Makefile.am,v 1.7 2007/06/07 16:02:57 jehousley Exp $
 
 EXTRA_DIST = template.3
 
@@ -8,7 +8,6 @@ dist_man_MANS = libssh2_channel_forward_accept.3			\
  libssh2_sftp_init.3 libssh2_channel_readnb_ex.3			\
  libssh2_sftp_open_ex.3 libssh2_channel_set_blocking.3			\
  libssh2_session_free.3 libssh2_poll.3 libssh2_poll_channel_read.3	\
- libssh2_sftp_read.3 libssh2_sftp_readnb.3 libssh2_sftp_readdir.3	\
- libssh2_sftp_readdirnb.3 libssh2_sftp_mkdir_ex.3			\
+ libssh2_sftp_read.3 libssh2_sftp_readdir.3 libssh2_sftp_mkdir_ex.3	\
  libssh2_sftp_mkdirnb_ex.3 libssh2_session_disconnect_ex.3		\
  libssh2_channel_wait_eof.3
