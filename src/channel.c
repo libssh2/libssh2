@@ -1697,6 +1697,25 @@ LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL *channel)
         session->channels.tail = channel->prev;
     }
 
+    /*
+     * Make sure all memory used in the state variables are free
+     */
+    if (channel->setenv_packet) {
+        LIBSSH2_FREE(session, channel->setenv_packet);
+    }
+    if (channel->reqPTY_packet) {
+        LIBSSH2_FREE(session, channel->reqPTY_packet);
+    }
+    if (channel->reqX11_packet) {
+        LIBSSH2_FREE(session, channel->reqX11_packet);
+    }
+    if (channel->process_packet) {
+        LIBSSH2_FREE(session, channel->process_packet);
+    }
+    if (channel->write_packet) {
+        LIBSSH2_FREE(session, channel->write_packet);
+    }
+    
     LIBSSH2_FREE(session, channel);
 
     return 0;

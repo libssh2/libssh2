@@ -274,6 +274,7 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username, uns
                             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                           "Unable to allocate memory for userauth-password-change request", 0);
                             LIBSSH2_FREE(session, session->userauth_newpw);
+                            session->userauth_newpw = NULL;
                             return -1;
                         }
 

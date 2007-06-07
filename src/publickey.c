@@ -864,6 +864,22 @@ LIBSSH2_API void libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY *pkey)
 {
     LIBSSH2_SESSION *session = pkey->channel->session;
 
+    /*
+     * Make sure all memory used in the state variables are free
+     */
+    if (pkey->receive_packet) {
+        LIBSSH2_FREE(session, pkey->receive_packet);
+    }
+    if (pkey->add_packet) {
+        LIBSSH2_FREE(session, pkey->add_packet);
+    }
+    if (pkey->remove_packet) {
+        LIBSSH2_FREE(session, pkey->remove_packet);
+    }
+    if (pkey->listFetch_data) {
+        LIBSSH2_FREE(session, pkey->listFetch_data);
+    }
+    
     libssh2_channel_free(pkey->channel);
     LIBSSH2_FREE(session, pkey);
 }

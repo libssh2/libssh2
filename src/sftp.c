@@ -656,6 +656,46 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
  */
 LIBSSH2_API int libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp)
 {
+    /*
+     * Make sure all memory used in the state variables are free
+     */
+    if (sftp->partial_packet) {
+        LIBSSH2_FREE(sftp->channel->session, sftp->partial_packet);
+    }
+    if (sftp->open_packet) {
+        LIBSSH2_FREE(sftp->channel->session, sftp->open_packet);
+    }
+    if (sftp->read_packet) {
+        LIBSSH2_FREE(sftp->channel->session, sftp->read_packet);
+    }
+    if (sftp->readdir_packet) {
+        LIBSSH2_FREE(sftp->channel->session, sftp->readdir_packet);
+    }
+    if (sftp->write_packet) {
+        LIBSSH2_FREE(sftp->channel->session, sftp->write_packet);
+    }
+    if (sftp->fstat_packet) {
+        LIBSSH2_FREE(sftp->channel->session, sftp->fstat_packet);
+    }
+    if (sftp->unlink_packet) {
+        LIBSSH2_FREE(sftp->channel->session, sftp->unlink_packet);
+    }
+    if (sftp->rename_packet) {
+        LIBSSH2_FREE(sftp->channel->session, sftp->rename_packet);
+    }
+    if (sftp->mkdir_packet) {
+        LIBSSH2_FREE(sftp->channel->session, sftp->mkdir_packet);
+    }
+    if (sftp->rmdir_packet) {
+        LIBSSH2_FREE(sftp->channel->session, sftp->rmdir_packet);
+    }
+    if (sftp->stat_packet) {
+        LIBSSH2_FREE(sftp->channel->session, sftp->stat_packet);
+    }
+    if (sftp->symlink_packet) {
+        LIBSSH2_FREE(sftp->channel->session, sftp->symlink_packet);
+    }
+    
     return libssh2_channel_free(sftp->channel);
 }
 /* }}} */

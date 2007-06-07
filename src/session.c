@@ -576,10 +576,12 @@ LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int socket)
         if ((session->startup_service_length != (sizeof("ssh-userauth") - 1)) ||
             strncmp("ssh-userauth", (char *)session->startup_data + 5, session->startup_service_length)) {
             LIBSSH2_FREE(session, session->startup_data);
+            session->startup_data = NULL;
             libssh2_error(session, LIBSSH2_ERROR_PROTO, "Invalid response received from server", 0);
             return LIBSSH2_ERROR_PROTO;
         }
         LIBSSH2_FREE(session, session->startup_data);
+        session->startup_data = NULL;
         
         session->startup_state = libssh2_NB_state_idle;
         
@@ -702,6 +704,52 @@ LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session)
         LIBSSH2_FREE(session, session->remote.lang_prefs);
     }
 
+    /*
+     * Make sure all memory used in the state variables are free
+     */
+    if (session->startup_data) {
+        LIBSSH2_FREE(session, session->startup_data);
+    }
+    if (session->disconnect_data) {
+        LIBSSH2_FREE(session, session->disconnect_data);
+    }
+    if (session->userauth_data) {
+        LIBSSH2_FREE(session, session->userauth_data);
+    }
+    if (session->userauth_newpw) {
+        LIBSSH2_FREE(session, session->userauth_newpw);
+    }
+    if (session->userauth_packet) {
+        LIBSSH2_FREE(session, session->userauth_packet);
+    }
+    if (session->userauth_method) {
+        LIBSSH2_FREE(session, session->userauth_method);
+    }
+    if (session->userauth_auth_instruction) {
+        LIBSSH2_FREE(session, session->userauth_auth_instruction);
+    }
+    if (session->open_packet) {
+        LIBSSH2_FREE(session, session->open_packet);
+    }
+    if (session->open_data) {
+        LIBSSH2_FREE(session, session->open_data);
+    }
+    if (session->direct_message) {
+        LIBSSH2_FREE(session, session->direct_message);
+    }
+    if (session->fwdLstn_packet) {
+        LIBSSH2_FREE(session, session->fwdLstn_packet);
+    }
+    if (session->pkeyInit_data) {
+        LIBSSH2_FREE(session, session->pkeyInit_data);
+    }
+    if (session->scpRecv_command) {
+        LIBSSH2_FREE(session, session->scpRecv_command);
+    }
+    if (session->scpSend_command) {
+        LIBSSH2_FREE(session, session->scpSend_command);
+    }
+    
     /* Cleanup any remaining packets */
     while (session->packets.head) {
         LIBSSH2_PACKET *tmp = session->packets.head;
@@ -768,6 +816,7 @@ LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reas
     }
 
     LIBSSH2_FREE(session, session->disconnect_data);
+    session->disconnect_data = NULL;
     session->disconnect_state = libssh2_NB_state_idle;
 
     return 0;
