@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_RW_nonblock.c,v 1.5 2007/06/06 19:52:11 jehousley Exp $
+ * $Id: sftp_RW_nonblock.c,v 1.6 2007/06/07 16:01:13 jehousley Exp $
  *
  * Sample showing how to do SFTP transfers in a non-blocking manner.
  *
@@ -175,8 +175,7 @@ int main(int argc, char *argv[])
         do {
                 do {
                         /* read in a loop until we block */
-                        rc = libssh2_sftp_readnb(sftp_handle, mem,
-						 sizeof(mem));
+                        rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
                         fprintf(stderr, "libssh2_sftp_read returned %d\n",
                                 rc);
 

@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_nonblock.c,v 1.8 2007/06/06 12:34:09 jehousley Exp $
+ * $Id: sftp_nonblock.c,v 1.9 2007/06/07 16:01:13 jehousley Exp $
  *
  * Sample showing how to do SFTP non-blocking transfers.
  *
@@ -158,20 +158,22 @@ int main(int argc, char *argv[])
     
     fprintf(stderr, "libssh2_sftp_open()!\n");
     /* Request a file via SFTP */
-    sftp_handle =
-        libssh2_sftp_open(sftp_session, sftppath, LIBSSH2_FXF_READ, 0);
+    do {
+        sftp_handle = libssh2_sftp_open(sftp_session, sftppath, LIBSSH2_FXF_READ, 0);
+        
+        if ((!sftp_handle) && (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
+            fprintf(stderr, "Unable to open file with SFTP\n");
+            goto shutdown;
+        }
+    } while (!sftp_handle);
     
-    if (!sftp_handle) {
-        fprintf(stderr, "Unable to open file with SFTP\n");
-        goto shutdown;
-    }
     fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
     do {
         char mem[1024];
         
         /* loop until we fail */
         fprintf(stderr, "libssh2_sftp_readnb()!\n");
-        while ((rc = libssh2_sftp_readnb(sftp_handle, mem, sizeof(mem))) == LIBSSH2SFTP_EAGAIN) {
+        while ((rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem))) == LIBSSH2SFTP_EAGAIN) {
             ;
         }
         if (rc > 0) {

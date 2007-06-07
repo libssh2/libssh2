@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_mkdir_nonblock.c,v 1.4 2007/06/06 12:34:09 jehousley Exp $
+ * $Id: sftp_mkdir_nonblock.c,v 1.5 2007/06/07 16:01:13 jehousley Exp $
  *
  * Sample showing how to do SFTP non-blocking mkdir.
  *
@@ -152,10 +152,10 @@ int main(int argc, char *argv[])
     
     fprintf(stderr, "libssh2_sftp_mkdirnb()!\n");
     /* Make a directory via SFTP */
-    while ((rc = libssh2_sftp_mkdirnb(sftp_session, sftppath,
-                                      LIBSSH2_SFTP_S_IRWXU|
-                                      LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IXGRP|
-                                      LIBSSH2_SFTP_S_IROTH|LIBSSH2_SFTP_S_IXOTH))
+    while ((rc = libssh2_sftp_mkdir(sftp_session, sftppath,
+                                    LIBSSH2_SFTP_S_IRWXU|
+                                    LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IXGRP|
+                                    LIBSSH2_SFTP_S_IROTH|LIBSSH2_SFTP_S_IXOTH))
            == LIBSSH2SFTP_EAGAIN) {
         ;
     }
