@@ -812,7 +812,7 @@ LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reas
 
     rc = libssh2_packet_write(session, session->disconnect_data, session->disconnect_data_len);
     if (rc == PACKET_EAGAIN) {
-        return LIBSSH2_ERROR_EAGAIN;
+        return PACKET_EAGAIN;
     }
 
     LIBSSH2_FREE(session, session->disconnect_data);
