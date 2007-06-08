@@ -1,5 +1,5 @@
 /*
- * $Id: scp_nonblock.c,v 1.4 2007/06/06 12:34:08 jehousley Exp $
+ * $Id: scp_nonblock.c,v 1.5 2007/06/08 13:33:08 jehousley Exp $
  *
  * Sample showing how to do SCP transfers in a non-blocking manner.
  */
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     
     if (auth_pw) {
         /* We could authenticate via password */
-        while ((rc = libssh2_userauth_password(session, username, password)) == LIBSSH2CHANNEL_EAGAIN);
+        while ((rc = libssh2_userauth_password(session, username, password)) == LIBSSH2_ERROR_EAGAIN);
     if (rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
         while ((rc = libssh2_userauth_publickey_fromfile(session, username,
                                                          "/home/username/.ssh/id_rsa.pub",
                                                          "/home/username/.ssh/id_rsa",
-                                                         password)) == LIBSSH2CHANNEL_EAGAIN);
+                                                         password)) == LIBSSH2_ERROR_EAGAIN);
     if (rc) {
             fprintf(stderr, "\tAuthentication by public key failed\n");
             goto shutdown;
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
             }
         } while (rc > 0);
         
-        if (rc == LIBSSH2CHANNEL_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             /* this is due to blocking that would occur otherwise
             so we loop on this condition */
             

@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_RW_nonblock.c,v 1.6 2007/06/07 16:01:13 jehousley Exp $
+ * $Id: sftp_RW_nonblock.c,v 1.7 2007/06/08 13:33:08 jehousley Exp $
  *
  * Sample showing how to do SFTP transfers in a non-blocking manner.
  *
@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
                         }
                 } while (rc > 0);
 
-                if(rc != LIBSSH2SFTP_EAGAIN) {
+                if(rc != LIBSSH2_ERROR_EAGAIN) {
                         /* error or end of file */
                         break;
                 }
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
 				nread -= nread;
                         } while (rc > 0);
 
-                        if(rc != LIBSSH2SFTP_EAGAIN) {
+                        if(rc != LIBSSH2_ERROR_EAGAIN) {
                                 /* error or end of file */
                                 break;
                         }

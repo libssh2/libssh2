@@ -1,4 +1,4 @@
-.\" $Id: libssh2_channel_wait_eof.3,v 1.1 2007/06/06 12:34:06 jehousley Exp $
+.\" $Id: libssh2_channel_wait_eof.3,v 1.2 2007/06/08 13:33:08 jehousley Exp $
 .\"
 .TH libssh2_channel_wait_eof 3 "1 June 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -13,7 +13,7 @@ Wait for the remote end to acknowledge an EOF request.
 
 .SH RETURN VALUE
 Return 0 on success or negative on failure. It returns
-LIBSSH2CHANNEL_EAGAIN when it would otherwise block. While
-LIBSSH2CHANNEL_EAGAIN is a negative number, it isn't really a failure per se.
+LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
+LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 .SH "SEE ALSO"
 .BI libssh2_channel_send_eof(3), libssh2_channel_eof(3)

@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_nonblock.c,v 1.9 2007/06/07 16:01:13 jehousley Exp $
+ * $Id: sftp_nonblock.c,v 1.10 2007/06/08 13:33:08 jehousley Exp $
  *
  * Sample showing how to do SFTP non-blocking transfers.
  *
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
     
     if (auth_pw) {
         /* We could authenticate via password */
-        while ((rc = libssh2_userauth_password(session, username, password)) == LIBSSH2CHANNEL_EAGAIN);
+        while ((rc = libssh2_userauth_password(session, username, password)) == LIBSSH2_ERROR_EAGAIN);
 	if (rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
         while ((rc = libssh2_userauth_publickey_fromfile(session, username,
                                                 "/home/username/.ssh/id_rsa.pub",
                                                 "/home/username/.ssh/id_rsa",
-                                                password)) == LIBSSH2CHANNEL_EAGAIN);
+                                                password)) == LIBSSH2_ERROR_EAGAIN);
 	if (rc) {
             fprintf(stderr, "\tAuthentication by public key failed\n");
             goto shutdown;
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
         
         /* loop until we fail */
         fprintf(stderr, "libssh2_sftp_readnb()!\n");
-        while ((rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem))) == LIBSSH2SFTP_EAGAIN) {
+        while ((rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem))) == LIBSSH2_ERROR_EAGAIN) {
             ;
         }
         if (rc > 0) {

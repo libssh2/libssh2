@@ -1,5 +1,5 @@
 /*
- * $Id: scp_write_nonblock.c,v 1.1 2007/06/06 12:34:08 jehousley Exp $
+ * $Id: scp_write_nonblock.c,v 1.2 2007/06/08 13:33:08 jehousley Exp $
  *
  * Sample showing how to do a simple SCP transfer.
  */
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
 
     if (auth_pw) {
         /* We could authenticate via password */
-        while ((rc = libssh2_userauth_password(session, username, password)) == LIBSSH2CHANNEL_EAGAIN);
+        while ((rc = libssh2_userauth_password(session, username, password)) == LIBSSH2_ERROR_EAGAIN);
         if (rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
         while ((rc = libssh2_userauth_publickey_fromfile(session, username,
                                                          "/home/username/.ssh/id_rsa.pub",
                                                          "/home/username/.ssh/id_rsa",
-                                                         password)) == LIBSSH2CHANNEL_EAGAIN);
+                                                         password)) == LIBSSH2_ERROR_EAGAIN);
         if (rc) {
             fprintf(stderr, "\tAuthentication by public key failed\n");
             goto shutdown;
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
         
         do {
             /* write data in a loop until we block */
-            while ((rc = libssh2_channel_write(channel, ptr, nread)) == LIBSSH2CHANNEL_EAGAIN);
+            while ((rc = libssh2_channel_write(channel, ptr, nread)) == LIBSSH2_ERROR_EAGAIN);
             if (rc < 0) {
                 fprintf(stderr, "ERROR %d\n", rc);
             }
@@ -191,23 +191,23 @@ int main(int argc, char *argv[])
     } while (1);
 
     fprintf(stderr, "Sending EOF\n");
-    while (libssh2_channel_send_eof(channel) == LIBSSH2CHANNEL_EAGAIN);
+    while (libssh2_channel_send_eof(channel) == LIBSSH2_ERROR_EAGAIN);
     
     fprintf(stderr, "Waiting for EOF\n");
-    while (libssh2_channel_wait_eof(channel) == LIBSSH2CHANNEL_EAGAIN);
+    while (libssh2_channel_wait_eof(channel) == LIBSSH2_ERROR_EAGAIN);
     
     fprintf(stderr, "Waiting for channel to close\n");
-    while (libssh2_channel_wait_closed(channel) == LIBSSH2CHANNEL_EAGAIN);
+    while (libssh2_channel_wait_closed(channel) == LIBSSH2_ERROR_EAGAIN);
     
 //    fprintf(stderr, "Closing channel\n");
-//    while (libssh2_channel_close(channel) == LIBSSH2CHANNEL_EAGAIN);
+//    while (libssh2_channel_close(channel) == LIBSSH2_ERROR_EAGAIN);
     
     libssh2_channel_free(channel);
     channel = NULL;
 
  shutdown:
 
-    while ((rc = libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing")) == LIBSSH2CHANNEL_EAGAIN);
+    while ((rc = libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing")) == LIBSSH2_ERROR_EAGAIN);
     libssh2_session_free(session);
 
 #ifdef WIN32

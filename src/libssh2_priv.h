@@ -974,7 +974,7 @@ int libssh2_waitsocket(LIBSSH2_SESSION *session, long seconds);
 #define PACKET_COMPRESS -5
 #define PACKET_TOOBIG   -4
 #define PACKET_ENOMEM   -3
-#define PACKET_EAGAIN   -2
+#define PACKET_EAGAIN   LIBSSH2_ERROR_EAGAIN
 #define PACKET_FAIL     -1
 #define PACKET_NONE      0
 

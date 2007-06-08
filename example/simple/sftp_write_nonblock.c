@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_write_nonblock.c,v 1.6 2007/06/07 16:01:14 jehousley Exp $
+ * $Id: sftp_write_nonblock.c,v 1.7 2007/06/08 13:33:08 jehousley Exp $
  *
  * Sample showing how to do SFTP non-blocking write transfers.
  *
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
     
     if (auth_pw) {
         /* We could authenticate via password */
-        while ((rc = libssh2_userauth_password(session, username, password)) == LIBSSH2CHANNEL_EAGAIN);
+        while ((rc = libssh2_userauth_password(session, username, password)) == LIBSSH2_ERROR_EAGAIN);
     if (rc) {
             printf("Authentication by password failed.\n");
             goto shutdown;
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
         while ((rc = libssh2_userauth_publickey_fromfile(session, username,
                                                 "/home/username/.ssh/id_rsa.pub",
                                                 "/home/username/.ssh/id_rsa",
-                                                password)) == LIBSSH2CHANNEL_EAGAIN);
+                                                password)) == LIBSSH2_ERROR_EAGAIN);
     if (rc) {
             printf("\tAuthentication by public key failed\n");
             goto shutdown;
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
         
         do {
             /* write data in a loop until we block */
-            while ((rc = libssh2_sftp_write(sftp_handle, ptr, nread)) == LIBSSH2SFTP_EAGAIN) {
+            while ((rc = libssh2_sftp_write(sftp_handle, ptr, nread)) == LIBSSH2_ERROR_EAGAIN) {
                 ;
             }
             ptr += rc;

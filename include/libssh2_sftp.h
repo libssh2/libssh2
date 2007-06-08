@@ -175,6 +175,9 @@ struct _LIBSSH2_SFTP_ATTRIBUTES {
 #define LIBSSH2_FX_INVALID_FILENAME         20
 #define LIBSSH2_FX_LINK_LOOP                21
 
+/* Returned by any function that would block during a read/write opperation */
+#define LIBSSH2SFTP_EAGAIN LIBSSH2_ERROR_EAGAIN
+
 /* SFTP API */
 LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session);
 LIBSSH2_API int libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp);
@@ -188,9 +191,6 @@ LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, const 
 #define libssh2_sftp_opendir(sftp, path) \
                     libssh2_sftp_open_ex((sftp), (path), strlen(path), 0, 0, LIBSSH2_SFTP_OPENDIR)
 
-/* This is a public error code from libssh2_sftp_read() that is returned
-   when it would otherwise block. */
-#define LIBSSH2SFTP_EAGAIN -2
 LIBSSH2_API ssize_t libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle, char *buffer, size_t buffer_maxlen);
 
 LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer, 

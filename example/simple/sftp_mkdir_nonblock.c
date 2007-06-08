@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_mkdir_nonblock.c,v 1.5 2007/06/07 16:01:13 jehousley Exp $
+ * $Id: sftp_mkdir_nonblock.c,v 1.6 2007/06/08 13:33:08 jehousley Exp $
  *
  * Sample showing how to do SFTP non-blocking mkdir.
  *
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
                                     LIBSSH2_SFTP_S_IRWXU|
                                     LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IXGRP|
                                     LIBSSH2_SFTP_S_IROTH|LIBSSH2_SFTP_S_IXOTH))
-           == LIBSSH2SFTP_EAGAIN) {
+           == LIBSSH2_ERROR_EAGAIN) {
         ;
     }
 

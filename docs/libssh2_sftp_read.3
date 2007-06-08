@@ -1,4 +1,4 @@
-.\" $Id: libssh2_sftp_read.3,v 1.4 2007/06/07 16:01:12 jehousley Exp $
+.\" $Id: libssh2_sftp_read.3,v 1.5 2007/06/08 13:33:08 jehousley Exp $
 .\"
 .TH libssh2_sftp_read 3 "6 Feb 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -22,8 +22,8 @@ if further reads would cause the socket to block.
 \fIbuffer_maxlen\fP bytes to read data into.
 .SH RETURN VALUE
 Number of bytes actually populated into buffer, or -1 on failure.  It returns
-LIBSSH2SFTP_EAGAIN when it would otherwise block. While
-LIBSSH2SFTP_EAGAIN is a negative number, it isn't really a failure per se.
+LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
+LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 .SH "SEE ALSO"
 .BR libssh2_sftp_open(3)
 .BR libssh2_sftp_readnb(3)

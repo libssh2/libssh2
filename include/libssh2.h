@@ -327,6 +327,9 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeou
 
 #define SSH_EXTENDED_DATA_STDERR 1
 
+/* Returned by any function that would block during a read/write opperation */
+#define LIBSSH2CHANNEL_EAGAIN LIBSSH2_ERROR_EAGAIN
+
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type, unsigned int channel_type_len, unsigned int window_size, unsigned int packet_size, const char *message, unsigned int message_len);
 #define libssh2_channel_open_session(session)   libssh2_channel_open_ex((session), "session", sizeof("session") - 1, LIBSSH2_CHANNEL_WINDOW_DEFAULT, LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0)
 
@@ -361,10 +364,6 @@ LIBSSH2_API ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel,
             libssh2_channel_read_ex((channel), 0, (buf), (buflen))
 #define libssh2_channel_read_stderr(channel, buf, buflen) \
             libssh2_channel_read_ex((channel), SSH_EXTENDED_DATA_STDERR, (buf), (buflen))
-
-/* This is a public error code from libssh2_channel_read() that is returned
-   when it would otherwise block. */
-#define LIBSSH2CHANNEL_EAGAIN -2
 
 LIBSSH2_API int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended);
 
