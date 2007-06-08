@@ -646,6 +646,9 @@ libssh2_kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_SESSION *ses
     int ret;
     
     if (key_state->state == libssh2_NB_state_idle) {
+        key_state->p = _libssh2_bn_init(); /* SSH2 defined value (p_value) */
+        key_state->g = _libssh2_bn_init(); /* SSH2 defined value (2) */
+
         /* g == 2 */
         /* Initialize P and G */
         _libssh2_bn_set_word(key_state->g, 2);
