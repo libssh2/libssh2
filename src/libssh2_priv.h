@@ -76,6 +76,9 @@
 #ifdef HAVE_SYS_IOCTL_H
 # include <sys/ioctl.h>
 #endif
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif
 
 #ifdef LIBSSH2_LIBGCRYPT
 #include "libgcrypt.h"
