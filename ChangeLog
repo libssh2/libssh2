@@ -1,3 +1,11 @@
+2007-06-08  James Housley <jim@thehousleys.net>
+
+	* Convert all the code to properly work with a socket in
+	non-blocking mode.  All functions either return 
+	LIBSSH2_ERROR_EAGAIN or return NULL and set the error code
+	to be LIBSSH2_ERROR_EAGAIN instead of blocking, when in
+	non-blocking mode.
+
 2007-03-27  Simon Josefsson <simon@josefsson.org>
 
 	* NEWS: Add.
