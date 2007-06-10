@@ -43,6 +43,7 @@ static inline int usleep(int udelay)
 }
 
 #define snprintf _snprintf
+#define vsnprintf _vsnprintf
 
 /* Compile in zlib support */
 #define LIBSSH2_HAVE_ZLIB 1
