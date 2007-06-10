@@ -45,6 +45,7 @@ extern "C" {
 #include <stddef.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 /* Allow alternate API prefix from CFLAGS or calling app */
 #ifndef LIBSSH2_API
