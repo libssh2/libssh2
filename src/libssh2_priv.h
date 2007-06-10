@@ -657,33 +657,59 @@ struct _LIBSSH2_SESSION {
     libssh2_nonblocking_states  readPack_state;
     int                         readPack_encrypted;
 
-    /*
-     * State variables used in libssh2_userauth_list(),
-     * libssh2_userauth_password_ex(), libssh2_userauth_hostbased_fromfile_ex(),
-     * libssh2_userauth_publickey_fromfile_ex(),
-     * libssh2_userauth_keyboard_interactive_ex
-     */
-    libssh2_nonblocking_states  userauth_state;
-    unsigned char               *userauth_data;
-    unsigned char               userauth_data0;
-    unsigned long               userauth_data_len;
-    char                        *userauth_newpw;
-    int                         userauth_newpw_len;
-    unsigned char               *userauth_packet;
-    unsigned long               userauth_packet_len;
-    unsigned char               *userauth_method;
-    unsigned long               userauth_method_len;
-    unsigned char               *userauth_s;
-    unsigned char               *userauth_b;
-    unsigned int                userauth_auth_name_len;
-    char                        *userauth_auth_name;
-    unsigned                    userauth_auth_instruction_len;
-    char                        *userauth_auth_instruction;
-    unsigned int                userauth_num_prompts;
-    int                         userauth_auth_failure;
-    LIBSSH2_USERAUTH_KBDINT_PROMPT      *userauth_prompts;
-    LIBSSH2_USERAUTH_KBDINT_RESPONSE    *userauth_responses;
-    packet_requirev_state_t     userauth_packet_requirev_state;
+    /* State variables used in libssh2_userauth_list() */
+    libssh2_nonblocking_states  userauth_list_state;
+    unsigned char               *userauth_list_data;
+    unsigned long               userauth_list_data_len;
+    packet_requirev_state_t     userauth_list_packet_requirev_state;
+    
+    /* State variables used in libssh2_userauth_password_ex() */
+    libssh2_nonblocking_states  userauth_pswd_state;
+    unsigned char               *userauth_pswd_data;
+    unsigned char               userauth_pswd_data0;
+    unsigned long               userauth_pswd_data_len;
+    char                        *userauth_pswd_newpw;
+    int                         userauth_pswd_newpw_len;
+    packet_requirev_state_t     userauth_pswd_packet_requirev_state;
+    
+    /* State variables used in libssh2_userauth_hostbased_fromfile_ex() */
+    libssh2_nonblocking_states  userauth_host_state;
+    unsigned char               *userauth_host_data;
+    unsigned long               userauth_host_data_len;
+    unsigned char               *userauth_host_packet;
+    unsigned long               userauth_host_packet_len;
+    unsigned char               *userauth_host_method;
+    unsigned long               userauth_host_method_len;
+    unsigned char               *userauth_host_s;
+    packet_requirev_state_t     userauth_host_packet_requirev_state;
+    
+    /* State variables used in libssh2_userauth_publickey_fromfile_ex() */
+    libssh2_nonblocking_states  userauth_pblc_state;
+    unsigned char               *userauth_pblc_data;
+    unsigned long               userauth_pblc_data_len;
+    unsigned char               *userauth_pblc_packet;
+    unsigned long               userauth_pblc_packet_len;
+    unsigned char               *userauth_pblc_method;
+    unsigned long               userauth_pblc_method_len;
+    unsigned char               *userauth_pblc_s;
+    unsigned char               *userauth_pblc_b;
+    packet_requirev_state_t     userauth_pblc_packet_requirev_state;
+    
+    /* State variables used in llibssh2_userauth_keyboard_interactive_ex() */
+    libssh2_nonblocking_states  userauth_kybd_state;
+    unsigned char               *userauth_kybd_data;
+    unsigned long               userauth_kybd_data_len;
+    unsigned char               *userauth_kybd_packet;
+    unsigned long               userauth_kybd_packet_len;
+    unsigned int                userauth_kybd_auth_name_len;
+    char                        *userauth_kybd_auth_name;
+    unsigned                    userauth_kybd_auth_instruction_len;
+    char                        *userauth_kybd_auth_instruction;
+    unsigned int                userauth_kybd_num_prompts;
+    int                         userauth_kybd_auth_failure;
+    LIBSSH2_USERAUTH_KBDINT_PROMPT      *userauth_kybd_prompts;
+    LIBSSH2_USERAUTH_KBDINT_RESPONSE    *userauth_kybd_responses;
+    packet_requirev_state_t     userauth_kybd_packet_requirev_state;
     
     /* State variables used in libssh2_channel_open_ex() */
     libssh2_nonblocking_states  open_state;

@@ -713,20 +713,41 @@ LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session)
     if (session->disconnect_data) {
         LIBSSH2_FREE(session, session->disconnect_data);
     }
-    if (session->userauth_data) {
-        LIBSSH2_FREE(session, session->userauth_data);
+    if (session->userauth_list_data) {
+        LIBSSH2_FREE(session, session->userauth_list_data);
     }
-    if (session->userauth_newpw) {
-        LIBSSH2_FREE(session, session->userauth_newpw);
+    if (session->userauth_pswd_data) {
+        LIBSSH2_FREE(session, session->userauth_pswd_data);
     }
-    if (session->userauth_packet) {
-        LIBSSH2_FREE(session, session->userauth_packet);
+    if (session->userauth_pswd_newpw) {
+        LIBSSH2_FREE(session, session->userauth_pswd_newpw);
     }
-    if (session->userauth_method) {
-        LIBSSH2_FREE(session, session->userauth_method);
+    if (session->userauth_host_packet) {
+        LIBSSH2_FREE(session, session->userauth_host_packet);
     }
-    if (session->userauth_auth_instruction) {
-        LIBSSH2_FREE(session, session->userauth_auth_instruction);
+    if (session->userauth_host_method) {
+        LIBSSH2_FREE(session, session->userauth_host_method);
+    }
+    if (session->userauth_host_data) {
+        LIBSSH2_FREE(session, session->userauth_host_data);
+    }
+    if (session->userauth_pblc_data) {
+        LIBSSH2_FREE(session, session->userauth_pblc_data);
+    }
+    if (session->userauth_pblc_packet) {
+        LIBSSH2_FREE(session, session->userauth_pblc_packet);
+    }
+    if (session->userauth_pblc_method) {
+        LIBSSH2_FREE(session, session->userauth_pblc_method);
+    }
+    if (session->userauth_kybd_data) {
+        LIBSSH2_FREE(session, session->userauth_kybd_data);
+    }
+    if (session->userauth_kybd_packet) {
+        LIBSSH2_FREE(session, session->userauth_kybd_packet);
+    }
+    if (session->userauth_kybd_auth_instruction) {
+        LIBSSH2_FREE(session, session->userauth_kybd_auth_instruction);
     }
     if (session->open_packet) {
         LIBSSH2_FREE(session, session->open_packet);
