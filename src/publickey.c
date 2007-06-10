@@ -497,7 +497,7 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name, uns
     if (pkey->add_state == libssh2_NB_state_idle) {
         pkey->add_packet = NULL;
         
-        _libssh2_debug(session, LIBSSH2_DBG_PUBLICKEY, "Adding %s pubickey", name);
+        _libssh2_debug(session, LIBSSH2_DBG_PUBLICKEY, "Adding %s publickey", name);
 
         if (pkey->version == 1) {
             for(i = 0; i < num_attrs; i++) {
