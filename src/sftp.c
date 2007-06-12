@@ -498,16 +498,22 @@ LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor)
 
 /* {{{ libssh2_sftp_init
  * Startup an SFTP session
+ *
+ * NOTE:  Will block in a busy loop on error.  This has to be done,
+ *        otherwise the blocking error code would erase the true
+ *        cause of the error.
  */
 LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 {
     unsigned char *data, *s;
     unsigned long data_len;
     int rc;
-    
+
     if (session->sftpInit_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Initializing SFTP subsystem");
-        
+
+        session->sftpInit_sftp = NULL;
+
         session->sftpInit_state = libssh2_NB_state_created;
     }
     
@@ -539,10 +545,7 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
         }
         else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE, "Unable to request SFTP subsystem", 0);
-            libssh2_channel_free(session->sftpInit_channel);
-            session->sftpInit_channel = NULL;
-            session->sftpInit_state = libssh2_NB_state_idle;
-            return NULL;
+            goto sftp_init_error;
         }
         
         session->sftpInit_state = libssh2_NB_state_sent1;
@@ -558,10 +561,7 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
         session->sftpInit_sftp = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_SFTP));
         if (!session->sftpInit_sftp) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate a new SFTP structure", 0);
-            libssh2_channel_free(session->sftpInit_channel);
-            session->sftpInit_channel = NULL;
-            session->sftpInit_state = libssh2_NB_state_idle;
-            return NULL;
+            goto sftp_init_error;
         }
         memset(session->sftpInit_sftp, 0, sizeof(LIBSSH2_SFTP));
         session->sftpInit_sftp->channel = session->sftpInit_channel;
@@ -585,12 +585,7 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
         }
         else if (9 != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send SSH_FXP_INIT", 0);
-            libssh2_channel_free(session->sftpInit_channel);
-            session->sftpInit_channel = NULL;
-            LIBSSH2_FREE(session, session->sftpInit_sftp);
-            session->sftpInit_sftp = NULL;
-            session->sftpInit_state = libssh2_NB_state_idle;
-            return NULL;
+            goto sftp_init_error;
         }
         
         session->sftpInit_state = libssh2_NB_state_sent3;
@@ -604,21 +599,11 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
     }
     else if (rc) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT, "Timeout waiting for response from SFTP subsystem", 0);
-        libssh2_channel_free(session->sftpInit_channel);
-        session->sftpInit_channel = NULL;
-        LIBSSH2_FREE(session, session->sftpInit_sftp);
-        session->sftpInit_sftp = NULL;
-        session->sftpInit_state = libssh2_NB_state_idle;
-        return NULL;
+        goto sftp_init_error;
     }
     if (data_len < 5) {
         libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL, "Invalid SSH_FXP_VERSION response", 0);
-        libssh2_channel_free(session->sftpInit_channel);
-        session->sftpInit_channel = NULL;
-        LIBSSH2_FREE(session, session->sftpInit_sftp);
-        session->sftpInit_sftp = NULL;
-        session->sftpInit_state = libssh2_NB_state_idle;
-        return NULL;
+        goto sftp_init_error;
     }
     
     s = data + 1;
@@ -648,6 +633,16 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 
     session->sftpInit_state = libssh2_NB_state_idle;
     return session->sftpInit_sftp;
+    
+sftp_init_error:
+    while (libssh2_channel_free(session->sftpInit_channel) == PACKET_EAGAIN);
+    session->sftpInit_channel = NULL;
+    if (session->sftpInit_sftp) {
+        LIBSSH2_FREE(session, session->sftpInit_sftp);
+        session->sftpInit_sftp = NULL;
+    }
+    session->sftpInit_state = libssh2_NB_state_idle;
+    return NULL;
 }
 /* }}} */
 
@@ -661,39 +656,51 @@ LIBSSH2_API int libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp)
      */
     if (sftp->partial_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->partial_packet);
+        sftp->partial_packet = NULL;
     }
     if (sftp->open_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->open_packet);
+        sftp->open_packet = NULL;
     }
     if (sftp->read_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->read_packet);
+        sftp->read_packet = NULL;
     }
     if (sftp->readdir_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->readdir_packet);
+        sftp->readdir_packet = NULL;
     }
     if (sftp->write_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->write_packet);
+        sftp->write_packet = NULL;
     }
     if (sftp->fstat_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->fstat_packet);
+        sftp->fstat_packet = NULL;
     }
     if (sftp->unlink_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->unlink_packet);
+        sftp->unlink_packet = NULL;
     }
     if (sftp->rename_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->rename_packet);
+        sftp->rename_packet = NULL;
     }
     if (sftp->mkdir_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->mkdir_packet);
+        sftp->mkdir_packet = NULL;
     }
     if (sftp->rmdir_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->rmdir_packet);
+        sftp->rmdir_packet = NULL;
     }
     if (sftp->stat_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->stat_packet);
+        sftp->stat_packet = NULL;
     }
     if (sftp->symlink_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->symlink_packet);
+        sftp->symlink_packet = NULL;
     }
     
     return libssh2_channel_free(sftp->channel);

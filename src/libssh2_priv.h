@@ -337,6 +337,9 @@ struct _LIBSSH2_CHANNEL {
     /* State variables used in libssh2_channel_wait_closed() */
     libssh2_nonblocking_states  wait_closed_state;
     
+    /* State variables used in libssh2_channel_free() */
+    libssh2_nonblocking_states  free_state;
+    
     /* State variables used in libssh2_channel_handle_extended_data2() */
     libssh2_nonblocking_states  extData2_state;
 };
@@ -647,6 +650,9 @@ struct _LIBSSH2_SESSION {
     unsigned long               startup_service_length;
     packet_require_state_t      startup_req_state;
     key_exchange_state_t        startup_key_state;
+    
+    /* State variables used in libssh2_session_free() */
+    libssh2_nonblocking_states  free_state;
     
     /* State variables used in libssh2_session_disconnect_ex() */
     libssh2_nonblocking_states  disconnect_state;

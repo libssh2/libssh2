@@ -597,31 +597,52 @@ LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int socket)
  * Frees the memory allocated to the session
  * Also closes and frees any channels attached to this session
  */
-LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session)
+LIBSSH2_API int libssh2_session_free(LIBSSH2_SESSION *session)
 {
-    _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Freeing session resource", session->remote.banner);
-    while (session->channels.head) {
-        LIBSSH2_CHANNEL *tmp = session->channels.head;
+    int rc;
+    
+    if (session->free_state == libssh2_NB_state_idle) {
+        _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Freeing session resource", session->remote.banner);
+        
+        session->state = libssh2_NB_state_created;
+    }
+    
+    if (session->free_state == libssh2_NB_state_created) {
+        while (session->channels.head) {
+            LIBSSH2_CHANNEL *tmp = session->channels.head;
 
-        libssh2_channel_free(session->channels.head);
-        if (tmp == session->channels.head) {
-            /* channel_free couldn't do it's job, perform a messy cleanup */
-            tmp = session->channels.head;
+            rc = libssh2_channel_free(session->channels.head);
+            if (rc == PACKET_EAGAIN) {
+                return PACKET_EAGAIN;
+            }
+            if (tmp == session->channels.head) {
+                /* channel_free couldn't do it's job, perform a messy cleanup */
+                tmp = session->channels.head;
 
-            /* unlink */
-            session->channels.head = tmp->next;
+                /* unlink */
+                session->channels.head = tmp->next;
 
-            /* free */
-            LIBSSH2_FREE(session, tmp);
+                /* free */
+                LIBSSH2_FREE(session, tmp);
 
-            /* reverse linking isn't important here, we're killing the structure */
+                /* reverse linking isn't important here, we're killing the structure */
+            }
         }
+        
+        session->state = libssh2_NB_state_sent;
     }
 
-    while (session->listeners) {
-        libssh2_channel_forward_cancel(session->listeners);
+    if (session->state == libssh2_NB_state_sent) {
+        while (session->listeners) {
+            rc = libssh2_channel_forward_cancel(session->listeners);
+            if (rc == PACKET_EAGAIN) {
+                return PACKET_EAGAIN;
+            }
+        }
+        
+        session->state = libssh2_NB_state_sent1;
     }
-
+    
     if (session->state & LIBSSH2_STATE_NEWKEYS) {
         /* hostkey */
         if (session->hostkey && session->hostkey->dtor) {
@@ -784,6 +805,8 @@ LIBSSH2_API void libssh2_session_free(LIBSSH2_SESSION *session)
     }
 
     LIBSSH2_FREE(session, session);
+    
+    return 0;
 }
 /* }}} */
 

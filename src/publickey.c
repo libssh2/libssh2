@@ -860,7 +860,7 @@ LIBSSH2_API void libssh2_publickey_list_free(LIBSSH2_PUBLICKEY *pkey, libssh2_pu
 /* {{{ libssh2_publickey_shutdown
  * Shutdown the publickey subsystem
  */
-LIBSSH2_API void libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY *pkey)
+LIBSSH2_API int libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY *pkey)
 {
     LIBSSH2_SESSION *session = pkey->channel->session;
 
@@ -869,18 +869,26 @@ LIBSSH2_API void libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY *pkey)
      */
     if (pkey->receive_packet) {
         LIBSSH2_FREE(session, pkey->receive_packet);
+        pkey->receive_packet = NULL;
     }
     if (pkey->add_packet) {
         LIBSSH2_FREE(session, pkey->add_packet);
+        pkey->add_packet = NULL;
     }
     if (pkey->remove_packet) {
         LIBSSH2_FREE(session, pkey->remove_packet);
+        pkey->remove_packet = NULL;
     }
     if (pkey->listFetch_data) {
         LIBSSH2_FREE(session, pkey->listFetch_data);
+        pkey->listFetch_data = NULL;
     }
     
-    libssh2_channel_free(pkey->channel);
+    if (libssh2_channel_free(pkey->channel) == PACKET_EAGAIN) {
+        return PACKET_EAGAIN;
+    }
+    
     LIBSSH2_FREE(session, pkey);
+    return 0;
 }
 /* }}} */

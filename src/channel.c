@@ -505,23 +505,29 @@ LIBSSH2_API int libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
         packet = listener->chanFwdCncl_data;
     }
 
-    rc = libssh2_packet_write(session, packet, packet_len);
-    if (rc == PACKET_EAGAIN) {
-        listener->chanFwdCncl_data = packet;
-    }
-    else if (rc) {
-        libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send global-request packet for forward listen request", 0);
+    if (listener->chanFwdCncl_state == libssh2_NB_state_created) {
+        rc = libssh2_packet_write(session, packet, packet_len);
+        if (rc == PACKET_EAGAIN) {
+            listener->chanFwdCncl_data = packet;
+        }
+        else if (rc) {
+            libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send global-request packet for forward listen request", 0);
+            LIBSSH2_FREE(session, packet);
+            listener->chanFwdCncl_state = libssh2_NB_state_idle;
+            return -1;
+        }
         LIBSSH2_FREE(session, packet);
-        listener->chanFwdCncl_state = libssh2_NB_state_idle;
-        return -1;
+        
+        listener->chanFwdCncl_state = libssh2_NB_state_sent;
     }
-    LIBSSH2_FREE(session, packet);
-    listener->chanFwdCncl_state = libssh2_NB_state_idle;
 
     while (queued) {
         LIBSSH2_CHANNEL *next = queued->next;
 
-        libssh2_channel_free(queued);
+        rc = libssh2_channel_free(queued);
+        if (rc == PACKET_EAGAIN) {
+            return PACKET_EAGAIN;
+        }
         queued = next;
     }
     LIBSSH2_FREE(session, listener->host);
@@ -537,6 +543,8 @@ LIBSSH2_API int libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
 
     LIBSSH2_FREE(session, listener);
 
+    listener->chanFwdCncl_state = libssh2_NB_state_idle;
+    
     return 0;
 }
 /* }}} */
@@ -1319,7 +1327,7 @@ channel_read_ex_point1:
 /* {{{ libssh2_channel_write_ex
  * Send data to a channel
  */
-LIBSSH2_API size_t libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id, const char *buf, size_t buflen)
+LIBSSH2_API ssize_t libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id, const char *buf, size_t buflen)
 {
     LIBSSH2_SESSION *session = channel->session;
     libssh2pack_t rc;
@@ -1660,12 +1668,27 @@ LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     unsigned char channel_id[4];
     unsigned char *data;
     unsigned long data_len;
+    int rc;
 
-    _libssh2_debug(session, LIBSSH2_DBG_CONN, "Freeing channel %lu/%lu resources", channel->local.id, channel->remote.id);
-    /* Allow channel freeing even when the socket has lost its connection */
-    if (!channel->local.close && (session->socket_state == LIBSSH2_SOCKET_CONNECTED) && libssh2_channel_close(channel)) {
-        return -1;
+    if (channel->free_state == libssh2_NB_state_idle) {
+        _libssh2_debug(session, LIBSSH2_DBG_CONN, "Freeing channel %lu/%lu resources", channel->local.id, channel->remote.id);
+      
+        channel->free_state = libssh2_NB_state_created;
     }
+    
+    /* Allow channel freeing even when the socket has lost its connection */
+    if (!channel->local.close && (session->socket_state == LIBSSH2_SOCKET_CONNECTED)) {
+        while ((rc = libssh2_channel_close(channel)) == PACKET_EAGAIN);
+        if (rc == PACKET_EAGAIN) {
+            return PACKET_EAGAIN;
+        }
+        else if (rc) {
+            channel->free_state = libssh2_NB_state_idle;
+            return -1;
+        }
+    }
+
+    channel->free_state = libssh2_NB_state_idle;
 
     /*
      * channel->remote.close *might* not be set yet, Well...

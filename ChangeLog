@@ -1,3 +1,13 @@
+2007-07-12  James Housley <jim@thehousleys.net>
+
+	* libssh2_publickey_shutdown(), libssh2_session_free() changed
+	to return an "int" to allow signaling of LIBSSH2_ERROR_EAGAIN.
+
+	* libssh2_scp_recv(), libssh2_scp_send_ex() and libssh2_sftp_init()
+	will loop in on libssh2_channel_free() when there is an error.
+	It is not possible to return LIBSSH2_ERROR_EAGAIN in this condition
+	in these 3 functions and not lose the original error code.
+
 2007-06-10  James Housley <jim@thehousleys.net>
 
 	* The list of supported authentication types returned by
