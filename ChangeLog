@@ -1,3 +1,9 @@
+2007-06-10  James Housley <jim@thehousleys.net>
+
+	* The list of supported authentication types returned by
+	libssh2_userauth_list() is an internal buffer and is managed
+	by the library and should not be free()'d by the user.
+
 2007-06-08  James Housley <jim@thehousleys.net>
 
 	* Convert all the code to properly work with a socket in
