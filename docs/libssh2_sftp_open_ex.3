@@ -1,4 +1,4 @@
-.\" $Id: libssh2_sftp_open_ex.3,v 1.5 2007/06/13 12:51:11 jehousley Exp $
+.\" $Id: libssh2_sftp_open_ex.3,v 1.6 2007/06/13 15:16:12 jehousley Exp $
 .\"
 .TH libssh2_sftp_open_ex 3 "23 Jan 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -7,17 +7,18 @@ libssh2_sftp_open -
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp,
-                     char *filename, int filename_len,
-                     unsigned long flags, long mode, int open_type);
+LIBSSH2_SFTP_HANDLE *
+libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, const char *filename, unsigned int filename_len, unsigned long flags, long mode, int open_type);
 
-LIBSSH2_SFTP_HANDLE *libssh2_sftp_open(LIBSSH2_SFTP *sftp,
-                     char *filename, unsigned long flags, long mode);
+LIBSSH2_SFTP_HANDLE *
+libssh2_sftp_open(LIBSSH2_SFTP *sftp, const char *filename, unsigned long flags, long mode);
 
-LIBSSH2_SFTP_HANDLE *libssh2_sftp_opendir(LIBSSH2_SFTP *sftp,
-                     char *path);
+LIBSSH2_SFTP_HANDLE *
+libssh2_sftp_opendir(LIBSSH2_SFTP *sftp, const char *path);
+
 .SH DESCRIPTION
-\fIsftp\fP - SFTP instance as returned by libssh2_sftp_init(). 
+\fIsftp\fP - SFTP instance as returned by 
+.BR libssh2_sftp_init(3)
 
 \fIfilename\fP - Remote file/directory resource to open 
 
@@ -35,8 +36,18 @@ LIBSSH2_SFTP_OPENDIR (to open a directory).
 A pointer to the newly created LIBSSH2_SFTP_HANDLE instance or NULL on
 failure.
 .SH ERRORS
-LIBSSH2_ERROR_EAGAIN
-Marked for non-blocking I/O but the call would block.
+\fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
+
+\fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
+
+\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP - 
+
+\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was 
+received on the socket, or an SFTP operation caused an errorcode to be 
+returned by the server.
+
+\fILIBSSH2_ERROR_EAGAIN\fP - Marked for non-blocking I/O but the call would block.
+
 .SH SEE ALSO
-.BI libssh_sftp_close(3)
+.BR libssh_sftp_close(3)
 
