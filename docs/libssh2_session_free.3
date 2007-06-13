@@ -1,17 +1,21 @@
-.\" $Id: libssh2_session_free.3,v 1.2 2007/06/13 12:51:11 jehousley Exp $
+.\" $Id: libssh2_session_free.3,v 1.3 2007/06/13 13:50:34 jehousley Exp $
 .\"
-.TH libssh2_session_free 3 "14 Dec 2006" "libssh2 0.15" "libssh2 manual"
+.TH libssh2_session_free 3 "1 June 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
 libssh2_session_free - frees resources associated with a session instance
 .SH SYNOPSIS
 #include <libssh2.h>
 
-void libssh2_session_free(LIBSSH2_SESSION *session);
+int 
+libssh2_session_free(LIBSSH2_SESSION *session);
 .SH DESCRIPTION
 Frees resources associated with a session instance. Typically called after
-\fIlibssh2_session_disconnect(3)\fP.
+.BR libssh2_session_disconnect(3)
+
 .SH RETURN VALUE
-None
+Return 0 on success or negative on failure.  It returns
+LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
+LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 .SH SEE ALSO
-.BI libssh2_session_init(3),
-.BI libssh2_session_disconnect(3)
+.BR libssh2_session_init(3)
+.BR libssh2_session_disconnect(3)
