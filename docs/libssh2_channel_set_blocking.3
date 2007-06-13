@@ -1,17 +1,21 @@
-.\" $Id: libssh2_channel_set_blocking.3,v 1.2 2007/06/13 12:51:10 jehousley Exp $
+.\" $Id: libssh2_channel_set_blocking.3,v 1.3 2007/06/13 13:15:57 jehousley Exp $
 .\"
-.TH libssh2_channel_set_blocking 3 "14 Dec 2006" "libssh2 0.15" "libssh2 manual"
+.TH libssh2_channel_set_blocking 3 "1 June 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
 libssh2_channel_set_blocking - set or clear blocking mode on channel
 .SH SYNOPSIS
 #include <libssh2.h>
 
-void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking);
+void 
+libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking);
+
 .SH DESCRIPTION
 Set or clear blocking mode on the selected channel. If a read is performed on
 a channel with no data currently available, a blocking channel will wait for
 data to arrive and return what it receives. A non-blocking channel will return
-immediately with an empty buffer.
+immediately with an empty buffer.  If a write is performed on a channel with
+no room for more data, a blocking channel will wait for room.  A non-blocking
+channel will return immediately without writing anything.
 
 \fIchannel\fP - channel stream to set or clean blocking status on.
 
@@ -20,4 +24,5 @@ make it non-blocking.
 .SH RETURN VALUE
 None
 .SH SEE ALSO
-.BI libssh2_channel_read_ex(3)
+.BR libssh2_channel_read_ex(3)
+.BR libssh2_channel_write_ex(3)
