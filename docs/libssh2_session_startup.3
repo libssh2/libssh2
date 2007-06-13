@@ -1,4 +1,4 @@
-.\" $Id: libssh2_session_startup.3,v 1.4 2007/06/13 12:51:11 jehousley Exp $
+.\" $Id: libssh2_session_startup.3,v 1.5 2007/06/13 14:07:12 jehousley Exp $
 .\"
 .TH libssh2_session_startup 3 "1 June 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -6,32 +6,37 @@ libssh2_session_startup - begin transport layer
 .SH SYNOPSIS
 #include <libssh2.h>
 
-int libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
+int 
+libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
+
 .SH DESCRIPTION
+\fIsession\fP - Session instance as returned by 
+.BR libssh2_session_init(3)
+
+\fIsocket\fP - Connected socket descriptor. Typically a TCP connection 
+though the protocol allows for any reliable transport and the library will 
+attempt to use any berkeley socket.
+
 Begin transport layer protocol negotiation with the connected host.
 .SH RETURN VALUE
-0 on success, \-1 on failure
+Returns 0 on success, negative on failure.
 .SH ERRORS
-LIBSSH2_ERROR_SOCKET_NONE
-Bad socket provided.
-.br
-LIBSSH2_ERROR_BANNER_SEND
-Error sending banner to remote host.
-.br
-LIBSSH2_ERROR_KEX_FAILURE
-Unable to exchange encryption keys.
-.br
-LIBSSH2_ERROR_SOCKET_SEND
-Unable to ask for ssh-userauth service.
-.br
-LIBSSH2_ERROR_SOCKET_DISCONNECT
-Connection was lost.
-.br
-LIBSSH2_ERROR_PROTO
-Invalid response received from server.
-.br
-LIBSSH2_ERROR_EAGAIN
-Marked for non-blocking I/O but the call would block.
+\fILIBSSH2_ERROR_SOCKET_NONE\fP - The socket is invalid.
+
+\fILIBSSH2_ERROR_BANNER_SEND\fP - Unable to send banner to remote host.
+
+\fILIBSSH2_ERROR_KEX_FAILURE\fP - >Encryption key exchange with the remote 
+host failed.
+
+\fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
+
+\fILIBSSH2_ERROR_SOCKET_DISCONNECT\fP - The socket was disconnected.
+
+\fILIBSSH2_ERROR_PROTO\fP - An invalid SSH protocol response was received on 
+the socket.
+
+\fILIBSSH2_ERROR_EAGAIN\fP - Marked for non-blocking I/O but the call would block.
+
 .SH SEE ALSO
-.BI libssh2_session_free(3),
-.BI libssh2_session_init(3)
+.BR libssh2_session_free(3)
+.BR libssh2_session_init(3)
