@@ -1,4 +1,4 @@
-.\" $Id: libssh2_channel_read_ex.3,v 1.7 2007/06/08 13:33:08 jehousley Exp $
+.\" $Id: libssh2_channel_read_ex.3,v 1.8 2007/06/13 12:50:35 jehousley Exp $
 .\"
 .TH libssh2_channel_read_ex 3 "1 June 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -6,14 +6,15 @@ libssh2_channel_read_ex - read data from a channel stream
 .SH SYNOPSIS
 #include <libssh2.h>
 
-int libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id,
-                            char *buf, size_t buflen);
+ssize_t
+libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf, size_t buflen);
 
-int libssh2_channel_read(LIBSSH2_CHANNEL *channel, char *buf,
-                         size_t buflen);
+ssize_t
+libssh2_channel_read(LIBSSH2_CHANNEL *channel, char *buf, size_t buflen);
 
-int libssh2_channel_read_stderr(LIBSSH2_CHANNEL *channel, char *buf,
-                                size_t buflen);
+ssize_t
+libssh2_channel_read_stderr(LIBSSH2_CHANNEL *channel, char *buf, size_t buflen);
+
 .SH DESCRIPTION
 Attempt to read data from an active channel stream. All channel streams have
 one standard I/O substream (stream_id == 0), and may have up to 2^32 extended
@@ -34,5 +35,10 @@ macros.
 Actual number of bytes read or negative on failure. It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
 LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
-.SH "SEE ALSO"
+.SH ERRORS
+\fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
+
+\fILIBSSH2_ERROR_CHANNEL_CLOSED\fP- The channel has been closed.
+
+.SH SEE ALSO
 .BR libssh2_poll_channel_read(3)
