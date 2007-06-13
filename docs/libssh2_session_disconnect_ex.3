@@ -1,4 +1,4 @@
-.\" $Id: libssh2_session_disconnect_ex.3,v 1.2 2007/06/13 12:51:11 jehousley Exp $
+.\" $Id: libssh2_session_disconnect_ex.3,v 1.3 2007/06/13 13:41:46 jehousley Exp $
 .\"
 .TH libssh2_session_disconnect_ex 3 "1 June 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -6,15 +6,35 @@ libssh2_session_disconnect_ex - terminate transport layer
 .SH SYNOPSIS
 #include <libssh2.h>
 
-int ibssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason, const char *description, const char *lang);
+int 
+libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason, const char *description, const char *lang);
+
+int 
+libssh2_session_disconnect(LIBSSH2_SESSION *session, const char *description);
+
 .SH DESCRIPTION
-Terminates the transport layer connection with the remote host. 
-Note that all authentication and connection layer objects become unusable 
-at this point and should be explicitly freed prior to disconnection.
+\fIsession\fP - Session instance as returned by 
+.BR libssh2_session_init(3)
+
+\fIreason\fP - One of the Disconnect Reason constants.
+
+\fIdescription\fP - Human readable reason for disconnection.
+
+\fIlang\fP - Localization string describing the langauge/encoding of the description provided.
+
+Send a disconnect message to the remote host associated with \fIsession\fP, 
+along with a \fIreason\fP symbol and a verbose \fIdescription\fP.
+
+As a convenience, the macro 
+.BR libssh2_session_disconnect(3)
+is provided. It calls
+.BR libssh2_session_disconnect_ex(3)
+with \fIreason\fP set to SSH_DISCONNECT_BY_APPLICATION 
+and \fIlang\fP set to an empty string.
+
 .SH RETURN VALUE
-0 on success, \-1 on failure
-.SH ERRORS
-LIBSSH2_ERROR_EAGAIN
-Marked for non-blocking I/O but the call would block.
+Return 0 on success or negative on failure.  It returns
+LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
+LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 .SH SEE ALSO
-.BI libssh2_session_init(3)
+.BR libssh2_session_init(3)
