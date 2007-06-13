@@ -1,4 +1,4 @@
-.\" $Id: libssh2_channel_forward_listen_ex.3,v 1.4 2007/06/13 12:51:10 jehousley Exp $
+.\" $Id: libssh2_channel_forward_listen_ex.3,v 1.5 2007/06/13 13:06:48 jehousley Exp $
 .\"
 .TH libssh2_channel_forward_listen_ex 3 "1 June 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -6,14 +6,12 @@ libssh2_channel_forward_listen_ex - listen to inbound connections
 .SH SYNOPSIS
 #include <libssh2.h>
 
-LIBSSH2_LISTENER * libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session,
-                   char *host,
-                   int port,
-                   int *bound_port,
-                   int queue_maxsize);
+LIBSSH2_LISTENER * 
+libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, char *host, int port, int *bound_port, int queue_maxsize);
 
-LIBSSH2_LISTENER * libssh2_channel_forward_listen(LIBSSH2_SESSION *session,
-                   int port);
+LIBSSH2_LISTENER * 
+libssh2_channel_forward_listen(LIBSSH2_SESSION *session, int port);
+
 .SH DESCRIPTION
 Instruct the remote SSH server to begin listening for inbound TCP/IP
 connections. New connections will be queued by the library until accepted by
@@ -37,7 +35,14 @@ rejecting further attempts.
 .SH RETURN VALUE
 A newly allocated LIBSSH2_LISTENER instance or NULL on failure.
 .SH ERRORS
-LIBSSH2_ERROR_EAGAIN
-Marked for non-blocking I/O but the call would block.
+\fILIBSSH2_ERROR_ALLOC\fP - >An internal memory allocation call failed.
+
+\fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
+
+\fILIBSSH2_ERROR_PROTO\fP - An invalid SSH protocol response was received on the socket.
+
+\fILIBSSH2_ERROR_REQUEST_DENIED\fP - The remote server refused the request.
+
+\fILIBSSH2_ERROR_EAGAIN\fP - Marked for non-blocking I/O but the call would block.
 .SH SEE ALSO
-.BI libssh2_channel_forward_accept(3)
+.BR libssh2_channel_forward_accept(3)
