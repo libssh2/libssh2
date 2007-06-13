@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.netware,v 1.6 2007/04/21 20:15:33 gknauf Exp $
+## $Id: Makefile.netware,v 1.7 2007/06/13 22:28:49 gknauf Exp $
 #
 #########################################################################
 
@@ -473,6 +473,8 @@ libssh2.imp: Makefile.netware
 	@echo $(DL)  libssh2_channel_send_eof,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_set_blocking,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_setenv_ex,$(DL) >> $@
+	@echo $(DL)  libssh2_channel_wait_closed,$(DL) >> $@
+	@echo $(DL)  libssh2_channel_wait_eof,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_write_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_writenb_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_hostkey_hash,$(DL) >> $@
@@ -483,9 +485,11 @@ libssh2.imp: Makefile.netware
 	@echo $(DL)  libssh2_session_disconnect_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_session_free,$(DL) >> $@
 	@echo $(DL)  libssh2_session_init_ex,$(DL) >> $@
+	@echo $(DL)  libssh2_session_last_errno,$(DL) >> $@
 	@echo $(DL)  libssh2_session_last_error,$(DL) >> $@
 	@echo $(DL)  libssh2_session_method_pref,$(DL) >> $@
 	@echo $(DL)  libssh2_session_methods,$(DL) >> $@
+	@echo $(DL)  libssh2_session_set_blocking,$(DL) >> $@
 	@echo $(DL)  libssh2_session_startup,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_close_handle,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_fstat_ex,$(DL) >> $@
