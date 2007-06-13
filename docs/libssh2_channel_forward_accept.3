@@ -1,19 +1,21 @@
-.\" $Id: libssh2_channel_forward_accept.3,v 1.3 2007/06/13 12:51:10 jehousley Exp $
+.\" $Id: libssh2_channel_forward_accept.3,v 1.4 2007/06/13 12:58:58 jehousley Exp $
 .\"
 .TH libssh2_channel_forward_accept 3 "1 June 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
 libssh2_channel_forward_accept - accept a queued connection
 .SH SYNOPSIS
-.B #include <libssh2.h>
+#include <libssh2.h>
 
-.B LIBSSH2_CHANNEL * libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener);
+LIBSSH2_CHANNEL *
+libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener);
+
 .SH DESCRIPTION
 \fIlistener\fP is a forwarding listener instance as returned by
 \fBlibssh2_channel_forward_listen(3)\fP.
 .SH RETURN VALUE
 A newly allocated channel instance or NULL on failure.
 .SH ERRORS
-LIBSSH2_ERROR_EAGAIN
-Marked for non-blocking I/O but the call would block.
+\fILIBSSH2_ERROR_EAGAIN\fP - Marked for non-blocking I/O but the call 
+would block.
 .SH SEE ALSO
-.BI libssh2_channel_forward_listen(3)
+.BR libssh2_channel_forward_listen(3)
