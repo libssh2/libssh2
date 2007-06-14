@@ -1,0 +1,30 @@
+.\" $Id: libssh2_session_callback_set.3,v 1.1 2007/06/14 15:26:58 jehousley Exp $
+.\"
+.TH libssh2_session_callback_set 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
+.SH NAME
+libssh2_session_callback_set - set a callback function
+.SH SYNOPSIS
+#include <libssh2.h>
+
+void *
+libssh2_session_callback_set(LIBSSH2_SESSION *session, int cbtype, void *callback);
+
+.SH DESCRIPTION
+\fIsession\fP - Session instance as returned by 
+.BR libssh2_session_init(3)
+
+\fIcbtype\fP - Callback type. One of the types listed in Callback Types.
+
+\fIcallback\fP - Pointer to custom callback function. The prototype for 
+this function must match the associated callback declaration macro.
+
+Sets a custom callback handler for a previously initialized session 
+object. Callbacks are triggered by the receipt of special packets at 
+the Transport layer. To disable a callback, set it to NULL.
+
+.SH RETURN VALUE
+Pointer to previous callback handler. Returns NULL if no 
+prior callback handler was set.
+
+.SH SEE ALSO
+.BR libssh2_session_init(3)
