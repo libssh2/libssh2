@@ -1,4 +1,4 @@
-.\" $Id: libssh2_channel_set_blocking.3,v 1.4 2007/06/13 16:41:33 jehousley Exp $
+.\" $Id: libssh2_channel_set_blocking.3,v 1.5 2007/06/14 17:23:13 jehousley Exp $
 .\"
 .TH libssh2_channel_set_blocking 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -10,19 +10,19 @@ void
 libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking);
 
 .SH DESCRIPTION
-Set or clear blocking mode on the selected channel. If a read is performed on
-a channel with no data currently available, a blocking channel will wait for
-data to arrive and return what it receives. A non-blocking channel will return
-immediately with an empty buffer.  If a write is performed on a channel with
-no room for more data, a blocking channel will wait for room.  A non-blocking
-channel will return immediately without writing anything.
-
 \fIchannel\fP - channel stream to set or clean blocking status on.
 
 \fIblocking\fP - Set to a non-zero value to make the channel block, or zero to
 make it non-blocking.
+
+Currently this is just a short cut call to 
+.BR libssh2_session_set_blocking(3)
+and therefore will affect the session and all channels.
+
 .SH RETURN VALUE
 None
+
 .SH SEE ALSO
+.BR libssh2_session_set_blocking(3)
 .BR libssh2_channel_read_ex(3)
 .BR libssh2_channel_write_ex(3)

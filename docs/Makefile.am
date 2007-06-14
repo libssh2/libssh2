@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.23 2007/06/14 17:15:32 jehousley Exp $
+# $Id: Makefile.am,v 1.24 2007/06/14 17:23:13 jehousley Exp $
 
 EXTRA_DIST = template.3
 
@@ -35,6 +35,7 @@ dist_man_MANS =
 	libssh2_session_last_error.3 \
 	libssh2_session_method_pref.3 \
 	libssh2_session_methods.3 \
+	libssh2_session_set_blocking.3 \
 	libssh2_session_startup.3 \
 	libssh2_poll.3 \
 	libssh2_poll_channel_read.3 \
