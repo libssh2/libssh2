@@ -1,0 +1,51 @@
+.\" $Id: libssh2_userauth_publickey_fromfile.3,v 1.1 2007/06/14 17:15:32 jehousley Exp $
+.\"
+.TH libssh2_userauth_publickey_fromfile 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
+.SH NAME
+libssh2_userauth_publickey_fromfile - authenticate a session with a public key, read from a file
+.SH SYNOPSIS
+#include <libssh2.h>
+
+int
+libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session, const char *username, unsigned int username_len, const char *publickey, const char *privatekey, const char *passphrase);
+
+int
+libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session, const char *username, const char *publickey, const char *privatekey, const char *passphrase);
+
+.SH DESCRIPTION
+\fIsession\fP - Session instance as returned by 
+.BR libssh2_session_init(3)
+
+\fIusername\fP - Remote user name to authenticate as.
+
+\fIusername_len\fP - Length of username.
+
+\fIpublickey\fP - Path and name of public key file. (e.g. /etc/ssh/hostkey.pub)
+
+\fIprivatekey\fP - Path and name of private key file. (e.g. /etc/ssh/hostkey)
+
+\fIpassphrase\fP - Passphrase to use when decoding private key file.
+
+Attempt public key authentication using a PEM encoded private key file stored on disk
+
+.SH RETURN VALUE
+Return 0 on success or negative on failure.  It returns
+LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
+LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
+
+.SH ERRORS
+\fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
+
+\fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
+
+\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP - 
+
+\fILIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED\fP - >The username/public key 
+combination was invalid.
+
+\fILIBSSH2_ERROR_PUBLICKEY_UNVERIFIED\fP - The username/public key 
+combination was invalid, or the signature for the supplied public 
+key was invalid.
+
+.SH SEE ALSO
+.BR libssh2_session_init(3)

@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.22 2007/06/14 16:46:14 jehousley Exp $
+# $Id: Makefile.am,v 1.23 2007/06/14 17:15:32 jehousley Exp $
 
 EXTRA_DIST = template.3
 
@@ -54,4 +54,8 @@ dist_man_MANS =
 	libssh2_sftp_symlink_ex.3 \
 	libssh2_sftp_tell.3 \
 	libssh2_sftp_unlink_ex.3 \
-	libssh2_sftp_write.3
+	libssh2_sftp_write.3 \
+	libssh2_userauth_authenticated.3 \
+	libssh2_userauth_list.3 \
+	libssh2_userauth_password_ex.3 \
+	libssh2_userauth_publickey_fromfile.3
