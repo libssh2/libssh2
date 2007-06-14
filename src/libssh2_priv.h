@@ -51,6 +51,8 @@
    http://www.mail-archive.com/libssh2-devel%40lists.sourceforge.net/msg00003.html
    http://www.mail-archive.com/libssh2-devel%40lists.sourceforge.net/msg00224.html
 */
+#include <stdio.h>
+
 #ifdef HAVE_POLL
 # include <sys/poll.h>
 #else
@@ -68,7 +70,10 @@
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
 
-#include <stdio.h>
+/* Needed for struct iovec on some platforms */
+#ifdef HAVE_SYS_UIO_H
+#include <sys/uio.h>
+#endif
 
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
