@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.netware,v 1.7 2007/06/13 22:28:49 gknauf Exp $
+## $Id: Makefile.netware,v 1.8 2007/06/14 09:41:07 gknauf Exp $
 #
 #########################################################################
 
@@ -468,7 +468,6 @@ libssh2.imp: Makefile.netware
 	@echo $(DL)  libssh2_channel_open_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_process_startup,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_read_ex,$(DL) >> $@
-	@echo $(DL)  libssh2_channel_readnb_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_request_pty_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_send_eof,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_set_blocking,$(DL) >> $@
@@ -476,7 +475,6 @@ libssh2.imp: Makefile.netware
 	@echo $(DL)  libssh2_channel_wait_closed,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_wait_eof,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_write_ex,$(DL) >> $@
-	@echo $(DL)  libssh2_channel_writenb_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_hostkey_hash,$(DL) >> $@
 	@echo $(DL)  libssh2_scp_recv,$(DL) >> $@
 	@echo $(DL)  libssh2_scp_send_ex,$(DL) >> $@
@@ -499,7 +497,6 @@ libssh2.imp: Makefile.netware
 	@echo $(DL)  libssh2_sftp_open_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_read,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_readdir,$(DL) >> $@
-	@echo $(DL)  libssh2_sftp_readnb,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_rename_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_rmdir_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_seek,$(DL) >> $@
@@ -509,7 +506,6 @@ libssh2.imp: Makefile.netware
 	@echo $(DL)  libssh2_sftp_tell,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_unlink_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_write,$(DL) >> $@
-	@echo $(DL)  libssh2_sftp_writenb,$(DL) >> $@
 	@echo $(DL)  libssh2_trace,$(DL) >> $@
 	@echo $(DL)  libssh2_userauth_authenticated,$(DL) >> $@
 	@echo $(DL)  libssh2_userauth_keyboard_interactive_ex,$(DL) >> $@
