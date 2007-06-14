@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.18 2007/06/14 15:26:58 jehousley Exp $
+# $Id: Makefile.am,v 1.19 2007/06/14 15:45:03 jehousley Exp $
 
 EXTRA_DIST = template.3
 
@@ -38,6 +38,8 @@ dist_man_MANS =
 	libssh2_session_startup.3 \
 	libssh2_poll.3 \
 	libssh2_poll_channel_read.3 \
+	libssh2_sftp_close_handle.3 \
+	libssh2_sftp_fstat_ex.3 \
 	libssh2_sftp_init.3 \
 	libssh2_sftp_open_ex.3 \
 	libssh2_sftp_mkdir_ex.3 \
