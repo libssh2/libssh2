@@ -1,5 +1,22 @@
 Version 
 ------------
+  Converted all of the libssh2 code to be able to work in non-blocking
+  mode.  This included some public API changes, listed below (James Housley)
+    Changed function return values:
+     int libssh2_session_free()
+     int libssh2_publickey_shutdown()
+     ssize_t libssh2_channel_read_ex()
+     ssize_t libssh2_channel_write_ex()
+  
+    Added functions:
+     libssh2_session_last_errno(), libssh2_channel_handle_extended_data2(),
+     libssh2_channel_wait_closed(), libssh2_channel_wait_eof(),
+     libssh2_session_set_blocking()
+   
+    Removed functions:
+     libssh2_channel_readnb_ex(), libssh2_channel_writenb_ex(),
+     libssh2_sftp_readnb(), libssh2_sftp_writenb(),
+     libssh2_sftp_mkdirnb_ex()
 
   Added the following functions for non-blocking operations: (Daniel Stenberg)
    libssh2_channel_readnb_ex()
