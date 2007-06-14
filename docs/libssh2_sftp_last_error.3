@@ -1,0 +1,23 @@
+.\" $Id: libssh2_sftp_last_error.3,v 1.1 2007/06/14 16:08:43 jehousley Exp $
+.\"
+.TH libssh2_sftp_last_error 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
+.SH NAME
+libssh2_sftp_last_error - return the last SFTP-specific error code
+.SH SYNOPSIS
+#include <libssh2.h>
+#include <libssh2_sftp.h>
+
+unsigned long 
+libssh2_sftp_last_error(LIBSSH2_SFTP *sftp);
+
+.SH DESCRIPTION
+\fIsftp\fP - SFTP instance as returned by 
+.BR libssh2_sftp_init(3)
+
+Determines the last error code produced by the SFTP layer.
+
+.SH RETURN VALUE
+Current error code state of the SFTP instance.
+
+.SH SEE ALSO
+.BR libssh2_sftp_init(3)
