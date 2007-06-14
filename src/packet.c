@@ -788,9 +788,9 @@ libssh2_packet_add_jump_point3:
                 
             case SSH_MSG_CHANNEL_WINDOW_ADJUST:
                 {
+                    unsigned long bytestoadd = libssh2_ntohu32(data + 5);
                     session->packAdd_channel = libssh2_channel_locate(session,
                                                                       libssh2_ntohu32(data + 1));
-                    unsigned long bytestoadd = libssh2_ntohu32(data + 5);
                     
                     if (session->packAdd_channel && bytestoadd) {
                         session->packAdd_channel->local.window_size += bytestoadd;
