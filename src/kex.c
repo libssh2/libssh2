@@ -758,9 +758,9 @@ libssh2_kex_method_diffie_hellman_group_exchange_sha1_key_exchange(LIBSSH2_SESSI
  dh_gex_clean_exit:
     key_state->state = libssh2_NB_state_idle;
     _libssh2_bn_free(key_state->g);
-    key_state->p = NULL;
-    _libssh2_bn_free(key_state->p);
     key_state->g = NULL;
+    _libssh2_bn_free(key_state->p);
+    key_state->p = NULL;
 
     return ret;
 }
