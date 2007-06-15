@@ -1430,11 +1430,11 @@ LIBSSH2_API int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         LIBSSH2_FREE(session, handle->u.dir.names_packet);
     }
     
+    handle->close_state = libssh2_NB_state_idle;
+    
     LIBSSH2_FREE(session, handle->handle);
     LIBSSH2_FREE(session, handle);
     
-    handle->close_state = libssh2_NB_state_idle;
-
     return 0;
 }
 /* }}} */
