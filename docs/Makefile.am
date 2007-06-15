@@ -1,8 +1,8 @@
-# $Id: Makefile.am,v 1.25 2007/06/15 10:53:04 jehousley Exp $
+# $Id: Makefile.am,v 1.26 2007/06/15 11:01:22 jehousley Exp $
 
 EXTRA_DIST = template.3
 
-dist_man_MANS =
+dist_man_MANS = \
 	libssh2_banner_set.3 \
 	libssh2_channel_close.3 \
 	libssh2_channel_direct_tcpip_ex.3 \
