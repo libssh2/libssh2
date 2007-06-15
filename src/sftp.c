@@ -995,14 +995,15 @@ LIBSSH2_API ssize_t libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
 /* {{{ libssh2_sftp_readdir
  * Read from an SFTP directory handle
  */
-LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer, size_t buffer_maxlen, 
-                                     LIBSSH2_SFTP_ATTRIBUTES *attrs)
+LIBSSH2_API int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle, char *buffer, size_t buffer_maxlen,
+                                        char *longentry, size_t longentry_maxlen, 
+                                        LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
     LIBSSH2_SFTP    *sftp    = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     LIBSSH2_SFTP_ATTRIBUTES attrs_dummy;
-    unsigned long data_len, request_id, filename_len, num_names;
+    unsigned long data_len, request_id, filename_len, longentry_len, num_names;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     ssize_t packet_len = handle->handle_len + 13;
     unsigned char *packet, *s, *data;
@@ -1031,8 +1032,25 @@ LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer, 
                 buffer[filename_len] = '\0';
             }
             
-            /* Skip longname */
-            s += 4 + libssh2_ntohu32(s);
+            if ((longentry == NULL) || (longentry_maxlen == 0)) {
+                /* Skip longname */
+                s += 4 + libssh2_ntohu32(s);
+            } else {
+                unsigned long real_longentry_len = libssh2_ntohu32(s);
+                
+                longentry_len = real_longentry_len;
+                s += 4;
+                if (longentry_len > longentry_maxlen) {
+                    longentry_len = longentry_maxlen;
+                }
+                memcpy(longentry, s, longentry_len);
+                s += real_longentry_len;
+                
+                /* The longentry is not null terminated, make it so if possible */
+                if (longentry_len < longentry_maxlen) {
+                    longentry[longentry_len] = '\0';
+                }
+            }
             
             if (attrs) {
                 memset(attrs, 0, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
@@ -1044,7 +1062,7 @@ LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer, 
                 LIBSSH2_FREE(session, handle->u.dir.names_packet);
             }
             
-            _libssh2_debug(session, LIBSSH2_DBG_SFTP, "libssh2_sftp_readdir() return %d", filename_len);
+            _libssh2_debug(session, LIBSSH2_DBG_SFTP, "libssh2_sftp_readdir_ex() return %d", filename_len);
             return filename_len;
         }
         
@@ -1159,7 +1177,7 @@ LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer, 
     sftp->readdir_state = libssh2_NB_state_idle;
     
     /* Be lazy, just use the name popping mechanism from the start of the function */
-    return libssh2_sftp_readdir(handle, buffer, buffer_maxlen, attrs);
+    return libssh2_sftp_readdir_ex(handle, buffer, buffer_maxlen, longentry, longentry_maxlen, attrs);
 }
 /* }}} */
 

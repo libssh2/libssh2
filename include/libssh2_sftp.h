@@ -193,8 +193,11 @@ LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, const 
 
 LIBSSH2_API ssize_t libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle, char *buffer, size_t buffer_maxlen);
 
-LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer, 
-                                     size_t buffer_maxlen, LIBSSH2_SFTP_ATTRIBUTES *attrs);
+LIBSSH2_API int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle, char *buffer, size_t buffer_maxlen, 
+                                        char *longentry, size_t longentry_maxlen, 
+                                        LIBSSH2_SFTP_ATTRIBUTES *attrs);
+#define libssh2_sftp_readdir(handle, buffer, buffer_maxlen, attrs) \
+                    libssh2_sftp_readdir_ex((handle), (buffer), (buffer_maxlen), NULL, 0, (attrs))
 
 LIBSSH2_API ssize_t libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer, size_t count);
 

@@ -1,5 +1,8 @@
 Version 
 ------------
+  Added libssh2_sftp_readdir_ex() and updated LIBSSH2_APINO to
+  200706151200 (James Housley)
+
   Converted all of the libssh2 code to be able to work in non-blocking
   mode.  This included some public API changes, listed below (James Housley)
     Changed function return values:
