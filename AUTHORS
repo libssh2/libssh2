@@ -1,5 +1,7 @@
 * Sara Golemon: Author / Project Manager
 
+* James Housleys: Nonblocking conversion
+
 * Simon Josefsson: libgcrypt support
 
 * Daniel Stenberg: Nonblocking fixes, Build Improvements, and Daily snapshot artist
