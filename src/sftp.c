@@ -1003,10 +1003,10 @@ LIBSSH2_API int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle, char *buffe
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     LIBSSH2_SFTP_ATTRIBUTES attrs_dummy;
-    unsigned long data_len, request_id, filename_len, longentry_len, num_names;
+    unsigned long data_len, filename_len, longentry_len, num_names;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     ssize_t packet_len = handle->handle_len + 13;
-    unsigned char *packet, *s, *data;
+    unsigned char *s, *data;
     unsigned char read_responses[2] = { SSH_FXP_NAME, SSH_FXP_STATUS };
     int retcode;
     
@@ -1068,8 +1068,8 @@ LIBSSH2_API int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle, char *buffe
         
         /* Request another entry(entries?) */
         
-        s = packet = LIBSSH2_ALLOC(session, packet_len);
-        if (!packet) {
+        s = sftp->readdir_packet = LIBSSH2_ALLOC(session, packet_len);
+        if (!sftp->readdir_packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC, 
                           "Unable to allocate memory for FXP_READDIR packet", 0);
             return -1;
@@ -1078,8 +1078,8 @@ LIBSSH2_API int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle, char *buffe
         libssh2_htonu32(s, packet_len - 4);
         s += 4;
         *(s++) = SSH_FXP_READDIR;
-        request_id = sftp->request_id++;
-        libssh2_htonu32(s, request_id);
+        sftp->readdir_request_id = sftp->request_id++;
+        libssh2_htonu32(s, sftp->readdir_request_id);
         s += 4;
         libssh2_htonu32(s, handle->handle_len);
         s += 4;
@@ -1088,32 +1088,26 @@ LIBSSH2_API int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle, char *buffe
         
         sftp->readdir_state = libssh2_NB_state_created;
     }
-    else if (sftp->readdir_state == libssh2_NB_state_created) {
-        packet = sftp->readdir_packet;
-        request_id = sftp->readdir_request_id;
-        sftp->readdir_packet = NULL;
-    }
     
     if (sftp->readdir_state == libssh2_NB_state_created) {
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Reading entries from directory handle");
-        if ((retcode = libssh2_channel_write_ex(channel, 0, (char *)packet, packet_len)) == PACKET_EAGAIN) {
-            sftp->readdir_packet = packet;
-            sftp->readdir_request_id = request_id;
+        if ((retcode = libssh2_channel_write_ex(channel, 0, (char *)sftp->readdir_packet, packet_len)) == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         }
         else if (packet_len != retcode) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_READ command", 0);
-            LIBSSH2_FREE(session, packet);
+            LIBSSH2_FREE(session, sftp->readdir_packet);
+            sftp->readdir_packet = NULL;
             sftp->readdir_state = libssh2_NB_state_idle;
             return -1;
         }
         
-        LIBSSH2_FREE(session, packet);
-        sftp->readdir_state = libssh2_NB_state_sent;
+        LIBSSH2_FREE(session, sftp->readdir_packet);
         sftp->readdir_packet = NULL;
+        sftp->readdir_state = libssh2_NB_state_sent;
     }
 
-    retcode = libssh2_sftp_packet_requirev(sftp, 2, read_responses, request_id, &data, &data_len);
+    retcode = libssh2_sftp_packet_requirev(sftp, 2, read_responses, sftp->readdir_request_id, &data, &data_len);
     if (retcode == PACKET_EAGAIN) {
         return PACKET_EAGAIN;
     }
