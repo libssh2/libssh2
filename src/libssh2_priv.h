@@ -316,6 +316,10 @@ struct _LIBSSH2_CHANNEL {
     unsigned long               flush_refund_bytes;
     unsigned long               flush_flush_bytes;
     
+    /* State variables used in libssh2_channel_receive_window_adjust() */
+    libssh2_nonblocking_states  adjust_state;
+    unsigned char               adjust_adjust[9]; /* packet_type(1) + channel(4) + adjustment(4) */
+    
     /* State variables used in libssh2_channel_read_ex() */
     libssh2_nonblocking_states  read_state;
     LIBSSH2_PACKET              *read_packet;

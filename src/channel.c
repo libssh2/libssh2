@@ -1090,33 +1090,36 @@ LIBSSH2_API int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL* channel)
 LIBSSH2_API unsigned long
 libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel, unsigned long adjustment, unsigned char force)
 {
-    unsigned char adjust[9]; /* packet_type(1) + channel(4) + adjustment(4) */
     int rc;
 
-    if (!force &&
-        (adjustment + channel->adjust_queue < LIBSSH2_CHANNEL_MINADJUST)) {
-        _libssh2_debug(channel->session, LIBSSH2_DBG_CONN, "Queueing %lu bytes for receive window adjustment for channel %lu/%lu",
+    if (channel->adjust_state == libssh2_NB_state_idle) {
+        if (!force && (adjustment + channel->adjust_queue < LIBSSH2_CHANNEL_MINADJUST)) {
+            _libssh2_debug(channel->session, LIBSSH2_DBG_CONN,
+                           "Queueing %lu bytes for receive window adjustment for channel %lu/%lu",
+                           adjustment, channel->local.id, channel->remote.id);
+            channel->adjust_queue += adjustment;
+            return channel->remote.window_size;
+        }
+
+        if (!adjustment && !channel->adjust_queue) {
+            return channel->remote.window_size;
+        }
+
+        adjustment += channel->adjust_queue;
+        channel->adjust_queue = 0;
+
+
+        /* Adjust the window based on the block we just freed */
+        channel->adjust_adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
+        libssh2_htonu32(channel->adjust_adjust + 1, channel->remote.id);
+        libssh2_htonu32(channel->adjust_adjust + 5, adjustment);
+        _libssh2_debug(channel->session, LIBSSH2_DBG_CONN, "Adjusting window %lu bytes for data flushed from channel %lu/%lu",
                        adjustment, channel->local.id, channel->remote.id);
-        channel->adjust_queue += adjustment;
-        return channel->remote.window_size;
+        
+        channel->adjust_state = libssh2_NB_state_created;
     }
 
-    if (!adjustment && !channel->adjust_queue) {
-        return channel->remote.window_size;
-    }
-
-    adjustment += channel->adjust_queue;
-    channel->adjust_queue = 0;
-
-
-    /* Adjust the window based on the block we just freed */
-    adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
-    libssh2_htonu32(adjust + 1, channel->remote.id);
-    libssh2_htonu32(adjust + 5, adjustment);
-    _libssh2_debug(channel->session, LIBSSH2_DBG_CONN, "Adjusting window %lu bytes for data flushed from channel %lu/%lu",
-                   adjustment, channel->local.id, channel->remote.id);
-
-    rc = libssh2_packet_write(channel->session, adjust, 9);
+    rc = libssh2_packet_write(channel->session, channel->adjust_adjust, 9);
     if (rc == PACKET_EAGAIN) {
         return PACKET_EAGAIN;
     }
