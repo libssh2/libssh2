@@ -327,6 +327,8 @@ struct _LIBSSH2_CHANNEL {
     int                         read_block;
     int                         read_bytes_read;
     uint32_t                    read_local_id;
+    int                         read_want;
+    int                         read_unlink_packet;
     
     /* State variables used in libssh2_channel_write_ex() */
     libssh2_nonblocking_states  write_state;

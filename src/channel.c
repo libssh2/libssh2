@@ -1184,7 +1184,7 @@ LIBSSH2_API ssize_t
 libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf, size_t buflen)
 {
     LIBSSH2_SESSION *session = channel->session;
-    libssh2pack_t rc=0;
+    libssh2pack_t rc = 0;
 
     if (channel->read_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_DBG_CONN, "Attempting to read %d bytes from channel %lu/%lu stream #%d",
@@ -1207,8 +1207,6 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf, size
         channel->read_bytes_read = 0;
         channel->read_block = 0;
 
-        rc = 0;
-        
         channel->read_packet = session->packets.head;
         
         channel->read_state = libssh2_NB_state_created;
@@ -1222,6 +1220,8 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf, size
     if (channel->read_state == libssh2_NB_state_jump1) {
         goto channel_read_ex_point1;
     }
+    
+    rc = 0;
     
     do {
         if (channel->read_block) {
@@ -1262,21 +1262,22 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf, size
                  (channel->local.id == channel->read_local_id) &&
                  (channel->remote.extended_data_ignore_mode == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
 
-                int want = buflen - channel->read_bytes_read;
-                int unlink_packet = 0;
+                channel->read_want = buflen - channel->read_bytes_read;
+                channel->read_unlink_packet = 0;
 
-                if (want >= (int)(channel->read_packet->data_len - channel->read_packet->data_head)) {
-                    want = channel->read_packet->data_len - channel->read_packet->data_head;
-                    unlink_packet = 1;
+                if (channel->read_want >= (int)(channel->read_packet->data_len - channel->read_packet->data_head)) {
+                    channel->read_want = channel->read_packet->data_len - channel->read_packet->data_head;
+                    channel->read_unlink_packet = 1;
                 }
 
                 _libssh2_debug(session, LIBSSH2_DBG_CONN, "Reading %d of buffered data from %lu/%lu/%d",
-                               want, channel->local.id, channel->remote.id, stream_id);
-                memcpy(buf + channel->read_bytes_read,  channel->read_packet->data + channel->read_packet->data_head, want);
-                channel->read_packet->data_head += want;
-                channel->read_bytes_read += want;
+                               channel->read_want, channel->local.id, channel->remote.id, stream_id);
+                memcpy(buf + channel->read_bytes_read,  channel->read_packet->data + channel->read_packet->data_head,
+                       channel->read_want);
+                channel->read_packet->data_head += channel->read_want;
+                channel->read_bytes_read += channel->read_want;
 
-                if (unlink_packet) {
+                if (channel->read_unlink_packet) {
                     if (channel->read_packet->prev) {
                         channel->read_packet->prev->next = channel->read_packet->next;
                     } else {
@@ -1306,8 +1307,9 @@ channel_read_ex_point1:
             channel->read_packet = channel->read_next;
         }
         channel->read_block = 1;
-    } while (channel->session->socket_block && (channel->read_bytes_read == 0) && !channel->remote.close);
+    } while ((channel->read_bytes_read == 0) && !channel->remote.close);
 
+    channel->read_state = libssh2_NB_state_idle;
     if (channel->read_bytes_read == 0) {
         if (channel->session->socket_block) {
             libssh2_error(session, LIBSSH2_ERROR_CHANNEL_CLOSED, "Remote end has closed this channel", 0);
