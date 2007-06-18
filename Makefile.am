@@ -11,4 +11,6 @@ ACLOCAL_AMFLAGS = -I m4
 
 .PHONY: ChangeLog
 ChangeLog:
-	cvs2cl --utc --fsf --FSF --usermap .cvsusers -I ChangeLog -I .cvs
+	if test -f .cvsusers; then \
+	  cvs2cl --utc --fsf --FSF --usermap .cvsusers -I ChangeLog -I .cvs; \
+	fi
