@@ -182,7 +182,7 @@ static int libssh2_sftp_packet_read(LIBSSH2_SFTP *sftp, int flush)
     while (packet_len > packet_received) {
         bytes_received = libssh2_channel_read_ex(channel, 0, (char *)packet + packet_received, packet_len - packet_received);
         
-        if (flush && (rc < 0)) {
+        if (flush && (bytes_received < 0)) {
             if (packet) {
                 /* When flushing, remove packet if existing */
                 LIBSSH2_FREE(session, packet);
@@ -355,7 +355,11 @@ static int libssh2_sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_respon
             /* prevent busy-looping */
             long left = LIBSSH2_READ_TIMEOUT - (time(NULL) - sftp->requirev_start);
             
-            if ((left <= 0) || (libssh2_waitsocket(sftp->channel->session, left) <= 0 )) {
+            if (left <= 0) {
+                sftp->requirev_start = 0;
+                return PACKET_TIMEOUT;
+            }
+            else if (sftp->channel->session->socket_block && (libssh2_waitsocket(sftp->channel->session, left) <= 0 )) {
                 sftp->requirev_start = 0;
                 return PACKET_TIMEOUT;
             }
@@ -1104,6 +1108,7 @@ LIBSSH2_API int libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle, char *buffe
         
         LIBSSH2_FREE(session, sftp->readdir_packet);
         sftp->readdir_packet = NULL;
+        
         sftp->readdir_state = libssh2_NB_state_sent;
     }
 
