@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.netware,v 1.8 2007/06/14 09:41:07 gknauf Exp $
+## $Id: Makefile.netware,v 1.9 2007/06/20 23:44:58 gknauf Exp $
 #
 #########################################################################
 
@@ -496,7 +496,7 @@ libssh2.imp: Makefile.netware
 	@echo $(DL)  libssh2_sftp_mkdir_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_open_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_read,$(DL) >> $@
-	@echo $(DL)  libssh2_sftp_readdir,$(DL) >> $@
+	@echo $(DL)  libssh2_sftp_readdir_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_rename_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_rmdir_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_seek,$(DL) >> $@
