@@ -1,10 +1,14 @@
-2007-07-15  James Housley <jim@thehousleys.net>
+2007-06-22  James Housley <jim@thehousleys.net>
+	* Guenter Knauf submitted code for windows to detect
+	if the socket is blocking or not.
+
+2007-06-15  James Housley <jim@thehousleys.net>
 	* Add libssh2_sftp_readdir_ex(), this function if passed the
 	extra parameters will be used to store the full directory
 	entry as provided by the server.  Updated LIBSSH2_APINO to
 	200706151200 for this change.
 
-2007-07-12  James Housley <jim@thehousleys.net>
+2007-06-12  James Housley <jim@thehousleys.net>
 
 	* libssh2_publickey_shutdown(), libssh2_session_free() changed
 	to return an "int" to allow signaling of LIBSSH2_ERROR_EAGAIN.

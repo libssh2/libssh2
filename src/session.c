@@ -318,6 +318,20 @@ static int _libssh2_get_socket_nonblocking(int sockfd)    /* operate on this */
 #define GETBLOCK 1
 #endif
     
+#if defined(WSAEWOULDBLOCK) && (GETBLOCK == 0)
+    /* Windows? */
+    unsigned int option_value;
+    socklen_t option_len = sizeof(option_value);
+
+    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (void*)&option_value, &option_len)) {
+        /* Assume blocking on error */
+        return 1;
+    }
+    return (int)option_value;
+#undef GETBLOCK
+#define GETBLOCK 2
+#endif
+    
 #if defined(HAVE_SO_NONBLOCK) && (GETBLOCK == 0)
     /* BeOS */
     long b;
