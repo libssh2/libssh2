@@ -363,7 +363,7 @@ libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, const char *host, in
         *(s++) = SSH_MSG_GLOBAL_REQUEST;
         libssh2_htonu32(s, sizeof("tcpip-forward") - 1);                    s += 4;
         memcpy(s, "tcpip-forward", sizeof("tcpip-forward") - 1);            s += sizeof("tcpip-forward") - 1;
-        *(s++) = 0xFF;      /* want_reply */
+        *(s++) = 0x01;      /* want_reply */
 
         libssh2_htonu32(s, session->fwdLstn_host_len);                      s += 4;
         memcpy(s, host ? host : "0.0.0.0", session->fwdLstn_host_len);      s += session->fwdLstn_host_len;
@@ -629,7 +629,7 @@ libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, char *varname, unsigned int 
         libssh2_htonu32(s, sizeof("env") - 1);          s += 4;
         memcpy(s, "env", sizeof("env") - 1);            s += sizeof("env") - 1;
 
-        *(s++) = 0xFF;
+        *(s++) = 0x01;
 
         libssh2_htonu32(s, varname_len);                s += 4;
         memcpy(s, varname, varname_len);                s += varname_len;
@@ -721,7 +721,7 @@ libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, const char *term, unsig
         libssh2_htonu32(s, sizeof("pty-req") - 1);      s += 4;
         memcpy(s, "pty-req", sizeof("pty-req") - 1);    s += sizeof("pty-req") - 1;
 
-        *(s++) = 0xFF;
+        *(s++) = 0x01;
 
         libssh2_htonu32(s, term_len);                   s += 4;
         if (term) {
@@ -829,8 +829,8 @@ libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection, cons
         libssh2_htonu32(s, sizeof("x11-req") - 1);      s += 4;
         memcpy(s, "x11-req", sizeof("x11-req") - 1);    s += sizeof("x11-req") - 1;
 
-        *(s++) = 0xFF; /* want_reply */
-        *(s++) = single_connection ? 0xFF : 0x00;
+        *(s++) = 0x01; /* want_reply */
+        *(s++) = single_connection ? 0x01 : 0x00;
 
         libssh2_htonu32(s, proto_len);                  s += 4;
         memcpy(s, auth_proto ? auth_proto : "MIT-MAGIC-COOKIE-1", proto_len);
@@ -936,7 +936,7 @@ libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel, const char *request, u
         libssh2_htonu32(s, request_len);                    s += 4;
         memcpy(s, request, request_len);                    s += request_len;
 
-        *(s++) = 0xFF;
+        *(s++) = 0x01;
 
         if (message) {
             libssh2_htonu32(s, message_len);                s += 4;

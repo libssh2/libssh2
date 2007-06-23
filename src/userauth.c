@@ -291,7 +291,7 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username, uns
                         libssh2_htonu32(s, sizeof("password") - 1);                     s += 4;
                         memcpy(s, "password", sizeof("password") - 1);                  s += sizeof("password") - 1;
 
-                        *s = 0xFF;                                                      s++;
+                        *s = 0x01;                                                      s++;
 
                         libssh2_htonu32(s, password_len);                               s += 4;
                         memcpy(s, password, password_len);                              s += password_len;
@@ -807,7 +807,7 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session, const char *use
             return -1;
         }
 
-        *session->userauth_pblc_b = 0xFF;
+        *session->userauth_pblc_b = 0x01;
 
         libssh2_htonu32(buf, session->session_id_len);
         datavec[0].iov_base = buf;

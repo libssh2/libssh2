@@ -1,3 +1,8 @@
+2007-06-23  James Housley <jim@thehousleys.net>
+        * Eberhard Mattes submitted a patch "According to RFC 4251,
+        a boolean value of true is encoded as 1, not as 0xff".  Servers
+        should accept any non-zero value.
+
 2007-06-22  James Housley <jim@thehousleys.net>
 	* Guenter Knauf submitted code for windows to detect
 	if the socket is blocking or not.

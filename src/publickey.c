@@ -545,14 +545,14 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name, uns
             memcpy(pkey->add_s, name, name_len);                          pkey->add_s += name_len;
             libssh2_htonu32(pkey->add_s, blob_len);                       pkey->add_s += 4;
             memcpy(pkey->add_s, blob, blob_len);                          pkey->add_s += blob_len;
-            *(pkey->add_s++) = overwrite ? 0xFF : 0;
+            *(pkey->add_s++) = overwrite ? 0x01 : 0;
             libssh2_htonu32(pkey->add_s, num_attrs);                      pkey->add_s += 4;
             for(i = 0; i < num_attrs; i++) {
                 libssh2_htonu32(pkey->add_s, attrs[i].name_len);          pkey->add_s += 4;
                 memcpy(pkey->add_s, attrs[i].name, attrs[i].name_len);    pkey->add_s += attrs[i].name_len;
                 libssh2_htonu32(pkey->add_s, attrs[i].value_len);         pkey->add_s += 4;
                 memcpy(pkey->add_s, attrs[i].value, attrs[i].value_len);  pkey->add_s += attrs[i].value_len;
-                *(pkey->add_s++) = attrs[i].mandatory ? 0xFF : 0;
+                *(pkey->add_s++) = attrs[i].mandatory ? 0x01 : 0;
             }
         }
 
