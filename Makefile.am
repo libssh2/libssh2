@@ -5,7 +5,13 @@ include_HEADERS =			\
 	include/libssh2_publickey.h	\
 	include/libssh2_sftp.h
 
-EXTRA_DIST = win32 buildconf
+NETWAREFILES =  nw/keepscreen.c \
+ nw/Makefile \
+ nw/Makefile.netware \
+ nw/nwlibc.c \
+ nw/test/Makefile.netware
+
+EXTRA_DIST = win32 buildconf $(NETWAREFILES) get_ver.awk
 
 ACLOCAL_AMFLAGS = -I m4
 
