@@ -43,11 +43,11 @@ static int readline (char *line, int line_size, FILE *fp)
     {
         return -1;
     }
-    if (*line && line[strlen(line) - 1] == '\r')
+    if (*line && line[strlen(line) - 1] == '\n')
     {
         line[strlen(line) - 1] = '\0';
     }
-    if (*line && line[strlen(line) - 1] == '\n')
+    if (*line && line[strlen(line) - 1] == '\r')
     {
         line[strlen(line) - 1] = '\0';
     }
