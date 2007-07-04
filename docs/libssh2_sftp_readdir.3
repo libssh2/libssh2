@@ -1,4 +1,4 @@
-.\" $Id: libssh2_sftp_readdir.3,v 1.10 2007/07/04 09:42:08 dottedmag Exp $
+.\" $Id: libssh2_sftp_readdir.3,v 1.11 2007/07/04 10:44:40 jehousley Exp $
 .\"
 .TH libssh2_sftp_readdir_ex 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -41,7 +41,7 @@ however, it uses a variable sized directory entry (filename) buffer and
 returns statbuf type data in the same call.
 
 .SH RETURN VALUE
-Number of bytes actually populated into buffer, or \-1 on failure.  It returns
+Number of bytes actually populated into buffer, or negative on failure.  It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
 LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 .SH ERRORS
