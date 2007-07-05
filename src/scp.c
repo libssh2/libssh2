@@ -162,7 +162,32 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, const ch
                 session->scpRecv_response_len++;
 
                 if (session->scpRecv_response[0] != 'T') {
+                    /*
+                     * Set this as the default error for here, if
+                     * we are successful it will be replaced
+                     */
                     libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Invalid data in SCP response, missing Time data", 0);
+                    
+                    session->scpRecv_err_len = libssh2_channel_packet_data_len(session->scpRecv_channel, 0);
+                    session->scpRecv_err_msg = LIBSSH2_ALLOC(session, session->scpRecv_err_len+1);
+                    if (!session->scpRecv_err_msg) {
+                        goto scp_recv_error;
+                    }
+                    memset(session->scpRecv_err_msg, 0, session->scpRecv_err_len+1);
+                    
+                    /* Read the remote error message */
+                    rc = libssh2_channel_read_ex(session->scpRecv_channel, 0, session->scpRecv_err_msg, session->scpRecv_err_len);
+                    if (rc <= 0) {
+                        /*
+                         * Since we have alread started reading this packet, it is
+                         * already in the systems so it can't return PACKET_EAGAIN
+                         */
+                        LIBSSH2_FREE(session, session->scpRecv_err_msg);
+                        session->scpRecv_err_msg = NULL;
+                        goto scp_recv_error;
+                    }
+                    
+                    libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, session->scpRecv_err_msg, 1);
                     goto scp_recv_error;
                 }
 
@@ -419,15 +444,6 @@ libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode, size_t
     unsigned const char *base;
     int rc;
 
-    /*
-     * =============================== NOTE ===============================
-     * I know this is very ugly and not a really good use of "goto", but
-     * this case statement would be even uglier to do it any other way
-     */
-    if (session->scpSend_state == libssh2_NB_state_jump1) {
-        goto scp_read_ex_point1;
-    }
-    
     if (session->scpSend_state == libssh2_NB_state_idle) {
         session->scpSend_command_len = path_len + sizeof("scp -t ");
         
@@ -598,8 +614,6 @@ libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode, size_t
             goto scp_send_error;
         }
         else if (session->scpSend_response[0] != 0) {
-            session->scpSend_state = libssh2_NB_state_jump1;
-
             /*
              * Set this as the default error for here, if
              * we are successful it will be replaced
@@ -614,13 +628,12 @@ libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode, size_t
             memset(session->scpSend_err_msg, 0, session->scpSend_err_len+1);
 
             /* Read the remote error message */
-scp_read_ex_point1:
             rc = libssh2_channel_read_ex(session->scpSend_channel, 0, session->scpSend_err_msg, session->scpSend_err_len);
-            if (rc == PACKET_EAGAIN) {
-                libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block waiting for response", 0);
-                return NULL;
-            }
-            else if (rc <= 0) {
+            if (rc <= 0) {
+                /*
+                 * Since we have alread started reading this packet, it is
+                 * already in the systems so it can't return PACKET_EAGAIN
+                 */
                 LIBSSH2_FREE(session, session->scpSend_err_msg);
                 session->scpSend_err_msg = NULL;
                 goto scp_send_error;

@@ -1,5 +1,5 @@
 /*
- * $Id: scp_nonblock.c,v 1.5 2007/06/08 13:33:08 jehousley Exp $
+ * $Id: scp_nonblock.c,v 1.6 2007/07/05 15:31:19 jehousley Exp $
  *
  * Sample showing how to do SCP transfers in a non-blocking manner.
  */
@@ -146,7 +146,10 @@ int main(int argc, char *argv[])
         channel = libssh2_scp_recv(session, scppath, &fileinfo);
         
         if ((!channel) && (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
-            fprintf(stderr, "Unable to open a session\n");
+	    char *err_msg;
+
+	    libssh2_session_last_error(session, &err_msg, NULL, 0);
+            fprintf(stderr, "%s\n", err_msg);
             goto shutdown;
         }
     } while (!channel);

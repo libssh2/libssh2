@@ -790,6 +790,8 @@ struct _LIBSSH2_SESSION {
     long                        scpRecv_size;
     long                        scpRecv_mtime;
     long                        scpRecv_atime;
+    char                        *scpRecv_err_msg;
+    long                        scpRecv_err_len;
     LIBSSH2_CHANNEL             *scpRecv_channel;
     
     /* State variables used in libssh2_scp_send_ex() */
