@@ -64,13 +64,11 @@ extern "C" {
 # include <sys/uio.h>
 #endif
 
-#if defined(LIBSSH2_WIN32) && defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(LIBSSH2_WIN32) && defined(_MSC_VER) && (_MSC_VER <= 1310)
 typedef unsigned __int64 libssh2_uint64_t;
 typedef __int64 libssh2_int64_t;
-#if (_MSC_VER <= 1200)
 typedef long ssize_t;
 typedef unsigned int uint32_t;
-#endif
 #else
 typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
