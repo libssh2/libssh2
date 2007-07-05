@@ -798,6 +798,8 @@ struct _LIBSSH2_SESSION {
     unsigned long               scpSend_command_len;
     unsigned char               scpSend_response[LIBSSH2_SCP_RESPONSE_BUFLEN];
     unsigned long               scpSend_response_len;
+    char                        *scpSend_err_msg;
+    long                        scpSend_err_len;
     LIBSSH2_CHANNEL             *scpSend_channel;
 };
 
@@ -1041,6 +1043,7 @@ int libssh2_packet_add(LIBSSH2_SESSION *session, unsigned char *data, size_t dat
 int libssh2_kex_exchange(LIBSSH2_SESSION *session, int reexchange, key_exchange_state_t *state);
 unsigned long libssh2_channel_nextid(LIBSSH2_SESSION *session);
 LIBSSH2_CHANNEL *libssh2_channel_locate(LIBSSH2_SESSION *session, unsigned long channel_id);
+unsigned long libssh2_channel_packet_data_len(LIBSSH2_CHANNEL *channel, int stream_id);
 
 /* this is the lib-internal set blocking function */
 int _libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);

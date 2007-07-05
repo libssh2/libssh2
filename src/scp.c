@@ -419,6 +419,15 @@ libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode, size_t
     unsigned const char *base;
     int rc;
 
+    /*
+     * =============================== NOTE ===============================
+     * I know this is very ugly and not a really good use of "goto", but
+     * this case statement would be even uglier to do it any other way
+     */
+    if (session->scpSend_state == libssh2_NB_state_jump1) {
+        goto scp_read_ex_point1;
+    }
+    
     if (session->scpSend_state == libssh2_NB_state_idle) {
         session->scpSend_command_len = path_len + sizeof("scp -t ");
         
@@ -577,15 +586,49 @@ libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode, size_t
         session->scpSend_state = libssh2_NB_state_sent6;
     }
     
-    /* Wait for ACK */
-    rc = libssh2_channel_read_ex(session->scpSend_channel, 0, (char *)session->scpSend_response, 1);
-    if (rc == PACKET_EAGAIN) {
-        libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block waiting for response", 0);
-        return NULL;
-    }
-    else if ((rc <= 0) || (session->scpSend_response[0] != 0)) {
-        libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Invalid ACK response from remote", 0);
-        goto scp_send_error;
+    if (session->scpSend_state == libssh2_NB_state_sent6) {
+        /* Wait for ACK */
+        rc = libssh2_channel_read_ex(session->scpSend_channel, 0, (char *)session->scpSend_response, 1);
+        if (rc == PACKET_EAGAIN) {
+            libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block waiting for response", 0);
+            return NULL;
+        }
+        else if (rc <= 0) {
+            libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Invalid ACK response from remote", 0);
+            goto scp_send_error;
+        }
+        else if (session->scpSend_response[0] != 0) {
+            session->scpSend_state = libssh2_NB_state_jump1;
+
+            /*
+             * Set this as the default error for here, if
+             * we are successful it will be replaced
+             */
+            libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Invalid ACK response from remote", 0);
+            
+            session->scpSend_err_len = libssh2_channel_packet_data_len(session->scpSend_channel, 0);
+            session->scpSend_err_msg = LIBSSH2_ALLOC(session, session->scpSend_err_len+1);
+            if (!session->scpSend_err_msg) {
+                goto scp_send_error;
+            }
+            memset(session->scpSend_err_msg, 0, session->scpSend_err_len+1);
+
+            /* Read the remote error message */
+scp_read_ex_point1:
+            rc = libssh2_channel_read_ex(session->scpSend_channel, 0, session->scpSend_err_msg, session->scpSend_err_len);
+            if (rc == PACKET_EAGAIN) {
+                libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block waiting for response", 0);
+                return NULL;
+            }
+            else if (rc <= 0) {
+                LIBSSH2_FREE(session, session->scpSend_err_msg);
+                session->scpSend_err_msg = NULL;
+                goto scp_send_error;
+            }
+            
+            libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, session->scpSend_err_msg, 1);
+            goto scp_send_error;
+        }
     }
     
     session->scpSend_state = libssh2_NB_state_idle;

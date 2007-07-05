@@ -1,3 +1,7 @@
+2007-07-05  James Housley <jim@thehousleys.net>
+        * Gavrie Philipson sumitted a patch to get the actual text
+        of the error on scp upload.
+
 2007-06-23  James Housley <jim@thehousleys.net>
         * Eberhard Mattes submitted a patch "According to RFC 4251,
         a boolean value of true is encoded as 1, not as 0xff".  Servers
