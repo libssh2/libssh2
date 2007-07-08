@@ -1729,11 +1729,8 @@ LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     
     /* Allow channel freeing even when the socket has lost its connection */
     if (!channel->local.close && (session->socket_state == LIBSSH2_SOCKET_CONNECTED)) {
-        rc = libssh2_channel_close(channel);
-        if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
-        }
-        else if (rc) {
+        while ((rc = libssh2_channel_close(channel)) == PACKET_EAGAIN);
+        if (rc) {
             channel->free_state = libssh2_NB_state_idle;
             return -1;
         }
