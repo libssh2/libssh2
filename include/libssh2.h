@@ -64,6 +64,11 @@ extern "C" {
 # include <sys/uio.h>
 #endif
 
+#if (defined(NETWARE) && !defined(__NOVELL_LIBC__))
+# include <sys/bsdskt.h>
+typedef unsigned int uint32_t;
+#endif
+
 #if defined(LIBSSH2_WIN32) && defined(_MSC_VER) && (_MSC_VER <= 1310)
 typedef unsigned __int64 libssh2_uint64_t;
 typedef __int64 libssh2_int64_t;
