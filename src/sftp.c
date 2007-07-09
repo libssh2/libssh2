@@ -1375,13 +1375,13 @@ LIBSSH2_API int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
     unsigned long data_len, retcode;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     ssize_t packet_len = handle->handle_len + 13;
-    unsigned char *packet, *s, *data;
+    unsigned char *s, *data;
     int rc;
     
     if (handle->close_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Closing handle");
-        s = packet = LIBSSH2_ALLOC(session, packet_len);
-        if (!packet) {
+        s = handle->close_packet = LIBSSH2_ALLOC(session, packet_len);
+        if (!handle->close_packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for FXP_CLOSE packet", 0);
             return -1;
         }
@@ -1397,17 +1397,19 @@ LIBSSH2_API int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
     }
     
     if (handle->close_state == libssh2_NB_state_created) {
-        rc = libssh2_channel_write_ex(channel, 0, (char *)packet, packet_len);
+        rc = libssh2_channel_write_ex(channel, 0, (char *)handle->close_packet, packet_len);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         }
         else if (packet_len != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND, "Unable to send FXP_CLOSE command", 0);
-            LIBSSH2_FREE(session, packet);
+            LIBSSH2_FREE(session, handle->close_packet);
+            handle->close_packet = NULL;
             handle->close_state = libssh2_NB_state_idle;
             return -1;
         }
-        LIBSSH2_FREE(session, packet);
+        LIBSSH2_FREE(session, handle->close_packet);
+        handle->close_packet = NULL;
         
         handle->close_state = libssh2_NB_state_sent;
     }

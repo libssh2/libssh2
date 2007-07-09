@@ -487,6 +487,7 @@ struct _LIBSSH2_SFTP_HANDLE {
     /* State variables used in libssh2_sftp_close_handle() */
     libssh2_nonblocking_states  close_state;
     unsigned long               close_request_id;
+    unsigned char               *close_packet;
 };
 
 struct _LIBSSH2_SFTP {
