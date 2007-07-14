@@ -1,3 +1,8 @@
+2007-07-12  James Housley <jim@thehousleys.net>
+        * Mikhail Gusarov suggested make LIBSSH2_APINO a LONG since
+        there seems to be some pre-processors that assume constants are
+        INT instead of LONG.
+
 2007-07-05  James Housley <jim@thehousleys.net>
         * Gavrie Philipson sumitted a patch to get the actual text
         of the error on scp upload.
