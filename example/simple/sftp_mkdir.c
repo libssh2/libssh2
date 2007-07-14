@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_mkdir.c,v 1.4 2007/06/06 12:34:08 jehousley Exp $
+ * $Id: sftp_mkdir.c,v 1.5 2007/07/14 21:24:38 bagder Exp $
  *
  * Sample showing how to do SFTP mkdir
  *
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     if(argc > 4) {
         sftppath = argv[4];
     }
-    
+
     /*
      * The application code is responsible for creating the socket
      * and establishing the connection
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if (connect(sock, (struct sockaddr*)(&sin), 
+    if (connect(sock, (struct sockaddr*)(&sin),
             sizeof(struct sockaddr_in)) != 0) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 
     /* Since we have not set non-blocking, tell libssh2 we are blocking */
     libssh2_session_set_blocking(session, 1);
-    
+
     fprintf(stderr, "libssh2_sftp_mkdir()!\n");
     /* Make a directory via SFTP */
     rc = libssh2_sftp_mkdir(sftp_session, sftppath,

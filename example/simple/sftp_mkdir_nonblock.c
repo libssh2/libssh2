@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_mkdir_nonblock.c,v 1.6 2007/06/08 13:33:08 jehousley Exp $
+ * $Id: sftp_mkdir_nonblock.c,v 1.7 2007/07/14 21:24:38 bagder Exp $
  *
  * Sample showing how to do SFTP non-blocking mkdir.
  *
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     if(argc > 4) {
         sftppath = argv[4];
     }
-    
+
     /*
      * The application code is responsible for creating the socket
      * and establishing the connection
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if (connect(sock, (struct sockaddr*)(&sin), 
+    if (connect(sock, (struct sockaddr*)(&sin),
             sizeof(struct sockaddr_in)) != 0) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 
     /* Since we have set non-blocking, tell libssh2 we are non-blocking */
     libssh2_session_set_blocking(session, 0);
-    
+
     fprintf(stderr, "libssh2_sftp_mkdirnb()!\n");
     /* Make a directory via SFTP */
     while ((rc = libssh2_sftp_mkdir(sftp_session, sftppath,

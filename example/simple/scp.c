@@ -1,5 +1,5 @@
 /*
- * $Id: scp.c,v 1.7 2007/06/06 12:34:08 jehousley Exp $
+ * $Id: scp.c,v 1.8 2007/07/14 21:24:38 bagder Exp $
  *
  * Sample showing how to do a simple SCP transfer.
  */
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     if (argc > 4) {
         scppath = argv[4];
     }
-    
+
     /* Ultra basic "connect to port 22 on localhost"
      * Your code is responsible for creating the socket establishing the
      * connection
