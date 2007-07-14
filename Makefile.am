@@ -11,7 +11,7 @@ NETWAREFILES =  nw/keepscreen.c \
  nw/nwlibc.c \
  nw/test/Makefile.netware
 
-EXTRA_DIST = win32 buildconf $(NETWAREFILES) get_ver.awk
+EXTRA_DIST = win32 buildconf $(NETWAREFILES) get_ver.awk HACKING
 
 ACLOCAL_AMFLAGS = -I m4
 
