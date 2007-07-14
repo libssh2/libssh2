@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.netware,v 1.5 2007/04/21 21:26:54 gknauf Exp $
+## $Id: Makefile.netware,v 1.6 2007/07/14 21:04:32 gknauf Exp $
 #
 #########################################################################
 
@@ -32,13 +32,13 @@ TARGETS	= scp.nlm sftp.nlm sftpdir.nlm ssh2.nlm
 VERSION	= $(LIBSSH2_VERSION)
 COPYR	= Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
 WWWURL	= http://www.libssh2.org/
-DESCR	= libssh2 $(notdir $(@:.def=)) $(LIBSSH2_VERSION_STR) - $(WWWURL)
+DESCR	= libssh2 $(notdir $(@:.def=)) $(LIBSSH2_VERSION_STR) ($(LIBARCH)) - $(WWWURL)
 MTSAFE	= YES
 STACK	= 64000
 SCREEN	= NONE
 #SCREEN	= libssh2 $(notdir $(@:.def=))
 # Comment the line below if you dont want to load protected automatically.
-LDRING	= 3
+#LDRING	= 3
 
 # Edit the var below to point to your lib architecture.
 ifndef LIBARCH
@@ -56,14 +56,17 @@ ifeq ($(DB),NDEBUG)
 	OBJDIR	= release
 else
 	OPT	= -g
+	OPT	+= -DLIBSSH2DEBUG
 	OBJDIR	= debug
 endif
 
-# Include the version info retrieved from xml2ver.h
--include $(OBJDIR)/version.inc
-
-# The following line defines your compiler.
+# The following lines defines your compiler.
+ifdef CWFolder
+	METROWERKS = $(CWFolder)
+endif
 ifdef METROWERKS
+	# MWCW_PATH = $(subst \,/,$(METROWERKS))/Novell Support
+	MWCW_PATH = $(subst \,/,$(METROWERKS))/Novell Support/Metrowerks Support
 	CC = mwccnlm
 else
 	CC = gcc
@@ -78,8 +81,14 @@ AWK	= awk
 # http://www.gknw.net/development/prgtools/mkxdc.zip
 MPKXDC	= mkxdc
 
+# LIBARCH_U = $(shell $(AWK) 'BEGIN {print toupper(ARGV[1])}' $(LIBARCH))
+LIBARCH_L = $(shell $(AWK) 'BEGIN {print tolower(ARGV[1])}' $(LIBARCH))
+
+# Include the version info retrieved from libssh2.h
+-include $(OBJDIR)/version.inc
+
 # Global flags for all compilers
-CFLAGS	= $(OPT) -D$(DB) -DNETWARE -nostdinc # -DHAVE_CONFIG_H
+CFLAGS	= $(OPT) -D$(DB) -DNETWARE -nostdinc
 
 ifeq ($(CC),mwccnlm)
 LD	= mwldnlm
@@ -94,8 +103,10 @@ ifeq ($(LIBARCH),LIBC)
 	PRELUDE = $(SDK_LIBC)/imports/libcpre.o
 	CFLAGS += -align 4
 else
-	PRELUDE = "$(METROWERKS)/Novell Support/libraries/runtime/prelude.obj"
-#	CFLAGS += -include "$(METROWERKS)/Novell Support/headers/nlm_prefix.h"
+	# PRELUDE = $(SDK_CLIB)/imports/clibpre.o
+	# to avoid the __init_* / __deinit_* whoes dont use prelude from NDK
+	PRELUDE = "$(MWCW_PATH)/libraries/runtime/prelude.obj"
+	# CFLAGS += -include "$(MWCW_PATH)/headers/nlm_clib_prefix.h"
 	CFLAGS += -align 1
 endif
 else
@@ -117,31 +128,32 @@ endif
 NDK_ROOT = $(NDKBASE)/ndk
 SDK_CLIB = $(NDK_ROOT)/nwsdk
 SDK_LIBC = $(NDK_ROOT)/libc
-SDK_LDAP = $(NDK_ROOT)/cldapsdk/netware
+SNPRINTF = $(NDKBASE)/snprintf
 
-INCLUDES = -I. -I.. -I../../include
+INCLUDES = -I.. -I../../include
 
 LDLIBS =
  
-INCLUDES += -I$(OPENSSL_PATH)/outinc_nw_libc -I$(OPENSSL_PATH)/outinc_nw_libc/openssl
-LDLIBS += $(OPENSSL_PATH)/out_nw_libc/ssl.$(LIBEXT) $(OPENSSL_PATH)/out_nw_libc/crypto.$(LIBEXT)
+INCLUDES += -I$(OPENSSL_PATH)/outinc_nw_$(LIBARCH_L) -I$(OPENSSL_PATH)/outinc_nw_$(LIBARCH_L)/openssl
+LDLIBS += $(OPENSSL_PATH)/out_nw_$(LIBARCH_L)/ssl.$(LIBEXT)
+LDLIBS += $(OPENSSL_PATH)/out_nw_$(LIBARCH_L)/crypto.$(LIBEXT)
 IMPORTS += GetProcessSwitchCount RunningProcess
+
+ifdef WITH_ZLIB
+	INCLUDES += -I$(ZLIB_PATH)
+ifdef LINK_STATIC
+	LDLIBS += $(ZLIB_PATH)/nw/$(LIBARCH)/libz.$(LIBEXT)
+else
+	MODULES += libz.nlm
+	IMPORTS += @$(ZLIB_PATH)/nw/$(LIBARCH)/libz.imp
+endif
+endif
 
 ifdef LINK_STATIC
 	LDLIBS += ../libssh2.$(LIBEXT)
 else
 	IMPORTS += @../libssh2.imp
 	MODULES += libssh2.nlm
-endif
-
-ifdef WITH_ZLIB
-	INCLUDES += -I$(ZLIB_PATH)
-ifdef LINK_STATIC
-	LDLIBS += $(ZLIB_PATH)/nw/libz.$(LIBEXT)
-else
-	IMPORTS += @$(ZLIB_PATH)/nw/libz.imp
-	MODULES += libz.nlm
-endif
 endif
 
 ifeq ($(LIBARCH),LIBC)
@@ -167,7 +179,6 @@ endif
 
 ifeq ($(findstring linux,$(OSTYPE)),linux)
 DL	= '
-#-include $(NDKBASE)/nlmconv/ncpfs.inc
 endif
 
 vpath %.c ../../example/simple
