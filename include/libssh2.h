@@ -79,7 +79,31 @@ typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
 #endif
 
-#define LIBSSH2_VERSION                             "0.16-CVS"
+#define LIBSSH2_VERSION                             "0.16.0-CVS"
+
+/* The numeric version number is also available "in parts" by using these
+   defines: */
+#define LIBSSH2_VERSION_MAJOR                       0
+#define LIBSSH2_VERSION_MINOR                       16
+#define LIBSSH2_VERSION_PATCH                       0
+
+/* This is the numeric version of the libssh2 version number, meant for easier
+   parsing and comparions by programs. The LIBSSH2_VERSION_NUM define will
+   always follow this syntax:
+
+         0xXXYYZZ
+
+   Where XX, YY and ZZ are the main version, release and patch numbers in
+   hexadecimal (using 8 bits each). All three numbers are always represented
+   using two digits.  1.2 would appear as "0x010200" while version 9.11.7
+   appears as "0x090b07".
+
+   This 6-digit (24 bits) hexadecimal number does not show pre-release number,
+   and it is always a greater number in a more recent release. It makes
+   comparisons with greater than and less than work.
+*/
+#define LIBSSH2_VERSION_NUM                         0x001000
+
 #define LIBSSH2_APINO                               200706151200L
 
 /* Part of every banner, user specified or not */
