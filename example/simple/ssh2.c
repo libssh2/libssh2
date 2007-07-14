@@ -1,5 +1,5 @@
 /*
- * $Id: ssh2.c,v 1.3 2007/04/26 23:59:15 gknauf Exp $
+ * $Id: ssh2.c,v 1.4 2007/07/14 20:54:47 bagder Exp $
  *
  * Sample showing how to do SSH2 connect.
  *
@@ -24,6 +24,9 @@
 #endif
 # ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+# ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
 #endif
 
 #include <sys/types.h>

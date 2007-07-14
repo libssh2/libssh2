@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_write.c,v 1.4 2007/06/06 12:34:09 jehousley Exp $
+ * $Id: sftp_write.c,v 1.5 2007/07/14 20:54:47 bagder Exp $
  *
  * Sample showing how to do SFTP write transfers.
  *
@@ -61,30 +61,30 @@ int main(int argc, char *argv[])
 #endif
 
     if (argc > 1) {
-        hostaddr = inet_addr(argv[1]);
+	hostaddr = inet_addr(argv[1]);
     } else {
-        hostaddr = htonl(0x7F000001);
+	hostaddr = htonl(0x7F000001);
     }
 
     if(argc > 2) {
-        username = argv[2];
+	username = argv[2];
     }
     if(argc > 3) {
-        password = argv[3];
+	password = argv[3];
     }
     if(argc > 4) {
-        loclfile = argv[4];
+	loclfile = argv[4];
     }
     if(argc > 5) {
-        sftppath = argv[5];
+	sftppath = argv[5];
     }
-    
+
     local = fopen(loclfile, "rb");
     if (!local) {
-        printf("Can't local file %s\n", loclfile);
-        goto shutdown;
+	printf("Can't local file %s\n", loclfile);
+	goto shutdown;
     }
-    
+
     /*
      * The application code is responsible for creating the socket
      * and establishing the connection
@@ -94,28 +94,28 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if (connect(sock, (struct sockaddr*)(&sin), 
-            sizeof(struct sockaddr_in)) != 0) {
-        fprintf(stderr, "failed to connect!\n");
-        return -1;
+    if (connect(sock, (struct sockaddr*)(&sin),
+	    sizeof(struct sockaddr_in)) != 0) {
+	fprintf(stderr, "failed to connect!\n");
+	return -1;
     }
 
     /* Create a session instance
      */
     session = libssh2_session_init();
     if(!session)
-        return -1;
+	return -1;
 
     /* Since we have set non-blocking, tell libssh2 we are blocking */
     libssh2_session_set_blocking(session, 1);
-        
+
     /* ... start it up. This will trade welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
     rc = libssh2_session_startup(session, sock);
     if(rc) {
-        fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
-        return -1;
+	fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
+	return -1;
     }
 
     /* At this point we havn't yet authenticated.  The first thing to do
@@ -126,67 +126,65 @@ int main(int argc, char *argv[])
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
     printf("Fingerprint: ");
     for(i = 0; i < 16; i++) {
-        printf("%02X ", (unsigned char)fingerprint[i]);
+	printf("%02X ", (unsigned char)fingerprint[i]);
     }
     printf("\n");
 
     if (auth_pw) {
-        /* We could authenticate via password */
-        if (libssh2_userauth_password(session, username, password)) {
-            printf("Authentication by password failed.\n");
-            goto shutdown;
-        }
+	/* We could authenticate via password */
+	if (libssh2_userauth_password(session, username, password)) {
+	    printf("Authentication by password failed.\n");
+	    goto shutdown;
+	}
     } else {
-        /* Or by public key */
-        if (libssh2_userauth_publickey_fromfile(session, username,
-                            "/home/username/.ssh/id_rsa.pub",
-                            "/home/username/.ssh/id_rsa",
-                            password)) {
-            printf("\tAuthentication by public key failed\n");
-            goto shutdown;
-        }
+	/* Or by public key */
+	if (libssh2_userauth_publickey_fromfile(session, username,
+			    "/home/username/.ssh/id_rsa.pub",
+			    "/home/username/.ssh/id_rsa",
+			    password)) {
+	    printf("\tAuthentication by public key failed\n");
+	    goto shutdown;
+	}
     }
-
-    //libssh2_trace(session, 0xFFFF);
 
     fprintf(stderr, "libssh2_sftp_init()!\n");
     sftp_session = libssh2_sftp_init(session);
 
     if (!sftp_session) {
-        fprintf(stderr, "Unable to init SFTP session\n");
-        goto shutdown;
+	fprintf(stderr, "Unable to init SFTP session\n");
+	goto shutdown;
     }
 
     /* Since we have not set non-blocking, tell libssh2 we are blocking */
     libssh2_session_set_blocking(session, 1);
-    
+
     fprintf(stderr, "libssh2_sftp_open()!\n");
     /* Request a file via SFTP */
     sftp_handle =
-        libssh2_sftp_open(sftp_session, sftppath,
-                      LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC,
-                      LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|
-                      LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH);
-    
+	libssh2_sftp_open(sftp_session, sftppath,
+		      LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC,
+		      LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|
+		      LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH);
+
     if (!sftp_handle) {
-        fprintf(stderr, "Unable to open file with SFTP\n");
-        goto shutdown;
+	fprintf(stderr, "Unable to open file with SFTP\n");
+	goto shutdown;
     }
     fprintf(stderr, "libssh2_sftp_open() is done, now send data!\n");
     do {
-        nread = fread(mem, 1, sizeof(mem), local);
-        if (nread <= 0) {
-            /* end of file */
-            break;
-        }
-        ptr = mem;
-        
-        do {
-            /* write data in a loop until we block */
-            rc = libssh2_sftp_write(sftp_handle, ptr, nread);
-            ptr += rc;
-            nread -= nread;
-        } while (rc > 0);
+	nread = fread(mem, 1, sizeof(mem), local);
+	if (nread <= 0) {
+	    /* end of file */
+	    break;
+	}
+	ptr = mem;
+
+	do {
+	    /* write data in a loop until we block */
+	    rc = libssh2_sftp_write(sftp_handle, ptr, nread);
+	    ptr += rc;
+	    nread -= nread;
+	} while (rc > 0);
     } while (1);
 
     fclose(local);
@@ -195,7 +193,8 @@ int main(int argc, char *argv[])
 
  shutdown:
 
-    libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing");
+    libssh2_session_disconnect(session,
+                               "Normal Shutdown, Thank you for playing");
     libssh2_session_free(session);
 
 #ifdef WIN32
