@@ -11,7 +11,7 @@ NETWAREFILES =  nw/keepscreen.c \
  nw/nwlib.c \
  nw/test/Makefile.netware
 
-EXTRA_DIST = win32 buildconf $(NETWAREFILES) get_ver.awk HACKING
+EXTRA_DIST = win32 buildconf $(NETWAREFILES) get_ver.awk HACKING maketgz
 
 ACLOCAL_AMFLAGS = -I m4
 
