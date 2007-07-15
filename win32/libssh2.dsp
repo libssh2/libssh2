@@ -7,19 +7,19 @@
 CFG=libssh2 - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "libssh2.mak".
-!MESSAGE 
+!MESSAGE
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "libssh2.mak" CFG="libssh2 - Win32 Debug"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Possible choices for configuration are:
-!MESSAGE 
+!MESSAGE
 !MESSAGE "libssh2 - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE "libssh2 - Win32 Debug" (based on "Win32 (x86) Static Library")
-!MESSAGE 
+!MESSAGE
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
@@ -74,7 +74,7 @@ LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:"Debug\libssh2d.lib"
 
-!ENDIF 
+!ENDIF
 
 # Begin Target
 
@@ -113,7 +113,19 @@ SOURCE=..\src\misc.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\openssl.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\packet.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\pem.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\publickey.c
 # End Source File
 # Begin Source File
 
@@ -126,6 +138,10 @@ SOURCE=..\src\session.c
 # Begin Source File
 
 SOURCE=..\src\sftp.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\transport.c
 # End Source File
 # Begin Source File
 
@@ -154,3 +170,5 @@ SOURCE=..\include\libssh2_sftp.h
 # End Group
 # End Target
 # End Project
+
+
