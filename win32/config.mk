@@ -1,10 +1,10 @@
 
 # Tweak these for your system
-OPENSSLINC=..\libssh2_build\include
-OPENSSLLIB=..\libssh2_build\lib
+OPENSSLINC=..\openssl-0.9.8e\inc32
+OPENSSLLIB=..\openssl-0.9.8e\out32dll
 
-ZLIBINC=-DLIBSSH2_HAVE_ZLIB=1 /I..\libssh2_build\include
-ZLIBLIB=..\libssh2_build\lib
+ZLIBINC=-DLIBSSH2_HAVE_ZLIB=1 /I..\zlib-1.2.3
+ZLIBLIB=..\zlib-1.2.3
 
 !if "$(TARGET)" == ""
 TARGET=Release
