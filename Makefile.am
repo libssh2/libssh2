@@ -8,7 +8,7 @@ include_HEADERS =			\
 NETWAREFILES =  nw/keepscreen.c \
  nw/Makefile \
  nw/Makefile.netware \
- nw/nwlibc.c \
+ nw/nwlib.c \
  nw/test/Makefile.netware
 
 EXTRA_DIST = win32 buildconf $(NETWAREFILES) get_ver.awk HACKING
