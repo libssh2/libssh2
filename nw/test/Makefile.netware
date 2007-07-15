@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.netware,v 1.6 2007/07/14 21:04:32 gknauf Exp $
+## $Id: Makefile.netware,v 1.7 2007/07/15 20:34:33 gknauf Exp $
 #
 #########################################################################
 
@@ -28,7 +28,8 @@ endif
 LINK_STATIC = 1
 
 # Edit the vars below to change NLM target settings.
-TARGETS	= scp.nlm sftp.nlm sftpdir.nlm ssh2.nlm
+SAMPLES	= ../../example/simple
+TARGETS	:= $(patsubst $(SAMPLES)/%.c,%.nlm,$(strip $(wildcard $(SAMPLES)/*.c)))
 VERSION	= $(LIBSSH2_VERSION)
 COPYR	= Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
 WWWURL	= http://www.libssh2.org/
@@ -157,16 +158,15 @@ else
 endif
 
 ifeq ($(LIBARCH),LIBC)
-	INCLUDES += -I$(SDK_LIBC)/include -I$(SDK_LIBC)/include/nks
+	INCLUDES += -I$(SDK_LIBC)/include
+	# INCLUDES += -I$(SDK_LIBC)/include/nks
 	# INCLUDES += -I$(SDK_LIBC)/include/winsock
-	# INCLUDES += -I$(SDK_LDAP)/libc/inc
 	CFLAGS += -D_POSIX_SOURCE
-	# CFLAGS += -D__ANSIC__
 else
-	INCLUDES += -I$(SDK_CLIB)/include/nlm -I$(SDK_CLIB)/include
+	INCLUDES += -I$(SDK_CLIB)/include/nlm
 	# INCLUDES += -I$(SDK_CLIB)/include/nlm/obsolete
-	# INCLUDES += -I$(SDK_LDAP)/clib/inc
-	CFLAGS += -DNETDB_USE_INTERNET
+	# INCLUDES += -I$(SDK_CLIB)/include
+	# CFLAGS += -DNETDB_USE_INTERNET
 endif
 CFLAGS	+= $(INCLUDES)
 
@@ -181,7 +181,7 @@ ifeq ($(findstring linux,$(OSTYPE)),linux)
 DL	= '
 endif
 
-vpath %.c ../../example/simple
+vpath %.c $(SAMPLES)
 
 .PRECIOUS: $(OBJDIR)/%.o $(OBJDIR)/%.def $(OBJDIR)/%.xdc
 
