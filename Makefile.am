@@ -20,3 +20,12 @@ ChangeLog:
 	if test -f .cvsusers; then \
 	  cvs2cl --utc --fsf --FSF --usermap .cvsusers -I ChangeLog -I .cvs; \
 	fi
+
+dist-hook:
+	rm -rf $(top_builddir)/tests/log
+	find $(distdir) -name "*.dist" -exec rm {} \;
+	(distit=`find $(srcdir) -name "*.dist"`; \
+	for file in $$distit; do \
+	  strip=`echo $$file | sed -e s/^$(srcdir)// -e s/\.dist//`; \
+	  cp $$file $(distdir)$$strip; \
+	done)

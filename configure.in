@@ -1,8 +1,25 @@
 # AC_PREREQ(2.57)
-AC_INIT(libssh2, 0.15, libssh2-devel@lists.sourceforge.net)
-AM_INIT_AUTOMAKE(libssh2, 0.15)
+AC_INIT(libssh2, [-], libssh2-devel@lists.sourceforge.net)
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADER([src/libssh2_config.h])
+
+dnl SED is needed by some of the tools
+AC_PATH_PROG( SED, sed, sed-was-not-found-by-configure,
+              $PATH:/usr/bin:/usr/local/bin)
+AC_SUBST(SED)
+
+if test "x$SED" = "xsed-was-not-found-by-configure"; then
+  AC_MSG_WARN([sed was not found, this may ruin your chances to build fine])
+fi
+
+dnl figure out the libssh2 version
+VERSION=`$SED -ne 's/^#define LIBSSH2_VERSION *"\(.*\)"/\1/p' ${srcdir}/include/libssh2.h`
+AM_INIT_AUTOMAKE(libssh2,$VERSION)
+AC_MSG_CHECKING([libssh2 version])
+AC_MSG_RESULT($VERSION)
+
+AB_VERSION=$VERSION
+
 AB_INIT
 
 # Check for the OS.
