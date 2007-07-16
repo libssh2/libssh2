@@ -1,5 +1,5 @@
 /*
- * $Id: ssh2.c,v 1.5 2007/07/14 21:24:38 bagder Exp $
+ * $Id: ssh2.c,v 1.6 2007/07/16 22:16:21 gknauf Exp $
  *
  * Sample showing how to do SSH2 connect.
  *
@@ -105,12 +105,16 @@ int main(int argc, char *argv[])
         if (libssh2_userauth_password(session, username, password)) {
             printf("Authentication by password failed.\n");
             goto shutdown;
+        } else {
+            printf("Authentication by password succeeded.\n");
         }
     } else {
         /* Or by public key */
         if (libssh2_userauth_publickey_fromfile(session, username, "/home/username/.ssh/id_rsa.pub", "/home/username/.ssh/id_rsa", password)) {
             printf("\tAuthentication by public key failed\n");
             goto shutdown;
+        } else {
+            printf("Authentication by public key succeeded.\n");
         }
     }
 
@@ -176,6 +180,6 @@ int main(int argc, char *argv[])
     sleep(1);
     close(sock);
 #endif
-    printf("all done\n");
+    printf("all done!\n");
     return 0;
 }
