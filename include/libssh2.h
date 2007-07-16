@@ -69,7 +69,7 @@ extern "C" {
 typedef unsigned int uint32_t;
 #endif
 
-#if defined(LIBSSH2_WIN32) && defined(_MSC_VER) && (_MSC_VER <= 1310)
+#if defined(LIBSSH2_WIN32) && defined(_MSC_VER) && (_MSC_VER <= 1400)
 typedef unsigned __int64 libssh2_uint64_t;
 typedef __int64 libssh2_int64_t;
 typedef long ssize_t;
