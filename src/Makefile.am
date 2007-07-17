@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.9 2007/04/05 10:23:55 jas4711 Exp $
+# $Id: Makefile.am,v 1.10 2007/07/17 13:22:55 gknauf Exp $
 AUTOMAKE_OPTIONS = foreign nostdinc
 
 libssh2_la_SOURCES = channel.c comp.c crypt.c hostkey.c kex.c mac.c	\
@@ -11,7 +11,7 @@ else
 libssh2_la_SOURCES += openssl.c
 endif
 
-EXTRA_DIST = libssh2_config.h.in
+EXTRA_DIST = libssh2_config.h.in NMakefile
 
 lib_LTLIBRARIES = libssh2.la
 
