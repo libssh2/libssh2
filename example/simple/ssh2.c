@@ -1,5 +1,5 @@
 /*
- * $Id: ssh2.c,v 1.6 2007/07/16 22:16:21 gknauf Exp $
+ * $Id: ssh2.c,v 1.7 2007/07/18 11:46:25 gknauf Exp $
  *
  * Sample showing how to do SSH2 connect.
  *
@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
     int sock, i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
+    char *userauthlist;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
     char *username=(char *)"username";
@@ -99,6 +100,12 @@ int main(int argc, char *argv[])
         printf("%02X ", (unsigned char)fingerprint[i]);
     }
     printf("\n");
+
+#ifdef TEST_AUTH_LIST
+    /* check what authentication methods are available */
+    userauthlist = libssh2_userauth_list(session, NULL, 0);
+    printf("Authentication methods: %s\n", userauthlist);
+#endif
 
     if (auth_pw) {
         /* We could authenticate via password */
