@@ -957,7 +957,7 @@ libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session, const char *u
             ;
 
         session->userauth_kybd_data = s = LIBSSH2_ALLOC(session, session->userauth_kybd_packet_len);
-        if (s) {
+        if (!s) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate memory for keyboard-interactive authentication", 0);
             return -1;
         }
