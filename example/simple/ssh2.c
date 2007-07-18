@@ -1,5 +1,5 @@
 /*
- * $Id: ssh2.c,v 1.7 2007/07/18 11:46:25 gknauf Exp $
+ * $Id: ssh2.c,v 1.8 2007/07/18 19:31:15 gknauf Exp $
  *
  * Sample showing how to do SSH2 connect.
  *
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 
 #ifdef TEST_AUTH_LIST
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, NULL, 0);
+    userauthlist = libssh2_userauth_list(session, username, sizeof(username));
     printf("Authentication methods: %s\n", userauthlist);
 #endif
 
