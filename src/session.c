@@ -805,7 +805,18 @@ LIBSSH2_API int libssh2_session_free(LIBSSH2_SESSION *session)
     if (session->scpSend_command) {
         LIBSSH2_FREE(session, session->scpSend_command);
     }
+    if (session->scpRecv_err_msg) {
+        LIBSSH2_FREE(session, session->scpRecv_err_msg);
+    }
+    if (session->scpSend_err_msg) {
+        LIBSSH2_FREE(session, session->scpSend_err_msg);
+    }
     
+    /* Free the error message, if we ar supposed to */
+    if (session->err_msg && session->err_should_free) {
+        LIBSSH2_FREE(session, session->err_msg);
+    }
+        
     /* Cleanup any remaining packets */
     while (session->packets.head) {
         LIBSSH2_PACKET *tmp = session->packets.head;

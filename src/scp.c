@@ -184,10 +184,12 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session, const ch
                          */
                         LIBSSH2_FREE(session, session->scpRecv_err_msg);
                         session->scpRecv_err_msg = NULL;
+                        libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Unknown error while getting error string", 0);
                         goto scp_recv_error;
                     }
                     
                     libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, session->scpRecv_err_msg, 1);
+                    session->scpRecv_err_msg = NULL;
                     goto scp_recv_error;
                 }
 
@@ -504,6 +506,7 @@ libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode, size_t
             /* previous call set libssh2_session_last_error(), pass it through */
             LIBSSH2_FREE(session, session->scpSend_command);
             session->scpSend_command = NULL;
+            libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, "Unknown error while getting error string", 0);
             goto scp_send_error;
         }
         LIBSSH2_FREE(session, session->scpSend_command);
@@ -640,6 +643,7 @@ libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode, size_t
             }
             
             libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL, session->scpSend_err_msg, 1);
+            session->scpSend_err_msg = NULL;
             goto scp_send_error;
         }
     }
