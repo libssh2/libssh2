@@ -1,5 +1,5 @@
 /*
- * $Id: ssh2.c,v 1.8 2007/07/18 19:31:15 gknauf Exp $
+ * $Id: ssh2.c,v 1.9 2007/07/19 15:25:46 gknauf Exp $
  *
  * Sample showing how to do SSH2 connect.
  *
@@ -38,7 +38,7 @@
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int sock, i, auth_pw = 1;
+    int sock, i, auth_pw = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
@@ -46,6 +46,8 @@ int main(int argc, char *argv[])
     LIBSSH2_CHANNEL *channel;
     char *username=(char *)"username";
     char *password=(char *)"password";
+    char *keyfile1=(char *)"~/.ssh/id_rsa.pub";
+    char *keyfile2=(char *)"~/.ssh/id_rsa";
 #ifdef WIN32
     WSADATA wsadata;
 
@@ -101,13 +103,21 @@ int main(int argc, char *argv[])
     }
     printf("\n");
 
-#ifdef TEST_AUTH_LIST
+    auth_pw = 0;
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username, sizeof(username));
     printf("Authentication methods: %s\n", userauthlist);
-#endif
+    if (strstr(userauthlist, "password") != NULL) {
+        auth_pw |= 1;
+    }
+    if (strstr(userauthlist, "publickey") != NULL) {
+        auth_pw |= 2;
+    }
+    if (strstr(userauthlist, "keyboard-interactive") != NULL) {
+        auth_pw |= 4;
+    }
 
-    if (auth_pw) {
+    if (auth_pw & 1) {
         /* We could authenticate via password */
         if (libssh2_userauth_password(session, username, password)) {
             printf("Authentication by password failed.\n");
@@ -115,14 +125,17 @@ int main(int argc, char *argv[])
         } else {
             printf("Authentication by password succeeded.\n");
         }
-    } else {
+    } else if (auth_pw & 2) {
         /* Or by public key */
-        if (libssh2_userauth_publickey_fromfile(session, username, "/home/username/.ssh/id_rsa.pub", "/home/username/.ssh/id_rsa", password)) {
+        if (libssh2_userauth_publickey_fromfile(session, username, keyfile1, keyfile2, password)) {
             printf("\tAuthentication by public key failed\n");
             goto shutdown;
         } else {
             printf("Authentication by public key succeeded.\n");
         }
+    } else {
+        printf("No supported authentication methods found!\n");
+        goto shutdown;
     }
 
     /* Request a shell */
