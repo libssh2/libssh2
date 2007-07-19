@@ -1,5 +1,5 @@
 /*
- * $Id: ssh2.c,v 1.11 2007/07/19 15:43:48 gknauf Exp $
+ * $Id: ssh2.c,v 1.12 2007/07/19 17:08:54 gknauf Exp $
  *
  * Sample showing how to do SSH2 connect.
  *
@@ -109,10 +109,10 @@ int main(int argc, char *argv[])
     if (strstr(userauthlist, "password") != NULL) {
         auth_pw |= 1;
     }
-    if (strstr(userauthlist, "publickey") != NULL) {
+    if (strstr(userauthlist, "keyboard-interactive") != NULL) {
         auth_pw |= 2;
     }
-    if (strstr(userauthlist, "keyboard-interactive") != NULL) {
+    if (strstr(userauthlist, "publickey") != NULL) {
         auth_pw |= 4;
     }
 
@@ -124,7 +124,17 @@ int main(int argc, char *argv[])
         } else {
             printf("\tAuthentication by password succeeded.\n");
         }
+#if 0 /* !! not implemented yet !! */
     } else if (auth_pw & 2) {
+        /* Or via keyboard-interactive */
+        if (libssh2_userauth_keyboard_interactive(session, username, response_callback) ) {
+            printf("\tAuthentication by keyboard-interactive failed!\n");
+            goto shutdown;
+        } else {
+            printf("\tAuthentication by keyboard-interactive succeeded.\n");
+        }
+#endif
+    } else if (auth_pw & 4) {
         /* Or by public key */
         if (libssh2_userauth_publickey_fromfile(session, username, keyfile1, keyfile2, password)) {
             printf("\tAuthentication by public key failed!\n");
@@ -132,16 +142,6 @@ int main(int argc, char *argv[])
         } else {
             printf("\tAuthentication by public key succeeded.\n");
         }
-#if 0 /* !! not implemented yet !! */
-    } else if (auth_pw & 4) {
-        /* Or via keyboard-interactive */
-        if (libssh2_userauth_keyboard_interactive(session, username, getpw_callback) ) {
-            printf("\tAuthentication by keyboard-interactive failed!\n");
-            goto shutdown;
-        } else {
-            printf("\tAuthentication by keyboard-interactive succeeded.\n");
-        }
-#endif
     } else {
         printf("No supported authentication methods found!\n");
         goto shutdown;
