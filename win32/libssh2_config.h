@@ -9,7 +9,6 @@
 #include <ws2tcpip.h>
 
 #ifdef __MINGW32__
-#define WINSOCK_VERSION MAKEWORD(2,0)
 #define HAVE_UNISTD_H
 #define HAVE_INTTYPES_H
 #define HAVE_SYS_TIME_H
@@ -42,8 +41,19 @@ static inline int usleep(int udelay)
 	return 0;
 }
 
+#ifdef _MSC_VER
 #define snprintf _snprintf
 #define vsnprintf _vsnprintf
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#else
+#ifdef __MINGW32__
+#define WINSOCK_VERSION MAKEWORD(2,0)
+#else
+#define strncasecmp strnicmp
+#define strcasecmp stricmp
+#endif /* __MINGW32__ */
+#endif /* _MSC_VER */
 
 /* Compile in zlib support */
 #define LIBSSH2_HAVE_ZLIB 1
