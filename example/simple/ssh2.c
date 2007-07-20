@@ -1,5 +1,5 @@
 /*
- * $Id: ssh2.c,v 1.13 2007/07/20 01:23:10 gknauf Exp $
+ * $Id: ssh2.c,v 1.14 2007/07/20 09:51:05 gknauf Exp $
  *
  * Sample showing how to do SSH2 connect.
  *
@@ -9,9 +9,9 @@
  * "ssh2 host user password [-p|-i|-k]"
  */
 
+#include <libssh2_config.h>
 #include <libssh2.h>
 #include <libssh2_sftp.h>
-#include <libssh2_config.h>
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
