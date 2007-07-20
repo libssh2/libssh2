@@ -1,12 +1,12 @@
 /*
- * $Id: ssh2.c,v 1.12 2007/07/19 17:08:54 gknauf Exp $
+ * $Id: ssh2.c,v 1.13 2007/07/20 01:23:10 gknauf Exp $
  *
  * Sample showing how to do SSH2 connect.
  *
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * "ssh2 host user password"
+ * "ssh2 host user password [-p|-i|-k]"
  */
 
 #include <libssh2.h>
@@ -35,6 +35,32 @@
 #include <stdio.h>
 #include <ctype.h>
 
+
+char *keyfile1=(char *)"~/.ssh/id_rsa.pub";
+char *keyfile2=(char *)"~/.ssh/id_rsa";
+char *username=(char *)"username";
+char *password=(char *)"password";
+
+
+static void kbd_callback(const char *name, int name_len, 
+             const char *instruction, int instruction_len, int num_prompts,
+             const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
+             LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
+             void **abstract)
+{
+    (void)name;
+    (void)name_len;
+    (void)instruction;
+    (void)instruction_len;
+    if (num_prompts == 1) {
+        responses[0].text = strdup(password);
+        responses[0].length = strlen(password);
+    }
+    (void)prompts;
+    (void)abstract;
+} /* kbd_callback */
+
+
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
@@ -44,10 +70,6 @@ int main(int argc, char *argv[])
     char *userauthlist;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
-    char *username=(char *)"username";
-    char *password=(char *)"password";
-    char *keyfile1=(char *)"~/.ssh/id_rsa.pub";
-    char *keyfile2=(char *)"~/.ssh/id_rsa";
 #ifdef WIN32
     WSADATA wsadata;
 
@@ -116,6 +138,19 @@ int main(int argc, char *argv[])
         auth_pw |= 4;
     }
 
+    /* if we got an 4. argument we set this option if supported */ 
+    if(argc > 4) {
+        if ((auth_pw & 1) && !strcasecmp(argv[4], "-p")) {
+            auth_pw = 1;
+        }
+        if ((auth_pw & 2) && !strcasecmp(argv[4], "-i")) {
+            auth_pw = 2;
+        }
+        if ((auth_pw & 4) && !strcasecmp(argv[4], "-k")) {
+            auth_pw = 4;
+        }
+    }
+
     if (auth_pw & 1) {
         /* We could authenticate via password */
         if (libssh2_userauth_password(session, username, password)) {
@@ -124,16 +159,14 @@ int main(int argc, char *argv[])
         } else {
             printf("\tAuthentication by password succeeded.\n");
         }
-#if 0 /* !! not implemented yet !! */
     } else if (auth_pw & 2) {
         /* Or via keyboard-interactive */
-        if (libssh2_userauth_keyboard_interactive(session, username, response_callback) ) {
+        if (libssh2_userauth_keyboard_interactive(session, username, &kbd_callback) ) {
             printf("\tAuthentication by keyboard-interactive failed!\n");
             goto shutdown;
         } else {
             printf("\tAuthentication by keyboard-interactive succeeded.\n");
         }
-#endif
     } else if (auth_pw & 4) {
         /* Or by public key */
         if (libssh2_userauth_publickey_fromfile(session, username, keyfile1, keyfile2, password)) {
