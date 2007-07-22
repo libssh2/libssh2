@@ -1,5 +1,5 @@
 /*
- * $Id: sftp.c,v 1.10 2007/07/22 02:07:55 gknauf Exp $
+ * $Id: sftp.c,v 1.11 2007/07/22 02:15:31 gknauf Exp $
  *
  * Sample showing how to do SFTP transfers.
  *
@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
     int sock, i, auth_pw = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
+    char *userauthlist;
     LIBSSH2_SESSION *session;
     int rc;
     LIBSSH2_SFTP *sftp_session;
