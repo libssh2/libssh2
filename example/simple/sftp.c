@@ -1,12 +1,12 @@
 /*
- * $Id: sftp.c,v 1.9 2007/07/14 21:24:38 bagder Exp $
+ * $Id: sftp.c,v 1.10 2007/07/22 02:07:55 gknauf Exp $
  *
  * Sample showing how to do SFTP transfers.
  *
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * "sftp 192.168.0.1 user password /tmp/secrets"
+ * "sftp 192.168.0.1 user password /tmp/secrets -p|-i|-k"
  */
 
 #include <libssh2.h>
@@ -38,16 +38,40 @@
 #include <stdio.h>
 #include <ctype.h>
 
+
+char *keyfile1=(char *)"~/.ssh/id_rsa.pub";
+char *keyfile2=(char *)"~/.ssh/id_rsa";
+char *username=(char *)"username";
+char *password=(char *)"password";
+char *sftppath=(char *)"/tmp/TEST";
+
+
+static void kbd_callback(const char *name, int name_len, 
+             const char *instruction, int instruction_len, int num_prompts,
+             const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
+             LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
+             void **abstract)
+{
+    (void)name;
+    (void)name_len;
+    (void)instruction;
+    (void)instruction_len;
+    if (num_prompts == 1) {
+        responses[0].text = strdup(password);
+        responses[0].length = strlen(password);
+    }
+    (void)prompts;
+    (void)abstract;
+} /* kbd_callback */
+
+
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int sock, i, auth_pw = 1;
+    int sock, i, auth_pw = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
-    char *username=(char *)"username";
-    char *password=(char *)"password";
-    char *sftppath=(char *)"/tmp/TEST";
     int rc;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
@@ -121,21 +145,57 @@ int main(int argc, char *argv[])
     }
     fprintf(stderr, "\n");
 
-    if (auth_pw) {
+    /* check what authentication methods are available */
+    userauthlist = libssh2_userauth_list(session, username, sizeof(username));
+    printf("Authentication methods: %s\n", userauthlist);
+    if (strstr(userauthlist, "password") != NULL) {
+        auth_pw |= 1;
+    }
+    if (strstr(userauthlist, "keyboard-interactive") != NULL) {
+        auth_pw |= 2;
+    }
+    if (strstr(userauthlist, "publickey") != NULL) {
+        auth_pw |= 4;
+    }
+
+    /* if we got an 4. argument we set this option if supported */ 
+    if(argc > 5) {
+        if ((auth_pw & 1) && !strcasecmp(argv[5], "-p")) {
+            auth_pw = 1;
+        }
+        if ((auth_pw & 2) && !strcasecmp(argv[5], "-i")) {
+            auth_pw = 2;
+        }
+        if ((auth_pw & 4) && !strcasecmp(argv[5], "-k")) {
+            auth_pw = 4;
+        }
+    }
+
+    if (auth_pw & 1) {
         /* We could authenticate via password */
         if (libssh2_userauth_password(session, username, password)) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
         }
-    } else {
-        /* Or by public key */
-        if (libssh2_userauth_publickey_fromfile(session, username,
-                                                "/home/username/.ssh/id_rsa.pub",
-                                                "/home/username/.ssh/id_rsa",
-                                                password)) {
-            fprintf(stderr, "\tAuthentication by public key failed\n");
+    } else if (auth_pw & 2) {
+        /* Or via keyboard-interactive */
+        if (libssh2_userauth_keyboard_interactive(session, username, &kbd_callback) ) {
+            printf("\tAuthentication by keyboard-interactive failed!\n");
             goto shutdown;
+        } else {
+            printf("\tAuthentication by keyboard-interactive succeeded.\n");
         }
+    } else if (auth_pw & 4) {
+        /* Or by public key */
+        if (libssh2_userauth_publickey_fromfile(session, username, keyfile1, keyfile2, password)) {
+            printf("\tAuthentication by public key failed!\n");
+            goto shutdown;
+        } else {
+            printf("\tAuthentication by public key succeeded.\n");
+        }
+    } else {
+        printf("No supported authentication methods found!\n");
+        goto shutdown;
     }
 
     fprintf(stderr, "libssh2_sftp_init()!\n");
