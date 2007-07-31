@@ -1,5 +1,5 @@
 /*
- * $Id: sftp.c,v 1.11 2007/07/22 02:15:31 gknauf Exp $
+ * $Id: sftp.c,v 1.12 2007/07/31 11:00:29 bagder Exp $
  *
  * Sample showing how to do SFTP transfers.
  *
@@ -9,9 +9,9 @@
  * "sftp 192.168.0.1 user password /tmp/secrets -p|-i|-k"
  */
 
+#include "config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
-#include <libssh2_config.h>
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>

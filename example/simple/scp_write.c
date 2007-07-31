@@ -1,11 +1,11 @@
 /*
- * $Id: scp_write.c,v 1.3 2007/07/14 21:24:38 bagder Exp $
+ * $Id: scp_write.c,v 1.4 2007/07/31 11:00:29 bagder Exp $
  *
  * Sample showing how to do a simple SCP transfer.
  */
 
+#include "config.h"
 #include <libssh2.h>
-#include <libssh2_config.h>
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>

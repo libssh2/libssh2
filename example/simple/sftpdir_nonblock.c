@@ -1,5 +1,5 @@
 /*
- * $Id: sftpdir_nonblock.c,v 1.8 2007/07/14 21:24:38 bagder Exp $
+ * $Id: sftpdir_nonblock.c,v 1.9 2007/07/31 11:00:29 bagder Exp $
  *
  * Sample doing an SFTP directory listing.
  *
@@ -9,9 +9,9 @@
  * "sftpdir 192.168.0.1 user password /tmp/secretdir"
  */
 
+#include "config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
-#include <libssh2_config.h>
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
