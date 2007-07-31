@@ -1,7 +1,7 @@
 # AC_PREREQ(2.57)
 AC_INIT(libssh2, [-], libssh2-devel@lists.sourceforge.net)
 AC_CONFIG_SRCDIR([src])
-AC_CONFIG_HEADER([src/libssh2_config.h])
+AC_CONFIG_HEADER([src/libssh2_config.h example/simple/config.h])
 AM_MAINTAINER_MODE
 
 dnl SED is needed by some of the tools
@@ -57,6 +57,9 @@ AC_C_BIGENDIAN
 if test -z "$PKG_CONFIG"; then
   AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
 fi
+
+dnl check for how to do large files
+AC_SYS_LARGEFILE
 
 # Look for libgcrypt.
 AC_ARG_WITH(libgcrypt,
