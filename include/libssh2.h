@@ -115,10 +115,8 @@ typedef long long libssh2_int64_t;
  */
 #define LIBSSH2_TIMESTAMP "CVS"
 
-#define LIBSSH2_APINO                               200706151200L
-
 /* Part of every banner, user specified or not */
-#define LIBSSH2_SSH_BANNER                          "SSH-2.0-libssh2_" LIBSSH2_VERSION
+#define LIBSSH2_SSH_BANNER                  "SSH-2.0-libssh2_" LIBSSH2_VERSION
 
 /* We *could* add a comment here if we so chose */
 #define LIBSSH2_SSH_DEFAULT_BANNER                  LIBSSH2_SSH_BANNER
