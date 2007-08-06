@@ -1,4 +1,30 @@
-Version 
+Version 0.16
+------------
+Changes since previous version include:
+
+   o CRLF stripping fix for PEM reading
+   o libssh2_scp_recv() error message fix
+   o added HACKING as an initial attempt to describe our source code format
+   o new public defines in include/libssh2.h to allow applictions to figure out
+     version number etc
+   o new script (maketgz) to build releases with
+   o updated files for building with MSVC and mingw
+   o keyboard-interactive would always fail due to claimed memory problem
+   o a few minor memory leaks fixed
+   o libssh2_poll() no longer relies on C99 features
+   o AIX 4 and 5 now supports non-blocking sockets
+   o large file magic checks in configure
+   o LIBSSH2_APINO was removed from the public header file
+
+This release would not have been possible without these friendly contributors:
+
+   James Housley, Simon Josefsson, Dan Fandrich, Guenter Knauf and I too did
+   some poking. (Sorry if I forgot anyone I should've mentioned here.)
+
+Of course we would have nothing without the great work by Sara Golemon that 
+we're extending and building upon.
+
+Version 0.15
 ------------
   Added libssh2_sftp_readdir_ex() and updated LIBSSH2_APINO to
   200706151200 (James Housley)
