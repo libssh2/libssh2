@@ -79,12 +79,12 @@ typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
 #endif
 
-#define LIBSSH2_VERSION                             "0.16.0-CVS"
+#define LIBSSH2_VERSION                             "0.18.0-CVS"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
 #define LIBSSH2_VERSION_MAJOR                       0
-#define LIBSSH2_VERSION_MINOR                       16
+#define LIBSSH2_VERSION_MINOR                       18
 #define LIBSSH2_VERSION_PATCH                       0
 
 /* This is the numeric version of the libssh2 version number, meant for easier
@@ -102,7 +102,7 @@ typedef long long libssh2_int64_t;
    and it is always a greater number in a more recent release. It makes
    comparisons with greater than and less than work.
 */
-#define LIBSSH2_VERSION_NUM                         0x001000
+#define LIBSSH2_VERSION_NUM                         0x001200
 
 /*
  * This is the date and time when the full source package was created. The
