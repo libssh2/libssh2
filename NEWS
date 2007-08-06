@@ -1,3 +1,23 @@
+Version 0.17
+------------
+Changes since previous version include:
+
+   o Re-indented the source code with this GNU indent setup:
+
+      --braces-on-if-line
+      --braces-after-struct-decl-line
+      --space-after-cast
+      --line-length 79
+      --comment-line-length 79
+      --cuddle-else
+      --no-tabs
+      --tab-size 8
+      --indent-level 4
+      --no-space-after-for
+      --space-after-if
+      --space-after-while
+      --no-space-after-function-call-names
+
 Version 0.16
 ------------
 Changes since previous version include:
