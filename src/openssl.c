@@ -43,23 +43,23 @@
 #define EVP_MAX_BLOCK_LENGTH 32
 #endif
 
-int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
-             const unsigned char *edata,
-             unsigned long elen,
-             const unsigned char *ndata,
-             unsigned long nlen,
-             const unsigned char *ddata,
-             unsigned long dlen,
-             const unsigned char *pdata,
-             unsigned long plen,
-             const unsigned char *qdata,
-             unsigned long qlen,
-             const unsigned char *e1data,
-             unsigned long e1len,
-             const unsigned char *e2data,
-             unsigned long e2len,
-             const unsigned char *coeffdata,
-             unsigned long coefflen)
+int
+_libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
+                 const unsigned char *edata,
+                 unsigned long elen,
+                 const unsigned char *ndata,
+                 unsigned long nlen,
+                 const unsigned char *ddata,
+                 unsigned long dlen,
+                 const unsigned char *pdata,
+                 unsigned long plen,
+                 const unsigned char *qdata,
+                 unsigned long qlen,
+                 const unsigned char *e1data,
+                 unsigned long e1len,
+                 const unsigned char *e2data,
+                 unsigned long e2len,
+                 const unsigned char *coeffdata, unsigned long coefflen)
 {
     *rsa = RSA_new();
 
@@ -91,32 +91,32 @@ int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
     return 0;
 }
 
-int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsactx,
-                 const unsigned char *sig,
-                 unsigned long sig_len,
-                 const unsigned char *m,
-                 unsigned long m_len)
+int
+_libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
+                         const unsigned char *sig,
+                         unsigned long sig_len,
+                         const unsigned char *m, unsigned long m_len)
 {
     unsigned char hash[SHA_DIGEST_LENGTH];
     int ret;
 
     SHA1(m, m_len, hash);
     ret = RSA_verify(NID_sha1, hash, SHA_DIGEST_LENGTH,
-             (unsigned char *)sig, sig_len, rsactx);
+                     (unsigned char *) sig, sig_len, rsactx);
     return (ret == 1) ? 0 : -1;
 }
 
-int _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
-             const unsigned char *p,
-             unsigned long p_len,
-             const unsigned char *q,
-             unsigned long q_len,
-             const unsigned char *g,
-             unsigned long g_len,
-             const unsigned char *y,
-             unsigned long y_len,
-             const unsigned char *x,
-             unsigned long x_len)
+int
+_libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
+                 const unsigned char *p,
+                 unsigned long p_len,
+                 const unsigned char *q,
+                 unsigned long q_len,
+                 const unsigned char *g,
+                 unsigned long g_len,
+                 const unsigned char *y,
+                 unsigned long y_len,
+                 const unsigned char *x, unsigned long x_len)
 {
     *dsactx = DSA_new();
 
@@ -140,10 +140,10 @@ int _libssh2_dsa_new(libssh2_dsa_ctx **dsactx,
     return 0;
 }
 
-int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
-                 const unsigned char *sig,
-                 const unsigned char *m,
-                 unsigned long m_len)
+int
+_libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
+                         const unsigned char *sig,
+                         const unsigned char *m, unsigned long m_len)
 {
     unsigned char hash[SHA_DIGEST_LENGTH];
     DSA_SIG dsasig;
@@ -162,27 +162,26 @@ int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
     return (ret == 1) ? 0 : -1;
 }
 
-int _libssh2_cipher_init (_libssh2_cipher_ctx *h,
-              _libssh2_cipher_type(algo),
-              unsigned char *iv,
-              unsigned char *secret,
-              int encrypt)
+int
+_libssh2_cipher_init(_libssh2_cipher_ctx * h,
+                     _libssh2_cipher_type(algo),
+                     unsigned char *iv, unsigned char *secret, int encrypt)
 {
     EVP_CIPHER_CTX_init(h);
     EVP_CipherInit(h, algo(), secret, iv, encrypt);
     return 0;
 }
 
-int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
-              _libssh2_cipher_type(algo),
-              int encrypt,
-              unsigned char *block)
+int
+_libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
+                      _libssh2_cipher_type(algo),
+                      int encrypt, unsigned char *block)
 {
     int blocksize = ctx->cipher->block_size;
     unsigned char buf[EVP_MAX_BLOCK_LENGTH];
     int ret;
-    (void)algo;
-    (void)encrypt;
+    (void) algo;
+    (void) encrypt;
 
     if (blocksize == 1) {
 /* Hack for arcfour. */
@@ -199,11 +198,10 @@ int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
  * calling program
  */
 static int
-passphrase_cb(char *buf, int size,
-          int rwflag, char *passphrase)
+passphrase_cb(char *buf, int size, int rwflag, char *passphrase)
 {
     int passphrase_len = strlen(passphrase);
-    (void)rwflag;
+    (void) rwflag;
 
     if (passphrase_len > (size - 1)) {
         passphrase_len = size - 1;
@@ -214,12 +212,12 @@ passphrase_cb(char *buf, int size,
     return passphrase_len;
 }
 
-int _libssh2_rsa_new_private (libssh2_rsa_ctx **rsa,
-                  LIBSSH2_SESSION *session,
-                  FILE *fp,
-                  unsigned const char *passphrase)
+int
+_libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
+                         LIBSSH2_SESSION * session,
+                         FILE * fp, unsigned const char *passphrase)
 {
-    (void)session;
+    (void) session;
     if (!EVP_get_cipherbyname("des")) {
 /* If this cipher isn't loaded it's a pretty good indication that none are.
  * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
@@ -227,20 +225,20 @@ int _libssh2_rsa_new_private (libssh2_rsa_ctx **rsa,
  */
         OpenSSL_add_all_ciphers();
     }
-    *rsa = PEM_read_RSAPrivateKey(fp, NULL, (void*)passphrase_cb,
-                      (void*)passphrase);
+    *rsa = PEM_read_RSAPrivateKey(fp, NULL, (void *) passphrase_cb,
+                                  (void *) passphrase);
     if (!*rsa) {
         return -1;
     }
     return 0;
 }
 
-int _libssh2_dsa_new_private (libssh2_dsa_ctx **dsa,
-                  LIBSSH2_SESSION *session,
-                  FILE *fp,
-                  unsigned const char *passphrase)
+int
+_libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
+                         LIBSSH2_SESSION * session,
+                         FILE * fp, unsigned const char *passphrase)
 {
-    (void)session;
+    (void) session;
     if (!EVP_get_cipherbyname("des")) {
 /* If this cipher isn't loaded it's a pretty good indication that none are.
  * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
@@ -248,20 +246,20 @@ int _libssh2_dsa_new_private (libssh2_dsa_ctx **dsa,
  */
         OpenSSL_add_all_ciphers();
     }
-    *dsa = PEM_read_DSAPrivateKey(fp, NULL, (void*)passphrase_cb,
-                      (void*)passphrase);
+    *dsa = PEM_read_DSAPrivateKey(fp, NULL, (void *) passphrase_cb,
+                                  (void *) passphrase);
     if (!*dsa) {
         return -1;
     }
     return 0;
 }
 
-int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-               libssh2_rsa_ctx *rsactx,
-               const unsigned char *hash,
-               unsigned long hash_len,
-               unsigned char **signature,
-               unsigned long *signature_len)
+int
+_libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
+                       libssh2_rsa_ctx * rsactx,
+                       const unsigned char *hash,
+                       unsigned long hash_len,
+                       unsigned char **signature, unsigned long *signature_len)
 {
     int ret;
     unsigned char *sig;
@@ -287,14 +285,14 @@ int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
     return 0;
 }
 
-int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
-               const unsigned char *hash,
-               unsigned long hash_len,
-               unsigned char *signature)
+int
+_libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
+                       const unsigned char *hash,
+                       unsigned long hash_len, unsigned char *signature)
 {
     DSA_SIG *sig;
     int r_len, s_len, rs_pad;
-    (void)hash_len;
+    (void) hash_len;
 
     sig = DSA_do_sign(hash, SHA_DIGEST_LENGTH, dsactx);
     if (!sig) {

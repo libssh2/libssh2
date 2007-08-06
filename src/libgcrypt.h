@@ -93,66 +93,59 @@
 
 #define libssh2_rsa_ctx struct gcry_sexp
 
-int _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
-             const unsigned char *edata,
-             unsigned long elen,
-             const unsigned char *ndata,
-             unsigned long nlen,
-             const unsigned char *ddata,
-             unsigned long dlen,
-             const unsigned char *pdata,
-             unsigned long plen,
-             const unsigned char *qdata,
-             unsigned long qlen,
-             const unsigned char *e1data,
-             unsigned long e1len,
-             const unsigned char *e2data,
-             unsigned long e2len,
-             const unsigned char *coeffdata,
-             unsigned long coefflen);
-int _libssh2_rsa_new_private (libssh2_rsa_ctx **rsa,
-                  LIBSSH2_SESSION *session,
-                  FILE *fp,
-                  unsigned const char *passphrase);
-int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
-                 const unsigned char *sig,
-                 unsigned long sig_len,
-                 const unsigned char *m,
-                 unsigned long m_len);
-int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION *session,
-               libssh2_rsa_ctx *rsactx,
-               const unsigned char *hash,
-               unsigned long hash_len,
-               unsigned char **signature,
-               unsigned long *signature_len);
+int _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
+                     const unsigned char *edata,
+                     unsigned long elen,
+                     const unsigned char *ndata,
+                     unsigned long nlen,
+                     const unsigned char *ddata,
+                     unsigned long dlen,
+                     const unsigned char *pdata,
+                     unsigned long plen,
+                     const unsigned char *qdata,
+                     unsigned long qlen,
+                     const unsigned char *e1data,
+                     unsigned long e1len,
+                     const unsigned char *e2data,
+                     unsigned long e2len,
+                     const unsigned char *coeffdata, unsigned long coefflen);
+int _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
+                             LIBSSH2_SESSION * session,
+                             FILE * fp, unsigned const char *passphrase);
+int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
+                             const unsigned char *sig,
+                             unsigned long sig_len,
+                             const unsigned char *m, unsigned long m_len);
+int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
+                           libssh2_rsa_ctx * rsactx,
+                           const unsigned char *hash,
+                           unsigned long hash_len,
+                           unsigned char **signature,
+                           unsigned long *signature_len);
 
 #define _libssh2_rsa_free(rsactx)  gcry_sexp_release (rsactx)
 
 #define libssh2_dsa_ctx struct gcry_sexp
 
-int _libssh2_dsa_new(libssh2_dsa_ctx **dsa,
-             const unsigned char *pdata,
-             unsigned long plen,
-             const unsigned char *qdata,
-             unsigned long qlen,
-             const unsigned char *gdata,
-             unsigned long glen,
-             const unsigned char *ydata,
-             unsigned long ylen,
-             const unsigned char *x,
-             unsigned long x_len);
-int _libssh2_dsa_new_private (libssh2_dsa_ctx **dsa,
-                  LIBSSH2_SESSION *session,
-                  FILE *fp,
-                  unsigned const char *passphrase);
-int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
-                 const unsigned char *sig,
-                 const unsigned char *m,
-                 unsigned long m_len);
-int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
-               const unsigned char *hash,
-               unsigned long hash_len,
-               unsigned char *sig);
+int _libssh2_dsa_new(libssh2_dsa_ctx ** dsa,
+                     const unsigned char *pdata,
+                     unsigned long plen,
+                     const unsigned char *qdata,
+                     unsigned long qlen,
+                     const unsigned char *gdata,
+                     unsigned long glen,
+                     const unsigned char *ydata,
+                     unsigned long ylen,
+                     const unsigned char *x, unsigned long x_len);
+int _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
+                             LIBSSH2_SESSION * session,
+                             FILE * fp, unsigned const char *passphrase);
+int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsa,
+                             const unsigned char *sig,
+                             const unsigned char *m, unsigned long m_len);
+int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
+                           const unsigned char *hash,
+                           unsigned long hash_len, unsigned char *sig);
 
 #define _libssh2_dsa_free(dsactx)  gcry_sexp_release (dsactx)
 
@@ -167,16 +160,14 @@ int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx *dsactx,
 #define _libssh2_cipher_cast5 GCRY_CIPHER_CAST5
 #define _libssh2_cipher_3des GCRY_CIPHER_3DES
 
-int _libssh2_cipher_init (_libssh2_cipher_ctx *h,
-              _libssh2_cipher_type(algo),
-              unsigned char *iv,
-              unsigned char *secret,
-              int encrypt);
+int _libssh2_cipher_init(_libssh2_cipher_ctx * h,
+                         _libssh2_cipher_type(algo),
+                         unsigned char *iv,
+                         unsigned char *secret, int encrypt);
 
-int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
-              _libssh2_cipher_type(algo),
-              int encrypt,
-              unsigned char *block);
+int _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
+                          _libssh2_cipher_type(algo),
+                          int encrypt, unsigned char *block);
 
 #define _libssh2_cipher_dtor(ctx) gcry_cipher_close(*(ctx))
 

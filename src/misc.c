@@ -42,17 +42,20 @@
 
 /* {{{ libssh2_ntohu32
  */
-unsigned long libssh2_ntohu32(const unsigned char *buf)
+unsigned long
+libssh2_ntohu32(const unsigned char *buf)
 {
     return (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
 }
+
 /* }}} */
 
 /* {{{ libssh2_ntohu64
  * Note: Some 32-bit platforms have issues with bitops on long longs
  * Work around this by doing expensive (but safer) arithmetic ops with optimization defying parentheses
  */
-libssh2_uint64_t libssh2_ntohu64(const unsigned char *buf)
+libssh2_uint64_t
+libssh2_ntohu64(const unsigned char *buf)
 {
     unsigned long msl, lsl;
 
@@ -61,22 +64,26 @@ libssh2_uint64_t libssh2_ntohu64(const unsigned char *buf)
 
     return ((msl * 65536) * 65536) + lsl;
 }
+
 /* }}} */
 
 /* {{{ libssh2_htonu32
  */
-void libssh2_htonu32(unsigned char *buf, unsigned long value)
+void
+libssh2_htonu32(unsigned char *buf, unsigned long value)
 {
     buf[0] = (value >> 24) & 0xFF;
     buf[1] = (value >> 16) & 0xFF;
     buf[2] = (value >> 8) & 0xFF;
     buf[3] = value & 0xFF;
 }
+
 /* }}} */
 
 /* {{{ libssh2_htonu64
  */
-void libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
+void
+libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
 {
     unsigned long msl = (value / 65536) / 65536;
 
@@ -90,6 +97,7 @@ void libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
     buf[6] = (value >> 8) & 0xFF;
     buf[7] = value & 0xFF;
 }
+
 /* }}} */
 
 /* Base64 Conversion */
@@ -97,11 +105,11 @@ void libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
 /* {{{ */
 static const char libssh2_base64_table[] =
     { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-      'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-      'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/', '\0'
-    };
+    'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/', '\0'
+};
 
 static const char libssh2_base64_pad = '=';
 
@@ -110,7 +118,7 @@ static const short libssh2_base64_reverse_table[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,
     52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1,
-    -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
+    -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
     15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,
     -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
     41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1,
@@ -123,42 +131,46 @@ static const short libssh2_base64_reverse_table[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
+
 /* }}} */
 
 
 /* {{{ libssh2_base64_decode
  * Decode a base64 chunk and store it into a newly alloc'd buffer
  */
-LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **data, unsigned int *datalen,
-                                                                const char *src, unsigned int src_len)
+LIBSSH2_API int
+libssh2_base64_decode(LIBSSH2_SESSION * session, char **data,
+                      unsigned int *datalen, const char *src,
+                      unsigned int src_len)
 {
     unsigned char *s, *d;
     short v;
     int i = 0, len = 0;
 
     *data = LIBSSH2_ALLOC(session, (3 * src_len / 4) + 1);
-    d = (unsigned char *)*data;
+    d = (unsigned char *) *data;
     if (!d) {
         return -1;
     }
 
-    for(s = (unsigned char *)src; ((char*)s) < (src + src_len); s++) {
-        if ((v = libssh2_base64_reverse_table[*s]) < 0) continue;
+    for(s = (unsigned char *) src; ((char *) s) < (src + src_len); s++) {
+        if ((v = libssh2_base64_reverse_table[*s]) < 0)
+            continue;
         switch (i % 4) {
-            case 0:
-                d[len] = v << 2;
-                break;
-            case 1:
-                d[len++] |= v >> 4;
-                d[len] = v << 4;
-                break;
-            case 2:
-                d[len++] |= v >> 2;
-                d[len] = v << 6;
-                break;
-            case 3:
-                d[len++] |= v;
-                break;
+        case 0:
+            d[len] = v << 2;
+            break;
+        case 1:
+            d[len++] |= v >> 4;
+            d[len] = v << 4;
+            break;
+        case 2:
+            d[len++] |= v >> 2;
+            d[len] = v << 6;
+            break;
+        case 3:
+            d[len++] |= v;
+            break;
         }
         i++;
     }
@@ -171,22 +183,24 @@ LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **data, uns
     *datalen = len;
     return 0;
 }
+
 /* }}} */
 
 #ifdef LIBSSH2DEBUG
-LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
+LIBSSH2_API int
+libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
 {
     session->showmask = bitmask;
     return 0;
 }
 
-void _libssh2_debug(LIBSSH2_SESSION *session, int context,
-            const char *format, ...)
+void
+_libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 {
     char buffer[1536];
     int len;
     va_list vargs;
-    static const char * const contexts[9] = {
+    static const char *const contexts[9] = {
         "Unknown",
         "Transport",
         "Key Exchange",
@@ -201,7 +215,7 @@ void _libssh2_debug(LIBSSH2_SESSION *session, int context,
     if (context < 1 || context > 8) {
         context = 0;
     }
-    if (!(session->showmask & (1<<context))) {
+    if (!(session->showmask & (1 << context))) {
         /* no such output asked for */
         return;
     }
@@ -217,10 +231,11 @@ void _libssh2_debug(LIBSSH2_SESSION *session, int context,
 }
 
 #else
-LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask)
+LIBSSH2_API int
+libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
 {
-    (void)session;
-    (void)bitmask;
+    (void) session;
+    (void) bitmask;
     return 0;
 }
 #endif
