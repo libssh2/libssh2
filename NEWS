@@ -1,3 +1,9 @@
+Version 0.18
+------------
+
+- Satish Mittal and David J Sullivan fixed an infinit recv() loop in
+  libssh2_banner_receive()
+
 Version 0.17
 ------------
 Changes since previous version include:

@@ -135,16 +135,18 @@ libssh2_banner_receive(LIBSSH2_SESSION * session)
             if (errno == EAGAIN) {
                 session->banner_TxRx_total_send = banner_len;
                 return PACKET_EAGAIN;
-            } else {
-                /* Some kinda error */
-                session->banner_TxRx_state = libssh2_NB_state_idle;
-                session->banner_TxRx_total_send = 0;
-                return 1;
             }
+
+            /* Some kinda error */
+            session->banner_TxRx_state = libssh2_NB_state_idle;
+            session->banner_TxRx_total_send = 0;
+            return 1;
         }
 
-        if (ret <= 0)
-            continue;
+        if (ret == 0) {
+            session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
+            return PACKET_FAIL;
+        }
 
         if (c == '\0') {
             /* NULLs are not allowed in SSH banners */
