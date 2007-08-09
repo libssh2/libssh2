@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_RW_nonblock.c,v 1.9 2007/07/31 11:00:29 bagder Exp $
+ * $Id: sftp_RW_nonblock.c,v 1.10 2007/08/09 01:10:11 dfandrich Exp $
  *
  * Sample showing how to do SFTP transfers in a non-blocking manner.
  *
@@ -48,10 +48,10 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
-    char *username=(char *)"username";
-    char *password=(char *)"password";
-    char *sftppath=(char *)"/tmp/TEST"; /* source path */
-    char *dest=(char *)"/tmp/TEST2";    /* destination path */
+    const char *username="username";
+    const char *password="password";
+    const char *sftppath="/tmp/TEST"; /* source path */
+    const char *dest="/tmp/TEST2";    /* destination path */
     int rc;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;

@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_mkdir_nonblock.c,v 1.8 2007/07/31 11:00:29 bagder Exp $
+ * $Id: sftp_mkdir_nonblock.c,v 1.9 2007/08/09 01:10:11 dfandrich Exp $
  *
  * Sample showing how to do SFTP non-blocking mkdir.
  *
@@ -42,9 +42,9 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
-    char *username=(char *)"username";
-    char *password=(char *)"password";
-    char *sftppath=(char *)"/tmp/sftp_mkdir_nonblock";
+    const char *username="username";
+    const char *password="password";
+    const char *sftppath="/tmp/sftp_mkdir_nonblock";
     int rc;
     LIBSSH2_SFTP *sftp_session;
 

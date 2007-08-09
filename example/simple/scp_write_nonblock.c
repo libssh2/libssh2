@@ -1,5 +1,5 @@
 /*
- * $Id: scp_write_nonblock.c,v 1.6 2007/07/31 11:00:29 bagder Exp $
+ * $Id: scp_write_nonblock.c,v 1.7 2007/08/09 01:10:11 dfandrich Exp $
  *
  * Sample showing how to do a simple SCP transfer.
  */
@@ -41,10 +41,10 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
-    char *username=(char *)"username";
-    char *password=(char *)"password";
-    char *loclfile=(char *)"scp_write.c";
-    char *scppath=(char *)"/tmp/TEST";
+    const char *username="username";
+    const char *password="password";
+    const char *loclfile="scp_write.c";
+    const char *scppath="/tmp/TEST";
     FILE *local;
     int rc;
     char mem[1024];

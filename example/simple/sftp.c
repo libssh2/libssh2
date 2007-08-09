@@ -1,5 +1,5 @@
 /*
- * $Id: sftp.c,v 1.12 2007/07/31 11:00:29 bagder Exp $
+ * $Id: sftp.c,v 1.13 2007/08/09 01:10:11 dfandrich Exp $
  *
  * Sample showing how to do SFTP transfers.
  *
@@ -39,11 +39,11 @@
 #include <ctype.h>
 
 
-char *keyfile1=(char *)"~/.ssh/id_rsa.pub";
-char *keyfile2=(char *)"~/.ssh/id_rsa";
-char *username=(char *)"username";
-char *password=(char *)"password";
-char *sftppath=(char *)"/tmp/TEST";
+const char *keyfile1="~/.ssh/id_rsa.pub";
+const char *keyfile2="~/.ssh/id_rsa";
+const char *username="username";
+const char *password="password";
+const char *sftppath="/tmp/TEST";
 
 
 static void kbd_callback(const char *name, int name_len, 

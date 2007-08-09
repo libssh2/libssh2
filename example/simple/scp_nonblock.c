@@ -1,5 +1,5 @@
 /*
- * $Id: scp_nonblock.c,v 1.8 2007/07/31 11:00:29 bagder Exp $
+ * $Id: scp_nonblock.c,v 1.9 2007/08/09 01:10:11 dfandrich Exp $
  *
  * Sample showing how to do SCP transfers in a non-blocking manner.
  */
@@ -40,9 +40,9 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
-    char *username=(char *)"username";
-    char *password=(char *)"password";
-    char *scppath=(char *)"/tmp/TEST";
+    const char *username="username";
+    const char *password="password";
+    const char *scppath="/tmp/TEST";
     struct stat fileinfo;
     int rc;
     off_t got=0;
