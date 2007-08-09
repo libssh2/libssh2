@@ -700,7 +700,7 @@ libssh2_channel_forward_accept(LIBSSH2_LISTENER * listener)
  * Set an environment variable prior to requesting a shell/program/subsystem
  */
 LIBSSH2_API int
-libssh2_channel_setenv_ex(LIBSSH2_CHANNEL * channel, char *varname,
+libssh2_channel_setenv_ex(LIBSSH2_CHANNEL * channel, const char *varname,
                           unsigned int varname_len, const char *value,
                           unsigned int value_len)
 {
