@@ -1327,7 +1327,9 @@ libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
                       "Unable to send transfer-window adjustment packet, deferring",
                       0);
         channel->adjust_queue = adjustment;
+        channel->adjust_state = libssh2_NB_state_idle;
     } else {
+        channel->adjust_state = libssh2_NB_state_idle;
         channel->remote.window_size += adjustment;
     }
 

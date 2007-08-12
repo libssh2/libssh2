@@ -1,6 +1,14 @@
 Version 0.18
 ------------
 
+- Peter O'Gorman reported how a SCP transfer would hang for him, and it was
+  fairly easy reproducable. One bug was in the transport layer, ignoring to
+  read more data while there was data left even though it couldn't decrypt the
+  data that was left due to it being too little... The other bug was in the
+  channel layer, where the libssh2_channel_receive_window_adjust() function
+  missed to set the state variables at times and thus this function would
+  misbehave on repeated invokes.
+
 - Satish Mittal and David J Sullivan fixed an infinit recv() loop in
   libssh2_banner_receive()
 
