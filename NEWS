@@ -9,6 +9,9 @@ Version 0.18
   missed to set the state variables at times and thus this function would
   misbehave on repeated invokes.
 
+- Changed the signature of libssh2_channel_setenv_ex to add const to the
+  "varname" parameter (Dan Fandrich)
+
 - Satish Mittal and David J Sullivan fixed an infinit recv() loop in
   libssh2_banner_receive()
 
