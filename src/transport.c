@@ -328,9 +328,28 @@ libssh2_packet_read(LIBSSH2_SESSION * session)
                      PACKETBUFSIZE - remainbuf,
                      LIBSSH2_SOCKET_RECV_FLAGS(session));
             if (nread <= 0) {
-                /* check if this is due to EAGAIN and return
-                   the special return code if so, error out
-                   normally otherwise */
+                /* check if this is due to EAGAIN and return the special
+                   return code if so, error out normally otherwise */
+#ifdef WIN32
+                switch (WSAGetLastError()) {
+                case WSAEWOULDBLOCK:
+                    errno = EAGAIN;
+                    break;
+
+                case WSAENOTSOCK:
+                    errno = EBADF;
+                    break;
+
+                case WSAENOTCONN:
+                case WSAECONNABORTED:
+                    errno = WSAENOTCONN;
+                    break;
+
+                case WSAEINTR:
+                    errno = EINTR;
+                    break;
+                }
+#endif /* WIN32 */
                 if ((nread < 0) && (errno == EAGAIN)) {
                     return PACKET_EAGAIN;
                 }
