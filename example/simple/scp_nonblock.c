@@ -1,5 +1,5 @@
 /*
- * $Id: scp_nonblock.c,v 1.10 2007/09/24 12:14:18 bagder Exp $
+ * $Id: scp_nonblock.c,v 1.11 2007/09/24 12:15:45 bagder Exp $
  *
  * Sample showing how to do SCP transfers in a non-blocking manner.
  */
@@ -156,12 +156,11 @@ int main(int argc, char *argv[])
     fprintf(stderr, "libssh2_scp_recv() is done, now receive data!\n");
 
     while(got < fileinfo.st_size) {
-        char mem[256000];
+        char mem[1000];
 
         struct timeval timeout;
         int rc;
-        fd_set readfd;
-        fd_set writefd;
+        fd_set fd;
 
         do {
             int amount=sizeof(mem);
@@ -173,13 +172,8 @@ int main(int argc, char *argv[])
             /* loop until we block */
             rc = libssh2_channel_read(channel, mem, amount);
             if (rc > 0) {
-#if 0
                 write(1, mem, rc);
-#endif
                 got += rc;
-            }
-            else {
-                //printf("libssh2 returned %d\n", rc);
             }
         } while (rc > 0);
 
@@ -187,42 +181,23 @@ int main(int argc, char *argv[])
             /* this is due to blocking that would occur otherwise
             so we loop on this condition */
 
-            timeout.tv_sec = 1;
+            timeout.tv_sec = 10;
             timeout.tv_usec = 0;
 
-            FD_ZERO(&readfd);
-            FD_ZERO(&writefd);
+            FD_ZERO(&fd);
 
-            FD_SET(sock, &readfd);
-            FD_SET(sock, &writefd);
+            FD_SET(sock, &fd);
 
-            rc = select(sock+1, &readfd, &writefd, NULL, &timeout);
-            if(rc < 0) {
-                fprintf(stderr, "SCP ERROR: %d\n", rc);
-            }
-            else if (rc == 0) {
+            rc = select(sock+1, &fd, &fd, NULL, &timeout);
+            if (rc <= 0) {
+                /* negative is error
+                0 is timeout */
                 fprintf(stderr, "SCP timed out: %d\n", rc);
             }
-            else {
-#if 0
-                if(FD_ISSET(sock, &readfd)) {
-                    printf("Readable socket\n");
-                }
-                else if(FD_ISSET(sock, &writefd)) {
-                    static counter=0;
-                    printf("Writeable socket\n");
-                    if(counter++ > 200)
-                        return 1;
-                }
-#endif
-            }
-
-
             continue;
         }
         break;
     }
-    printf("Got totally %d bytes\n", (int)got);
 
     libssh2_channel_free(channel);
     channel = NULL;
