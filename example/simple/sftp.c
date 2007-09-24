@@ -1,5 +1,5 @@
 /*
- * $Id: sftp.c,v 1.13 2007/08/09 01:10:11 dfandrich Exp $
+ * $Id: sftp.c,v 1.14 2007/09/24 12:14:18 bagder Exp $
  *
  * Sample showing how to do SFTP transfers.
  *
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, sizeof(username));
+    userauthlist = libssh2_userauth_list(session, username, strlen(username));
     printf("Authentication methods: %s\n", userauthlist);
     if (strstr(userauthlist, "password") != NULL) {
         auth_pw |= 1;
