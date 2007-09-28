@@ -309,7 +309,7 @@ LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session);
 LIBSSH2_API void *libssh2_session_callback_set(LIBSSH2_SESSION *session, int cbtype, void *callback);
 LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION *session, const char *banner);
 
-LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
+LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int sock);
 LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason, const char *description, const char *lang);
 #define libssh2_session_disconnect(session, description)    libssh2_session_disconnect_ex((session), SSH_DISCONNECT_BY_APPLICATION, (description), "")
 LIBSSH2_API int libssh2_session_free(LIBSSH2_SESSION *session);
