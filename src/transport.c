@@ -367,15 +367,18 @@ libssh2_packet_read(LIBSSH2_SESSION * session)
         /* how much data to deal with from the buffer */
         numbytes = remainbuf;
 
-        if (numbytes < blocksize) {
-            /* we can't act on anything less than blocksize */
-            return PACKET_EAGAIN;
-        }
-
         if (!p->total_num) {
             /* No payload package area allocated yet. To know the
                size of this payload, we need to decrypt the first
                blocksize data. */
+
+            if (numbytes < blocksize) {
+                /* we can't act on anything less than blocksize, but this
+                   check is only done for the initial block since once we have
+                   got the start of a block we can in fact deal with fractions
+                */
+                return PACKET_EAGAIN;
+            }
 
             if (encrypted) {
                 rc = decrypt(session, &p->buf[p->readidx], block, blocksize);
