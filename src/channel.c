@@ -1651,11 +1651,30 @@ libssh2_channel_write_ex(LIBSSH2_CHANNEL * channel, int stream_id,
                           0);
         }
 
+#if 0
+        /*
+          The following chunk of code is #ifdef'ed out, since I wanted it to
+          remain here with the given explanation why having the code in here
+          is not a good idea. The text is taken from the email Gavrie
+          Philipson wrote to libssh2-devel on Nov 8 2007.
+
+          The logic behind this is that in nonblocking mode, if the local
+          window size has shrunk to zero, there's no point in trying to send
+          anything more. However, exiting the function at that point does not
+          allow any adjusts from the remote side to be received, since
+          libssh2_packet_read (that is called further on in this function) is
+          never called in this case.
+
+          Removing this bit of code fixes the problem. This should not cause
+          busy waiting, since after the libssh2_packet_read, the function
+          correctly returns PACKET_EAGAIN if the window size was not adjusted.
+         */
         if (!channel->session->socket_block &&
             (channel->local.window_size <= 0)) {
             /* Can't write anything */
             return 0;
         }
+#endif
 
         /* [13] 9 = packet_type(1) + channelno(4) [ + streamid(4) ] + buflen(4) */
         channel->write_packet_len = buflen + (stream_id ? 13 : 9);
