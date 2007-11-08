@@ -202,7 +202,7 @@ libssh2_publickey_packet_receive(LIBSSH2_PUBLICKEY * pkey,
                                      pkey->receive_packet_len);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
-        } else if (rc != pkey->receive_packet_len) {
+        } else if (rc != (int)pkey->receive_packet_len) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                           "Timeout waiting for publickey subsystem response packet",
                           0);
@@ -242,13 +242,13 @@ libssh2_publickey_response_id(unsigned char **pdata, int data_len)
     response_len = libssh2_ntohu32(data);
     data += 4;
     data_len -= 4;
-    if (data_len < response_len) {
+    if (data_len < (int)response_len) {
         /* Malformed response */
         return -1;
     }
 
     while (codes->name) {
-        if (codes->name_len == response_len &&
+        if ((unsigned long)codes->name_len == response_len &&
             strncmp(codes->name, (char *) data, response_len) == 0) {
             *pdata = data + response_len;
             return codes->code;
