@@ -1,6 +1,10 @@
 Version 0.18
 ------------
 
+- Various changes that improve non-blocking operations and prevent stalls.
+  Especially noticable on Windows since libssh2 just didn't work properly
+  non-blocking on Windows before.
+
 - Peter O'Gorman reported how a SCP transfer would hang for him, and it was
   fairly easy reproducable. One bug was in the transport layer, ignoring to
   read more data while there was data left even though it couldn't decrypt the
@@ -15,8 +19,8 @@ Version 0.18
 - Satish Mittal and David J Sullivan fixed an infinit recv() loop in
   libssh2_banner_receive()
 
-Version 0.17
-------------
+Version 0.17 (August 6 2007)
+----------------------------
 Changes since previous version include:
 
    o Re-indented the source code with this GNU indent setup:
@@ -35,8 +39,8 @@ Changes since previous version include:
       --space-after-while
       --no-space-after-function-call-names
 
-Version 0.16
-------------
+Version 0.16 (August 6 2007)
+----------------------------
 Changes since previous version include:
 
    o CRLF stripping fix for PEM reading
@@ -61,8 +65,8 @@ This release would not have been possible without these friendly contributors:
 Of course we would have nothing without the great work by Sara Golemon that 
 we're extending and building upon.
 
-Version 0.15
-------------
+Version 0.15 (June 15 2007)
+---------------------------
   Added libssh2_sftp_readdir_ex() and updated LIBSSH2_APINO to
   200706151200 (James Housley)
 
@@ -135,7 +139,8 @@ Version 0.14
 
   Allow socket_fd == 0 in libssh2_session_startup(). (puudeli)
 
-  Swap ordering of packet_add/packet-inspection to avoid inspect after free. (Selcuk)
+  Swap ordering of packet_add/packet-inspection to avoid inspect after
+  free. (Selcuk)
 
   Swap KEX_INIT ordering, send our KEX_INIT first.
 
@@ -146,9 +151,11 @@ Version 0.14
 Version 0.13
 ------------
 
-  Fixed channel not being marked closed when CHANNEL_CLOSE package cannot be sent. (David Robins)
+  Fixed channel not being marked closed when CHANNEL_CLOSE package cannot be
+  sent. (David Robins)
 
-  Fixed payload packet allocation bug when invalid packet length received. (David Robins)
+  Fixed payload packet allocation bug when invalid packet length
+  received. (David Robins)
 
   Fixed `make install' target for MacOSX.
 
@@ -165,10 +172,12 @@ Version 0.12
     (Thanks Simon Hart)
 
   Fix generation of 'e' portion of Diffie-Hellman keyset.
-	Use appropriate order for BN_rand() rather than fixed group1-specific value.
+
+  Use appropriate order for BN_rand() rather than fixed group1-specific value.
 
   Re-fixed libssh2_sftp_rename_ex()
-    Transport had right packet_len, but sftp layer still had extra 4 bytes.
+
+  Transport had right packet_len, but sftp layer still had extra 4 bytes.
 
   Fixed build with newer OpenSSL headers.
 
@@ -183,42 +192,52 @@ Version 0.11
 
   Added libssh2_userauth_keyboard_interactive_ex() -- Mikhail
 
-  Added libssh2_channel_receive_window_adjust() to be able to increase the size of the receive window.
+  Added libssh2_channel_receive_window_adjust() to be able to increase the
+  size of the receive window.
 
-  Added queueing for small window_adjust packets to avoid unnecessary packet conversation.
+  Added queueing for small window_adjust packets to avoid unnecessary packet
+  conversation.
 
-  Fixed libssh2_sftp_rename_ex() to only send flags parameter if version >= 5 negotiated
-	(not currently possible, but will be and might as well keep the API consistent).
+  Fixed libssh2_sftp_rename_ex() to only send flags parameter if version >= 5
+  negotiated (not currently possible, but will be and might as well keep the
+  API consistent).
 
 Version 0.10
 ------------
 
   Added developer debugging hooks.  See --enable-debug-* options to ./configure
 
-  Ignore extended data in the SFTP layer.  With no other mechanism to deal with that data it'd just fill up and get stuck.
+  Ignore extended data in the SFTP layer.  With no other mechanism to deal
+  with that data it'd just fill up and get stuck.
 
-  (Re)Fixed channel_write() to provide an opportunity for window space to become available again.
+  (Re)Fixed channel_write() to provide an opportunity for window space to
+  become available again.
 
   (Re)Fixed SFTP INIT to send the correct SFTP packet length.
 
-  Fixed segfault when client and host can't agree on a hostkey/crypt/mac/comp method. (Thanks puudeli)
+  Fixed segfault when client and host can't agree on a hostkey/crypt/mac/comp
+  method. (Thanks puudeli)
 
-  Fixed major issue with sftp packet buffering mechanism.  Using wrong blocking semantics. (No puudeli, YOU the man)
+  Fixed major issue with sftp packet buffering mechanism.  Using wrong
+  blocking semantics. (No puudeli, YOU the man)
 
   Reduced busy-looping of libssh2_sftp_packet_requirev.
 
 Version 0.9
 -----------
 
-  Changed blocking_read to only block as much as necessary and not an arbitrary length of time. (Thanks Felix)
+  Changed blocking_read to only block as much as necessary and not an
+  arbitrary length of time. (Thanks Felix)
 
-  Fixed SFTP INIT/VERSION to exclude request_id and send correct maximum version number.
+  Fixed SFTP INIT/VERSION to exclude request_id and send correct maximum
+  version number.
 
   Fixed SFTP to be properly BC with version 1 and 2 servers.
 
   Fixed libssh2_poll() to recognized closed sessions/channels.
 
-  Fixed libssh2_channel_write_ex() to fully block when set to blocking mode.  Return actual bytes written as well.  (Thanks deadem)
+  Fixed libssh2_channel_write_ex() to fully block when set to blocking mode.
+  Return actual bytes written as well.  (Thanks deadem)
 
   Added tests for -lm and -lsocket and add them when necessary.
 
@@ -232,9 +251,11 @@ Version 0.8
 
   Fix compatability with older versions of OpenSSL
 
-  Swapped order of none,zlib compression modes to prefer no compression by default.
+  Swapped order of none,zlib compression modes to prefer no compression by
+  default.
 
-  Added sys/uio.h for platforms (FBSD) which need it in order to define struct iovec.
+  Added sys/uio.h for platforms (FBSD) which need it in order to define struct
+  iovec.
 
   Added libssh2_poll() to check status of sockets/channels/listeners.
 
@@ -257,15 +278,18 @@ Version 0.7
 Version 0.6
 -----------
 
-  Added LIBSSH2_FLAG_SIGPIPE to enable/disable SIGPIPE generated by send()/recv() calls. Default off.
+  Added LIBSSH2_FLAG_SIGPIPE to enable/disable SIGPIPE generated by
+  send()/recv() calls. Default off.
 
   Added libssh2_session_flag() to set optional session flags.
 
-  Collapsed exchanging_keys/newkeys/authenticated flags into single state attribute.
+  Collapsed exchanging_keys/newkeys/authenticated flags into single state
+  attribute.
 
   Fix zlib compression issue when internal buffer state misses partial sync.
 
-  Fix segfault when libssh2_session_methods() is called prior to session_startup().
+  Fix segfault when libssh2_session_methods() is called prior to
+  session_startup().
 
   Fixed client to server channel windowing.  Pervent send queue overruns.
 
@@ -275,7 +299,8 @@ Version 0.5
 -----------
 
   *** BC Break ***
-  Reimplemented libssh2_session_methods() to match libssh2_session_method_pref() style
+  Reimplemented libssh2_session_methods() to match
+  libssh2_session_method_pref() style
 
   Fixed libssh2_attr2bin() (effects any setstat style call).
 
@@ -285,11 +310,14 @@ Version 0.5
 
   Fixed KEX_INIT cookie and packet padding to use actual random data
 
-  Added DESTDIR support to makefiles (Adam Go³êbiowski -- I hope that character set translates right)
+  Added DESTDIR support to makefiles (Adam Go³êbiowski -- I hope that
+  character set translates right)
 
-  Added libssh2_channel_forward_listen_ex(), libssh2_channel_forward_cancel(), and libssh2_channel_forward_accept().
+  Added libssh2_channel_forward_listen_ex(), libssh2_channel_forward_cancel(),
+  and libssh2_channel_forward_accept().
 
-  Added ./configure option '--disable-gex-new' to allow using the older group-exchange format
+  Added ./configure option '--disable-gex-new' to allow using the older
+  group-exchange format
 
   Added MAC methods hmac-md5 and hmac-md5-96.
 
