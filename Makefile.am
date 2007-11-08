@@ -11,7 +11,12 @@ NETWAREFILES =  nw/keepscreen.c \
  nw/nwlib.c \
  nw/test/Makefile.netware
 
-EXTRA_DIST = win32 buildconf $(NETWAREFILES) get_ver.awk HACKING maketgz NMakefile
+WIN32FILES = win32/libssh2_dll.dsp win32/libssh2.dsw win32/Makefile.win32      \
+win32/config.mk win32/Makefile win32/test/Makefile.win32 win32/libssh2_lib.dsp \
+win32/libssh2_config.h win32/tests.dsp win32/rules.mk
+
+EXTRA_DIST = $(WIN32FILES) buildconf $(NETWAREFILES) get_ver.awk HACKING \
+ maketgz NMakefile
 
 ACLOCAL_AMFLAGS = -I m4
 
