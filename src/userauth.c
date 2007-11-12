@@ -149,7 +149,9 @@ libssh2_userauth_list(LIBSSH2_SESSION * session, const char *username,
         }
 
         methods_len = libssh2_ntohu32(session->userauth_list_data + 1);
-        memcpy(session->userauth_list_data, session->userauth_list_data + 5,
+
+        /* Do note that the memory areas overlap! */
+        memmove(session->userauth_list_data, session->userauth_list_data + 5,
                methods_len);
         session->userauth_list_data[methods_len] = '\0';
         _libssh2_debug(session, LIBSSH2_DBG_AUTH, "Permitted auth methods: %s",
