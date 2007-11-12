@@ -1,5 +1,9 @@
-Version 0.18
-------------
+Version 0.19 ( )
+-------------------------------
+- 
+
+Version 0.18 (November 11 2007)
+-------------------------------
 
 - Various changes that improve non-blocking operations and prevent stalls.
   Especially noticable on Windows since libssh2 just didn't work properly
