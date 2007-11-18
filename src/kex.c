@@ -818,7 +818,7 @@ static int
 {
     unsigned char *s;
     unsigned long p_len, g_len;
-    int ret;
+    int ret = 0;
     int rc;
 
     if (key_state->state == libssh2_NB_state_idle) {

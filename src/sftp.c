@@ -960,7 +960,7 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    unsigned long data_len, request_id;
+    unsigned long data_len, request_id = 0;
     /* 25 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) + offset(8) + length(4) */
     ssize_t packet_len = handle->handle_len + 25;
     unsigned char *packet, *s, *data;
