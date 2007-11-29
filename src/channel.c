@@ -1854,7 +1854,7 @@ libssh2_channel_eof(LIBSSH2_CHANNEL * channel)
 
 /* }}} */
 
-/* {{{ libssh2_channel_wait_closed
+/* {{{ libssh2_channel_wait_eof
 * Awaiting channel EOF
 */
 LIBSSH2_API int
@@ -2007,7 +2007,7 @@ libssh2_channel_wait_closed(LIBSSH2_CHANNEL * channel)
 
     channel->wait_closed_state = libssh2_NB_state_idle;
 
-    return 1;
+    return 0;
 }
 
 /* }}} */
