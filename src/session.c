@@ -1478,7 +1478,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
             struct timeval tv_begin, tv_end;
 
             gettimeofday((struct timeval *) &tv_begin, NULL);
-            sysret = select(maxfd, &rfds, &wfds, NULL, &tv);
+            sysret = select(maxfd+1, &rfds, &wfds, NULL, &tv);
             gettimeofday((struct timeval *) &tv_end, NULL);
 
             timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
@@ -1488,7 +1488,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         /* If the platform doesn't support gettimeofday,
          * then just make the call non-blocking and walk away
          */
-        sysret = select(maxfd, &rfds, &wfds, NULL, &tv);
+        sysret = select(maxfd+1, &rfds, &wfds, NULL, &tv);
         timeout_remaining = 0;
 #endif
 
