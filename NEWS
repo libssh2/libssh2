@@ -1,6 +1,7 @@
 Version 0.19 ( )
 -------------------------------
-- 
+- Removed a stderr debug message that was accidentally left in (bug #1863153)
+
 
 Version 0.18 (November 11 2007)
 -------------------------------

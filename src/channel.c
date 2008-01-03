@@ -1414,7 +1414,6 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
         } while (rc > 0);
 
         if ((rc < 0) && (rc != PACKET_EAGAIN)) {
-            fprintf(stderr, "return rc = %d\n", rc);
             return rc;
         }
         channel->read_bytes_read = 0;
