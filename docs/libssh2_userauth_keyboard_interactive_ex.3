@@ -1,0 +1,43 @@
+.\" $Id: libssh2_userauth_keyboard_interactive_ex.3,v 1.1 2008/03/08 18:26:32 dottedmag Exp $
+.\"
+.TH libssh2_userauth_keyboard_interactive_ex 3 "8 Mar 2008" "libssh2 0.19" "libssh2 manual"
+.SH NAME
+libssh2_userauth_keyboard_interactive_ex - authenticate a session using a challenge-response authentication
+.SH SYNOPSIS
+#include <libssh2.h>
+
+int
+libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session, const char *username, unsigned int username_len, LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback));
+
+int
+libssh2_userauth_keyboard_interactive(LIBSSH2_SESSION *session, const char *username, LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback));
+
+.SH DESCRIPTION
+\fIsession\fP - Session instance as returned by 
+.BR libssh2_session_init(3)
+
+\fIusername\fP - Name of user to attempt plain password authentication for.
+
+\fIusername_len\fP - Length of username parameter.
+
+\fIresponse_callback\fP - As authentication proceeds, host issues several (1 or more) challenges and requires responses. This callback will be called at this moment. Callback is responsible to obtain responses for the challenges, fill the provided data structure and then return control. Responses will be sent to the host. String values will be free(3)ed by the library.
+
+Attempts keyboard-interactive (challenge/response) authentication.
+
+Note that many SSH servers will always issue single "password" challenge,
+requesting actual password as response, but it is not required by the protocol,
+and various authentication schemes, such as smartcard authentication may use
+keyboard-interactive authentication type too.
+
+.SH RETURN VALUE
+Return 0 on success or negative on failure.  It returns
+LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
+LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
+
+.SH ERRORS
+\fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
+
+\fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
+
+.SH SEE ALSO
+.BR libssh2_session_init(3)
