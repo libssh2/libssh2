@@ -1468,8 +1468,8 @@ libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE * handle,
             return PACKET_EAGAIN;
         } else if (packet_len != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                          setstat ? (char *) "Unable to send FXP_FSETSTAT"
-                          : (char *) "Unable to send FXP_FSTAT command", 0);
+                          setstat ? "Unable to send FXP_FSETSTAT"
+                          : "Unable to send FXP_FSTAT command", 0);
             LIBSSH2_FREE(session, sftp->fstat_packet);
             sftp->fstat_packet = NULL;
             sftp->fstat_state = libssh2_NB_state_idle;
