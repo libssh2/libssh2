@@ -269,6 +269,40 @@ libssh2_packet_read(LIBSSH2_SESSION * session)
     int blocksize;
     int encrypted = 1;
 
+    int status;
+
+    /*
+     * All channels, systems, subsystems, etc eventually make it down here
+     * when looking for more incoming data. If a key exchange is going on
+     * (LIBSSH2_STATE_EXCHANGING_KEYS bit is set) then the remote end
+     * will ONLY send key exchange related traffic. In non-blocking mode,
+     * there is a chance to break out of the kex_exchange function with an
+     * EAGAIN status, and never come back to it. If LIBSSH2_STATE_EXCHANGING_KEYS
+     * is active, then we must redirect to the key exchange. However,
+     * if kex_exchange is active (as in it is the one that calls this execution
+     * of packet_read, then don't redirect, as that would be an infinite loop!
+     */
+
+    if (session->state & LIBSSH2_STATE_EXCHANGING_KEYS &&
+        !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
+
+        /* Whoever wants a packet won't get anything until the key re-exchange
+         * is done!
+         */
+        _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Redirecting into the"
+            " key re-exchange");
+        status = libssh2_kex_exchange(session, 1, &session->startup_key_state);
+        if (status == PACKET_EAGAIN) {
+            libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                "Would block exchanging encryption keys", 0);
+            return PACKET_EAGAIN;
+      } else if (status) {
+          libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
+                      "Unable to exchange encryption keys",0);
+          return LIBSSH2_ERROR_KEX_FAILURE;
+      }
+    }
+
     /*
      * =============================== NOTE ===============================
      * I know this is very ugly and not a really good use of "goto", but
@@ -527,8 +561,21 @@ libssh2_packet_read(LIBSSH2_SESSION * session)
           libssh2_packet_read_point1:
             rc = fullpacket(session, encrypted);
             if (rc == PACKET_EAGAIN) {
-                session->readPack_encrypted = encrypted;
-                session->readPack_state = libssh2_NB_state_jump1;
+
+                if (session->packAdd_state != libssh2_NB_state_idle)
+                {
+                    /* fullpacket only returns PACKET_EAGAIN if 
+                     * libssh2_packet_add returns PACKET_EAGAIN. If that
+                     * returns PACKET_EAGAIN but the packAdd_state is idle,
+                     * then the packet has been added to the brigade, but some
+                     * immediate action that was taken based on the packet 
+                     * type (such as key re-exchange) is not yet complete. 
+                     * Clear the way for a new packet to be read in.
+                     */ 
+                    session->readPack_encrypted = encrypted;
+                    session->readPack_state = libssh2_NB_state_jump1;
+                }
+
                 return PACKET_EAGAIN;
             }
 

@@ -1,6 +1,9 @@
 Version 0.19 ( )
 -------------------------------
 
+- Sean Peterson fixed a key re-exchange bug:
+  http://daniel.haxx.se/projects/libssh2/mail/libssh2-devel-archive-2008-06/0002.shtml
+
 - Mike Protts filed the bug report #1908724 that identified and fixed a problem
   with SFTP stat on files >4GB in size. Previously it used 32bit math only.
 
