@@ -1,4 +1,4 @@
-.\" $Id: libssh2_session_abstract.3,v 1.1 2007/06/14 15:26:58 jehousley Exp $
+.\" $Id: libssh2_session_abstract.3,v 1.2 2008/07/03 10:58:53 bagder Exp $
 .\"
 .TH libssh2_session_abstract 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -13,10 +13,10 @@ libssh2_session_abstract(LIBSSH2_SESSION *session);
 \fIsession\fP - Session instance as returned by 
 .BR libssh2_session_init_ex(3)
 
-Return a pointer to where the abstract pointer provided to 
-.BR libssh2_session_init_ex(3)
- is stored. By providing a doubly de-referenced pointer, the internal 
- storage of the session instance may be modified in place.
+Return a pointer to where the abstract pointer provided to
+\fBlibssh2_session_init_ex(3)\fP is stored. By providing a doubly
+de-referenced pointer, the internal storage of the session instance may be
+modified in place.
 
 .SH RETURN VALUE
 A pointer to session internal storage whos contents point to previously 
