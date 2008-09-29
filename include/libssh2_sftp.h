@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -206,7 +206,8 @@ LIBSSH2_API int libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
 #define libssh2_sftp_closedir(handle)               libssh2_sftp_close_handle(handle)
 
 LIBSSH2_API void libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle, size_t offset);
-#define libssh2_sftp_rewind(handle)         libssh2_sftp_seek((handle), 0)
+LIBSSH2_API void libssh2_sftp_seek2(LIBSSH2_SFTP_HANDLE *handle, libssh2_uint64_t offset);
+#define libssh2_sftp_rewind(handle)         libssh2_sftp_seek2((handle), 0)
 
 LIBSSH2_API size_t libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE *handle);
 

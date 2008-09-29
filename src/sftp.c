@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -1522,6 +1522,17 @@ libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE * handle,
  */
 LIBSSH2_API void
 libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE * handle, size_t offset)
+{
+    handle->u.file.offset = offset;
+}
+
+/* }}} */
+
+/* {{{ libssh2_sftp_seek2
+ * Set the read/write pointer to an arbitrary position within the file
+ */
+LIBSSH2_API void
+libssh2_sftp_seek2(LIBSSH2_SFTP_HANDLE * handle, libssh2_uint64_t offset)
 {
     handle->u.file.offset = offset;
 }

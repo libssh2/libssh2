@@ -1,6 +1,9 @@
 Version 0.19 ( )
 -------------------------------
 
+- Based on bug #1815692, we introduce libssh2_sftp_seek2() that allows seeking
+  beyond the 2GB margin even on 32bit machines.
+
 - Based on a patch in bug #1878059 by Steven Ayre libssh2 now parses >2GB file
   sizes when downloading SCP files.
 
