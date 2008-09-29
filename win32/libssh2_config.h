@@ -44,7 +44,12 @@ static inline int usleep(int udelay)
 
 #ifdef _MSC_VER
 #define snprintf _snprintf
+#if _MSC_VER < 1500
 #define vsnprintf _vsnprintf
+#else
+#define ssize_t SSIZE_T
+#define uint32_t UINT32
+#endif
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
 #else
