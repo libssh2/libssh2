@@ -40,6 +40,11 @@ case "$host" in
     ;;
 esac
 
+AC_CHECK_TYPE(long long,
+   [AC_DEFINE(HAVE_LONGLONG, 1,
+      [Define to 1 if the compiler supports the 'long long' data type.])]
+   longlong="yes"
+)
 # Some systems (Solaris?) have socket() in -lsocket.
 AC_SEARCH_LIBS(socket, socket)
 
@@ -249,7 +254,7 @@ AC_HELP_STRING([--disable-debug],[Disable debug options]),
 AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h])
 AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
-AC_CHECK_FUNCS(poll gettimeofday select)
+AC_CHECK_FUNCS(poll gettimeofday select strtoll)
 
 AC_FUNC_ALLOCA
 

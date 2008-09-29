@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -487,7 +487,7 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                 *(s++) = '\0';
                 /* Make sure we don't get fooled by leftover values */
                 errno = 0;
-                session->scpRecv_size = strtol(p, &e, 10);
+                session->scpRecv_size = scpsize_strtol(p, &e, 10);
                 if ((e && *e) || errno) {
                     libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                   "Invalid response from SCP server, invalid size",

@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -811,7 +811,14 @@ struct _LIBSSH2_SESSION
     unsigned char scpRecv_response[LIBSSH2_SCP_RESPONSE_BUFLEN];
     unsigned long scpRecv_response_len;
     long scpRecv_mode;
+#if defined(HAVE_LONGLONG) && defined(strtoll)
+    /* we have the type and we can parse such numbers */
+    long long scpRecv_size;
+#define scpsize_strtol strtoll
+#else
     long scpRecv_size;
+#define scpsize_strtol strtol
+#endif
     long scpRecv_mtime;
     long scpRecv_atime;
     char *scpRecv_err_msg;
