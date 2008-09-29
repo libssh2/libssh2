@@ -1,6 +1,8 @@
 Version 0.19 ( )
 -------------------------------
 
+- Bug #2064371 pointed out that the SSH2 banner may not use dash ('-').
+
 - Sean Peterson fixed a key re-exchange bug:
   http://daniel.haxx.se/projects/libssh2/mail/libssh2-devel-archive-2008-06/0002.shtml
 

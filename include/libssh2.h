@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -82,7 +82,11 @@ typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
 #endif
 
-#define LIBSSH2_VERSION                             "0.19.0-CVS"
+/* We use underscore instead of dash when appending CVS in dev versions just
+   to make the BANNER define (used by src/session.c) be a valid SSH
+   banner. Release versions have no appended strings and may of coruse not
+   have dashes either. */
+#define LIBSSH2_VERSION                             "0.19.0_CVS"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
