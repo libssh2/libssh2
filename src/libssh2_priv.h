@@ -56,7 +56,7 @@
 #ifdef HAVE_POLL
 # include <sys/poll.h>
 #else
-# ifdef HAVE_SELECT
+# if defined(HAVE_SELECT) && !defined(WIN32)
 # ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 # else

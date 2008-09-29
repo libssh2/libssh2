@@ -1,6 +1,8 @@
 Version 0.19 ( )
 -------------------------------
 
+- Bug #1862727 fixed libssh2_poll() to work on windows (by defining HAVE_SELECT).
+
 - Based on bug #1815692, we introduce libssh2_sftp_seek2() that allows seeking
   beyond the 2GB margin even on 32bit machines.
 
