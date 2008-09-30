@@ -1,6 +1,8 @@
 Version 0.19 ( )
 -------------------------------
 
+- Carlo Bramini fixed the build for msys+mingw. Bug #1943976.
+
 - Neil Gierman provided improved Visual Studio 2008 code in bug #1946268
 
 - Bug #1862727 fixed libssh2_poll() to work on windows (by defining

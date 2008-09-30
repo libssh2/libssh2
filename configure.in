@@ -28,6 +28,10 @@ AB_INIT
 # get this removed.
 AC_CANONICAL_HOST
 case "$host" in
+    *-mingw*)
+    CFLAGS="$CFLAGS -DLIBSSH2_WIN32 -DWINSOCK_VERSION=0x0200"
+    LIBS="$LIBS -lws2_32"
+    ;;
 	*-cygwin)
 	CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
     ;;
@@ -254,7 +258,30 @@ AC_HELP_STRING([--disable-debug],[Disable debug options]),
 AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h])
 AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
+AC_CHECK_HEADERS([windows.h winsock2.h ws2tcpip.h])
 AC_CHECK_FUNCS(poll gettimeofday select strtoll)
+
+dnl Check for select() into ws2_32 for Msys/Mingw
+if test "$ac_cv_func_select" != "yes"; then
+  AC_MSG_CHECKING([for select in ws2_32])
+  AC_TRY_LINK([
+#ifdef HAVE_WINSOCK2_H
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#endif
+    ],[
+      select(0,(fd_set *)NULL,(fd_set *)NULL,(fd_set *)NULL,(struct timeval *)NULL);
+    ],[
+      AC_MSG_RESULT([yes])
+      HAVE_SELECT="1"
+      AC_DEFINE_UNQUOTED(HAVE_SELECT, 1,
+        [Define to 1 if you have the select function.])
+    ],[
+      AC_MSG_RESULT([no])
+  ])
+fi
 
 AC_FUNC_ALLOCA
 
