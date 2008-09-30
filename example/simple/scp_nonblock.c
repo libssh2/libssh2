@@ -1,5 +1,5 @@
 /*
- * $Id: scp_nonblock.c,v 1.11 2007/09/24 12:15:45 bagder Exp $
+ * $Id: scp_nonblock.c,v 1.12 2008/09/30 08:55:35 bagder Exp $
  *
  * Sample showing how to do SCP transfers in a non-blocking manner.
  */
@@ -45,6 +45,9 @@ int main(int argc, char *argv[])
     const char *scppath="/tmp/TEST";
     struct stat fileinfo;
     int rc;
+#if defined(HAVE_IOCTLSOCKET)
+    long flag = 1;
+#endif
     off_t got=0;
 
 #ifdef WIN32
@@ -88,6 +91,8 @@ int main(int argc, char *argv[])
     /* FIXME: this can/should be done in a more portable manner */
     rc = fcntl(sock, F_GETFL, 0);
     fcntl(sock, F_SETFL, rc | O_NONBLOCK);
+#elif defined(HAVE_IOCTLSOCKET)
+    ioctlsocket(sock, FIONBIO, &flag);
 #else
 #error "add support for setting the socket non-blocking here"
 #endif

@@ -1,5 +1,5 @@
 /*
- * $Id: scp_write_nonblock.c,v 1.7 2007/08/09 01:10:11 dfandrich Exp $
+ * $Id: scp_write_nonblock.c,v 1.8 2008/09/30 08:55:35 bagder Exp $
  *
  * Sample showing how to do a simple SCP transfer.
  */
@@ -47,6 +47,9 @@ int main(int argc, char *argv[])
     const char *scppath="/tmp/TEST";
     FILE *local;
     int rc;
+#if defined(HAVE_IOCTLSOCKET)
+    long flag = 1;
+#endif
     char mem[1024];
     size_t nread;
     char *ptr;
@@ -105,6 +108,8 @@ int main(int argc, char *argv[])
     /* FIXME: this can/should be done in a more portable manner */
     rc = fcntl(sock, F_GETFL, 0);
     fcntl(sock, F_SETFL, rc | O_NONBLOCK);
+#elif defined(HAVE_IOCTLSOCKET)
+    ioctlsocket(sock, FIONBIO, &flag);
 #else
 #error "add support for setting the socket non-blocking here"
 #endif
