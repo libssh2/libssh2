@@ -393,6 +393,9 @@ LIBSSH2_API int libssh2_channel_setenv_ex(LIBSSH2_CHANNEL *channel, const char *
 LIBSSH2_API int libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL *channel, const char *term, unsigned int term_len, const char *modes, unsigned int modes_len, int width, int height, int width_px, int height_px);
 #define libssh2_channel_request_pty(channel, term)  libssh2_channel_request_pty_ex((channel), (term), strlen(term), NULL, 0, LIBSSH2_TERM_WIDTH, LIBSSH2_TERM_HEIGHT, LIBSSH2_TERM_WIDTH_PX, LIBSSH2_TERM_HEIGHT_PX)
 
+LIBSSH2_API int libssh2_channel_request_pty_size_ex(LIBSSH2_CHANNEL * channel, int width, int height, int width_px, int height_px);
+#define libssh2_channel_request_pty_size(channel, width, height) libssh2_channel_request_pty_size_ex( (channel), (width), (height), 0, 0)
+
 LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection, const char *auth_proto, const char *auth_cookie, int screen_number);
 #define libssh2_channel_x11_req(channel, screen_number) libssh2_channel_x11_req_ex((channel), 0, NULL, NULL, (screen_number))
 

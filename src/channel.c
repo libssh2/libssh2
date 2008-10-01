@@ -930,6 +930,85 @@ libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL * channel, const char *term,
 
 /* }}} */
 
+LIBSSH2_API int
+libssh2_channel_request_pty_size_ex(LIBSSH2_CHANNEL * channel, int width,
+								int height, int width_px, int height_px)
+{
+  LIBSSH2_SESSION *session = channel->session;
+  unsigned char *s, *data;
+  static const unsigned char reply_codes[3] =
+      { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+  unsigned long data_len;
+  int rc;
+
+  if (channel->reqPTY_state == libssh2_NB_state_idle) {
+      channel->reqPTY_packet_len = 39;
+
+      /* Zero the whole thing out */
+      memset(&channel->reqPTY_packet_requirev_state, 0,
+             sizeof(channel->reqPTY_packet_requirev_state));
+
+      _libssh2_debug(session, LIBSSH2_DBG_CONN,
+                     "changing tty size on channel %lu/%lu",
+                     channel->local.id,
+                     channel->remote.id);
+
+      s = channel->reqPTY_packet =
+          LIBSSH2_ALLOC(session, channel->reqPTY_packet_len);
+      if (!channel->reqPTY_packet) {
+          libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                        "Unable to allocate memory for pty-request", 0);
+          return -1;
+      }
+
+      *(s++) = SSH_MSG_CHANNEL_REQUEST;
+      libssh2_htonu32(s, channel->remote.id);
+      s += 4;
+      libssh2_htonu32(s, sizeof("window-change") - 1);
+      s += 4;
+      memcpy(s, "window-change", sizeof("window-change") - 1);
+      s += sizeof("window-change") - 1;
+
+      *(s++) = 0x00; /* Don't reply */
+            libssh2_htonu32(s, width);
+      s += 4;
+      libssh2_htonu32(s, height);
+      s += 4;
+      libssh2_htonu32(s, width_px);
+      s += 4;
+      libssh2_htonu32(s, height_px);
+      s += 4;
+
+      channel->reqPTY_state = libssh2_NB_state_created;
+  }
+
+  if (channel->reqPTY_state == libssh2_NB_state_created) {
+      rc = libssh2_packet_write(session, channel->reqPTY_packet,
+                                channel->reqPTY_packet_len);
+      if (rc == PACKET_EAGAIN) {
+          return PACKET_EAGAIN;
+      } else if (rc) {
+          libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                        "Unable to send window-change packet", 0);
+          LIBSSH2_FREE(session, channel->reqPTY_packet);
+          channel->reqPTY_packet = NULL;
+          channel->reqPTY_state = libssh2_NB_state_idle;
+          return -1;
+      }
+      LIBSSH2_FREE(session, channel->reqPTY_packet);
+      channel->reqPTY_packet = NULL;
+
+      libssh2_htonu32(channel->reqPTY_local_channel, channel->local.id);
+
+      channel->reqPTY_state = libssh2_NB_state_sent;
+      return 0;
+  }
+
+
+  channel->reqPTY_state = libssh2_NB_state_idle;
+  return -1;
+}
+
 /* Keep this an even number */
 #define LIBSSH2_X11_RANDOM_COOKIE_LEN       32
 
