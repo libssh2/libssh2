@@ -1521,13 +1521,14 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
             channel->read_packet = session->packets.head;
         }
 
-        if (rc < 0) {
-            if (rc != PACKET_EAGAIN) {
-                channel->read_state = libssh2_NB_state_idle;
-            }
-            /* no packets available */
-            return rc;
-        }
+		//We didn't read any data from the socket and no packets are waiting to be read
+		if (rc < 0) && (! channel->read_packet)) {
+			if (rc != PACKET_EAGAIN) {
+				channel->read_state = libssh2_NB_state_idle;
+			}
+			/* no packets available */
+			return rc;
+		}
 
         while (channel->read_packet
                && (channel->read_bytes_read < (int) buflen)) {
