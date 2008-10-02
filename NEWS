@@ -1,6 +1,8 @@
 Version 0.19 ( )
 -------------------------------
 
+- Vincent Jaulin brought the new libssh2_channel_request_pty_size_ex() function.
+
 - Carlo Bramini fixed the build for msys+mingw. Bug #1943976.
 
 - Neil Gierman provided improved Visual Studio 2008 code in bug #1946268
