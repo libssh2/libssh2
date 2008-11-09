@@ -1492,10 +1492,8 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
             return rc;
         }
         channel->read_bytes_read = 0;
-        channel->read_block = 0;
 
         channel->read_packet = session->packets.head;
-
         channel->read_state = libssh2_NB_state_created;
     }
 
@@ -1509,25 +1507,33 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
     }
 
     rc = 0;
+    channel->read_block = 0;
 
     do {
         if (channel->read_block) {
-            /* in the second lap and onwards, do this */
-            rc = libssh2_packet_read(session);
-            channel->read_packet = session->packets.head;
-        }
-
-        /* We didn't read any data from the socket and 
-         * no packets are waiting to be read
-         * -or-
-         * We have read our fill of data */
-        if ((rc < 0 && ! channel->read_packet) ||
-            channel->read_bytes_read >= (int) buflen) {
-	    if (rc != PACKET_EAGAIN) {
-                channel->read_state = libssh2_NB_state_idle;
+            /* in the second lap and onwards, do this...
+             * If we haven't yet filled our buffer, try to read more
+             * data.  */
+            if ( channel->read_bytes_read < (int) buflen) {
+                rc = libssh2_packet_read(session);
+                
+                /* If we didn't find any more data to read */
+                if (rc < 0) {
+                    if ( channel->read_bytes_read > 0){
+                        break;	/* finish processing and return */
+                    }
+                    
+                    /* no packets available, no data read. */
+                    channel->read_state = libssh2_NB_state_idle;
+                    return rc;
+                }
+                /* We read more data, restart our processing at 
+                  * the beginning of our packet list. */
+                channel->read_packet = session->packets.head;
             }
-            /* no packets available */
-            return rc;
+            else { /* The read buffer is full, finish processing and return */
+                break;
+            }
         }
 
         while (channel->read_packet
