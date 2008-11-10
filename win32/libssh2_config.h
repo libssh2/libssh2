@@ -12,10 +12,6 @@
 #define HAVE_UNISTD_H
 #define HAVE_INTTYPES_H
 #define HAVE_SYS_TIME_H
-
-/* defined into MS PSDK but not into Mingw w32api */
-#define WINSOCK_VERSION MAKEWORD(2,0)
-
 #endif
 
 #define HAVE_WINSOCK2_H
