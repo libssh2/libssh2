@@ -1,10 +1,10 @@
 /*
- * $Id: scp.c,v 1.10 2007/08/09 01:10:11 dfandrich Exp $
+ * $Id: scp.c,v 1.11 2008/11/10 16:48:41 bagder Exp $
  *
  * Sample showing how to do a simple SCP transfer.
  */
 
-#include "config.h"
+#include "libssh2_config.h"
 #include <libssh2.h>
 
 #ifdef HAVE_WINSOCK2_H
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 #ifdef WIN32
     WSADATA wsadata;
 
-    WSAStartup(WINSOCK_VERSION, &wsadata);
+    WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
 
     if (argc > 1) {

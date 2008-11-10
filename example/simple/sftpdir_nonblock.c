@@ -1,5 +1,5 @@
 /*
- * $Id: sftpdir_nonblock.c,v 1.11 2008/09/30 08:55:35 bagder Exp $
+ * $Id: sftpdir_nonblock.c,v 1.12 2008/11/10 16:48:41 bagder Exp $
  *
  * Sample doing an SFTP directory listing.
  *
@@ -9,7 +9,7 @@
  * "sftpdir 192.168.0.1 user password /tmp/secretdir"
  */
 
-#include "config.h"
+#include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 #ifdef WIN32
     WSADATA wsadata;
 
-    WSAStartup(WINSOCK_VERSION, &wsadata);
+    WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
 
     if (argc > 1) {
@@ -97,7 +97,12 @@ int main(int argc, char *argv[])
 #elif defined(HAVE_IOCTLSOCKET)
     ioctlsocket(sock, FIONBIO, &flag);
 #else
+#ifdef WIN32
+    u_long mode = 1;
+    ioctlsocket (sock, FIONBIO, &mode);
+#else
 #error "add support for setting the socket non-blocking here"
+#endif
 #endif
 
     /* Create a session instance

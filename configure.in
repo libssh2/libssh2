@@ -1,7 +1,7 @@
 # AC_PREREQ(2.57)
 AC_INIT(libssh2, [-], libssh2-devel@lists.sourceforge.net)
 AC_CONFIG_SRCDIR([src])
-AC_CONFIG_HEADER([src/libssh2_config.h example/simple/config.h])
+AC_CONFIG_HEADER([src/libssh2_config.h])
 AM_MAINTAINER_MODE
 
 dnl SED is needed by some of the tools
@@ -61,6 +61,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
+AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 AC_C_BIGENDIAN
 if test -z "$PKG_CONFIG"; then
@@ -258,6 +259,7 @@ AC_HELP_STRING([--disable-debug],[Disable debug options]),
 AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h])
 AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
+AC_CHECK_HEADERS([windows.h ws2tcpip.h winsock2.h])
 AC_CHECK_FUNCS(poll gettimeofday select strtoll)
 
 case $host in

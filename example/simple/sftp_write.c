@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_write.c,v 1.8 2007/08/09 01:10:11 dfandrich Exp $
+ * $Id: sftp_write.c,v 1.9 2008/11/10 16:48:41 bagder Exp $
  *
  * Sample showing how to do SFTP write transfers.
  *
@@ -9,7 +9,7 @@
  * "sftp 192.168.0.1 user password sftp_write.c /tmp/secrets"
  */
 
-#include "config.h"
+#include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 #ifdef WIN32
     WSADATA wsadata;
 
-    WSAStartup(WINSOCK_VERSION, &wsadata);
+    WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
 
     if (argc > 1) {

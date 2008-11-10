@@ -10,6 +10,6 @@ noinst_PROGRAMS = ssh2 \
 		sftp_RW_nonblock \
 		sftpdir sftpdir_nonblock
 
-INCLUDES = -I. -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)/include
 LDADD = $(top_builddir)/src/libssh2.la
 

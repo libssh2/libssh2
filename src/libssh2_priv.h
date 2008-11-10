@@ -41,6 +41,14 @@
 #define LIBSSH2_LIBRARY
 #include "libssh2_config.h"
 
+#ifdef HAVE_WINDOWS_H
+#include <windows.h>
+#endif
+
+#ifdef HAVE_WS2TCPIP_H
+#include <ws2tcpip.h>
+#endif
+
 /* The following CPP block should really only be in session.c and
    packet.c.  However, AIX have #define's for 'events' and 'revents'
    and we are using those names in libssh2.h, so we need to include
@@ -69,6 +77,28 @@
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
+
+/* Provide iovec / writev on WIN32 platform. */
+#ifdef WIN32
+
+/* same as WSABUF */
+struct iovec {
+	u_long iov_len;
+	char *iov_base;
+};
+
+#define inline __inline
+
+static inline int writev(int sock, struct iovec *iov, int nvecs)
+{
+	DWORD ret;
+	if (WSASend(sock, (LPWSABUF)iov, nvecs, &ret, 0, NULL, NULL) == 0) {
+		return ret;
+	}
+	return -1;
+}
+
+#endif /* WIN32 */
 
 /* Needed for struct iovec on some platforms */
 #ifdef HAVE_SYS_UIO_H

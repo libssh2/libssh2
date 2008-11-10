@@ -1,10 +1,10 @@
 /*
- * $Id: scp_write_nonblock.c,v 1.8 2008/09/30 08:55:35 bagder Exp $
+ * $Id: scp_write_nonblock.c,v 1.9 2008/11/10 16:48:41 bagder Exp $
  *
  * Sample showing how to do a simple SCP transfer.
  */
 
-#include "config.h"
+#include "libssh2_config.h"
 
 #include <libssh2.h>
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 #ifdef WIN32
     WSADATA wsadata;
 
-    WSAStartup(WINSOCK_VERSION, &wsadata);
+    WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
 
     if (argc > 1) {
@@ -111,7 +111,12 @@ int main(int argc, char *argv[])
 #elif defined(HAVE_IOCTLSOCKET)
     ioctlsocket(sock, FIONBIO, &flag);
 #else
+#ifdef WIN32
+    u_long mode = 1;
+    ioctlsocket (sock, FIONBIO, &mode);
+#else
 #error "add support for setting the socket non-blocking here"
+#endif
 #endif
 
     /* Create a session instance
