@@ -127,25 +127,10 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
 #include <mswsock.h>
 #include <ws2tcpip.h>
 
-/* same as WSABUF */
-struct iovec {
-	u_long iov_len;
-	char *iov_base;
-};
-
 #ifdef _MSC_VER
 /* "inline" keyword is valid only with C++ engine! */
 #define inline __inline
 #endif
-
-static inline int writev(int sock, struct iovec *iov, int nvecs)
-{
-	DWORD ret;
-	if (WSASend(sock, (LPWSABUF)iov, nvecs, &ret, 0, NULL, NULL) == 0) {
-		return ret;
-	}
-	return -1;
-}
 
 /* not really usleep, but safe for the way we use it in this lib */
 static inline int usleep(int udelay)
