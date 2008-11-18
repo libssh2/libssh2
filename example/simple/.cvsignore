@@ -4,6 +4,8 @@ Makefile.in
 .libs
 scp
 scp_nonblock
+scp_write
+scp_write_nonblock
 sftp
 sftp_nonblock
 sftpdir
