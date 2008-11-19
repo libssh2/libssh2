@@ -27,6 +27,9 @@ Version 0.19 ( )
 
 - Removed a stderr debug message that was accidentally left in (bug #1863153)
 
+- OpenSSL and libz detection changed to make cross-compiling to Mingw
+  work.  See README for parameters to use if the auto-detection does
+  not work for you.  From Simon Josefsson.
 
 Version 0.18 (November 11 2007)
 -------------------------------

@@ -48,49 +48,43 @@ options deserve additional comments:
 		the older more reliable method.
 
   	* --with-libgcrypt
+  	* --without-libgcrypt
 	* --with-libgcrypt-prefix=DIR
 
 		libssh2 can use the Libgcrypt library
 		(http://www.gnupg.org/) for cryptographic operations.
+		Either Libgcrypt or OpenSSL is required.
 
-		Configure will attempt to locate Libgcrypt in the
-		default location, but if you have installed it
-		somewhere else, use the --with-libgrypt-prefix=DIR
-		parameter.
+		Configure will attempt to locate Libgcrypt
+		automatically.
 
-	* --with-openssl=[DIR]
+ 		If your installation of Libgcrypt is in another
+		location, specify it using --with-libgcrypt-prefix.
+
+	* --with-openssl
+	* --without-openssl
+	* --with-libssl-prefix=[DIR]
 
 		libssh2 can use the OpenSSL library
 		(http://www.openssl.org) for cryptographic operations.
+		Either Libgcrypt or OpenSSL is required.
 
-		Configure will attempt to locate OpenSSL in a number
-		of default locations:
-
-			/usr/local/ssl
-			/usr/local
-			/usr
-			/usr/local/openssl
+		Configure will attempt to locate OpenSSL in the
+		default location.
 
 		If your installation of OpenSSL is in another
-		location, specify it here.
+		location, specify it using --with-libssl-prefix.
 
-	* --with-libz=[DIR]
+	* --with-libz
+	* --without-libz
+	* --with-libz-prefix=[DIR]
 
-		If present, libssh2 will attempt to use the zlib (http://www.zlib.org)
-		for payload compression, however zlib is not required.
+		If present, libssh2 will attempt to use the zlib
+		(http://www.zlib.org) for payload compression, however
+		zlib is not required.
 
-		Configure will attempt to location a zlib installation
-		in a number of default locations:
-
-			/usr/local
-			/usr
-			/usr/local/libz
-			/usr/libz
-			/usr/local/zlib
-			/usr/zlib
-
-		If your installation of zlib is in another location,
-		you may specify it here.
+		If your installation of Libz is in another location,
+		specify it using --with-libz-prefix.
 
 	* --enable-debug
 
