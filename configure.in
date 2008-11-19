@@ -64,9 +64,6 @@ AC_PROG_MAKE_SET
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 AC_C_BIGENDIAN
-if test -z "$PKG_CONFIG"; then
-  AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
-fi
 
 dnl check for how to do large files
 AC_SYS_LARGEFILE
