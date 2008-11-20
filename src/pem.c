@@ -1,5 +1,6 @@
-/* Copyright (C) 2007 The Written Word, Inc.  All rights reserved.
- * Author: Simon Josefsson
+/* Copyright (C) 2007 The Written Word, Inc.
+ * Copyright (C) 2008, Simon Josefsson
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided
@@ -58,7 +59,7 @@ int
 _libssh2_pem_parse(LIBSSH2_SESSION * session,
                    const char *headerbegin,
                    const char *headerend,
-                   FILE * fp, char **data, unsigned int *datalen)
+                   FILE * fp, unsigned char **data, unsigned int *datalen)
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
@@ -96,7 +97,8 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         }
     } while (strcmp(line, headerend) != 0);
 
-    if (libssh2_base64_decode(session, data, datalen, b64data, b64datalen)) {
+    if (libssh2_base64_decode(session, (char**) data, datalen,
+                              b64data, b64datalen)) {
         ret = -1;
         goto out;
     }

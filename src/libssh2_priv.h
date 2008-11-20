@@ -49,6 +49,9 @@
 #include <ws2tcpip.h>
 #endif
 
+#include <stdio.h>
+#include <time.h>
+
 /* The following CPP block should really only be in session.c and
    packet.c.  However, AIX have #define's for 'events' and 'revents'
    and we are using those names in libssh2.h, so we need to include
@@ -59,8 +62,6 @@
    http://www.mail-archive.com/libssh2-devel%40lists.sourceforge.net/msg00003.html
    http://www.mail-archive.com/libssh2-devel%40lists.sourceforge.net/msg00224.html
 */
-#include <stdio.h>
-
 #ifdef HAVE_POLL
 # include <sys/poll.h>
 #else
@@ -1194,7 +1195,7 @@ const LIBSSH2_MAC_METHOD **libssh2_mac_methods(void);
 int _libssh2_pem_parse(LIBSSH2_SESSION * session,
                        const char *headerbegin,
                        const char *headerend,
-                       FILE * fp, char **data, unsigned int *datalen);
+                       FILE * fp, unsigned char **data, unsigned int *datalen);
 int _libssh2_pem_decode_sequence(unsigned char **data, unsigned int *datalen);
 int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
                                 unsigned char **i, unsigned int *ilen);
