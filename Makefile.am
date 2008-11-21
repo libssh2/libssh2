@@ -34,3 +34,26 @@ dist-hook:
 	  strip=`echo $$file | sed -e s/^$(srcdir)// -e s/\.dist//`; \
 	  cp $$file $(distdir)$$strip; \
 	done)
+
+# Code Coverage
+
+init-coverage:
+	make clean
+	lcov --directory . --zerocounters
+
+COVERAGE_CCOPTS ?= "-g --coverage"
+COVERAGE_OUT ?= docs/coverage
+
+build-coverage:
+	make CFLAGS=$(COVERAGE_CCOPTS) check
+	mkdir -p $(COVERAGE_OUT)
+	lcov --directory . --output-file $(COVERAGE_OUT)/$(PACKAGE).info \
+		--capture
+
+gen-coverage:
+	genhtml --output-directory $(COVERAGE_OUT) \
+		$(COVERAGE_OUT)/$(PACKAGE).info \
+		--highlight --frames --legend \
+		--title "$(PACKAGE_NAME)"
+
+coverage: init-coverage build-coverage gen-coverage
