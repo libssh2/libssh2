@@ -31,6 +31,9 @@ Version 0.19 ( )
   work.  See README for parameters to use if the auto-detection does
   not work for you.  From Simon Josefsson.
 
+- Simon Josefsson added a self-test that uses libssh2 to connect to a
+  local sshd (only enabled if if OpenSSH is installed).
+
 Version 0.18 (November 11 2007)
 -------------------------------
 
