@@ -294,7 +294,7 @@ static const LIBSSH2_MAC_METHOD *_libssh2_mac_methods[] = {
     &libssh2_mac_method_hmac_sha1_96,
     &libssh2_mac_method_hmac_md5,
     &libssh2_mac_method_hmac_md5_96,
-#ifdef LIBSSH2_HMAC_RIPEMD
+#if LIBSSH2_HMAC_RIPEMD
     &libssh2_mac_method_hmac_ripemd160,
     &libssh2_mac_method_hmac_ripemd160_openssh_com,
 #endif /* LIBSSH2_HMAC_RIPEMD */
