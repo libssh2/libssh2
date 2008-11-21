@@ -2,6 +2,8 @@ Makefile
 Makefile.in
 .deps
 .libs
+*.gcno
+*.gcda
 scp
 scp_nonblock
 scp_write

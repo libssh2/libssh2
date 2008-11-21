@@ -5,6 +5,8 @@
 *.dll
 *.exe
 *.obj
+*.gcno
+*.gcda
 .*.swp
 Debug
 Release
