@@ -12,6 +12,5 @@ noinst_PROGRAMS = ssh2 \
 
 # the examples need the $(top_builddir)/src since when building outside of the
 # source dir they still need to reach the libssh2_config.h header
-INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)/include -I$(top_builddir)/src
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/include -I$(top_builddir)/src
 LDADD = $(top_builddir)/src/libssh2.la
-
