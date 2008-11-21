@@ -1,5 +1,6 @@
-/* Copyright (C) 2007 The Written Word, Inc.  All rights reserved.
- * Author: Simon Josefsson
+/* Copyright (C) 2007 The Written Word, Inc.
+ * Copyright (C) 2008 Simon Josefsson
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided
@@ -36,8 +37,35 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "libssh2.h"
+
+int test_libssh2_base64_decode (LIBSSH2_SESSION *session)
+{
+	char *data;
+	unsigned int datalen;
+	const char *src = "Zm5vcmQ=";
+	unsigned int src_len = strlen (src);
+	int ret;
+
+	ret = libssh2_base64_decode(session, &data, &datalen,
+				    src, src_len);
+	if (ret)
+	  return ret;
+
+	if (datalen != 5 || strcmp (data, "fnord") != 0)
+	{
+		fprintf (stderr,
+			 "libssh2_base64_decode() failed (%d, %.*s)\n",
+			 datalen, datalen, data);
+		return 1;
+	}
+
+	free (data);
+
+	return 0;
+}
 
 int main(int argc, char *argv[])
 {
@@ -49,6 +77,8 @@ int main(int argc, char *argv[])
 		fprintf (stderr, "libssh2_session_init() failed\n");
 		return 1;
 	}
+
+	test_libssh2_base64_decode (session);
 
 	libssh2_session_free(session);
 
