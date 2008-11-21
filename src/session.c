@@ -1200,7 +1200,7 @@ libssh2_poll_channel_read(LIBSSH2_CHANNEL * channel, int extended)
 				packet->data[0] == SSH_MSG_CHANNEL_DATA) {
 				return 1;
 			}
-			//else - no data of any type is ready to be read
+			/* else - no data of any type is ready to be read */
         }
         packet = packet->next;
     }
