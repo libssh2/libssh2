@@ -1674,7 +1674,7 @@ libssh2_kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
  * Returns 0 on success, non-zero on failure
  */
 int
-libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange, /* session->flags |= SERVER */
+libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                      key_exchange_state_t * key_state)
 {
     int rc = 0;

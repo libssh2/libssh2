@@ -385,6 +385,8 @@ libssh2_packet_read(LIBSSH2_SESSION * session)
                 }
 #endif /* WIN32 */
                 if ((nread < 0) && (errno == EAGAIN)) {
+                    session->socket_block_directions =
+                        LIBSSH2_SESSION_BLOCK_INBOUND;
                     return PACKET_EAGAIN;
                 }
                 return PACKET_FAIL;
@@ -564,14 +566,14 @@ libssh2_packet_read(LIBSSH2_SESSION * session)
 
                 if (session->packAdd_state != libssh2_NB_state_idle)
                 {
-                    /* fullpacket only returns PACKET_EAGAIN if 
+                    /* fullpacket only returns PACKET_EAGAIN if
                      * libssh2_packet_add returns PACKET_EAGAIN. If that
                      * returns PACKET_EAGAIN but the packAdd_state is idle,
                      * then the packet has been added to the brigade, but some
-                     * immediate action that was taken based on the packet 
-                     * type (such as key re-exchange) is not yet complete. 
+                     * immediate action that was taken based on the packet
+                     * type (such as key re-exchange) is not yet complete.
                      * Clear the way for a new packet to be read in.
-                     */ 
+                     */
                     session->readPack_encrypted = encrypted;
                     session->readPack_state = libssh2_NB_state_jump1;
                 }
@@ -634,6 +636,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
             /* send failure! */
             return PACKET_FAIL;
         }
+        session->socket_block_directions = LIBSSH2_SESSION_BLOCK_OUTBOUND;
         return PACKET_EAGAIN;
     }
 
@@ -786,6 +789,7 @@ libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
     if (ret != total_length) {
         if ((ret > 0) || ((ret == -1) && (errno == EAGAIN))) {
             /* the whole packet could not be sent, save the rest */
+            session->socket_block_directions = LIBSSH2_SESSION_BLOCK_OUTBOUND;
             p->odata = orgdata;
             p->olen = orgdata_len;
             p->osent = (ret == -1) ? 0 : ret;

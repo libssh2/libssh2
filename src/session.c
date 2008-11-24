@@ -133,6 +133,8 @@ libssh2_banner_receive(LIBSSH2_SESSION * session)
             }
 #endif /* WIN32 */
             if (errno == EAGAIN) {
+                session->socket_block_directions =
+                    LIBSSH2_SESSION_BLOCK_INBOUND;
                 session->banner_TxRx_total_send = banner_len;
                 return PACKET_EAGAIN;
             }
@@ -235,6 +237,8 @@ libssh2_banner_send(LIBSSH2_SESSION * session)
     if (ret != (banner_len - session->banner_TxRx_total_send)) {
         if ((ret > 0) || ((ret == -1) && (errno == EAGAIN))) {
             /* the whole packet could not be sent, save the what was */
+            session->socket_block_directions =
+                LIBSSH2_SESSION_BLOCK_OUTBOUND;
             session->banner_TxRx_total_send += ret;
             return PACKET_EAGAIN;
         }
@@ -1534,6 +1538,17 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
     } while ((timeout_remaining > 0) && !active_fds);
 
     return active_fds;
+}
+
+/* {{{ libssh2_session_block_direction
+ * Get blocked direction when a function returns LIBSSH2_ERROR_EAGAIN
+ * Returns LIBSSH2_SOCKET_BLOCK_INBOUND if recv() blocked
+ * or LIBSSH2_SOCKET_BLOCK_OUTBOUND if send() blocked
+ */
+LIBSSH2_API int
+libssh2_session_block_directions(LIBSSH2_SESSION *session)
+{
+    return session->socket_block_directions;
 }
 
 /* }}} */

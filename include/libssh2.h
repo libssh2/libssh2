@@ -244,6 +244,11 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_POLLFD_CHANNEL_CLOSED   0x0080      /* Channel Disconnect */
 #define LIBSSH2_POLLFD_LISTENER_CLOSED  0x0080      /* Listener Disconnect */
 
+#define HAVE_LIBSSH2_SESSION_BLOCK_DIRECTION
+/* Block Direction Types */
+#define LIBSSH2_SESSION_BLOCK_INBOUND                  0x0001
+#define LIBSSH2_SESSION_BLOCK_OUTBOUND                 0x0002
+
 /* Hash Types */
 #define LIBSSH2_HOSTKEY_HASH_MD5                            1
 #define LIBSSH2_HOSTKEY_HASH_SHA1                           2
@@ -324,6 +329,7 @@ LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION *session, int method
 LIBSSH2_API const char *libssh2_session_methods(LIBSSH2_SESSION *session, int method_type);
 LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION *session, char **errmsg, int *errmsg_len, int want_buf);
 LIBSSH2_API int libssh2_session_last_errno(LIBSSH2_SESSION *session);
+LIBSSH2_API int libssh2_session_block_directions(LIBSSH2_SESSION *session);
 
 LIBSSH2_API int libssh2_session_flag(LIBSSH2_SESSION *session, int flag, int value);
 

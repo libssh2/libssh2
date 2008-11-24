@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.28 2008/03/08 18:26:32 dottedmag Exp $
+# $Id: Makefile.am,v 1.29 2008/11/24 13:31:00 bagder Exp $
 
 EXTRA_DIST = template.3
 
@@ -29,6 +29,7 @@ dist_man_MANS = \
 	libssh2_scp_recv.3 \
 	libssh2_scp_send_ex.3 \
 	libssh2_session_abstract.3 \
+	libssh2_session_block_directions.3 \
 	libssh2_session_callback_set.3 \
 	libssh2_session_free.3 \
 	libssh2_session_disconnect_ex.3 \

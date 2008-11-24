@@ -665,6 +665,8 @@ libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                                                datalen - 13,
                                                                0);
                     if (rc == PACKET_EAGAIN) {
+                        session->socket_block_directions =
+                            LIBSSH2_SESSION_BLOCK_OUTBOUND;
                         return PACKET_EAGAIN;
                     }
                     session->packAdd_state = libssh2_NB_state_idle;
@@ -817,6 +819,8 @@ libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                                    &session->
                                                    packAdd_Qlstn_state);
                 if (rc == PACKET_EAGAIN) {
+                    session->socket_block_directions =
+                        LIBSSH2_SESSION_BLOCK_OUTBOUND;
                     return PACKET_EAGAIN;
                 }
 
@@ -833,6 +837,8 @@ libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 rc = libssh2_packet_x11_open(session, data, datalen,
                                              &session->packAdd_x11open_state);
                 if (rc == PACKET_EAGAIN) {
+                    session->socket_block_directions =
+                        LIBSSH2_SESSION_BLOCK_OUTBOUND;
                     return PACKET_EAGAIN;
                 }
 

@@ -1,7 +1,17 @@
 Version 0.19 ( )
 -------------------------------
 
-- Vincent Jaulin brought the new libssh2_channel_request_pty_size_ex() function.
+- Vlad Grachov brought the new function called
+  libssh2_session_block_directions() which returns a bitmask for what
+  directions the connection blocks. It is to be used applications that use
+  non-blocking sockets and when a libssh2 function returns
+  LIBSSH2_ERROR_EAGAIN this function can be used to figure out in which
+  direction the socket would block and thus it can wait for the socket to
+  again be ready for communication in that direction before it calls libssh2
+  again.
+
+- Vincent Jaulin brought the new libssh2_channel_request_pty_size_ex()
+  function.
 
 - Carlo Bramini fixed the build for msys+mingw. Bug #1943976.
 
@@ -16,8 +26,8 @@ Version 0.19 ( )
 - Based on a patch in bug #1878059 by Steven Ayre libssh2 now parses >2GB file
   sizes when downloading SCP files.
 
-- Bug #2064371 pointed out that the SSH2 banner may not use dash ('-'). Reported
-  by Bjorn Stenborg.
+- Bug #2064371 pointed out that the SSH2 banner may not use dash
+  ('-'). Reported by Bjorn Stenborg.
 
 - Sean Peterson fixed a key re-exchange bug:
   http://daniel.haxx.se/projects/libssh2/mail/libssh2-devel-archive-2008-06/0002.shtml

@@ -705,6 +705,7 @@ struct _LIBSSH2_SESSION
     int socket_fd;
     int socket_block;
     int socket_state;
+    int socket_block_directions;
 
     /* Error tracking */
     char *err_msg;
