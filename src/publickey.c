@@ -109,7 +109,7 @@ static const LIBSSH2_PUBLICKEY_CODE_LIST libssh2_publickey_status_codes[] = {
  * Format an error message from a status code
  */
 #define LIBSSH2_PUBLICKEY_STATUS_TEXT_START     "Publickey Subsystem Error: \""
-#define LIBSSH2_PUBLICKEY_STATUS_TEXT_MID       "\" Server Resports: \""
+#define LIBSSH2_PUBLICKEY_STATUS_TEXT_MID       "\" Server Reports: \""
 #define LIBSSH2_PUBLICKEY_STATUS_TEXT_END       "\""
 static void
 libssh2_publickey_status_error(const LIBSSH2_PUBLICKEY * pkey,
@@ -404,7 +404,7 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
                                              "publickey", strlen("publickey"));
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                          "Would block starting publickkey subsystem", 0);
+                          "Would block starting publickey subsystem", 0);
             return NULL;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
@@ -420,7 +420,7 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
                                                    LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE);
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                          "Would block starting publickkey subsystem", 0);
+                          "Would block starting publickey subsystem", 0);
             return NULL;
         }
 
@@ -457,7 +457,7 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
                                       (char *) buffer, (s - buffer));
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                          "Would block sending publickkey version packet", 0);
+                          "Would block sending publickey version packet", 0);
             return NULL;
         } else if ((s - buffer) != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
