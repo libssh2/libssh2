@@ -590,17 +590,19 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION * session,
                                        const char *local_username,
                                        unsigned int local_username_len)
 {
-    const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
-    void *abstract;
-    unsigned char buf[5];
-    struct iovec datavec[4];
-    unsigned char *pubkeydata, *sig;
     static const unsigned char reply_codes[3] =
         { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
-    unsigned long pubkeydata_len, sig_len, data_len;
     int rc;
 
     if (session->userauth_host_state == libssh2_NB_state_idle) {
+        const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
+        unsigned char *pubkeydata, *sig;
+        unsigned long pubkeydata_len;
+        unsigned long sig_len;
+        void *abstract;
+        unsigned char buf[5];
+        struct iovec datavec[4];
+
         /* Zero the whole thing out */
         memset(&session->userauth_host_packet_requirev_state, 0,
                sizeof(session->userauth_host_packet_requirev_state));
@@ -777,6 +779,7 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION * session,
     }
 
     if (session->userauth_host_state == libssh2_NB_state_sent) {
+        unsigned long data_len;
         rc = libssh2_packet_requirev_ex(session, reply_codes,
                                         &session->userauth_host_data,
                                         &data_len, 0, NULL, 0,
@@ -824,19 +827,16 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION * session,
                                        const char *privatekey,
                                        const char *passphrase)
 {
-    const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
-    void *abstract;
-    unsigned char buf[5];
-    struct iovec datavec[4];
-    unsigned char *pubkeydata, *sig;
+    unsigned long pubkeydata_len = 0;
     unsigned char reply_codes[4] =
         { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
         SSH_MSG_USERAUTH_PK_OK, 0
     };
-    unsigned long pubkeydata_len, sig_len;
     int rc;
 
     if (session->userauth_pblc_state == libssh2_NB_state_idle) {
+        unsigned char *pubkeydata;
+
         /* Zero the whole thing out */
         memset(&session->userauth_pblc_packet_requirev_state, 0,
                sizeof(session->userauth_pblc_packet_requirev_state));
@@ -935,6 +935,13 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION * session,
     }
 
     if (session->userauth_pblc_state == libssh2_NB_state_sent) {
+        const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
+        void *abstract;
+        unsigned char buf[5];
+        struct iovec datavec[4];
+        unsigned char *sig;
+        unsigned long sig_len;
+
         rc = libssh2_packet_requirev_ex(session, reply_codes,
                                         &session->userauth_pblc_data,
                                         &session->userauth_pblc_data_len, 0,
@@ -1025,6 +1032,10 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION * session,
             privkeyobj->dtor(session, &abstract);
         }
 
+	/* 
+	 * If this function was restarted, pubkeydata_len might still be 0
+	 * which will cause an unnecessary but harmless realloc here.
+	 */
         if (sig_len > pubkeydata_len) {
             unsigned char *newpacket;
             /* Should *NEVER* happen, but...well.. better safe than sorry */
@@ -1046,6 +1057,7 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION * session,
 
         session->userauth_pblc_s =
             session->userauth_pblc_packet + session->userauth_pblc_packet_len;
+        session->userauth_pblc_b = NULL;
 
         libssh2_htonu32(session->userauth_pblc_s,
                         4 + session->userauth_pblc_method_len + 4 + sig_len);
