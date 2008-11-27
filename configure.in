@@ -85,7 +85,7 @@ AC_ARG_WITH(libz,
 
 # Look for OpenSSL (default)
 if test "$use_openssl" != "no" && test "$use_libgcrypt" != "yes"; then
-  AC_LIB_HAVE_LINKFLAGS([ssl], [], [#include <openssl/ssl.h>])
+  AC_LIB_HAVE_LINKFLAGS([ssl], [crypto], [#include <openssl/ssl.h>])
 fi
 
 # Look for libgcrypt
