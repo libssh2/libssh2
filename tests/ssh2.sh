@@ -6,9 +6,10 @@
 # return exit code.
 
 srcdir=${srcdir:-$PWD}
-srcdir=`cd $srcdir; pwd`
-cmd="./ssh2"
 SSHD=${SSHD:-/usr/sbin/sshd}
+
+cmd="./ssh2${EXEEXT}"
+srcdir=`cd $srcdir; pwd`
 
 PRIVKEY=$srcdir/etc/user
 export PRIVKEY
