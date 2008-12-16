@@ -1,4 +1,6 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+ * Copyright (c) 2008 by Daniel Stenberg
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -932,7 +934,7 @@ libssh2_channel_request_pty_ex(LIBSSH2_CHANNEL * channel, const char *term,
 
 LIBSSH2_API int
 libssh2_channel_request_pty_size_ex(LIBSSH2_CHANNEL * channel, int width,
-								int height, int width_px, int height_px)
+                                                                int height, int width_px, int height_px)
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s;
@@ -945,14 +947,14 @@ libssh2_channel_request_pty_size_ex(LIBSSH2_CHANNEL * channel, int width,
         memset(&channel->reqPTY_packet_requirev_state, 0,
             sizeof(channel->reqPTY_packet_requirev_state));
 
-        _libssh2_debug(session, LIBSSH2_DBG_CONN, 
+        _libssh2_debug(session, LIBSSH2_DBG_CONN,
             "changing tty size on channel %lu/%lu",
             channel->local.id,
             channel->remote.id);
 
         s = channel->reqPTY_packet =
             LIBSSH2_ALLOC(session, channel->reqPTY_packet_len);
-        
+
         if (!channel->reqPTY_packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
             "Unable to allocate memory for pty-request", 0);
@@ -997,7 +999,7 @@ libssh2_channel_request_pty_size_ex(LIBSSH2_CHANNEL * channel, int width,
     channel->reqPTY_packet = NULL;
     libssh2_htonu32(channel->reqPTY_local_channel, channel->local.id);
     channel->reqPTY_state = libssh2_NB_state_sent;
-    
+
     return 0;
     }
 
@@ -1516,18 +1518,18 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
              * data.  */
             if ( channel->read_bytes_read < (int) buflen) {
                 rc = libssh2_packet_read(session);
-                
+
                 /* If we didn't find any more data to read */
                 if (rc < 0) {
                     if ( channel->read_bytes_read > 0){
-                        break;	/* finish processing and return */
+                        break;  /* finish processing and return */
                     }
-                    
+
                     /* no packets available, no data read. */
                     channel->read_state = libssh2_NB_state_idle;
                     return rc;
                 }
-                /* We read more data, restart our processing at 
+                /* We read more data, restart our processing at
                   * the beginning of our packet list. */
                 channel->read_packet = session->packets.head;
             }
@@ -1682,20 +1684,20 @@ libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
              && (channel->local.id == read_local_id)
              && (stream_id == (int) libssh2_ntohu32(read_packet->data + 5)))
             || (!stream_id && (read_packet->data[0] == SSH_MSG_CHANNEL_DATA)
-                && (channel->local.id == read_local_id)) || (!stream_id
-                                                             && (read_packet->
-                                                                 data[0] ==
-                                                                 SSH_MSG_CHANNEL_EXTENDED_DATA)
-                                                             && (channel->
-                                                                 local.id ==
-                                                                 read_local_id)
-                                                             && (channel->
-                                                                 remote.
-                                                                 extended_data_ignore_mode
-                                                                 ==
-                                                                 LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE)))
+                && (channel->local.id == read_local_id)) ||
+            (!stream_id
+             && (read_packet->
+                 data[0] ==
+                 SSH_MSG_CHANNEL_EXTENDED_DATA)
+             && (channel->
+                 local.id ==
+                 read_local_id)
+             && (channel->
+                 remote.
+                 extended_data_ignore_mode
+                 ==
+                 LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE)))
         {
-
             return (read_packet->data_len - read_packet->data_head);
         }
         read_packet = read_packet->next;
@@ -1736,32 +1738,8 @@ libssh2_channel_write_ex(LIBSSH2_CHANNEL * channel, int stream_id,
                           0);
         }
 
-#if 0
-        /*
-          The following chunk of code is #ifdef'ed out, since I wanted it to
-          remain here with the given explanation why having the code in here
-          is not a good idea. The text is taken from the email Gavrie
-          Philipson wrote to libssh2-devel on Nov 8 2007.
-
-          The logic behind this is that in nonblocking mode, if the local
-          window size has shrunk to zero, there's no point in trying to send
-          anything more. However, exiting the function at that point does not
-          allow any adjusts from the remote side to be received, since
-          libssh2_packet_read (that is called further on in this function) is
-          never called in this case.
-
-          Removing this bit of code fixes the problem. This should not cause
-          busy waiting, since after the libssh2_packet_read, the function
-          correctly returns PACKET_EAGAIN if the window size was not adjusted.
-         */
-        if (!channel->session->socket_block &&
-            (channel->local.window_size <= 0)) {
-            /* Can't write anything */
-            return 0;
-        }
-#endif
-
-        /* [13] 9 = packet_type(1) + channelno(4) [ + streamid(4) ] + buflen(4) */
+        /* [13] 9 = packet_type(1) + channelno(4) [ + streamid(4) ] +
+           buflen(4) */
         channel->write_packet_len = buflen + (stream_id ? 13 : 9);
         channel->write_packet =
             LIBSSH2_ALLOC(session, channel->write_packet_len);
@@ -1848,8 +1826,11 @@ libssh2_channel_write_ex(LIBSSH2_CHANNEL * channel, int stream_id,
                                       channel->write_s -
                                       channel->write_packet);
             if (rc == PACKET_EAGAIN) {
+                _libssh2_debug(session, LIBSSH2_DBG_CONN,
+                               "libssh2_packet_write returned EAGAIN");
                 return PACKET_EAGAIN;
-            } else if (rc) {
+            }
+            else if (rc) {
                 libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                               "Unable to send channel data", 0);
                 LIBSSH2_FREE(session, channel->write_packet);
