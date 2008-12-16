@@ -120,11 +120,11 @@ libssh2_sftp_packet_add(LIBSSH2_SFTP * sftp, unsigned char *data,
 
 /* }}} */
 
-/* {{{ libssh2_sftp_packet_read
+/* {{{ sftp_packet_read
  * Frame an SFTP packet off the channel
  */
 static int
-libssh2_sftp_packet_read(LIBSSH2_SFTP * sftp, int flush)
+sftp_packet_read(LIBSSH2_SFTP * sftp)
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
@@ -136,11 +136,6 @@ libssh2_sftp_packet_read(LIBSSH2_SFTP * sftp, int flush)
 
     _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Waiting for packet");
 
-    if (flush && sftp->partial_packet) {
-        /* When flushing, remove previous partial */
-        LIBSSH2_FREE(session, sftp->partial_packet);
-        sftp->partial_packet = NULL;
-    }
 
     /* If there was a previous partial, start using it */
     if (sftp->partial_packet) {
@@ -148,16 +143,10 @@ libssh2_sftp_packet_read(LIBSSH2_SFTP * sftp, int flush)
         packet_len = sftp->partial_len;
         packet_received = sftp->partial_received;
         sftp->partial_packet = NULL;
-    } else {
-        if (flush && session->socket_block && !libssh2_waitsocket(session, 0)) {
-            /* While flushing in blocking mode, check before reading */
-            return -1;
-        }
+    }
+    else {
         rc = libssh2_channel_read_ex(channel, 0, (char *) buffer, 4);
-        if (flush && (rc < 0)) {
-            /* When flushing, exit quickly */
-            return -1;
-        } else if (rc == PACKET_EAGAIN) {
+        if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (4 != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
@@ -191,14 +180,7 @@ libssh2_sftp_packet_read(LIBSSH2_SFTP * sftp, int flush)
                                     (char *) packet + packet_received,
                                     packet_len - packet_received);
 
-        if (flush && (bytes_received < 0)) {
-            if (packet) {
-                /* When flushing, remove packet if existing */
-                LIBSSH2_FREE(session, packet);
-            }
-            /* When flushing, exit quickly */
-            return -1;
-        } else if (bytes_received == PACKET_EAGAIN) {
+        if (bytes_received == PACKET_EAGAIN) {
             /*
              * We received EAGAIN, save what we have and
              * return to EAGAIN to the caller
@@ -209,7 +191,8 @@ libssh2_sftp_packet_read(LIBSSH2_SFTP * sftp, int flush)
             packet = NULL;
 
             return PACKET_EAGAIN;
-        } else if (bytes_received < 0) {
+        }
+        else if (bytes_received < 0) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                           "Receive error waiting for SFTP packet", 0);
             LIBSSH2_FREE(session, packet);
@@ -244,7 +227,7 @@ libssh2_sftp_packet_ask(LIBSSH2_SFTP * sftp, unsigned char packet_type,
     _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Asking for %d packet",
                    (int) packet_type);
     if (poll_channel) {
-        int ret = libssh2_sftp_packet_read(sftp, 0);
+        int ret = sftp_packet_read(sftp);
         if (ret == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (ret < 0) {
@@ -309,7 +292,7 @@ libssh2_sftp_packet_require(LIBSSH2_SFTP * sftp, unsigned char packet_type,
     }
 
     while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
-        ret = libssh2_sftp_packet_read(sftp, 0);
+        ret = sftp_packet_read(sftp);
         if (ret == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (ret <= 0) {
@@ -359,7 +342,7 @@ sftp_packet_requirev(LIBSSH2_SFTP * sftp, int num_valid_responses,
             }
         }
 
-        ret = libssh2_sftp_packet_read(sftp, 0);
+        ret = sftp_packet_read(sftp);
         if ((ret < 0) && (ret != PACKET_EAGAIN)) {
             sftp->requirev_start = 0;
             return -1;
@@ -525,7 +508,7 @@ LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor)
         libssh2_sftp_close_handle(sftp->handles);
     }
 
-    /* Free the partial packet storage for libssh2_sftp_packet_read */
+    /* Free the partial packet storage for sftp_packet_read */
     if (sftp->partial_packet) {
         LIBSSH2_FREE(session, sftp->partial_packet);
     }
