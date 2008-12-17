@@ -26,7 +26,7 @@ trap "kill ${sshdpid}; echo signal killing sshd; exit 1;" EXIT
 
 : "started sshd (${sshdpid})"
 
-sleep 1
+sleep 3
 
 : Invoking $cmd...
 eval $cmd
