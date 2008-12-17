@@ -935,18 +935,11 @@ libssh2_sftp_open_ex(LIBSSH2_SFTP * sftp, const char *filename,
         LIBSSH2_SFTP_HANDLE_DIR;
 
     fp->handle_len = libssh2_ntohu32(data + 5);
-    if (fp->handle_len > 256) {
+    if (fp->handle_len > SFTP_HANDLE_MAXLEN) {
         /* SFTP doesn't allow handles longer than 256 characters */
-        fp->handle_len = 256;
+        fp->handle_len = SFTP_HANDLE_MAXLEN;
     }
-    fp->handle = LIBSSH2_ALLOC(session, fp->handle_len);
-    if (!fp->handle) {
-        libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                      "Unable to allocate space for SFTP file/dir handle", 0);
-        LIBSSH2_FREE(session, data);
-        LIBSSH2_FREE(session, fp);
-        return NULL;
-    }
+
     memcpy(fp->handle, data + 9, fp->handle_len);
     LIBSSH2_FREE(session, data);
 
@@ -994,7 +987,7 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memory for FXP_CLOSE packet", 0);
+                          "Unable to allocate memory for FXP_READ packet", 0);
             return -1;
         }
         sftp->read_state = libssh2_NB_state_allocated;
@@ -1670,7 +1663,6 @@ libssh2_sftp_close_handle(LIBSSH2_SFTP_HANDLE * handle)
 
     handle->close_state = libssh2_NB_state_idle;
 
-    LIBSSH2_FREE(session, handle->handle);
     LIBSSH2_FREE(session, handle);
 
     return 0;

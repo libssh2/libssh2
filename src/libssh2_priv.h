@@ -532,12 +532,14 @@ struct _LIBSSH2_PUBLICKEY
     unsigned long listFetch_data_len;
 };
 
+#define SFTP_HANDLE_MAXLEN 256 /* according to spec! */
+
 struct _LIBSSH2_SFTP_HANDLE
 {
     LIBSSH2_SFTP *sftp;
     LIBSSH2_SFTP_HANDLE *prev, *next;
 
-    char *handle;
+    char handle[SFTP_HANDLE_MAXLEN];
     int handle_len;
 
     char handle_type;
