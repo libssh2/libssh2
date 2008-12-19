@@ -1,6 +1,9 @@
 Version 0.19 ( )
 -------------------------------
 
+- (Dec 18 2008) Markus Moeller fixed the issue also reported by Alexander
+  Lamaison which caused SFTP reads with large buffers to fail.
+
 - Vlad Grachov brought the new function called
   libssh2_session_block_directions() which returns a bitmask for what
   directions the connection blocks. It is to be used applications that use

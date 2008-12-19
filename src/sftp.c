@@ -1006,9 +1006,22 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
          */
         bytes_requested = buffer_maxlen - total_read;
         /* 10 = packet_type(1) + request_id(4) + data_length(4) +
-           end_of_line_flag(1) */
-        if (bytes_requested > LIBSSH2_SFTP_PACKET_MAXLEN - 10) {
-            bytes_requested = LIBSSH2_SFTP_PACKET_MAXLEN - 10;
+           end_of_line_flag(1)
+
+           10 is changed to 13 below simple because it seems there's a
+           "GlobalScape" SFTP server that responds with a slightly too big
+           buffer at times and we can apparently compensate for that by doing
+           this trick.
+
+           Further details on this issue:
+
+           https://sourceforge.net/mailarchive/forum.php?thread_name=9c3275a90811261517v6c0b1da2u918cc1b8370abf83%40mail.gmail.com&forum_name=libssh2-devel
+
+           http://forums.globalscape.com/tm.aspx?m=15249
+
+        */
+        if (bytes_requested > LIBSSH2_SFTP_PACKET_MAXLEN - 13) {
+            bytes_requested = LIBSSH2_SFTP_PACKET_MAXLEN - 13;
         }
 #ifdef LIBSSH2_DEBUG_SFTP
         _libssh2_debug(session, LIBSSH2_DBG_SFTP,
@@ -1032,7 +1045,7 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
             libssh2_htonu64(s, handle->u.file.offset);
             s += 8;
 
-            libssh2_htonu32(s, buffer_maxlen);
+            libssh2_htonu32(s, bytes_requested);
             s += 4;
 
             sftp->read_state = libssh2_NB_state_created;
@@ -1343,7 +1356,8 @@ libssh2_sftp_write(LIBSSH2_SFTP_HANDLE * handle, const char *buffer,
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     unsigned long data_len, retcode;
-    /* 25 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) + offset(8) + count(4) */
+    /* 25 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) +
+       offset(8) + count(4) */
     ssize_t packet_len = handle->handle_len + count + 25;
     unsigned char *s, *data;
     int rc;
