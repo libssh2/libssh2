@@ -539,6 +539,11 @@ struct _LIBSSH2_SFTP_HANDLE
     LIBSSH2_SFTP *sftp;
     LIBSSH2_SFTP_HANDLE *prev, *next;
 
+    /* This is a pre-allocated buffer used for sending SFTP requests as the
+       whole thing might not get sent in one go. This buffer is used for read,
+       write, close and MUST thus be big enough to suit all these. */
+    unsigned char request_packet[SFTP_HANDLE_MAXLEN + 25];
+
     char handle[SFTP_HANDLE_MAXLEN];
     int handle_len;
 

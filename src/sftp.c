@@ -726,10 +726,6 @@ libssh2_sftp_shutdown(LIBSSH2_SFTP * sftp)
         LIBSSH2_FREE(sftp->channel->session, sftp->open_packet);
         sftp->open_packet = NULL;
     }
-    if (sftp->read_packet) {
-        LIBSSH2_FREE(sftp->channel->session, sftp->read_packet);
-        sftp->read_packet = NULL;
-    }
     if (sftp->readdir_packet) {
         LIBSSH2_FREE(sftp->channel->session, sftp->readdir_packet);
         sftp->readdir_packet = NULL;
@@ -984,12 +980,7 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         _libssh2_debug(session, LIBSSH2_DBG_SFTP,
                        "Reading %lu bytes from SFTP handle",
                        (unsigned long) buffer_maxlen);
-        packet = LIBSSH2_ALLOC(session, packet_len);
-        if (!packet) {
-            libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memory for FXP_READ packet", 0);
-            return -1;
-        }
+        packet = handle->request_packet;
         sftp->read_state = libssh2_NB_state_allocated;
     } else {
         packet = sftp->read_packet;
@@ -1065,7 +1056,6 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                    non-blocking mode! */
                 libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                               "Unable to send FXP_READ command", 0);
-                LIBSSH2_FREE(session, packet);
                 sftp->read_packet = NULL;
                 sftp->read_state = libssh2_NB_state_idle;
                 return -1;
@@ -1085,7 +1075,6 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
             } else if (retcode) {
                 libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                               "Timeout waiting for status message", 0);
-                LIBSSH2_FREE(session, packet);
                 sftp->read_packet = NULL;
                 sftp->read_state = libssh2_NB_state_idle;
                 return -1;
@@ -1097,7 +1086,6 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         switch (data[0]) {
         case SSH_FXP_STATUS:
             retcode = libssh2_ntohu32(data + 5);
-            LIBSSH2_FREE(session, packet);
             LIBSSH2_FREE(session, data);
             sftp->read_packet = NULL;
             sftp->read_state = libssh2_NB_state_idle;
@@ -1114,7 +1102,6 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         case SSH_FXP_DATA:
             bytes_read = libssh2_ntohu32(data + 5);
             if (bytes_read > (data_len - 9)) {
-                LIBSSH2_FREE(session, packet);
                 sftp->read_packet = NULL;
                 sftp->read_state = libssh2_NB_state_idle;
                 return -1;
@@ -1135,7 +1122,6 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         }
     }
 
-    LIBSSH2_FREE(session, packet);
     sftp->read_packet = NULL;
     sftp->read_state = libssh2_NB_state_idle;
     return total_read;
