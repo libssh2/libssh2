@@ -1,5 +1,9 @@
-Version 0.19 ( )
+Version 1.0 ( )
 -------------------------------
+
+- (Dec 20 2008) Based on Alexander Lamaison's patch, there's now a new
+  function called libssh2_sftp_tell64() that returns the 64 bit file offset,
+  as the existing libssh2_sftp_tell() only returns a size_t.
 
 - (Dec 18 2008) Markus Moeller fixed the issue also reported by Alexander
   Lamaison which caused SFTP reads with large buffers to fail.

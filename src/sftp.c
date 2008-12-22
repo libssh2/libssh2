@@ -1560,6 +1560,15 @@ libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE * handle)
     return handle->u.file.offset;
 }
 
+/* {{{ libssh2_sftp_tell64
+ * Return the current read/write pointer's offset
+ */
+LIBSSH2_API libssh2_uint64_t
+libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE * handle)
+{
+    return handle->u.file.offset;
+}
+
 /* }}} */
 
 
