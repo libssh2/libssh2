@@ -210,15 +210,10 @@ ssh_host_parse_key(LIBSSH2_SESSION * session,
         /* this should hopefully avoid any issues with reading
          * past the array if its malformed */
         tmp[i] = tmp[i + 1] = tmp[i + 2] = tmp[i + 3] = tmp[i + 4] = 0;
-/*
-  i = j = Curl_base64_decode (tmp, (unsigned char **) &tmp2);
-*/
 
-/* FIXME:
- * Must use a base64 decoder implementation in order to decode stuff.
- */
         {
-            /* TODO: rework the api interface instead of making a local instance */
+            /* TODO: rework the api interface instead of making a local
+               instance */
             i = libssh2_base64_decode(session, &tmp2, (unsigned int *)&j,
                                       tmp, strlen(tmp));
             LIBSSH2_FREE(session, tmp);
@@ -237,11 +232,6 @@ ssh_host_parse_key(LIBSSH2_SESSION * session,
         libssh2_md5_init (&ctx);
         libssh2_md5_update (ctx, tmp2, j);
         libssh2_md5_final (ctx, s->md5);
-/*
-  MD5_Init (ctx);
-  MD5_Update (ctx, tmp2, j);
-  MD5_Final (s->md5, ctx);
-*/
 #endif
 
 
@@ -310,14 +300,7 @@ libssh2_free_host_entry(LIBSSH2_SESSION * session, LIBSSH2_KNOWNHOSTS * s)
         LIBSSH2_FREE (session, s->hostname_line);
         s->hostname_line = NULL;
     }
-/*
-  for (i=0; i < s->hostnames_size; i++) {
-  if (s->hostnames[i] != NULL) {
-  free(s->hostnames[i]);
-  s->hostnames[i] = NULL;
-  }
-  }
-*/
+
     if (s->hostnames != NULL && s->hostnames_size > 0) {
         LIBSSH2_FREE (session, s->hostnames);
         s->hostnames = NULL;
