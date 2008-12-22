@@ -592,8 +592,6 @@ libssh2_packet_read(LIBSSH2_SESSION * session)
 
 /* }}} */
 
-#ifndef OLDSEND
-
 static libssh2pack_t
 send_existing(LIBSSH2_SESSION * session, unsigned char *data,
               unsigned long data_len, ssize_t * ret)
@@ -655,6 +653,10 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
  * call this function again as soon as it is likely that more data can be
  * sent, and this function should then be called with the same argument set
  * (same data pointer and same data_len) until zero or failure is returned.
+ *
+ * NOTE: this function does not verify that 'data_len' is less than ~35000
+ * which is what all implementations should support at least as packet size.
+ * (RFC4253 section 6.1)
  */
 int
 libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
@@ -691,9 +693,10 @@ libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
 
     /* check if we should compress */
     if (encrypted && strcmp(session->local.comp->name, "none")) {
-        if (session->local.comp->
-            comp(session, 1, &data, &data_len, LIBSSH2_PACKET_MAXCOMP,
-                 &free_data, data, data_len, &session->local.comp_abstract)) {
+        if (session->local.comp->comp(session, 1, &data, &data_len,
+                                      LIBSSH2_PACKET_MAXCOMP,
+                                      &free_data, data, data_len,
+                                      &session->local.comp_abstract)) {
             return PACKET_COMPRESS;     /* compression failure */
         }
     }
@@ -772,8 +775,8 @@ libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
            The MAC field is not encrypted. */
         for(i = 0; i < packet_length; i += session->local.crypt->blocksize) {
             unsigned char *ptr = &p->outbuf[i];
-            if (session->local.crypt->
-                crypt(session, ptr, &session->local.crypt_abstract))
+            if (session->local.crypt->crypt(session, ptr,
+                                            &session->local.crypt_abstract))
                 return PACKET_FAIL;     /* encryption failure */
         }
     }
@@ -809,4 +812,4 @@ libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
 }
 
 /* }}} */
-#endif
+
