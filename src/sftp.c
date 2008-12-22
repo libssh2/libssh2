@@ -1540,11 +1540,11 @@ libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE * handle, size_t offset)
 
 /* }}} */
 
-/* {{{ libssh2_sftp_seek2
+/* {{{ libssh2_sftp_seek64
  * Set the read/write pointer to an arbitrary position within the file
  */
 LIBSSH2_API void
-libssh2_sftp_seek2(LIBSSH2_SFTP_HANDLE * handle, libssh2_uint64_t offset)
+libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE * handle, libssh2_uint64_t offset)
 {
     handle->u.file.offset = offset;
 }
