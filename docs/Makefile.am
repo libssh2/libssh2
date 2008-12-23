@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.29 2008/11/24 13:31:00 bagder Exp $
+# $Id: Makefile.am,v 1.30 2008/12/23 13:23:45 bagder Exp $
 
 EXTRA_DIST = template.3
 
@@ -24,6 +24,7 @@ dist_man_MANS = \
 	libssh2_channel_setenv_ex.3 \
 	libssh2_channel_wait_eof.3 \
 	libssh2_channel_wait_closed.3 \
+	libssh2_channel_write_ex.3 \
 	libssh2_channel_x11_req_ex.3 \
 	libssh2_hostkey_hash.3 \
 	libssh2_scp_recv.3 \
@@ -57,10 +58,12 @@ dist_man_MANS = \
 	libssh2_sftp_stat_ex.3 \
 	libssh2_sftp_symlink_ex.3 \
 	libssh2_sftp_tell.3 \
+	libssh2_sftp_tell64.3 \
 	libssh2_sftp_unlink_ex.3 \
 	libssh2_sftp_write.3 \
 	libssh2_userauth_authenticated.3 \
 	libssh2_userauth_keyboard_interactive_ex.3 \
 	libssh2_userauth_list.3 \
 	libssh2_userauth_password_ex.3 \
-	libssh2_userauth_publickey_fromfile.3
+	libssh2_userauth_publickey_fromfile.3 \
+	libssh2_base64_decode.3
