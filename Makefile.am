@@ -16,7 +16,7 @@ win32/config.mk win32/Makefile win32/test/Makefile.win32 win32/libssh2_lib.dsp \
 win32/libssh2_config.h win32/tests.dsp win32/rules.mk
 
 EXTRA_DIST = $(WIN32FILES) buildconf $(NETWAREFILES) get_ver.awk HACKING \
- maketgz NMakefile
+ maketgz NMakefile TODO
 
 ACLOCAL_AMFLAGS = -I m4
 

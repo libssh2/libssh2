@@ -1,0 +1,30 @@
+Things TODO
+===========
+
+* Add one of the missing man pages:
+
+  libssh2_channel_receive_window_adjust
+  libssh2_channel_request_pty_size_ex
+  libssh2_channel_window_read_ex
+  libssh2_channel_window_write_ex
+  libssh2_publickey_add_ex
+  libssh2_publickey_init
+  libssh2_publickey_list_fetch
+  libssh2_publickey_list_free
+  libssh2_publickey_remove_ex
+  libssh2_publickey_shutdown
+  libssh2_session_flag
+  libssh2_session_get_blocking
+  libssh2_userauth_hostbased_fromfile_ex
+
+* Decrease the number of mallocs. Everywhere.
+
+* Use SO_NOSIGPIPE for Mac OS/BSD systems where MSG_NOSIGNAL doesn't exist/work
+
+* Extend the test suite to actually test lots of aspects of libssh2
+
+
+At next SONAME bump
+===================
+
+* remove libssh2_base64_decode() from the API/ABI
