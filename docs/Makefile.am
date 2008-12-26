@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.30 2008/12/23 13:23:45 bagder Exp $
+# $Id: Makefile.am,v 1.31 2008/12/26 07:46:45 bagder Exp $
 
 EXTRA_DIST = template.3
 
@@ -66,4 +66,5 @@ dist_man_MANS = \
 	libssh2_userauth_list.3 \
 	libssh2_userauth_password_ex.3 \
 	libssh2_userauth_publickey_fromfile.3 \
-	libssh2_base64_decode.3
+	libssh2_base64_decode.3 \
+	libssh2_trace.3
