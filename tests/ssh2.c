@@ -50,6 +50,9 @@ int main(int argc, char *argv[])
     const char *password="password";
     int ec = 1;
 
+    (void)argc;
+    (void)argv;
+
     if (getenv ("USER"))
       username = getenv ("USER");
 

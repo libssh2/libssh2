@@ -679,7 +679,7 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
                 libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                               "Would block sending time data for SCP file", 0);
                 return NULL;
-            } else if (rc != session->scpSend_response_len) {
+            } else if (rc != (int)session->scpSend_response_len) {
                 libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                               "Unable to send time data for SCP file", 0);
                 goto scp_send_error;
@@ -738,7 +738,7 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block send core file data for SCP file", 0);
             return NULL;
-        } else if (rc != session->scpSend_response_len) {
+        } else if (rc != (int)session->scpSend_response_len) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send core file data for SCP file", 0);
             goto scp_send_error;
