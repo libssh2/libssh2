@@ -27,4 +27,7 @@ Things TODO
 At next SONAME bump
 ===================
 
+* stop using #defined macros as part of the official API. The macros should
+  either be turned into real functions or discarded from the API.
+
 * remove libssh2_base64_decode() from the API/ABI
