@@ -1,3 +1,8 @@
+
+- (Deb 8 2009)
+  Markus Moeller fixed a flaw in libssh2_channel_write_ex() that would occur
+  on EAGAIN situations.
+
 Version 1.0 ( )
 -------------------------------
 

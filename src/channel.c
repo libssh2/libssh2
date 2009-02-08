@@ -1771,6 +1771,9 @@ libssh2_channel_write_ex(LIBSSH2_CHANNEL * channel, int stream_id,
         channel->write_state = libssh2_NB_state_allocated;
     }
 
+    /* deduct the amount thet has already been sent */
+    buflen -= channel->write_bufwrote;
+
     while (buflen > 0) {
         if (channel->write_state == libssh2_NB_state_allocated) {
             channel->write_bufwrite = buflen;
