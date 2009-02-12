@@ -1771,8 +1771,9 @@ libssh2_channel_write_ex(LIBSSH2_CHANNEL * channel, int stream_id,
         channel->write_state = libssh2_NB_state_allocated;
     }
 
-    /* deduct the amount thet has already been sent */
+    /* Deduct the amount that has already been sent, and set buf accordingly. */
     buflen -= channel->write_bufwrote;
+    buf += channel->write_bufwrote;
 
     while (buflen > 0) {
         if (channel->write_state == libssh2_NB_state_allocated) {
@@ -1798,6 +1799,7 @@ libssh2_channel_write_ex(LIBSSH2_CHANNEL * channel, int stream_id,
                 if (rc < 0) {
                     /* Error or EAGAIN occurred, disconnect? */
                     if (rc != PACKET_EAGAIN) {
+                        LIBSSH2_FREE(session, channel->write_packet);
                         channel->write_state = libssh2_NB_state_idle;
                     }
                     return rc;
