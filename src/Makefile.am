@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.13 2008/11/21 14:34:03 jas4711 Exp $
+# $Id: Makefile.am,v 1.14 2009/02/16 21:49:31 jas4711 Exp $
 AUTOMAKE_OPTIONS = foreign nostdinc
 
 libssh2_la_SOURCES = channel.c comp.c crypt.c hostkey.c kex.c mac.c	\
@@ -20,7 +20,7 @@ lib_LTLIBRARIES = libssh2.la
 # tree
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/src
 
-VERSION=-version-info 1:0:0
+VERSION=-version-info 1:1:0
 
 # This flag accepts an argument of the form current[:revision[:age]]. So,
 # passing -version-info 3:12:1 sets current to 3, revision to 12, and age to
