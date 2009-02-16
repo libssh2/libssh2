@@ -7,8 +7,8 @@
 - (Feb 8 2009) Markus Moeller fixed a flaw in libssh2_channel_write_ex() that
   would occur on EAGAIN situations.
 
-Version 1.0 ( )
--------------------------------
+Version 1.0 (December 26 2008)
+------------------------------
 
 - (Dec 20 2008) Based on Alexander Lamaison's patch, there's now a new
   function called libssh2_sftp_tell64() that returns the 64 bit file offset,
