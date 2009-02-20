@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2008 by Daniel Stenberg
+ * Copyright (c) 2008-2009 by Daniel Stenberg
  *
  * All rights reserved.
  *
@@ -368,8 +368,6 @@ libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION * session, const char *host,
         s += session->direct_shost_len;
         libssh2_htonu32(s, sport);
         s += 4;
-
-        session->direct_state = libssh2_NB_state_created;
     }
 
     channel =
@@ -379,9 +377,16 @@ libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION * session, const char *host,
                                 LIBSSH2_CHANNEL_PACKET_DEFAULT,
                                 (char *) session->direct_message,
                                 session->direct_message_len);
+
+    /* by default we set (keep?) idle state... */
+    session->direct_state = libssh2_NB_state_idle;
+
     if (!channel) {
         if (libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
-            /* The error code is still set to LIBSSH2_ERROR_EAGAIN */
+            /* The error code is still set to LIBSSH2_ERROR_EAGAIN,
+               set our state to created to avoid re-creating the package
+               on next invoke */
+            session->direct_state = libssh2_NB_state_created;
             return NULL;
         } else {
             LIBSSH2_FREE(session, session->direct_message);

@@ -1,4 +1,7 @@
 
+- (Feb 20 2009) libssh2_channel_direct_tcpip_ex() bug #1902169 fixed, which
+  caused it to fail when called a second time.
+
 - (Feb 12 2009) Romain Bondue extended Markus Moeller fix from Feb 8, based on
   a previous (uncommitted) patch by Erik Brossler. It improves
   libssh2_channel_write_ex in blocking situations when the socket is set non-
