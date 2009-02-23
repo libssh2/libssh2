@@ -652,6 +652,10 @@ LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
                                       unsigned int *dest_len,
                                       const char *src, unsigned int src_len);
 
+LIBSSH2_API
+const char *libssh2_version(int req_version_num);
+
+
 /* NOTE NOTE NOTE
    libssh2_trace() has no function in builds that aren't built with debug
    enabled

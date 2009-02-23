@@ -1,4 +1,6 @@
 
+- (Feb 23 2009) Added libssh2_version()
+
 - (Feb 20 2009) libssh2_channel_direct_tcpip_ex() bug #1902169 fixed, which
   caused it to fail when called a second time.
 
