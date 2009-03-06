@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.win32,v 1.6 2007/08/18 18:53:26 gknauf Exp $
+## $Id: Makefile.win32,v 1.7 2009/03/06 07:25:49 gknauf Exp $
 #
 #########################################################################
 
@@ -16,7 +16,7 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../../openssl-0.9.8e
+OPENSSL_PATH = ../../../openssl-0.9.8j
 endif
 
 # Edit the var below to enable static linking of libssh2 and libz
@@ -25,7 +25,7 @@ LINK_STATIC = 1
 # Edit the vars below to change target settings.
 TARGETS	= scp.exe sftp.exe sftpdir.exe ssh2.exe
 VERSION	= $(LIBSSH2_VERSION)
-COPYR	= (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
+COPYR	= (c) 2004-2009 Sara Golemon <sarag@libssh2.org>
 WWWURL	= http://www.libssh2.org/
 DESCR	= libssh2 $(subst .def,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
 #STACK	= 64000

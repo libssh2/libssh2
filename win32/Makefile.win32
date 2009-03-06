@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.win32,v 1.9 2007/08/18 18:53:26 gknauf Exp $
+## $Id: Makefile.win32,v 1.10 2009/03/06 07:25:37 gknauf Exp $
 #
 #########################################################################
 
@@ -18,7 +18,7 @@ WITH_ZLIB = 1
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8e
+OPENSSL_PATH = ../../openssl-0.9.8j
 endif
 
 # Edit the path below to point to your Distribution folder.
@@ -36,7 +36,7 @@ DEVLARC	= $(DEVLDIR).zip
 # Edit the vars below to change target settings.
 TARGET	= libssh2
 VERSION	= $(LIBSSH2_VERSION)
-COPYR	= (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
+COPYR	= (c) 2004-2009 Sara Golemon <sarag@libssh2.org>
 WWWURL	= http://www.libssh2.org/
 DESCR	= libssh2 $(LIBSSH2_VERSION_STR)
 #STACK	= 64000

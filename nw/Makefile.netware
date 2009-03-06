@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.netware,v 1.12 2007/07/22 00:47:21 gknauf Exp $
+## $Id: Makefile.netware,v 1.13 2009/03/06 07:25:37 gknauf Exp $
 #
 #########################################################################
 
@@ -21,7 +21,7 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8e
+OPENSSL_PATH = ../../openssl-0.9.8j
 endif
 
 # Edit the path below to point to your Distribution folder.
@@ -39,7 +39,7 @@ DEVLARC	= $(DEVLDIR).zip
 # Edit the vars below to change NLM target settings.
 TARGET	= libssh2
 VERSION	= $(LIBSSH2_VERSION)
-COPYR	= Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
+COPYR	= Copyright (c) 2004-2009 Sara Golemon <sarag@libssh2.org>
 WWWURL	= http://www.libssh2.org/
 DESCR	= libssh2 $(LIBSSH2_VERSION_STR) ($(LIBARCH)) - $(WWWURL)
 MTSAFE	= YES
@@ -522,6 +522,7 @@ endif
 	@echo $(DL)  libssh2_scp_recv,$(DL) >> $@
 	@echo $(DL)  libssh2_scp_send_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_session_abstract,$(DL) >> $@
+	@echo $(DL)  libssh2_session_block_directions,$(DL) >> $@
 	@echo $(DL)  libssh2_session_callback_set,$(DL) >> $@
 	@echo $(DL)  libssh2_session_disconnect_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_session_free,$(DL) >> $@
@@ -543,6 +544,7 @@ endif
 	@echo $(DL)  libssh2_sftp_rename_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_rmdir_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_seek,$(DL) >> $@
+	@echo $(DL)  libssh2_sftp_seek64,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_shutdown,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_stat_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_sftp_symlink_ex,$(DL) >> $@
