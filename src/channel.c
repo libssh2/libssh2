@@ -1093,11 +1093,15 @@ libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL * channel, int single_connection,
             memcpy(s, auth_cookie, cookie_len);
         } else {
             int i;
-            unsigned char buffer[LIBSSH2_X11_RANDOM_COOKIE_LEN / 2];
+            /* note: the extra +1 below is necessary since the sprintf()
+               loop will always write 3 bytes so the last one will write
+               the trailing zero at the LIBSSH2_X11_RANDOM_COOKIE_LEN/2
+               border */
+            unsigned char buffer[(LIBSSH2_X11_RANDOM_COOKIE_LEN / 2) +1];
 
             libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
             for(i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++) {
-                snprintf((char *) s + (i * 2), 2, "%02X", buffer[i]);
+                sprintf((char *)&s[i*2], "%02X", buffer[i]);
             }
         }
         s += cookie_len;
