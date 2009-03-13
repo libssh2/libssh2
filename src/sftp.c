@@ -1,4 +1,5 @@
 /* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
+ * Copyright (c) 2009 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -82,7 +83,9 @@
 /* S_IFDIR */
 #define LIBSSH2_SFTP_ATTR_PFILETYPE_DIR         0040000
 
-/* {{{ sftp_packet_add
+/*
+ * sftp_packet_add
+ *
  * Add a packet to the SFTP packet brigade
  */
 static int
@@ -118,9 +121,9 @@ sftp_packet_add(LIBSSH2_SFTP * sftp, unsigned char *data,
     return 0;
 }
 
-/* }}} */
-
-/* {{{ sftp_packet_read
+/*
+ * sftp_packet_read
+ *
  * Frame an SFTP packet off the channel
  */
 static int
@@ -134,8 +137,7 @@ sftp_packet_read(LIBSSH2_SFTP * sftp)
     ssize_t bytes_received;
     int rc;
 
-    _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Waiting for packet");
-
+    _libssh2_debug(session, LIBSSH2_DBG_SFTP, "recv packet");
 
     /* If there was a previous partial, start using it */
     if (sftp->partial_packet) {
@@ -217,45 +219,41 @@ sftp_packet_read(LIBSSH2_SFTP * sftp)
     return packet[0];
 }
 
-/* }}} */
-
-/* {{{ sftp_packet_ask
- * A la libssh2_packet_ask()
+/*
+ * sftp_packet_ask()
+ *
+ * Checks if there's a matching SFTP packet available.
  */
 static int
 sftp_packet_ask(LIBSSH2_SFTP * sftp, unsigned char packet_type,
                 unsigned long request_id, unsigned char **data,
-                unsigned long *data_len, int poll_channel)
+                unsigned long *data_len)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
     LIBSSH2_PACKET *packet = sftp->packets.head;
     unsigned char match_buf[5];
-    int match_len = 5;
+    int match_len;
 
     _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Asking for %d packet",
                    (int) packet_type);
-    if (poll_channel) {
-        int ret = sftp_packet_read(sftp);
-        if (ret == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
-        } else if (ret < 0) {
-            return -1;
-        }
-    }
 
     match_buf[0] = packet_type;
     if (packet_type == SSH_FXP_VERSION) {
         /* Special consideration when matching VERSION packet */
         match_len = 1;
     } else {
+        match_len = 5;
         libssh2_htonu32(match_buf + 1, request_id);
     }
 
     while (packet) {
-        if (strncmp((char *) packet->data, (char *) match_buf, match_len) == 0) {
+        if (!memcmp((char *) packet->data, (char *) match_buf, match_len)) {
+
+            /* Match! Fetch the data */
             *data = packet->data;
             *data_len = packet->data_len;
 
+            /* unlink and free this struct */
             if (packet->prev) {
                 packet->prev->next = packet->next;
             } else {
@@ -272,6 +270,7 @@ sftp_packet_ask(LIBSSH2_SFTP * sftp, unsigned char packet_type,
 
             return 0;
         }
+        /* check next struct in the list */
         packet = packet->next;
     }
     return -1;
@@ -290,12 +289,13 @@ sftp_packet_require(LIBSSH2_SFTP * sftp, unsigned char packet_type,
     LIBSSH2_SESSION *session = sftp->channel->session;
     int ret;
 
-    _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Requiring %d packet",
-                   (int) packet_type);
+    _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Requiring packet %d id %ld",
+                   (int) packet_type, request_id);
 
-    if (sftp_packet_ask(sftp, packet_type, request_id, data,
-                        data_len, 0) == 0) {
+    if (sftp_packet_ask(sftp, packet_type, request_id, data, data_len) == 0) {
         /* The right packet was available in the packet brigade */
+        _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Got %d",
+                       (int) packet_type);
         return 0;
     }
 
@@ -307,10 +307,12 @@ sftp_packet_require(LIBSSH2_SFTP * sftp, unsigned char packet_type,
             return -1;
         }
 
-        if (packet_type == ret) {
-            /* Be lazy, let packet_ask pull it out of the brigade */
-            return sftp_packet_ask(sftp, packet_type, request_id, data,
-                                   data_len, 0);
+        /* data was read, check the queue again */
+        if (!sftp_packet_ask(sftp, packet_type, request_id, data, data_len)) {
+            /* The right packet was available in the packet brigade */
+            _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Got %d",
+                           (int) packet_type);
+            return 0;
         }
     }
 
@@ -318,7 +320,6 @@ sftp_packet_require(LIBSSH2_SFTP * sftp, unsigned char packet_type,
     return -1;
 }
 
-/* }}} */
 
 /* {{{ sftp_packet_requirev
  * Require one of N possible reponses
@@ -340,7 +341,7 @@ sftp_packet_requirev(LIBSSH2_SFTP * sftp, int num_valid_responses,
     while (sftp->channel->session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
         for(i = 0; i < num_valid_responses; i++) {
             if (sftp_packet_ask(sftp, valid_responses[i], request_id,
-                                data, data_len, 0) == 0) {
+                                data, data_len) == 0) {
                 /*
                  * Set to zero before all returns to say
                  * the timeout is not active
@@ -529,9 +530,9 @@ LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor)
     LIBSSH2_FREE(session, sftp);
 }
 
-/* }}} */
-
-/* {{{ libssh2_sftp_init
+/*
+ * libssh2_sftp_init
+ *
  * Startup an SFTP session
  *
  * NOTE:  Will block in a busy loop on error.  This has to be done,
@@ -1082,6 +1083,9 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
             sftp->read_state = libssh2_NB_state_sent1;
         }
+        else
+            /* internal error, 'data' is not assigned */
+            return -1;
 
         switch (data[0]) {
         case SSH_FXP_STATUS:
@@ -1234,12 +1238,15 @@ libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
     if (sftp->readdir_state == libssh2_NB_state_created) {
         _libssh2_debug(session, LIBSSH2_DBG_SFTP,
                        "Reading entries from directory handle");
-        if ((retcode =
-             libssh2_channel_write_ex(channel, 0,
-                                      (char *) sftp->readdir_packet,
-                                      packet_len)) == PACKET_EAGAIN) {
+        retcode =
+            libssh2_channel_write_ex(channel, 0,
+                                     (char *) sftp->readdir_packet,
+                                     packet_len);
+
+        if (retcode == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
-        } else if (packet_len != retcode) {
+        }
+        else if (packet_len != retcode) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send FXP_READ command", 0);
             LIBSSH2_FREE(session, sftp->readdir_packet);
@@ -1379,9 +1386,10 @@ libssh2_sftp_write(LIBSSH2_SFTP_HANDLE * handle, const char *buffer,
     }
 
     if (sftp->write_state == libssh2_NB_state_created) {
-        if ((rc =
-             libssh2_channel_write_ex(channel, 0, (char *) sftp->write_packet,
-                                      packet_len)) == PACKET_EAGAIN) {
+        rc =
+            libssh2_channel_write_ex(channel, 0, (char *) sftp->write_packet,
+                                     packet_len);
+        if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         }
         if (packet_len != rc) {
@@ -1913,7 +1921,7 @@ libssh2_sftp_mkdir_ex(LIBSSH2_SFTP * sftp, const char *path,
     LIBSSH2_SFTP_ATTRIBUTES attrs = {
         LIBSSH2_SFTP_ATTR_PERMISSIONS, 0, 0, 0, 0, 0, 0
     };
-    unsigned long data_len, retcode, request_id;
+    unsigned long data_len, retcode;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
     ssize_t packet_len = path_len + 13 + libssh2_sftp_attrsize(&attrs);
     unsigned char *packet, *s, *data;
@@ -1934,8 +1942,8 @@ libssh2_sftp_mkdir_ex(LIBSSH2_SFTP * sftp, const char *path,
         libssh2_htonu32(s, packet_len - 4);
         s += 4;
         *(s++) = SSH_FXP_MKDIR;
-        request_id = sftp->request_id++;
-        libssh2_htonu32(s, request_id);
+        sftp->mkdir_request_id = sftp->request_id++;
+        libssh2_htonu32(s, sftp->mkdir_request_id);
         s += 4;
         libssh2_htonu32(s, path_len);
         s += 4;
@@ -1946,14 +1954,12 @@ libssh2_sftp_mkdir_ex(LIBSSH2_SFTP * sftp, const char *path,
         sftp->mkdir_state = libssh2_NB_state_created;
     } else {
         packet = sftp->mkdir_packet;
-        request_id = sftp->mkdir_request_id;
     }
 
     if (sftp->mkdir_state == libssh2_NB_state_created) {
         rc = libssh2_channel_write_ex(channel, 0, (char *) packet, packet_len);
         if (rc == PACKET_EAGAIN) {
             sftp->mkdir_packet = packet;
-            sftp->mkdir_request_id = request_id;
             return PACKET_EAGAIN;
         }
         if (packet_len != rc) {
@@ -1968,8 +1974,8 @@ libssh2_sftp_mkdir_ex(LIBSSH2_SFTP * sftp, const char *path,
         sftp->mkdir_packet = NULL;
     }
 
-    rc = sftp_packet_require(sftp, SSH_FXP_STATUS, request_id, &data,
-                             &data_len);
+    rc = sftp_packet_require(sftp, SSH_FXP_STATUS, sftp->mkdir_request_id,
+                             &data, &data_len);
     if (rc == PACKET_EAGAIN) {
         return PACKET_EAGAIN;
     } else if (rc) {
@@ -1985,6 +1991,7 @@ libssh2_sftp_mkdir_ex(LIBSSH2_SFTP * sftp, const char *path,
     LIBSSH2_FREE(session, data);
 
     if (retcode == LIBSSH2_FX_OK) {
+        _libssh2_debug(session, LIBSSH2_DBG_SFTP, "OK!");
         return 0;
     } else {
         libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
@@ -2018,7 +2025,7 @@ libssh2_sftp_rmdir_ex(LIBSSH2_SFTP * sftp, const char *path,
         s = sftp->rmdir_packet = LIBSSH2_ALLOC(session, packet_len);
         if (!sftp->rmdir_packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memory for FXP_MKDIR packet", 0);
+                          "Unable to allocate memory for FXP_RMDIR packet", 0);
             return -1;
         }
 
@@ -2043,7 +2050,7 @@ libssh2_sftp_rmdir_ex(LIBSSH2_SFTP * sftp, const char *path,
             return PACKET_EAGAIN;
         } else if (packet_len != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                          "Unable to send FXP_MKDIR command", 0);
+                          "Unable to send FXP_RMDIR command", 0);
             LIBSSH2_FREE(session, sftp->rmdir_packet);
             sftp->rmdir_packet = NULL;
             sftp->rmdir_state = libssh2_NB_state_idle;
@@ -2113,7 +2120,7 @@ libssh2_sftp_stat_ex(LIBSSH2_SFTP * sftp, const char *path,
         s = sftp->stat_packet = LIBSSH2_ALLOC(session, packet_len);
         if (!sftp->stat_packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memory for FXP_MKDIR packet", 0);
+                          "Unable to allocate memory for FXP_*STAT packet", 0);
             return -1;
         }
 

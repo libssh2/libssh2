@@ -122,12 +122,11 @@ libssh2_userauth_list(LIBSSH2_SESSION * session, const char *username,
     }
 
     if (session->userauth_list_state == libssh2_NB_state_sent) {
-        rc = libssh2_packet_requirev_ex(session, reply_codes,
-                                        &session->userauth_list_data,
-                                        &session->userauth_list_data_len, 0,
-                                        NULL, 0,
-                                        &session->
-                                        userauth_list_packet_requirev_state);
+        rc = libssh2_packet_requirev(session, reply_codes,
+                                     &session->userauth_list_data,
+                                     &session->userauth_list_data_len, 0,
+                                     NULL, 0,
+                                     &session->userauth_list_packet_requirev_state);
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block requesting userauth list", 0);
@@ -269,12 +268,12 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION * session, const char *username,
         || (session->userauth_pswd_state == libssh2_NB_state_sent1)
         || (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
         if (session->userauth_pswd_state == libssh2_NB_state_sent) {
-            rc = libssh2_packet_requirev_ex(session, reply_codes,
-                                            &session->userauth_pswd_data,
-                                            &session->userauth_pswd_data_len,
-                                            0, NULL, 0,
-                                            &session->
-                                            userauth_pswd_packet_requirev_state);
+            rc = libssh2_packet_requirev(session, reply_codes,
+                                         &session->userauth_pswd_data,
+                                         &session->userauth_pswd_data_len,
+                                         0, NULL, 0,
+                                         &session->
+                                         userauth_pswd_packet_requirev_state);
             if (rc == PACKET_EAGAIN) {
                 return PACKET_EAGAIN;
             } else if (rc) {
@@ -780,11 +779,11 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION * session,
 
     if (session->userauth_host_state == libssh2_NB_state_sent) {
         unsigned long data_len;
-        rc = libssh2_packet_requirev_ex(session, reply_codes,
-                                        &session->userauth_host_data,
-                                        &data_len, 0, NULL, 0,
-                                        &session->
-                                        userauth_host_packet_requirev_state);
+        rc = libssh2_packet_requirev(session, reply_codes,
+                                     &session->userauth_host_data,
+                                     &data_len, 0, NULL, 0,
+                                     &session->
+                                     userauth_host_packet_requirev_state);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -942,12 +941,12 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION * session,
         unsigned char *sig;
         unsigned long sig_len;
 
-        rc = libssh2_packet_requirev_ex(session, reply_codes,
-                                        &session->userauth_pblc_data,
-                                        &session->userauth_pblc_data_len, 0,
-                                        NULL, 0,
-                                        &session->
-                                        userauth_pblc_packet_requirev_state);
+        rc = libssh2_packet_requirev(session, reply_codes,
+                                     &session->userauth_pblc_data,
+                                     &session->userauth_pblc_data_len, 0,
+                                     NULL, 0,
+                                     &session->
+                                     userauth_pblc_packet_requirev_state);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -1107,12 +1106,10 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION * session,
     /* PK_OK is no longer valid */
     reply_codes[2] = 0;
 
-    rc = libssh2_packet_requirev_ex(session, reply_codes,
-                                    &session->userauth_pblc_data,
-                                    &session->userauth_pblc_data_len, 0, NULL,
-                                    0,
-                                    &session->
-                                    userauth_pblc_packet_requirev_state);
+    rc = libssh2_packet_requirev(session, reply_codes,
+                                 &session->userauth_pblc_data,
+                                 &session->userauth_pblc_data_len, 0, NULL, 0,
+                                 &session->userauth_pblc_packet_requirev_state);
     if (rc == PACKET_EAGAIN) {
         return PACKET_EAGAIN;
     } else if (rc) {
@@ -1245,12 +1242,12 @@ libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION * session,
 
     for(;;) {
         if (session->userauth_kybd_state == libssh2_NB_state_sent) {
-            rc = libssh2_packet_requirev_ex(session, reply_codes,
-                                            &session->userauth_kybd_data,
-                                            &session->userauth_kybd_data_len,
-                                            0, NULL, 0,
-                                            &session->
-                                            userauth_kybd_packet_requirev_state);
+            rc = libssh2_packet_requirev(session, reply_codes,
+                                         &session->userauth_kybd_data,
+                                         &session->userauth_kybd_data_len,
+                                         0, NULL, 0,
+                                         &session->
+                                         userauth_kybd_packet_requirev_state);
             if (rc == PACKET_EAGAIN) {
                 return PACKET_EAGAIN;
             } else if (rc) {

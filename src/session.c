@@ -630,10 +630,10 @@ libssh2_session_startup(LIBSSH2_SESSION * session, int sock)
     }
 
     if (session->startup_state == libssh2_NB_state_sent4) {
-        rc = libssh2_packet_require_ex(session, SSH_MSG_SERVICE_ACCEPT,
-                                       &session->startup_data,
-                                       &session->startup_data_len, 0, NULL, 0,
-                                       &session->startup_req_state);
+        rc = libssh2_packet_require(session, SSH_MSG_SERVICE_ACCEPT,
+                                    &session->startup_data,
+                                    &session->startup_data_len, 0, NULL, 0,
+                                    &session->startup_req_state);
         if (rc == PACKET_EAGAIN) {
             return LIBSSH2_ERROR_EAGAIN;
         } else if (rc) {

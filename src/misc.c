@@ -202,13 +202,13 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
     static const char *const contexts[9] = {
         "Unknown",
         "Transport",
-        "Key Exchange",
+        "Key Ex",
         "Userauth",
-        "Connection",
-        "scp",
-        "SFTP Subsystem",
+        "Conn",
+        "SCP",
+        "SFTP",
         "Failure Event",
-        "Publickey Subsystem",
+        "Publickey",
     };
 
     if (context < 1 || context > 8) {

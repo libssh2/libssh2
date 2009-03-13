@@ -1,3 +1,23 @@
+- (Mar 13 2009) Daniel Stenberg: Cleanups, that do seem to have boosted SFTP
+  download performance up to 300% in some tests:
+
+  * cut off "_ex" from several internal function names
+
+  * corrected some log outputs
+
+  * simplified libssh2_channel_read_ex() and made it much faster in the process
+
+  * cut out {{{ and }}} comments that were incorrect anyway
+
+  * fixed sftp_packet_ask() to return the correct packet by using memcmp() and
+    not strncmp()
+
+  * fixed mkdir()'s wait for packet to use the correct request_id - it
+    semi-worked previously because strncmp() in sftp_packet_ask() made it
+    match far too easily.
+
+  * took away the polling functionality from sftp_packet_ask() since it wasn't
+    used
 
 - (Mar 7 2009) Olivier Hervieu pointed out a flaw in the
   libssh2_channel_x11_req_ex() function that made it produce a crappy random

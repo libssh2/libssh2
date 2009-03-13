@@ -1,4 +1,5 @@
 /* Copyright (C) 2007 The Written Word, Inc.  All rights reserved.
+ * Copyright (C) 2009 by Daniel Stenberg
  * Author: Daniel Stenberg <daniel@haxx.se>
  *
  * Redistribution and use in source and binary forms,
@@ -43,8 +44,8 @@
 
 #include <assert.h>
 
-#define MAX_BLOCKSIZE 32        /* MUST fit biggest crypto block size we use/get */
-#define MAX_MACSIZE 20          /* MUST fit biggest MAC length we support */
+#define MAX_BLOCKSIZE 32     /* MUST fit biggest crypto block size we use/get */
+#define MAX_MACSIZE 20      /* MUST fit biggest MAC length we support */
 
 #ifdef LIBSSH2DEBUG
 #define UNPRINTABLE_CHAR '.'
@@ -169,7 +170,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
         session->fullpacket_payload_len -= p->padding_length;
 
         /* Check for and deal with decompression */
-        if (session->remote.comp && strcmp(session->remote.comp->name, "none")) {
+        if (session->remote.comp &&
+            strcmp(session->remote.comp->name, "none")) {
             unsigned char *data;
             unsigned long data_len;
             int free_payload = 1;
@@ -207,8 +209,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                     p->payload = LIBSSH2_ALLOC(session, data_len);
                     if (!p->payload) {
                         libssh2_error(session, LIBSSH2_ERROR_ALLOC, (char *)
-                                      "Unable to allocate memory for copy of uncompressed data",
-                                      0);
+                                      "Unable to allocate memory", 0);
                         return PACKET_ENOMEM;
                     }
                     memcpy(p->payload, data, data_len);
@@ -242,10 +243,11 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
 }
 
 
-/* {{{ libssh2_packet_read
- * Collect a packet into the input brigade
- * block only controls whether or not to wait for a packet to start,
- * Once a packet starts, libssh2 will block until it is complete
+/*
+ * libssh2_packet_read
+ *
+ * Collect a packet into the input brigade block only controls whether or not
+ * to wait for a packet to start.
  *
  * Returns packet type added to input brigade (PACKET_NONE if nothing added),
  * or PACKET_FAIL on failure and PACKET_EAGAIN if it couldn't process a full
@@ -274,12 +276,12 @@ libssh2_packet_read(LIBSSH2_SESSION * session)
     /*
      * All channels, systems, subsystems, etc eventually make it down here
      * when looking for more incoming data. If a key exchange is going on
-     * (LIBSSH2_STATE_EXCHANGING_KEYS bit is set) then the remote end
-     * will ONLY send key exchange related traffic. In non-blocking mode,
-     * there is a chance to break out of the kex_exchange function with an
-     * EAGAIN status, and never come back to it. If LIBSSH2_STATE_EXCHANGING_KEYS
-     * is active, then we must redirect to the key exchange. However,
-     * if kex_exchange is active (as in it is the one that calls this execution
+     * (LIBSSH2_STATE_EXCHANGING_KEYS bit is set) then the remote end will
+     * ONLY send key exchange related traffic. In non-blocking mode, there is
+     * a chance to break out of the kex_exchange function with an EAGAIN
+     * status, and never come back to it. If LIBSSH2_STATE_EXCHANGING_KEYS is
+     * active, then we must redirect to the key exchange. However, if
+     * kex_exchange is active (as in it is the one that calls this execution
      * of packet_read, then don't redirect, as that would be an infinite loop!
      */
 
@@ -590,8 +592,6 @@ libssh2_packet_read(LIBSSH2_SESSION * session)
     return PACKET_FAIL;         /* we never reach this point */
 }
 
-/* }}} */
-
 static libssh2pack_t
 send_existing(LIBSSH2_SESSION * session, unsigned char *data,
               unsigned long data_len, ssize_t * ret)
@@ -645,7 +645,9 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
     return PACKET_NONE;
 }
 
-/* {{{ libssh2_packet_write
+/*
+ * libssh2_packet_write
+ *
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.
  *
@@ -811,5 +813,5 @@ libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
     return PACKET_NONE;         /* all is good */
 }
 
-/* }}} */
+
 

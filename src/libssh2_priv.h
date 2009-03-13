@@ -1148,31 +1148,31 @@ int libssh2_waitsocket(LIBSSH2_SESSION * session, long seconds);
 
 libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION * session);
 
-int libssh2_packet_ask_ex(LIBSSH2_SESSION * session, unsigned char packet_type,
-                          unsigned char **data, unsigned long *data_len,
-                          unsigned long match_ofs,
-                          const unsigned char *match_buf,
-                          unsigned long match_len, int poll_socket);
+int libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
+                       unsigned char **data, unsigned long *data_len,
+                       unsigned long match_ofs,
+                       const unsigned char *match_buf,
+                       unsigned long match_len, int poll_socket);
 
-int libssh2_packet_askv_ex(LIBSSH2_SESSION * session,
-                           const unsigned char *packet_types,
-                           unsigned char **data, unsigned long *data_len,
-                           unsigned long match_ofs,
+int libssh2_packet_askv(LIBSSH2_SESSION * session,
+                        const unsigned char *packet_types,
+                        unsigned char **data, unsigned long *data_len,
+                        unsigned long match_ofs,
+                        const unsigned char *match_buf,
+                        unsigned long match_len, int poll_socket);
+int libssh2_packet_require(LIBSSH2_SESSION * session,
+                           unsigned char packet_type, unsigned char **data,
+                           unsigned long *data_len, unsigned long match_ofs,
                            const unsigned char *match_buf,
-                           unsigned long match_len, int poll_socket);
-int libssh2_packet_require_ex(LIBSSH2_SESSION * session,
-                              unsigned char packet_type, unsigned char **data,
-                              unsigned long *data_len, unsigned long match_ofs,
-                              const unsigned char *match_buf,
-                              unsigned long match_len,
-                              packet_require_state_t * state);
-int libssh2_packet_requirev_ex(LIBSSH2_SESSION * session,
-                               const unsigned char *packet_types,
-                               unsigned char **data, unsigned long *data_len,
-                               unsigned long match_ofs,
-                               const unsigned char *match_buf,
-                               unsigned long match_len,
-                               packet_requirev_state_t * state);
+                           unsigned long match_len,
+                           packet_require_state_t * state);
+int libssh2_packet_requirev(LIBSSH2_SESSION * session,
+                            const unsigned char *packet_types,
+                            unsigned char **data, unsigned long *data_len,
+                            unsigned long match_ofs,
+                            const unsigned char *match_buf,
+                            unsigned long match_len,
+                            packet_requirev_state_t * state);
 int libssh2_packet_burn(LIBSSH2_SESSION * session,
                         libssh2_nonblocking_states * state);
 int libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,

@@ -432,10 +432,11 @@ libssh2_packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
     return 0;
 }
 
-/* }}} */
-
-/* {{{ libssh2_packet_new
- * Create a new packet and attach it to the brigade
+/*
+ * libssh2_packet_add
+ *
+ * Create a new packet and attach it to the brigade. Called from the transport
+ * layer when it as received a packet.
  */
 int
 libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
@@ -954,17 +955,17 @@ libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
     return 0;
 }
 
-/* }}} */
-
-/* {{{ libssh2_packet_ask
+/*
+ * libssh2_packet_ask
+ *
  * Scan the brigade for a matching packet type, optionally poll the socket for
  * a packet first
  */
 int
-libssh2_packet_ask_ex(LIBSSH2_SESSION * session, unsigned char packet_type,
-                      unsigned char **data, unsigned long *data_len,
-                      unsigned long match_ofs, const unsigned char *match_buf,
-                      unsigned long match_len, int poll_socket)
+libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
+                   unsigned char **data, unsigned long *data_len,
+                   unsigned long match_ofs, const unsigned char *match_buf,
+                   unsigned long match_len, int poll_socket)
 {
     LIBSSH2_PACKET *packet = session->packets.head;
 
@@ -1018,19 +1019,19 @@ libssh2_packet_ask_ex(LIBSSH2_SESSION * session, unsigned char packet_type,
     return -1;
 }
 
-/* }}} */
-
-/* {{{ libssh2_packet_askv
+/*
+ * libssh2_packet_askv
+ *
  * Scan for any of a list of packet types in the brigade, optionally poll the
  * socket for a packet first
  */
 int
-libssh2_packet_askv_ex(LIBSSH2_SESSION * session,
-                       const unsigned char *packet_types,
-                       unsigned char **data, unsigned long *data_len,
-                       unsigned long match_ofs,
-                       const unsigned char *match_buf,
-                       unsigned long match_len, int poll_socket)
+libssh2_packet_askv(LIBSSH2_SESSION * session,
+                    const unsigned char *packet_types,
+                    unsigned char **data, unsigned long *data_len,
+                    unsigned long match_ofs,
+                    const unsigned char *match_buf,
+                    unsigned long match_len, int poll_socket)
 {
     int i, packet_types_len = strlen((char *) packet_types);
 
@@ -1041,9 +1042,9 @@ libssh2_packet_askv_ex(LIBSSH2_SESSION * session,
          * return PACKET_EAGAIN.  Not sure the correct action, I 
          * think it is right as is.
          */
-        if (0 == libssh2_packet_ask_ex(session, packet_types[i], data,
-                                       data_len, match_ofs, match_buf,
-                                       match_len, i ? 0 : poll_socket)) {
+        if (0 == libssh2_packet_ask(session, packet_types[i], data,
+                                    data_len, match_ofs, match_buf,
+                                    match_len, i ? 0 : poll_socket)) {
             return 0;
         }
     }
@@ -1051,9 +1052,9 @@ libssh2_packet_askv_ex(LIBSSH2_SESSION * session,
     return -1;
 }
 
-/* }}} */
-
-/* {{{ waitsocket
+/*
+ * libssh2_waitsocket
+ *
  * Returns
  * negative on error
  * >0 on incoming data
@@ -1080,7 +1081,9 @@ libssh2_waitsocket(LIBSSH2_SESSION * session, long seconds)
     return rc;
 }
 
-/* {{{ libssh2_packet_require
+/*
+ * libssh2_packet_require
+ *
  * Loops libssh2_packet_read() until the packet requested is available
  * SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause a bailout
  *
@@ -1088,17 +1091,17 @@ libssh2_waitsocket(LIBSSH2_SESSION * session, long seconds)
  * Returns 0 when it has taken care of the requested packet.
  */
 int
-libssh2_packet_require_ex(LIBSSH2_SESSION * session, unsigned char packet_type,
-                          unsigned char **data, unsigned long *data_len,
-                          unsigned long match_ofs,
-                          const unsigned char *match_buf,
-                          unsigned long match_len,
-                          packet_require_state_t * state)
+libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
+                       unsigned char **data, unsigned long *data_len,
+                       unsigned long match_ofs,
+                       const unsigned char *match_buf,
+                       unsigned long match_len,
+                       packet_require_state_t * state)
 {
     if (state->start == 0) {
-        if (libssh2_packet_ask_ex
-            (session, packet_type, data, data_len, match_ofs, match_buf,
-             match_len, 0) == 0) {
+        if (libssh2_packet_ask(session, packet_type, data, data_len,
+                               match_ofs, match_buf,
+                               match_len, 0) == 0) {
             /* A packet was available in the packet brigade */
             return 0;
         }
@@ -1123,9 +1126,8 @@ libssh2_packet_require_ex(LIBSSH2_SESSION * session, unsigned char packet_type,
             return ret;
         } else if (ret == packet_type) {
             /* Be lazy, let packet_ask pull it out of the brigade */
-            ret =
-                libssh2_packet_ask_ex(session, packet_type, data, data_len,
-                                      match_ofs, match_buf, match_len, 0);
+            ret = libssh2_packet_ask(session, packet_type, data, data_len,
+                                     match_ofs, match_buf, match_len, 0);
             state->start = 0;
             return ret;
         } else if (ret == 0) {
@@ -1165,8 +1167,8 @@ libssh2_packet_burn(LIBSSH2_SESSION * session,
             all_packets[i - 1] = i;
         }
 
-        if (libssh2_packet_askv_ex
-            (session, all_packets, &data, &data_len, 0, NULL, 0, 0) == 0) {
+        if (libssh2_packet_askv(session, all_packets, &data, &data_len, 0,
+                                NULL, 0, 0) == 0) {
             i = data[0];
             /* A packet was available in the packet brigade, burn it */
             LIBSSH2_FREE(session, data);
@@ -1191,8 +1193,7 @@ libssh2_packet_burn(LIBSSH2_SESSION * session,
 
         /* Be lazy, let packet_ask pull it out of the brigade */
         if (0 ==
-            libssh2_packet_ask_ex(session, ret, &data, &data_len, 0, NULL, 0,
-                                  0)) {
+            libssh2_packet_ask(session, ret, &data, &data_len, 0, NULL, 0, 0)) {
             /* Smoke 'em if you got 'em */
             LIBSSH2_FREE(session, data);
             *state = libssh2_NB_state_idle;
@@ -1204,10 +1205,8 @@ libssh2_packet_burn(LIBSSH2_SESSION * session,
     return -1;
 }
 
-/* }}} */
-
 /*
- * {{{ libssh2_packet_requirev
+ * libssh2_packet_requirev
  *
  * Loops libssh2_packet_read() until one of a list of packet types requested is
  * available
@@ -1216,17 +1215,16 @@ libssh2_packet_burn(LIBSSH2_SESSION * session,
  */
 
 int
-libssh2_packet_requirev_ex(LIBSSH2_SESSION * session,
-                           const unsigned char *packet_types,
-                           unsigned char **data, unsigned long *data_len,
-                           unsigned long match_ofs,
-                           const unsigned char *match_buf,
-                           unsigned long match_len,
-                           packet_requirev_state_t * state)
+libssh2_packet_requirev(LIBSSH2_SESSION * session,
+                        const unsigned char *packet_types,
+                        unsigned char **data, unsigned long *data_len,
+                        unsigned long match_ofs,
+                        const unsigned char *match_buf,
+                        unsigned long match_len,
+                        packet_requirev_state_t * state)
 {
-    if (libssh2_packet_askv_ex
-        (session, packet_types, data, data_len, match_ofs, match_buf,
-         match_len, 0) == 0) {
+    if (libssh2_packet_askv(session, packet_types, data, data_len, match_ofs,
+                            match_buf, match_len, 0) == 0) {
         /* One of the packets listed was available in the packet
            brigade */
         state->start = 0;
@@ -1256,9 +1254,9 @@ libssh2_packet_requirev_ex(LIBSSH2_SESSION * session,
 
         if (strchr((char *) packet_types, ret)) {
             /* Be lazy, let packet_ask pull it out of the brigade */
-            return libssh2_packet_askv_ex(session, packet_types, data,
-                                          data_len, match_ofs, match_buf,
-                                          match_len, 0);
+            return libssh2_packet_askv(session, packet_types, data,
+                                       data_len, match_ofs, match_buf,
+                                       match_len, 0);
         }
     }
 
@@ -1267,4 +1265,3 @@ libssh2_packet_requirev_ex(LIBSSH2_SESSION * session,
     return -1;
 }
 
-/* }}} */

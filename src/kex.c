@@ -182,10 +182,10 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
 
     if (exchange_state->state == libssh2_NB_state_sent1) {
         /* Wait for KEX reply */
-        rc = libssh2_packet_require_ex(session, packet_type_reply,
-                                       &exchange_state->s_packet,
-                                       &exchange_state->s_packet_len, 0, NULL,
-                                       0, &exchange_state->req_state);
+        rc = libssh2_packet_require(session, packet_type_reply,
+                                    &exchange_state->s_packet,
+                                    &exchange_state->s_packet_len, 0, NULL,
+                                    0, &exchange_state->req_state);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         }
@@ -429,10 +429,10 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
     }
 
     if (exchange_state->state == libssh2_NB_state_sent3) {
-        rc = libssh2_packet_require_ex(session, SSH_MSG_NEWKEYS,
-                                       &exchange_state->tmp,
-                                       &exchange_state->tmp_len, 0, NULL, 0,
-                                       &exchange_state->req_state);
+        rc = libssh2_packet_require(session, SSH_MSG_NEWKEYS,
+                                    &exchange_state->tmp,
+                                    &exchange_state->tmp_len, 0, NULL, 0,
+                                    &exchange_state->req_state);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -852,9 +852,9 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     }
 
     if (key_state->state == libssh2_NB_state_sent) {
-        rc = libssh2_packet_require_ex(session, SSH_MSG_KEX_DH_GEX_GROUP,
-                                       &key_state->data, &key_state->data_len,
-                                       0, NULL, 0, &key_state->req_state);
+        rc = libssh2_packet_require(session, SSH_MSG_KEX_DH_GEX_GROUP,
+                                    &key_state->data, &key_state->data_len,
+                                    0, NULL, 0, &key_state->req_state);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -1720,10 +1720,10 @@ libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
 
         if (key_state->state == libssh2_NB_state_sent1) {
             retcode =
-                libssh2_packet_require_ex(session, SSH_MSG_KEXINIT,
-                                          &key_state->data,
-                                          &key_state->data_len, 0, NULL, 0,
-                                          &key_state->req_state);
+                libssh2_packet_require(session, SSH_MSG_KEXINIT,
+                                       &key_state->data,
+                                       &key_state->data_len, 0, NULL, 0,
+                                       &key_state->req_state);
             if (retcode == PACKET_EAGAIN) {
                 session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
                 return PACKET_EAGAIN;
