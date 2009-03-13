@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_nonblock.c,v 1.16 2009/03/13 12:35:13 bagder Exp $
+ * $Id: sftp_nonblock.c,v 1.17 2009/03/13 22:14:47 bagder Exp $
  *
  * Sample showing how to do SFTP non-blocking transfers.
  *
@@ -205,15 +205,23 @@ int main(int argc, char *argv[])
             goto shutdown;
         }
     }
-
+#if 0
+    libssh2_trace(session, LIBSSH2_TRACE_CONN);
+#endif
     fprintf(stderr, "libssh2_sftp_init()!\n");
     do {
         sftp_session = libssh2_sftp_init(session);
 
-        if ((!sftp_session) && (libssh2_session_last_errno(session) !=
-                                LIBSSH2_ERROR_EAGAIN)) {
-            fprintf(stderr, "Unable to init SFTP session\n");
-            goto shutdown;
+        if(!sftp_session) {
+            if(libssh2_session_last_errno(session) ==
+               LIBSSH2_ERROR_EAGAIN) {
+                fprintf(stderr, "non-blocking init\n");
+                waitsocket(sock, session); /* now we wait */
+            }
+            else {
+                fprintf(stderr, "Unable to init SFTP session\n");
+                goto shutdown;
+            }
         }
     } while (!sftp_session);
 
@@ -223,10 +231,15 @@ int main(int argc, char *argv[])
         sftp_handle = libssh2_sftp_open(sftp_session, sftppath,
                                         LIBSSH2_FXF_READ, 0);
 
-        if (!sftp_handle &&
-            (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
-            fprintf(stderr, "Unable to open file with SFTP\n");
-            goto shutdown;
+        if (!sftp_handle) {
+            if (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
+                fprintf(stderr, "Unable to open file with SFTP\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr, "non-blocking open\n");
+                waitsocket(sock, session); /* now we wait */
+            }
         }
     } while (!sftp_handle);
 
@@ -258,6 +271,7 @@ int main(int argc, char *argv[])
 
 shutdown:
 
+    printf("libssh2_session_disconnect\n");
     while ((rc = libssh2_session_disconnect(session,
                                             "Normal Shutdown, Thank you")) ==
            LIBSSH2_ERROR_EAGAIN);
