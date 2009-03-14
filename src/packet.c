@@ -618,111 +618,110 @@ libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         case SSH_MSG_CHANNEL_DATA:
             /* packet_type(1) + channelno(4) + datalen(4) */
             session->packAdd_data_head += 9;
-            {
-                session->packAdd_channel = libssh2_channel_locate(session,
-                                                                  libssh2_ntohu32
-                                                                  (data + 1));
 
-                if (!session->packAdd_channel) {
-                    libssh2_error(session, LIBSSH2_ERROR_CHANNEL_UNKNOWN,
-                                  "Packet received for unknown channel, ignoring",
-                                  0);
-                    LIBSSH2_FREE(session, data);
-                    session->packAdd_state = libssh2_NB_state_idle;
-                    return 0;
-                }
-#ifdef LIBSSH2DEBUG
-                {
-                    unsigned long stream_id = 0;
+            session->packAdd_channel =
+                libssh2_channel_locate(session, libssh2_ntohu32(data + 1));
 
-                    if (data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) {
-                        stream_id = libssh2_ntohu32(data + 5);
-                    }
-
-                    _libssh2_debug(session, LIBSSH2_DBG_CONN,
-                                   "%d bytes received for channel %lu/%lu stream #%lu",
-                                   (int) (datalen -
-                                          session->packAdd_data_head),
-                                   session->packAdd_channel->local.id,
-                                   session->packAdd_channel->remote.id,
-                                   stream_id);
-                }
-#endif
-                if ((session->packAdd_channel->remote.
-                     extended_data_ignore_mode ==
-                     LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE)
-                    && (data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
-                    /* Pretend we didn't receive this */
-                    LIBSSH2_FREE(session, data);
-
-                    _libssh2_debug(session, LIBSSH2_DBG_CONN,
-                                   "Ignoring extended data and refunding %d bytes",
-                                   (int) (datalen - 13));
-                    /* Adjust the window based on the block we just freed */
-                  libssh2_packet_add_jump_point1:
-                    session->packAdd_state = libssh2_NB_state_jump1;
-                    rc = libssh2_channel_receive_window_adjust(session->
-                                                               packAdd_channel,
-                                                               datalen - 13,
-                                                               0);
-                    if (rc == PACKET_EAGAIN) {
-                        session->socket_block_directions =
-                            LIBSSH2_SESSION_BLOCK_OUTBOUND;
-                        return PACKET_EAGAIN;
-                    }
-                    session->packAdd_state = libssh2_NB_state_idle;
-                    return 0;
-                }
-
-                /*
-                 * REMEMBER! remote means remote as source of data,
-                 * NOT remote window!
-                 */
-                if (session->packAdd_channel->remote.packet_size <
-                    (datalen - session->packAdd_data_head)) {
-                    /*
-                     * Spec says we MAY ignore bytes sent beyond 
-                     * packet_size
-                     */
-                    libssh2_error(session,
-                                  LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
-                                  "Packet contains more data than we offered to receive, truncating",
-                                  0);
-                    datalen =
-                        session->packAdd_channel->remote.packet_size +
-                        session->packAdd_data_head;
-                }
-                if (session->packAdd_channel->remote.window_size <= 0) {
-                    /*
-                     * Spec says we MAY ignore bytes sent beyond
-                     * window_size
-                     */
-                    libssh2_error(session,
-                                  LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
-                                  "The current receive window is full, data ignored",
-                                  0);
-                    LIBSSH2_FREE(session, data);
-                    session->packAdd_state = libssh2_NB_state_idle;
-                    return 0;
-                }
-                /* Reset EOF status */
-                session->packAdd_channel->remote.eof = 0;
-
-                if ((datalen - session->packAdd_data_head) >
-                    session->packAdd_channel->remote.window_size) {
-                    libssh2_error(session,
-                                  LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
-                                  "Remote sent more data than current window allows, truncating",
-                                  0);
-                    datalen =
-                        session->packAdd_channel->remote.window_size +
-                        session->packAdd_data_head;
-                } else {
-                    /* Now that we've received it, shrink our window */
-                    session->packAdd_channel->remote.window_size -=
-                        datalen - session->packAdd_data_head;
-                }
+            if (!session->packAdd_channel) {
+                libssh2_error(session, LIBSSH2_ERROR_CHANNEL_UNKNOWN,
+                              "Packet received for unknown channel, ignoring",
+                              0);
+                LIBSSH2_FREE(session, data);
+                session->packAdd_state = libssh2_NB_state_idle;
+                return 0;
             }
+#ifdef LIBSSH2DEBUG
+            {
+                unsigned long stream_id = 0;
+                if (data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) {
+                    stream_id = libssh2_ntohu32(data + 5);
+                }
+
+                _libssh2_debug(session, LIBSSH2_DBG_CONN,
+                               "%d bytes packet_add() for %lu/%lu/%lu",
+                               (int) (datalen - session->packAdd_data_head),
+                               session->packAdd_channel->local.id,
+                               session->packAdd_channel->remote.id,
+                               stream_id);
+            }
+#endif
+            if ((session->packAdd_channel->remote.extended_data_ignore_mode ==
+                 LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE) &&
+                (data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)) {
+                /* Pretend we didn't receive this */
+                LIBSSH2_FREE(session, data);
+
+                _libssh2_debug(session, LIBSSH2_DBG_CONN,
+                               "Ignoring extended data and refunding %d bytes",
+                               (int) (datalen - 13));
+                /* Adjust the window based on the block we just freed */
+              libssh2_packet_add_jump_point1:
+                session->packAdd_state = libssh2_NB_state_jump1;
+                rc = libssh2_channel_receive_window_adjust(session->
+                                                           packAdd_channel,
+                                                           datalen - 13,
+                                                           0);
+                if (rc == PACKET_EAGAIN) {
+                    session->socket_block_directions =
+                        LIBSSH2_SESSION_BLOCK_OUTBOUND;
+                    return PACKET_EAGAIN;
+                }
+                session->packAdd_state = libssh2_NB_state_idle;
+                return 0;
+            }
+
+            /*
+             * REMEMBER! remote means remote as source of data,
+             * NOT remote window!
+             */
+            if (session->packAdd_channel->remote.packet_size <
+                (datalen - session->packAdd_data_head)) {
+                /*
+                 * Spec says we MAY ignore bytes sent beyond
+                 * packet_size
+                 */
+                libssh2_error(session,
+                              LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
+                              "Packet contains more data than we offered"
+                              " to receive, truncating", 0);
+                datalen =
+                    session->packAdd_channel->remote.packet_size +
+                    session->packAdd_data_head;
+            }
+            if (session->packAdd_channel->remote.window_size <= 0) {
+                /*
+                 * Spec says we MAY ignore bytes sent beyond
+                 * window_size
+                 */
+                libssh2_error(session,
+                              LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
+                              "The current receive window is full,"
+                              " data ignored",
+                              0);
+                LIBSSH2_FREE(session, data);
+                session->packAdd_state = libssh2_NB_state_idle;
+                return 0;
+            }
+            /* Reset EOF status */
+            session->packAdd_channel->remote.eof = 0;
+
+            if ((datalen - session->packAdd_data_head) >
+                session->packAdd_channel->remote.window_size) {
+                libssh2_error(session,
+                              LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
+                              "Remote sent more data than current "
+                              "window allows, truncating",
+                              0);
+                datalen =
+                    session->packAdd_channel->remote.window_size +
+                    session->packAdd_data_head;
+            }
+            else {
+                /* Now that we've received it, shrink our window */
+                session->packAdd_channel->remote.window_size -=
+                    datalen - session->packAdd_data_head;
+            }
+
             break;
 
         case SSH_MSG_CHANNEL_EOF:
@@ -940,7 +939,7 @@ libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
          * How about re-using the startup_key_state?
          */
         memset(&session->startup_key_state, 0, sizeof(key_exchange_state_t));
- 
+
         /*
          * If there was a key reexchange failure, let's just hope we didn't
          * send NEWKEYS yet, otherwise remote will drop us like a rock
@@ -1039,7 +1038,7 @@ libssh2_packet_askv(LIBSSH2_SESSION * session,
         /*
          * XXX CHECK XXX
          * When "poll_socket" is "1" libssh2_packet_ask_ex() could
-         * return PACKET_EAGAIN.  Not sure the correct action, I 
+         * return PACKET_EAGAIN.  Not sure the correct action, I
          * think it is right as is.
          */
         if (0 == libssh2_packet_ask(session, packet_types[i], data,
@@ -1148,7 +1147,7 @@ libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
 /* }}} */
 
 /* {{{ libssh2_packet_burn
- * Loops libssh2_packet_read() until any packet is available and promptly 
+ * Loops libssh2_packet_read() until any packet is available and promptly
  * discards it
  * Used during KEX exchange to discard badly guessed KEX_INIT packets
  */
