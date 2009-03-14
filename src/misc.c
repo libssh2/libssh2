@@ -1,4 +1,5 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+ * Copyright (c) 2009 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -219,7 +220,7 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
     }
     now.tv_sec -= firstsec;
 
-    len = snprintf(buffer, sizeof(buffer), "[libssh2] %d.%-6d %s: ",
+    len = snprintf(buffer, sizeof(buffer), "[libssh2] %d.%06d %s: ",
                    (int)now.tv_sec, (int)now.tv_usec, contexts[context]);
 
     va_start(vargs, format);
