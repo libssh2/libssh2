@@ -40,7 +40,11 @@
 #include <unistd.h>
 #endif
 
-/* {{{ libssh2_ntohu32
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+
+/* libssh2_ntohu32
  */
 unsigned long
 libssh2_ntohu32(const unsigned char *buf)
@@ -48,10 +52,8 @@ libssh2_ntohu32(const unsigned char *buf)
     return (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
 }
 
-/* }}} */
 
-/* {{{ libssh2_ntohu64
- *
+/* libssh2_ntohu64
  */
 libssh2_uint64_t
 libssh2_ntohu64(const unsigned char *buf)
@@ -64,9 +66,7 @@ libssh2_ntohu64(const unsigned char *buf)
     return ((libssh2_uint64_t)msl <<32) | lsl;
 }
 
-/* }}} */
-
-/* {{{ libssh2_htonu32
+/* libssh2_htonu32
  */
 void
 libssh2_htonu32(unsigned char *buf, unsigned long value)
@@ -77,9 +77,7 @@ libssh2_htonu32(unsigned char *buf, unsigned long value)
     buf[3] = value & 0xFF;
 }
 
-/* }}} */
-
-/* {{{ libssh2_htonu64
+/* libssh2_htonu64
  */
 void
 libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
@@ -97,11 +95,8 @@ libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
     buf[7] = value & 0xFF;
 }
 
-/* }}} */
-
 /* Base64 Conversion */
 
-/* {{{ */
 static const char libssh2_base64_table[] =
     { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
     'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -131,10 +126,8 @@ static const short libssh2_base64_reverse_table[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
 
-/* }}} */
-
-
-/* {{{ libssh2_base64_decode
+/* libssh2_base64_decode
+ *
  * Decode a base64 chunk and store it into a newly alloc'd buffer
  */
 LIBSSH2_API int
@@ -199,6 +192,8 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
     char buffer[1536];
     int len;
     va_list vargs;
+    struct timeval now;
+    static int firstsec;
     static const char *const contexts[9] = {
         "Unknown",
         "Transport",
@@ -218,8 +213,14 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
         /* no such output asked for */
         return;
     }
+    gettimeofday(&now, NULL);
+    if(!firstsec) {
+        firstsec = now.tv_sec;
+    }
+    now.tv_sec -= firstsec;
 
-    len = snprintf(buffer, 1535, "[libssh2] %s: ", contexts[context]);
+    len = snprintf(buffer, sizeof(buffer), "[libssh2] %d.%-6d %s: ",
+                   (int)now.tv_sec, (int)now.tv_usec, contexts[context]);
 
     va_start(vargs, format);
     len += vsnprintf(buffer + len, 1535 - len, format, vargs);
