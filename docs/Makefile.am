@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.32 2009/02/23 16:22:46 bagder Exp $
+# $Id: Makefile.am,v 1.33 2009/03/15 22:59:46 bagder Exp $
 
 EXTRA_DIST = template.3
 
@@ -18,12 +18,15 @@ dist_man_MANS = \
 	libssh2_channel_open_ex.3 \
 	libssh2_channel_process_startup.3 \
 	libssh2_channel_read_ex.3 \
+	libssh2_channel_receive_window_adjust.3 \
 	libssh2_channel_request_pty_ex.3 \
 	libssh2_channel_send_eof.3 \
 	libssh2_channel_set_blocking.3 \
 	libssh2_channel_setenv_ex.3 \
 	libssh2_channel_wait_eof.3 \
 	libssh2_channel_wait_closed.3 \
+	libssh2_channel_window_read_ex.3 \
+	libssh2_channel_window_write_ex.3 \
 	libssh2_channel_write_ex.3 \
 	libssh2_channel_x11_req_ex.3 \
 	libssh2_hostkey_hash.3 \
