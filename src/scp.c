@@ -70,7 +70,8 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
         }
 
         /* sprintf() is fine here since we allocated a large enough buffer */
-        sprintf(session->scpRecv_command, "scp -%sf %s", sb?"p":"", path);
+        sprintf((char *)session->scpRecv_command, "scp -%sf %s", sb?"p":"",
+                path);
 
         _libssh2_debug(session, LIBSSH2_DBG_SCP,
                        "Opening channel for SCP receive");
