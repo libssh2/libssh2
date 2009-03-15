@@ -39,6 +39,224 @@
 #include <errno.h>
 #include <stdlib.h>
 
+
+/* Max. length of a quoted string after libssh2_shell_quotearg() processing */
+#define libssh2_shell_quotedsize(s)	(3 * strlen(s) + 2)
+
+/*
+    This function quotes a string in a way suitable to be used with a
+    shell, e.g. the file name
+        one two
+    becomes
+        'one two'
+
+    The resulting output string is crafted in a way that makes it usable
+    with the two most common shell types: Bourne Shell derived shells
+    (sh, ksh, ksh93, bash, zsh) and C-Shell derivates (csh, tcsh).
+
+    The following special cases are handled:
+     o  If the string contains an apostrophy itself, the apostrophy
+	character is written in quotation marks, e.g. "'".
+	The shell cannot handle the syntax 'doesn\'t', so we close the
+	current argument word, add the apostrophe in quotation marks "",
+	and open a new argument word instead (_ indicate the input
+	string characters):
+	     _____   _   _
+	    'doesn' "'" 't'
+
+	Sequences of apostrophes are combined in one pair of quotation marks:
+	    a'''b
+	becomes
+	     _  ___  _
+	    'a'"'''"'b'
+
+     o	If the string contains an exclamation mark (!), the C-Shell
+	interprets it as an event number. Using \! (not within quotation
+	marks or single quotation marks) is a mechanism understood by
+	both Bourne Shell and C-Shell.
+
+	If a quotation was already started, the argument word is closed
+	first:
+	    a!b
+
+	become
+	     _  _ _
+	    'a'\!'b'
+
+    The result buffer must be large enough for the expanded result. A
+    bad case regarding expansion is alternating characters and
+    apostrophes:
+
+        a'b'c'd'                   (length 8) gets converted to
+        'a'"'"'b'"'"'c'"'"'d'"'"   (length 24)
+
+    This is the worst case.
+
+    Maximum length of the result:
+    	1 + 6 * (length(input) + 1) / 2) + 1
+
+        => 3 * length(input) + 2
+
+    Explanation:
+     o  leading apostrophe
+     o  one character / apostrophe pair (two characters) can get
+        represented as 6 characters: a' -> a'"'"'
+     o  String terminator (+1)
+
+    A result buffer three times the size of the input buffer + 2
+    characters should be safe.
+
+    References:
+     o  csh-compatible quotation (special handling for '!' etc.), see
+        http://www.grymoire.com/Unix/Csh.html#toc-uh-10
+
+    Return value:
+      Length of the resulting string (not counting the terminating '\0'),
+      or 0 in case of errors, e.g. result buffer too small
+
+    Note: this function could possible be used elsewhere within libssh2, but
+    until then it is kept static and in this source file.
+*/
+
+static unsigned
+libssh2_shell_quotearg(const char *path, unsigned char *buf,
+                       unsigned bufsize)
+{
+    const char *src;
+    unsigned char *dst, *endp;
+
+    /*
+     * Processing States:
+     *  UQSTRING:	unquoted string: ... -- used for quoting exclamation
+     *  		marks. This is the initial state
+     *  SQSTRING:       single-qouted-string: '... -- any character may follow
+     *  QSTRING:        quoted string: "... -- only apostrophes may follow
+     */
+    enum { UQSTRING, SQSTRING, QSTRING } state = UQSTRING;
+
+    endp = &buf[bufsize];
+    src = path;
+    dst = buf;
+    while (*src && dst < endp - 1) {
+
+    	switch (*src) {
+	    /*
+	     * Special handling for apostrophe.
+	     * An apostrophe is always written in quotation marks, e.g.
+	     * ' -> "'".
+	     */
+
+        case '\'':
+            switch (state) {
+            case UQSTRING:	/* Unquoted string */
+                if (dst+1 >= endp)
+                    return 0;
+                *dst++ = '"';
+                break;
+            case QSTRING:	/* Continue quoted string */
+                break;
+            case SQSTRING:	/* Close single quoted string */
+                if (dst+2 >= endp)
+                    return 0;
+                *dst++ = '\'';
+                *dst++ = '"';
+                break;
+            default:
+                break;
+            }
+            state = QSTRING;
+            break;
+
+            /*
+             * Special handling for exclamation marks. CSH interprets
+             * exclamation marks even when quoted with apostrophes. We convert
+             * it to the plain string \!, because both Bourne Shell and CSH
+             * interpret that as a verbatim exclamation mark.
+             */
+
+        case '!':
+            switch (state) {
+            case UQSTRING:
+                if (dst+1 >= endp)
+                    return 0;
+                *dst++ = '\\';
+                break;
+            case QSTRING:
+                if (dst+2 >= endp)
+                    return 0;
+                *dst++ = '"';		/* Closing quotation mark */
+                *dst++ = '\\';
+                break;
+            case SQSTRING:		/* Close single quoted string */
+                if (dst+2 >= endp)
+                    return 0;
+                *dst++ = '\'';
+                *dst++ = '\\';
+                break;
+            default:
+                break;
+            }
+            state = UQSTRING;
+            break;
+
+	    /*
+	     * Ordinary character: prefer single-quoted string
+	     */
+
+        default:
+            switch (state) {
+            case UQSTRING:
+                if (dst+1 >= endp)
+                    return 0;
+                *dst++ = '\'';
+                break;
+            case QSTRING:
+                if (dst+2 >= endp)
+                    return 0;
+                *dst++ = '"';		/* Closing quotation mark */
+                *dst++ = '\'';
+                break;
+            case SQSTRING:	/* Continue single quoted string */
+                break;
+            default:
+                break;
+            }
+            state = SQSTRING;	/* Start single-quoted string */
+            break;
+	}
+
+        if (dst+1 >= endp)
+            return 0;
+        *dst++ = *src++;
+    }
+
+    switch (state) {
+    	case UQSTRING:
+            break;
+        case QSTRING:           /* Close quoted string */
+            if (dst+1 >= endp)
+                return 0;
+            *dst++ = '"';
+            break;
+        case SQSTRING:          /* Close single quoted string */
+            if (dst+1 >= endp)
+                return 0;
+            *dst++ = '\'';
+            break;
+        default:
+            break;
+    }
+
+    if (dst+1 >= endp)
+        return 0;
+    *dst = '\0';
+
+    /* The result cannot be larger than 3 * strlen(path) + 2 */
+    /* assert((dst - buf) <= (3 * (src - path) + 2)); */
+
+    return dst - buf;
+}
+
 /*
  * libssh2_scp_recv
  *
@@ -48,7 +266,7 @@
 LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 {
-    int path_len = strlen(path);
+    int cmd_len;
     int rc;
 
     if (session->scpRecv_state == libssh2_NB_state_idle) {
@@ -57,10 +275,12 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
         session->scpRecv_mtime = 0;
         session->scpRecv_atime = 0;
 
-        session->scpRecv_command_len = path_len + sizeof("scp -f ") + (sb?1:0);
+        session->scpRecv_command_len =
+            libssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb?1:0);
 
         session->scpRecv_command =
             LIBSSH2_ALLOC(session, session->scpRecv_command_len);
+
         if (!session->scpRecv_command) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                           "Unable to allocate a command buffer for SCP session",
@@ -69,8 +289,14 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
         }
 
         /* sprintf() is fine here since we allocated a large enough buffer */
-        sprintf((char *)session->scpRecv_command, "scp -%sf %s", sb?"p":"",
-                path);
+        sprintf((char *)session->scpRecv_command, "scp -%sf ", sb?"p":"");
+
+        cmd_len = strlen((char *)session->scpRecv_command);
+
+        (void) libssh2_shell_quotearg(path,
+                                      &session->scpRecv_command[cmd_len],
+                                      session->scpRecv_command_len - cmd_len);
+
 
         _libssh2_debug(session, LIBSSH2_DBG_SCP,
                        "Opening channel for SCP receive");
@@ -544,16 +770,14 @@ LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
                     size_t size, long mtime, long atime)
 {
-    int path_len = strlen(path);
+    int cmd_len;
     unsigned const char *base;
     int rc;
 
     if (session->scpSend_state == libssh2_NB_state_idle) {
-        session->scpSend_command_len = path_len + sizeof("scp -t ");
-
-        if (mtime || atime) {
-            session->scpSend_command_len++;
-        }
+        session->scpSend_command_len =
+            libssh2_shell_quotedsize(path) + sizeof("scp -t ") +
+            ((mtime || atime)?1:0);
 
         session->scpSend_command =
             LIBSSH2_ALLOC(session, session->scpSend_command_len);
@@ -564,16 +788,15 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
             return NULL;
         }
 
-        if (mtime || atime) {
-            memcpy(session->scpSend_command, "scp -pt ",
-                   sizeof("scp -pt ") - 1);
-            memcpy(session->scpSend_command + sizeof("scp -pt ") - 1, path,
-                   path_len);
-        } else {
-            memcpy(session->scpSend_command, "scp -t ", sizeof("scp -t ") - 1);
-            memcpy(session->scpSend_command + sizeof("scp -t ") - 1, path,
-                   path_len);
-        }
+        sprintf((char *)session->scpSend_command, "scp -%st ",
+                (mtime || atime)?"p":"");
+
+        cmd_len = strlen((char *)session->scpSend_command);
+
+        (void)libssh2_shell_quotearg(path,
+                                     &session->scpSend_command[cmd_len],
+                                     session->scpSend_command_len - cmd_len);
+
         session->scpSend_command[session->scpSend_command_len - 1] = '\0';
 
         _libssh2_debug(session, LIBSSH2_DBG_SCP,
