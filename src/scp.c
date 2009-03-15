@@ -58,11 +58,7 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
         session->scpRecv_mtime = 0;
         session->scpRecv_atime = 0;
 
-        session->scpRecv_command_len = path_len + sizeof("scp -f ");
-
-        if (sb) {
-            session->scpRecv_command_len++;
-        }
+        session->scpRecv_command_len = path_len + sizeof("scp -f ") + (sb?1:0);
 
         session->scpRecv_command =
             LIBSSH2_ALLOC(session, session->scpRecv_command_len);
@@ -72,17 +68,9 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                           0);
             return NULL;
         }
-        if (sb) {
-            memcpy(session->scpRecv_command, "scp -pf ",
-                   sizeof("scp -pf ") - 1);
-            memcpy(session->scpRecv_command + sizeof("scp -pf ") - 1, path,
-                   path_len);
-        } else {
-            memcpy(session->scpRecv_command, "scp -f ", sizeof("scp -f ") - 1);
-            memcpy(session->scpRecv_command + sizeof("scp -f ") - 1, path,
-                   path_len);
-        }
-        session->scpRecv_command[session->scpRecv_command_len - 1] = '\0';
+
+        /* sprintf() is fine here since we allocated a large enough buffer */
+        sprintf(session->scpRecv_command, "scp -%sf %s", sb?"p":"", path);
 
         _libssh2_debug(session, LIBSSH2_DBG_SCP,
                        "Opening channel for SCP receive");
