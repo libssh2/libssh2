@@ -1,4 +1,5 @@
 /* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
+ * Copyright (c) 2009 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -78,6 +79,13 @@
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE 1
+#endif
 
 /* Provide iovec / writev on WIN32 platform. */
 #ifdef WIN32
@@ -387,11 +395,8 @@ struct _LIBSSH2_CHANNEL
     libssh2_nonblocking_states read_state;
     LIBSSH2_PACKET *read_packet;
     LIBSSH2_PACKET *read_next;
-    int read_block;
-    int read_bytes_read;
+
     uint32_t read_local_id;
-    int read_want;
-    int read_unlink_packet;
 
     /* State variables used in libssh2_channel_write_ex() */
     libssh2_nonblocking_states write_state;
@@ -466,7 +471,7 @@ typedef struct _libssh2_endpoint_data
     char *lang_prefs;
 } libssh2_endpoint_data;
 
-#define PACKETBUFSIZE 4096
+#define PACKETBUFSIZE (1024*16)
 
 struct transportpacket
 {

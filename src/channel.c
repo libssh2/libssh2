@@ -1379,7 +1379,8 @@ libssh2_channel_get_exit_status(LIBSSH2_CHANNEL * channel)
  * to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
  * adjustment amount will be queued for a later packet.
  *
- * Returns the new size of the receive window (as understood by remote end)
+ * Returns the new size of the receive window (as understood by remote end),
+ *
  */
 LIBSSH2_API unsigned long
 libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
@@ -1412,7 +1413,7 @@ libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
         libssh2_htonu32(&channel->adjust_adjust[1], channel->remote.id);
         libssh2_htonu32(&channel->adjust_adjust[5], adjustment);
         _libssh2_debug(channel->session, LIBSSH2_DBG_CONN,
-                       "Adjusting window %lu bytes for data flushed from "
+                       "Adjusting window %lu bytes for data on "
                        "channel %lu/%lu",
                        adjustment, channel->local.id, channel->remote.id);
 
@@ -1421,7 +1422,8 @@ libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
 
     rc = libssh2_packet_write(channel->session, channel->adjust_adjust, 9);
     if (rc == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return PACKET_EAGAIN; /* TODO/FIX: this function returns an unsigned
+                                 value! */
     }
     else if (rc) {
         libssh2_error(channel->session, LIBSSH2_ERROR_SOCKET_SEND,
@@ -1498,10 +1500,13 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
 {
     LIBSSH2_SESSION *session = channel->session;
     libssh2pack_t rc;
+    int bytes_read = 0;
+    int bytes_want;
+    int unlink_packet;
 
     if (channel->read_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_DBG_CONN,
-                       "Requested to read %d bytes from channel %lu/%lu "
+                       "channel_read() wants %d bytes from channel %lu/%lu "
                        "stream #%d",
                        (int) buflen, channel->local.id, channel->remote.id,
                        stream_id);
@@ -1515,10 +1520,17 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
         if ((rc < 0) && (rc != PACKET_EAGAIN))
             return -1;
 
-        channel->read_bytes_read = 0;
-
-        channel->read_packet = session->packets.head;
         channel->read_state = libssh2_NB_state_created;
+    }
+    else {
+        /* We're not in the idle state, but in order to "even out" the network
+           readings we do a single shot read here as well. Tests prove that
+           this way produces faster transfers. */
+        rc = libssh2_packet_read(session);
+
+        /* ignore PACKET_EAGAIN but return failure for the rest */
+        if ((rc < 0) && (rc != PACKET_EAGAIN))
+            return -1;
     }
 
     /*
@@ -1531,11 +1543,11 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
     }
 
     rc = 0;
-    channel->read_block = 0;
 
+    channel->read_packet = session->packets.head;
     while (channel->read_packet &&
            !channel->remote.close &&
-           (channel->read_bytes_read < (int) buflen)) {
+           (bytes_read < (int) buflen)) {
         LIBSSH2_PACKET *readpkt = channel->read_packet;
 
         /* In case packet gets destroyed during this iteration */
@@ -1563,25 +1575,33 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
                 && (channel->remote.extended_data_ignore_mode ==
                     LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
 
-            channel->read_want = buflen - channel->read_bytes_read;
-            channel->read_unlink_packet = 0;
+            /* figure out much more data we want to read */
+            bytes_want = buflen - bytes_read;
+            unlink_packet = FALSE;
 
-            if (channel->read_want >=
-                (int) (readpkt->data_len - readpkt->data_head)) {
-                channel->read_want = readpkt->data_len - readpkt->data_head;
-                channel->read_unlink_packet = 1;
+            if (bytes_want >= (int) (readpkt->data_len - readpkt->data_head)) {
+                /* we want more than this node keeps, so adjust the number and
+                   delete this node after the copy */
+                bytes_want = readpkt->data_len - readpkt->data_head;
+                unlink_packet = TRUE;
             }
 
             _libssh2_debug(session, LIBSSH2_DBG_CONN,
-                           "Reading %d of buffered data from %lu/%lu/%d",
-                           channel->read_want, channel->local.id,
-                           channel->remote.id, stream_id);
-            memcpy(buf + channel->read_bytes_read,
-                   readpkt->data + readpkt->data_head, channel->read_want);
-            readpkt->data_head += channel->read_want;
-            channel->read_bytes_read += channel->read_want;
+                           "channel_read() got %d of data from %lu/%lu/%d%s",
+                           bytes_want, channel->local.id,
+                           channel->remote.id, stream_id,
+                           unlink_packet?" [ul]":"");
 
-            if (channel->read_unlink_packet) {
+            /* copy data from this struct to the target buffer */
+            memcpy(&buf[bytes_read],
+                   &readpkt->data[readpkt->data_head], bytes_want);
+
+            /* advance pointer and counter */
+            readpkt->data_head += bytes_want;
+            bytes_read += bytes_want;
+
+            /* if drained, remove from list */
+            if (unlink_packet) {
                 if (readpkt->prev) {
                     readpkt->prev->next = readpkt->next;
                 } else {
@@ -1593,37 +1613,23 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
                     session->packets.tail = readpkt->prev;
                 }
                 LIBSSH2_FREE(session, readpkt->data);
-
-                _libssh2_debug(session, LIBSSH2_DBG_CONN,
-                               "Unlink packet buffer from "
-                               "channel %lu/%lu",
-                               channel->local.id, channel->remote.id);
-              channel_read_ex_point1:
-                /* Since there's a goto to this place without assigning
-                   'readpkt' we must be careful here to not use it */
-                channel->read_state = libssh2_NB_state_jump1;
-                rc = libssh2_channel_receive_window_adjust(channel,
-                                                           channel->
-                                                           read_packet->
-                                                           data_len -
-                                                           (stream_id ? 13
-                                                            : 9), 0);
-                if (rc == PACKET_EAGAIN) {
-                    return PACKET_EAGAIN;
-                }
-                channel->read_state = libssh2_NB_state_created;
-                LIBSSH2_FREE(session, channel->read_packet);
+                LIBSSH2_FREE(session, readpkt);
             }
         }
+
+        /* check the next struct in the chain */
         channel->read_packet = channel->read_next;
     }
 
-    channel->read_state = libssh2_NB_state_idle;
-    if (channel->read_bytes_read == 0) {
-        if (channel->session->socket_block) {
+    if (bytes_read == 0) {
+        channel->read_state = libssh2_NB_state_idle;
+        if (channel->remote.close ||
+            channel->session->socket_block) {
             libssh2_error(session, LIBSSH2_ERROR_CHANNEL_CLOSED,
                           "Remote end has closed this channel", 0);
-        } else {
+            return 0;
+        }
+        else {
             /*
              * when non-blocking, we must return PACKET_EAGAIN if we haven't
              * completed reading the channel
@@ -1631,11 +1637,34 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
             if (!libssh2_channel_eof(channel)) {
                 return PACKET_EAGAIN;
             }
+            return 0;
         }
     }
+    else
+        /* make sure we remain in the created state to focus on emptying the
+           data we already have in the packet brigade before we try to read
+           more off the network again */
+        channel->read_state = libssh2_NB_state_created;
 
-    channel->read_state = libssh2_NB_state_idle;
-    return channel->read_bytes_read;
+    if(channel->remote.window_size < (LIBSSH2_CHANNEL_WINDOW_DEFAULT*300)) {
+        /* the window is getting too narrow, expand it! */
+
+      channel_read_ex_point1:
+        channel->read_state = libssh2_NB_state_jump1;
+        /* the actual window adjusting may not finish so we need to deal with
+           this special state here */
+        rc = libssh2_channel_receive_window_adjust(channel,
+                                                   (LIBSSH2_CHANNEL_WINDOW_DEFAULT*600), 0);
+        if (rc == PACKET_EAGAIN) {
+            return PACKET_EAGAIN;
+        }
+        _libssh2_debug(session, LIBSSH2_DBG_CONN,
+                       "channel_read() filled %d adjusted %d",
+                       bytes_read, buflen);
+        channel->read_state = libssh2_NB_state_created;
+    }
+
+    return bytes_read;
 }
 
 /*
