@@ -39,12 +39,11 @@
 #include <errno.h>
 #include <stdlib.h>
 
-/* {{{ libssh2_scp_recv
+/*
+ * libssh2_scp_recv
+ *
  * Open a channel and request a remote file via SCP
  *
- * NOTE:  Will block in a busy loop on error.  This has to be done,
- *        otherwise the blocking error code would erase the true
- *        cause of the error.
  */
 LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
@@ -81,28 +80,25 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 
     if (session->scpRecv_state == libssh2_NB_state_created) {
         /* Allocate a channel */
-        do {
-            session->scpRecv_channel =
-                libssh2_channel_open_ex(session, "session",
-                                        sizeof("session") - 1,
-                                        LIBSSH2_CHANNEL_WINDOW_DEFAULT,
-                                        LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL,
-                                        0);
-            if (!session->scpRecv_channel) {
-                if (libssh2_session_last_errno(session) !=
-                    LIBSSH2_ERROR_EAGAIN) {
-                    LIBSSH2_FREE(session, session->scpRecv_command);
-                    session->scpRecv_command = NULL;
-                    session->scpRecv_state = libssh2_NB_state_idle;
-                    return NULL;
-                } else if (libssh2_session_last_errno(session) ==
-                           LIBSSH2_ERROR_EAGAIN) {
-                    libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                                  "Would block starting up channel", 0);
-                    return NULL;
-                }
+        session->scpRecv_channel =
+            libssh2_channel_open_ex(session, "session",
+                                    sizeof("session") - 1,
+                                    LIBSSH2_CHANNEL_WINDOW_DEFAULT,
+                                    LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL,
+                                    0);
+        if (!session->scpRecv_channel) {
+            if (libssh2_session_last_errno(session) !=
+                LIBSSH2_ERROR_EAGAIN) {
+                LIBSSH2_FREE(session, session->scpRecv_command);
+                session->scpRecv_command = NULL;
+                session->scpRecv_state = libssh2_NB_state_idle;
             }
-        } while (!session->scpRecv_channel);
+            else {
+                libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                              "Would block starting up channel", 0);
+            }
+            return NULL;
+        }
 
         session->scpRecv_state = libssh2_NB_state_sent;
     }
@@ -151,9 +147,8 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 
     if ((session->scpRecv_state == libssh2_NB_state_sent2)
         || (session->scpRecv_state == libssh2_NB_state_sent3)) {
-        while (sb
-               && (session->scpRecv_response_len <
-                   LIBSSH2_SCP_RESPONSE_BUFLEN)) {
+        while (sb && (session->scpRecv_response_len <
+                      LIBSSH2_SCP_RESPONSE_BUFLEN)) {
             unsigned char *s, *p;
 
             if (session->scpRecv_state == libssh2_NB_state_sent2) {
@@ -199,8 +194,9 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                                                  session->scpRecv_err_len);
                     if (rc <= 0) {
                         /*
-                         * Since we have alread started reading this packet, it is
-                         * already in the systems so it can't return PACKET_EAGAIN
+                         * Since we have alread started reading this packet,
+                         * it is already in the systems so it can't return
+                         * PACKET_EAGAIN
                          */
                         LIBSSH2_FREE(session, session->scpRecv_err_msg);
                         session->scpRecv_err_msg = NULL;
@@ -249,11 +245,13 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                                       0);
                         goto scp_recv_error;
                     }
-                    /* Way too short to be an SCP response,  or not done yet, short circuit */
+                    /* Way too short to be an SCP response, or not done yet,
+                       short circuit */
                     continue;
                 }
 
-                /* We're guaranteed not to go under response_len == 0 by the logic above */
+                /* We're guaranteed not to go under response_len == 0 by the
+                   logic above */
                 while ((session->
                         scpRecv_response[session->scpRecv_response_len - 1] ==
                         '\r')
@@ -346,7 +344,8 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                                "mtime = %ld, atime = %ld",
                                session->scpRecv_mtime, session->scpRecv_atime);
 
-                /* We *should* check that atime.usec is valid, but why let that stop use? */
+                /* We *should* check that atime.usec is valid, but why let
+                   that stop use? */
                 break;
             }
         }
@@ -418,11 +417,13 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                                       0);
                         goto scp_recv_error;
                     }
-                    /* Way too short to be an SCP response,  or not done yet, short circuit */
+                    /* Way too short to be an SCP response, or not done yet,
+                       short circuit */
                     continue;
                 }
 
-                /* We're guaranteed not to go under response_len == 0 by the logic above */
+                /* We're guaranteed not to go under response_len == 0 by the
+                   logic above */
                 while ((session->
                         scpRecv_response[session->scpRecv_response_len - 1] ==
                         '\r')
@@ -505,7 +506,8 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                                "mode = 0%lo size = %ld", session->scpRecv_mode,
                                session->scpRecv_size);
 
-                /* We *should* check that basename is valid, but why let that stop us? */
+                /* We *should* check that basename is valid, but why let that
+                   stop us? */
                 break;
             }
         }
@@ -532,14 +534,11 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
     return NULL;
 }
 
-/* }}} */
-
-/* {{{ libssh2_scp_send_ex
+/*
+ * libssh2_scp_send_ex
+ *
  * Send a file using SCP
  *
- * NOTE:  Will block in a busy loop on error.  This has to be done,
- *        otherwise the blocking error code would erase the true
- *        cause of the error.
  */
 LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
@@ -591,17 +590,17 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
                                     LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0);
         if (!session->scpSend_channel) {
             if (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
-                /* previous call set libssh2_session_last_error(), pass it through */
+                /* previous call set libssh2_session_last_error(), pass it
+                   through */
                 LIBSSH2_FREE(session, session->scpSend_command);
                 session->scpSend_command = NULL;
                 session->scpSend_state = libssh2_NB_state_idle;
-                return NULL;
-            } else if (libssh2_session_last_errno(session) ==
-                       LIBSSH2_ERROR_EAGAIN) {
+            }
+            else {
                 libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                               "Would block starting up channel", 0);
-                return NULL;
             }
+            return NULL;
         }
 
         session->scpSend_state = libssh2_NB_state_sent;
@@ -617,8 +616,10 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block requesting SCP startup", 0);
             return NULL;
-        } else if (rc) {
-            /* previous call set libssh2_session_last_error(), pass it through */
+        }
+        else if (rc) {
+            /* previous call set libssh2_session_last_error(), pass it
+               through */
             LIBSSH2_FREE(session, session->scpSend_command);
             session->scpSend_command = NULL;
             libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -797,4 +798,3 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
     return NULL;
 }
 
-/* }}} */
