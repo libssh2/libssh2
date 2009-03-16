@@ -1,4 +1,4 @@
-.\" $Id: libssh2_channel_setenv_ex.3,v 1.1 2007/06/13 21:30:15 jehousley Exp $
+.\" $Id: libssh2_channel_setenv_ex.3,v 1.2 2009/03/16 23:25:14 bagder Exp $
 .\"
 .TH libssh2_channel_setenv_ex 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -14,7 +14,7 @@ libssh2_channel_setenv(LIBSSH2_CHANNEL *channel, char *varname, const char *valu
 
 .SH DESCRIPTION
 \fIchannel\fP - Previously opened channel instance such as returned by 
-.BR libssh2_channel_open_session(3)
+.BR libssh2_channel_open_ex(3)
 
 \fIvarname\fP - Name of environment variable to set on the remote 
 channel instance.
@@ -25,8 +25,9 @@ channel instance.
 
 \fIvalue_len\fP - Length of value parameter.
 
-Set an environment variable in the remote channel's process space. Note that this does not make sense for all channel types and may be ignored by the server despite returning success.
-
+Set an environment variable in the remote channel's process space. Note that
+this does not make sense for all channel types and may be ignored by the
+server despite returning success.
 .SH RETURN VALUE
 Return 0 on success or negative on failure.  It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
@@ -38,6 +39,5 @@ LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
 \fILIBSSH2_ERROR_CHANNEL_REQUEST_DENIED\fP - 
-
 .SH SEE ALSO
-.BR libssh2_channel_open_session(3)
+.BR libssh2_channel_open_ex(3)

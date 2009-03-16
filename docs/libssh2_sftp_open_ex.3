@@ -1,4 +1,4 @@
-.\" $Id: libssh2_sftp_open_ex.3,v 1.9 2007/11/21 14:07:32 dottedmag Exp $
+.\" $Id: libssh2_sftp_open_ex.3,v 1.10 2009/03/16 23:25:14 bagder Exp $
 .\"
 .TH libssh2_sftp_open_ex 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -46,8 +46,8 @@ failure.
 received on the socket, or an SFTP operation caused an errorcode to be 
 returned by the server.
 
-\fILIBSSH2_ERROR_EAGAIN\fP - Marked for non-blocking I/O but the call would block.
-
+\fILIBSSH2_ERROR_EAGAIN\fP - Marked for non-blocking I/O but the call would
+block.
 .SH SEE ALSO
-.BR libssh_sftp_close(3)
+.BR libssh2_sftp_close_handle(3)
 

@@ -1,4 +1,4 @@
-.\" $Id: libssh2_channel_forward_accept.3,v 1.5 2007/06/13 16:41:33 jehousley Exp $
+.\" $Id: libssh2_channel_forward_accept.3,v 1.6 2009/03/16 23:25:14 bagder Exp $
 .\"
 .TH libssh2_channel_forward_accept 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -11,11 +11,11 @@ libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener);
 
 .SH DESCRIPTION
 \fIlistener\fP is a forwarding listener instance as returned by
-\fBlibssh2_channel_forward_listen(3)\fP.
+\fBlibssh2_channel_forward_listen_ex(3)\fP.
 .SH RETURN VALUE
 A newly allocated channel instance or NULL on failure.
 .SH ERRORS
 \fILIBSSH2_ERROR_EAGAIN\fP - Marked for non-blocking I/O but the call 
 would block.
 .SH SEE ALSO
-.BR libssh2_channel_forward_listen(3)
+.BR libssh2_channel_forward_listen_ex(3)

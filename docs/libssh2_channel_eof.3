@@ -1,4 +1,4 @@
-.\" $Id: libssh2_channel_eof.3,v 1.1 2007/06/13 17:22:15 jehousley Exp $
+.\" $Id: libssh2_channel_eof.3,v 1.2 2009/03/16 23:25:14 bagder Exp $
 .\"
 .TH libssh2_channel_eof 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -8,11 +8,11 @@ libssh2_channel_eof - check a channel's EOF status
 
 int 
 libssh2_channel_eof(LIBSSH2_CHANNEL *channel);
-
 .SH DESCRIPTION
 \fIchannel\fP - active channel stream to set closed status on.
 
 Check if the remote host has sent an EOF status for the selected stream.
-
 .SH RETURN VALUE
 Returns 1 if the remote host has sent EOF, otherwise 0.
+.SH SEE ALSO
+.BR libssh2_channel_close(3)

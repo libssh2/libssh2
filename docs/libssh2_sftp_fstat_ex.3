@@ -1,4 +1,4 @@
-.\" $Id: libssh2_sftp_fstat_ex.3,v 1.1 2007/06/14 15:45:03 jehousley Exp $
+.\" $Id: libssh2_sftp_fstat_ex.3,v 1.2 2009/03/16 23:25:14 bagder Exp $
 .\"
 .TH libssh2_sftp_fstat_ex 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -18,7 +18,7 @@ libssh2_sftp_fsetstat(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_ATTRIBUTES *attr
 
 .SH DESCRIPTION
 \fIhandle\fP - SFTP File Handle as returned by 
-.BR libssh2_sftp_open(3)
+.BR libssh2_sftp_open_ex(3)
 
 \fIattrs\fP - Pointer to attribute structure to set file metadata 
 from or into depending on the value of setstat.
@@ -28,12 +28,10 @@ with the data found in attrs according to the values of attrs->flags
 and other relevant member attributes.
 
 Get or Set statbuf type data for a given LIBSSH2_SFTP_HANDLE instance.
-
 .SH RETURN VALUE
 Return 0 on success or negative on failure.  It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
 LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
-
 .SH ERRORS
 \fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
 
@@ -44,6 +42,5 @@ LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 \fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was 
 received on the socket, or an SFTP operation caused an errorcode to 
 be returned by the server.
-
 .SH SEE ALSO
-.BR libssh2_sftp_open(3)
+.BR libssh2_sftp_open_ex(3)

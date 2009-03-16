@@ -1,4 +1,4 @@
-.\" $Id: libssh2_session_startup.3,v 1.6 2007/06/13 16:41:33 jehousley Exp $
+.\" $Id: libssh2_session_startup.3,v 1.7 2009/03/16 23:25:14 bagder Exp $
 .\"
 .TH libssh2_session_startup 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -11,7 +11,7 @@ libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
 
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by 
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)
 
 \fIsocket\fP - Connected socket descriptor. Typically a TCP connection 
 though the protocol allows for any reliable transport and the library will 
@@ -39,4 +39,4 @@ the socket.
 
 .SH SEE ALSO
 .BR libssh2_session_free(3)
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)

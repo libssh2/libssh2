@@ -1,4 +1,4 @@
-.\" $Id: libssh2_session_set_blocking.3,v 1.2 2008/07/03 10:58:53 bagder Exp $
+.\" $Id: libssh2_session_set_blocking.3,v 1.3 2009/03/16 23:25:14 bagder Exp $
 .\"
 .TH libssh2_session_set_blocking 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -11,7 +11,7 @@ libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);
 
 .SH DESCRIPTION
 \fIsession\fP - session instance as returned by 
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)
 
 \fIblocking\fP - Set to a non-zero value to make the channel block, or zero to
 make it non-blocking.
@@ -29,4 +29,4 @@ anything.
 None
 
 .SH SEE ALSO
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)

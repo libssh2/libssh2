@@ -1,4 +1,4 @@
-.\" $Id: libssh2_sftp_close_handle.3,v 1.1 2007/06/14 15:45:03 jehousley Exp $
+.\" $Id: libssh2_sftp_close_handle.3,v 1.2 2009/03/16 23:25:14 bagder Exp $
 .\"
 .TH libssh2_sftp_close_handle 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -25,11 +25,11 @@ or
 Close an active LIBSSH2_SFTP_HANDLE. Because files and directories 
 share the same underlying storage mechanism these methods may be used 
 interchangably. It is recommended that 
-.BR libssh2_sftp_close()
+.BR libssh2_sftp_closedir()
 be used for files and that 
 .BR libssh2_sftp_closedir()
-be used for directories so that future changes in the library 
-may cause minimal disruption.
+be used for directories so that future changes in the library may cause
+minimal disruption. Both are macros for \fBlibssh2_sftp_close_handle\fP.
 
 .SH RETURN VALUE
 Return 0 on success or negative on failure.  It returns
@@ -48,5 +48,4 @@ received on the socket, or an SFTP operation caused an errorcode to
 be returned by the server.
 
 .SH SEE ALSO
-.BR libssh2_sftp_open(3)
-.BR libssh2_sftp_opendir(3)
+.BR libssh2_sftp_open_ex(3)
