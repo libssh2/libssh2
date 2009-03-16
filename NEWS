@@ -1,3 +1,10 @@
+- (Mar 16 2009) Daniel Stenberg:
+
+  I renamed a few man pages to match the exact name of the functions they
+  describe. I also added template versions for the 13 functions that
+  previously lacked man pages. While these don't contain any docs just yet, it
+  will now be easier to add the info as the foundation is there!
+
 - (Mar 15 2009) Daniel Stenberg:
 
   * libssh2_channel_read_ex() was simplified and enhanced. It now adjusts the

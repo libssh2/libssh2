@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.35 2009/03/16 14:40:37 bagder Exp $
+# $Id: Makefile.am,v 1.36 2009/03/16 15:00:45 bagder Exp $
 
 EXTRA_DIST = template.3
 
@@ -72,3 +72,16 @@ dist_man_MANS = \
 	libssh2_base64_decode.3 \
 	libssh2_trace.3 \
 	libssh2_version.3
+	libssh2_channel_request_pty_size_ex.3 \
+	libssh2_free_host_entry.3 \
+	libssh2_host_entry_match.3 \
+	libssh2_new_host_entry.3 \
+	libssh2_publickey_add_ex.3 \
+	libssh2_publickey_init.3 \
+	libssh2_publickey_list_fetch.3 \
+	libssh2_publickey_list_free.3 \
+	libssh2_publickey_remove_ex.3 \
+	libssh2_publickey_shutdown.3 \
+	libssh2_session_flag.3 \
+	libssh2_session_get_blocking.3 \
+	libssh2_userauth_hostbased_fromfile_ex.3
