@@ -1,4 +1,4 @@
-# $Id: Makefile.am,v 1.33 2009/03/15 22:59:46 bagder Exp $
+# $Id: Makefile.am,v 1.34 2009/03/16 14:28:37 bagder Exp $
 
 EXTRA_DIST = template.3
 
@@ -53,7 +53,7 @@ dist_man_MANS = \
 	libssh2_sftp_open_ex.3 \
 	libssh2_sftp_mkdir_ex.3 \
 	libssh2_sftp_read.3 \
-	libssh2_sftp_readdir.3 \
+	libssh2_sftp_readdir_ex.3 \
 	libssh2_sftp_rename_ex.3 \
 	libssh2_sftp_rmdir_ex.3 \
 	libssh2_sftp_seek.3 \
