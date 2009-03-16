@@ -1,3 +1,12 @@
+- (Mar 15 2009) Daniel Stenberg:
+
+  * libssh2_channel_read_ex() was simplified and enhanced. It now adjusts the
+    window less frequent and uses much larger window that now allows MUCH
+    faster transfers.
+
+  * SCP send/recv now allow file names with whitespaces etc, thanks to a patch
+    by Heiner Steven
+
 - (Mar 13 2009) Daniel Stenberg: Cleanups, that do seem to have boosted SFTP
   download performance up to 300% in some tests:
 
