@@ -122,7 +122,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
         exchange_state->e_packet[0] = packet_type_init;
-        libssh2_htonu32(exchange_state->e_packet + 1,
+        _libssh2_htonu32(exchange_state->e_packet + 1,
                         exchange_state->e_packet_len - 5);
         if (_libssh2_bn_bits(exchange_state->e) % 8) {
             _libssh2_bn_to_bin(exchange_state->e,
@@ -139,8 +139,8 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
     }
 
     if (exchange_state->state == libssh2_NB_state_created) {
-        rc = libssh2_packet_write(session, exchange_state->e_packet,
-                                  exchange_state->e_packet_len);
+        rc = _libssh2_packet_write(session, exchange_state->e_packet,
+                                   exchange_state->e_packet_len);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -162,7 +162,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
             _libssh2_debug(session, LIBSSH2_DBG_KEX,
                            "Waiting for badly guessed KEX packet (to be ignored)");
             burn_type =
-                libssh2_packet_burn(session, &exchange_state->burn_state);
+                _libssh2_packet_burn(session, &exchange_state->burn_state);
             if (burn_type == PACKET_EAGAIN) {
                 return PACKET_EAGAIN;
             } else if (burn_type <= 0) {
@@ -182,10 +182,10 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
 
     if (exchange_state->state == libssh2_NB_state_sent1) {
         /* Wait for KEX reply */
-        rc = libssh2_packet_require(session, packet_type_reply,
-                                    &exchange_state->s_packet,
-                                    &exchange_state->s_packet_len, 0, NULL,
-                                    0, &exchange_state->req_state);
+        rc = _libssh2_packet_require(session, packet_type_reply,
+                                     &exchange_state->s_packet,
+                                     &exchange_state->s_packet_len, 0, NULL,
+                                     0, &exchange_state->req_state);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         }
@@ -199,7 +199,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
         /* Parse KEXDH_REPLY */
         exchange_state->s = exchange_state->s_packet + 1;
 
-        session->server_hostkey_len = libssh2_ntohu32(exchange_state->s);
+        session->server_hostkey_len = _libssh2_ntohu32(exchange_state->s);
         exchange_state->s += 4;
         session->server_hostkey =
             LIBSSH2_ALLOC(session, session->server_hostkey_len);
@@ -268,14 +268,14 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        exchange_state->f_value_len = libssh2_ntohu32(exchange_state->s);
+        exchange_state->f_value_len = _libssh2_ntohu32(exchange_state->s);
         exchange_state->s += 4;
         exchange_state->f_value = exchange_state->s;
         exchange_state->s += exchange_state->f_value_len;
         _libssh2_bn_from_bin(exchange_state->f, exchange_state->f_value_len,
                              exchange_state->f_value);
 
-        exchange_state->h_sig_len = libssh2_ntohu32(exchange_state->s);
+        exchange_state->h_sig_len = _libssh2_ntohu32(exchange_state->s);
         exchange_state->s += 4;
         exchange_state->h_sig = exchange_state->s;
 
@@ -295,7 +295,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
             ret = -1;
             goto clean_exit;
         }
-        libssh2_htonu32(exchange_state->k_value,
+        _libssh2_htonu32(exchange_state->k_value,
                         exchange_state->k_value_len - 4);
         if (_libssh2_bn_bits(exchange_state->k) % 8) {
             _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 4);
@@ -306,7 +306,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
 
         libssh2_sha1_init(&exchange_state->exchange_hash);
         if (session->local.banner) {
-            libssh2_htonu32(exchange_state->h_sig_comp,
+            _libssh2_htonu32(exchange_state->h_sig_comp,
                             strlen((char *) session->local.banner) - 2);
             libssh2_sha1_update(exchange_state->exchange_hash,
                                 exchange_state->h_sig_comp, 4);
@@ -314,7 +314,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
                                 (char *) session->local.banner,
                                 strlen((char *) session->local.banner) - 2);
         } else {
-            libssh2_htonu32(exchange_state->h_sig_comp,
+            _libssh2_htonu32(exchange_state->h_sig_comp,
                             sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
             libssh2_sha1_update(exchange_state->exchange_hash,
                                 exchange_state->h_sig_comp, 4);
@@ -323,7 +323,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
                                 sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
         }
 
-        libssh2_htonu32(exchange_state->h_sig_comp,
+        _libssh2_htonu32(exchange_state->h_sig_comp,
                         strlen((char *) session->remote.banner));
         libssh2_sha1_update(exchange_state->exchange_hash,
                             exchange_state->h_sig_comp, 4);
@@ -331,7 +331,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
                             session->remote.banner,
                             strlen((char *) session->remote.banner));
 
-        libssh2_htonu32(exchange_state->h_sig_comp,
+        _libssh2_htonu32(exchange_state->h_sig_comp,
                         session->local.kexinit_len);
         libssh2_sha1_update(exchange_state->exchange_hash,
                             exchange_state->h_sig_comp, 4);
@@ -339,7 +339,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
                             session->local.kexinit,
                             session->local.kexinit_len);
 
-        libssh2_htonu32(exchange_state->h_sig_comp,
+        _libssh2_htonu32(exchange_state->h_sig_comp,
                         session->remote.kexinit_len);
         libssh2_sha1_update(exchange_state->exchange_hash,
                             exchange_state->h_sig_comp, 4);
@@ -347,7 +347,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
                             session->remote.kexinit,
                             session->remote.kexinit_len);
 
-        libssh2_htonu32(exchange_state->h_sig_comp,
+        _libssh2_htonu32(exchange_state->h_sig_comp,
                         session->server_hostkey_len);
         libssh2_sha1_update(exchange_state->exchange_hash,
                             exchange_state->h_sig_comp, 4);
@@ -358,16 +358,16 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
         if (packet_type_init == SSH_MSG_KEX_DH_GEX_INIT) {
             /* diffie-hellman-group-exchange hashes additional fields */
 #ifdef LIBSSH2_DH_GEX_NEW
-            libssh2_htonu32(exchange_state->h_sig_comp,
+            _libssh2_htonu32(exchange_state->h_sig_comp,
                             LIBSSH2_DH_GEX_MINGROUP);
-            libssh2_htonu32(exchange_state->h_sig_comp + 4,
+            _libssh2_htonu32(exchange_state->h_sig_comp + 4,
                             LIBSSH2_DH_GEX_OPTGROUP);
-            libssh2_htonu32(exchange_state->h_sig_comp + 8,
+            _libssh2_htonu32(exchange_state->h_sig_comp + 8,
                             LIBSSH2_DH_GEX_MAXGROUP);
             libssh2_sha1_update(exchange_state->exchange_hash,
                                 exchange_state->h_sig_comp, 12);
 #else
-            libssh2_htonu32(exchange_state->h_sig_comp,
+            _libssh2_htonu32(exchange_state->h_sig_comp,
                             LIBSSH2_DH_GEX_OPTGROUP);
             libssh2_sha1_update(exchange_state->exchange_hash,
                                 exchange_state->h_sig_comp, 4);
@@ -383,7 +383,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
                             exchange_state->e_packet + 1,
                             exchange_state->e_packet_len - 1);
 
-        libssh2_htonu32(exchange_state->h_sig_comp,
+        _libssh2_htonu32(exchange_state->h_sig_comp,
                         exchange_state->f_value_len);
         libssh2_sha1_update(exchange_state->exchange_hash,
                             exchange_state->h_sig_comp, 4);
@@ -415,7 +415,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
     }
 
     if (exchange_state->state == libssh2_NB_state_sent2) {
-        rc = libssh2_packet_write(session, &exchange_state->c, 1);
+        rc = _libssh2_packet_write(session, &exchange_state->c, 1);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -429,10 +429,10 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
     }
 
     if (exchange_state->state == libssh2_NB_state_sent3) {
-        rc = libssh2_packet_require(session, SSH_MSG_NEWKEYS,
-                                    &exchange_state->tmp,
-                                    &exchange_state->tmp_len, 0, NULL, 0,
-                                    &exchange_state->req_state);
+        rc = _libssh2_packet_require(session, SSH_MSG_NEWKEYS,
+                                     &exchange_state->tmp,
+                                     &exchange_state->tmp_len, 0, NULL, 0,
+                                     &exchange_state->req_state);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -819,15 +819,15 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
         /* Ask for a P and G pair */
 #ifdef LIBSSH2_DH_GEX_NEW
         key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST;
-        libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_MINGROUP);
-        libssh2_htonu32(key_state->request + 5, LIBSSH2_DH_GEX_OPTGROUP);
-        libssh2_htonu32(key_state->request + 9, LIBSSH2_DH_GEX_MAXGROUP);
+        _libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_MINGROUP);
+        _libssh2_htonu32(key_state->request + 5, LIBSSH2_DH_GEX_OPTGROUP);
+        _libssh2_htonu32(key_state->request + 9, LIBSSH2_DH_GEX_MAXGROUP);
         key_state->request_len = 13;
         _libssh2_debug(session, LIBSSH2_DBG_KEX,
                        "Initiating Diffie-Hellman Group-Exchange (New Method)");
 #else
         key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST_OLD;
-        libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_OPTGROUP);
+        _libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_OPTGROUP);
         key_state->request_len = 5;
         _libssh2_debug(session, LIBSSH2_DBG_KEX,
                        "Initiating Diffie-Hellman Group-Exchange (Old Method)");
@@ -837,8 +837,8 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     }
 
     if (key_state->state == libssh2_NB_state_created) {
-        rc = libssh2_packet_write(session, key_state->request,
-                                  key_state->request_len);
+        rc = _libssh2_packet_write(session, key_state->request,
+                                   key_state->request_len);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -852,9 +852,9 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     }
 
     if (key_state->state == libssh2_NB_state_sent) {
-        rc = libssh2_packet_require(session, SSH_MSG_KEX_DH_GEX_GROUP,
-                                    &key_state->data, &key_state->data_len,
-                                    0, NULL, 0, &key_state->req_state);
+        rc = _libssh2_packet_require(session, SSH_MSG_KEX_DH_GEX_GROUP,
+                                     &key_state->data, &key_state->data_len,
+                                     0, NULL, 0, &key_state->req_state);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -869,12 +869,12 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
 
     if (key_state->state == libssh2_NB_state_sent1) {
         s = key_state->data + 1;
-        p_len = libssh2_ntohu32(s);
+        p_len = _libssh2_ntohu32(s);
         s += 4;
         _libssh2_bn_from_bin(key_state->p, p_len, s);
         s += p_len;
 
-        g_len = libssh2_ntohu32(s);
+        g_len = _libssh2_ntohu32(s);
         s += 4;
         _libssh2_bn_from_bin(key_state->g, g_len, s);
         s += g_len;
@@ -969,7 +969,7 @@ static size_t
 kex_method_list(unsigned char *buf, size_t list_strlen,
                 LIBSSH2_COMMON_METHOD ** method)
 {
-    libssh2_htonu32(buf, list_strlen);
+    _libssh2_htonu32(buf, list_strlen);
     buf += 4;
 
     if (!method || !*method) {
@@ -995,7 +995,7 @@ kex_method_list(unsigned char *buf, size_t list_strlen,
 
 #define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)  \
     if (prefvar) {                                                      \
-        libssh2_htonu32((buf), (prefvarlen));                           \
+        _libssh2_htonu32((buf), (prefvarlen));                           \
         buf += 4;                                                       \
         memcpy((buf), (prefvar), (prefvarlen));                         \
         buf += (prefvarlen);                                            \
@@ -1136,11 +1136,13 @@ static int kexinit(LIBSSH2_SESSION * session)
         data_len = session->kexinit_data_len;
     }
 
-    if ((rc = libssh2_packet_write(session, data, data_len)) == PACKET_EAGAIN) {
+    rc = _libssh2_packet_write(session, data, data_len);
+    if (rc == PACKET_EAGAIN) {
         session->kexinit_data = data;
         session->kexinit_data_len = data_len;
         return PACKET_EAGAIN;
-    } else if (rc) {
+    }
+    else if (rc) {
         LIBSSH2_FREE(session, data);
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                       "Unable to send KEXINIT packet to remote host", 0);
@@ -1559,34 +1561,34 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
     s += 16;
 
     /* Locate each string */
-    kex_len = libssh2_ntohu32(s);
+    kex_len = _libssh2_ntohu32(s);
     kex = s + 4;
     s += 4 + kex_len;
-    hostkey_len = libssh2_ntohu32(s);
+    hostkey_len = _libssh2_ntohu32(s);
     hostkey = s + 4;
     s += 4 + hostkey_len;
-    crypt_cs_len = libssh2_ntohu32(s);
+    crypt_cs_len = _libssh2_ntohu32(s);
     crypt_cs = s + 4;
     s += 4 + crypt_cs_len;
-    crypt_sc_len = libssh2_ntohu32(s);
+    crypt_sc_len = _libssh2_ntohu32(s);
     crypt_sc = s + 4;
     s += 4 + crypt_sc_len;
-    mac_cs_len = libssh2_ntohu32(s);
+    mac_cs_len = _libssh2_ntohu32(s);
     mac_cs = s + 4;
     s += 4 + mac_cs_len;
-    mac_sc_len = libssh2_ntohu32(s);
+    mac_sc_len = _libssh2_ntohu32(s);
     mac_sc = s + 4;
     s += 4 + mac_sc_len;
-    comp_cs_len = libssh2_ntohu32(s);
+    comp_cs_len = _libssh2_ntohu32(s);
     comp_cs = s + 4;
     s += 4 + comp_cs_len;
-    comp_sc_len = libssh2_ntohu32(s);
+    comp_sc_len = _libssh2_ntohu32(s);
     comp_sc = s + 4;
     s += 4 + comp_sc_len;
-    lang_cs_len = libssh2_ntohu32(s);
+    lang_cs_len = _libssh2_ntohu32(s);
     lang_cs = s + 4;
     s += 4 + lang_cs_len;
-    lang_sc_len = libssh2_ntohu32(s);
+    lang_sc_len = _libssh2_ntohu32(s);
     lang_sc = s + 4;
     s += 4 + lang_sc_len;
 
@@ -1720,14 +1722,15 @@ libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
 
         if (key_state->state == libssh2_NB_state_sent1) {
             retcode =
-                libssh2_packet_require(session, SSH_MSG_KEXINIT,
-                                       &key_state->data,
-                                       &key_state->data_len, 0, NULL, 0,
-                                       &key_state->req_state);
+                _libssh2_packet_require(session, SSH_MSG_KEXINIT,
+                                        &key_state->data,
+                                        &key_state->data_len, 0, NULL, 0,
+                                        &key_state->req_state);
             if (retcode == PACKET_EAGAIN) {
                 session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
                 return PACKET_EAGAIN;
-            } else if (retcode) {
+            }
+            else if (retcode) {
                 if (session->local.kexinit) {
                     LIBSSH2_FREE(session, session->local.kexinit);
                 }

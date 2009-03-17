@@ -100,8 +100,7 @@
 # define LIBSSH2_3DES 1
 #endif
 
-#define libssh2_random(buf, len)        \
-  RAND_bytes ((buf), (len))
+#define libssh2_random(buf, len) RAND_bytes ((buf), (len))
 
 #define libssh2_sha1_ctx SHA_CTX
 #define libssh2_sha1_init(ctx) SHA1_Init(ctx)

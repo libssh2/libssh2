@@ -159,13 +159,20 @@ static inline int usleep(int udelay)
  */
 #define MAX_SSH_PACKET_LEN 35000
 
-#define LIBSSH2_ALLOC(session, count)                               session->alloc((count), &(session)->abstract)
-#define LIBSSH2_REALLOC(session, ptr, count)                        ((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : session->alloc((count), &(session)->abstract))
-#define LIBSSH2_FREE(session, ptr)                                  session->free((ptr), &(session)->abstract)
-
-#define LIBSSH2_IGNORE(session, data, datalen)                      session->ssh_msg_ignore((session), (data), (datalen), &(session)->abstract)
-#define LIBSSH2_DEBUG(session, always_display, message, message_len, language, language_len)    \
-                session->ssh_msg_disconnect((session), (always_display), (message), (message_len), (language), (language_len), &(session)->abstract)
+#define LIBSSH2_ALLOC(session, count) \
+  session->alloc((count), &(session)->abstract)
+#define LIBSSH2_REALLOC(session, ptr, count) \
+ ((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : \
+ session->alloc((count), &(session)->abstract))
+#define LIBSSH2_FREE(session, ptr) \
+ session->free((ptr), &(session)->abstract)
+#define LIBSSH2_IGNORE(session, data, datalen) \
+ session->ssh_msg_ignore((session), (data), (datalen), &(session)->abstract)
+#define LIBSSH2_DEBUG(session, always_display, message, message_len, \
+                      language, language_len)    \
+    session->ssh_msg_disconnect((session), (always_display), (message), \
+                                (message_len), (language), (language_len), \
+                                &(session)->abstract)
 #define LIBSSH2_DISCONNECT(session, reason, message, message_len, language, language_len)   \
                 session->ssh_msg_disconnect((session), (reason), (message), (message_len), (language), (language_len), &(session)->abstract)
 
@@ -704,7 +711,8 @@ struct _LIBSSH2_SESSION
     /* (local as source of data -- packet_write ) */
     libssh2_endpoint_data local;
 
-    /* Inbound Data buffer -- Sometimes the packet that comes in isn't the packet we're ready for */
+    /* Inbound Data buffer -- Sometimes the packet that comes in isn't the
+       packet we're ready for */
     LIBSSH2_PACKET_BRIGADE packets;
 
     /* Active connection channels */
@@ -866,7 +874,8 @@ struct _LIBSSH2_SESSION
     libssh2_nonblocking_states sftpInit_state;
     LIBSSH2_SFTP *sftpInit_sftp;
     LIBSSH2_CHANNEL *sftpInit_channel;
-    unsigned char sftpInit_buffer[9];   /* sftp_header(5){excludes request_id} + version_id(4) */
+    unsigned char sftpInit_buffer[9];   /* sftp_header(5){excludes request_id}
+                                           + version_id(4) */
 
     /* State variables used in libssh2_scp_recv() */
     libssh2_nonblocking_states scpRecv_state;
@@ -1126,16 +1135,16 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 #define SSH_MSG_CHANNEL_SUCCESS                     99
 #define SSH_MSG_CHANNEL_FAILURE                     100
 
-void libssh2_session_shutdown(LIBSSH2_SESSION * session);
+void _libssh2_session_shutdown(LIBSSH2_SESSION * session);
 
-unsigned long libssh2_ntohu32(const unsigned char *buf);
-libssh2_uint64_t libssh2_ntohu64(const unsigned char *buf);
-void libssh2_htonu32(unsigned char *buf, unsigned long val);
-void libssh2_htonu64(unsigned char *buf, libssh2_uint64_t val);
+unsigned long _libssh2_ntohu32(const unsigned char *buf);
+libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
+void _libssh2_htonu32(unsigned char *buf, unsigned long val);
+void _libssh2_htonu64(unsigned char *buf, libssh2_uint64_t val);
 
 #define LIBSSH2_READ_TIMEOUT 60 /* generic timeout in seconds used when
                                    waiting for more data to arrive */
-int libssh2_waitsocket(LIBSSH2_SESSION * session, long seconds);
+int _libssh2_waitsocket(LIBSSH2_SESSION * session, long seconds);
 
 
 /* CAUTION: some of these error codes are returned in the public API and is
@@ -1151,46 +1160,46 @@ int libssh2_waitsocket(LIBSSH2_SESSION * session, long seconds);
 #define PACKET_FAIL     -1
 #define PACKET_NONE      0
 
-libssh2pack_t libssh2_packet_read(LIBSSH2_SESSION * session);
+libssh2pack_t _libssh2_packet_read(LIBSSH2_SESSION * session);
 
-int libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
-                       unsigned char **data, unsigned long *data_len,
-                       unsigned long match_ofs,
-                       const unsigned char *match_buf,
-                       unsigned long match_len, int poll_socket);
-
-int libssh2_packet_askv(LIBSSH2_SESSION * session,
-                        const unsigned char *packet_types,
+int _libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
                         unsigned char **data, unsigned long *data_len,
                         unsigned long match_ofs,
                         const unsigned char *match_buf,
                         unsigned long match_len, int poll_socket);
-int libssh2_packet_require(LIBSSH2_SESSION * session,
-                           unsigned char packet_type, unsigned char **data,
-                           unsigned long *data_len, unsigned long match_ofs,
-                           const unsigned char *match_buf,
-                           unsigned long match_len,
-                           packet_require_state_t * state);
-int libssh2_packet_requirev(LIBSSH2_SESSION * session,
-                            const unsigned char *packet_types,
-                            unsigned char **data, unsigned long *data_len,
-                            unsigned long match_ofs,
+
+int _libssh2_packet_askv(LIBSSH2_SESSION * session,
+                         const unsigned char *packet_types,
+                         unsigned char **data, unsigned long *data_len,
+                         unsigned long match_ofs,
+                         const unsigned char *match_buf,
+                         unsigned long match_len, int poll_socket);
+int _libssh2_packet_require(LIBSSH2_SESSION * session,
+                            unsigned char packet_type, unsigned char **data,
+                            unsigned long *data_len, unsigned long match_ofs,
                             const unsigned char *match_buf,
                             unsigned long match_len,
-                            packet_requirev_state_t * state);
-int libssh2_packet_burn(LIBSSH2_SESSION * session,
-                        libssh2_nonblocking_states * state);
-int libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
-                         unsigned long data_len);
-int libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
-                       size_t datalen, int macstate);
+                            packet_require_state_t * state);
+int _libssh2_packet_requirev(LIBSSH2_SESSION * session,
+                             const unsigned char *packet_types,
+                             unsigned char **data, unsigned long *data_len,
+                             unsigned long match_ofs,
+                             const unsigned char *match_buf,
+                             unsigned long match_len,
+                             packet_requirev_state_t * state);
+int _libssh2_packet_burn(LIBSSH2_SESSION * session,
+                         libssh2_nonblocking_states * state);
+int _libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
+                          unsigned long data_len);
+int _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
+                        size_t datalen, int macstate);
 int libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                          key_exchange_state_t * state);
-unsigned long libssh2_channel_nextid(LIBSSH2_SESSION * session);
-LIBSSH2_CHANNEL *libssh2_channel_locate(LIBSSH2_SESSION * session,
-                                        unsigned long channel_id);
-unsigned long libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel,
-                                              int stream_id);
+unsigned long _libssh2_channel_nextid(LIBSSH2_SESSION * session);
+LIBSSH2_CHANNEL *_libssh2_channel_locate(LIBSSH2_SESSION * session,
+                                         unsigned long channel_id);
+unsigned long _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel,
+                                               int stream_id);
 
 /* this is the lib-internal set blocking function */
 int _libssh2_session_set_blocking(LIBSSH2_SESSION * session, int blocking);

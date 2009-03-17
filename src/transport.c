@@ -227,9 +227,9 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
     }
 
     if (session->fullpacket_state == libssh2_NB_state_created) {
-        rc = libssh2_packet_add(session, p->payload,
-                                session->fullpacket_payload_len,
-                                session->fullpacket_macstate);
+        rc = _libssh2_packet_add(session, p->payload,
+                                 session->fullpacket_payload_len,
+                                 session->fullpacket_macstate);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc < 0) {
@@ -244,7 +244,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
 
 
 /*
- * libssh2_packet_read
+ * _libssh2_packet_read
  *
  * Collect a packet into the input brigade block only controls whether or not
  * to wait for a packet to start.
@@ -259,7 +259,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
  * "The Secure Shell (SSH) Transport Layer Protocol"
  */
 libssh2pack_t
-libssh2_packet_read(LIBSSH2_SESSION * session)
+_libssh2_packet_read(LIBSSH2_SESSION * session)
 {
     libssh2pack_t rc;
     struct transportpacket *p = &session->packet;
@@ -438,7 +438,7 @@ libssh2_packet_read(LIBSSH2_SESSION * session)
             /* we now have the initial blocksize bytes decrypted,
              * and we can extract packet and padding length from it
              */
-            p->packet_length = libssh2_ntohu32(block);
+            p->packet_length = _libssh2_ntohu32(block);
             p->padding_length = block[4];
 
             /* total_num is the number of bytes following the initial
@@ -661,8 +661,8 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
  * (RFC4253 section 6.1)
  */
 int
-libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
-                     unsigned long data_len)
+_libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
+                      unsigned long data_len)
 {
     int blocksize =
         (session->state & LIBSSH2_STATE_NEWKEYS) ? session->local.crypt->
@@ -752,7 +752,7 @@ libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
 
     /* store packet_length, which is the size of the whole packet except
        the MAC and the packet_length field itself */
-    libssh2_htonu32(p->outbuf, packet_length - 4);
+    _libssh2_htonu32(p->outbuf, packet_length - 4);
     /* store padding_length */
     p->outbuf[4] = padding_length;
     /* copy the payload data */

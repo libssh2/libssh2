@@ -48,7 +48,7 @@
 /* libssh2_ntohu32
  */
 unsigned long
-libssh2_ntohu32(const unsigned char *buf)
+_libssh2_ntohu32(const unsigned char *buf)
 {
     return (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
 }
@@ -57,7 +57,7 @@ libssh2_ntohu32(const unsigned char *buf)
 /* libssh2_ntohu64
  */
 libssh2_uint64_t
-libssh2_ntohu64(const unsigned char *buf)
+_libssh2_ntohu64(const unsigned char *buf)
 {
     unsigned long msl, lsl;
 
@@ -70,7 +70,7 @@ libssh2_ntohu64(const unsigned char *buf)
 /* libssh2_htonu32
  */
 void
-libssh2_htonu32(unsigned char *buf, unsigned long value)
+_libssh2_htonu32(unsigned char *buf, unsigned long value)
 {
     buf[0] = (value >> 24) & 0xFF;
     buf[1] = (value >> 16) & 0xFF;
@@ -81,7 +81,7 @@ libssh2_htonu32(unsigned char *buf, unsigned long value)
 /* libssh2_htonu64
  */
 void
-libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
+_libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
 {
     unsigned long msl = ((libssh2_uint64_t)value >> 32);
 
@@ -98,17 +98,18 @@ libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
 
 /* Base64 Conversion */
 
-static const char libssh2_base64_table[] =
-    { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+static const char base64_table[] =
+{
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
     'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
     'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/', '\0'
 };
 
-static const char libssh2_base64_pad = '=';
+static const char base64_pad = '=';
 
-static const short libssh2_base64_reverse_table[256] = {
+static const short base64_reverse_table[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,
@@ -147,7 +148,7 @@ libssh2_base64_decode(LIBSSH2_SESSION * session, char **data,
     }
 
     for(s = (unsigned char *) src; ((char *) s) < (src + src_len); s++) {
-        if ((v = libssh2_base64_reverse_table[*s]) < 0)
+        if ((v = base64_reverse_table[*s]) < 0)
             continue;
         switch (i % 4) {
         case 0:

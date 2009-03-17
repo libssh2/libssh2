@@ -44,18 +44,20 @@
    * none *
    ******** */
 
-/* {{{ libssh2_comp_method_none_comp
+/*
+ * comp_method_none_comp
+ *
  * Minimalist compression: Absolutely none
  */
 static int
-libssh2_comp_method_none_comp(LIBSSH2_SESSION * session,
-                              int compress,
-                              unsigned char **dest,
-                              unsigned long *dest_len,
-                              unsigned long payload_limit,
-                              int *free_dest,
-                              const unsigned char *src,
-                              unsigned long src_len, void **abstract)
+comp_method_none_comp(LIBSSH2_SESSION * session,
+                      int compress,
+                      unsigned char **dest,
+                      unsigned long *dest_len,
+                      unsigned long payload_limit,
+                      int *free_dest,
+                      const unsigned char *src,
+                      unsigned long src_len, void **abstract)
 {
     (void) session;
     (void) compress;
@@ -71,10 +73,10 @@ libssh2_comp_method_none_comp(LIBSSH2_SESSION * session,
 
 /* }}} */
 
-static const LIBSSH2_COMP_METHOD libssh2_comp_method_none = {
+static const LIBSSH2_COMP_METHOD comp_method_none = {
     "none",
     NULL,
-    libssh2_comp_method_none_comp,
+    comp_method_none_comp,
     NULL
 };
 
@@ -326,7 +328,7 @@ static const LIBSSH2_COMP_METHOD libssh2_comp_method_zlib = {
    *********************** */
 
 static const LIBSSH2_COMP_METHOD *_libssh2_comp_methods[] = {
-    &libssh2_comp_method_none,
+    &comp_method_none,
 #ifdef LIBSSH2_HAVE_ZLIB
     &libssh2_comp_method_zlib,
 #endif /* LIBSSH2_HAVE_ZLIB */

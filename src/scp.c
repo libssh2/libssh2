@@ -404,8 +404,8 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                                   0);
 
                     session->scpRecv_err_len =
-                        libssh2_channel_packet_data_len(session->
-                                                        scpRecv_channel, 0);
+                        _libssh2_channel_packet_data_len(session->
+                                                         scpRecv_channel, 0);
                     session->scpRecv_err_msg =
                         LIBSSH2_ALLOC(session, session->scpRecv_err_len + 1);
                     if (!session->scpRecv_err_msg) {
@@ -981,7 +981,7 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
                           "Invalid ACK response from remote", 0);
 
             session->scpSend_err_len =
-                libssh2_channel_packet_data_len(session->scpSend_channel, 0);
+                _libssh2_channel_packet_data_len(session->scpSend_channel, 0);
             session->scpSend_err_msg =
                 LIBSSH2_ALLOC(session, session->scpSend_err_len + 1);
             if (!session->scpSend_err_msg) {
