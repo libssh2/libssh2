@@ -1695,20 +1695,16 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
              && (read_packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
              && (channel->local.id == read_local_id)
              && (stream_id == (int) _libssh2_ntohu32(read_packet->data + 5)))
-            || (!stream_id && (read_packet->data[0] == SSH_MSG_CHANNEL_DATA)
-                && (channel->local.id == read_local_id)) ||
+            ||
             (!stream_id
-             && (read_packet->
-                 data[0] ==
-                 SSH_MSG_CHANNEL_EXTENDED_DATA)
-             && (channel->
-                 local.id ==
-                 read_local_id)
-             && (channel->
-                 remote.
-                 extended_data_ignore_mode
-                 ==
-                 LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE)))
+             && (read_packet->data[0] == SSH_MSG_CHANNEL_DATA)
+             && (channel->local.id == read_local_id))
+            ||
+            (!stream_id
+             && (read_packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
+             && (channel->local.id == read_local_id)
+             && (channel->remote.extended_data_ignore_mode
+                 == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE)))
         {
             return (read_packet->data_len - read_packet->data_head);
         }
