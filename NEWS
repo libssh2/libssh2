@@ -1,3 +1,8 @@
+- (Mar 17 2009) Simon Josefsson:
+
+  Added a Libtool -export-symbols-regex flag to reduce the number of
+  exported symbols in shared libraries.  Reported by Mikhail Gusarov.
+
 - (Mar 16 2009) Daniel Stenberg:
 
   I renamed a few man pages to match the exact name of the functions they
