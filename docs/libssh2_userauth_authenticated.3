@@ -1,4 +1,4 @@
-.\" $Id: libssh2_userauth_authenticated.3,v 1.1 2007/06/14 17:15:32 jehousley Exp $
+.\" $Id: libssh2_userauth_authenticated.3,v 1.2 2009/03/17 10:34:27 bagder Exp $
 .\"
 .TH libssh2_userauth_authenticated 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -11,7 +11,7 @@ libssh2_userauth_authenticated(LIBSSH2_SESSION *session);
 
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by 
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)
 
 Indicates whether or not the named session has been successfully authenticated.
 
@@ -19,4 +19,4 @@ Indicates whether or not the named session has been successfully authenticated.
 Returns 1 if authenticated and 0 if not.
 
 .SH SEE ALSO
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)

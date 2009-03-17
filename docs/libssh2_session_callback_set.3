@@ -1,4 +1,4 @@
-.\" $Id: libssh2_session_callback_set.3,v 1.1 2007/06/14 15:26:58 jehousley Exp $
+.\" $Id: libssh2_session_callback_set.3,v 1.2 2009/03/17 10:34:27 bagder Exp $
 .\"
 .TH libssh2_session_callback_set 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -11,7 +11,7 @@ libssh2_session_callback_set(LIBSSH2_SESSION *session, int cbtype, void *callbac
 
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by 
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)
 
 \fIcbtype\fP - Callback type. One of the types listed in Callback Types.
 
@@ -27,4 +27,4 @@ Pointer to previous callback handler. Returns NULL if no
 prior callback handler was set.
 
 .SH SEE ALSO
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)

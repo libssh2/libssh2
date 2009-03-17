@@ -1,4 +1,4 @@
-.\" $Id: libssh2_channel_open_ex.3,v 1.1 2007/06/13 20:54:25 jehousley Exp $
+.\" $Id: libssh2_channel_open_ex.3,v 1.2 2009/03/17 10:34:27 bagder Exp $
 .\"
 .TH libssh2_channel_open_ex 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -14,7 +14,7 @@ libssh2_channel_open_session(session);
 
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by 
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)
 
 \fIchannel_type\fP - Channel type to open. Typically one of session, 
 direct-tcpip, or tcpip-forward. The SSH2 protocol allowed for additional 

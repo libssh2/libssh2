@@ -1,4 +1,4 @@
-.\" $Id: libssh2_scp_recv.3,v 1.2 2009/03/16 23:25:14 bagder Exp $
+.\" $Id: libssh2_scp_recv.3,v 1.3 2009/03/17 10:34:27 bagder Exp $
 .\"
 .TH libssh2_scp_recv 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -11,7 +11,7 @@ libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb);
 
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by 
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)
 
 \fIpath\fP - Full path and filename of file to transfer
 
@@ -28,6 +28,6 @@ Pointer to a newly allocated LIBSSH2_CHANNEL instance, or NULL on errors.
 \fILIBSSH2_ERROR_EAGAIN\fP - Marked for non-blocking I/O but the call would
 block.
 .SH SEE ALSO
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)
 .BR libssh2_channel_open_ex(3)
 

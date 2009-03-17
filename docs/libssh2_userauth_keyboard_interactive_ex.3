@@ -1,4 +1,4 @@
-.\" $Id: libssh2_userauth_keyboard_interactive_ex.3,v 1.1 2008/03/08 18:26:32 dottedmag Exp $
+.\" $Id: libssh2_userauth_keyboard_interactive_ex.3,v 1.2 2009/03/17 10:34:27 bagder Exp $
 .\"
 .TH libssh2_userauth_keyboard_interactive_ex 3 "8 Mar 2008" "libssh2 0.19" "libssh2 manual"
 .SH NAME
@@ -14,7 +14,7 @@ libssh2_userauth_keyboard_interactive(LIBSSH2_SESSION *session, const char *user
 
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by 
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)
 
 \fIusername\fP - Name of user to attempt plain password authentication for.
 
@@ -40,4 +40,4 @@ LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
 .SH SEE ALSO
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)

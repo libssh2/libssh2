@@ -1,4 +1,4 @@
-.\" $Id: libssh2_session_block_directions.3,v 1.2 2008/12/22 12:51:27 bagder Exp $
+.\" $Id: libssh2_session_block_directions.3,v 1.3 2009/03/17 10:34:27 bagder Exp $
 .\"
 .TH libssh2_session_block_directions 3 "1 Oct 2008" "libssh2 1.0" "libssh2 manual"
 .SH NAME
@@ -9,7 +9,7 @@ libssh2_session_block_directions - get directions that socket should wait for be
 int
 libssh2_session_block_directions(LIBSSH2_SESSION *session);
 .SH DESCRIPTION
-\fIsession\fP - Session instance as returned by \fBlibssh2_session_init(3)\fP
+\fIsession\fP - Session instance as returned by \fBlibssh2_session_init_ex(3)\fP
 
 When any of libssh2 functions return \fBLIBSSH2_ERROR_EAGAIN\fP an application
 should wait for the socket to have data available for reading or

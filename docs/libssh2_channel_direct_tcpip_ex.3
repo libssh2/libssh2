@@ -1,4 +1,4 @@
-.\" $Id: libssh2_channel_direct_tcpip_ex.3,v 1.1 2007/06/13 17:22:15 jehousley Exp $
+.\" $Id: libssh2_channel_direct_tcpip_ex.3,v 1.2 2009/03/17 10:34:27 bagder Exp $
 .\"
 .TH libssh2_channel_direct_tcpip_ex 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -14,7 +14,7 @@ libssh2_channel_direct_tcpip(LIBSSH2_SESSION *session, const char *host, int por
 
 .SH DESCRIPTION
 /fIsession/fP - Session instance as returned by 
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)
 
 /fIhost/fP - Third party host to connect to using the SSH host as a proxy.
 
@@ -31,9 +31,7 @@ in cleartext.
 
 .SH RETURN VALUE
 Pointer to a newly allocated LIBSSH2_CHANNEL instance, or NULL on errors.
-
 .SH ERRORS
 \fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
-
 .SH SEE ALSO
-.BR libssh2_session_init(3)
+.BR libssh2_session_init_ex(3)
