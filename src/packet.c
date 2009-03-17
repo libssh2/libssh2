@@ -985,18 +985,14 @@ _libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
 
     while (packet) {
         if (packet->data[0] == packet_type
-            && (packet->data_len >= (match_ofs + match_len)) && (!match_buf
-                                                                 ||
-                                                                 (memcmp
-                                                                  (packet->
-                                                                   data +
-                                                                   match_ofs,
-                                                                   match_buf,
-                                                                   match_len)
-                                                                  == 0))) {
+            && (packet->data_len >= (match_ofs + match_len))
+            && (!match_buf ||
+                (memcmp(packet->data + match_ofs, match_buf,
+                        match_len) == 0))) {
             *data = packet->data;
             *data_len = packet->data_len;
 
+            /* unlink struct */
             if (packet->prev) {
                 packet->prev->next = packet->next;
             } else {
