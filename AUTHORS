@@ -1,11 +1,10 @@
 * Sara Golemon: Author / Project Manager
 
+* Daniel Stenberg: Co-maintainer
+
 * James Housleys: Nonblocking conversion
 
 * Simon Josefsson: libgcrypt support
-
-* Daniel Stenberg: Nonblocking fixes, Build Improvements, and Daily snapshot
-  artist
 
 * Mikhail Gusarov: Keyboard Interactive Authentication
 
