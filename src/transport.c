@@ -360,32 +360,12 @@ _libssh2_packet_read(LIBSSH2_SESSION * session)
 
             /* now read a big chunk from the network into the temp buffer */
             nread =
-                recv(session->socket_fd, &p->buf[remainbuf],
+                _libssh2_recv(session->socket_fd, &p->buf[remainbuf],
                      PACKETBUFSIZE - remainbuf,
                      LIBSSH2_SOCKET_RECV_FLAGS(session));
             if (nread <= 0) {
                 /* check if this is due to EAGAIN and return the special
                    return code if so, error out normally otherwise */
-#ifdef WIN32
-                switch (WSAGetLastError()) {
-                case WSAEWOULDBLOCK:
-                    errno = EAGAIN;
-                    break;
-
-                case WSAENOTSOCK:
-                    errno = EBADF;
-                    break;
-
-                case WSAENOTCONN:
-                case WSAECONNABORTED:
-                    errno = WSAENOTCONN;
-                    break;
-
-                case WSAEINTR:
-                    errno = EINTR;
-                    break;
-                }
-#endif /* WIN32 */
                 if ((nread < 0) && (errno == EAGAIN)) {
                     session->socket_block_directions =
                         LIBSSH2_SESSION_BLOCK_INBOUND;
@@ -620,7 +600,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
     /* number of bytes left to send */
     length = p->ototal_num - p->osent;
 
-    rc = send(session->socket_fd, &p->outbuf[p->osent], length,
+    rc = _libssh2_send(session->socket_fd, &p->outbuf[p->osent], length,
               LIBSSH2_SOCKET_SEND_FLAGS(session));
 
     if (rc == length) {
@@ -785,7 +765,7 @@ _libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
 
     session->local.seqno++;
 
-    ret = send(session->socket_fd, p->outbuf, total_length,
+    ret = _libssh2_send(session->socket_fd, p->outbuf, total_length,
                LIBSSH2_SOCKET_SEND_FLAGS(session));
 
     if (ret != -1) {

@@ -1,3 +1,8 @@
+- (Mar 19 2009) Daniel Stenberg: based on a patch by "E L" we now use errno
+  properly after recv() and send() calls (that internally are now known as
+  _libssh2_recv() and _libssh2_send()) so that the API and more works fine on
+  windows too!
+
 - (Mar 17 2009) Simon Josefsson:
 
   Added a Libtool -export-symbols-regex flag to reduce the number of

@@ -103,31 +103,10 @@ banner_receive(LIBSSH2_SESSION * session)
             || (session->banner_TxRx_banner[banner_len - 1] != '\n'))) {
         char c = '\0';
 
-        ret =
-            recv(session->socket_fd, &c, 1,
-                 LIBSSH2_SOCKET_RECV_FLAGS(session));
+        ret = _libssh2_recv(session->socket_fd, &c, 1,
+                            LIBSSH2_SOCKET_RECV_FLAGS(session));
 
         if (ret < 0) {
-#ifdef WIN32
-            switch (WSAGetLastError()) {
-            case WSAEWOULDBLOCK:
-                errno = EAGAIN;
-                break;
-
-            case WSAENOTSOCK:
-                errno = EBADF;
-                break;
-
-            case WSAENOTCONN:
-            case WSAECONNABORTED:
-                errno = WSAENOTCONN;
-                break;
-
-            case WSAEINTR:
-                errno = EINTR;
-                break;
-            }
-#endif /* WIN32 */
             if (errno == EAGAIN) {
                 session->socket_block_directions =
                     LIBSSH2_SESSION_BLOCK_INBOUND;
@@ -225,10 +204,10 @@ banner_send(LIBSSH2_SESSION * session)
         session->banner_TxRx_state = libssh2_NB_state_created;
     }
 
-    ret =
-        send(session->socket_fd, banner + session->banner_TxRx_total_send,
-             banner_len - session->banner_TxRx_total_send,
-             LIBSSH2_SOCKET_SEND_FLAGS(session));
+    ret = _libssh2_send(session->socket_fd,
+                        banner + session->banner_TxRx_total_send,
+                        banner_len - session->banner_TxRx_total_send,
+                        LIBSSH2_SOCKET_SEND_FLAGS(session));
 
     if (ret != (banner_len - session->banner_TxRx_total_send)) {
         if ((ret > 0) || ((ret == -1) && (errno == EAGAIN))) {
@@ -1505,7 +1484,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
                 case LIBSSH2_POLLFD_CHANNEL:
                     if (FD_ISSET(fds[i].fd.channel->session->socket_fd, &rfds)) {
                         /* Spin session until no data available */
-                        while (libssh2_packet_read(fds[i].fd.channel->session)
+                        while (_libssh2_packet_read(fds[i].fd.channel->session)
                                > 0);
                     }
                     break;
@@ -1514,7 +1493,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
                     if (FD_ISSET
                         (fds[i].fd.listener->session->socket_fd, &rfds)) {
                         /* Spin session until no data available */
-                        while (libssh2_packet_read(fds[i].fd.listener->session)
+                        while (_libssh2_packet_read(fds[i].fd.listener->session)
                                > 0);
                     }
                     break;

@@ -92,19 +92,19 @@
 
 /* same as WSABUF */
 struct iovec {
-	u_long iov_len;
-	char *iov_base;
+    u_long iov_len;
+    char *iov_base;
 };
 
 #define inline __inline
 
 static inline int writev(int sock, struct iovec *iov, int nvecs)
 {
-	DWORD ret;
-	if (WSASend(sock, (LPWSABUF)iov, nvecs, &ret, 0, NULL, NULL) == 0) {
-		return ret;
-	}
-	return -1;
+    DWORD ret;
+    if (WSASend(sock, (LPWSABUF)iov, nvecs, &ret, 0, NULL, NULL) == 0) {
+        return ret;
+    }
+    return -1;
 }
 
 #endif /* WIN32 */
@@ -140,13 +140,6 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
 /* "inline" keyword is valid only with C++ engine! */
 #define inline __inline
 #endif
-
-/* not really usleep, but safe for the way we use it in this lib */
-static inline int usleep(int udelay)
-{
-	Sleep(udelay / 1000);
-	return 0;
-}
 
 #endif
 
@@ -1141,6 +1134,14 @@ unsigned long _libssh2_ntohu32(const unsigned char *buf);
 libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
 void _libssh2_htonu32(unsigned char *buf, unsigned long val);
 void _libssh2_htonu64(unsigned char *buf, libssh2_uint64_t val);
+
+#ifdef WIN32
+ssize_t _libssh2_recv(int socket, void *buffer, size_t length, int flags);
+ssize_t _libssh2_send(int socket, const void *buffer, size_t length, int flags);
+#else
+#define _libssh2_recv(a,b,c,d) recv(a,b,c,d)
+#define _libssh2_send(a,b,c,d) send(a,b,c,d)
+#endif
 
 #define LIBSSH2_READ_TIMEOUT 60 /* generic timeout in seconds used when
                                    waiting for more data to arrive */
