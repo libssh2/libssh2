@@ -1130,9 +1130,9 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 
 void _libssh2_session_shutdown(LIBSSH2_SESSION * session);
 
-unsigned long _libssh2_ntohu32(const unsigned char *buf);
+unsigned int _libssh2_ntohu32(const unsigned char *buf);
 libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
-void _libssh2_htonu32(unsigned char *buf, unsigned long val);
+void _libssh2_htonu32(unsigned char *buf, unsigned int val);
 void _libssh2_htonu64(unsigned char *buf, libssh2_uint64_t val);
 
 #ifdef WIN32

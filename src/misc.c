@@ -112,7 +112,7 @@ _libssh2_send(int socket, const void *buffer, size_t length, int flags)
 
 /* libssh2_ntohu32
  */
-unsigned long
+unsigned int
 _libssh2_ntohu32(const unsigned char *buf)
 {
     return (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
@@ -135,7 +135,7 @@ _libssh2_ntohu64(const unsigned char *buf)
 /* libssh2_htonu32
  */
 void
-_libssh2_htonu32(unsigned char *buf, unsigned long value)
+_libssh2_htonu32(unsigned char *buf, unsigned int value)
 {
     buf[0] = (value >> 24) & 0xFF;
     buf[1] = (value >> 16) & 0xFF;
@@ -234,7 +234,8 @@ libssh2_base64_decode(LIBSSH2_SESSION * session, char **data,
         i++;
     }
     if ((i % 4) == 1) {
-        /* Invalid -- We have a byte which belongs exclusively to a partial octet */
+        /* Invalid -- We have a byte which belongs exclusively to a partial
+           octet */
         LIBSSH2_FREE(session, *data);
         return -1;
     }
