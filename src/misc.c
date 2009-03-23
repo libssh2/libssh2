@@ -57,10 +57,6 @@ static int wsa2errno(void)
     case WSAENOTSOCK:
         return EBADF;
 
-    case WSAENOTCONN:
-    case WSAECONNABORTED:
-        return ENOTCONN;
-
     case WSAEINTR:
         return EINTR;
 
