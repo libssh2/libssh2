@@ -1167,14 +1167,14 @@ int _libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
                         unsigned char **data, unsigned long *data_len,
                         unsigned long match_ofs,
                         const unsigned char *match_buf,
-                        unsigned long match_len, int poll_socket);
+                        unsigned long match_len);
 
 int _libssh2_packet_askv(LIBSSH2_SESSION * session,
                          const unsigned char *packet_types,
                          unsigned char **data, unsigned long *data_len,
                          unsigned long match_ofs,
                          const unsigned char *match_buf,
-                         unsigned long match_len, int poll_socket);
+                         unsigned long match_len);
 int _libssh2_packet_require(LIBSSH2_SESSION * session,
                             unsigned char packet_type, unsigned char **data,
                             unsigned long *data_len, unsigned long match_ofs,
