@@ -1511,24 +1511,18 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
         rc = 1; /* set to >0 to let the while loop start */
 
         /* process all pending incoming packets */
-        while (rc > 0) {
+        while (rc > 0)
             rc = _libssh2_packet_read(session);
-            if(channel->session->socket_block)
-                /* we can't loop in blocking mode as then we might get stuck
-                   in recv() */
-                break;
-        }
 
         if ((rc < 0) && (rc != PACKET_EAGAIN))
             return -1;
 
         channel->read_state = libssh2_NB_state_created;
     }
-    else if(!channel->session->socket_block) {
+    else
         /* We're not in the idle state, but in order to "even out" the network
            readings we do a single shot read here as well. Tests prove that
-           this way produces faster transfers. But in blocking mode we can't
-           do it. */
+           this way produces faster transfers. */
         rc = _libssh2_packet_read(session);
 
         /* ignore PACKET_EAGAIN but return failure for the rest */
@@ -1664,15 +1658,9 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
         _libssh2_debug(session, LIBSSH2_DBG_CONN,
                        "channel_read() filled %d adjusted %d",
                        bytes_read, buflen);
-        if(!channel->session->socket_block)
-            /* while not blocking, we can continue in 'created' state to drain
-               the already read packages first before starting to empty the
-               socket further */
-            channel->read_state = libssh2_NB_state_created;
-        else
-            /* in blocking mode we don't know if there's more to read so we need
-               to make it more careful and go back to idle */
-            channel->read_state = libssh2_NB_state_idle;
+        /* continue in 'created' state to drain the already read packages
+           first before starting to empty the socket further */
+        channel->read_state = libssh2_NB_state_created;
     }
 
     return bytes_read;
