@@ -1519,7 +1519,7 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL * channel, int stream_id, char *buf,
 
         channel->read_state = libssh2_NB_state_created;
     }
-    else
+    else {
         /* We're not in the idle state, but in order to "even out" the network
            readings we do a single shot read here as well. Tests prove that
            this way produces faster transfers. */
