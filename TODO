@@ -13,8 +13,6 @@ Things TODO
   libssh2_publickey_list_free
   libssh2_publickey_remove_ex
   libssh2_publickey_shutdown
-  libssh2_session_flag
-  libssh2_session_get_blocking
   libssh2_userauth_hostbased_fromfile_ex
 
 * Decrease the number of mallocs. Everywhere.
@@ -23,6 +21,8 @@ Things TODO
 
 * Extend the test suite to actually test lots of aspects of libssh2
 
+* libssh2_channel_receive_window_adjust() can return EAGAIN while documented
+  to return the window as an "unsigned long".
 
 At next SONAME bump
 ===================
@@ -30,4 +30,7 @@ At next SONAME bump
 * stop using #defined macros as part of the official API. The macros should
   either be turned into real functions or discarded from the API.
 
-* remove libssh2_base64_decode() from the API/ABI
+* remove the followign functions from the API/ABI
+
+  libssh2_base64_decode()
+  libssh2_session_flag()
