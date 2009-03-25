@@ -1,5 +1,5 @@
 /*
- * $Id: scp_nonblock.c,v 1.14 2009/03/14 09:40:57 bagder Exp $
+ * $Id: scp_nonblock.c,v 1.15 2009/03/25 22:52:32 bagder Exp $
  *
  * Sample showing how to do SCP transfers in a non-blocking manner.
  *
@@ -204,24 +204,33 @@ int main(int argc, char *argv[])
         }
     }
 
+#if 0
+    libssh2_trace(session, LIBSSH2_TRACE_CONN);
+#endif
+
     /* Request a file via SCP */
     fprintf(stderr, "libssh2_scp_recv()!\n");
     do {
         channel = libssh2_scp_recv(session, scppath, &fileinfo);
 
-        if (!channel &&
-            (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
-            char *err_msg;
+        if (!channel) {
+            if(libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
+                char *err_msg;
 
-            libssh2_session_last_error(session, &err_msg, NULL, 0);
-            fprintf(stderr, "%s\n", err_msg);
-            goto shutdown;
+                libssh2_session_last_error(session, &err_msg, NULL, 0);
+                fprintf(stderr, "%s\n", err_msg);
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr, "libssh2_scp_recv() spin\n");
+                waitsocket(sock, session);
+            }
         }
     } while (!channel);
     fprintf(stderr, "libssh2_scp_recv() is done, now receive data!\n");
 
     while(got < fileinfo.st_size) {
-        char mem[1000*16];
+        char mem[1024*24];
         int rc;
 
         do {
@@ -240,7 +249,7 @@ int main(int argc, char *argv[])
             }
         } while (rc > 0);
 
-        if (rc == LIBSSH2_ERROR_EAGAIN) {
+        if ((rc == LIBSSH2_ERROR_EAGAIN) && (got < fileinfo.st_size)) {
             /* this is due to blocking that would occur otherwise
             so we loop on this condition */
 
