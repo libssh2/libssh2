@@ -39,6 +39,7 @@
 
 #include "transport.h"
 #include "comp.h"
+#include "mac.h"
 
 /* TODO: Switch this to an inline and handle alloc() failures */
 /* Helper macro called from kex_method_diffie_hellman_group1_sha1_key_exchange */
@@ -1037,10 +1038,10 @@ static int kexinit(LIBSSH2_SESSION * session)
                                      libssh2_crypt_methods());
         mac_cs_len =
             LIBSSH2_METHOD_PREFS_LEN(session->local.mac_prefs,
-                                     libssh2_mac_methods());
+                                     _libssh2_mac_methods());
         mac_sc_len =
             LIBSSH2_METHOD_PREFS_LEN(session->remote.mac_prefs,
-                                     libssh2_mac_methods());
+                                     _libssh2_mac_methods());
         comp_cs_len =
             LIBSSH2_METHOD_PREFS_LEN(session->local.comp_prefs,
                                      _libssh2_comp_methods());
@@ -1080,9 +1081,9 @@ static int kexinit(LIBSSH2_SESSION * session)
         LIBSSH2_METHOD_PREFS_STR(s, crypt_sc_len, session->remote.crypt_prefs,
                                  libssh2_crypt_methods());
         LIBSSH2_METHOD_PREFS_STR(s, mac_cs_len, session->local.mac_prefs,
-                                 libssh2_mac_methods());
+                                 _libssh2_mac_methods());
         LIBSSH2_METHOD_PREFS_STR(s, mac_sc_len, session->remote.mac_prefs,
-                                 libssh2_mac_methods());
+                                 _libssh2_mac_methods());
         LIBSSH2_METHOD_PREFS_STR(s, comp_cs_len, session->local.comp_prefs,
                                  _libssh2_comp_methods());
         LIBSSH2_METHOD_PREFS_STR(s, comp_sc_len, session->remote.comp_prefs,
@@ -1441,7 +1442,7 @@ static int kex_agree_mac(LIBSSH2_SESSION * session,
                          libssh2_endpoint_data * endpoint, unsigned char *mac,
                          unsigned long mac_len)
 {
-    const LIBSSH2_MAC_METHOD **macp = libssh2_mac_methods();
+    const LIBSSH2_MAC_METHOD **macp = _libssh2_mac_methods();
     unsigned char *s;
     (void) session;
 
@@ -1832,12 +1833,12 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
 
     case LIBSSH2_METHOD_MAC_CS:
         prefvar = &session->local.mac_prefs;
-        mlist = (const LIBSSH2_COMMON_METHOD **) libssh2_mac_methods();
+        mlist = (const LIBSSH2_COMMON_METHOD **) _libssh2_mac_methods();
         break;
 
     case LIBSSH2_METHOD_MAC_SC:
         prefvar = &session->remote.mac_prefs;
-        mlist = (const LIBSSH2_COMMON_METHOD **) libssh2_mac_methods();
+        mlist = (const LIBSSH2_COMMON_METHOD **) _libssh2_mac_methods();
         break;
 
     case LIBSSH2_METHOD_COMP_CS:

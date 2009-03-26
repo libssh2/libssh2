@@ -1,5 +1,5 @@
-#ifndef __LIBSSH2_COMP_H
-#define __LIBSSH2_COMP_H
+#ifndef __LIBSSH2_MAC_H
+#define __LIBSSH2_MAC_H
 
 /* Copyright (C) 2009 by Daniel Stenberg
  *
@@ -40,6 +40,6 @@
 
 #include "libssh2_priv.h"
 
-const LIBSSH2_COMP_METHOD **_libssh2_comp_methods(void);
+const LIBSSH2_MAC_METHOD **_libssh2_mac_methods(void);
 
-#endif /* __LIBSSH2_COMP_H */
+#endif /* __LIBSSH2_MAC_H */

@@ -1210,11 +1210,9 @@ unsigned long _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel,
 /* this is the lib-internal set blocking function */
 int _libssh2_session_set_blocking(LIBSSH2_SESSION * session, int blocking);
 
-/* Let crypt.c/hostkey.c/comp.c/mac.c expose their method structs */
+/* Let crypt.c/hostkey.c expose their method structs */
 const LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);
 const LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void);
-const LIBSSH2_COMP_METHOD **libssh2_comp_methods(void);
-const LIBSSH2_MAC_METHOD **libssh2_mac_methods(void);
 
 /* Language API doesn't exist yet.  Just act like we've agreed on a language */
 #define libssh2_kex_agree_lang(session, endpoint, str, str_len) 0
