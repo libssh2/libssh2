@@ -1,4 +1,4 @@
-.\" $Id: libssh2_channel_set_blocking.3,v 1.5 2007/06/14 17:23:13 jehousley Exp $
+.\" $Id: libssh2_channel_set_blocking.3,v 1.6 2009/03/26 15:41:16 bagder Exp $
 .\"
 .TH libssh2_channel_set_blocking 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -8,7 +8,6 @@ libssh2_channel_set_blocking - set or clear blocking mode on channel
 
 void 
 libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking);
-
 .SH DESCRIPTION
 \fIchannel\fP - channel stream to set or clean blocking status on.
 
@@ -18,10 +17,8 @@ make it non-blocking.
 Currently this is just a short cut call to 
 .BR libssh2_session_set_blocking(3)
 and therefore will affect the session and all channels.
-
 .SH RETURN VALUE
 None
-
 .SH SEE ALSO
 .BR libssh2_session_set_blocking(3)
 .BR libssh2_channel_read_ex(3)

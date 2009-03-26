@@ -59,6 +59,8 @@
 
 #include <sys/types.h>
 
+#include "transport.h"
+
 /*
  * libssh2_packet_queue_listener
  *
@@ -202,8 +204,8 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                 }
 
                 if (listen_state->state == libssh2_NB_state_created) {
-                    rc = _libssh2_packet_write(session, listen_state->packet,
-                                              17);
+                    rc = _libssh2_transport_write(session, listen_state->packet,
+                                                  17);
                     if (rc == PACKET_EAGAIN) {
                         return PACKET_EAGAIN;
                     } else if (rc) {
@@ -256,7 +258,8 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
         p += sizeof(FwdNotReq) - 1;
         _libssh2_htonu32(p, 0);
 
-        rc = _libssh2_packet_write(session, listen_state->packet, packet_len);
+        rc = _libssh2_transport_write(session, listen_state->packet,
+                                      packet_len);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -374,7 +377,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
         }
 
         if (x11open_state->state == libssh2_NB_state_created) {
-            rc = _libssh2_packet_write(session, x11open_state->packet, 17);
+            rc = _libssh2_transport_write(session, x11open_state->packet, 17);
             if (rc == PACKET_EAGAIN) {
                 return PACKET_EAGAIN;
             } else if (rc) {
@@ -422,7 +425,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
     p += sizeof(X11FwdUnAvil) - 1;
     _libssh2_htonu32(p, 0);
 
-    rc = _libssh2_packet_write(session, x11open_state->packet, packet_len);
+    rc = _libssh2_transport_write(session, x11open_state->packet, packet_len);
     if (rc == PACKET_EAGAIN) {
         return PACKET_EAGAIN;
     } else if (rc) {
@@ -922,11 +925,10 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         }
 
         /*
-         * The KEXINIT message has been added to the queue.
-         * The packAdd and readPack states need to be reset
-         * because libssh2_kex_exchange (eventually) calls upon
-         * libssh2_packet_read to read the rest of the key exchange
-         * conversation.
+         * The KEXINIT message has been added to the queue.  The packAdd and
+         * readPack states need to be reset because libssh2_kex_exchange
+         * (eventually) calls upon _libssh2_transport_read to read the rest of
+         * the key exchange conversation.
          */
         session->readPack_state = libssh2_NB_state_idle;
         session->packet.total_num = 0;
@@ -1030,38 +1032,9 @@ _libssh2_packet_askv(LIBSSH2_SESSION * session,
 }
 
 /*
- * _libssh2_waitsocket
- *
- * Returns
- * negative on error
- * >0 on incoming data
- * 0 on timeout
- *
- * FIXME: convert to use poll on systems that have it.
- */
-int
-_libssh2_waitsocket(LIBSSH2_SESSION * session, long seconds)
-{
-    struct timeval timeout;
-    int rc;
-    fd_set fd;
-
-    timeout.tv_sec = seconds;
-    timeout.tv_usec = 0;
-
-    FD_ZERO(&fd);
-
-    FD_SET(session->socket_fd, &fd);
-
-    rc = select(session->socket_fd + 1, &fd, NULL, NULL, &timeout);
-
-    return rc;
-}
-
-/*
  * _libssh2_packet_require
  *
- * Loops _libssh2_packet_read() until the packet requested is available
+ * Loops _libssh2_transport_read() until the packet requested is available
  * SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause a bailout
  *
  * Returns negative on error
@@ -1091,11 +1064,11 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
     }
 
     while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
-        libssh2pack_t ret = _libssh2_packet_read(session);
+        libssh2pack_t ret = _libssh2_transport_read(session);
         if (ret == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
-        } else if ((ret == 0) && (!session->socket_block)) {
-            /* If we are in non-blocking and there is no data, return that */
+        } else if (ret == 0) {
+            /* There is no data, return that. TODO: is this really correct? */
             return PACKET_EAGAIN;
         } else if (ret < 0) {
             state->start = 0;
@@ -1111,7 +1084,7 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
             /* nothing available, wait until data arrives or we time out */
             long left = LIBSSH2_READ_TIMEOUT - (time(NULL) - state->start);
 
-            if ((left <= 0) || (_libssh2_waitsocket(session, left) <= 0)) {
+            if (left <= 0) {
                 state->start = 0;
                 return PACKET_TIMEOUT;
             }
@@ -1125,7 +1098,7 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
 /*
  * _libssh2_packet_burn
  *
- * Loops _libssh2_packet_read() until any packet is available and promptly
+ * Loops _libssh2_transport_read() until any packet is available and promptly
  * discards it.
  * Used during KEX exchange to discard badly guessed KEX_INIT packets
  */
@@ -1158,7 +1131,7 @@ _libssh2_packet_burn(LIBSSH2_SESSION * session,
     }
 
     while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
-        if ((ret = _libssh2_packet_read(session)) == PACKET_EAGAIN) {
+        if ((ret = _libssh2_transport_read(session)) == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (ret < 0) {
             *state = libssh2_NB_state_idle;
@@ -1185,7 +1158,7 @@ _libssh2_packet_burn(LIBSSH2_SESSION * session,
 /*
  * _libssh2_packet_requirev
  *
- * Loops _libssh2_packet_read() until one of a list of packet types requested is
+ * Loops _libssh2_transport_read() until one of a list of packet types requested is
  * available
  * SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause a bailout
  * packet_types is a null terminated list of packet_type numbers
@@ -1212,7 +1185,7 @@ _libssh2_packet_requirev(LIBSSH2_SESSION * session,
     }
 
     while (session->socket_state != LIBSSH2_SOCKET_DISCONNECTED) {
-        int ret = _libssh2_packet_read(session);
+        int ret = _libssh2_transport_read(session);
         if ((ret < 0) && (ret != PACKET_EAGAIN)) {
             state->start = 0;
             return ret;
@@ -1220,10 +1193,11 @@ _libssh2_packet_requirev(LIBSSH2_SESSION * session,
         if (ret <= 0) {
             long left = LIBSSH2_READ_TIMEOUT - (time(NULL) - state->start);
 
-            if ((left <= 0) || (_libssh2_waitsocket(session, left) <= 0)) {
+            if (left <= 0) {
                 state->start = 0;
                 return PACKET_TIMEOUT;
-            } else if (ret == PACKET_EAGAIN) {
+            }
+            else if (ret == PACKET_EAGAIN) {
                 return PACKET_EAGAIN;
             }
         }

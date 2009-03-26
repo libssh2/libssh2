@@ -1,9 +1,10 @@
-# $Id: Makefile.am,v 1.16 2009/03/17 10:19:54 jas4711 Exp $
+# $Id: Makefile.am,v 1.17 2009/03/26 15:41:17 bagder Exp $
 AUTOMAKE_OPTIONS = foreign nostdinc
 
 libssh2_la_SOURCES = channel.c comp.c crypt.c hostkey.c kex.c mac.c	\
 misc.c packet.c publickey.c scp.c session.c sftp.c userauth.c		\
-libssh2_priv.h openssl.h libgcrypt.h transport.c version.c
+libssh2_priv.h openssl.h libgcrypt.h transport.c version.c transport.h \
+channel.h
 
 if LIBGCRYPT
 libssh2_la_SOURCES += libgcrypt.c pem.c

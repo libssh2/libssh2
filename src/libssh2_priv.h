@@ -684,6 +684,9 @@ struct _LIBSSH2_SESSION
     unsigned char *session_id;
     unsigned long session_id_len;
 
+    /* this is set to TRUE if a blocking API behavior is requested */
+    int api_block_mode;
+
     /* Server's public key */
     const LIBSSH2_HOSTKEY_METHOD *hostkey;
     void *server_hostkey_abstract;
@@ -716,9 +719,10 @@ struct _LIBSSH2_SESSION
 
     /* Actual I/O socket */
     int socket_fd;
-    int socket_block;
     int socket_state;
     int socket_block_directions;
+    int socket_prev_blockstate; /* stores the state of the socket blockiness
+                                   when libssh2_session_startup() is called */
 
     /* Error tracking */
     char *err_msg;
@@ -1145,7 +1149,8 @@ ssize_t _libssh2_send(int socket, const void *buffer, size_t length, int flags);
 
 #define LIBSSH2_READ_TIMEOUT 60 /* generic timeout in seconds used when
                                    waiting for more data to arrive */
-int _libssh2_waitsocket(LIBSSH2_SESSION * session, long seconds);
+
+int _libssh2_wait_socket(LIBSSH2_SESSION *session);
 
 
 /* CAUTION: some of these error codes are returned in the public API and is
@@ -1222,5 +1227,41 @@ int _libssh2_pem_parse(LIBSSH2_SESSION * session,
 int _libssh2_pem_decode_sequence(unsigned char **data, unsigned int *datalen);
 int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
                                 unsigned char **i, unsigned int *ilen);
+
+
+/* Conveniance-macros to allow code like this;
+
+   int rc = BLOCK_ADJUST(rc, session, session_startup(session, sock) );
+
+   int rc = BLOCK_ADJUST_ERRNO(ptr, session, session_startup(session, sock) );
+
+   The point of course being to make sure that while in non-blocking mode
+   these always return no matter what the return code is, but in blocking mode
+   it blocks if EAGAIN is the reason for the return from the underlying
+   function.
+
+*/
+#define BLOCK_ADJUST(rc,sess,x) \
+    do { \
+       rc = x; \
+       if(!sess->api_block_mode || (rc != LIBSSH2_ERROR_EAGAIN))  \
+           break; \
+       rc = _libssh2_wait_socket(sess); \
+       if(rc) \
+           break; \
+    } while(1)
+
+#define BLOCK_ADJUST_ERRNO(ptr,sess,x)          \
+    do { \
+       int rc; \
+       ptr = x; \
+       if(!sess->api_block_mode || \
+          (libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN)) \
+           break;                                                  \
+       rc = _libssh2_wait_socket(sess); \
+       if(rc) \
+           break; \
+    } while(1)
+
 
 #endif /* LIBSSH2_H */

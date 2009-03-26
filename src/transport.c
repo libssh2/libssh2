@@ -44,6 +44,8 @@
 
 #include <assert.h>
 
+#include "transport.h"
+
 #define MAX_BLOCKSIZE 32     /* MUST fit biggest crypto block size we use/get */
 #define MAX_MACSIZE 20      /* MUST fit biggest MAC length we support */
 
@@ -220,7 +222,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
 
         session->fullpacket_packet_type = p->payload[0];
 
-        debugdump(session, "libssh2_packet_read() plain",
+        debugdump(session, "libssh2_transport_read() plain",
                   p->payload, session->fullpacket_payload_len);
 
         session->fullpacket_state = libssh2_NB_state_created;
@@ -244,7 +246,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
 
 
 /*
- * _libssh2_packet_read
+ * _libssh2_transport_read
  *
  * Collect a packet into the input brigade block only controls whether or not
  * to wait for a packet to start.
@@ -259,7 +261,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
  * "The Secure Shell (SSH) Transport Layer Protocol"
  */
 libssh2pack_t
-_libssh2_packet_read(LIBSSH2_SESSION * session)
+_libssh2_transport_read(LIBSSH2_SESSION * session)
 {
     libssh2pack_t rc;
     struct transportpacket *p = &session->packet;
@@ -313,7 +315,7 @@ _libssh2_packet_read(LIBSSH2_SESSION * session)
     if (session->readPack_state == libssh2_NB_state_jump1) {
         session->readPack_state = libssh2_NB_state_idle;
         encrypted = session->readPack_encrypted;
-        goto libssh2_packet_read_point1;
+        goto libssh2_transport_read_point1;
     }
 
     do {
@@ -373,7 +375,7 @@ _libssh2_packet_read(LIBSSH2_SESSION * session)
                 }
                 return PACKET_FAIL;
             }
-            debugdump(session, "libssh2_packet_read() raw",
+            debugdump(session, "libssh2_transport_read() raw",
                       &p->buf[remainbuf], nread);
             /* advance write pointer */
             p->writeidx += nread;
@@ -542,7 +544,7 @@ _libssh2_packet_read(LIBSSH2_SESSION * session)
 
         if (!remainpack) {
             /* we have a full packet */
-          libssh2_packet_read_point1:
+          libssh2_transport_read_point1:
             rc = fullpacket(session, encrypted);
             if (rc == PACKET_EAGAIN) {
 
@@ -618,7 +620,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
         return PACKET_EAGAIN;
     }
 
-    debugdump(session, "libssh2_packet_write send()", &p->outbuf[p->osent],
+    debugdump(session, "libssh2_transport_write send()", &p->outbuf[p->osent],
               length);
     p->osent += length;         /* we sent away this much data */
 
@@ -626,7 +628,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
 }
 
 /*
- * libssh2_packet_write
+ * libssh2_transport_write
  *
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.
@@ -641,8 +643,8 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
  * (RFC4253 section 6.1)
  */
 int
-_libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
-                      unsigned long data_len)
+_libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
+                         unsigned long data_len)
 {
     int blocksize =
         (session->state & LIBSSH2_STATE_NEWKEYS) ? session->local.crypt->
@@ -663,7 +665,7 @@ _libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
     unsigned char *orgdata = data;
     unsigned long orgdata_len = data_len;
 
-    debugdump(session, "libssh2_packet_write plain", data, data_len);
+    debugdump(session, "libssh2_transport_write plain", data, data_len);
 
     /* FIRST, check if we have a pending write to complete */
     rc = send_existing(session, data, data_len, &ret);
@@ -769,7 +771,7 @@ _libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
                LIBSSH2_SOCKET_SEND_FLAGS(session));
 
     if (ret != -1) {
-        debugdump(session, "libssh2_packet_write send()", p->outbuf, ret);
+        debugdump(session, "libssh2_transport_write send()", p->outbuf, ret);
     }
     if (ret != total_length) {
         if ((ret > 0) || ((ret == -1) && (errno == EAGAIN))) {

@@ -37,6 +37,8 @@
 
 #include "libssh2_priv.h"
 
+#include "transport.h"
+
 /* TODO: Switch this to an inline and handle alloc() failures */
 /* Helper macro called from kex_method_diffie_hellman_group1_sha1_key_exchange */
 #define LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA1_HASH(value, reqlen, version) \
@@ -139,8 +141,8 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
     }
 
     if (exchange_state->state == libssh2_NB_state_created) {
-        rc = _libssh2_packet_write(session, exchange_state->e_packet,
-                                   exchange_state->e_packet_len);
+        rc = _libssh2_transport_write(session, exchange_state->e_packet,
+                                      exchange_state->e_packet_len);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -415,7 +417,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
     }
 
     if (exchange_state->state == libssh2_NB_state_sent2) {
-        rc = _libssh2_packet_write(session, &exchange_state->c, 1);
+        rc = _libssh2_transport_write(session, &exchange_state->c, 1);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -837,7 +839,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     }
 
     if (key_state->state == libssh2_NB_state_created) {
-        rc = _libssh2_packet_write(session, key_state->request,
+        rc = _libssh2_transport_write(session, key_state->request,
                                    key_state->request_len);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
@@ -1136,7 +1138,7 @@ static int kexinit(LIBSSH2_SESSION * session)
         data_len = session->kexinit_data_len;
     }
 
-    rc = _libssh2_packet_write(session, data, data_len);
+    rc = _libssh2_transport_write(session, data, data_len);
     if (rc == PACKET_EAGAIN) {
         session->kexinit_data = data;
         session->kexinit_data_len = data_len;

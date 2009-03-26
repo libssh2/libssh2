@@ -576,10 +576,17 @@ libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
 #define libssh2_channel_window_read(channel) \
   libssh2_channel_window_read_ex((channel), NULL, NULL)
 
+/* libssh2_channel_receive_window_adjust is DEPRECATED, do not use! */
 LIBSSH2_API unsigned long
 libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
                                       unsigned long adjustment,
                                       unsigned char force);
+
+LIBSSH2_API int
+libssh2_channel_receive_window_adjust2(LIBSSH2_CHANNEL *channel,
+                                       unsigned long adjustment,
+                                       unsigned char force,
+                                       unsigned int *storewindow);
 
 LIBSSH2_API ssize_t libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel,
                                              int stream_id, const char *buf,
@@ -603,6 +610,7 @@ LIBSSH2_API int libssh2_session_get_blocking(LIBSSH2_SESSION* session);
 LIBSSH2_API void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel,
                                               int blocking);
 
+/* libssh2_channel_handle_extended_data is DEPRECATED, do not use! */
 LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
                                                       int ignore_mode);
 LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,

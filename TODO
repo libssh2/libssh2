@@ -30,7 +30,9 @@ At next SONAME bump
 * stop using #defined macros as part of the official API. The macros should
   either be turned into real functions or discarded from the API.
 
-* remove the followign functions from the API/ABI
+* remove the following functions from the API/ABI
 
   libssh2_base64_decode()
   libssh2_session_flag()
+  libssh2_channel_handle_extended_data()
+  libssh2_channel_receive_window_adjust()

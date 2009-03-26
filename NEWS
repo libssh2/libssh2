@@ -1,3 +1,20 @@
+
+   * Renamed the functions in src/transport.c to be _libssh2_transport_ prefixed
+     and introduced a transport.h header.
+
+   * Fixed the blocking mode to only change behavior not the actual underlying
+     socket mode so we now always work with non-blocking sockets. This also
+     introduces a new rule of thumb in libssh2 code: we don't call the
+     external function calls internally. We use the internal (non-blocking)
+     ones!
+
+   * libssh2_channel_receive_window_adjust2 was added and
+     libssh2_channel_receive_window_adjust is now deprecated
+
+   * Introduced "local" header files with prototypes etc for different parts
+     instead of cramming everything into libssh2_priv.h. channel.h is the
+     first.
+
 - (Mar 19 2009) Daniel Stenberg: based on a patch by "E L" we now use errno
   properly after recv() and send() calls (that internally are now known as
   _libssh2_recv() and _libssh2_send()) so that the API and more works fine on
