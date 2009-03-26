@@ -38,6 +38,7 @@
 #include "libssh2_priv.h"
 
 #include "transport.h"
+#include "comp.h"
 
 /* TODO: Switch this to an inline and handle alloc() failures */
 /* Helper macro called from kex_method_diffie_hellman_group1_sha1_key_exchange */
@@ -67,7 +68,7 @@
         }                                                                   \
 }
 
-/* {{{ kex_method_diffie_hellman_groupGP_sha1_key_exchange
+/* kex_method_diffie_hellman_groupGP_sha1_key_exchange
  * Diffie Hellman Key Exchange, Group Agnostic
  */
 static int
@@ -649,9 +650,9 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
     return ret;
 }
 
-/* }}} */
 
-/* {{{ kex_method_diffie_hellman_group1_sha1_key_exchange
+
+/* kex_method_diffie_hellman_group1_sha1_key_exchange
  * Diffie-Hellman Group1 (Actually Group2) Key Exchange using SHA1
  */
 static int
@@ -717,9 +718,9 @@ kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION *session,
     return ret;
 }
 
-/* }}} */
 
-/* {{{ kex_method_diffie_hellman_group14_sha1_key_exchange
+
+/* kex_method_diffie_hellman_group14_sha1_key_exchange
  * Diffie-Hellman Group14 Key Exchange using SHA1
  */
 static int
@@ -800,9 +801,9 @@ kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_SESSION *session,
     return ret;
 }
 
-/* }}} */
 
-/* {{{ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
+
+/* kex_method_diffie_hellman_group_exchange_sha1_key_exchange
  * Diffie-Hellman Group Exchange Key Exchange using SHA1
  * Negotiates random(ish) group for secret derivation
  */
@@ -904,7 +905,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     return ret;
 }
 
-/* }}} */
+
 
 #define LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY     0x0001
 #define LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY    0x0002
@@ -940,7 +941,7 @@ typedef struct _LIBSSH2_COMMON_METHOD
     const char *name;
 } LIBSSH2_COMMON_METHOD;
 
-/* {{{ kex_method_strlen
+/* kex_method_strlen
  * Calculate the length of a particular method list's resulting string
  * Includes SUM(strlen() of each individual method plus 1 (for coma)) - 1 (because the last coma isn't used)
  * Another sign of bad coding practices gone mad.  Pretend you don't see this.
@@ -962,9 +963,9 @@ kex_method_strlen(LIBSSH2_COMMON_METHOD ** method)
     return len - 1;
 }
 
-/* }}} */
 
-/* {{{ kex_method_list
+
+/* kex_method_list
  * Generate formatted preference list in buf
  */
 static size_t
@@ -989,7 +990,7 @@ kex_method_list(unsigned char *buf, size_t list_strlen,
     return list_strlen + 4;
 }
 
-/* }}} */
+
 
 #define LIBSSH2_METHOD_PREFS_LEN(prefvar, defaultvar) \
     ((prefvar) ? strlen(prefvar) : \
@@ -1006,7 +1007,7 @@ kex_method_list(unsigned char *buf, size_t list_strlen,
                                (LIBSSH2_COMMON_METHOD**)(defaultvar));  \
     }
 
-/* {{{ kexinit
+/* kexinit
  * Send SSH_MSG_KEXINIT packet
  */
 static int kexinit(LIBSSH2_SESSION * session)
@@ -1042,10 +1043,10 @@ static int kexinit(LIBSSH2_SESSION * session)
                                      libssh2_mac_methods());
         comp_cs_len =
             LIBSSH2_METHOD_PREFS_LEN(session->local.comp_prefs,
-                                     libssh2_comp_methods());
+                                     _libssh2_comp_methods());
         comp_sc_len =
             LIBSSH2_METHOD_PREFS_LEN(session->remote.comp_prefs,
-                                     libssh2_comp_methods());
+                                     _libssh2_comp_methods());
         lang_cs_len =
             LIBSSH2_METHOD_PREFS_LEN(session->local.lang_prefs, NULL);
         lang_sc_len =
@@ -1083,9 +1084,9 @@ static int kexinit(LIBSSH2_SESSION * session)
         LIBSSH2_METHOD_PREFS_STR(s, mac_sc_len, session->remote.mac_prefs,
                                  libssh2_mac_methods());
         LIBSSH2_METHOD_PREFS_STR(s, comp_cs_len, session->local.comp_prefs,
-                                 libssh2_comp_methods());
+                                 _libssh2_comp_methods());
         LIBSSH2_METHOD_PREFS_STR(s, comp_sc_len, session->remote.comp_prefs,
-                                 libssh2_comp_methods());
+                                 _libssh2_comp_methods());
         LIBSSH2_METHOD_PREFS_STR(s, lang_cs_len, session->local.lang_prefs,
                                  NULL);
         LIBSSH2_METHOD_PREFS_STR(s, lang_sc_len, session->remote.lang_prefs,
@@ -1166,7 +1167,7 @@ static int kexinit(LIBSSH2_SESSION * session)
 
 /* }}}  */
 
-/* {{{ kex_agree_instr
+/* kex_agree_instr
  * Kex specific variant of strstr()
  * Needle must be preceed by BOL or ',', and followed by ',' or EOL
  */
@@ -1204,9 +1205,9 @@ kex_agree_instr(unsigned char *haystack, unsigned long haystack_len,
     return NULL;
 }
 
-/* }}} */
 
-/* {{{ kex_get_method_by_name
+
+/* kex_get_method_by_name
  */
 static const LIBSSH2_COMMON_METHOD *
 kex_get_method_by_name(const char *name, size_t name_len,
@@ -1222,9 +1223,9 @@ kex_get_method_by_name(const char *name, size_t name_len,
     return NULL;
 }
 
-/* }}} */
 
-/* {{{ kex_agree_hostkey
+
+/* kex_agree_hostkey
  * Agree on a Hostkey which works with this kex
  */
 static int kex_agree_hostkey(LIBSSH2_SESSION * session,
@@ -1299,9 +1300,9 @@ static int kex_agree_hostkey(LIBSSH2_SESSION * session,
     return -1;
 }
 
-/* }}} */
 
-/* {{{ kex_agree_kex_hostkey
+
+/* kex_agree_kex_hostkey
  * Agree on a Key Exchange method and a hostkey encoding type
  */
 static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, unsigned char *kex,
@@ -1374,9 +1375,9 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, unsigned char *kex,
     return -1;
 }
 
-/* }}} */
 
-/* {{{ kex_agree_crypt
+
+/* kex_agree_crypt
  * Agree on a cipher algo
  */
 static int kex_agree_crypt(LIBSSH2_SESSION * session,
@@ -1431,9 +1432,9 @@ static int kex_agree_crypt(LIBSSH2_SESSION * session,
     return -1;
 }
 
-/* }}} */
 
-/* {{{ kex_agree_mac
+
+/* kex_agree_mac
  * Agree on a message authentication hash
  */
 static int kex_agree_mac(LIBSSH2_SESSION * session,
@@ -1484,16 +1485,16 @@ static int kex_agree_mac(LIBSSH2_SESSION * session,
     return -1;
 }
 
-/* }}} */
 
-/* {{{ kex_agree_comp
+
+/* kex_agree_comp
  * Agree on a compression scheme
  */
 static int kex_agree_comp(LIBSSH2_SESSION * session,
                           libssh2_endpoint_data * endpoint, unsigned char *comp,
                           unsigned long comp_len)
 {
-    const LIBSSH2_COMP_METHOD **compp = libssh2_comp_methods();
+    const LIBSSH2_COMP_METHOD **compp = _libssh2_comp_methods();
     unsigned char *s;
     (void) session;
 
@@ -1538,13 +1539,13 @@ static int kex_agree_comp(LIBSSH2_SESSION * session,
     return -1;
 }
 
-/* }}} */
+
 
 /* TODO: When in server mode we need to turn this logic on its head
  * The Client gets to make the final call on "agreed methods"
  */
 
-/* {{{ kex_agree_methods
+/* kex_agree_methods
  * Decide which specific method to use of the methods offered by each party
  */
 static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
@@ -1662,9 +1663,9 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
     return 0;
 }
 
-/* }}} */
 
-/* {{{ libssh2_kex_exchange
+
+/* libssh2_kex_exchange
  * Exchange keys
  * Returns 0 on success, non-zero on failure
  */
@@ -1795,9 +1796,9 @@ libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
     return rc;
 }
 
-/* }}} */
 
-/* {{{ libssh2_session_method_pref
+
+/* libssh2_session_method_pref
  * Set preferred method
  */
 LIBSSH2_API int
@@ -1841,12 +1842,12 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
 
     case LIBSSH2_METHOD_COMP_CS:
         prefvar = &session->local.comp_prefs;
-        mlist = (const LIBSSH2_COMMON_METHOD **) libssh2_comp_methods();
+        mlist = (const LIBSSH2_COMMON_METHOD **) _libssh2_comp_methods();
         break;
 
     case LIBSSH2_METHOD_COMP_SC:
         prefvar = &session->remote.comp_prefs;
-        mlist = (const LIBSSH2_COMMON_METHOD **) libssh2_comp_methods();
+        mlist = (const LIBSSH2_COMMON_METHOD **) _libssh2_comp_methods();
         break;
 
     case LIBSSH2_METHOD_LANG_CS:
@@ -1909,4 +1910,3 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
     return 0;
 }
 
-/* }}} */

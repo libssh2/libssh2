@@ -40,6 +40,8 @@
 # include <zlib.h>
 #endif
 
+#include "comp.h"
+
 /* ********
    * none *
    ******** */
@@ -71,7 +73,7 @@ comp_method_none_comp(LIBSSH2_SESSION * session,
     return 0;
 }
 
-/* }}} */
+
 
 static const LIBSSH2_COMP_METHOD comp_method_none = {
     "none",
@@ -85,13 +87,13 @@ static const LIBSSH2_COMP_METHOD comp_method_none = {
    * zlib *
    ******** */
 
-/* {{{ Memory management wrappers
+/* Memory management wrappers
  * Yes, I realize we're doing a callback to a callback,
  * Deal...
  */
 
 static voidpf
-libssh2_comp_method_zlib_alloc(voidpf opaque, uInt items, uInt size)
+comp_method_zlib_alloc(voidpf opaque, uInt items, uInt size)
 {
     LIBSSH2_SESSION *session = (LIBSSH2_SESSION *) opaque;
 
@@ -99,21 +101,21 @@ libssh2_comp_method_zlib_alloc(voidpf opaque, uInt items, uInt size)
 }
 
 static void
-libssh2_comp_method_zlib_free(voidpf opaque, voidpf address)
+comp_method_zlib_free(voidpf opaque, voidpf address)
 {
     LIBSSH2_SESSION *session = (LIBSSH2_SESSION *) opaque;
 
     LIBSSH2_FREE(session, address);
 }
 
-/* }}} */
 
-/* {{{ libssh2_comp_method_zlib_init
+
+/* libssh2_comp_method_zlib_init
  * All your bandwidth are belong to us (so save some)
  */
 static int
-libssh2_comp_method_zlib_init(LIBSSH2_SESSION * session, int compress,
-                              void **abstract)
+comp_method_zlib_init(LIBSSH2_SESSION * session, int compress,
+                      void **abstract)
 {
     z_stream *strm;
     int status;
@@ -128,8 +130,8 @@ libssh2_comp_method_zlib_init(LIBSSH2_SESSION * session, int compress,
     memset(strm, 0, sizeof(z_stream));
 
     strm->opaque = (voidpf) session;
-    strm->zalloc = (alloc_func) libssh2_comp_method_zlib_alloc;
-    strm->zfree = (free_func) libssh2_comp_method_zlib_free;
+    strm->zalloc = (alloc_func) comp_method_zlib_alloc;
+    strm->zfree = (free_func) comp_method_zlib_free;
     if (compress) {
         /* deflate */
         status = deflateInit(strm, Z_DEFAULT_COMPRESSION);
@@ -147,20 +149,20 @@ libssh2_comp_method_zlib_init(LIBSSH2_SESSION * session, int compress,
     return 0;
 }
 
-/* }}} */
 
-/* {{{ libssh2_comp_method_zlib_comp
+
+/* libssh2_comp_method_zlib_comp
  * zlib, a compression standard for all occasions
  */
 static int
-libssh2_comp_method_zlib_comp(LIBSSH2_SESSION * session,
-                              int compress,
-                              unsigned char **dest,
-                              unsigned long *dest_len,
-                              unsigned long payload_limit,
-                              int *free_dest,
-                              const unsigned char *src,
-                              unsigned long src_len, void **abstract)
+comp_method_zlib_comp(LIBSSH2_SESSION * session,
+                      int compress,
+                      unsigned char **dest,
+                      unsigned long *dest_len,
+                      unsigned long payload_limit,
+                      int *free_dest,
+                      const unsigned char *src,
+                      unsigned long src_len, void **abstract)
 {
     z_stream *strm = *abstract;
     /* A short-term alloc of a full data chunk is better than a series of
@@ -231,8 +233,9 @@ libssh2_comp_method_zlib_comp(LIBSSH2_SESSION * session,
                 compress ? (strm->avail_in + 4) : (2 * strm->avail_in);
         } else
             while (!strm->avail_out) {
-                /* Done with input, might be a byte or two in internal buffer during compress
-                 * Or potentially many bytes if it's a decompress
+                /* Done with input, might be a byte or two in internal buffer
+                 * during compress.  Or potentially many bytes if it's a
+                 * decompress
                  */
                 int grow_size = compress ? 8 : 1024;
                 char *newout;
@@ -285,14 +288,13 @@ libssh2_comp_method_zlib_comp(LIBSSH2_SESSION * session,
     return 0;
 }
 
-/* }}} */
 
-/* {{{ libssh2_comp_method_zlib_dtor
+/* libssh2_comp_method_zlib_dtor
  * All done, no more compression for you
  */
 static int
-libssh2_comp_method_zlib_dtor(LIBSSH2_SESSION * session, int compress,
-                              void **abstract)
+comp_method_zlib_dtor(LIBSSH2_SESSION * session, int compress,
+                      void **abstract)
 {
     z_stream *strm = *abstract;
 
@@ -313,13 +315,11 @@ libssh2_comp_method_zlib_dtor(LIBSSH2_SESSION * session, int compress,
     return 0;
 }
 
-/* }}} */
-
-static const LIBSSH2_COMP_METHOD libssh2_comp_method_zlib = {
+static const LIBSSH2_COMP_METHOD comp_method_zlib = {
     "zlib",
-    libssh2_comp_method_zlib_init,
-    libssh2_comp_method_zlib_comp,
-    libssh2_comp_method_zlib_dtor,
+    comp_method_zlib_init,
+    comp_method_zlib_comp,
+    comp_method_zlib_dtor,
 };
 #endif /* LIBSSH2_HAVE_ZLIB */
 
@@ -327,16 +327,16 @@ static const LIBSSH2_COMP_METHOD libssh2_comp_method_zlib = {
    * Compression Methods *
    *********************** */
 
-static const LIBSSH2_COMP_METHOD *_libssh2_comp_methods[] = {
+static const LIBSSH2_COMP_METHOD *comp_methods[] = {
     &comp_method_none,
 #ifdef LIBSSH2_HAVE_ZLIB
-    &libssh2_comp_method_zlib,
+    &comp_method_zlib,
 #endif /* LIBSSH2_HAVE_ZLIB */
     NULL
 };
 
 const LIBSSH2_COMP_METHOD **
-libssh2_comp_methods(void)
+_libssh2_comp_methods(void)
 {
-    return _libssh2_comp_methods;
+    return comp_methods;
 }
