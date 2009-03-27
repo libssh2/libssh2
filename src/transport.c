@@ -57,7 +57,7 @@ debugdump(LIBSSH2_SESSION * session,
 {
     size_t i;
     size_t c;
-    FILE *stream = stdout;
+    FILE *stream = stderr;
     unsigned int width = 0x10;
 
     if (!(session->showmask & (1 << LIBSSH2_DBG_TRANS))) {
