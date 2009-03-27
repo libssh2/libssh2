@@ -41,7 +41,7 @@
 
 #include "libssh2.h"
 
-int test_libssh2_base64_decode (LIBSSH2_SESSION *session)
+static int test_libssh2_base64_decode (LIBSSH2_SESSION *session)
 {
 	char *data;
 	unsigned int datalen;
@@ -70,6 +70,8 @@ int test_libssh2_base64_decode (LIBSSH2_SESSION *session)
 int main(int argc, char *argv[])
 {
 	LIBSSH2_SESSION *session;
+        (void)argv;
+        (void)argc;
 
 	session = libssh2_session_init();
 	if (!session)
