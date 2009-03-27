@@ -1241,7 +1241,9 @@ int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
 #define BLOCK_ADJUST(rc,sess,x) \
     do { \
        rc = x; \
-       if(!sess->api_block_mode || (rc != LIBSSH2_ERROR_EAGAIN))  \
+       /* the order of the check below is important to properly deal with the
+          case when the 'sess' is freed */ \
+       if((rc != LIBSSH2_ERROR_EAGAIN) || !sess->api_block_mode)  \
            break; \
        rc = _libssh2_wait_socket(sess); \
        if(rc) \
