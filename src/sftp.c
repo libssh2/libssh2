@@ -83,6 +83,24 @@
 /* S_IFDIR */
 #define LIBSSH2_SFTP_ATTR_PFILETYPE_DIR         0040000
 
+/* libssh2_htonu64
+ */
+static void
+_libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
+{
+    unsigned long msl = ((libssh2_uint64_t)value >> 32);
+
+    buf[0] = (msl >> 24) & 0xFF;
+    buf[1] = (msl >> 16) & 0xFF;
+    buf[2] = (msl >> 8) & 0xFF;
+    buf[3] = msl & 0xFF;
+
+    buf[4] = (value >> 24) & 0xFF;
+    buf[5] = (value >> 16) & 0xFF;
+    buf[6] = (value >> 8) & 0xFF;
+    buf[7] = value & 0xFF;
+}
+
 /*
  * sftp_packet_add
  *

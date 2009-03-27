@@ -1137,7 +1137,6 @@ void _libssh2_session_shutdown(LIBSSH2_SESSION * session);
 unsigned int _libssh2_ntohu32(const unsigned char *buf);
 libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
 void _libssh2_htonu32(unsigned char *buf, unsigned int val);
-void _libssh2_htonu64(unsigned char *buf, libssh2_uint64_t val);
 
 #ifdef WIN32
 ssize_t _libssh2_recv(int socket, void *buffer, size_t length, int flags);

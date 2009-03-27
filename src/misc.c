@@ -115,7 +115,7 @@ _libssh2_ntohu32(const unsigned char *buf)
 }
 
 
-/* libssh2_ntohu64
+/* _libssh2_ntohu64
  */
 libssh2_uint64_t
 _libssh2_ntohu64(const unsigned char *buf)
@@ -128,7 +128,7 @@ _libssh2_ntohu64(const unsigned char *buf)
     return ((libssh2_uint64_t)msl <<32) | lsl;
 }
 
-/* libssh2_htonu32
+/* _libssh2_htonu32
  */
 void
 _libssh2_htonu32(unsigned char *buf, unsigned int value)
@@ -137,24 +137,6 @@ _libssh2_htonu32(unsigned char *buf, unsigned int value)
     buf[1] = (value >> 16) & 0xFF;
     buf[2] = (value >> 8) & 0xFF;
     buf[3] = value & 0xFF;
-}
-
-/* libssh2_htonu64
- */
-void
-_libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
-{
-    unsigned long msl = ((libssh2_uint64_t)value >> 32);
-
-    buf[0] = (msl >> 24) & 0xFF;
-    buf[1] = (msl >> 16) & 0xFF;
-    buf[2] = (msl >> 8) & 0xFF;
-    buf[3] = msl & 0xFF;
-
-    buf[4] = (value >> 24) & 0xFF;
-    buf[5] = (value >> 16) & 0xFF;
-    buf[6] = (value >> 8) & 0xFF;
-    buf[7] = value & 0xFF;
 }
 
 /* Base64 Conversion */
@@ -239,8 +221,6 @@ libssh2_base64_decode(LIBSSH2_SESSION * session, char **data,
     *datalen = len;
     return 0;
 }
-
-/* }}} */
 
 #ifdef LIBSSH2DEBUG
 LIBSSH2_API int

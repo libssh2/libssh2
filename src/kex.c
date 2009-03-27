@@ -1166,8 +1166,6 @@ static int kexinit(LIBSSH2_SESSION * session)
     return 0;
 }
 
-/* }}}  */
-
 /* kex_agree_instr
  * Kex specific variant of strstr()
  * Needle must be preceed by BOL or ',', and followed by ',' or EOL

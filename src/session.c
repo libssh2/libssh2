@@ -51,6 +51,8 @@
 #include <alloca.h>
 #endif
 
+#include "transport.h"
+
 /* libssh2_default_alloc
  */
 static
