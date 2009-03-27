@@ -1248,12 +1248,19 @@ int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
            break; \
     } while(1)
 
+/*
+ * For functions that returns a pointer, we need to check if the API is
+ * non-blocking and return immediately. If the pointer is non-NULL we return
+ * immediately. If the API is blocking and we get a NULL we check the errno
+ * and *only* if that is EAGAIN we loop and wait for socket action.
+ */
 #define BLOCK_ADJUST_ERRNO(ptr,sess,x)          \
     do { \
        int rc; \
        ptr = x; \
        if(!sess->api_block_mode || \
-          (libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN)) \
+          (ptr != NULL) || \
+          (libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN) ) \
            break;                                                  \
        rc = _libssh2_wait_socket(sess); \
        if(rc) \
