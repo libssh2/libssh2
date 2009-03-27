@@ -864,7 +864,8 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
         s += filename_len;
         if (open_type == LIBSSH2_SFTP_OPENFILE) {
             _libssh2_htonu32(s, flags);
-            s += 4 + sftp_attr2bin(s, &attrs);
+            s += 4;
+            s += sftp_attr2bin(s, &attrs);
         }
 
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Sending %s open request",
@@ -2067,7 +2068,8 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
         _libssh2_htonu32(s, path_len);
         s += 4;
         memcpy(s, path, path_len);
-        s += path_len + sftp_attr2bin(s, &attrs);
+        s += path_len;
+        s += sftp_attr2bin(s, &attrs);
 
         sftp->mkdir_state = libssh2_NB_state_created;
     }
