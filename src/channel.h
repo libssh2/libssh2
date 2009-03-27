@@ -60,5 +60,15 @@ int _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
  */
 int _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid);
 
+/*
+ * _libssh2_channel_free
+ *
+ * Make sure a channel is closed, then remove the channel from the session
+ * and free its resource(s)
+ *
+ * Returns 0 on success, negative on failure
+ */
+int _libssh2_channel_free(LIBSSH2_CHANNEL *channel);
+
 #endif /* __LIBSSH2_CHANNEL_H */
 

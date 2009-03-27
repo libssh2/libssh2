@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2009 by Daniel Stenberg
  * All rights reserved.
  *
@@ -1467,7 +1467,8 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         }
 
         if (active_fds) {
-            /* Don't block on the sockets if we have channels/listeners which are ready */
+            /* Don't block on the sockets if we have channels/listeners which
+               are ready */
             timeout_remaining = 0;
         }
 #ifdef HAVE_POLL

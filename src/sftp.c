@@ -38,6 +38,7 @@
 
 #include "libssh2_priv.h"
 #include "libssh2_sftp.h"
+#include "channel.h"
 
 /* Note: Version 6 was documented at the time of writing
  * However it was marked as "DO NOT IMPLEMENT" due to pending changes
@@ -82,6 +83,8 @@
 #define LIBSSH2_SFTP_ATTR_PFILETYPE_FILE        0100000
 /* S_IFDIR */
 #define LIBSSH2_SFTP_ATTR_PFILETYPE_DIR         0040000
+
+static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
 
 /* libssh2_htonu64
  */
@@ -516,10 +519,19 @@ LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor)
     (void) session_abstract;
     (void) channel;
 
+#if 0
+    /* EEEK! While it might sound like a neat idea to make this code loop over
+       all the outstanding handles and close them, that is going to cause
+       EAGAIN to get returned and this callback system is not designed to
+       handle this very nicely so thus we now DEMAND that the app closes its
+       handles instead!
+    */
+
     /* Loop through handles closing them */
     while (sftp->handles) {
-        libssh2_sftp_close_handle(sftp->handles);
+        sftp_close_handle(sftp->handles);
     }
+#endif
 
     /* Free the partial packet storage for sftp_packet_read */
     if (sftp->partial_packet) {
@@ -688,7 +700,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     }
     LIBSSH2_FREE(session, data);
 
-    /* Make sure that when the channel gets closed, the SFTP service is shut down too */
+    /* Make sure that when the channel gets closed, the SFTP service is shut
+       down too */
     session->sftpInit_sftp->channel->abstract = session->sftpInit_sftp;
     session->sftpInit_sftp->channel->close_cb = libssh2_sftp_dtor;
 
@@ -718,61 +731,79 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
     return ptr;
 }
 
+/*
+ * sftp_shutdown
+ *
+ * Shutsdown the SFTP subsystem
+ */
+static int
+sftp_shutdown(LIBSSH2_SFTP *sftp)
+{
+    int rc;
+    LIBSSH2_SESSION *session = sftp->channel->session;
+    /*
+     * Make sure all memory used in the state variables are free
+     */
+    if (sftp->partial_packet) {
+        LIBSSH2_FREE(session, sftp->partial_packet);
+        sftp->partial_packet = NULL;
+    }
+    if (sftp->open_packet) {
+        LIBSSH2_FREE(session, sftp->open_packet);
+        sftp->open_packet = NULL;
+    }
+    if (sftp->readdir_packet) {
+        LIBSSH2_FREE(session, sftp->readdir_packet);
+        sftp->readdir_packet = NULL;
+    }
+    if (sftp->write_packet) {
+        LIBSSH2_FREE(session, sftp->write_packet);
+        sftp->write_packet = NULL;
+    }
+    if (sftp->fstat_packet) {
+        LIBSSH2_FREE(session, sftp->fstat_packet);
+        sftp->fstat_packet = NULL;
+    }
+    if (sftp->unlink_packet) {
+        LIBSSH2_FREE(session, sftp->unlink_packet);
+        sftp->unlink_packet = NULL;
+    }
+    if (sftp->rename_packet) {
+        LIBSSH2_FREE(session, sftp->rename_packet);
+        sftp->rename_packet = NULL;
+    }
+    if (sftp->mkdir_packet) {
+        LIBSSH2_FREE(session, sftp->mkdir_packet);
+        sftp->mkdir_packet = NULL;
+    }
+    if (sftp->rmdir_packet) {
+        LIBSSH2_FREE(session, sftp->rmdir_packet);
+        sftp->rmdir_packet = NULL;
+    }
+    if (sftp->stat_packet) {
+        LIBSSH2_FREE(session, sftp->stat_packet);
+        sftp->stat_packet = NULL;
+    }
+    if (sftp->symlink_packet) {
+        LIBSSH2_FREE(session, sftp->symlink_packet);
+        sftp->symlink_packet = NULL;
+    }
+
+    rc = _libssh2_channel_free(sftp->channel);
+
+    return rc;
+}
+
 /* libssh2_sftp_shutdown
  * Shutsdown the SFTP subsystem
  */
 LIBSSH2_API int
 libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp)
 {
-    /*
-     * Make sure all memory used in the state variables are free
-     */
-    if (sftp->partial_packet) {
-        LIBSSH2_FREE(sftp->channel->session, sftp->partial_packet);
-        sftp->partial_packet = NULL;
-    }
-    if (sftp->open_packet) {
-        LIBSSH2_FREE(sftp->channel->session, sftp->open_packet);
-        sftp->open_packet = NULL;
-    }
-    if (sftp->readdir_packet) {
-        LIBSSH2_FREE(sftp->channel->session, sftp->readdir_packet);
-        sftp->readdir_packet = NULL;
-    }
-    if (sftp->write_packet) {
-        LIBSSH2_FREE(sftp->channel->session, sftp->write_packet);
-        sftp->write_packet = NULL;
-    }
-    if (sftp->fstat_packet) {
-        LIBSSH2_FREE(sftp->channel->session, sftp->fstat_packet);
-        sftp->fstat_packet = NULL;
-    }
-    if (sftp->unlink_packet) {
-        LIBSSH2_FREE(sftp->channel->session, sftp->unlink_packet);
-        sftp->unlink_packet = NULL;
-    }
-    if (sftp->rename_packet) {
-        LIBSSH2_FREE(sftp->channel->session, sftp->rename_packet);
-        sftp->rename_packet = NULL;
-    }
-    if (sftp->mkdir_packet) {
-        LIBSSH2_FREE(sftp->channel->session, sftp->mkdir_packet);
-        sftp->mkdir_packet = NULL;
-    }
-    if (sftp->rmdir_packet) {
-        LIBSSH2_FREE(sftp->channel->session, sftp->rmdir_packet);
-        sftp->rmdir_packet = NULL;
-    }
-    if (sftp->stat_packet) {
-        LIBSSH2_FREE(sftp->channel->session, sftp->stat_packet);
-        sftp->stat_packet = NULL;
-    }
-    if (sftp->symlink_packet) {
-        LIBSSH2_FREE(sftp->channel->session, sftp->symlink_packet);
-        sftp->symlink_packet = NULL;
-    }
-
-    return libssh2_channel_free(sftp->channel);
+    int rc;
+    BLOCK_ADJUST(rc, sftp->channel->session,
+                 sftp_shutdown(sftp));
+    return rc;
 }
 
 /* *******************************

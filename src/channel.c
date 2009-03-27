@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2008-2009 by Daniel Stenberg
  *
  * All rights reserved.
@@ -2302,9 +2302,6 @@ channel_close(LIBSSH2_CHANNEL * channel)
         _libssh2_debug(session, LIBSSH2_DBG_CONN, "Closing channel %lu/%lu",
                        channel->local.id, channel->remote.id);
 
-        if (channel->close_cb) {
-            LIBSSH2_CHANNEL_CLOSE(session, channel);
-        }
         channel->local.close = 1;
 
         channel->close_packet[0] = SSH_MSG_CHANNEL_CLOSE;
@@ -2329,18 +2326,23 @@ channel_close(LIBSSH2_CHANNEL * channel)
 
     if (channel->close_state == libssh2_NB_state_sent) {
         /* We must wait for the remote SSH_MSG_CHANNEL_CLOSE message */
-        if (!channel->remote.close) {
-            libssh2pack_t ret;
 
-            do {
-                ret = _libssh2_transport_read(session);
-                if (ret == PACKET_EAGAIN) {
-                    return PACKET_EAGAIN;
-                } else if (ret < 0) {
-                    rc = -1;
-                }
-            } while ((ret != SSH_MSG_CHANNEL_CLOSE) && (rc == 0));
+        while (!channel->remote.close && !rc) {
+            rc = _libssh2_transport_read(session);
+            if (rc == PACKET_EAGAIN) {
+                return PACKET_EAGAIN;
+            }
+            else if (rc < 0)
+                rc = -1;
+            else
+                rc = 0;
         }
+    }
+
+    /* We call the callback last in this function to make it keep the local
+       data as long as EAGAIN is returned. */
+    if (channel->close_cb) {
+        LIBSSH2_CHANNEL_CLOSE(session, channel);
     }
 
     channel->close_state = libssh2_NB_state_idle;
@@ -2357,9 +2359,7 @@ LIBSSH2_API int
 libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 {
     int rc;
-
     BLOCK_ADJUST(rc, channel->session, channel_close(channel) );
-
     return rc;
 }
 
@@ -2420,14 +2420,14 @@ libssh2_channel_wait_closed(LIBSSH2_CHANNEL *channel)
 }
 
 /*
- * channel_free
+ * _libssh2_channel_free
  *
  * Make sure a channel is closed, then remove the channel from the session
  * and free its resource(s)
  *
  * Returns 0 on success, negative on failure
  */
-static int channel_free(LIBSSH2_CHANNEL *channel)
+int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char channel_id[4];
@@ -2527,7 +2527,7 @@ LIBSSH2_API int
 libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 {
     int rc;
-    BLOCK_ADJUST(rc, channel->session, channel_free(channel));
+    BLOCK_ADJUST(rc, channel->session, _libssh2_channel_free(channel));
     return rc;
 }
 /*
