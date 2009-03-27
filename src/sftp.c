@@ -36,6 +36,8 @@
  * OF SUCH DAMAGE.
  */
 
+#include <assert.h>
+
 #include "libssh2_priv.h"
 #include "libssh2_sftp.h"
 #include "channel.h"
@@ -561,6 +563,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         _libssh2_debug(session, LIBSSH2_DBG_SFTP,
                        "Initializing SFTP subsystem");
 
+        assert(session->sftpInit_sftp == NULL);
+
         session->sftpInit_sftp = NULL;
 
         session->sftpInit_state = libssh2_NB_state_created;
@@ -575,14 +579,13 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
             if (libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
                 libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                               "Would block starting up channel", 0);
-                return NULL;
-            } else if (libssh2_session_last_errno(session) !=
-                       LIBSSH2_ERROR_EAGAIN) {
+            }
+            else {
                 libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
                               "Unable to startup channel", 0);
                 session->sftpInit_state = libssh2_NB_state_idle;
-                return NULL;
             }
+            return NULL;
         }
 
         session->sftpInit_state = libssh2_NB_state_sent;
@@ -607,8 +610,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     }
 
     if (session->sftpInit_state == libssh2_NB_state_sent1) {
-        rc = libssh2_channel_handle_extended_data2(session->sftpInit_channel,
-                                                   LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE);
+        rc = _libssh2_channel_extended_data(session->sftpInit_channel,
+                                            LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE);
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block requesting handle extended data", 0);
@@ -709,7 +712,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     return session->sftpInit_sftp;
 
   sftp_init_error:
-    while (libssh2_channel_free(session->sftpInit_channel) == PACKET_EAGAIN);
+    while (_libssh2_channel_free(session->sftpInit_channel) == PACKET_EAGAIN);
     session->sftpInit_channel = NULL;
     if (session->sftpInit_sftp) {
         LIBSSH2_FREE(session, session->sftpInit_sftp);

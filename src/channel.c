@@ -1672,8 +1672,8 @@ libssh2_channel_receive_window_adjust2(LIBSSH2_CHANNEL *channel,
     return rc;
 }
 
-static int
-channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
+int
+_libssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
 {
     if (channel->extData2_state == libssh2_NB_state_idle) {
         _libssh2_debug(channel->session, LIBSSH2_DBG_CONN,
@@ -1708,7 +1708,8 @@ libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
                                       int mode)
 {
     int rc;
-    BLOCK_ADJUST(rc, channel->session, channel_extended_data(channel, mode));
+    BLOCK_ADJUST(rc, channel->session, _libssh2_channel_extended_data(channel,
+                                                                      mode));
     return rc;
 }
 
