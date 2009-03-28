@@ -35,7 +35,7 @@
  *
  */
 
-#include "libssh2.h"
+#include "libssh2_priv.h"
 
 /*
   libssh2_version() can be used like this:
