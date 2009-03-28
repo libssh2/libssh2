@@ -572,11 +572,11 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
  * Read a PEM encoded private key from an id_??? style file
  */
 static int
-libssh2_file_read_privatekey(LIBSSH2_SESSION * session,
-                             const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
-                             void **hostkey_abstract,
-                             const unsigned char *method, int method_len,
-                             const char *privkeyfile, const char *passphrase)
+file_read_privatekey(LIBSSH2_SESSION * session,
+                     const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
+                     void **hostkey_abstract,
+                     const unsigned char *method, int method_len,
+                     const char *privkeyfile, const char *passphrase)
 {
     const LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail =
         libssh2_hostkey_methods();
@@ -692,7 +692,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         session->userauth_host_s += 9;
 
         _libssh2_htonu32(session->userauth_host_s,
-                        session->userauth_host_method_len);
+                         session->userauth_host_method_len);
         session->userauth_host_s += 4;
         memcpy(session->userauth_host_s, session->userauth_host_method,
                session->userauth_host_method_len);
@@ -713,9 +713,10 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         memcpy(session->userauth_host_s, local_username, local_username_len);
         session->userauth_host_s += local_username_len;
 
-        if (libssh2_file_read_privatekey
-            (session, &privkeyobj, &abstract, session->userauth_host_method,
-             session->userauth_host_method_len, privatekey, passphrase)) {
+        if (file_read_privatekey(session, &privkeyobj, &abstract,
+                                 session->userauth_host_method,
+                                 session->userauth_host_method_len,
+                                 privatekey, passphrase)) {
             LIBSSH2_FREE(session, session->userauth_host_method);
             session->userauth_host_method = NULL;
             LIBSSH2_FREE(session, session->userauth_host_packet);
@@ -772,11 +773,11 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             session->userauth_host_packet + session->userauth_host_packet_len;
 
         _libssh2_htonu32(session->userauth_host_s,
-                        4 + session->userauth_host_method_len + 4 + sig_len);
+                         4 + session->userauth_host_method_len + 4 + sig_len);
         session->userauth_host_s += 4;
 
         _libssh2_htonu32(session->userauth_host_s,
-                        session->userauth_host_method_len);
+                         session->userauth_host_method_len);
         session->userauth_host_s += 4;
         memcpy(session->userauth_host_s, session->userauth_host_method,
                session->userauth_host_method_len);
@@ -798,8 +799,8 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
 
     if (session->userauth_host_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, session->userauth_host_packet,
-                                  session->userauth_host_s -
-                                  session->userauth_host_packet);
+                                      session->userauth_host_s -
+                                      session->userauth_host_packet);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
@@ -825,10 +826,11 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                       userauth_host_packet_requirev_state);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
-        } else if (rc) {
-            session->userauth_host_state = libssh2_NB_state_idle;
-            return -1;
         }
+
+        session->userauth_host_state = libssh2_NB_state_idle;
+        if (rc)
+            return -1;
 
         if (session->userauth_host_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
             _libssh2_debug(session, LIBSSH2_DBG_AUTH,
@@ -837,7 +839,6 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             LIBSSH2_FREE(session, session->userauth_host_data);
             session->userauth_host_data = NULL;
             session->state |= LIBSSH2_STATE_AUTHENTICATED;
-            session->userauth_host_state = libssh2_NB_state_idle;
             return 0;
         }
     }
@@ -849,7 +850,6 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                   "Invalid signature for supplied public key, or bad "
                   "username/public key combination",
                   0);
-    session->userauth_host_state = libssh2_NB_state_idle;
     return -1;
 }
 
@@ -1057,9 +1057,10 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
         LIBSSH2_FREE(session, session->userauth_pblc_data);
         session->userauth_pblc_data = NULL;
 
-        if (libssh2_file_read_privatekey
-            (session, &privkeyobj, &abstract, session->userauth_pblc_method,
-             session->userauth_pblc_method_len, privatekey, passphrase)) {
+        if (file_read_privatekey(session, &privkeyobj, &abstract,
+                                 session->userauth_pblc_method,
+                                 session->userauth_pblc_method_len,
+                                 privatekey, passphrase)) {
             LIBSSH2_FREE(session, session->userauth_pblc_method);
             session->userauth_pblc_method = NULL;
             LIBSSH2_FREE(session, session->userauth_pblc_packet);
@@ -1127,11 +1128,11 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
         session->userauth_pblc_b = NULL;
 
         _libssh2_htonu32(session->userauth_pblc_s,
-                        4 + session->userauth_pblc_method_len + 4 + sig_len);
+                         4 + session->userauth_pblc_method_len + 4 + sig_len);
         session->userauth_pblc_s += 4;
 
         _libssh2_htonu32(session->userauth_pblc_s,
-                        session->userauth_pblc_method_len);
+                         session->userauth_pblc_method_len);
         session->userauth_pblc_s += 4;
         memcpy(session->userauth_pblc_s, session->userauth_pblc_method,
                session->userauth_pblc_method_len);
@@ -1153,8 +1154,8 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
 
     if (session->userauth_pblc_state == libssh2_NB_state_sent1) {
         rc = _libssh2_transport_write(session, session->userauth_pblc_packet,
-                                  session->userauth_pblc_s -
-                                  session->userauth_pblc_packet);
+                                      session->userauth_pblc_s -
+                                      session->userauth_pblc_packet);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (rc) {
