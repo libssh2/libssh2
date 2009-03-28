@@ -468,6 +468,8 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username,
  * file_read_publickey
  *
  * Read a public key from an id_???.pub style file
+ *
+ * Returns an allocated string in *pubkeydata on success.
  */
 static int
 file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
@@ -553,8 +555,8 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
         sp2 = pubkey + pubkey_len;
     }
 
-    if (libssh2_base64_decode
-        (session, (char **) &tmp, &tmp_len, (char *) sp1, sp2 - sp1)) {
+    if (libssh2_base64_decode(session, (char **) &tmp, &tmp_len,
+                              (char *) sp1, sp2 - sp1)) {
         libssh2_error(session, LIBSSH2_ERROR_FILE,
                       "Invalid key data, not base64 encoded", 0);
         LIBSSH2_FREE(session, pubkey);
@@ -672,6 +674,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         if (!session->userauth_host_packet) {
             LIBSSH2_FREE(session, session->userauth_host_method);
             session->userauth_host_method = NULL;
+            LIBSSH2_FREE(session, pubkeydata);
             return -1;
         }
 
@@ -681,11 +684,13 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         memcpy(session->userauth_host_s, username, username_len);
         session->userauth_host_s += username_len;
 
+        /* TODO: change the hideous '14' to a nice defined */
         _libssh2_htonu32(session->userauth_host_s, 14);
         session->userauth_host_s += 4;
         memcpy(session->userauth_host_s, "ssh-connection", 14);
         session->userauth_host_s += 14;
 
+        /* TODO: change the hideous '9' to a nice defined */
         _libssh2_htonu32(session->userauth_host_s, 9);
         session->userauth_host_s += 4;
         memcpy(session->userauth_host_s, "hostbased", 9);
@@ -702,6 +707,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         session->userauth_host_s += 4;
         memcpy(session->userauth_host_s, pubkeydata, pubkeydata_len);
         session->userauth_host_s += pubkeydata_len;
+        LIBSSH2_FREE(session, pubkeydata);
 
         _libssh2_htonu32(session->userauth_host_s, hostname_len);
         session->userauth_host_s += 4;

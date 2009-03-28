@@ -1,3 +1,9 @@
+- (Mar 28 2009) Daniel Stenberg:
+
+  Jean-Louis Charton found a memory leak in
+  libssh2_userauth_hostbased_fromfile_ex()
+
+- (Mar 25 2009) Daniel Stenberg:
 
    * Renamed the functions in src/transport.c to be _libssh2_transport_ prefixed
      and introduced a transport.h header.
