@@ -73,5 +73,36 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel);
 int
 _libssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode);
 
+/*
+ * _libssh2_channel_write
+ *
+ * Send data to a channel
+ */
+ssize_t
+_libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
+                       const char *buf, size_t buflen);
+
+/*
+ * _libssh2_channel_open
+ *
+ * Establish a generic session channel
+ */
+LIBSSH2_CHANNEL *
+_libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
+                      unsigned int channel_type_len,
+                      unsigned int window_size, unsigned int packet_size,
+                      const char *message, unsigned int message_len);
+
+
+/*
+ * _libssh2_channel_process_startup
+ *
+ * Primitive for libssh2_channel_(shell|exec|subsystem)
+ */
+int
+_libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
+                                 const char *request, unsigned int request_len,
+                                 const char *message, unsigned int message_len);
+
 #endif /* __LIBSSH2_CHANNEL_H */
 

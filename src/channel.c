@@ -116,15 +116,15 @@ _libssh2_channel_locate(LIBSSH2_SESSION * session, unsigned long channel_id)
 }
 
 /*
- * channel_open
+ * _libssh2_channel_open
  *
  * Establish a generic session channel
  */
-static LIBSSH2_CHANNEL *
-channel_open(LIBSSH2_SESSION * session, const char *channel_type,
-             unsigned int channel_type_len,
-             unsigned int window_size, unsigned int packet_size,
-             const char *message, unsigned int message_len)
+LIBSSH2_CHANNEL *
+_libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
+                      unsigned int channel_type_len,
+                      unsigned int window_size, unsigned int packet_size,
+                      const char *message, unsigned int message_len)
 {
     static const unsigned char reply_codes[3] = {
         SSH_MSG_CHANNEL_OPEN_CONFIRMATION,
@@ -342,9 +342,10 @@ libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *type,
                         const char *msg, unsigned int msg_len)
 {
     LIBSSH2_CHANNEL *ptr;
-    BLOCK_ADJUST_ERRNO(ptr, session, channel_open(session, type, type_len,
-                                                  window_size, packet_size,
-                                                  msg, msg_len));
+    BLOCK_ADJUST_ERRNO(ptr, session,
+                       _libssh2_channel_open(session, type, type_len,
+                                             window_size, packet_size,
+                                             msg, msg_len));
     return ptr;
 }
 
@@ -1304,14 +1305,14 @@ libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection,
 
 
 /*
- * libssh2_channel_process_startup
+ * _libssh2_channel_process_startup
  *
  * Primitive for libssh2_channel_(shell|exec|subsystem)
  */
-static int
-channel_process_startup(LIBSSH2_CHANNEL *channel,
-                        const char *request, unsigned int request_len,
-                        const char *message, unsigned int message_len)
+int
+_libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
+                                 const char *request, unsigned int request_len,
+                                 const char *message, unsigned int message_len)
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s, *data;
@@ -1424,7 +1425,8 @@ libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
 {
     int rc;
     BLOCK_ADJUST(rc, channel->session,
-                 channel_process_startup(channel, req, req_len, msg, msg_len));
+                 _libssh2_channel_process_startup(channel, req, req_len,
+                                                  msg, msg_len));
     return rc;
 }
 
@@ -1985,13 +1987,13 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
 }
 
 /*
- * channel_write
+ * _libssh2_channel_write
  *
  * Send data to a channel
  */
-static ssize_t
-channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
-              const char *buf, size_t buflen)
+ssize_t
+_libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
+                       const char *buf, size_t buflen)
 {
     LIBSSH2_SESSION *session = channel->session;
     libssh2pack_t rc;
@@ -2161,7 +2163,7 @@ libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 {
     ssize_t rc;
     BLOCK_ADJUST(rc, channel->session,
-                 channel_write(channel, stream_id, buf, buflen));
+                 _libssh2_channel_write(channel, stream_id, buf, buflen));
     return rc;
 }
 
