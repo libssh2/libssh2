@@ -1057,10 +1057,6 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
         }
 
         state->start = time(NULL);
-
-        _libssh2_debug(session, LIBSSH2_DBG_TRANS,
-                       "May block until packet of type %d becomes available",
-                       (int) packet_type);
     }
 
     while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
