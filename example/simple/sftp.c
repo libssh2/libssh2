@@ -1,5 +1,5 @@
 /*
- * $Id: sftp.c,v 1.15 2008/11/10 16:48:41 bagder Exp $
+ * $Id: sftp.c,v 1.16 2009/03/31 12:20:36 bagder Exp $
  *
  * Sample showing how to do SFTP transfers.
  *
@@ -131,9 +131,6 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* Since we have not set non-blocking, tell libssh2 we are blocking */
-    libssh2_session_set_blocking(session, 1);
-
     /* At this point we havn't yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
@@ -206,9 +203,6 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Unable to init SFTP session\n");
         goto shutdown;
     }
-
-    /* Since we have not set non-blocking, tell libssh2 we are blocking */
-    libssh2_session_set_blocking(session, 1);
 
     fprintf(stderr, "libssh2_sftp_open()!\n");
     /* Request a file via SFTP */

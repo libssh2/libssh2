@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_write.c,v 1.9 2008/11/10 16:48:41 bagder Exp $
+ * $Id: sftp_write.c,v 1.10 2009/03/31 12:20:36 bagder Exp $
  *
  * Sample showing how to do SFTP write transfers.
  *
@@ -154,9 +154,6 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Unable to init SFTP session\n");
         goto shutdown;
     }
-
-    /* Since we have not set non-blocking, tell libssh2 we are blocking */
-    libssh2_session_set_blocking(session, 1);
 
     fprintf(stderr, "libssh2_sftp_open()!\n");
     /* Request a file via SFTP */

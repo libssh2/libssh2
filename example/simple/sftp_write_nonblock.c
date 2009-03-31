@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_write_nonblock.c,v 1.12 2008/11/10 16:48:41 bagder Exp $
+ * $Id: sftp_write_nonblock.c,v 1.13 2009/03/31 12:20:36 bagder Exp $
  *
  * Sample showing how to do SFTP non-blocking write transfers.
  *
@@ -179,9 +179,6 @@ int main(int argc, char *argv[])
             goto shutdown;
         }
     } while (!sftp_session);
-
-    /* Since we have set non-blocking, tell libssh2 we are non-blocking */
-    libssh2_session_set_blocking(session, 0);
 
     fprintf(stderr, "libssh2_sftp_open()!\n");
     /* Request a file via SFTP */
