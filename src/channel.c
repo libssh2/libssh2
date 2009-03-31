@@ -2305,8 +2305,6 @@ channel_close(LIBSSH2_CHANNEL * channel)
         _libssh2_debug(session, LIBSSH2_DBG_CONN, "Closing channel %lu/%lu",
                        channel->local.id, channel->remote.id);
 
-        channel->local.close = 1;
-
         channel->close_packet[0] = SSH_MSG_CHANNEL_CLOSE;
         _libssh2_htonu32(channel->close_packet + 1, channel->remote.id);
 
@@ -2341,6 +2339,10 @@ channel_close(LIBSSH2_CHANNEL * channel)
                 rc = 0;
         }
     }
+
+    /* set the local close state first when we're perfectly confirmed to not
+       do any more EAGAINs */
+    channel->local.close = 1;
 
     /* We call the callback last in this function to make it keep the local
        data as long as EAGAIN is returned. */
