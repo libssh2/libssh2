@@ -1894,7 +1894,8 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    unsigned long data_len, retcode;
+    unsigned long data_len;
+    int retcode;
     ssize_t packet_len =
         source_filename_len + dest_filename_len + 17 + (sftp->version >=
                                                         5 ? 4 : 0);
