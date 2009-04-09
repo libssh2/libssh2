@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.netware,v 1.13 2009/03/06 07:25:37 gknauf Exp $
+## $Id: Makefile.netware,v 1.14 2009/04/09 03:13:51 gknauf Exp $
 #
 #########################################################################
 
@@ -21,7 +21,7 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8j
+OPENSSL_PATH = ../../openssl-0.9.8k
 endif
 
 # Edit the path below to point to your Distribution folder.
@@ -76,7 +76,7 @@ ifdef METROWERKS
 	MWCW_PATH = $(subst \,/,$(METROWERKS))/Novell Support/Metrowerks Support
 	CC = mwccnlm
 else
-	CC = gcc
+	CC = $(CROSSPREFIX)gcc
 endif
 CP	= cp -afv
 # RM	= rm -f
@@ -119,12 +119,12 @@ else
 	CFLAGS += -align 1
 endif
 else
-LD	= nlmconv
+LD	= $(CROSSPREFIX)nlmconv
 LDFLAGS	= -T
-AR	= ar
+AR	= $(CROSSPREFIX)ar
 ARFLAGS	= -cq
 LIBEXT	= a
-RANLIB	= ranlib
+RANLIB	= $(CROSSPREFIX)ranlib
 CFLAGS	+= -fno-builtin -fpcc-struct-return -fno-strict-aliasing
 CFLAGS	+= -Wall # -pedantic
 #CFLAGS	+= -Wno-pointer-sign

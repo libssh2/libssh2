@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.win32,v 1.7 2009/03/06 07:25:49 gknauf Exp $
+## $Id: Makefile.win32,v 1.8 2009/04/09 03:14:05 gknauf Exp $
 #
 #########################################################################
 
@@ -16,7 +16,7 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../../openssl-0.9.8j
+OPENSSL_PATH = ../../../openssl-0.9.8k
 endif
 
 # Edit the var below to enable static linking of libssh2 and libz
@@ -51,7 +51,7 @@ endif
 ifdef METROWERKS
 	CC = mwcc
 else
-	CC = gcc
+	CC = $(CROSSPREFIX)gcc
 endif
 CP	= cp -afv
 # RM	= rm -f
@@ -79,19 +79,20 @@ CFLAGS	+= -nostdinc -gccinc -msgstyle gcc -inline off -opt nointrinsics -proc 58
 CFLAGS	+= -ir "$(METROWERKS)/MSL" -ir "$(METROWERKS)/Win32-x86 Support"
 CFLAGS	+= -w on,nounused,nounusedexpr # -ansi strict
 else
-LD	= gcc
-RC	= windres
+LD	= $(CROSSPREFIX)gcc
+RC	= $(CROSSPREFIX)windres
 LDFLAGS	= -s
-AR	= ar
+AR	= $(CROSSPREFIX)ar
 ARFLAGS	= -cq
 LIBEXT	= a
 #LDLIBS	+= -lwsock32
 LDLIBS	+= -lws2_32
 RCFLAGS	= -O coff -i
-CFLAGS	+= -fno-strict-aliasing -Wall -Wno-unused # -pedantic
+CFLAGS	+= -fno-strict-aliasing
+CFLAGS	+= -Wall #-Wno-unused #-pedantic
 endif
 
-INCLUDES = -I. -I.. -I../../include
+INCLUDES = -I.. -I../../include
 INCLUDES += -I$(OPENSSL_PATH)/outinc -I$(OPENSSL_PATH)/outinc/openssl
 #LIBPATH += -L$(OPENSSL_PATH)/out
 LIBPATH += -L..

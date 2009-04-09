@@ -5,7 +5,7 @@
 ##
 ## Comments to: Guenter Knauf <eflash@gmx.net>
 ##
-## $Id: Makefile.netware,v 1.9 2009/03/06 07:25:37 gknauf Exp $
+## $Id: Makefile.netware,v 1.10 2009/04/09 03:13:52 gknauf Exp $
 #
 #########################################################################
 
@@ -21,7 +21,7 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../../openssl-0.9.8j
+OPENSSL_PATH = ../../../openssl-0.9.8k
 endif
 
 # Edit the var below to enable static linking of libssh2 and libz
@@ -70,7 +70,7 @@ ifdef METROWERKS
 	MWCW_PATH = $(subst \,/,$(METROWERKS))/Novell Support/Metrowerks Support
 	CC = mwccnlm
 else
-	CC = gcc
+	CC = $(CROSSPREFIX)gcc
 endif
 CP	= cp -afv
 # RM	= rm -f
@@ -131,7 +131,7 @@ SDK_CLIB = $(NDK_ROOT)/nwsdk
 SDK_LIBC = $(NDK_ROOT)/libc
 SNPRINTF = $(NDKBASE)/snprintf
 
-INCLUDES = -I. -I../../include
+INCLUDES = -I.. -I../../include
 
 LDLIBS =
  
