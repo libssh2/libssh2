@@ -1,19 +1,7 @@
 Things TODO
 ===========
 
-* Add one of the missing man pages:
-
-  libssh2_channel_receive_window_adjust
-  libssh2_channel_request_pty_size_ex
-  libssh2_channel_window_read_ex
-  libssh2_channel_window_write_ex
-  libssh2_publickey_add_ex
-  libssh2_publickey_init
-  libssh2_publickey_list_fetch
-  libssh2_publickey_list_free
-  libssh2_publickey_remove_ex
-  libssh2_publickey_shutdown
-  libssh2_userauth_hostbased_fromfile_ex
+* Add more info to the man pages.
 
 * Decrease the number of mallocs. Everywhere.
 
@@ -21,14 +9,16 @@ Things TODO
 
 * Extend the test suite to actually test lots of aspects of libssh2
 
-* libssh2_channel_receive_window_adjust() can return EAGAIN while documented
-  to return the window as an "unsigned long".
+* Fix all compiler warnings (some can't be done without API changes)
 
 At next SONAME bump
 ===================
 
 * stop using #defined macros as part of the official API. The macros should
   either be turned into real functions or discarded from the API.
+
+* fix the parts of the API where object pointers and function pointers are
+  mixed like libssh2_session_callback_set()
 
 * remove the following functions from the API/ABI
 
