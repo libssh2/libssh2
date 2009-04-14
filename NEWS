@@ -1,3 +1,11 @@
+
+* (Apr 14 2009) Daniel Stenberg:
+
+  libssh2_poll() and libssh2_poll_channel_read() are now considered and
+  documented deprecated and they will be removed at next soname bump. It also
+  saves us from fixing some rather quirky bugs in libssh2_poll()...
+
+
 Version 1.1 (April 2, 2009)
 ---------------------------
 

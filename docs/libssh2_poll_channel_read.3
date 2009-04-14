@@ -1,4 +1,4 @@
-.\" $Id: libssh2_poll_channel_read.3,v 1.2 2007/06/13 12:51:11 jehousley Exp $
+.\" $Id: libssh2_poll_channel_read.3,v 1.3 2009/04/14 21:38:36 bagder Exp $
 .\"
 .TH libssh2_poll_channel_read 3 "14 Dec 2006" "libssh2 0.15" "libssh2 manual"
 .SH NAME
@@ -8,6 +8,8 @@ libssh2_poll_channel_read - check if data is available
 
 int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended);
 .SH DESCRIPTION
+This function is deprecated. Do note use.
+
 \fIlibssh2_poll_channel_read(3)\fP checks to see if data is available in the
 \fIchannel\fP's read buffer. No attempt is made with this method to see if
 packets are available to be processed. For full polling support, use
