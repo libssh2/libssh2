@@ -1,5 +1,5 @@
 /*
- * $Id: sftp_write_nonblock.c,v 1.13 2009/03/31 12:20:36 bagder Exp $
+ * $Id: sftp_write_nonblock.c,v 1.14 2009/04/28 10:35:30 bagder Exp $
  *
  * Sample showing how to do SFTP non-blocking write transfers.
  *
@@ -224,10 +224,8 @@ shutdown:
     libssh2_session_free(session);
 
 #ifdef WIN32
-    Sleep(1000);
     closesocket(sock);
 #else
-    sleep(1);
     close(sock);
 #endif
     printf("all done\n");

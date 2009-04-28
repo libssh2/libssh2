@@ -1,5 +1,5 @@
 /*
- * $Id: sftp.c,v 1.16 2009/03/31 12:20:36 bagder Exp $
+ * $Id: sftp.c,v 1.17 2009/04/28 10:35:30 bagder Exp $
  *
  * Sample showing how to do SFTP transfers.
  *
@@ -236,10 +236,8 @@ int main(int argc, char *argv[])
     libssh2_session_free(session);
 
 #ifdef WIN32
-    Sleep(1000);
     closesocket(sock);
 #else
-    sleep(1);
     close(sock);
 #endif
     fprintf(stderr, "all done\n");
