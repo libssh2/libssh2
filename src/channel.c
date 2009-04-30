@@ -1794,8 +1794,15 @@ static ssize_t channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
 
     channel->read_packet = session->packets.head;
     while (channel->read_packet &&
-           !channel->remote.close &&
            (bytes_read < (int) buflen)) {
+        /* previously this loop condition also checked for
+           !channel->remote.close but we cannot let it do this:
+
+           We may have a series of packets to read that are still pending even
+           if a close has been received. Acknowledging the close too early
+           makes us flush buffers prematurely and loose data.
+        */
+
         LIBSSH2_PACKET *readpkt = channel->read_packet;
 
         /* In case packet gets destroyed during this iteration */

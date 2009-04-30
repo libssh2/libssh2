@@ -1,4 +1,12 @@
 
+* (Apr 30 2009) Daniel Stenberg:
+
+  Markus posted a bug report about a bad 0-return from libssh2_channel_read:
+  http://libssh2.haxx.se/mail/libssh2-devel-archive-2009-04/0076.shtml
+
+  And it was indeed a bad loop that terminated too early due to a receveived
+  close packet.
+
 * (Apr 14 2009) Daniel Stenberg:
 
   libssh2_poll() and libssh2_poll_channel_read() are now considered and
