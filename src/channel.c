@@ -1758,28 +1758,18 @@ static ssize_t channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
                        "stream #%d",
                        (int) buflen, channel->local.id, channel->remote.id,
                        stream_id);
-
-        rc = 1; /* set to >0 to let the while loop start */
-
-        /* process all pending incoming packets */
-        while (rc > 0)
-            rc = _libssh2_transport_read(session);
-
-        if ((rc < 0) && (rc != PACKET_EAGAIN))
-            return -1;
-
         channel->read_state = libssh2_NB_state_created;
     }
-    else {
-        /* We're not in the idle state, but in order to "even out" the network
-           readings we do a single shot read here as well. Tests prove that
-           this way produces faster transfers. */
+    rc = 1; /* set to >0 to let the while loop start */
+
+    /* Process all pending incoming packets in all states in order to "even
+       out" the network readings. Tests prove that this way produces faster
+       transfers. */
+    while (rc > 0)
         rc = _libssh2_transport_read(session);
 
-        /* ignore PACKET_EAGAIN but return failure for the rest */
-        if ((rc < 0) && (rc != PACKET_EAGAIN))
-            return -1;
-    }
+    if ((rc < 0) && (rc != PACKET_EAGAIN))
+        return -1;
 
     /*
      * =============================== NOTE ===============================
