@@ -1,10 +1,14 @@
 /*
- * $Id: ssh2_exec.c,v 1.1 2009/05/05 12:27:02 bagder Exp $
+ * $Id: ssh2_exec.c,v 1.2 2009/05/05 12:30:19 bagder Exp $
  *
  * Sample showing how to use libssh2 to execute a command remotely.
  *
  * The sample code has fixed values for host name, user name, password
- * and command to run. Change them to something suitable.
+ * and command to run.
+ *
+ * Run it like this:
+ *
+ * $ ./ssh2_exec 127.0.0.1 user password "uptime"
  *
  */
 
@@ -55,7 +59,6 @@ static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
 
 int main(int argc, char *argv[])
 {
-    const char *remotehost  = "127.0.0.1";
     const char *commandline = "uptime";
     const char *username    = "user";
     const char *password    = "password";
@@ -73,10 +76,20 @@ int main(int argc, char *argv[])
     WSADATA wsadata;
     WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
-    (void)argv;
-    (void)argc;
-
-    hostaddr = inet_addr( remotehost );
+    if (argc > 1) {
+        hostaddr = inet_addr(argv[1]);
+    } else {
+        hostaddr = htonl(0x7F000001);
+    }
+    if (argc > 2) {
+        username = argv[2];
+    }
+    if (argc > 3) {
+        password = argv[3];
+    }
+    if (argc > 4) {
+        commandline = argv[4];
+    }
 
     /* Ultra basic "connect to port 22 on localhost"
      * Your code is responsible for creating the socket establishing the
