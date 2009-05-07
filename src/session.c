@@ -924,6 +924,10 @@ session_free(LIBSSH2_SESSION *session)
         /* if the socket was previously blocking, put it back so */
         session_nonblock(session->socket_fd, 0);
 
+    if (session->server_hostkey) {
+        LIBSSH2_FREE(session, session->server_hostkey);
+    }
+
     LIBSSH2_FREE(session, session);
 
     return 0;

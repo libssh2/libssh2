@@ -158,7 +158,7 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
 
     if (exchange_state->state == libssh2_NB_state_sent) {
         if (session->burn_optimistic_kexinit) {
-            /* The first KEX packet to come along will be the guess initially 
+            /* The first KEX packet to come along will be the guess initially
              * sent by the server.  That guess turned out to be wrong so we
              * need to silently ignore it */
             int burn_type;
@@ -445,12 +445,12 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
             ret = -1;
             goto clean_exit;
         }
-        /* The first key exchange has been performed, 
+        /* The first key exchange has been performed,
            switch to active crypt/comp/mac mode */
         session->state |= LIBSSH2_STATE_NEWKEYS;
         _libssh2_debug(session, LIBSSH2_DBG_KEX, "Received NEWKEYS message");
 
-        /* This will actually end up being just packet_type(1) 
+        /* This will actually end up being just packet_type(1)
            for this packet type anyway */
         LIBSSH2_FREE(session, exchange_state->tmp);
 
@@ -639,11 +639,6 @@ kex_method_diffie_hellman_groupGP_sha1_key_exchange(LIBSSH2_SESSION *session,
     if (exchange_state->k_value) {
         LIBSSH2_FREE(session, exchange_state->k_value);
         exchange_state->k_value = NULL;
-    }
-
-    if (session->server_hostkey) {
-        LIBSSH2_FREE(session, session->server_hostkey);
-        session->server_hostkey = NULL;
     }
 
     exchange_state->state = libssh2_NB_state_idle;
@@ -1013,7 +1008,7 @@ kex_method_list(unsigned char *buf, size_t list_strlen,
  */
 static int kexinit(LIBSSH2_SESSION * session)
 {
-    /* 62 = packet_type(1) + cookie(16) + first_packet_follows(1) + 
+    /* 62 = packet_type(1) + cookie(16) + first_packet_follows(1) +
        reserved(4) + length longs(40) */
     size_t data_len = 62;
     size_t kex_len, hostkey_len = 0;
@@ -1069,8 +1064,8 @@ static int kexinit(LIBSSH2_SESSION * session)
         libssh2_random(s, 16);
         s += 16;
 
-        /* Ennumerating through these lists twice is probably (certainly?) 
-           inefficient from a CPU standpoint, but it saves multiple 
+        /* Ennumerating through these lists twice is probably (certainly?)
+           inefficient from a CPU standpoint, but it saves multiple
            malloc/realloc calls */
         LIBSSH2_METHOD_PREFS_STR(s, kex_len, session->kex_prefs,
                                  libssh2_kex_methods);

@@ -922,7 +922,44 @@ struct _LIBSSH2_SESSION
 #define LIBSSH2_SOCKET_RECV_FLAGS(session)      0
 #endif
 
-/* libssh2 extensible ssh api, ultimately I'd like to allow loading additional methods via .so/.dll */
+/* -------- */
+
+/* First take towards a generic linked list handling code for libssh2
+   internals */
+
+struct list_head {
+    struct list_node *last;
+    struct list_node *first;
+};
+
+struct list_node {
+    struct list_node *next;
+    struct list_node *prev;
+    struct list_head *head;
+};
+
+/* --------- */
+
+struct known_host {
+    struct list_node node;
+    char *name;      /* points to the name or the hash (allocated) */
+    size_t name_len; /* needed for hashed data */
+    int typemask;    /* plain, sha1, custom, ... */
+    char *salt;      /* points to binary salt (allocated) */
+    size_t salt_len; /* size of salt */
+    char *key;       /* the (allocated) associated key. This is kept base64
+                        encoded in memory. */
+};
+
+struct _LIBSSH2_KNOWNHOSTS
+{
+    LIBSSH2_SESSION *session;  /* the session this "belongs to" */
+    struct list_head head;
+};
+
+
+/* libssh2 extensible ssh api, ultimately I'd like to allow loading additional
+   methods via .so/.dll */
 
 struct _LIBSSH2_KEX_METHOD
 {

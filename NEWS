@@ -1,3 +1,31 @@
+* (May 7 2009) Daniel Stenberg:
+
+  - linked list code. I got a bit tired of the fact that we don't have any
+    generic linked-list functions within libssh2 so I wrote up the first embryo
+    for one that I use for this new functionality. The plan would then be to
+    move all existing code that uses linked lists to use this new set.
+
+  - base64 encode. I had to add a base64 encoding function which was missing
+    in the code base so it helps to "bloat" my patch.
+
+  - The knownhost API is currently:
+
+    _init() - init a bundle of known hosts
+    _add()  - add a known host
+    _del()  - delete a known host
+    _free() - free an entire bundle of known hosts
+    _check() - check if a host+key is present in the bundle
+
+    The convenience function:
+
+    _parsefile() - reads a ~/.ssh/known_hosts file and add all entries to the
+                   given bundle
+
+   - there's no docs other than some comments in the code/headers yet
+
+  - the patch includes changes to example/simple/ssh2_exec.c that makes use of
+    a few of these functions. Using that I've verified that the functions in
+    fact can verify my localhost's key agains my ~/.ssh/known_hosts file
 
 * (Apr 30 2009) Daniel Stenberg:
 

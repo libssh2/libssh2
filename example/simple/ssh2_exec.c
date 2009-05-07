@@ -1,5 +1,5 @@
 /*
- * $Id: ssh2_exec.c,v 1.2 2009/05/05 12:30:19 bagder Exp $
+ * $Id: ssh2_exec.c,v 1.3 2009/05/07 13:09:49 bagder Exp $
  *
  * Sample showing how to use libssh2 to execute a command remotely.
  *
@@ -25,7 +25,6 @@
 #include <ctype.h>
 
 #include <libssh2.h>
-
 
 static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
 {
@@ -59,11 +58,12 @@ static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
 
 int main(int argc, char *argv[])
 {
+    const char *hostname = "127.0.0.1";
     const char *commandline = "uptime";
     const char *username    = "user";
     const char *password    = "password";
     unsigned long hostaddr;
-    int sock, i;
+    int sock;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
@@ -71,16 +71,17 @@ int main(int argc, char *argv[])
     int rc;
     int exitcode;
     int bytecount = 0;
+    size_t len;
+    LIBSSH2_KNOWNHOSTS *nh;
 
 #ifdef WIN32
     WSADATA wsadata;
     WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
-    if (argc > 1) {
-        hostaddr = inet_addr(argv[1]);
-    } else {
-        hostaddr = htonl(0x7F000001);
-    }
+    if (argc > 1)
+        /* must be ip address only */
+        hostname = argv[1];
+
     if (argc > 2) {
         username = argv[2];
     }
@@ -90,6 +91,8 @@ int main(int argc, char *argv[])
     if (argc > 4) {
         commandline = argv[4];
     }
+
+    hostaddr = inet_addr(hostname);
 
     /* Ultra basic "connect to port 22 on localhost"
      * Your code is responsible for creating the socket establishing the
@@ -141,17 +144,25 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do
-        * is check the hostkey's fingerprint against our known hosts Your app
-        * may have it hard coded, may go to a file, may present it to the
-        * user, that's your call
-        */
-    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
-    fprintf(stderr, "Fingerprint: ");
-    for(i = 0; i < 16; i++) {
-        fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
+    nh = libssh2_knownhost_init(session);
+
+    libssh2_knownhost_parsefile(nh, "/home/daniel/.ssh/known_hosts",
+                                LIBSSH2_KNOWNHOST_FILE_OPENSSH);
+
+    fingerprint = libssh2_session_hostkey(session, &len);
+    if(fingerprint) {
+        struct libssh2_knownhost host;
+        int check;
+
+        check = libssh2_knownhost_check(nh, (char *)hostname,
+                                        (char *)fingerprint, len,
+                                        LIBSSH2_KNOWNHOST_TYPE_DEFAULT, &host);
+
+        fprintf(stderr, "Host check: %d, key: %s\n", check,
+                (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH)?
+                host.key:"<none>");
     }
-    fprintf(stderr, "\n");
+    libssh2_knownhost_free(nh);
 
     if ( strlen(password) != 0 ) {
         /* We could authenticate via password */
