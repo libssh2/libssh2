@@ -1,5 +1,5 @@
 /*
- * $Id: ssh2_exec.c,v 1.3 2009/05/07 13:09:49 bagder Exp $
+ * $Id: ssh2_exec.c,v 1.4 2009/05/07 20:30:22 bagder Exp $
  *
  * Sample showing how to use libssh2 to execute a command remotely.
  *
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 
     nh = libssh2_knownhost_init(session);
 
-    libssh2_knownhost_parsefile(nh, "/home/daniel/.ssh/known_hosts",
+    libssh2_knownhost_parsefile(nh, "known_hosts",
                                 LIBSSH2_KNOWNHOST_FILE_OPENSSH);
 
     fingerprint = libssh2_session_hostkey(session, &len);
