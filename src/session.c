@@ -1168,9 +1168,10 @@ libssh2_session_last_error(LIBSSH2_SESSION * session, char **errmsg,
     return session->err_code;
 }
 
-/* libssh2_session_last_error
-* Returns error code
-*/
+/* libssh2_session_last_errno
+ *
+ * Returns error code
+ */
 LIBSSH2_API int
 libssh2_session_last_errno(LIBSSH2_SESSION * session)
 {
@@ -1178,8 +1179,11 @@ libssh2_session_last_errno(LIBSSH2_SESSION * session)
 }
 
 /* libssh2_session_flag
+ *
  * Set/Get session flags
- * Passing flag==0 will avoid changing session->flags while still returning its current value
+ *
+ * Passing flag==0 will avoid changing session->flags while still returning
+ * its current value
  */
 LIBSSH2_API int
 libssh2_session_flag(LIBSSH2_SESSION * session, int flag, int value)
