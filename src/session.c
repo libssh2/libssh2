@@ -1602,7 +1602,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
 }
 
 /*
- * libssh2_session_block_direction
+ * libssh2_session_block_directions
  *
  * Get blocked direction when a function returns LIBSSH2_ERROR_EAGAIN
  * Returns LIBSSH2_SOCKET_BLOCK_INBOUND if recv() blocked
