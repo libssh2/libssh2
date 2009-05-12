@@ -88,14 +88,23 @@ _libssh2_channel_nextid(LIBSSH2_SESSION * session)
  * Locate a channel pointer by number
  */
 LIBSSH2_CHANNEL *
-_libssh2_channel_locate(LIBSSH2_SESSION * session, unsigned long channel_id)
+_libssh2_channel_locate(LIBSSH2_SESSION *session, unsigned long channel_id)
 {
-    LIBSSH2_CHANNEL *channel = session->channels.head;
-    while (channel) {
-        if (channel->local.id == channel_id) {
+    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_LISTENER *listener;
+
+    for(channel = session->channels.head; channel; channel = channel->next) {
+        if (channel->local.id == channel_id)
             return channel;
+    }
+
+    /* We didn't find the channel in the session, let's then check its
+       listeners... */
+    for(listener = session->listeners; listener; listener = listener->next) {
+        for(channel = listener->queue; channel; channel = channel->next) {
+            if (channel->local.id == channel_id)
+                return channel;
         }
-        channel = channel->next;
     }
 
     return NULL;
@@ -779,6 +788,8 @@ channel_forward_accept(LIBSSH2_LISTENER *listener)
         return channel;
     }
 
+    libssh2_error(listener->session, LIBSSH2_ERROR_CHANNEL_UNKNOWN,
+                  "Channel not found", 0);
     return NULL;
 }
 
