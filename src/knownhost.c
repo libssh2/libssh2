@@ -340,6 +340,9 @@ libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
     /* free all resources */
     free_host(hosts->session, node);
 
+    /* clear the struct now since this host entry has been removed! */
+    memset(entry, 0, sizeof(struct libssh2_knownhost));
+
     return 0;
 }
 
