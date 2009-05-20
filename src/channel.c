@@ -1997,7 +1997,9 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
 /*
  * _libssh2_channel_write
  *
- * Send data to a channel
+ * Send data to a channel. Note that if this returns EAGAIN or simply didn't
+ * send the entire packet, the caller must call this function again with the
+ * SAME input arguments.
  */
 ssize_t
 _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
@@ -2005,6 +2007,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
 {
     LIBSSH2_SESSION *session = channel->session;
     libssh2pack_t rc;
+    ssize_t wrote = 0; /* counter for this specific this call */
 
     if (channel->write_state == libssh2_NB_state_idle) {
         channel->write_bufwrote = 0;
@@ -2060,29 +2063,19 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                 channel->write_s += 4;
             }
 
-            /* twiddle our thumbs until there's window space available */
-            while (channel->local.window_size <= 0) {
-                /* Don't worry -- This is never hit unless it's a
-                   blocking channel anyway */
+            /* drain the incoming flow first */
+            do
                 rc = _libssh2_transport_read(session);
+            while (rc > 0);
 
-                if (rc < 0) {
-                    /* Error or EAGAIN occurred, disconnect? */
-                    if (rc != PACKET_EAGAIN) {
-                        LIBSSH2_FREE(session, channel->write_packet);
-                        channel->write_state = libssh2_NB_state_idle;
-                    }
-                    return rc;
-                }
-
-                if (rc == 0) {
-                    /*
-                     * if rc == 0, then fake EAGAIN to prevent busyloops until
-                     * data arriaves on the network which seemed like a very
-                     * bad idea
-                     */
+            if(channel->local.window_size <= 0) {
+                /* there's no more room for data so we stop sending now */
+                if(!wrote) {
+                    /* if nothing has been written at this point we're at an
+                       EAGAIN point */
                     return PACKET_EAGAIN;
                 }
+                break;
             }
 
             /* Don't exceed the remote end's limits */
@@ -2140,15 +2133,9 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
             buflen -= channel->write_bufwrite;
             buf += channel->write_bufwrite;
             channel->write_bufwrote += channel->write_bufwrite;
+            wrote += channel->write_bufwrite;
 
             channel->write_state = libssh2_NB_state_allocated;
-
-            /*
-             * Not sure this is still wanted
-             if (!channel->session->socket_block) {
-             break;
-             }
-             */
         }
     }
 
@@ -2157,7 +2144,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
 
     channel->write_state = libssh2_NB_state_idle;
 
-    return channel->write_bufwrote;
+    return wrote;
 }
 
 /*
