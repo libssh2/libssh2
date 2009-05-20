@@ -1105,7 +1105,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 /* TODO: a partial write is not a critical error when in
                    non-blocking mode! */
                 libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                              "Unable to send FXP_READ command", 0);
+                              "_libssh2_channel_write() failed", 0);
                 sftp->read_packet = NULL;
                 sftp->read_state = libssh2_NB_state_idle;
                 return -1;
@@ -1305,7 +1305,7 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
         }
         else if (packet_len != retcode) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                          "Unable to send FXP_READ command", 0);
+                          "_libssh2_channel_write() failed", 0);
             LIBSSH2_FREE(session, sftp->readdir_packet);
             sftp->readdir_packet = NULL;
             sftp->readdir_state = libssh2_NB_state_idle;
@@ -1409,10 +1409,12 @@ libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *hnd, char *buffer,
     return rc;
 }
 
-/* sftp_write
- * Write data to a file handle
+/*
+ * sftp_write
+ *
+ * Write data to an SFTP handle
  */
-static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE * handle, const char *buffer,
+static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                           size_t count)
 {
     LIBSSH2_SFTP *sftp = handle->sftp;
@@ -1421,9 +1423,18 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE * handle, const char *buffer,
     unsigned long data_len, retcode;
     /* 25 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) +
        offset(8) + count(4) */
-    ssize_t packet_len = handle->handle_len + count + 25;
+    ssize_t packet_len;
     unsigned char *s, *data;
     int rc;
+
+    /* There's no point in us accepting a VERY large packet here since we
+       cannot send it anyway. We just accept 4 times the big size to fill up
+       the queue somewhat. */
+
+    if(count > (MAX_SSH_PACKET_LEN*4))
+        count = MAX_SSH_PACKET_LEN*4;
+
+    packet_len = handle->handle_len + count + 25;
 
     if (sftp->write_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_DBG_SFTP, "Writing %lu bytes",
@@ -1431,10 +1442,9 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE * handle, const char *buffer,
         s = sftp->write_packet = LIBSSH2_ALLOC(session, packet_len);
         if (!sftp->write_packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memory for FXP_WRITE packet", 0);
+                          "Unable to allocate memory for FXP_WRITE", 0);
             return -1;
         }
-
         _libssh2_htonu32(s, packet_len - 4);
         s += 4;
         *(s++) = SSH_FXP_WRITE;
@@ -1456,18 +1466,22 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE * handle, const char *buffer,
     }
 
     if (sftp->write_state == libssh2_NB_state_created) {
-        rc = _libssh2_channel_write(channel, 0, (char *) sftp->write_packet,
+        rc = _libssh2_channel_write(channel, 0, (char *)sftp->write_packet,
                                     packet_len);
         if (rc == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         }
-        if (packet_len != rc) {
-            libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                          "Unable to send FXP_READ command", 0);
-            LIBSSH2_FREE(session, sftp->write_packet);
-            sftp->write_packet = NULL;
-            sftp->write_state = libssh2_NB_state_idle;
+        else if(rc < 0) {
+            /* an actual error */
+            return rc;
+        }
+        else if(0 == rc) {
+            /* an actual error */
+            fprintf(stderr, "WEIRDNESS\n");
             return -1;
+        }
+        else if (packet_len != rc) {
+            return rc;
         }
         LIBSSH2_FREE(session, sftp->write_packet);
         sftp->write_packet = NULL;
@@ -2084,7 +2098,7 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
         }
         if (packet_len != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                          "Unable to send FXP_READ command", 0);
+                          "_libssh2_channel_write() failed", 0);
             LIBSSH2_FREE(session, packet);
             sftp->mkdir_state = libssh2_NB_state_idle;
             return -1;
