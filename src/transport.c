@@ -272,8 +272,11 @@ _libssh2_transport_read(LIBSSH2_SESSION * session)
     unsigned char block[MAX_BLOCKSIZE];
     int blocksize;
     int encrypted = 1;
-
+    int loop = 1;
     int status;
+
+    /* default clear the bit */
+    session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
 
     /*
      * All channels, systems, subsystems, etc eventually make it down here
@@ -348,6 +351,7 @@ _libssh2_transport_read(LIBSSH2_SESSION * session)
             /* If we have less than a blocksize left, it is too
                little data to deal with, read more */
             ssize_t nread;
+            size_t recv_amount;
 
             /* move any remainder to the start of the buffer so
                that we can do a full refill */
@@ -360,11 +364,12 @@ _libssh2_transport_read(LIBSSH2_SESSION * session)
                 p->readidx = p->writeidx = 0;
             }
 
+            recv_amount = PACKETBUFSIZE - remainbuf;
+
             /* now read a big chunk from the network into the temp buffer */
             nread =
                 _libssh2_recv(session->socket_fd, &p->buf[remainbuf],
-                     PACKETBUFSIZE - remainbuf,
-                     LIBSSH2_SOCKET_RECV_FLAGS(session));
+                              recv_amount, LIBSSH2_SOCKET_RECV_FLAGS(session));
             if (nread <= 0) {
                 /* check if this is due to EAGAIN and return the special
                    return code if so, error out normally otherwise */
@@ -375,6 +380,11 @@ _libssh2_transport_read(LIBSSH2_SESSION * session)
                 }
                 return PACKET_FAIL;
             }
+            else if(nread != recv_amount) {
+                /* we're done for this time! */
+                loop = 0;
+            }
+
             debugdump(session, "libssh2_transport_read() raw",
                       &p->buf[remainbuf], nread);
             /* advance write pointer */
@@ -566,12 +576,11 @@ _libssh2_transport_read(LIBSSH2_SESSION * session)
             }
 
             p->total_num = 0;   /* no packet buffer available */
-
             return rc;
         }
-    } while (1);                /* loop */
+    } while (loop); /* loop until done */
 
-    return PACKET_FAIL;         /* we never reach this point */
+    return rc;
 }
 
 static libssh2pack_t
@@ -603,7 +612,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
     length = p->ototal_num - p->osent;
 
     rc = _libssh2_send(session->socket_fd, &p->outbuf[p->osent], length,
-              LIBSSH2_SOCKET_SEND_FLAGS(session));
+                       LIBSSH2_SOCKET_SEND_FLAGS(session));
 
     if (rc == length) {
         /* the remainder of the package was sent */
@@ -666,6 +675,9 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     unsigned long orgdata_len = data_len;
 
     debugdump(session, "libssh2_transport_write plain", data, data_len);
+
+    /* default clear the bit */
+    session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
 
     /* FIRST, check if we have a pending write to complete */
     rc = send_existing(session, data, data_len, &ret);
@@ -768,7 +780,7 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     session->local.seqno++;
 
     ret = _libssh2_send(session->socket_fd, p->outbuf, total_length,
-               LIBSSH2_SOCKET_SEND_FLAGS(session));
+                        LIBSSH2_SOCKET_SEND_FLAGS(session));
 
     if (ret != -1) {
         debugdump(session, "libssh2_transport_write send()", p->outbuf, ret);
