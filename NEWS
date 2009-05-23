@@ -1,3 +1,16 @@
+* (May 23 2009) Daniel Stenberg:
+
+ - Anonymous bug report #2795816 revealed that libssh2_sftp_shutdown() did not
+   properly free/cleanup the SFTP handle so libssh2 leaked memory and caused
+   an assert() on subsequent libssh2_sftp_init() calls on the same session.
+
+* (May 20 2009) Daniel Stenberg:
+
+  - made libssh2_sftp_write() properly deal with huge/any sized input buffers.
+
+  - fixed libssh2_channel_write_ex() to return the correct return code, and
+    deal with sending off huge buffers better
+
 * (May 7 2009) Daniel Stenberg:
 
   - linked list code. I got a bit tired of the fact that we don't have any
