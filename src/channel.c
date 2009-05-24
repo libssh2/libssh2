@@ -45,6 +45,7 @@
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
+#include <assert.h>
 
 #include "channel.h"
 #include "transport.h"
@@ -2434,6 +2435,8 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     unsigned char *data;
     unsigned long data_len;
     int rc;
+
+    assert(session);
 
     if (channel->free_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_DBG_CONN,
