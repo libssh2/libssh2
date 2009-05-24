@@ -794,10 +794,9 @@ sftp_shutdown(LIBSSH2_SFTP *sftp)
 
     rc = _libssh2_channel_free(sftp->channel);
 
-    if (session->sftpInit_sftp)
-        /* the SFTP stuff is freed by the stored "destructor" as part of the
-           channel free magic */
-        session->sftpInit_sftp = NULL;
+    /* the SFTP stuff is freed by the stored "destructor" as part of the
+       channel free magic */
+    session->sftpInit_sftp = NULL;
 
     return rc;
 }
