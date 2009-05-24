@@ -791,11 +791,13 @@ sftp_shutdown(LIBSSH2_SFTP *sftp)
         LIBSSH2_FREE(session, sftp->symlink_packet);
         sftp->symlink_packet = NULL;
     }
-    if (session->sftpInit_sftp) {
-        LIBSSH2_FREE(session, session->sftpInit_sftp);
-        session->sftpInit_sftp = NULL;
-    }
+
     rc = _libssh2_channel_free(sftp->channel);
+
+    if (session->sftpInit_sftp)
+        /* the SFTP stuff is freed by the stored "destructor" as part of the
+           channel free magic */
+        session->sftpInit_sftp = NULL;
 
     return rc;
 }
