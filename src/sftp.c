@@ -566,7 +566,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
         /*
          * The 'sftpInit_sftp' and 'sftpInit_channel' struct fields within the
-         * seeesion struct are only to be used during the setup phase. As soon
+         * session struct are only to be used during the setup phase. As soon
          * as the SFTP session is created they are cleared and can thus be
          * re-used again to allow any amount of SFTP handles per sessions.
          *
