@@ -1,8 +1,7 @@
 * (May 23 2009) Daniel Stenberg:
 
- - Anonymous bug report #2795816 revealed that libssh2_sftp_shutdown() did not
-   properly free/cleanup the SFTP handle so libssh2 leaked memory and caused
-   an assert() on subsequent libssh2_sftp_init() calls on the same session.
+ - Anonymous bug report #2795816 revealed that doing subsequent
+   libssh2_sftp_init() calls on the same session failed.
 
 * (May 20 2009) Daniel Stenberg:
 
