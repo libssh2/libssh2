@@ -558,17 +558,30 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     unsigned char *data, *s;
     unsigned long data_len;
     int rc;
+    LIBSSH2_SFTP *sftp_handle;
 
     if (session->sftpInit_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_DBG_SFTP,
                        "Initializing SFTP subsystem");
 
+        /*
+         * The 'sftpInit_sftp' and 'sftpInit_channel' struct fields within the
+         * seeesion struct are only to be used during the setup phase. As soon
+         * as the SFTP session is created they are cleared and can thus be
+         * re-used again to allow any amount of SFTP handles per sessions.
+         *
+         * Note that you MUST NOT try to call libssh2_sftp_init() to get
+         * another handle until the previous one has finished and either
+         * succesffully made a handle or failed and returned error (not
+         * including *EAGAIN).
+         */
+
         assert(session->sftpInit_sftp == NULL);
-
         session->sftpInit_sftp = NULL;
-
         session->sftpInit_state = libssh2_NB_state_created;
     }
+
+    sftp_handle = session->sftpInit_sftp;
 
     if (session->sftpInit_state == libssh2_NB_state_created) {
         session->sftpInit_channel =
@@ -618,15 +631,17 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
             return NULL;
         }
 
-        session->sftpInit_sftp = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_SFTP));
-        if (!session->sftpInit_sftp) {
+        sftp_handle =
+            session->sftpInit_sftp =
+            LIBSSH2_ALLOC(session, sizeof(LIBSSH2_SFTP));
+        if (!sftp_handle) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                           "Unable to allocate a new SFTP structure", 0);
             goto sftp_init_error;
         }
-        memset(session->sftpInit_sftp, 0, sizeof(LIBSSH2_SFTP));
-        session->sftpInit_sftp->channel = session->sftpInit_channel;
-        session->sftpInit_sftp->request_id = 0;
+        memset(sftp_handle, 0, sizeof(LIBSSH2_SFTP));
+        sftp_handle->channel = session->sftpInit_channel;
+        sftp_handle->request_id = 0;
 
         _libssh2_htonu32(session->sftpInit_buffer, 5);
         session->sftpInit_buffer[4] = SSH_FXP_INIT;
@@ -655,7 +670,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         session->sftpInit_state = libssh2_NB_state_sent3;
     }
 
-    rc = sftp_packet_require(session->sftpInit_sftp, SSH_FXP_VERSION,
+    rc = sftp_packet_require(sftp_handle, SSH_FXP_VERSION,
                              0, &data, &data_len);
     if (rc == PACKET_EAGAIN) {
         libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
@@ -674,17 +689,17 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     }
 
     s = data + 1;
-    session->sftpInit_sftp->version = _libssh2_ntohu32(s);
+    sftp_handle->version = _libssh2_ntohu32(s);
     s += 4;
-    if (session->sftpInit_sftp->version > LIBSSH2_SFTP_VERSION) {
+    if (sftp_handle->version > LIBSSH2_SFTP_VERSION) {
         _libssh2_debug(session, LIBSSH2_DBG_SFTP,
                        "Truncating remote SFTP version from %lu",
-                       session->sftpInit_sftp->version);
-        session->sftpInit_sftp->version = LIBSSH2_SFTP_VERSION;
+                       sftp_handle->version);
+        sftp_handle->version = LIBSSH2_SFTP_VERSION;
     }
     _libssh2_debug(session, LIBSSH2_DBG_SFTP,
                    "Enabling SFTP version %lu compatability",
-                   session->sftpInit_sftp->version);
+                   sftp_handle->version);
     while (s < (data + data_len)) {
         unsigned char *extension_name, *extension_data;
         unsigned long extname_len, extdata_len;
@@ -705,11 +720,16 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
     /* Make sure that when the channel gets closed, the SFTP service is shut
        down too */
-    session->sftpInit_sftp->channel->abstract = session->sftpInit_sftp;
-    session->sftpInit_sftp->channel->close_cb = libssh2_sftp_dtor;
+    sftp_handle->channel->abstract = sftp_handle;
+    sftp_handle->channel->close_cb = libssh2_sftp_dtor;
 
     session->sftpInit_state = libssh2_NB_state_idle;
-    return session->sftpInit_sftp;
+
+    /* clear the sftp and channel pointers in this session struct now */
+    session->sftpInit_sftp = NULL;
+    session->sftpInit_channel = NULL;
+
+    return sftp_handle;
 
   sftp_init_error:
     while (_libssh2_channel_free(session->sftpInit_channel) == PACKET_EAGAIN);
@@ -793,10 +813,6 @@ sftp_shutdown(LIBSSH2_SFTP *sftp)
     }
 
     rc = _libssh2_channel_free(sftp->channel);
-
-    /* the SFTP stuff is freed by the stored "destructor" as part of the
-       channel free magic */
-    session->sftpInit_sftp = NULL;
 
     return rc;
 }
