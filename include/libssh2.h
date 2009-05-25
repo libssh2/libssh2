@@ -1,4 +1,5 @@
 /* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
+ * Copyright (c) 2009 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -349,7 +350,6 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_INVALID_POLL_TYPE         -35
 #define LIBSSH2_ERROR_PUBLICKEY_PROTOCOL        -36
 #define LIBSSH2_ERROR_EAGAIN                    -37
-#define LIBSSH2_ERROR_MEMORY                    -38
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *
