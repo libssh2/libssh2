@@ -521,20 +521,6 @@ LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor)
     (void) session_abstract;
     (void) channel;
 
-#if 0
-    /* EEEK! While it might sound like a neat idea to make this code loop over
-       all the outstanding handles and close them, that is going to cause
-       EAGAIN to get returned and this callback system is not designed to
-       handle this very nicely so thus we now DEMAND that the app closes its
-       handles instead!
-    */
-
-    /* Loop through handles closing them */
-    while (sftp->handles) {
-        sftp_close_handle(sftp->handles);
-    }
-#endif
-
     /* Free the partial packet storage for sftp_packet_read */
     if (sftp->partial_packet) {
         LIBSSH2_FREE(session, sftp->partial_packet);
