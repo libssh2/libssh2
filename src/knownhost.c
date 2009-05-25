@@ -109,7 +109,7 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     struct known_host *entry =
         LIBSSH2_ALLOC(hosts->session, sizeof(struct known_host));
     size_t hostlen = strlen(host);
-    int rc = LIBSSH2_ERROR_MEMORY;
+    int rc = LIBSSH2_ERROR_ALLOC;
     char *ptr;
     unsigned int ptrlen;
 
