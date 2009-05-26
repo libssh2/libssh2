@@ -128,6 +128,10 @@ int main(int argc, char *argv[])
     }
 
     nh = libssh2_knownhost_init(session);
+    if(!nh) {
+        /* eeek, do cleanup here */
+        return 2;
+    }
 
     libssh2_knownhost_parsefile(nh, "known_hosts",
                                 LIBSSH2_KNOWNHOST_FILE_OPENSSH);
@@ -144,6 +148,15 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Host check: %d, key: %s\n", check,
                 (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH)?
                 host.key:"<none>");
+
+        /*****
+         * At this point, we could verify that 'check' tells us the key is
+         * fine or bail out.
+         *****/
+    }
+    else {
+        /* eeek, do cleanup here */
+        return 3;
     }
     libssh2_knownhost_free(nh);
 
@@ -231,7 +244,8 @@ int main(int argc, char *argv[])
     }
     exitcode = 127;
     while( (rc = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN )
-        ;
+        waitsocket(sock, session);
+
     if( rc == 0 )
     {
         exitcode = libssh2_channel_get_exit_status( channel );
