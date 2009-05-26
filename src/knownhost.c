@@ -40,11 +40,6 @@
 #include "libssh2_priv.h"
 #include "misc.h"
 
-/* Needed for struct iovec on some platforms */
-#ifdef HAVE_SYS_UIO_H
-#include <sys/uio.h>
-#endif
-
 static void free_host(LIBSSH2_SESSION *session, struct known_host *entry)
 {
     if(entry) {
