@@ -45,11 +45,12 @@ const char *username="username";
 const char *password="password";
 
 
-static void kbd_callback(const char *name, int name_len, 
-             const char *instruction, int instruction_len, int num_prompts,
-             const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
-             LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
-             void **abstract)
+static void kbd_callback(const char *name, int name_len,
+                         const char *instruction, int instruction_len,
+                         int num_prompts,
+                         const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
+                         LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
+                         void **abstract)
 {
     (void)name;
     (void)name_len;
@@ -92,13 +93,11 @@ int main(int argc, char *argv[])
         password = argv[3];
     }
 
-    /* Ultra basic "connect to port 22 on localhost"
-     * Your code is responsible for creating the socket establishing the connection
+    /* Ultra basic "connect to port 22 on localhost".  Your code is
+     * responsible for creating the socket establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
-#ifndef WIN32
-    fcntl(sock, F_SETFL, 0);
-#endif
+
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
@@ -108,8 +107,8 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* Create a session instance and start it up
-     * This will trade welcome banners, exchange keys, and setup crypto, compression, and MAC layers
+    /* Create a session instance and start it up. This will trade welcome
+     * banners, exchange keys, and setup crypto, compression, and MAC layers
      */
     session = libssh2_session_init();
     if (libssh2_session_startup(session, sock)) {
@@ -117,9 +116,10 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't authenticated,
-     * The first thing to do is check the hostkey's fingerprint against our known hosts
-     * Your app may have it hard coded, may go to a file, may present it to the user, that's your call
+    /* At this point we havn't authenticated. The first thing to do is check
+     * the hostkey's fingerprint against our known hosts Your app may have it
+     * hard coded, may go to a file, may present it to the user, that's your
+     * call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
     printf("Fingerprint: ");
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
         auth_pw |= 4;
     }
 
-    /* if we got an 4. argument we set this option if supported */ 
+    /* if we got an 4. argument we set this option if supported */
     if(argc > 4) {
         if ((auth_pw & 1) && !strcasecmp(argv[4], "-p")) {
             auth_pw = 1;
@@ -164,7 +164,8 @@ int main(int argc, char *argv[])
         }
     } else if (auth_pw & 2) {
         /* Or via keyboard-interactive */
-        if (libssh2_userauth_keyboard_interactive(session, username, &kbd_callback) ) {
+        if (libssh2_userauth_keyboard_interactive(session, username,
+                                                  &kbd_callback) ) {
             printf("\tAuthentication by keyboard-interactive failed!\n");
             goto shutdown;
         } else {
@@ -172,7 +173,8 @@ int main(int argc, char *argv[])
         }
     } else if (auth_pw & 4) {
         /* Or by public key */
-        if (libssh2_userauth_publickey_fromfile(session, username, keyfile1, keyfile2, password)) {
+        if (libssh2_userauth_publickey_fromfile(session, username, keyfile1,
+                                                keyfile2, password)) {
             printf("\tAuthentication by public key failed!\n");
             goto shutdown;
         } else {
@@ -235,7 +237,8 @@ int main(int argc, char *argv[])
 
   shutdown:
 
-    libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing");
+    libssh2_session_disconnect(session,
+                               "Normal Shutdown, Thank you for playing");
     libssh2_session_free(session);
 
 #ifdef WIN32

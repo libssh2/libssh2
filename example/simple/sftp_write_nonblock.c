@@ -103,23 +103,6 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* We set the socket non-blocking. We do it after the connect just to
-        simplify the example code. */
-#ifdef F_SETFL
-    /* FIXME: this can/should be done in a more portable manner */
-    rc = fcntl(sock, F_GETFL, 0);
-    fcntl(sock, F_SETFL, rc | O_NONBLOCK);
-#elif defined(HAVE_IOCTLSOCKET)
-    ioctlsocket(sock, FIONBIO, &flag);
-#else
-#ifdef WIN32
-    u_long mode = 1;
-    ioctlsocket (sock, FIONBIO, &mode);
-#else
-#error "add support for setting the socket non-blocking here"
-#endif
-#endif
-
     /* Create a session instance
         */
     session = libssh2_session_init();
@@ -139,11 +122,11 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do
-        * is check the hostkey's fingerprint against our known hosts Your app
-        * may have it hard coded, may go to a file, may present it to the
-        * user, that's your call
-        */
+    /* At this point we havn't yet authenticated.  The first thing to do is
+     * check the hostkey's fingerprint against our known hosts Your app may
+     * have it hard coded, may go to a file, may present it to the user,
+     * that's your call
+     */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
     printf("Fingerprint: ");
     for(i = 0; i < 16; i++) {

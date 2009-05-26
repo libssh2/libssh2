@@ -109,29 +109,12 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* We set the socket non-blocking. We do it after the connect just to
-        simplify the example code. */
-#ifdef F_SETFL
-    /* FIXME: this can/should be done in a more portable manner */
-    rc = fcntl(sock, F_GETFL, 0);
-    fcntl(sock, F_SETFL, rc | O_NONBLOCK);
-#elif defined(HAVE_IOCTLSOCKET)
-    ioctlsocket(sock, FIONBIO, &flag);
-#else
-#ifdef WIN32
-    u_long mode = 1;
-    ioctlsocket (sock, FIONBIO, &mode);
-#else
-#error "add support for setting the socket non-blocking here"
-#endif
-#endif
-
     /* Create a session instance */
     session = libssh2_session_init();
     if (!session)
         return -1;
 
-    /* Since we have set non-blocking, tell libssh2 we are non-blocking */
+    /* tell libssh2 we want it all done non-blocking */
     libssh2_session_set_blocking(session, 0);
 
     /* ... start it up. This will trade welcome banners, exchange keys,
