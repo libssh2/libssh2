@@ -448,7 +448,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     if(sep) {
-        /* this is the second host, add this first */
+        /* this is the second host after the comma, add this first */
         char *ipaddr;
         *sep++ = 0; /* zero terminate the first host name here */
         ipaddr = sep;
