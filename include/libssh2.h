@@ -794,6 +794,24 @@ LIBSSH2_API int
 libssh2_knownhost_parsefile(LIBSSH2_KNOWNHOSTS *hosts,
                             const char *filename, int type);
 
+
+/*
+ * libssh2_knownhost_get()
+ *
+ * Traverse the internal list of known hosts. Pass NULL to 'prev' to get
+ * the first one. Or pass a poiner to the previously returned one to get the
+ * next.
+ *
+ * Returns:
+ * 0 if a fine host was stored in 'store'
+ * 1 if end of hosts
+ * [negative] on errors
+ */
+LIBSSH2_API int
+libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
+                      struct libssh2_knownhost *store,
+                      struct libssh2_knownhost *prev);
+
 /* NOTE NOTE NOTE
    libssh2_trace() has no function in builds that aren't built with debug
    enabled

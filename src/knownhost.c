@@ -562,3 +562,40 @@ libssh2_knownhost_parsefile(LIBSSH2_KNOWNHOSTS *hosts,
         return -1;
     return num;
 }
+
+/*
+ * libssh2_knownhost_get()
+ *
+ * Traverse the internal list of known hosts. Pass NULL to 'prev' to get
+ * the first one.
+ *
+ * Returns:
+ * 0 if a fine host was stored in 'store'
+ * 1 if end of hosts
+ * [negative] on errors
+ */
+LIBSSH2_API int
+libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
+                      struct libssh2_knownhost *store,
+                      struct libssh2_knownhost *oprev)
+{
+    struct known_host *node;
+    if(oprev && oprev->node) {
+        /* we have a starting point */
+        struct known_host *prev = oprev->node;
+
+        /* get the next node in the list */
+        node = _libssh2_list_next(&prev->node);
+
+    }
+    else
+        node = _libssh2_list_first(&hosts->head);
+
+    if(!node)
+        /* no (more) node */
+        return 1;
+
+    knownhost_to_external(node, store);
+
+    return 0;
+}
