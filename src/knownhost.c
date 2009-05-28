@@ -143,7 +143,7 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         goto error;
     }
 
-    if(typemask & LIBSSH2_KNOWNHOST_KEY_BASE64) {
+    if(typemask & LIBSSH2_KNOWNHOST_KEYENC_BASE64) {
         /* the provided key is base64 encoded already */
         if(!keylen)
             keylen = strlen(key);
@@ -225,7 +225,7 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
         /* we can't work with a sha1 as given input */
         return LIBSSH2_KNOWNHOST_CHECK_MISMATCH;
 
-    if(!(typemask & LIBSSH2_KNOWNHOST_KEY_BASE64)) {
+    if(!(typemask & LIBSSH2_KNOWNHOST_KEYENC_BASE64)) {
         /* we got a raw key input, convert it to base64 for the checks below */
         size_t nlen = _libssh2_base64_encode(hosts->session, key, keylen,
                                              &keyalloc);
@@ -252,12 +252,6 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
             if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN) {
                 /* when we have the sha1 version stored, we can use a plain
                    input to produce a hash to compare with the stored hash.
-
-                   HMAC_Init(&mac_ctx, salt, len, md);
-                   HMAC_Update(&mac_ctx, host, strlen(host));
-                   HMAC_Final(&mac_ctx, result, NULL);
-                   HMAC_cleanup(&mac_ctx);
-
                 */
                 libssh2_hmac_ctx ctx;
                 unsigned char hash[SHA_DIGEST_LENGTH];
@@ -453,13 +447,13 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
         *sep++ = 0; /* zero terminate the first host name here */
         ipaddr = sep;
         rc = libssh2_knownhost_add(hosts, ipaddr, salt, key, keylen,
-                                   type | LIBSSH2_KNOWNHOST_KEY_BASE64);
+                                   type | LIBSSH2_KNOWNHOST_KEYENC_BASE64);
         if(rc)
             return rc;
     }
 
     rc = libssh2_knownhost_add(hosts, host, salt, key, keylen,
-                               type | LIBSSH2_KNOWNHOST_KEY_BASE64);
+                               type | LIBSSH2_KNOWNHOST_KEYENC_BASE64);
 
     return rc;
 }
@@ -504,7 +498,7 @@ libssh2_knownhost_parsefile(LIBSSH2_KNOWNHOSTS *hosts,
     char buf[2048];
 
     if(type != LIBSSH2_KNOWNHOST_FILE_OPENSSH)
-        return -1;
+        return LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
 
     file = fopen(filename, "r");
     if(file) {
@@ -562,6 +556,80 @@ libssh2_knownhost_parsefile(LIBSSH2_KNOWNHOSTS *hosts,
         return -1;
     return num;
 }
+
+/*
+ * libssh2_knownhost_dumpfile()
+ *
+ * Write hosts+key pairs to the given file.
+ */
+LIBSSH2_API int
+libssh2_knownhost_dumpfile(LIBSSH2_KNOWNHOSTS *hosts,
+                           const char *filename, int type)
+{
+    struct known_host *node;
+    FILE *file;
+    int rc = LIBSSH2_ERROR_NONE;
+
+    /* we only support this single file type for now, bail out on all other
+       attempts */
+    if(type != LIBSSH2_KNOWNHOST_FILE_OPENSSH)
+        return LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
+
+    file = fopen(filename, "w");
+    if(!file)
+        return LIBSSH2_ERROR_FILE;
+
+    for(node = _libssh2_list_first(&hosts->head);
+        node;
+        node= _libssh2_list_next(&node->node) ) {
+        int tindex = (node->typemask & LIBSSH2_KNOWNHOST_KEY_MASK) >>
+            LIBSSH2_KNOWNHOST_KEY_SHIFT;
+
+        const char *types[4]={
+            "", /* not used */
+            "", /* this type has no name in the file */
+            " ssh-rsa",
+            " ssh-dss"
+        };
+
+        /* set the string used in the file */
+        const char *type = types[tindex];
+
+        if((node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) ==
+           LIBSSH2_KNOWNHOST_TYPE_SHA1) {
+            char *namealloc;
+            char *saltalloc;
+            size_t nlen = _libssh2_base64_encode(hosts->session,
+                                                 node->name, node->name_len,
+                                                 &namealloc);
+            if(!nlen) {
+                rc = LIBSSH2_KNOWNHOST_CHECK_FAILURE;
+                break;
+            }
+            nlen = _libssh2_base64_encode(hosts->session,
+                                          node->salt, node->salt_len,
+                                          &saltalloc);
+            if(!nlen) {
+                rc = LIBSSH2_KNOWNHOST_CHECK_FAILURE;
+                free(namealloc);
+                break;
+            }
+            fprintf(file, "|1|%s|%s%s %s\n", saltalloc, namealloc, type,
+                    node->key);
+            free(namealloc);
+            free(saltalloc);
+        }
+        else {
+            /* these types have the plain name */
+            fprintf(file, "%s%s %s\n", node->name, type, node->key);
+        }
+
+    }
+    fclose(file);
+
+    return rc;
+}
+
 
 /*
  * libssh2_knownhost_get()

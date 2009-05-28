@@ -699,7 +699,7 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
  */
 
 #define LIBSSH2_KNOWNHOST_TYPE_DEFAULT (LIBSSH2_KNOWNHOST_TYPE_PLAIN | \
-                                        LIBSSH2_KNOWNHOST_KEY_RAW)
+                                        LIBSSH2_KNOWNHOST_KEYENC_RAW)
 
 /* host format (2 bits) */
 #define LIBSSH2_KNOWNHOST_TYPE_MASK    0xffff
@@ -708,10 +708,13 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
 #define LIBSSH2_KNOWNHOST_TYPE_CUSTOM  3
 
 /* key format (2 bits) */
-#define LIBSSH2_KNOWNHOST_KEY_RAW      (1<<16)
-#define LIBSSH2_KNOWNHOST_KEY_BASE64   (2<<16)
+#define LIBSSH2_KNOWNHOST_KEYENC_MASK     (3<<16)
+#define LIBSSH2_KNOWNHOST_KEYENC_RAW      (1<<16)
+#define LIBSSH2_KNOWNHOST_KEYENC_BASE64   (2<<16)
 
 /* type of key (2 bits) */
+#define LIBSSH2_KNOWNHOST_KEY_MASK     (3<<18)
+#define LIBSSH2_KNOWNHOST_KEY_SHIFT    18
 #define LIBSSH2_KNOWNHOST_KEY_RSA1     (1<<18)
 #define LIBSSH2_KNOWNHOST_KEY_SSHRSA   (2<<18)
 #define LIBSSH2_KNOWNHOST_KEY_SSHDSS   (3<<18)
@@ -784,8 +787,8 @@ libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts);
  *
  * Returns a negative value for error or number of successfully added hosts.
  *
- * This implementation currently only knows one type, all others are reserved
- * for future use.
+ * This implementation currently only knows one 'type' (openssh), all others
+ * are reserved for future use.
  */
 
 #define LIBSSH2_KNOWNHOST_FILE_OPENSSH 1
@@ -794,6 +797,18 @@ LIBSSH2_API int
 libssh2_knownhost_parsefile(LIBSSH2_KNOWNHOSTS *hosts,
                             const char *filename, int type);
 
+/*
+ * libssh2_knownhost_dumpfile
+ *
+ * Write hosts+key pairs to a given file.
+ *
+ * This implementation currently only knows one 'type' (openssh), all others
+ * are reserved for future use.
+ */
+
+LIBSSH2_API int
+libssh2_knownhost_dumpfile(LIBSSH2_KNOWNHOSTS *hosts,
+                           const char *filename, int type);
 
 /*
  * libssh2_knownhost_get()
