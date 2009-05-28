@@ -380,7 +380,7 @@ _libssh2_transport_read(LIBSSH2_SESSION * session)
                 }
                 return PACKET_FAIL;
             }
-            else if(nread != recv_amount) {
+            else if(nread != (ssize_t)recv_amount) {
                 /* we're done for this time! */
                 loop = 0;
             }
