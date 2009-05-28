@@ -698,9 +698,6 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
  *
  */
 
-#define LIBSSH2_KNOWNHOST_TYPE_DEFAULT (LIBSSH2_KNOWNHOST_TYPE_PLAIN | \
-                                        LIBSSH2_KNOWNHOST_KEYENC_RAW)
-
 /* host format (2 bits) */
 #define LIBSSH2_KNOWNHOST_TYPE_MASK    0xffff
 #define LIBSSH2_KNOWNHOST_TYPE_PLAIN   1
