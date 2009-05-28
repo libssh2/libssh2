@@ -21,7 +21,7 @@ of the host or the full name.
 
 \fIsalt\P is a pointer to the salt used for the host hashing, if the host is
 provided hashed. If the host is provided in plain text, salt has no meaning.
-The salt has to be provided base64 encoded.
+The salt has to be provided base64 encoded with a trailing zero byte.
 
 \fIkey\fP is a pointer to the key for the given host.
 
