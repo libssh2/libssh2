@@ -717,8 +717,10 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
 #define LIBSSH2_KNOWNHOST_KEY_SSHDSS   (3<<18)
 
 LIBSSH2_API int
-libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts, char *host, char *salt,
-                      char *key, size_t keylen, int typemask);
+libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
+                      const char *host,
+                      const char *salt,
+                      const char *key, size_t keylen, int typemask);
 
 /*
  * libssh2_knownhost_check
@@ -776,6 +778,18 @@ libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
  */
 LIBSSH2_API void
 libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts);
+
+/*
+ * libssh2_knownhost_read()
+ *
+ * Pass in a line of a file of 'type'. It makes libssh2 read this line.
+ *
+ * LIBSSH2_KNOWNHOST_FILE_OPENSSH is the only supported type.
+ *
+ */
+LIBSSH2_API int
+libssh2_knownhost_read(LIBSSH2_KNOWNHOSTS *hosts,
+                       const char *line, size_t len, int type);
 
 /*
  * libssh2_knownhost_readfile

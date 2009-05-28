@@ -97,8 +97,8 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session)
 
 LIBSSH2_API int
 libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
-                      char *host, char *salt,
-                      char *key, size_t keylen,
+                      const char *host, const char *salt,
+                      const char *key, size_t keylen,
                       int typemask)
 {
     struct known_host *entry =
@@ -151,6 +151,7 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         if(!entry)
             goto error;
         memcpy(entry->key, key, keylen+1);
+        entry->key[keylen]=0; /* force a terminating zero trailer */
     }
     else {
         /* key is raw, we base64 encode it and store it as such */
@@ -359,52 +360,76 @@ libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts)
  *
  * Parse a single known_host line pre-split into host and key.
  *
- * Note: this function assumes that the 'host' pointer points into a temporary
- * buffer as it will write to it.
  */
 static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
-                    char *host, size_t hostlen,
-                    char *key, size_t keylen)
+                    const char *host, size_t hostlen,
+                    const char *key, size_t keylen)
 {
-    char *p;
-    char *salt = NULL;
+    const char *p;
+    const char *salt = NULL;
     int rc;
     int type = LIBSSH2_KNOWNHOST_TYPE_PLAIN;
-    char *sep = NULL;
+    const char *sep = NULL;
+    size_t seplen = 0;
+    char saltbuf[32];
+    char hostbuf[256];
 
     /* Figure out host format */
-    if(strncmp(host, "|1|", 3)) {
+    if((hostlen >2) && memcmp(host, "|1|", 3)) {
         /* old style plain text: [name][,][ip-address]
 
            for the sake of simplicity, we add them as two hosts with the same
            key
          */
-        sep = strchr(host, ',');
+        size_t scan = hostlen;
+
+        while(scan && (*host != ',')) {
+            host++;
+            scan--;
+        }
+
+        if(scan) {
+            sep = host+1;
+            seplen = scan-1;
+            hostlen -= scan; /* deduct what's left to scan from the first
+                                host name */
+        }
     }
     else {
         /* |1|[salt]|[hash] */
         type = LIBSSH2_KNOWNHOST_TYPE_SHA1;
 
         salt = &host[3]; /* skip the magic marker */
+        hostlen -= 3;    /* deduct the marker */
 
         /* this is where the salt starts, find the end of it */
         for(p = salt; *p && (*p != '|'); p++)
             ;
 
         if(*p=='|') {
-            char *hash = NULL;
-            *p=0; /* terminate the salt string */
-            hash = p+1; /* the hash is after the separator */
+            const char *hash = NULL;
+            size_t saltlen = p - salt;
+            if(saltlen >= (sizeof(saltbuf)-1))
+                return -1; /* weird salt length */
+
+            memcpy(saltbuf, salt, saltlen);
+            saltbuf[saltlen] = 0; /* zero terminate */
+            salt = saltbuf; /* point to the stack based buffer */
+
+            hash = p+1; /* the host hash is after the separator */
 
             /* now make the host point to the hash */
-            hostlen = strlen(hash);
             host = hash;
+            hostlen -= saltlen+1; /* deduct the salt and separator */
         }
         else
             return 0;
     }
 
-    if(keylen < 20)
+    /* make some checks that the lenghts seem sensible */
+    if((keylen < 20) ||
+       (seplen >= sizeof(hostbuf)-1) ||
+       (hostlen >= sizeof(hostbuf)-1))
         return -1; /* TODO: better return code */
 
     switch(key[0]) {
@@ -425,7 +450,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
         else if(!strncmp(key, "ssh-rsa", 7))
             type |= LIBSSH2_KNOWNHOST_KEY_SSHRSA;
         else
-            return -1; /* unknown */
+            return -1; /* unknown key type */
 
         key += 7;
         keylen -= 7;
@@ -442,30 +467,33 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     if(sep) {
-        /* this is the second host after the comma, add this first */
-        char *ipaddr;
-        *sep++ = 0; /* zero terminate the first host name here */
-        ipaddr = sep;
-        rc = libssh2_knownhost_add(hosts, ipaddr, salt, key, keylen,
+        /* The second host after the comma, add this first. Copy it to the
+           temp buffer and zero terminate */
+        memcpy(hostbuf, sep, seplen);
+        hostbuf[seplen]=0;
+
+        rc = libssh2_knownhost_add(hosts, hostbuf, salt, key, keylen,
                                    type | LIBSSH2_KNOWNHOST_KEYENC_BASE64);
         if(rc)
             return rc;
     }
 
-    rc = libssh2_knownhost_add(hosts, host, salt, key, keylen,
-                               type | LIBSSH2_KNOWNHOST_KEYENC_BASE64);
+    memcpy(hostbuf, host, hostlen);
+    hostbuf[hostlen]=0;
 
+    rc = libssh2_knownhost_add(hosts, hostbuf, salt, key, keylen,
+                               type | LIBSSH2_KNOWNHOST_KEYENC_BASE64);
     return rc;
 }
 
 /*
- * libssh2_knownhost_readfile
+ * libssh2_knownhost_read()
  *
- * Read hosts+key pairs from a given file.
+ * Pass in a line of a file of 'type'.
  *
- * Returns a negative value for error or number of successfully added hosts.
+ * LIBSSH2_KNOWNHOST_FILE_OPENSSH is the only supported type.
  *
- * Line format:
+ * OpenSSH line format:
  *
  * <host> <key>
  *
@@ -486,8 +514,80 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
  * 'ssh-rsa' [base64-encoded-key]
  *
  */
+LIBSSH2_API int
+libssh2_knownhost_read(LIBSSH2_KNOWNHOSTS *hosts,
+                       const char *line, size_t len, int type)
+{
+    const char *cp;
+    const char *hostp;
+    const char *keyp;
+    size_t hostlen;
+    size_t keylen;
 
-#define LIBSSH2_KNOWNHOST_FILE_OPENSSH 1
+    if(type != LIBSSH2_KNOWNHOST_FILE_OPENSSH)
+        return LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
+
+    cp = line;
+
+    /* skip leading whitespaces */
+    while(len && ((*cp==' ') || (*cp == '\t'))) {
+        cp++;
+        len--;
+    }
+
+    if(!len || !*cp || (*cp == '#') || (*cp == '\n'))
+        /* comment or empty line */
+        return -1;
+
+    /* the host part starts here */
+    hostp = cp;
+
+    /* move over the host to the separator */
+    while(len && *cp && (*cp!=' ') && (*cp != '\t')) {
+        cp++;
+        len--;
+    }
+
+    hostlen = cp - hostp;
+
+    /* the key starts after the whitespaces */
+    while(len && *cp && ((*cp==' ') || (*cp == '\t'))) {
+        cp++;
+        len--;
+    }
+
+    if(!*cp || !len)
+        /* illegal line */
+        return -1;
+
+    keyp = cp; /* the key starts here */
+    keylen = len;
+
+    /* check if the line (key) ends with a newline and if so kill it */
+    while(len && *cp && (*cp != '\n')) {
+        cp++;
+        len--;
+    }
+
+    /* zero terminate where the newline is */
+    if(*cp == '\n')
+        keylen--; /* don't include this in the count */
+
+    /* deal with this one host+key line */
+    if(hostline(hosts, hostp, hostlen, keyp, keylen))
+        return -1; /* failed */
+
+    return 0; /* success */
+}
+
+/*
+ * libssh2_knownhost_readfile
+ *
+ * Read hosts+key pairs from a given file.
+ *
+ * Returns a negative value for error or number of successfully added hosts.
+ *
+ */
 
 LIBSSH2_API int
 libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
@@ -502,53 +602,10 @@ libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
 
     file = fopen(filename, "r");
     if(file) {
-        char *cp;
-        char *hostp;
-        char *key;
-        size_t hostlen;
-
         while(fgets(buf, sizeof(buf), file)) {
-            cp = buf;
-
-            /* skip leading whitespaces */
-            while((*cp==' ') || (*cp == '\t'))
-                cp++;
-
-            if(!*cp || (*cp == '#') || (*cp == '\n'))
-                /* comment or empty line */
-                continue;
-
-            /* the host part starts here */
-            hostp = cp;
-
-            /* move over the host to the separator */
-            while(*cp && (*cp!=' ') && (*cp != '\t'))
-                cp++;
-
-            hostlen = cp - hostp;
-
-            *cp++ = 0; /* terminate the host string here */
-
-            /* the key starts after the whitespaces */
-            while(*cp && ((*cp==' ') || (*cp == '\t')))
-                cp++;
-
-            if(!*cp)
-                /* illegal line */
-                continue;
-
-            key = cp; /* the key starts here */
-
-            while(*cp && (*cp != '\n'))
-                cp++;
-
-            /* zero terminate where the newline is */
-            if(*cp == '\n')
-                *cp = 0;
-
-            /* deal with this one host+key line */
-            if(!hostline(hosts, hostp, hostlen, key, strlen(key)))
-                num++;
+            if(libssh2_knownhost_read(hosts, buf, strlen(buf), type))
+                break;
+            num++;
         }
         fclose(file);
     }
