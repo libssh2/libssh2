@@ -780,7 +780,7 @@ LIBSSH2_API void
 libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts);
 
 /*
- * libssh2_knownhost_read()
+ * libssh2_knownhost_readline()
  *
  * Pass in a line of a file of 'type'. It makes libssh2 read this line.
  *
@@ -788,8 +788,8 @@ libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts);
  *
  */
 LIBSSH2_API int
-libssh2_knownhost_read(LIBSSH2_KNOWNHOSTS *hosts,
-                       const char *line, size_t len, int type);
+libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
+                           const char *line, size_t len, int type);
 
 /*
  * libssh2_knownhost_readfile

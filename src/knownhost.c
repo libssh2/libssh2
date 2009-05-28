@@ -487,7 +487,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_read()
+ * libssh2_knownhost_readline()
  *
  * Pass in a line of a file of 'type'.
  *
@@ -515,8 +515,8 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
  *
  */
 LIBSSH2_API int
-libssh2_knownhost_read(LIBSSH2_KNOWNHOSTS *hosts,
-                       const char *line, size_t len, int type)
+libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
+                           const char *line, size_t len, int type)
 {
     const char *cp;
     const char *hostp;
@@ -603,7 +603,7 @@ libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
     file = fopen(filename, "r");
     if(file) {
         while(fgets(buf, sizeof(buf), file)) {
-            if(libssh2_knownhost_read(hosts, buf, strlen(buf), type))
+            if(libssh2_knownhost_readline(hosts, buf, strlen(buf), type))
                 break;
             num++;
         }
