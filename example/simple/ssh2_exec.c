@@ -143,7 +143,9 @@ int main(int argc, char *argv[])
 
         check = libssh2_knownhost_check(nh, (char *)hostname,
                                         (char *)fingerprint, len,
-                                        LIBSSH2_KNOWNHOST_TYPE_DEFAULT, &host);
+                                        LIBSSH2_KNOWNHOST_TYPE_PLAIN|
+                                        LIBSSH2_KNOWNHOST_KEYENC_RAW,
+                                        &host);
 
         fprintf(stderr, "Host check: %d, key: %s\n", check,
                 (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH)?
