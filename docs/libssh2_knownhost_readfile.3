@@ -1,14 +1,14 @@
 .\"
 .\" Copyright (c) 2009 by Daniel Stenberg
 .\"
-.TH libssh2_knownhost_parsefile 3 "28 May 2009" "libssh2 1.2" "libssh2 manual"
+.TH libssh2_knownhost_readfile 3 "28 May 2009" "libssh2 1.2" "libssh2 manual"
 .SH NAME
-libssh2_knownhost_parsefile - parse a file of known hosts
+libssh2_knownhost_readfile - parse a file of known hosts
 .SH SYNOPSIS
 #include <libssh2.h>
 
-int libssh2_knownhost_parsefile(LIBSSH2_KNOWNHOSTS *hosts,
-                                const char *filename, int type);
+int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
+                               const char *filename, int type);
 .SH DESCRIPTION
 Reads a collection of known hosts from a specified file and adds them to the
 collection of known hosts.

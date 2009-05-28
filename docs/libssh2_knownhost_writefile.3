@@ -1,14 +1,14 @@
 .\"
 .\" Copyright (c) 2009 by Daniel Stenberg
 .\"
-.TH libssh2_knownhost_dumpfile 3 "28 May 2009" "libssh2 1.2" "libssh2 manual"
+.TH libssh2_knownhost_writefile 3 "28 May 2009" "libssh2 1.2" "libssh2 manual"
 .SH NAME
-libssh2_knownhost_dumpfile - write a collection of known hosts to a file
+libssh2_knownhost_writefile - write a collection of known hosts to a file
 .SH SYNOPSIS
 #include <libssh2.h>
 
-int libssh2_knownhost_dumpfile(LIBSSH2_KNOWNHOSTS *hosts,
-                               const char *filename, int type);
+int libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
+                                const char *filename, int type);
 .SH DESCRIPTION
 Writes all the known hosts to the specified file using the specified file
 format.
@@ -24,6 +24,6 @@ and 0 indicates success.
 .SH AVAILABILITY
 Added in libssh2 1.2
 .SH SEE ALSO
-.BR libssh2_knownhost_parsefile(3)
+.BR libssh2_knownhost_readfile(3)
 .BR libssh2_knownhost_add(3)
 

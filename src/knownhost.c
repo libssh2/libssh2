@@ -459,9 +459,9 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_parsefile
+ * libssh2_knownhost_readfile
  *
- * Add hosts+key pairs from a given file.
+ * Read hosts+key pairs from a given file.
  *
  * Returns a negative value for error or number of successfully added hosts.
  *
@@ -490,8 +490,8 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
 #define LIBSSH2_KNOWNHOST_FILE_OPENSSH 1
 
 LIBSSH2_API int
-libssh2_knownhost_parsefile(LIBSSH2_KNOWNHOSTS *hosts,
-                            const char *filename, int type)
+libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
+                           const char *filename, int type)
 {
     FILE *file;
     int num = 0;
@@ -558,12 +558,12 @@ libssh2_knownhost_parsefile(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_dumpfile()
+ * libssh2_knownhost_writefile()
  *
  * Write hosts+key pairs to the given file.
  */
 LIBSSH2_API int
-libssh2_knownhost_dumpfile(LIBSSH2_KNOWNHOSTS *hosts,
+libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
                            const char *filename, int type)
 {
     struct known_host *node;

@@ -133,8 +133,8 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-    libssh2_knownhost_parsefile(nh, "known_hosts",
-                                LIBSSH2_KNOWNHOST_FILE_OPENSSH);
+    libssh2_knownhost_readfile(nh, "known_hosts",
+                               LIBSSH2_KNOWNHOST_FILE_OPENSSH);
 
     fingerprint = libssh2_session_hostkey(session, &len);
     if(fingerprint) {

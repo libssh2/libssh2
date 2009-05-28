@@ -778,7 +778,7 @@ LIBSSH2_API void
 libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts);
 
 /*
- * libssh2_knownhost_parsefile
+ * libssh2_knownhost_readfile
  *
  * Add hosts+key pairs from a given file.
  *
@@ -791,11 +791,11 @@ libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts);
 #define LIBSSH2_KNOWNHOST_FILE_OPENSSH 1
 
 LIBSSH2_API int
-libssh2_knownhost_parsefile(LIBSSH2_KNOWNHOSTS *hosts,
-                            const char *filename, int type);
+libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
+                           const char *filename, int type);
 
 /*
- * libssh2_knownhost_dumpfile
+ * libssh2_knownhost_writefile
  *
  * Write hosts+key pairs to a given file.
  *
@@ -804,8 +804,8 @@ libssh2_knownhost_parsefile(LIBSSH2_KNOWNHOSTS *hosts,
  */
 
 LIBSSH2_API int
-libssh2_knownhost_dumpfile(LIBSSH2_KNOWNHOSTS *hosts,
-                           const char *filename, int type);
+libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
+                            const char *filename, int type);
 
 /*
  * libssh2_knownhost_get()
