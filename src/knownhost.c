@@ -111,6 +111,10 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     if(!entry)
         return rc;
 
+    if(!(typemask & LIBSSH2_KNOWNHOST_KEY_MASK))
+        /* make sure we have a key type set */
+        return LIBSSH2_ERROR_INVAL;
+
     memset(entry, 0, sizeof(struct known_host));
 
     entry->typemask = typemask;
