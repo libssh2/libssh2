@@ -350,6 +350,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_INVALID_POLL_TYPE         -35
 #define LIBSSH2_ERROR_PUBLICKEY_PROTOCOL        -36
 #define LIBSSH2_ERROR_EAGAIN                    -37
+#define LIBSSH2_ERROR_BUFFER_TOO_SMALL          -38
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *
@@ -807,6 +808,25 @@ libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
 LIBSSH2_API int
 libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
                            const char *filename, int type);
+
+/*
+ * libssh2_knownhost_writeline()
+ *
+ * Ask libssh2 to convert a known host to an output line for storage.
+ *
+ * Note that this function returns LIBSSH2_ERROR_BUFFER_TOO_SMALL if the given
+ * output buffer is too small to hold the desired output.
+ *
+ * This implementation currently only knows one 'type' (openssh), all others
+ * are reserved for future use.
+ *
+ */
+LIBSSH2_API int
+libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
+                            struct libssh2_knownhost *known,
+                            char *buffer, size_t buflen,
+                            size_t *outlen, /* the amount of written data */
+                            int type);
 
 /*
  * libssh2_knownhost_writefile

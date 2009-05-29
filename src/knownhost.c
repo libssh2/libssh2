@@ -319,7 +319,7 @@ libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
     struct known_host *node;
     if(!entry || (entry->magic != KNOWNHOST_MAGIC))
         /* check that this was retrieved the right way or get out */
-        return -1;
+        return LIBSSH2_ERROR_INVAL;
 
     /* get the internal node pointer */
     node = entry->node;
@@ -410,7 +410,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
             const char *hash = NULL;
             size_t saltlen = p - salt;
             if(saltlen >= (sizeof(saltbuf)-1))
-                return -1; /* weird salt length */
+                return LIBSSH2_ERROR_METHOD_NOT_SUPPORTED; /* weird length */
 
             memcpy(saltbuf, salt, saltlen);
             saltbuf[saltlen] = 0; /* zero terminate */
@@ -430,7 +430,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     if((keylen < 20) ||
        (seplen >= sizeof(hostbuf)-1) ||
        (hostlen >= sizeof(hostbuf)-1))
-        return -1; /* TODO: better return code */
+        return LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
 
     switch(key[0]) {
     case '0': case '1': case '2': case '3': case '4':
@@ -450,7 +450,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
         else if(!strncmp(key, "ssh-rsa", 7))
             type |= LIBSSH2_KNOWNHOST_KEY_SSHRSA;
         else
-            return -1; /* unknown key type */
+            return LIBSSH2_ERROR_METHOD_NOT_SUPPORTED; /* unknown key type */
 
         key += 7;
         keylen -= 7;
@@ -463,7 +463,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
         break;
 
     default: /* unknown key format */
-        return -1;
+        return LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
     }
 
     if(sep) {
@@ -523,6 +523,7 @@ libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
     const char *keyp;
     size_t hostlen;
     size_t keylen;
+    int rc;
 
     if(type != LIBSSH2_KNOWNHOST_FILE_OPENSSH)
         return LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
@@ -537,7 +538,7 @@ libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
 
     if(!len || !*cp || (*cp == '#') || (*cp == '\n'))
         /* comment or empty line */
-        return -1;
+        return LIBSSH2_ERROR_NONE;
 
     /* the host part starts here */
     hostp = cp;
@@ -558,7 +559,7 @@ libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
 
     if(!*cp || !len)
         /* illegal line */
-        return -1;
+        return LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
 
     keyp = cp; /* the key starts here */
     keylen = len;
@@ -574,10 +575,11 @@ libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
         keylen--; /* don't include this in the count */
 
     /* deal with this one host+key line */
-    if(hostline(hosts, hostp, hostlen, keyp, keylen))
-        return -1; /* failed */
+    rc = hostline(hosts, hostp, hostlen, keyp, keylen);
+    if(rc)
+        return rc; /* failed */
 
-    return 0; /* success */
+    return LIBSSH2_ERROR_NONE; /* success */
 }
 
 /*
@@ -610,8 +612,116 @@ libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
         fclose(file);
     }
     else
-        return -1;
+        return LIBSSH2_ERROR_FILE;
     return num;
+}
+
+/*
+ * knownhost_writeline()
+ *
+ * Ask libssh2 to convert a known host to an output line for storage.
+ *
+ * Note that this function returns LIBSSH2_ERROR_BUFFER_TOO_SMALL if the given
+ * output buffer is too small to hold the desired output. The 'outlen' field
+ * will then contain the size libssh2 wanted to store, which then is the
+ * smallest sufficient buffer it would require.
+ *
+ */
+static int
+knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
+                    struct known_host *node,
+                    char *buf, size_t buflen,
+                    size_t *outlen, int type)
+{
+    int rc = LIBSSH2_ERROR_NONE;
+    int tindex;
+    const char *keytypes[4]={
+        "", /* not used */
+        "", /* this type has no name in the file */
+        " ssh-rsa",
+        " ssh-dss"
+    };
+    const char *keytype;
+    size_t nlen;
+
+    /* we only support this single file type for now, bail out on all other
+       attempts */
+    if(type != LIBSSH2_KNOWNHOST_FILE_OPENSSH)
+        return LIBSSH2_ERROR_METHOD_NOT_SUPPORTED;
+
+    tindex = (node->typemask & LIBSSH2_KNOWNHOST_KEY_MASK) >>
+        LIBSSH2_KNOWNHOST_KEY_SHIFT;
+
+    /* set the string used in the file */
+    keytype = keytypes[tindex];
+
+    if((node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) ==
+       LIBSSH2_KNOWNHOST_TYPE_SHA1) {
+        char *namealloc;
+        char *saltalloc;
+        nlen = _libssh2_base64_encode(hosts->session, node->name,
+                                      node->name_len, &namealloc);
+        if(!nlen)
+            return LIBSSH2_ERROR_ALLOC;
+
+        nlen = _libssh2_base64_encode(hosts->session,
+                                      node->salt, node->salt_len,
+                                      &saltalloc);
+        if(!nlen) {
+            free(namealloc);
+            return LIBSSH2_ERROR_ALLOC;
+        }
+
+        nlen = strlen(saltalloc) + strlen(namealloc) + strlen(keytype) +
+            strlen(node->key) + 7; /* |1| + | + ' ' + \n + \0 = 7 */
+
+        if(nlen <= buflen)
+            sprintf(buf, "|1|%s|%s%s %s\n", saltalloc, namealloc, keytype,
+                    node->key);
+        else
+            rc = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+
+        free(namealloc);
+        free(saltalloc);
+    }
+    else {
+        nlen = strlen(node->name) + strlen(keytype) + strlen(node->key) + 3;
+        /* ' ' + '\n' + \0 = 3 */
+        if(nlen < buflen)
+            /* these types have the plain name */
+            sprintf(buf, "%s%s %s\n", node->name, keytype, node->key);
+        else
+            rc = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    *outlen = nlen;
+
+    return rc;
+}
+
+/*
+ * libssh2_knownhost_writeline()
+ *
+ * Ask libssh2 to convert a known host to an output line for storage.
+ *
+ * Note that this function returns LIBSSH2_ERROR_BUFFER_TOO_SMALL if the given
+ * output buffer is too small to hold the desired output.
+ */
+LIBSSH2_API int
+libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
+                            struct libssh2_knownhost *known,
+                            char *buffer, size_t buflen,
+                            size_t *outlen, /* the amount of written data */
+                            int type)
+{
+    struct known_host *node;
+
+    if(known->magic != KNOWNHOST_MAGIC)
+        return LIBSSH2_ERROR_INVAL;
+
+    node = known->node;
+
+    return knownhost_writeline(hosts, node, buffer, buflen, outlen, type);
 }
 
 /*
@@ -626,6 +736,7 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
     struct known_host *node;
     FILE *file;
     int rc = LIBSSH2_ERROR_NONE;
+    char buffer[2048];
 
     /* we only support this single file type for now, bail out on all other
        attempts */
@@ -639,48 +750,19 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
     for(node = _libssh2_list_first(&hosts->head);
         node;
         node= _libssh2_list_next(&node->node) ) {
-        int tindex = (node->typemask & LIBSSH2_KNOWNHOST_KEY_MASK) >>
-            LIBSSH2_KNOWNHOST_KEY_SHIFT;
+        size_t wrote;
+        size_t nwrote;
+        rc = knownhost_writeline(hosts, node, buffer, sizeof(buffer), &wrote,
+                                 type);
+        if(rc)
+            break;
 
-        const char *types[4]={
-            "", /* not used */
-            "", /* this type has no name in the file */
-            " ssh-rsa",
-            " ssh-dss"
-        };
-
-        /* set the string used in the file */
-        const char *type = types[tindex];
-
-        if((node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) ==
-           LIBSSH2_KNOWNHOST_TYPE_SHA1) {
-            char *namealloc;
-            char *saltalloc;
-            size_t nlen = _libssh2_base64_encode(hosts->session,
-                                                 node->name, node->name_len,
-                                                 &namealloc);
-            if(!nlen) {
-                rc = LIBSSH2_KNOWNHOST_CHECK_FAILURE;
-                break;
-            }
-            nlen = _libssh2_base64_encode(hosts->session,
-                                          node->salt, node->salt_len,
-                                          &saltalloc);
-            if(!nlen) {
-                rc = LIBSSH2_KNOWNHOST_CHECK_FAILURE;
-                free(namealloc);
-                break;
-            }
-            fprintf(file, "|1|%s|%s%s %s\n", saltalloc, namealloc, type,
-                    node->key);
-            free(namealloc);
-            free(saltalloc);
+        nwrote = fwrite(buffer, 1, wrote, file);
+        if(nwrote != wrote) {
+            /* failed to write the whole thing, bail out */
+            rc = LIBSSH2_ERROR_FILE;
+            break;
         }
-        else {
-            /* these types have the plain name */
-            fprintf(file, "%s%s %s\n", node->name, type, node->key);
-        }
-
     }
     fclose(file);
 
