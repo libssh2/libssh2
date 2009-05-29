@@ -41,7 +41,9 @@ dist_man_MANS = \
 	libssh2_knownhost_get.3 \
 	libssh2_knownhost_init.3 \
 	libssh2_knownhost_readfile.3 \
+	libssh2_knownhost_readline.3 \
 	libssh2_knownhost_writefile.3 \
+	libssh2_knownhost_writeline.3 \
 	libssh2_new_host_entry.3 \
 	libssh2_poll.3 \
 	libssh2_poll_channel_read.3 \
