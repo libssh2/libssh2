@@ -670,6 +670,14 @@ LIBSSH2_API
 const char *libssh2_version(int req_version_num);
 
 
+struct libssh2_knownhost {
+    unsigned int magic;  /* magic stored by the library */
+    void *node; /* handle to the internal representation of this host */
+    char *name; /* this is NULL if no plain text host name exists */
+    char *key;  /* key in base64/printable format */
+    int typemask;
+};
+
 /*
  * libssh2_knownhost_init
  *
@@ -721,7 +729,8 @@ LIBSSH2_API int
 libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                       const char *host,
                       const char *salt,
-                      const char *key, size_t keylen, int typemask);
+                      const char *key, size_t keylen, int typemask,
+                      struct libssh2_knownhost **store);
 
 /*
  * libssh2_knownhost_check
@@ -741,13 +750,6 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
  * LIBSSH2_KNOWNHOST_CHECK_* values, see below
  *
  */
-struct libssh2_knownhost {
-    unsigned int magic;  /* magic stored by the library */
-    void *node; /* handle to the internal representation of this host */
-    char *name; /* this is NULL if no plain text host name exists */
-    char *key;  /* key in base64/printable format */
-    int typemask;
-};
 
 #define LIBSSH2_KNOWNHOST_CHECK_MATCH    0
 #define LIBSSH2_KNOWNHOST_CHECK_MISMATCH 1

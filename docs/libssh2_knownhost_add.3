@@ -10,7 +10,8 @@ libssh2_knownhost_add - add a known host
 int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                           char *host, char *salt,
                           char *key, size_t keylen,
-                          int typemask);
+                          int typemask,
+                          struct libssh2_knownhost **store);
 .SH DESCRIPTION
 Adds a known host to the collection of known hosts identified by the 'hosts'
 handle.
@@ -42,6 +43,10 @@ LIBSSH2_KNOWNHOST_KEYENC_RAW or LIBSSH2_KNOWNHOST_KEYENC_BASE64.
 The key is using one of these algorithms:
 LIBSSH2_KNOWNHOST_KEY_RSA1, LIBSSH2_KNOWNHOST_KEY_SSHRSA or
 LIBSSH2_KNOWNHOST_KEY_SSHDSS.
+
+\fIstore\fP should point to a pointer that gets filled in to point to the
+known host data after the addition. NULL can be passed if you don't care about
+this pointer.
 .SH RETURN VALUE
 Returns a regular libssh2 error code, where negative values are error codes
 and 0 indicates success.

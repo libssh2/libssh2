@@ -95,6 +95,27 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session)
     return knh;
 }
 
+#define KNOWNHOST_MAGIC 0xdeadcafe
+/*
+ * knownhost_to_external()
+ *
+ * Copies data from the internal to the external representation struct.
+ *
+ */
+static struct libssh2_knownhost *knownhost_to_external(struct known_host *node)
+{
+    struct libssh2_knownhost *ext = &node->external;
+
+    ext->magic = KNOWNHOST_MAGIC;
+    ext->node = node;
+    ext->name = ((node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) ==
+                 LIBSSH2_KNOWNHOST_TYPE_PLAIN)? node->name:NULL;
+    ext->key = node->key;
+    ext->typemask = node->typemask;
+
+    return ext;
+}
+
 /*
  * libssh2_knownhost_add
  *
@@ -119,7 +140,7 @@ LIBSSH2_API int
 libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                       const char *host, const char *salt,
                       const char *key, size_t keylen,
-                      int typemask)
+                      int typemask, struct libssh2_knownhost **store)
 {
     struct known_host *entry =
         LIBSSH2_ALLOC(hosts->session, sizeof(struct known_host));
@@ -190,31 +211,13 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     /* add this new host to the big list of known hosts */
     _libssh2_list_add(&hosts->head, &entry->node);
 
+    if(store)
+        *store = knownhost_to_external(entry);
+
     return LIBSSH2_ERROR_NONE;
   error:
     free_host(hosts->session, entry);
     return rc;
-}
-
-#define KNOWNHOST_MAGIC 0xdeadcafe
-/*
- * knownhost_to_external()
- *
- * Copies data from the internal to the external representation struct.
- *
- */
-static struct libssh2_knownhost *knownhost_to_external(struct known_host *node)
-{
-    struct libssh2_knownhost *ext = &node->external;
-
-    ext->magic = KNOWNHOST_MAGIC;
-    ext->node = node;
-    ext->name = ((node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) ==
-                 LIBSSH2_KNOWNHOST_TYPE_PLAIN)? node->name:NULL;
-    ext->key = node->key;
-    ext->typemask = node->typemask;
-
-    return ext;
 }
 
 /*
@@ -498,7 +501,8 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
         hostbuf[seplen]=0;
 
         rc = libssh2_knownhost_add(hosts, hostbuf, salt, key, keylen,
-                                   type | LIBSSH2_KNOWNHOST_KEYENC_BASE64);
+                                   type | LIBSSH2_KNOWNHOST_KEYENC_BASE64,
+                                   NULL);
         if(rc)
             return rc;
     }
@@ -507,7 +511,8 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     hostbuf[hostlen]=0;
 
     rc = libssh2_knownhost_add(hosts, hostbuf, salt, key, keylen,
-                               type | LIBSSH2_KNOWNHOST_KEYENC_BASE64);
+                               type | LIBSSH2_KNOWNHOST_KEYENC_BASE64,
+                               NULL);
     return rc;
 }
 
