@@ -40,6 +40,26 @@
 #include "libssh2_priv.h"
 #include "misc.h"
 
+struct known_host {
+    struct list_node node;
+    char *name;      /* points to the name or the hash (allocated) */
+    size_t name_len; /* needed for hashed data */
+    int typemask;    /* plain, sha1, custom, ... */
+    char *salt;      /* points to binary salt (allocated) */
+    size_t salt_len; /* size of salt */
+    char *key;       /* the (allocated) associated key. This is kept base64
+                        encoded in memory. */
+
+    /* this is the struct we expose externally */
+    struct libssh2_knownhost external;
+};
+
+struct _LIBSSH2_KNOWNHOSTS
+{
+    LIBSSH2_SESSION *session;  /* the session this "belongs to" */
+    struct list_head head;
+};
+
 static void free_host(LIBSSH2_SESSION *session, struct known_host *entry)
 {
     if(entry) {
@@ -183,17 +203,18 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
  * Copies data from the internal to the external representation struct.
  *
  */
-static void knownhost_to_external(struct known_host *node,
-                                  struct libssh2_knownhost *ext)
+static struct libssh2_knownhost *knownhost_to_external(struct known_host *node)
 {
-    if(ext) {
-        ext->magic = KNOWNHOST_MAGIC;
-        ext->node = node;
-        ext->name = ((node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) ==
-                     LIBSSH2_KNOWNHOST_TYPE_PLAIN)? node->name:NULL;
-        ext->key = node->key;
-        ext->typemask = node->typemask;
-    }
+    struct libssh2_knownhost *ext = &node->external;
+
+    ext->magic = KNOWNHOST_MAGIC;
+    ext->node = node;
+    ext->name = ((node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) ==
+                 LIBSSH2_KNOWNHOST_TYPE_PLAIN)? node->name:NULL;
+    ext->key = node->key;
+    ext->typemask = node->typemask;
+
+    return ext;
 }
 
 /*
@@ -218,7 +239,7 @@ LIBSSH2_API int
 libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                         char *host, char *key, size_t keylen,
                         int typemask,
-                        struct libssh2_knownhost *knownhost)
+                        struct libssh2_knownhost **ext)
 {
     struct known_host *node = _libssh2_list_first(&hosts->head);
     struct known_host *badkey = NULL;
@@ -283,7 +304,7 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
             /* host name match, now compare the keys */
             if(!strcmp(key, node->key)) {
                 /* they match! */
-                knownhost_to_external(node, knownhost);
+                *ext = knownhost_to_external(node);
                 badkey = NULL;
                 rc = LIBSSH2_KNOWNHOST_CHECK_MATCH;
                 break;
@@ -300,7 +321,7 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 
     if(badkey) {
         /* key mismatch */
-        knownhost_to_external(badkey, knownhost);
+        *ext = knownhost_to_external(badkey);
         rc = LIBSSH2_KNOWNHOST_CHECK_MISMATCH;
     }
 
@@ -787,7 +808,7 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
  */
 LIBSSH2_API int
 libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
-                      struct libssh2_knownhost *store,
+                      struct libssh2_knownhost **ext,
                       struct libssh2_knownhost *oprev)
 {
     struct known_host *node;
@@ -806,7 +827,7 @@ libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
         /* no (more) node */
         return 1;
 
-    knownhost_to_external(node, store);
+    *ext = knownhost_to_external(node);
 
     return 0;
 }

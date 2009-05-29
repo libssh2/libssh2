@@ -10,7 +10,7 @@ libssh2_knownhost_check - check a host+key against the list of known hosts
 int libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                             char *host, char *key, size_t keylen,
                             int typemask,
-                            struct libssh2_knownhost *knownhost);
+                            struct libssh2_knownhost **knownhost);
 .SH DESCRIPTION
 Checks a host and its associated key against the collection of known hosts,
 and returns info back about the (partially) matched entry.
@@ -34,8 +34,8 @@ The key is encoded using one of the following encodings:
 LIBSSH2_KNOWNHOST_KEYENC_RAW or LIBSSH2_KNOWNHOST_KEYENC_BASE64.
 
 \fIknownhost\fP if set to non-NULL, it must be a pointer to a 'struct
-libssh2_knownhost' which gets filled in with info about a match or a partial
-match.
+libssh2_knownhost' pointer that gets filled in to point to info about a known
+host that matches or partially matches.
 .SH RETURN VALUE
 \fIlibssh2_knownhost_check(3)\fP returns info about how well the provided
 host + key pair matched one of the entries in the list of known hosts.

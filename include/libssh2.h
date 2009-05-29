@@ -758,7 +758,7 @@ LIBSSH2_API int
 libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                         char *host, char *key, size_t keylen,
                         int typemask,
-                        struct libssh2_knownhost *knownhost);
+                        struct libssh2_knownhost **knownhost);
 
 /*
  * libssh2_knownhost_del
@@ -855,7 +855,7 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
  */
 LIBSSH2_API int
 libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
-                      struct libssh2_knownhost *store,
+                      struct libssh2_knownhost **store,
                       struct libssh2_knownhost *prev);
 
 /* NOTE NOTE NOTE
