@@ -669,6 +669,7 @@ LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
 LIBSSH2_API
 const char *libssh2_version(int req_version_num);
 
+#define HAVE_LIBSSH2_KNOWNHOST_API 0x010101 /* since 1.1.1 */
 
 struct libssh2_knownhost {
     unsigned int magic;  /* magic stored by the library */

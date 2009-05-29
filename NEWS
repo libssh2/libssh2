@@ -1,3 +1,10 @@
+* (May 29 2009) Daniel Stenberg:
+
+ - Updated the knownhost API and there are now 9 functions, and all of them
+   have man pages. The libssh2.h now defines HAVE_LIBSSH2_KNOWNHOST_API to
+   ease things for applications to check for the correct release before trying
+   to use it.
+
 * (May 23 2009) Daniel Stenberg:
 
  - Anonymous bug report #2795816 revealed that doing subsequent
