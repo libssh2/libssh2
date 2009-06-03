@@ -881,7 +881,7 @@ struct _LIBSSH2_SESSION
     unsigned char scpRecv_response[LIBSSH2_SCP_RESPONSE_BUFLEN];
     unsigned long scpRecv_response_len;
     long scpRecv_mode;
-#if defined(HAVE_LONGLONG) && defined(strtoll)
+#if defined(HAVE_LONGLONG) && defined(HAVE_STRTOLL)
     /* we have the type and we can parse such numbers */
     long long scpRecv_size;
 #define scpsize_strtol strtoll
