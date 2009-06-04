@@ -288,3 +288,97 @@ dnl end of non-blocking try-compile test
     AC_MSG_WARN([non-block sockets disabled])
   fi
 ])
+
+dnl CURL_CHECK_NEED_REENTRANT_SYSTEM
+dnl -------------------------------------------------
+dnl Checks if the preprocessor _REENTRANT definition
+dnl must be unconditionally done for this platform.
+dnl Internal macro for CURL_CONFIGURE_REENTRANT.
+
+AC_DEFUN([CURL_CHECK_NEED_REENTRANT_SYSTEM], [
+  case $host in
+    *-*-solaris*)
+      tmp_need_reentrant="yes"
+      ;;
+    *)
+      tmp_need_reentrant="no"
+      ;;
+  esac
+])
+
+
+dnl CURL_CONFIGURE_FROM_NOW_ON_WITH_REENTRANT
+dnl -------------------------------------------------
+dnl This macro ensures that configuration tests done
+dnl after this will execute with preprocessor symbol
+dnl _REENTRANT defined. This macro also ensures that
+dnl the generated config file defines NEED_REENTRANT
+dnl and that in turn setup.h will define _REENTRANT.
+dnl Internal macro for CURL_CONFIGURE_REENTRANT.
+
+AC_DEFUN([CURL_CONFIGURE_FROM_NOW_ON_WITH_REENTRANT], [
+AC_DEFINE(NEED_REENTRANT, 1,
+  [Define to 1 if _REENTRANT preprocessor symbol must be defined.])
+cat >>confdefs.h <<_EOF
+#ifndef _REENTRANT
+#  define _REENTRANT
+#endif
+_EOF
+])
+
+
+dnl CURL_CONFIGURE_REENTRANT
+dnl -------------------------------------------------
+dnl This first checks if the preprocessor _REENTRANT
+dnl symbol is already defined. If it isn't currently
+dnl defined a set of checks are performed to verify
+dnl if its definition is required to make visible to
+dnl the compiler a set of *_r functions. Finally, if
+dnl _REENTRANT is already defined or needed it takes
+dnl care of making adjustments necessary to ensure
+dnl that it is defined equally for further configure
+dnl tests and generated config file.
+
+AC_DEFUN([CURL_CONFIGURE_REENTRANT], [
+  AC_PREREQ([2.50])dnl
+  #
+  AC_MSG_CHECKING([if _REENTRANT is already defined])
+  AC_COMPILE_IFELSE([
+    AC_LANG_PROGRAM([[
+    ]],[[
+#ifdef _REENTRANT
+      int dummy=1;
+#else
+      force compilation error
+#endif
+    ]])
+  ],[
+    AC_MSG_RESULT([yes])
+    tmp_reentrant_initially_defined="yes"
+  ],[
+    AC_MSG_RESULT([no])
+    tmp_reentrant_initially_defined="no"
+  ])
+  #
+  if test "$tmp_reentrant_initially_defined" = "no"; then
+    AC_MSG_CHECKING([if _REENTRANT is actually needed])
+    CURL_CHECK_NEED_REENTRANT_SYSTEM
+
+    if test "$tmp_need_reentrant" = "yes"; then
+      AC_MSG_RESULT([yes])
+    else
+      AC_MSG_RESULT([no])
+    fi
+  fi
+  #
+  AC_MSG_CHECKING([if _REENTRANT is onwards defined])
+  if test "$tmp_reentrant_initially_defined" = "yes" ||
+    test "$tmp_need_reentrant" = "yes"; then
+    CURL_CONFIGURE_FROM_NOW_ON_WITH_REENTRANT
+    AC_MSG_RESULT([yes])
+  else
+    AC_MSG_RESULT([no])
+  fi
+  #
+])
+

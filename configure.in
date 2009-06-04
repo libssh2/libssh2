@@ -50,6 +50,10 @@ AC_CHECK_TYPE(long long,
       [Define to 1 if the compiler supports the 'long long' data type.])]
    longlong="yes"
 )
+
+dnl Our configure and build reentrant settings
+CURL_CONFIGURE_REENTRANT
+
 # Some systems (Solaris?) have socket() in -lsocket.
 AC_SEARCH_LIBS(socket, socket)
 
