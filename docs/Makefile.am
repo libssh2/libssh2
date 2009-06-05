@@ -62,6 +62,7 @@ dist_man_MANS = \
 	libssh2_session_flag.3 \
 	libssh2_session_free.3 \
 	libssh2_session_get_blocking.3 \
+	libssh2_session_hostkey.3 \
 	libssh2_session_init_ex.3 \
 	libssh2_session_last_errno.3 \
 	libssh2_session_last_error.3 \
