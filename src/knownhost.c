@@ -394,6 +394,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
                     const char *key, size_t keylen)
 {
     const char *p;
+    const char *orig = host;
     const char *salt = NULL;
     int rc;
     int type = LIBSSH2_KNOWNHOST_TYPE_PLAIN;
@@ -422,6 +423,8 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
             hostlen -= scan; /* deduct what's left to scan from the first
                                 host name */
         }
+        else
+            host = orig;
     }
     else {
         /* |1|[salt]|[hash] */
@@ -507,6 +510,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
             return rc;
     }
 
+    host = orig;
     memcpy(hostbuf, host, hostlen);
     hostbuf[hostlen]=0;
 
