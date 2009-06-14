@@ -728,7 +728,8 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
             rc = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
     }
 
-    *outlen = nlen;
+    /* we report the full length of the data with the trailing zero excluded */
+    *outlen = nlen-1;
 
     return rc;
 }

@@ -23,7 +23,8 @@ the 'type' output format.
 \fIbuflen\fP is the size of the \fIbuffer\fP. See RETURN VALUE about the size.
 
 \fIoutlen\fP must be a pointer to a size_t variable that will get the output
-length stored
+length of the stored data chunk. The number does not included the trailing
+zero!
 
 \fItype\fP specifies what file type it is, and
 \fILIBSSH2_KNOWNHOST_FILE_OPENSSH\fP is the only currently supported
