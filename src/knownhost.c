@@ -721,7 +721,7 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
     else {
         nlen = strlen(node->name) + strlen(keytype) + strlen(node->key) + 3;
         /* ' ' + '\n' + \0 = 3 */
-        if(nlen < buflen)
+        if(nlen <= buflen)
             /* these types have the plain name */
             sprintf(buf, "%s%s %s\n", node->name, keytype, node->key);
         else
