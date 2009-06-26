@@ -36,7 +36,6 @@
  * OF SUCH DAMAGE.
  */
 
-#include "libssh2.h"
 #include "libssh2_priv.h"
 #include "misc.h"
 
