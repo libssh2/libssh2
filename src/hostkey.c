@@ -456,6 +456,27 @@ libssh2_hostkey_hash(LIBSSH2_SESSION * session, int hash_type)
     }
 }
 
+static int hostkey_type(const unsigned char *hostkey, size_t len)
+{
+    const unsigned char rsa[] = {
+        0, 0, 0, 0x07, 's', 's', 'h', '-', 'r', 's', 'a'
+    };
+    const unsigned char dss[] = {
+        0, 0, 0, 0x07, 's', 's', 'h', '-', 'd', 's', 's'
+    };
+
+    if (len < 11)
+        return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
+
+    if (!memcmp(rsa, hostkey, 11))
+        return LIBSSH2_HOSTKEY_TYPE_RSA;
+
+    if (!memcmp(dss, hostkey, 11))
+        return LIBSSH2_HOSTKEY_TYPE_DSS;
+
+    return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
+}
+
 /*
  * libssh2_session_hostkey()
  *
@@ -463,11 +484,14 @@ libssh2_hostkey_hash(LIBSSH2_SESSION * session, int hash_type)
  *
  */
 LIBSSH2_API const char *
-libssh2_session_hostkey(LIBSSH2_SESSION *session, size_t *len)
+libssh2_session_hostkey(LIBSSH2_SESSION *session, size_t *len, int *type)
 {
     if(session->server_hostkey_len) {
         if(len)
             *len = session->server_hostkey_len;
+        if (type)
+            *type = hostkey_type(session->server_hostkey,
+                                 session->server_hostkey_len);
         return (char *) session->server_hostkey;
     }
     if(len)

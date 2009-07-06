@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
     int bytecount = 0;
     size_t len;
     LIBSSH2_KNOWNHOSTS *nh;
+    int type;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -154,7 +155,7 @@ int main(int argc, char *argv[])
     libssh2_knownhost_writefile(nh, "dumpfile",
                                 LIBSSH2_KNOWNHOST_FILE_OPENSSH);
 
-    fingerprint = libssh2_session_hostkey(session, &len);
+    fingerprint = libssh2_session_hostkey(session, &len, &type);
     if(fingerprint) {
         struct libssh2_knownhost *host;
         int check = libssh2_knownhost_check(nh, (char *)hostname,

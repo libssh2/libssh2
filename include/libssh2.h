@@ -294,6 +294,11 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_HOSTKEY_HASH_MD5                            1
 #define LIBSSH2_HOSTKEY_HASH_SHA1                           2
 
+/* Hostkey Types */
+#define LIBSSH2_HOSTKEY_TYPE_UNKNOWN			    0
+#define LIBSSH2_HOSTKEY_TYPE_RSA			    1
+#define LIBSSH2_HOSTKEY_TYPE_DSS			    2
+
 /* Disconnect Codes (defined by SSH protocol) */
 #define SSH_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT          1
 #define SSH_DISCONNECT_PROTOCOL_ERROR                       2
@@ -381,7 +386,7 @@ LIBSSH2_API const char *libssh2_hostkey_hash(LIBSSH2_SESSION *session,
                                              int hash_type);
 
 LIBSSH2_API const char *libssh2_session_hostkey(LIBSSH2_SESSION *session,
-                                                size_t *len);
+                                                size_t *len, int *type);
 
 LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION *session,
                                             int method_type,
