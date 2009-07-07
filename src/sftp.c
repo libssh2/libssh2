@@ -93,17 +93,17 @@ static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
 static void
 _libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
 {
-    unsigned long msl = ((libssh2_uint64_t)value >> 32);
+    unsigned long msl = (unsigned long)(value >> 32);
 
-    buf[0] = (msl >> 24) & 0xFF;
-    buf[1] = (msl >> 16) & 0xFF;
-    buf[2] = (msl >> 8) & 0xFF;
-    buf[3] = msl & 0xFF;
+    buf[0] = (unsigned char)((msl >> 24) & 0xFF);
+    buf[1] = (unsigned char)((msl >> 16) & 0xFF);
+    buf[2] = (unsigned char)((msl >> 8)  & 0xFF);
+    buf[3] = (unsigned char)( msl        & 0xFF);
 
-    buf[4] = (value >> 24) & 0xFF;
-    buf[5] = (value >> 16) & 0xFF;
-    buf[6] = (value >> 8) & 0xFF;
-    buf[7] = value & 0xFF;
+    buf[4] = (unsigned char)((value >> 24) & 0xFF);
+    buf[5] = (unsigned char)((value >> 16) & 0xFF);
+    buf[6] = (unsigned char)((value >> 8)  & 0xFF);
+    buf[7] = (unsigned char)( value        & 0xFF);
 }
 
 /*
@@ -378,7 +378,7 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
         } else if (ret <= 0) {
             /* prevent busy-looping */
             long left =
-                LIBSSH2_READ_TIMEOUT - (time(NULL) - sftp->requirev_start);
+                LIBSSH2_READ_TIMEOUT - (long)(time(NULL) - sftp->requirev_start);
 
             if (left <= 0) {
                 sftp->requirev_start = 0;
@@ -1674,7 +1674,10 @@ libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE * handle, libssh2_uint64_t offset)
 LIBSSH2_API size_t
 libssh2_sftp_tell(LIBSSH2_SFTP_HANDLE * handle)
 {
-    return handle->u.file.offset;
+    /* NOTE: this may very well truncate the size if it is larger than what
+       size_t can hold, so libssh2_sftp_tell64() is really the function you
+       should use */
+    return (size_t)(handle->u.file.offset);
 }
 
 /* libssh2_sftp_tell64
