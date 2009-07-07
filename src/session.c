@@ -427,7 +427,7 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
         local_realloc = my_realloc;
     }
 
-    session = local_alloc(sizeof(LIBSSH2_SESSION), abstract);
+    session = local_alloc(sizeof(LIBSSH2_SESSION), &abstract);
     if (session) {
         memset(session, 0, sizeof(LIBSSH2_SESSION));
         session->alloc = local_alloc;
