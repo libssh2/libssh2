@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2009, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2009 by Daniel Stenberg
  * All rights reserved.
  *
@@ -764,7 +764,7 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 
 LIBSSH2_API int
 libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
-                        char *host, char *key, size_t keylen,
+                        const char *host, const char *key, size_t keylen,
                         int typemask,
                         struct libssh2_knownhost **knownhost);
 
