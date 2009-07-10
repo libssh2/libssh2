@@ -6,7 +6,7 @@ the revised BSD license.
 
 Web site: http://www.libssh2.org/
 
-Mailing list: https://lists.sourceforge.net/lists/listinfo/libssh2-devel
+Mailing list: http://cool.haxx.se/mailman/listinfo/libssh2-devel
 
 Generic installation instructions are in INSTALL.  Some ./configure
 options deserve additional comments:
