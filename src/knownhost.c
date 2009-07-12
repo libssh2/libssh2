@@ -509,6 +509,8 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
             return rc;
     }
 
+    if (!salt)
+        host = orig;
     memcpy(hostbuf, host, hostlen);
     hostbuf[hostlen]=0;
 
