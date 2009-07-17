@@ -46,6 +46,8 @@
 #ifndef LIBSSH2_PUBLICKEY_H
 #define LIBSSH2_PUBLICKEY_H 1
 
+#include "libssh2.h"
+
 typedef struct _LIBSSH2_PUBLICKEY               LIBSSH2_PUBLICKEY;
 
 typedef struct _libssh2_publickey_attribute {
