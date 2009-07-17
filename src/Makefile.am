@@ -1,16 +1,10 @@
 # $Id: Makefile.am,v 1.21 2009/05/07 17:21:56 bagder Exp $
 AUTOMAKE_OPTIONS = foreign nostdinc
 
-libssh2_la_SOURCES = channel.c comp.c crypt.c hostkey.c kex.c mac.c misc.c \
- packet.c publickey.c scp.c session.c sftp.c userauth.c libssh2_priv.h	   \
- openssl.h libgcrypt.h transport.c version.c transport.h channel.h comp.h  \
- mac.h misc.h knownhost.c
+# Makefile.inc provides the CSOURCES and HHEADERS defines
+include ../Makefile.inc
 
-if LIBGCRYPT
-libssh2_la_SOURCES += libgcrypt.c pem.c
-else
-libssh2_la_SOURCES += openssl.c
-endif
+libssh2_la_SOURCES = $(CSOURCES) $(HHEADERS)
 
 EXTRA_DIST = libssh2_config.h.in NMakefile
 

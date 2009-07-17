@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = foreign nostdinc
+
 SUBDIRS = src example tests docs
 
 include_HEADERS =			\
@@ -11,9 +13,15 @@ NETWAREFILES =  nw/keepscreen.c \
  nw/nwlib.c \
  nw/test/Makefile.netware
 
-WIN32FILES = win32/libssh2_dll.dsp win32/libssh2.dsw win32/Makefile.win32      \
-win32/config.mk win32/Makefile win32/test/Makefile.win32 win32/libssh2_lib.dsp \
-win32/libssh2_config.h win32/tests.dsp win32/rules.mk
+DSP = win32/libssh2.dsp
+VCPROJ = win32/libssh2.vcproj
+
+#Need to include $(VCPROJ) to CLEANFILES and WIN32FILES when I get a proper vc8proj.head|foot
+CLEANFILES = $(DSP)
+
+WIN32FILES = win32/Makefile.win32 win32/libssh2.dsw     \
+win32/config.mk win32/Makefile win32/test/Makefile.win32 \
+win32/libssh2_config.h win32/tests.dsp win32/rules.mk $(DSP)
 
 EXTRA_DIST = $(WIN32FILES) buildconf $(NETWAREFILES) get_ver.awk HACKING \
  maketgz NMakefile TODO
@@ -55,3 +63,63 @@ gen-coverage:
 		--title "$(PACKAGE_NAME)"
 
 coverage: init-coverage build-coverage gen-coverage
+
+# DSP/VCPROJ generation adapted from libcurl
+# Makefile.inc provides the CSOURCES and HHEADERS defines
+include Makefile.inc
+
+WIN32SOURCES = $(CSOURCES)
+WIN32HEADERS = $(HHEADERS) libssh2_config.h
+
+DSPOUT = | awk '{printf("%s\r\n", $$0)}' >> $(DSP)
+VCPROJOUT = | awk '{printf("%s\r\n", $$0)}' >> $(VCPROJ)
+
+$(DSP): win32/msvcproj.head win32/msvcproj.foot Makefile.am
+	echo "creating $(DSP)"
+	@(cp $(srcdir)/win32/msvcproj.head $(DSP); \
+	echo "# Begin Group \"Source Files\"" $(DSPOUT); \
+        echo "" $(DSPOUT); \
+        echo "# PROP Default_Filter \"cpp;c;cxx\"" $(DSPOUT); \
+        win32_srcs='$(WIN32SOURCES)'; \
+        sorted_srcs=`for file in $$win32_srcs; do echo $$file; done | sort`; \
+        for file in $$sorted_srcs; do \
+	echo "# Begin Source File" $(DSPOUT); \
+	echo "" $(DSPOUT); \
+	echo "SOURCE=..\\src\\"$$file $(DSPOUT); \
+	echo "# End Source File" $(DSPOUT); \
+	done; \
+	echo "# End Group" $(DSPOUT); \
+	echo "# Begin Group \"Header Files\"" $(DSPOUT); \
+        echo "" $(DSPOUT); \
+        echo "# PROP Default_Filter \"h;hpp;hxx\"" $(DSPOUT); \
+        win32_hdrs='$(WIN32HEADERS)'; \
+        sorted_hdrs=`for file in $$win32_hdrs; do echo $$file; done | sort`; \
+        for file in $$sorted_hdrs; do \
+	echo "# Begin Source File" $(DSPOUT); \
+	echo "" $(DSPOUT); \
+	if [ "$$file" == "libssh2_config.h" ]; \
+	then \
+		echo "SOURCE=.\\"$$file $(DSPOUT); \
+	else \
+		echo "SOURCE=..\\src\\"$$file $(DSPOUT); \
+	fi; \
+	echo "# End Source File" $(DSPOUT); \
+	done; \
+	echo "# End Group" $(DSPOUT); \
+	cat $(srcdir)/win32/msvcproj.foot $(DSPOUT) )
+
+$(VCPROJ): win32/vc8proj.head win32/vc8proj.foot Makefile.am
+	echo "creating $(VCPROJ)"
+	@(cp $(srcdir)/vc8proj.head $(VCPROJ); \
+        win32_srcs='$(WIN32SOURCES)'; \
+        sorted_srcs=`for file in $$win32_srcs; do echo $$file; done | sort`; \
+        for file in $$sorted_srcs; do \
+	echo "<File RelativePath=\""..\src\$$file"\"></File>" $(VCPROJOUT); \
+	done; \
+	echo "</Filter><Filter	Name=\"Header Files\">" $(VCPROJOUT); \
+        win32_hdrs='$(WIN32HEADERS)'; \
+        sorted_hdrs=`for file in $$win32_hdrs; do echo $$file; done | sort`; \
+        for file in $$sorted_hdrs; do \
+	echo "<File RelativePath=\""..\src\$$file"\"></File>" $(VCPROJOUT); \
+	done; \
+	cat $(srcdir)/vc8proj.foot $(VCPROJOUT) )
