@@ -21,7 +21,8 @@ CLEANFILES = $(DSP)
 
 WIN32FILES = win32/Makefile.win32 win32/libssh2.dsw     \
 win32/config.mk win32/Makefile win32/test/Makefile.win32 \
-win32/libssh2_config.h win32/tests.dsp win32/rules.mk $(DSP)
+win32/libssh2_config.h win32/tests.dsp win32/rules.mk $(DSP) \
+win32/msvcproj.head win32/msvcproj.foot
 
 EXTRA_DIST = $(WIN32FILES) buildconf $(NETWAREFILES) get_ver.awk HACKING \
  maketgz NMakefile TODO
@@ -31,6 +32,7 @@ ACLOCAL_AMFLAGS = -I m4
 .PHONY: ChangeLog
 ChangeLog:
 	echo "see NEWS" > ./ChangeLog
+CLEANFILES += ChangeLog
 
 dist-hook:
 	rm -rf $(top_builddir)/tests/log
