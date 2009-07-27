@@ -431,7 +431,7 @@ _libssh2_transport_read(LIBSSH2_SESSION * session)
              * and we can extract packet and padding length from it
              */
             p->packet_length = _libssh2_ntohu32(block);
-            if ((p->packet_length < 1) || (p->packet_length > PACKETBUFSIZE))
+            if (p->packet_length < 1)
                 return PACKET_FAIL;
 
             p->padding_length = block[4];
