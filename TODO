@@ -1,6 +1,11 @@
 Things TODO
 ===========
 
+* make sure the windowing code adapts better to slow situations so that it
+  doesn't then use as much memory as today
+
+* Introduce a 'libssh2_socket_t' type for sockets in internal code
+
 * Provide a libssh2_scp_send() API for files larger than 4GB (32bit size)
 
 * Convert the linked list code used all over to use the (new) generic linked
