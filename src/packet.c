@@ -123,7 +123,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                  (listen->host, listen_state->host,
                   listen_state->host_len) == 0)) {
                 /* This is our listener */
-                LIBSSH2_CHANNEL *channel, *last_queued = listen->queue;
+                LIBSSH2_CHANNEL *channel = NULL, *last_queued = listen->queue;
 
                 last_queued = listen->queue;
                 if (listen_state->state == libssh2_NB_state_allocated) {
@@ -288,7 +288,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
     unsigned long packet_len = 17 + (sizeof(X11FwdUnAvil) - 1);
     unsigned char *p;
-    LIBSSH2_CHANNEL *channel;
+    LIBSSH2_CHANNEL *channel = NULL;
     int rc;
 
     (void) datalen;

@@ -263,7 +263,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
 libssh2pack_t
 _libssh2_transport_read(LIBSSH2_SESSION * session)
 {
-    libssh2pack_t rc;
+    libssh2pack_t rc = -1;
     struct transportpacket *p = &session->packet;
     int remainbuf;
     int remainpack;
