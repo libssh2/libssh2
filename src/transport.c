@@ -619,12 +619,18 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
     rc = _libssh2_send(session->socket_fd, &p->outbuf[p->osent], length,
                        LIBSSH2_SOCKET_SEND_FLAGS(session));
 
+    if(rc > 0) {
+        debugdump(session, "libssh2_transport_write send()",
+                  &p->outbuf[p->osent], rc);
+    }
+
     if (rc == length) {
         /* the remainder of the package was sent */
         LIBSSH2_FREE(session, p->outbuf);
         p->outbuf = NULL;
         p->ototal_num = 0;
-    } else if (rc < 0) {
+    }
+    else if (rc < 0) {
         /* nothing was sent */
         if (errno != EAGAIN) {
             /* send failure! */
@@ -634,9 +640,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
         return PACKET_EAGAIN;
     }
 
-    debugdump(session, "libssh2_transport_write send()", &p->outbuf[p->osent],
-              length);
-    p->osent += length;         /* we sent away this much data */
+    p->osent += rc;         /* we sent away this much data */
 
     return PACKET_NONE;
 }
