@@ -1048,11 +1048,8 @@ struct _LIBSSH2_MAC_METHOD
 void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format,
                     ...);
 #else
-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
-/* C99 style */
-#define _libssh2_debug(x,y,z, __VA_ARGS__) do {} while (0)
-#elif defined(__GNUC__)
-/* GNU style */
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__GNUC__)
+/* C99 supported and also by older GCC */
 #define _libssh2_debug(x,y,z,...) do {} while (0)
 #else
 /* no gcc and not C99, do static and hopefully inline */
