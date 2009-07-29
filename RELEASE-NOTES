@@ -1,0 +1,39 @@
+libssh2 1.2
+
+This release includes the following changes:
+
+ o we've switched to using git for source code control
+ o we're offering an alternative web site at http://libssh2.haxx.se/
+ o the libssh2-devel mailing list moved to http://cool.haxx.se/
+ o libssh2_poll() and libssh2_poll_channel_read() are now deprecated
+ o a range of libssh2_knownhost_*() functions were added to the API to work
+   with OpenSSH style known_hosts files etc
+ o added libssh2_session_hostkey()
+ o added an X11 forwarding example
+ o the makefile now generate MSVS project files
+
+This release includes the following bugfixes:
+
+ o bad 0-return from libssh2_channel_read
+ o failure to "drain" the transport data caused badness
+ o memory leak in libssh2_sftp_shutdown()
+ o fixed stroll() #if condition
+ o build thread-safe on Solaris
+ o error when including libssh2.h in two files on Windows fixed
+ o custom memory function extra argument was wrong
+ o transport now checks for and bail out on packets claing to be zero sized
+ o fixed a number of compiler warnings
+ o buildconf runs on Mac OS X
+ o public headers includable on their own
+ o bad debugdump() caused SIGSEGV at times (when libssh2_trace() was used)
+ o possible data loss when send_existing() failed to send its buffer
+
+This release would not have looked like this without help, code, reports and
+advice from friends like these:
+
+ Simon Josefsson, Neil Gierman, Alexander Lamaison, Peter Stuge,
+ Steven Van Ingelgem, Ben Kibbey, Francois Dupoux, Mark McPherson,
+ Guenter Knauf, Yang Tse, Tor Arntsen, Jussi Mononen, Olivier Hervieu,
+ Paul Veldkamp
+
+        Thanks! (and sorry if I forgot to mention someone)
