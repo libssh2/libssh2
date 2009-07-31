@@ -1,15 +1,40 @@
-* Sara Golemon: Author / Project Manager
+ libssh2 is the result of many friendly people. This list is an attempt to
+ mention all contributors. If we've missed anyone, tell us!
 
-* Daniel Stenberg: Co-maintainer
+ This list of names is a-z sorted.
 
-* James Housleys: Nonblocking conversion
-
-* Simon Josefsson: libgcrypt support
-
-* Mikhail Gusarov: Keyboard Interactive Authentication
-
-* Wez Furlong & Edink Kadribasic: Windows Port
-
-* Dan Fandrich: bug fixes, cleanups
-
-* Guenter Knauf: win32 work and more
+Adam Gobiowski
+Alexander Holyapin
+Alexander Lamaison
+Bjorn Stenborg
+Carlo Bramini
+Dan Casey
+Dan Fandrich
+Daniel Stenberg
+David J Sullivan
+David Robins
+Edink Kadribasic
+Erik Brossler
+Guenter Knauf
+Heiner Steven
+James Housleys
+Jean-Louis Charton
+Markus Moeller
+Mike Protts
+Mikhail Gusarov
+Neil Gierman
+Olivier Hervieu
+Peter O'Gorman
+Peter Stuge
+Romain Bondue
+Sara Golemon
+Satish Mittal
+Sean Peterson
+Selcuk Gueney
+Simon Hart
+Simon Josefsson
+Steven Ayre
+Vincent Jaulin
+Vlad Grachov
+Wez Furlong
+Yang Tse
