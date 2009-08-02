@@ -1,3 +1,11 @@
+* (August 02 2009) Alexander Lamaison:
+
+ - changed _libssh2_rsa_new_private and _libssh2_rsa_new_private so that they
+   no longer use the OpenSSL functions that take a FILE* argument.  Passing
+   CRT-created objects across a DLL boundary causes crashes on Windows of the
+   DLL and the client aren't linked to the exact same verison of the CRT. Now
+   we pass the keys as strings to avoid this issue.
+
 * (May 29 2009) Daniel Stenberg:
 
  - Updated the knownhost API and there are now 9 functions, and all of them
@@ -272,7 +280,7 @@ This release would not have been possible without these friendly contributors:
    James Housley, Simon Josefsson, Dan Fandrich, Guenter Knauf and I too did
    some poking. (Sorry if I forgot anyone I should've mentioned here.)
 
-Of course we would have nothing without the great work by Sara Golemon that 
+Of course we would have nothing without the great work by Sara Golemon that
 we're extending and building upon.
 
 Version 0.15 (June 15 2007)
@@ -287,12 +295,12 @@ Version 0.15 (June 15 2007)
      int libssh2_publickey_shutdown()
      ssize_t libssh2_channel_read_ex()
      ssize_t libssh2_channel_write_ex()
-  
+
     Added functions:
      libssh2_session_last_errno(), libssh2_channel_handle_extended_data2(),
      libssh2_channel_wait_closed(), libssh2_channel_wait_eof(),
      libssh2_session_set_blocking()
-   
+
     Removed functions:
      libssh2_channel_readnb_ex(), libssh2_channel_writenb_ex(),
      libssh2_sftp_readnb(), libssh2_sftp_writenb(),

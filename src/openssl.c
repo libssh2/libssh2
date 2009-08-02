@@ -43,6 +43,9 @@
 #define EVP_MAX_BLOCK_LENGTH 32
 #endif
 
+/* Ridiculously large key-file size cap (512KB) */
+#define MAX_KEY_FILE_LENGTH 524288
+
 int
 _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
                  const unsigned char *edata,
@@ -212,12 +215,80 @@ passphrase_cb(char *buf, int size, int rwflag, char *passphrase)
     return passphrase_len;
 }
 
+static int
+read_file_into_string(char ** key, LIBSSH2_SESSION * session, FILE * fp)
+{
+    long size;
+    size_t read;
+
+    *key = NULL;
+
+    fseek(fp, 0, SEEK_END);
+    size = ftell(fp);
+    if (size < 0) {
+        return -1;
+    }
+    fseek(fp, 0, SEEK_SET);
+
+    size *= sizeof(char);
+    if (size > MAX_KEY_FILE_LENGTH) {
+        return -1;
+    }
+
+    *key = LIBSSH2_ALLOC(session, size + 1);
+    if (!*key) {
+        return -1;
+    }
+
+    read = fread(*key, 1, size, fp);
+    if (read != size) {
+        LIBSSH2_FREE(session, *key);
+        return -1;
+    }
+
+    (*key)[size] = '\0';
+    return 0;
+}
+
+typedef void * (*pem_read_bio_func)(BIO *, void **, pem_password_cb *,
+                                    void * u);
+
+static int
+read_private_key_from_file(void ** key_ctx, LIBSSH2_SESSION * session,
+                           pem_read_bio_func read_private_key,
+                           FILE * fp, unsigned const char *passphrase)
+{
+    char * key;
+    BIO * bp;
+
+    *key_ctx = NULL;
+
+    if(read_file_into_string(&key, session, fp)) {
+        return -1;
+    }
+
+    bp = BIO_new_mem_buf(key, -1);
+    if (!bp) {
+        LIBSSH2_FREE(session, key);
+        return -1;
+    }
+
+    *key_ctx = read_private_key(bp, NULL, (void *) passphrase_cb,
+                                (void *) passphrase);
+
+    BIO_free(bp);
+    LIBSSH2_FREE(session, key);
+    return (*key_ctx) ? 0 : -1;
+}
+
 int
 _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
                          LIBSSH2_SESSION * session,
                          FILE * fp, unsigned const char *passphrase)
 {
-    (void) session;
+    pem_read_bio_func read_rsa =
+        (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
+
     if (!EVP_get_cipherbyname("des")) {
 /* If this cipher isn't loaded it's a pretty good indication that none are.
  * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
@@ -225,12 +296,9 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
  */
         OpenSSL_add_all_ciphers();
     }
-    *rsa = PEM_read_RSAPrivateKey(fp, NULL, (void *) passphrase_cb,
-                                  (void *) passphrase);
-    if (!*rsa) {
-        return -1;
-    }
-    return 0;
+
+    return read_private_key_from_file((void **) rsa, session, read_rsa, fp,
+                                      passphrase);
 }
 
 int
@@ -238,7 +306,9 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
                          LIBSSH2_SESSION * session,
                          FILE * fp, unsigned const char *passphrase)
 {
-    (void) session;
+    pem_read_bio_func read_dsa =
+        (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
+
     if (!EVP_get_cipherbyname("des")) {
 /* If this cipher isn't loaded it's a pretty good indication that none are.
  * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
@@ -246,12 +316,9 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
  */
         OpenSSL_add_all_ciphers();
     }
-    *dsa = PEM_read_DSAPrivateKey(fp, NULL, (void *) passphrase_cb,
-                                  (void *) passphrase);
-    if (!*dsa) {
-        return -1;
-    }
-    return 0;
+
+    return read_private_key_from_file((void **) dsa, session, read_dsa, fp,
+                                      passphrase);
 }
 
 int

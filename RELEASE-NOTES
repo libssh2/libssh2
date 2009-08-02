@@ -27,6 +27,7 @@ This release includes the following bugfixes:
  o public headers includable on their own
  o bad debugdump() caused SIGSEGV at times (when libssh2_trace() was used)
  o possible data loss when send_existing() failed to send its buffer
+ o passing FILE*s across DLL boundaries (OpenSSL) caused crashes on Windows
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
