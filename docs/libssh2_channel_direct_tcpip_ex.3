@@ -13,16 +13,16 @@ LIBSSH2_CHANNEL *
 libssh2_channel_direct_tcpip(LIBSSH2_SESSION *session, const char *host, int port);
 
 .SH DESCRIPTION
-/fIsession/fP - Session instance as returned by 
+\fIsession\fP - Session instance as returned by 
 .BR libssh2_session_init_ex(3)
 
-/fIhost/fP - Third party host to connect to using the SSH host as a proxy.
+\fIhost\fP - Third party host to connect to using the SSH host as a proxy.
 
-/fIport/fP - Port on third party host to connect to.
+\fIport\fP - Port on third party host to connect to.
 
-/fIshost/fP - Host to tell the SSH server the connection originated on.
+\fIshost\fP - Host to tell the SSH server the connection originated on.
 
-/fIsport/fP - Port to tell the SSH server the connection originated from.
+\fIsport\fP - Port to tell the SSH server the connection originated from.
 
 Tunnel a TCP/IP connection through the SSH transport via the remote host to 
 a third party. Communication from the client to the SSH server remains 
