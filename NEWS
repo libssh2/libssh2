@@ -1,3 +1,6 @@
+Version 1.2 (August 10, 2009)
+-----------------------------
+
 * (August 02 2009) Alexander Lamaison:
 
  - changed _libssh2_rsa_new_private and _libssh2_rsa_new_private so that they
