@@ -241,7 +241,7 @@ read_file_into_string(char ** key, LIBSSH2_SESSION * session, FILE * fp)
     }
 
     read = fread(*key, 1, size, fp);
-    if (read != size) {
+    if (read != (size_t) size) {
         LIBSSH2_FREE(session, *key);
         return -1;
     }
