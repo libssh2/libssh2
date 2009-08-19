@@ -1,3 +1,12 @@
+* (August 29 2009) Daniel Stenberg:
+
+ - I fixed all code to use the recently added dedicated linked list functions
+   instead of doing the same stuff spread out all over.
+
+ - I also fixed a few cases where local variables where used to keep memory
+   but was used to keep state for re-invokes due to non-blocking situations
+   which would lead to segfaults.
+
 Version 1.2 (August 10, 2009)
 -----------------------------
 
