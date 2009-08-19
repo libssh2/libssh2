@@ -8,9 +8,6 @@ Things TODO
 
 * Provide a libssh2_scp_send() API for files larger than 4GB (32bit size)
 
-* Convert the linked list code used all over to use the (new) generic linked
-  list code. See the _libssh2_list_*() functions in src/misc.c
-
 * Add more info to the man pages.
 
 * Decrease the number of mallocs. Everywhere.
