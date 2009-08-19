@@ -708,83 +708,75 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             break;
 
         case SSH_MSG_CHANNEL_EOF:
-            {
-                session->packAdd_channel =
-                    _libssh2_channel_locate(session, _libssh2_ntohu32(data + 1));
+            session->packAdd_channel =
+                _libssh2_channel_locate(session, _libssh2_ntohu32(data + 1));
 
-                if (!session->packAdd_channel) {
-                    /* We may have freed already, just quietly ignore this... */
-                    LIBSSH2_FREE(session, data);
-                    session->packAdd_state = libssh2_NB_state_idle;
-                    return 0;
-                }
-
-                _libssh2_debug(session,
-                               LIBSSH2_DBG_CONN,
-                               "EOF received for channel %lu/%lu",
-                               session->packAdd_channel->local.id,
-                               session->packAdd_channel->remote.id);
-                session->packAdd_channel->remote.eof = 1;
-
+            if (!session->packAdd_channel) {
+                /* We may have freed already, just quietly ignore this... */
                 LIBSSH2_FREE(session, data);
                 session->packAdd_state = libssh2_NB_state_idle;
                 return 0;
             }
-            break;
+
+            _libssh2_debug(session,
+                           LIBSSH2_DBG_CONN,
+                           "EOF received for channel %lu/%lu",
+                           session->packAdd_channel->local.id,
+                           session->packAdd_channel->remote.id);
+            session->packAdd_channel->remote.eof = 1;
+
+            LIBSSH2_FREE(session, data);
+            session->packAdd_state = libssh2_NB_state_idle;
+            return 0;
 
         case SSH_MSG_CHANNEL_REQUEST:
-            {
-                if (_libssh2_ntohu32(data + 5) == sizeof("exit-status") - 1
-                    && !memcmp("exit-status", data + 9,
-                               sizeof("exit-status") - 1)) {
+            if (_libssh2_ntohu32(data + 5) == sizeof("exit-status") - 1
+                && !memcmp("exit-status", data + 9,
+                           sizeof("exit-status") - 1)) {
 
-                    /* we've got "exit-status" packet. Set the session value */
-                    session->packAdd_channel =
-                        _libssh2_channel_locate(session,
-                                                _libssh2_ntohu32(data + 1));
+                /* we've got "exit-status" packet. Set the session value */
+                session->packAdd_channel =
+                    _libssh2_channel_locate(session,
+                                            _libssh2_ntohu32(data + 1));
 
-                    if (session->packAdd_channel) {
-                        session->packAdd_channel->exit_status =
-                            _libssh2_ntohu32(data + 9 + sizeof("exit-status"));
-                        _libssh2_debug(session, LIBSSH2_DBG_CONN,
-                                       "Exit status %lu received for channel %lu/%lu",
-                                       session->packAdd_channel->exit_status,
-                                       session->packAdd_channel->local.id,
-                                       session->packAdd_channel->remote.id);
-                    }
-
-                    LIBSSH2_FREE(session, data);
-                    session->packAdd_state = libssh2_NB_state_idle;
-                    return 0;
+                if (session->packAdd_channel) {
+                    session->packAdd_channel->exit_status =
+                        _libssh2_ntohu32(data + 9 + sizeof("exit-status"));
+                    _libssh2_debug(session, LIBSSH2_DBG_CONN,
+                                   "Exit status %lu received for channel %lu/%lu",
+                                   session->packAdd_channel->exit_status,
+                                   session->packAdd_channel->local.id,
+                                   session->packAdd_channel->remote.id);
                 }
+
+                LIBSSH2_FREE(session, data);
+                session->packAdd_state = libssh2_NB_state_idle;
+                return 0;
             }
             break;
 
         case SSH_MSG_CHANNEL_CLOSE:
-            {
-                session->packAdd_channel =
-                    _libssh2_channel_locate(session, _libssh2_ntohu32(data + 1));
+            session->packAdd_channel =
+                _libssh2_channel_locate(session, _libssh2_ntohu32(data + 1));
 
-                if (!session->packAdd_channel) {
-                    /* We may have freed already, just quietly ignore this... */
-                    LIBSSH2_FREE(session, data);
-                    session->packAdd_state = libssh2_NB_state_idle;
-                    return 0;
-                }
-                _libssh2_debug(session, LIBSSH2_DBG_CONN,
-                               "Close received for channel %lu/%lu",
-                               session->packAdd_channel->local.id,
-                               session->packAdd_channel->remote.id);
-
-                session->packAdd_channel->remote.close = 1;
-                session->packAdd_channel->remote.eof = 1;
-                /* TODO: Add a callback for this */
-
+            if (!session->packAdd_channel) {
+                /* We may have freed already, just quietly ignore this... */
                 LIBSSH2_FREE(session, data);
                 session->packAdd_state = libssh2_NB_state_idle;
                 return 0;
             }
-            break;
+            _libssh2_debug(session, LIBSSH2_DBG_CONN,
+                           "Close received for channel %lu/%lu",
+                           session->packAdd_channel->local.id,
+                           session->packAdd_channel->remote.id);
+
+            session->packAdd_channel->remote.close = 1;
+            session->packAdd_channel->remote.eof = 1;
+            /* TODO: Add a callback for this */
+
+            LIBSSH2_FREE(session, data);
+            session->packAdd_state = libssh2_NB_state_idle;
+            return 0;
 
         case SSH_MSG_CHANNEL_OPEN:
             if ((datalen >= (sizeof("forwarded-tcpip") + 4)) &&
