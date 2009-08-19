@@ -259,6 +259,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
 /*
  * This function reads the binary stream as specified in chapter 6 of RFC4253
  * "The Secure Shell (SSH) Transport Layer Protocol"
+ *
+ * DOES NOT call libssh2_error() for ANY error case.
  */
 libssh2pack_t
 _libssh2_transport_read(LIBSSH2_SESSION * session)
@@ -298,15 +300,10 @@ _libssh2_transport_read(LIBSSH2_SESSION * session)
         _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Redirecting into the"
                        " key re-exchange");
         status = libssh2_kex_exchange(session, 1, &session->startup_key_state);
-        if (status == PACKET_EAGAIN) {
-            libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                          "Would block exchanging encryption keys", 0);
+        if (status == PACKET_EAGAIN)
             return PACKET_EAGAIN;
-        } else if (status) {
-            libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
-                          "Unable to exchange encryption keys",0);
+        else if (status)
             return LIBSSH2_ERROR_KEX_FAILURE;
-        }
     }
 
     /*

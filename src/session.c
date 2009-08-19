@@ -699,6 +699,9 @@ static int
 session_free(LIBSSH2_SESSION *session)
 {
     int rc;
+    LIBSSH2_PACKET *pkg;
+    LIBSSH2_CHANNEL *ch;
+    LIBSSH2_LISTENER *l;
 
     if (session->free_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Freeing session resource",
@@ -708,13 +711,15 @@ session_free(LIBSSH2_SESSION *session)
     }
 
     if (session->free_state == libssh2_NB_state_created) {
-        while (session->channels.head) {
-            LIBSSH2_CHANNEL *tmp = session->channels.head;
+        while ((ch = _libssh2_list_first(&session->channels))) {
 
-            rc = libssh2_channel_free(session->channels.head);
-            if (rc == PACKET_EAGAIN) {
+            rc = libssh2_channel_free(ch);
+            if (rc == PACKET_EAGAIN)
                 return PACKET_EAGAIN;
-            }
+#if 0
+            /* Daniel's note: I'm leaving this code here right now since it
+               looks so weird I'm stumped. Why would libssh2_channel_free()
+               fail and forces this to be done? */
             if (tmp == session->channels.head) {
                 /* channel_free couldn't do it's job, perform a messy cleanup */
                 tmp = session->channels.head;
@@ -728,14 +733,14 @@ session_free(LIBSSH2_SESSION *session)
                 /* reverse linking isn't important here, we're killing the
                  * structure */
             }
+#endif
         }
 
         session->state = libssh2_NB_state_sent;
     }
 
     if (session->state == libssh2_NB_state_sent) {
-        LIBSSH2_LISTENER *l;
-        while (l = _libssh2_list_first(&session->listeners)) {
+        while ((l = _libssh2_list_first(&session->listeners))) {
             rc = libssh2_channel_forward_cancel(l);
             if (rc == PACKET_EAGAIN)
                 return PACKET_EAGAIN;
@@ -908,16 +913,14 @@ session_free(LIBSSH2_SESSION *session)
         LIBSSH2_FREE(session, session->err_msg);
     }
 
-    /* Cleanup any remaining packets */
-    while (session->packets.head) {
-        LIBSSH2_PACKET *tmp = session->packets.head;
-
-        /* unlink */
-        session->packets.head = tmp->next;
+    /* Cleanup all remaining packets */
+    while ((pkg = _libssh2_list_first(&session->packets))) {
+        /* unlink the node */
+        _libssh2_list_remove(&pkg->node);
 
         /* free */
-        LIBSSH2_FREE(session, tmp->data);
-        LIBSSH2_FREE(session, tmp);
+        LIBSSH2_FREE(session, pkg->data);
+        LIBSSH2_FREE(session, pkg);
     }
 
     if(session->socket_prev_blockstate)
@@ -1245,7 +1248,7 @@ LIBSSH2_API int
 libssh2_poll_channel_read(LIBSSH2_CHANNEL * channel, int extended)
 {
     LIBSSH2_SESSION *session = channel->session;
-    LIBSSH2_PACKET *packet = session->packets.head;
+    LIBSSH2_PACKET *packet = _libssh2_list_first(&session->packets);
 
     while (packet) {
         if ( channel->local.id == _libssh2_ntohu32(packet->data + 1)) {
@@ -1259,7 +1262,7 @@ libssh2_poll_channel_read(LIBSSH2_CHANNEL * channel, int extended)
             }
             /* else - no data of any type is ready to be read */
         }
-        packet = packet->next;
+        packet = _libssh2_list_next(&packet->node);
     }
 
     return 0;
@@ -1285,7 +1288,7 @@ poll_channel_write(LIBSSH2_CHANNEL * channel)
 static inline int
 poll_listener_queued(LIBSSH2_LISTENER * listener)
 {
-    return listener->queue ? 1 : 0;
+    return _libssh2_list_first(&listener->queue) ? 1 : 0;
 }
 
 /*
@@ -1456,8 +1459,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
                         ((fds[i].revents & LIBSSH2_POLLFD_POLLIN) == 0)) {
                         /* No connections known of yet */
                         fds[i].revents |=
-                            poll_listener_queued(fds[i].fd.
-                                                 listener) ?
+                            poll_listener_queued(fds[i].fd. listener) ?
                             LIBSSH2_POLLFD_POLLIN : 0;
                     }
                     if (fds[i].fd.listener->session->socket_state ==

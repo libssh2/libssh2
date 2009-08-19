@@ -131,15 +131,8 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
     packet->data = data;
     packet->data_len = data_len;
     packet->data_head = 5;
-    packet->brigade = &sftp->packets;
-    packet->next = NULL;
-    packet->prev = sftp->packets.tail;
-    if (packet->prev) {
-        packet->prev->next = packet;
-    } else {
-        sftp->packets.head = packet;
-    }
-    sftp->packets.tail = packet;
+
+    _libssh2_list_add(&sftp->packets, &packet->node);
 
     return 0;
 }
@@ -253,7 +246,7 @@ sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
                 unsigned long *data_len)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
-    LIBSSH2_PACKET *packet = sftp->packets.head;
+    LIBSSH2_PACKET *packet = _libssh2_list_first(&sftp->packets);
     unsigned char match_buf[5];
     int match_len;
 
@@ -277,24 +270,13 @@ sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
             *data_len = packet->data_len;
 
             /* unlink and free this struct */
-            if (packet->prev) {
-                packet->prev->next = packet->next;
-            } else {
-                sftp->packets.head = packet->next;
-            }
-
-            if (packet->next) {
-                packet->next->prev = packet->prev;
-            } else {
-                sftp->packets.tail = packet->prev;
-            }
-
+            _libssh2_list_remove(&packet->node);
             LIBSSH2_FREE(session, packet);
 
             return 0;
         }
         /* check next struct in the list */
-        packet = packet->next;
+        packet = _libssh2_list_next(&packet->node);
     }
     return -1;
 }

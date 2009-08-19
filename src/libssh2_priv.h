@@ -188,8 +188,6 @@ typedef struct _LIBSSH2_CRYPT_METHOD LIBSSH2_CRYPT_METHOD;
 typedef struct _LIBSSH2_COMP_METHOD LIBSSH2_COMP_METHOD;
 
 typedef struct _LIBSSH2_PACKET LIBSSH2_PACKET;
-typedef struct _LIBSSH2_PACKET_BRIGADE LIBSSH2_PACKET_BRIGADE;
-typedef struct _LIBSSH2_CHANNEL_BRIGADE LIBSSH2_CHANNEL_BRIGADE;
 
 typedef int libssh2pack_t;
 
@@ -289,6 +287,7 @@ typedef struct packet_queue_listener_state_t
     uint32_t sport;
     uint32_t host_len;
     uint32_t shost_len;
+    LIBSSH2_CHANNEL *channel;
 } packet_queue_listener_state_t;
 
 #define X11FwdUnAvil "X11 Forward Unavailable"
@@ -303,10 +302,13 @@ typedef struct packet_x11_open_state_t
     uint32_t packet_size;
     uint32_t sport;
     uint32_t shost_len;
+    LIBSSH2_CHANNEL *channel;
 } packet_x11_open_state_t;
 
 struct _LIBSSH2_PACKET
 {
+    struct list_node node; /* linked list header */
+
     unsigned char type;
 
     /* Unencrypted Payload (no type byte, no padding, just the facts ma'am) */
@@ -319,15 +321,6 @@ struct _LIBSSH2_PACKET
 
     /* Can the message be confirmed? */
     int mac;
-
-    LIBSSH2_PACKET_BRIGADE *brigade;
-
-    LIBSSH2_PACKET *next, *prev;
-};
-
-struct _LIBSSH2_PACKET_BRIGADE
-{
-    LIBSSH2_PACKET *head, *tail;
 };
 
 typedef struct _libssh2_channel_data
@@ -344,6 +337,8 @@ typedef struct _libssh2_channel_data
 
 struct _LIBSSH2_CHANNEL
 {
+    struct list_node node;
+
     unsigned char *channel_type;
     unsigned channel_type_len;
 
@@ -355,8 +350,6 @@ struct _LIBSSH2_CHANNEL
     unsigned long adjust_queue;
 
     LIBSSH2_SESSION *session;
-
-    LIBSSH2_CHANNEL *next, *prev;
 
     void *abstract;
       LIBSSH2_CHANNEL_CLOSE_FUNC((*close_cb));
@@ -400,8 +393,6 @@ struct _LIBSSH2_CHANNEL
 
     /* State variables used in libssh2_channel_read_ex() */
     libssh2_nonblocking_states read_state;
-    LIBSSH2_PACKET *read_packet;
-    LIBSSH2_PACKET *read_next;
 
     uint32_t read_local_id;
 
@@ -430,11 +421,6 @@ struct _LIBSSH2_CHANNEL
     libssh2_nonblocking_states extData2_state;
 };
 
-struct _LIBSSH2_CHANNEL_BRIGADE
-{
-    LIBSSH2_CHANNEL *head, *tail;
-};
-
 struct _LIBSSH2_LISTENER
 {
     struct list_node node; /* linked list header */
@@ -444,7 +430,9 @@ struct _LIBSSH2_LISTENER
     char *host;
     int port;
 
-    LIBSSH2_CHANNEL *queue;
+    /* a list of CHANNELs for this listener */
+    struct list_head queue;
+
     int queue_size;
     int queue_maxsize;
 
@@ -588,7 +576,7 @@ struct _LIBSSH2_SFTP
 
     unsigned long request_id, version;
 
-    LIBSSH2_PACKET_BRIGADE packets;
+    struct list_head packets;
 
     /* a list of _LIBSSH2_SFTP_HANDLE structs */
     struct list_head sftp_handles;
@@ -716,12 +704,13 @@ struct _LIBSSH2_SESSION
     /* (local as source of data -- packet_write ) */
     libssh2_endpoint_data local;
 
-    /* Inbound Data buffer -- Sometimes the packet that comes in isn't the
+    /* Inbound Data linked list -- Sometimes the packet that comes in isn't the
        packet we're ready for */
-    LIBSSH2_PACKET_BRIGADE packets;
+    struct list_head packets;
 
     /* Active connection channels */
-    LIBSSH2_CHANNEL_BRIGADE channels;
+    struct list_head channels;
+
     unsigned long next_channel;
 
     struct list_head listeners; /* list of LIBSSH2_LISTENER structs */
@@ -814,7 +803,7 @@ struct _LIBSSH2_SESSION
     unsigned char *userauth_pblc_b;
     packet_requirev_state_t userauth_pblc_packet_requirev_state;
 
-    /* State variables used in llibssh2_userauth_keyboard_interactive_ex() */
+    /* State variables used in libssh2_userauth_keyboard_interactive_ex() */
     libssh2_nonblocking_states userauth_kybd_state;
     unsigned char *userauth_kybd_data;
     unsigned long userauth_kybd_data_len;
@@ -863,7 +852,6 @@ struct _LIBSSH2_SESSION
 
     /* State variables used in libssh2_packet_add() */
     libssh2_nonblocking_states packAdd_state;
-    LIBSSH2_PACKET *packAdd_packet;
     LIBSSH2_CHANNEL *packAdd_channel;
     unsigned long packAdd_data_head;
     key_exchange_state_t packAdd_key_state;
