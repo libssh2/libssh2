@@ -85,6 +85,7 @@
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
+#include "misc.h" /* for the linked list stuff */
 
 #ifndef FALSE
 #define FALSE 0
@@ -547,8 +548,9 @@ struct _LIBSSH2_PUBLICKEY
 
 struct _LIBSSH2_SFTP_HANDLE
 {
+    struct list_node node;
+
     LIBSSH2_SFTP *sftp;
-    LIBSSH2_SFTP_HANDLE *prev, *next;
 
     /* This is a pre-allocated buffer used for sending SFTP requests as the
        whole thing might not get sent in one go. This buffer is used for read,
@@ -588,7 +590,8 @@ struct _LIBSSH2_SFTP
 
     LIBSSH2_PACKET_BRIGADE packets;
 
-    LIBSSH2_SFTP_HANDLE *handles;
+    /* a list of _LIBSSH2_SFTP_HANDLE structs */
+    struct list_head sftp_handles;
 
     unsigned long last_errno;
 
@@ -927,22 +930,6 @@ struct _LIBSSH2_SESSION
 #define LIBSSH2_SOCKET_SEND_FLAGS(session)      0
 #define LIBSSH2_SOCKET_RECV_FLAGS(session)      0
 #endif
-
-/* -------- */
-
-/* First take towards a generic linked list handling code for libssh2
-   internals */
-
-struct list_head {
-    struct list_node *last;
-    struct list_node *first;
-};
-
-struct list_node {
-    struct list_node *next;
-    struct list_node *prev;
-    struct list_head *head;
-};
 
 /* --------- */
 

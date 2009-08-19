@@ -426,3 +426,30 @@ void _libssh2_list_remove(struct list_node *entry)
     else
         entry->head->last = entry->prev;
 }
+
+#if 0
+/* insert a node before the given 'after' entry */
+void _libssh2_list_insert(struct list_node *after, /* insert before this */
+                          struct list_node *entry)
+{
+    /* 'after' is next to 'entry' */
+    bentry->next = after;
+
+    /* entry's prev is then made to be the prev after current has */
+    entry->prev = after->prev;
+
+    /* the node that is now before 'entry' was previously before 'after'
+       and must be made to point to 'entry' correctly */
+    if(entry->prev)
+        entry->prev->next = entry;
+
+    /* after's prev entry points back to entry */
+    after->prev = entry;
+
+    /* after's next entry is still the same as before */
+
+    /* entry's head is the same as after's */
+    entry->head = after->head;
+}
+
+#endif

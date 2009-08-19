@@ -556,8 +556,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
          * as the SFTP session is created they are cleared and can thus be
          * re-used again to allow any amount of SFTP handles per sessions.
          *
-         * Note that you MUST NOT try to call libssh2_sftp_init() to get
-         * another handle until the previous one has finished and either
+         * Note that you MUST NOT try to call libssh2_sftp_init() again to get
+         * another handle until the previous call has finished and either
          * succesffully made a handle or failed and returned error (not
          * including *EAGAIN).
          */
@@ -715,6 +715,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     session->sftpInit_sftp = NULL;
     session->sftpInit_channel = NULL;
 
+    _libssh2_list_init(&sftp_handle->sftp_handles);
+
     return sftp_handle;
 
   sftp_init_error:
@@ -797,6 +799,9 @@ sftp_shutdown(LIBSSH2_SFTP *sftp)
         LIBSSH2_FREE(session, sftp->symlink_packet);
         sftp->symlink_packet = NULL;
     }
+
+    /* TODO: We should consider walking over the sftp_handles list and kill
+     * any remaining sftp handles ... */
 
     rc = _libssh2_channel_free(sftp->channel);
 
@@ -985,12 +990,10 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     memcpy(fp->handle, data + 9, fp->handle_len);
     LIBSSH2_FREE(session, data);
 
-    /* Link the file and the sftp session together */
-    fp->next = sftp->handles;
-    if (fp->next) {
-        fp->next->prev = fp;
-    }
-    fp->sftp = sftp;
+    /* add this file handle to the list kept in the sftp session */
+    _libssh2_list_add(&sftp->sftp_handles, &fp->node);
+
+    fp->sftp = sftp; /* point to the parent struct */
 
     fp->u.file.offset = 0;
 
@@ -1775,12 +1778,8 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         return -1;
     }
 
-    if (handle == sftp->handles) {
-        sftp->handles = handle->next;
-    }
-    if (handle->next) {
-        handle->next->prev = NULL;
-    }
+    /* remove this handle from the parent's list */
+    _libssh2_list_remove(&handle->node);
 
     if ((handle->handle_type == LIBSSH2_SFTP_HANDLE_DIR)
         && handle->u.dir.names_left) {

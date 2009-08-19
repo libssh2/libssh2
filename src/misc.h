@@ -38,7 +38,16 @@
  * OF SUCH DAMAGE.
  */
 
-#include "libssh2_priv.h"
+struct list_head {
+    struct list_node *last;
+    struct list_node *first;
+};
+
+struct list_node {
+    struct list_node *next;
+    struct list_node *prev;
+    struct list_head *head;
+};
 
 void _libssh2_list_init(struct list_head *head);
 
@@ -58,6 +67,6 @@ void *_libssh2_list_prev(struct list_node *node);
 /* remove this node from the list */
 void _libssh2_list_remove(struct list_node *entry);
 
-size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
+size_t _libssh2_base64_encode(struct _LIBSSH2_SESSION *session,
                               const char *inp, size_t insize, char **outptr);
 #endif /* _LIBSSH2_MISC_H */
