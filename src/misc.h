@@ -42,7 +42,7 @@
 
 void _libssh2_list_init(struct list_head *head);
 
-/* add a node first in the list */
+/* add a node last in the list */
 void _libssh2_list_add(struct list_head *head,
                        struct list_node *entry);
 
