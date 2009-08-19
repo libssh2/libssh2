@@ -78,7 +78,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
     unsigned long packet_len = 17 + (sizeof(FwdNotReq) - 1);
     unsigned char *p;
-    LIBSSH2_LISTENER *listen = session->listeners;
+    LIBSSH2_LISTENER *listen = _libssh2_list_first(&session->listeners);
     char failure_code = 1;      /* SSH_OPEN_ADMINISTRATIVELY_PROHIBITED */
     int rc;
 
@@ -238,7 +238,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                 }
             }
 
-            listen = listen->next;
+            listen = _libssh2_list_next(&listen->node);
         }
 
         listen_state->state = libssh2_NB_state_sent;

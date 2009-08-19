@@ -734,11 +734,11 @@ session_free(LIBSSH2_SESSION *session)
     }
 
     if (session->state == libssh2_NB_state_sent) {
-        while (session->listeners) {
-            rc = libssh2_channel_forward_cancel(session->listeners);
-            if (rc == PACKET_EAGAIN) {
+        LIBSSH2_LISTENER *l;
+        while (l = _libssh2_list_first(&session->listeners)) {
+            rc = libssh2_channel_forward_cancel(l);
+            if (rc == PACKET_EAGAIN)
                 return PACKET_EAGAIN;
-            }
         }
 
         session->state = libssh2_NB_state_sent1;

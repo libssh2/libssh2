@@ -92,7 +92,7 @@ LIBSSH2_CHANNEL *
 _libssh2_channel_locate(LIBSSH2_SESSION *session, unsigned long channel_id)
 {
     LIBSSH2_CHANNEL *channel;
-    LIBSSH2_LISTENER *listener;
+    LIBSSH2_LISTENER *l;
 
     for(channel = session->channels.head; channel; channel = channel->next) {
         if (channel->local.id == channel_id)
@@ -101,8 +101,9 @@ _libssh2_channel_locate(LIBSSH2_SESSION *session, unsigned long channel_id)
 
     /* We didn't find the channel in the session, let's then check its
        listeners... */
-    for(listener = session->listeners; listener; listener = listener->next) {
-        for(channel = listener->queue; channel; channel = channel->next) {
+    for(l = _libssh2_list_first(&session->listeners); l;
+        l = _libssh2_list_next(&l->node)) {
+        for(channel = l->queue; channel; channel = channel->next) {
             if (channel->local.id == channel_id)
                 return channel;
         }
@@ -585,12 +586,8 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
             listener->queue_size = 0;
             listener->queue_maxsize = queue_maxsize;
 
-            listener->next = session->listeners;
-            listener->prev = NULL;
-            if (session->listeners) {
-                session->listeners->prev = listener;
-            }
-            session->listeners = listener;
+            /* append this to the parent's list of listeners */
+            _libssh2_list_add(&session->listeners, &listener->node);
 
             if (bound_port) {
                 *bound_port = listener->port;
@@ -713,14 +710,8 @@ static int channel_forward_cancel(LIBSSH2_LISTENER *listener)
     }
     LIBSSH2_FREE(session, listener->host);
 
-    if (listener->next) {
-        listener->next->prev = listener->prev;
-    }
-    if (listener->prev) {
-        listener->prev->next = listener->next;
-    } else {
-        session->listeners = listener->next;
-    }
+    /* remove this entry from the parent's list of listeners */
+    _libssh2_list_remove(&listener->node);
 
     LIBSSH2_FREE(session, listener);
 

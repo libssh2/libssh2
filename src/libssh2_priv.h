@@ -437,6 +437,8 @@ struct _LIBSSH2_CHANNEL_BRIGADE
 
 struct _LIBSSH2_LISTENER
 {
+    struct list_node node; /* linked list header */
+
     LIBSSH2_SESSION *session;
 
     char *host;
@@ -445,8 +447,6 @@ struct _LIBSSH2_LISTENER
     LIBSSH2_CHANNEL *queue;
     int queue_size;
     int queue_maxsize;
-
-    LIBSSH2_LISTENER *prev, *next;
 
     /* State variables used in libssh2_channel_forward_cancel() */
     libssh2_nonblocking_states chanFwdCncl_state;
@@ -724,7 +724,7 @@ struct _LIBSSH2_SESSION
     LIBSSH2_CHANNEL_BRIGADE channels;
     unsigned long next_channel;
 
-    LIBSSH2_LISTENER *listeners;
+    struct list_head listeners; /* list of LIBSSH2_LISTENER structs */
 
     /* Actual I/O socket */
     int socket_fd;
