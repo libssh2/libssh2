@@ -420,6 +420,9 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
  *
  * Create a new packet and attach it to the brigade. Called from the transport
  * layer when it as received a packet.
+ *
+ * The input pointer 'data' is pointing to allocated data that this function
+ * is asked to deal with so on failure OR success, it must be freed fine.
  */
 int
 _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
@@ -446,23 +449,10 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                        "Packet type %d received, length=%d",
                        (int) data[0], (int) datalen);
         if (macstate == LIBSSH2_MAC_INVALID) {
-            if (session->macerror) {
-                if (LIBSSH2_MACERROR(session, (char *) data, datalen) == 0) {
-                    /* Calling app has given the OK, Process it anyway */
-                    macstate = LIBSSH2_MAC_CONFIRMED;
-                } else {
-                    libssh2_error(session, LIBSSH2_ERROR_INVALID_MAC,
-                                  "Invalid Message Authentication Code received",
-                                  0);
-                    if (session->ssh_msg_disconnect) {
-                        LIBSSH2_DISCONNECT(session, SSH_DISCONNECT_MAC_ERROR,
-                                           "Invalid MAC received",
-                                           sizeof("Invalid MAC received") - 1,
-                                           "", 0);
-                    }
-                    LIBSSH2_FREE(session, data);
-                    return -1;
-                }
+            if (session->macerror &&
+                LIBSSH2_MACERROR(session, (char *) data, datalen) == 0) {
+                /* Calling app has given the OK, Process it anyway */
+                macstate = LIBSSH2_MAC_CONFIRMED;
             } else {
                 libssh2_error(session, LIBSSH2_ERROR_INVALID_MAC,
                               "Invalid Message Authentication Code received",
@@ -474,7 +464,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                        "", 0);
                 }
                 LIBSSH2_FREE(session, data);
-                return -1;
+                return LIBSSH2_ERROR_INVALID_MAC;
             }
         }
 
@@ -535,7 +525,9 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 LIBSSH2_FREE(session, data);
                 session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
                 session->packAdd_state = libssh2_NB_state_idle;
-                return -1;
+                libssh2_error(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
+                              "socket disconnect", 0);
+                return LIBSSH2_ERROR_SOCKET_DISCONNECT;
             }
             break;
 
@@ -549,7 +541,6 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             LIBSSH2_FREE(session, data);
             session->packAdd_state = libssh2_NB_state_idle;
             return 0;
-            break;
 
         case SSH_MSG_DEBUG:
             {
