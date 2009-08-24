@@ -1312,7 +1312,7 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                           "Unable to allocate memory for channel-process request",
                           0);
-            return -1;
+            return LIBSSH2_ERROR_ALLOC;
         }
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
@@ -1342,12 +1342,12 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
             return PACKET_EAGAIN;
         }
         else if (rc) {
-            libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+            libssh2_error(session, rc,
                           "Unable to send channel request", 0);
             LIBSSH2_FREE(session, channel->process_packet);
             channel->process_packet = NULL;
             channel->process_state = libssh2_NB_state_idle;
-            return -1;
+            return rc;
         }
         LIBSSH2_FREE(session, channel->process_packet);
         channel->process_packet = NULL;
@@ -1365,7 +1365,9 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
             return PACKET_EAGAIN;
         } else if (rc) {
             channel->process_state = libssh2_NB_state_idle;
-            return -1;
+            libssh2_error(session, rc,
+                          "Failed waiting for channel success", 0);
+            return rc;
         }
 
         if (data[0] == SSH_MSG_CHANNEL_SUCCESS) {
@@ -1379,7 +1381,7 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
     libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
                   "Unable to complete request for channel-process-startup", 0);
     channel->process_state = libssh2_NB_state_idle;
-    return -1;
+    return LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED;
 }
 
 /*
