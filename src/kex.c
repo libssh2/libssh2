@@ -144,11 +144,11 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         rc = _libssh2_transport_write(session, exchange_state->e_packet,
                                       exchange_state->e_packet_len);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (rc) {
-            libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+            libssh2_error(session, rc,
                           "Unable to send KEX init message", 0);
-            ret = -1;
+            ret = rc;
             goto clean_exit;
         }
         exchange_state->state = libssh2_NB_state_sent;
@@ -166,7 +166,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
             burn_type =
                 _libssh2_packet_burn(session, &exchange_state->burn_state);
             if (burn_type == PACKET_EAGAIN) {
-                return PACKET_EAGAIN;
+                return burn_type;
             } else if (burn_type <= 0) {
                 /* Failed to receive a packet */
                 ret = burn_type;
@@ -189,7 +189,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
                                      &exchange_state->s_packet_len, 0, NULL,
                                      0, &exchange_state->req_state);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         }
         if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
@@ -419,7 +419,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
     if (exchange_state->state == libssh2_NB_state_sent2) {
         rc = _libssh2_transport_write(session, &exchange_state->c, 1);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (rc) {
             libssh2_error(session, rc, "Unable to send NEWKEYS message", 0);
             ret = rc;
@@ -435,7 +435,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
                                      &exchange_state->tmp_len, 0, NULL, 0,
                                      &exchange_state->req_state);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (rc) {
             libssh2_error(session, rc, "Timed out waiting for NEWKEYS", 0);
             ret = rc;
@@ -693,7 +693,7 @@ kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION *session,
                               SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
                               NULL, 0, &key_state->exchange_state);
     if (ret == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return ret;
     }
 
     _libssh2_bn_free(key_state->p);
@@ -769,7 +769,7 @@ kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_SESSION *session,
                               256, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
                               NULL, 0, &key_state->exchange_state);
     if (ret == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return ret;
     }
 
     key_state->state = libssh2_NB_state_idle;
@@ -823,11 +823,11 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
         rc = _libssh2_transport_write(session, key_state->request,
                                    key_state->request_len);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (rc) {
-            libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+            libssh2_error(session, rc,
                           "Unable to send Group Exchange Request", 0);
-            ret = -1;
+            ret = rc;
             goto dh_gex_clean_exit;
         }
 
@@ -839,11 +839,11 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
                                      &key_state->data, &key_state->data_len,
                                      0, NULL, 0, &key_state->req_state);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (rc) {
-            libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
+            libssh2_error(session, rc,
                           "Timeout waiting for GEX_GROUP reply", 0);
-            ret = -1;
+            ret = rc;
             goto dh_gex_clean_exit;
         }
 
@@ -869,7 +869,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
                                   key_state->data_len - 1,
                                   &key_state->exchange_state);
         if (ret == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return ret;
         }
 
         LIBSSH2_FREE(session, key_state->data);
@@ -1123,7 +1123,7 @@ static int kexinit(LIBSSH2_SESSION * session)
     if (rc == PACKET_EAGAIN) {
         session->kexinit_data = data;
         session->kexinit_data_len = data_len;
-        return PACKET_EAGAIN;
+        return rc;
     }
     else if (rc) {
         LIBSSH2_FREE(session, data);
@@ -1690,7 +1690,7 @@ libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
             retcode = kexinit(session);
             if (retcode == PACKET_EAGAIN) {
                 session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
-                return PACKET_EAGAIN;
+                return retcode;
             } else if (retcode) {
                 session->local.kexinit = key_state->oldlocal;
                 session->local.kexinit_len = key_state->oldlocal_len;
@@ -1711,7 +1711,7 @@ libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                                         &key_state->req_state);
             if (retcode == PACKET_EAGAIN) {
                 session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
-                return PACKET_EAGAIN;
+                return retcode;
             }
             else if (retcode) {
                 if (session->local.kexinit) {
@@ -1747,7 +1747,7 @@ libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                                                   &key_state->key_state_low);
             if (retcode == PACKET_EAGAIN) {
                 session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
-                return PACKET_EAGAIN;
+                return retcode;
             } else if (retcode) {
                 libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
                               "Unrecoverable error exchanging keys", 0);

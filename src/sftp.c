@@ -169,7 +169,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
     else {
         rc = libssh2_channel_read_ex(channel, 0, (char *) buffer, 4);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         }
         else if (4 != rc) {
             /* TODO: this is stupid since we can in fact get 1-3 bytes in a
@@ -216,7 +216,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
             sftp->partial_received = packet_received;
             packet = NULL;
 
-            return PACKET_EAGAIN;
+            return bytes_received;
         }
         else if (bytes_received < 0) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
@@ -306,7 +306,7 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
     while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
         ret = sftp_packet_read(sftp);
         if (ret == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return ret;
         } else if (ret <= 0) {
             return -1;
         }
@@ -368,7 +368,7 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
                 return PACKET_TIMEOUT;
             }
             else if (ret == PACKET_EAGAIN) {
-                return PACKET_EAGAIN;
+                return ret;
             }
         }
     }
@@ -1092,7 +1092,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 sftp->read_packet = packet;
                 sftp->read_request_id = request_id;
                 sftp->read_total_read = total_read;
-                return PACKET_EAGAIN;
+                return retcode;
             } else if (packet_len != retcode) {
                 /* TODO: a partial write is not a critical error when in
                    non-blocking mode! */
@@ -1115,7 +1115,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
             if (retcode == PACKET_EAGAIN) {
                 libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                               "Would block waiting for status message", 0);
-                return PACKET_EAGAIN;
+                return retcode;
             } else if (retcode) {
                 libssh2_error(session, retcode,
                               "Timeout waiting for status message", 0);
@@ -1295,7 +1295,7 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                                          (char *) sftp->readdir_packet,
                                          packet_len);
         if (retcode == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return retcode;
         }
         else if (packet_len != retcode) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
@@ -1317,7 +1317,7 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                              sftp->readdir_request_id, &data,
                              &data_len);
     if (retcode == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return retcode;
     } else if (retcode) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                       "Timeout waiting for status message", 0);
@@ -1482,10 +1482,10 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                              sftp->write_request_id, &data, &data_len);
     if (rc == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return rc;
     }
     else if (rc) {
-        libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
+        libssh2_error(session, rc,
                       "Timeout waiting for status message", 0);
         sftp->write_state = libssh2_NB_state_idle;
         return rc;
@@ -1573,7 +1573,7 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->fstat_packet,
                                     packet_len);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (packet_len != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           (setstat ? "Unable to send FXP_FSETSTAT"
@@ -1593,7 +1593,7 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
                               sftp->fstat_request_id, &data,
                               &data_len);
     if (rc == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return rc;
     } else if (rc) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                       "Timeout waiting for status message", 0);
@@ -1719,7 +1719,7 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         rc = _libssh2_channel_write(channel, 0, (char *) handle->close_packet,
                                     packet_len);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (packet_len != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send FXP_CLOSE command", 0);
@@ -1739,7 +1739,7 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
                                  handle->close_request_id, &data,
                                  &data_len);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                           "Timeout waiting for status message", 0);
@@ -1831,7 +1831,7 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename,
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->unlink_packet,
                                     packet_len);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (packet_len != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send FXP_REMOVE command", 0);
@@ -1850,7 +1850,7 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename,
                              sftp->unlink_request_id, &data,
                              &data_len);
     if (rc == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return rc;
     }
     else if (rc) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
@@ -1954,7 +1954,7 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->rename_packet,
                                     sftp->rename_s - sftp->rename_packet);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (packet_len != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send FXP_RENAME command", 0);
@@ -1973,7 +1973,7 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
                              sftp->rename_request_id, &data,
                              &data_len);
     if (rc == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return rc;
     } else if (rc) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                       "Timeout waiting for status message", 0);
@@ -2085,7 +2085,7 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
         rc = _libssh2_channel_write(channel, 0, (char *) packet, packet_len);
         if (rc == PACKET_EAGAIN) {
             sftp->mkdir_packet = packet;
-            return PACKET_EAGAIN;
+            return rc;
         }
         if (packet_len != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
@@ -2102,7 +2102,7 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS, sftp->mkdir_request_id,
                              &data, &data_len);
     if (rc == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return rc;
     } else if (rc) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                       "Timeout waiting for status message", 0);
@@ -2183,7 +2183,7 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->rmdir_packet,
                                     packet_len);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (packet_len != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send FXP_RMDIR command", 0);
@@ -2201,7 +2201,7 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                              sftp->rmdir_request_id, &data, &data_len);
     if (rc == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return rc;
     } else if (rc) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                       "Timeout waiting for status message", 0);
@@ -2302,7 +2302,7 @@ static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->stat_packet,
                                     packet_len);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (packet_len != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send STAT/LSTAT/SETSTAT command", 0);
@@ -2320,7 +2320,7 @@ static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
     rc = sftp_packet_requirev(sftp, 2, stat_responses,
                               sftp->stat_request_id, &data, &data_len);
     if (rc == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return rc;
     } else if (rc) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                       "Timeout waiting for status message", 0);
@@ -2442,7 +2442,7 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->symlink_packet,
                                     packet_len);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (packet_len != rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send SYMLINK/READLINK command", 0);
@@ -2461,7 +2461,7 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
                               sftp->symlink_request_id, &data,
                               &data_len);
     if (rc == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return rc;
     }
     else if (rc) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,

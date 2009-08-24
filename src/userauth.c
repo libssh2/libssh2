@@ -266,7 +266,7 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
         rc = _libssh2_transport_write(session, session->userauth_pswd_data,
                                   session->userauth_pswd_data_len);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send userauth-password request", 0);
@@ -294,7 +294,7 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
                                           &session->
                                           userauth_pswd_packet_requirev_state);
             if (rc == PACKET_EAGAIN) {
-                return PACKET_EAGAIN;
+                return rc;
             } else if (rc) {
                 session->userauth_pswd_state = libssh2_NB_state_idle;
                 return -1;
@@ -402,7 +402,7 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
                                                   session->
                                                   userauth_pswd_data_len);
                         if (rc == PACKET_EAGAIN) {
-                            return PACKET_EAGAIN;
+                            return rc;
                         } else if (rc) {
                             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                                           "Unable to send userauth-password-change request",
@@ -808,7 +808,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                       session->userauth_host_s -
                                       session->userauth_host_packet);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send userauth-hostbased request", 0);
@@ -831,7 +831,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                       &session->
                                       userauth_host_packet_requirev_state);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         }
 
         session->userauth_host_state = libssh2_NB_state_idle;
@@ -987,7 +987,7 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
         rc = _libssh2_transport_write(session, session->userauth_pblc_packet,
                                   session->userauth_pblc_packet_len);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send userauth-publickey request", 0);
@@ -1017,7 +1017,7 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
                                       &session->
                                       userauth_pblc_packet_requirev_state);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (rc) {
             LIBSSH2_FREE(session, session->userauth_pblc_packet);
             session->userauth_pblc_packet = NULL;
@@ -1163,7 +1163,7 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
                                       session->userauth_pblc_s -
                                       session->userauth_pblc_packet);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send userauth-publickey request", 0);
@@ -1186,7 +1186,7 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
                                   &session->userauth_pblc_data_len, 0, NULL, 0,
                                   &session->userauth_pblc_packet_requirev_state);
     if (rc == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return rc;
     } else if (rc) {
         session->userauth_pblc_state = libssh2_NB_state_idle;
         return -1;
@@ -1326,7 +1326,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
         rc = _libssh2_transport_write(session, session->userauth_kybd_data,
                                   session->userauth_kybd_packet_len);
         if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
+            return rc;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send keyboard-interactive request", 0);
@@ -1350,7 +1350,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                                           &session->
                                           userauth_kybd_packet_requirev_state);
             if (rc == PACKET_EAGAIN) {
-                return PACKET_EAGAIN;
+                return rc;
             } else if (rc) {
                 session->userauth_kybd_state = libssh2_NB_state_idle;
                 return -1;
@@ -1527,7 +1527,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             rc = _libssh2_transport_write(session, session->userauth_kybd_data,
                                        session->userauth_kybd_packet_len);
             if (rc == PACKET_EAGAIN) {
-                return PACKET_EAGAIN;
+                return rc;
             }
             if (rc) {
                 libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,

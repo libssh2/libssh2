@@ -562,35 +562,22 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         session->startup_state = libssh2_NB_state_created;
     }
 
-    /* TODO: Liveness check */
-
     if (session->startup_state == libssh2_NB_state_created) {
         rc = banner_send(session);
-        if (rc == PACKET_EAGAIN) {
-            libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                          "Would block sending banner to remote host", 0);
-            return LIBSSH2_ERROR_EAGAIN;
-        } else if (rc) {
-            /* Unable to send banner? */
-            libssh2_error(session, LIBSSH2_ERROR_BANNER_SEND,
-                          "Error sending banner to remote host", 0);
-            return LIBSSH2_ERROR_BANNER_SEND;
+        if (rc) {
+            libssh2_error(session, rc,
+                          "Failed sending banner", 0);
+            return rc;
         }
-
         session->startup_state = libssh2_NB_state_sent;
     }
 
     if (session->startup_state == libssh2_NB_state_sent) {
         rc = banner_receive(session);
-        if (rc == PACKET_EAGAIN) {
-            libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                          "Would block waiting for banner", 0);
-            return LIBSSH2_ERROR_EAGAIN;
-        } else if (rc) {
-            /* Unable to receive banner from remote */
-            libssh2_error(session, LIBSSH2_ERROR_BANNER_NONE,
-                          "Timeout waiting for banner", 0);
-            return LIBSSH2_ERROR_BANNER_NONE;
+        if (rc) {
+            libssh2_error(session, rc,
+                          "Failed getting banner", 0);
+            return rc;
         }
 
         session->startup_state = libssh2_NB_state_sent1;
@@ -598,14 +585,10 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 
     if (session->startup_state == libssh2_NB_state_sent1) {
         rc = libssh2_kex_exchange(session, 0, &session->startup_key_state);
-        if (rc == PACKET_EAGAIN) {
-            libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                          "Would block exchanging encryption keys", 0);
-            return LIBSSH2_ERROR_EAGAIN;
-        } else if (rc) {
-            libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
+        if (rc) {
+            libssh2_error(session, rc,
                           "Unable to exchange encryption keys", 0);
-            return LIBSSH2_ERROR_KEX_FAILURE;
+            return rc;
         }
 
         session->startup_state = libssh2_NB_state_sent2;
@@ -628,15 +611,10 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     if (session->startup_state == libssh2_NB_state_sent3) {
         rc = _libssh2_transport_write(session, session->startup_service,
                                       sizeof("ssh-userauth") + 5 - 1);
-        if (rc == PACKET_EAGAIN) {
-            libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                          "Would block asking for ssh-userauth service", 0);
-            return LIBSSH2_ERROR_EAGAIN;
-        }
-        else if (rc) {
-            libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+        if (rc) {
+            libssh2_error(session, rc,
                           "Unable to ask for ssh-userauth service", 0);
-            return LIBSSH2_ERROR_SOCKET_SEND;
+            return rc;
         }
 
         session->startup_state = libssh2_NB_state_sent4;
@@ -647,11 +625,9 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
                                      &session->startup_data,
                                      &session->startup_data_len, 0, NULL, 0,
                                      &session->startup_req_state);
-        if (rc == PACKET_EAGAIN) {
-            return LIBSSH2_ERROR_EAGAIN;
-        } else if (rc) {
-            return LIBSSH2_ERROR_SOCKET_DISCONNECT;
-        }
+        if (rc)
+            return rc;
+
         session->startup_service_length =
             _libssh2_ntohu32(session->startup_data + 1);
 
@@ -721,7 +697,7 @@ session_free(LIBSSH2_SESSION *session)
 
             rc = libssh2_channel_free(ch);
             if (rc == PACKET_EAGAIN)
-                return PACKET_EAGAIN;
+                return rc;
 #if 0
             /* Daniel's note: I'm leaving this code here right now since it
                looks so weird I'm stumped. Why would libssh2_channel_free()
@@ -749,7 +725,7 @@ session_free(LIBSSH2_SESSION *session)
         while ((l = _libssh2_list_first(&session->listeners))) {
             rc = libssh2_channel_forward_cancel(l);
             if (rc == PACKET_EAGAIN)
-                return PACKET_EAGAIN;
+                return rc;
         }
 
         session->state = libssh2_NB_state_sent1;
@@ -1016,7 +992,7 @@ session_disconnect(LIBSSH2_SESSION *session, int reason,
     rc = _libssh2_transport_write(session, session->disconnect_data,
                                   session->disconnect_data_len);
     if (rc == PACKET_EAGAIN) {
-        return PACKET_EAGAIN;
+        return rc;
     }
 
     LIBSSH2_FREE(session, session->disconnect_data);

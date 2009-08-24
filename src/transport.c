@@ -359,7 +359,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 /* check if this is due to EAGAIN and return the special
                    return code if so, error out normally otherwise */
                 if ((nread < 0) && (errno == EAGAIN)) {
-                    session->socket_block_directions =
+                    session->socket_block_directions |=
                         LIBSSH2_SESSION_BLOCK_INBOUND;
                     return PACKET_EAGAIN;
                 }
@@ -388,6 +388,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                    check is only done for the initial block since once we have
                    got the start of a block we can in fact deal with fractions
                 */
+                session->socket_block_directions |=
+                    LIBSSH2_SESSION_BLOCK_INBOUND;
                 return PACKET_EAGAIN;
             }
 
@@ -558,7 +560,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                     session->readPack_state = libssh2_NB_state_jump1;
                 }
 
-                return PACKET_EAGAIN;
+                return rc;
             }
 
             p->total_num = 0;   /* no packet buffer available */
@@ -618,7 +620,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
             /* send failure! */
             return PACKET_FAIL;
         }
-        session->socket_block_directions = LIBSSH2_SESSION_BLOCK_OUTBOUND;
+        session->socket_block_directions |= LIBSSH2_SESSION_BLOCK_OUTBOUND;
         return PACKET_EAGAIN;
     }
 
@@ -781,7 +783,7 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     if (ret != total_length) {
         if ((ret > 0) || ((ret == -1) && (errno == EAGAIN))) {
             /* the whole packet could not be sent, save the rest */
-            session->socket_block_directions = LIBSSH2_SESSION_BLOCK_OUTBOUND;
+            session->socket_block_directions |= LIBSSH2_SESSION_BLOCK_OUTBOUND;
             p->odata = orgdata;
             p->olen = orgdata_len;
             p->osent = (ret == -1) ? 0 : ret;
