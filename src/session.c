@@ -238,7 +238,7 @@ banner_send(LIBSSH2_SESSION * session)
  * is copied from the libcurl sources with permission.
  */
 static int
-session_nonblock(int sockfd,   /* operate on this */
+session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
                  int nonblock /* TRUE or FALSE */ )
 {
 #undef SETBLOCK
@@ -529,7 +529,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
 }
 
 static int
-session_startup(LIBSSH2_SESSION *session, int sock)
+session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 {
     int rc;
 
