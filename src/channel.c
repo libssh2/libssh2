@@ -633,7 +633,7 @@ static int channel_forward_cancel(LIBSSH2_LISTENER *listener)
         if (!packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                           "Unable to allocate memeory for setenv packet", 0);
-            return -1;
+            return LIBSSH2_ERROR_ALLOC;
         }
 
         *(s++) = SSH_MSG_GLOBAL_REQUEST;
@@ -668,7 +668,7 @@ static int channel_forward_cancel(LIBSSH2_LISTENER *listener)
                           0);
             LIBSSH2_FREE(session, packet);
             listener->chanFwdCncl_state = libssh2_NB_state_idle;
-            return -1;
+            return LIBSSH2_ERROR_SOCKET_SEND;
         }
         LIBSSH2_FREE(session, packet);
 
@@ -801,7 +801,7 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
         if (!channel->setenv_packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                           "Unable to allocate memeory for setenv packet", 0);
-            return -1;
+            return LIBSSH2_ERROR_ALLOC;
         }
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
@@ -840,7 +840,7 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
             LIBSSH2_FREE(session, channel->setenv_packet);
             channel->setenv_packet = NULL;
             channel->setenv_state = libssh2_NB_state_idle;
-            return -1;
+            return LIBSSH2_ERROR_SOCKET_SEND;
         }
         LIBSSH2_FREE(session, channel->setenv_packet);
         channel->setenv_packet = NULL;
@@ -860,7 +860,7 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
         }
         if (rc) {
             channel->setenv_state = libssh2_NB_state_idle;
-            return -1;
+            return rc;
         }
 
         if (data[0] == SSH_MSG_CHANNEL_SUCCESS) {
@@ -875,7 +875,7 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
     libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
                   "Unable to complete request for channel-setenv", 0);
     channel->setenv_state = libssh2_NB_state_idle;
-    return -1;
+    return LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED;
 }
 
 /*

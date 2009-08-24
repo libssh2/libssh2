@@ -1030,7 +1030,7 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
     }
 
     /* Only reached if the socket died */
-    return -1;
+    return LIBSSH2_ERROR_SOCKET_DISCONNECT;
 }
 
 /*
@@ -1090,7 +1090,7 @@ _libssh2_packet_burn(LIBSSH2_SESSION * session,
     }
 
     /* Only reached if the socket died */
-    return -1;
+    return LIBSSH2_ERROR_SOCKET_DISCONNECT;
 }
 
 /*
@@ -1150,6 +1150,6 @@ _libssh2_packet_requirev(LIBSSH2_SESSION * session,
 
     /* Only reached if the socket died */
     state->start = 0;
-    return -1;
+    return LIBSSH2_ERROR_SOCKET_DISCONNECT;
 }
 
