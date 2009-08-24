@@ -60,6 +60,7 @@
 #include <sys/types.h>
 
 #include "transport.h"
+#include "channel.h"
 
 /*
  * libssh2_packet_queue_listener
@@ -208,11 +209,11 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                     if (rc == PACKET_EAGAIN)
                         return PACKET_EAGAIN;
                     else if (rc) {
-                        libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                                      "Unable to send channel open confirmation",
-                                      0);
+                        libssh2_error(session, rc,
+                                      "Unable to send channel "
+                                      "open confirmation", 0);
                         listen_state->state = libssh2_NB_state_idle;
-                        return -1;
+                        return rc;
                     }
 
                     /* Link the channel into the end of the queue list */
@@ -249,10 +250,9 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     if (rc == PACKET_EAGAIN) {
         return PACKET_EAGAIN;
     } else if (rc) {
-        libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                      "Unable to send open failure", 0);
+        libssh2_error(session, rc, "Unable to send open failure", 0);
         listen_state->state = libssh2_NB_state_idle;
-        return -1;
+        return rc;
     }
     listen_state->state = libssh2_NB_state_idle;
     return 0;
@@ -406,10 +406,9 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
     if (rc == PACKET_EAGAIN) {
         return PACKET_EAGAIN;
     } else if (rc) {
-        libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                      "Unable to send open failure", 0);
+        libssh2_error(session, rc, "Unable to send open failure", 0);
         x11open_state->state = libssh2_NB_state_idle;
-        return -1;
+        return rc;
     }
     x11open_state->state = libssh2_NB_state_idle;
     return 0;
@@ -631,15 +630,13 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 /* Adjust the window based on the block we just freed */
               libssh2_packet_add_jump_point1:
                 session->packAdd_state = libssh2_NB_state_jump1;
-                rc = libssh2_channel_receive_window_adjust(session->
-                                                           packAdd_channel,
-                                                           datalen - 13,
-                                                           0);
-                if (rc == PACKET_EAGAIN) {
-                    session->socket_block_directions =
-                        LIBSSH2_SESSION_BLOCK_OUTBOUND;
-                    return PACKET_EAGAIN;
-                }
+                rc = _libssh2_channel_receive_window_adjust(session->
+                                                            packAdd_channel,
+                                                            datalen - 13,
+                                                            0, NULL);
+                if (rc == PACKET_EAGAIN)
+                    return rc;
+
                 session->packAdd_state = libssh2_NB_state_idle;
                 return 0;
             }
