@@ -1738,7 +1738,7 @@ static ssize_t channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
         rc = _libssh2_transport_read(session);
 
     if ((rc < 0) && (rc != PACKET_EAGAIN))
-        return -1;
+        return rc;
 
     /*
      * =============================== NOTE ===============================
@@ -1950,6 +1950,8 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
  * Send data to a channel. Note that if this returns EAGAIN or simply didn't
  * send the entire packet, the caller must call this function again with the
  * SAME input arguments.
+ *
+ * If it returns a negative number, that is the error code!
  */
 ssize_t
 _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
@@ -1970,7 +1972,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         if (channel->local.close) {
             libssh2_error(session, LIBSSH2_ERROR_CHANNEL_CLOSED,
                           "We've already closed this channel", 0);
-            return -1;
+            return LIBSSH2_ERROR_CHANNEL_CLOSED;
         }
 
         if (channel->local.eof) {
@@ -1988,7 +1990,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                           "Unable to allocte space for data transmission packet",
                           0);
-            return -1;
+            return LIBSSH2_ERROR_ALLOC;
         }
 
         channel->write_state = libssh2_NB_state_allocated;
@@ -2074,7 +2076,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                 LIBSSH2_FREE(session, channel->write_packet);
                 channel->write_packet = NULL;
                 channel->write_state = libssh2_NB_state_idle;
-                return -1;
+                return LIBSSH2_ERROR_SOCKET_SEND;
             }
             /* Shrink local window size */
             channel->local.window_size -= channel->write_bufwrite;
@@ -2134,7 +2136,7 @@ static int channel_send_eof(LIBSSH2_CHANNEL *channel)
     else if (rc) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                       "Unable to send EOF on channel", 0);
-        return -1;
+        return LIBSSH2_ERROR_SOCKET_SEND;
     }
     channel->local.eof = 1;
 

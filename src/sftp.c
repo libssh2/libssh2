@@ -1403,7 +1403,8 @@ libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *hnd, char *buffer,
 /*
  * sftp_write
  *
- * Write data to an SFTP handle
+ * Write data to an SFTP handle. Returns the number of bytes written, or
+ * a negative error code.
  */
 static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                           size_t count)
@@ -1434,7 +1435,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
         if (!sftp->write_packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                           "Unable to allocate memory for FXP_WRITE", 0);
-            return -1;
+            return LIBSSH2_ERROR_ALLOC;
         }
         _libssh2_htonu32(s, packet_len - 4);
         s += 4;
@@ -1467,9 +1468,8 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
             return rc;
         }
         else if(0 == rc) {
-            /* an actual error */
-            fprintf(stderr, "WEIRDNESS\n");
-            return -1;
+            /* nothing sent is an error */
+            return LIBSSH2_ERROR_SOCKET_SEND;
         }
         else if (packet_len != rc) {
             return rc;
@@ -1483,11 +1483,12 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                              sftp->write_request_id, &data, &data_len);
     if (rc == PACKET_EAGAIN) {
         return PACKET_EAGAIN;
-    } else if (rc) {
+    }
+    else if (rc) {
         libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                       "Timeout waiting for status message", 0);
         sftp->write_state = libssh2_NB_state_idle;
-        return -1;
+        return rc;
     }
 
     sftp->write_state = libssh2_NB_state_idle;
@@ -1503,7 +1504,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                   0);
     sftp->last_errno = retcode;
 
-    return -1;
+    return LIBSSH2_ERROR_SFTP_PROTOCOL;
 }
 
 /* libssh2_sftp_write
