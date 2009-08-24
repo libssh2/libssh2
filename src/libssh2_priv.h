@@ -1154,18 +1154,19 @@ ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer, size_t length
 int _libssh2_wait_socket(LIBSSH2_SESSION *session);
 
 
-/* CAUTION: some of these error codes are returned in the public API and is
-   there known with other #defined names from the public header file. They
-   should not be changed. */
+/* These started out as private return codes for the transport layer, but was
+   converted to using the library-wide return codes to easy propagation of the
+   error reasons all over etc without risking mixups. The PACKET_* names are
+   left only to reduce the impact of changing the code all over.*/
 
-#define PACKET_TIMEOUT  -7
-#define PACKET_BADUSE   -6
-#define PACKET_COMPRESS -5
-#define PACKET_TOOBIG   -4
-#define PACKET_ENOMEM   -3
+#define PACKET_TIMEOUT  LIBSSH2_ERROR_TIMEOUT
+#define PACKET_BADUSE   LIBSSH2_ERROR_BAD_USE
+#define PACKET_COMPRESS LIBSSH2_ERROR_COMPRESS
+#define PACKET_TOOBIG   LIBSSH2_ERROR_OUT_OF_BOUNDARY
+#define PACKET_ENOMEM   LIBSSH2_ERROR_ALLOC
 #define PACKET_EAGAIN   LIBSSH2_ERROR_EAGAIN
-#define PACKET_FAIL     -1
-#define PACKET_NONE      0
+#define PACKET_FAIL     LIBSSH2_ERROR_SOCKET_NONE
+#define PACKET_NONE     LIBSSH2_ERROR_NONE
 
 libssh2pack_t _libssh2_packet_read(LIBSSH2_SESSION * session);
 

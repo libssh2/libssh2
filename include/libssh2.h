@@ -356,6 +356,9 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_PUBLICKEY_PROTOCOL        -36
 #define LIBSSH2_ERROR_EAGAIN                    -37
 #define LIBSSH2_ERROR_BUFFER_TOO_SMALL          -38
+#define LIBSSH2_ERROR_BAD_USE                   -39
+#define LIBSSH2_ERROR_COMPRESS                  -40
+#define LIBSSH2_ERROR_OUT_OF_BOUNDARY           -41
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *
