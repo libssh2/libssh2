@@ -2018,11 +2018,6 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
 
             if(channel->local.window_size <= 0) {
                 /* there's no more room for data so we stop sending now */
-                if(!wrote) {
-                    /* if nothing has been written at this point we're at an
-                       EAGAIN point */
-                    return PACKET_EAGAIN;
-                }
                 break;
             }
 
