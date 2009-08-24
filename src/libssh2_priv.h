@@ -97,10 +97,9 @@
 /* Provide iovec / writev on WIN32 platform. */
 #ifdef WIN32
 
-/* same as WSABUF */
 struct iovec {
-    u_long iov_len;
-    char *iov_base;
+    size_t iov_len;
+    void * iov_base;
 };
 
 #define inline __inline
@@ -149,6 +148,12 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
 #endif
 
 #endif
+
+#ifdef WIN32
+typedef SOCKET libssh2_socket_t;
+#else /* !WIN32 */
+typedef int libssh2_socket_t;
+#endif /* WIN32 */
 
 /* RFC4253 section 6.1 Maximum Packet Length says:
  *
@@ -716,7 +721,7 @@ struct _LIBSSH2_SESSION
     struct list_head listeners; /* list of LIBSSH2_LISTENER structs */
 
     /* Actual I/O socket */
-    int socket_fd;
+    libssh2_socket_t socket_fd;
     int socket_state;
     int socket_block_directions;
     int socket_prev_blockstate; /* stores the state of the socket blockiness
@@ -1136,8 +1141,8 @@ libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
 void _libssh2_htonu32(unsigned char *buf, unsigned int val);
 
 #ifdef WIN32
-ssize_t _libssh2_recv(int socket, void *buffer, size_t length, int flags);
-ssize_t _libssh2_send(int socket, const void *buffer, size_t length, int flags);
+ssize_t _libssh2_recv(libssh2_socket_t socket, void *buffer, size_t length, int flags);
+ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer, size_t length, int flags);
 #else
 #define _libssh2_recv(a,b,c,d) recv(a,b,c,d)
 #define _libssh2_send(a,b,c,d) send(a,b,c,d)

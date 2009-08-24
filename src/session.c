@@ -1349,7 +1349,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
     }
 #elif defined(HAVE_SELECT)
     LIBSSH2_SESSION *session = NULL;
-    int maxfd = 0;
+    libssh2_socket_t maxfd = 0;
     fd_set rfds, wfds;
     struct timeval tv;
 

@@ -78,7 +78,7 @@ static int wsa2errno(void)
  * to set errno
  */
 ssize_t
-_libssh2_recv(int socket, void *buffer, size_t length, int flags)
+_libssh2_recv(libssh2_socket_t socket, void *buffer, size_t length, int flags)
 {
     ssize_t rc = recv(socket, buffer, length, flags);
 #ifdef WIN32
@@ -97,7 +97,7 @@ _libssh2_recv(int socket, void *buffer, size_t length, int flags)
  * to set errno
  */
 ssize_t
-_libssh2_send(int socket, const void *buffer, size_t length, int flags)
+_libssh2_send(libssh2_socket_t socket, const void *buffer, size_t length, int flags)
 {
     ssize_t rc = send(socket, buffer, length, flags);
 #ifdef WIN32
