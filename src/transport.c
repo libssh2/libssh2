@@ -232,11 +232,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
         rc = _libssh2_packet_add(session, p->payload,
                                  session->fullpacket_payload_len,
                                  session->fullpacket_macstate);
-        if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
-        } else if (rc < 0) {
-            return PACKET_FAIL;
-        }
+        if (rc)
+            return rc;
     }
 
     session->fullpacket_state = libssh2_NB_state_idle;
@@ -650,6 +647,8 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
  * NOTE: this function does not verify that 'data_len' is less than ~35000
  * which is what all implementations should support at least as packet size.
  * (RFC4253 section 6.1)
+ *
+ * This function DOES not call libssh2_error() on any errors.
  */
 int
 _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
