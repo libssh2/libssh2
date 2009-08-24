@@ -399,18 +399,12 @@ channel_direct_tcpip(LIBSSH2_SESSION * session, const char *host,
     /* by default we set (keep?) idle state... */
     session->direct_state = libssh2_NB_state_idle;
 
-    if (!channel) {
-        if (libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
-            /* The error code is still set to LIBSSH2_ERROR_EAGAIN,
-               set our state to created to avoid re-creating the package
-               on next invoke */
-            session->direct_state = libssh2_NB_state_created;
-            return NULL;
-        } else {
-            LIBSSH2_FREE(session, session->direct_message);
-            session->direct_message = NULL;
-            return NULL;
-        }
+    if (!channel &&
+        libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
+        /* The error code is still set to LIBSSH2_ERROR_EAGAIN, set our state
+           to created to avoid re-creating the package on next invoke */
+        session->direct_state = libssh2_NB_state_created;
+        return NULL;
     }
 
     LIBSSH2_FREE(session, session->direct_message);
