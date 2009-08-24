@@ -124,7 +124,7 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
     if (!packet) {
         libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                       "Unable to allocate datablock for SFTP packet", 0);
-        return -1;
+        return LIBSSH2_ERROR_ALLOC;
     }
     memset(packet, 0, sizeof(LIBSSH2_PACKET));
 
@@ -175,9 +175,9 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
             /* TODO: this is stupid since we can in fact get 1-3 bytes in a
                legitimate working case as well if the connection happens to be
                super slow or something */
-            libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
-                          "Timeout waiting for FXP packet", 0);
-            return -1;
+            libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
+                          "Read part of packet", 0);
+            return LIBSSH2_ERROR_CHANNEL_FAILURE;
         }
 
         packet_len = _libssh2_ntohu32(buffer);
@@ -186,14 +186,14 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
         if (packet_len > LIBSSH2_SFTP_PACKET_MAXLEN) {
             libssh2_error(session, LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
                           "SFTP packet too large", 0);
-            return -1;
+            return LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED;
         }
 
         packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                           "Unable to allocate SFTP packet", 0);
-            return -1;
+            return LIBSSH2_ERROR_ALLOC;
         }
 
         packet_received = 0;
@@ -222,14 +222,15 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                           "Receive error waiting for SFTP packet", 0);
             LIBSSH2_FREE(session, packet);
-            return -1;
+            return bytes_received;
         }
         packet_received += bytes_received;
     }
 
-    if (sftp_packet_add(sftp, packet, packet_len)) {
+    rc = sftp_packet_add(sftp, packet, packet_len);
+    if (rc) {
         LIBSSH2_FREE(session, packet);
-        return -1;
+        return rc;
     }
 
     return packet[0];
@@ -320,7 +321,7 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
     }
 
     /* Only reached if the socket died */
-    return -1;
+    return LIBSSH2_ERROR_SOCKET_DISCONNECT;
 }
 
 /* sftp_packet_requirev
@@ -907,7 +908,7 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
             return NULL;
         }
         else if (rc) {
-            libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
+            libssh2_error(session, rc,
                           "Timeout waiting for status message", 0);
             sftp->open_state = libssh2_NB_state_idle;
             return NULL;
@@ -1112,9 +1113,11 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 sftp_packet_requirev(sftp, 2, read_responses,
                                      request_id, &data, &data_len);
             if (retcode == PACKET_EAGAIN) {
+                libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                              "Would block waiting for status message", 0);
                 return PACKET_EAGAIN;
             } else if (retcode) {
-                libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
+                libssh2_error(session, retcode,
                               "Timeout waiting for status message", 0);
                 sftp->read_packet = NULL;
                 sftp->read_state = libssh2_NB_state_idle;
@@ -1460,11 +1463,8 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     if (sftp->write_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0, (char *)sftp->write_packet,
                                     packet_len);
-        if (rc == PACKET_EAGAIN) {
-            return PACKET_EAGAIN;
-        }
-        else if(rc < 0) {
-            /* an actual error */
+        if(rc < 0) {
+            /* error */
             return rc;
         }
         else if(0 == rc) {
