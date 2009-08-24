@@ -106,6 +106,9 @@ banner_receive(LIBSSH2_SESSION * session)
             || (session->banner_TxRx_banner[banner_len - 1] != '\n'))) {
         char c = '\0';
 
+        /* no incoming block yet! */
+        session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
+
         ret = _libssh2_recv(session->socket_fd, &c, 1,
                             LIBSSH2_SOCKET_RECV_FLAGS(session));
 
@@ -206,6 +209,9 @@ banner_send(LIBSSH2_SESSION * session)
 
         session->banner_TxRx_state = libssh2_NB_state_created;
     }
+
+    /* no outgoing block yet! */
+    session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
 
     ret = _libssh2_send(session->socket_fd,
                         banner + session->banner_TxRx_total_send,
