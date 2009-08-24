@@ -95,10 +95,10 @@ debugdump(LIBSSH2_SESSION * session,
 
 /* decrypt() decrypts 'len' bytes from 'source' to 'dest'.
  *
- * returns PACKET_NONE on success and PACKET_FAIL on failure
+ * returns 0 on success and negative on failure
  */
 
-static libssh2pack_t
+static int
 decrypt(LIBSSH2_SESSION * session, unsigned char *source,
         unsigned char *dest, int len)
 {
@@ -134,7 +134,7 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
  * fullpacket() gets called when a full packet has been received and properly
  * collected.
  */
-static libssh2pack_t
+static int
 fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
 {
     unsigned char macbuf[MAX_MACSIZE];
@@ -245,12 +245,10 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
 /*
  * _libssh2_transport_read
  *
- * Collect a packet into the input brigade block only controls whether or not
- * to wait for a packet to start.
+ * Collect a packet into the input queue.
  *
- * Returns packet type added to input brigade (PACKET_NONE if nothing added),
- * or PACKET_FAIL on failure and PACKET_EAGAIN if it couldn't process a full
- * packet.
+ * Returns packet type added to input queue (0 if nothing added), or a
+ * negative error number.
  */
 
 /*
@@ -572,7 +570,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
     return PACKET_FAIL;         /* we never reach this point */
 }
 
-static libssh2pack_t
+static int
 send_existing(LIBSSH2_SESSION * session, unsigned char *data,
               unsigned long data_len, ssize_t * ret)
 {
@@ -665,7 +663,7 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     int encrypted;
     int i;
     ssize_t ret;
-    libssh2pack_t rc;
+    int rc;
     unsigned char *orgdata = data;
     unsigned long orgdata_len = data_len;
 

@@ -990,7 +990,7 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
     }
 
     while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
-        libssh2pack_t ret = _libssh2_transport_read(session);
+        int ret = _libssh2_transport_read(session);
         if (ret == PACKET_EAGAIN) {
             return PACKET_EAGAIN;
         } else if (ret == 0) {

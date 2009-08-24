@@ -721,7 +721,7 @@ libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
 static LIBSSH2_CHANNEL *
 channel_forward_accept(LIBSSH2_LISTENER *listener)
 {
-    libssh2pack_t rc;
+    int rc;
 
     do {
         rc = _libssh2_transport_read(listener->session);
@@ -1288,7 +1288,7 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
     static const unsigned char reply_codes[3] =
         { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
     unsigned long data_len;
-    libssh2pack_t rc;
+    int rc;
 
     if (channel->process_state == libssh2_NB_state_idle) {
         /* 10 = packet_type(1) + channel(4) + request_len(4) + want_reply(1) */
@@ -1710,7 +1710,7 @@ static ssize_t channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
                             char *buf, size_t buflen)
 {
     LIBSSH2_SESSION *session = channel->session;
-    libssh2pack_t rc;
+    int rc;
     int bytes_read = 0;
     int bytes_want;
     int unlink_packet;
@@ -1954,7 +1954,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                        const char *buf, size_t buflen)
 {
     LIBSSH2_SESSION *session = channel->session;
-    libssh2pack_t rc;
+    int rc;
     ssize_t wrote = 0; /* counter for this specific this call */
 
     if (channel->write_state == libssh2_NB_state_idle) {

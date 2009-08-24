@@ -865,7 +865,7 @@ struct _LIBSSH2_SESSION
     libssh2_nonblocking_states fullpacket_state;
     int fullpacket_macstate;
     int fullpacket_payload_len;
-    libssh2pack_t fullpacket_packet_type;
+    int fullpacket_packet_type;
 
     /* State variables used in libssh2_sftp_init() */
     libssh2_nonblocking_states sftpInit_state;
@@ -1166,7 +1166,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session);
 #define PACKET_FAIL     LIBSSH2_ERROR_SOCKET_NONE
 #define PACKET_NONE     LIBSSH2_ERROR_NONE
 
-libssh2pack_t _libssh2_packet_read(LIBSSH2_SESSION * session);
+int _libssh2_packet_read(LIBSSH2_SESSION * session);
 
 int _libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
                         unsigned char **data, unsigned long *data_len,
