@@ -259,10 +259,9 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
  *
  * DOES NOT call libssh2_error() for ANY error case.
  */
-libssh2pack_t
-_libssh2_transport_read(LIBSSH2_SESSION * session)
+int _libssh2_transport_read(LIBSSH2_SESSION * session)
 {
-    libssh2pack_t rc = -1;
+    int rc = LIBSSH2_ERROR_SOCKET_NONE;
     struct transportpacket *p = &session->packet;
     int remainbuf;
     int remainpack;
@@ -271,7 +270,6 @@ _libssh2_transport_read(LIBSSH2_SESSION * session)
     unsigned char block[MAX_BLOCKSIZE];
     int blocksize;
     int encrypted = 1;
-    int status;
 
     /* default clear the bit */
     session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
@@ -296,11 +294,9 @@ _libssh2_transport_read(LIBSSH2_SESSION * session)
          */
         _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Redirecting into the"
                        " key re-exchange");
-        status = libssh2_kex_exchange(session, 1, &session->startup_key_state);
-        if (status == PACKET_EAGAIN)
-            return PACKET_EAGAIN;
-        else if (status)
-            return LIBSSH2_ERROR_KEX_FAILURE;
+        rc = libssh2_kex_exchange(session, 1, &session->startup_key_state);
+        if (rc)
+            return rc;
     }
 
     /*

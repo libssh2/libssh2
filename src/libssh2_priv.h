@@ -194,8 +194,6 @@ typedef struct _LIBSSH2_COMP_METHOD LIBSSH2_COMP_METHOD;
 
 typedef struct _LIBSSH2_PACKET LIBSSH2_PACKET;
 
-typedef int libssh2pack_t;
-
 typedef enum
 {
     libssh2_NB_state_idle = 0,
