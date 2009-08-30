@@ -2379,8 +2379,6 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
         && (session->socket_state == LIBSSH2_SOCKET_CONNECTED)) {
         rc = channel_close(channel);
 
-        fprintf(stderr, "channel_close: %d\n", rc);
-
         if(rc == PACKET_EAGAIN)
             return rc;
         else if (rc < 0) {

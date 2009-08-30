@@ -175,7 +175,6 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
             /* TODO: this is stupid since we can in fact get 1-3 bytes in a
                legitimate working case as well if the connection happens to be
                super slow or something */
-            fprintf(stderr, "GOT %d\n", rc);
             libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
                           "Read part of packet", 0);
             return LIBSSH2_ERROR_CHANNEL_FAILURE;
