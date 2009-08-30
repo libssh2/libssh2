@@ -35,6 +35,9 @@ macros.
 Actual number of bytes read or negative on failure. It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
 LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
+
+Note that a return value of zero (0) can in fact be a legitimate value and
+only signals that no payload data was read. It is not an error.
 .SH ERRORS
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
