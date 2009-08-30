@@ -1937,7 +1937,8 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
  * send the entire packet, the caller must call this function again with the
  * SAME input arguments.
  *
- * If it returns a negative number, that is the error code!
+ * Returns: number of bytes sent, or if it returns a negative number, that is
+ * the error code!
  */
 ssize_t
 _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
