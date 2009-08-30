@@ -2047,8 +2047,8 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                                           channel->write_s -
                                           channel->write_packet);
             if (rc == PACKET_EAGAIN) {
-                _libssh2_debug(session, LIBSSH2_DBG_CONN,
-                               "libssh2_transport_write returned EAGAIN");
+                libssh2_error(session, rc,
+                              "Unable to send channel data", 0);
                 return rc;
             }
             else if (rc) {
