@@ -1048,7 +1048,7 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
     session->err_msglen = strlen(errmsg); \
     session->err_should_free = should_free; \
     session->err_code = errcode; \
-    _libssh2_debug(session, LIBSSH2_DBG_ERROR, "%d - %s", session->err_code, session->err_msg); \
+    _libssh2_debug(session, LIBSSH2_DBG_ERROR, "%s:%d %d - %s", __func__, __LINE__, session->err_code, session->err_msg); \
 }
 
 #else /* ! LIBSSH2DEBUG */

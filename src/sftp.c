@@ -167,7 +167,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
                        "partial read cont, len: %lu", packet_len);
     }
     else {
-        rc = libssh2_channel_read_ex(channel, 0, (char *) buffer, 4);
+        rc = _libssh2_channel_read(channel, 0, (char *) buffer, 4);
         if (rc == PACKET_EAGAIN) {
             return rc;
         }
@@ -175,6 +175,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
             /* TODO: this is stupid since we can in fact get 1-3 bytes in a
                legitimate working case as well if the connection happens to be
                super slow or something */
+            fprintf(stderr, "GOT %d\n", rc);
             libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
                           "Read part of packet", 0);
             return LIBSSH2_ERROR_CHANNEL_FAILURE;
@@ -202,9 +203,9 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
     /* Read as much of the packet as we can */
     while (packet_len > packet_received) {
         bytes_received =
-            libssh2_channel_read_ex(channel, 0,
-                                    (char *) packet + packet_received,
-                                    packet_len - packet_received);
+            _libssh2_channel_read(channel, 0,
+                                  (char *) packet + packet_received,
+                                  packet_len - packet_received);
 
         if (bytes_received == PACKET_EAGAIN) {
             /*
@@ -798,8 +799,7 @@ LIBSSH2_API int
 libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp)
 {
     int rc;
-    BLOCK_ADJUST(rc, sftp->channel->session,
-                 sftp_shutdown(sftp));
+    BLOCK_ADJUST(rc, sftp->channel->session, sftp_shutdown(sftp));
     return rc;
 }
 
@@ -1113,7 +1113,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 sftp_packet_requirev(sftp, 2, read_responses,
                                      request_id, &data, &data_len);
             if (retcode == PACKET_EAGAIN) {
-                libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                libssh2_error(session, retcode,
                               "Would block waiting for status message", 0);
                 return retcode;
             } else if (retcode) {

@@ -39,6 +39,8 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#include "channel.h"
+
 
 /* Max. length of a quoted string after libssh2_shell_quotearg() processing */
 #define libssh2_shell_quotedsize(s)	(3 * strlen(s) + 2)
@@ -378,10 +380,10 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
             unsigned char *s, *p;
 
             if (session->scpRecv_state == libssh2_NB_state_sent2) {
-                rc = libssh2_channel_read_ex(session->scpRecv_channel, 0,
-                                             (char *) session->
-                                             scpRecv_response +
-                                             session->scpRecv_response_len, 1);
+                rc = _libssh2_channel_read(session->scpRecv_channel, 0,
+                                           (char *) session->
+                                           scpRecv_response +
+                                           session->scpRecv_response_len, 1);
                 if (rc == PACKET_EAGAIN) {
                     libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                   "Would block waiting for SCP response", 0);
@@ -415,9 +417,9 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                            session->scpRecv_err_len + 1);
 
                     /* Read the remote error message */
-                    rc = libssh2_channel_read_ex(session->scpRecv_channel, 0,
-                                                 session->scpRecv_err_msg,
-                                                 session->scpRecv_err_len);
+                    rc = _libssh2_channel_read(session->scpRecv_channel, 0,
+                                               session->scpRecv_err_msg,
+                                               session->scpRecv_err_len);
                     if (rc <= 0) {
                         /*
                          * Since we have alread started reading this packet,
@@ -591,10 +593,10 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
             char *s, *p, *e = NULL;
 
             if (session->scpRecv_state == libssh2_NB_state_sent5) {
-                rc = libssh2_channel_read_ex(session->scpRecv_channel, 0,
-                                             (char *) session->
-                                             scpRecv_response +
-                                             session->scpRecv_response_len, 1);
+                rc = _libssh2_channel_read(session->scpRecv_channel, 0,
+                                           (char *) session->
+                                           scpRecv_response +
+                                           session->scpRecv_response_len, 1);
                 if (rc == PACKET_EAGAIN) {
                     libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                   "Would block waiting for SCP response", 0);
@@ -857,8 +859,8 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
 
     if (session->scpSend_state == libssh2_NB_state_sent1) {
         /* Wait for ACK */
-        rc = libssh2_channel_read_ex(session->scpSend_channel, 0,
-                                     (char *) session->scpSend_response, 1);
+        rc = _libssh2_channel_read(session->scpSend_channel, 0,
+                                   (char *) session->scpSend_response, 1);
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block waiting for response from remote", 0);
@@ -903,9 +905,8 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
 
         if (session->scpSend_state == libssh2_NB_state_sent3) {
             /* Wait for ACK */
-            rc = libssh2_channel_read_ex(session->scpSend_channel, 0,
-                                         (char *) session->scpSend_response,
-                                         1);
+            rc = _libssh2_channel_read(session->scpSend_channel, 0,
+                                       (char *) session->scpSend_response, 1);
             if (rc == PACKET_EAGAIN) {
                 libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                               "Would block waiting for response", 0);
@@ -962,8 +963,8 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
 
     if (session->scpSend_state == libssh2_NB_state_sent6) {
         /* Wait for ACK */
-        rc = libssh2_channel_read_ex(session->scpSend_channel, 0,
-                                     (char *) session->scpSend_response, 1);
+        rc = _libssh2_channel_read(session->scpSend_channel, 0,
+                                   (char *) session->scpSend_response, 1);
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block waiting for response", 0);
@@ -990,9 +991,9 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
             memset(session->scpSend_err_msg, 0, session->scpSend_err_len + 1);
 
             /* Read the remote error message */
-            rc = libssh2_channel_read_ex(session->scpSend_channel, 0,
-                                         session->scpSend_err_msg,
-                                         session->scpSend_err_len);
+            rc = _libssh2_channel_read(session->scpSend_channel, 0,
+                                       session->scpSend_err_msg,
+                                       session->scpSend_err_len);
             if (rc <= 0) {
                 /*
                  * Since we have alread started reading this packet, it is

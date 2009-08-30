@@ -104,5 +104,17 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
                                  const char *request, unsigned int request_len,
                                  const char *message, unsigned int message_len);
 
+
+/*
+ * _libssh2_channel_read
+ *
+ * Read data from a channel
+ *
+ * It is important to not return 0 until the currently read channel is
+ * complete. If we read stuff from the wire but it was no payload data to fill
+ * in the buffer with, we MUST make sure to return PACKET_EAGAIN.
+ */
+ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
+                              char *buf, size_t buflen);
 #endif /* __LIBSSH2_CHANNEL_H */
 

@@ -1700,7 +1700,7 @@ libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
 
 
 /*
- * channel_read
+ * _libssh2_channel_read
  *
  * Read data from a channel
  *
@@ -1708,8 +1708,8 @@ libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
  * complete. If we read stuff from the wire but it was no payload data to fill
  * in the buffer with, we MUST make sure to return PACKET_EAGAIN.
  */
-static ssize_t channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
-                            char *buf, size_t buflen)
+ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
+                              char *buf, size_t buflen)
 {
     LIBSSH2_SESSION *session = channel->session;
     int rc;
@@ -1735,8 +1735,10 @@ static ssize_t channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     while (rc > 0)
         rc = _libssh2_transport_read(session);
 
-    if ((rc < 0) && (rc != PACKET_EAGAIN))
+    if ((rc < 0) && (rc != PACKET_EAGAIN)) {
+        libssh2_error(session, rc, "tranport read", 0);
         return rc;
+    }
 
     /*
      * =============================== NOTE ===============================
@@ -1746,8 +1748,6 @@ static ssize_t channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     if (channel->read_state == libssh2_NB_state_jump1) {
         goto channel_read_ex_point1;
     }
-
-    rc = 0;
 
     read_packet = _libssh2_list_first(&session->packets);
     while (read_packet && (bytes_read < (int) buflen)) {
@@ -1825,24 +1825,11 @@ static ssize_t channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
         read_packet = read_next;
     }
 
-    if (bytes_read == 0) {
+    if (!bytes_read) {
         channel->read_state = libssh2_NB_state_idle;
-        if (channel->remote.close) {
-            libssh2_error(session, LIBSSH2_ERROR_CHANNEL_CLOSED,
-                          "Remote end has closed this channel", 0);
-            return 0;
-        }
-        else {
-            /*
-             * when non-blocking, we must return PACKET_EAGAIN if we haven't
-             * completed reading the channel
-             */
-            if (!libssh2_channel_eof(channel)) {
-                /* TODO FIXME THIS IS WRONG */
-                return PACKET_EAGAIN;
-            }
-            return 0;
-        }
+
+        /* if the transport layer said EAGAIN then we say so as well */
+        return (rc == PACKET_EAGAIN)?rc:0;
     }
     else
         /* make sure we remain in the created state to focus on emptying the
@@ -1888,8 +1875,8 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf,
                         size_t buflen)
 {
     int rc;
-    BLOCK_ADJUST(rc, channel->session, channel_read(channel, stream_id,
-                                                    buf, buflen));
+    BLOCK_ADJUST(rc, channel->session,
+                 _libssh2_channel_read(channel, stream_id, buf, buflen));
     return rc;
 }
 
@@ -2057,8 +2044,8 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
 
         if (channel->write_state == libssh2_NB_state_created) {
             rc = _libssh2_transport_write(session, channel->write_packet,
-                                       channel->write_s -
-                                       channel->write_packet);
+                                          channel->write_s -
+                                          channel->write_packet);
             if (rc == PACKET_EAGAIN) {
                 _libssh2_debug(session, LIBSSH2_DBG_CONN,
                                "libssh2_transport_write returned EAGAIN");
@@ -2274,19 +2261,22 @@ channel_close(LIBSSH2_CHANNEL * channel)
         }
     }
 
-    /* set the local close state first when we're perfectly confirmed to not
-       do any more EAGAINs */
-    channel->local.close = 1;
+    if(rc != LIBSSH2_ERROR_EAGAIN) {
+        /* set the local close state first when we're perfectly confirmed to not
+           do any more EAGAINs */
+        channel->local.close = 1;
 
-    /* We call the callback last in this function to make it keep the local
-       data as long as EAGAIN is returned. */
-    if (channel->close_cb) {
-        LIBSSH2_CHANNEL_CLOSE(session, channel);
+        /* We call the callback last in this function to make it keep the local
+           data as long as EAGAIN is returned. */
+        if (channel->close_cb) {
+            LIBSSH2_CHANNEL_CLOSE(session, channel);
+        }
+
+        channel->close_state = libssh2_NB_state_idle;
     }
 
-    channel->close_state = libssh2_NB_state_idle;
-
-    return rc;
+    /* return 0 or an error */
+    return rc>=0?0:rc;
 }
 
 /*
@@ -2388,12 +2378,14 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     if (!channel->local.close
         && (session->socket_state == LIBSSH2_SOCKET_CONNECTED)) {
         rc = channel_close(channel);
+
+        fprintf(stderr, "channel_close: %d\n", rc);
+
         if(rc == PACKET_EAGAIN)
             return rc;
-
-        if (rc) {
+        else if (rc < 0) {
             channel->free_state = libssh2_NB_state_idle;
-            return -1;
+            return rc;
         }
     }
 

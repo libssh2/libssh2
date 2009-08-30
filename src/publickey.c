@@ -37,6 +37,7 @@
 
 #include "libssh2_priv.h"
 #include "libssh2_publickey.h"
+#include "channel.h"
 
 #define LIBSSH2_PUBLICKEY_VERSION               2
 
@@ -168,7 +169,7 @@ publickey_packet_receive(LIBSSH2_PUBLICKEY * pkey,
     int rc;
 
     if (pkey->receive_state == libssh2_NB_state_idle) {
-        rc = libssh2_channel_read_ex(channel, 0, (char *) buffer, 4);
+        rc = _libssh2_channel_read(channel, 0, (char *) buffer, 4);
         if (rc == PACKET_EAGAIN) {
             return rc;
         } else if (rc != 4) {
@@ -190,8 +191,8 @@ publickey_packet_receive(LIBSSH2_PUBLICKEY * pkey,
     }
 
     if (pkey->receive_state == libssh2_NB_state_sent) {
-        rc = libssh2_channel_read_ex(channel, 0, (char *) pkey->receive_packet,
-                                     pkey->receive_packet_len);
+        rc = _libssh2_channel_read(channel, 0, (char *) pkey->receive_packet,
+                                   pkey->receive_packet_len);
         if (rc == PACKET_EAGAIN) {
             return rc;
         } else if (rc != (int)pkey->receive_packet_len) {
