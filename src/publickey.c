@@ -442,8 +442,8 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
     }
 
     if (session->pkeyInit_state == libssh2_NB_state_sent2) {
-        rc = libssh2_channel_write_ex(session->pkeyInit_channel, 0,
-                                      (char *) buffer, (s - buffer));
+        rc = _libssh2_channel_write(session->pkeyInit_channel, 0,
+                                    (char *) buffer, (s - buffer));
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block sending publickey version packet", 0);
@@ -679,8 +679,8 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY * pkey, const unsigned char *name,
     }
 
     if (pkey->add_state == libssh2_NB_state_created) {
-        rc = libssh2_channel_write_ex(channel, 0, (char *) pkey->add_packet,
-                                      (pkey->add_s - pkey->add_packet));
+        rc = _libssh2_channel_write(channel, 0, (char *) pkey->add_packet,
+                                    (pkey->add_s - pkey->add_packet));
         if (rc == PACKET_EAGAIN) {
             return rc;
         } else if ((pkey->add_s - pkey->add_packet) != rc) {
@@ -755,8 +755,8 @@ libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY * pkey,
     }
 
     if (pkey->remove_state == libssh2_NB_state_created) {
-        rc = libssh2_channel_write_ex(channel, 0, (char *) pkey->remove_packet,
-                                      (pkey->remove_s - pkey->remove_packet));
+        rc = _libssh2_channel_write(channel, 0, (char *) pkey->remove_packet,
+                                    (pkey->remove_s - pkey->remove_packet));
         if (rc == PACKET_EAGAIN) {
             return rc;
         } else if ((pkey->remove_s - pkey->remove_packet) != rc) {
@@ -816,10 +816,10 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
     }
 
     if (pkey->listFetch_state == libssh2_NB_state_created) {
-        rc = libssh2_channel_write_ex(channel, 0,
-                                      (char *) pkey->listFetch_buffer,
-                                      (pkey->listFetch_s -
-                                       pkey->listFetch_buffer));
+        rc = _libssh2_channel_write(channel, 0,
+                                    (char *) pkey->listFetch_buffer,
+                                    (pkey->listFetch_s -
+                                     pkey->listFetch_buffer));
         if (rc == PACKET_EAGAIN) {
             return rc;
         } else if ((pkey->listFetch_s - pkey->listFetch_buffer) != rc) {

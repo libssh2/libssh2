@@ -357,8 +357,8 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
     }
 
     if (session->scpRecv_state == libssh2_NB_state_sent1) {
-        rc = libssh2_channel_write_ex(session->scpRecv_channel, 0,
-                                      (char *) session->scpRecv_response, 1);
+        rc = _libssh2_channel_write(session->scpRecv_channel, 0,
+                                    (char *) session->scpRecv_response, 1);
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block sending initial wakeup", 0);
@@ -557,9 +557,9 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
             }
 
             if (session->scpRecv_state == libssh2_NB_state_sent3) {
-                rc = libssh2_channel_write_ex(session->scpRecv_channel, 0,
-                                              (char *) session->
-                                              scpRecv_response, 1);
+                rc = _libssh2_channel_write(session->scpRecv_channel, 0,
+                                            (char *) session->
+                                            scpRecv_response, 1);
                 if (rc == PACKET_EAGAIN) {
                     libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                   "Would block waiting to send SCP ACK", 0);
@@ -720,9 +720,9 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
             }
 
             if (session->scpRecv_state == libssh2_NB_state_sent6) {
-                rc = libssh2_channel_write_ex(session->scpRecv_channel, 0,
-                                              (char *) session->
-                                              scpRecv_response, 1);
+                rc = _libssh2_channel_write(session->scpRecv_channel, 0,
+                                            (char *) session->
+                                            scpRecv_response, 1);
                 if (rc == PACKET_EAGAIN) {
                     libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                   "Would block sending SCP ACK", 0);
@@ -887,9 +887,9 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
     /* Send mtime and atime to be used for file */
     if (mtime || atime) {
         if (session->scpSend_state == libssh2_NB_state_sent2) {
-            rc = libssh2_channel_write_ex(session->scpSend_channel, 0,
-                                          (char *) session->scpSend_response,
-                                          session->scpSend_response_len);
+            rc = _libssh2_channel_write(session->scpSend_channel, 0,
+                                        (char *) session->scpSend_response,
+                                        session->scpSend_response_len);
             if (rc == PACKET_EAGAIN) {
                 libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                               "Would block sending time data for SCP file", 0);
@@ -945,9 +945,9 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
     }
 
     if (session->scpSend_state == libssh2_NB_state_sent5) {
-        rc = libssh2_channel_write_ex(session->scpSend_channel, 0,
-                                      (char *) session->scpSend_response,
-                                      session->scpSend_response_len);
+        rc = _libssh2_channel_write(session->scpSend_channel, 0,
+                                    (char *) session->scpSend_response,
+                                    session->scpSend_response_len);
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block send core file data for SCP file", 0);
