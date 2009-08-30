@@ -1948,6 +1948,14 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
     int rc;
     ssize_t wrote = 0; /* counter for this specific this call */
 
+    /* In theory we could split larger buffers into several smaller packets,
+     * but for now we instead only deal with the first 32K in this call and
+     * assume the app will call it again with the rest! The 32K is a
+     * conservative limit based on the text in RFC4253 section 6.1.
+     */
+    if(buflen > 32768)
+        buflen = 32768;
+
     if (channel->write_state == libssh2_NB_state_idle) {
         channel->write_bufwrote = 0;
 
