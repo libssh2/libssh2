@@ -2,6 +2,9 @@ AUTOMAKE_OPTIONS = foreign nostdinc
 
 SUBDIRS = src example tests docs
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libssh2.pc
+
 include_HEADERS =			\
 	include/libssh2.h		\
 	include/libssh2_publickey.h	\
@@ -25,7 +28,7 @@ win32/libssh2_config.h win32/tests.dsp win32/rules.mk $(DSP) \
 win32/msvcproj.head win32/msvcproj.foot
 
 EXTRA_DIST = $(WIN32FILES) buildconf $(NETWAREFILES) get_ver.awk HACKING \
- maketgz NMakefile TODO RELEASE-NOTES
+ maketgz NMakefile TODO RELEASE-NOTES libssh2.pc.in
 
 ACLOCAL_AMFLAGS = -I m4
 
