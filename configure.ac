@@ -1,0 +1,218 @@
+# AC_PREREQ(2.57)
+AC_INIT(libssh2, [-], libssh2-devel@lists.sourceforge.net)
+AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_SRCDIR([src])
+AC_CONFIG_HEADER([src/libssh2_config.h])
+AM_MAINTAINER_MODE
+
+dnl SED is needed by some of the tools
+AC_PATH_PROG( SED, sed, sed-was-not-found-by-configure,
+              $PATH:/usr/bin:/usr/local/bin)
+AC_SUBST(SED)
+
+if test "x$SED" = "xsed-was-not-found-by-configure"; then
+  AC_MSG_WARN([sed was not found, this may ruin your chances to build fine])
+fi
+
+dnl figure out the libssh2 version
+VERSION=`$SED -ne 's/^#define LIBSSH2_VERSION *"\(.*\)"/\1/p' ${srcdir}/include/libssh2.h`
+AM_INIT_AUTOMAKE(libssh2,$VERSION)
+AC_MSG_CHECKING([libssh2 version])
+AC_MSG_RESULT($VERSION)
+
+AB_VERSION=$VERSION
+
+AB_INIT
+
+# Check for the OS.
+# Daniel's note: this should not be necessary and we need to work to
+# get this removed.
+AC_CANONICAL_HOST
+case "$host" in
+    *-mingw*)
+    CFLAGS="$CFLAGS -DLIBSSH2_WIN32 -DWINSOCK_VERSION=0x0200"
+    LIBS="$LIBS -lws2_32"
+    ;;
+	*-cygwin)
+	CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
+    ;;
+	*darwin*)
+	CFLAGS="$CFLAGS -DLIBSSH2_DARWIN"
+	;;
+    *hpux*)
+    ;;
+    *)
+    ;;
+esac
+
+AC_CHECK_TYPE(long long,
+   [AC_DEFINE(HAVE_LONGLONG, 1,
+      [Define to 1 if the compiler supports the 'long long' data type.])]
+   longlong="yes"
+)
+
+dnl Our configure and build reentrant settings
+CURL_CONFIGURE_REENTRANT
+
+# Some systems (Solaris?) have socket() in -lsocket.
+AC_SEARCH_LIBS(socket, socket)
+
+# Solaris has inet_addr() in -lnsl.
+AC_SEARCH_LIBS(inet_addr, nsl)
+
+AC_SUBST(LIBS)
+
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PATH_PROGS(SSHD, [sshd], [],
+     [$PATH$PATH_SEPARATOR/usr/libexec$PATH_SEPARATOR]dnl
+     [/usr/sbin$PATH_SEPARATOR/usr/etc$PATH_SEPARATOR/etc])
+AM_CONDITIONAL(SSHD, test -n "$SSHD")
+AC_LIBTOOL_WIN32_DLL
+AC_PROG_LIBTOOL
+AC_C_BIGENDIAN
+
+dnl check for how to do large files
+AC_SYS_LARGEFILE
+
+# Configure parameters
+AC_ARG_WITH(libgcrypt,
+  AC_HELP_STRING([--with-libgcrypt],[Use Libgcrypt for crypto]),
+  use_libgcrypt=$withval,use_libgcrypt=auto)
+AC_ARG_WITH(openssl,
+  AC_HELP_STRING([--with-openssl],[Use OpenSSL for crypto]),
+  use_openssl=$withval,use_openssl=auto)
+AC_ARG_WITH(libz,
+  AC_HELP_STRING([--with-libz],[Use Libz for compression]),
+  use_libz=$withval,use_libz=auto)
+
+# Look for OpenSSL (default)
+if test "$use_openssl" != "no" && test "$use_libgcrypt" != "yes"; then
+  AC_LIB_HAVE_LINKFLAGS([ssl], [crypto], [#include <openssl/ssl.h>])
+fi
+
+# Look for libgcrypt
+if test "$ac_cv_libssl" != "yes" && test "$use_libgcrypt" != "no"; then
+  AC_LIB_HAVE_LINKFLAGS([gcrypt], [], [#include <gcrypt.h>])
+fi
+
+if test "$ac_cv_libssl" != "yes" && test "$ac_cv_libgcrypt" != "yes"; then
+  AC_MSG_ERROR([cannot find OpenSSL or Libgcrypt,
+try --with-libssl-prefix=PATH or --with-libgcrypt-prefix=PATH])
+fi
+
+if test "$ac_cv_libgcrypt" = "yes"; then
+  AC_DEFINE(LIBSSH2_LIBGCRYPT, 1, [Use libgcrypt])
+fi
+AM_CONDITIONAL(LIBGCRYPT, test "$ac_cv_libgcrypt" = "yes")
+
+# Look for Libz
+if test "$use_libz" != "no"; then
+  AC_LIB_HAVE_LINKFLAGS([z], [], [#include <zlib.h>])
+  if test "$ac_cv_libz" != yes; then
+    AC_MSG_NOTICE([Cannot find libz, disabling compression])
+    AC_MSG_NOTICE([Try --with-libz-prefix=PATH if you know you have it])
+  else
+    AC_DEFINE(LIBSSH2_HAVE_ZLIB, 1, [Compile in zlib support])
+  fi
+fi
+
+#
+# Optional Settings
+#
+AC_ARG_ENABLE(crypt-none,
+  AC_HELP_STRING([--enable-crypt-none],[Permit "none" cipher -- NOT RECOMMENDED]),
+  [AC_DEFINE(LIBSSH2_CRYPT_NONE, 1, [Enable "none" cipher -- NOT RECOMMENDED])])
+
+AC_ARG_ENABLE(mac-none,
+  AC_HELP_STRING([--enable-mac-none],[Permit "none" MAC -- NOT RECOMMENDED]),
+  [AC_DEFINE(LIBSSH2_MAC_NONE, 1, [Enable "none" MAC -- NOT RECOMMENDED])])
+
+AC_ARG_ENABLE(gex-new,
+  AC_HELP_STRING([--disable-gex-new],[Disable "new" diffie-hellman-group-exchange-sha1 method]),
+  [GEX_NEW=$enableval])
+if test "$GEX_NEW" != "no"; then
+  AC_DEFINE(LIBSSH2_DH_GEX_NEW, 1, [Enable newer diffie-hellman-group-exchange-sha1 syntax])
+fi
+
+dnl ************************************************************
+dnl option to switch on compiler debug options
+dnl
+AC_MSG_CHECKING([whether to enable pedantic and debug compiler options])
+AC_ARG_ENABLE(debug,
+AC_HELP_STRING([--enable-debug],[Enable pedantic and debug options])
+AC_HELP_STRING([--disable-debug],[Disable debug options]),
+[ case "$enableval" in
+  no)
+       AC_MSG_RESULT(no)
+       ;;
+  *)   AC_MSG_RESULT(yes)
+
+    CPPFLAGS="$CPPFLAGS -DLIBSSH2DEBUG"
+    CFLAGS="$CFLAGS -g"
+
+    dnl set compiler "debug" options to become more picky, and remove
+    dnl optimize options from CFLAGS
+    CURL_CC_DEBUG_OPTS
+       ;;
+  esac
+ ],
+       AC_MSG_RESULT(no)
+)
+
+# Checks for header files.
+# AC_HEADER_STDC
+AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h])
+AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
+AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
+
+case $host in
+  *-*-cygwin* | *-*-cegcc*)
+    # These are POSIX-like systems using BSD-like sockets API.
+    ;;
+  *)
+    AC_CHECK_HEADERS([windows.h winsock2.h ws2tcpip.h])
+    ;;
+esac
+
+AC_CHECK_FUNCS(poll gettimeofday select strtoll)
+
+dnl Check for select() into ws2_32 for Msys/Mingw
+if test "$ac_cv_func_select" != "yes"; then
+  AC_MSG_CHECKING([for select in ws2_32])
+  AC_TRY_LINK([
+#ifdef HAVE_WINSOCK2_H
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#endif
+    ],[
+      select(0,(fd_set *)NULL,(fd_set *)NULL,(fd_set *)NULL,(struct timeval *)NULL);
+    ],[
+      AC_MSG_RESULT([yes])
+      HAVE_SELECT="1"
+      AC_DEFINE_UNQUOTED(HAVE_SELECT, 1,
+        [Define to 1 if you have the select function.])
+    ],[
+      AC_MSG_RESULT([no])
+  ])
+fi
+
+AC_FUNC_ALLOCA
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+
+CURL_CHECK_NONBLOCKING_SOCKET
+
+AC_CONFIG_FILES([Makefile
+                 src/Makefile
+                 tests/Makefile
+                 example/Makefile
+                 example/simple/Makefile
+                 docs/Makefile])
+AC_OUTPUT
