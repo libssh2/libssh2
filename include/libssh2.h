@@ -678,6 +678,7 @@ LIBSSH2_API
 const char *libssh2_version(int req_version_num);
 
 #define HAVE_LIBSSH2_KNOWNHOST_API 0x010101 /* since 1.1.1 */
+#define HAVE_LIBSSH2_VERSION_API   0x010100 /* libssh2_version since 1.1 */
 
 struct libssh2_knownhost {
     unsigned int magic;  /* magic stored by the library */
