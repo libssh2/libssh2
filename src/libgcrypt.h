@@ -112,7 +112,8 @@ int _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
                      const unsigned char *coeffdata, unsigned long coefflen);
 int _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
                              LIBSSH2_SESSION * session,
-                             FILE * fp, unsigned const char *passphrase);
+                             const char *filename,
+                             unsigned const char *passphrase);
 int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
                              const unsigned char *sig,
                              unsigned long sig_len,
@@ -140,7 +141,8 @@ int _libssh2_dsa_new(libssh2_dsa_ctx ** dsa,
                      const unsigned char *x, unsigned long x_len);
 int _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
                              LIBSSH2_SESSION * session,
-                             FILE * fp, unsigned const char *passphrase);
+                             const char *filename,
+                             unsigned const char *passphrase);
 int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsa,
                              const unsigned char *sig,
                              const unsigned char *m, unsigned long m_len);

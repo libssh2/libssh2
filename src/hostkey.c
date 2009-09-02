@@ -114,7 +114,6 @@ hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION * session,
                                void **abstract)
 {
     libssh2_rsa_ctx *rsactx;
-    FILE *fp;
     int ret;
 
     if (*abstract) {
@@ -122,13 +121,7 @@ hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION * session,
         *abstract = NULL;
     }
 
-    fp = fopen(privkeyfile, "r");
-    if (!fp) {
-        return -1;
-    }
-
-    ret = _libssh2_rsa_new_private(&rsactx, session, fp, passphrase);
-    fclose(fp);
+    ret = _libssh2_rsa_new_private(&rsactx, session, privkeyfile, passphrase);
     if (ret) {
         return -1;
     }
@@ -296,7 +289,6 @@ hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION * session,
                                void **abstract)
 {
     libssh2_dsa_ctx *dsactx;
-    FILE *fp;
     int ret;
 
     if (*abstract) {
@@ -304,13 +296,7 @@ hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION * session,
         *abstract = NULL;
     }
 
-    fp = fopen(privkeyfile, "r");
-    if (!fp) {
-        return -1;
-    }
-
-    ret = _libssh2_dsa_new_private(&dsactx, session, fp, passphrase);
-    fclose(fp);
+    ret = _libssh2_dsa_new_private(&dsactx, session, privkeyfile, passphrase);
     if (ret) {
         return -1;
     }
