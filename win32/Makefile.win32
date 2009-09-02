@@ -137,6 +137,7 @@ OBJECTS = \
 	crypt.o \
 	hostkey.o \
 	kex.o \
+	knownhost.o \
 	mac.o \
 	misc.o \
 	openssl.o \

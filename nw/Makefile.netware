@@ -200,6 +200,7 @@ OBJECTS = \
 	crypt.o \
 	hostkey.o \
 	kex.o \
+	knownhost.o \
 	mac.o \
 	misc.o \
 	openssl.o \
@@ -521,11 +522,17 @@ endif
 	@echo $(DL)  libssh2_hostkey_hash,$(DL) >> $@
 	@echo $(DL)  libssh2_scp_recv,$(DL) >> $@
 	@echo $(DL)  libssh2_scp_send_ex,$(DL) >> $@
+	@echo $(DL)  libssh2_knownhost_add,$(DL) >> $@
+	@echo $(DL)  libssh2_knownhost_check,$(DL) >> $@
+	@echo $(DL)  libssh2_knownhost_init,$(DL) >> $@
+	@echo $(DL)  libssh2_knownhost_readfile,$(DL) >> $@
+	@echo $(DL)  libssh2_knownhost_writefile,$(DL) >> $@
 	@echo $(DL)  libssh2_session_abstract,$(DL) >> $@
 	@echo $(DL)  libssh2_session_block_directions,$(DL) >> $@
 	@echo $(DL)  libssh2_session_callback_set,$(DL) >> $@
 	@echo $(DL)  libssh2_session_disconnect_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_session_free,$(DL) >> $@
+	@echo $(DL)  libssh2_session_hostkey,$(DL) >> $@
 	@echo $(DL)  libssh2_session_init_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_session_last_errno,$(DL) >> $@
 	@echo $(DL)  libssh2_session_last_error,$(DL) >> $@
