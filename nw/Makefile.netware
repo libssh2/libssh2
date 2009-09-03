@@ -184,8 +184,7 @@ ifdef XDCOPT
 	XDCDATA = $(OBJDIR)/$(TARGET).xdc
 endif
 
-ifeq ($(findstring linux,$(OSTYPE)),linux)
-#-include $(NDKBASE)/nlmconv/ncpfs.inc
+ifeq ($(findstring /sh,$(SHELL)),/sh)
 DL	= '
 DS	= /
 else
@@ -194,25 +193,10 @@ endif
 
 vpath %.c . ../src
 
-OBJECTS = \
-	channel.o \
-	comp.o \
-	crypt.o \
-	hostkey.o \
-	kex.o \
-	knownhost.o \
-	mac.o \
-	misc.o \
-	openssl.o \
-	packet.o \
-	pem.o \
-	publickey.o \
-	scp.o \
-	session.o \
-	sftp.o \
-	transport.o \
-	userauth.o
+# include Makefile.inc to get CSOURCES define
+include ../Makefile.inc
 
+OBJECTS := $(patsubst %.c,%.o,$(CSOURCES))
 ifeq ($(LIBARCH),CLIB)
 # CLIB lacks of snprint() function - here's a replacement:
 # http://www.ijs.si/software/snprintf/
@@ -221,7 +205,6 @@ vpath %.c $(SNPRINTF)
 endif
 
 OBJS	:= $(addprefix $(OBJDIR)/,$(OBJECTS))
-
 OBJL	= $(OBJS) $(OBJDIR)/nwlib.o $(LDLIBS)
 
 all: lib nlm
