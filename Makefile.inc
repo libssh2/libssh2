@@ -2,7 +2,7 @@ CSOURCES = channel.c comp.c crypt.c hostkey.c kex.c mac.c misc.c \
  packet.c publickey.c scp.c session.c sftp.c userauth.c transport.c \
  version.c knownhost.c
 
-if LIBGCRYPT
+ifdef LIBGCRYPT
 CSOURCES += libgcrypt.c pem.c
 else
 CSOURCES += openssl.c
