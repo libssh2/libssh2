@@ -366,6 +366,8 @@ ifeq ($(LIBARCH),CLIB)
 	@echo $(DL)#define HAVE_STRICMP 1$(DL) >> $@
 	@echo $(DL)#define socklen_t int$(DL) >> $@
 	@echo $(DL)#define sleep(s) delay(1000 * s)$(DL) >> $@
+	@echo $(DL)#define strcasecmp stricmp$(DL) >> $@
+	@echo $(DL)#define strncasecmp strnicmp$(DL) >> $@
 else
 	@echo $(DL)#define OS "i586-pc-libc-NetWare"$(DL) >> $@
 	@echo $(DL)#define HAVE_DLFCN_H 1$(DL) >> $@
