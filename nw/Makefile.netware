@@ -492,6 +492,7 @@ endif
 	@echo $(DL)  libssh2_channel_eof,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_flush_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_free,$(DL) >> $@
+	@echo $(DL)  libssh2_channel_get_exit_status,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_open_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_process_startup,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_read_ex,$(DL) >> $@
@@ -507,6 +508,7 @@ endif
 	@echo $(DL)  libssh2_scp_send_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_knownhost_add,$(DL) >> $@
 	@echo $(DL)  libssh2_knownhost_check,$(DL) >> $@
+	@echo $(DL)  libssh2_knownhost_free,$(DL) >> $@
 	@echo $(DL)  libssh2_knownhost_init,$(DL) >> $@
 	@echo $(DL)  libssh2_knownhost_readfile,$(DL) >> $@
 	@echo $(DL)  libssh2_knownhost_writefile,$(DL) >> $@
