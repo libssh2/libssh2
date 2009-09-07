@@ -1,5 +1,5 @@
-/* Copyright (C) 2006, 2007, The Written Word, Inc.
- * Copyright (C) 2008, Simon Josefsson
+/* Copyright (C) 2008, 2009, Simon Josefsson
+ * Copyright (C) 2006, 2007, The Written Word, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -169,7 +169,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
                              "-----BEGIN RSA PRIVATE KEY-----",
                              "-----END RSA PRIVATE KEY-----",
                              fp, &data, &datalen);
-    fclose(fp)
+    fclose(fp);
     if (ret) {
         return -1;
     }
@@ -262,7 +262,7 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
 
     (void) passphrase;
 
-    fp = fopen(filename);
+    fp = fopen(filename, "r");
     if (!fp) {
         return -1;
     }
