@@ -38,6 +38,8 @@
 
 #include "libssh2_priv.h"
 
+#ifdef LIBSSH2_LIBGCRYPT /* compile only if we build with libgcrypt */
+
 static int
 readline(char *line, int line_size, FILE * fp)
 {
@@ -207,3 +209,5 @@ _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
 
     return 0;
 }
+
+#endif /* LIBSSH2_LIBGCRYPT */

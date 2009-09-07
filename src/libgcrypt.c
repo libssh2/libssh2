@@ -37,6 +37,9 @@
  */
 
 #include "libssh2_priv.h"
+
+#ifdef LIBSSH2_LIBGCRYPT /* compile only if we build with libgcrypt */
+
 #include <string.h>
 
 int
@@ -572,3 +575,5 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     }
     return ret;
 }
+
+#endif /* LIBSSH2_LIBGCRYPT */

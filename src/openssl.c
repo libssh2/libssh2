@@ -37,6 +37,9 @@
  */
 
 #include "libssh2_priv.h"
+
+#ifndef LIBSSH2_LIBGCRYPT /* compile only if we build with OpenSSL */
+
 #include <string.h>
 
 #ifndef EVP_MAX_BLOCK_LENGTH
@@ -337,3 +340,5 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 
     return 0;
 }
+
+#endif /* !LIBSSH2_LIBGCRYPT */
