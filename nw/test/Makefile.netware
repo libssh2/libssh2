@@ -138,6 +138,13 @@ INCLUDES = -I.. -I../../include
 
 LDLIBS =
  
+ifdef LINK_STATIC
+	LDLIBS += ../libssh2.$(LIBEXT)
+else
+	IMPORTS += @../libssh2.imp
+	MODULES += libssh2.nlm
+endif
+
 INCLUDES += -I$(OPENSSL_PATH)/outinc_nw_$(LIBARCH_L) -I$(OPENSSL_PATH)/outinc_nw_$(LIBARCH_L)/openssl
 LDLIBS += $(OPENSSL_PATH)/out_nw_$(LIBARCH_L)/ssl.$(LIBEXT)
 LDLIBS += $(OPENSSL_PATH)/out_nw_$(LIBARCH_L)/crypto.$(LIBEXT)
@@ -151,13 +158,6 @@ else
 	MODULES += libz.nlm
 	IMPORTS += @$(ZLIB_PATH)/nw/$(LIBARCH)/libz.imp
 endif
-endif
-
-ifdef LINK_STATIC
-	LDLIBS += ../libssh2.$(LIBEXT)
-else
-	IMPORTS += @../libssh2.imp
-	MODULES += libssh2.nlm
 endif
 
 ifeq ($(LIBARCH),LIBC)
