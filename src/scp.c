@@ -1,4 +1,5 @@
-/* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -260,13 +261,13 @@ libssh2_shell_quotearg(const char *path, unsigned char *buf,
 }
 
 /*
- * libssh2_scp_recv
+ * scp_recv
  *
  * Open a channel and request a remote file via SCP
  *
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
+static LIBSSH2_CHANNEL *
+scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 {
     int cmd_len;
     int rc;
@@ -763,14 +764,28 @@ libssh2_scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 }
 
 /*
- * libssh2_scp_send_ex
+ * libssh2_scp_recv
+ *
+ * Open a channel and request a remote file via SCP
+ *
+ */
+LIBSSH2_API LIBSSH2_CHANNEL *
+libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat * sb)
+{
+    LIBSSH2_CHANNEL *ptr;
+    BLOCK_ADJUST_ERRNO(ptr, session, scp_recv(session, path, sb));
+    return ptr;
+}
+
+/*
+ * scp_send()
  *
  * Send a file using SCP
  *
  */
-LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
-                    size_t size, long mtime, long atime)
+static LIBSSH2_CHANNEL *
+scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
+         size_t size, long mtime, long atime)
 {
     int cmd_len;
     unsigned const char *base;
@@ -1022,3 +1037,17 @@ libssh2_scp_send_ex(LIBSSH2_SESSION * session, const char *path, int mode,
     return NULL;
 }
 
+/*
+ * libssh2_scp_send_ex
+ *
+ * Send a file using SCP
+ */
+LIBSSH2_API LIBSSH2_CHANNEL *
+libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode,
+                    size_t size, long mtime, long atime)
+{
+    LIBSSH2_CHANNEL *ptr;
+    BLOCK_ADJUST_ERRNO(ptr, session,
+                       scp_send(session, path, mode, size, mtime, atime));
+    return ptr;
+}
