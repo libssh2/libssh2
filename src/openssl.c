@@ -247,6 +247,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
 {
     pem_read_bio_func read_rsa =
         (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
+    (void) session;
 
     if (!EVP_get_cipherbyname("des")) {
 /* If this cipher isn't loaded it's a pretty good indication that none are.
