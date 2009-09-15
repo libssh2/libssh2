@@ -30,3 +30,4 @@ install-sh
 *.lo
 *.la
 mkinstalldirs
+tags
