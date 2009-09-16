@@ -1828,8 +1828,15 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     if (!bytes_read) {
         channel->read_state = libssh2_NB_state_idle;
 
-        /* if the transport layer said EAGAIN then we say so as well */
-        return (rc == PACKET_EAGAIN)?rc:0;
+        /* If the channel is already at EOF or even closed, we need to signal
+           that back. We may have gotten that info while draining the incoming
+           transport layer until EAGAIN so we must not be fooled by that
+           return code. */
+        if(channel->remote.eof || channel->remote.close)
+            return 0;
+        else
+            /* if the transport layer said EAGAIN then we say so as well */
+            return (rc == PACKET_EAGAIN)?rc:0;
     }
     else
         /* make sure we remain in the created state to focus on emptying the
