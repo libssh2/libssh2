@@ -2334,6 +2334,9 @@ static int channel_wait_closed(LIBSSH2_CHANNEL *channel)
     if (!channel->remote.close) {
         do {
             rc = _libssh2_transport_read(session);
+            if (channel->remote.close)
+                /* it is now closed, move on! */
+                break;
         } while (rc > 0);
         if(rc < 0)
             return rc;
