@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     long flag = 1;
 #endif
     char mem[1024];
-    size_t nread;
+    size_t nread, sent;
     char *ptr;
     struct stat fileinfo;
 
@@ -176,17 +176,22 @@ int main(int argc, char *argv[])
             break;
         }
         ptr = mem;
+        sent = 0;
 
         do {
-            /* write data in a loop until we block */
-            while ((rc = libssh2_channel_write(channel, ptr, nread)) ==
-                   LIBSSH2_ERROR_EAGAIN);
-            if (rc < 0) {
+            /* write the same data over and over, until error or completion */
+            rc = libssh2_channel_write(channel, ptr, nread);
+            if (LIBSSH2_ERROR_EAGAIN == rc) { /* must loop around */
+                continue;
+            } else if (rc < 0) {
                 fprintf(stderr, "ERROR %d\n", rc);
+            } else {
+                /* rc indicates how many bytes were written this time */
+                sent += rc;
             }
-            ptr += rc;
-            nread -= rc;
-        } while (nread > 0);
+        } while (rc > 0 && sent < nread);
+        ptr += sent;
+        nread -= sent;
     } while (1);
 
     fprintf(stderr, "Sending EOF\n");
