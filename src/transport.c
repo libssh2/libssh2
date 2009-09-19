@@ -626,7 +626,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
 
     p->osent += rc;         /* we sent away this much data */
 
-    return PACKET_NONE;
+    return p->osent < data_len ? PACKET_EAGAIN : PACKET_NONE;
 }
 
 /*
