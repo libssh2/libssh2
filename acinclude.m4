@@ -298,6 +298,7 @@ dnl Internal macro for CURL_CONFIGURE_REENTRANT.
 AC_DEFUN([CURL_CHECK_NEED_REENTRANT_SYSTEM], [
   case $host in
     *-*-solaris*)
+    *-*-hpux*)
       tmp_need_reentrant="yes"
       ;;
     *)
