@@ -19,8 +19,7 @@ NETWAREFILES =  nw/keepscreen.c \
 DSP = win32/libssh2.dsp
 VCPROJ = win32/libssh2.vcproj
 
-#Need to include $(VCPROJ) to CLEANFILES and WIN32FILES when I get a proper vc8proj.head|foot
-CLEANFILES = $(DSP)
+DISTCLEANFILES = $(DSP)
 
 WIN32FILES = win32/Makefile.win32 win32/libssh2.dsw     \
 win32/config.mk win32/Makefile win32/test/Makefile.win32 \
@@ -35,7 +34,7 @@ ACLOCAL_AMFLAGS = -I m4
 .PHONY: ChangeLog
 ChangeLog:
 	echo "see NEWS" > ./ChangeLog
-CLEANFILES += ChangeLog
+DISTCLEANFILES += ChangeLog
 
 dist-hook:
 	rm -rf $(top_builddir)/tests/log
