@@ -1,3 +1,22 @@
+Version 1.2.1 (September 28, 2009)
+
+* This release includes the following changes:
+
+  o generate and install libssh2.pc
+
+  ... and the following bugfixes:
+
+  o proper return codes returned from several functions
+  o return EAGAIN internal cleanup
+  o added knownhost.c to windows makefiles
+  o pass private-key to OpenSSL as a filename with BIO_new_file().
+  o make libssh2_scp_send/recv do blocking mode correctly
+  o libssh2_channel_wait_closed() could hang
+  o libssh2_channel_read_ex() must return 0 when closed
+  o added gettimeofday() function for win32 for the debug trace outputs
+  o transport layer bug causing invalid -39 (LIBSSH2_ERROR_BAD_USE) errors
+  o scp examples now loop correctly over libssh2_channel_write()
+
 * (August 29 2009) Daniel Stenberg:
 
  - I fixed all code to use the recently added dedicated linked list functions
