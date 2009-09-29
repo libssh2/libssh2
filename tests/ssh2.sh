@@ -9,15 +9,15 @@ srcdir=${srcdir:-$PWD}
 SSHD=${SSHD:-/usr/sbin/sshd}
 
 cmd="./ssh2${EXEEXT}"
-srcdir=`cd $srcdir; pwd`
+srcdir=`cd "$srcdir"; pwd`
 
 PRIVKEY=$srcdir/etc/user
 export PRIVKEY
 PUBKEY=$srcdir/etc/user.pub
 export PUBKEY
 
-chmod go-r $srcdir/etc/host*
-$SSHD -f /dev/null -h $srcdir/etc/host \
+chmod go-rwx "$srcdir"/etc/host*
+$SSHD -f /dev/null -h "$srcdir"/etc/host \
     -o 'Port 4711' \
     -o 'Protocol 2' \
     -o "AuthorizedKeysFile $srcdir/etc/user.pub" \
