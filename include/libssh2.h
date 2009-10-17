@@ -115,14 +115,14 @@ typedef long long libssh2_int64_t;
 
 /*
  * This is the date and time when the full source package was created. The
- * timestamp is not stored in CVS, as the timestamp is properly set in the
- * tarballs by the maketgz script.
+ * timestamp is not stored in the source code repo, as the timestamp is
+ * properly set in the tarballs by the maketgz script.
  *
  * The format of the date should follow this template:
  *
  * "Mon Feb 12 11:35:33 UTC 2007"
  */
-#define LIBSSH2_TIMESTAMP "CVS"
+#define LIBSSH2_TIMESTAMP "DEV"
 
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER                  "SSH-2.0-libssh2_" LIBSSH2_VERSION
