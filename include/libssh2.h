@@ -84,11 +84,11 @@ typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
 #endif
 
-/* We use underscore instead of dash when appending CVS in dev versions just
+/* We use underscore instead of dash when appending DEV in dev versions just
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
    have dashes either. */
-#define LIBSSH2_VERSION                             "1.2.2_CVS"
+#define LIBSSH2_VERSION                             "1.2.2_DEV"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
