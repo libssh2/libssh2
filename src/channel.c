@@ -725,11 +725,6 @@ channel_forward_accept(LIBSSH2_LISTENER *listener)
 
     do {
         rc = _libssh2_transport_read(listener->session);
-        if (rc == PACKET_EAGAIN) {
-            libssh2_error(listener->session, LIBSSH2_ERROR_EAGAIN,
-                          "Would block waiting for packet", 0);
-            return NULL;
-        }
     } while (rc > 0);
 
     if (_libssh2_list_first(&listener->queue)) {
@@ -746,8 +741,13 @@ channel_forward_accept(LIBSSH2_LISTENER *listener)
         return channel;
     }
 
-    libssh2_error(listener->session, LIBSSH2_ERROR_CHANNEL_UNKNOWN,
-                  "Channel not found", 0);
+    if (rc == PACKET_EAGAIN) {
+        libssh2_error(listener->session, LIBSSH2_ERROR_EAGAIN,
+                      "Would block waiting for packet", 0);
+    }
+    else
+        libssh2_error(listener->session, LIBSSH2_ERROR_CHANNEL_UNKNOWN,
+                      "Channel not found", 0);
     return NULL;
 }
 

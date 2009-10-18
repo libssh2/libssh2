@@ -146,6 +146,8 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                         listen_state->state = libssh2_NB_state_sent;
                         break;
                     }
+                    listen_state->channel = channel;
+
                     memset(channel, 0, sizeof(LIBSSH2_CHANNEL));
 
                     channel->session = session;
