@@ -524,16 +524,14 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
                      _libssh2_cipher_type(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
-    int mode = 0, ret;
-    int keylen = gcry_cipher_get_algo_keylen(algo);
+    int ret;
+    int cipher = _libssh2_gcry_cipher (algo);
+    int mode = _libssh2_gcry_mode (algo);
+    int keylen = gcry_cipher_get_algo_keylen(cipher);
 
     (void) encrypt;
 
-    if (algo != GCRY_CIPHER_ARCFOUR) {
-        mode = GCRY_CIPHER_MODE_CBC;
-    }
-
-    ret = gcry_cipher_open(h, algo, mode, 0);
+    ret = gcry_cipher_open(h, cipher, mode, 0);
     if (ret) {
         return -1;
     }
@@ -544,8 +542,8 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
         return -1;
     }
 
-    if (algo != GCRY_CIPHER_ARCFOUR) {
-        int blklen = gcry_cipher_get_algo_blklen(algo);
+    if (mode != GCRY_CIPHER_MODE_STREAM) {
+        int blklen = gcry_cipher_get_algo_blklen(cipher);
         ret = gcry_cipher_setiv(*h, iv, blklen);
         if (ret) {
             gcry_cipher_close(*h);
@@ -561,8 +559,10 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
                       _libssh2_cipher_type(algo),
                       int encrypt, unsigned char *block)
 {
-    size_t blklen = gcry_cipher_get_algo_blklen(algo);
+    int cipher = _libssh2_gcry_cipher (algo);
+    size_t blklen = gcry_cipher_get_algo_blklen(cipher);
     int ret;
+
     if (blklen == 1) {
 /* Hack for arcfour. */
         blklen = 8;

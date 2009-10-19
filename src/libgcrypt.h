@@ -1,5 +1,6 @@
-/* Copyright (C) 2006, 2007, The Written Word, Inc.
- * Copyright (C) 2008, Simon Josefsson
+/*
+ * Copyright (C) 2008, 2009 Simon Josefsson
+ * Copyright (C) 2006, 2007, The Written Word, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -155,13 +156,24 @@ int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 #define _libssh2_cipher_type(name) int name
 #define _libssh2_cipher_ctx gcry_cipher_hd_t
 
-#define _libssh2_cipher_aes256 GCRY_CIPHER_AES256
-#define _libssh2_cipher_aes192 GCRY_CIPHER_AES192
-#define _libssh2_cipher_aes128 GCRY_CIPHER_AES128
-#define _libssh2_cipher_blowfish GCRY_CIPHER_BLOWFISH
-#define _libssh2_cipher_arcfour GCRY_CIPHER_ARCFOUR
-#define _libssh2_cipher_cast5 GCRY_CIPHER_CAST5
-#define _libssh2_cipher_3des GCRY_CIPHER_3DES
+#define _libssh2_gcry_ciphermode(c,m) ((c << 8) | m)
+#define _libssh2_gcry_cipher(c) (c >> 8)
+#define _libssh2_gcry_mode(m) (m & 0xFF)
+
+#define _libssh2_cipher_aes256			\
+  _libssh2_gcry_ciphermode(GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC)
+#define _libssh2_cipher_aes192			\
+  _libssh2_gcry_ciphermode(GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CBC)
+#define _libssh2_cipher_aes128			\
+  _libssh2_gcry_ciphermode(GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC)
+#define _libssh2_cipher_blowfish		\
+  _libssh2_gcry_ciphermode(GCRY_CIPHER_BLOWFISH, GCRY_CIPHER_MODE_CBC)
+#define _libssh2_cipher_arcfour			\
+  _libssh2_gcry_ciphermode(GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM)
+#define _libssh2_cipher_cast5			\
+  _libssh2_gcry_ciphermode(GCRY_CIPHER_CAST5, GCRY_CIPHER_MODE_CBC)
+#define _libssh2_cipher_3des			\
+  _libssh2_gcry_ciphermode(GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC)
 
 int _libssh2_cipher_init(_libssh2_cipher_ctx * h,
                          _libssh2_cipher_type(algo),
