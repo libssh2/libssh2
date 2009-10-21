@@ -162,6 +162,45 @@ AC_HELP_STRING([--disable-debug],[Disable debug options]),
        AC_MSG_RESULT(no)
 )
 
+dnl ************************************************************
+dnl Enable hiding of internal symbols in library to reduce its size and
+dnl speed dynamic linking of applications.  This currently is only supported
+dnl on gcc >= 4.0 and SunPro C.
+dnl
+AC_MSG_CHECKING([whether to enable hidden symbols in the library])
+AC_ARG_ENABLE(hidden-symbols,
+AC_HELP_STRING([--enable-hidden-symbols],[Hide internal symbols in library])
+AC_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibility in library]),
+[ case "$enableval" in
+  no)
+       AC_MSG_RESULT(no)
+       ;;
+  *)
+       AC_MSG_CHECKING([whether $CC supports it])
+       if test "$GCC" = yes ; then
+         if $CC --help --verbose 2>&1 | grep fvisibility= > /dev/null ; then
+           AC_MSG_RESULT(yes)
+           AC_DEFINE(LIBSSH2_API, [__attribute__ ((visibility ("default")))], [to make a symbol visible])
+           CFLAGS="$CFLAGS -fvisibility=hidden"
+         else
+            AC_MSG_RESULT(no)
+          fi
+
+       else
+         dnl Test for SunPro cc
+         if $CC 2>&1 | grep flags >/dev/null && $CC -flags | grep xldscope= >/dev/null ; then
+           AC_MSG_RESULT(yes)
+           AC_DEFINE(LIBSSH2_API, [__global], [to make a symbol visible])
+           CFLAGS="$CFLAGS -xldscope=hidden"
+         else
+           AC_MSG_RESULT(no)
+         fi
+       fi
+       ;;
+  esac ],
+       AC_MSG_RESULT(no)
+)
+
 # Checks for header files.
 # AC_HEADER_STDC
 AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h])
