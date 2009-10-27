@@ -192,6 +192,41 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour = {
     &crypt_dtor,
     _libssh2_cipher_arcfour
 };
+
+static int
+crypt_init_arcfour128(LIBSSH2_SESSION * session,
+                      const LIBSSH2_CRYPT_METHOD * method,
+                      unsigned char *iv, int *free_iv,
+                      unsigned char *secret, int *free_secret,
+                      int encrypt, void **abstract)
+{
+    struct crypt_ctx *cctx;
+    char block[8];
+    int rc;
+
+    rc = crypt_init (session, method, iv, free_iv, secret, free_secret,
+		     encrypt, abstract);
+    if (rc == 0) {
+        size_t discard = 1536;
+        cctx = *(struct crypt_ctx **) abstract;
+        for (; discard; discard -= 8)
+	    _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block);
+    }
+
+    return rc;
+}
+
+static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour128 = {
+    "arcfour128",
+    8,                          /* blocksize */
+    8,                          /* initial value length */
+    16,                         /* secret length */
+    0,                          /* flags */
+    &crypt_init_arcfour128,
+    &crypt_encrypt,
+    &crypt_dtor,
+    _libssh2_cipher_arcfour
+};
 #endif /* LIBSSH2_RC4 */
 
 #if LIBSSH2_CAST
@@ -233,6 +268,7 @@ static const LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
     &libssh2_crypt_method_blowfish_cbc,
 #endif /* LIBSSH2_BLOWFISH */
 #if LIBSSH2_RC4
+    &libssh2_crypt_method_arcfour128,
     &libssh2_crypt_method_arcfour,
 #endif /* LIBSSH2_RC4 */
 #if LIBSSH2_CAST
