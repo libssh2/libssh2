@@ -2,6 +2,11 @@ Version 1.2.2 (unreleased)
 
 * This release includes the following changes:
 
+  o Fix crash when server sends an invalid SSH_MSG_IGNORE message.
+    Reported by Bob Alexander <balexander@expressor-software.com> in
+    <http://thread.gmane.org/gmane.network.ssh.libssh2.devel/2530>.
+    By Simon Josefsson.
+
   o Support for the "arcfour128" cipher as per RFC 4345 for libgcrypt
     and OpenSSL.  It is preferred over the normal "arcfour" cipher
     which is somewhat broken.  By Simon Josefsson.
