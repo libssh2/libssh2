@@ -512,7 +512,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 message[message_len] = '\0';
                 language = (char *) data + 9 + message_len + 3;
                 if (language_len) {
-                    memcpy(language, language + 1, language_len);
+                    memmove(language, language + 1, language_len);
                 }
                 language[language_len] = '\0';
 
@@ -571,7 +571,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 message[message_len] = '\0';
                 language = (char *) data + 6 + message_len + 3;
                 if (language_len) {
-                    memcpy(language, language + 1, language_len);
+                    memmove(language, language + 1, language_len);
                 }
                 language[language_len] = '\0';
 
