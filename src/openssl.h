@@ -1,4 +1,6 @@
-/* Copyright (C) 2006, 2007 The Written Word, Inc.  All rights reserved.
+/* Copyright (C) 2009 Simon Josefsson
+ * Copyright (C) 2006, 2007 The Written Word, Inc.  All rights reserved.
+ *
  * Author: Simon Josefsson
  *
  * Redistribution and use in source and binary forms,
@@ -71,6 +73,7 @@
 #endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES)
+# define LIBSSH2_AES_CTR 1
 # define LIBSSH2_AES 1
 #else
 # define LIBSSH2_AES 0
@@ -194,6 +197,9 @@ int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 #define _libssh2_cipher_aes256 EVP_aes_256_cbc
 #define _libssh2_cipher_aes192 EVP_aes_192_cbc
 #define _libssh2_cipher_aes128 EVP_aes_128_cbc
+#define _libssh2_cipher_aes128ctr _libssh2_EVP_aes_128_ctr
+#define _libssh2_cipher_aes192ctr _libssh2_EVP_aes_192_ctr
+#define _libssh2_cipher_aes256ctr _libssh2_EVP_aes_256_ctr
 #define _libssh2_cipher_blowfish EVP_bf_cbc
 #define _libssh2_cipher_arcfour EVP_rc4
 #define _libssh2_cipher_cast5 EVP_cast5_cbc
@@ -223,3 +229,7 @@ int _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
 #define _libssh2_bn_bytes(bn) BN_num_bytes(bn)
 #define _libssh2_bn_bits(bn) BN_num_bits(bn)
 #define _libssh2_bn_free(bn) BN_clear_free(bn)
+
+const EVP_CIPHER *_libssh2_EVP_aes_128_ctr(void);
+const EVP_CIPHER *_libssh2_EVP_aes_192_ctr(void);
+const EVP_CIPHER *_libssh2_EVP_aes_256_ctr(void);

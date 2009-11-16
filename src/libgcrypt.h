@@ -44,6 +44,7 @@
 #define LIBSSH2_HMAC_RIPEMD 1
 
 #define LIBSSH2_AES 1
+#define LIBSSH2_AES_CTR 1
 #define LIBSSH2_BLOWFISH 1
 #define LIBSSH2_RC4 1
 #define LIBSSH2_CAST 1
@@ -160,7 +161,13 @@ int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 #define _libssh2_gcry_cipher(c) (c >> 8)
 #define _libssh2_gcry_mode(m) (m & 0xFF)
 
-#define _libssh2_cipher_aes256			\
+#define _libssh2_cipher_aes256ctr		\
+  _libssh2_gcry_ciphermode(GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR)
+#define _libssh2_cipher_aes192ctr		\
+  _libssh2_gcry_ciphermode(GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR)
+#define _libssh2_cipher_aes128ctr					\
+  _libssh2_gcry_ciphermode(GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR)
+#define _libssh2_cipher_aes256						\
   _libssh2_gcry_ciphermode(GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC)
 #define _libssh2_cipher_aes192			\
   _libssh2_gcry_ciphermode(GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CBC)

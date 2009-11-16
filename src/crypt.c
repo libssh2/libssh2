@@ -1,5 +1,5 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009 Simon Josefsson <simon@josefsson.org>
+/* Copyright (c) 2009 Simon Josefsson <simon@josefsson.org>
+ * Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -114,6 +114,44 @@ crypt_dtor(LIBSSH2_SESSION * session, void **abstract)
     }
     return 0;
 }
+
+#if LIBSSH2_AES_CTR
+static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_ctr = {
+    "aes128-ctr",
+    16,                         /* blocksize */
+    16,                         /* initial value length */
+    16,                         /* secret length -- 16*8 == 128bit */
+    0,                          /* flags */
+    &crypt_init,
+    &crypt_encrypt,
+    &crypt_dtor,
+    _libssh2_cipher_aes128ctr
+};
+
+static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes192_ctr = {
+    "aes192-ctr",
+    16,                         /* blocksize */
+    16,                         /* initial value length */
+    24,                         /* secret length -- 24*8 == 192bit */
+    0,                          /* flags */
+    &crypt_init,
+    &crypt_encrypt,
+    &crypt_dtor,
+    _libssh2_cipher_aes192ctr
+};
+
+static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_ctr = {
+    "aes256-ctr",
+    16,                         /* blocksize */
+    16,                         /* initial value length */
+    32,                         /* secret length -- 32*8 == 256bit */
+    0,                          /* flags */
+    &crypt_init,
+    &crypt_encrypt,
+    &crypt_dtor,
+    _libssh2_cipher_aes256ctr
+};
+#endif
 
 #if LIBSSH2_AES
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_cbc = {
@@ -258,6 +296,11 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_3des_cbc = {
 #endif
 
 static const LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
+#if LIBSSH2_AES_CTR
+  &libssh2_crypt_method_aes128_ctr,
+  &libssh2_crypt_method_aes192_ctr,
+  &libssh2_crypt_method_aes256_ctr,
+#endif /* LIBSSH2_AES */
 #if LIBSSH2_AES
     &libssh2_crypt_method_aes256_cbc,
     &libssh2_crypt_method_rijndael_cbc_lysator_liu_se,  /* == aes256-cbc */

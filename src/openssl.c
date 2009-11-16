@@ -1,6 +1,8 @@
-/* Copyright (C) 2006, 2007 The Written Word, Inc.  All rights reserved.
- * Author: Simon Josefsson
+/* Copyright (C) 2009 Simon Josefsson
+ * Copyright (C) 2006, 2007 The Written Word, Inc.  All rights reserved.
  * Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
+ *
+ * Author: Simon Josefsson
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided
@@ -195,6 +197,106 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
         memcpy(block, buf, blocksize);
     }
     return ret == 1 ? 0 : 1;
+}
+
+#include <openssl/aes.h>
+
+typedef struct
+{
+    AES_KEY       key;
+    unsigned char ctr[AES_BLOCK_SIZE];
+} aes_ctr_ctx;
+
+static int
+aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
+	     const unsigned char *iv, int enc) /* init key */
+{
+    aes_ctr_ctx *c = malloc(sizeof(*c));
+    if (c == NULL)
+	return 0;
+
+    AES_set_encrypt_key(key, 8 * ctx->key_len, &c->key);
+    memcpy(c->ctr, iv, AES_BLOCK_SIZE);
+
+    EVP_CIPHER_CTX_set_app_data(ctx, c);
+
+    return 1;
+}
+
+static int
+aes_ctr_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
+		  const unsigned char *in,
+		  unsigned int inl) /* encrypt/decrypt data */
+{
+    aes_ctr_ctx *c = EVP_CIPHER_CTX_get_app_data(ctx);
+    unsigned char b1[AES_BLOCK_SIZE];
+    size_t i;
+
+    if (inl != 16) /* libssh2 only ever encrypt one block */
+	return 0;
+
+/*
+  To encrypt a packet P=P1||P2||...||Pn (where P1, P2, ..., Pn are each
+  blocks of length L), the encryptor first encrypts <X> with <cipher>
+  to obtain a block B1.  The block B1 is then XORed with P1 to generate
+  the ciphertext block C1.  The counter X is then incremented
+*/
+
+    AES_encrypt(c->ctr, b1, &c->key);
+
+    for (i = 0; i < 16; i++)
+	*out++ = *in++ ^ b1[i];
+
+    i = 15;
+    while (c->ctr[i]++ == 0xFF) {
+	if (i == 0)
+	    break;
+	i--;
+    }
+
+    return 1;
+}
+
+static int
+aes_ctr_cleanup(EVP_CIPHER_CTX *ctx) /* cleanup ctx */
+{
+    free(EVP_CIPHER_CTX_get_app_data(ctx));
+    return 1;
+}
+
+static const EVP_CIPHER *
+make_ctr_evp (size_t keylen)
+{
+    static EVP_CIPHER aes_ctr_cipher;
+
+    memset(&aes_ctr_cipher, 0, sizeof(aes_ctr_cipher));
+
+    aes_ctr_cipher.block_size = 16;
+    aes_ctr_cipher.key_len = keylen;
+    aes_ctr_cipher.iv_len = 16;
+    aes_ctr_cipher.init = aes_ctr_init;
+    aes_ctr_cipher.do_cipher = aes_ctr_do_cipher;
+    aes_ctr_cipher.cleanup = aes_ctr_cleanup;
+
+    return &aes_ctr_cipher;
+}
+
+const EVP_CIPHER *
+_libssh2_EVP_aes_128_ctr(void)
+{
+    return make_ctr_evp (16);
+}
+
+const EVP_CIPHER *
+_libssh2_EVP_aes_192_ctr(void)
+{
+    return make_ctr_evp (24);
+}
+
+const EVP_CIPHER *
+_libssh2_EVP_aes_256_ctr(void)
+{
+    return make_ctr_evp (32);
 }
 
 /* TODO: Optionally call a passphrase callback specified by the
