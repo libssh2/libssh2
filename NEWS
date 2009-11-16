@@ -15,6 +15,21 @@ Version 1.2.2 (unreleased)
     and OpenSSL.  It is preferred over the normal "arcfour" cipher
     which is somewhat broken.  By Simon Josefsson.
 
+  o Add support for GCC visibility features.  By Cristian Rodríguez.
+
+  o Fix libssh2_channel_forward_accept.  By Juzna.
+
+  o Generate Win32 files correctly.   By Peter Stuge.
+
+  o Fix permission issue in ssh2 self test.  By Dan Fandrich.
+
+  o Use memmove instead of memcpy in one place which copies
+    overlapping memory areas.
+
+  o Cleanup hard coding of cipher modes in libgcrypt backend.  By Simon.
+
+  o Added man page for libssh2_knownhost_free.  By Daniel.
+
 Version 1.2.1 (September 28, 2009)
 
 * This release includes the following changes:
