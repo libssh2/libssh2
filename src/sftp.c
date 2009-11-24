@@ -1618,7 +1618,7 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
     }
 
     sftp_bin2attr(attrs, data + 5);
-	LIBSSH2_FREE(session, data);
+    LIBSSH2_FREE(session, data);
 
     return 0;
 }
