@@ -671,14 +671,14 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
 
     debugdump(session, "libssh2_transport_write plain", data, data_len);
 
-    /* default clear the bit */
-    session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
-
     /* FIRST, check if we have a pending write to complete */
     rc = send_existing(session, data, data_len, &ret);
     if (rc || ret) {
         return rc;
     }
+
+    /* default clear the bit */
+    session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
 
     encrypted = (session->state & LIBSSH2_STATE_NEWKEYS) ? 1 : 0;
 
