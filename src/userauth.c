@@ -104,7 +104,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
 
     if (session->userauth_list_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, session->userauth_list_data,
-                                  session->userauth_list_data_len);
+                                      session->userauth_list_data_len);
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block requesting userauth list", 0);
@@ -206,8 +206,8 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
     unsigned char *s;
     static const unsigned char reply_codes[4] =
         { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
-        SSH_MSG_USERAUTH_PASSWD_CHANGEREQ, 0
-    };
+          SSH_MSG_USERAUTH_PASSWD_CHANGEREQ, 0
+        };
     int rc;
 
     if (session->userauth_pswd_state == libssh2_NB_state_idle) {
@@ -264,7 +264,7 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
 
     if (session->userauth_pswd_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, session->userauth_pswd_data,
-                                  session->userauth_pswd_data_len);
+                                      session->userauth_pswd_data_len);
         if (rc == PACKET_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -398,9 +398,9 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
 
                     if (session->userauth_pswd_state == libssh2_NB_state_sent2) {
                         rc = _libssh2_transport_write(session,
-                                                  session->userauth_pswd_data,
-                                                  session->
-                                                  userauth_pswd_data_len);
+                                                      session->userauth_pswd_data,
+                                                      session->
+                                                      userauth_pswd_data_len);
                         if (rc == PACKET_EAGAIN) {
                             return rc;
                         } else if (rc) {
@@ -900,8 +900,8 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
     unsigned long pubkeydata_len = 0;
     unsigned char reply_codes[4] =
         { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
-        SSH_MSG_USERAUTH_PK_OK, 0
-    };
+          SSH_MSG_USERAUTH_PK_OK, 0
+        };
     int rc;
 
     if (session->userauth_pblc_state == libssh2_NB_state_idle) {
@@ -965,7 +965,7 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
         *(session->userauth_pblc_s++) = 0;
 
         _libssh2_htonu32(session->userauth_pblc_s,
-                        session->userauth_pblc_method_len);
+                         session->userauth_pblc_method_len);
         session->userauth_pblc_s += 4;
         memcpy(session->userauth_pblc_s, session->userauth_pblc_method,
                session->userauth_pblc_method_len);
@@ -985,7 +985,7 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
 
     if (session->userauth_pblc_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, session->userauth_pblc_packet,
-                                  session->userauth_pblc_packet_len);
+                                      session->userauth_pblc_packet_len);
         if (rc == PACKET_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -1250,7 +1250,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
     int rc;
 
     static const unsigned char reply_codes[4] = { SSH_MSG_USERAUTH_SUCCESS,
-        SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST, 0
+                                                  SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST, 0
     };
     unsigned int language_tag_len;
     unsigned int i;
@@ -1324,7 +1324,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
 
     if (session->userauth_kybd_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, session->userauth_kybd_data,
-                                  session->userauth_kybd_packet_len);
+                                      session->userauth_kybd_packet_len);
         if (rc == PACKET_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -1525,7 +1525,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
 
         if (session->userauth_kybd_state == libssh2_NB_state_sent1) {
             rc = _libssh2_transport_write(session, session->userauth_kybd_data,
-                                       session->userauth_kybd_packet_len);
+                                          session->userauth_kybd_packet_len);
             if (rc == PACKET_EAGAIN) {
                 return rc;
             }
