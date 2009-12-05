@@ -627,8 +627,6 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                             const char *local_username,
                             unsigned int local_username_len)
 {
-    static const unsigned char reply_codes[3] =
-        { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
     int rc;
 
     if (session->userauth_host_state == libssh2_NB_state_idle) {
@@ -824,6 +822,8 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
     }
 
     if (session->userauth_host_state == libssh2_NB_state_sent) {
+        static const unsigned char reply_codes[3] =
+            { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
         unsigned long data_len;
         rc = _libssh2_packet_requirev(session, reply_codes,
                                       &session->userauth_host_data,
@@ -1249,8 +1249,9 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
     unsigned char *s;
     int rc;
 
-    static const unsigned char reply_codes[4] = { SSH_MSG_USERAUTH_SUCCESS,
-                                                  SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST, 0
+    static const unsigned char reply_codes[4] = {
+        SSH_MSG_USERAUTH_SUCCESS,
+        SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST, 0
     };
     unsigned int language_tag_len;
     unsigned int i;
