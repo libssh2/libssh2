@@ -420,7 +420,7 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
                        unsigned long hash_len, unsigned char *signature)
 {
     DSA_SIG *sig;
-    int r_len, s_len, rs_pad;
+    int r_len, s_len;
     (void) hash_len;
 
     sig = DSA_do_sign(hash, SHA_DIGEST_LENGTH, dsactx);
@@ -429,15 +429,20 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
     }
 
     r_len = BN_num_bytes(sig->r);
+    if (r_len < 1 || r_len > 20) {
+        DSA_SIG_free(sig);
+        return -1;
+    }
     s_len = BN_num_bytes(sig->s);
-    rs_pad = (2 * SHA_DIGEST_LENGTH) - (r_len + s_len);
-    if (rs_pad < 0) {
+    if (s_len < 1 || s_len > 20) {
         DSA_SIG_free(sig);
         return -1;
     }
 
-    BN_bn2bin(sig->r, signature + rs_pad);
-    BN_bn2bin(sig->s, signature + rs_pad + r_len);
+    memset(signature, 0, 40);
+
+    BN_bn2bin(sig->r, signature + (20 - r_len));
+    BN_bn2bin(sig->s, signature + 20 + (20 - s_len));
 
     DSA_SIG_free(sig);
 

@@ -424,6 +424,8 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
         return -1;
     }
 
+    memset(sig, 0, 40);
+
 /* Extract R. */
 
     data = gcry_sexp_find_token(sig_sexp, "r", 0);
@@ -433,22 +435,12 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
     }
 
     tmp = gcry_sexp_nth_data(data, 1, &size);
-    if (!tmp) {
+    if (!tmp || size < 1 || size > 20) {
         ret = -1;
         goto out;
     }
 
-    if (tmp[0] == '\0') {
-        tmp++;
-        size--;
-    }
-
-    if (size != 20) {
-        ret = -1;
-        goto out;
-    }
-
-    memcpy(sig, tmp, 20);
+    memcpy(sig + (20 - size), tmp, size);
 
     gcry_sexp_release(data);
 
@@ -461,22 +453,12 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
     }
 
     tmp = gcry_sexp_nth_data(data, 1, &size);
-    if (!tmp) {
+    if (!tmp || size < 1 || size > 20) {
         ret = -1;
         goto out;
     }
 
-    if (tmp[0] == '\0') {
-        tmp++;
-        size--;
-    }
-
-    if (size != 20) {
-        ret = -1;
-        goto out;
-    }
-
-    memcpy(sig + 20, tmp, 20);
+    memcpy(sig + 20 + (20 - size), tmp, size);
 
     ret = 0;
   out:
