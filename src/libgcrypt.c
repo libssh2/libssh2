@@ -435,7 +435,17 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
     }
 
     tmp = gcry_sexp_nth_data(data, 1, &size);
-    if (!tmp || size < 1 || size > 20) {
+    if (!tmp) {
+        ret = -1;
+        goto out;
+    }
+
+    if (tmp[0] == '\0') {
+        tmp++;
+        size--;
+    }
+
+    if (size < 1 || size > 20) {
         ret = -1;
         goto out;
     }
@@ -453,7 +463,17 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
     }
 
     tmp = gcry_sexp_nth_data(data, 1, &size);
-    if (!tmp || size < 1 || size > 20) {
+    if (!tmp) {
+        ret = -1;
+        goto out;
+    }
+
+    if (tmp[0] == '\0') {
+        tmp++;
+        size--;
+    }
+
+    if (size < 1 || size > 20) {
         ret = -1;
         goto out;
     }
