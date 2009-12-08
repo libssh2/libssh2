@@ -1014,16 +1014,6 @@ struct _LIBSSH2_MAC_METHOD
     int (*dtor) (LIBSSH2_SESSION * session, void **abstract);
 };
 
-#define LIBSSH2_DBG_TRANS   1
-#define LIBSSH2_DBG_KEX     2
-#define LIBSSH2_DBG_AUTH    3
-#define LIBSSH2_DBG_CONN    4
-#define LIBSSH2_DBG_SCP     5
-#define LIBSSH2_DBG_SFTP    6
-#define LIBSSH2_DBG_ERROR   7
-#define LIBSSH2_DBG_PUBLICKEY   8
-#define LIBSSH2_DBG_SOCKET  9
-
 #ifdef LIBSSH2DEBUG
 void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format,
                     ...);
@@ -1050,7 +1040,7 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
     session->err_msglen = strlen(errmsg); \
     session->err_should_free = should_free; \
     session->err_code = errcode; \
-    _libssh2_debug(session, LIBSSH2_DBG_ERROR, "%d - %s", session->err_code, session->err_msg); \
+    _libssh2_debug(session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code, session->err_msg); \
 }
 
 #else /* ! LIBSSH2DEBUG */

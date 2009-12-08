@@ -336,7 +336,7 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
     if (context < 1 || context >= (int)ARRAY_SIZE(contexts)) {
         context = 0;
     }
-    if (!(session->showmask & (1 << context))) {
+    if (!(session->showmask & context)) {
         /* no such output asked for */
         return;
     }

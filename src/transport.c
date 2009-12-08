@@ -60,7 +60,7 @@ debugdump(LIBSSH2_SESSION * session,
     FILE *stream = stderr;
     unsigned int width = 0x10;
 
-    if (!(session->showmask & (1 << LIBSSH2_DBG_TRANS))) {
+    if (!(session->showmask & LIBSSH2_TRACE_TRANS)) {
         /* not asked for, bail out */
         return;
     }
@@ -290,7 +290,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         /* Whoever wants a packet won't get anything until the key re-exchange
          * is done!
          */
-        _libssh2_debug(session, LIBSSH2_DBG_TRANS, "Redirecting into the"
+        _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
                        " key re-exchange");
         rc = libssh2_kex_exchange(session, 1, &session->startup_key_state);
         if (rc)
@@ -356,12 +356,12 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                               PACKETBUFSIZE - remainbuf,
                               LIBSSH2_SOCKET_RECV_FLAGS(session));
             if (nread < 0)
-                _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+                _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
                                "Error recving %d bytes to %p+%d: %d",
                                PACKETBUFSIZE - remainbuf, p->buf, remainbuf,
                                errno);
             else
-                _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+                _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
                                "Recved %d/%d bytes to %p+%d", nread,
                                PACKETBUFSIZE - remainbuf, p->buf, remainbuf);
             if (nread <= 0) {
@@ -612,10 +612,10 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
     rc = _libssh2_send(session->socket_fd, &p->outbuf[p->osent], length,
                        LIBSSH2_SOCKET_SEND_FLAGS(session));
     if (rc < 0)
-        _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+        _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
                        "Error sending %d bytes: %d", length, errno);
     else
-        _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+        _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
                        "Sent %d/%d bytes at %p+%d", rc, length, p->outbuf,
                        p->osent);
 
@@ -793,10 +793,10 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     ret = _libssh2_send(session->socket_fd, p->outbuf, total_length,
                         LIBSSH2_SOCKET_SEND_FLAGS(session));
     if (ret < 0)
-        _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+        _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
                        "Error sending %d bytes: %d", total_length, errno);
     else
-        _libssh2_debug(session, LIBSSH2_DBG_SOCKET, "Sent %d/%d bytes at %p",
+        _libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Sent %d/%d bytes at %p",
                        ret, total_length, p->outbuf);
 
     if (ret != -1) {
