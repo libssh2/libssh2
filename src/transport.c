@@ -355,6 +355,15 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 _libssh2_recv(session->socket_fd, &p->buf[remainbuf],
                               PACKETBUFSIZE - remainbuf,
                               LIBSSH2_SOCKET_RECV_FLAGS(session));
+            if (nread < 0)
+                _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+                               "Error recving %d bytes to %p+%d: %d",
+                               PACKETBUFSIZE - remainbuf, p->buf, remainbuf,
+                               errno);
+            else
+                _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+                               "Recved %d/%d bytes to %p+%d", nread,
+                               PACKETBUFSIZE - remainbuf, p->buf, remainbuf);
             if (nread <= 0) {
                 /* check if this is due to EAGAIN and return the special
                    return code if so, error out normally otherwise */
@@ -602,6 +611,13 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
 
     rc = _libssh2_send(session->socket_fd, &p->outbuf[p->osent], length,
                        LIBSSH2_SOCKET_SEND_FLAGS(session));
+    if (rc < 0)
+        _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+                       "Error sending %d bytes: %d", length, errno);
+    else
+        _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+                       "Sent %d/%d bytes at %p+%d", rc, length, p->outbuf,
+                       p->osent);
 
     if(rc > 0) {
         debugdump(session, "libssh2_transport_write send()",
@@ -776,6 +792,12 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
 
     ret = _libssh2_send(session->socket_fd, p->outbuf, total_length,
                         LIBSSH2_SOCKET_SEND_FLAGS(session));
+    if (ret < 0)
+        _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+                       "Error sending %d bytes: %d", total_length, errno);
+    else
+        _libssh2_debug(session, LIBSSH2_DBG_SOCKET, "Sent %d/%d bytes at %p",
+                       ret, total_length, p->outbuf);
 
     if (ret != -1) {
         debugdump(session, "libssh2_transport_write send()", p->outbuf, ret);

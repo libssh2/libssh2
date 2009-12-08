@@ -111,6 +111,12 @@ banner_receive(LIBSSH2_SESSION * session)
 
         ret = _libssh2_recv(session->socket_fd, &c, 1,
                             LIBSSH2_SOCKET_RECV_FLAGS(session));
+        if (ret < 0)
+            _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+                           "Error recving %d bytes to %p: %d", 1, &c, errno);
+        else
+            _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+                           "Recved %d bytes to %p", ret, &c);
 
         if (ret < 0) {
             if (errno == EAGAIN) {
@@ -217,6 +223,15 @@ banner_send(LIBSSH2_SESSION * session)
                         banner + session->banner_TxRx_total_send,
                         banner_len - session->banner_TxRx_total_send,
                         LIBSSH2_SOCKET_SEND_FLAGS(session));
+    if (ret < 0)
+        _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+                       "Error sending %d bytes: %d",
+                       banner_len - session->banner_TxRx_total_send, errno);
+    else
+        _libssh2_debug(session, LIBSSH2_DBG_SOCKET,
+                       "Sent %d/%d bytes at %p+%d", ret,
+                       banner_len - session->banner_TxRx_total_send,
+                       banner, session->banner_TxRx_total_send);
 
     if (ret != (banner_len - session->banner_TxRx_total_send)) {
         if ((ret > 0) || ((ret == -1) && (errno == EAGAIN))) {

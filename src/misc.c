@@ -320,7 +320,7 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
     va_list vargs;
     struct timeval now;
     static int firstsec;
-    static const char *const contexts[9] = {
+    static const char *const contexts[] = {
         "Unknown",
         "Transport",
         "Key Ex",
@@ -330,9 +330,10 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
         "SFTP",
         "Failure Event",
         "Publickey",
+        "Socket",
     };
 
-    if (context < 1 || context > 8) {
+    if (context < 1 || context >= (int)ARRAY_SIZE(contexts)) {
         context = 0;
     }
     if (!(session->showmask & (1 << context))) {

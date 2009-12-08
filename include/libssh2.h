@@ -883,6 +883,7 @@ LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
 #define LIBSSH2_TRACE_SFTP  (1<<6)
 #define LIBSSH2_TRACE_ERROR (1<<7)
 #define LIBSSH2_TRACE_PUBLICKEY (1<<8)
+#define LIBSSH2_TRACE_SOCKET (1<<9)
 
 #ifdef __cplusplus
 } /* extern "C" */

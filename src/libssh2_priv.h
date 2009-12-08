@@ -1022,6 +1022,8 @@ struct _LIBSSH2_MAC_METHOD
 #define LIBSSH2_DBG_SFTP    6
 #define LIBSSH2_DBG_ERROR   7
 #define LIBSSH2_DBG_PUBLICKEY   8
+#define LIBSSH2_DBG_SOCKET  9
+
 #ifdef LIBSSH2DEBUG
 void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format,
                     ...);
@@ -1269,6 +1271,9 @@ int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
        if(rc) \
            break; \
     } while(1)
+
+
+#define ARRAY_SIZE(a) (sizeof ((a)) / sizeof ((a)[0]))
 
 
 #endif /* LIBSSH2_H */
