@@ -542,11 +542,6 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
         LIBSSH2_FREE(session, pubkey);
         return -1;
     }
-    /* Wasting some bytes here (okay, more than some),
-     * but since it's likely to be freed soon anyway,
-     * we'll just avoid the extra free/alloc and call it a wash */
-    *method = pubkey;
-    *method_len = sp1 - pubkey;
 
     sp1++;
 
@@ -562,6 +557,13 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
         LIBSSH2_FREE(session, pubkey);
         return -1;
     }
+
+    /* Wasting some bytes here (okay, more than some), but since it's likely
+     * to be freed soon anyway, we'll just avoid the extra free/alloc and call
+     * it a wash */
+    *method = pubkey;
+    *method_len = sp1 - pubkey;
+
     *pubkeydata = tmp;
     *pubkeydata_len = tmp_len;
 
