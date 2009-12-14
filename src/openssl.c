@@ -212,6 +212,8 @@ aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 	     const unsigned char *iv, int enc) /* init key */
 {
     aes_ctr_ctx *c = malloc(sizeof(*c));
+    (void) enc;
+
     if (c == NULL)
 	return 0;
 
@@ -321,7 +323,7 @@ typedef void * (*pem_read_bio_func)(BIO *, void **, pem_password_cb *,
                                     void * u);
 
 static int
-read_private_key_from_file(void ** key_ctx, LIBSSH2_SESSION * session,
+read_private_key_from_file(void ** key_ctx,
                            pem_read_bio_func read_private_key,
                            const char * filename,
                            unsigned const char *passphrase)
@@ -359,7 +361,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
         OpenSSL_add_all_ciphers();
     }
 
-    return read_private_key_from_file((void **) rsa, session, read_rsa,
+    return read_private_key_from_file((void **) rsa, read_rsa,
                                       filename, passphrase);
 }
 
@@ -379,7 +381,7 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
         OpenSSL_add_all_ciphers();
     }
 
-    return read_private_key_from_file((void **) dsa, session, read_dsa,
+    return read_private_key_from_file((void **) dsa, read_dsa,
                                       filename, passphrase);
 }
 
