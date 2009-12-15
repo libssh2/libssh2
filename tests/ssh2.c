@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     if (getenv ("PRIVKEY"))
       privkeyfile = getenv ("PRIVKEY");
 
-    if (getenv ("PRIVKEY"))
+    if (getenv ("PUBKEY"))
       pubkeyfile = getenv ("PUBKEY");
 
     hostaddr = htonl(0x7F000001);
