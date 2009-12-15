@@ -247,6 +247,7 @@ typedef struct _LIBSSH2_SESSION                     LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL                     LIBSSH2_CHANNEL;
 typedef struct _LIBSSH2_LISTENER                    LIBSSH2_LISTENER;
 typedef struct _LIBSSH2_KNOWNHOSTS                  LIBSSH2_KNOWNHOSTS;
+typedef struct _LIBSSH2_AGENT                       LIBSSH2_AGENT;
 
 typedef struct _LIBSSH2_POLLFD {
     unsigned char type; /* LIBSSH2_POLLFD_* below */
@@ -364,6 +365,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_BAD_USE                   -39
 #define LIBSSH2_ERROR_COMPRESS                  -40
 #define LIBSSH2_ERROR_OUT_OF_BOUNDARY           -41
+#define LIBSSH2_ERROR_AGENT_PROTOCOL            -42
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *
@@ -882,6 +884,97 @@ LIBSSH2_API int
 libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
                       struct libssh2_knownhost **store,
                       struct libssh2_knownhost *prev);
+
+#define HAVE_LIBSSH2_AGENT_API 0x010202 /* since 1.2.2 */
+
+struct libssh2_agent_publickey {
+    unsigned int magic;              /* magic stored by the library */
+    void *node;	    /* handle to the internal representation of key */
+    unsigned char *blob;           /* public key blob */
+    size_t blob_len;               /* length of the public key blob */
+    char *comment;                 /* comment in printable format */
+};
+
+/*
+ * libssh2_agent_init
+ *
+ * Init an ssh-agent handle. Returns the pointer to the handle.
+ *
+ */
+LIBSSH2_API LIBSSH2_AGENT *
+libssh2_agent_init(LIBSSH2_SESSION *session);
+
+/*
+ * libssh2_agent_connect()
+ *
+ * Connect to an ssh-agent.
+ *
+ * Returns:
+ * NULL if no ssh-agent is running, or failed to connect
+ * a pointer to a LIBSSH2_AGENT if successfully connected
+ */
+LIBSSH2_API int
+libssh2_agent_connect(LIBSSH2_AGENT *agent);
+
+/*
+ * libssh2_agent_list_identities()
+ *
+ * Request ssh-agent to list identities.
+ *
+ * Returns 0 if succeeded, or a negative value for error.
+ */
+LIBSSH2_API int
+libssh2_agent_list_identities(LIBSSH2_AGENT *agent);
+
+/*
+ * libssh2_agent_get_identity()
+ *
+ * Traverse the internal list of public keys. Pass NULL to 'prev' to get
+ * the first one. Or pass a poiner to the previously returned one to get the
+ * next.
+ *
+ * Returns:
+ * 0 if a fine public key was stored in 'store'
+ * 1 if end of public keys
+ * [negative] on errors
+ */
+LIBSSH2_API int
+libssh2_agent_get_identity(LIBSSH2_AGENT *agent,
+			   struct libssh2_agent_publickey **store,
+			   struct libssh2_agent_publickey *prev);
+
+/*
+ * libssh2_agent_userauth()
+ *
+ * Do publickey user authentication with the help of ssh-agent.
+ *
+ * Returns 0 if succeeded, or a negative value for error.
+ */
+LIBSSH2_API int
+libssh2_agent_userauth(LIBSSH2_AGENT *agent,
+		       const char *username,
+		       struct libssh2_agent_publickey *identity);
+
+/*
+ * libssh2_agent_disconnect()
+ *
+ * Close a connection to an ssh-agent.
+ *
+ * Returns:
+ * NULL if no ssh-agent is running, or failed to connect
+ * a pointer to a LIBSSH2_AGENT if successfully connected
+ */
+LIBSSH2_API int
+libssh2_agent_disconnect(LIBSSH2_AGENT *agent);
+
+/*
+ * libssh2_agent_free()
+ *
+ * Free a connection to an ssh-agent.  This function also frees the
+ * internal list of public keys.
+ */
+LIBSSH2_API int
+libssh2_agent_free(LIBSSH2_AGENT *agent);
 
 /* NOTE NOTE NOTE
    libssh2_trace() has no function in builds that aren't built with debug
