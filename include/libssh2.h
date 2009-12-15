@@ -178,6 +178,11 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
     unsigned int length;
 } LIBSSH2_USERAUTH_KBDINT_RESPONSE;
 
+/* 'publickey' authentication callback */
+#define LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(name) \
+  int name(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len, \
+           const unsigned char *data, size_t data_len, void **abstract)
+
 /* 'keyboard-interactive' authentication callback */
 #define LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(name_) \
  void name_(const char* name, int name_len, const char* instruction, \
@@ -435,6 +440,14 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
   libssh2_userauth_publickey_fromfile_ex((session), (username), \
                                          strlen(username), (publickey), \
                                          (privatekey), (passphrase))
+
+LIBSSH2_API int
+libssh2_userauth_publickey(LIBSSH2_SESSION *session,
+                           const char *username,
+                           const unsigned char *pubkeydata,
+                           size_t pubkeydata_len,
+                           LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC((*sign_callback)),
+                           void **abstract);
 
 LIBSSH2_API int
 libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
