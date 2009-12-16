@@ -337,7 +337,7 @@ read_private_key_from_file(void ** key_ctx,
         return -1;
     }
 
-    *key_ctx = read_private_key(bp, NULL, (void *) passphrase_cb,
+    *key_ctx = read_private_key(bp, NULL, (pem_password_cb *) passphrase_cb,
                                 (void *) passphrase);
 
     BIO_free(bp);
@@ -372,6 +372,7 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
 {
     pem_read_bio_func read_dsa =
         (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
+    (void) session;
 
     if (!EVP_get_cipherbyname("des")) {
 /* If this cipher isn't loaded it's a pretty good indication that none are.
