@@ -443,6 +443,10 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
        and must be made to point to 'entry' correctly */
     if(entry->prev)
         entry->prev->next = entry;
+    else
+      /* there was no node before this, so we make sure we point the head
+         pointer to this node */
+      after->head->first = entry;
 
     /* after's prev entry points back to entry */
     after->prev = entry;
