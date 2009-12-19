@@ -1,6 +1,6 @@
 !include "win32/config.mk"
 
-# SUBDIRS=src example\simple
+# SUBDIRS=src example
 SUBDIRS=src
 
 all-sub:
