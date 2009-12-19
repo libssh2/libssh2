@@ -28,7 +28,7 @@ endif
 LINK_STATIC = 1
 
 # Edit the vars below to change NLM target settings.
-SAMPLES	= ../../example/simple
+SAMPLES	= ../../example
 TARGETS := $(filter-out x11.nlm,$(patsubst $(SAMPLES)/%.c,%.nlm,$(strip $(wildcard $(SAMPLES)/*.c))))
 VERSION	= $(LIBSSH2_VERSION)
 COPYR	= Copyright (c) 2004-2009, Sara Golemon <sarag@libssh2.org>

@@ -125,7 +125,7 @@ else
 DS	= \\
 endif
 
-vpath %.c ../../example/simple
+vpath %.c ../../example
 
 .PRECIOUS: $(OBJDIR)/%.o $(OBJDIR)/%.rc $(OBJDIR)/%.res
 

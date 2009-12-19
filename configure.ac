@@ -252,7 +252,6 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  tests/Makefile
                  example/Makefile
-                 example/simple/Makefile
                  docs/Makefile
                  libssh2.pc])
 AC_OUTPUT
