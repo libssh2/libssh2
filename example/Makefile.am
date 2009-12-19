@@ -8,7 +8,7 @@ noinst_PROGRAMS = ssh2 \
 		sftp_write sftp_write_nonblock \
 		sftp_mkdir sftp_mkdir_nonblock \
 		sftp_RW_nonblock \
-		sftpdir sftpdir_nonblock ssh2_exec
+		sftpdir sftpdir_nonblock ssh2_exec ssh2_agent
 
 # the examples need the $(top_builddir)/src since when building outside of the
 # source dir they still need to reach the libssh2_config.h header
