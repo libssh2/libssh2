@@ -1,3 +1,7 @@
+Version 1.2.3 (unreleased)
+
+ o Added support for authentication via SSH-Agent.  By Daiki Ueno.
+
 Version 1.2.2 (November 16, 2009)
 
 * This release includes the following changes:
