@@ -93,6 +93,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    /* check what authentication methods are available */
+    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    printf("Authentication methods: %s\n", userauthlist);
+    if (strstr(userauthlist, "publickey") == NULL) {
+        fprintf(stderr, "\"publickey\" authentication is not supported\n");
+        goto shutdown;
+    }
+
     /* Connect to the ssh-agent */
     agent = libssh2_agent_init(session);
     if (!agent) {
@@ -148,14 +156,6 @@ int main(int argc, char *argv[])
         printf("%02X ", (unsigned char)fingerprint[i]);
     }
     printf("\n");
-
-    /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
-    printf("Authentication methods: %s\n", userauthlist);
-    if (strstr(userauthlist, "publickey") == NULL) {
-        fprintf(stderr, "\"publickey\" authentication is not supported\n");
-        goto shutdown;
-    }
 
     /* Request a shell */
     if (!(channel = libssh2_channel_open_session(session))) {
