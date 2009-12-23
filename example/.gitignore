@@ -2,6 +2,7 @@ Makefile
 Makefile.in
 *.gcno
 *.gcda
+direct_tcpip
 scp
 scp_nonblock
 scp_write

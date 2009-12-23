@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign nostdinc
 
 # samples
-noinst_PROGRAMS = ssh2 \
+noinst_PROGRAMS = direct_tcpip ssh2 \
 		scp scp_nonblock \
 		scp_write scp_write_nonblock \
 		sftp sftp_nonblock \
