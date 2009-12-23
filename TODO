@@ -18,6 +18,8 @@ Things TODO
 
 * Fix all compiler warnings (some can't be done without API changes)
 
+* Expose error messages sent by the server
+
 At next SONAME bump
 ===================
 
