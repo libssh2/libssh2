@@ -618,9 +618,7 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
  *
  * Connect to an ssh-agent.
  *
- * Returns:
- * NULL if no ssh-agent is running, or failed to connect
- * a pointer to a LIBSSH2_AGENT if successfully connected
+ * Returns 0 if succeeded, or a negative value for error.
  */
 LIBSSH2_API int
 libssh2_agent_connect(LIBSSH2_AGENT *agent)
@@ -716,9 +714,7 @@ libssh2_agent_userauth(LIBSSH2_AGENT *agent,
  *
  * Close a connection to an ssh-agent.
  *
- * Returns:
- * NULL if no ssh-agent is running, or failed to connect
- * a pointer to a LIBSSH2_AGENT if successfully connected
+ * Returns 0 if succeeded, or a negative value for error.
  */
 LIBSSH2_API int
 libssh2_agent_disconnect(LIBSSH2_AGENT *agent)
@@ -731,10 +727,10 @@ libssh2_agent_disconnect(LIBSSH2_AGENT *agent)
 /*
  * libssh2_agent_free()
  *
- * Free a connection to an ssh-agent.  This function also frees the
- * internal list of public keys.
+ * Free an ssh-agent handle.  This function also frees the internal
+ * collection of public keys.
  */
-LIBSSH2_API int
+LIBSSH2_API void
 libssh2_agent_free(LIBSSH2_AGENT *agent) {
     struct agent_publickey *node;
     struct agent_publickey *next;
@@ -746,5 +742,4 @@ libssh2_agent_free(LIBSSH2_AGENT *agent) {
         LIBSSH2_FREE(agent->session, node);
     }
     LIBSSH2_FREE(agent->session, agent);
-    return 0;
 }
