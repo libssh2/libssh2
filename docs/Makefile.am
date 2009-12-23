@@ -3,6 +3,13 @@
 EXTRA_DIST = template.3
 
 dist_man_MANS = \
+	libssh2_agent_connect.3 \
+	libssh2_agent_disconnect.3 \
+	libssh2_agent_free.3 \
+	libssh2_agent_get_identity.3 \
+	libssh2_agent_init.3 \
+	libssh2_agent_list_identities.3 \
+	libssh2_agent_userauth.3 \
 	libssh2_banner_set.3 \
 	libssh2_base64_decode.3 \
 	libssh2_channel_close.3 \
