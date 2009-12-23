@@ -6,16 +6,18 @@ libssh2_trace - enable debug info from inside libssh2
 .SH SYNOPSIS
 #include <libssh2.h>
 
-void libssh2_trace(int bitmask);
+void libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
 
 .SH DESCRIPTION
 This is a function present in the library that can be used to get debug info
 from within libssh2 when it is running. Helpful when trying to trace or debug
-behaviors. This function has no effect unless libssh2 was built to support
-this option, and a typical "release build" might not.
+behaviors. Note that this function has no effect unless libssh2 was built to
+support tracing! It is usually disabled in release builds.
 
-\fBbitmask\fP can be set to none, one or more of these bits:
+\fBbitmask\fP can be set to the logical OR of none, one or more of these:
 .RS
+.IP LIBSSH2_TRACE_SOCKET
+Socket low-level debugging
 .IP LIBSSH2_TRACE_TRANS
 Transport layer debugging
 .IP LIBSSH2_TRACE_KEX
