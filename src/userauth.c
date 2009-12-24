@@ -545,7 +545,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
 
     sp1++;
 
-    if ((sp2 = memchr(sp1, ' ', pubkey_len - *method_len)) == NULL) {
+    if ((sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey - 1))) == NULL) {
         /* Assume that the id string is missing, but that it's okay */
         sp2 = pubkey + pubkey_len;
     }
@@ -562,7 +562,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
      * to be freed soon anyway, we'll just avoid the extra free/alloc and call
      * it a wash */
     *method = pubkey;
-    *method_len = sp1 - pubkey;
+    *method_len = sp1 - pubkey - 1;
 
     *pubkeydata = tmp;
     *pubkeydata_len = tmp_len;
