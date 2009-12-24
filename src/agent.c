@@ -128,7 +128,7 @@ struct _LIBSSH2_AGENT
 {
     LIBSSH2_SESSION *session;  /* the session this "belongs to" */
 
-    int fd;                             /* -1 when not connected */
+    libssh2_socket_t fd;
 
     struct agent_ops *ops;
 
@@ -316,7 +316,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 static int
 agent_disconnect_pageant(LIBSSH2_AGENT *agent)
 {
-    agent->fd = -1;        /* Mark as the connection has been closed */
+    agent->fd = SOCKET_BAD;
     return 0;
 }
 
@@ -737,7 +737,7 @@ libssh2_agent_userauth(LIBSSH2_AGENT *agent,
 LIBSSH2_API int
 libssh2_agent_disconnect(LIBSSH2_AGENT *agent)
 {
-    if (agent->ops && agent->fd >= 0)
+    if (agent->ops && agent->fd != SOCKET_BAD)
         return agent->ops->disconnect(agent);
     return 0;
 }
@@ -751,7 +751,7 @@ libssh2_agent_disconnect(LIBSSH2_AGENT *agent)
 LIBSSH2_API void
 libssh2_agent_free(LIBSSH2_AGENT *agent) {
     /* Allow connection freeing when the socket has lost its connection */
-    if (agent->fd >= 0) {
+    if (agent->fd != SOCKET_BAD) {
         libssh2_agent_disconnect(agent);
     }
     agent_free_identities(agent);
