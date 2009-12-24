@@ -128,7 +128,7 @@ struct _LIBSSH2_AGENT
 {
     LIBSSH2_SESSION *session;  /* the session this "belongs to" */
 
-    int fd;
+    int fd;                             /* -1 when not connected */
 
     struct agent_ops *ops;
 
@@ -150,7 +150,7 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
     }
 
     agent->fd = socket(PF_UNIX, SOCK_STREAM, 0);
-    if (agent->fd < -1) {
+    if (agent->fd < 0) {
         return -1;
     }
 
@@ -572,6 +572,20 @@ agent_list_identities(LIBSSH2_AGENT *agent)
     return rc;
 }
 
+static void
+agent_free_identities(LIBSSH2_AGENT *agent) {
+    struct agent_publickey *node;
+    struct agent_publickey *next;
+
+    for (node = _libssh2_list_first(&agent->head); node; node = next) {
+        next = _libssh2_list_next(&node->node);
+        LIBSSH2_FREE(agent->session, node->external.blob);
+        LIBSSH2_FREE(agent->session, node->external.comment);
+        LIBSSH2_FREE(agent->session, node);
+    }
+    _libssh2_list_init(&agent->head);
+}
+
 #define AGENT_PUBLICKEY_MAGIC 0x3bdefed2
 /*
  * agent_publickey_to_external()
@@ -609,6 +623,7 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
     }
     memset(agent, 0, sizeof *agent);
     agent->session = session;
+    _libssh2_list_init(&agent->head);
 
     return agent;
 }
@@ -644,6 +659,8 @@ LIBSSH2_API int
 libssh2_agent_list_identities(LIBSSH2_AGENT *agent)
 {
     memset(&agent->transctx, 0, sizeof agent->transctx);
+    /* Abondon the last fetched identities */
+    agent_free_identities(agent);
     return agent_list_identities(agent);
 }
 
@@ -719,7 +736,7 @@ libssh2_agent_userauth(LIBSSH2_AGENT *agent,
 LIBSSH2_API int
 libssh2_agent_disconnect(LIBSSH2_AGENT *agent)
 {
-    if (agent->ops)
+    if (agent->ops && agent->fd >= 0)
         return agent->ops->disconnect(agent);
     return 0;
 }
@@ -732,14 +749,10 @@ libssh2_agent_disconnect(LIBSSH2_AGENT *agent)
  */
 LIBSSH2_API void
 libssh2_agent_free(LIBSSH2_AGENT *agent) {
-    struct agent_publickey *node;
-    struct agent_publickey *next;
-
-    for (node = _libssh2_list_first(&agent->head); node; node = next) {
-        next = _libssh2_list_next(&node->node);
-        LIBSSH2_FREE(agent->session, node->external.blob);
-        LIBSSH2_FREE(agent->session, node->external.comment);
-        LIBSSH2_FREE(agent->session, node);
+    /* Allow connection freeing when the socket has lost its connection */
+    if (agent->fd >= 0) {
+        libssh2_agent_disconnect(agent);
     }
+    agent_free_identities(agent);
     LIBSSH2_FREE(agent->session, agent);
 }
