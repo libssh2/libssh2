@@ -256,6 +256,7 @@ agent_connect_pageant(LIBSSH2_AGENT *agent)
     hwnd = FindWindow("Pageant", "Pageant");
     if (!hwnd)
 	return -1;
+    agent->fd = 0;         /* Mark as the connection has been established */
     return 0;
 }
 
@@ -315,7 +316,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 static int
 agent_disconnect_pageant(LIBSSH2_AGENT *agent)
 {
-    (void)agent;
+    agent->fd = -1;        /* Mark as the connection has been closed */
     return 0;
 }
 
