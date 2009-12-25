@@ -628,6 +628,7 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
     void *hostkey_abstract;
     struct iovec datavec;
+    unsigned long _sig_len;
 
     if (file_read_privatekey(session, &privkeyobj, &hostkey_abstract,
                              session->userauth_pblc_method,
@@ -640,13 +641,14 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     datavec.iov_base = (unsigned char *)data;
     datavec.iov_len = data_len;
 
-    if (privkeyobj->signv(session, sig, sig_len, 1, &datavec,
+    if (privkeyobj->signv(session, sig, &_sig_len, 1, &datavec,
                           &hostkey_abstract)) {
         if (privkeyobj->dtor) {
             privkeyobj->dtor(session, abstract);
         }
         return -1;
     }
+    *sig_len = _sig_len;
 
     if (privkeyobj->dtor) {
         privkeyobj->dtor(session, &hostkey_abstract);
@@ -1101,7 +1103,7 @@ userauth_publickey(LIBSSH2_SESSION *session,
     if (session->userauth_pblc_state == libssh2_NB_state_sent1) {
         unsigned char *buf, *s;
         unsigned char *sig;
-        unsigned long sig_len;
+        size_t sig_len;
 
         s = buf = LIBSSH2_ALLOC(session, 4 + session->session_id_len
                                 + session->userauth_pblc_packet_len);
