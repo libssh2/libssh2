@@ -41,6 +41,8 @@
 #include <ctype.h>
 #include <stdio.h>
 
+#include <assert.h>
+
 /* Needed for struct iovec on some platforms */
 #ifdef HAVE_SYS_UIO_H
 #include <sys/uio.h>
@@ -469,7 +471,10 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username,
  *
  * Read a public key from an id_???.pub style file
  *
- * Returns an allocated string in *pubkeydata on success.
+ * Returns an allocated string containing the decoded key in *pubkeydata 
+ * on success.
+ * Returns an allocated string containing the key method (e.g. "ssh-dss")
+ * in method on success.
  */
 static int
 file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
@@ -948,16 +953,27 @@ userauth_publickey(LIBSSH2_SESSION *session,
         memset(&session->userauth_pblc_packet_requirev_state, 0,
                sizeof(session->userauth_pblc_packet_requirev_state));
 
-        session->userauth_pblc_method_len = _libssh2_ntohu32(pubkeydata);
-        session->userauth_pblc_method =
-            LIBSSH2_ALLOC(session, session->userauth_pblc_method_len);
+        /*
+         * As an optimisation, userauth_publickey_fromfile reuses a 
+         * previously allocated copy of the method name to avoid an extra
+         * allocation/free.
+         * For other uses, we allocate and populate it here.
+         */
         if (!session->userauth_pblc_method) {
-            libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memory for public key data", 0);
-            return -1;
+            session->userauth_pblc_method_len = _libssh2_ntohu32(pubkeydata);
+            session->userauth_pblc_method =
+                LIBSSH2_ALLOC(session, session->userauth_pblc_method_len);
+            if (!session->userauth_pblc_method) {
+                libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                              "Unable to allocate memory for public key "
+                              "data", 0);
+                return -1;
+            }
+            memcpy(session->userauth_pblc_method, pubkeydata + 4,
+                   session->userauth_pblc_method_len);
         }
-        memcpy(session->userauth_pblc_method, pubkeydata + 4,
-               session->userauth_pblc_method_len);
+        assert( /* preallocated method len should match what we expect */
+            session->userauth_pblc_method_len == _libssh2_ntohu32(pubkeydata));
 
         /*
          * 45 = packet_type(1) + username_len(4) + servicename_len(4) +
