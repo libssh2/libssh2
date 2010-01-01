@@ -633,7 +633,6 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
     void *hostkey_abstract;
     struct iovec datavec;
-    unsigned long _sig_len;
 
     if (file_read_privatekey(session, &privkeyobj, &hostkey_abstract,
                              session->userauth_pblc_method,
@@ -646,14 +645,13 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     datavec.iov_base = (unsigned char *)data;
     datavec.iov_len = data_len;
 
-    if (privkeyobj->signv(session, sig, &_sig_len, 1, &datavec,
+    if (privkeyobj->signv(session, sig, (unsigned long *)sig_len, 1, &datavec,
                           &hostkey_abstract)) {
         if (privkeyobj->dtor) {
             privkeyobj->dtor(session, abstract);
         }
         return -1;
     }
-    *sig_len = _sig_len;
 
     if (privkeyobj->dtor) {
         privkeyobj->dtor(session, &hostkey_abstract);
