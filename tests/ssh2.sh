@@ -16,6 +16,10 @@ export PRIVKEY
 PUBKEY=$srcdir/etc/user.pub
 export PUBKEY
 
+if test -n "$DEBUG"; then
+    libssh2_sshd_params="-d -d"
+fi
+
 chmod go-rwx "$srcdir"/etc/host*
 $SSHD -f /dev/null -h "$srcdir"/etc/host \
     -o 'Port 4711' \
@@ -23,7 +27,8 @@ $SSHD -f /dev/null -h "$srcdir"/etc/host \
     -o "AuthorizedKeysFile $srcdir/etc/user.pub" \
     -o 'UsePrivilegeSeparation no' \
     -o 'StrictModes no' \
-    -D &
+    -D \
+    $libssh2_sshd_params &
 sshdpid=$!
 
 trap "kill ${sshdpid}; echo signal killing sshd; exit 1;" EXIT
