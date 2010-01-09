@@ -1294,7 +1294,8 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
     rc = userauth_publickey(session, username, username_len,
                             pubkeydata, pubkeydata_len,
                             sign_fromfile, &abstract);
-    LIBSSH2_FREE(session, pubkeydata);
+    if(pubkeydata)
+        LIBSSH2_FREE(session, pubkeydata);
 
     return rc;
 }
