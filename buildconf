@@ -22,6 +22,6 @@ ${AUTOHEADER:-autoheader}
 # copy the private libssh2_config.h.in to the examples dir so that
 # it can be included without pointing the include path to the private
 # source dir
-cp src/libssh2_config.h.in example/config.h.in
+cp src/libssh2_config.h.in example/libssh2_config.h.in
 ${AUTOCONF:-autoconf}
 ${AUTOMAKE:-automake} --add-missing --copy

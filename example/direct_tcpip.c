@@ -1,5 +1,9 @@
 #include <libssh2.h>
 
+#ifdef HAVE_CONFIG_H
+#include "libssh2_config.h"
+#endif
+
 #include <sys/types.h>
 
 #ifdef HAVE_WINSOCK2_H
