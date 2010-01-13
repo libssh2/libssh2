@@ -1,5 +1,7 @@
 AUTOMAKE_OPTIONS = foreign nostdinc
 
+EXTRA_DIST = libssh2_config.h.in
+
 # samples
 noinst_PROGRAMS = direct_tcpip ssh2 \
 		scp scp_nonblock \
@@ -10,7 +12,5 @@ noinst_PROGRAMS = direct_tcpip ssh2 \
 		sftp_RW_nonblock \
 		sftpdir sftpdir_nonblock ssh2_exec ssh2_agent
 
-# the examples need the $(top_builddir)/src since when building outside of the
-# source dir they still need to reach the libssh2_config.h header
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/include -I$(top_builddir)/src
+AM_CPPFLAGS = -I$(top_srcdir)/include
 LDADD = $(top_builddir)/src/libssh2.la
