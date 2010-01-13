@@ -1,5 +1,7 @@
 #include <libssh2.h>
 
+#include <sys/types.h>
+
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
 #endif
@@ -19,10 +21,6 @@
 # include <sys/time.h>
 #endif
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
