@@ -1,5 +1,8 @@
 Version 1.2.3 (unreleased)
 
+ o Added libssh2_trace_sethandler()
+ o Added the direct_tcpip.c example
+ o Fixed memory leak in userauth_publickey
  o Added support for authentication via SSH-Agent.  By Daiki Ueno.
 
 Version 1.2.2 (November 16, 2009)

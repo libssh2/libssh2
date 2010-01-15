@@ -41,6 +41,7 @@
 #include "libssh2_priv.h"
 #include <errno.h>
 #include <fcntl.h>
+#include <ctype.h>
 
 #include <assert.h>
 
@@ -57,36 +58,56 @@ debugdump(LIBSSH2_SESSION * session,
 {
     size_t i;
     size_t c;
-    FILE *stream = stderr;
     unsigned int width = 0x10;
+    char buffer[256];  /* Must be enough for width*4 + about 30 or so */
+    size_t used;
+    static const char* hex_chars = "0123456789ABCDEF";
 
     if (!(session->showmask & LIBSSH2_TRACE_TRANS)) {
         /* not asked for, bail out */
         return;
     }
 
-    fprintf(stream, "=> %s (%d bytes)\n", desc, (int) size);
+    used = snprintf(buffer, sizeof(buffer), "=> %s (%d bytes)\n",
+                    desc, (int) size);
+    if (session->tracehandler)
+        (session->tracehandler)(session, buffer, used);
+    else
+        write(2 /* stderr */, buffer, used);
 
     for(i = 0; i < size; i += width) {
 
-        fprintf(stream, "%04lx: ", (long)i);
+        used = snprintf(buffer, sizeof(buffer), "%04lx: ", (long)i);
 
         /* hex not disabled, show it */
         for(c = 0; c < width; c++) {
-            if (i + c < size)
-                fprintf(stream, "%02x ", ptr[i + c]);
-            else
-                fputs("   ", stream);
+            if (i + c < size) {
+                buffer[used++] = hex_chars[(ptr[i+c] >> 4) & 0xF];
+                buffer[used++] = hex_chars[ptr[i+c] & 0xF];
+            }
+            else {
+                buffer[used++] = ' ';
+                buffer[used++] = ' ';
+            }
+
+            buffer[used++] = (c == (width/2)-1) ? ':' : ' ';
         }
 
+        buffer[used++] = ':';
+        buffer[used++] = ' ';
+
         for(c = 0; (c < width) && (i + c < size); c++) {
-            fprintf(stream, "%c",
-                    (ptr[i + c] >= 0x20) &&
-                    (ptr[i + c] < 0x80) ? ptr[i + c] : UNPRINTABLE_CHAR);
+            buffer[used++] = isprint(ptr[i + c]) ?
+                ptr[i + c] : UNPRINTABLE_CHAR;
         }
-        fputc('\n', stream);    /* newline */
+        buffer[used++] = '\n';
+        buffer[used] = 0;
+
+        if (session->tracehandler)
+            (session->tracehandler)(session, buffer, used);
+        else
+            write(2, buffer, used);
     }
-    fflush(stream);
 }
 #else
 #define debugdump(a,x,y,z)

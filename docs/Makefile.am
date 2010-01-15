@@ -97,6 +97,7 @@ dist_man_MANS = \
 	libssh2_sftp_unlink_ex.3 \
 	libssh2_sftp_write.3 \
 	libssh2_trace.3 \
+	libssh2_trace_sethandler.3 \
 	libssh2_userauth_authenticated.3 \
 	libssh2_userauth_hostbased_fromfile_ex.3 \
 	libssh2_userauth_keyboard_interactive_ex.3 \

@@ -987,6 +987,11 @@ LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
 #define LIBSSH2_TRACE_PUBLICKEY (1<<8)
 #define LIBSSH2_TRACE_SOCKET (1<<9)
 
+typedef void (*libssh2_trace_handler_func)(LIBSSH2_SESSION*, const char *,
+                                           size_t);
+LIBSSH2_API int libssh2_trace_sethandler(LIBSSH2_SESSION *session,
+                                         libssh2_trace_handler_func callback);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
