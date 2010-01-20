@@ -313,9 +313,10 @@ libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
 }
 
 LIBSSH2_API int
-libssh2_trace_sethandler(LIBSSH2_SESSION *session, libssh2_trace_handler_func callback)
+libssh2_trace_sethandler(LIBSSH2_SESSION *session, void* handler_context, libssh2_trace_handler_func callback)
 {
     session->tracehandler = callback;
+    session->tracehandler_context = handler_context;
     return 0;
 }
 
@@ -362,7 +363,7 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
     va_end(vargs);
 
     if (session->tracehandler) {
-        (session->tracehandler)(session, buffer, len + 1);
+        (session->tracehandler)(session, session->tracehandler_context, buffer, len + 1);
     } else {
         write(2, buffer, len + 1);
     }
@@ -378,9 +379,10 @@ libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
 }
 
 LIBSSH2_API int
-libssh2_trace_sethandler(LIBSSH2_SESSION *session, libssh2_trace_handler_func callback)
+libssh2_trace_sethandler(LIBSSH2_SESSION *session, void* handler_context, libssh2_trace_handler_func callback)
 {
     (void) session;
+    (void) handler_context;
     (void) callback;
     return 0;
 }

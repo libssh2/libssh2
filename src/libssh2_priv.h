@@ -736,6 +736,7 @@ struct _LIBSSH2_SESSION
 #ifdef LIBSSH2DEBUG
     int showmask;               /* what debug/trace messages to display */
     libssh2_trace_handler_func tracehandler; /* callback to display trace messages */
+    void* tracehandler_context; /* context for the trace handler */
 #endif
 
     /* State variables used in libssh2_banner_send() */
