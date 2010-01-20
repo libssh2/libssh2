@@ -310,6 +310,17 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
                 session->state |= LIBSSH2_STATE_AUTHENTICATED;
                 session->userauth_pswd_state = libssh2_NB_state_idle;
                 return 0;
+            } else if (session->userauth_pswd_data[0] == SSH_MSG_USERAUTH_FAILURE) {
+                _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
+                               "Password authentication failed");
+                LIBSSH2_FREE(session, session->userauth_pswd_data);
+                session->userauth_pswd_data = NULL;
+                session->userauth_pswd_state = libssh2_NB_state_idle;
+                libssh2_error(session,
+                              LIBSSH2_ERROR_AUTHENTICATION_FAILED,
+                              "Authentication failed (username/password)",
+                              0);
+                return -1;
             }
 
             session->userauth_pswd_newpw = NULL;
@@ -1100,7 +1111,7 @@ userauth_publickey(LIBSSH2_SESSION *session,
             session->userauth_pblc_packet = NULL;
             LIBSSH2_FREE(session, session->userauth_pblc_method);
             session->userauth_pblc_method = NULL;
-            libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNRECOGNIZED,
+            libssh2_error(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED,
                           "Username/PublicKey combination invalid", 0);
             session->userauth_pblc_state = libssh2_NB_state_idle;
             return -1;
@@ -1473,9 +1484,15 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             }
 
             if (session->userauth_kybd_data[0] == SSH_MSG_USERAUTH_FAILURE) {
+                _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
+                               "Keyboard-interactive authentication failed");
                 LIBSSH2_FREE(session, session->userauth_kybd_data);
                 session->userauth_kybd_data = NULL;
                 session->userauth_kybd_state = libssh2_NB_state_idle;
+                libssh2_error(session,
+                              LIBSSH2_ERROR_AUTHENTICATION_FAILED,
+                              "Authentication failed (keyboard-interactive)",
+                              0);
                 return -1;
             }
 
