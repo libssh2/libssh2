@@ -19,3 +19,5 @@ sftp_write
 sftp_write_nonblock
 config.h.in
 ssh2_exec
+ssh2_agent
+libssh2_config.h
