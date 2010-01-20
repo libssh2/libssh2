@@ -1,18 +1,27 @@
-libssh2 1.2.2
+libssh2 1.2.3
 
 This release includes the following changes:
 
- o Support for the "aes128-ctr", "aes192-ctr", "aes256-ctr" ciphers
- o Support for the "arcfour128" cipher
+ o ssh-agent support with the new libssh2_agent_* functions
+ o Added libssh2_trace_sethandler()
+ o Added the direct_tcpip.c and ssh2_agent,c examples
 
 This release includes the following bugfixes:
 
- o Fix crash when server sends an invalid SSH_MSG_IGNORE message
+ o Fixed memory leak in userauth_publickey
+ o Fixed publickey authentication regression
+ o Silenced several compiler warnings
+ o avoid returning data to memory already freed
+ o transport layer fix for bogus -39 (LIBSSH2_ERROR_BAD_USE) errors
+ o Fixed padding in ssh-dss signature blob encoding
+ o Fixed direction blocking flag problems
+ o Fixed memory leak in sftp_fstat()
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
- Simon Josefsson, Bob Alexander
+ Simon Josefsson, Peter Stuge, Daiki Ueno, Dave McCaldon,
+ Alexander Lamaison
  
 
         Thanks! (and sorry if I forgot to mention someone)
