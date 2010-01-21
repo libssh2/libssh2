@@ -340,14 +340,22 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
         "Publickey",
         "Socket",
     };
+    const char* contexttext = contexts[0];
+    unsigned int contextindex;
 
-    if (context < 1 || context >= (int)ARRAY_SIZE(contexts)) {
-        context = 0;
-    }
     if (!(session->showmask & context)) {
         /* no such output asked for */
         return;
     }
+
+    /* Find the first matching context string for this message */
+    for (contextindex = 0; contextindex < ARRAY_SIZE(contexts); contextindex++) {
+        if ((context & (1 << contextindex)) != 0) {
+            contexttext = contexts[contextindex];
+            break;
+        }
+    }
+
     gettimeofday(&now, NULL);
     if(!firstsec) {
         firstsec = now.tv_sec;
@@ -355,7 +363,7 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
     now.tv_sec -= firstsec;
 
     len = snprintf(buffer, sizeof(buffer), "[libssh2] %d.%06d %s: ",
-                   (int)now.tv_sec, (int)now.tv_usec, contexts[context]);
+                   (int)now.tv_sec, (int)now.tv_usec, contexttext);
 
     va_start(vargs, format);
     len += vsnprintf(buffer + len, 1535 - len, format, vargs);
