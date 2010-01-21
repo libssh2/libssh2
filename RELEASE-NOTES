@@ -4,7 +4,7 @@ This release includes the following changes:
 
  o ssh-agent support with the new libssh2_agent_* functions
  o Added libssh2_trace_sethandler()
- o Added the direct_tcpip.c and ssh2_agent,c examples
+ o Added the direct_tcpip.c and ssh2_agent.c examples
 
 This release includes the following bugfixes:
 
