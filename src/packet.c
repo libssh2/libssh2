@@ -1,5 +1,6 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2010 Simon Josefsson
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -420,7 +421,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
  * _libssh2_packet_add
  *
  * Create a new packet and attach it to the brigade. Called from the transport
- * layer when it as received a packet.
+ * layer when it has received a packet.
  *
  * The input pointer 'data' is pointing to allocated data that this function
  * is asked to deal with so on failure OR success, it must be freed fine.
@@ -483,7 +484,13 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         goto libssh2_packet_add_jump_point2;
     } else if (session->packAdd_state == libssh2_NB_state_jump3) {
         goto libssh2_packet_add_jump_point3;
+    } else if (session->packAdd_state == libssh2_NB_state_jump4) {
+        goto libssh2_packet_add_jump_point4;
     }
+
+/* FIXME: I've noticed that DATA is accessed without proper
+ * out-of-bounds checking (i.e., DATALEN) in many places
+ * below. --simon */
 
     if (session->packAdd_state == libssh2_NB_state_allocated) {
         /* A couple exceptions to the packet adding rule: */
@@ -724,14 +731,23 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             return 0;
 
         case SSH_MSG_CHANNEL_REQUEST:
-            if (_libssh2_ntohu32(data + 5) == sizeof("exit-status") - 1
+        {
+            uint32_t channel = _libssh2_ntohu32(data + 1);
+            uint32_t strlen = _libssh2_ntohu32(data + 5);
+            unsigned char want_reply = data[9 + strlen];
+
+            _libssh2_debug(session,
+                           LIBSSH2_TRACE_CONN,
+                           "Channel %d received request type %.*s (wr %X)",
+                           channel, strlen, data + 9, want_reply);
+
+            if (strlen == sizeof("exit-status") - 1
                 && !memcmp("exit-status", data + 9,
                            sizeof("exit-status") - 1)) {
 
                 /* we've got "exit-status" packet. Set the session value */
                 session->packAdd_channel =
-                    _libssh2_channel_locate(session,
-                                            _libssh2_ntohu32(data + 1));
+                    _libssh2_channel_locate(session, channel);
 
                 if (session->packAdd_channel) {
                     session->packAdd_channel->exit_status =
@@ -747,7 +763,20 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 session->packAdd_state = libssh2_NB_state_idle;
                 return 0;
             }
+
+            if (want_reply) {
+              libssh2_packet_add_jump_point4:
+                session->packAdd_state = libssh2_NB_state_jump4;
+                data[0] = SSH_MSG_CHANNEL_FAILURE;
+                rc = _libssh2_transport_write(session, data, 5);
+                if (rc == PACKET_EAGAIN)
+                    return rc;
+                LIBSSH2_FREE(session, data);
+                session->packAdd_state = libssh2_NB_state_idle;
+                return 0;
+            }
             break;
+       }
 
         case SSH_MSG_CHANNEL_CLOSE:
             session->packAdd_channel =

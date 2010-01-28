@@ -1,5 +1,6 @@
 /* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2010 Simon Josefsson
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -209,7 +210,8 @@ typedef enum
     libssh2_NB_state_sent7,
     libssh2_NB_state_jump1,
     libssh2_NB_state_jump2,
-    libssh2_NB_state_jump3
+    libssh2_NB_state_jump3,
+    libssh2_NB_state_jump4
 } libssh2_nonblocking_states;
 
 typedef struct packet_require_state_t
