@@ -5,12 +5,12 @@ Version 1.2.3 (unreleased)
  o Fixed memory leak in userauth_publickey
  o Added support for authentication via SSH-Agent.  By Daiki Ueno.
 
- o Respond to unknown SSH_MSG_CHANNEL_REQUEST with
-   SSH_MSG_CHANNEL_FAILURE in order to make (at least) OpenSSH server
-   keepalive work.  Before OpenSSH servers (configured with a positive
-   ClientAliveInterval) would terminate connections against libssh2
-   clients because libssh2 did not respond properly to the request.
-   By Simon Josefsson.
+ o Respond to unknown SSH_MSG_GLOBAL_REQUEST/SSH_MSG_CHANNEL_REQUEST
+   with SSH_MSG_REQUEST_FAILURE/SSH_MSG_CHANNEL_FAILURE in order to
+   make (at least) OpenSSH server keepalive work.  Before OpenSSH
+   servers (configured with a positive ClientAliveInterval) would
+   terminate connections against libssh2 clients because libssh2 did
+   not respond properly to the request.  By Simon Josefsson.
 
 Version 1.2.2 (November 16, 2009)
 
