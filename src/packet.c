@@ -486,6 +486,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         goto libssh2_packet_add_jump_point3;
     } else if (session->packAdd_state == libssh2_NB_state_jump4) {
         goto libssh2_packet_add_jump_point4;
+    } else if (session->packAdd_state == libssh2_NB_state_jump5) {
+        goto libssh2_packet_add_jump_point5;
     }
 
 /* FIXME: I've noticed that DATA is accessed without proper
@@ -597,6 +599,30 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 return 0;
             }
             break;
+
+        case SSH_MSG_GLOBAL_REQUEST:
+        {
+            uint32_t strlen = _libssh2_ntohu32(data + 1);
+            unsigned char want_reply = data[5 + strlen];
+
+            _libssh2_debug(session,
+                           LIBSSH2_TRACE_CONN,
+                           "Received global request type %.*s (wr %X)",
+                           strlen, data + 5, want_reply);
+
+            if (want_reply) {
+              libssh2_packet_add_jump_point5:
+                session->packAdd_state = libssh2_NB_state_jump5;
+                data[0] = SSH_MSG_REQUEST_FAILURE;
+                rc = _libssh2_transport_write(session, data, 1);
+                if (rc == PACKET_EAGAIN)
+                    return rc;
+                LIBSSH2_FREE(session, data);
+                session->packAdd_state = libssh2_NB_state_idle;
+                return 0;
+            }
+        }
+        break;
 
         case SSH_MSG_CHANNEL_EXTENDED_DATA:
             /* streamid(4) */

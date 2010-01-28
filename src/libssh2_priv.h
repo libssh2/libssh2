@@ -211,7 +211,8 @@ typedef enum
     libssh2_NB_state_jump1,
     libssh2_NB_state_jump2,
     libssh2_NB_state_jump3,
-    libssh2_NB_state_jump4
+    libssh2_NB_state_jump4,
+    libssh2_NB_state_jump5
 } libssh2_nonblocking_states;
 
 typedef struct packet_require_state_t
