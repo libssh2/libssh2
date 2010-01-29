@@ -1,5 +1,5 @@
 # AC_PREREQ(2.57)
-AC_INIT(libssh2, [-], libssh2-devel@lists.sourceforge.net)
+AC_INIT(libssh2, [-], libssh2-devel@cool.haxx.se)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src])
 AM_CONFIG_HEADER([src/libssh2_config.h example/libssh2_config.h])
