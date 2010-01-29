@@ -8,6 +8,7 @@
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
+# include <ws2tcpip.h>
 #endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
@@ -67,9 +68,12 @@ int main(int argc, char *argv[])
     char buf[16384];
 
 #ifdef WIN32
+    char sockopt;
     WSADATA wsadata;
 
     WSAStartup(MAKEWORD(2,0), &wsadata);
+#else
+    int sockopt;
 #endif
 
     if (argc > 1)
@@ -90,8 +94,8 @@ int main(int argc, char *argv[])
     /* Connect to SSH server */
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     sin.sin_family = AF_INET;
-    if (-1 == inet_aton(server_ip, &sin.sin_addr)) {
-        perror("inet_aton");
+    if (INADDR_NONE == (sin.sin_addr.s_addr = inet_addr(server_ip))) {
+        perror("inet_addr");
         return -1;
     }
     sin.sin_port = htons(22);
@@ -163,12 +167,12 @@ int main(int argc, char *argv[])
     listensock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     sin.sin_family = AF_INET;
     sin.sin_port = htons(local_listenport);
-    if (-1 == inet_aton(local_listenip, &sin.sin_addr)) {
-        perror("inet_aton");
+    if (INADDR_NONE == (sin.sin_addr.s_addr = inet_addr(local_listenip))) {
+        perror("inet_addr");
         goto shutdown;
     }
-    i = 1;
-    setsockopt(listensock, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(i));
+    sockopt = 1;
+    setsockopt(listensock, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
     sinlen=sizeof(sin);
     if (-1 == bind(listensock, (struct sockaddr *)&sin, sinlen)) {
         perror("bind");
@@ -239,7 +243,7 @@ int main(int argc, char *argv[])
             if (LIBSSH2_ERROR_EAGAIN == len)
                 break;
             else if (len < 0) {
-                fprintf(stderr, "libssh2_channel_read: %d", len);
+                fprintf(stderr, "libssh2_channel_read: %d", (int)len);
                 goto shutdown;
             }
             wr = 0;
