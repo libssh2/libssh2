@@ -1,29 +1,14 @@
 #include <libssh2.h>
 
-#ifdef HAVE_CONFIG_H
-#include "libssh2_config.h"
-#endif
-
-#include <sys/types.h>
-
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
-# include <ws2tcpip.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-# ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
-#endif
-#ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
+#ifdef WIN32
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/time.h>
 #endif
 
 #include <fcntl.h>
@@ -31,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
 
 const char *keyfile1 = "/home/username/.ssh/id_rsa.pub";
 const char *keyfile2 = "/home/username/.ssh/id_rsa";
