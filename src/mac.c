@@ -167,6 +167,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1_96 = {
     mac_method_common_dtor,
 };
 
+#if LIBSSH2_MD5
 /* mac_method_hmac_md5_hash
  * Calculate hash using full md5 value
  */
@@ -235,6 +236,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_md5_96 = {
     mac_method_hmac_md5_96_hash,
     mac_method_common_dtor,
 };
+#endif /* LIBSSH2_MD5 */
 
 #if LIBSSH2_HMAC_RIPEMD
 /* mac_method_hmac_ripemd160_hash
@@ -291,8 +293,10 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_ripemd160_openssh_com = {
 static const LIBSSH2_MAC_METHOD *mac_methods[] = {
     &mac_method_hmac_sha1,
     &mac_method_hmac_sha1_96,
+#if LIBSSH2_MD5
     &mac_method_hmac_md5,
     &mac_method_hmac_md5_96,
+#endif
 #if LIBSSH2_HMAC_RIPEMD
     &mac_method_hmac_ripemd160,
     &mac_method_hmac_ripemd160_openssh_com,
