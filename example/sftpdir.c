@@ -105,9 +105,9 @@ int main(int argc, char *argv[])
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call
      */
-    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
+    fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     printf("Fingerprint: ");
-    for(i = 0; i < 16; i++) {
+    for(i = 0; i < 20; i++) {
         printf("%02X ", (unsigned char)fingerprint[i]);
     }
     printf("\n");
