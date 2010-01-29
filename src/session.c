@@ -557,8 +557,7 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     if (session->startup_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
                        "session_startup for socket %d", sock);
-        /* FIXME: on some platforms (like win32) sockets are unsigned */
-        if (sock < 0) {
+        if (INVALID_SOCKET == sock) {
             /* Did we forget something? */
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_NONE,
                           "Bad socket provided", 0);
