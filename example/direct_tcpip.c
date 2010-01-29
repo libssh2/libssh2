@@ -241,6 +241,11 @@ int main(int argc, char *argv[])
                 }
                 wr += i;
             }
+            if (libssh2_channel_eof(channel)) {
+                printf("The server at %s:%d disconnected!\n",
+                    remote_desthost, remote_destport);
+                goto shutdown;
+            }
         }
     }
 
