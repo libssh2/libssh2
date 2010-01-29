@@ -124,10 +124,6 @@ struct agent_ops {
     agent_disconnect_func disconnect;
 };
 
-#ifndef INVALID_SOCKET
-#define INVALID_SOCKET -1
-#endif
-
 struct _LIBSSH2_AGENT
 {
     LIBSSH2_SESSION *session;  /* the session this "belongs to" */
