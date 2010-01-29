@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
             goto shutdown;
         }
         if (rc && FD_ISSET(forwardsock, &fds)) {
-            len = read(forwardsock, buf, sizeof(buf));
+            len = recv(forwardsock, buf, sizeof(buf), 0);
             if (len < 0) {
                 perror("read");
                 goto shutdown;
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
             }
             wr = 0;
             while (wr < len) {
-                i = write(forwardsock, buf + wr, len - wr);
+                i = send(forwardsock, buf + wr, len - wr, 0);
                 if (i <= 0) {
                     perror("write");
                     goto shutdown;
