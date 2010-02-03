@@ -1,4 +1,4 @@
-Version 1.2.3 (unreleased)
+Version 1.2.3 (February 3, 2010)
 
  o Added libssh2_trace_sethandler()
  o Added the direct_tcpip.c example
