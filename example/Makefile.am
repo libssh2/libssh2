@@ -12,5 +12,5 @@ noinst_PROGRAMS = direct_tcpip ssh2 \
 		sftp_RW_nonblock \
 		sftpdir sftpdir_nonblock ssh2_exec ssh2_agent
 
-AM_CPPFLAGS = -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/example
 LDADD = $(top_builddir)/src/libssh2.la
