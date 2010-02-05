@@ -18,6 +18,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 
+#ifndef INADDR_NONE
+#define INADDR_NONE (in_addr_t)-1
+#endif
+
 const char *keyfile1 = "/home/username/.ssh/id_rsa.pub";
 const char *keyfile2 = "/home/username/.ssh/id_rsa";
 const char *username = "username";

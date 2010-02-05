@@ -142,7 +142,7 @@ static int
 agent_connect_unix(LIBSSH2_AGENT *agent)
 {
     const char *path;
-    struct sockaddr_un sun;
+    struct sockaddr_un s_un;
 
     path = getenv("SSH_AUTH_SOCK");
     if (!path) {
@@ -154,9 +154,9 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
         return -1;
     }
 
-    sun.sun_family = AF_UNIX;
-    strncpy (sun.sun_path, path, sizeof sun.sun_path);
-    if (connect(agent->fd, (struct sockaddr*)(&sun), sizeof sun) != 0) {
+    s_un.sun_family = AF_UNIX;
+    strncpy (s_un.sun_path, path, sizeof s_un.sun_path);
+    if (connect(agent->fd, (struct sockaddr*)(&s_un), sizeof s_un) != 0) {
         close (agent->fd);
         return -1;
     }
