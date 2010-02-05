@@ -41,6 +41,9 @@ case "$host" in
 	;;
     *hpux*)
     ;;
+    *osf*)
+    CFLAGS="$CFLAGS -D_POSIX_PII_SOCKET"
+    ;;
     *)
     ;;
 esac
