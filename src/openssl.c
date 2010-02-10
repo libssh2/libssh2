@@ -199,6 +199,7 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     return ret == 1 ? 0 : 1;
 }
 
+#if LIBSSH2_AES_CTR
 #include <openssl/aes.h>
 
 typedef struct
@@ -300,6 +301,7 @@ _libssh2_EVP_aes_256_ctr(void)
 {
     return make_ctr_evp (32);
 }
+#endif /* LIBSSH2_AES_CTR */
 
 /* TODO: Optionally call a passphrase callback specified by the
  * calling program
