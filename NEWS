@@ -1,3 +1,9 @@
+Version 1.2.4 (February 13, 2010)
+
+ o Resolve compile issues on Solaris x64 and UltraSPARC
+ o Allow compiling with OpenSSL when AES isn't available
+ o Fix Tru64 socklen_t compile issue with example/direct_tcpip.c
+
 Version 1.2.3 (February 3, 2010)
 
  o Added libssh2_trace_sethandler()
