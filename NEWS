@@ -1,3 +1,9 @@
+
+* (February 15 2010) Daniel Stenberg:
+
+- Committed the patch by Yoichi Iwaki in bug #2929647, which fixed a memory
+  leak when an 'outbuf' was still allocated when a session was freed.
+
 Version 1.2.4 (February 13, 2010)
 
  o Resolve compile issues on Solaris x64 and UltraSPARC
