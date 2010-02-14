@@ -698,6 +698,7 @@ session_free(LIBSSH2_SESSION *session)
     LIBSSH2_PACKET *pkg;
     LIBSSH2_CHANNEL *ch;
     LIBSSH2_LISTENER *l;
+    struct transportpacket *p = &session->packet;
 
     if (session->free_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Freeing session resource",
@@ -917,6 +918,11 @@ session_free(LIBSSH2_SESSION *session)
         /* free */
         LIBSSH2_FREE(session, pkg->data);
         LIBSSH2_FREE(session, pkg);
+    }
+
+    /* Cleanup remaining outgoing packet buffer */
+    if (p->outbuf) {
+        LIBSSH2_FREE(session, p->outbuf);
     }
 
     if(session->socket_prev_blockstate)
