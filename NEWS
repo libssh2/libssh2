@@ -1,5 +1,8 @@
 
 * (February 15 2010) Daniel Stenberg:
+- Added 46 new man pages for public convenience macros. The man pages  are
+  just short redirects to the actual underlying function. The were all
+  initially created by a script.
 
 - Committed the patch by Yoichi Iwaki in bug #2929647, which fixed a memory
   leak when an 'outbuf' was still allocated when a session was freed.
