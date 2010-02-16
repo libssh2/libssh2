@@ -197,6 +197,8 @@ int main(int argc, char *argv[])
 #else
     close(sock);
 #endif
+    if (local)
+        fclose(local);
     fprintf(stderr, "all done\n");
     return 0;
 }

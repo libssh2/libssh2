@@ -184,12 +184,10 @@ int main(int argc, char *argv[])
         } while (rc > 0);
     } while (1);
 
-    fclose(local);
     libssh2_sftp_close(sftp_handle);
     libssh2_sftp_shutdown(sftp_session);
 
- shutdown:
-
+shutdown:
     libssh2_session_disconnect(session,
                                "Normal Shutdown, Thank you for playing");
     libssh2_session_free(session);
@@ -199,6 +197,8 @@ int main(int argc, char *argv[])
 #else
     close(sock);
 #endif
-printf("all done\n");
+    if (local)
+        fclose(local);
+    printf("all done\n");
     return 0;
 }

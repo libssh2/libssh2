@@ -283,6 +283,8 @@ int main(int argc, char *argv[])
 #else
     close(sock);
 #endif
+    if (tempstorage)
+        fclose(tempstorage);
     printf("all done\n");
     return 0;
 }

@@ -121,11 +121,16 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             /* Connect to the local unix domain */
             ptr = strrchr(display, ':');
             temp_buff = (char *) calloc(strlen(ptr+1), sizeof(char));
+            if (!temp_buff) {
+                perror("calloc");
+                return;
+            }
             memcpy(temp_buff, ptr+1, strlen(ptr+1));
             display_port = atoi(temp_buff);
+            free(temp_buff);
 
-            sock = socket(AF_UNIX,SOCK_STREAM, 0);
-            if (sock <0)
+            sock = socket(AF_UNIX, SOCK_STREAM, 0);
+            if (sock < 0)
                 return;
             memset(&addr, 0, sizeof(addr));
             addr.sun_family = AF_UNIX;
