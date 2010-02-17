@@ -268,6 +268,8 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
         rc = _libssh2_transport_write(session, session->userauth_pswd_data,
                                       session->userauth_pswd_data_len);
         if (rc == PACKET_EAGAIN) {
+            libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                          "Would block writing password request", 0);
             return rc;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
@@ -296,8 +298,12 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
                                           &session->
                                           userauth_pswd_packet_requirev_state);
             if (rc == PACKET_EAGAIN) {
+                libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                              "Would block waiting", 0);
                 return rc;
             } else if (rc) {
+                libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
+                              "Would block waiting", 0);
                 session->userauth_pswd_state = libssh2_NB_state_idle;
                 return -1;
             }
@@ -415,6 +421,8 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
                                                       session->
                                                       userauth_pswd_data_len);
                         if (rc == PACKET_EAGAIN) {
+                            libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                                          "Would block waiting", 0);
                             return rc;
                         } else if (rc) {
                             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
@@ -454,6 +462,9 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
     LIBSSH2_FREE(session, session->userauth_pswd_data);
     session->userauth_pswd_data = NULL;
     session->userauth_pswd_state = libssh2_NB_state_idle;
+
+    libssh2_error(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED,
+                  "Authentication failed", 0);
     return -1;
 }
 
