@@ -714,6 +714,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                 &session->userauth_host_method_len,
                                 &pubkeydata, &pubkeydata_len,
                                 publickey)) {
+            /* Note: file_read_publickey() calls libssh2_error() */
             return -1;
         }
 
@@ -741,6 +742,8 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             LIBSSH2_FREE(session, session->userauth_host_method);
             session->userauth_host_method = NULL;
             LIBSSH2_FREE(session, pubkeydata);
+            libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                          "Out of memory", 0);
             return -1;
         }
 
@@ -789,6 +792,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                  session->userauth_host_method,
                                  session->userauth_host_method_len,
                                  privatekey, passphrase)) {
+            /* Note: file_read_privatekey() calls libssh2_error() */
             LIBSSH2_FREE(session, session->userauth_host_method);
             session->userauth_host_method = NULL;
             LIBSSH2_FREE(session, session->userauth_host_packet);
@@ -874,8 +878,10 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                       session->userauth_host_s -
                                       session->userauth_host_packet);
         if (rc == PACKET_EAGAIN) {
+            libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block", 0);
             return rc;
-        } else if (rc) {
+        }
+        else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send userauth-hostbased request", 0);
             LIBSSH2_FREE(session, session->userauth_host_packet);
@@ -899,12 +905,16 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                       &session->
                                       userauth_host_packet_requirev_state);
         if (rc == PACKET_EAGAIN) {
+            libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block", 0);
             return rc;
         }
 
         session->userauth_host_state = libssh2_NB_state_idle;
-        if (rc)
+        if (rc) {
+            libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                          "Auth failed", 0);
             return -1;
+        }
 
         if (session->userauth_host_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
             _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
@@ -1018,6 +1028,7 @@ userauth_publickey(LIBSSH2_SESSION *session,
         if (!session->userauth_pblc_packet) {
             LIBSSH2_FREE(session, session->userauth_pblc_method);
             session->userauth_pblc_method = NULL;
+            libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Out of memory", 0);
             return -1;
         }
 
@@ -1063,6 +1074,7 @@ userauth_publickey(LIBSSH2_SESSION *session,
         rc = _libssh2_transport_write(session, session->userauth_pblc_packet,
                                       session->userauth_pblc_packet_len);
         if (rc == PACKET_EAGAIN) {
+            libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block", 0);
             return rc;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
@@ -1086,13 +1098,17 @@ userauth_publickey(LIBSSH2_SESSION *session,
                                       &session->
                                       userauth_pblc_packet_requirev_state);
         if (rc == PACKET_EAGAIN) {
+            libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block", 0);
             return rc;
-        } else if (rc) {
+        }
+        else if (rc) {
             LIBSSH2_FREE(session, session->userauth_pblc_packet);
             session->userauth_pblc_packet = NULL;
             LIBSSH2_FREE(session, session->userauth_pblc_method);
             session->userauth_pblc_method = NULL;
             session->userauth_pblc_state = libssh2_NB_state_idle;
+            libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                          "Failed waiting", 0);
             return -1;
         }
 
@@ -1161,6 +1177,7 @@ userauth_publickey(LIBSSH2_SESSION *session,
         rc = sign_callback(session, &sig, &sig_len, buf, s - buf, abstract);
         LIBSSH2_FREE(session, buf);
         if (rc == PACKET_EAGAIN) {
+            libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block", 0);
             return rc;
         } else if (rc) {
             LIBSSH2_FREE(session, session->userauth_pblc_method);
@@ -1168,6 +1185,8 @@ userauth_publickey(LIBSSH2_SESSION *session,
             LIBSSH2_FREE(session, session->userauth_pblc_packet);
             session->userauth_pblc_packet = NULL;
             session->userauth_pblc_state = libssh2_NB_state_idle;
+            libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                          "Callback returned error", 0);
             return -1;
         }
 
@@ -1233,6 +1252,7 @@ userauth_publickey(LIBSSH2_SESSION *session,
                                       session->userauth_pblc_s -
                                       session->userauth_pblc_packet);
         if (rc == PACKET_EAGAIN) {
+            libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block", 0);
             return rc;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
@@ -1256,9 +1276,13 @@ userauth_publickey(LIBSSH2_SESSION *session,
                                   &session->userauth_pblc_data_len, 0, NULL, 0,
                                   &session->userauth_pblc_packet_requirev_state);
     if (rc == PACKET_EAGAIN) {
+        libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                      "Would block requesting userauth list", 0);
         return rc;
     } else if (rc) {
         session->userauth_pblc_state = libssh2_NB_state_idle;
+        libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                      "Failed waiting", 0);
         return -1;
     }
 
@@ -1454,6 +1478,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
         rc = _libssh2_transport_write(session, session->userauth_kybd_data,
                                       session->userauth_kybd_packet_len);
         if (rc == PACKET_EAGAIN) {
+            libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block", 0);
             return rc;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
@@ -1478,9 +1503,12 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                                           &session->
                                           userauth_kybd_packet_requirev_state);
             if (rc == PACKET_EAGAIN) {
+                libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block", 0);
                 return rc;
             } else if (rc) {
                 session->userauth_kybd_state = libssh2_NB_state_idle;
+                libssh2_error(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED,
+                              "Failed waiting", 0);
                 return -1;
             }
 
@@ -1665,13 +1693,13 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             rc = _libssh2_transport_write(session, session->userauth_kybd_data,
                                           session->userauth_kybd_packet_len);
             if (rc == PACKET_EAGAIN) {
+                libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block", 0);
                 return rc;
             }
             if (rc) {
                 libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                               "Unable to send userauth-keyboard-interactive"
-                              " request",
-                              0);
+                              " request", 0);
                 goto cleanup;
             }
 
