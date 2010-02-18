@@ -1631,6 +1631,10 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                     4 + session->userauth_kybd_responses[i].length;
             }
 
+            /* A new userauth_kybd_data area is to be allocated, free the
+               former one. */
+            LIBSSH2_FREE(session, session->userauth_kybd_data);
+
             session->userauth_kybd_data = s =
                 LIBSSH2_ALLOC(session, session->userauth_kybd_packet_len);
             if (!s) {
