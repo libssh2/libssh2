@@ -9,7 +9,7 @@ libssh2_session_free - frees resources associated with a session instance
 int 
 libssh2_session_free(LIBSSH2_SESSION *session);
 .SH DESCRIPTION
-Frees resources associated with a session instance. Typically called after
+Frees all resources associated with a session instance. Typically called after
 .BR libssh2_session_disconnect_ex(3)
 .SH RETURN VALUE
 Return 0 on success or negative on failure.  It returns
