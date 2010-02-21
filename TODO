@@ -2,9 +2,12 @@ Things TODO
 ===========
 
 * make sure the windowing code adapts better to slow situations so that it
-  doesn't then use as much memory as today
+  doesn't then use as much memory as today. Possibly by an app-controllable
+  "Window mode"?
 
-* Introduce a 'libssh2_socket_t' type for sockets in internal code
+* Introduce a function that can free data that is returned allocated from the
+  lib, like when libssh2_session_last_error() is asked to return the string
+  with 'want_buf' set to non-zero.
 
 * Provide a libssh2_scp_send() API for files larger than 4GB (32bit size)
 
