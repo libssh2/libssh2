@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     int sock, i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
-    LIBSSH2_SESSION *session;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     const char *username="username";
     const char *password="password";
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
     local = fopen(loclfile, "rb");
     if (!local) {
-        fprintf(stderr, "Can't local file %s\n", loclfile);
+        fprintf(stderr, "Can't open local file %s\n", loclfile);
         goto shutdown;
     }
 
@@ -189,9 +189,10 @@ int main(int argc, char *argv[])
 
  shutdown:
 
-    libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing");
-    libssh2_session_free(session);
-
+    if(session) {
+        libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing");
+        libssh2_session_free(session);
+    }
 #ifdef WIN32
     closesocket(sock);
 #else
