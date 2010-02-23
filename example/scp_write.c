@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 
     if (!channel) {
         char *errmsg;
-        int *errlen;
+        int errlen;
         int err = libssh2_session_last_error(session, &errmsg, &errlen, 0);
         fprintf(stderr, "Unable to open a session: (%d) %s\n", err, errmsg);
         goto shutdown;
