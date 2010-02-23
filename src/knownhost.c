@@ -163,7 +163,7 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     case LIBSSH2_KNOWNHOST_TYPE_PLAIN:
     case LIBSSH2_KNOWNHOST_TYPE_CUSTOM:
         entry->name = LIBSSH2_ALLOC(hosts->session, hostlen+1);
-        if(!entry)
+        if(!entry->name)
             goto error;
         memcpy(entry->name, host, hostlen+1);
         break;
@@ -192,7 +192,7 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         if(!keylen)
             keylen = strlen(key);
         entry->key = LIBSSH2_ALLOC(hosts->session, keylen+1);
-        if(!entry)
+        if(!entry->key)
             goto error;
         memcpy(entry->key, key, keylen+1);
         entry->key[keylen]=0; /* force a terminating zero trailer */
