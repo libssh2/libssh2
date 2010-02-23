@@ -1036,34 +1036,8 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 #endif
 #endif
 
-#ifdef LIBSSH2DEBUG
-#define libssh2_error(session, errcode, errmsg, should_free)    \
-{ \
-    if (session->err_msg && session->err_should_free) { \
-        LIBSSH2_FREE(session, session->err_msg); \
-    } \
-    session->err_msg = (char *)errmsg; \
-    session->err_msglen = strlen(errmsg); \
-    session->err_should_free = should_free; \
-    session->err_code = errcode; \
-    _libssh2_debug(session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code, session->err_msg); \
-}
-
-#else /* ! LIBSSH2DEBUG */
-
-#define libssh2_error(session, errcode, errmsg, should_free)    \
-{ \
-    if (session->err_msg && session->err_should_free) { \
-        LIBSSH2_FREE(session, session->err_msg); \
-    } \
-    session->err_msg = (char *)errmsg; \
-    session->err_msglen = strlen(errmsg); \
-    session->err_should_free = should_free; \
-    session->err_code = errcode; \
-}
-
-#endif /* ! LIBSSH2DEBUG */
-
+int libssh2_error(LIBSSH2_SESSION* session, int errcode, char* errmsg,
+                  int should_free);
 
 #define LIBSSH2_SOCKET_UNKNOWN                   1
 #define LIBSSH2_SOCKET_CONNECTED                 0

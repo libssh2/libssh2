@@ -49,6 +49,42 @@
 
 #include <errno.h>
 
+#ifdef LIBSSH2DEBUG
+
+int libssh2_error(LIBSSH2_SESSION* session, int errcode, char* errmsg,
+                  int should_free)
+{
+    if (session->err_msg && session->err_should_free) {
+        LIBSSH2_FREE(session, session->err_msg);
+    }
+    session->err_msg = errmsg;
+    session->err_msglen = strlen(errmsg);
+    session->err_should_free = should_free;
+    session->err_code = errcode;
+    _libssh2_debug(session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code,
+                   session->err_msg);
+
+    return errcode;
+}
+
+#else /* ! LIBSSH2DEBUG */
+
+int libssh2_error(LIBSSH2_SESSION* session, int errcode, char* errmsg,
+                  int should_free)
+{
+    if (session->err_msg && session->err_should_free) {
+        LIBSSH2_FREE(session, session->err_msg);
+    }
+    session->err_msg = errmsg;
+    session->err_msglen = strlen(errmsg);
+    session->err_should_free = should_free;
+    session->err_code = errcode;
+
+    return errcode;
+}
+
+#endif /* ! LIBSSH2DEBUG */
+
 #ifdef WIN32
 static int wsa2errno(void)
 {
@@ -189,6 +225,8 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
     *data = LIBSSH2_ALLOC(session, (3 * src_len / 4) + 1);
     d = (unsigned char *) *data;
     if (!d) {
+        libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                      "Unable to allocate memory for base64 decoding", 0);
         return -1;
     }
 
@@ -217,6 +255,8 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
         /* Invalid -- We have a byte which belongs exclusively to a partial
            octet */
         LIBSSH2_FREE(session, *data);
+        libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                      "Invalid data (byte belonging to partial octet)", 0);
         return -1;
     }
 
