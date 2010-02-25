@@ -2245,6 +2245,14 @@ channel_close(LIBSSH2_CHANNEL * channel)
         return 0;
     }
 
+    if (!channel->local.eof)
+        if (retcode = channel_send_eof(channel))
+            return retcode;
+
+    if (!channel->remote.eof)
+        if (retcode = channel_wait_eof(channel))
+            return retcode;
+
     if (channel->close_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Closing channel %lu/%lu",
                        channel->local.id, channel->remote.id);
