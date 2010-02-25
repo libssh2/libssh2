@@ -908,6 +908,11 @@ struct _LIBSSH2_SESSION
     char *scpSend_err_msg;
     long scpSend_err_len;
     LIBSSH2_CHANNEL *scpSend_channel;
+
+    /* Keepalive variables used by keepalive.c. */
+    int keepalive_interval;
+    int keepalive_want_reply;
+    time_t keepalive_last_sent;
 };
 
 /* session.state bits */

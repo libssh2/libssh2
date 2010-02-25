@@ -1,5 +1,6 @@
 /* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2010 Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -521,6 +522,15 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
     fd_set *readfd = NULL;
     int dir;
     int rc;
+    struct timeval tv;
+    int seconds_to_next;
+
+    rc = libssh2_keepalive_send (session, &seconds_to_next);
+    if (rc < 0)
+        return rc;
+
+    tv.tv_sec = seconds_to_next;
+    tv.tv_usec = 0;
 
     FD_ZERO(&fd);
     FD_SET(session->socket_fd, &fd);
@@ -536,7 +546,8 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
 
     /* Note that this COULD be made to use a timeout that perhaps could be
        customizable by the app or something... */
-    rc = select(session->socket_fd + 1, readfd, writefd, NULL, NULL);
+    rc = select(session->socket_fd + 1, readfd, writefd, NULL,
+                seconds_to_next ? &tv : NULL);
 
     if(rc <= 0) {
         /* timeout (or error), bail out with a timeout error */

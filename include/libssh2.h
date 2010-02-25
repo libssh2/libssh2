@@ -1,5 +1,6 @@
 /* Copyright (c) 2004-2009, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2010 Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -972,6 +973,35 @@ libssh2_agent_disconnect(LIBSSH2_AGENT *agent);
  */
 LIBSSH2_API void
 libssh2_agent_free(LIBSSH2_AGENT *agent);
+
+
+/*
+ * libssh2_keepalive_config()
+ *
+ * Set how often keepalive messages should be sent.  WANT_REPLY
+ * indicates whether the keepalive messages should request a response
+ * from the server.  INTERVAL is number of seconds that can pass
+ * without any I/O, use 0 (the default) to disable keepalives.  To
+ * avoid some busy-loop corner-cases, if you specify an interval of 1
+ * it will be treated as 2.
+ *
+ * Note that non-blocking applications are responsible for sending the
+ * keepalive messages using libssh2_keepalive_send().
+ */
+LIBSSH2_API void libssh2_keepalive_config (LIBSSH2_SESSION *session,
+                                           int want_reply,
+                                           unsigned interval);
+
+/*
+ * libssh2_keepalive_send()
+ *
+ * Send a keepalive message if needed.  SECONDS_TO_NEXT indicates how
+ * many seconds you can sleep after this call before you need to call
+ * it again.  Returns 0 on success, or LIBSSH2_ERROR_SOCKET_SEND on
+ * I/O errors.
+ */
+LIBSSH2_API int libssh2_keepalive_send (LIBSSH2_SESSION *session,
+                                        int *seconds_to_next);
 
 /* NOTE NOTE NOTE
    libssh2_trace() has no function in builds that aren't built with debug
