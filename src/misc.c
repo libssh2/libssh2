@@ -49,8 +49,6 @@
 
 #include <errno.h>
 
-#ifdef LIBSSH2DEBUG
-
 int libssh2_error(LIBSSH2_SESSION* session, int errcode, char* errmsg,
                   int should_free)
 {
@@ -61,29 +59,13 @@ int libssh2_error(LIBSSH2_SESSION* session, int errcode, char* errmsg,
     session->err_msglen = strlen(errmsg);
     session->err_should_free = should_free;
     session->err_code = errcode;
+#ifdef LIBSSH2DEBUG
     _libssh2_debug(session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code,
                    session->err_msg);
+#endif
 
     return errcode;
 }
-
-#else /* ! LIBSSH2DEBUG */
-
-int libssh2_error(LIBSSH2_SESSION* session, int errcode, char* errmsg,
-                  int should_free)
-{
-    if (session->err_msg && session->err_should_free) {
-        LIBSSH2_FREE(session, session->err_msg);
-    }
-    session->err_msg = errmsg;
-    session->err_msglen = strlen(errmsg);
-    session->err_should_free = should_free;
-    session->err_code = errcode;
-
-    return errcode;
-}
-
-#endif /* ! LIBSSH2DEBUG */
 
 #ifdef WIN32
 static int wsa2errno(void)
