@@ -1036,7 +1036,7 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 #endif
 #endif
 
-int libssh2_error(LIBSSH2_SESSION* session, int errcode, char* errmsg,
+int libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg,
                   int should_free);
 
 #define LIBSSH2_SOCKET_UNKNOWN                   1
