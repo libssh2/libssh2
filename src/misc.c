@@ -49,7 +49,7 @@
 
 #include <errno.h>
 
-int libssh2_error(LIBSSH2_SESSION* session, int errcode, char* errmsg,
+int libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg,
                   int should_free)
 {
     if (session->err_msg && session->err_should_free) {
