@@ -111,6 +111,14 @@ if test "$ac_cv_libgcrypt" = "yes"; then
 fi
 AM_CONDITIONAL(LIBGCRYPT, test "$ac_cv_libgcrypt" = "yes")
 
+# Not all OpenSSL have AES-CTR functions.
+if test "$ac_cv_libssl" = "yes"; then
+  save_LDFLAGS="$LDFLAGS"
+  LDFLAGS="$LDFLAGS $LIBSSL"
+  AC_CHECK_FUNCS(EVP_aes128_ctr)
+  LDFLAGS="$save_LDFLAGS"
+fi
+
 # Look for Libz
 if test "$use_libz" != "no"; then
   AC_LIB_HAVE_LINKFLAGS([z], [], [#include <zlib.h>])
