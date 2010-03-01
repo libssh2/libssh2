@@ -198,7 +198,7 @@ int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 #define _libssh2_cipher_aes256 EVP_aes_256_cbc
 #define _libssh2_cipher_aes192 EVP_aes_192_cbc
 #define _libssh2_cipher_aes128 EVP_aes_128_cbc
-#if HAVE_EVP_AES128_CTR
+#ifdef HAVE_EVP_AES128_CTR
 #define _libssh2_cipher_aes128ctr EVP_aes_128_ctr
 #define _libssh2_cipher_aes192ctr EVP_aes_192_ctr
 #define _libssh2_cipher_aes256ctr EVP_aes_256_ctr
