@@ -152,6 +152,7 @@ dnl ************************************************************
 dnl option to switch on compiler debug options
 dnl
 AC_MSG_CHECKING([whether to enable pedantic and debug compiler options])
+enable_debug=no
 AC_ARG_ENABLE(debug,
 AC_HELP_STRING([--enable-debug],[Enable pedantic and debug options])
 AC_HELP_STRING([--disable-debug],[Disable debug options]),
@@ -160,7 +161,7 @@ AC_HELP_STRING([--disable-debug],[Disable debug options]),
        AC_MSG_RESULT(no)
        ;;
   *)   AC_MSG_RESULT(yes)
-
+    enable_debug=yes
     CPPFLAGS="$CPPFLAGS -DLIBSSH2DEBUG"
     CFLAGS="$CFLAGS -g"
 
@@ -267,3 +268,17 @@ AC_CONFIG_FILES([Makefile
                  docs/Makefile
                  libssh2.pc])
 AC_OUTPUT
+
+AC_MSG_NOTICE([summary of build options:
+
+  version:          ${VERSION}
+  Host type:        ${host}
+  Install prefix:   ${prefix}
+  Compiler:         ${CC}
+  Compiler flags:   ${CFLAGS}
+  Library types:    Shared=${enable_shared}, Static=${enable_static}
+  Crypto library:   openssl: $ac_cv_libssl (AES-CTR: $ac_cv_func_EVP_aes128_ctr) libgcrypt: $ac_cv_libgcrypt
+  Debug build:      $enable_debug
+  Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
+  libz compression: $ac_cv_libz
+])
