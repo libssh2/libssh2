@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 Simon Josefsson
+/* Copyright (C) 2009, 2010 Simon Josefsson
  * Copyright (C) 2006, 2007 The Written Word, Inc.  All rights reserved.
  * Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
  *
@@ -201,7 +201,8 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     return ret == 1 ? 0 : 1;
 }
 
-#if LIBSSH2_AES_CTR
+#if LIBSSH2_AES_CTR && OPENSSL_VERSION_NUMBER < 0x0090808fL
+
 #include <openssl/aes.h>
 
 typedef struct
