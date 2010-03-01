@@ -730,7 +730,7 @@ struct _LIBSSH2_SESSION
                                    when libssh2_session_startup() is called */
 
     /* Error tracking */
-    char *err_msg;
+    const char *err_msg;
     unsigned long err_msglen;
     int err_should_free;
     int err_code;
