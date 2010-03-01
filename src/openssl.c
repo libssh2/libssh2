@@ -111,6 +111,7 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
     return (ret == 1) ? 0 : -1;
 }
 
+#if LIBSSH2_DSA
 int
 _libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
                  const unsigned char *p,
@@ -166,6 +167,7 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
 
     return (ret == 1) ? 0 : -1;
 }
+#endif /* LIBSSH_DSA */
 
 int
 _libssh2_cipher_init(_libssh2_cipher_ctx * h,
@@ -367,6 +369,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
                                       filename, passphrase);
 }
 
+#if LIBSSH2_DSA
 int
 _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
                          LIBSSH2_SESSION * session,
@@ -387,6 +390,7 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
     return read_private_key_from_file((void **) dsa, read_dsa,
                                       filename, passphrase);
 }
+#endif /* LIBSSH_DSA */
 
 int
 _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
@@ -419,6 +423,7 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
     return 0;
 }
 
+#if LIBSSH2_DSA
 int
 _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
                        const unsigned char *hash,
@@ -453,5 +458,6 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 
     return 0;
 }
+#endif /* LIBSSH_DSA */
 
 #endif /* !LIBSSH2_LIBGCRYPT */
