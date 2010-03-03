@@ -152,11 +152,10 @@ dnl ************************************************************
 dnl option to switch on compiler debug options
 dnl
 AC_MSG_CHECKING([whether to enable pedantic and debug compiler options])
-enable_debug=no
 AC_ARG_ENABLE(debug,
 AC_HELP_STRING([--enable-debug],[Enable pedantic and debug options])
 AC_HELP_STRING([--disable-debug],[Disable debug options]),
-[ case "$enableval" in
+[ case "$enable_debug" in
   no)
        AC_MSG_RESULT(no)
        ;;
@@ -171,6 +170,7 @@ AC_HELP_STRING([--disable-debug],[Disable debug options]),
        ;;
   esac
  ],
+       enable_debug=no
        AC_MSG_RESULT(no)
 )
 
