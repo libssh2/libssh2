@@ -337,7 +337,7 @@ static struct {
 #ifdef PF_UNIX
     {"Unix", &agent_ops_unix},
 #endif  /* PF_UNIX */
-    {NULL}
+    {NULL, NULL}
 };
 
 static int
