@@ -324,9 +324,8 @@ hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION * session,
     sig += 15;
     sig_len -= 15;
     if (sig_len != 40) {
-        libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                      "Invalid DSS signature length", 0);
-        return -1;
+        return libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                             "Invalid DSS signature length");
     }
     return _libssh2_dsa_sha1_verify(dsactx, sig, m, m_len);
 }

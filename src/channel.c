@@ -156,7 +156,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
         if (!session->open_channel) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate space for channel data", 0);
+                          "Unable to allocate space for channel data");
             return NULL;
         }
         memset(session->open_channel, 0, sizeof(LIBSSH2_CHANNEL));
@@ -166,7 +166,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             LIBSSH2_ALLOC(session, channel_type_len);
         if (!session->open_channel->channel_type) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Failed allocating memory for channel type name", 0);
+                          "Failed allocating memory for channel type name");
             LIBSSH2_FREE(session, session->open_channel);
             session->open_channel = NULL;
             return NULL;
@@ -188,7 +188,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             LIBSSH2_ALLOC(session, session->open_packet_len);
         if (!session->open_packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate temporary space for packet", 0);
+                          "Unable to allocate temporary space for packet");
             goto channel_error;
         }
         *(s++) = SSH_MSG_CHANNEL_OPEN;
@@ -220,11 +220,11 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
                                       session->open_packet_len);
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                          "Would block sending channel-open request", 0);
+                          "Would block sending channel-open request");
             return NULL;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                          "Unable to send channel-open request", 0);
+                          "Unable to send channel-open request");
             goto channel_error;
         }
 
@@ -239,7 +239,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
                                       channel_type_len, 4,
                                       &session->open_packet_requirev_state);
         if (rc == PACKET_EAGAIN) {
-            libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block", 0);
+            libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
             return NULL;
         } else if (rc) {
             goto channel_error;
@@ -274,7 +274,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
 
         if (session->open_data[0] == SSH_MSG_CHANNEL_OPEN_FAILURE) {
             libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
-                          "Channel open failure", 0);
+                          "Channel open failure");
         }
     }
 
@@ -369,8 +369,7 @@ channel_direct_tcpip(LIBSSH2_SESSION * session, const char *host,
             LIBSSH2_ALLOC(session, session->direct_message_len);
         if (!session->direct_message) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memory for direct-tcpip connection",
-                          0);
+                          "Unable to allocate memory for direct-tcpip connection");
             return NULL;
         }
         _libssh2_htonu32(s, session->direct_host_len);
@@ -463,7 +462,7 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
             LIBSSH2_ALLOC(session, session->fwdLstn_packet_len);
         if (!session->fwdLstn_packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memeory for setenv packet", 0);
+                          "Unable to allocate memeory for setenv packet");
             return NULL;
         }
 
@@ -490,14 +489,12 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block sending global-request packet for "
-                          "forward listen request",
-                          0);
+                          "forward listen request");
             return NULL;
         } else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send global-request packet for forward "
-                          "listen request",
-                          0);
+                          "listen request");
             LIBSSH2_FREE(session, session->fwdLstn_packet);
             session->fwdLstn_packet = NULL;
             session->fwdLstn_state = libssh2_NB_state_idle;
@@ -514,10 +511,10 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
                                       0, NULL, 0,
                                       &session->fwdLstn_packet_requirev_state);
         if (rc == PACKET_EAGAIN) {
-            libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block", 0);
+            libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
             return NULL;
         } else if (rc) {
-            libssh2_error(session, LIBSSH2_ERROR_PROTO, "Unknown", 0);
+            libssh2_error(session, LIBSSH2_ERROR_PROTO, "Unknown");
             session->fwdLstn_state = libssh2_NB_state_idle;
             return NULL;
         }
@@ -528,8 +525,7 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
             listener = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_LISTENER));
             if (!listener) {
                 libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                              "Unable to allocate memory for listener queue",
-                              0);
+                              "Unable to allocate memory for listener queue");
                 LIBSSH2_FREE(session, data);
                 session->fwdLstn_state = libssh2_NB_state_idle;
                 return NULL;
@@ -540,8 +536,7 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
                 LIBSSH2_ALLOC(session, session->fwdLstn_host_len + 1);
             if (!listener->host) {
                 libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                              "Unable to allocate memory for listener queue",
-                              0);
+                              "Unable to allocate memory for listener queue");
                 LIBSSH2_FREE(session, listener);
                 LIBSSH2_FREE(session, data);
                 session->fwdLstn_state = libssh2_NB_state_idle;
@@ -577,7 +572,7 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
         if (data[0] == SSH_MSG_REQUEST_FAILURE) {
             LIBSSH2_FREE(session, data);
             libssh2_error(session, LIBSSH2_ERROR_REQUEST_DENIED,
-                          "Unable to complete request for forward-listen", 0);
+                          "Unable to complete request for forward-listen");
             session->fwdLstn_state = libssh2_NB_state_idle;
             return NULL;
         }
@@ -632,7 +627,7 @@ static int channel_forward_cancel(LIBSSH2_LISTENER *listener)
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
             libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memeory for setenv packet", 0);
+                          "Unable to allocate memeory for setenv packet");
             return LIBSSH2_ERROR_ALLOC;
         }
 
@@ -664,8 +659,7 @@ static int channel_forward_cancel(LIBSSH2_LISTENER *listener)
         else if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send global-request packet for forward "
-                          "listen request",
-                          0);
+                          "listen request");
             LIBSSH2_FREE(session, packet);
             listener->chanFwdCncl_state = libssh2_NB_state_idle;
             return LIBSSH2_ERROR_SOCKET_SEND;
@@ -743,11 +737,11 @@ channel_forward_accept(LIBSSH2_LISTENER *listener)
 
     if (rc == PACKET_EAGAIN) {
         libssh2_error(listener->session, LIBSSH2_ERROR_EAGAIN,
-                      "Would block waiting for packet", 0);
+                      "Would block waiting for packet");
     }
     else
         libssh2_error(listener->session, LIBSSH2_ERROR_CHANNEL_UNKNOWN,
-                      "Channel not found", 0);
+                      "Channel not found");
     return NULL;
 }
 
@@ -799,9 +793,9 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
         s = channel->setenv_packet =
             LIBSSH2_ALLOC(session, channel->setenv_packet_len);
         if (!channel->setenv_packet) {
-            libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memeory for setenv packet", 0);
-            return LIBSSH2_ERROR_ALLOC;
+            return libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Unable to allocate memeory "
+                                 "for setenv packet");
         }
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
@@ -833,14 +827,12 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
         if (rc == PACKET_EAGAIN) {
             return rc;
         } else if (rc) {
-            libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                          "Unable to send channel-request packet for "
-                          "setenv request",
-                          0);
             LIBSSH2_FREE(session, channel->setenv_packet);
             channel->setenv_packet = NULL;
             channel->setenv_state = libssh2_NB_state_idle;
-            return LIBSSH2_ERROR_SOCKET_SEND;
+            return libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                                 "Unable to send channel-request packet for "
+                                 "setenv request");
         }
         LIBSSH2_FREE(session, channel->setenv_packet);
         channel->setenv_packet = NULL;
@@ -872,10 +864,9 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
         LIBSSH2_FREE(session, data);
     }
 
-    libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
-                  "Unable to complete request for channel-setenv", 0);
     channel->setenv_state = libssh2_NB_state_idle;
-    return LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED;
+    return libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
+                         "Unable to complete request for channel-setenv");
 }
 
 /*
@@ -929,9 +920,8 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
         s = channel->reqPTY_packet =
             LIBSSH2_ALLOC(session, channel->reqPTY_packet_len);
         if (!channel->reqPTY_packet) {
-            libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memory for pty-request", 0);
-            return -1;
+            return libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Unable to allocate memory for pty-request");
         }
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
@@ -976,12 +966,11 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
         if (rc == PACKET_EAGAIN) {
             return rc;
         } else if (rc) {
-            libssh2_error(session, rc,
-                          "Unable to send pty-request packet", 0);
             LIBSSH2_FREE(session, channel->reqPTY_packet);
             channel->reqPTY_packet = NULL;
             channel->reqPTY_state = libssh2_NB_state_idle;
-            return rc;
+            return libssh2_error(session, rc,
+                                 "Unable to send pty-request packet");
         }
         LIBSSH2_FREE(session, channel->reqPTY_packet);
         channel->reqPTY_packet = NULL;
@@ -1010,10 +999,9 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
     }
 
     LIBSSH2_FREE(session, data);
-    libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
-                  "Unable to complete request for channel request-pty", 0);
     channel->reqPTY_state = libssh2_NB_state_idle;
-    return LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED;
+    return libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
+                         "Unable to complete request for channel request-pty");
 }
 
 /*
@@ -1058,9 +1046,8 @@ channel_request_pty_size(LIBSSH2_CHANNEL * channel, int width,
             LIBSSH2_ALLOC(session, channel->reqPTY_packet_len);
 
         if (!channel->reqPTY_packet) {
-            libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-            "Unable to allocate memory for pty-request", 0);
-            return -1;
+            return libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Unable to allocate memory for pty-request");
         }
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
@@ -1090,12 +1077,11 @@ channel_request_pty_size(LIBSSH2_CHANNEL * channel, int width,
         if (rc == PACKET_EAGAIN) {
             return rc;
         } else if (rc) {
-            libssh2_error(session, rc,
-                          "Unable to send window-change packet", 0);
             LIBSSH2_FREE(session, channel->reqPTY_packet);
             channel->reqPTY_packet = NULL;
             channel->reqPTY_state = libssh2_NB_state_idle;
-            return rc;
+            return libssh2_error(session, rc,
+                                 "Unable to send window-change packet");
         }
         LIBSSH2_FREE(session, channel->reqPTY_packet);
         channel->reqPTY_packet = NULL;
@@ -1164,9 +1150,8 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         s = channel->reqX11_packet =
             LIBSSH2_ALLOC(session, channel->reqX11_packet_len);
         if (!channel->reqX11_packet) {
-            libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memory for pty-request", 0);
-            return -1;
+            return libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Unable to allocate memory for pty-request");
         }
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
@@ -1217,12 +1202,11 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
             return rc;
         }
         if (rc) {
-            libssh2_error(session, rc,
-                          "Unable to send x11-req packet", 0);
             LIBSSH2_FREE(session, channel->reqX11_packet);
             channel->reqX11_packet = NULL;
             channel->reqX11_state = libssh2_NB_state_idle;
-            return rc;
+            return libssh2_error(session, rc,
+                                 "Unable to send x11-req packet");
         }
         LIBSSH2_FREE(session, channel->reqX11_packet);
         channel->reqX11_packet = NULL;
@@ -1239,9 +1223,9 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         if (rc == PACKET_EAGAIN) {
             return rc;
         } else if (rc) {
-            /* TODO: call libssh2_error() here! */
             channel->reqX11_state = libssh2_NB_state_idle;
-            return rc;
+            return libssh2_error(session, rc,
+                                 "waiting for x11-req response packet");
         }
 
         if (data[0] == SSH_MSG_CHANNEL_SUCCESS) {
@@ -1252,9 +1236,8 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
     }
 
     LIBSSH2_FREE(session, data);
-    libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
-                  "Unable to complete request for channel x11-req", 0);
-    return -1;
+    return libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
+                         "Unable to complete request for channel x11-req");
 }
 
 /*
@@ -1310,10 +1293,9 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         s = channel->process_packet =
             LIBSSH2_ALLOC(session, channel->process_packet_len);
         if (!channel->process_packet) {
-            libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memory for channel-process request",
-                          0);
-            return LIBSSH2_ERROR_ALLOC;
+            return libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Unable to allocate memory "
+                                 "for channel-process request");
         }
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
@@ -1343,12 +1325,11 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
             return rc;
         }
         else if (rc) {
-            libssh2_error(session, rc,
-                          "Unable to send channel request", 0);
             LIBSSH2_FREE(session, channel->process_packet);
             channel->process_packet = NULL;
             channel->process_state = libssh2_NB_state_idle;
-            return rc;
+            return libssh2_error(session, rc,
+                                 "Unable to send channel request");
         }
         LIBSSH2_FREE(session, channel->process_packet);
         channel->process_packet = NULL;
@@ -1366,9 +1347,8 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
             return rc;
         } else if (rc) {
             channel->process_state = libssh2_NB_state_idle;
-            libssh2_error(session, rc,
-                          "Failed waiting for channel success", 0);
-            return rc;
+            return libssh2_error(session, rc,
+                                 "Failed waiting for channel success");
         }
 
         if (data[0] == SSH_MSG_CHANNEL_SUCCESS) {
@@ -1379,10 +1359,10 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
     }
 
     LIBSSH2_FREE(session, data);
-    libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
-                  "Unable to complete request for channel-process-startup", 0);
     channel->process_state = libssh2_NB_state_idle;
-    return LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED;
+    return libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
+                         "Unable to complete request for "
+                         "channel-process-startup");
 }
 
 /*
@@ -1569,11 +1549,10 @@ _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
         return rc;
     }
     else if (rc) {
-        libssh2_error(channel->session, LIBSSH2_ERROR_SOCKET_SEND,
-                      "Unable to send transfer-window adjustment packet, "
-                      "deferring", 0);
         channel->adjust_queue = adjustment;
-        return rc;
+        return libssh2_error(channel->session, LIBSSH2_ERROR_SOCKET_SEND,
+                             "Unable to send transfer-window adjustment "
+                             "packet, deferring");
     }
     else {
         channel->remote.window_size += adjustment;
@@ -1736,8 +1715,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
         rc = _libssh2_transport_read(session);
 
     if ((rc < 0) && (rc != PACKET_EAGAIN)) {
-        libssh2_error(session, rc, "tranport read", 0);
-        return rc;
+        return libssh2_error(session, rc, "tranport read");
     }
 
     /*
@@ -1972,15 +1950,14 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                        stream_id);
 
         if (channel->local.close) {
-            libssh2_error(session, LIBSSH2_ERROR_CHANNEL_CLOSED,
-                          "We've already closed this channel", 0);
-            return LIBSSH2_ERROR_CHANNEL_CLOSED;
+            return libssh2_error(session, LIBSSH2_ERROR_CHANNEL_CLOSED,
+                                 "We've already closed this channel");
         }
 
         if (channel->local.eof) {
-            libssh2_error(session, LIBSSH2_ERROR_CHANNEL_EOF_SENT,
-                          "EOF has already been sight, data might be ignored",
-                          0);
+            return libssh2_error(session, LIBSSH2_ERROR_CHANNEL_EOF_SENT,
+                                 "EOF has already been sight, "
+                                 "data might be ignored");
         }
 
         /* [13] 9 = packet_type(1) + channelno(4) [ + streamid(4) ] +
@@ -1989,10 +1966,9 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         channel->write_packet =
             LIBSSH2_ALLOC(session, channel->write_packet_len);
         if (!channel->write_packet) {
-            libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocte space for data transmission packet",
-                          0);
-            return LIBSSH2_ERROR_ALLOC;
+            return libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Unable to allocte space "
+                                 "for data transmission packet");
         }
 
         channel->write_state = libssh2_NB_state_allocated;
@@ -2063,17 +2039,15 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                                           channel->write_s -
                                           channel->write_packet);
             if (rc == PACKET_EAGAIN) {
-                libssh2_error(session, rc,
-                              "Unable to send channel data", 0);
-                return rc;
+                return libssh2_error(session, rc,
+                                     "Unable to send channel data");
             }
             else if (rc) {
-                libssh2_error(session, rc,
-                              "Unable to send channel data", 0);
                 LIBSSH2_FREE(session, channel->write_packet);
                 channel->write_packet = NULL;
                 channel->write_state = libssh2_NB_state_idle;
-                return rc;
+                return libssh2_error(session, rc,
+                                      "Unable to send channel data");
             }
             /* Shrink local window size */
             channel->local.window_size -= channel->write_bufwrite;
@@ -2131,9 +2105,8 @@ static int channel_send_eof(LIBSSH2_CHANNEL *channel)
         return rc;
     }
     else if (rc) {
-        libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                      "Unable to send EOF on channel", 0);
-        return LIBSSH2_ERROR_SOCKET_SEND;
+        return libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                             "Unable to send EOF on channel");
     }
     channel->local.eof = 1;
 
@@ -2268,10 +2241,9 @@ channel_close(LIBSSH2_CHANNEL * channel)
         if (retcode == PACKET_EAGAIN) {
             return retcode;
         } else if (retcode) {
-            libssh2_error(session, retcode,
-                          "Unable to send close-channel request", 0);
             channel->close_state = libssh2_NB_state_idle;
-            return retcode;
+            return libssh2_error(session, retcode,
+                                 "Unable to send close-channel request");
         }
 
         channel->close_state = libssh2_NB_state_sent;
@@ -2327,11 +2299,9 @@ static int channel_wait_closed(LIBSSH2_CHANNEL *channel)
     int rc;
 
     if (!libssh2_channel_eof(channel)) {
-        libssh2_error(session, LIBSSH2_ERROR_INVAL,
-                      "libssh2_channel_wait_closed() invoked when channel is "
-                      "not in EOF state",
-                      0);
-        return -1;
+        return libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                             "libssh2_channel_wait_closed() invoked when "
+                             "channel is not in EOF state");
     }
 
     if (channel->wait_closed_state == libssh2_NB_state_idle) {

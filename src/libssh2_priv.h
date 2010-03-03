@@ -731,8 +731,6 @@ struct _LIBSSH2_SESSION
 
     /* Error tracking */
     const char *err_msg;
-    unsigned long err_msglen;
-    int err_should_free;
     int err_code;
 
     /* struct members for packet-level reading */
@@ -1036,8 +1034,7 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 #endif
 #endif
 
-int libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg,
-                  int should_free);
+int libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg);
 
 #define LIBSSH2_SOCKET_UNKNOWN                   1
 #define LIBSSH2_SOCKET_CONNECTED                 0

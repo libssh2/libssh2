@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2009 by Daniel Stenberg
  * All rights reserved.
  *
@@ -49,15 +49,9 @@
 
 #include <errno.h>
 
-int libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg,
-                  int should_free)
+int libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg)
 {
-    if (session->err_msg && session->err_should_free) {
-        LIBSSH2_FREE(session, session->err_msg);
-    }
     session->err_msg = errmsg;
-    session->err_msglen = strlen(errmsg);
-    session->err_should_free = should_free;
     session->err_code = errcode;
 #ifdef LIBSSH2DEBUG
     _libssh2_debug(session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code,
@@ -207,9 +201,8 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
     *data = LIBSSH2_ALLOC(session, (3 * src_len / 4) + 1);
     d = (unsigned char *) *data;
     if (!d) {
-        libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                      "Unable to allocate memory for base64 decoding", 0);
-        return -1;
+        return libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                             "Unable to allocate memory for base64 decoding");
     }
 
     for(s = (unsigned char *) src; ((char *) s) < (src + src_len); s++) {
@@ -237,9 +230,8 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
         /* Invalid -- We have a byte which belongs exclusively to a partial
            octet */
         LIBSSH2_FREE(session, *data);
-        libssh2_error(session, LIBSSH2_ERROR_INVAL,
-                      "Invalid data (byte belonging to partial octet)", 0);
-        return -1;
+        return libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                             "Invalid data (byte belonging to partial octet)");
     }
 
     *datalen = len;
