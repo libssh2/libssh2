@@ -111,16 +111,17 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block requesting userauth list");
             return NULL;
-        } else if (rc) {
+        }
+        /* now free the packet that was sent */
+        LIBSSH2_FREE(session, session->userauth_list_data);
+        session->userauth_list_data = NULL;
+
+        if (rc) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send userauth-none request");
-            LIBSSH2_FREE(session, session->userauth_list_data);
-            session->userauth_list_data = NULL;
             session->userauth_list_state = libssh2_NB_state_idle;
             return NULL;
         }
-        LIBSSH2_FREE(session, session->userauth_list_data);
-        session->userauth_list_data = NULL;
 
         session->userauth_list_state = libssh2_NB_state_sent;
     }
@@ -157,7 +158,8 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
         memmove(session->userauth_list_data, session->userauth_list_data + 5,
                 methods_len);
         session->userauth_list_data[methods_len] = '\0';
-        _libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Permitted auth methods: %s",
+        _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
+                       "Permitted auth methods: %s",
                        session->userauth_list_data);
     }
 
@@ -269,15 +271,17 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
         if (rc == PACKET_EAGAIN) {
             return libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                  "Would block writing password request");
-        } else if (rc) {
-            LIBSSH2_FREE(session, session->userauth_pswd_data);
-            session->userauth_pswd_data = NULL;
+        }
+
+        /* now free the sent packet */
+        LIBSSH2_FREE(session, session->userauth_pswd_data);
+        session->userauth_pswd_data = NULL;
+
+        if (rc) {
             session->userauth_pswd_state = libssh2_NB_state_idle;
             return libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                                  "Unable to send userauth-password request");
         }
-        LIBSSH2_FREE(session, session->userauth_pswd_data);
-        session->userauth_pswd_data = NULL;
 
         session->userauth_pswd_state = libssh2_NB_state_sent;
     }
@@ -417,21 +421,19 @@ userauth_password(LIBSSH2_SESSION *session, const char *username,
                             return libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                                  "Would block waiting");
                         }
-                        else if (rc) {
-                            LIBSSH2_FREE(session, session->userauth_pswd_data);
-                            session->userauth_pswd_data = NULL;
-                            LIBSSH2_FREE(session,
-                                         session->userauth_pswd_newpw);
-                            session->userauth_pswd_newpw = NULL;
+
+                        /* free the allocated packets again */
+                        LIBSSH2_FREE(session, session->userauth_pswd_data);
+                        session->userauth_pswd_data = NULL;
+                        LIBSSH2_FREE(session, session->userauth_pswd_newpw);
+                        session->userauth_pswd_newpw = NULL;
+
+                        if (rc) {
                             return libssh2_error(session,
                                                  LIBSSH2_ERROR_SOCKET_SEND,
                                                  "Unable to send userauth "
                                                  "password-change request");
                         }
-                        LIBSSH2_FREE(session, session->userauth_pswd_data);
-                        session->userauth_pswd_data = NULL;
-                        LIBSSH2_FREE(session, session->userauth_pswd_newpw);
-                        session->userauth_pswd_newpw = NULL;
 
                         /*
                          * Ugliest use of goto ever.  Blame it on the
@@ -637,14 +639,15 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
     void *hostkey_abstract;
     struct iovec datavec;
+    int rc;
 
-    if (file_read_privatekey(session, &privkeyobj, &hostkey_abstract,
-                             session->userauth_pblc_method,
-                             session->userauth_pblc_method_len,
-                             privkey_file->filename,
-                             privkey_file->passphrase)) {
-        return -1;
-    }
+    rc = file_read_privatekey(session, &privkeyobj, &hostkey_abstract,
+                              session->userauth_pblc_method,
+                              session->userauth_pblc_method_len,
+                              privkey_file->filename,
+                              privkey_file->passphrase);
+    if(rc)
+        return rc;
 
     datavec.iov_base = (unsigned char *)data;
     datavec.iov_len = data_len;
@@ -769,16 +772,17 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         memcpy(session->userauth_host_s, local_username, local_username_len);
         session->userauth_host_s += local_username_len;
 
-        if (file_read_privatekey(session, &privkeyobj, &abstract,
-                                 session->userauth_host_method,
-                                 session->userauth_host_method_len,
-                                 privatekey, passphrase)) {
+        rc = file_read_privatekey(session, &privkeyobj, &abstract,
+                                  session->userauth_host_method,
+                                  session->userauth_host_method_len,
+                                  privatekey, passphrase);
+        if(rc) {
             /* Note: file_read_privatekey() calls libssh2_error() */
             LIBSSH2_FREE(session, session->userauth_host_method);
             session->userauth_host_method = NULL;
             LIBSSH2_FREE(session, session->userauth_host_packet);
             session->userauth_host_packet = NULL;
-            return -1;
+            return rc;
         }
 
         _libssh2_htonu32(buf, session->session_id_len);
