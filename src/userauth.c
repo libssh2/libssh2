@@ -136,7 +136,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                           "Would block requesting userauth list");
             return NULL;
         } else if (rc) {
-            libssh2_error(session, LIBSSH2_ERROR_NONE, "No error");
+            libssh2_error(session, rc, "Failed getting response");
             session->userauth_list_state = libssh2_NB_state_idle;
             return NULL;
         }
