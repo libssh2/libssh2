@@ -1714,9 +1714,8 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     while (rc > 0)
         rc = _libssh2_transport_read(session);
 
-    if ((rc < 0) && (rc != PACKET_EAGAIN)) {
-        return libssh2_error(session, rc, "tranport read");
-    }
+    if ((rc < 0) && (rc != PACKET_EAGAIN))
+        return libssh2_error(session, rc, "transport read");
 
     /*
      * =============================== NOTE ===============================
@@ -1956,7 +1955,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
 
         if (channel->local.eof) {
             return libssh2_error(session, LIBSSH2_ERROR_CHANNEL_EOF_SENT,
-                                 "EOF has already been sight, "
+                                 "EOF has already been received, "
                                  "data might be ignored");
         }
 
