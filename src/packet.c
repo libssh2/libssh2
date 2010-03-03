@@ -1133,10 +1133,9 @@ _libssh2_packet_burn(LIBSSH2_SESSION * session,
 /*
  * _libssh2_packet_requirev
  *
- * Loops _libssh2_transport_read() until one of a list of packet types requested is
- * available
- * SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause a bailout
- * packet_types is a null terminated list of packet_type numbers
+ * Loops _libssh2_transport_read() until one of a list of packet types
+ * requested is available. SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause
+ * a bailout. packet_types is a null terminated list of packet_type numbers
  */
 
 int
@@ -1166,7 +1165,8 @@ _libssh2_packet_requirev(LIBSSH2_SESSION * session,
             return ret;
         }
         if (ret <= 0) {
-            long left = LIBSSH2_READ_TIMEOUT - (long)(time(NULL) - state->start);
+            long left = LIBSSH2_READ_TIMEOUT -
+                (long)(time(NULL) - state->start);
 
             if (left <= 0) {
                 state->start = 0;
