@@ -158,9 +158,11 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                              "entry");
 
     /* make sure we have a key type set */
-    if(!(typemask & LIBSSH2_KNOWNHOST_KEY_MASK))
-        return libssh2_error(hosts->session, LIBSSH2_ERROR_INVAL,
-                             "No key type set");
+	if(!(typemask & LIBSSH2_KNOWNHOST_KEY_MASK)) {
+        rc = libssh2_error(hosts->session, LIBSSH2_ERROR_INVAL,
+                           "No key type set");
+        goto error;
+    }
 
     memset(entry, 0, sizeof(struct known_host));
 
