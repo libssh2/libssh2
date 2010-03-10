@@ -47,3 +47,5 @@ At next SONAME bump
   libssh2_banner_set => libssh2_session_banner_set
 
 * change 'int' to 'libssh2_socket_t' in the public API for sockets.
+
+* Use 'size_t' for string lengths in all functions.
