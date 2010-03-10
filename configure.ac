@@ -277,7 +277,7 @@ AC_MSG_NOTICE([summary of build options:
   Compiler:         ${CC}
   Compiler flags:   ${CFLAGS}
   Library types:    Shared=${enable_shared}, Static=${enable_static}
-  Crypto library:   openssl: $ac_cv_libssl (AES-CTR: $ac_cv_func_EVP_aes128_ctr) libgcrypt: $ac_cv_libgcrypt
+  Crypto library:   openssl: ${ac_cv_libssl:-no} (AES-CTR: ${ac_cv_func_EVP_aes128_ctr:N/A}) libgcrypt: ${ac_cv_libgcrypt:-no}
   Debug build:      $enable_debug
   Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
   libz compression: $ac_cv_libz
