@@ -81,7 +81,7 @@ libssh2_keepalive_send (LIBSSH2_SESSION *session,
    already full, sending another keepalive is not useful. */
         if (rc && rc != PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                          "Unable to send keepalive message", 0);
+                          "Unable to send keepalive message");
             return rc;
         }
 
