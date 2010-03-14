@@ -719,7 +719,7 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
  *
  * Add a host and its associated key to the collection of known hosts.
  *
- * The 'type' argument specifies on what format the given host is:
+ * The 'type' argument specifies on what format the given host and keys are:
  *
  * plain  - ascii "hostname.domain.tld"
  * sha1   - SHA1(<salt> <host>) base64-encoded!
@@ -732,6 +732,8 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
  * a custom type is used, salt is ignored and you must provide the host
  * pre-hashed when checking for it in the libssh2_knownhost_check() function.
  *
+ * The keylen parameter may be ommitted (zero) if the key is provided as a
+ * NULL-terminated base64-encoded string.
  */
 
 /* host format (2 bits) */
@@ -758,6 +760,41 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                       const char *salt,
                       const char *key, size_t keylen, int typemask,
                       struct libssh2_knownhost **store);
+
+/*
+ * libssh2_knownhost_addc
+ *
+ * Add a host and its associated key to the collection of known hosts.
+ *
+ * Takes a comment argument that may be NULL.  A NULL comment indicates
+ * there is no comment and the entry will end directly after the key
+ * when written out to a file.  An empty string "" comment will indicate an
+ * empty comment which will cause a single space to be written after the key.
+ *
+ * The 'type' argument specifies on what format the given host and keys are:
+ *
+ * plain  - ascii "hostname.domain.tld"
+ * sha1   - SHA1(<salt> <host>) base64-encoded!
+ * custom - another hash
+ *
+ * If 'sha1' is selected as type, the salt must be provided to the salt
+ * argument. This too base64 encoded.
+ *
+ * The SHA-1 hash is what OpenSSH can be told to use in known_hosts files.  If
+ * a custom type is used, salt is ignored and you must provide the host
+ * pre-hashed when checking for it in the libssh2_knownhost_check() function.
+ *
+ * The keylen parameter may be ommitted (zero) if the key is provided as a
+ * NULL-terminated base64-encoded string.
+ */
+
+LIBSSH2_API int
+libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
+                       const char *host,
+                       const char *salt,
+                       const char *key, size_t keylen,
+                       const char *comment, size_t commentlen, int typemask,
+                       struct libssh2_knownhost **store);
 
 /*
  * libssh2_knownhost_check
@@ -940,8 +977,8 @@ libssh2_agent_list_identities(LIBSSH2_AGENT *agent);
  */
 LIBSSH2_API int
 libssh2_agent_get_identity(LIBSSH2_AGENT *agent,
-			   struct libssh2_agent_publickey **store,
-			   struct libssh2_agent_publickey *prev);
+               struct libssh2_agent_publickey **store,
+               struct libssh2_agent_publickey *prev);
 
 /*
  * libssh2_agent_userauth()
@@ -952,8 +989,8 @@ libssh2_agent_get_identity(LIBSSH2_AGENT *agent,
  */
 LIBSSH2_API int
 libssh2_agent_userauth(LIBSSH2_AGENT *agent,
-		       const char *username,
-		       struct libssh2_agent_publickey *identity);
+               const char *username,
+               struct libssh2_agent_publickey *identity);
 
 /*
  * libssh2_agent_disconnect()

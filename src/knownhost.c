@@ -48,6 +48,7 @@ struct known_host {
     size_t salt_len; /* size of salt */
     char *key;       /* the (allocated) associated key. This is kept base64
                         encoded in memory. */
+    char *comment;   /* the (allocated) optional comment text, may be NULL */
 
     /* this is the struct we expose externally */
     struct libssh2_knownhost external;
@@ -62,6 +63,8 @@ struct _LIBSSH2_KNOWNHOSTS
 static void free_host(LIBSSH2_SESSION *session, struct known_host *entry)
 {
     if(entry) {
+        if(entry->comment)
+            LIBSSH2_FREE(session, entry->comment);
         if(entry->key)
             LIBSSH2_FREE(session, entry->key);
         if(entry->salt)
@@ -119,31 +122,12 @@ static struct libssh2_knownhost *knownhost_to_external(struct known_host *node)
     return ext;
 }
 
-/*
- * libssh2_knownhost_add
- *
- * Add a host and its associated key to the collection of known hosts.
- *
- * The 'type' argument specifies on what format the given host and keys are:
- *
- * plain  - ascii "hostname.domain.tld"
- * sha1   - SHA1(<salt> <host>) base64-encoded!
- * custom - another hash
- *
- * If 'sha1' is selected as type, the salt must be provided to the salt
- * argument. This too base64 encoded.
- *
- * The SHA-1 hash is what OpenSSH can be told to use in known_hosts files.  If
- * a custom type is used, salt is ignored and you must provide the host
- * pre-hashed when checking for it in the libssh2_knownhost_check() function.
- *
- */
-
-LIBSSH2_API int
-libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
-                      const char *host, const char *salt,
-                      const char *key, size_t keylen,
-                      int typemask, struct libssh2_knownhost **store)
+static int
+knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
+              const char *host, const char *salt,
+              const char *key, size_t keylen,
+              const char *comment, size_t commentlen,
+              int typemask, struct libssh2_knownhost **store)
 {
     struct known_host *entry =
         LIBSSH2_ALLOC(hosts->session, sizeof(struct known_host));
@@ -227,6 +211,20 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         entry->key = ptr;
     }
 
+    if (comment) {
+        entry->comment = LIBSSH2_ALLOC(hosts->session, commentlen+1);
+        if(!entry->comment) {
+            rc = libssh2_error(hosts->session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate memory for comment");
+            goto error;
+        }
+        memcpy(entry->comment, comment, commentlen+1);
+        entry->comment[commentlen]=0; /* force a terminating zero trailer */
+    }
+    else {
+        entry->comment = NULL;
+    }
+
     /* add this new host to the big list of known hosts */
     _libssh2_list_add(&hosts->head, &entry->node);
 
@@ -237,6 +235,77 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
   error:
     free_host(hosts->session, entry);
     return rc;
+}
+
+/*
+ * libssh2_knownhost_add
+ *
+ * Add a host and its associated key to the collection of known hosts.
+ *
+ * The 'type' argument specifies on what format the given host and keys are:
+ *
+ * plain  - ascii "hostname.domain.tld"
+ * sha1   - SHA1(<salt> <host>) base64-encoded!
+ * custom - another hash
+ *
+ * If 'sha1' is selected as type, the salt must be provided to the salt
+ * argument. This too base64 encoded.
+ *
+ * The SHA-1 hash is what OpenSSH can be told to use in known_hosts files.  If
+ * a custom type is used, salt is ignored and you must provide the host
+ * pre-hashed when checking for it in the libssh2_knownhost_check() function.
+ *
+ * The keylen parameter may be ommitted (zero) if the key is provided as a
+ * NULL-terminated base64-encoded string.
+ */
+
+LIBSSH2_API int
+libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
+                      const char *host, const char *salt,
+                      const char *key, size_t keylen,
+                      int typemask, struct libssh2_knownhost **store)
+{
+    return knownhost_add(hosts, host, salt, key, keylen, NULL, 0, typemask,
+                         store);
+}
+
+
+/*
+ * libssh2_knownhost_addc
+ *
+ * Add a host and its associated key to the collection of known hosts.
+ *
+ * Takes a comment argument that may be NULL.  A NULL comment indicates
+ * there is no comment and the entry will end directly after the key
+ * when written out to a file.  An empty string "" comment will indicate an
+ * empty comment which will cause a single space to be written after the key.
+ *
+ * The 'type' argument specifies on what format the given host and keys are:
+ *
+ * plain  - ascii "hostname.domain.tld"
+ * sha1   - SHA1(<salt> <host>) base64-encoded!
+ * custom - another hash
+ *
+ * If 'sha1' is selected as type, the salt must be provided to the salt
+ * argument. This too base64 encoded.
+ *
+ * The SHA-1 hash is what OpenSSH can be told to use in known_hosts files.  If
+ * a custom type is used, salt is ignored and you must provide the host
+ * pre-hashed when checking for it in the libssh2_knownhost_check() function.
+ *
+ * The keylen parameter may be ommitted (zero) if the key is provided as a
+ * NULL-terminated base64-encoded string.
+ */
+
+LIBSSH2_API int
+libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
+                       const char *host, const char *salt,
+                       const char *key, size_t keylen,
+                       const char *comment, size_t commentlen,
+                       int typemask, struct libssh2_knownhost **store)
+{
+    return knownhost_add(hosts, host, salt, key, keylen, comment, commentlen,
+                         typemask, store);
 }
 
 /*
@@ -414,6 +483,10 @@ libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts)
  *
  * Parse a single known_host line pre-split into host and key.
  *
+ * The key part may include an optional comment which will be parsed here
+ * for ssh-rsa and ssh-dsa keys.  Comments in other key types aren't handled.
+ *
+ * The function assumes new-lines have already been removed from the arguments.
  */
 static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
                     const char *host, size_t hostlen,
@@ -422,6 +495,8 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     const char *p;
     const char *orig = host;
     const char *salt = NULL;
+    const char *comment = NULL;
+    size_t commentlen = 0;
     int rc;
     int type = LIBSSH2_KNOWNHOST_TYPE_PLAIN;
     const char *sep = NULL;
@@ -526,6 +601,30 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
             key++;
             keylen--;
         }
+
+        comment = key;
+        commentlen = keylen;
+
+        /* move over key */
+        while(commentlen && *comment &&
+              (*comment != ' ') && (*comment != '\t')) {
+            comment++;
+            commentlen--;
+        }
+
+        /* reduce key by comment length */
+        keylen -= commentlen;
+
+        /* Distinguish empty comment (a space) from no comment (no space) */
+        if (commentlen == 0)
+            comment = NULL;
+
+        /* skip whitespaces */
+        while(commentlen && *comment &&
+              ((*comment ==' ') || (*comment == '\t'))) {
+            comment++;
+            commentlen--;
+        }
         break;
 
     default: /* unknown key format */
@@ -540,9 +639,10 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
         memcpy(hostbuf, sep, seplen);
         hostbuf[seplen]=0;
 
-        rc = libssh2_knownhost_add(hosts, hostbuf, salt, key, keylen,
-                                   type | LIBSSH2_KNOWNHOST_KEYENC_BASE64,
-                                   NULL);
+        rc = libssh2_knownhost_addc(hosts, hostbuf, salt, key, keylen,
+                                    comment, commentlen,
+                                    type | LIBSSH2_KNOWNHOST_KEYENC_BASE64,
+                                    NULL);
         if(rc)
             return rc;
     }
@@ -552,9 +652,10 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     memcpy(hostbuf, host, hostlen);
     hostbuf[hostlen]=0;
 
-    rc = libssh2_knownhost_add(hosts, hostbuf, salt, key, keylen,
-                               type | LIBSSH2_KNOWNHOST_KEYENC_BASE64,
-                               NULL);
+    rc = libssh2_knownhost_addc(hosts, hostbuf, salt, key, keylen, comment,
+                                commentlen,
+                                type | LIBSSH2_KNOWNHOST_KEYENC_BASE64,
+                                NULL);
     return rc;
 }
 
@@ -724,6 +825,7 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
     };
     const char *keytype;
     size_t nlen;
+    size_t commentlen = 0;
 
     /* we only support this single file type for now, bail out on all other
        attempts */
@@ -738,6 +840,10 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
 
     /* set the string used in the file */
     keytype = keytypes[tindex];
+
+    /* calculate extra space needed for comment */
+    if(node->comment)
+        commentlen = strlen(node->comment) + 1;
 
     if((node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) ==
        LIBSSH2_KNOWNHOST_TYPE_SHA1) {
@@ -761,11 +867,16 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
         }
 
         nlen = strlen(saltalloc) + strlen(namealloc) + strlen(keytype) +
-            strlen(node->key) + 7; /* |1| + | + ' ' + \n + \0 = 7 */
+            strlen(node->key) + commentlen + 7;
+        /* |1| + | + ' ' + \n + \0 = 7 */
 
         if(nlen <= buflen)
-            sprintf(buf, "|1|%s|%s%s %s\n", saltalloc, namealloc, keytype,
-                    node->key);
+            if(node->comment)
+                sprintf(buf, "|1|%s|%s%s %s %s\n", saltalloc, namealloc,
+                        keytype, node->key, node->comment);
+            else
+                sprintf(buf, "|1|%s|%s%s %s\n", saltalloc, namealloc,
+                        keytype, node->key);
         else
             rc = libssh2_error(hosts->session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                "Known-host write buffer too small");
@@ -774,11 +885,16 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
         free(saltalloc);
     }
     else {
-        nlen = strlen(node->name) + strlen(keytype) + strlen(node->key) + 3;
+        nlen = strlen(node->name) + strlen(keytype) + strlen(node->key) +
+            commentlen + 3;
         /* ' ' + '\n' + \0 = 3 */
         if(nlen <= buflen)
             /* these types have the plain name */
-            sprintf(buf, "%s%s %s\n", node->name, keytype, node->key);
+            if(node->comment)
+                sprintf(buf, "%s%s %s %s\n", node->name, keytype, node->key,
+                        node->comment);
+            else
+                sprintf(buf, "%s%s %s\n", node->name, keytype, node->key);
         else
             rc = libssh2_error(hosts->session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                "Known-host write buffer too small");

@@ -49,3 +49,5 @@ At next SONAME bump
 * change 'int' to 'libssh2_socket_t' in the public API for sockets.
 
 * Use 'size_t' for string lengths in all functions.
+
+* Add a comment field to struct libssh2_knownhost.
