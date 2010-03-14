@@ -246,7 +246,7 @@ ifdef COMPANY
 endif
 	@echo $(DL)      VALUE "ProductName","$(notdir $(@:.rc=.dll))\0"$(DL) >> $@
 	@echo $(DL)      VALUE "ProductVersion","$(LIBSSH2_VERSION_STR)\0"$(DL) >> $@
-	@echo $(DL)      VALUE "License","Released under GPL.\0"$(DL) >> $@
+	@echo $(DL)      VALUE "License","Released under the Modified BSD license.\0"$(DL) >> $@
 	@echo $(DL)      VALUE "FileDescription","$(DESCR)\0"$(DL) >> $@
 	@echo $(DL)      VALUE "FileVersion","$(LIBSSH2_VERSION_STR)\0"$(DL) >> $@
 	@echo $(DL)      VALUE "InternalName","$(notdir $(@:.rc=))\0"$(DL) >> $@
