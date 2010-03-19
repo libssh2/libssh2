@@ -393,7 +393,7 @@ LIBSSH2_API int libssh2_init(int flags);
  *
  * Exit the libssh2 functions and free's all memory used internal.
  */
-LIBSSH2_API void libssh2_exit();
+LIBSSH2_API void libssh2_exit(void);
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *
