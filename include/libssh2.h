@@ -758,7 +758,7 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
  * a custom type is used, salt is ignored and you must provide the host
  * pre-hashed when checking for it in the libssh2_knownhost_check() function.
  *
- * The keylen parameter may be ommitted (zero) if the key is provided as a
+ * The keylen parameter may be omitted (zero) if the key is provided as a
  * NULL-terminated base64-encoded string.
  */
 
@@ -810,7 +810,7 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
  * a custom type is used, salt is ignored and you must provide the host
  * pre-hashed when checking for it in the libssh2_knownhost_check() function.
  *
- * The keylen parameter may be ommitted (zero) if the key is provided as a
+ * The keylen parameter may be omitted (zero) if the key is provided as a
  * NULL-terminated base64-encoded string.
  */
 
