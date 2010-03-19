@@ -105,7 +105,7 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
     unsigned char hash[SHA_DIGEST_LENGTH];
     int ret;
 
-    SHA1(m, m_len, hash);
+    libssh2_sha1(m, m_len, hash);
     ret = RSA_verify(NID_sha1, hash, SHA_DIGEST_LENGTH,
                      (unsigned char *) sig, sig_len, rsactx);
     return (ret == 1) ? 0 : -1;
@@ -358,13 +358,8 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
         (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
     (void) session;
 
-    if (!EVP_get_cipherbyname("des")) {
-/* If this cipher isn't loaded it's a pretty good indication that none are.
- * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
- * Someone buy me an OpenSSL manual and I'll read up on it.
- */
-        OpenSSL_add_all_ciphers();
-    }
+    if (!libssh2_initialized)
+        libssh2_init(0);
 
     return read_private_key_from_file((void **) rsa, read_rsa,
                                       filename, passphrase);
@@ -380,13 +375,8 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
         (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
     (void) session;
 
-    if (!EVP_get_cipherbyname("des")) {
-/* If this cipher isn't loaded it's a pretty good indication that none are.
- * I have *NO DOUBT* that there's a better way to deal with this ($#&%#$(%$#(
- * Someone buy me an OpenSSL manual and I'll read up on it.
- */
-        OpenSSL_add_all_ciphers();
-    }
+    if (!libssh2_initialized)
+        libssh2_init(0);
 
     return read_private_key_from_file((void **) dsa, read_dsa,
                                       filename, passphrase);
@@ -460,5 +450,27 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
     return 0;
 }
 #endif /* LIBSSH_DSA */
+
+void
+libssh2_sha1(const unsigned char *message, unsigned long len,
+             unsigned char *out)
+{
+    EVP_MD_CTX ctx;
+
+    EVP_DigestInit(&ctx, EVP_get_digestbyname("sha1"));
+    EVP_DigestUpdate(&ctx, message, len);
+    EVP_DigestFinal(&ctx, out, NULL);
+}
+
+void
+libssh2_md5(const unsigned char *message, unsigned long len,
+            unsigned char *out)
+{
+    EVP_MD_CTX ctx;
+
+    EVP_DigestInit(&ctx, EVP_get_digestbyname("md5"));
+    EVP_DigestUpdate(&ctx, message, len);
+    EVP_DigestFinal(&ctx, out, NULL);
+}
 
 #endif /* !LIBSSH2_LIBGCRYPT */

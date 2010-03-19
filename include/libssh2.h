@@ -369,6 +369,28 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_OUT_OF_BOUNDARY           -41
 #define LIBSSH2_ERROR_AGENT_PROTOCOL            -42
 
+/* Global API */
+#define LIBSSH2_INIT_NO_CRYPTO_INIT        0x0001
+
+/*
+ * libssh2_init()
+ *
+ * Initialize the libssh2 functions. flags can be:
+ * 0:                              Normal initialize
+ * LIBSSH2_INIT_NO_CRYPTO_INIT:    Do not initialize the crypto library (ie.
+ *                                 OPENSSL_add_cipher_algoritms() for OpenSSL
+ *
+ * Returns 0 if succeeded, or a negative value for error.
+ */
+LIBSSH2_API int libssh2_init(int flags);
+
+/*
+ * libssh2_exit()
+ *
+ * Exit the libssh2 functions and free's all memory used internal.
+ */
+LIBSSH2_API void libssh2_exit();
+
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *
 libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),

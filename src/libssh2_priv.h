@@ -1247,5 +1247,6 @@ int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
 
 #define ARRAY_SIZE(a) (sizeof ((a)) / sizeof ((a)[0]))
 
+extern int libssh2_initialized;
 
 #endif /* LIBSSH2_H */

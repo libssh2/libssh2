@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, 2009 Simon Josefsson
+ * Copyright (C) 2008, 2009, 2010 Simon Josefsson
  * Copyright (C) 2006, 2007, The Written Word, Inc.
  * All rights reserved.
  *
@@ -93,6 +93,7 @@
 #define libssh2_hmac_cleanup(ctx) gcry_md_close (*ctx);
 
 #define libssh2_crypto_init() gcry_control (GCRYCTL_DISABLE_SECMEM)
+#define libssh2_crypto_exit()
 
 #define libssh2_rsa_ctx struct gcry_sexp
 
