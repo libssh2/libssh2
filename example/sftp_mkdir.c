@@ -70,6 +70,12 @@ int main(int argc, char *argv[])
         sftppath = argv[4];
     }
 
+    rc = libssh2_init (0);
+    if (rc != 0) {
+        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        return 1;
+    }
+
     /*
      * The application code is responsible for creating the socket
      * and establishing the connection
@@ -159,6 +165,9 @@ int main(int argc, char *argv[])
 #else
     close(sock);
 #endif
-printf("all done\n");
+    printf("all done\n");
+
+    libssh2_exit();
+
     return 0;
 }

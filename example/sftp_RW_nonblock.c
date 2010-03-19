@@ -72,6 +72,12 @@ int main(int argc, char *argv[])
     WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
 
+    rc = libssh2_init (0);
+    if (rc != 0) {
+        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        return 1;
+    }
+
     /* Ultra basic "connect to port 22 on localhost"
      * The application is responsible for creating the socket establishing
      * the connection
@@ -286,5 +292,8 @@ int main(int argc, char *argv[])
     if (tempstorage)
         fclose(tempstorage);
     printf("all done\n");
+
+    libssh2_exit();
+
     return 0;
 }

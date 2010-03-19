@@ -121,6 +121,12 @@ int main(int argc, char *argv[])
         scppath = argv[4];
     }
 
+    rc = libssh2_init (0);
+    if (rc != 0) {
+        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        return 1;
+    }
+
     /* Ultra basic "connect to port 22 on localhost"
      * Your code is responsible for creating the socket establishing the
      * connection
@@ -267,5 +273,8 @@ shutdown:
     close(sock);
 #endif
     fprintf(stderr, "all done\n");
+
+    libssh2_exit();
+
     return 0;
 }

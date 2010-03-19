@@ -277,6 +277,12 @@ main (int argc, char *argv[])
         fprintf (stderr, "DEBUG is ON: %d\n", set_debug_on);
     }
 
+    rc = libssh2_init (0);
+    if (rc != 0) {
+        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        return 1;
+    }
+
     sock = socket (AF_INET, SOCK_STREAM, 0);
 
     sin.sin_family = AF_INET;
@@ -434,5 +440,8 @@ main (int argc, char *argv[])
       channel = NULL;
     }
     _normal_mode();
+
+    libssh2_exit();
+
     return 0;
 }

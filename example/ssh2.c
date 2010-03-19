@@ -93,6 +93,12 @@ int main(int argc, char *argv[])
         password = argv[3];
     }
 
+    rc = libssh2_init (0);
+    if (rc != 0) {
+        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        return 1;
+    }
+
     /* Ultra basic "connect to port 22 on localhost".  Your code is
      * responsible for creating the socket establishing the connection
      */
@@ -247,5 +253,8 @@ int main(int argc, char *argv[])
     close(sock);
 #endif
     printf("all done!\n");
+
+    libssh2_exit();
+
     return 0;
 }

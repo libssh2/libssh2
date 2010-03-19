@@ -81,6 +81,12 @@ int main(int argc, char *argv[])
     if (argc > 7)
         remote_destport = atoi(argv[7]);
 
+    rc = libssh2_init (0);
+    if (rc != 0) {
+        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        return 1;
+    }
+
     /* Connect to SSH server */
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     sin.sin_family = AF_INET;
@@ -271,5 +277,8 @@ shutdown:
 #else
     close(sock);
 #endif
+
+    libssh2_exit();
+
     return 0;
 }

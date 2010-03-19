@@ -75,6 +75,12 @@ int main(int argc, char *argv[])
         scppath = argv[5];
     }
 
+    rc = libssh2_init (0);
+    if (rc != 0) {
+        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        return 1;
+    }
+
     local = fopen(loclfile, "rb");
     if (!local) {
         fprintf(stderr, "Can't open local file %s\n", loclfile);
@@ -204,5 +210,8 @@ int main(int argc, char *argv[])
     if (local)
         fclose(local);
     fprintf(stderr, "all done\n");
+
+    libssh2_exit();
+
     return 0;
 }

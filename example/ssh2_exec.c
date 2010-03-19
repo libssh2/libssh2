@@ -109,6 +109,12 @@ int main(int argc, char *argv[])
         commandline = argv[4];
     }
 
+    rc = libssh2_init (0);
+    if (rc != 0) {
+        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        return 1;
+    }
+
     hostaddr = inet_addr(hostname);
 
     /* Ultra basic "connect to port 22 on localhost"
@@ -289,6 +295,8 @@ shutdown:
     close(sock);
 #endif
     fprintf(stderr, "all done\n");
+
+    libssh2_exit();
+
     return 0;
 }
-
