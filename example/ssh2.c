@@ -68,7 +68,7 @@ static void kbd_callback(const char *name, int name_len,
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int sock, i, auth_pw = 0;
+    int rc, sock, i, auth_pw = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
