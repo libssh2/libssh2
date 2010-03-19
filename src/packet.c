@@ -861,12 +861,16 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 if (session->packAdd_channel && bytestoadd) {
                     session->packAdd_channel->local.window_size += bytestoadd;
                 }
-                _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                               "Window adjust received for channel %lu/%lu, adding %lu bytes, new window_size=%lu",
-                               session->packAdd_channel->local.id,
-                               session->packAdd_channel->remote.id,
-                               bytestoadd,
-                               session->packAdd_channel->local.window_size);
+                if(session->packAdd_channel)
+                    _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                                   "Window adjust received for channel %lu/%lu, adding %lu bytes, new window_size=%lu",
+                                   session->packAdd_channel->local.id,
+                                   session->packAdd_channel->remote.id,
+                                   bytestoadd,
+                                   session->packAdd_channel->local.window_size);
+                else
+                    _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                                   "Window adjust for non-existing channel!");
 
                 LIBSSH2_FREE(session, data);
                 session->packAdd_state = libssh2_NB_state_idle;
