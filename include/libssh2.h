@@ -370,14 +370,18 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_AGENT_PROTOCOL            -42
 
 /* Global API */
-#define LIBSSH2_INIT_NO_CRYPTO_INIT        0x0001
+#define LIBSSH2_INIT_NO_CRYPTO        0x0001
 
 /*
  * libssh2_init()
  *
- * Initialize the libssh2 functions. flags can be:
+ * Initialize the libssh2 functions.  This typically initialize the
+ * crypto library.  It uses a global state, and is not thread safe --
+ * you must make sure this function is not called concurrently.
+ *
+ * Flags can be:
  * 0:                              Normal initialize
- * LIBSSH2_INIT_NO_CRYPTO_INIT:    Do not initialize the crypto library (ie.
+ * LIBSSH2_INIT_NO_CRYPTO:         Do not initialize the crypto library (ie.
  *                                 OPENSSL_add_cipher_algoritms() for OpenSSL
  *
  * Returns 0 if succeeded, or a negative value for error.

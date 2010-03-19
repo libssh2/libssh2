@@ -1,4 +1,5 @@
 /* Copyright (c) 2010 Lars Nordin <Lars.Nordin@SDlabs.se>
+ * Copyright (C) 2010 Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -42,7 +43,7 @@ static int _libssh2_init_flags = 0;
 
 LIBSSH2_API int libssh2_init(int flags)
 {
-    if (libssh2_initialized == 0 && !(flags & LIBSSH2_INIT_NO_CRYPTO_INIT)) {
+    if (libssh2_initialized == 0 && !(flags & LIBSSH2_INIT_NO_CRYPTO)) {
         libssh2_crypto_init();
     }
 
@@ -59,7 +60,7 @@ LIBSSH2_API void libssh2_exit()
 
     libssh2_initialized--;
 
-    if (!(libssh2_init_flags & LIBSSH2_INIT_NO_CRYPTO_INIT)) {
+    if (!(libssh2_init_flags & LIBSSH2_INIT_NO_CRYPTO)) {
         libssh2_crypto_exit();
     }
 
