@@ -358,8 +358,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
         (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
     (void) session;
 
-    if (!libssh2_initialized)
-        libssh2_init(0);
+    _libssh2_init_if_needed ();
 
     return read_private_key_from_file((void **) rsa, read_rsa,
                                       filename, passphrase);
@@ -375,8 +374,7 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
         (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
     (void) session;
 
-    if (!libssh2_initialized)
-        libssh2_init(0);
+    _libssh2_init_if_needed ();
 
     return read_private_key_from_file((void **) dsa, read_dsa,
                                       filename, passphrase);

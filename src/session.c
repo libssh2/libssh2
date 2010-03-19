@@ -457,8 +457,7 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
         session->api_block_mode = 1; /* blocking API by default */
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
                        "New session resource allocated");
-        if (!libssh2_initialized)
-            libssh2_init(0);
+        _libssh2_init_if_needed ();
     }
     return session;
 }

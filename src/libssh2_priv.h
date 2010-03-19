@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2008, 2010, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2009 by Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson
  * All rights reserved.
@@ -1200,6 +1200,8 @@ int _libssh2_pem_decode_sequence(unsigned char **data, unsigned int *datalen);
 int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
                                 unsigned char **i, unsigned int *ilen);
 
+/* global.c */
+void _libssh2_init_if_needed (void);
 
 /* Conveniance-macros to allow code like this;
 
@@ -1246,7 +1248,5 @@ int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
 
 
 #define ARRAY_SIZE(a) (sizeof ((a)) / sizeof ((a)[0]))
-
-extern int libssh2_initialized;
 
 #endif /* LIBSSH2_H */
