@@ -1,5 +1,5 @@
 /* Copyright (C) 2007 The Written Word, Inc.
- * Copyright (C) 2008 Simon Josefsson
+ * Copyright (C) 2008, 2010 Simon Josefsson
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -43,46 +43,56 @@
 
 static int test_libssh2_base64_decode (LIBSSH2_SESSION *session)
 {
-	char *data;
-	unsigned int datalen;
-	const char *src = "Zm5vcmQ=";
-	unsigned int src_len = strlen (src);
-	int ret;
+    char *data;
+    unsigned int datalen;
+    const char *src = "Zm5vcmQ=";
+    unsigned int src_len = strlen (src);
+    int ret;
 
-	ret = libssh2_base64_decode(session, &data, &datalen,
-				    src, src_len);
-	if (ret)
-	  return ret;
+    ret = libssh2_base64_decode(session, &data, &datalen,
+                                src, src_len);
+    if (ret)
+        return ret;
 
-	if (datalen != 5 || strcmp (data, "fnord") != 0)
-	{
-		fprintf (stderr,
-			 "libssh2_base64_decode() failed (%d, %.*s)\n",
-			 datalen, datalen, data);
-		return 1;
-	}
+    if (datalen != 5 || strcmp (data, "fnord") != 0)
+    {
+        fprintf (stderr,
+                 "libssh2_base64_decode() failed (%d, %.*s)\n",
+                 datalen, datalen, data);
+        return 1;
+    }
 
-	free (data);
+    free (data);
 
-	return 0;
+    return 0;
 }
 
 int main(int argc, char *argv[])
 {
-	LIBSSH2_SESSION *session;
-        (void)argv;
-        (void)argc;
+    LIBSSH2_SESSION *session;
+    (void)argv;
+    (void)argc;
+    int rc;
 
-	session = libssh2_session_init();
-	if (!session)
-	{
-		fprintf (stderr, "libssh2_session_init() failed\n");
-		return 1;
-	}
+    rc = libssh2_init (LIBSSH2_INIT_NO_CRYPTO);
+    if (rc != 0)
+    {
+        fprintf (stderr, "libssh2_init() failed: %d\n", rc);
+        return 1;
+    }
 
-	test_libssh2_base64_decode (session);
+    session = libssh2_session_init();
+    if (!session)
+    {
+        fprintf (stderr, "libssh2_session_init() failed\n");
+        return 1;
+    }
 
-	libssh2_session_free(session);
+    test_libssh2_base64_decode (session);
 
-	return 0;
+    libssh2_session_free(session);
+
+    libssh2_exit ();
+
+    return 0;
 }
