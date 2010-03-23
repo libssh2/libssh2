@@ -1005,12 +1005,10 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                  */
                 LIBSSH2_FREE(session, session->scpSend_err_msg);
                 session->scpSend_err_msg = NULL;
-                goto scp_send_error;
             }
-
-            libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                          "failed waiting for ACK");
-            session->scpSend_err_msg = NULL;
+            else
+                libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
+                              "failed waiting for ACK");
             goto scp_send_error;
         }
     }
