@@ -229,7 +229,20 @@ case $host in
     ;;
 esac
 
-AC_CHECK_FUNCS(poll gettimeofday select strtoll)
+case $host in
+  darwin*|interix*)
+    dnl poll() does not work on these platforms
+    dnl Interix: "does provide poll(), but the implementing developer must
+    dnl have been in a bad mood, because poll() only works on the /proc
+    dnl filesystem here"
+    AC_MSG_NOTICE([poll use is disabled on this platform])
+    ;;
+  *)
+    AC_CHECK_FUNCS(poll)
+    ;;
+esac
+
+AC_CHECK_FUNCS(gettimeofday select strtoll)
 
 dnl Check for select() into ws2_32 for Msys/Mingw
 if test "$ac_cv_func_select" != "yes"; then
