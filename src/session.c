@@ -521,6 +521,12 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
     int dir;
 #if HAVE_POLL
     struct pollfd sockets[1];
+    int seconds_to_next;
+
+    rc = libssh2_keepalive_send (session, &seconds_to_next);
+    if (rc < 0)
+      return rc;
+
     sockets[0].fd = session->socket_fd;
     sockets[0].events = 0;
     sockets[0].revents = 0;
@@ -534,7 +540,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         sockets[0].events |= POLLOUT;
 
-    rc = poll(sockets, 1, -1);
+    rc = poll(sockets, 1, seconds_to_next ? seconds_to_next / 1000 : -1);
 #else
     fd_set fd;
     fd_set *writefd = NULL;
