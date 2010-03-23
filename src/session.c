@@ -517,11 +517,28 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
  */
 int _libssh2_wait_socket(LIBSSH2_SESSION *session)
 {
+    int rc;
+    int dir;
+#if HAVE_POLL
+    struct pollfd sockets[1];
+    sockets[0].fd = session->socket_fd;
+    sockets[0].events = 0;
+    sockets[0].revents = 0;
+
+/* now make sure we wait in the correct direction */
+    dir = libssh2_session_block_directions(session);
+
+    if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+        sockets[0].events |= POLLIN;
+
+    if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+        sockets[0].events |= POLLOUT;
+
+    rc = poll(sockets, 1, -1);
+#else
     fd_set fd;
     fd_set *writefd = NULL;
     fd_set *readfd = NULL;
-    int dir;
-    int rc;
     struct timeval tv;
     int seconds_to_next;
 
@@ -548,6 +565,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
        customizable by the app or something... */
     rc = select(session->socket_fd + 1, readfd, writefd, NULL,
                 seconds_to_next ? &tv : NULL);
+#endif
 
     if(rc <= 0) {
         /* timeout (or error), bail out with a timeout error */

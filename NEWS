@@ -1,3 +1,4 @@
+ o Use poll instead of select when available.  By Paul Querna.
 
  o Add APIs to have libssh2 automatically send keep-alive requests.
    The APIs are libssh2_keepalive_config, and libssh2_keepalive_send.
