@@ -1821,7 +1821,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
            more off the network again */
         channel->read_state = libssh2_NB_state_created;
 
-    if(channel->remote.window_size < (LIBSSH2_CHANNEL_WINDOW_DEFAULT*300)) {
+    if(channel->remote.window_size < (LIBSSH2_CHANNEL_WINDOW_DEFAULT*30)) {
         /* the window is getting too narrow, expand it! */
 
       channel_read_ex_point1:
@@ -1829,7 +1829,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
         /* the actual window adjusting may not finish so we need to deal with
            this special state here */
         rc = _libssh2_channel_receive_window_adjust(channel,
-                                                    (LIBSSH2_CHANNEL_WINDOW_DEFAULT*600), 0, NULL);
+                                                    (LIBSSH2_CHANNEL_WINDOW_DEFAULT*60), 0, NULL);
         if (rc == PACKET_EAGAIN)
             return rc;
 
