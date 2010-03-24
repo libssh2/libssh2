@@ -51,3 +51,6 @@ At next SONAME bump
 * Use 'size_t' for string lengths in all functions.
 
 * Add a comment field to struct libssh2_knownhost.
+
+* remove the existing libssh2_knownhost_add() function and rename
+  libssh2_knownhost_addc to become the new libssh2_knownhost_add instead
