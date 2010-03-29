@@ -1318,6 +1318,12 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
                                        const char *passphrase)
 {
     int rc;
+
+    if(NULL == passphrase)
+        /* if given a NULL pointer, make it point to a zero-length
+           string to save us from having to check this all over */
+        passphrase="";
+
     BLOCK_ADJUST(rc, session,
                  userauth_publickey_fromfile(session, user, user_len,
                                              publickey, privatekey,
