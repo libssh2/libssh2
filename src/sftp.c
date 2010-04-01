@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2009-2010 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -610,6 +610,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         _libssh2_htonu32(session->sftpInit_buffer, 5);
         session->sftpInit_buffer[4] = SSH_FXP_INIT;
         _libssh2_htonu32(session->sftpInit_buffer + 5, LIBSSH2_SFTP_VERSION);
+        session->sftpInit_sent = 0; /* nothing's sent yet */
 
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
                        "Sending FXP_INIT packet advertising version %d support",
@@ -619,19 +620,31 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     }
 
     if (session->sftpInit_state == libssh2_NB_state_sent2) {
+        /* sent off what's left of the init buffer to send */
         rc = _libssh2_channel_write(session->sftpInit_channel, 0,
-                                    (char *) session->sftpInit_buffer, 9);
+                                    (char *)session->sftpInit_buffer +
+                                    session->sftpInit_sent,
+                                    9 - session->sftpInit_sent);
         if (rc == PACKET_EAGAIN) {
             libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                           "Would block sending SSH_FXP_INIT");
             return NULL;
-        } else if (9 != rc) {
+        }
+        else if(rc < 0) {
             libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                           "Unable to send SSH_FXP_INIT");
             goto sftp_init_error;
         }
+        else {
+            /* add up the number of bytes sent */
+            session->sftpInit_sent += rc;
 
-        session->sftpInit_state = libssh2_NB_state_sent3;
+            if(session->sftpInit_sent == 9)
+                /* move on */
+                session->sftpInit_state = libssh2_NB_state_sent3;
+
+            /* if less than 9, we remain in this state to send more later on */
+        }
     }
 
     rc = sftp_packet_require(sftp_handle, SSH_FXP_VERSION,

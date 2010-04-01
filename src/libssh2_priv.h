@@ -877,6 +877,8 @@ struct _LIBSSH2_SESSION
     LIBSSH2_CHANNEL *sftpInit_channel;
     unsigned char sftpInit_buffer[9];   /* sftp_header(5){excludes request_id}
                                            + version_id(4) */
+    int sftpInit_sent; /* number of bytes from the buffer that have been
+                          sent */
 
     /* State variables used in libssh2_scp_recv() */
     libssh2_nonblocking_states scpRecv_state;
