@@ -142,6 +142,22 @@ struct _LIBSSH2_SFTP_ATTRIBUTES {
 #define LIBSSH2_SFTP_S_IWOTH        0000002     /* W for other */
 #define LIBSSH2_SFTP_S_IXOTH        0000001     /* X for other */
 
+/* macros to check for specific file types, added in 1.2.5 */
+#define LIBSSH2_SFTP_S_ISLNK(m) \
+  (((m) & LIBSSH2_SFTP_S_IFMT) == LIBSSH2_SFTP_S_IFLNK)
+#define LIBSSH2_SFTP_S_ISREG(m) \
+  (((m) & LIBSSH2_SFTP_S_IFMT) == LIBSSH2_SFTP_S_IFREG)
+#define LIBSSH2_SFTP_S_ISDIR(m) \
+  (((m) & LIBSSH2_SFTP_S_IFMT) == LIBSSH2_SFTP_S_IFDIR)
+#define LIBSSH2_SFTP_S_ISCHR(m) \
+  (((m) & LIBSSH2_SFTP_S_IFMT) == LIBSSH2_SFTP_S_IFCHR)
+#define LIBSSH2_SFTP_S_ISBLK(m) \
+  (((m) & LIBSSH2_SFTP_S_IFMT) == LIBSSH2_SFTP_S_IFBLK)
+#define LIBSSH2_SFTP_S_ISFIFO(m) \
+  (((m) & LIBSSH2_SFTP_S_IFMT) == LIBSSH2_SFTP_S_IFIFO)
+#define LIBSSH2_SFTP_S_ISSOCK(m) \
+  (((m) & LIBSSH2_SFTP_S_IFMT) == LIBSSH2_SFTP_S_IFSOCK)
+
 /* SFTP File Transfer Flags -- (e.g. flags parameter to sftp_open())
  * Danger will robinson... APPEND doesn't have any effect on OpenSSH servers */
 #define LIBSSH2_FXF_READ                        0x00000001
