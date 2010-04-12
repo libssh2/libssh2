@@ -70,9 +70,9 @@ static int test_libssh2_base64_decode (LIBSSH2_SESSION *session)
 int main(int argc, char *argv[])
 {
     LIBSSH2_SESSION *session;
+    int rc;
     (void)argv;
     (void)argc;
-    int rc;
 
     rc = libssh2_init (LIBSSH2_INIT_NO_CRYPTO);
     if (rc != 0)
