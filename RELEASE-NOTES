@@ -1,33 +1,16 @@
-libssh2 1.2.5
+libssh2 1.2.6
 
 This release includes the following changes:
 
- o Added Add keep-alive support: libssh2_keepalive_config() and
-   libssh2_keepalive_send()
- o Added libssh2_knownhost_addc(), libssh2_init() and libssh2_exit()
- o Added LIBSSH2_SFTP_S_IS***() macros
+ o 
 
 This release includes the following bugfixes:
 
- o fix memory leak in libssh2_session_startup()
- o added missing error codes - shown as hangs in blocking mode
- o fix memory leak in userauth_keyboard_interactive()
- o libssh2_knownhost_del: fix write to freed memory
- o Send and receive channel EOF before sending SSH_MSG_CHANNEL_CLOSE
- o Use AES-CTR from OpenSSL when available
- o Fixed gettimeofday to compile with Visual C++ 6
- o NULL dereference when window adjusting a non-existing channel
- o avoid using poll on interix and mac os x systems
- o fix scp memory leak
- o Correctly clear blocking flag after sending multipart packet
- o Reduce used window sizes by factor 10
- o libssh2_userauth_publickey_fromfile_ex() handles a NULL password
- o sftp_init() deal with _libssh2_channel_write() short returns
+ o 
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
- Peter Stuge, Simon Josefsson, Alexander Lamaison, Paul Querna, Suyog Jadhav,
- Lars Nordin
+ 
  
         Thanks! (and sorry if I forgot to mention someone)
