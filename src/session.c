@@ -519,59 +519,53 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
 {
     int rc;
     int dir;
-#if HAVE_POLL
-    struct pollfd sockets[1];
-    int seconds_to_next;
-
-    rc = libssh2_keepalive_send (session, &seconds_to_next);
-    if (rc < 0)
-      return rc;
-
-    sockets[0].fd = session->socket_fd;
-    sockets[0].events = 0;
-    sockets[0].revents = 0;
-
-/* now make sure we wait in the correct direction */
-    dir = libssh2_session_block_directions(session);
-
-    if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
-        sockets[0].events |= POLLIN;
-
-    if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
-        sockets[0].events |= POLLOUT;
-
-    rc = poll(sockets, 1, seconds_to_next ? seconds_to_next / 1000 : -1);
-#else
-    fd_set fd;
-    fd_set *writefd = NULL;
-    fd_set *readfd = NULL;
-    struct timeval tv;
     int seconds_to_next;
 
     rc = libssh2_keepalive_send (session, &seconds_to_next);
     if (rc < 0)
         return rc;
+    else {
+        /* figure out what to wait for */
+        dir = libssh2_session_block_directions(session);
 
-    tv.tv_sec = seconds_to_next;
-    tv.tv_usec = 0;
+#ifdef HAVE_POLL
+        struct pollfd sockets[1];
 
-    FD_ZERO(&fd);
-    FD_SET(session->socket_fd, &fd);
+        sockets[0].fd = session->socket_fd;
+        sockets[0].events = 0;
+        sockets[0].revents = 0;
 
-    /* now make sure we wait in the correct direction */
-    dir = libssh2_session_block_directions(session);
+        if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+            sockets[0].events |= POLLIN;
 
-    if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
-        readfd = &fd;
+        if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+            sockets[0].events |= POLLOUT;
 
-    if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
-        writefd = &fd;
+        rc = poll(sockets, 1, seconds_to_next ? seconds_to_next / 1000 : -1);
+#else
+        fd_set fd;
+        fd_set *writefd = NULL;
+        fd_set *readfd = NULL;
+        struct timeval tv;
 
-    /* Note that this COULD be made to use a timeout that perhaps could be
-       customizable by the app or something... */
-    rc = select(session->socket_fd + 1, readfd, writefd, NULL,
-                seconds_to_next ? &tv : NULL);
+        tv.tv_sec = seconds_to_next;
+        tv.tv_usec = 0;
+
+        FD_ZERO(&fd);
+        FD_SET(session->socket_fd, &fd);
+
+        if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+            readfd = &fd;
+
+        if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+            writefd = &fd;
+
+        /* Note that this COULD be made to use a timeout that perhaps could be
+           customizable by the app or something... */
+        rc = select(session->socket_fd + 1, readfd, writefd, NULL,
+                    seconds_to_next ? &tv : NULL);
 #endif
+    }
 
     if(rc <= 0) {
         /* timeout (or error), bail out with a timeout error */
