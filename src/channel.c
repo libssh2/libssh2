@@ -2221,9 +2221,8 @@ channel_close(LIBSSH2_CHANNEL * channel)
         if ((retcode = channel_send_eof(channel)))
             return retcode;
 
-    if (!channel->remote.eof)
-        if ((retcode = channel_wait_eof(channel)))
-            return retcode;
+    /* ignore if we have received a remote eof or not, as it is now too
+       late for us to wait for it. Continue closing! */
 
     if (channel->close_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Closing channel %lu/%lu",
