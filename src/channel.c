@@ -2038,6 +2038,11 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                                           channel->write_s -
                                           channel->write_packet);
             if (rc == PACKET_EAGAIN) {
+                if(wrote)
+                    /* some pieces of data was sent before the EAGAIN so
+                       we return that amount! */
+                    goto _channel_write_done;
+
                 return libssh2_error(session, rc,
                                      "Unable to send channel data");
             }
@@ -2060,6 +2065,8 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
             channel->write_state = libssh2_NB_state_allocated;
         }
     }
+
+  _channel_write_done:
 
     LIBSSH2_FREE(session, channel->write_packet);
     channel->write_packet = NULL;
