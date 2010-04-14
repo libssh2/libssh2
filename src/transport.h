@@ -2,7 +2,7 @@
 #define __LIBSSH2_TRANSPORT_H
 
 /* Copyright (C) 2007 The Written Word, Inc.  All rights reserved.
- * Copyright (C) 2009 by Daniel Stenberg
+ * Copyright (C) 2009-2010 by Daniel Stenberg
  * Author: Daniel Stenberg <daniel@haxx.se>
  *
  * Redistribution and use in source and binary forms,
@@ -76,5 +76,11 @@ int _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
  * "The Secure Shell (SSH) Transport Layer Protocol"
  */
 int _libssh2_transport_read(LIBSSH2_SESSION * session);
+
+/*
+ * _libssh2_transport_drain() empties the outgoing send buffer if there
+ * is any.
+ */
+void _libssh2_transport_drain(LIBSSH2_SESSION *session);
 
 #endif /* __LIBSSH2_TRANSPORT_H */

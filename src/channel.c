@@ -1979,6 +1979,17 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
 
     while (buflen > 0) {
         if (channel->write_state == libssh2_NB_state_allocated) {
+
+            /* drain the incoming flow first */
+            do
+                rc = _libssh2_transport_read(session);
+            while (rc > 0);
+
+            if(channel->local.window_size <= 0) {
+                /* there's no more room for data so we stop sending now */
+                break;
+            }
+
             channel->write_bufwrite = buflen;
             channel->write_s = channel->write_packet;
 
@@ -1990,16 +2001,6 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
             if (stream_id) {
                 _libssh2_htonu32(channel->write_s, stream_id);
                 channel->write_s += 4;
-            }
-
-            /* drain the incoming flow first */
-            do
-                rc = _libssh2_transport_read(session);
-            while (rc > 0);
-
-            if(channel->local.window_size <= 0) {
-                /* there's no more room for data so we stop sending now */
-                break;
             }
 
             /* Don't exceed the remote end's limits */
@@ -2038,11 +2039,13 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                                           channel->write_s -
                                           channel->write_packet);
             if (rc == PACKET_EAGAIN) {
-                if(wrote)
-                    /* some pieces of data was sent before the EAGAIN so
-                       we return that amount! */
+                if(wrote) {
+                    /* some pieces of data was sent before the EAGAIN so we
+                       return that amount! As we ignore EAGAIN, we must drain
+                       the outgoing transport buffer. */
+                    _libssh2_transport_drain(session);
                     goto _channel_write_done;
-
+                }
                 return libssh2_error(session, rc,
                                      "Unable to send channel data");
             }

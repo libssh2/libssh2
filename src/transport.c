@@ -1,5 +1,5 @@
 /* Copyright (C) 2007 The Written Word, Inc.  All rights reserved.
- * Copyright (C) 2009 by Daniel Stenberg
+ * Copyright (C) 2009-2010 by Daniel Stenberg
  * Author: Daniel Stenberg <daniel@haxx.se>
  *
  * Redistribution and use in source and binary forms,
@@ -598,6 +598,20 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
     } while (1);                /* loop */
 
     return PACKET_FAIL;         /* we never reach this point */
+}
+
+/*
+ * _libssh2_transport_drain() empties the outgoing send buffer if there
+ * is any.
+ */
+void _libssh2_transport_drain(LIBSSH2_SESSION * session)
+{
+    struct transportpacket *p = &session->packet;
+    if(p->outbuf) {
+        LIBSSH2_FREE(session, p->outbuf);
+        p->outbuf = NULL;
+        p->ototal_num = 0;
+    }
 }
 
 static int
