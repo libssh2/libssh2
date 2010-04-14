@@ -115,7 +115,7 @@ AM_CONDITIONAL(LIBGCRYPT, test "$ac_cv_libgcrypt" = "yes")
 if test "$ac_cv_libssl" = "yes"; then
   save_LDFLAGS="$LDFLAGS"
   LDFLAGS="$LDFLAGS $LIBSSL"
-  AC_CHECK_FUNCS(EVP_aes128_ctr)
+  AC_CHECK_FUNCS(EVP_aes_128_ctr)
   LDFLAGS="$save_LDFLAGS"
 fi
 
@@ -295,7 +295,7 @@ AC_MSG_NOTICE([summary of build options:
   Compiler:         ${CC}
   Compiler flags:   ${CFLAGS}
   Library types:    Shared=${enable_shared}, Static=${enable_static}
-  Crypto library:   openssl: ${ac_cv_libssl:-no} (AES-CTR: ${ac_cv_func_EVP_aes128_ctr:-N/A}) libgcrypt: ${ac_cv_libgcrypt:-no}
+  Crypto library:   openssl: ${ac_cv_libssl:-no} (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A}) libgcrypt: ${ac_cv_libgcrypt:-no}
   Debug build:      $enable_debug
   Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
   libz compression: $ac_cv_libz
