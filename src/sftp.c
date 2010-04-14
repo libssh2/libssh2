@@ -1197,7 +1197,6 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    LIBSSH2_SFTP_ATTRIBUTES attrs_dummy;
     unsigned long data_len, filename_len, longentry_len, num_names;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     ssize_t packet_len = handle->handle_len + 13;
@@ -1211,51 +1210,45 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
              * A prior request returned more than one directory entry,
              * feed it back from the buffer
              */
+            LIBSSH2_SFTP_ATTRIBUTES attrs_dummy;
+            unsigned long real_longentry_len;
             unsigned char *s = (unsigned char *) handle->u.dir.next_name;
             unsigned long real_filename_len = _libssh2_ntohu32(s);
 
-            filename_len = real_filename_len;
             s += 4;
-            if (filename_len > buffer_maxlen) {
-                filename_len = buffer_maxlen;
-            }
+
+            filename_len = real_filename_len;
+            if (filename_len >= buffer_maxlen)
+                /* leave room for the trailing zero */
+                filename_len = buffer_maxlen - 1;
+
             memcpy(buffer, s, filename_len);
+            buffer[filename_len] = '\0';           /* zero terminate */
             s += real_filename_len;
 
-            /* The filename is not null terminated, make it so if possible */
-            if (filename_len < buffer_maxlen) {
-                buffer[filename_len] = '\0';
-            }
+            real_longentry_len = _libssh2_ntohu32(s);
+            s += 4;
 
-            if ((longentry == NULL) || (longentry_maxlen == 0)) {
-                /* Skip longname */
-                s += 4 + _libssh2_ntohu32(s);
-            } else {
-                unsigned long real_longentry_len = _libssh2_ntohu32(s);
-
+            if (longentry && (longentry_maxlen>1)) {
                 longentry_len = real_longentry_len;
-                s += 4;
-                if (longentry_len > longentry_maxlen) {
-                    longentry_len = longentry_maxlen;
-                }
+
+                if (longentry_len >= longentry_maxlen)
+                    /* leave room for the trailing zero */
+                    longentry_len = longentry_maxlen -1;
+
                 memcpy(longentry, s, longentry_len);
-                s += real_longentry_len;
-
-                /* The longentry is not null terminated, make it so if possible */
-                if (longentry_len < longentry_maxlen) {
-                    longentry[longentry_len] = '\0';
-                }
+                longentry[longentry_len] = '\0'; /* zero terminate */
             }
+            s += real_longentry_len;
 
-            if (attrs) {
+            if (attrs)
                 memset(attrs, 0, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
-            }
+
             s += sftp_bin2attr(attrs ? attrs : &attrs_dummy, s);
 
             handle->u.dir.next_name = (char *) s;
-            if ((--handle->u.dir.names_left) == 0) {
+            if ((--handle->u.dir.names_left) == 0)
                 LIBSSH2_FREE(session, handle->u.dir.names_packet);
-            }
 
             _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
                            "libssh2_sftp_readdir_ex() return %d",
@@ -1266,11 +1259,10 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
         /* Request another entry(entries?) */
 
         s = sftp->readdir_packet = LIBSSH2_ALLOC(session, packet_len);
-        if (!sftp->readdir_packet) {
+        if (!sftp->readdir_packet)
             return libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate memory for "
                                  "FXP_READDIR packet");
-        }
 
         _libssh2_htonu32(s, packet_len - 4);
         s += 4;
@@ -1309,13 +1301,12 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
         sftp->readdir_state = libssh2_NB_state_sent;
     }
 
-    retcode =
-        sftp_packet_requirev(sftp, 2, read_responses,
-                             sftp->readdir_request_id, &data,
-                             &data_len);
-    if (retcode == PACKET_EAGAIN) {
+    retcode = sftp_packet_requirev(sftp, 2, read_responses,
+                                   sftp->readdir_request_id, &data,
+                                   &data_len);
+    if (retcode == PACKET_EAGAIN)
         return retcode;
-    } else if (retcode) {
+    else if (retcode) {
         sftp->readdir_state = libssh2_NB_state_idle;
         return libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                              "Timeout waiting for status message");
@@ -1327,7 +1318,8 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
         if (retcode == LIBSSH2_FX_EOF) {
             sftp->readdir_state = libssh2_NB_state_idle;
             return 0;
-        } else {
+        }
+        else {
             sftp->last_errno = retcode;
             sftp->readdir_state = libssh2_NB_state_idle;
             return libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
@@ -1335,51 +1327,23 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
         }
     }
 
+    sftp->readdir_state = libssh2_NB_state_idle;
+
     num_names = _libssh2_ntohu32(data + 5);
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "%lu entries returned",
                    num_names);
     if (num_names <= 0) {
         LIBSSH2_FREE(session, data);
-        sftp->readdir_state = libssh2_NB_state_idle;
         return (num_names == 0) ? 0 : -1;
-    }
-
-    if (num_names == 1) {
-        unsigned long real_filename_len = _libssh2_ntohu32(data + 9);
-
-        filename_len = real_filename_len;
-        if (filename_len > buffer_maxlen) {
-            filename_len = buffer_maxlen;
-        }
-        memcpy(buffer, data + 13, filename_len);
-
-        /* The filename is not null terminated, make it so if possible */
-        if (filename_len < buffer_maxlen) {
-            buffer[filename_len] = '\0';
-        }
-
-        if (attrs) {
-            memset(attrs, 0, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
-            sftp_bin2attr(attrs, data + 13 + real_filename_len +
-                          (4 + _libssh2_ntohu32(data + 13 +
-                                                real_filename_len)));
-        }
-        LIBSSH2_FREE(session, data);
-
-        sftp->readdir_state = libssh2_NB_state_idle;
-        return filename_len;
     }
 
     handle->u.dir.names_left = num_names;
     handle->u.dir.names_packet = data;
     handle->u.dir.next_name = (char *) data + 9;
 
-    sftp->readdir_state = libssh2_NB_state_idle;
-
-    /* Be lazy, just use the name popping mechanism from the start of the
-       function */
-    return libssh2_sftp_readdir_ex(handle, buffer, buffer_maxlen, longentry,
-                                   longentry_maxlen, attrs);
+    /* use the name popping mechanism from the start of the function */
+    return sftp_readdir(handle, buffer, buffer_maxlen, longentry,
+                        longentry_maxlen, attrs);
 }
 
 /* libssh2_sftp_readdir_ex
