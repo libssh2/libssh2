@@ -1,6 +1,6 @@
 #ifndef __LIBSSH2_MISC_H
 #define __LIBSSH2_MISC_H
-/* Copyright (c) 2009 by Daniel Stenberg
+/* Copyright (c) 2009-2010 by Daniel Stenberg
  *
  * All rights reserved.
  *
@@ -48,6 +48,8 @@ struct list_node {
     struct list_node *prev;
     struct list_head *head;
 };
+
+int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg);
 
 void _libssh2_list_init(struct list_head *head);
 

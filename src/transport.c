@@ -47,7 +47,7 @@
 
 #include "transport.h"
 
-#define MAX_BLOCKSIZE 32     /* MUST fit biggest crypto block size we use/get */
+#define MAX_BLOCKSIZE 32    /* MUST fit biggest crypto block size we use/get */
 #define MAX_MACSIZE 20      /* MUST fit biggest MAC length we support */
 
 #ifdef LIBSSH2DEBUG
@@ -71,7 +71,8 @@ debugdump(LIBSSH2_SESSION * session,
     used = snprintf(buffer, sizeof(buffer), "=> %s (%d bytes)\n",
                     desc, (int) size);
     if (session->tracehandler)
-        (session->tracehandler)(session, session->tracehandler_context, buffer, used);
+        (session->tracehandler)(session, session->tracehandler_context,
+                                buffer, used);
     else
         write(2 /* stderr */, buffer, used);
 
@@ -106,7 +107,8 @@ debugdump(LIBSSH2_SESSION * session,
         buffer[used] = 0;
 
         if (session->tracehandler)
-            (session->tracehandler)(session, session->tracehandler_context, buffer, used);
+            (session->tracehandler)(session, session->tracehandler_context,
+                                    buffer, used);
         else
             write(2, buffer, used);
     }
@@ -274,7 +276,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
  * This function reads the binary stream as specified in chapter 6 of RFC4253
  * "The Secure Shell (SSH) Transport Layer Protocol"
  *
- * DOES NOT call libssh2_error() for ANY error case.
+ * DOES NOT call _libssh2_error() for ANY error case.
  */
 int _libssh2_transport_read(LIBSSH2_SESSION * session)
 {
@@ -693,7 +695,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
  * which is what all implementations should support at least as packet size.
  * (RFC4253 section 6.1)
  *
- * This function DOES not call libssh2_error() on any errors.
+ * This function DOES not call _libssh2_error() on any errors.
  */
 int
 _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,

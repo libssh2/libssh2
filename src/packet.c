@@ -140,9 +140,9 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
 
                     channel = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
                     if (!channel) {
-                        libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                      "Unable to allocate a channel for "
-                                      "new connection");
+                        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                       "Unable to allocate a channel for "
+                                       "new connection");
                         failure_code = 4;       /* SSH_OPEN_RESOURCE_SHORTAGE */
                         listen_state->state = libssh2_NB_state_sent;
                         break;
@@ -158,9 +158,9 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                                                           channel_type_len +
                                                           1);
                     if (!channel->channel_type) {
-                        libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                      "Unable to allocate a channel for new"
-                                      " connection");
+                        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                       "Unable to allocate a channel for new"
+                                       " connection");
                         LIBSSH2_FREE(session, channel);
                         failure_code = 4;       /* SSH_OPEN_RESOURCE_SHORTAGE */
                         listen_state->state = libssh2_NB_state_sent;
@@ -213,9 +213,9 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                         return rc;
                     else if (rc) {
                         listen_state->state = libssh2_NB_state_idle;
-                        return libssh2_error(session, rc,
-                                             "Unable to send channel "
-                                             "open confirmation");
+                        return _libssh2_error(session, rc,
+                                              "Unable to send channel "
+                                              "open confirmation");
                     }
 
                     /* Link the channel into the end of the queue list */
@@ -253,7 +253,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
         return rc;
     } else if (rc) {
         listen_state->state = libssh2_NB_state_idle;
-        return libssh2_error(session, rc, "Unable to send open failure");
+        return _libssh2_error(session, rc, "Unable to send open failure");
 
     }
     listen_state->state = libssh2_NB_state_idle;
@@ -306,8 +306,8 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
         if (x11open_state->state == libssh2_NB_state_allocated) {
             channel = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
             if (!channel) {
-                libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                              "Unable to allocate a channel for new connection");
+                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate a channel for new connection");
                 failure_code = 4;       /* SSH_OPEN_RESOURCE_SHORTAGE */
                 goto x11_exit;
             }
@@ -319,8 +319,8 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
                                                   channel->channel_type_len +
                                                   1);
             if (!channel->channel_type) {
-                libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                              "Unable to allocate a channel for new connection");
+                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate a channel for new connection");
                 LIBSSH2_FREE(session, channel);
                 failure_code = 4;       /* SSH_OPEN_RESOURCE_SHORTAGE */
                 goto x11_exit;
@@ -367,9 +367,9 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
                 return rc;
             } else if (rc) {
                 x11open_state->state = libssh2_NB_state_idle;
-                return libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                                     "Unable to send channel open "
-                                     "confirmation");
+                return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                                      "Unable to send channel open "
+                                      "confirmation");
             }
 
             /* Link the channel into the session */
@@ -407,7 +407,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
         return rc;
     } else if (rc) {
         x11open_state->state = libssh2_NB_state_idle;
-        return libssh2_error(session, rc, "Unable to send open failure");
+        return _libssh2_error(session, rc, "Unable to send open failure");
     }
     x11open_state->state = libssh2_NB_state_idle;
     return 0;
@@ -459,8 +459,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                        "", 0);
                 }
                 LIBSSH2_FREE(session, data);
-                return libssh2_error(session, LIBSSH2_ERROR_INVALID_MAC,
-                                     "Invalid MAC received");
+                return _libssh2_error(session, LIBSSH2_ERROR_INVALID_MAC,
+                                      "Invalid MAC received");
             }
         }
 
@@ -492,47 +492,47 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         /* A couple exceptions to the packet adding rule: */
         switch (data[0]) {
         case SSH_MSG_DISCONNECT:
-            {
-                char *message, *language;
-                int reason, message_len, language_len;
+        {
+            char *message, *language;
+            int reason, message_len, language_len;
 
-                reason = _libssh2_ntohu32(data + 1);
-                message_len = _libssh2_ntohu32(data + 5);
-                /* 9 = packet_type(1) + reason(4) + message_len(4) */
-                message = (char *) data + 9;
-                language_len = _libssh2_ntohu32(data + 9 + message_len);
-                /*
-                 * This is where we hack on the data a little,
-                 * Use the MSB of language_len to to a terminating NULL
-                 * (In all liklihood it is already)
-                 * Shift the language tag back a byte (In all likelihood
-                 * it's zero length anyway)
-                 * Store a NULL in the last byte of the packet to terminate
-                 * the language string
-                 * With the lengths passed this isn't *REALLY* necessary,
-                 * but it's "kind"
-                 */
-                message[message_len] = '\0';
-                language = (char *) data + 9 + message_len + 3;
-                if (language_len) {
-                    memmove(language, language + 1, language_len);
-                }
-                language[language_len] = '\0';
-
-                if (session->ssh_msg_disconnect) {
-                    LIBSSH2_DISCONNECT(session, reason, message,
-                                       message_len, language, language_len);
-                }
-                _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
-                               "Disconnect(%d): %s(%s)", reason,
-                               message, language);
-                LIBSSH2_FREE(session, data);
-                session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
-                session->packAdd_state = libssh2_NB_state_idle;
-                return libssh2_error(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
-                                     "socket disconnect");
+            reason = _libssh2_ntohu32(data + 1);
+            message_len = _libssh2_ntohu32(data + 5);
+            /* 9 = packet_type(1) + reason(4) + message_len(4) */
+            message = (char *) data + 9;
+            language_len = _libssh2_ntohu32(data + 9 + message_len);
+            /*
+             * This is where we hack on the data a little,
+             * Use the MSB of language_len to to a terminating NULL
+             * (In all liklihood it is already)
+             * Shift the language tag back a byte (In all likelihood
+             * it's zero length anyway)
+             * Store a NULL in the last byte of the packet to terminate
+             * the language string
+             * With the lengths passed this isn't *REALLY* necessary,
+             * but it's "kind"
+             */
+            message[message_len] = '\0';
+            language = (char *) data + 9 + message_len + 3;
+            if (language_len) {
+                memmove(language, language + 1, language_len);
             }
-            break;
+            language[language_len] = '\0';
+
+            if (session->ssh_msg_disconnect) {
+                LIBSSH2_DISCONNECT(session, reason, message,
+                                   message_len, language, language_len);
+            }
+            _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
+                           "Disconnect(%d): %s(%s)", reason,
+                           message, language);
+            LIBSSH2_FREE(session, data);
+            session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
+            session->packAdd_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
+                                  "socket disconnect");
+        }
+        break;
 
         case SSH_MSG_IGNORE:
             if (datalen >= 5) {
@@ -550,48 +550,48 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             return 0;
 
         case SSH_MSG_DEBUG:
-            {
-                int always_display = data[0];
-                char *message, *language;
-                int message_len, language_len;
+        {
+            int always_display = data[0];
+            char *message, *language;
+            int message_len, language_len;
 
-                message_len = _libssh2_ntohu32(data + 2);
-                /* 6 = packet_type(1) + display(1) + message_len(4) */
-                message = (char *) data + 6;
-                language_len = _libssh2_ntohu32(data + 6 + message_len);
-                /*
-                 * This is where we hack on the data a little,
-                 * Use the MSB of language_len to to a terminating NULL
-                 * (In all liklihood it is already)
-                 * Shift the language tag back a byte (In all likelihood
-                 * it's zero length anyway)
-                 * Store a NULL in the last byte of the packet to terminate
-                 * the language string
-                 * With the lengths passed this isn't *REALLY* necessary,
-                 * but it's "kind"
-                 */
-                message[message_len] = '\0';
-                language = (char *) data + 6 + message_len + 3;
-                if (language_len) {
-                    memmove(language, language + 1, language_len);
-                }
-                language[language_len] = '\0';
-
-                if (session->ssh_msg_debug) {
-                    LIBSSH2_DEBUG(session, always_display, message,
-                                  message_len, language, language_len);
-                }
-                /*
-                 * _libssh2_debug will actually truncate this for us so
-                 * that it's not an inordinate about of data
-                 */
-                _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
-                               "Debug Packet: %s", message);
-                LIBSSH2_FREE(session, data);
-                session->packAdd_state = libssh2_NB_state_idle;
-                return 0;
+            message_len = _libssh2_ntohu32(data + 2);
+            /* 6 = packet_type(1) + display(1) + message_len(4) */
+            message = (char *) data + 6;
+            language_len = _libssh2_ntohu32(data + 6 + message_len);
+            /*
+             * This is where we hack on the data a little,
+             * Use the MSB of language_len to to a terminating NULL
+             * (In all liklihood it is already)
+             * Shift the language tag back a byte (In all likelihood
+             * it's zero length anyway)
+             * Store a NULL in the last byte of the packet to terminate
+             * the language string
+             * With the lengths passed this isn't *REALLY* necessary,
+             * but it's "kind"
+             */
+            message[message_len] = '\0';
+            language = (char *) data + 6 + message_len + 3;
+            if (language_len) {
+                memmove(language, language + 1, language_len);
             }
-            break;
+            language[language_len] = '\0';
+
+            if (session->ssh_msg_debug) {
+                LIBSSH2_DEBUG(session, always_display, message,
+                              message_len, language, language_len);
+            }
+            /*
+             * _libssh2_debug will actually truncate this for us so
+             * that it's not an inordinate about of data
+             */
+            _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
+                           "Debug Packet: %s", message);
+            LIBSSH2_FREE(session, data);
+            session->packAdd_state = libssh2_NB_state_idle;
+            return 0;
+        }
+        break;
 
         case SSH_MSG_GLOBAL_REQUEST:
         {
@@ -628,8 +628,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 _libssh2_channel_locate(session, _libssh2_ntohu32(data + 1));
 
             if (!session->packAdd_channel) {
-                libssh2_error(session, LIBSSH2_ERROR_CHANNEL_UNKNOWN,
-                              "Packet received for unknown channel, ignoring");
+                _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_UNKNOWN,
+                               "Packet received for unknown channel, ignoring");
                 LIBSSH2_FREE(session, data);
                 session->packAdd_state = libssh2_NB_state_idle;
                 return 0;
@@ -682,10 +682,10 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                  * Spec says we MAY ignore bytes sent beyond
                  * packet_size
                  */
-                libssh2_error(session,
-                              LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
-                              "Packet contains more data than we offered"
-                              " to receive, truncating");
+                _libssh2_error(session,
+                               LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
+                               "Packet contains more data than we offered"
+                               " to receive, truncating");
                 datalen =
                     session->packAdd_channel->remote.packet_size +
                     session->packAdd_data_head;
@@ -695,10 +695,10 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                  * Spec says we MAY ignore bytes sent beyond
                  * window_size
                  */
-                libssh2_error(session,
-                              LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
-                              "The current receive window is full,"
-                              " data ignored");
+                _libssh2_error(session,
+                               LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
+                               "The current receive window is full,"
+                               " data ignored");
                 LIBSSH2_FREE(session, data);
                 session->packAdd_state = libssh2_NB_state_idle;
                 return 0;
@@ -708,10 +708,10 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
             if ((datalen - session->packAdd_data_head) >
                 session->packAdd_channel->remote.window_size) {
-                libssh2_error(session,
-                              LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
-                              "Remote sent more data than current "
-                              "window allows, truncating");
+                _libssh2_error(session,
+                               LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
+                               "Remote sent more data than current "
+                               "window allows, truncating");
                 datalen =
                     session->packAdd_channel->remote.window_size +
                     session->packAdd_data_head;
@@ -792,7 +792,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 return 0;
             }
             break;
-       }
+        }
 
         case SSH_MSG_CHANNEL_CLOSE:
             session->packAdd_channel =
@@ -852,31 +852,31 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             break;
 
         case SSH_MSG_CHANNEL_WINDOW_ADJUST:
-            {
-                unsigned long bytestoadd = _libssh2_ntohu32(data + 5);
-                session->packAdd_channel =
-                    _libssh2_channel_locate(session,
-                                            _libssh2_ntohu32(data + 1));
+        {
+            unsigned long bytestoadd = _libssh2_ntohu32(data + 5);
+            session->packAdd_channel =
+                _libssh2_channel_locate(session,
+                                        _libssh2_ntohu32(data + 1));
 
-                if (session->packAdd_channel && bytestoadd) {
-                    session->packAdd_channel->local.window_size += bytestoadd;
-                }
-                if(session->packAdd_channel)
-                    _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                                   "Window adjust received for channel %lu/%lu, adding %lu bytes, new window_size=%lu",
-                                   session->packAdd_channel->local.id,
-                                   session->packAdd_channel->remote.id,
-                                   bytestoadd,
-                                   session->packAdd_channel->local.window_size);
-                else
-                    _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                                   "Window adjust for non-existing channel!");
-
-                LIBSSH2_FREE(session, data);
-                session->packAdd_state = libssh2_NB_state_idle;
-                return 0;
+            if (session->packAdd_channel && bytestoadd) {
+                session->packAdd_channel->local.window_size += bytestoadd;
             }
-            break;
+            if(session->packAdd_channel)
+                _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                               "Window adjust received for channel %lu/%lu, adding %lu bytes, new window_size=%lu",
+                               session->packAdd_channel->local.id,
+                               session->packAdd_channel->remote.id,
+                               bytestoadd,
+                               session->packAdd_channel->local.window_size);
+            else
+                _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                               "Window adjust for non-existing channel!");
+
+            LIBSSH2_FREE(session, data);
+            session->packAdd_state = libssh2_NB_state_idle;
+            return 0;
+        }
+        break;
         }
 
         session->packAdd_state = libssh2_NB_state_sent;
@@ -885,7 +885,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
     if (session->packAdd_state == libssh2_NB_state_sent) {
         LIBSSH2_PACKET *packAdd_packet;
         packAdd_packet =
-          LIBSSH2_ALLOC(session, sizeof(LIBSSH2_PACKET));
+            LIBSSH2_ALLOC(session, sizeof(LIBSSH2_PACKET));
         if (!packAdd_packet) {
             _libssh2_debug(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate memory for LIBSSH2_PACKET");
@@ -1034,8 +1034,8 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
 {
     if (state->start == 0) {
         if (_libssh2_packet_ask(session, packet_type, data, data_len,
-                               match_ofs, match_buf,
-                               match_len) == 0) {
+                                match_ofs, match_buf,
+                                match_len) == 0) {
             /* A packet was available in the packet brigade */
             return 0;
         }
@@ -1054,7 +1054,7 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
         } else if (ret == packet_type) {
             /* Be lazy, let packet_ask pull it out of the brigade */
             ret = _libssh2_packet_ask(session, packet_type, data, data_len,
-                                     match_ofs, match_buf, match_len);
+                                      match_ofs, match_buf, match_len);
             state->start = 0;
             return ret;
         } else if (ret == 0) {
