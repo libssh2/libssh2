@@ -528,43 +528,49 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
         /* figure out what to wait for */
         dir = libssh2_session_block_directions(session);
 
+        {
 #ifdef HAVE_POLL
-        struct pollfd sockets[1];
+            struct pollfd sockets[1];
 
-        sockets[0].fd = session->socket_fd;
-        sockets[0].events = 0;
-        sockets[0].revents = 0;
+            sockets[0].fd = session->socket_fd;
+            sockets[0].events = 0;
+            sockets[0].revents = 0;
 
-        if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
-            sockets[0].events |= POLLIN;
+            if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+                sockets[0].events |= POLLIN;
 
-        if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
-            sockets[0].events |= POLLOUT;
+            if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+                sockets[0].events |= POLLOUT;
 
-        rc = poll(sockets, 1, seconds_to_next ? seconds_to_next / 1000 : -1);
+            rc = poll(sockets, 1, seconds_to_next ? seconds_to_next / 1000 : -1);
 #else
-        fd_set fd;
-        fd_set *writefd = NULL;
-        fd_set *readfd = NULL;
-        struct timeval tv;
+            fd_set rfd;
+            fd_set wfd;
+            fd_set *writefd = NULL;
+            fd_set *readfd = NULL;
+            struct timeval tv;
 
-        tv.tv_sec = seconds_to_next;
-        tv.tv_usec = 0;
+            tv.tv_sec = seconds_to_next;
+            tv.tv_usec = 0;
 
-        FD_ZERO(&fd);
-        FD_SET(session->socket_fd, &fd);
+            if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
+                FD_ZERO(&rfd);
+                FD_SET(session->socket_fd, &rfd);
+                readfd = &rfd;
+            }
 
-        if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
-            readfd = &fd;
+            if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND) {
+                FD_ZERO(&wfd);
+                FD_SET(session->socket_fd, &wfd);
+                writefd = &wfd;
+            }
 
-        if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
-            writefd = &fd;
-
-        /* Note that this COULD be made to use a timeout that perhaps could be
-           customizable by the app or something... */
-        rc = select(session->socket_fd + 1, readfd, writefd, NULL,
-                    seconds_to_next ? &tv : NULL);
+            /* Note that this COULD be made to use a timeout that perhaps
+               could be customizable by the app or something... */
+            rc = select(session->socket_fd + 1, readfd, writefd, NULL,
+                        seconds_to_next ? &tv : NULL);
 #endif
+        }
     }
 
     if(rc <= 0) {
