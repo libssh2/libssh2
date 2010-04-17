@@ -4,22 +4,28 @@
 .SH NAME
 libssh2_sftp_symlink_ex - read or set a symbolic link
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
 int 
-libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path, unsigned int path_len, char *target, unsigned int target_len, int link_type);
+libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path,
+                        unsigned int path_len, char *target,
+                        unsigned int target_len, int link_type);
 
 int 
 libssh2_sftp_symlink(LIBSSH2_SFTP *sftp, const char *path, char *target);
 
 int 
-libssh2_sftp_readlink(LIBSSH2_SFTP *sftp, const char *path, char *target, unsigned int target_len);
+libssh2_sftp_readlink(LIBSSH2_SFTP *sftp, const char *path, char *target,
+                      unsigned int target_len);
 
 int 
-libssh2_sftp_realpath(LIBSSH2_SFTP *sftp, const char *path, char *target, unsigned int target_len);
-
+libssh2_sftp_realpath(LIBSSH2_SFTP *sftp, const char *path, char *target,
+                      unsigned int target_len);
 .SH DESCRIPTION
+Create a symlink or read out symlink information from the remote side.
+
 \fIsftp\fP - SFTP instance as returned by 
 .BR libssh2_sftp_init(3)
 
@@ -28,18 +34,23 @@ libssh2_sftp_realpath(LIBSSH2_SFTP *sftp, const char *path, char *target, unsign
 \fIpath_len\fP - Length of the name of the remote filesystem object to 
 create a symlink from or resolve.
 
-\fItarget\fP - 
+\fItarget\fP - a pointer to a buffer. The buffer has different uses depending
+what the \fIlink_type\fP argument is set to.
 .br
 \fBLIBSSH2_SFTP_SYMLINK\fP: Remote filesystem object to link to.
 .br
-\fBLIBSSH2_SFTP_READLINK\fP: Pre-allocated buffer to resolve symlink target into.
+\fBLIBSSH2_SFTP_READLINK\fP: Pre-allocated buffer to resolve symlink target
+into.
 .br
-\fBLIBSSH2_SFTP_REALPATH\fP: Pre-allocated buffer to resolve realpath target into.
+\fBLIBSSH2_SFTP_REALPATH\fP: Pre-allocated buffer to resolve realpath target
+into.
 
 \fItarget_len\fP - Length of the name of the remote filesystem target object.
 
 \fIlink_type\fP - One of the three previously mentioned constants which 
 determines the resulting behavior of this function.
+
+These are convenience macros:
 
 .BR libssh2_sftp_symlink(3)
 : Create a symbolic link between two filesystem objects.
@@ -49,12 +60,16 @@ determines the resulting behavior of this function.
 .br
 .BR libssh2_sftp_realpath(3)
 : Resolve a complex, relative, or symlinked filepath to its effective target.
-
 .SH RETURN VALUE
-Return 0 on success or negative on failure.  It returns
-LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
-LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
+When using LIBSSH2_SFTP_SYMLINK, this funtion returns 0 on success or negative
+on failure.
 
+When using LIBSSH2_SFTP_READLINK or LIBSSH2_SFTP_REALPATH, it returns the
+number of bytes it copied to the target buffer (not including the terminating
+zero) or negative on failure.
+
+It returns LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
+LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 .SH ERRORS
 \fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
 
