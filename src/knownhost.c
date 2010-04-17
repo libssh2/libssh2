@@ -355,7 +355,6 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 
         /* make the key point to this */
         key = keyalloc;
-        keylen = nlen;
     }
 
     while (node) {
