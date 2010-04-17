@@ -54,7 +54,7 @@
 #define UNPRINTABLE_CHAR '.'
 static void
 debugdump(LIBSSH2_SESSION * session,
-          const char *desc, unsigned char *ptr, unsigned long size)
+          const char *desc, unsigned char *ptr, size_t size)
 {
     size_t i;
     size_t c;
@@ -198,7 +198,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
         if (session->remote.comp &&
             strcmp(session->remote.comp->name, "none")) {
             unsigned char *data;
-            unsigned long data_len;
+            size_t data_len;
             int free_payload = 1;
 
             if (session->remote.comp->comp(session, 0,
@@ -618,7 +618,7 @@ void _libssh2_transport_drain(LIBSSH2_SESSION * session)
 
 static int
 send_existing(LIBSSH2_SESSION * session, unsigned char *data,
-              unsigned long data_len, ssize_t * ret)
+              size_t data_len, ssize_t * ret)
 {
     ssize_t rc;
     ssize_t length;
@@ -699,7 +699,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
  */
 int
 _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
-                         unsigned long data_len)
+                         size_t data_len)
 {
     int blocksize =
         (session->state & LIBSSH2_STATE_NEWKEYS) ? session->local.crypt->
@@ -718,7 +718,7 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     ssize_t ret;
     int rc;
     unsigned char *orgdata = data;
-    unsigned long orgdata_len = data_len;
+    size_t orgdata_len = data_len;
 
     debugdump(session, "libssh2_transport_write plain", data, data_len);
 

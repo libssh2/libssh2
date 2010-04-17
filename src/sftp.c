@@ -92,7 +92,7 @@ static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
  */
 static void _libssh2_store_u64(unsigned char **ptr, libssh2_uint64_t value)
 {
-    unsigned long msl = (unsigned long)(value >> 32);
+    uint32_t msl = (uint32_t)(value >> 32);
     unsigned char *buf = *ptr;
 
     buf[0] = (unsigned char)((msl >> 24) & 0xFF);

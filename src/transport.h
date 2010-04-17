@@ -60,7 +60,7 @@
  * (RFC4253 section 6.1)
  */
 int _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
-                             unsigned long data_len);
+                             size_t data_len);
 /*
  * _libssh2_transport_read
  *

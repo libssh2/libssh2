@@ -55,11 +55,11 @@ static int
 comp_method_none_comp(LIBSSH2_SESSION * session,
                       int compress,
                       unsigned char **dest,
-                      unsigned long *dest_len,
-                      unsigned long payload_limit,
+                      size_t *dest_len,
+                      size_t payload_limit,
                       int *free_dest,
                       const unsigned char *src,
-                      unsigned long src_len, void **abstract)
+                      size_t src_len, void **abstract)
 {
     (void) session;
     (void) compress;
@@ -157,11 +157,11 @@ static int
 comp_method_zlib_comp(LIBSSH2_SESSION * session,
                       int compress,
                       unsigned char **dest,
-                      unsigned long *dest_len,
-                      unsigned long payload_limit,
+                      size_t *dest_len,
+                      size_t payload_limit,
                       int *free_dest,
                       const unsigned char *src,
-                      unsigned long src_len, void **abstract)
+                      size_t src_len, void **abstract)
 {
     z_stream *strm = *abstract;
     /* A short-term alloc of a full data chunk is better than a series of
@@ -203,7 +203,7 @@ comp_method_zlib_comp(LIBSSH2_SESSION * session,
                                   "compress/decompression failure");
         }
         if (strm->avail_in) {
-            unsigned long out_ofs = out_maxlen - strm->avail_out;
+            size_t out_ofs = out_maxlen - strm->avail_out;
             char *newout;
 
             out_maxlen +=
