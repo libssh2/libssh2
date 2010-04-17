@@ -284,8 +284,8 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 	return -1;
     }
     p = MapViewOfFile(filemap, FILE_MAP_WRITE, 0, 0, 0);
-    _libssh2_htonu32(p, transctx->request_len);
-    memcpy(p + 4, transctx->request, transctx->request_len);
+    _libssh2_store_str(p, transctx->request, transctx->request_len);
+
     cds.dwData = PAGEANT_COPYDATA_ID;
     cds.cbData = 1 + strlen(mapname);
     cds.lpData = mapname;
@@ -361,18 +361,14 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
 
         *s++ = SSH2_AGENTC_SIGN_REQUEST;
         /* key blob */
-        _libssh2_htonu32(s, identity->external.blob_len);
-        s += 4;
-         memcpy(s, identity->external.blob, identity->external.blob_len);
-        s += identity->external.blob_len;
+        _libssh2_store_str(&s, (const char *)identity->external.blob,
+                           identity->external.blob_len);
         /* data */
-        _libssh2_htonu32(s, data_len);
-        s += 4;
-        memcpy(s, data, data_len);
-        s += data_len;
+        _libssh2_store_str(&s, (const char *)data, data_len);
+
         /* flags */
-        _libssh2_htonu32(s, 0);
-        s += 4;
+        _libssh2_store_u32(&s, 0);
+
         transctx->request_len = s - transctx->request;
         transctx->state = agent_NB_state_request_created;
     }

@@ -138,7 +138,7 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
         if (session->remote.crypt->crypt(session, source,
                                          &session->remote.crypt_abstract)) {
             LIBSSH2_FREE(session, p->payload);
-            return PACKET_FAIL;
+            return LIBSSH2_ERROR_SOCKET_NONE;
         }
 
         /* if the crypt() function would write to a given address it
@@ -150,7 +150,7 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
         dest += blocksize;      /* advance write pointer */
         source += blocksize;    /* advance read pointer */
     }
-    return PACKET_NONE;         /* all is fine */
+    return LIBSSH2_ERROR_NONE;         /* all is fine */
 }
 
 /*
@@ -209,7 +209,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                                            session->fullpacket_payload_len,
                                            &session->remote.comp_abstract)) {
                 LIBSSH2_FREE(session, p->payload);
-                return PACKET_FAIL;
+                return LIBSSH2_ERROR_SOCKET_NONE;
             }
 
             if (free_payload) {
@@ -233,7 +233,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                      * brigade won't know what to do with it */
                     p->payload = LIBSSH2_ALLOC(session, data_len);
                     if (!p->payload)
-                        return PACKET_ENOMEM;
+                        return LIBSSH2_ERROR_ALLOC;
 
                     memcpy(p->payload, data, data_len);
                     session->fullpacket_payload_len = data_len;
@@ -331,7 +331,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
     do {
         if (session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) {
-            return PACKET_NONE;
+            return LIBSSH2_ERROR_NONE;
         }
 
         if (session->state & LIBSSH2_STATE_NEWKEYS) {
@@ -391,9 +391,9 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 if ((nread < 0) && (errno == EAGAIN)) {
                     session->socket_block_directions |=
                         LIBSSH2_SESSION_BLOCK_INBOUND;
-                    return PACKET_EAGAIN;
+                    return LIBSSH2_ERROR_EAGAIN;
                 }
-                return PACKET_FAIL;
+                return LIBSSH2_ERROR_SOCKET_NONE;
             }
 
             debugdump(session, "libssh2_transport_read() raw",
@@ -420,12 +420,12 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 */
                 session->socket_block_directions |=
                     LIBSSH2_SESSION_BLOCK_INBOUND;
-                return PACKET_EAGAIN;
+                return LIBSSH2_ERROR_EAGAIN;
             }
 
             if (encrypted) {
                 rc = decrypt(session, &p->buf[p->readidx], block, blocksize);
-                if (rc != PACKET_NONE) {
+                if (rc != LIBSSH2_ERROR_NONE) {
                     return rc;
                 }
                 /* save the first 5 bytes of the decrypted package, to be
@@ -445,11 +445,11 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
              */
             p->packet_length = _libssh2_ntohu32(block);
             if (p->packet_length < 1)
-                return PACKET_FAIL;
+                return LIBSSH2_ERROR_SOCKET_NONE;
 
             p->padding_length = block[4];
             if (p->padding_length < 0)
-                return PACKET_FAIL;
+                return LIBSSH2_ERROR_SOCKET_NONE;
 
             /* total_num is the number of bytes following the initial
                (5 bytes) packet length and padding length fields */
@@ -466,14 +466,14 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
              * padding, and MAC.)."
              */
             if (p->total_num > LIBSSH2_PACKET_MAXPAYLOAD) {
-                return PACKET_TOOBIG;
+                return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
 
             /* Get a packet handle put data into. We get one to
                hold all data, including padding and MAC. */
             p->payload = LIBSSH2_ALLOC(session, p->total_num);
             if (!p->payload) {
-                return PACKET_ENOMEM;
+                return LIBSSH2_ERROR_ALLOC;
             }
             /* init write pointer to start of payload buffer */
             p->wptr = p->payload;
@@ -538,7 +538,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         if (numdecrypt > 0) {
             /* now decrypt the lot */
             rc = decrypt(session, &p->buf[p->readidx], p->wptr, numdecrypt);
-            if (rc != PACKET_NONE) {
+            if (rc != LIBSSH2_ERROR_NONE) {
                 return rc;
             }
 
@@ -574,13 +574,13 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             /* we have a full packet */
           libssh2_transport_read_point1:
             rc = fullpacket(session, encrypted);
-            if (rc == PACKET_EAGAIN) {
+            if (rc == LIBSSH2_ERROR_EAGAIN) {
 
                 if (session->packAdd_state != libssh2_NB_state_idle)
                 {
-                    /* fullpacket only returns PACKET_EAGAIN if
-                     * libssh2_packet_add returns PACKET_EAGAIN. If that
-                     * returns PACKET_EAGAIN but the packAdd_state is idle,
+                    /* fullpacket only returns LIBSSH2_ERROR_EAGAIN if
+                     * libssh2_packet_add returns LIBSSH2_ERROR_EAGAIN. If that
+                     * returns LIBSSH2_ERROR_EAGAIN but the packAdd_state is idle,
                      * then the packet has been added to the brigade, but some
                      * immediate action that was taken based on the packet
                      * type (such as key re-exchange) is not yet complete.
@@ -599,7 +599,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         }
     } while (1);                /* loop */
 
-    return PACKET_FAIL;         /* we never reach this point */
+    return LIBSSH2_ERROR_SOCKET_NONE;         /* we never reach this point */
 }
 
 /*
@@ -626,7 +626,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
 
     if (!p->outbuf) {
         *ret = 0;
-        return PACKET_NONE;
+        return LIBSSH2_ERROR_NONE;
     }
 
     /* send as much as possible of the existing packet */
@@ -636,7 +636,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
            we don't add this one up until the previous one has been sent. To
            make the caller really notice his/hers flaw, we return error for
            this case */
-        return PACKET_BADUSE;
+        return LIBSSH2_ERROR_BAD_USE;
     }
 
     *ret = 1;                   /* set to make our parent return */
@@ -669,15 +669,15 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
         /* nothing was sent */
         if (errno != EAGAIN) {
             /* send failure! */
-            return PACKET_FAIL;
+            return LIBSSH2_ERROR_SOCKET_NONE;
         }
         session->socket_block_directions |= LIBSSH2_SESSION_BLOCK_OUTBOUND;
-        return PACKET_EAGAIN;
+        return LIBSSH2_ERROR_EAGAIN;
     }
 
     p->osent += rc;         /* we sent away this much data */
 
-    return rc < length ? PACKET_EAGAIN : PACKET_NONE;
+    return rc < length ? LIBSSH2_ERROR_EAGAIN : LIBSSH2_ERROR_NONE;
 }
 
 /*
@@ -686,7 +686,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.
  *
- * Returns PACKET_EAGAIN if it would block - and if it does so, you should
+ * Returns LIBSSH2_ERROR_EAGAIN if it would block - and if it does so, you should
  * call this function again as soon as it is likely that more data can be
  * sent, and this function should then be called with the same argument set
  * (same data pointer and same data_len) until zero or failure is returned.
@@ -740,7 +740,7 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
                                       LIBSSH2_PACKET_MAXCOMP,
                                       &free_data, data, data_len,
                                       &session->local.comp_abstract)) {
-            return PACKET_COMPRESS;     /* compression failure */
+            return LIBSSH2_ERROR_COMPRESS;     /* compression failure */
         }
     }
 
@@ -788,7 +788,7 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
        returns. */
     p->outbuf = LIBSSH2_ALLOC(session, total_length);
     if (!p->outbuf) {
-        return PACKET_ENOMEM;
+        return LIBSSH2_ERROR_ALLOC;
     }
 
     /* store packet_length, which is the size of the whole packet except
@@ -820,7 +820,7 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
             unsigned char *ptr = &p->outbuf[i];
             if (session->local.crypt->crypt(session, ptr,
                                             &session->local.crypt_abstract))
-                return PACKET_FAIL;     /* encryption failure */
+                return LIBSSH2_ERROR_SOCKET_NONE;     /* encryption failure */
         }
     }
 
@@ -846,9 +846,9 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
             p->olen = orgdata_len;
             p->osent = (ret == -1) ? 0 : ret;
             p->ototal_num = total_length;
-            return PACKET_EAGAIN;
+            return LIBSSH2_ERROR_EAGAIN;
         }
-        return PACKET_FAIL;
+        return LIBSSH2_ERROR_SOCKET_NONE;
     }
 
     /* the whole thing got sent away */
@@ -857,5 +857,5 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     LIBSSH2_FREE(session, p->outbuf);
     p->outbuf = NULL;
 
-    return PACKET_NONE;         /* all is good */
+    return LIBSSH2_ERROR_NONE;         /* all is good */
 }

@@ -128,7 +128,7 @@ publickey_status_error(const LIBSSH2_PUBLICKEY *pkey,
  */
 static int
 publickey_packet_receive(LIBSSH2_PUBLICKEY * pkey,
-                         unsigned char **data, unsigned long *data_len)
+                         unsigned char **data, size_t *data_len)
 {
     LIBSSH2_CHANNEL *channel = pkey->channel;
     LIBSSH2_SESSION *session = channel->session;
@@ -137,7 +137,7 @@ publickey_packet_receive(LIBSSH2_PUBLICKEY * pkey,
 
     if (pkey->receive_state == libssh2_NB_state_idle) {
         rc = _libssh2_channel_read(channel, 0, (char *) buffer, 4);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc != 4) {
             return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
@@ -159,7 +159,7 @@ publickey_packet_receive(LIBSSH2_PUBLICKEY * pkey,
     if (pkey->receive_state == libssh2_NB_state_sent) {
         rc = _libssh2_channel_read(channel, 0, (char *) pkey->receive_packet,
                                    pkey->receive_packet_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc != (int)pkey->receive_packet_len) {
             LIBSSH2_FREE(session, pkey->receive_packet);
@@ -185,9 +185,9 @@ publickey_packet_receive(LIBSSH2_PUBLICKEY * pkey,
  * Data will be incremented by 4 + response_len on success only
  */
 static int
-publickey_response_id(unsigned char **pdata, int data_len)
+publickey_response_id(unsigned char **pdata, size_t data_len)
 {
-    unsigned long response_len;
+    size_t response_len;
     unsigned char *data = *pdata;
     const LIBSSH2_PUBLICKEY_CODE_LIST *codes = publickey_response_codes;
 
@@ -198,7 +198,7 @@ publickey_response_id(unsigned char **pdata, int data_len)
     response_len = _libssh2_ntohu32(data);
     data += 4;
     data_len -= 4;
-    if (data_len < (int)response_len) {
+    if (data_len < response_len) {
         /* Malformed response */
         return -1;
     }
@@ -224,13 +224,13 @@ publickey_response_success(LIBSSH2_PUBLICKEY * pkey)
 {
     LIBSSH2_SESSION *session = pkey->channel->session;
     unsigned char *data, *s;
-    unsigned long data_len;
+    size_t data_len;
     int response;
     int rc;
 
     while (1) {
         rc = publickey_packet_receive(pkey, &data, &data_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
             return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
@@ -332,7 +332,7 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
                                              "subsystem",
                                              sizeof("subsystem") - 1,
                                              "publickey", strlen("publickey"));
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block starting publickey subsystem");
             return NULL;
@@ -348,7 +348,7 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
     if (session->pkeyInit_state == libssh2_NB_state_sent1) {
         rc = libssh2_channel_handle_extended_data2(session->pkeyInit_channel,
                                                    LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block starting publickey subsystem");
             return NULL;
@@ -385,7 +385,7 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
     if (session->pkeyInit_state == libssh2_NB_state_sent2) {
         rc = _libssh2_channel_write(session->pkeyInit_channel, 0,
                                     (char *) buffer, (s - buffer));
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block sending publickey version packet");
             return NULL;
@@ -403,7 +403,7 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
             rc = publickey_packet_receive(session->pkeyInit_pkey,
                                           &session->pkeyInit_data,
                                           &session->pkeyInit_data_len);
-            if (rc == PACKET_EAGAIN) {
+            if (rc == LIBSSH2_ERROR_EAGAIN) {
                 _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                "Would block waiting for response from "
                                "publickey subsystem");
@@ -489,7 +489,7 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
     session->pkeyInit_state = libssh2_NB_state_sent4;
     if (session->pkeyInit_channel) {
         rc = libssh2_channel_close(session->pkeyInit_channel);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block closing channel");
             return NULL;
@@ -620,7 +620,7 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY * pkey, const unsigned char *name,
     if (pkey->add_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0, (char *) pkey->add_packet,
                                     (pkey->add_s - pkey->add_packet));
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if ((pkey->add_s - pkey->add_packet) != rc) {
             LIBSSH2_FREE(session, pkey->add_packet);
@@ -635,7 +635,7 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY * pkey, const unsigned char *name,
     }
 
     rc = publickey_response_success(pkey);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     }
 
@@ -694,7 +694,7 @@ libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY * pkey,
     if (pkey->remove_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0, (char *) pkey->remove_packet,
                                     (pkey->remove_s - pkey->remove_packet));
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if ((pkey->remove_s - pkey->remove_packet) != rc) {
             LIBSSH2_FREE(session, pkey->remove_packet);
@@ -710,7 +710,7 @@ libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY * pkey,
     }
 
     rc = publickey_response_success(pkey);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     }
 
@@ -756,7 +756,7 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
                                     (char *) pkey->listFetch_buffer,
                                     (pkey->listFetch_s -
                                      pkey->listFetch_buffer));
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if ((pkey->listFetch_s - pkey->listFetch_buffer) != rc) {
             pkey->listFetch_state = libssh2_NB_state_idle;
@@ -770,7 +770,7 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
     while (1) {
         rc = publickey_packet_receive(pkey, &pkey->listFetch_data,
                                       &pkey->listFetch_data_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
             _libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
@@ -997,7 +997,7 @@ libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY * pkey)
     }
 
     rc = libssh2_channel_free(pkey->channel);
-    if (rc == PACKET_EAGAIN)
+    if (rc == LIBSSH2_ERROR_EAGAIN)
         return rc;
 
     LIBSSH2_FREE(session, pkey);

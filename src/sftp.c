@@ -88,12 +88,12 @@
 
 static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
 
-/* libssh2_htonu64
+/* _libssh2_store_u64
  */
-static void
-_libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
+static void _libssh2_store_u64(unsigned char **ptr, libssh2_uint64_t value)
 {
     unsigned long msl = (unsigned long)(value >> 32);
+    unsigned char *buf = *ptr;
 
     buf[0] = (unsigned char)((msl >> 24) & 0xFF);
     buf[1] = (unsigned char)((msl >> 16) & 0xFF);
@@ -104,6 +104,8 @@ _libssh2_htonu64(unsigned char *buf, libssh2_uint64_t value)
     buf[5] = (unsigned char)((value >> 16) & 0xFF);
     buf[6] = (unsigned char)((value >> 8)  & 0xFF);
     buf[7] = (unsigned char)( value        & 0xFF);
+
+    *ptr += 8;
 }
 
 /*
@@ -167,7 +169,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
     }
     else {
         rc = _libssh2_channel_read(channel, 0, (char *) buffer, 4);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         }
         else if (4 != rc) {
@@ -202,7 +204,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
                                   (char *) packet + packet_received,
                                   packet_len - packet_received);
 
-        if (bytes_received == PACKET_EAGAIN) {
+        if (bytes_received == LIBSSH2_ERROR_EAGAIN) {
             /*
              * We received EAGAIN, save what we have and
              * return to EAGAIN to the caller
@@ -300,7 +302,7 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
 
     while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
         ret = sftp_packet_read(sftp);
-        if (ret == PACKET_EAGAIN) {
+        if (ret == LIBSSH2_ERROR_EAGAIN) {
             return ret;
         } else if (ret <= 0) {
             return -1;
@@ -350,7 +352,7 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
         }
 
         ret = sftp_packet_read(sftp);
-        if ((ret < 0) && (ret != PACKET_EAGAIN)) {
+        if ((ret < 0) && (ret != LIBSSH2_ERROR_EAGAIN)) {
             sftp->requirev_start = 0;
             return -1;
         } else if (ret <= 0) {
@@ -360,9 +362,9 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
 
             if (left <= 0) {
                 sftp->requirev_start = 0;
-                return PACKET_TIMEOUT;
+                return LIBSSH2_ERROR_TIMEOUT;
             }
-            else if (ret == PACKET_EAGAIN) {
+            else if (ret == LIBSSH2_ERROR_EAGAIN) {
                 return ret;
             }
         }
@@ -415,31 +417,24 @@ sftp_attr2bin(unsigned char *p, const LIBSSH2_SFTP_ATTRIBUTES * attrs)
         return 4;
     }
 
-    _libssh2_htonu32(s, attrs->flags & flag_mask);
-    s += 4;
+    _libssh2_store_u32(&s, attrs->flags & flag_mask);
 
     if (attrs->flags & LIBSSH2_SFTP_ATTR_SIZE) {
-        _libssh2_htonu64(s, attrs->filesize);
-        s += 8;
+        _libssh2_store_u64(&s, attrs->filesize);
     }
 
     if (attrs->flags & LIBSSH2_SFTP_ATTR_UIDGID) {
-        _libssh2_htonu32(s, attrs->uid);
-        s += 4;
-        _libssh2_htonu32(s, attrs->gid);
-        s += 4;
+        _libssh2_store_u32(&s, attrs->uid);
+        _libssh2_store_u32(&s, attrs->gid);
     }
 
     if (attrs->flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) {
-        _libssh2_htonu32(s, attrs->permissions);
-        s += 4;
+        _libssh2_store_u32(&s, attrs->permissions);
     }
 
     if (attrs->flags & LIBSSH2_SFTP_ATTR_ACMODTIME) {
-        _libssh2_htonu32(s, attrs->atime);
-        s += 4;
-        _libssh2_htonu32(s, attrs->mtime);
-        s += 4;
+        _libssh2_store_u32(&s, attrs->atime);
+        _libssh2_store_u32(&s, attrs->mtime);
     }
 
     return (s - p);
@@ -573,7 +568,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
                                               "subsystem",
                                               sizeof("subsystem") - 1, "sftp",
                                               strlen("sftp"));
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block to request SFTP subsystem");
             return NULL;
@@ -589,7 +584,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     if (session->sftpInit_state == libssh2_NB_state_sent1) {
         rc = _libssh2_channel_extended_data(session->sftpInit_channel,
                                             LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block requesting handle extended data");
             return NULL;
@@ -625,7 +620,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
                                     (char *)session->sftpInit_buffer +
                                     session->sftpInit_sent,
                                     9 - session->sftpInit_sent);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block sending SSH_FXP_INIT");
             return NULL;
@@ -649,7 +644,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
     rc = sftp_packet_require(sftp_handle, SSH_FXP_VERSION,
                              0, &data, &data_len);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                        "Would block waiting for response from SFTP subsystem");
         return NULL;
@@ -710,7 +705,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     return sftp_handle;
 
   sftp_init_error:
-    while (_libssh2_channel_free(session->sftpInit_channel) == PACKET_EAGAIN);
+    while (_libssh2_channel_free(session->sftpInit_channel) == LIBSSH2_ERROR_EAGAIN);
     session->sftpInit_channel = NULL;
     if (session->sftpInit_sftp) {
         LIBSSH2_FREE(session, session->sftpInit_sftp);
@@ -852,21 +847,15 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
               LIBSSH2_SFTP_OPENFILE) ? LIBSSH2_SFTP_ATTR_PFILETYPE_FILE :
              LIBSSH2_SFTP_ATTR_PFILETYPE_DIR);
 
-        _libssh2_htonu32(s, sftp->open_packet_len - 4);
-        s += 4;
-        *(s++) =
-            (open_type ==
-             LIBSSH2_SFTP_OPENFILE) ? SSH_FXP_OPEN : SSH_FXP_OPENDIR;
+        _libssh2_store_u32(&s, sftp->open_packet_len - 4);
+        *(s++) = (open_type ==
+                  LIBSSH2_SFTP_OPENFILE) ? SSH_FXP_OPEN : SSH_FXP_OPENDIR;
         sftp->open_request_id = sftp->request_id++;
-        _libssh2_htonu32(s, sftp->open_request_id);
-        s += 4;
-        _libssh2_htonu32(s, filename_len);
-        s += 4;
-        memcpy(s, filename, filename_len);
-        s += filename_len;
+        _libssh2_store_u32(&s, sftp->open_request_id);
+        _libssh2_store_str(&s, filename, filename_len);
+
         if (open_type == LIBSSH2_SFTP_OPENFILE) {
-            _libssh2_htonu32(s, flags);
-            s += 4;
+            _libssh2_store_u32(&s, flags);
             s += sftp_attr2bin(s, &attrs);
         }
 
@@ -880,7 +869,7 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     if (sftp->open_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->open_packet,
                                     sftp->open_packet_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block sending FXP_OPEN or FXP_OPENDIR command");
             return NULL;
@@ -906,7 +895,7 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
         rc = sftp_packet_requirev(sftp, 2, fopen_responses,
                                   sftp->open_request_id, &data,
                                   &data_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block waiting for status message");
             return NULL;
@@ -934,7 +923,7 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
             /* silly situation, but check for a HANDLE */
             rc = sftp_packet_require(sftp, SSH_FXP_HANDLE,
                                      sftp->open_request_id, &data, &data_len);
-            if(rc == PACKET_EAGAIN) {
+            if(rc == LIBSSH2_ERROR_EAGAIN) {
                 /* go back to sent state and wait for something else */
                 sftp->open_state = libssh2_NB_state_sent;
                 return NULL;
@@ -1067,23 +1056,13 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 #endif
 
         if (sftp->read_state == libssh2_NB_state_allocated) {
-            _libssh2_htonu32(s, packet_len - 4);
-            s += 4;
+            _libssh2_store_u32(&s, packet_len - 4);
             *(s++) = SSH_FXP_READ;
             request_id = sftp->request_id++;
-            _libssh2_htonu32(s, request_id);
-            s += 4;
-            _libssh2_htonu32(s, handle->handle_len);
-            s += 4;
-
-            memcpy(s, handle->handle, handle->handle_len);
-            s += handle->handle_len;
-
-            _libssh2_htonu64(s, handle->u.file.offset);
-            s += 8;
-
-            _libssh2_htonu32(s, bytes_requested);
-            s += 4;
+            _libssh2_store_u32(&s, request_id);
+            _libssh2_store_str(&s, handle->handle, handle->handle_len);
+            _libssh2_store_u64(&s, handle->u.file.offset);
+            _libssh2_store_u32(&s, bytes_requested);
 
             sftp->read_state = libssh2_NB_state_created;
         }
@@ -1091,7 +1070,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         if (sftp->read_state == libssh2_NB_state_created) {
             retcode = _libssh2_channel_write(channel, 0, (char *) packet,
                                              packet_len);
-            if (retcode == PACKET_EAGAIN) {
+            if (retcode == LIBSSH2_ERROR_EAGAIN) {
                 sftp->read_packet = packet;
                 sftp->read_request_id = request_id;
                 sftp->read_total_read = total_read;
@@ -1114,7 +1093,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
             retcode =
                 sftp_packet_requirev(sftp, 2, read_responses,
                                      request_id, &data, &data_len);
-            if (retcode == PACKET_EAGAIN) {
+            if (retcode == LIBSSH2_ERROR_EAGAIN) {
                 return _libssh2_error(session, retcode,
                                       "Would block waiting for status message");
             } else if (retcode) {
@@ -1264,16 +1243,11 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                                   "Unable to allocate memory for "
                                   "FXP_READDIR packet");
 
-        _libssh2_htonu32(s, packet_len - 4);
-        s += 4;
+        _libssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_READDIR;
         sftp->readdir_request_id = sftp->request_id++;
-        _libssh2_htonu32(s, sftp->readdir_request_id);
-        s += 4;
-        _libssh2_htonu32(s, handle->handle_len);
-        s += 4;
-        memcpy(s, handle->handle, handle->handle_len);
-        s += handle->handle_len;
+        _libssh2_store_u32(&s, sftp->readdir_request_id);
+        _libssh2_store_str(&s, handle->handle, handle->handle_len);
 
         sftp->readdir_state = libssh2_NB_state_created;
     }
@@ -1284,7 +1258,7 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
         retcode = _libssh2_channel_write(channel, 0,
                                          (char *) sftp->readdir_packet,
                                          packet_len);
-        if (retcode == PACKET_EAGAIN) {
+        if (retcode == LIBSSH2_ERROR_EAGAIN) {
             return retcode;
         }
         else if (packet_len != retcode) {
@@ -1304,7 +1278,7 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     retcode = sftp_packet_requirev(sftp, 2, read_responses,
                                    sftp->readdir_request_id, &data,
                                    &data_len);
-    if (retcode == PACKET_EAGAIN)
+    if (retcode == LIBSSH2_ERROR_EAGAIN)
         return retcode;
     else if (retcode) {
         sftp->readdir_state = libssh2_NB_state_idle;
@@ -1398,22 +1372,14 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory for FXP_WRITE");
         }
-        _libssh2_htonu32(s, packet_len - 4);
-        s += 4;
+        _libssh2_store_u32(&s, packet_len - 4);
+
         *(s++) = SSH_FXP_WRITE;
         sftp->write_request_id = sftp->request_id++;
-        _libssh2_htonu32(s, sftp->write_request_id);
-        s += 4;
-        _libssh2_htonu32(s, handle->handle_len);
-        s += 4;
-        memcpy(s, handle->handle, handle->handle_len);
-        s += handle->handle_len;
-        _libssh2_htonu64(s, handle->u.file.offset);
-        s += 8;
-        _libssh2_htonu32(s, count);
-        s += 4;
-        memcpy(s, buffer, count);
-        s += count;
+        _libssh2_store_u32(&s, sftp->write_request_id);
+        _libssh2_store_str(&s, handle->handle, handle->handle_len);
+        _libssh2_store_u64(&s, handle->u.file.offset);
+        _libssh2_store_str(&s, buffer, count);
 
         sftp->write_state = libssh2_NB_state_created;
     }
@@ -1439,7 +1405,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
 
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                              sftp->write_request_id, &data, &data_len);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     }
     else if (rc) {
@@ -1507,16 +1473,12 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
                                   "FSTAT/FSETSTAT packet");
         }
 
-        _libssh2_htonu32(s, packet_len - 4);
-        s += 4;
+        _libssh2_store_u32(&s, packet_len - 4);
         *(s++) = setstat ? SSH_FXP_FSETSTAT : SSH_FXP_FSTAT;
         sftp->fstat_request_id = sftp->request_id++;
-        _libssh2_htonu32(s, sftp->fstat_request_id);
-        s += 4;
-        _libssh2_htonu32(s, handle->handle_len);
-        s += 4;
-        memcpy(s, handle->handle, handle->handle_len);
-        s += handle->handle_len;
+        _libssh2_store_u32(&s, sftp->fstat_request_id);
+        _libssh2_store_str(&s, handle->handle, handle->handle_len);
+
         if (setstat) {
             s += sftp_attr2bin(s, attrs);
         }
@@ -1527,7 +1489,7 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
     if (sftp->fstat_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->fstat_packet,
                                     packet_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (packet_len != rc) {
             LIBSSH2_FREE(session, sftp->fstat_packet);
@@ -1546,7 +1508,7 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
     rc = sftp_packet_requirev(sftp, 2, fstat_responses,
                               sftp->fstat_request_id, &data,
                               &data_len);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     } else if (rc) {
         sftp->fstat_state = libssh2_NB_state_idle;
@@ -1655,24 +1617,18 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
                                   "packet");
         }
 
-        _libssh2_htonu32(s, packet_len - 4);
-        s += 4;
+        _libssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_CLOSE;
         handle->close_request_id = sftp->request_id++;
-        _libssh2_htonu32(s, handle->close_request_id);
-        s += 4;
-        _libssh2_htonu32(s, handle->handle_len);
-        s += 4;
-        memcpy(s, handle->handle, handle->handle_len);
-        s += handle->handle_len;
-
+        _libssh2_store_u32(&s, handle->close_request_id);
+        _libssh2_store_str(&s, handle->handle, handle->handle_len);
         handle->close_state = libssh2_NB_state_created;
     }
 
     if (handle->close_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0, (char *) handle->close_packet,
                                     packet_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (packet_len != rc) {
             LIBSSH2_FREE(session, handle->close_packet);
@@ -1691,7 +1647,7 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                                  handle->close_request_id, &data,
                                  &data_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
             handle->close_state = libssh2_NB_state_idle;
@@ -1764,24 +1720,18 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename,
                                   "packet");
         }
 
-        _libssh2_htonu32(s, packet_len - 4);
-        s += 4;
+        _libssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_REMOVE;
         sftp->unlink_request_id = sftp->request_id++;
-        _libssh2_htonu32(s, sftp->unlink_request_id);
-        s += 4;
-        _libssh2_htonu32(s, filename_len);
-        s += 4;
-        memcpy(s, filename, filename_len);
-        s += filename_len;
-
+        _libssh2_store_u32(&s, sftp->unlink_request_id);
+        _libssh2_store_str(&s, filename, filename_len);
         sftp->unlink_state = libssh2_NB_state_created;
     }
 
     if (sftp->unlink_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->unlink_packet,
                                     packet_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (packet_len != rc) {
             LIBSSH2_FREE(session, sftp->unlink_packet);
@@ -1799,7 +1749,7 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename,
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                              sftp->unlink_request_id, &data,
                              &data_len);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     }
     else if (rc) {
@@ -1873,25 +1823,16 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
                                   "packet");
         }
 
-        _libssh2_htonu32(sftp->rename_s, packet_len - 4);
-        sftp->rename_s += 4;
+        _libssh2_store_u32(&sftp->rename_s, packet_len - 4);
         *(sftp->rename_s++) = SSH_FXP_RENAME;
         sftp->rename_request_id = sftp->request_id++;
-        _libssh2_htonu32(sftp->rename_s, sftp->rename_request_id);
-        sftp->rename_s += 4;
-        _libssh2_htonu32(sftp->rename_s, source_filename_len);
-        sftp->rename_s += 4;
-        memcpy(sftp->rename_s, source_filename, source_filename_len);
-        sftp->rename_s += source_filename_len;
-        _libssh2_htonu32(sftp->rename_s, dest_filename_len);
-        sftp->rename_s += 4;
-        memcpy(sftp->rename_s, dest_filename, dest_filename_len);
-        sftp->rename_s += dest_filename_len;
+        _libssh2_store_u32(&sftp->rename_s, sftp->rename_request_id);
+        _libssh2_store_str(&sftp->rename_s, source_filename,
+                           source_filename_len);
+        _libssh2_store_str(&sftp->rename_s, dest_filename, dest_filename_len);
 
-        if (sftp->version >= 5) {
-            _libssh2_htonu32(sftp->rename_s, flags);
-            sftp->rename_s += 4;
-        }
+        if (sftp->version >= 5)
+            _libssh2_store_u32(&sftp->rename_s, flags);
 
         sftp->rename_state = libssh2_NB_state_created;
     }
@@ -1899,7 +1840,7 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
     if (sftp->rename_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->rename_packet,
                                     sftp->rename_s - sftp->rename_packet);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (packet_len != rc) {
             LIBSSH2_FREE(session, sftp->rename_packet);
@@ -1917,7 +1858,7 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                              sftp->rename_request_id, &data,
                              &data_len);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     } else if (rc) {
         sftp->rename_state = libssh2_NB_state_idle;
@@ -2007,16 +1948,12 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
         /* Filetype in SFTP 3 and earlier */
         attrs.permissions = mode | LIBSSH2_SFTP_ATTR_PFILETYPE_DIR;
 
-        _libssh2_htonu32(s, packet_len - 4);
-        s += 4;
+        _libssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_MKDIR;
         sftp->mkdir_request_id = sftp->request_id++;
-        _libssh2_htonu32(s, sftp->mkdir_request_id);
-        s += 4;
-        _libssh2_htonu32(s, path_len);
-        s += 4;
-        memcpy(s, path, path_len);
-        s += path_len;
+        _libssh2_store_u32(&s, sftp->mkdir_request_id);
+        _libssh2_store_str(&s, path, path_len);
+
         s += sftp_attr2bin(s, &attrs);
 
         sftp->mkdir_state = libssh2_NB_state_created;
@@ -2027,7 +1964,7 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
 
     if (sftp->mkdir_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0, (char *) packet, packet_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             sftp->mkdir_packet = packet;
             return rc;
         }
@@ -2044,7 +1981,7 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
 
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS, sftp->mkdir_request_id,
                              &data, &data_len);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     } else if (rc) {
         sftp->mkdir_state = libssh2_NB_state_idle;
@@ -2107,16 +2044,11 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
                                   "packet");
         }
 
-        _libssh2_htonu32(s, packet_len - 4);
-        s += 4;
+        _libssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_RMDIR;
         sftp->rmdir_request_id = sftp->request_id++;
-        _libssh2_htonu32(s, sftp->rmdir_request_id);
-        s += 4;
-        _libssh2_htonu32(s, path_len);
-        s += 4;
-        memcpy(s, path, path_len);
-        s += path_len;
+        _libssh2_store_u32(&s, sftp->rmdir_request_id);
+        _libssh2_store_str(&s, path, path_len);
 
         sftp->rmdir_state = libssh2_NB_state_created;
     }
@@ -2124,7 +2056,7 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
     if (sftp->rmdir_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->rmdir_packet,
                                     packet_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (packet_len != rc) {
             LIBSSH2_FREE(session, sftp->rmdir_packet);
@@ -2141,7 +2073,7 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
 
     rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                              sftp->rmdir_request_id, &data, &data_len);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     } else if (rc) {
         sftp->rmdir_state = libssh2_NB_state_idle;
@@ -2208,8 +2140,8 @@ static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
                                   "packet");
         }
 
-        _libssh2_htonu32(s, packet_len - 4);
-        s += 4;
+        _libssh2_store_u32(&s, packet_len - 4);
+
         switch (stat_type) {
         case LIBSSH2_SFTP_SETSTAT:
             *(s++) = SSH_FXP_SETSTAT;
@@ -2224,15 +2156,11 @@ static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
             *(s++) = SSH_FXP_STAT;
         }
         sftp->stat_request_id = sftp->request_id++;
-        _libssh2_htonu32(s, sftp->stat_request_id);
-        s += 4;
-        _libssh2_htonu32(s, path_len);
-        s += 4;
-        memcpy(s, path, path_len);
-        s += path_len;
-        if (stat_type == LIBSSH2_SFTP_SETSTAT) {
+        _libssh2_store_u32(&s, sftp->stat_request_id);
+        _libssh2_store_str(&s, path, path_len);
+
+        if (stat_type == LIBSSH2_SFTP_SETSTAT)
             s += sftp_attr2bin(s, attrs);
-        }
 
         sftp->stat_state = libssh2_NB_state_created;
     }
@@ -2240,7 +2168,7 @@ static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
     if (sftp->stat_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->stat_packet,
                                     packet_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (packet_len != rc) {
             LIBSSH2_FREE(session, sftp->stat_packet);
@@ -2257,7 +2185,7 @@ static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
 
     rc = sftp_packet_requirev(sftp, 2, stat_responses,
                               sftp->stat_request_id, &data, &data_len);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     } else if (rc) {
         sftp->stat_state = libssh2_NB_state_idle;
@@ -2340,8 +2268,8 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
                        (link_type ==
                         LIBSSH2_SFTP_REALPATH) ? "realpath" : "symlink", path);
 
-        _libssh2_htonu32(s, packet_len - 4);
-        s += 4;
+        _libssh2_store_u32(&s, packet_len - 4);
+
         switch (link_type) {
         case LIBSSH2_SFTP_REALPATH:
             *(s++) = SSH_FXP_REALPATH;
@@ -2356,18 +2284,11 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
             *(s++) = SSH_FXP_READLINK;
         }
         sftp->symlink_request_id = sftp->request_id++;
-        _libssh2_htonu32(s, sftp->symlink_request_id);
-        s += 4;
-        _libssh2_htonu32(s, path_len);
-        s += 4;
-        memcpy(s, path, path_len);
-        s += path_len;
-        if (link_type == LIBSSH2_SFTP_SYMLINK) {
-            _libssh2_htonu32(s, target_len);
-            s += 4;
-            memcpy(s, target, target_len);
-            s += target_len;
-        }
+        _libssh2_store_u32(&s, sftp->symlink_request_id);
+        _libssh2_store_str(&s, path, path_len);
+
+        if (link_type == LIBSSH2_SFTP_SYMLINK)
+            _libssh2_store_str(&s, target, target_len);
 
         sftp->symlink_state = libssh2_NB_state_created;
     }
@@ -2375,7 +2296,7 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
     if (sftp->symlink_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0, (char *) sftp->symlink_packet,
                                     packet_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (packet_len != rc) {
             LIBSSH2_FREE(session, sftp->symlink_packet);
@@ -2393,7 +2314,7 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
     rc = sftp_packet_requirev(sftp, 2, link_responses,
                               sftp->symlink_request_id, &data,
                               &data_len);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     }
     else if (rc) {

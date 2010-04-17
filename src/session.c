@@ -86,7 +86,7 @@ LIBSSH2_REALLOC_FUNC(libssh2_default_realloc)
  *
  * Wait for a hello from the remote host
  * Allocate a buffer and store the banner in session->remote.banner
- * Returns: 0 on success, PACKET_EAGAIN if read would block, negative on failure
+ * Returns: 0 on success, LIBSSH2_ERROR_EAGAIN if read would block, negative on failure
  */
 static int
 banner_receive(LIBSSH2_SESSION * session)
@@ -124,7 +124,7 @@ banner_receive(LIBSSH2_SESSION * session)
                 session->socket_block_directions =
                     LIBSSH2_SESSION_BLOCK_INBOUND;
                 session->banner_TxRx_total_send = banner_len;
-                return PACKET_EAGAIN;
+                return LIBSSH2_ERROR_EAGAIN;
             }
 
             /* Some kinda error */
@@ -135,7 +135,7 @@ banner_receive(LIBSSH2_SESSION * session)
 
         if (ret == 0) {
             session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
-            return PACKET_FAIL;
+            return LIBSSH2_ERROR_SOCKET_NONE;
         }
 
         if (c == '\0') {
@@ -178,7 +178,7 @@ banner_receive(LIBSSH2_SESSION * session)
  *
  * Send the default banner, or the one set via libssh2_setopt_string
  *
- * Returns PACKET_EAGAIN if it would block - and if it does so, you should
+ * Returns LIBSSH2_ERROR_EAGAIN if it would block - and if it does so, you should
  * call this function again as soon as it is likely that more data can be
  * sent, and this function should then be called with the same argument set
  * (same data pointer and same data_len) until zero or failure is returned.
@@ -239,11 +239,11 @@ banner_send(LIBSSH2_SESSION * session)
             session->socket_block_directions =
                 LIBSSH2_SESSION_BLOCK_OUTBOUND;
             session->banner_TxRx_total_send += ret;
-            return PACKET_EAGAIN;
+            return LIBSSH2_ERROR_EAGAIN;
         }
         session->banner_TxRx_state = libssh2_NB_state_idle;
         session->banner_TxRx_total_send = 0;
-        return PACKET_FAIL;
+        return LIBSSH2_ERROR_SOCKET_NONE;
     }
 
     /* Set the state back to idle */
@@ -738,7 +738,7 @@ session_free(LIBSSH2_SESSION *session)
         while ((ch = _libssh2_list_first(&session->channels))) {
 
             rc = libssh2_channel_free(ch);
-            if (rc == PACKET_EAGAIN)
+            if (rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
 #if 0
             /* Daniel's note: I'm leaving this code here right now since it
@@ -766,7 +766,7 @@ session_free(LIBSSH2_SESSION *session)
     if (session->state == libssh2_NB_state_sent) {
         while ((l = _libssh2_list_first(&session->listeners))) {
             rc = libssh2_channel_forward_cancel(l);
-            if (rc == PACKET_EAGAIN)
+            if (rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
         }
 
@@ -1010,29 +1010,16 @@ session_disconnect(LIBSSH2_SESSION *session, int reason,
         }
 
         *(s++) = SSH_MSG_DISCONNECT;
-        _libssh2_htonu32(s, reason);
-        s += 4;
-
-        _libssh2_htonu32(s, descr_len);
-        s += 4;
-        if (description) {
-            memcpy(s, description, descr_len);
-            s += descr_len;
-        }
-
-        _libssh2_htonu32(s, lang_len);
-        s += 4;
-        if (lang) {
-            memcpy(s, lang, lang_len);
-            s += lang_len;
-        }
+        _libssh2_store_u32(&s, reason);
+        _libssh2_store_str(&s, description, descr_len);
+        _libssh2_store_str(&s, lang, lang_len);
 
         session->disconnect_state = libssh2_NB_state_created;
     }
 
     rc = _libssh2_transport_write(session, session->disconnect_data,
                                   session->disconnect_data_len);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     }
 

@@ -338,7 +338,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                                              sizeof("exec") - 1,
                                              (char *) session->scpRecv_command,
                                              session->scpRecv_command_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block requesting SCP startup");
             return NULL;
@@ -360,7 +360,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
     if (session->scpRecv_state == libssh2_NB_state_sent1) {
         rc = _libssh2_channel_write(session->scpRecv_channel, 0,
                                     (char *) session->scpRecv_response, 1);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block sending initial wakeup");
             return NULL;
@@ -385,7 +385,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                                            (char *) session->
                                            scpRecv_response +
                                            session->scpRecv_response_len, 1);
-                if (rc == PACKET_EAGAIN) {
+                if (rc == LIBSSH2_ERROR_EAGAIN) {
                     _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                    "Would block waiting for SCP response");
                     return NULL;
@@ -424,7 +424,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                         /*
                          * Since we have alread started reading this packet,
                          * it is already in the systems so it can't return
-                         * PACKET_EAGAIN
+                         * LIBSSH2_ERROR_EAGAIN
                          */
                         _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                        "Unknown error" );
@@ -557,7 +557,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                 rc = _libssh2_channel_write(session->scpRecv_channel, 0,
                                             (char *) session->
                                             scpRecv_response, 1);
-                if (rc == PACKET_EAGAIN) {
+                if (rc == LIBSSH2_ERROR_EAGAIN) {
                     _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                    "Would block waiting to send SCP ACK");
                     return NULL;
@@ -594,7 +594,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                                            (char *) session->
                                            scpRecv_response +
                                            session->scpRecv_response_len, 1);
-                if (rc == PACKET_EAGAIN) {
+                if (rc == LIBSSH2_ERROR_EAGAIN) {
                     _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                    "Would block waiting for SCP response");
                     return NULL;
@@ -714,7 +714,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                 rc = _libssh2_channel_write(session->scpRecv_channel, 0,
                                             (char *) session->
                                             scpRecv_response, 1);
-                if (rc == PACKET_EAGAIN) {
+                if (rc == LIBSSH2_ERROR_EAGAIN) {
                     _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                    "Would block sending SCP ACK");
                     return NULL;
@@ -747,7 +747,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
     return session->scpRecv_channel;
 
   scp_recv_error:
-    while (libssh2_channel_free(session->scpRecv_channel) == PACKET_EAGAIN);
+    while (libssh2_channel_free(session->scpRecv_channel) == LIBSSH2_ERROR_EAGAIN);
     session->scpRecv_channel = NULL;
     session->scpRecv_state = libssh2_NB_state_idle;
     return NULL;
@@ -841,7 +841,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                                              sizeof("exec") - 1,
                                              (char *) session->scpSend_command,
                                              session->scpSend_command_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block requesting SCP startup");
             return NULL;
@@ -865,7 +865,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
         /* Wait for ACK */
         rc = _libssh2_channel_read(session->scpSend_channel, 0,
                                    (char *) session->scpSend_response, 1);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block waiting for response from remote");
             return NULL;
@@ -894,7 +894,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
             rc = _libssh2_channel_write(session->scpSend_channel, 0,
                                         (char *) session->scpSend_response,
                                         session->scpSend_response_len);
-            if (rc == PACKET_EAGAIN) {
+            if (rc == LIBSSH2_ERROR_EAGAIN) {
                 _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                "Would block sending time data for SCP file");
                 return NULL;
@@ -911,7 +911,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
             /* Wait for ACK */
             rc = _libssh2_channel_read(session->scpSend_channel, 0,
                                        (char *) session->scpSend_response, 1);
-            if (rc == PACKET_EAGAIN) {
+            if (rc == LIBSSH2_ERROR_EAGAIN) {
                 _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                "Would block waiting for response");
                 return NULL;
@@ -952,7 +952,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
         rc = _libssh2_channel_write(session->scpSend_channel, 0,
                                     (char *) session->scpSend_response,
                                     session->scpSend_response_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block send core file data for SCP file");
             return NULL;
@@ -969,7 +969,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
         /* Wait for ACK */
         rc = _libssh2_channel_read(session->scpSend_channel, 0,
                                    (char *) session->scpSend_response, 1);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block waiting for response");
             return NULL;
@@ -1001,7 +1001,8 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
             if (rc <= 0) {
                 /*
                  * Since we have alread started reading this packet, it is
-                 * already in the systems so it can't return PACKET_EAGAIN
+                 * already in the systems so it can't return
+                 * LIBSSH2_ERROR_EAGAIN
                  */
                 LIBSSH2_FREE(session, session->scpSend_err_msg);
                 session->scpSend_err_msg = NULL;
@@ -1018,7 +1019,8 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
     return session->scpSend_channel;
 
   scp_send_error:
-    while (libssh2_channel_free(session->scpSend_channel) == PACKET_EAGAIN);
+    while (libssh2_channel_free(session->scpSend_channel) ==
+           LIBSSH2_ERROR_EAGAIN);
     session->scpSend_channel = NULL;
     session->scpSend_state = libssh2_NB_state_idle;
     return NULL;

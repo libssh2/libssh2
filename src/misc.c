@@ -145,12 +145,31 @@ _libssh2_ntohu64(const unsigned char *buf)
 /* _libssh2_htonu32
  */
 void
-_libssh2_htonu32(unsigned char *buf, unsigned int value)
+_libssh2_htonu32(unsigned char *buf, uint32_t value)
 {
     buf[0] = (value >> 24) & 0xFF;
     buf[1] = (value >> 16) & 0xFF;
     buf[2] = (value >> 8) & 0xFF;
     buf[3] = value & 0xFF;
+}
+
+/* _libssh2_store_u32
+ */
+void _libssh2_store_u32(unsigned char **buf, uint32_t value)
+{
+    _libssh2_htonu32(*buf, value);
+    *buf += sizeof(uint32_t);
+}
+
+/* _libssh2_store_str
+ */
+void _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
+{
+    _libssh2_store_u32(buf, (uint32_t)len);
+    if(len) {
+        memcpy(*buf, str, len);
+        *buf += len;
+    }
 }
 
 /* Base64 Conversion */

@@ -162,9 +162,9 @@ int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
 int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
                            libssh2_rsa_ctx * rsactx,
                            const unsigned char *hash,
-                           unsigned long hash_len,
+                           size_t hash_len,
                            unsigned char **signature,
-                           unsigned long *signature_len);
+                           size_t *signature_len);
 
 #define _libssh2_rsa_free(rsactx) RSA_free(rsactx)
 

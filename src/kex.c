@@ -142,7 +142,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
     if (exchange_state->state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, exchange_state->e_packet,
                                       exchange_state->e_packet_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
             ret = _libssh2_error(session, rc,
@@ -163,7 +163,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
                            "Waiting for badly guessed KEX packet (to be ignored)");
             burn_type =
                 _libssh2_packet_burn(session, &exchange_state->burn_state);
-            if (burn_type == PACKET_EAGAIN) {
+            if (burn_type == LIBSSH2_ERROR_EAGAIN) {
                 return burn_type;
             } else if (burn_type <= 0) {
                 /* Failed to receive a packet */
@@ -186,7 +186,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
                                      &exchange_state->s_packet,
                                      &exchange_state->s_packet_len, 0, NULL,
                                      0, &exchange_state->req_state);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         }
         if (rc) {
@@ -411,7 +411,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
 
     if (exchange_state->state == libssh2_NB_state_sent2) {
         rc = _libssh2_transport_write(session, &exchange_state->c, 1);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
             ret = _libssh2_error(session, rc, "Unable to send NEWKEYS message");
@@ -426,7 +426,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
                                      &exchange_state->tmp,
                                      &exchange_state->tmp_len, 0, NULL, 0,
                                      &exchange_state->req_state);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
             ret = _libssh2_error(session, rc, "Timed out waiting for NEWKEYS");
@@ -682,7 +682,7 @@ kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION *session,
     ret = diffie_hellman_sha1(session, key_state->g, key_state->p, 128,
                               SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
                               NULL, 0, &key_state->exchange_state);
-    if (ret == PACKET_EAGAIN) {
+    if (ret == LIBSSH2_ERROR_EAGAIN) {
         return ret;
     }
 
@@ -758,7 +758,7 @@ kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_SESSION *session,
     ret = diffie_hellman_sha1(session, key_state->g, key_state->p,
                               256, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
                               NULL, 0, &key_state->exchange_state);
-    if (ret == PACKET_EAGAIN) {
+    if (ret == LIBSSH2_ERROR_EAGAIN) {
         return ret;
     }
 
@@ -812,7 +812,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     if (key_state->state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, key_state->request,
                                       key_state->request_len);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
             ret = _libssh2_error(session, rc,
@@ -827,7 +827,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
         rc = _libssh2_packet_require(session, SSH_MSG_KEX_DH_GEX_GROUP,
                                      &key_state->data, &key_state->data_len,
                                      0, NULL, 0, &key_state->req_state);
-        if (rc == PACKET_EAGAIN) {
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
             ret = _libssh2_error(session, rc,
@@ -856,7 +856,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
                                   key_state->data + 1,
                                   key_state->data_len - 1,
                                   &key_state->exchange_state);
-        if (ret == PACKET_EAGAIN) {
+        if (ret == LIBSSH2_ERROR_EAGAIN) {
             return ret;
         }
 
@@ -1107,7 +1107,7 @@ static int kexinit(LIBSSH2_SESSION * session)
     }
 
     rc = _libssh2_transport_write(session, data, data_len);
-    if (rc == PACKET_EAGAIN) {
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
         session->kexinit_data = data;
         session->kexinit_data_len = data_len;
         return rc;
@@ -1675,7 +1675,7 @@ libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
 
         if (key_state->state == libssh2_NB_state_sent) {
             retcode = kexinit(session);
-            if (retcode == PACKET_EAGAIN) {
+            if (retcode == LIBSSH2_ERROR_EAGAIN) {
                 session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
                 return retcode;
             } else if (retcode) {
@@ -1696,7 +1696,7 @@ libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                                         &key_state->data,
                                         &key_state->data_len, 0, NULL, 0,
                                         &key_state->req_state);
-            if (retcode == PACKET_EAGAIN) {
+            if (retcode == LIBSSH2_ERROR_EAGAIN) {
                 session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
                 return retcode;
             }
@@ -1732,7 +1732,7 @@ libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
         if (key_state->state == libssh2_NB_state_sent2) {
             retcode = session->kex->exchange_keys(session,
                                                   &key_state->key_state_low);
-            if (retcode == PACKET_EAGAIN) {
+            if (retcode == LIBSSH2_ERROR_EAGAIN) {
                 session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
                 return retcode;
             } else if (retcode) {

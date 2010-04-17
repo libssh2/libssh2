@@ -71,4 +71,11 @@ void _libssh2_list_remove(struct list_node *entry);
 
 size_t _libssh2_base64_encode(struct _LIBSSH2_SESSION *session,
                               const char *inp, size_t insize, char **outptr);
+
+unsigned int _libssh2_ntohu32(const unsigned char *buf);
+libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
+void _libssh2_htonu32(unsigned char *buf, uint32_t val);
+void _libssh2_store_u32(unsigned char **buf, uint32_t value);
+void _libssh2_store_str(unsigned char **buf, const char *str, size_t len);
+
 #endif /* _LIBSSH2_MISC_H */

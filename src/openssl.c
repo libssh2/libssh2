@@ -385,8 +385,8 @@ int
 _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
                        libssh2_rsa_ctx * rsactx,
                        const unsigned char *hash,
-                       unsigned long hash_len,
-                       unsigned char **signature, unsigned long *signature_len)
+                       size_t hash_len,
+                       unsigned char **signature, size_t *signature_len)
 {
     int ret;
     unsigned char *sig;
