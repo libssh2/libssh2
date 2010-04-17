@@ -1125,11 +1125,6 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session);
 
 int libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                          key_exchange_state_t * state);
-unsigned long _libssh2_channel_nextid(LIBSSH2_SESSION * session);
-LIBSSH2_CHANNEL *_libssh2_channel_locate(LIBSSH2_SESSION * session,
-                                         unsigned long channel_id);
-unsigned long _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel,
-                                               int stream_id);
 
 /* this is the lib-internal set blocking function */
 int _libssh2_session_set_blocking(LIBSSH2_SESSION * session, int blocking);

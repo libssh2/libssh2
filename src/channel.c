@@ -56,10 +56,10 @@
  *
  * Determine the next channel ID we can use at our end
  */
-unsigned long
+uint32_t
 _libssh2_channel_nextid(LIBSSH2_SESSION * session)
 {
-    unsigned long id = session->next_channel;
+    uint32_t id = session->next_channel;
     LIBSSH2_CHANNEL *channel;
 
     channel = _libssh2_list_first(&session->channels);
@@ -90,7 +90,7 @@ _libssh2_channel_nextid(LIBSSH2_SESSION * session)
  * Locate a channel pointer by number
  */
 LIBSSH2_CHANNEL *
-_libssh2_channel_locate(LIBSSH2_SESSION *session, unsigned long channel_id)
+_libssh2_channel_locate(LIBSSH2_SESSION *session, uint32_t channel_id)
 {
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_LISTENER *l;
@@ -125,8 +125,9 @@ _libssh2_channel_locate(LIBSSH2_SESSION *session, unsigned long channel_id)
  */
 LIBSSH2_CHANNEL *
 _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
-                      unsigned int channel_type_len,
-                      unsigned int window_size, unsigned int packet_size,
+                      uint32_t channel_type_len,
+                      uint32_t window_size,
+                      uint32_t packet_size,
                       const char *message, unsigned int message_len)
 {
     static const unsigned char reply_codes[3] = {
@@ -1780,7 +1781,7 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf,
  * Return the size of the data block of the current packet, or 0 if there
  * isn't a packet.
  */
-unsigned long
+size_t
 _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
 {
     LIBSSH2_SESSION *session = channel->session;

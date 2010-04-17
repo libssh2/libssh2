@@ -1,6 +1,6 @@
 #ifndef __LIBSSH2_CHANNEL_H
 #define __LIBSSH2_CHANNEL_H
-/* Copyright (c) 2008-2009 by Daniel Stenberg
+/* Copyright (c) 2008-2010 by Daniel Stenberg
  *
  * All rights reserved.
  *
@@ -116,5 +116,14 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
  */
 ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
                               char *buf, size_t buflen);
+
+uint32_t _libssh2_channel_nextid(LIBSSH2_SESSION * session);
+
+LIBSSH2_CHANNEL *_libssh2_channel_locate(LIBSSH2_SESSION * session,
+                                         uint32_t channel_id);
+
+size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel,
+                                        int stream_id);
+
 #endif /* __LIBSSH2_CHANNEL_H */
 
