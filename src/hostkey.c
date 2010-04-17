@@ -167,7 +167,7 @@ hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION * session,
 {
     libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *) (*abstract);
     int ret;
-    unsigned int i;
+    int i;
     unsigned char hash[SHA_DIGEST_LENGTH];
     libssh2_sha1_ctx ctx;
 
@@ -346,7 +346,7 @@ hostkey_method_ssh_dss_signv(LIBSSH2_SESSION * session,
     libssh2_dsa_ctx *dsactx = (libssh2_dsa_ctx *) (*abstract);
     unsigned char hash[SHA_DIGEST_LENGTH];
     libssh2_sha1_ctx ctx;
-    unsigned int i;
+    int i;
 
     *signature = LIBSSH2_ALLOC(session, 2 * SHA_DIGEST_LENGTH);
     if (!*signature) {
