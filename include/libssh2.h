@@ -710,6 +710,10 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session,
                                                  const char *path, int mode,
                                                  size_t size, long mtime,
                                                  long atime);
+LIBSSH2_API LIBSSH2_CHANNEL *
+libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
+                   libssh2_int64_t size, time_t mtime, time_t atime);
+
 #define libssh2_scp_send(session, path, mode, size) \
   libssh2_scp_send_ex((session), (path), (mode), (size), 0, 0)
 

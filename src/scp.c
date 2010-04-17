@@ -775,10 +775,9 @@ libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat * sb)
  */
 static LIBSSH2_CHANNEL *
 scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
-         size_t size, long mtime, long atime)
+         libssh2_int64_t size, time_t mtime, time_t atime)
 {
     int cmd_len;
-    unsigned const char *base;
     int rc;
 
     if (session->scpSend_state == libssh2_NB_state_idle) {
@@ -879,8 +878,8 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
             /* Send mtime and atime to be used for file */
             session->scpSend_response_len =
                 snprintf((char *) session->scpSend_response,
-                         LIBSSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n", mtime,
-                         atime);
+                         LIBSSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n",
+                         mtime, atime);
             _libssh2_debug(session, LIBSSH2_TRACE_SCP, "Sent %s",
                            session->scpSend_response);
         }
@@ -931,17 +930,16 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
     if (session->scpSend_state == libssh2_NB_state_sent4) {
         /* Send mode, size, and basename */
-        base = (unsigned char *) strrchr(path, '/');
-        if (base) {
+        const char *base = strrchr(path, '/');
+        if (base)
             base++;
-        } else {
-            base = (unsigned char *) path;
-        }
+        else
+            base = path;
 
         session->scpSend_response_len =
             snprintf((char *) session->scpSend_response,
-                     LIBSSH2_SCP_RESPONSE_BUFLEN, "C0%o %lu %s\n", mode,
-                     (unsigned long) size, base);
+                     LIBSSH2_SCP_RESPONSE_BUFLEN, "C0%o %llu %s\n", mode,
+                     size, base);
         _libssh2_debug(session, LIBSSH2_TRACE_SCP, "Sent %s",
                        session->scpSend_response);
 
@@ -1029,11 +1027,27 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 /*
  * libssh2_scp_send_ex
  *
- * Send a file using SCP
+ * Send a file using SCP. Old API.
  */
 LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode,
                     size_t size, long mtime, long atime)
+{
+    LIBSSH2_CHANNEL *ptr;
+    BLOCK_ADJUST_ERRNO(ptr, session,
+                       scp_send(session, path, mode, size,
+                                (time_t)mtime, (time_t)atime));
+    return ptr;
+}
+
+/*
+ * libssh2_scp_send64
+ *
+ * Send a file using SCP
+ */
+LIBSSH2_API LIBSSH2_CHANNEL *
+libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
+                   libssh2_int64_t size, time_t mtime, time_t atime)
 {
     LIBSSH2_CHANNEL *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session,

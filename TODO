@@ -9,8 +9,6 @@ Things TODO
   lib, like when libssh2_session_last_error() is asked to return the string
   with 'want_buf' set to non-zero.
 
-* Provide a libssh2_scp_send() API for files larger than 4GB (32bit size)
-
 * Add more info to the man pages.
 
 * Decrease the number of mallocs. Everywhere.
@@ -54,3 +52,6 @@ At next SONAME bump
 
 * remove the existing libssh2_knownhost_add() function and rename
   libssh2_knownhost_addc to become the new libssh2_knownhost_add instead
+
+* remove the existing libssh2_scp_send_ex() function and rename
+  libssh2_scp_send64 to become the new libssh2_scp_send instead.
