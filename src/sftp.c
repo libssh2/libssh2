@@ -672,20 +672,19 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
                    "Enabling SFTP version %lu compatability",
                    sftp_handle->version);
     while (s < (data + data_len)) {
-        unsigned char *extension_name, *extension_data;
         size_t extname_len, extdata_len;
 
         extname_len = _libssh2_ntohu32(s);
         s += 4;
-        extension_name = s;
+        /* the extension name starts here */
         s += extname_len;
 
         extdata_len = _libssh2_ntohu32(s);
         s += 4;
-        extension_data = s;
-        s += extdata_len;
 
         /* TODO: Actually process extensions */
+        s += extdata_len;
+
     }
     LIBSSH2_FREE(session, data);
 
