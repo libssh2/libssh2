@@ -41,7 +41,7 @@ const char *username="username";
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int sock = -1, i, j, rc;
+    int sock = -1, i, rc;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
