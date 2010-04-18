@@ -268,7 +268,7 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
     y_len = _libssh2_ntohu32(s);
     s += 4;
     y = s;
-    s += y_len;
+    /* s += y_len; */
 
     _libssh2_dsa_new(&dsactx, p, p_len, q, q_len, g, g_len, y, y_len, NULL, 0);
 
