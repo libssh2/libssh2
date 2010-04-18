@@ -792,17 +792,16 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
             /* Error, or processing complete */
         {
             unsigned long status, descr_len, lang_len;
-            unsigned char *descr, *lang;
 
             status = _libssh2_ntohu32(pkey->listFetch_s);
             pkey->listFetch_s += 4;
             descr_len = _libssh2_ntohu32(pkey->listFetch_s);
             pkey->listFetch_s += 4;
-            descr = pkey->listFetch_s;
+            /* description starts at pkey->listFetch_s */
             pkey->listFetch_s += descr_len;
             lang_len = _libssh2_ntohu32(pkey->listFetch_s);
             pkey->listFetch_s += 4;
-            lang = pkey->listFetch_s;
+            /* lang starts at pkey->listFetch_s */
             pkey->listFetch_s += lang_len;
 
             if (pkey->listFetch_s >
