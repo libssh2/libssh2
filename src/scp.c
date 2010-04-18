@@ -537,7 +537,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                     goto scp_recv_error;
                 }
 
-                *(p++) = '\0';
+                *p = '\0';
                 /* Make sure we don't get fooled by leftover values */
                 errno = 0;
                 session->scpRecv_atime = strtol((char *) s, NULL, 10);
@@ -694,7 +694,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                     goto scp_recv_error;
                 }
 
-                *(s++) = '\0';
+                *s = '\0';
                 /* Make sure we don't get fooled by leftover values */
                 errno = 0;
                 session->scpRecv_size = scpsize_strtol(p, &e, 10);
