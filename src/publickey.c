@@ -428,17 +428,16 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
                 /* Error */
             {
                 unsigned long status, descr_len, lang_len;
-                unsigned char *descr, *lang;
 
                 status = _libssh2_ntohu32(s);
                 s += 4;
                 descr_len = _libssh2_ntohu32(s);
                 s += 4;
-                descr = s;
+                /* description starts here */
                 s += descr_len;
                 lang_len = _libssh2_ntohu32(s);
                 s += 4;
-                lang = s;
+                /* lang starts here */
                 s += lang_len;
 
                 if (s >
