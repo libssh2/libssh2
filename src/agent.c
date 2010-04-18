@@ -167,7 +167,7 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
 static int
 agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 {
-    unsigned char buf[4], *s;
+    unsigned char buf[4];
     int rc;
 
     /* Send the length of the request */
@@ -203,8 +203,8 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
             return -1;
         }
         transctx->response_len = _libssh2_ntohu32(buf);
-        s = transctx->response = LIBSSH2_ALLOC(agent->session,
-                                                  transctx->response_len);
+        transctx->response = LIBSSH2_ALLOC(agent->session,
+                                           transctx->response_len);
         if (!transctx->response) {
             return LIBSSH2_ERROR_ALLOC;
         }
