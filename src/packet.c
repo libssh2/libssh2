@@ -195,14 +195,10 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
 
                     p = listen_state->packet;
                     *(p++) = SSH_MSG_CHANNEL_OPEN_CONFIRMATION;
-                    _libssh2_htonu32(p, channel->remote.id);
-                    p += 4;
-                    _libssh2_htonu32(p, channel->local.id);
-                    p += 4;
-                    _libssh2_htonu32(p, channel->remote.window_size_initial);
-                    p += 4;
-                    _libssh2_htonu32(p, channel->remote.packet_size);
-                    p += 4;
+                    _libssh2_store_u32(&p, channel->remote.id);
+                    _libssh2_store_u32(&p, channel->local.id);
+                    _libssh2_store_u32(&p, channel->remote.window_size_initial);
+                    _libssh2_store_u32(&p, channel->remote.packet_size);
 
                     listen_state->state = libssh2_NB_state_created;
                 }
@@ -238,14 +234,9 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     /* We're not listening to you */
     p = listen_state->packet;
     *(p++) = SSH_MSG_CHANNEL_OPEN_FAILURE;
-    _libssh2_htonu32(p, listen_state->sender_channel);
-    p += 4;
-    _libssh2_htonu32(p, failure_code);
-    p += 4;
-    _libssh2_htonu32(p, sizeof(FwdNotReq) - 1);
-    p += 4;
-    memcpy(s, FwdNotReq, sizeof(FwdNotReq) - 1);
-    p += sizeof(FwdNotReq) - 1;
+    _libssh2_store_u32(&p, listen_state->sender_channel);
+    _libssh2_store_u32(&p, failure_code);
+    _libssh2_store_str(&p, FwdNotReq, sizeof(FwdNotReq) - 1);
     _libssh2_htonu32(p, 0);
 
     rc = _libssh2_transport_write(session, listen_state->packet,
@@ -350,14 +341,10 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
                            channel->remote.packet_size);
             p = x11open_state->packet;
             *(p++) = SSH_MSG_CHANNEL_OPEN_CONFIRMATION;
-            _libssh2_htonu32(p, channel->remote.id);
-            p += 4;
-            _libssh2_htonu32(p, channel->local.id);
-            p += 4;
-            _libssh2_htonu32(p, channel->remote.window_size_initial);
-            p += 4;
-            _libssh2_htonu32(p, channel->remote.packet_size);
-            p += 4;
+            _libssh2_store_u32(&p, channel->remote.id);
+            _libssh2_store_u32(&p, channel->local.id);
+            _libssh2_store_u32(&p, channel->remote.window_size_initial);
+            _libssh2_store_u32(&p, channel->remote.packet_size);
 
             x11open_state->state = libssh2_NB_state_created;
         }
@@ -393,14 +380,9 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
   x11_exit:
     p = x11open_state->packet;
     *(p++) = SSH_MSG_CHANNEL_OPEN_FAILURE;
-    _libssh2_htonu32(p, x11open_state->sender_channel);
-    p += 4;
-    _libssh2_htonu32(p, failure_code);
-    p += 4;
-    _libssh2_htonu32(p, sizeof(X11FwdUnAvil) - 1);
-    p += 4;
-    memcpy(s, X11FwdUnAvil, sizeof(X11FwdUnAvil) - 1);
-    p += sizeof(X11FwdUnAvil) - 1;
+    _libssh2_store_u32(&p, x11open_state->sender_channel);
+    _libssh2_store_u32(&p, failure_code);
+    _libssh2_store_str(&p, X11FwdUnAvil, sizeof(X11FwdUnAvil) - 1);
     _libssh2_htonu32(p, 0);
 
     rc = _libssh2_transport_write(session, x11open_state->packet, packet_len);
