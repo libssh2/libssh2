@@ -480,36 +480,36 @@ struct transportpacket
 {
     /* ------------- for incoming data --------------- */
     unsigned char buf[PACKETBUFSIZE];
-    unsigned char init[5];      /* first 5 bytes of the incoming data stream,
-                                   still encrypted */
-    int writeidx;               /* at what array index we do the next write into
-                                   the buffer */
-    int readidx;                /* at what array index we do the next read from
-                                   the buffer */
-    int packet_length;          /* the most recent packet_length as read from the
-                                   network data */
-    int padding_length;         /* the most recent padding_length as read from the
-                                   network data */
-    int data_num;               /* How much of the total package that has been read
-                                   so far. */
-    int total_num;              /* How much a total package is supposed to be, in
-                                   number of bytes. A full package is
-                                   packet_length + padding_length + 4 +
-                                   mac_length. */
-    unsigned char *payload;     /* this is a pointer to a LIBSSH2_ALLOC()
-                                   area to which we write decrypted data */
-    unsigned char *wptr;        /* write pointer into the payload to where we
-                                   are currently writing decrypted data */
+    unsigned char init[5];  /* first 5 bytes of the incoming data stream,
+                               still encrypted */
+    int writeidx;           /* at what array index we do the next write into
+                               the buffer */
+    int readidx;            /* at what array index we do the next read from
+                               the buffer */
+    uint32_t packet_length; /* the most recent packet_length as read from the
+                               network data */
+    uint8_t padding_length; /* the most recent padding_length as read from the
+                               network data */
+    int data_num;           /* How much of the total package that has been read
+                               so far. */
+    int total_num;          /* How much a total package is supposed to be, in
+                               number of bytes. A full package is
+                               packet_length + padding_length + 4 +
+                               mac_length. */
+    unsigned char *payload; /* this is a pointer to a LIBSSH2_ALLOC()
+                               area to which we write decrypted data */
+    unsigned char *wptr;    /* write pointer into the payload to where we
+                               are currently writing decrypted data */
 
     /* ------------- for outgoing data --------------- */
-    unsigned char *outbuf;      /* pointer to a LIBSSH2_ALLOC() area for the
-                                   outgoing data */
-    int ototal_num;             /* size of outbuf in number of bytes */
-    unsigned char *odata;       /* original pointer to the data we stored in
-                                   outbuf */
-    size_t olen;                /* original size of the data we stored in
-                                   outbuf */
-    size_t osent;               /* number of bytes already sent */
+    unsigned char *outbuf;  /* pointer to a LIBSSH2_ALLOC() area for the
+                               outgoing data */
+    int ototal_num;         /* size of outbuf in number of bytes */
+    unsigned char *odata;   /* original pointer to the data we stored in
+                               outbuf */
+    size_t olen;            /* original size of the data we stored in
+                               outbuf */
+    size_t osent;           /* number of bytes already sent */
 };
 
 struct _LIBSSH2_PUBLICKEY
