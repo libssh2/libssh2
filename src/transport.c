@@ -448,8 +448,6 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 return LIBSSH2_ERROR_SOCKET_NONE;
 
             p->padding_length = block[4];
-            if (p->padding_length < 0)
-                return LIBSSH2_ERROR_SOCKET_NONE;
 
             /* total_num is the number of bytes following the initial
                (5 bytes) packet length and padding length fields */
