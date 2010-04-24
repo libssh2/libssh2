@@ -501,53 +501,50 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
             LIBSSH2_LISTENER *listener;
 
             listener = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_LISTENER));
-            if (!listener) {
+            if (!listener)
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                "Unable to allocate memory for listener queue");
-                LIBSSH2_FREE(session, data);
-                session->fwdLstn_state = libssh2_NB_state_idle;
-                return NULL;
-            }
-            memset(listener, 0, sizeof(LIBSSH2_LISTENER));
-            listener->session = session;
-            listener->host =
-                LIBSSH2_ALLOC(session, session->fwdLstn_host_len + 1);
-            if (!listener->host) {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate memory for listener queue");
-                LIBSSH2_FREE(session, listener);
-                LIBSSH2_FREE(session, data);
-                session->fwdLstn_state = libssh2_NB_state_idle;
-                return NULL;
-            }
-            memcpy(listener->host, host ? host : "0.0.0.0",
-                   session->fwdLstn_host_len);
-            listener->host[session->fwdLstn_host_len] = 0;
-            if (data_len >= 5 && !port) {
-                listener->port = _libssh2_ntohu32(data + 1);
-                _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                               "Dynamic tcpip-forward port allocated: %d",
-                               listener->port);
-            } else {
-                listener->port = port;
-            }
+            else {
+                memset(listener, 0, sizeof(LIBSSH2_LISTENER));
+                listener->host =
+                    LIBSSH2_ALLOC(session, session->fwdLstn_host_len + 1);
+                if (!listener->host) {
+                    _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                   "Unable to allocate memory for listener queue");
+                    LIBSSH2_FREE(session, listener);
+                    listener = NULL;
+                }
+                else {
+                    listener->session = session;
+                    memcpy(listener->host, host ? host : "0.0.0.0",
+                           session->fwdLstn_host_len);
+                    listener->host[session->fwdLstn_host_len] = 0;
+                    if (data_len >= 5 && !port) {
+                        listener->port = _libssh2_ntohu32(data + 1);
+                        _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                                       "Dynamic tcpip-forward port allocated: %d",
+                                       listener->port);
+                    }
+                    else
+                        listener->port = port;
 
-            listener->queue_size = 0;
-            listener->queue_maxsize = queue_maxsize;
+                    listener->queue_size = 0;
+                    listener->queue_maxsize = queue_maxsize;
 
-            /* append this to the parent's list of listeners */
-            _libssh2_list_add(&session->listeners, &listener->node);
+                    /* append this to the parent's list of listeners */
+                    _libssh2_list_add(&session->listeners, &listener->node);
 
-            if (bound_port) {
-                *bound_port = listener->port;
+                    if (bound_port) {
+                        *bound_port = listener->port;
+                    }
+                }
             }
 
             LIBSSH2_FREE(session, data);
             session->fwdLstn_state = libssh2_NB_state_idle;
             return listener;
         }
-
-        if (data[0] == SSH_MSG_REQUEST_FAILURE) {
+        else if (data[0] == SSH_MSG_REQUEST_FAILURE) {
             LIBSSH2_FREE(session, data);
             _libssh2_error(session, LIBSSH2_ERROR_REQUEST_DENIED,
                            "Unable to complete request for forward-listen");
