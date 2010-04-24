@@ -135,7 +135,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    fprintf(stderr, "libssh2_sftp_init()!\n");
     sftp_session = libssh2_sftp_init(session);
 
     if (!sftp_session) {
@@ -146,12 +145,14 @@ int main(int argc, char *argv[])
     /* Since we have not set non-blocking, tell libssh2 we are blocking */
     libssh2_session_set_blocking(session, 1);
 
-    fprintf(stderr, "libssh2_sftp_mkdir()!\n");
     /* Make a directory via SFTP */
     rc = libssh2_sftp_mkdir(sftp_session, sftppath,
                             LIBSSH2_SFTP_S_IRWXU|
                             LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IXGRP|
                             LIBSSH2_SFTP_S_IROTH|LIBSSH2_SFTP_S_IXOTH);
+
+    if(rc)
+        fprintf(stderr, "libssh2_sftp_mkdir failed: %d\n", rc);
 
     libssh2_sftp_shutdown(sftp_session);
 
