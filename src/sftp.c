@@ -1604,7 +1604,7 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
     int retcode;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     ssize_t packet_len = handle->handle_len + 13;
-    unsigned char *s, *data;
+    unsigned char *s, *data = NULL;
     int rc;
 
     if (handle->close_state == libssh2_NB_state_idle) {
@@ -1656,6 +1656,12 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
 
         handle->close_state = libssh2_NB_state_sent1;
     }
+
+    if(!data)
+        /* if it reaches this point with data unset, something unwanted
+           happened (like this function is called again when in
+           libssh2_NB_state_sent1 state) and we just bail out */
+        return LIBSSH2_ERROR_INVAL;
 
     retcode = _libssh2_ntohu32(data + 5);
     LIBSSH2_FREE(session, data);
