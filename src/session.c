@@ -743,24 +743,6 @@ session_free(LIBSSH2_SESSION *session)
             rc = libssh2_channel_free(ch);
             if (rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
-#if 0
-            /* Daniel's note: I'm leaving this code here right now since it
-               looks so weird I'm stumped. Why would libssh2_channel_free()
-               fail and forces this to be done? */
-            if (tmp == session->channels.head) {
-                /* channel_free couldn't do it's job, perform a messy cleanup */
-                tmp = session->channels.head;
-
-                /* unlink */
-                session->channels.head = tmp->next;
-
-                /* free */
-                LIBSSH2_FREE(session, tmp);
-
-                /* reverse linking isn't important here, we're killing the
-                 * structure */
-            }
-#endif
         }
 
         session->state = libssh2_NB_state_sent;
