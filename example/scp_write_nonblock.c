@@ -196,8 +196,6 @@ int main(int argc, char *argv[])
                 sent += rc;
             }
         } while (rc > 0 && sent < nread);
-
-        nread -= sent;
     } while (1);
 
     fprintf(stderr, "Sending EOF\n");
