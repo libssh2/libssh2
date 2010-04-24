@@ -419,10 +419,9 @@ static LIBSSH2_LISTENER *
 channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
                        int port, int *bound_port, int queue_maxsize)
 {
-    unsigned char *s, *data;
+    unsigned char *s;
     static const unsigned char reply_codes[3] =
         { SSH_MSG_REQUEST_SUCCESS, SSH_MSG_REQUEST_FAILURE, 0 };
-    size_t data_len;
     int rc;
 
     if (session->fwdLstn_state == libssh2_NB_state_idle) {
@@ -484,6 +483,8 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
     }
 
     if (session->fwdLstn_state == libssh2_NB_state_sent) {
+        unsigned char *data;
+        size_t data_len;
         rc = _libssh2_packet_requirev(session, reply_codes, &data, &data_len,
                                       0, NULL, 0,
                                       &session->fwdLstn_packet_requirev_state);
@@ -855,10 +856,9 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
                                int width_px, int height_px)
 {
     LIBSSH2_SESSION *session = channel->session;
-    unsigned char *s, *data;
+    unsigned char *s;
     static const unsigned char reply_codes[3] =
         { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
-    size_t data_len;
     int rc;
 
     if (channel->reqPTY_state == libssh2_NB_state_idle) {
@@ -919,6 +919,8 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
     }
 
     if (channel->reqPTY_state == libssh2_NB_state_sent) {
+        unsigned char *data;
+        size_t data_len;
         unsigned char code;
         rc = _libssh2_packet_requirev(session, reply_codes, &data, &data_len,
                                       1, channel->reqPTY_local_channel, 4,
@@ -939,7 +941,6 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
             return 0;
     }
 
-    channel->reqPTY_state = libssh2_NB_state_idle;
     return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
                           "Unable to complete request for channel request-pty");
 }
@@ -1050,10 +1051,9 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
                 int screen_number)
 {
     LIBSSH2_SESSION *session = channel->session;
-    unsigned char *s, *data;
+    unsigned char *s;
     static const unsigned char reply_codes[3] =
         { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
-    size_t data_len;
     size_t proto_len =
         auth_proto ? strlen(auth_proto) : (sizeof("MIT-MAGIC-COOKIE-1") - 1);
     size_t cookie_len =
@@ -1139,6 +1139,10 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
     }
 
     if (channel->reqX11_state == libssh2_NB_state_sent) {
+        size_t data_len;
+        unsigned char *data;
+        unsigned char code;
+
         rc = _libssh2_packet_requirev(session, reply_codes, &data, &data_len,
                                       1, channel->reqX11_local_channel, 4,
                                       &channel->reqX11_packet_requirev_state);
@@ -1150,14 +1154,14 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
                                   "waiting for x11-req response packet");
         }
 
-        if (data[0] == SSH_MSG_CHANNEL_SUCCESS) {
-            LIBSSH2_FREE(session, data);
-            channel->reqX11_state = libssh2_NB_state_idle;
+        code = data[0];
+        LIBSSH2_FREE(session, data);
+        channel->reqX11_state = libssh2_NB_state_idle;
+
+        if (code == SSH_MSG_CHANNEL_SUCCESS)
             return 0;
-        }
     }
 
-    LIBSSH2_FREE(session, data);
     return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
                           "Unable to complete request for channel x11-req");
 }
@@ -1190,10 +1194,9 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
                                  const char *message, unsigned int message_len)
 {
     LIBSSH2_SESSION *session = channel->session;
-    unsigned char *s, *data;
+    unsigned char *s;
     static const unsigned char reply_codes[3] =
         { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
-    size_t data_len;
     int rc;
 
     if (channel->process_state == libssh2_NB_state_idle) {
@@ -1253,6 +1256,8 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
     }
 
     if (channel->process_state == libssh2_NB_state_sent) {
+        unsigned char *data;
+        size_t data_len;
         unsigned char code;
         rc = _libssh2_packet_requirev(session, reply_codes, &data, &data_len,
                                       1, channel->process_local_channel, 4,
@@ -1273,7 +1278,6 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
             return 0;
     }
 
-    channel->process_state = libssh2_NB_state_idle;
     return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
                           "Unable to complete request for "
                           "channel-process-startup");
