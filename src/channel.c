@@ -919,6 +919,7 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
     }
 
     if (channel->reqPTY_state == libssh2_NB_state_sent) {
+        unsigned char code;
         rc = _libssh2_packet_requirev(session, reply_codes, &data, &data_len,
                                       1, channel->reqPTY_local_channel, 4,
                                       &channel->reqPTY_packet_requirev_state);
@@ -929,14 +930,15 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
             return -1;
         }
 
-        if (data[0] == SSH_MSG_CHANNEL_SUCCESS) {
-            LIBSSH2_FREE(session, data);
-            channel->reqPTY_state = libssh2_NB_state_idle;
+        code = data[0];
+
+        LIBSSH2_FREE(session, data);
+        channel->reqPTY_state = libssh2_NB_state_idle;
+
+        if (code == SSH_MSG_CHANNEL_SUCCESS)
             return 0;
-        }
     }
 
-    LIBSSH2_FREE(session, data);
     channel->reqPTY_state = libssh2_NB_state_idle;
     return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
                           "Unable to complete request for channel request-pty");
