@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
                 sent += rc;
             }
         } while (rc > 0 && sent < nread);
-        ptr += sent;
+
         nread -= sent;
     } while (1);
 
