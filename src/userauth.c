@@ -50,6 +50,7 @@
 
 #include "transport.h"
 #include "session.h"
+#include "userauth.h"
 
 /* libssh2_userauth_list
  *
@@ -857,14 +858,14 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 
 
 
-static int
-userauth_publickey(LIBSSH2_SESSION *session,
-                   const char *username,
-                   unsigned int username_len,
-                   const unsigned char *pubkeydata,
-                   unsigned long pubkeydata_len,
-                   LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC((*sign_callback)),
-                   void *abstract)
+int
+_libssh2_userauth_publickey(LIBSSH2_SESSION *session,
+                            const char *username,
+                            unsigned int username_len,
+                            const unsigned char *pubkeydata,
+                            unsigned long pubkeydata_len,
+                            LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC((*sign_callback)),
+                            void *abstract)
 {
     unsigned char reply_codes[4] =
         { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
@@ -1186,9 +1187,9 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
             return rc;
     }
 
-    rc = userauth_publickey(session, username, username_len,
-                            pubkeydata, pubkeydata_len,
-                            sign_fromfile, &abstract);
+    rc = _libssh2_userauth_publickey(session, username, username_len,
+                                     pubkeydata, pubkeydata_len,
+                                     sign_fromfile, &abstract);
     if(pubkeydata)
         LIBSSH2_FREE(session, pubkeydata);
 
@@ -1233,9 +1234,9 @@ libssh2_userauth_publickey(LIBSSH2_SESSION *session,
 {
     int rc;
     BLOCK_ADJUST(rc, session,
-                 userauth_publickey(session, user, strlen(user),
-                                    pubkeydata, pubkeydata_len,
-                                    sign_callback, abstract));
+                 _libssh2_userauth_publickey(session, user, strlen(user),
+                                             pubkeydata, pubkeydata_len,
+                                             sign_callback, abstract));
     return rc;
 }
 

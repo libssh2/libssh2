@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2009, 2010 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -638,10 +638,10 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
         memcpy(hostbuf, sep, seplen);
         hostbuf[seplen]=0;
 
-        rc = libssh2_knownhost_addc(hosts, hostbuf, salt, key, keylen,
-                                    comment, commentlen,
-                                    type | LIBSSH2_KNOWNHOST_KEYENC_BASE64,
-                                    NULL);
+        rc = knownhost_add(hosts, hostbuf, salt, key, keylen,
+                           comment, commentlen,
+                           type | LIBSSH2_KNOWNHOST_KEYENC_BASE64,
+                           NULL);
         if(rc)
             return rc;
     }
@@ -651,10 +651,10 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     memcpy(hostbuf, host, hostlen);
     hostbuf[hostlen]=0;
 
-    rc = libssh2_knownhost_addc(hosts, hostbuf, salt, key, keylen, comment,
-                                commentlen,
-                                type | LIBSSH2_KNOWNHOST_KEYENC_BASE64,
-                                NULL);
+    rc = knownhost_add(hosts, hostbuf, salt, key, keylen, comment,
+                       commentlen,
+                       type | LIBSSH2_KNOWNHOST_KEYENC_BASE64,
+                       NULL);
     return rc;
 }
 

@@ -487,7 +487,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
   err_exit:
     session->pkeyInit_state = libssh2_NB_state_sent4;
     if (session->pkeyInit_channel) {
-        rc = libssh2_channel_close(session->pkeyInit_channel);
+        rc = _libssh2_channel_close(session->pkeyInit_channel);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block closing channel");
@@ -1011,7 +1011,7 @@ libssh2_publickey_shutdown(LIBSSH2_PUBLICKEY * pkey)
         pkey->listFetch_data = NULL;
     }
 
-    rc = libssh2_channel_free(pkey->channel);
+    rc = _libssh2_channel_free(pkey->channel);
     if (rc == LIBSSH2_ERROR_EAGAIN)
         return rc;
 

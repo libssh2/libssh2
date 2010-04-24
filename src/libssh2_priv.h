@@ -1122,8 +1122,8 @@ ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer, size_t length
                                    waiting for more data to arrive */
 
 
-int libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
-                         key_exchange_state_t * state);
+int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
+                          key_exchange_state_t * state);
 
 /* Let crypt.c/hostkey.c expose their method structs */
 const LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);

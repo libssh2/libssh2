@@ -54,6 +54,7 @@
 
 #include "transport.h"
 #include "session.h"
+#include "channel.h"
 
 /* libssh2_default_alloc
  */
@@ -631,11 +632,10 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     }
 
     if (session->startup_state == libssh2_NB_state_sent1) {
-        rc = libssh2_kex_exchange(session, 0, &session->startup_key_state);
-        if (rc) {
+        rc = _libssh2_kex_exchange(session, 0, &session->startup_key_state);
+        if (rc)
             return _libssh2_error(session, rc,
                                   "Unable to exchange encryption keys");
-        }
 
         session->startup_state = libssh2_NB_state_sent2;
     }
@@ -740,7 +740,7 @@ session_free(LIBSSH2_SESSION *session)
     if (session->free_state == libssh2_NB_state_created) {
         while ((ch = _libssh2_list_first(&session->channels))) {
 
-            rc = libssh2_channel_free(ch);
+            rc = _libssh2_channel_free(ch);
             if (rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
         }
@@ -750,7 +750,7 @@ session_free(LIBSSH2_SESSION *session)
 
     if (session->state == libssh2_NB_state_sent) {
         while ((l = _libssh2_list_first(&session->listeners))) {
-            rc = libssh2_channel_forward_cancel(l);
+            rc = _libssh2_channel_forward_cancel(l);
             if (rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
         }

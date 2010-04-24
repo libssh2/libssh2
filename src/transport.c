@@ -313,7 +313,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
          */
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
                        " key re-exchange");
-        rc = libssh2_kex_exchange(session, 1, &session->startup_key_state);
+        rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
         if (rc)
             return rc;
     }
@@ -797,7 +797,7 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     /* copy the payload data */
     memcpy(p->outbuf + 5, data, data_len);
     /* fill the padding area with random junk */
-    libssh2_random(p->outbuf + 5 + data_len, padding_length);
+    _libssh2_random(p->outbuf + 5 + data_len, padding_length);
     if (free_data) {
         LIBSSH2_FREE(session, data);
     }

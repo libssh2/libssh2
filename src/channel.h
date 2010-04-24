@@ -125,5 +125,17 @@ LIBSSH2_CHANNEL *_libssh2_channel_locate(LIBSSH2_SESSION * session,
 size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel,
                                         int stream_id);
 
+int _libssh2_channel_close(LIBSSH2_CHANNEL * channel);
+
+/*
+ * _libssh2_channel_forward_cancel
+ *
+ * Stop listening on a remote port and free the listener
+ * Toss out any pending (un-accept()ed) connections
+ *
+ * Return 0 on success, LIBSSH2_ERROR_EAGAIN if would block, -1 on error
+ */
+int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener);
+
 #endif /* __LIBSSH2_CHANNEL_H */
 

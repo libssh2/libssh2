@@ -903,7 +903,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
         /*
          * The KEXINIT message has been added to the queue.  The packAdd and
-         * readPack states need to be reset because libssh2_kex_exchange
+         * readPack states need to be reset because _libssh2_kex_exchange
          * (eventually) calls upon _libssh2_transport_read to read the rest of
          * the key exchange conversation.
          */
@@ -923,10 +923,9 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
          * If there was a key reexchange failure, let's just hope we didn't
          * send NEWKEYS yet, otherwise remote will drop us like a rock
          */
-        rc = libssh2_kex_exchange(session, 1, &session->startup_key_state);
-        if (rc == LIBSSH2_ERROR_EAGAIN) {
+        rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
+        if (rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
-        }
     }
 
     session->packAdd_state = libssh2_NB_state_idle;

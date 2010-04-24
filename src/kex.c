@@ -1032,7 +1032,7 @@ static int kexinit(LIBSSH2_SESSION * session)
 
         *(s++) = SSH_MSG_KEXINIT;
 
-        libssh2_random(s, 16);
+        _libssh2_random(s, 16);
         s += 16;
 
         /* Ennumerating through these lists twice is probably (certainly?)
@@ -1630,14 +1630,14 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
 
 
 
-/* libssh2_kex_exchange
+/* _libssh2_kex_exchange
  * Exchange keys
  * Returns 0 on success, non-zero on failure
  *
  * Returns some errors without _libssh2_error()
  */
 int
-libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
+_libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                      key_exchange_state_t * key_state)
 {
     int rc = 0;

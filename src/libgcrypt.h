@@ -56,7 +56,7 @@
 #define MD5_DIGEST_LENGTH 16
 #define SHA_DIGEST_LENGTH 20
 
-#define libssh2_random(buf, len)                \
+#define _libssh2_random(buf, len)                \
   (gcry_randomize ((buf), (len), GCRY_STRONG_RANDOM), 1)
 
 #define libssh2_sha1_ctx gcry_md_hd_t

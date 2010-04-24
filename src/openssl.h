@@ -104,7 +104,7 @@
 # define LIBSSH2_3DES 1
 #endif
 
-#define libssh2_random(buf, len) RAND_bytes ((buf), (len))
+#define _libssh2_random(buf, len) RAND_bytes ((buf), (len))
 
 #define libssh2_sha1_ctx EVP_MD_CTX
 #define libssh2_sha1_init(ctx) EVP_DigestInit(ctx, EVP_get_digestbyname("sha1"))

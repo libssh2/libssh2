@@ -372,15 +372,12 @@ channel_direct_tcpip(LIBSSH2_SESSION * session, const char *host,
     }
 
     channel =
-        libssh2_channel_open_ex(session, "direct-tcpip",
-                                sizeof("direct-tcpip") - 1,
-                                LIBSSH2_CHANNEL_WINDOW_DEFAULT,
-                                LIBSSH2_CHANNEL_PACKET_DEFAULT,
-                                (char *) session->direct_message,
-                                session->direct_message_len);
-
-    /* by default we set (keep?) idle state... */
-    session->direct_state = libssh2_NB_state_idle;
+        _libssh2_channel_open(session, "direct-tcpip",
+                              sizeof("direct-tcpip") - 1,
+                              LIBSSH2_CHANNEL_WINDOW_DEFAULT,
+                              LIBSSH2_CHANNEL_PACKET_DEFAULT,
+                              (char *) session->direct_message,
+                              session->direct_message_len);
 
     if (!channel &&
         libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
@@ -389,6 +386,8 @@ channel_direct_tcpip(LIBSSH2_SESSION * session, const char *host,
         session->direct_state = libssh2_NB_state_created;
         return NULL;
     }
+    /* by default we set (keep?) idle state... */
+    session->direct_state = libssh2_NB_state_idle;
 
     LIBSSH2_FREE(session, session->direct_message);
     session->direct_message = NULL;
@@ -576,14 +575,14 @@ libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, const char *host,
 }
 
 /*
- * channel_forward_cancel
+ * _libssh2_channel_forward_cancel
  *
  * Stop listening on a remote port and free the listener
  * Toss out any pending (un-accept()ed) connections
  *
  * Return 0 on success, LIBSSH2_ERROR_EAGAIN if would block, -1 on error
  */
-static int channel_forward_cancel(LIBSSH2_LISTENER *listener)
+int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
 {
     LIBSSH2_SESSION *session = listener->session;
     LIBSSH2_CHANNEL *queued;
@@ -643,7 +642,7 @@ static int channel_forward_cancel(LIBSSH2_LISTENER *listener)
     while (queued) {
         LIBSSH2_CHANNEL *next = _libssh2_list_next(&queued->node);
 
-        rc = libssh2_channel_free(queued);
+        rc = _libssh2_channel_free(queued);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         }
@@ -673,7 +672,8 @@ LIBSSH2_API int
 libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
 {
     int rc;
-    BLOCK_ADJUST(rc, listener->session, channel_forward_cancel(listener));
+    BLOCK_ADJUST(rc, listener->session,
+                 _libssh2_channel_forward_cancel(listener));
     return rc;
 }
 
@@ -1104,7 +1104,7 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
                border */
             unsigned char buffer[(LIBSSH2_X11_RANDOM_COOKIE_LEN / 2) +1];
 
-            libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
+            _libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
             for(i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++) {
                 sprintf((char *)&s[i*2], "%02X", buffer[i]);
             }
@@ -2123,8 +2123,7 @@ libssh2_channel_wait_eof(LIBSSH2_CHANNEL *channel)
     return rc;
 }
 
-static int
-channel_close(LIBSSH2_CHANNEL * channel)
+int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
 {
     LIBSSH2_SESSION *session = channel->session;
     int rc = 0;
@@ -2202,7 +2201,7 @@ LIBSSH2_API int
 libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 {
     int rc;
-    BLOCK_ADJUST(rc, channel->session, channel_close(channel) );
+    BLOCK_ADJUST(rc, channel->session, _libssh2_channel_close(channel) );
     return rc;
 }
 
@@ -2292,7 +2291,7 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     /* Allow channel freeing even when the socket has lost its connection */
     if (!channel->local.close
         && (session->socket_state == LIBSSH2_SOCKET_CONNECTED)) {
-        rc = channel_close(channel);
+        rc = _libssh2_channel_close(channel);
 
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;

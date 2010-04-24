@@ -45,7 +45,7 @@
 
 
 /* Max. length of a quoted string after libssh2_shell_quotearg() processing */
-#define libssh2_shell_quotedsize(s)     (3 * strlen(s) + 2)
+#define _libssh2_shell_quotedsize(s)     (3 * strlen(s) + 2)
 
 /*
   This function quotes a string in a way suitable to be used with a
@@ -123,8 +123,8 @@
 */
 
 static unsigned
-libssh2_shell_quotearg(const char *path, unsigned char *buf,
-                       unsigned bufsize)
+shell_quotearg(const char *path, unsigned char *buf,
+               unsigned bufsize)
 {
     const char *src;
     unsigned char *dst, *endp;
@@ -280,7 +280,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
         session->scpRecv_atime = 0;
 
         session->scpRecv_command_len =
-            libssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb?1:0);
+            _libssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb?1:0);
 
         session->scpRecv_command =
             LIBSSH2_ALLOC(session, session->scpRecv_command_len);
@@ -297,9 +297,9 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 
         cmd_len = strlen((char *)session->scpRecv_command);
 
-        (void) libssh2_shell_quotearg(path,
-                                      &session->scpRecv_command[cmd_len],
-                                      session->scpRecv_command_len - cmd_len);
+        (void) shell_quotearg(path,
+                              &session->scpRecv_command[cmd_len],
+                              session->scpRecv_command_len - cmd_len);
 
 
         _libssh2_debug(session, LIBSSH2_TRACE_SCP,
@@ -311,11 +311,11 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
     if (session->scpRecv_state == libssh2_NB_state_created) {
         /* Allocate a channel */
         session->scpRecv_channel =
-            libssh2_channel_open_ex(session, "session",
-                                    sizeof("session") - 1,
-                                    LIBSSH2_CHANNEL_WINDOW_DEFAULT,
-                                    LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL,
-                                    0);
+            _libssh2_channel_open(session, "session",
+                                  sizeof("session") - 1,
+                                  LIBSSH2_CHANNEL_WINDOW_DEFAULT,
+                                  LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL,
+                                  0);
         if (!session->scpRecv_channel) {
             if (libssh2_session_last_errno(session) !=
                 LIBSSH2_ERROR_EAGAIN) {
@@ -335,10 +335,10 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 
     if (session->scpRecv_state == libssh2_NB_state_sent) {
         /* Request SCP for the desired file */
-        rc = libssh2_channel_process_startup(session->scpRecv_channel, "exec",
-                                             sizeof("exec") - 1,
-                                             (char *) session->scpRecv_command,
-                                             session->scpRecv_command_len);
+        rc = _libssh2_channel_process_startup(session->scpRecv_channel, "exec",
+                                              sizeof("exec") - 1,
+                                              (char *) session->scpRecv_command,
+                                              session->scpRecv_command_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block requesting SCP startup");
@@ -783,7 +783,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
     if (session->scpSend_state == libssh2_NB_state_idle) {
         session->scpSend_command_len =
-            libssh2_shell_quotedsize(path) + sizeof("scp -t ") +
+            _libssh2_shell_quotedsize(path) + sizeof("scp -t ") +
             ((mtime || atime)?1:0);
 
         session->scpSend_command =
@@ -799,9 +799,9 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
         cmd_len = strlen((char *)session->scpSend_command);
 
-        (void)libssh2_shell_quotearg(path,
-                                     &session->scpSend_command[cmd_len],
-                                     session->scpSend_command_len - cmd_len);
+        (void)shell_quotearg(path,
+                             &session->scpSend_command[cmd_len],
+                             session->scpSend_command_len - cmd_len);
 
         session->scpSend_command[session->scpSend_command_len - 1] = '\0';
 
@@ -814,9 +814,9 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
     if (session->scpSend_state == libssh2_NB_state_created) {
         session->scpSend_channel =
-            libssh2_channel_open_ex(session, "session", sizeof("session") - 1,
-                                    LIBSSH2_CHANNEL_WINDOW_DEFAULT,
-                                    LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0);
+            _libssh2_channel_open(session, "session", sizeof("session") - 1,
+                                  LIBSSH2_CHANNEL_WINDOW_DEFAULT,
+                                  LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0);
         if (!session->scpSend_channel) {
             if (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
                 /* previous call set libssh2_session_last_error(), pass it
@@ -837,10 +837,10 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
     if (session->scpSend_state == libssh2_NB_state_sent) {
         /* Request SCP for the desired file */
-        rc = libssh2_channel_process_startup(session->scpSend_channel, "exec",
-                                             sizeof("exec") - 1,
-                                             (char *) session->scpSend_command,
-                                             session->scpSend_command_len);
+        rc = _libssh2_channel_process_startup(session->scpSend_channel, "exec",
+                                              sizeof("exec") - 1,
+                                              (char *) session->scpSend_command,
+                                              session->scpSend_command_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block requesting SCP startup");

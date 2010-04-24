@@ -47,6 +47,7 @@
    support them. */
 #undef PF_UNIX
 #endif
+#include "userauth.h"
 
 /* Requests from client to agent for protocol 1 key operations */
 #define SSH_AGENTC_REQUEST_RSA_IDENTITIES 1
@@ -716,11 +717,12 @@ libssh2_agent_userauth(LIBSSH2_AGENT *agent,
         memset(&agent->transctx, 0, sizeof agent->transctx);
         agent->identity = identity->node;
     }
-    return libssh2_userauth_publickey(agent->session, username,
-				      identity->blob,
-				      identity->blob_len,
-				      agent_sign,
-				      &abstract);
+    return _libssh2_userauth_publickey(agent->session, username,
+                                       strlen(username),
+                                       identity->blob,
+                                       identity->blob_len,
+                                       agent_sign,
+                                       &abstract);
 }
 
 /*
