@@ -857,6 +857,9 @@ struct _LIBSSH2_SESSION
     LIBSSH2_CHANNEL *pkeyInit_channel;
     unsigned char *pkeyInit_data;
     size_t pkeyInit_data_len;
+    /* 19 = packet_len(4) + version_len(4) + "version"(7) + version_num(4) */
+    unsigned char pkeyInit_buffer[19];
+    size_t pkeyInit_buffer_sent; /* how much of buffer that has been sent */
 
     /* State variables used in libssh2_packet_add() */
     libssh2_nonblocking_states packAdd_state;
@@ -1107,8 +1110,6 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 #define SSH_MSG_CHANNEL_SUCCESS                     99
 #define SSH_MSG_CHANNEL_FAILURE                     100
 
-void _libssh2_session_shutdown(LIBSSH2_SESSION * session);
-
 #ifdef WIN32
 ssize_t _libssh2_recv(libssh2_socket_t socket, void *buffer, size_t length, int flags);
 ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer, size_t length, int flags);
@@ -1120,14 +1121,9 @@ ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer, size_t length
 #define LIBSSH2_READ_TIMEOUT 60 /* generic timeout in seconds used when
                                    waiting for more data to arrive */
 
-int _libssh2_wait_socket(LIBSSH2_SESSION *session);
-
 
 int libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                          key_exchange_state_t * state);
-
-/* this is the lib-internal set blocking function */
-int _libssh2_session_set_blocking(LIBSSH2_SESSION * session, int blocking);
 
 /* Let crypt.c/hostkey.c expose their method structs */
 const LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);
@@ -1147,49 +1143,6 @@ int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
 
 /* global.c */
 void _libssh2_init_if_needed (void);
-
-/* Conveniance-macros to allow code like this;
-
-   int rc = BLOCK_ADJUST(rc, session, session_startup(session, sock) );
-
-   int rc = BLOCK_ADJUST_ERRNO(ptr, session, session_startup(session, sock) );
-
-   The point of course being to make sure that while in non-blocking mode
-   these always return no matter what the return code is, but in blocking mode
-   it blocks if EAGAIN is the reason for the return from the underlying
-   function.
-
-*/
-#define BLOCK_ADJUST(rc,sess,x) \
-    do { \
-       rc = x; \
-       /* the order of the check below is important to properly deal with the
-          case when the 'sess' is freed */ \
-       if((rc != LIBSSH2_ERROR_EAGAIN) || !sess->api_block_mode)  \
-           break; \
-       rc = _libssh2_wait_socket(sess); \
-       if(rc) \
-           break; \
-    } while(1)
-
-/*
- * For functions that returns a pointer, we need to check if the API is
- * non-blocking and return immediately. If the pointer is non-NULL we return
- * immediately. If the API is blocking and we get a NULL we check the errno
- * and *only* if that is EAGAIN we loop and wait for socket action.
- */
-#define BLOCK_ADJUST_ERRNO(ptr,sess,x)          \
-    do { \
-       int rc; \
-       ptr = x; \
-       if(!sess->api_block_mode || \
-          (ptr != NULL) || \
-          (libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN) ) \
-           break;                                                  \
-       rc = _libssh2_wait_socket(sess); \
-       if(rc) \
-           break; \
-    } while(1)
 
 
 #define ARRAY_SIZE(a) (sizeof ((a)) / sizeof ((a)[0]))

@@ -1,4 +1,5 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+ * Copyright (c) 2010 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -38,6 +39,7 @@
 #include "libssh2_priv.h"
 #include "libssh2_publickey.h"
 #include "channel.h"
+#include "session.h"
 
 #define LIBSSH2_PUBLICKEY_VERSION               2
 
@@ -215,7 +217,7 @@ publickey_response_id(unsigned char **pdata, size_t data_len)
     return -1;
 }
 
-/* libssh2_publickey_response_success
+/* publickey_response_success
  *
  * Generic helper routine to wait for success response and nothing else
  */
@@ -226,10 +228,9 @@ publickey_response_success(LIBSSH2_PUBLICKEY * pkey)
     unsigned char *data, *s;
     size_t data_len;
     int response;
-    int rc;
 
     while (1) {
-        rc = publickey_packet_receive(pkey, &data, &data_len);
+        int rc = publickey_packet_receive(pkey, &data, &data_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -239,11 +240,7 @@ publickey_response_success(LIBSSH2_PUBLICKEY * pkey)
         }
 
         s = data;
-        if ((response = publickey_response_id(&s, data_len)) < 0) {
-            LIBSSH2_FREE(session, data);
-            return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
-                                  "Invalid publickey subsystem response code");
-        }
+        response = publickey_response_id(&s, data_len);
 
         switch (response) {
         case LIBSSH2_PUBLICKEY_RESPONSE_STATUS:
@@ -260,10 +257,14 @@ publickey_response_success(LIBSSH2_PUBLICKEY * pkey)
             return -1;
         }
         default:
+            LIBSSH2_FREE(session, data);
+            if (response < 0) {
+                return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
+                                      "Invalid publickey subsystem response code");
+            }
             /* Unknown/Unexpected */
             _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PROTOCOL,
                            "Unexpected publickey subsystem response, ignoring");
-            LIBSSH2_FREE(session, data);
             data = NULL;
         }
     }
@@ -276,16 +277,12 @@ publickey_response_success(LIBSSH2_PUBLICKEY * pkey)
  ***************** */
 
 /*
- * libssh2_publickey_init
+ * publickey_init
  *
  * Startup the publickey subsystem
  */
-LIBSSH2_API LIBSSH2_PUBLICKEY *
-libssh2_publickey_init(LIBSSH2_SESSION * session)
+static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
 {
-    /* 19 = packet_len(4) + version_len(4) + "version"(7) + version_num(4) */
-    unsigned char buffer[19];
-    unsigned char *s;
     int response;
     int rc;
 
@@ -301,37 +298,30 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
     }
 
     if (session->pkeyInit_state == libssh2_NB_state_allocated) {
-        do {
-            session->pkeyInit_channel =
-                libssh2_channel_open_ex(session, "session",
-                                        sizeof("session") - 1,
-                                        LIBSSH2_CHANNEL_WINDOW_DEFAULT,
-                                        LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL,
-                                        0);
-            if (!session->pkeyInit_channel
-                && (libssh2_session_last_errno(session) ==
-                    LIBSSH2_ERROR_EAGAIN)) {
+
+        session->pkeyInit_channel =
+            _libssh2_channel_open(session, "session",
+                                  sizeof("session") - 1,
+                                  LIBSSH2_CHANNEL_WINDOW_DEFAULT,
+                                  LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL,
+                                  0);
+        if (!session->pkeyInit_channel) {
+            if (libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN)
                 /* The error state is already set, so leave it */
-                _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                               "Would block to startup channel");
                 return NULL;
-            } else if (!session->pkeyInit_channel
-                       && (libssh2_session_last_errno(session) !=
-                           LIBSSH2_ERROR_EAGAIN)) {
-                _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
-                               "Unable to startup channel");
-                goto err_exit;
-            }
-        } while (!session->pkeyInit_channel);
+            _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
+                           "Unable to startup channel");
+            goto err_exit;
+        }
 
         session->pkeyInit_state = libssh2_NB_state_sent;
     }
 
     if (session->pkeyInit_state == libssh2_NB_state_sent) {
-        rc = libssh2_channel_process_startup(session->pkeyInit_channel,
-                                             "subsystem",
-                                             sizeof("subsystem") - 1,
-                                             "publickey", strlen("publickey"));
+        rc = _libssh2_channel_process_startup(session->pkeyInit_channel,
+                                              "subsystem",
+                                              sizeof("subsystem") - 1,
+                                              "publickey", strlen("publickey"));
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block starting publickey subsystem");
@@ -346,8 +336,9 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
     }
 
     if (session->pkeyInit_state == libssh2_NB_state_sent1) {
-        rc = libssh2_channel_handle_extended_data2(session->pkeyInit_channel,
-                                                   LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE);
+        unsigned char *s;
+        rc = _libssh2_channel_extended_data(session->pkeyInit_channel,
+                                            LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block starting publickey subsystem");
@@ -365,7 +356,7 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
         session->pkeyInit_pkey->channel = session->pkeyInit_channel;
         session->pkeyInit_pkey->version = 0;
 
-        s = buffer;
+        s = session->pkeyInit_buffer;
         _libssh2_htonu32(s, 4 + (sizeof("version") - 1) + 4);
         s += 4;
         _libssh2_htonu32(s, sizeof("version") - 1);
@@ -374,6 +365,7 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
         s += sizeof("version") - 1;
         _libssh2_htonu32(s, LIBSSH2_PUBLICKEY_VERSION);
         s += 4;
+        session->pkeyInit_buffer_sent = 0;
 
         _libssh2_debug(session, LIBSSH2_TRACE_PUBLICKEY,
                        "Sending publickey version packet advertising version %d support",
@@ -384,15 +376,22 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
 
     if (session->pkeyInit_state == libssh2_NB_state_sent2) {
         rc = _libssh2_channel_write(session->pkeyInit_channel, 0,
-                                    (char *) buffer, (s - buffer));
+                                    (char *)session->pkeyInit_buffer,
+                                    19 - session->pkeyInit_buffer_sent);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block sending publickey version packet");
             return NULL;
-        } else if ((s - buffer) != rc) {
-            _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+        } else if (rc) {
+            _libssh2_error(session, rc,
                            "Unable to send publickey version packet");
             goto err_exit;
+        }
+        session->pkeyInit_buffer_sent += rc;
+        if(session->pkeyInit_buffer_sent < 19) {
+            _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                           "Need to be called again to complete this");
+            return NULL;
         }
 
         session->pkeyInit_state = libssh2_NB_state_sent3;
@@ -400,6 +399,7 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
 
     if (session->pkeyInit_state == libssh2_NB_state_sent3) {
         while (1) {
+            unsigned char *s;
             rc = publickey_packet_receive(session->pkeyInit_pkey,
                                           &session->pkeyInit_data,
                                           &session->pkeyInit_data_len);
@@ -505,6 +505,23 @@ libssh2_publickey_init(LIBSSH2_SESSION * session)
     session->pkeyInit_state = libssh2_NB_state_idle;
     return NULL;
 }
+
+/*
+ * libssh2_publickey_init
+ *
+ * Startup the publickey subsystem
+ */
+LIBSSH2_API LIBSSH2_PUBLICKEY *
+libssh2_publickey_init(LIBSSH2_SESSION *session)
+{
+    LIBSSH2_PUBLICKEY *ptr;
+
+    BLOCK_ADJUST_ERRNO(ptr, session,
+                       publickey_init(session));
+    return ptr;
+}
+
+
 
 /*
  * libssh2_publickey_add_ex

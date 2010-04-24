@@ -41,6 +41,7 @@
 #include "libssh2_priv.h"
 #include "libssh2_sftp.h"
 #include "channel.h"
+#include "session.h"
 
 /* Note: Version 6 was documented at the time of writing
  * However it was marked as "DO NOT IMPLEMENT" due to pending changes

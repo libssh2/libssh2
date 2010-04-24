@@ -1,4 +1,4 @@
-/* Copyright (c) 2009 by Daniel Stenberg
+/* Copyright (c) 2009-2010 by Daniel Stenberg
  * Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
@@ -41,6 +41,7 @@
 #include <stdlib.h>
 
 #include "channel.h"
+#include "session.h"
 
 
 /* Max. length of a quoted string after libssh2_shell_quotearg() processing */

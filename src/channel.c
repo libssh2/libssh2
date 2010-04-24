@@ -50,6 +50,7 @@
 #include "channel.h"
 #include "transport.h"
 #include "packet.h"
+#include "session.h"
 
 /*
  *  _libssh2_channel_nextid

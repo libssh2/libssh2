@@ -49,6 +49,7 @@
 #endif
 
 #include "transport.h"
+#include "session.h"
 
 /* libssh2_userauth_list
  *

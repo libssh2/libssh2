@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2009-2010 by Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
@@ -53,6 +53,7 @@
 #endif
 
 #include "transport.h"
+#include "session.h"
 
 /* libssh2_default_alloc
  */
@@ -520,8 +521,8 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
 int _libssh2_wait_socket(LIBSSH2_SESSION *session)
 {
     int rc;
-    int dir;
     int seconds_to_next;
+    int dir;
 
     rc = libssh2_keepalive_send (session, &seconds_to_next);
     if (rc < 0)
