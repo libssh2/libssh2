@@ -280,7 +280,7 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 #endif
 
 #if defined(HAVE_FIONBIO) && (SETBLOCK == 0)
-    /* older unix versions */
+    /* older unix versions and VMS*/
     int flags;
 
     flags = nonblock;
@@ -375,10 +375,28 @@ get_socket_nonblocking(int sockfd)
 #define GETBLOCK 5
 #endif
 
+#if defined(SO_STATE) && defined( __VMS ) && (GETBLOCK == 0)
+
+    /* VMS TCP/IP Services */
+
+    size_t sockstat = 0;
+    int    callstat = 0;
+    size_t size = sizeof( int );
+
+    callstat = getsockopt(sockfd, SOL_SOCKET, SO_STATE,
+                                  (char *)&sockstat, &size);
+    if ( callstat == -1 ) return(0);
+    if ( (sockstat&SS_NBIO) )return(1);
+    return(0);
+
+#undef GETBLOCK
+#define GETBLOCK 6
+#endif
+
 #ifdef HAVE_DISABLED_NONBLOCKING
     return 1;                   /* returns blocking */
 #undef GETBLOCK
-#define GETBLOCK 6
+#define GETBLOCK 7
 #endif
 
 #if (GETBLOCK == 0)

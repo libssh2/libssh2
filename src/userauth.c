@@ -601,8 +601,8 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     if(rc)
         return rc;
 
-    datavec.iov_base = (unsigned char *)data;
-    datavec.iov_len = data_len;
+    datavec.iov_base = (void *)data;
+    datavec.iov_len  = data_len;
 
     if (privkeyobj->signv(session, sig, sig_len, 1, &datavec,
                           &hostkey_abstract)) {
@@ -711,11 +711,11 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         }
 
         _libssh2_htonu32(buf, session->session_id_len);
-        datavec[0].iov_base = buf;
+        datavec[0].iov_base = (void *)buf;
         datavec[0].iov_len = 4;
-        datavec[1].iov_base = session->session_id;
+        datavec[1].iov_base = (void *)session->session_id;
         datavec[1].iov_len = session->session_id_len;
-        datavec[2].iov_base = session->userauth_host_packet;
+        datavec[2].iov_base = (void *)session->userauth_host_packet;
         datavec[2].iov_len = session->userauth_host_packet_len;
 
         if (privkeyobj->signv(session, &sig, &sig_len, 3, datavec, &abstract)) {

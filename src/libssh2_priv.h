@@ -1110,7 +1110,7 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 #define SSH_MSG_CHANNEL_SUCCESS                     99
 #define SSH_MSG_CHANNEL_FAILURE                     100
 
-#ifdef WIN32
+#if defined( WIN32 ) || defined( __VMS )
 ssize_t _libssh2_recv(libssh2_socket_t socket, void *buffer, size_t length, int flags);
 ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer, size_t length, int flags);
 #else
