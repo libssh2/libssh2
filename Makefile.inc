@@ -4,4 +4,4 @@ CSOURCES = channel.c comp.c crypt.c hostkey.c kex.c mac.c misc.c \
  global.c
 
 HHEADERS = libssh2_priv.h openssl.h libgcrypt.h transport.h channel.h \
- comp.h mac.h misc.h packet.h
+ comp.h mac.h misc.h packet.h userauth.h session.h
