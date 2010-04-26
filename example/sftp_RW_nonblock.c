@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
                                         nread);
                 ptr += rc;
                 nread -= nread;
-            } while (rc > 0);
+            } while (rc >= 0);
 
             if(rc != LIBSSH2_ERROR_EAGAIN) {
                 /* error or end of file */

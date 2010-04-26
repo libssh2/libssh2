@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     long flag = 1;
 #endif
     char mem[1024];
-    size_t nread, sent;
+    size_t nread;
     char *ptr;
     struct stat fileinfo;
 
@@ -182,7 +182,6 @@ int main(int argc, char *argv[])
             break;
         }
         ptr = mem;
-        sent = 0;
 
         do {
             /* write the same data over and over, until error or completion */
@@ -191,12 +190,14 @@ int main(int argc, char *argv[])
                 continue;
             } else if (rc < 0) {
                 fprintf(stderr, "ERROR %d\n", rc);
+                break;
             } else {
                 /* rc indicates how many bytes were written this time */
-                sent += rc;
+                nread -= rc;
+                ptr += rc;
             }
-        } while (rc > 0 && sent < nread);
-    } while (1);
+        } while (nread);
+    } while (!nread); /* only continue if nread was drained */
 
     fprintf(stderr, "Sending EOF\n");
     while (libssh2_channel_send_eof(channel) == LIBSSH2_ERROR_EAGAIN);

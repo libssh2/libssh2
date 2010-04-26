@@ -199,9 +199,9 @@ int main(int argc, char *argv[])
                 ;
             }
             ptr += rc;
-            nread -= nread;
-        } while (rc > 0);
-    } while (1);
+            nread -= rc;
+        } while (nread);
+    } while (rc > 0);
 
     fclose(local);
     libssh2_sftp_close(sftp_handle);
