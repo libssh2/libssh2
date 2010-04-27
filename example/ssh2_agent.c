@@ -218,9 +218,11 @@ int main(int argc, char *argv[])
     libssh2_agent_disconnect(agent);
     libssh2_agent_free(agent);
 
-    libssh2_session_disconnect(session,
-                               "Normal Shutdown, Thank you for playing");
-    libssh2_session_free(session);
+    if(session) {
+        libssh2_session_disconnect(session,
+                                   "Normal Shutdown, Thank you for playing");
+        libssh2_session_free(session);
+    }
 
     if (sock != -1) {
 #ifdef WIN32
