@@ -1190,7 +1190,8 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     ssize_t packet_len = handle->handle_len + 13;
     unsigned char *s, *data;
-    unsigned char read_responses[2] = { SSH_FXP_NAME, SSH_FXP_STATUS };
+    static const unsigned char read_responses[2] = {
+        SSH_FXP_NAME, SSH_FXP_STATUS };
     int retcode;
 
     if (sftp->readdir_state == libssh2_NB_state_idle) {
