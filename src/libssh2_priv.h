@@ -554,7 +554,7 @@ struct _LIBSSH2_SFTP_HANDLE
     unsigned char request_packet[SFTP_HANDLE_MAXLEN + 25];
 
     char handle[SFTP_HANDLE_MAXLEN];
-    int handle_len;
+    size_t handle_len;
 
     char handle_type;
 

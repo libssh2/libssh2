@@ -821,18 +821,15 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     LIBSSH2_SFTP_ATTRIBUTES attrs = {
         LIBSSH2_SFTP_ATTR_PERMISSIONS, 0, 0, 0, 0, 0, 0
     };
-    size_t data_len;
-    unsigned char *data, *s;
-    static const unsigned char fopen_responses[2] =
-        { SSH_FXP_HANDLE, SSH_FXP_STATUS };
+    unsigned char *s;
     int rc;
+    int open_file = (open_type == LIBSSH2_SFTP_OPENFILE)?1:0;
 
     if (sftp->open_state == libssh2_NB_state_idle) {
         /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
            flags(4) */
         sftp->open_packet_len = filename_len + 13 +
-            ((open_type ==
-              LIBSSH2_SFTP_OPENFILE) ? (4 + sftp_attrsize(&attrs)) : 0);
+            (open_file? (4 + sftp_attrsize(&attrs)) : 0);
 
         s = sftp->open_packet = LIBSSH2_ALLOC(session, sftp->open_packet_len);
         if (!sftp->open_packet) {
@@ -843,25 +840,22 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
         }
         /* Filetype in SFTP 3 and earlier */
         attrs.permissions = mode |
-            ((open_type ==
-              LIBSSH2_SFTP_OPENFILE) ? LIBSSH2_SFTP_ATTR_PFILETYPE_FILE :
+            (open_file ? LIBSSH2_SFTP_ATTR_PFILETYPE_FILE :
              LIBSSH2_SFTP_ATTR_PFILETYPE_DIR);
 
         _libssh2_store_u32(&s, sftp->open_packet_len - 4);
-        *(s++) = (open_type ==
-                  LIBSSH2_SFTP_OPENFILE) ? SSH_FXP_OPEN : SSH_FXP_OPENDIR;
+        *(s++) = open_file? SSH_FXP_OPEN : SSH_FXP_OPENDIR;
         sftp->open_request_id = sftp->request_id++;
         _libssh2_store_u32(&s, sftp->open_request_id);
         _libssh2_store_str(&s, filename, filename_len);
 
-        if (open_type == LIBSSH2_SFTP_OPENFILE) {
+        if (open_file) {
             _libssh2_store_u32(&s, flags);
             s += sftp_attr2bin(s, &attrs);
         }
 
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Sending %s open request",
-                       (open_type ==
-                        LIBSSH2_SFTP_OPENFILE) ? "file" : "directory");
+                       open_file? "file" : "directory");
 
         sftp->open_state = libssh2_NB_state_created;
     }
@@ -892,6 +886,10 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     }
 
     if (sftp->open_state == libssh2_NB_state_sent) {
+        size_t data_len;
+        unsigned char *data;
+        static const unsigned char fopen_responses[2] =
+            { SSH_FXP_HANDLE, SSH_FXP_STATUS };
         rc = sftp_packet_requirev(sftp, 2, fopen_responses,
                                   sftp->open_request_id, &data,
                                   &data_len);
@@ -900,80 +898,99 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
                            "Would block waiting for status message");
             return NULL;
         }
-        else if (rc) {
+        sftp->open_state = libssh2_NB_state_idle;
+        if (rc) {
             _libssh2_error(session, rc, "Timeout waiting for status message");
-            sftp->open_state = libssh2_NB_state_idle;
             return NULL;
         }
-    }
 
-    sftp->open_state = libssh2_NB_state_idle;
+        /* OPEN can basically get STATUS or HANDLE back, where HANDLE implies
+           a fine response while STATUS means error. It seems though that at
+           times we get an SSH_FX_OK back in a STATUS, followed the "real"
+           HANDLE so we need to properly deal with that. */
+        if (data[0] == SSH_FXP_STATUS) {
+            int badness = 1;
 
-    /* OPEN can basically get STATUS or HANDLE back, where HANDLE implies a
-       fine response while STATUS means error. It seems though that at times
-       we get an SSH_FX_OK back in a STATUS, followed the "real" HANDLE so
-       we need to properly deal with that. */
-    if (data[0] == SSH_FXP_STATUS) {
-        int badness = 1;
-        sftp->last_errno = _libssh2_ntohu32(data + 5);
-
-        if(LIBSSH2_FX_OK == sftp->last_errno) {
-            _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "got HANDLE FXOK!");
-
-            /* silly situation, but check for a HANDLE */
-            rc = sftp_packet_require(sftp, SSH_FXP_HANDLE,
-                                     sftp->open_request_id, &data, &data_len);
-            if(rc == LIBSSH2_ERROR_EAGAIN) {
-                /* go back to sent state and wait for something else */
-                sftp->open_state = libssh2_NB_state_sent;
+            if(data_len < 9) {
+                _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                               "Too small FXP_STATUS");
+                LIBSSH2_FREE(session, data);
                 return NULL;
             }
-            else if(!rc)
-                /* we got the handle so this is not a bad situation */
-                badness = 0;
+
+            sftp->last_errno = _libssh2_ntohu32(data + 5);
+
+            if(LIBSSH2_FX_OK == sftp->last_errno) {
+                _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "got HANDLE FXOK!");
+
+                LIBSSH2_FREE(session, data);
+
+                /* silly situation, but check for a HANDLE */
+                rc = sftp_packet_require(sftp, SSH_FXP_HANDLE,
+                                         sftp->open_request_id, &data,
+                                         &data_len);
+                if(rc == LIBSSH2_ERROR_EAGAIN) {
+                    /* go back to sent state and wait for something else */
+                    sftp->open_state = libssh2_NB_state_sent;
+                    return NULL;
+                }
+                else if(!rc)
+                    /* we got the handle so this is not a bad situation */
+                    badness = 0;
+            }
+
+            if(badness) {
+                _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                               "Failed opening remote file");
+                _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "got FXP_STATUS %d",
+                               sftp->last_errno);
+                LIBSSH2_FREE(session, data);
+                return NULL;
+            }
         }
 
-        if(badness) {
+        if(data_len < 10) {
             _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                           "Failed opening remote file");
-            _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "got FXP_STATUS %d",
-                           sftp->last_errno);
+                           "Too small FXP_HANDLE");
             LIBSSH2_FREE(session, data);
             return NULL;
         }
-    }
 
-    fp = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_SFTP_HANDLE));
-    if (!fp) {
-        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                       "Unable to allocate new SFTP handle structure");
+        fp = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_SFTP_HANDLE));
+        if (!fp) {
+            _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                           "Unable to allocate new SFTP handle structure");
+            LIBSSH2_FREE(session, data);
+            return NULL;
+        }
+        memset(fp, 0, sizeof(LIBSSH2_SFTP_HANDLE));
+        fp->handle_type = open_file ? LIBSSH2_SFTP_HANDLE_FILE :
+            LIBSSH2_SFTP_HANDLE_DIR;
+
+        fp->handle_len = _libssh2_ntohu32(data + 5);
+        if (fp->handle_len > SFTP_HANDLE_MAXLEN)
+            /* SFTP doesn't allow handles longer than 256 characters */
+            fp->handle_len = SFTP_HANDLE_MAXLEN;
+
+        if(fp->handle_len > (data_len - 9))
+            /* do not reach beyond the end of the data we got */
+            fp->handle_len = data_len - 9;
+
+        memcpy(fp->handle, data + 9, fp->handle_len);
+
         LIBSSH2_FREE(session, data);
-        return NULL;
+
+        /* add this file handle to the list kept in the sftp session */
+        _libssh2_list_add(&sftp->sftp_handles, &fp->node);
+
+        fp->sftp = sftp; /* point to the parent struct */
+
+        fp->u.file.offset = 0;
+
+        _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Open command successful");
+        return fp;
     }
-    memset(fp, 0, sizeof(LIBSSH2_SFTP_HANDLE));
-    fp->handle_type =
-        (open_type ==
-         LIBSSH2_SFTP_OPENFILE) ? LIBSSH2_SFTP_HANDLE_FILE :
-        LIBSSH2_SFTP_HANDLE_DIR;
-
-    fp->handle_len = _libssh2_ntohu32(data + 5);
-    if (fp->handle_len > SFTP_HANDLE_MAXLEN) {
-        /* SFTP doesn't allow handles longer than 256 characters */
-        fp->handle_len = SFTP_HANDLE_MAXLEN;
-    }
-
-    memcpy(fp->handle, data + 9, fp->handle_len);
-    LIBSSH2_FREE(session, data);
-
-    /* add this file handle to the list kept in the sftp session */
-    _libssh2_list_add(&sftp->sftp_handles, &fp->node);
-
-    fp->sftp = sftp; /* point to the parent struct */
-
-    fp->u.file.offset = 0;
-
-    _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Open command successful");
-    return fp;
+    return NULL;
 }
 
 /* libssh2_sftp_open_ex
