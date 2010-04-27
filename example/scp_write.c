@@ -94,6 +94,10 @@ int main(int argc, char *argv[])
      * connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(-1 == sock) {
+        fprintf(stderr, "failed to create socket!\n");
+        return -1;
+    }
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
