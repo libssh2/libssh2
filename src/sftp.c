@@ -1014,8 +1014,6 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
        offset(8) + length(4) */
     ssize_t packet_len = handle->handle_len + 25;
     unsigned char *packet, *s, *data;
-    static const unsigned char read_responses[2] =
-        { SSH_FXP_DATA, SSH_FXP_STATUS };
     size_t bytes_read = 0;
     size_t bytes_requested = 0;
     size_t total_read = 0;
@@ -1100,6 +1098,8 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         }
 
         if (sftp->read_state == libssh2_NB_state_sent) {
+            static const unsigned char read_responses[2] =
+                { SSH_FXP_DATA, SSH_FXP_STATUS };
             retcode =
                 sftp_packet_requirev(sftp, 2, read_responses,
                                      request_id, &data, &data_len);
