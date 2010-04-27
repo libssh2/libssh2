@@ -831,6 +831,8 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
         sftp->open_packet_len = filename_len + 13 +
             (open_file? (4 + sftp_attrsize(&attrs)) : 0);
 
+        /* surprise! this starts out with nothing sent */
+        sftp->open_packet_sent = 0;
         s = sftp->open_packet = LIBSSH2_ALLOC(session, sftp->open_packet_len);
         if (!sftp->open_packet) {
             _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -861,28 +863,33 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     }
 
     if (sftp->open_state == libssh2_NB_state_created) {
-        rc = _libssh2_channel_write(channel, 0, (char *) sftp->open_packet,
-                                    sftp->open_packet_len);
+        rc = _libssh2_channel_write(channel, 0, (char *) sftp->open_packet+
+                                    sftp->open_packet_sent,
+                                    sftp->open_packet_len -
+                                    sftp->open_packet_sent);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block sending FXP_OPEN or FXP_OPENDIR command");
             return NULL;
         }
-        else if (sftp->open_packet_len != rc) {
-            /* TODO: partial writes should be fine too and is not a sign of
-               an error when in non-blocking mode! */
-
-            _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                           "Unable to send FXP_OPEN or FXP_OPENDIR command");
+        else if(rc < 0) {
+            _libssh2_error(session, rc, "Unable to send FXP_OPEN*");
             LIBSSH2_FREE(session, sftp->open_packet);
             sftp->open_packet = NULL;
             sftp->open_state = libssh2_NB_state_idle;
             return NULL;
         }
-        LIBSSH2_FREE(session, sftp->open_packet);
-        sftp->open_packet = NULL;
 
-        sftp->open_state = libssh2_NB_state_sent;
+        /* bump the sent counter and remain in this state until the whole
+           data is off */
+        sftp->open_packet_sent += rc;
+
+        if(sftp->open_packet_len == sftp->open_packet_sent) {
+            LIBSSH2_FREE(session, sftp->open_packet);
+            sftp->open_packet = NULL;
+
+            sftp->open_state = libssh2_NB_state_sent;
+        }
     }
 
     if (sftp->open_state == libssh2_NB_state_sent) {

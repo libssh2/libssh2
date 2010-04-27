@@ -602,7 +602,8 @@ struct _LIBSSH2_SFTP
     /* State variables used in libssh2_sftp_open_ex() */
     libssh2_nonblocking_states open_state;
     unsigned char *open_packet;
-    ssize_t open_packet_len;
+    size_t open_packet_len;
+    size_t open_packet_sent;
     uint32_t open_request_id;
 
     /* State variables used in libssh2_sftp_read() */
