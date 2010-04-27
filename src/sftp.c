@@ -89,6 +89,16 @@
 
 static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
 
+/* sftp_attrsize
+ * Size that attr with this flagset will occupy when turned into a bin struct
+ */
+#define sftp_attrsize(f) \
+    (4 +           /* flags(4) */        \
+     ((f & LIBSSH2_SFTP_ATTR_SIZE)?8:0) +  \
+     ((f & LIBSSH2_SFTP_ATTR_UIDGID)?8:0) +                             \
+     ((f & LIBSSH2_SFTP_ATTR_PERMISSIONS)?4:0) +                        \
+     ((f & LIBSSH2_SFTP_ATTR_ACMODTIME)?8:0)) /* atime + mtime as u32 */
+
 /* _libssh2_store_u64
  */
 static void _libssh2_store_u64(unsigned char **ptr, libssh2_uint64_t value)
@@ -373,30 +383,6 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
 
     sftp->requirev_start = 0;
     return -1;
-}
-
-/* sftp_attrsize
- * Size that attr will occupy when turned into a bin struct
- */
-static int
-sftp_attrsize(const LIBSSH2_SFTP_ATTRIBUTES * attrs)
-{
-    int attrsize = 4;           /* flags(4) */
-
-    if (!attrs) {
-        return attrsize;
-    }
-
-    if (attrs->flags & LIBSSH2_SFTP_ATTR_SIZE)
-        attrsize += 8;
-    if (attrs->flags & LIBSSH2_SFTP_ATTR_UIDGID)
-        attrsize += 8;
-    if (attrs->flags & LIBSSH2_SFTP_ATTR_PERMISSIONS)
-        attrsize += 4;
-    if (attrs->flags & LIBSSH2_SFTP_ATTR_ACMODTIME)
-        attrsize += 8;          /* atime + mtime as u32 */
-
-    return attrsize;
 }
 
 /* sftp_attr2bin
@@ -829,7 +815,7 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
         /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
            flags(4) */
         sftp->open_packet_len = filename_len + 13 +
-            (open_file? (4 + sftp_attrsize(&attrs)) : 0);
+            (open_file? (4 + sftp_attrsize(LIBSSH2_SFTP_ATTR_PERMISSIONS)) : 0);
 
         /* surprise! this starts out with nothing sent */
         sftp->open_packet_sent = 0;
@@ -1481,7 +1467,7 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
     size_t data_len;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     ssize_t packet_len =
-        handle->handle_len + 13 + (setstat ? sftp_attrsize(attrs) : 0);
+        handle->handle_len + 13 + (setstat ? sftp_attrsize(attrs->flags) : 0);
     unsigned char *s, *data;
     static const unsigned char fstat_responses[2] =
         { SSH_FXP_ATTRS, SSH_FXP_STATUS };
@@ -1962,7 +1948,8 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
     size_t data_len;
     int retcode;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
-    ssize_t packet_len = path_len + 13 + sftp_attrsize(&attrs);
+    ssize_t packet_len = path_len + 13 +
+        sftp_attrsize(LIBSSH2_SFTP_ATTR_PERMISSIONS);
     unsigned char *packet, *s, *data;
     int rc;
 
@@ -2152,7 +2139,7 @@ static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
     ssize_t packet_len =
         path_len + 13 +
         ((stat_type ==
-          LIBSSH2_SFTP_SETSTAT) ? sftp_attrsize(attrs) : 0);
+          LIBSSH2_SFTP_SETSTAT) ? sftp_attrsize(attrs->flags) : 0);
     unsigned char *s, *data;
     static const unsigned char stat_responses[2] =
         { SSH_FXP_ATTRS, SSH_FXP_STATUS };
