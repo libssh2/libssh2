@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
-    LIBSSH2_SESSION *session;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_AGENT *agent = NULL;
     struct libssh2_agent_publickey *identity, *prev_identity = NULL;
