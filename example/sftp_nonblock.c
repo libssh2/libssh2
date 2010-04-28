@@ -265,8 +265,8 @@ int main(int argc, char *argv[])
 shutdown:
 
     printf("libssh2_session_disconnect\n");
-    while ((rc = libssh2_session_disconnect(session,
-                                            "Normal Shutdown, Thank you")) ==
+    while (libssh2_session_disconnect(session,
+                                      "Normal Shutdown, Thank you") ==
            LIBSSH2_ERROR_EAGAIN);
     libssh2_session_free(session);
 

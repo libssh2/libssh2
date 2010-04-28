@@ -151,13 +151,11 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "libssh2_sftp_mkdirnb()!\n");
     /* Make a directory via SFTP */
-    while ((rc = libssh2_sftp_mkdir(sftp_session, sftppath,
-                                    LIBSSH2_SFTP_S_IRWXU|
-                                    LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IXGRP|
-                                    LIBSSH2_SFTP_S_IROTH|LIBSSH2_SFTP_S_IXOTH))
-           == LIBSSH2_ERROR_EAGAIN) {
-        ;
-    }
+    while (libssh2_sftp_mkdir(sftp_session, sftppath,
+                              LIBSSH2_SFTP_S_IRWXU|
+                              LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IXGRP|
+                              LIBSSH2_SFTP_S_IROTH|LIBSSH2_SFTP_S_IXOTH)
+           == LIBSSH2_ERROR_EAGAIN);
 
     libssh2_sftp_shutdown(sftp_session);
 
