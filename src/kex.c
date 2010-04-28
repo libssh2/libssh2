@@ -1067,10 +1067,7 @@ static int kexinit(LIBSSH2_SESSION * session)
         *(s++) = 0;
 
         /* Reserved == 0 */
-        *(s++) = 0;
-        *(s++) = 0;
-        *(s++) = 0;
-        *(s++) = 0;
+        _libssh2_htonu32(s, 0);
 
 #ifdef LIBSSH2DEBUG
         {
