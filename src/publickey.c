@@ -364,7 +364,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
         memcpy(s, "version", sizeof("version") - 1);
         s += sizeof("version") - 1;
         _libssh2_htonu32(s, LIBSSH2_PUBLICKEY_VERSION);
-        s += 4;
+
         session->pkeyInit_buffer_sent = 0;
 
         _libssh2_debug(session, LIBSSH2_TRACE_PUBLICKEY,
