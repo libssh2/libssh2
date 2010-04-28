@@ -781,7 +781,6 @@ static int
 kex_method_diffie_hellman_group_exchange_sha1_key_exchange
 (LIBSSH2_SESSION * session, key_exchange_state_low_t * key_state)
 {
-    unsigned char *s;
     unsigned long p_len, g_len;
     int ret = 0;
     int rc;
@@ -839,7 +838,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     }
 
     if (key_state->state == libssh2_NB_state_sent1) {
-        s = key_state->data + 1;
+        unsigned char *s = key_state->data + 1;
         p_len = _libssh2_ntohu32(s);
         s += 4;
         _libssh2_bn_from_bin(key_state->p, p_len, s);
@@ -848,7 +847,6 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
         g_len = _libssh2_ntohu32(s);
         s += 4;
         _libssh2_bn_from_bin(key_state->g, g_len, s);
-        s += g_len;
 
         ret = diffie_hellman_sha1(session, key_state->g, key_state->p, p_len,
                                   SSH_MSG_KEX_DH_GEX_INIT,
