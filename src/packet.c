@@ -77,7 +77,6 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     /*
      * Look for a matching listener
      */
-    unsigned char *s = data + (sizeof("forwarded-tcpip") - 1) + 5;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
     unsigned long packet_len = 17 + (sizeof(FwdNotReq) - 1);
     unsigned char *p;
@@ -88,6 +87,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     (void) datalen;
 
     if (listen_state->state == libssh2_NB_state_idle) {
+        unsigned char *s = data + (sizeof("forwarded-tcpip") - 1) + 5;
         listen_state->sender_channel = _libssh2_ntohu32(s);
         s += 4;
 
@@ -108,7 +108,6 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
         listen_state->shost = s;
         s += listen_state->shost_len;
         listen_state->sport = _libssh2_ntohu32(s);
-        s += 4;
 
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "Remote received connection from %s:%ld to %s:%ld",
