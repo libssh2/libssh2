@@ -92,12 +92,15 @@ static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
 /* sftp_attrsize
  * Size that attr with this flagset will occupy when turned into a bin struct
  */
-#define sftp_attrsize(f) \
-    (4 +           /* flags(4) */        \
-     (((f) & LIBSSH2_SFTP_ATTR_SIZE)?8:0) +                             \
-     (((f) & LIBSSH2_SFTP_ATTR_UIDGID)?8:0) +                           \
-     (((f) & LIBSSH2_SFTP_ATTR_PERMISSIONS)?4:0) +                      \
-     (((f) & LIBSSH2_SFTP_ATTR_ACMODTIME)?8:0)) /* atime + mtime as u32 */
+static int sftp_attrsize(unsigned long flags)
+{
+    return (4 +                                 /* flags(4) */
+            (((flags) & LIBSSH2_SFTP_ATTR_SIZE) ? 8 : 0) +
+            (((flags) & LIBSSH2_SFTP_ATTR_UIDGID) ? 8 : 0) +
+            (((flags) & LIBSSH2_SFTP_ATTR_PERMISSIONS) ? 4 : 0) +
+            (((flags) & LIBSSH2_SFTP_ATTR_ACMODTIME) ? 8 : 0));
+                                                /* atime + mtime as u32 */
+}
 
 /* _libssh2_store_u64
  */
