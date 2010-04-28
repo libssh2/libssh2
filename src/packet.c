@@ -262,7 +262,6 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
                 packet_x11_open_state_t *x11open_state)
 {
     int failure_code = 2;       /* SSH_OPEN_CONNECT_FAILED */
-    unsigned char *s = data + (sizeof("x11") - 1) + 5;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
     unsigned long packet_len = 17 + (sizeof(X11FwdUnAvil) - 1);
     unsigned char *p;
@@ -272,6 +271,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
     (void) datalen;
 
     if (x11open_state->state == libssh2_NB_state_idle) {
+        unsigned char *s = data + (sizeof("x11") - 1) + 5;
         x11open_state->sender_channel = _libssh2_ntohu32(s);
         s += 4;
         x11open_state->initial_window_size = _libssh2_ntohu32(s);
@@ -283,7 +283,6 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
         x11open_state->shost = s;
         s += x11open_state->shost_len;
         x11open_state->sport = _libssh2_ntohu32(s);
-        s += 4;
 
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "X11 Connection Received from %s:%ld on channel %lu",
