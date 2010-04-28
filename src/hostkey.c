@@ -91,7 +91,6 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     n_len = _libssh2_ntohu32(s);
     s += 4;
     n = s;
-    s += n_len;
 
     if (_libssh2_rsa_new(&rsactx, e, e_len, n, n_len, NULL, 0,
                          NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0))
