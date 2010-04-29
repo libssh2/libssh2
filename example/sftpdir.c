@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
     if (auth_pw) {
         /* We could authenticate via password */
-        if ((i = libssh2_userauth_password(session, username, password))) {
+        if (libssh2_userauth_password(session, username, password)) {
             printf("Authentication by password failed.\n");
             goto shutdown;
         }
