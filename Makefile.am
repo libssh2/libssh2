@@ -23,7 +23,7 @@ DISTCLEANFILES = $(DSP)
 
 VMSFILES = vms/libssh2_make_example.dcl vms/libssh2_make_help.dcl	\
 vms/libssh2_make_kit.dcl vms/libssh2_make_lib.dcl vms/man2help.c	\
-vms/readme.vms
+vms/readme.vms vms/libssh2_config.h
 
 
 WIN32FILES = win32/Makefile.win32 win32/libssh2.dsw     \
