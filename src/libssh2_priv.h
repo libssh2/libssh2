@@ -1130,9 +1130,6 @@ int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
 const LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);
 const LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void);
 
-/* Language API doesn't exist yet.  Just act like we've agreed on a language */
-#define libssh2_kex_agree_lang(session, endpoint, str, str_len) 0
-
 /* pem.c */
 int _libssh2_pem_parse(LIBSSH2_SESSION * session,
                        const char *headerbegin,

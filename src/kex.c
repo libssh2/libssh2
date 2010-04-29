@@ -1512,9 +1512,9 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
                              unsigned data_len)
 {
     unsigned char *kex, *hostkey, *crypt_cs, *crypt_sc, *comp_cs, *comp_sc,
-        *mac_cs, *mac_sc, *lang_cs, *lang_sc;
+        *mac_cs, *mac_sc;
     size_t kex_len, hostkey_len, crypt_cs_len, crypt_sc_len, comp_cs_len;
-    size_t comp_sc_len, mac_cs_len, mac_sc_len, lang_cs_len, lang_sc_len;
+    size_t comp_sc_len, mac_cs_len, mac_sc_len;
     unsigned char *s = data;
 
     /* Skip packet_type, we know it already */
@@ -1547,6 +1547,7 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
     s += 4 + comp_cs_len;
     comp_sc_len = _libssh2_ntohu32(s);
     comp_sc = s + 4;
+#if 0
     s += 4 + comp_sc_len;
     lang_cs_len = _libssh2_ntohu32(s);
     lang_cs = s + 4;
@@ -1554,7 +1555,7 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
     lang_sc_len = _libssh2_ntohu32(s);
     lang_sc = s + 4;
     s += 4 + lang_sc_len;
-
+#endif
     /* If the server sent an optimistic packet, assume that it guessed wrong.
      * If the guess is determined to be right (by kex_agree_kex_hostkey)
      * This flag will be reset to zero so that it's not ignored */
@@ -1583,11 +1584,13 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
         return -1;
     }
 
+#if 0
     if (libssh2_kex_agree_lang(session, &session->local, lang_cs, lang_cs_len)
         || libssh2_kex_agree_lang(session, &session->remote, lang_sc,
                                   lang_sc_len)) {
         return -1;
     }
+#endif
 
     _libssh2_debug(session, LIBSSH2_TRACE_KEX, "Agreed on KEX method: %s",
                    session->kex->name);
@@ -1605,8 +1608,6 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
                    session->local.comp->name);
     _libssh2_debug(session, LIBSSH2_TRACE_KEX, "Agreed on COMP_SC method: %s",
                    session->remote.comp->name);
-    _libssh2_debug(session, LIBSSH2_TRACE_KEX, "Agreed on LANG_CS method:");      /* None yet */
-    _libssh2_debug(session, LIBSSH2_TRACE_KEX, "Agreed on LANG_SC method:");      /* None yet */
 
     /* Initialize compression layer */
     if (session->local.comp && session->local.comp->init &&
