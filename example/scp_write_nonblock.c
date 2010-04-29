@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     int sock, i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
-    LIBSSH2_SESSION *session;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     const char *username="username";
     const char *password="password";
