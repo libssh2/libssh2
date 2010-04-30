@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     local = fopen(loclfile, "rb");
     if (!local) {
         fprintf(stderr, "Can't local file %s\n", loclfile);
-        goto shutdown;
+        return -1;
     }
 
     stat(loclfile, &fileinfo);
