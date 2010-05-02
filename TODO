@@ -55,3 +55,6 @@ At next SONAME bump
 
 * remove the existing libssh2_scp_send_ex() function and rename
   libssh2_scp_send64 to become the new libssh2_scp_send instead.
+
+* remove the existing libssh2_knownhost_check() functin and rename
+  libssh2_knownhost_checkp() to become the new libssh2_knownhost_check instead

@@ -7,12 +7,12 @@ libssh2_knownhost_add - add a known host
 .SH SYNOPSIS
 #include <libssh2.h>
 
-int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
-                          char *host, char *salt,
-                          char *key, size_t keylen,
-                          const char *comment, size_t commentlen,
-                          int typemask,
-                          struct libssh2_knownhost **store);
+int libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
+                           char *host, char *salt,
+                           char *key, size_t keylen,
+                           const char *comment, size_t commentlen,
+                           int typemask,
+                           struct libssh2_knownhost **store);
 .SH DESCRIPTION
 Adds a known host to the collection of known hosts identified by the 'hosts'
 handle.
@@ -21,7 +21,12 @@ handle.
 must be provided base64 encoded. The host name can be the IP numerical address
 of the host or the full name.
 
-\fIsalt\P is a pointer to the salt used for the host hashing, if the host is
+If you want to add a key for a specific port number for the given host, you
+must provide the host name like '[host]:port' with the actual characters '['
+and ']' enclosing the host name and a colon separating the host part from the
+port number. For example: \&"[host.example.com]:222".
+
+\fIsalt\fP is a pointer to the salt used for the host hashing, if the host is
 provided hashed. If the host is provided in plain text, salt has no meaning.
 The salt has to be provided base64 encoded with a trailing zero byte.
 

@@ -856,6 +856,15 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                         int typemask,
                         struct libssh2_knownhost **knownhost);
 
+/* this function is identital to the above one, but also takes a port
+   argument that allows libssh2 to do a better check */
+LIBSSH2_API int
+libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
+                         const char *host, int port,
+                         const char *key, size_t keylen,
+                         int typemask,
+                         struct libssh2_knownhost **knownhost);
+
 /*
  * libssh2_knownhost_del
  *

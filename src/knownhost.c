@@ -43,6 +43,8 @@ struct known_host {
     struct list_node node;
     char *name;      /* points to the name or the hash (allocated) */
     size_t name_len; /* needed for hashed data */
+    int port;        /* if non-zero, a specific port this key is for on this
+                        host */
     int typemask;    /* plain, sha1, custom, ... */
     char *salt;      /* points to binary salt (allocated) */
     size_t salt_len; /* size of salt */
@@ -309,7 +311,7 @@ libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_check
+ * knownhost_check
  *
  * Check a host and its associated key against the collection of known hosts.
  *
@@ -326,17 +328,22 @@ libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
  * LIBSSH2_KNOWNHOST_CHECK_MATCH
  * LIBSSH2_KNOWNHOST_CHECK_MISMATCH
  */
-LIBSSH2_API int
-libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
-                        const char *host, const char *key, size_t keylen,
-                        int typemask,
-                        struct libssh2_knownhost **ext)
+static int
+knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
+                const char *hostp, int port,
+                const char *key, size_t keylen,
+                int typemask,
+                struct libssh2_knownhost **ext)
 {
-    struct known_host *node = _libssh2_list_first(&hosts->head);
+    struct known_host *node;
     struct known_host *badkey = NULL;
     int type = typemask & LIBSSH2_KNOWNHOST_TYPE_MASK;
     char *keyalloc = NULL;
     int rc = LIBSSH2_KNOWNHOST_CHECK_NOTFOUND;
+    char hostbuff[270]; /* most host names can't be longer than like 256 */
+    const char *host;
+    int numcheck; /* number of host combos to check */
+    int match = 0;
 
     if(type == LIBSSH2_KNOWNHOST_TYPE_SHA1)
         /* we can't work with a sha1 as given input */
@@ -357,61 +364,80 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
         key = keyalloc;
     }
 
-    while (node) {
-        int match = 0;
-        switch(node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) {
-        case LIBSSH2_KNOWNHOST_TYPE_PLAIN:
-            if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN)
-                match = !strcmp(host, node->name);
-            break;
-        case LIBSSH2_KNOWNHOST_TYPE_CUSTOM:
-            if(type == LIBSSH2_KNOWNHOST_TYPE_CUSTOM)
-                match = !strcmp(host, node->name);
-            break;
-        case LIBSSH2_KNOWNHOST_TYPE_SHA1:
-            if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN) {
-                /* when we have the sha1 version stored, we can use a plain
-                   input to produce a hash to compare with the stored hash.
-                */
-                libssh2_hmac_ctx ctx;
-                unsigned char hash[SHA_DIGEST_LENGTH];
+    /* if a port number is given, check for a '[host]:port' first before the
+       plain 'host' */
+    if(port) {
+        snprintf(hostbuff, sizeof(hostbuff), "[%s]:%d", hostp, port);
+        host = hostbuff;
+        numcheck = 2; /* check both combos, start with this */
+    }
+    else {
+        host = hostp;
+        numcheck = 1; /* only check this host version */
+    }
 
-                if(SHA_DIGEST_LENGTH != node->name_len) {
-                    /* the name hash length must be the sha1 size or
-                       we can't match it */
-                    break;
+    do {
+        node = _libssh2_list_first(&hosts->head);
+        while (node) {
+            switch(node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) {
+            case LIBSSH2_KNOWNHOST_TYPE_PLAIN:
+                if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN)
+                    match = !strcmp(host, node->name);
+                break;
+            case LIBSSH2_KNOWNHOST_TYPE_CUSTOM:
+                if(type == LIBSSH2_KNOWNHOST_TYPE_CUSTOM)
+                    match = !strcmp(host, node->name);
+                break;
+            case LIBSSH2_KNOWNHOST_TYPE_SHA1:
+                if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN) {
+                    /* when we have the sha1 version stored, we can use a
+                       plain input to produce a hash to compare with the
+                       stored hash.
+                    */
+                    libssh2_hmac_ctx ctx;
+                    unsigned char hash[SHA_DIGEST_LENGTH];
+
+                    if(SHA_DIGEST_LENGTH != node->name_len) {
+                        /* the name hash length must be the sha1 size or
+                           we can't match it */
+                        break;
+                    }
+                    libssh2_hmac_sha1_init(&ctx, node->salt, node->salt_len);
+                    libssh2_hmac_update(ctx, (unsigned char *)host,
+                                        strlen(host));
+                    libssh2_hmac_final(ctx, hash);
+                    libssh2_hmac_cleanup(&ctx);
+
+                    if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
+                        /* this is a node we're interested in */
+                        match = 1;
                 }
-                libssh2_hmac_sha1_init(&ctx, node->salt, node->salt_len);
-                libssh2_hmac_update(ctx, (unsigned char *)host, strlen(host));
-                libssh2_hmac_final(ctx, hash);
-                libssh2_hmac_cleanup(&ctx);
-
-                if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
-                    /* this is a node we're interested in */
-                    match = 1;
-            }
-            break;
-        default: /* unsupported type */
-            break;
-        }
-        if(match) {
-            /* host name match, now compare the keys */
-            if(!strcmp(key, node->key)) {
-                /* they match! */
-                *ext = knownhost_to_external(node);
-                badkey = NULL;
-                rc = LIBSSH2_KNOWNHOST_CHECK_MATCH;
+                break;
+            default: /* unsupported type */
                 break;
             }
-            else {
-                /* remember the first node that had a host match but a failed
-                   key match since we continue our search from here */
-                if(!badkey)
-                    badkey = node;
+            if(match) {
+                /* host name match, now compare the keys */
+                if(!strcmp(key, node->key)) {
+                    /* they match! */
+                    *ext = knownhost_to_external(node);
+                    badkey = NULL;
+                    rc = LIBSSH2_KNOWNHOST_CHECK_MATCH;
+                    break;
+                }
+                else {
+                    /* remember the first node that had a host match but a
+                       failed key match since we continue our search from
+                       here */
+                    if(!badkey)
+                        badkey = node;
+                    match = 0; /* don't count this as a match anymore */
+                }
             }
+            node= _libssh2_list_next(&node->node);
         }
-        node= _libssh2_list_next(&node->node);
-    }
+        host = hostp;
+    } while(!match && --numcheck);
 
     if(badkey) {
         /* key mismatch */
@@ -424,6 +450,69 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 
     return rc;
 }
+
+/*
+ * libssh2_knownhost_check
+ *
+ * Check a host and its associated key against the collection of known hosts.
+ *
+ * The typemask is the type/format of the given host name and key
+ *
+ * plain  - ascii "hostname.domain.tld"
+ * sha1   - NOT SUPPORTED AS INPUT
+ * custom - prehashed base64 encoded. Note that this cannot use any salts.
+ *
+ * Returns:
+ *
+ * LIBSSH2_KNOWNHOST_CHECK_FAILURE
+ * LIBSSH2_KNOWNHOST_CHECK_NOTFOUND
+ * LIBSSH2_KNOWNHOST_CHECK_MATCH
+ * LIBSSH2_KNOWNHOST_CHECK_MISMATCH
+ */
+LIBSSH2_API int
+libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
+                        const char *hostp, const char *key, size_t keylen,
+                        int typemask,
+                        struct libssh2_knownhost **ext)
+{
+    return knownhost_check(hosts, hostp, 0, key, keylen,
+                           typemask, ext);
+}
+
+/*
+ * libssh2_knownhost_checkp
+ *
+ * Check a host+port and its associated key against the collection of known
+ * hosts.
+ *
+ * Note that if 'port' is specified as non-zero, the check function will be
+ * able to check for a dedicated key for this particular host+port combo, and
+ * if 'port' is set to zero it only checks for the generic host key.
+ *
+ * The typemask is the type/format of the given host name and key
+ *
+ * plain  - ascii "hostname.domain.tld"
+ * sha1   - NOT SUPPORTED AS INPUT
+ * custom - prehashed base64 encoded. Note that this cannot use any salts.
+ *
+ * Returns:
+ *
+ * LIBSSH2_KNOWNHOST_CHECK_FAILURE
+ * LIBSSH2_KNOWNHOST_CHECK_NOTFOUND
+ * LIBSSH2_KNOWNHOST_CHECK_MATCH
+ * LIBSSH2_KNOWNHOST_CHECK_MISMATCH
+ */
+LIBSSH2_API int
+libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
+                         const char *hostp, int port,
+                         const char *key, size_t keylen,
+                         int typemask,
+                         struct libssh2_knownhost **ext)
+{
+    return knownhost_check(hosts, hostp, port, key, keylen,
+                           typemask, ext);
+}
+
 
 /*
  * libssh2_knownhost_del

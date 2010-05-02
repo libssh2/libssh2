@@ -167,12 +167,21 @@ int main(int argc, char *argv[])
     fingerprint = libssh2_session_hostkey(session, &len, &type);
     if(fingerprint) {
         struct libssh2_knownhost *host;
-        int check = libssh2_knownhost_check(nh, (char *)hostname,
-                                            (char *)fingerprint, len,
+#if LIBSSH2_VERSION_NUM >= 0x010206
+        /* introduced in 1.2.6 */
+        int check = libssh2_knownhost_checkp(nh, hostname, 22,
+                                             fingerprint, len,
+                                             LIBSSH2_KNOWNHOST_TYPE_PLAIN|
+                                             LIBSSH2_KNOWNHOST_KEYENC_RAW,
+                                             &host);
+#else
+        /* 1.2.5 or older */
+        int check = libssh2_knownhost_check(nh, hostname,
+                                            fingerprint, len,
                                             LIBSSH2_KNOWNHOST_TYPE_PLAIN|
                                             LIBSSH2_KNOWNHOST_KEYENC_RAW,
                                             &host);
-
+#endif
         fprintf(stderr, "Host check: %d, key: %s\n", check,
                 (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH)?
                 host->key:"<none>");
