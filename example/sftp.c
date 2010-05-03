@@ -52,17 +52,45 @@ static void kbd_callback(const char *name, int name_len,
              LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
              void **abstract)
 {
-    (void)name;
-    (void)name_len;
-    (void)instruction;
-    (void)instruction_len;
-    if (num_prompts == 1) {
-        responses[0].text = strdup(password);
-        responses[0].length = strlen(password);
-    }
-    (void)prompts;
     (void)abstract;
-} /* kbd_callback */
+    int i;
+    size_t n;
+    char buf[1024];
+
+    printf("Performing keyboard-interactive authentication.\n");
+
+    printf("Authentication name: '");
+    fwrite(name, 1, name_len, stdout);
+    printf("'\n");
+
+    printf("Authentication instruction: '");
+    fwrite(instruction, 1, instruction_len, stdout);
+    printf("'\n");
+
+    printf("Number of prompts: %d\n\n", num_prompts);
+
+    for (i = 0; i < num_prompts; i++) {
+        printf("Prompt %d from server: '", i);
+        fwrite(prompts[i].text, 1, prompts[i].length, stdout);
+        printf("'\n");
+
+        printf("Please type response: ");
+        fgets(buf, sizeof(buf), stdin);
+        n = strlen(buf);
+        while (n > 0 && strchr("\r\n", buf[n - 1]))
+          n--;
+        buf[n] = 0;
+
+        responses[i].text = strdup(buf);
+        responses[i].length = n;
+
+        printf("Response %d from user is '", i);
+        fwrite(responses[i].text, 1, responses[i].length, stdout);
+        printf("'\n\n");
+    }
+
+    printf("Done. Sending keyboard-interactive responses to server now.\n");
+}
 
 
 int main(int argc, char *argv[])
