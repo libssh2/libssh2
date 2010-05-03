@@ -52,10 +52,10 @@ static void kbd_callback(const char *name, int name_len,
              LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
              void **abstract)
 {
-    (void)abstract;
     int i;
     size_t n;
     char buf[1024];
+    (void)abstract;
 
     printf("Performing keyboard-interactive authentication.\n");
 
