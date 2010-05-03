@@ -66,6 +66,7 @@ dist_man_MANS = \
 	libssh2_knownhost_add.3 \
 	libssh2_knownhost_addc.3 \
 	libssh2_knownhost_check.3 \
+	libssh2_knownhost_checkp.3 \
 	libssh2_knownhost_del.3 \
 	libssh2_knownhost_free.3 \
 	libssh2_knownhost_get.3 \
