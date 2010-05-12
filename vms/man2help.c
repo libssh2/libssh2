@@ -193,7 +193,7 @@ return( status );
 
 /*--------------------------------------------*/
 
-int convertman ( char *filespec, FILE *hlp , int base_level )
+int convertman ( char *filespec, FILE *hlp , int base_level, int add_parentheses )
 {
 FILE    *man;
 char    *in, *uit;
@@ -341,6 +341,10 @@ for ( mode = 0, bol = 1 ; *m; ++m ){
                     for ( m = m + 3; *m != ' ' && *m ; ++m, ++h ){
                           *h = *m;
                     }
+					if ( add_parentheses ){
+						 *h = '(';++h;
+						 *h = ')';++h;
+					}
                     while( *m != '\n' && *m != '\r' && *m )++m;
                     mode = 0;
                  }
@@ -405,7 +409,7 @@ return ( 1);
 
 /*--------------------------------------------*/
 
-int convertmans( char *filespec, char *hlpfilename, int base_level, int append )
+int convertmans( char *filespec, char *hlpfilename, int base_level, int append, int add_parentheses )
 {
 int status=1;
 manPtr  manroot=NULL, m;
@@ -423,7 +427,7 @@ status = listofmans( filespec, &manroot );
 if ( !(status&1) ) return( status );
 
 for ( m = manroot ; m ; m = m->next ){
-    status = convertman( m->filename, hlp , base_level );
+    status = convertman( m->filename, hlp , base_level, add_parentheses );
     if ( !(status&1) ){
         fprintf(stderr,"Convertman of %s went wrong\n", m->filename);
         break;
@@ -440,6 +444,8 @@ void print_help()
    fprintf( stderr, "       -a append <manfilespec> to <helptextfile>\n" );
    fprintf( stderr, "       -b <baselevel> if no headers found create one with level <baselevel>\n" );
    fprintf( stderr, "          and the filename as title.\n" );
+   fprintf( stderr, "       -p add parentheses() to baselevel help items.\n" );
+
 }
 /*--------------------------------------------*/
 
@@ -447,7 +453,7 @@ main ( int argc, char **argv )
 {
 int     status;
 int     i,j;
-int     append, base_level, basechange;
+int     append, base_level, basechange, add_parentheses;
 char    *manfile=NULL;
 char    *helpfile=NULL;
 
@@ -459,6 +465,7 @@ if ( argc < 3 ){
 append     = 0;
 base_level = 1;
 basechange = 0;
+add_parentheses = 0;
 
 for ( i = 1; i < argc; ++i){
     if ( argv[i][0] == '-' ){
@@ -472,6 +479,9 @@ for ( i = 1; i < argc; ++i){
                         base_level = atoi( argv[ i + 1 ] );
                         basechange = 1;
                     }
+                    break;
+                case 'p':
+                    add_parentheses = 1;
                     break;
             }
         }
@@ -495,7 +505,7 @@ for ( i = 1; i < argc; ++i){
         manfile, helpfile, append, base_level);
 */
 
-status = convertmans( manfile, helpfile, base_level, append );
+status = convertmans( manfile, helpfile, base_level, append, add_parentheses );
 
 free( manfile );
 free( helpfile );

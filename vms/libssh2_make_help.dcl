@@ -37,7 +37,7 @@ Reference of all implemented API calls in
 libssh2.
 
 $!
-$ man2help -a [-.docs]*.3 libssh2.hlp -b 3
+$ man2help -a [-.docs]*.3 libssh2.hlp -b 3 -p
 $!
 $ library/help/create libssh2.hlb libssh2.hlp
 $!
