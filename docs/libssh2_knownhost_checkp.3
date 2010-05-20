@@ -19,10 +19,10 @@ and returns info back about the (partially) matched entry.
 \fIhost\fP is a pointer the host name in plain text. The host name can be the
 IP numerical address of the host or the full name.
 
-\fIport\fP is the port number used by the host (or 0 to check the generic
-host). If the port number is given, libssh2 will check the key for the
-specific host + port number combination in addition to the plain host name
-only check.
+\fIport\fP is the port number used by the host (or a negative number
+to check the generic host). If the port number is given, libssh2 will
+check the key for the specific host + port number combination in
+addition to the plain host name only check.
 
 \fIkey\fP is a pointer to the key for the given host.
 

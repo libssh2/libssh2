@@ -366,7 +366,7 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 
     /* if a port number is given, check for a '[host]:port' first before the
        plain 'host' */
-    if(port) {
+    if(port >= 0) {
         snprintf(hostbuff, sizeof(hostbuff), "[%s]:%d", hostp, port);
         host = hostbuff;
         numcheck = 2; /* check both combos, start with this */
@@ -475,7 +475,7 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                         int typemask,
                         struct libssh2_knownhost **ext)
 {
-    return knownhost_check(hosts, hostp, 0, key, keylen,
+    return knownhost_check(hosts, hostp, -1, key, keylen,
                            typemask, ext);
 }
 
@@ -485,9 +485,9 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
  * Check a host+port and its associated key against the collection of known
  * hosts.
  *
- * Note that if 'port' is specified as non-zero, the check function will be
- * able to check for a dedicated key for this particular host+port combo, and
- * if 'port' is set to zero it only checks for the generic host key.
+ * Note that if 'port' is specified as greater than zero, the check function
+ * will be able to check for a dedicated key for this particular host+port
+ * combo, and if 'port' is negative it only checks for the generic host key.
  *
  * The typemask is the type/format of the given host name and key
  *
