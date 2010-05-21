@@ -104,7 +104,7 @@ $ seconddash    = f$locate("-", restdir)
 $ if seconddash .ge. f$length( restdir )
 $ then
 $   daily    = "FALSE"
-$   datename = ""   
+$   datename = "Final"
 $ else
 $   datename = "D" + f$extract(seconddash+1,8,restdir)   
 $ endif
@@ -113,7 +113,7 @@ $ if daily
 $ then
 $   productname = "JCB ''arch' LIBSSH2 V''vms_majorv'.''minorv'-''patchv'''datename'"
 $ else
-$   productname = "JCB ''arch' LIBSSH2 V''vms_majorv'.''minorv'-''patchv'"
+$   productname = "JCB ''arch' LIBSSH2 V''vms_majorv'.''minorv'-''patchv'''datename'"
 $ endif
 $!
 $ productfilename  = "JCB-''arch'-LIBSSH2-" + f$fao("V!2ZL!2ZL-!2ZL!AS-1", f$integer(vms_majorv),minorv,patchv,datename)
