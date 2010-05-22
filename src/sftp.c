@@ -88,6 +88,9 @@
 /* S_IFDIR */
 #define LIBSSH2_SFTP_ATTR_PFILETYPE_DIR         0040000
 
+#define SSH_FXE_STATVFS_ST_RDONLY               0x00000001
+#define SSH_FXE_STATVFS_ST_NOSUID               0x00000002
+
 static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
 
 /* sftp_attrsize
@@ -757,6 +760,14 @@ sftp_shutdown(LIBSSH2_SFTP *sftp)
     if (sftp->rename_packet) {
         LIBSSH2_FREE(session, sftp->rename_packet);
         sftp->rename_packet = NULL;
+    }
+    if (sftp->fstatvfs_packet) {
+        LIBSSH2_FREE(session, sftp->fstatvfs_packet);
+        sftp->fstatvfs_packet = NULL;
+    }
+    if (sftp->statvfs_packet) {
+        LIBSSH2_FREE(session, sftp->statvfs_packet);
+        sftp->statvfs_packet = NULL;
     }
     if (sftp->mkdir_packet) {
         LIBSSH2_FREE(session, sftp->mkdir_packet);
@@ -1936,6 +1947,229 @@ libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp, const char *source_filename,
                              dest_filename, dest_filename_len, flags));
     return rc;
 }
+
+/*
+ * sftp_fstatvfs
+ *
+ * Get file system statistics
+ */
+static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
+{
+    LIBSSH2_SFTP *sftp = handle->sftp;
+    LIBSSH2_CHANNEL *channel = sftp->channel;
+    LIBSSH2_SESSION *session = channel->session;
+    size_t data_len;
+    /* 17 = packet_len(4) + packet_type(1) + request_id(4) + ext_len(4)
+          + handle_len (4) */
+    /* 20 = strlen ("fstatvfs@openssh.com") */
+    ssize_t packet_len = handle->handle_len + 20 + 17;
+    unsigned char *packet, *s, *data;
+    int rc;
+    unsigned int flag;
+
+    if (sftp->fstatvfs_state == libssh2_NB_state_idle) {
+        _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
+                       "Getting file system statistics");
+        s = packet = LIBSSH2_ALLOC(session, packet_len);
+        if (!packet) {
+            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for FXP_EXTENDED "
+                                  "packet");
+        }
+
+        _libssh2_store_u32(&s, packet_len - 4);
+        *(s++) = SSH_FXP_EXTENDED;
+        sftp->fstatvfs_request_id = sftp->request_id++;
+        _libssh2_store_u32(&s, sftp->fstatvfs_request_id);
+        _libssh2_store_str(&s, "fstatvfs@openssh.com", 20);
+        _libssh2_store_str(&s, handle->handle, handle->handle_len);
+
+        sftp->fstatvfs_state = libssh2_NB_state_created;
+    }
+    else {
+        packet = sftp->fstatvfs_packet;
+    }
+
+    if (sftp->fstatvfs_state == libssh2_NB_state_created) {
+        rc = _libssh2_channel_write(channel, 0, (char *) packet, packet_len);
+        if (rc == LIBSSH2_ERROR_EAGAIN || (0 <= rc && rc < packet_len)) {
+            sftp->fstatvfs_packet = packet;
+            return LIBSSH2_ERROR_EAGAIN;
+        }
+
+        LIBSSH2_FREE(session, packet);
+        sftp->fstatvfs_packet = NULL;
+
+        if (rc < 0) {
+            sftp->fstatvfs_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                                  "_libssh2_channel_write() failed");
+        }
+        sftp->fstatvfs_state = libssh2_NB_state_sent;
+    }
+
+    rc = sftp_packet_require(sftp, SSH_FXP_EXTENDED_REPLY,
+                             sftp->fstatvfs_request_id, &data, &data_len);
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
+        return rc;
+    } else if (rc) {
+        sftp->fstatvfs_state = libssh2_NB_state_idle;
+        return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
+                              "Timeout waiting for status message");
+    } else if (data_len < 93) {
+        LIBSSH2_FREE(session, data);
+        sftp->fstatvfs_state = libssh2_NB_state_idle;
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                              "SFTP Protocol Error: short response");
+    }
+
+    sftp->fstatvfs_state = libssh2_NB_state_idle;
+
+    st->f_bsize = _libssh2_ntohu64(data + 5);
+    st->f_frsize = _libssh2_ntohu64(data + 13);
+    st->f_blocks = _libssh2_ntohu64(data + 21);
+    st->f_bfree = _libssh2_ntohu64(data + 29);
+    st->f_bavail = _libssh2_ntohu64(data + 37);
+    st->f_files = _libssh2_ntohu64(data + 45);
+    st->f_ffree = _libssh2_ntohu64(data + 53);
+    st->f_favail = _libssh2_ntohu64(data + 61);
+    st->f_fsid = _libssh2_ntohu64(data + 69);
+    flag = _libssh2_ntohu64(data + 77);
+    st->f_namemax = _libssh2_ntohu64(data + 85);
+
+    st->f_flag = (flag & SSH_FXE_STATVFS_ST_RDONLY)
+                  ? LIBSSH2_SFTP_ST_RDONLY : 0;
+    st->f_flag |= (flag & SSH_FXE_STATVFS_ST_NOSUID)
+                  ? LIBSSH2_SFTP_ST_NOSUID : 0;
+
+    LIBSSH2_FREE(session, data);
+    return 0;
+}
+
+/* libssh2_sftp_fstatvfs
+ * Get filesystem space and inode utilization (requires fstatvfs@openssh.com
+ * support on the server)
+ */
+LIBSSH2_API int
+libssh2_sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
+{
+    int rc;
+    BLOCK_ADJUST(rc, handle->sftp->channel->session, sftp_fstatvfs(handle, st));
+    return rc;
+}
+
+/*
+ * sftp_statvfs
+ *
+ * Get file system statistics
+ */
+static int sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
+                        unsigned int path_len, LIBSSH2_SFTP_STATVFS *st)
+{
+    LIBSSH2_CHANNEL *channel = sftp->channel;
+    LIBSSH2_SESSION *session = channel->session;
+    size_t data_len;
+    /* 17 = packet_len(4) + packet_type(1) + request_id(4) + ext_len(4)
+          + path_len (4) */
+    /* 19 = strlen ("statvfs@openssh.com") */
+    ssize_t packet_len = path_len + 19 + 17;
+    unsigned char *packet, *s, *data;
+    int rc;
+    unsigned int flag;
+
+    if (sftp->statvfs_state == libssh2_NB_state_idle) {
+        _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
+                       "Getting file system statistics of %s", path);
+        s = packet = LIBSSH2_ALLOC(session, packet_len);
+        if (!packet) {
+            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for FXP_EXTENDED "
+                                  "packet");
+        }
+
+        _libssh2_store_u32(&s, packet_len - 4);
+        *(s++) = SSH_FXP_EXTENDED;
+        sftp->statvfs_request_id = sftp->request_id++;
+        _libssh2_store_u32(&s, sftp->statvfs_request_id);
+        _libssh2_store_str(&s, "statvfs@openssh.com", 19);
+        _libssh2_store_str(&s, path, path_len);
+
+        sftp->statvfs_state = libssh2_NB_state_created;
+    }
+    else {
+        packet = sftp->statvfs_packet;
+    }
+
+    if (sftp->statvfs_state == libssh2_NB_state_created) {
+        rc = _libssh2_channel_write(channel, 0, (char *) packet, packet_len);
+        if (rc == LIBSSH2_ERROR_EAGAIN || (0 <= rc && rc < packet_len)) {
+            sftp->statvfs_packet = packet;
+            return LIBSSH2_ERROR_EAGAIN;
+        }
+
+        LIBSSH2_FREE(session, packet);
+        sftp->statvfs_packet = NULL;
+
+        if (rc < 0) {
+            sftp->statvfs_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                                  "_libssh2_channel_write() failed");
+        }
+        sftp->statvfs_state = libssh2_NB_state_sent;
+    }
+
+    rc = sftp_packet_require(sftp, SSH_FXP_EXTENDED_REPLY,
+                             sftp->statvfs_request_id, &data, &data_len);
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
+        return rc;
+    } else if (rc) {
+        sftp->statvfs_state = libssh2_NB_state_idle;
+        return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
+                              "Timeout waiting for status message");
+    } else if (data_len < 93) {
+        LIBSSH2_FREE(session, data);
+        sftp->fstatvfs_state = libssh2_NB_state_idle;
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                              "SFTP Protocol Error: short response");
+    }
+
+    sftp->statvfs_state = libssh2_NB_state_idle;
+
+    st->f_bsize = _libssh2_ntohu64(data + 5);
+    st->f_frsize = _libssh2_ntohu64(data + 13);
+    st->f_blocks = _libssh2_ntohu64(data + 21);
+    st->f_bfree = _libssh2_ntohu64(data + 29);
+    st->f_bavail = _libssh2_ntohu64(data + 37);
+    st->f_files = _libssh2_ntohu64(data + 45);
+    st->f_ffree = _libssh2_ntohu64(data + 53);
+    st->f_favail = _libssh2_ntohu64(data + 61);
+    st->f_fsid = _libssh2_ntohu64(data + 69);
+    flag = _libssh2_ntohu64(data + 77);
+    st->f_namemax = _libssh2_ntohu64(data + 85);
+
+    st->f_flag = (flag & SSH_FXE_STATVFS_ST_RDONLY)
+                  ? LIBSSH2_SFTP_ST_RDONLY : 0;
+    st->f_flag |= (flag & SSH_FXE_STATVFS_ST_NOSUID)
+                  ? LIBSSH2_SFTP_ST_NOSUID : 0;
+
+    LIBSSH2_FREE(session, data);
+    return 0;
+}
+
+/* libssh2_sftp_statvfs_ex
+ * Get filesystem space and inode utilization (requires statvfs@openssh.com
+ * support on the server)
+ */
+LIBSSH2_API int
+libssh2_sftp_statvfs_ex(LIBSSH2_SFTP *sftp, const char *path,
+                        unsigned int path_len, LIBSSH2_SFTP_STATVFS *st)
+{
+    int rc;
+    BLOCK_ADJUST(rc, sftp->channel->session, sftp_statvfs(sftp, path, path_len,
+                 st));
+    return rc;
+}
+
 
 /*
  * sftp_mkdir

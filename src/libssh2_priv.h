@@ -638,6 +638,16 @@ struct _LIBSSH2_SFTP
     unsigned char *rename_s;
     uint32_t rename_request_id;
 
+    /* State variables used in libssh2_sftp_fstatvfs() */
+    libssh2_nonblocking_states fstatvfs_state;
+    unsigned char *fstatvfs_packet;
+    uint32_t fstatvfs_request_id;
+
+    /* State variables used in libssh2_sftp_statvfs() */
+    libssh2_nonblocking_states statvfs_state;
+    unsigned char *statvfs_packet;
+    uint32_t statvfs_request_id;
+
     /* State variables used in libssh2_sftp_mkdir() */
     libssh2_nonblocking_states mkdir_state;
     unsigned char *mkdir_packet;

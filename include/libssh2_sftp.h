@@ -59,6 +59,7 @@ extern "C" {
 typedef struct _LIBSSH2_SFTP                LIBSSH2_SFTP;
 typedef struct _LIBSSH2_SFTP_HANDLE         LIBSSH2_SFTP_HANDLE;
 typedef struct _LIBSSH2_SFTP_ATTRIBUTES     LIBSSH2_SFTP_ATTRIBUTES;
+typedef struct _LIBSSH2_SFTP_STATVFS        LIBSSH2_SFTP_STATVFS;
 
 /* Flags for open_ex() */
 #define LIBSSH2_SFTP_OPENFILE           0
@@ -86,6 +87,10 @@ typedef struct _LIBSSH2_SFTP_ATTRIBUTES     LIBSSH2_SFTP_ATTRIBUTES;
 #define LIBSSH2_SFTP_ATTR_ACMODTIME         0x00000008
 #define LIBSSH2_SFTP_ATTR_EXTENDED          0x80000000
 
+/* SFTP statvfs flag bits */
+#define LIBSSH2_SFTP_ST_RDONLY              0x00000001
+#define LIBSSH2_SFTP_ST_NOSUID              0x00000002
+
 struct _LIBSSH2_SFTP_ATTRIBUTES {
     /* If flags & ATTR_* bit is set, then the value in this struct will be
      * meaningful Otherwise it should be ignored
@@ -96,6 +101,20 @@ struct _LIBSSH2_SFTP_ATTRIBUTES {
     unsigned long uid, gid;
     unsigned long permissions;
     unsigned long atime, mtime;
+};
+
+struct _LIBSSH2_SFTP_STATVFS {
+    libssh2_uint64_t  f_bsize;    /* file system block size */
+    libssh2_uint64_t  f_frsize;   /* fragment size */
+    libssh2_uint64_t  f_blocks;   /* size of fs in f_frsize units */
+    libssh2_uint64_t  f_bfree;    /* # free blocks */
+    libssh2_uint64_t  f_bavail;   /* # free blocks for non-root */
+    libssh2_uint64_t  f_files;    /* # inodes */
+    libssh2_uint64_t  f_ffree;    /* # free inodes */
+    libssh2_uint64_t  f_favail;   /* # free inodes for non-root */
+    libssh2_uint64_t  f_fsid;     /* file system ID */
+    libssh2_uint64_t  f_flag;     /* mount flags */
+    libssh2_uint64_t  f_namemax;  /* maximum filename length */
 };
 
 /* SFTP filetypes */
@@ -268,6 +287,16 @@ LIBSSH2_API int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp,
                                        unsigned int filename_len);
 #define libssh2_sftp_unlink(sftp, filename) \
     libssh2_sftp_unlink_ex((sftp), (filename), strlen(filename))
+
+LIBSSH2_API int libssh2_sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle,
+                                      LIBSSH2_SFTP_STATVFS *st);
+
+LIBSSH2_API int libssh2_sftp_statvfs_ex(LIBSSH2_SFTP *sftp,
+                                        const char *path,
+                                        unsigned int path_len,
+                                        LIBSSH2_SFTP_STATVFS *st);
+#define libssh2_sftp_statvfs(sftp, path, st) \
+    libssh2_sftp_statvfs_ex((sftp), (path), strlen(path), (st))
 
 LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp,
                                       const char *path,

@@ -113,6 +113,7 @@ dist_man_MANS = \
 	libssh2_sftp_fsetstat.3 \
 	libssh2_sftp_fstat.3 \
 	libssh2_sftp_fstat_ex.3 \
+	libssh2_sftp_fstatvfs.3 \
 	libssh2_sftp_init.3 \
 	libssh2_sftp_last_error.3 \
 	libssh2_sftp_lstat.3 \
@@ -136,6 +137,8 @@ dist_man_MANS = \
 	libssh2_sftp_shutdown.3 \
 	libssh2_sftp_stat.3 \
 	libssh2_sftp_stat_ex.3 \
+	libssh2_sftp_statvfs.3 \
+	libssh2_sftp_statvfs_ex.3 \
 	libssh2_sftp_symlink.3 \
 	libssh2_sftp_symlink_ex.3 \
 	libssh2_sftp_tell.3 \
