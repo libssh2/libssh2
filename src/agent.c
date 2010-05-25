@@ -268,6 +268,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     char mapname[23];
     HANDLE filemap;
     unsigned char *p;
+    unsigned char *p2;
     int id;
     COPYDATASTRUCT cds;
 
@@ -284,8 +285,8 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     if (filemap == NULL || filemap == INVALID_HANDLE_VALUE) {
 	return -1;
     }
-    p = MapViewOfFile(filemap, FILE_MAP_WRITE, 0, 0, 0);
-    _libssh2_store_str(p, transctx->request, transctx->request_len);
+    p2 = p = MapViewOfFile(filemap, FILE_MAP_WRITE, 0, 0, 0);
+    _libssh2_store_str(&p2, transctx->request, transctx->request_len);
 
     cds.dwData = PAGEANT_COPYDATA_ID;
     cds.cbData = 1 + strlen(mapname);
