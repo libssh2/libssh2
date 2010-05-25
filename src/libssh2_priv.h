@@ -41,6 +41,7 @@
 #define LIBSSH2_PRIV_H 1
 
 #ifdef _WIN32
+  typedef unsigned __int8 uint8_t;
   #ifndef _CRT_SECURE_NO_DEPRECATE
     #define _CRT_SECURE_NO_DEPRECATE 1
   #endif /* _CRT_SECURE_NO_DEPRECATE */
