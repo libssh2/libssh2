@@ -291,12 +291,10 @@ LIBSSH2_API int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp,
 LIBSSH2_API int libssh2_sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle,
                                       LIBSSH2_SFTP_STATVFS *st);
 
-LIBSSH2_API int libssh2_sftp_statvfs_ex(LIBSSH2_SFTP *sftp,
-                                        const char *path,
-                                        unsigned int path_len,
-                                        LIBSSH2_SFTP_STATVFS *st);
-#define libssh2_sftp_statvfs(sftp, path, st) \
-    libssh2_sftp_statvfs_ex((sftp), (path), strlen(path), (st))
+LIBSSH2_API int libssh2_sftp_statvfs(LIBSSH2_SFTP *sftp,
+                                     const char *path,
+                                     size_t path_len,
+                                     LIBSSH2_SFTP_STATVFS *st);
 
 LIBSSH2_API int libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp,
                                       const char *path,

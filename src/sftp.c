@@ -2161,12 +2161,12 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
  * support on the server)
  */
 LIBSSH2_API int
-libssh2_sftp_statvfs_ex(LIBSSH2_SFTP *sftp, const char *path,
-                        unsigned int path_len, LIBSSH2_SFTP_STATVFS *st)
+libssh2_sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
+                     size_t path_len, LIBSSH2_SFTP_STATVFS *st)
 {
     int rc;
     BLOCK_ADJUST(rc, sftp->channel->session, sftp_statvfs(sftp, path, path_len,
-                 st));
+                                                          st));
     return rc;
 }
 
