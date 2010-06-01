@@ -40,13 +40,6 @@
 #ifndef LIBSSH2_PRIV_H
 #define LIBSSH2_PRIV_H 1
 
-#ifdef _MSC_VER
-  typedef unsigned __int8 uint8_t;
-  #ifndef _CRT_SECURE_NO_DEPRECATE
-    #define _CRT_SECURE_NO_DEPRECATE 1
-  #endif /* _CRT_SECURE_NO_DEPRECATE */
-#endif /* _MSC_VER */
-
 #define LIBSSH2_LIBRARY
 #include "libssh2_config.h"
 

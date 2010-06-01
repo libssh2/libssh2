@@ -19,12 +19,12 @@
 #define HAVE_SELECT
 
 #ifdef _MSC_VER
+#ifndef _CRT_SECURE_NO_DEPRECATE
+#define _CRT_SECURE_NO_DEPRECATE 1
+#endif /* _CRT_SECURE_NO_DEPRECATE */
 #define snprintf _snprintf
 #if _MSC_VER < 1500
 #define vsnprintf _vsnprintf
-#else
-#define ssize_t SSIZE_T
-#define uint32_t UINT32
 #endif
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
@@ -40,5 +40,4 @@
 #define LIBSSH2_DH_GEX_NEW 1
 
 #endif /* LIBSSH2_CONFIG_H */
-
 
