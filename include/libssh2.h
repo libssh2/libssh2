@@ -76,13 +76,11 @@ typedef unsigned int uint32_t;
 #if defined(LIBSSH2_WIN32) && defined(_MSC_VER)
 typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;
+typedef unsigned __int64 libssh2_uint64_t;
+typedef __int64 libssh2_int64_t;
 # ifndef _SSIZE_T_DEFINED
 typedef int ssize_t;
 # define _SSIZE_T_DEFINED
-# if (_MSC_VER <= 1400)
-typedef unsigned __int64 libssh2_uint64_t;
-typedef __int64 libssh2_int64_t;
-# endif
 #endif
 #else
 typedef unsigned long long libssh2_uint64_t;
