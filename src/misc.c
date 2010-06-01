@@ -533,7 +533,7 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
 
 
 
-#ifdef WIN32
+#if defined(LIBSSH2_WIN32) && !defined(__MINGW32__)
 /*
  * gettimeofday
  * Implementation according to:
