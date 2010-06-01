@@ -89,8 +89,9 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
  */
 LIBSSH2_CHANNEL *
 _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
-                      unsigned int channel_type_len,
-                      unsigned int window_size, unsigned int packet_size,
+                      uint32_t channel_type_len,
+                      uint32_t window_size,
+                      uint32_t packet_size,
                       const char *message, unsigned int message_len);
 
 
