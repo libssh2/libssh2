@@ -25,7 +25,7 @@ LINK_STATIC = 1
 # Edit the vars below to change target settings.
 TARGETS	= scp.exe sftp.exe sftpdir.exe ssh2.exe
 VERSION	= $(LIBSSH2_VERSION)
-COPYR	= (c) 2004-2010 Sara Golemon <sarag@libssh2.org>
+COPYR	= (c) 2004-2010 The libssh2 project and its contributors.
 WWWURL	= http://www.libssh2.org/
 DESCR	= libssh2 $(subst .def,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
 #STACK	= 64000
