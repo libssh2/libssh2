@@ -69,6 +69,7 @@ extern "C" {
 
 #if (defined(NETWARE) && !defined(__NOVELL_LIBC__))
 # include <sys/bsdskt.h>
+typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;
 #endif
 
