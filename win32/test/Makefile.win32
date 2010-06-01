@@ -11,12 +11,12 @@
 
 # Edit the path below to point to the base of your Zlib sources.
 ifndef ZLIB_PATH
-ZLIB_PATH = ../../../zlib-1.2.3
+ZLIB_PATH = ../../../zlib-1.2.5
 endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../../openssl-0.9.8k
+OPENSSL_PATH = ../../../openssl-0.9.8n
 endif
 
 # Edit the var below to enable static linking of libssh2 and libz
@@ -25,7 +25,7 @@ LINK_STATIC = 1
 # Edit the vars below to change target settings.
 TARGETS	= scp.exe sftp.exe sftpdir.exe ssh2.exe
 VERSION	= $(LIBSSH2_VERSION)
-COPYR	= (c) 2004-2009 Sara Golemon <sarag@libssh2.org>
+COPYR	= (c) 2004-2010 Sara Golemon <sarag@libssh2.org>
 WWWURL	= http://www.libssh2.org/
 DESCR	= libssh2 $(subst .def,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
 #STACK	= 64000

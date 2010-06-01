@@ -11,14 +11,14 @@
 
 # Edit the path below to point to the base of your Zlib sources.
 ifndef ZLIB_PATH
-ZLIB_PATH = ../../zlib-1.2.3
+ZLIB_PATH = ../../zlib-1.2.5
 endif
 # since currently always enabled in libssh2_config.h set here too!
 WITH_ZLIB = 1
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8k
+OPENSSL_PATH = ../../openssl-0.9.8n
 endif
 
 # Edit the path below to point to your Distribution folder.
@@ -36,7 +36,7 @@ DEVLARC	= $(DEVLDIR).zip
 # Edit the vars below to change target settings.
 TARGET	= libssh2
 VERSION	= $(LIBSSH2_VERSION)
-COPYR	= (c) 2004-2009 Sara Golemon <sarag@libssh2.org>
+COPYR	= (c) 2004-2010 Sara Golemon <sarag@libssh2.org>
 WWWURL	= http://www.libssh2.org/
 DESCR	= libssh2 $(LIBSSH2_VERSION_STR)
 #STACK	= 64000
