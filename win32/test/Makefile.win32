@@ -117,8 +117,7 @@ endif
 
 CFLAGS	+= $(INCLUDES)
 
-#ifeq ($(findstring linux,$(OSTYPE)),linux)
-ifdef __MSYS__
+ifeq ($(findstring /sh,$(SHELL)),/sh)
 DL	= '
 DS	= /
 else
