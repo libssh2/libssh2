@@ -1,3 +1,4 @@
+#include "libssh2_config.h"
 #include <libssh2.h>
 
 #ifdef WIN32
@@ -17,6 +18,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
 
 #ifndef INADDR_NONE
 #define INADDR_NONE (in_addr_t)-1
@@ -150,7 +155,8 @@ int main(int argc, char *argv[])
             goto shutdown;
         }
     } else if (auth & AUTH_PUBLICKEY) {
-        if (libssh2_userauth_publickey_fromfile(session, username, keyfile1, keyfile2, password)) {
+        if (libssh2_userauth_publickey_fromfile(session, username, keyfile1,
+                                                keyfile2, password)) {
             printf("\tAuthentication by public key failed!\n");
             goto shutdown;
         }
@@ -197,8 +203,9 @@ int main(int argc, char *argv[])
     channel = libssh2_channel_direct_tcpip_ex(session, remote_desthost,
         remote_destport, shost, sport);
     if (!channel) {
-        fprintf(stderr, "Could not open the direct-tcpip channel!\n");
-        fprintf(stderr, "(Note that this can be a problem at the server! Please review the server logs.)\n");
+        fprintf(stderr, "Could not open the direct-tcpip channel!\n"
+                "(Note that this can be a problem at the server!"
+                " Please review the server logs.)\n");
         goto shutdown;
     }
 
