@@ -4,6 +4,9 @@
 #ifndef WIN32
 #define WIN32
 #endif
+#ifndef _CRT_SECURE_NO_DEPRECATE
+#define _CRT_SECURE_NO_DEPRECATE 1
+#endif /* _CRT_SECURE_NO_DEPRECATE */
 #include <winsock2.h>
 #include <mswsock.h>
 #include <ws2tcpip.h>
@@ -19,9 +22,6 @@
 #define HAVE_SELECT
 
 #ifdef _MSC_VER
-#ifndef _CRT_SECURE_NO_DEPRECATE
-#define _CRT_SECURE_NO_DEPRECATE 1
-#endif /* _CRT_SECURE_NO_DEPRECATE */
 #define snprintf _snprintf
 #if _MSC_VER < 1500
 #define vsnprintf _vsnprintf
