@@ -89,7 +89,7 @@ libssh2_keepalive_send (LIBSSH2_SESSION *session,
         if (seconds_to_next)
             *seconds_to_next = session->keepalive_interval;
     } else if (seconds_to_next) {
-        *seconds_to_next = session->keepalive_last_sent
+        *seconds_to_next = (int) session->keepalive_last_sent
             + session->keepalive_interval - now;
     }
 
