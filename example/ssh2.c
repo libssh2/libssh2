@@ -32,6 +32,11 @@
 #include <arpa/inet.h>
 #endif
 
+#if defined(_WIN32) && !defined(__GNUC__)
+/* plain MSVC setups have no normal strdup */
+#define strdup _strdup
+#endif
+
 #include <sys/types.h>
 #include <fcntl.h>
 #include <errno.h>
