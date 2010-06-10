@@ -3,19 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "libssh2_dll"=".\libssh2_dll.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "libssh2_lib"=".\libssh2_lib.dsp" - Package Owner=<4>
+Project: "libssh2"=".\libssh2.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{
