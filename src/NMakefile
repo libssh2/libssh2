@@ -6,7 +6,9 @@ OBJECTS = \
 	$(INTDIR)\channel.obj \
 	$(INTDIR)\comp.obj \
 	$(INTDIR)\crypt.obj \
+	$(INTDIR)\global.obj \
 	$(INTDIR)\hostkey.obj \
+	$(INTDIR)\keepalive.obj \
 	$(INTDIR)\kex.obj \
 	$(INTDIR)\mac.obj \
 	$(INTDIR)\misc.obj \
