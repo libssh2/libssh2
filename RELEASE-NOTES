@@ -2,15 +2,31 @@ libssh2 1.2.6
 
 This release includes the following changes:
 
- o 
+ o Added libssh2_sftp_statvfs() and libssh2_sftp_fstatvfs()
+ o Added libssh2_knownhost_checkp()
+ o Added libssh2_scp_send64()
 
 This release includes the following bugfixes:
 
- o 
+ o wait_socket: make c89 compliant and use two fd_sets for select()
+ o OpenSSL AES-128-CTR detection
+ o proper keyboard-interactive user dialog in the sftp.c example
+ o build procedure for VMS
+ o fixed libssh2.dsw to use the generated libssh2.dsp
+ o several Windows-related build fixes
+ o fail to init SFTP if session isn't already authenticated
+ o many tiny fixes that address clang-analyzer warnings
+ o sftp_open: deal with short channel_write calls
+ o libssh2_publickey_init: fixed to work better non-blocking
+ o sftp_close_handle: add precation to not access NULL pointer
+ o sftp_readdir: simplified and bugfixed
+ o channel_write: if data has been sent, don't return EAGAIN
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
- 
+ Alexander Lamaison, Guenter Knauf, Dan Fandrich, Grubsky Grigory,
+ Joey Degges, Jose Baars, Mikhail Gusarov, Peter Stuge, Simon Josefsson,
+ Daniel Stenberg
  
         Thanks! (and sorry if I forgot to mention someone)
