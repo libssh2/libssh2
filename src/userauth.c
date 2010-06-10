@@ -876,6 +876,15 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
     unsigned char *s;
 
     if (session->userauth_pblc_state == libssh2_NB_state_idle) {
+
+        /*
+         * The call to _libssh2_ntohu32 later relies on pubkeydata having at
+         * least 4 valid bytes containing the length of the method name.
+         */
+        if (pubkeydata_len < 4)
+            return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                                  "Invalid public key, too short");
+
         /* Zero the whole thing out */
         memset(&session->userauth_pblc_packet_requirev_state, 0,
                sizeof(session->userauth_pblc_packet_requirev_state));
@@ -898,8 +907,15 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
             memcpy(session->userauth_pblc_method, pubkeydata + 4,
                    session->userauth_pblc_method_len);
         }
-        assert( /* preallocated method len should match what we expect */
-            session->userauth_pblc_method_len == _libssh2_ntohu32(pubkeydata));
+        /*
+         * The length of the method name read from plaintext prefix in the
+         * file must match length embedded in the key.
+         * TODO: The data should match too but we don't check that. Should we?
+         */
+        else if (session->userauth_pblc_method_len !=
+                 _libssh2_ntohu32(pubkeydata))
+            return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                                 "Invalid public key");
 
         /*
          * 45 = packet_type(1) + username_len(4) + servicename_len(4) +
