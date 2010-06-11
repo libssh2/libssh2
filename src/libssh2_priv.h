@@ -583,7 +583,7 @@ struct _LIBSSH2_SFTP
     /* a list of _LIBSSH2_SFTP_HANDLE structs */
     struct list_head sftp_handles;
 
-    unsigned long last_errno;
+    uint32_t last_errno;
 
     /* Holder for partial packet, use in libssh2_sftp_packet_read() */
     unsigned char *partial_packet;      /* The data                */
