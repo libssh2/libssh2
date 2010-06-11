@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <time.h>
 
 int main(int argc, char *argv[])
 {
@@ -50,10 +51,13 @@ int main(int argc, char *argv[])
 #if defined(HAVE_IOCTLSOCKET)
     long flag = 1;
 #endif
-    char mem[1024];
+    char mem[1024*100];
     size_t nread;
     char *ptr;
     struct stat fileinfo;
+    time_t start;
+    long total = 0;
+    int duration;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -175,6 +179,7 @@ int main(int argc, char *argv[])
     } while (!channel);
 
     fprintf(stderr, "SCP session waiting to send file\n");
+    start = time(NULL);
     do {
         nread = fread(mem, 1, sizeof(mem), local);
         if (nread <= 0) {
@@ -182,6 +187,8 @@ int main(int argc, char *argv[])
             break;
         }
         ptr = mem;
+
+        total += nread;
 
         do {
             /* write the same data over and over, until error or completion */
@@ -198,6 +205,11 @@ int main(int argc, char *argv[])
             }
         } while (nread);
     } while (!nread); /* only continue if nread was drained */
+
+    duration = (int)(time(NULL)-start);
+
+    printf("%ld bytes in %d seconds makes %.1f bytes/sec\n",
+           total, duration, total/(double)duration);
 
     fprintf(stderr, "Sending EOF\n");
     while (libssh2_channel_send_eof(channel) == LIBSSH2_ERROR_EAGAIN);
