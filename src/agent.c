@@ -376,9 +376,12 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     }
 
     /* Make sure to be re-called as a result of EAGAIN. */
-    if (*transctx->request != SSH2_AGENTC_SIGN_REQUEST) {
+    if (*transctx->request != SSH2_AGENTC_SIGN_REQUEST)
         return LIBSSH2_ERROR_BAD_USE;
-    }
+
+    if (!agent->ops)
+        /* if no agent has been connected, bail out */
+        return LIBSSH2_ERROR_BAD_USE;
 
     rc = agent->ops->transact(agent, transctx);
     if (rc) {
@@ -471,9 +474,12 @@ agent_list_identities(LIBSSH2_AGENT *agent)
     }
 
     /* Make sure to be re-called as a result of EAGAIN. */
-    if (*transctx->request != SSH2_AGENTC_REQUEST_IDENTITIES) {
+    if (*transctx->request != SSH2_AGENTC_REQUEST_IDENTITIES)
         return LIBSSH2_ERROR_BAD_USE;
-    }
+
+    if (!agent->ops)
+        /* if no agent has been connected, bail out */
+        return LIBSSH2_ERROR_BAD_USE;
 
     rc = agent->ops->transact(agent, transctx);
     if (rc) {
