@@ -34,6 +34,37 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <time.h>
+
+static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
+{
+    struct timeval timeout;
+    int rc;
+    fd_set fd;
+    fd_set *writefd = NULL;
+    fd_set *readfd = NULL;
+    int dir;
+
+    timeout.tv_sec = 10;
+    timeout.tv_usec = 0;
+
+    FD_ZERO(&fd);
+
+    FD_SET(socket_fd, &fd);
+
+    /* now make sure we wait in the correct direction */
+    dir = libssh2_session_block_directions(session);
+
+    if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+        readfd = &fd;
+
+    if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+        writefd = &fd;
+
+    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+
+    return rc;
+}
 
 int main(int argc, char *argv[])
 {
@@ -53,9 +84,12 @@ int main(int argc, char *argv[])
     FILE *local;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
-    char mem[1024];
+    char mem[1024 * 100];
     size_t nread;
     char *ptr;
+    time_t start;
+    long total = 0;
+    int duration;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -142,17 +176,19 @@ int main(int argc, char *argv[])
 
     if (auth_pw) {
         /* We could authenticate via password */
-        while ((rc = libssh2_userauth_password(session, username, password)) == LIBSSH2_ERROR_EAGAIN);
-    if (rc) {
+        while ((rc = libssh2_userauth_password(session, username, password)) ==
+               LIBSSH2_ERROR_EAGAIN);
+        if (rc) {
             printf("Authentication by password failed.\n");
             goto shutdown;
         }
     } else {
         /* Or by public key */
         while ((rc = libssh2_userauth_publickey_fromfile(session, username,
-                                                "/home/username/.ssh/id_rsa.pub",
-                                                "/home/username/.ssh/id_rsa",
-                                                password)) == LIBSSH2_ERROR_EAGAIN);
+                                                         "/home/username/.ssh/id_rsa.pub",
+                                                         "/home/username/.ssh/id_rsa",
+                                                         password)) ==
+               LIBSSH2_ERROR_EAGAIN);
     if (rc) {
             printf("\tAuthentication by public key failed\n");
             goto shutdown;
@@ -163,7 +199,8 @@ int main(int argc, char *argv[])
     do {
         sftp_session = libssh2_sftp_init(session);
 
-        if ((!sftp_session) && (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
+        if (!sftp_session &&
+            (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
             fprintf(stderr, "Unable to init SFTP session\n");
             goto shutdown;
         }
@@ -178,13 +215,17 @@ int main(int argc, char *argv[])
                           LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|
                           LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH);
 
-        if ((!sftp_handle) && (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
+        if (!sftp_handle &&
+            (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
             fprintf(stderr, "Unable to open file with SFTP\n");
             goto shutdown;
         }
     } while (!sftp_handle);
 
     fprintf(stderr, "libssh2_sftp_open() is done, now send data!\n");
+
+    start = time(NULL);
+
     do {
         nread = fread(mem, 1, sizeof(mem), local);
         if (nread <= 0) {
@@ -193,15 +234,27 @@ int main(int argc, char *argv[])
         }
         ptr = mem;
 
+        total += nread;
+
         do {
             /* write data in a loop until we block */
-            while ((rc = libssh2_sftp_write(sftp_handle, ptr, nread)) == LIBSSH2_ERROR_EAGAIN) {
-                ;
+            while ((rc = libssh2_sftp_write(sftp_handle, ptr, nread)) ==
+                   LIBSSH2_ERROR_EAGAIN) {
+                waitsocket(sock, session);
             }
+            if(rc < 0)
+                break;
             ptr += rc;
             nread -= rc;
+
         } while (nread);
     } while (rc > 0);
+
+    duration = (int)(time(NULL)-start);
+
+    printf("%ld bytes in %d seconds makes %.1f bytes/sec\n",
+           total, duration, total/(double)duration);
+
 
     fclose(local);
     libssh2_sftp_close(sftp_handle);
