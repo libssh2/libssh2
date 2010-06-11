@@ -1402,12 +1402,9 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     unsigned char *s, *data;
     int rc;
 
-    /* There's no point in us accepting a VERY large packet here since we
-       cannot send it anyway. We just accept 4 times the big size to fill up
-       the queue somewhat. */
-
-    if(count > (MAX_SSH_PACKET_LEN*4))
-        count = MAX_SSH_PACKET_LEN*4;
+    /* we limit this to just send a single SSH packet at a time */
+    if(count > 32500)
+        count = 32500;
 
     packet_len = handle->handle_len + count + 25;
 
