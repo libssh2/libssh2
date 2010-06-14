@@ -2,12 +2,14 @@
 .\"
 .TH libssh2_sftp_readlink 3 "20 Feb 2010" "libssh2 1.2.4" "libssh2 manual"
 .SH NAME
-libssh2_sftp_readlink - convenience macro for \fIlibssh2_sftp_symlink_ex(3)\fP calls
+libssh2_sftp_readlink - convenience macro for \fIlibssh2_sftp_symlink_ex(3)\fP
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-libssh2_sftp_readlink(arguments)
-
+#define libssh2_sftp_readlink(sftp, path, target, maxlen) \\
+    libssh2_sftp_symlink_ex((sftp), (path), strlen(path), (target), (maxlen), \\
+    LIBSSH2_SFTP_READLINK)
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the
 underlying function \fIlibssh2_sftp_symlink_ex(3)\fP.

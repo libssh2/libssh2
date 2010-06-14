@@ -12,14 +12,6 @@ int
 libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path,
                         unsigned int path_len, char *target,
                         unsigned int target_len, int link_type);
-
-int 
-libssh2_sftp_symlink(LIBSSH2_SFTP *sftp, const char *path, char *target);
-
-int 
-libssh2_sftp_readlink(LIBSSH2_SFTP *sftp, const char *path, char *target,
-                      unsigned int target_len);
-
 int 
 libssh2_sftp_realpath(LIBSSH2_SFTP *sftp, const char *path, char *target,
                       unsigned int target_len);
