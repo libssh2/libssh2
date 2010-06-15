@@ -172,9 +172,9 @@ typedef int libssh2_socket_t;
  session->ssh_msg_ignore((session), (data), (datalen), &(session)->abstract)
 #define LIBSSH2_DEBUG(session, always_display, message, message_len, \
                       language, language_len)    \
-    session->ssh_msg_disconnect((session), (always_display), (message), \
-                                (message_len), (language), (language_len), \
-                                &(session)->abstract)
+    session->ssh_msg_debug((session), (always_display), (message), \
+                           (message_len), (language), (language_len), \
+                           &(session)->abstract)
 #define LIBSSH2_DISCONNECT(session, reason, message, message_len, language, language_len)   \
                 session->ssh_msg_disconnect((session), (reason), (message), (message_len), (language), (language_len), &(session)->abstract)
 
