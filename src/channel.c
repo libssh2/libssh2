@@ -1242,21 +1242,19 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         memset(&channel->process_packet_requirev_state, 0,
                sizeof(channel->process_packet_requirev_state));
 
-        if (message) {
+        if (message)
             channel->process_packet_len += message_len + 4;
-        }
 
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "starting request(%s) on channel %lu/%lu, message=%s",
                        request, channel->local.id, channel->remote.id,
-                       message);
+                       message?message:"<null>");
         s = channel->process_packet =
             LIBSSH2_ALLOC(session, channel->process_packet_len);
-        if (!channel->process_packet) {
+        if (!channel->process_packet)
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory "
                                   "for channel-process request");
-        }
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         _libssh2_store_u32(&s, channel->remote.id);
