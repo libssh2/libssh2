@@ -302,7 +302,8 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
                               "failed setting up pageant filemap");
 
     p2 = p = MapViewOfFile(filemap, FILE_MAP_WRITE, 0, 0, 0);
-    _libssh2_store_str(&p2, transctx->request, transctx->request_len);
+    _libssh2_store_str(&p2, (const char *)transctx->request,
+                       transctx->request_len);
 
     cds.dwData = PAGEANT_COPYDATA_ID;
     cds.cbData = 1 + strlen(mapname);
