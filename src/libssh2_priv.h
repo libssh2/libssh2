@@ -1150,7 +1150,7 @@ void _libssh2_init_if_needed (void);
 #define ARRAY_SIZE(a) (sizeof ((a)) / sizeof ((a)[0]))
 
 /* define to output the libssh2_int64_t type in a *printf() */
-#if defined( BORLANDC ) || defined( _MSC_VER ) || defined( MINGW32 )
+#if defined( __BORLANDC__ ) || defined( _MSC_VER ) || defined( __MINGW32__ )
 #define LIBSSH2_INT64_T_FORMAT "I64"
 #else
 #define LIBSSH2_INT64_T_FORMAT "ll"
