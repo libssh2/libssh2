@@ -48,6 +48,7 @@
 #undef PF_UNIX
 #endif
 #include "userauth.h"
+#include "session.h"
 
 /* Requests from client to agent for protocol 1 key operations */
 #define SSH_AGENTC_REQUEST_RSA_IDENTITIES 1
@@ -743,17 +744,21 @@ libssh2_agent_userauth(LIBSSH2_AGENT *agent,
                        struct libssh2_agent_publickey *identity)
 {
     void *abstract = agent;
+    int rc;
 
     if (agent->session->userauth_pblc_state == libssh2_NB_state_idle) {
         memset(&agent->transctx, 0, sizeof agent->transctx);
         agent->identity = identity->node;
     }
-    return _libssh2_userauth_publickey(agent->session, username,
-                                       strlen(username),
-                                       identity->blob,
-                                       identity->blob_len,
-                                       agent_sign,
-                                       &abstract);
+
+    BLOCK_ADJUST(rc, agent->session,
+                 _libssh2_userauth_publickey(agent->session, username,
+                                             strlen(username),
+                                             identity->blob,
+                                             identity->blob_len,
+                                             agent_sign,
+                                             &abstract));
+    return rc;
 }
 
 /*
