@@ -1250,6 +1250,10 @@ libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                            void **abstract)
 {
     int rc;
+
+    if(!session)
+        return LIBSSH2_ERROR_BAD_USE;
+
     BLOCK_ADJUST(rc, session,
                  _libssh2_userauth_publickey(session, user, strlen(user),
                                              pubkeydata, pubkeydata_len,

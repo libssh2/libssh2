@@ -1252,10 +1252,16 @@ libssh2_session_get_blocking(LIBSSH2_SESSION * session)
  * non-0 if data is available
  */
 LIBSSH2_API int
-libssh2_poll_channel_read(LIBSSH2_CHANNEL * channel, int extended)
+libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
 {
-    LIBSSH2_SESSION *session = channel->session;
-    LIBSSH2_PACKET *packet = _libssh2_list_first(&session->packets);
+    LIBSSH2_SESSION *session;
+    LIBSSH2_PACKET *packet;
+
+    if(!channel)
+        return LIBSSH2_ERROR_BAD_USE;
+
+    session = channel->session;
+    packet = _libssh2_list_first(&session->packets);
 
     while (packet) {
         if ( channel->local.id == _libssh2_ntohu32(packet->data + 1)) {
