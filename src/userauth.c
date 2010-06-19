@@ -439,7 +439,7 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username,
  *
  * Read a public key from an id_???.pub style file
  *
- * Returns an allocated string containing the decoded key in *pubkeydata 
+ * Returns an allocated string containing the decoded key in *pubkeydata
  * on success.
  * Returns an allocated string containing the key method (e.g. "ssh-dss")
  * in method on success.
@@ -890,13 +890,22 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                sizeof(session->userauth_pblc_packet_requirev_state));
 
         /*
-         * As an optimisation, userauth_publickey_fromfile reuses a 
+         * As an optimisation, userauth_publickey_fromfile reuses a
          * previously allocated copy of the method name to avoid an extra
          * allocation/free.
          * For other uses, we allocate and populate it here.
          */
         if (!session->userauth_pblc_method) {
             session->userauth_pblc_method_len = _libssh2_ntohu32(pubkeydata);
+
+            if(session->userauth_pblc_method_len > pubkeydata_len)
+                /* the method length simply cannot be longer than the entire
+                   passed in data, so we use this to detect crazy input
+                   data */
+                return _libssh2_error(session,
+                                      LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                                      "Invalid public key");
+
             session->userauth_pblc_method =
                 LIBSSH2_ALLOC(session, session->userauth_pblc_method_len);
             if (!session->userauth_pblc_method) {
