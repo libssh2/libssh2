@@ -170,6 +170,15 @@ comp_method_zlib_comp(LIBSSH2_SESSION * session,
     int out_maxlen = compress ? (src_len + 4) : (2 * src_len);
     int limiter = 0;
 
+    /* If strm is null, then we have not yet been initialized. */
+    if (strm == NULL) {
+        *dest = (unsigned char *) src;
+        *dest_len = src_len;
+
+        *free_dest = 0;
+        return 0;
+    }
+
     /* In practice they never come smaller than this */
     if (out_maxlen < 25) {
         out_maxlen = 25;

@@ -600,6 +600,40 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         }
         _libssh2_debug(session, LIBSSH2_TRACE_KEX,
                        "Server to Client HMAC Key calculated");
+
+        /* Initialize compression for each direction */
+
+        /* Cleanup any existing compression */
+        if (session->local.comp && session->local.comp->dtor) {
+            session->local.comp->dtor(session, 1,
+                                      &session->local.comp_abstract);
+        }
+
+        if (session->local.comp && session->local.comp->init) {
+            if (session->local.comp->init(session, 1,
+                                          &session->local.comp_abstract)) {
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
+        }
+        _libssh2_debug(session, LIBSSH2_TRACE_KEX,
+                       "Client to Server compression initialized");
+
+        if (session->remote.comp && session->remote.comp->dtor) {
+            session->remote.comp->dtor(session, 0,
+                                       &session->remote.comp_abstract);
+        }
+
+        if (session->remote.comp && session->remote.comp->init) {
+            if (session->remote.comp->init(session, 0,
+                                           &session->remote.comp_abstract)) {
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
+        }
+        _libssh2_debug(session, LIBSSH2_TRACE_KEX,
+                       "Server to Client compression initialized");
+
     }
 
   clean_exit:
@@ -1608,18 +1642,6 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
                    session->local.comp->name);
     _libssh2_debug(session, LIBSSH2_TRACE_KEX, "Agreed on COMP_SC method: %s",
                    session->remote.comp->name);
-
-    /* Initialize compression layer */
-    if (session->local.comp && session->local.comp->init &&
-        session->local.comp->init(session, 1, &session->local.comp_abstract)) {
-        return -1;
-    }
-
-    if (session->remote.comp && session->remote.comp->init &&
-        session->remote.comp->init(session, 0,
-                                   &session->remote.comp_abstract)) {
-        return -1;
-    }
 
     return 0;
 }
