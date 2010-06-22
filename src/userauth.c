@@ -657,14 +657,14 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             return rc;
 
         /*
-         * 48 = packet_type(1) + username_len(4) + servicename_len(4) +
+         * 52 = packet_type(1) + username_len(4) + servicename_len(4) +
          * service_name(14)"ssh-connection" + authmethod_len(4) +
          * authmethod(9)"hostbased" + method_len(4) + pubkeydata_len(4) +
-         * local_username_len(4)
+         * hostname_len(4) + local_username_len(4)
          */
         session->userauth_host_packet_len =
             username_len + session->userauth_host_method_len + hostname_len +
-            local_username_len + pubkeydata_len + 48;
+            local_username_len + pubkeydata_len + 52;
 
         /*
          * Preallocate space for an overall length,  method name again,
