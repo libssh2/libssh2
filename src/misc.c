@@ -369,7 +369,7 @@ void
 _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 {
     char buffer[1536];
-    int len;
+    int len, msglen, buflen = sizeof(buffer);
     va_list vargs;
     struct timeval now;
     static int firstsec;
@@ -408,16 +408,23 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
     }
     now.tv_sec -= firstsec;
 
-    len = snprintf(buffer, sizeof(buffer), "[libssh2] %d.%06d %s: ",
+    len = snprintf(buffer, buflen, "[libssh2] %d.%06d %s: ",
                    (int)now.tv_sec, (int)now.tv_usec, contexttext);
 
-    va_start(vargs, format);
-    len += vsnprintf(buffer + len, 1535 - len, format, vargs);
-    va_end(vargs);
+    if (len >= buflen)
+        msglen = buflen - 1;
+    else {
+        buflen -= len;
+        msglen = len;
+        va_start(vargs, format);
+        len = vsnprintf(buffer + msglen, buflen, format, vargs);
+        va_end(vargs);
+        msglen += len < buflen ? len : buflen - 1;
+    }
 
     if (session->tracehandler)
         (session->tracehandler)(session, session->tracehandler_context, buffer,
-                                len + 1);
+                                msglen);
     else
         fprintf(stderr, "%s\n", buffer);
 }
