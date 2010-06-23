@@ -47,6 +47,7 @@
 #include <sys/time.h>
 #endif
 
+#include <stdio.h>
 #include <errno.h>
 
 int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg)
@@ -412,14 +413,13 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 
     va_start(vargs, format);
     len += vsnprintf(buffer + len, 1535 - len, format, vargs);
-    buffer[len] = '\n';
     va_end(vargs);
 
     if (session->tracehandler)
         (session->tracehandler)(session, session->tracehandler_context, buffer,
                                 len + 1);
     else
-        write(2, buffer, len + 1);
+        fprintf(stderr, "%s\n", buffer);
 }
 
 #else
