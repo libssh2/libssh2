@@ -204,10 +204,12 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
 #if LIBSSH2_AES_CTR && !defined(HAVE_EVP_AES_128_CTR)
 
 #include <openssl/aes.h>
+#include <openssl/evp.h>
 
 typedef struct
 {
     AES_KEY       key;
+    EVP_CIPHER_CTX *aes_ctx;
     unsigned char ctr[AES_BLOCK_SIZE];
 } aes_ctr_ctx;
 
@@ -216,12 +218,35 @@ aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 	     const unsigned char *iv, int enc) /* init key */
 {
     aes_ctr_ctx *c = malloc(sizeof(*c));
+    const EVP_CIPHER *aes_cipher;
     (void) enc;
 
     if (c == NULL)
 	return 0;
 
-    AES_set_encrypt_key(key, 8 * ctx->key_len, &c->key);
+    switch (ctx->key_len) {
+        case 16:
+            aes_cipher = EVP_aes_128_ecb();
+            break;
+        case 24:
+            aes_cipher = EVP_aes_192_ecb();
+            break;
+        case 32:
+            aes_cipher = EVP_aes_256_ecb();
+            break;
+        default:
+            return 0;
+    }
+    c->aes_ctx = malloc(sizeof(EVP_CIPHER_CTX));
+    if (c->aes_ctx == NULL)
+	return 0;
+
+    if (EVP_EncryptInit(c->aes_ctx, aes_cipher, key, NULL) != 1) {
+        return 0;
+    }
+
+    EVP_CIPHER_CTX_set_padding(c->aes_ctx, 0);
+
     memcpy(c->ctr, iv, AES_BLOCK_SIZE);
 
     EVP_CIPHER_CTX_set_app_data(ctx, c);
@@ -236,10 +261,15 @@ aes_ctr_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 {
     aes_ctr_ctx *c = EVP_CIPHER_CTX_get_app_data(ctx);
     unsigned char b1[AES_BLOCK_SIZE];
-    size_t i;
+    size_t i = 0;
+    int outlen = 0;
 
     if (inl != 16) /* libssh2 only ever encrypt one block */
 	return 0;
+
+    if (c == NULL) {
+        return 0;
+    }
 
 /*
   To encrypt a packet P=P1||P2||...||Pn (where P1, P2, ..., Pn are each
@@ -248,7 +278,9 @@ aes_ctr_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
   the ciphertext block C1.  The counter X is then incremented
 */
 
-    AES_encrypt(c->ctr, b1, &c->key);
+    if (EVP_EncryptUpdate(c->aes_ctx, b1, &outlen, c->ctr, AES_BLOCK_SIZE) != 1) {
+        return 0;
+    }
 
     for (i = 0; i < 16; i++)
 	*out++ = *in++ ^ b1[i];
@@ -266,7 +298,18 @@ aes_ctr_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 static int
 aes_ctr_cleanup(EVP_CIPHER_CTX *ctx) /* cleanup ctx */
 {
-    free(EVP_CIPHER_CTX_get_app_data(ctx));
+    aes_ctr_ctx *c = EVP_CIPHER_CTX_get_app_data(ctx);
+
+    if (c == NULL) {
+        return 1;
+    }
+
+    if (c->aes_ctx != NULL) {
+        free(c->aes_ctx);
+    }
+
+    free(c);
+
     return 1;
 }
 
