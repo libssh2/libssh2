@@ -999,8 +999,8 @@ libssh2_publickey_list_free(LIBSSH2_PUBLICKEY * pkey,
     LIBSSH2_SESSION *session;
     libssh2_publickey_list *p = pkey_list;
 
-    if(!pkey)
-        return LIBSSH2_ERROR_BAD_USE;
+    if(!pkey || !p)
+        return;
 
     session = pkey->channel->session;
 
