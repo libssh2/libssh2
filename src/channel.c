@@ -2387,10 +2387,9 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
-        else if (rc < 0) {
-            channel->free_state = libssh2_NB_state_idle;
-            return rc;
-        }
+
+        /* ignore all other errors as they otherwise risk blocking the channel
+           free from happening */
     }
 
     channel->free_state = libssh2_NB_state_idle;
