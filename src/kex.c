@@ -1133,6 +1133,9 @@ static int kexinit(LIBSSH2_SESSION * session)
     } else {
         data = session->kexinit_data;
         data_len = session->kexinit_data_len;
+	/* zap the variables to ensure there is NOT a double free later */
+        session->kexinit_data = NULL;
+        session->kexinit_data_len = 0;
     }
 
     rc = _libssh2_transport_write(session, data, data_len);

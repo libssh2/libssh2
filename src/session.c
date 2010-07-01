@@ -836,6 +836,9 @@ session_free(LIBSSH2_SESSION *session)
         LIBSSH2_FREE(session, session->hostkey_prefs);
     }
 
+    if (session->local.kexinit) {
+        LIBSSH2_FREE(session, session->local.kexinit);
+    }
     if (session->local.crypt_prefs) {
         LIBSSH2_FREE(session, session->local.crypt_prefs);
     }
@@ -849,6 +852,9 @@ session_free(LIBSSH2_SESSION *session)
         LIBSSH2_FREE(session, session->local.lang_prefs);
     }
 
+    if (session->remote.kexinit) {
+        LIBSSH2_FREE(session, session->remote.kexinit);
+    }
     if (session->remote.crypt_prefs) {
         LIBSSH2_FREE(session, session->remote.crypt_prefs);
     }
@@ -865,6 +871,9 @@ session_free(LIBSSH2_SESSION *session)
     /*
      * Make sure all memory used in the state variables are free
      */
+    if (session->kexinit_data) {
+        LIBSSH2_FREE(session, session->kexinit_data);
+    }
     if (session->startup_data) {
         LIBSSH2_FREE(session, session->startup_data);
     }
