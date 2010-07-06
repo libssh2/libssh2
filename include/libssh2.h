@@ -73,7 +73,7 @@ typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;
 #endif
 
-#if defined(LIBSSH2_WIN32) && defined(_MSC_VER)
+#ifdef _MSC_VER
 typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;
 typedef unsigned __int64 libssh2_uint64_t;
