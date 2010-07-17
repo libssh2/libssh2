@@ -564,7 +564,8 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
             if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
                 sockets[0].events |= POLLOUT;
 
-            rc = poll(sockets, 1, seconds_to_next ? seconds_to_next / 1000 : -1);
+            rc = poll(sockets, 1, seconds_to_next ?
+                      seconds_to_next * 1000 : -1);
 #else
             fd_set rfd;
             fd_set wfd;
