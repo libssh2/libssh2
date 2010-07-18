@@ -543,6 +543,12 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
     int seconds_to_next;
     int dir;
 
+    /* since libssh2 often sets EAGAIN internally before this function is
+       called, we can decrease some amount of confusion in user programs by
+       resetting the error code in this function to reduce the risk of EAGAIN
+       being stored as error when a blocking function has returned */
+    session->err_code = LIBSSH2_ERROR_NONE;
+
     rc = libssh2_keepalive_send (session, &seconds_to_next);
     if (rc < 0)
         return rc;
