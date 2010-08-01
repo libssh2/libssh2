@@ -151,10 +151,10 @@ int main(int argc, char *argv[])
         }
 
         rc = libssh2_channel_read(channel, mem, amount);
-        if(rc == amount) {
+        if(rc > 0) {
             write(1, mem, rc);
         }
-        else {
+        else if(rc < 0) {
             fprintf(stderr, "libssh2_channel_read() failed: %d\n", rc);
             break;
         }
