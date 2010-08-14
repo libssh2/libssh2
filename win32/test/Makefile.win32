@@ -3,9 +3,7 @@
 ## Makefile for building libssh2 samples (Win32 version - gnu make)
 ## Use: make -f Makefile.win32 [help]
 ##
-## Comments to: Guenter Knauf <eflash@gmx.net>
-##
-## $Id: Makefile.win32,v 1.8 2009/04/09 03:14:05 gknauf Exp $
+## Comments to: Guenter Knauf http://www.gknw.net/phpbb
 #
 #########################################################################
 
@@ -16,7 +14,7 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../../openssl-0.9.8n
+OPENSSL_PATH = ../../../openssl-0.9.8o
 endif
 
 # Edit the var below to enable static linking of libssh2 and libz
@@ -56,7 +54,7 @@ endif
 CP	= cp -afv
 # RM	= rm -f
 # Here you can find a native Win32 binary of the original awk:
-# http://www.gknw.net/development/prgtools/awk.zip
+# http://www.gknw.net/development/prgtools/awk-20070501.zip
 AWK	= awk
 ZIP	= zip -qzr9
 
