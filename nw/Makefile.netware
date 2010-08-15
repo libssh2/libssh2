@@ -37,7 +37,7 @@ DEVLARC	= $(DEVLDIR).zip
 # Edit the vars below to change NLM target settings.
 TARGET	= libssh2
 VERSION	= $(LIBSSH2_VERSION)
-COPYR	= Copyright (c) 2004-2010 The libssh2 project and its contributors.
+COPYR	= Copyright (c) $(LIBSSH2_COPYRIGHT_STR)
 WWWURL	= http://www.libssh2.org/
 DESCR	= libssh2 $(LIBSSH2_VERSION_STR) ($(LIBARCH)) - $(WWWURL)
 MTSAFE	= YES

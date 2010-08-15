@@ -40,6 +40,8 @@
 #ifndef LIBSSH2_H
 #define LIBSSH2_H 1
 
+#define LIBSSH2_COPYRIGHT "2004-2010 The libssh2 project and its contributors."
+
 /* We use underscore instead of dash when appending DEV in dev versions just
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
