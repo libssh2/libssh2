@@ -220,46 +220,10 @@ $(TARGET).dll $(TARGET)dll.a: $(OBJL)
 	@$(LD) $(LDFLAGS) $^ -o $@ $(LIBPATH) $(LDLIBS)
 
 
-$(OBJDIR)/%.res: $(OBJDIR)/%.rc
+$(OBJDIR)/%.res: %.rc
 	@echo Creating $@
-	@$(RC) $(RCFLAGS) $< -o $@
+	@$(RC) $(RCFLAGS) -DLIBSSH2_VERSION_ONLY -I. -I ../include $< -o $@
 
-$(OBJDIR)/%.rc: Makefile.win32 $(OBJDIR)/version.inc
-	@echo $(DL)1 VERSIONINFO$(DL) > $@
-	@echo $(DL) FILEVERSION $(LIBSSH2_VERSION),0$(DL) >> $@
-	@echo $(DL) PRODUCTVERSION $(LIBSSH2_VERSION),0$(DL) >> $@
-	@echo $(DL) FILEFLAGSMASK 0x3fL$(DL) >> $@
-	@echo $(DL) FILEOS 0x40004L$(DL) >> $@
-	@echo $(DL) FILEFLAGS 0x0L$(DL) >> $@
-	@echo $(DL) FILETYPE 0x1L$(DL) >> $@
-	@echo $(DL) FILESUBTYPE 0x0L$(DL) >> $@
-	@echo $(DL)BEGIN$(DL) >> $@
-	@echo $(DL)  BLOCK "StringFileInfo"$(DL) >> $@
-	@echo $(DL)  BEGIN$(DL) >> $@
-	@echo $(DL)    BLOCK "040904E4"$(DL) >> $@
-	@echo $(DL)    BEGIN$(DL) >> $@
-	@echo $(DL)      VALUE "LegalCopyright","$(COPYR)\0"$(DL) >> $@
-ifdef COMPANY
-	@echo $(DL)      VALUE "CompanyName","$(COMPANY)\0"$(DL) >> $@
-endif
-	@echo $(DL)      VALUE "ProductName","$(notdir $(@:.rc=.dll))\0"$(DL) >> $@
-	@echo $(DL)      VALUE "ProductVersion","$(LIBSSH2_VERSION_STR)\0"$(DL) >> $@
-	@echo $(DL)      VALUE "License","Released under the Modified BSD license.\0"$(DL) >> $@
-	@echo $(DL)      VALUE "FileDescription","$(DESCR)\0"$(DL) >> $@
-	@echo $(DL)      VALUE "FileVersion","$(LIBSSH2_VERSION_STR)\0"$(DL) >> $@
-	@echo $(DL)      VALUE "InternalName","$(notdir $(@:.rc=))\0"$(DL) >> $@
-	@echo $(DL)      VALUE "OriginalFilename","$(notdir $(@:.rc=.dll))\0"$(DL) >> $@
-	@echo $(DL)      VALUE "WWW","$(WWWURL)\0"$(DL) >> $@
-	@echo $(DL)    END$(DL) >> $@
-	@echo $(DL)  END$(DL) >> $@
-	@echo $(DL)  BLOCK "VarFileInfo"$(DL) >> $@
-	@echo $(DL)  BEGIN$(DL) >> $@
-	@echo $(DL)    VALUE "Translation", 0x409, 1252$(DL) >> $@
-	@echo $(DL)  END$(DL) >> $@
-	@echo $(DL)END$(DL) >> $@
-ifdef ICON
-	@echo $(DL)10 ICON DISCARDABLE "$(ICON)"$(DL) >> $@
-endif
 
 $(DISTDIR)/readme.txt: Makefile.win32
 	@echo Creating $@
