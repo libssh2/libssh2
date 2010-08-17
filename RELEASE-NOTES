@@ -1,32 +1,34 @@
-libssh2 1.2.6
+libssh2 1.2.7
 
 This release includes the following changes:
 
- o Added libssh2_sftp_statvfs() and libssh2_sftp_fstatvfs()
- o Added libssh2_knownhost_checkp()
- o Added libssh2_scp_send64()
+ o Added Watcom makefile
 
 This release includes the following bugfixes:
 
- o wait_socket: make c89 compliant and use two fd_sets for select()
- o OpenSSL AES-128-CTR detection
- o proper keyboard-interactive user dialog in the sftp.c example
- o build procedure for VMS
- o fixed libssh2.dsw to use the generated libssh2.dsp
- o several Windows-related build fixes
- o fail to init SFTP if session isn't already authenticated
- o many tiny fixes that address clang-analyzer warnings
- o sftp_open: deal with short channel_write calls
- o libssh2_publickey_init: fixed to work better non-blocking
- o sftp_close_handle: add precation to not access NULL pointer
- o sftp_readdir: simplified and bugfixed
- o channel_write: if data has been sent, don't return EAGAIN
+ o Better handling of invalid key files
+ o inputchecks: make lots of API functions check for NULL pointers
+ o libssh2_session_callback_set: extended the man page
+ o SFTP: limit write() to not produce overly large packets
+ o agent: make libssh2_agent_userauth() work blocking properly
+ o _libssh2_userauth_publickey: reject method names longer than the data
+ o channel_free: ignore problems with channel_close()
+ o typedef: make ssize_t get typedef without LIBSSH2_WIN32
+ o _libssh2_wait_socket: poll needs milliseconds
+ o libssh2_wait_socket: reset error code to "leak" EAGAIN less
+ o Added include for sys/select.h to get fd.set on some platforms
+ o session_free: free more data to avoid memory leaks
+ o openssl: make use of the EVP interface
+ o Fix underscore typo for 64-bit printf format specifiers on Windows
+ o Make libssh2_debug() create a correctly terminated string
+ o userauth_hostbased_fromfile: packet length too short
+ o handshake: Compression enabled at the wrong time
+ o Don't overflow MD5 server hostkey
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
- Alexander Lamaison, Guenter Knauf, Dan Fandrich, Grubsky Grigory,
- Joey Degges, Jose Baars, Mikhail Gusarov, Peter Stuge, Simon Josefsson,
- Daniel Stenberg
+ Alexander Lamaison, Guenter Knauf, Peter Stuge, Simon Josefsson, Lars Nordin,
+ John Little, Daniel Stenberg, TJ Saunders, Tor Arntsen
  
         Thanks! (and sorry if I forgot to mention someone)
