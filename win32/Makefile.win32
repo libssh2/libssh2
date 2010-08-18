@@ -65,6 +65,7 @@ else
 endif
 CP	= cp -afv
 # RM	= rm -f
+MD	= mkdir
 # Here you can find a native Win32 binary of the original awk:
 # http://www.gknw.net/development/prgtools/awk-20070501.zip
 AWK	= awk
@@ -98,7 +99,7 @@ LIBEXT	= a
 RANLIB	= $(CROSSPREFIX)ranlib
 #LDLIBS	+= -lwsock32
 LDLIBS	+= -lws2_32
-RCFLAGS	= -O coff -i
+RCFLAGS	= -DLIBSSH2_VERSION_ONLY -I. -I ../include -O coff -i
 CFLAGS	+= -fno-strict-aliasing
 CFLAGS	+= -Wall # -pedantic
 endif
@@ -123,7 +124,8 @@ ifeq ($(findstring /sh,$(SHELL)),/sh)
 DL	= '
 DS	= /
 else
-DS	= \\
+XX	=
+DS	= $(XX)\$(XX)
 endif
 
 vpath %.c . ../src
@@ -198,13 +200,13 @@ clean:
 	-$(RM) -r $(OBJDIR)
 
 $(OBJDIR):
-	@mkdir $@
+	@$(MD) $@
 
 $(DISTDIR):
-	@mkdir $@
+	@$(MD) $@
 
 $(DEVLDIR):
-	@mkdir $@
+	@$(MD) $@
 
 $(TARGET).$(LIBEXT): $(OBJS)
 	@echo Creating $@
@@ -222,7 +224,7 @@ $(TARGET).dll $(TARGET)dll.a: $(OBJL)
 
 $(OBJDIR)/%.res: %.rc
 	@echo Creating $@
-	@$(RC) $(RCFLAGS) -DLIBSSH2_VERSION_ONLY -I. -I ../include $< -o $@
+	@$(RC) $(RCFLAGS) $< -o $@
 
 
 $(DISTDIR)/readme.txt: Makefile.win32
