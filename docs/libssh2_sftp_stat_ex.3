@@ -30,6 +30,12 @@ to stat/lstat/setstat.
 
 \fIstat_type\fP - One of the three constants specifying the type of 
 stat operation to perform.
+.br
+\fBLIBSSH2_SFTP_STAT\fP: performs stat(2) operation
+.br
+\fBLIBSSH2_SFTP_LSTAT\fP: performs lstat(2) operation
+.br
+\fBLIBSSH2_SFTP_SETSTAT\fP: performs operation to set stat info on file
 
 \fIattrs\fP - Pointer to attribute structure to set file metadata 
 from or into depending on the value of stat_type.
