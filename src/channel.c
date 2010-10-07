@@ -213,11 +213,12 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
         rc = _libssh2_transport_write(session, session->open_packet,
                                       session->open_packet_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+            _libssh2_error(session, rc,
                            "Would block sending channel-open request");
             return NULL;
-        } else if (rc) {
-            _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+        }
+        else if (rc) {
+            _libssh2_error(session, rc,
                            "Unable to send channel-open request");
             goto channel_error;
         }
@@ -476,7 +477,8 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
                            "Would block sending global-request packet for "
                            "forward listen request");
             return NULL;
-        } else if (rc) {
+        }
+        else if (rc) {
             _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                            "Unable to send global-request packet for forward "
                            "listen request");
@@ -635,6 +637,8 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
     if (listener->chanFwdCncl_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, packet, packet_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
+            _libssh2_error(session, rc,
+                           "Would block sending forward request");
             listener->chanFwdCncl_data = packet;
             return rc;
         }
@@ -803,6 +807,8 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
         rc = _libssh2_transport_write(session, channel->setenv_packet,
                                   channel->setenv_packet_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
+            _libssh2_error(session, rc,
+                           "Would block sending setenv request");
             return rc;
         } else if (rc) {
             LIBSSH2_FREE(session, channel->setenv_packet);
@@ -925,6 +931,8 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
         rc = _libssh2_transport_write(session, channel->reqPTY_packet,
                                    channel->reqPTY_packet_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
+            _libssh2_error(session, rc,
+                           "Would block sending pty request");
             return rc;
         } else if (rc) {
             LIBSSH2_FREE(session, channel->reqPTY_packet);
@@ -952,7 +960,8 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
             return rc;
         } else if (rc) {
             channel->reqPTY_state = libssh2_NB_state_idle;
-            return -1;
+            return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                  "Failed to require the PTY package");
         }
 
         code = data[0];
@@ -1034,6 +1043,8 @@ channel_request_pty_size(LIBSSH2_CHANNEL * channel, int width,
         rc = _libssh2_transport_write(session, channel->reqPTY_packet,
                                    channel->reqPTY_packet_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
+            _libssh2_error(session, rc,
+                           "Would block sending window-change request");
             return rc;
         } else if (rc) {
             LIBSSH2_FREE(session, channel->reqPTY_packet);
@@ -1047,11 +1058,13 @@ channel_request_pty_size(LIBSSH2_CHANNEL * channel, int width,
         _libssh2_htonu32(channel->reqPTY_local_channel, channel->local.id);
         channel->reqPTY_state = libssh2_NB_state_sent;
 
-        return 0;
+        return LIBSSH2_ERROR_NONE;
     }
 
     channel->reqPTY_state = libssh2_NB_state_idle;
-    return -1;
+
+    /* reaching this point is a protocol error of some sorts */
+    return LIBSSH2_ERROR_PROTO;
 }
 
 LIBSSH2_API int
@@ -1152,6 +1165,8 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         rc = _libssh2_transport_write(session, channel->reqX11_packet,
                                    channel->reqX11_packet_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
+            _libssh2_error(session, rc,
+                           "Would block sending X11-req packet");
             return rc;
         }
         if (rc) {
@@ -1271,6 +1286,8 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         rc = _libssh2_transport_write(session, channel->process_packet,
                                    channel->process_packet_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
+            _libssh2_error(session, rc,
+                           "Would block sending channel request");
             return rc;
         }
         else if (rc) {
@@ -1512,6 +1529,8 @@ _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
 
     rc = _libssh2_transport_write(channel->session, channel->adjust_adjust, 9);
     if (rc == LIBSSH2_ERROR_EAGAIN) {
+        _libssh2_error(channel->session, rc,
+                       "Would block sending window adjust");
         return rc;
     }
     else if (rc) {
@@ -2091,6 +2110,8 @@ static int channel_send_eof(LIBSSH2_CHANNEL *channel)
     _libssh2_htonu32(packet + 1, channel->remote.id);
     rc = _libssh2_transport_write(session, packet, 5);
     if (rc == LIBSSH2_ERROR_EAGAIN) {
+        _libssh2_error(session, rc,
+                       "Would block sending EOF");
         return rc;
     }
     else if (rc) {
@@ -2181,7 +2202,8 @@ static int channel_wait_eof(LIBSSH2_CHANNEL *channel)
         }
         else if (rc < 0) {
             channel->wait_eof_state = libssh2_NB_state_idle;
-            return -1;
+            return _libssh2_error(session, rc,
+                                  "_libssh2_transport_read() bailed out!");
         }
     } while (1);
 
@@ -2240,6 +2262,8 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
     if (channel->close_state == libssh2_NB_state_created) {
         retcode = _libssh2_transport_write(session, channel->close_packet, 5);
         if (retcode == LIBSSH2_ERROR_EAGAIN) {
+            _libssh2_error(session, rc,
+                           "Would block sending close-channel");
             return retcode;
         } else if (retcode) {
             channel->close_state = libssh2_NB_state_idle;
