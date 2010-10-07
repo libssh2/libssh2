@@ -8,8 +8,10 @@ libssh2_session_startup - begin transport layer
 
 int 
 libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
-
 .SH DESCRIPTION
+Starting in libssh2 version 1.2.8 this function is considered deprecated. Use
+\fIlibssh2_session_handshake(3)\fP instead.
+
 \fIsession\fP - Session instance as returned by 
 .BR libssh2_session_init_ex(3)
 

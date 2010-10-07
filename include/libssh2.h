@@ -435,6 +435,8 @@ LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION *session,
                                    const char *banner);
 
 LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int sock);
+LIBSSH2_API int libssh2_session_handshake(LIBSSH2_SESSION *session,
+                                          libssh2_socket_t sock);
 LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session,
                                               int reason,
                                               const char *description,

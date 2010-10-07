@@ -725,22 +725,38 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 }
 
 /*
- * proto libssh2_session_startup
+ * libssh2_session_handshake()
  *
  * session: LIBSSH2_SESSION struct allocated and owned by the calling program
+ * sock:    *must* be populated with an opened and connected socket.
+ *
  * Returns: 0 on success, or non-zero on failure
- * Any memory allocated by libssh2 will use alloc/realloc/free
- * callbacks in session.
- * The 'sock' socket *must* be populated with an opened and connected socket.
  */
 LIBSSH2_API int
-libssh2_session_startup(LIBSSH2_SESSION *session, int sock)
+libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 {
     int rc;
 
     BLOCK_ADJUST(rc, session, session_startup(session, sock) );
 
     return rc;
+}
+
+/*
+ * libssh2_session_startup()
+ *
+ * DEPRECATED. Use libssh2_session_handshake() instead! This function is not
+ * portable enough.
+ *
+ * session: LIBSSH2_SESSION struct allocated and owned by the calling program
+ * sock:    *must* be populated with an opened and connected socket.
+ *
+ * Returns: 0 on success, or non-zero on failure
+ */
+LIBSSH2_API int
+libssh2_session_startup(LIBSSH2_SESSION *session, int sock)
+{
+    return libssh2_session_handshake(session, (libssh2_socket_t) sock);
 }
 
 /*
