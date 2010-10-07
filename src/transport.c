@@ -843,7 +843,6 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
             p->ototal_num = total_length;
             return LIBSSH2_ERROR_EAGAIN;
         }
-        fprintf(stderr, "this? ret == %d, errno == %d\n", ret, errno);
         return LIBSSH2_ERROR_SOCKET_SEND;
     }
 
