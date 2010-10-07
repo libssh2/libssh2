@@ -330,8 +330,15 @@ typedef struct _LIBSSH2_POLLFD {
 
 /* Error Codes (defined by libssh2) */
 #define LIBSSH2_ERROR_NONE                      0
+
+/* The library once used -1 as a generic error return value on numerous places
+   through the code, which subsequently was converted to
+   LIBSSH2_ERROR_SOCKET_NONE uses over time. As this is a generic error code,
+   the goal is to never ever return this code but instead make sure that a
+   more accurate and descriptive error code is used. */
 #define LIBSSH2_ERROR_SOCKET_NONE               -1
-#define LIBSSH2_ERROR_BANNER_NONE               -2
+
+#define LIBSSH2_ERROR_BANNER_RECV               -2
 #define LIBSSH2_ERROR_BANNER_SEND               -3
 #define LIBSSH2_ERROR_INVALID_MAC               -4
 #define LIBSSH2_ERROR_KEX_FAILURE               -5
@@ -373,6 +380,12 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_COMPRESS                  -40
 #define LIBSSH2_ERROR_OUT_OF_BOUNDARY           -41
 #define LIBSSH2_ERROR_AGENT_PROTOCOL            -42
+#define LIBSSH2_ERROR_SOCKET_RECV               -43
+#define LIBSSH2_ERROR_ENCRYPT                   -44
+#define LIBSSH2_ERROR_BAD_SOCKET                -45
+
+/* this is a define to provide the old (<= 1.2.7) name */
+#define LIBSSH2_ERROR_BANNER_NONE LIBSSH2_ERROR_BANNER_RECV
 
 /* Global API */
 #define LIBSSH2_INIT_NO_CRYPTO        0x0001
