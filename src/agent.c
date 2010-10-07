@@ -153,15 +153,15 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
 
     agent->fd = socket(PF_UNIX, SOCK_STREAM, 0);
     if (agent->fd < 0)
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_NONE,
+        return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_SOCKET,
                               "failed creating socket");
 
     s_un.sun_family = AF_UNIX;
     strncpy (s_un.sun_path, path, sizeof s_un.sun_path);
     if (connect(agent->fd, (struct sockaddr*)(&s_un), sizeof s_un) != 0) {
         close (agent->fd);
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_NONE,
-                              "failed connecting");
+        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                              "failed connecting with agent");
     }
 
     return LIBSSH2_ERROR_NONE;
@@ -205,7 +205,7 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
         if (rc < 0) {
             if (errno == EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_NONE,
+            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_RECV,
                                   "agent recv failed");
         }
         transctx->response_len = _libssh2_ntohu32(buf);
@@ -268,7 +268,7 @@ agent_connect_pageant(LIBSSH2_AGENT *agent)
     HWND hwnd;
     hwnd = FindWindow("Pageant", "Pageant");
     if (!hwnd)
-	return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_NONE,
+	return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                               "failed connecting agent");
     agent->fd = 0;         /* Mark as the connection has been established */
     return LIBSSH2_ERROR_NONE;
