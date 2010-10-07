@@ -141,11 +141,11 @@ comp_method_zlib_init(LIBSSH2_SESSION * session, int compress,
 
     if (status != Z_OK) {
         LIBSSH2_FREE(session, strm);
-        return -1;
+        return LIBSSH2_ERROR_COMPRESS;
     }
     *abstract = strm;
 
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 
