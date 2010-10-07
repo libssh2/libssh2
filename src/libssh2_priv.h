@@ -145,13 +145,6 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
 
 #endif
 
-#ifdef WIN32
-typedef SOCKET libssh2_socket_t;
-#else /* !WIN32 */
-typedef int libssh2_socket_t;
-#define INVALID_SOCKET -1
-#endif /* WIN32 */
-
 /* RFC4253 section 6.1 Maximum Packet Length says:
  *
  * "All implementations MUST be able to process packets with

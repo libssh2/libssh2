@@ -130,6 +130,13 @@ typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
 #endif
 
+#ifdef WIN32
+typedef SOCKET libssh2_socket_t;
+#else /* !WIN32 */
+typedef int libssh2_socket_t;
+#define INVALID_SOCKET -1
+#endif /* WIN32 */
+
 /* Part of every banner, user specified or not */
 #define LIBSSH2_SSH_BANNER                  "SSH-2.0-libssh2_" LIBSSH2_VERSION
 
