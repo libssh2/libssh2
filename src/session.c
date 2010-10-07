@@ -114,12 +114,15 @@ banner_receive(LIBSSH2_SESSION * session)
 
         ret = _libssh2_recv(session->socket_fd, &c, 1,
                             LIBSSH2_SOCKET_RECV_FLAGS(session));
-        if (ret < 0)
-            _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                           "Error recving %d bytes to %p: %d", 1, &c, errno);
+        if (ret < 0) {
+            if(session->api_block_mode || (errno != EAGAIN))
+                /* ignore EAGAIN when non-blocking */
+                _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
+                               "Error recving %d bytes: %d", 1, errno);
+        }
         else
             _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                           "Recved %d bytes to %p", ret, &c);
+                           "Recved %d bytes banner", ret);
 
         if (ret < 0) {
             if (errno == EAGAIN) {
@@ -132,19 +135,19 @@ banner_receive(LIBSSH2_SESSION * session)
             /* Some kinda error */
             session->banner_TxRx_state = libssh2_NB_state_idle;
             session->banner_TxRx_total_send = 0;
-            return -1;
+            return LIBSSH2_ERROR_SOCKET_RECV;
         }
 
         if (ret == 0) {
             session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
-            return LIBSSH2_ERROR_SOCKET_NONE;
+            return LIBSSH2_ERROR_SOCKET_RECV;
         }
 
         if (c == '\0') {
             /* NULLs are not allowed in SSH banners */
             session->banner_TxRx_state = libssh2_NB_state_idle;
             session->banner_TxRx_total_send = 0;
-            return -1;
+            return LIBSSH2_ERROR_BANNER_RECV;
         }
 
         session->banner_TxRx_banner[banner_len++] = c;
@@ -161,7 +164,7 @@ banner_receive(LIBSSH2_SESSION * session)
     session->banner_TxRx_total_send = 0;
 
     if (!banner_len)
-        return -1;
+        return LIBSSH2_ERROR_BANNER_RECV;
 
     session->remote.banner = LIBSSH2_ALLOC(session, banner_len + 1);
     if (!session->remote.banner) {
@@ -172,7 +175,7 @@ banner_receive(LIBSSH2_SESSION * session)
     session->remote.banner[banner_len] = '\0';
     _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Received Banner: %s",
                    session->remote.banner);
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 /*
@@ -180,9 +183,9 @@ banner_receive(LIBSSH2_SESSION * session)
  *
  * Send the default banner, or the one set via libssh2_setopt_string
  *
- * Returns LIBSSH2_ERROR_EAGAIN if it would block - and if it does so, you should
- * call this function again as soon as it is likely that more data can be
- * sent, and this function should then be called with the same argument set
+ * Returns LIBSSH2_ERROR_EAGAIN if it would block - and if it does so, you
+ * should call this function again as soon as it is likely that more data can
+ * be sent, and this function should then be called with the same argument set
  * (same data pointer and same data_len) until zero or failure is returned.
  */
 static int
@@ -245,7 +248,7 @@ banner_send(LIBSSH2_SESSION * session)
         }
         session->banner_TxRx_state = libssh2_NB_state_idle;
         session->banner_TxRx_total_send = 0;
-        return LIBSSH2_ERROR_SOCKET_NONE;
+        return LIBSSH2_ERROR_SOCKET_RECV;
     }
 
     /* Set the state back to idle */
@@ -621,7 +624,7 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
                        "session_startup for socket %d", sock);
         if (INVALID_SOCKET == sock) {
             /* Did we forget something? */
-            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_NONE,
+            return _libssh2_error(session, LIBSSH2_ERROR_BAD_SOCKET,
                                   "Bad socket provided");
         }
         session->socket_fd = sock;
@@ -1338,8 +1341,8 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
     struct pollfd sockets[256];
 
     if (nfds > 256)
-        /* systems without alloca use a fixed-size array, this can be fixed
-           if we really want to, at least if the compiler is a C99 capable one */
+        /* systems without alloca use a fixed-size array, this can be fixed if
+           we really want to, at least if the compiler is a C99 capable one */
         return -1;
 #endif
     /* Setup sockets for polling */
