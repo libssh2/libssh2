@@ -681,10 +681,11 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.
  *
- * Returns LIBSSH2_ERROR_EAGAIN if it would block - and if it does so, you
- * should call this function again as soon as it is likely that more data can
- * be sent, and this function should then be called with the same argument set
- * (same data pointer and same data_len) until zero or failure is returned.
+ * Returns LIBSSH2_ERROR_EAGAIN if it would block or if the whole packet was
+ * not sent yet. If it does so, the caller should call this function again as
+ * soon as it is likely that more data can be sent, and this function MUST
+ * then be called with the same argument set (same data pointer and same
+ * data_len) until ERROR_NONE or failure is returned.
  *
  * NOTE: this function does not verify that 'data_len' is less than ~35000
  * which is what all implementations should support at least as packet size.
@@ -725,6 +726,7 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
 
     if (ret)
+        /* set by send_existing if data was sent */
         return rc;
 
     encrypted = (session->state & LIBSSH2_STATE_NEWKEYS) ? 1 : 0;
