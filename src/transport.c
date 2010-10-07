@@ -138,7 +138,7 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
         if (session->remote.crypt->crypt(session, source,
                                          &session->remote.crypt_abstract)) {
             LIBSSH2_FREE(session, p->payload);
-            return LIBSSH2_ERROR_SOCKET_NONE;
+            return LIBSSH2_ERROR_DECRYPT;
         }
 
         /* if the crypt() function would write to a given address it
@@ -209,7 +209,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                                            session->fullpacket_payload_len,
                                            &session->remote.comp_abstract)) {
                 LIBSSH2_FREE(session, p->payload);
-                return LIBSSH2_ERROR_SOCKET_NONE;
+                return LIBSSH2_ERROR_COMPRESS;
             }
 
             if (free_payload) {
@@ -280,7 +280,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
  */
 int _libssh2_transport_read(LIBSSH2_SESSION * session)
 {
-    int rc = LIBSSH2_ERROR_SOCKET_NONE;
+    int rc;
     struct transportpacket *p = &session->packet;
     int remainbuf;
     int remainpack;
@@ -376,16 +376,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 _libssh2_recv(session->socket_fd, &p->buf[remainbuf],
                               PACKETBUFSIZE - remainbuf,
                               LIBSSH2_SOCKET_RECV_FLAGS(session));
-            if (nread < 0)
-                _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                               "Error recving %d bytes to %p+%d: %d",
-                               PACKETBUFSIZE - remainbuf, p->buf, remainbuf,
-                               errno);
-            else
-                _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                               "Recved %d/%d bytes to %p+%d", nread,
-                               PACKETBUFSIZE - remainbuf, p->buf, remainbuf);
-            if (nread <= 0) {
+           if (nread <= 0) {
                 /* check if this is due to EAGAIN and return the special
                    return code if so, error out normally otherwise */
                 if ((nread < 0) && (errno == EAGAIN)) {
@@ -393,8 +384,14 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                         LIBSSH2_SESSION_BLOCK_INBOUND;
                     return LIBSSH2_ERROR_EAGAIN;
                 }
-                return LIBSSH2_ERROR_SOCKET_NONE;
+                _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
+                               "Error recving %d bytes (got %d): %d",
+                               PACKETBUFSIZE - remainbuf, nread, errno);
+                return LIBSSH2_ERROR_SOCKET_RECV;
             }
+           _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
+                          "Recved %d/%d bytes to %p+%d", nread,
+                          PACKETBUFSIZE - remainbuf, p->buf, remainbuf);
 
             debugdump(session, "libssh2_transport_read() raw",
                       &p->buf[remainbuf], nread);
@@ -445,7 +442,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
              */
             p->packet_length = _libssh2_ntohu32(block);
             if (p->packet_length < 1)
-                return LIBSSH2_ERROR_SOCKET_NONE;
+                return LIBSSH2_ERROR_DECRYPT;
 
             p->padding_length = block[4];
 
@@ -597,7 +594,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         }
     } while (1);                /* loop */
 
-    return LIBSSH2_ERROR_SOCKET_NONE;         /* we never reach this point */
+    return LIBSSH2_ERROR_SOCKET_RECV; /* we never reach this point */
 }
 
 /*
@@ -665,10 +662,10 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
     }
     else if (rc < 0) {
         /* nothing was sent */
-        if (errno != EAGAIN) {
+        if (errno != EAGAIN)
             /* send failure! */
-            return LIBSSH2_ERROR_SOCKET_NONE;
-        }
+            return LIBSSH2_ERROR_SOCKET_SEND;
+
         session->socket_block_directions |= LIBSSH2_SESSION_BLOCK_OUTBOUND;
         return LIBSSH2_ERROR_EAGAIN;
     }
@@ -684,9 +681,9 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.
  *
- * Returns LIBSSH2_ERROR_EAGAIN if it would block - and if it does so, you should
- * call this function again as soon as it is likely that more data can be
- * sent, and this function should then be called with the same argument set
+ * Returns LIBSSH2_ERROR_EAGAIN if it would block - and if it does so, you
+ * should call this function again as soon as it is likely that more data can
+ * be sent, and this function should then be called with the same argument set
  * (same data pointer and same data_len) until zero or failure is returned.
  *
  * NOTE: this function does not verify that 'data_len' is less than ~35000
@@ -818,7 +815,7 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
             unsigned char *ptr = &p->outbuf[i];
             if (session->local.crypt->crypt(session, ptr,
                                             &session->local.crypt_abstract))
-                return LIBSSH2_ERROR_SOCKET_NONE;     /* encryption failure */
+                return LIBSSH2_ERROR_ENCRYPT;     /* encryption failure */
         }
     }
 
@@ -846,7 +843,8 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
             p->ototal_num = total_length;
             return LIBSSH2_ERROR_EAGAIN;
         }
-        return LIBSSH2_ERROR_SOCKET_NONE;
+        fprintf(stderr, "this? ret == %d, errno == %d\n", ret, errno);
+        return LIBSSH2_ERROR_SOCKET_SEND;
     }
 
     /* the whole thing got sent away */
