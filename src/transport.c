@@ -597,20 +597,6 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
     return LIBSSH2_ERROR_SOCKET_RECV; /* we never reach this point */
 }
 
-/*
- * _libssh2_transport_drain() empties the outgoing send buffer if there
- * is any.
- */
-void _libssh2_transport_drain(LIBSSH2_SESSION * session)
-{
-    struct transportpacket *p = &session->packet;
-    if(p->outbuf) {
-        LIBSSH2_FREE(session, p->outbuf);
-        p->outbuf = NULL;
-        p->ototal_num = 0;
-    }
-}
-
 static int
 send_existing(LIBSSH2_SESSION * session, unsigned char *data,
               size_t data_len, ssize_t * ret)

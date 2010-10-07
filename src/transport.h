@@ -78,10 +78,4 @@ int _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
  */
 int _libssh2_transport_read(LIBSSH2_SESSION * session);
 
-/*
- * _libssh2_transport_drain() empties the outgoing send buffer if there
- * is any.
- */
-void _libssh2_transport_drain(LIBSSH2_SESSION *session);
-
 #endif /* __LIBSSH2_TRANSPORT_H */
