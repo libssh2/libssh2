@@ -471,7 +471,7 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
 
     if (session->fwdLstn_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, session->fwdLstn_packet,
-                                   session->fwdLstn_packet_len);
+                                      session->fwdLstn_packet_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block sending global-request packet for "
@@ -805,7 +805,7 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
 
     if (channel->setenv_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, channel->setenv_packet,
-                                  channel->setenv_packet_len);
+                                      channel->setenv_packet_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, rc,
                            "Would block sending setenv request");
@@ -1041,7 +1041,7 @@ channel_request_pty_size(LIBSSH2_CHANNEL * channel, int width,
 
     if (channel->reqPTY_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, channel->reqPTY_packet,
-                                   channel->reqPTY_packet_len);
+                                      channel->reqPTY_packet_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, rc,
                            "Would block sending window-change request");
@@ -1163,7 +1163,7 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
 
     if (channel->reqX11_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, channel->reqX11_packet,
-                                   channel->reqX11_packet_len);
+                                      channel->reqX11_packet_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, rc,
                            "Would block sending X11-req packet");
@@ -1284,7 +1284,7 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
 
     if (channel->process_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_write(session, channel->process_packet,
-                                   channel->process_packet_len);
+                                      channel->process_packet_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, rc,
                            "Would block sending channel request");
@@ -1918,9 +1918,8 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
 /*
  * _libssh2_channel_write
  *
- * Send data to a channel. Note that if this returns EAGAIN or simply didn't
- * send the entire packet, the caller must call this function again with the
- * SAME input arguments.
+ * Send data to a channel. Note that if this returns EAGAIN, the caller must
+ * call this function again with the SAME input arguments.
  *
  * Returns: number of bytes sent, or if it returns a negative number, that is
  * the error code!
@@ -2034,13 +2033,6 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                                           channel->write_s -
                                           channel->write_packet);
             if (rc == LIBSSH2_ERROR_EAGAIN) {
-                if(wrote) {
-                    /* some pieces of data was sent before the EAGAIN so we
-                       return that amount! As we ignore EAGAIN, we must drain
-                       the outgoing transport buffer. */
-                    _libssh2_transport_drain(session);
-                    goto _channel_write_done;
-                }
                 return _libssh2_error(session, rc,
                                       "Unable to send channel data");
             }
@@ -2054,17 +2046,20 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
             /* Shrink local window size */
             channel->local.window_size -= channel->write_bufwrite;
 
-            /* Adjust buf for next iteration */
-            buflen -= channel->write_bufwrite;
-            buf += channel->write_bufwrite;
-            channel->write_bufwrote += channel->write_bufwrite;
             wrote += channel->write_bufwrite;
 
-            channel->write_state = libssh2_NB_state_allocated;
+            /* Since _libssh2_transport_write() succeeded, we must return
+               now to allow the caller to provide the next chunk of data.
+
+               We cannot move on to send the next piece of data that may
+               already have been provided in this same function call, as we
+               risk getting EAGAIN for that and we can't return information
+               both about sent data as well as EAGAIN. So, by returning short
+               now, the caller will call this function again with new data to
+               send */
+            break;
         }
     }
-
-  _channel_write_done:
 
     LIBSSH2_FREE(session, channel->write_packet);
     channel->write_packet = NULL;
