@@ -331,10 +331,10 @@ static const LIBSSH2_COMP_METHOD comp_method_zlib = {
  *********************** */
 
 static const LIBSSH2_COMP_METHOD *comp_methods[] = {
-    &comp_method_none,
 #ifdef LIBSSH2_HAVE_ZLIB
     &comp_method_zlib,
 #endif /* LIBSSH2_HAVE_ZLIB */
+    &comp_method_none,
     NULL
 };
 
