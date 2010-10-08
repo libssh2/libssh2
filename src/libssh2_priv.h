@@ -998,7 +998,7 @@ struct _LIBSSH2_CRYPT_METHOD
 struct _LIBSSH2_COMP_METHOD
 {
     const char *name;
-
+    int compress; /* 1 if it does compress, 0 if it doesn't */
     int (*init) (LIBSSH2_SESSION * session, int compress, void **abstract);
     int (*comp) (LIBSSH2_SESSION * session, int compress, unsigned char **dest,
                  size_t *dest_len, size_t payload_limit,

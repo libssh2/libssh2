@@ -195,21 +195,21 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
         session->fullpacket_payload_len -= p->padding_length;
 
         /* Check for and deal with decompression */
-        if (session->remote.comp &&
-            strcmp(session->remote.comp->name, "none")) {
+        if (session->remote.comp && session->remote.comp->compress) {
             unsigned char *data;
             size_t data_len;
             int free_payload = 1;
 
-            if (session->remote.comp->comp(session, 0,
-                                           &data, &data_len,
-                                           LIBSSH2_PACKET_MAXDECOMP,
-                                           &free_payload,
-                                           p->payload,
-                                           session->fullpacket_payload_len,
-                                           &session->remote.comp_abstract)) {
+            rc = session->remote.comp->comp(session, 0,
+                                            &data, &data_len,
+                                            LIBSSH2_PACKET_MAXDECOMP,
+                                            &free_payload,
+                                            p->payload,
+                                            session->fullpacket_payload_len,
+                                            &session->remote.comp_abstract);
+            if(rc) {
                 LIBSSH2_FREE(session, p->payload);
-                return LIBSSH2_ERROR_COMPRESS;
+                return rc;
             }
 
             if (free_payload) {
@@ -718,13 +718,13 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     encrypted = (session->state & LIBSSH2_STATE_NEWKEYS) ? 1 : 0;
 
     /* check if we should compress */
-    if (encrypted && strcmp(session->local.comp->name, "none")) {
-        if (session->local.comp->comp(session, 1, &data, &data_len,
-                                      LIBSSH2_PACKET_MAXCOMP,
-                                      &free_data, data, data_len,
-                                      &session->local.comp_abstract)) {
-            return LIBSSH2_ERROR_COMPRESS;     /* compression failure */
-        }
+    if (encrypted && session->local.comp->compress) {
+        rc = session->local.comp->comp(session, 1, &data, &data_len,
+                                       LIBSSH2_PACKET_MAXCOMP,
+                                       &free_data, data, data_len,
+                                       &session->local.comp_abstract);
+        if(rc)
+            return rc;     /* compression failure */
     }
 
     /* RFC4253 says: Note that the length of the concatenation of

@@ -77,6 +77,7 @@ comp_method_none_comp(LIBSSH2_SESSION * session,
 
 static const LIBSSH2_COMP_METHOD comp_method_none = {
     "none",
+    0, /* not really compressing */
     NULL,
     comp_method_none_comp,
     NULL
@@ -318,6 +319,7 @@ comp_method_zlib_dtor(LIBSSH2_SESSION * session, int compress,
 
 static const LIBSSH2_COMP_METHOD comp_method_zlib = {
     "zlib",
+    1, /* yes, this compresses */
     comp_method_zlib_init,
     comp_method_zlib_comp,
     comp_method_zlib_dtor,
