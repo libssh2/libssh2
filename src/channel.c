@@ -1476,6 +1476,67 @@ libssh2_channel_get_exit_status(LIBSSH2_CHANNEL *channel)
     return channel->exit_status;
 }
 
+/* 
+ * libssh2_channel_get_exit_signal 
+ * 
+ * Get exit signal (without leading "SIG"), error message, and language
+ * tag into newly allocated buffers of indicated length.  Caller can
+ * use NULL pointers to indicate that the value should not be set.  The
+ * *_len variables are set if they are non-NULL even if the
+ * corresponding string parameter is NULL.  Returns LIBSSH2_ERROR_NONE
+ * on success, or an API error code.
+ */
+LIBSSH2_API int
+libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
+                                char **exitsignal,
+                                size_t *exitsignal_len,
+                                char **errmsg,
+                                size_t *errmsg_len,
+                                char **langtag,
+                                size_t *langtag_len)
+{
+    LIBSSH2_SESSION *session = channel->session;
+    size_t namelen = 0;
+
+    if (channel) {
+        if (channel->exit_signal) {
+            namelen = strlen(channel->exit_signal);
+            if (exitsignal) {
+               *exitsignal = LIBSSH2_ALLOC(session, namelen + 1); 
+                if (!*exitsignal) {
+                    return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                        "Unable to allocate memory for signal name");
+                }
+                memcpy(*exitsignal, channel->exit_signal, namelen);
+                (*exitsignal)[namelen] = '\0';
+            }
+            if (exitsignal_len)
+                *exitsignal_len = namelen;
+        } else {
+            if (exitsignal)
+                *exitsignal = NULL; 
+            if (exitsignal_len)
+                *exitsignal_len = 0;
+        }
+
+        /* TODO: set error message and language tag */
+
+        if (errmsg)
+            *errmsg = NULL;
+
+        if (errmsg_len)
+            *errmsg_len = 0;
+
+        if (langtag)
+            *langtag = NULL;
+
+        if (langtag_len)
+            *langtag_len = 0;
+    }
+
+    return LIBSSH2_ERROR_NONE;
+}
+
 /*
  * _libssh2_channel_receive_window_adjust
  *
@@ -2412,6 +2473,10 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     }
 
     channel->free_state = libssh2_NB_state_idle;
+
+    if (channel->exit_signal) {
+        LIBSSH2_FREE(session, channel->exit_signal);
+    }
 
     /*
      * channel->remote.close *might* not be set yet, Well...

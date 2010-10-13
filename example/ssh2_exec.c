@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
     LIBSSH2_CHANNEL *channel;
     int rc;
     int exitcode;
+    char *exitsignal;
     int bytecount = 0;
     size_t len;
     LIBSSH2_KNOWNHOSTS *nh;
@@ -286,8 +287,13 @@ int main(int argc, char *argv[])
     if( rc == 0 )
     {
         exitcode = libssh2_channel_get_exit_status( channel );
+        libssh2_channel_get_exit_signal(channel, &exitsignal, NULL, NULL, NULL, NULL, NULL);
     }
-    printf("\nEXIT: %d bytecount: %d\n", exitcode, bytecount);
+
+    if (exitsignal)
+        printf("\nGot signal: %s\n", exitsignal);
+    else 
+        printf("\nEXIT: %d bytecount: %d\n", exitcode, bytecount);
 
     libssh2_channel_free(channel);
     channel = NULL;

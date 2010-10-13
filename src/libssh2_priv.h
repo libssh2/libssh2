@@ -340,6 +340,9 @@ struct _LIBSSH2_CHANNEL
     /* channel's program exit status */
     int exit_status;
 
+    /* channel's program exit signal (without the SIG prefix) */
+    char *exit_signal;
+
     libssh2_channel_data local, remote;
     /* Amount of bytes to be refunded to receive window (but not yet sent) */
     unsigned long adjust_queue;

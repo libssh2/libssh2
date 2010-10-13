@@ -26,6 +26,7 @@ dist_man_MANS = \
 	libssh2_channel_forward_listen_ex.3 \
 	libssh2_channel_free.3 \
 	libssh2_channel_get_exit_status.3 \
+	libssh2_channel_get_exit_signal.3 \
 	libssh2_channel_handle_extended_data.3 \
 	libssh2_channel_handle_extended_data2.3 \
 	libssh2_channel_ignore_extended_data.3 \

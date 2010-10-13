@@ -762,6 +762,40 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 return 0;
             }
 
+            if (strlen == sizeof("exit-signal") - 1
+                && !memcmp("exit-signal", data + 9,
+                           sizeof("exit-signal") - 1)) {
+
+                /* command terminated due to signal */
+                session->packAdd_channel =
+                    _libssh2_channel_locate(session, channel);
+
+                if (session->packAdd_channel) {
+                    /* set signal name (without SIG prefix) */
+                    uint32_t namelen = _libssh2_ntohu32(data + 9 + sizeof("exit-signal"));
+                    session->packAdd_channel->exit_signal =
+                        LIBSSH2_ALLOC(session, namelen + 1);
+                    if (!session->packAdd_channel->exit_signal) {
+                        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                            "Unable to allocate memory for signal name");
+                    } else {
+                        memcpy(session->packAdd_channel->exit_signal,
+                            data + 13 + sizeof("exit_signal"), namelen);
+                        session->packAdd_channel->exit_signal[namelen] = '\0';
+                        /* TODO: save error message and language tag */
+                        _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                                       "Exit signal %s received for channel %lu/%lu",
+                                       session->packAdd_channel->exit_signal,
+                                       session->packAdd_channel->local.id,
+                                       session->packAdd_channel->remote.id);
+                    }
+                }
+
+                LIBSSH2_FREE(session, data);
+                session->packAdd_state = libssh2_NB_state_idle;
+                return 0;
+            }
+
             if (want_reply) {
               libssh2_packet_add_jump_point4:
                 session->packAdd_state = libssh2_NB_state_jump4;
