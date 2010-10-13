@@ -420,6 +420,13 @@ LIBSSH2_API int libssh2_init(int flags);
  */
 LIBSSH2_API void libssh2_exit(void);
 
+/*
+ * libssh2_free()
+ *
+ * Deallocate memory allocated by earlier call to libssh2 functions.
+ */
+LIBSSH2_API void libssh2_free(LIBSSH2_SESSION *session, void *ptr)
+
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *
 libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),

@@ -1,5 +1,6 @@
 /* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2010  Simon Josefsson
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -351,6 +352,12 @@ size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
   return strlen(base64data); /* return the length of the new data */
 }
 /* ---- End of Base64 Encoding ---- */
+
+LIBSSH2_API void
+libssh2_free(LIBSSH2_SESSION *session, void *ptr)
+{
+    LIBSSH2_FREE(session, ptr);
+}
 
 #ifdef LIBSSH2DEBUG
 LIBSSH2_API int

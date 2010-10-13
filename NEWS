@@ -1,3 +1,7 @@
+This release includes the following changes:
+
+ o Added libssh2_free()
+
 libssh2 1.2.7 (August 17, 2010)
 
 This release includes the following changes:
