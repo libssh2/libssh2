@@ -1,6 +1,7 @@
 This release includes the following changes:
 
- o Added libssh2_free()
+ o Added libssh2_free().  By Simon Josefsson.
+ o Added libssh2_channel_get_exit_signal().  By Tommy Lindgren.
 
 libssh2 1.2.7 (August 17, 2010)
 
