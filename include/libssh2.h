@@ -425,7 +425,7 @@ LIBSSH2_API void libssh2_exit(void);
  *
  * Deallocate memory allocated by earlier call to libssh2 functions.
  */
-LIBSSH2_API void libssh2_free(LIBSSH2_SESSION *session, void *ptr)
+LIBSSH2_API void libssh2_free(LIBSSH2_SESSION *session, void *ptr);
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *

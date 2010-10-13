@@ -59,6 +59,7 @@ dist_man_MANS = \
 	libssh2_channel_x11_req.3 \
 	libssh2_channel_x11_req_ex.3 \
 	libssh2_exit.3 \
+	libssh2_free.3 \
 	libssh2_free_host_entry.3 \
 	libssh2_host_entry_match.3 \
 	libssh2_hostkey_hash.3 \
