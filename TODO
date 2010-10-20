@@ -1,8 +1,8 @@
 Things TODO
 ===========
 
-* Fix the numerous malloc+copy operations for sending data, see below for
-  details
+* Fix the numerous malloc+copy operations for sending data, see "Buffering
+  Improvements" below for details
 
 * make sure the windowing code adapts better to slow situations so that it
   doesn't then use as much memory as today. Possibly by an app-controllable
@@ -28,6 +28,9 @@ Things TODO
 
 * Make SFTP transfers ask for and send several packages at once so that it
   doesn't have to send-waitforack-send-waitforack as much.
+
+* select() is troublesome with libssh2 when using multiple channels over
+  the same session. See "New Transport API" below for more details.
 
 At next SONAME bump
 ===================
@@ -112,3 +115,54 @@ sftp_write
   - should not copy/allocate anything for the data, only create a header chunk
   and pass on the payload data to channel_write "pointed to"
 
+New Transport API
+=================
+
+THE PROBLEM
+
+The problem in a nutshell is that when an application opens up multiple
+channels over a single session, those are all using the same socket. If the
+application is then using select() to wait for traffic (like any sensible app
+does) and wants to act on the data when select() tells there is something to
+for example read, what does an application do?
+
+With our current API, you have to loop over all the channels and read from
+them to see if they have data. This effectively makes blocking reads
+impossible. If the app has many channels in a setup like this, it even becomes
+slow. (The original API had the libssh2_poll_channel_read() and libssh2_poll()
+to somewhat overcome this hurdle, but they too have pretty much the same
+problems plus a few others.)
+
+Traffic in the other direction is similarly limited: the app has to try
+sending to all channels, even though some of them may very well not accept any
+data at that point.
+
+A SOLUTION
+
+I suggest we introduce two new helper functions:
+
+ libssh2_transport_read()
+
+ - Read "a bunch" of data from the given socket and returns information to the
+   app about what channels that are now readable (ie they will not block when
+   read from). The function can be called over and over and it will repeatedly
+   return info about what channels that are readable at that moment.
+
+ libssh2_transport_write()
+
+ - Returns information about what channels that are writable, in the sense
+   that they have windows set from the remote side that allows data to get
+   sent. Writing to one of those channels will not block. Of course, the
+   underlying socket may only accept a certain amount of data, so at the first
+   short return, nothing more should be attempted to get sent until select()
+   (or equivalent) has been used on the master socket again.
+
+I haven't yet figured out a sensible API for how these functions should return
+that info, but if we agree on the general principles I guess we can work that
+out.
+
+VOLUNTARY
+
+  I wanted to mention that these two helper functions would not be mandatory
+  in any way. They would just be there for those who want them, and existing
+  programs can remain using the old functions only if they prefer to.
