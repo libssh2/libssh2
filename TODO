@@ -27,7 +27,8 @@ Things TODO
 * Expose error messages sent by the server
 
 * Make SFTP transfers ask for and send several packages at once so that it
-  doesn't have to send-waitforack-send-waitforack as much.
+  doesn't have to send-waitforack-send-waitforack as much. This will be
+  easier/smoother if we implement the "New SFTP API" described below.
 
 * select() is troublesome with libssh2 when using multiple channels over
   the same session. See "New Transport API" below for more details.
@@ -166,3 +167,47 @@ VOLUNTARY
   I wanted to mention that these two helper functions would not be mandatory
   in any way. They would just be there for those who want them, and existing
   programs can remain using the old functions only if they prefer to.
+
+New SFTP API
+============
+
+PURPOSE
+
+ Provide API functions that explicitly tells at once that a (full) SFTP file
+ transfer is wanted, to allow libssh2 to leverage on that knowledge to speed
+ up things internally. It can for example do read ahead, buffer writes (merge
+ small writes into larger chunks), better tune the SSH window and more. This
+ sort of API is already provided for SCP transfers.
+
+API
+
+ New functions:
+
+    LIBSSH2_SFTP_HANDLE *libssh2_sftp_send(SFTP_SESSION *sftp,
+                                           uint64_t filesize,
+                                           char *remote_path,
+                                           size_t remote_path_len,
+                                           long mode);
+
+ Tell libssh2 that a local file with a given size is about to get sent to
+ the SFTP server.
+
+    LIBSSH2_SFTP_HANDLE *libssh2_sftp_recv();
+
+ Tell libssh2 that a remote file is requested to get downloaded from the SFTP
+ server.
+
+ Only the setup of the file transfer is different from an application's point
+ of view. Depending on direction of the transfer(s), the following already
+ existing functions should then be used until the transfer is complete:
+
+ libssh2_sftp_read()
+ libssh2_sftp_write()
+
+HOW TO USE
+
+ 1. Setup the transfer using one of the two new functions.
+
+ 2. Loop through the reading or writing of data.
+
+ 3. Cleanup the transfer
