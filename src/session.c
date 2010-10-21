@@ -1227,19 +1227,24 @@ libssh2_session_last_errno(LIBSSH2_SESSION * session)
  *
  * Set/Get session flags
  *
- * Passing flag==0 will avoid changing session->flags while still returning
- * its current value
+ * Return error code.
  */
 LIBSSH2_API int
 libssh2_session_flag(LIBSSH2_SESSION * session, int flag, int value)
 {
-    if (value) {
-        session->flags |= flag;
-    } else {
-        session->flags &= ~flag;
+    switch(flag) {
+    case LIBSSH2_FLAG_SIGPIPE:
+        session->flag.sigpipe = value;
+        break;
+    case LIBSSH2_FLAG_COMPRESS:
+        session->flag.compress = value;
+        break;
+    default:
+        /* unknown flag */
+        return LIBSSH2_ERROR_INVAL;
     }
 
-    return session->flags;
+    return LIBSSH2_ERROR_NONE;
 }
 
 /* _libssh2_session_set_blocking

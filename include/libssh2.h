@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2009, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2009-2010 Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
@@ -253,8 +253,9 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
 #define LIBSSH2_METHOD_LANG_CS      8
 #define LIBSSH2_METHOD_LANG_SC      9
 
-/* session.flags bits */
-#define LIBSSH2_FLAG_SIGPIPE        0x00000001
+/* flags */
+#define LIBSSH2_FLAG_SIGPIPE        1
+#define LIBSSH2_FLAG_COMPRESS       2
 
 typedef struct _LIBSSH2_SESSION                     LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL                     LIBSSH2_CHANNEL;

@@ -661,6 +661,11 @@ struct _LIBSSH2_SFTP
 
 #define LIBSSH2_SCP_RESPONSE_BUFLEN     256
 
+struct flags {
+    int sigpipe;  /* LIBSSH2_FLAG_SIGPIPE */
+    int compress; /* LIBSSH2_FLAG_COMPRESS */
+};
+
 struct _LIBSSH2_SESSION
 {
     /* Memory management callbacks */
@@ -681,7 +686,9 @@ struct _LIBSSH2_SESSION
     char *hostkey_prefs;
 
     int state;
-    int flags;
+
+    /* Flag options */
+    struct flags flag;
 
     /* Agreed Key Exchange Method */
     const LIBSSH2_KEX_METHOD *kex;
@@ -930,8 +937,8 @@ struct _LIBSSH2_SESSION
 
 /* session.flag helpers */
 #ifdef MSG_NOSIGNAL
-#define LIBSSH2_SOCKET_SEND_FLAGS(session)      (((session)->flags & LIBSSH2_FLAG_SIGPIPE) ? 0 : MSG_NOSIGNAL)
-#define LIBSSH2_SOCKET_RECV_FLAGS(session)      (((session)->flags & LIBSSH2_FLAG_SIGPIPE) ? 0 : MSG_NOSIGNAL)
+#define LIBSSH2_SOCKET_SEND_FLAGS(session)      (((session)->flag.sigpipe) ? 0 : MSG_NOSIGNAL)
+#define LIBSSH2_SOCKET_RECV_FLAGS(session)      (((session)->flag.sigpipe) ? 0 : MSG_NOSIGNAL)
 #else
 /* If MSG_NOSIGNAL isn't defined we're SOL on blocking SIGPIPE */
 #define LIBSSH2_SOCKET_SEND_FLAGS(session)      0
