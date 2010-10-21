@@ -492,8 +492,8 @@ struct transportpacket
                                are currently writing decrypted data */
 
     /* ------------- for outgoing data --------------- */
-    unsigned char *outbuf;  /* pointer to a LIBSSH2_ALLOC() area for the
-                               outgoing data */
+    unsigned char outbuf[MAX_SSH_PACKET_LEN]; /* area for the outgoing data */
+
     int ototal_num;         /* size of outbuf in number of bytes */
     unsigned char *odata;   /* original pointer to the data we stored in
                                outbuf */
@@ -1009,12 +1009,14 @@ struct _LIBSSH2_COMP_METHOD
 {
     const char *name;
     int compress; /* 1 if it does compress, 0 if it doesn't */
-    int (*init) (LIBSSH2_SESSION * session, int compress, void **abstract);
-    int (*comp) (LIBSSH2_SESSION * session, int compress, unsigned char **dest,
-                 size_t *dest_len, size_t payload_limit,
-                 int *free_dest, const unsigned char *src,
-                 size_t src_len, void **abstract);
-    int (*decomp) (LIBSSH2_SESSION * session, int compress,
+    int (*init) (LIBSSH2_SESSION *session, int compress, void **abstract);
+    int (*comp) (LIBSSH2_SESSION *session,
+                 unsigned char *dest,
+                 size_t *dest_len,
+                 const unsigned char *src,
+                 size_t src_len,
+                 void **abstract);
+    int (*decomp) (LIBSSH2_SESSION *session, int compress,
                    unsigned char **dest,
                    size_t *dest_len, size_t payload_limit,
                    int *free_dest, const unsigned char *src,

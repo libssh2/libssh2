@@ -200,13 +200,13 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
             size_t data_len;
             int free_payload = 1;
 
-            rc = session->remote.comp->comp(session, 0,
-                                            &data, &data_len,
-                                            LIBSSH2_PACKET_MAXDECOMP,
-                                            &free_payload,
-                                            p->payload,
-                                            session->fullpacket_payload_len,
-                                            &session->remote.comp_abstract);
+            rc = session->remote.comp->decomp(session, 0,
+                                              &data, &data_len,
+                                              LIBSSH2_PACKET_MAXDECOMP,
+                                              &free_payload,
+                                              p->payload,
+                                              session->fullpacket_payload_len,
+                                              &session->remote.comp_abstract);
             if(rc) {
                 LIBSSH2_FREE(session, p->payload);
                 return rc;
@@ -605,7 +605,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
     ssize_t length;
     struct transportpacket *p = &session->packet;
 
-    if (!p->outbuf) {
+    if (!p->olen) {
         *ret = 0;
         return LIBSSH2_ERROR_NONE;
     }
@@ -642,8 +642,6 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
 
     if (rc == length) {
         /* the remainder of the package was sent */
-        LIBSSH2_FREE(session, p->outbuf);
-        p->outbuf = NULL;
         p->ototal_num = 0;
     }
     else if (rc < 0) {
@@ -673,10 +671,6 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
  * then be called with the same argument set (same data pointer and same
  * data_len) until ERROR_NONE or failure is returned.
  *
- * NOTE: this function does not verify that 'data_len' is less than ~35000
- * which is what all implementations should support at least as packet size.
- * (RFC4253 section 6.1)
- *
  * This function DOES not call _libssh2_error() on any errors.
  */
 int
@@ -689,7 +683,6 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     int padding_length;
     int packet_length;
     int total_length;
-    int free_data = 0;
 #ifdef RANDOM_PADDING
     int rand_max;
     int seed = data[0];         /* FIXME: make this random */
@@ -701,6 +694,11 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     int rc;
     unsigned char *orgdata = data;
     size_t orgdata_len = data_len;
+
+    if(data_len >= MAX_SSH_PACKET_LEN)
+        /* too large packet, return error for this until we make this function
+           split it up and send multiple SSH packets */
+        return LIBSSH2_ERROR_INVAL;
 
     debugdump(session, "libssh2_transport_write plain", data, data_len);
 
@@ -717,15 +715,21 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
 
     encrypted = (session->state & LIBSSH2_STATE_NEWKEYS) ? 1 : 0;
 
-    /* check if we should compress */
     if (encrypted && session->local.comp->compress) {
-        rc = session->local.comp->comp(session, 1, &data, &data_len,
-                                       LIBSSH2_PACKET_MAXCOMP,
-                                       &free_data, data, data_len,
+        /* compress directly to the target buffer */
+        rc = session->local.comp->comp(session,
+                                       data, &data_len,
+                                       &p->outbuf[5], MAX_SSH_PACKET_LEN-5,
                                        &session->local.comp_abstract);
         if(rc)
             return rc;     /* compression failure */
+
+        data = p->outbuf;
+        /* data_len is already updated by the compression function */
     }
+    else
+        /* copy the payload data */
+        memcpy(&p->outbuf[5], data, data_len);
 
     /* RFC4253 says: Note that the length of the concatenation of
        'packet_length', 'padding_length', 'payload', and 'random padding'
@@ -766,26 +770,14 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     total_length =
         packet_length + (encrypted ? session->local.mac->mac_len : 0);
 
-    /* allocate memory to store the outgoing packet in, in case we can't
-       send the whole one and thus need to keep it after this function
-       returns. */
-    p->outbuf = LIBSSH2_ALLOC(session, total_length);
-    if (!p->outbuf) {
-        return LIBSSH2_ERROR_ALLOC;
-    }
-
     /* store packet_length, which is the size of the whole packet except
        the MAC and the packet_length field itself */
     _libssh2_htonu32(p->outbuf, packet_length - 4);
     /* store padding_length */
     p->outbuf[4] = padding_length;
-    /* copy the payload data */
-    memcpy(p->outbuf + 5, data, data_len);
+
     /* fill the padding area with random junk */
     _libssh2_random(p->outbuf + 5 + data_len, padding_length);
-    if (free_data) {
-        LIBSSH2_FREE(session, data);
-    }
 
     if (encrypted) {
         /* Calculate MAC hash. Put the output at index packet_length,
@@ -837,8 +829,6 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     /* the whole thing got sent away */
     p->odata = NULL;
     p->olen = 0;
-    LIBSSH2_FREE(session, p->outbuf);
-    p->outbuf = NULL;
 
     return LIBSSH2_ERROR_NONE;         /* all is good */
 }

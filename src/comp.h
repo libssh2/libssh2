@@ -1,7 +1,7 @@
 #ifndef __LIBSSH2_COMP_H
 #define __LIBSSH2_COMP_H
 
-/* Copyright (C) 2009 by Daniel Stenberg
+/* Copyright (C) 2009-2010 by Daniel Stenberg
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided
@@ -40,6 +40,6 @@
 
 #include "libssh2_priv.h"
 
-const LIBSSH2_COMP_METHOD **_libssh2_comp_methods(void);
+const LIBSSH2_COMP_METHOD **_libssh2_comp_methods(LIBSSH2_SESSION *session);
 
 #endif /* __LIBSSH2_COMP_H */

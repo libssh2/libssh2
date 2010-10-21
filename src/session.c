@@ -980,11 +980,6 @@ session_free(LIBSSH2_SESSION *session)
         LIBSSH2_FREE(session, pkg);
     }
 
-    /* Cleanup remaining outgoing packet buffer */
-    if (p->outbuf) {
-        LIBSSH2_FREE(session, p->outbuf);
-    }
-
     if(session->socket_prev_blockstate)
         /* if the socket was previously blocking, put it back so */
         session_nonblock(session->socket_fd, 0);
