@@ -643,6 +643,7 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
     if (rc == length) {
         /* the remainder of the package was sent */
         p->ototal_num = 0;
+        p->olen = 0;
     }
     else if (rc < 0) {
         /* nothing was sent */
