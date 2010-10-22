@@ -34,6 +34,36 @@
 #include <ctype.h>
 #include <time.h>
 
+static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
+{
+    struct timeval timeout;
+    int rc;
+    fd_set fd;
+    fd_set *writefd = NULL;
+    fd_set *readfd = NULL;
+    int dir;
+
+    timeout.tv_sec = 10;
+    timeout.tv_usec = 0;
+
+    FD_ZERO(&fd);
+
+    FD_SET(socket_fd, &fd);
+
+    /* now make sure we wait in the correct direction */
+    dir = libssh2_session_block_directions(session);
+
+    if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+        readfd = &fd;
+
+    if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+        writefd = &fd;
+
+    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+
+    return rc;
+}
+
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
@@ -58,6 +88,7 @@ int main(int argc, char *argv[])
     time_t start;
     long total = 0;
     int duration;
+    size_t prev;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -190,15 +221,23 @@ int main(int argc, char *argv[])
 
         total += nread;
 
+        prev = 0;
         do {
-            /* write the same data over and over, until error or completion */
-            rc = libssh2_channel_write(channel, ptr, nread);
-            if (LIBSSH2_ERROR_EAGAIN == rc) { /* must loop around */
-                continue;
-            } else if (rc < 0) {
-                fprintf(stderr, "ERROR %d\n", rc);
+            while ((rc = libssh2_channel_write(channel, ptr, nread)) ==
+                   LIBSSH2_ERROR_EAGAIN) {
+                waitsocket(sock, session);
+                prev = 0;
+            }
+            if (rc < 0) {
+                fprintf(stderr, "ERROR %d total %ld / %d prev %d\n", rc,
+                        total, (int)nread, (int)prev);
                 break;
-            } else {
+            }
+            else {
+                prev = nread;
+                if(rc > nread) {
+                    fprintf(stderr, "MOO %d > %d\n", (int)rc, (int)nread);
+                }
                 /* rc indicates how many bytes were written this time */
                 nread -= rc;
                 ptr += rc;
