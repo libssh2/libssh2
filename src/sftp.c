@@ -1400,10 +1400,6 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     unsigned char *s, *data;
     int rc;
 
-    /* we limit this to just send a single SSH packet at a time */
-    if(count > 32500)
-        count = 32500;
-
     packet_len = handle->handle_len + count + 25;
 
     if (sftp->write_state == libssh2_NB_state_idle) {

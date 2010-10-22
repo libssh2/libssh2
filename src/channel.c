@@ -1969,7 +1969,7 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
 }
 
 /*
- * _libssh2_channel_write
+ * channel_write
  *
  * Send data to a channel. Note that if this returns EAGAIN, the caller must
  * call this function again with the SAME input arguments.
@@ -1977,9 +1977,9 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
  * Returns: number of bytes sent, or if it returns a negative number, that is
  * the error code!
  */
-ssize_t
-_libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
-                       const unsigned char *buf, size_t buflen)
+static ssize_t
+channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
+              const unsigned char *buf, size_t buflen)
 {
     LIBSSH2_SESSION *session = channel->session;
     int rc;
@@ -2101,6 +2101,73 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
     }
 
     return LIBSSH2_ERROR_INVAL; /* reaching this point is really bad */
+}
+
+/*
+ * _libssh2_channel_write
+ *
+ * Send data to a channel. Note that if this returns EAGAIN, the caller must
+ * call this function again with the SAME input arguments.
+ *
+ * Returns: number of bytes sent, or if it returns a negative number, that is
+ * the error code!
+ */
+ssize_t
+_libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
+                       const unsigned char *buf, size_t buflen)
+{
+    LIBSSH2_SESSION *session = channel->session;
+    int rc = 0;
+    ssize_t wrote = 0;
+
+    if(channel->transport_buf) {
+        /* previous EAGAIN situation, take care of this first */
+        rc = channel_write(channel,
+                           channel->transport_streamid,
+                           channel->transport_buf,
+                           channel->transport_buflen);
+        if(rc == LIBSSH2_ERROR_EAGAIN)
+            /* still EAGAIN, get out */
+            return rc;
+        else if(rc < 0)
+            return rc;
+
+        if(rc != channel->transport_buflen) {
+            /* previous buffer not drained yet */
+            channel->transport_buf += rc;
+            channel->transport_buflen -= rc;
+            return LIBSSH2_ERROR_EAGAIN;
+        }
+
+        /* all is sent, clear the buf pointer */
+        channel->transport_buf = NULL;
+    }
+
+    do {
+        rc = channel_write(channel, stream_id, buf, buflen);
+
+        if(rc < 0) {
+            if(rc == LIBSSH2_ERROR_EAGAIN) {
+                /* store the buf/buflen pair and use that in the next call
+                   again to flush the transport layer */
+                channel->transport_streamid = stream_id;
+                channel->transport_buf = buf;
+                channel->transport_buflen = buflen;
+                if(wrote)
+                    return wrote;
+
+                /* nothing written, return EAGAIN */
+                return rc;
+            }
+            return rc;
+        }
+        wrote += rc;
+        buf += rc;
+        buflen -= rc;
+
+    } while(buflen);
+
+    return wrote;
 }
 
 /*

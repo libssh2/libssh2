@@ -401,6 +401,10 @@ struct _LIBSSH2_CHANNEL
     size_t write_packet_len;
     size_t write_bufwrite;
 
+    int transport_streamid;
+    const unsigned char *transport_buf;
+    size_t transport_buflen;
+
     /* State variables used in libssh2_channel_close() */
     libssh2_nonblocking_states close_state;
     unsigned char close_packet[5];
@@ -416,6 +420,7 @@ struct _LIBSSH2_CHANNEL
 
     /* State variables used in libssh2_channel_handle_extended_data2() */
     libssh2_nonblocking_states extData2_state;
+
 };
 
 struct _LIBSSH2_LISTENER
