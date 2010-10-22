@@ -398,9 +398,7 @@ struct _LIBSSH2_CHANNEL
     /* State variables used in libssh2_channel_write_ex() */
     libssh2_nonblocking_states write_state;
     unsigned char write_packet[13];
-    unsigned char *write_s;
     size_t write_packet_len;
-    size_t write_bufwrote;
     size_t write_bufwrite;
 
     /* State variables used in libssh2_channel_close() */

@@ -1467,9 +1467,9 @@ libssh2_channel_get_exit_status(LIBSSH2_CHANNEL *channel)
     return channel->exit_status;
 }
 
-/* 
- * libssh2_channel_get_exit_signal 
- * 
+/*
+ * libssh2_channel_get_exit_signal
+ *
  * Get exit signal (without leading "SIG"), error message, and language
  * tag into newly allocated buffers of indicated length.  Caller can
  * use NULL pointers to indicate that the value should not be set.  The
@@ -1493,7 +1493,7 @@ libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
         if (channel->exit_signal) {
             namelen = strlen(channel->exit_signal);
             if (exitsignal) {
-               *exitsignal = LIBSSH2_ALLOC(session, namelen + 1); 
+               *exitsignal = LIBSSH2_ALLOC(session, namelen + 1);
                 if (!*exitsignal) {
                     return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                         "Unable to allocate memory for signal name");
@@ -1505,7 +1505,7 @@ libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
                 *exitsignal_len = namelen;
         } else {
             if (exitsignal)
-                *exitsignal = NULL; 
+                *exitsignal = NULL;
             if (exitsignal_len)
                 *exitsignal_len = 0;
         }
@@ -1994,8 +1994,6 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         buflen = 32700;
 
     if (channel->write_state == libssh2_NB_state_idle) {
-        channel->write_bufwrote = 0;
-
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "Writing %d bytes on channel %lu/%lu, stream #%d",
                        (int) buflen, channel->local.id, channel->remote.id,
@@ -2012,104 +2010,97 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                                   "data might be ignored");
         }
 
-        /* [13] 9 = packet_type(1) + channelno(4) [ + streamid(4) ] +
-           buflen(4) */
-        channel->write_packet_len = (stream_id ? 13 : 9);
         channel->write_state = libssh2_NB_state_allocated;
     }
 
-    /* Deduct the amount that has already been sent, and set buf accordingly. */
-    buflen -= channel->write_bufwrote;
-    buf += channel->write_bufwrote;
 
-    while (buflen > 0) {
-        if (channel->write_state == libssh2_NB_state_allocated) {
+    if (channel->write_state == libssh2_NB_state_allocated) {
+        unsigned char *s = channel->write_packet;
 
-            /* drain the incoming flow first */
-            do
-                rc = _libssh2_transport_read(session);
-            while (rc > 0);
+        /* drain the incoming flow first */
+        do
+            rc = _libssh2_transport_read(session);
+        while (rc > 0);
 
-            if(channel->local.window_size <= 0) {
-                /* there's no more room for data so we stop sending now */
-                break;
-            }
+        if(channel->local.window_size <= 0) {
+            /* there's no room for data so we stop */
+            channel->write_state = libssh2_NB_state_idle;
+            return 0;
+        }
 
-            channel->write_bufwrite = buflen;
-            channel->write_s = channel->write_packet;
+        channel->write_bufwrite = buflen;
 
-            *(channel->write_s++) =
-                stream_id ? SSH_MSG_CHANNEL_EXTENDED_DATA :
-                SSH_MSG_CHANNEL_DATA;
-            _libssh2_store_u32(&channel->write_s, channel->remote.id);
-            if (stream_id)
-                _libssh2_store_u32(&channel->write_s, stream_id);
+        *(s++) = stream_id ? SSH_MSG_CHANNEL_EXTENDED_DATA :
+            SSH_MSG_CHANNEL_DATA;
+        _libssh2_store_u32(&s, channel->remote.id);
+        if (stream_id)
+            _libssh2_store_u32(&s, stream_id);
 
-            /* Don't exceed the remote end's limits */
-            /* REMEMBER local means local as the SOURCE of the data */
-            if (channel->write_bufwrite > channel->local.window_size) {
-                _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                               "Splitting write block due to %lu byte "
-                               "window_size on %lu/%lu/%d",
-                               channel->local.window_size, channel->local.id,
-                               channel->remote.id, stream_id);
-                channel->write_bufwrite = channel->local.window_size;
-            }
-            if (channel->write_bufwrite > channel->local.packet_size) {
-                _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                               "Splitting write block due to %lu byte "
-                               "packet_size on %lu/%lu/%d",
-                               channel->local.packet_size, channel->local.id,
-                               channel->remote.id, stream_id);
-                channel->write_bufwrite = channel->local.packet_size;
-            }
-            /* store the size here only, the buffer is passed in as-is to
-               _libssh2_transport_send() */
-            _libssh2_store_u32(&channel->write_s, channel->write_bufwrite);
-
+        /* Don't exceed the remote end's limits */
+        /* REMEMBER local means local as the SOURCE of the data */
+        if (channel->write_bufwrite > channel->local.window_size) {
             _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                           "Sending %d bytes on channel %lu/%lu, stream_id=%d",
-                           (int) channel->write_bufwrite, channel->local.id,
+                           "Splitting write block due to %lu byte "
+                           "window_size on %lu/%lu/%d",
+                           channel->local.window_size, channel->local.id,
                            channel->remote.id, stream_id);
-
-            channel->write_state = libssh2_NB_state_created;
+            channel->write_bufwrite = channel->local.window_size;
         }
-
-        if (channel->write_state == libssh2_NB_state_created) {
-            rc = _libssh2_transport_send(session, channel->write_packet,
-                                         channel->write_s -
-                                         channel->write_packet,
-                                         buf, channel->write_bufwrite);
-            if (rc == LIBSSH2_ERROR_EAGAIN) {
-                return _libssh2_error(session, rc,
-                                      "Unable to send channel data");
-            }
-            else if (rc) {
-                channel->write_state = libssh2_NB_state_idle;
-                return _libssh2_error(session, rc,
-                                      "Unable to send channel data");
-            }
-            /* Shrink local window size */
-            channel->local.window_size -= channel->write_bufwrite;
-
-            wrote += channel->write_bufwrite;
-
-            /* Since _libssh2_transport_write() succeeded, we must return
-               now to allow the caller to provide the next chunk of data.
-
-               We cannot move on to send the next piece of data that may
-               already have been provided in this same function call, as we
-               risk getting EAGAIN for that and we can't return information
-               both about sent data as well as EAGAIN. So, by returning short
-               now, the caller will call this function again with new data to
-               send */
-            break;
+        if (channel->write_bufwrite > channel->local.packet_size) {
+            _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                           "Splitting write block due to %lu byte "
+                           "packet_size on %lu/%lu/%d",
+                           channel->local.packet_size, channel->local.id,
+                           channel->remote.id, stream_id);
+            channel->write_bufwrite = channel->local.packet_size;
         }
+        /* store the size here only, the buffer is passed in as-is to
+           _libssh2_transport_send() */
+        _libssh2_store_u32(&s, channel->write_bufwrite);
+        channel->write_packet_len = s - channel->write_packet;
+
+        _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                       "Sending %d bytes on channel %lu/%lu, stream_id=%d",
+                       (int) channel->write_bufwrite, channel->local.id,
+                       channel->remote.id, stream_id);
+
+        channel->write_state = libssh2_NB_state_created;
     }
 
-    channel->write_state = libssh2_NB_state_idle;
+    if (channel->write_state == libssh2_NB_state_created) {
+        rc = _libssh2_transport_send(session, channel->write_packet,
+                                     channel->write_packet_len,
+                                     buf, channel->write_bufwrite);
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
+            return _libssh2_error(session, rc,
+                                  "Unable to send channel data");
+        }
+        else if (rc) {
+            channel->write_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, rc,
+                                  "Unable to send channel data");
+        }
+        /* Shrink local window size */
+        channel->local.window_size -= channel->write_bufwrite;
 
-    return wrote;
+        wrote += channel->write_bufwrite;
+
+        /* Since _libssh2_transport_write() succeeded, we must return
+           now to allow the caller to provide the next chunk of data.
+
+           We cannot move on to send the next piece of data that may
+           already have been provided in this same function call, as we
+           risk getting EAGAIN for that and we can't return information
+           both about sent data as well as EAGAIN. So, by returning short
+           now, the caller will call this function again with new data to
+           send */
+
+        channel->write_state = libssh2_NB_state_idle;
+
+        return wrote;
+    }
+
+    return LIBSSH2_ERROR_INVAL; /* reaching this point is really bad */
 }
 
 /*
