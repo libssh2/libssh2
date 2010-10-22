@@ -80,7 +80,7 @@ _libssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode);
  */
 ssize_t
 _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
-                       const char *buf, size_t buflen);
+                       const unsigned char *buf, size_t buflen);
 
 /*
  * _libssh2_channel_open
@@ -92,7 +92,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
                       uint32_t channel_type_len,
                       uint32_t window_size,
                       uint32_t packet_size,
-                      const char *message, unsigned int message_len);
+                      const unsigned char *message, unsigned int message_len);
 
 
 /*

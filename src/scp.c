@@ -360,7 +360,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 
     if (session->scpRecv_state == libssh2_NB_state_sent1) {
         rc = _libssh2_channel_write(session->scpRecv_channel, 0,
-                                    (char *) session->scpRecv_response, 1);
+                                    session->scpRecv_response, 1);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block sending initial wakeup");
@@ -550,8 +550,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 
             if (session->scpRecv_state == libssh2_NB_state_sent3) {
                 rc = _libssh2_channel_write(session->scpRecv_channel, 0,
-                                            (char *) session->
-                                            scpRecv_response, 1);
+                                            session->scpRecv_response, 1);
                 if (rc == LIBSSH2_ERROR_EAGAIN) {
                     _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                    "Would block waiting to send SCP ACK");
@@ -708,8 +707,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 
             if (session->scpRecv_state == libssh2_NB_state_sent6) {
                 rc = _libssh2_channel_write(session->scpRecv_channel, 0,
-                                            (char *) session->
-                                            scpRecv_response, 1);
+                                            session->scpRecv_response, 1);
                 if (rc == LIBSSH2_ERROR_EAGAIN) {
                     _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                    "Would block sending SCP ACK");
@@ -904,7 +902,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
     if (mtime || atime) {
         if (session->scpSend_state == libssh2_NB_state_sent2) {
             rc = _libssh2_channel_write(session->scpSend_channel, 0,
-                                        (char *) session->scpSend_response,
+                                        session->scpSend_response,
                                         session->scpSend_response_len);
             if (rc == LIBSSH2_ERROR_EAGAIN) {
                 _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
@@ -970,7 +968,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
     if (session->scpSend_state == libssh2_NB_state_sent5) {
         rc = _libssh2_channel_write(session->scpSend_channel, 0,
-                                    (char *) session->scpSend_response,
+                                    session->scpSend_response,
                                     session->scpSend_response_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,

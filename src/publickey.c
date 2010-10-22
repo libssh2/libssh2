@@ -378,7 +378,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
 
     if (session->pkeyInit_state == libssh2_NB_state_sent2) {
         rc = _libssh2_channel_write(session->pkeyInit_channel, 0,
-                                    (char *)session->pkeyInit_buffer,
+                                    session->pkeyInit_buffer,
                                     19 - session->pkeyInit_buffer_sent);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
@@ -644,7 +644,7 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name,
     }
 
     if (pkey->add_state == libssh2_NB_state_created) {
-        rc = _libssh2_channel_write(channel, 0, (char *) pkey->add_packet,
+        rc = _libssh2_channel_write(channel, 0, pkey->add_packet,
                                     (pkey->add_s - pkey->add_packet));
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
@@ -727,7 +727,7 @@ libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY * pkey,
     }
 
     if (pkey->remove_state == libssh2_NB_state_created) {
-        rc = _libssh2_channel_write(channel, 0, (char *) pkey->remove_packet,
+        rc = _libssh2_channel_write(channel, 0, pkey->remove_packet,
                                     (pkey->remove_s - pkey->remove_packet));
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
@@ -794,7 +794,7 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
 
     if (pkey->listFetch_state == libssh2_NB_state_created) {
         rc = _libssh2_channel_write(channel, 0,
-                                    (char *) pkey->listFetch_buffer,
+                                    pkey->listFetch_buffer,
                                     (pkey->listFetch_s -
                                      pkey->listFetch_buffer));
         if (rc == LIBSSH2_ERROR_EAGAIN) {

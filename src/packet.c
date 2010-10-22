@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2005,2006 Mikhail Gusarov
- * Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2009-2010 by Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson
  * All rights reserved.
  *
@@ -204,8 +204,8 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                 }
 
                 if (listen_state->state == libssh2_NB_state_created) {
-                    rc = _libssh2_transport_write(session, listen_state->packet,
-                                                  17);
+                    rc = _libssh2_transport_send(session, listen_state->packet,
+                                                 17, NULL, 0);
                     if (rc == LIBSSH2_ERROR_EAGAIN)
                         return rc;
                     else if (rc) {
@@ -239,8 +239,8 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     _libssh2_store_str(&p, FwdNotReq, sizeof(FwdNotReq) - 1);
     _libssh2_htonu32(p, 0);
 
-    rc = _libssh2_transport_write(session, listen_state->packet,
-                                  packet_len);
+    rc = _libssh2_transport_send(session, listen_state->packet,
+                                 packet_len, NULL, 0);
     if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     } else if (rc) {
@@ -349,7 +349,8 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
         }
 
         if (x11open_state->state == libssh2_NB_state_created) {
-            rc = _libssh2_transport_write(session, x11open_state->packet, 17);
+            rc = _libssh2_transport_send(session, x11open_state->packet, 17,
+                                         NULL, 0);
             if (rc == LIBSSH2_ERROR_EAGAIN) {
                 return rc;
             } else if (rc) {
@@ -384,7 +385,8 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
     _libssh2_store_str(&p, X11FwdUnAvil, sizeof(X11FwdUnAvil) - 1);
     _libssh2_htonu32(p, 0);
 
-    rc = _libssh2_transport_write(session, x11open_state->packet, packet_len);
+    rc = _libssh2_transport_send(session, x11open_state->packet, packet_len,
+                                 NULL, 0);
     if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     } else if (rc) {
@@ -589,7 +591,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
               libssh2_packet_add_jump_point5:
                 session->packAdd_state = libssh2_NB_state_jump5;
                 data[0] = SSH_MSG_REQUEST_FAILURE;
-                rc = _libssh2_transport_write(session, data, 1);
+                rc = _libssh2_transport_send(session, data, 1, NULL, 0);
                 if (rc == LIBSSH2_ERROR_EAGAIN)
                     return rc;
                 LIBSSH2_FREE(session, data);
@@ -800,7 +802,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
               libssh2_packet_add_jump_point4:
                 session->packAdd_state = libssh2_NB_state_jump4;
                 data[0] = SSH_MSG_CHANNEL_FAILURE;
-                rc = _libssh2_transport_write(session, data, 5);
+                rc = _libssh2_transport_send(session, data, 5, NULL, 0);
                 if (rc == LIBSSH2_ERROR_EAGAIN)
                     return rc;
                 LIBSSH2_FREE(session, data);

@@ -54,7 +54,7 @@
 #define UNPRINTABLE_CHAR '.'
 static void
 debugdump(LIBSSH2_SESSION * session,
-          const char *desc, unsigned char *ptr, size_t size)
+          const char *desc, const unsigned char *ptr, size_t size)
 {
     size_t i;
     size_t c;
@@ -598,8 +598,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 }
 
 static int
-send_existing(LIBSSH2_SESSION * session, unsigned char *data,
-              size_t data_len, ssize_t * ret)
+send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
+              size_t data_len, ssize_t *ret)
 {
     ssize_t rc;
     ssize_t length;
@@ -661,10 +661,14 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
 }
 
 /*
- * libssh2_transport_write
+ * libssh2_transport_send
  *
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.
+ *
+ * The data is provided as _two_ data areas that are combined by this
+ * function.  The 'data' part is sent immediately before 'data2'. 'data2' may
+ * be set to NULL to only use a single part.
  *
  * Returns LIBSSH2_ERROR_EAGAIN if it would block or if the whole packet was
  * not sent yet. If it does so, the caller should call this function again as
@@ -672,15 +676,15 @@ send_existing(LIBSSH2_SESSION * session, unsigned char *data,
  * then be called with the same argument set (same data pointer and same
  * data_len) until ERROR_NONE or failure is returned.
  *
- * This function DOES not call _libssh2_error() on any errors.
+ * This function DOES NOT call _libssh2_error() on any errors.
  */
-int
-_libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
-                         size_t data_len)
+int _libssh2_transport_send(LIBSSH2_SESSION *session,
+                            const unsigned char *data, size_t data_len,
+                            const unsigned char *data2, size_t data2_len)
 {
     int blocksize =
-        (session->state & LIBSSH2_STATE_NEWKEYS) ? session->local.crypt->
-        blocksize : 8;
+        (session->state & LIBSSH2_STATE_NEWKEYS) ?
+        session->local.crypt->blocksize : 8;
     int padding_length;
     int packet_length;
     int total_length;
@@ -693,17 +697,15 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     int i;
     ssize_t ret;
     int rc;
-    unsigned char *orgdata = data;
+    const unsigned char *orgdata = data;
     size_t orgdata_len = data_len;
 
-    if(data_len >= (MAX_SSH_PACKET_LEN-0x100))
-        /* too large packet, return error for this until we make this function
-           split it up and send multiple SSH packets */
-        return LIBSSH2_ERROR_INVAL;
-
     debugdump(session, "libssh2_transport_write plain", data, data_len);
+    if(data2)
+        debugdump(session, "libssh2_transport_write plain2", data2, data2_len);
 
-    /* FIRST, check if we have a pending write to complete */
+    /* FIRST, check if we have a pending write to complete. send_existing
+       only sanity-check data and data_len and not data2 and data2_len!! */
     rc = send_existing(session, data, data_len, &ret);
     if (rc)
         return rc;
@@ -717,20 +719,51 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     encrypted = (session->state & LIBSSH2_STATE_NEWKEYS) ? 1 : 0;
 
     if (encrypted && session->local.comp->compress) {
+        /* the idea here is that these function must fail if the output gets
+           larger than what fits in the assigned buffer so thus they don't
+           check the input size as we don't know how much it compresses */
+        size_t dest_len = MAX_SSH_PACKET_LEN-5-256;
+        size_t dest2_len = dest_len;
+
         /* compress directly to the target buffer */
         rc = session->local.comp->comp(session,
-                                       data, &data_len,
-                                       &p->outbuf[5], MAX_SSH_PACKET_LEN-5,
+                                       &p->outbuf[5], &dest_len,
+                                       data, data_len,
                                        &session->local.comp_abstract);
         if(rc)
             return rc;     /* compression failure */
 
+        if(data2 && data2_len) {
+            /* compress directly to the target buffer right after where the
+               previous call put data */
+            dest2_len -= dest_len;
+
+            rc = session->local.comp->comp(session,
+                                           &p->outbuf[5+dest_len], &dest2_len,
+                                           data2, data2_len,
+                                           &session->local.comp_abstract);
+        }
+        else
+            dest2_len = 0;
+        if(rc)
+            return rc;     /* compression failure */
+
         data = p->outbuf;
-        /* data_len is already updated by the compression function */
+        data_len = dest_len + dest2_len; /* use the combined length */
     }
-    else
+    else {
+        if((data_len + data2_len) >= (MAX_SSH_PACKET_LEN-0x100))
+            /* too large packet, return error for this until we make this
+               function split it up and send multiple SSH packets */
+            return LIBSSH2_ERROR_INVAL;
+
         /* copy the payload data */
         memcpy(&p->outbuf[5], data, data_len);
+        if(data2 && data2_len)
+            memcpy(&p->outbuf[5+data_len], data2, data2_len);
+        data_len += data2_len; /* use the combined length */
+    }
+
 
     /* RFC4253 says: Note that the length of the concatenation of
        'packet_length', 'padding_length', 'payload', and 'random padding'

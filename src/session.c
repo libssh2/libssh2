@@ -683,8 +683,9 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     }
 
     if (session->startup_state == libssh2_NB_state_sent3) {
-        rc = _libssh2_transport_write(session, session->startup_service,
-                                      sizeof("ssh-userauth") + 5 - 1);
+        rc = _libssh2_transport_send(session, session->startup_service,
+                                     sizeof("ssh-userauth") + 5 - 1,
+                                     NULL, 0);
         if (rc) {
             return _libssh2_error(session, rc,
                                   "Unable to ask for ssh-userauth service");
@@ -772,7 +773,6 @@ session_free(LIBSSH2_SESSION *session)
     LIBSSH2_PACKET *pkg;
     LIBSSH2_CHANNEL *ch;
     LIBSSH2_LISTENER *l;
-    struct transportpacket *p = &session->packet;
 
     if (session->free_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Freeing session resource",
@@ -903,9 +903,6 @@ session_free(LIBSSH2_SESSION *session)
     if (session->startup_data) {
         LIBSSH2_FREE(session, session->startup_data);
     }
-    if (session->disconnect_data) {
-        LIBSSH2_FREE(session, session->disconnect_data);
-    }
     if (session->userauth_list_data) {
         LIBSSH2_FREE(session, session->userauth_list_data);
     }
@@ -1014,7 +1011,8 @@ libssh2_session_free(LIBSSH2_SESSION * session)
  */
 static int
 session_disconnect(LIBSSH2_SESSION *session, int reason,
-                   const char *description, const char *lang)
+                   const char *description,
+                   const char *lang)
 {
     unsigned char *s;
     unsigned long descr_len = 0, lang_len = 0;
@@ -1024,40 +1022,36 @@ session_disconnect(LIBSSH2_SESSION *session, int reason,
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
                        "Disconnecting: reason=%d, desc=%s, lang=%s", reason,
                        description, lang);
-        if (description) {
+        if (description)
             descr_len = strlen(description);
-        }
-        if (lang) {
+
+        if (lang)
             lang_len = strlen(lang);
-        }
+
+        if(descr_len > 256)
+            return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                                  "too long description");
+
         /* 13 = packet_type(1) + reason code(4) + descr_len(4) + lang_len(4) */
         session->disconnect_data_len = descr_len + lang_len + 13;
 
-        s = session->disconnect_data =
-            LIBSSH2_ALLOC(session, session->disconnect_data_len);
-        if (!session->disconnect_data) {
-            session->disconnect_state = libssh2_NB_state_idle;
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                  "Unable to allocate memory for "
-                                  "disconnect packet");
-        }
+        s = session->disconnect_data;
 
         *(s++) = SSH_MSG_DISCONNECT;
         _libssh2_store_u32(&s, reason);
         _libssh2_store_str(&s, description, descr_len);
-        _libssh2_store_str(&s, lang, lang_len);
+        /* store length only, lang is sent separately */
+        _libssh2_store_u32(&s, lang_len);
 
         session->disconnect_state = libssh2_NB_state_created;
     }
 
-    rc = _libssh2_transport_write(session, session->disconnect_data,
-                                  session->disconnect_data_len);
-    if (rc == LIBSSH2_ERROR_EAGAIN) {
+    rc = _libssh2_transport_send(session, session->disconnect_data,
+                                 session->disconnect_data_len,
+                                 (unsigned char *)lang, lang_len);
+    if (rc == LIBSSH2_ERROR_EAGAIN)
         return rc;
-    }
 
-    LIBSSH2_FREE(session, session->disconnect_data);
-    session->disconnect_data = NULL;
     session->disconnect_state = libssh2_NB_state_idle;
 
     return 0;

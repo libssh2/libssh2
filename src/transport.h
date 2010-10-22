@@ -44,23 +44,29 @@
 #include "libssh2_priv.h"
 #include "packet.h"
 
+
 /*
- * libssh2_transport_write
+ * libssh2_transport_send
  *
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.
  *
- * Returns PACKET_EAGAIN if it would block - and if it does so, you should
- * call this function again as soon as it is likely that more data can be
- * sent, and this function should then be called with the same argument set
- * (same data pointer and same data_len) until zero or failure is returned.
+ * The data is provided as _two_ data areas that are combined by this
+ * function.  The 'data' part is sent immediately before 'data2'. 'data2' can
+ * be set to NULL (or data2_len to 0) to only use a single part.
  *
- * NOTE: this function does not verify that 'data_len' is less than ~35000
- * which is what all implementations should support at least as packet size.
- * (RFC4253 section 6.1)
+ * Returns LIBSSH2_ERROR_EAGAIN if it would block or if the whole packet was
+ * not sent yet. If it does so, the caller should call this function again as
+ * soon as it is likely that more data can be sent, and this function MUST
+ * then be called with the same argument set (same data pointer and same
+ * data_len) until ERROR_NONE or failure is returned.
+ *
+ * This function DOES NOT call _libssh2_error() on any errors.
  */
-int _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
-                             size_t data_len);
+int _libssh2_transport_send(LIBSSH2_SESSION *session,
+                            const unsigned char *data, size_t data_len,
+                            const unsigned char *data2, size_t data2_len);
+
 /*
  * _libssh2_transport_read
  *

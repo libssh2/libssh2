@@ -141,8 +141,9 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
     }
 
     if (exchange_state->state == libssh2_NB_state_created) {
-        rc = _libssh2_transport_write(session, exchange_state->e_packet,
-                                      exchange_state->e_packet_len);
+        rc = _libssh2_transport_send(session, exchange_state->e_packet,
+                                     exchange_state->e_packet_len,
+                                     NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -411,7 +412,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
     }
 
     if (exchange_state->state == libssh2_NB_state_sent2) {
-        rc = _libssh2_transport_write(session, &exchange_state->c, 1);
+        rc = _libssh2_transport_send(session, &exchange_state->c, 1, NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -844,8 +845,8 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     }
 
     if (key_state->state == libssh2_NB_state_created) {
-        rc = _libssh2_transport_write(session, key_state->request,
-                                      key_state->request_len);
+        rc = _libssh2_transport_send(session, key_state->request,
+                                     key_state->request_len, NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -1139,7 +1140,7 @@ static int kexinit(LIBSSH2_SESSION * session)
         session->kexinit_data_len = 0;
     }
 
-    rc = _libssh2_transport_write(session, data, data_len);
+    rc = _libssh2_transport_send(session, data, data_len, NULL, 0);
     if (rc == LIBSSH2_ERROR_EAGAIN) {
         session->kexinit_data = data;
         session->kexinit_data_len = data_len;

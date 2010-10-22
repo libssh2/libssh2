@@ -359,9 +359,10 @@ struct _LIBSSH2_CHANNEL
     unsigned char setenv_local_channel[4];
     packet_requirev_state_t setenv_packet_requirev_state;
 
-    /* State variables used in libssh2_channel_request_pty_ex() */
+    /* State variables used in libssh2_channel_request_pty_ex()
+       libssh2_channel_request_pty_size_ex() */
     libssh2_nonblocking_states reqPTY_state;
-    unsigned char *reqPTY_packet;
+    unsigned char reqPTY_packet[41 + 256];
     size_t reqPTY_packet_len;
     unsigned char reqPTY_local_channel[4];
     packet_requirev_state_t reqPTY_packet_requirev_state;
@@ -396,7 +397,7 @@ struct _LIBSSH2_CHANNEL
 
     /* State variables used in libssh2_channel_write_ex() */
     libssh2_nonblocking_states write_state;
-    unsigned char *write_packet;
+    unsigned char write_packet[13];
     unsigned char *write_s;
     size_t write_packet_len;
     size_t write_bufwrote;
@@ -495,8 +496,7 @@ struct transportpacket
     unsigned char outbuf[MAX_SSH_PACKET_LEN]; /* area for the outgoing data */
 
     int ototal_num;         /* size of outbuf in number of bytes */
-    unsigned char *odata;   /* original pointer to the data we stored in
-                               outbuf */
+    const unsigned char *odata; /* original pointer to the data */
     size_t olen;            /* original size of the data we stored in
                                outbuf */
     size_t osent;           /* number of bytes already sent */
@@ -774,7 +774,7 @@ struct _LIBSSH2_SESSION
 
     /* State variables used in libssh2_session_disconnect_ex() */
     libssh2_nonblocking_states disconnect_state;
-    unsigned char *disconnect_data;
+    unsigned char disconnect_data[256 + 13];
     size_t disconnect_data_len;
 
     /* State variables used in libssh2_packet_read() */
