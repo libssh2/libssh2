@@ -695,7 +695,7 @@ _libssh2_transport_write(LIBSSH2_SESSION * session, unsigned char *data,
     unsigned char *orgdata = data;
     size_t orgdata_len = data_len;
 
-    if(data_len >= MAX_SSH_PACKET_LEN)
+    if(data_len >= (MAX_SSH_PACKET_LEN-0x100))
         /* too large packet, return error for this until we make this function
            split it up and send multiple SSH packets */
         return LIBSSH2_ERROR_INVAL;
