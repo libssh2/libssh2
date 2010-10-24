@@ -556,6 +556,7 @@ struct _LIBSSH2_SFTP_HANDLE
         struct _libssh2_sftp_handle_file_data
         {
             libssh2_uint64_t offset;
+            libssh2_uint64_t offset_sent;
         } file;
         struct _libssh2_sftp_handle_dir_data
         {
@@ -569,6 +570,10 @@ struct _LIBSSH2_SFTP_HANDLE
     libssh2_nonblocking_states close_state;
     unsigned long close_request_id;
     unsigned char *close_packet;
+
+    /* list of chunks being written to server */
+    struct list_head write_list;
+
 };
 
 struct _LIBSSH2_SFTP
