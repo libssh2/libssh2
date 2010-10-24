@@ -75,41 +75,11 @@ At next SONAME bump
 Buffering Improvements
 ======================
 
-compression
-
-  - needs to ne able to take the input to compress from two pointers (with two
-  sizes) and generate a single compressed output chunk
-
-  - should also not allocate the compressed output buffer but use a single one
-  within the session struct (as transport_write() will copy the data off from
-  that buffer immediately anyway), or even better the transport_write()
-  function could allocate a buffer to fix an uncompressed buffer as then the
-  compression function can write its output directly into the allocated send
-  buffer
-
-  - should probably be split off into a separate compression and decompression
-  function instead of a single unified as they are now, to make these changes
-  easier
-
 transport_write
-
-  - should accept a "packet struct" input with separate pointers to headers
-  and to payload (each of which may be allocated or not)
-
-  - Separating the headers from the payload will greatly enhance our ability
-  to use a fixed buffer within the session handle for the header part and
-  provide the payload part as a mere pointer.
-
-  - This function is used >30 times in the code.
 
   - If this function gets called with a total packet size that is larger than
   32K, it should create more than one SSH packet so that it keeps the largest
   one below 32K
-
-channel_write
-
-  - should not copy/allocate anything for the data, only create a header chunk
-  and pass on the payload data to transport_write "pointed to"
 
 sftp_write
 
