@@ -66,7 +66,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
     static const unsigned char reply_codes[3] =
         { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
     /* packet_type(1) + username_len(4) + service_len(4) +
-       service(14)"ssh-connection" + method_len(4) + method(4)"none" */
+       service(14)"ssh-connection" + method_len(4) = 27 */
     unsigned long methods_len;
     unsigned char *s;
     int rc;
@@ -76,7 +76,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
         memset(&session->userauth_list_packet_requirev_state, 0,
                sizeof(session->userauth_list_packet_requirev_state));
 
-        session->userauth_list_data_len = username_len + 31;
+        session->userauth_list_data_len = username_len + 27;
 
         s = session->userauth_list_data =
             LIBSSH2_ALLOC(session, session->userauth_list_data_len);
@@ -945,9 +945,13 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
             45;
 
         /*
-         * Preallocate space for an overall length,  method name again, and
-         * the signature, which won't be any larger than the size of the
-         * publickeydata itself
+         * Preallocate space for an overall length, method name again, and the
+         * signature, which won't be any larger than the size of the
+         * publickeydata itself.
+         *
+         * Note that the 'pubkeydata_len' extra bytes allocated here will not
+         * be used in this first send, but will be used in the later one where
+         * this same allocation is re-used.
          */
         s = session->userauth_pblc_packet =
             LIBSSH2_ALLOC(session,
@@ -972,8 +976,8 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
 
         _libssh2_store_str(&s, (const char *)session->userauth_pblc_method,
                            session->userauth_pblc_method_len);
-        _libssh2_store_u32(&s, pubkeydata_len);
-        /* send pubkeydata separately */
+        _libssh2_store_str(&s, (const char *)pubkeydata, pubkeydata_len);
+
         _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
                        "Attempting publickey authentication");
 
@@ -983,7 +987,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
     if (session->userauth_pblc_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_send(session, session->userauth_pblc_packet,
                                      session->userauth_pblc_packet_len,
-                                     pubkeydata, pubkeydata_len);
+                                     NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN)
             return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
         else if (rc) {
@@ -1016,7 +1020,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
             session->userauth_pblc_method = NULL;
             session->userauth_pblc_state = libssh2_NB_state_idle;
             return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
-                                  "Failed waiting");
+                                  "Waiting for USERAUTH response");
         }
 
         if (session->userauth_pblc_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
@@ -1172,7 +1176,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
     } else if (rc) {
         session->userauth_pblc_state = libssh2_NB_state_idle;
         return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
-                              "Failed waiting");
+                              "Waiting for publickey USERAUTH response");
     }
 
     if (session->userauth_pblc_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
@@ -1392,7 +1396,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                 session->userauth_kybd_state = libssh2_NB_state_idle;
                 return _libssh2_error(session,
                                       LIBSSH2_ERROR_AUTHENTICATION_FAILED,
-                                      "Failed waiting");
+                                      "Waiting for keyboard USERAUTH response");
             }
 
             if (session->userauth_kybd_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
