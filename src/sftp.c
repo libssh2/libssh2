@@ -1757,6 +1757,7 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
     ssize_t packet_len = handle->handle_len + 13;
     unsigned char *s, *data = NULL;
     int rc;
+    struct sftp_write_chunk *chunk;
 
     if (handle->close_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Closing handle");
@@ -1831,6 +1832,18 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         && handle->u.dir.names_left) {
         LIBSSH2_FREE(session, handle->u.dir.names_packet);
     }
+
+    /* remove pending write chunks */
+    do {
+        chunk = _libssh2_list_first(&handle->write_list);
+        if(chunk) {
+            struct sftp_write_chunk *next =
+                _libssh2_list_next(&chunk->node);
+            _libssh2_list_remove(&chunk->node);
+            LIBSSH2_FREE(session, chunk);
+            chunk = next;
+        }
+    } while(chunk);
 
     handle->close_state = libssh2_NB_state_idle;
 
