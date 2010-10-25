@@ -1412,6 +1412,9 @@ libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *hnd, char *buffer,
  * Caveats:
  * -  be careful: we must not return a higher number than what was given!
  *
+ * TODO:
+ *   Introduce an option that disables this sort of "speculative" ahead writing
+ *   as there's a risk that it will do harm to some app.
  */
 
 static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
@@ -1430,27 +1433,18 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     size_t acked = 0;
     size_t org_count = count;
 
+    /* number of bytes sent off that haven't been acked and therefor
+       we will get passed in here again */
+    size_t unacked = handle->u.file.offset_sent - handle->u.file.offset;
+
+    /* skip the part already made into packets */
+    buffer += unacked;
+    count -= unacked;
+
     chunk = _libssh2_list_first(&handle->write_list);
 
-    /* the list of staged packets is in send order, the first to be sent
-       next */
-    while(chunk) {
-        if(SFTP_WITHIN(chunk->org_buffer, buffer, count)) {
-            /* parts of the given buffer have already been staged for
-               sending, advance buffer to the end of the staged buffer and
-               decrease count with the amount */
-            size_t delta = chunk->org_buflen-(chunk->org_buffer-buffer);
-            buffer += delta;
-            count -= delta;
-            chunk = _libssh2_list_next(&chunk->node);
-            continue;
-        }
-
-        break;
-    }
-
     while(count) {
-        /* Possibly this should have some logic to prevent a very very
+        /* TODO: Possibly this should have some logic to prevent a very very
            small fraction to be left but lets ignore that for now */
         size_t size = MIN(MAX_SFTP_OUTGOING_SIZE, count);
 
@@ -1464,7 +1458,6 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                   "malloc fail for FXP_WRITE");
 
-        chunk->org_buffer = buffer;
         chunk->org_buflen = size;
         chunk->sent = 0;
         chunk->lefttosend = packet_len;
