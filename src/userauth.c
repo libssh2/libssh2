@@ -1612,6 +1612,10 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
         session->userauth_kybd_prompts = NULL;
         LIBSSH2_FREE(session, session->userauth_kybd_responses);
         session->userauth_kybd_responses = NULL;
+        LIBSSH2_FREE(session, session->userauth_kybd_auth_name);
+		session->userauth_kybd_auth_name = NULL;
+        LIBSSH2_FREE(session, session->userauth_kybd_auth_instruction);
+		session->userauth_kybd_auth_instruction = NULL;
 
         if (session->userauth_kybd_auth_failure) {
             session->userauth_kybd_state = libssh2_NB_state_idle;
