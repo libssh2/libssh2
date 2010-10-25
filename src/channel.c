@@ -2116,7 +2116,6 @@ ssize_t
 _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                        const unsigned char *buf, size_t buflen)
 {
-    LIBSSH2_SESSION *session = channel->session;
     int rc = 0;
     ssize_t wrote = 0;
 
@@ -2132,7 +2131,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         else if(rc < 0)
             return rc;
 
-        if(rc != channel->transport_buflen) {
+        if(rc != (int)channel->transport_buflen) {
             /* previous buffer not drained yet */
             channel->transport_buf += rc;
             channel->transport_buflen -= rc;
