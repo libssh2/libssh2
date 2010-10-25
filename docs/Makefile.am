@@ -157,6 +157,7 @@ dist_man_MANS = \
 	libssh2_userauth_list.3 \
 	libssh2_userauth_password.3 \
 	libssh2_userauth_password_ex.3 \
+	libssh2_userauth_publickey.3 \
 	libssh2_userauth_publickey_fromfile.3 \
 	libssh2_userauth_publickey_fromfile_ex.3 \
 	libssh2_version.3
