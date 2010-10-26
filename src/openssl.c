@@ -305,6 +305,7 @@ aes_ctr_cleanup(EVP_CIPHER_CTX *ctx) /* cleanup ctx */
     }
 
     if (c->aes_ctx != NULL) {
+        _libssh2_cipher_dtor(c->aes_ctx);
         free(c->aes_ctx);
     }
 
