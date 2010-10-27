@@ -92,7 +92,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
                       uint32_t channel_type_len,
                       uint32_t window_size,
                       uint32_t packet_size,
-                      const unsigned char *message, unsigned int message_len);
+                      const unsigned char *message, size_t message_len);
 
 
 /*
