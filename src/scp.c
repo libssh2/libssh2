@@ -421,9 +421,9 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                            session->scpRecv_err_len + 1);
 
                     /* Read the remote error message */
-                    rc = _libssh2_channel_read(session->scpRecv_channel, 0,
-                                               session->scpRecv_err_msg,
-                                               session->scpRecv_err_len);
+                    (void)_libssh2_channel_read(session->scpRecv_channel, 0,
+                                                session->scpRecv_err_msg,
+                                                session->scpRecv_err_len);
                     /* If it failed for any reason, we ignore it anyway. */
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                    "SCP protocol error");
