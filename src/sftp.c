@@ -307,7 +307,7 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
                     size_t *data_len)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
-    int ret;
+    int rc;
 
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Requiring packet %d id %ld",
                    (int) packet_type, request_id);
@@ -316,23 +316,23 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
         /* The right packet was available in the packet brigade */
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Got %d",
                        (int) packet_type);
-        return 0;
+        return LIBSSH2_ERROR_NONE;
     }
 
     while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
-        ret = sftp_packet_read(sftp);
-        if (ret == LIBSSH2_ERROR_EAGAIN) {
-            return ret;
-        } else if (ret <= 0) {
-            return -1;
-        }
+        rc = sftp_packet_read(sftp);
+        if (rc == LIBSSH2_ERROR_EAGAIN)
+            return rc;
+        else if (rc <= 0)
+            /* TODO: isn't this supposed to be < 0 only? */
+            return rc;
 
         /* data was read, check the queue again */
         if (!sftp_packet_ask(sftp, packet_type, request_id, data, data_len)) {
             /* The right packet was available in the packet brigade */
             _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Got %d",
                            (int) packet_type);
-            return 0;
+            return LIBSSH2_ERROR_NONE;
         }
     }
 
@@ -350,12 +350,11 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
                      size_t *data_len)
 {
     int i;
-    int ret;
+    int rc;
 
     /* If no timeout is active, start a new one */
-    if (sftp->requirev_start == 0) {
+    if (sftp->requirev_start == 0)
         sftp->requirev_start = time(NULL);
-    }
 
     while (sftp->channel->session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
         for(i = 0; i < num_valid_responses; i++) {
@@ -366,15 +365,15 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
                  * the timeout is not active
                  */
                 sftp->requirev_start = 0;
-                return 0;
+                return LIBSSH2_ERROR_NONE;
             }
         }
 
-        ret = sftp_packet_read(sftp);
-        if ((ret < 0) && (ret != LIBSSH2_ERROR_EAGAIN)) {
+        rc = sftp_packet_read(sftp);
+        if ((rc < 0) && (rc != LIBSSH2_ERROR_EAGAIN)) {
             sftp->requirev_start = 0;
-            return -1;
-        } else if (ret <= 0) {
+            return rc;
+        } else if (rc <= 0) {
             /* prevent busy-looping */
             long left =
                 LIBSSH2_READ_TIMEOUT - (long)(time(NULL) - sftp->requirev_start);
@@ -383,14 +382,16 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
                 sftp->requirev_start = 0;
                 return LIBSSH2_ERROR_TIMEOUT;
             }
-            else if (ret == LIBSSH2_ERROR_EAGAIN) {
-                return ret;
+            else if (rc == LIBSSH2_ERROR_EAGAIN) {
+                return rc;
             }
         }
     }
 
     sftp->requirev_start = 0;
-    return -1;
+
+    /* Only reached if the socket died */
+    return LIBSSH2_ERROR_SOCKET_DISCONNECT;
 }
 
 /* sftp_attr2bin
