@@ -1442,8 +1442,6 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     buffer += unacked;
     count -= unacked;
 
-    chunk = _libssh2_list_first(&handle->write_list);
-
     while(count) {
         /* TODO: Possibly this should have some logic to prevent a very very
            small fraction to be left but lets ignore that for now */
