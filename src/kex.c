@@ -1273,7 +1273,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    while (hostkeyp && (*hostkeyp)->name) {
+    while (hostkeyp && (*hostkeyp) && (*hostkeyp)->name) {
         s = kex_agree_instr(hostkey, hostkey_len,
                             (unsigned char *) (*hostkeyp)->name,
                             strlen((*hostkeyp)->name));
