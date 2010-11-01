@@ -751,7 +751,6 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         if(rc)
             return rc;     /* compression failure */
 
-        data = p->outbuf;
         data_len = dest_len + dest2_len; /* use the combined length */
     }
     else {
