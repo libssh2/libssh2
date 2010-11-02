@@ -114,6 +114,8 @@ struct _LIBSSH2_SFTP
     uint32_t last_errno;
 
     /* Holder for partial packet, use in libssh2_sftp_packet_read() */
+    unsigned char partial_size[4];      /* buffer for size field   */
+    size_t partial_size_len;            /* size field length       */
     unsigned char *partial_packet;      /* The data                */
     size_t partial_len;                 /* Desired number of bytes */
     size_t partial_received;            /* Bytes received so far   */
