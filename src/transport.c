@@ -200,7 +200,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
             size_t data_len;
             int free_payload = 1;
 
-            rc = session->remote.comp->decomp(session, 0,
+            rc = session->remote.comp->decomp(session,
                                               &data, &data_len,
                                               LIBSSH2_PACKET_MAXDECOMP,
                                               &free_payload,

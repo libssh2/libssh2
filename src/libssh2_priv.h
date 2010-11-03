@@ -890,7 +890,7 @@ struct _LIBSSH2_COMP_METHOD
                  const unsigned char *src,
                  size_t src_len,
                  void **abstract);
-    int (*decomp) (LIBSSH2_SESSION *session, int compress,
+    int (*decomp) (LIBSSH2_SESSION *session,
                    unsigned char **dest,
                    size_t *dest_len, size_t payload_limit,
                    int *free_dest, const unsigned char *src,
