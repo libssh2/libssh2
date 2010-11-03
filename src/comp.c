@@ -233,7 +233,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
     /* A short-term alloc of a full data chunk is better than a series of
        reallocs */
     char *out;
-    int out_maxlen = compress ? (src_len + 4) : (2 * src_len);
+    int out_maxlen = compress ? (src_len + 4) : (8 * src_len);
     int limiter = 0;
 
     /* If strm is null, then we have not yet been initialized. */
@@ -284,7 +284,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
             char *newout;
 
             out_maxlen +=
-                compress ? (strm->avail_in + 4) : (2 * strm->avail_in);
+                compress ? (strm->avail_in + 4) : (8 * strm->avail_in);
 
             if ((out_maxlen > (int) payload_limit) && !compress && limiter++) {
                 LIBSSH2_FREE(session, out);
@@ -302,14 +302,14 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
             out = newout;
             strm->next_out = (unsigned char *) out + out_ofs;
             strm->avail_out +=
-                compress ? (strm->avail_in + 4) : (2 * strm->avail_in);
+                compress ? (strm->avail_in + 4) : (8 * strm->avail_in);
         } else
             while (!strm->avail_out) {
                 /* Done with input, might be a byte or two in internal buffer
                  * during compress.  Or potentially many bytes if it's a
                  * decompress
                  */
-                int grow_size = compress ? 8 : 1024;
+                int grow_size = compress ? 8 : 2048;
                 char *newout;
 
                 if (out_maxlen >= (int) payload_limit) {
