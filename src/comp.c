@@ -80,7 +80,6 @@ comp_method_none_decomp(LIBSSH2_SESSION * session,
                         unsigned char **dest,
                         size_t *dest_len,
                         size_t payload_limit,
-                        int *free_dest,
                         const unsigned char *src,
                         size_t src_len, void **abstract)
 {
@@ -89,9 +88,6 @@ comp_method_none_decomp(LIBSSH2_SESSION * session,
     (void) abstract;
     *dest = (unsigned char *) src;
     *dest_len = src_len;
-
-    *free_dest = 0;
-
     return 0;
 }
 
@@ -222,7 +218,6 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
                         unsigned char **dest,
                         size_t *dest_len,
                         size_t payload_limit,
-                        int *free_dest,
                         const unsigned char *src,
                         size_t src_len, void **abstract)
 {
@@ -234,22 +229,16 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
     int limiter = 0;
 
     /* If strm is null, then we have not yet been initialized. */
-    if (strm == NULL) {
-        *dest = (unsigned char *) src;
-        *dest_len = src_len;
-
-        *free_dest = 0;
-        return 0;
-    }
+    if (strm == NULL)
+        return _libssh2_error(session, LIBSSH2_ERROR_COMPRESS,
+                              "decompression unitilized");;
 
     /* In practice they never come smaller than this */
-    if (out_maxlen < 25) {
+    if (out_maxlen < 25)
         out_maxlen = 25;
-    }
 
-    if (out_maxlen > (int) payload_limit) {
+    if (out_maxlen > (int) payload_limit)
         out_maxlen = payload_limit;
-    }
 
     strm->next_in = (unsigned char *) src;
     strm->avail_in = src_len;
@@ -340,7 +329,6 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
 
     *dest = (unsigned char *) out;
     *dest_len = out_maxlen - strm->avail_out;
-    *free_dest = 1;
 
     return 0;
 }

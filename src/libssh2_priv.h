@@ -892,9 +892,11 @@ struct _LIBSSH2_COMP_METHOD
                  void **abstract);
     int (*decomp) (LIBSSH2_SESSION *session,
                    unsigned char **dest,
-                   size_t *dest_len, size_t payload_limit,
-                   int *free_dest, const unsigned char *src,
-                   size_t src_len, void **abstract);
+                   size_t *dest_len,
+                   size_t payload_limit,
+                   const unsigned char *src,
+                   size_t src_len,
+                   void **abstract);
     int (*dtor) (LIBSSH2_SESSION * session, int compress, void **abstract);
 };
 

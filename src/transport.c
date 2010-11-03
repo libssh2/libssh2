@@ -198,47 +198,18 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
         if (session->remote.comp && session->remote.comp->compress) {
             unsigned char *data;
             size_t data_len;
-            int free_payload = 1;
-
             rc = session->remote.comp->decomp(session,
                                               &data, &data_len,
                                               LIBSSH2_PACKET_MAXDECOMP,
-                                              &free_payload,
                                               p->payload,
                                               session->fullpacket_payload_len,
                                               &session->remote.comp_abstract);
-            if(rc) {
-                LIBSSH2_FREE(session, p->payload);
+            LIBSSH2_FREE(session, p->payload);
+            if(rc)
                 return rc;
-            }
 
-            if (free_payload) {
-                LIBSSH2_FREE(session, p->payload);
-                p->payload = data;
-                session->fullpacket_payload_len = data_len;
-            } else {
-                if (data == p->payload) {
-                    /* It's not to be freed, because the
-                     * compression layer reused payload, So let's
-                     * do the same!
-                     */
-                    session->fullpacket_payload_len = data_len;
-                } else {
-                    /* No comp_method actually lets this happen,
-                     * but let's prepare for the future */
-
-                    LIBSSH2_FREE(session, p->payload);
-
-                    /* We need a freeable struct otherwise the
-                     * brigade won't know what to do with it */
-                    p->payload = LIBSSH2_ALLOC(session, data_len);
-                    if (!p->payload)
-                        return LIBSSH2_ERROR_ALLOC;
-
-                    memcpy(p->payload, data, data_len);
-                    session->fullpacket_payload_len = data_len;
-                }
-            }
+            p->payload = data;
+            session->fullpacket_payload_len = data_len;
         }
 
         session->fullpacket_packet_type = p->payload[0];
