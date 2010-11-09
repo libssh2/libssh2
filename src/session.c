@@ -559,6 +559,14 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
         /* figure out what to wait for */
         dir = libssh2_session_block_directions(session);
 
+        if(!dir) {
+            _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
+                           "Nothing to wait for in wait_socket");
+            /* To avoid that we hang below just because there's nothing set to
+               wait for, we timeout on 1 second to also avoid busy-looping
+               during this condition */
+            seconds_to_next = 1;
+        }
         {
 #ifdef HAVE_POLL
             struct pollfd sockets[1];
