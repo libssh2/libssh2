@@ -408,6 +408,8 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
  *
  * The input pointer 'data' is pointing to allocated data that this function
  * is asked to deal with so on failure OR success, it must be freed fine.
+ *
+ * This function will always be called with 'datalen' greater than zero.
  */
 int
 _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
@@ -480,32 +482,36 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         switch (data[0]) {
         case SSH_MSG_DISCONNECT:
         {
-            char *message, *language;
-            int reason, message_len, language_len;
+            char *message=NULL;
+            char *language=NULL;
+            size_t message_len=0;
+            size_t language_len=0;
+            size_t reason=0; /* RFC4253 lists no valid reason for 0 */
 
-            reason = _libssh2_ntohu32(data + 1);
-            message_len = _libssh2_ntohu32(data + 5);
-            /* 9 = packet_type(1) + reason(4) + message_len(4) */
-            message = (char *) data + 9;
-            language_len = _libssh2_ntohu32(data + 9 + message_len);
-            /*
-             * This is where we hack on the data a little,
-             * Use the MSB of language_len to to a terminating NULL
-             * (In all liklihood it is already)
-             * Shift the language tag back a byte (In all likelihood
-             * it's zero length anyway)
-             * Store a NULL in the last byte of the packet to terminate
-             * the language string
-             * With the lengths passed this isn't *REALLY* necessary,
-             * but it's "kind"
-             */
-            message[message_len] = '\0';
-            language = (char *) data + 9 + message_len + 3;
-            if (language_len) {
-                memmove(language, language + 1, language_len);
+            if(datalen >= 5) {
+                reason = _libssh2_ntohu32(data + 1);
+
+                if(datalen >= 9) {
+                    message_len = _libssh2_ntohu32(data + 5);
+
+                    if(message_len < datalen-13) {
+                        /* 9 = packet_type(1) + reason(4) + message_len(4) */
+                        message = (char *) data + 9;
+
+                        language_len = _libssh2_ntohu32(data + 9 + message_len);
+                        language = (char *) data + 9 + message_len + 4;
+
+                        if(language_len > (datalen-13-message_len)) {
+                            /* bad input, clear info */
+                            language = message = NULL;
+                            language_len = message_len = 0;
+                        }
+                    }
+                    else
+                        /* bad size, clear it */
+                        message_len=0;
+                }
             }
-            language[language_len] = '\0';
-
             if (session->ssh_msg_disconnect) {
                 LIBSSH2_DISCONNECT(session, reason, message,
                                    message_len, language, language_len);
