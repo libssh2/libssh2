@@ -82,7 +82,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     unsigned long packet_len = 17 + (sizeof(FwdNotReq) - 1);
     unsigned char *p;
     LIBSSH2_LISTENER *listen = _libssh2_list_first(&session->listeners);
-    char failure_code = 1;      /* SSH_OPEN_ADMINISTRATIVELY_PROHIBITED */
+    char failure_code = SSH_OPEN_ADMINISTRATIVELY_PROHIBITED;
     int rc;
 
     (void) datalen;
@@ -132,7 +132,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                     if (listen->queue_maxsize &&
                         (listen->queue_maxsize <= listen->queue_size)) {
                         /* Queue is full */
-                        failure_code = 4;       /* SSH_OPEN_RESOURCE_SHORTAGE */
+                        failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                                        "Listener queue full, ignoring");
                         listen_state->state = libssh2_NB_state_sent;
@@ -144,7 +144,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                        "Unable to allocate a channel for "
                                        "new connection");
-                        failure_code = 4;       /* SSH_OPEN_RESOURCE_SHORTAGE */
+                        failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                         listen_state->state = libssh2_NB_state_sent;
                         break;
                     }
@@ -163,7 +163,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                                        "Unable to allocate a channel for new"
                                        " connection");
                         LIBSSH2_FREE(session, channel);
-                        failure_code = 4;       /* SSH_OPEN_RESOURCE_SHORTAGE */
+                        failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                         listen_state->state = libssh2_NB_state_sent;
                         break;
                     }
@@ -262,7 +262,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
                 unsigned long datalen,
                 packet_x11_open_state_t *x11open_state)
 {
-    int failure_code = 2;       /* SSH_OPEN_CONNECT_FAILED */
+    int failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
     unsigned long packet_len = 17 + (sizeof(X11FwdUnAvil) - 1);
     unsigned char *p;
@@ -299,7 +299,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
             if (!channel) {
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                "Unable to allocate a channel for new connection");
-                failure_code = 4;       /* SSH_OPEN_RESOURCE_SHORTAGE */
+                failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                 goto x11_exit;
             }
             memset(channel, 0, sizeof(LIBSSH2_CHANNEL));
@@ -313,7 +313,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                "Unable to allocate a channel for new connection");
                 LIBSSH2_FREE(session, channel);
-                failure_code = 4;       /* SSH_OPEN_RESOURCE_SHORTAGE */
+                failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                 goto x11_exit;
             }
             memcpy(channel->channel_type, "x11",
@@ -373,10 +373,10 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
             x11open_state->state = libssh2_NB_state_idle;
             return 0;
         }
-    } else {
-        failure_code = 4;       /* SSH_OPEN_RESOURCE_SHORTAGE */
     }
-
+    else
+        failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
+    /* fall-trough */
   x11_exit:
     p = x11open_state->packet;
     *(p++) = SSH_MSG_CHANNEL_OPEN_FAILURE;

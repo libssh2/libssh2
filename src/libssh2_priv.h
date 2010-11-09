@@ -1001,6 +1001,13 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 #define SSH_MSG_CHANNEL_SUCCESS                     99
 #define SSH_MSG_CHANNEL_FAILURE                     100
 
+/* Error codes returned in SSH_MSG_CHANNEL_OPEN_FAILURE message
+   (see RFC4254) */
+#define SSH_OPEN_ADMINISTRATIVELY_PROHIBITED 1
+#define SSH_OPEN_CONNECT_FAILED              2
+#define SSH_OPEN_UNKNOWN_CHANNELTYPE         3
+#define SSH_OPEN_RESOURCE_SHORTAGE           4
+
 #if defined( WIN32 ) || defined( __VMS )
 ssize_t _libssh2_recv(libssh2_socket_t socket, void *buffer, size_t length, int flags);
 ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer, size_t length, int flags);
