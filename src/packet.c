@@ -480,6 +480,14 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
     if (session->packAdd_state == libssh2_NB_state_allocated) {
         /* A couple exceptions to the packet adding rule: */
         switch (data[0]) {
+
+            /*
+              byte      SSH_MSG_DISCONNECT
+              uint32    reason code
+              string    description in ISO-10646 UTF-8 encoding [RFC3629]
+              string    language tag [RFC3066]
+            */
+
         case SSH_MSG_DISCONNECT:
         {
             char *message=NULL;
@@ -527,6 +535,11 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         }
         break;
 
+        /*
+          byte      SSH_MSG_IGNORE
+          string    data
+        */
+
         case SSH_MSG_IGNORE:
             if (datalen >= 2) {
                 if (session->ssh_msg_ignore) {
@@ -539,33 +552,37 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             session->packAdd_state = libssh2_NB_state_idle;
             return 0;
 
+            /*
+              byte      SSH_MSG_DEBUG
+              boolean   always_display
+              string    message in ISO-10646 UTF-8 encoding [RFC3629]
+              string    language tag [RFC3066]
+            */
+
         case SSH_MSG_DEBUG:
         {
-            int always_display = data[0];
-            char *message, *language;
-            int message_len, language_len;
+            int always_display=0;
+            char *message=NULL;
+            char *language=NULL;
+            size_t message_len=0;
+            size_t language_len=0;
 
-            message_len = _libssh2_ntohu32(data + 2);
-            /* 6 = packet_type(1) + display(1) + message_len(4) */
-            message = (char *) data + 6;
-            language_len = _libssh2_ntohu32(data + 6 + message_len);
-            /*
-             * This is where we hack on the data a little,
-             * Use the MSB of language_len to to a terminating NULL
-             * (In all liklihood it is already)
-             * Shift the language tag back a byte (In all likelihood
-             * it's zero length anyway)
-             * Store a NULL in the last byte of the packet to terminate
-             * the language string
-             * With the lengths passed this isn't *REALLY* necessary,
-             * but it's "kind"
-             */
-            message[message_len] = '\0';
-            language = (char *) data + 6 + message_len + 3;
-            if (language_len) {
-                memmove(language, language + 1, language_len);
+            if(datalen >= 2) {
+                always_display = data[1];
+
+                if(datalen >= 6) {
+                    message_len = _libssh2_ntohu32(data + 2);
+
+                    if(message_len <= (datalen - 10)) {
+                        /* 6 = packet_type(1) + display(1) + message_len(4) */
+                        message = (char *) data + 6;
+                        language_len = _libssh2_ntohu32(data + 6 + message_len);
+
+                        if(language_len <= (datalen - 10 - message_len))
+                            language = (char *) data + 10 + message_len;
+                    }
+                }
             }
-            language[language_len] = '\0';
 
             if (session->ssh_msg_debug) {
                 LIBSSH2_DEBUG(session, always_display, message,
@@ -581,7 +598,6 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             session->packAdd_state = libssh2_NB_state_idle;
             return 0;
         }
-        break;
 
         case SSH_MSG_GLOBAL_REQUEST:
         {
