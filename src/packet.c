@@ -186,7 +186,8 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                     channel->local.packet_size = listen_state->packet_size;
 
                     _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                                   "Connection queued: channel %lu/%lu win %lu/%lu packet %lu/%lu",
+                                   "Connection queued: channel %lu/%lu "
+                                   "win %lu/%lu packet %lu/%lu",
                                    channel->local.id, channel->remote.id,
                                    channel->local.window_size,
                                    channel->remote.window_size,
@@ -197,7 +198,8 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                     *(p++) = SSH_MSG_CHANNEL_OPEN_CONFIRMATION;
                     _libssh2_store_u32(&p, channel->remote.id);
                     _libssh2_store_u32(&p, channel->local.id);
-                    _libssh2_store_u32(&p, channel->remote.window_size_initial);
+                    _libssh2_store_u32(&p,
+                                       channel->remote.window_size_initial);
                     _libssh2_store_u32(&p, channel->remote.packet_size);
 
                     listen_state->state = libssh2_NB_state_created;
@@ -298,7 +300,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
             channel = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
             if (!channel) {
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate a channel for new connection");
+                               "allocate a channel for new connection");
                 failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                 goto x11_exit;
             }
@@ -311,7 +313,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
                                                   1);
             if (!channel->channel_type) {
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate a channel for new connection");
+                               "allocate a channel for new connection");
                 LIBSSH2_FREE(session, channel);
                 failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                 goto x11_exit;
@@ -332,7 +334,8 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
             channel->local.packet_size = x11open_state->packet_size;
 
             _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                           "X11 Connection established: channel %lu/%lu win %lu/%lu packet %lu/%lu",
+                           "X11 Connection established: channel %lu/%lu "
+                           "win %lu/%lu packet %lu/%lu",
                            channel->local.id, channel->remote.id,
                            channel->local.window_size,
                            channel->remote.window_size,
@@ -613,7 +616,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
             if (!session->packAdd_channel) {
                 _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_UNKNOWN,
-                               "Packet received for unknown channel, ignoring");
+                               "Packet received for unknown channel");
                 LIBSSH2_FREE(session, data);
                 session->packAdd_state = libssh2_NB_state_idle;
                 return 0;
@@ -753,7 +756,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                     session->packAdd_channel->exit_status =
                         _libssh2_ntohu32(data + 9 + sizeof("exit-status"));
                     _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                                   "Exit status %lu received for channel %lu/%lu",
+                                   "Exit status %lu received for "
+                                   "channel %lu/%lu",
                                    session->packAdd_channel->exit_status,
                                    session->packAdd_channel->local.id,
                                    session->packAdd_channel->remote.id);
@@ -774,7 +778,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
                 if (session->packAdd_channel) {
                     /* set signal name (without SIG prefix) */
-                    uint32_t namelen = _libssh2_ntohu32(data + 9 + sizeof("exit-signal"));
+                    uint32_t namelen = _libssh2_ntohu32(data + 9 +
+                                                        sizeof("exit-signal"));
                     session->packAdd_channel->exit_signal =
                         LIBSSH2_ALLOC(session, namelen + 1);
                     if (!session->packAdd_channel->exit_signal) {
@@ -786,7 +791,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                         session->packAdd_channel->exit_signal[namelen] = '\0';
                         /* TODO: save error message and language tag */
                         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                                       "Exit signal %s received for channel %lu/%lu",
+                                       "Exit signal %s received for "
+                                       "channel %lu/%lu",
                                        session->packAdd_channel->exit_signal,
                                        session->packAdd_channel->local.id,
                                        session->packAdd_channel->remote.id);
@@ -881,7 +887,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             }
             if(session->packAdd_channel)
                 _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                               "Window adjust received for channel %lu/%lu, adding %lu bytes, new window_size=%lu",
+                               "Window adjust received for channel %lu/%lu, "
+                               "adding %lu bytes, new window_size=%lu",
                                session->packAdd_channel->local.id,
                                session->packAdd_channel->remote.id,
                                bytestoadd,
@@ -1076,7 +1083,8 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
             return ret;
         } else if (ret == 0) {
             /* nothing available, wait until data arrives or we time out */
-            long left = LIBSSH2_READ_TIMEOUT - (long)(time(NULL) - state->start);
+            long left = LIBSSH2_READ_TIMEOUT - (long)(time(NULL) -
+                                                      state->start);
 
             if (left <= 0) {
                 state->start = 0;
