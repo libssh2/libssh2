@@ -1435,6 +1435,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     size_t sent = 0;
     size_t acked = 0;
     size_t org_count = count;
+    size_t eagain = 0;
 
     /* number of bytes sent off that haven't been acked and therefor
        we will get passed in here again */
@@ -1496,6 +1497,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                 if(rc != LIBSSH2_ERROR_EAGAIN)
                     /* error */
                     return rc;
+                eagain++;
                 break;
             }
 
@@ -1527,8 +1529,10 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
         /* we can expect the packets to be ACKed in order */
         rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                                  chunk->request_id, &data, &data_len);
-        if (rc == LIBSSH2_ERROR_EAGAIN)
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
+            eagain++;
             break;
+        }
         else if (rc) {
             sftp->write_state = libssh2_NB_state_idle;
             return _libssh2_error(session, rc, "Waiting for SFTP status");
@@ -1563,9 +1567,11 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
         /* we got data acked so return that amount, but no more than what
            was asked to get sent! */
         return MIN(acked, org_count);
-
-    return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                          "Would block");
+    else if(eagain)
+        return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                              "Would block sftp_write");
+    else
+        return 0; /* nothing was acked, and no EAGAIN was received! */
 }
 
 /* libssh2_sftp_write
