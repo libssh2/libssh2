@@ -599,15 +599,28 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             return 0;
         }
 
+        /*
+          byte      SSH_MSG_GLOBAL_REQUEST
+          string    request name in US-ASCII only
+          boolean   want reply
+          ....      request-specific data follows
+        */
+
         case SSH_MSG_GLOBAL_REQUEST:
         {
-            uint32_t strlen = _libssh2_ntohu32(data + 1);
-            unsigned char want_reply = data[5 + strlen];
+            uint32_t len =0;
+            unsigned char want_reply=0;
 
-            _libssh2_debug(session,
-                           LIBSSH2_TRACE_CONN,
-                           "Received global request type %.*s (wr %X)",
-                           strlen, data + 5, want_reply);
+            if(datalen >= 5) {
+                len = _libssh2_ntohu32(data + 1);
+                if(datalen >= (6 + len)) {
+                    want_reply = data[5 + len];
+                    _libssh2_debug(session,
+                                   LIBSSH2_TRACE_CONN,
+                                   "Received global request type %.*s (wr %X)",
+                                   len, data + 5, want_reply);
+                }
+            }
 
             if (want_reply) {
               libssh2_packet_add_jump_point5:
@@ -623,9 +636,23 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         }
         break;
 
+        /*
+          byte      SSH_MSG_CHANNEL_EXTENDED_DATA
+          uint32    recipient channel
+          uint32    data_type_code
+          string    data
+        */
+
         case SSH_MSG_CHANNEL_EXTENDED_DATA:
             /* streamid(4) */
             session->packAdd_data_head += 4;
+
+            /*
+              byte      SSH_MSG_CHANNEL_DATA
+              uint32    recipient channel
+              string    data
+            */
+
         case SSH_MSG_CHANNEL_DATA:
             /* packet_type(1) + channelno(4) + datalen(4) */
             session->packAdd_data_head += 9;
