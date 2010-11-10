@@ -1240,8 +1240,10 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
              */
             LIBSSH2_SFTP_ATTRIBUTES attrs_dummy;
             size_t real_longentry_len;
-            unsigned char *s = (unsigned char *) handle->u.dir.next_name;
-            size_t real_filename_len = _libssh2_ntohu32(s);
+            size_t real_filename_len;
+
+            s = (unsigned char *) handle->u.dir.next_name;
+            real_filename_len = _libssh2_ntohu32(s);
 
             s += 4;
 
