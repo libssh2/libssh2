@@ -134,7 +134,7 @@ comp_method_zlib_free(voidpf opaque, voidpf address)
  * All your bandwidth are belong to us (so save some)
  */
 static int
-comp_method_zlib_init(LIBSSH2_SESSION * session, int compress,
+comp_method_zlib_init(LIBSSH2_SESSION * session, int compr,
                       void **abstract)
 {
     z_stream *strm;
@@ -151,7 +151,7 @@ comp_method_zlib_init(LIBSSH2_SESSION * session, int compress,
     strm->opaque = (voidpf) session;
     strm->zalloc = (alloc_func) comp_method_zlib_alloc;
     strm->zfree = (free_func) comp_method_zlib_free;
-    if (compress) {
+    if (compr) {
         /* deflate */
         status = deflateInit(strm, Z_DEFAULT_COMPRESSION);
     } else {
@@ -338,25 +338,19 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
  * All done, no more compression for you
  */
 static int
-comp_method_zlib_dtor(LIBSSH2_SESSION *session, int compress,
-                      void **abstract)
+comp_method_zlib_dtor(LIBSSH2_SESSION *session, int compr, void **abstract)
 {
     z_stream *strm = *abstract;
 
     if (strm) {
-        if (compress) {
-            /* deflate */
+        if (compr)
             deflateEnd(strm);
-        } else {
-            /* inflate */
+        else
             inflateEnd(strm);
-        }
-
         LIBSSH2_FREE(session, strm);
     }
 
     *abstract = NULL;
-
     return 0;
 }
 
