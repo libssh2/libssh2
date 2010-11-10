@@ -81,7 +81,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
     unsigned long packet_len = 17 + (sizeof(FwdNotReq) - 1);
     unsigned char *p;
-    LIBSSH2_LISTENER *listen = _libssh2_list_first(&session->listeners);
+    LIBSSH2_LISTENER *listn = _libssh2_list_first(&session->listeners);
     char failure_code = SSH_OPEN_ADMINISTRATIVELY_PROHIBITED;
     int rc;
 
@@ -119,18 +119,18 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     }
 
     if (listen_state->state != libssh2_NB_state_sent) {
-        while (listen) {
-            if ((listen->port == (int) listen_state->port) &&
-                (strlen(listen->host) == listen_state->host_len) &&
-                (memcmp (listen->host, listen_state->host,
+        while (listn) {
+            if ((listn->port == (int) listen_state->port) &&
+                (strlen(listn->host) == listen_state->host_len) &&
+                (memcmp (listn->host, listen_state->host,
                          listen_state->host_len) == 0)) {
                 /* This is our listener */
                 LIBSSH2_CHANNEL *channel = NULL;
                 listen_state->channel = NULL;
 
                 if (listen_state->state == libssh2_NB_state_allocated) {
-                    if (listen->queue_maxsize &&
-                        (listen->queue_maxsize <= listen->queue_size)) {
+                    if (listn->queue_maxsize &&
+                        (listn->queue_maxsize <= listn->queue_size)) {
                         /* Queue is full */
                         failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
@@ -218,16 +218,16 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                     }
 
                     /* Link the channel into the end of the queue list */
-                    _libssh2_list_add(&listen->queue,
+                    _libssh2_list_add(&listn->queue,
                                       &listen_state->channel->node);
-                    listen->queue_size++;
+                    listn->queue_size++;
 
                     listen_state->state = libssh2_NB_state_idle;
                     return 0;
                 }
             }
 
-            listen = _libssh2_list_next(&listen->node);
+            listn = _libssh2_list_next(&listn->node);
         }
 
         listen_state->state = libssh2_NB_state_sent;
@@ -785,15 +785,15 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         case SSH_MSG_CHANNEL_REQUEST:
         {
             uint32_t channel = _libssh2_ntohu32(data + 1);
-            uint32_t strlen = _libssh2_ntohu32(data + 5);
-            unsigned char want_reply = data[9 + strlen];
+            uint32_t len = _libssh2_ntohu32(data + 5);
+            unsigned char want_reply = data[9 + len];
 
             _libssh2_debug(session,
                            LIBSSH2_TRACE_CONN,
                            "Channel %d received request type %.*s (wr %X)",
-                           channel, strlen, data + 9, want_reply);
+                           channel, len, data + 9, want_reply);
 
-            if (strlen == sizeof("exit-status") - 1
+            if (len == sizeof("exit-status") - 1
                 && !memcmp("exit-status", data + 9,
                            sizeof("exit-status") - 1)) {
 
@@ -817,7 +817,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 return 0;
             }
 
-            if (strlen == sizeof("exit-signal") - 1
+            if (len == sizeof("exit-signal") - 1
                 && !memcmp("exit-signal", data + 9,
                            sizeof("exit-signal") - 1)) {
 
