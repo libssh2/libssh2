@@ -137,7 +137,8 @@ int main(int argc, char *argv[])
     channel = libssh2_scp_recv(session, scppath, &fileinfo);
 
     if (!channel) {
-        fprintf(stderr, "Unable to open a session\n");
+        fprintf(stderr, "Unable to open a session: %d\n",
+                libssh2_session_last_errno(session));
         goto shutdown;
     }
 
