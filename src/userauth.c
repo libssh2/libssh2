@@ -1063,7 +1063,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
     }
 
     if (session->userauth_pblc_state == libssh2_NB_state_sent1) {
-        unsigned char *buf, *s;
+        unsigned char *buf;
         unsigned char *sig;
         size_t sig_len;
 
