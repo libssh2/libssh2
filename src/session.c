@@ -968,12 +968,6 @@ session_free(LIBSSH2_SESSION *session)
     if (session->scpSend_command) {
         LIBSSH2_FREE(session, session->scpSend_command);
     }
-    if (session->scpRecv_err_msg) {
-        LIBSSH2_FREE(session, session->scpRecv_err_msg);
-    }
-    if (session->scpSend_err_msg) {
-        LIBSSH2_FREE(session, session->scpSend_err_msg);
-    }
 
     /* Cleanup all remaining packets */
     while ((pkg = _libssh2_list_first(&session->packets))) {

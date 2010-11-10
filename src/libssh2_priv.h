@@ -777,8 +777,6 @@ struct _LIBSSH2_SESSION
 #endif
     long scpRecv_mtime;
     long scpRecv_atime;
-    char *scpRecv_err_msg;
-    long scpRecv_err_len;
     LIBSSH2_CHANNEL *scpRecv_channel;
 
     /* State variables used in libssh2_scp_send_ex() */
@@ -787,8 +785,6 @@ struct _LIBSSH2_SESSION
     unsigned long scpSend_command_len;
     unsigned char scpSend_response[LIBSSH2_SCP_RESPONSE_BUFLEN];
     unsigned long scpSend_response_len;
-    char *scpSend_err_msg;
-    long scpSend_err_len;
     LIBSSH2_CHANNEL *scpSend_channel;
 
     /* Keepalive variables used by keepalive.c. */
