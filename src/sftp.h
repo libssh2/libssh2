@@ -142,8 +142,6 @@ struct _LIBSSH2_SFTP
     uint32_t readdir_request_id;
 
     /* State variables used in libssh2_sftp_write() */
-    libssh2_nonblocking_states write_state;
-    unsigned char *write_packet;
     uint32_t write_request_id;
 
     /* State variables used in libssh2_sftp_fstat_ex() */

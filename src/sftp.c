@@ -760,10 +760,6 @@ sftp_shutdown(LIBSSH2_SFTP *sftp)
         LIBSSH2_FREE(session, sftp->readdir_packet);
         sftp->readdir_packet = NULL;
     }
-    if (sftp->write_packet) {
-        LIBSSH2_FREE(session, sftp->write_packet);
-        sftp->write_packet = NULL;
-    }
     if (sftp->fstat_packet) {
         LIBSSH2_FREE(session, sftp->fstat_packet);
         sftp->fstat_packet = NULL;
@@ -1511,15 +1507,10 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
             if(chunk->lefttosend)
                 /* data left to send, get out of loop */
                 break;
-
-            chunk = _libssh2_list_next(&chunk->node);
-
-            sftp->write_state = libssh2_NB_state_sent;
         }
-        else {
-            /* move on to the next chunk with data to send */
-            chunk = _libssh2_list_next(&chunk->node);
-        }
+
+        /* move on to the next chunk with data to send */
+        chunk = _libssh2_list_next(&chunk->node);
     }
 
     /*
@@ -1528,7 +1519,12 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     chunk = _libssh2_list_first(&handle->write_list);
 
     while(chunk) {
-        /* we can expect the packets to be ACKed in order */
+        if(chunk->lefttosend)
+            /* if the chunk still has data left to send, we shouldn't wait for
+               an ACK for it just yet */
+            break;
+
+        /* we check the packets in order */
         rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
                                  chunk->request_id, &data, &data_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
@@ -1536,7 +1532,6 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
             break;
         }
         else if (rc) {
-            sftp->write_state = libssh2_NB_state_idle;
             return _libssh2_error(session, rc, "Waiting for SFTP status");
         }
         retcode = _libssh2_ntohu32(data + 5);
@@ -1562,8 +1557,6 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
             break;
         }
     }
-
-    sftp->write_state = libssh2_NB_state_idle;
 
     if(acked)
         /* we got data acked so return that amount, but no more than what
