@@ -304,18 +304,13 @@ struct _LIBSSH2_PACKET
 {
     struct list_node node; /* linked list header */
 
-    unsigned char type;
-
-    /* Unencrypted Payload (no type byte, no padding, just the facts ma'am) */
+    /* the raw unencrypted payload */
     unsigned char *data;
     size_t data_len;
 
     /* Where to start reading data from,
      * used for channel data that's been partially consumed */
     unsigned long data_head;
-
-    /* Can the message be confirmed? */
-    int mac;
 };
 
 typedef struct _libssh2_channel_data
@@ -745,9 +740,8 @@ struct _LIBSSH2_SESSION
 
     /* State variables used in libssh2_packet_add() */
     libssh2_nonblocking_states packAdd_state;
-    LIBSSH2_CHANNEL *packAdd_channel;
-    unsigned long packAdd_data_head;
-    key_exchange_state_t packAdd_key_state;
+    LIBSSH2_CHANNEL *packAdd_channelp; /* keeper of the channel during EAGAIN
+                                          states */
     packet_queue_listener_state_t packAdd_Qlstn_state;
     packet_x11_open_state_t packAdd_x11open_state;
 
