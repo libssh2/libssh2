@@ -29,7 +29,8 @@ Called when a SSH_MSG_DEBUG message is received
 .IP LIBSSH2_CALLBACK_DISCONNECT
 Called when a SSH_MSG_DISCONNECT message is received
 .IP LIBSSH2_CALLBACK_MACERROR
-Called when a mismatched MAC has been detected in the transport layer
+Called when a mismatched MAC has been detected in the transport layer. If the
+function returns 0, the packet will be accepted nonetheless.
 .IP LIBSSH2_CALLBACK_X11
 Called when an X11 connection has been accepted
 .SH RETURN VALUE
