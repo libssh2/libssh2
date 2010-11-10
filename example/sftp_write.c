@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     FILE *local;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
-    char mem[1024];
+    char mem[1024*100];
     size_t nread;
     char *ptr;
 
