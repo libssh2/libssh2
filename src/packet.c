@@ -461,16 +461,19 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
      * I know this is very ugly and not a really good use of "goto", but
      * this case statement would be even uglier to do it any other way
      */
-    if (session->packAdd_state == libssh2_NB_state_jump1) {
+    switch(session->packAdd_state) {
+    case libssh2_NB_state_jump1:
         goto libssh2_packet_add_jump_point1;
-    } else if (session->packAdd_state == libssh2_NB_state_jump2) {
+    case libssh2_NB_state_jump2:
         goto libssh2_packet_add_jump_point2;
-    } else if (session->packAdd_state == libssh2_NB_state_jump3) {
+    case libssh2_NB_state_jump3:
         goto libssh2_packet_add_jump_point3;
-    } else if (session->packAdd_state == libssh2_NB_state_jump4) {
+    case libssh2_NB_state_jump4:
         goto libssh2_packet_add_jump_point4;
-    } else if (session->packAdd_state == libssh2_NB_state_jump5) {
+    case libssh2_NB_state_jump5:
         goto libssh2_packet_add_jump_point5;
+    default: /* nothing to do */
+        break;
     }
 
 /* FIXME: I've noticed that DATA is accessed without proper
