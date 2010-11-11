@@ -1435,13 +1435,24 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     size_t org_count = count;
     size_t eagain = 0;
 
-    /* number of bytes sent off that haven't been acked and therefor
-       we will get passed in here again */
-    size_t unacked = handle->u.file.offset_sent - handle->u.file.offset;
+    /* Number of bytes sent off that haven't been acked and therefor we will
+       get passed in here again.
 
-    /* skip the part already made into packets */
-    buffer += unacked;
-    count -= unacked;
+       Also, add up the number of bytes that actually already have been acked
+       but we haven't been able to return as such yet, so we will get that
+       data as well passed in here again.
+    */
+    size_t already = (handle->u.file.offset_sent - handle->u.file.offset)+
+        handle->u.file.acked;
+
+    if(count >= already) {
+        /* skip the part already made into packets */
+        buffer += already;
+        count -= already;
+    }
+    else
+        /* there is more data already fine than what we got in this call */
+        count = 0;
 
     while(count) {
         /* TODO: Possibly this should have some logic to prevent a very very
@@ -1558,10 +1569,23 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
         }
     }
 
-    if(acked)
+    /* if there were acked data in a previous call that wasn't returned then,
+       add that up and try to return it all now. This can happen if the app
+       first sends a huge buffer of data, and then in a second call it sends a
+       smaller one. */
+    acked += handle->u.file.acked;
+
+    if(acked) {
+        ssize_t ret = MIN(acked, org_count);
         /* we got data acked so return that amount, but no more than what
            was asked to get sent! */
-        return MIN(acked, org_count);
+
+        /* store the remainder. 'ret' is always equal to or less than 'acked'
+           here */
+        handle->u.file.acked = acked - ret;
+
+        return ret;
+    }
     else if(eagain)
         return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                               "Would block sftp_write");
