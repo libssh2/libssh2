@@ -1994,27 +1994,6 @@ channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         buflen = 32700;
 
     if (channel->write_state == libssh2_NB_state_idle) {
-        _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                       "Writing %d bytes on channel %lu/%lu, stream #%d",
-                       (int) buflen, channel->local.id, channel->remote.id,
-                       stream_id);
-
-        if (channel->local.close) {
-            return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_CLOSED,
-                                  "We've already closed this channel");
-        }
-
-        if (channel->local.eof) {
-            return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_EOF_SENT,
-                                  "EOF has already been received, "
-                                  "data might be ignored");
-        }
-
-        channel->write_state = libssh2_NB_state_allocated;
-    }
-
-
-    if (channel->write_state == libssh2_NB_state_allocated) {
         unsigned char *s = channel->write_packet;
 
         /* drain the incoming flow first */
@@ -2022,11 +2001,9 @@ channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
             rc = _libssh2_transport_read(session);
         while (rc > 0);
 
-        if(channel->local.window_size <= 0) {
+        if(channel->local.window_size <= 0)
             /* there's no room for data so we stop */
-            channel->write_state = libssh2_NB_state_idle;
             return 0;
-        }
 
         channel->write_bufwrite = buflen;
 
@@ -2140,6 +2117,22 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
 
         /* all is sent, clear the buf pointer */
         channel->transport_buf = NULL;
+    }
+
+    _libssh2_debug(channel->session, LIBSSH2_TRACE_CONN,
+                   "Writing %d bytes on channel %lu/%lu, stream #%d",
+                   (int) buflen, channel->local.id, channel->remote.id,
+                   stream_id);
+
+    if (channel->local.close) {
+        return _libssh2_error(channel->session, LIBSSH2_ERROR_CHANNEL_CLOSED,
+                              "We've already closed this channel");
+    }
+
+    if (channel->local.eof) {
+        return _libssh2_error(channel->session, LIBSSH2_ERROR_CHANNEL_EOF_SENT,
+                              "EOF has already been received, "
+                              "data might be ignored");
     }
 
     do {
