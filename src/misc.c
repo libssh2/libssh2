@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2009-2010 by Daniel Stenberg
  * Copyright (c) 2010  Simon Josefsson
  * All rights reserved.
  *
@@ -89,53 +89,56 @@ static int wsa2errno(void)
 }
 #endif
 
-#ifndef _libssh2_recv
 /* _libssh2_recv
  *
- * Wrapper around standard recv to allow WIN32 systems
- * to set errno
+ * Replacement for the standard recv, return -errno on failure.
  */
 ssize_t
-_libssh2_recv(libssh2_socket_t socket, void *buffer, size_t length, int flags)
+_libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length, int flags)
 {
-    ssize_t rc = recv(socket, buffer, length, flags);
+    ssize_t rc = recv(sock, buffer, length, flags);
 #ifdef WIN32
     if (rc < 0 )
-        errno = wsa2errno();
-#endif
-#ifdef __VMS
+        return -wsa2errno();
+#elsif defined(__VMS)
     if (rc < 0 ){
-       if ( errno == EWOULDBLOCK ) errno = EAGAIN;
+        if ( errno == EWOULDBLOCK )
+            return -EAGAIN;
+        else
+            return -errno;
     }
+#else
+    if (rc < 0 )
+        return -errno;
 #endif
     return rc;
 }
-#endif /* _libssh2_recv */
-
-#ifndef _libssh2_send
 
 /* _libssh2_send
  *
- * Wrapper around standard send to allow WIN32 systems
- * to set errno
+ * Replacement for the standard send, return -errno on failure.
  */
 ssize_t
-_libssh2_send(libssh2_socket_t socket, const void *buffer, size_t length,
+_libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
               int flags)
 {
-    ssize_t rc = send(socket, buffer, length, flags);
+    ssize_t rc = send(sock, buffer, length, flags);
 #ifdef WIN32
     if (rc < 0 )
-        errno = wsa2errno();
-#endif
-#ifdef VMS
-    if (rc < 0 ){
-       if ( errno == EWOULDBLOCK ) errno = EAGAIN;
+        return -wsa2errno();
+#elsif defined(__VMS)
+    if (rc < 0 ) {
+        if ( errno == EWOULDBLOCK )
+            return -EAGAIN;
+        else
+            return -errno;
     }
+#else
+    if (rc < 0 )
+        return -errno;
 #endif
     return rc;
 }
-#endif /* _libssh2_recv */
 
 /* libssh2_ntohu32
  */

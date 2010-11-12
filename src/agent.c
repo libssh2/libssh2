@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009 by Daiki Ueno
+ * Copyright (C) 2010 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -176,9 +177,9 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     /* Send the length of the request */
     if (transctx->state == agent_NB_state_request_created) {
         _libssh2_htonu32(buf, transctx->request_len);
-        rc = send(agent->fd, buf, sizeof buf, 0);
+        rc = _libssh2_send(agent->fd, buf, sizeof buf, 0);
         if (rc < 0) {
-            if (errno == EAGAIN)
+            if (rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
             return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
                                   "agent send failed");
@@ -188,10 +189,10 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Send the request body */
     if (transctx->state == agent_NB_state_request_length_sent) {
-        rc = send(agent->fd, transctx->request,
-                  transctx->request_len, 0);
+        rc = _libssh2_send(agent->fd, transctx->request,
+                           transctx->request_len, 0);
         if (rc < 0) {
-            if (errno == EAGAIN)
+            if (rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
             return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
                                   "agent send failed");
@@ -201,9 +202,9 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Receive the length of a response */
     if (transctx->state == agent_NB_state_request_sent) {
-        rc = recv(agent->fd, buf, sizeof buf, 0);
+        rc = _libssh2_recv(agent->fd, buf, sizeof buf, 0);
         if (rc < 0) {
-            if (errno == EAGAIN)
+            if (rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
             return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_RECV,
                                   "agent recv failed");
@@ -219,9 +220,10 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Receive the response body */
     if (transctx->state == agent_NB_state_response_length_received) {
-        rc = recv(agent->fd, transctx->response, transctx->response_len, 0);
+        rc = _libssh2_recv(agent->fd, transctx->response,
+                           transctx->response_len, 0);
         if (rc < 0) {
-            if (errno == EAGAIN)
+            if (rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
             return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
                                   "agent recv failed");

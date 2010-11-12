@@ -998,13 +998,10 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 #define SSH_OPEN_UNKNOWN_CHANNELTYPE         3
 #define SSH_OPEN_RESOURCE_SHORTAGE           4
 
-#if defined( WIN32 ) || defined( __VMS )
-ssize_t _libssh2_recv(libssh2_socket_t socket, void *buffer, size_t length, int flags);
-ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer, size_t length, int flags);
-#else
-#define _libssh2_recv(a,b,c,d) recv(a,b,c,d)
-#define _libssh2_send(a,b,c,d) send(a,b,c,d)
-#endif
+ssize_t _libssh2_recv(libssh2_socket_t socket, void *buffer,
+                      size_t length, int flags);
+ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer,
+                      size_t length, int flags);
 
 #define LIBSSH2_READ_TIMEOUT 60 /* generic timeout in seconds used when
                                    waiting for more data to arrive */

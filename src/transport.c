@@ -347,17 +347,17 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 _libssh2_recv(session->socket_fd, &p->buf[remainbuf],
                               PACKETBUFSIZE - remainbuf,
                               LIBSSH2_SOCKET_RECV_FLAGS(session));
-           if (nread <= 0) {
+            if (nread <= 0) {
                 /* check if this is due to EAGAIN and return the special
                    return code if so, error out normally otherwise */
-                if ((nread < 0) && (errno == EAGAIN)) {
+                if ((nread < 0) && (nread == -EAGAIN)) {
                     session->socket_block_directions |=
                         LIBSSH2_SESSION_BLOCK_INBOUND;
                     return LIBSSH2_ERROR_EAGAIN;
                 }
                 _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                               "Error recving %d bytes (got %d): %d",
-                               PACKETBUFSIZE - remainbuf, nread, errno);
+                               "Error recving %d bytes (got %d)",
+                               PACKETBUFSIZE - remainbuf, -nread);
                 return LIBSSH2_ERROR_SOCKET_RECV;
             }
            _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
@@ -600,7 +600,7 @@ send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
                        LIBSSH2_SOCKET_SEND_FLAGS(session));
     if (rc < 0)
         _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                       "Error sending %d bytes: %d", length, errno);
+                       "Error sending %d bytes: %d", length, -rc);
     else
         _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
                        "Sent %d/%d bytes at %p+%d", rc, length, p->outbuf,
@@ -621,7 +621,7 @@ send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     }
     else if (rc < 0) {
         /* nothing was sent */
-        if (errno != EAGAIN)
+        if (rc != -EAGAIN)
             /* send failure! */
             return LIBSSH2_ERROR_SOCKET_SEND;
 
@@ -812,7 +812,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                         LIBSSH2_SOCKET_SEND_FLAGS(session));
     if (ret < 0)
         _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                       "Error sending %d bytes: %d", total_length, errno);
+                       "Error sending %d bytes: %d", total_length, -ret);
     else
         _libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Sent %d/%d bytes at %p",
                        ret, total_length, p->outbuf);
@@ -821,7 +821,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         debugdump(session, "libssh2_transport_write send()", p->outbuf, ret);
     }
     if (ret != total_length) {
-        if ((ret > 0) || ((ret == -1) && (errno == EAGAIN))) {
+        if ((ret > 0) || ((ret == -1) && (ret == -EAGAIN))) {
             /* the whole packet could not be sent, save the rest */
             session->socket_block_directions |= LIBSSH2_SESSION_BLOCK_OUTBOUND;
             p->odata = orgdata;

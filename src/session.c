@@ -115,17 +115,17 @@ banner_receive(LIBSSH2_SESSION * session)
         ret = _libssh2_recv(session->socket_fd, &c, 1,
                             LIBSSH2_SOCKET_RECV_FLAGS(session));
         if (ret < 0) {
-            if(session->api_block_mode || (errno != EAGAIN))
+            if(session->api_block_mode || (ret != -EAGAIN))
                 /* ignore EAGAIN when non-blocking */
                 _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                               "Error recving %d bytes: %d", 1, errno);
+                               "Error recving %d bytes: %d", 1, -ret);
         }
         else
             _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
                            "Recved %d bytes banner", ret);
 
         if (ret < 0) {
-            if (errno == EAGAIN) {
+            if (ret == -EAGAIN) {
                 session->socket_block_directions =
                     LIBSSH2_SESSION_BLOCK_INBOUND;
                 session->banner_TxRx_total_send = banner_len;
@@ -231,7 +231,7 @@ banner_send(LIBSSH2_SESSION * session)
     if (ret < 0)
         _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
                        "Error sending %d bytes: %d",
-                       banner_len - session->banner_TxRx_total_send, errno);
+                       banner_len - session->banner_TxRx_total_send, -ret);
     else
         _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
                        "Sent %d/%d bytes at %p+%d", ret,
@@ -239,7 +239,7 @@ banner_send(LIBSSH2_SESSION * session)
                        banner, session->banner_TxRx_total_send);
 
     if (ret != (banner_len - session->banner_TxRx_total_send)) {
-        if ((ret > 0) || ((ret == -1) && (errno == EAGAIN))) {
+        if ((ret > 0) || ((ret == -1) && (ret == -EAGAIN))) {
             /* the whole packet could not be sent, save the what was */
             session->socket_block_directions =
                 LIBSSH2_SESSION_BLOCK_OUTBOUND;

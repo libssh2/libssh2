@@ -510,13 +510,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 
                 *(p++) = '\0';
                 /* Make sure we don't get fooled by leftover values */
-                errno = 0;
                 session->scpRecv_mtime = strtol((char *) s, NULL, 10);
-                if (errno) {
-                    _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                                   "Invalid response from SCP server, invalid mtime");
-                    goto scp_recv_error;
-                }
+
                 s = (unsigned char *) strchr((char *) p, ' ');
                 if (!s || ((s - p) <= 0)) {
                     /* No spaces or space in the wrong spot */
@@ -537,13 +532,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 
                 *p = '\0';
                 /* Make sure we don't get fooled by leftover values */
-                errno = 0;
                 session->scpRecv_atime = strtol((char *) s, NULL, 10);
-                if (errno) {
-                    _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                                   "Invalid response from SCP server, invalid atime");
-                    goto scp_recv_error;
-                }
 
                 /* SCP ACK */
                 session->scpRecv_response[0] = '\0';
@@ -676,9 +665,9 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 
                 *(p++) = '\0';
                 /* Make sure we don't get fooled by leftover values */
-                errno = 0;
+
                 session->scpRecv_mode = strtol(s, &e, 8);
-                if ((e && *e) || errno) {
+                if (e && *e) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                    "Invalid response from SCP server, invalid mode");
                     goto scp_recv_error;
@@ -694,9 +683,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 
                 *s = '\0';
                 /* Make sure we don't get fooled by leftover values */
-                errno = 0;
                 session->scpRecv_size = scpsize_strtol(p, &e, 10);
-                if ((e && *e) || errno) {
+                if (e && *e) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                    "Invalid response from SCP server, invalid size");
                     goto scp_recv_error;
