@@ -1969,7 +1969,7 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
 }
 
 /*
- * channel_write
+ * _libssh2_channel_write
  *
  * Send data to a channel. Note that if this returns EAGAIN, the caller must
  * call this function again with the SAME input arguments.
@@ -1977,18 +1977,21 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
  * Returns: number of bytes sent, or if it returns a negative number, that is
  * the error code!
  */
-static ssize_t
-channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
-              const unsigned char *buf, size_t buflen)
+ssize_t
+_libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
+                       const unsigned char *buf, size_t buflen)
 {
+    int rc = 0;
     LIBSSH2_SESSION *session = channel->session;
-    int rc;
     ssize_t wrote = 0; /* counter for this specific this call */
 
-    /* In theory we could split larger buffers into several smaller packets,
-     * but for now we instead only deal with the first 32K in this call and
-     * assume the app will call it again with the rest! The 32K is a
-     * conservative limit based on the text in RFC4253 section 6.1.
+    /* In theory we could split larger buffers into several smaller packets
+     * but it turns out to be really hard and nasty to do while still offering
+     * the API/prototype.
+     *
+     * Instead we only deal with the first 32K in this call and for the parent
+     * function to call it again with the remainder! 32K is a conservative
+     * limit based on the text in RFC4253 section 6.1.
      */
     if(buflen > 32700)
         buflen = 32700;
@@ -1996,7 +1999,23 @@ channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
     if (channel->write_state == libssh2_NB_state_idle) {
         unsigned char *s = channel->write_packet;
 
-        /* drain the incoming flow first */
+        _libssh2_debug(channel->session, LIBSSH2_TRACE_CONN,
+                       "Writing %d bytes on channel %lu/%lu, stream #%d",
+                       (int) buflen, channel->local.id, channel->remote.id,
+                       stream_id);
+
+        if (channel->local.close)
+            return _libssh2_error(channel->session,
+                                  LIBSSH2_ERROR_CHANNEL_CLOSED,
+                                  "We've already closed this channel");
+        else if (channel->local.eof)
+            return _libssh2_error(channel->session,
+                                  LIBSSH2_ERROR_CHANNEL_EOF_SENT,
+                                  "EOF has already been received, "
+                                  "data might be ignored");
+
+        /* drain the incoming flow first, mostly to make sure we get all
+         * pending window adjust packets */
         do
             rc = _libssh2_transport_read(session);
         while (rc > 0);
@@ -2078,89 +2097,6 @@ channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
     }
 
     return LIBSSH2_ERROR_INVAL; /* reaching this point is really bad */
-}
-
-/*
- * _libssh2_channel_write
- *
- * Send data to a channel. Note that if this returns EAGAIN, the caller must
- * call this function again with the SAME input arguments.
- *
- * Returns: number of bytes sent, or if it returns a negative number, that is
- * the error code!
- */
-ssize_t
-_libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
-                       const unsigned char *buf, size_t buflen)
-{
-    int rc = 0;
-    ssize_t wrote = 0;
-
-    if(channel->transport_buf) {
-        /* previous EAGAIN situation, take care of this first */
-        rc = channel_write(channel,
-                           channel->transport_streamid,
-                           channel->transport_buf,
-                           channel->transport_buflen);
-        if(rc == LIBSSH2_ERROR_EAGAIN)
-            /* still EAGAIN, get out */
-            return rc;
-        else if(rc < 0)
-            return rc;
-
-        if(rc != (int)channel->transport_buflen) {
-            /* previous buffer not drained yet */
-            channel->transport_buf += rc;
-            channel->transport_buflen -= rc;
-            return LIBSSH2_ERROR_EAGAIN;
-        }
-
-        /* all is sent, clear the buf pointer */
-        channel->transport_buf = NULL;
-        wrote += rc;
-    }
-
-    _libssh2_debug(channel->session, LIBSSH2_TRACE_CONN,
-                   "Writing %d bytes on channel %lu/%lu, stream #%d",
-                   (int) buflen, channel->local.id, channel->remote.id,
-                   stream_id);
-
-    if (channel->local.close) {
-        return _libssh2_error(channel->session, LIBSSH2_ERROR_CHANNEL_CLOSED,
-                              "We've already closed this channel");
-    }
-
-    if (channel->local.eof) {
-        return _libssh2_error(channel->session, LIBSSH2_ERROR_CHANNEL_EOF_SENT,
-                              "EOF has already been received, "
-                              "data might be ignored");
-    }
-
-    do {
-        rc = channel_write(channel, stream_id, buf, buflen);
-
-        if(rc < 0) {
-            if(rc == LIBSSH2_ERROR_EAGAIN) {
-                /* store the buf/buflen pair and use that in the next call
-                   again to flush the transport layer */
-                channel->transport_streamid = stream_id;
-                channel->transport_buf = buf;
-                channel->transport_buflen = buflen;
-                if(wrote)
-                    return wrote;
-
-                /* nothing written, return EAGAIN */
-                return rc;
-            }
-            return rc;
-        }
-        wrote += rc;
-        buf += rc;
-        buflen -= rc;
-
-    } while(buflen);
-
-    return wrote;
 }
 
 /*
