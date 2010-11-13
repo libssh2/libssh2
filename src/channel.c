@@ -2117,6 +2117,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
 
         /* all is sent, clear the buf pointer */
         channel->transport_buf = NULL;
+        wrote += rc;
     }
 
     _libssh2_debug(channel->session, LIBSSH2_TRACE_CONN,
