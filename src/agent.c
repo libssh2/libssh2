@@ -178,12 +178,11 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     if (transctx->state == agent_NB_state_request_created) {
         _libssh2_htonu32(buf, transctx->request_len);
         rc = _libssh2_send(agent->fd, buf, sizeof buf, 0);
-        if (rc < 0) {
-            if (rc == -EAGAIN)
-                return LIBSSH2_ERROR_EAGAIN;
+        if (rc == -EAGAIN)
+            return LIBSSH2_ERROR_EAGAIN;
+        else if (rc < 0)
             return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
                                   "agent send failed");
-        }
         transctx->state = agent_NB_state_request_length_sent;
     }
 
@@ -191,12 +190,11 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     if (transctx->state == agent_NB_state_request_length_sent) {
         rc = _libssh2_send(agent->fd, transctx->request,
                            transctx->request_len, 0);
-        if (rc < 0) {
-            if (rc == -EAGAIN)
-                return LIBSSH2_ERROR_EAGAIN;
+        if (rc == -EAGAIN)
+            return LIBSSH2_ERROR_EAGAIN;
+        else if (rc < 0)
             return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
                                   "agent send failed");
-        }
         transctx->state = agent_NB_state_request_sent;
     }
 
