@@ -42,6 +42,9 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <ctype.h>
+#ifdef LIBSSH2DEBUG
+#include <stdio.h>
+#endif
 
 #include <assert.h>
 
@@ -74,7 +77,7 @@ debugdump(LIBSSH2_SESSION * session,
         (session->tracehandler)(session, session->tracehandler_context,
                                 buffer, used);
     else
-        write(2 /* stderr */, buffer, used);
+        fprintf(stderr, "%s", buffer);
 
     for(i = 0; i < size; i += width) {
 
@@ -110,7 +113,7 @@ debugdump(LIBSSH2_SESSION * session,
             (session->tracehandler)(session, session->tracehandler_context,
                                     buffer, used);
         else
-            write(2, buffer, used);
+            fprintf(stderr, "%s", buffer);
     }
 }
 #else
