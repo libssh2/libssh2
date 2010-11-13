@@ -601,12 +601,10 @@ send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     if (rc < 0)
         _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
                        "Error sending %d bytes: %d", length, -rc);
-    else
+    else {
         _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
                        "Sent %d/%d bytes at %p+%d", rc, length, p->outbuf,
                        p->osent);
-
-    if(rc > 0) {
         debugdump(session, "libssh2_transport_write send()",
                   &p->outbuf[p->osent], rc);
     }
@@ -813,20 +811,19 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     if (ret < 0)
         _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
                        "Error sending %d bytes: %d", total_length, -ret);
-    else
+    else {
         _libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Sent %d/%d bytes at %p",
                        ret, total_length, p->outbuf);
-
-    if (ret != -1) {
         debugdump(session, "libssh2_transport_write send()", p->outbuf, ret);
     }
+
     if (ret != total_length) {
-        if ((ret > 0) || ((ret == -1) && (ret == -EAGAIN))) {
+        if (ret >= 0 || ret == -EAGAIN) {
             /* the whole packet could not be sent, save the rest */
             session->socket_block_directions |= LIBSSH2_SESSION_BLOCK_OUTBOUND;
             p->odata = orgdata;
             p->olen = orgdata_len;
-            p->osent = (ret == -1) ? 0 : ret;
+            p->osent = ret <= 0 ? 0 : ret;
             p->ototal_num = total_length;
             return LIBSSH2_ERROR_EAGAIN;
         }

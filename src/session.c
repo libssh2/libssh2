@@ -239,11 +239,12 @@ banner_send(LIBSSH2_SESSION * session)
                        banner, session->banner_TxRx_total_send);
 
     if (ret != (banner_len - session->banner_TxRx_total_send)) {
-        if ((ret > 0) || ((ret == -1) && (ret == -EAGAIN))) {
+        if (ret >= 0 || ret == -EAGAIN) {
             /* the whole packet could not be sent, save the what was */
             session->socket_block_directions =
                 LIBSSH2_SESSION_BLOCK_OUTBOUND;
-            session->banner_TxRx_total_send += ret;
+            if (ret > 0)
+                session->banner_TxRx_total_send += ret;
             return LIBSSH2_ERROR_EAGAIN;
         }
         session->banner_TxRx_state = libssh2_NB_state_idle;
