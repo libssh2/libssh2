@@ -363,9 +363,9 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                                PACKETBUFSIZE - remainbuf, -nread);
                 return LIBSSH2_ERROR_SOCKET_RECV;
             }
-           _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                          "Recved %d/%d bytes to %p+%d", nread,
-                          PACKETBUFSIZE - remainbuf, p->buf, remainbuf);
+            _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
+                           "Recved %d/%d bytes to %p+%d", nread,
+                           PACKETBUFSIZE - remainbuf, p->buf, remainbuf);
 
             debugdump(session, "libssh2_transport_read() raw",
                       &p->buf[remainbuf], nread);
@@ -616,7 +616,9 @@ send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
         /* the remainder of the package was sent */
         p->ototal_num = 0;
         p->olen = 0;
-        *ret = 0; /* don't return */
+        /* we leave *ret set so that the parent returns as we MUST return back
+           a send success now, so that we don't risk sending EAGAIN later
+           which then would confuse the parent function */
         return LIBSSH2_ERROR_NONE;
 
     }
