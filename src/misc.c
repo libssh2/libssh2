@@ -100,7 +100,7 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length, int flags)
 #ifdef WIN32
     if (rc < 0 )
         return -wsa2errno();
-#elsif defined(__VMS)
+#elif defined(__VMS)
     if (rc < 0 ){
         if ( errno == EWOULDBLOCK )
             return -EAGAIN;
@@ -126,7 +126,7 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 #ifdef WIN32
     if (rc < 0 )
         return -wsa2errno();
-#elsif defined(__VMS)
+#elif defined(__VMS)
     if (rc < 0 ) {
         if ( errno == EWOULDBLOCK )
             return -EAGAIN;
