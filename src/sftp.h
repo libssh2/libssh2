@@ -42,7 +42,7 @@
 /*
  * MAX_SFTP_OUTGOING_SIZE MUST not be larger than 32500 or so
  */
-#define MAX_SFTP_OUTGOING_SIZE 4000
+#define MAX_SFTP_OUTGOING_SIZE 30000
 
 struct sftp_write_chunk {
     struct list_node node;
