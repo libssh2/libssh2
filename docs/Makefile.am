@@ -135,6 +135,7 @@ dist_man_MANS = \
 	libssh2_sftp_rmdir.3 \
 	libssh2_sftp_rmdir_ex.3 \
 	libssh2_sftp_seek.3 \
+	libssh2_sftp_seek64.3 \
 	libssh2_sftp_setstat.3 \
 	libssh2_sftp_shutdown.3 \
 	libssh2_sftp_stat.3 \
