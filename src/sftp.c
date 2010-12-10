@@ -1719,15 +1719,6 @@ libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *hnd,
     return rc;
 }
 
-/* libssh2_sftp_seek
- * Set the read/write pointer to an arbitrary position within the file
- */
-LIBSSH2_API void
-libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle, size_t offset)
-{
-    if(handle)
-        handle->u.file.offset = offset;
-}
 
 /* libssh2_sftp_seek64
  * Set the read/write pointer to an arbitrary position within the file
@@ -1736,7 +1727,16 @@ LIBSSH2_API void
 libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle, libssh2_uint64_t offset)
 {
     if(handle)
-        handle->u.file.offset = offset;
+        handle->u.file.offset = handle->u.file.offset_sent = offset;
+}
+
+/* libssh2_sftp_seek
+ * Set the read/write pointer to an arbitrary position within the file
+ */
+LIBSSH2_API void
+libssh2_sftp_seek(LIBSSH2_SFTP_HANDLE *handle, size_t offset)
+{
+    libssh2_sftp_seek64(handle, (libssh2_uint64_t)offset);
 }
 
 /* libssh2_sftp_tell
