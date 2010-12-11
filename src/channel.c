@@ -2304,9 +2304,9 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
     if (channel->close_state == libssh2_NB_state_sent) {
         /* We must wait for the remote SSH_MSG_CHANNEL_CLOSE message */
 
-        while (!channel->remote.close && !rc) {
+        while (!channel->remote.close && !rc &&
+               (session->socket_state != LIBSSH2_SOCKET_DISCONNECTED))
             rc = _libssh2_transport_read(session);
-        }
     }
 
     if(rc != LIBSSH2_ERROR_EAGAIN) {
