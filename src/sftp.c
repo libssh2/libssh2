@@ -1430,7 +1430,6 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     int rc;
     struct sftp_write_chunk *chunk;
     struct sftp_write_chunk *next;
-    size_t sent = 0;
     size_t acked = 0;
     size_t org_count = count;
     size_t eagain = 0;
@@ -1513,7 +1512,6 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
             /* remember where to continue sending the next time */
             chunk->lefttosend -= rc;
             chunk->sent += rc;
-            sent += rc;
 
             if(chunk->lefttosend)
                 /* data left to send, get out of loop */
