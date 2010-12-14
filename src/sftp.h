@@ -40,9 +40,15 @@
  */
 
 /*
- * MAX_SFTP_OUTGOING_SIZE MUST not be larger than 32500 or so
+ * MAX_SFTP_OUTGOING_SIZE MUST not be larger than 32500 or so. This is the
+ * amount of data sent in each FXP_WRITE packet
  */
 #define MAX_SFTP_OUTGOING_SIZE 30000
+
+/* MAX_SFTP_READ_SIZE is how much data is asked for at max in each FXP_READ
+ * packets.
+ */
+#define MAX_SFTP_READ_SIZE 2000
 
 struct sftp_write_chunk {
     struct list_node node;
@@ -53,9 +59,19 @@ struct sftp_write_chunk {
     unsigned char packet[1]; /* data */
 };
 
+struct sftp_read_chunk {
+    struct list_node node;
+    size_t askedfor; /* number of bytes asked for */
+    size_t sent; /* how much of the packet that has been sent off */
+    ssize_t lefttosend; /* if 0, the entire packet has been sent off */
+    uint32_t request_id;
+    unsigned char packet[1]; /* data */
+};
+
 #ifndef MIN
 #define MIN(x,y) ((x)<(y)?(x):(y))
 #endif
+
 
 #define SFTP_HANDLE_MAXLEN 256 /* according to spec! */
 
@@ -65,15 +81,13 @@ struct _LIBSSH2_SFTP_HANDLE
 
     LIBSSH2_SFTP *sftp;
 
-    /* This is a pre-allocated buffer used for sending SFTP requests as the
-       whole thing might not get sent in one go. This buffer is used for read,
-       write, close and MUST thus be big enough to suit all these. */
-    unsigned char request_packet[SFTP_HANDLE_MAXLEN + 25];
-
     char handle[SFTP_HANDLE_MAXLEN];
     size_t handle_len;
 
-    char handle_type;
+    enum {
+        LIBSSH2_SFTP_HANDLE_FILE,
+        LIBSSH2_SFTP_HANDLE_DIR
+    } handle_type;
 
     union _libssh2_sftp_handle_data
     {
@@ -82,7 +96,18 @@ struct _LIBSSH2_SFTP_HANDLE
             libssh2_uint64_t offset;
             libssh2_uint64_t offset_sent;
             size_t acked; /* container for acked data that hasn't been
-                             returned yet */
+                             returned to caller yet, used for sftp_write */
+
+            /* 'data' is used by sftp_read() and is allocated data that has
+               been received already from the server but wasn't returned to
+               the caller yet. It is of size 'data_len' and 'data_left is the
+               number of bytes not yet returned, counted from the end of the
+               buffer. */
+            unsigned char *data;
+            size_t data_len;
+            size_t data_left;
+
+            char eof; /* we have read to the end */
         } file;
         struct _libssh2_sftp_handle_dir_data
         {
@@ -97,8 +122,8 @@ struct _LIBSSH2_SFTP_HANDLE
     unsigned long close_request_id;
     unsigned char *close_packet;
 
-    /* list of chunks being written to server */
-    struct list_head write_list;
+    /* list of outstanding packets sent to server */
+    struct list_head packet_list;
 
 };
 
@@ -142,9 +167,6 @@ struct _LIBSSH2_SFTP
     libssh2_nonblocking_states readdir_state;
     unsigned char *readdir_packet;
     uint32_t readdir_request_id;
-
-    /* State variables used in libssh2_sftp_write() */
-    uint32_t write_request_id;
 
     /* State variables used in libssh2_sftp_fstat_ex() */
     libssh2_nonblocking_states fstat_state;
