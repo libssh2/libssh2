@@ -90,6 +90,10 @@
 #define SSH_FXE_STATVFS_ST_NOSUID               0x00000002
 
 static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
+static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
+                           int request_id, unsigned char **data,
+                           size_t *data_len);
+static void sftp_packet_flush(LIBSSH2_SFTP *sftp);
 
 /* sftp_attrsize
  * Size that attr with this flagset will occupy when turned into a bin struct
@@ -250,6 +254,45 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
 
     return packet[0];
 }
+/*
+ * sftp_packetlist_flush
+ *
+ * Remove all pending packets in the packet_list and the corresponding one(s)
+ * in the SFTP packet brigade.
+ */
+static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
+{
+    /* the packet_list can contain either read or write chunks, but this
+       function is genericly freeing either kind as the 'node' linked list
+       header is at the same spot in both structs */
+    struct sftp_write_chunk *chunk;
+    LIBSSH2_SFTP *sftp = handle->sftp;
+    LIBSSH2_SESSION *session = sftp->channel->session;
+
+    /* remove pending packets, if any */
+    chunk = _libssh2_list_first(&handle->packet_list);
+    while(chunk) {
+        unsigned char *data;
+        size_t data_len;
+        int rc;
+        struct sftp_write_chunk *next = _libssh2_list_next(&chunk->node);
+
+        rc = sftp_packet_ask(sftp, SSH_FXP_STATUS,
+                             chunk->request_id, &data, &data_len);
+        if(rc)
+            rc = sftp_packet_ask(sftp, SSH_FXP_DATA,
+                                 chunk->request_id, &data, &data_len);
+
+        if(!rc)
+            /* we found a packet, free it */
+            LIBSSH2_FREE(session, data);
+
+        _libssh2_list_remove(&chunk->node);
+        LIBSSH2_FREE(session, chunk);
+        chunk = next;
+    }
+}
+
 
 /*
  * sftp_packet_ask()
@@ -264,16 +307,15 @@ sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
     LIBSSH2_SESSION *session = sftp->channel->session;
     LIBSSH2_PACKET *packet = _libssh2_list_first(&sftp->packets);
     unsigned char match_buf[5];
-    int match_len;
+    int match_len = 1;
 
-    _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Asking for %d packet",
-                   (int) packet_type);
+    if(!packet)
+        return -1;
 
     match_buf[0] = packet_type;
-    if (packet_type == SSH_FXP_VERSION) {
-        /* Special consideration when matching VERSION packet */
-        match_len = 1;
-    } else {
+
+    /* Special consideration when getting VERSION packet */
+    if (packet_type != SSH_FXP_VERSION) {
         match_len = 5;
         _libssh2_htonu32(match_buf + 1, request_id);
     }
@@ -794,6 +836,8 @@ sftp_shutdown(LIBSSH2_SFTP *sftp)
         sftp->symlink_packet = NULL;
     }
 
+    sftp_packet_flush(sftp);
+
     /* TODO: We should consider walking over the sftp_handles list and kill
      * any remaining sftp handles ... */
 
@@ -1179,16 +1223,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         case SSH_FXP_STATUS:
             /* we must remove all outstanding READ requests, as either we got
                an error or we're at end of file */
-
-            rc = chunk->request_id;
-            do {
-                next = _libssh2_list_next(&chunk->node);
-
-                _libssh2_list_remove(&chunk->node); /* remove from list */
-                LIBSSH2_FREE(session, chunk); /* free memory */
-
-                chunk = next;
-            } while(chunk);
+            sftp_packetlist_flush(handle);
 
             rc32 = _libssh2_ntohu32(data + 5);
             LIBSSH2_FREE(session, data);
@@ -1837,6 +1872,29 @@ libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE *handle)
     return handle->u.file.offset;
 }
 
+/*
+ * Flush all remaining incoming SFTP packets.
+ */
+static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
+{
+    LIBSSH2_CHANNEL *channel = sftp->channel;
+    LIBSSH2_SESSION *session = channel->session;
+    LIBSSH2_PACKET *packet = _libssh2_list_first(&sftp->packets);
+
+    while(packet) {
+        LIBSSH2_PACKET *next;
+
+        /* check next struct in the list */
+        next =  _libssh2_list_next(&packet->node);
+        _libssh2_list_remove(&packet->node);
+        LIBSSH2_FREE(session, packet->data);
+        LIBSSH2_FREE(session, packet);
+
+        packet = next;
+    }
+
+}
+
 /* sftp_close_handle
  *
  * Close a file or directory handle
@@ -1854,7 +1912,6 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
     ssize_t packet_len = handle->handle_len + 13;
     unsigned char *s, *data = NULL;
     int rc;
-    struct sftp_write_chunk *chunk;
 
     if (handle->close_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Closing handle");
@@ -1933,15 +1990,8 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         if(handle->u.file.data)
             LIBSSH2_FREE(session, handle->u.file.data);
     }
-    /* remove pending packets, if any */
-    chunk = _libssh2_list_first(&handle->packet_list);
-    while(chunk) {
-        struct sftp_write_chunk *next =
-            _libssh2_list_next(&chunk->node);
-        _libssh2_list_remove(&chunk->node);
-        LIBSSH2_FREE(session, chunk);
-        chunk = next;
-    }
+
+    sftp_packetlist_flush(handle);
 
     handle->close_state = libssh2_NB_state_idle;
 
