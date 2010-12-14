@@ -1933,17 +1933,15 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         if(handle->u.file.data)
             LIBSSH2_FREE(session, handle->u.file.data);
     }
-    /* remove pending write chunks */
-    do {
-        chunk = _libssh2_list_first(&handle->packet_list);
-        if(chunk) {
-            struct sftp_write_chunk *next =
-                _libssh2_list_next(&chunk->node);
-            _libssh2_list_remove(&chunk->node);
-            LIBSSH2_FREE(session, chunk);
-            chunk = next;
-        }
-    } while(chunk);
+    /* remove pending packets, if any */
+    chunk = _libssh2_list_first(&handle->packet_list);
+    while(chunk) {
+        struct sftp_write_chunk *next =
+            _libssh2_list_next(&chunk->node);
+        _libssh2_list_remove(&chunk->node);
+        LIBSSH2_FREE(session, chunk);
+        chunk = next;
+    }
 
     handle->close_state = libssh2_NB_state_idle;
 
