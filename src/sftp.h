@@ -50,19 +50,11 @@
  */
 #define MAX_SFTP_READ_SIZE 2000
 
-struct sftp_write_chunk {
+struct sftp_pipeline_chunk {
     struct list_node node;
-    size_t org_buflen;
+    size_t len; /* WRITE: size of the data to write
+                   READ: how many bytes that was asked for */
     size_t sent;
-    ssize_t lefttosend; /* if 0, the entire packet has been sent off */
-    uint32_t request_id;
-    unsigned char packet[1]; /* data */
-};
-
-struct sftp_read_chunk {
-    struct list_node node;
-    size_t askedfor; /* number of bytes asked for */
-    size_t sent; /* how much of the packet that has been sent off */
     ssize_t lefttosend; /* if 0, the entire packet has been sent off */
     uint32_t request_id;
     unsigned char packet[1]; /* data */

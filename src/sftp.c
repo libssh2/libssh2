@@ -262,10 +262,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
  */
 static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
 {
-    /* the packet_list can contain either read or write chunks, but this
-       function is genericly freeing either kind as the 'node' linked list
-       header is at the same spot in both structs */
-    struct sftp_write_chunk *chunk;
+    struct sftp_pipeline_chunk *chunk;
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_SESSION *session = sftp->channel->session;
 
@@ -275,7 +272,7 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
         unsigned char *data;
         size_t data_len;
         int rc;
-        struct sftp_write_chunk *next = _libssh2_list_next(&chunk->node);
+        struct sftp_pipeline_chunk *next = _libssh2_list_next(&chunk->node);
 
         rc = sftp_packet_ask(sftp, SSH_FXP_STATUS,
                              chunk->request_id, &data, &data_len);
@@ -1087,8 +1084,8 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     size_t count;
-    struct sftp_read_chunk *chunk;
-    struct sftp_read_chunk *next;
+    struct sftp_pipeline_chunk *chunk;
+    struct sftp_pipeline_chunk *next;
     int rc;
     size_t eagain = 0;
     size_t total_read = 0;
@@ -1129,12 +1126,12 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         uint32_t request_id;
 
         chunk = LIBSSH2_ALLOC(session, packet_len +
-                              sizeof(struct sftp_read_chunk));
+                              sizeof(struct sftp_pipeline_chunk));
         if (!chunk)
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                   "malloc fail for FXP_WRITE");
 
-        chunk->askedfor = size;
+        chunk->len = size;
         chunk->lefttosend = packet_len;
         chunk->sent = 0;
 
@@ -1245,7 +1242,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                       "SFTP Protocol badness");
 
-            if(rc32 != chunk->askedfor)
+            if(rc32 != chunk->len)
                 /* a short read means this is the last read in the file */
                 filep->eof = TRUE;
 
@@ -1535,8 +1532,8 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     ssize_t packet_len;
     unsigned char *s, *data;
     int rc;
-    struct sftp_write_chunk *chunk;
-    struct sftp_write_chunk *next;
+    struct sftp_pipeline_chunk *chunk;
+    struct sftp_pipeline_chunk *next;
     size_t acked = 0;
     size_t org_count = count;
     size_t eagain = 0;
@@ -1571,12 +1568,12 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
         packet_len = handle->handle_len + size + 25;
 
         chunk = LIBSSH2_ALLOC(session, packet_len +
-                              sizeof(struct sftp_write_chunk));
+                              sizeof(struct sftp_pipeline_chunk));
         if (!chunk)
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                   "malloc fail for FXP_WRITE");
 
-        chunk->org_buflen = size;
+        chunk->len = size;
         chunk->sent = 0;
         chunk->lefttosend = packet_len;
 
@@ -1656,11 +1653,11 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
 
         sftp->last_errno = retcode;
         if (retcode == LIBSSH2_FX_OK) {
-            acked += chunk->org_buflen; /* number of payload data that was
-                                           acked here */
+            acked += chunk->len; /* number of payload data that was acked
+                                    here */
 
             /* we increase the offset value for all acks */
-            handle->u.file.offset += chunk->org_buflen;
+            handle->u.file.offset += chunk->len;
 
             next = _libssh2_list_next(&chunk->node);
 
