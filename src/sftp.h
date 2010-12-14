@@ -64,6 +64,15 @@ struct sftp_pipeline_chunk {
 #define MIN(x,y) ((x)<(y)?(x):(y))
 #endif
 
+struct _LIBSSH2_SFTP_PACKET
+{
+    struct list_node node;   /* linked list header */
+    int request_id;
+    unsigned char *data;
+    size_t data_len;              /* payload size */
+};
+
+typedef struct _LIBSSH2_SFTP_PACKET LIBSSH2_SFTP_PACKET;
 
 #define SFTP_HANDLE_MAXLEN 256 /* according to spec! */
 

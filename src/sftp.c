@@ -138,20 +138,19 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
                 size_t data_len)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
-    LIBSSH2_PACKET *packet;
+    LIBSSH2_SFTP_PACKET *packet;
 
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Received packet %d (len %d)",
                    (int) data[0], data_len);
-    packet = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_PACKET));
+    packet = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_SFTP_PACKET));
     if (!packet) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate datablock for SFTP packet");
     }
-    memset(packet, 0, sizeof(LIBSSH2_PACKET));
 
     packet->data = data;
     packet->data_len = data_len;
-    packet->data_head = 5;
+    packet->request_id = _libssh2_ntohu32(&data[1]);
 
     _libssh2_list_add(&sftp->packets, &packet->node);
 
@@ -302,23 +301,17 @@ sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
                 size_t *data_len)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
-    LIBSSH2_PACKET *packet = _libssh2_list_first(&sftp->packets);
-    unsigned char match_buf[5];
-    int match_len = 1;
+    LIBSSH2_SFTP_PACKET *packet = _libssh2_list_first(&sftp->packets);
 
     if(!packet)
         return -1;
 
-    match_buf[0] = packet_type;
-
     /* Special consideration when getting VERSION packet */
-    if (packet_type != SSH_FXP_VERSION) {
-        match_len = 5;
-        _libssh2_htonu32(match_buf + 1, request_id);
-    }
 
     while (packet) {
-        if (!memcmp((char *) packet->data, (char *) match_buf, match_len)) {
+        if((packet->data[0] == packet_type) &&
+           ((packet_type == SSH_FXP_VERSION) ||
+            (packet->request_id == request_id))) {
 
             /* Match! Fetch the data */
             *data = packet->data;
@@ -1876,10 +1869,10 @@ static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    LIBSSH2_PACKET *packet = _libssh2_list_first(&sftp->packets);
+    LIBSSH2_SFTP_PACKET *packet = _libssh2_list_first(&sftp->packets);
 
     while(packet) {
-        LIBSSH2_PACKET *next;
+        LIBSSH2_SFTP_PACKET *next;
 
         /* check next struct in the list */
         next =  _libssh2_list_next(&packet->node);
