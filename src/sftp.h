@@ -112,7 +112,7 @@ struct _LIBSSH2_SFTP_HANDLE
         } file;
         struct _libssh2_sftp_handle_dir_data
         {
-            unsigned long names_left;
+            uint32_t names_left;
             void *names_packet;
             char *next_name;
         } dir;

@@ -1317,7 +1317,8 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len, filename_len, longentry_len, num_names;
+    size_t data_len, filename_len, longentry_len;
+    uint32_t num_names;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     ssize_t packet_len = handle->handle_len + 13;
     unsigned char *s, *data;
@@ -1449,9 +1450,9 @@ static int sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     num_names = _libssh2_ntohu32(data + 5);
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "%lu entries returned",
                    num_names);
-    if (num_names <= 0) {
+    if (!num_names) {
         LIBSSH2_FREE(session, data);
-        return (num_names == 0) ? 0 : -1;
+        return 0;
     }
 
     handle->u.dir.names_left = num_names;
