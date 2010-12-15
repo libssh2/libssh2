@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
     int rc;
-    int exitcode;
+    int exitcode = 0;
     char *exitsignal=(char *)"none";
     size_t len;
     LIBSSH2_KNOWNHOSTS *nh;
@@ -357,5 +357,5 @@ int main(int argc, char *argv[])
 
     libssh2_exit();
 
-    return 0;
+    return exitcode;
 }
