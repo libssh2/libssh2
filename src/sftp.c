@@ -91,7 +91,7 @@
 
 static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
 static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
-                           int request_id, unsigned char **data,
+                           uint32_t request_id, unsigned char **data,
                            size_t *data_len);
 static void sftp_packet_flush(LIBSSH2_SFTP *sftp);
 
@@ -297,7 +297,7 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
  */
 static int
 sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
-                int request_id, unsigned char **data,
+                uint32_t request_id, unsigned char **data,
                 size_t *data_len)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
@@ -334,7 +334,7 @@ sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
  */
 static int
 sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
-                    int request_id, unsigned char **data,
+                    uint32_t request_id, unsigned char **data,
                     size_t *data_len)
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
@@ -377,7 +377,7 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
 static int
 sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
                      const unsigned char *valid_responses,
-                     int request_id, unsigned char **data,
+                     uint32_t request_id, unsigned char **data,
                      size_t *data_len)
 {
     int i;

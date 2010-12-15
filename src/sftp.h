@@ -67,7 +67,7 @@ struct sftp_pipeline_chunk {
 struct _LIBSSH2_SFTP_PACKET
 {
     struct list_node node;   /* linked list header */
-    int request_id;
+    uint32_t request_id;
     unsigned char *data;
     size_t data_len;              /* payload size */
 };
@@ -120,7 +120,7 @@ struct _LIBSSH2_SFTP_HANDLE
 
     /* State variables used in libssh2_sftp_close_handle() */
     libssh2_nonblocking_states close_state;
-    unsigned long close_request_id;
+    uint32_t close_request_id;
     unsigned char *close_packet;
 
     /* list of outstanding packets sent to server */
@@ -132,7 +132,7 @@ struct _LIBSSH2_SFTP
 {
     LIBSSH2_CHANNEL *channel;
 
-    unsigned long request_id, version;
+    uint32_t request_id, version;
 
     struct list_head packets;
 
