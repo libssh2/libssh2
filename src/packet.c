@@ -531,7 +531,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
         case SSH_MSG_DEBUG:
             if(datalen >= 2) {
-                int always_display=always_display = data[1];
+                int always_display= data[1];
 
                 if(datalen >= 6) {
                     message_len = _libssh2_ntohu32(data + 2);
