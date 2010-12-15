@@ -49,6 +49,7 @@
 #include <assert.h>
 
 #include "transport.h"
+#include "mac.h"
 
 #define MAX_BLOCKSIZE 32    /* MUST fit biggest crypto block size we use/get */
 #define MAX_MACSIZE 20      /* MUST fit biggest MAC length we support */

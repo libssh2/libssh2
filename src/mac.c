@@ -44,9 +44,9 @@
  */
 static int
 mac_none_MAC(LIBSSH2_SESSION * session, unsigned char *buf,
-             unsigned long seqno, const unsigned char *packet,
-             unsigned long packet_len, const unsigned char *addtl,
-             unsigned long addtl_len, void **abstract)
+             uint32_t seqno, const unsigned char *packet,
+             uint32_t packet_len, const unsigned char *addtl,
+             uint32_t addtl_len, void **abstract)
 {
     return 0;
 }
@@ -101,11 +101,11 @@ mac_method_common_dtor(LIBSSH2_SESSION * session, void **abstract)
  */
 static int
 mac_method_hmac_sha1_hash(LIBSSH2_SESSION * session,
-                          unsigned char *buf, unsigned long seqno,
+                          unsigned char *buf, uint32_t seqno,
                           const unsigned char *packet,
-                          unsigned long packet_len,
+                          uint32_t packet_len,
                           const unsigned char *addtl,
-                          unsigned long addtl_len, void **abstract)
+                          uint32_t addtl_len, void **abstract)
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
@@ -141,11 +141,11 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1 = {
  */
 static int
 mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION * session,
-                             unsigned char *buf, unsigned long seqno,
+                             unsigned char *buf, uint32_t seqno,
                              const unsigned char *packet,
-                             unsigned long packet_len,
+                             uint32_t packet_len,
                              const unsigned char *addtl,
-                             unsigned long addtl_len, void **abstract)
+                             uint32_t addtl_len, void **abstract)
 {
     unsigned char temp[SHA_DIGEST_LENGTH];
 
@@ -173,11 +173,11 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1_96 = {
  */
 static int
 mac_method_hmac_md5_hash(LIBSSH2_SESSION * session, unsigned char *buf,
-                         unsigned long seqno,
+                         uint32_t seqno,
                          const unsigned char *packet,
-                         unsigned long packet_len,
+                         uint32_t packet_len,
                          const unsigned char *addtl,
-                         unsigned long addtl_len, void **abstract)
+                         uint32_t addtl_len, void **abstract)
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
@@ -213,11 +213,11 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_md5 = {
  */
 static int
 mac_method_hmac_md5_96_hash(LIBSSH2_SESSION * session,
-                            unsigned char *buf, unsigned long seqno,
+                            unsigned char *buf, uint32_t seqno,
                             const unsigned char *packet,
-                            unsigned long packet_len,
+                            uint32_t packet_len,
                             const unsigned char *addtl,
-                            unsigned long addtl_len, void **abstract)
+                            uint32_t addtl_len, void **abstract)
 {
     unsigned char temp[MD5_DIGEST_LENGTH];
     mac_method_hmac_md5_hash(session, temp, seqno, packet, packet_len,
@@ -244,11 +244,11 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_md5_96 = {
  */
 static int
 mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION * session,
-                               unsigned char *buf, unsigned long seqno,
+                               unsigned char *buf, uint32_t seqno,
                                const unsigned char *packet,
-                               unsigned long packet_len,
+                               uint32_t packet_len,
                                const unsigned char *addtl,
-                               unsigned long addtl_len,
+                               uint32_t addtl_len,
                                void **abstract)
 {
     libssh2_hmac_ctx ctx;

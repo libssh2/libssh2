@@ -55,6 +55,7 @@
 #include "transport.h"
 #include "session.h"
 #include "channel.h"
+#include "mac.h"
 
 /* libssh2_default_alloc
  */

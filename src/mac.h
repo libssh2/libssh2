@@ -1,7 +1,7 @@
 #ifndef __LIBSSH2_MAC_H
 #define __LIBSSH2_MAC_H
 
-/* Copyright (C) 2009 by Daniel Stenberg
+/* Copyright (C) 2009-2010 by Daniel Stenberg
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided
@@ -39,6 +39,28 @@
  */
 
 #include "libssh2_priv.h"
+
+struct _LIBSSH2_MAC_METHOD
+{
+    const char *name;
+
+    /* The length of a given MAC packet */
+    int mac_len;
+
+    /* integrity key length */
+    int key_len;
+
+    /* Message Authentication Code Hashing algo */
+    int (*init) (LIBSSH2_SESSION * session, unsigned char *key, int *free_key,
+                 void **abstract);
+    int (*hash) (LIBSSH2_SESSION * session, unsigned char *buf,
+                 uint32_t seqno, const unsigned char *packet,
+                 uint32_t packet_len, const unsigned char *addtl,
+                 uint32_t addtl_len, void **abstract);
+    int (*dtor) (LIBSSH2_SESSION * session, void **abstract);
+};
+
+typedef struct _LIBSSH2_MAC_METHOD LIBSSH2_MAC_METHOD;
 
 const LIBSSH2_MAC_METHOD **_libssh2_mac_methods(void);
 

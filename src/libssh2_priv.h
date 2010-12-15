@@ -178,7 +178,6 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
 
 typedef struct _LIBSSH2_KEX_METHOD LIBSSH2_KEX_METHOD;
 typedef struct _LIBSSH2_HOSTKEY_METHOD LIBSSH2_HOSTKEY_METHOD;
-typedef struct _LIBSSH2_MAC_METHOD LIBSSH2_MAC_METHOD;
 typedef struct _LIBSSH2_CRYPT_METHOD LIBSSH2_CRYPT_METHOD;
 typedef struct _LIBSSH2_COMP_METHOD LIBSSH2_COMP_METHOD;
 
@@ -310,7 +309,7 @@ struct _LIBSSH2_PACKET
 
     /* Where to start reading data from,
      * used for channel data that's been partially consumed */
-    unsigned long data_head;
+    size_t data_head;
 };
 
 typedef struct _libssh2_channel_data
@@ -319,7 +318,7 @@ typedef struct _libssh2_channel_data
     uint32_t id;
 
     /* Limits and restrictions */
-    unsigned long window_size_initial, window_size, packet_size;
+    uint32_t window_size_initial, window_size, packet_size;
 
     /* Set to 1 when CHANNEL_CLOSE / CHANNEL_EOF sent/received */
     char close, eof, extended_data_ignore_mode;
@@ -340,7 +339,7 @@ struct _LIBSSH2_CHANNEL
 
     libssh2_channel_data local, remote;
     /* Amount of bytes to be refunded to receive window (but not yet sent) */
-    unsigned long adjust_queue;
+    int adjust_queue;
 
     LIBSSH2_SESSION *session;
 
@@ -445,8 +444,8 @@ typedef struct _libssh2_endpoint_data
     const LIBSSH2_CRYPT_METHOD *crypt;
     void *crypt_abstract;
 
-    const LIBSSH2_MAC_METHOD *mac;
-    unsigned long seqno;
+    const struct _LIBSSH2_MAC_METHOD *mac;
+    uint32_t seqno;
     void *mac_abstract;
 
     const LIBSSH2_COMP_METHOD *comp;
@@ -499,7 +498,7 @@ struct transportpacket
 struct _LIBSSH2_PUBLICKEY
 {
     LIBSSH2_CHANNEL *channel;
-    unsigned long version;
+    uint32_t version;
 
     /* State variables used in libssh2_publickey_packet_receive() */
     libssh2_nonblocking_states receive_state;
@@ -560,7 +559,7 @@ struct _LIBSSH2_SESSION
     int burn_optimistic_kexinit:1;
 
     unsigned char *session_id;
-    unsigned long session_id_len;
+    uint32_t session_id_len;
 
     /* this is set to TRUE if a blocking API behavior is requested */
     int api_block_mode;
@@ -573,7 +572,7 @@ struct _LIBSSH2_SESSION
      * Or read from server in (eg) KEXDH_INIT (for client mode)
      */
     unsigned char *server_hostkey;
-    unsigned long server_hostkey_len;
+    uint32_t server_hostkey_len;
 #if LIBSSH2_MD5
     unsigned char server_hostkey_md5[MD5_DIGEST_LENGTH];
 #endif                          /* ! LIBSSH2_MD5 */
@@ -592,7 +591,7 @@ struct _LIBSSH2_SESSION
     /* Active connection channels */
     struct list_head channels;
 
-    unsigned long next_channel;
+    uint32_t next_channel;
 
     struct list_head listeners; /* list of LIBSSH2_LISTENER structs */
 
@@ -720,8 +719,8 @@ struct _LIBSSH2_SESSION
     /* State variables used in libssh2_channel_forward_listen_ex() */
     libssh2_nonblocking_states fwdLstn_state;
     unsigned char *fwdLstn_packet;
-    unsigned long fwdLstn_host_len;
-    unsigned long fwdLstn_packet_len;
+    uint32_t fwdLstn_host_len;
+    uint32_t fwdLstn_packet_len;
     packet_requirev_state_t fwdLstn_packet_requirev_state;
 
     /* State variables used in libssh2_publickey_init() */
@@ -759,9 +758,9 @@ struct _LIBSSH2_SESSION
     /* State variables used in libssh2_scp_recv() */
     libssh2_nonblocking_states scpRecv_state;
     unsigned char *scpRecv_command;
-    unsigned long scpRecv_command_len;
+    size_t scpRecv_command_len;
     unsigned char scpRecv_response[LIBSSH2_SCP_RESPONSE_BUFLEN];
-    unsigned long scpRecv_response_len;
+    size_t scpRecv_response_len;
     long scpRecv_mode;
 #if defined(HAVE_LONGLONG) && defined(HAVE_STRTOLL)
     /* we have the type and we can parse such numbers */
@@ -778,9 +777,9 @@ struct _LIBSSH2_SESSION
     /* State variables used in libssh2_scp_send_ex() */
     libssh2_nonblocking_states scpSend_state;
     unsigned char *scpSend_command;
-    unsigned long scpSend_command_len;
+    size_t scpSend_command_len;
     unsigned char scpSend_response[LIBSSH2_SCP_RESPONSE_BUFLEN];
-    unsigned long scpSend_response_len;
+    size_t scpSend_response_len;
     LIBSSH2_CHANNEL *scpSend_channel;
 
     /* Keepalive variables used by keepalive.c. */
@@ -884,26 +883,6 @@ struct _LIBSSH2_COMP_METHOD
                    size_t src_len,
                    void **abstract);
     int (*dtor) (LIBSSH2_SESSION * session, int compress, void **abstract);
-};
-
-struct _LIBSSH2_MAC_METHOD
-{
-    const char *name;
-
-    /* The length of a given MAC packet */
-    int mac_len;
-
-    /* integrity key length */
-    int key_len;
-
-    /* Message Authentication Code Hashing algo */
-    int (*init) (LIBSSH2_SESSION * session, unsigned char *key, int *free_key,
-                 void **abstract);
-    int (*hash) (LIBSSH2_SESSION * session, unsigned char *buf,
-                 unsigned long seqno, const unsigned char *packet,
-                 unsigned long packet_len, const unsigned char *addtl,
-                 unsigned long addtl_len, void **abstract);
-    int (*dtor) (LIBSSH2_SESSION * session, void **abstract);
 };
 
 #ifdef LIBSSH2DEBUG
