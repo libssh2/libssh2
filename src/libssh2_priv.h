@@ -125,12 +125,7 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
 
 #endif /* WIN32 */
 
-
-#ifdef LIBSSH2_LIBGCRYPT
-#include "libgcrypt.h"
-#else
-#include "openssl.h"
-#endif
+#include "crypto.h"
 
 #ifdef HAVE_WINSOCK2_H
 
