@@ -225,17 +225,17 @@ aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 	return 0;
 
     switch (ctx->key_len) {
-        case 16:
-            aes_cipher = EVP_aes_128_ecb();
-            break;
-        case 24:
-            aes_cipher = EVP_aes_192_ecb();
-            break;
-        case 32:
-            aes_cipher = EVP_aes_256_ecb();
-            break;
-        default:
-            return 0;
+    case 16:
+        aes_cipher = EVP_aes_128_ecb();
+        break;
+    case 24:
+        aes_cipher = EVP_aes_192_ecb();
+        break;
+    case 32:
+        aes_cipher = EVP_aes_256_ecb();
+        break;
+    default:
+        return 0;
     }
     c->aes_ctx = malloc(sizeof(EVP_CIPHER_CTX));
     if (c->aes_ctx == NULL)
@@ -513,6 +513,276 @@ libssh2_md5(const unsigned char *message, unsigned long len,
     EVP_DigestInit(&ctx, EVP_get_digestbyname("md5"));
     EVP_DigestUpdate(&ctx, message, len);
     EVP_DigestFinal(&ctx, out, NULL);
+}
+
+static unsigned char *
+write_bn(unsigned char *buf, const BIGNUM *bn, int bn_bytes)
+{
+    unsigned char *p = buf;
+
+    /* Left space for bn size which will be written below. */
+    p += 4;
+
+    *p = 0;
+    BN_bn2bin(bn, p + 1);
+    if (!(*(p + 1) & 0x80)) {
+        memmove(p, p + 1, --bn_bytes);
+    }
+    _libssh2_htonu32(p - 4, bn_bytes);  /* Post write bn size. */
+
+    return p + bn_bytes;
+}
+
+static unsigned char *
+gen_publickey_from_rsa(LIBSSH2_SESSION *session, RSA *rsa,
+                       size_t *key_len)
+{
+    int            e_bytes, n_bytes;
+    unsigned long  len;
+    unsigned char* key;
+    unsigned char* p;
+
+    e_bytes = BN_num_bytes(rsa->e) + 1;
+    n_bytes = BN_num_bytes(rsa->n) + 1;
+
+    /* Key form is "ssh-rsa" + e + n. */
+    len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
+
+    key = LIBSSH2_ALLOC(session, len);
+    if (key == NULL) {
+        return NULL;
+    }
+
+    /* Process key encoding. */
+    p = key;
+
+    _libssh2_htonu32(p, 7);  /* Key type. */
+    p += 4;
+    memcpy(p, "ssh-rsa", 7);
+    p += 7;
+
+    p = write_bn(p, rsa->e, e_bytes);
+    p = write_bn(p, rsa->n, n_bytes);
+
+    *key_len = (size_t)(p - key);
+    return key;
+}
+
+static unsigned char *
+gen_publickey_from_dsa(LIBSSH2_SESSION* session, DSA *dsa,
+                       size_t *key_len)
+{
+    int            p_bytes, q_bytes, g_bytes, k_bytes;
+    unsigned long  len;
+    unsigned char* key;
+    unsigned char* p;
+
+    p_bytes = BN_num_bytes(dsa->p) + 1;
+    q_bytes = BN_num_bytes(dsa->q) + 1;
+    g_bytes = BN_num_bytes(dsa->g) + 1;
+    k_bytes = BN_num_bytes(dsa->pub_key) + 1;
+
+    /* Key form is "ssh-dss" + p + q + g + pub_key. */
+    len = 4 + 7 + 4 + p_bytes + 4 + q_bytes + 4 + g_bytes + 4 + k_bytes;
+
+    key = LIBSSH2_ALLOC(session, len);
+    if (key == NULL) {
+        return NULL;
+    }
+
+    /* Process key encoding. */
+    p = key;
+
+    _libssh2_htonu32(p, 7);  /* Key type. */
+    p += 4;
+    memcpy(p, "ssh-dss", 7);
+    p += 7;
+
+    p = write_bn(p, dsa->p, p_bytes);
+    p = write_bn(p, dsa->q, q_bytes);
+    p = write_bn(p, dsa->g, g_bytes);
+    p = write_bn(p, dsa->pub_key, k_bytes);
+
+    *key_len = (size_t)(p - key);
+    return key;
+}
+
+static int
+gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
+                           unsigned char **method,
+                           size_t *method_len,
+                           unsigned char **pubkeydata,
+                           size_t *pubkeydata_len,
+                           EVP_PKEY *pk)
+{
+    RSA*           rsa = NULL;
+    unsigned char* key;
+    unsigned char* method_buf = NULL;
+    size_t  key_len;
+
+    _libssh2_debug(session,
+                   LIBSSH2_TRACE_AUTH,
+                   "Computing public key from RSA private key envelop");
+
+    rsa = EVP_PKEY_get1_RSA(pk);
+    if (rsa == NULL) {
+        /* Assume memory allocation error... what else could it be ? */
+        goto __alloc_error;
+    }
+
+    method_buf = LIBSSH2_ALLOC(session, 7);  /* ssh-rsa. */
+    if (method_buf == NULL) {
+        goto __alloc_error;
+    }
+
+    key = gen_publickey_from_rsa(session, rsa, &key_len);
+    if (key == NULL) {
+        goto __alloc_error;
+    }
+    RSA_free(rsa);
+
+    memcpy(method_buf, "ssh-rsa", 7);
+    *method         = method_buf;
+    *method_len     = 7;
+    *pubkeydata     = key;
+    *pubkeydata_len = key_len;
+    return 0;
+
+  __alloc_error:
+    if (rsa != NULL) {
+        RSA_free(rsa);
+    }
+    if (method_buf != NULL) {
+        LIBSSH2_FREE(session, method_buf);
+    }
+
+    _libssh2_error(session,
+                   LIBSSH2_ERROR_ALLOC,
+                   "Unable to allocate memory for private key data");
+    return -1;
+}
+
+static int
+gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
+                           unsigned char **method,
+                           size_t *method_len,
+                           unsigned char **pubkeydata,
+                           size_t *pubkeydata_len,
+                           EVP_PKEY *pk)
+{
+    DSA*           dsa = NULL;
+    unsigned char* key;
+    unsigned char* method_buf = NULL;
+    size_t  key_len;
+
+    _libssh2_debug(session,
+                   LIBSSH2_TRACE_AUTH,
+                   "Computing public key from DSA private key envelop");
+
+    dsa = EVP_PKEY_get1_DSA(pk);
+    if (dsa == NULL) {
+        /* Assume memory allocation error... what else could it be ? */
+        goto __alloc_error;
+    }
+
+    method_buf = LIBSSH2_ALLOC(session, 7);  /* ssh-dss. */
+    if (method_buf == NULL) {
+        goto __alloc_error;
+    }
+
+    key = gen_publickey_from_dsa(session, dsa, &key_len);
+    if (key == NULL) {
+        goto __alloc_error;
+    }
+    DSA_free(dsa);
+
+    memcpy(method_buf, "ssh-dss", 7);
+    *method         = method_buf;
+    *method_len     = 7;
+    *pubkeydata     = key;
+    *pubkeydata_len = key_len;
+    return 0;
+
+  __alloc_error:
+    if (dsa != NULL) {
+        DSA_free(dsa);
+    }
+    if (method_buf != NULL) {
+        LIBSSH2_FREE(session, method_buf);
+    }
+
+    _libssh2_error(session,
+                   LIBSSH2_ERROR_ALLOC,
+                   "Unable to allocate memory for private key data");
+    return -1;
+}
+
+int
+_libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
+                          unsigned char **method,
+                          size_t *method_len,
+                          unsigned char **pubkeydata,
+                          size_t *pubkeydata_len,
+                          const char *privatekey,
+                          const char *passphrase)
+{
+    int       st;
+    BIO*	  bp;
+    EVP_PKEY* pk;
+
+    _libssh2_debug(session,
+                   LIBSSH2_TRACE_AUTH,
+                   "Computing public key from private key file: %s",
+                   privatekey);
+
+    bp = BIO_new_file(privatekey, "r");
+    if (bp == NULL) {
+        _libssh2_error(session,
+                       LIBSSH2_ERROR_FILE,
+                       "Unable to open private key file");
+        return -1;
+    }
+    if (!EVP_get_cipherbyname("des")) {
+        /* If this cipher isn't loaded it's a pretty good indication that none
+         * are.  I have *NO DOUBT* that there's a better way to deal with this
+         * ($#&%#$(%$#( Someone buy me an OpenSSL manual and I'll read up on
+         * it.
+         */
+        OpenSSL_add_all_ciphers();
+    }
+    BIO_reset(bp);
+    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void*)passphrase);
+    BIO_free(bp);
+
+    if (pk == NULL) {
+        _libssh2_error(session,
+                       LIBSSH2_ERROR_FILE,
+                       "Wrong passphrase or invalid/unrecognized "
+                       "private key file format");
+        return -1;
+    }
+
+    switch (pk->type) {
+    case EVP_PKEY_RSA :
+        st = gen_publickey_from_rsa_evp(
+            session, method, method_len, pubkeydata, pubkeydata_len, pk);
+        break;
+
+    case EVP_PKEY_DSA :
+        st = gen_publickey_from_dsa_evp(
+            session, method, method_len, pubkeydata, pubkeydata_len, pk);
+        break;
+
+    default :
+        st = -1;
+        _libssh2_error(session,
+                       LIBSSH2_ERROR_FILE,
+                       "Unsupported private key file format");
+        break;
+    }
+
+    EVP_PKEY_free(pk);
+    return st;
 }
 
 #endif /* !LIBSSH2_LIBGCRYPT */

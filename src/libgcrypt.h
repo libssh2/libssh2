@@ -207,3 +207,11 @@ int _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
 #define _libssh2_bn_bytes(bn) (gcry_mpi_get_nbits (bn) / 8 + ((gcry_mpi_get_nbits (bn) % 8 == 0) ? 0 : 1))
 #define _libssh2_bn_bits(bn) gcry_mpi_get_nbits (bn)
 #define _libssh2_bn_free(bn) gcry_mpi_release(bn)
+
+int _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
+                              unsigned char **method,
+                              size_t *method_len,
+                              unsigned char **pubkeydata,
+                              size_t *pubkeydata_len,
+                              const char *privatekey,
+                              const char *passphrase);

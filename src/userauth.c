@@ -655,13 +655,25 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         memset(&session->userauth_host_packet_requirev_state, 0,
                sizeof(session->userauth_host_packet_requirev_state));
 
-        rc = file_read_publickey(session, &session->userauth_host_method,
-                                 &session->userauth_host_method_len,
-                                 &pubkeydata, &pubkeydata_len,
-                                 publickey);
-        if(rc)
-            /* Note: file_read_publickey() calls _libssh2_error() */
-            return rc;
+        if (publickey) {
+            rc = file_read_publickey(session, &session->userauth_host_method,
+                                     &session->userauth_host_method_len,
+                                     &pubkeydata, &pubkeydata_len, publickey);
+            if(rc)
+                /* Note: file_read_publickey() calls _libssh2_error() */
+                return rc;
+        }
+        else {
+            /* Compute public key from private key. */
+            if (_libssh2_pub_priv_keyfile(session,
+                                          &session->userauth_host_method,
+                                          &session->userauth_host_method_len,
+                                          &pubkeydata, &pubkeydata_len,
+                                          privatekey, passphrase))
+                return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                                      "Unable to extract public key "
+                                      "from private key file");
+        }
 
         /*
          * 52 = packet_type(1) + username_len(4) + servicename_len(4) +
@@ -932,7 +944,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         else if (session->userauth_pblc_method_len !=
                  _libssh2_ntohu32(pubkeydata))
             return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
-                                 "Invalid public key");
+                                  "Invalid public key");
 
         /*
          * 45 = packet_type(1) + username_len(4) + servicename_len(4) +
@@ -1221,11 +1233,24 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
     privkey_file.passphrase = passphrase;
 
     if (session->userauth_pblc_state == libssh2_NB_state_idle) {
-        rc = file_read_publickey(session, &session->userauth_pblc_method,
-                                 &session->userauth_pblc_method_len,
-                                 &pubkeydata, &pubkeydata_len, publickey);
-        if(rc)
-            return rc;
+        if (publickey) {
+            rc = file_read_publickey(session, &session->userauth_pblc_method,
+                                     &session->userauth_pblc_method_len,
+                                     &pubkeydata, &pubkeydata_len,publickey);
+            if(rc)
+                return rc;
+        }
+        else {
+            /* Compute public key from private key. */
+            if (_libssh2_pub_priv_keyfile(session,
+                                          &session->userauth_pblc_method,
+                                          &session->userauth_pblc_method_len,
+                                          &pubkeydata, &pubkeydata_len,
+                                          privatekey, passphrase))
+                return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                                      "Unable to extract public key "
+                                      "from private key file");
+        }
     }
 
     rc = _libssh2_userauth_publickey(session, username, username_len,
@@ -1643,4 +1668,3 @@ libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session,
                                                response_callback));
     return rc;
 }
-

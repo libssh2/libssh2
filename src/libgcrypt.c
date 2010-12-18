@@ -572,4 +572,17 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     return ret;
 }
 
+int
+_libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
+                          unsigned char **method,
+                          size_t *method_len,
+                          unsigned char **pubkeydata,
+                          size_t *pubkeydata_len,
+                          const char *privatekey,
+                          const char *passphrase)
+{
+    return -1; /* not yet supported; interpreted by userauth.c to call
+                  libssh2_error */
+}
+
 #endif /* LIBSSH2_LIBGCRYPT */
