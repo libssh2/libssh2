@@ -156,8 +156,10 @@ _libssh2_ntohu64(const unsigned char *buf)
 {
     unsigned long msl, lsl;
 
-    msl = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
-    lsl = (buf[4] << 24) | (buf[5] << 16) | (buf[6] << 8) | buf[7];
+    msl = ((libssh2_uint64_t)buf[0] << 24) | ((libssh2_uint64_t)buf[1] << 16)
+        | ((libssh2_uint64_t)buf[2] << 8) | (libssh2_uint64_t)buf[3];
+    lsl = ((libssh2_uint64_t)buf[4] << 24) | ((libssh2_uint64_t)buf[5] << 16)
+        | ((libssh2_uint64_t)buf[6] << 8) | (libssh2_uint64_t)buf[7];
 
     return ((libssh2_uint64_t)msl <<32) | lsl;
 }
