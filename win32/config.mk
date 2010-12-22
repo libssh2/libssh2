@@ -1,7 +1,7 @@
 
 # Tweak these for your system
-OPENSSLINC=..\openssl-0.9.8o\inc32
-OPENSSLLIB=..\openssl-0.9.8o\out32dll
+OPENSSLINC=..\openssl-0.9.8q\inc32
+OPENSSLLIB=..\openssl-0.9.8q\out32dll
 
 ZLIBINC=-DLIBSSH2_HAVE_ZLIB=1 /I..\zlib-1.2.5
 ZLIBLIB=..\zlib-1.2.5
