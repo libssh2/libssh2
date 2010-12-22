@@ -215,14 +215,14 @@ typedef struct
 
 static int
 aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
-	     const unsigned char *iv, int enc) /* init key */
+             const unsigned char *iv, int enc) /* init key */
 {
     aes_ctr_ctx *c = malloc(sizeof(*c));
     const EVP_CIPHER *aes_cipher;
     (void) enc;
 
     if (c == NULL)
-	return 0;
+        return 0;
 
     switch (ctx->key_len) {
     case 16:
@@ -239,7 +239,7 @@ aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
     }
     c->aes_ctx = malloc(sizeof(EVP_CIPHER_CTX));
     if (c->aes_ctx == NULL)
-	return 0;
+        return 0;
 
     if (EVP_EncryptInit(c->aes_ctx, aes_cipher, key, NULL) != 1) {
         return 0;
@@ -256,8 +256,8 @@ aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 
 static int
 aes_ctr_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
-		  const unsigned char *in,
-		  unsigned int inl) /* encrypt/decrypt data */
+                  const unsigned char *in,
+                  unsigned int inl) /* encrypt/decrypt data */
 {
     aes_ctr_ctx *c = EVP_CIPHER_CTX_get_app_data(ctx);
     unsigned char b1[AES_BLOCK_SIZE];
@@ -265,7 +265,7 @@ aes_ctr_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
     int outlen = 0;
 
     if (inl != 16) /* libssh2 only ever encrypt one block */
-	return 0;
+        return 0;
 
     if (c == NULL) {
         return 0;
@@ -283,13 +283,13 @@ aes_ctr_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
     }
 
     for (i = 0; i < 16; i++)
-	*out++ = *in++ ^ b1[i];
+        *out++ = *in++ ^ b1[i];
 
     i = 15;
     while (c->ctr[i]++ == 0xFF) {
-	if (i == 0)
-	    break;
-	i--;
+        if (i == 0)
+            break;
+        i--;
     }
 
     return 1;
@@ -727,7 +727,7 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           const char *passphrase)
 {
     int       st;
-    BIO*	  bp;
+    BIO*      bp;
     EVP_PKEY* pk;
 
     _libssh2_debug(session,

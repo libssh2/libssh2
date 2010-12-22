@@ -268,7 +268,7 @@ agent_connect_pageant(LIBSSH2_AGENT *agent)
     HWND hwnd;
     hwnd = FindWindow("Pageant", "Pageant");
     if (!hwnd)
-	return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                               "failed connecting agent");
     agent->fd = 0;         /* Mark as the connection has been established */
     return LIBSSH2_ERROR_NONE;
@@ -296,7 +296,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     sprintf(mapname, "PageantRequest%08x", (unsigned)GetCurrentThreadId());
     filemap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
-				0, PAGEANT_MAX_MSGLEN, mapname);
+                                0, PAGEANT_MAX_MSGLEN, mapname);
 
     if (filemap == NULL || filemap == INVALID_HANDLE_VALUE)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
@@ -312,16 +312,16 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     id = SendMessage(hwnd, WM_COPYDATA, (WPARAM) NULL, (LPARAM) &cds);
     if (id > 0) {
-	transctx->response_len = _libssh2_ntohu32(p);
+        transctx->response_len = _libssh2_ntohu32(p);
         if (transctx->response_len > PAGEANT_MAX_MSGLEN) {
             UnmapViewOfFile(p);
             CloseHandle(filemap);
             return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                                   "agent setup fail");
         }
-	transctx->response = LIBSSH2_ALLOC(agent->session,
+        transctx->response = LIBSSH2_ALLOC(agent->session,
                                            transctx->response_len);
-	if (!transctx->response) {
+        if (!transctx->response) {
             UnmapViewOfFile(p);
             CloseHandle(filemap);
             return _libssh2_error(agent->session, LIBSSH2_ERROR_ALLOC,

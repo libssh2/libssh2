@@ -242,13 +242,13 @@ crypt_init_arcfour128(LIBSSH2_SESSION * session,
     int rc;
 
     rc = crypt_init (session, method, iv, free_iv, secret, free_secret,
-		     encrypt, abstract);
+                     encrypt, abstract);
     if (rc == 0) {
-	struct crypt_ctx *cctx = *(struct crypt_ctx **) abstract;
-	unsigned char block[8];
-	size_t discard = 1536;
-	for (; discard; discard -= 8)
-	    _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block);
+        struct crypt_ctx *cctx = *(struct crypt_ctx **) abstract;
+        unsigned char block[8];
+        size_t discard = 1536;
+        for (; discard; discard -= 8)
+            _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block);
     }
 
     return rc;

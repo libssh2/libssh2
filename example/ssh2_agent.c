@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
                    username, identity->comment);
             break;
         }
-	prev_identity = identity;
+        prev_identity = identity;
     }
     if (rc) {
         fprintf(stderr, "Couldn't continue authentication\n");

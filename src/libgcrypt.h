@@ -110,25 +110,25 @@
 #define _libssh2_gcry_cipher(c) (c >> 8)
 #define _libssh2_gcry_mode(m) (m & 0xFF)
 
-#define _libssh2_cipher_aes256ctr		\
+#define _libssh2_cipher_aes256ctr \
   _libssh2_gcry_ciphermode(GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CTR)
-#define _libssh2_cipher_aes192ctr		\
+#define _libssh2_cipher_aes192ctr \
   _libssh2_gcry_ciphermode(GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CTR)
-#define _libssh2_cipher_aes128ctr					\
+#define _libssh2_cipher_aes128ctr \
   _libssh2_gcry_ciphermode(GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR)
-#define _libssh2_cipher_aes256						\
+#define _libssh2_cipher_aes256 \
   _libssh2_gcry_ciphermode(GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC)
-#define _libssh2_cipher_aes192			\
+#define _libssh2_cipher_aes192 \
   _libssh2_gcry_ciphermode(GCRY_CIPHER_AES192, GCRY_CIPHER_MODE_CBC)
-#define _libssh2_cipher_aes128			\
+#define _libssh2_cipher_aes128 \
   _libssh2_gcry_ciphermode(GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC)
-#define _libssh2_cipher_blowfish		\
+#define _libssh2_cipher_blowfish \
   _libssh2_gcry_ciphermode(GCRY_CIPHER_BLOWFISH, GCRY_CIPHER_MODE_CBC)
-#define _libssh2_cipher_arcfour			\
+#define _libssh2_cipher_arcfour \
   _libssh2_gcry_ciphermode(GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM)
-#define _libssh2_cipher_cast5			\
+#define _libssh2_cipher_cast5 \
   _libssh2_gcry_ciphermode(GCRY_CIPHER_CAST5, GCRY_CIPHER_MODE_CBC)
-#define _libssh2_cipher_3des			\
+#define _libssh2_cipher_3des \
   _libssh2_gcry_ciphermode(GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC)
 
 
