@@ -415,16 +415,15 @@ get_socket_nonblocking(int sockfd)
 LIBSSH2_API int
 libssh2_banner_set(LIBSSH2_SESSION * session, const char *banner)
 {
-    int banner_len = banner ? strlen(banner) : 0;
+    size_t banner_len = banner ? strlen(banner) : 0;
 
     if (session->local.banner) {
         LIBSSH2_FREE(session, session->local.banner);
         session->local.banner = NULL;
     }
 
-    if (!banner_len) {
+    if (!banner_len)
         return 0;
-    }
 
     session->local.banner = LIBSSH2_ALLOC(session, banner_len + 3);
     if (!session->local.banner) {

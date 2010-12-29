@@ -1229,8 +1229,8 @@ libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection,
  */
 int
 _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
-                                 const char *request, unsigned int request_len,
-                                 const char *message, unsigned int message_len)
+                                 const char *request, size_t request_len,
+                                 const char *message, size_t message_len)
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s;
@@ -1538,7 +1538,7 @@ libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
  */
 int
 _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
-                                       unsigned long adjustment,
+                                       uint32_t adjustment,
                                        unsigned char force,
                                        unsigned int *store)
 {

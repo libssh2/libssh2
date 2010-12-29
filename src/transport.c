@@ -664,7 +664,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         (session->state & LIBSSH2_STATE_NEWKEYS) ?
         session->local.crypt->blocksize : 8;
     int padding_length;
-    int packet_length;
+    size_t packet_length;
     int total_length;
 #ifdef RANDOM_PADDING
     int rand_max;
@@ -672,7 +672,6 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 #endif
     struct transportpacket *p = &session->packet;
     int encrypted;
-    int i;
     ssize_t ret;
     int rc;
     const unsigned char *orgdata = data;
@@ -791,6 +790,8 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     _libssh2_random(p->outbuf + 5 + data_len, padding_length);
 
     if (encrypted) {
+        size_t i;
+
         /* Calculate MAC hash. Put the output at index packet_length,
            since that size includes the whole packet. The MAC is
            calculated on the entire unencrypted packet, including all

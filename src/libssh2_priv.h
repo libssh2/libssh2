@@ -334,7 +334,7 @@ struct _LIBSSH2_CHANNEL
 
     libssh2_channel_data local, remote;
     /* Amount of bytes to be refunded to receive window (but not yet sent) */
-    int adjust_queue;
+    uint32_t adjust_queue;
 
     LIBSSH2_SESSION *session;
 
@@ -461,17 +461,17 @@ struct transportpacket
     unsigned char buf[PACKETBUFSIZE];
     unsigned char init[5];  /* first 5 bytes of the incoming data stream,
                                still encrypted */
-    int writeidx;           /* at what array index we do the next write into
+    size_t writeidx;        /* at what array index we do the next write into
                                the buffer */
-    int readidx;            /* at what array index we do the next read from
+    size_t readidx;         /* at what array index we do the next read from
                                the buffer */
     uint32_t packet_length; /* the most recent packet_length as read from the
                                network data */
     uint8_t padding_length; /* the most recent padding_length as read from the
                                network data */
-    int data_num;           /* How much of the total package that has been read
+    size_t data_num;        /* How much of the total package that has been read
                                so far. */
-    int total_num;          /* How much a total package is supposed to be, in
+    size_t total_num;       /* How much a total package is supposed to be, in
                                number of bytes. A full package is
                                packet_length + padding_length + 4 +
                                mac_length. */
@@ -738,7 +738,7 @@ struct _LIBSSH2_SESSION
     /* State variables used in fullpacket() */
     libssh2_nonblocking_states fullpacket_state;
     int fullpacket_macstate;
-    int fullpacket_payload_len;
+    size_t fullpacket_payload_len;
     int fullpacket_packet_type;
 
     /* State variables used in libssh2_sftp_init() */

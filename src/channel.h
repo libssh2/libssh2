@@ -48,7 +48,7 @@
  * Always non-blocking.
  */
 int _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
-                                           unsigned long adjustment,
+                                           uint32_t adjustment,
                                            unsigned char force,
                                            unsigned int *store);
 
@@ -102,9 +102,8 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
  */
 int
 _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
-                                 const char *request, unsigned int request_len,
-                                 const char *message, unsigned int message_len);
-
+                                 const char *request, size_t request_len,
+                                 const char *message, size_t message_len);
 
 /*
  * _libssh2_channel_read
