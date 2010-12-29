@@ -87,6 +87,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#ifdef _MSC_VER
+# include <BaseTsd.h>
+# include <WinSock2.h>
+#endif
 
 #include <stddef.h>
 #include <string.h>
@@ -121,9 +125,8 @@ typedef unsigned char uint8_t;
 typedef unsigned int uint32_t;
 typedef unsigned __int64 libssh2_uint64_t;
 typedef __int64 libssh2_int64_t;
-# ifndef _SSIZE_T_DEFINED
-typedef int ssize_t;
-# define _SSIZE_T_DEFINED
+#ifndef ssize_t
+typedef SSIZE_T ssize_t;
 #endif
 #else
 typedef unsigned long long libssh2_uint64_t;
