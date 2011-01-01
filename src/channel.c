@@ -1002,6 +1002,7 @@ channel_request_pty_size(LIBSSH2_CHANNEL * channel, int width,
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s;
     int rc;
+    int retcode = LIBSSH2_ERROR_PROTO;
 
     if (channel->reqPTY_state == libssh2_NB_state_idle) {
         channel->reqPTY_packet_len = 39;
@@ -1044,15 +1045,11 @@ channel_request_pty_size(LIBSSH2_CHANNEL * channel, int width,
                                   "Unable to send window-change packet");
         }
         _libssh2_htonu32(channel->reqPTY_local_channel, channel->local.id);
-        channel->reqPTY_state = libssh2_NB_state_sent;
-
-        return LIBSSH2_ERROR_NONE;
+        retcode = LIBSSH2_ERROR_NONE;
     }
 
     channel->reqPTY_state = libssh2_NB_state_idle;
-
-    /* reaching this point is a protocol error of some sorts */
-    return LIBSSH2_ERROR_PROTO;
+    return retcode;
 }
 
 LIBSSH2_API int
