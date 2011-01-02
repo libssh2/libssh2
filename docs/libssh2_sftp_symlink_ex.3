@@ -12,9 +12,6 @@ int
 libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path,
                         unsigned int path_len, char *target,
                         unsigned int target_len, int link_type);
-int 
-libssh2_sftp_realpath(LIBSSH2_SFTP *sftp, const char *path, char *target,
-                      unsigned int target_len);
 .SH DESCRIPTION
 Create a symlink or read out symlink information from the remote side.
 
@@ -62,6 +59,10 @@ zero) or negative on failure.
 
 It returns LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
 LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
+.SH BUG
+Passing in a too small buffer when receiving data only results in libssh2 not
+copying the entire data amount, and it is not possible for the application to
+tell when it happens!
 .SH ERRORS
 \fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
 

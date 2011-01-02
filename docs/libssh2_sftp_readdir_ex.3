@@ -13,9 +13,6 @@ libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
                         char *buffer, size_t buffer_maxlen,
                         char *longentry, size_t longentry_maxlen,
                         LIBSSH2_SFTP_ATTRIBUTES *attrs);
-
-#define libssh2_sftp_readdir(h, b, bl, a)      \\
-    libssh2_sftp_readdir_ex((h), (b), (bl), NULL, 0, (a))
 .SH DESCRIPTION
 Reads a block of data from a LIBSSH2_SFTP_HANDLE and returns file entry
 information for the next entry, if any.
@@ -47,6 +44,10 @@ Number of bytes actually populated into buffer (not counting the terminating
 zero), or negative on failure.  It returns LIBSSH2_ERROR_EAGAIN when it would
 otherwise block. While LIBSSH2_ERROR_EAGAIN is a negative number, it isn't
 really a failure per se.
+.SH BUG
+Passing in a too small buffer when receiving data only results in libssh2 not
+copying the entire data amount, and it is not possible for the application to
+tell when it happens!
 .SH ERRORS
 \fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
 
