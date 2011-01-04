@@ -2798,7 +2798,7 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
     unsigned char *s, *data;
     static const unsigned char link_responses[2] =
         { SSH_FXP_NAME, SSH_FXP_STATUS };
-    int rc;
+    int retcode;
 
     if ((sftp->version < 3) && (link_type != LIBSSH2_SFTP_REALPATH)) {
         return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
@@ -2845,11 +2845,11 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
     }
 
     if (sftp->symlink_state == libssh2_NB_state_created) {
-        rc = _libssh2_channel_write(channel, 0, sftp->symlink_packet,
-                                    packet_len);
-        if (rc == LIBSSH2_ERROR_EAGAIN) {
+        ssize_t rc = _libssh2_channel_write(channel, 0, sftp->symlink_packet,
+                                            packet_len);
+        if (rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
-        } else if (packet_len != rc) {
+        else if (packet_len != rc) {
             LIBSSH2_FREE(session, sftp->symlink_packet);
             sftp->symlink_packet = NULL;
             sftp->symlink_state = libssh2_NB_state_idle;
@@ -2862,13 +2862,12 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
         sftp->symlink_state = libssh2_NB_state_sent;
     }
 
-    rc = sftp_packet_requirev(sftp, 2, link_responses,
-                              sftp->symlink_request_id, &data,
-                              &data_len);
-    if (rc == LIBSSH2_ERROR_EAGAIN) {
-        return rc;
-    }
-    else if (rc) {
+    retcode = sftp_packet_requirev(sftp, 2, link_responses,
+                                   sftp->symlink_request_id, &data,
+                                   &data_len);
+    if (retcode == LIBSSH2_ERROR_EAGAIN)
+        return retcode;
+    else if (retcode) {
         sftp->symlink_state = libssh2_NB_state_idle;
         return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
                               "Timeout waiting for status message");
@@ -2881,9 +2880,9 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
 
         retcode = _libssh2_ntohu32(data + 5);
         LIBSSH2_FREE(session, data);
-        if (retcode == LIBSSH2_FX_OK) {
-            return 0;
-        } else {
+        if (retcode == LIBSSH2_FX_OK)
+            return LIBSSH2_ERROR_NONE;
+        else {
             sftp->last_errno = retcode;
             return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                   "SFTP Protocol Error");
@@ -2897,15 +2896,18 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
                               "no name entries");
     }
 
+    /* this reads a u32 and stores it into a signed 32bit value */
     link_len = _libssh2_ntohu32(data + 9);
-    if (link_len >= target_len) {
-        link_len = target_len - 1;
+    if (link_len < target_len) {
+        memcpy(target, data + 13, link_len);
+        target[link_len] = 0;
+        retcode = (int)link_len;
     }
-    memcpy(target, data + 13, link_len);
-    target[link_len] = 0;
+    else
+        retcode = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
     LIBSSH2_FREE(session, data);
 
-    return link_len;
+    return retcode;
 }
 
 /* libssh2_sftp_symlink_ex
