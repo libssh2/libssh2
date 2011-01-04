@@ -1317,7 +1317,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len, filename_len, longentry_len;
+    size_t data_len;
     uint32_t num_names;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     uint32_t packet_len = handle->handle_len + 13;
@@ -1335,6 +1335,8 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
             LIBSSH2_SFTP_ATTRIBUTES attrs_dummy;
             size_t real_longentry_len;
             size_t real_filename_len;
+            size_t filename_len;
+            size_t longentry_len;
 
             s = (unsigned char *) handle->u.dir.next_name;
             real_filename_len = _libssh2_ntohu32(s);
@@ -1342,9 +1344,10 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
             s += 4;
 
             filename_len = real_filename_len;
-            if (filename_len >= buffer_maxlen)
-                /* leave room for the trailing zero */
-                filename_len = buffer_maxlen - 1;
+            if (filename_len >= buffer_maxlen) {
+                filename_len = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                goto end;
+            }
 
             memcpy(buffer, s, filename_len);
             buffer[filename_len] = '\0';           /* zero terminate */
@@ -1356,9 +1359,10 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
             if (longentry && (longentry_maxlen>1)) {
                 longentry_len = real_longentry_len;
 
-                if (longentry_len >= longentry_maxlen)
-                    /* leave room for the trailing zero */
-                    longentry_len = longentry_maxlen -1;
+                if (longentry_len >= longentry_maxlen) {
+                    filename_len = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                    goto end;
+                }
 
                 memcpy(longentry, s, longentry_len);
                 longentry[longentry_len] = '\0'; /* zero terminate */
@@ -1371,6 +1375,8 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
             s += sftp_bin2attr(attrs ? attrs : &attrs_dummy, s);
 
             handle->u.dir.next_name = (char *) s;
+          end:
+
             if ((--handle->u.dir.names_left) == 0)
                 LIBSSH2_FREE(session, handle->u.dir.names_packet);
 
