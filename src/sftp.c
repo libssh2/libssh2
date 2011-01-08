@@ -168,8 +168,9 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *packet;
-    size_t packet_len, packet_received;
+    size_t packet_received;
     ssize_t rc;
+    uint32_t packet_len; /* 32bits on the wire */
 
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "recv packet");
 

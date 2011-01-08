@@ -145,7 +145,7 @@ struct _LIBSSH2_SFTP
     unsigned char partial_size[4];      /* buffer for size field   */
     size_t partial_size_len;            /* size field length       */
     unsigned char *partial_packet;      /* The data                */
-    size_t partial_len;                 /* Desired number of bytes */
+    uint32_t partial_len;               /* Desired number of bytes */
     size_t partial_received;            /* Bytes received so far   */
 
     /* Time that libssh2_sftp_packet_requirev() started reading */
