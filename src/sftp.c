@@ -1077,7 +1077,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t count;
+    size_t count = 0;
     struct sftp_pipeline_chunk *chunk;
     struct sftp_pipeline_chunk *next;
     ssize_t rc;
@@ -1108,7 +1108,12 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
     /* We allow a number of bytes being requested at any given time without
        having been acked - until we reach EOF. */
-    count = filep->eof?0:(buffer_size*4) - already;
+    if(!filep->eof) {
+        /* if the buffer_size passed in now is smaller than what has already
+           been sent, we risk getting count become a very large number */
+        if((buffer_size*4) > already)
+            count = (buffer_size*4) - already;
+    }
 
     while(count > 0) {
         unsigned char *s;
