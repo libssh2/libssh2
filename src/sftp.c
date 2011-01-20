@@ -1504,20 +1504,24 @@ libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *hnd, char *buffer,
  *
  * Concept:
  *
- * - Split all outgoing data in packets no larger than N.
- * - Each N bytes packet gets created as a separate SFTP packet.
- * - Put all created packets in a linked list.
- * - Send the parts, as many as possible until EAGAIN, and check for
- *   ACKs.
- * - If the first packet(s) in the list has been ACKed, remove them from
- *   the list and return back the total byte count (TOTAL) for those packets.
- *
- * - On following call, the 'buffer' is expected to have advanced TOTAL
- *   bytes.
  * - Detect how much of the given buffer that was already sent in a previous
- *   call by inspecting the linked list.
- * - Split up the remainder and put in list to send.
- * - Move through list and count ACKed packets and try to send more.
+ *   call by inspecting the linked list of outgoing chunks. Make sure to skip
+ *   passed the data that has already been taken care of.
+ *
+ * - Split all (new) outgoing data in chunks no larger than N.
+ *
+ * - Each N bytes chunk gets created as a separate SFTP packet.
+ *
+ * - Add all created outgoing packets to the linked list.
+ *
+ * - Walk through the list and send the chunks that haven't been sent,
+ *   as many as possible until EAGAIN. Some of the chunks may have been put
+ *   in the list in a previous invoke.
+ *
+ * - For all the chunks in the list that have been completely sent off, check
+ *   for ACKs. If a chunk has been ACKed, it is removed from the linked
+ *   list and the "acked" counter gets increased with that data amount.
+ *
  * - Return TOTAL bytes acked so far.
  *
  * Caveats:
