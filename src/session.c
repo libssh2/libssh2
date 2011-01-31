@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2010 by Daniel Stenberg
+ * Copyright (c) 2009-2011 by Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
@@ -89,7 +89,8 @@ LIBSSH2_REALLOC_FUNC(libssh2_default_realloc)
  *
  * Wait for a hello from the remote host
  * Allocate a buffer and store the banner in session->remote.banner
- * Returns: 0 on success, LIBSSH2_ERROR_EAGAIN if read would block, negative on failure
+ * Returns: 0 on success, LIBSSH2_ERROR_EAGAIN if read would block, negative
+ * on failure
  */
 static int
 banner_receive(LIBSSH2_SESSION * session)
@@ -659,11 +660,14 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     }
 
     if (session->startup_state == libssh2_NB_state_sent) {
-        rc = banner_receive(session);
-        if (rc) {
-            return _libssh2_error(session, rc,
-                                  "Failed getting banner");
-        }
+        do {
+            session->banner_TxRx_state = libssh2_NB_state_idle;
+
+            rc = banner_receive(session);
+            if (rc)
+                return _libssh2_error(session, rc,
+                                      "Failed getting banner");
+        } while(strncmp("SSH-", (char *)session->remote.banner, 4));
 
         session->startup_state = libssh2_NB_state_sent1;
     }
