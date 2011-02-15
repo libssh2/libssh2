@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2005 Mikhail Gusarov <dottedmag@dottedmag.net>
- * Copyright (c) 2008-2010 by Daniel Stenberg
+ * Copyright (c) 2008-2011 by Daniel Stenberg
  *
  * All rights reserved.
  *
@@ -1532,6 +1532,7 @@ libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
  * to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
  * adjustment amount will be queued for a later packet.
  *
+ * Calls _libssh2_error() !
  */
 int
 _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
@@ -1858,9 +1859,11 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
            return code. */
         if(channel->remote.eof || channel->remote.close)
             return 0;
-        else
-            /* if the transport layer said EAGAIN then we say so as well */
-            return (rc == LIBSSH2_ERROR_EAGAIN)?rc:0;
+        else if(rc != LIBSSH2_ERROR_EAGAIN)
+            return 0;
+
+        /* if the transport layer said EAGAIN then we say so as well */
+        return _libssh2_error(session, rc, "would block");
     }
     else
         /* make sure we remain in the created state to focus on emptying the
