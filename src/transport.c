@@ -199,7 +199,15 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
         session->fullpacket_payload_len -= p->padding_length;
 
         /* Check for and deal with decompression */
-        if (session->remote.comp && session->remote.comp->compress) {
+        if (session->remote.comp &&
+            session->remote.comp->compress &&
+            session->remote.comp_abstract) {
+            /*
+             * The buffer for the decompression (remote.comp_abstract) is
+             * initialised in time when it is needed so as long it is NULL we
+             * cannot decompress.
+             */
+
             unsigned char *data;
             size_t data_len;
             rc = session->remote.comp->decomp(session,
