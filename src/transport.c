@@ -272,6 +272,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
     unsigned char block[MAX_BLOCKSIZE];
     int blocksize;
     int encrypted = 1;
+    size_t total_num;
 
     /* default clear the bit */
     session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
@@ -431,7 +432,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
             /* total_num is the number of bytes following the initial
                (5 bytes) packet length and padding length fields */
-            p->total_num =
+            total_num =
                 p->packet_length - 1 +
                 (encrypted ? session->remote.mac->mac_len : 0);
 
@@ -443,16 +444,17 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
              * or less (including length, padding length, payload,
              * padding, and MAC.)."
              */
-            if (p->total_num > LIBSSH2_PACKET_MAXPAYLOAD) {
+            if (total_num > LIBSSH2_PACKET_MAXPAYLOAD) {
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
 
             /* Get a packet handle put data into. We get one to
                hold all data, including padding and MAC. */
-            p->payload = LIBSSH2_ALLOC(session, p->total_num);
+            p->payload = LIBSSH2_ALLOC(session, total_num);
             if (!p->payload) {
                 return LIBSSH2_ERROR_ALLOC;
             }
+            p->total_num = total_num;
             /* init write pointer to start of payload buffer */
             p->wptr = p->payload;
 
