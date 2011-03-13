@@ -566,6 +566,120 @@ libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts)
     LIBSSH2_FREE(hosts->session, hosts);
 }
 
+
+/* old style plain text: [name]([,][name])*
+
+   for the sake of simplicity, we add them as separate hosts with the same
+   key
+*/
+static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
+                             const char *host, size_t hostlen,
+                             const char *key, size_t keylen, int key_type,
+                             const char *comment, size_t commentlen)
+{
+    int rc = 0;
+    size_t namelen = 0;
+    const char *name = host + hostlen;
+
+    if(hostlen < 1)
+        return _libssh2_error(hosts->session,
+                              LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                              "Failed to parse known_hosts line "
+                              "(no host names)");
+
+    while(name > host) {
+        --name;
+        ++namelen;
+
+        /* when we get the the start or see a comma coming up, add the host
+           name to the collection */
+        if((name == host) || (*(name-1) == ',')) {
+
+            char hostbuf[256];
+
+            /* make sure we don't overflow the buffer */
+            if(namelen >= sizeof(hostbuf)-1)
+                return _libssh2_error(hosts->session,
+                                      LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                                      "Failed to parse known_hosts line "
+                                      "(unexpected length)");
+
+            /* copy host name to the temp buffer and zero terminate */
+            memcpy(hostbuf, name, namelen);
+            hostbuf[namelen]=0;
+
+            rc = knownhost_add(hosts, hostbuf, NULL, key, keylen,
+                               comment, commentlen,
+                               key_type | LIBSSH2_KNOWNHOST_TYPE_PLAIN |
+                               LIBSSH2_KNOWNHOST_KEYENC_BASE64, NULL);
+            if(rc)
+                return rc;
+
+            if(name > host) {
+                namelen = 0;
+                --name; // skip comma
+            }
+        }
+    }
+
+    return rc;
+}
+
+/* |1|[salt]|[hash] */
+static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
+                           const char *host, size_t hostlen,
+                           const char *key, size_t keylen, int key_type,
+                           const char *comment, size_t commentlen)
+{
+    const char *p;
+    char saltbuf[32];
+    char hostbuf[256];
+
+    const char *salt = &host[3]; /* skip the magic marker */
+    hostlen -= 3;    /* deduct the marker */
+
+    /* this is where the salt starts, find the end of it */
+    for(p = salt; *p && (*p != '|'); p++)
+        ;
+
+    if(*p=='|') {
+        const char *hash = NULL;
+        size_t saltlen = p - salt;
+        if(saltlen >= (sizeof(saltbuf)-1)) /* weird length */
+            return _libssh2_error(hosts->session,
+                                  LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                                  "Failed to parse known_hosts line "
+                                  "(unexpectedly long salt)");
+
+        memcpy(saltbuf, salt, saltlen);
+        saltbuf[saltlen] = 0; /* zero terminate */
+        salt = saltbuf; /* point to the stack based buffer */
+
+        hash = p+1; /* the host hash is after the separator */
+
+        /* now make the host point to the hash */
+        host = hash;
+        hostlen -= saltlen+1; /* deduct the salt and separator */
+
+        /* check that the lengths seem sensible */
+        if(hostlen >= sizeof(hostbuf)-1)
+            return _libssh2_error(hosts->session,
+                                  LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                                  "Failed to parse known_hosts line "
+                                  "(unexpected length)");
+
+        memcpy(hostbuf, host, hostlen);
+        hostbuf[hostlen]=0;
+
+        return knownhost_add(hosts, hostbuf, salt, key, keylen, comment,
+                             commentlen,
+                             key_type | LIBSSH2_KNOWNHOST_TYPE_SHA1 | 
+                             LIBSSH2_KNOWNHOST_KEYENC_BASE64, NULL);
+    }
+    else
+        return 0; /* XXX: This should be an error, shouldn't it? */
+}
+
 /*
  * hostline()
  *
@@ -580,88 +694,21 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
                     const char *host, size_t hostlen,
                     const char *key, size_t keylen)
 {
-    const char *p;
-    const char *orig = host;
-    const char *salt = NULL;
     const char *comment = NULL;
     size_t commentlen = 0;
-    int rc;
-    int type = LIBSSH2_KNOWNHOST_TYPE_PLAIN;
-    const char *sep = NULL;
-    size_t seplen = 0;
-    char saltbuf[32];
-    char hostbuf[256];
-
-    /* Figure out host format */
-    if((hostlen >2) && memcmp(host, "|1|", 3)) {
-        /* old style plain text: [name][,][ip-address]
-
-           for the sake of simplicity, we add them as two hosts with the same
-           key
-        */
-        size_t scan = hostlen;
-
-        while(scan && (*host != ',')) {
-            host++;
-            scan--;
-        }
-
-        if(scan) {
-            sep = host+1;
-            seplen = scan-1;
-            hostlen -= scan; /* deduct what's left to scan from the first
-                                host name */
-        }
-        else
-            host = orig;
-    }
-    else {
-        /* |1|[salt]|[hash] */
-        type = LIBSSH2_KNOWNHOST_TYPE_SHA1;
-
-        salt = &host[3]; /* skip the magic marker */
-        hostlen -= 3;    /* deduct the marker */
-
-        /* this is where the salt starts, find the end of it */
-        for(p = salt; *p && (*p != '|'); p++)
-            ;
-
-        if(*p=='|') {
-            const char *hash = NULL;
-            size_t saltlen = p - salt;
-            if(saltlen >= (sizeof(saltbuf)-1)) /* weird length */
-                return _libssh2_error(hosts->session,
-                                      LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                                      "Failed to parse known_hosts line "
-                                      "(unexpectedly long salt)");
-
-            memcpy(saltbuf, salt, saltlen);
-            saltbuf[saltlen] = 0; /* zero terminate */
-            salt = saltbuf; /* point to the stack based buffer */
-
-            hash = p+1; /* the host hash is after the separator */
-
-            /* now make the host point to the hash */
-            host = hash;
-            hostlen -= saltlen+1; /* deduct the salt and separator */
-        }
-        else
-            return 0;
-    }
+    int key_type;
 
     /* make some checks that the lengths seem sensible */
-    if((keylen < 20) ||
-       (seplen >= sizeof(hostbuf)-1) ||
-       (hostlen >= sizeof(hostbuf)-1))
+    if(keylen < 20)
         return _libssh2_error(hosts->session,
                               LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                               "Failed to parse known_hosts line "
-                              "(unexpected length)");
-
+                              "(key too short)");
+    
     switch(key[0]) {
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
-        type |= LIBSSH2_KNOWNHOST_KEY_RSA1;
+        key_type = LIBSSH2_KNOWNHOST_KEY_RSA1;
 
         /* Note that the old-style keys (RSA1) aren't truly base64, but we
          * claim it is for now since we can get away with strcmp()ing the
@@ -672,9 +719,9 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
 
     case 's': /* ssh-dss or ssh-rsa */
         if(!strncmp(key, "ssh-dss", 7))
-            type |= LIBSSH2_KNOWNHOST_KEY_SSHDSS;
+            key_type = LIBSSH2_KNOWNHOST_KEY_SSHDSS;
         else if(!strncmp(key, "ssh-rsa", 7))
-            type |= LIBSSH2_KNOWNHOST_KEY_SSHRSA;
+            key_type = LIBSSH2_KNOWNHOST_KEY_SSHRSA;
         else
             /* unknown key type */
             return _libssh2_error(hosts->session,
@@ -721,30 +768,21 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
                               "Unknown key format");
     }
 
-    if(sep) {
-        /* The second host after the comma, add this first. Copy it to the
-           temp buffer and zero terminate */
-        memcpy(hostbuf, sep, seplen);
-        hostbuf[seplen]=0;
+    /* Figure out host format */
+    if((hostlen >2) && memcmp(host, "|1|", 3)) {
+        /* old style plain text: [name]([,][name])*
 
-        rc = knownhost_add(hosts, hostbuf, salt, key, keylen,
-                           comment, commentlen,
-                           type | LIBSSH2_KNOWNHOST_KEYENC_BASE64,
-                           NULL);
-        if(rc)
-            return rc;
+           for the sake of simplicity, we add them as separate hosts with the
+           same key
+        */
+        return oldstyle_hostline(hosts, host, hostlen, key, keylen, key_type,
+                                 comment, commentlen);
     }
-
-    if (!salt)
-        host = orig;
-    memcpy(hostbuf, host, hostlen);
-    hostbuf[hostlen]=0;
-
-    rc = knownhost_add(hosts, hostbuf, salt, key, keylen, comment,
-                       commentlen,
-                       type | LIBSSH2_KNOWNHOST_KEYENC_BASE64,
-                       NULL);
-    return rc;
+    else {
+        /* |1|[salt]|[hash] */
+        return hashed_hostline(hosts, host, hostlen, key, keylen, key_type,
+                               comment, commentlen);
+    }
 }
 
 /*
@@ -764,7 +802,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
  * <name> or <hash>
  *
  * <name> consists of
- * [name,address] or just [name] or just [address]
+ * [name] optionally followed by [,name] one or more times
  *
  * <hash> consists of
  * |1|<salt>|hash
