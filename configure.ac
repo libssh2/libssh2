@@ -16,7 +16,7 @@ fi
 
 dnl figure out the libssh2 version
 VERSION=`$SED -ne 's/^#define LIBSSH2_VERSION *"\(.*\)"/\1/p' ${srcdir}/include/libssh2.h`
-AM_INIT_AUTOMAKE(libssh2,$VERSION)
+AM_INIT_AUTOMAKE
 AC_MSG_CHECKING([libssh2 version])
 AC_MSG_RESULT($VERSION)
 
