@@ -68,7 +68,7 @@ fi
 # Generate the changelog
 #
 echo "generate NEWS"
-git log --pretty=fuller --no-color --date=short --decorate=full -1000 | ./log2changes.pl > NEWS.dist
+git log --pretty=fuller --no-color --date=short --decorate=full -1000 | ./git2news.pl > NEWS.dist
 
 ############################################################################
 #
