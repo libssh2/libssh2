@@ -15,12 +15,14 @@ if test "x$SED" = "xsed-was-not-found-by-configure"; then
 fi
 
 dnl figure out the libssh2 version
-VERSION=`$SED -ne 's/^#define LIBSSH2_VERSION *"\(.*\)"/\1/p' ${srcdir}/include/libssh2.h`
+LIBSSH2VER=`$SED -ne 's/^#define LIBSSH2_VERSION *"\(.*\)"/\1/p' ${srcdir}/include/libssh2.h`
 AM_INIT_AUTOMAKE
 AC_MSG_CHECKING([libssh2 version])
-AC_MSG_RESULT($VERSION)
+AC_MSG_RESULT($LIBSSH2VER)
 
-AB_VERSION=$VERSION
+AC_SUBST(LIBSSH2VER)
+
+AB_VERSION=$LIBSSH2VER
 
 AB_INIT
 
@@ -289,7 +291,7 @@ AC_OUTPUT
 
 AC_MSG_NOTICE([summary of build options:
 
-  version:          ${VERSION}
+  version:          ${LIBSSH2VER}
   Host type:        ${host}
   Install prefix:   ${prefix}
   Compiler:         ${CC}
