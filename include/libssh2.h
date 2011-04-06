@@ -40,19 +40,19 @@
 #ifndef LIBSSH2_H
 #define LIBSSH2_H 1
 
-#define LIBSSH2_COPYRIGHT "2004-2010 The libssh2 project and its contributors."
+#define LIBSSH2_COPYRIGHT "2004-2011 The libssh2 project and its contributors."
 
 /* We use underscore instead of dash when appending DEV in dev versions just
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
    have dashes either. */
-#define LIBSSH2_VERSION                             "1.2.8_DEV"
+#define LIBSSH2_VERSION                             "1.2.9_DEV"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
 #define LIBSSH2_VERSION_MAJOR                       1
 #define LIBSSH2_VERSION_MINOR                       2
-#define LIBSSH2_VERSION_PATCH                       8
+#define LIBSSH2_VERSION_PATCH                       9
 
 /* This is the numeric version of the libssh2 version number, meant for easier
    parsing and comparions by programs. The LIBSSH2_VERSION_NUM define will
@@ -69,7 +69,7 @@
    and it is always a greater number in a more recent release. It makes
    comparisons with greater than and less than work.
 */
-#define LIBSSH2_VERSION_NUM                         0x010208
+#define LIBSSH2_VERSION_NUM                         0x010209
 
 /*
  * This is the date and time when the full source package was created. The
