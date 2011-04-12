@@ -235,9 +235,7 @@ int main(int argc, char *argv[])
             }
             else {
                 prev = nread;
-                if(rc > nread) {
-                    fprintf(stderr, "MOO %d > %d\n", (int)rc, (int)nread);
-                }
+
                 /* rc indicates how many bytes were written this time */
                 nread -= rc;
                 ptr += rc;
