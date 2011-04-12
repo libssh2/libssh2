@@ -25,8 +25,8 @@ dist_man_MANS = \
 	libssh2_channel_forward_listen.3 \
 	libssh2_channel_forward_listen_ex.3 \
 	libssh2_channel_free.3 \
-	libssh2_channel_get_exit_status.3 \
 	libssh2_channel_get_exit_signal.3 \
+	libssh2_channel_get_exit_status.3 \
 	libssh2_channel_handle_extended_data.3 \
 	libssh2_channel_handle_extended_data2.3 \
 	libssh2_channel_ignore_extended_data.3 \
@@ -65,6 +65,8 @@ dist_man_MANS = \
 	libssh2_host_entry_match.3 \
 	libssh2_hostkey_hash.3 \
 	libssh2_init.3 \
+	libssh2_keepalive_config.3 \
+	libssh2_keepalive_send.3 \
 	libssh2_knownhost_add.3 \
 	libssh2_knownhost_addc.3 \
 	libssh2_knownhost_check.3 \
@@ -90,8 +92,8 @@ dist_man_MANS = \
 	libssh2_publickey_shutdown.3 \
 	libssh2_scp_recv.3 \
 	libssh2_scp_send.3 \
-	libssh2_scp_send_ex.3 \
 	libssh2_scp_send64.3 \
+	libssh2_scp_send_ex.3 \
 	libssh2_session_abstract.3 \
 	libssh2_session_block_directions.3 \
 	libssh2_session_callback_set.3 \
