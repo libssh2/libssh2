@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2007 Eli Fant <elifantu@mail.ru>
- * Copyright (c) 2009-2010 by Daniel Stenberg
+ * Copyright (c) 2009-2011 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -1677,11 +1677,15 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
 
             chunk = next;
         }
-        else
+        else {
+            /* flush all pending packets from the outgoing list */
+            sftp_packetlist_flush(handle);
+
             /* the server returned an error for that written chunk, propagate
                this back to our parent function */
             return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                   "FXP write failed");
+        }
     }
 
     /* if there were acked data in a previous call that wasn't returned then,
