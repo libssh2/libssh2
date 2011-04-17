@@ -2,7 +2,7 @@
 .\"
 .TH libssh2_session_block_directions 3 "1 Oct 2008" "libssh2 1.0" "libssh2 manual"
 .SH NAME
-libssh2_session_block_directions - get directions that socket should wait for before calling libssh2 function again
+libssh2_session_block_directions - get directions to wait for
 .SH SYNOPSIS
 #include <libssh2.h>
 
@@ -26,6 +26,6 @@ LIBSSH2_SESSION_BLOCK_OUTBOUND: Outbound direction blocked.
 Application should wait for data to be available for socket prior to calling a
 libssh2 function again. If \fBLIBSSH2_SESSION_BLOCK_INBOUND\fP is set select
 should contain the session socket in readfds set.  Correspondingly in case of
-\fBLIBSSH2_SESSION_BLOCK_INBOUND\fP writefds set should contain the socket.
+\fBLIBSSH2_SESSION_BLOCK_OUTBOUND\fP writefds set should contain the socket.
 .SH AVAILABILITY
 Added in 1.0
