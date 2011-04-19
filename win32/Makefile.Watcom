@@ -70,7 +70,7 @@ ZLIB_ROOT = ..\..\zlib-1.2.5
 !ifdef %openssl_root
 OPENSSL_ROOT = $(%openssl_root)
 !else
-OPENSSL_ROOT = ..\..\openssl-0.9.8q
+OPENSSL_ROOT = ..\..\openssl-0.9.8r
 !endif
 
 #!ifdef %use_zlib
