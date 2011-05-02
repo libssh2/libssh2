@@ -705,6 +705,10 @@ LIBSSH2_API int libssh2_session_get_blocking(LIBSSH2_SESSION* session);
 LIBSSH2_API void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel,
                                               int blocking);
 
+LIBSSH2_API void libssh2_session_set_timeout(LIBSSH2_SESSION* session,
+                                             long timeout);
+LIBSSH2_API long libssh2_session_get_timeout(LIBSSH2_SESSION* session);
+
 /* libssh2_channel_handle_extended_data is DEPRECATED, do not use! */
 LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
                                                       int ignore_mode);

@@ -559,6 +559,9 @@ struct _LIBSSH2_SESSION
     /* this is set to TRUE if a blocking API behavior is requested */
     int api_block_mode;
 
+    /* Timeout used when blocking API behavior is active */
+    long api_timeout;
+
     /* Server's public key */
     const LIBSSH2_HOSTKEY_METHOD *hostkey;
     void *server_hostkey_abstract;

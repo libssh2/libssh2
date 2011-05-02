@@ -481,6 +481,7 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
         session->free = local_free;
         session->realloc = local_realloc;
         session->abstract = abstract;
+        session->api_timeout = 0; /* timeout-free API by default */
         session->api_block_mode = 1; /* blocking API by default */
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
                        "New session resource allocated");
@@ -542,11 +543,12 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
  * Utility function that waits for action on the socket. Returns 0 when ready
  * to run again or error on timeout.
  */
-int _libssh2_wait_socket(LIBSSH2_SESSION *session)
+int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 {
     int rc;
     int seconds_to_next;
     int dir;
+    int has_timeout;
 
     /* since libssh2 often sets EAGAIN internally before this function is
        called, we can decrease some amount of confusion in user programs by
@@ -592,8 +594,27 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
             fd_set *readfd = NULL;
             struct timeval tv;
 
-            tv.tv_sec = seconds_to_next;
-            tv.tv_usec = 0;
+            if (session->api_timeout > 0 &&
+                (seconds_to_next == 0 ||
+                 seconds_to_next > session->api_timeout)) {
+                time_t now = time (NULL);
+                long elapsed_ms = (long)(1000*difftime(start_time, now));
+                if (elapsed_ms > session->api_timeout) {
+                    session->err_code = LIBSSH2_ERROR_TIMEOUT;
+                    return LIBSSH2_ERROR_TIMEOUT;
+                }
+                tv.tv_sec = (session->api_timeout - elapsed_ms) / 1000;
+                tv.tv_usec = ((session->api_timeout - elapsed_ms) % 1000) *
+                    1000;
+                has_timeout = 1;
+            }
+            else if (seconds_to_next > 0) {
+                tv.tv_sec = seconds_to_next;
+                tv.tv_usec = 0;
+                has_timeout = 1;
+            }
+            else
+                has_timeout = 0;
 
             if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
                 FD_ZERO(&rfd);
@@ -607,10 +628,8 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session)
                 writefd = &wfd;
             }
 
-            /* Note that this COULD be made to use a timeout that perhaps
-               could be customizable by the app or something... */
             rc = select(session->socket_fd + 1, readfd, writefd, NULL,
-                        seconds_to_next ? &tv : NULL);
+                        has_timeout ? &tv : NULL);
 #endif
         }
     }
@@ -1279,6 +1298,28 @@ LIBSSH2_API int
 libssh2_session_get_blocking(LIBSSH2_SESSION * session)
 {
     return session->api_block_mode;
+}
+
+
+/* libssh2_session_set_timeout
+ *
+ * Set a session's timeout (in msec) for blocking mode,
+ * or 0 to disable timeouts.
+ */
+LIBSSH2_API void
+libssh2_session_set_timeout(LIBSSH2_SESSION * session, long timeout)
+{
+    session->api_timeout = timeout;
+}
+
+/* libssh2_session_get_timeout
+ *
+ * Returns a session's timeout, or 0 if disabled
+ */
+LIBSSH2_API long
+libssh2_session_get_timeout(LIBSSH2_SESSION * session)
+{
+    return session->api_timeout;
 }
 
 /*
