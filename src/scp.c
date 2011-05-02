@@ -272,6 +272,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 {
     int cmd_len;
     int rc;
+    int tmp_err_code;
+    const char *tmp_err_msg;
 
     if (session->scpRecv_state == libssh2_NB_state_idle) {
         session->scpRecv_mode = 0;
@@ -741,8 +743,12 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
         return session->scpRecv_channel;
     /* fall-through */
   scp_recv_error:
+    tmp_err_code = session->err_code;
+    tmp_err_msg = session->err_msg;
     while (libssh2_channel_free(session->scpRecv_channel) ==
            LIBSSH2_ERROR_EAGAIN);
+    session->err_code = tmp_err_code;
+    session->err_msg = tmp_err_msg;
     session->scpRecv_channel = NULL;
     session->scpRecv_state = libssh2_NB_state_idle;
     return NULL;
@@ -774,6 +780,8 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 {
     int cmd_len;
     int rc;
+    int tmp_err_code;
+    const char *tmp_err_msg;
 
     if (session->scpSend_state == libssh2_NB_state_idle) {
         session->scpSend_command_len =
@@ -1034,8 +1042,12 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
         return session->scpSend_channel;
     /* fall-through */
   scp_send_error:
+    tmp_err_code = session->err_code;
+    tmp_err_msg = session->err_msg;
     while (libssh2_channel_free(session->scpSend_channel) ==
            LIBSSH2_ERROR_EAGAIN);
+    session->err_code = tmp_err_code;
+    session->err_msg = tmp_err_msg;
     session->scpSend_channel = NULL;
     session->scpSend_state = libssh2_NB_state_idle;
     return NULL;
