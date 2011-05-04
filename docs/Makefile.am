@@ -102,6 +102,7 @@ dist_man_MANS = \
 	libssh2_session_flag.3 \
 	libssh2_session_free.3 \
 	libssh2_session_get_blocking.3 \
+	libssh2_session_get_timeout.3 \
 	libssh2_session_hostkey.3 \
 	libssh2_session_init.3 \
 	libssh2_session_init_ex.3 \
@@ -110,6 +111,7 @@ dist_man_MANS = \
 	libssh2_session_method_pref.3 \
 	libssh2_session_methods.3 \
 	libssh2_session_set_blocking.3 \
+	libssh2_session_set_timeout.3 \
 	libssh2_session_startup.3 \
 	libssh2_sftp_close.3 \
 	libssh2_sftp_close_handle.3 \
