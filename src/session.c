@@ -676,12 +676,11 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
                                   "Failed sending banner");
         }
         session->startup_state = libssh2_NB_state_sent;
+        session->banner_TxRx_state = libssh2_NB_state_idle;
     }
 
     if (session->startup_state == libssh2_NB_state_sent) {
         do {
-            session->banner_TxRx_state = libssh2_NB_state_idle;
-
             rc = banner_receive(session);
             if (rc)
                 return _libssh2_error(session, rc,
