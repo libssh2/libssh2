@@ -1,6 +1,4 @@
 /*
- * $Id: sftp_write_nonblock.c,v 1.14 2009/04/28 10:35:30 bagder Exp $
- *
  * Sample showing how to do SFTP non-blocking write transfers.
  *
  * The sample code has default values for host name, user name, password
@@ -249,19 +247,19 @@ int main(int argc, char *argv[])
         /* write data in a loop until we block */
         while ((rc = libssh2_sftp_write(sftp_handle, mem, memuse)) ==
                LIBSSH2_ERROR_EAGAIN) {
-          waitsocket(sock, session);
+            waitsocket(sock, session);
         }
         if(rc < 0)
-          break;
+            break;
 
         if(memuse - rc) {
-          /* make room for more data at the end of the buffer */
-          memmove(&mem[0], &mem[rc], memuse - rc);
-          memuse -= rc;
+            /* make room for more data at the end of the buffer */
+            memmove(&mem[0], &mem[rc], memuse - rc);
+            memuse -= rc;
         }
         else
-          /* 'mem' was consumed fully */
-          memuse = 0;
+            /* 'mem' was consumed fully */
+            memuse = 0;
 
     } while (rc > 0);
 
