@@ -237,7 +237,11 @@ int main(int argc, char *argv[])
         nread = fread(&mem[memuse], 1, sizeof(mem)-memuse, local);
         if (nread <= 0) {
             /* end of file */
-            break;
+            if (memuse > 0)
+                /* the previous sending is not finished */
+                nread = 0;
+            else
+                break;
         }
         memuse += nread;
         total += nread;
