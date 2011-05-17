@@ -15,7 +15,8 @@ libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener);
 .SH RETURN VALUE
 A newly allocated channel instance or NULL on failure.
 .SH ERRORS
-\fILIBSSH2_ERROR_EAGAIN\fP - Marked for non-blocking I/O but the call 
-would block.
+When this function returns NULL use \fIlibssh2_session_last_errno(3)\fP to
+extract the error code. If that code is \fILIBSSH2_ERROR_EAGAIN\fP, the
+session is set to do non-blocking I/O but the call would block.
 .SH SEE ALSO
 .BR libssh2_channel_forward_listen_ex(3)
