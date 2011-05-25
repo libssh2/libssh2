@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2005 Mikhail Gusarov <dottedmag@dottedmag.net>
- * Copyright (c) 2009-2010 by Daniel Stenberg
+ * Copyright (c) 2009-2011 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -1453,17 +1453,21 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             /* string    name (ISO-10646 UTF-8) */
             session->userauth_kybd_auth_name_len = _libssh2_ntohu32(s);
             s += 4;
-            session->userauth_kybd_auth_name =
-                LIBSSH2_ALLOC(session, session->userauth_kybd_auth_name_len);
-            if (!session->userauth_kybd_auth_name) {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate memory for "
-                               "keyboard-interactive 'name' request field");
-                goto cleanup;
+            if(session->userauth_kybd_auth_name_len) {
+                session->userauth_kybd_auth_name =
+                    LIBSSH2_ALLOC(session,
+                                  session->userauth_kybd_auth_name_len);
+                if (!session->userauth_kybd_auth_name) {
+                    _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                   "Unable to allocate memory for "
+                                   "keyboard-interactive 'name' "
+                                   "request field");
+                    goto cleanup;
+                }
+                memcpy(session->userauth_kybd_auth_name, s,
+                       session->userauth_kybd_auth_name_len);
+                s += session->userauth_kybd_auth_name_len;
             }
-            memcpy(session->userauth_kybd_auth_name, s,
-                   session->userauth_kybd_auth_name_len);
-            s += session->userauth_kybd_auth_name_len;
 
             /* string    instruction (ISO-10646 UTF-8) */
             session->userauth_kybd_auth_instruction_len = _libssh2_ntohu32(s);
