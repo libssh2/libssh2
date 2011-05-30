@@ -4,20 +4,14 @@
 .SH NAME
 libssh2_channel_process_startup - request a shell on a channel
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-int
-libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel, const char *request, unsigned int request_len, const char *message, unsigned int message_len);
-
-int
-libssh2_channel_shell(LIBSSH2_CHANNEL *channel);
-
-int
-libssh2_channel_exec(LIBSSH2_CHANNEL *channel, const char *message);
-
-int
-libssh2_channel_subsystem(LIBSSH2_CHANNEL *channel, const char *message);
-
+int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
+                                    const char *request,
+                                    unsigned int request_len,
+                                    const char *message,
+                                    unsigned int message_len);
 .SH DESCRIPTION
 \fIchannel\fP - Active session channel instance.
 
