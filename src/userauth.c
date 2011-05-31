@@ -1447,7 +1447,6 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             }
 
             /* server requested PAM-like conversation */
-
             s = session->userauth_kybd_data + 1;
 
             /* string    name (ISO-10646 UTF-8) */
@@ -1472,23 +1471,26 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             /* string    instruction (ISO-10646 UTF-8) */
             session->userauth_kybd_auth_instruction_len = _libssh2_ntohu32(s);
             s += 4;
-            session->userauth_kybd_auth_instruction =
-                LIBSSH2_ALLOC(session,
-                              session->userauth_kybd_auth_instruction_len);
-            if (!session->userauth_kybd_auth_instruction) {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate memory for "
-                               "keyboard-interactive 'instruction' "
-                               "request field");
-                goto cleanup;
+            if(session->userauth_kybd_auth_instruction_len) {
+                session->userauth_kybd_auth_instruction =
+                    LIBSSH2_ALLOC(session,
+                                  session->userauth_kybd_auth_instruction_len);
+                if (!session->userauth_kybd_auth_instruction) {
+                    _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                   "Unable to allocate memory for "
+                                   "keyboard-interactive 'instruction' "
+                                   "request field");
+                    goto cleanup;
+                }
+                memcpy(session->userauth_kybd_auth_instruction, s,
+                       session->userauth_kybd_auth_instruction_len);
+                s += session->userauth_kybd_auth_instruction_len;
             }
-            memcpy(session->userauth_kybd_auth_instruction, s,
-                   session->userauth_kybd_auth_instruction_len);
-            s += session->userauth_kybd_auth_instruction_len;
 
             /* string    language tag (as defined in [RFC-3066]) */
             language_tag_len = _libssh2_ntohu32(s);
             s += 4;
+
             /* ignoring this field as deprecated */
             s += language_tag_len;
 
@@ -1496,53 +1498,56 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             session->userauth_kybd_num_prompts = _libssh2_ntohu32(s);
             s += 4;
 
-            session->userauth_kybd_prompts =
-                LIBSSH2_ALLOC(session,
-                              sizeof(LIBSSH2_USERAUTH_KBDINT_PROMPT) *
-                              session->userauth_kybd_num_prompts);
-            if (!session->userauth_kybd_prompts) {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate memory for "
-                               "keyboard-interactive prompts array");
-                goto cleanup;
-            }
-            memset(session->userauth_kybd_prompts, 0,
-                   sizeof(LIBSSH2_USERAUTH_KBDINT_PROMPT) *
-                   session->userauth_kybd_num_prompts);
-
-            session->userauth_kybd_responses =
-                LIBSSH2_ALLOC(session,
-                              sizeof(LIBSSH2_USERAUTH_KBDINT_RESPONSE) *
-                              session->userauth_kybd_num_prompts);
-            if (!session->userauth_kybd_responses) {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate memory for "
-                               "keyboard-interactive responses array");
-                goto cleanup;
-            }
-            memset(session->userauth_kybd_responses, 0,
-                   sizeof(LIBSSH2_USERAUTH_KBDINT_RESPONSE) *
-                   session->userauth_kybd_num_prompts);
-
-            for(i = 0; i != session->userauth_kybd_num_prompts; ++i) {
-                /* string    prompt[1] (ISO-10646 UTF-8) */
-                session->userauth_kybd_prompts[i].length = _libssh2_ntohu32(s);
-                s += 4;
-                session->userauth_kybd_prompts[i].text =
+            if(session->userauth_kybd_num_prompts) {
+                session->userauth_kybd_prompts =
                     LIBSSH2_ALLOC(session,
-                                  session->userauth_kybd_prompts[i].length);
-                if (!session->userauth_kybd_prompts[i].text) {
+                                  sizeof(LIBSSH2_USERAUTH_KBDINT_PROMPT) *
+                                  session->userauth_kybd_num_prompts);
+                if (!session->userauth_kybd_prompts) {
                     _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                    "Unable to allocate memory for "
-                                   "keyboard-interactive prompt message");
+                                   "keyboard-interactive prompts array");
                     goto cleanup;
                 }
-                memcpy(session->userauth_kybd_prompts[i].text, s,
-                       session->userauth_kybd_prompts[i].length);
-                s += session->userauth_kybd_prompts[i].length;
+                memset(session->userauth_kybd_prompts, 0,
+                       sizeof(LIBSSH2_USERAUTH_KBDINT_PROMPT) *
+                       session->userauth_kybd_num_prompts);
 
-                /* boolean   echo[1] */
-                session->userauth_kybd_prompts[i].echo = *s++;
+                session->userauth_kybd_responses =
+                    LIBSSH2_ALLOC(session,
+                                  sizeof(LIBSSH2_USERAUTH_KBDINT_RESPONSE) *
+                                  session->userauth_kybd_num_prompts);
+                if (!session->userauth_kybd_responses) {
+                    _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                   "Unable to allocate memory for "
+                                   "keyboard-interactive responses array");
+                    goto cleanup;
+                }
+                memset(session->userauth_kybd_responses, 0,
+                       sizeof(LIBSSH2_USERAUTH_KBDINT_RESPONSE) *
+                       session->userauth_kybd_num_prompts);
+
+                for(i = 0; i != session->userauth_kybd_num_prompts; ++i) {
+                    /* string    prompt[1] (ISO-10646 UTF-8) */
+                    session->userauth_kybd_prompts[i].length =
+                        _libssh2_ntohu32(s);
+                    s += 4;
+                    session->userauth_kybd_prompts[i].text =
+                        LIBSSH2_ALLOC(session,
+                                      session->userauth_kybd_prompts[i].length);
+                    if (!session->userauth_kybd_prompts[i].text) {
+                        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                       "Unable to allocate memory for "
+                                       "keyboard-interactive prompt message");
+                        goto cleanup;
+                    }
+                    memcpy(session->userauth_kybd_prompts[i].text, s,
+                           session->userauth_kybd_prompts[i].length);
+                    s += session->userauth_kybd_prompts[i].length;
+
+                    /* boolean   echo[1] */
+                    session->userauth_kybd_prompts[i].echo = *s++;
+                }
             }
 
             response_callback(session->userauth_kybd_auth_name,
@@ -1558,11 +1563,6 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                            "Keyboard-interactive response callback function"
                            " invoked");
 
-            session->userauth_kybd_packet_len =
-                1 /* byte      SSH_MSG_USERAUTH_INFO_RESPONSE */
-                + 4             /* int       num-responses */
-                ;
-
             for(i = 0; i != session->userauth_kybd_num_prompts; ++i) {
                 /* string    response[1] (ISO-10646 UTF-8) */
                 session->userauth_kybd_packet_len +=
@@ -1572,15 +1572,10 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             /* A new userauth_kybd_data area is to be allocated, free the
                former one. */
             LIBSSH2_FREE(session, session->userauth_kybd_data);
+            session->userauth_kybd_data = NULL;
 
-            session->userauth_kybd_data = s =
-                LIBSSH2_ALLOC(session, session->userauth_kybd_packet_len);
-            if (!s) {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate memory for keyboard-"
-                               "interactive response packet");
-                goto cleanup;
-            }
+            /* get a pointer to the storage buffer that fits 5 bytes */
+            s = &session->userauth_buf[0];
 
             *s = SSH_MSG_USERAUTH_INFO_RESPONSE;
             s++;
@@ -1596,13 +1591,12 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
         }
 
         if (session->userauth_kybd_state == libssh2_NB_state_sent1) {
-            rc = _libssh2_transport_send(session, session->userauth_kybd_data,
-                                         session->userauth_kybd_packet_len,
+            rc = _libssh2_transport_send(session, session->userauth_buf,
+                                         sizeof(session->userauth_buf),
                                          NULL, 0);
-            if (rc == LIBSSH2_ERROR_EAGAIN) {
+            if (rc == LIBSSH2_ERROR_EAGAIN)
                 return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                       "Would block");
-            }
             if (rc) {
                 _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                                "Unable to send userauth-keyboard-interactive"
@@ -1637,14 +1631,22 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             }
         }
 
-        LIBSSH2_FREE(session, session->userauth_kybd_prompts);
-        session->userauth_kybd_prompts = NULL;
-        LIBSSH2_FREE(session, session->userauth_kybd_responses);
-        session->userauth_kybd_responses = NULL;
-        LIBSSH2_FREE(session, session->userauth_kybd_auth_name);
-        session->userauth_kybd_auth_name = NULL;
-        LIBSSH2_FREE(session, session->userauth_kybd_auth_instruction);
-        session->userauth_kybd_auth_instruction = NULL;
+        if(session->userauth_kybd_prompts) {
+            LIBSSH2_FREE(session, session->userauth_kybd_prompts);
+            session->userauth_kybd_prompts = NULL;
+        }
+        if(session->userauth_kybd_responses) {
+            LIBSSH2_FREE(session, session->userauth_kybd_responses);
+            session->userauth_kybd_responses = NULL;
+        }
+        if(session->userauth_kybd_auth_name) {
+            LIBSSH2_FREE(session, session->userauth_kybd_auth_name);
+            session->userauth_kybd_auth_name = NULL;
+        }
+        if(session->userauth_kybd_auth_instruction) {
+            LIBSSH2_FREE(session, session->userauth_kybd_auth_instruction);
+            session->userauth_kybd_auth_instruction = NULL;
+        }
 
         if (session->userauth_kybd_auth_failure) {
             session->userauth_kybd_state = libssh2_NB_state_idle;
