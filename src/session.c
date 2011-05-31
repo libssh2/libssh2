@@ -549,6 +549,8 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
     int seconds_to_next;
     int dir;
     int has_timeout;
+    long ms_to_next = 0;
+    long elapsed_ms;
 
     /* since libssh2 often sets EAGAIN internally before this function is
        called, we can decrease some amount of confusion in user programs by
@@ -559,81 +561,82 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
     rc = libssh2_keepalive_send (session, &seconds_to_next);
     if (rc < 0)
         return rc;
-    else {
-        /* figure out what to wait for */
-        dir = libssh2_session_block_directions(session);
 
-        if(!dir) {
-            _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                           "Nothing to wait for in wait_socket");
-            /* To avoid that we hang below just because there's nothing set to
-               wait for, we timeout on 1 second to also avoid busy-looping
-               during this condition */
-            seconds_to_next = 1;
-        }
-        {
-#ifdef HAVE_POLL
-            struct pollfd sockets[1];
+    ms_to_next = seconds_to_next * 1000;
 
-            sockets[0].fd = session->socket_fd;
-            sockets[0].events = 0;
-            sockets[0].revents = 0;
+    /* figure out what to wait for */
+    dir = libssh2_session_block_directions(session);
 
-            if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
-                sockets[0].events |= POLLIN;
-
-            if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
-                sockets[0].events |= POLLOUT;
-
-            rc = poll(sockets, 1, seconds_to_next ?
-                      seconds_to_next * 1000 : -1);
-#else
-            fd_set rfd;
-            fd_set wfd;
-            fd_set *writefd = NULL;
-            fd_set *readfd = NULL;
-            struct timeval tv;
-
-            if (session->api_timeout > 0 &&
-                (seconds_to_next == 0 ||
-                 seconds_to_next > session->api_timeout)) {
-                time_t now = time (NULL);
-                long elapsed_ms = (long)(1000*difftime(start_time, now));
-                if (elapsed_ms > session->api_timeout) {
-                    session->err_code = LIBSSH2_ERROR_TIMEOUT;
-                    return LIBSSH2_ERROR_TIMEOUT;
-                }
-                tv.tv_sec = (session->api_timeout - elapsed_ms) / 1000;
-                tv.tv_usec = ((session->api_timeout - elapsed_ms) % 1000) *
-                    1000;
-                has_timeout = 1;
-            }
-            else if (seconds_to_next > 0) {
-                tv.tv_sec = seconds_to_next;
-                tv.tv_usec = 0;
-                has_timeout = 1;
-            }
-            else
-                has_timeout = 0;
-
-            if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
-                FD_ZERO(&rfd);
-                FD_SET(session->socket_fd, &rfd);
-                readfd = &rfd;
-            }
-
-            if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND) {
-                FD_ZERO(&wfd);
-                FD_SET(session->socket_fd, &wfd);
-                writefd = &wfd;
-            }
-
-            rc = select(session->socket_fd + 1, readfd, writefd, NULL,
-                        has_timeout ? &tv : NULL);
-#endif
-        }
+    if(!dir) {
+        _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
+                       "Nothing to wait for in wait_socket");
+        /* To avoid that we hang below just because there's nothing set to
+           wait for, we timeout on 1 second to also avoid busy-looping
+           during this condition */
+        ms_to_next = 1000;
     }
 
+    if (session->api_timeout > 0 &&
+        (seconds_to_next == 0 ||
+         seconds_to_next > session->api_timeout)) {
+        time_t now = time (NULL);
+        elapsed_ms = (long)(1000*difftime(start_time, now));
+        if (elapsed_ms > session->api_timeout) {
+            session->err_code = LIBSSH2_ERROR_TIMEOUT;
+            return LIBSSH2_ERROR_TIMEOUT;
+        }
+        ms_to_next = (session->api_timeout - elapsed_ms);
+        has_timeout = 1;
+    }
+    else if (ms_to_next > 0) {
+        has_timeout = 1;
+    }
+    else
+        has_timeout = 0;
+
+#ifdef HAVE_POLL
+    {
+        struct pollfd sockets[1];
+
+        sockets[0].fd = session->socket_fd;
+        sockets[0].events = 0;
+        sockets[0].revents = 0;
+
+        if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+            sockets[0].events |= POLLIN;
+
+        if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+            sockets[0].events |= POLLOUT;
+
+        rc = poll(sockets, 1, has_timeout?ms_to_next: -1);
+    }
+#else
+    {
+        fd_set rfd;
+        fd_set wfd;
+        fd_set *writefd = NULL;
+        fd_set *readfd = NULL;
+        struct timeval tv;
+
+        tv.tv_sec = ms_to_next / 1000;
+        tv.tv_usec = (ms_to_next - tv.tv_sec*1000) * 1000;
+
+        if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
+            FD_ZERO(&rfd);
+            FD_SET(session->socket_fd, &rfd);
+            readfd = &rfd;
+        }
+
+        if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND) {
+            FD_ZERO(&wfd);
+            FD_SET(session->socket_fd, &wfd);
+            writefd = &wfd;
+        }
+
+        rc = select(session->socket_fd + 1, readfd, writefd, NULL,
+                    has_timeout ? &tv : NULL);
+    }
+#endif
     if(rc <= 0) {
         /* timeout (or error), bail out with a timeout error */
         session->err_code = LIBSSH2_ERROR_TIMEOUT;
