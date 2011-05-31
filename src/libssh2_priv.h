@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2008, 2010, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009 by Daniel Stenberg
+ * Copyright (c) 2009-2011 by Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson
  * All rights reserved.
  *
@@ -683,6 +683,7 @@ struct _LIBSSH2_SESSION
 
     /* State variables used in libssh2_userauth_keyboard_interactive_ex() */
     libssh2_nonblocking_states userauth_kybd_state;
+    unsigned char userauth_buf[5];
     unsigned char *userauth_kybd_data;
     size_t userauth_kybd_data_len;
     unsigned char *userauth_kybd_packet;
