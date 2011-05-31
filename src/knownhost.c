@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2010 by Daniel Stenberg
+ * Copyright (c) 2009-2011 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -617,7 +617,7 @@ static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
 
             if(name > host) {
                 namelen = 0;
-                --name; // skip comma
+                --name; /* skip comma */
             }
         }
     }
