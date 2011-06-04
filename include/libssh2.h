@@ -87,7 +87,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#ifdef _MSC_VER
+#ifdef _WIN32
 # include <BaseTsd.h>
 # include <WinSock2.h>
 #endif
