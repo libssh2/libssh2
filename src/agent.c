@@ -486,13 +486,13 @@ agent_list_identities(LIBSSH2_AGENT *agent)
     ssize_t len, num_identities;
     unsigned char *s;
     int rc;
+    unsigned char c = SSH2_AGENTC_REQUEST_IDENTITIES;
 
     /* Create a request to list identities */
     if (transctx->state == agent_NB_state_init) {
-      unsigned char c = SSH2_AGENTC_REQUEST_IDENTITIES;
-      transctx->request = &c;
-      transctx->request_len = 1;
-      transctx->state = agent_NB_state_request_created;
+        transctx->request = &c;
+        transctx->request_len = 1;
+        transctx->state = agent_NB_state_request_created;
     }
 
     /* Make sure to be re-called as a result of EAGAIN. */
