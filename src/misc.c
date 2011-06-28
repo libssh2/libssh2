@@ -108,8 +108,14 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length, int flags)
             return -errno;
     }
 #else
-    if (rc < 0 )
-        return -errno;
+    if (rc < 0 ){
+        /* Sometimes the first recv() function call sets errno to ENOENT on
+           Solaris and HP-UX */
+        if ( errno == ENOENT )
+            return -EAGAIN;
+        else
+            return -errno;
+    }
 #endif
     return rc;
 }
