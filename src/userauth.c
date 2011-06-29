@@ -1563,6 +1563,11 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                            "Keyboard-interactive response callback function"
                            " invoked");
 
+            session->userauth_kybd_packet_len =
+                1 /* byte      SSH_MSG_USERAUTH_INFO_RESPONSE */
+                + 4             /* int       num-responses */
+                ;
+
             for(i = 0; i != session->userauth_kybd_num_prompts; ++i) {
                 /* string    response[1] (ISO-10646 UTF-8) */
                 session->userauth_kybd_packet_len +=
@@ -1572,10 +1577,15 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             /* A new userauth_kybd_data area is to be allocated, free the
                former one. */
             LIBSSH2_FREE(session, session->userauth_kybd_data);
-            session->userauth_kybd_data = NULL;
 
-            /* get a pointer to the storage buffer that fits 5 bytes */
-            s = &session->userauth_buf[0];
+            session->userauth_kybd_data = s =
+                LIBSSH2_ALLOC(session, session->userauth_kybd_packet_len);
+            if (!s) {
+                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate memory for keyboard-"
+                               "interactive response packet");
+                goto cleanup;
+            }
 
             *s = SSH_MSG_USERAUTH_INFO_RESPONSE;
             s++;
@@ -1591,8 +1601,8 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
         }
 
         if (session->userauth_kybd_state == libssh2_NB_state_sent1) {
-            rc = _libssh2_transport_send(session, session->userauth_buf,
-                                         sizeof(session->userauth_buf),
+            rc = _libssh2_transport_send(session, session->userauth_kybd_data,
+                                         session->userauth_kybd_packet_len,
                                          NULL, 0);
             if (rc == LIBSSH2_ERROR_EAGAIN)
                 return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,

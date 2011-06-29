@@ -683,7 +683,6 @@ struct _LIBSSH2_SESSION
 
     /* State variables used in libssh2_userauth_keyboard_interactive_ex() */
     libssh2_nonblocking_states userauth_kybd_state;
-    unsigned char userauth_buf[5];
     unsigned char *userauth_kybd_data;
     size_t userauth_kybd_data_len;
     unsigned char *userauth_kybd_packet;
