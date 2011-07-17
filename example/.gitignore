@@ -25,6 +25,7 @@ libssh2_config.h.in
 stamp-h2
 sftp_append
 ssh2_echo
+subsystem_netconf
 test-scp
 test-sftp_append
 test-sftp_nonblock
