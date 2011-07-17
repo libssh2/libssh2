@@ -228,7 +228,8 @@ int main(int argc, char *argv[])
         goto shutdown;
 
     printf("Reading NETCONF server <hello>\n");
-    if (-1 == netconf_read_until(channel, "</hello>", buf, sizeof(buf)))
+    len = netconf_read_until(channel, "</hello>", buf, sizeof(buf));
+    if (-1 == len)
         goto shutdown;
 
     printf("Got %d bytes:\n----------------------\n%s", len, buf);
