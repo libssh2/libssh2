@@ -85,6 +85,10 @@ int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag, char *buf, 
 
     } while (!endreply || !specialsequence);
 
+    /* discard the special sequence so that only XML is returned */
+    rd = specialsequence - buf;
+    buf[rd] = 0;
+
     return rd;
 }
 
