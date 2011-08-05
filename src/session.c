@@ -56,6 +56,7 @@
 #include "session.h"
 #include "channel.h"
 #include "mac.h"
+#include "misc.h"
 
 /* libssh2_default_alloc
  */
@@ -1573,13 +1574,13 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         }
 #ifdef HAVE_POLL
 
-#ifdef HAVE_GETTIMEOFDAY
+#ifdef HAVE_LIBSSH2_GETTIMEOFDAY
         {
             struct timeval tv_begin, tv_end;
 
-            gettimeofday((struct timeval *) &tv_begin, NULL);
+            _libssh2_gettimeofday((struct timeval *) &tv_begin, NULL);
             sysret = poll(sockets, nfds, timeout_remaining);
-            gettimeofday((struct timeval *) &tv_end, NULL);
+            _libssh2_gettimeofday((struct timeval *) &tv_end, NULL);
             timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
             timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
         }
@@ -1633,13 +1634,13 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
 #elif defined(HAVE_SELECT)
         tv.tv_sec = timeout_remaining / 1000;
         tv.tv_usec = (timeout_remaining % 1000) * 1000;
-#ifdef HAVE_GETTIMEOFDAY
+#ifdef HAVE_LIBSSH2_GETTIMEOFDAY
         {
             struct timeval tv_begin, tv_end;
 
-            gettimeofday((struct timeval *) &tv_begin, NULL);
+            _libssh2_gettimeofday((struct timeval *) &tv_begin, NULL);
             sysret = select(maxfd+1, &rfds, &wfds, NULL, &tv);
-            gettimeofday((struct timeval *) &tv_end, NULL);
+            _libssh2_gettimeofday((struct timeval *) &tv_end, NULL);
 
             timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
             timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;

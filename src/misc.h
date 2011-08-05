@@ -1,6 +1,6 @@
 #ifndef __LIBSSH2_MISC_H
 #define __LIBSSH2_MISC_H
-/* Copyright (c) 2009-2010 by Daniel Stenberg
+/* Copyright (c) 2009-2011 by Daniel Stenberg
  *
  * All rights reserved.
  *
@@ -77,5 +77,18 @@ libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
 void _libssh2_htonu32(unsigned char *buf, uint32_t val);
 void _libssh2_store_u32(unsigned char **buf, uint32_t value);
 void _libssh2_store_str(unsigned char **buf, const char *str, size_t len);
+
+#if defined(LIBSSH2_WIN32) && !defined(__MINGW32__)
+/* provide a private one */
+#undef HAVE_GETTIMEOFDAY
+int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp);
+#define HAVE_LIBSSH2_GETTIMEOFDAY
+#define LIBSSH2_GETTIMEOFDAY_WIN32 /* enable the win32 implementation */
+#else
+#ifdef HAVE_GETTIMEOFDAY
+#define _libssh2_gettimeofday(x,y) gettimeofday(x,y)
+#define HAVE_LIBSSH2_GETTIMEOFDAY
+#endif
+#endif
 
 #endif /* _LIBSSH2_MISC_H */
