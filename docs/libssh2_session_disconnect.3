@@ -6,7 +6,7 @@ libssh2_session_disconnect - convenience macro for \fIlibssh2_session_disconnect
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_session_disconnect(arguments)
+int libssh2_session_disconnect(LIBSSH2_SESSION *session, const char *description);
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the

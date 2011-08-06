@@ -6,7 +6,7 @@ libssh2_channel_flush - convenience macro for \fIlibssh2_channel_flush_ex(3)\fP 
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_channel_flush(arguments)
+int libssh2_channel_flush(LIBSSH2_CHANNEL *channel);
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the

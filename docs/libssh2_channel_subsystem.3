@@ -6,7 +6,7 @@ libssh2_channel_subsystem - convenience macro for \fIlibssh2_channel_process_sta
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_channel_subsystem(arguments)
+int libssh2_channel_subsystem(LIBSSH2_CHANNEL *channel, const char *subsystem);
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the

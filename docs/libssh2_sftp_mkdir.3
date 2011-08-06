@@ -6,7 +6,7 @@ libssh2_sftp_mkdir - convenience macro for \fIlibssh2_sftp_mkdir_ex(3)\fP calls
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_sftp_mkdir(arguments)
+int libssh2_sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path, long mode);
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the

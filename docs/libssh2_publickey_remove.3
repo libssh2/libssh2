@@ -6,7 +6,9 @@ libssh2_publickey_remove - convenience macro for \fIlibssh2_publickey_remove_ex(
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_publickey_remove(arguments)
+int libssh2_publickey_remove(LIBSSH2_PUBLICKEY *pkey,
+			     const unsigned char *name, unsigned long name_len,
+			     const unsigned char *blob, unsigned long blob_len);
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the

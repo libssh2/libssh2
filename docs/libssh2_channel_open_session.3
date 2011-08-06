@@ -6,7 +6,8 @@ libssh2_channel_open_session - convenience macro for \fIlibssh2_channel_open_ex(
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_channel_open_session(arguments)
+LIBSSH2_CHANNEL *
+libssh2_channel_open_session(LIBSSH2_SESSION *session);
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the

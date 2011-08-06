@@ -6,7 +6,7 @@ libssh2_sftp_closedir - convenience macro for \fIlibssh2_sftp_close_handle(3)\fP
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_sftp_closedir(arguments)
+int libssh2_sftp_closedir(LIBSSH2_SFTP_HANDLE *handle)
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the

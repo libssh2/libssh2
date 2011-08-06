@@ -6,7 +6,7 @@ libssh2_channel_flush_stderr - convenience macro for \fIlibssh2_channel_flush_ex
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_channel_flush_stderr(arguments)
+int libssh2_channel_flush_stderr(LIBSSH2_CHANNEL *channel);
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the

@@ -6,7 +6,8 @@ libssh2_session_init - convenience macro for \fIlibssh2_session_init_ex(3)\fP ca
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_session_init(arguments)
+LIBSSH2_SESSION *
+libssh2_session_init(void);
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the

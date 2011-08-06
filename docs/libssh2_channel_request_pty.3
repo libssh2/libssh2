@@ -6,7 +6,7 @@ libssh2_channel_request_pty - convenience macro for \fIlibssh2_channel_request_p
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_channel_request_pty(arguments)
+int libssh2_channel_request_pty(LIBSSH2_SESSION *session, const char *term);
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the

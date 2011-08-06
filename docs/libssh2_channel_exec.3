@@ -6,7 +6,7 @@ libssh2_channel_exec - convenience macro for \fIlibssh2_channel_process_startup(
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_channel_exec(arguments)
+int libssh2_channel_exec(LIBSSH2_CHANNEL *channel, const char *command);
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the

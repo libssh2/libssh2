@@ -6,7 +6,7 @@ libssh2_userauth_hostbased_fromfile - convenience macro for \fIlibssh2_userauth_
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_userauth_hostbased_fromfile(arguments)
+int libssh2_userauth_hostbased_fromfile(LIBSSH2_SESSION *session, const char *username, const char *publickey, const char *privatekey, const char *passphrase, const char *hostname);
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the

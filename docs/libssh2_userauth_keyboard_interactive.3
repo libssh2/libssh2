@@ -6,7 +6,11 @@ libssh2_userauth_keyboard_interactive - convenience macro for \fIlibssh2_useraut
 .SH SYNOPSIS
 #include <libssh2.h>
 
-libssh2_userauth_keyboard_interactive(arguments)
+int
+libssh2_userauth_keyboard_interactive(LIBSSH2_SESSION* session,
+                                      const char *username,
+                                      LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC((*response_callback)));
+
 
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the
