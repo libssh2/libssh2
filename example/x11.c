@@ -408,14 +408,16 @@ main (int argc, char *argv[])
             current_node = NULL;
 
         while (current_node != NULL) {
+            struct chan_X11_list *next_node;
             rc = x11_send_receive(current_node->chan, current_node->sock);
+            next_node = current_node->next;
             if (rc == -1){
                 shutdown(current_node->sock,SHUT_RDWR);
                 close(current_node->sock);
                 remove_node(current_node);
-
             }
-            current_node = current_node->next;
+
+            current_node = next_node;
         }
 
 
