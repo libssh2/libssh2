@@ -2022,7 +2022,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
 
         if(channel->local.window_size <= 0)
             /* there's no room for data so we stop */
-            return 0;
+            return (rc==LIBSSH2_ERROR_EAGAIN?rc:0);
 
         channel->write_bufwrite = buflen;
 
