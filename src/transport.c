@@ -357,7 +357,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
             /* now read a big chunk from the network into the temp buffer */
             nread =
-                _libssh2_recv(session->socket_fd, &p->buf[remainbuf],
+                LIBSSH2_RECV(session, &p->buf[remainbuf],
                               PACKETBUFSIZE - remainbuf,
                               LIBSSH2_SOCKET_RECV_FLAGS(session));
             if (nread <= 0) {
@@ -610,7 +610,7 @@ send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     /* number of bytes left to send */
     length = p->ototal_num - p->osent;
 
-    rc = _libssh2_send(session->socket_fd, &p->outbuf[p->osent], length,
+    rc = LIBSSH2_SEND(session, &p->outbuf[p->osent], length,
                        LIBSSH2_SOCKET_SEND_FLAGS(session));
     if (rc < 0)
         _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
@@ -823,7 +823,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     session->local.seqno++;
 
-    ret = _libssh2_send(session->socket_fd, p->outbuf, total_length,
+    ret = LIBSSH2_SEND(session, p->outbuf, total_length,
                         LIBSSH2_SOCKET_SEND_FLAGS(session));
     if (ret < 0)
         _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,

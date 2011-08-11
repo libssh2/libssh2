@@ -94,7 +94,7 @@ static int wsa2errno(void)
  * Replacement for the standard recv, return -errno on failure.
  */
 ssize_t
-_libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length, int flags)
+_libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length, int flags, void **abstract)
 {
     ssize_t rc = recv(sock, buffer, length, flags);
 #ifdef WIN32
@@ -126,7 +126,7 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length, int flags)
  */
 ssize_t
 _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
-              int flags)
+              int flags, void **abstract)
 {
     ssize_t rc = send(sock, buffer, length, flags);
 #ifdef WIN32

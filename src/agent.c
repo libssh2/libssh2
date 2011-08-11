@@ -177,7 +177,7 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     /* Send the length of the request */
     if (transctx->state == agent_NB_state_request_created) {
         _libssh2_htonu32(buf, transctx->request_len);
-        rc = _libssh2_send(agent->fd, buf, sizeof buf, 0);
+        rc = LIBSSH2_SEND_FD(agent->session, agent->fd, buf, sizeof buf, 0);
         if (rc == -EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
         else if (rc < 0)
@@ -188,7 +188,7 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Send the request body */
     if (transctx->state == agent_NB_state_request_length_sent) {
-        rc = _libssh2_send(agent->fd, transctx->request,
+        rc = LIBSSH2_SEND_FD(agent->session, agent->fd, transctx->request,
                            transctx->request_len, 0);
         if (rc == -EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
@@ -200,7 +200,7 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Receive the length of a response */
     if (transctx->state == agent_NB_state_request_sent) {
-        rc = _libssh2_recv(agent->fd, buf, sizeof buf, 0);
+        rc = LIBSSH2_RECV_FD(agent->session, agent->fd, buf, sizeof buf, 0);
         if (rc < 0) {
             if (rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
@@ -218,7 +218,7 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Receive the response body */
     if (transctx->state == agent_NB_state_response_length_received) {
-        rc = _libssh2_recv(agent->fd, transctx->response,
+        rc = LIBSSH2_RECV_FD(agent->session, agent->fd, transctx->response,
                            transctx->response_len, 0);
         if (rc < 0) {
             if (rc == -EAGAIN)

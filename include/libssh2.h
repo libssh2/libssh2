@@ -237,12 +237,22 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
   void name(LIBSSH2_SESSION *session, void **session_abstract, \
             LIBSSH2_CHANNEL *channel, void **channel_abstract)
 
+/* I/O callbacks */
+#define LIBSSH2_RECV_FUNC(name)  ssize_t name(int socket, \
+                                              void *buffer, size_t length, \
+                                              int flags, void **abstract)
+#define LIBSSH2_SEND_FUNC(name)  ssize_t name(int socket, \
+                                              const void *buffer, size_t length,\
+                                              int flags, void **abstract)
+
 /* libssh2_session_callback_set() constants */
 #define LIBSSH2_CALLBACK_IGNORE             0
 #define LIBSSH2_CALLBACK_DEBUG              1
 #define LIBSSH2_CALLBACK_DISCONNECT         2
 #define LIBSSH2_CALLBACK_MACERROR           3
 #define LIBSSH2_CALLBACK_X11                4
+#define LIBSSH2_CALLBACK_SEND               5
+#define LIBSSH2_CALLBACK_RECV               6
 
 /* libssh2_session_method_pref() constants */
 #define LIBSSH2_METHOD_KEX          0

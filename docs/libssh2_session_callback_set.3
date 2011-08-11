@@ -33,6 +33,12 @@ Called when a mismatched MAC has been detected in the transport layer. If the
 function returns 0, the packet will be accepted nonetheless.
 .IP LIBSSH2_CALLBACK_X11
 Called when an X11 connection has been accepted
+.IP LIBSSH2_CALLBACK_SEND
+Called when libssh2 wants to send some data on the connection.
+Can be set to a custom function to handle I/O your own way.
+.IP LIBSSH2_CALLBACK_RECV
+Called when libssh2 wants to receive some data from the connection.
+Can be set to a custom function to handle I/O your own way.
 .SH RETURN VALUE
 Pointer to previous callback handler. Returns NULL if no prior callback
 handler was set or the callback type was unknown.
