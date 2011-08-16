@@ -1,44 +1,35 @@
-libssh2 1.2.8
+libssh2 1.2.9
 
 This release includes the following changes:
 
- o added libssh2_free, libssh2_channel_get_exit_signal and
-   libssh2_session_handshake
- o SFTP read/write remade and now MUCH faster, especially on high latency
-   connections
- o added new examples: ssh2_echo.c, sftp_append.c and sftp_write_sliding.c
- o userauth: derive publickey from private
- o NEWS: now generated from git
+ o Added libssh2_session_set_timeout() and libssh2_session_get_timeout()
+   to make blocking calls get a timeout
 
 This release includes the following bugfixes:
 
- o Support unlimited number of host names in a single line of the
-   known_hosts file.
- o fix memory leak in userauth_keyboard_interactive()
- o fix memory leaks (two times cipher_data) for each sftp session
- o session_startup: manage server data before server identification
- o SCP: allow file names with bytes > 126
- o scp_recv: improved treatment of channel_read() returning zero
- o libssh2_userauth_authenticated: make it work as documented
- o variable size cleanup: match internal variable sizes better with the sizes
-   of the fields used on the wire
- o channel_request_pty_size: fix reqPTY_state
- o sftp_symlink: return error if receive buffer too small
- o sftp_readdir: return error if buffer is too small
- o libssh2_knownhost_readfile.3: clarify return value
- o configure: stop using the deprecated AM_INIT_AUTOMAKE syntax
- o Fixed Win32 makefile which was now broken at resource build
- o kex_agree_hostkey: fix NULL pointer derefence
- o _libssh2_ntohu64: fix conversion from network bytes to uint64
- o ssize_t: proper typedef with MSVC compilers
- o zlib: Add debug tracing of zlib errors
- o decomp: increase decompression buffer sizes
+ o configure and pkg-config: fix $VERSION
+ o s/\.NF/.nf/ to fix wrong macro name caught by man --warnings
+ o keepalive: add first basic man pages
+ o sftp_write: flush the packetlist on error
+ o sftp_write: clean offsets on error
+ o msvcproj: added libs and debug stuff
+ o SCP: fix incorrect error code
+ o session_startup: init state properly
+ o sftp_write_sliding: send the complete file
+ o userauth_keyboard_interactive: skip code on zero length auth
+ o _libssh2_wait_socket: fix timeouts for poll() uses
+ o agent_list_identities: fix out of scope access
+ o _libssh2_recv(): handle ENOENT error as EAGAIN
+ o userauth_keyboard_interactive: fix buffer overflow
+ o removed man pages for non-existing functions!
+ o gettimeofday: fix name space pollution
+ o _libssh2_channel_write: handle window_size == 0 better
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
- Alexander Lamaison, Alfred Gebert, Guenter Knauf, Dan Fandrich,
- Daniel Stenberg, Jasmeet Bagga, Joey Degges, Mark Smith, Peter Stuge,
- Pierre Joye, Simon Josefsson, TJ Saunders, Tommy Lindgren
+ Alfred Gebert, Dan Fandrich, Douglas Masterson, Guenter Knauf, Matt Lilley,
+ Mikhail Gusarov, Peter Stuge, zl liu, Paul Howarth, Mark Smith, Bill Segall,
+ Henrik Nordström
  
         Thanks! (and sorry if I forgot to mention someone)
