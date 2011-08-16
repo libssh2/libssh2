@@ -1,35 +1,17 @@
-libssh2 1.2.9
+libssh2 1.3.0
 
 This release includes the following changes:
 
- o Added libssh2_session_set_timeout() and libssh2_session_get_timeout()
-   to make blocking calls get a timeout
+ o 
 
 This release includes the following bugfixes:
 
- o configure and pkg-config: fix $VERSION
- o s/\.NF/.nf/ to fix wrong macro name caught by man --warnings
- o keepalive: add first basic man pages
- o sftp_write: flush the packetlist on error
- o sftp_write: clean offsets on error
- o msvcproj: added libs and debug stuff
- o SCP: fix incorrect error code
- o session_startup: init state properly
- o sftp_write_sliding: send the complete file
- o userauth_keyboard_interactive: skip code on zero length auth
- o _libssh2_wait_socket: fix timeouts for poll() uses
- o agent_list_identities: fix out of scope access
- o _libssh2_recv(): handle ENOENT error as EAGAIN
- o userauth_keyboard_interactive: fix buffer overflow
- o removed man pages for non-existing functions!
- o gettimeofday: fix name space pollution
- o _libssh2_channel_write: handle window_size == 0 better
+ o 
+
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
- Alfred Gebert, Dan Fandrich, Douglas Masterson, Guenter Knauf, Matt Lilley,
- Mikhail Gusarov, Peter Stuge, zl liu, Paul Howarth, Mark Smith, Bill Segall,
- Henrik Nordström
+ 
  
         Thanks! (and sorry if I forgot to mention someone)
