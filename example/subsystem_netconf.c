@@ -25,7 +25,7 @@
 #endif
 
 #ifndef INADDR_NONE
-#define INADDR_NONE (in_addr_t)-1
+#define INADDR_NONE (in_addr_t)~0
 #endif
 
 const char *keyfile1 = "/home/username/.ssh/id_rsa.pub";
@@ -41,7 +41,7 @@ enum {
     AUTH_PUBLICKEY
 };
 
-int netconf_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t len)
+static int netconf_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t len)
 {
     int i;
     ssize_t wr = 0;
@@ -53,12 +53,13 @@ int netconf_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t len)
             return -1;
         }
         wr += i;
-    } while (i > 0 && wr < len);
+    } while (i > 0 && wr < (ssize_t)len);
 
     return 0;
 }
 
-int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag, char *buf, size_t buflen)
+static int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
+                              char *buf, size_t buflen)
 {
     ssize_t len, rd = 0;
     char *endreply, *specialsequence = NULL;
@@ -97,7 +98,6 @@ int main(int argc, char *argv[])
 {
     int rc, sock = -1, i, auth = AUTH_NONE;
     struct sockaddr_in sin;
-    socklen_t sinlen;
     const char *fingerprint;
     char *userauthlist;
     LIBSSH2_SESSION *session;
@@ -106,12 +106,9 @@ int main(int argc, char *argv[])
     ssize_t len;
 
 #ifdef WIN32
-    char sockopt;
     WSADATA wsadata;
 
     WSAStartup(MAKEWORD(2,0), &wsadata);
-#else
-    int sockopt;
 #endif
 
     if (argc > 1)
