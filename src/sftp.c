@@ -1098,6 +1098,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
         total_read += copy;
         filep->data_left -= copy;
+        filep->offset += copy;
 
         if(filep->data_left)
             return total_read;
