@@ -257,7 +257,7 @@ aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
 static int
 aes_ctr_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
                   const unsigned char *in,
-                  unsigned int inl) /* encrypt/decrypt data */
+                  size_t inl) /* encrypt/decrypt data */
 {
     aes_ctr_ctx *c = EVP_CIPHER_CTX_get_app_data(ctx);
     unsigned char b1[AES_BLOCK_SIZE];
