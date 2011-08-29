@@ -19,15 +19,20 @@ ifndef OPENSSL_PATH
 OPENSSL_PATH = ../../openssl-0.9.8r
 endif
 
+# Edit the var below to set to your architecture or set environment var.
+ifndef ARCH
+ARCH = w32
+endif
+
 # Edit the path below to point to your Distribution folder.
 ifndef DISTDIR
-DISTDIR	= libssh2-$(LIBSSH2_VERSION_STR)-bin-w32
+DISTDIR	= libssh2-$(LIBSSH2_VERSION_STR)-bin-$(ARCH)
 endif
 DISTARC	= $(DISTDIR).zip
 
 # Edit the path below to point to your Development folder.
 ifndef DEVLDIR
-DEVLDIR	= libssh2-$(LIBSSH2_VERSION_STR)-dev-w32
+DEVLDIR	= libssh2-$(LIBSSH2_VERSION_STR)-dev-$(ARCH)
 endif
 DEVLARC	= $(DEVLDIR).zip
 
@@ -57,22 +62,38 @@ endif
 # Include the version info retrieved from libssh2.h
 -include $(OBJDIR)/version.inc
 
+ifeq ($(findstring /sh,$(SHELL)),/sh)
+CP	= cp -afv
+# RM	= rm -f
+MD	= mkdir
+RD	= rm -fr
+DL	= '
+DS	= /
+else
+CP	= copy
+RM	= del /q /f 2>NUL
+MD	= md
+RD	= rd /q /s 2>NUL
+XX	=
+DS	= $(XX)\$(XX)
+endif
+# Here you can find a native Win32 binary of the original awk:
+# http://www.gknw.net/development/prgtools/awk-20070501.zip
+AWK	= awk
+ZIP	= zip -qzr9
+
 # The following line defines your compiler.
 ifdef METROWERKS
 	CC = mwcc
 else
 	CC = $(CROSSPREFIX)gcc
 endif
-CP	= cp -afv
-# RM	= rm -f
-MD	= mkdir
-# Here you can find a native Win32 binary of the original awk:
-# http://www.gknw.net/development/prgtools/awk-20070501.zip
-AWK	= awk
-ZIP	= zip -qzr9
 
 # Global flags for all compilers
 CFLAGS	= $(OPT) -D$(DB) -DWIN32 -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
+ifeq ($(ARCH),w64)
+CFLAGS	+= -D_AMD64_
+endif
 
 ifeq ($(CC),mwcc)
 LD	= mwld
@@ -120,14 +141,6 @@ endif
 
 CFLAGS	+= $(INCLUDES)
 
-ifeq ($(findstring /sh,$(SHELL)),/sh)
-DL	= '
-DS	= /
-else
-XX	=
-DS	= $(XX)\$(XX)
-endif
-
 vpath %.c . ../src
 
 # include Makefile.inc to get CSOURCES define
@@ -158,38 +171,38 @@ $(OBJDIR)/version.inc: ../include/libssh2.h $(OBJDIR)
 	@$(AWK) -f ../get_ver.awk $< > $@
 
 dist: all $(DISTDIR) $(DISTDIR)/readme.txt
-	@-mkdir $(DISTDIR)$(DS)bin
-	@-$(CP) ../INSTALL $(DISTDIR)
-	@-$(CP) ../LICENSE $(DISTDIR)
-	@-$(CP) ../README $(DISTDIR)
-	@$(CP) $(TARGET).dll $(DISTDIR)/bin
+	@-$(MD) $(DISTDIR)$(DS)bin
+	@-$(CP) ..$(DS)INSTALL $(DISTDIR)
+	@-$(CP) ..$(DS)LICENSE $(DISTDIR)
+	@-$(CP) ..$(DS)README $(DISTDIR)
+	@$(CP) $(TARGET).dll $(DISTDIR)$(DS)bin
 	@echo Creating $(DISTARC)
 	@$(ZIP) $(DISTARC) $(DISTDIR)/* < $(DISTDIR)/readme.txt
 
 dev: all $(DEVLDIR) $(DEVLDIR)/readme.txt
-	@-mkdir $(DEVLDIR)$(DS)bin
-	@-mkdir $(DEVLDIR)$(DS)include
-	@-mkdir $(DEVLDIR)$(DS)win32
-	@-$(CP) ../INSTALL $(DEVLDIR)
-	@-$(CP) ../LICENSE $(DEVLDIR)
-	@-$(CP) ../README $(DEVLDIR)
-	@$(CP) $(TARGET).dll $(DEVLDIR)/bin
-	@$(CP) ../include/*.h $(DEVLDIR)/include
+	@-$(MD) $(DEVLDIR)$(DS)bin
+	@-$(MD)$(DEVLDIR)$(DS)include
+	@-$(MD) $(DEVLDIR)$(DS)win32
+	@-$(CP) ..$(DS)INSTALL $(DEVLDIR)
+	@-$(CP) ..$(DS)LICENSE $(DEVLDIR)
+	@-$(CP) ..$(DS)README $(DEVLDIR)
+	@$(CP) $(TARGET).dll $(DEVLDIR)$(DS)bin
+	@$(CP) ..$(DS)include$(DS)*.h $(DEVLDIR)$(DS)include
 	@$(CP) libssh2_config.h $(DEVLDIR)/include
 	@$(CP) *.$(LIBEXT) $(DEVLDIR)/win32
 	@echo Creating $(DEVLARC)
 	@$(ZIP) $(DEVLARC) $(DEVLDIR)/* < $(DEVLDIR)/readme.txt
 
 distclean: clean
-	-$(RM) -r $(DISTDIR)
+	-$(RD) $(DISTDIR)
 	-$(RM) $(DISTARC)
 
 devclean: clean
-	-$(RM) -r $(DEVLDIR)
+	-$(RD) $(DEVLDIR)
 	-$(RM) $(DEVLARC)
 
 objclean: all
-	-$(RM) -r $(OBJDIR)
+	-$(RD) $(OBJDIR)
 
 testclean: clean
 	$(MAKE) -C test -f Makefile.win32 clean
@@ -197,7 +210,7 @@ testclean: clean
 clean:
 #	-$(RM) libssh2_config.h
 	-$(RM) $(TARGET).dll $(TARGET).$(LIBEXT) $(TARGET)dll.$(LIBEXT)
-	-$(RM) -r $(OBJDIR)
+	-$(RD) $(OBJDIR)
 
 $(OBJDIR):
 	@$(MD) $@

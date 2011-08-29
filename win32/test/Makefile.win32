@@ -14,7 +14,12 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../../openssl-0.9.8q
+OPENSSL_PATH = ../../../openssl-0.9.8r
+endif
+
+# Edit the var below to set to your architecture or set environment var.
+ifndef ARCH
+ARCH = w32
 endif
 
 # Edit the var below to enable static linking of libssh2 and libz
@@ -23,7 +28,7 @@ LINK_STATIC = 1
 # Edit the vars below to change target settings.
 TARGETS	= scp.exe sftp.exe sftpdir.exe ssh2.exe
 VERSION	= $(LIBSSH2_VERSION)
-COPYR	= (c) 2004-2010 The libssh2 project and its contributors.
+COPYR   = (c) $(LIBSSH2_COPYRIGHT_STR)
 WWWURL	= http://www.libssh2.org/
 DESCR	= libssh2 $(subst .def,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
 #STACK	= 64000
@@ -45,6 +50,26 @@ endif
 # Include the version info retrieved from libssh2.h
 -include $(OBJDIR)/version.inc
 
+ifeq ($(findstring /sh,$(SHELL)),/sh)
+CP      = cp -afv
+# RM    = rm -f
+MD      = mkdir
+RD      = rm -fr
+DL      = '
+DS      = /
+else
+CP      = copy
+RM      = del /q /f 2>NUL
+MD      = md
+RD      = rd /q /s 2>NUL
+XX      =
+DS      = $(XX)\$(XX)
+endif
+# Here you can find a native Win32 binary of the original awk:
+# http://www.gknw.net/development/prgtools/awk-20070501.zip
+AWK     = awk
+ZIP     = zip -qzr9
+
 # The following line defines your compiler.
 ifdef METROWERKS
 	CC = mwcc
@@ -60,6 +85,9 @@ ZIP	= zip -qzr9
 
 # Global flags for all compilers
 CFLAGS	= $(OPT) -D$(DB) -DWIN32 -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
+ifeq ($(ARCH),w64)
+CFLAGS  += -D_AMD64_
+endif
 CFLAGS	+= -DWINSOCK_VERSION=MAKEWORD(2,0)
 
 ifeq ($(CC),mwcc)
@@ -115,13 +143,6 @@ endif
 
 CFLAGS	+= $(INCLUDES)
 
-ifeq ($(findstring /sh,$(SHELL)),/sh)
-DL	= '
-DS	= /
-else
-DS	= \\
-endif
-
 vpath %.c ../../example
 
 .PRECIOUS: $(OBJDIR)/%.o $(OBJDIR)/%.rc $(OBJDIR)/%.res
@@ -140,13 +161,13 @@ $(OBJDIR)/version.inc: ../../include/libssh2.h $(OBJDIR)
 	@$(AWK) -f ../../get_ver.awk $< > $@
 
 objclean:
-	-$(RM) -r $(OBJDIR)
+	-$(RD) $(OBJDIR)
 
 clean: objclean
 	-$(RM) $(TARGETS)
 
 $(OBJDIR):
-	@mkdir $@
+	$(MD) $@
 
 %.exe: $(OBJDIR)/%.o $(OBJDIR)/%.res
 	@echo Linking $@
