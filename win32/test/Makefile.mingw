@@ -66,7 +66,7 @@ XX      =
 DS      = $(XX)\$(XX)
 endif
 # Here you can find a native Win32 binary of the original awk:
-# http://www.gknw.net/development/prgtools/awk-20070501.zip
+# http://www.gknw.net/development/prgtools/awk-20100523.zip
 AWK     = awk
 ZIP     = zip -qzr9
 

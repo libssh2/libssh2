@@ -73,7 +73,7 @@ endif
 CP	= cp -afv
 # RM	= rm -f
 # Here you can find a native Win32 binary of the original awk:
-# http://www.gknw.net/development/prgtools/awk-20070501.zip
+# http://www.gknw.net/development/prgtools/awk-20100523.zip
 AWK	= awk
 # If you want to mark the target as MTSAFE you will need a tool for
 # generating the xdc data for the linker; here's a minimal tool:
