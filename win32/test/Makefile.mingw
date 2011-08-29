@@ -1,7 +1,7 @@
 #########################################################################
 #
 ## Makefile for building libssh2 samples (Win32 version - gnu make)
-## Use: make -f Makefile.win32 [help]
+## Use: make -f Makefile.mingw [help]
 ##
 ## Comments to: Guenter Knauf http://www.gknw.net/phpbb
 #

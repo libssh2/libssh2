@@ -1,7 +1,7 @@
 #########################################################################
 #
 ## Makefile for building libssh2 (Win32 version - gnu make)
-## Use: make -f Makefile.win32 [help|all|clean|dev|devclean|dist|distclean|dll|objclean]
+## Use: make -f Makefile.mingw [help|all|clean|dev|devclean|dist|distclean|dll|objclean]
 ##
 ## Comments to: Guenter Knauf http://www.gknw.net/phpbb
 #
@@ -160,7 +160,7 @@ prebuild: $(OBJDIR) $(OBJDIR)/version.inc
 # libssh2_config.h
 
 test: all
-	$(MAKE) -C test -f Makefile.win32
+	$(MAKE) -C test -f Makefile.mingw
  
 $(OBJDIR)/%.o: %.c
 #	@echo Compiling $<
