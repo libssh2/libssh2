@@ -706,6 +706,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                "Remote sent more data than current "
                                "window allows, truncating");
                 datalen = channelp->remote.window_size + data_head;
+                channelp->remote.window_size = 0;
             }
             else
                 /* Now that we've received it, shrink our window */
