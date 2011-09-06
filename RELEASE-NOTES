@@ -1,19 +1,16 @@
-libssh2 1.3.0
+libssh2 1.3.1
 
 This release includes the following changes:
 
- o Added custom callbacks for performing low level socket I/O
+ o 
 
 This release includes the following bugfixes:
 
- o sftp_read: advance offset correctly for buffered copies
- o libssh2_sftp_seek64: flush packetlist and buffered data
- o _libssh2_packet_add: adjust window size when truncating
- o sftp_read: a short read is not end of file
+ o 
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
- Henrik Nordstrom, liuzl, Guenter Knauf
+ 
  
         Thanks! (and sorry if I forgot to mention someone)
