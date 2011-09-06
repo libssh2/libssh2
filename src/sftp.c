@@ -1114,6 +1114,20 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
            been sent, we risk getting count become a very large number */
         if((buffer_size*4) > already)
             count = (buffer_size*4) - already;
+
+        /* 'count' is how much more data to ask for, and 'already' is how much
+           data that already has been asked for but not yet returned. So, if
+           'already' is very large it should be perfectly fine to have count
+           set to 0 as then we don't have to ask for more data (right now).
+
+           buffer_size*4 is just picked more or less out of the air. The idea
+           is that when reading SFTP from a remote server, we send away
+           multiple read requests guessing that the client will read more than
+           only this 'buffer_size' amount of memory. So we ask for maximum
+           buffer_size*4 amount of data so that we can return them very fast
+           in subsequent calls.
+        */
+
     }
 
     while(count > 0) {
