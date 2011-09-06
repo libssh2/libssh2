@@ -1242,9 +1242,12 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                       "SFTP Protocol badness");
 
-            if(rc32 != chunk->len)
-                /* a short read means this is the last read in the file */
-                filep->eof = TRUE;
+            if(rc32 != chunk->len) {
+                /* a short read does not imply end of file, but we must adjust
+                   the offset_sent since it was advanced with a full
+                   chunk->len before */
+                filep->offset_sent -= (chunk->len - rc32);
+            }
 
             if(total_read + rc32 > buffer_size) {
                 /* figure out the overlap amount */
