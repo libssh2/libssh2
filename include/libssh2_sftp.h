@@ -219,6 +219,7 @@ struct _LIBSSH2_SFTP_STATVFS {
 LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session);
 LIBSSH2_API int libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp);
 LIBSSH2_API unsigned long libssh2_sftp_last_error(LIBSSH2_SFTP *sftp);
+LIBSSH2_API LIBSSH2_CHANNEL *libssh2_sftp_get_channel(LIBSSH2_SFTP *sftp);
 
 /* File / Directory Ops */
 LIBSSH2_API LIBSSH2_SFTP_HANDLE *libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp,

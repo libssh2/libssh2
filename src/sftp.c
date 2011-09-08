@@ -3008,3 +3008,15 @@ libssh2_sftp_last_error(LIBSSH2_SFTP *sftp)
 
     return sftp->last_errno;
 }
+
+/* libssh2_sftp_get_channel
+ * Return the channel of sftp, then caller can control the channel's behavior.
+ */
+LIBSSH2_API LIBSSH2_CHANNEL *
+libssh2_sftp_get_channel(LIBSSH2_SFTP *sftp)
+{
+    if (!sftp)
+        return NULL;
+
+    return sftp->channel;
+}
