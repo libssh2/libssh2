@@ -1,2 +1,1 @@
-include Makefile.win32
-
+include Makefile.mingw

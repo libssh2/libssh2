@@ -26,7 +26,8 @@ vms/libssh2_make_kit.dcl vms/libssh2_make_lib.dcl vms/man2help.c	\
 vms/readme.vms vms/libssh2_config.h
 
 
-WIN32FILES = win32/libssh2.dsw win32/config.mk win32/Makefile	\
+WIN32FILES = win32/Makefile.mingw win32/test/Makefile.mingw	\
+win32/libssh2.dsw win32/config.mk win32/Makefile		\
 win32/libssh2_config.h win32/tests.dsp win32/rules.mk $(DSP)	\
 win32/msvcproj.head win32/msvcproj.foot win32/libssh2.rc	\
 win32/Makefile.Watcom
