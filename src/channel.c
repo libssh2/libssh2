@@ -1754,6 +1754,16 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
                        stream_id);
         channel->read_state = libssh2_NB_state_created;
     }
+
+    /*
+     * =============================== NOTE ===============================
+     * I know this is very ugly and not a really good use of "goto", but
+     * this case statement would be even uglier to do it any other way
+     */
+    if (channel->read_state == libssh2_NB_state_jump1) {
+        goto channel_read_window_adjust;
+    }
+
     rc = 1; /* set to >0 to let the while loop start */
 
     /* Process all pending incoming packets in all states in order to "even
@@ -1764,15 +1774,6 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
 
     if ((rc < 0) && (rc != LIBSSH2_ERROR_EAGAIN))
         return _libssh2_error(session, rc, "transport read");
-
-    /*
-     * =============================== NOTE ===============================
-     * I know this is very ugly and not a really good use of "goto", but
-     * this case statement would be even uglier to do it any other way
-     */
-    if (channel->read_state == libssh2_NB_state_jump1) {
-        goto channel_read_ex_point1;
-    }
 
     read_packet = _libssh2_list_first(&session->packets);
     while (read_packet && (bytes_read < (int) buflen)) {
@@ -1874,7 +1875,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     if(channel->remote.window_size < (LIBSSH2_CHANNEL_WINDOW_DEFAULT*30)) {
         /* the window is getting too narrow, expand it! */
 
-      channel_read_ex_point1:
+      channel_read_window_adjust:
         channel->read_state = libssh2_NB_state_jump1;
         /* the actual window adjusting may not finish so we need to deal with
            this special state here */
