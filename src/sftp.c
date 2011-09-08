@@ -1110,10 +1110,14 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
     /* We allow a number of bytes being requested at any given time without
        having been acked - until we reach EOF. */
     if(!filep->eof) {
+        size_t max_read_ahead = buffer_size*4;
+        if(max_read_ahead > LIBSSH2_CHANNEL_WINDOW_DEFAULT*30)
+            max_read_ahead = LIBSSH2_CHANNEL_WINDOW_DEFAULT*30;
+
         /* if the buffer_size passed in now is smaller than what has already
            been sent, we risk getting count become a very large number */
-        if((buffer_size*4) > already)
-            count = (buffer_size*4) - already;
+        if(max_read_ahead > already)
+            count = max_read_ahead - already;
 
         /* 'count' is how much more data to ask for, and 'already' is how much
            data that already has been asked for but not yet returned. So, if
