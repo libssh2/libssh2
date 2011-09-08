@@ -1120,9 +1120,15 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
             count = max_read_ahead - already;
 
         /* 'count' is how much more data to ask for, and 'already' is how much
-           data that already has been asked for but not yet returned. So, if
-           'already' is very large it should be perfectly fine to have count
-           set to 0 as then we don't have to ask for more data (right now).
+           data that already has been asked for but not yet returned.
+           Specificly, 'count' means how much data that have or will be asked
+           for by the nodes that are already added to the linked list. Some of
+           those read requests may not actually have been sent off
+           successfully yet.
+
+           If 'already' is very large it should be perfectly fine to have
+           count set to 0 as then we don't have to ask for more data (right
+           now).
 
            buffer_size*4 is just picked more or less out of the air. The idea
            is that when reading SFTP from a remote server, we send away
@@ -1131,7 +1137,6 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
            buffer_size*4 amount of data so that we can return them very fast
            in subsequent calls.
         */
-
     }
 
     while(count > 0) {
