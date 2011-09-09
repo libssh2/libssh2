@@ -487,6 +487,7 @@ LIBSSH2_API int libssh2_session_block_directions(LIBSSH2_SESSION *session);
 
 LIBSSH2_API int libssh2_session_flag(LIBSSH2_SESSION *session, int flag,
                                      int value);
+LIBSSH2_API const char *libssh2_session_banner_get(LIBSSH2_SESSION *session);
 
 /* Userauth API */
 LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session,
