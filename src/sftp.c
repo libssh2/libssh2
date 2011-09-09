@@ -1111,8 +1111,10 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
        having been acked - until we reach EOF. */
     if(!filep->eof) {
         size_t max_read_ahead = buffer_size*4;
-        if(max_read_ahead > LIBSSH2_CHANNEL_WINDOW_DEFAULT*30)
-            max_read_ahead = LIBSSH2_CHANNEL_WINDOW_DEFAULT*30;
+        unsigned long recv_window;
+
+        if(max_read_ahead > LIBSSH2_CHANNEL_WINDOW_DEFAULT*4)
+            max_read_ahead = LIBSSH2_CHANNEL_WINDOW_DEFAULT*4;
 
         /* if the buffer_size passed in now is smaller than what has already
            been sent, we risk getting count become a very large number */
@@ -1137,6 +1139,26 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
            buffer_size*4 amount of data so that we can return them very fast
            in subsequent calls.
         */
+
+        recv_window = libssh2_channel_window_read_ex(sftp->channel,
+                                                     NULL, NULL);
+        if(max_read_ahead > recv_window) {
+            /* more data will be asked for than what the window currently
+               allows, expand it! */
+
+            if(total_read)
+                /* since we risk getting EAGAIN below, we return here if
+                   there is data available */
+                return total_read;
+
+            rc = _libssh2_channel_receive_window_adjust(sftp->channel,
+                                                        max_read_ahead*8,
+                                                        0, NULL);
+            /* if this returns EAGAIN, we will get back to this function
+               at next call */
+            if (rc)
+                return rc;
+        }
     }
 
     while(count > 0) {
