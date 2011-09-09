@@ -1,6 +1,4 @@
 /*
- * $Id: scp.c,v 1.12 2009/04/28 10:35:30 bagder Exp $
- *
  * Sample showing how to do a simple SCP transfer.
  */
 

@@ -1,6 +1,4 @@
 /*
- * $Id: sftp_mkdir_nonblock.c,v 1.12 2009/04/28 10:35:30 bagder Exp $
- *
  * Sample showing how to do SFTP non-blocking mkdir.
  *
  * The sample code has default values for host name, user name, password

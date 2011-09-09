@@ -1,6 +1,4 @@
 /*
- * $Id: ssh2_exec.c,v 1.4 2009/05/07 20:30:22 bagder Exp $
- *
  * Sample showing how to use libssh2 to execute a command remotely.
  *
  * The sample code has fixed values for host name, user name, password

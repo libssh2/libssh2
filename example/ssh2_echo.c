@@ -1,6 +1,4 @@
 /*
- * $Id: ssh2_exec.c,v 1.4 2009/05/07 20:30:22 bagder Exp $
- *
  * Run it like this:
  *
  * $ ./ssh2_echo 127.0.0.1 user password

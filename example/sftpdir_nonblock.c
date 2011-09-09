@@ -1,6 +1,4 @@
 /*
- * $Id: sftpdir_nonblock.c,v 1.13 2009/04/28 10:35:30 bagder Exp $
- *
  * Sample doing an SFTP directory listing.
  *
  * The sample code has default values for host name, user name, password and

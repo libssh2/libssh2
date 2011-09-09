@@ -1,6 +1,4 @@
 /*
- * $Id: scp_nonblock.c,v 1.16 2009/04/28 10:35:30 bagder Exp $
- *
  * Sample showing how to do SCP transfers in a non-blocking manner.
  *
  * The sample code has default values for host name, user name, password

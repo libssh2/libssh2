@@ -1,6 +1,4 @@
 /*
- * $Id: sftp_mkdir.c,v 1.9 2009/04/28 10:35:30 bagder Exp $
- *
  * Sample showing how to do SFTP mkdir
  *
  * The sample code has default values for host name, user name, password

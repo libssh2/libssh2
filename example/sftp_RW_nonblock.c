@@ -1,6 +1,4 @@
 /*
- * $Id: sftp_RW_nonblock.c,v 1.13 2009/04/28 10:35:30 bagder Exp $
- *
  * Sample showing how to do SFTP transfers in a non-blocking manner.
  *
  * It will first download a given source file, store it locally and then

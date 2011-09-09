@@ -1,7 +1,5 @@
 /*
- * $Id: scp_write_nonblock.c,v 1.10 2009/04/28 10:35:30 bagder Exp $
- *
- * Sample showing how to do a simple SCP transfer.
+ * Sample showing how to do an SCP non-blocking upload transfer.
  */
 
 #include "libssh2_config.h"

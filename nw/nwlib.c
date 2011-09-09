@@ -2,8 +2,6 @@
  * Universal NetWare library stub.                                   *
  * written by Ulrich Neuman and given to OpenSource copyright-free.  *
  * Extended for CLIB support by Guenter Knauf.                       *
- *********************************************************************
- * $Id: nwlib.c,v 1.1 2007/07/09 22:50:02 gknauf Exp $               *
  *********************************************************************/
 
 #ifdef NETWARE /* Novell NetWare */

@@ -1,7 +1,5 @@
 /*
- * $Id: scp_write.c,v 1.7 2009/04/28 10:35:30 bagder Exp $
- *
- * Sample showing how to do a simple SCP transfer.
+ * Sample showing how to do an SCP upload.
  */
 
 #include "libssh2_config.h"
