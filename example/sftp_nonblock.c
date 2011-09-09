@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
     /* ... start it up. This will trade welcome banners, exchange keys,
         * and setup crypto, compression, and MAC layers
         */
-    while ((rc = libssh2_session_startup(session, sock)) ==
+    while ((rc = libssh2_session_handshake(session, sock)) ==
            LIBSSH2_ERROR_EAGAIN);
     if (rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);

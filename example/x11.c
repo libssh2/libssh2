@@ -296,8 +296,8 @@ main (int argc, char *argv[])
         return -1;
     }
     /* Open a session */
-    session = libssh2_session_init ();
-    rc      = libssh2_session_startup (session, sock);
+    session = libssh2_session_init();
+    rc      = libssh2_session_handshake(session, sock);
     if (rc != 0) {
         fprintf(stderr, "Failed Start the SSH session\n");
         return -1;
