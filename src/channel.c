@@ -1881,7 +1881,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
            this special state here */
         rc = _libssh2_channel_receive_window_adjust(channel,
                                                     (LIBSSH2_CHANNEL_WINDOW_DEFAULT*60), 0, NULL);
-        if (rc == LIBSSH2_ERROR_EAGAIN)
+        if (rc)
             return rc;
 
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
