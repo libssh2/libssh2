@@ -411,11 +411,11 @@ get_socket_nonblocking(int sockfd)
 #endif
 }
 
-/* libssh2_banner_set
- * Set the local banner
+/* libssh2_session_banner_set
+ * Set the local banner to use in the server handshake.
  */
 LIBSSH2_API int
-libssh2_banner_set(LIBSSH2_SESSION * session, const char *banner)
+libssh2_session_banner_set(LIBSSH2_SESSION * session, const char *banner)
 {
     size_t banner_len = banner ? strlen(banner) : 0;
 
@@ -444,6 +444,15 @@ libssh2_banner_set(LIBSSH2_SESSION * session, const char *banner)
     session->local.banner[banner_len] = '\0';
 
     return 0;
+}
+
+/* libssh2_banner_set
+ * Set the local banner. DEPRECATED VERSION
+ */
+LIBSSH2_API int
+libssh2_banner_set(LIBSSH2_SESSION * session, const char *banner)
+{
+    return libssh2_session_banner_set(session, banner);
 }
 
 /*

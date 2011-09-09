@@ -51,6 +51,7 @@ At next SONAME bump
   libssh2_poll()
   libssh2_poll_channel_read()
   libssh2_session_startup() (libssh2_session_handshake() is the replacement)
+  libssh2_banner_set() (libssh2_session_banner_set() is the repacement)
 
 * Rename a few function:
 
