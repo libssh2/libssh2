@@ -569,7 +569,7 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
                              long timeout);
 
 /* Channel API */
-#define LIBSSH2_CHANNEL_WINDOW_DEFAULT  65536
+#define LIBSSH2_CHANNEL_WINDOW_DEFAULT  (256*1024)
 #define LIBSSH2_CHANNEL_PACKET_DEFAULT  32768
 #define LIBSSH2_CHANNEL_MINADJUST       1024
 
