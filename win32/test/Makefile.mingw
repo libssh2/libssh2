@@ -88,7 +88,6 @@ CFLAGS	= $(OPT) -D$(DB) -DWIN32 -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
 ifeq ($(ARCH),w64)
 CFLAGS  += -D_AMD64_
 endif
-CFLAGS	+= -DWINSOCK_VERSION=MAKEWORD(2,0)
 
 ifeq ($(CC),mwcc)
 LD	= mwld
