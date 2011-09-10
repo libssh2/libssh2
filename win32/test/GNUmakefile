@@ -26,7 +26,7 @@ endif
 LINK_STATIC = 1
 
 # Edit the vars below to change target settings.
-TARGETS	= scp.exe sftp.exe sftpdir.exe ssh2.exe
+TARGETS	= $(patsubst ../../example/%.c, %.exe, $(wildcard ../../example/*.c))
 VERSION	= $(LIBSSH2_VERSION)
 COPYR   = (c) $(LIBSSH2_COPYRIGHT_STR)
 WWWURL	= http://www.libssh2.org/
