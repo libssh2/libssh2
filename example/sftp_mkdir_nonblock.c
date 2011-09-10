@@ -44,9 +44,6 @@ int main(int argc, char *argv[])
     const char *password="password";
     const char *sftppath="/tmp/sftp_mkdir_nonblock";
     int rc;
-#if defined(HAVE_IOCTLSOCKET)
-    long flag = 1;
-#endif
     LIBSSH2_SFTP *sftp_session;
 
 #ifdef WIN32

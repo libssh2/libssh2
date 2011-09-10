@@ -92,9 +92,6 @@ int main(int argc, char *argv[])
     int total = 0;
     long time_ms;
     int spin = 0;
-#if defined(HAVE_IOCTLSOCKET)
-    long flag = 1;
-#endif
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
 

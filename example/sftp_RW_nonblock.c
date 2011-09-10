@@ -54,9 +54,6 @@ int main(int argc, char *argv[])
     const char *sftppath="/tmp/TEST"; /* source path */
     const char *dest="/tmp/TEST2";    /* destination path */
     int rc;
-#if defined(HAVE_IOCTLSOCKET)
-    long flag = 1;
-#endif
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
     FILE *tempstorage;

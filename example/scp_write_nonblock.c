@@ -79,9 +79,6 @@ int main(int argc, char *argv[])
     const char *scppath="/tmp/TEST";
     FILE *local;
     int rc;
-#if defined(HAVE_IOCTLSOCKET)
-    long flag = 1;
-#endif
     char mem[1024*100];
     size_t nread;
     char *ptr;

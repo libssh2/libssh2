@@ -93,9 +93,6 @@ int main(int argc, char *argv[])
     int total = 0;
     long time_ms;
     int spin = 0;
-#if defined(HAVE_IOCTLSOCKET)
-    long flag = 1;
-#endif
     off_t got=0;
 
 #ifdef WIN32

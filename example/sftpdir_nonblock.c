@@ -44,9 +44,6 @@ int main(int argc, char *argv[])
     const char *password="password";
     const char *sftppath="/tmp/secretdir";
     int rc;
-#if defined(HAVE_IOCTLSOCKET)
-    long flag = 1;
-#endif
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
 
