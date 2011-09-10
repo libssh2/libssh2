@@ -82,9 +82,6 @@ int main(int argc, char *argv[])
     const char *loclfile="sftp_write_nonblock.c";
     const char *sftppath="/tmp/sftp_write_nonblock.c";
     int rc;
-#if defined(HAVE_IOCTLSOCKET)
-    long flag = 1;
-#endif
     FILE *local;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
