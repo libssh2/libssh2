@@ -1,9 +1,9 @@
 #########################################################################
 #
 ## Makefile for building libssh2 (Win32 version - gnu make)
-## Use: make -f Makefile.mingw [help|all|clean|dev|devclean|dist|distclean|dll|objclean]
+## Use: make -f GNUmakefile [help|all|clean|dev|devclean|dist|distclean|dll|objclean]
 ##
-## Comments to: Guenter Knauf http://www.gknw.net/phpbb
+## Hacked by: Guenter Knauf
 #
 #########################################################################
 
@@ -160,7 +160,7 @@ prebuild: $(OBJDIR) $(OBJDIR)/version.inc
 # libssh2_config.h
 
 test: all
-	$(MAKE) -C test -f Makefile.mingw
+	$(MAKE) -C test -f GNUmakefile
  
 $(OBJDIR)/%.o: %.c
 #	@echo Compiling $<
@@ -205,7 +205,7 @@ objclean: all
 	-$(RD) $(OBJDIR)
 
 testclean: clean
-	$(MAKE) -C test -f Makefile.win32 clean
+	$(MAKE) -C test -f GNUmakefile clean
 
 clean:
 #	-$(RM) libssh2_config.h
@@ -240,7 +240,7 @@ $(OBJDIR)/%.res: %.rc
 	@$(RC) $(RCFLAGS) $< -o $@
 
 
-$(DISTDIR)/readme.txt: Makefile.win32
+$(DISTDIR)/readme.txt: GNUmakefile
 	@echo Creating $@
 	@echo $(DL)This is a binary distribution for Win32 platform.$(DL) > $@
 	@echo $(DL)libssh version $(LIBSSH2_VERSION_STR)$(DL) >> $@
@@ -248,7 +248,7 @@ $(DISTDIR)/readme.txt: Makefile.win32
 	@echo $(DL)any further documentation:$(DL) >> $@
 	@echo $(DL)$(WWWURL)$(DL) >> $@
 
-$(DEVLDIR)/readme.txt: Makefile.win32
+$(DEVLDIR)/readme.txt: GNUmakefile
 	@echo Creating $@
 	@echo $(DL)This is a development distribution for Win32 platform.$(DL) > $@
 	@echo $(DL)libssh version $(LIBSSH2_VERSION_STR)$(DL) >> $@

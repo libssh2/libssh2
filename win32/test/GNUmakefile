@@ -1,9 +1,9 @@
 #########################################################################
 #
 ## Makefile for building libssh2 samples (Win32 version - gnu make)
-## Use: make -f Makefile.mingw [help]
+## Use: make -f GNUmakefile [help]
 ##
-## Comments to: Guenter Knauf http://www.gknw.net/phpbb
+## Hacked by: Guenter Knauf
 #
 #########################################################################
 
@@ -76,12 +76,6 @@ ifdef METROWERKS
 else
 	CC = $(CROSSPREFIX)gcc
 endif
-CP	= cp -afv
-# RM	= rm -f
-# Here you can find a native Win32 binary of the original awk:
-# http://www.gknw.net/development/prgtools/awk-20070501.zip
-AWK	= awk
-ZIP	= zip -qzr9
 
 # Global flags for all compilers
 CFLAGS	= $(OPT) -D$(DB) -DWIN32 -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
@@ -177,7 +171,7 @@ $(OBJDIR)/%.res: $(OBJDIR)/%.rc
 	@echo Creating $@
 	@$(RC) $(RCFLAGS) $< -o $@
 
-$(OBJDIR)/%.rc: Makefile.win32 $(OBJDIR)/version.inc
+$(OBJDIR)/%.rc: GNUmakefile $(OBJDIR)/version.inc
 	@echo $(DL)1 VERSIONINFO$(DL) > $@
 	@echo $(DL) FILEVERSION $(LIBSSH2_VERSION),0$(DL) >> $@
 	@echo $(DL) PRODUCTVERSION $(LIBSSH2_VERSION),0$(DL) >> $@
