@@ -3,7 +3,7 @@
 ## Makefile for building libssh2 (NetWare version - gnu make)
 ## Use: make -f Makefile.netware [help|all|clean|dev|devclean|dist|distclean|lib|nlm|objclean]
 ##
-## Comments to: Guenter Knauf http://www.gknw.net/phpbb
+## Hacked by: Guenter Knauf
 #
 #########################################################################
 

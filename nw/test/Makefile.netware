@@ -3,7 +3,7 @@
 ## Makefile for building libssh2 (NetWare version - gnu make)
 ## Use: make -f Makefile.netware
 ##
-## Comments to: Guenter Knauf http://www.gknw.net/phpbb
+## Hacked by: Guenter Knauf
 #
 #########################################################################
 
@@ -19,7 +19,7 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../../openssl-0.9.8q
+OPENSSL_PATH = ../../../openssl-0.9.8r
 endif
 
 # Edit the var below to enable static linking of libssh2 and libz
@@ -29,7 +29,7 @@ LINK_STATIC = 1
 SAMPLES	= ../../example
 TARGETS := $(filter-out x11.nlm,$(patsubst $(SAMPLES)/%.c,%.nlm,$(strip $(wildcard $(SAMPLES)/*.c))))
 VERSION	= $(LIBSSH2_VERSION)
-COPYR	= Copyright (c) 2004-2010 The libssh2 project and its contributors.
+COPYR   = Copyright (c) $(LIBSSH2_COPYRIGHT_STR)
 WWWURL	= http://www.libssh2.org/
 DESCR	= libssh2 $(notdir $(@:.def=)) $(LIBSSH2_VERSION_STR) ($(LIBARCH)) - $(WWWURL)
 MTSAFE	= YES
