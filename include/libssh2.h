@@ -238,10 +238,10 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
             LIBSSH2_CHANNEL *channel, void **channel_abstract)
 
 /* I/O callbacks */
-#define LIBSSH2_RECV_FUNC(name)  ssize_t name(int socket, \
+#define LIBSSH2_RECV_FUNC(name)  ssize_t name(libssh2_socket_t socket, \
                                               void *buffer, size_t length, \
                                               int flags, void **abstract)
-#define LIBSSH2_SEND_FUNC(name)  ssize_t name(int socket, \
+#define LIBSSH2_SEND_FUNC(name)  ssize_t name(libssh2_socket_t socket, \
                                               const void *buffer, size_t length,\
                                               int flags, void **abstract)
 
