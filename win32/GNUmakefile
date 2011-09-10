@@ -120,7 +120,7 @@ LIBEXT	= a
 RANLIB	= $(CROSSPREFIX)ranlib
 #LDLIBS	+= -lwsock32
 LDLIBS	+= -lws2_32
-RCFLAGS	= -DLIBSSH2_VERSION_ONLY -I. -I ../include -O coff -i
+RCFLAGS	= -I. -I ../include -O coff -i
 CFLAGS	+= -fno-strict-aliasing
 CFLAGS	+= -Wall # -pedantic
 endif

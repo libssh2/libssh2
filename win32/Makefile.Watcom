@@ -140,7 +140,7 @@ $(LIBNAME).lib: $(OBJS_STAT) $(LIB_ARG)
 
 .ERASE
 $(RESOURCE): libssh2.rc
-	$(RC) $(DEBUG) -q -r -zm -DLIBSSH2_VERSION_ONLY -I..\include $(SYS_INCL) $[@ -fo=$^@
+	$(RC) $(DEBUG) -q -r -zm -I..\include $(SYS_INCL) $[@ -fo=$^@
 
 .ERASE
 .c{$(OBJ_BASE)\dyn}.obj:

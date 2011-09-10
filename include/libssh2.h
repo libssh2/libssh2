@@ -82,7 +82,7 @@
  */
 #define LIBSSH2_TIMESTAMP "DEV"
 
-#ifndef LIBSSH2_VERSION_ONLY
+#ifndef RC_INVOKED
 
 #ifdef __cplusplus
 extern "C" {
@@ -1166,6 +1166,6 @@ LIBSSH2_API int libssh2_trace_sethandler(LIBSSH2_SESSION *session,
 } /* extern "C" */
 #endif
 
-#endif /* LIBSSH2_VERSION_ONLY */
+#endif /* !RC_INVOKED */
 
 #endif /* LIBSSH2_H */
