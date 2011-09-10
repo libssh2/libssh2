@@ -30,7 +30,7 @@ TARGETS	= $(patsubst ../../example/%.c, %.exe, $(wildcard ../../example/*.c))
 VERSION	= $(LIBSSH2_VERSION)
 COPYR   = (c) $(LIBSSH2_COPYRIGHT_STR)
 WWWURL	= http://www.libssh2.org/
-DESCR	= libssh2 $(subst .def,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
+DESCR	= libssh2 $(subst .rc,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
 #STACK	= 64000
 
 # must be equal to DEBUG or NDEBUG
