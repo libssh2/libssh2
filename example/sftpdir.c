@@ -20,11 +20,14 @@
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
-# ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
+#endif
+#ifdef HAVE_INTTYPES_H
+# include <inttypes.h>
 #endif
 
 #include <sys/types.h>
@@ -32,6 +35,22 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
+
+/* last resort for systems not defining PRIu64 in inttypes.h */
+#ifndef __PRI64_PREFIX
+#ifdef WIN32
+#define __PRI64_PREFIX "I64"
+#else
+#if __WORDSIZE == 64
+#define __PRI64_PREFIX "l"
+#else
+#define __PRI64_PREFIX "ll"
+#endif /* __WORDSIZE */
+#endif /* WIN32 */
+#endif /* !__PRI64_PREFIX */
+#ifndef PRIu64
+#define PRIu64 __PRI64_PREFIX "u"
+#endif  /* PRIu64 */
 
 int main(int argc, char *argv[])
 {
@@ -186,13 +205,7 @@ int main(int argc, char *argv[])
                 }
 
                 if(attrs.flags & LIBSSH2_SFTP_ATTR_SIZE) {
-                    /* attrs.filesize is an uint64_t according to
-                       the docs but there is no really good and
-                       portable 64bit type for C before C99, and
-                       correspondingly there was no good printf()
-                       option for it... */
-
-                    printf("%8lld ", attrs.filesize);
+                    printf("%8" PRIu64 " ", attrs.filesize);
                 }
 
                 printf("%s\n", mem);
