@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
       "<capability>urn:ietf:params:xml:ns:netconf:base:1.0</capability>"
       "</capabilities>"
       "</hello>\n"
-      "]]>]]>\n%n", &len);
+      "]]>]]>\n%n", (int *)&len);
     if (-1 == netconf_write(channel, buf, len))
         goto shutdown;
 
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
     if (-1 == len)
         goto shutdown;
 
-    printf("Got %d bytes:\n----------------------\n%s", len, buf);
+    printf("Got %d bytes:\n----------------------\n%s", (int)len, buf);
 
     printf("Sending NETCONF <rpc>\n");
     snprintf(buf, sizeof(buf),
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
       "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">"
       "<get-interface-information><terse/></get-interface-information>"
       "</rpc>\n"
-      "]]>]]>\n%n", &len);
+      "]]>]]>\n%n", (int *)&len);
     if (-1 == netconf_write(channel, buf, len))
         goto shutdown;
 
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
     if (-1 == len)
         goto shutdown;
 
-    printf("Got %d bytes:\n----------------------\n%s", len, buf);
+    printf("Got %d bytes:\n----------------------\n%s", (int)len, buf);
 
 shutdown:
     if (channel)
