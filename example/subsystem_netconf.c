@@ -62,7 +62,7 @@ static int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
                               char *buf, size_t buflen)
 {
     ssize_t len, rd = 0;
-    char *endreply, *specialsequence = NULL;
+    char *endreply = NULL, *specialsequence = NULL;
 
     memset(buf, 0, buflen);
 
