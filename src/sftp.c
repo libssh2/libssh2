@@ -1107,6 +1107,12 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         filep->data = NULL;
     }
 
+    /* if we previously aborted a channel_write due to EAGAIN, we must
+       continue that writing so that we don't risk trying to send another
+       channel_write here to enlarge the receive window */
+    if(sftp->read_state == libssh2_NB_state_sent)
+        goto send_read_requests;
+
     /* We allow a number of bytes being requested at any given time without
        having been acked - until we reach EOF. */
     if(!filep->eof) {
@@ -1198,6 +1204,8 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                           to create more packets */
     }
 
+  send_read_requests:
+
     /* move through the READ packets that haven't been sent and send as many
        as possible - remember that we don't block */
     chunk = _libssh2_list_first(&handle->packet_list);
@@ -1207,11 +1215,14 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
             rc = _libssh2_channel_write(channel, 0,
                                         &chunk->packet[chunk->sent],
                                         chunk->lefttosend);
+            sftp->read_state = libssh2_NB_state_idle;
             if(rc < 0) {
                 if(rc != LIBSSH2_ERROR_EAGAIN)
                     /* error */
                     return rc;
                 eagain++;
+                fprintf(stderr, "bing\n");
+                sftp->read_state = libssh2_NB_state_sent;
                 break;
             }
 

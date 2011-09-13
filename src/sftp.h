@@ -1,7 +1,7 @@
 #ifndef _LIBSSH2_SFP_H
 #define _LIBSSH2_SFTP_H
 /*
- * Copyright (C) 2010 by Daniel Stenberg
+ * Copyright (C) 2010, 2011 by Daniel Stenberg
  * Author: Daniel Stenberg <daniel@haxx.se>
  *
  * Redistribution and use in source and binary forms,
@@ -160,9 +160,6 @@ struct _LIBSSH2_SFTP
 
     /* State variables used in libssh2_sftp_read() */
     libssh2_nonblocking_states read_state;
-    unsigned char *read_packet;
-    uint32_t read_request_id;
-    size_t read_total_read;
 
     /* State variables used in libssh2_sftp_readdir() */
     libssh2_nonblocking_states readdir_state;
