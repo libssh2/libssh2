@@ -1221,7 +1221,6 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                     /* error */
                     return rc;
                 eagain++;
-                fprintf(stderr, "bing\n");
                 sftp->read_state = libssh2_NB_state_sent;
                 break;
             }
