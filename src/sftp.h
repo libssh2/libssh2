@@ -1,4 +1,4 @@
-#ifndef _LIBSSH2_SFP_H
+#ifndef _LIBSSH2_SFTP_H
 #define _LIBSSH2_SFTP_H
 /*
  * Copyright (C) 2010, 2011 by Daniel Stenberg
