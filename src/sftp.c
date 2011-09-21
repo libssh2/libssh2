@@ -1210,12 +1210,13 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
        as possible - remember that we don't block */
     chunk = _libssh2_list_first(&handle->packet_list);
 
+    sftp->read_state = libssh2_NB_state_idle;
+
     while(chunk) {
         if(chunk->lefttosend) {
             rc = _libssh2_channel_write(channel, 0,
                                         &chunk->packet[chunk->sent],
                                         chunk->lefttosend);
-            sftp->read_state = libssh2_NB_state_idle;
             if(rc < 0) {
                 if(rc != LIBSSH2_ERROR_EAGAIN)
                     /* error */
@@ -2087,6 +2088,7 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
     }
 
     sftp_packetlist_flush(handle);
+    sftp->read_state = libssh2_NB_state_idle;
 
     handle->close_state = libssh2_NB_state_idle;
 
