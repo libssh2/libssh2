@@ -155,7 +155,7 @@ else
 	IMPORTS += @$(ZLIB_PATH)/nw/$(LIBARCH)/libz.imp
 endif
 endif
-INCLUDES += -I$(OPENSSL_PATH)/outinc_nw_$(LIBARCH_L) -I$(OPENSSL_PATH)/outinc_nw_$(LIBARCH_L)/openssl
+INCLUDES += -I$(OPENSSL_PATH)/outinc_nw_$(LIBARCH_L)
 LDLIBS += $(OPENSSL_PATH)/out_nw_$(LIBARCH_L)/ssl.$(LIBEXT)
 LDLIBS += $(OPENSSL_PATH)/out_nw_$(LIBARCH_L)/crypto.$(LIBEXT)
 IMPORTS += GetProcessSwitchCount RunningProcess
