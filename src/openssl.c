@@ -315,38 +315,39 @@ aes_ctr_cleanup(EVP_CIPHER_CTX *ctx) /* cleanup ctx */
 }
 
 static const EVP_CIPHER *
-make_ctr_evp (size_t keylen)
+make_ctr_evp (size_t keylen, EVP_CIPHER *aes_ctr_cipher)
 {
-    static EVP_CIPHER aes_ctr_cipher;
+    memset(aes_ctr_cipher, 0, sizeof(aes_ctr_cipher));
 
-    memset(&aes_ctr_cipher, 0, sizeof(aes_ctr_cipher));
+    aes_ctr_cipher->block_size = 16;
+    aes_ctr_cipher->key_len = keylen;
+    aes_ctr_cipher->iv_len = 16;
+    aes_ctr_cipher->init = aes_ctr_init;
+    aes_ctr_cipher->do_cipher = aes_ctr_do_cipher;
+    aes_ctr_cipher->cleanup = aes_ctr_cleanup;
 
-    aes_ctr_cipher.block_size = 16;
-    aes_ctr_cipher.key_len = keylen;
-    aes_ctr_cipher.iv_len = 16;
-    aes_ctr_cipher.init = aes_ctr_init;
-    aes_ctr_cipher.do_cipher = aes_ctr_do_cipher;
-    aes_ctr_cipher.cleanup = aes_ctr_cleanup;
-
-    return &aes_ctr_cipher;
+    return aes_ctr_cipher;
 }
 
 const EVP_CIPHER *
 _libssh2_EVP_aes_128_ctr(void)
 {
-    return make_ctr_evp (16);
+    static EVP_CIPHER aes_ctr_cipher;
+    return make_ctr_evp (16, &aes_ctr_cipher);
 }
 
 const EVP_CIPHER *
 _libssh2_EVP_aes_192_ctr(void)
 {
-    return make_ctr_evp (24);
+    static EVP_CIPHER aes_ctr_cipher;
+    return make_ctr_evp (24, &aes_ctr_cipher);
 }
 
 const EVP_CIPHER *
 _libssh2_EVP_aes_256_ctr(void)
 {
-    return make_ctr_evp (32);
+    static EVP_CIPHER aes_ctr_cipher;
+    return make_ctr_evp (32, &aes_ctr_cipher);
 }
 #endif /* LIBSSH2_AES_CTR */
 
