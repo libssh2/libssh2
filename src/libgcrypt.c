@@ -585,4 +585,8 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                   libssh2_error */
 }
 
+void _libssh2_init_aes_ctr(void)
+{
+    /* no implementation */
+}
 #endif /* LIBSSH2_LIBGCRYPT */

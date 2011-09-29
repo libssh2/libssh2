@@ -113,4 +113,6 @@ int _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                               const char *privatekey,
                               const char *passphrase);
 
+void _libssh2_init_aes_ctr(void);
+
 #endif
