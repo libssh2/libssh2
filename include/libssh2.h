@@ -441,6 +441,20 @@ LIBSSH2_API void libssh2_exit(void);
  */
 LIBSSH2_API void libssh2_free(LIBSSH2_SESSION *session, void *ptr);
 
+/*
+ * libssh2_session_supported_algs()
+ *
+ * Fills algs with a list of supported acryptographic algorithms. Returns a
+ * non-negative number (number of supported algorithms) on success or a
+ * negative number (an eror code) on failure.
+ *
+ * NOTE: on success, algs must be deallocated (by calling libssh2_free) when
+ * not needed anymore
+ */
+LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
+                                               int method_type,
+                                               const char*** algs);
+
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *
 libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
@@ -1027,7 +1041,7 @@ libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
 
 struct libssh2_agent_publickey {
     unsigned int magic;              /* magic stored by the library */
-    void *node;	    /* handle to the internal representation of key */
+    void *node;     /* handle to the internal representation of key */
     unsigned char *blob;           /* public key blob */
     size_t blob_len;               /* length of the public key blob */
     char *comment;                 /* comment in printable format */

@@ -112,6 +112,7 @@ dist_man_MANS = \
 	libssh2_session_set_blocking.3 \
 	libssh2_session_set_timeout.3 \
 	libssh2_session_startup.3 \
+	libssh2_session_supported_algs.3 \
 	libssh2_sftp_close.3 \
 	libssh2_sftp_close_handle.3 \
 	libssh2_sftp_closedir.3 \
