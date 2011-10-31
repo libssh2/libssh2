@@ -88,8 +88,8 @@
 extern "C" {
 #endif
 #ifdef _WIN32
-# include <BaseTsd.h>
-# include <WinSock2.h>
+# include <basetsd.h>
+# include <winsock2.h>
 #endif
 
 #include <stddef.h>
