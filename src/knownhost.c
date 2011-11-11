@@ -131,24 +131,21 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
               const char *comment, size_t commentlen,
               int typemask, struct libssh2_knownhost **store)
 {
-    struct known_host *entry =
-        LIBSSH2_ALLOC(hosts->session, sizeof(struct known_host));
+    struct known_host *entry;
     size_t hostlen = strlen(host);
     int rc;
     char *ptr;
     unsigned int ptrlen;
 
-    if(!entry)
+    /* make sure we have a key type set */
+    if(!(typemask & LIBSSH2_KNOWNHOST_KEY_MASK))
+        return _libssh2_error(hosts->session, LIBSSH2_ERROR_INVAL,
+                              "No key type set");
+
+    if(!(entry = LIBSSH2_ALLOC(hosts->session, sizeof(struct known_host))))
         return _libssh2_error(hosts->session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory for known host "
                               "entry");
-
-    /* make sure we have a key type set */
-    if(!(typemask & LIBSSH2_KNOWNHOST_KEY_MASK)) {
-        rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_INVAL,
-                            "No key type set");
-        goto error;
-    }
 
     memset(entry, 0, sizeof(struct known_host));
 
