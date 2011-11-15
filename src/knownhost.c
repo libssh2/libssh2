@@ -417,7 +417,8 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                 /* host name match, now compare the keys */
                 if(!strcmp(key, node->key)) {
                     /* they match! */
-                    *ext = knownhost_to_external(node);
+                    if (ext)
+                        *ext = knownhost_to_external(node);
                     badkey = NULL;
                     rc = LIBSSH2_KNOWNHOST_CHECK_MATCH;
                     break;
@@ -438,7 +439,8 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 
     if(badkey) {
         /* key mismatch */
-        *ext = knownhost_to_external(badkey);
+        if (ext)
+            *ext = knownhost_to_external(badkey);
         rc = LIBSSH2_KNOWNHOST_CHECK_MISMATCH;
     }
 
