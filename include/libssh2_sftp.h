@@ -54,7 +54,6 @@ extern "C" {
  * Let's start with Version 3 (The version found in OpenSSH) and go from there
  */
 #define LIBSSH2_SFTP_VERSION        3
-#define LIBSSH2_SFTP_PACKET_MAXLEN  40000
 
 typedef struct _LIBSSH2_SFTP                LIBSSH2_SFTP;
 typedef struct _LIBSSH2_SFTP_HANDLE         LIBSSH2_SFTP_HANDLE;

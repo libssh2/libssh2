@@ -89,6 +89,10 @@
 #define SSH_FXE_STATVFS_ST_RDONLY               0x00000001
 #define SSH_FXE_STATVFS_ST_NOSUID               0x00000002
 
+/* This is the maximum packet length to accept, as larger than this indicate
+   some kind of server problem. */
+#define LIBSSH2_SFTP_PACKET_MAXLEN  80000
+
 static int sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle);
 static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
                            uint32_t request_id, unsigned char **data,
