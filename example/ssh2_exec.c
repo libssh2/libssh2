@@ -264,7 +264,9 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "\n");
             }
             else {
-                fprintf(stderr, "libssh2_channel_read returned %d\n", rc);
+                if( rc != LIBSSH2_ERROR_EAGAIN )
+                    /* no need to output this for the EAGAIN case */
+                    fprintf(stderr, "libssh2_channel_read returned %d\n", rc);
             }
         }
         while( rc > 0 );
