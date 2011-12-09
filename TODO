@@ -8,12 +8,6 @@ Things TODO
   doesn't then use as much memory as today. Possibly by an app-controllable
   "Window mode"?
 
-* Introduce a function that can free data that is returned allocated from the
-  lib, like when libssh2_session_last_error() is asked to return the string
-  with 'want_buf' set to non-zero.
-
-* Add more info to the man pages.
-
 * Decrease the number of mallocs. Everywhere. Will get easier once the
   buffering improvements have been done.
 
@@ -25,10 +19,6 @@ Things TODO
 * Fix all compiler warnings (some can't be done without API changes)
 
 * Expose error messages sent by the server
-
-* Make SFTP transfers ask for and send several packages at once so that it
-  doesn't have to send-waitforack-send-waitforack as much. This will be
-  easier/smoother if we implement the "New SFTP API" described below.
 
 * select() is troublesome with libssh2 when using multiple channels over
   the same session. See "New Transport API" below for more details.
