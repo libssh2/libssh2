@@ -581,8 +581,9 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           const char *privatekey,
                           const char *passphrase)
 {
-    return -1; /* not yet supported; interpreted by userauth.c to call
-                  libssh2_error */
+    return _libssh_error(session, LIBSSH2_ERROR_FILE,
+                         "Unable to extract public key from private key file: "
+                         "Method unimplemented in libgcrypt backend");
 }
 
 void _libssh2_init_aes_ctr(void)

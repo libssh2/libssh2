@@ -666,10 +666,9 @@ gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
         LIBSSH2_FREE(session, method_buf);
     }
 
-    _libssh2_error(session,
-                   LIBSSH2_ERROR_ALLOC,
-                   "Unable to allocate memory for private key data");
-    return -1;
+    return _libssh2_error(session,
+                          LIBSSH2_ERROR_ALLOC,
+                          "Unable to allocate memory for private key data");
 }
 
 static int
@@ -721,10 +720,9 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
         LIBSSH2_FREE(session, method_buf);
     }
 
-    _libssh2_error(session,
-                   LIBSSH2_ERROR_ALLOC,
-                   "Unable to allocate memory for private key data");
-    return -1;
+    return _libssh2_error(session,
+                          LIBSSH2_ERROR_ALLOC,
+                          "Unable to allocate memory for private key data");
 }
 
 int
@@ -747,10 +745,10 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 
     bp = BIO_new_file(privatekey, "r");
     if (bp == NULL) {
-        _libssh2_error(session,
-                       LIBSSH2_ERROR_FILE,
-                       "Unable to open private key file");
-        return -1;
+        return _libssh2_error(session,
+                              LIBSSH2_ERROR_FILE,
+                              "Unable to extract public key from private key "
+                              "file: Unable to open private key file");
     }
     if (!EVP_get_cipherbyname("des")) {
         /* If this cipher isn't loaded it's a pretty good indication that none
@@ -765,11 +763,12 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     BIO_free(bp);
 
     if (pk == NULL) {
-        _libssh2_error(session,
-                       LIBSSH2_ERROR_FILE,
-                       "Wrong passphrase or invalid/unrecognized "
-                       "private key file format");
-        return -1;
+        return _libssh2_error(session,
+                              LIBSSH2_ERROR_FILE,
+                              "Unable to extract public key "
+                              "from private key file: "
+                              "Wrong passphrase or invalid/unrecognized "
+                              "private key file format");
     }
 
     switch (pk->type) {
@@ -784,10 +783,11 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
         break;
 
     default :
-        st = -1;
-        _libssh2_error(session,
-                       LIBSSH2_ERROR_FILE,
-                       "Unsupported private key file format");
+        st = _libssh2_error(session,
+                            LIBSSH2_ERROR_FILE,
+                            "Unable to extract public key "
+                            "from private key file: "
+                            "Unsupported private key file format");
         break;
     }
 

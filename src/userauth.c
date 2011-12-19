@@ -665,14 +665,14 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         }
         else {
             /* Compute public key from private key. */
-            if (_libssh2_pub_priv_keyfile(session,
-                                          &session->userauth_host_method,
-                                          &session->userauth_host_method_len,
-                                          &pubkeydata, &pubkeydata_len,
-                                          privatekey, passphrase))
-                return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-                                      "Unable to extract public key "
-                                      "from private key file");
+            rc = _libssh2_pub_priv_keyfile(session,
+                                           &session->userauth_host_method,
+                                           &session->userauth_host_method_len,
+                                           &pubkeydata, &pubkeydata_len,
+                                           privatekey, passphrase);
+            if (rc)
+                /* libssh2_pub_priv_keyfile calls _libssh2_error() */
+                return rc;
         }
 
         /*
@@ -1237,19 +1237,20 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
             rc = file_read_publickey(session, &session->userauth_pblc_method,
                                      &session->userauth_pblc_method_len,
                                      &pubkeydata, &pubkeydata_len,publickey);
-            if(rc)
+            if (rc)
                 return rc;
         }
         else {
             /* Compute public key from private key. */
-            if (_libssh2_pub_priv_keyfile(session,
-                                          &session->userauth_pblc_method,
-                                          &session->userauth_pblc_method_len,
-                                          &pubkeydata, &pubkeydata_len,
-                                          privatekey, passphrase))
-                return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-                                      "Unable to extract public key "
-                                      "from private key file");
+            rc = _libssh2_pub_priv_keyfile(session,
+                                           &session->userauth_pblc_method,
+                                           &session->userauth_pblc_method_len,
+                                           &pubkeydata, &pubkeydata_len,
+                                           privatekey, passphrase);
+
+            /* _libssh2_pub_priv_keyfile calls _libssh2_error() */
+            if (rc)
+                return rc;
         }
     }
 
