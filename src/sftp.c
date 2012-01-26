@@ -1933,6 +1933,9 @@ libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle, libssh2_uint64_t offset)
             handle->u.file.data_left = handle->u.file.data_len = 0;
             handle->u.file.data = NULL;
         }
+
+        /* reset EOF to False */
+        handle->u.file.eof = FALSE;
     }
 }
 
