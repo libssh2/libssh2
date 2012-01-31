@@ -1997,7 +1997,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     /* correct number of pointers copied? (test the code above) */
     if ( j!=ialg ) {
         /* deallocate buffer */
-        LIBSSH2_FREE(session, *algs);
+        LIBSSH2_FREE(session, (void *)*algs);
         *algs = NULL;
 
         return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE,
