@@ -1,4 +1,4 @@
-.TH libssh2_session_supported_algs 3 "23 Oct 2011" "libssh2 1.3.1" "libssh2 manual"
+.TH libssh2_session_supported_algs 3 "23 Oct 2011" "libssh2 1.4.0" "libssh2 manual"
 .SH NAME
 libssh2_session_supported_algs - get list of supported algorithms
 .SH SYNOPSIS
@@ -28,6 +28,32 @@ calling this function, otherwise only "none" will be returned.
 If successful, the function will allocate and fill the array with supported
 algorithms (the same names as defined in RFC 4253).  The array is not NULL
 terminated.
+.SH EXAMPLE
+.nf
+#include "libssh2.h"
+
+const char **algorithms;
+int rc, i;
+LIBSSH2_SESSION *session;
+
+/* initilize session */
+session = libssh2_session_init();
+rc = libssh2_session_supported_algs(session,
+                                    LIBSSH2_METHOD_CRYPT_CS,
+                                    &algorithms);
+if (rc>0) {
+    /* the call succeeded, do sth. with the list of algorithms
+       (e.g. list them)... */
+    printf("Supported symmetric algorithms:\n");
+    for ( i=0; i<rc; i++ )
+        printf("\t%s\n", algorithms[i]);
+
+    /* ... and free the allocated memory when not needed anymore */
+    libssh2_free(session, algorithms);
+}
+else {
+    /* call failed, error handling */
+}
 .SH RETURN VALUE
 On success, a number of returned algorithms (i.e a positive number will be
 returned).  In case of a failure, an error code (a negative number, see below)
@@ -41,7 +67,7 @@ is returned.  0 should never be returned.
 
 \fILIBSSH2_ERROR_ALLOC\fP - Allocation of memory failed.
 .SH AVAILABILITY
-Added in 1.3.1
+Added in 1.4.0
 .SH SEE ALSO
 .BR libssh2_session_methods(3),
 .BR libssh2_session_method_pref(3)
