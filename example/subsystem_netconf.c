@@ -71,7 +71,7 @@ static int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
         if (LIBSSH2_ERROR_EAGAIN == len)
             continue;
         else if (len < 0) {
-            fprintf(stderr, "libssh2_channel_read: %d", (int)len);
+            fprintf(stderr, "libssh2_channel_read: %d\n", (int)len);
             return -1;
         }
         rd += len;
