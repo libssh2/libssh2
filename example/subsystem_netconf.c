@@ -61,7 +61,8 @@ static int netconf_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t len)
 static int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
                               char *buf, size_t buflen)
 {
-    ssize_t len, rd = 0;
+    ssize_t len;
+    size_t rd = 0;
     char *endreply = NULL, *specialsequence = NULL;
 
     memset(buf, 0, buflen);
@@ -85,7 +86,12 @@ static int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
         if (endreply)
             specialsequence = strstr(endreply, "]]>]]>");
 
-    } while (!endreply || !specialsequence);
+    } while (!specialsequence && rd < buflen);
+
+    if (!specialsequence) {
+        fprintf(stderr, "%s: ]]>]]> not found! read buffer too small?\n", __func__);
+        return -1;
+    }
 
     /* discard the special sequence so that only XML is returned */
     rd = specialsequence - buf;
