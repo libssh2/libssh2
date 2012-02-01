@@ -466,6 +466,8 @@ LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session);
 
 LIBSSH2_API void *libssh2_session_callback_set(LIBSSH2_SESSION *session,
                                                int cbtype, void *callback);
+LIBSSH2_API int libssh2_session_banner_set(LIBSSH2_SESSION *session,
+                                           const char *banner);
 LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION *session,
                                    const char *banner);
 
