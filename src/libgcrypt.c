@@ -581,7 +581,7 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           const char *privatekey,
                           const char *passphrase)
 {
-    return _libssh_error(session, LIBSSH2_ERROR_FILE,
+    return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                          "Unable to extract public key from private key file: "
                          "Method unimplemented in libgcrypt backend");
 }
