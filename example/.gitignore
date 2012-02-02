@@ -33,4 +33,5 @@ test-sftp_nonblock
 test-sftp_write
 test-sftp_write_nonblock
 test-ssh2_echo
+tcpip-forward
 x11
