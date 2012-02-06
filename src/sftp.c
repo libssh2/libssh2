@@ -1085,7 +1085,6 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
     struct sftp_pipeline_chunk *chunk;
     struct sftp_pipeline_chunk *next;
     ssize_t rc;
-    size_t eagain = 0;
     size_t total_read = 0;
     struct _libssh2_sftp_handle_file_data *filep =
         &handle->u.file;
@@ -1111,11 +1110,12 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         filep->data = NULL;
     }
 
-    /* if we previously aborted a channel_write due to EAGAIN, we must
-       continue that writing so that we don't risk trying to send another
-       channel_write here to enlarge the receive window */
+    /* if we previously aborted a sftp_read due to EAGAIN, we must continue at
+       the same spot to continue the previously aborted operation */
     if(sftp->read_state == libssh2_NB_state_sent)
         goto send_read_requests;
+    else if(sftp->read_state == libssh2_NB_state_sent2)
+        goto read_acks;
 
     /* We allow a number of bytes being requested at any given time without
        having been acked - until we reach EOF. */
@@ -1218,16 +1218,17 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
     while(chunk) {
         if(chunk->lefttosend) {
+            if(total_read)
+                /* since we risk getting EAGAIN below, we return here if there
+                   is data available */
+                return total_read;
+
             rc = _libssh2_channel_write(channel, 0,
                                         &chunk->packet[chunk->sent],
                                         chunk->lefttosend);
             if(rc < 0) {
-                if(rc != LIBSSH2_ERROR_EAGAIN)
-                    /* error */
-                    return rc;
-                eagain++;
                 sftp->read_state = libssh2_NB_state_sent;
-                break;
+                return rc;
             }
 
             /* remember where to continue sending the next time */
@@ -1242,6 +1243,10 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         /* move on to the next chunk with data to send */
         chunk = _libssh2_list_next(&chunk->node);
     }
+
+  read_acks:
+
+    sftp->read_state = libssh2_NB_state_idle;
 
     /*
      * Count all ACKed packets and act on the contents of them.
@@ -1261,15 +1266,17 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                an ACK for it just yet */
             break;
 
+        if(total_read)
+            /* since we risk getting EAGAIN below, we return here if there
+               is data available */
+            return total_read;
+
         rc = sftp_packet_requirev(sftp, 2, read_responses,
                                   chunk->request_id, &data, &data_len);
-        if (rc == LIBSSH2_ERROR_EAGAIN) {
-            eagain++;
-            break;
+        if (rc < 0) {
+            sftp->read_state = libssh2_NB_state_sent2;
+            return rc;
         }
-        else if (rc)
-            return _libssh2_error(session, rc,
-                                  "Error waiting for FXP_READ ACK");
 
         /*
          * We get DATA or STATUS back. STATUS can be error, or it is FX_EOF
@@ -1353,12 +1360,11 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         chunk = next;
     }
 
-    if(total_read)
-        return total_read;
-    else if(eagain)
-        return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                              "Would block sftp_read");
-    return 0;
+    if(! total_read) {
+        fprintf(stderr, "MOO\n");
+    }
+
+    return total_read;
 }
 
 /* libssh2_sftp_read
