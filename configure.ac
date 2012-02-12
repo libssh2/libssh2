@@ -220,7 +220,8 @@ AC_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibi
 AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h])
 AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
-AC_CHECK_HEADERS([sys/un.h])
+AC_CHECK_HEADERS([sys/un.h], [have_sys_un_h=yes], [have_sys_un_h=no])
+AM_CONDITIONAL([HAVE_SYS_UN_H], test "x$have_sys_un_h" = xyes)
 
 case $host in
   *-*-cygwin* | *-*-cegcc*)
