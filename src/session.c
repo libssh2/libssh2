@@ -828,6 +828,7 @@ session_free(LIBSSH2_SESSION *session)
     LIBSSH2_PACKET *pkg;
     LIBSSH2_CHANNEL *ch;
     LIBSSH2_LISTENER *l;
+    int packets_left = 0;
 
     if (session->free_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Freeing session resource",
@@ -1018,6 +1019,9 @@ session_free(LIBSSH2_SESSION *session)
 
     /* Cleanup all remaining packets */
     while ((pkg = _libssh2_list_first(&session->packets))) {
+        packets_left++;
+        _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
+            "packet left with id %d", pkg->data[0]);
         /* unlink the node */
         _libssh2_list_remove(&pkg->node);
 
@@ -1025,6 +1029,8 @@ session_free(LIBSSH2_SESSION *session)
         LIBSSH2_FREE(session, pkg->data);
         LIBSSH2_FREE(session, pkg);
     }
+    _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
+         "Extra packets left %d", packets_left);
 
     if(session->socket_prev_blockstate)
         /* if the socket was previously blocking, put it back so */
