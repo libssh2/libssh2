@@ -566,7 +566,7 @@ $(DEVLDIR)/readme.txt: Makefile.netware
 	@echo Creating $@
 	@echo $(DL)This is a development distribution for NetWare platform.$(DL) > $@
 	@echo $(DL)libssh2 version $(LIBSSH2_VERSION_STR)$(DL) >> $@
-	@echo $(DL)Please download the complete libssh package for$(DL) >> $@
+	@echo $(DL)Please download the complete libssh2 package for$(DL) >> $@
 	@echo $(DL)any further documentation:$(DL) >> $@
 	@echo $(DL)$(WWWURL)$(DL) >> $@
 
