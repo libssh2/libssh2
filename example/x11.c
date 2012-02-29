@@ -79,7 +79,12 @@ static int _raw_mode(void)
     rc = tcgetattr(fileno(stdin), &tio);
     if (rc != -1) {
         _saved_tio = tio;
-        cfmakeraw(&tio);
+        /* do the equivalent of cfmakeraw() manually, to build on Solaris */
+        tio.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON);
+        tio.c_oflag &= ~OPOST;
+        tio.c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
+        tio.c_cflag &= ~(CSIZE|PARENB);
+        tio.c_cflag |= CS8;
         rc = tcsetattr(fileno(stdin), TCSADRAIN, &tio);
     }
     return rc;
