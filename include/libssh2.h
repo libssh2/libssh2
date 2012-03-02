@@ -135,9 +135,10 @@ typedef long long libssh2_int64_t;
 
 #ifdef WIN32
 typedef SOCKET libssh2_socket_t;
+#define LIBSSH2_INVALID_SOCKET INVALID_SOCKET
 #else /* !WIN32 */
 typedef int libssh2_socket_t;
-#define INVALID_SOCKET -1
+#define LIBSSH2_INVALID_SOCKET -1
 #endif /* WIN32 */
 
 /* Part of every banner, user specified or not */
