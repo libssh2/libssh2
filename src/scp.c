@@ -294,8 +294,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
             return NULL;
         }
 
-        /* sprintf() is fine here since we allocated a large enough buffer */
-        sprintf((char *)session->scpRecv_command, "scp -%sf ", sb?"p":"");
+        snprintf((char *)session->scpRecv_command,
+                 session->scpRecv_command_len, "scp -%sf ", sb?"p":"");
 
         cmd_len = strlen((char *)session->scpRecv_command);
 
