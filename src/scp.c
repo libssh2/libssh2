@@ -796,8 +796,8 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
             return NULL;
         }
 
-        sprintf((char *)session->scpSend_command, "scp -%st ",
-                (mtime || atime)?"p":"");
+        snprintf((char *)session->scpSend_command, session->scpSend_command_len,
+                 "scp -%st ", (mtime || atime)?"p":"");
 
         cmd_len = strlen((char *)session->scpSend_command);
 
