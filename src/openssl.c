@@ -217,6 +217,10 @@ static int
 aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
              const unsigned char *iv, int enc) /* init key */
 {
+    /*
+     * variable "c" is leaked from this scope, but is later freed
+     * in aes_ctr_cleanup
+     */
     aes_ctr_ctx *c = malloc(sizeof(*c));
     const EVP_CIPHER *aes_cipher;
     (void) enc;
