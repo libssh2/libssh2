@@ -161,6 +161,9 @@ struct _LIBSSH2_SFTP
     /* State variable used in sftp_read() */
     libssh2_nonblocking_states read_state;
 
+    /* State variable used in sftp_packet_read() */
+    libssh2_nonblocking_states packet_state;
+
     /* State variable used in sftp_write() */
     libssh2_nonblocking_states write_state;
 

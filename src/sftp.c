@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2007 Eli Fant <elifantu@mail.ru>
- * Copyright (c) 2009-2011 by Daniel Stenberg
+ * Copyright (c) 2009-2012 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -175,88 +175,121 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
     size_t packet_received;
     ssize_t rc;
     uint32_t packet_len; /* 32bits on the wire */
+    uint32_t adjust;
+    unsigned long recv_window;
 
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "recv packet");
 
-    /* If there was a previous partial, start using it */
-    if (sftp->partial_packet) {
+    switch(sftp->packet_state) {
+    case libssh2_NB_state_sent:
+        sftp->packet_state = libssh2_NB_state_idle;
+        goto window_adjust;
 
-        packet = sftp->partial_packet;
-        packet_len = sftp->partial_len;
-        packet_received = sftp->partial_received;
-        sftp->partial_packet = NULL;
+    default:
 
-        _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
-                       "partial read cont, len: %lu", packet_len);
-    }
-    else {
-        /* each packet starts with a 32 bit length field */
-        rc = _libssh2_channel_read(channel, 0,
-                                   (char *)&sftp->partial_size[
-                                       sftp->partial_size_len],
-                                   4 - sftp->partial_size_len);
-        if (rc == LIBSSH2_ERROR_EAGAIN)
-            return rc;
-        else if (rc < 0)
-            return _libssh2_error(session, rc, "channel read");
+        /* If there was a previous partial, start using it */
+        if (sftp->partial_packet) {
 
-        sftp->partial_size_len += rc;
+            packet = sftp->partial_packet;
+            packet_len = sftp->partial_len;
+            packet_received = sftp->partial_received;
+            sftp->partial_packet = NULL;
 
-        if(4 != sftp->partial_size_len)
-            /* we got a short read for the length part */
-            return LIBSSH2_ERROR_EAGAIN;
+            _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
+                           "partial read cont, len: %lu", packet_len);
+        }
+        else {
+            /* each packet starts with a 32 bit length field */
+            rc = _libssh2_channel_read(channel, 0,
+                                       (char *)&sftp->partial_size[
+                                           sftp->partial_size_len],
+                                       4 - sftp->partial_size_len);
+            if (rc == LIBSSH2_ERROR_EAGAIN)
+                return rc;
+            else if (rc < 0)
+                return _libssh2_error(session, rc, "channel read");
 
-        packet_len = _libssh2_ntohu32(sftp->partial_size);
-        /* make sure we don't proceed if the packet size is unreasonably
-           large */
-        if (packet_len > LIBSSH2_SFTP_PACKET_MAXLEN)
-            return _libssh2_error(session,
-                                  LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
-                                  "SFTP packet too large");
+            sftp->partial_size_len += rc;
 
-        _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
-                       "Data begin - Packet Length: %lu", packet_len);
-        packet = LIBSSH2_ALLOC(session, packet_len);
-        if (!packet)
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                  "Unable to allocate SFTP packet");
-        sftp->partial_size_len = 0;
-        packet_received = 0;
-    }
+            if(4 != sftp->partial_size_len)
+                /* we got a short read for the length part */
+                return LIBSSH2_ERROR_EAGAIN;
 
-    /* Read as much of the packet as we can */
-    while (packet_len > packet_received) {
-        rc = _libssh2_channel_read(channel, 0,
-                                   (char *) packet + packet_received,
-                                   packet_len - packet_received);
+            packet_len = _libssh2_ntohu32(sftp->partial_size);
+            /* make sure we don't proceed if the packet size is unreasonably
+               large */
+            if (packet_len > LIBSSH2_SFTP_PACKET_MAXLEN)
+                return _libssh2_error(session,
+                                      LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
+                                      "SFTP packet too large");
 
-        if (rc == LIBSSH2_ERROR_EAGAIN) {
-            /*
-             * We received EAGAIN, save what we have and return EAGAIN to the
-             * caller
-             */
-            sftp->partial_packet = packet;
+            _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
+                           "Data begin - Packet Length: %lu", packet_len);
+            packet = LIBSSH2_ALLOC(session, packet_len);
+            if (!packet)
+                return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                      "Unable to allocate SFTP packet");
+            sftp->partial_size_len = 0;
+            packet_received = 0;
+
             sftp->partial_len = packet_len;
             sftp->partial_received = packet_received;
+
+          window_adjust:
+            recv_window = libssh2_channel_window_read_ex(channel, NULL, NULL);
+
+            /* how much data to ask for */
+            adjust = sftp->partial_len - sftp->partial_received;
+
+            if(adjust > recv_window) {
+                /* ask for twice the data amount we need at once */
+                rc = _libssh2_channel_receive_window_adjust(channel, adjust*2,
+                                                            0, NULL);
+                /* store the state so that we continue with the correct
+                   operation at next invoke */
+                sftp->packet_state = (rc == LIBSSH2_ERROR_EAGAIN)?
+                    libssh2_NB_state_sent:
+                    libssh2_NB_state_idle;
+
+                if(rc == LIBSSH2_ERROR_EAGAIN)
+                    return rc;
+            }
+        }
+
+        /* Read as much of the packet as we can */
+        while (packet_len > packet_received) {
+            rc = _libssh2_channel_read(channel, 0,
+                                       (char *) packet + packet_received,
+                                       packet_len - packet_received);
+
+            if (rc == LIBSSH2_ERROR_EAGAIN) {
+                /*
+                 * We received EAGAIN, save what we have and return EAGAIN to
+                 * the caller. Set 'partial_packet' so that this function
+                 * knows how to continue on the next invoke.
+                 */
+                sftp->partial_packet = packet;
+                return rc;
+            }
+            else if (rc < 0) {
+                LIBSSH2_FREE(session, packet);
+                return _libssh2_error(session, rc,
+                                      "Error waiting for SFTP packet");
+            }
+            packet_received += rc;
+        }
+
+        sftp->partial_packet = NULL;
+
+        rc = sftp_packet_add(sftp, packet, packet_len);
+        if (rc) {
+            LIBSSH2_FREE(session, packet);
             return rc;
         }
-        else if (rc < 0) {
-            LIBSSH2_FREE(session, packet);
-            return _libssh2_error(session, rc,
-                                  "Error waiting for SFTP packet");
-        }
-        packet_received += rc;
+
+        return packet[0];
+
     }
-
-    sftp->partial_packet = NULL;
-
-    rc = sftp_packet_add(sftp, packet, packet_len);
-    if (rc) {
-        LIBSSH2_FREE(session, packet);
-        return rc;
-    }
-
-    return packet[0];
 }
 /*
  * sftp_packetlist_flush
@@ -676,12 +709,10 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
     rc = sftp_packet_require(sftp_handle, SSH_FXP_VERSION,
                              0, &data, &data_len);
-    if (rc == LIBSSH2_ERROR_EAGAIN) {
-        _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                       "Would block waiting for response from SFTP subsystem");
+    if (rc == LIBSSH2_ERROR_EAGAIN)
         return NULL;
-    } else if (rc) {
-        _libssh2_error(session, LIBSSH2_ERROR_SOCKET_TIMEOUT,
+    else if (rc) {
+        _libssh2_error(session, rc,
                        "Timeout waiting for response from SFTP subsystem");
         goto sftp_init_error;
     }
