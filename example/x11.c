@@ -208,7 +208,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
 
     rc = libssh2_poll(fds, nfds, 0);
     if (rc >0) {
-        rc = libssh2_channel_read(channel, buf,sizeof(buf));
+        rc = libssh2_channel_read(channel, buf, bufsize);
         rc = write(sock, buf, rc);
     }
 
