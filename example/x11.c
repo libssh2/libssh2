@@ -217,7 +217,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
         memset((void *)buf,0,bufsize);
 
         /* Data in sock*/
-        rc = read(sock, buf,sizeof(buf));
+        rc = read(sock, buf, bufsize);
         if (rc > 0)
             rc = libssh2_channel_write(channel,buf, rc);
         else
