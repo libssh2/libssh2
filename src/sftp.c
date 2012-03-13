@@ -146,6 +146,48 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
 
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Received packet %d (len %d)",
                    (int) data[0], data_len);
+
+    /*
+     * Experience shows that if we mess up EAGAIN handling somewhere or
+     * otherwise get out of sync with the channel, this is where we first get
+     * a wrong byte and if so we need to bail out at once to aid tracking the
+     * problem better.
+     */
+
+    switch(data[0]) {
+    case SSH_FXP_INIT:
+    case SSH_FXP_VERSION:
+    case SSH_FXP_OPEN:
+    case SSH_FXP_CLOSE:
+    case SSH_FXP_READ:
+    case SSH_FXP_WRITE:
+    case SSH_FXP_LSTAT:
+    case SSH_FXP_FSTAT:
+    case SSH_FXP_SETSTAT:
+    case SSH_FXP_FSETSTAT:
+    case SSH_FXP_OPENDIR:
+    case SSH_FXP_READDIR:
+    case SSH_FXP_REMOVE:
+    case SSH_FXP_MKDIR:
+    case SSH_FXP_RMDIR:
+    case SSH_FXP_REALPATH:
+    case SSH_FXP_STAT:
+    case SSH_FXP_RENAME:
+    case SSH_FXP_READLINK:
+    case SSH_FXP_SYMLINK:
+    case SSH_FXP_STATUS:
+    case SSH_FXP_HANDLE:
+    case SSH_FXP_DATA:
+    case SSH_FXP_NAME:
+    case SSH_FXP_ATTRS:
+    case SSH_FXP_EXTENDED:
+    case SSH_FXP_EXTENDED_REPLY:
+        break;
+    default:
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                              "Out of sync with the world");
+    }
+
     packet = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_SFTP_PACKET));
     if (!packet) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
