@@ -200,7 +200,7 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
 
     _libssh2_list_add(&sftp->packets, &packet->node);
 
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 /*
