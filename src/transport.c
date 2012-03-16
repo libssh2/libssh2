@@ -296,7 +296,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
          * is done!
          */
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
-                       " key re-exchange");
+                       " key re-exchange from _libssh2_transport_read");
         rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
         if (rc)
             return rc;
@@ -686,6 +686,24 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     int rc;
     const unsigned char *orgdata = data;
     size_t orgdata_len = data_len;
+
+    /*
+     * If the last read operation was interrupted in the middle of a key
+     * exchange, we must complete that key exchange before continuing to write
+     * further data.
+     *
+     * See the similar block in _libssh2_transport_read for more details.
+     */
+    if (session->state & LIBSSH2_STATE_EXCHANGING_KEYS &&
+        !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
+        /* Don't write any new packets if we're still in the middle of a key
+         * exchange. */
+        _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
+                       " key re-exchange from _libssh2_transport_send");
+        rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
+        if (rc)
+            return rc;
+    }
 
     debugdump(session, "libssh2_transport_write plain", data, data_len);
     if(data2)
