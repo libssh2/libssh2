@@ -93,7 +93,7 @@ AC_ARG_WITH(libz,
   AC_HELP_STRING([--with-libz],[Use Libz for compression]),
   use_libz=$withval,use_libz=auto)
 
-# Look for OpenSSL (default)
+# Look for OpenSSL
 if test "$use_openssl" != "no" && test "$use_libgcrypt" != "yes"; then
   AC_LIB_HAVE_LINKFLAGS([ssl], [crypto], [#include <openssl/ssl.h>])
   LIBSREQUIRED=libssl,libcrypto
@@ -109,6 +109,11 @@ if test "$ac_cv_libssl" != "yes" && test "$ac_cv_libgcrypt" != "yes"; then
   AC_MSG_ERROR([cannot find OpenSSL or Libgcrypt,
 try --with-libssl-prefix=PATH or --with-libgcrypt-prefix=PATH])
 fi
+
+if test "$ac_cv_libssl" = "yes"; then
+  AC_DEFINE(LIBSSH2_OPENSSL, 1, [Use OpenSSL])
+fi
+AM_CONDITIONAL(OPENSSL, test "$ac_cv_libssl" = "yes")
 
 if test "$ac_cv_libgcrypt" = "yes"; then
   AC_DEFINE(LIBSSH2_LIBGCRYPT, 1, [Use libgcrypt])
