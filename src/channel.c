@@ -1898,7 +1898,7 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf,
     if(buflen > recv_window) {
         BLOCK_ADJUST(rc, channel->session,
                      _libssh2_channel_receive_window_adjust(channel, buflen,
-                                                            0, NULL));
+                                                            1, NULL));
     }
 
     BLOCK_ADJUST(rc, channel->session,
