@@ -661,7 +661,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 rc = _libssh2_channel_receive_window_adjust(session->
                                                             packAdd_channelp,
                                                             datalen - 13,
-                                                            0, NULL);
+                                                            1, NULL);
                 if (rc == LIBSSH2_ERROR_EAGAIN)
                     return rc;
 

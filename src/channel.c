@@ -1418,7 +1418,7 @@ _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
 
         rc = _libssh2_channel_receive_window_adjust(channel,
                                                     channel->flush_refund_bytes,
-                                                    0, NULL);
+                                                    1, NULL);
         if (rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
     }

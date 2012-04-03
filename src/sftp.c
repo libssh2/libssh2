@@ -285,7 +285,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
                 /* ask for twice the data amount we need at once */
                 rc = _libssh2_channel_receive_window_adjust(channel,
                                                             sftp->partial_len*2,
-                                                            0, NULL);
+                                                            1, NULL);
                 /* store the state so that we continue with the correct
                    operation at next invoke */
                 sftp->packet_state = (rc == LIBSSH2_ERROR_EAGAIN)?
@@ -1262,7 +1262,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
                 rc = _libssh2_channel_receive_window_adjust(sftp->channel,
                                                             max_read_ahead*8,
-                                                            0, NULL);
+                                                            1, NULL);
                 /* if this returns EAGAIN, we will get back to this function
                    at next call */
                 assert(rc != LIBSSH2_ERROR_EAGAIN || !filep->data_left);
