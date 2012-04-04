@@ -1,30 +1,28 @@
-libssh2 1.4.0
-
-This release includes the following changes:
-
- o Added libssh2_session_supported_algs()
- o Added libssh2_session_banner_get()
- o Added libssh2_sftp_get_channel()
- o libssh2.h: bump the default window size to 256K
+libssh2 1.4.1
 
 This release includes the following bugfixes:
 
- o sftp-seek: clear EOF flag
- o userauth: Provide more informations if ssh pub key extraction fails
- o ssh2_exec: skip error outputs for EAGAIN
- o LIBSSH2_SFTP_PACKET_MAXLEN: increase to 80000
- o knownhost_check(): Don't dereference ext if NULL is passed
- o knownhost_add: Avoid dereferencing uninitialized memory on error path
- o OpenSSL EVP: fix threaded use of structs
- o _libssh2_channel_read: react on errors from receive_window_adjust
- o sftp_read: cap the read ahead maximum amount
- o _libssh2_channel_read: fix non-blocking window adjusting
+ o build error with gcrypt backend
+ o always do "forced" window updates to avoid corner case stalls
+ o aes: the init function fails when OpenSSL has AES support
+ o transport_send: Finish in-progress key exchange before sending data
+ o channel_write: acknowledge transport errors
+ o examples/x11.c: Make sure sizeof passed to read operation is correct
+ o examples/x11.c:,Fix suspicious sizeof usage
+ o sftp_packet_add: verify the packet before accepting it
+ o SFTP: preserve the original error code more
+ o sftp_packet_read: adjust window size as necessary
+ o Use safer snprintf rather then sprintf in several places
+ o Define and use LIBSSH2_INVALID_SOCKET instead of INVALID_SOCKET
+ o sftp_write: cannot return acked data *and* EAGAIN
+ o sftp_read: avoid data *and* EAGAIN
+ o libssh2.h: Add missing prototype for libssh2_session_banner_set()
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
- Gellule Xg, Jernej Kovacic, Peter Krempa, Vincent Torri, Kamil Dudka,
- Peter Stuge, Guenter Knauf, John Engstrom, Alexander Lamaison,
- Mikhail Gusarov
+ Armen Babakhanian, Paul Howarth, Matthew Booth, Steven Dake, Peter Stuge,
+ Matt Lawson, Tom Weber, Alexander Lamaison
  
         Thanks! (and sorry if I forgot to mention someone)
+
