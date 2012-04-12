@@ -9,12 +9,12 @@
 
 # Edit the path below to point to the base of your Zlib sources.
 ifndef ZLIB_PATH
-ZLIB_PATH = ../../../zlib-1.2.5
+ZLIB_PATH = ../../../zlib-1.2.6
 endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../../openssl-0.9.8r
+OPENSSL_PATH = ../../../openssl-0.9.8u
 endif
 
 # Edit the var below to set to your architecture or set environment var.
@@ -61,7 +61,7 @@ DS      = /
 else
 CP      = copy
 RM      = del /q /f 2>NUL
-MD      = md
+MD      = md 2>NUL
 RD      = rd /q /s 2>NUL
 XX      =
 DS      = $(XX)\$(XX)

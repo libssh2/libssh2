@@ -9,14 +9,14 @@
 
 # Edit the path below to point to the base of your Zlib sources.
 ifndef ZLIB_PATH
-ZLIB_PATH = ../../zlib-1.2.5
+ZLIB_PATH = ../../zlib-1.2.6
 endif
 # since currently always enabled in libssh2_config.h set here too!
 WITH_ZLIB = 1
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8r
+OPENSSL_PATH = ../../openssl-0.9.8u
 endif
 
 # Edit the var below to set to your architecture or set environment var.
@@ -72,7 +72,7 @@ DS	= /
 else
 CP	= copy
 RM	= del /q /f 2>NUL
-MD	= md
+MD	= md 2>NUL
 RD	= rd /q /s 2>NUL
 XX	=
 DS	= $(XX)\$(XX)
@@ -172,9 +172,11 @@ $(OBJDIR)/version.inc: ../include/libssh2.h $(OBJDIR)
 
 dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@-$(MD) $(DISTDIR)$(DS)bin
+	@-$(CP) ..$(DS)AUTHORS $(DISTDIR)
+	@-$(CP) ..$(DS)COPYING $(DISTDIR)
 	@-$(CP) ..$(DS)INSTALL $(DISTDIR)
-	@-$(CP) ..$(DS)LICENSE $(DISTDIR)
 	@-$(CP) ..$(DS)README $(DISTDIR)
+	@-$(CP) ..$(DS)RELEASE-NOTES $(DEVLDIR)
 	@$(CP) $(TARGET).dll $(DISTDIR)$(DS)bin
 	@echo Creating $(DISTARC)
 	@$(ZIP) $(DISTARC) $(DISTDIR)/* < $(DISTDIR)/readme.txt
@@ -183,9 +185,11 @@ dev: all $(DEVLDIR) $(DEVLDIR)/readme.txt
 	@-$(MD) $(DEVLDIR)$(DS)bin
 	@-$(MD)$(DEVLDIR)$(DS)include
 	@-$(MD) $(DEVLDIR)$(DS)win32
+	@-$(CP) ..$(DS)AUTHORS $(DISTDIR)
+	@-$(CP) ..$(DS)COPYING $(DISTDIR)
 	@-$(CP) ..$(DS)INSTALL $(DEVLDIR)
-	@-$(CP) ..$(DS)LICENSE $(DEVLDIR)
 	@-$(CP) ..$(DS)README $(DEVLDIR)
+	@-$(CP) ..$(DS)RELEASE-NOTES $(DEVLDIR)
 	@$(CP) $(TARGET).dll $(DEVLDIR)$(DS)bin
 	@$(CP) ..$(DS)include$(DS)*.h $(DEVLDIR)$(DS)include
 	@$(CP) libssh2_config.h $(DEVLDIR)/include
