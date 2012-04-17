@@ -143,7 +143,7 @@ banner_receive(LIBSSH2_SESSION * session)
 
         if (ret == 0) {
             session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
-            return LIBSSH2_ERROR_SOCKET_RECV;
+            return LIBSSH2_ERROR_SOCKET_DISCONNECT;
         }
 
         if (c == '\0') {
