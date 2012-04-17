@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2009, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2010 Daniel Stenberg
+ * Copyright (c) 2009-2012 Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
@@ -40,7 +40,7 @@
 #ifndef LIBSSH2_H
 #define LIBSSH2_H 1
 
-#define LIBSSH2_COPYRIGHT "2004-2011 The libssh2 project and its contributors."
+#define LIBSSH2_COPYRIGHT "2004-2012 The libssh2 project and its contributors."
 
 /* We use underscore instead of dash when appending DEV in dev versions just
    to make the BANNER define (used by src/session.c) be a valid SSH
