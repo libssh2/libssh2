@@ -1,6 +1,9 @@
 AUTOMAKE_OPTIONS = foreign nostdinc
 
-SUBDIRS = src example tests docs
+SUBDIRS = src tests docs
+if BUILD_EXAMPLES
+SUBDIRS += example
+endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libssh2.pc

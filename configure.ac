@@ -215,6 +215,22 @@ AC_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibi
        AC_MSG_RESULT(no)
 )
 
+# Build example applications?
+AC_MSG_CHECKING([whether to build example applications])
+AC_ARG_ENABLE([examples-build],
+AC_HELP_STRING([--enable-examples-build], [Build example applications (this is the default)])
+AC_HELP_STRING([--disable-examples-build], [Do not build example applications]),
+[case "$enableval" in
+  no | false)
+    build_examples='no'
+    ;;
+  *)
+    build_examples='yes'
+    ;;
+esac], [build_examples='yes'])
+AC_MSG_RESULT($build_examples)
+AM_CONDITIONAL([BUILD_EXAMPLES], [test "x$build_examples" != "xno"])
+
 # Checks for header files.
 # AC_HEADER_STDC
 AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h])
@@ -300,6 +316,7 @@ AC_MSG_NOTICE([summary of build options:
   Library types:    Shared=${enable_shared}, Static=${enable_static}
   Crypto library:   openssl: ${ac_cv_libssl:-no} (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A}) libgcrypt: ${ac_cv_libgcrypt:-no}
   Debug build:      $enable_debug
+  Build examples:   $build_examples
   Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
   libz compression: $ac_cv_libz
 ])
