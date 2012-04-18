@@ -472,7 +472,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Unable to open public key file");
     }
-    while (!feof(fd) && (c = fgetc(fd)) != '\r' && c != '\n')
+    while (!feof(fd) && 1 == fread(&c, 1, 1, fd) && c != '\r' && c != '\n')
         pubkey_len++;
     if (feof(fd)) {
         /* the last character was EOF */
