@@ -16,7 +16,7 @@ WITH_ZLIB = 1
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8u
+OPENSSL_PATH = ../../openssl-0.9.8v
 endif
 
 # Edit the var below to set to your architecture or set environment var.
