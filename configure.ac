@@ -96,12 +96,16 @@ AC_ARG_WITH(libz,
 # Look for OpenSSL (default)
 if test "$use_openssl" != "no" && test "$use_libgcrypt" != "yes"; then
   AC_LIB_HAVE_LINKFLAGS([ssl], [crypto], [#include <openssl/ssl.h>])
+  LIBSREQUIRED=ssl,crypto
 fi
 
 # Look for libgcrypt
 if test "$ac_cv_libssl" != "yes" && test "$use_libgcrypt" != "no"; then
   AC_LIB_HAVE_LINKFLAGS([gcrypt], [], [#include <gcrypt.h>])
+  LIBSREQUIRED=gcrypt
 fi
+
+AC_SUBST(LIBSREQUIRED)
 
 if test "$ac_cv_libssl" != "yes" && test "$ac_cv_libgcrypt" != "yes"; then
   AC_MSG_ERROR([cannot find OpenSSL or Libgcrypt,
