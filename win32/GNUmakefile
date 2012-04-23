@@ -16,7 +16,7 @@ WITH_ZLIB = 1
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8v
+OPENSSL_PATH = ../../openssl-1.0.1a
 endif
 
 # Edit the var below to set to your architecture or set environment var.
@@ -95,6 +95,12 @@ ifeq ($(ARCH),w64)
 CFLAGS	+= -D_AMD64_
 endif
 
+ifdef LINK_STATIC
+LDLIBS += $(OPENSSL_PATH)/out/libcrypto.$(LIBEXT) $(OPENSSL_PATH)/out/libssl.$(LIBEXT)
+else
+LDLIBS += $(OPENSSL_PATH)/out/libeay32.$(LIBEXT) $(OPENSSL_PATH)/out/libssl32.$(LIBEXT)
+endif
+
 ifeq ($(CC),mwcc)
 LD	= mwld
 RC	= mwwinrc
@@ -119,7 +125,7 @@ ARFLAGS	= -cq
 LIBEXT	= a
 RANLIB	= $(CROSSPREFIX)ranlib
 #LDLIBS	+= -lwsock32
-LDLIBS	+= -lws2_32
+LDLIBS	+= -lws2_32 -lgdi32
 RCFLAGS	= -I. -I ../include -O coff -i
 CFLAGS	+= -fno-strict-aliasing
 CFLAGS	+= -Wall # -pedantic
@@ -127,12 +133,6 @@ endif
 
 INCLUDES = -I. -I../include
 INCLUDES += -I$(OPENSSL_PATH)/outinc -I$(OPENSSL_PATH)/outinc/openssl
-
-ifdef LINK_STATIC
-LDLIBS += $(OPENSSL_PATH)/out/libcrypto.$(LIBEXT) $(OPENSSL_PATH)/out/libssl.$(LIBEXT)
-else
-LDLIBS += $(OPENSSL_PATH)/out/libeay32.$(LIBEXT) $(OPENSSL_PATH)/out/libssl32.$(LIBEXT)
-endif
 
 ifdef WITH_ZLIB
 	INCLUDES += -I$(ZLIB_PATH)
