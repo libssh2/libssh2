@@ -75,6 +75,7 @@ int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
                            unsigned char **signature,
                            size_t *signature_len);
 
+#if LIBSSH2_DSA
 int _libssh2_dsa_new(libssh2_dsa_ctx ** dsa,
                      const unsigned char *pdata,
                      unsigned long plen,
@@ -95,6 +96,7 @@ int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
 int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
                            const unsigned char *hash,
                            unsigned long hash_len, unsigned char *sig);
+#endif
 
 int _libssh2_cipher_init(_libssh2_cipher_ctx * h,
                          _libssh2_cipher_type(algo),
