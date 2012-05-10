@@ -513,10 +513,7 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
 
     while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
         rc = sftp_packet_read(sftp);
-        if (rc == LIBSSH2_ERROR_EAGAIN)
-            return rc;
-        else if (rc <= 0)
-            /* TODO: isn't this supposed to be < 0 only? */
+        if (rc < 0)
             return rc;
 
         /* data was read, check the queue again */
