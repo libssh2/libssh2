@@ -430,8 +430,9 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
         int rc;
         struct sftp_pipeline_chunk *next = _libssh2_list_next(&chunk->node);
 
-        /* mark this request as a zombie */
-        add_zombie_request(sftp, chunk->request_id);
+        /* mark this request as a zombie if it ever sent anything */
+        if(chunk->sent)
+            add_zombie_request(sftp, chunk->request_id);
 
         rc = sftp_packet_ask(sftp, SSH_FXP_STATUS,
                              chunk->request_id, &data, &data_len);
