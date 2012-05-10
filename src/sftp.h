@@ -60,6 +60,11 @@ struct sftp_pipeline_chunk {
     unsigned char packet[1]; /* data */
 };
 
+struct sftp_zombie_requests {
+    struct list_node node;
+    uint32_t request_id;
+};
+
 #ifndef MIN
 #define MIN(x,y) ((x)<(y)?(x):(y))
 #endif
@@ -135,6 +140,9 @@ struct _LIBSSH2_SFTP
     uint32_t request_id, version;
 
     struct list_head packets;
+
+    /* List of FXP_READ responses to ignore because EOF already received. */
+    struct list_head zombie_requests;
 
     /* a list of _LIBSSH2_SFTP_HANDLE structs */
     struct list_head sftp_handles;

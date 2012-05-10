@@ -133,6 +133,66 @@ static void _libssh2_store_u64(unsigned char **ptr, libssh2_uint64_t value)
 }
 
 /*
+ * Search list of zombied FXP_READ request IDs.
+ *
+ * Returns NULL if ID not in list.
+ */
+static struct sftp_zombie_requests *
+find_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
+{
+    struct sftp_zombie_requests *zombie =
+        _libssh2_list_first(&sftp->zombie_requests);
+
+    while(zombie) {
+        if(zombie->request_id == request_id)
+            break;
+        else
+            zombie = _libssh2_list_next(&zombie->node);
+    }
+
+    return zombie;
+}
+
+static void
+remove_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
+{
+    LIBSSH2_SESSION *session = sftp->channel->session;
+
+    struct sftp_zombie_requests *zombie = find_zombie_request(sftp,
+                                                              request_id);
+    if(zombie) {
+        _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
+            "Removing request ID %ld from the list of zombie requests",
+            request_id);
+
+        _libssh2_list_remove(&zombie->node);
+        LIBSSH2_FREE(session, zombie);
+    }
+}
+
+static int
+add_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
+{
+    LIBSSH2_SESSION *session = sftp->channel->session;
+
+    struct sftp_zombie_requests *zombie;
+
+    _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
+                   "Marking request ID %ld as a zombie request", request_id);
+
+    zombie = LIBSSH2_ALLOC(sftp->channel->session,
+                           sizeof(struct sftp_zombie_requests));
+    if (!zombie)
+        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                              "malloc fail for zombie request  ID");
+    else {
+        zombie->request_id = request_id;
+        _libssh2_list_add(&sftp->zombie_requests, &zombie->node);
+        return LIBSSH2_ERROR_NONE;
+    }
+}
+
+/*
  * sftp_packet_add
  *
  * Add a packet to the SFTP packet brigade
@@ -143,6 +203,7 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
 {
     LIBSSH2_SESSION *session = sftp->channel->session;
     LIBSSH2_SFTP_PACKET *packet;
+    uint32_t request_id;
 
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Received packet %d (len %d)",
                    (int) data[0], data_len);
@@ -188,6 +249,21 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
                               "Out of sync with the world");
     }
 
+    request_id = _libssh2_ntohu32(&data[1]);
+
+    /* Don't add the packet if it answers a request we've given up on. */
+    if((data[0] == SSH_FXP_STATUS || data[0] == SSH_FXP_DATA)
+        && find_zombie_request(sftp, request_id)) {
+
+        /* If we get here, the file ended before the response arrived. We
+        are no longer interested in the request so we discard it */
+
+        LIBSSH2_FREE(session, data);
+
+        remove_zombie_request(sftp, request_id);
+        return LIBSSH2_ERROR_NONE;
+    }
+
     packet = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_SFTP_PACKET));
     if (!packet) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -196,7 +272,7 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
 
     packet->data = data;
     packet->data_len = data_len;
-    packet->request_id = _libssh2_ntohu32(&data[1]);
+    packet->request_id = request_id;
 
     _libssh2_list_add(&sftp->packets, &packet->node);
 
@@ -353,6 +429,9 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
         size_t data_len;
         int rc;
         struct sftp_pipeline_chunk *next = _libssh2_list_next(&chunk->node);
+
+        /* mark this request as a zombie */
+        add_zombie_request(sftp, chunk->request_id);
 
         rc = sftp_packet_ask(sftp, SSH_FXP_STATUS,
                              chunk->request_id, &data, &data_len);
