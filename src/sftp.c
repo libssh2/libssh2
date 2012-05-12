@@ -430,10 +430,6 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
         int rc;
         struct sftp_pipeline_chunk *next = _libssh2_list_next(&chunk->node);
 
-        /* mark this request as a zombie if it ever sent anything */
-        if(chunk->sent)
-            add_zombie_request(sftp, chunk->request_id);
-
         rc = sftp_packet_ask(sftp, SSH_FXP_STATUS,
                              chunk->request_id, &data, &data_len);
         if(rc)
@@ -443,6 +439,10 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
         if(!rc)
             /* we found a packet, free it */
             LIBSSH2_FREE(session, data);
+        else if(chunk->sent)
+            /* there was no incoming packet for this request, mark this
+               request as a zombie if it ever sent the request */
+            add_zombie_request(sftp, chunk->request_id);
 
         _libssh2_list_remove(&chunk->node);
         LIBSSH2_FREE(session, chunk);
