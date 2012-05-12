@@ -2174,13 +2174,15 @@ libssh2_sftp_tell64(LIBSSH2_SFTP_HANDLE *handle)
 }
 
 /*
- * Flush all remaining incoming SFTP packets.
+ * Flush all remaining incoming SFTP packets and zombies.
  */
 static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     LIBSSH2_SFTP_PACKET *packet = _libssh2_list_first(&sftp->packets);
+    struct sftp_zombie_requests *zombie =
+        _libssh2_list_first(&sftp->zombie_requests);
 
     while(packet) {
         LIBSSH2_SFTP_PACKET *next;
@@ -2192,6 +2194,16 @@ static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
         LIBSSH2_FREE(session, packet);
 
         packet = next;
+    }
+
+    while(zombie) {
+        /* figure out the next node */
+        struct sftp_zombie_requests *next = _libssh2_list_next(&zombie->node);
+        /* unlink the current one */
+        _libssh2_list_remove(&zombie->node);
+        /* free the memory */
+        LIBSSH2_FREE(session, zombie);
+        zombie = next;
     }
 
 }
