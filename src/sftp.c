@@ -292,6 +292,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
     unsigned char *packet = NULL;
     ssize_t rc;
     unsigned long recv_window;
+    int packet_type;
 
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "recv packet");
 
@@ -400,13 +401,17 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
 
         sftp->partial_packet = NULL;
 
+        /* sftp_packet_add takes ownership of the packet and might free it
+           so we take a copy of the packet type before we call it. */
+        packet_type = packet[0];
         rc = sftp_packet_add(sftp, packet, sftp->partial_len);
         if (rc) {
             LIBSSH2_FREE(session, packet);
             return rc;
         }
-
-        return packet[0];
+        else {
+            return packet_type;
+        }
     }
     /* WON'T REACH */
 }
