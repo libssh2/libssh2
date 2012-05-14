@@ -78,7 +78,7 @@ void _libssh2_htonu32(unsigned char *buf, uint32_t val);
 void _libssh2_store_u32(unsigned char **buf, uint32_t value);
 void _libssh2_store_str(unsigned char **buf, const char *str, size_t len);
 
-#if defined(LIBSSH2_WIN32) && !defined(__MINGW32__)
+#if defined(LIBSSH2_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
 /* provide a private one */
 #undef HAVE_GETTIMEOFDAY
 int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp);
