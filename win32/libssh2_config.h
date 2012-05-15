@@ -34,9 +34,6 @@
 #define strcasecmp stricmp
 #endif /* _MSC_VER */
 
-/* Compile in zlib support */
-#define LIBSSH2_HAVE_ZLIB 1
-
 /* Enable newer diffie-hellman-group-exchange-sha1 syntax */
 #define LIBSSH2_DH_GEX_NEW 1
 
