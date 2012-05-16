@@ -93,39 +93,43 @@ AC_ARG_WITH(libz,
   AC_HELP_STRING([--with-libz],[Use Libz for compression]),
   use_libz=$withval,use_libz=auto)
 
+found_crypto=none
+
 # Look for OpenSSL
-if test "$use_openssl" != "no" && test "$use_libgcrypt" != "yes"; then
+if test "$found_crypto" = "none" && test "$use_openssl" != "no"; then
   AC_LIB_HAVE_LINKFLAGS([ssl], [crypto], [#include <openssl/ssl.h>])
-  LIBSREQUIRED=libssl,libcrypto
 fi
-
-# Look for libgcrypt
-if test "$ac_cv_libssl" != "yes" && test "$use_libgcrypt" != "no"; then
-  AC_LIB_HAVE_LINKFLAGS([gcrypt], [], [#include <gcrypt.h>])
-  LIBS="$LIBS -lgcrypt"
-fi
-
-if test "$ac_cv_libssl" != "yes" && test "$ac_cv_libgcrypt" != "yes"; then
-  AC_MSG_ERROR([cannot find OpenSSL or Libgcrypt,
-try --with-libssl-prefix=PATH or --with-libgcrypt-prefix=PATH])
-fi
-
 if test "$ac_cv_libssl" = "yes"; then
   AC_DEFINE(LIBSSH2_OPENSSL, 1, [Use OpenSSL])
-fi
-AM_CONDITIONAL(OPENSSL, test "$ac_cv_libssl" = "yes")
+  LIBSREQUIRED=libssl,libcrypto
 
-if test "$ac_cv_libgcrypt" = "yes"; then
-  AC_DEFINE(LIBSSH2_LIBGCRYPT, 1, [Use libgcrypt])
-fi
-AM_CONDITIONAL(LIBGCRYPT, test "$ac_cv_libgcrypt" = "yes")
-
-# Not all OpenSSL have AES-CTR functions.
-if test "$ac_cv_libssl" = "yes"; then
+  # Not all OpenSSL have AES-CTR functions.
   save_LDFLAGS="$LDFLAGS"
   LDFLAGS="$LDFLAGS $LIBSSL"
   AC_CHECK_FUNCS(EVP_aes_128_ctr)
   LDFLAGS="$save_LDFLAGS"
+
+  found_crypto="OpenSSL (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A})"
+fi
+AM_CONDITIONAL(OPENSSL, test "$ac_cv_libssl" = "yes")
+
+# Look for libgcrypt
+if test "$found_crypto" = "none" && test "$use_libgcrypt" != "no"; then
+  AC_LIB_HAVE_LINKFLAGS([gcrypt], [], [#include <gcrypt.h>])
+fi
+if test "$ac_cv_libgcrypt" = "yes"; then
+  AC_DEFINE(LIBSSH2_LIBGCRYPT, 1, [Use libgcrypt])
+  LIBSREQUIRED= # libgcrypt doesn't provide a .pc file. sad face.
+  LIBS="$LIBS -lgcrypt"
+  found_crypto=libgcrypt
+fi
+AM_CONDITIONAL(LIBGCRYPT, test "$ac_cv_libgcrypt" = "yes")
+
+if test "$found_crypto" = "none"; then
+  AC_MSG_ERROR([No crypto library found!
+Try --with-libssl-prefix=PATH\
+ or --with-libgcrypt-prefix=PATH\
+])
 fi
 
 # Look for Libz
@@ -327,7 +331,7 @@ AC_MSG_NOTICE([summary of build options:
   Compiler:         ${CC}
   Compiler flags:   ${CFLAGS}
   Library types:    Shared=${enable_shared}, Static=${enable_static}
-  Crypto library:   openssl: ${ac_cv_libssl:-no} (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A}) libgcrypt: ${ac_cv_libgcrypt:-no}
+  Crypto library:   ${found_crypto}
   Debug build:      $enable_debug
   Build examples:   $build_examples
   Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
