@@ -9,6 +9,7 @@ This release includes the following bugfixes:
  o SFTP: filter off incoming "zombie" responses
  o gettimeofday: no need for a replacement under cygwin
  o SSH_MSG_CHANNEL_REQUEST: default to want_reply
+ o win32/libssh2_config.h: Remove hardcoded #define LIBSSH2_HAVE_ZLIB
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
