@@ -9,14 +9,14 @@
 
 # Edit the path below to point to the base of your Zlib sources.
 ifndef ZLIB_PATH
-ZLIB_PATH = ../../zlib-1.2.6
+ZLIB_PATH = ../../zlib-1.2.7
 endif
 # since currently always enabled in libssh2_config.h set here too!
 WITH_ZLIB = 1
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-1.0.1a
+OPENSSL_PATH = ../../openssl-0.9.8x
 endif
 
 # Edit the var below to set to your architecture or set environment var.
