@@ -39,7 +39,7 @@ DEVLARC	= $(DEVLDIR).zip
 # Edit the vars below to change target settings.
 TARGET	= libssh2
 VERSION	= $(LIBSSH2_VERSION)
-COPYR   = (c) $(LIBSSH2_COPYRIGHT_STR)
+COPYR	= (c) $(LIBSSH2_COPYRIGHT_STR)
 WWWURL	= http://www.libssh2.org/
 DESCR	= libssh2 $(LIBSSH2_VERSION_STR)
 #STACK	= 64000
@@ -95,12 +95,6 @@ ifeq ($(ARCH),w64)
 CFLAGS	+= -D_AMD64_
 endif
 
-ifdef LINK_STATIC
-LDLIBS += $(OPENSSL_PATH)/out/libcrypto.$(LIBEXT) $(OPENSSL_PATH)/out/libssl.$(LIBEXT)
-else
-LDLIBS += $(OPENSSL_PATH)/out/libeay32.$(LIBEXT) $(OPENSSL_PATH)/out/libssl32.$(LIBEXT)
-endif
-
 ifeq ($(CC),mwcc)
 LD	= mwld
 RC	= mwwinrc
@@ -125,18 +119,50 @@ ARFLAGS	= -cq
 LIBEXT	= a
 RANLIB	= $(CROSSPREFIX)ranlib
 #LDLIBS	+= -lwsock32
-LDLIBS	+= -lws2_32 -lgdi32
+LDLIBS	+= -lws2_32
 RCFLAGS	= -I. -I ../include -O coff -i
 CFLAGS	+= -fno-strict-aliasing
 CFLAGS	+= -Wall # -pedantic
 endif
 
 INCLUDES = -I. -I../include
-INCLUDES += -I$(OPENSSL_PATH)/outinc -I$(OPENSSL_PATH)/outinc/openssl
+
+ifndef OPENSSL_INCLUDE
+	ifeq "$(wildcard $(OPENSSL_PATH)/outinc)" "$(OPENSSL_PATH)/outinc"
+		OPENSSL_INCLUDE = $(OPENSSL_PATH)/outinc
+	endif
+	ifeq "$(wildcard $(OPENSSL_PATH)/include)" "$(OPENSSL_PATH)/include"
+		OPENSSL_INCLUDE = $(OPENSSL_PATH)/include
+	endif
+endif
+ifneq "$(wildcard $(OPENSSL_INCLUDE)/openssl/opensslv.h)" "$(OPENSSL_INCLUDE)/openssl/opensslv.h"
+$(error Invalid OPENSSL_PATH: $(OPENSSL_PATH))
+endif
+INCLUDES += -I"$(OPENSSL_INCLUDE)"
+ifndef OPENSSL_LIBPATH
+	OPENSSL_LIBS_STAT = crypto ssl
+	ifeq "$(wildcard $(OPENSSL_PATH)/out)" "$(OPENSSL_PATH)/out"
+		OPENSSL_LIBPATH = $(OPENSSL_PATH)/out
+		OPENSSL_LIBS_DYN = eay32 ssl32
+	endif
+	ifeq "$(wildcard $(OPENSSL_PATH)/lib)" "$(OPENSSL_PATH)/lib"
+		OPENSSL_LIBPATH = $(OPENSSL_PATH)/lib
+		OPENSSL_LIBS_DYN = crypto.dll ssl.dll
+	endif
+endif
+ifdef LINK_OPENSSL_STATIC
+	LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_STAT)) -lgdi32
+else
+	LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
+endif
 
 ifdef WITH_ZLIB
 	INCLUDES += -I$(ZLIB_PATH)
-	LDLIBS += $(ZLIB_PATH)/libz.$(LIBEXT)
+	ifdef LINK_ZLIB_STATIC
+		LDLIBS += $(ZLIB_PATH)/libz.$(LIBEXT)
+	else
+		LDLIBS += $(ZLIB_PATH)/libz.dll.$(LIBEXT)
+	endif
 endif
 
 CFLAGS	+= $(INCLUDES)
