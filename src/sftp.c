@@ -1024,9 +1024,7 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     LIBSSH2_SFTP_HANDLE *fp;
-    LIBSSH2_SFTP_ATTRIBUTES attrs = {
-        LIBSSH2_SFTP_ATTR_PERMISSIONS, 0, 0, 0, 0, 0, 0
-    };
+    LIBSSH2_SFTP_ATTRIBUTES attrs;
     unsigned char *s;
     ssize_t rc;
     int open_file = (open_type == LIBSSH2_SFTP_OPENFILE)?1:0;
@@ -1046,10 +1044,15 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
                            "FXP_OPENDIR packet");
             return NULL;
         }
-        /* Filetype in SFTP 3 and earlier */
-        attrs.permissions = mode |
-            (open_file ? LIBSSH2_SFTP_ATTR_PFILETYPE_FILE :
-             LIBSSH2_SFTP_ATTR_PFILETYPE_DIR);
+
+        if (flags != LIBSSH2_FXF_READ) {
+            attrs.flags |= LIBSSH2_SFTP_ATTR_PERMISSIONS;
+
+            /* Filetype in SFTP 3 and earlier */
+            attrs.permissions = mode |
+                (open_file ? LIBSSH2_SFTP_ATTR_PFILETYPE_FILE :
+                 LIBSSH2_SFTP_ATTR_PFILETYPE_DIR);
+        }
 
         _libssh2_store_u32(&s, sftp->open_packet_len - 4);
         *(s++) = open_file? SSH_FXP_OPEN : SSH_FXP_OPENDIR;
