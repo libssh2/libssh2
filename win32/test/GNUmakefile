@@ -79,7 +79,7 @@ else
 endif
 
 # Global flags for all compilers
-CFLAGS	= $(OPT) -D$(DB) -DWIN32 -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
+CFLAGS	= $(OPT) -D$(DB) -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
 ifeq ($(ARCH),w64)
 CFLAGS  += -D_AMD64_
 endif
