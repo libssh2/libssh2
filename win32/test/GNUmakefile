@@ -113,26 +113,53 @@ CFLAGS	+= -Wall #-Wno-unused #-pedantic
 endif
 
 INCLUDES = -I.. -I../../include
-INCLUDES += -I$(OPENSSL_PATH)/outinc -I$(OPENSSL_PATH)/outinc/openssl
-#LIBPATH += -L$(OPENSSL_PATH)/out
 LIBPATH += -L..
 
 ifdef LINK_STATIC
 	LDLIBS += -llibssh2
-	#LDLIBS += $(OPENSSL_PATH)/out/libcrypto.$(LIBEXT) $(OPENSSL_PATH)/out/libssl.$(LIBEXT)
 else
 	LDLIBS += -llibssh2dll
-	#LDLIBS += $(OPENSSL_PATH)/out/libeay32.$(LIBEXT) $(OPENSSL_PATH)/out/libssl32.$(LIBEXT)
+endif
+
+ifndef OPENSSL_INCLUDE
+	ifeq "$(wildcard $(OPENSSL_PATH)/outinc)" "$(OPENSSL_PATH)/outinc"
+		OPENSSL_INCLUDE = $(OPENSSL_PATH)/outinc
+	endif
+	ifeq "$(wildcard $(OPENSSL_PATH)/include)" "$(OPENSSL_PATH)/include"
+		OPENSSL_INCLUDE = $(OPENSSL_PATH)/include
+	endif
+endif
+ifneq "$(wildcard $(OPENSSL_INCLUDE)/openssl/opensslv.h)" "$(OPENSSL_INCLUDE)/openssl/opensslv.h"
+$(error Invalid OPENSSL_PATH: $(OPENSSL_PATH))
+endif
+INCLUDES += -I"$(OPENSSL_INCLUDE)"
+ifndef OPENSSL_LIBPATH
+	OPENSSL_LIBS_STAT = crypto ssl
+	ifeq "$(wildcard $(OPENSSL_PATH)/out)" "$(OPENSSL_PATH)/out"
+		OPENSSL_LIBPATH = $(OPENSSL_PATH)/out
+		OPENSSL_LIBS_DYN = eay32 ssl32
+	endif
+	ifeq "$(wildcard $(OPENSSL_PATH)/lib)" "$(OPENSSL_PATH)/lib"
+		OPENSSL_LIBPATH = $(OPENSSL_PATH)/lib
+		OPENSSL_LIBS_DYN = crypto.dll ssl.dll
+	endif
+endif
+ifdef LINK_STATIC
+ifdef LINK_OPENSSL_STATIC
+	LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_STAT)) -lgdi32
+else
+	LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
+endif
 endif
 
 ifdef WITH_ZLIB
+	CFLAGS += -DLIBSSH2_HAVE_ZLIB
 	INCLUDES += -I$(ZLIB_PATH)
-	#LIBPATH = -L$(ZLIB_PATH)
-#ifdef LINK_STATIC
-#	LDLIBS += $(ZLIB_PATH)/libz.$(LIBEXT)
-#else
-#	LDLIBS += $(ZLIB_PATH)/libzdll.$(LIBEXT)
-#endif
+	ifdef LINK_ZLIB_STATIC
+		LDLIBS += $(ZLIB_PATH)/libz.$(LIBEXT)
+	else
+		LDLIBS += $(ZLIB_PATH)/libzdll.$(LIBEXT)
+	endif
 endif
 
 CFLAGS	+= $(INCLUDES)

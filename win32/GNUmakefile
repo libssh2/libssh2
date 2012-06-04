@@ -11,8 +11,6 @@
 ifndef ZLIB_PATH
 ZLIB_PATH = ../../zlib-1.2.7
 endif
-# since currently always enabled in libssh2_config.h set here too!
-WITH_ZLIB = 1
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
@@ -157,6 +155,7 @@ else
 endif
 
 ifdef WITH_ZLIB
+	CFLAGS += -DLIBSSH2_HAVE_ZLIB
 	INCLUDES += -I$(ZLIB_PATH)
 	ifdef LINK_ZLIB_STATIC
 		LDLIBS += $(ZLIB_PATH)/libz.$(LIBEXT)
