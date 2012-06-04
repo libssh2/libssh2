@@ -14,10 +14,9 @@ include_HEADERS =			\
 	include/libssh2_sftp.h
 
 NETWAREFILES =  nw/keepscreen.c \
- nw/Makefile \
- nw/Makefile.netware \
- nw/nwlib.c \
- nw/test/Makefile.netware
+	nw/nwlib.c \
+	nw/GNUmakefile \
+	nw/test/GNUmakefile
 
 DSP = win32/libssh2.dsp
 VCPROJ = win32/libssh2.vcproj
