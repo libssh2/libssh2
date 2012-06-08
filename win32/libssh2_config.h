@@ -15,6 +15,7 @@
 #define HAVE_UNISTD_H
 #define HAVE_INTTYPES_H
 #define HAVE_SYS_TIME_H
+#define HAVE_GETTIMEOFDAY
 #endif
 
 #define HAVE_WINSOCK2_H
