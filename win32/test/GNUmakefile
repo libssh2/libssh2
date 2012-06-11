@@ -48,28 +48,38 @@ else
 	OBJDIR	= debug
 endif
 
-# Include the version info retrieved from libssh2.h
--include $(OBJDIR)/version.inc
-
-ifeq ($(findstring /sh,$(SHELL)),/sh)
-CP      = cp -afv
-# RM    = rm -f
-MD      = mkdir
-RD      = rm -fr
-DL      = '
-DS      = /
-else
-CP      = copy
-RM      = del /q /f 2>NUL
-MD      = md 2>NUL
-RD      = rd /q /s 2>NUL
-XX      =
-DS      = $(XX)\$(XX)
-endif
 # Here you can find a native Win32 binary of the original awk:
 # http://www.gknw.net/development/prgtools/awk-20100523.zip
 AWK     = awk
 ZIP     = zip -qzr9
+
+# Platform-dependent helper tool macros
+ifeq ($(findstring /sh,$(SHELL)),/sh)
+DEL	= rm -f $1
+RMDIR	= rm -fr $1
+MKDIR	= mkdir -p $1
+COPY	= -cp -afv $1 $2
+#COPYR	= -cp -afr $1/* $2
+COPYR	= -rsync -aC $1/* $2
+TOUCH	= touch $1
+CAT	= cat
+ECHONL	= echo ""
+DL	= '
+else
+ifeq "$(OS)" "Windows_NT"
+DEL	= -del 2>NUL /q /f $(subst /,\,$1)
+RMDIR	= -rd 2>NUL /q /s $(subst /,\,$1)
+else
+DEL	= -del 2>NUL $(subst /,\,$1)
+RMDIR	= -deltree 2>NUL /y $(subst /,\,$1)
+endif
+MKDIR	= -md 2>NUL $(subst /,\,$1)
+COPY	= -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
+COPYR	= -xcopy 2>NUL /q /y /e $(subst /,\,$1) $(subst /,\,$2)
+TOUCH	= copy 2>&1>NUL /b $(subst /,\,$1) +,,
+CAT	= type
+ECHONL	= $(ComSpec) /c echo.
+endif
 
 # The following line defines your compiler.
 ifdef METROWERKS
@@ -77,6 +87,9 @@ ifdef METROWERKS
 else
 	CC = $(CROSSPREFIX)gcc
 endif
+
+# Include the version info retrieved from libssh2.h
+-include $(OBJDIR)/version.inc
 
 # Global flags for all compilers
 CFLAGS	= $(OPT) -D$(DB) -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
@@ -182,17 +195,17 @@ $(OBJDIR)/version.inc: ../../include/libssh2.h $(OBJDIR)
 	@$(AWK) -f ../../get_ver.awk $< > $@
 
 objclean:
-	-$(RD) $(OBJDIR)
+	$(call RMDIR, $(OBJDIR))
 
 clean: objclean
-	-$(RM) $(TARGETS)
+	$(call DEL, $(TARGETS))
 
 $(OBJDIR):
-	$(MD) $@
+	$(call MKDIR, $@)
 
 %.exe: $(OBJDIR)/%.o $(OBJDIR)/%.res
 	@echo Linking $@
-	@-$(RM) $@
+	@$(call DEL, $@)
 	$(LD) $(LDFLAGS) $^ -o $@ $(LIBPATH) $(LDLIBS)
 
 $(OBJDIR)/%.res: $(OBJDIR)/%.rc
