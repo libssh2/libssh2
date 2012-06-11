@@ -69,10 +69,7 @@ ifdef METROWERKS
 else
 	CC = $(CROSSPREFIX)gcc
 endif
-CP	= cp -afv
-MD	= mkdir
-RD	= rm -fr
-# RM	= rm -f
+
 # Here you can find a native Win32 binary of the original awk:
 # http://www.gknw.net/development/prgtools/awk-20100523.zip
 AWK	= awk
@@ -80,6 +77,34 @@ AWK	= awk
 # generating the xdc data for the linker; here's a minimal tool:
 # http://www.gknw.net/development/prgtools/mkxdc.zip
 MPKXDC	= mkxdc
+
+# Platform-dependent helper tool macros
+ifeq ($(findstring /sh,$(SHELL)),/sh)
+DEL	= rm -f $1
+RMDIR	= rm -fr $1
+MKDIR	= mkdir -p $1
+COPY	= -cp -afv $1 $2
+#COPYR	= -cp -afr $1/* $2
+COPYR	= -rsync -aC $1/* $2
+TOUCH	= touch $1
+CAT	= cat
+ECHONL	= echo ""
+DL	= '
+else
+ifeq "$(OS)" "Windows_NT"
+DEL	= -del 2>NUL /q /f $(subst /,\,$1)
+RMDIR	= -rd 2>NUL /q /s $(subst /,\,$1)
+else
+DEL	= -del 2>NUL $(subst /,\,$1)
+RMDIR	= -deltree 2>NUL /y $(subst /,\,$1)
+endif     
+MKDIR	= -md 2>NUL $(subst /,\,$1)
+COPY	= -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
+COPYR	= -xcopy 2>NUL /q /y /e $(subst /,\,$1) $(subst /,\,$2)
+TOUCH	= copy 2>&1>NUL /b $(subst /,\,$1) +,,
+CAT	= type
+ECHONL	= $(ComSpec) /c echo.
+endif
 
 # LIBARCH_U = $(shell $(AWK) 'BEGIN {print toupper(ARGV[1])}' $(LIBARCH))
 LIBARCH_L = $(shell $(AWK) 'BEGIN {print tolower(ARGV[1])}' $(LIBARCH))
@@ -111,12 +136,13 @@ else
 endif
 else
 LD	= nlmconv
-LDFLAGS	= -T
+LDFLAGS	= -UT
 AR	= ar
 ARFLAGS	= -cq
 LIBEXT	= a
 CFLAGS	+= -m32
-CFLAGS	+= -fno-builtin -fpcc-struct-return -fno-strict-aliasing
+CFLAGS	+= -fno-builtin -fpcc-struct-return
+CFLAGS	+= -fno-strict-aliasing
 CFLAGS	+= -Wall # -pedantic
 ifeq ($(LIBARCH),LIBC)
 	PRELUDE = $(SDK_LIBC)/imports/libcpre.gcc.o
@@ -180,13 +206,6 @@ ifeq ($(MTSAFE),NO)
 	XDCOPT = -u
 endif
 
-ifeq ($(findstring /sh,$(SHELL)),/sh)
-DL      = '
-DS      = /
-else
-DS      = \\
-endif
-
 vpath %.c $(SAMPLES)
 
 .PRECIOUS: $(OBJDIR)/%.o $(OBJDIR)/%.def $(OBJDIR)/%.xdc
@@ -200,22 +219,22 @@ $(OBJDIR)/%.o: %.c
 #	@echo Compiling $<
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJDIR)/version.inc: ../../include/libssh2.h $(OBJDIR)
+$(OBJDIR)/version.inc: ../../get_ver.awk ../../include/libssh2.h $(OBJDIR)
 	@echo Creating $@
-	@$(AWK) -f ../../get_ver.awk $< > $@
+	@$(AWK) -f $^ > $@
 
 objclean:
-	-$(RD) $(OBJDIR)
+	$(call RMDIR, $(OBJDIR))
 
 clean: objclean
-	-$(RM) $(TARGETS)
+	$(foreach f, $(TARGETS), $(call DEL, $(f)))
 
 $(OBJDIR):
-	@$(MD) $@
+	@$(call MKDIR, $@)
 
 %.nlm: $(OBJDIR)/%.def $(OBJDIR)/%.o $(OBJDIR)/%.xdc
 	@echo Linking $@
-	@-$(RM) $@
+	@$(call DEL, $@)
 	@$(LD) $(LDFLAGS) $<
 
 $(OBJDIR)/%.xdc: GNUmakefile
