@@ -11,20 +11,23 @@ int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
                                            const char *privatekey,
                                            const char *passphrase);
 .SH DESCRIPTION
-\fIsession\fP - Session instance as returned by 
-.BR libssh2_session_init_ex(3)
+\fIsession\fP - Session instance as returned by
+\fBlibssh2_session_init_ex(3)\fP
 
-\fIusername\fP - Remote user name to authenticate as.
+\fIusername\fP - Pointer to user name to authenticate as.
 
-\fIusername_len\fP - Length of username.
+\fIusername_len\fP - Length of \fIusername\fP.
 
-\fIpublickey\fP - Path and name of public key file. (e.g. /etc/ssh/hostkey.pub)
+\fIpublickey\fP - Path name of the public key file.
+(e.g. /etc/ssh/hostkey.pub). If libssh2 is built against OpenSSL, this option
+can be set to NULL.
 
-\fIprivatekey\fP - Path and name of private key file. (e.g. /etc/ssh/hostkey)
+\fIprivatekey\fP - Path name of the private key file. (e.g. /etc/ssh/hostkey)
 
-\fIpassphrase\fP - Passphrase to use when decoding private key file.
+\fIpassphrase\fP - Passphrase to use when decoding \fIprivatekey\fP.
 
-Attempt public key authentication using a PEM encoded private key file stored on disk
+Attempt public key authentication using a PEM encoded private key file stored
+on disk
 
 .SH RETURN VALUE
 Return 0 on success or negative on failure.  It returns
