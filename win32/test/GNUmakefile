@@ -28,8 +28,6 @@ LINK_STATIC = 1
 # Edit the vars below to change target settings.
 SAMPLES	= ../../example
 TARGETS := $(filter-out x11.exe,$(patsubst $(SAMPLES)/%.c,%.exe,$(strip $(wildcard $(SAMPLES)/*.c))))
-VERSION	= $(LIBSSH2_VERSION)
-COPYR   = (c) $(LIBSSH2_COPYRIGHT_STR)
 WWWURL	= http://www.libssh2.org/
 DESCR	= libssh2 $(subst .rc,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
 #STACK	= 64000
@@ -226,7 +224,7 @@ $(OBJDIR)/%.rc: GNUmakefile $(OBJDIR)/version.inc
 	@echo $(DL)  BEGIN$(DL) >> $@
 	@echo $(DL)    BLOCK "040904E4"$(DL) >> $@
 	@echo $(DL)    BEGIN$(DL) >> $@
-	@echo $(DL)      VALUE "LegalCopyright","$(COPYR)\0"$(DL) >> $@
+	@echo $(DL)      VALUE "LegalCopyright","\xA9 $(LIBSSH2_COPYRIGHT_STR)\0"$(DL) >> $@
 ifdef COMPANY
 	@echo $(DL)      VALUE "CompanyName","$(COMPANY)\0"$(DL) >> $@
 endif

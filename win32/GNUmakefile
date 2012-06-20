@@ -36,8 +36,6 @@ DEVLARC	= $(DEVLDIR).zip
 
 # Edit the vars below to change target settings.
 TARGET	= libssh2
-VERSION	= $(LIBSSH2_VERSION)
-COPYR	= (c) $(LIBSSH2_COPYRIGHT_STR)
 WWWURL	= http://www.libssh2.org/
 DESCR	= libssh2 $(LIBSSH2_VERSION_STR)
 #STACK	= 64000
