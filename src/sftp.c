@@ -1459,9 +1459,8 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
             switch (data[0]) {
             case SSH_FXP_STATUS:
-                /* remove the chunk we just processed keeping track of the
-                 * next one in case we need it */
-                next = _libssh2_list_next(&chunk->node);
+                /* remove the chunk we just processed */
+
                 _libssh2_list_remove(&chunk->node);
                 LIBSSH2_FREE(session, chunk);
 
