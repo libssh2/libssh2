@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2010 by Daniel Stenberg
+ * Copyright (c) 2010-2012 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -384,7 +384,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block sending publickey version packet");
             return NULL;
-        } else if (rc) {
+        } else if (rc < 0) {
             _libssh2_error(session, rc,
                            "Unable to send publickey version packet");
             goto err_exit;
