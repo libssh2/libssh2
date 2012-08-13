@@ -102,7 +102,7 @@ fi
 # Look for libgcrypt
 if test "$ac_cv_libssl" != "yes" && test "$use_libgcrypt" != "no"; then
   AC_LIB_HAVE_LINKFLAGS([gcrypt], [], [#include <gcrypt.h>])
-  LIBSREQUIRED=libgcrypt
+  LIBS="$LIBS -lgcrypt"
 fi
 
 AC_SUBST(LIBSREQUIRED)
