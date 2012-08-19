@@ -167,6 +167,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
     unsigned char macbuf[MAX_MACSIZE];
     struct transportpacket *p = &session->packet;
     int rc;
+    int compressed;
 
     if (session->fullpacket_state == libssh2_NB_state_idle) {
         session->fullpacket_macstate = LIBSSH2_MAC_CONFIRMED;
@@ -199,9 +200,13 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
         session->fullpacket_payload_len -= p->padding_length;
 
         /* Check for and deal with decompression */
-        if (session->remote.comp &&
-            session->remote.comp->compress &&
-            session->remote.comp_abstract) {
+        compressed =
+            session->local.comp != NULL &&
+            session->local.comp->compress &&
+            ((session->state & LIBSSH2_STATE_AUTHENTICATED) ||
+             session->local.comp->use_in_auth);
+
+        if (compressed && session->remote.comp_abstract) {
             /*
              * The buffer for the decompression (remote.comp_abstract) is
              * initialised in time when it is needed so as long it is NULL we
@@ -682,6 +687,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 #endif
     struct transportpacket *p = &session->packet;
     int encrypted;
+    int compressed;
     ssize_t ret;
     int rc;
     const unsigned char *orgdata = data;
@@ -723,7 +729,13 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     encrypted = (session->state & LIBSSH2_STATE_NEWKEYS) ? 1 : 0;
 
-    if (encrypted && session->local.comp->compress) {
+    compressed =
+        session->local.comp != NULL &&
+        session->local.comp->compress &&
+        ((session->state & LIBSSH2_STATE_AUTHENTICATED) ||
+         session->local.comp->use_in_auth);
+
+    if (encrypted && compressed) {
         /* the idea here is that these function must fail if the output gets
            larger than what fits in the assigned buffer so thus they don't
            check the input size as we don't know how much it compresses */

@@ -96,6 +96,7 @@ comp_method_none_decomp(LIBSSH2_SESSION * session,
 static const LIBSSH2_COMP_METHOD comp_method_none = {
     "none",
     0, /* not really compressing */
+    0, /* isn't used in userauth, go figure */
     NULL,
     comp_method_none_comp,
     comp_method_none_decomp,
@@ -330,6 +331,17 @@ comp_method_zlib_dtor(LIBSSH2_SESSION *session, int compr, void **abstract)
 static const LIBSSH2_COMP_METHOD comp_method_zlib = {
     "zlib",
     1, /* yes, this compresses */
+    1, /* do compression during userauth */
+    comp_method_zlib_init,
+    comp_method_zlib_comp,
+    comp_method_zlib_decomp,
+    comp_method_zlib_dtor,
+};
+
+static const LIBSSH2_COMP_METHOD comp_method_zlib_openssh = {
+    "zlib@openssh.com",
+    1, /* yes, this compresses */
+    0, /* don't use compression during userauth */
     comp_method_zlib_init,
     comp_method_zlib_comp,
     comp_method_zlib_decomp,
@@ -342,6 +354,7 @@ static const LIBSSH2_COMP_METHOD comp_method_zlib = {
 static const LIBSSH2_COMP_METHOD *comp_methods[] = {
 #ifdef LIBSSH2_HAVE_ZLIB
     &comp_method_zlib,
+    &comp_method_zlib_openssh,
 #endif /* LIBSSH2_HAVE_ZLIB */
     &comp_method_none,
     NULL

@@ -892,6 +892,7 @@ struct _LIBSSH2_COMP_METHOD
 {
     const char *name;
     int compress; /* 1 if it does compress, 0 if it doesn't */
+    int use_in_auth; /* 1 if compression should be used in userauth */
     int (*init) (LIBSSH2_SESSION *session, int compress, void **abstract);
     int (*comp) (LIBSSH2_SESSION *session,
                  unsigned char *dest,
