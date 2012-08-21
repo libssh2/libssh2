@@ -910,8 +910,11 @@ libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
     file = fopen(filename, "r");
     if(file) {
         while(fgets(buf, sizeof(buf), file)) {
-            if(libssh2_knownhost_readline(hosts, buf, strlen(buf), type))
+            if(libssh2_knownhost_readline(hosts, buf, strlen(buf), type)) {
+                num = _libssh2_error(hosts->session, LIBSSH2_ERROR_KNOWN_HOSTS,
+                                     "Failed to parse known hosts file");
                 break;
+            }
             num++;
         }
         fclose(file);

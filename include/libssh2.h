@@ -405,6 +405,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_SOCKET_RECV               -43
 #define LIBSSH2_ERROR_ENCRYPT                   -44
 #define LIBSSH2_ERROR_BAD_SOCKET                -45
+#define LIBSSH2_ERROR_KNOWN_HOSTS               -46
 
 /* this is a define to provide the old (<= 1.2.7) name */
 #define LIBSSH2_ERROR_BANNER_NONE LIBSSH2_ERROR_BANNER_RECV
