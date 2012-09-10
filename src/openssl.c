@@ -175,8 +175,7 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
     EVP_CIPHER_CTX_init(h);
-    EVP_CipherInit(h, algo(), secret, iv, encrypt);
-    return 0;
+    return !EVP_CipherInit(h, algo(), secret, iv, encrypt);
 }
 
 int
