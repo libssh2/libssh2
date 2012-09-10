@@ -68,7 +68,11 @@
   gcry_md_hash_buffer (GCRY_MD_SHA1, out, message, len)
 
 #define libssh2_md5_ctx gcry_md_hd_t
-#define libssh2_md5_init(ctx) gcry_md_open (ctx,  GCRY_MD_MD5, 0);
+
+/* returns 0 in case of failure */
+#define libssh2_md5_init(ctx) \
+  (GPG_ERR_NO_ERROR == gcry_md_open (ctx,  GCRY_MD_MD5, 0))
+
 #define libssh2_md5_update(ctx, data, len) gcry_md_write (ctx, data, len)
 #define libssh2_md5_final(ctx, out) \
   memcpy (out, gcry_md_read (ctx, 0), MD5_DIGEST_LENGTH), gcry_md_close (ctx)

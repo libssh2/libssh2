@@ -113,7 +113,10 @@
 void libssh2_sha1(const unsigned char *message, unsigned long len, unsigned char *out);
 
 #define libssh2_md5_ctx EVP_MD_CTX
+
+/* returns 0 in case of failure */
 #define libssh2_md5_init(ctx) EVP_DigestInit(ctx, EVP_get_digestbyname("md5"))
+
 #define libssh2_md5_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_md5_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 void libssh2_md5(const unsigned char *message, unsigned long len, unsigned char *out);

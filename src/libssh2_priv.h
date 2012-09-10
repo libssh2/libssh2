@@ -597,6 +597,7 @@ struct _LIBSSH2_SESSION
     uint32_t server_hostkey_len;
 #if LIBSSH2_MD5
     unsigned char server_hostkey_md5[MD5_DIGEST_LENGTH];
+    int server_hostkey_md5_valid;
 #endif                          /* ! LIBSSH2_MD5 */
     unsigned char server_hostkey_sha1[SHA_DIGEST_LENGTH];
 
