@@ -151,9 +151,15 @@ void libssh2_md5(const unsigned char *message, unsigned long len, unsigned char 
 #define _libssh2_cipher_aes256 EVP_aes_256_cbc
 #define _libssh2_cipher_aes192 EVP_aes_192_cbc
 #define _libssh2_cipher_aes128 EVP_aes_128_cbc
+#ifdef HAVE_EVP_AES_128_CTR
+#define _libssh2_cipher_aes128ctr EVP_aes_128_ctr
+#define _libssh2_cipher_aes192ctr EVP_aes_192_ctr
+#define _libssh2_cipher_aes256ctr EVP_aes_256_ctr
+#else
 #define _libssh2_cipher_aes128ctr _libssh2_EVP_aes_128_ctr
 #define _libssh2_cipher_aes192ctr _libssh2_EVP_aes_192_ctr
 #define _libssh2_cipher_aes256ctr _libssh2_EVP_aes_256_ctr
+#endif
 #define _libssh2_cipher_blowfish EVP_bf_cbc
 #define _libssh2_cipher_arcfour EVP_rc4
 #define _libssh2_cipher_cast5 EVP_cast5_cbc
