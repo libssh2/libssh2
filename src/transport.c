@@ -139,7 +139,7 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
     assert((len % blocksize) == 0);
 
     while (len >= blocksize) {
-        if (session->remote.crypt->crypt(session, source,
+        if (session->remote.crypt->crypt(session, source, blocksize,
                                          &session->remote.crypt_abstract)) {
             LIBSSH2_FREE(session, p->payload);
             return LIBSSH2_ERROR_DECRYPT;
@@ -846,6 +846,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         for(i = 0; i < packet_length; i += session->local.crypt->blocksize) {
             unsigned char *ptr = &p->outbuf[i];
             if (session->local.crypt->crypt(session, ptr,
+                                            session->local.crypt->blocksize,
                                             &session->local.crypt_abstract))
                 return LIBSSH2_ERROR_ENCRYPT;     /* encryption failure */
         }

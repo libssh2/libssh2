@@ -181,18 +181,13 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
 int
 _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
                       _libssh2_cipher_type(algo),
-                      int encrypt, unsigned char *block)
+                      int encrypt, unsigned char *block, size_t blocksize)
 {
-    int blocksize = ctx->cipher->block_size;
     unsigned char buf[EVP_MAX_BLOCK_LENGTH];
     int ret;
     (void) algo;
     (void) encrypt;
 
-    if (blocksize == 1) {
-/* Hack for arcfour. */
-        blocksize = 8;
-    }
     ret = EVP_Cipher(ctx, buf, block, blocksize);
     if (ret == 1) {
         memcpy(block, buf, blocksize);

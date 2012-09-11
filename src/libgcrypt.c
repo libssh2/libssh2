@@ -553,16 +553,10 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
 int
 _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
                       _libssh2_cipher_type(algo),
-                      int encrypt, unsigned char *block)
+                      int encrypt, unsigned char *block, size_t blklen)
 {
     int cipher = _libssh2_gcry_cipher (algo);
-    size_t blklen = gcry_cipher_get_algo_blklen(cipher);
     int ret;
-
-    if (blklen == 1) {
-/* Hack for arcfour. */
-        blklen = 8;
-    }
 
     if (encrypt) {
         ret = gcry_cipher_encrypt(*ctx, block, blklen, block, blklen);
