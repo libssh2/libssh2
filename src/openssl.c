@@ -215,12 +215,9 @@ aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
      * variable "c" is leaked from this scope, but is later freed
      * in aes_ctr_cleanup
      */
-    aes_ctr_ctx *c = malloc(sizeof(*c));
+    aes_ctr_ctx *c;
     const EVP_CIPHER *aes_cipher;
     (void) enc;
-
-    if (c == NULL)
-        return 0;
 
     switch (ctx->key_len) {
     case 16:
@@ -235,11 +232,20 @@ aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
     default:
         return 0;
     }
-    c->aes_ctx = malloc(sizeof(EVP_CIPHER_CTX));
-    if (c->aes_ctx == NULL)
+
+    c = malloc(sizeof(*c));
+    if (c == NULL)
         return 0;
 
+    c->aes_ctx = malloc(sizeof(EVP_CIPHER_CTX));
+    if (c->aes_ctx == NULL) {
+        free(c);
+        return 0;
+    }
+
     if (EVP_EncryptInit(c->aes_ctx, aes_cipher, key, NULL) != 1) {
+        free(c->aes_ctx);
+        free(c);
         return 0;
     }
 
