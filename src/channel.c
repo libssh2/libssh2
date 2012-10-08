@@ -1483,10 +1483,11 @@ libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
                                 char **langtag,
                                 size_t *langtag_len)
 {
-    LIBSSH2_SESSION *session = channel->session;
     size_t namelen = 0;
 
     if (channel) {
+        LIBSSH2_SESSION *session = channel->session;
+
         if (channel->exit_signal) {
             namelen = strlen(channel->exit_signal);
             if (exitsignal) {
