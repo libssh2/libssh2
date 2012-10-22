@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
     gettimeofday(&end, NULL);
 
     time_ms = tvdiff(end, start);
-    printf("Got %d bytes in %ld ms = %.1f bytes/sec spin: %d\n", total,
+    fprintf(stderr, "Got %d bytes in %ld ms = %.1f bytes/sec spin: %d\n", total,
            time_ms, total/(time_ms/1000.0), spin );
 
     libssh2_channel_free(channel);

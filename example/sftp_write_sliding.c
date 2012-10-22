@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 
     local = fopen(loclfile, "rb");
     if (!local) {
-        printf("Can't local file %s\n", loclfile);
+        fprintf(stderr, "Can't open local file %s\n", loclfile);
         return -1;
     }
 
@@ -169,18 +169,18 @@ int main(int argc, char *argv[])
      * that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
-    printf("Fingerprint: ");
+    fprintf(stderr, "Fingerprint: ");
     for(i = 0; i < 20; i++) {
-        printf("%02X ", (unsigned char)fingerprint[i]);
+        fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     }
-    printf("\n");
+    fprintf(stderr, "\n");
 
     if (auth_pw) {
         /* We could authenticate via password */
         while ((rc = libssh2_userauth_password(session, username, password)) ==
                LIBSSH2_ERROR_EAGAIN);
         if (rc) {
-            printf("Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
         }
     } else {
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
                                                          password)) ==
                LIBSSH2_ERROR_EAGAIN);
     if (rc) {
-            printf("\tAuthentication by public key failed\n");
+            fprintf(stderr, "\tAuthentication by public key failed\n");
             goto shutdown;
         }
     }
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 
     duration = (int)(time(NULL)-start);
 
-    printf("%ld bytes in %d seconds makes %.1f bytes/sec\n",
+    fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
            total, duration, total/(double)duration);
 
 
@@ -281,7 +281,7 @@ shutdown:
 #else
     close(sock);
 #endif
-    printf("all done\n");
+    fprintf(stderr, "all done\n");
 
     libssh2_exit();
 

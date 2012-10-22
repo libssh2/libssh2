@@ -105,15 +105,15 @@ int main(int argc, char *argv[])
      * call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
-    printf("Fingerprint: ");
+    fprintf(stderr, "Fingerprint: ");
     for(i = 0; i < 20; i++) {
-        printf("%02X ", (unsigned char)fingerprint[i]);
+        fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     }
-    printf("\n");
+    fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username, strlen(username));
-    printf("Authentication methods: %s\n", userauthlist);
+    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if (strstr(userauthlist, "publickey") == NULL) {
         fprintf(stderr, "\"publickey\" authentication is not supported\n");
         goto shutdown;
@@ -147,11 +147,11 @@ int main(int argc, char *argv[])
             goto shutdown;
         }
         if (libssh2_agent_userauth(agent, username, identity)) {
-            printf("\tAuthentication with username %s and "
+            fprintf(stderr, "\tAuthentication with username %s and "
                    "public key %s failed!\n",
                    username, identity->comment);
         } else {
-            printf("\tAuthentication with username %s and "
+            fprintf(stderr, "\tAuthentication with username %s and "
                    "public key %s succeeded!\n",
                    username, identity->comment);
             break;
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
 #endif
     }
 
-    printf("all done!\n");
+    fprintf(stderr, "all done!\n");
 
     libssh2_exit();
 

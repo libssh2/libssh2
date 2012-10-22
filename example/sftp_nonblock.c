@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
 
     gettimeofday(&end, NULL);
     time_ms = tvdiff(end, start);
-    printf("Got %d bytes in %ld ms = %.1f bytes/sec spin: %d\n", total,
+    fprintf(stderr, "Got %d bytes in %ld ms = %.1f bytes/sec spin: %d\n", total,
            time_ms, total/(time_ms/1000.0), spin );
 
     libssh2_sftp_close(sftp_handle);
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    printf("libssh2_session_disconnect\n");
+    fprintf(stderr, "libssh2_session_disconnect\n");
     while (libssh2_session_disconnect(session,
                                       "Normal Shutdown, Thank you") ==
            LIBSSH2_ERROR_EAGAIN);

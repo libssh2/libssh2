@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
 
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username, strlen(username));
-    printf("Authentication methods: %s\n", userauthlist);
+    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if (strstr(userauthlist, "password"))
         auth |= AUTH_PASSWORD;
     if (strstr(userauthlist, "publickey"))
@@ -159,17 +159,17 @@ int main(int argc, char *argv[])
     } else if (auth & AUTH_PUBLICKEY) {
         if (libssh2_userauth_publickey_fromfile(session, username, keyfile1,
                                                 keyfile2, password)) {
-            printf("\tAuthentication by public key failed!\n");
+            fprintf(stderr, "\tAuthentication by public key failed!\n");
             goto shutdown;
         }
-        printf("\tAuthentication by public key succeeded.\n");
+        fprintf(stderr, "\tAuthentication by public key succeeded.\n");
     } else {
-        printf("No supported authentication methods found!\n");
+        fprintf(stderr, "No supported authentication methods found!\n");
         goto shutdown;
     }
 
-    printf("Asking server to listen on remote %s:%d\n", remote_listenhost,
-        remote_wantport);
+    fprintf(stderr, "Asking server to listen on remote %s:%d\n",
+        remote_listenhost, remote_wantport);
 
     listener = libssh2_channel_forward_listen_ex(session, remote_listenhost,
         remote_wantport, &remote_listenport, 1);
@@ -180,10 +180,10 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    printf("Server is listening on %s:%d\n", remote_listenhost,
+    fprintf(stderr, "Server is listening on %s:%d\n", remote_listenhost,
         remote_listenport);
 
-    printf("Waiting for remote connection\n");
+    fprintf(stderr, "Waiting for remote connection\n");
     channel = libssh2_channel_forward_accept(listener);
     if (!channel) {
         fprintf(stderr, "Could not accept connection!\n"
@@ -192,7 +192,8 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    printf("Accepted remote connection. Connecting to local server %s:%d\n",
+    fprintf(stderr,
+        "Accepted remote connection. Connecting to local server %s:%d\n",
         local_destip, local_destport);
     forwardsock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     sin.sin_family = AF_INET;
@@ -206,7 +207,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    printf("Forwarding connection from remote %s:%d to local %s:%d\n",
+    fprintf(stderr, "Forwarding connection from remote %s:%d to local %s:%d\n",
         remote_listenhost, remote_listenport, local_destip, local_destport);
 
     /* Must use non-blocking IO hereafter due to the current libssh2 API */
@@ -228,7 +229,7 @@ int main(int argc, char *argv[])
                 perror("read");
                 goto shutdown;
             } else if (0 == len) {
-                printf("The local server at %s:%d disconnected!\n",
+                fprintf(stderr, "The local server at %s:%d disconnected!\n",
                     local_destip, local_destport);
                 goto shutdown;
             }
@@ -260,7 +261,7 @@ int main(int argc, char *argv[])
                 wr += i;
             }
             if (libssh2_channel_eof(channel)) {
-                printf("The remote client at %s:%d disconnected!\n",
+                fprintf(stderr, "The remote client at %s:%d disconnected!\n",
                     remote_listenhost, remote_listenport);
                 goto shutdown;
             }

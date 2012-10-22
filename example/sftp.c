@@ -55,24 +55,24 @@ static void kbd_callback(const char *name, int name_len,
     char buf[1024];
     (void)abstract;
 
-    printf("Performing keyboard-interactive authentication.\n");
+    fprintf(stderr, "Performing keyboard-interactive authentication.\n");
 
-    printf("Authentication name: '");
-    fwrite(name, 1, name_len, stdout);
-    printf("'\n");
+    fprintf(stderr, "Authentication name: '");
+    fwrite(name, 1, name_len, stderr);
+    fprintf(stderr, "'\n");
 
-    printf("Authentication instruction: '");
-    fwrite(instruction, 1, instruction_len, stdout);
-    printf("'\n");
+    fprintf(stderr, "Authentication instruction: '");
+    fwrite(instruction, 1, instruction_len, stderr);
+    fprintf(stderr, "'\n");
 
-    printf("Number of prompts: %d\n\n", num_prompts);
+    fprintf(stderr, "Number of prompts: %d\n\n", num_prompts);
 
     for (i = 0; i < num_prompts; i++) {
-        printf("Prompt %d from server: '", i);
-        fwrite(prompts[i].text, 1, prompts[i].length, stdout);
-        printf("'\n");
+        fprintf(stderr, "Prompt %d from server: '", i);
+        fwrite(prompts[i].text, 1, prompts[i].length, stderr);
+        fprintf(stderr, "'\n");
 
-        printf("Please type response: ");
+        fprintf(stderr, "Please type response: ");
         fgets(buf, sizeof(buf), stdin);
         n = strlen(buf);
         while (n > 0 && strchr("\r\n", buf[n - 1]))
@@ -82,12 +82,13 @@ static void kbd_callback(const char *name, int name_len,
         responses[i].text = strdup(buf);
         responses[i].length = n;
 
-        printf("Response %d from user is '", i);
-        fwrite(responses[i].text, 1, responses[i].length, stdout);
-        printf("'\n\n");
+        fprintf(stderr, "Response %d from user is '", i);
+        fwrite(responses[i].text, 1, responses[i].length, stderr);
+        fprintf(stderr, "'\n\n");
     }
 
-    printf("Done. Sending keyboard-interactive responses to server now.\n");
+    fprintf(stderr,
+        "Done. Sending keyboard-interactive responses to server now.\n");
 }
 
 
@@ -127,7 +128,7 @@ int main(int argc, char *argv[])
 
     rc = libssh2_init (0);
     if (rc != 0) {
-        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+        fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
 
@@ -178,7 +179,7 @@ int main(int argc, char *argv[])
 
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username, strlen(username));
-    printf("Authentication methods: %s\n", userauthlist);
+    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if (strstr(userauthlist, "password") != NULL) {
         auth_pw |= 1;
     }
@@ -211,21 +212,23 @@ int main(int argc, char *argv[])
     } else if (auth_pw & 2) {
         /* Or via keyboard-interactive */
         if (libssh2_userauth_keyboard_interactive(session, username, &kbd_callback) ) {
-            printf("\tAuthentication by keyboard-interactive failed!\n");
+            fprintf(stderr,
+                "\tAuthentication by keyboard-interactive failed!\n");
             goto shutdown;
         } else {
-            printf("\tAuthentication by keyboard-interactive succeeded.\n");
+            fprintf(stderr,
+                "\tAuthentication by keyboard-interactive succeeded.\n");
         }
     } else if (auth_pw & 4) {
         /* Or by public key */
         if (libssh2_userauth_publickey_fromfile(session, username, keyfile1, keyfile2, password)) {
-            printf("\tAuthentication by public key failed!\n");
+            fprintf(stderr, "\tAuthentication by public key failed!\n");
             goto shutdown;
         } else {
-            printf("\tAuthentication by public key succeeded.\n");
+            fprintf(stderr, "\tAuthentication by public key succeeded.\n");
         }
     } else {
-        printf("No supported authentication methods found!\n");
+        fprintf(stderr, "No supported authentication methods found!\n");
         goto shutdown;
     }
 

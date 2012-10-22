@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username, strlen(username));
-    printf("Authentication methods: %s\n", userauthlist);
+    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if (strstr(userauthlist, "password"))
         auth |= AUTH_PASSWORD;
     if (strstr(userauthlist, "publickey"))
@@ -157,12 +157,12 @@ int main(int argc, char *argv[])
     } else if (auth & AUTH_PUBLICKEY) {
         if (libssh2_userauth_publickey_fromfile(session, username, keyfile1,
                                                 keyfile2, password)) {
-            printf("\tAuthentication by public key failed!\n");
+            fprintf(stderr, "\tAuthentication by public key failed!\n");
             goto shutdown;
         }
-        printf("\tAuthentication by public key succeeded.\n");
+        fprintf(stderr, "\tAuthentication by public key succeeded.\n");
     } else {
-        printf("No supported authentication methods found!\n");
+        fprintf(stderr, "No supported authentication methods found!\n");
         goto shutdown;
     }
 
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    printf("Waiting for TCP connection on %s:%d...\n",
+    fprintf(stderr, "Waiting for TCP connection on %s:%d...\n",
         inet_ntoa(sin.sin_addr), ntohs(sin.sin_port));
 
     forwardsock = accept(listensock, (struct sockaddr *)&sin, &sinlen);
@@ -197,8 +197,8 @@ int main(int argc, char *argv[])
     shost = inet_ntoa(sin.sin_addr);
     sport = ntohs(sin.sin_port);
 
-    printf("Forwarding connection from %s:%d here to remote %s:%d\n", shost,
-        sport, remote_desthost, remote_destport);
+    fprintf(stderr, "Forwarding connection from %s:%d here to remote %s:%d\n",
+        shost, sport, remote_desthost, remote_destport);
 
     channel = libssh2_channel_direct_tcpip_ex(session, remote_desthost,
         remote_destport, shost, sport);
@@ -228,7 +228,8 @@ int main(int argc, char *argv[])
                 perror("read");
                 goto shutdown;
             } else if (0 == len) {
-                printf("The client at %s:%d disconnected!\n", shost, sport);
+                fprintf(stderr, "The client at %s:%d disconnected!\n", shost,
+                    sport);
                 goto shutdown;
             }
             wr = 0;
@@ -259,7 +260,7 @@ int main(int argc, char *argv[])
                 wr += i;
             }
             if (libssh2_channel_eof(channel)) {
-                printf("The server at %s:%d disconnected!\n",
+                fprintf(stderr, "The server at %s:%d disconnected!\n",
                     remote_desthost, remote_destport);
                 goto shutdown;
             }

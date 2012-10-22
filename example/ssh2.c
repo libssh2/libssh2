@@ -126,15 +126,15 @@ int main(int argc, char *argv[])
      * call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
-    printf("Fingerprint: ");
+    fprintf(stderr, "Fingerprint: ");
     for(i = 0; i < 20; i++) {
-        printf("%02X ", (unsigned char)fingerprint[i]);
+        fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     }
-    printf("\n");
+    fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username, strlen(username));
-    printf("Authentication methods: %s\n", userauthlist);
+    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if (strstr(userauthlist, "password") != NULL) {
         auth_pw |= 1;
     }
@@ -161,31 +161,33 @@ int main(int argc, char *argv[])
     if (auth_pw & 1) {
         /* We could authenticate via password */
         if (libssh2_userauth_password(session, username, password)) {
-            printf("\tAuthentication by password failed!\n");
+            fprintf(stderr, "\tAuthentication by password failed!\n");
             goto shutdown;
         } else {
-            printf("\tAuthentication by password succeeded.\n");
+            fprintf(stderr, "\tAuthentication by password succeeded.\n");
         }
     } else if (auth_pw & 2) {
         /* Or via keyboard-interactive */
         if (libssh2_userauth_keyboard_interactive(session, username,
                                                   &kbd_callback) ) {
-            printf("\tAuthentication by keyboard-interactive failed!\n");
+            fprintf(stderr,
+                "\tAuthentication by keyboard-interactive failed!\n");
             goto shutdown;
         } else {
-            printf("\tAuthentication by keyboard-interactive succeeded.\n");
+            fprintf(stderr,
+                "\tAuthentication by keyboard-interactive succeeded.\n");
         }
     } else if (auth_pw & 4) {
         /* Or by public key */
         if (libssh2_userauth_publickey_fromfile(session, username, keyfile1,
                                                 keyfile2, password)) {
-            printf("\tAuthentication by public key failed!\n");
+            fprintf(stderr, "\tAuthentication by public key failed!\n");
             goto shutdown;
         } else {
-            printf("\tAuthentication by public key succeeded.\n");
+            fprintf(stderr, "\tAuthentication by public key succeeded.\n");
         }
     } else {
-        printf("No supported authentication methods found!\n");
+        fprintf(stderr, "No supported authentication methods found!\n");
         goto shutdown;
     }
 
@@ -250,7 +252,7 @@ int main(int argc, char *argv[])
 #else
     close(sock);
 #endif
-    printf("all done!\n");
+    fprintf(stderr, "all done!\n");
 
     libssh2_exit();
 

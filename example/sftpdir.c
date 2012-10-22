@@ -130,16 +130,16 @@ int main(int argc, char *argv[])
      * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
-    printf("Fingerprint: ");
+    fprintf(stderr, "Fingerprint: ");
     for(i = 0; i < 20; i++) {
-        printf("%02X ", (unsigned char)fingerprint[i]);
+        fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     }
-    printf("\n");
+    fprintf(stderr, "\n");
 
     if (auth_pw) {
         /* We could authenticate via password */
         if (libssh2_userauth_password(session, username, password)) {
-            printf("Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
         }
     } else {
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
                             "/home/username/.ssh/id_rsa.pub",
                             "/home/username/.ssh/id_rsa",
                             password)) {
-            printf("\tAuthentication by public key failed\n");
+            fprintf(stderr, "\tAuthentication by public key failed\n");
             goto shutdown;
         }
     }
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 #else
     close(sock);
 #endif
-    printf("all done\n");
+    fprintf(stderr, "all done\n");
 
     libssh2_exit();
 

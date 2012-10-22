@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
 
     duration = (int)(time(NULL)-start);
 
-    printf("%ld bytes in %d seconds makes %.1f bytes/sec\n",
+    fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
            total, duration, total/(double)duration);
 
     fprintf(stderr, "Sending EOF\n");

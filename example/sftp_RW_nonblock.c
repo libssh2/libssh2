@@ -141,11 +141,11 @@ int main(int argc, char *argv[])
      * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
-    printf("Fingerprint: ");
+    fprintf(stderr, "Fingerprint: ");
     for(i = 0; i < 20; i++) {
-        printf("%02X ", (unsigned char)fingerprint[i]);
+        fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     }
-    printf("\n");
+    fprintf(stderr, "\n");
 
     if(argc > 1) {
         username = argv[1];
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
 
     tempstorage = fopen(STORAGE, "wb");
     if(!tempstorage) {
-        printf("Can't open temp storage file %s\n", STORAGE);
+        fprintf(stderr, "Can't open temp storage file %s\n", STORAGE);
         goto shutdown;
     }
 
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
         while ((rc = libssh2_userauth_password(session, username, password))
                == LIBSSH2_ERROR_EAGAIN);
         if (rc) {
-            printf("Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
         }
     } else {
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
                                                     password)) ==
                LIBSSH2_ERROR_EAGAIN);
         if (rc) {
-            printf("\tAuthentication by public key failed\n");
+            fprintf(stderr, "\tAuthentication by public key failed\n");
             goto shutdown;
         }
     }
@@ -341,7 +341,7 @@ int main(int argc, char *argv[])
 #endif
     if (tempstorage)
         fclose(tempstorage);
-    printf("all done\n");
+    fprintf(stderr, "all done\n");
 
     libssh2_exit();
 
