@@ -21,8 +21,9 @@ DLLFLAGS=/DEBUG /LD
 
 CPPFLAGS=/nologo /GL /Zi /EHsc $(CPPFLAGS) /Iwin32 /Iinclude /I$(OPENSSLINC) $(ZLIBINC) -DLIBSSH2_WIN32
 CFLAGS=$(CPPFLAGS)
+RCFLAGS=/Iinclude
 DLLFLAGS=$(CFLAGS) $(DLLFLAGS)
-LIBS=$(OPENSSLLIB)\libeay32.lib $(OPENSSLLIB)\ssleay32.lib ws2_32.lib $(ZLIBLIB)\zlib.lib
+LIBS=$(OPENSSLLIB)\libeay32.lib $(OPENSSLLIB)\ssleay32.lib ws2_32.lib user32.lib $(ZLIBLIB)\zlib.lib
 
 INTDIR=$(TARGET)\$(SUBDIR)
 

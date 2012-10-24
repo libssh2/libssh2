@@ -7,13 +7,13 @@ all-sub:
 	-for %D in ($(SUBDIRS)) do $(MAKE) /nologo /f %D/NMakefile BUILD=$(BUILD) SUBDIR=%D all-sub
 
 clean: 
-	-rmdir /s/q $(TARGET)
+	-rmdir 2>NUL /s/q $(TARGET)
 
-real-clean: clean
-	-del libssh2.dll
-	-del libssh2.exp
-	-del libssh2.ilk
-	-del libssh2.lib
-	-del *.pdb
+real-clean vclean: clean
+	-del 2>NUL libssh2.dll
+	-del 2>NUL libssh2.exp
+	-del 2>NUL libssh2.ilk
+	-del 2>NUL libssh2.lib
+	-del 2>NUL *.pdb
 
 

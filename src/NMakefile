@@ -3,6 +3,7 @@
 CFLAGS=$(CFLAGS)
 
 OBJECTS = \
+	$(INTDIR)\agent.obj \
 	$(INTDIR)\channel.obj \
 	$(INTDIR)\comp.obj \
 	$(INTDIR)\crypt.obj \
@@ -10,6 +11,7 @@ OBJECTS = \
 	$(INTDIR)\hostkey.obj \
 	$(INTDIR)\keepalive.obj \
 	$(INTDIR)\kex.obj \
+	$(INTDIR)\knownhost.obj \
 	$(INTDIR)\mac.obj \
 	$(INTDIR)\misc.obj \
 	$(INTDIR)\openssl.obj \
@@ -20,14 +22,20 @@ OBJECTS = \
 	$(INTDIR)\session.obj \
 	$(INTDIR)\sftp.obj \
 	$(INTDIR)\transport.obj \
-	$(INTDIR)\userauth.obj
+	$(INTDIR)\userauth.obj \
+	$(INTDIR)\version.obj
+
+RESOURCE=$(INTDIR)\libssh2.res
 
 DLL=libssh2$(SUFFIX).dll
 
-$(DLL): $(OBJECTS)
-	$(CC) -o $(DLL) $(DLLFLAGS) $(OBJECTS) $(LIBS)
-
 all: $(DLL)
+
+$(DLL): $(OBJECTS) $(RESOURCE)
+	$(CC) -o $(DLL) $(DLLFLAGS) $(OBJECTS) $(RESOURCE) $(LIBS)
+
+$(RESOURCE): win32\libssh2.rc
+	$(RC) $(RCFLAGS) /Fo"$@" $?
 
 !include "win32/rules.mk"
 
