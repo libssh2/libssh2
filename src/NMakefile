@@ -1,29 +1,8 @@
 !include "win32/config.mk"
 
-CFLAGS=$(CFLAGS)
+!include "win32/objects.mk"
 
-OBJECTS = \
-	$(INTDIR)\agent.obj \
-	$(INTDIR)\channel.obj \
-	$(INTDIR)\comp.obj \
-	$(INTDIR)\crypt.obj \
-	$(INTDIR)\global.obj \
-	$(INTDIR)\hostkey.obj \
-	$(INTDIR)\keepalive.obj \
-	$(INTDIR)\kex.obj \
-	$(INTDIR)\knownhost.obj \
-	$(INTDIR)\mac.obj \
-	$(INTDIR)\misc.obj \
-	$(INTDIR)\openssl.obj \
-	$(INTDIR)\packet.obj \
-	$(INTDIR)\pem.obj \
-	$(INTDIR)\publickey.obj \
-	$(INTDIR)\scp.obj \
-	$(INTDIR)\session.obj \
-	$(INTDIR)\sftp.obj \
-	$(INTDIR)\transport.obj \
-	$(INTDIR)\userauth.obj \
-	$(INTDIR)\version.obj
+CFLAGS=$(CFLAGS)
 
 RESOURCE=$(INTDIR)\libssh2.res
 
