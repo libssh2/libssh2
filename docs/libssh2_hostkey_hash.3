@@ -18,8 +18,9 @@ Returns the computed digest of the remote system's hostkey. The length of
 the returned string is hash_type specific (e.g. 16 bytes for MD5, 
 20 bytes for SHA1).
 .SH RETURN VALUE
-Computed hostkey hash value. or NULL if the session has not yet been started 
-up. (The hash consists of raw binary bytes, not hex digits, so is not 
-directly printable.)
+Computed hostkey hash value, or NULL if the information is not available
+(either the session has not yet been started up, or the requested hash
+algorithm was not available). The hash consists of raw binary bytes, not hex
+digits, so it is not directly printable.
 .SH SEE ALSO
 .BR libssh2_session_init_ex(3)
