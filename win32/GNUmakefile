@@ -122,7 +122,7 @@ CFLAGS	+= -w on,nounused,nounusedexpr # -ansi strict
 else
 LD	= $(CROSSPREFIX)gcc
 RC	= $(CROSSPREFIX)windres
-LDFLAGS	= -s -shared -Wl,--out-implib,$(TARGET)dll.a
+LDFLAGS	= -s -shared -Wl,--output-def,$(TARGET).def,--out-implib,$(TARGET)dll.a
 AR	= $(CROSSPREFIX)ar
 ARFLAGS	= -cq
 LIBEXT	= a
@@ -249,7 +249,7 @@ testclean: clean
 
 clean:
 #	$(call DEL, libssh2_config.h)
-	$(call DEL, $(TARGET).dll $(TARGET).$(LIBEXT) $(TARGET)dll.$(LIBEXT))
+	$(call DEL, $(TARGET).dll $(TARGET).def $(TARGET).$(LIBEXT) $(TARGET)dll.$(LIBEXT))
 	$(call RMDIR, $(OBJDIR))
 
 $(OBJDIR):
