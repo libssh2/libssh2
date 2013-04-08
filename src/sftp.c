@@ -2752,7 +2752,7 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
                               "Error waiting for FXP EXTENDED REPLY");
     } else if (data_len < 93) {
         LIBSSH2_FREE(session, data);
-        sftp->fstatvfs_state = libssh2_NB_state_idle;
+        sftp->statvfs_state = libssh2_NB_state_idle;
         return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                               "SFTP Protocol Error: short response");
     }
