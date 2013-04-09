@@ -986,6 +986,10 @@ sftp_shutdown(LIBSSH2_SFTP *sftp)
         LIBSSH2_FREE(session, sftp->symlink_packet);
         sftp->symlink_packet = NULL;
     }
+    if (sftp->fsync_packet) {
+        LIBSSH2_FREE(session, sftp->fsync_packet);
+        sftp->fsync_packet = NULL;
+    }
 
     sftp_packet_flush(sftp);
 
@@ -2013,6 +2017,99 @@ libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *hnd, const char *buffer,
     return rc;
 
 }
+
+static int sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
+{
+    LIBSSH2_SFTP *sftp = handle->sftp;
+    LIBSSH2_CHANNEL *channel = sftp->channel;
+    LIBSSH2_SESSION *session = channel->session;
+    /* 34 = packet_len(4) + packet_type(1) + request_id(4) +
+       string_len(4) + strlen("fsync@openssh.com")(17) + handle_len(4) */
+    uint32_t packet_len = handle->handle_len + 34;
+    size_t data_len;
+    unsigned char *packet, *s, *data;
+    ssize_t rc;
+    uint32_t retcode;
+
+    if (sftp->fsync_state == libssh2_NB_state_idle) {
+        _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
+                       "Issuing fsync command");
+        s = packet = LIBSSH2_ALLOC(session, packet_len);
+        if (!packet) {
+            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for FXP_EXTENDED "
+                                  "packet");
+        }
+
+        _libssh2_store_u32(&s, packet_len - 4);
+        *(s++) = SSH_FXP_EXTENDED;
+        sftp->fsync_request_id = sftp->request_id++;
+        _libssh2_store_u32(&s, sftp->fsync_request_id);
+        _libssh2_store_str(&s, "fsync@openssh.com", 17);
+        _libssh2_store_str(&s, handle->handle, handle->handle_len);
+
+        sftp->fsync_state = libssh2_NB_state_created;
+    } else {
+        packet = sftp->fsync_packet;
+    }
+
+    if (sftp->fsync_state == libssh2_NB_state_created) {
+        rc = _libssh2_channel_write(channel, 0, packet, packet_len);
+        if (rc == LIBSSH2_ERROR_EAGAIN ||
+            (0 <= rc && rc < (ssize_t)packet_len)) {
+            sftp->fsync_packet = packet;
+            return LIBSSH2_ERROR_EAGAIN;
+        }
+
+        LIBSSH2_FREE(session, packet);
+        sftp->fsync_packet = NULL;
+
+        if (rc < 0) {
+            sftp->fsync_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                                  "_libssh2_channel_write() failed");
+        }
+        sftp->fsync_state = libssh2_NB_state_sent;
+    }
+
+    rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
+                             sftp->fsync_request_id, &data, &data_len);
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
+        return rc;
+    } else if (rc) {
+        sftp->fsync_state = libssh2_NB_state_idle;
+        return _libssh2_error(session, rc,
+                              "Error waiting for FXP EXTENDED REPLY");
+    }
+
+    sftp->fsync_state = libssh2_NB_state_idle;
+
+    retcode = _libssh2_ntohu32(data + 5);
+    LIBSSH2_FREE(session, data);
+
+    if (retcode != LIBSSH2_FX_OK) {
+        sftp->last_errno = retcode;
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                              "fsync failed");
+    }
+
+    return 0;
+}
+
+/* libssh2_sftp_fsync
+ * Commit data on the handle to disk.
+ */
+LIBSSH2_API int
+libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE *hnd)
+{
+    int rc;
+    if(!hnd)
+        return LIBSSH2_ERROR_BAD_USE;
+    BLOCK_ADJUST(rc, hnd->sftp->channel->session,
+                 sftp_fsync(hnd));
+    return rc;
+}
+
 
 /*
  * sftp_fstat
