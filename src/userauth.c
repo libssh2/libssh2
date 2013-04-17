@@ -276,13 +276,13 @@ userauth_password(LIBSSH2_SESSION *session,
                                           0, NULL, 0,
                                           &session->
                                           userauth_pswd_packet_requirev_state);
-            if (rc == LIBSSH2_ERROR_EAGAIN) {
-                return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                                      "Would block waiting");
-            } else if (rc) {
-                session->userauth_pswd_state = libssh2_NB_state_idle;
-                return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
-                                      "Would block waiting");
+
+            if (rc) {
+                if (rc != LIBSSH2_ERROR_EAGAIN)
+                    session->userauth_pswd_state = libssh2_NB_state_idle;
+
+                return _libssh2_error(session, rc,
+                                      "Waiting for password response");
             }
 
             if (session->userauth_pswd_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
