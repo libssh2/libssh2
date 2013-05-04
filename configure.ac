@@ -2,7 +2,7 @@
 AC_INIT(libssh2, [-], libssh2-devel@cool.haxx.se)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src])
-AM_CONFIG_HEADER([src/libssh2_config.h example/libssh2_config.h])
+AC_CONFIG_HEADERS([src/libssh2_config.h example/libssh2_config.h])
 AM_MAINTAINER_MODE
 
 dnl SED is needed by some of the tools
