@@ -652,6 +652,7 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
         return NULL;
     }
     memset(agent, 0, sizeof *agent);
+    agent->fd = LIBSSH2_INVALID_SOCKET;
     agent->session = session;
     _libssh2_list_init(&agent->head);
 
