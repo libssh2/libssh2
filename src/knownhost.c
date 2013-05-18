@@ -988,7 +988,7 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
                                       node->salt, node->salt_len,
                                       &saltalloc);
         if(!nlen) {
-            free(namealloc);
+            LIBSSH2_FREE(hosts->session, namealloc);
             return _libssh2_error(hosts->session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory for "
                                   "base64-encoded salt");
@@ -1009,8 +1009,8 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
             rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                 "Known-host write buffer too small");
 
-        free(namealloc);
-        free(saltalloc);
+        LIBSSH2_FREE(hosts->session, namealloc);
+        LIBSSH2_FREE(hosts->session, saltalloc);
     }
     else {
         nlen = strlen(node->name) + strlen(keytype) + strlen(node->key) +
