@@ -92,6 +92,9 @@ AC_ARG_WITH(openssl,
 AC_ARG_WITH(libz,
   AC_HELP_STRING([--with-libz],[Use Libz for compression]),
   use_libz=$withval,use_libz=auto)
+AC_ARG_WITH(wincng,
+  AC_HELP_STRING([--with-wincng],[Use Windows CNG crypto]),
+  use_wincng=$withval,use_wincng=auto)
 
 # Look for OpenSSL (default)
 if test "$use_openssl" != "no" && test "$use_libgcrypt" != "yes"; then
@@ -102,20 +105,44 @@ fi
 # Look for libgcrypt
 if test "$ac_cv_libssl" != "yes" && test "$use_libgcrypt" != "no"; then
   AC_LIB_HAVE_LINKFLAGS([gcrypt], [], [#include <gcrypt.h>])
-  LIBS="$LIBS -lgcrypt"
+fi
+
+# Look for Windows Cryptography API: Next Generation
+if test "$ac_cv_libssl" != "yes" && test "$use_wincng" != "no"; then
+  AC_LIB_HAVE_LINKFLAGS([bcrypt], [], [
+    #include <windows.h>
+    #include <bcrypt.h>
+  ])
+  AC_LIB_HAVE_LINKFLAGS([crypt32], [], [
+    #include <windows.h>
+    #include <wincrypt.h>
+  ])
+  AC_CHECK_HEADERS([ntdef.h ntstatus.h], [], [], [
+    #include <windows.h>
+  ])
 fi
 
 AC_SUBST(LIBSREQUIRED)
 
-if test "$ac_cv_libssl" != "yes" && test "$ac_cv_libgcrypt" != "yes"; then
-  AC_MSG_ERROR([cannot find OpenSSL or Libgcrypt,
+if test "$ac_cv_libssl" != "yes" && test "$ac_cv_libgcrypt" != "yes" && test "$ac_cv_libbcrypt" != "yes"; then
+  AC_MSG_ERROR([cannot find OpenSSL or Libgcrypt or Windows CNG,
 try --with-libssl-prefix=PATH or --with-libgcrypt-prefix=PATH])
 fi
 
 if test "$ac_cv_libgcrypt" = "yes"; then
   AC_DEFINE(LIBSSH2_LIBGCRYPT, 1, [Use libgcrypt])
+  LIBS="$LIBS -lgcrypt"
 fi
 AM_CONDITIONAL(LIBGCRYPT, test "$ac_cv_libgcrypt" = "yes")
+
+if test "$ac_cv_libbcrypt" = "yes"; then
+  AC_DEFINE(LIBSSH2_WINCNG, 1, [Use Windows CNG])
+  LIBS="$LIBS -lbcrypt"
+  if test "$ac_cv_libcrypt32" = "yes"; then
+    LIBS="$LIBS -lcrypt32"
+  fi
+fi
+AM_CONDITIONAL(WINCNG, test "$ac_cv_libbcrypt" = "yes")
 
 # Not all OpenSSL have AES-CTR functions.
 if test "$ac_cv_libssl" = "yes"; then
@@ -152,6 +179,13 @@ AC_ARG_ENABLE(gex-new,
   [GEX_NEW=$enableval])
 if test "$GEX_NEW" != "no"; then
   AC_DEFINE(LIBSSH2_DH_GEX_NEW, 1, [Enable newer diffie-hellman-group-exchange-sha1 syntax])
+fi
+
+AC_ARG_ENABLE(memory-overwrite,
+  AC_HELP_STRING([--disable-memory-overwrite],[Disable memory overwrite before being freed]),
+  [MEMORY_OVERWRITE=$enableval])
+if test "$MEMORY_OVERWRITE" != "no"; then
+  AC_DEFINE(LIBSSH2_MEMORY_OVERWRITE, 1, [Enable memory overwrite before being freed])
 fi
 
 dnl ************************************************************
@@ -239,7 +273,7 @@ AM_CONDITIONAL([BUILD_EXAMPLES], [test "x$build_examples" != "xno"])
 # AC_HEADER_STDC
 AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h])
 AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
-AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
+AC_CHECK_HEADERS([arpa/inet.h netinet/in.h math.h])
 AC_CHECK_HEADERS([sys/un.h], [have_sys_un_h=yes], [have_sys_un_h=no])
 AM_CONDITIONAL([HAVE_SYS_UN_H], test "x$have_sys_un_h" = xyes)
 
@@ -318,7 +352,7 @@ AC_MSG_NOTICE([summary of build options:
   Compiler:         ${CC}
   Compiler flags:   ${CFLAGS}
   Library types:    Shared=${enable_shared}, Static=${enable_static}
-  Crypto library:   openssl: ${ac_cv_libssl:-no} (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A}) libgcrypt: ${ac_cv_libgcrypt:-no}
+  Crypto library:   openssl: ${ac_cv_libssl:-no} (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A}) libgcrypt: ${ac_cv_libgcrypt:-no} wincng: ${ac_cv_libbcrypt:-no}
   Debug build:      $enable_debug
   Build examples:   $build_examples
   Path to sshd:     $ac_cv_path_SSHD (only for self-tests)

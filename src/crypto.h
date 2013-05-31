@@ -41,7 +41,11 @@
 #ifdef LIBSSH2_LIBGCRYPT
 #include "libgcrypt.h"
 #else
+#ifdef LIBSSH2_WINCNG
+#include "wincng.h"
+#else
 #include "openssl.h"
+#endif
 #endif
 
 int _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
