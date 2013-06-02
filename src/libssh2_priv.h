@@ -134,7 +134,6 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
 #ifdef HAVE_WINSOCK2_H
 
 #include <winsock2.h>
-#include <mswsock.h>
 #include <ws2tcpip.h>
 
 #ifdef _MSC_VER
