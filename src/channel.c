@@ -606,6 +606,7 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
     size_t packet_len =
         host_len + 14 + sizeof("cancel-tcpip-forward") - 1;
     int rc;
+    int retcode = 0;
 
     if (listener->chanFwdCncl_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
@@ -644,9 +645,11 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
             _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                            "Unable to send global-request packet for forward "
                            "listen request");
-            LIBSSH2_FREE(session, packet);
-            listener->chanFwdCncl_state = libssh2_NB_state_idle;
-            return LIBSSH2_ERROR_SOCKET_SEND;
+            /* set the state to something we don't check for, for the
+               unfortunate situation where we get an EAGAIN further down
+               when trying to bail out due to errors! */
+            listener->chanFwdCncl_state = libssh2_NB_state_sent;
+            retcode = LIBSSH2_ERROR_SOCKET_SEND;
         }
         LIBSSH2_FREE(session, packet);
 
@@ -670,7 +673,7 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
 
     LIBSSH2_FREE(session, listener);
 
-    return 0;
+    return retcode;
 }
 
 /*
