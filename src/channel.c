@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2005 Mikhail Gusarov <dottedmag@dottedmag.net>
- * Copyright (c) 2008-2011 by Daniel Stenberg
+ * Copyright (c) 2008-2013 by Daniel Stenberg
  *
  * All rights reserved.
  *
@@ -669,8 +669,6 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
     _libssh2_list_remove(&listener->node);
 
     LIBSSH2_FREE(session, listener);
-
-    listener->chanFwdCncl_state = libssh2_NB_state_idle;
 
     return 0;
 }
