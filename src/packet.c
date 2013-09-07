@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2005,2006 Mikhail Gusarov
- * Copyright (c) 2009-2010 by Daniel Stenberg
+ * Copyright (c) 2009-2013 by Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson
  * All rights reserved.
  *
@@ -583,7 +583,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
 
                 if (want_reply) {
-                    unsigned char packet = SSH_MSG_REQUEST_FAILURE;
+                    static const unsigned char packet =
+                        SSH_MSG_REQUEST_FAILURE;
                   libssh2_packet_add_jump_point5:
                     session->packAdd_state = libssh2_NB_state_jump5;
                     rc = _libssh2_transport_send(session, &packet, 1, NULL, 0);
