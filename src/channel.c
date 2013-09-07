@@ -2013,9 +2013,17 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         if((rc < 0) && (rc != LIBSSH2_ERROR_EAGAIN))
             return rc;
 
-        if(channel->local.window_size <= 0)
+        if(channel->local.window_size <= 0) {
             /* there's no room for data so we stop */
+
+            /* Waiting on the socket to be writable would be wrong because we
+             * would be back here immediately, but a readable socket might
+             * herald an incoming window adjustment.
+             */
+            session->socket_block_directions = LIBSSH2_SESSION_BLOCK_INBOUND;
+
             return (rc==LIBSSH2_ERROR_EAGAIN?rc:0);
+        }
 
         channel->write_bufwrite = buflen;
 
