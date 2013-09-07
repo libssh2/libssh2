@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2007 Eli Fant <elifantu@mail.ru>
- * Copyright (c) 2009-2012 by Daniel Stenberg
+ * Copyright (c) 2009-2013 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -2683,6 +2683,8 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
     unsigned char *packet, *s, *data;
     ssize_t rc;
     unsigned int flag;
+    static const unsigned char responses[2] =
+        { SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS };
 
     if (sftp->fstatvfs_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
@@ -2726,15 +2728,27 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
         sftp->fstatvfs_state = libssh2_NB_state_sent;
     }
 
-    rc = sftp_packet_require(sftp, SSH_FXP_EXTENDED_REPLY,
-                             sftp->fstatvfs_request_id, &data, &data_len);
+    rc = sftp_packet_requirev(sftp, 2, responses, sftp->fstatvfs_request_id,
+                              &data, &data_len);
+
     if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     } else if (rc) {
         sftp->fstatvfs_state = libssh2_NB_state_idle;
         return _libssh2_error(session, rc,
                               "Error waiting for FXP EXTENDED REPLY");
-    } else if (data_len < 93) {
+    }
+
+    if (data[0] == SSH_FXP_STATUS) {
+        int retcode = _libssh2_ntohu32(data + 5);
+        sftp->fstatvfs_state = libssh2_NB_state_idle;
+        LIBSSH2_FREE(session, data);
+        sftp->last_errno = retcode;
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                              "SFTP Protocol Error");
+    }
+
+    if (data_len < 93) {
         LIBSSH2_FREE(session, data);
         sftp->fstatvfs_state = libssh2_NB_state_idle;
         return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
@@ -2756,9 +2770,9 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
     st->f_namemax = _libssh2_ntohu64(data + 85);
 
     st->f_flag = (flag & SSH_FXE_STATVFS_ST_RDONLY)
-                  ? LIBSSH2_SFTP_ST_RDONLY : 0;
+        ? LIBSSH2_SFTP_ST_RDONLY : 0;
     st->f_flag |= (flag & SSH_FXE_STATVFS_ST_NOSUID)
-                  ? LIBSSH2_SFTP_ST_NOSUID : 0;
+        ? LIBSSH2_SFTP_ST_NOSUID : 0;
 
     LIBSSH2_FREE(session, data);
     return 0;
@@ -2796,6 +2810,8 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
     unsigned char *packet, *s, *data;
     ssize_t rc;
     unsigned int flag;
+    static const unsigned char responses[2] =
+        { SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS };
 
     if (sftp->statvfs_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
@@ -2839,15 +2855,26 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
         sftp->statvfs_state = libssh2_NB_state_sent;
     }
 
-    rc = sftp_packet_require(sftp, SSH_FXP_EXTENDED_REPLY,
-                             sftp->statvfs_request_id, &data, &data_len);
+    rc = sftp_packet_requirev(sftp, 2, responses, sftp->statvfs_request_id,
+                              &data, &data_len);
     if (rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     } else if (rc) {
         sftp->statvfs_state = libssh2_NB_state_idle;
         return _libssh2_error(session, rc,
                               "Error waiting for FXP EXTENDED REPLY");
-    } else if (data_len < 93) {
+    }
+
+    if (data[0] == SSH_FXP_STATUS) {
+        int retcode = _libssh2_ntohu32(data + 5);
+        sftp->statvfs_state = libssh2_NB_state_idle;
+        LIBSSH2_FREE(session, data);
+        sftp->last_errno = retcode;
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                              "SFTP Protocol Error");
+    }
+
+    if (data_len < 93) {
         LIBSSH2_FREE(session, data);
         sftp->statvfs_state = libssh2_NB_state_idle;
         return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
