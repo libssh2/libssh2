@@ -38,8 +38,7 @@
 
 #include "libssh2_priv.h"
 
-/* compile only if we build with libgcrypt or wincng */
-#if defined(LIBSSH2_LIBGCRYPT) || defined(LIBSSH2_WINCNG)
+#ifdef LIBSSH2_LIBGCRYPT /* compile only if we build with libgcrypt */
 
 static int
 readline(char *line, int line_size, FILE * fp)
@@ -113,11 +112,6 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
     }
     return ret;
 }
-
-#endif /* LIBSSH2_LIBGCRYPT or LIBSSH2_WINCNG */
-
-/* compile only if we build with libgcrypt */
-#ifdef LIBSSH2_LIBGCRYPT
 
 static int
 read_asn1_length(const unsigned char *data,
