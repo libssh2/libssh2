@@ -83,12 +83,12 @@ dnl check for how to do large files
 AC_SYS_LARGEFILE
 
 # Configure parameters
-AC_ARG_WITH(libgcrypt,
-  AC_HELP_STRING([--with-libgcrypt],[Use Libgcrypt for crypto]),
-  use_libgcrypt=$withval,use_libgcrypt=auto)
 AC_ARG_WITH(openssl,
   AC_HELP_STRING([--with-openssl],[Use OpenSSL for crypto]),
   use_openssl=$withval,use_openssl=auto)
+AC_ARG_WITH(libgcrypt,
+  AC_HELP_STRING([--with-libgcrypt],[Use libgcrypt for crypto]),
+  use_libgcrypt=$withval,use_libgcrypt=auto)
 AC_ARG_WITH(libz,
   AC_HELP_STRING([--with-libz],[Use Libz for compression]),
   use_libz=$withval,use_libz=auto)
