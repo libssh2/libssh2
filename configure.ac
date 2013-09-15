@@ -90,7 +90,7 @@ AC_ARG_WITH(libgcrypt,
   AC_HELP_STRING([--with-libgcrypt],[Use libgcrypt for crypto]),
   use_libgcrypt=$withval,use_libgcrypt=auto)
 AC_ARG_WITH(libz,
-  AC_HELP_STRING([--with-libz],[Use Libz for compression]),
+  AC_HELP_STRING([--with-libz],[Use zlib for compression]),
   use_libz=$withval,use_libz=auto)
 
 found_crypto=none
@@ -136,7 +136,7 @@ fi
 if test "$use_libz" != "no"; then
   AC_LIB_HAVE_LINKFLAGS([z], [], [#include <zlib.h>])
   if test "$ac_cv_libz" != yes; then
-    AC_MSG_NOTICE([Cannot find libz, disabling compression])
+    AC_MSG_NOTICE([Cannot find zlib, disabling compression])
     AC_MSG_NOTICE([Try --with-libz-prefix=PATH if you know you have it])
   else
     AC_DEFINE(LIBSSH2_HAVE_ZLIB, 1, [Compile in zlib support])
@@ -335,5 +335,5 @@ AC_MSG_NOTICE([summary of build options:
   Debug build:      $enable_debug
   Build examples:   $build_examples
   Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
-  libz compression: $ac_cv_libz
+  zlib compression: $ac_cv_libz
 ])
