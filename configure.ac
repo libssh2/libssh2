@@ -105,8 +105,6 @@ if test "$ac_cv_libssl" != "yes" && test "$use_libgcrypt" != "no"; then
   LIBS="$LIBS -lgcrypt"
 fi
 
-AC_SUBST(LIBSREQUIRED)
-
 if test "$ac_cv_libssl" != "yes" && test "$ac_cv_libgcrypt" != "yes"; then
   AC_MSG_ERROR([cannot find OpenSSL or Libgcrypt,
 try --with-libssl-prefix=PATH or --with-libgcrypt-prefix=PATH])
@@ -133,8 +131,14 @@ if test "$use_libz" != "no"; then
     AC_MSG_NOTICE([Try --with-libz-prefix=PATH if you know you have it])
   else
     AC_DEFINE(LIBSSH2_HAVE_ZLIB, 1, [Compile in zlib support])
+    if test "${LIBSREQUIRED}" != ""; then
+      LIBSREQUIRED="${LIBSREQUIRED},"
+    fi
+    LIBSREQUIRED="${LIBSREQUIRED}zlib"
   fi
 fi
+
+AC_SUBST(LIBSREQUIRED)
 
 #
 # Optional Settings
