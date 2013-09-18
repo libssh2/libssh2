@@ -213,6 +213,9 @@ endif
 
 vpath %.c . ../src
 
+# only OpenSSL is supported with this build system
+include ../Makefile.OpenSSL.inc
+
 # include Makefile.inc to get CSOURCES define
 include ../Makefile.inc
 

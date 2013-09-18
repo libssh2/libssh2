@@ -93,6 +93,8 @@ LIB_ARG  = $(OBJ_BASE)\stat\wlib.arg
 !ifndef %MAKEFLAGS
 !error You MUST call wmake with the -u switch!
 !else
+# only OpenSSL is supported with this build system
+!include ..\Makefile.OpenSSL.inc
 !include ..\Makefile.inc
 !endif
 

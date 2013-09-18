@@ -1,5 +1,7 @@
 !include "win32/config.mk"
 
+# only OpenSSL is supported with this build system
+!include "Makefile.OpenSSL.inc"
 !include "Makefile.inc"
 
 OBJECTS=$(CSOURCES:.c=.obj)
