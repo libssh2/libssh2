@@ -1414,6 +1414,9 @@ _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
         channel->flush_state = libssh2_NB_state_created;
     }
 
+    channel->read_avail -= channel->flush_flush_bytes;
+    channel->remote.window_size -= channel->flush_flush_bytes;
+
     if (channel->flush_refund_bytes) {
         int rc;
 
@@ -1871,11 +1874,14 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
         /* if the transport layer said EAGAIN then we say so as well */
         return _libssh2_error(session, rc, "would block");
     }
-    else
+    else {
+        channel->read_avail -= bytes_read;
+        channel->remote.window_size -= bytes_read;
         /* make sure we remain in the created state to focus on emptying the
            data we already have in the packet brigade before we try to read
            more off the network again */
         channel->read_state = libssh2_NB_state_created;
+    }
 
     if(channel->remote.window_size < (LIBSSH2_CHANNEL_WINDOW_DEFAULT*30)) {
         /* the window is getting too narrow, expand it! */
