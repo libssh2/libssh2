@@ -259,12 +259,12 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
         status = inflate(strm, Z_PARTIAL_FLUSH);
 
         if (status == Z_OK) {
-            if (! strm->avail_in) {
-                /* status is OK and input all used so we're done */
+            if (strm->avail_out > 0)
+                /* status is OK and the output buffer has not been exhausted so we're done */
                 break;
-            }
         } else if (status == Z_BUF_ERROR) {
-            /* This is OK, just drop through to grow the buffer */
+            /* the input data has been exhausted so we are done */
+            break;
         } else {
             /* error state */
             LIBSSH2_FREE(session, out);
