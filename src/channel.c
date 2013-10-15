@@ -1754,31 +1754,33 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     LIBSSH2_PACKET *read_packet;
     LIBSSH2_PACKET *read_next;
 
-    if (channel->read_state == libssh2_NB_state_idle) {
-        _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                       "channel_read() wants %d bytes from channel %lu/%lu "
-                       "stream #%d",
-                       (int) buflen, channel->local.id, channel->remote.id,
-                       stream_id);
-        channel->read_state = libssh2_NB_state_created;
+    _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                   "channel_read() wants %d bytes from channel %lu/%lu "
+                   "stream #%d",
+                   (int) buflen, channel->local.id, channel->remote.id,
+                   stream_id);
+
+    /* expand the receiving window first if it has become too narrow */
+    if((channel->read_state == libssh2_NB_state_jump1) ||
+       (channel->remote.window_size < (LIBSSH2_CHANNEL_WINDOW_DEFAULT*30))) {
+
+        /* the actual window adjusting may not finish so we need to deal with
+           this special state here */
+        channel->read_state = libssh2_NB_state_jump1;
+        rc = _libssh2_channel_receive_window_adjust(channel,
+                                                    (LIBSSH2_CHANNEL_WINDOW_DEFAULT*60),
+                                                    0, NULL);
+        if (rc)
+            return rc;
+
+        channel->read_state = libssh2_NB_state_idle;
     }
 
-    /*
-     * =============================== NOTE ===============================
-     * I know this is very ugly and not a really good use of "goto", but
-     * this case statement would be even uglier to do it any other way
-     */
-    if (channel->read_state == libssh2_NB_state_jump1) {
-        goto channel_read_window_adjust;
-    }
-
-    rc = 1; /* set to >0 to let the while loop start */
-
-    /* Process all pending incoming packets in all states in order to "even
-       out" the network readings. Tests prove that this way produces faster
-       transfers. */
-    while (rc > 0)
+    /* Process all pending incoming packets. Tests prove that this way
+       produces faster transfers. */
+    do {
         rc = _libssh2_transport_read(session);
+    } while (rc > 0);
 
     if ((rc < 0) && (rc != LIBSSH2_ERROR_EAGAIN))
         return _libssh2_error(session, rc, "transport read");
@@ -1860,8 +1862,6 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     }
 
     if (!bytes_read) {
-        channel->read_state = libssh2_NB_state_idle;
-
         /* If the channel is already at EOF or even closed, we need to signal
            that back. We may have gotten that info while draining the incoming
            transport layer until EAGAIN so we must not be fooled by that
@@ -1874,35 +1874,9 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
         /* if the transport layer said EAGAIN then we say so as well */
         return _libssh2_error(session, rc, "would block");
     }
-    else {
-        channel->read_avail -= bytes_read;
-        channel->remote.window_size -= bytes_read;
-        /* make sure we remain in the created state to focus on emptying the
-           data we already have in the packet brigade before we try to read
-           more off the network again */
-        channel->read_state = libssh2_NB_state_created;
-    }
 
-    if(channel->remote.window_size < (LIBSSH2_CHANNEL_WINDOW_DEFAULT*30)) {
-        /* the window is getting too narrow, expand it! */
-
-      channel_read_window_adjust:
-        channel->read_state = libssh2_NB_state_jump1;
-        /* the actual window adjusting may not finish so we need to deal with
-           this special state here */
-        rc = _libssh2_channel_receive_window_adjust(channel,
-                                                    (LIBSSH2_CHANNEL_WINDOW_DEFAULT*60),
-                                                    0, NULL);
-        if (rc)
-            return rc;
-
-        _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                       "channel_read() filled %d adjusted %d",
-                       bytes_read, buflen);
-        /* continue in 'created' state to drain the already read packages
-           first before starting to empty the socket further */
-        channel->read_state = libssh2_NB_state_created;
-    }
+    channel->read_avail -= bytes_read;
+    channel->remote.window_size -= bytes_read;
 
     return bytes_read;
 }
