@@ -198,15 +198,14 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
 
     status = deflate(strm, Z_PARTIAL_FLUSH);
 
-    if (status != Z_OK) {
-        _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
-                       "unhandled zlib compression error %d", status);
-        return _libssh2_error(session, LIBSSH2_ERROR_ZLIB,
-                              "compression failure");
+    if ((status == Z_OK) && (strm->avail_out > 0)) {
+        *dest_len = out_maxlen - strm->avail_out;
+        return 0;
     }
 
-    *dest_len = out_maxlen - strm->avail_out;
-    return 0;
+    _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
+                   "unhandled zlib compression error %d, avail_out", status, strm->avail_out);
+    return _libssh2_error(session, LIBSSH2_ERROR_ZLIB, "compression failure");
 }
 
 /*
