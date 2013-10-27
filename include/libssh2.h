@@ -865,11 +865,12 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
 #define LIBSSH2_KNOWNHOST_KEYENC_BASE64   (2<<16)
 
 /* type of key (2 bits) */
-#define LIBSSH2_KNOWNHOST_KEY_MASK     (3<<18)
+#define LIBSSH2_KNOWNHOST_KEY_MASK     (7<<18)
 #define LIBSSH2_KNOWNHOST_KEY_SHIFT    18
 #define LIBSSH2_KNOWNHOST_KEY_RSA1     (1<<18)
 #define LIBSSH2_KNOWNHOST_KEY_SSHRSA   (2<<18)
 #define LIBSSH2_KNOWNHOST_KEY_SSHDSS   (3<<18)
+#define LIBSSH2_KNOWNHOST_KEY_UNKNOWN  (7<<18)
 
 LIBSSH2_API int
 libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
