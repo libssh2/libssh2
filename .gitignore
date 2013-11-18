@@ -33,3 +33,4 @@ mkinstalldirs
 tags
 libssh2.pc
 TAGS
+*~
