@@ -507,15 +507,30 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 }
 #endif /* LIBSSH_DSA */
 
+int
+libssh2_sha1_init(libssh2_sha1_ctx *ctx)
+{
+    EVP_MD_CTX_init(ctx);
+    return EVP_DigestInit(ctx, EVP_get_digestbyname("sha1"));
+}
+
 void
 libssh2_sha1(const unsigned char *message, unsigned long len,
              unsigned char *out)
 {
     EVP_MD_CTX ctx;
 
+    EVP_MD_CTX_init(&ctx);
     EVP_DigestInit(&ctx, EVP_get_digestbyname("sha1"));
     EVP_DigestUpdate(&ctx, message, len);
     EVP_DigestFinal(&ctx, out, NULL);
+}
+
+int
+libssh2_md5_init(libssh2_md5_ctx *ctx)
+{
+    EVP_MD_CTX_init(ctx);
+    return EVP_DigestInit(ctx, EVP_get_digestbyname("md5"));
 }
 
 void
@@ -524,6 +539,7 @@ libssh2_md5(const unsigned char *message, unsigned long len,
 {
     EVP_MD_CTX ctx;
 
+    EVP_MD_CTX_init(&ctx);
     EVP_DigestInit(&ctx, EVP_get_digestbyname("md5"));
     EVP_DigestUpdate(&ctx, message, len);
     EVP_DigestFinal(&ctx, out, NULL);
