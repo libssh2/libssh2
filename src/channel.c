@@ -2023,8 +2023,10 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
             rc = _libssh2_transport_read(session);
         while (rc > 0);
 
-        if((rc < 0) && (rc != LIBSSH2_ERROR_EAGAIN))
-            return rc;
+        if((rc < 0) && (rc != LIBSSH2_ERROR_EAGAIN)) {
+            return _libssh2_error(channel->session, rc,
+                                  "Failure while draining incoming flow");
+        }
 
         if(channel->local.window_size <= 0) {
             /* there's no room for data so we stop */
