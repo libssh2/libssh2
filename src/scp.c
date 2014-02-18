@@ -133,7 +133,7 @@ shell_quotearg(const char *path, unsigned char *buf,
      * Processing States:
      *  UQSTRING:       unquoted string: ... -- used for quoting exclamation
      *                  marks. This is the initial state
-     *  SQSTRING:       single-qouted-string: '... -- any character may follow
+     *  SQSTRING:       single-quoted-string: '... -- any character may follow
      *  QSTRING:        quoted string: "... -- only apostrophes may follow
      */
     enum { UQSTRING, SQSTRING, QSTRING } state = UQSTRING;

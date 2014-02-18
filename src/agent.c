@@ -699,7 +699,7 @@ libssh2_agent_list_identities(LIBSSH2_AGENT *agent)
  * libssh2_agent_get_identity()
  *
  * Traverse the internal list of public keys. Pass NULL to 'prev' to get
- * the first one. Or pass a poiner to the previously returned one to get the
+ * the first one. Or pass a pointer to the previously returned one to get the
  * next.
  *
  * Returns:

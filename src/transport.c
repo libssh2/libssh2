@@ -536,7 +536,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             p->readidx += numdecrypt;
             /* advance write pointer */
             p->wptr += numdecrypt;
-            /* increse data_num */
+            /* increase data_num */
             p->data_num += numdecrypt;
 
             /* bytes left to take care of without decryption */
@@ -552,7 +552,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             p->readidx += numbytes;
             /* advance write pointer */
             p->wptr += numbytes;
-            /* increse data_num */
+            /* increase data_num */
             p->data_num += numbytes;
         }
 

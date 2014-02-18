@@ -535,7 +535,7 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
 }
 
 /* sftp_packet_requirev
- * Require one of N possible reponses
+ * Require one of N possible responses
  */
 static int
 sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
@@ -721,7 +721,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
          *
          * Note that you MUST NOT try to call libssh2_sftp_init() again to get
          * another handle until the previous call has finished and either
-         * succesffully made a handle or failed and returned error (not
+         * successfully made a handle or failed and returned error (not
          * including *EAGAIN).
          */
 
@@ -858,7 +858,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         sftp_handle->version = LIBSSH2_SFTP_VERSION;
     }
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
-                   "Enabling SFTP version %lu compatability",
+                   "Enabling SFTP version %lu compatibility",
                    sftp_handle->version);
     while (s < (data + data_len)) {
         size_t extname_len, extdata_len;
@@ -929,7 +929,7 @@ LIBSSH2_API LIBSSH2_SFTP *libssh2_sftp_init(LIBSSH2_SESSION *session)
 /*
  * sftp_shutdown
  *
- * Shutsdown the SFTP subsystem
+ * Shuts down the SFTP subsystem
  */
 static int
 sftp_shutdown(LIBSSH2_SFTP *sftp)
@@ -1960,7 +1960,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                 /* flush all pending packets from the outgoing list */
                 sftp_packetlist_flush(handle);
 
-                /* since we return error now, the applicaton will not get any
+                /* since we return error now, the application will not get any
                    outstanding data acked, so we need to rewind the offset to
                    where the application knows it has reached with acked data */
                 handle->u.file.offset -= handle->u.file.acked;

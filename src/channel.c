@@ -451,7 +451,7 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
             LIBSSH2_ALLOC(session, session->fwdLstn_packet_len);
         if (!session->fwdLstn_packet) {
             _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                           "Unable to allocate memeory for setenv packet");
+                           "Unable to allocate memory for setenv packet");
             return NULL;
         }
 
@@ -616,7 +616,7 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
         s = packet = LIBSSH2_ALLOC(session, packet_len);
         if (!packet) {
             _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                           "Unable to allocate memeory for setenv packet");
+                           "Unable to allocate memory for setenv packet");
             return LIBSSH2_ERROR_ALLOC;
         }
 
@@ -788,7 +788,7 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
             LIBSSH2_ALLOC(session, channel->setenv_packet_len);
         if (!channel->setenv_packet) {
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                  "Unable to allocate memeory "
+                                  "Unable to allocate memory "
                                   "for setenv packet");
         }
 
@@ -2574,7 +2574,7 @@ libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
  * libssh2_channel_window_write_ex
  *
  * Check the status of the write window Returns the number of bytes which may
- * be safely writen on the channel without blocking window_size_initial (if
+ * be safely written on the channel without blocking window_size_initial (if
  * passed) will be populated with the size of the initial window as defined by
  * the channel_open request
  */
