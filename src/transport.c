@@ -241,8 +241,12 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
         rc = _libssh2_packet_add(session, p->payload,
                                  session->fullpacket_payload_len,
                                  session->fullpacket_macstate);
-        if (rc)
+        if (rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
+        if (rc) {
+            session->fullpacket_state = libssh2_NB_state_idle;
+            return rc;
+        }
     }
 
     session->fullpacket_state = libssh2_NB_state_idle;
@@ -524,6 +528,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             /* now decrypt the lot */
             rc = decrypt(session, &p->buf[p->readidx], p->wptr, numdecrypt);
             if (rc != LIBSSH2_ERROR_NONE) {
+                p->total_num = 0;   /* no packet buffer available */
                 return rc;
             }
 
