@@ -844,6 +844,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     if (data_len < 5) {
         _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                        "Invalid SSH_FXP_VERSION response");
+        LIBSSH2_FREE(session, data);
         goto sftp_init_error;
     }
 

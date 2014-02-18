@@ -408,6 +408,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
  *
  * The input pointer 'data' is pointing to allocated data that this function
  * is asked to deal with so on failure OR success, it must be freed fine.
+ * The only exception is when the return code is LIBSSH2_ERROR_EAGAIN.
  *
  * This function will always be called with 'datalen' greater than zero.
  */
@@ -967,6 +968,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         if (!packetp) {
             _libssh2_debug(session, LIBSSH2_ERROR_ALLOC,
                            "memory for packet");
+            LIBSSH2_FREE(session, data);
             session->packAdd_state = libssh2_NB_state_idle;
             return LIBSSH2_ERROR_ALLOC;
         }

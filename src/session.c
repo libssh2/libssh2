@@ -1016,6 +1016,14 @@ session_free(LIBSSH2_SESSION *session)
     if (session->scpSend_command) {
         LIBSSH2_FREE(session, session->scpSend_command);
     }
+    if (session->sftpInit_sftp) {
+        LIBSSH2_FREE(session, session->sftpInit_sftp);
+    }
+
+    /* Free payload buffer */
+    if (session->packet.total_num) {
+        LIBSSH2_FREE(session, session->packet.payload);
+    }
 
     /* Cleanup all remaining packets */
     while ((pkg = _libssh2_list_first(&session->packets))) {
