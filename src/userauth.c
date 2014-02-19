@@ -615,7 +615,7 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     if (privkeyobj->signv(session, sig, sig_len, 1, &datavec,
                           &hostkey_abstract)) {
         if (privkeyobj->dtor) {
-            privkeyobj->dtor(session, abstract);
+            privkeyobj->dtor(session, &hostkey_abstract);
         }
         return -1;
     }
