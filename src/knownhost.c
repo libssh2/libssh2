@@ -990,9 +990,10 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
                     char *buf, size_t buflen,
                     size_t *outlen, int type)
 {
+    size_t required_size;
+
     const char *key_type_name;
     size_t key_type_len;
-    size_t offset = 0;
 
     /* we only support this single file type for now, bail out on all other
        attempts */
@@ -1028,77 +1029,105 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
                               "Unsupported type of known-host entry");
     }
 
+    /* When putting together the host line there are three aspects to consider:
+       - Hashed (SHA1) or unhashed hostname
+       - key name or no key name (RSA1)
+       - comment or no comment
+      
+       This means there are 2^3 different formats:
+       ("|1|%s|%s %s %s %s\n", salt, hashed_host, key_name, key, comment)
+       ("|1|%s|%s %s %s\n", salt, hashed_host, key_name, key)
+       ("|1|%s|%s %s %s\n", salt, hashed_host, key, comment)
+       ("|1|%s|%s %s\n", salt, hashed_host, key)
+       ("%s %s %s %s\n", host, key_name, key, comment)
+       ("%s %s %s\n", host, key_name, key)
+       ("%s %s %s\n", host, key, comment)
+       ("%s %s\n", host, key)
+      
+       Even if the buffer is too small, we have to set outlen to the number of
+       characters the complete line would have taken.  We also don't write
+       anything to the buffer unless we are sure we can write everything to the
+       buffer. */
+
+    required_size = strlen(node->key);
+
+    if(key_type_len)
+        required_size += key_type_len + 1; /* ' ' = 1 */
+    if(node->comment)
+        required_size += node->comment_len + 1; /* ' ' = 1 */
+
     if((node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) ==
        LIBSSH2_KNOWNHOST_TYPE_SHA1) {
-        int rc = LIBSSH2_ERROR_NONE;
-        char *namealloc = NULL;
-        char *saltalloc = NULL;
-        if (_libssh2_base64_encode(hosts->session, node->name,
-                                   node->name_len, &namealloc) &&
-            _libssh2_base64_encode(hosts->session,
-                                   node->salt, node->salt_len,
-                                   &saltalloc))
-            offset = snprintf(buf, buflen, "|1|%s|%s", saltalloc, namealloc);
-        else
-            rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_ALLOC,
-                                "Unable allocate memory for known-host line");
+        char *namealloc;
+        size_t name_base64_len;
+        char *saltalloc;
+        size_t salt_base64_len;
 
-        if (namealloc)
+        name_base64_len = _libssh2_base64_encode(hosts->session, node->name,
+                                                 node->name_len, &namealloc);
+        if(!name_base64_len)
+            return _libssh2_error(hosts->session, LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for "
+                                  "base64-encoded host name");
+
+        salt_base64_len = _libssh2_base64_encode(hosts->session,
+                                                 node->salt, node->salt_len,
+                                                 &saltalloc);
+        if(!salt_base64_len) {
             LIBSSH2_FREE(hosts->session, namealloc);
-        if (saltalloc)
-            LIBSSH2_FREE(hosts->session, saltalloc);
+            return _libssh2_error(hosts->session, LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for "
+                                  "base64-encoded salt");
+        }
 
-        if (rc != LIBSSH2_ERROR_NONE)
-            return rc;
+        required_size += salt_base64_len + name_base64_len + 7;
+        /* |1| + | + ' ' + \n + \0 = 7 */
 
-        if (buflen <= offset)
-            return _libssh2_error(hosts->session,
-                                  LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                                  "Known-host write buffer too small");
+        if(required_size <= buflen) {
+            if(node->comment && key_type_len)
+                snprintf(buf, buflen, "|1|%s|%s %s %s %s\n", saltalloc,
+                         namealloc, key_type_name, node->key, node->comment);
+            else if (node->comment)
+                snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc, namealloc,
+                         node->key, node->comment);
+            else if (key_type_len)
+                snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc, namealloc,
+                         key_type_name, node->key);
+            else
+                snprintf(buf, buflen, "|1|%s|%s %s\n", saltalloc, namealloc,
+                         node->key);
+        }
+
+        LIBSSH2_FREE(hosts->session, namealloc);
+        LIBSSH2_FREE(hosts->session, saltalloc);
     }
     else {
-        if (buflen <= node->name_len)
-            return _libssh2_error(hosts->session,
-                                  LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                                  "Known-host write buffer too small");
-        memcpy(buf, node->name, node->name_len);
-        offset = node->name_len;
+        required_size += node->name_len + 3;
+        /* ' ' + '\n' + \0 = 3 */
+
+        if(required_size <= buflen) {
+            if(node->comment && key_type_len)
+                snprintf(buf, buflen, "%s %s %s %s\n", node->name,
+                         key_type_name, node->key, node->comment);
+            else if (node->comment)
+                snprintf(buf, buflen, "%s %s %s\n", node->name, node->key,
+                         node->comment);
+            else if (key_type_len)
+                snprintf(buf, buflen, "%s %s %s\n", node->name, key_type_name,
+                         node->key);
+            else
+                snprintf(buf, buflen, "%s %s\n", node->name, node->key);
+        }
     }
 
-    if (key_type_name) {
-        buf[offset++] = ' ';
-        if (buflen - offset <= key_type_len)
-            return _libssh2_error(hosts->session,
-                                  LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                                  "Known-host write buffer too small");
-        memcpy(buf + offset, key_type_name, key_type_len);
-        offset += key_type_len;
-    }
+    /* we report the full length of the data with the trailing zero excluded */
+    *outlen = required_size-1;
 
-    offset += snprintf(buf + offset, buflen - offset,
-                       " %s", node->key);
-    if (buflen <= offset)
+    if(required_size <= buflen)
+        return LIBSSH2_ERROR_NONE;
+    else
         return _libssh2_error(hosts->session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                               "Known-host write buffer too small");
-
-    if (node->comment) {
-        buf[offset++] = ' ';
-        if (buflen - offset <= node->comment_len)
-            return _libssh2_error(hosts->session,
-                                  LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                                  "Known-host write buffer too small");
-        memcpy(buf + offset, node->comment, node->comment_len);
-        offset += node->comment_len;
-    }
-
-    if (buflen - offset <= 1)
-        return _libssh2_error(hosts->session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                              "Known-host write buffer too small");
-    buf[offset++] = '\n';
-
-    buf[offset] = '\0';
-    *outlen = offset;
-    return LIBSSH2_ERROR_NONE;
 }
 
 /*
