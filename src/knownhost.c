@@ -775,7 +775,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
 
         if (!strncmp(key_type_name, "ssh-dss", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_SSHDSS;
-        if (!strncmp(key_type_name, "ssh-rsa", key_type_len))
+        else if (!strncmp(key_type_name, "ssh-rsa", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_SSHRSA;
         else
             key_type = LIBSSH2_KNOWNHOST_KEY_UNKNOWN;
