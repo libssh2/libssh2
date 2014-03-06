@@ -368,6 +368,24 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
         /* we can't work with a sha1 as given input */
         return LIBSSH2_KNOWNHOST_CHECK_MISMATCH;
 
+    /* if a port number is given, check for a '[host]:port' first before the
+       plain 'host' */
+    if(port >= 0) {
+        int len = snprintf(hostbuff, sizeof(hostbuff), "[%s]:%d", hostp, port);
+        if (len < 0 || len >= (int)sizeof(hostbuff)) {
+            _libssh2_error(hosts->session,
+                           LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                           "Known-host write buffer too small");
+            return LIBSSH2_KNOWNHOST_CHECK_FAILURE;
+        }
+        host = hostbuff;
+        numcheck = 2; /* check both combos, start with this */
+    }
+    else {
+        host = hostp;
+        numcheck = 1; /* only check this host version */
+    }
+
     if(!(typemask & LIBSSH2_KNOWNHOST_KEYENC_BASE64)) {
         /* we got a raw key input, convert it to base64 for the checks below */
         size_t nlen = _libssh2_base64_encode(hosts->session, key, keylen,
@@ -381,18 +399,6 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 
         /* make the key point to this */
         key = keyalloc;
-    }
-
-    /* if a port number is given, check for a '[host]:port' first before the
-       plain 'host' */
-    if(port >= 0) {
-        snprintf(hostbuff, sizeof(hostbuff), "[%s]:%d", hostp, port);
-        host = hostbuff;
-        numcheck = 2; /* check both combos, start with this */
-    }
-    else {
-        host = hostp;
-        numcheck = 1; /* only check this host version */
     }
 
     do {
