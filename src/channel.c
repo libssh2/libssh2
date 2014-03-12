@@ -2275,7 +2275,6 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
 {
     LIBSSH2_SESSION *session = channel->session;
     int rc = 0;
-    int retcode;
 
     if (channel->local.close) {
         /* Already closed, act like we sent another close,
@@ -2284,9 +2283,15 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
         return 0;
     }
 
-    if (!channel->local.eof)
-        if ((retcode = channel_send_eof(channel)))
-            return retcode;
+    if (!channel->local.eof) {
+        if ((rc = channel_send_eof(channel))) {
+            if (rc == LIBSSH2_ERROR_EAGAIN) {
+                return rc;
+            }
+            _libssh2_error(session, rc,
+                "Unable to send EOF, but closing channel anyway");
+        }
+    }
 
     /* ignore if we have received a remote eof or not, as it is now too
        late for us to wait for it. Continue closing! */
@@ -2302,19 +2307,22 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
     }
 
     if (channel->close_state == libssh2_NB_state_created) {
-        retcode = _libssh2_transport_send(session, channel->close_packet, 5,
-                                          NULL, 0);
-        if (retcode == LIBSSH2_ERROR_EAGAIN) {
+        rc = _libssh2_transport_send(session, channel->close_packet, 5,
+                                     NULL, 0);
+        if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, rc,
                            "Would block sending close-channel");
-            return retcode;
-        } else if (retcode) {
-            channel->close_state = libssh2_NB_state_idle;
-            return _libssh2_error(session, retcode,
-                                  "Unable to send close-channel request");
-        }
+            return rc;
 
-        channel->close_state = libssh2_NB_state_sent;
+        } else if (rc) {
+            _libssh2_error(session, rc,
+                           "Unable to send close-channel request, "
+                           "but closing anyway");
+            /* skip waiting for the response and fall through to
+               LIBSSH2_CHANNEL_CLOSE below */
+
+        } else
+            channel->close_state = libssh2_NB_state_sent;
     }
 
     if (channel->close_state == libssh2_NB_state_sent) {
