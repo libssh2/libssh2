@@ -742,7 +742,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     const char *comment = NULL;
     const char *key_type_name = NULL;
     size_t commentlen = 0;
-    size_t key_type_len;
+    size_t key_type_len = 0;
     int key_type;
 
     /* make some checks that the lengths seem sensible */
