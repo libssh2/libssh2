@@ -46,6 +46,10 @@
 #include "libgcrypt.h"
 #endif
 
+#ifdef LIBSSH2_WINCNG
+#include "wincng.h"
+#endif
+
 int _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
                      const unsigned char *edata,
                      unsigned long elen,

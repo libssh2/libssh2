@@ -8,6 +8,9 @@ endif
 if LIBGCRYPT
 include ../Makefile.libgcrypt.inc
 endif
+if WINCNG
+include ../Makefile.WinCNG.inc
+endif
 
 # Makefile.inc provides the CSOURCES and HHEADERS defines
 include ../Makefile.inc

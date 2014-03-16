@@ -89,6 +89,9 @@ AC_ARG_WITH(openssl,
 AC_ARG_WITH(libgcrypt,
   AC_HELP_STRING([--with-libgcrypt],[Use libgcrypt for crypto]),
   use_libgcrypt=$withval,use_libgcrypt=auto)
+AC_ARG_WITH(wincng,
+  AC_HELP_STRING([--with-wincng],[Use Windows CNG for crypto]),
+  use_wincng=$withval,use_wincng=auto)
 AC_ARG_WITH(libz,
   AC_HELP_STRING([--with-libz],[Use zlib for compression]),
   use_libz=$withval,use_libz=auto)
@@ -125,10 +128,37 @@ if test "$ac_cv_libgcrypt" = "yes"; then
 fi
 AM_CONDITIONAL(LIBGCRYPT, test "$ac_cv_libgcrypt" = "yes")
 
+# Look for Windows Cryptography API: Next Generation
+if test "$found_crypto" = "none" && test "$use_wincng" != "no"; then
+  AC_LIB_HAVE_LINKFLAGS([bcrypt], [], [
+    #include <windows.h>
+    #include <bcrypt.h>
+  ])
+  AC_LIB_HAVE_LINKFLAGS([crypt32], [], [
+    #include <windows.h>
+    #include <wincrypt.h>
+  ])
+  AC_CHECK_HEADERS([ntdef.h ntstatus.h], [], [], [
+    #include <windows.h>
+  ])
+fi
+if test "$ac_cv_libbcrypt" = "yes"; then
+  AC_DEFINE(LIBSSH2_WINCNG, 1, [Use Windows CNG])
+  LIBSREQUIRED= # wincng doesn't provide a .pc file. sad face.
+  LIBS="$LIBS -lbcrypt"
+  if test "$ac_cv_libcrypt32" = "yes"; then
+    LIBS="$LIBS -lcrypt32"
+  fi
+  found_crypto="Windows Cryptography API: Next Generation"
+fi
+AM_CONDITIONAL(WINCNG, test "$ac_cv_libbcrypt" = "yes")
+
+# Check if crypto library was found
 if test "$found_crypto" = "none"; then
   AC_MSG_ERROR([No crypto library found!
 Try --with-libssl-prefix=PATH\
  or --with-libgcrypt-prefix=PATH\
+ or --with-wincng on Windows\
 ])
 fi
 
