@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2005 Mikhail Gusarov <dottedmag@dottedmag.net>
- * Copyright (c) 2009-2011 by Daniel Stenberg
+ * Copyright (c) 2009-2014 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -645,7 +645,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
     if (session->userauth_host_state == libssh2_NB_state_idle) {
         const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
         unsigned char *pubkeydata, *sig;
-        size_t pubkeydata_len;
+        size_t pubkeydata_len = 0;
         size_t sig_len;
         void *abstract;
         unsigned char buf[5];
