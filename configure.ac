@@ -156,8 +156,8 @@ AM_CONDITIONAL(WINCNG, test "$ac_cv_libbcrypt" = "yes")
 # Check if crypto library was found
 if test "$found_crypto" = "none"; then
   AC_MSG_ERROR([No crypto library found!
-Try --with-libssl-prefix=PATH\
- or --with-libgcrypt-prefix=PATH\
+Try --with-libssl-prefix=PATH
+ or --with-libgcrypt-prefix=PATH
  or --with-wincng on Windows\
 ])
 fi
