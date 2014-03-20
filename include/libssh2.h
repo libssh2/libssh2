@@ -281,7 +281,8 @@ typedef struct _LIBSSH2_POLLFD {
     unsigned char type; /* LIBSSH2_POLLFD_* below */
 
     union {
-        int socket; /* File descriptors -- examined with system select() call */
+        libssh2_socket_t socket; /* File descriptors -- examined with
+                                    system select() call */
         LIBSSH2_CHANNEL *channel; /* Examined by checking internal state */
         LIBSSH2_LISTENER *listener; /* Read polls only -- are inbound
                                        connections waiting to be accepted? */
