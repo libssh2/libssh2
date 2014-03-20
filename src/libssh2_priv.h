@@ -574,7 +574,7 @@ struct _LIBSSH2_SESSION
 
     /* Agreed Key Exchange Method */
     const LIBSSH2_KEX_METHOD *kex;
-    int burn_optimistic_kexinit:1;
+    unsigned int burn_optimistic_kexinit:1;
 
     unsigned char *session_id;
     uint32_t session_id_len;
