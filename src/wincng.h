@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Marc Hoersken <info@marc-hoersken.de>
+ * Copyright (C) 2013-2014 Marc Hoersken <info@marc-hoersken.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -36,19 +36,7 @@
  * OF SUCH DAMAGE.
  */
 
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0600
-
-#ifdef HAVE_WINDOWS_H
 #include <windows.h>
-#endif
-#ifdef HAVE_NTDEF_H
-#include <ntdef.h>
-#endif
-#ifdef HAVE_NTSTATUS_H
-#include <ntstatus.h>
-#endif
-
 #include <bcrypt.h>
 
 
