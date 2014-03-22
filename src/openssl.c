@@ -40,6 +40,8 @@
 
 #include "libssh2_priv.h"
 
+#ifdef LIBSSH2_OPENSSL /* compile only if we build with openssl */
+
 #include <string.h>
 
 #ifndef EVP_MAX_BLOCK_LENGTH
@@ -814,3 +816,5 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     EVP_PKEY_free(pk);
     return st;
 }
+
+#endif /* LIBSSH2_OPENSSL */
