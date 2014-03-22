@@ -1697,7 +1697,8 @@ _libssh2_wincng_bignum_set_word(_libssh2_bn *bn, unsigned long word)
     while (number >>= 1)
         bits++;
 
-    length = (unsigned long)(ceil((double)(bits+1)/8)*sizeof(unsigned char));
+    length = (unsigned long) (ceil(((double)(bits + 1)) / 8.0) *
+                              sizeof(unsigned char));
     if (_libssh2_wincng_bignum_resize(bn, length))
         return -1;
 
@@ -1740,23 +1741,26 @@ _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, unsigned long len,
     unsigned char *bignum;
     unsigned long offset, length, bits;
 
-    if (bn && bin && len > 0) {
-        if (!_libssh2_wincng_bignum_resize(bn, len)) {
-            memcpy(bn->bignum, bin, len);
+    if (!bn || !bin || !len)
+        return;
 
-            bits = _libssh2_wincng_bignum_bits(bn);
-            length = ceil((double)bits / 8) * sizeof(unsigned char);
+    if (_libssh2_wincng_bignum_resize(bn, len))
+        return;
 
-            offset = bn->length - length;
-            if (offset > 0) {
-                memmove(bn->bignum, bn->bignum + offset, length);
+    memcpy(bn->bignum, bin, len);
 
-                bignum = realloc(bn->bignum, length);
-                if (bignum) {
-                    bn->bignum = bignum;
-                    bn->length = length;
-                }
-            }
+    bits = _libssh2_wincng_bignum_bits(bn);
+    length = (unsigned long) (ceil(((double)bits) / 8.0) *
+                              sizeof(unsigned char));
+
+    offset = bn->length - length;
+    if (offset > 0) {
+        memmove(bn->bignum, bn->bignum + offset, length);
+
+        bignum = realloc(bn->bignum, length);
+        if (bignum) {
+            bn->bignum = bignum;
+            bn->length = length;
         }
     }
 }
