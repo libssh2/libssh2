@@ -446,7 +446,8 @@ _libssh2_wincng_key_sha1_verify(_libssh2_wincng_key_ctx *ctx,
     if (flags & BCRYPT_PAD_PKCS1) {
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA1_ALGORITHM;
         pPaddingInfo = &paddingInfoPKCS1;
-    }
+    } else
+        pPaddingInfo = NULL;
 
     memcpy(data, sig, datalen);
 
