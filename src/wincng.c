@@ -40,6 +40,14 @@
 
 #ifdef LIBSSH2_WINCNG /* compile only if we build with wincng */
 
+/* required for cross-compilation against the w64 mingw-runtime package */
+#if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
+#undef _WIN32_WINNT
+#endif
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#endif
+
 #include <windows.h>
 #include <bcrypt.h>
 #include <math.h>
@@ -56,6 +64,10 @@
 /*
  * Windows CNG backend: Missing definitions (for MinGW[-w64])
  */
+#ifndef BCRYPT_SUCCESS
+#define BCRYPT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
+#endif
+
 #ifndef BCRYPT_RNG_ALGORITHM
 #define BCRYPT_RNG_ALGORITHM L"RNG"
 #endif
