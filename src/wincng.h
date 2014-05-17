@@ -109,14 +109,12 @@ void _libssh2_wincng_free(void);
  * Windows CNG backend: Hash structure
  */
 
-struct _libssh2_wincng_hash_ctx {
+typedef struct __libssh2_wincng_hash_ctx {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
     unsigned long dwHashObject;
     unsigned long cbHash;
-};
-
-#define _libssh2_wincng_hash_ctx struct _libssh2_wincng_hash_ctx
+} _libssh2_wincng_hash_ctx;
 
 /*
  * Windows CNG backend: Hash functions
@@ -172,13 +170,12 @@ struct _libssh2_wincng_hash_ctx {
  * Windows CNG backend: Key Context structure
  */
 
-struct _libssh2_wincng_key_ctx {
+typedef struct __libssh2_wincng_key_ctx {
     BCRYPT_KEY_HANDLE hKey;
     unsigned char *pbKeyObject;
     unsigned long cbKeyObject;
-};
+} _libssh2_wincng_key_ctx;
 
-#define _libssh2_wincng_key_ctx struct _libssh2_wincng_key_ctx
 
 /*
  * Windows CNG backend: RSA functions
@@ -321,3 +318,158 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
   _libssh2_wincng_bignum_bits(bn)
 #define _libssh2_bn_free(bn) \
   _libssh2_wincng_bignum_free(bn)
+
+/*******************************************************************/
+/*
+ * Windows CNG backend: forward declarations
+ */
+void _libssh2_wincng_init(void);
+void _libssh2_wincng_free(void);
+int _libssh2_wincng_random(void *buf, int len);
+void _libssh2_init_aes_ctr(void);
+
+int
+_libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
+                          BCRYPT_ALG_HANDLE hAlg, unsigned long hashlen,
+                          unsigned char *key, unsigned long keylen);
+int
+_libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
+                            const unsigned char *data, unsigned long datalen);
+int
+_libssh2_wincng_hash_final(_libssh2_wincng_hash_ctx *ctx,
+                           unsigned char *hash);
+int
+_libssh2_wincng_hash(unsigned char *data, unsigned long datalen,
+                     BCRYPT_ALG_HANDLE hAlg,
+                     unsigned char *hash, unsigned long hashlen);
+
+int
+_libssh2_wincng_hmac_final(_libssh2_wincng_hash_ctx *ctx,
+                           unsigned char *hash);
+void
+_libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx);
+
+int
+_libssh2_wincng_key_sha1_verify(_libssh2_wincng_key_ctx *ctx,
+                                const unsigned char *sig,
+                                unsigned long sig_len,
+                                const unsigned char *m,
+                                unsigned long m_len,
+                                unsigned long flags);
+
+int
+_libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
+                        const unsigned char *edata,
+                        unsigned long elen,
+                        const unsigned char *ndata,
+                        unsigned long nlen,
+                        const unsigned char *ddata,
+                        unsigned long dlen,
+                        const unsigned char *pdata,
+                        unsigned long plen,
+                        const unsigned char *qdata,
+                        unsigned long qlen,
+                        const unsigned char *e1data,
+                        unsigned long e1len,
+                        const unsigned char *e2data,
+                        unsigned long e2len,
+                        const unsigned char *coeffdata,
+                        unsigned long coefflen);
+int
+_libssh2_wincng_rsa_new_private(libssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const unsigned char *passphrase);
+int
+_libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
+                                const unsigned char *sig,
+                                unsigned long sig_len,
+                                const unsigned char *m,
+                                unsigned long m_len);
+int
+_libssh2_wincng_rsa_sha1_sign(LIBSSH2_SESSION *session,
+                              libssh2_rsa_ctx *rsa,
+                              const unsigned char *hash,
+                              size_t hash_len,
+                              unsigned char **signature,
+                              size_t *signature_len);
+void
+_libssh2_wincng_rsa_free(libssh2_rsa_ctx *rsa);
+
+#if LIBSSH2_DSA
+int
+_libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
+                        const unsigned char *pdata,
+                        unsigned long plen,
+                        const unsigned char *qdata,
+                        unsigned long qlen,
+                        const unsigned char *gdata,
+                        unsigned long glen,
+                        const unsigned char *ydata,
+                        unsigned long ylen,
+                        const unsigned char *xdata,
+                        unsigned long xlen);
+int
+_libssh2_wincng_dsa_new_private(libssh2_dsa_ctx **dsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const unsigned char *passphrase);
+int
+_libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
+                                const unsigned char *sig_fixed,
+                                const unsigned char *m,
+                                unsigned long m_len);
+int
+_libssh2_wincng_dsa_sha1_sign(libssh2_dsa_ctx *dsa,
+                              const unsigned char *hash,
+                              unsigned long hash_len,
+                              unsigned char *sig_fixed);
+void
+_libssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa);
+#endif
+
+int
+_libssh2_wincng_pub_priv_keyfile(LIBSSH2_SESSION *session,
+                                 unsigned char **method,
+                                 size_t *method_len,
+                                 unsigned char **pubkeydata,
+                                 size_t *pubkeydata_len,
+                                 const char *privatekey,
+                                 const char *passphrase);
+
+int
+_libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
+                            _libssh2_cipher_type(type),
+                            unsigned char *iv,
+                            unsigned char *secret,
+                            int encrypt);
+int
+_libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
+                             _libssh2_cipher_type(type),
+                             int encrypt,
+                             unsigned char *block,
+                             size_t blocklen);
+void
+_libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx);
+
+_libssh2_bn *
+_libssh2_wincng_bignum_init(void);
+int
+_libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom);
+int
+_libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
+                               _libssh2_bn *a,
+                               _libssh2_bn *p,
+                               _libssh2_bn *m,
+                               _libssh2_bn_ctx *bnctx);
+int
+_libssh2_wincng_bignum_set_word(_libssh2_bn *bn, unsigned long word);
+unsigned long
+_libssh2_wincng_bignum_bits(const _libssh2_bn *bn);
+void
+_libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, unsigned long len,
+                                const unsigned char *bin);
+void
+_libssh2_wincng_bignum_to_bin(const _libssh2_bn *bn, unsigned char *bin);
+void
+_libssh2_wincng_bignum_free(_libssh2_bn *bn);
