@@ -75,8 +75,9 @@ gen-coverage:
 coverage: init-coverage build-coverage gen-coverage
 
 # DSP/VCPROJ generation adapted from libcurl
-# only OpenSSL is supported with this build system
-include Makefile.OpenSSL.inc
+# only OpenSSL and WinCNG are supported with this build system
+CRYPTO_CSOURCES = openssl.c wincng.c
+CRYPTO_HHEADERS = openssl.h wincng.h
 # Makefile.inc provides the CSOURCES and HHEADERS defines
 include Makefile.inc
 
