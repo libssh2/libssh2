@@ -329,11 +329,11 @@ _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
 
 int
 _libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
-                            unsigned char *data, unsigned long datalen)
+                            const unsigned char *data, unsigned long datalen)
 {
     int ret;
 
-    ret = BCryptHashData(ctx->hHash, data, datalen, 0);
+    ret = BCryptHashData(ctx->hHash, (unsigned char *)data, datalen, 0);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
