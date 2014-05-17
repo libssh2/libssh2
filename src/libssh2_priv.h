@@ -108,6 +108,11 @@
 #define TRUE 1
 #endif
 
+#ifdef _MSC_VER
+/* "inline" keyword is valid only with C++ engine! */
+#define inline __inline
+#endif
+
 /* Provide iovec / writev on WIN32 platform. */
 #ifdef WIN32
 
@@ -115,8 +120,6 @@ struct iovec {
     size_t iov_len;
     void * iov_base;
 };
-
-#define inline __inline
 
 static inline int writev(int sock, struct iovec *iov, int nvecs)
 {
@@ -135,11 +138,6 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
-
-#ifdef _MSC_VER
-/* "inline" keyword is valid only with C++ engine! */
-#define inline __inline
-#endif
 
 #endif
 
