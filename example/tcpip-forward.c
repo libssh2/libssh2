@@ -57,20 +57,15 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session;
     LIBSSH2_LISTENER *listener = NULL;
     LIBSSH2_CHANNEL *channel = NULL;
-    const char *shost;
-    unsigned int sport;
     fd_set fds;
     struct timeval tv;
     ssize_t len, wr;
     char buf[16384];
 
 #ifdef WIN32
-    char sockopt;
     WSADATA wsadata;
 
     WSAStartup(MAKEWORD(2,0), &wsadata);
-#else
-    int sockopt;
 #endif
 
     if (argc > 1)
