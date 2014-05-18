@@ -669,23 +669,24 @@ _libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
                         break;
                 }
 
-                if (ret) {
+                if (!ret) {
+                    *prpbDecoded = rpbDecoded;
+                    *prcbDecoded = rcbDecoded;
+                    *pcbCount = length;
+                } else {
                     for (length = 0; length < index; length++) {
                         if (rpbDecoded[length]) {
                             free(rpbDecoded[length]);
                             rpbDecoded[length] = NULL;
                         }
                     }
-                } else {
-                    *prpbDecoded = rpbDecoded;
-                    *prcbDecoded = rcbDecoded;
-                    *pcbCount = length;
+                    free(rpbDecoded);
+                    free(rcbDecoded);
                 }
             } else {
                 free(rpbDecoded);
                 ret = -1;
             }
-
         } else {
             ret = -1;
         }
