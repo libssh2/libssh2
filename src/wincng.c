@@ -508,7 +508,8 @@ _libssh2_wincng_load_private(LIBSSH2_SESSION *session,
                              unsigned long *pcbEncoded)
 {
     unsigned char *data;
-    int ret, datalen;
+    unsigned int datalen;
+    int ret;
 
     ret = _libssh2_wincng_load_pem(session, filename, passphrase,
                                    "-----BEGIN RSA PRIVATE KEY-----",
