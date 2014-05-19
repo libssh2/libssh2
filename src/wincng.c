@@ -48,6 +48,14 @@
 #define _WIN32_WINNT 0x0600
 #endif
 
+/* specify the required libraries for dependencies using MSVC */
+#ifdef _MSC_VER
+#pragma comment(lib, "bcrypt.lib")
+#ifdef HAVE_LIBCRYPT32
+#pragma comment(lib, "crypt32.lib")
+#endif
+#endif
+
 #include <windows.h>
 #include <bcrypt.h>
 #include <math.h>
