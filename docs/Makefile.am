@@ -102,6 +102,7 @@ dist_man_MANS = \
 	libssh2_session_free.3 \
 	libssh2_session_get_blocking.3 \
 	libssh2_session_get_timeout.3 \
+	libssh2_session_handshake.3 \
 	libssh2_session_hostkey.3 \
 	libssh2_session_init.3 \
 	libssh2_session_init_ex.3 \
