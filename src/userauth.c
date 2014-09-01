@@ -442,6 +442,76 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username,
     return rc;
 }
 
+static int
+memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
+                      size_t *method_len,
+                      unsigned char **pubkeydata,
+                      size_t *pubkeydata_len,
+                      const char *pubkeyfiledata,
+                      size_t pubkeyfiledata_len)
+{
+    unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
+    size_t pubkey_len = pubkeyfiledata_len;
+    unsigned int tmp_len;
+
+    if (pubkeyfiledata_len <= 1) {
+        return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                              "Invalid data in public key file");
+    }
+
+    pubkey = LIBSSH2_ALLOC(session, pubkeyfiledata_len);
+    if (!pubkey) {
+        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                              "Unable to allocate memory for public key data");
+    }
+
+    memcpy(pubkey, pubkeyfiledata, pubkeyfiledata_len);
+
+    /*
+     *   Remove trailing whitespace
+     */
+    while (pubkey_len && isspace(pubkey[pubkey_len - 1]))
+        pubkey_len--;
+
+    if (!pubkey_len) {
+        LIBSSH2_FREE(session, pubkey);
+        return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                              "Missing public key data");
+    }
+
+    if ((sp1 = memchr(pubkey, ' ', pubkey_len)) == NULL) {
+        LIBSSH2_FREE(session, pubkey);
+        return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                              "Invalid public key data");
+    }
+
+    sp1++;
+
+    if ((sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey - 1))) == NULL) {
+        /* Assume that the id string is missing, but that it's okay */
+        sp2 = pubkey + pubkey_len;
+    }
+
+    if (libssh2_base64_decode(session, (char **) &tmp, &tmp_len,
+                              (char *) sp1, sp2 - sp1)) {
+        LIBSSH2_FREE(session, pubkey);
+        return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                                  "Invalid key data, not base64 encoded");
+    }
+
+    /* Wasting some bytes here (okay, more than some), but since it's likely
+     * to be freed soon anyway, we'll just avoid the extra free/alloc and call
+     * it a wash
+     */
+    *method = pubkey;
+    *method_len = sp1 - pubkey - 1;
+
+    *pubkeydata = tmp;
+    *pubkeydata_len = tmp_len;
+
+    return 0;
+}
+
 /*
  * file_read_publickey
  *
@@ -547,7 +617,43 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     return 0;
 }
 
+static int
+memory_read_privatekey(LIBSSH2_SESSION * session,
+                       const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
+                       void **hostkey_abstract,
+                       const unsigned char *method, int method_len,
+                       const char *privkeyfiledata, size_t privkeyfiledata_len,
+                       const char *passphrase)
+{
+    const LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail =
+        libssh2_hostkey_methods();
 
+    *hostkey_method = NULL;
+    *hostkey_abstract = NULL;
+    while (*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
+        if ((*hostkey_methods_avail)->initPEMFromMemory
+             && strncmp((*hostkey_methods_avail)->name, (const char *) method,
+                        method_len) == 0) {
+            *hostkey_method = *hostkey_methods_avail;
+            break;
+        }
+        hostkey_methods_avail++;
+    }
+    if (!*hostkey_method) {
+        return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NONE,
+                              "No handler for specified private key");
+    }
+
+    if ((*hostkey_method)->
+        initPEMFromMemory(session, privkeyfiledata, privkeyfiledata_len,
+                          (unsigned char *) passphrase,
+                          hostkey_abstract)) {
+        return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                              "Unable to initialize private key from file");
+    }
+
+    return 0;
+}
 
 /* libssh2_file_read_privatekey
  * Read a PEM encoded private key from an id_??? style file
@@ -594,6 +700,42 @@ struct privkey_file {
     const char *filename;
     const char *passphrase;
 };
+
+static int
+sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
+                const unsigned char *data, size_t data_len, void **abstract)
+{
+    struct privkey_file *pk_file = (struct privkey_file *) (*abstract);
+    const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
+    void *hostkey_abstract;
+    struct iovec datavec;
+    int rc;
+
+    rc = memory_read_privatekey(session, &privkeyobj, &hostkey_abstract,
+                                session->userauth_pblc_method,
+                                session->userauth_pblc_method_len,
+                                pk_file->filename,
+                                strlen(pk_file->filename),
+                                pk_file->passphrase);
+    if(rc)
+        return rc;
+
+    datavec.iov_base = (void *)data;
+    datavec.iov_len  = data_len;
+
+    if (privkeyobj->signv(session, sig, sig_len, 1, &datavec,
+                          &hostkey_abstract)) {
+        if (privkeyobj->dtor) {
+            privkeyobj->dtor(session, abstract);
+        }
+        return -1;
+    }
+
+    if (privkeyobj->dtor) {
+        privkeyobj->dtor(session, &hostkey_abstract);
+    }
+    return 0;
+}
 
 static int
 sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
@@ -1215,6 +1357,65 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                           "username/public key combination");
 }
 
+ /*
+  * userauth_publickey_frommemory
+  * Authenticate using a keypair from memory
+  */
+static int
+userauth_publickey_frommemory(LIBSSH2_SESSION *session,
+                              const char *username,
+                              size_t username_len,
+                              const char *publickeydata,
+                              size_t publickeydata_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const char *passphrase)
+{
+    unsigned char *pubkeydata = NULL;
+    size_t pubkeydata_len = 0;
+    struct privkey_file privkey_file;
+    void *abstract = &privkey_file;
+    int rc;
+
+    privkey_file.filename = privatekeydata;
+    privkey_file.passphrase = passphrase;
+
+    if (session->userauth_pblc_state == libssh2_NB_state_idle) {
+        if (publickeydata_len && publickeydata) {
+            rc = memory_read_publickey(session, &session->userauth_pblc_method,
+                                       &session->userauth_pblc_method_len,
+                                       &pubkeydata, &pubkeydata_len,
+                                       publickeydata, publickeydata_len);
+            if(rc)
+                return rc;
+        }
+        else if (privatekeydata_len && privatekeydata) {
+            /* Compute public key from private key. */
+            if (_libssh2_pub_priv_keyfilememory(session,
+                                                &session->userauth_pblc_method,
+                                                &session->userauth_pblc_method_len,
+                                                &pubkeydata, &pubkeydata_len,
+                                                privatekeydata, privatekeydata_len,
+                                                passphrase))
+                return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                                      "Unable to extract public key "
+                                      "from private key.");
+        }
+        else {
+            return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                                  "Invalid data in public and private key.");
+        }
+    }
+
+    rc = _libssh2_userauth_publickey(session, username, username_len,
+                                     pubkeydata, pubkeydata_len,
+                                     sign_frommemory, &abstract);
+    if(pubkeydata)
+        LIBSSH2_FREE(session, pubkeydata);
+
+    return rc;
+}
+
 /*
  * userauth_publickey_fromfile
  * Authenticate using a keypair found in the named files
@@ -1264,6 +1465,36 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
     if(pubkeydata)
         LIBSSH2_FREE(session, pubkeydata);
 
+    return rc;
+}
+
+/* libssh2_userauth_publickey_frommemory
+ * Authenticate using a keypair from memory
+ */
+LIBSSH2_API int
+libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
+                                      const char *user,
+                                      size_t user_len,
+                                      const char *publickeyfiledata,
+                                      size_t publickeyfiledata_len,
+                                      const char *privatekeyfiledata,
+                                      size_t privatekeyfiledata_len,
+                                      const char *passphrase)
+{
+    int rc;
+
+    if(NULL == passphrase)
+        /* if given a NULL pointer, make it point to a zero-length
+           string to save us from having to check this all over */
+        passphrase="";
+
+    BLOCK_ADJUST(rc, session,
+                 userauth_publickey_frommemory(session, user, user_len,
+                                               publickeyfiledata,
+                                               publickeyfiledata_len,
+                                               privatekeyfiledata,
+                                               privatekeyfiledata_len,
+                                               passphrase));
     return rc;
 }
 

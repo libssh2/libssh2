@@ -388,6 +388,28 @@ typedef void * (*pem_read_bio_func)(BIO *, void **, pem_password_cb *,
                                     void * u);
 
 static int
+read_private_key_from_memory(void ** key_ctx,
+                             pem_read_bio_func read_private_key,
+                             const char * filedata,
+                             size_t filedata_len,
+                             unsigned const char *passphrase)
+{
+    BIO * bp;
+
+    *key_ctx = NULL;
+
+    bp = BIO_new_mem_buf(filedata, filedata_len);
+    if (!bp) {
+        return -1;
+    }
+    *key_ctx = read_private_key(bp, NULL, (pem_password_cb *) passphrase_cb,
+                                (void *) passphrase);
+
+    BIO_free(bp);
+    return (*key_ctx) ? 0 : -1;
+}
+
+static int
 read_private_key_from_file(void ** key_ctx,
                            pem_read_bio_func read_private_key,
                            const char * filename,
@@ -409,6 +431,22 @@ read_private_key_from_file(void ** key_ctx,
     return (*key_ctx) ? 0 : -1;
 }
 
+ int
+_libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
+                                    LIBSSH2_SESSION * session,
+                                    const char *filedata, size_t filedata_len,
+                                    unsigned const char *passphrase)
+{
+    pem_read_bio_func read_rsa =
+        (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
+    (void) session;
+
+    _libssh2_init_if_needed();
+
+    return read_private_key_from_memory((void **) rsa, read_rsa,
+                                        filedata, filedata_len, passphrase);
+}
+
 int
 _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
                          LIBSSH2_SESSION * session,
@@ -425,6 +463,22 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
 }
 
 #if LIBSSH2_DSA
+int
+_libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
+                                    LIBSSH2_SESSION * session,
+                                    const char *filedata, size_t filedata_len,
+                                    unsigned const char *passphrase)
+{
+    pem_read_bio_func read_dsa =
+        (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
+    (void) session;
+
+    _libssh2_init_if_needed();
+
+    return read_private_key_from_memory((void **) dsa, read_dsa,
+                                        filedata, filedata_len, passphrase);
+}
+
 int
 _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
                          LIBSSH2_SESSION * session,
@@ -802,6 +856,73 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     case EVP_PKEY_DSA :
         st = gen_publickey_from_dsa_evp(
             session, method, method_len, pubkeydata, pubkeydata_len, pk);
+        break;
+
+    default :
+        st = _libssh2_error(session,
+                            LIBSSH2_ERROR_FILE,
+                            "Unable to extract public key "
+                            "from private key file: "
+                            "Unsupported private key file format");
+        break;
+    }
+
+    EVP_PKEY_free(pk);
+    return st;
+}
+
+int
+_libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
+                                unsigned char **method,
+                                size_t *method_len,
+                                unsigned char **pubkeydata,
+                                size_t *pubkeydata_len,
+                                const char *privatekeydata,
+                                size_t privatekeydata_len,
+                                const char *passphrase)
+{
+    int       st;
+    BIO*      bp;
+    EVP_PKEY* pk;
+
+    _libssh2_debug(session,
+                   LIBSSH2_TRACE_AUTH,
+                   "Computing public key from private key.");
+
+    bp = BIO_new_mem_buf(privatekeydata, privatekeydata_len);
+    if (!bp) {
+        return -1;
+    }
+    if (!EVP_get_cipherbyname("des")) {
+        /* If this cipher isn't loaded it's a pretty good indication that none
+         * are.  I have *NO DOUBT* that there's a better way to deal with this
+         * ($#&%#$(%$#( Someone buy me an OpenSSL manual and I'll read up on
+         * it.
+         */
+        OpenSSL_add_all_ciphers();
+    }
+    BIO_reset(bp);
+    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void*)passphrase);
+    BIO_free(bp);
+
+    if (pk == NULL) {
+        return _libssh2_error(session,
+                              LIBSSH2_ERROR_FILE,
+                              "Unable to extract public key "
+                              "from private key file: "
+                              "Wrong passphrase or invalid/unrecognized "
+                              "private key file format");
+    }
+
+    switch (pk->type) {
+    case EVP_PKEY_RSA :
+        st = gen_publickey_from_rsa_evp(session, method, method_len,
+                                        pubkeydata, pubkeydata_len, pk);
+        break;
+
+    case EVP_PKEY_DSA :
+        st = gen_publickey_from_dsa_evp(session, method, method_len,
+                                        pubkeydata, pubkeydata_len, pk);
         break;
 
     default :
