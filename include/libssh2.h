@@ -576,6 +576,26 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
                                         (username),                     \
                                         (unsigned int)strlen(username))
 
+LIBSSH2_API int
+libssh2_userauth_publickey_frommemory_ex(LIBSSH2_SESSION *session,
+                                      const char *username,
+                                      unsigned int username_len,
+                                      const char *publickeyfiledata,
+                                      size_t publickeyfiledata_len,
+                                      const char *privatekeyfiledata,
+                                      size_t privatekeyfiledata_len,
+                                      const char *passphrase);
+
+#define libssh2_userauth_publickey_frommemory(session, username, publickey, \
+                                              privatekey, passphrase) \
+ libssh2_userauth_publickey_frommemory_ex((session), (username), \
+                                          (unsigned int)strlen(username),   \
+                                          (publickey),                      \
+                                          (unsigned int)strlen(publickey),  \
+                                          (privatekey),                     \
+                                          (unsigned int)strlen(privatekey), \
+                                          (passphrase))
+
 /*
  * response_callback is provided with filled by library prompts array,
  * but client must allocate and fill individual responses. Responses

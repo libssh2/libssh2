@@ -150,6 +150,17 @@ _libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
 }
 
 int
+_libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
+                                    LIBSSH2_SESSION * session,
+                                    const char *filedata, size_t filedata_len,
+                                    unsigned const char *passphrase)
+{
+    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                         "Unable to extract private key from memory: "
+                         "Method unimplemented in libgcrypt backend");
+}
+
+int
 _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
                          LIBSSH2_SESSION * session,
                          const char *filename, unsigned const char *passphrase)
@@ -249,6 +260,17 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
   fail:
     LIBSSH2_FREE(session, save_data);
     return ret;
+}
+
+int
+_libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
+                                    LIBSSH2_SESSION * session,
+                                    const char *filedata, size_t filedata_len,
+                                    unsigned const char *passphrase)
+{
+    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                         "Unable to extract private key from memory: "
+                         "Method unimplemented in libgcrypt backend");
 }
 
 int
@@ -564,6 +586,21 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
         ret = gcry_cipher_decrypt(*ctx, block, blklen, block, blklen);
     }
     return ret;
+}
+
+int
+_libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
+                                unsigned char **method,
+                                size_t *method_len,
+                                unsigned char **pubkeydata,
+                                size_t *pubkeydata_len,
+                                const char *privatekeydata,
+                                size_t privatekeydata_len,
+                                const char *passphrase)
+{
+    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                         "Unable to extract public key from private key in memory: "
+                         "Method unimplemented in libgcrypt backend");
 }
 
 int
