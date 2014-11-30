@@ -17,11 +17,6 @@ ifndef OPENSSL_PATH
 OPENSSL_PATH = ../../openssl-0.9.8y
 endif
 
-# Edit the var below to set to your architecture or set environment var.
-ifndef ARCH
-ARCH = w32
-endif
-
 # Edit the path below to point to your Distribution folder.
 ifndef DISTDIR
 DISTDIR	= libssh2-$(LIBSSH2_VERSION_STR)-bin-$(ARCH)
@@ -95,14 +90,24 @@ else
 	CC = $(CROSSPREFIX)gcc
 endif
 
+# Set environment var ARCH to your architecture to override autodetection.
+ifndef ARCH
+ifeq ($(findstring gcc,$(CC)),gcc)
+ifeq ($(findstring x86_64,$(shell $(CC) -dumpmachine)),x86_64)
+ARCH	= w64
+else
+ARCH	= w32
+endif
+else
+ARCH	= w32
+endif
+endif
+
 # Include the version info retrieved from libssh2.h
 -include $(OBJDIR)/version.inc
 
 # Global flags for all compilers
 CFLAGS	= $(OPT) -D$(DB) -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
-ifeq ($(ARCH),w64)
-CFLAGS	+= -D_AMD64_
-endif
 
 ifeq ($(CC),mwcc)
 LD	= mwld
@@ -129,13 +134,26 @@ LIBEXT	= a
 RANLIB	= $(CROSSPREFIX)ranlib
 #LDLIBS	+= -lwsock32
 LDLIBS	+= -lws2_32
-RCFLAGS	= -I. -I ../include -O coff -i
+RCFLAGS	= -I ../include -O coff
+CFLAGS	+= -fno-builtin
 CFLAGS	+= -fno-strict-aliasing
 CFLAGS	+= -Wall # -pedantic
+ifeq ($(ARCH),w64)
+CFLAGS	+= -D_AMD64_
+RCFLAGS	+= -F pe-x86-64
+else
+CFLAGS	+= -m32
+RCFLAGS	+= -F pe-i386
+endif
 endif
 
 INCLUDES = -I. -I../include
 
+ifdef WITH_WINCNG
+CFLAGS	+= -DLIBSSH2_WINCNG
+LDLIBS	+= -lbcrypt -lcrypt32
+else
+CFLAGS	+= -DLIBSSH2_OPENSSL
 ifndef OPENSSL_INCLUDE
 	ifeq "$(wildcard $(OPENSSL_PATH)/outinc)" "$(OPENSSL_PATH)/outinc"
 		OPENSSL_INCLUDE = $(OPENSSL_PATH)/outinc
@@ -164,6 +182,7 @@ ifdef LINK_OPENSSL_STATIC
 else
 	LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
 endif
+endif
 
 ifdef WITH_ZLIB
 	CFLAGS += -DLIBSSH2_HAVE_ZLIB
@@ -177,11 +196,13 @@ endif
 
 CFLAGS	+= $(INCLUDES)
 
-vpath %.c . ../src
+vpath %.c ../src
 
-# only OpenSSL is supported with this build system
-CFLAGS += -DLIBSSH2_OPENSSL
+ifdef WITH_WINCNG
+include ../Makefile.WinCNG.inc
+else
 include ../Makefile.OpenSSL.inc
+endif
 
 # include Makefile.inc to get CSOURCES define
 include ../Makefile.inc
@@ -237,7 +258,7 @@ dev: all $(DEVLDIR) $(DEVLDIR)/readme.txt
 	@echo Creating $(DEVLARC)
 	@$(ZIP) $(DEVLARC) $(DEVLDIR)/* < $(DEVLDIR)/readme.txt
 
-distclean: clean
+distclean vclean: clean
 	$(call RMDIR, $(DISTDIR))
 	$(call DEL, $(DISTARC))
 
@@ -281,7 +302,7 @@ $(TARGET).dll $(TARGET)dll.a: $(OBJL)
 
 $(OBJDIR)/%.res: %.rc
 	@echo Creating $@
-	@$(RC) $(RCFLAGS) $< -o $@
+	@$(RC) $(RCFLAGS) -i $< -o $@
 
 
 $(DISTDIR)/readme.txt: GNUmakefile
