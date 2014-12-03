@@ -29,6 +29,9 @@ DEVLDIR	= libssh2-$(LIBSSH2_VERSION_STR)-dev-$(ARCH)
 endif
 DEVLARC	= $(DEVLDIR).zip
 
+# Project root
+PROOT	= ..
+
 # Edit the vars below to change target settings.
 TARGET	= libssh2
 WWWURL	= http://www.libssh2.org/
@@ -134,7 +137,7 @@ LIBEXT	= a
 RANLIB	= $(CROSSPREFIX)ranlib
 #LDLIBS	+= -lwsock32
 LDLIBS	+= -lws2_32
-RCFLAGS	= -I ../include -O coff
+RCFLAGS	= -I $(PROOT)/include -O coff
 CFLAGS	+= -fno-builtin
 CFLAGS	+= -fno-strict-aliasing
 CFLAGS	+= -Wall # -pedantic
@@ -147,7 +150,7 @@ RCFLAGS	+= -F pe-i386
 endif
 endif
 
-INCLUDES = -I. -I../include
+INCLUDES = -I$(PROOT)/win32 -I$(PROOT)/include
 
 ifdef WITH_WINCNG
 CFLAGS	+= -DLIBSSH2_WINCNG
@@ -196,20 +199,21 @@ endif
 
 CFLAGS	+= $(INCLUDES)
 
-vpath %.c ../src
+vpath %.c $(PROOT)/src
 
 ifdef WITH_WINCNG
-include ../Makefile.WinCNG.inc
+include $(PROOT)/Makefile.WinCNG.inc
 else
-include ../Makefile.OpenSSL.inc
+include $(PROOT)/Makefile.OpenSSL.inc
 endif
 
 # include Makefile.inc to get CSOURCES define
-include ../Makefile.inc
+include $(PROOT)/Makefile.inc
 
 OBJECTS	:= $(patsubst %.c,%.o,$(CSOURCES))
 OBJS	:= $(addprefix $(OBJDIR)/,$(OBJECTS))
 OBJL	= $(OBJS) $(OBJDIR)/$(TARGET).res
+
 
 all: lib dll
 
@@ -227,17 +231,17 @@ $(OBJDIR)/%.o: %.c
 #	@echo Compiling $<
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJDIR)/version.inc: ../get_ver.awk ../include/libssh2.h $(OBJDIR)
+$(OBJDIR)/version.inc: $(PROOT)/get_ver.awk $(PROOT)/include/libssh2.h $(OBJDIR)
 	@echo Creating $@
 	@$(AWK) -f $^ > $@
 
 dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@$(call MKDIR, $(DISTDIR)/bin)
-	@$(call COPY, ../AUTHORS, $(DISTDIR))
-	@$(call COPY, ../COPYING, $(DISTDIR))
-	@$(call COPY, ../INSTALL, $(DISTDIR))
-	@$(call COPY, ../README, $(DISTDIR))
-	@$(call COPY, ../RELEASE-NOTES, $(DISTDIR))
+	@$(call COPY, $(PROOT)/AUTHORS, $(DISTDIR))
+	@$(call COPY, $(PROOT)/COPYING, $(DISTDIR))
+	@$(call COPY, $(PROOT)/INSTALL, $(DISTDIR))
+	@$(call COPY, $(PROOT)/README, $(DISTDIR))
+	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DISTDIR))
 	@$(call COPY, $(TARGET).dll, $(DISTDIR)/bin)
 	@echo Creating $(DISTARC)
 	@$(ZIP) $(DISTARC) $(DISTDIR)/* < $(DISTDIR)/readme.txt
@@ -246,13 +250,13 @@ dev: all $(DEVLDIR) $(DEVLDIR)/readme.txt
 	@$(call MKDIR, $(DEVLDIR)/bin)
 	@$(call MKDIR, $(DEVLDIR)/include)
 	@$(call MKDIR, $(DEVLDIR)/win32)
-	@$(call COPY, ../AUTHORS, $(DEVLDIR))
-	@$(call COPY, ../COPYING, $(DEVLDIR))
-	@$(call COPY, ../INSTALL, $(DEVLDIR))
-	@$(call COPY, ../README, $(DEVLDIR))
-	@$(call COPY, ../RELEASE-NOTES, $(DEVLDIR))
+	@$(call COPY, $(PROOT)/AUTHORS, $(DEVLDIR))
+	@$(call COPY, $(PROOT)/COPYING, $(DEVLDIR))
+	@$(call COPY, $(PROOT)/INSTALL, $(DEVLDIR))
+	@$(call COPY, $(PROOT)/README, $(DEVLDIR))
+	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DEVLDIR))
 	@$(call COPY, $(TARGET).dll, $(DEVLDIR)/bin)
-	@$(call COPY, ../include/*.h, $(DEVLDIR)/include)
+	@$(call COPY, $(PROOT)/include/*.h, $(DEVLDIR)/include)
 	@$(call COPY, libssh2_config.h, $(DEVLDIR)/include)
 	@$(call COPY, *.$(LIBEXT), $(DEVLDIR)/win32)
 	@echo Creating $(DEVLARC)
