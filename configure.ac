@@ -107,10 +107,10 @@ if test "$ac_cv_libssl" = "yes"; then
   LIBSREQUIRED=libssl,libcrypto
 
   # Not all OpenSSL have AES-CTR functions.
-  save_LDFLAGS="$LDFLAGS"
-  LDFLAGS="$LDFLAGS $LIBSSL"
+  save_LIBS="$LIBS"
+  LIBS="$LIBS $LIBSSL"
   AC_CHECK_FUNCS(EVP_aes_128_ctr)
-  LDFLAGS="$save_LDFLAGS"
+  LIBS="$save_LIBS"
 
   found_crypto="OpenSSL (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A})"
 fi
