@@ -623,8 +623,8 @@ _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
                               unsigned char **ppbDecoded,
                               unsigned long *pcbDecoded)
 {
-    unsigned char *pbDecoded, *pbInteger;
-    unsigned long cbDecoded, cbInteger;
+    unsigned char *pbDecoded = NULL, *pbInteger;
+    unsigned long cbDecoded = 0, cbInteger;
     int ret;
 
     ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
@@ -755,7 +755,7 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
     BCRYPT_RSAKEY_BLOB *rsakey;
     LPCWSTR lpszBlobType;
     unsigned char *key;
-    unsigned long keylen, offset, mlen, p1len, p2len;
+    unsigned long keylen, offset, mlen, p1len = 0, p2len = 0;
     int ret;
 
     mlen = max(_libssh2_wincng_bn_size(ndata, nlen),
