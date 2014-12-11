@@ -1276,7 +1276,7 @@ _libssh2_wincng_pub_priv_keyfile(LIBSSH2_SESSION *session,
 #ifdef HAVE_LIBCRYPT32
     unsigned char *pbEncoded, **rpbDecoded;
     unsigned long cbEncoded, *rcbDecoded;
-    unsigned char *key, *mth;
+    unsigned char *key = NULL, *mth = NULL;
     unsigned long keylen, mthlen, index, offset, length;
     int ret;
 
