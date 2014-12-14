@@ -546,8 +546,8 @@ _libssh2_wincng_asn_decode(unsigned char *pbEncoded,
                            unsigned char **ppbDecoded,
                            unsigned long *pcbDecoded)
 {
-    unsigned char *pbDecoded;
-    unsigned long cbDecoded;
+    unsigned char *pbDecoded = NULL;
+    unsigned long cbDecoded = 0;
     int ret;
 
     ret = CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
