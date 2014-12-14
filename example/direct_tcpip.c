@@ -65,8 +65,13 @@ int main(int argc, char *argv[])
 #ifdef WIN32
     char sockopt;
     WSADATA wsadata;
+    int err;
 
-    WSAStartup(MAKEWORD(2,0), &wsadata);
+    err = WSAStartup(MAKEWORD(2,0), &wsadata);
+    if (err != 0) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+        return 1;
+    }
 #else
     int sockopt;
 #endif
