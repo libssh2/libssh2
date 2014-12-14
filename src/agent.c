@@ -303,6 +303,12 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
                               "failed setting up pageant filemap");
 
     p2 = p = MapViewOfFile(filemap, FILE_MAP_WRITE, 0, 0, 0);
+    if (p == NULL || p2 == NULL) {
+        CloseHandle(filemap);
+        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                              "failed to open pageant filemap for writing");
+    }
+
     _libssh2_store_str(&p2, (const char *)transctx->request,
                        transctx->request_len);
 
