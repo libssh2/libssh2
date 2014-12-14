@@ -218,9 +218,11 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                     }
 
                     /* Link the channel into the end of the queue list */
-                    _libssh2_list_add(&listn->queue,
-                                      &listen_state->channel->node);
-                    listn->queue_size++;
+                    if (listen_state->channel) {
+                        _libssh2_list_add(&listn->queue,
+                                          &listen_state->channel->node);
+                        listn->queue_size++;
+                    }
 
                     listen_state->state = libssh2_NB_state_idle;
                     return 0;
