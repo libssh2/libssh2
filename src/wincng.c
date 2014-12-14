@@ -597,16 +597,17 @@ _libssh2_wincng_bn_ltob(unsigned char *pbInput,
     cbOutput = cbInput;
     if (pbInput[length] & (1 << 7)) {
         offset++;
-        cbOutput++;
+        cbOutput += offset;
     }
 
-    pbOutput = malloc(cbOutput);
+    pbOutput = (unsigned char *)malloc(cbOutput);
     if (!pbOutput) {
         return -1;
     }
 
     pbOutput[0] = 0;
-    for (index = 0; index < cbInput; index++) {
+    for (index = 0; ((index + offset) < cbOutput)
+                    && (index < cbInput); index++) {
         pbOutput[index + offset] = pbInput[length - index];
     }
 
