@@ -96,6 +96,18 @@ int main(int argc, char *argv[])
 
     /* Connect to SSH server */
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+#ifdef WIN32
+    if (sock == INVALID_SOCKET) {
+        fprintf(stderr, "failed to open socket!\n");
+        return -1;
+    }
+#else
+    if (sock == -1) {
+        perror("socket");
+        return -1;
+    }
+#endif
+
     sin.sin_family = AF_INET;
     if (INADDR_NONE == (sin.sin_addr.s_addr = inet_addr(server_ip))) {
         perror("inet_addr");
