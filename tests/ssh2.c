@@ -39,16 +39,22 @@ int main(int argc, char *argv[])
     char *userauthlist;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
-#ifdef WIN32
-    WSADATA wsadata;
-
-    WSAStartup(MAKEWORD(2,0), &wsadata);
-#endif
     const char *pubkeyfile="etc/user.pub";
     const char *privkeyfile="etc/user";
     const char *username="username";
     const char *password="password";
     int ec = 1;
+
+#ifdef WIN32
+    WSADATA wsadata;
+    int err;
+
+    err = WSAStartup(MAKEWORD(2,0), &wsadata);
+    if (err != 0) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+        return -1;
+    }
+#endif
 
     (void)argc;
     (void)argv;
