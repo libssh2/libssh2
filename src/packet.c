@@ -1157,8 +1157,7 @@ _libssh2_packet_burn(LIBSSH2_SESSION * session,
 {
     unsigned char *data;
     size_t data_len;
-    unsigned char all_packets[255];
-    int i;
+    unsigned char i, all_packets[255];
     int ret;
 
     if (*state == libssh2_NB_state_idle) {
@@ -1193,7 +1192,8 @@ _libssh2_packet_burn(LIBSSH2_SESSION * session,
 
         /* Be lazy, let packet_ask pull it out of the brigade */
         if (0 ==
-            _libssh2_packet_ask(session, ret, &data, &data_len, 0, NULL, 0)) {
+            _libssh2_packet_ask(session, (unsigned char)ret,
+                                         &data, &data_len, 0, NULL, 0)) {
             /* Smoke 'em if you got 'em */
             LIBSSH2_FREE(session, data);
             *state = libssh2_NB_state_idle;

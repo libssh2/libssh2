@@ -1622,7 +1622,7 @@ libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
     int rc;
 
     if(!channel)
-        return LIBSSH2_ERROR_BAD_USE;
+        return (unsigned long)LIBSSH2_ERROR_BAD_USE;
 
     BLOCK_ADJUST(rc, channel->session,
                  _libssh2_channel_receive_window_adjust(channel, adj,
@@ -1669,7 +1669,7 @@ _libssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
                        "Setting channel %lu/%lu handle_extended_data"
                        " mode to %d",
                        channel->local.id, channel->remote.id, ignore_mode);
-        channel->remote.extended_data_ignore_mode = ignore_mode;
+        channel->remote.extended_data_ignore_mode = (char)ignore_mode;
 
         channel->extData2_state = libssh2_NB_state_created;
     }

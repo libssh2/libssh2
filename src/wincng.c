@@ -1278,7 +1278,8 @@ _libssh2_wincng_pub_priv_keyfile(LIBSSH2_SESSION *session,
     unsigned char *pbEncoded, **rpbDecoded;
     unsigned long cbEncoded, *rcbDecoded;
     unsigned char *key = NULL, *mth = NULL;
-    unsigned long keylen, mthlen, index, offset, length;
+    unsigned long keylen = 0, mthlen = 0;
+    unsigned long index, offset, length;
     int ret;
 
     ret = _libssh2_wincng_load_private(session, privatekey, passphrase,

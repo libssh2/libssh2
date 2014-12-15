@@ -1618,7 +1618,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
 
             filename_len = real_filename_len;
             if (filename_len >= buffer_maxlen) {
-                filename_len = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
                 goto end;
             }
 
@@ -1633,7 +1633,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 longentry_len = real_longentry_len;
 
                 if (longentry_len >= longentry_maxlen) {
-                    filename_len = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                    filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
                     goto end;
                 }
 

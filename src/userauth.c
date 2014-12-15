@@ -216,7 +216,8 @@ userauth_password(LIBSSH2_SESSION *session,
          * chgpwdbool(1) + password_len(4) */
         session->userauth_pswd_data_len = username_len + 40;
 
-        session->userauth_pswd_data0 = ~SSH_MSG_USERAUTH_PASSWD_CHANGEREQ;
+        session->userauth_pswd_data0 =
+            (unsigned char) ~SSH_MSG_USERAUTH_PASSWD_CHANGEREQ;
 
         /* TODO: remove this alloc with a fixed buffer in the session
            struct */

@@ -266,15 +266,15 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
             continue;
         switch (i % 4) {
         case 0:
-            d[len] = v << 2;
+            d[len] = (unsigned char)(v << 2);
             break;
         case 1:
             d[len++] |= v >> 4;
-            d[len] = v << 4;
+            d[len] = (unsigned char)(v << 4);
             break;
         case 2:
             d[len++] |= v >> 2;
-            d[len] = v << 6;
+            d[len] = (unsigned char)(v << 6);
             break;
         case 3:
             d[len++] |= v;
@@ -605,7 +605,7 @@ int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp)
     unsigned __int64 ns100; /*time since 1 Jan 1601 in 100ns units */
     FILETIME ft;
   }  _now;
-
+  (void)tzp;
   if(tp)
     {
       GetSystemTimeAsFileTime (&_now.ft);
