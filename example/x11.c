@@ -289,6 +289,10 @@ main (int argc, char *argv[])
     }
 
     sock = socket (AF_INET, SOCK_STREAM, 0);
+    if (sock == -1) {
+        perror("socket");
+        return -1;
+    }
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons (22);
