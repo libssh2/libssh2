@@ -922,6 +922,9 @@ void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format,
 static inline void
 _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 {
+    (void)session;
+    (void)context;
+    (void)format;
 }
 #endif
 #endif
