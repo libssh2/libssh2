@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2005,2006 Mikhail Gusarov
- * Copyright (c) 2009-2013 by Daniel Stenberg
+ * Copyright (c) 2009-2014 by Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson
  * All rights reserved.
  *
@@ -139,7 +139,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                         break;
                     }
 
-                    channel = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
+                    channel = LIBSSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
                     if (!channel) {
                         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                        "Unable to allocate a channel for "
@@ -149,8 +149,6 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                         break;
                     }
                     listen_state->channel = channel;
-
-                    memset(channel, 0, sizeof(LIBSSH2_CHANNEL));
 
                     channel->session = session;
                     channel->channel_type_len = sizeof("forwarded-tcpip") - 1;
@@ -299,14 +297,13 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
 
     if (session->x11) {
         if (x11open_state->state == libssh2_NB_state_allocated) {
-            channel = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
+            channel = LIBSSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
             if (!channel) {
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                "allocate a channel for new connection");
                 failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                 goto x11_exit;
             }
-            memset(channel, 0, sizeof(LIBSSH2_CHANNEL));
 
             channel->session = session;
             channel->channel_type_len = sizeof("x11") - 1;

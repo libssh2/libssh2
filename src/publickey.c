@@ -350,13 +350,12 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
         }
 
         session->pkeyInit_pkey =
-            LIBSSH2_ALLOC(session, sizeof(LIBSSH2_PUBLICKEY));
+            LIBSSH2_CALLOC(session, sizeof(LIBSSH2_PUBLICKEY));
         if (!session->pkeyInit_pkey) {
             _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate a new publickey structure");
             goto err_exit;
         }
-        memset(session->pkeyInit_pkey, 0, sizeof(LIBSSH2_PUBLICKEY));
         session->pkeyInit_pkey->channel = session->pkeyInit_channel;
         session->pkeyInit_pkey->version = 0;
 

@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2010 by Daniel Stenberg
+ * Copyright (c) 2009-2014 by Daniel Stenberg
  * Copyright (c) 2010  Simon Josefsson
  * All rights reserved.
  *
@@ -619,3 +619,12 @@ int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp)
 
 
 #endif
+
+void *_libssh2_calloc(LIBSSH2_SESSION* session, size_t size)
+{
+    void *p = LIBSSH2_ALLOC(session, size);
+    if(p) {
+        memset(p, 0, size);
+    }
+    return p;
+}

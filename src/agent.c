@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2009 by Daiki Ueno
- * Copyright (C) 2010 by Daniel Stenberg
+ * Copyright (C) 2014 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -660,13 +660,12 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
 {
     LIBSSH2_AGENT *agent;
 
-    agent = LIBSSH2_ALLOC(session, sizeof *agent);
+    agent = LIBSSH2_CALLOC(session, sizeof *agent);
     if (!agent) {
         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                        "Unable to allocate space for agent connection");
         return NULL;
     }
-    memset(agent, 0, sizeof *agent);
     agent->fd = LIBSSH2_INVALID_SOCKET;
     agent->session = session;
     _libssh2_list_init(&agent->head);

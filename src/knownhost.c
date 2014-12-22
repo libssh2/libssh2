@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 by Daniel Stenberg
+ * Copyright (c) 2009-2014 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -149,12 +149,10 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         return _libssh2_error(hosts->session, LIBSSH2_ERROR_INVAL,
                               "No key type set");
 
-    if(!(entry = LIBSSH2_ALLOC(hosts->session, sizeof(struct known_host))))
+    if(!(entry = LIBSSH2_CALLOC(hosts->session, sizeof(struct known_host))))
         return _libssh2_error(hosts->session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory for known host "
                               "entry");
-
-    memset(entry, 0, sizeof(struct known_host));
 
     entry->typemask = typemask;
 

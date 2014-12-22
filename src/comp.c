@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2010, Daniel Stenberg <daniel@haxx.se>
+ * Copyright (c) 2010-2014, Daniel Stenberg <daniel@haxx.se>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -141,13 +141,12 @@ comp_method_zlib_init(LIBSSH2_SESSION * session, int compr,
     z_stream *strm;
     int status;
 
-    strm = LIBSSH2_ALLOC(session, sizeof(z_stream));
+    strm = LIBSSH2_CALLOC(session, sizeof(z_stream));
     if (!strm) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory for "
                               "zlib compression/decompression");
     }
-    memset(strm, 0, sizeof(z_stream));
 
     strm->opaque = (voidpf) session;
     strm->zalloc = (alloc_func) comp_method_zlib_alloc;

@@ -158,14 +158,12 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
                        "Opening Channel - win %d pack %d", window_size,
                        packet_size);
         session->open_channel =
-            LIBSSH2_ALLOC(session, sizeof(LIBSSH2_CHANNEL));
+            LIBSSH2_CALLOC(session, sizeof(LIBSSH2_CHANNEL));
         if (!session->open_channel) {
             _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate space for channel data");
             return NULL;
         }
-        memset(session->open_channel, 0, sizeof(LIBSSH2_CHANNEL));
-
         session->open_channel->channel_type_len = channel_type_len;
         session->open_channel->channel_type =
             LIBSSH2_ALLOC(session, channel_type_len);
@@ -509,12 +507,11 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
         if (data[0] == SSH_MSG_REQUEST_SUCCESS) {
             LIBSSH2_LISTENER *listener;
 
-            listener = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_LISTENER));
+            listener = LIBSSH2_CALLOC(session, sizeof(LIBSSH2_LISTENER));
             if (!listener)
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                "Unable to allocate memory for listener queue");
             else {
-                memset(listener, 0, sizeof(LIBSSH2_LISTENER));
                 listener->host =
                     LIBSSH2_ALLOC(session, session->fwdLstn_host_len + 1);
                 if (!listener->host) {

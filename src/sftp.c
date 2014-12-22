@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2007 Eli Fant <elifantu@mail.ru>
- * Copyright (c) 2009-2013 by Daniel Stenberg
+ * Copyright (c) 2009-2014 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -781,13 +781,12 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
         sftp_handle =
             session->sftpInit_sftp =
-            LIBSSH2_ALLOC(session, sizeof(LIBSSH2_SFTP));
+            LIBSSH2_CALLOC(session, sizeof(LIBSSH2_SFTP));
         if (!sftp_handle) {
             _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate a new SFTP structure");
             goto sftp_init_error;
         }
-        memset(sftp_handle, 0, sizeof(LIBSSH2_SFTP));
         sftp_handle->channel = session->sftpInit_channel;
         sftp_handle->request_id = 0;
 
@@ -1173,14 +1172,13 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
             return NULL;
         }
 
-        fp = LIBSSH2_ALLOC(session, sizeof(LIBSSH2_SFTP_HANDLE));
+        fp = LIBSSH2_CALLOC(session, sizeof(LIBSSH2_SFTP_HANDLE));
         if (!fp) {
             _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                            "Unable to allocate new SFTP handle structure");
             LIBSSH2_FREE(session, data);
             return NULL;
         }
-        memset(fp, 0, sizeof(LIBSSH2_SFTP_HANDLE));
         fp->handle_type = open_file ? LIBSSH2_SFTP_HANDLE_FILE :
             LIBSSH2_SFTP_HANDLE_DIR;
 

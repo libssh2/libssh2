@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2008, 2010, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2011 by Daniel Stenberg
+ * Copyright (c) 2009-2014 by Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson
  * All rights reserved.
  *
@@ -152,6 +152,7 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
 
 #define LIBSSH2_ALLOC(session, count) \
   session->alloc((count), &(session)->abstract)
+#define LIBSSH2_CALLOC(session, count) _libssh2_calloc(session, count)
 #define LIBSSH2_REALLOC(session, ptr, count) \
  ((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : \
  session->alloc((count), &(session)->abstract))
