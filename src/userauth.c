@@ -1522,7 +1522,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                     goto cleanup;
                 }
 
-                for(i = 0; i != session->userauth_kybd_num_prompts; ++i) {
+                for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
                     /* string    prompt[1] (ISO-10646 UTF-8) */
                     session->userauth_kybd_prompts[i].length =
                         _libssh2_ntohu32(s);
@@ -1561,7 +1561,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                 + 4             /* int       num-responses */
                 ;
 
-            for(i = 0; i != session->userauth_kybd_num_prompts; ++i) {
+            for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
                 /* string    response[1] (ISO-10646 UTF-8) */
                 session->userauth_kybd_packet_len +=
                     4 + session->userauth_kybd_responses[i].length;
@@ -1584,7 +1584,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             s++;
             _libssh2_store_u32(&s, session->userauth_kybd_num_prompts);
 
-            for(i = 0; i != session->userauth_kybd_num_prompts; ++i) {
+            for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
                 _libssh2_store_str(&s,
                                    session->userauth_kybd_responses[i].text,
                                    session->userauth_kybd_responses[i].length);
@@ -1620,14 +1620,14 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
         session->userauth_kybd_data = NULL;
 
         if (session->userauth_kybd_prompts) {
-            for(i = 0; i != session->userauth_kybd_num_prompts; ++i) {
+            for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
                 LIBSSH2_FREE(session, session->userauth_kybd_prompts[i].text);
                 session->userauth_kybd_prompts[i].text = NULL;
             }
         }
 
         if (session->userauth_kybd_responses) {
-            for(i = 0; i != session->userauth_kybd_num_prompts; ++i) {
+            for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
                 LIBSSH2_FREE(session,
                              session->userauth_kybd_responses[i].text);
                 session->userauth_kybd_responses[i].text = NULL;
