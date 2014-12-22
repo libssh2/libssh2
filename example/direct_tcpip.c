@@ -48,7 +48,7 @@ enum {
 
 int main(int argc, char *argv[])
 {
-    int rc, sock = -1, listensock = -1, forwardsock = -1, i, auth = AUTH_NONE;
+    int rc, i, auth = AUTH_NONE;
     struct sockaddr_in sin;
     socklen_t sinlen;
     const char *fingerprint;
@@ -64,6 +64,8 @@ int main(int argc, char *argv[])
 
 #ifdef WIN32
     char sockopt;
+    SOCKET sock = INVALID_SOCKET;
+    SOCKET listensock = INVALID_SOCKET, forwardsock = INVALID_SOCKET;
     WSADATA wsadata;
     int err;
 
@@ -73,7 +75,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 #else
-    int sockopt;
+    int sockopt, sock = -1;
+    int listensock = -1, forwardsock = -1;
 #endif
 
     if (argc > 1)
@@ -184,6 +187,18 @@ int main(int argc, char *argv[])
     }
 
     listensock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+#ifdef WIN32
+    if (listensock == INVALID_SOCKET) {
+        fprintf(stderr, "failed to open listen socket!\n");
+        return -1;
+    }
+#else
+    if (listensock == -1) {
+        perror("socket");
+        return -1;
+    }
+#endif
+
     sin.sin_family = AF_INET;
     sin.sin_port = htons(local_listenport);
     if (INADDR_NONE == (sin.sin_addr.s_addr = inet_addr(local_listenip))) {
@@ -206,10 +221,17 @@ int main(int argc, char *argv[])
         inet_ntoa(sin.sin_addr), ntohs(sin.sin_port));
 
     forwardsock = accept(listensock, (struct sockaddr *)&sin, &sinlen);
-    if (-1 == forwardsock) {
+#ifdef WIN32
+    if (forwardsock == INVALID_SOCKET) {
+        fprintf(stderr, "failed to accept forward socket!\n");
+        goto shutdown;
+    }
+#else
+    if (forwardsock == -1) {
         perror("accept");
         goto shutdown;
     }
+#endif
 
     shost = inet_ntoa(sin.sin_addr);
     sport = ntohs(sin.sin_port);

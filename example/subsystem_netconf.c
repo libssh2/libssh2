@@ -102,7 +102,7 @@ static int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
 
 int main(int argc, char *argv[])
 {
-    int rc, sock = -1, i, auth = AUTH_NONE;
+    int rc, i, auth = AUTH_NONE;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
     ssize_t len;
 
 #ifdef WIN32
+    SOCKET sock = INVALID_SOCKET;
     WSADATA wsadata;
     int err;
 
@@ -120,6 +121,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "WSAStartup failed with error: %d\n", err);
         return 1;
     }
+#else
+    int sock = -1;
 #endif
 
     if (argc > 1)
