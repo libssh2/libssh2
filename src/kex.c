@@ -1866,7 +1866,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
     }
     memcpy(s, prefs, prefs_len + 1);
 
-    while (s && *s) {
+    while (s && *s && mlist) {
         char *p = strchr(s, ',');
         int method_len = p ? (p - s) : (int) strlen(s);
 
