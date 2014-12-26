@@ -462,7 +462,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     FILE *fd;
     char c;
     unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
-    size_t pubkey_len = 0;
+    size_t pubkey_len = 0, sp_len;
     unsigned int tmp_len;
 
     _libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Loading public key file: %s",
@@ -473,8 +473,9 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Unable to open public key file");
     }
-    while (!feof(fd) && 1 == fread(&c, 1, 1, fd) && c != '\r' && c != '\n')
+    while (!feof(fd) && 1 == fread(&c, 1, 1, fd) && c != '\r' && c != '\n') {
         pubkey_len++;
+    }
     if (feof(fd)) {
         /* the last character was EOF */
         pubkey_len--;
@@ -503,8 +504,9 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     /*
      * Remove trailing whitespace
      */
-    while (pubkey_len && isspace(pubkey[pubkey_len - 1]))
+    while (pubkey_len && isspace(pubkey[pubkey_len - 1])) {
         pubkey_len--;
+    }
 
     if (!pubkey_len) {
         LIBSSH2_FREE(session, pubkey);
@@ -520,7 +522,8 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
 
     sp1++;
 
-    if ((sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey - 1))) == NULL) {
+    sp_len = sp1 > pubkey ? (sp1 - pubkey) - 1 : 0;
+    if ((sp2 = memchr(sp1, ' ', pubkey_len - sp_len)) == NULL) {
         /* Assume that the id string is missing, but that it's okay */
         sp2 = pubkey + pubkey_len;
     }
