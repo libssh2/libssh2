@@ -687,7 +687,12 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 
         if (session->socket_prev_blockstate) {
             /* If in blocking state change to non-blocking */
-            session_nonblock(session->socket_fd, 1);
+            rc = session_nonblock(session->socket_fd, 1);
+            if (rc) {
+                return _libssh2_error(session, rc,
+                                      "Failed changing socket's "
+                                      "blocking state to non-blocking");
+            }
         }
 
         session->startup_state = libssh2_NB_state_created;
