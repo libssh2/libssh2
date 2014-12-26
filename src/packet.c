@@ -1161,9 +1161,10 @@ _libssh2_packet_burn(LIBSSH2_SESSION * session,
     int ret;
 
     if (*state == libssh2_NB_state_idle) {
-        for(i = 1; i < 256; i++) {
+        for(i = 1; i < 255; i++) {
             all_packets[i - 1] = i;
         }
+        all_packets[254] = 0;
 
         if (_libssh2_packet_askv(session, all_packets, &data, &data_len, 0,
                                  NULL, 0) == 0) {
