@@ -522,8 +522,7 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
                 }
                 else {
                     listener->session = session;
-                    memcpy(listener->host, host ? host : "0.0.0.0",
-                           session->fwdLstn_host_len);
+                    memcpy(listener->host, host, session->fwdLstn_host_len);
                     listener->host[session->fwdLstn_host_len] = 0;
                     if (data_len >= 5 && !port) {
                         listener->port = _libssh2_ntohu32(data + 1);
