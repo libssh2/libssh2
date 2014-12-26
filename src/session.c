@@ -1040,9 +1040,14 @@ session_free(LIBSSH2_SESSION *session)
     _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
          "Extra packets left %d", packets_left);
 
-    if(session->socket_prev_blockstate)
+    if(session->socket_prev_blockstate) {
         /* if the socket was previously blocking, put it back so */
-        session_nonblock(session->socket_fd, 0);
+        rc = session_nonblock(session->socket_fd, 0);
+        if (rc) {
+            _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
+             "unable to reset socket's blocking state");
+        }
+    }
 
     if (session->server_hostkey) {
         LIBSSH2_FREE(session, session->server_hostkey);
