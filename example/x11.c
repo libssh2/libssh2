@@ -48,13 +48,13 @@ static void remove_node(struct chan_X11_list *elem)
     current_node = gp_x11_chan;
 
     if (gp_x11_chan == elem) {
-        /* Removing the only one element in the list */
-        free(gp_x11_chan);
-        gp_x11_chan = NULL;
+        gp_x11_chan = gp_x11_chan->next;
+        free(current_node);
+        return;
     }
 
-    while( current_node->next != NULL) {
-        if (current_node->next ==elem) {
+    while (current_node->next != NULL) {
+        if (current_node->next == elem) {
             current_node->next = current_node->next->next;
             current_node = current_node->next;
             free(current_node);
