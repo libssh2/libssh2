@@ -218,10 +218,13 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
 
         /* Data in sock*/
         rc = read(sock, buf, bufsize);
-        if (rc > 0)
-            rc = libssh2_channel_write(channel,buf, rc);
-        else
+        if (rc > 0) {
+            rc = libssh2_channel_write(channel, buf, rc);
+        }
+        else {
+            free(buf);
             return -1;
+        }
     }
 
     free(fds);
