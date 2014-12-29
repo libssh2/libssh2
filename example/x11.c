@@ -376,6 +376,9 @@ main (int argc, char *argv[])
         return -1;
     }
 
+    memset(&w_size, 0, sizeof(struct winsize));
+    memset(&w_size_bck, 0, sizeof(struct winsize));
+
     while (1) {
 
         FD_ZERO(&set);
