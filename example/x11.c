@@ -209,17 +209,17 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
     rc = libssh2_poll(fds, nfds, 0);
     if (rc >0) {
         rc = libssh2_channel_read(channel, buf, bufsize);
-        rc = write(sock, buf, rc);
+        write(sock, buf, rc);
     }
 
-    rc = select(sock+1,&set,NULL,NULL,&timeval_out);
+    rc = select(sock+1, &set, NULL, NULL, &timeval_out);
     if (rc > 0) {
-        memset((void *)buf,0,bufsize);
+        memset((void *)buf, 0, bufsize);
 
         /* Data in sock*/
         rc = read(sock, buf, bufsize);
         if (rc > 0) {
-            rc = libssh2_channel_write(channel, buf, rc);
+            libssh2_channel_write(channel, buf, rc);
         }
         else {
             free(buf);
@@ -229,7 +229,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
 
     free(fds);
     free(buf);
-    if (libssh2_channel_eof (channel) == 1) {
+    if (libssh2_channel_eof(channel) == 1) {
         return -1;
     }
     return 0;
@@ -407,7 +407,7 @@ main (int argc, char *argv[])
 
         rc = libssh2_poll(fds, nfds, 0);
         if (rc >0) {
-            rc = libssh2_channel_read(channel, buf,sizeof(buf));
+            libssh2_channel_read(channel, buf, sizeof(buf));
             fprintf(stdout, "%s", buf);
             fflush(stdout);
         }
