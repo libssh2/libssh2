@@ -1184,8 +1184,8 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
 
     for(node = _libssh2_list_first(&hosts->head);
         node;
-        node= _libssh2_list_next(&node->node) ) {
-        size_t wrote;
+        node = _libssh2_list_next(&node->node)) {
+        size_t wrote = 0;
         size_t nwrote;
         rc = knownhost_writeline(hosts, node, buffer, sizeof(buffer), &wrote,
                                  type);
