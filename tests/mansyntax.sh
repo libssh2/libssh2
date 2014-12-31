@@ -13,7 +13,8 @@ mandir=${srcdir}/../docs
 # Only test if suitable man is available
 #
 if ! man --help | grep -q warnings; then
-  exit 77
+  echo "man version not suitable, skipping tests"
+  exit 0
 fi
 
 ec=0
