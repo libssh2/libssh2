@@ -534,21 +534,25 @@ endif
 	@echo $(DL)  libssh2_channel_wait_closed,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_wait_eof,$(DL) >> $@
 	@echo $(DL)  libssh2_channel_write_ex,$(DL) >> $@
+	@echo $(DL)  libssh2_exit,$(DL) >> $@
 	@echo $(DL)  libssh2_hostkey_hash,$(DL) >> $@
-	@echo $(DL)  libssh2_scp_recv,$(DL) >> $@
-	@echo $(DL)  libssh2_scp_send64,$(DL) >> $@
-	@echo $(DL)  libssh2_scp_send_ex,$(DL) >> $@
+	@echo $(DL)  libssh2_init,$(DL) >> $@
 	@echo $(DL)  libssh2_knownhost_add,$(DL) >> $@
 	@echo $(DL)  libssh2_knownhost_check,$(DL) >> $@
+	@echo $(DL)  libssh2_knownhost_checkp,$(DL) >> $@
 	@echo $(DL)  libssh2_knownhost_free,$(DL) >> $@
 	@echo $(DL)  libssh2_knownhost_init,$(DL) >> $@
 	@echo $(DL)  libssh2_knownhost_readfile,$(DL) >> $@
 	@echo $(DL)  libssh2_knownhost_writefile,$(DL) >> $@
+	@echo $(DL)  libssh2_scp_recv,$(DL) >> $@
+	@echo $(DL)  libssh2_scp_send64,$(DL) >> $@
+	@echo $(DL)  libssh2_scp_send_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_session_abstract,$(DL) >> $@
 	@echo $(DL)  libssh2_session_block_directions,$(DL) >> $@
 	@echo $(DL)  libssh2_session_callback_set,$(DL) >> $@
 	@echo $(DL)  libssh2_session_disconnect_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_session_free,$(DL) >> $@
+	@echo $(DL)  libssh2_session_handshake,$(DL) >> $@
 	@echo $(DL)  libssh2_session_hostkey,$(DL) >> $@
 	@echo $(DL)  libssh2_session_init_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_session_last_errno,$(DL) >> $@
@@ -580,7 +584,8 @@ endif
 	@echo $(DL)  libssh2_userauth_keyboard_interactive_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_userauth_list,$(DL) >> $@
 	@echo $(DL)  libssh2_userauth_password_ex,$(DL) >> $@
-	@echo $(DL)  libssh2_userauth_publickey_fromfile_ex$(DL) >> $@
+	@echo $(DL)  libssh2_userauth_publickey_fromfile_ex,$(DL) >> $@
+	@echo $(DL)  libssh2_version$(DL) >> $@
 
 $(DISTDIR)/readme.txt: GNUmakefile
 	@echo Creating $@
