@@ -24,7 +24,6 @@ ltmain.sh
 missing
 ssh2_sample
 libssh2-*.tar.gz
-INSTALL
 install-sh
 *.o
 *.lo
