@@ -1,6 +1,6 @@
 # $Id: Makefile.am,v 1.37 2009/03/26 15:41:15 bagder Exp $
 
-EXTRA_DIST = template.3 BINDINGS
+EXTRA_DIST = template.3 BINDINGS INSTALL HACKING TODO AUTHORS
 
 dist_man_MANS = \
 	libssh2_agent_connect.3 \
