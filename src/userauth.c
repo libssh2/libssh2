@@ -1540,6 +1540,8 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                                        "keyboard-interactive prompt message");
                         goto cleanup;
                     }
+                    memcpy(session->userauth_kybd_prompts[i].text, s,
+                           session->userauth_kybd_prompts[i].length);
                     s += session->userauth_kybd_prompts[i].length;
 
                     /* boolean   echo[1] */
