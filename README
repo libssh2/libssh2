@@ -10,8 +10,8 @@ Mailing list: http://cool.haxx.se/mailman/listinfo/libssh2-devel
 
 License: see COPYING
 
-Source code: https://github.com/bagder/libssh2
+Source code: https://github.com/libssh2/libssh2
 
-Web site source code: https://github.com/bagder/libssh2-www
+Web site source code: https://github.com/libssh2/www
 
 Installation instructions are in docs/INSTALL
