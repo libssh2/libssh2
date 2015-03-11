@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2011 by Daniel Stenberg
+ * Copyright (c) 2009-2015 by Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
@@ -601,7 +601,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
         (seconds_to_next == 0 ||
          seconds_to_next > session->api_timeout)) {
         time_t now = time (NULL);
-        elapsed_ms = (long)(1000*difftime(start_time, now));
+        elapsed_ms = (long)(1000*difftime(now, start_time));
         if (elapsed_ms > session->api_timeout) {
             session->err_code = LIBSSH2_ERROR_TIMEOUT;
             return LIBSSH2_ERROR_TIMEOUT;
