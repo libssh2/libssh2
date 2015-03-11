@@ -6,6 +6,7 @@ This release includes the following changes:
 
 This release includes the following bugfixes:
 
+ o Security Advisory for CVE-2015-1782, using SSH_MSG_KEXINIT data unbounded
  o missing _libssh2_error in _libssh2_channel_write
  o knownhost: Fix DSS keys being detected as unknown.
  o knownhost: Restore behaviour of `libssh2_knownhost_writeline` with short buffer.
@@ -77,6 +78,6 @@ advice from friends like these:
  Alexander Lamaison, Bob Kast, Dan Fandrich, Daniel Stenberg, Guenter Knauf,
  Kamil Dudka, Leif Salomonsson, Marc Hörsken, Mark McPherson,
  Matthias Kerestesch, Mikhail Gusarov, Peter Stuge, Richard W.M. Jones,
- Salvador Fandino, Seth Willits
+ Salvador Fandino, Seth Willits, Mariusz Ziulek
  
         Thanks! (and sorry if I forgot to mention someone)
