@@ -86,11 +86,13 @@ int main(int argc, char *argv[])
     const char *username="username";
     const char *password="password";
     const char *sftppath="/tmp/TEST";
+#ifdef HAVE_GETTIMEOFDAY
     struct timeval start;
     struct timeval end;
+    long time_ms;
+#endif
     int rc;
     int total = 0;
-    long time_ms;
     int spin = 0;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
@@ -151,7 +153,9 @@ int main(int argc, char *argv[])
     /* Since we have set non-blocking, tell libssh2 we are non-blocking */
     libssh2_session_set_blocking(session, 0);
 
+#ifdef HAVE_GETTIMEOFDAY
     gettimeofday(&start, NULL);
+#endif
 
     /* ... start it up. This will trade welcome banners, exchange keys,
         * and setup crypto, compression, and MAC layers
@@ -254,10 +258,14 @@ int main(int argc, char *argv[])
         }
     } while (1);
 
+#ifdef HAVE_GETTIMEOFDAY
     gettimeofday(&end, NULL);
     time_ms = tvdiff(end, start);
     fprintf(stderr, "Got %d bytes in %ld ms = %.1f bytes/sec spin: %d\n", total,
            time_ms, total/(time_ms/1000.0), spin );
+#else
+    fprintf(stderr, "Got %d bytes spin: %d\n", total, spin);
+#endif
 
     libssh2_sftp_close(sftp_handle);
     libssh2_sftp_shutdown(sftp_session);

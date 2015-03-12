@@ -15,10 +15,13 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <sys/types.h>
-
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif

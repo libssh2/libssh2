@@ -87,11 +87,13 @@ int main(int argc, char *argv[])
     const char *password="password";
     const char *scppath="/tmp/TEST";
     struct stat fileinfo;
+#ifdef HAVE_GETTIMEOFDAY
     struct timeval start;
     struct timeval end;
+    long time_ms;
+#endif
     int rc;
     int total = 0;
-    long time_ms;
     int spin = 0;
     off_t got=0;
 
@@ -149,7 +151,9 @@ int main(int argc, char *argv[])
     /* Since we have set non-blocking, tell libssh2 we are non-blocking */
     libssh2_session_set_blocking(session, 0);
 
+#ifdef HAVE_GETTIMEOFDAY
     gettimeofday(&start, NULL);
+#endif
 
     /* ... start it up. This will trade welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
@@ -252,11 +256,15 @@ int main(int argc, char *argv[])
         break;
     }
 
+#ifdef HAVE_GETTIMEOFDAY
     gettimeofday(&end, NULL);
 
     time_ms = tvdiff(end, start);
     fprintf(stderr, "Got %d bytes in %ld ms = %.1f bytes/sec spin: %d\n", total,
            time_ms, total/(time_ms/1000.0), spin );
+#else
+    fprintf(stderr, "Got %d bytes spin: %d\n", total, spin);
+#endif
 
     libssh2_channel_free(channel);
     channel = NULL;

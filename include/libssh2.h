@@ -114,7 +114,7 @@ extern "C" {
 # endif /* LIBSSH2_WIN32 */
 #endif /* LIBSSH2_API */
 
-#if defined(LIBSSH2_DARWIN)
+#ifdef HAVE_SYS_UIO_H
 # include <sys/uio.h>
 #endif
 
