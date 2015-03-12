@@ -82,6 +82,7 @@
   gcry_md_hash_buffer (GCRY_MD_MD5, out, message, len)
 
 #define libssh2_hmac_ctx gcry_md_hd_t
+#define libssh2_hmac_ctx_init(ctx)
 #define libssh2_hmac_sha1_init(ctx, key, keylen) \
   gcry_md_open (ctx, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC), \
     gcry_md_setkey (*ctx, key, keylen)
