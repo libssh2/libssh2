@@ -418,6 +418,7 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                        stored hash.
                     */
                     libssh2_hmac_ctx ctx;
+                    libssh2_hmac_ctx_init(ctx);
                     unsigned char hash[SHA_DIGEST_LENGTH];
 
                     if(SHA_DIGEST_LENGTH != node->name_len) {
