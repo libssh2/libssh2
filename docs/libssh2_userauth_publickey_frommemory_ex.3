@@ -14,6 +14,8 @@ int libssh2_userauth_publickey_frommemory_ex(LIBSSH2_SESSION *session,
                                            size_t privatekeydata_len,
                                            const char *passphrase);
 .SH DESCRIPTION
+This function allows to authenticate a session with a public key read from memory.
+It's only supported when libssh2 is backed by OpenSSL.
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
 
