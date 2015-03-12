@@ -121,6 +121,8 @@ int libssh2_md5_init(libssh2_md5_ctx *);
 void libssh2_md5(const unsigned char *message, unsigned long len, unsigned char *out);
 
 #define libssh2_hmac_ctx HMAC_CTX
+#define libssh2_hmac_ctx_init(ctx) \
+  HMAC_CTX_init(&ctx)
 #define libssh2_hmac_sha1_init(ctx, key, keylen) \
   HMAC_Init(ctx, key, keylen, EVP_sha1())
 #define libssh2_hmac_md5_init(ctx, key, keylen) \
