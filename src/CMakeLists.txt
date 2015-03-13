@@ -302,7 +302,7 @@ check_nonblocking_socket_support()
 set(CMAKE_REQUIRED_LIBRARIES ${SAVE_CMAKE_REQUIRED_LIBRARIES})
 
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config.h.in
+  ${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config_cmake.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h)
 # to find generated header
 target_include_directories(libssh2 PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
