@@ -7,7 +7,7 @@ libssh2_userauth_publickey_frommemory - authenticate a session with a public key
 .nf
 int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
                                            const char *username,
-                                           unsigned int username_len,
+                                           size_t username_len,
                                            const char *publickeydata,
                                            size_t publickeydata_len,
                                            const char *privatekeydata,

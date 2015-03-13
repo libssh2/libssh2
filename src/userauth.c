@@ -1474,7 +1474,7 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
 LIBSSH2_API int
 libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
                                       const char *user,
-                                      unsigned int user_len,
+                                      size_t user_len,
                                       const char *publickeyfiledata,
                                       size_t publickeyfiledata_len,
                                       const char *privatekeyfiledata,

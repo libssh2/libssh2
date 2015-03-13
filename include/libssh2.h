@@ -579,7 +579,7 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 LIBSSH2_API int
 libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
                                       const char *username,
-                                      unsigned int username_len,
+                                      size_t username_len,
                                       const char *publickeyfiledata,
                                       size_t publickeyfiledata_len,
                                       const char *privatekeyfiledata,
