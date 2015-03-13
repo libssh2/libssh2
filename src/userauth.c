@@ -1472,7 +1472,7 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
  * Authenticate using a keypair from memory
  */
 LIBSSH2_API int
-libssh2_userauth_publickey_frommemory_ex(LIBSSH2_SESSION *session,
+libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
                                       const char *user,
                                       unsigned int user_len,
                                       const char *publickeyfiledata,
