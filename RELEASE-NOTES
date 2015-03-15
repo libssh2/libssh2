@@ -1,16 +1,25 @@
-libssh2 1.5.1
+libssh2 1.6.0
 
 This release includes the following changes:
 
- o 
+ o Added CMake build system
+ o Added libssh2_userauth_publickey_frommemory()
 
 This release includes the following bugfixes:
 
- o
+ o wait_socket: wrong use of difftime() [1]
+ o userauth: Fixed prompt text no longer being copied to the prompts struct
+ o mingw build: allow to pass custom CFLAGS
+ o Let mansyntax.sh work regardless of where it is called from
+ o Init HMAC_CTX before using it
+ o direct_tcpip: Fixed channel write
  
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
- 
+  Alexander Lamaison, Daniel Stenberg, David Calavera, Jakob Egger,
+  Viktor Szakáts, Will Cosgrove, Joe Turpin
  
         Thanks! (and sorry if I forgot to mention someone)
+
+ [1] = https://github.com/bagder/libssh2/issues/1
