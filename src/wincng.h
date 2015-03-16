@@ -149,6 +149,7 @@ typedef struct __libssh2_wincng_hash_ctx {
  */
 
 #define libssh2_hmac_ctx _libssh2_wincng_hash_ctx
+#define libssh2_hmac_ctx_init(ctx)
 #define libssh2_hmac_sha1_init(ctx, key, keylen) \
   _libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHmacSHA1, \
                             SHA_DIGEST_LENGTH, key, keylen)
