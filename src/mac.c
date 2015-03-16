@@ -186,7 +186,7 @@ mac_method_hmac_md5_hash(LIBSSH2_SESSION * session, unsigned char *buf,
 
     _libssh2_htonu32(seqno_buf, seqno);
 
-    libssh2_hmac_ctx_init();
+    libssh2_hmac_ctx_init(ctx);
     libssh2_hmac_md5_init(&ctx, *abstract, 16);
     libssh2_hmac_update(ctx, seqno_buf, 4);
     libssh2_hmac_update(ctx, packet, packet_len);
