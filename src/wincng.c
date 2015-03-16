@@ -930,6 +930,21 @@ _libssh2_wincng_rsa_new_private(libssh2_rsa_ctx **rsa,
 }
 
 int
+_libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
+                                    LIBSSH2_SESSION *session,
+                                    const char *filedata, size_t filedata_len,
+                                    unsigned const char *passphrase)
+{
+    (void)rsa;
+    (void)filedata;
+    (void)filedata_len;
+    (void)passphrase;
+    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                          "Unable to extract private key from memory: "
+                          "Method unimplemented in Windows CNG backend");
+}
+
+int
 _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                 const unsigned char *sig,
                                 unsigned long sig_len,
@@ -1177,6 +1192,21 @@ _libssh2_wincng_dsa_new_private(libssh2_dsa_ctx **dsa,
 }
 
 int
+_libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
+                                    LIBSSH2_SESSION *session,
+                                    const char *filedata, size_t filedata_len,
+                                    unsigned const char *passphrase)
+{
+    (void)dsa;
+    (void)filedata;
+    (void)filedata_len;
+    (void)passphrase;
+    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                          "Unable to extract private key from memory: "
+                          "Method unimplemented in Windows CNG backend");
+}
+
+int
 _libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
                                 const unsigned char *sig_fixed,
                                 const unsigned char *m,
@@ -1401,6 +1431,28 @@ _libssh2_wincng_pub_priv_keyfile(LIBSSH2_SESSION *session,
 #endif /* HAVE_LIBCRYPT32 */
 }
 
+int
+_libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION * session,
+                                unsigned char **method,
+                                size_t *method_len,
+                                unsigned char **pubkeydata,
+                                size_t *pubkeydata_len,
+                                const char *privatekeydata,
+                                size_t privatekeydata_len,
+                                const char *passphrase)
+{
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata_len;
+    (void)pubkeydata;
+    (void)privatekeydata;
+    (void)privatekeydata_len;
+    (void)passphrase;
+
+    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                          "Unable to extract public key from private key in memory: "
+                          "Method unimplemented in Windows CNG backend");
+}
 
 /*******************************************************************/
 /*
