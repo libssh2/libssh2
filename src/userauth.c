@@ -790,9 +790,9 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
 
     if (session->userauth_host_state == libssh2_NB_state_idle) {
         const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
-        unsigned char *pubkeydata, *sig;
+        unsigned char *pubkeydata, *sig = NULL;
         size_t pubkeydata_len = 0;
-        size_t sig_len;
+        size_t sig_len = 0;
         void *abstract;
         unsigned char buf[5];
         struct iovec datavec[4];
