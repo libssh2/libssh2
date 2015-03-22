@@ -211,11 +211,11 @@ typedef struct __libssh2_wincng_key_ctx {
                          g, g_len, y, y_len, x, x_len) \
   _libssh2_wincng_dsa_new(dsactx, p, p_len, q, q_len, \
                           g, g_len, y, y_len, x, x_len)
-#define _libssh2_dsa_new_private(rsactx, s, filename, passphrase) \
-  _libssh2_wincng_dsa_new_private(rsactx, s, filename, passphrase)
-#define _libssh2_dsa_new_private_frommemory(rsactx, s, filedata, \
+#define _libssh2_dsa_new_private(dsactx, s, filename, passphrase) \
+  _libssh2_wincng_dsa_new_private(dsactx, s, filename, passphrase)
+#define _libssh2_dsa_new_private_frommemory(dsactx, s, filedata, \
                                             filedata_len, passphrase) \
-  _libssh2_wincng_dsa_new_private_frommemory(rsactx, s, filedata, \
+  _libssh2_wincng_dsa_new_private_frommemory(dsactx, s, filedata, \
                                              filedata_len, passphrase)
 #define _libssh2_dsa_sha1_sign(dsactx, hash, hash_len, sig) \
   _libssh2_wincng_dsa_sha1_sign(dsactx, hash, hash_len, sig)
