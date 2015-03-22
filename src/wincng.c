@@ -519,7 +519,7 @@ _libssh2_wincng_load_private(LIBSSH2_SESSION *session,
                              const char *passphrase,
                              unsigned char **ppbEncoded,
                              unsigned long *pcbEncoded,
-                             bool tryLoadRSA, bool tryLoadDSA)
+                             int tryLoadRSA, int tryLoadDSA)
 {
     unsigned char *data;
     unsigned int datalen;
@@ -552,7 +552,7 @@ _libssh2_wincng_load_private_memory(LIBSSH2_SESSION *session,
                                     const char *passphrase,
                                     unsigned char **ppbEncoded,
                                     unsigned long *pcbEncoded,
-                                    bool tryLoadRSA, bool tryLoadDSA)
+                                    int tryLoadRSA, int tryLoadDSA)
 {
     unsigned char *data;
     unsigned int datalen;
