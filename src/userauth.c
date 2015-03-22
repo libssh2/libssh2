@@ -884,7 +884,9 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         datavec[2].iov_base = (void *)session->userauth_host_packet;
         datavec[2].iov_len = session->userauth_host_packet_len;
 
-        if (privkeyobj->signv(session, &sig, &sig_len, 3, datavec, &abstract)) {
+        if (privkeyobj && privkeyobj->signv &&
+                          privkeyobj->signv(session, &sig, &sig_len, 3,
+                                            datavec, &abstract)) {
             LIBSSH2_FREE(session, session->userauth_host_method);
             session->userauth_host_method = NULL;
             LIBSSH2_FREE(session, session->userauth_host_packet);
