@@ -67,6 +67,33 @@ readline(char *line, int line_size, FILE * fp)
     return 0;
 }
 
+static int
+readline_memory(char *line, size_t line_size,
+                const char *filedata, size_t filedata_len,
+                size_t *filedata_offset)
+{
+    size_t off, len;
+
+    off = *filedata_offset;
+
+    for (len = 0; off + len < filedata_len && len < line_size; len++) {
+        if (filedata[off + len] == '\n' ||
+            filedata[off + len] == '\r') {
+                break;
+        }
+    }
+
+    if (len) {
+        memcpy(line, filedata + off, len);
+        *filedata_offset += len;
+    }
+
+    line[len] = '\0';
+    *filedata_offset++;
+
+    return 0;
+}
+
 #define LINE_SIZE 128
 
 int
@@ -110,6 +137,72 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         *line = '\0';
 
         if (readline(line, LINE_SIZE, fp)) {
+            ret = -1;
+            goto out;
+        }
+    } while (strcmp(line, headerend) != 0);
+
+    if (!b64data) {
+        return -1;
+    }
+
+    if (libssh2_base64_decode(session, (char**) data, datalen,
+                              b64data, b64datalen)) {
+        ret = -1;
+        goto out;
+    }
+
+    ret = 0;
+  out:
+    if (b64data) {
+        LIBSSH2_FREE(session, b64data);
+    }
+    return ret;
+}
+
+int
+_libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
+                          const char *headerbegin,
+                          const char *headerend,
+                          const char *filedata, size_t filedata_len,
+                          unsigned char **data, unsigned int *datalen)
+{
+    char line[LINE_SIZE];
+    char *b64data = NULL;
+    unsigned int b64datalen = 0;
+    size_t off = 0;
+    int ret;
+
+    do {
+        *line = '\0';
+
+        if (readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+            return -1;
+        }
+    }
+    while (strcmp(line, headerbegin) != 0);
+
+    *line = '\0';
+
+    do {
+        if (*line) {
+            char *tmp;
+            size_t linelen;
+
+            linelen = strlen(line);
+            tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
+            if (!tmp) {
+                ret = -1;
+                goto out;
+            }
+            memcpy(tmp + b64datalen, line, linelen);
+            b64data = tmp;
+            b64datalen += linelen;
+        }
+
+        *line = '\0';
+
+        if (readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             ret = -1;
             goto out;
         }

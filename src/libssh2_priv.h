@@ -1026,6 +1026,11 @@ int _libssh2_pem_parse(LIBSSH2_SESSION * session,
                        const char *headerbegin,
                        const char *headerend,
                        FILE * fp, unsigned char **data, unsigned int *datalen);
+int _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
+                              const char *headerbegin,
+                              const char *headerend,
+                              const char *filedata, size_t filedata_len,
+                              unsigned char **data, unsigned int *datalen);
 int _libssh2_pem_decode_sequence(unsigned char **data, unsigned int *datalen);
 int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
                                 unsigned char **i, unsigned int *ilen);
