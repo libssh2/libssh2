@@ -396,7 +396,7 @@ _libssh2_wincng_rsa_new_private(libssh2_rsa_ctx **rsa,
 int
 _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
                                            LIBSSH2_SESSION *session,
-                                           char *filedata,
+                                           const char *filedata,
                                            size_t filedata_len,
                                            unsigned const char *passphrase);
 int
