@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Marc Hoersken <info@marc-hoersken.de>
+ * Copyright (C) 2013-2015 Marc Hoersken <info@marc-hoersken.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -191,6 +191,10 @@ typedef struct __libssh2_wincng_key_ctx {
                           e1, e1_len, e2, e2_len, c, c_len)
 #define _libssh2_rsa_new_private(rsactx, s, filename, passphrase) \
   _libssh2_wincng_rsa_new_private(rsactx, s, filename, passphrase)
+#define _libssh2_rsa_new_private_frommemory(rsactx, s, filedata, \
+                                            filedata_len, passphrase) \
+  _libssh2_wincng_rsa_new_private_frommemory(rsactx, s, filedata, \
+                                             filedata_len, passphrase)
 #define _libssh2_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len) \
   _libssh2_wincng_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len)
 #define _libssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len) \
@@ -209,6 +213,10 @@ typedef struct __libssh2_wincng_key_ctx {
                           g, g_len, y, y_len, x, x_len)
 #define _libssh2_dsa_new_private(rsactx, s, filename, passphrase) \
   _libssh2_wincng_dsa_new_private(rsactx, s, filename, passphrase)
+#define _libssh2_dsa_new_private_frommemory(rsactx, s, filedata, \
+                                            filedata_len, passphrase) \
+  _libssh2_wincng_dsa_new_private_frommemory(rsactx, s, filedata, \
+                                             filedata_len, passphrase)
 #define _libssh2_dsa_sha1_sign(dsactx, hash, hash_len, sig) \
   _libssh2_wincng_dsa_sha1_sign(dsactx, hash, hash_len, sig)
 #define _libssh2_dsa_sha1_verify(dsactx, sig, m, m_len) \
@@ -222,6 +230,10 @@ typedef struct __libssh2_wincng_key_ctx {
 
 #define _libssh2_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw) \
   _libssh2_wincng_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw)
+#define _libssh2_pub_priv_keyfilememory(s, m, m_len, p, p_len, \
+                                                     pk, pk_len, pw) \
+  _libssh2_wincng_pub_priv_keyfilememory(s, m, m_len, p, p_len, \
+                                                      pk, pk_len, pw)
 
 
 /*******************************************************************/
@@ -382,6 +394,12 @@ _libssh2_wincng_rsa_new_private(libssh2_rsa_ctx **rsa,
                                 const char *filename,
                                 const unsigned char *passphrase);
 int
+_libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
+                                           LIBSSH2_SESSION *session,
+                                           char *filedata,
+                                           size_t filedata_len,
+                                           unsigned const char *passphrase);
+int
 _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                 const unsigned char *sig,
                                 unsigned long sig_len,
@@ -416,6 +434,12 @@ _libssh2_wincng_dsa_new_private(libssh2_dsa_ctx **dsa,
                                 const char *filename,
                                 const unsigned char *passphrase);
 int
+_libssh2_wincng_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
+                                           LIBSSH2_SESSION *session,
+                                           const char *filedata,
+                                           size_t filedata_len,
+                                           unsigned const char *passphrase);
+int
 _libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
                                 const unsigned char *sig_fixed,
                                 const unsigned char *m,
@@ -437,6 +461,15 @@ _libssh2_wincng_pub_priv_keyfile(LIBSSH2_SESSION *session,
                                  size_t *pubkeydata_len,
                                  const char *privatekey,
                                  const char *passphrase);
+int
+_libssh2_wincng_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
+                                       unsigned char **method,
+                                       size_t *method_len,
+                                       unsigned char **pubkeydata,
+                                       size_t *pubkeydata_len,
+                                       const char *privatekeydata,
+                                       size_t privatekeydata_len,
+                                       const char *passphrase);
 
 int
 _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
