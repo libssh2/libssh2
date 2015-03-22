@@ -518,17 +518,20 @@ _libssh2_wincng_load_private(LIBSSH2_SESSION *session,
                              const char *filename,
                              const char *passphrase,
                              unsigned char **ppbEncoded,
-                             unsigned long *pcbEncoded)
+                             unsigned long *pcbEncoded,
+                             bool tryLoadRSA, bool tryLoadDSA)
 {
     unsigned char *data;
     unsigned int datalen;
-    int ret;
+    int ret = -1;
 
-    ret = _libssh2_wincng_load_pem(session, filename, passphrase,
-                                   PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                   &data, &datalen);
+    if (ret && tryLoadRSA) {
+        ret = _libssh2_wincng_load_pem(session, filename, passphrase,
+                                       PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                                       &data, &datalen);
+    }
 
-    if (ret) {
+    if (ret && tryLoadDSA) {
         ret = _libssh2_wincng_load_pem(session, filename, passphrase,
                                        PEM_DSA_HEADER, PEM_DSA_FOOTER,
                                        &data, &datalen);
@@ -548,20 +551,23 @@ _libssh2_wincng_load_private_memory(LIBSSH2_SESSION *session,
                                     size_t privatekeydata_len,
                                     const char *passphrase,
                                     unsigned char **ppbEncoded,
-                                    unsigned long *pcbEncoded)
+                                    unsigned long *pcbEncoded,
+                                    bool tryLoadRSA, bool tryLoadDSA)
 {
     unsigned char *data;
     unsigned int datalen;
-    int ret;
+    int ret = -1;
 
     (void)passphrase;
 
-    ret = _libssh2_pem_parse_memory(session,
-                                    PEM_RSA_HEADER, PEM_RSA_FOOTER,
-                                    privatekeydata, privatekeydata_len,
-                                    &data, &datalen);
+    if (ret && tryLoadRSA) {
+        ret = _libssh2_pem_parse_memory(session,
+                                        PEM_RSA_HEADER, PEM_RSA_FOOTER,
+                                        privatekeydata, privatekeydata_len,
+                                        &data, &datalen);
+    }
 
-    if (ret) {
+    if (ret && tryLoadDSA) {
         ret = _libssh2_pem_parse_memory(session,
                                         PEM_DSA_HEADER, PEM_DSA_FOOTER,
                                         privatekeydata, privatekeydata_len,
@@ -966,7 +972,7 @@ _libssh2_wincng_rsa_new_private(libssh2_rsa_ctx **rsa,
 
     ret = _libssh2_wincng_load_private(session, filename,
                                        (const char *)passphrase,
-                                       &pbEncoded, &cbEncoded);
+                                       &pbEncoded, &cbEncoded, 1, 0);
     if (ret) {
         return -1;
     }
@@ -1000,7 +1006,7 @@ _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 
     ret = _libssh2_wincng_load_private_memory(session, filedata, filedata_len,
                                               (const char *)passphrase,
-                                              &pbEncoded, &cbEncoded);
+                                              &pbEncoded, &cbEncoded, 1, 0);
     if (ret) {
         return -1;
     }
@@ -1264,7 +1270,7 @@ _libssh2_wincng_dsa_new_private(libssh2_dsa_ctx **dsa,
 
     ret = _libssh2_wincng_load_private(session, filename,
                                        (const char *)passphrase,
-                                       &pbEncoded, &cbEncoded);
+                                       &pbEncoded, &cbEncoded, 0, 1);
     if (ret) {
         return -1;
     }
@@ -1296,7 +1302,7 @@ _libssh2_wincng_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
 
     ret = _libssh2_wincng_load_private_memory(session, filedata, filedata_len,
                                               (const char *)passphrase,
-                                              &pbEncoded, &cbEncoded);
+                                              &pbEncoded, &cbEncoded, 0, 1);
     if (ret) {
         return -1;
     }
@@ -1538,7 +1544,7 @@ _libssh2_wincng_pub_priv_keyfile(LIBSSH2_SESSION *session,
     int ret;
 
     ret = _libssh2_wincng_load_private(session, privatekey, passphrase,
-                                       &pbEncoded, &cbEncoded);
+                                       &pbEncoded, &cbEncoded, 1, 1);
     if (ret) {
         return -1;
     }
@@ -1577,7 +1583,7 @@ _libssh2_wincng_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     ret = _libssh2_wincng_load_private_memory(session, privatekeydata,
                                               privatekeydata_len, passphrase,
-                                              &pbEncoded, &cbEncoded);
+                                              &pbEncoded, &cbEncoded, 1, 1);
     if (ret) {
         return -1;
     }
