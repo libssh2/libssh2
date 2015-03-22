@@ -897,7 +897,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             return -1;
         }
 
-        if (privkeyobj->dtor) {
+        if (privkeyobj && privkeyobj->dtor) {
             privkeyobj->dtor(session, &abstract);
         }
 
