@@ -67,6 +67,11 @@
 #include <wincrypt.h>
 #endif
 
+#define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
+#define PEM_RSA_FOOTER "-----END RSA PRIVATE KEY-----"
+#define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
+#define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
+
 
 /*******************************************************************/
 /*
@@ -520,14 +525,12 @@ _libssh2_wincng_load_private(LIBSSH2_SESSION *session,
     int ret;
 
     ret = _libssh2_wincng_load_pem(session, filename, passphrase,
-                                   "-----BEGIN RSA PRIVATE KEY-----",
-                                   "-----END RSA PRIVATE KEY-----",
+                                   PEM_RSA_HEADER, PEM_RSA_FOOTER,
                                    &data, &datalen);
 
     if (ret) {
         ret = _libssh2_wincng_load_pem(session, filename, passphrase,
-                                       "-----BEGIN DSA PRIVATE KEY-----",
-                                       "-----END DSA PRIVATE KEY-----",
+                                       PEM_DSA_HEADER, PEM_DSA_FOOTER,
                                        &data, &datalen);
     }
 
@@ -554,15 +557,13 @@ _libssh2_wincng_load_private_memory(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     ret = _libssh2_pem_parse_memory(session,
-                                    "-----BEGIN RSA PRIVATE KEY-----",
-                                    "-----END RSA PRIVATE KEY-----",
+                                    PEM_RSA_HEADER, PEM_RSA_FOOTER,
                                     privatekeydata, privatekeydata_len,
                                     &data, &datalen);
 
     if (ret) {
         ret = _libssh2_pem_parse_memory(session,
-                                        "-----BEGIN DSA PRIVATE KEY-----",
-                                        "-----END DSA PRIVATE KEY-----",
+                                        PEM_DSA_HEADER, PEM_DSA_FOOTER,
                                         privatekeydata, privatekeydata_len,
                                         &data, &datalen);
     }
