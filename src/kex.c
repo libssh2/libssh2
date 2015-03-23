@@ -221,7 +221,8 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
             if (libssh2_md5_init(&fingerprint_ctx)) {
                 libssh2_md5_update(fingerprint_ctx, session->server_hostkey,
                                    session->server_hostkey_len);
-                libssh2_md5_final(fingerprint_ctx, session->server_hostkey_md5);
+                libssh2_md5_final(fingerprint_ctx,
+                                  session->server_hostkey_md5);
                 session->server_hostkey_md5_valid = TRUE;
             }
             else {
@@ -245,10 +246,16 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         {
             libssh2_sha1_ctx fingerprint_ctx;
 
-            libssh2_sha1_init(&fingerprint_ctx);
-            libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
-                                session->server_hostkey_len);
-            libssh2_sha1_final(fingerprint_ctx, session->server_hostkey_sha1);
+            if (libssh2_sha1_init(&fingerprint_ctx)) {
+                libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
+                                    session->server_hostkey_len);
+                libssh2_sha1_final(fingerprint_ctx,
+                                   session->server_hostkey_sha1);
+                session->server_hostkey_sha1_valid = TRUE;
+            }
+            else {
+                session->server_hostkey_sha1_valid = FALSE;
+            }
         }
 #ifdef LIBSSH2DEBUG
         {

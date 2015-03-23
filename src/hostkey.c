@@ -500,7 +500,9 @@ libssh2_hostkey_hash(LIBSSH2_SESSION * session, int hash_type)
         break;
 #endif /* LIBSSH2_MD5 */
     case LIBSSH2_HOSTKEY_HASH_SHA1:
-        return (char *) session->server_hostkey_sha1;
+        return (session->server_hostkey_sha1_valid)
+          ? (char *) session->server_hostkey_sha1
+          : NULL;
         break;
     default:
         return NULL;

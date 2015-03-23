@@ -107,6 +107,8 @@
 #define _libssh2_random(buf, len) RAND_bytes ((buf), (len))
 
 #define libssh2_sha1_ctx EVP_MD_CTX
+
+/* returns 0 in case of failure */
 int libssh2_sha1_init(libssh2_sha1_ctx *ctx);
 #define libssh2_sha1_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha1_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)

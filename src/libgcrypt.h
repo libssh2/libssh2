@@ -60,7 +60,10 @@
   (gcry_randomize ((buf), (len), GCRY_STRONG_RANDOM), 1)
 
 #define libssh2_sha1_ctx gcry_md_hd_t
-#define libssh2_sha1_init(ctx) gcry_md_open (ctx,  GCRY_MD_SHA1, 0);
+
+/* returns 0 in case of failure */
+#define libssh2_sha1_init(ctx) \
+  (GPG_ERR_NO_ERROR == gcry_md_open (ctx,  GCRY_MD_SHA1, 0))
 #define libssh2_sha1_update(ctx, data, len) \
   gcry_md_write (ctx, (unsigned char *) data, len)
 #define libssh2_sha1_final(ctx, out) \

@@ -600,6 +600,7 @@ struct _LIBSSH2_SESSION
     int server_hostkey_md5_valid;
 #endif                          /* ! LIBSSH2_MD5 */
     unsigned char server_hostkey_sha1[SHA_DIGEST_LENGTH];
+    int server_hostkey_sha1_valid;
 
     /* (remote as source of data -- packet_read ) */
     libssh2_endpoint_data remote;
