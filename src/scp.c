@@ -801,11 +801,17 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
         cmd_len = strlen((char *)session->scpSend_command);
 
+        memset(&session->scpSend_command[cmd_len], 0,
+               session->scpSend_command_len - cmd_len);
+
         (void)shell_quotearg(path,
                              &session->scpSend_command[cmd_len],
                              session->scpSend_command_len - cmd_len);
 
         session->scpSend_command[session->scpSend_command_len - 1] = '\0';
+
+        session->scpSend_command_len =
+            strlen((char *)session->scpSend_command);
 
         _libssh2_debug(session, LIBSSH2_TRACE_SCP,
                        "Opening channel for SCP send");
