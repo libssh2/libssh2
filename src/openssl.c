@@ -577,9 +577,10 @@ libssh2_sha1(const unsigned char *message, unsigned long len,
     EVP_MD_CTX ctx;
 
     EVP_MD_CTX_init(&ctx);
-    EVP_DigestInit(&ctx, EVP_get_digestbyname("sha1"));
-    EVP_DigestUpdate(&ctx, message, len);
-    EVP_DigestFinal(&ctx, out, NULL);
+    if (EVP_DigestInit(&ctx, EVP_get_digestbyname("sha1"))) {
+        EVP_DigestUpdate(&ctx, message, len);
+        EVP_DigestFinal(&ctx, out, NULL);
+    }
 }
 
 int
@@ -596,9 +597,10 @@ libssh2_md5(const unsigned char *message, unsigned long len,
     EVP_MD_CTX ctx;
 
     EVP_MD_CTX_init(&ctx);
-    EVP_DigestInit(&ctx, EVP_get_digestbyname("md5"));
-    EVP_DigestUpdate(&ctx, message, len);
-    EVP_DigestFinal(&ctx, out, NULL);
+    if (EVP_DigestInit(&ctx, EVP_get_digestbyname("md5"))) {
+        EVP_DigestUpdate(&ctx, message, len);
+        EVP_DigestFinal(&ctx, out, NULL);
+    }
 }
 
 static unsigned char *
