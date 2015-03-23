@@ -295,16 +295,17 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
         }
 
         snprintf((char *)session->scpRecv_command,
-                 session->scpRecv_command_len, "scp -%sf ", sb?"p":"");
+                 session->scpRecv_command_len,
+                 "scp -%sf ", sb?"p":"");
 
         cmd_len = strlen((char *)session->scpRecv_command);
 
         memset(&session->scpRecv_command[cmd_len], 0,
                session->scpRecv_command_len - cmd_len);
 
-        (void) shell_quotearg(path,
-                              &session->scpRecv_command[cmd_len],
-                              session->scpRecv_command_len - cmd_len);
+        (void)shell_quotearg(path,
+                             &session->scpRecv_command[cmd_len],
+                             session->scpRecv_command_len - cmd_len);
 
         session->scpRecv_command[session->scpRecv_command_len - 1] = '\0';
 
@@ -797,13 +798,16 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
         session->scpSend_command =
             LIBSSH2_ALLOC(session, session->scpSend_command_len);
+
         if (!session->scpSend_command) {
             _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                           "Unable to allocate a command buffer for scp session");
+                           "Unable to allocate a command buffer for "
+                           "SCP session");
             return NULL;
         }
 
-        snprintf((char *)session->scpSend_command, session->scpSend_command_len,
+        snprintf((char *)session->scpSend_command,
+                 session->scpSend_command_len,
                  "scp -%st ", (mtime || atime)?"p":"");
 
         cmd_len = strlen((char *)session->scpSend_command);
