@@ -299,10 +299,17 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 
         cmd_len = strlen((char *)session->scpRecv_command);
 
+        memset(&session->scpRecv_command[cmd_len], 0,
+               session->scpRecv_command_len - cmd_len);
+
         (void) shell_quotearg(path,
                               &session->scpRecv_command[cmd_len],
                               session->scpRecv_command_len - cmd_len);
 
+        session->scpRecv_command[session->scpRecv_command_len - 1] = '\0';
+
+        session->scpRecv_command_len =
+            strlen((char *)session->scpRecv_command);
 
         _libssh2_debug(session, LIBSSH2_TRACE_SCP,
                        "Opening channel for SCP receive");
