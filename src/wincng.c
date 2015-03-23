@@ -288,6 +288,10 @@ _libssh2_wincng_random(void *buf, int len)
 static void
 _libssh2_wincng_safe_free(void *buf, int len)
 {
+#ifndef LIBSSH2_CLEAR_MEMORY
+    (void)len;
+#endif
+
     if (!buf)
         return;
 
