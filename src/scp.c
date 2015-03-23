@@ -299,18 +299,12 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
                  "scp -%sf ", sb?"p":"");
 
         cmd_len = strlen((char *)session->scpRecv_command);
+        cmd_len += shell_quotearg(path,
+                                  &session->scpRecv_command[cmd_len],
+                                  session->scpRecv_command_len - cmd_len);
 
-        memset(&session->scpRecv_command[cmd_len], 0,
-               session->scpRecv_command_len - cmd_len);
-
-        (void)shell_quotearg(path,
-                             &session->scpRecv_command[cmd_len],
-                             session->scpRecv_command_len - cmd_len);
-
-        session->scpRecv_command[session->scpRecv_command_len - 1] = '\0';
-
-        session->scpRecv_command_len =
-            strlen((char *)session->scpRecv_command);
+        session->scpRecv_command[cmd_len] = '\0';
+        session->scpRecv_command_len = cmd_len + 1;
 
         _libssh2_debug(session, LIBSSH2_TRACE_SCP,
                        "Opening channel for SCP receive");
@@ -811,18 +805,12 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                  "scp -%st ", (mtime || atime)?"p":"");
 
         cmd_len = strlen((char *)session->scpSend_command);
+        cmd_len += shell_quotearg(path,
+                                  &session->scpSend_command[cmd_len],
+                                  session->scpSend_command_len - cmd_len);
 
-        memset(&session->scpSend_command[cmd_len], 0,
-               session->scpSend_command_len - cmd_len);
-
-        (void)shell_quotearg(path,
-                             &session->scpSend_command[cmd_len],
-                             session->scpSend_command_len - cmd_len);
-
-        session->scpSend_command[session->scpSend_command_len - 1] = '\0';
-
-        session->scpSend_command_len =
-            strlen((char *)session->scpSend_command);
+        session->scpSend_command[cmd_len] = '\0';
+        session->scpSend_command_len = cmd_len + 1;
 
         _libssh2_debug(session, LIBSSH2_TRACE_SCP,
                        "Opening channel for SCP send");
