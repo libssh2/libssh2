@@ -398,7 +398,7 @@ read_private_key_from_memory(void ** key_ctx,
 
     *key_ctx = NULL;
 
-    bp = BIO_new_mem_buf(filedata, filedata_len);
+    bp = BIO_new_mem_buf((char *)filedata, filedata_len);
     if (!bp) {
         return -1;
     }
@@ -891,7 +891,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing public key from private key.");
 
-    bp = BIO_new_mem_buf(privatekeydata, privatekeydata_len);
+    bp = BIO_new_mem_buf((char *)privatekeydata, privatekeydata_len);
     if (!bp) {
         return -1;
     }
