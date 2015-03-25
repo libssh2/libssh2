@@ -207,7 +207,11 @@ if test "$CLEAR_MEMORY" != "no"; then
     AC_DEFINE(LIBSSH2_CLEAR_MEMORY, 1, [Enable clearing of memory before being freed])
     enable_clear_memory=yes
   else
-    AC_MSG_WARN([secure clearing/zeroing of memory is not supported by the selected crypto backend])
+    if test "$CLEAR_MEMORY" = "yes"; then
+      AC_MSG_ERROR([secure clearing/zeroing of memory is not supported by the selected crypto backend])
+    else
+      AC_MSG_WARN([secure clearing/zeroing of memory is not supported by the selected crypto backend])
+    fi
     enable_clear_memory=unsupported
   fi
 else
