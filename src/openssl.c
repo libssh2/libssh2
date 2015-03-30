@@ -656,6 +656,7 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session, RSA *rsa,
     return key;
 }
 
+#if LIBSSH2_DSA
 static unsigned char *
 gen_publickey_from_dsa(LIBSSH2_SESSION* session, DSA *dsa,
                        size_t *key_len)
@@ -694,6 +695,7 @@ gen_publickey_from_dsa(LIBSSH2_SESSION* session, DSA *dsa,
     *key_len = (size_t)(p - key);
     return key;
 }
+#endif /* LIBSSH_DSA */
 
 static int
 gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
@@ -749,6 +751,7 @@ gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
                           "Unable to allocate memory for private key data");
 }
 
+#if LIBSSH2_DSA
 static int
 gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
                            unsigned char **method,
@@ -802,6 +805,7 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
                           LIBSSH2_ERROR_ALLOC,
                           "Unable to allocate memory for private key data");
 }
+#endif /* LIBSSH_DSA */
 
 int
 _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
@@ -855,10 +859,12 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
             session, method, method_len, pubkeydata, pubkeydata_len, pk);
         break;
 
+#if LIBSSH2_DSA
     case EVP_PKEY_DSA :
         st = gen_publickey_from_dsa_evp(
             session, method, method_len, pubkeydata, pubkeydata_len, pk);
         break;
+#endif /* LIBSSH_DSA */
 
     default :
         st = _libssh2_error(session,
@@ -921,12 +927,12 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
         st = gen_publickey_from_rsa_evp(session, method, method_len,
                                         pubkeydata, pubkeydata_len, pk);
         break;
-
+#if LIBSSH2_DSA
     case EVP_PKEY_DSA :
         st = gen_publickey_from_dsa_evp(session, method, method_len,
                                         pubkeydata, pubkeydata_len, pk);
         break;
-
+#endif /* LIBSSH_DSA */
     default :
         st = _libssh2_error(session,
                             LIBSSH2_ERROR_FILE,
