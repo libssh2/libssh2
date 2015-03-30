@@ -80,7 +80,7 @@
 # define LIBSSH2_AES 0
 #endif
 
-#ifdef OPENSSL_NO_BLOWFISH
+#ifdef OPENSSL_NO_BF
 # define LIBSSH2_BLOWFISH 0
 #else
 # define LIBSSH2_BLOWFISH 1
