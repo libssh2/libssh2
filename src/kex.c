@@ -96,7 +96,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         exchange_state->ctx = _libssh2_bn_ctx_new();
         exchange_state->x = _libssh2_bn_init(); /* Random from client */
         exchange_state->e = _libssh2_bn_init(); /* g^x mod p */
-        exchange_state->f = _libssh2_bn_init(); /* g^(Random from server) mod p */
+        exchange_state->f = _libssh2_bn_init_from_bin(); /* g^(Random from server) mod p */
         exchange_state->k = _libssh2_bn_init(); /* The shared secret: f^x mod p */
 
         /* Zero the whole thing out */
@@ -715,7 +715,7 @@ kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION *session,
 
     if (key_state->state == libssh2_NB_state_idle) {
         /* g == 2 */
-        key_state->p = _libssh2_bn_init();      /* SSH2 defined value (p_value) */
+        key_state->p = _libssh2_bn_init_from_bin();      /* SSH2 defined value (p_value) */
         key_state->g = _libssh2_bn_init();      /* SSH2 defined value (2) */
 
         /* Initialize P and G */
@@ -790,7 +790,7 @@ kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_SESSION *session,
     int ret;
 
     if (key_state->state == libssh2_NB_state_idle) {
-        key_state->p = _libssh2_bn_init();      /* SSH2 defined value (p_value) */
+        key_state->p = _libssh2_bn_init_from_bin();      /* SSH2 defined value (p_value) */
         key_state->g = _libssh2_bn_init();      /* SSH2 defined value (2) */
 
         /* g == 2 */
@@ -834,8 +834,8 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     int rc;
 
     if (key_state->state == libssh2_NB_state_idle) {
-        key_state->p = _libssh2_bn_init();
-        key_state->g = _libssh2_bn_init();
+        key_state->p = _libssh2_bn_init_from_bin();
+        key_state->g = _libssh2_bn_init_from_bin();
         /* Ask for a P and G pair */
 #ifdef LIBSSH2_DH_GEX_NEW
         key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST;

@@ -175,6 +175,7 @@ void libssh2_md5(const unsigned char *message, unsigned long len, unsigned char 
 #define _libssh2_bn_ctx_new() BN_CTX_new()
 #define _libssh2_bn_ctx_free(bnctx) BN_CTX_free(bnctx)
 #define _libssh2_bn_init() BN_new()
+#define _libssh2_bn_init_from_bin() _libssh2_bn_init()
 #define _libssh2_bn_rand(bn, bits, top, bottom) BN_rand(bn, bits, top, bottom)
 #define _libssh2_bn_mod_exp(r, a, p, m, ctx) BN_mod_exp(r, a, p, m, ctx)
 #define _libssh2_bn_set_word(bn, val) BN_set_word(bn, val)

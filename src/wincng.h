@@ -316,6 +316,8 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
 
 #define _libssh2_bn_init() \
   _libssh2_wincng_bignum_init()
+#define _libssh2_bn_init_from_bin() \
+  _libssh2_bn_init()
 #define _libssh2_bn_rand(bn, bits, top, bottom) \
   _libssh2_wincng_bignum_rand(bn, bits, top, bottom)
 #define _libssh2_bn_mod_exp(r, a, p, m, ctx) \
