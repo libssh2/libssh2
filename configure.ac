@@ -142,6 +142,9 @@ if test "$found_crypto" = "none" && test "$use_wincng" != "no"; then
   AC_CHECK_HEADERS([ntdef.h ntstatus.h], [], [], [
     #include <windows.h>
   ])
+  AC_CHECK_DECLS([SecureZeroMemory], [], [], [
+    #include <windows.h>
+  ])
 fi
 if test "$ac_cv_libbcrypt" = "yes"; then
   AC_DEFINE(LIBSSH2_WINCNG, 1, [Use Windows CNG])
@@ -151,7 +154,9 @@ if test "$ac_cv_libbcrypt" = "yes"; then
     LIBS="$LIBS -lcrypt32"
   fi
   found_crypto="Windows Cryptography API: Next Generation"
-  support_clear_memory=yes
+  if test "$ac_cv_have_decl_SecureZeroMemory" = "yes"; then
+    support_clear_memory=yes
+  fi
 fi
 AM_CONDITIONAL(WINCNG, test "$ac_cv_libbcrypt" = "yes")
 
