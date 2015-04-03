@@ -67,15 +67,6 @@
 #include <wincrypt.h>
 #endif
 
-/* required for compilation of clear memory feature with mingw */
-#ifdef LIBSSH2_CLEAR_MEMORY
-#ifdef __MINGW32__
-#ifndef SecureZeroMemory
-#define SecureZeroMemory(ptr, cnt) RtlFillMemory(ptr, cnt, 0)
-#endif
-#endif
-#endif
-
 #define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
 #define PEM_RSA_FOOTER "-----END RSA PRIVATE KEY-----"
 #define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
