@@ -1766,6 +1766,10 @@ _libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx)
     _libssh2_wincng_safe_free(ctx->pbKeyObject, ctx->dwKeyObject);
     ctx->pbKeyObject = NULL;
     ctx->dwKeyObject = 0;
+
+   _libssh2_wincng_safe_free(ctx->pbIV, ctx->dwBlockLength);
+    ctx->pbIV = NULL;
+    ctx->dwBlockLength = 0;
 }
 
 
