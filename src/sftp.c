@@ -204,7 +204,8 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
     LIBSSH2_SFTP_PACKET *packet;
     uint32_t request_id;
 
-    _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Received packet %d (len %d)",
+    _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
+                   "Received packet type %d (len %d)",
                    (int) data[0], data_len);
 
     /*
@@ -249,6 +250,9 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
     }
 
     request_id = _libssh2_ntohu32(&data[1]);
+
+    _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Received packet id %d",
+                   request_id);
 
     /* Don't add the packet if it answers a request we've given up on. */
     if((data[0] == SSH_FXP_STATUS || data[0] == SSH_FXP_DATA)
@@ -1245,6 +1249,8 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
     ssize_t rc;
     struct _libssh2_sftp_handle_file_data *filep =
         &handle->u.file;
+    size_t bytes_in_buffer = 0;
+    char *sliding_bufferp = buffer;
 
     /* This function can be interrupted in three different places where it
        might need to wait for data from the network.  It returns EAGAIN to
@@ -1305,7 +1311,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
            without having been acked - until we reach EOF. */
         if(!filep->eof) {
             /* Number of bytes asked for that haven't been acked yet */
-            size_t already = (filep->offset_sent - filep->offset);
+            size_t already = (size_t)(filep->offset_sent - filep->offset);
 
             size_t max_read_ahead = buffer_size*4;
             unsigned long recv_window;
@@ -1391,6 +1397,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
             _libssh2_list_add(&handle->packet_list, &chunk->node);
             count -= size; /* deduct the size we used, as we might have
                               to create more packets */
+            _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "read request id %d sent", request_id);
         }
 
     case libssh2_NB_state_sent:
@@ -1475,7 +1482,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
                 if (rc32 == LIBSSH2_FX_EOF) {
                     filep->eof = TRUE;
-                    return 0;
+                    return bytes_in_buffer;
                 }
                 else {
                     sftp->last_errno = rc32;
@@ -1505,13 +1512,13 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                     filep->offset_sent -= (chunk->len - rc32);
                 }
 
-                if(rc32 > buffer_size) {
+                if((bytes_in_buffer + rc32) > buffer_size) {
                     /* figure out the overlap amount */
-                    filep->data_left = rc32 - buffer_size;
+                    filep->data_left = (bytes_in_buffer + rc32) - buffer_size;
 
                     /* getting the full packet would overflow the buffer, so
                        only get the correct amount and keep the remainder */
-                    rc32 = (uint32_t)buffer_size;
+                    rc32 = (uint32_t)buffer_size - bytes_in_buffer;
 
                     /* store data to keep for next call */
                     filep->data = data;
@@ -1522,7 +1529,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
                 /* copy the received data from the received FXP_DATA packet to
                    the buffer at the correct index */
-                memcpy(buffer, data + 9, rc32);
+                memcpy(sliding_bufferp, data + 9, rc32);
                 filep->offset += rc32;
 
                 if(filep->data_len == 0)
@@ -1538,8 +1545,10 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 chunk = NULL;
 
                 if(rc32 > 0) {
-                    /* we must return as we wrote some data to the buffer */
-                    return rc32;
+                    /* continue to the next chunk */
+                    bytes_in_buffer += rc32;
+                    sliding_bufferp += rc32;
+                    chunk = next;
                 } else {
                     /* A zero-byte read is not necessarily EOF so we must not
                      * return 0 (that would signal EOF to the caller) so
@@ -1554,6 +1563,9 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                                       "read request response");
             }
         }
+
+        if (bytes_in_buffer > 0)
+            return bytes_in_buffer;
 
         break;
 
@@ -1827,7 +1839,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
            acked but we haven't been able to return as such yet, so we will
            get that data as well passed in here again.
         */
-        already = (handle->u.file.offset_sent - handle->u.file.offset)+
+        already = (size_t) (handle->u.file.offset_sent - handle->u.file.offset)+
             handle->u.file.acked;
 
         if(count >= already) {
@@ -2767,7 +2779,7 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
     st->f_ffree = _libssh2_ntohu64(data + 53);
     st->f_favail = _libssh2_ntohu64(data + 61);
     st->f_fsid = _libssh2_ntohu64(data + 69);
-    flag = _libssh2_ntohu64(data + 77);
+    flag = (unsigned int)_libssh2_ntohu64(data + 77);
     st->f_namemax = _libssh2_ntohu64(data + 85);
 
     st->f_flag = (flag & SSH_FXE_STATVFS_ST_RDONLY)
@@ -2893,7 +2905,7 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
     st->f_ffree = _libssh2_ntohu64(data + 53);
     st->f_favail = _libssh2_ntohu64(data + 61);
     st->f_fsid = _libssh2_ntohu64(data + 69);
-    flag = _libssh2_ntohu64(data + 77);
+    flag = (unsigned int)_libssh2_ntohu64(data + 77);
     st->f_namemax = _libssh2_ntohu64(data + 85);
 
     st->f_flag = (flag & SSH_FXE_STATVFS_ST_RDONLY)

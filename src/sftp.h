@@ -48,7 +48,7 @@
 /* MAX_SFTP_READ_SIZE is how much data is asked for at max in each FXP_READ
  * packets.
  */
-#define MAX_SFTP_READ_SIZE 2000
+#define MAX_SFTP_READ_SIZE 30000
 
 struct sftp_pipeline_chunk {
     struct list_node node;
