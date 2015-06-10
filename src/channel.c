@@ -235,6 +235,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
             return NULL;
         } else if (rc) {
+            _libssh2_error(session, rc, "??");
             goto channel_error;
         }
 
