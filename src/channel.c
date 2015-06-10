@@ -235,6 +235,10 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
             return NULL;
         } else if (rc) {
+            // we may get -1 returned, and error code in this session still is ERROR_EAGAIN, 
+            // so caller will get it wrong.  we should deal with this better.  
+            // should fix _libssh2_packet_requirev
+            // or/and here add: _libssh2_error(session, rc, "??");
             goto channel_error;
         }
 
