@@ -14,7 +14,7 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8zc
+OPENSSL_PATH = ../../openssl-1.0.2c
 endif
 
 # Edit the path below to point to your Distribution folder.
@@ -142,10 +142,12 @@ CFLAGS	+= -fno-builtin
 CFLAGS	+= -fno-strict-aliasing
 CFLAGS	+= -Wall # -pedantic
 ifeq ($(ARCH),w64)
-CFLAGS	+= -D_AMD64_
+CFLAGS	+= -m64 -D_AMD64_
+LDFLAGS += -m64
 RCFLAGS	+= -F pe-x86-64
 else
 CFLAGS	+= -m32
+LDFLAGS += -m32
 RCFLAGS	+= -F pe-i386
 endif
 endif
