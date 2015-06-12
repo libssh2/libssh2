@@ -249,6 +249,9 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
 #define LIBSSH2_SEND_FUNC(name)  ssize_t name(libssh2_socket_t socket, \
                                               const void *buffer, size_t length,\
                                               int flags, void **abstract)
+#define LIBSSH2_SELECT_FUNC(name)  int name(libssh2_socket_t socket, \
+    int r, int w, struct timeval*tv,\
+    void **abstract)
 
 /* libssh2_session_callback_set() constants */
 #define LIBSSH2_CALLBACK_IGNORE             0
@@ -258,6 +261,7 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
 #define LIBSSH2_CALLBACK_X11                4
 #define LIBSSH2_CALLBACK_SEND               5
 #define LIBSSH2_CALLBACK_RECV               6
+#define LIBSSH2_CALLBACK_SELECT             7
 
 /* libssh2_session_method_pref() constants */
 #define LIBSSH2_METHOD_KEX          0
@@ -621,6 +625,17 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
 
 /* Returned by any function that would block during a read/write opperation */
 #define LIBSSH2CHANNEL_EAGAIN LIBSSH2_ERROR_EAGAIN
+
+LIBSSH2_API LIBSSH2_CHANNEL *
+    libssh2_channel_alloc(LIBSSH2_SESSION *session, const char *channel_type,
+    unsigned int channel_type_len,
+    unsigned int window_size,
+    unsigned int packet_size);
+
+LIBSSH2_API int
+    libssh2_channel_open2(LIBSSH2_CHANNEL * channel,
+    const char *message,
+    unsigned int message_len);
 
 LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type,

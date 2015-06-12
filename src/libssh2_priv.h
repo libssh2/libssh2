@@ -185,11 +185,15 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
     session->send(fd, buffer, length, flags, &session->abstract)
 #define LIBSSH2_RECV_FD(session, fd, buffer, length, flags) \
     session->recv(fd, buffer, length, flags, &session->abstract)
+#define LIBSSH2_SELECT_FD(session, fd, r, w, t) \
+    session->select(fd, r, w, t, &session->abstract)
 
 #define LIBSSH2_SEND(session, buffer, length, flags)  \
     LIBSSH2_SEND_FD(session, session->socket_fd, buffer, length, flags)
 #define LIBSSH2_RECV(session, buffer, length, flags)                    \
     LIBSSH2_RECV_FD(session, session->socket_fd, buffer, length, flags)
+#define LIBSSH2_SELECT(session, r, w, t)                    \
+    LIBSSH2_SELECT_FD(session, session->socket_fd, r, w, t)
 
 typedef struct _LIBSSH2_KEX_METHOD LIBSSH2_KEX_METHOD;
 typedef struct _LIBSSH2_HOSTKEY_METHOD LIBSSH2_HOSTKEY_METHOD;
@@ -342,6 +346,15 @@ typedef struct _libssh2_channel_data
 struct _LIBSSH2_CHANNEL
 {
     struct list_node node;
+
+    char msg_req_open_sent;
+    libssh2_nonblocking_states open_state;
+    packet_requirev_state_t open_packet_requirev_state;
+    unsigned char *open_packet;
+    size_t open_packet_len;
+    unsigned char *open_data;
+    size_t open_data_len;
+    uint32_t open_local_channel;
 
     unsigned char *channel_type;
     unsigned channel_type_len;
@@ -563,6 +576,7 @@ struct _LIBSSH2_SESSION
       LIBSSH2_X11_OPEN_FUNC((*x11));
       LIBSSH2_SEND_FUNC((*send));
       LIBSSH2_RECV_FUNC((*recv));
+      LIBSSH2_SELECT_FUNC((*select));
 
     /* Method preferences -- NULL yields "load order" */
     char *kex_prefs;
@@ -1010,6 +1024,7 @@ ssize_t _libssh2_recv(libssh2_socket_t socket, void *buffer,
                       size_t length, int flags, void **abstract);
 ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer,
                       size_t length, int flags, void **abstract);
+int     _libssh2_select(libssh2_socket_t fd, int r, int w, struct timeval* t, void **abstract);
 
 #define LIBSSH2_READ_TIMEOUT 60 /* generic timeout in seconds used when
                                    waiting for more data to arrive */
