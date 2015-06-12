@@ -105,7 +105,8 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
     unsigned char hash[SHA_DIGEST_LENGTH];
     int ret;
 
-    libssh2_sha1(m, m_len, hash);
+    if (_libssh2_sha1(m, m_len, hash))
+        return -1; /* failure */
     ret = RSA_verify(NID_sha1, hash, SHA_DIGEST_LENGTH,
                      (unsigned char *) sig, sig_len, rsactx);
     return (ret == 1) ? 0 : -1;
@@ -160,7 +161,9 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
     dsasig.s = BN_new();
     BN_bin2bn(sig + 20, 20, dsasig.s);
 
-    libssh2_sha1(m, m_len, hash);
+    if (_libssh2_sha1(m, m_len, hash))
+        return -1;
+
     ret = DSA_do_verify(hash, SHA_DIGEST_LENGTH, &dsasig, dsactx);
     BN_clear_free(dsasig.s);
     BN_clear_free(dsasig.r);
@@ -564,14 +567,14 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 #endif /* LIBSSH_DSA */
 
 int
-libssh2_sha1_init(libssh2_sha1_ctx *ctx)
+_libssh2_sha1_init(libssh2_sha1_ctx *ctx)
 {
     EVP_MD_CTX_init(ctx);
     return EVP_DigestInit(ctx, EVP_get_digestbyname("sha1"));
 }
 
-void
-libssh2_sha1(const unsigned char *message, unsigned long len,
+int
+_libssh2_sha1(const unsigned char *message, unsigned long len,
              unsigned char *out)
 {
     EVP_MD_CTX ctx;
@@ -580,27 +583,16 @@ libssh2_sha1(const unsigned char *message, unsigned long len,
     if (EVP_DigestInit(&ctx, EVP_get_digestbyname("sha1"))) {
         EVP_DigestUpdate(&ctx, message, len);
         EVP_DigestFinal(&ctx, out, NULL);
+        return 0; /* success */
     }
+    return 1; /* error */
 }
 
 int
-libssh2_md5_init(libssh2_md5_ctx *ctx)
+_libssh2_md5_init(libssh2_md5_ctx *ctx)
 {
     EVP_MD_CTX_init(ctx);
     return EVP_DigestInit(ctx, EVP_get_digestbyname("md5"));
-}
-
-void
-libssh2_md5(const unsigned char *message, unsigned long len,
-            unsigned char *out)
-{
-    EVP_MD_CTX ctx;
-
-    EVP_MD_CTX_init(&ctx);
-    if (EVP_DigestInit(&ctx, EVP_get_digestbyname("md5"))) {
-        EVP_DigestUpdate(&ctx, message, len);
-        EVP_DigestFinal(&ctx, out, NULL);
-    }
 }
 
 static unsigned char *

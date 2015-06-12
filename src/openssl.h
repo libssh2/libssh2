@@ -109,18 +109,21 @@
 #define libssh2_sha1_ctx EVP_MD_CTX
 
 /* returns 0 in case of failure */
-int libssh2_sha1_init(libssh2_sha1_ctx *ctx);
+int _libssh2_sha1_init(libssh2_sha1_ctx *ctx);
+#define libssh2_sha1_init(x) _libssh2_sha1_init(x)
 #define libssh2_sha1_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha1_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
-void libssh2_sha1(const unsigned char *message, unsigned long len, unsigned char *out);
+int _libssh2_sha1(const unsigned char *message, unsigned long len,
+                  unsigned char *out);
+#define libssh2_sha1(x,y,z) _libssh2_sha1(x,y,z)
 
 #define libssh2_md5_ctx EVP_MD_CTX
 
 /* returns 0 in case of failure */
-int libssh2_md5_init(libssh2_md5_ctx *); 
+int _libssh2_md5_init(libssh2_md5_ctx *);
+#define libssh2_md5_init(x) _libssh2_md5_init(x)
 #define libssh2_md5_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_md5_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
-void libssh2_md5(const unsigned char *message, unsigned long len, unsigned char *out);
 
 #define libssh2_hmac_ctx HMAC_CTX
 #define libssh2_hmac_ctx_init(ctx) \
