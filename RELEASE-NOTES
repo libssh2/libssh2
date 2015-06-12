@@ -1,45 +1,18 @@
-libssh2 1.6.0
+libssh2 1.6.1
 
 This release includes the following changes:
 
- o Added CMake build system
- o Added libssh2_userauth_publickey_frommemory()
+ o
 
 This release includes the following bugfixes:
 
- o wait_socket: wrong use of difftime() [1]
- o userauth: Fixed prompt text no longer being copied to the prompts struct
- o mingw build: allow to pass custom CFLAGS
- o Let mansyntax.sh work regardless of where it is called from
- o Init HMAC_CTX before using it
- o direct_tcpip: Fixed channel write
- o WinCNG: fixed backend breakage
- o OpenSSL: caused by introducing libssh2_hmac_ctx_init
- o userauth.c: fix possible dereferences of a null pointer
- o wincng: Added explicit clear memory feature to WinCNG backend
- o openssl.c: fix possible segfault in case EVP_DigestInit fails
- o wincng: fix return code of libssh2_md5_init()
- o kex: do not ignore failure of libssh2_sha1_init()
- o scp: fix that scp_send may transmit not initialised memory [3]
- o scp.c: improved command length calculation
- o nonblocking examples: fix warning about unused tvdiff on Mac OS X
- o configure: make clear-memory default but WARN if backend unsupported
- o OpenSSL: Enable use of OpenSSL that doesn't have DSA
- o OpenSSL: Use correct no-blowfish #define
- o kex: fix libgcrypt memory leaks of bignum [2]
- o libssh2_channel_open: more detailed error message
- o wincng: fixed memleak in (block) cipher destructor
- 
+ o
  
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
-  Alexander Lamaison, Daniel Stenberg, David Calavera, Hannes Domani,
-  Jakob Egger, Joe Turpin, Marc Hoersken, Viktor Szakáts, Will Cosgrove,
-  (9 contributors)
- 
+
         Thanks! (and sorry if I forgot to mention someone)
 
- [1] = https://github.com/bagder/libssh2/issues/1
- [2] = https://trac.libssh2.org/ticket/168
- [3] = https://trac.libssh2.org/ticket/244
+ [1] = 
+
