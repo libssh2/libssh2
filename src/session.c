@@ -491,7 +491,8 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
         session->free = local_free;
         session->realloc = local_realloc;
         session->send = _libssh2_send;
-        session->recv = _libssh2_recv;
+		session->recv = _libssh2_recv;
+		session->select = _libssh2_select;
         session->abstract = abstract;
         session->api_timeout = 0; /* timeout-free API by default */
         session->api_block_mode = 1; /* blocking API by default */
@@ -548,10 +549,15 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
         session->send = callback;
         return oldcb;
 
-    case LIBSSH2_CALLBACK_RECV:
-        oldcb = session->recv;
-        session->recv = callback;
-        return oldcb;
+	case LIBSSH2_CALLBACK_RECV:
+		oldcb = session->recv;
+		session->recv = callback;
+		return oldcb;
+
+	case LIBSSH2_CALLBACK_SELECT:
+		oldcb = session->select;
+		session->select = callback;
+		return oldcb;
     }
     _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Setting Callback %d", cbtype);
 
@@ -633,28 +639,28 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
     }
 #else
     {
-        fd_set rfd;
-        fd_set wfd;
-        fd_set *writefd = NULL;
-        fd_set *readfd = NULL;
+//        fd_set rfd;
+//        fd_set wfd;
+//        fd_set *writefd = NULL;
+//        fd_set *readfd = NULL;
         struct timeval tv;
 
         tv.tv_sec = ms_to_next / 1000;
         tv.tv_usec = (ms_to_next - tv.tv_sec*1000) * 1000;
 
-        if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
-            FD_ZERO(&rfd);
-            FD_SET(session->socket_fd, &rfd);
-            readfd = &rfd;
-        }
+//        if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
+//            FD_ZERO(&rfd);
+//            FD_SET(session->socket_fd, &rfd);
+//            readfd = &rfd;
+//        }
+//
+//        if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND) {
+//            FD_ZERO(&wfd);
+//            FD_SET(session->socket_fd, &wfd);
+//            writefd = &wfd;
+//        }
 
-        if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND) {
-            FD_ZERO(&wfd);
-            FD_SET(session->socket_fd, &wfd);
-            writefd = &wfd;
-        }
-
-        rc = select(session->socket_fd + 1, readfd, writefd, NULL,
+        rc = LIBSSH2_SELECT(session, dir & LIBSSH2_SESSION_BLOCK_INBOUND, dir & LIBSSH2_SESSION_BLOCK_OUTBOUND,
                     has_timeout ? &tv : NULL);
     }
 #endif
