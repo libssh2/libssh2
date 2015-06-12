@@ -154,17 +154,17 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
 {
     unsigned char hash[SHA_DIGEST_LENGTH];
     DSA_SIG dsasig;
-    int ret;
+    int ret = -1;
 
     dsasig.r = BN_new();
     BN_bin2bn(sig, 20, dsasig.r);
     dsasig.s = BN_new();
     BN_bin2bn(sig + 20, 20, dsasig.s);
 
-    if (_libssh2_sha1(m, m_len, hash))
-        return -1;
+    if (!_libssh2_sha1(m, m_len, hash))
+        /* _libssh2_sha1() succeeded */
+        ret = DSA_do_verify(hash, SHA_DIGEST_LENGTH, &dsasig, dsactx);
 
-    ret = DSA_do_verify(hash, SHA_DIGEST_LENGTH, &dsasig, dsactx);
     BN_clear_free(dsasig.s);
     BN_clear_free(dsasig.r);
 
