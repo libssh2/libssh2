@@ -954,6 +954,27 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             LIBSSH2_FREE(session, data);
             session->packAdd_state = libssh2_NB_state_idle;
             return 0;
+
+        case SSH_MSG_CHANNEL_OPEN_CONFIRMATION:
+        case SSH_MSG_CHANNEL_OPEN_FAILURE:
+            if(datalen >= 5)
+                channelp =
+                _libssh2_channel_locate(session,
+                _libssh2_ntohu32(data + 1));
+            if (!channelp) {
+                /* We may have freed already, just quietly free this... */
+                _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                    "OPEN_%s received for channel %lu, but have freed already", 
+                    (msg==SSH_MSG_CHANNEL_OPEN_CONFIRMATION)?"CONFIRMATION":"FAILURE", 
+                    _libssh2_ntohu32(data + 1));
+
+                LIBSSH2_FREE(session, data);
+                session->packAdd_state = libssh2_NB_state_idle;
+                return 0;
+            }
+            /* found this channel, break and then add it to list*/
+            break;
+
         default:
             break;
         }

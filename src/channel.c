@@ -221,10 +221,6 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             goto channel_error;
         }
 
-        /* why now need msg_req_open_sent=1?
-        *  since added libssh2_channel_alloc
-        */
-        session->open_channel->msg_req_open_sent = 1;
         session->open_state = libssh2_NB_state_sent;
     }
 
@@ -264,6 +260,11 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             session->open_packet = NULL;
             LIBSSH2_FREE(session, session->open_data);
             session->open_data = NULL;
+
+           /* why now need open_comfirmed=1?
+            *  since added libssh2_channel_alloc
+            */
+            session->open_channel->open_comfirmed = 1;
 
             session->open_state = libssh2_NB_state_idle;
             return session->open_channel;
@@ -361,7 +362,7 @@ LIBSSH2_CHANNEL *
         sizeof(channel->open_packet_requirev_state));
 
     _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-        "Opening Channel - win %d pack %d", window_size,
+        "Alloc Channel - win %d pack %d", window_size,
         packet_size);
 
     channel->channel_type_len = channel_type_len;
@@ -410,6 +411,9 @@ LIBSSH2_CHANNEL *
     return channel;
 }
 
+/*
+* Return 0 on success or negative on failure. It returns LIBSSH2_ERROR_EAGAIN when it would otherwise block
+*/
 LIBSSH2_API
 int
 libssh2_channel_open2(LIBSSH2_CHANNEL * channel, const char *message, unsigned int message_len)
@@ -421,7 +425,7 @@ libssh2_channel_open2(LIBSSH2_CHANNEL * channel, const char *message, unsigned i
     };
 
     LIBSSH2_SESSION *session = channel->session;
-    int rc;
+    int rc = -1;
 
     if (channel->open_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_send(session,
@@ -431,19 +435,13 @@ libssh2_channel_open2(LIBSSH2_CHANNEL * channel, const char *message, unsigned i
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, rc,
                            "Would block sending channel-open request");
-            return -1;
+            return rc;
         }
         else if (rc) {
             _libssh2_error(session, rc,
                            "Unable to send channel-open request");
             goto channel_error;
         }
-
-        /* 
-        *  once SSH_MSG_CHANNEL_OPEN has been sent
-        *  to properly notify server side by sending eof when free&closing channel
-        */
-        channel->msg_req_open_sent = 1;
 
         channel->open_state = libssh2_NB_state_sent;
     }
@@ -457,9 +455,9 @@ libssh2_channel_open2(LIBSSH2_CHANNEL * channel, const char *message, unsigned i
             &channel->open_packet_requirev_state);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
-            return -1;
+            return rc;
         } else if (rc) {
-            _libssh2_error(session, rc, "_libssh2_packet_requirev failed");
+            _libssh2_error(session, rc, "_libssh2_packet_requirev2 failed");
             goto channel_error;
         }
 
@@ -485,6 +483,10 @@ libssh2_channel_open2(LIBSSH2_CHANNEL * channel, const char *message, unsigned i
             channel->open_packet = NULL;
             LIBSSH2_FREE(session, channel->open_data);
             channel->open_data = NULL;
+           /* 
+            *  to properly notify server side by sending eof when free&closing channel
+            */
+            channel->open_comfirmed = 1;
 
             channel->open_state = libssh2_NB_state_idle;
             return 0;
@@ -492,6 +494,7 @@ libssh2_channel_open2(LIBSSH2_CHANNEL * channel, const char *message, unsigned i
 
         if (channel->open_data[0] == SSH_MSG_CHANNEL_OPEN_FAILURE) {
             unsigned int reason_code = _libssh2_ntohu32(channel->open_data + 5);
+            rc = LIBSSH2_ERROR_CHANNEL_FAILURE;
             switch (reason_code) {
             case SSH_OPEN_ADMINISTRATIVELY_PROHIBITED:
                 _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_FAILURE,
@@ -516,12 +519,9 @@ libssh2_channel_open2(LIBSSH2_CHANNEL * channel, const char *message, unsigned i
         }
     }
 
-  channel_error:
+channel_error:
 
-    /* so we don't have to channel_send_eof in _libssh2_channel_free*/
-    channel->msg_req_open_sent = 0;
-
-    return -1;
+    return rc;
 }
 
 
@@ -626,6 +626,92 @@ libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, const char *host,
     BLOCK_ADJUST_ERRNO(ptr, session,
                        channel_direct_tcpip(session, host, port, shost, sport));
     return ptr;
+}
+
+/*
+ * libssh2_channel_direct_tcpip_alloc
+ *
+ * Tunnel TCP/IP connect through the SSH session to direct host/port
+ * Pass the returned ptr to libssh2_channel_direct_tcpip_open
+ *
+ * Remarks:
+ *    libssh2_channel_direct_tcpip_ex will not return you the channel ptr, until the connection to target is established.
+ *    even if in non-blocking mode, so if you have many targets want to connect you have to wait one by one, 
+ *    now, in non-blocking mode, use libssh2_channel_direct_tcpip_alloc and libssh2_channel_direct_tcpip_open,
+ *    you can alloc many channels for each of your targets, and try each with libssh2_channel_direct_tcpip_open,
+ *    once which is first connected by ssh server, then that channel client will be firstly available to use.
+ */
+LIBSSH2_API LIBSSH2_CHANNEL *
+    libssh2_channel_direct_tcpip_alloc(LIBSSH2_SESSION *session, const char *host,
+    int port, const char *shost, int sport)
+{
+    LIBSSH2_CHANNEL *channel;
+    unsigned char *s;
+    int direct_host_len;
+    int direct_shost_len;
+
+    if(!session)
+        return NULL;
+
+    channel = libssh2_channel_alloc(session, "direct-tcpip",
+        sizeof("direct-tcpip") - 1,
+        LIBSSH2_CHANNEL_WINDOW_DEFAULT,
+        LIBSSH2_CHANNEL_PACKET_DEFAULT);
+
+    if (!channel)
+        return NULL;
+
+
+    direct_host_len = strlen(host);
+    direct_shost_len = strlen(shost);
+    /* host_len(4) + port(4) + shost_len(4) + sport(4) */
+    channel->direct_message_len = direct_host_len + direct_shost_len + 16;
+
+    _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+        "Alloc direct-tcpip session to from %s:%d to %s:%d",
+        shost, sport, host, port);
+
+    s = channel->direct_message =
+        LIBSSH2_ALLOC(session, channel->direct_message_len);
+    if (!channel->direct_message) {
+        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            "Unable to allocate memory for direct-tcpip connection");
+
+        _libssh2_channel_free(channel);
+        return NULL;
+    }
+
+    _libssh2_store_str(&s, host, direct_host_len);
+    _libssh2_store_u32(&s, port);
+    _libssh2_store_str(&s, shost, direct_shost_len);
+    _libssh2_store_u32(&s, sport);
+
+    return channel;
+}
+
+/*
+ * libssh2_channel_direct_tcpip_open
+ *
+ * Tunnel TCP/IP connect through the SSH session to direct host/port
+ *
+ * @param channel: this handle is returned from libssh2_channel_direct_tcpip_alloc
+ */
+LIBSSH2_API int
+libssh2_channel_direct_tcpip_open(LIBSSH2_CHANNEL *channel)
+{
+    int rc;
+
+    if(!channel || !channel->direct_message)
+        return LIBSSH2_ERROR_BAD_USE;
+
+    BLOCK_ADJUST(rc, channel->session,
+                       libssh2_channel_open2(channel, channel->direct_message, channel->direct_message_len));
+
+    if (rc == 0) {
+        LIBSSH2_FREE(channel->session, channel->direct_message);
+        channel->direct_message = NULL;
+    }
+    return rc;
 }
 
 /*
@@ -2664,7 +2750,7 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     }
 
     /* Allow channel freeing even when the socket has lost its connection */
-    if (channel->msg_req_open_sent
+    if (channel->open_comfirmed
         && !channel->local.close
         && (session->socket_state == LIBSSH2_SOCKET_CONNECTED)) {
         rc = _libssh2_channel_close(channel);
@@ -2727,6 +2813,9 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     }
     if (channel->open_packet) {
         LIBSSH2_FREE(session, channel->open_packet);
+    }
+    if (channel->direct_message) {
+        LIBSSH2_FREE(session, channel->direct_message);
     }
 
     /* Unlink from channel list */

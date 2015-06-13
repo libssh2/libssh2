@@ -654,6 +654,12 @@ libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, const char *host,
 #define libssh2_channel_direct_tcpip(session, host, port) \
   libssh2_channel_direct_tcpip_ex((session), (host), (port), "127.0.0.1", 22)
 
+LIBSSH2_API LIBSSH2_CHANNEL *
+    libssh2_channel_direct_tcpip_alloc(LIBSSH2_SESSION *session, const char *host,
+    int port, const char *shost, int sport);
+LIBSSH2_API int
+    libssh2_channel_direct_tcpip_open(LIBSSH2_CHANNEL *channel);
+
 LIBSSH2_API LIBSSH2_LISTENER *
 libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, const char *host,
                                   int port, int *bound_port, int queue_maxsize);

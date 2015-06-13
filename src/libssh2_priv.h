@@ -347,7 +347,7 @@ struct _LIBSSH2_CHANNEL
 {
     struct list_node node;
 
-    char msg_req_open_sent;
+    char open_comfirmed;
     libssh2_nonblocking_states open_state;
     packet_requirev_state_t open_packet_requirev_state;
     unsigned char *open_packet;
@@ -355,6 +355,8 @@ struct _LIBSSH2_CHANNEL
     unsigned char *open_data;
     size_t open_data_len;
     uint32_t open_local_channel;
+    unsigned char *direct_message;
+    size_t direct_message_len;
 
     unsigned char *channel_type;
     unsigned channel_type_len;
