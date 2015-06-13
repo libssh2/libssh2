@@ -221,6 +221,10 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             goto channel_error;
         }
 
+        /* why now need msg_req_open_sent=1?
+        *  since added libssh2_channel_alloc
+        */
+        session->open_channel->msg_req_open_sent = 1;
         session->open_state = libssh2_NB_state_sent;
     }
 
@@ -435,7 +439,12 @@ libssh2_channel_open2(LIBSSH2_CHANNEL * channel, const char *message, unsigned i
             goto channel_error;
         }
 
+        /* 
+        *  once SSH_MSG_CHANNEL_OPEN has been sent
+        *  to properly notify server side by sending eof when free&closing channel
+        */
         channel->msg_req_open_sent = 1;
+
         channel->open_state = libssh2_NB_state_sent;
     }
 
@@ -509,6 +518,7 @@ libssh2_channel_open2(LIBSSH2_CHANNEL * channel, const char *message, unsigned i
 
   channel_error:
 
+    /* so we don't have to channel_send_eof in _libssh2_channel_free*/
     channel->msg_req_open_sent = 0;
 
     return -1;
