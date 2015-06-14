@@ -431,7 +431,7 @@ libssh2_channel_open2(LIBSSH2_CHANNEL * channel, const char *message, unsigned i
         rc = _libssh2_transport_send(session,
                                      channel->open_packet,
                                      channel->open_packet_len,
-                                     message, message_len);
+                                     (unsigned char *)message, message_len);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, rc,
                            "Would block sending channel-open request");
@@ -705,7 +705,7 @@ libssh2_channel_direct_tcpip_open(LIBSSH2_CHANNEL *channel)
         return LIBSSH2_ERROR_BAD_USE;
 
     BLOCK_ADJUST(rc, channel->session,
-                       libssh2_channel_open2(channel, channel->direct_message, channel->direct_message_len));
+                       libssh2_channel_open2(channel, (char *)channel->direct_message, channel->direct_message_len));
 
     if (rc == 0) {
         LIBSSH2_FREE(channel->session, channel->direct_message);
