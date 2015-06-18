@@ -111,11 +111,12 @@ endif
 
 # Global flags for all compilers
 CFLAGS	= $(LIBSSH2_CFLAG_EXTRAS) $(OPT) -D$(DB) -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
+LDFLAGS = $(LIBSSH2_LDFLAG_EXTRAS)
 
 ifeq ($(CC),mwcc)
 LD	= mwld
 RC	= mwwinrc
-LDFLAGS	= -nostdlib
+LDFLAGS	+= -nostdlib
 AR	= $(LD)
 ARFLAGS	= -nostdlib -library -o
 LIBEXT	= lib
@@ -130,7 +131,7 @@ CFLAGS	+= -w on,nounused,nounusedexpr # -ansi strict
 else
 LD	= $(CROSSPREFIX)gcc
 RC	= $(CROSSPREFIX)windres
-LDFLAGS	= -s -shared -Wl,--output-def,$(TARGET).def,--out-implib,$(TARGET)dll.a
+LDFLAGS	+= -s -shared -Wl,--output-def,$(TARGET).def,--out-implib,$(TARGET)dll.a
 AR	= $(CROSSPREFIX)ar
 ARFLAGS	= -cq
 LIBEXT	= a
@@ -226,7 +227,7 @@ prebuild: $(OBJDIR) $(OBJDIR)/version.inc
 
 test: all
 	$(MAKE) -C test -f GNUmakefile
- 
+
 $(OBJDIR)/%.o: %.c
 #	@echo Compiling $<
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -342,5 +343,3 @@ help: $(OBJDIR)/version.inc
 	@echo $(DL)$(MAKE) objclean$(DL)
 	@echo $(DL)$(MAKE) test$(DL)
 	@echo $(DL)===========================================================$(DL)
-
-
