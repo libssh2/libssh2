@@ -268,7 +268,7 @@ shell_quotearg(const char *path, unsigned char *buf,
  *
  */
 static LIBSSH2_CHANNEL *
-scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
+scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 {
     int cmd_len;
     int rc;
@@ -724,7 +724,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
     }
 
     if (sb) {
-        memset(sb, 0, sizeof(struct stat));
+        memset(sb, 0, sizeof(libssh2_struct_stat));
 
         sb->st_mtime = session->scpRecv_mtime;
         sb->st_atime = session->scpRecv_atime;
@@ -759,11 +759,47 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, struct stat * sb)
 /*
  * libssh2_scp_recv
  *
- * Open a channel and request a remote file via SCP
+ * DEPRECATED
+ *
+ * Open a channel and request a remote file via SCP.  This receives files larger
+ * than 2 GB, but is unable to report the proper size on platforms where the
+ * st_size member of struct stat is limited to 2 GB (e.g. windows).
  *
  */
 LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat * sb)
+{
+    LIBSSH2_CHANNEL *ptr;
+
+    /* scp_recv uses libssh2_struct_stat, so pass one if the caller gave us a struct to populate... */
+    libssh2_struct_stat sb_intl;
+    libssh2_struct_stat *sb_ptr;
+    sb_ptr = sb ? &sb_intl : NULL;
+
+    BLOCK_ADJUST_ERRNO(ptr, session, scp_recv(session, path, sb_ptr));
+
+    /* ...and populate the caller's with as much info as fits. */
+    if (sb) {
+        memset(sb, 0, sizeof(struct stat));
+
+        sb->st_mtime = sb_intl.st_mtime;
+        sb->st_atime = sb_intl.st_atime;
+        sb->st_size = (off_t)sb_intl.st_size;
+        sb->st_mode = sb_intl.st_mode;
+    }
+
+    return ptr;
+}
+
+/*
+ * libssh2_scp_recv2
+ *
+ * Open a channel and request a remote file via SCP.  This supports files > 2GB
+ * on platforms that support it.
+ *
+ */
+LIBSSH2_API LIBSSH2_CHANNEL *
+libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path, libssh2_struct_stat * sb)
 {
     LIBSSH2_CHANNEL *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session, scp_recv(session, path, sb));

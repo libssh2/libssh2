@@ -119,6 +119,7 @@ set(MAN_PAGES
   libssh2_publickey_remove_ex.3
   libssh2_publickey_shutdown.3
   libssh2_scp_recv.3
+  libssh2_scp_recv2.3
   libssh2_scp_send.3
   libssh2_scp_send64.3
   libssh2_scp_send_ex.3
