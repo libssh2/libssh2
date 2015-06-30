@@ -38,6 +38,7 @@ include(CheckSymbolExists)
 include(CheckFunctionExistsMayNeedLibrary)
 include(CheckIncludeFiles)
 include(CheckTypeSize)
+include(CheckSymbolExists)
 include(CheckNonblockingSocketSupport)
 include(SocketLibraries)
 
@@ -280,6 +281,10 @@ if(HAVE_STDLIB_H)
   check_symbol_exists(strtoll stdlib.h HAVE_STRTOLL)
 else()
   check_function_exists(strtoll HAVE_STRTOLL)
+endif()
+if (NOT HAVE_STRTOLL)
+  # Try _strtoi64 if strtoll isn't available
+  check_symbol_exists(_strtoi64 stdlib.h HAVE_STRTOI64)
 endif()
 check_symbol_exists(snprintf stdio.h HAVE_SNPRINTF)
 
