@@ -33,7 +33,8 @@ win32/Makefile.Watcom win32/libssh2.dsw win32/tests.dsp $(DSP)	\
 win32/msvcproj.head win32/msvcproj.foot win32/libssh2.rc
 
 EXTRA_DIST = $(WIN32FILES) buildconf $(NETWAREFILES) get_ver.awk \
- maketgz NMakefile RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath
+ maketgz NMakefile RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
+ CMakeLists.txt cmake
 
 ACLOCAL_AMFLAGS = -I m4
 
