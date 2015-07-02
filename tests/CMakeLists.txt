@@ -78,8 +78,9 @@ find_program(MAN_EXECUTABLE man)
 find_program(GREP_EXECUTABLE grep)
 mark_as_advanced(SH_EXECUTABLE MAN_EXECUTABLE GREP_EXECUTABLE)
 if(SH_EXECUTABLE AND MAN_EXECUTABLE AND GREP_EXECUTABLE)
-  add_test(mansyntax
-    ${SH_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
+  set(cmd "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
+  set(cmd "${cmd} ${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
+  add_test(mansyntax ${SH_EXECUTABLE} -c "${cmd}")
 endif()
 
 add_test(simple test-simple)
