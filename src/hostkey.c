@@ -235,6 +235,10 @@ hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION * session, void **abstract)
     return 0;
 }
 
+#ifdef OPENSSL_NO_MD5
+#define MD5_DIGEST_LENGTH 16
+#endif
+
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa = {
     "ssh-rsa",
     MD5_DIGEST_LENGTH,
