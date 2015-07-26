@@ -187,7 +187,7 @@ set(SOURCES
   version.c)
 
 if(WIN32)
-  list(APPEND SOURCES ${CMAKE_SOURCE_DIR}/win32/libssh2.rc)
+  list(APPEND SOURCES ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
 endif()
 
 add_library(libssh2 ${SOURCES})
@@ -198,7 +198,7 @@ target_compile_definitions(libssh2 PRIVATE ${PRIVATE_COMPILE_DEFINITIONS})
 target_include_directories(libssh2
   PRIVATE ${PRIVATE_INCLUDE_DIRECTORIES}
   PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 ## Options
@@ -335,9 +335,9 @@ endif()
 ## Installation
 
 install(FILES
-  ${CMAKE_SOURCE_DIR}/include/libssh2.h
-  ${CMAKE_SOURCE_DIR}/include/libssh2_publickey.h
-  ${CMAKE_SOURCE_DIR}/include/libssh2_sftp.h
+  ${PROJECT_SOURCE_DIR}/include/libssh2.h
+  ${PROJECT_SOURCE_DIR}/include/libssh2_publickey.h
+  ${PROJECT_SOURCE_DIR}/include/libssh2_sftp.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(TARGETS libssh2
