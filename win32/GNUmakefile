@@ -14,7 +14,7 @@ endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-1.0.2c
+OPENSSL_PATH = ../../openssl-1.0.2d
 endif
 
 # Edit the path below to point to your Distribution folder.
