@@ -546,10 +546,6 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     while (!feof(fd) && 1 == fread(&c, 1, 1, fd) && c != '\r' && c != '\n') {
         pubkey_len++;
     }
-    if (feof(fd)) {
-        /* the last character was EOF */
-        pubkey_len--;
-    }
     rewind(fd);
 
     if (pubkey_len <= 1) {
