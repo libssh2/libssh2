@@ -1252,6 +1252,11 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
     int rc;
 
+    if (channel->process_state == libssh2_NB_state_end) {
+        return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE,
+                              "Channel can not be reused");
+    }
+
     if (channel->process_state == libssh2_NB_state_idle) {
         /* 10 = packet_type(1) + channel(4) + request_len(4) + want_reply(1) */
         channel->process_packet_len = request_len + 10;
@@ -1298,7 +1303,7 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         else if (rc) {
             LIBSSH2_FREE(session, channel->process_packet);
             channel->process_packet = NULL;
-            channel->process_state = libssh2_NB_state_idle;
+            channel->process_state = libssh2_NB_state_end;
             return _libssh2_error(session, rc,
                                   "Unable to send channel request");
         }
@@ -1320,14 +1325,14 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
-            channel->process_state = libssh2_NB_state_idle;
+            channel->process_state = libssh2_NB_state_end;
             return _libssh2_error(session, rc,
                                   "Failed waiting for channel success");
         }
 
         code = data[0];
         LIBSSH2_FREE(session, data);
-        channel->process_state = libssh2_NB_state_idle;
+        channel->process_state = libssh2_NB_state_end;
 
         if (code == SSH_MSG_CHANNEL_SUCCESS)
             return 0;
