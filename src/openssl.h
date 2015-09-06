@@ -76,6 +76,9 @@
 # define LIBSSH2_HMAC_RIPEMD 1
 #endif
 
+#define LIBSSH2_HMAC_SHA256 1
+#define LIBSSH2_HMAC_SHA512 1
+
 #if OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES)
 # define LIBSSH2_AES_CTR 1
 # define LIBSSH2_AES 1
@@ -138,6 +141,10 @@ int _libssh2_md5_init(libssh2_md5_ctx *);
   HMAC_Init(ctx, key, keylen, EVP_md5())
 #define libssh2_hmac_ripemd160_init(ctx, key, keylen) \
   HMAC_Init(ctx, key, keylen, EVP_ripemd160())
+#define libssh2_hmac_sha256_init(ctx, key, keylen) \
+  HMAC_Init(ctx, key, keylen, EVP_sha256())
+#define libssh2_hmac_sha512_init(ctx, key, keylen) \
+  HMAC_Init(ctx, key, keylen, EVP_sha512())
 #define libssh2_hmac_update(ctx, data, datalen) \
   HMAC_Update(&(ctx), data, datalen)
 #define libssh2_hmac_final(ctx, data) HMAC_Final(&(ctx), data, NULL)

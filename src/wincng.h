@@ -51,6 +51,8 @@
 #define LIBSSH2_MD5 1
 
 #define LIBSSH2_HMAC_RIPEMD 0
+#define LIBSSH2_HMAC_SHA256 0
+#define LIBSSH2_HMAC_SHA512 0
 
 #define LIBSSH2_AES 1
 #define LIBSSH2_AES_CTR 0
@@ -157,6 +159,10 @@ typedef struct __libssh2_wincng_hash_ctx {
   _libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHmacMD5, \
                             MD5_DIGEST_LENGTH, key, keylen)
 #define libssh2_hmac_ripemd160_init(ctx, key, keylen)
+  /* not implemented */
+#define libssh2_hmac_sha256_init(ctx, key, keylen)
+  /* not implemented */
+#define libssh2_hmac_sha512_init(ctx, key, keylen)
   /* not implemented */
 #define libssh2_hmac_update(ctx, data, datalen) \
   _libssh2_wincng_hash_update(&ctx, (unsigned char *) data, datalen)
