@@ -42,6 +42,8 @@
 #define LIBSSH2_MD5 1
 
 #define LIBSSH2_HMAC_RIPEMD 1
+#define LIBSSH2_HMAC_SHA256 1
+#define LIBSSH2_HMAC_SHA512 1
 
 #define LIBSSH2_AES 1
 #define LIBSSH2_AES_CTR 1
@@ -94,6 +96,12 @@
     gcry_md_setkey (*ctx, key, keylen)
 #define libssh2_hmac_ripemd160_init(ctx, key, keylen) \
   gcry_md_open (ctx, GCRY_MD_RMD160, GCRY_MD_FLAG_HMAC), \
+    gcry_md_setkey (*ctx, key, keylen)
+#define libssh2_hmac_sha256_init(ctx, key, keylen) \
+  gcry_md_open (ctx, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC), \
+    gcry_md_setkey (*ctx, key, keylen)
+#define libssh2_hmac_sha512_init(ctx, key, keylen) \
+  gcry_md_open (ctx, GCRY_MD_SHA512, GCRY_MD_FLAG_HMAC), \
     gcry_md_setkey (*ctx, key, keylen)
 #define libssh2_hmac_update(ctx, data, datalen) \
   gcry_md_write (ctx, (unsigned char *) data, datalen)
