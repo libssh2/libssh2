@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     const char *scppath="/tmp/TEST";
     libssh2_struct_stat fileinfo;
     int rc;
-    off_t got=0;
+    libssh2_struct_stat_size got = 0;
 
 #ifdef WIN32
     WSADATA wsadata;
