@@ -202,6 +202,10 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
 
         session->server_hostkey_len = _libssh2_ntohu32(exchange_state->s);
         exchange_state->s += 4;
+
+        if (session->server_hostkey)
+            LIBSSH2_FREE(session, session->server_hostkey);
+
         session->server_hostkey =
             LIBSSH2_ALLOC(session, session->server_hostkey_len);
         if (!session->server_hostkey) {
