@@ -545,6 +545,7 @@ endif
 	@echo $(DL)  libssh2_knownhost_readfile,$(DL) >> $@
 	@echo $(DL)  libssh2_knownhost_writefile,$(DL) >> $@
 	@echo $(DL)  libssh2_scp_recv,$(DL) >> $@
+	@echo $(DL)  libssh2_scp_recv2,$(DL) >> $@
 	@echo $(DL)  libssh2_scp_send64,$(DL) >> $@
 	@echo $(DL)  libssh2_scp_send_ex,$(DL) >> $@
 	@echo $(DL)  libssh2_session_abstract,$(DL) >> $@

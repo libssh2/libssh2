@@ -779,7 +779,7 @@ struct _LIBSSH2_SESSION
     int sftpInit_sent; /* number of bytes from the buffer that have been
                           sent */
 
-    /* State variables used in libssh2_scp_recv() */
+    /* State variables used in libssh2_scp_recv() / libssh_scp_recv2() */
     libssh2_nonblocking_states scpRecv_state;
     unsigned char *scpRecv_command;
     size_t scpRecv_command_len;
@@ -790,6 +790,9 @@ struct _LIBSSH2_SESSION
     /* we have the type and we can parse such numbers */
     long long scpRecv_size;
 #define scpsize_strtol strtoll
+#elif defined(HAVE_STRTOI64)
+    __int64 scpRecv_size;
+#define scpsize_strtol _strtoi64
 #else
     long scpRecv_size;
 #define scpsize_strtol strtol

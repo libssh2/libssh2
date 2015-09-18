@@ -64,6 +64,7 @@
 #cmakedefine HAVE_SELECT
 #cmakedefine HAVE_SOCKET
 #cmakedefine HAVE_STRTOLL
+#cmakedefine HAVE_STRTOI64
 #cmakedefine HAVE_SNPRINTF
 
 /* OpenSSL functions */
