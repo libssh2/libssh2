@@ -151,33 +151,33 @@ typedef int libssh2_socket_t;
 
 #if defined(_MSC_VER) && !defined(_WIN32_WCE)
 #  if (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
-#    define USE_WIN32_LARGE_FILES
+#    define LIBSSH2_USE_WIN32_LARGE_FILES
 #  else
-#    define USE_WIN32_SMALL_FILES
+#    define LIBSSH2_USE_WIN32_SMALL_FILES
 #  endif
 #endif
 
-#if defined(__MINGW32__) && !defined(USE_WIN32_LARGE_FILES)
-#  define USE_WIN32_LARGE_FILES
+#if defined(__MINGW32__) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES)
+#  define LIBSSH2_USE_WIN32_LARGE_FILES
 #endif
 
-#if defined(__WATCOMC__) && !defined(USE_WIN32_LARGE_FILES)
-#  define USE_WIN32_LARGE_FILES
+#if defined(__WATCOMC__) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES)
+#  define LIBSSH2_USE_WIN32_LARGE_FILES
 #endif
 
 #if defined(__POCC__)
-#  undef USE_WIN32_LARGE_FILES
+#  undef LIBSSH2_USE_WIN32_LARGE_FILES
 #endif
 
-#if defined(_WIN32) && !defined(USE_WIN32_LARGE_FILES) && !defined(USE_WIN32_SMALL_FILES)
-#  define USE_WIN32_SMALL_FILES
+#if defined(_WIN32) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES) && !defined(LIBSSH2_USE_WIN32_SMALL_FILES)
+#  define LIBSSH2_USE_WIN32_SMALL_FILES
 #endif
 
 /*
  * Large file (>2Gb) support using WIN32 functions.
  */
 
-#ifdef USE_WIN32_LARGE_FILES
+#ifdef LIBSSH2_USE_WIN32_LARGE_FILES
 #  include <io.h>
 #  include <sys/types.h>
 #  include <sys/stat.h>
@@ -190,7 +190,7 @@ typedef __int64 libssh2_struct_stat_size;
  * Small file (<2Gb) support using WIN32 functions.
  */
 
-#ifdef USE_WIN32_SMALL_FILES
+#ifdef LIBSSH2_USE_WIN32_SMALL_FILES
 #  include <sys/types.h>
 #  include <sys/stat.h>
 #  ifndef _WIN32_WCE
