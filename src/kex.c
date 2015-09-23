@@ -744,7 +744,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         exchange_state->ctx = _libssh2_bn_ctx_new();
         exchange_state->x = _libssh2_bn_init(); /* Random from client */
         exchange_state->e = _libssh2_bn_init(); /* g^x mod p */
-        exchange_state->f = _libssh2_bn_init(); /* g^(Random from server) mod p */
+        exchange_state->f = _libssh2_bn_init_from_bin(); /* g^(Random from server) mod p */
         exchange_state->k = _libssh2_bn_init(); /* The shared secret: f^x mod p */
         
         /* Zero the whole thing out */
