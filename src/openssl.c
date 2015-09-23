@@ -589,6 +589,28 @@ _libssh2_sha1(const unsigned char *message, unsigned long len,
 }
 
 int
+_libssh2_sha256_init(libssh2_sha256_ctx *ctx)
+{
+    EVP_MD_CTX_init(ctx);
+    return EVP_DigestInit(ctx, EVP_get_digestbyname("sha256"));
+}
+
+int
+_libssh2_sha256(const unsigned char *message, unsigned long len,
+             unsigned char *out)
+{
+    EVP_MD_CTX ctx;
+    
+    EVP_MD_CTX_init(&ctx);
+    if(EVP_DigestInit(&ctx, EVP_get_digestbyname("sha256"))) {
+   		EVP_DigestUpdate(&ctx, message, len);
+    	EVP_DigestFinal(&ctx, out, NULL);
+    	 return 0; /* success */
+    }
+    return 1; /* error */
+}
+
+int
 _libssh2_md5_init(libssh2_md5_ctx *ctx)
 {
     EVP_MD_CTX_init(ctx);
