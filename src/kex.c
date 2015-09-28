@@ -116,6 +116,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
 {
     int ret = 0;
     int rc;
+    libssh2_sha1_ctx exchange_hash_ctx;
 
     if (exchange_state->state == libssh2_NB_state_idle) {
         /* Setup initial values */
@@ -346,57 +347,57 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
             exchange_state->k_value[4] = 0;
             _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
         }
-        libssh2_sha1_ctx ctx;
-        exchange_state->exchange_hash = (void*)&ctx;
-        libssh2_sha1_init(&ctx);
+
+        exchange_state->exchange_hash = (void*)&exchange_hash_ctx;
+        libssh2_sha1_init(&exchange_hash_ctx);
 
         if (session->local.banner) {
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              strlen((char *) session->local.banner) - 2);
-            libssh2_sha1_update(ctx,
+            libssh2_sha1_update(exchange_hash_ctx,
                                 exchange_state->h_sig_comp, 4);
-            libssh2_sha1_update(ctx,
+            libssh2_sha1_update(exchange_hash_ctx,
                                 (char *) session->local.banner,
                                 strlen((char *) session->local.banner) - 2);
         } else {
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-            libssh2_sha1_update(ctx,
+            libssh2_sha1_update(exchange_hash_ctx,
                                 exchange_state->h_sig_comp, 4);
-            libssh2_sha1_update(ctx,
+            libssh2_sha1_update(exchange_hash_ctx,
                                 LIBSSH2_SSH_DEFAULT_BANNER,
                                 sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
         }
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          strlen((char *) session->remote.banner));
-        libssh2_sha1_update(ctx,
+        libssh2_sha1_update(exchange_hash_ctx,
                             exchange_state->h_sig_comp, 4);
-        libssh2_sha1_update(ctx,
+        libssh2_sha1_update(exchange_hash_ctx,
                             session->remote.banner,
                             strlen((char *) session->remote.banner));
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->local.kexinit_len);
-        libssh2_sha1_update(ctx,
+        libssh2_sha1_update(exchange_hash_ctx,
                             exchange_state->h_sig_comp, 4);
-        libssh2_sha1_update(ctx,
+        libssh2_sha1_update(exchange_hash_ctx,
                             session->local.kexinit,
                             session->local.kexinit_len);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->remote.kexinit_len);
-        libssh2_sha1_update(ctx,
+        libssh2_sha1_update(exchange_hash_ctx,
                             exchange_state->h_sig_comp, 4);
-        libssh2_sha1_update(ctx,
+        libssh2_sha1_update(exchange_hash_ctx,
                             session->remote.kexinit,
                             session->remote.kexinit_len);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->server_hostkey_len);
-        libssh2_sha1_update(ctx,
+        libssh2_sha1_update(exchange_hash_ctx,
                             exchange_state->h_sig_comp, 4);
-        libssh2_sha1_update(ctx,
+        libssh2_sha1_update(exchange_hash_ctx,
                             session->server_hostkey,
                             session->server_hostkey_len);
 
@@ -409,38 +410,38 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
                              LIBSSH2_DH_GEX_OPTGROUP);
             _libssh2_htonu32(exchange_state->h_sig_comp + 8,
                              LIBSSH2_DH_GEX_MAXGROUP);
-            libssh2_sha1_update(ctx,
+            libssh2_sha1_update(exchange_hash_ctx,
                                 exchange_state->h_sig_comp, 12);
 #else
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              LIBSSH2_DH_GEX_OPTGROUP);
-            libssh2_sha1_update(ctx,
+            libssh2_sha1_update(exchange_hash_ctx,
                                 exchange_state->h_sig_comp, 4);
 #endif
         }
 
         if (midhash) {
-            libssh2_sha1_update(ctx, midhash,
+            libssh2_sha1_update(exchange_hash_ctx, midhash,
                                 midhash_len);
         }
 
-        libssh2_sha1_update(ctx,
+        libssh2_sha1_update(exchange_hash_ctx,
                             exchange_state->e_packet + 1,
                             exchange_state->e_packet_len - 1);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          exchange_state->f_value_len);
-        libssh2_sha1_update(ctx,
+        libssh2_sha1_update(exchange_hash_ctx,
                             exchange_state->h_sig_comp, 4);
-        libssh2_sha1_update(ctx,
+        libssh2_sha1_update(exchange_hash_ctx,
                             exchange_state->f_value,
                             exchange_state->f_value_len);
 
-        libssh2_sha1_update(ctx,
+        libssh2_sha1_update(exchange_hash_ctx,
                             exchange_state->k_value,
                             exchange_state->k_value_len);
 
-        libssh2_sha1_final(ctx,
+        libssh2_sha1_final(exchange_hash_ctx,
                            exchange_state->h_sig_comp);
 
         if (session->hostkey->
@@ -735,7 +736,8 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
 {
     int ret = 0;
     int rc;
-
+	libssh2_sha256_ctx exchange_hash_ctx;
+	
     if (exchange_state->state == libssh2_NB_state_idle) {
         /* Setup initial values */
         exchange_state->e_packet = NULL;
@@ -965,57 +967,57 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             exchange_state->k_value[4] = 0;
             _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
         }
-        libssh2_sha256_ctx ctx;
-        exchange_state->exchange_hash = (void*)&ctx;
-        libssh2_sha256_init(&ctx);
+
+		exchange_state->exchange_hash = (void*)&exchange_hash_ctx;
+        libssh2_sha256_init(&exchange_hash_ctx);
 
         if (session->local.banner) {
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              strlen((char *) session->local.banner) - 2);
-            libssh2_sha256_update(ctx,
+            libssh2_sha256_update(exchange_hash_ctx,
                                 exchange_state->h_sig_comp, 4);
-            libssh2_sha256_update(ctx,
+            libssh2_sha256_update(exchange_hash_ctx,
                                 (char *) session->local.banner,
                                 strlen((char *) session->local.banner) - 2);
         } else {
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-            libssh2_sha256_update(ctx,
+            libssh2_sha256_update(exchange_hash_ctx,
                                 exchange_state->h_sig_comp, 4);
-            libssh2_sha256_update(ctx,
+            libssh2_sha256_update(exchange_hash_ctx,
                                 LIBSSH2_SSH_DEFAULT_BANNER,
                                 sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
         }
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          strlen((char *) session->remote.banner));
-        libssh2_sha256_update(ctx,
+        libssh2_sha256_update(exchange_hash_ctx,
                             exchange_state->h_sig_comp, 4);
-        libssh2_sha256_update(ctx,
+        libssh2_sha256_update(exchange_hash_ctx,
                             session->remote.banner,
                             strlen((char *) session->remote.banner));
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->local.kexinit_len);
-        libssh2_sha256_update(ctx,
+        libssh2_sha256_update(exchange_hash_ctx,
                             exchange_state->h_sig_comp, 4);
-        libssh2_sha256_update(ctx,
+        libssh2_sha256_update(exchange_hash_ctx,
                             session->local.kexinit,
                             session->local.kexinit_len);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->remote.kexinit_len);
-        libssh2_sha256_update(ctx,
+        libssh2_sha256_update(exchange_hash_ctx,
                             exchange_state->h_sig_comp, 4);
-        libssh2_sha256_update(ctx,
+        libssh2_sha256_update(exchange_hash_ctx,
                             session->remote.kexinit,
                             session->remote.kexinit_len);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->server_hostkey_len);
-        libssh2_sha256_update(ctx,
+        libssh2_sha256_update(exchange_hash_ctx,
                             exchange_state->h_sig_comp, 4);
-        libssh2_sha256_update(ctx,
+        libssh2_sha256_update(exchange_hash_ctx,
                             session->server_hostkey,
                             session->server_hostkey_len);
 
@@ -1028,38 +1030,38 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
                              LIBSSH2_DH_GEX_OPTGROUP);
             _libssh2_htonu32(exchange_state->h_sig_comp + 8,
                              LIBSSH2_DH_GEX_MAXGROUP);
-            libssh2_sha256_update(ctx,
+            libssh2_sha256_update(exchange_hash_ctx,
                                 exchange_state->h_sig_comp, 12);
 #else
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              LIBSSH2_DH_GEX_OPTGROUP);
-            libssh2_sha256_update(ctx,
+            libssh2_sha256_update(exchange_hash_ctx,
                                 exchange_state->h_sig_comp, 4);
 #endif
         }
 
         if (midhash) {
-            libssh2_sha256_update(ctx, midhash,
+            libssh2_sha256_update(exchange_hash_ctx, midhash,
                                 midhash_len);
         }
 
-        libssh2_sha256_update(ctx,
+        libssh2_sha256_update(exchange_hash_ctx,
                             exchange_state->e_packet + 1,
                             exchange_state->e_packet_len - 1);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          exchange_state->f_value_len);
-        libssh2_sha256_update(ctx,
+        libssh2_sha256_update(exchange_hash_ctx,
                             exchange_state->h_sig_comp, 4);
-        libssh2_sha256_update(ctx,
+        libssh2_sha256_update(exchange_hash_ctx,
                             exchange_state->f_value,
                             exchange_state->f_value_len);
 
-        libssh2_sha256_update(ctx,
+        libssh2_sha256_update(exchange_hash_ctx,
                             exchange_state->k_value,
                             exchange_state->k_value_len);
 
-        libssh2_sha256_final(ctx,
+        libssh2_sha256_final(exchange_hash_ctx,
                            exchange_state->h_sig_comp);
 
         if (session->hostkey->
