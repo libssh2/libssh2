@@ -758,14 +758,14 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         /* Send KEX init */
         /* packet_type(1) + String Length(4) + leading 0(1) */
         exchange_state->e_packet_len =
-        _libssh2_bn_bytes(exchange_state->e) + 6;
+            _libssh2_bn_bytes(exchange_state->e) + 6;
         if (_libssh2_bn_bits(exchange_state->e) % 8) {
             /* Leading 00 not needed */
             exchange_state->e_packet_len--;
         }
         
         exchange_state->e_packet =
-        LIBSSH2_ALLOC(session, exchange_state->e_packet_len);
+            LIBSSH2_ALLOC(session, exchange_state->e_packet_len);
         if (!exchange_state->e_packet) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Out of memory error");
@@ -855,7 +855,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             LIBSSH2_FREE(session, session->server_hostkey);
         
         session->server_hostkey =
-        	LIBSSH2_ALLOC(session, session->server_hostkey_len);
+            LIBSSH2_ALLOC(session, session->server_hostkey_len);
         if (!session->server_hostkey) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate memory for a copy "
@@ -874,7 +874,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
                 libssh2_md5_update(fingerprint_ctx, session->server_hostkey,
                                    session->server_hostkey_len);
                 libssh2_md5_final(fingerprint_ctx, 
-                				  session->server_hostkey_md5);
+                                  session->server_hostkey_md5);
                 session->server_hostkey_md5_valid = TRUE;
             }
             else {
@@ -899,15 +899,15 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             libssh2_sha1_ctx fingerprint_ctx;
             
             if (libssh2_sha1_init(&fingerprint_ctx)) {
-				libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
-									session->server_hostkey_len);
-				libssh2_sha1_final(fingerprint_ctx, 
-				                   session->server_hostkey_sha1);
+                libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
+                                    session->server_hostkey_len);
+                libssh2_sha1_final(fingerprint_ctx, 
+                                   session->server_hostkey_sha1);
                 session->server_hostkey_sha1_valid = TRUE;
-			}
-			else {
-				session->server_hostkey_sha1_valid = FALSE;
-			}
+            }
+            else {
+                session->server_hostkey_sha1_valid = FALSE;
+            }
         }
 #ifdef LIBSSH2DEBUG
         {
@@ -951,7 +951,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             exchange_state->k_value_len--;
         }
         exchange_state->k_value =
-        	LIBSSH2_ALLOC(session, exchange_state->k_value_len);
+            LIBSSH2_ALLOC(session, exchange_state->k_value_len);
         if (!exchange_state->k_value) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate buffer for K");
