@@ -725,19 +725,19 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
  * Diffie Hellman Key Exchange, Group Agnostic
  */
 static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
-                               _libssh2_bn *g,
-                               _libssh2_bn *p,
-                               int group_order,
-                               unsigned char packet_type_init,
-                               unsigned char packet_type_reply,
-                               unsigned char *midhash,
-                               unsigned long midhash_len,
-                               kmdhgGPshakex_state_t *exchange_state)
+                                 _libssh2_bn *g,
+                                 _libssh2_bn *p,
+                                 int group_order,
+                                 unsigned char packet_type_init,
+                                 unsigned char packet_type_reply,
+                                 unsigned char *midhash,
+                                 unsigned long midhash_len,
+                                 kmdhgGPshakex_state_t *exchange_state)
 {
     int ret = 0;
     int rc;
-	libssh2_sha256_ctx exchange_hash_ctx;
-	
+    libssh2_sha256_ctx exchange_hash_ctx;
+
     if (exchange_state->state == libssh2_NB_state_idle) {
         /* Setup initial values */
         exchange_state->e_packet = NULL;
@@ -814,7 +814,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             _libssh2_debug(session, LIBSSH2_TRACE_KEX,
                            "Waiting for badly guessed KEX packet (to be ignored)");
             burn_type =
-            _libssh2_packet_burn(session, &exchange_state->burn_state);
+                _libssh2_packet_burn(session, &exchange_state->burn_state);
             if (burn_type == LIBSSH2_ERROR_EAGAIN) {
                 return burn_type;
             } else if (burn_type <= 0) {
@@ -968,58 +968,58 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
         }
 
-		exchange_state->exchange_hash = (void*)&exchange_hash_ctx;
+        exchange_state->exchange_hash = (void*)&exchange_hash_ctx;
         libssh2_sha256_init(&exchange_hash_ctx);
 
         if (session->local.banner) {
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              strlen((char *) session->local.banner) - 2);
             libssh2_sha256_update(exchange_hash_ctx,
-                                exchange_state->h_sig_comp, 4);
+                                  exchange_state->h_sig_comp, 4);
             libssh2_sha256_update(exchange_hash_ctx,
-                                (char *) session->local.banner,
-                                strlen((char *) session->local.banner) - 2);
+                                  (char *) session->local.banner,
+                                  strlen((char *) session->local.banner) - 2);
         } else {
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
             libssh2_sha256_update(exchange_hash_ctx,
-                                exchange_state->h_sig_comp, 4);
+                                  exchange_state->h_sig_comp, 4);
             libssh2_sha256_update(exchange_hash_ctx,
-                                LIBSSH2_SSH_DEFAULT_BANNER,
-                                sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
+                                  LIBSSH2_SSH_DEFAULT_BANNER,
+                                  sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
         }
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          strlen((char *) session->remote.banner));
         libssh2_sha256_update(exchange_hash_ctx,
-                            exchange_state->h_sig_comp, 4);
+                              exchange_state->h_sig_comp, 4);
         libssh2_sha256_update(exchange_hash_ctx,
-                            session->remote.banner,
-                            strlen((char *) session->remote.banner));
+                              session->remote.banner,
+                              strlen((char *) session->remote.banner));
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->local.kexinit_len);
         libssh2_sha256_update(exchange_hash_ctx,
-                            exchange_state->h_sig_comp, 4);
+                              exchange_state->h_sig_comp, 4);
         libssh2_sha256_update(exchange_hash_ctx,
-                            session->local.kexinit,
-                            session->local.kexinit_len);
+                              session->local.kexinit,
+                              session->local.kexinit_len);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->remote.kexinit_len);
         libssh2_sha256_update(exchange_hash_ctx,
-                            exchange_state->h_sig_comp, 4);
+                              exchange_state->h_sig_comp, 4);
         libssh2_sha256_update(exchange_hash_ctx,
-                            session->remote.kexinit,
-                            session->remote.kexinit_len);
+                              session->remote.kexinit,
+                              session->remote.kexinit_len);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->server_hostkey_len);
         libssh2_sha256_update(exchange_hash_ctx,
-                            exchange_state->h_sig_comp, 4);
+                              exchange_state->h_sig_comp, 4);
         libssh2_sha256_update(exchange_hash_ctx,
-                            session->server_hostkey,
-                            session->server_hostkey_len);
+                              session->server_hostkey,
+                              session->server_hostkey_len);
 
         if (packet_type_init == SSH_MSG_KEX_DH_GEX_INIT) {
             /* diffie-hellman-group-exchange hashes additional fields */
@@ -1031,47 +1031,47 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             _libssh2_htonu32(exchange_state->h_sig_comp + 8,
                              LIBSSH2_DH_GEX_MAXGROUP);
             libssh2_sha256_update(exchange_hash_ctx,
-                                exchange_state->h_sig_comp, 12);
+                                  exchange_state->h_sig_comp, 12);
 #else
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              LIBSSH2_DH_GEX_OPTGROUP);
             libssh2_sha256_update(exchange_hash_ctx,
-                                exchange_state->h_sig_comp, 4);
+                                  exchange_state->h_sig_comp, 4);
 #endif
         }
 
         if (midhash) {
             libssh2_sha256_update(exchange_hash_ctx, midhash,
-                                midhash_len);
+                                  midhash_len);
         }
 
         libssh2_sha256_update(exchange_hash_ctx,
-                            exchange_state->e_packet + 1,
-                            exchange_state->e_packet_len - 1);
+                              exchange_state->e_packet + 1,
+                              exchange_state->e_packet_len - 1);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          exchange_state->f_value_len);
         libssh2_sha256_update(exchange_hash_ctx,
-                            exchange_state->h_sig_comp, 4);
+                              exchange_state->h_sig_comp, 4);
         libssh2_sha256_update(exchange_hash_ctx,
-                            exchange_state->f_value,
-                            exchange_state->f_value_len);
+                              exchange_state->f_value,
+                              exchange_state->f_value_len);
 
         libssh2_sha256_update(exchange_hash_ctx,
-                            exchange_state->k_value,
-                            exchange_state->k_value_len);
+                              exchange_state->k_value,
+                              exchange_state->k_value_len);
 
         libssh2_sha256_final(exchange_hash_ctx,
-                           exchange_state->h_sig_comp);
+                             exchange_state->h_sig_comp);
 
         if (session->hostkey->
             sig_verify(session, exchange_state->h_sig,
                        exchange_state->h_sig_len, exchange_state->h_sig_comp,
                        SHA256_DIGEST_LENGTH, &session->server_hostkey_abstract)) {
-                ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
-                                     "Unable to verify hostkey signature");
-                goto clean_exit;
-            }
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
+                                 "Unable to verify hostkey signature");
+            goto clean_exit;
+        }
 
 
 
@@ -1105,12 +1105,12 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
         /* The first key exchange has been performed,
-         switch to active crypt/comp/mac mode */
+           switch to active crypt/comp/mac mode */
         session->state |= LIBSSH2_STATE_NEWKEYS;
         _libssh2_debug(session, LIBSSH2_TRACE_KEX, "Received NEWKEYS message");
 
         /* This will actually end up being just packet_type(1)
-         for this packet type anyway */
+           for this packet type anyway */
         LIBSSH2_FREE(session, exchange_state->tmp);
 
         if (!session->session_id) {
@@ -1138,15 +1138,15 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             int free_iv = 0, free_secret = 0;
 
             LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA256_HASH(iv,
-                                                        session->local.crypt->
-                                                        iv_len, "A");
+                                                          session->local.crypt->
+                                                          iv_len, "A");
             if (!iv) {
                 ret = -1;
                 goto clean_exit;
             }
             LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA256_HASH(secret,
-                                                        session->local.crypt->
-                                                        secret_len, "C");
+                                                          session->local.crypt->
+                                                          secret_len, "C");
             if (!secret) {
                 LIBSSH2_FREE(session, iv);
                 ret = LIBSSH2_ERROR_KEX_FAILURE;
@@ -1155,11 +1155,11 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             if (session->local.crypt->
                 init(session, session->local.crypt, iv, &free_iv, secret,
                      &free_secret, 1, &session->local.crypt_abstract)) {
-                    LIBSSH2_FREE(session, iv);
-                    LIBSSH2_FREE(session, secret);
-                    ret = LIBSSH2_ERROR_KEX_FAILURE;
-                    goto clean_exit;
-                }
+                LIBSSH2_FREE(session, iv);
+                LIBSSH2_FREE(session, secret);
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
 
             if (free_iv) {
                 memset(iv, 0, session->local.crypt->iv_len);
@@ -1185,15 +1185,15 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             int free_iv = 0, free_secret = 0;
 
             LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA256_HASH(iv,
-                                                        session->remote.crypt->
-                                                        iv_len, "B");
+                                                          session->remote.crypt->
+                                                          iv_len, "B");
             if (!iv) {
                 ret = LIBSSH2_ERROR_KEX_FAILURE;
                 goto clean_exit;
             }
             LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA256_HASH(secret,
-                                                        session->remote.crypt->
-                                                        secret_len, "D");
+                                                          session->remote.crypt->
+                                                          secret_len, "D");
             if (!secret) {
                 LIBSSH2_FREE(session, iv);
                 ret = LIBSSH2_ERROR_KEX_FAILURE;
@@ -1202,11 +1202,11 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             if (session->remote.crypt->
                 init(session, session->remote.crypt, iv, &free_iv, secret,
                      &free_secret, 0, &session->remote.crypt_abstract)) {
-                    LIBSSH2_FREE(session, iv);
-                    LIBSSH2_FREE(session, secret);
-                    ret = LIBSSH2_ERROR_KEX_FAILURE;
-                    goto clean_exit;
-                }
+                LIBSSH2_FREE(session, iv);
+                LIBSSH2_FREE(session, secret);
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
 
             if (free_iv) {
                 memset(iv, 0, session->remote.crypt->iv_len);
@@ -1230,8 +1230,8 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             int free_key = 0;
 
             LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA256_HASH(key,
-                                                        session->local.mac->
-                                                        key_len, "E");
+                                                          session->local.mac->
+                                                          key_len, "E");
             if (!key) {
                 ret = LIBSSH2_ERROR_KEX_FAILURE;
                 goto clean_exit;
@@ -1256,8 +1256,8 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             int free_key = 0;
 
             LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA256_HASH(key,
-                                                        session->remote.mac->
-                                                        key_len, "F");
+                                                          session->remote.mac->
+                                                          key_len, "F");
             if (!key) {
                 ret = LIBSSH2_ERROR_KEX_FAILURE;
                 goto clean_exit;
@@ -1308,7 +1308,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
 
     }
 
-clean_exit:
+  clean_exit:
     _libssh2_bn_free(exchange_state->x);
     exchange_state->x = NULL;
     _libssh2_bn_free(exchange_state->e);
@@ -1655,11 +1655,11 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
         _libssh2_bn_from_bin(key_state->g, g_len, s);
 
         ret = diffie_hellman_sha256(session, key_state->g, key_state->p, p_len,
-                                  SSH_MSG_KEX_DH_GEX_INIT,
-                                  SSH_MSG_KEX_DH_GEX_REPLY,
-                                  key_state->data + 1,
-                                  key_state->data_len - 1,
-                                  &key_state->exchange_state);
+                                    SSH_MSG_KEX_DH_GEX_INIT,
+                                    SSH_MSG_KEX_DH_GEX_REPLY,
+                                    key_state->data + 1,
+                                    key_state->data_len - 1,
+                                    &key_state->exchange_state);
         if (ret == LIBSSH2_ERROR_EAGAIN) {
             return ret;
         }
@@ -1667,7 +1667,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
         LIBSSH2_FREE(session, key_state->data);
     }
 
-dh_gex_clean_exit:
+  dh_gex_clean_exit:
     key_state->state = libssh2_NB_state_idle;
     _libssh2_bn_free(key_state->g);
     key_state->g = NULL;
@@ -2366,21 +2366,21 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
 
     /* Locate each string */
     if(kex_string_pair(&s, data, data_len, &kex_len, &kex))
-       return -1;
+        return -1;
     if(kex_string_pair(&s, data, data_len, &hostkey_len, &hostkey))
-       return -1;
+        return -1;
     if(kex_string_pair(&s, data, data_len, &crypt_cs_len, &crypt_cs))
-       return -1;
+        return -1;
     if(kex_string_pair(&s, data, data_len, &crypt_sc_len, &crypt_sc))
-       return -1;
+        return -1;
     if(kex_string_pair(&s, data, data_len, &mac_cs_len, &mac_cs))
-       return -1;
+        return -1;
     if(kex_string_pair(&s, data, data_len, &mac_sc_len, &mac_sc))
-       return -1;
+        return -1;
     if(kex_string_pair(&s, data, data_len, &comp_cs_len, &comp_cs))
-       return -1;
+        return -1;
     if(kex_string_pair(&s, data, data_len, &comp_sc_len, &comp_sc))
-       return -1;
+        return -1;
 
     /* If the server sent an optimistic packet, assume that it guessed wrong.
      * If the guess is determined to be right (by kex_agree_kex_hostkey)
@@ -2448,7 +2448,7 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
  */
 int
 _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
-                     key_exchange_state_t * key_state)
+                      key_exchange_state_t * key_state)
 {
     int rc = 0;
     int retcode;
