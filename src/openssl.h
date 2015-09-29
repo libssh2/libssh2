@@ -40,6 +40,7 @@
 #include <openssl/opensslconf.h>
 #include <openssl/sha.h>
 #include <openssl/rsa.h>
+#include <openssl/engine.h>
 #ifndef OPENSSL_NO_DSA
 #include <openssl/dsa.h>
 #endif
