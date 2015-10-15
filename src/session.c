@@ -1290,7 +1290,24 @@ libssh2_session_last_errno(LIBSSH2_SESSION * session)
     return session->err_code;
 }
 
-/* libssh2_session_flag
+/* libssh2_session_set_last_error
+ *
+ * Sets the internal error code for the session.
+ *
+ * This function is available specifically to be used by high level
+ * language wrappers (i.e. Python or Perl) that may extend the library
+ * features while still relying on its error reporting mechanism.
+ */
+LIBSSH2_API int
+libssh2_session_set_last_error(LIBSSH2_SESSION* session,
+                               int errcode,
+                               const char* errmsg)
+{
+    return _libssh2_error_flags(session, errcode, errmsg,
+                                LIBSSH2_ERR_FLAG_DUP);
+}
+
+/* Libssh2_session_flag
  *
  * Set/Get session flags
  *
