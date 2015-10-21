@@ -631,6 +631,7 @@ struct _LIBSSH2_SESSION
     /* Error tracking */
     const char *err_msg;
     int err_code;
+    int err_flags;
 
     /* struct members for packet-level reading */
     struct transportpacket packet;
@@ -949,6 +950,10 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 #define LIBSSH2_MAC_CONFIRMED                    0
 /* Something very bad is going on */
 #define LIBSSH2_MAC_INVALID                     -1
+
+/* Flags for _libssh2_error_flags */
+/* Error message is allocated on the heap */
+#define LIBSSH2_ERR_FLAG_DUP                     1
 
 /* SSH Packet Types -- Defined by internet draft */
 /* Transport Layer */

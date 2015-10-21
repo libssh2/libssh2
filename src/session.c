@@ -1058,6 +1058,11 @@ session_free(LIBSSH2_SESSION *session)
         LIBSSH2_FREE(session, session->server_hostkey);
     }
 
+    /* error string */
+    if (session->err_msg && ((session->err_flags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
+        LIBSSH2_FREE(session, (char *)session->err_msg);
+    }
+
     LIBSSH2_FREE(session, session);
 
     return 0;

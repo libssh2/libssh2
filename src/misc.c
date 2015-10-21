@@ -51,10 +51,29 @@
 #include <stdio.h>
 #include <errno.h>
 
-int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg)
+int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode, const char* errmsg, int errflags)
 {
-    session->err_msg = errmsg;
+    if (session->err_flags & LIBSSH2_ERR_FLAG_DUP)
+        LIBSSH2_FREE(session, (char *)session->err_msg);
+
     session->err_code = errcode;
+    session->err_flags = 0;
+
+    if ((errmsg != NULL) && ((errflags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
+        size_t len = strlen(errmsg);
+        char *copy = LIBSSH2_ALLOC(session, len + 1);
+        if (copy) {
+            memcpy(copy, errmsg, len + 1);
+            session->err_flags = LIBSSH2_ERR_FLAG_DUP;
+            session->err_msg = copy;
+        }
+        else
+            /* Out of memory: this code path is very unlikely */
+            session->err_msg = "former error forgotten (OOM)";
+    }
+    else
+        session->err_msg = errmsg;
+
 #ifdef LIBSSH2DEBUG
     if((errcode == LIBSSH2_ERROR_EAGAIN) && !session->api_block_mode)
         /* if this is EAGAIN and we're in non-blocking mode, don't generate
@@ -65,6 +84,11 @@ int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg)
 #endif
 
     return errcode;
+}
+
+int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg)
+{
+    return _libssh2_error_flags(session, errcode, errmsg, 0);
 }
 
 #ifdef WIN32

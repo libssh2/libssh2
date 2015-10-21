@@ -49,6 +49,7 @@ struct list_node {
     struct list_head *head;
 };
 
+int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode, const char* errmsg, int errflags);
 int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char* errmsg);
 
 void _libssh2_list_init(struct list_head *head);
