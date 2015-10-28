@@ -74,6 +74,8 @@
 #define libssh2_sha1(message, len, out) \
   gcry_md_hash_buffer (GCRY_MD_SHA1, out, message, len)
 
+#define libssh2_sha256_ctx gcry_md_hd_t
+
 #define libssh2_sha256_init(ctx) \
   (GPG_ERR_NO_ERROR == gcry_md_open (ctx,  GCRY_MD_SHA256, 0))
 #define libssh2_sha256_update(ctx, data, len) \
