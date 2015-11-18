@@ -200,6 +200,11 @@ hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION * session,
                              void **abstract)
 {
     libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *) (*abstract);
+
+#ifdef _libssh2_rsa_sha1_signv
+    return _libssh2_rsa_sha1_signv(session, signature, signature_len,
+                                   veccount, datavec, rsactx);
+#else
     int ret;
     int i;
     unsigned char hash[SHA_DIGEST_LENGTH];
@@ -218,6 +223,7 @@ hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION * session,
     }
 
     return 0;
+#endif
 }
 
 /*

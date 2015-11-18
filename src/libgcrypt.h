@@ -62,6 +62,8 @@
 #define _libssh2_random(buf, len)                \
   (gcry_randomize ((buf), (len), GCRY_STRONG_RANDOM), 1)
 
+#define libssh2_prepare_iovec(vec, len)  /* Empty. */
+
 #define libssh2_sha1_ctx gcry_md_hd_t
 
 /* returns 0 in case of failure */

@@ -716,6 +716,7 @@ sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     if(rc)
         return rc;
 
+    libssh2_prepare_iovec(&datavec, 1);
     datavec.iov_base = (void *)data;
     datavec.iov_len  = data_len;
 
@@ -751,6 +752,7 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     if(rc)
         return rc;
 
+    libssh2_prepare_iovec(&datavec, 1);
     datavec.iov_base = (void *)data;
     datavec.iov_len  = data_len;
 
@@ -873,6 +875,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         }
 
         _libssh2_htonu32(buf, session->session_id_len);
+        libssh2_prepare_iovec(datavec, 4);
         datavec[0].iov_base = (void *)buf;
         datavec[0].iov_len = 4;
         datavec[1].iov_base = (void *)session->session_id;

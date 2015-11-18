@@ -111,6 +111,8 @@ void _libssh2_wincng_free(void);
 #define _libssh2_random(buf, len) \
   _libssh2_wincng_random(buf, len)
 
+#define libssh2_prepare_iovec(vec, len)  /* Empty. */
+
 
 /*******************************************************************/
 /*
