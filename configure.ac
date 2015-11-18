@@ -160,6 +160,8 @@ if test "$ac_cv_libbcrypt" = "yes"; then
 fi
 AM_CONDITIONAL(WINCNG, test "$ac_cv_libbcrypt" = "yes")
 
+AM_CONDITIONAL(OS400QC3, false)
+
 # Check if crypto library was found
 if test "$found_crypto" = "none"; then
   AC_MSG_ERROR([No crypto library found!
