@@ -169,7 +169,8 @@ typedef int libssh2_socket_t;
 #  undef LIBSSH2_USE_WIN32_LARGE_FILES
 #endif
 
-#if defined(_WIN32) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES) && !defined(LIBSSH2_USE_WIN32_SMALL_FILES)
+#if defined(_WIN32) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES) && \
+    !defined(LIBSSH2_USE_WIN32_SMALL_FILES)
 #  define LIBSSH2_USE_WIN32_SMALL_FILES
 #endif
 
@@ -660,7 +661,8 @@ LIBSSH2_API int
 libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION* session,
                                          const char *username,
                                          unsigned int username_len,
-                                         LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC((*response_callback)));
+                                         LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(
+                                                       (*response_callback)));
 
 #define libssh2_userauth_keyboard_interactive(session, username,        \
                                               response_callback)        \
