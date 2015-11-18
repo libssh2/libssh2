@@ -404,6 +404,8 @@ libssh2_free(LIBSSH2_SESSION *session, void *ptr)
 }
 
 #ifdef LIBSSH2DEBUG
+#include <stdarg.h>
+
 LIBSSH2_API int
 libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
 {
