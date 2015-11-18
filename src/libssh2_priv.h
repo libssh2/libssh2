@@ -132,6 +132,11 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
 
 #endif /* WIN32 */
 
+#ifdef __OS400__
+/* Force parameter type. */
+#define send(s, b, l, f)    send((s), (unsigned char *) (b), (l), (f))
+#endif
+
 #include "crypto.h"
 
 #ifdef HAVE_WINSOCK2_H
@@ -183,9 +188,9 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
                       (channel), &(channel)->abstract)
 
 #define LIBSSH2_SEND_FD(session, fd, buffer, length, flags) \
-    session->send(fd, buffer, length, flags, &session->abstract)
+    (session->send)(fd, buffer, length, flags, &session->abstract)
 #define LIBSSH2_RECV_FD(session, fd, buffer, length, flags) \
-    session->recv(fd, buffer, length, flags, &session->abstract)
+    (session->recv)(fd, buffer, length, flags, &session->abstract)
 
 #define LIBSSH2_SEND(session, buffer, length, flags)  \
     LIBSSH2_SEND_FD(session, session->socket_fd, buffer, length, flags)
