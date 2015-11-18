@@ -114,6 +114,8 @@
 
 #define _libssh2_random(buf, len) RAND_bytes ((buf), (len))
 
+#define libssh2_prepare_iovec(vec, len)  /* Empty. */
+
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
 #define libssh2_sha1_ctx EVP_MD_CTX *
 #else
