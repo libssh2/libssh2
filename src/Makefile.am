@@ -11,6 +11,9 @@ endif
 if WINCNG
 include ../Makefile.WinCNG.inc
 endif
+if OS400QC3
+include ../Makefile.os400qc3.inc
+endif
 
 # Makefile.inc provides the CSOURCES and HHEADERS defines
 include ../Makefile.inc

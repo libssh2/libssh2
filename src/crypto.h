@@ -50,6 +50,10 @@
 #include "wincng.h"
 #endif
 
+#ifdef LIBSSH2_OS400QC3
+#include "os400qc3.h"
+#endif
+
 int _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
                      const unsigned char *edata,
                      unsigned long elen,
