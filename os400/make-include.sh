@@ -44,7 +44,7 @@ copy_hfile()
 
 #       Copy the header files.
 
-for HFILE in *.h
+for HFILE in *.h "${TOPDIR}/os400/libssh2_ccsid.h"
 do      DEST="${SRCPF}/`db2_name \"${HFILE}\"`.MBR"
 
         if action_needed "${DEST}" "${HFILE}"

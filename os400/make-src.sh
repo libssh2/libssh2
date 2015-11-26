@@ -97,7 +97,8 @@ cat ../Makefile.inc ../Makefile.os400qc3.inc                            |
 
 INCLUDES="'`pwd`'"
 
-for SRC in "${SCRIPTDIR}/os400sys.c" ${CSOURCES} ${CRYPTO_CSOURCES} macros.c
+for SRC in "${TOPDIR}/os400/os400sys.c" "${TOPDIR}/os400/ccsid.c"       \
+           ${CSOURCES} ${CRYPTO_CSOURCES} macros.c
 do      MODULE=`db2_name "${SRC}"`
         make_module "${MODULE}" "${SRC}"
 done
@@ -142,7 +143,8 @@ fi
 
 #       Gather the list of symbols to export.
 
-EXPORTS=`cat "${TOPDIR}"/include/*.h "${TOPDIR}"/os400/macros.h         |
+EXPORTS=`cat "${TOPDIR}"/include/*.h "${TOPDIR}/os400/macros.h"         \
+             "${TOPDIR}/os400/libssh2_ccsid.h"                          |
          extproto                                                       |
          sed -e 's/(.*//;s/[^A-Za-z0-9_]/ /g;s/ *$//;s/^.* //'`
 
@@ -178,7 +180,7 @@ then    CMD="CRTSRVPGM SRVPGM(${TARGETLIB}/${SRVPGM})"
         CMD="${CMD} BNDDIR(${TARGETLIB}/${STATBNDDIR}"
         if [ "${WITH_ZLIB}" != 0 ]
         then    CMD="${CMD} ${ZLIB_LIB}/${ZLIB_BNDDIR}"
-		liblist -a "${ZLIB_LIB}"
+                liblist -a "${ZLIB_LIB}"
         fi
         CMD="${CMD})"
         CMD="${CMD} BNDSRVPGM(QADRTTS)"

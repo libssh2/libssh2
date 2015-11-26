@@ -34,9 +34,11 @@ win32/msvcproj.head win32/msvcproj.foot win32/libssh2.rc
 
 OS400FILES = os400/README400 os400/initscript.sh os400/make.sh		\
 os400/make-src.sh os400/make-rpg.sh os400/make-include.sh		\
-os400/os400sys.c os400/libssh2_config.h os400/macros.h			\
+os400/os400sys.c os400/ccsid.c						\
+os400/libssh2_config.h os400/macros.h os400/libssh2_ccsid.h		\
 os400/include/alloca.h os400/include/sys/socket.h os400/include/stdio.h	\
 os400/libssh2rpg/libssh2.rpgle.in					\
+os400/libssh2rpg/libssh2_ccsid.rpgle.in					\
 os400/libssh2rpg/libssh2_publickey.rpgle				\
 os400/libssh2rpg/libssh2_sftp.rpgle					\
 Makefile.os400qc3.inc
