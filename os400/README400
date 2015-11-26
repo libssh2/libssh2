@@ -13,9 +13,10 @@ QADRT may use libssh2 functions as on any other platform.
   QADRT does not define ASCII wrappers for all C/system procedures: an
 additional module (os400sys.c) define some more of them, that are used by
 libssh2 and that QADRT left out.
-  Presently, there is no EBCDIC support wrappers provided. It is the
-responsibility of the caller to convert procedure string values and arguments
-between ASCII and EBCDIC.
+  Since standard library entry points expect and return ASCII character strings,
+additional procedures are provided for string transcoding (see below). No
+wrappers to standard procedures are provided: however, nested calls to
+transcoding procedures may be used.
 
 Crypto API is provided by the IBM QC3 API library. It supports RSA, but not DSA.
 
@@ -89,6 +90,62 @@ _ Do not use original source include files unless you know what you are doing.
 
 
 
+String transcoding support:
+
+  To help passing arbitrarily encoded string arguments and/or receiving string
+values from/to the libssh2 API, three non-standard additional procedures are
+provided. They use a session pointer and a "string cache" pointer.
+  Each time a string is transcoded, it is cached in the given cache. It is
+the responsibility of the caller to release the cache when its associted strings
+are no longer needed. These procedures and the string cache type are defined
+in a new libssh2_ccsid.h header file.
+  To create a string cache, use:
+
+#include <libssh2_ccsid.h>
+libssh2_string_cache *  cache = NULL;
+
+  To release all strings in a cache, call:
+
+libssh2_release_string_cache(session, &cache);
+
+  The transcoding procedures are:
+
+char * libssh2_from_ccsid(LIBSSH2_SESSION *session,
+                          libssh2_string_cache **cache,
+                          unsigned short ccsid,
+                          const char *string, ssize_t inlen,
+                          size_t *outlen);
+char * libssh2_to_ccsid(LIBSSH2_SESSION *session,
+                        libssh2_string_cache **cache,
+                        unsigned short ccsid,
+                        const char *string, ssize_t inlen,
+                        size_t *outlen);
+
+where:
+    session      is a libssh2 session used for memory allocation.
+    cache        is the address of a string cache.
+    ccsid        is the external (i.e.: non libssh2) coded character set id.
+                 65535 means no conversion and 0 means the current job's CCSID.
+    string       is the string to convert.
+    inlen        is the source string length in bytes: set to -1 if
+                 null-terminated.
+    outlen       if not NULL, is the address of a variable that will receive
+                 the transcoded string length upon return.
+
+  libssh2_from_ccsid() transcodes the string from the given CCSID to libssh2
+internal encoding (UTF-8). It is intended to be used to convert API input
+parameters.
+  libssh2_to_ccsid() transcodes the string from libssh2 internal encoding
+(UTF-8) to the given CCSID. This has been implemented to get standard API
+string results in a program's native encoding.
+
+  Both these functions return a pointer to the null-terminated converted string,
+or NULL if an error occurred. In addition, the variable pointed by outlen
+receives the effective byte length of the (cached) translated string, or -1
+in case of error.
+
+
+
 ILE/RPG support:
 
   Since 95% of the OS/400 programmers use ILE/RPG exclusively, a definition
@@ -102,7 +159,7 @@ must figure in the program header, and line
      d/include libssh2/libssh2rpg,libssh2
 
 in the global data section of the module's source code.
-If required, members ssh2_sftp and ssh2_pkey may also be included.
+If required, members ssh2_sftp, ssh2_pkey and ssh2_ccsid may also be included.
 
 For IFS source compilations, include members are located in directory
 /libssh2/include/libssh2rpg and have their original names retained.
