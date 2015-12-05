@@ -239,8 +239,9 @@ agent_disconnect_unix(LIBSSH2_AGENT *agent)
 {
     int ret;
     ret = close(agent->fd);
-
-    if(ret == -1)
+    if(ret != -1)
+        agent->fd = LIBSSH2_INVALID_SOCKET;
+    else
         return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
                               "failed closing the agent socket");
     return LIBSSH2_ERROR_NONE;
