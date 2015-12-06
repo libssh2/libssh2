@@ -66,6 +66,7 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     libssh2_rsa_ctx *rsactx;
     const unsigned char *s, *e, *n;
     unsigned long len, e_len, n_len;
+    int ret;
 
     (void) hostkey_data_len;
 
@@ -92,9 +93,11 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     s += 4;
     n = s;
 
-    if (_libssh2_rsa_new(&rsactx, e, e_len, n, n_len, NULL, 0,
-                         NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0))
+    ret = _libssh2_rsa_new(&rsactx, e, e_len, n, n_len, NULL, 0,
+                           NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
+    if (ret) {
         return -1;
+    }
 
     *abstract = rsactx;
 
