@@ -274,6 +274,8 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
     libssh2_dsa_ctx *dsactx;
     const unsigned char *p, *q, *g, *y, *s;
     unsigned long p_len, q_len, g_len, y_len, len;
+    int ret;
+
     (void) hostkey_data_len;
 
     if (*abstract) {
@@ -306,7 +308,11 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
     y = s;
     /* s += y_len; */
 
-    _libssh2_dsa_new(&dsactx, p, p_len, q, q_len, g, g_len, y, y_len, NULL, 0);
+    ret = _libssh2_dsa_new(&dsactx, p, p_len, q, q_len,
+                           g, g_len, y, y_len, NULL, 0);
+    if (ret) {
+        return -1;
+    }
 
     *abstract = dsactx;
 
