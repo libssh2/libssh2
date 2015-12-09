@@ -248,16 +248,20 @@ typedef struct {        /* Algorithm description. */
                                        sizeof(libssh2_hmac_ctx))
 #define libssh2_hmac_md5_init(ctx, key, keylen)                             \
                                 libssh2_os400qc3_hmac_init(ctx, Qc3_MD5,    \
+                                                           MD5_DIGEST_LENGTH, \
                                                            key, keylen)
 #define libssh2_hmac_sha1_init(ctx, key, keylen)                            \
                                 libssh2_os400qc3_hmac_init(ctx, Qc3_SHA1,   \
+                                                           SHA_DIGEST_LENGTH, \
                                                            key, keylen)
 #define libssh2_hmac_sha256_init(ctx, key, keylen)                          \
                                 libssh2_os400qc3_hmac_init(ctx, Qc3_SHA256, \
-                                                           key, keylen)
+                                                         SHA256_DIGEST_LENGTH, \
+                                                         key, keylen)
 #define libssh2_hmac_sha512_init(ctx, key, keylen)                          \
                                 libssh2_os400qc3_hmac_init(ctx, Qc3_SHA512, \
-                                                           key, keylen)
+                                                         SHA512_DIGEST_LENGTH, \
+                                                         key, keylen)
 #define libssh2_hmac_update(ctx, data, datalen)                             \
                                 libssh2_os400qc3_hmac_update(&(ctx),        \
                                                              data, datalen)
@@ -335,7 +339,8 @@ extern int      libssh2_os400qc3_hash(const unsigned char *message,
                                       unsigned long len, unsigned char *out,
                                       unsigned int algo);
 extern void     libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *x,
-                                           int algo, void *key, int keylen);
+                                           int algo, size_t minkeylen,
+                                           void *key, int keylen);
 extern void     libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
                                              const unsigned char *data,
                                              int len);
