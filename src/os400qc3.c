@@ -1298,12 +1298,13 @@ sshrsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
     char *cp;
 
     if (getASN1Element(&keyseq, key->beg + 1, key->end) != key->end ||
-        keyseq.tag != ASN1_SEQ)
+        *keyseq.header != (ASN1_SEQ | ASN1_CONSTRUCTED))
         return -1;
-    if (!getASN1Element(&m, keyseq.beg, keyseq.end) || m.tag != ASN1_INTEGER)
+    if (!getASN1Element(&m, keyseq.beg, keyseq.end) ||
+        *m.header != ASN1_INTEGER)
         return -1;
     if (getASN1Element(&e, m.end, keyseq.end) != keyseq.end ||
-        e.tag != ASN1_INTEGER)
+        *e.header != ASN1_INTEGER)
         return -1;
     len = 4 + methlen + 4 + (e.end - e.beg) + 4 + (m.end - m.beg);
     cp = LIBSSH2_ALLOC(session, len);
@@ -1342,16 +1343,16 @@ rsapkcs8pubkey(LIBSSH2_SESSION *session,
         return -1;
     /* Get the algorithm OID and key data from SubjectPublicKeyInfo. */
     if (getASN1Element(&subjpubkeyinfo, buf, buf + len) != buf + len ||
-        subjpubkeyinfo.tag != ASN1_SEQ)
+        *subjpubkeyinfo.header != (ASN1_SEQ | ASN1_CONSTRUCTED))
         return -1;
     cp = getASN1Element(&algorithmid, subjpubkeyinfo.beg, subjpubkeyinfo.end);
-    if (!cp || algorithmid.tag != ASN1_SEQ)
+    if (!cp || *algorithmid.header != (ASN1_SEQ | ASN1_CONSTRUCTED))
         return -1;
     if (!getASN1Element(&algorithm, algorithmid.beg, algorithmid.end) ||
-        algorithm.tag != ASN1_OBJ_ID)
+        *algorithm.header != ASN1_OBJ_ID)
         return -1;
     if (getASN1Element(&subjpubkey, cp, subjpubkeyinfo.end) !=
-        subjpubkeyinfo.end || subjpubkey.tag != ASN1_BIT_STRING)
+        subjpubkeyinfo.end || *subjpubkey.header != ASN1_BIT_STRING)
         return -1;
     /* Check for supported algorithm. */
     for (i = 0; pka[i].oid; i++)
