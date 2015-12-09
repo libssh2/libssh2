@@ -832,9 +832,9 @@ _libssh2_os400qc3_bn_mod_exp(_libssh2_bn *r, _libssh2_bn *a, _libssh2_bn *p,
     _libssh2_bn *rp;
     asn1Element *rsapubkey;
     asn1Element *subjpubkeyinfo;
-    unsigned char *av = NULL;
-    unsigned char *rv = NULL;
-    char *keydbuf = NULL;
+    unsigned char *av;
+    unsigned char *rv;
+    char *keydbuf;
     Qc3_Format_ALGD0400_T algd;
     Qc3_Format_KEYD0200_T *keyd;
     Qus_EC_t errcode;
@@ -879,9 +879,9 @@ _libssh2_os400qc3_bn_mod_exp(_libssh2_bn *r, _libssh2_bn *a, _libssh2_bn *p,
         return ret;
     }
 
-    av = (unsigned char *) malloc(a->length);
-    rv = (unsigned char *) malloc(mp->length);
-    keydbuf = malloc(sizeof *keyd +
+    av = (unsigned char *) alloca(a->length);
+    rv = (unsigned char *) alloca(mp->length);
+    keydbuf = alloca(sizeof *keyd +
                      subjpubkeyinfo->end - subjpubkeyinfo->header);
 
     if (av && rv && keydbuf) {
@@ -921,12 +921,6 @@ _libssh2_os400qc3_bn_mod_exp(_libssh2_bn *r, _libssh2_bn *a, _libssh2_bn *p,
     }
     asn1delete(subjpubkeyinfo);
     _libssh2_bn_free(mp);
-    if (av)
-        free((char *) av);
-    if (rv)
-        free((char *) rv);
-    if (keydbuf)
-        free(keydbuf);
     return ret;
 }
 
@@ -1363,7 +1357,8 @@ rsapkcs8pubkey(LIBSSH2_SESSION *session,
 }
 
 static int
-pkcs1topkcs8(const unsigned char **data8, unsigned int *datalen8,
+pkcs1topkcs8(LIBSSH2_SESSION *session,
+             const unsigned char **data8, unsigned int *datalen8,
              const unsigned char *data1, unsigned int datalen1)
 {
     asn1Element *prvk;
@@ -1385,7 +1380,7 @@ pkcs1topkcs8(const unsigned char **data8, unsigned int *datalen8,
     }
     if (!pkcs8)
         return -1;
-    data = (unsigned char *) malloc(pkcs8->end - pkcs8->header);
+    data = (unsigned char *) LIBSSH2_ALLOC(session, pkcs8->end - pkcs8->header);
     if (!data) {
         asn1delete(pkcs8);
         return -1;
@@ -1406,10 +1401,10 @@ rsapkcs1privkey(LIBSSH2_SESSION *session,
     unsigned int datalen8;
     int ret;
 
-    if (pkcs1topkcs8(&data8, &datalen8, data, datalen))
+    if (pkcs1topkcs8(session, &data8, &datalen8, data, datalen))
         return -1;
     ret = rsapkcs8privkey(session, data8, datalen8, passphrase, loadkeydata);
-    free((char *) data8);
+    LIBSSH2_FREE(session, (char *) data8);
     return ret;
 }
 
@@ -1422,10 +1417,10 @@ rsapkcs1pubkey(LIBSSH2_SESSION *session,
     unsigned int datalen8;
     int ret;
 
-    if (pkcs1topkcs8(&data8, &datalen8, data, datalen))
+    if (pkcs1topkcs8(session, &data8, &datalen8, data, datalen))
         return -1;
     ret = rsapkcs8pubkey(session, data8, datalen8, passphrase, loadkeydata);
-    free((char *) data8);
+    LIBSSH2_FREE(session, (char *) data8);
     return ret;
 }
 
@@ -1498,7 +1493,7 @@ load_rsa_private_file(LIBSSH2_SESSION *session, const char *filename,
 
         if (filesize <= 32768) {        /* Limit to a reasonable size. */
             datalen = filesize;
-            data = (unsigned char *) malloc(datalen);
+            data = (unsigned char *) alloca(datalen);
             if (data) {
                 fseek(fp, 0L, SEEK_SET);
                 fread(data, datalen, 1, fp);
@@ -1507,7 +1502,6 @@ load_rsa_private_file(LIBSSH2_SESSION *session, const char *filename,
                 if (ret)
                     ret = (*proc1)(session, data, datalen, passphrase,
                                    loadkeydata);
-                free((char *) data);
             }
         }
         fclose(fp);
