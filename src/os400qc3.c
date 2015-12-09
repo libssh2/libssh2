@@ -1003,6 +1003,7 @@ libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
 {
     char dummy[64];
 
+    ctx->Final_Op_Flag = Qc3_Continue;
     Qc3CalculateHash((char *) data, &len, Qc3_Data, (char *) ctx,
                      Qc3_Alg_Token, anycsp, NULL, dummy, (char *) &ecnull);
 }
@@ -1060,6 +1061,7 @@ libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
 {
     char dummy[64];
 
+    ctx->hash.Final_Op_Flag = Qc3_Continue;
     Qc3CalculateHMAC((char *) data, &len, Qc3_Data, (char *) &ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
                      anycsp, NULL, dummy, (char *) &ecnull);
