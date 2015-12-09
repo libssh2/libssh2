@@ -303,7 +303,7 @@ asn1_new_from_bytes(const unsigned char *data, unsigned int length)
     e = asn1_new(te.tag, te.end - te.beg);
 
     if (e)
-        memcpy(e->header, data, length);
+        memcpy(e->header, data, e->end - e->header);
 
     return e;
 }
