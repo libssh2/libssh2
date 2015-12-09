@@ -1035,8 +1035,19 @@ libssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
 
 void
 libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
-                           int algo, void *key, int keylen)
+                           int algo, size_t minkeylen, void *key, int keylen)
 {
+    if (keylen < minkeylen) {
+        char *lkey = alloca(minkeylen);
+
+        /* Pad key with zeroes if too short. */
+        if (!lkey)
+            return;
+        memcpy(lkey, (char *) key, keylen);
+        memset(lkey + keylen, 0, minkeylen - keylen);
+        key = (void *) lkey;
+        keylen = minkeylen;
+    }
     libssh2_os400qc3_hash_init(&ctx->hash, algo);
     Qc3CreateKeyContext((char *) key, &keylen, binstring, &algo, qc3clear,
                         NULL, NULL, ctx->key.Key_Context_Token,
