@@ -1487,11 +1487,19 @@ load_rsa_private_file(LIBSSH2_SESSION *session, const char *filename,
     if (!fp)
         return -1;
 
+    /* Try with "ENCRYPTED PRIVATE KEY" PEM armor.
+       --> PKCS#8 EncryptedPrivateKeyInfo */
     ret = try_pem_load(session, fp, passphrase, beginencprivkeyhdr,
                        endencprivkeyhdr, proc8, loadkeydata);
+
+    /* Try with "PRIVATE KEY" PEM armor.
+       --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
     if (ret)
         ret = try_pem_load(session, fp, passphrase, beginprivkeyhdr,
                            endprivkeyhdr, proc8, loadkeydata);
+
+    /* Try with "RSA PRIVATE KEY" PEM armor.
+       --> PKCS#1 RSAPrivateKey */
     if (ret)
         ret = try_pem_load(session, fp, passphrase, beginrsaprivkeyhdr,
                            endrsaprivkeyhdr, proc1, loadkeydata);
@@ -1509,8 +1517,14 @@ load_rsa_private_file(LIBSSH2_SESSION *session, const char *filename,
             if (data) {
                 fseek(fp, 0L, SEEK_SET);
                 fread(data, datalen, 1, fp);
+
+                /* Try as PKCS#8 DER data.
+                   --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
                 ret = (*proc8)(session, data, datalen, passphrase,
                                loadkeydata);
+
+                /* Try as PKCS#1 DER data.
+                   --> PKCS#1 RSAPrivateKey */
                 if (ret)
                     ret = (*proc1)(session, data, datalen, passphrase,
                                    loadkeydata);
@@ -1612,18 +1626,27 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     if (!ctx)
         return -1;
 
+    /* Try with "ENCRYPTED PRIVATE KEY" PEM armor.
+       --> PKCS#8 EncryptedPrivateKeyInfo */
     ret = _libssh2_pem_parse_memory(session,
                                     beginencprivkeyhdr, endencprivkeyhdr,
                                     filedata, filedata_len, &data, &datalen);
+
+    /* Try with "PRIVATE KEY" PEM armor.
+       --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
     if (ret)
         ret = _libssh2_pem_parse_memory(session,
                                         beginprivkeyhdr, endprivkeyhdr,
                                         filedata, filedata_len,
                                         &data, &datalen);
-    if (!ret)
+
+    if (!ret) {
+        /* Process PKCS#8. */
         ret = rsapkcs8privkey(session,
                               data, datalen, passphrase, (void *) &ctx);
-    else {
+    } else {
+        /* Try with "RSA PRIVATE KEY" PEM armor.
+           --> PKCS#1 RSAPrivateKey */
         ret = _libssh2_pem_parse_memory(session,
                                         beginrsaprivkeyhdr, endrsaprivkeyhdr,
                                         filedata, filedata_len,
@@ -1634,8 +1657,13 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     }
 
     if (ret) {
+        /* Try as PKCS#8 DER data.
+           --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
         ret = rsapkcs8privkey(session, filedata, filedata_len,
                               passphrase, (void *) &ctx);
+
+        /* Try as PKCS#1 DER data.
+           --> PKCS#1 RSAPrivateKey */
         if (ret)
             ret = rsapkcs1privkey(session, filedata, filedata_len,
                                   passphrase, (void *) &ctx);
@@ -1685,19 +1713,29 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     *method_len = 0;
     *pubkeydata = NULL;
     *pubkeydata_len = 0;
+
+    /* Try with "ENCRYPTED PRIVATE KEY" PEM armor.
+       --> PKCS#8 EncryptedPrivateKeyInfo */
     ret = _libssh2_pem_parse_memory(session,
                                     beginencprivkeyhdr, endencprivkeyhdr,
                                     privatekeydata, privatekeydata_len,
                                     &data, &datalen);
+
+    /* Try with "PRIVATE KEY" PEM armor.
+       --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
     if (ret)
         ret = _libssh2_pem_parse_memory(session,
                                         beginprivkeyhdr, endprivkeyhdr,
                                         privatekeydata, privatekeydata_len,
                                         &data, &datalen);
-    if (!ret)
+
+    if (!ret) {
+        /* Process PKCS#8. */
         ret = rsapkcs8pubkey(session,
                              data, datalen, passphrase, (void *) &p);
-    else {
+    } else {
+        /* Try with "RSA PRIVATE KEY" PEM armor.
+           --> PKCS#1 RSAPrivateKey */
         ret = _libssh2_pem_parse_memory(session,
                                         beginrsaprivkeyhdr, endrsaprivkeyhdr,
                                         privatekeydata, privatekeydata_len,
@@ -1708,8 +1746,13 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     }
 
     if (ret) {
+        /* Try as PKCS#8 DER data.
+           --> PKCS#8 PrivateKeyInfo or EncryptedPrivateKeyInfo */
         ret = rsapkcs8pubkey(session, privatekeydata, privatekeydata_len,
                              passphrase, (void *) &p);
+
+        /* Try as PKCS#1 DER data.
+           --> PKCS#1 RSAPrivateKey */
         if (ret)
             ret = rsapkcs1pubkey(session, privatekeydata, privatekeydata_len,
                                  passphrase, (void *) &p);
