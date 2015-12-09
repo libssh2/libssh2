@@ -189,10 +189,13 @@
  *
  *******************************************************************/
 
-typedef struct {        /* HMAC & private key algorithms support structure. */
-    Qc3_Format_ALGD0100_T   hash;           /* Hash algorithm. */
-    Qc3_Format_KEYD0100_T   key;            /* Key. */
-}       _libssh2_os400qc3_crypto_ctx;
+/* HMAC & private key algorithms support structure. */
+typedef struct _libssh2_os400qc3_crypto_ctx _libssh2_os400qc3_crypto_ctx;
+struct _libssh2_os400qc3_crypto_ctx {
+    Qc3_Format_ALGD0100_T           hash;           /* Hash algorithm. */
+    Qc3_Format_KEYD0100_T           key;            /* Key. */
+    _libssh2_os400qc3_crypto_ctx *  kek;            /* Key encryption. */
+};
 
 typedef struct {        /* Big number. */
     unsigned char *         bignum;         /* Number bits, little-endian. */
@@ -240,7 +243,9 @@ typedef struct {        /* Algorithm description. */
                                 libssh2_os400qc3_hash_update(&(ctx), data, len)
 #define libssh2_md5_final(ctx, out)                                         \
                                 libssh2_os400qc3_hash_final(&(ctx), out)
-#define libssh2_hmac_ctx_init(ctx)
+#define libssh2_hmac_ctx_init(ctx)                                          \
+                                memset((char *) &(ctx), 0,                  \
+                                       sizeof(libssh2_hmac_ctx))
 #define libssh2_hmac_md5_init(ctx, key, keylen)                             \
                                 libssh2_os400qc3_hmac_init(ctx, Qc3_MD5,    \
                                                            key, keylen)
