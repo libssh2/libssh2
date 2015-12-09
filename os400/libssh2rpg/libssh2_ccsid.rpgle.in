@@ -42,7 +42,7 @@
      d libssh2_from_ccsid...
      d                 pr              *   extproc('libssh2_from_ccsid')        char *
      d  session                        *   value                                LIBSSH2_SESSION *
-     d  cache                          *   value                                libssh2_string_cache
+     d  cache                          *                                        libssh2_string_cache
      d                                                                          *(*)
      d  ccsid                              value like(libssh2_Cushort)
      d  string                         *   value options(*string)               const char *
