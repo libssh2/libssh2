@@ -115,6 +115,178 @@ static int  sshdsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
                          const char *method);
 #endif
 
+
+/* PKCS#5 support. */
+
+typedef struct pkcs5params  pkcs5params;
+struct pkcs5params {
+    int         cipher;         /* Encryption cipher. */
+    int         blocksize;      /* Cipher block size. */
+    char        mode;           /* Block encryption mode. */
+    char        padopt;         /* Pad option. */
+    char        padchar;        /* Pad character. */
+    int         (*kdf)(LIBSSH2_SESSION *session, char **dk,
+                       const unsigned char * passphrase, pkcs5params *pkcs5);
+    int         hash;           /* KDF hash algorithm. */
+    size_t      hashlen;        /* KDF hash digest length. */
+    char *      salt;           /* Salt. */
+    size_t      saltlen;        /* Salt length. */
+    char *      iv;             /* Initialization vector. */
+    size_t      ivlen;          /* Initialization vector length. */
+    int         itercount;      /* KDF iteration count. */
+    int         dklen;          /* Derived key length (#bytes). */
+    int         effkeysize;     /* RC2 effective key size (#bits) or 0. */
+};
+
+typedef struct pkcs5algo    pkcs5algo;
+struct pkcs5algo {
+    const unsigned char *   oid;
+    int         (*parse)(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+                         pkcs5algo *algo, asn1Element *param);
+    int         cipher;         /* Encryption cipher. */
+    size_t      blocksize;      /* Cipher block size. */
+    char        mode;           /* Block encryption mode. */
+    char        padopt;         /* Pad option. */
+    char        padchar;        /* Pad character. */
+    size_t      keylen;         /* Key length (#bytes). */
+    int         hash;           /* Hash algorithm. */
+    size_t      hashlen;        /* Hash digest length. */
+    size_t      saltlen;        /* Salt length. */
+    size_t      ivlen;          /* Initialisation vector length. */
+    int         effkeysize;     /* RC2 effective key size (#bits) or 0. */
+};
+
+/* id-PBES2 OID: 1.2.840.113549.1.5.13 */
+static const unsigned char  OID_id_PBES2[] = {
+    9, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x05, 0x0D
+};
+static int  parse_pbes2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+                        pkcs5algo *algo, asn1Element *param);
+static const pkcs5algo  PBES2 = {
+    OID_id_PBES2,   parse_pbes2,    0,  0,  '\0',   '\0',   '\0',   0,
+    0,  0,  0,  0,  0
+};
+
+/* id-PBKDF2 OID: 1.2.840.113549.1.5.12 */
+static const unsigned char  OID_id_PBKDF2[] = {
+    9, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x05, 0x0C
+};
+static int  parse_pbkdf2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+                         pkcs5algo *algo, asn1Element *param);
+static const pkcs5algo  PBKDF2 = {
+    OID_id_PBKDF2,  parse_pbkdf2,   0,  0,  '\0',   '\0',   '\0',
+    SHA_DIGEST_LENGTH,  Qc3_SHA1,   SHA_DIGEST_LENGTH,  8,  8,  0
+};
+
+/* id-hmacWithSHA1 OID: 1.2.840.113549.2.7 */
+static const unsigned char  OID_id_hmacWithSHA1[] = {
+    8, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x02, 0x07
+};
+static int  parse_hmacWithSHA1(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+                               pkcs5algo *algo, asn1Element *param);
+static const pkcs5algo  hmacWithSHA1 = {
+    OID_id_hmacWithSHA1,    parse_hmacWithSHA1, 0,  0,  '\0',   '\0',   '\0',
+    SHA_DIGEST_LENGTH,  Qc3_SHA1,   SHA_DIGEST_LENGTH,  8,  8,  0
+};
+
+/* desCBC OID: 1.3.14.3.2.7 */
+static const unsigned char  OID_desCBC[] = {5, 40 + 3, 0x0E, 0x03, 0x02, 0x07};
+static int  parse_iv(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+                     pkcs5algo *algo, asn1Element *param);
+static const pkcs5algo  desCBC = {
+    OID_desCBC, parse_iv,   Qc3_DES,    8,  Qc3_CBC,    Qc3_Pad_Counter,
+   '\0',   8,   0,  0,  8,  8,  0
+};
+
+/* des-EDE3-CBC OID: 1.2.840.113549.3.7 */
+static const unsigned char  OID_des_EDE3_CBC[] = {
+    8, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x03, 0x07
+};
+static const pkcs5algo  des_EDE3_CBC = {
+    OID_des_EDE3_CBC,   parse_iv,   Qc3_TDES,   8,  Qc3_CBC, Qc3_Pad_Counter,
+    '\0',   24, 0,  0,  8,  8,  0
+};
+ 
+/* rc2CBC OID: 1.2.840.113549.3.2 */
+static const unsigned char  OID_rc2CBC[] = {
+    8, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x03, 0x02
+};
+static int  parse_rc2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+                      pkcs5algo *algo, asn1Element *param);
+static const pkcs5algo  rc2CBC = {
+    OID_rc2CBC, parse_rc2,  Qc3_RC2,    8,  Qc3_CBC,    Qc3_Pad_Counter,
+    '\0',   0,  0,  0,  8,  0,  32
+};
+
+/* pbeWithMD5AndDES-CBC OID: 1.2.840.113549.1.5.3 */
+static const unsigned char  OID_pbeWithMD5AndDES_CBC[] = {
+    9, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x05, 0x03
+};
+static int  parse_pbes1(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+                        pkcs5algo *algo, asn1Element *param);
+static const pkcs5algo  pbeWithMD5AndDES_CBC = {
+    OID_pbeWithMD5AndDES_CBC,   parse_pbes1,    Qc3_DES,    8,  Qc3_CBC,
+    Qc3_Pad_Counter,    '\0',   8,  Qc3_MD5,    MD5_DIGEST_LENGTH,  8,  0,  0
+};
+
+/* pbeWithMD5AndRC2-CBC OID: 1.2.840.113549.1.5.6 */
+static const unsigned char  OID_pbeWithMD5AndRC2_CBC[] = {
+    9, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x05, 0x06
+};
+static const pkcs5algo  pbeWithMD5AndRC2_CBC = {
+    OID_pbeWithMD5AndRC2_CBC,   parse_pbes1,    Qc3_RC2,    8,  Qc3_CBC,
+    Qc3_Pad_Counter,    '\0',   0,  Qc3_MD5,    MD5_DIGEST_LENGTH,  8,  0,  64
+};
+
+/* pbeWithSHA1AndDES-CBC OID: 1.2.840.113549.1.5.10 */
+static const unsigned char  OID_pbeWithSHA1AndDES_CBC[] = {
+    9, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x05, 0x0A
+};
+static const pkcs5algo  pbeWithSHA1AndDES_CBC = {
+    OID_pbeWithSHA1AndDES_CBC,   parse_pbes1,    Qc3_DES,    8,  Qc3_CBC,
+    Qc3_Pad_Counter,    '\0',   8,  Qc3_SHA1,   SHA_DIGEST_LENGTH,  8,  0, 0
+};
+
+/* pbeWithSHA1AndRC2-CBC OID: 1.2.840.113549.1.5.11 */
+static const unsigned char  OID_pbeWithSHA1AndRC2_CBC[] = {
+    9, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x05, 0x0B
+};
+static const pkcs5algo  pbeWithSHA1AndRC2_CBC = {
+    OID_pbeWithSHA1AndRC2_CBC,   parse_pbes1,    Qc3_RC2,    8,  Qc3_CBC,
+    Qc3_Pad_Counter,    '\0',   0,  Qc3_SHA1,   SHA_DIGEST_LENGTH,  8,  0,  64
+};
+
+/* rc5-CBC-PAD OID: 1.2.840.113549.3.9: RC5 not implemented in Qc3. */
+/* pbeWithMD2AndDES-CBC OID: 1.2.840.113549.1.5.1: MD2 not implemented. */
+/* pbeWithMD2AndRC2-CBC OID: 1.2.840.113549.1.5.4: MD2 not implemented. */
+
+static const pkcs5algo *    pbestable[] = {
+    &pbeWithMD5AndDES_CBC,
+    &pbeWithMD5AndRC2_CBC,
+    &pbeWithSHA1AndDES_CBC,
+    &pbeWithSHA1AndRC2_CBC,
+    &PBES2,
+    NULL
+};
+
+static const pkcs5algo *    pbkdf2table[] = {
+    &PBKDF2,
+    NULL
+};
+
+static const pkcs5algo *    pbes2enctable[] = {
+    &desCBC,
+    &des_EDE3_CBC,
+    &rc2CBC,
+    NULL
+};
+
+static const pkcs5algo *    kdf2prftable[] = {
+    &hmacWithSHA1,
+    NULL
+};
+
+
 /* Public key extraction support. */
 static struct {
     unsigned char * oid;
@@ -1270,6 +1442,13 @@ _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
     return ret;
 }
 
+
+/*******************************************************************
+ *
+ * OS/400 QC3 crypto-library backend: PKCS#5 supplement.
+ *
+ *******************************************************************/
+
 static int
 oidcmp(const asn1Element *e, const unsigned char *oid)
 {
@@ -1280,6 +1459,332 @@ oidcmp(const asn1Element *e, const unsigned char *oid)
     if (!i)
         i = memcmp(e->beg, oid, oid[-1]);
     return i;
+}
+
+static int
+asn1getword(asn1Element *e, unsigned long *v)
+{
+    unsigned long a;
+    const unsigned char *cp;
+
+    if (*e->header != ASN1_INTEGER)
+        return -1;
+    for (cp = e->beg; cp < e->end && !*cp; cp++)
+        ;
+    if (e->end - cp > sizeof a)
+        return -1;
+    for (a = 0; cp < e->end; cp++)
+        a = (a << 8) | *cp;
+    *v = a;
+    return 0;
+}
+
+static int
+pbkdf1(LIBSSH2_SESSION *session, char **dk, const unsigned char * passphrase,
+       pkcs5params *pkcs5)
+{
+    int i;
+    Qc3_Format_ALGD0100_T hctx;
+    int len = pkcs5->saltlen;
+    char *data = (char *) pkcs5->salt;
+
+    *dk = NULL;
+    if (pkcs5->dklen > pkcs5->hashlen)
+        return -1;
+
+    /* Allocate the derived key buffer. */
+    if (!(*dk = LIBSSH2_ALLOC(session, pkcs5->hashlen)))
+        return -1;
+
+    /* Initial hash. */
+    libssh2_os400qc3_hash_init(&hctx, pkcs5->hash);
+    libssh2_os400qc3_hash_update(&hctx, (unsigned char *) passphrase,
+                                 strlen(passphrase));
+    hctx.Final_Op_Flag = Qc3_Final;
+    Qc3CalculateHash((char *) pkcs5->salt, &len, Qc3_Data, (char *) &hctx,
+                     Qc3_Alg_Token, anycsp, NULL, *dk, (char *) &ecnull);
+
+    /* Iterate. */
+    len = pkcs5->hashlen;
+    for (i = 1; i < pkcs5->itercount; i++)
+        Qc3CalculateHash((char *) *dk, &len, Qc3_Data, (char *) &hctx,
+                         Qc3_Alg_Token, anycsp, NULL, *dk, (char *) &ecnull);
+
+    /* Special stuff for PBES1: split derived key into 8-byte key and 8-byte
+       initialization vector. */
+    pkcs5->dklen = 8;
+    pkcs5->ivlen = 8;
+    pkcs5->iv = *dk + 8;
+
+    /* Clean-up and exit. */
+    Qc3DestroyAlgorithmContext(hctx.Alg_Context_Token, (char *) &ecnull);
+    return 0;
+}
+
+static int
+pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char * passphrase,
+       pkcs5params *pkcs5)
+{
+    size_t i;
+    size_t k;
+    int j;
+    int l;
+    uint32_t ni;
+    unsigned long long t;
+    char *mac;
+    char *buf;
+    _libssh2_os400qc3_crypto_ctx hctx;
+
+    *dk = NULL;
+    t = ((unsigned long long) pkcs5->dklen + pkcs5->hashlen - 1) /
+        pkcs5->hashlen;
+    if (t > 0xFFFFFFFF)
+        return -1;
+    mac = alloca(pkcs5->hashlen);
+    if (!mac)
+        return -1;
+
+    /* Allocate the derived key buffer. */
+    l = t;
+    if (!(buf = LIBSSH2_ALLOC(session, l * pkcs5->hashlen)))
+        return -1;
+    *dk = buf;
+
+    /* Create an HMAC context for our computations. */
+    libssh2_os400qc3_hmac_init(&hctx, pkcs5->hash, pkcs5->hashlen,
+                               (void *) passphrase, strlen(passphrase));
+
+    /* Process each hLen-size blocks. */
+    for (i = 1; i <= l; i++) {
+        ni = htonl(i);
+        libssh2_os400qc3_hmac_update(&hctx, pkcs5->salt, pkcs5->saltlen);
+        libssh2_os400qc3_hmac_update(&hctx, (char *) &ni, sizeof ni);
+        libssh2_os400qc3_hmac_final(&hctx, mac);
+        memcpy(buf, mac, pkcs5->hashlen);
+        for (j = 1; j < pkcs5->itercount; j++) {
+            libssh2_os400qc3_hmac_update(&hctx, mac, pkcs5->hashlen);
+            libssh2_os400qc3_hmac_final(&hctx, mac);
+            for (k = 0; k < pkcs5->hashlen; k++)
+                buf[k] ^= mac[k];
+        }
+        buf += pkcs5->hashlen;
+    }
+
+    /* Computation done. Release HMAC context. */
+    _libssh2_os400qc3_crypto_dtor(&hctx);
+    return 0;
+}
+
+static int
+parse_pkcs5_algorithm(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+                      asn1Element *algid, pkcs5algo **algotable)
+{
+    asn1Element oid;
+    asn1Element param;
+    char *cp;
+
+    cp = getASN1Element(&oid, algid->beg, algid->end);
+    if (!cp || *oid.header != ASN1_OBJ_ID)
+        return -1;
+    param.header = NULL;
+    if (cp < algid->end)
+        cp = getASN1Element(&param, cp, algid->end);
+    if (cp != algid->end)
+        return -1;
+    for (; *algotable; algotable++)
+        if (!oidcmp(&oid, (*algotable)->oid))
+            return (*(*algotable)->parse)(session, pkcs5, *algotable,
+                                          param.header? &param: NULL);
+    return -1;
+}
+
+static int
+parse_pbes2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+            pkcs5algo *algo, asn1Element *param)
+{
+    asn1Element keyDerivationFunc;
+    asn1Element encryptionScheme;
+    char *cp;
+
+    if (!param || *param->header != (ASN1_SEQ | ASN1_CONSTRUCTED))
+        return -1;
+    cp = getASN1Element(&keyDerivationFunc, param->beg, param->end);
+    if (!cp || *keyDerivationFunc.header != (ASN1_SEQ | ASN1_CONSTRUCTED))
+        return -1;
+    if (getASN1Element(&encryptionScheme, cp, param->end) != param->end ||
+        *encryptionScheme.header != (ASN1_SEQ | ASN1_CONSTRUCTED))
+        return -1;
+    if (parse_pkcs5_algorithm(session, pkcs5, &encryptionScheme, pbes2enctable))
+        return -1;
+    if (parse_pkcs5_algorithm(session, pkcs5, &keyDerivationFunc, pbkdf2table))
+        return -1;
+    return 0;
+}
+
+static int
+parse_pbkdf2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+             pkcs5algo *algo, asn1Element *param)
+{
+    asn1Element salt;
+    asn1Element iterationCount;
+    asn1Element keyLength;
+    asn1Element prf;
+    unsigned long itercount;
+    char *cp;
+
+    if (!param || *param->header != (ASN1_SEQ | ASN1_CONSTRUCTED))
+        return -1;
+    cp = getASN1Element(&salt, param->beg, param->end);
+    /* otherSource not supported. */
+    if (!cp || *salt.header != ASN1_OCTET_STRING)
+        return -1;
+    cp = getASN1Element(&iterationCount, cp, param->end);
+    if (!cp || *iterationCount.header != ASN1_INTEGER)
+        return -1;
+    keyLength.header = prf.header = NULL;
+    if (cp < param->end) {
+        cp = getASN1Element(&prf, cp, param->end);
+        if (!cp)
+            return -1;
+        if (*prf.header == ASN1_INTEGER) {
+            keyLength = prf;
+            prf.header = NULL;
+            if (cp < param->end)
+                cp = getASN1Element(&prf, cp, param->end);
+        }
+        if (cp != param->end)
+            return -1;
+    }
+    pkcs5->hash = algo->hash;
+    pkcs5->hashlen = algo->hashlen;
+    if (prf.header) {
+        if (*prf.header != (ASN1_SEQ | ASN1_CONSTRUCTED))
+            return -1;
+        if (parse_pkcs5_algorithm(session, pkcs5, &prf, kdf2prftable))
+            return -1;
+    }
+    pkcs5->saltlen = salt.end - salt.beg;
+    pkcs5->salt = salt.beg;
+    if (asn1getword(&iterationCount, &itercount) ||
+        !itercount || itercount > 100000)
+        return -1;
+    pkcs5->itercount = itercount;
+    pkcs5->kdf = pbkdf2;
+    return 0;
+}
+
+static int
+parse_hmacWithSHA1(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+                   pkcs5algo *algo, asn1Element *param)
+{
+    if (!param || *param->header != ASN1_NULL)
+        return -1;
+    pkcs5->hash = algo->hash;
+    pkcs5->hashlen = algo->hashlen;
+    return 0;
+}
+
+static int
+parse_iv(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+         pkcs5algo *algo, asn1Element *param)
+{
+    if (!param || *param->header != ASN1_OCTET_STRING ||
+        param->end - param->beg != algo->ivlen)
+        return -1;
+    pkcs5->cipher = algo->cipher;
+    pkcs5->blocksize = algo->blocksize;
+    pkcs5->mode = algo->mode;
+    pkcs5->padopt = algo->padopt;
+    pkcs5->padchar = algo->padchar;
+    pkcs5->dklen = algo->keylen;
+    pkcs5->ivlen = algo->ivlen;
+    pkcs5->iv = param->beg;
+    return 0;
+}
+
+static int
+parse_rc2(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+          pkcs5algo *algo, asn1Element *param)
+{
+    asn1Element iv;
+    unsigned long effkeysize;
+    char *cp;
+
+    if (!param || *param->header != (ASN1_SEQ | ASN1_CONSTRUCTED))
+        return -1;
+    cp = getASN1Element(&iv, param->beg, param->end);
+    if (!cp)
+        return -1;
+    effkeysize = algo->effkeysize;
+    if (*iv.header == ASN1_INTEGER) {
+        if (asn1getword(&iv, &effkeysize) || effkeysize > 1024)
+            return -1;
+
+        cp = getASN1Element(&iv, cp, param->end);
+        if (effkeysize < 256)
+            switch (effkeysize) {
+            case 160:
+                effkeysize = 40;
+            case 120:
+                effkeysize = 64;
+            case 58:
+                effkeysize = 128;
+                break;
+            default:
+                return -1;
+            }
+    }
+    if (effkeysize > 1024 || cp != param->end ||
+        *iv.header != ASN1_OCTET_STRING || iv.end - iv.beg != algo->ivlen)
+        return -1;
+    pkcs5->cipher = algo->cipher;
+    pkcs5->blocksize = algo->blocksize;
+    pkcs5->mode = algo->mode;
+    pkcs5->padopt = algo->padopt;
+    pkcs5->padchar = algo->padchar;
+    pkcs5->ivlen = algo->ivlen;
+    pkcs5->iv = iv.beg;
+    pkcs5->effkeysize = effkeysize;
+    pkcs5->dklen = (effkeysize + 8 - 1) / 8;
+    return 0;
+}
+
+static int
+parse_pbes1(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
+            pkcs5algo *algo, asn1Element *param)
+{
+    asn1Element salt;
+    asn1Element iterationCount;
+    unsigned long itercount;
+    char *cp;
+
+    if (!param || *param->header != (ASN1_SEQ | ASN1_CONSTRUCTED))
+        return -1;
+
+    cp = getASN1Element(&salt, param->beg, param->end);
+    if (!cp || *salt.header != ASN1_OCTET_STRING ||
+        salt.end - salt.beg != algo->saltlen)
+        return -1;
+    if (getASN1Element(&iterationCount, cp, param->end) != param->end ||
+        *iterationCount.header != ASN1_INTEGER)
+        return -1;
+    if (asn1getword(&iterationCount, &itercount) ||
+        !itercount || itercount > 100000)
+        return -1;
+    pkcs5->cipher = algo->cipher;
+    pkcs5->blocksize = algo->blocksize;
+    pkcs5->mode = algo->mode;
+    pkcs5->padopt = algo->padopt;
+    pkcs5->padchar = algo->padchar;
+    pkcs5->hash = algo->hash;
+    pkcs5->hashlen = algo->hashlen;
+    pkcs5->dklen = 16;
+    pkcs5->saltlen = algo->saltlen;
+    pkcs5->effkeysize = algo->effkeysize;
+    pkcs5->salt = salt.beg;
+    pkcs5->kdf = pbkdf1;
+    pkcs5->itercount = itercount;
+    return 0;
 }
 
 static int
