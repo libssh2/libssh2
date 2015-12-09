@@ -100,36 +100,36 @@ typedef struct {
 #define ASN1_CONSTRUCTED    0x20
 
 /* rsaEncryption OID: 1.2.840.113549.1.1.1 */
-static unsigned char    rsaobjid[] =
-                            {40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 1, 1, 1};
+static unsigned char    OID_rsaEncryption[] =
+                            {9, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 1, 1, 1};
 static int  sshrsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
                          asn1Element *params, asn1Element *key,
                          const char *method);
 
 #if LIBSSH2_DSA != 0
 /* dsaEncryption OID: 1.2.840.10040.4.1 */
-static unsigned char    dsaobjid[] =
-                            {40 + 2, 0x86, 0x48, 0xCE, 0x38, 4, 1};
+static unsigned char    OID_dsaEncryption[] =
+                            {7, 40 + 2, 0x86, 0x48, 0xCE, 0x38, 4, 1};
 static int  sshdsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
                          asn1Element *params, asn1Element *key,
                          const char *method);
 #endif
 
+/* Public key extraction support. */
 static struct {
     unsigned char * oid;
-    unsigned int    oidlen;
     int             (*sshpubkey)(LIBSSH2_SESSION *session, char **pubkey,
                                  asn1Element *params, asn1Element *key,
                                  const char *method);
     const char *    method;
 }       pka[] = {
 #if LIBSSH2_RSA != 0
-    {   rsaobjid,   sizeof rsaobjid,    sshrsapubkey,   "ssh-rsa"   },
+    {   OID_rsaEncryption,  sshrsapubkey,   "ssh-rsa"   },
 #endif
 #if LIBSSH2_DSA != 0
-    {   dsaobjid,   sizeof dsaobjid,    sshdsapubkey,   "ssh-dss"   },
+    {   OID_dsaEncryption,  sshdsapubkey,   "ssh-dss"   },
 #endif
-    {   NULL,       0,                  NULL,           NULL        }
+    {   NULL,               NULL,           NULL        }
 };
 
 /* Define ASCII strings. */
@@ -465,12 +465,13 @@ rsaprivatekey(_libssh2_bn *e, _libssh2_bn *m, _libssh2_bn *d,
 
 static asn1Element *
 subjectpublickeyinfo(asn1Element *pubkey, const unsigned char *algo,
-                     unsigned int algosize, asn1Element *parameters)
+                     asn1Element *parameters)
 {
     asn1Element *subjpubkey;
     asn1Element *algorithm;
     asn1Element *algorithmid;
     asn1Element *subjpubkeyinfo;
+    unsigned int algosize = *algo++;
 
     algorithm = asn1bytes(ASN1_OBJ_ID, algo, algosize);
     algorithmid = asn1container(ASN1_SEQ | ASN1_CONSTRUCTED,
@@ -496,8 +497,8 @@ rsasubjectpublickeyinfo(asn1Element *pubkey)
     asn1Element *subjpubkeyinfo;
 
     parameters = asn1bytes(ASN1_NULL, NULL, 0);
-    subjpubkeyinfo = subjectpublickeyinfo(pubkey, rsaobjid, sizeof rsaobjid,
-                                          parameters);
+    subjpubkeyinfo = subjectpublickeyinfo(pubkey,
+                                          OID_rsaEncryption, parameters);
     asn1delete(parameters);
     if (!parameters) {
         asn1delete(subjpubkeyinfo);
@@ -508,13 +509,14 @@ rsasubjectpublickeyinfo(asn1Element *pubkey)
 
 static asn1Element *
 privatekeyinfo(asn1Element *privkey, const unsigned char *algo,
-               unsigned int algosize, asn1Element *parameters)
+               asn1Element *parameters)
 {
     asn1Element *version;
     asn1Element *privatekey;
     asn1Element *algorithm;
     asn1Element *privatekeyalgorithm;
     asn1Element *privkeyinfo;
+    unsigned int algosize = *algo++;
 
     /* Build a PKCS#8 PrivateKeyInfo. */
     version = asn1bytes(ASN1_INTEGER, "\0", 1);
@@ -541,8 +543,7 @@ rsaprivatekeyinfo(asn1Element *privkey)
     asn1Element *privkeyinfo;
 
     parameters = asn1bytes(ASN1_NULL, NULL, 0);
-    privkeyinfo = privatekeyinfo(privkey, rsaobjid, sizeof rsaobjid,
-                                 parameters);
+    privkeyinfo = privatekeyinfo(privkey, OID_rsaEncryption, parameters);
     asn1delete(parameters);
     if (!parameters) {
         asn1delete(privkeyinfo);
@@ -1250,6 +1251,18 @@ _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
 }
 
 static int
+oidcmp(const asn1Element *e, const unsigned char *oid)
+{
+    int i = e->end - e->beg - *oid++;
+
+    if (*e->header != ASN1_OBJ_ID)
+        return -2;
+    if (!i)
+        i = memcmp(e->beg, oid, oid[-1]);
+    return i;
+}
+
+static int
 rsapkcs8privkey(LIBSSH2_SESSION *session,
                 const unsigned char *data, unsigned int datalen,
                 const unsigned char *passphrase, void *loadkeydata)
@@ -1341,9 +1354,8 @@ rsapkcs8pubkey(LIBSSH2_SESSION *session,
         subjpubkeyinfo.end || subjpubkey.tag != ASN1_BIT_STRING)
         return -1;
     /* Check for supported algorithm. */
-    len = algorithm.end - algorithm.beg;
-    for (i = 0; pka[i].oid; i++) {
-        if (pka[i].oidlen == len && !memcmp(pka[i].oid, algorithm.beg, len)) {
+    for (i = 0; pka[i].oid; i++)
+        if (!oidcmp(&algorithm, pka[i].oid)) {
             len = (*pka[i].sshpubkey)(session, &p->data, &algorithmid,
                                       &subjpubkey, pka[i].method);
             if (len < 0)
@@ -1352,7 +1364,6 @@ rsapkcs8pubkey(LIBSSH2_SESSION *session,
             p->method = pka[i].method;
             return 0;
         }
-    }
     return -1;                              /* Algorithm not supported. */
 }
 
