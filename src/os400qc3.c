@@ -1788,18 +1788,143 @@ parse_pbes1(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
 }
 
 static int
+pkcs8kek(LIBSSH2_SESSION *session, _libssh2_os400qc3_crypto_ctx **ctx,
+         const unsigned char *data, unsigned int datalen,
+         const unsigned char *passphrase, asn1Element *privkeyinfo)
+{
+    asn1Element encprivkeyinfo;
+    asn1Element pkcs5alg;
+    pkcs5params pkcs5;
+    size_t pplen;
+    char *cp;
+    unsigned long t;
+    int i;
+    char *dk = NULL;
+    Qc3_Format_ALGD0200_T algd;
+    Qus_EC_t errcode;
+
+    /* Determine if the PKCS#8 data is encrypted and, if so, set-up a
+       key encryption key and algorithm in context.
+       Return 1 if encrypted, 0, if not, -1 if error. */
+
+    *ctx = NULL;
+    privkeyinfo->beg = (char *) data;
+    privkeyinfo->end = privkeyinfo->beg + datalen;
+
+    /* If no passphrase is given, it cannot be an encrypted key. */
+    if (!passphrase || !*passphrase)
+        return 0;
+
+    /* Parse PKCS#8 data, checking if ASN.1 format is PrivateKeyInfo or
+       EncryptedPrivateKeyInfo. */
+    if (getASN1Element(&encprivkeyinfo, privkeyinfo->beg, privkeyinfo->end) !=
+        (char *) data + datalen ||
+        *encprivkeyinfo.header != (ASN1_SEQ | ASN1_CONSTRUCTED))
+        return -1;
+    cp = getASN1Element(&pkcs5alg, encprivkeyinfo.beg, encprivkeyinfo.end);
+    if (!cp)
+        return -1;
+
+    switch (*pkcs5alg.header) {
+    case ASN1_INTEGER:                          /* Version. */
+        return 0;       /* This is a PrivateKeyInfo --> not encrypted. */
+    case ASN1_SEQ | ASN1_CONSTRUCTED:           /* AlgorithIdentifier. */
+        break;          /* This is an EncryptedPrivateKeyInfo --> encrypted. */
+    default:
+        return -1;      /* Unrecognized: error. */
+    }
+
+    /* Get the encrypted key data. */
+    if (getASN1Element(privkeyinfo, cp, encprivkeyinfo.end) !=
+        encprivkeyinfo.end || *privkeyinfo->header != ASN1_OCTET_STRING)
+        return -1;
+
+    /* PKCS#5: parse the PBES AlgorithmIdentifier and recursively get all
+       encryption parameters. */
+    memset((char *) &pkcs5, 0, sizeof pkcs5);
+    if (parse_pkcs5_algorithm(session, &pkcs5, &pkcs5alg, pbestable))
+        return -1;
+
+    /* Compute the derived key. */
+    if ((*pkcs5.kdf)(session, &dk, passphrase, &pkcs5))
+        return -1;
+
+    /* Prepare the algorithm descriptor. */
+    memset((char *) &algd, 0, sizeof algd);
+    algd.Block_Cipher_Alg = pkcs5.cipher;
+    algd.Block_Length = pkcs5.blocksize;
+    algd.Mode = pkcs5.mode;
+    algd.Pad_Option = pkcs5.padopt;
+    algd.Pad_Character = pkcs5.padchar;
+    algd.Effective_Key_Size = pkcs5.effkeysize;
+    memcpy(algd.Init_Vector, pkcs5.iv, pkcs5.ivlen);
+
+    /* Create the key and algorithm context tokens. */
+    *ctx = libssh2_init_crypto_ctx(NULL);
+    if (!*ctx) {
+        LIBSSH2_FREE(session, dk);
+        return -1;
+    }
+    libssh2_init_crypto_ctx(*ctx);
+    set_EC_length(errcode, sizeof errcode);
+    Qc3CreateKeyContext(dk, &pkcs5.dklen, binstring, &algd.Block_Cipher_Alg,
+                        qc3clear, NULL, NULL, (*ctx)->key.Key_Context_Token,
+                        (char *) &errcode);
+    LIBSSH2_FREE(session, dk);
+    if (errcode.Bytes_Available) {
+        free((char *) *ctx);
+        *ctx = NULL;
+        return -1;
+    }
+
+    Qc3CreateAlgorithmContext((char *) &algd, Qc3_Alg_Block_Cipher,
+                              (*ctx)->hash.Alg_Context_Token, &errcode);
+    if (errcode.Bytes_Available) {
+        Qc3DestroyKeyContext((*ctx)->key.Key_Context_Token, (char *) &ecnull);
+        free((char *) *ctx);
+        *ctx = NULL;
+        return -1;
+    }
+    return 1;       /* Tell it's encrypted. */
+}
+
+static int
 rsapkcs8privkey(LIBSSH2_SESSION *session,
                 const unsigned char *data, unsigned int datalen,
                 const unsigned char *passphrase, void *loadkeydata)
 {
     libssh2_rsa_ctx *ctx = (libssh2_rsa_ctx *) loadkeydata;
+    char keyform = Qc3_Clear;
+    char *kek = NULL;
+    char *kea = NULL;
+    _libssh2_os400qc3_crypto_ctx *kekctx;
+    asn1Element pki;
+    int pkilen;
     Qus_EC_t errcode;
 
+    switch (pkcs8kek(session, &kekctx, data, datalen, passphrase, &pki)) {
+    case 1:
+        keyform = Qc3_Encrypted;
+        kek = kekctx->key.Key_Context_Token;
+        kea = kekctx->hash.Alg_Context_Token;
+    case 0:
+        break;
+    default:
+        return -1;
+    }
+
     set_EC_length(errcode, sizeof errcode);
-    Qc3CreateKeyContext((unsigned char *) data, (int *) &datalen, berstring,
-                        rsaprivate, qc3clear, NULL, NULL,
+    pkilen = pki.end - pki.beg;
+    Qc3CreateKeyContext((unsigned char *) pki.beg, &pkilen, berstring,
+                        rsaprivate, &keyform, kek, kea,
                         ctx->key.Key_Context_Token, (char *) &errcode);
-    return errcode.Bytes_Available? -1: 0;
+    if (errcode.Bytes_Available) {
+        if (kekctx)
+            _libssh2_os400qc3_crypto_dtor(kekctx);
+        return -1;
+    }
+    ctx->kek = kekctx;
+    return 0;
 }
 
 static char *
@@ -1852,18 +1977,38 @@ rsapkcs8pubkey(LIBSSH2_SESSION *session,
     int len;
     char *cp;
     int i;
+    char keyform = Qc3_Clear;
+    char *kek = NULL;
+    char *kea = NULL;
+    _libssh2_os400qc3_crypto_ctx *kekctx;
     asn1Element subjpubkeyinfo;
     asn1Element algorithmid;
     asn1Element algorithm;
     asn1Element subjpubkey;
     asn1Element parameters;
+    asn1Element pki;
+    int pkilen;
     Qus_EC_t errcode;
 
     if (!(buf = alloca(datalen)))
         return -1;
+
+    switch (pkcs8kek(session, &kekctx, data, datalen, passphrase, &pki)) {
+    case 1:
+        keyform = Qc3_Encrypted;
+        kek = kekctx->key.Key_Context_Token;
+        kea = kekctx->hash.Alg_Context_Token;
+    case 0:
+        break;
+    default:
+        return -1;
+    }
+
     set_EC_length(errcode, sizeof errcode);
-    Qc3ExtractPublicKey((char *) data, (int *) &datalen, berstring, qc3clear,
-                        NULL, NULL, buf, (int *) &datalen, &len, &errcode);
+    pkilen = pki.end - pki.beg;
+    Qc3ExtractPublicKey(pki.beg, &pkilen, berstring, &keyform,
+                        kek, kea, buf, (int *) &datalen, &len, &errcode);
+    _libssh2_os400qc3_crypto_dtor(kekctx);
     if (errcode.Bytes_Available)
         return -1;
     /* Get the algorithm OID and key data from SubjectPublicKeyInfo. */
@@ -2108,7 +2253,7 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     *method_len = 0;
     *pubkeydata = NULL;
     *pubkeydata_len = 0;
-    /* Note: passphrase not supported. */
+
     ret = load_rsa_private_file(session, privatekey, passphrase,
                                 rsapkcs1pubkey, rsapkcs8pubkey, (void *) &p);
     if (!ret) {
