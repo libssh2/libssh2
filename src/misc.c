@@ -179,6 +179,46 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
     return rc;
 }
 
+int
+_libssh2_select(libssh2_socket_t fd, int r, int w, struct timeval* t, void **abstract)
+{
+#ifdef HAVE_POLL
+
+    struct pollfd sockets[1];
+
+    sockets[0].fd = fd;
+    sockets[0].events = 0;
+    sockets[0].revents = 0;
+
+    if(r)
+        sockets[0].events |= POLLIN;
+
+    if(w)
+        sockets[0].events |= POLLOUT;
+
+    return poll(sockets, 1, t?(t->tv_sec*1000 + t->tv_usec/1000): -1);
+
+#else
+    fd_set rfd;
+    fd_set wfd;
+    fd_set *writefd = NULL;
+    fd_set *readfd = NULL;
+
+    if(r) {
+        FD_ZERO(&rfd);
+        FD_SET(fd, &rfd);
+        readfd = &rfd;
+    }
+
+    if(w) {
+        FD_ZERO(&wfd);
+        FD_SET(fd, &wfd);
+        writefd = &wfd;
+    }
+    return select(fd+1, readfd, writefd, NULL, t); 
+#endif
+}
+
 /* libssh2_ntohu32
  */
 unsigned int
