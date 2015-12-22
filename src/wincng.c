@@ -415,16 +415,15 @@ _libssh2_wincng_hash(unsigned char *data, unsigned long datalen,
                      unsigned char *hash, unsigned long hashlen)
 {
     _libssh2_wincng_hash_ctx ctx;
+    int ret;
 
-    if (!_libssh2_wincng_hash_init(&ctx, hAlg, hashlen, NULL, 0)) {
-        if (!_libssh2_wincng_hash_update(&ctx, data, datalen)) {
-            if (!_libssh2_wincng_hash_final(&ctx, hash)) {
-                return 0;
-            }
-        }
+    ret = _libssh2_wincng_hash_init(&ctx, hAlg, hashlen, NULL, 0);
+    if (!ret) {
+        ret = _libssh2_wincng_hash_update(&ctx, data, datalen);
+        ret |= _libssh2_wincng_hash_final(&ctx, hash);
     }
 
-    return -1;
+    return ret;
 }
 
 
