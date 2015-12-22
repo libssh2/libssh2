@@ -406,7 +406,7 @@ _libssh2_wincng_hash_final(_libssh2_wincng_hash_ctx *ctx,
     ctx->pbHashObject = NULL;
     ctx->dwHashObject = 0;
 
-    return ret;
+    return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
 int
