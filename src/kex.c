@@ -60,7 +60,7 @@
                                     SHA_DIGEST_LENGTH);                 \
                 if (len > 0) {                                          \
                     libssh2_sha1_update(hash, value, len);              \
-                }    else {                                             \
+                } else {                                                \
                     libssh2_sha1_update(hash, (version), 1);            \
                     libssh2_sha1_update(hash, session->session_id,      \
                                         session->session_id_len);       \
@@ -73,30 +73,30 @@
 
 /* Helper macro called from kex_method_diffie_hellman_group1_sha256_key_exchange */
 #define LIBSSH2_KEX_METHOD_DIFFIE_HELLMAN_SHA256_HASH(value, reqlen, version) \
-{                                                                       \
-    libssh2_sha256_ctx hash;                                            \
-    unsigned long len = 0;                                              \
-    if (!(value)) {                                                     \
-        value = LIBSSH2_ALLOC(session, reqlen + SHA256_DIGEST_LENGTH);  \
-    }                                                                   \
-    if (value)                                                          \
-        while (len < (unsigned long)reqlen) {                           \
-            libssh2_sha256_init(&hash);                                 \
-            libssh2_sha256_update(hash, exchange_state->k_value,        \
-                                    exchange_state->k_value_len);       \
-            libssh2_sha256_update(hash, exchange_state->h_sig_comp,     \
-                                    SHA256_DIGEST_LENGTH);              \
-        if (len > 0) {                                                  \
-            libssh2_sha256_update(hash, value, len);                    \
-        }    else {                                                     \
-            libssh2_sha256_update(hash, (version), 1);                  \
-            libssh2_sha256_update(hash, session->session_id,            \
-                                    session->session_id_len);           \
-        }                                                               \
-        libssh2_sha256_final(hash, (value) + len);                      \
-        len += SHA256_DIGEST_LENGTH;                                    \
-        }                                                               \
-}
+    {                                                                      \
+        libssh2_sha256_ctx hash;                                           \
+        unsigned long len = 0;                                             \
+        if (!(value)) {                                                    \
+            value = LIBSSH2_ALLOC(session, reqlen + SHA256_DIGEST_LENGTH); \
+        }                                                                  \
+        if (value)                                                         \
+            while (len < (unsigned long)reqlen) {                          \
+                libssh2_sha256_init(&hash);                                \
+                libssh2_sha256_update(hash, exchange_state->k_value,       \
+                                      exchange_state->k_value_len);        \
+                libssh2_sha256_update(hash, exchange_state->h_sig_comp,    \
+                                      SHA256_DIGEST_LENGTH);               \
+                if (len > 0) {                                             \
+                    libssh2_sha256_update(hash, value, len);               \
+                } else {                                                   \
+                    libssh2_sha256_update(hash, (version), 1);             \
+                    libssh2_sha256_update(hash, session->session_id,       \
+                                          session->session_id_len);        \
+                }                                                          \
+                libssh2_sha256_final(hash, (value) + len);                 \
+                len += SHA256_DIGEST_LENGTH;                               \
+            }                                                              \
+    }
 
 
 /*
