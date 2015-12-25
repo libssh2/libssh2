@@ -569,14 +569,43 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 int
 _libssh2_sha1_init(libssh2_sha1_ctx *ctx)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    *ctx = EVP_MD_CTX_new();
+
+    if (*ctx == NULL)
+        return 0;
+
+    if (EVP_DigestInit(*ctx, EVP_get_digestbyname("sha1")))
+        return 1;
+
+    EVP_MD_CTX_free(*ctx);
+    *ctx = NULL;
+
+    return 0;
+#else
     EVP_MD_CTX_init(ctx);
     return EVP_DigestInit(ctx, EVP_get_digestbyname("sha1"));
+#endif
 }
 
 int
 _libssh2_sha1(const unsigned char *message, unsigned long len,
               unsigned char *out)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    EVP_MD_CTX * ctx = EVP_MD_CTX_new();
+
+    if (ctx == NULL)
+        return 1; /* error */
+
+    if (EVP_DigestInit(ctx, EVP_get_digestbyname("sha1"))) {
+        EVP_DigestUpdate(ctx, message, len);
+        EVP_DigestFinal(ctx, out, NULL);
+        EVP_MD_CTX_free(ctx);
+        return 0; /* success */
+    }
+    EVP_MD_CTX_free(ctx);
+#else
     EVP_MD_CTX ctx;
 
     EVP_MD_CTX_init(&ctx);
@@ -585,20 +614,50 @@ _libssh2_sha1(const unsigned char *message, unsigned long len,
         EVP_DigestFinal(&ctx, out, NULL);
         return 0; /* success */
     }
+#endif
     return 1; /* error */
 }
 
 int
 _libssh2_sha256_init(libssh2_sha256_ctx *ctx)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    *ctx = EVP_MD_CTX_new();
+
+    if (*ctx == NULL)
+        return 0;
+
+    if (EVP_DigestInit(*ctx, EVP_get_digestbyname("sha256")))
+        return 1;
+
+    EVP_MD_CTX_free(*ctx);
+    *ctx = NULL;
+
+    return 0;
+#else
     EVP_MD_CTX_init(ctx);
     return EVP_DigestInit(ctx, EVP_get_digestbyname("sha256"));
+#endif
 }
 
 int
 _libssh2_sha256(const unsigned char *message, unsigned long len,
                 unsigned char *out)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    EVP_MD_CTX * ctx = EVP_MD_CTX_new();
+
+    if (ctx == NULL)
+        return 1; /* error */
+
+    if(EVP_DigestInit(ctx, EVP_get_digestbyname("sha256"))) {
+        EVP_DigestUpdate(ctx, message, len);
+        EVP_DigestFinal(ctx, out, NULL);
+        EVP_MD_CTX_free(ctx);
+        return 0; /* success */
+    }
+    EVP_MD_CTX_free(ctx);
+#else
     EVP_MD_CTX ctx;
 
     EVP_MD_CTX_init(&ctx);
@@ -607,14 +666,30 @@ _libssh2_sha256(const unsigned char *message, unsigned long len,
         EVP_DigestFinal(&ctx, out, NULL);
         return 0; /* success */
     }
+#endif
     return 1; /* error */
 }
 
 int
 _libssh2_md5_init(libssh2_md5_ctx *ctx)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    *ctx = EVP_MD_CTX_new();
+
+    if (*ctx == NULL)
+        return 0;
+
+    if (EVP_DigestInit(*ctx, EVP_get_digestbyname("md5")))
+        return 1;
+
+    EVP_MD_CTX_free(*ctx);
+    *ctx = NULL;
+
+    return 0;
+#else
     EVP_MD_CTX_init(ctx);
     return EVP_DigestInit(ctx, EVP_get_digestbyname("md5"));
+#endif
 }
 
 static unsigned char *
