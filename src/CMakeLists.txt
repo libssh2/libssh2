@@ -336,7 +336,11 @@ if(CMAKE_VERSION VERSION_LESS "2.8.12")
 else()
   target_link_libraries(libssh2 PRIVATE ${LIBRARIES})
 endif()
-
+if (MSVC)
+  SET(LD_LIB_NAME "libssh2")
+else()
+  SET(LD_LIB_NAME "ssh2")
+endif()
 ## Installation
 
 install(FILES

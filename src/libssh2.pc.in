@@ -12,6 +12,6 @@ URL: @PROJECT_URL@
 Description: @PROJECT_DESCRIPTION@
 Version: @LIBSSH2_VERSION@
 Requires.private: @PC_REQUIRES_PRIVATE@
-Libs: -L${libdir} -lssh2 @PC_LIBS@
+Libs: -L${libdir} -l@LD_LIB_NAME@ @PC_LIBS@
 Libs.private: @PC_LIBS@
 Cflags: -I${includedir}
