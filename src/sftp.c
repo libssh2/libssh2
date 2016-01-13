@@ -1531,6 +1531,8 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                    the buffer at the correct index */
                 memcpy(sliding_bufferp, data + 9, rc32);
                 filep->offset += rc32;
+                bytes_in_buffer += rc32;
+                sliding_bufferp += rc32;
 
                 if(filep->data_len == 0)
                     /* free the allocated data if not stored to keep */
@@ -1542,18 +1544,14 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 next = _libssh2_list_next(&chunk->node);
                 _libssh2_list_remove(&chunk->node);
                 LIBSSH2_FREE(session, chunk);
-                chunk = NULL;
-
-                if(rc32 > 0) {
-                    /* continue to the next chunk */
-                    bytes_in_buffer += rc32;
-                    sliding_bufferp += rc32;
+                
+                /* check if we have space left in the buffer
+                 * and either continue to the next chunk or stop
+                 */
+                if (bytes_in_buffer < buffer_size) {
                     chunk = next;
                 } else {
-                    /* A zero-byte read is not necessarily EOF so we must not
-                     * return 0 (that would signal EOF to the caller) so
-                     * instead we carry on to the next chunk */
-                    chunk = next;
+                    chunk = NULL;
                 }
 
                 break;
