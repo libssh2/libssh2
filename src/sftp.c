@@ -1423,9 +1423,16 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 chunk->lefttosend -= rc;
                 chunk->sent += rc;
 
-                if(chunk->lefttosend)
-                    /* data left to send, get out of loop */
-                    break;
+                if(chunk->lefttosend) {
+                    /* We still have data left to send for this chunk.
+                     * If there is at least one completely sent chunk,
+                     * we can get out of this loop and start reading.  */
+                    if (chunk != _libssh2_list_first(&handle->packet_list)) {
+                        break;
+                    } else {
+                        continue;
+                    }
+                }
             }
 
             /* move on to the next chunk with data to send */
