@@ -1463,6 +1463,13 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
             rc = sftp_packet_requirev(sftp, 2, read_responses,
                                       chunk->request_id, &data, &data_len);
+            
+            if (rc==LIBSSH2_ERROR_EAGAIN && bytes_in_buffer != 0) {
+                /* do not return EAGAIN if we have already 
+                 * written data into the buffer */
+                return bytes_in_buffer;
+            }
+            
             if (rc < 0) {
                 sftp->read_state = libssh2_NB_state_sent2;
                 return rc;
