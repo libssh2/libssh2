@@ -1545,10 +1545,16 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 chunk = NULL;
 
                 if(rc32 > 0) {
-                    /* continue to the next chunk */
                     bytes_in_buffer += rc32;
                     sliding_bufferp += rc32;
-                    chunk = next;
+                    if (filep->data_len==0) {
+                        /* continue to the next chunk */
+                        chunk = next;
+                    } else {
+                        /* we still have data left, so we can't continue
+                         * to the next chunk */
+                        chunk = NULL;
+                    }
                 } else {
                     /* A zero-byte read is not necessarily EOF so we must not
                      * return 0 (that would signal EOF to the caller) so
