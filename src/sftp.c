@@ -1367,7 +1367,9 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
         while(count > 0) {
             unsigned char *s;
-            uint32_t size = MIN(MAX_SFTP_READ_SIZE, count);
+            uint32_t size = count;
+            if (size < buffer_size) size = buffer_size;
+            if (size > MAX_SFTP_READ_SIZE) size = MAX_SFTP_READ_SIZE;
 
             /* 25 = packet_len(4) + packet_type(1) + request_id(4) +
                handle_len(4) + offset(8) + count(4) */
@@ -1399,7 +1401,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
             /* add this new entry LAST in the list */
             _libssh2_list_add(&handle->packet_list, &chunk->node);
-            count -= size; /* deduct the size we used, as we might have
+            count -= MIN(size,count); /* deduct the size we used, as we might have
                               to create more packets */
            _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "read request id %d sent (offset: %d, size: %d)", request_id, (int)chunk->offset, (int)chunk->len);
         }
