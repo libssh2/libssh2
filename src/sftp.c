@@ -1306,10 +1306,13 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
             return copy;
         }
-
-        /* We allow a number of bytes being requested at any given time
+        
+        if (filep->eof) {
+            return 0;
+        } else {
+            /* We allow a number of bytes being requested at any given time
            without having been acked - until we reach EOF. */
-        if(!filep->eof) {
+
             /* Number of bytes asked for that haven't been acked yet */
             size_t already = (size_t)(filep->offset_sent - filep->offset);
 
@@ -1457,17 +1460,24 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 SSH_FXP_DATA, SSH_FXP_STATUS
             };
 
-            if(chunk->lefttosend)
+            if(chunk->lefttosend) {
                 /* if the chunk still has data left to send, we shouldn't wait
                    for an ACK for it just yet */
-                break;
+                if (bytes_in_buffer > 0) {
+                    return bytes_in_buffer; 
+                } else {
+                    // we should never reach this point
+                    return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                                          "sftp_read() internal error");
+                }
+            }
 
             rc = sftp_packet_requirev(sftp, 2, read_responses,
                                       chunk->request_id, &data, &data_len);
             
             if (rc==LIBSSH2_ERROR_EAGAIN && bytes_in_buffer != 0) {
                 /* do not return EAGAIN if we have already written data into the buffer */
-                break;
+                return bytes_in_buffer;
             }
             
             if (rc < 0) {
@@ -1602,7 +1612,9 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         assert(!"State machine error; unrecognised read state");
     }
 
-    return 0;
+    // we should never reach this point
+    return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                          "sftp_read() internal error");
 }
 
 /* libssh2_sftp_read
