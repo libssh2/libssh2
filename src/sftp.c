@@ -1377,6 +1377,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                       "malloc fail for FXP_WRITE");
 
+            chunk->offset = filep->offset_sent;
             chunk->len = size;
             chunk->lefttosend = packet_len;
             chunk->sent = 0;
@@ -1397,7 +1398,9 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
             _libssh2_list_add(&handle->packet_list, &chunk->node);
             count -= size; /* deduct the size we used, as we might have
                               to create more packets */
-            _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "read request id %d sent", request_id);
+           _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
+                          "read request id %d sent (offset: %d, size: %d)",
+                          request_id, (int)chunk->offset, (int)chunk->len);
         }
 
     case libssh2_NB_state_sent:
@@ -1506,6 +1509,16 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 break;
 
             case SSH_FXP_DATA:
+                if (chunk->offset != filep->offset) {
+                    /* This could happen if the server returns less bytes than
+                       requested, which shouldn't happen for normal files. See:
+                       http://tools.ietf.org/html/draft-ietf-secsh-filexfer-02
+                       #section-6.4
+                    */
+                    return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                                          "Read Packet At Unexpected Offset");
+                }
+            
                 rc32 = _libssh2_ntohu32(data + 5);
                 if (rc32 > (data_len - 9))
                     return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
