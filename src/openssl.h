@@ -236,7 +236,11 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define _libssh2_dsa_free(dsactx) DSA_free(dsactx)
 
 #define _libssh2_cipher_type(name) const EVP_CIPHER *(*name)(void)
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#define _libssh2_cipher_ctx EVP_CIPHER_CTX *
+#else
 #define _libssh2_cipher_ctx EVP_CIPHER_CTX
+#endif
 
 #define _libssh2_cipher_aes256 EVP_aes_256_cbc
 #define _libssh2_cipher_aes192 EVP_aes_192_cbc
@@ -255,7 +259,11 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define _libssh2_cipher_cast5 EVP_cast5_cbc
 #define _libssh2_cipher_3des EVP_des_ede3_cbc
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_reset(*(ctx))
+#else
 #define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_cleanup(ctx)
+#endif
 
 #define _libssh2_bn BIGNUM
 #define _libssh2_bn_ctx BN_CTX
