@@ -177,8 +177,13 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
                      _libssh2_cipher_type(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    *h = EVP_CIPHER_CTX_new();
+    return !EVP_CipherInit(*h, algo(), secret, iv, encrypt);
+#else
     EVP_CIPHER_CTX_init(h);
     return !EVP_CipherInit(h, algo(), secret, iv, encrypt);
+#endif
 }
 
 int
@@ -191,7 +196,11 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     (void) algo;
     (void) encrypt;
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    ret = EVP_Cipher(*ctx, buf, block, blocksize);
+#else
     ret = EVP_Cipher(ctx, buf, block, blocksize);
+#endif
     if (ret == 1) {
         memcpy(block, buf, blocksize);
     }
@@ -222,7 +231,7 @@ aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
     const EVP_CIPHER *aes_cipher;
     (void) enc;
 
-    switch (ctx->key_len) {
+    switch (EVP_CIPHER_CTX_key_length(ctx)) {
     case 16:
         aes_cipher = EVP_aes_128_ecb();
         break;
@@ -240,14 +249,22 @@ aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
     if (c == NULL)
         return 0;
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    c->aes_ctx = EVP_CIPHER_CTX_new();
+#else
     c->aes_ctx = malloc(sizeof(EVP_CIPHER_CTX));
+#endif
     if (c->aes_ctx == NULL) {
         free(c);
         return 0;
     }
 
     if (EVP_EncryptInit(c->aes_ctx, aes_cipher, key, NULL) != 1) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        EVP_CIPHER_CTX_free(c->aes_ctx);
+#else
         free(c->aes_ctx);
+#endif
         free(c);
         return 0;
     }
@@ -312,8 +329,12 @@ aes_ctr_cleanup(EVP_CIPHER_CTX *ctx) /* cleanup ctx */
     }
 
     if (c->aes_ctx != NULL) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        EVP_CIPHER_CTX_free(c->aes_ctx);
+#else
         _libssh2_cipher_dtor(c->aes_ctx);
         free(c->aes_ctx);
+#endif
     }
 
     free(c);
@@ -322,14 +343,25 @@ aes_ctr_cleanup(EVP_CIPHER_CTX *ctx) /* cleanup ctx */
 }
 
 static const EVP_CIPHER *
-make_ctr_evp (size_t keylen, EVP_CIPHER *aes_ctr_cipher)
+make_ctr_evp (size_t keylen, EVP_CIPHER *aes_ctr_cipher, int type)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    aes_ctr_cipher = EVP_CIPHER_meth_new(type, 16, keylen);
+    if (aes_ctr_cipher) {
+        EVP_CIPHER_meth_set_iv_length(aes_ctr_cipher, 16);
+        EVP_CIPHER_meth_set_init(aes_ctr_cipher, aes_ctr_init);
+        EVP_CIPHER_meth_set_do_cipher(aes_ctr_cipher, aes_ctr_do_cipher);
+        EVP_CIPHER_meth_set_cleanup(aes_ctr_cipher, aes_ctr_cleanup);
+    }
+#else
+    aes_ctr_cipher->nid = type;
     aes_ctr_cipher->block_size = 16;
     aes_ctr_cipher->key_len = keylen;
     aes_ctr_cipher->iv_len = 16;
     aes_ctr_cipher->init = aes_ctr_init;
     aes_ctr_cipher->do_cipher = aes_ctr_do_cipher;
     aes_ctr_cipher->cleanup = aes_ctr_cleanup;
+#endif
 
     return aes_ctr_cipher;
 }
@@ -337,25 +369,43 @@ make_ctr_evp (size_t keylen, EVP_CIPHER *aes_ctr_cipher)
 const EVP_CIPHER *
 _libssh2_EVP_aes_128_ctr(void)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    static EVP_CIPHER * aes_ctr_cipher;
+    return !aes_ctr_cipher?
+        make_ctr_evp (16, aes_ctr_cipher, NID_aes_128_ctr) : aes_ctr_cipher;
+#else
     static EVP_CIPHER aes_ctr_cipher;
     return !aes_ctr_cipher.key_len?
-        make_ctr_evp (16, &aes_ctr_cipher) : &aes_ctr_cipher;
+        make_ctr_evp (16, &aes_ctr_cipher, 0) : &aes_ctr_cipher;
+#endif
 }
 
 const EVP_CIPHER *
 _libssh2_EVP_aes_192_ctr(void)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    static EVP_CIPHER * aes_ctr_cipher;
+    return !aes_ctr_cipher?
+        make_ctr_evp (24, aes_ctr_cipher, NID_aes_192_ctr) : aes_ctr_cipher;
+#else
     static EVP_CIPHER aes_ctr_cipher;
     return !aes_ctr_cipher.key_len?
-        make_ctr_evp (24, &aes_ctr_cipher) : &aes_ctr_cipher;
+        make_ctr_evp (24, &aes_ctr_cipher, 0) : &aes_ctr_cipher;
+#endif
 }
 
 const EVP_CIPHER *
 _libssh2_EVP_aes_256_ctr(void)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    static EVP_CIPHER * aes_ctr_cipher;
+    return !aes_ctr_cipher?
+        make_ctr_evp (32, aes_ctr_cipher, NID_aes_256_ctr) : aes_ctr_cipher;
+#else
     static EVP_CIPHER aes_ctr_cipher;
     return !aes_ctr_cipher.key_len?
-        make_ctr_evp (32, &aes_ctr_cipher) : &aes_ctr_cipher;
+        make_ctr_evp (32, &aes_ctr_cipher, 0) : &aes_ctr_cipher;
+#endif
 }
 
 void _libssh2_init_aes_ctr(void)
