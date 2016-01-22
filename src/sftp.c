@@ -1368,8 +1368,10 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         while(count > 0) {
             unsigned char *s;
             uint32_t size = count;
-            if (size < buffer_size) size = buffer_size;
-            if (size > MAX_SFTP_READ_SIZE) size = MAX_SFTP_READ_SIZE;
+            if (size < buffer_size)
+                size = buffer_size;
+            if (size > MAX_SFTP_READ_SIZE)
+                size = MAX_SFTP_READ_SIZE;
 
             /* 25 = packet_len(4) + packet_type(1) + request_id(4) +
                handle_len(4) + offset(8) + count(4) */
@@ -1401,9 +1403,11 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
             /* add this new entry LAST in the list */
             _libssh2_list_add(&handle->packet_list, &chunk->node);
-            count -= MIN(size,count); /* deduct the size we used, as we might have
-                              to create more packets */
-           _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "read request id %d sent (offset: %d, size: %d)", request_id, (int)chunk->offset, (int)chunk->len);
+            count -= MIN(size,count); /* deduct the size we used, as we might
+                                       * have to create more packets */
+           _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
+                          "read request id %d sent (offset: %d, size: %d)",
+                          request_id, (int)chunk->offset, (int)chunk->len);
         }
 
     case libssh2_NB_state_sent:
@@ -1466,9 +1470,9 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 /* if the chunk still has data left to send, we shouldn't wait
                    for an ACK for it just yet */
                 if (bytes_in_buffer > 0) {
-                    return bytes_in_buffer; 
+                    return bytes_in_buffer;
                 } else {
-                    // we should never reach this point
+                    /* we should never reach this point */
                     return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                           "sftp_read() internal error");
                 }
@@ -1478,7 +1482,8 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                                       chunk->request_id, &data, &data_len);
             
             if (rc==LIBSSH2_ERROR_EAGAIN && bytes_in_buffer != 0) {
-                /* do not return EAGAIN if we have already written data into the buffer */
+                /* do not return EAGAIN if we have already 
+                 * written data into the buffer */
                 return bytes_in_buffer;
             }
             
@@ -1519,12 +1524,13 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
             case SSH_FXP_DATA:
                 if (chunk->offset != filep->offset) {
-                    /* This could happen if the server returns less bytes than requested.
-                       This should never happen for normal files according to  
-                       http://tools.ietf.org/html/draft-ietf-secsh-filexfer-02#section-6.4
+                    /* This could happen if the server returns less bytes than
+                       requested, which shouldn't happen for normal files. See:
+                       http://tools.ietf.org/html/draft-ietf-secsh-filexfer-02
+                       #section-6.4
                     */
                     return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                                          "Received Packet At Unexpected Offset");
+                                          "Read Packet At Unexpected Offset");
                 }
             
                 rc32 = _libssh2_ntohu32(data + 5);
@@ -1579,15 +1585,15 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                 next = _libssh2_list_next(&chunk->node);
                 _libssh2_list_remove(&chunk->node);
                 LIBSSH2_FREE(session, chunk);
-				
-				/* check if we have space left in the buffer 
-				 * and either continue to the next chunk or stop
-				 */
-				if (bytes_in_buffer < buffer_size) {
-					chunk = next;
-				} else {
-					chunk = NULL;
-				}
+                
+                /* check if we have space left in the buffer
+                 * and either continue to the next chunk or stop
+                 */
+                if (bytes_in_buffer < buffer_size) {
+                    chunk = next;
+                } else {
+                    chunk = NULL;
+                }
 
                 break;
             default:
@@ -1606,7 +1612,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
         assert(!"State machine error; unrecognised read state");
     }
 
-    // we should never reach this point
+    /* we should never reach this point */
     return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                           "sftp_read() internal error");
 }
