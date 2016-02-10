@@ -53,6 +53,11 @@
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && \
+    !defined(LIBRESSL_VERSION_NUMBER)
+# define HAVE_OPAQUE_STRUCTS 1
+#endif
+
 #ifdef OPENSSL_NO_RSA
 # define LIBSSH2_RSA 0
 #else
@@ -116,7 +121,7 @@
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_sha1_ctx EVP_MD_CTX *
 #else
 #define libssh2_sha1_ctx EVP_MD_CTX
@@ -125,7 +130,7 @@
 /* returns 0 in case of failure */
 int _libssh2_sha1_init(libssh2_sha1_ctx *ctx);
 #define libssh2_sha1_init(x) _libssh2_sha1_init(x)
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_sha1_update(ctx, data, len) EVP_DigestUpdate(ctx, data, len)
 #define libssh2_sha1_final(ctx, out) do { \
                                          EVP_DigestFinal(ctx, out, NULL); \
@@ -139,7 +144,7 @@ int _libssh2_sha1(const unsigned char *message, unsigned long len,
                   unsigned char *out);
 #define libssh2_sha1(x,y,z) _libssh2_sha1(x,y,z)
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_sha256_ctx EVP_MD_CTX *
 #else
 #define libssh2_sha256_ctx EVP_MD_CTX
@@ -148,7 +153,7 @@ int _libssh2_sha1(const unsigned char *message, unsigned long len,
 /* returns 0 in case of failure */
 int _libssh2_sha256_init(libssh2_sha256_ctx *ctx);
 #define libssh2_sha256_init(x) _libssh2_sha256_init(x)
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_sha256_update(ctx, data, len) EVP_DigestUpdate(ctx, data, len)
 #define libssh2_sha256_final(ctx, out) do { \
                                            EVP_DigestFinal(ctx, out, NULL); \
@@ -162,7 +167,7 @@ int _libssh2_sha256(const unsigned char *message, unsigned long len,
                   unsigned char *out);
 #define libssh2_sha256(x,y,z) _libssh2_sha256(x,y,z)
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_md5_ctx EVP_MD_CTX *
 #else
 #define libssh2_md5_ctx EVP_MD_CTX
@@ -171,7 +176,7 @@ int _libssh2_sha256(const unsigned char *message, unsigned long len,
 /* returns 0 in case of failure */
 int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define libssh2_md5_init(x) _libssh2_md5_init(x)
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_md5_update(ctx, data, len) EVP_DigestUpdate(ctx, data, len)
 #define libssh2_md5_final(ctx, out) do { \
                                         EVP_DigestFinal(ctx, out, NULL); \
@@ -182,7 +187,7 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define libssh2_md5_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_hmac_ctx HMAC_CTX *
 #define libssh2_hmac_ctx_init(ctx) ctx = HMAC_CTX_new()
 #define libssh2_hmac_sha1_init(ctx, key, keylen) \
@@ -238,7 +243,7 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define _libssh2_dsa_free(dsactx) DSA_free(dsactx)
 
 #define _libssh2_cipher_type(name) const EVP_CIPHER *(*name)(void)
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
 #define _libssh2_cipher_ctx EVP_CIPHER_CTX *
 #else
 #define _libssh2_cipher_ctx EVP_CIPHER_CTX
@@ -261,7 +266,7 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define _libssh2_cipher_cast5 EVP_cast5_cbc
 #define _libssh2_cipher_3des EVP_des_ede3_cbc
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
 #define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_reset(*(ctx))
 #else
 #define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_cleanup(ctx)

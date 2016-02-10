@@ -177,7 +177,7 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
                      _libssh2_cipher_type(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
     *h = EVP_CIPHER_CTX_new();
     return !EVP_CipherInit(*h, algo(), secret, iv, encrypt);
 #else
@@ -196,7 +196,7 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     (void) algo;
     (void) encrypt;
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
     ret = EVP_Cipher(*ctx, buf, block, blocksize);
 #else
     ret = EVP_Cipher(ctx, buf, block, blocksize);
@@ -249,7 +249,7 @@ aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
     if (c == NULL)
         return 0;
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
     c->aes_ctx = EVP_CIPHER_CTX_new();
 #else
     c->aes_ctx = malloc(sizeof(EVP_CIPHER_CTX));
@@ -260,7 +260,7 @@ aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
     }
 
     if (EVP_EncryptInit(c->aes_ctx, aes_cipher, key, NULL) != 1) {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
         EVP_CIPHER_CTX_free(c->aes_ctx);
 #else
         free(c->aes_ctx);
@@ -329,7 +329,7 @@ aes_ctr_cleanup(EVP_CIPHER_CTX *ctx) /* cleanup ctx */
     }
 
     if (c->aes_ctx != NULL) {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
         EVP_CIPHER_CTX_free(c->aes_ctx);
 #else
         _libssh2_cipher_dtor(c->aes_ctx);
@@ -345,7 +345,7 @@ aes_ctr_cleanup(EVP_CIPHER_CTX *ctx) /* cleanup ctx */
 static const EVP_CIPHER *
 make_ctr_evp (size_t keylen, EVP_CIPHER *aes_ctr_cipher, int type)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
     aes_ctr_cipher = EVP_CIPHER_meth_new(type, 16, keylen);
     if (aes_ctr_cipher) {
         EVP_CIPHER_meth_set_iv_length(aes_ctr_cipher, 16);
@@ -369,7 +369,7 @@ make_ctr_evp (size_t keylen, EVP_CIPHER *aes_ctr_cipher, int type)
 const EVP_CIPHER *
 _libssh2_EVP_aes_128_ctr(void)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
     static EVP_CIPHER * aes_ctr_cipher;
     return !aes_ctr_cipher?
         make_ctr_evp (16, aes_ctr_cipher, NID_aes_128_ctr) : aes_ctr_cipher;
@@ -383,7 +383,7 @@ _libssh2_EVP_aes_128_ctr(void)
 const EVP_CIPHER *
 _libssh2_EVP_aes_192_ctr(void)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
     static EVP_CIPHER * aes_ctr_cipher;
     return !aes_ctr_cipher?
         make_ctr_evp (24, aes_ctr_cipher, NID_aes_192_ctr) : aes_ctr_cipher;
@@ -397,7 +397,7 @@ _libssh2_EVP_aes_192_ctr(void)
 const EVP_CIPHER *
 _libssh2_EVP_aes_256_ctr(void)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
     static EVP_CIPHER * aes_ctr_cipher;
     return !aes_ctr_cipher?
         make_ctr_evp (32, aes_ctr_cipher, NID_aes_256_ctr) : aes_ctr_cipher;
@@ -619,7 +619,7 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 int
 _libssh2_sha1_init(libssh2_sha1_ctx *ctx)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
 
     if (*ctx == NULL)
@@ -642,7 +642,7 @@ int
 _libssh2_sha1(const unsigned char *message, unsigned long len,
               unsigned char *out)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 
     if (ctx == NULL)
@@ -671,7 +671,7 @@ _libssh2_sha1(const unsigned char *message, unsigned long len,
 int
 _libssh2_sha256_init(libssh2_sha256_ctx *ctx)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
 
     if (*ctx == NULL)
@@ -694,7 +694,7 @@ int
 _libssh2_sha256(const unsigned char *message, unsigned long len,
                 unsigned char *out)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 
     if (ctx == NULL)
@@ -723,7 +723,7 @@ _libssh2_sha256(const unsigned char *message, unsigned long len,
 int
 _libssh2_md5_init(libssh2_md5_ctx *ctx)
 {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
 
     if (*ctx == NULL)
