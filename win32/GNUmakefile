@@ -123,7 +123,6 @@ LIBEXT	= lib
 #RANLIB	=
 LIBPATH	+= -lr "$(METROWERKS)/MSL" -lr "$(METROWERKS)/Win32-x86 Support"
 LDLIBS	+= -lMSL_Runtime_x86.lib -lMSL_C_x86.lib -lMSL_Extras_x86.lib
-LDLIBS	+= -lkernel32.lib -luser32.lib -lwsock32.lib
 RCFLAGS	=
 CFLAGS	+= -nostdinc -gccinc -msgstyle gcc -inline off -opt nointrinsics -proc 586
 CFLAGS	+= -ir "$(METROWERKS)/MSL" -ir "$(METROWERKS)/Win32-x86 Support"
@@ -136,8 +135,6 @@ AR	= $(CROSSPREFIX)ar
 ARFLAGS	= -cq
 LIBEXT	= a
 RANLIB	= $(CROSSPREFIX)ranlib
-#LDLIBS	+= -lwsock32
-LDLIBS	+= -lws2_32
 RCFLAGS	= -I $(PROOT)/include -O coff
 CFLAGS	+= -fno-builtin
 CFLAGS	+= -fno-strict-aliasing
@@ -188,6 +185,12 @@ ifdef LINK_OPENSSL_STATIC
 else
 	LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
 endif
+endif
+ifeq ($(CC),mwcc)
+LDLIBS	+= -lkernel32.lib -luser32.lib -lwsock32.lib
+else
+#LDLIBS	+= -lwsock32
+LDLIBS	+= -lws2_32
 endif
 
 ifdef WITH_ZLIB
