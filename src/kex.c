@@ -753,7 +753,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         memset(&exchange_state->req_state, 0, sizeof(packet_require_state_t));
 
         /* Generate x and e */
-        _libssh2_bn_rand(exchange_state->x, group_order, 0, -1);
+        _libssh2_bn_rand(exchange_state->x, group_order * 8 - 1, 0, -1);
         _libssh2_bn_mod_exp(exchange_state->e, g, exchange_state->x, p,
                             exchange_state->ctx);
 
