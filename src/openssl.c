@@ -958,6 +958,7 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     int       st;
     BIO*      bp;
     EVP_PKEY* pk;
+    int       pktype;
 
     _libssh2_debug(session,
                    LIBSSH2_TRACE_AUTH,
@@ -992,7 +993,14 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                               "private key file format");
     }
 
-    switch (pk->type) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && \
+    !defined(LIBRESSL_VERSION_NUMBER)
+    pktype = EVP_PKEY_id(pk);
+#else
+    pktype = pk->type;
+#endif
+
+    switch (pktype) {
     case EVP_PKEY_RSA :
         st = gen_publickey_from_rsa_evp(
             session, method, method_len, pubkeydata, pubkeydata_len, pk);
@@ -1031,6 +1039,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     int       st;
     BIO*      bp;
     EVP_PKEY* pk;
+    int       pktype;
 
     _libssh2_debug(session,
                    LIBSSH2_TRACE_AUTH,
@@ -1061,7 +1070,14 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                               "private key file format");
     }
 
-    switch (pk->type) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && \
+    !defined(LIBRESSL_VERSION_NUMBER)
+    pktype = EVP_PKEY_id(pk);
+#else
+    pktype = pk->type;
+#endif
+
+    switch (pktype) {
     case EVP_PKEY_RSA :
         st = gen_publickey_from_rsa_evp(session, method, method_len,
                                         pubkeydata, pubkeydata_len, pk);
