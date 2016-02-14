@@ -72,7 +72,7 @@ build_script:
 
 test_script:
   - ps: cd _builds
-  - ctest -VV -C "%CONFIGURATION%" --output-on-failure
+  - ctest -VV -C "%CONFIGURATION%" -E ssh2 --output-on-failure
 
 on_failure:
   - ps: if (Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
