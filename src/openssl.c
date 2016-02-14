@@ -993,8 +993,7 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                               "private key file format");
     }
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && \
-    !defined(LIBRESSL_VERSION_NUMBER)
+#ifdef HAVE_OPAQUE_STRUCTS
     pktype = EVP_PKEY_id(pk);
 #else
     pktype = pk->type;
@@ -1070,8 +1069,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                               "private key file format");
     }
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && \
-    !defined(LIBRESSL_VERSION_NUMBER)
+#ifdef HAVE_OPAQUE_STRUCTS
     pktype = EVP_PKEY_id(pk);
 #else
     pktype = pk->type;
