@@ -52,8 +52,8 @@
 
 struct sftp_pipeline_chunk {
     struct list_node node;
-    uint64_t offset; /* READ: offset at which to start reading
-    					WRITE: not used */
+    libssh2_uint64_t offset; /* READ: offset at which to start reading
+                                WRITE: not used */
     size_t len; /* WRITE: size of the data to write
                    READ: how many bytes that was asked for */
     size_t sent;
