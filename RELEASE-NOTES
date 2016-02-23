@@ -8,6 +8,11 @@ This release includes the following changes:
  o kex: Added diffie-hellman-group-exchange-sha256 support
  o OS/400 crypto library QC3 support
 
+This release includes the following security advisory:
+
+ o diffie_hellman_sha256: convert bytes to bits
+   CVE-2016-0787: http://www.libssh2.org/adv_20160223.html
+
 This release includes the following bugfixes:
 
  o SFTP: Increase speed and datasize in SFTP read
@@ -36,13 +41,16 @@ This release includes the following bugfixes:
  o sftp: Don't return EAGAIN if data was written to buffer
  o sftp: Check read packet file offset
  o configure: build "silent" if possible
+ o openssl: add OpenSSL 1.1.0-pre3-dev compatibility
+ o GNUmakefile: list system libs after user libs
  
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
-  Alexander Lamaison, Daniel Stenberg, David Byron, Jakob Egger, Kamil Dudka,
-  Lars Nordin, Marc Hoersken, Mizunashi Mana, Patrick Monnerat, Paul Howarth,
-  Salvador Fandiño, Viktor Szakats, Will Cosgrove, Zenju, Brian M. Carlson,
-  Keith Daigle, Jason Haslam
+  Alexander Lamaison, Andreas Schneider, brian m. carlson, Daniel Stenberg,
+  David Byron, Jakob Egger, Kamil Dudka, Marc Hoersken, Mizunashi Mana,
+  Patrick Monnerat, Paul Howarth, Salvador Fandino, Salvador Fandiño,
+  Salvador Fandiño, Viktor Szakats, Will Cosgrove,
+  (16 contributors)
 
         Thanks! (and sorry if I forgot to mention someone)
