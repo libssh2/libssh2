@@ -26,7 +26,7 @@ LINK_STATIC = 1
 # Edit the vars below to change target settings.
 SAMPLES	= $(PROOT)/example
 TARGETS := $(filter-out x11.exe,$(patsubst $(SAMPLES)/%.c,%.exe,$(strip $(wildcard $(SAMPLES)/*.c))))
-WWWURL	= http://www.libssh2.org/
+WWWURL	= https://www.libssh2.org/
 DESCR	= libssh2 $(subst .rc,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
 #STACK	= 64000
 

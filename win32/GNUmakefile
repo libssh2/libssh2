@@ -34,7 +34,7 @@ PROOT	= ..
 
 # Edit the vars below to change target settings.
 TARGET	= libssh2
-WWWURL	= http://www.libssh2.org/
+WWWURL	= https://www.libssh2.org/
 DESCR	= libssh2 $(LIBSSH2_VERSION_STR)
 #STACK	= 64000
 
