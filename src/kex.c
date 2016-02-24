@@ -1671,14 +1671,32 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
 
     if (key_state->state == libssh2_NB_state_sent1) {
         unsigned char *s = key_state->data + 1;
+        unsigned char *data_end = key_state->data + key_state->data_len;
+        if (4 > (size_t)(data_end - s)) {
+dh_err_overflow:
+            ret = _libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
+                   "KEX packet too small"); /* XXX better message/rc */
+            goto dh_gex_clean_exit;
+        }
         p_len = _libssh2_ntohu32(s);
         s += 4;
+        if (p_len > (size_t)(data_end - s)) {
+            goto dh_err_overflow;
+        }
         _libssh2_bn_from_bin(key_state->p, p_len, s);
         s += p_len;
+	/* TODO validate p_bits for sanity */
 
+        if (4 > (size_t)(data_end - s)) {
+            goto dh_err_overflow;
+        }
         g_len = _libssh2_ntohu32(s);
         s += 4;
+        if (g_len > (size_t)(data_end - s)) {
+            goto dh_err_overflow;
+        }
         _libssh2_bn_from_bin(key_state->g, g_len, s);
+        /* TODO validate g_bits for sanity? */
 
         ret = diffie_hellman_sha256(session, key_state->g, key_state->p, p_len,
                                     SSH_MSG_KEX_DH_GEX_INIT,
