@@ -115,10 +115,13 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
                                kmdhgGPshakex_state_t *exchange_state)
 {
     int ret = 0;
+    int pbits;
     int rc;
     libssh2_sha1_ctx exchange_hash_ctx;
 
     if (exchange_state->state == libssh2_NB_state_idle) {
+        int p_bits;
+
         /* Setup initial values */
         exchange_state->e_packet = NULL;
         exchange_state->s_packet = NULL;
@@ -133,7 +136,9 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         memset(&exchange_state->req_state, 0, sizeof(packet_require_state_t));
 
         /* Generate x and e */
-        _libssh2_bn_rand(exchange_state->x, group_order, 0, -1);
+        /* FIXME: too expensive, should not need more than 2*symmetric_bits */
+        p_bits = _libssh2_bn_bits(p);
+        _libssh2_bn_rand(exchange_state->x, p_bits - 1, 0, -1);
         _libssh2_bn_mod_exp(exchange_state->e, g, exchange_state->x, p,
                             exchange_state->ctx);
 
@@ -739,6 +744,8 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
     libssh2_sha256_ctx exchange_hash_ctx;
 
     if (exchange_state->state == libssh2_NB_state_idle) {
+        int p_bits;
+
         /* Setup initial values */
         exchange_state->e_packet = NULL;
         exchange_state->s_packet = NULL;
@@ -753,7 +760,9 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         memset(&exchange_state->req_state, 0, sizeof(packet_require_state_t));
 
         /* Generate x and e */
-        _libssh2_bn_rand(exchange_state->x, group_order * 8 - 1, 0, -1);
+        /* FIXME: too expensive, should not need more than 2*symmetric_bits */
+        p_bits = _libssh2_bn_bits(p);
+        _libssh2_bn_rand(exchange_state->x, p_bits - 1, 0, -1);
         _libssh2_bn_mod_exp(exchange_state->e, g, exchange_state->x, p,
                             exchange_state->ctx);
 
