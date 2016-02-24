@@ -876,6 +876,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
     }
 
     if (exchange_state->state == libssh2_NB_state_sent1) {
+        unsigned char *end;
         /* Wait for KEX reply */
         rc = _libssh2_packet_require(session, packet_type_reply,
                                      &exchange_state->s_packet,
@@ -892,12 +893,25 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
 
         /* Parse KEXDH_REPLY */
         exchange_state->s = exchange_state->s_packet + 1;
+        end = exchange_state->s_packet + exchange_state->s_packet_len;
 
+        if (4 > (size_t)(end - exchange_state->s)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
+                    "KEXDH_REPLY packet overflow in hostkey_len");
+            goto clean_exit;
+        }
         session->server_hostkey_len = _libssh2_ntohu32(exchange_state->s);
         exchange_state->s += 4;
 
         if (session->server_hostkey)
             LIBSSH2_FREE(session, session->server_hostkey);
+
+        if (session->server_hostkey_len > (size_t)(end - exchange_state->s)) {
+            session->server_hostkey = NULL;
+            ret = _libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
+                    "KEXDH_REPLY packet overflow in hostkey");
+            goto clean_exit;
+        }
 
         session->server_hostkey =
             LIBSSH2_ALLOC(session, session->server_hostkey_len);
@@ -976,15 +990,36 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
+
+        if (4 > (size_t)(end - exchange_state->s)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
+                    "KEXDH_REPLY packet overflow in f_len");
+            goto clean_exit;
+        }
         exchange_state->f_value_len = _libssh2_ntohu32(exchange_state->s);
         exchange_state->s += 4;
+        if (exchange_state->f_value_len > (size_t)(end - exchange_state->s)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
+                    "KEXDH_REPLY packet overflow in f");
+            goto clean_exit;
+        }
         exchange_state->f_value = exchange_state->s;
         exchange_state->s += exchange_state->f_value_len;
         _libssh2_bn_from_bin(exchange_state->f, exchange_state->f_value_len,
                              exchange_state->f_value);
 
+        if (4 > (size_t)(end - exchange_state->s)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
+                    "KEXDH_REPLY packet overflow in h_sig_len");
+            goto clean_exit;
+        }
         exchange_state->h_sig_len = _libssh2_ntohu32(exchange_state->s);
         exchange_state->s += 4;
+        if (exchange_state->h_sig_len > (size_t)(end - exchange_state->s)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
+                    "KEXDH_REPLY packet overflow in h_sig");
+            goto clean_exit;
+        }
         exchange_state->h_sig = exchange_state->s;
 
         /* Compute the shared secret */
