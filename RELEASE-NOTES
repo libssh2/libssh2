@@ -11,7 +11,7 @@ This release includes the following changes:
 This release includes the following security advisory:
 
  o diffie_hellman_sha256: convert bytes to bits
-   CVE-2016-0787: http://www.libssh2.org/adv_20160223.html
+   CVE-2016-0787: https://www.libssh2.org/adv_20160223.html
 
 This release includes the following bugfixes:
 
