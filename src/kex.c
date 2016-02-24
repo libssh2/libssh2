@@ -1554,6 +1554,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     if (key_state->state == libssh2_NB_state_sent1) {
         unsigned char *s = key_state->data + 1;
         unsigned char *data_end = key_state->data + key_state->data_len;
+        int p_bits;
         if (4 > (size_t)(data_end - s)) {
 dh_err_overflow:
             ret = _libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
@@ -1567,7 +1568,19 @@ dh_err_overflow:
         }
         _libssh2_bn_from_bin(key_state->p, p_len, s);
         s += p_len;
-	/* TODO validate p_bits for sanity */
+        p_bits = _libssh2_bn_bits(key_state->p);
+#ifndef MAX
+#define MAX(A,B) ((A)<(B)?(B):(A))
+#endif
+#ifdef LIBSSH2_DH_GEX_NEW
+        if (p_bits < LIBSSH2_DH_GEX_MINGROUP || p_bits > MAX(LIBSSH2_DH_GEX_MAXGROUP,8192)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
+                   "DH GEX group out of range"); /* XXX better message/rc */
+            goto dh_gex_clean_exit;
+        }
+#else
+        /* XXX ??? */
+#endif
 
         if (4 > (size_t)(data_end - s)) {
             goto dh_err_overflow;
@@ -1672,6 +1685,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
     if (key_state->state == libssh2_NB_state_sent1) {
         unsigned char *s = key_state->data + 1;
         unsigned char *data_end = key_state->data + key_state->data_len;
+        int p_bits;
         if (4 > (size_t)(data_end - s)) {
 dh_err_overflow:
             ret = _libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
@@ -1685,7 +1699,16 @@ dh_err_overflow:
         }
         _libssh2_bn_from_bin(key_state->p, p_len, s);
         s += p_len;
-	/* TODO validate p_bits for sanity */
+        p_bits = _libssh2_bn_bits(key_state->p);
+#ifdef LIBSSH2_DH_GEX_NEW
+        if (p_bits < LIBSSH2_DH_GEX_MINGROUP || p_bits > MAX(LIBSSH2_DH_GEX_MAXGROUP,8192)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE,
+                   "DH GEX group out of range"); /* XXX better message/rc */
+            goto dh_gex_clean_exit;
+        }
+#else
+        /* XXX ??? */
+#endif
 
         if (4 > (size_t)(data_end - s)) {
             goto dh_err_overflow;
