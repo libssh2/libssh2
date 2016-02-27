@@ -57,6 +57,9 @@ environment:
     - GENERATOR: "Visual Studio 9 2008"
       BUILD_SHARED_LIBS: OFF
 
+  digitalocean_access_token:
+    secure: 8qRitvrj69Xhf0Tmu27xnz5drmL2YhmOJLGpXIkYyTCC0JNtBoXW6fMcF3u4Uj1+pIQ+TjegQOwYimlz0oivKTro3v3EXro+osAMNJG6NKc=
+
 platform:
   - x86
   - x64
@@ -66,19 +69,34 @@ configuration:
   - Release
 
 matrix:
+  fast_finish: true
   allow_failures:
     - GENERATOR: "Visual Studio 9 2008"
       platform: x64
+
+install:
+  - choco install -y docker
+  - choco install -y docker-machine
 
 build_script:
   - ps: if($env:PLATFORM -eq "x64") { $env:CMAKE_GEN_SUFFIX=" Win64" }
   - cmake "-G%GENERATOR%%CMAKE_GEN_SUFFIX%" -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -H. -B_builds
   - cmake --build _builds --config "%CONFIGURATION%"
 
+before_test:
+  - set DOCKER_MACHINE_NAME=appveyor-%APPVEYOR_PROJECT_SLUG%-%APPVEYOR_JOB_ID%
+  - ps: if($env:digitalocean_access_token) { echo "Using DigitalOcean for testing." } else { echo "DigitalOcean not available. Skipping testing." }
+  - ps: if($env:digitalocean_access_token) { docker-machine create --driver digitalocean --digitalocean-access-token $($env:digitalocean_access_token) $($env:DOCKER_MACHINE_NAME) }
+  - ps: if($env:digitalocean_access_token) { docker-machine env $($env:DOCKER_MACHINE_NAME) --shell powershell | Invoke-Expression }
+
 test_script:
   - ps: cd _builds
-  - ctest -VV -C "%CONFIGURATION%" -E ssh2 --output-on-failure
+  - ps: if($env:digitalocean_access_token) { ctest -VV -C $($env:CONFIGURATION) --output-on-failure }
+
+after_test:
+  - ps: if($env:digitalocean_access_token) { docker-machine rm -y $($env:DOCKER_MACHINE_NAME) }
 
 on_failure:
-  - ps: if (Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
-  - ps: if (Test-Path _builds/CMakeFiles/CMakeError.log) { cat _builds/CMakeFiles/CMakeError.log }
+  - ps: if($env:digitalocean_access_token) { docker-machine rm -y $($env:DOCKER_MACHINE_NAME) }
+  - ps: if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
+  - ps: if(Test-Path _builds/CMakeFiles/CMakeError.log) { cat _builds/CMakeFiles/CMakeError.log }

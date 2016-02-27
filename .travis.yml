@@ -33,6 +33,11 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
+sudo: required
+
+services:
+  - docker
+
 language: c
 
 compiler:
@@ -59,12 +64,17 @@ env:
    - ADDRESS_SIZE=32 CRYPTO_BACKEND=Libgcrypt BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=ON
 
 before_install:
-  - sudo add-apt-repository --yes ppa:kalakris/cmake
-  - sudo apt-get update
-  - sudo apt-get -y install cmake
-  - if [ $ADDRESS_SIZE = '64' ]; then sudo apt-get install -y libgcrypt11-dev libssl-dev zlib1g-dev; fi
-  - if [ $ADDRESS_SIZE = '32' ]; then sudo apt-get install -y linux-libc-dev linux-libc-dev:i386; fi
-  - if [ $ADDRESS_SIZE = '32' ]; then sudo apt-get install -y gcc-multilib libgcrypt11-dev:i386 libssl-dev:i386 zlib1g-dev:i386; fi
+  # Fix issue with chrome and 32-bit multilib
+  # See http://www.omgubuntu.co.uk/2016/03/fix-failed-to-fetch-google-chrome-apt-error-ubuntu
+  - sudo sed -i -e 's/deb http/deb [arch=amd64] http/' "/etc/apt/sources.list.d/google-chrome.list"
+  - sudo sed -i -e 's/deb http/deb [arch=amd64] http/' "/opt/google/chrome/cron/google-chrome"
+  - if [ $ADDRESS_SIZE = '32' ]; then sudo dpkg --add-architecture i386; fi
+  - if [ $ADDRESS_SIZE = '32' ]; then sudo apt-get update -qq; fi
+  - if [ $ADDRESS_SIZE = '32' ]; then sudo apt-get install -y gcc-multilib; fi
+  - if [ $ADDRESS_SIZE = '32' ]; then sudo apt-get install -y libssl-dev:i386 libgcrypt11-dev:i386 build-essential gcc-multilib; fi
+  - if [ $ADDRESS_SIZE = '32' ]; then sudo dpkg --purge --force-depends gcc-multilib && sudo dpkg --purge --force-depends libssl-dev; fi
+  - if [ $ADDRESS_SIZE = '64' ]; then sudo apt-get install -y libssl-dev; fi
+  - if [ $ADDRESS_SIZE = '64' ]; then sudo apt-get install -y libgcrypt11-dev; fi
   - if [ $ADDRESS_SIZE = '32' ]; then export TOOLCHAIN_OPTION="-DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-Linux-32.cmake"; fi
 
 install:
