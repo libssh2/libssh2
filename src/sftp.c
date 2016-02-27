@@ -3390,8 +3390,6 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
     sftp->symlink_state = libssh2_NB_state_idle;
 
     if (data[0] == SSH_FXP_STATUS) {
-        int retcode;
-
         retcode = _libssh2_ntohu32(data + 5);
         LIBSSH2_FREE(session, data);
         if (retcode == LIBSSH2_FX_OK)
