@@ -23,7 +23,7 @@
 #define HAVE_IOCTLSOCKET
 #define HAVE_SELECT
 
-#ifdef _MSC_VER
+#if defined _MSC_VER && _MSC_VER < 1900
 #define snprintf _snprintf
 #if _MSC_VER < 1500
 #define vsnprintf _vsnprintf
