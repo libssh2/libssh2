@@ -130,7 +130,7 @@ typedef unsigned int uint32_t;
 typedef unsigned __int64 libssh2_uint64_t;
 typedef __int64 libssh2_int64_t;
 #ifndef ssize_t
-typedef SSIZE_T ssize_t;
+typedef INT_PTR ssize_t;
 #endif
 #else
 typedef unsigned long long libssh2_uint64_t;
