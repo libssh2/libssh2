@@ -1319,7 +1319,9 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
             size_t max_read_ahead = buffer_size*4;
             unsigned long recv_window;
 
-            if(max_read_ahead > LIBSSH2_CHANNEL_WINDOW_DEFAULT*4)
+            if (max_read_ahead < MIN_SFTP_READ_AHEAD_SIZE)
+                max_read_ahead = MIN_SFTP_READ_AHEAD_SIZE;
+            else if(max_read_ahead > LIBSSH2_CHANNEL_WINDOW_DEFAULT*4)
                 max_read_ahead = LIBSSH2_CHANNEL_WINDOW_DEFAULT*4;
 
             /* if the buffer_size passed in now is smaller than what has

@@ -49,6 +49,7 @@
  * packets.
  */
 #define MAX_SFTP_READ_SIZE 30000
+#define MIN_SFTP_READ_AHEAD_SIZE 1200
 
 struct sftp_pipeline_chunk {
     struct list_node node;
