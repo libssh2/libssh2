@@ -392,8 +392,6 @@ struct _LIBSSH2_CHANNEL
     /* State variables used in libssh2_channel_read_ex() */
     libssh2_nonblocking_states read_state;
 
-    uint32_t read_local_id;
-
     /* State variables used in libssh2_channel_write_ex() */
     libssh2_nonblocking_states write_state;
     unsigned char write_packet[13];
