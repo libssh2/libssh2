@@ -1731,12 +1731,9 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
                               char *buf, size_t buflen)
 {
     LIBSSH2_SESSION *session = channel->session;
+    LIBSSH2_PACKET *packet, *next_packet;
     int rc;
-    int bytes_read = 0;
-    int bytes_want;
-    int unlink_packet;
-    LIBSSH2_PACKET *read_packet;
-    LIBSSH2_PACKET *read_next;
+    size_t total = 0;
 
     _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                    "channel_read() wants %d bytes from channel %lu/%lu "
@@ -1769,101 +1766,75 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
         rc = _libssh2_transport_read(session);
     } while (rc >= 0);
 
-    if (rc != LIBSSH2_ERROR_EAGAIN) /* rc is guaranteed to be an error here */
-        return _libssh2_error(session, rc, "transport read");
+    /* Even if we get a fatal error, there may be data queued on the
+     * packet list, so we look for it before checking rc for errors */
+    for (packet = _libssh2_list_first(&session->packets);
+         packet && (buflen > total);
+         packet = next_packet) {
 
-    read_packet = _libssh2_list_first(&session->packets);
-    while (read_packet && (bytes_read < (int) buflen)) {
-        /* previously this loop condition also checked for
-           !channel->remote.close but we cannot let it do this:
+        int packet_stream_id;
 
-           We may have a series of packets to read that are still pending even
-           if a close has been received. Acknowledging the close too early
-           makes us flush buffers prematurely and loose data.
-        */
+        next_packet = _libssh2_list_next(&packet->node);
 
-        LIBSSH2_PACKET *readpkt = read_packet;
-        uint32_t local_id = _libssh2_ntohu32(readpkt->data + 1);
-
-        /* In case packet gets destroyed during this iteration */
-        read_next = _libssh2_list_next(&readpkt->node);
-
-        /*
-         * Either we asked for a specific extended data stream
-         * (and data was available),
-         * or the standard stream (and data was available),
-         * or the standard stream with extended_data_merge
-         * enabled and data was available
-         */
-        if ((stream_id
-             && (readpkt->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
-             && (channel->local.id == local_id)
-             && (stream_id == (int) _libssh2_ntohu32(readpkt->data + 5)))
-            || (!stream_id && (readpkt->data[0] == SSH_MSG_CHANNEL_DATA)
-                && (channel->local.id == local_id))
-            || (!stream_id
-                && (readpkt->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
-                && (channel->local.id == local_id)
-                && (channel->remote.extended_data_ignore_mode ==
-                    LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
-
-            /* figure out much more data we want to read */
-            bytes_want = buflen - bytes_read;
-            unlink_packet = FALSE;
-
-            if (bytes_want >= (int) (readpkt->data_len - readpkt->data_head)) {
-                /* we want more than this node keeps, so adjust the number and
-                   delete this node after the copy */
-                bytes_want = readpkt->data_len - readpkt->data_head;
-                unlink_packet = TRUE;
-            }
-
-            _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                           "channel_read() got %d of data from %lu/%lu/%d%s",
-                           bytes_want, channel->local.id,
-                           channel->remote.id, stream_id,
-                           unlink_packet?" [ul]":"");
-
-            /* copy data from this struct to the target buffer */
-            memcpy(&buf[bytes_read],
-                   &readpkt->data[readpkt->data_head], bytes_want);
-
-            /* advance pointer and counter */
-            readpkt->data_head += bytes_want;
-            bytes_read += bytes_want;
-
-            /* if drained, remove from list */
-            if (unlink_packet) {
-                /* detach readpkt from session->packets list */
-                _libssh2_list_remove(&readpkt->node);
-
-                LIBSSH2_FREE(session, readpkt->data);
-                LIBSSH2_FREE(session, readpkt);
-            }
+        switch (packet->data[0]) {
+        case SSH_MSG_CHANNEL_DATA:
+            packet_stream_id = 0;
+            break;
+        case SSH_MSG_CHANNEL_EXTENDED_DATA:
+            packet_stream_id = ((channel->remote.extended_data_ignore_mode ==
+                                 LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE)
+                                ? 0
+                                : (int)_libssh2_ntohu32(packet->data + 5));
+            break;
+        default:
+            continue;
         }
 
-        /* check the next struct in the chain */
-        read_packet = read_next;
+        if (packet_stream_id == stream_id) {
+            uint32_t local_id = _libssh2_ntohu32(packet->data + 1);
+            if (channel->local.id == local_id) {
+                /* figure out much more data we want to read */
+                int wanted = buflen - total;
+                int available = packet->data_len - packet->data_head;
+                if (available <= wanted) {
+                    memcpy(buf + total, packet->data + packet->data_head, available);
+
+                    /* no data remains on the packet: unlink and free it! */
+                    _libssh2_list_remove(&packet->node);
+                    LIBSSH2_FREE(session, packet->data);
+                    LIBSSH2_FREE(session, packet);
+                }
+                else {
+                    memcpy(buf + total, packet->data + packet->data_head, wanted);
+                    packet->data_head += wanted;
+                    available = wanted;
+                }
+
+                _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                               "channel_read() got %d of data from %lu/%lu/%d",
+                               available, channel->local.id, channel->remote.id,
+                               stream_id);
+
+                total += available;
+            }
+        }
     }
 
-    if (!bytes_read) {
-        /* If the channel is already at EOF or even closed, we need to signal
-           that back. We may have gotten that info while draining the incoming
-           transport layer until EAGAIN so we must not be fooled by that
-           return code. */
-        if(channel->remote.eof || channel->remote.close)
-            return 0;
-        else if(rc != LIBSSH2_ERROR_EAGAIN)
-            return 0;
-
-        /* if the transport layer said EAGAIN then we say so as well */
-        return _libssh2_error(session, rc, "would block");
+    if (total) {
+        channel->read_avail -= total;
+        channel->remote.window_size -= total;
+        return total;
     }
 
-    channel->read_avail -= bytes_read;
-    channel->remote.window_size -= bytes_read;
+    /* If the channel is already at EOF we signal that back returning
+       zero */
+    if(channel->remote.eof)
+        return 0;
 
-    return bytes_read;
+    return _libssh2_error(session, rc, ((rc == LIBSSH2_ERROR_EAGAIN)
+                                        ? "would block"
+                                        : "transport read"));
+
 }
 
 /*
