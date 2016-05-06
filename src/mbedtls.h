@@ -1,13 +1,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <mbedtls/md5.h>
+#include <mbedtls/platform.h>
+#include <mbedtls/md.h>
 #include <mbedtls/rsa.h>
 #include <mbedtls/bignum.h>
 #include <mbedtls/cipher.h>
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
-#include <mbedtls/sha1.h>
 
 /* Define which features are supported. */
 #define LIBSSH2_MD5             1
@@ -26,7 +26,7 @@
 #define LIBSSH2_RSA             1
 #define LIBSSH2_DSA             0
 
-#define MD5_DIGEST_LENGTH 16
+#define MD5_DIGEST_LENGTH      16
 #define SHA_DIGEST_LENGTH      20
 #define SHA256_DIGEST_LENGTH   32
 #define SHA512_DIGEST_LENGTH   64
@@ -54,18 +54,155 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 
+
 /*******************************************************************/
 /*
- * mbedTLS backend: Hash structure
+ * mbedTLS backend: HMAC functions
  */
 
-#define libssh2_sha1_ctx        mbedtls_sha1_context
-#define libssh2_sha256_ctx      mbedtls_sha256_context
-#define libssh2_md5_ctx         mbedtls_md5_context
-#define libssh2_hmac_ctx        mbedtls_md_context_t
+#define libssh2_hmac_ctx    mbedtls_md_context_t
+
+#define libssh2_hmac_ctx_init(ctx)
+#define libssh2_hmac_cleanup(pctx) \
+  mbedtls_md_free(pctx)
+#define libssh2_hmac_update(ctx, data, datalen) \
+  mbedtls_md_hmac_update(&ctx, (unsigned char *) data, datalen)
+#define libssh2_hmac_final(ctx, hash) \
+  mbedtls_md_hmac_finish(&ctx, hash)
+
+#define libssh2_hmac_sha1_init(pctx, key, keylen) \
+  _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA1, \
+                            SHA_DIGEST_LENGTH, key, keylen)
+#define libssh2_hmac_md5_init(pctx, key, keylen) \
+  _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_MD5, \
+                            MD5_DIGEST_LENGTH, key, keylen)
+#define libssh2_hmac_ripemd160_init(pctx, key, keylen) \
+  _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_RIPEMD160, \
+                            MD5_DIGEST_LENGTH, key, keylen)
+#define libssh2_hmac_sha256_init(pctx, key, keylen) \
+  _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA256, \
+                            SHA256_DIGEST_LENGTH, key, keylen)
+#define libssh2_hmac_sha512_init(pctx, key, keylen) \
+  _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA512, \
+                            SHA512_DIGEST_LENGTH, key, keylen)
+
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: SHA1 functions
+ */
+
+#define libssh2_sha1_ctx      mbedtls_md_context_t
+
+#define libssh2_sha1_init(pctx) \
+  _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA1, \
+                            SHA_DIGEST_LENGTH, NULL, 0)
+#define libssh2_sha1_update(ctx, data, datalen) \
+  mbedtls_md_update(&ctx, (unsigned char *) data, datalen)
+#define libssh2_sha1_final(ctx, hash) \
+  _libssh2_mbedtls_hash_final(&ctx, hash)
+#define libssh2_sha1(data, datalen, hash) \
+  _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA1, \
+                       hash, SHA_DIGEST_LENGTH)
+
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: SHA256 functions
+ */
+
+#define libssh2_sha256_ctx      mbedtls_md_context_t
+
+#define libssh2_sha256_init(pctx) \
+  _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA256, \
+                            SHA256_DIGEST_LENGTH, NULL, 0)
+#define libssh2_sha256_update(ctx, data, datalen) \
+  mbedtls_md_update(&ctx, (unsigned char *) data, datalen)
+#define libssh2_sha256_final(ctx, hash) \
+  _libssh2_mbedtls_hash_final(&ctx, hash)
+#define libssh2_sha256(data, datalen, hash) \
+  _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA256, \
+                       hash, SHA256_DIGEST_LENGTH)
+
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: SHA512 functions
+ */
+
+#define libssh2_sha512_ctx      mbedtls_md_context_t
+
+#define libssh2_sha512_init(pctx) \
+  _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA512, \
+                            SHA512_DIGEST_LENGTH, NULL, 0)
+#define libssh2_sha512_update(ctx, data, datalen) \
+  mbedtls_md_update(&ctx, (unsigned char *) data, datalen)
+#define libssh2_sha512_final(ctx, hash) \
+  _libssh2_mbedtls_hash_final(&ctx, hash)
+#define libssh2_sha512(data, datalen, hash) \
+  _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA512, \
+                       hash, SHA512_DIGEST_LENGTH)
+
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: MD5 functions
+ */
+
+#define libssh2_md5_ctx      mbedtls_md_context_t
+
+#define libssh2_md5_init(pctx) \
+  _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_MD5, \
+                            MD5_DIGEST_LENGTH, NULL, 0)
+#define libssh2_md5_update(ctx, data, datalen) \
+  mbedtls_md_update(&ctx, (unsigned char *) data, datalen)
+#define libssh2_md5_final(ctx, hash) \
+  _libssh2_mbedtls_hash_final(&ctx, hash)
+#define libssh2_md5(data, datalen, hash) \
+  _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_MD5, \
+                       hash, MD5_DIGEST_LENGTH)
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: RSA structure
+ */
 
 #define libssh2_rsa_ctx            mbedtls_rsa_context
-#define _libssh2_rsa_free(rsactx)  mbedtls_rsa_free(rsactx)
+
+#define _libssh2_rsa_new(rsactx, e, e_len, n, n_len, \
+                         d, d_len, p, p_len, q, q_len, \
+                         e1, e1_len, e2, e2_len, c, c_len) \
+  _libssh2_mbedtls_rsa_new(rsactx, e, e_len, n, n_len, \
+                          d, d_len, p, p_len, q, q_len, \
+                          e1, e1_len, e2, e2_len, c, c_len)
+
+#define _libssh2_rsa_new_private(rsactx, s, filename, passphrase) \
+  _libssh2_mbedtls_rsa_new_private(rsactx, s, filename, passphrase)
+
+#define _libssh2_rsa_new_private_frommemory(rsactx, s, filedata, \
+                                            filedata_len, passphrase) \
+  _libssh2_mbedtls_rsa_new_private_frommemory(rsactx, s, filedata, \
+                                             filedata_len, passphrase)
+
+#define _libssh2_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len) \
+  _libssh2_mbedtls_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len)
+
+#define _libssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len) \
+  _libssh2_mbedtls_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len)
+
+#define _libssh2_rsa_free(rsactx) \
+  _libssh2_mbedtls_rsa_free(rsactx)
+
+/*
+ * mbedTLS backend: Key functions
+ */
+
+#define _libssh2_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw) \
+  _libssh2_mbedtls_pub_priv_keyfile(s, m, m_len, p, p_len, pk, pw)
+#define _libssh2_pub_priv_keyfilememory(s, m, m_len, p, p_len, \
+                                                     pk, pk_len, pw) \
+  _libssh2_mbedtls_pub_priv_keyfilememory(s, m, m_len, p, p_len, \
+                                                      pk, pk_len, pw)
 
 
  /*******************************************************************/
@@ -110,6 +247,27 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
 
 #define _libssh2_bn mbedtls_mpi
 
+#define _libssh2_bn_init() \
+  _libssh2_mbedtls_bignum_init()
+#define _libssh2_bn_init_from_bin() \
+  _libssh2_mbedtls_bignum_init()
+#define _libssh2_bn_rand(bn, bits, top, bottom) \
+  mbedtls_mpi_fill_random(bn, 8*bits, mbedtls_ctr_drbg_random, &_libssh2_mbedtls_ctr_drbg)
+#define _libssh2_bn_mod_exp(r, a, p, m, ctx) \
+  mbedtls_mpi_exp_mod(r, a, p, m, NULL)
+#define _libssh2_bn_set_word(bn, word) \
+  mbedtls_mpi_lset(bn, word)
+#define _libssh2_bn_from_bin(bn, len, bin) \
+  mbedtls_mpi_read_binary(bn, bin, len)
+#define _libssh2_bn_to_bin(bn, bin) \
+  mbedtls_mpi_write_binary(bn, bin, mbedtls_mpi_size(bn))
+#define _libssh2_bn_bytes(bn) \
+  mbedtls_mpi_size(bn)
+#define _libssh2_bn_bits(bn) \
+  mbedtls_mpi_bitlen(bn)
+#define _libssh2_bn_free(bn) \
+  mbedtls_mpi_free(bn)
+
 
 /*******************************************************************/
 /*
@@ -138,3 +296,82 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              size_t blocklen);
 void
 _libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx);
+
+int
+_libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
+                          mbedtls_md_type_t mdtype, unsigned long hashlen,
+                          unsigned char *key, unsigned long keylen);
+
+int
+_libssh2_mbedtls_hash_final(mbedtls_md_context_t *ctx,
+                            unsigned char *hash);
+int
+_libssh2_mbedtls_hash(unsigned char *data, unsigned long datalen,
+                      mbedtls_md_type_t mdtype,
+                      unsigned char *hash, unsigned long hashlen);
+
+_libssh2_bn *
+_libssh2_mbedtls_bignum_init(void);
+
+int
+_libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
+                        const unsigned char *edata,
+                        unsigned long elen,
+                        const unsigned char *ndata,
+                        unsigned long nlen,
+                        const unsigned char *ddata,
+                        unsigned long dlen,
+                        const unsigned char *pdata,
+                        unsigned long plen,
+                        const unsigned char *qdata,
+                        unsigned long qlen,
+                        const unsigned char *e1data,
+                        unsigned long e1len,
+                        const unsigned char *e2data,
+                        unsigned long e2len,
+                        const unsigned char *coeffdata,
+                        unsigned long coefflen);
+int
+_libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const unsigned char *passphrase);
+int
+_libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
+                                           LIBSSH2_SESSION *session,
+                                           const char *filedata,
+                                           size_t filedata_len,
+                                           unsigned const char *passphrase);
+int
+_libssh2_mbedtls_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
+                                const unsigned char *sig,
+                                unsigned long sig_len,
+                                const unsigned char *m,
+                                unsigned long m_len);
+int
+_libssh2_mbedtls_rsa_sha1_sign(LIBSSH2_SESSION *session,
+                              libssh2_rsa_ctx *rsa,
+                              const unsigned char *hash,
+                              size_t hash_len,
+                              unsigned char **signature,
+                              size_t *signature_len);
+void
+_libssh2_mbedtls_rsa_free(libssh2_rsa_ctx *rsa);
+
+int
+_libssh2_mbedtls_pub_priv_keyfile(LIBSSH2_SESSION *session,
+                                 unsigned char **method,
+                                 size_t *method_len,
+                                 unsigned char **pubkeydata,
+                                 size_t *pubkeydata_len,
+                                 const char *privatekey,
+                                 const char *passphrase);
+int
+_libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
+                                       unsigned char **method,
+                                       size_t *method_len,
+                                       unsigned char **pubkeydata,
+                                       size_t *pubkeydata_len,
+                                       const char *privatekeydata,
+                                       size_t privatekeydata_len,
+                                       const char *passphrase);
