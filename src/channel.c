@@ -1345,78 +1345,92 @@ libssh2_channel_set_blocking(LIBSSH2_CHANNEL * channel, int blocking)
 }
 
 /*
+ * _libssh2_channel_check_packet_stream
+ *
+ * Checks whether a packet contains data for a particular
+ * channel/stream.
+ */
+static int
+_libssh2_channel_check_packet_stream(LIBSSH2_CHANNEL *channel, LIBSSH2_PACKET *packet, int stream_id) {
+    switch (packet->data[0]) {
+
+    case SSH_MSG_CHANNEL_EXTENDED_DATA:
+        if (channel->remote.extended_data_ignore_mode != LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE) {
+            if ( (stream_id != (int)_libssh2_ntohu32(packet->data + 5)) &&
+                 (stream_id != LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA) )
+                return 0;
+            break;
+        }
+        /* else, fallback */
+
+    case SSH_MSG_CHANNEL_DATA:
+        if (stream_id && (stream_id != LIBSSH2_CHANNEL_FLUSH_ALL))
+            return 0;
+        break;
+
+    default:
+        return 0;
+    }
+
+    return (channel->local.id == _libssh2_ntohu32(packet->data + 1));
+}
+
+/*
  * _libssh2_channel_flush
  *
  * Flush data from one (or all) stream
  * Returns number of bytes flushed, or negative on failure
  */
 int
-_libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
+_libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int stream_id)
 {
+    ssize_t refund_bytes;
     if (channel->flush_state == libssh2_NB_state_idle) {
-        LIBSSH2_PACKET *packet =
-            _libssh2_list_first(&channel->session->packets);
-        channel->flush_refund_bytes = 0;
-        channel->flush_flush_bytes = 0;
+        LIBSSH2_PACKET *packet, *next;
+        refund_bytes = 0;
+        for ( packet = _libssh2_list_first(&channel->session->packets);
+              packet;
+              packet = next ) {
+            next = _libssh2_list_next(&packet->node);
 
-        while (packet) {
-            LIBSSH2_PACKET *next = _libssh2_list_next(&packet->node);
-            unsigned char packet_type = packet->data[0];
+            if (_libssh2_channel_check_packet_stream(channel, packet, stream_id)) {
+                refund_bytes += packet->data_len - packet->data_head;
 
-            if (((packet_type == SSH_MSG_CHANNEL_DATA)
-                 || (packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA))
-                && (_libssh2_ntohu32(packet->data + 1) == channel->local.id)) {
-                /* It's our channel at least */
-                long packet_stream_id =
-                    (packet_type == SSH_MSG_CHANNEL_DATA) ? 0 :
-                    _libssh2_ntohu32(packet->data + 5);
-                if ((streamid == LIBSSH2_CHANNEL_FLUSH_ALL)
-                    || ((packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA)
-                        && ((streamid == LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA)
-                            || (streamid == packet_stream_id)))
-                    || ((packet_type == SSH_MSG_CHANNEL_DATA)
-                        && (streamid == 0))) {
-                    int bytes_to_flush = packet->data_len - packet->data_head;
+                _libssh2_debug(channel->session, LIBSSH2_TRACE_CONN,
+                               "Flushing %d bytes of data from stream "
+                               "%lu on channel %lu/%lu",
+                               refund_bytes, stream_id,
+                               channel->local.id, channel->remote.id);
 
-                    _libssh2_debug(channel->session, LIBSSH2_TRACE_CONN,
-                                   "Flushing %d bytes of data from stream "
-                                   "%lu on channel %lu/%lu",
-                                   bytes_to_flush, packet_stream_id,
-                                   channel->local.id, channel->remote.id);
-
-                    /* It's one of the streams we wanted to flush */
-                    channel->flush_refund_bytes += packet->data_len - 13;
-                    channel->flush_flush_bytes += bytes_to_flush;
-
-                    LIBSSH2_FREE(channel->session, packet->data);
-
-                    /* remove this packet from the parent's list */
-                    _libssh2_list_remove(&packet->node);
-                    LIBSSH2_FREE(channel->session, packet);
-                }
+                /* remove this packet from the parent's list */
+                _libssh2_list_remove(&packet->node);
+                LIBSSH2_FREE(channel->session, packet->data);
+                LIBSSH2_FREE(channel->session, packet);
             }
-            packet = next;
         }
 
+        channel->read_avail -= refund_bytes;
+        channel->remote.window_size -= refund_bytes;
+
+        channel->flush_refund_bytes = refund_bytes;
         channel->flush_state = libssh2_NB_state_created;
     }
+    else
+        refund_bytes = channel->flush_refund_bytes;
 
-    channel->read_avail -= channel->flush_flush_bytes;
-    channel->remote.window_size -= channel->flush_flush_bytes;
-
-    if (channel->flush_refund_bytes) {
-        int rc;
-
-        rc = _libssh2_channel_receive_window_adjust(channel,
-                                                    channel->flush_refund_bytes,
-                                                    1, NULL);
+    if (refund_bytes) {
+        int rc = _libssh2_channel_receive_window_adjust(channel,
+                                                        channel->flush_refund_bytes,
+                                                        1, NULL);
         if (rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
+
+        channel->flush_refund_bytes = 0;
     }
 
     channel->flush_state = libssh2_NB_state_idle;
 
-    return channel->flush_flush_bytes;
+    return refund_bytes;
 }
 
 /*
@@ -1711,32 +1725,6 @@ libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
                                      int ignore_mode)
 {
     (void)libssh2_channel_handle_extended_data2(channel, ignore_mode);
-}
-
-int
-_libssh2_channel_check_packet_stream(LIBSSH2_CHANNEL *channel, LIBSSH2_PACKET *packet, int stream_id) {
-    switch (packet->data[0]) {
-    case SSH_MSG_CHANNEL_DATA:
-        if (stream_id)
-            return 0;
-        break;
-
-    case SSH_MSG_CHANNEL_EXTENDED_DATA:
-        if (channel->remote.extended_data_ignore_mode == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE) {
-            if (stream_id)
-                return 0;
-        }
-        else {
-            if (stream_id != (int)_libssh2_ntohu32(packet->data + 5))
-                return 0;
-        }
-        break;
-
-    default:
-        return 0;
-    }
-
-    return (channel->local.id == _libssh2_ntohu32(packet->data + 1));
 }
 
 /*

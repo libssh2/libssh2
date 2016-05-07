@@ -383,7 +383,6 @@ struct _LIBSSH2_CHANNEL
     /* State variables used in libssh2_channel_flush_ex() */
     libssh2_nonblocking_states flush_state;
     size_t flush_refund_bytes;
-    size_t flush_flush_bytes;
 
     /* State variables used in libssh2_channel_receive_window_adjust() */
     libssh2_nonblocking_states adjust_state;
