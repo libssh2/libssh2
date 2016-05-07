@@ -1713,7 +1713,31 @@ libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
     (void)libssh2_channel_handle_extended_data2(channel, ignore_mode);
 }
 
+int
+_libssh2_channel_check_packet_stream(LIBSSH2_CHANNEL *channel, LIBSSH2_PACKET *packet, int stream_id) {
+    switch (packet->data[0]) {
+    case SSH_MSG_CHANNEL_DATA:
+        if (stream_id)
+            return 0;
+        break;
 
+    case SSH_MSG_CHANNEL_EXTENDED_DATA:
+        if (channel->remote.extended_data_ignore_mode == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE) {
+            if (stream_id)
+                return 0;
+        }
+        else {
+            if (stream_id != (int)_libssh2_ntohu32(packet->data + 5))
+                return 0;
+        }
+        break;
+
+    default:
+        return 0;
+    }
+
+    return (channel->local.id == _libssh2_ntohu32(packet->data + 1));
+}
 
 /*
  * _libssh2_channel_read
@@ -1772,51 +1796,32 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
          packet && (buflen > total);
          packet = next_packet) {
 
-        int packet_stream_id;
-
         next_packet = _libssh2_list_next(&packet->node);
+        if (_libssh2_channel_check_packet_stream(channel, packet, stream_id)) {
 
-        switch (packet->data[0]) {
-        case SSH_MSG_CHANNEL_DATA:
-            packet_stream_id = 0;
-            break;
-        case SSH_MSG_CHANNEL_EXTENDED_DATA:
-            packet_stream_id = ((channel->remote.extended_data_ignore_mode ==
-                                 LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE)
-                                ? 0
-                                : (int)_libssh2_ntohu32(packet->data + 5));
-            break;
-        default:
-            continue;
-        }
+            /* figure out much more data we want to read */
+            int wanted = buflen - total;
+            int available = packet->data_len - packet->data_head;
+            if (available <= wanted) {
+                memcpy(buf + total, packet->data + packet->data_head, available);
 
-        if (packet_stream_id == stream_id) {
-            uint32_t local_id = _libssh2_ntohu32(packet->data + 1);
-            if (channel->local.id == local_id) {
-                /* figure out much more data we want to read */
-                int wanted = buflen - total;
-                int available = packet->data_len - packet->data_head;
-                if (available <= wanted) {
-                    memcpy(buf + total, packet->data + packet->data_head, available);
-
-                    /* no data remains on the packet: unlink and free it! */
-                    _libssh2_list_remove(&packet->node);
-                    LIBSSH2_FREE(session, packet->data);
-                    LIBSSH2_FREE(session, packet);
-                }
-                else {
-                    memcpy(buf + total, packet->data + packet->data_head, wanted);
-                    packet->data_head += wanted;
-                    available = wanted;
-                }
-
-                _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                               "channel_read() got %d of data from %lu/%lu/%d",
-                               available, channel->local.id, channel->remote.id,
-                               stream_id);
-
-                total += available;
+                /* no data remains on the packet: unlink and free it! */
+                _libssh2_list_remove(&packet->node);
+                LIBSSH2_FREE(session, packet->data);
+                LIBSSH2_FREE(session, packet);
             }
+            else {
+                memcpy(buf + total, packet->data + packet->data_head, wanted);
+                packet->data_head += wanted;
+                available = wanted;
+            }
+
+            _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                           "channel_read() got %d of data from %lu/%lu/%d",
+                           available, channel->local.id, channel->remote.id,
+                           stream_id);
+
+            total += available;
         }
     }
 
