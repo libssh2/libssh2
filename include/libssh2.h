@@ -862,6 +862,10 @@ LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
 
 #define LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA     -1
 #define LIBSSH2_CHANNEL_FLUSH_ALL               -2
+
+#define LIBSSH2_CHANNEL_READ_EXTENDED_DATA     LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA
+#define LIBSSH2_CHANNEL_READ_ALL               LIBSSH2_CHANNEL_FLUSH_ALL
+
 LIBSSH2_API int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel,
                                          int streamid);
 #define libssh2_channel_flush(channel) libssh2_channel_flush_ex((channel), 0)
