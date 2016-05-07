@@ -152,11 +152,9 @@ struct _LIBSSH2_SFTP
     uint32_t last_errno;
 
     /* Holder for partial packet, use in libssh2_sftp_packet_read() */
-    unsigned char partial_size[4];      /* buffer for size field   */
-    size_t partial_size_len;            /* size field length       */
-    unsigned char *partial_packet;      /* The data                */
-    uint32_t partial_len;               /* Desired number of bytes */
-    size_t partial_received;            /* Bytes received so far   */
+    unsigned char size_buffer[4];       /* buffer for size field  */
+    size_t partial_len;                 /* data read so far, including the size header */
+    unsigned char *partial_packet;      /* The data */
 
     /* Time that libssh2_sftp_packet_requirev() started reading */
     time_t requirev_start;
@@ -170,9 +168,6 @@ struct _LIBSSH2_SFTP
 
     /* State variable used in sftp_read() */
     libssh2_nonblocking_states read_state;
-
-    /* State variable used in sftp_packet_read() */
-    libssh2_nonblocking_states packet_state;
 
     /* State variable used in sftp_write() */
     libssh2_nonblocking_states write_state;
