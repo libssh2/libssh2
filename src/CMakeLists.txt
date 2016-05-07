@@ -161,7 +161,7 @@ if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
     list(APPEND PRIVATE_COMPILE_DEFINITIONS LIBSSH2_MBEDTLS)
     list(APPEND PRIVATE_INCLUDE_DIRECTORIES ${MBEDTLS_INCLUDE_DIR})
     list(APPEND LIBRARIES ${MBEDTLS_LIBRARIES})
-    list(APPEND PC_LIBS -lmbedx509 -lmbedcrypto)
+    list(APPEND PC_LIBS -lmbedcrypto)
   endif()
 endif()
 
@@ -222,6 +222,11 @@ target_include_directories(libssh2
     $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 ## Options
+
+option(CLEAR_MEMORY "Enable clearing of memory before being freed" OFF)
+if(CLEAR_MEMORY)
+    add_definitions(-DLIBSSH2_CLEAR_MEMORY)
+endif(CLEAR_MEMORY)
 
 add_feature_info("Shared library" BUILD_SHARED_LIBS
   "creating libssh2 as a shared library (.so/.dll)")
