@@ -294,19 +294,12 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *packet = NULL;
     ssize_t rc;
-    unsigned long recv_window;
     int packet_type;
 
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "recv packet");
 
     switch(sftp->packet_state) {
-    case libssh2_NB_state_sent: /* EAGAIN from window adjusting */
-        sftp->packet_state = libssh2_NB_state_idle;
-
-        packet = sftp->partial_packet;
-        goto window_adjust;
-
-    case libssh2_NB_state_sent1: /* EAGAIN from channel read */
+    case libssh2_NB_state_sent: /* EAGAIN from channel read */
         sftp->packet_state = libssh2_NB_state_idle;
 
         packet = sftp->partial_packet;
@@ -357,24 +350,6 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
             sftp->partial_received = 0; /* how much of the packet already
                                            received */
             sftp->partial_packet = packet;
-
-          window_adjust:
-            recv_window = libssh2_channel_window_read_ex(channel, NULL, NULL);
-
-            if(sftp->partial_len > recv_window) {
-                /* ask for twice the data amount we need at once */
-                rc = _libssh2_channel_receive_window_adjust(channel,
-                                                            sftp->partial_len*2,
-                                                            1, NULL);
-                /* store the state so that we continue with the correct
-                   operation at next invoke */
-                sftp->packet_state = (rc == LIBSSH2_ERROR_EAGAIN)?
-                    libssh2_NB_state_sent:
-                    libssh2_NB_state_idle;
-
-                if(rc == LIBSSH2_ERROR_EAGAIN)
-                    return rc;
-            }
         }
 
         /* Read as much of the packet as we can */
@@ -390,7 +365,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
                  * the caller. Set 'partial_packet' so that this function
                  * knows how to continue on the next invoke.
                  */
-                sftp->packet_state = libssh2_NB_state_sent1;
+                sftp->packet_state = libssh2_NB_state_sent;
                 return rc;
             }
             else if (rc < 0) {
