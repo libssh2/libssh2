@@ -143,6 +143,7 @@ _libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
     md_info = mbedtls_md_info_from_type(mdtype);
     hmac = key == NULL ? 0 : 1;
 
+    mbedtls_md_init(ctx);
     ret = mbedtls_md_setup(ctx, md_info, hmac);
     if (!ret){
         if (hmac)
@@ -151,7 +152,7 @@ _libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
             ret = mbedtls_md_starts(ctx);
     }
 
-    return ret == 0 ? 0 : -1;
+    return ret == 0 ? 1 : 0;
 }
 
 int
@@ -294,6 +295,7 @@ _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
     if (*rsa == NULL)
         return -1;
 
+    mbedtls_rsa_init(*rsa, MBEDTLS_RSA_PKCS_V15, 0);
     mbedtls_pk_init(&pkey);
 
     ret = mbedtls_pk_parse_keyfile(&pkey, filename, (char *)passphrase);
@@ -390,8 +392,7 @@ _libssh2_mbedtls_rsa_sha1_sign(LIBSSH2_SESSION *session,
     ret = mbedtls_rsa_pkcs1_sign(rsa, NULL, NULL, MBEDTLS_RSA_PRIVATE,
                                  MBEDTLS_MD_SHA1, SHA_DIGEST_LENGTH,
                                  hash, sig);
-
-    if (!ret) {
+    if (ret) {
         LIBSSH2_FREE(session, sig);
         return -1;
     }
@@ -426,7 +427,7 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
 
     key = LIBSSH2_ALLOC(session, len);
-    if (key == NULL) {
+    if (!key) {
         return NULL;
     }
 
