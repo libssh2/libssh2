@@ -689,7 +689,7 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
 #define LIBSSH2_CHANNEL_WINDOW_DEFAULT  (2*1024*1024)
 #define LIBSSH2_CHANNEL_WINDOW_MIN      (64 * 1024)
 #define LIBSSH2_CHANNEL_PACKET_DEFAULT  32768
-#define LIBSSH2_CHANNEL_MINADJUST       1024
+#define LIBSSH2_CHANNEL_MINADJUST       (90 * 1024) /* roughly, three packets full of data */
 
 /* Extended Data Handling */
 #define LIBSSH2_CHANNEL_EXTENDED_DATA_NORMAL        0

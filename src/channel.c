@@ -1422,9 +1422,7 @@ _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int stream_id)
         refund_bytes = channel->flush_refund_bytes;
 
     if (refund_bytes) {
-        int rc = _libssh2_channel_receive_window_adjust(channel,
-                                                        channel->flush_refund_bytes,
-                                                        1, NULL);
+        int rc = _libssh2_channel_receive_window_adjust(channel, 0, 1, NULL);
         if (rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
 
@@ -1537,9 +1535,15 @@ libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
 /*
  * _libssh2_channel_receive_window_adjust
  *
- * Adjust the receive window for a channel by adjustment bytes. If the amount
- * to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
- * adjustment amount will be queued for a later packet.
+ * Adjust the receive window for the channel. Adjustment is the number
+ * of bytes that we plan to read inmediately after this call. If force
+ * is false, the adjustment packed is only sent when it is bigger than
+ * LIBSSH2_CHANNEL_MINADJUST.
+ *
+ * In old versions of the library, this method always adjusted the
+ * window size for the given adjustment; but now, it takes care of
+ * calculating the adjustment taking into account also the initial
+ * remote window size, and the current remote window size.
  *
  * Calls _libssh2_error() !
  */
@@ -1555,52 +1559,46 @@ _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
         *store = channel->remote.window_size;
 
     if (channel->adjust_state == libssh2_NB_state_idle) {
-        if (!force
-            && (adjustment + channel->adjust_queue <
-                LIBSSH2_CHANNEL_MINADJUST)) {
-            _libssh2_debug(channel->session, LIBSSH2_TRACE_CONN,
-                           "Queueing %lu bytes for receive window adjustment "
-                           "for channel %lu/%lu",
-                           adjustment, channel->local.id, channel->remote.id);
-            channel->adjust_queue += adjustment;
+        ssize_t hole = channel->remote.window_size_initial + adjustment - channel->remote.window_size;
+        /* For channels with really tiny receive windows,
+         * LIBSSH2_CHANNEL_MINADJUST may be too big, so we also
+         * compare the window hole against 1/4 of the initial receive
+         * window size */
+        if ( (hole < LIBSSH2_CHANNEL_MINADJUST) &&
+             (hole < channel->remote.window_size_initial / 4) &&
+             (!force || !hole) )
             return 0;
-        }
 
-        if (!adjustment && !channel->adjust_queue) {
-            return 0;
-        }
-
-        adjustment += channel->adjust_queue;
-        channel->adjust_queue = 0;
-
-        /* Adjust the window based on the block we just freed */
         channel->adjust_adjust[0] = SSH_MSG_CHANNEL_WINDOW_ADJUST;
-        _libssh2_htonu32(&channel->adjust_adjust[1], channel->remote.id);
-        _libssh2_htonu32(&channel->adjust_adjust[5], adjustment);
+        _libssh2_htonu32(channel->adjust_adjust + 1, channel->remote.id);
+        _libssh2_htonu32(channel->adjust_adjust + 5, hole);
+
         _libssh2_debug(channel->session, LIBSSH2_TRACE_CONN,
                        "Adjusting window %lu bytes for data on "
                        "channel %lu/%lu",
-                       adjustment, channel->local.id, channel->remote.id);
+                       hole, channel->local.id, channel->remote.id);
 
         channel->adjust_state = libssh2_NB_state_created;
     }
 
     rc = _libssh2_transport_send(channel->session, channel->adjust_adjust, 9,
                                  NULL, 0);
-    if (rc == LIBSSH2_ERROR_EAGAIN) {
-        _libssh2_error(channel->session, rc,
-                       "Would block sending window adjust");
-        return rc;
-    }
-    else if (rc) {
-        channel->adjust_queue = adjustment;
+
+    if (rc) {
+        if (rc == LIBSSH2_ERROR_EAGAIN)
+            return _libssh2_error(channel->session, rc,
+                                  "Would block sending window adjust");
+
         return _libssh2_error(channel->session, LIBSSH2_ERROR_SOCKET_SEND,
-                              "Unable to send transfer-window adjustment "
-                              "packet, deferring");
+                              "Unable to send transfer-window adjustment packet");
     }
-    else {
-        channel->remote.window_size += adjustment;
-    }
+
+    /* The value of hole may have changed since the previous call, so
+       we recover the former value from the packed data. Otherwise,
+       remote.window_size would get out of sync with the remote side */
+    channel->remote.window_size += _libssh2_ntohu32(channel->adjust_adjust + 5);
+    if(store)
+        *store = channel->remote.window_size;
 
     channel->adjust_state = libssh2_NB_state_idle;
 
@@ -1756,24 +1754,11 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
                    (int) buflen, channel->local.id, channel->remote.id,
                    stream_id);
 
-    /* expand the receiving window first if it has become too narrow */
-    if( (channel->read_state == libssh2_NB_state_jump1) ||
-        (channel->remote.window_size < channel->remote.window_size_initial / 4 * 3 + buflen) ) {
-
-        uint32_t adjustment = channel->remote.window_size_initial + buflen - channel->remote.window_size;
-        if (adjustment < LIBSSH2_CHANNEL_MINADJUST)
-            adjustment = LIBSSH2_CHANNEL_MINADJUST;
-
-        /* the actual window adjusting may not finish so we need to deal with
-           this special state here */
-        channel->read_state = libssh2_NB_state_jump1;
-        rc = _libssh2_channel_receive_window_adjust(channel, adjustment,
-                                                    0, NULL);
-        if (rc)
-            return rc;
-
-        channel->read_state = libssh2_NB_state_idle;
-    }
+    /* Expand the receiving window first if it has become too narrow */
+    rc = _libssh2_channel_receive_window_adjust(channel, buflen,
+                                                0, NULL);
+    if (rc)
+        return rc;
 
     /* Process all pending incoming packets. Tests prove that this way
        produces faster transfers. */

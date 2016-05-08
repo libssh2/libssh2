@@ -671,10 +671,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 /* Adjust the window based on the block we just freed */
               libssh2_packet_add_jump_point1:
                 session->packAdd_state = libssh2_NB_state_jump1;
-                rc = _libssh2_channel_receive_window_adjust(session->
-                                                            packAdd_channelp,
-                                                            datalen - 13,
-                                                            1, NULL);
+                rc = _libssh2_channel_receive_window_adjust(session->packAdd_channelp,
+                                                            0, 1, NULL);
                 if (rc == LIBSSH2_ERROR_EAGAIN)
                     return rc;
 
