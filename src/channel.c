@@ -2242,7 +2242,7 @@ static int channel_wait_eof(LIBSSH2_CHANNEL *channel)
 
     if (channel->wait_eof_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                       "Awaiting close of channel %lu/%lu", channel->local.id,
+                       "Awaiting EOF for channel %lu/%lu", channel->local.id,
                        channel->remote.id);
 
         channel->wait_eof_state = libssh2_NB_state_created;
