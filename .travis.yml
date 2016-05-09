@@ -75,9 +75,9 @@ before_install:
   - if [ $ADDRESS_SIZE = '32' ]; then sudo apt-get install -y linux-libc-dev linux-libc-dev:i386; fi
   - if [ $ADDRESS_SIZE = '32' ]; then sudo apt-get install -y gcc-multilib libgcrypt11-dev:i386 libssl-dev:i386 zlib1g-dev:i386; fi
   - if [ $ADDRESS_SIZE = '32' ]; then export TOOLCHAIN_OPTION="-DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-Linux-32.cmake"; fi
-  - if [ $CRYPTO_BACKEND = 'mbedTLS' ]; then ./buildmbedtls; fi
-  - if [ $CRYPTO_BACKEND = 'mbedTLS' ]; then export TOOLCHAIN_OPTION="-DMBEDTLS_ROOT_DIR=$PWD/deps/mbedtls"; fi
-  - if [ $CRYPTO_BACKEND = 'mbedTLS' ]; then export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/deps/mbedtls/library; fi
+  - if [ $CRYPTO_BACKEND = 'mbedTLS' ]; then mbedtls/buildmbedtls; fi
+  - if [ $CRYPTO_BACKEND = 'mbedTLS' ]; then export TOOLCHAIN_OPTION="-DCMAKE_PREFIX_PATH=../mbedtls/install"; fi
+  - if [ $CRYPTO_BACKEND = 'mbedTLS' ]; then export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/mbedtls/install/lib; fi
 
 install:
   - mkdir bin
