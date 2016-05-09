@@ -2396,7 +2396,7 @@ static int channel_wait_closed(LIBSSH2_CHANNEL *channel)
     LIBSSH2_SESSION *session = channel->session;
     int rc;
 
-    if (!libssh2_channel_eof(channel)) {
+    if (!channel->remote.eof) {
         return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                               "libssh2_channel_wait_closed() invoked when "
                               "channel is not in EOF state");
