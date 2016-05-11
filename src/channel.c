@@ -2259,7 +2259,7 @@ static int channel_wait_eof(LIBSSH2_CHANNEL *channel)
 
         if ((channel->remote.window_size == channel->read_avail) &&
             session->api_block_mode)
-            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+            return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_FULL,
                                   "Receiving channel window has been exhausted");
 
         rc = _libssh2_transport_read(session);
