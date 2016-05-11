@@ -1812,10 +1812,17 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     if(channel->remote.eof)
         return 0;
 
+    if ((channel->read_avail == channel->remote.window_size) &&
+        session->api_block_mode) {
+        /* The remote receive window has been exhausted, unread data for
+         * another stream is blocking us */
+        return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_FULL,
+                              "Receiving channel window has been exhausted");
+    }
+
     return _libssh2_error(session, rc, ((rc == LIBSSH2_ERROR_EAGAIN)
                                         ? "would block"
                                         : "transport read"));
-
 }
 
 /*
