@@ -37,6 +37,7 @@
  */
 
 #include "libssh2_priv.h"
+#include <assert.h>
 
 static int
 readline(char *line, int line_size, FILE * fp)
@@ -96,16 +97,26 @@ readline_memory(char *line, size_t line_size,
 
 #define LINE_SIZE 128
 
+const char *crypt_annotation = "Proc-Type: 4,ENCRYPTED";
+
+static unsigned char hex_decode(char digit)
+{
+    return (digit >= 'A') ? 0xA + (digit - 'A') : (digit - '0');
+}
+
 int
 _libssh2_pem_parse(LIBSSH2_SESSION * session,
                    const char *headerbegin,
                    const char *headerend,
+                   const unsigned char *passphrase,
                    FILE * fp, unsigned char **data, unsigned int *datalen)
 {
     char line[LINE_SIZE];
+    unsigned char iv[LINE_SIZE];
     char *b64data = NULL;
     unsigned int b64datalen = 0;
     int ret;
+    const LIBSSH2_CRYPT_METHOD *method = NULL;
 
     do {
         *line = '\0';
@@ -116,7 +127,45 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
     }
     while (strcmp(line, headerbegin) != 0);
 
-    *line = '\0';
+    if (readline(line, LINE_SIZE, fp)) {
+        return -1;
+    }
+
+    if (passphrase &&
+            memcmp(line, crypt_annotation, strlen(crypt_annotation)) == 0) {
+        const LIBSSH2_CRYPT_METHOD **all_methods, *cur_method;
+        int i;
+
+        if (readline(line, LINE_SIZE, fp)) {
+            ret = -1;
+            goto out;
+        }
+        all_methods = libssh2_crypt_methods();
+        while ((cur_method = *all_methods++)) {
+            if (*cur_method->pem_annotation &&
+                    memcmp(line, cur_method->pem_annotation, strlen(cur_method->pem_annotation)) == 0) {
+                method = cur_method;
+                memcpy(iv, line+strlen(method->pem_annotation)+1, 2*method->iv_len);
+            }
+        }
+
+        /* None of the available crypt methods were able to decrypt this key */
+        if (method == NULL)
+            return -1;
+
+        /* Decode IV from hex */
+        for (i = 0; i < method->iv_len; ++i)
+        {
+            iv[i]  = hex_decode(iv[2*i]) << 4;
+            iv[i] |= hex_decode(iv[2*i+1]);
+        }
+
+        /* skip to the next line */
+        if (readline(line, LINE_SIZE, fp)) {
+            ret = -1;
+            goto out;
+        }
+    }
 
     do {
         if (*line) {
@@ -150,6 +199,72 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
                               b64data, b64datalen)) {
         ret = -1;
         goto out;
+    }
+
+    if (method) {
+        /* Set up decryption */
+        int free_iv = 0, free_secret = 0, len_decrypted = 0, padding = 0;
+        int blocksize = method->blocksize;
+        void *abstract;
+        unsigned char secret[2*MD5_DIGEST_LENGTH];
+        libssh2_md5_ctx fingerprint_ctx;
+
+        /* Perform key derivation (PBKDF1/MD5) */
+        if (!libssh2_md5_init(&fingerprint_ctx)) {
+            ret = -1;
+            goto out;
+        }
+        libssh2_md5_update(fingerprint_ctx, passphrase, strlen((char*)passphrase));
+        libssh2_md5_update(fingerprint_ctx, iv, 8);
+        libssh2_md5_final(fingerprint_ctx, secret);
+        if (method->secret_len > MD5_DIGEST_LENGTH) {
+            if (!libssh2_md5_init(&fingerprint_ctx)) {
+                ret = -1;
+                goto out;
+            }
+            libssh2_md5_update(fingerprint_ctx, secret, MD5_DIGEST_LENGTH);
+            libssh2_md5_update(fingerprint_ctx, passphrase, strlen((char*)passphrase));
+            libssh2_md5_update(fingerprint_ctx, iv, 8);
+            libssh2_md5_final(fingerprint_ctx, secret + MD5_DIGEST_LENGTH);
+        }
+
+        /* Initialize the decryption */
+        if (method->init(session, method, iv, &free_iv, secret,
+                 &free_secret, 0, &abstract)) {
+            memset((char*)secret, 0, sizeof(secret));
+            LIBSSH2_FREE(session, data);
+            ret = -1;
+            goto out;
+        }
+
+        if (free_secret) {
+            memset((char*)secret, 0, sizeof(secret));
+        }
+
+        /* Do the actual decryption */
+        assert((*datalen % blocksize) == 0);
+
+        while (len_decrypted <= *datalen - blocksize) {
+            if (method->crypt(session, *data + len_decrypted, blocksize,
+                                             &abstract)) {
+                ret = LIBSSH2_ERROR_DECRYPT;
+                method->dtor(session, &abstract);
+                memset(*data, 0, *datalen);
+                LIBSSH2_FREE(session, *data);
+                goto out;
+            }
+
+            len_decrypted += blocksize;
+        }
+
+        /* Account for padding */
+        padding = (*data)[*datalen - 1];
+        memset(&(*data)[*datalen-padding],0,padding);
+        *datalen -= padding;
+
+        /* Clean up */
+        memset((char*)secret, 0, sizeof(secret));
+        method->dtor(session, &abstract);
     }
 
     ret = 0;

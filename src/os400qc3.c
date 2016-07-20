@@ -2120,6 +2120,7 @@ try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
     fseek(fp, 0L, SEEK_SET);
     for (;;) {
         ret = _libssh2_pem_parse(session, header, trailer,
+                                 NULL,
                                  fp, &data, &datalen);
 
         if (!ret) {

@@ -172,8 +172,6 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
     unsigned char *n, *e, *d, *p, *q, *e1, *e2, *coeff;
     unsigned int nlen, elen, dlen, plen, qlen, e1len, e2len, coefflen;
 
-    (void) passphrase;
-
     fp = fopen(filename, "r");
     if (!fp) {
         return -1;
@@ -182,6 +180,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
     ret = _libssh2_pem_parse(session,
                              "-----BEGIN RSA PRIVATE KEY-----",
                              "-----END RSA PRIVATE KEY-----",
+                             passphrase,
                              fp, &data, &datalen);
     fclose(fp);
     if (ret) {
@@ -285,8 +284,6 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
     unsigned char *p, *q, *g, *y, *x;
     unsigned int plen, qlen, glen, ylen, xlen;
 
-    (void) passphrase;
-
     fp = fopen(filename, "r");
     if (!fp) {
         return -1;
@@ -295,6 +292,7 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
     ret = _libssh2_pem_parse(session,
                              "-----BEGIN DSA PRIVATE KEY-----",
                              "-----END DSA PRIVATE KEY-----",
+                             passphrase,
                              fp, &data, &datalen);
     fclose(fp);
     if (ret) {
