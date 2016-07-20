@@ -884,6 +884,7 @@ struct _LIBSSH2_HOSTKEY_METHOD
 struct _LIBSSH2_CRYPT_METHOD
 {
     const char *name;
+    const char *pem_annotation;
 
     int blocksize;
 
@@ -1041,6 +1042,7 @@ const LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void);
 int _libssh2_pem_parse(LIBSSH2_SESSION * session,
                        const char *headerbegin,
                        const char *headerend,
+                       const unsigned char *passphrase,
                        FILE * fp, unsigned char **data, unsigned int *datalen);
 int _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
                               const char *headerbegin,
