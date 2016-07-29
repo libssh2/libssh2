@@ -287,6 +287,8 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define _libssh2_bn_bits(bn) BN_num_bits(bn)
 #define _libssh2_bn_free(bn) BN_clear_free(bn)
 
+#define _libssh2_dh_ctx _libssh2_bn *
+
 const EVP_CIPHER *_libssh2_EVP_aes_128_ctr(void);
 const EVP_CIPHER *_libssh2_EVP_aes_192_ctr(void);
 const EVP_CIPHER *_libssh2_EVP_aes_256_ctr(void);

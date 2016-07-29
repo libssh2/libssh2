@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+ * Copyright (C) 2015-2016 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -210,6 +210,10 @@ typedef struct {        /* Algorithm description. */
     int                     keylen;         /* Key length. */
 }       _libssh2_os400qc3_cipher_t;
 
+typedef struct {        /* Diffie-Hellman context. */
+    char                    token[8];       /* Context token. */
+}       _libssh2_os400qc3_dh_ctx;
+
 /*******************************************************************
  *
  * OS/400 QC3 crypto-library backend: Define global types/codes.
@@ -277,8 +281,6 @@ typedef struct {        /* Algorithm description. */
 #define _libssh2_bn_ctx_free(bnctx)     ((void) 0)
 
 #define _libssh2_bn_init_from_bin() _libssh2_bn_init()
-#define _libssh2_bn_mod_exp(r, a, p, m, ctx)                                \
-                                _libssh2_os400qc3_bn_mod_exp(r, a, p, m)
 #define _libssh2_bn_bytes(bn)   ((bn)->length)
 
 #define _libssh2_cipher_type(name)  _libssh2_os400qc3_cipher_t name
@@ -309,6 +311,14 @@ typedef struct {        /* Algorithm description. */
             _libssh2_os400qc3_rsa_sha1_signv(session, sig, siglen,          \
                                              count, vector, ctx)
 
+#define _libssh2_dh_ctx         _libssh2_os400qc3_dh_ctx
+#define libssh2_dh_init(dhctx)  _libssh2_os400qc3_dh_init(dhctx)
+#define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx)        \
+            _libssh2_os400qc3_dh_key_pair(dhctx, public, g, p, group_order)
+#define libssh2_dh_secret(dhctx, secret, f, p, bnctx)                       \
+            _libssh2_os400qc3_dh_secret(dhctx, secret, f, p)
+#define libssh2_dh_dtor(dhctx)  _libssh2_os400qc3_dh_dtor(dhctx)
+
 
 /*******************************************************************
  *
@@ -324,10 +334,6 @@ extern int      _libssh2_bn_from_bin(_libssh2_bn *bn, int len,
 extern int      _libssh2_bn_set_word(_libssh2_bn *bn, unsigned long val);
 extern int      _libssh2_bn_to_bin(_libssh2_bn *bn, unsigned char *val);
 extern void     _libssh2_random(unsigned char *buf, int len);
-extern int      _libssh2_bn_rand(_libssh2_bn *bn, int bits,
-                                int top, int bottom);
-extern int      _libssh2_os400qc3_bn_mod_exp(_libssh2_bn *r, _libssh2_bn *a,
-                                             _libssh2_bn *p, _libssh2_bn *m);
 extern void     _libssh2_os400qc3_crypto_dtor(_libssh2_os400qc3_crypto_ctx *x);
 extern int      libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x,
                                            unsigned int algo);
@@ -352,6 +358,15 @@ extern int      _libssh2_os400qc3_rsa_sha1_signv(LIBSSH2_SESSION *session,
                                                  int veccount,
                                                  const struct iovec vector[],
                                                  libssh2_rsa_ctx *ctx);
+extern void     _libssh2_os400qc3_dh_init(_libssh2_dh_ctx *dhctx);
+extern int      _libssh2_os400qc3_dh_key_pair(_libssh2_dh_ctx *dhctx,
+                                              _libssh2_bn *public,
+                                              _libssh2_bn *g,
+                                              _libssh2_bn *p, int group_order);
+extern int      _libssh2_os400qc3_dh_secret(_libssh2_dh_ctx *dhctx,
+                                            _libssh2_bn *secret,
+                                            _libssh2_bn *f, _libssh2_bn *p);
+extern void     _libssh2_os400qc3_dh_dtor(_libssh2_dh_ctx *dhctx);
 
 #endif
 

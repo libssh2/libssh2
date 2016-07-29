@@ -305,10 +305,50 @@ TripleDES-CBC algorithm identifier initializer.
 #define with constant value of type _libssh2_cipher_type().
 
 
-5) Big numbers.
+5) Diffie-Hellman support.
+If the crypto-library supports opaque Diffie-Hellman computations, symbol
+`libssh2_dh_key_pair' should be #defined as described below andhe rest of this
+section applies.
+Else, the Diffie-Hellman context MUST be defined as `_libssh2_bn *' and
+the computation is emulated via calls to _libssh2_bn_rand() and
+_libssh2_bn_mod_exp(): all other symbols in this section are unused in this
+case.
+
+5.1) Diffie-Hellman context.
+_libssh2_dh_ctx
+Type of a Diffie-Hellman computation context.
+Must always be defined.
+
+5.2) Diffie-Hellman computation procedures.
+void libssh2_dh_init(_libssh2_dh_ctx *dhctx);
+Initializes the Diffie-Hellman context at `dhctx'. No effective context
+creation needed here.
+
+int libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+                        _libssh2_bn *g, _libssh2_bn *p, int group_order,
+                        _libssh2_bn_ctx *bnctx);
+Generates a Diffie-Hellman key pair using base `g', prime `p' and the given
+`group_order'. Can use the give big number context `bnctx' if needed.
+The private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
+the public key is returned in `public'.
+0 is returned upon success, else -1.
+If defined, this procedure MUST be implemented as a #define'd macro.
+
+int libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+                      _libssh2_bn *f, _libssh2_bn *p, _libssh2_bn_ctx * bnctx)
+Computes the Diffie-Hellman secret from the previouly created context `*dhctx',
+the public key `f' from the other party and the same prime `p' used at
+context creation. The result is stored in `secret'.
+0 is returned upon success, else -1.
+
+void libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
+Destroys Diffie-Hellman context at `dhctx' and reset its storage.
+
+
+6) Big numbers.
 Positive multi-byte integers support is sufficient.
 
-5.1) Computation contexts.
+6.1) Computation contexts.
 This has a real meaning if the big numbers computations need some context
 storage. If not, use a dummy type and functions (macros).
 
@@ -322,7 +362,7 @@ Returns a new multiple precision computation context.
 void _libssh2_bn_ctx_free(_libssh2_bn_ctx ctx);
 Releases a multiple precision computation context.
 
-5.2) Computation support.
+6.2) Computation support.
 _libssh2_bn
 Type of multiple precision numbers (aka bignumbers or huge integers) for the
 crypto library.
@@ -369,15 +409,17 @@ random number can be zero. If top is 0, it is set to 1, and if top is 1, the
 two most significant bits of the number will be set to 1, so that the product
 of two such random numbers will always have 2*bits length. If bottom is true,
 the number will be odd.
+This procedure is only needed if no specific Diffie-Hellman support is provided.
 
 void _libssh2_bn_mod_exp(_libssh2_bn *r, _libssh2_bn *a,
 	                 _libssh2_bn *p, _libssh2_bn *m,
 	                 _libssh2_bn_ctx *ctx);
 Computes a to the p-th power modulo m and stores the result into r (r=a^p % m).
 May use the given context.
+This procedure is only needed if no specific Diffie-Hellman support is provided.
 
 
-6) Private key algorithms.
+7) Private key algorithms.
 Format of an RSA public key:
 a) "ssh-rsa".
 b) RSA exponent, MSB first, with high order bit = 0.
@@ -421,7 +463,7 @@ Both buffers have to be allocated using LIBSSH2_ALLOC().
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
 
-6.1) RSA
+7.1) RSA
 LIBSSH2_RSA
 #define as 1 if the crypto library supports RSA, else 0.
 If defined as 0, the rest of this section can be omitted.
@@ -515,7 +557,7 @@ void _libssh2_rsa_free(libssh2_rsa_ctx *rsactx);
 Releases the RSA computation context at rsactx.
 
 
-6.2) DSA
+7.2) DSA
 LIBSSH2_DSA
 #define as 1 if the crypto library supports DSA, else 0.
 If defined as 0, the rest of this section can be omitted.
@@ -581,7 +623,7 @@ void _libssh2_dsa_free(libssh2_dsa_ctx *dsactx);
 Releases the DSA computation context at dsactx.
 
 
-7) Miscellaneous
+8) Miscellaneous
 
 void libssh2_prepare_iovec(struct iovec *vector, unsigned int len);
 Prepare len consecutive iovec slots before using them.

@@ -374,6 +374,8 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
 #define _libssh2_bn_free(bn) \
   _libssh2_wincng_bignum_free(bn)
 
+#define _libssh2_dh_ctx _libssh2_bn *
+
 /*******************************************************************/
 /*
  * Windows CNG backend: forward declarations
