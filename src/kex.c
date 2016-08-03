@@ -133,9 +133,15 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         memset(&exchange_state->req_state, 0, sizeof(packet_require_state_t));
 
         /* Generate x and e */
-        _libssh2_bn_rand(exchange_state->x, group_order * 8 - 1, 0, -1);
-        _libssh2_bn_mod_exp(exchange_state->e, g, exchange_state->x, p,
-                            exchange_state->ctx);
+        if (!_libssh2_bn_rand(exchange_state->x, group_order * 8 - 1, 0, -1)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_BIGNUM,  "Random number generation failed");
+            goto clean_exit;
+        }
+        if (!_libssh2_bn_mod_exp(exchange_state->e, g, exchange_state->x, p,
+                            exchange_state->ctx)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_BIGNUM,  "ModExp failed");
+            goto clean_exit;
+        }
 
         /* Send KEX init */
         /* packet_type(1) + String Length(4) + leading 0(1) */
@@ -325,8 +331,11 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         exchange_state->h_sig = exchange_state->s;
 
         /* Compute the shared secret */
-        _libssh2_bn_mod_exp(exchange_state->k, exchange_state->f,
-                            exchange_state->x, p, exchange_state->ctx);
+        if (!_libssh2_bn_mod_exp(exchange_state->k, exchange_state->f,
+                            exchange_state->x, p, exchange_state->ctx)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_BIGNUM,  "ModExp failed");
+            goto clean_exit;
+        }
         exchange_state->k_value_len = _libssh2_bn_bytes(exchange_state->k) + 5;
         if (_libssh2_bn_bits(exchange_state->k) % 8) {
             /* don't need leading 00 */
@@ -753,9 +762,15 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         memset(&exchange_state->req_state, 0, sizeof(packet_require_state_t));
 
         /* Generate x and e */
-        _libssh2_bn_rand(exchange_state->x, group_order * 8 - 1, 0, -1);
-        _libssh2_bn_mod_exp(exchange_state->e, g, exchange_state->x, p,
-                            exchange_state->ctx);
+        if (!_libssh2_bn_rand(exchange_state->x, group_order * 8 - 1, 0, -1)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_BIGNUM,  "Random number generation failed");
+            goto clean_exit;
+        }
+        if (!_libssh2_bn_mod_exp(exchange_state->e, g, exchange_state->x, p,
+                            exchange_state->ctx)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_BIGNUM,  "ModExp failed");
+            goto clean_exit;
+        }
 
         /* Send KEX init */
         /* packet_type(1) + String Length(4) + leading 0(1) */
@@ -945,8 +960,11 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         exchange_state->h_sig = exchange_state->s;
 
         /* Compute the shared secret */
-        _libssh2_bn_mod_exp(exchange_state->k, exchange_state->f,
-                            exchange_state->x, p, exchange_state->ctx);
+        if (!_libssh2_bn_mod_exp(exchange_state->k, exchange_state->f,
+                            exchange_state->x, p, exchange_state->ctx)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_BIGNUM,  "ModExp failed");
+            goto clean_exit;
+        }
         exchange_state->k_value_len = _libssh2_bn_bytes(exchange_state->k) + 5;
         if (_libssh2_bn_bits(exchange_state->k) % 8) {
             /* don't need leading 00 */

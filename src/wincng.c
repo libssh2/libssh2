@@ -1847,16 +1847,16 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
     unsigned long length;
 
     if (!rnd)
-        return -1;
+        return 0;
 
     length = (unsigned long)(ceil((float)bits / 8) * sizeof(unsigned char));
     if (_libssh2_wincng_bignum_resize(rnd, length))
-        return -1;
+        return 0;
 
     bignum = rnd->bignum;
 
     if (_libssh2_wincng_random(bignum, length))
-        return -1;
+        return 0;
 
     /* calculate significant bits in most significant byte */
     bits %= 8;
@@ -1874,7 +1874,7 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
     if (bottom)
         bignum[length - 1] |= 1;
 
-    return 0;
+    return 1;
 }
 
 int
@@ -1893,14 +1893,14 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
     (void)bnctx;
 
     if (!r || !a || !p || !m)
-        return -1;
+        return 0;
 
     offset = sizeof(BCRYPT_RSAKEY_BLOB);
     keylen = offset + p->length + m->length;
 
     key = malloc(keylen);
     if (!key)
-        return -1;
+        return 0;
 
 
     /* https://msdn.microsoft.com/library/windows/desktop/aa375531.aspx */
@@ -1953,7 +1953,7 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
 
     _libssh2_wincng_safe_free(key, keylen);
 
-    return BCRYPT_SUCCESS(ret) ? 0 : -1;
+    return BCRYPT_SUCCESS(ret) ? 1 : 0;
 }
 
 int

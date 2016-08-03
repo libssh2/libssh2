@@ -172,8 +172,8 @@
 #define _libssh2_bn_ctx_free(bnctx) ((void)0)
 #define _libssh2_bn_init() gcry_mpi_new(0)
 #define _libssh2_bn_init_from_bin() NULL /* because gcry_mpi_scan() creates a new bignum */
-#define _libssh2_bn_rand(bn, bits, top, bottom) gcry_mpi_randomize (bn, bits, GCRY_WEAK_RANDOM)
-#define _libssh2_bn_mod_exp(r, a, p, m, ctx) gcry_mpi_powm (r, a, p, m)
+#define _libssh2_bn_rand(bn, bits, top, bottom) (gcry_mpi_randomize (bn, bits, GCRY_WEAK_RANDOM),1)
+#define _libssh2_bn_mod_exp(r, a, p, m, ctx) (gcry_mpi_powm (r, a, p, m),1)
 #define _libssh2_bn_set_word(bn, val) gcry_mpi_set_ui(bn, val)
 #define _libssh2_bn_from_bin(bn, len, val) gcry_mpi_scan(&((bn)), GCRYMPI_FMT_USG, val, len, NULL)
 #define _libssh2_bn_to_bin(bn, val) gcry_mpi_print (GCRYMPI_FMT_USG, val, _libssh2_bn_bytes(bn), NULL, bn)

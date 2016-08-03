@@ -890,10 +890,10 @@ _libssh2_bn_rand(_libssh2_bn *bn, int bits, int top, int bottom)
     int i;
 
     if (!bn || bits <= 0)
-        return -1;
+        return 0;
     len = (bits + 7) >> 3;
     if (_libssh2_bn_resize(bn, len))
-        return -1;
+        return 0;
     _libssh2_random(bn->bignum, len);
     i = ((bits - 1) & 07) + 1;
     bn->bignum[len - 1] &= (1 << i) - 1;
@@ -911,7 +911,7 @@ _libssh2_bn_rand(_libssh2_bn *bn, int bits, int top, int bottom)
     }
     if (bottom)
         *bn->bignum |= 0x01;
-    return 0;
+    return 1;
 }
 
 static int
@@ -1013,7 +1013,7 @@ _libssh2_os400qc3_bn_mod_exp(_libssh2_bn *r, _libssh2_bn *a, _libssh2_bn *p,
     Qus_EC_t errcode;
     int sc;
     int outlen;
-    int ret = -1;
+    int ret = 0;
 
     /* There is no support for this function in the Qc3 crypto-library.
        Since a RSA encryption performs this function, we can emulate it
@@ -1077,7 +1077,7 @@ _libssh2_os400qc3_bn_mod_exp(_libssh2_bn *r, _libssh2_bn *a, _libssh2_bn *p,
         if (!errcode.Bytes_Available) {
             _libssh2_bn_from_bin(r, outlen, rv);
             if (!sc)
-                ret = 0;
+                ret = 1;
             else {
                 rp = _libssh2_bn_init();
                 if (rp) {
@@ -1087,7 +1087,7 @@ _libssh2_os400qc3_bn_mod_exp(_libssh2_bn *r, _libssh2_bn *a, _libssh2_bn *p,
                             _libssh2_bn_swap(r, rp);
                     } while (--sc);
                     _libssh2_bn_free(rp);
-                    ret = 0;
+                    ret = 1;
                 }
             }
         }
