@@ -210,6 +210,46 @@ _libssh2_mbedtls_bignum_free(_libssh2_bn *bn)
     mbedtls_free(bn);
 }
 
+int
+_libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
+{
+    size_t len;
+    int err;
+    int i;
+
+    if (!bn || bits <= 0)
+        return -1;
+
+    len = (bits + 7) >> 3;
+    err = mbedtls_mpi_fill_random(bn, len, mbedtls_ctr_drbg_random, &_libssh2_mbedtls_ctr_drbg);
+    if (err)
+        return -1;
+
+    /* If `top` is -1, the most significant bit of the random number can be zero. */
+    err = mbedtls_mpi_set_bit(bn, 0, 0);
+    if (err)
+        return -1;
+
+    /* If top is 0, the most significant bit of the random number is set to 1,
+       and if top is 1, the two most significant bits of the number will be set
+       to 1, so that the product of two such random numbers will always have 2*bits length.
+    */
+    for(i=0;i<=top;++i) {
+        err = mbedtls_mpi_set_bit(bn, i, 1);
+        if (err)
+            return -1;
+    }
+
+    /* make odd by setting first bit in least significant byte */
+    if (bottom) {
+        err = mbedtls_mpi_set_bit(bn, bits-1, 1);
+        if (err)
+            return -1;
+    }
+
+    return 0;
+}
+
 
 /*******************************************************************/
 /*

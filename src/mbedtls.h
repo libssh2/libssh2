@@ -239,8 +239,8 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
   _libssh2_mbedtls_bignum_init()
 #define _libssh2_bn_init_from_bin() \
   _libssh2_mbedtls_bignum_init()
-#define _libssh2_bn_rand(bn, bytes, top, bottom) \
-  mbedtls_mpi_fill_random(bn, bytes, mbedtls_ctr_drbg_random, &_libssh2_mbedtls_ctr_drbg)
+#define _libssh2_bn_rand(bn, bits, top, bottom) \
+  _libssh2_mbedtls_bignum_random(bn, bits, top, bottom)
 #define _libssh2_bn_mod_exp(r, a, p, m, ctx) \
   mbedtls_mpi_exp_mod(r, a, p, m, NULL)
 #define _libssh2_bn_set_word(bn, word) \
