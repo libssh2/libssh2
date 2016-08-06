@@ -141,6 +141,9 @@ _libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
     int ret, hmac;
 
     md_info = mbedtls_md_info_from_type(mdtype);
+    if(!md_info)
+        return 0;
+
     hmac = key == NULL ? 0 : 1;
 
     mbedtls_md_init(ctx);
@@ -195,19 +198,6 @@ _libssh2_mbedtls_bignum_init(void)
     }
 
     return bignum;
-}
-
-void
-_libssh2_mbedtls_bignum_free(_libssh2_bn *bn)
-{
-    if (bn)
-    {
-        mbedtls_mpi_free(bn);
-#ifdef LIBSSH2_CLEAR_MEMORY
-        memset(bn, 0, sizeof(_libssh2_bn));
-#endif
-    }
-    mbedtls_free(bn);
 }
 
 int
