@@ -112,10 +112,10 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
         if(!ret)
             ret = mbedtls_cipher_finish(ctx, output + olen, &finish_olen);
 
-        olen += finish_olen;
-
-        if (!ret)
+        if (!ret) {
+            olen += finish_olen;
             memcpy(block, output, olen);
+        }
 
         _libssh2_mbedtls_safe_free(output, osize);
     }
@@ -177,6 +177,9 @@ _libssh2_mbedtls_hash(const unsigned char *data, unsigned long datalen,
     int ret;
 
     md_info = mbedtls_md_info_from_type(mdtype);
+    if(!md_info)
+        return 0;
+
     ret = mbedtls_md(md_info, data, datalen, hash);
 
     return ret == 0 ? 0 : -1;
@@ -210,7 +213,7 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
     if (!bn || bits <= 0)
         return -1;
 
-    len = (bits + 7) >> 3;
+    len = (bits + 1) >> 3;
     err = mbedtls_mpi_fill_random(bn, len, mbedtls_ctr_drbg_random, &_libssh2_mbedtls_ctr_drbg);
     if (err)
         return -1;
