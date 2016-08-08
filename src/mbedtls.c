@@ -397,7 +397,7 @@ _libssh2_mbedtls_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
         return -1; /* failure */
 
     ret = mbedtls_rsa_pkcs1_verify(rsa, NULL, NULL, MBEDTLS_RSA_PUBLIC,
-                                   MBEDTLS_MD_SHA1, sig_len, hash, sig);
+                                   MBEDTLS_MD_SHA1, SHA_DIGEST_LENGTH, hash, sig);
 
     return (ret == 0) ? 0 : -1;
 }
