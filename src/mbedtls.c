@@ -213,29 +213,32 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
     if (!bn || bits <= 0)
         return -1;
 
-    len = (bits + 1) >> 3;
+    len = (bits + 7) >> 3;
     err = mbedtls_mpi_fill_random(bn, len, mbedtls_ctr_drbg_random, &_libssh2_mbedtls_ctr_drbg);
     if (err)
         return -1;
 
-    /* If `top` is -1, the most significant bit of the random number can be zero. */
-    err = mbedtls_mpi_set_bit(bn, 0, 0);
-    if (err)
-        return -1;
+    /* Zero unsued bits above the most significant bit*/
+    for(i=len*8-1;bits<=i;--i) {
+        err = mbedtls_mpi_set_bit(bn, i, 0);
+        if (err)
+            return -1;
+    }
 
-    /* If top is 0, the most significant bit of the random number is set to 1,
+    /* If `top` is -1, the most significant bit of the random number can be zero.
+       If top is 0, the most significant bit of the random number is set to 1,
        and if top is 1, the two most significant bits of the number will be set
        to 1, so that the product of two such random numbers will always have 2*bits length.
     */
     for(i=0;i<=top;++i) {
-        err = mbedtls_mpi_set_bit(bn, i, 1);
+        err = mbedtls_mpi_set_bit(bn, bits-i-1, 1);
         if (err)
             return -1;
     }
 
     /* make odd by setting first bit in least significant byte */
     if (bottom) {
-        err = mbedtls_mpi_set_bit(bn, bits-1, 1);
+        err = mbedtls_mpi_set_bit(bn, 0, 1);
         if (err)
             return -1;
     }
@@ -332,7 +335,7 @@ _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
     mbedtls_pk_init(&pkey);
 
     ret = mbedtls_pk_parse_keyfile(&pkey, filename, (char *)passphrase);
-    if( ret != 0 )
+    if( ret != 0 || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA)
     {
         mbedtls_pk_free(&pkey);
         mbedtls_rsa_free(*rsa);
@@ -366,7 +369,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 
     ret = mbedtls_pk_parse_key(&pkey, (unsigned char *)filedata,
                               filedata_len, NULL, 0);
-    if( ret != 0 )
+    if( ret != 0 || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA)
     {
         mbedtls_pk_free(&pkey);
         mbedtls_rsa_free(*rsa);

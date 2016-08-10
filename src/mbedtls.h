@@ -303,6 +303,9 @@ void
 _libssh2_mbedtls_bignum_free(_libssh2_bn *bn);
 
 int
+_libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom);
+
+int
 _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
                         const unsigned char *edata,
                         unsigned long elen,
