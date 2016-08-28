@@ -191,8 +191,8 @@ _libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
 #ifdef HAVE_DSA_SET0_KEY
     DSA_set0_key(*dsactx, pub_key, priv_key);
 #else
-    (*dstctx)->pub_key = pub_key;
-    (*dstctx)->priv_key = priv_key;
+    (*dsactx)->pub_key = pub_key;
+    (*dsactx)->priv_key = priv_key;
 #endif
     return 0;
 }
