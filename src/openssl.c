@@ -42,6 +42,36 @@
 
 #ifdef LIBSSH2_OPENSSL /* compile only if we build with openssl */
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+# ifndef HAVE_DSA_GET0_KEY
+#  define HAVE_DSA_GET0_KEY 1
+# endif
+# ifndef HAVE_DSA_SET0_PQG
+#  define HAVE_DSA_SET0_PQG 1
+# endif
+# ifndef HAVE_DSA_SET0_KEY
+#  define HAVE_DSA_SET0_KEY 1
+# endif
+# ifndef HAVE_DSA_SIG_GET0
+#  define HAVE_DSA_SIG_GET0 1
+# endif
+# ifndef HAVE_DSA_SIG_SET0
+#  define HAVE_DSA_SIG_SET0 1
+# endif
+# ifndef HAVE_RSA_GET0_KEY
+#  define HAVE_RSA_GET0_KEY 1
+# endif
+# ifndef HAVE_RSA_SET0_KEY
+#  define HAVE_RSA_SET0_KEY 1
+# endif
+# ifndef HAVE_RSA_SET0_FACTORS
+#  define HAVE_RSA_SET0_FACTORS 1
+# endif
+# ifndef HAVE_RSA_SET0_CRT_PARAMS
+#  define HAVE_RSA_SET0_CRT_PARAMS 1
+# endif
+#endif
+
 #include <string.h>
 
 #ifndef EVP_MAX_BLOCK_LENGTH
