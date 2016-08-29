@@ -270,7 +270,8 @@ int main(int argc, char *argv[])
 #endif
 
     libssh2_sftp_close(sftp_handle);
-    libssh2_sftp_shutdown(sftp_session);
+    while (libssh2_sftp_shutdown(sftp_session) == LIBSSH2_ERROR_EAGAIN)
+           ;
 
 shutdown:
 
