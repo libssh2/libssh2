@@ -112,16 +112,6 @@ if test "$ac_cv_libssl" = "yes"; then
   save_LIBS="$LIBS"
   LIBS="$LIBS $LIBSSL"
   AC_CHECK_FUNCS(EVP_aes_128_ctr)
-  AC_CHECK_FUNCS(DSA_get0_pqg)
-  AC_CHECK_FUNCS(DSA_get0_key)
-  AC_CHECK_FUNCS(DSA_set0_pqg)
-  AC_CHECK_FUNCS(DSA_set0_key)
-  AC_CHECK_FUNCS(DSA_SIG_get0)
-  AC_CHECK_FUNCS(DSA_SIG_set0)
-  AC_CHECK_FUNCS(RSA_get0_key)
-  AC_CHECK_FUNCS(RSA_set0_key)
-  AC_CHECK_FUNCS(RSA_set0_factors)
-  AC_CHECK_FUNCS(RSA_set0_crt_params)
   LIBS="$save_LIBS"
 
   found_crypto="OpenSSL (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A})"
