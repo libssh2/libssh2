@@ -69,16 +69,6 @@
 
 /* OpenSSL functions */
 #cmakedefine HAVE_EVP_AES_128_CTR
-#cmakedefine HAVE_DSA_GET0_PQG
-#cmakedefine HAVE_DSA_GET0_KEY
-#cmakedefine HAVE_DSA_SET0_PQG
-#cmakedefine HAVE_DSA_SET0_KEY
-#cmakedefine HAVE_DSA_SIG_GET0
-#cmakedefine HAVE_DSA_SIG_SET0
-#cmakedefine HAVE_RSA_GET0_KEY
-#cmakedefine HAVE_RSA_SET0_KEY
-#cmakedefine HAVE_RSA_SET0_FACTORS
-#cmakedefine HAVE_RSA_SET0_CRT_PARAMS
 
 /* Socket non-blocking support */
 #cmakedefine HAVE_O_NONBLOCK
