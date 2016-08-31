@@ -43,6 +43,9 @@
 #ifdef LIBSSH2_OPENSSL /* compile only if we build with openssl */
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
+# ifndef HAVE_DSA_GET0_PQG
+#  define HAVE_DSA_GET0_PQG 1
+# endif
 # ifndef HAVE_DSA_GET0_KEY
 #  define HAVE_DSA_GET0_KEY 1
 # endif
