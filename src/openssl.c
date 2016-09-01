@@ -185,7 +185,7 @@ _libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
     *dsactx = DSA_new();
 
 #ifdef HAVE_OPAQUE_OPENSSL
-    DSA_set0_pqg(*dsactx, p_bn, g_bn, q_bn);
+    DSA_set0_pqg(*dsactx, p_bn, q_bn, g_bn);
 #else
     (*dsactx)->p = p_bn;
     (*dsactx)->g = g_bn;
