@@ -42,10 +42,6 @@
 
 #ifdef LIBSSH2_OPENSSL /* compile only if we build with openssl */
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-# define HAVE_OPAQUE_OPENSSL
-#endif
-
 #include <string.h>
 
 #ifndef EVP_MAX_BLOCK_LENGTH
@@ -106,21 +102,21 @@ _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
     }
 
     *rsa = RSA_new();
-#ifdef HAVE_OPAQUE_OPENSSL
+#ifdef HAVE_OPAQUE_STRUCTS
     RSA_set0_key(*rsa, n, e, d);
 #else
     (*rsa)->e = e;
     (*rsa)->n = n;
 #endif
 
-#ifdef HAVE_OPAQUE_OPENSSL
+#ifdef HAVE_OPAQUE_STRUCTS
     RSA_set0_factors(*rsa, p, q);
 #else
     (*rsa)->p = p;
     (*rsa)->q = q;
 #endif
 
-#ifdef HAVE_OPAQUE_OPENSSL
+#ifdef HAVE_OPAQUE_STRUCTS
     RSA_set0_crt_params(*rsa, dmp1, dmq1, iqmp);
 #else
     (*rsa)->dmp1 = dmp1;
@@ -184,7 +180,7 @@ _libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
 
     *dsactx = DSA_new();
 
-#ifdef HAVE_OPAQUE_OPENSSL
+#ifdef HAVE_OPAQUE_STRUCTS
     DSA_set0_pqg(*dsactx, p_bn, q_bn, g_bn);
 #else
     (*dsactx)->p = p_bn;
@@ -192,7 +188,7 @@ _libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
     (*dsactx)->q = q_bn;
 #endif
 
-#ifdef HAVE_OPAQUE_OPENSSL
+#ifdef HAVE_OPAQUE_STRUCTS
     DSA_set0_key(*dsactx, pub_key, priv_key);
 #else
     (*dsactx)->pub_key = pub_key;
@@ -218,7 +214,7 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
     BN_bin2bn(sig + 20, 20, s);
 
     dsasig = DSA_SIG_new();
-#ifdef HAVE_OPAQUE_OPENSSL
+#ifdef HAVE_OPAQUE_STRUCTS
     DSA_SIG_set0(dsasig, r, s);
 #else
     dsasig->r = r;
@@ -658,7 +654,7 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
         return -1;
     }
 
-#ifdef HAVE_OPAQUE_OPENSSL
+#ifdef HAVE_OPAQUE_STRUCTS
     DSA_SIG_get0(sig, &r, &s);
 #else
     r = sig->r;
@@ -840,7 +836,7 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session, RSA *rsa,
     unsigned char* p;
     const BIGNUM * e;
     const BIGNUM * n;
-#ifdef HAVE_OPAQUE_OPENSSL
+#ifdef HAVE_OPAQUE_STRUCTS
     RSA_get0_key(rsa, &n, &e, NULL);
 #else
     e = rsa->e;
@@ -886,7 +882,7 @@ gen_publickey_from_dsa(LIBSSH2_SESSION* session, DSA *dsa,
     const BIGNUM * q;
     const BIGNUM * g;
     const BIGNUM * pub_key;
-#ifdef HAVE_OPAQUE_OPENSSL
+#ifdef HAVE_OPAQUE_STRUCTS
     DSA_get0_pqg(dsa, &p_bn, &q, &g);
 #else
     p_bn = dsa->p;
@@ -894,7 +890,7 @@ gen_publickey_from_dsa(LIBSSH2_SESSION* session, DSA *dsa,
     g = dsa->g;
 #endif
 
-#ifdef HAVE_OPAQUE_OPENSSL
+#ifdef HAVE_OPAQUE_STRUCTS
     DSA_get0_key(dsa, &pub_key, NULL);
 #else
     pub_key = dsa->pub_key;
