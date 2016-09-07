@@ -1,0 +1,15 @@
+#!/bin/sh
+set -ex
+
+MBEDTLS_SRC_ARCH=mbedtls-2.3.0
+
+# download mbedtls sources
+cd mbedtls
+wget https://github.com/ARMmbed/mbedtls/archive/$MBEDTLS_SRC_ARCH.tar.gz
+tar -xzf $MBEDTLS_SRC_ARCH.tar.gz
+
+# build library
+cd mbedtls-$MBEDTLS_SRC_ARCH
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
+      -DCMAKE_INSTALL_PREFIX:PATH=../install
+make install
