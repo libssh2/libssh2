@@ -12,6 +12,7 @@ following cryptography libraries:
 * OpenSSL
 * Libgcrypt
 * WinCNG
+* mbedTLS
 
 Getting started
 ---------------
@@ -48,8 +49,8 @@ The following options are available:
 
     Chooses a specific cryptography library to use for cryptographic
     operations.  Can be `OpenSSL` (https://www.openssl.org),
-    `Libgcrypt` (https://www.gnupg.org/), `WinCNG` (Windows Vista+) or
-    blank to use any library available.
+    `Libgcrypt` (https://www.gnupg.org/), `WinCNG` (Windows Vista+),
+    `mbedTLS` (https://tls.mbed.org/) or blank to use any library available.
 
     CMake will attempt to locate the libraries automatically.  See [2]
     for more information.
@@ -96,6 +97,10 @@ The following options are available:
  * `ENABLE_DEBUG_LOGGING=ON` in Debug, `=OFF` in Release
 
     Will enable the libssh2_trace() function for showing debug traces.
+
+ * `CLEAR_MEMORY=ON`
+
+    Securely zero memory before freeing it (if the backend supports this).
 
 Build tools
 -----------
