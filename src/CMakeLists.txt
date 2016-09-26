@@ -209,6 +209,11 @@ target_include_directories(libssh2
 
 ## Options
 
+option(CLEAR_MEMORY "Enable clearing of memory before being freed" ON)
+if(CLEAR_MEMORY)
+    add_definitions(-DLIBSSH2_CLEAR_MEMORY)
+endif(CLEAR_MEMORY)
+
 add_feature_info("Shared library" BUILD_SHARED_LIBS
   "creating libssh2 as a shared library (.so/.dll)")
 
