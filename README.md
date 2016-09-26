@@ -13,4 +13,4 @@ the revised BSD license.
 
 Installation instructions:
  - [for CMake](docs/INSTALL_CMAKE)
- - [for autotools)[docs/INSTALL_AUTOTOOLS)
+ - [for autotools](docs/INSTALL_AUTOTOOLS)
