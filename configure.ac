@@ -93,6 +93,9 @@ AC_ARG_WITH(libgcrypt,
 AC_ARG_WITH(wincng,
   AC_HELP_STRING([--with-wincng],[Use Windows CNG for crypto]),
   use_wincng=$withval,use_wincng=auto)
+AC_ARG_WITH(mbedtls,
+  AC_HELP_STRING([--with-mbedtls],[Use mbedTLS for crypto]),
+  use_mbedtls=$withval,use_mbedtls=auto)
 AC_ARG_WITH(libz,
   AC_HELP_STRING([--with-libz],[Use zlib for compression]),
   use_libz=$withval,use_libz=auto)
@@ -163,11 +166,25 @@ AM_CONDITIONAL(WINCNG, test "$ac_cv_libbcrypt" = "yes")
 
 AM_CONDITIONAL(OS400QC3, false)
 
+# Look for libmbedtls
+if test "$found_crypto" = "none" && test "$use_mbedtls" != "no"; then
+  AC_LIB_HAVE_LINKFLAGS([mbedtls], [], [#include <mbedtls/version.h>])
+fi
+if test "$ac_cv_libmbedtls" = "yes"; then
+  AC_DEFINE(LIBSSH2_MBEDTLS, 1, [Use mbedtls])
+  LIBSREQUIRED= # mbedtls doesn't provide a .pc file
+  LIBS="$LIBS -lmbedtls -lmbedcrypto"
+  found_crypto=libmbedtls
+  support_clear_memory=yes
+fi
+AM_CONDITIONAL(MBEDTLS, test "$ac_cv_libmbedtls" = "yes")
+
 # Check if crypto library was found
 if test "$found_crypto" = "none"; then
   AC_MSG_ERROR([No crypto library found!
 Try --with-libssl-prefix=PATH
  or --with-libgcrypt-prefix=PATH
+ or --with-libmbedtls-prefix=PATH
  or --with-wincng on Windows\
 ])
 fi
