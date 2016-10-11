@@ -603,8 +603,8 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
         time_t now = time (NULL);
         elapsed_ms = (long)(1000*difftime(now, start_time));
         if (elapsed_ms > session->api_timeout) {
-            session->err_code = LIBSSH2_ERROR_TIMEOUT;
-            return LIBSSH2_ERROR_TIMEOUT;
+            return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
+                                  "API timeout expired");
         }
         ms_to_next = (session->api_timeout - elapsed_ms);
         has_timeout = 1;
@@ -658,10 +658,13 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
                     has_timeout ? &tv : NULL);
     }
 #endif
-    if(rc <= 0) {
-        /* timeout (or error), bail out with a timeout error */
-        session->err_code = LIBSSH2_ERROR_TIMEOUT;
-        return LIBSSH2_ERROR_TIMEOUT;
+    if(rc == 0) {
+        return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
+                              "Timed out waiting on socket");
+    }
+    if(rc < 0) {
+        return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
+                              "Error waiting on socket");
     }
 
     return 0; /* ready to try again */
