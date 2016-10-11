@@ -599,7 +599,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 
     if (session->api_timeout > 0 &&
         (seconds_to_next == 0 ||
-         seconds_to_next > session->api_timeout)) {
+         ms_to_next > session->api_timeout)) {
         time_t now = time (NULL);
         elapsed_ms = (long)(1000*difftime(now, start_time));
         if (elapsed_ms > session->api_timeout) {
