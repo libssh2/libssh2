@@ -35,6 +35,8 @@
  * OF SUCH DAMAGE.
  */
 
+#ifndef SRC_LIBSSH2_CONFIG_CMAKE_H
+#define SRC_LIBSSH2_CONFIG_CMAKE_H
 /* Headers */
 #cmakedefine HAVE_UNISTD_H
 #cmakedefine HAVE_INTTYPES_H
@@ -103,3 +105,5 @@ static int snprintf(char * cp, int cp_max_len, const char * fmt, ...)
 
 #define HAVE_SNPRINTF
 #endif
+
+#endif // SRC_LIBSSH2_CONFIG_CMAKE_H
