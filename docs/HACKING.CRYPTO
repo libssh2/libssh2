@@ -316,7 +316,7 @@ _libssh2_bn_ctx
 Type of multiple precision computation context. May not be empty. if not used,
 #define as char, for example.
 
-libssh2_bn_ctx _libssh2_bn_ctx_new(void);
+_libssh2_bn_ctx _libssh2_bn_ctx_new(void);
 Returns a new multiple precision computation context.
 
 void _libssh2_bn_ctx_free(_libssh2_bn_ctx ctx);
@@ -339,7 +339,7 @@ allocates the number. Returns a value of type _libssh2_bn *.
 void _libssh2_bn_free(_libssh2_bn *bn);
 Destroys the multiple precision number at bn.
 
-unsigned long _libssh2_bn_bytes(libssh2_bn *bn);
+unsigned long _libssh2_bn_bytes(_libssh2_bn *bn);
 Get the number of bytes needed to store the bits of the multiple precision
 number at bn.
 
