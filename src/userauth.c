@@ -786,6 +786,11 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
 {
     int rc;
 
+#if !LIBSSH2_RSA
+    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                          "RSA is not supported by crypto backend");
+#endif
+
     if (session->userauth_host_state == libssh2_NB_state_idle) {
         const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
         unsigned char *pubkeydata, *sig = NULL;
@@ -1378,6 +1383,11 @@ userauth_publickey_frommemory(LIBSSH2_SESSION *session,
     void *abstract = &privkey_file;
     int rc;
 
+#if !LIBSSH2_RSA
+    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                          "RSA is not supported by crypto backend");
+#endif
+
     privkey_file.filename = privatekeydata;
     privkey_file.passphrase = passphrase;
 
@@ -1434,6 +1444,11 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
     struct privkey_file privkey_file;
     void *abstract = &privkey_file;
     int rc;
+
+#if !LIBSSH2_RSA
+    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
+                          "RSA is not supported by crypto backend");
+#endif
 
     privkey_file.filename = privatekey;
     privkey_file.passphrase = passphrase;

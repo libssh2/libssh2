@@ -58,6 +58,7 @@
 #include "mbedtls.h"
 #endif
 
+#if LIBSSH2_RSA
 int _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
                      const unsigned char *edata,
                      unsigned long elen,
@@ -92,6 +93,7 @@ int _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
                                         LIBSSH2_SESSION * session,
                                         const char *filedata, size_t filedata_len,
                                         unsigned const char *passphrase);
+#endif
 
 #if LIBSSH2_DSA
 int _libssh2_dsa_new(libssh2_dsa_ctx ** dsa,
