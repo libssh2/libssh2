@@ -382,86 +382,85 @@ AC_DEFUN([CURL_CONFIGURE_REENTRANT], [
   #
 ])
 
-AC_DEFUN([LIBSSH2_CHECKFOR_MBEDTLS], [
+dnl LIBSSH2_LIB_HAVE_LINKFLAGS
+dnl --------------------------
+dnl Wrapper around AC_LIB_HAVE_LINKFLAGS to also check $prefix/lib, if set.
+dnl
+dnl autoconf only checks $prefix/lib64 if gcc -print-search-dirs output
+dnl includes a directory named lib64. So, to find libraries in $prefix/lib
+dnl we append -L$prefix/lib to LDFLAGS before checking.
+dnl
+dnl For conveniece, $4 is expanded if [lib]$1 is found.
 
-  old_LDFLAGS=$LDFLAGS
-  old_CFLAGS=$CFLAGS
-  if test -n "$use_mbedtls" && test "$use_mbedtls" != "no"; then
-    LDFLAGS="$LDFLAGS -L$use_mbedtls/lib"
-    CFLAGS="$CFLAGS -I$use_mbedtls/include"
+AC_DEFUN([LIBSSH2_LIB_HAVE_LINKFLAGS], [
+  libssh2_lib_have_linkflags_LDFLAGS="$LDFLAGS"
+
+  test "${with_lib$1_prefix+set}" = set &&
+    LDFLAGS="$LDFLAGS${LDFLAGS:+ }-L${with_lib$1_prefix}/lib"
+
+  AC_LIB_HAVE_LINKFLAGS([$1], [$2], [$3])
+
+  LDFLAGS="$libssh2_lib_have_linkflags_LDFLAGS"
+
+  if test "$ac_cv_lib$1" = "yes"; then :
+    $4
   fi
+])
 
-  AC_LIB_HAVE_LINKFLAGS([mbedtls], [], [
-    #include <mbedtls/version.h>
+AC_DEFUN([LIBSSH2_CHECK_CRYPTO], [
+if test "$use_crypto" = "auto" && test "$found_crypto" = "none" || test "$use_crypto" = "$1"; then
+m4_case([$1],
+[openssl], [
+  LIBSSH2_LIB_HAVE_LINKFLAGS([ssl], [crypto], [#include <openssl/ssl.h>], [
+    AC_DEFINE(LIBSSH2_OPENSSL, 1, [Use $1])
+    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }libssl libcrypto"
+
+    # Not all OpenSSL have AES-CTR functions.
+    AC_CHECK_FUNCS(EVP_aes_128_ctr)
+
+    found_crypto="$1"
+    found_crypto_str="OpenSSL (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A})"
   ])
+],
 
-  if test "$ac_cv_libmbedtls" = "yes"; then
-    AC_DEFINE(LIBSSH2_MBEDTLS, 1, [Use mbedtls])
-    LIBSREQUIRED= # mbedtls doesn't provide a .pc file
-    LIBS="$LIBS -lmbedtls -lmbedcrypto"
-    found_crypto=libmbedtls
+[libgcrypt], [
+  LIBSSH2_LIB_HAVE_LINKFLAGS([gcrypt], [], [#include <gcrypt.h>], [
+    AC_DEFINE(LIBSSH2_LIBGCRYPT, 1, [Use $1])
+    found_crypto="$1"
+  ])
+],
+
+[mbedtls], [
+  LIBSSH2_LIB_HAVE_LINKFLAGS([mbedtls], [], [#include <mbedtls/version.h>], [
+    AC_DEFINE(LIBSSH2_MBEDTLS, 1, [Use $1])
+    found_crypto="$1"
     support_clear_memory=yes
-  else
-    # restore
-    LDFLAGS=$old_LDFLAGS
-    CFLAGS=$old_CFLAGS
-  fi
-])
-
-AC_DEFUN([LIBSSH2_CHECKFOR_GCRYPT], [
-
-  old_LDFLAGS=$LDFLAGS
-  old_CFLAGS=$CFLAGS
-  if test -n "$with_libgcrypt_prefix" && test "$use_libgcrypt" != "no"; then
-    LDFLAGS="$LDFLAGS -L$with_libgcrypt_prefix/lib"
-    CFLAGS="$CFLAGS -I$with_libgcrypt_prefix/include"
-  fi
-  AC_LIB_HAVE_LINKFLAGS([gcrypt], [], [
-    #include <gcrypt.h>
   ])
+],
 
-  if test "$ac_cv_libgcrypt" = "yes"; then
-    AC_DEFINE(LIBSSH2_LIBGCRYPT, 1, [Use libgcrypt])
-    LIBSREQUIRED= # libgcrypt doesn't provide a .pc file. sad face.
-    LIBS="$LIBS -lgcrypt"
-    found_crypto=libgcrypt
-  else
-    # restore
-    LDFLAGS=$old_LDFLAGS
-    CFLAGS=$old_CFLAGS
-  fi
-])
-
-
-AC_DEFUN([LIBSSH2_CHECKFOR_WINCNG], [
-
+[wincng], [
   # Look for Windows Cryptography API: Next Generation
 
-  AC_LIB_HAVE_LINKFLAGS([bcrypt], [], [
-    #include <windows.h>
-    #include <bcrypt.h>
-  ])
-  AC_LIB_HAVE_LINKFLAGS([crypt32], [], [
+  AC_CHECK_HEADERS([ntdef.h ntstatus.h], [], [], [#include <windows.h>])
+  AC_CHECK_DECLS([SecureZeroMemory], [], [], [#include <windows.h>])
+
+  LIBSSH2_LIB_HAVE_LINKFLAGS([crypt32], [], [
     #include <windows.h>
     #include <wincrypt.h>
   ])
-  AC_CHECK_HEADERS([ntdef.h ntstatus.h], [], [], [
+  LIBSSH2_LIB_HAVE_LINKFLAGS([bcrypt], [], [
     #include <windows.h>
+    #include <bcrypt.h>
+  ], [
+    AC_DEFINE(LIBSSH2_WINCNG, 1, [Use $1])
+    found_crypto="$1"
+    found_crypto_str="Windows Cryptography API: Next Generation"
+    support_clear_memory="$ac_cv_have_decl_SecureZeroMemory"
   ])
-  AC_CHECK_DECLS([SecureZeroMemory], [], [], [
-    #include <windows.h>
-  ])
-
-  if test "$ac_cv_libbcrypt" = "yes"; then
-    AC_DEFINE(LIBSSH2_WINCNG, 1, [Use Windows CNG])
-    LIBSREQUIRED= # wincng doesn't provide a .pc file. sad face.
-    LIBS="$LIBS -lbcrypt"
-    if test "$ac_cv_libcrypt32" = "yes"; then
-      LIBS="$LIBS -lcrypt32"
-    fi
-    found_crypto="Windows Cryptography API: Next Generation"
-    if test "$ac_cv_have_decl_SecureZeroMemory" = "yes"; then
-      support_clear_memory=yes
-    fi
-  fi
+],
+)
+  test "$found_crypto" = "none" &&
+    crypto_errors="${crypto_errors}No $1 crypto library found!
+"
+fi
 ])

@@ -13,6 +13,33 @@ Procedures listed as "void" may indeed have a result type: the void indication
 indicates the libssh2 core modules never use the function result.
 
 
+0) Build system.
+
+Add a new crypto backend to the autotools build system (./configure) as such:
+
+* Add one new line to configure.ac:
+
+m4_set_add([crypto_backends], [newname])
+
+This automatically creates a new --with-crypto=newname option which users can
+specify when invoking configure at compile-time to select the new backend.
+
+* Add a new m4_case stanza to acinclude.m4 within LIBSSH2_CRYPTO_CHECK,
+  with checks for library availability. A successful check should set
+  library linking variables. The LIBSSH2_LIB_HAVE_LINKFLAGS macro creates
+  such a variable automatically if the checked library can be found.
+
+* Add a Makefile.newname.inc in the top-level directory which sets
+  CRYPTO_CSOURCES and CRYPTO_HHEADERS to the new backend source files,
+  and CRYPTO_LTLIBS to the libtool linking parameters for the library, set
+  e.g. by a LIBSSH2_LIB_HAVE_LINKFLAGS call in LIBSSH2_CRYPTO_CHECK.
+
+* Add a new block to src/Makefile.am:
+  if NEWNAME
+  include ../Makefile.newname.inc
+  endif
+
+
 1) Crypto library initialization/termination.
 
 void libssh2_crypto_init(void);
