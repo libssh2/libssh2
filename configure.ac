@@ -132,7 +132,6 @@ AM_CONDITIONAL(OPENSSL, test "$ac_cv_libssl" = "yes")
 AM_CONDITIONAL(WINCNG, test "$ac_cv_libbcrypt" = "yes")
 AM_CONDITIONAL(LIBGCRYPT, test "$ac_cv_libgcrypt" = "yes")
 AM_CONDITIONAL(MBEDTLS, test "$ac_cv_libmbedtls" = "yes")
-AM_CONDITIONAL(OS400QC3, false)
 
 # Check if crypto library was found
 if test "$found_crypto" = "none"; then

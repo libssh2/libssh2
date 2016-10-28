@@ -11,9 +11,6 @@ endif
 if WINCNG
 include ../Makefile.WinCNG.inc
 endif
-if OS400QC3
-include ../Makefile.os400qc3.inc
-endif
 if MBEDTLS
 include ../Makefile.mbedTLS.inc
 endif
