@@ -412,9 +412,9 @@ AC_DEFUN([LIBSSH2_CHECKFOR_GCRYPT], [
 
   old_LDFLAGS=$LDFLAGS
   old_CFLAGS=$CFLAGS
-  if test -n "$use_libgcrypt" && test "$use_libgcrypt" != "no"; then
-    LDFLAGS="$LDFLAGS -L$use_libgcrypt/lib"
-    CFLAGS="$CFLAGS -I$use_libgcrypt/include"
+  if test -n "$with_libgcrypt_prefix" && test "$use_libgcrypt" != "no"; then
+    LDFLAGS="$LDFLAGS -L$with_libgcrypt_prefix/lib"
+    CFLAGS="$CFLAGS -I$with_libgcrypt_prefix/include"
   fi
   AC_LIB_HAVE_LINKFLAGS([gcrypt], [], [
     #include <gcrypt.h>
