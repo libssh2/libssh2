@@ -61,7 +61,7 @@ SHA_DIGEST_LENGTH
 #define to 20, the SHA-1 digest length.
 
 libssh2_sha1_ctx
-Type of an SHA1 computation context. Generally a struct.
+Type of an SHA-1 computation context. Generally a struct.
 
 int libssh2_sha1_init(libssh2_sha1_ctx *x);
 Initializes the SHA-1 computation context at x.
@@ -75,7 +75,7 @@ Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 
 void libssh2_sha1_final(libssh2_sha1_ctx ctx,
-                        unsigned char output[SHA1_DIGEST_LEN]);
+                        unsigned char output[SHA_DIGEST_LEN]);
 Get the computed SHA-1 signature from context ctx and store it into the
 output buffer.
 Release the context.
@@ -196,7 +196,7 @@ the keylen-byte key. Is invoked just after libssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
 
 
-4) Bidirectional Key ciphers.
+4) Bidirectional key ciphers.
 
 _libssh2_cipher_ctx
 Type of a cipher computation context.
@@ -307,8 +307,8 @@ TripleDES-CBC algorithm identifier initializer.
 
 5) Diffie-Hellman support.
 If the crypto-library supports opaque Diffie-Hellman computations, symbol
-`libssh2_dh_key_pair' should be #defined as described below andhe rest of this
-section applies.
+`libssh2_dh_key_pair' should be #defined as described below and the rest of
+this section applies.
 Else, the Diffie-Hellman context MUST be defined as `_libssh2_bn *' and
 the computation is emulated via calls to _libssh2_bn_rand() and
 _libssh2_bn_mod_exp(): all other symbols in this section are unused in this
@@ -328,7 +328,7 @@ int libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
                         _libssh2_bn *g, _libssh2_bn *p, int group_order,
                         _libssh2_bn_ctx *bnctx);
 Generates a Diffie-Hellman key pair using base `g', prime `p' and the given
-`group_order'. Can use the give big number context `bnctx' if needed.
+`group_order'. Can use the given big number context `bnctx' if needed.
 The private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
 the public key is returned in `public'.
 0 is returned upon success, else -1.
@@ -342,7 +342,7 @@ context creation. The result is stored in `secret'.
 0 is returned upon success, else -1.
 
 void libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
-Destroys Diffie-Hellman context at `dhctx' and reset its storage.
+Destroys Diffie-Hellman context at `dhctx' and resets its storage.
 
 
 6) Big numbers.
@@ -607,7 +607,7 @@ This procedure is already prototyped in crypto.h.
 int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx *dsactx,
                              const unsigned char *sig,
                              const unsigned char *m, unsigned long m_len);
-Verify (sig, siglen) signature of (m, m_len) using an SHA1 hash and the
+Verify (sig, siglen) signature of (m, m_len) using an SHA-1 hash and the
 DSA context.
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
