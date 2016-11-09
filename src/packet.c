@@ -1131,16 +1131,6 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
                                       match_ofs, match_buf, match_len);
             state->start = 0;
             return ret;
-        } else if (ret == 0) {
-            /* nothing available, wait until data arrives or we time out */
-            long left = LIBSSH2_READ_TIMEOUT - (long)(time(NULL) -
-                                                      state->start);
-
-            if (left <= 0) {
-                state->start = 0;
-                return LIBSSH2_ERROR_TIMEOUT;
-            }
-            return -1; /* no packet available yet */
         }
     }
 
