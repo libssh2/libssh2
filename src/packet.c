@@ -1224,13 +1224,9 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
         state->start = time(NULL);
     }
 
-    while (session->socket_state != LIBSSH2_SOCKET_DISCONNECTED) {
+    while (1) {
         int ret = _libssh2_transport_read(session);
-        if ((ret < 0) && (ret != LIBSSH2_ERROR_EAGAIN)) {
-            state->start = 0;
-            return ret;
-        }
-        if (ret <= 0) {
+        if (ret == LIBSSH2_ERROR_EAGAIN) {
             long left = LIBSSH2_READ_TIMEOUT -
                 (long)(time(NULL) - state->start);
 
@@ -1238,21 +1234,19 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
                 state->start = 0;
                 return LIBSSH2_ERROR_TIMEOUT;
             }
-            else if (ret == LIBSSH2_ERROR_EAGAIN) {
-                return ret;
-            }
+            return ret;
+        }
+        else if (ret < 0) {
+            state->start = 0;
+            return ret;
         }
 
-        if (strchr((char *) packet_types, ret)) {
+        if (ret && strchr((char *) packet_types, ret)) {
             /* Be lazy, let packet_ask pull it out of the brigade */
             return _libssh2_packet_askv(session, packet_types, data,
                                         data_len, match_ofs, match_buf,
                                         match_len);
         }
     }
-
-    /* Only reached if the socket died */
-    state->start = 0;
-    return LIBSSH2_ERROR_SOCKET_DISCONNECT;
 }
 
