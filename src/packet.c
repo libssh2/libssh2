@@ -1173,16 +1173,13 @@ _libssh2_packet_burn(LIBSSH2_SESSION * session,
         *state = libssh2_NB_state_created;
     }
 
-    while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
+    while (1) {
         ret = _libssh2_transport_read(session);
         if (ret == LIBSSH2_ERROR_EAGAIN) {
             return ret;
         } else if (ret < 0) {
             *state = libssh2_NB_state_idle;
             return ret;
-        } else if (ret == 0) {
-            /* FIXME: this might busyloop */
-            continue;
         }
 
         /* Be lazy, let packet_ask pull it out of the brigade */

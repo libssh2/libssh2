@@ -198,7 +198,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
                 _libssh2_packet_burn(session, &exchange_state->burn_state);
             if (burn_type == LIBSSH2_ERROR_EAGAIN) {
                 return burn_type;
-            } else if (burn_type <= 0) {
+            } else if (burn_type < 0) {
                 /* Failed to receive a packet */
                 ret = burn_type;
                 goto clean_exit;
@@ -824,7 +824,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
                 _libssh2_packet_burn(session, &exchange_state->burn_state);
             if (burn_type == LIBSSH2_ERROR_EAGAIN) {
                 return burn_type;
-            } else if (burn_type <= 0) {
+            } else if (burn_type < 0) {
                 /* Failed to receive a packet */
                 ret = burn_type;
                 goto clean_exit;
