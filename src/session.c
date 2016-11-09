@@ -1673,7 +1673,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
                     if (sockets[i].events & POLLIN) {
                         /* Spin session until no data available */
                         while (_libssh2_transport_read(fds[i].fd.channel->session)
-                               > 0);
+                               >= 0);
                     }
                     if (sockets[i].revents & POLLHUP) {
                         fds[i].revents |=
@@ -1686,7 +1686,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
                     if (sockets[i].events & POLLIN) {
                         /* Spin session until no data available */
                         while (_libssh2_transport_read(fds[i].fd.listener->session)
-                               > 0);
+                               >= 0);
                     }
                     if (sockets[i].revents & POLLHUP) {
                         fds[i].revents |=
@@ -1739,7 +1739,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
                     if (FD_ISSET(fds[i].fd.channel->session->socket_fd, &rfds)) {
                         /* Spin session until no data available */
                         while (_libssh2_transport_read(fds[i].fd.channel->session)
-                               > 0);
+                               >= 0);
                     }
                     break;
 
@@ -1748,7 +1748,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
                         (fds[i].fd.listener->session->socket_fd, &rfds)) {
                         /* Spin session until no data available */
                         while (_libssh2_transport_read(fds[i].fd.listener->session)
-                               > 0);
+                               >= 0);
                     }
                     break;
                 }
