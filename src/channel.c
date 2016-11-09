@@ -725,7 +725,7 @@ channel_forward_accept(LIBSSH2_LISTENER *listener)
 
     do {
         rc = _libssh2_transport_read(listener->session);
-    } while (rc > 0);
+    } while (rc >= 0);
 
     if (_libssh2_list_first(&listener->queue)) {
         LIBSSH2_CHANNEL *channel = _libssh2_list_first(&listener->queue);
@@ -1801,9 +1801,9 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
        produces faster transfers. */
     do {
         rc = _libssh2_transport_read(session);
-    } while (rc > 0);
+    } while (rc >= 0);
 
-    if ((rc < 0) && (rc != LIBSSH2_ERROR_EAGAIN))
+    if (rc != LIBSSH2_ERROR_EAGAIN) /* rc is guaranteed to be an error here */
         return _libssh2_error(session, rc, "transport read");
 
     read_packet = _libssh2_list_first(&session->packets);
@@ -2039,9 +2039,9 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
          * pending window adjust packets */
         do
             rc = _libssh2_transport_read(session);
-        while (rc > 0);
+        while (rc >= 0);
 
-        if((rc < 0) && (rc != LIBSSH2_ERROR_EAGAIN)) {
+        if(rc != LIBSSH2_ERROR_EAGAIN) {
             return _libssh2_error(channel->session, rc,
                                   "Failure while draining incoming flow");
         }
@@ -2352,11 +2352,11 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
     if (channel->close_state == libssh2_NB_state_sent) {
         /* We must wait for the remote SSH_MSG_CHANNEL_CLOSE message */
 
-        while (!channel->remote.close && !rc &&
-               (session->socket_state != LIBSSH2_SOCKET_DISCONNECTED))
+        while (!channel->remote.close && rc >= 0)
             rc = _libssh2_transport_read(session);
     }
 
+    /* FIXME: errors result in local.close being set -- salva 2016/11/09 */
     if(rc != LIBSSH2_ERROR_EAGAIN) {
         /* set the local close state first when we're perfectly confirmed to not
            do any more EAGAINs */
@@ -2400,7 +2400,6 @@ libssh2_channel_close(LIBSSH2_CHANNEL *channel)
 static int channel_wait_closed(LIBSSH2_CHANNEL *channel)
 {
     LIBSSH2_SESSION *session = channel->session;
-    int rc;
 
     if (!channel->remote.eof) {
         return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
@@ -2420,14 +2419,10 @@ static int channel_wait_closed(LIBSSH2_CHANNEL *channel)
      * While channel is not closed, read more packets from the network.
      * Either the channel will be closed or network timeout will occur.
      */
-    if (!channel->remote.close) {
-        do {
-            rc = _libssh2_transport_read(session);
-            if (channel->remote.close)
-                /* it is now closed, move on! */
-                break;
-        } while (rc > 0);
-        if(rc < 0)
+
+    while (!channel->remote.close) {
+        int rc = _libssh2_transport_read(session);
+        if (rc < 0)
             return rc;
     }
 
