@@ -416,7 +416,10 @@ m4_case([$1],
     LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }libssl libcrypto"
 
     # Not all OpenSSL have AES-CTR functions.
+    save_LIBS="${LIBS}"
+    LIBS="$LIBS $LIBSSL"
     AC_CHECK_FUNCS(EVP_aes_128_ctr)
+    LIBS="${save_LIBS}"
 
     found_crypto="$1"
     found_crypto_str="OpenSSL (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A})"
