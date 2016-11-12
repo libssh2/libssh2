@@ -60,10 +60,15 @@ set(TESTS
   password_auth_fails_with_wrong_username
   public_key_auth_fails_with_wrong_key
   public_key_auth_succeeds_with_correct_rsa_key
-  public_key_auth_succeeds_with_correct_dsa_key
   keyboard_interactive_auth_fails_with_wrong_response
   keyboard_interactive_auth_succeeds_with_correct_response
   )
+
+if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
+  list(APPEND TESTS
+    public_key_auth_succeeds_with_correct_dsa_key
+    )
+endif()
 
 add_library(openssh_fixture STATIC openssh_fixture.h openssh_fixture.c)
 target_link_libraries(openssh_fixture ${LIBRARIES})
