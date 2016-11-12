@@ -248,7 +248,7 @@ typedef struct kmdhgGPshakex_state_t
     size_t s_packet_len;
     size_t tmp_len;
     _libssh2_bn_ctx *ctx;
-    _libssh2_bn *x;
+    _libssh2_dh_ctx x;
     _libssh2_bn *e;
     _libssh2_bn *f;
     _libssh2_bn *k;

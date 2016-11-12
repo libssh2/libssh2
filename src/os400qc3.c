@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+ * Copyright (C) 2015-2016 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -115,6 +115,9 @@ static int  sshdsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
                          const char *method);
 #endif
 
+static unsigned char    OID_dhKeyAgreement[] =
+                            {9, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 1, 3, 1};
+
 
 /* PKCS#5 support. */
 
@@ -206,7 +209,7 @@ static const pkcs5algo  des_EDE3_CBC = {
     OID_des_EDE3_CBC,   parse_iv,   Qc3_TDES,   8,  Qc3_CBC, Qc3_Pad_Counter,
     '\0',   24, 0,  0,  8,  8,  0
 };
- 
+
 /* rc2CBC OID: 1.2.840.113549.3.2 */
 static const unsigned char  OID_rc2CBC[] = {
     8, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x03, 0x02
@@ -330,6 +333,7 @@ static const char   fopenrbmode[] = "rb";
 #include <qc3sigvr.h>
 #include <qc3sigcl.h>
 #include <qc3pbext.h>
+#include <qc3dh.h>
 
 static Qc3_Format_KEYD0100_T    nulltoken = {""};
 
@@ -883,220 +887,6 @@ _libssh2_random(unsigned char *buf, int len)
         Qc3PRN_TYPE_NORMAL, Qc3PRN_NO_PARITY, (char *) &ecnull);
 }
 
-int
-_libssh2_bn_rand(_libssh2_bn *bn, int bits, int top, int bottom)
-{
-    int len;
-    int i;
-
-    if (!bn || bits <= 0)
-        return -1;
-    len = (bits + 7) >> 3;
-    if (_libssh2_bn_resize(bn, len))
-        return -1;
-    _libssh2_random(bn->bignum, len);
-    i = ((bits - 1) & 07) + 1;
-    bn->bignum[len - 1] &= (1 << i) - 1;
-    switch (top) {
-    case 1:
-        if (bits > 1)
-            if (i > 1)
-                bn->bignum[len - 1] |= 1 << (i - 2);
-            else
-                bn->bignum[len - 2] |= 0x80;
-        /* Fall into. */
-    case 0:
-        bn->bignum[len - 1] |= 1 << (i - 1);
-        break;
-    }
-    if (bottom)
-        *bn->bignum |= 0x01;
-    return 0;
-}
-
-static int
-_libssh2_bn_lshift(_libssh2_bn *bn)
-{
-    int i;
-    int c = 0;
-
-    if (!bn)
-        return -1;
-
-    if (_libssh2_bn_resize(bn, (_libssh2_bn_bits(bn) + 8) >> 3))
-        return -1;
-
-    for (i = 0; i < bn->length; i++) {
-        if (bn->bignum[i] & 0x80)
-            c |= 0x02;
-        bn->bignum[i] = (bn->bignum[i] << 1) | (c & 0x01);
-        c >>= 1;
-    }
-
-    return 0;
-}
-
-static int
-_libssh2_bn_rshift(_libssh2_bn *bn)
-{
-    int i;
-    int c = 0;
-
-    if (!bn)
-        return -1;
-
-    for (i = bn->length; i--;) {
-        if (bn->bignum[i] & 0x01)
-            c |= 0x100;
-        bn->bignum[i] = (bn->bignum[i] >> 1) | (c & 0x80);
-        c >>= 1;
-    }
-
-    if (_libssh2_bn_resize(bn, (_libssh2_bn_bits(bn) + 7) >> 3))
-        return -1;
-
-    return 0;
-}
-
-static void
-_libssh2_bn_swap(_libssh2_bn *bn1, _libssh2_bn *bn2)
-{
-    _libssh2_bn t = *bn1;
-
-    *bn1 = *bn2;
-    *bn2 = t;
-}
-
-static int
-_libssh2_bn_subtract(_libssh2_bn *d, _libssh2_bn *bn1, _libssh2_bn *bn2)
-{
-    int c = 0;
-    int i;
-
-    if (bn1->length < bn2->length)
-        return -1;
-
-    if (_libssh2_bn_resize(d, bn1->length))
-        return -1;
-
-    for (i = 0; i < bn2->length; i++) {
-        c += (int) bn1->bignum[i] - (int) bn2->bignum[i];
-        d->bignum[i] = c;
-        c = c < 0? -1: 0;
-    }
-
-    for (; c && i < bn1->length; i++) {
-        c += (int) bn1->bignum[i];
-        d->bignum[i] = c;
-        c = c < 0? -1: 0;
-    }
-
-    if (_libssh2_bn_resize(d, (_libssh2_bn_bits(d) + 7) >> 3))
-        return -1;
-
-    return c;
-}
-
-int
-_libssh2_os400qc3_bn_mod_exp(_libssh2_bn *r, _libssh2_bn *a, _libssh2_bn *p,
-                             _libssh2_bn *m)
-{
-    _libssh2_bn *mp;
-    _libssh2_bn *rp;
-    asn1Element *rsapubkey;
-    asn1Element *subjpubkeyinfo;
-    unsigned char *av;
-    unsigned char *rv;
-    char *keydbuf;
-    Qc3_Format_ALGD0400_T algd;
-    Qc3_Format_KEYD0200_T *keyd;
-    Qus_EC_t errcode;
-    int sc;
-    int outlen;
-    int ret = -1;
-
-    /* There is no support for this function in the Qc3 crypto-library.
-       Since a RSA encryption performs this function, we can emulate it
-       by creating an RSA public key in ASN.1 SubjectPublicKeyInfo format
-       from p (exponent) and m (modulus) and encrypt a with this key. The
-       encryption output is the function result.
-       Problem: the Qc3EncryptData procedure only succeeds if the data bit
-       count is less than the modulus bit count. To satisfy this condition,
-       we multiply the modulus by a power of two and adjust the result
-       accordingly. */
-
-    if (!r || !a || !p)
-        return ret;
- 
-    mp = _libssh2_bn_init();
-    if (!mp)
-        return ret;
-    if (_libssh2_bn_from_bn(mp, m)) {
-        _libssh2_bn_free(mp);
-        return ret;
-    }
-    for (sc = 0; _libssh2_bn_bits(mp) <= 8 * a->length; sc++)
-        if (_libssh2_bn_lshift(mp)) {
-            _libssh2_bn_free(mp);
-            return ret;
-        }
-
-    rsapubkey = rsapublickey(p, mp);
-    subjpubkeyinfo = rsasubjectpublickeyinfo(rsapubkey);
-    asn1delete(rsapubkey);
-
-    if (!rsapubkey || !subjpubkeyinfo) {
-        asn1delete(rsapubkey);
-        asn1delete(subjpubkeyinfo);
-        _libssh2_bn_free(mp);
-        return ret;
-    }
-
-    av = (unsigned char *) alloca(a->length);
-    rv = (unsigned char *) alloca(mp->length);
-    keydbuf = alloca(sizeof *keyd +
-                     subjpubkeyinfo->end - subjpubkeyinfo->header);
-
-    if (av && rv && keydbuf) {
-        _libssh2_bn_to_bin(a, av);
-        algd.Public_Key_Alg = Qc3_RSA;
-        algd.PKA_Block_Format = Qc3_Zero_Pad;
-        memset(algd.Reserved, 0, sizeof algd.Reserved);
-        algd.Signing_Hash_Alg = 0;
-        keyd = (Qc3_Format_KEYD0200_T *) keydbuf;
-        keyd->Key_Type = Qc3_RSA_Public;
-        keyd->Key_String_Len = subjpubkeyinfo->end - subjpubkeyinfo->header;
-        keyd->Key_Format = Qc3_BER_String;
-        memset(keyd->Reserved, 0, sizeof keyd->Reserved);
-        memcpy(keydbuf + sizeof *keyd, subjpubkeyinfo->header,
-               keyd->Key_String_Len);
-        set_EC_length(errcode, sizeof errcode);
-        Qc3EncryptData(av, (int *) &a->length, Qc3_Data, (char *) &algd,
-                       Qc3_Alg_Public_Key, keydbuf, Qc3_Key_Parms, anycsp,
-                       NULL, rv, (int *) &mp->length, &outlen, &errcode);
-        if (!errcode.Bytes_Available) {
-            _libssh2_bn_from_bin(r, outlen, rv);
-            if (!sc)
-                ret = 0;
-            else {
-                rp = _libssh2_bn_init();
-                if (rp) {
-                    do {
-                        _libssh2_bn_rshift(mp);
-                        if (!_libssh2_bn_subtract(rp, r, mp))
-                            _libssh2_bn_swap(r, rp);
-                    } while (--sc);
-                    _libssh2_bn_free(rp);
-                    ret = 0;
-                }
-            }
-        }
-    }
-    asn1delete(subjpubkeyinfo);
-    _libssh2_bn_free(mp);
-    return ret;
-}
-
 
 /*******************************************************************
  *
@@ -1440,6 +1230,101 @@ _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
     }
     *rsa = ctx;
     return ret;
+}
+
+
+/*******************************************************************
+ *
+ * OS/400 QC3 crypto-library backend: Diffie-Hellman support.
+ *
+ *******************************************************************/
+
+void
+_libssh2_os400qc3_dh_init(_libssh2_dh_ctx *dhctx)
+{
+    memset((char *) dhctx, 0, sizeof *dhctx);
+}
+
+int
+_libssh2_os400qc3_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+                              _libssh2_bn *g, _libssh2_bn *p, int group_order)
+{
+    asn1Element *prime;
+    asn1Element *base;
+    asn1Element *dhparameter;
+    asn1Element *dhkeyagreement;
+    asn1Element *pkcs3;
+    int pkcs3len;
+    char *pubkey;
+    int pubkeysize;
+    int pubkeylen;
+    Qus_EC_t errcode;
+
+    (void) group_order;
+
+    /* Build the PKCS#3 structure. */
+
+    base = asn1uint(g);
+    prime = asn1uint(p);
+    dhparameter = asn1container(ASN1_SEQ | ASN1_CONSTRUCTED,
+                                prime, base, NULL);
+    asn1delete(base);
+    asn1delete(prime);
+    dhkeyagreement = asn1bytes(ASN1_OBJ_ID,
+                               OID_dhKeyAgreement + 1, OID_dhKeyAgreement[0]);
+    pkcs3 = asn1container(ASN1_SEQ | ASN1_CONSTRUCTED,
+                          dhkeyagreement, dhparameter, NULL);
+    asn1delete(dhkeyagreement);
+    asn1delete(dhparameter);
+    if (!base || !prime || !dhparameter ||
+        !dhkeyagreement || !dhparameter || !pkcs3) {
+        asn1delete(pkcs3);
+        return -1;
+    }
+    pkcs3len = pkcs3->end - pkcs3->header;
+    pubkeysize = (_libssh2_bn_bits(p) + 7) >> 3;
+    pubkey = alloca(pubkeysize);
+    set_EC_length(errcode, sizeof errcode);
+    Qc3GenDHKeyPair((char *) pkcs3->header, &pkcs3len, anycsp, NULL,
+                    dhctx->token, pubkey, &pubkeysize, &pubkeylen, &errcode);
+    asn1delete(pkcs3);
+    if (errcode.Bytes_Available)
+        return -1;
+    return _libssh2_bn_from_bin(public, pubkeylen, (unsigned char *) pubkey);
+}
+
+int
+_libssh2_os400qc3_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+                            _libssh2_bn *f, _libssh2_bn *p)
+{
+    char *pubkey;
+    int pubkeysize;
+    char *secretbuf;
+    int secretbufsize;
+    int secretbuflen;
+    Qus_EC_t errcode;
+
+    pubkeysize = (_libssh2_bn_bits(f) + 7) >> 3;
+    pubkey = alloca(pubkeysize);
+    _libssh2_bn_to_bin(f, pubkey);
+    secretbufsize = (_libssh2_bn_bits(p) + 7) >> 3;
+    secretbuf = alloca(pubkeysize);
+    set_EC_length(errcode, sizeof errcode);
+    Qc3CalculateDHSecretKey(dhctx->token, pubkey, &pubkeysize,
+                            secretbuf, &secretbufsize, &secretbuflen, &errcode);
+    if (errcode.Bytes_Available)
+        return -1;
+    return _libssh2_bn_from_bin(secret,
+                                secretbuflen, (unsigned char *) secretbuf);
+}
+
+void
+_libssh2_os400qc3_dh_dtor(_libssh2_dh_ctx *dhctx)
+{
+    if (!null_token(dhctx->token)) {
+        Qc3DestroyAlgorithmContext(dhctx->token, (char *) &ecnull);
+        memset((char *) dhctx, 0, sizeof *dhctx);
+    }
 }
 
 

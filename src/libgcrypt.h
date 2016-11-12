@@ -181,3 +181,5 @@
 #define _libssh2_bn_bits(bn) gcry_mpi_get_nbits (bn)
 #define _libssh2_bn_free(bn) gcry_mpi_release(bn)
 
+#define _libssh2_dh_ctx _libssh2_bn *
+
