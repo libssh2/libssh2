@@ -259,6 +259,14 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
 
 /*******************************************************************/
 /*
+ * mbedTLS backend: Diffie-Hellman support.
+ */
+
+#define _libssh2_dh_ctx _libssh2_bn *
+
+
+/*******************************************************************/
+/*
  * mbedTLS backend: forward declarations
  */
 void
