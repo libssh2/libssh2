@@ -261,8 +261,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
  *
  * Collect a packet into the input queue.
  *
- * Returns packet type added to input queue (0 if nothing added), or a
- * negative error number.
+ * Returns packet type added to input queue or a negative error
+ * number.
  */
 
 /*
