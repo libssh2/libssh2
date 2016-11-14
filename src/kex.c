@@ -191,7 +191,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
             _libssh2_debug(session, LIBSSH2_TRACE_KEX,
                            "Waiting for badly guessed KEX packet (to be ignored)");
             burn_type =
-                _libssh2_packet_burn(session, &exchange_state->burn_state);
+                _libssh2_packet_burn(session);
             if (burn_type == LIBSSH2_ERROR_EAGAIN) {
                 return burn_type;
             } else if (burn_type < 0) {
@@ -812,7 +812,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             _libssh2_debug(session, LIBSSH2_TRACE_KEX,
                            "Waiting for badly guessed KEX packet (to be ignored)");
             burn_type =
-                _libssh2_packet_burn(session, &exchange_state->burn_state);
+                _libssh2_packet_burn(session);
             if (burn_type == LIBSSH2_ERROR_EAGAIN) {
                 return burn_type;
             } else if (burn_type < 0) {

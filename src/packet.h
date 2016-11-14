@@ -66,8 +66,7 @@ int _libssh2_packet_requirev(LIBSSH2_SESSION *session,
                              int match_ofs,
                              const unsigned char *match_buf,
                              size_t match_len);
-int _libssh2_packet_burn(LIBSSH2_SESSION * session,
-                         libssh2_nonblocking_states * state);
+int _libssh2_packet_burn(LIBSSH2_SESSION * session);
 int _libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
                           unsigned long data_len);
 int _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
