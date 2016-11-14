@@ -72,9 +72,6 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
     int rc;
 
     if (session->userauth_list_state == libssh2_NB_state_idle) {
-        /* Zero the whole thing out */
-        memset(&session->userauth_list_packet_requirev_state, 0,
-               sizeof(session->userauth_list_packet_requirev_state));
 
         session->userauth_list_data_len = username_len + 27;
 
@@ -121,8 +118,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
         rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                       &session->userauth_list_data,
                                       &session->userauth_list_data_len, 0,
-                                      NULL, 0,
-                                      &session->userauth_list_packet_requirev_state);
+                                      NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block requesting userauth list");
@@ -206,9 +202,6 @@ userauth_password(LIBSSH2_SESSION *session,
     int rc;
 
     if (session->userauth_pswd_state == libssh2_NB_state_idle) {
-        /* Zero the whole thing out */
-        memset(&session->userauth_pswd_packet_requirev_state, 0,
-               sizeof(session->userauth_pswd_packet_requirev_state));
 
         /*
          * 40 = packet_type(1) + username_len(4) + service_len(4) +
@@ -274,10 +267,7 @@ userauth_password(LIBSSH2_SESSION *session,
             rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                           &session->userauth_pswd_data,
                                           &session->userauth_pswd_data_len,
-                                          0, NULL, 0,
-                                          &session->
-                                          userauth_pswd_packet_requirev_state);
-
+                                          0, NULL, 0);
             if (rc) {
                 if (rc != LIBSSH2_ERROR_EAGAIN)
                     session->userauth_pswd_state = libssh2_NB_state_idle;
@@ -800,10 +790,6 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         unsigned char buf[5];
         struct iovec datavec[4];
 
-        /* Zero the whole thing out */
-        memset(&session->userauth_host_packet_requirev_state, 0,
-               sizeof(session->userauth_host_packet_requirev_state));
-
         if (publickey) {
             rc = file_read_publickey(session, &session->userauth_host_method,
                                      &session->userauth_host_method_len,
@@ -973,9 +959,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         size_t data_len;
         rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                       &session->userauth_host_data,
-                                      &data_len, 0, NULL, 0,
-                                      &session->
-                                      userauth_host_packet_requirev_state);
+                                      &data_len, 0, NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
         }
@@ -1060,10 +1044,6 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         if (pubkeydata_len < 4)
             return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                                   "Invalid public key, too short");
-
-        /* Zero the whole thing out */
-        memset(&session->userauth_pblc_packet_requirev_state, 0,
-               sizeof(session->userauth_pblc_packet_requirev_state));
 
         /*
          * As an optimisation, userauth_publickey_fromfile reuses a
@@ -1175,9 +1155,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                       &session->userauth_pblc_data,
                                       &session->userauth_pblc_data_len, 0,
-                                      NULL, 0,
-                                      &session->
-                                      userauth_pblc_packet_requirev_state);
+                                      NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
         }
@@ -1334,8 +1312,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
     rc = _libssh2_packet_requirev(session, reply_codes_no_pk, /* PK_OK is no longer valid */
                                   sizeof(reply_codes_no_pk),
                                   &session->userauth_pblc_data,
-                                  &session->userauth_pblc_data_len, 0, NULL, 0,
-                                  &session->userauth_pblc_packet_requirev_state);
+                                  &session->userauth_pblc_data_len, 0, NULL, 0);
     if (rc == LIBSSH2_ERROR_EAGAIN) {
         return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                               "Would block requesting userauth list");
@@ -1595,10 +1572,6 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
         session->userauth_kybd_prompts = NULL;
         session->userauth_kybd_responses = NULL;
 
-        /* Zero the whole thing out */
-        memset(&session->userauth_kybd_packet_requirev_state, 0,
-               sizeof(session->userauth_kybd_packet_requirev_state));
-
         session->userauth_kybd_packet_len =
             1                   /* byte    SSH_MSG_USERAUTH_REQUEST */
             + 4 + username_len  /* string  user name (ISO-10646 UTF-8, as
@@ -1665,9 +1638,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                           &session->userauth_kybd_data,
                                           &session->userauth_kybd_data_len,
-                                          0, NULL, 0,
-                                          &session->
-                                          userauth_kybd_packet_requirev_state);
+                                          0, NULL, 0);
             if (rc == LIBSSH2_ERROR_EAGAIN) {
                 return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                       "Would block");

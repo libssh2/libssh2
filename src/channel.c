@@ -149,10 +149,6 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
         session->open_packet_len = channel_type_len + 17;
         session->open_local_channel = _libssh2_channel_nextid(session);
 
-        /* Zero the whole thing out */
-        memset(&session->open_packet_requirev_state, 0,
-               sizeof(session->open_packet_requirev_state));
-
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "Opening Channel - win %d pack %d", window_size,
                        packet_size);
@@ -228,8 +224,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
                                       &session->open_data,
                                       &session->open_data_len, 1,
                                       session->open_packet + 5 +
-                                      channel_type_len, 4,
-                                      &session->open_packet_requirev_state);
+                                      channel_type_len, 4);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
             return NULL;
@@ -456,10 +451,6 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
         session->fwdLstn_packet_len =
             session->fwdLstn_host_len + (sizeof("tcpip-forward") - 1) + 14;
 
-        /* Zero the whole thing out */
-        memset(&session->fwdLstn_packet_requirev_state, 0,
-               sizeof(session->fwdLstn_packet_requirev_state));
-
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "Requesting tcpip-forward session for %s:%d", host,
                        port);
@@ -513,8 +504,7 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
         size_t data_len;
         rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                       &data, &data_len,
-                                      0, NULL, 0,
-                                      &session->fwdLstn_packet_requirev_state);
+                                      0, NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
             return NULL;
@@ -791,10 +781,6 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
          * request(3)"env" + want_reply(1) + varname_len(4) + value_len(4) */
         channel->setenv_packet_len = varname_len + value_len + 21;
 
-        /* Zero the whole thing out */
-        memset(&channel->setenv_packet_requirev_state, 0,
-               sizeof(channel->setenv_packet_requirev_state));
-
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "Setting remote environment variable: %s=%s on "
                        "channel %lu/%lu",
@@ -846,9 +832,7 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
     if (channel->setenv_state == libssh2_NB_state_sent) {
         rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                       &data, &data_len,
-                                      1, channel->setenv_local_channel, 4,
-                                      &channel->
-                                      setenv_packet_requirev_state);
+                                      1, channel->setenv_local_channel, 4);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         }
@@ -919,10 +903,6 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
 
         channel->reqPTY_packet_len = term_len + modes_len + 41;
 
-        /* Zero the whole thing out */
-        memset(&channel->reqPTY_packet_requirev_state, 0,
-               sizeof(channel->reqPTY_packet_requirev_state));
-
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "Allocating tty on channel %lu/%lu", channel->local.id,
                        channel->remote.id);
@@ -969,8 +949,7 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
         unsigned char code;
         rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                       &data, &data_len,
-                                      1, channel->reqPTY_local_channel, 4,
-                                      &channel->reqPTY_packet_requirev_state);
+                                      1, channel->reqPTY_local_channel, 4);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -1025,10 +1004,6 @@ channel_request_pty_size(LIBSSH2_CHANNEL * channel, int width,
 
     if (channel->reqPTY_state == libssh2_NB_state_idle) {
         channel->reqPTY_packet_len = 39;
-
-        /* Zero the whole thing out */
-        memset(&channel->reqPTY_packet_requirev_state, 0,
-               sizeof(channel->reqPTY_packet_requirev_state));
 
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
             "changing tty size on channel %lu/%lu",
@@ -1114,10 +1089,6 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
          * screen_num(4) */
         channel->reqX11_packet_len = proto_len + cookie_len + 30;
 
-        /* Zero the whole thing out */
-        memset(&channel->reqX11_packet_requirev_state, 0,
-               sizeof(channel->reqX11_packet_requirev_state));
-
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "Requesting x11-req for channel %lu/%lu: single=%d "
                        "proto=%s cookie=%s screen=%d",
@@ -1196,8 +1167,7 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
 
         rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                       &data, &data_len,
-                                      1, channel->reqX11_local_channel, 4,
-                                      &channel->reqX11_packet_requirev_state);
+                                      1, channel->reqX11_local_channel, 4);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -1264,10 +1234,6 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         /* 10 = packet_type(1) + channel(4) + request_len(4) + want_reply(1) */
         channel->process_packet_len = request_len + 10;
 
-        /* Zero the whole thing out */
-        memset(&channel->process_packet_requirev_state, 0,
-               sizeof(channel->process_packet_requirev_state));
-
         if (message)
             channel->process_packet_len += + 4;
 
@@ -1324,8 +1290,7 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         unsigned char code;
         rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                       &data, &data_len,
-                                      1, channel->process_local_channel, 4,
-                                      &channel->process_packet_requirev_state);
+                                      1, channel->process_local_channel, 4);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
