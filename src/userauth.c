@@ -63,8 +63,8 @@
 static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                            unsigned int username_len)
 {
-    static const unsigned char reply_codes[3] =
-        { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
+    static const unsigned char reply_codes[] =
+        { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE };
     /* packet_type(1) + username_len(4) + service_len(4) +
        service(14)"ssh-connection" + method_len(4) = 27 */
     unsigned long methods_len;
@@ -118,7 +118,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
     }
 
     if (session->userauth_list_state == libssh2_NB_state_sent) {
-        rc = _libssh2_packet_requirev(session, reply_codes,
+        rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                       &session->userauth_list_data,
                                       &session->userauth_list_data_len, 0,
                                       NULL, 0,
@@ -199,9 +199,9 @@ userauth_password(LIBSSH2_SESSION *session,
                   LIBSSH2_PASSWD_CHANGEREQ_FUNC((*passwd_change_cb)))
 {
     unsigned char *s;
-    static const unsigned char reply_codes[4] =
+    static const unsigned char reply_codes[] =
         { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
-          SSH_MSG_USERAUTH_PASSWD_CHANGEREQ, 0
+          SSH_MSG_USERAUTH_PASSWD_CHANGEREQ
         };
     int rc;
 
@@ -271,7 +271,7 @@ userauth_password(LIBSSH2_SESSION *session,
         || (session->userauth_pswd_state == libssh2_NB_state_sent1)
         || (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
         if (session->userauth_pswd_state == libssh2_NB_state_sent) {
-            rc = _libssh2_packet_requirev(session, reply_codes,
+            rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                           &session->userauth_pswd_data,
                                           &session->userauth_pswd_data_len,
                                           0, NULL, 0,
@@ -968,10 +968,10 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
     }
 
     if (session->userauth_host_state == libssh2_NB_state_sent) {
-        static const unsigned char reply_codes[3] =
-            { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
+        static const unsigned char reply_codes[] =
+            { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE };
         size_t data_len;
-        rc = _libssh2_packet_requirev(session, reply_codes,
+        rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                       &session->userauth_host_data,
                                       &data_len, 0, NULL, 0,
                                       &session->
@@ -1040,10 +1040,14 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                             LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC((*sign_callback)),
                             void *abstract)
 {
-    unsigned char reply_codes[4] =
+    static const unsigned char reply_codes[] =
         { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
-          SSH_MSG_USERAUTH_PK_OK, 0
+          SSH_MSG_USERAUTH_PK_OK,
         };
+
+    static const unsigned char reply_codes_no_pk[] =
+        { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE };
+
     int rc;
     unsigned char *s;
 
@@ -1168,7 +1172,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
     }
 
     if (session->userauth_pblc_state == libssh2_NB_state_sent) {
-        rc = _libssh2_packet_requirev(session, reply_codes,
+        rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                       &session->userauth_pblc_data,
                                       &session->userauth_pblc_data_len, 0,
                                       NULL, 0,
@@ -1327,10 +1331,8 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         session->userauth_pblc_state = libssh2_NB_state_sent3;
     }
 
-    /* PK_OK is no longer valid */
-    reply_codes[2] = 0;
-
-    rc = _libssh2_packet_requirev(session, reply_codes,
+    rc = _libssh2_packet_requirev(session, reply_codes_no_pk, /* PK_OK is no longer valid */
+                                  sizeof(reply_codes_no_pk),
                                   &session->userauth_pblc_data,
                                   &session->userauth_pblc_data_len, 0, NULL, 0,
                                   &session->userauth_pblc_packet_requirev_state);
@@ -1578,9 +1580,9 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
     unsigned char *s;
     int rc;
 
-    static const unsigned char reply_codes[4] = {
+    static const unsigned char reply_codes[] = {
         SSH_MSG_USERAUTH_SUCCESS,
-        SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST, 0
+        SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST
     };
     unsigned int language_tag_len;
     unsigned int i;
@@ -1660,7 +1662,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
 
     for(;;) {
         if (session->userauth_kybd_state == libssh2_NB_state_sent) {
-            rc = _libssh2_packet_requirev(session, reply_codes,
+            rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                           &session->userauth_kybd_data,
                                           &session->userauth_kybd_data_len,
                                           0, NULL, 0,
