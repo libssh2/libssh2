@@ -297,21 +297,18 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
     }
     if (session->open_channel) {
         unsigned char channel_id[4];
+        static const unsigned char packet_types[] =
+            { SSH_MSG_CHANNEL_DATA, SSH_MSG_CHANNEL_EXTENDED_DATA };
         LIBSSH2_FREE(session, session->open_channel->channel_type);
 
         _libssh2_list_remove(&session->open_channel->node);
 
         /* Clear out packets meant for this channel */
         _libssh2_htonu32(channel_id, session->open_channel->local.id);
-        while ((_libssh2_packet_ask(session, SSH_MSG_CHANNEL_DATA,
+        while (_libssh2_packet_askv(session, packet_types, sizeof(packet_types),
                                     &session->open_data,
                                     &session->open_data_len, 1,
-                                    channel_id, 4) >= 0)
-               ||
-               (_libssh2_packet_ask(session, SSH_MSG_CHANNEL_EXTENDED_DATA,
-                                    &session->open_data,
-                                    &session->open_data_len, 1,
-                                    channel_id, 4) >= 0)) {
+                                    channel_id, 4) >= 0) {
             LIBSSH2_FREE(session, session->open_data);
             session->open_data = NULL;
         }
@@ -2432,6 +2429,8 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     unsigned char *data;
     size_t data_len;
     int rc;
+    static const unsigned char packet_types[] =
+        { SSH_MSG_CHANNEL_DATA, SSH_MSG_CHANNEL_EXTENDED_DATA };
 
     assert(session);
 
@@ -2469,11 +2468,8 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
 
     /* Clear out packets meant for this channel */
     _libssh2_htonu32(channel_id, channel->local.id);
-    while ((_libssh2_packet_ask(session, SSH_MSG_CHANNEL_DATA, &data,
-                                &data_len, 1, channel_id, 4) >= 0)
-           ||
-           (_libssh2_packet_ask(session, SSH_MSG_CHANNEL_EXTENDED_DATA, &data,
-                                &data_len, 1, channel_id, 4) >= 0)) {
+    while (_libssh2_packet_askv(session, packet_types, sizeof(packet_types), &data,
+                                &data_len, 1, channel_id, 4) >= 0) {
         LIBSSH2_FREE(session, data);
     }
 
