@@ -1746,7 +1746,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     LIBSSH2_SESSION *session = channel->session;
     LIBSSH2_PACKET *packet, *next_packet;
     int rc;
-    size_t total = 0;
+    size_t total_bytes_read = 0;
 
     _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                    "channel_read() wants %d bytes from channel %lu/%lu "
@@ -1769,17 +1769,17 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     /* Even if we get a fatal error, there may be data queued on the
      * packet list, so we look for it before checking rc for errors */
     for (packet = _libssh2_list_first(&session->packets);
-         packet && (buflen > total);
+         packet && (buflen > total_bytes_read);
          packet = next_packet) {
 
         next_packet = _libssh2_list_next(&packet->node);
         if (_libssh2_channel_check_packet_stream(channel, packet, stream_id)) {
 
             /* figure out much more data we want to read */
-            int wanted = buflen - total;
+            int wanted = buflen - total_bytes_read;
             int available = packet->data_len - packet->data_head;
             if (available <= wanted) {
-                memcpy(buf + total, packet->data + packet->data_head, available);
+                memcpy(buf + total_bytes_read, packet->data + packet->data_head, available);
 
                 /* no data remains on the packet: unlink and free it! */
                 _libssh2_list_remove(&packet->node);
@@ -1787,7 +1787,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
                 LIBSSH2_FREE(session, packet);
             }
             else {
-                memcpy(buf + total, packet->data + packet->data_head, wanted);
+                memcpy(buf + total_bytes_read, packet->data + packet->data_head, wanted);
                 packet->data_head += wanted;
                 available = wanted;
             }
@@ -1797,14 +1797,14 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
                            available, channel->local.id, channel->remote.id,
                            stream_id);
 
-            total += available;
+            total_bytes_read += available;
         }
     }
 
-    if (total) {
-        channel->read_avail -= total;
-        channel->remote.window_size -= total;
-        return total;
+    if (total_bytes_read) {
+        channel->read_avail -= total_bytes_read;
+        channel->remote.window_size -= total_bytes_read;
+        return total_bytes_read;
     }
 
     /* If the channel is already at EOF we signal that back returning
