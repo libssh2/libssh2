@@ -133,10 +133,9 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
                       const unsigned char *message,
                       size_t message_len)
 {
-    static const unsigned char reply_codes[3] = {
+    static const unsigned char reply_codes[] = {
         SSH_MSG_CHANNEL_OPEN_CONFIRMATION,
         SSH_MSG_CHANNEL_OPEN_FAILURE,
-        0
     };
     unsigned char *s;
     int rc;
@@ -225,7 +224,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
     }
 
     if (session->open_state == libssh2_NB_state_sent) {
-        rc = _libssh2_packet_requirev(session, reply_codes,
+        rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
                                       &session->open_data,
                                       &session->open_data_len, 1,
                                       session->open_packet + 5 +
@@ -443,8 +442,8 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
                        int port, int *bound_port, int queue_maxsize)
 {
     unsigned char *s;
-    static const unsigned char reply_codes[3] =
-        { SSH_MSG_REQUEST_SUCCESS, SSH_MSG_REQUEST_FAILURE, 0 };
+    static const unsigned char reply_codes[] =
+        { SSH_MSG_REQUEST_SUCCESS, SSH_MSG_REQUEST_FAILURE };
     int rc;
 
     if(!host)
@@ -512,7 +511,8 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
     if (session->fwdLstn_state == libssh2_NB_state_sent) {
         unsigned char *data;
         size_t data_len;
-        rc = _libssh2_packet_requirev(session, reply_codes, &data, &data_len,
+        rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
+                                      &data, &data_len,
                                       0, NULL, 0,
                                       &session->fwdLstn_packet_requirev_state);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
@@ -781,8 +781,8 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s, *data;
-    static const unsigned char reply_codes[3] =
-        { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+    static const unsigned char reply_codes[] =
+        { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE };
     size_t data_len;
     int rc;
 
@@ -844,7 +844,8 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
     }
 
     if (channel->setenv_state == libssh2_NB_state_sent) {
-        rc = _libssh2_packet_requirev(session, reply_codes, &data, &data_len,
+        rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
+                                      &data, &data_len,
                                       1, channel->setenv_local_channel, 4,
                                       &channel->
                                       setenv_packet_requirev_state);
@@ -903,8 +904,8 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s;
-    static const unsigned char reply_codes[3] =
-        { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+    static const unsigned char reply_codes[] =
+        { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE };
     int rc;
 
     if (channel->reqPTY_state == libssh2_NB_state_idle) {
@@ -966,7 +967,8 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
         unsigned char *data;
         size_t data_len;
         unsigned char code;
-        rc = _libssh2_packet_requirev(session, reply_codes, &data, &data_len,
+        rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
+                                      &data, &data_len,
                                       1, channel->reqPTY_local_channel, 4,
                                       &channel->reqPTY_packet_requirev_state);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
@@ -1098,8 +1100,8 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s;
-    static const unsigned char reply_codes[3] =
-        { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+    static const unsigned char reply_codes[] =
+        { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE };
     size_t proto_len =
         auth_proto ? strlen(auth_proto) : (sizeof("MIT-MAGIC-COOKIE-1") - 1);
     size_t cookie_len =
@@ -1192,7 +1194,8 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         unsigned char *data;
         unsigned char code;
 
-        rc = _libssh2_packet_requirev(session, reply_codes, &data, &data_len,
+        rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
+                                      &data, &data_len,
                                       1, channel->reqX11_local_channel, 4,
                                       &channel->reqX11_packet_requirev_state);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
@@ -1248,8 +1251,8 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s;
-    static const unsigned char reply_codes[3] =
-        { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+    static const unsigned char reply_codes[] =
+        { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE };
     int rc;
 
     if (channel->process_state == libssh2_NB_state_end) {
@@ -1319,7 +1322,8 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         unsigned char *data;
         size_t data_len;
         unsigned char code;
-        rc = _libssh2_packet_requirev(session, reply_codes, &data, &data_len,
+        rc = _libssh2_packet_requirev(session, reply_codes, sizeof(reply_codes),
+                                      &data, &data_len,
                                       1, channel->process_local_channel, 4,
                                       &channel->process_packet_requirev_state);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
