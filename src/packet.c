@@ -1021,23 +1021,6 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 }
 
 /*
- * _libssh2_packet_ask
- *
- * Scan the brigade for a matching packet type, optionally poll the socket for
- * a packet first
- */
-int
-_libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
-                    unsigned char **data, size_t *data_len,
-                    int match_ofs, const unsigned char *match_buf,
-                    size_t match_len)
-{
-    return _libssh2_packet_askv(session, &packet_type, 1,
-                                data, data_len,
-                                match_ofs, match_buf, match_len);
-}
-
-/*
  * libssh2_packet_askv
  *
  * Scan for any of a list of packet types in the brigade, optionally poll the
