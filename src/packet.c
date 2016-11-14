@@ -1032,37 +1032,16 @@ _libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
                     int match_ofs, const unsigned char *match_buf,
                     size_t match_len)
 {
-    LIBSSH2_PACKET *packet = _libssh2_list_first(&session->packets);
-
-    _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
-                   "Looking for packet of type: %d", (int) packet_type);
-
-    while (packet) {
-        if (packet->data[0] == packet_type
-            && (packet->data_len >= (match_ofs + match_len))
-            && (!match_buf ||
-                (memcmp(packet->data + match_ofs, match_buf,
-                        match_len) == 0))) {
-            *data = packet->data;
-            *data_len = packet->data_len;
-
-            /* unlink struct from session->packets */
-            _libssh2_list_remove(&packet->node);
-
-            LIBSSH2_FREE(session, packet);
-
-            return 0;
-        }
-        packet = _libssh2_list_next(&packet->node);
-    }
-    return -1;
+    return _libssh2_packet_askv(session, &packet_type, 1,
+                                data, data_len,
+                                match_ofs, match_buf, match_len);
 }
 
 /*
  * libssh2_packet_askv
  *
  * Scan for any of a list of packet types in the brigade, optionally poll the
- * socket for a packet first
+ * socket for a packet first. If packet_types is NULL, look for any packet type.
  */
 int
 _libssh2_packet_askv(LIBSSH2_SESSION * session,
@@ -1073,16 +1052,42 @@ _libssh2_packet_askv(LIBSSH2_SESSION * session,
                      const unsigned char *match_buf,
                      size_t match_len)
 {
-    int i;
 
-    for(i = 0; i < packet_types_len; i++) {
-        if (0 == _libssh2_packet_ask(session, packet_types[i], data,
-                                     data_len, match_ofs,
-                                     match_buf, match_len)) {
+    LIBSSH2_PACKET *packet = _libssh2_list_first(&session->packets);
+
+#ifdef LIBSSH2DEBUG
+    if (packet_types) {
+        char buffer[256 * 3 + 1];
+        int i;
+        for (i = 0; i < packet_types_len; i++)
+            sprintf(buffer + i * 3, " %02x", packet_types[i]);
+        _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
+                       "Looking for packet of any of the following types: %s", buffer);
+    }
+    else {
+         _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
+                        "Looking for packet of any type");
+    }
+#endif
+
+    while (packet) {
+        if ((!packet_types || memchr(packet_types, packet->data[0], packet_types_len))
+            && (packet->data_len >= (match_ofs + match_len))
+            && (!match_buf ||
+                (memcmp(packet->data + match_ofs, match_buf,
+                        match_len) == 0))) {
+            _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
+                           "Packet of type %02x found", packet->data[0]);
+            *data = packet->data;
+            *data_len = packet->data_len;
+
+            /* unlink struct from session->packets */
+            _libssh2_list_remove(&packet->node);
+            LIBSSH2_FREE(session, packet);
             return 0;
         }
+        packet = _libssh2_list_next(&packet->node);
     }
-
     return -1;
 }
 
