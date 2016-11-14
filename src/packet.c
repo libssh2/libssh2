@@ -1120,60 +1120,25 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
  * _libssh2_packet_burn
  *
  * Loops _libssh2_transport_read() until any packet is available and promptly
- * discards it. Returns type of discarded packet or error.
+ * discards it. Returns 0 on success, error otherwise.
  * Used during KEX exchange to discard badly guessed KEX_INIT packets.
  */
 int
-_libssh2_packet_burn(LIBSSH2_SESSION * session,
-                     libssh2_nonblocking_states * state)
+_libssh2_packet_burn(LIBSSH2_SESSION * session)
 {
     unsigned char *data;
     size_t data_len;
-    unsigned char all_packets[256];
-    int i;
     int ret;
 
-    if (*state == libssh2_NB_state_idle) {
-        for(i = 0; i < 256; i++) {
-            all_packets[i] = i;
-        }
+    _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Trying to burn packet");
 
-        if (_libssh2_packet_askv(session, all_packets, sizeof(all_packets),
-                                 &data, &data_len, 0,
-                                 NULL, 0) == 0) {
-            /* A packet was available in the packet brigade, burn it */
-            int type = data[0];
-            LIBSSH2_FREE(session, data);
-            return type;
-        }
+    ret = _libssh2_packet_requirev(session, NULL, 0, &data, &data_len, 0, NULL, 0);
+    if (ret < 0)
+        return ret;
 
-        _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
-                       "Blocking until packet becomes available to burn");
-        *state = libssh2_NB_state_created;
-    }
-
-    while (1) {
-        ret = _libssh2_transport_read(session);
-        if (ret == LIBSSH2_ERROR_EAGAIN) {
-            return ret;
-        } else if (ret < 0) {
-            *state = libssh2_NB_state_idle;
-            return ret;
-        }
-
-        /* Be lazy, let packet_ask pull it out of the brigade */
-        if (0 ==
-            _libssh2_packet_ask(session, (unsigned char)ret,
-                                         &data, &data_len, 0, NULL, 0)) {
-            /* Smoke 'em if you got 'em */
-            LIBSSH2_FREE(session, data);
-            *state = libssh2_NB_state_idle;
-            return ret;
-        }
-    }
-
-    /* Only reached if the socket died */
-    return LIBSSH2_ERROR_SOCKET_DISCONNECT;
+    _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Packet of type %02x burnt");
+    LIBSSH2_FREE(session, data);
+    return 0;
 }
 
 /*

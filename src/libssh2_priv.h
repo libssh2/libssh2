@@ -249,7 +249,6 @@ typedef struct kmdhgGPshakex_state_t
     size_t k_value_len;
     size_t h_sig_len;
     void *exchange_hash;
-    libssh2_nonblocking_states burn_state;
 } kmdhgGPshakex_state_t;
 
 typedef struct key_exchange_state_low_t
