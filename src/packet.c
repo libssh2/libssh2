@@ -1025,10 +1025,12 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 }
 
 /*
- * libssh2_packet_askv
+ * _libssh2_packet_askv
  *
- * Scan for any of a list of packet types in the brigade, optionally poll the
- * socket for a packet first. If packet_types is NULL, look for any packet type.
+ * Scan for any of a list of packet types in the brigade. If
+ * packet_types is NULL, look for any packet type. Use
+ * _libssh2_packet_requirev instead if you also want to also poll the
+ * socket for new packets.
  */
 int
 _libssh2_packet_askv(LIBSSH2_SESSION * session,
