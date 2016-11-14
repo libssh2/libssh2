@@ -1157,5 +1157,7 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
                                         match_len);
         }
     }
+
+    return 0; /* unreachable */
 }
 
