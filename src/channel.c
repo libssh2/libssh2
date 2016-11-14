@@ -1391,9 +1391,9 @@ _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int stream_id)
     if (channel->flush_state == libssh2_NB_state_idle) {
         LIBSSH2_PACKET *packet, *next;
         refund_bytes = 0;
-        for ( packet = _libssh2_list_first(&channel->session->packets);
-              packet;
-              packet = next ) {
+        for (packet = _libssh2_list_first(&channel->session->packets);
+             packet;
+             packet = next) {
             next = _libssh2_list_next(&packet->node);
 
             if (_libssh2_channel_check_packet_stream(channel, packet, stream_id)) {
@@ -1865,9 +1865,9 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
     LIBSSH2_SESSION *session = channel->session;
     LIBSSH2_PACKET *packet;
 
-    for ( packet = _libssh2_list_first(&session->packets);
-          packet;
-          packet = _libssh2_list_next(&packet->node) ) {
+    for (packet = _libssh2_list_first(&session->packets);
+         packet;
+         packet = _libssh2_list_next(&packet->node)) {
 
         if (_libssh2_channel_check_packet_stream(channel, packet, stream_id))
             return (packet->data_len - packet->data_head);
