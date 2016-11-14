@@ -1094,43 +1094,21 @@ _libssh2_packet_askv(LIBSSH2_SESSION * session,
  * _libssh2_packet_require
  *
  * Loops _libssh2_transport_read() until the packet requested is available
- * SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause a bailout
+ * or an error happens.
  *
- * Returns negative on error
- * Returns 0 when it has taken care of the requested packet.
+ * Returns negative on error or 0 when it has taken care of the requested
+ * packet.
  */
 int
 _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
                         unsigned char **data, size_t *data_len,
                         int match_ofs,
                         const unsigned char *match_buf,
-                        size_t match_len,
-                        packet_require_state_t *state)
+                        size_t match_len)
 {
-    if (state->start == 0) {
-        if (_libssh2_packet_ask(session, packet_type, data, data_len,
-                                match_ofs, match_buf,
-                                match_len) == 0) {
-            /* A packet was available in the packet brigade */
-            return 0;
-        }
-    }
-
-    while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
-        int ret = _libssh2_transport_read(session);
-        if (ret < 0) {
-            /* an error which is not just because of blocking */
-            return ret;
-        } else if (ret == packet_type) {
-            /* Be lazy, let packet_ask pull it out of the brigade */
-            ret = _libssh2_packet_ask(session, packet_type, data, data_len,
-                                      match_ofs, match_buf, match_len);
-            return ret;
-        }
-    }
-
-    /* Only reached if the socket died */
-    return LIBSSH2_ERROR_SOCKET_DISCONNECT;
+    return _libssh2_packet_requirev(session, &packet_type, 1,
+                                    data, data_len,
+                                    match_ofs, match_buf, match_len);
 }
 
 /*

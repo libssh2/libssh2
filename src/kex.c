@@ -129,9 +129,6 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         exchange_state->f = _libssh2_bn_init_from_bin(); /* g^(Random from server) mod p */
         exchange_state->k = _libssh2_bn_init(); /* The shared secret: f^x mod p */
 
-        /* Zero the whole thing out */
-        memset(&exchange_state->req_state, 0, sizeof(packet_require_state_t));
-
         /* Generate x and e */
         rc = libssh2_dh_key_pair(&exchange_state->x, exchange_state->e, g, p,
                                  group_order, exchange_state->ctx);
@@ -217,8 +214,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         /* Wait for KEX reply */
         rc = _libssh2_packet_require(session, packet_type_reply,
                                      &exchange_state->s_packet,
-                                     &exchange_state->s_packet_len, 0, NULL,
-                                     0, &exchange_state->req_state);
+                                     &exchange_state->s_packet_len, 0, NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         }
@@ -475,8 +471,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
     if (exchange_state->state == libssh2_NB_state_sent3) {
         rc = _libssh2_packet_require(session, SSH_MSG_NEWKEYS,
                                      &exchange_state->tmp,
-                                     &exchange_state->tmp_len, 0, NULL, 0,
-                                     &exchange_state->req_state);
+                                     &exchange_state->tmp_len, 0, NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -755,9 +750,6 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         exchange_state->f = _libssh2_bn_init_from_bin(); /* g^(Random from server) mod p */
         exchange_state->k = _libssh2_bn_init(); /* The shared secret: f^x mod p */
 
-        /* Zero the whole thing out */
-        memset(&exchange_state->req_state, 0, sizeof(packet_require_state_t));
-
         /* Generate x and e */
         rc = libssh2_dh_key_pair(&exchange_state->x, exchange_state->e, g, p,
                                  group_order, exchange_state->ctx);
@@ -843,8 +835,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         /* Wait for KEX reply */
         rc = _libssh2_packet_require(session, packet_type_reply,
                                      &exchange_state->s_packet,
-                                     &exchange_state->s_packet_len, 0, NULL,
-                                     0, &exchange_state->req_state);
+                                     &exchange_state->s_packet_len, 0, NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         }
@@ -1103,8 +1094,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
     if (exchange_state->state == libssh2_NB_state_sent3) {
         rc = _libssh2_packet_require(session, SSH_MSG_NEWKEYS,
                                      &exchange_state->tmp,
-                                     &exchange_state->tmp_len, 0, NULL, 0,
-                                     &exchange_state->req_state);
+                                     &exchange_state->tmp_len, 0, NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -1543,7 +1533,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     if (key_state->state == libssh2_NB_state_sent) {
         rc = _libssh2_packet_require(session, SSH_MSG_KEX_DH_GEX_GROUP,
                                      &key_state->data, &key_state->data_len,
-                                     0, NULL, 0, &key_state->req_state);
+                                     0, NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -1643,7 +1633,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
     if (key_state->state == libssh2_NB_state_sent) {
         rc = _libssh2_packet_require(session, SSH_MSG_KEX_DH_GEX_GROUP,
                                      &key_state->data, &key_state->data_len,
-                                     0, NULL, 0, &key_state->req_state);
+                                     0, NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
         } else if (rc) {
@@ -2515,8 +2505,7 @@ _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
             retcode =
                 _libssh2_packet_require(session, SSH_MSG_KEXINIT,
                                         &key_state->data,
-                                        &key_state->data_len, 0, NULL, 0,
-                                        &key_state->req_state);
+                                        &key_state->data_len, 0, NULL, 0);
             if (retcode == LIBSSH2_ERROR_EAGAIN) {
                 session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
                 return retcode;

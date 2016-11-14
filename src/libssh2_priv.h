@@ -225,12 +225,6 @@ typedef enum
     libssh2_NB_state_end
 } libssh2_nonblocking_states;
 
-typedef struct packet_require_state_t
-{
-    libssh2_nonblocking_states state;
-    time_t start;
-} packet_require_state_t;
-
 typedef struct kmdhgGPshakex_state_t
 {
     libssh2_nonblocking_states state;
@@ -255,14 +249,12 @@ typedef struct kmdhgGPshakex_state_t
     size_t k_value_len;
     size_t h_sig_len;
     void *exchange_hash;
-    packet_require_state_t req_state;
     libssh2_nonblocking_states burn_state;
 } kmdhgGPshakex_state_t;
 
 typedef struct key_exchange_state_low_t
 {
     libssh2_nonblocking_states state;
-    packet_require_state_t req_state;
     kmdhgGPshakex_state_t exchange_state;
     _libssh2_bn *p;             /* SSH2 defined value (p_value) */
     _libssh2_bn *g;             /* SSH2 defined value (2) */
@@ -275,7 +267,6 @@ typedef struct key_exchange_state_low_t
 typedef struct key_exchange_state_t
 {
     libssh2_nonblocking_states state;
-    packet_require_state_t req_state;
     key_exchange_state_low_t key_state_low;
     unsigned char *data;
     size_t data_len;
@@ -653,7 +644,6 @@ struct _LIBSSH2_SESSION
     size_t startup_data_len;
     unsigned char startup_service[sizeof("ssh-userauth") + 5 - 1];
     size_t startup_service_length;
-    packet_require_state_t startup_req_state;
     key_exchange_state_t startup_key_state;
 
     /* State variables used in libssh2_session_free() */
