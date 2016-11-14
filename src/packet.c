@@ -1114,23 +1114,17 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
             /* A packet was available in the packet brigade */
             return 0;
         }
-
-        state->start = time(NULL);
     }
 
     while (session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
         int ret = _libssh2_transport_read(session);
-        if (ret == LIBSSH2_ERROR_EAGAIN)
-            return ret;
-        else if (ret < 0) {
-            state->start = 0;
+        if (ret < 0) {
             /* an error which is not just because of blocking */
             return ret;
         } else if (ret == packet_type) {
             /* Be lazy, let packet_ask pull it out of the brigade */
             ret = _libssh2_packet_ask(session, packet_type, data, data_len,
                                       match_ofs, match_buf, match_len);
-            state->start = 0;
             return ret;
         }
     }
@@ -1213,37 +1207,19 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
                          int packet_types_len,
                          unsigned char **data, size_t *data_len,
                          int match_ofs,
-                         const unsigned char *match_buf, size_t match_len,
-                         packet_requirev_state_t * state)
+                         const unsigned char *match_buf, size_t match_len)
 {
     if (_libssh2_packet_askv(session, packet_types, packet_types_len,
                              data, data_len, match_ofs,
                              match_buf, match_len) == 0) {
         /* One of the packets listed was available in the packet brigade */
-        state->start = 0;
         return 0;
-    }
-
-    if (state->start == 0) {
-        state->start = time(NULL);
     }
 
     while (1) {
         int ret = _libssh2_transport_read(session);
-        if (ret == LIBSSH2_ERROR_EAGAIN) {
-            long left = LIBSSH2_READ_TIMEOUT -
-                (long)(time(NULL) - state->start);
-
-            if (left <= 0) {
-                state->start = 0;
-                return LIBSSH2_ERROR_TIMEOUT;
-            }
+        if (ret < 0)
             return ret;
-        }
-        else if (ret < 0) {
-            state->start = 0;
-            return ret;
-        }
 
         if (memchr(packet_types, ret, packet_types_len)) {
             /* Be lazy, let packet_ask pull it out of the brigade */
