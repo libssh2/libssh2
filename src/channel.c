@@ -1737,8 +1737,7 @@ libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
  * complete. If we read stuff from the wire but it was no payload data to fill
  * in the buffer with, we MUST make sure to return LIBSSH2_ERROR_EAGAIN.
  *
- * The receive window must be maintained (enlarged) by the user of this
- * function.
+ * The receive window is enlargued as needed automatically
  */
 ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
                               char *buf, size_t buflen)
