@@ -38,7 +38,8 @@
 
 #include "libssh2_priv.h"
 #include "transport.h" /* _libssh2_transport_write */
-
+#include "session.h"
+#include "keepalive.h"
 /* Keep-alive stuff. */
 
 LIBSSH2_API void
@@ -53,11 +54,13 @@ libssh2_keepalive_config (LIBSSH2_SESSION *session,
     session->keepalive_want_reply = want_reply ? 1 : 0;
 }
 
-LIBSSH2_API int
-libssh2_keepalive_send (LIBSSH2_SESSION *session,
-                        int *seconds_to_next)
+int _libssh2_keepalive_send (LIBSSH2_SESSION *session,
+                             int *seconds_to_next)
 {
-    /* Keep-alive packet format is...
+    /* The following variables are declared with static allocation so
+       that the pointers passed to _libssh2_transport_write do not
+       change between calls.
+       Keep-alive packet format is ...
        SSH_MSG_GLOBAL_REQUEST || 4-byte len || str || want-reply. */
     static const unsigned char keepalive_data_wr[] =     /* wr: wants reply */
         "\x50\x00\x00\x00\x15keepalive@libssh2.org\x01";
@@ -109,4 +112,13 @@ libssh2_keepalive_send (LIBSSH2_SESSION *session,
     }
 
     return 0;
+}
+
+LIBSSH2_API int
+libssh2_keepalive_send (LIBSSH2_SESSION *session,
+                        int *seconds_to_next) {
+    int rc;
+    BLOCK_ADJUST(rc, session,
+                 _libssh2_keepalive_send(session, seconds_to_next));
+    return rc;
 }

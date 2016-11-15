@@ -185,6 +185,7 @@ set(SOURCES
   global.c
   hostkey.c
   keepalive.c
+  keepalive.h
   kex.c
   knownhost.c
   libssh2_priv.h
