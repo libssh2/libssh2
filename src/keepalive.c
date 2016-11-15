@@ -71,7 +71,12 @@ int _libssh2_keepalive_send (LIBSSH2_SESSION *session,
     time_t now = 0;
 
     if (!session->keepalive_data) {
-        if (!session->keepalive_interval) {
+        if (!session->keepalive_interval ||
+            /* libssh2_keepalive_send is called from
+             * _libssh2_wait_socket and it may be invoked when the
+             * transport layer is already busy sending a different
+             * packet, so, the following check must be performed... */
+            _libssh2_transport_send_ready(session)) {
             if (seconds_to_next)
                 *seconds_to_next = 0;
             return 0;
