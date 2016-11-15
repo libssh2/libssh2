@@ -737,7 +737,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 
   scp_recv_empty_channel:
     /* the code only jumps here as a result of a zero read from channel_read()
-       so we check EOF status to avoid getting stuck in a loop */
+       which indicates a premature EOF */
     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                    "Unexpected channel close");
 
