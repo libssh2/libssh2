@@ -789,6 +789,9 @@ struct _LIBSSH2_SESSION
     int keepalive_interval;
     int keepalive_want_reply;
     time_t keepalive_last_sent;
+
+    /* State variables used by libssh2_keepalive_send */
+    const unsigned char *keepalive_data;
 };
 
 /* session.state bits */

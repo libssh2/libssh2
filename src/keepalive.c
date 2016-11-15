@@ -57,42 +57,55 @@ LIBSSH2_API int
 libssh2_keepalive_send (LIBSSH2_SESSION *session,
                         int *seconds_to_next)
 {
-    time_t now;
+    /* Keep-alive packet format is...
+       SSH_MSG_GLOBAL_REQUEST || 4-byte len || str || want-reply. */
+    static const unsigned char keepalive_data_wr[] =     /* wr: wants reply */
+        "\x50\x00\x00\x00\x15keepalive@libssh2.org\x01";
+    static const unsigned char keepalive_data_nr[] =     /* nr: no reply */
+        "\x50\x00\x00\x00\x15keepalive@libssh2.org\x00";
 
-    if (!session->keepalive_interval) {
-        if (seconds_to_next)
-            *seconds_to_next = 0;
-        return 0;
-    }
+    int rc;
+    time_t now = 0;
 
-    now = time (NULL);
-
-    if (session->keepalive_last_sent + session->keepalive_interval <= now) {
-        /* Format is
-           "SSH_MSG_GLOBAL_REQUEST || 4-byte len || str || want-reply". */
-        unsigned char keepalive_data[]
-            = "\x50\x00\x00\x00\x15keepalive@libssh2.orgW";
-        size_t len = sizeof (keepalive_data) - 1;
-        int rc;
-
-        keepalive_data[len - 1] =
-            (unsigned char)session->keepalive_want_reply;
-
-        rc = _libssh2_transport_send(session, keepalive_data, len, NULL, 0);
-        /* Silently ignore PACKET_EAGAIN here: if the write buffer is
-           already full, sending another keepalive is not useful. */
-        if (rc && rc != LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                           "Unable to send keepalive message");
-            return rc;
+    if (!session->keepalive_data) {
+        if (!session->keepalive_interval) {
+            if (seconds_to_next)
+                *seconds_to_next = 0;
+            return 0;
         }
 
-        session->keepalive_last_sent = now;
-        if (seconds_to_next)
-            *seconds_to_next = session->keepalive_interval;
-    } else if (seconds_to_next) {
-        *seconds_to_next = (int) (session->keepalive_last_sent - now)
-            + session->keepalive_interval;
+        now = time(NULL);
+        if (session->keepalive_last_sent + session->keepalive_interval > now) {
+            if (seconds_to_next)
+                *seconds_to_next = (int)(session->keepalive_last_sent - now
+                                         + session->keepalive_interval);
+            return 0;
+        }
+
+        session->keepalive_data = (session->keepalive_want_reply
+                                   ? keepalive_data_wr
+                                   : keepalive_data_nr);
+    }
+
+    rc = _libssh2_transport_send(session,
+                                 session->keepalive_data, sizeof(keepalive_data_wr) - 1,
+                                 NULL, 0);
+
+    if (rc == LIBSSH2_ERROR_EAGAIN)
+        return rc;
+
+    /* We set the state even when an error happens. It is probably
+       useless as errors from _libssh2_transport_read are usually
+       final, but hey, it is a harmless operation anyway! */
+    session->keepalive_last_sent = (now ? now : time(NULL));
+    session->keepalive_data = NULL;
+    if (seconds_to_next)
+        *seconds_to_next = session->keepalive_interval;
+
+    if (rc < 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                       "Unable to send keepalive message");
+        return rc;
     }
 
     return 0;
