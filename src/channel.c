@@ -1774,7 +1774,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
         next_packet = _libssh2_list_next(&packet->node);
         if (_libssh2_channel_check_packet_stream(channel, packet, stream_id)) {
 
-            /* figure out much more data we want to read */
+            /* figure out how much more data we want to read */
             int wanted = buflen - total_bytes_read;
             int available = packet->data_len - packet->data_head;
             if (available <= wanted) {
