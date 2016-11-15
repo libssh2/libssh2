@@ -598,6 +598,20 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
     return LIBSSH2_ERROR_SOCKET_RECV; /* we never reach this point */
 }
 
+/*
+ * _libssh2_transport_send_ready
+ *
+ * Checks if, in the current session state, it is safe to call
+ * _libssh2_transport_send with a new load.
+ *
+ * It returns false when a previous call to _libssh2_transport_send
+ * was interrupted with an EAGAIN error.
+ */
+int _libssh2_transport_send_ready(LIBSSH2_SESSION *session)
+{
+    return (session->packet.olen == 0);
+}
+
 static int
 send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
               size_t data_len, ssize_t *ret)
