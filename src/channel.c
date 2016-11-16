@@ -1912,8 +1912,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         else if (channel->local.eof)
             return _libssh2_error(channel->session,
                                   LIBSSH2_ERROR_CHANNEL_EOF_SENT,
-                                  "EOF has already been received, "
-                                  "data might be ignored");
+                                  "EOF has already been sent");
 
         /* drain the incoming flow first, mostly to make sure we get all
          * pending window adjust packets */
