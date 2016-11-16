@@ -393,14 +393,14 @@ dnl
 dnl For conveniece, $4 is expanded if [lib]$1 is found.
 
 AC_DEFUN([LIBSSH2_LIB_HAVE_LINKFLAGS], [
-  libssh2_lib_have_linkflags_LDFLAGS="$LDFLAGS"
+  libssh2_save_LDFLAGS="$LDFLAGS"
 
   test "${with_lib$1_prefix+set}" = set &&
     LDFLAGS="$LDFLAGS${LDFLAGS:+ }-L${with_lib$1_prefix}/lib"
 
   AC_LIB_HAVE_LINKFLAGS([$1], [$2], [$3])
 
-  LDFLAGS="$libssh2_lib_have_linkflags_LDFLAGS"
+  LDFLAGS="$libssh2_save_LDFLAGS"
 
   if test "$ac_cv_lib$1" = "yes"; then :
     $4
@@ -416,10 +416,10 @@ m4_case([$1],
     LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }libssl libcrypto"
 
     # Not all OpenSSL have AES-CTR functions.
-    save_LIBS="${LIBS}"
+    libssh2_save_LIBS="$LIBS"
     LIBS="$LIBS $LIBSSL"
     AC_CHECK_FUNCS(EVP_aes_128_ctr)
-    LIBS="${save_LIBS}"
+    LIBS="$libssh2_save_LIBS"
 
     found_crypto="$1"
     found_crypto_str="OpenSSL (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A})"
