@@ -2126,34 +2126,29 @@ static int channel_wait_eof(LIBSSH2_CHANNEL *channel)
         channel->wait_eof_state = libssh2_NB_state_created;
     }
 
-    /*
-     * While channel is not eof, read more packets from the network.
-     * Either the EOF will be set or network timeout will occur.
-     */
-    do {
-        if (channel->remote.eof) {
-            break;
-        }
+    rc = _libssh2_transport_read_drain(session);
 
-        if ((channel->remote.window_size == channel->read_avail) &&
-            session->api_block_mode)
-            return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_FULL,
-                                  "Receiving channel window has been exhausted");
-
-        rc = _libssh2_transport_read(session);
+    if (channel->remote.eof) {
+        rc = 0;
+    }
+    else {
         if (rc == LIBSSH2_ERROR_EAGAIN) {
-            return rc;
+            if ((channel->remote.window_size <= channel->read_avail) &&
+                session->api_block_mode) {
+                rc = _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_FULL,
+                                    "Receiving channel window has been exhausted");
+            }
+            else
+                /* LIBSSH2_ERROR_EAGAIN and recv window is not full -> try again */
+                return LIBSSH2_ERROR_EAGAIN;
         }
-        else if (rc < 0) {
-            channel->wait_eof_state = libssh2_NB_state_idle;
-            return _libssh2_error(session, rc,
-                                  "_libssh2_transport_read() bailed out!");
-        }
-    } while (1);
+        else
+            _libssh2_error(session, rc, "_libssh2_transport_read_drain() bailed out!");
+    }
 
     channel->wait_eof_state = libssh2_NB_state_idle;
 
-    return 0;
+    return rc;
 }
 
 /*
