@@ -711,11 +711,7 @@ libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
 static LIBSSH2_CHANNEL *
 channel_forward_accept(LIBSSH2_LISTENER *listener)
 {
-    int rc;
-
-    do {
-        rc = _libssh2_transport_read(listener->session);
-    } while (rc >= 0);
+    int rc = _libssh2_transport_read_drain(listener->session);
 
     if (_libssh2_list_first(&listener->queue)) {
         LIBSSH2_CHANNEL *channel = _libssh2_list_first(&listener->queue);
@@ -1761,9 +1757,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
 
     /* Process all pending incoming packets. Tests prove that this way
        produces faster transfers. */
-    do {
-        rc = _libssh2_transport_read(session);
-    } while (rc >= 0);
+    rc = _libssh2_transport_read_drain(session);
 
     /* Even if we get a fatal error, there may be data queued on the
      * packet list, so we look for it before checking rc for errors */
@@ -1923,9 +1917,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
 
         /* drain the incoming flow first, mostly to make sure we get all
          * pending window adjust packets */
-        do
-            rc = _libssh2_transport_read(session);
-        while (rc >= 0);
+        rc = _libssh2_transport_read_drain(session);
 
         if(rc != LIBSSH2_ERROR_EAGAIN) {
             return _libssh2_error(channel->session, rc,

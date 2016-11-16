@@ -84,6 +84,8 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
  */
 int _libssh2_transport_read(LIBSSH2_SESSION * session);
 
+int _libssh2_transport_read_drain(LIBSSH2_SESSION * session);
+
 int _libssh2_transport_send_ready(LIBSSH2_SESSION *session);
 
 #endif /* __LIBSSH2_TRANSPORT_H */

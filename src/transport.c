@@ -599,6 +599,21 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 }
 
 /*
+ * _libssh2_transport_read_drain
+ *
+ * Reads as many packets as possible from the network without blocking.
+ * Returns error code (usually LIBSSH2_ERROR_EAGAIN).
+ */
+
+int _libssh2_transport_read_drain(LIBSSH2_SESSION *session) {
+    int rc;
+    do {
+        rc = _libssh2_transport_read(session);
+    } while (rc >= 0);
+    return rc;
+}
+
+/*
  * _libssh2_transport_send_ready
  *
  * Checks if, in the current session state, it is safe to call
