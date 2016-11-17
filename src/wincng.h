@@ -358,10 +358,6 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
   _libssh2_wincng_bignum_init()
 #define _libssh2_bn_init_from_bin() \
   _libssh2_bn_init()
-#define _libssh2_bn_rand(bn, bits, top, bottom) \
-  _libssh2_wincng_bignum_rand(bn, bits, top, bottom)
-#define _libssh2_bn_mod_exp(r, a, p, m, ctx) \
-  _libssh2_wincng_bignum_mod_exp(r, a, p, m, ctx)
 #define _libssh2_bn_set_word(bn, word) \
   _libssh2_wincng_bignum_set_word(bn, word)
 #define _libssh2_bn_from_bin(bn, len, bin) \
@@ -374,7 +370,17 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
 #define _libssh2_bn_free(bn) \
   _libssh2_wincng_bignum_free(bn)
 
-#define _libssh2_dh_ctx _libssh2_bn *
+/*
+ * Windows CNG backend: Diffie-Hellman support
+ */
+
+#define _libssh2_dh_ctx struct _libssh2_wincng_bignum *
+#define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
+#define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
+        _libssh2_dh_key_pair(dhctx, public, g, p, group_order)
+#define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
+        _libssh2_dh_secret(dhctx, secret, f, p)
+#define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
 
 /*******************************************************************/
 /*
@@ -533,14 +539,6 @@ _libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx);
 _libssh2_bn *
 _libssh2_wincng_bignum_init(void);
 int
-_libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom);
-int
-_libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
-                               _libssh2_bn *a,
-                               _libssh2_bn *p,
-                               _libssh2_bn *m,
-                               _libssh2_bn_ctx *bnctx);
-int
 _libssh2_wincng_bignum_set_word(_libssh2_bn *bn, unsigned long word);
 unsigned long
 _libssh2_wincng_bignum_bits(const _libssh2_bn *bn);
@@ -551,3 +549,13 @@ void
 _libssh2_wincng_bignum_to_bin(const _libssh2_bn *bn, unsigned char *bin);
 void
 _libssh2_wincng_bignum_free(_libssh2_bn *bn);
+extern void
+_libssh2_dh_init(_libssh2_dh_ctx *dhctx);
+extern int
+_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+                     _libssh2_bn *g, _libssh2_bn *p, int group_order);
+extern int
+_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+                   _libssh2_bn *f, _libssh2_bn *p);
+extern void
+_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);

@@ -624,4 +624,37 @@ void _libssh2_init_aes_ctr(void)
 {
     /* no implementation */
 }
+
+void
+_libssh2_dh_init(_libssh2_dh_ctx *dhctx)
+{
+    *dhctx = gcry_mpi_new(0);                   /* Random from client */
+}
+
+int
+_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+                     _libssh2_bn *g, _libssh2_bn *p, int group_order)
+{
+    /* Generate x and e */
+    gcry_mpi_randomize(*dhctx, group_order * 8 - 1, GCRY_WEAK_RANDOM);
+    gcry_mpi_powm(public, g, *dhctx, p);
+    return 0;
+}
+
+int
+_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+                   _libssh2_bn *f, _libssh2_bn *p)
+{
+    /* Compute the shared secret */
+    gcry_mpi_powm(secret, f, *dhctx, p);
+    return 0;
+}
+
+void
+_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
+{
+    gcry_mpi_release(*dhctx);
+    *dhctx = NULL;
+}
+
 #endif /* LIBSSH2_LIBGCRYPT */

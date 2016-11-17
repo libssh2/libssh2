@@ -1840,7 +1840,7 @@ _libssh2_wincng_bignum_resize(_libssh2_bn *bn, unsigned long length)
     return 0;
 }
 
-int
+static int
 _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
 {
     unsigned char *bignum;
@@ -1877,20 +1877,17 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
     return 0;
 }
 
-int
+static int
 _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
                                _libssh2_bn *a,
                                _libssh2_bn *p,
-                               _libssh2_bn *m,
-                               _libssh2_bn_ctx *bnctx)
+                               _libssh2_bn *m)
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
     unsigned char *key, *bignum;
     unsigned long keylen, offset, length;
     int ret;
-
-    (void)bnctx;
 
     if (!r || !a || !p || !m)
         return -1;
@@ -2060,6 +2057,43 @@ _libssh2_wincng_bignum_free(_libssh2_bn *bn)
         bn->length = 0;
         _libssh2_wincng_safe_free(bn, sizeof(_libssh2_bn));
     }
+}
+
+
+/*
+ * Windows CNG backend: Diffie-Hellman support.
+ */
+
+void
+_libssh2_dh_init(_libssh2_dh_ctx *dhctx)
+{
+    *dhctx = _libssh2_wincng_bignum_init();     /* Random from client */
+}
+
+int
+_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+                     _libssh2_bn *g, _libssh2_bn *p, int group_order)
+{
+    /* Generate x and e */
+    _libssh2_wincng_bignum_rand(*dhctx, group_order * 8 - 1, 0, -1);
+    _libssh2_wincng_bignum_mod_exp(public, g, *dhctx, p);
+    return 0;
+}
+
+int
+_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+                   _libssh2_bn *f, _libssh2_bn *p)
+{
+    /* Compute the shared secret */
+    _libssh2_wincng_bignum_mod_exp(secret, f, *dhctx, p);
+    return 0;
+}
+
+void
+_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
+{
+    _libssh2_wincng_bignum_free(*dhctx);
+    *dhctx = NULL;
 }
 
 

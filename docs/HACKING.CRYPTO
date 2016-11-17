@@ -333,13 +333,6 @@ TripleDES-CBC algorithm identifier initializer.
 
 
 5) Diffie-Hellman support.
-If the crypto-library supports opaque Diffie-Hellman computations, symbol
-`libssh2_dh_key_pair' should be #defined as described below and the rest of
-this section applies.
-Else, the Diffie-Hellman context MUST be defined as `_libssh2_bn *' and
-the computation is emulated via calls to _libssh2_bn_rand() and
-_libssh2_bn_mod_exp(): all other symbols in this section are unused in this
-case.
 
 5.1) Diffie-Hellman context.
 _libssh2_dh_ctx
@@ -359,7 +352,6 @@ Generates a Diffie-Hellman key pair using base `g', prime `p' and the given
 The private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
 the public key is returned in `public'.
 0 is returned upon success, else -1.
-If defined, this procedure MUST be implemented as a #define'd macro.
 
 int libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                       _libssh2_bn *f, _libssh2_bn *p, _libssh2_bn_ctx * bnctx)
@@ -428,22 +420,6 @@ int _libssh2_bn_to_bin(_libssh2_bn *bn, unsigned char *val);
 Converts the absolute value of bn into big-endian form and store it at
 val. val must point to _libssh2_bn_bytes(bn) bytes of memory.
 Returns the length of the big-endian number.
-
-void _libssh2_bn_rand(_libssh2_bn *bn, int bits, int top, int bottom);
-Generates a cryptographically strong pseudo-random number of bits in
-length and stores it in bn. If top is -1, the most significant bit of the
-random number can be zero. If top is 0, it is set to 1, and if top is 1, the
-two most significant bits of the number will be set to 1, so that the product
-of two such random numbers will always have 2*bits length. If bottom is true,
-the number will be odd.
-This procedure is only needed if no specific Diffie-Hellman support is provided.
-
-void _libssh2_bn_mod_exp(_libssh2_bn *r, _libssh2_bn *a,
-	                 _libssh2_bn *p, _libssh2_bn *m,
-	                 _libssh2_bn_ctx *ctx);
-Computes a to the p-th power modulo m and stores the result into r (r=a^p % m).
-May use the given context.
-This procedure is only needed if no specific Diffie-Hellman support is provided.
 
 
 7) Private key algorithms.
