@@ -239,10 +239,6 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
   _libssh2_mbedtls_bignum_init()
 #define _libssh2_bn_init_from_bin() \
   _libssh2_mbedtls_bignum_init()
-#define _libssh2_bn_rand(bn, bits, top, bottom) \
-  _libssh2_mbedtls_bignum_random(bn, bits, top, bottom)
-#define _libssh2_bn_mod_exp(r, a, p, m, ctx) \
-  mbedtls_mpi_exp_mod(r, a, p, m, NULL)
 #define _libssh2_bn_set_word(bn, word) \
   mbedtls_mpi_lset(bn, word)
 #define _libssh2_bn_from_bin(bn, len, bin) \
@@ -262,7 +258,13 @@ mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
  * mbedTLS backend: Diffie-Hellman support.
  */
 
-#define _libssh2_dh_ctx _libssh2_bn *
+#define _libssh2_dh_ctx mbedtls_mpi *
+#define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
+#define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
+        _libssh2_dh_key_pair(dhctx, public, g, p, group_order)
+#define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
+        _libssh2_dh_secret(dhctx, secret, f, p)
+#define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
 
 
 /*******************************************************************/
@@ -309,9 +311,6 @@ _libssh2_mbedtls_bignum_init(void);
 
 void
 _libssh2_mbedtls_bignum_free(_libssh2_bn *bn);
-
-int
-_libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom);
 
 int
 _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
@@ -377,3 +376,14 @@ _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                        const char *privatekeydata,
                                        size_t privatekeydata_len,
                                        const char *passphrase);
+
+extern void
+_libssh2_dh_init(_libssh2_dh_ctx *dhctx);
+extern int
+_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+                    _libssh2_bn *g, _libssh2_bn *p, int group_order);
+extern int
+_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+                  _libssh2_bn *f, _libssh2_bn *p);
+extern void
+_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);

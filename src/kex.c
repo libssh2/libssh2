@@ -98,44 +98,6 @@
             }                                                              \
     }
 
-/*
- * Generic Diffie-Hellman computation support.
- *
- * DH context should be a _libssh2_bn *.
- */
-
-#ifndef libssh2_dh_key_pair
-static void libssh2_dh_init(_libssh2_dh_ctx *dhctx)
-{
-    *dhctx = _libssh2_bn_init();                    /* Random from client */
-}
-
-static int libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                               _libssh2_bn *g, _libssh2_bn *p, int group_order,
-                               _libssh2_bn_ctx *bnctx)
-{
-    /* Generate x and e */
-    _libssh2_bn_rand(*dhctx, group_order * 8 - 1, 0, -1);
-    _libssh2_bn_mod_exp(public, g, *dhctx, p, bnctx);
-    return 0;
-}
-
-static int libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
-                             _libssh2_bn *f, _libssh2_bn *p,
-                             _libssh2_bn_ctx * bnctx)
-{
-    /* Compute the shared secret */
-    _libssh2_bn_mod_exp(secret, f, *dhctx, p, bnctx);
-    return 0;
-}
-
-static void libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
-{
-    _libssh2_bn_free(*dhctx);
-    *dhctx = NULL;
-}
-#endif
-
 
 /*
  * diffie_hellman_sha1

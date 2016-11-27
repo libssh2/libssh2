@@ -1189,4 +1189,38 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     return st;
 }
 
+void
+_libssh2_dh_init(_libssh2_dh_ctx *dhctx)
+{
+    *dhctx = BN_new();                          /* Random from client */
+}
+
+int
+_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+                     _libssh2_bn *g, _libssh2_bn *p, int group_order,
+                     _libssh2_bn_ctx *bnctx)
+{
+    /* Generate x and e */
+    BN_rand(*dhctx, group_order * 8 - 1, 0, -1);
+    BN_mod_exp(public, g, *dhctx, p, bnctx);
+    return 0;
+}
+
+int
+_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+                   _libssh2_bn *f, _libssh2_bn *p,
+                   _libssh2_bn_ctx *bnctx)
+{
+    /* Compute the shared secret */
+    BN_mod_exp(secret, f, *dhctx, p, bnctx);
+    return 0;
+}
+
+void
+_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
+{
+    BN_clear_free(*dhctx);
+    *dhctx = NULL;
+}
+
 #endif /* LIBSSH2_OPENSSL */

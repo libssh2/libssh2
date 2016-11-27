@@ -203,7 +203,7 @@ _libssh2_mbedtls_bignum_init(void)
     return bignum;
 }
 
-int
+static int
 _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
 {
     size_t len;
@@ -603,4 +603,43 @@ void _libssh2_init_aes_ctr(void)
 {
     /* no implementation */
 }
+
+
+/*******************************************************************/
+/*
+ * mbedTLS backend: Diffie-Hellman functions
+ */
+
+void
+_libssh2_dh_init(_libssh2_dh_ctx *dhctx)
+{
+    *dhctx = _libssh2_mbedtls_bignum_init();    /* Random from client */
+}
+
+int
+_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+                     _libssh2_bn *g, _libssh2_bn *p, int group_order)
+{
+    /* Generate x and e */
+    _libssh2_mbedtls_bignum_random(*dhctx, group_order * 8 - 1, 0, -1);
+    mbedtls_mpi_exp_mod(public, g, *dhctx, p, NULL);
+    return 0;
+}
+
+int
+_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+                   _libssh2_bn *f, _libssh2_bn *p)
+{
+    /* Compute the shared secret */
+    mbedtls_mpi_exp_mod(secret, f, *dhctx, p, NULL);
+    return 0;
+}
+
+void
+_libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
+{
+    mbedtls_mpi_free(*dhctx);
+    *dhctx = NULL;
+}
+
 #endif /* LIBSSH2_MBEDTLS */
