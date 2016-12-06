@@ -42,6 +42,7 @@ include(CheckSymbolExists)
 include(CheckNonblockingSocketSupport)
 include(SocketLibraries)
 
+
 ## Cryptography backend choice
 
 set(CRYPTO_BACKEND
@@ -71,6 +72,17 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     list(APPEND PC_REQUIRES_PRIVATE libssl libcrypto)
 
     if (WIN32)
+	  # - Try to change WIN32 compiler FLAGS from dynamic to static linking
+	  # Only looking at the C compiler flags, not the CXX flags
+	  if(BUILD_SHARED_LIBS STREQUAL "OFF")
+		foreach(flag_var
+			CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO)
+
+			if(${flag_var} MATCHES "/MD")
+				string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+			endif(${flag_var} MATCHES "/MD")
+		endforeach(flag_var)
+	  endif()
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
       # This should really be handled by FindOpenSSL.cmake.
       list(APPEND LIBRARIES crypt32)
@@ -80,7 +92,9 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
 	NAMES libeay32.dll crypto.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES bin)
-      if (NOT DLL_LIBEAY32)
+	# Warning only applies if dynamically linking
+	# TODO: This assumes OPENSSL pre 1.1.0 library names
+      if (NOT DLL_LIBEAY32 AND BUILD_SHARED_LIBS STREQUAL "ON")
         message(WARNING
           "Unable to find OpenSSL libeay32 DLL, executables may not run")
       endif()
@@ -89,7 +103,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
         NAMES ssleay32.dll ssl.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES bin)
-      if (NOT DLL_SSLEAY32)
+      if (NOT DLL_SSLEAY32 AND BUILD_SHARED_LIBS STREQUAL "ON")
         message(WARNING
           "Unable to find OpenSSL ssleay32 DLL, executables may not run")
       endif()
@@ -232,6 +246,7 @@ endif(CLEAR_MEMORY)
 add_feature_info("Shared library" BUILD_SHARED_LIBS
   "creating libssh2 as a shared library (.so/.dll)")
 
+
 option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression")
 add_feature_info(Compression ENABLE_ZLIB_COMPRESSION
   "using zlib for compression")
@@ -354,6 +369,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
   target_compile_definitions(libssh2 PRIVATE LIBSSH2_DARWIN)
 endif()
+
 
 if(CMAKE_VERSION VERSION_LESS "2.8.12")
   # Fall back to over-linking dependencies
