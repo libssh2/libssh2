@@ -149,7 +149,7 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         return _libssh2_error(hosts->session, LIBSSH2_ERROR_INVAL,
                               "No key type set");
 
-    if(!(entry = LIBSSH2_CALLOC(hosts->session, sizeof(struct known_host))))
+    if((entry = LIBSSH2_CALLOC(hosts->session, sizeof(struct known_host))) == 0)
         return _libssh2_error(hosts->session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory for known host "
                               "entry");
@@ -1085,16 +1085,16 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
 
         if(required_size <= buflen) {
             if(node->comment && key_type_len)
-                snprintf(buf, buflen, "|1|%s|%s %s %s %s\n", saltalloc,
+                (void)snprintf(buf, buflen, "|1|%s|%s %s %s %s\n", saltalloc,
                          namealloc, key_type_name, node->key, node->comment);
             else if (node->comment)
-                snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc, namealloc,
+                (void)snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc, namealloc,
                          node->key, node->comment);
             else if (key_type_len)
-                snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc, namealloc,
+                (void)snprintf(buf, buflen, "|1|%s|%s %s %s\n", saltalloc, namealloc,
                          key_type_name, node->key);
             else
-                snprintf(buf, buflen, "|1|%s|%s %s\n", saltalloc, namealloc,
+                (void)snprintf(buf, buflen, "|1|%s|%s %s\n", saltalloc, namealloc,
                          node->key);
         }
 
@@ -1107,16 +1107,16 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
 
         if(required_size <= buflen) {
             if(node->comment && key_type_len)
-                snprintf(buf, buflen, "%s %s %s %s\n", node->name,
+                (void)snprintf(buf, buflen, "%s %s %s %s\n", node->name,
                          key_type_name, node->key, node->comment);
             else if (node->comment)
-                snprintf(buf, buflen, "%s %s %s\n", node->name, node->key,
+               (void) snprintf(buf, buflen, "%s %s %s\n", node->name, node->key,
                          node->comment);
             else if (key_type_len)
-                snprintf(buf, buflen, "%s %s %s\n", node->name, key_type_name,
+                (void)snprintf(buf, buflen, "%s %s %s\n", node->name, key_type_name,
                          node->key);
             else
-                snprintf(buf, buflen, "%s %s\n", node->name, node->key);
+                (void)snprintf(buf, buflen, "%s %s\n", node->name, node->key);
         }
     }
 

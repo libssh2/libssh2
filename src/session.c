@@ -508,9 +508,11 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
  * Set (or reset) a callback function
  * Returns the prior address
  *
- * FIXME: this function relies on that we can typecast function pointers
- * to void pointers, which isn't allowed in ISO C!
+ * FIXED: this function relies on that we can typecast function pointers
+ * to void pointers, which isn't allowed in ISO C! But you can cast the pointer to a pointer, and then deference that pointer to copy the function pointer.
  */
+#define CALLBACK_CAST_TO_VOID_PTR(x) *(void**)(&(x))
+
 LIBSSH2_API void *
 libssh2_session_callback_set(LIBSSH2_SESSION * session,
                              int cbtype, void *callback)
@@ -519,38 +521,38 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
 
     switch (cbtype) {
     case LIBSSH2_CALLBACK_IGNORE:
-        oldcb = session->ssh_msg_ignore;
-        session->ssh_msg_ignore = callback;
-        return oldcb;
+		oldcb = CALLBACK_CAST_TO_VOID_PTR(session->ssh_msg_ignore);
+		session->ssh_msg_ignore = *(LIBSSH2_IGNORE_FUNC((**)))callback;
+		return oldcb;
 
     case LIBSSH2_CALLBACK_DEBUG:
-        oldcb = session->ssh_msg_debug;
-        session->ssh_msg_debug = callback;
+        oldcb = CALLBACK_CAST_TO_VOID_PTR(session->ssh_msg_debug);
+        session->ssh_msg_debug = *(LIBSSH2_DEBUG_FUNC((**)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_DISCONNECT:
-        oldcb = session->ssh_msg_disconnect;
-        session->ssh_msg_disconnect = callback;
+        oldcb = CALLBACK_CAST_TO_VOID_PTR(session->ssh_msg_disconnect);
+        session->ssh_msg_disconnect = *(LIBSSH2_DISCONNECT_FUNC((**)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_MACERROR:
-        oldcb = session->macerror;
-        session->macerror = callback;
+        oldcb = CALLBACK_CAST_TO_VOID_PTR(session->macerror);
+        session->macerror = *(LIBSSH2_MACERROR_FUNC((**)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_X11:
-        oldcb = session->x11;
-        session->x11 = callback;
+        oldcb = CALLBACK_CAST_TO_VOID_PTR(session->x11);
+        session->x11 = *(LIBSSH2_X11_OPEN_FUNC((**)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_SEND:
-        oldcb = session->send;
-        session->send = callback;
+        oldcb = CALLBACK_CAST_TO_VOID_PTR(session->send);
+        session->send = *(LIBSSH2_SEND_FUNC((**)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_RECV:
-        oldcb = session->recv;
-        session->recv = callback;
+        oldcb = CALLBACK_CAST_TO_VOID_PTR(session->recv);
+        session->recv = *(LIBSSH2_RECV_FUNC((**)))callback;
         return oldcb;
     }
     _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Setting Callback %d", cbtype);
@@ -846,7 +848,7 @@ session_free(LIBSSH2_SESSION *session)
     }
 
     if (session->free_state == libssh2_NB_state_created) {
-        while ((ch = _libssh2_list_first(&session->channels))) {
+        while ((ch = _libssh2_list_first(&session->channels)) != NULL) {
 
             rc = _libssh2_channel_free(ch);
             if (rc == LIBSSH2_ERROR_EAGAIN)
@@ -857,7 +859,7 @@ session_free(LIBSSH2_SESSION *session)
     }
 
     if (session->free_state == libssh2_NB_state_sent) {
-        while ((l = _libssh2_list_first(&session->listeners))) {
+        while ((l = _libssh2_list_first(&session->listeners)) != 0) {
             rc = _libssh2_channel_forward_cancel(l);
             if (rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
@@ -1034,7 +1036,7 @@ session_free(LIBSSH2_SESSION *session)
     }
 
     /* Cleanup all remaining packets */
-    while ((pkg = _libssh2_list_first(&session->packets))) {
+    while ((pkg = _libssh2_list_first(&session->packets)) != 0) {
         packets_left++;
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
             "packet left with id %d", pkg->data[0]);

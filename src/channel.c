@@ -2308,7 +2308,7 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
     }
 
     if (!channel->local.eof) {
-        if ((rc = channel_send_eof(channel))) {
+        if ((rc = channel_send_eof(channel)) != 0) {
             if (rc == LIBSSH2_ERROR_EAGAIN) {
                 return rc;
             }

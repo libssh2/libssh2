@@ -294,7 +294,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
             return NULL;
         }
 
-        snprintf((char *)session->scpRecv_command,
+        (void)snprintf((char *)session->scpRecv_command,
                  session->scpRecv_command_len,
                  "scp -%sf ", sb?"p":"");
 
@@ -771,24 +771,22 @@ libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat * sb)
 {
     LIBSSH2_CHANNEL *ptr;
 
-    /* scp_recv uses libssh2_struct_stat, so pass one if the caller gave us a struct to populate... */
-    libssh2_struct_stat sb_intl;
-    libssh2_struct_stat *sb_ptr;
-    sb_ptr = sb ? &sb_intl : NULL;
-
-    BLOCK_ADJUST_ERRNO(ptr, session, scp_recv(session, path, sb_ptr));
-
-    /* ...and populate the caller's with as much info as fits. */
     if (sb) {
-        memset(sb, 0, sizeof(struct stat));
+		/* scp_recv uses libssh2_struct_stat, so pass one if the caller gave us a struct to populate... */
+		/* ...and populate the caller's with as much info as fits. */
+		libssh2_struct_stat sb_intl;
+		BLOCK_ADJUST_ERRNO(ptr, session, scp_recv(session, path, &sb_intl));
+		memset(sb, 0, sizeof(struct stat));
 
         sb->st_mtime = sb_intl.st_mtime;
         sb->st_atime = sb_intl.st_atime;
         sb->st_size = (off_t)sb_intl.st_size;
         sb->st_mode = sb_intl.st_mode;
     }
-
-    return ptr;
+	else {
+		BLOCK_ADJUST_ERRNO(ptr, session, scp_recv(session, path, NULL));
+	}
+	return ptr;
 }
 
 /*
@@ -836,7 +834,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
             return NULL;
         }
 
-        snprintf((char *)session->scpSend_command,
+        (void)snprintf((char *)session->scpSend_command,
                  session->scpSend_command_len,
                  "scp -%st ", (mtime || atime)?"p":"");
 

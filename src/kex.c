@@ -1975,7 +1975,7 @@ kex_agree_instr(unsigned char *haystack, unsigned long haystack_len,
     s = haystack;
     /* Search until we run out of comas or we run out of haystack,
        whichever comes first */
-    while ((s = (unsigned char *) strchr((char *) s, ','))
+    while ((s = (unsigned char *) strchr((char *) s, ',')) != (unsigned char *)0
            && ((haystack_len - (s - haystack)) > needle_len)) {
         s++;
         /* Needle at X position */
@@ -2102,7 +2102,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, unsigned char *kex,
         while (s && *s) {
             unsigned char *q, *p = (unsigned char *) strchr((char *) s, ',');
             size_t method_len = (p ? (size_t)(p - s) : strlen((char *) s));
-            if ((q = kex_agree_instr(kex, kex_len, s, method_len))) {
+            if ((q = kex_agree_instr(kex, kex_len, s, method_len)) != (unsigned char *)0) {
                 const LIBSSH2_KEX_METHOD *method = (const LIBSSH2_KEX_METHOD *)
                     kex_get_method_by_name((char *) s, method_len,
                                            (const LIBSSH2_COMMON_METHOD **)
