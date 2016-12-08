@@ -355,10 +355,6 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
   target_compile_definitions(libssh2 PRIVATE LIBSSH2_DARWIN)
 endif()
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  list(APPEND LIBRARIES dl)
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
 if(CMAKE_VERSION VERSION_LESS "2.8.12")
   # Fall back to over-linking dependencies
   target_link_libraries(libssh2 ${LIBRARIES})
