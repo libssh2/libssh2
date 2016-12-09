@@ -50,6 +50,7 @@ else()
 endif()
 
 option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
+option(LIBSSH2_WIN32_USE_STATIC_CRT "Change CFLAGS to use static linking" OFF)
 
 # Parse version
 

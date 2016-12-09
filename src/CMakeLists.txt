@@ -42,7 +42,6 @@ include(CheckSymbolExists)
 include(CheckNonblockingSocketSupport)
 include(SocketLibraries)
 
-
 ## Cryptography backend choice
 
 set(CRYPTO_BACKEND
@@ -74,7 +73,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     if (WIN32)
 	  # - Try to change WIN32 compiler FLAGS from dynamic to static linking
 	  # Only looking at the C compiler flags, not the CXX flags
-	  if(BUILD_SHARED_LIBS STREQUAL "OFF")
+	  if(LIBSSH2_WIN32_USE_STATIC_CRT STREQUAL "ON")
 		foreach(flag_var
 			CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO)
 
@@ -245,6 +244,10 @@ endif(CLEAR_MEMORY)
 
 add_feature_info("Shared library" BUILD_SHARED_LIBS
   "creating libssh2 as a shared library (.so/.dll)")
+if (WIN32)
+add_feature_info("WIN32 use static linking CRuntime" LIBSSH2_WIN32_USE_STATIC_CRT
+  "creating libssh2 to use static CRuntime")
+endif()
 
 
 option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression")

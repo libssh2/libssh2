@@ -45,6 +45,11 @@ The following options are available:
     Determines whether libssh2 is built as a static library or as a
     shared library (.dll/.so).  Can be `ON` or `OFF`.
 
+ * `LIBSSH2_WIN32_USE_STATIC_CRT=ON`
+
+	Determines whether the WIN32 CFLAGS for linking is changed from /Md (dll) to /Mt (static).
+	Default is `OFF`
+
  * `CRYPTO_BACKEND=`
 
     Chooses a specific cryptography library to use for cryptographic
