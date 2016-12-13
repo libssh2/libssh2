@@ -203,6 +203,15 @@ _libssh2_mbedtls_bignum_init(void)
     return bignum;
 }
 
+void
+_libssh2_mbedtls_bignum_free(_libssh2_bn *bn)
+{
+    if (bn) {
+        mbedtls_mpi_free(bn);
+        mbedtls_free(bn);
+    }
+}
+
 static int
 _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
 {
