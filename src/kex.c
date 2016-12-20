@@ -133,8 +133,10 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         memset(&exchange_state->req_state, 0, sizeof(packet_require_state_t));
 
         /* Generate x and e */
-        libssh2_dh_key_pair(&exchange_state->x, exchange_state->e, g, p,
-                            group_order, exchange_state->ctx);
+        rc = libssh2_dh_key_pair(&exchange_state->x, exchange_state->e, g, p,
+                                 group_order, exchange_state->ctx);
+        if (rc)
+            goto clean_exit;
 
         /* Send KEX init */
         /* packet_type(1) + String Length(4) + leading 0(1) */
@@ -757,8 +759,10 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         memset(&exchange_state->req_state, 0, sizeof(packet_require_state_t));
 
         /* Generate x and e */
-        libssh2_dh_key_pair(&exchange_state->x, exchange_state->e, g, p,
-                            group_order, exchange_state->ctx);
+        rc = libssh2_dh_key_pair(&exchange_state->x, exchange_state->e, g, p,
+                                 group_order, exchange_state->ctx);
+        if (rc)
+            goto clean_exit;
 
         /* Send KEX init */
         /* packet_type(1) + String Length(4) + leading 0(1) */
