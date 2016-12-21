@@ -305,6 +305,35 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
                            "Server's SHA1 Fingerprint: %s", fingerprint);
         }
 #endif /* LIBSSH2DEBUG */
+        
+        {
+            libssh2_sha256_ctx fingerprint_ctx;
+            
+            if (libssh2_sha256_init(&fingerprint_ctx)) {
+                libssh2_sha256_update(fingerprint_ctx, session->server_hostkey,
+                                    session->server_hostkey_len);
+                libssh2_sha256_final(fingerprint_ctx,
+                                   session->server_hostkey_sha256);
+                session->server_hostkey_sha256_valid = TRUE;
+            }
+            else {
+                session->server_hostkey_sha256_valid = FALSE;
+            }
+        }
+#ifdef LIBSSH2DEBUG
+        {
+            char fingerprint[100], *fprint = fingerprint;
+            int i;
+            
+            for(i = 0; i < 32; i++, fprint += 3) {
+                snprintf(fprint, 4, "%02x:", session->server_hostkey_sha256[i]);
+            }
+            *(--fprint) = '\0';
+            _libssh2_debug(session, LIBSSH2_TRACE_KEX,
+                           "Server's SHA256 Fingerprint: %s", fingerprint);
+        }
+#endif /* LIBSSH2DEBUG */
+
 
         if (session->hostkey->init(session, session->server_hostkey,
                                    session->server_hostkey_len,
@@ -929,6 +958,34 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             *(--fprint) = '\0';
             _libssh2_debug(session, LIBSSH2_TRACE_KEX,
                            "Server's SHA1 Fingerprint: %s", fingerprint);
+        }
+#endif /* LIBSSH2DEBUG */
+        
+        {
+            libssh2_sha256_ctx fingerprint_ctx;
+            
+            if (libssh2_sha256_init(&fingerprint_ctx)) {
+                libssh2_sha256_update(fingerprint_ctx, session->server_hostkey,
+                                      session->server_hostkey_len);
+                libssh2_sha256_final(fingerprint_ctx,
+                                     session->server_hostkey_sha256);
+                session->server_hostkey_sha256_valid = TRUE;
+            }
+            else {
+                session->server_hostkey_sha256_valid = FALSE;
+            }
+        }
+#ifdef LIBSSH2DEBUG
+        {
+            char fingerprint[100], *fprint = fingerprint;
+            int i;
+            
+            for(i = 0; i < 32; i++, fprint += 3) {
+                snprintf(fprint, 4, "%02x:", session->server_hostkey_sha256[i]);
+            }
+            *(--fprint) = '\0';
+            _libssh2_debug(session, LIBSSH2_TRACE_KEX,
+                           "Server's SHA256 Fingerprint: %s", fingerprint);
         }
 #endif /* LIBSSH2DEBUG */
 
