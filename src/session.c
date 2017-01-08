@@ -639,10 +639,6 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
                     has_timeout ? &tv : NULL);
     }
 #endif
-    if(rc == 0) {
-        return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
-                              "Timed out waiting on socket");
-    }
     if(rc < 0) {
         return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
                               "Error waiting on socket");
