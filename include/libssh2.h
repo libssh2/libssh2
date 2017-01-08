@@ -563,6 +563,8 @@ LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session,
 
 LIBSSH2_API int libssh2_session_free(LIBSSH2_SESSION *session);
 
+LIBSSH2_API int libssh2_session_set_socket_disconnected(LIBSSH2_SESSION *session);
+
 LIBSSH2_API const char *libssh2_hostkey_hash(LIBSSH2_SESSION *session,
                                              int hash_type);
 

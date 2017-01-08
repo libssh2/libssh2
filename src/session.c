@@ -1070,6 +1070,18 @@ libssh2_session_free(LIBSSH2_SESSION * session)
 }
 
 /*
+ * libssh2_session_set_socket_disconnected
+ *
+ * Allows user to mark the socket as disconnected
+ */
+LIBSSH2_API int
+libssh2_session_set_socket_disconnected(LIBSSH2_SESSION *session) {
+    session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
+    return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_DISCONNECT,
+                          "Socket disconnected locally");
+}
+
+/*
  * libssh2_session_disconnect_ex
  */
 static int
