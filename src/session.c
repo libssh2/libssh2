@@ -567,7 +567,7 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
 int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 {
     int rc;
-    int seconds_to_next;
+    int seconds_to_next = 0;
     int dir;
     int has_timeout;
     long ms_to_next = 0;
@@ -578,10 +578,6 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
        resetting the error code in this function to reduce the risk of EAGAIN
        being stored as error when a blocking function has returned */
     session->err_code = LIBSSH2_ERROR_NONE;
-
-    rc = libssh2_keepalive_send (session, &seconds_to_next);
-    if (rc < 0)
-        return rc;
 
     ms_to_next = seconds_to_next * 1000;
 
