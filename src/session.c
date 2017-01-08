@@ -567,11 +567,9 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
 int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 {
     int rc;
-    int seconds_to_next = 0;
     int dir;
     int has_timeout;
     long ms_to_next = 0;
-    long elapsed_ms;
 
     /* since libssh2 often sets EAGAIN internally before this function is
        called, we can decrease some amount of confusion in user programs by
@@ -579,28 +577,20 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
        being stored as error when a blocking function has returned */
     session->err_code = LIBSSH2_ERROR_NONE;
 
-    ms_to_next = seconds_to_next * 1000;
-
     /* figure out what to wait for */
     dir = libssh2_session_block_directions(session);
-
     if(!dir)
         return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE,
                               "Internal error: nothing to wait for in wait_socket");
 
-    if (session->api_timeout > 0 &&
-        (seconds_to_next == 0 ||
-         ms_to_next > session->api_timeout)) {
+    if (session->api_timeout > 0) {
         time_t now = time (NULL);
-        elapsed_ms = (long)(1000*difftime(now, start_time));
-        if (elapsed_ms > session->api_timeout) {
+        long elapsed_ms = (long)(1000*difftime(now, start_time));
+        ms_to_next = session->api_timeout - elapsed_ms;
+        if (ms_to_next <= 0) {
             return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
                                   "API timeout expired");
         }
-        ms_to_next = (session->api_timeout - elapsed_ms);
-        has_timeout = 1;
-    }
-    else if (ms_to_next > 0) {
         has_timeout = 1;
     }
     else
