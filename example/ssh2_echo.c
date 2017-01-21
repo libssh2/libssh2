@@ -256,7 +256,10 @@ int main(int argc, char *argv[])
                 continue;
 
             if (fds[0].revents & LIBSSH2_POLLFD_POLLIN) {
-                int n = libssh2_channel_read(channel, buffer, sizeof(buffer));
+                int n;
+                libssh2_session_set_blocking(session, 1);
+                n = libssh2_channel_read(channel, buffer, sizeof(buffer));
+                libssh2_session_set_blocking(session, 0);
                 act++;
 
                 if (n == LIBSSH2_ERROR_EAGAIN) {
@@ -281,8 +284,10 @@ int main(int argc, char *argv[])
                     /* we have not written all data yet */
                     int left = totsize - totwritten;
                     int size = (left < bufsize) ? left : bufsize;
-                    int n = libssh2_channel_write_ex(channel, 0, buffer, size);
-
+                    int n;
+                    libssh2_session_set_blocking(session, 1);
+                    n = libssh2_channel_write_ex(channel, 0, buffer, size);
+                    libssh2_session_set_blocking(session, 0);
                     if (n == LIBSSH2_ERROR_EAGAIN) {
                         rewrites++;
                         fprintf(stderr, "will write again\n");
