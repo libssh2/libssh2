@@ -42,6 +42,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <ctype.h>
+#include <assert.h>
 #ifdef LIBSSH2DEBUG
 #include <stdio.h>
 #endif
@@ -399,6 +400,9 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         numbytes = remainbuf;
 
         if (!p->total_num) {
+            /* no payload buffer should be allocated when total_num is 0: */
+            assert(p->payload == NULL);
+
             /* No payload package area allocated yet. To know the
                size of this payload, we need to decrypt the first
                blocksize data. */
@@ -529,6 +533,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             rc = decrypt(session, &p->buf[p->readidx], p->wptr, numdecrypt);
             if (rc != LIBSSH2_ERROR_NONE) {
                 p->total_num = 0;   /* no packet buffer available */
+                LIBSSH2_FREE(session, p->payload);
+                p->payload = NULL;
                 return rc;
             }
 
@@ -583,8 +589,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 return rc;
             }
 
-            p->total_num = 0;   /* no packet buffer available */
-
+            p->payload = NULL; /* payload has been eaten by fullpacket */
+            p->total_num = 0; /* no packet buffer available */
             return rc;
         }
     } while (1);                /* loop */

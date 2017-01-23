@@ -1001,7 +1001,11 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
          * the key exchange conversation.
          */
         session->readPack_state = libssh2_NB_state_idle;
-        session->packet.total_num = 0;
+        if (session->packet.total_num) {
+            LIBSSH2_FREE(session, session->packet.payload);
+            session->packet.payload = 0;
+            session->packet.total_num = 0;
+        }
         session->packAdd_state = libssh2_NB_state_idle;
         session->fullpacket_state = libssh2_NB_state_idle;
 
