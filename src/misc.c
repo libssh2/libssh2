@@ -129,19 +129,16 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length,
 #ifdef WIN32
     if (rc < 0 )
         return -wsa2errno();
-#elif defined(__VMS)
-    if (rc < 0 ){
-        if ( errno == EWOULDBLOCK )
-            return -EAGAIN;
-        else
-            return -errno;
-    }
 #else
     if (rc < 0 ){
         /* Sometimes the first recv() function call sets errno to ENOENT on
            Solaris and HP-UX */
         if ( errno == ENOENT )
             return -EAGAIN;
+#ifdef EWOULDBLOCK // For VMS and other special unixes
+        else if ( errno == EWOULDBLOCK )
+          return -EAGAIN;
+#endif
         else
             return -errno;
     }
@@ -165,16 +162,15 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 #ifdef WIN32
     if (rc < 0 )
         return -wsa2errno();
-#elif defined(__VMS)
-    if (rc < 0 ) {
-        if ( errno == EWOULDBLOCK )
-            return -EAGAIN;
-        else
-            return -errno;
-    }
 #else
     if (rc < 0 )
-        return -errno;
+    {
+#ifdef EWOULDBLOCK // For VMS and other special unixes
+      if ( errno == EWOULDBLOCK )
+        return -EAGAIN;
+#endif
+      return -errno;
+    }
 #endif
     return rc;
 }
