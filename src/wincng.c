@@ -59,6 +59,7 @@
 #include <windows.h>
 #include <bcrypt.h>
 #include <math.h>
+#include "misc.h"
 
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
@@ -250,6 +251,17 @@ _libssh2_wincng_init(void)
                                 sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
         if (!BCRYPT_SUCCESS(ret)) {
             (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgAES_CBC, 0);
+        }
+    }
+
+    ret = BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgAES_ECB,
+                                      BCRYPT_AES_ALGORITHM, NULL, 0);
+    if (BCRYPT_SUCCESS(ret)) {
+        ret = BCryptSetProperty(_libssh2_wincng.hAlgAES_ECB, BCRYPT_CHAINING_MODE,
+                                (PBYTE)BCRYPT_CHAIN_MODE_ECB,
+                                sizeof(BCRYPT_CHAIN_MODE_ECB), 0);
+        if (!BCRYPT_SUCCESS(ret)) {
+            (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgAES_ECB, 0);
         }
     }
 
@@ -1653,8 +1665,8 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_KEY_DATA_BLOB_HEADER *header;
-    unsigned char *pbKeyObject, *pbIV, *key;
-    unsigned long dwKeyObject, dwIV, dwBlockLength, cbData, keylen;
+    unsigned char *pbKeyObject, *pbIV, *key, *pbCtr, *pbIVCopy;
+    unsigned long dwKeyObject, dwIV, dwCtrLength, dwBlockLength, cbData, keylen;
     int ret;
 
     (void)encrypt;
@@ -1707,31 +1719,41 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
         return -1;
     }
 
-    if (type.dwUseIV) {
-        pbIV = malloc(dwBlockLength);
-        if (!pbIV) {
+    pbIV = NULL;
+    pbCtr = NULL;
+    dwIV = 0;
+    dwCtrLength = 0;
+
+    if (type.useIV || type.ctrMode) {
+        pbIVCopy = malloc(dwBlockLength);
+        if (!pbIVCopy) {
             BCryptDestroyKey(hKey);
             _libssh2_wincng_safe_free(pbKeyObject, dwKeyObject);
             return -1;
         }
-        dwIV = dwBlockLength;
-        memcpy(pbIV, iv, dwIV);
-    } else {
-        pbIV = NULL;
-        dwIV = 0;
-    }
+        memcpy(pbIVCopy, iv, dwBlockLength);
 
+        if (type.ctrMode) {
+            pbCtr = pbIVCopy;
+            dwCtrLength = dwBlockLength;
+        }
+        else if (type.useIV) {
+            pbIV = pbIVCopy;
+            dwIV = dwBlockLength;
+        }
+    }
 
     ctx->hKey = hKey;
     ctx->pbKeyObject = pbKeyObject;
     ctx->pbIV = pbIV;
+    ctx->pbCtr = pbCtr;
     ctx->dwKeyObject = dwKeyObject;
     ctx->dwIV = dwIV;
     ctx->dwBlockLength = dwBlockLength;
+    ctx->dwCtrLength = dwCtrLength;
 
     return 0;
 }
-
 int
 _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              _libssh2_cipher_type(type),
@@ -1739,7 +1761,7 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              unsigned char *block,
                              size_t blocklen)
 {
-    unsigned char *pbOutput;
+    unsigned char *pbOutput, *pbInput;
     unsigned long cbOutput, cbInput;
     int ret;
 
@@ -1747,27 +1769,38 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
 
     cbInput = (unsigned long)blocklen;
 
-    if (encrypt) {
-        ret = BCryptEncrypt(ctx->hKey, block, cbInput, NULL,
+    if (type.ctrMode) {
+        pbInput = ctx->pbCtr;
+    } else {
+        pbInput = block;
+    }
+
+    if (encrypt || type.ctrMode) {
+        ret = BCryptEncrypt(ctx->hKey, pbInput, cbInput, NULL,
                             ctx->pbIV, ctx->dwIV, NULL, 0, &cbOutput, 0);
     } else {
-        ret = BCryptDecrypt(ctx->hKey, block, cbInput, NULL,
+        ret = BCryptDecrypt(ctx->hKey, pbInput, cbInput, NULL,
                             ctx->pbIV, ctx->dwIV, NULL, 0, &cbOutput, 0);
     }
     if (BCRYPT_SUCCESS(ret)) {
         pbOutput = malloc(cbOutput);
         if (pbOutput) {
-            if (encrypt) {
-                ret = BCryptEncrypt(ctx->hKey, block, cbInput, NULL,
+            if (encrypt || type.ctrMode) {
+                ret = BCryptEncrypt(ctx->hKey, pbInput, cbInput, NULL,
                                     ctx->pbIV, ctx->dwIV,
                                     pbOutput, cbOutput, &cbOutput, 0);
             } else {
-                ret = BCryptDecrypt(ctx->hKey, block, cbInput, NULL,
+                ret = BCryptDecrypt(ctx->hKey, pbInput, cbInput, NULL,
                                     ctx->pbIV, ctx->dwIV,
                                     pbOutput, cbOutput, &cbOutput, 0);
             }
             if (BCRYPT_SUCCESS(ret)) {
-                memcpy(block, pbOutput, cbOutput);
+                if (type.ctrMode) {
+                    _libssh2_xor_data(block, block, pbOutput, blocklen);
+                    _libssh2_aes_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
+                } else {
+                    memcpy(block, pbOutput, cbOutput);
+                }
             }
 
             _libssh2_wincng_safe_free(pbOutput, cbOutput);
@@ -1791,6 +1824,10 @@ _libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx)
     _libssh2_wincng_safe_free(ctx->pbIV, ctx->dwBlockLength);
     ctx->pbIV = NULL;
     ctx->dwBlockLength = 0;
+
+    _libssh2_wincng_safe_free(ctx->pbCtr, ctx->dwCtrLength);
+    ctx->pbCtr = NULL;
+    ctx->dwCtrLength = 0;
 }
 
 
