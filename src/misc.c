@@ -643,3 +643,31 @@ void *_libssh2_calloc(LIBSSH2_SESSION* session, size_t size)
     }
     return p;
 }
+
+/* XOR operation on buffers input1 and input2, result in output.
+   It is safe to use an input buffer as the output buffer. */
+void _libssh2_xor_data(unsigned char *output,
+                       const unsigned char *input1,
+                       const unsigned char *input2,
+                       size_t length)
+{
+    size_t i;
+
+    for (i = 0; i < length; i++)
+        *output++ = *input1++ ^ *input2++;
+}
+
+/* Increments an AES CTR buffer to prepare it for use with the
+   next AES block. */
+void _libssh2_aes_ctr_increment(unsigned char *ctr,
+                                size_t length)
+{
+    if (length == 0)
+        return;
+    size_t i = (length - 1);
+    while (ctr[i]++ == 0xFF) {
+        if (i == 0)
+            break;
+        i--;
+    }
+}
