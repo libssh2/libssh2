@@ -59,6 +59,7 @@
 #include <windows.h>
 #include <bcrypt.h>
 #include <math.h>
+#include "misc.h"
 
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
@@ -257,8 +258,8 @@ _libssh2_wincng_init(void)
         BCRYPT_AES_ALGORITHM, NULL, 0);
     if (BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(_libssh2_wincng.hAlgAES_ECB, BCRYPT_CHAINING_MODE,
-            (PBYTE)BCRYPT_CHAIN_MODE_ECB,
-            sizeof(BCRYPT_CHAIN_MODE_ECB), 0);
+                                (PBYTE)BCRYPT_CHAIN_MODE_ECB,
+                                sizeof(BCRYPT_CHAIN_MODE_ECB), 0);
         if (!BCRYPT_SUCCESS(ret)) {
             (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgAES_ECB, 0);
         }
@@ -1753,32 +1754,6 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
 
     return 0;
 }
-
-static inline void
-_libssh2_wincng_in_place_xor(unsigned char *inout,
-    const unsigned char *xordata,
-    size_t length)
-{
-    size_t i;
-
-    for (i = 0; i < length; i++, inout++)
-        *inout ^= *xordata++;
-}
-
-static inline void
-_libssh2_wincng_ctr_increment(unsigned char *ctr,
-    size_t length)
-{
-    if (length == 0)
-        return;
-    size_t i = (length - 1);
-    while (ctr[i]++ == 0xFF) {
-        if (i == 0)
-            break;
-        i--;
-    }
-}
-
 int
 _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              _libssh2_cipher_type(type),
@@ -1821,8 +1796,8 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
             }
             if (BCRYPT_SUCCESS(ret)) {
                 if (type.ctrMode) {
-                    _libssh2_wincng_in_place_xor(block, pbOutput, blocklen);
-                    _libssh2_wincng_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
+                    _libssh2_xor_data(block, block, pbOutput, blocklen);
+                    _libssh2_aes_ctr_increment(ctx->pbCtr, ctx->dwCtrLength);
                 } else {
                     memcpy(block, pbOutput, cbOutput);
                 }
