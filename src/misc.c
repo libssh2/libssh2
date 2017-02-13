@@ -662,12 +662,16 @@ void _libssh2_xor_data(unsigned char *output,
 void _libssh2_aes_ctr_increment(unsigned char *ctr,
                                 size_t length)
 {
-    if (length == 0)
-        return;
-    size_t i = (length - 1);
-    while (ctr[i]++ == 0xFF) {
-        if (i == 0)
-            break;
-        i--;
+    unsigned char *pc;
+    unsigned int val, carry;
+  
+    pc = ctr + length - 1;
+    carry = 1;
+
+    while(pc >= ctr)
+    {
+        val = (unsigned int)*pc + carry;
+        *pc-- = val & 0xFF;
+        carry = val >> 8;
     }
 }
