@@ -43,6 +43,7 @@
 #ifdef LIBSSH2_OPENSSL /* compile only if we build with openssl */
 
 #include <string.h>
+#include "misc.h"
 
 #ifndef EVP_MAX_BLOCK_LENGTH
 #define EVP_MAX_BLOCK_LENGTH 32
@@ -364,15 +365,8 @@ aes_ctr_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
         return 0;
     }
 
-    for (i = 0; i < 16; i++)
-        *out++ = *in++ ^ b1[i];
-
-    i = 15;
-    while (c->ctr[i]++ == 0xFF) {
-        if (i == 0)
-            break;
-        i--;
-    }
+    _libssh2_xor_data(out, in, b1, AES_BLOCK_SIZE);
+    _libssh2_aes_ctr_increment(c->ctr, AES_BLOCK_SIZE);
 
     return 1;
 }

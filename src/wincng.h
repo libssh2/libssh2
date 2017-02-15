@@ -55,7 +55,7 @@
 #define LIBSSH2_HMAC_SHA512 1
 
 #define LIBSSH2_AES 1
-#define LIBSSH2_AES_CTR 0
+#define LIBSSH2_AES_CTR 1
 #define LIBSSH2_BLOWFISH 0
 #define LIBSSH2_RC4 1
 #define LIBSSH2_CAST 0
@@ -88,6 +88,7 @@ struct _libssh2_wincng_ctx {
     BCRYPT_ALG_HANDLE hAlgRSA;
     BCRYPT_ALG_HANDLE hAlgDSA;
     BCRYPT_ALG_HANDLE hAlgAES_CBC;
+    BCRYPT_ALG_HANDLE hAlgAES_ECB;
     BCRYPT_ALG_HANDLE hAlgRC4_NA;
     BCRYPT_ALG_HANDLE hAlg3DES_CBC;
 };
@@ -285,9 +286,11 @@ struct _libssh2_wincng_cipher_ctx {
     BCRYPT_KEY_HANDLE hKey;
     unsigned char *pbKeyObject;
     unsigned char *pbIV;
+    unsigned char *pbCtr;
     unsigned long dwKeyObject;
     unsigned long dwIV;
     unsigned long dwBlockLength;
+    unsigned long dwCtrLength;
 };
 
 #define _libssh2_cipher_ctx struct _libssh2_wincng_cipher_ctx
@@ -299,21 +302,20 @@ struct _libssh2_wincng_cipher_ctx {
 struct _libssh2_wincng_cipher_type {
     BCRYPT_ALG_HANDLE *phAlg;
     unsigned long dwKeyLength;
-    unsigned long dwUseIV;
+    int useIV;      /* TODO: Convert to bool when a C89 compatible bool type is defined */
+    int ctrMode;
 };
 
 #define _libssh2_cipher_type(type) struct _libssh2_wincng_cipher_type type
 
-#define _libssh2_cipher_aes256ctr { NULL, 32, 1 } /* not supported */
-#define _libssh2_cipher_aes192ctr { NULL, 24, 1 } /* not supported */
-#define _libssh2_cipher_aes128ctr { NULL, 16, 1 } /* not supported */
-#define _libssh2_cipher_aes256 { &_libssh2_wincng.hAlgAES_CBC, 32, 1 }
-#define _libssh2_cipher_aes192 { &_libssh2_wincng.hAlgAES_CBC, 24, 1 }
-#define _libssh2_cipher_aes128 { &_libssh2_wincng.hAlgAES_CBC, 16, 1 }
-#define _libssh2_cipher_blowfish { NULL, 16, 0 } /* not supported */
-#define _libssh2_cipher_arcfour { &_libssh2_wincng.hAlgRC4_NA, 16, 0 }
-#define _libssh2_cipher_cast5 { NULL, 16, 0 } /* not supported */
-#define _libssh2_cipher_3des { &_libssh2_wincng.hAlg3DES_CBC, 24, 1 }
+#define _libssh2_cipher_aes256ctr { &_libssh2_wincng.hAlgAES_ECB, 32, 0, 1 }
+#define _libssh2_cipher_aes192ctr { &_libssh2_wincng.hAlgAES_ECB, 24, 0, 1 }
+#define _libssh2_cipher_aes128ctr { &_libssh2_wincng.hAlgAES_ECB, 16, 0, 1 }
+#define _libssh2_cipher_aes256 { &_libssh2_wincng.hAlgAES_CBC, 32, 1, 0 }
+#define _libssh2_cipher_aes192 { &_libssh2_wincng.hAlgAES_CBC, 24, 1, 0 }
+#define _libssh2_cipher_aes128 { &_libssh2_wincng.hAlgAES_CBC, 16, 1, 0 }
+#define _libssh2_cipher_arcfour { &_libssh2_wincng.hAlgRC4_NA, 16, 0, 0 }
+#define _libssh2_cipher_3des { &_libssh2_wincng.hAlg3DES_CBC, 24, 1, 0 }
 
 /*
  * Windows CNG backend: Cipher functions
