@@ -282,6 +282,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 {
     HWND hwnd;
     char mapname[23];
+    wchar_t mapnamew[23];
     HANDLE filemap;
     unsigned char *p;
     unsigned char *p2;
@@ -297,9 +298,10 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                               "found no pageant");
 
-    sprintf(mapname, "PageantRequest%08x", (unsigned)GetCurrentThreadId());
+    sprintf (mapname,   "PageantRequest%08x", (unsigned)GetCurrentThreadId());
+    wsprintf(mapnamew, L"PageantRequest%08x", (unsigned)GetCurrentThreadId());
     filemap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
-                                0, PAGEANT_MAX_MSGLEN, mapname);
+                                0, PAGEANT_MAX_MSGLEN, mapnamew);
 
     if (filemap == NULL || filemap == INVALID_HANDLE_VALUE)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
