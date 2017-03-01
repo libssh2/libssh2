@@ -61,6 +61,7 @@ set(TESTS
   password_auth_fails_with_wrong_username
   public_key_auth_fails_with_wrong_key
   public_key_auth_succeeds_with_correct_rsa_key
+  public_key_auth_succeeds_with_correct_encrypted_rsa_key
   keyboard_interactive_auth_fails_with_wrong_response
   keyboard_interactive_auth_succeeds_with_correct_response
   )

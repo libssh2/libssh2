@@ -31,3 +31,4 @@ EXTRA_DIST += test_password_auth_succeeds_with_correct_credentials.c
 EXTRA_DIST += test_public_key_auth_fails_with_wrong_key.c
 EXTRA_DIST += test_public_key_auth_succeeds_with_correct_dsa_key.c
 EXTRA_DIST += test_public_key_auth_succeeds_with_correct_rsa_key.c
+EXTRA_DIST += test_public_key_auth_succeeds_with_correct_encrypted_rsa_key.c
