@@ -549,14 +549,13 @@ _libssh2_wincng_load_pem(LIBSSH2_SESSION *session,
     FILE *fp;
     int ret;
 
-    (void)passphrase;
-
     fp = fopen(filename, "r");
     if (!fp) {
         return -1;
     }
 
     ret = _libssh2_pem_parse(session, headerbegin, headerend,
+                             passphrase,
                              fp, data, datalen);
 
     fclose(fp);
