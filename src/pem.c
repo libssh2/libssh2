@@ -37,7 +37,6 @@
  */
 
 #include "libssh2_priv.h"
-#include <assert.h>
 
 static int
 readline(char *line, int line_size, FILE * fp)
@@ -140,22 +139,24 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
             ret = -1;
             goto out;
         }
+
         all_methods = libssh2_crypt_methods();
         while ((cur_method = *all_methods++)) {
             if (*cur_method->pem_annotation &&
-                    memcmp(line, cur_method->pem_annotation, strlen(cur_method->pem_annotation)) == 0) {
+                    memcmp(line, cur_method->pem_annotation,
+                           strlen(cur_method->pem_annotation)) == 0) {
                 method = cur_method;
-                memcpy(iv, line+strlen(method->pem_annotation)+1, 2*method->iv_len);
+                memcpy(iv, line+strlen(method->pem_annotation)+1,
+                       2*method->iv_len);
             }
         }
 
-        /* None of the available crypt methods were able to decrypt this key */
+        /* None of the available crypt methods were able to decrypt the key */
         if (method == NULL)
             return -1;
 
         /* Decode IV from hex */
-        for (i = 0; i < method->iv_len; ++i)
-        {
+        for (i = 0; i < method->iv_len; ++i) {
             iv[i]  = hex_decode(iv[2*i]) << 4;
             iv[i] |= hex_decode(iv[2*i+1]);
         }
@@ -214,7 +215,8 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
             ret = -1;
             goto out;
         }
-        libssh2_md5_update(fingerprint_ctx, passphrase, strlen((char*)passphrase));
+        libssh2_md5_update(fingerprint_ctx, passphrase,
+                           strlen((char*)passphrase));
         libssh2_md5_update(fingerprint_ctx, iv, 8);
         libssh2_md5_final(fingerprint_ctx, secret);
         if (method->secret_len > MD5_DIGEST_LENGTH) {
@@ -223,14 +225,15 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
                 goto out;
             }
             libssh2_md5_update(fingerprint_ctx, secret, MD5_DIGEST_LENGTH);
-            libssh2_md5_update(fingerprint_ctx, passphrase, strlen((char*)passphrase));
+            libssh2_md5_update(fingerprint_ctx, passphrase,
+                               strlen((char*)passphrase));
             libssh2_md5_update(fingerprint_ctx, iv, 8);
             libssh2_md5_final(fingerprint_ctx, secret + MD5_DIGEST_LENGTH);
         }
 
         /* Initialize the decryption */
         if (method->init(session, method, iv, &free_iv, secret,
-                 &free_secret, 0, &abstract)) {
+                         &free_secret, 0, &abstract)) {
             memset((char*)secret, 0, sizeof(secret));
             LIBSSH2_FREE(session, data);
             ret = -1;
@@ -242,12 +245,20 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         }
 
         /* Do the actual decryption */
-        assert((*datalen % blocksize) == 0);
+        if ((*datalen % blocksize) != 0) {
+            memset((char*)secret, 0, sizeof(secret));
+            method->dtor(session, &abstract);
+            memset(*data, 0, *datalen);
+            LIBSSH2_FREE(session, *data);
+            ret = -1;
+            goto out;
+        }
 
         while (len_decrypted <= *datalen - blocksize) {
             if (method->crypt(session, *data + len_decrypted, blocksize,
-                                             &abstract)) {
+                              &abstract)) {
                 ret = LIBSSH2_ERROR_DECRYPT;
+                memset((char*)secret, 0, sizeof(secret));
                 method->dtor(session, &abstract);
                 memset(*data, 0, *datalen);
                 LIBSSH2_FREE(session, *data);
