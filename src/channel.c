@@ -1889,11 +1889,17 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
            return code. */
         if(channel->remote.eof || channel->remote.close)
             return 0;
-        else if(rc != LIBSSH2_ERROR_EAGAIN)
-            return 0;
 
-        /* if the transport layer said EAGAIN then we say so as well */
-        return _libssh2_error(session, rc, "would block");
+        /* If the transport layer said EAGAIN then we say so as well.
+           If there wasn't any error, it means the transport layer got
+           new data but it went to some other place and so we return
+           EAGAIN too. */
+        if((rc == LIBSSH2_ERROR_EAGAIN) || (rc == LIBSSH2_ERROR_NONE))
+            return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "would block");
+
+        /* should never happen */
+        _libssh2_debug(session, LIBSSH2_TRACE_CONN, "Internal error: bad code path reached (%d)", rc);
+        return rc;
     }
 
     channel->read_avail -= bytes_read;
