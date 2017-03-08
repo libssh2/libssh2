@@ -267,7 +267,7 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define _libssh2_cipher_3des EVP_des_ede3_cbc
 
 #ifdef HAVE_OPAQUE_STRUCTS
-#define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_reset(*(ctx))
+#define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_free(*(ctx))
 #else
 #define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_cleanup(ctx)
 #endif
