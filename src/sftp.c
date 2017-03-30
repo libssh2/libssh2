@@ -1319,7 +1319,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
             /* Number of bytes asked for that haven't been acked yet */
             size_t already = (size_t)(filep->offset_sent - filep->offset);
 
-            size_t max_read_ahead = buffer_size*4;
+            size_t max_read_ahead = MIN(MAX_SFTP_READ_SIZE, buffer_size*4);
             unsigned long recv_window;
 
             if(max_read_ahead > LIBSSH2_CHANNEL_WINDOW_DEFAULT*4)
