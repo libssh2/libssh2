@@ -609,6 +609,9 @@ struct _LIBSSH2_SESSION
     unsigned char server_hostkey_sha1[SHA_DIGEST_LENGTH];
     int server_hostkey_sha1_valid;
 
+    unsigned char server_hostkey_sha256[SHA256_DIGEST_LENGTH];
+    int server_hostkey_sha256_valid;
+
     /* (remote as source of data -- packet_read ) */
     libssh2_endpoint_data remote;
 
