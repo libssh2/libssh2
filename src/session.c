@@ -170,8 +170,7 @@ banner_receive(LIBSSH2_SESSION * session)
     if(!banner_len)
         return LIBSSH2_ERROR_BANNER_RECV;
 
-    if(session->remote.banner)
-        LIBSSH2_FREE(session, session->remote.banner);
+    LIBSSH2_FREE(session, session->remote.banner);
 
     session->remote.banner = LIBSSH2_ALLOC(session, banner_len + 1);
     if(!session->remote.banner) {
@@ -424,10 +423,7 @@ libssh2_session_banner_set(LIBSSH2_SESSION * session, const char *banner)
 {
     size_t banner_len = banner ? strlen(banner) : 0;
 
-    if(session->local.banner) {
-        LIBSSH2_FREE(session, session->local.banner);
-        session->local.banner = NULL;
-    }
+    LIBSSH2_FREE(session, session->local.banner);
 
     if(!banner_len)
         return 0;
@@ -795,13 +791,10 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
             || strncmp("ssh-userauth", (char *) session->startup_data + 5,
                        session->startup_service_length)) {
             LIBSSH2_FREE(session, session->startup_data);
-            session->startup_data = NULL;
             return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                   "Invalid response received from server");
         }
         LIBSSH2_FREE(session, session->startup_data);
-        session->startup_data = NULL;
-
         session->startup_state = libssh2_NB_state_idle;
 
         return 0;
@@ -930,128 +923,54 @@ session_free(LIBSSH2_SESSION *session)
         }
 
         /* session_id */
-        if(session->session_id) {
-            LIBSSH2_FREE(session, session->session_id);
-        }
+        LIBSSH2_FREE(session, session->session_id);
     }
 
     /* Free banner(s) */
-    if(session->remote.banner) {
-        LIBSSH2_FREE(session, session->remote.banner);
-    }
-    if(session->local.banner) {
-        LIBSSH2_FREE(session, session->local.banner);
-    }
+    LIBSSH2_FREE(session, session->remote.banner);
+    LIBSSH2_FREE(session, session->local.banner);
 
     /* Free preference(s) */
-    if(session->kex_prefs) {
-        LIBSSH2_FREE(session, session->kex_prefs);
-    }
-    if(session->hostkey_prefs) {
-        LIBSSH2_FREE(session, session->hostkey_prefs);
-    }
+    LIBSSH2_FREE(session, session->kex_prefs);
+    LIBSSH2_FREE(session, session->hostkey_prefs);
 
-    if(session->local.kexinit) {
-        LIBSSH2_FREE(session, session->local.kexinit);
-    }
-    if(session->local.crypt_prefs) {
-        LIBSSH2_FREE(session, session->local.crypt_prefs);
-    }
-    if(session->local.mac_prefs) {
-        LIBSSH2_FREE(session, session->local.mac_prefs);
-    }
-    if(session->local.comp_prefs) {
-        LIBSSH2_FREE(session, session->local.comp_prefs);
-    }
-    if(session->local.lang_prefs) {
-        LIBSSH2_FREE(session, session->local.lang_prefs);
-    }
+    LIBSSH2_FREE(session, session->local.kexinit);
+    LIBSSH2_FREE(session, session->local.crypt_prefs);
+    LIBSSH2_FREE(session, session->local.mac_prefs);
+    LIBSSH2_FREE(session, session->local.comp_prefs);
+    LIBSSH2_FREE(session, session->local.lang_prefs);
 
-    if(session->remote.kexinit) {
-        LIBSSH2_FREE(session, session->remote.kexinit);
-    }
-    if(session->remote.crypt_prefs) {
-        LIBSSH2_FREE(session, session->remote.crypt_prefs);
-    }
-    if(session->remote.mac_prefs) {
-        LIBSSH2_FREE(session, session->remote.mac_prefs);
-    }
-    if(session->remote.comp_prefs) {
-        LIBSSH2_FREE(session, session->remote.comp_prefs);
-    }
-    if(session->remote.lang_prefs) {
-        LIBSSH2_FREE(session, session->remote.lang_prefs);
-    }
+    LIBSSH2_FREE(session, session->remote.kexinit);
+    LIBSSH2_FREE(session, session->remote.crypt_prefs);
+    LIBSSH2_FREE(session, session->remote.mac_prefs);
+    LIBSSH2_FREE(session, session->remote.comp_prefs);
+    LIBSSH2_FREE(session, session->remote.lang_prefs);
 
     /*
      * Make sure all memory used in the state variables are free
      */
-    if(session->kexinit_data) {
-        LIBSSH2_FREE(session, session->kexinit_data);
-    }
-    if(session->startup_data) {
-        LIBSSH2_FREE(session, session->startup_data);
-    }
-    if(session->userauth_list_data) {
-        LIBSSH2_FREE(session, session->userauth_list_data);
-    }
-    if(session->userauth_pswd_data) {
-        LIBSSH2_FREE(session, session->userauth_pswd_data);
-    }
-    if(session->userauth_pswd_newpw) {
-        LIBSSH2_FREE(session, session->userauth_pswd_newpw);
-    }
-    if(session->userauth_host_packet) {
-        LIBSSH2_FREE(session, session->userauth_host_packet);
-    }
-    if(session->userauth_host_method) {
-        LIBSSH2_FREE(session, session->userauth_host_method);
-    }
-    if(session->userauth_host_data) {
-        LIBSSH2_FREE(session, session->userauth_host_data);
-    }
-    if(session->userauth_pblc_data) {
-        LIBSSH2_FREE(session, session->userauth_pblc_data);
-    }
-    if(session->userauth_pblc_packet) {
-        LIBSSH2_FREE(session, session->userauth_pblc_packet);
-    }
-    if(session->userauth_pblc_method) {
-        LIBSSH2_FREE(session, session->userauth_pblc_method);
-    }
-    if(session->userauth_kybd_data) {
-        LIBSSH2_FREE(session, session->userauth_kybd_data);
-    }
-    if(session->userauth_kybd_packet) {
-        LIBSSH2_FREE(session, session->userauth_kybd_packet);
-    }
-    if(session->userauth_kybd_auth_instruction) {
-        LIBSSH2_FREE(session, session->userauth_kybd_auth_instruction);
-    }
-    if(session->open_packet) {
-        LIBSSH2_FREE(session, session->open_packet);
-    }
-    if(session->open_data) {
-        LIBSSH2_FREE(session, session->open_data);
-    }
-    if(session->direct_message) {
-        LIBSSH2_FREE(session, session->direct_message);
-    }
-    if(session->fwdLstn_packet) {
-        LIBSSH2_FREE(session, session->fwdLstn_packet);
-    }
-    if(session->pkeyInit_data) {
-        LIBSSH2_FREE(session, session->pkeyInit_data);
-    }
-    if(session->scpRecv_command) {
-        LIBSSH2_FREE(session, session->scpRecv_command);
-    }
-    if(session->scpSend_command) {
-        LIBSSH2_FREE(session, session->scpSend_command);
-    }
-    if(session->sftpInit_sftp) {
-        LIBSSH2_FREE(session, session->sftpInit_sftp);
-    }
+    LIBSSH2_FREE(session, session->kexinit_data);
+    LIBSSH2_FREE(session, session->startup_data);
+    LIBSSH2_FREE(session, session->userauth_list_data);
+    LIBSSH2_FREE(session, session->userauth_pswd_data);
+    LIBSSH2_FREE(session, session->userauth_pswd_newpw);
+    LIBSSH2_FREE(session, session->userauth_host_packet);
+    LIBSSH2_FREE(session, session->userauth_host_method);
+    LIBSSH2_FREE(session, session->userauth_host_data);
+    LIBSSH2_FREE(session, session->userauth_pblc_data);
+    LIBSSH2_FREE(session, session->userauth_pblc_packet);
+    LIBSSH2_FREE(session, session->userauth_pblc_method);
+    LIBSSH2_FREE(session, session->userauth_kybd_data);
+    LIBSSH2_FREE(session, session->userauth_kybd_packet);
+    LIBSSH2_FREE(session, session->userauth_kybd_auth_instruction);
+    LIBSSH2_FREE(session, session->open_packet);
+    LIBSSH2_FREE(session, session->open_data);
+    LIBSSH2_FREE(session, session->direct_message);
+    LIBSSH2_FREE(session, session->fwdLstn_packet);
+    LIBSSH2_FREE(session, session->pkeyInit_data);
+    LIBSSH2_FREE(session, session->scpRecv_command);
+    LIBSSH2_FREE(session, session->scpSend_command);
+    LIBSSH2_FREE(session, session->sftpInit_sftp);
 
     /* Free payload buffer */
     if(session->packet.total_num) {
@@ -1082,14 +1001,12 @@ session_free(LIBSSH2_SESSION *session)
         }
     }
 
-    if(session->server_hostkey) {
-        LIBSSH2_FREE(session, session->server_hostkey);
-    }
+    LIBSSH2_FREE(session, session->server_hostkey);
 
     /* error string */
     if(session->err_msg &&
        ((session->err_flags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
-        LIBSSH2_FREE(session, (char *)session->err_msg);
+        LIBSSH2_FREE(session, session->err_msg);
     }
 
     /* startup_key_state.key_state_low */

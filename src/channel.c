@@ -171,7 +171,6 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                            "Failed allocating memory for channel type name");
             LIBSSH2_FREE(session, session->open_channel);
-            session->open_channel = NULL;
             return NULL;
         }
         memcpy(session->open_channel->channel_type, channel_type,
@@ -272,9 +271,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
                            session->open_channel->local.packet_size,
                            session->open_channel->remote.packet_size);
             LIBSSH2_FREE(session, session->open_packet);
-            session->open_packet = NULL;
             LIBSSH2_FREE(session, session->open_data);
-            session->open_data = NULL;
 
             session->open_state = libssh2_NB_state_idle;
             return session->open_channel;
@@ -310,14 +307,8 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
 
   channel_error:
 
-    if(session->open_data) {
-        LIBSSH2_FREE(session, session->open_data);
-        session->open_data = NULL;
-    }
-    if(session->open_packet) {
-        LIBSSH2_FREE(session, session->open_packet);
-        session->open_packet = NULL;
-    }
+    LIBSSH2_FREE(session, session->open_data);
+    LIBSSH2_FREE(session, session->open_packet);
     if(session->open_channel) {
         unsigned char channel_id[4];
         LIBSSH2_FREE(session, session->open_channel->channel_type);
@@ -336,11 +327,9 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
                                     &session->open_data_len, 1,
                                     channel_id, 4) >= 0)) {
             LIBSSH2_FREE(session, session->open_data);
-            session->open_data = NULL;
         }
 
         LIBSSH2_FREE(session, session->open_channel);
-        session->open_channel = NULL;
     }
 
     session->open_state = libssh2_NB_state_idle;
@@ -427,7 +416,6 @@ channel_direct_tcpip(LIBSSH2_SESSION * session, const char *host,
     session->direct_state = libssh2_NB_state_idle;
 
     LIBSSH2_FREE(session, session->direct_message);
-    session->direct_message = NULL;
 
     return channel;
 }
@@ -518,13 +506,10 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
                            "Unable to send global-request packet for forward "
                            "listen request");
             LIBSSH2_FREE(session, session->fwdLstn_packet);
-            session->fwdLstn_packet = NULL;
             session->fwdLstn_state = libssh2_NB_state_idle;
             return NULL;
         }
         LIBSSH2_FREE(session, session->fwdLstn_packet);
-        session->fwdLstn_packet = NULL;
-
         session->fwdLstn_state = libssh2_NB_state_sent;
     }
 
@@ -691,7 +676,6 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener)
             retcode = LIBSSH2_ERROR_SOCKET_SEND;
         }
         LIBSSH2_FREE(session, packet);
-
         listener->chanFwdCncl_state = libssh2_NB_state_sent;
     }
 
@@ -853,17 +837,13 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
         }
         else if(rc) {
             LIBSSH2_FREE(session, channel->setenv_packet);
-            channel->setenv_packet = NULL;
             channel->setenv_state = libssh2_NB_state_idle;
             return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                                   "Unable to send channel-request packet for "
                                   "setenv request");
         }
         LIBSSH2_FREE(session, channel->setenv_packet);
-        channel->setenv_packet = NULL;
-
         _libssh2_htonu32(channel->setenv_local_channel, channel->local.id);
-
         channel->setenv_state = libssh2_NB_state_sent;
     }
 
@@ -1360,16 +1340,12 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         }
         if(rc) {
             LIBSSH2_FREE(session, channel->reqX11_packet);
-            channel->reqX11_packet = NULL;
             channel->reqX11_state = libssh2_NB_state_idle;
             return _libssh2_error(session, rc,
                                   "Unable to send x11-req packet");
         }
         LIBSSH2_FREE(session, channel->reqX11_packet);
-        channel->reqX11_packet = NULL;
-
         _libssh2_htonu32(channel->reqX11_local_channel, channel->local.id);
-
         channel->reqX11_state = libssh2_NB_state_sent;
     }
 
@@ -1489,16 +1465,12 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         }
         else if(rc) {
             LIBSSH2_FREE(session, channel->process_packet);
-            channel->process_packet = NULL;
             channel->process_state = libssh2_NB_state_end;
             return _libssh2_error(session, rc,
                                   "Unable to send channel request");
         }
         LIBSSH2_FREE(session, channel->process_packet);
-        channel->process_packet = NULL;
-
         _libssh2_htonu32(channel->process_local_channel, channel->local.id);
-
         channel->process_state = libssh2_NB_state_sent;
     }
 
@@ -2743,10 +2715,7 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     }
 
     channel->free_state = libssh2_NB_state_idle;
-
-    if(channel->exit_signal) {
-        LIBSSH2_FREE(session, channel->exit_signal);
-    }
+    LIBSSH2_FREE(session, channel->exit_signal);
 
     /*
      * channel->remote.close *might* not be set yet, Well...
@@ -2764,27 +2733,16 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
         LIBSSH2_FREE(session, data);
     }
 
-    /* free "channel_type" */
-    if(channel->channel_type) {
-        LIBSSH2_FREE(session, channel->channel_type);
-    }
-
+    LIBSSH2_FREE(session, channel->channel_type);
     /* Unlink from channel list */
     _libssh2_list_remove(&channel->node);
 
     /*
      * Make sure all memory used in the state variables are free
      */
-    if(channel->setenv_packet) {
-        LIBSSH2_FREE(session, channel->setenv_packet);
-    }
-    if(channel->reqX11_packet) {
-        LIBSSH2_FREE(session, channel->reqX11_packet);
-    }
-    if(channel->process_packet) {
-        LIBSSH2_FREE(session, channel->process_packet);
-    }
-
+    LIBSSH2_FREE(session, channel->setenv_packet);
+    LIBSSH2_FREE(session, channel->reqX11_packet);
+    LIBSSH2_FREE(session, channel->process_packet);
     LIBSSH2_FREE(session, channel);
 
     return 0;

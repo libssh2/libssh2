@@ -861,10 +861,7 @@ gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
     if(rsa != NULL) {
         RSA_free(rsa);
     }
-    if(method_buf != NULL) {
-        LIBSSH2_FREE(session, method_buf);
-    }
-
+    LIBSSH2_FREE(session, method_buf);
     return _libssh2_error(session,
                           LIBSSH2_ERROR_ALLOC,
                           "Unable to allocate memory for private key data");
@@ -1252,10 +1249,7 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
     if(dsa != NULL) {
         DSA_free(dsa);
     }
-    if(method_buf != NULL) {
-        LIBSSH2_FREE(session, method_buf);
-    }
-
+    LIBSSH2_FREE(session, method_buf);
     return _libssh2_error(session,
                           LIBSSH2_ERROR_ALLOC,
                           "Unable to allocate memory for private key data");
@@ -1712,11 +1706,8 @@ clean_exit:
     if(ctx)
         _libssh2_ed25519_free(ctx);
 
-    if(method_buf)
-        LIBSSH2_FREE(session, method_buf);
-
-    if(key)
-        LIBSSH2_FREE(session, key);
+    LIBSSH2_FREE(session, method_buf);
+    LIBSSH2_FREE(session, key);
 
     return -1;
 }
@@ -2333,8 +2324,7 @@ clean_exit:
     if(rc == 0)
         return 0;
 
-    if(method_buf != NULL)
-        LIBSSH2_FREE(session, method_buf);
+    LIBSSH2_FREE(session, method_buf);
 
     return -1;
 }

@@ -112,7 +112,6 @@ crypt_dtor(LIBSSH2_SESSION * session, void **abstract)
     if(cctx && *cctx) {
         _libssh2_cipher_dtor(&(*cctx)->h);
         LIBSSH2_FREE(session, *cctx);
-        *abstract = NULL;
     }
     return 0;
 }

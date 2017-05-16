@@ -171,8 +171,11 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
 #define LIBSSH2_REALLOC(session, ptr, count) \
  ((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : \
  session->alloc((count), &(session)->abstract))
-#define LIBSSH2_FREE(session, ptr) \
- session->free((ptr), &(session)->abstract)
+#define LIBSSH2_FREE(session, ptr) do {      \
+ session->free((ptr), &(session)->abstract); \
+ (ptr) = NULL;                               \
+} while(0)
+
 #define LIBSSH2_IGNORE(session, data, datalen) \
  session->ssh_msg_ignore((session), (data), (datalen), &(session)->abstract)
 #define LIBSSH2_DEBUG(session, always_display, message, message_len, \

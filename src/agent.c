@@ -425,7 +425,6 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
         goto error;
     }
     LIBSSH2_FREE(session, transctx->request);
-    transctx->request = NULL;
 
     len = transctx->response_len;
     s = transctx->response;
@@ -486,11 +485,7 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
 
   error:
     LIBSSH2_FREE(session, transctx->request);
-    transctx->request = NULL;
-
     LIBSSH2_FREE(session, transctx->response);
-    transctx->response = NULL;
-
     return _libssh2_error(session, rc, "agent sign failure");
 }
 
@@ -622,7 +617,6 @@ agent_list_identities(LIBSSH2_AGENT *agent)
     }
  error:
     LIBSSH2_FREE(agent->session, transctx->response);
-    transctx->response = NULL;
 
     return _libssh2_error(agent->session, rc,
                           "agent list id failed");
@@ -818,9 +812,7 @@ libssh2_agent_free(LIBSSH2_AGENT *agent)
         libssh2_agent_disconnect(agent);
     }
 
-    if(agent->identity_agent_path != NULL)
-        LIBSSH2_FREE(agent->session, agent->identity_agent_path);
-
+    LIBSSH2_FREE(agent->session, agent->identity_agent_path);
     agent_free_identities(agent);
     LIBSSH2_FREE(agent->session, agent);
 }
@@ -834,10 +826,7 @@ libssh2_agent_free(LIBSSH2_AGENT *agent)
 LIBSSH2_API void
 libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path)
 {
-    if(agent->identity_agent_path) {
-        LIBSSH2_FREE(agent->session, agent->identity_agent_path);
-        agent->identity_agent_path = NULL;
-    }
+    LIBSSH2_FREE(agent->session, agent->identity_agent_path);
 
     if(path) {
         size_t path_len = strlen(path);

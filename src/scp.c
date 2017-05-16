@@ -324,7 +324,6 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
             if(libssh2_session_last_errno(session) !=
                 LIBSSH2_ERROR_EAGAIN) {
                 LIBSSH2_FREE(session, session->scpRecv_command);
-                session->scpRecv_command = NULL;
                 session->scpRecv_state = libssh2_NB_state_idle;
             }
             else {
@@ -350,11 +349,9 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
         }
         else if(rc) {
             LIBSSH2_FREE(session, session->scpRecv_command);
-            session->scpRecv_command = NULL;
             goto scp_recv_error;
         }
         LIBSSH2_FREE(session, session->scpRecv_command);
-        session->scpRecv_command = NULL;
 
         _libssh2_debug(session, LIBSSH2_TRACE_SCP, "Sending initial wakeup");
         /* SCP ACK */
@@ -881,7 +878,6 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                 /* previous call set libssh2_session_last_error(), pass it
                    through */
                 LIBSSH2_FREE(session, session->scpSend_command);
-                session->scpSend_command = NULL;
                 session->scpSend_state = libssh2_NB_state_idle;
             }
             else {
@@ -909,14 +905,11 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
             /* previous call set libssh2_session_last_error(), pass it
                through */
             LIBSSH2_FREE(session, session->scpSend_command);
-            session->scpSend_command = NULL;
             _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                            "Unknown error while getting error string");
             goto scp_send_error;
         }
         LIBSSH2_FREE(session, session->scpSend_command);
-        session->scpSend_command = NULL;
-
         session->scpSend_state = libssh2_NB_state_sent1;
     }
 

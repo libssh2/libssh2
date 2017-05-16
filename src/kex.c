@@ -269,8 +269,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         buf.dataptr = buf.data;
         buf.dataptr++; /* advance past type */
 
-        if(session->server_hostkey)
-            LIBSSH2_FREE(session, session->server_hostkey);
+        LIBSSH2_FREE(session, session->server_hostkey);
 
         if(_libssh2_copy_string(session, &buf, &(session->server_hostkey),
                                 &host_key_len)) {
@@ -937,8 +936,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         buf.dataptr = buf.data;
         buf.dataptr++; /* advance past type */
 
-        if(session->server_hostkey)
-            LIBSSH2_FREE(session, session->server_hostkey);
+        LIBSSH2_FREE(session, session->server_hostkey);
 
         if(_libssh2_copy_string(session, &buf, &(session->server_hostkey),
                                 &host_key_len)) {
@@ -2447,11 +2445,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
 clean_exit:
     _libssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
-
-    if(exchange_state->k_value) {
-        LIBSSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    LIBSSH2_FREE(session, exchange_state->k_value);
 
     exchange_state->state = libssh2_NB_state_idle;
 
@@ -2562,11 +2556,7 @@ kex_method_ecdh_key_exchange
 
 ecdh_clean_exit:
 
-    if(key_state->public_key_oct) {
-        LIBSSH2_FREE(session, key_state->public_key_oct);
-        key_state->public_key_oct = NULL;
-    }
-
+    LIBSSH2_FREE(session, key_state->public_key_oct);
     if(key_state->private_key) {
         _libssh2_ecdsa_free(key_state->private_key);
         key_state->private_key = NULL;
@@ -3056,10 +3046,7 @@ clean_exit:
     _libssh2_bn_free(exchange_state->k);
     exchange_state->k = NULL;
 
-    if(exchange_state->k_value) {
-        LIBSSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    LIBSSH2_FREE(session, exchange_state->k_value);
 
     exchange_state->state = libssh2_NB_state_idle;
 
@@ -3493,9 +3480,7 @@ static int kexinit(LIBSSH2_SESSION * session)
 
     }
 
-    if(session->local.kexinit) {
-        LIBSSH2_FREE(session, session->local.kexinit);
-    }
+    LIBSSH2_FREE(session, session->local.kexinit);
 
     session->local.kexinit = data;
     session->local.kexinit_len = data_len;
@@ -4011,6 +3996,7 @@ _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
             if(session->hostkey && session->hostkey->dtor) {
                 session->hostkey->dtor(session,
                                        &session->server_hostkey_abstract);
+                session->server_hostkey_abstract = NULL;
             }
             session->hostkey = NULL;
         }
@@ -4069,9 +4055,7 @@ _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                 return -1;
             }
 
-            if(session->remote.kexinit) {
-                LIBSSH2_FREE(session, session->remote.kexinit);
-            }
+            LIBSSH2_FREE(session, session->remote.kexinit);
             session->remote.kexinit = key_state->data;
             session->remote.kexinit_len = key_state->data_len;
 
@@ -4080,6 +4064,7 @@ _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                 rc = LIBSSH2_ERROR_KEX_FAILURE;
 
             key_state->state = libssh2_NB_state_sent2;
+            key_state->data = NULL;
         }
     }
     else {
@@ -4103,14 +4088,8 @@ _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
     }
 
     /* Done with kexinit buffers */
-    if(session->local.kexinit) {
-        LIBSSH2_FREE(session, session->local.kexinit);
-        session->local.kexinit = NULL;
-    }
-    if(session->remote.kexinit) {
-        LIBSSH2_FREE(session, session->remote.kexinit);
-        session->remote.kexinit = NULL;
-    }
+    LIBSSH2_FREE(session, session->local.kexinit);
+    LIBSSH2_FREE(session, session->remote.kexinit);
 
     session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
     session->state &= ~LIBSSH2_STATE_EXCHANGING_KEYS;
@@ -4227,10 +4206,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
                               "The requested method(s) are not currently "
                               "supported");
     }
-
-    if(*prefvar) {
-        LIBSSH2_FREE(session, *prefvar);
-    }
+    LIBSSH2_FREE(session, *prefvar);
     *prefvar = newprefs;
 
     return 0;
@@ -4338,8 +4314,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     /* correct number of pointers copied? (test the code above) */
     if(j != ialg) {
         /* deallocate buffer */
-        LIBSSH2_FREE(session, (void *)*algs);
-        *algs = NULL;
+        LIBSSH2_FREE(session, *algs);
 
         return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE,
                               "Internal error");
@@ -4373,18 +4348,7 @@ kex_exchange_state_clear(
     _libssh2_bn_ctx_free(exchange_state->ctx);
     exchange_state->ctx = NULL;
 
-    if(exchange_state->e_packet) {
-        LIBSSH2_FREE(session, exchange_state->e_packet);
-        exchange_state->e_packet = NULL;
-    }
-
-    if(exchange_state->s_packet) {
-        LIBSSH2_FREE(session, exchange_state->s_packet);
-        exchange_state->s_packet = NULL;
-    }
-
-    if(exchange_state->k_value) {
-        LIBSSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
+    LIBSSH2_FREE(session, exchange_state->e_packet);
+    LIBSSH2_FREE(session, exchange_state->s_packet);
+    LIBSSH2_FREE(session, exchange_state->k_value);
 }
