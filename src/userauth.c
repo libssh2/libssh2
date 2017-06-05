@@ -487,7 +487,7 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
 
     sp1++;
 
-    if ((sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey - 1))) == NULL) {
+    if ((sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey))) == NULL) {
         /* Assume that the id string is missing, but that it's okay */
         sp2 = pubkey + pubkey_len;
     }
@@ -723,7 +723,7 @@ sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     if (privkeyobj->signv(session, sig, sig_len, 1, &datavec,
                           &hostkey_abstract)) {
         if (privkeyobj->dtor) {
-            privkeyobj->dtor(session, abstract);
+            privkeyobj->dtor(session, &hostkey_abstract);
         }
         return -1;
     }
