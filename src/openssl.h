@@ -233,6 +233,7 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #else
 #define libssh2_crypto_init() \
   OpenSSL_add_all_algorithms(); \
+  OpenSSL_add_all_ciphers(); \
   ENGINE_load_builtin_engines(); \
   ENGINE_register_all_complete()
 #endif
