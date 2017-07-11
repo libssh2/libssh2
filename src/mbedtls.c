@@ -4,6 +4,14 @@
 
 /*******************************************************************/
 /*
+ * mbedTLS backend: Global context handles
+ */
+
+static mbedtls_entropy_context  _libssh2_mbedtls_entropy;
+static mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
+
+/*******************************************************************/
+/*
  * mbedTLS backend: Generic functions
  */
 
