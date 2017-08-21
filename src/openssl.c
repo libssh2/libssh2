@@ -344,7 +344,6 @@ aes_ctr_do_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
 {
     aes_ctr_ctx *c = EVP_CIPHER_CTX_get_app_data(ctx);
     unsigned char b1[AES_BLOCK_SIZE];
-    size_t i = 0;
     int outlen = 0;
 
     if (inl != 16) /* libssh2 only ever encrypt one block */
