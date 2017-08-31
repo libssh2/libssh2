@@ -1510,7 +1510,7 @@ _libssh2_ecdsa_create_key(_libssh2_ec_key **out_private_key,
                           size_t *out_public_key_octal_len, libssh2_curve_type curve_type)
 {
     int ret = 1;
-    int octal_len = 0;
+    size_t octal_len = 0;
     unsigned char octal_value[EC_MAX_POINT_LEN];
     const EC_POINT *public_key = NULL;
     EC_KEY *private_key = NULL;
