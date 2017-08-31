@@ -639,11 +639,11 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
                                     const unsigned char *m,
                                     size_t m_len, void **abstract)
 {
-    libssh2_ecdsa_ctx *ctx = (libssh2_ecdsa_ctx *) (*abstract);
-    (void) session;
-
     const unsigned char *r, *s, *p;
     size_t r_len, s_len;
+    libssh2_ecdsa_ctx *ctx = (libssh2_ecdsa_ctx *) (*abstract);
+
+    (void) session;
 
     if ( sig_len < 35 )
         return -1;
