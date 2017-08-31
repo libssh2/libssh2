@@ -1513,14 +1513,16 @@ _libssh2_ecdsa_create_key(_libssh2_ec_key **out_private_key,
     int octal_len = 0;
     unsigned char octal_value[EC_MAX_POINT_LEN];
     const EC_POINT *public_key = NULL;
+    EC_KEY *private_key = NULL;
+    const EC_GROUP *group = NULL;
 
     /* create key */
     BN_CTX *bn_ctx = BN_CTX_new();
     if (!bn_ctx)
         return -1;
 
-    EC_KEY *private_key = EC_KEY_new_by_curve_name(curve_type);
-    const EC_GROUP *group = EC_KEY_get0_group(private_key);
+    private_key = EC_KEY_new_by_curve_name(curve_type);
+    group = EC_KEY_get0_group(private_key);
 
     EC_KEY_generate_key(private_key);
     public_key = EC_KEY_get0_public_key(private_key);
@@ -1576,6 +1578,7 @@ _libssh2_ecdh_gen_k(_libssh2_bn **k, _libssh2_ec_key *private_key,
     int rc;
     int ret = 0;
     size_t secret_len;
+    unsigned char *secret;
     const EC_GROUP *private_key_group;
     EC_POINT *server_public_key_point;
 
@@ -1596,7 +1599,7 @@ _libssh2_ecdh_gen_k(_libssh2_bn **k, _libssh2_ec_key *private_key,
     rc = EC_POINT_oct2point(private_key_group, server_public_key_point, server_public_key, server_public_key_len, bn_ctx);
 
     secret_len = (EC_GROUP_get_degree(private_key_group) + 7) / 8;
-    unsigned char *secret = malloc(secret_len);
+    secret = malloc(secret_len);
     if (!secret) {
         ret = -1;
         goto clean_exit;
