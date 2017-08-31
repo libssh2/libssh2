@@ -275,7 +275,7 @@ typedef struct key_exchange_state_low_t
     unsigned char *data;
     size_t request_len;
     size_t data_len;
-   	_libssh2_ec_key *private_key;   /* SSH2 ecdh private key */
+    _libssh2_ec_key *private_key;   /* SSH2 ecdh private key */
     unsigned char *public_key_oct;  /* SSH2 ecdh public key octal value */
     size_t public_key_oct_len;      /* SSH2 ecdh public key octal value length */
 } key_exchange_state_low_t;
