@@ -2578,6 +2578,8 @@ kex_method_ecdh_key_exchange
 {
     int ret = 0;
     int rc = 0;
+    unsigned char *s;
+    libssh2_curve_type type;
 
     if (key_state->state == libssh2_NB_state_idle) {
 
@@ -2587,7 +2589,6 @@ kex_method_ecdh_key_exchange
 
     if ( key_state->state == libssh2_NB_state_created )
     {
-        libssh2_curve_type type;
         rc = kex_session_ecdh_curve_type(session->kex->name, &type);
 
         if ( rc != 0 ) {
@@ -2607,7 +2608,7 @@ kex_method_ecdh_key_exchange
         }
 
         key_state->request[0] = SSH2_MSG_KEX_ECDH_INIT;
-        unsigned char *s = key_state->request + 1;
+        s = key_state->request + 1;
         _libssh2_store_str(&s, (const char*)key_state->public_key_oct, key_state->public_key_oct_len);
         key_state->request_len = key_state->public_key_oct_len + 5;
 
@@ -2648,7 +2649,6 @@ kex_method_ecdh_key_exchange
 
     if ( key_state->state == libssh2_NB_state_sent2 ) {
 
-        libssh2_curve_type type;
         (void)kex_session_ecdh_curve_type(session->kex->name, &type);
 
         ret = ecdh_sha2_nistp(session, type, key_state->data, key_state->data_len, (unsigned char*)key_state->public_key_oct,
