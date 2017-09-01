@@ -1575,7 +1575,6 @@ int
 _libssh2_ecdh_gen_k(_libssh2_bn **k, _libssh2_ec_key *private_key,
     const unsigned char *server_public_key, size_t server_public_key_len)
 {
-    int rc;
     int ret = 0;
     size_t secret_len;
     unsigned char *secret;
@@ -1597,6 +1596,10 @@ _libssh2_ecdh_gen_k(_libssh2_bn **k, _libssh2_ec_key *private_key,
         return -1;
 
     rc = EC_POINT_oct2point(private_key_group, server_public_key_point, server_public_key, server_public_key_len, bn_ctx);
+    if ( rc != 1 ) {
+        ret = -1;
+        goto clean_exit;
+    }
 
     secret_len = (EC_GROUP_get_degree(private_key_group) + 7) / 8;
     secret = malloc(secret_len);
