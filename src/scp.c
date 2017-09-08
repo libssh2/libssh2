@@ -303,8 +303,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                                   &session->scpRecv_command[cmd_len],
                                   session->scpRecv_command_len - cmd_len);
 
-        session->scpRecv_command[cmd_len] = '\0';
-        session->scpRecv_command_len = cmd_len + 1;
+        /* the command to exec should _not_ be NUL-terminated */
+        session->scpRecv_command_len = cmd_len;
 
         _libssh2_debug(session, LIBSSH2_TRACE_SCP,
                        "Opening channel for SCP receive");
@@ -845,8 +845,8 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                                   &session->scpSend_command[cmd_len],
                                   session->scpSend_command_len - cmd_len);
 
-        session->scpSend_command[cmd_len] = '\0';
-        session->scpSend_command_len = cmd_len + 1;
+        /* the command to exec should _not_ be NUL-terminated */
+        session->scpSend_command_len = cmd_len;
 
         _libssh2_debug(session, LIBSSH2_TRACE_SCP,
                        "Opening channel for SCP send");
