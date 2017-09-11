@@ -68,7 +68,7 @@
                 libssh2_sha1_final(hash, (value) + len);                \
                 len += SHA_DIGEST_LENGTH;                               \
             }                                                           \
-    }
+    }                                                                   \
 
 
 #define LIBSSH2_KEX_METHOD_EC_SHA_VALUE_HASH(value, reqlen, version)                \
@@ -1760,312 +1760,6 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
 
 #if LIBSSH2_ECDSA
 
-/* kex_ecdh_sha256_hash_create_verify
- * Creates and verifies EC SHA256 hash
- */
-
-static int
-kex_ecdh_sha256_hash_create_verify(LIBSSH2_SESSION *session,
-                                   unsigned char* public_key_oct, size_t public_key_oct_len,
-                                   unsigned char *server_public_key, size_t server_public_key_len,
-                                   kmdhgGPshakex_state_t *exchange_state)
-{
-    int ret = 0;
-
-    /*
-     string   V_C, client's identification string (CR and LF excluded)
-     string   V_S, server's identification string (CR and LF excluded)
-     string   I_C, payload of the client's SSH_MSG_KEXINIT
-     string   I_S, payload of the server's SSH_MSG_KEXINIT
-     string   K_S, server's public host key
-     string   Q_C, client's ephemeral public key octet string
-     string   Q_S, server's ephemeral public key octet string
-     mpint    K,   shared secret
-     */
-
-    libssh2_sha256_ctx ctx;
-    exchange_state->exchange_hash = (void*)&ctx;
-
-    libssh2_sha256_init(&ctx);
-    if (session->local.banner) {
-        _libssh2_htonu32(exchange_state->h_sig_comp,
-                         strlen((char *) session->local.banner) - 2);
-        libssh2_sha256_update(ctx,
-                              exchange_state->h_sig_comp, 4);
-        libssh2_sha256_update(ctx,
-                              (char *) session->local.banner,
-                              strlen((char *) session->local.banner) - 2);
-    } else {
-        _libssh2_htonu32(exchange_state->h_sig_comp,
-                         sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-        libssh2_sha256_update(ctx,
-                              exchange_state->h_sig_comp, 4);
-        libssh2_sha256_update(ctx,
-                              LIBSSH2_SSH_DEFAULT_BANNER,
-                              sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-    }
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     strlen((char *) session->remote.banner));
-    libssh2_sha256_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha256_update(ctx,
-                          session->remote.banner,
-                          strlen((char *) session->remote.banner));
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     session->local.kexinit_len);
-    libssh2_sha256_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha256_update(ctx,
-                          session->local.kexinit,
-                          session->local.kexinit_len);
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     session->remote.kexinit_len);
-    libssh2_sha256_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha256_update(ctx,
-                          session->remote.kexinit,
-                          session->remote.kexinit_len);
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     session->server_hostkey_len);
-    libssh2_sha256_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha256_update(ctx,
-                          session->server_hostkey,
-                          session->server_hostkey_len);
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     public_key_oct_len);
-    libssh2_sha256_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha256_update(ctx,
-                          public_key_oct,
-                          public_key_oct_len);
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     server_public_key_len);
-    libssh2_sha256_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha256_update(ctx,
-                          server_public_key,
-                          server_public_key_len);
-
-    libssh2_sha256_update(ctx,
-                          exchange_state->k_value,
-                          exchange_state->k_value_len);
-
-    libssh2_sha256_final(ctx, exchange_state->h_sig_comp);
-
-    if (session->hostkey->
-        sig_verify(session, exchange_state->h_sig,
-                   exchange_state->h_sig_len, exchange_state->h_sig_comp,
-                   SHA256_DIGEST_LENGTH, &session->server_hostkey_abstract)) {
-            ret = -1;
-        }
-
-    return ret;
-}
-
-/* kex_ecdh_sha384_hash_create_verify
- * Creates and verifies EC SHA384 hash
- */
-
-static int
-kex_ecdh_sha384_hash_create_verify(LIBSSH2_SESSION *session,
-                                   unsigned char* public_key_oct, size_t public_key_oct_len,
-                                   unsigned char *server_public_key, size_t server_public_key_len,
-                                   kmdhgGPshakex_state_t *exchange_state)
-{
-    int ret = 0;
-
-    libssh2_sha384_ctx ctx;
-    exchange_state->exchange_hash = (void*)&ctx;
-
-    libssh2_sha384_init(&ctx);
-    if (session->local.banner) {
-        _libssh2_htonu32(exchange_state->h_sig_comp,
-                         strlen((char *) session->local.banner) - 2);
-        libssh2_sha384_update(ctx,
-                              exchange_state->h_sig_comp, 4);
-        libssh2_sha384_update(ctx,
-                              (char *) session->local.banner,
-                              strlen((char *) session->local.banner) - 2);
-    } else {
-        _libssh2_htonu32(exchange_state->h_sig_comp,
-                         sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-        libssh2_sha384_update(ctx,
-                              exchange_state->h_sig_comp, 4);
-        libssh2_sha384_update(ctx,
-                              LIBSSH2_SSH_DEFAULT_BANNER,
-                              sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-    }
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     strlen((char *) session->remote.banner));
-    libssh2_sha384_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha384_update(ctx,
-                          session->remote.banner,
-                          strlen((char *) session->remote.banner));
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     session->local.kexinit_len);
-    libssh2_sha384_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha384_update(ctx,
-                          session->local.kexinit,
-                          session->local.kexinit_len);
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     session->remote.kexinit_len);
-    libssh2_sha384_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha384_update(ctx,
-                          session->remote.kexinit,
-                          session->remote.kexinit_len);
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     session->server_hostkey_len);
-    libssh2_sha384_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha384_update(ctx,
-                          session->server_hostkey,
-                          session->server_hostkey_len);
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     public_key_oct_len);
-    libssh2_sha384_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha384_update(ctx,
-                          public_key_oct,
-                          public_key_oct_len);
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     server_public_key_len);
-    libssh2_sha384_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha384_update(ctx,
-                          server_public_key,
-                          server_public_key_len);
-
-    libssh2_sha384_update(ctx,
-                          exchange_state->k_value,
-                          exchange_state->k_value_len);
-
-    libssh2_sha384_final(ctx, exchange_state->h_sig_comp);
-
-    if (session->hostkey->
-        sig_verify(session, exchange_state->h_sig,
-                   exchange_state->h_sig_len, exchange_state->h_sig_comp,
-                   SHA384_DIGEST_LENGTH, &session->server_hostkey_abstract)) {
-            ret = -1;
-        }
-
-    return ret;
-}
-
-
-/* kex_ecdh_sha512_hash_create_verify
- * Creates and verifies EC SHA512 hash
- */
-
-static int
-kex_ecdh_sha512_hash_create_verify(LIBSSH2_SESSION *session,
-                                   unsigned char* public_key_oct, size_t public_key_oct_len,
-                                   unsigned char *server_public_key, size_t server_public_key_len,
-                                   kmdhgGPshakex_state_t *exchange_state)
-{
-    int ret = 0;
-
-    libssh2_sha512_ctx ctx;
-    exchange_state->exchange_hash = (void*)&ctx;
-
-    libssh2_sha512_init(&ctx);
-    if (session->local.banner) {
-        _libssh2_htonu32(exchange_state->h_sig_comp,
-                         strlen((char *) session->local.banner) - 2);
-        libssh2_sha512_update(ctx,
-                              exchange_state->h_sig_comp, 4);
-        libssh2_sha512_update(ctx,
-                              (char *) session->local.banner,
-                              strlen((char *) session->local.banner) - 2);
-    } else {
-        _libssh2_htonu32(exchange_state->h_sig_comp,
-                         sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-        libssh2_sha512_update(ctx,
-                              exchange_state->h_sig_comp, 4);
-        libssh2_sha512_update(ctx,
-                              LIBSSH2_SSH_DEFAULT_BANNER,
-                              sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-    }
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     strlen((char *) session->remote.banner));
-    libssh2_sha512_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha512_update(ctx,
-                          session->remote.banner,
-                          strlen((char *) session->remote.banner));
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     session->local.kexinit_len);
-    libssh2_sha512_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha512_update(ctx,
-                          session->local.kexinit,
-                          session->local.kexinit_len);
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     session->remote.kexinit_len);
-    libssh2_sha512_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha512_update(ctx,
-                          session->remote.kexinit,
-                          session->remote.kexinit_len);
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     session->server_hostkey_len);
-    libssh2_sha512_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha512_update(ctx,
-                          session->server_hostkey,
-                          session->server_hostkey_len);
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     public_key_oct_len);
-    libssh2_sha512_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha512_update(ctx,
-                          public_key_oct,
-                          public_key_oct_len);
-
-    _libssh2_htonu32(exchange_state->h_sig_comp,
-                     server_public_key_len);
-    libssh2_sha512_update(ctx,
-                          exchange_state->h_sig_comp, 4);
-    libssh2_sha512_update(ctx,
-                          server_public_key,
-                          server_public_key_len);
-
-    libssh2_sha512_update(ctx,
-                          exchange_state->k_value,
-                          exchange_state->k_value_len);
-
-    libssh2_sha512_final(ctx, exchange_state->h_sig_comp);
-
-    if (session->hostkey->
-        sig_verify(session, exchange_state->h_sig,
-                   exchange_state->h_sig_len, exchange_state->h_sig_comp,
-                   SHA512_DIGEST_LENGTH, &session->server_hostkey_abstract)) {
-            ret = -1;
-        }
-
-    return ret;
-}
-
 /* kex_session_ecdh_curve_type
  * returns the EC curve type by name used in key exchange
  */
@@ -2096,13 +1790,119 @@ kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
     return ret;
 }
 
+
+/* LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY
+ *
+ * Macro that create and verifies EC SHA hash with a given digest bytes
+ *
+ * Payload format:
+ *
+ * string   V_C, client's identification string (CR and LF excluded)
+ * string   V_S, server's identification string (CR and LF excluded)
+ * string   I_C, payload of the client's SSH_MSG_KEXINIT
+ * string   I_S, payload of the server's SSH_MSG_KEXINIT
+ * string   K_S, server's public host key
+ * string   Q_C, client's ephemeral public key octet string
+ * string   Q_S, server's ephemeral public key octet string
+ * mpint    K,   shared secret
+ *
+ */
+
+#define LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(digest_type)                   \
+    {                                                                               \
+                                                                                    \
+        libssh2_sha##digest_type##_ctx ctx;                                         \
+        exchange_state->exchange_hash = (void*)&ctx;                                \
+                                                                                    \
+        libssh2_sha##digest_type##_init(&ctx);                                      \
+        if (session->local.banner) {                                                \
+            _libssh2_htonu32(exchange_state->h_sig_comp,                            \
+            strlen((char *) session->local.banner) - 2);                            \
+            libssh2_sha##digest_type##_update(ctx,                                  \
+              exchange_state->h_sig_comp, 4);                                       \
+            libssh2_sha##digest_type##_update(ctx,                                  \
+              (char *) session->local.banner,                                       \
+              strlen((char *) session->local.banner) - 2);                          \
+        } else {                                                                    \
+            _libssh2_htonu32(exchange_state->h_sig_comp,                            \
+             sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);                               \
+            libssh2_sha##digest_type##_update(ctx,                                  \
+              exchange_state->h_sig_comp, 4);                                       \
+            libssh2_sha##digest_type##_update(ctx,                                  \
+              LIBSSH2_SSH_DEFAULT_BANNER,                                           \
+              sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);                              \
+        }                                                                           \
+                                                                                    \
+        _libssh2_htonu32(exchange_state->h_sig_comp,                                \
+         strlen((char *) session->remote.banner));                                  \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          exchange_state->h_sig_comp, 4);                                           \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          session->remote.banner,                                                   \
+          strlen((char *) session->remote.banner));                                 \
+                                                                                    \
+        _libssh2_htonu32(exchange_state->h_sig_comp,                                \
+         session->local.kexinit_len);                                               \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          exchange_state->h_sig_comp, 4);                                           \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          session->local.kexinit,                                                   \
+          session->local.kexinit_len);                                              \
+                                                                                    \
+        _libssh2_htonu32(exchange_state->h_sig_comp,                                \
+         session->remote.kexinit_len);                                              \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          exchange_state->h_sig_comp, 4);                                           \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          session->remote.kexinit,                                                  \
+          session->remote.kexinit_len);                                             \
+                                                                                    \
+        _libssh2_htonu32(exchange_state->h_sig_comp,                                \
+         session->server_hostkey_len);                                              \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          exchange_state->h_sig_comp, 4);                                           \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          session->server_hostkey,                                                  \
+          session->server_hostkey_len);                                             \
+                                                                                    \
+        _libssh2_htonu32(exchange_state->h_sig_comp,                                \
+         public_key_len);                                                           \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          exchange_state->h_sig_comp, 4);                                           \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          public_key,                                                               \
+          public_key_len);                                                          \
+                                                                                    \
+        _libssh2_htonu32(exchange_state->h_sig_comp,                                \
+         server_public_key_len);                                                    \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          exchange_state->h_sig_comp, 4);                                           \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          server_public_key,                                                        \
+          server_public_key_len);                                                   \
+                                                                                    \
+        libssh2_sha##digest_type##_update(ctx,                                      \
+          exchange_state->k_value,                                                  \
+          exchange_state->k_value_len);                                             \
+                                                                                    \
+        libssh2_sha##digest_type##_final(ctx, exchange_state->h_sig_comp);          \
+                                                                                    \
+        if (session->hostkey->                                                      \
+        sig_verify(session, exchange_state->h_sig,                                  \
+           exchange_state->h_sig_len, exchange_state->h_sig_comp,                   \
+           SHA##digest_type##_DIGEST_LENGTH, &session->server_hostkey_abstract)) {  \
+               rc = -1;                                                             \
+        }                                                                           \
+    }                                                                               \
+
+
 /* ecdh_sha2_nistp
  * Elliptic Curve Diffie Hellman Key Exchange
  */
 
 static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
-                           unsigned char *data, size_t data_len, unsigned char *public_key_oct,
-                          size_t public_key_oct_len, _libssh2_ec_key *private_key,
+                           unsigned char *data, size_t data_len, unsigned char *public_key,
+                          size_t public_key_len, _libssh2_ec_key *private_key,
                           kmdhgGPshakex_state_t *exchange_state)
 {
     int ret = 0;
@@ -2277,18 +2077,14 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
 
         switch ( type ) {
             case LIBSSH2_EC_CURVE_NISTP256:
-                rc = kex_ecdh_sha256_hash_create_verify(session, public_key_oct, public_key_oct_len,
-                                                 server_public_key, server_public_key_len, exchange_state);
+                LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
                 break;
 
             case LIBSSH2_EC_CURVE_NISTP384:
-                rc = kex_ecdh_sha384_hash_create_verify(session, public_key_oct, public_key_oct_len,
-                                             server_public_key, server_public_key_len, exchange_state);
+                LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(384);
                 break;
             case LIBSSH2_EC_CURVE_NISTP521:
-                rc = kex_ecdh_sha512_hash_create_verify(session, public_key_oct, public_key_oct_len,
-                                                 server_public_key, server_public_key_len, exchange_state);
-
+                LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(512);
                 break;
         }
 
