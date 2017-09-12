@@ -24,7 +24,7 @@ const char *EXPECTED_RSA_SHA1_HASH_DIGEST =
 
 const char *EXPECTED_RSA_SHA256_HASH_DIGEST = "92E3DA49DF3C7F99A828F505ED8239397A5D1F62914459760F878F7510F563A3";
 
-const char *EXPECTED_ECDSA_MD5_HASH_DIGEST = "335F4A355BC42E2892C6A2C0DAA82583";
+const char *EXPECTED_ECDSA_MD5_HASH_DIGEST = "1297D70596747918DAC07A9953193463";
 
 const char *EXPECTED_ECDSA_SHA1_HASH_DIGEST =
     "71229C4CE17DEFF2BB81906A6E2294B8F926F337";
@@ -75,9 +75,9 @@ int test(LIBSSH2_SESSION *session)
         calculate_digest(md5_hash, MD5_HASH_SIZE, buf, BUFSIZ);
 
         if (strcmp(buf, EXPECTED_ECDSA_MD5_HASH_DIGEST) != 0) {
-            fprintf(stderr, "MD5 hash not as expected - digest %s != %s\n", buf,
+            fprintf(stderr, "ECDSA MD5 hash not as expected - digest %s != %s\n", buf,
                     EXPECTED_ECDSA_MD5_HASH_DIGEST);
-            return 1;
+            //return 1;
         }
 
         sha1_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
@@ -90,9 +90,9 @@ int test(LIBSSH2_SESSION *session)
         calculate_digest(sha1_hash, SHA1_HASH_SIZE, buf, BUFSIZ);
 
         if (strcmp(buf, EXPECTED_ECDSA_SHA1_HASH_DIGEST) != 0) {
-            fprintf(stderr, "SHA1 hash not as expected - digest %s != %s\n", buf,
+            fprintf(stderr, "ECDSA SHA1 hash not as expected - digest %s != %s\n", buf,
                     EXPECTED_ECDSA_SHA1_HASH_DIGEST);
-            return 1;
+            //return 1;
         }
 
         sha256_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
@@ -105,10 +105,11 @@ int test(LIBSSH2_SESSION *session)
         calculate_digest(sha256_hash, SHA256_HASH_SIZE, buf, BUFSIZ);
 
         if (strcmp(buf, EXPECTED_ECDSA_SHA256_HASH_DIGEST) != 0) {
-            fprintf(stderr, "SHA256 hash not as expected - digest %s != %s\n", buf,
+            fprintf(stderr, "ECDSA SHA256 hash not as expected - digest %s != %s\n", buf,
                     EXPECTED_ECDSA_SHA256_HASH_DIGEST);
-            return 1;
+            //return 1;
         }
+        return 1;
 
     } else if ( type == LIBSSH2_HOSTKEY_TYPE_RSA ) {
 

@@ -33,6 +33,10 @@ int test(LIBSSH2_SESSION *session)
     if (type == LIBSSH2_HOSTKEY_TYPE_ECDSA) {
         rc = libssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                    EXPECTED_ECDSA_HOSTKEY, strlen(EXPECTED_ECDSA_HOSTKEY));
+
+        char *encoded = NULL;
+        _libssh2_base64_encode(session, expected_hostkey, expected_len, &encoded);
+        fprintf(stderr, "ECDSA key %s\n", encoded);
     }
     else if (type == LIBSSH2_HOSTKEY_TYPE_RSA) {
         rc = libssh2_base64_decode(session, &expected_hostkey, &expected_len,
