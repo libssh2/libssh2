@@ -76,7 +76,7 @@ readline_memory(char *line, size_t line_size,
 
     off = *filedata_offset;
 
-    for (len = 0; off + len < filedata_len && len < line_size; len++) {
+    for (len = 0; off + len < filedata_len && len < line_size - 1; len++) {
         if (filedata[off + len] == '\n' ||
             filedata[off + len] == '\r') {
                 break;
