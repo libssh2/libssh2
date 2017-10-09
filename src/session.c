@@ -703,7 +703,9 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 
     if (session->startup_state == libssh2_NB_state_created) {
         rc = banner_send(session);
-        if (rc) {
+        if (rc == LIBSSH2_ERROR_EAGAIN)
+            return rc;
+        else if (rc) {
             return _libssh2_error(session, rc,
                                   "Failed sending banner");
         }
@@ -714,7 +716,9 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     if (session->startup_state == libssh2_NB_state_sent) {
         do {
             rc = banner_receive(session);
-            if (rc)
+            if (rc == LIBSSH2_ERROR_EAGAIN)
+                return rc;
+            else if (rc)
                 return _libssh2_error(session, rc,
                                       "Failed getting banner");
         } while(strncmp("SSH-", (char *)session->remote.banner, 4));
@@ -724,7 +728,9 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 
     if (session->startup_state == libssh2_NB_state_sent1) {
         rc = _libssh2_kex_exchange(session, 0, &session->startup_key_state);
-        if (rc)
+        if (rc == LIBSSH2_ERROR_EAGAIN)
+            return rc;
+        else if (rc)
             return _libssh2_error(session, rc,
                                   "Unable to exchange encryption keys");
 
@@ -749,7 +755,9 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         rc = _libssh2_transport_send(session, session->startup_service,
                                      sizeof("ssh-userauth") + 5 - 1,
                                      NULL, 0);
-        if (rc) {
+        if (rc == LIBSSH2_ERROR_EAGAIN)
+            return rc;
+        else if (rc) {
             return _libssh2_error(session, rc,
                                   "Unable to ask for ssh-userauth service");
         }
