@@ -86,11 +86,21 @@ CAT	= type
 ECHONL	= $(ComSpec) /c echo.
 endif
 
+ifeq ($(LIBSSH2_CC),)
+LIBSSH2_CC := $(CROSSPREFIX)gcc
+endif
+ifeq ($(LIBSSH2_AR),)
+LIBSSH2_AR := $(CROSSPREFIX)ar
+endif
+ifeq ($(LIBSSH2_RANLIB),)
+LIBSSH2_RANLIB := $(CROSSPREFIX)ranlib
+endif
+
 # The following line defines your compiler.
 ifdef METROWERKS
 	CC = mwcc
 else
-	CC = $(CROSSPREFIX)gcc
+	CC = $(LIBSSH2_CC)
 endif
 
 # Set environment var ARCH to your architecture to override autodetection.
@@ -128,13 +138,13 @@ CFLAGS	+= -nostdinc -gccinc -msgstyle gcc -inline off -opt nointrinsics -proc 58
 CFLAGS	+= -ir "$(METROWERKS)/MSL" -ir "$(METROWERKS)/Win32-x86 Support"
 CFLAGS	+= -w on,nounused,nounusedexpr # -ansi strict
 else
-LD	= $(CROSSPREFIX)gcc
+LD	= $(LIBSSH2_CC)
 RC	= $(CROSSPREFIX)windres
 LDFLAGS	+= -s -shared -Wl,--output-def,$(TARGET).def,--out-implib,$(TARGET)dll.a
-AR	= $(CROSSPREFIX)ar
-ARFLAGS	= -cq
+AR	= $(LIBSSH2_AR)
+ARFLAGS	= cru
 LIBEXT	= a
-RANLIB	= $(CROSSPREFIX)ranlib
+RANLIB	= $(LIBSSH2_RANLIB)
 RCFLAGS	= -I $(PROOT)/include -O coff
 CFLAGS	+= -fno-builtin
 CFLAGS	+= -fno-strict-aliasing
