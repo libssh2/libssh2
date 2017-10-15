@@ -95,6 +95,11 @@ endif
 ifeq ($(LIBSSH2_RANLIB),)
 LIBSSH2_RANLIB := $(CROSSPREFIX)ranlib
 endif
+ifeq ($(LIBSSH2_DLL_A_SUFFIX),)
+LIBSSH2_DLL_A_SUFFIX := dll
+endif
+
+libssh2_dll_LIBRARY = $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
 
 # The following line defines your compiler.
 ifdef METROWERKS
@@ -138,12 +143,12 @@ CFLAGS	+= -nostdinc -gccinc -msgstyle gcc -inline off -opt nointrinsics -proc 58
 CFLAGS	+= -ir "$(METROWERKS)/MSL" -ir "$(METROWERKS)/Win32-x86 Support"
 CFLAGS	+= -w on,nounused,nounusedexpr # -ansi strict
 else
+LIBEXT	= a
 LD	= $(LIBSSH2_CC)
 RC	= $(CROSSPREFIX)windres
-LDFLAGS	+= -s -shared -Wl,--output-def,$(TARGET).def,--out-implib,$(TARGET)dll.a
+LDFLAGS	+= -s -shared -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT)
 AR	= $(LIBSSH2_AR)
 ARFLAGS	= cru
-LIBEXT	= a
 RANLIB	= $(LIBSSH2_RANLIB)
 RCFLAGS	= -I $(PROOT)/include -O coff
 CFLAGS	+= -fno-builtin
@@ -233,7 +238,7 @@ OBJL	= $(OBJS) $(OBJDIR)/$(TARGET).res
 
 all: lib dll
 
-dll: prebuild $(TARGET).dll
+dll: prebuild $(libssh2_dll_LIBRARY)
 
 lib: prebuild $(TARGET).$(LIBEXT)
 
@@ -258,7 +263,7 @@ dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@$(call COPY, $(PROOT)/INSTALL, $(DISTDIR))
 	@$(call COPY, $(PROOT)/README, $(DISTDIR))
 	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DISTDIR))
-	@$(call COPY, $(TARGET).dll, $(DISTDIR)/bin)
+	@$(call COPY, $(libssh2_dll_LIBRARY), $(DISTDIR)/bin)
 	@echo Creating $(DISTARC)
 	@$(ZIP) $(DISTARC) $(DISTDIR)/* < $(DISTDIR)/readme.txt
 
@@ -271,7 +276,7 @@ dev: all $(DEVLDIR) $(DEVLDIR)/readme.txt
 	@$(call COPY, $(PROOT)/INSTALL, $(DEVLDIR))
 	@$(call COPY, $(PROOT)/README, $(DEVLDIR))
 	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DEVLDIR))
-	@$(call COPY, $(TARGET).dll, $(DEVLDIR)/bin)
+	@$(call COPY, $(libssh2_dll_LIBRARY), $(DEVLDIR)/bin)
 	@$(call COPY, $(PROOT)/include/*.h, $(DEVLDIR)/include)
 	@$(call COPY, libssh2_config.h, $(DEVLDIR)/include)
 	@$(call COPY, *.$(LIBEXT), $(DEVLDIR)/win32)
@@ -294,7 +299,7 @@ testclean: clean
 
 clean:
 #	$(call DEL, libssh2_config.h)
-	$(call DEL, $(TARGET).dll $(TARGET).def $(TARGET).$(LIBEXT) $(TARGET)dll.$(LIBEXT))
+	$(call DEL, $(libssh2_dll_LIBRARY) $(libssh2_dll_LIBRARY:.dll=.def) $(TARGET).$(LIBEXT) $(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT))
 	$(call RMDIR, $(OBJDIR))
 
 $(OBJDIR):
@@ -314,7 +319,7 @@ ifdef RANLIB
 	@$(RANLIB) $@
 endif
 
-$(TARGET).dll $(TARGET)dll.a: $(OBJL)
+$(libssh2_dll_LIBRARY) $(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT): $(OBJL)
 	@echo Linking $@
 	@$(call DEL, $@)
 	@$(LD) $(LDFLAGS) $^ -o $@ $(LIBPATH) $(LDLIBS)
