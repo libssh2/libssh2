@@ -434,6 +434,81 @@ libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, const char *host,
 }
 
 /*
+ * libssh2_channel_direct_streamlocal_ex
+ *
+ * Tunnel TCP/IP connect through the SSH session to direct UNIX socket
+ */
+static LIBSSH2_CHANNEL *
+channel_direct_streamlocal(LIBSSH2_SESSION * session, const char *socket_path, const char *shost, int sport)
+{
+    LIBSSH2_CHANNEL *channel;
+    unsigned char *s;
+
+    if (session->direct_state == libssh2_NB_state_idle) {
+        session->direct_host_len = strlen(socket_path);
+        session->direct_shost_len = strlen(shost);
+        session->direct_message_len =
+            session->direct_host_len + session->direct_shost_len + 12;
+
+        _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+                       "Requesting direct-streamlocal session to %s",
+                       socket_path);
+
+        s = session->direct_message =
+            LIBSSH2_ALLOC(session, session->direct_message_len);
+        if (!session->direct_message) {
+            _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                           "Unable to allocate memory for direct-streamlocal connection");
+            return NULL;
+        }
+        _libssh2_store_str(&s, socket_path, session->direct_host_len);
+        _libssh2_store_str(&s, shost, session->direct_shost_len);
+        _libssh2_store_u32(&s, sport);
+    }
+
+    channel =
+        _libssh2_channel_open(session, "direct-streamlocal@openssh.com",
+                              sizeof("direct-streamlocal@openssh.com") - 1,
+                              LIBSSH2_CHANNEL_WINDOW_DEFAULT,
+                              LIBSSH2_CHANNEL_PACKET_DEFAULT,
+                              session->direct_message,
+                              session->direct_message_len);
+
+    if (!channel &&
+        libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
+        /* The error code is still set to LIBSSH2_ERROR_EAGAIN, set our state
+           to created to avoid re-creating the package on next invoke */
+        session->direct_state = libssh2_NB_state_created;
+        return NULL;
+    }
+    /* by default we set (keep?) idle state... */
+    session->direct_state = libssh2_NB_state_idle;
+
+    LIBSSH2_FREE(session, session->direct_message);
+    session->direct_message = NULL;
+
+    return channel;
+}
+
+/*
+ * libssh2_channel_direct_streamlocal_ex
+ *
+ * Tunnel TCP/IP connect through the SSH session to direct UNIX socket
+ */
+LIBSSH2_API LIBSSH2_CHANNEL *
+libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION * session, const char *socket_path, const char *shost, int sport)
+{
+    LIBSSH2_CHANNEL *ptr;
+
+    if(!session)
+        return NULL;
+
+    BLOCK_ADJUST_ERRNO(ptr, session,
+                       channel_direct_streamlocal(session, socket_path, shost, sport));
+    return ptr;
+}
+
+/*
  * channel_forward_listen
  *
  * Bind a port on the remote host and listen for connections
