@@ -1696,7 +1696,7 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 
 #if LIBSSH2_ECDSA
     case EVP_PKEY_EC :
-    st = gen_publickey_from_ec_evp(
+        st = gen_publickey_from_ec_evp(
             session, method, method_len, pubkeydata, pubkeydata_len, pk);
     break;
 #endif
