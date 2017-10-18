@@ -1040,10 +1040,10 @@ _libssh2_sha384_init(libssh2_sha384_ctx *ctx)
     *ctx = EVP_MD_CTX_new();
 
     if (*ctx == NULL)
-    return 0;
+        return 0;
 
     if (EVP_DigestInit(*ctx, EVP_get_digestbyname("sha384")))
-    return 1;
+        return 1;
 
     EVP_MD_CTX_free(*ctx);
     *ctx = NULL;
@@ -1063,13 +1063,13 @@ _libssh2_sha384(const unsigned char *message, unsigned long len,
     EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 
     if (ctx == NULL)
-    return 1; /* error */
+        return 1; /* error */
 
     if(EVP_DigestInit(ctx, EVP_get_digestbyname("sha384"))) {
-    EVP_DigestUpdate(ctx, message, len);
-    EVP_DigestFinal(ctx, out, NULL);
-    EVP_MD_CTX_free(ctx);
-    return 0; /* success */
+        EVP_DigestUpdate(ctx, message, len);
+        EVP_DigestFinal(ctx, out, NULL);
+        EVP_MD_CTX_free(ctx);
+        return 0; /* success */
     }
     EVP_MD_CTX_free(ctx);
 #else
@@ -1077,9 +1077,9 @@ _libssh2_sha384(const unsigned char *message, unsigned long len,
 
     EVP_MD_CTX_init(&ctx);
     if(EVP_DigestInit(&ctx, EVP_get_digestbyname("sha384"))) {
-    EVP_DigestUpdate(&ctx, message, len);
-    EVP_DigestFinal(&ctx, out, NULL);
-    return 0; /* success */
+        EVP_DigestUpdate(&ctx, message, len);
+        EVP_DigestFinal(&ctx, out, NULL);
+        return 0; /* success */
     }
 #endif
     return 1; /* error */
@@ -1092,10 +1092,10 @@ _libssh2_sha512_init(libssh2_sha512_ctx *ctx)
     *ctx = EVP_MD_CTX_new();
 
     if (*ctx == NULL)
-    return 0;
+        return 0;
 
     if (EVP_DigestInit(*ctx, EVP_get_digestbyname("sha512")))
-    return 1;
+        return 1;
 
     EVP_MD_CTX_free(*ctx);
     *ctx = NULL;
@@ -1115,13 +1115,13 @@ _libssh2_sha512(const unsigned char *message, unsigned long len,
     EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 
     if (ctx == NULL)
-    return 1; /* error */
+        return 1; /* error */
 
     if(EVP_DigestInit(ctx, EVP_get_digestbyname("sha512"))) {
-    EVP_DigestUpdate(ctx, message, len);
-    EVP_DigestFinal(ctx, out, NULL);
-    EVP_MD_CTX_free(ctx);
-    return 0; /* success */
+        EVP_DigestUpdate(ctx, message, len);
+        EVP_DigestFinal(ctx, out, NULL);
+        EVP_MD_CTX_free(ctx);
+        return 0; /* success */
     }
     EVP_MD_CTX_free(ctx);
 #else
@@ -1129,9 +1129,9 @@ _libssh2_sha512(const unsigned char *message, unsigned long len,
 
     EVP_MD_CTX_init(&ctx);
     if(EVP_DigestInit(&ctx, EVP_get_digestbyname("sha512"))) {
-    EVP_DigestUpdate(&ctx, message, len);
-    EVP_DigestFinal(&ctx, out, NULL);
-    return 0; /* success */
+        EVP_DigestUpdate(&ctx, message, len);
+        EVP_DigestFinal(&ctx, out, NULL);
+        return 0; /* success */
     }
 #endif
     return 1; /* error */
