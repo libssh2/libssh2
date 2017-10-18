@@ -452,6 +452,13 @@ struct _LIBSSH2_CHANNEL
     /* State variables used in libssh2_channel_handle_extended_data2() */
     libssh2_nonblocking_states extData2_state;
 
+    /* State variables used in libssh2_channel_request_auth_agent() */
+    libssh2_nonblocking_states req_auth_agent_try_state;
+    libssh2_nonblocking_states req_auth_agent_state;
+    unsigned char req_auth_agent_packet[36];
+    size_t req_auth_agent_packet_len;
+    unsigned char req_auth_agent_local_channel[4];
+    packet_requirev_state_t req_auth_agent_requirev_state;
 };
 
 struct _LIBSSH2_LISTENER
