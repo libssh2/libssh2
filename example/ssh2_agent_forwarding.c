@@ -4,12 +4,12 @@
  * so you should be able to do things like clone out protected git
  * repos and such.
  *
- * The sample code has fixed values for host name, user name, password
- * and command to run.
+ * The example uses agent authentication to ensure an agent to forward
+ * is running.
  *
  * Run it like this:
  *
- * $ ./ssh2_agent_forwarding 127.0.0.1 user password "uptime"
+ * $ ./ssh2_agent_forwarding 127.0.0.1 user "uptime"
  *
  */
 
@@ -77,14 +77,15 @@ int main(int argc, char *argv[])
 {
     const char *hostname = "127.0.0.1";
     const char *commandline = "uptime";
-    const char *username    = "user";
-    const char *password    = "password";
+    const char *username    = NULL;
     unsigned long hostaddr;
     int sock;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
+    LIBSSH2_AGENT *agent = NULL;
+    struct libssh2_agent_publickey *identity, *prev_identity = NULL;
     int rc;
     int exitcode;
     char *exitsignal=(char *)"none";
@@ -97,18 +98,16 @@ int main(int argc, char *argv[])
     WSADATA wsadata;
     WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
-    if (argc > 1)
-        /* must be ip address only */
-        hostname = argv[1];
+    if (argc < 2) {
+        fprintf(stderr, "At least IP and username arguments are required.\n");
+        return 1;
+    }
+    /* must be ip address only */
+    hostname = argv[1];
+    username = argv[2];
 
-    if (argc > 2) {
-        username = argv[2];
-    }
     if (argc > 3) {
-        password = argv[3];
-    }
-    if (argc > 4) {
-        commandline = argv[4];
+        commandline = argv[3];
     }
 
     rc = libssh2_init (0);
@@ -139,93 +138,61 @@ int main(int argc, char *argv[])
     if (!session)
         return -1;
 
-    /* tell libssh2 we want it all done non-blocking */
-    libssh2_session_set_blocking(session, 0);
-
-    /* ... start it up. This will trade welcome banners, exchange keys,
-     * and setup crypto, compression, and MAC layers
-     */
-    while ((rc = libssh2_session_handshake(session, sock)) ==
-           LIBSSH2_ERROR_EAGAIN);
-    if (rc) {
+    if (libssh2_session_handshake(session, sock) != 0) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         return -1;
     }
 
-    nh = libssh2_knownhost_init(session);
-    if(!nh) {
-        /* eeek, do cleanup here */
-        return 2;
+    /* Connect to the ssh-agent */
+    agent = libssh2_agent_init(session);
+    if (!agent) {
+        fprintf(stderr, "Failure initializing ssh-agent support\n");
+        rc = 1;
+        goto shutdown;
     }
-
-    /* read all hosts from here */
-    libssh2_knownhost_readfile(nh, "known_hosts",
-                               LIBSSH2_KNOWNHOST_FILE_OPENSSH);
-
-    /* store all known hosts to here */
-    libssh2_knownhost_writefile(nh, "dumpfile",
-                                LIBSSH2_KNOWNHOST_FILE_OPENSSH);
-
-    fingerprint = libssh2_session_hostkey(session, &len, &type);
-    if(fingerprint) {
-        struct libssh2_knownhost *host;
-#if LIBSSH2_VERSION_NUM >= 0x010206
-        /* introduced in 1.2.6 */
-        int check = libssh2_knownhost_checkp(nh, hostname, 22,
-                                             fingerprint, len,
-                                             LIBSSH2_KNOWNHOST_TYPE_PLAIN|
-                                             LIBSSH2_KNOWNHOST_KEYENC_RAW,
-                                             &host);
-#else
-        /* 1.2.5 or older */
-        int check = libssh2_knownhost_check(nh, hostname,
-                                            fingerprint, len,
-                                            LIBSSH2_KNOWNHOST_TYPE_PLAIN|
-                                            LIBSSH2_KNOWNHOST_KEYENC_RAW,
-                                            &host);
-#endif
-        fprintf(stderr, "Host check: %d, key: %s\n", check,
-                (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH)?
-                host->key:"<none>");
-
-        /*****
-         * At this point, we could verify that 'check' tells us the key is
-         * fine or bail out.
-         *****/
+    if (libssh2_agent_connect(agent)) {
+        fprintf(stderr, "Failure connecting to ssh-agent\n");
+        rc = 1;
+        goto shutdown;
     }
-    else {
-        /* eeek, do cleanup here */
-        return 3;
+    if (libssh2_agent_list_identities(agent)) {
+        fprintf(stderr, "Failure requesting identities to ssh-agent\n");
+        rc = 1;
+        goto shutdown;
     }
-    libssh2_knownhost_free(nh);
-
-    if ( strlen(password) != 0 ) {
-        /* We could authenticate via password */
-        while ((rc = libssh2_userauth_password(session, username, password)) ==
-               LIBSSH2_ERROR_EAGAIN);
-        if (rc) {
-            fprintf(stderr, "Authentication by password failed.\n");
+    while (1) {
+        rc = libssh2_agent_get_identity(agent, &identity, prev_identity);
+        if (rc == 1)
+            break;
+        if (rc < 0) {
+            fprintf(stderr,
+                    "Failure obtaining identity from ssh-agent support\n");
+            rc = 1;
             goto shutdown;
         }
-    }
-    else {
-        /* Or by public key */
-        while ((rc = libssh2_userauth_publickey_fromfile(session, username,
-                                                         "/home/user/"
-                                                         ".ssh/id_rsa.pub",
-                                                         "/home/user/"
-                                                         ".ssh/id_rsa",
-                                                         password)) ==
-               LIBSSH2_ERROR_EAGAIN);
-        if (rc) {
-            fprintf(stderr, "\tAuthentication by public key failed\n");
-            goto shutdown;
+        if (libssh2_agent_userauth(agent, username, identity)) {
+            fprintf(stderr, "\tAuthentication with username %s and "
+                   "public key %s failed!\n",
+                   username, identity->comment);
+        } else {
+            fprintf(stderr, "\tAuthentication with username %s and "
+                   "public key %s succeeded!\n",
+                   username, identity->comment);
+            break;
         }
+        prev_identity = identity;
+    }
+    if (rc) {
+        fprintf(stderr, "Couldn't continue authentication\n");
+        goto shutdown;
     }
 
 #if 0
     libssh2_trace(session, ~0 );
 #endif
+
+    /* Set session to non-blocking */
+    libssh2_session_set_blocking(session, 0);
 
     /* Exec non-blocking on the remove host */
     while( (channel = libssh2_channel_open_session(session)) == NULL &&
@@ -244,13 +211,15 @@ int main(int argc, char *argv[])
     {
         waitsocket(sock, session);
     }
-    if ( rc != 0 )
-    {
-        fprintf(stderr, "Error, couldn't request auth agent.\n");
-        exit( 1 );
+    if ( rc != 0 ) {
+        fprintf(stderr, "Error, couldn't request auth agent, error code %d.\n", rc);
+        exit(1);
     }
-    while( (rc = libssh2_channel_exec(channel, commandline)) ==
-           LIBSSH2_ERROR_EAGAIN )
+    else {
+        fprintf(stdout, "\tAgent forwarding request succeeded!\n");
+    }
+    while((rc = libssh2_channel_exec(channel, commandline)) ==
+	  LIBSSH2_ERROR_EAGAIN )
     {
         waitsocket(sock, session);
     }

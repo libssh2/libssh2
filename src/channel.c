@@ -1080,7 +1080,8 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
                                      NULL, 0);
 
         if (rc == LIBSSH2_ERROR_EAGAIN) {
-	    return rc;
+	    _libssh2_error(session, rc,
+			   "Would block sending auth-agent request");
         } else if (rc) {
             channel->req_auth_agent_state = libssh2_NB_state_idle;
             return _libssh2_error(session, rc,
@@ -1140,12 +1141,12 @@ libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
 
     /* The current RFC draft for agent forwarding says you're supposed to
      * send "auth-agent-req," but most SSH servers out there right now
-     * actually expect "auth-agent-req_at_openssh.com," so we try that
+     * actually expect "auth-agent-req@openssh.com", so we try that
      * first. */
     if (channel->req_auth_agent_try_state == libssh2_NB_state_idle) {
         BLOCK_ADJUST(rc, channel->session,
                      channel_request_auth_agent(channel,
-                                                "auth-agent-req_at_openssh.com",
+                                                "auth-agent-req@openssh.com",
                                                 26));
 
         /* If we failed (but not with EAGAIN), then we move onto
