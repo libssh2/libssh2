@@ -70,7 +70,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     list(APPEND LIBRARIES ${OPENSSL_LIBRARIES})
     list(APPEND PC_REQUIRES_PRIVATE libssl libcrypto)
 
-    if (WIN32)
+    if (WIN32 AND MSVC)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
       # This should really be handled by FindOpenSSL.cmake.
       list(APPEND LIBRARIES crypt32)
