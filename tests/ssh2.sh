@@ -20,6 +20,10 @@ if test -n "$DEBUG"; then
     libssh2_sshd_params="-d -d"
 fi
 
+# save current LD_LIBRARY_PATH with user provided libraries
+CURRENT_LDLIBPATH=$LD_LIBRARY_PATH
+# revert LD_LIBRARY_PATH to empty value, to allow sshd to start
+LD_LIBRARY_PATH=
 chmod go-rwx "$srcdir"/etc/host*
 $SSHD -f /dev/null -h "$srcdir"/etc/host \
     -o 'Port 4711' \
@@ -38,6 +42,7 @@ trap "kill ${sshdpid}; echo signal killing sshd; exit 1;" EXIT
 sleep 3
 
 : Invoking $cmd...
+LD_LIBRARY_PATH=$CURRENT_LDLIBPATH
 eval $cmd
 ec=$?
 : Self-test exit code $ec
