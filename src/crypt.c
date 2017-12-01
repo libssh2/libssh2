@@ -311,11 +311,6 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_3des_cbc = {
 #endif
 
 static const LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
-#if LIBSSH2_AES_CTR
-  &libssh2_crypt_method_aes128_ctr,
-  &libssh2_crypt_method_aes192_ctr,
-  &libssh2_crypt_method_aes256_ctr,
-#endif /* LIBSSH2_AES */
 #if LIBSSH2_AES
     &libssh2_crypt_method_aes256_cbc,
     &libssh2_crypt_method_rijndael_cbc_lysator_liu_se,  /* == aes256-cbc */
@@ -335,9 +330,15 @@ static const LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
 #if LIBSSH2_3DES
     &libssh2_crypt_method_3des_cbc,
 #endif /*  LIBSSH2_DES */
+#if LIBSSH2_AES_CTR
+    &libssh2_crypt_method_aes128_ctr,
+    &libssh2_crypt_method_aes192_ctr,
+    &libssh2_crypt_method_aes256_ctr,
+#endif /* LIBSSH2_AES_CTR */
 #ifdef LIBSSH2_CRYPT_NONE
     &libssh2_crypt_method_none,
 #endif
+  
     NULL
 };
 
