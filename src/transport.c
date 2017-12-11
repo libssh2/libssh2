@@ -420,7 +420,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 }
                 /* save the first 5 bytes of the decrypted package, to be
                    used in the hash calculation later down. */
-                memcpy(p->init, &p->buf[p->readidx], 5);
+                memcpy(p->init, block, 5);
             } else {
                 /* the data is plain, just copy it verbatim to
                    the working block buffer */
