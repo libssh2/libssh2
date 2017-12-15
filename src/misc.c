@@ -299,6 +299,7 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
         /* Invalid -- We have a byte which belongs exclusively to a partial
            octet */
         LIBSSH2_FREE(session, *data);
+        *data = NULL;
         return _libssh2_error(session, LIBSSH2_ERROR_INVAL, "Invalid base64");
     }
 
