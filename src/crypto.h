@@ -143,7 +143,7 @@ _libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ctx,
                       const unsigned char *m, size_t m_len);
 
 int
-_libssh2_ecdsa_create_key(_libssh2_ec_key **out_private_key, 
+_libssh2_ecdsa_create_key(_libssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len, libssh2_curve_type curve_type);
 

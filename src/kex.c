@@ -1920,8 +1920,8 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
     {
         /* parse INIT reply data */
 
-        /*host key K_S*/
-        unsigned char *s = data + 1; //advance past packet type
+        /* host key K_S */
+        unsigned char *s = data + 1; /* Advance past packet type */
         unsigned char *server_public_key;
         size_t server_public_key_len;
         size_t host_sig_len;

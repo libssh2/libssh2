@@ -535,7 +535,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     }
     s += 19;
 
-    //domain length
+    /* Domain length */
     n_len = _libssh2_ntohu32(s);
     s += 4;
 
@@ -552,7 +552,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
 
     s += 8;
 
-    //public key
+    /* public key */
     key_len = _libssh2_ntohu32(s);
     s += 4;
 

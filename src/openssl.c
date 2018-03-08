@@ -1461,13 +1461,13 @@ gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
     /* Process key encoding. */
     p = key;
 
-    //key type
+    /* Key type */
     _libssh2_store_str(&p, (const char*)method_buf, 19);
 
-    //name domain
+    /* Name domain */
     _libssh2_store_str(&p, (const char*)method_buf + 11, 8);
 
-    //public key
+    /* Public key */
     _libssh2_store_str(&p, (const char*)octal_value, octal_len);
 
     *method         = method_buf;

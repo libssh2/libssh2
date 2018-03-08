@@ -308,9 +308,9 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define _libssh2_ec_key EC_KEY
 
 typedef enum {
-	LIBSSH2_EC_CURVE_NISTP256 = NID_X9_62_prime256v1,
-	LIBSSH2_EC_CURVE_NISTP384 = NID_secp384r1,
-	LIBSSH2_EC_CURVE_NISTP521 = NID_secp521r1,
+    LIBSSH2_EC_CURVE_NISTP256 = NID_X9_62_prime256v1,
+    LIBSSH2_EC_CURVE_NISTP384 = NID_secp384r1,
+    LIBSSH2_EC_CURVE_NISTP521 = NID_secp521r1,
 }
 libssh2_curve_type;
 #else
