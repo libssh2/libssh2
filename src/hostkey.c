@@ -70,7 +70,7 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
 
     (void) hostkey_data_len;
 
-    if (*abstract) {
+    if(*abstract) {
         hostkey_method_ssh_rsa_dtor(session, abstract);
         *abstract = NULL;
     }
@@ -79,7 +79,7 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     len = _libssh2_ntohu32(s);
     s += 4;
 
-    if (len != 7 || strncmp((char *) s, "ssh-rsa", 7) != 0) {
+    if(len != 7 || strncmp((char *) s, "ssh-rsa", 7) != 0) {
         return -1;
     }
     s += 7;
@@ -95,7 +95,7 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
 
     ret = _libssh2_rsa_new(&rsactx, e, e_len, n, n_len, NULL, 0,
                            NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
-    if (ret) {
+    if(ret) {
         return -1;
     }
 
@@ -118,13 +118,13 @@ hostkey_method_ssh_rsa_initPEM(LIBSSH2_SESSION * session,
     libssh2_rsa_ctx *rsactx;
     int ret;
 
-    if (*abstract) {
+    if(*abstract) {
         hostkey_method_ssh_rsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
     ret = _libssh2_rsa_new_private(&rsactx, session, privkeyfile, passphrase);
-    if (ret) {
+    if(ret) {
         return -1;
     }
 
@@ -148,7 +148,7 @@ hostkey_method_ssh_rsa_initPEMFromMemory(LIBSSH2_SESSION * session,
     libssh2_rsa_ctx *rsactx;
     int ret;
 
-    if (*abstract) {
+    if(*abstract) {
         hostkey_method_ssh_rsa_dtor(session, abstract);
         *abstract = NULL;
     }
@@ -156,7 +156,7 @@ hostkey_method_ssh_rsa_initPEMFromMemory(LIBSSH2_SESSION * session,
     ret = _libssh2_rsa_new_private_frommemory(&rsactx, session,
                                               privkeyfiledata,
                                               privkeyfiledata_len, passphrase);
-    if (ret) {
+    if(ret) {
         return -1;
     }
 
@@ -218,7 +218,7 @@ hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION * session,
 
     ret = _libssh2_rsa_sha1_sign(session, rsactx, hash, SHA_DIGEST_LENGTH,
                                  signature, signature_len);
-    if (ret) {
+    if(ret) {
         return -1;
     }
 
@@ -287,7 +287,7 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
 
     (void) hostkey_data_len;
 
-    if (*abstract) {
+    if(*abstract) {
         hostkey_method_ssh_dss_dtor(session, abstract);
         *abstract = NULL;
     }
@@ -295,7 +295,7 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
     s = hostkey_data;
     len = _libssh2_ntohu32(s);
     s += 4;
-    if (len != 7 || strncmp((char *) s, "ssh-dss", 7) != 0) {
+    if(len != 7 || strncmp((char *) s, "ssh-dss", 7) != 0) {
         return -1;
     }
     s += 7;
@@ -319,7 +319,7 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
 
     ret = _libssh2_dsa_new(&dsactx, p, p_len, q, q_len,
                            g, g_len, y, y_len, NULL, 0);
-    if (ret) {
+    if(ret) {
         return -1;
     }
 
@@ -342,13 +342,13 @@ hostkey_method_ssh_dss_initPEM(LIBSSH2_SESSION * session,
     libssh2_dsa_ctx *dsactx;
     int ret;
 
-    if (*abstract) {
+    if(*abstract) {
         hostkey_method_ssh_dss_dtor(session, abstract);
         *abstract = NULL;
     }
 
     ret = _libssh2_dsa_new_private(&dsactx, session, privkeyfile, passphrase);
-    if (ret) {
+    if(ret) {
         return -1;
     }
 
@@ -372,7 +372,7 @@ hostkey_method_ssh_dss_initPEMFromMemory(LIBSSH2_SESSION * session,
     libssh2_dsa_ctx *dsactx;
     int ret;
 
-    if (*abstract) {
+    if(*abstract) {
         hostkey_method_ssh_dss_dtor(session, abstract);
         *abstract = NULL;
     }
@@ -380,7 +380,7 @@ hostkey_method_ssh_dss_initPEMFromMemory(LIBSSH2_SESSION * session,
     ret = _libssh2_dsa_new_private_frommemory(&dsactx, session,
                                               privkeyfiledata,
                                               privkeyfiledata_len, passphrase);
-    if (ret) {
+    if(ret) {
         return -1;
     }
 
@@ -406,7 +406,7 @@ hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION * session,
     /* Skip past keyname_len(4) + keyname(7){"ssh-dss"} + signature_len(4) */
     sig += 15;
     sig_len -= 15;
-    if (sig_len != 40) {
+    if(sig_len != 40) {
         return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                               "Invalid DSS signature length");
     }
@@ -432,7 +432,7 @@ hostkey_method_ssh_dss_signv(LIBSSH2_SESSION * session,
     int i;
 
     *signature = LIBSSH2_CALLOC(session, 2 * SHA_DIGEST_LENGTH);
-    if (!*signature) {
+    if(!*signature) {
         return -1;
     }
 
@@ -444,7 +444,7 @@ hostkey_method_ssh_dss_signv(LIBSSH2_SESSION * session,
     }
     libssh2_sha1_final(ctx, hash);
 
-    if (_libssh2_dsa_sha1_sign(dsactx, hash, SHA_DIGEST_LENGTH, *signature)) {
+    if(_libssh2_dsa_sha1_sign(dsactx, hash, SHA_DIGEST_LENGTH, *signature)) {
         LIBSSH2_FREE(session, *signature);
         return -1;
     }
@@ -509,28 +509,31 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     size_t len, key_len, n_len;
     libssh2_curve_type type;
 
-    if (abstract != NULL && *abstract) {
+    if(abstract != NULL && *abstract) {
         hostkey_method_ssh_ecdsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    if ( hostkey_data_len < 23 )
+    if(hostkey_data_len < 23)
         return -1;
 
     s = hostkey_data;
     len = _libssh2_ntohu32(s);
     s += 4;
 
-    if (len != 19 )
+    if(len != 19)
         return -1;
 
-    if (strncmp((char*) s, "ecdsa-sha2-nistp256", 19) == 0 ) {
+    if(strncmp((char *) s, "ecdsa-sha2-nistp256", 19) == 0) {
         type = LIBSSH2_EC_CURVE_NISTP256;
-    } else if(strncmp((char*) s, "ecdsa-sha2-nistp384", 19) == 0 ) {
+    }
+    else if(strncmp((char *) s, "ecdsa-sha2-nistp384", 19) == 0) {
         type = LIBSSH2_EC_CURVE_NISTP384;
-    } else if(strncmp((char*) s, "ecdsa-sha2-nistp521", 19) == 0 ) {
+    }
+    else if(strncmp((char *) s, "ecdsa-sha2-nistp521", 19) == 0) {
         type = LIBSSH2_EC_CURVE_NISTP521;
-    } else {
+    }
+    else {
         return -1;
     }
     s += 19;
@@ -539,14 +542,16 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     n_len = _libssh2_ntohu32(s);
     s += 4;
 
-    if (n_len != 8)
+    if(n_len != 8)
         return -1;
 
-    if ( type == LIBSSH2_EC_CURVE_NISTP256 && strncmp((char*)s, "nistp256", 8) != 0) {
+    if(type == LIBSSH2_EC_CURVE_NISTP256 && strncmp((char *)s, "nistp256", 8) != 0) {
         return -1;
-    } else if ( type == LIBSSH2_EC_CURVE_NISTP384 && strncmp((char*)s, "nistp384", 8) != 0) {
+    }
+    else if(type == LIBSSH2_EC_CURVE_NISTP384 && strncmp((char *)s, "nistp384", 8) != 0) {
         return -1;
-    } else if ( type == LIBSSH2_EC_CURVE_NISTP521 && strncmp((char*)s, "nistp521", 8) != 0) {
+    }
+    else if(type == LIBSSH2_EC_CURVE_NISTP521 && strncmp((char *)s, "nistp521", 8) != 0) {
         return -1;
     }
 
@@ -558,10 +563,10 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
 
     k = s;
 
-    if (_libssh2_ecdsa_curve_name_with_octal_new(&ecdsactx, k, key_len, type) )
+    if(_libssh2_ecdsa_curve_name_with_octal_new(&ecdsactx, k, key_len, type) )
         return -1;
 
-    if ( abstract != NULL )
+    if(abstract != NULL)
         *abstract = ecdsactx;
 
     return 0;
@@ -581,14 +586,14 @@ hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION * session,
     libssh2_ecdsa_ctx *ec_ctx = NULL;
     int ret;
 
-    if (abstract != NULL && *abstract) {
+    if(abstract != NULL && *abstract) {
         hostkey_method_ssh_ecdsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
     ret = _libssh2_ecdsa_new_private(&ec_ctx, session, privkeyfile, passphrase);
 
-    if ( abstract != NULL )
+    if(abstract != NULL)
         *abstract = ec_ctx;
 
     return ret;
@@ -609,7 +614,7 @@ hostkey_method_ssh_ecdsa_initPEMFromMemory(LIBSSH2_SESSION * session,
     libssh2_ecdsa_ctx *ec_ctx = NULL;
     int ret;
 
-    if (abstract != NULL && *abstract) {
+    if(abstract != NULL && *abstract) {
         hostkey_method_ssh_ecdsa_dtor(session, abstract);
         *abstract = NULL;
     }
@@ -617,11 +622,11 @@ hostkey_method_ssh_ecdsa_initPEMFromMemory(LIBSSH2_SESSION * session,
     ret = _libssh2_ecdsa_new_private_frommemory(&ec_ctx, session,
                                                 privkeyfiledata,
                                                 privkeyfiledata_len, passphrase);
-    if (ret) {
+    if(ret) {
         return -1;
     }
 
-    if (abstract != NULL)
+    if(abstract != NULL)
         *abstract = ec_ctx;
 
     return 0;
@@ -645,7 +650,7 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
 
     (void) session;
 
-    if ( sig_len < 35 )
+    if(sig_len < 35)
         return -1;
 
     /* Skip past keyname_len(4) + keyname(19){"ecdsa-sha2-nistp256"} + signature_len(4) */
@@ -697,13 +702,16 @@ hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION * session,
     libssh2_curve_type type = _libssh2_ecdsa_key_get_curve_type(ec_ctx);
     int ret = 0;
 
-    if ( type == LIBSSH2_EC_CURVE_NISTP256 ) {
+    if(type == LIBSSH2_EC_CURVE_NISTP256) {
         LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(256);
-    }else if ( type == LIBSSH2_EC_CURVE_NISTP384 ) {
+    }
+    else if(type == LIBSSH2_EC_CURVE_NISTP384) {
         LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(384);
-    }else if ( type == LIBSSH2_EC_CURVE_NISTP521 ){
+    }
+    else if(type == LIBSSH2_EC_CURVE_NISTP521) {
         LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(512);
-    }else{
+    }
+    else {
         return -1;
     }
 
@@ -721,7 +729,7 @@ hostkey_method_ssh_ecdsa_dtor(LIBSSH2_SESSION * session, void **abstract)
     libssh2_ecdsa_ctx *keyctx = (libssh2_ecdsa_ctx *) (*abstract);
     (void) session;
 
-    if (keyctx != NULL)
+    if(keyctx != NULL)
         _libssh2_ecdsa_free(keyctx);
 
     *abstract = NULL;
@@ -799,7 +807,7 @@ libssh2_hostkey_methods(void)
 LIBSSH2_API const char *
 libssh2_hostkey_hash(LIBSSH2_SESSION * session, int hash_type)
 {
-    switch (hash_type) {
+    switch(hash_type) {
 #if LIBSSH2_MD5
     case LIBSSH2_HOSTKEY_HASH_MD5:
         return (session->server_hostkey_md5_valid)
@@ -840,28 +848,28 @@ static int hostkey_type(const unsigned char *hostkey, size_t len)
         0, 0, 0, 0x13, 'e', 'c', 'd', 's', 'a', '-', 's', 'h', 'a', '2', '-', 'n', 'i', 's', 't', 'p', '5', '2', '1'
     };
 
-    if (len < 11)
+    if(len < 11)
         return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
 
-    if (!memcmp(rsa, hostkey, 11))
+    if(!memcmp(rsa, hostkey, 11))
         return LIBSSH2_HOSTKEY_TYPE_RSA;
 
-    if (!memcmp(dss, hostkey, 11))
+    if(!memcmp(dss, hostkey, 11))
         return LIBSSH2_HOSTKEY_TYPE_DSS;
 
-    if ( len < 15 )
+    if(len < 15)
         return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
 
-    if ( len < 23 )
+    if(len < 23)
         return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
 
-    if (!memcmp(ecdsa_256, hostkey, 23))
+    if(!memcmp(ecdsa_256, hostkey, 23))
         return LIBSSH2_HOSTKEY_TYPE_ECDSA;
 
-    if (!memcmp(ecdsa_384, hostkey, 23))
+    if(!memcmp(ecdsa_384, hostkey, 23))
         return LIBSSH2_HOSTKEY_TYPE_ECDSA;
 
-    if (!memcmp(ecdsa_521, hostkey, 23))
+    if(!memcmp(ecdsa_521, hostkey, 23))
         return LIBSSH2_HOSTKEY_TYPE_ECDSA;
 
     return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
@@ -879,7 +887,7 @@ libssh2_session_hostkey(LIBSSH2_SESSION *session, size_t *len, int *type)
     if(session->server_hostkey_len) {
         if(len)
             *len = session->server_hostkey_len;
-        if (type)
+        if(type)
             *type = hostkey_type(session->server_hostkey,
                                  session->server_hostkey_len);
         return (char *) session->server_hostkey;
