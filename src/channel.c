@@ -1162,7 +1162,7 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
 
             _libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
             for(i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++) {
-                sprintf((char *)&s[i*2], "%02X", buffer[i]);
+                snprintf((char *)&s[i*2], 3, "%02X%c", buffer[i], '\0');
             }
         }
         s += cookie_len;
