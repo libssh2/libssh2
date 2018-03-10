@@ -824,19 +824,19 @@ libssh2_hostkey_hash(LIBSSH2_SESSION * session, int hash_type)
 
 static int hostkey_type(const unsigned char *hostkey, size_t len)
 {
-    const unsigned char rsa[] = {
+    static const unsigned char rsa[] = {
         0, 0, 0, 0x07, 's', 's', 'h', '-', 'r', 's', 'a'
     };
-    const unsigned char dss[] = {
+    static const unsigned char dss[] = {
         0, 0, 0, 0x07, 's', 's', 'h', '-', 'd', 's', 's'
     };
-    const unsigned char ecdsa_256[] = {
+    static const unsigned char ecdsa_256[] = {
         0, 0, 0, 0x13, 'e', 'c', 'd', 's', 'a', '-', 's', 'h', 'a', '2', '-', 'n', 'i', 's', 't', 'p', '2', '5', '6'
     };
-    const unsigned char ecdsa_384[] = {
+    static const unsigned char ecdsa_384[] = {
         0, 0, 0, 0x13, 'e', 'c', 'd', 's', 'a', '-', 's', 'h', 'a', '2', '-', 'n', 'i', 's', 't', 'p', '3', '8', '4'
     };
-    const unsigned char ecdsa_521[] = {
+    static const unsigned char ecdsa_521[] = {
         0, 0, 0, 0x13, 'e', 'c', 'd', 's', 'a', '-', 's', 'h', 'a', '2', '-', 'n', 'i', 's', 't', 'p', '5', '2', '1'
     };
 
