@@ -174,7 +174,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
     unsigned char *n, *e, *d, *p, *q, *e1, *e2, *coeff;
     unsigned int nlen, elen, dlen, plen, qlen, e1len, e2len, coefflen;
 
-    fp = fopen(filename, "r");
+    fp = fopen(filename, FOPEN_READTEXT);
     if(!fp) {
         return -1;
     }
@@ -286,7 +286,7 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
     unsigned char *p, *q, *g, *y, *x;
     unsigned int plen, qlen, glen, ylen, xlen;
 
-    fp = fopen(filename, "r");
+    fp = fopen(filename, FOPEN_READTEXT);
     if(!fp) {
         return -1;
     }

@@ -955,7 +955,7 @@ libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
                               "Unsupported type of known-host information "
                               "store");
 
-    file = fopen(filename, "r");
+    file = fopen(filename, FOPEN_READTEXT);
     if(file) {
         while(fgets(buf, sizeof(buf), file)) {
             if(libssh2_knownhost_readline(hosts, buf, strlen(buf), type)) {
@@ -1179,7 +1179,7 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
                               "Unsupported type of known-host information "
                               "store");
 
-    file = fopen(filename, "w");
+    file = fopen(filename, FOPEN_WRITETEXT);
     if(!file)
         return _libssh2_error(hosts->session, LIBSSH2_ERROR_FILE,
                               "Failed to open file");

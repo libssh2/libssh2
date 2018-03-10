@@ -554,7 +554,7 @@ _libssh2_wincng_load_pem(LIBSSH2_SESSION *session,
     FILE *fp;
     int ret;
 
-    fp = fopen(filename, "r");
+    fp = fopen(filename, FOPEN_READTEXT);
     if(!fp) {
         return -1;
     }
