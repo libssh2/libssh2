@@ -317,6 +317,7 @@ _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
     else
         return -1;
 
+    /* !checksrc! disable ASSIGNWITHINCONDITION 1 */
     if((ret = mbedtls_mpi_read_binary(&(ctx->E), edata, elen) ) != 0 ||
        (ret = mbedtls_mpi_read_binary(&(ctx->N), ndata, nlen) ) != 0) {
         ret = -1;
@@ -327,6 +328,7 @@ _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
     }
 
     if(!ret && ddata) {
+        /* !checksrc! disable ASSIGNWITHINCONDITION 1 */
         if((ret = mbedtls_mpi_read_binary(&(ctx->D), ddata, dlen) ) != 0 ||
            (ret = mbedtls_mpi_read_binary(&(ctx->P), pdata, plen) ) != 0 ||
            (ret = mbedtls_mpi_read_binary(&(ctx->Q), qdata, qlen) ) != 0 ||
