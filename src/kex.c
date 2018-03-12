@@ -1928,7 +1928,13 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
 {
     int ret = 0;
     int rc;
-
+    
+    if(data_len < 5){
+	    ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                            "Host key data is too short");
+        return ret;
+    }
+    
     if(exchange_state->state == libssh2_NB_state_idle) {
 
         /* Setup initial values */
