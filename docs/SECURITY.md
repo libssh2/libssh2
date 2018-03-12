@@ -96,5 +96,5 @@ libssh2 project and you have shown an understanding for the project and its way
 of working. You must've been around for a good while and you should have no
 plans in vanishing in the near future.
 
-We do not make the list of partipants public mostly because it tends to vary
+We do not make the list of participants public mostly because it tends to vary
 somewhat over time and a list somewhere will only risk getting outdated.
