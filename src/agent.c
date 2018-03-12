@@ -297,7 +297,8 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                               "found no pageant");
 
-    sprintf(mapname, "PageantRequest%08x", (unsigned)GetCurrentThreadId());
+    snprintf(mapname, sizeof(mapname),
+             "PageantRequest%08x%c", (unsigned)GetCurrentThreadId(), '\0');
     filemap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
                                 0, PAGEANT_MAX_MSGLEN, mapname);
 
