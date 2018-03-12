@@ -96,7 +96,7 @@ readline_memory(char *line, size_t line_size,
 
 #define LINE_SIZE 128
 
-const char *crypt_annotation = "Proc-Type: 4,ENCRYPTED";
+static const char *crypt_annotation = "Proc-Type: 4,ENCRYPTED";
 
 static unsigned char hex_decode(char digit)
 {
