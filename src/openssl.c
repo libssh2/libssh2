@@ -1580,7 +1580,7 @@ _libssh2_ecdh_gen_k(_libssh2_bn **k, _libssh2_ec_key *private_key,
     int ret = 0;
     int rc;
     size_t secret_len;
-    unsigned char *secret;
+    unsigned char *secret = NULL;
     const EC_GROUP *private_key_group;
     EC_POINT *server_public_key_point;
 
