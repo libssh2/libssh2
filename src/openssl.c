@@ -348,7 +348,7 @@ _libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ctx,
     EC_KEY *ec_key = (EC_KEY*)ctx;
     libssh2_curve_type type = _libssh2_ecdsa_key_get_curve_type(ec_key);
 
-#if HAVE_OPAQUE_STRUCTS
+#ifdef HAVE_OPAQUE_STRUCTS
     ECDSA_SIG *ecdsa_sig = ECDSA_SIG_new();
     BIGNUM *pr = BN_new();
     BIGNUM *ps = BN_new();
@@ -376,7 +376,7 @@ _libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ctx,
         LIBSSH2_ECDSA_VERIFY(512);
     }
 
-#if HAVE_OPAQUE_STRUCTS
+#ifdef HAVE_OPAQUE_STRUCTS
     if(ecdsa_sig)
         ECDSA_SIG_free(ecdsa_sig);
 #else
@@ -886,7 +886,7 @@ _libssh2_ecdsa_sign(LIBSSH2_SESSION * session, libssh2_ecdsa_ctx * ec_ctx,
     ECDSA_SIG *sig = ECDSA_do_sign(hash, hash_len, ec_ctx);
     if(sig == NULL)
         return -1;
-#if HAVE_OPAQUE_STRUCTS
+#ifdef HAVE_OPAQUE_STRUCTS
     ECDSA_SIG_get0(sig, &pr, &ps);
 #else
     pr = sig->r;
