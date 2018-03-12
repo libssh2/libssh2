@@ -543,7 +543,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     _libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Loading public key file: %s",
                    pubkeyfile);
     /* Read Public Key */
-    fd = fopen(pubkeyfile, "r");
+    fd = fopen(pubkeyfile, FOPEN_READTEXT);
     if(!fd) {
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Unable to open public key file");
