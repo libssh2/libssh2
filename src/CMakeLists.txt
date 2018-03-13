@@ -77,21 +77,21 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       list(APPEND PC_LIBS -lcrypt32)
 
       find_file(DLL_LIBEAY32
-	NAMES libeay32.dll crypto.dll
+        NAMES libeay32.dll crypto.dll libcrypto-1_1.dll libcrypto-1_1-x64.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES bin)
       if (NOT DLL_LIBEAY32)
         message(WARNING
-          "Unable to find OpenSSL libeay32 DLL, executables may not run")
+          "Unable to find OpenSSL crypto (aka libeay32) DLL, executables may not run")
       endif()
 
       find_file(DLL_SSLEAY32
-        NAMES ssleay32.dll ssl.dll
+        NAMES ssleay32.dll ssl.dll libssl-1_1.dll libssl-1_1-x64.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES bin)
       if (NOT DLL_SSLEAY32)
         message(WARNING
-          "Unable to find OpenSSL ssleay32 DLL, executables may not run")
+          "Unable to find OpenSSL ssl (aka ssleay32) DLL, executables may not run")
       endif()
 
       if(DLL_LIBEAY32 AND DLL_SSLEAY32)
@@ -322,7 +322,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR
   # filesystem here"
   #
   # Mac OS X's poll has funny behaviors, like:
-  # not being able to do poll on no fildescriptors (10.3?)
+  # not being able to do poll on no filedescriptors (10.3?)
   # not being able to poll on some files (like anything in /dev)
   # not having reliable timeout support
   # inconsistent return of POLLHUP where other implementations give POLLIN
@@ -333,7 +333,7 @@ endif()
 
 append_needed_socket_libraries(LIBRARIES)
 
-# Non-blocking socket support tests.  Must be after after library tests to
+# Non-blocking socket support tests.  Must be after library tests to
 # link correctly
 set(SAVE_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
 set(CMAKE_REQUIRED_LIBRARIES ${LIBRARIES})
