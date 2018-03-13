@@ -57,9 +57,9 @@ int connected_socket = -1;
 static int connect_to_server()
 {
     connected_socket = open_socket_to_openssh_server();
-    if (connected_socket > -1) {
+    if(connected_socket > -1) {
         int rc = libssh2_session_handshake(connected_session, connected_socket);
-        if (rc == 0) {
+        if(rc == 0) {
             return 0;
         }
         else {
@@ -75,14 +75,14 @@ static int connect_to_server()
 LIBSSH2_SESSION *start_session_fixture()
 {
     int rc = start_openssh_fixture();
-    if (rc == 0) {
+    if(rc == 0) {
         rc = libssh2_init(0);
-        if (rc == 0) {
+        if(rc == 0) {
             connected_session = libssh2_session_init_ex(NULL, NULL, NULL, NULL);
             libssh2_session_set_blocking(connected_session, 1);
-            if (connected_session != NULL) {
+            if(connected_session != NULL) {
                 rc = connect_to_server();
-                if (rc == 0) {
+                if(rc == 0) {
                     return connected_session;
                 }
                 else {
@@ -106,7 +106,7 @@ LIBSSH2_SESSION *start_session_fixture()
 
 void print_last_session_error(const char *function)
 {
-    if (connected_session) {
+    if(connected_session) {
         char *message;
         int rc =
             libssh2_session_last_error(connected_session, &message, NULL, 0);
@@ -119,7 +119,7 @@ void print_last_session_error(const char *function)
 
 void stop_session_fixture()
 {
-    if (connected_session) {
+    if(connected_session) {
         libssh2_session_disconnect(connected_session, "test ended");
         libssh2_session_free(connected_session);
         shutdown(connected_socket, 2);
