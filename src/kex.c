@@ -3527,8 +3527,9 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
                 }
             }
         }
-
-        s = p ? (p + 1) : NULL;
+        else {
+            s = p ? (p + 1) : NULL;
+        }
     }
 
     if(strlen(newprefs) == 0) {
