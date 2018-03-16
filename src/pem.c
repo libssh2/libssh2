@@ -254,7 +254,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
             goto out;
         }
 
-        while(len_decrypted <= *datalen - blocksize) {
+        while(len_decrypted <= (int)*datalen - blocksize) {
             if(method->crypt(session, *data + len_decrypted, blocksize,
                               &abstract)) {
                 ret = LIBSSH2_ERROR_DECRYPT;
