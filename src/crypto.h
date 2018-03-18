@@ -195,5 +195,6 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                     const char *passphrase);
 
 void _libssh2_init_aes_ctr(void);
+void _libssh2_init_aes_dtor(void);
 
 #endif

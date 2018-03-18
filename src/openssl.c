@@ -552,27 +552,27 @@ aes_ctr_cleanup(EVP_CIPHER_CTX *ctx) /* cleanup ctx */
 }
 
 static const EVP_CIPHER *
-make_ctr_evp (size_t keylen, EVP_CIPHER *aes_ctr_cipher, int type)
+make_ctr_evp (size_t keylen, EVP_CIPHER **aes_ctr_cipher, int type)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
-    aes_ctr_cipher = EVP_CIPHER_meth_new(type, 16, keylen);
-    if(aes_ctr_cipher) {
-        EVP_CIPHER_meth_set_iv_length(aes_ctr_cipher, 16);
-        EVP_CIPHER_meth_set_init(aes_ctr_cipher, aes_ctr_init);
-        EVP_CIPHER_meth_set_do_cipher(aes_ctr_cipher, aes_ctr_do_cipher);
-        EVP_CIPHER_meth_set_cleanup(aes_ctr_cipher, aes_ctr_cleanup);
+    *aes_ctr_cipher = EVP_CIPHER_meth_new(type, 16, keylen);
+    if(*aes_ctr_cipher) {
+        EVP_CIPHER_meth_set_iv_length(*aes_ctr_cipher, 16);
+        EVP_CIPHER_meth_set_init(*aes_ctr_cipher, aes_ctr_init);
+        EVP_CIPHER_meth_set_do_cipher(*aes_ctr_cipher, aes_ctr_do_cipher);
+        EVP_CIPHER_meth_set_cleanup(*aes_ctr_cipher, aes_ctr_cleanup);
     }
 #else
-    aes_ctr_cipher->nid = type;
-    aes_ctr_cipher->block_size = 16;
-    aes_ctr_cipher->key_len = keylen;
-    aes_ctr_cipher->iv_len = 16;
-    aes_ctr_cipher->init = aes_ctr_init;
-    aes_ctr_cipher->do_cipher = aes_ctr_do_cipher;
-    aes_ctr_cipher->cleanup = aes_ctr_cleanup;
+    *aes_ctr_cipher->nid = type;
+    *aes_ctr_cipher->block_size = 16;
+    *aes_ctr_cipher->key_len = keylen;
+    *aes_ctr_cipher->iv_len = 16;
+    *aes_ctr_cipher->init = aes_ctr_init;
+    *aes_ctr_cipher->do_cipher = aes_ctr_do_cipher;
+    *aes_ctr_cipher->cleanup = aes_ctr_cleanup;
 #endif
 
-    return aes_ctr_cipher;
+    return *aes_ctr_cipher;
 }
 
 const EVP_CIPHER *
@@ -581,7 +581,7 @@ _libssh2_EVP_aes_128_ctr(void)
 #ifdef HAVE_OPAQUE_STRUCTS
     static EVP_CIPHER * aes_ctr_cipher;
     return !aes_ctr_cipher ?
-        make_ctr_evp(16, aes_ctr_cipher, NID_aes_128_ctr) : aes_ctr_cipher;
+        make_ctr_evp(16, &aes_ctr_cipher, NID_aes_128_ctr) : aes_ctr_cipher;
 #else
     static EVP_CIPHER aes_ctr_cipher;
     return !aes_ctr_cipher.key_len ?
@@ -595,7 +595,7 @@ _libssh2_EVP_aes_192_ctr(void)
 #ifdef HAVE_OPAQUE_STRUCTS
     static EVP_CIPHER * aes_ctr_cipher;
     return !aes_ctr_cipher ?
-        make_ctr_evp(24, aes_ctr_cipher, NID_aes_192_ctr) : aes_ctr_cipher;
+        make_ctr_evp(24, &aes_ctr_cipher, NID_aes_192_ctr) : aes_ctr_cipher;
 #else
     static EVP_CIPHER aes_ctr_cipher;
     return !aes_ctr_cipher.key_len ?
@@ -609,7 +609,7 @@ _libssh2_EVP_aes_256_ctr(void)
 #ifdef HAVE_OPAQUE_STRUCTS
     static EVP_CIPHER * aes_ctr_cipher;
     return !aes_ctr_cipher ?
-        make_ctr_evp(32, aes_ctr_cipher, NID_aes_256_ctr) : aes_ctr_cipher;
+        make_ctr_evp(32, &aes_ctr_cipher, NID_aes_256_ctr) : aes_ctr_cipher;
 #else
     static EVP_CIPHER aes_ctr_cipher;
     return !aes_ctr_cipher.key_len ?
@@ -617,15 +617,48 @@ _libssh2_EVP_aes_256_ctr(void)
 #endif
 }
 
+#ifdef HAVE_OPAQUE_STRUCTS
+static EVP_CIPHER * aes_ctr_cipher_128 = NULL;
+static EVP_CIPHER * aes_ctr_cipher_192 = NULL;
+static EVP_CIPHER * aes_ctr_cipher_256 = NULL;
+#endif
+
 void _libssh2_init_aes_ctr(void)
 {
+#ifdef HAVE_OPAQUE_STRUCTS
+    aes_ctr_cipher_128 = (EVP_CIPHER *)_libssh2_EVP_aes_128_ctr();
+    aes_ctr_cipher_192 = (EVP_CIPHER *)_libssh2_EVP_aes_192_ctr();
+    aes_ctr_cipher_256 = (EVP_CIPHER *)_libssh2_EVP_aes_256_ctr();
+#else
     _libssh2_EVP_aes_128_ctr();
     _libssh2_EVP_aes_192_ctr();
     _libssh2_EVP_aes_256_ctr();
+#endif
+}
+
+void _libssh2_init_aes_dtor(void)
+{
+#ifdef HAVE_OPAQUE_STRUCTS
+    if (aes_ctr_cipher_128) {
+        free(aes_ctr_cipher_128);
+        aes_ctr_cipher_128 = NULL;
+    }
+
+    if (aes_ctr_cipher_192) {
+        free(aes_ctr_cipher_192);
+        aes_ctr_cipher_192 = NULL;
+    }
+
+    if (aes_ctr_cipher_256) {
+        free(aes_ctr_cipher_256);
+        aes_ctr_cipher_256 = NULL;
+    }
+#endif
 }
 
 #else
 void _libssh2_init_aes_ctr(void) {}
+void _libssh2_init_aes_dtor(void) {}
 #endif /* LIBSSH2_AES_CTR */
 
 /* TODO: Optionally call a passphrase callback specified by the
