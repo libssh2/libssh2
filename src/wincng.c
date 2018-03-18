@@ -2175,4 +2175,10 @@ void _libssh2_init_aes_ctr(void)
     (void)0;
 }
 
+void _libssh2_init_aes_dtor(void)
+{
+    /* no implementation */
+    (void)0;
+}
+
 #endif /* LIBSSH2_WINCNG */
