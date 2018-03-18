@@ -626,6 +626,11 @@ void _libssh2_init_aes_ctr(void)
     /* no implementation */
 }
 
+void _libssh2_init_aes_dtor(void)
+{
+    /* no implementation */
+}
+
 void
 _libssh2_dh_init(_libssh2_dh_ctx *dhctx)
 {

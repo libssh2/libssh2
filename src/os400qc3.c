@@ -2407,6 +2407,11 @@ _libssh2_init_aes_ctr(void)
 {
 }
 
+void
+_libssh2_init_aes_dtor(void)
+{
+}
+
 #endif /* LIBSSH2_OS400QC3 */
 
 /* vim: set expandtab ts=4 sw=4: */
