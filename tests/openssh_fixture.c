@@ -58,7 +58,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int run_command(const char *command, char **output)
+static int run_command(char **output, const char *command)
 {
     FILE *pipe;
     char command_buf[BUFSIZ];
@@ -115,14 +115,14 @@ static int run_command(const char *command, char **output)
 
 static int build_openssh_server_docker_image()
 {
-    return run_command("docker build -t libssh2/openssh_server openssh_server",
-                       NULL);
+    return run_command(NULL, "docker build -t libssh2/openssh_server openssh_server");
 }
 
 static int start_openssh_server(char **container_id_out)
 {
-    return run_command("docker run --detach -P libssh2/openssh_server",
-                       container_id_out);
+    return run_command(container_id_out,
+                       "docker run --detach -P libssh2/openssh_server"
+                       );
 }
 
 static int stop_openssh_server(char *container_id)
@@ -131,7 +131,7 @@ static int stop_openssh_server(char *container_id)
     int rc = snprintf(command_buf, sizeof(command_buf), "docker stop %s",
                       container_id);
     if(rc > -1 && rc < BUFSIZ) {
-        return run_command(command_buf, NULL);
+        return run_command(NULL, command_buf);
     }
     else {
         return rc;
@@ -158,7 +158,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
             int rc = snprintf(command_buf, sizeof(command_buf),
                               "docker-machine ip %s", active_docker_machine);
             if(rc > -1 && rc < BUFSIZ) {
-                return run_command(command_buf, ip_address_out);
+                return run_command(ip_address_out, command_buf);
             }
 
             if(attempt_no > 5) {
@@ -190,7 +190,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
             ".NetworkSettings.Ports \\\"22/tcp\\\") 0) \\\"HostIp\\\" }}\" %s",
             container_id);
         if(rc > -1 && rc < BUFSIZ) {
-            return run_command(command_buf, ip_address_out);
+            return run_command(ip_address_out, command_buf);
         }
         else {
             return rc;
@@ -207,7 +207,7 @@ static int port_from_container(char *container_id, char **port_out)
         ".NetworkSettings.Ports \\\"22/tcp\\\") 0) \\\"HostPort\\\" }}\" %s",
         container_id);
     if(rc > -1 && rc < BUFSIZ) {
-        return run_command(command_buf, port_out);
+        return run_command(port_out, command_buf);
     }
     else {
         return rc;
