@@ -617,16 +617,25 @@ _libssh2_EVP_aes_256_ctr(void)
 #endif
 }
 
-void _libssh2_init_aes_ctr(void)
+#endif /* LIBSSH2_AES_CTR */
+
+void _libssh2_openssl_crypto_init(void)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    ENGINE_load_builtin_engines();
+    ENGINE_register_all_complete();
+#else
+    OpenSSL_add_all_algorithms();
+    OpenSSL_add_all_ciphers();
+    ENGINE_load_builtin_engines();
+    ENGINE_register_all_complete();
+#endif
+#ifndef HAVE_EVP_AES_128_CTR
     _libssh2_EVP_aes_128_ctr();
     _libssh2_EVP_aes_192_ctr();
     _libssh2_EVP_aes_256_ctr();
+#endif
 }
-
-#else
-void _libssh2_init_aes_ctr(void) {}
-#endif /* LIBSSH2_AES_CTR */
 
 /* TODO: Optionally call a passphrase callback specified by the
  * calling program

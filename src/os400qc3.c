@@ -2402,11 +2402,6 @@ _libssh2_os400qc3_rsa_sha1_signv(LIBSSH2_SESSION *session,
     return 0;
 }
 
-void
-_libssh2_init_aes_ctr(void)
-{
-}
-
 #endif /* LIBSSH2_OS400QC3 */
 
 /* vim: set expandtab ts=4 sw=4: */

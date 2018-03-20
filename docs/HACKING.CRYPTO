@@ -284,10 +284,6 @@ LIBSSH2_AES_CTR
 #define as 1 if the crypto library supports AES in CTR mode, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-void _libssh2_init_aes_ctr(void);
-Initialize static AES CTR ciphers.
-This procedure is already prototyped in crypto.h.
-
 _libssh2_cipher_aes128ctr
 AES-128-CTR algorithm identifier initializer.
 #define with constant value of type _libssh2_cipher_type().
