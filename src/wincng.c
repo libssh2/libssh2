@@ -2164,15 +2164,4 @@ _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
     *dhctx = NULL;
 }
 
-
-/*
- * Windows CNG backend: other functions
- */
-
-void _libssh2_init_aes_ctr(void)
-{
-    /* no implementation */
-    (void)0;
-}
-
 #endif /* LIBSSH2_WINCNG */

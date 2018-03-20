@@ -391,7 +391,6 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
 void _libssh2_wincng_init(void);
 void _libssh2_wincng_free(void);
 int _libssh2_wincng_random(void *buf, int len);
-void _libssh2_init_aes_ctr(void);
 
 int
 _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,

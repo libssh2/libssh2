@@ -43,6 +43,7 @@ include(SocketLibraries)
 ## Platform checks
 check_include_files(inttypes.h HAVE_INTTYPES_H)
 check_include_files(unistd.h HAVE_UNISTD_H)
+check_include_files(sys/param.h HAVE_SYS_PARAM_H)
 check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
 check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
 check_include_files(windows.h HAVE_WINDOWS_H)
@@ -89,6 +90,7 @@ foreach(test ${TESTS})
   target_link_libraries(test_${test} libssh2 runner ${LIBRARIES})
   target_include_directories(test_${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
   list(APPEND TEST_TARGETS test_${test})
+  add_definitions(-DFIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
   add_test(
     NAME test_${test} COMMAND $<TARGET_FILE:test_${test}>
