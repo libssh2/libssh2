@@ -57,8 +57,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
-static int run_command(char **output, const char *command)
+static int run_command_varg(char **output, const char *command, va_list args)
 {
     FILE *pipe;
     char command_buf[BUFSIZ];
@@ -69,12 +70,20 @@ static int run_command(char **output, const char *command)
         *output = NULL;
     }
 
-    /* Rewrite the command to redirect stderr to stdout to we can output it */
-    ret = snprintf(command_buf, sizeof(command_buf), "%s 2>&1", command);
+    /* Format the command string */
+    ret = vsnprintf(command_buf, sizeof(command_buf), command, args);
     if(ret < 0 || ret >= BUFSIZ) {
         fprintf(stderr, "Unable to format command (%s)\n", command);
         return -1;
     }
+
+    /* Rewrite the command to redirect stderr to stdout to we can output it */
+    if(strlen(command_buf) + 6 >= sizeof(command_buf)) {
+        fprintf(stderr, "Unable to rewrite command (%s)\n", command);
+        return -1;
+    }
+
+    strncat(command_buf, " 2>&1", 6);
 
     fprintf(stdout, "Command: %s\n", command);
 #ifdef WIN32
@@ -113,6 +122,18 @@ static int run_command(char **output, const char *command)
     return ret;
 }
 
+static int run_command(char **output, const char *command, ...)
+{
+    va_list args;
+    int ret;
+
+    va_start(args, command);
+    ret = run_command_varg(output, command, args);
+    va_end(args);
+
+    return ret;
+}
+
 static int build_openssh_server_docker_image()
 {
     return run_command(NULL, "docker build -t libssh2/openssh_server openssh_server");
@@ -127,15 +148,7 @@ static int start_openssh_server(char **container_id_out)
 
 static int stop_openssh_server(char *container_id)
 {
-    char command_buf[BUFSIZ];
-    int rc = snprintf(command_buf, sizeof(command_buf), "docker stop %s",
-                      container_id);
-    if(rc > -1 && rc < BUFSIZ) {
-        return run_command(NULL, command_buf);
-    }
-    else {
-        return rc;
-    }
+    return run_command(NULL, "docker stop %s", container_id);
 }
 
 static const char *docker_machine_name()
@@ -154,12 +167,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
         int attempt_no = 0;
         int wait_time = 500;
         for(;;) {
-            char command_buf[BUFSIZ];
-            int rc = snprintf(command_buf, sizeof(command_buf),
-                              "docker-machine ip %s", active_docker_machine);
-            if(rc > -1 && rc < BUFSIZ) {
-                return run_command(ip_address_out, command_buf);
-            }
+            return run_command(ip_address_out, "docker-machine ip %s", active_docker_machine);
 
             if(attempt_no > 5) {
                 fprintf(
@@ -183,35 +191,21 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
         }
     }
     else {
-        char command_buf[BUFSIZ];
-        int rc = snprintf(
-            command_buf, sizeof(command_buf),
-            "docker inspect --format \"{{ index (index (index "
-            ".NetworkSettings.Ports \\\"22/tcp\\\") 0) \\\"HostIp\\\" }}\" %s",
-            container_id);
-        if(rc > -1 && rc < BUFSIZ) {
-            return run_command(ip_address_out, command_buf);
-        }
-        else {
-            return rc;
-        }
+        return run_command(ip_address_out,
+                           "docker inspect --format "
+                           "\"{{ index (index (index .NetworkSettings.Ports "
+                           "\\\"22/tcp\\\") 0) \\\"HostIp\\\" }}\" %s",
+                           container_id);
     }
 }
 
 static int port_from_container(char *container_id, char **port_out)
 {
-    char command_buf[BUFSIZ];
-    int rc = snprintf(
-        command_buf, sizeof(command_buf),
-        "docker inspect --format \"{{ index (index (index "
-        ".NetworkSettings.Ports \\\"22/tcp\\\") 0) \\\"HostPort\\\" }}\" %s",
-        container_id);
-    if(rc > -1 && rc < BUFSIZ) {
-        return run_command(port_out, command_buf);
-    }
-    else {
-        return rc;
-    }
+    return run_command(port_out,
+                       "docker inspect --format "
+                       "\"{{ index (index (index .NetworkSettings.Ports "
+                       "\\\"22/tcp\\\") 0) \\\"HostPort\\\" }}\" %s",
+                       container_id);
 }
 
 static int open_socket_to_container(char *container_id)
