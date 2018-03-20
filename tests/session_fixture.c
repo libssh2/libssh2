@@ -40,6 +40,10 @@
 #include "openssh_fixture.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
@@ -49,6 +53,9 @@
 #endif
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#ifdef HAVE_SYS_PARAM_H
+#include <sys/param.h>
 #endif
 
 LIBSSH2_SESSION *connected_session = NULL;
@@ -71,9 +78,34 @@ static int connect_to_server()
     return 0;
 }
 
+void setup_fixture_workdir()
+{
+    char *wd = getenv("FIXTURE_WORKDIR");
+#ifdef FIXTURE_WORKDIR
+    if(!wd) {
+        wd = FIXTURE_WORKDIR;
+    }
+#endif
+    if(!wd) {
+#ifdef WIN32
+        char wd_buf[_MAX_PATH];
+#else
+        char wd_buf[MAXPATHLEN];
+#endif
+        getcwd(wd_buf, sizeof(wd_buf));
+        wd = wd_buf;
+    }
+
+    chdir(wd);
+}
+
 LIBSSH2_SESSION *start_session_fixture()
 {
-    int rc = start_openssh_fixture();
+    int rc;
+
+    setup_fixture_workdir();
+
+    rc = start_openssh_fixture();
     if(rc != 0) {
         return NULL;
     }
