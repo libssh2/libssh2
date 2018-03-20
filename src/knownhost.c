@@ -432,7 +432,7 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                     libssh2_hmac_update(ctx, (unsigned char *)host,
                                         strlen(host));
                     libssh2_hmac_final(ctx, hash);
-                    libssh2_hmac_cleanup(&ctx);
+                    libssh2_hmac_cleanup(ctx);
 
                     if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
                         /* this is a node we're interested in */

@@ -38,6 +38,8 @@
 #ifndef LIBSSH2_CRYPTO_H
 #define LIBSSH2_CRYPTO_H
 
+#include "backend.h"
+
 #ifdef LIBSSH2_OPENSSL
 #include "openssl.h"
 #endif
@@ -57,6 +59,8 @@
 #ifdef LIBSSH2_MBEDTLS
 #include "mbedtls.h"
 #endif
+
+void libssh2_crypto_trace(const char *fmt, ...);
 
 #if LIBSSH2_RSA
 int _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,

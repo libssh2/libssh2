@@ -175,12 +175,14 @@ endif()
 include(GNUInstallDirs)
 set(SOURCES
   ${CRYPTO_SOURCES}
+  backend.h
   agent.c
   channel.c
   channel.h
   comp.c
   comp.h
   crypt.c
+  crypto.c
   crypto.h
   global.c
   hostkey.c
@@ -274,8 +276,8 @@ else()
 endif()
 option(ENABLE_DEBUG_LOGGING "log execution with debug trace"
   ${DEBUG_LOGGING_DEFAULT})
-add_feature_info(Logging ENABLE_DEBUG_LOGGING
-   "Logging of execution with debug trace")
+  add_feature_info(Logging ENABLE_DEBUG_LOGGING
+  "Logging of execution with debug trace")
 if(ENABLE_DEBUG_LOGGING)
   target_compile_definitions(libssh2 PRIVATE LIBSSH2DEBUG)
 endif()
