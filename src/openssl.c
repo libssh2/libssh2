@@ -619,6 +619,12 @@ _libssh2_EVP_aes_256_ctr(void)
 
 #endif /* LIBSSH2_AES_CTR */
 
+#ifndef HAVE_EVP_AES_128_CTR
+static EVP_CIPHER * aes_128_ctr_cipher = NULL;
+static EVP_CIPHER * aes_192_ctr_cipher = NULL;
+static EVP_CIPHER * aes_256_ctr_cipher = NULL;
+#endif
+
 void _libssh2_openssl_crypto_init(void)
 {
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
@@ -631,9 +637,32 @@ void _libssh2_openssl_crypto_init(void)
     ENGINE_register_all_complete();
 #endif
 #ifndef HAVE_EVP_AES_128_CTR
-    _libssh2_EVP_aes_128_ctr();
-    _libssh2_EVP_aes_192_ctr();
-    _libssh2_EVP_aes_256_ctr();
+    aes_128_ctr_cipher = (EVP_CIPHER *)_libssh2_EVP_aes_128_ctr();
+    aes_192_ctr_cipher = (EVP_CIPHER *)_libssh2_EVP_aes_192_ctr();
+    aes_256_ctr_cipher = (EVP_CIPHER *)_libssh2_EVP_aes_256_ctr();
+#endif
+}
+
+void _libssh2_openssl_crypto_exit(void)
+{
+#ifndef HAVE_EVP_AES_128_CTR
+#ifdef HAVE_OPAQUE_STRUCTS
+    if(aes_128_ctr_cipher) {
+        EVP_CIPHER_meth_free(aes_128_ctr_cipher);
+    }
+
+    if(aes_192_ctr_cipher) {
+        EVP_CIPHER_meth_free(aes_192_ctr_cipher);
+    }
+
+    if(aes_256_ctr_cipher) {
+        EVP_CIPHER_meth_free(aes_256_ctr_cipher);
+    }
+#endif
+
+    aes_128_ctr_cipher = NULL;
+    aes_192_ctr_cipher = NULL;
+    aes_256_ctr_cipher = NULL;
 #endif
 }
 
@@ -1557,7 +1586,7 @@ _libssh2_ecdsa_create_key(_libssh2_ec_key **out_private_key,
 
     if(out_public_key_octal) {
         *out_public_key_octal = malloc(octal_len);
-        if(out_public_key_octal == NULL) {
+        if(*out_public_key_octal == NULL) {
             ret = -1;
             goto clean_exit;
         }
