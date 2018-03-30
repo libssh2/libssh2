@@ -126,6 +126,7 @@ _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
 #else
     (*rsa)->e = e;
     (*rsa)->n = n;
+    (*rsa)->d = d;
 #endif
 
 #ifdef HAVE_OPAQUE_STRUCTS
