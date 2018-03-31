@@ -63,12 +63,19 @@
 
 #define LIBSSH2_RSA 1
 #define LIBSSH2_DSA 1
+#define LIBSSH2_ECDSA 0
 
 #define MD5_DIGEST_LENGTH 16
 #define SHA_DIGEST_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
 #define SHA512_DIGEST_LENGTH 64
 
+#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
+
+#if LIBSSH2_ECDSA
+#else
+#define _libssh2_ec_key void
+#endif
 
 /*******************************************************************/
 /*
