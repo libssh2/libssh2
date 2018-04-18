@@ -376,6 +376,7 @@ _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
 {
     int ret;
     mbedtls_pk_context pkey;
+    mbedtls_rsa_context *pk_rsa;
 
     *rsa = (libssh2_rsa_ctx *) LIBSSH2_ALLOC(session, sizeof(libssh2_rsa_ctx));
     if(*rsa == NULL)
@@ -393,7 +394,7 @@ _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
         return -1;
     }
 
-    mbedtls_rsa_context *pk_rsa = mbedtls_pk_rsa(pkey);
+    pk_rsa = mbedtls_pk_rsa(pkey);
     mbedtls_rsa_copy(*rsa, pk_rsa);
     mbedtls_pk_free(&pkey);
 
@@ -409,6 +410,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 {
     int ret;
     mbedtls_pk_context pkey;
+    mbedtls_rsa_context *pk_rsa;
 
     *rsa = (libssh2_rsa_ctx *) mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
     if(*rsa == NULL)
@@ -426,7 +428,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
         return -1;
     }
 
-    mbedtls_rsa_context *pk_rsa = mbedtls_pk_rsa(pkey);
+    pk_rsa = mbedtls_pk_rsa(pkey);
     mbedtls_rsa_copy(*rsa, pk_rsa);
     mbedtls_pk_free(&pkey);
 
@@ -546,6 +548,7 @@ _libssh2_mbedtls_pub_priv_key(LIBSSH2_SESSION *session,
     unsigned char *key = NULL, *mth = NULL;
     size_t keylen = 0, mthlen = 0;
     int ret;
+    mbedtls_rsa_context *rsa;
 
     if(mbedtls_pk_get_type(pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(pkey);
@@ -563,7 +566,7 @@ _libssh2_mbedtls_pub_priv_key(LIBSSH2_SESSION *session,
         ret = -1;
     }
 
-    mbedtls_rsa_context *rsa = mbedtls_pk_rsa(*pkey);
+    rsa = mbedtls_pk_rsa(*pkey);
     key = gen_publickey_from_rsa(session, rsa, &keylen);
     if(key == NULL) {
         ret = -1;
