@@ -142,7 +142,7 @@ comp_method_zlib_init(LIBSSH2_SESSION * session, int compr,
     int status;
 
     strm = LIBSSH2_CALLOC(session, sizeof(z_stream));
-    if (!strm) {
+    if(!strm) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory for "
                               "zlib compression/decompression");
@@ -151,15 +151,16 @@ comp_method_zlib_init(LIBSSH2_SESSION * session, int compr,
     strm->opaque = (voidpf) session;
     strm->zalloc = (alloc_func) comp_method_zlib_alloc;
     strm->zfree = (free_func) comp_method_zlib_free;
-    if (compr) {
+    if(compr) {
         /* deflate */
         status = deflateInit(strm, Z_DEFAULT_COMPRESSION);
-    } else {
+    }
+    else {
         /* inflate */
         status = inflateInit(strm);
     }
 
-    if (status != Z_OK) {
+    if(status != Z_OK) {
         LIBSSH2_FREE(session, strm);
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
                        "unhandled zlib error %d", status);
@@ -197,7 +198,7 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
 
     status = deflate(strm, Z_PARTIAL_FLUSH);
 
-    if ((status == Z_OK) && (strm->avail_out > 0)) {
+    if((status == Z_OK) && (strm->avail_out > 0)) {
         *dest_len = out_maxlen - strm->avail_out;
         return 0;
     }
@@ -227,15 +228,15 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
     int out_maxlen = 4 * src_len;
 
     /* If strm is null, then we have not yet been initialized. */
-    if (strm == NULL)
+    if(strm == NULL)
         return _libssh2_error(session, LIBSSH2_ERROR_COMPRESS,
                               "decompression uninitialized");;
 
     /* In practice they never come smaller than this */
-    if (out_maxlen < 25)
+    if(out_maxlen < 25)
         out_maxlen = 25;
 
-    if (out_maxlen > (int) payload_limit)
+    if(out_maxlen > (int) payload_limit)
         out_maxlen = payload_limit;
 
     strm->next_in = (unsigned char *) src;
@@ -243,26 +244,28 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
     strm->next_out = (unsigned char *) LIBSSH2_ALLOC(session, out_maxlen);
     out = (char *) strm->next_out;
     strm->avail_out = out_maxlen;
-    if (!strm->next_out)
+    if(!strm->next_out)
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate decompression buffer");
 
     /* Loop until it's all inflated or hit error */
-    for (;;) {
+    for(;;) {
         int status;
         size_t out_ofs;
         char *newout;
 
         status = inflate(strm, Z_PARTIAL_FLUSH);
 
-        if (status == Z_OK) {
-            if (strm->avail_out > 0)
+        if(status == Z_OK) {
+            if(strm->avail_out > 0)
                 /* status is OK and the output buffer has not been exhausted so we're done */
                 break;
-        } else if (status == Z_BUF_ERROR) {
+        }
+        else if(status == Z_BUF_ERROR) {
             /* the input data has been exhausted so we are done */
             break;
-        } else {
+        }
+        else {
             /* error state */
             LIBSSH2_FREE(session, out);
             _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
@@ -271,7 +274,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
                                   "decompression failure");
         }
 
-        if (out_maxlen >= (int) payload_limit) {
+        if(out_maxlen >= (int) payload_limit) {
             LIBSSH2_FREE(session, out);
             return _libssh2_error(session, LIBSSH2_ERROR_ZLIB,
                                   "Excessive growth in decompression phase");
@@ -281,7 +284,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
         out_ofs = out_maxlen - strm->avail_out;
         out_maxlen *= 2;
         newout = LIBSSH2_REALLOC(session, out, out_maxlen);
-        if (!newout) {
+        if(!newout) {
             LIBSSH2_FREE(session, out);
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to expand decompression buffer");
@@ -306,8 +309,8 @@ comp_method_zlib_dtor(LIBSSH2_SESSION *session, int compr, void **abstract)
 {
     z_stream *strm = *abstract;
 
-    if (strm) {
-        if (compr)
+    if(strm) {
+        if(compr)
             deflateEnd(strm);
         else
             inflateEnd(strm);

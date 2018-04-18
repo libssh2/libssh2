@@ -284,10 +284,6 @@ LIBSSH2_AES_CTR
 #define as 1 if the crypto library supports AES in CTR mode, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-void _libssh2_init_aes_ctr(void);
-Initialize static AES CTR ciphers.
-This procedure is already prototyped in crypto.h.
-
 _libssh2_cipher_aes128ctr
 AES-128-CTR algorithm identifier initializer.
 #define with constant value of type _libssh2_cipher_type().
@@ -360,7 +356,7 @@ the public key is returned in `public'.
 
 int libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                       _libssh2_bn *f, _libssh2_bn *p, _libssh2_bn_ctx * bnctx)
-Computes the Diffie-Hellman secret from the previouly created context `*dhctx',
+Computes the Diffie-Hellman secret from the previously created context `*dhctx',
 the public key `f' from the other party and the same prime `p' used at
 context creation. The result is stored in `secret'.
 0 is returned upon success, else -1.

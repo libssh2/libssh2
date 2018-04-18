@@ -70,6 +70,12 @@
 # define LIBSSH2_DSA 1
 #endif
 
+#ifdef OPENSSL_NO_ECDSA
+# define LIBSSH2_ECDSA 0
+#else
+# define LIBSSH2_ECDSA 1
+#endif
+
 #ifdef OPENSSL_NO_MD5
 # define LIBSSH2_MD5 0
 #else
@@ -116,6 +122,8 @@
 #else
 # define LIBSSH2_3DES 1
 #endif
+
+#define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
 #define _libssh2_random(buf, len) RAND_bytes ((buf), (len))
 
@@ -166,6 +174,52 @@ int _libssh2_sha256_init(libssh2_sha256_ctx *ctx);
 int _libssh2_sha256(const unsigned char *message, unsigned long len,
                   unsigned char *out);
 #define libssh2_sha256(x,y,z) _libssh2_sha256(x,y,z)
+
+#ifdef HAVE_OPAQUE_STRUCTS
+#define libssh2_sha384_ctx EVP_MD_CTX *
+#else
+#define libssh2_sha384_ctx EVP_MD_CTX
+#endif
+
+/* returns 0 in case of failure */
+int _libssh2_sha384_init(libssh2_sha384_ctx *ctx);
+#define libssh2_sha384_init(x) _libssh2_sha384_init(x)
+#ifdef HAVE_OPAQUE_STRUCTS
+#define libssh2_sha384_update(ctx, data, len) EVP_DigestUpdate(ctx, data, len)
+#define libssh2_sha384_final(ctx, out) do { \
+                                            EVP_DigestFinal(ctx, out, NULL); \
+                                            EVP_MD_CTX_free(ctx); \
+                                       } while(0)
+#else
+#define libssh2_sha384_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
+#define libssh2_sha384_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
+#endif
+int _libssh2_sha384(const unsigned char *message, unsigned long len,
+                    unsigned char *out);
+#define libssh2_sha384(x,y,z) _libssh2_sha384(x,y,z)
+
+#ifdef HAVE_OPAQUE_STRUCTS
+#define libssh2_sha512_ctx EVP_MD_CTX *
+#else
+#define libssh2_sha512_ctx EVP_MD_CTX
+#endif
+
+/* returns 0 in case of failure */
+int _libssh2_sha512_init(libssh2_sha512_ctx *ctx);
+#define libssh2_sha512_init(x) _libssh2_sha512_init(x)
+#ifdef HAVE_OPAQUE_STRUCTS
+#define libssh2_sha512_update(ctx, data, len) EVP_DigestUpdate(ctx, data, len)
+#define libssh2_sha512_final(ctx, out) do { \
+                                            EVP_DigestFinal(ctx, out, NULL); \
+                                            EVP_MD_CTX_free(ctx); \
+                                       } while(0)
+#else
+#define libssh2_sha512_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
+#define libssh2_sha512_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
+#endif
+int _libssh2_sha512(const unsigned char *message, unsigned long len,
+                    unsigned char *out);
+#define libssh2_sha512(x,y,z) _libssh2_sha512(x,y,z)
 
 #ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_md5_ctx EVP_MD_CTX *
@@ -226,12 +280,10 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define libssh2_hmac_cleanup(ctx) HMAC_cleanup(ctx)
 #endif
 
-#define libssh2_crypto_init() \
-  OpenSSL_add_all_algorithms(); \
-  ENGINE_load_builtin_engines(); \
-  ENGINE_register_all_complete()
-
-#define libssh2_crypto_exit()
+extern void _libssh2_openssl_crypto_init(void);
+extern void _libssh2_openssl_crypto_exit(void);
+#define libssh2_crypto_init() _libssh2_openssl_crypto_init()
+#define libssh2_crypto_exit() _libssh2_openssl_crypto_exit()
 
 #define libssh2_rsa_ctx RSA
 
@@ -239,8 +291,22 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 
 #define libssh2_dsa_ctx DSA
 
-
 #define _libssh2_dsa_free(dsactx) DSA_free(dsactx)
+
+#if LIBSSH2_ECDSA
+#define libssh2_ecdsa_ctx EC_KEY
+#define _libssh2_ecdsa_free(ecdsactx) EC_KEY_free(ecdsactx)
+#define _libssh2_ec_key EC_KEY
+
+typedef enum {
+    LIBSSH2_EC_CURVE_NISTP256 = NID_X9_62_prime256v1,
+    LIBSSH2_EC_CURVE_NISTP384 = NID_secp384r1,
+    LIBSSH2_EC_CURVE_NISTP521 = NID_secp521r1,
+}
+libssh2_curve_type;
+#else
+#define _libssh2_ec_key void
+#endif
 
 #define _libssh2_cipher_type(name) const EVP_CIPHER *(*name)(void)
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -267,7 +333,7 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define _libssh2_cipher_3des EVP_des_ede3_cbc
 
 #ifdef HAVE_OPAQUE_STRUCTS
-#define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_reset(*(ctx))
+#define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_free(*(ctx))
 #else
 #define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_cleanup(ctx)
 #endif
@@ -304,4 +370,3 @@ extern void _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
 const EVP_CIPHER *_libssh2_EVP_aes_128_ctr(void);
 const EVP_CIPHER *_libssh2_EVP_aes_192_ctr(void);
 const EVP_CIPHER *_libssh2_EVP_aes_256_ctr(void);
-
