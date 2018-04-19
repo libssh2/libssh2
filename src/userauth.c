@@ -491,7 +491,7 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
 
     sp1++;
 
-    sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey - 1));
+    sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey));
     if(sp2 == NULL) {
         /* Assume that the id string is missing, but that it's okay */
         sp2 = pubkey + pubkey_len;
