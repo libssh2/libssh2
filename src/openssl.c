@@ -1293,7 +1293,6 @@ gen_publickey_from_dsa_openssh_priv_data(LIBSSH2_SESSION *session,
                                          size_t *pubkeydata_len,
                                          libssh2_dsa_ctx **dsa_ctx)
 {
-    unsigned char* key = NULL;
     int rc = 0;
     int plen, qlen, glen, pub_len, priv_len;
     unsigned char *p, *q, *g, *pub_key, *priv_key;
@@ -2210,12 +2209,9 @@ gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
                                            size_t *pubkeydata_len,
                                            libssh2_ecdsa_ctx **ec_ctx)
 {
-    unsigned char* method_buf = NULL;
-    unsigned char* key = NULL;
     int rc = 0;
     int curvelen, exponentlen, pointlen;
     unsigned char *curve, *exponent, *point_buf;
-    int commentlen;
     EC_KEY *ec_key = NULL;
     BIGNUM *bn_exponent;
 
