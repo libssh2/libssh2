@@ -1050,6 +1050,15 @@ int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
 const LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);
 const LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void);
 
+/* misc.c */
+int _libssh2_bcrypt_pbkdf(const char *pass,
+                          size_t passlen,
+                          const uint8_t *salt,
+                          size_t saltlen,
+                          uint8_t *key,
+                          size_t keylen,
+                          unsigned int rounds);
+
 /* pem.c */
 int _libssh2_pem_parse(LIBSSH2_SESSION * session,
                        const char *headerbegin,
