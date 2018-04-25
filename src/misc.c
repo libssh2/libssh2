@@ -679,8 +679,6 @@ void _libssh2_aes_ctr_increment(unsigned char *ctr,
 void _libssh2_bzero(void *buf, size_t size)
 {
     memset(buf, '\0', size);
-    /* Compiler barrier. */
-    asm volatile ("" ::: "memory");
 }
 
 /* String buffer */
