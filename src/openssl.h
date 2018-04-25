@@ -53,6 +53,8 @@
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 
+#include "curve25519.h"
+
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L && \
     !defined(LIBRESSL_VERSION_NUMBER)
 # define HAVE_OPAQUE_STRUCTS 1
@@ -75,6 +77,8 @@
 #else
 # define LIBSSH2_ECDSA 1
 #endif
+
+#define LIBSSH2_ED25519 1
 
 #ifdef OPENSSL_NO_MD5
 # define LIBSSH2_MD5 0
@@ -307,6 +311,15 @@ libssh2_curve_type;
 #else
 #define _libssh2_ec_key void
 #endif
+
+/* ED25519 */
+typedef struct {
+    uint8_t public_key[ED25519_PUBLIC_KEY_LEN];
+    uint8_t private_key[ED25519_PRIVATE_KEY_LEN];
+} libssh2_ed25519;
+
+#define libssh2_ed25519_ctx libssh2_ed25519
+#define _libssh2_ed25519_free(ctx) free(ctx)
 
 #define _libssh2_cipher_type(name) const EVP_CIPHER *(*name)(void)
 #ifdef HAVE_OPAQUE_STRUCTS

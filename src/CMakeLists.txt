@@ -64,7 +64,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
 
   if(OPENSSL_FOUND)
     set(CRYPTO_BACKEND "OpenSSL")
-    set(CRYPTO_SOURCES openssl.c openssl.h)
+    set(CRYPTO_SOURCES openssl.c openssl.h curve25519.c curve25519.h curve25519_priv.h)
     list(APPEND PRIVATE_COMPILE_DEFINITIONS LIBSSH2_OPENSSL)
     list(APPEND PRIVATE_INCLUDE_DIRECTORIES ${OPENSSL_INCLUDE_DIR})
     list(APPEND LIBRARIES ${OPENSSL_LIBRARIES})
@@ -176,6 +176,9 @@ include(GNUInstallDirs)
 set(SOURCES
   ${CRYPTO_SOURCES}
   agent.c
+  blf.h
+  bcrypt_pbkdf.c
+  blowfish.c
   channel.c
   channel.h
   comp.c

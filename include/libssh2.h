@@ -121,11 +121,13 @@ extern "C" {
 #if (defined(NETWARE) && !defined(__NOVELL_LIBC__))
 # include <sys/bsdskt.h>
 typedef unsigned char uint8_t;
+typedef unsigned short int uint16_t;
 typedef unsigned int uint32_t;
 #endif
 
 #ifdef _MSC_VER
 typedef unsigned char uint8_t;
+typedef unsigned short int uint16_t;
 typedef unsigned int uint32_t;
 typedef unsigned __int64 libssh2_uint64_t;
 typedef __int64 libssh2_int64_t;
@@ -410,6 +412,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_HOSTKEY_TYPE_RSA                1
 #define LIBSSH2_HOSTKEY_TYPE_DSS                2
 #define LIBSSH2_HOSTKEY_TYPE_ECDSA              3
+#define LIBSSH2_HOSTKEY_TYPE_ED25519            4
 
 /* Disconnect Codes (defined by SSH protocol) */
 #define SSH_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT          1
@@ -485,6 +488,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_BAD_SOCKET                -45
 #define LIBSSH2_ERROR_KNOWN_HOSTS               -46
 #define LIBSSH2_ERROR_CHANNEL_WINDOW_FULL       -47
+#define LIBSSH2_ERROR_KEYFILE_AUTH_FAILED       -48
 
 /* this is a define to provide the old (<= 1.2.7) name */
 #define LIBSSH2_ERROR_BANNER_NONE LIBSSH2_ERROR_BANNER_RECV
