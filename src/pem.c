@@ -423,7 +423,7 @@ _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
 
     ret = _libssh2_openssh_pem_parse_memory(session,
                                             passphrase,
-                                            f, f_len,
+                                            (const unsigned char*)f, (size_t)f_len,
                                             decrypted_buf);
 
     if(b64data)
@@ -459,8 +459,8 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
 
     /* Parse the file */
 
-    decoded.data = data;
-    decoded.dataptr = data;
+    decoded.data = (unsigned char*)data;
+    decoded.dataptr = (unsigned char*)data;
     decoded.len = datalen;
 
     if(decoded.len < strlen(AUTH_MAGIC)) {
