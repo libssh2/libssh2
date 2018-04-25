@@ -676,6 +676,13 @@ void _libssh2_aes_ctr_increment(unsigned char *ctr,
     }
 }
 
+void _libssh2_bzero(void *buf, size_t size)
+{
+    memset(buf, '\0', size);
+    /* Compiler barrier. */
+    asm volatile ("" ::: "memory");
+}
+
 /* String buffer */
 
 struct string_buf* _libssh2_string_buf_new(LIBSSH2_SESSION *session)
