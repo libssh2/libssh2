@@ -367,7 +367,7 @@ _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
     char *f = NULL;
     unsigned int b64datalen = 0;
     unsigned int f_len = 0;
-    int ret, rc;
+    int ret;
 
     ret = 0;
 
@@ -606,7 +606,7 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
         }
 
         /* Set up decryption */
-        int free_iv = 0, free_secret = 0, len_decrypted = 0, padding = 0;
+        int free_iv = 0, free_secret = 0, len_decrypted = 0;
         int blocksize = method->blocksize;
         void *abstract;
         unsigned char *key_part = NULL;

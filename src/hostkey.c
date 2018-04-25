@@ -796,7 +796,7 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
                                 void **abstract)
 {
     const unsigned char *s;
-    unsigned long len, key_len, n_len;
+    unsigned long len, key_len;
     uint8_t *server_public_key;
 
     if(*abstract) {
@@ -906,9 +906,6 @@ hostkey_method_ssh_ed25519_sig_verify(LIBSSH2_SESSION * session,
 {
     uint8_t *ctx = (uint8_t *) (*abstract);
     (void) session;
-
-    const unsigned char *r, *s, *p;
-    unsigned long h_len;
 
     if(sig_len < 19)
         return -1;

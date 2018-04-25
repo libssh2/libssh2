@@ -717,7 +717,7 @@ int _libssh2_get_u32(struct string_buf *buf, uint32_t *out)
 int _libssh2_match_string(struct string_buf *buf, const char *match)
 {
     unsigned char *out;
-    if(_libssh2_get_c_string(buf, &out) != strlen(match) ||
+    if((size_t)_libssh2_get_c_string(buf, &out) != strlen(match) ||
         strncmp((char*)out, match, strlen(match)) != 0) {
         return -1;
     }

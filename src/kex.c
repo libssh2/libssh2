@@ -2519,6 +2519,11 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data, size
     int rc;
     int public_key_len = LIBSSH2_ED25519_KEY_LEN;
 
+    if(data_len < 5) {
+        return _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                              "Data is too short");
+    }
+
     if(exchange_state->state == libssh2_NB_state_idle) {
 
         /* Setup initial values */
