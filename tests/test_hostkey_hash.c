@@ -5,18 +5,6 @@
 
 #include <stdio.h>
 
-static const char *EXPECTED_RSA_HOSTKEY =
-    "AAAAB3NzaC1yc2EAAAABIwAAAQEArrr/JuJmaZligyfS8vcNur+mWR2ddDQtVdhHzdKU"
-    "UoR6/Om6cvxpe61H1YZO1xCpLUBXmkki4HoNtYOpPB2W4V+8U4BDeVBD5crypEOE1+7B"
-    "Am99fnEDxYIOZq2/jTP0yQmzCpWYS3COyFmkOL7sfX1wQMeW5zQT2WKcxC6FSWbhDqrB"
-    "eNEGi687hJJoJ7YXgY/IdiYW5NcOuqRSWljjGS3dAJsHHWk4nJbhjEDXbPaeduMAwQU9"
-    "i6ELfP3r+q6wdu0P4jWaoo3De1aYxnToV/ldXykpipON4NPamsb6Ph2qlJQKypq7J4iQ"
-    "gkIIbCU1A31+4ExvcIVoxLQw/aTSbw==";
-
-static const char *EXPECTED_ECDSA_HOSTKEY =
-    "AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBC+/syyeKJD9dC2ZH"
-    "9Q7iJGReR4YM3rUCMsSynkyXojdfSClGCMY7JvWlt30ESjYvxoTfSRGx6WvaqYK/vPoYQ4=";
-
 static const char *EXPECTED_RSA_MD5_HASH_DIGEST = "0C0ED1A5BB10275F76924CE187CE5C5E";
 
 static const char *EXPECTED_RSA_SHA1_HASH_DIGEST =
@@ -117,7 +105,7 @@ int test(LIBSSH2_SESSION *session)
                     EXPECTED_ED25519_SHA256_HASH_DIGEST);
             return 1;
         }
-    }    
+    }
     else if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA) {
 
         md5_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
