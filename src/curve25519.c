@@ -1210,7 +1210,6 @@ void x25519_ge_scalarmult_small_precomp(
   /* precomp_table is first expanded into matching |ge_precomp|
    * elements. */
   ge_precomp multiples[15];
-  ge_precomp *out = NULL;
 
 unsigned i;
   for (i = 0; i < 15; i++) {
@@ -4536,20 +4535,21 @@ int BO_ED25519_sign(uint8_t *out_sig, const uint8_t *message, size_t message_len
                  const uint8_t private_key[64]) {
   uint8_t az[SHA512_DIGEST_LENGTH];
   SHA512(private_key, 32, az);
+  SHA512_CTX hash_ctx;
+  uint8_t nonce[SHA512_DIGEST_LENGTH];
+  uint8_t hram[SHA512_DIGEST_LENGTH];
+  ge_p3 R;
 
   az[0] &= 248;
   az[31] &= 63;
   az[31] |= 64;
 
-  SHA512_CTX hash_ctx;
   SHA512_Init(&hash_ctx);
   SHA512_Update(&hash_ctx, az + 32, 32);
   SHA512_Update(&hash_ctx, message, message_len);
-  uint8_t nonce[SHA512_DIGEST_LENGTH];
   SHA512_Final(nonce, &hash_ctx);
 
   x25519_sc_reduce(nonce);
-  ge_p3 R;
   x25519_ge_scalarmult_base(&R, nonce);
   ge_p3_tobytes(out_sig, &R);
 
@@ -4557,7 +4557,6 @@ int BO_ED25519_sign(uint8_t *out_sig, const uint8_t *message, size_t message_len
   SHA512_Update(&hash_ctx, out_sig, 32);
   SHA512_Update(&hash_ctx, private_key + 32, 32);
   SHA512_Update(&hash_ctx, message, message_len);
-  uint8_t hram[SHA512_DIGEST_LENGTH];
   SHA512_Final(hram, &hash_ctx);
 
   x25519_sc_reduce(hram);
@@ -4569,6 +4568,14 @@ int BO_ED25519_sign(uint8_t *out_sig, const uint8_t *message, size_t message_len
 int BO_ED25519_verify(const uint8_t *message, size_t message_len,
                    const uint8_t signature[64], const uint8_t public_key[32]) {
   ge_p3 A;
+  uint8_t pkcopy[32];
+  uint8_t rcopy[32];
+  uint8_t scopy[32];
+  SHA512_CTX hash_ctx;
+  uint8_t h[SHA512_DIGEST_LENGTH];
+  ge_p2 R;
+  uint8_t rcheck[32];
+
   if ((signature[63] & 224) != 0 ||
       x25519_ge_frombytes_vartime(&A, public_key) != 0) {
     return 0;
@@ -4577,27 +4584,20 @@ int BO_ED25519_verify(const uint8_t *message, size_t message_len,
   fe_neg(A.X, A.X);
   fe_neg(A.T, A.T);
 
-  uint8_t pkcopy[32];
   memcpy(pkcopy, public_key, 32);
-  uint8_t rcopy[32];
   memcpy(rcopy, signature, 32);
-  uint8_t scopy[32];
   memcpy(scopy, signature + 32, 32);
 
-  SHA512_CTX hash_ctx;
   SHA512_Init(&hash_ctx);
   SHA512_Update(&hash_ctx, signature, 32);
   SHA512_Update(&hash_ctx, public_key, 32);
   SHA512_Update(&hash_ctx, message, message_len);
-  uint8_t h[SHA512_DIGEST_LENGTH];
   SHA512_Final(h, &hash_ctx);
 
   x25519_sc_reduce(h);
 
-  ge_p2 R;
   ge_double_scalarmult_vartime(&R, h, &A, scopy);
 
-  uint8_t rcheck[32];
   x25519_ge_tobytes(rcheck, &R);
 
   return CRYPTO_memcmp(rcheck, rcopy, sizeof(rcheck)) == 0;
@@ -4627,8 +4627,8 @@ void BO_ED25519_keypair_from_seed(uint8_t out_public_key[32], uint8_t out_privat
  *
  * Preconditions: b in {0,1}. */
 static void fe_cswap(fe f, fe g, unsigned int b) {
-  b = 0-b;
   unsigned i;
+  b = 0-b;
   for (i = 0; i < 10; i++) {
     int32_t x = f[i] ^ g[i];
     x &= b;
