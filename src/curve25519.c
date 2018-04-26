@@ -713,8 +713,8 @@ static void fe_neg(fe h, const fe f) {
  *
  * Preconditions: b in {0,1}. */
 static void fe_cmov(fe f, const fe g, unsigned b) {
-  b = 0-b;
   unsigned i;
+  b = 0-b;
   for (i = 0; i < 10; i++) {
     int32_t x = f[i] ^ g[i];
     x &= b;
@@ -729,9 +729,10 @@ static void fe_cmov(fe f, const fe g, unsigned b) {
  *    |f| bounded by 1.1*2^26,1.1*2^25,1.1*2^26,1.1*2^25,etc. */
 static int fe_isnonzero(const fe f) {
   uint8_t s[32];
+  static const uint8_t zero[32] = {0};
+
   fe_tobytes(s, f);
 
-  static const uint8_t zero[32] = {0};
   return CRYPTO_memcmp(s, zero, sizeof(zero)) != 0;
 }
 
@@ -1209,15 +1210,17 @@ void x25519_ge_scalarmult_small_precomp(
   /* precomp_table is first expanded into matching |ge_precomp|
    * elements. */
   ge_precomp multiples[15];
+  ge_precomp *out = NULL;
 
-  unsigned i;
+unsigned i;
   for (i = 0; i < 15; i++) {
     const uint8_t *bytes = &precomp_table[i*(2 * 32)];
+    ge_precomp *out = &multiples[i];
+
     fe x, y;
     fe_frombytes(x, bytes);
     fe_frombytes(y, bytes + 32);
 
-    ge_precomp *out = &multiples[i];
     fe_add(out->yplusx, y, x);
     fe_sub(out->yminusx, y, x);
     fe_mul(out->xy2d, x, y);
@@ -1232,21 +1235,21 @@ void x25519_ge_scalarmult_small_precomp(
   for (i = 63; i < 64; i--) {
     unsigned j;
     signed char index = 0;
+    ge_precomp e;
+    ge_cached cached;
+    ge_p1p1 r;
 
     for (j = 0; j < 4; j++) {
       const uint8_t bit = 1 & (a[(8 * j) + (i / 8)] >> (i & 7));
       index |= (bit << j);
     }
 
-    ge_precomp e;
     ge_precomp_0(&e);
 
     for (j = 1; j < 16; j++) {
       cmov(&e, &multiples[j-1], equal(index, j));
     }
 
-    ge_cached cached;
-    ge_p1p1 r;
     x25519_ge_p3_to_cached(&cached, h);
     x25519_ge_add(&r, h, &cached);
     x25519_ge_p1p1_to_p3(h, &r);
@@ -3466,6 +3469,7 @@ void x25519_ge_scalarmult(ge_p2 *r, const uint8_t *scalar, const ge_p3 *A) {
   ge_p2 Ai_p2[8];
   ge_cached Ai[16];
   ge_p1p1 t;
+  ge_p3 u;
 
   ge_cached_0(&Ai[0]);
   x25519_ge_p3_to_cached(&Ai[1], A);
@@ -3486,9 +3490,12 @@ void x25519_ge_scalarmult(ge_p2 *r, const uint8_t *scalar, const ge_p3 *A) {
   }
 
   ge_p2_0(r);
-  ge_p3 u;
 
   for (i = 0; i < 256; i += 4) {
+    uint8_t index = scalar[31 - i/8];
+    unsigned j;
+    ge_cached selected;
+
     ge_p2_dbl(&t, r);
     x25519_ge_p1p1_to_p2(r, &t);
     ge_p2_dbl(&t, r);
@@ -3498,12 +3505,9 @@ void x25519_ge_scalarmult(ge_p2 *r, const uint8_t *scalar, const ge_p3 *A) {
     ge_p2_dbl(&t, r);
     x25519_ge_p1p1_to_p3(&u, &t);
 
-    uint8_t index = scalar[31 - i/8];
     index >>= 4 - (i & 4);
     index &= 0xf;
 
-    unsigned j;
-    ge_cached selected;
     ge_cached_0(&selected);
     for (j = 0; j < 16; j++) {
       cmov_cached(&selected, &Ai[j], equal(j, index));
@@ -4703,6 +4707,8 @@ static void x25519_scalar_mult_generic(uint8_t out[32],
   fe x1, x2, z2, x3, z3, tmp0, tmp1;
 
   uint8_t e[32];
+  unsigned swap = 0;
+  int pos;
   memcpy(e, scalar, 32);
   e[0] &= 248;
   e[31] &= 127;
@@ -4713,8 +4719,6 @@ static void x25519_scalar_mult_generic(uint8_t out[32],
   fe_copy(x3, x1);
   fe_1(z3);
 
-  unsigned swap = 0;
-  int pos;
   for (pos = 254; pos >= 0; --pos) {
     unsigned b = 1 & (e[pos / 8] >> (pos & 7));
     swap ^= b;
@@ -4803,17 +4807,18 @@ void BO_X25519_public_from_private(uint8_t out_public_value[32],
 #endif
 
   uint8_t e[32];
+  ge_p3 A;
+  fe zplusy, zminusy, zminusy_inv;
+
   memcpy(e, private_key, 32);
   e[0] &= 248;
   e[31] &= 127;
   e[31] |= 64;
 
-  ge_p3 A;
   x25519_ge_scalarmult_base(&A, e);
 
   /* We only need the u-coordinate of the curve25519 point. The map is
    * u=(y+1)/(1-y). Since y=Y/Z, this gives u=(Z+Y)/(Z-Y). */
-  fe zplusy, zminusy, zminusy_inv;
   fe_add(zplusy, A.Z, A.Y);
   fe_sub(zminusy, A.Z, A.Y);
   fe_invert(zminusy_inv, zminusy);

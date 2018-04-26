@@ -2320,9 +2320,9 @@ _libssh2_ecdsa_new_private(libssh2_ecdsa_ctx ** ec_ctx,
        const char *filename, unsigned const char *passphrase)
 {
     int rc;
-    (void) session;
 
     pem_read_bio_func read_ec = (pem_read_bio_func) &PEM_read_bio_ECPrivateKey;
+    (void) session;
 
     _libssh2_init_if_needed();
 
@@ -2777,6 +2777,7 @@ read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
    }
 #endif
 #if LIBSSH2_ECDSA
+{
    libssh2_curve_type type;
 
    if(strcmp("ssh-ecdsa", key_type) == 0 &&
@@ -2785,7 +2786,8 @@ read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
                                                        NULL, NULL,
                                                        NULL, NULL,
                                                        (libssh2_ecdsa_ctx**)key_ctx);
-   }
+    }
+}
 #endif
 
     if(decrypted)
