@@ -454,6 +454,7 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
     uint32_t nkeys, check1, check2, salt_len;
     uint32_t rounds = 0;
     unsigned char *key = NULL;
+    int kdf_len;
 
     ret = 0;
 
@@ -490,7 +491,7 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
         goto out;
     }
 
-    int kdf_len = _libssh2_get_c_string(&decoded, &kdf);
+    kdf_len = _libssh2_get_c_string(&decoded, &kdf);
     if(kdf == NULL )
     {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
@@ -575,6 +576,12 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
 
         int keylen = method->secret_len;
         int ivlen = method->iv_len;
+        int free_iv = 0, free_secret = 0, len_decrypted = 0;
+        int blocksize;
+        void *abstract = NULL;
+        unsigned char *key_part = NULL;
+        unsigned char *iv_part = NULL;
+
         if((key = LIBSSH2_CALLOC(session, keylen + ivlen)) == NULL) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                            "Could not alloc key");
@@ -606,11 +613,7 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
         }
 
         /* Set up decryption */
-        int free_iv = 0, free_secret = 0, len_decrypted = 0;
-        int blocksize = method->blocksize;
-        void *abstract;
-        unsigned char *key_part = NULL;
-        unsigned char *iv_part = NULL;
+        blocksize = method->blocksize;
 
         if((key_part = LIBSSH2_CALLOC(session, keylen)) == NULL) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,

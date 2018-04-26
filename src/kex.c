@@ -2974,6 +2974,7 @@ kex_method_curve25519_key_exchange
     }
 
     if( key_state->state == libssh2_NB_state_created ) {
+        unsigned char *s = NULL;
 
         rc = strcmp(session->kex->name, "curve25519-sha256@libssh.org");
         if( rc != 0 )
@@ -2995,7 +2996,7 @@ kex_method_curve25519_key_exchange
         }
 
         key_state->request[0] = SSH2_MSG_KEX_ECDH_INIT;
-        unsigned char *s = key_state->request + 1;
+        s = key_state->request + 1;
         _libssh2_store_str(&s, (const char*)key_state->curve25519_public_key, LIBSSH2_ED25519_KEY_LEN);
         key_state->request_len = LIBSSH2_ED25519_KEY_LEN + 5;
 

@@ -708,11 +708,13 @@ void _libssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf)
 
 int _libssh2_get_u32(struct string_buf *buf, uint32_t *out)
 {
+    unsigned char *p = NULL;
+
     if(!_libssh2_check_length(buf, 4)) {
         return -1;
     }
 
-    unsigned char *p = buf->dataptr;
+    p = buf->dataptr;
     *out = (((uint32_t) p[0]) << 24) + (((uint32_t) p[1]) << 16) +
     (((uint32_t) p[2]) << 8) + ((uint32_t) p[3]);
     buf->dataptr += 4;

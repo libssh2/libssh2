@@ -2482,6 +2482,8 @@ _libssh2_ed25519_sign(LIBSSH2_SESSION *session, uint8_t out_sig[64],
                       const uint8_t *message, size_t message_len,
                       const uint8_t private_key[ED25519_PRIVATE_KEY_LEN])
 {
+    (void)session;
+
     return BO_ED25519_sign(out_sig, message, message_len, private_key);
 }
 

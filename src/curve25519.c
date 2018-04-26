@@ -3469,12 +3469,12 @@ void x25519_ge_scalarmult(ge_p2 *r, const uint8_t *scalar, const ge_p3 *A) {
   ge_cached Ai[16];
   ge_p1p1 t;
   ge_p3 u;
+  unsigned i;
 
   ge_cached_0(&Ai[0]);
   x25519_ge_p3_to_cached(&Ai[1], A);
   ge_p3_to_p2(&Ai_p2[1], A);
 
-  unsigned i;
   for (i = 2; i < 16; i += 2) {
     ge_p2_dbl(&t, &Ai_p2[i / 2]);
     ge_p1p1_to_cached(&Ai[i], &t);
@@ -4534,11 +4534,12 @@ void BO_ED25519_keypair(uint8_t out_public_key[32], uint8_t out_private_key[64])
 int BO_ED25519_sign(uint8_t *out_sig, const uint8_t *message, size_t message_len,
                  const uint8_t private_key[64]) {
   uint8_t az[SHA512_DIGEST_LENGTH];
-  SHA512(private_key, 32, az);
   SHA512_CTX hash_ctx;
   uint8_t nonce[SHA512_DIGEST_LENGTH];
   uint8_t hram[SHA512_DIGEST_LENGTH];
   ge_p3 R;
+
+  SHA512(private_key, 32, az);
 
   az[0] &= 248;
   az[31] &= 63;
