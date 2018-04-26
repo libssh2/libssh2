@@ -2707,16 +2707,23 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 }
 
 int
-read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
-                                     const char *key_type,
-                                     const char *filedata,
-                                     size_t filedata_len,
-                                     unsigned const char *passphrase)
+_libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
+                                        void **key_ctx,
+                                        const char *key_type,
+                                        unsigned char **method,
+                                        size_t *method_len,
+                                        unsigned char **pubkeydata,
+                                        size_t *pubkeydata_len,
+                                        const char *privatekeydata,
+                                        size_t privatekeydata_len,
+                                        unsigned const char *passphrase)
 {
     int rc;
-    unsigned char *buf;
+    unsigned char *buf = NULL;
     struct string_buf *decrypted = NULL;
-    *key_ctx = NULL;
+
+    if(key_ctx != NULL)
+        *key_ctx = NULL;
 
     if(session == NULL) {
       _libssh2_error(session, LIBSSH2_ERROR_PROTO,
@@ -2724,7 +2731,7 @@ read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
       return -1;
     }
 
-    if(key_type == NULL || strlen(key_type) > 11 || strlen(key_type) < 7) {
+    if(key_type != NULL && (strlen(key_type) > 11 || strlen(key_type) < 7)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "type is invalid");
         return -1;
@@ -2733,8 +2740,8 @@ read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
     _libssh2_init_if_needed();
 
     rc = _libssh2_openssh_pem_parse_memory(session,
-                                           passphrase, (const unsigned char*)filedata,
-                                           filedata_len, &decrypted);
+                                           passphrase, (const unsigned char*)privatekeydata,
+                                           privatekeydata_len, &decrypted);
 
     if(rc) {
        return rc;
@@ -2750,42 +2757,46 @@ read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
    }
 
 #if LIBSSH2_ED25519
-    if(strcmp("ssh-ed25519", key_type) == 0 &&
-       strcmp("ssh-ed25519", (const char*)buf) == 0) {
-       rc = gen_publickey_from_ed25519_openssh_priv_data(session, decrypted,
-                                                         NULL, NULL,
-                                                         NULL, NULL,
-                                                         (libssh2_ed25519_ctx**)key_ctx);
+    if(strcmp("ssh-ed25519", (const char*)buf) == 0) {
+        if(key_type == NULL || strcmp("ssh-ed25519", key_type) == 0) {
+           rc = gen_publickey_from_ed25519_openssh_priv_data(session, decrypted,
+                                                             method, method_len,
+                                                             pubkeydata, pubkeydata_len,
+                                                             (libssh2_ed25519_ctx**)key_ctx);
+        }
    }
 #endif
 #if LIBSSH2_RSA
-    if(strcmp("ssh-rsa", key_type) == 0 &&
-       strcmp("ssh-rsa", (const char*)buf) == 0) {
-       rc = gen_publickey_from_rsa_openssh_priv_data(session, decrypted,
-                                                      NULL, NULL,
-                                                      NULL, NULL,
-                                                      (libssh2_rsa_ctx**)key_ctx);
+    if(strcmp("ssh-rsa", (const char*)buf) == 0) {
+        if(key_type == NULL || strcmp("ssh-rsa", key_type) == 0) {
+            rc = gen_publickey_from_rsa_openssh_priv_data(session, decrypted,
+                                                         method, method_len,
+                                                         pubkeydata, pubkeydata_len,
+                                                         (libssh2_rsa_ctx**)key_ctx);
+        }
    }
 #endif
 #if LIBSSH2_DSA
-    if(strcmp("ssh-dss", key_type) == 0 &&
-       strcmp("ssh-dss", (const char*)buf) == 0) {
-       rc = gen_publickey_from_dsa_openssh_priv_data(session, decrypted,
-                                                     NULL, NULL,
-                                                     NULL, NULL,
-                                                     (libssh2_dsa_ctx**)key_ctx);
+    if(strcmp("ssh-dss", (const char*)buf) == 0) {
+        if(key_type == NULL || strcmp("ssh-dss", key_type) == 0) {
+            rc = gen_publickey_from_dsa_openssh_priv_data(session, decrypted,
+                                                         method, method_len,
+                                                         pubkeydata, pubkeydata_len,
+                                                         (libssh2_dsa_ctx**)key_ctx);
+        }
    }
 #endif
 #if LIBSSH2_ECDSA
 {
    libssh2_curve_type type;
 
-   if(strcmp("ssh-ecdsa", key_type) == 0 &&
-      _libssh2_ecdsa_curve_type_from_name((const char*)buf, &type) == 0) {
-       rc = gen_publickey_from_ecdsa_openssh_priv_data(session, type, decrypted,
-                                                       NULL, NULL,
-                                                       NULL, NULL,
-                                                       (libssh2_ecdsa_ctx**)key_ctx);
+   if(_libssh2_ecdsa_curve_type_from_name((const char*)buf, &type) == 0) {
+       if(key_type == NULL || strcmp("ssh-ecdsa", key_type) == 0) {
+           rc = gen_publickey_from_ecdsa_openssh_priv_data(session, type, decrypted,
+                                                           method, method_len,
+                                                           pubkeydata, pubkeydata_len,
+                                                           (libssh2_ecdsa_ctx**)key_ctx);
+        }
     }
 }
 #endif
@@ -2797,30 +2808,16 @@ read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
 }
 
 int
-_libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
-                                        unsigned char **method,
-                                        size_t *method_len,
-                                        unsigned char **pubkeydata,
-                                        size_t *pubkeydata_len,
-                                        const char *privatekeydata,
-                                        size_t privatekeydata_len,
-                                        const char *passphrase)
+read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
+                                     const char *key_type,
+                                     const char *filedata,
+                                     size_t filedata_len,
+                                     unsigned const char *passphrase)
 {
-    /* TODO: implement if someone wants to use this */
-    (void)privatekeydata_len;
-    (void)passphrase;
-    (void)privatekeydata;
-    (void)pubkeydata_len;
-    (void)method;
-    (void)method_len;
-    (void)session;
-
-    return _libssh2_error(session,
-                      LIBSSH2_ERROR_FILE,
-                      "Unable to extract public key "
-                      "from private key file: "
-                      "Wrong passphrase or invalid/unrecognized "
-                      "private key file format");
+    return _libssh2_pub_priv_openssh_keyfilememory(session, key_ctx, key_type,
+                                                   NULL, NULL, NULL, NULL,
+                                                   filedata, filedata_len,
+                                                   passphrase);
 }
 
 int
@@ -2853,13 +2850,13 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     if(pk == NULL) {
         /* Try OpenSSH format */
-        st = _libssh2_pub_priv_openssh_keyfilememory(session, method,
+        st = _libssh2_pub_priv_openssh_keyfilememory(session, NULL, NULL, method,
                                                      method_len,
                                                      pubkeydata,
                                                      pubkeydata_len,
                                                      privatekeydata,
                                                      privatekeydata_len,
-                                                     passphrase);
+                                                     (unsigned const char*)passphrase);
         return st;
     }
 
