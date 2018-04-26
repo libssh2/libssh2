@@ -23,13 +23,13 @@
 #include <stdio.h>
 #include <openssl/ossl_typ.h>
 #include <openssl/crypto.h>
-#include <stdint.h>
+#include "libssh2.h"
 
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-	
+
 /* Curve25519.
  *
  * Curve25519 is an elliptic curve. See https://tools.ietf.org/html/rfc7748. */

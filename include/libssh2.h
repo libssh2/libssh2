@@ -135,6 +135,7 @@ typedef __int64 libssh2_int64_t;
 typedef SSIZE_T ssize_t;
 #endif
 #else
+#include <stdint.h>
 typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
 #endif

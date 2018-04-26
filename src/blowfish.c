@@ -49,8 +49,8 @@
 #endif
 
 #include <sys/types.h>
-#include <stdint.h>
 
+#include "libssh2.h"
 #include "blf.h"
 
 #undef inline
