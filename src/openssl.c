@@ -1043,7 +1043,6 @@ _libssh2_rsa_new_openssh_private(libssh2_rsa_ctx ** rsa,
                                  const char *filename,
                                  unsigned const char *passphrase)
 {
-    (void) session;
     FILE *fp;
     int rc;
     unsigned char *buf = NULL;
@@ -1346,7 +1345,6 @@ _libssh2_dsa_new_openssh_private(libssh2_dsa_ctx ** dsa,
                                  const char *filename,
                                  unsigned const char *passphrase)
 {
-    (void) session;
     FILE *fp;
     int rc;
     unsigned char *buf = NULL;
@@ -2260,7 +2258,6 @@ _libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx ** ec_ctx,
                                    const char *filename,
                                    unsigned const char *passphrase)
 {
-    (void) session;
     FILE *fp;
     int rc;
     unsigned char *buf = NULL;
