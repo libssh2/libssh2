@@ -81,13 +81,9 @@ void blf_cbc_decrypt(blf_ctx *, uint8_t *, uint8_t *, uint32_t);
 /* Converts uint8_t to uint32_t */
 uint32_t Blowfish_stream2word(const uint8_t *, uint16_t , uint16_t *);
 
-#endif /* !defined(HAVE_BCRYPT_PBKDF) && !defined(HAVE_BLH_H) */
-#endif /* _BLF_H */
-
-#ifndef HAVE_BCRYPT_PBKDF
-
 /* bcrypt with pbkd */
 int bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt, size_t saltlen,
     uint8_t *key, size_t keylen, unsigned int rounds);
 
-#endif /* HAVE_BCRYPT_PBKDF */
+#endif /* !defined(HAVE_BCRYPT_PBKDF) && !defined(HAVE_BLH_H) */
+#endif /* _BLF_H */
