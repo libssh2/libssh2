@@ -677,9 +677,17 @@ void _libssh2_aes_ctr_increment(unsigned char *ctr,
     }
 }
 
-void _libssh2_bzero(void *buf, size_t size)
+static void * (* const volatile memset_libssh)(void *, int, size_t) = memset;
+
+void _libssh2_explicit_zero(void *buf, size_t size)
 {
-    memset(buf, '\0', size);
+#ifdef HAVE_DECL_SECUREZEROMEMORY
+    SecureZeroMemory(buf, size);
+#elif defined(HAVE_MEMSET_S)
+    (void)memset_s(buf, size, 0, size);
+#else
+    memset_libssh(buf, 0, size);
+#endif
 }
 
 /* String buffer */

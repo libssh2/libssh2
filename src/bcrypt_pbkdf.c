@@ -92,9 +92,9 @@ bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
 	}
 
 	/* zap */
-	_libssh2_bzero(ciphertext, sizeof(ciphertext));
-	_libssh2_bzero(cdata, sizeof(cdata));
-	_libssh2_bzero(&state, sizeof(state));
+	_libssh2_explicit_zero(ciphertext, sizeof(ciphertext));
+	_libssh2_explicit_zero(cdata, sizeof(cdata));
+	_libssh2_explicit_zero(&state, sizeof(state));
 }
 
 int
@@ -170,7 +170,7 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt, size_t saltl
 	}
 
 	/* zap */
-	_libssh2_bzero(out, sizeof(out));
+	_libssh2_explicit_zero(out, sizeof(out));
 	free(countsalt);
 
 	return 0;
