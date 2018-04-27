@@ -593,12 +593,12 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
             }
 
             if(free_iv) {
-                memset(iv, 0, session->local.crypt->iv_len);
+                _libssh2_explicit_zero(iv, session->local.crypt->iv_len);
                 LIBSSH2_FREE(session, iv);
             }
 
             if(free_secret) {
-                memset(secret, 0, session->local.crypt->secret_len);
+                _libssh2_explicit_zero(secret, session->local.crypt->secret_len);
                 LIBSSH2_FREE(session, secret);
             }
         }
@@ -642,12 +642,12 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
             }
 
             if(free_iv) {
-                memset(iv, 0, session->remote.crypt->iv_len);
+                _libssh2_explicit_zero(iv, session->remote.crypt->iv_len);
                 LIBSSH2_FREE(session, iv);
             }
 
             if(free_secret) {
-                memset(secret, 0, session->remote.crypt->secret_len);
+                _libssh2_explicit_zero(secret, session->remote.crypt->secret_len);
                 LIBSSH2_FREE(session, secret);
             }
         }
@@ -674,7 +674,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
                                      &session->local.mac_abstract);
 
             if(free_key) {
-                memset(key, 0, session->local.mac->key_len);
+                _libssh2_explicit_zero(key, session->local.mac->key_len);
                 LIBSSH2_FREE(session, key);
             }
         }
@@ -701,7 +701,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
                                       &session->remote.mac_abstract);
 
             if(free_key) {
-                memset(key, 0, session->remote.mac->key_len);
+                _libssh2_explicit_zero(key, session->remote.mac->key_len);
                 LIBSSH2_FREE(session, key);
             }
         }
@@ -1255,12 +1255,12 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             }
 
             if(free_iv) {
-                memset(iv, 0, session->local.crypt->iv_len);
+                _libssh2_explicit_zero(iv, session->local.crypt->iv_len);
                 LIBSSH2_FREE(session, iv);
             }
 
             if(free_secret) {
-                memset(secret, 0, session->local.crypt->secret_len);
+                _libssh2_explicit_zero(secret, session->local.crypt->secret_len);
                 LIBSSH2_FREE(session, secret);
             }
         }
@@ -1304,12 +1304,12 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             }
 
             if(free_iv) {
-                memset(iv, 0, session->remote.crypt->iv_len);
+                _libssh2_explicit_zero(iv, session->remote.crypt->iv_len);
                 LIBSSH2_FREE(session, iv);
             }
 
             if(free_secret) {
-                memset(secret, 0, session->remote.crypt->secret_len);
+                _libssh2_explicit_zero(secret, session->remote.crypt->secret_len);
                 LIBSSH2_FREE(session, secret);
             }
         }
@@ -1336,7 +1336,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
                                      &session->local.mac_abstract);
 
             if(free_key) {
-                memset(key, 0, session->local.mac->key_len);
+                _libssh2_explicit_zero(key, session->local.mac->key_len);
                 LIBSSH2_FREE(session, key);
             }
         }
@@ -1363,7 +1363,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
                                       &session->remote.mac_abstract);
 
             if(free_key) {
-                memset(key, 0, session->remote.mac->key_len);
+                _libssh2_explicit_zero(key, session->remote.mac->key_len);
                 LIBSSH2_FREE(session, key);
             }
         }
@@ -2226,12 +2226,12 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                 }
 
             if(free_iv) {
-                memset(iv, 0, session->local.crypt->iv_len);
+                _libssh2_explicit_zero(iv, session->local.crypt->iv_len);
                 LIBSSH2_FREE(session, iv);
             }
 
             if(free_secret) {
-                memset(secret, 0, session->local.crypt->secret_len);
+                _libssh2_explicit_zero(secret, session->local.crypt->secret_len);
                 LIBSSH2_FREE(session, secret);
             }
         }
@@ -2275,12 +2275,12 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                 }
 
             if(free_iv) {
-                memset(iv, 0, session->remote.crypt->iv_len);
+                _libssh2_explicit_zero(iv, session->remote.crypt->iv_len);
                 LIBSSH2_FREE(session, iv);
             }
 
             if(free_secret) {
-                memset(secret, 0, session->remote.crypt->secret_len);
+                _libssh2_explicit_zero(secret, session->remote.crypt->secret_len);
                 LIBSSH2_FREE(session, secret);
             }
         }
@@ -2307,7 +2307,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                                      &session->local.mac_abstract);
 
             if(free_key) {
-                memset(key, 0, session->local.mac->key_len);
+                _libssh2_explicit_zero(key, session->local.mac->key_len);
                 LIBSSH2_FREE(session, key);
             }
         }
@@ -2334,7 +2334,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                                       &session->remote.mac_abstract);
 
             if(free_key) {
-                memset(key, 0, session->remote.mac->key_len);
+                _libssh2_explicit_zero(key, session->remote.mac->key_len);
                 LIBSSH2_FREE(session, key);
             }
         }
@@ -2791,12 +2791,12 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data, size
                 }
 
             if(free_iv) {
-                memset(iv, 0, session->local.crypt->iv_len);
+                _libssh2_explicit_zero(iv, session->local.crypt->iv_len);
                 LIBSSH2_FREE(session, iv);
             }
 
             if(free_secret) {
-                memset(secret, 0, session->local.crypt->secret_len);
+                _libssh2_explicit_zero(secret, session->local.crypt->secret_len);
                 LIBSSH2_FREE(session, secret);
             }
         }
@@ -2840,12 +2840,12 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data, size
                 }
 
             if(free_iv) {
-                memset(iv, 0, session->remote.crypt->iv_len);
+                _libssh2_explicit_zero(iv, session->remote.crypt->iv_len);
                 LIBSSH2_FREE(session, iv);
             }
 
             if(free_secret) {
-                memset(secret, 0, session->remote.crypt->secret_len);
+                _libssh2_explicit_zero(secret, session->remote.crypt->secret_len);
                 LIBSSH2_FREE(session, secret);
             }
         }
@@ -2872,7 +2872,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data, size
                                      &session->local.mac_abstract);
 
             if(free_key) {
-                memset(key, 0, session->local.mac->key_len);
+                _libssh2_explicit_zero(key, session->local.mac->key_len);
                 LIBSSH2_FREE(session, key);
             }
         }
@@ -2899,7 +2899,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data, size
                                       &session->remote.mac_abstract);
 
             if(free_key) {
-                memset(key, 0, session->remote.mac->key_len);
+                _libssh2_explicit_zero(key, session->remote.mac->key_len);
                 LIBSSH2_FREE(session, key);
             }
         }

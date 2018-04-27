@@ -234,21 +234,21 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         /* Initialize the decryption */
         if(method->init(session, method, iv, &free_iv, secret,
                          &free_secret, 0, &abstract)) {
-            memset((char *)secret, 0, sizeof(secret));
+            _libssh2_explicit_zero((char *)secret, sizeof(secret));
             LIBSSH2_FREE(session, data);
             ret = -1;
             goto out;
         }
 
         if(free_secret) {
-            memset((char *)secret, 0, sizeof(secret));
+            _libssh2_explicit_zero((char *)secret, sizeof(secret));
         }
 
         /* Do the actual decryption */
         if((*datalen % blocksize) != 0) {
-            memset((char *)secret, 0, sizeof(secret));
+            _libssh2_explicit_zero((char *)secret, sizeof(secret));
             method->dtor(session, &abstract);
-            memset(*data, 0, *datalen);
+            _libssh2_explicit_zero(*data, *datalen);
             LIBSSH2_FREE(session, *data);
             ret = -1;
             goto out;
@@ -258,9 +258,9 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
             if(method->crypt(session, *data + len_decrypted, blocksize,
                               &abstract)) {
                 ret = LIBSSH2_ERROR_DECRYPT;
-                memset((char *)secret, 0, sizeof(secret));
+                _libssh2_explicit_zero((char *)secret, sizeof(secret));
                 method->dtor(session, &abstract);
-                memset(*data, 0, *datalen);
+                _libssh2_explicit_zero(*data, *datalen);
                 LIBSSH2_FREE(session, *data);
                 goto out;
             }
@@ -274,7 +274,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         *datalen -= padding;
 
         /* Clean up */
-        memset((char *)secret, 0, sizeof(secret));
+        _libssh2_explicit_zero((char *)secret, sizeof(secret));
         method->dtor(session, &abstract);
     }
 
@@ -443,7 +443,7 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
                                   const unsigned char *data, size_t datalen,
                                   struct string_buf **decrypted_buf)
 {
-    int ret, rc;
+    int ret = 0, rc = 0;
     const LIBSSH2_CRYPT_METHOD *method = NULL;
     struct string_buf decoded, decrypted, kdf_buf;
     unsigned char *ciphername = NULL;
@@ -454,9 +454,12 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
     uint32_t nkeys, check1, check2, salt_len;
     uint32_t rounds = 0;
     unsigned char *key = NULL;
-    int kdf_len;
+    unsigned char *key_part = NULL;
+    unsigned char *iv_part = NULL;
+    int kdf_len = 0, keylen = 0, ivlen = 0, total_len = 0;
 
-    ret = 0;
+    if(decrypted_buf)
+        *decrypted_buf = NULL;
 
     /* Parse the file */
 
@@ -572,17 +575,16 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
         }
     }
 
-    if(method ) {
+    if(method) {
 
-        int keylen = method->secret_len;
-        int ivlen = method->iv_len;
+        keylen = method->secret_len;
+        ivlen = method->iv_len;
+        total_len = keylen + ivlen;
         int free_iv = 0, free_secret = 0, len_decrypted = 0;
         int blocksize;
         void *abstract = NULL;
-        unsigned char *key_part = NULL;
-        unsigned char *iv_part = NULL;
 
-        if((key = LIBSSH2_CALLOC(session, keylen + ivlen)) == NULL) {
+        if((key = LIBSSH2_CALLOC(session, total_len)) == NULL) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                            "Could not alloc key");
             goto out;
@@ -634,7 +636,6 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
         if(method->init(session, method, iv_part, &free_iv, key_part,
                          &free_secret, 0, &abstract)) {
             ret = LIBSSH2_ERROR_DECRYPT;
-            LIBSSH2_FREE(session, key);
             goto out;
         }
 
@@ -642,31 +643,21 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
         if((decrypted.len % blocksize) != 0) {
             method->dtor(session, &abstract);
             ret = LIBSSH2_ERROR_DECRYPT;
-            LIBSSH2_FREE(session, key);
             goto out;
         }
 
-		while (len_decrypted <= decrypted.len - blocksize) {
-			if (method->crypt(session, decrypted.data + len_decrypted, blocksize,
-							  &abstract)) {
-				ret = LIBSSH2_ERROR_DECRYPT;
-				LIBSSH2_FREE(session, key);
-				method->dtor(session, &abstract);
-				goto out;
-			}
+        while (len_decrypted <= decrypted.len - blocksize) {
+            if (method->crypt(session, decrypted.data + len_decrypted, blocksize,
+                              &abstract)) {
+                ret = LIBSSH2_ERROR_DECRYPT;
+                method->dtor(session, &abstract);
+                goto out;
+            }
 
-			len_decrypted += blocksize;
+            len_decrypted += blocksize;
         }
 
         /* No padding */
-
-        /* Clean up */
-        if(key)
-            LIBSSH2_FREE(session, key);
-        if(key_part)
-            LIBSSH2_FREE(session, key_part);
-        if(iv_part)
-            LIBSSH2_FREE(session, iv_part);
 
         method->dtor(session, &abstract);
     }
@@ -686,15 +677,18 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
         /* copy data to out-going buffer */
         struct string_buf *out_buf = _libssh2_string_buf_new(session);
         if(!out_buf) {
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory for decrypted struct");
+            goto out;
         }
 
         out_buf->data = malloc(decrypted.len);
         if(!out_buf->data)
         {
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory for decrypted struct");
+            _libssh2_string_buf_free(session, out_buf);
+            goto out;
         }
         memcpy(out_buf->data, decrypted.data, decrypted.len);
         out_buf->dataptr = out_buf->data + (decrypted.dataptr - decrypted.data);
@@ -704,6 +698,20 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
     }
 
 out:
+
+    /* Clean up */
+    if(key) {
+        _libssh2_explicit_zero(key, total_len);
+        LIBSSH2_FREE(session, key);
+    }
+    if(key_part) {
+        _libssh2_explicit_zero(key_part, keylen);
+        LIBSSH2_FREE(session, key_part);
+    }
+    if(iv_part) {
+         _libssh2_explicit_zero(iv_part, ivlen);
+         LIBSSH2_FREE(session, iv_part);
+    }
 
     return ret;
 }
