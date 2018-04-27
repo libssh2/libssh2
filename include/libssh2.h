@@ -139,6 +139,7 @@ typedef unsigned __int64 libssh2_uint64_t;
 typedef __int64 libssh2_int64_t;
 #ifndef ssize_t
 typedef SSIZE_T ssize_t;
+#define INT64_C(x) x ## I64
 #endif
 #else
 #include <stdint.h>
