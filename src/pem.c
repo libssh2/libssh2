@@ -505,12 +505,13 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
     }
 
     if(method) {
-        keylen = method->secret_len;
-        ivlen = method->iv_len;
-        total_len = keylen + ivlen;
         int free_iv = 0, free_secret = 0, len_decrypted = 0;
         int blocksize;
         void *abstract = NULL;
+
+        keylen = method->secret_len;
+        ivlen = method->iv_len;
+        total_len = keylen + ivlen;
 
         if((key = LIBSSH2_CALLOC(session, total_len)) == NULL) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
