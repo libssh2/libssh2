@@ -281,6 +281,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
     ret = 0;
   out:
     if(b64data) {
+        _libssh2_explicit_zero(b64data, b64datalen);
         LIBSSH2_FREE(session, b64data);
     }
     return ret;
@@ -347,6 +348,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
     ret = 0;
   out:
     if(b64data) {
+        _libssh2_explicit_zero(b64data, b64datalen);
         LIBSSH2_FREE(session, b64data);
     }
     return ret;
@@ -653,12 +655,8 @@ _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
-    char *f = NULL;
     unsigned int b64datalen = 0;
-    unsigned int f_len = 0;
-    int ret;
-
-    ret = 0;
+    int ret = 0;
 
     /* read file */
 
@@ -709,11 +707,10 @@ _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
                                           (size_t)b64datalen,
                                           decrypted_buf);
 
-    if(b64data)
+    if(b64data) {
+        _libssh2_explicit_zero(b64data, b64datalen);
         LIBSSH2_FREE(session, b64data);
-
-   if(f)
-     LIBSSH2_FREE(session, f);
+    }
 
 out:
 
@@ -790,6 +787,7 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
 
 out:
     if(b64data) {
+        _libssh2_explicit_zero(b64data, b64datalen);
         LIBSSH2_FREE(session, b64data);
     }
     return ret;
