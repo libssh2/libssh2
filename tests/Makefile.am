@@ -35,5 +35,6 @@ EXTRA_DIST += test_public_key_auth_succeeds_with_correct_encrypted_rsa_key.c
 if OPENSSL
 EXTRA_DIST += test_public_key_auth_succeeds_with_correct_ed25519_key.c
 EXTRA_DIST += test_public_key_auth_succeeds_with_correct_encrypted_ed25519_key.c
+EXTRA_DIST += test_public_key_auth_succeeds_with_correct_ed25519_key_from_mem.c
 EXTRA_DIST += test_public_key_auth_succeeds_with_correct_rsa_openssh_key.c
 endif

@@ -1063,10 +1063,7 @@ _libssh2_rsa_new_openssh_private(libssh2_rsa_ctx ** rsa,
         return -1;
     }
 
-    rc = _libssh2_openssh_pem_parse(session,
-                                    "-----BEGIN OPENSSH PRIVATE KEY-----",
-                                    "-----END OPENSSH PRIVATE KEY-----",
-                                    passphrase, fp, &decrypted);
+    rc = _libssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
     fclose(fp);
     if(rc) {
         return rc;
@@ -1365,10 +1362,7 @@ _libssh2_dsa_new_openssh_private(libssh2_dsa_ctx ** dsa,
         return -1;
     }
 
-    rc = _libssh2_openssh_pem_parse(session,
-                                    "-----BEGIN OPENSSH PRIVATE KEY-----",
-                                    "-----END OPENSSH PRIVATE KEY-----",
-                                    passphrase, fp, &decrypted);
+    rc = _libssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
     fclose(fp);
     if(rc) {
         return rc;
@@ -1621,10 +1615,7 @@ _libssh2_ed25519_new_private(libssh2_ed25519_ctx ** ed_ctx,
         return -1;
     }
 
-    rc = _libssh2_openssh_pem_parse(session,
-                                    "-----BEGIN OPENSSH PRIVATE KEY-----",
-                                    "-----END OPENSSH PRIVATE KEY-----",
-                                    passphrase, fp, &decrypted);
+    rc = _libssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
     fclose(fp);
     if(rc) {
         return rc;
@@ -2279,10 +2270,7 @@ _libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx ** ec_ctx,
         return -1;
     }
 
-    rc = _libssh2_openssh_pem_parse(session,
-                                    "-----BEGIN OPENSSH PRIVATE KEY-----",
-                                    "-----END OPENSSH PRIVATE KEY-----",
-                                    passphrase, fp, &decrypted);
+    rc = _libssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
     fclose(fp);
     if(rc) {
         return rc;
@@ -2560,10 +2548,8 @@ _libssh2_pub_priv_openssh_keyfile(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = _libssh2_openssh_pem_parse(session,
-                                    "-----BEGIN OPENSSH PRIVATE KEY-----",
-                                    "-----END OPENSSH PRIVATE KEY-----",
-                                    (const unsigned char*)passphrase, fp, &decrypted);
+    rc = _libssh2_openssh_pem_parse(session, (const unsigned char*)passphrase,
+                                    fp, &decrypted);
     fclose(fp);
     if(rc) {
         _libssh2_error(session, LIBSSH2_ERROR_FILE,
@@ -2741,8 +2727,8 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
 
     _libssh2_init_if_needed();
 
-    rc = _libssh2_openssh_pem_parse_memory(session,
-                                           passphrase, (const unsigned char*)privatekeydata,
+    rc = _libssh2_openssh_pem_parse_memory(session, passphrase,
+                                           privatekeydata,
                                            privatekeydata_len, &decrypted);
 
     if(rc) {

@@ -1073,14 +1073,12 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
  /* OpenSSL keys */
 int
 _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
-                           const char *headerbegin,
-                           const char *headerend,
                            const unsigned char *passphrase,
                            FILE * fp, struct string_buf **decrypted_buf);
 int
 _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
                                   const unsigned char *passphrase,
-                                  const unsigned char *filedata, size_t filedata_len,
+                                  const char *filedata, size_t filedata_len,
                                   struct string_buf **decrypted_buf);
 
 int _libssh2_pem_decode_sequence(unsigned char **data, unsigned int *datalen);

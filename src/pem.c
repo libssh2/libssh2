@@ -354,96 +354,15 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
 
 /* OpenSSL formatted keys */
 #define AUTH_MAGIC "openssh-key-v1"
+#define OPENSSL_HEADER_BEGIN "-----BEGIN OPENSSH PRIVATE KEY-----"
+#define OPENSSL_HEADER_END "-----END OPENSSH PRIVATE KEY-----"
 
 int
-_libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
-                           const char *headerbegin,
-                           const char *headerend,
-                           const unsigned char *passphrase,
-                           FILE * fp, struct string_buf **decrypted_buf)
+_libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
+                                const unsigned char *passphrase,
+                                const char *b64data, size_t b64datalen,
+                                struct string_buf **decrypted_buf)
 {
-    char line[LINE_SIZE];
-    char *b64data = NULL;
-    char *f = NULL;
-    unsigned int b64datalen = 0;
-    unsigned int f_len = 0;
-    int ret;
-
-    ret = 0;
-
-    /* read file */
-
-    do {
-        *line = '\0';
-
-        if(readline(line, LINE_SIZE, fp)) {
-            return -1;
-        }
-    }
-    while (strcmp(line, headerbegin) != 0);
-
-    if(readline(line, LINE_SIZE, fp)) {
-        return -1;
-    }
-
-    do {
-        if(*line) {
-            char *tmp;
-            size_t linelen;
-
-            linelen = strlen(line);
-            tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
-            if(!tmp) {
-                ret = -1;
-                goto out;
-            }
-            memcpy(tmp + b64datalen, line, linelen);
-            b64data = tmp;
-            b64datalen += linelen;
-        }
-
-        *line = '\0';
-
-        if(readline(line, LINE_SIZE, fp)) {
-            ret = -1;
-            goto out;
-        }
-    } while (strcmp(line, headerend) != 0);
-
-    if(!b64data) {
-        return -1;
-    }
-
-     /* decode file */
-    if(libssh2_base64_decode(session, (char**)&f, &f_len,
-                             b64data, b64datalen)) {
-       ret = -1;
-       goto out;
-    }
-
-    ret = _libssh2_openssh_pem_parse_memory(session,
-                                            passphrase,
-                                            (const unsigned char*)f, (size_t)f_len,
-                                            decrypted_buf);
-
-    if(b64data)
-        LIBSSH2_FREE(session, b64data);
-
-   if(f)
-     LIBSSH2_FREE(session, f);
-
-out:
-
-    return ret;
-}
-
-int
-_libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
-                                  const unsigned char *passphrase,
-                                  const unsigned char *data, size_t datalen,
-                                  struct string_buf **decrypted_buf)
-{
-    int ret = 0, rc = 0;
     const LIBSSH2_CRYPT_METHOD *method = NULL;
     struct string_buf decoded, decrypted, kdf_buf;
     unsigned char *ciphername = NULL;
@@ -456,16 +375,24 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
     unsigned char *key = NULL;
     unsigned char *key_part = NULL;
     unsigned char *iv_part = NULL;
-    int kdf_len = 0, keylen = 0, ivlen = 0, total_len = 0;
+    unsigned char *f = NULL;
+    unsigned int f_len = 0;
+    int ret = 0, rc = 0, kdf_len = 0, keylen = 0, ivlen = 0, total_len = 0;
 
     if(decrypted_buf)
         *decrypted_buf = NULL;
 
-    /* Parse the file */
+    /* decode file */
+    if(libssh2_base64_decode(session, (char**)&f, &f_len,
+                             b64data, b64datalen)) {
+       ret = -1;
+       goto out;
+    }
 
-    decoded.data = (unsigned char*)data;
-    decoded.dataptr = (unsigned char*)data;
-    decoded.len = datalen;
+    /* Parse the file */
+    decoded.data = (unsigned char*)f;
+    decoded.dataptr = (unsigned char*)f;
+    decoded.len = f_len;
 
     if(decoded.len < strlen(AUTH_MAGIC)) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO, "key too short");
@@ -576,7 +503,6 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
     }
 
     if(method) {
-
         keylen = method->secret_len;
         ivlen = method->iv_len;
         total_len = keylen + ivlen;
@@ -712,8 +638,162 @@ out:
          _libssh2_explicit_zero(iv_part, ivlen);
          LIBSSH2_FREE(session, iv_part);
     }
+    if(f) {
+        _libssh2_explicit_zero(f, f_len);
+        LIBSSH2_FREE(session, f);
+    }
 
     return ret;
+}
+
+int
+_libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
+                           const unsigned char *passphrase,
+                           FILE * fp, struct string_buf **decrypted_buf)
+{
+    char line[LINE_SIZE];
+    char *b64data = NULL;
+    char *f = NULL;
+    unsigned int b64datalen = 0;
+    unsigned int f_len = 0;
+    int ret;
+
+    ret = 0;
+
+    /* read file */
+
+    do {
+        *line = '\0';
+
+        if(readline(line, LINE_SIZE, fp)) {
+            return -1;
+        }
+    }
+    while (strcmp(line, OPENSSL_HEADER_BEGIN) != 0);
+
+    if(readline(line, LINE_SIZE, fp)) {
+        return -1;
+    }
+
+    do {
+        if(*line) {
+            char *tmp;
+            size_t linelen;
+
+            linelen = strlen(line);
+            tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
+            if(!tmp) {
+                ret = -1;
+                goto out;
+            }
+            memcpy(tmp + b64datalen, line, linelen);
+            b64data = tmp;
+            b64datalen += linelen;
+        }
+
+        *line = '\0';
+
+        if(readline(line, LINE_SIZE, fp)) {
+            ret = -1;
+            goto out;
+        }
+    } while (strcmp(line, OPENSSL_HEADER_END) != 0);
+
+    if(!b64data) {
+        return -1;
+    }
+
+    ret = _libssh2_openssh_pem_parse_data(session,
+                                          passphrase,
+                                          (const char*)b64data,
+                                          (size_t)b64datalen,
+                                          decrypted_buf);
+
+    if(b64data)
+        LIBSSH2_FREE(session, b64data);
+
+   if(f)
+     LIBSSH2_FREE(session, f);
+
+out:
+
+    return ret;
+}
+
+int
+_libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
+                                  const unsigned char *passphrase,
+                                  const char *filedata, size_t filedata_len,
+                                  struct string_buf **decrypted_buf)
+{
+    char line[LINE_SIZE];
+    char *b64data = NULL;
+    unsigned int b64datalen = 0;
+    size_t off = 0;
+    int ret;
+
+    if(filedata == NULL || filedata_len <= 0) {
+        return -1;
+    }
+
+    do {
+
+        *line = '\0';
+
+        if(off >= filedata_len) {
+            return -1;
+        }
+
+        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+            return -1;
+        }
+    }
+    while (strcmp(line, OPENSSL_HEADER_BEGIN) != 0);
+
+    *line = '\0';
+
+    do {
+        if (*line) {
+            char *tmp;
+            size_t linelen;
+
+            linelen = strlen(line);
+            tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
+            if (!tmp) {
+                ret = -1;
+                goto out;
+            }
+            memcpy(tmp + b64datalen, line, linelen);
+            b64data = tmp;
+            b64datalen += linelen;
+        }
+
+        *line = '\0';
+
+        if (off >= filedata_len) {
+            ret = -1;
+            goto out;
+        }
+
+        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
+            ret = -1;
+            goto out;
+        }
+    } while (strcmp(line, OPENSSL_HEADER_END) != 0);
+
+    if(!b64data) {
+        return -1;
+    }
+
+    ret = _libssh2_openssh_pem_parse_data(session, passphrase, b64data,
+                                          b64datalen, decrypted_buf);
+
+out:
+    if(b64data) {
+        LIBSSH2_FREE(session, b64data);
+    }
+    return ret;
+
 }
 
 static int
