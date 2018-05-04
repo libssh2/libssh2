@@ -30,7 +30,7 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA) {
+    if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
         rc = libssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                    EXPECTED_ECDSA_HOSTKEY, strlen(EXPECTED_ECDSA_HOSTKEY));
     }

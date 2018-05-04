@@ -864,13 +864,13 @@ static int hostkey_type(const unsigned char *hostkey, size_t len)
         return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
 
     if(!memcmp(ecdsa_256, hostkey, 23))
-        return LIBSSH2_HOSTKEY_TYPE_ECDSA;
+        return LIBSSH2_HOSTKEY_TYPE_ECDSA_256;
 
     if(!memcmp(ecdsa_384, hostkey, 23))
-        return LIBSSH2_HOSTKEY_TYPE_ECDSA;
+        return LIBSSH2_HOSTKEY_TYPE_ECDSA_384;
 
     if(!memcmp(ecdsa_521, hostkey, 23))
-        return LIBSSH2_HOSTKEY_TYPE_ECDSA;
+        return LIBSSH2_HOSTKEY_TYPE_ECDSA_521;
 
     return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
 }

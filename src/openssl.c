@@ -1812,6 +1812,12 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                         pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH_DSA */
+#if LIBSSH2_ECDSA
+    case EVP_PKEY_EC :
+        st = gen_publickey_from_ec_evp(session, method, method_len,
+                                       pubkeydata, pubkeydata_len, pk);
+    break;
+#endif
     default :
         st = _libssh2_error(session,
                             LIBSSH2_ERROR_FILE,

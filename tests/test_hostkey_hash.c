@@ -63,7 +63,7 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA) {
+    if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
 
         md5_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
         if(md5_hash == NULL) {
