@@ -16,10 +16,6 @@ static const char *EXPECTED_ECDSA_HOSTKEY =
     "AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBC+/syyeKJD9dC2ZH"
     "9Q7iJGReR4YM3rUCMsSynkyXojdfSClGCMY7JvWlt30ESjYvxoTfSRGx6WvaqYK/vPoYQ4=";
 
-static const char *EXPECTED_ED25519_HOSTKEY =
-    "AAAAC3NzaC1lZDI1NTE5AAAAIIxtdyg2ZRXE70UwyPVUH3UyfDBV8GX5cPF636P6hjom";
-
-
 int test(LIBSSH2_SESSION *session)
 {
     int rc;
@@ -34,11 +30,7 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    if(type == LIBSSH2_HOSTKEY_TYPE_ED25519) {
-        rc = libssh2_base64_decode(session, &expected_hostkey, &expected_len,
-                                   EXPECTED_ED25519_HOSTKEY, strlen(EXPECTED_ED25519_HOSTKEY));
-    }
-    else if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA) {
+    if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
         rc = libssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                    EXPECTED_ECDSA_HOSTKEY, strlen(EXPECTED_ECDSA_HOSTKEY));
     }
