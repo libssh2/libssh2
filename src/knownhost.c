@@ -784,6 +784,8 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
             key_type = LIBSSH2_KNOWNHOST_KEY_ECDSA_384;
         else if (!strncmp(key_type_name, "ecdsa-sha2-nistp521", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_ECDSA_521;
+        else if (!strncmp(key_type_name, "ssh-ed25519", key_type_len))
+            key_type = LIBSSH2_KNOWNHOST_KEY_ED25519;
         else
             key_type = LIBSSH2_KNOWNHOST_KEY_UNKNOWN;
 
@@ -1035,6 +1037,10 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
         key_type_name = "ecdsa-sha2-nistp521";
         key_type_len = 19;
         break;
+	case LIBSSH2_KNOWNHOST_KEY_ED25519:
+		key_type_name = "ssh-ed25519";
+		key_type_len = 11;
+		break;
     case LIBSSH2_KNOWNHOST_KEY_UNKNOWN:
         key_type_name = node->key_type_name;
         if(key_type_name) {
