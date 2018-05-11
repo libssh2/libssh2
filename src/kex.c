@@ -3055,11 +3055,13 @@ clean_exit:
 
     if (key_state->curve25519_public_key) {
         _libssh2_explicit_zero(key_state->curve25519_public_key, LIBSSH2_ED25519_KEY_LEN);
+        LIBSSH2_FREE(session, key_state->curve25519_public_key);
         key_state->curve25519_public_key = NULL;
     }
 
     if ( key_state->curve25519_private_key ) {
         _libssh2_explicit_zero(key_state->curve25519_private_key, LIBSSH2_ED25519_KEY_LEN);
+        LIBSSH2_FREE(session, key_state->curve25519_private_key);
         key_state->curve25519_private_key = NULL;
     }
 
