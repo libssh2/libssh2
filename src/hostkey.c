@@ -795,39 +795,48 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
                                 size_t hostkey_data_len,
                                 void **abstract)
 {
-    const unsigned char *s;
-    unsigned long len, key_len;
-    uint8_t *server_public_key;
+	const unsigned char *s;
+	unsigned long len, key_len;
+	EVP_PKEY *public_key = NULL;
+	libssh2_ed25519_ctx *ctx = NULL;
 
-    if(*abstract) {
-        hostkey_method_ssh_ed25519_dtor(session, abstract);
-        *abstract = NULL;
-    }
+	if(*abstract) {
+		hostkey_method_ssh_ed25519_dtor(session, abstract);
+		*abstract = NULL;
+	}
 
-    if(hostkey_data_len < 15) {
-        return -1;
-    }
+	if(hostkey_data_len < 15) {
+		return -1;
+	}
 
-    s = hostkey_data;
-    len = _libssh2_ntohu32(s);
-    s += 4;
+	s = hostkey_data;
+	len = _libssh2_ntohu32(s);
+	s += 4;
 
-    if(len != 11 || strncmp((char *) s, "ssh-ed25519", 11) != 0) {
-        return -1;
-    }
+	if(len != 11 || strncmp((char *) s, "ssh-ed25519", 11) != 0) {
+		return -1;
+	}
 
-    s += 11;
+	s += 11;
 
-    //public key
-    key_len = _libssh2_ntohu32(s);
-    s += 4;
+	//public key
+	key_len = _libssh2_ntohu32(s);
+	s += 4;
 
-    server_public_key = LIBSSH2_CALLOC(session, key_len);
-    memcpy(server_public_key, s, key_len);
+	public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL, (const unsigned char*)s, key_len);
+	if(public_key == NULL) {
+		return _libssh2_error(session, LIBSSH2_ERROR_PROTO, "could not create ED25519 public key");
+	}
 
-    *abstract = server_public_key;
+	ctx = LIBSSH2_CALLOC(session, sizeof(libssh2_ed25519_ctx));
+	if(ctx == NULL) {
+		return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "could not alloc public/private key");
+	}
 
-    return 0;
+	ctx->public_key = public_key;
+	*abstract = ctx;
+
+	return 0;
 }
 
 /*
@@ -904,7 +913,7 @@ hostkey_method_ssh_ed25519_sig_verify(LIBSSH2_SESSION * session,
                                       const unsigned char *m,
                                       size_t m_len, void **abstract)
 {
-    uint8_t *ctx = (uint8_t *) (*abstract);
+	libssh2_ed25519_ctx *ctx = (libssh2_ed25519_ctx *) (*abstract);
     (void) session;
 
     if(sig_len < 19)
@@ -917,7 +926,7 @@ hostkey_method_ssh_ed25519_sig_verify(LIBSSH2_SESSION * session,
     if(sig_len != LIBSSH2_ED25519_SIG_LEN)
         return -1;
 
-    return _libssh2_ed25519_verify(ctx, (uint8_t*)sig, sig_len, (uint8_t*)m, m_len);
+    return _libssh2_ed25519_verify(ctx, sig, sig_len, m, m_len);
 }
 
 /*
@@ -935,7 +944,7 @@ hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION * session,
 {
     libssh2_ed25519_ctx *ctx = (libssh2_ed25519_ctx *) (*abstract);
 
-    *signature = LIBSSH2_CALLOC(session, 64);
+    *signature = LIBSSH2_CALLOC(session, LIBSSH2_ED25519_SIG_LEN);
     if (!*signature) {
         return -1;
     }
@@ -946,9 +955,8 @@ hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    if (!_libssh2_ed25519_sign(session, *signature,
-                               datavec[0].iov_base, datavec[0].iov_len,
-                               ctx->private_key)) {
+    if (!_libssh2_ed25519_sign(ctx, session, *signature,
+                               datavec[0].iov_base, datavec[0].iov_len)) {
         LIBSSH2_FREE(session, *signature);
         return -1;
     }

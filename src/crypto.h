@@ -172,25 +172,29 @@ _libssh2_ecdsa_curve_type_from_name(const char *name, libssh2_curve_type *out_ty
 #if LIBSSH2_ED25519
 
 int
+_libssh2_curve25519_new(libssh2_ed25519_ctx **ctx, uint8_t **out_public_key,
+                        uint8_t **out_private_key);
+
+int
 _libssh2_curve25519_gen_k(_libssh2_bn **k, uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
                           uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN]);
 
 int
-_libssh2_ed25519_verify(uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN],
-                        const unsigned char *s, size_t s_len, const unsigned char *m, size_t m_len);
+_libssh2_ed25519_verify(libssh2_ed25519_ctx *ctx, const uint8_t *s,
+                        size_t s_len, const uint8_t *m, size_t m_len);
 
 int
-_libssh2_ed25519_new_private(libssh2_ed25519_ctx ** ec_ctx,
-                            LIBSSH2_SESSION * session,
-                            const char *filename, unsigned const char *passphrase);
+_libssh2_ed25519_new_private(libssh2_ed25519_ctx **ec_ctx,
+                            LIBSSH2_SESSION *session,
+                            const char *filename, const uint8_t *passphrase);
 int
-_libssh2_ed25519_sign(LIBSSH2_SESSION *session, uint8_t out_sig[LIBSSH2_ED25519_SIG_LEN],
-                      const uint8_t *message, size_t message_len,
-                      const uint8_t private_key[LIBSSH2_ED25519_PRIVATE_KEY_LEN]);
+_libssh2_ed25519_sign(libssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
+                      uint8_t out_sig[LIBSSH2_ED25519_SIG_LEN],
+                      const uint8_t *message, size_t message_len);
 
 int
-_libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx ** ed_ctx,
-                                        LIBSSH2_SESSION * session,
+_libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx **ed_ctx,
+                                        LIBSSH2_SESSION *session,
                                         const char *filedata, size_t filedata_len,
                                         unsigned const char *passphrase);
 

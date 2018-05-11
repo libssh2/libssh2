@@ -278,8 +278,8 @@ typedef struct key_exchange_state_low_t
     _libssh2_ec_key *private_key;   /* SSH2 ecdh private key */
     unsigned char *public_key_oct;  /* SSH2 ecdh public key octal value */
     size_t public_key_oct_len;      /* SSH2 ecdh public key octal value length */
-    uint8_t curve25519_public_key[LIBSSH2_ED25519_KEY_LEN];
-    uint8_t curve25519_private_key[LIBSSH2_ED25519_KEY_LEN];
+	unsigned char *curve25519_public_key; /* curve25519 public key, 32 bytes */
+	unsigned char *curve25519_private_key; /* curve25519 private key, 32 bytes */
 } key_exchange_state_low_t;
 
 typedef struct key_exchange_state_t

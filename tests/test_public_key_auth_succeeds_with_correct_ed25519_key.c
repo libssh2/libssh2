@@ -11,9 +11,14 @@ static const char *KEY_FILE_PUBLIC = "key_ed25519.pub"; /* configured in Dockerf
 int test(LIBSSH2_SESSION *session)
 {
     int rc;
+    const char *userauth_list = NULL;
 
-    const char *userauth_list =
-        libssh2_userauth_list(session, USERNAME, strlen(USERNAME));
+#if OPENSSL_VERSION_NUMBER < 0x10101000L || \
+defined(LIBRESSL_VERSION_NUMBER)
+    return 0;
+#endif
+
+    userauth_list = libssh2_userauth_list(session, USERNAME, strlen(USERNAME));
     if(userauth_list == NULL) {
         print_last_session_error("libssh2_userauth_list");
         return 1;

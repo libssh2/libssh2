@@ -1450,6 +1450,106 @@ _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
 #if LIBSSH2_ED25519
 
 int
+_libssh2_curve25519_new(libssh2_ed25519_ctx **out_ctx, unsigned char **out_public_key,
+                        unsigned char **out_private_key)
+{
+    EVP_PKEY *key = NULL;
+    EVP_PKEY_CTX *pctx = NULL;
+    PKCS8_PRIV_KEY_INFO *info = NULL;
+    ASN1_OCTET_STRING *oct = NULL;
+    X509_PUBKEY *pubkey = NULL;
+    libssh2_ed25519_ctx *ctx = NULL;
+    const unsigned char *pkcs, *priv, *pub;
+    int privLen, pubLen, pkcsLen;
+    int rc = -1;
+
+    pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_X25519, NULL);
+    if(pctx == NULL)
+        return -1;
+
+    EVP_PKEY_keygen_init(pctx);
+    EVP_PKEY_keygen(pctx, &key);
+    info = EVP_PKEY2PKCS8(key);
+
+    if(info == NULL || !PKCS8_pkey_get0(NULL, &pkcs, &pkcsLen, NULL, info))
+        goto cleanExit;
+
+    oct = d2i_ASN1_OCTET_STRING(NULL, &pkcs, pkcsLen);
+    if(oct == NULL) {
+        goto cleanExit;
+    }
+
+    priv = ASN1_STRING_get0_data(oct);
+    privLen = ASN1_STRING_length(oct);
+
+    if (privLen != LIBSSH2_ED25519_KEY_LEN)
+        goto cleanExit;
+
+    pubkey = X509_PUBKEY_new();
+    if(pubkey == NULL || !X509_PUBKEY_set(&pubkey, key))
+        goto cleanExit;
+
+    if(!X509_PUBKEY_get0_param(NULL, &pub, &pubLen, NULL, pubkey))
+        goto cleanExit;
+
+    if(pubLen != LIBSSH2_ED25519_KEY_LEN)
+        goto cleanExit;
+
+    if(out_private_key != NULL) {
+        *out_private_key = malloc(LIBSSH2_ED25519_KEY_LEN);
+        if(*out_private_key == NULL)
+            goto cleanExit;
+
+        memcpy(*out_private_key, priv, LIBSSH2_ED25519_KEY_LEN);
+    }
+
+    if(out_public_key != NULL) {
+        *out_public_key = malloc(LIBSSH2_ED25519_KEY_LEN);
+        if(*out_public_key == NULL)
+            goto cleanExit;
+
+        memcpy(*out_public_key, pub, LIBSSH2_ED25519_KEY_LEN);
+    }
+
+    if(out_ctx != NULL) {
+        ctx = malloc(sizeof(libssh2_ed25519_ctx));
+        if(ctx == NULL)
+            goto cleanExit;
+
+        ctx->private_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
+                                                        (const unsigned char*)priv,
+                                                        LIBSSH2_ED25519_KEY_LEN);
+
+        ctx->public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL,
+                                                      (const unsigned char*)pub,
+                                                      LIBSSH2_ED25519_KEY_LEN);
+
+        if(ctx->public_key == NULL || ctx->private_key == NULL) {
+            _libssh2_ed25519_free(ctx);
+            goto cleanExit;
+        }
+
+        *out_ctx = ctx;
+    }
+
+    /* success */
+    rc = 0;
+
+cleanExit:
+
+    if(info)
+        PKCS8_PRIV_KEY_INFO_free(info);
+    if(pctx)
+        EVP_PKEY_CTX_free(pctx);
+    if(oct)
+        ASN1_OCTET_STRING_free(oct);
+    if(pubkey)
+        X509_PUBKEY_free(pubkey);
+
+    return rc;
+}
+
+int
 gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
                                              struct string_buf *decrypted,
                                              unsigned char **method,
@@ -1470,29 +1570,30 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing ED25519 keys from private key data");
 
-    if(_libssh2_get_c_string(decrypted, &pub_key) != ED25519_PUBLIC_KEY_LEN) {
+    if(_libssh2_get_c_string(decrypted, &pub_key) != LIBSSH2_ED25519_KEY_LEN) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Wrong public key length");
         return -1;
     }
 
-    if(_libssh2_get_c_string(decrypted, &priv_key) != ED25519_PRIVATE_KEY_LEN) {
+    if(_libssh2_get_c_string(decrypted, &priv_key) != LIBSSH2_ED25519_PRIVATE_KEY_LEN) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Wrong private key length");
         ret = -1;
         goto clean_exit;
     }
 
-    ctx = malloc(sizeof(libssh2_ed25519_ctx));
-    if(ctx == NULL) {
+    ctx = LIBSSH2_CALLOC(session, sizeof(libssh2_ed25519_ctx));
+    if (ctx == NULL) {
         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                       "Unable to allocate memory for ED25519 key pair");
+                       "Unable to allocate memory for ed25519 key");
         ret = -1;
         goto clean_exit;
     }
 
-    memcpy(ctx->public_key, pub_key, ED25519_PUBLIC_KEY_LEN);
-    memcpy(ctx->private_key, priv_key, ED25519_PRIVATE_KEY_LEN);
+    /* first 32 bytes of priv_key is the private key, the last 32 bytes are the public key */
+    ctx->private_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, (const unsigned char*)priv_key, LIBSSH2_ED25519_KEY_LEN);
+    ctx->public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL, (const unsigned char*)pub_key, LIBSSH2_ED25519_KEY_LEN);
 
     /* comment */
     if((rc = _libssh2_get_c_string(decrypted, &buf)) < 0) {
@@ -1592,7 +1693,7 @@ clean_exit:
 int
 _libssh2_ed25519_new_private(libssh2_ed25519_ctx ** ed_ctx,
                              LIBSSH2_SESSION * session,
-                             const char *filename, unsigned const char *passphrase)
+                             const char *filename, const uint8_t *passphrase)
 {
     int rc;
     FILE *fp;
@@ -2466,36 +2567,104 @@ clean_exit:
 #if LIBSSH2_ED25519
 
 int
-_libssh2_ed25519_sign(LIBSSH2_SESSION *session, uint8_t out_sig[64],
-                      const uint8_t *message, size_t message_len,
-                      const uint8_t private_key[ED25519_PRIVATE_KEY_LEN])
+_libssh2_ed25519_sign(libssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
+                      uint8_t out_sig[LIBSSH2_ED25519_SIG_LEN],
+                      const uint8_t *message, size_t message_len)
 {
-    (void)session;
+    size_t siglen = 0;
+    int rc = -1;
+    EVP_PKEY_CTX *s_ctx = EVP_PKEY_CTX_new(ctx->private_key, NULL);
 
-    return BO_ED25519_sign(out_sig, message, message_len, private_key);
+    (void)session;
+    out_sig = NULL;
+
+    if(s_ctx != NULL) {
+        rc = EVP_PKEY_sign_init(s_ctx);
+        if(rc != 1) {
+            return -1;
+        }
+        rc = EVP_PKEY_sign(s_ctx, NULL, &siglen, message, message_len);
+        if(rc == 1 && siglen == LIBSSH2_ED25519_SIG_LEN) {
+            rc = EVP_PKEY_sign(s_ctx, out_sig, &siglen, message, message_len);
+        } else {
+            rc = -1;
+        }
+
+        EVP_PKEY_CTX_free(s_ctx);
+    }
+
+    return (rc == 1 ? 0 : -1);
 }
 
 int
-_libssh2_curve25519_gen_k(_libssh2_bn **k, uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
+_libssh2_curve25519_gen_k(_libssh2_bn **k,
+                          uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
                           uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN])
 {
-    int rc;
-    uint8_t out_shared_key[32];
-
-    BN_CTX *bn_ctx = BN_CTX_new();
-
-    if(!bn_ctx)
-        return -1;
+    int rc = -1;
+    unsigned char out_shared_key[LIBSSH2_ED25519_KEY_LEN];
+    EVP_PKEY *peer_key = NULL, *server_key = NULL;
+    EVP_PKEY_CTX *server_key_ctx = NULL;
+    BN_CTX *bn_ctx = NULL;
+    size_t out_len = 0;
 
     if(k == NULL)
         return -1;
 
-    rc = BO_X25519(out_shared_key, private_key, server_public_key);
+    *k = NULL;
 
-    if(rc == 1)
-        BN_bin2bn(out_shared_key, 32, *k);
+    bn_ctx = BN_CTX_new();
+    if(bn_ctx == NULL)
+        return -1;
 
-    if(bn_ctx != NULL)
+    peer_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_X25519, NULL,
+                                           server_public_key,
+                                           LIBSSH2_ED25519_KEY_LEN);
+
+    server_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL,
+                                              private_key,
+                                              LIBSSH2_ED25519_KEY_LEN);
+
+    if(peer_key == NULL || server_key == NULL) {
+        goto cleanExit;
+    }
+
+    server_key_ctx = EVP_PKEY_CTX_new(server_key, NULL);
+    if(server_key_ctx == NULL) {
+        goto cleanExit;
+    }
+
+    rc = EVP_PKEY_derive_init(server_key_ctx);
+    if(rc <= 0) goto cleanExit;
+
+    rc = EVP_PKEY_derive_set_peer(server_key_ctx, peer_key);
+    if(rc <= 0) goto cleanExit;
+
+    rc = EVP_PKEY_derive(server_key_ctx, NULL, &out_len);
+    if(rc <= 0) goto cleanExit;
+
+    if(out_len != LIBSSH2_ED25519_KEY_LEN) {
+        rc = -1;
+        goto cleanExit;
+    }
+
+    rc = EVP_PKEY_derive(server_key_ctx, out_shared_key, &out_len);
+
+    if(rc == 1 && out_len == LIBSSH2_ED25519_KEY_LEN) {
+        BN_bin2bn(out_shared_key, LIBSSH2_ED25519_KEY_LEN, *k);
+    } else {
+        rc = -1;
+    }
+
+cleanExit:
+
+    if(server_key_ctx)
+        EVP_PKEY_CTX_free(server_key_ctx);
+    if(peer_key)
+        EVP_PKEY_free(peer_key);
+    if(server_key)
+        EVP_PKEY_free(server_key);
+    if (bn_ctx != NULL)
         BN_CTX_free(bn_ctx);
 
     return (rc == 1) ? 0 : -1;
@@ -2503,15 +2672,23 @@ _libssh2_curve25519_gen_k(_libssh2_bn **k, uint8_t private_key[LIBSSH2_ED25519_K
 
 
 int
-_libssh2_ed25519_verify(uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN],
-                        const uint8_t *s, size_t s_len, const uint8_t *m, size_t m_len)
+_libssh2_ed25519_verify(libssh2_ed25519_ctx *ctx, const uint8_t *s,
+                        size_t s_len, const uint8_t *m, size_t m_len)
 {
-    int ret = 0;
+    int ret = -1;
 
-    if(s_len != LIBSSH2_ED25519_SIG_LEN)
-        return -1;
+    EVP_PKEY_CTX *s_ctx = EVP_PKEY_CTX_new(ctx->public_key, NULL);
 
-    ret = BO_ED25519_verify(m, m_len, s, server_public_key);
+    if(s_ctx) {
+        ret = EVP_PKEY_verify_init(s_ctx);
+        if(ret != 1)
+            return -1;
+
+        ret = EVP_PKEY_verify(s_ctx, s, s_len, m, m_len);
+    }
+
+    if(s_ctx)
+        EVP_PKEY_CTX_free(s_ctx);
 
     return (ret == 1) ? 0 : -1;
 }

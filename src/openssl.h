@@ -53,8 +53,6 @@
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 
-#include "curve25519.h"
-
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L && \
     !defined(LIBRESSL_VERSION_NUMBER)
 # define HAVE_OPAQUE_STRUCTS 1
@@ -78,7 +76,10 @@
 # define LIBSSH2_ECDSA 1
 #endif
 
-#define LIBSSH2_ED25519 1
+#if OPENSSL_VERSION_NUMBER >= 0x10101000L && \
+!defined(LIBRESSL_VERSION_NUMBER)
+# define LIBSSH2_ED25519 1
+#endif
 
 #ifdef OPENSSL_NO_MD5
 # define LIBSSH2_MD5 0
@@ -310,16 +311,25 @@ typedef enum {
 libssh2_curve_type;
 #else
 #define _libssh2_ec_key void
-#endif
+#endif /* LIBSSH2_ECDSA */
 
-/* ED25519 */
+#if LIBSSH2_ED25519
+
 typedef struct {
-    uint8_t public_key[ED25519_PUBLIC_KEY_LEN];
-    uint8_t private_key[ED25519_PRIVATE_KEY_LEN];
-} libssh2_ed25519;
+    EVP_PKEY *public_key;
+    EVP_PKEY *private_key;
+} libssh2_ed25519_keys;
 
-#define libssh2_ed25519_ctx libssh2_ed25519
-#define _libssh2_ed25519_free(ctx) free(ctx)
+#define libssh2_ed25519_ctx libssh2_ed25519_keys
+#define _libssh2_ed25519_free(ctx) do { \
+ if(ctx) { \
+  if(ctx->public_key) EVP_PKEY_free(ctx->public_key); \
+  if(ctx->private_key) EVP_PKEY_free(ctx->private_key); \
+  free(ctx); \
+ } \
+} while(0)
+
+#endif /* ED25519 */
 
 #define _libssh2_cipher_type(name) const EVP_CIPHER *(*name)(void)
 #ifdef HAVE_OPAQUE_STRUCTS

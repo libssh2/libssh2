@@ -2512,8 +2512,10 @@ ecdh_clean_exit:
  * Elliptic Curve Key Exchange
  */
 
-static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data, size_t data_len,
-                             uint8_t public_key[LIBSSH2_ED25519_KEY_LEN], uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],kmdhgGPshakex_state_t *exchange_state)
+static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
+                             size_t data_len, unsigned char public_key[LIBSSH2_ED25519_KEY_LEN],
+                             unsigned char private_key[LIBSSH2_ED25519_KEY_LEN],
+                             kmdhgGPshakex_state_t *exchange_state)
 {
     int ret = 0;
     int rc;
@@ -2983,16 +2985,17 @@ kex_method_curve25519_key_exchange
         if( rc != 0) {
             ret = _libssh2_error(session, -1,
                                  "Unknown KEX curve25519 curve type");
-            goto ecdh_clean_exit;
+            goto clean_exit;
         }
 
-        BO_X25519_keypair(key_state->curve25519_public_key, key_state->curve25519_private_key);
+        rc = _libssh2_curve25519_new(NULL, &key_state->curve25519_public_key,
+                                     &key_state->curve25519_private_key);
 
         if( rc != 0 )
         {
             ret = _libssh2_error(session, rc,
                                  "Unable to create private key");
-            goto ecdh_clean_exit;
+            goto clean_exit;
         }
 
         key_state->request[0] = SSH2_MSG_KEX_ECDH_INIT;
@@ -3014,7 +3017,7 @@ kex_method_curve25519_key_exchange
         } else if(rc) {
             ret = _libssh2_error(session, rc,
                                  "Unable to send ECDH_INIT");
-            goto ecdh_clean_exit;
+            goto clean_exit;
         }
 
         key_state->state = libssh2_NB_state_sent1;
@@ -3029,7 +3032,7 @@ kex_method_curve25519_key_exchange
         } else if(rc) {
             ret = _libssh2_error(session, rc,
                                  "Timeout waiting for ECDH_REPLY reply");
-            goto ecdh_clean_exit;
+            goto clean_exit;
         }
 
         key_state->state = libssh2_NB_state_sent2;
@@ -3038,7 +3041,8 @@ kex_method_curve25519_key_exchange
     if( key_state->state == libssh2_NB_state_sent2) {
 
         ret = curve25519_sha256(session, key_state->data, key_state->data_len,
-            key_state->curve25519_public_key, key_state->curve25519_private_key, &key_state->exchange_state);
+                key_state->curve25519_public_key, key_state->curve25519_private_key,
+                &key_state->exchange_state);
 
         if(ret == LIBSSH2_ERROR_EAGAIN) {
             return ret;
@@ -3047,7 +3051,17 @@ kex_method_curve25519_key_exchange
         LIBSSH2_FREE(session, key_state->data);
     }
 
-ecdh_clean_exit:
+clean_exit:
+
+    if (key_state->curve25519_public_key) {
+        _libssh2_explicit_zero(key_state->curve25519_public_key, LIBSSH2_ED25519_KEY_LEN);
+        key_state->curve25519_public_key = NULL;
+    }
+
+    if ( key_state->curve25519_private_key ) {
+        _libssh2_explicit_zero(key_state->curve25519_private_key, LIBSSH2_ED25519_KEY_LEN);
+        key_state->curve25519_private_key = NULL;
+    }
 
     key_state->state = libssh2_NB_state_idle;
 
