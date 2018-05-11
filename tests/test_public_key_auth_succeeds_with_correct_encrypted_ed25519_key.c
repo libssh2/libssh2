@@ -14,11 +14,6 @@ int test(LIBSSH2_SESSION *session)
     int rc;
     const char *userauth_list = NULL;
 
-#if OPENSSL_VERSION_NUMBER < 0x10101000L || \
-defined(LIBRESSL_VERSION_NUMBER)
-    return 0;
-#endif
-
     userauth_list = libssh2_userauth_list(session, USERNAME, strlen(USERNAME));
     if(userauth_list == NULL) {
         print_last_session_error("libssh2_userauth_list");

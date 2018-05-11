@@ -33,8 +33,9 @@ EXTRA_DIST += test_public_key_auth_succeeds_with_correct_dsa_key.c
 EXTRA_DIST += test_public_key_auth_succeeds_with_correct_rsa_key.c
 EXTRA_DIST += test_public_key_auth_succeeds_with_correct_encrypted_rsa_key.c
 if OPENSSL
-EXTRA_DIST += test_public_key_auth_succeeds_with_correct_ed25519_key.c
-EXTRA_DIST += test_public_key_auth_succeeds_with_correct_encrypted_ed25519_key.c
-EXTRA_DIST += test_public_key_auth_succeeds_with_correct_ed25519_key_from_mem.c
+# TODO: need to add a test for specific openssl version some how
+# EXTRA_DIST += test_public_key_auth_succeeds_with_correct_ed25519_key.c
+# EXTRA_DIST += test_public_key_auth_succeeds_with_correct_encrypted_ed25519_key.c
+# EXTRA_DIST += test_public_key_auth_succeeds_with_correct_ed25519_key_from_mem.c
 EXTRA_DIST += test_public_key_auth_succeeds_with_correct_rsa_openssh_key.c
 endif
