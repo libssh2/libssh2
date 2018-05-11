@@ -949,7 +949,7 @@ hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    *signature_len = 64;
+    *signature_len = LIBSSH2_ED25519_SIG_LEN;
 
     if (veccount != 1) {
         return -1;
