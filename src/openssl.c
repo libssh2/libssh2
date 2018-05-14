@@ -1450,7 +1450,7 @@ _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
 #if LIBSSH2_ED25519
 
 int
-_libssh2_curve25519_new(libssh2_ed25519_ctx **out_ctx, unsigned char **out_public_key,
+_libssh2_curve25519_new(libssh2_x25519_ctx **out_ctx, unsigned char **out_public_key,
                         unsigned char **out_private_key)
 {
     EVP_PKEY *key = NULL;
@@ -1512,20 +1512,20 @@ _libssh2_curve25519_new(libssh2_ed25519_ctx **out_ctx, unsigned char **out_publi
     }
 
     if(out_ctx != NULL) {
-        ctx = malloc(sizeof(libssh2_ed25519_ctx));
+        ctx = malloc(sizeof(libssh2_x25519_ctx));
         if(ctx == NULL)
             goto cleanExit;
 
-        ctx->private_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
+        ctx->private_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL,
                                                         (const unsigned char*)priv,
                                                         LIBSSH2_ED25519_KEY_LEN);
 
-        ctx->public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL,
+        ctx->public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_X25519, NULL,
                                                       (const unsigned char*)pub,
                                                       LIBSSH2_ED25519_KEY_LEN);
 
         if(ctx->public_key == NULL || ctx->private_key == NULL) {
-            _libssh2_ed25519_free(ctx);
+            _libssh2_x25519_free(ctx);
             goto cleanExit;
         }
 

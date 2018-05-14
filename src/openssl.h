@@ -318,9 +318,11 @@ libssh2_curve_type;
 typedef struct {
     EVP_PKEY *public_key;
     EVP_PKEY *private_key;
-} libssh2_ed25519_keys;
+} libssh2_curve25519_keys;
 
-#define libssh2_ed25519_ctx libssh2_ed25519_keys
+#define libssh2_ed25519_ctx libssh2_curve25519_keys
+#define libssh2_x25519_ctx libssh2_curve25519_keys
+
 #define _libssh2_ed25519_free(ctx) do { \
  if(ctx) { \
   if(ctx->public_key) EVP_PKEY_free(ctx->public_key); \
@@ -328,6 +330,8 @@ typedef struct {
   free(ctx); \
  } \
 } while(0)
+
+#define _libssh2_x25519_free(ctx) _libssh2_ed25519_free(ctx)
 
 #endif /* ED25519 */
 
