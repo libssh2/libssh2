@@ -1545,6 +1545,8 @@ cleanExit:
         ASN1_OCTET_STRING_free(oct);
     if(pubkey)
         X509_PUBKEY_free(pubkey);
+    if(key)
+        EVP_PKEY_free(key);
 
     return rc;
 }
