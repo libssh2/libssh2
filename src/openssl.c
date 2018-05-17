@@ -2575,25 +2575,27 @@ _libssh2_ed25519_sign(libssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
 {
     size_t siglen = 0;
     int rc = -1;
-    EVP_PKEY_CTX *s_ctx = EVP_PKEY_CTX_new(ctx->private_key, NULL);
+    EVP_MD_CTX *md_ctx = EVP_MD_CTX_create();
 
     (void)session;
     out_sig = NULL;
 
-    if(s_ctx != NULL) {
-        rc = EVP_PKEY_sign_init(s_ctx);
-        if(rc != 1) {
-            return -1;
-        }
-        rc = EVP_PKEY_sign(s_ctx, NULL, &siglen, message, message_len);
-        if(rc == 1 && siglen == LIBSSH2_ED25519_SIG_LEN) {
-            rc = EVP_PKEY_sign(s_ctx, out_sig, &siglen, message, message_len);
-        } else {
-            rc = -1;
-        }
+    if(md_ctx != NULL) {
+        if(EVP_DigestSignInit(md_ctx, NULL, NULL, NULL, ctx->private_key) != 1)
+            goto clean_exit;
+        if(EVP_DigestSign(md_ctx, NULL, &siglen, message, message_len) != 1)
+            goto clean_exit;
 
-        EVP_PKEY_CTX_free(s_ctx);
+        if(siglen != LIBSSH2_ED25519_SIG_LEN)
+            goto clean_exit;
+
+        rc = EVP_DigestSign(md_ctx, out_sig, &siglen, message, message_len);
     }
+
+clean_exit:
+
+    if(md_ctx)
+        EVP_MD_CTX_free(md_ctx);
 
     return (rc == 1 ? 0 : -1);
 }
