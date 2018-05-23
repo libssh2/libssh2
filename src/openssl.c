@@ -1749,6 +1749,8 @@ _libssh2_ed25519_new_private(libssh2_ed25519_ctx ** ed_ctx,
     if(rc == 0) {
         if(ed_ctx != NULL)
             *ed_ctx = ctx;
+        else if(ctx != NULL)
+            _libssh2_ed25519_free(ctx);
     }
 
     return rc;
