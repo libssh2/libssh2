@@ -1594,8 +1594,11 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
     }
 
     /* first 32 bytes of priv_key is the private key, the last 32 bytes are the public key */
-    ctx->private_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL, (const unsigned char*)priv_key, LIBSSH2_ED25519_KEY_LEN);
-    ctx->public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL, (const unsigned char*)pub_key, LIBSSH2_ED25519_KEY_LEN);
+    ctx->private_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
+                        (const unsigned char*)priv_key, LIBSSH2_ED25519_KEY_LEN);
+
+    ctx->public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL,
+                        (const unsigned char*)pub_key, LIBSSH2_ED25519_KEY_LEN);
 
     /* comment */
     if((rc = _libssh2_get_c_string(decrypted, &buf)) < 0) {
@@ -1650,7 +1653,7 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
         p = key;
 
         _libssh2_store_str(&p, "ssh-ed25519", 11);
-        _libssh2_store_str(&p, (const char*)ctx->public_key, LIBSSH2_ED25519_KEY_LEN);
+        _libssh2_store_str(&p, (const char*)pub_key, LIBSSH2_ED25519_KEY_LEN);
 
         memcpy(method_buf, "ssh-ed25519", 11);
 
@@ -2572,26 +2575,37 @@ clean_exit:
 
 int
 _libssh2_ed25519_sign(libssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
-                      uint8_t out_sig[LIBSSH2_ED25519_SIG_LEN],
+                      uint8_t **out_sig, size_t *out_sig_len,
                       const uint8_t *message, size_t message_len)
 {
-    size_t siglen = 0;
     int rc = -1;
-    EVP_MD_CTX *md_ctx = EVP_MD_CTX_create();
-
-    (void)session;
-    out_sig = NULL;
+    EVP_MD_CTX *md_ctx = EVP_MD_CTX_new();
+    size_t sig_len = 0;
+    unsigned char *sig = NULL;
 
     if(md_ctx != NULL) {
-        if(EVP_DigestSignInit(md_ctx, NULL, NULL, NULL, ctx->private_key) != 1)
+        if (EVP_DigestSignInit(md_ctx, NULL, NULL, NULL, ctx->private_key) != 1)
             goto clean_exit;
-        if(EVP_DigestSign(md_ctx, NULL, &siglen, message, message_len) != 1)
-            goto clean_exit;
-
-        if(siglen != LIBSSH2_ED25519_SIG_LEN)
+        if (EVP_DigestSign(md_ctx, NULL, &sig_len, message, message_len) != 1)
             goto clean_exit;
 
-        rc = EVP_DigestSign(md_ctx, out_sig, &siglen, message, message_len);
+        if(sig_len != LIBSSH2_ED25519_SIG_LEN)
+            goto clean_exit;
+
+        sig = LIBSSH2_CALLOC(session, sig_len);
+        if(sig == NULL)
+            goto clean_exit;
+
+        rc = EVP_DigestSign(md_ctx, sig, &sig_len, message, message_len);
+    }
+
+    if(rc == 1) {
+        *out_sig = sig;
+        *out_sig_len = sig_len;
+    } else {
+        *out_sig_len = 0;
+        *out_sig = NULL;
+        LIBSSH2_FREE(session, sig);
     }
 
 clean_exit:
@@ -2835,7 +2849,16 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                                                method_len,
                                                pubkeydata, pubkeydata_len,
                                                privatekey, passphrase);
-        return rc;
+        if(rc != 0) {
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_FILE,
+                                  "Unable to extract public key "
+                                  "from private key file: "
+                                  "Wrong passphrase or invalid/unrecognized "
+                                  "private key file format");
+        }
+
+        return 0;
     }
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -3028,7 +3051,16 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                                      privatekeydata,
                                                      privatekeydata_len,
                                                      (unsigned const char*)passphrase);
-        return st;
+        if(st != 0) {
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_FILE,
+                                  "Unable to extract public key "
+                                  "from private key file: "
+                                  "Wrong passphrase or invalid/unrecognized "
+                                  "private key file format");
+        }
+
+        return 0;
     }
 
 #ifdef HAVE_OPAQUE_STRUCTS

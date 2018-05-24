@@ -944,24 +944,12 @@ hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION * session,
 {
     libssh2_ed25519_ctx *ctx = (libssh2_ed25519_ctx *) (*abstract);
 
-    *signature = LIBSSH2_CALLOC(session, LIBSSH2_ED25519_SIG_LEN);
-    if (!*signature) {
-        return -1;
-    }
-
-    *signature_len = LIBSSH2_ED25519_SIG_LEN;
-
     if (veccount != 1) {
         return -1;
     }
 
-    if (!_libssh2_ed25519_sign(ctx, session, *signature,
-                               datavec[0].iov_base, datavec[0].iov_len)) {
-        LIBSSH2_FREE(session, *signature);
-        return -1;
-    }
-
-    return 0;
+    return _libssh2_ed25519_sign(ctx, session, signature, signature_len,
+                                 datavec[0].iov_base, datavec[0].iov_len);
 }
 
 
