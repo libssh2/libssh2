@@ -189,7 +189,7 @@ _libssh2_ed25519_new_private(libssh2_ed25519_ctx **ec_ctx,
                             const char *filename, const uint8_t *passphrase);
 int
 _libssh2_ed25519_sign(libssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
-                      uint8_t out_sig[LIBSSH2_ED25519_SIG_LEN],
+                      uint8_t **out_sig, size_t *out_sig_len,
                       const uint8_t *message, size_t message_len);
 
 int
