@@ -2628,10 +2628,8 @@ _libssh2_curve25519_gen_k(_libssh2_bn **k,
     BN_CTX *bn_ctx = NULL;
     size_t out_len = 0;
 
-    if(k == NULL)
+    if(k == NULL || *k == NULL)
         return -1;
-
-    *k = NULL;
 
     bn_ctx = BN_CTX_new();
     if(bn_ctx == NULL)
