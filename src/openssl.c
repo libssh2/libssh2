@@ -2695,18 +2695,19 @@ _libssh2_ed25519_verify(libssh2_ed25519_ctx *ctx, const uint8_t *s,
 {
     int ret = -1;
 
-    EVP_PKEY_CTX *s_ctx = EVP_PKEY_CTX_new(ctx->public_key, NULL);
+    EVP_MD_CTX *md_ctx = EVP_MD_CTX_new();
+    if(NULL == md_ctx)
+        return -1;
 
-    if(s_ctx) {
-        ret = EVP_PKEY_verify_init(s_ctx);
-        if(ret != 1)
-            return -1;
+    ret = EVP_DigestVerifyInit(md_ctx, NULL, NULL, NULL, ctx->public_key);
+    if(ret != 1)
+        goto clean_exit;
 
-        ret = EVP_PKEY_verify(s_ctx, s, s_len, m, m_len);
-    }
+    ret = EVP_DigestVerify(md_ctx, s, s_len, m, m_len);
 
-    if(s_ctx)
-        EVP_PKEY_CTX_free(s_ctx);
+    clean_exit:
+
+    EVP_MD_CTX_free(md_ctx);
 
     return (ret == 1) ? 0 : -1;
 }
