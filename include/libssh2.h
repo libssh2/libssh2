@@ -543,7 +543,7 @@ LIBSSH2_API LIBSSH2_SESSION *
 libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
                         LIBSSH2_FREE_FUNC((*my_free)),
                         LIBSSH2_REALLOC_FUNC((*my_realloc)), void *abstract);
-#define libssh2_session_init() libssh2_session_init_ex(NULL, NULL, NULL, NULL)
+LIBSSH2_API LIBSSH2_session * libssh2_session_init() libssh2_session_init_ex(NULL, NULL, NULL, NULL)
 
 LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session);
 

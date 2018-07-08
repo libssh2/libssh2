@@ -458,6 +458,19 @@ libssh2_banner_set(LIBSSH2_SESSION * session, const char *banner)
 }
 
 /*
+ * libssh2_session_init 
+ *
+ * Allocate and initialize a libssh2 session. Behaviour of this function is 
+ * the same as libssh2_session_init_ex but it uses default callback functions.
+  */
+
+LIBSSH2_API LIBSSH2_SESSION *
+libssh2_session_init()
+{
+  return libssh2_session_init_ex(NULL, NULL, NULL, NULL);
+}
+
+/*
  * libssh2_session_init_ex
  *
  * Allocate and initialize a libssh2 session structure. Allows for malloc
