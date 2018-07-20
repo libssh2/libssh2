@@ -66,6 +66,7 @@ set(MAN_PAGES
   libssh2_channel_process_startup.3
   libssh2_channel_read.3
   libssh2_channel_read_ex.3
+  libssh2_channel_read_host_info.3
   libssh2_channel_read_stderr.3
   libssh2_channel_receive_window_adjust.3
   libssh2_channel_receive_window_adjust2.3

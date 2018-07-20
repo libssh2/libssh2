@@ -440,6 +440,11 @@ struct _LIBSSH2_CHANNEL
     /* State variables used in libssh2_channel_handle_extended_data2() */
     libssh2_nonblocking_states extData2_state;
 
+    /* Variables used in packet_queue_listener to store host,port and length */
+    unsigned char *shost;
+    uint32_t sport;
+    uint32_t shost_len;
+
 };
 
 struct _LIBSSH2_LISTENER

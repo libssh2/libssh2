@@ -737,6 +737,11 @@ libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, const char *host,
  libssh2_channel_forward_listen_ex((session), NULL, (port), NULL, 16)
 
 LIBSSH2_API int libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener);
+LIBSSH2_API int libssh2_channel_read_host_info(LIBSSH2_CHANNEL *channel,
+                                               unsigned char *shost,
+                                               size_t shost_buffer_size,
+                                               unsigned int *sport,
+                                               unsigned int *shost_len);
 
 LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_channel_forward_accept(LIBSSH2_LISTENER *listener);
