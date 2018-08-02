@@ -49,6 +49,13 @@
 #define EVP_MAX_BLOCK_LENGTH 32
 #endif
 
+int
+read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
+                                     const char *key_type,
+                                     const char *filedata,
+                                     size_t filedata_len,
+                                     unsigned const char *passphrase);
+
 static unsigned char *
 write_bn(unsigned char *buf, const BIGNUM *bn, int bn_bytes)
 {
@@ -713,6 +720,8 @@ read_private_key_from_memory(void **key_ctx,
     return (*key_ctx) ? 0 : -1;
 }
 
+
+
 static int
 read_private_key_from_file(void **key_ctx,
                            pem_read_bio_func read_private_key,
@@ -741,14 +750,346 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
                                     const char *filedata, size_t filedata_len,
                                     unsigned const char *passphrase)
 {
+    int rc;
+
     pem_read_bio_func read_rsa =
         (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
     (void) session;
 
     _libssh2_init_if_needed();
 
-    return read_private_key_from_memory((void **) rsa, read_rsa,
-                                        filedata, filedata_len, passphrase);
+    rc = read_private_key_from_memory((void **) rsa, read_rsa,
+                                      filedata, filedata_len, passphrase);
+
+    if(rc) {
+        rc = read_openssh_private_key_from_memory((void**)rsa, session,
+                        "ssh-rsa", filedata, filedata_len, passphrase);
+    }
+
+return rc;
+}
+
+static unsigned char *
+gen_publickey_from_rsa(LIBSSH2_SESSION *session, RSA *rsa,
+                       size_t *key_len)
+{
+    int            e_bytes, n_bytes;
+    unsigned long  len;
+    unsigned char *key;
+    unsigned char *p;
+    const BIGNUM * e;
+    const BIGNUM * n;
+#ifdef HAVE_OPAQUE_STRUCTS
+    RSA_get0_key(rsa, &n, &e, NULL);
+#else
+    e = rsa->e;
+    n = rsa->n;
+#endif
+    e_bytes = BN_num_bytes(e) + 1;
+    n_bytes = BN_num_bytes(n) + 1;
+
+    /* Key form is "ssh-rsa" + e + n. */
+    len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
+
+    key = LIBSSH2_ALLOC(session, len);
+    if(key == NULL) {
+        return NULL;
+    }
+
+    /* Process key encoding. */
+    p = key;
+
+    _libssh2_htonu32(p, 7);  /* Key type. */
+    p += 4;
+    memcpy(p, "ssh-rsa", 7);
+    p += 7;
+
+    p = write_bn(p, e, e_bytes);
+    p = write_bn(p, n, n_bytes);
+
+    *key_len = (size_t)(p - key);
+    return key;
+}
+
+static int
+gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
+                           unsigned char **method,
+                           size_t *method_len,
+                           unsigned char **pubkeydata,
+                           size_t *pubkeydata_len,
+                           EVP_PKEY *pk)
+{
+    RSA*           rsa = NULL;
+    unsigned char *key;
+    unsigned char *method_buf = NULL;
+    size_t  key_len;
+
+    _libssh2_debug(session,
+                   LIBSSH2_TRACE_AUTH,
+                   "Computing public key from RSA private key envelop");
+
+    rsa = EVP_PKEY_get1_RSA(pk);
+    if(rsa == NULL) {
+        /* Assume memory allocation error... what else could it be ? */
+        goto __alloc_error;
+    }
+
+    method_buf = LIBSSH2_ALLOC(session, 7);  /* ssh-rsa. */
+    if(method_buf == NULL) {
+        goto __alloc_error;
+    }
+
+    key = gen_publickey_from_rsa(session, rsa, &key_len);
+    if(key == NULL) {
+        goto __alloc_error;
+    }
+    RSA_free(rsa);
+
+    memcpy(method_buf, "ssh-rsa", 7);
+    *method         = method_buf;
+    *method_len     = 7;
+    *pubkeydata     = key;
+    *pubkeydata_len = key_len;
+    return 0;
+
+  __alloc_error:
+    if(rsa != NULL) {
+        RSA_free(rsa);
+    }
+    if(method_buf != NULL) {
+        LIBSSH2_FREE(session, method_buf);
+    }
+
+    return _libssh2_error(session,
+                          LIBSSH2_ERROR_ALLOC,
+                          "Unable to allocate memory for private key data");
+}
+
+int
+_libssh2_rsa_new_additional_parameters(RSA *rsa)
+{
+    BN_CTX *ctx = NULL;
+    BIGNUM *aux = NULL;
+    BIGNUM *dmp1 = NULL;
+    BIGNUM *dmq1 = NULL;
+    const BIGNUM *p = NULL;
+    const BIGNUM *q = NULL;
+    const BIGNUM *d = NULL;
+    int rc = 0;
+
+#ifdef HAVE_OPAQUE_STRUCTS
+    RSA_get0_key(rsa, NULL, NULL, &d);
+    RSA_get0_factors(rsa, &p, &q);
+#else
+    d = (*rsa).d;
+    p = (*rsa).p;
+    q = (*rsa).q;
+#endif
+
+    if((ctx = BN_CTX_new()) == NULL)
+        return -1;
+
+    if((aux = BN_new()) == NULL) {
+        rc = -1;
+        goto out;
+    }
+
+    if((dmp1 = BN_new()) == NULL) {
+        rc = -1;
+        goto out;
+    }
+
+    if((dmq1 = BN_new()) == NULL) {
+        rc = -1;
+        goto out;
+    }
+
+    if((BN_sub(aux, q, BN_value_one()) == 0) ||
+        (BN_mod(dmq1, d, aux, ctx) == 0) ||
+        (BN_sub(aux, p, BN_value_one()) == 0) ||
+        (BN_mod(dmp1, d, aux, ctx) == 0)) {
+        rc = -1;
+        goto out;
+    }
+
+#ifdef HAVE_OPAQUE_STRUCTS
+    RSA_set0_crt_params(rsa, dmp1, dmq1, NULL);
+#else
+    (*rsa).dmp1 = dmp1;
+    (*rsa).dmq1 = dmq1;
+#endif
+
+out:
+    if(aux)
+        BN_clear_free(aux);
+    BN_CTX_free(ctx);
+
+    if(rc != 0) {
+        if(dmp1)
+            BN_clear_free(dmp1);
+        if(dmq1)
+            BN_clear_free(dmq1);
+    }
+
+    return rc;
+}
+
+int
+gen_publickey_from_rsa_openssh_priv_data(LIBSSH2_SESSION *session,
+                                         struct string_buf *decrypted,
+                                         unsigned char **method,
+                                         size_t *method_len,
+                                         unsigned char **pubkeydata,
+                                         size_t *pubkeydata_len,
+                                         libssh2_rsa_ctx **rsa_ctx)
+{
+    int rc = 0;
+    int nlen, elen, dlen, plen, qlen, coefflen;
+    unsigned char *n, *e, *d, *p, *q, *coeff, *comment;
+    int commentlen;
+    RSA *rsa = NULL;
+
+    _libssh2_debug(session,
+                   LIBSSH2_TRACE_AUTH,
+                   "Computing RSA keys from private key data");
+
+    // public key data
+    if((nlen = _libssh2_get_bignum_bytes(decrypted, &n)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "RSA no n");
+        return -1;
+    }
+
+    if((elen = _libssh2_get_bignum_bytes(decrypted, &e)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "RSA no e");
+        return -1;
+    }
+
+    // private key data
+    if((dlen = _libssh2_get_bignum_bytes(decrypted, &d)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "RSA no d");
+        return -1;
+    }
+
+    if((coefflen = _libssh2_get_bignum_bytes(decrypted, &coeff)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "RSA no coeff");
+        return -1;
+    }
+
+    if((plen = _libssh2_get_bignum_bytes(decrypted, &p)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "RSA no p");
+        return -1;
+    }
+
+    if((qlen = _libssh2_get_bignum_bytes(decrypted, &q)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "RSA no q");
+        return -1;
+    }
+
+    if((commentlen = _libssh2_get_c_string(decrypted, &comment)) < 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "RSA no comment");
+        return -1;
+    }
+
+    if((rc = _libssh2_rsa_new(&rsa, e, elen, n, nlen, d, dlen, p, plen,
+                                q, qlen, NULL, 0, NULL, 0, coeff, coefflen)) != 0) {
+        _libssh2_debug(session,
+                       LIBSSH2_TRACE_AUTH,
+                       "Could not create RSA private key");
+        goto fail;
+    }
+
+    if(rsa != NULL)
+        rc = _libssh2_rsa_new_additional_parameters(rsa);
+
+    if(rsa != NULL && pubkeydata != NULL && method != NULL){
+        EVP_PKEY *pk = EVP_PKEY_new();
+        EVP_PKEY_set1_RSA(pk, rsa);
+
+        rc = gen_publickey_from_rsa_evp(session, method, method_len,
+                                        pubkeydata, pubkeydata_len,
+                                        pk);
+
+        if(pk)
+            EVP_PKEY_free(pk);
+    }
+
+    if(rsa_ctx != NULL)
+        *rsa_ctx = rsa;
+    else
+        RSA_free(rsa);
+
+    return rc;
+
+fail:
+
+    if(rsa != NULL)
+        RSA_free(rsa);
+
+    return _libssh2_error(session,
+                          LIBSSH2_ERROR_ALLOC,
+                          "Unable to allocate memory for private key data");
+}
+
+int
+_libssh2_rsa_new_openssh_private(libssh2_rsa_ctx ** rsa,
+                                 LIBSSH2_SESSION * session,
+                                 const char *filename,
+                                 unsigned const char *passphrase)
+{
+    FILE *fp;
+    int rc;
+    unsigned char *buf = NULL;
+    struct string_buf *decrypted = NULL;
+
+    if(session == NULL) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Session is required");
+        return -1;
+    }
+
+    _libssh2_init_if_needed();
+
+    fp = fopen(filename, "r");
+    if(!fp) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                       "Unable to open OpenSSH RSA private key file");
+        return -1;
+    }
+
+    rc = _libssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
+    fclose(fp);
+    if(rc) {
+        return rc;
+    }
+
+    /* We have a new key file, now try and parse it using supported types  */
+    rc = _libssh2_get_c_string(decrypted, &buf);
+
+    if(rc < 1 || buf == NULL) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Public key type in decrypted key data not found");
+        return -1;
+    }
+
+    if(strcmp("ssh-rsa", (const char*)buf) == 0) {
+        rc = gen_publickey_from_rsa_openssh_priv_data(session, decrypted,
+                                                      NULL, 0,
+                                                      NULL, 0, rsa);
+    } else {
+        rc = -1;
+    }
+
+    if(decrypted)
+        _libssh2_string_buf_free(session, decrypted);
+
+    return rc;
 }
 
 int
@@ -756,14 +1097,22 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
                          LIBSSH2_SESSION * session,
                          const char *filename, unsigned const char *passphrase)
 {
+    int rc;
+
     pem_read_bio_func read_rsa =
         (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
     (void) session;
 
     _libssh2_init_if_needed();
 
-    return read_private_key_from_file((void **) rsa, read_rsa,
-                                      filename, passphrase);
+    rc = read_private_key_from_file((void **) rsa, read_rsa,
+                                    filename, passphrase);
+
+    if(rc) {
+        rc = _libssh2_rsa_new_openssh_private(rsa, session, filename, passphrase);
+    }
+
+    return rc;
 }
 
 #if LIBSSH2_DSA
@@ -773,14 +1122,274 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
                                     const char *filedata, size_t filedata_len,
                                     unsigned const char *passphrase)
 {
+    int rc;
+
     pem_read_bio_func read_dsa =
         (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
     (void) session;
 
     _libssh2_init_if_needed();
 
-    return read_private_key_from_memory((void **) dsa, read_dsa,
-                                        filedata, filedata_len, passphrase);
+    rc = read_private_key_from_memory((void**)dsa, read_dsa,
+                                      filedata, filedata_len, passphrase);
+
+    if(rc) {
+        rc = read_openssh_private_key_from_memory((void**)dsa, session,
+                            "ssh-dsa", filedata, filedata_len, passphrase);
+    }
+
+    return rc;
+}
+
+static unsigned char *
+gen_publickey_from_dsa(LIBSSH2_SESSION* session, DSA *dsa,
+                       size_t *key_len)
+{
+    int            p_bytes, q_bytes, g_bytes, k_bytes;
+    unsigned long  len;
+    unsigned char *key;
+    unsigned char *p;
+
+    const BIGNUM * p_bn;
+    const BIGNUM * q;
+    const BIGNUM * g;
+    const BIGNUM * pub_key;
+#ifdef HAVE_OPAQUE_STRUCTS
+    DSA_get0_pqg(dsa, &p_bn, &q, &g);
+#else
+    p_bn = dsa->p;
+    q = dsa->q;
+    g = dsa->g;
+#endif
+
+#ifdef HAVE_OPAQUE_STRUCTS
+    DSA_get0_key(dsa, &pub_key, NULL);
+#else
+    pub_key = dsa->pub_key;
+#endif
+    p_bytes = BN_num_bytes(p_bn) + 1;
+    q_bytes = BN_num_bytes(q) + 1;
+    g_bytes = BN_num_bytes(g) + 1;
+    k_bytes = BN_num_bytes(pub_key) + 1;
+
+    /* Key form is "ssh-dss" + p + q + g + pub_key. */
+    len = 4 + 7 + 4 + p_bytes + 4 + q_bytes + 4 + g_bytes + 4 + k_bytes;
+
+    key = LIBSSH2_ALLOC(session, len);
+    if(key == NULL) {
+        return NULL;
+    }
+
+    /* Process key encoding. */
+    p = key;
+
+    _libssh2_htonu32(p, 7);  /* Key type. */
+    p += 4;
+    memcpy(p, "ssh-dss", 7);
+    p += 7;
+
+    p = write_bn(p, p_bn, p_bytes);
+    p = write_bn(p, q, q_bytes);
+    p = write_bn(p, g, g_bytes);
+    p = write_bn(p, pub_key, k_bytes);
+
+    *key_len = (size_t)(p - key);
+    return key;
+}
+
+static int
+gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
+                           unsigned char **method,
+                           size_t *method_len,
+                           unsigned char **pubkeydata,
+                           size_t *pubkeydata_len,
+                           EVP_PKEY *pk)
+{
+    DSA*           dsa = NULL;
+    unsigned char *key;
+    unsigned char *method_buf = NULL;
+    size_t  key_len;
+
+    _libssh2_debug(session,
+                   LIBSSH2_TRACE_AUTH,
+                   "Computing public key from DSA private key envelop");
+
+    dsa = EVP_PKEY_get1_DSA(pk);
+    if(dsa == NULL) {
+        /* Assume memory allocation error... what else could it be ? */
+        goto __alloc_error;
+    }
+
+    method_buf = LIBSSH2_ALLOC(session, 7);  /* ssh-dss. */
+    if(method_buf == NULL) {
+        goto __alloc_error;
+    }
+
+    key = gen_publickey_from_dsa(session, dsa, &key_len);
+    if(key == NULL) {
+        goto __alloc_error;
+    }
+    DSA_free(dsa);
+
+    memcpy(method_buf, "ssh-dss", 7);
+    *method         = method_buf;
+    *method_len     = 7;
+    *pubkeydata     = key;
+    *pubkeydata_len = key_len;
+    return 0;
+
+  __alloc_error:
+    if(dsa != NULL) {
+        DSA_free(dsa);
+    }
+    if(method_buf != NULL) {
+        LIBSSH2_FREE(session, method_buf);
+    }
+
+    return _libssh2_error(session,
+                          LIBSSH2_ERROR_ALLOC,
+                          "Unable to allocate memory for private key data");
+}
+
+int
+gen_publickey_from_dsa_openssh_priv_data(LIBSSH2_SESSION *session,
+                                         struct string_buf *decrypted,
+                                         unsigned char **method,
+                                         size_t *method_len,
+                                         unsigned char **pubkeydata,
+                                         size_t *pubkeydata_len,
+                                         libssh2_dsa_ctx **dsa_ctx)
+{
+    int rc = 0;
+    int plen, qlen, glen, pub_len, priv_len;
+    unsigned char *p, *q, *g, *pub_key, *priv_key;
+    DSA *dsa = NULL;
+
+    _libssh2_debug(session,
+                   LIBSSH2_TRACE_AUTH,
+                   "Computing DSA keys from private key data");
+
+    if((plen = _libssh2_get_bignum_bytes(decrypted, &p)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "DSA no p");
+        return -1;
+    }
+
+    if((qlen = _libssh2_get_bignum_bytes(decrypted, &q)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "DSA no q");
+        return -1;
+    }
+
+    if((glen = _libssh2_get_bignum_bytes(decrypted, &g)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "DSA no g");
+        return -1;
+    }
+
+    if((pub_len = _libssh2_get_bignum_bytes(decrypted, &pub_key)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "DSA no public key");
+        return -1;
+    }
+
+    if((priv_len = _libssh2_get_bignum_bytes(decrypted, &priv_key)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "DSA no private key");
+        return -1;
+    }
+
+    if((rc = _libssh2_dsa_new(&dsa, p, plen, q, qlen, g, glen, pub_key, pub_len,
+       priv_key, priv_len)) != 0 ) {
+        _libssh2_debug(session,
+                       LIBSSH2_ERROR_PROTO,
+                       "Could not create DSA private key");
+        goto fail;
+    }
+
+    if(dsa != NULL && pubkeydata != NULL && method != NULL) {
+        EVP_PKEY *pk = EVP_PKEY_new();
+        EVP_PKEY_set1_DSA(pk, dsa);
+
+        rc = gen_publickey_from_dsa_evp(session, method, method_len,
+                                        pubkeydata, pubkeydata_len,
+                                        pk);
+
+        if(pk)
+            EVP_PKEY_free(pk);
+    }
+
+    if(dsa_ctx != NULL)
+        *dsa_ctx = dsa;
+    else
+        DSA_free(dsa);
+
+    return rc;
+
+fail:
+
+    if(dsa != NULL)
+        DSA_free(dsa);
+
+    return _libssh2_error(session,
+                          LIBSSH2_ERROR_ALLOC,
+                          "Unable to allocate memory for private key data");
+}
+
+int
+_libssh2_dsa_new_openssh_private(libssh2_dsa_ctx ** dsa,
+                                 LIBSSH2_SESSION * session,
+                                 const char *filename,
+                                 unsigned const char *passphrase)
+{
+    FILE *fp;
+    int rc;
+    unsigned char *buf = NULL;
+    struct string_buf *decrypted = NULL;
+
+    if(session == NULL) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Session is required");
+        return -1;
+    }
+
+    _libssh2_init_if_needed();
+
+    fp = fopen(filename, "r");
+    if(!fp) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                       "Unable to open OpenSSH DSA private key file");
+        return -1;
+    }
+
+    rc = _libssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
+    fclose(fp);
+    if(rc) {
+        return rc;
+    }
+
+    /* We have a new key file, now try and parse it using supported types  */
+    rc = _libssh2_get_c_string(decrypted, &buf);
+
+    if(rc < 1 || buf == NULL) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Public key type in decrypted key data not found");
+        return -1;
+    }
+
+    if(strcmp("ssh-dss", (const char*)buf) == 0) {
+        rc = gen_publickey_from_dsa_openssh_priv_data(session, decrypted,
+                                                      NULL, 0,
+                                                      NULL, 0, dsa);
+    }
+    else {
+        rc = -1;
+    }
+
+    if(decrypted)
+        _libssh2_string_buf_free(session, decrypted);
+
+    return rc;
 }
 
 int
@@ -788,15 +1397,24 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
                          LIBSSH2_SESSION * session,
                          const char *filename, unsigned const char *passphrase)
 {
+    int rc;
+
     pem_read_bio_func read_dsa =
         (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
     (void) session;
 
     _libssh2_init_if_needed();
 
-    return read_private_key_from_file((void **) dsa, read_dsa,
-                                      filename, passphrase);
+    rc = read_private_key_from_file((void **) dsa, read_dsa,
+                                    filename, passphrase);
+
+    if(rc) {
+        rc = _libssh2_dsa_new_openssh_private(dsa, session, filename, passphrase);
+    }
+
+    return rc;
 }
+
 #endif /* LIBSSH_DSA */
 
 #if LIBSSH2_ECDSA
@@ -807,32 +1425,351 @@ _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
                                     const char *filedata, size_t filedata_len,
                                     unsigned const char *passphrase)
 {
+    int rc;
+
     pem_read_bio_func read_ec =
         (pem_read_bio_func) &PEM_read_bio_ECPrivateKey;
     (void) session;
 
     _libssh2_init_if_needed();
 
-    return read_private_key_from_memory((void **) ec_ctx, read_ec,
-                                        filedata, filedata_len, passphrase);
-}
+    rc = read_private_key_from_memory((void **) ec_ctx, read_ec,
+                                      filedata, filedata_len, passphrase);
 
-int
-_libssh2_ecdsa_new_private(libssh2_ecdsa_ctx ** ec_ctx,
-       LIBSSH2_SESSION * session,
-       const char *filename, unsigned const char *passphrase)
-{
-    pem_read_bio_func read_ec = (pem_read_bio_func) &PEM_read_bio_ECPrivateKey;
-    (void) session;
+    if(rc) {
+        rc = read_openssh_private_key_from_memory((void**)ec_ctx, session,
+                            "ssh-ecdsa", filedata, filedata_len, passphrase);
+    }
 
-    _libssh2_init_if_needed();
-
-    return read_private_key_from_file((void **) ec_ctx, read_ec,
-      filename, passphrase);
+    return rc;
 }
 
 #endif /* LIBSSH2_ECDSA */
 
+
+#if LIBSSH2_ED25519
+
+int
+_libssh2_curve25519_new(libssh2_x25519_ctx **out_ctx, unsigned char **out_public_key,
+                        unsigned char **out_private_key)
+{
+    EVP_PKEY *key = NULL;
+    EVP_PKEY_CTX *pctx = NULL;
+    PKCS8_PRIV_KEY_INFO *info = NULL;
+    ASN1_OCTET_STRING *oct = NULL;
+    X509_PUBKEY *pubkey = NULL;
+    libssh2_ed25519_ctx *ctx = NULL;
+    const unsigned char *pkcs, *priv, *pub;
+    int privLen, pubLen, pkcsLen;
+    int rc = -1;
+
+    pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_X25519, NULL);
+    if(pctx == NULL)
+        return -1;
+
+    EVP_PKEY_keygen_init(pctx);
+    EVP_PKEY_keygen(pctx, &key);
+    info = EVP_PKEY2PKCS8(key);
+
+    if(info == NULL || !PKCS8_pkey_get0(NULL, &pkcs, &pkcsLen, NULL, info))
+        goto cleanExit;
+
+    oct = d2i_ASN1_OCTET_STRING(NULL, &pkcs, pkcsLen);
+    if(oct == NULL) {
+        goto cleanExit;
+    }
+
+    priv = ASN1_STRING_get0_data(oct);
+    privLen = ASN1_STRING_length(oct);
+
+    if (privLen != LIBSSH2_ED25519_KEY_LEN)
+        goto cleanExit;
+
+    pubkey = X509_PUBKEY_new();
+    if(pubkey == NULL || !X509_PUBKEY_set(&pubkey, key))
+        goto cleanExit;
+
+    if(!X509_PUBKEY_get0_param(NULL, &pub, &pubLen, NULL, pubkey))
+        goto cleanExit;
+
+    if(pubLen != LIBSSH2_ED25519_KEY_LEN)
+        goto cleanExit;
+
+    if(out_private_key != NULL) {
+        *out_private_key = malloc(LIBSSH2_ED25519_KEY_LEN);
+        if(*out_private_key == NULL)
+            goto cleanExit;
+
+        memcpy(*out_private_key, priv, LIBSSH2_ED25519_KEY_LEN);
+    }
+
+    if(out_public_key != NULL) {
+        *out_public_key = malloc(LIBSSH2_ED25519_KEY_LEN);
+        if(*out_public_key == NULL)
+            goto cleanExit;
+
+        memcpy(*out_public_key, pub, LIBSSH2_ED25519_KEY_LEN);
+    }
+
+    if(out_ctx != NULL) {
+        ctx = malloc(sizeof(libssh2_x25519_ctx));
+        if(ctx == NULL)
+            goto cleanExit;
+
+        ctx->private_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL,
+                                                        (const unsigned char*)priv,
+                                                        LIBSSH2_ED25519_KEY_LEN);
+
+        ctx->public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_X25519, NULL,
+                                                      (const unsigned char*)pub,
+                                                      LIBSSH2_ED25519_KEY_LEN);
+
+        if(ctx->public_key == NULL || ctx->private_key == NULL) {
+            _libssh2_x25519_free(ctx);
+            goto cleanExit;
+        }
+
+        *out_ctx = ctx;
+    }
+
+    /* success */
+    rc = 0;
+
+cleanExit:
+
+    if(info)
+        PKCS8_PRIV_KEY_INFO_free(info);
+    if(pctx)
+        EVP_PKEY_CTX_free(pctx);
+    if(oct)
+        ASN1_OCTET_STRING_free(oct);
+    if(pubkey)
+        X509_PUBKEY_free(pubkey);
+    if(key)
+        EVP_PKEY_free(key);
+
+    return rc;
+}
+
+int
+gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
+                                             struct string_buf *decrypted,
+                                             unsigned char **method,
+                                             size_t *method_len,
+                                             unsigned char **pubkeydata,
+                                             size_t *pubkeydata_len,
+                                             libssh2_ed25519_ctx **out_ctx)
+{
+    libssh2_ed25519_ctx *ctx = NULL;
+    unsigned char* method_buf = NULL;
+    unsigned char* key = NULL;
+    int i, rc, ret = 0;
+    unsigned char *pub_key, *priv_key, *buf;
+    size_t  key_len = 0;
+    unsigned char *p;
+
+    _libssh2_debug(session,
+                   LIBSSH2_TRACE_AUTH,
+                   "Computing ED25519 keys from private key data");
+
+    if(_libssh2_get_c_string(decrypted, &pub_key) != LIBSSH2_ED25519_KEY_LEN) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Wrong public key length");
+        return -1;
+    }
+
+    if(_libssh2_get_c_string(decrypted, &priv_key) != LIBSSH2_ED25519_PRIVATE_KEY_LEN) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Wrong private key length");
+        ret = -1;
+        goto clean_exit;
+    }
+
+    ctx = LIBSSH2_CALLOC(session, sizeof(libssh2_ed25519_ctx));
+    if (ctx == NULL) {
+        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                       "Unable to allocate memory for ed25519 key");
+        ret = -1;
+        goto clean_exit;
+    }
+
+    /* first 32 bytes of priv_key is the private key, the last 32 bytes are the public key */
+    ctx->private_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
+                        (const unsigned char*)priv_key, LIBSSH2_ED25519_KEY_LEN);
+
+    ctx->public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL,
+                        (const unsigned char*)pub_key, LIBSSH2_ED25519_KEY_LEN);
+
+    /* comment */
+    if((rc = _libssh2_get_c_string(decrypted, &buf)) < 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Unable to read comment");
+        ret = -1;
+        goto clean_exit;
+    }
+
+    if(rc > 0) {
+        unsigned char *comment = LIBSSH2_CALLOC(session, rc + 1);
+        if(comment != NULL) {
+            memcpy(comment, buf, rc);
+            memcpy(comment + rc, "\0", 1);
+
+            _libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Key comment: %s", comment);
+
+            LIBSSH2_FREE(session, comment);
+        }
+    }
+
+    /* Padding */
+    i = 1;
+    while(decrypted->dataptr < decrypted->data + decrypted->len) {
+        if(*decrypted->dataptr != i) {
+            _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                           "Wrong padding");
+            ret = -1;
+            goto clean_exit;
+        }
+        i++;
+        decrypted->dataptr++;
+    }
+
+    if(ret == 0) {
+        _libssh2_debug(session,
+                       LIBSSH2_TRACE_AUTH,
+                       "Computing public key from ED25519 private key envelop");
+
+        method_buf = LIBSSH2_ALLOC(session, 11);  /* ssh-ed25519. */
+        if(method_buf == NULL) {
+            goto clean_exit;
+        }
+
+        /* Key form is: type_len(4) + type(11) + pub_key_len(4) + pub_key(32). */
+        key_len = LIBSSH2_ED25519_KEY_LEN + 19;
+        key = LIBSSH2_CALLOC(session, key_len);
+        if(key == NULL) {
+            goto clean_exit;
+        }
+
+        p = key;
+
+        _libssh2_store_str(&p, "ssh-ed25519", 11);
+        _libssh2_store_str(&p, (const char*)pub_key, LIBSSH2_ED25519_KEY_LEN);
+
+        memcpy(method_buf, "ssh-ed25519", 11);
+
+        if(method != NULL)
+            *method = method_buf;
+        else
+            LIBSSH2_FREE(session, method_buf);
+
+        if(method_len != NULL)
+            *method_len = 11;
+
+        if(pubkeydata != NULL)
+            *pubkeydata = key;
+        else
+            LIBSSH2_FREE(session, key);
+
+        if(pubkeydata_len != NULL)
+            *pubkeydata_len = key_len;
+
+        if (out_ctx != NULL)
+            *out_ctx = ctx;
+        else if(ctx != NULL)
+            _libssh2_ed25519_free(ctx);
+
+        return 0;
+    }
+
+clean_exit:
+
+    if(ctx)
+        _libssh2_ed25519_free(ctx);
+
+    if(method_buf)
+        LIBSSH2_FREE(session, method_buf);
+
+    if(key)
+        LIBSSH2_FREE(session, key);
+
+    return -1;
+}
+
+int
+_libssh2_ed25519_new_private(libssh2_ed25519_ctx ** ed_ctx,
+                             LIBSSH2_SESSION * session,
+                             const char *filename, const uint8_t *passphrase)
+{
+    int rc;
+    FILE *fp;
+    unsigned char *buf;
+    struct string_buf *decrypted = NULL;
+    libssh2_ed25519_ctx *ctx = NULL;
+
+    if(session == NULL) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Session is required");
+        return -1;
+    }
+
+    _libssh2_init_if_needed();
+
+    fp = fopen(filename, "r");
+    if(!fp) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                       "Unable to open ED25519 private key file");
+        return -1;
+    }
+
+    rc = _libssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
+    fclose(fp);
+    if(rc) {
+        return rc;
+    }
+
+    /* We have a new key file, now try and parse it using supported types  */
+    rc = _libssh2_get_c_string(decrypted, &buf);
+
+    if(rc < 1 || buf == NULL) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Public key type in decrypted key data not found");
+        return -1;
+    }
+
+    if(strcmp("ssh-ed25519", (const char*)buf) == 0) {
+        rc = gen_publickey_from_ed25519_openssh_priv_data(session,
+                                                          decrypted,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          &ctx);
+    }
+
+    if(decrypted)
+        _libssh2_string_buf_free(session, decrypted);
+
+    if(rc == 0) {
+        if(ed_ctx != NULL)
+            *ed_ctx = ctx;
+        else if(ctx != NULL)
+            _libssh2_ed25519_free(ctx);
+    }
+
+    return rc;
+}
+
+int
+_libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx ** ed_ctx,
+                                        LIBSSH2_SESSION * session,
+                                        const char *filedata, size_t filedata_len,
+                                        unsigned const char *passphrase)
+{
+    return read_openssh_private_key_from_memory((void**)ed_ctx, session, "ssh-ed25519",
+                                            filedata, filedata_len, passphrase);
+}
+
+#endif /* LIBSSH2_ED25519 */
 
 int
 _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
@@ -1203,216 +2140,6 @@ _libssh2_md5_init(libssh2_md5_ctx *ctx)
 #endif
 }
 
-static unsigned char *
-gen_publickey_from_rsa(LIBSSH2_SESSION *session, RSA *rsa,
-                       size_t *key_len)
-{
-    int            e_bytes, n_bytes;
-    unsigned long  len;
-    unsigned char *key;
-    unsigned char *p;
-    const BIGNUM * e;
-    const BIGNUM * n;
-#ifdef HAVE_OPAQUE_STRUCTS
-    RSA_get0_key(rsa, &n, &e, NULL);
-#else
-    e = rsa->e;
-    n = rsa->n;
-#endif
-    e_bytes = BN_num_bytes(e) + 1;
-    n_bytes = BN_num_bytes(n) + 1;
-
-    /* Key form is "ssh-rsa" + e + n. */
-    len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
-
-    key = LIBSSH2_ALLOC(session, len);
-    if(key == NULL) {
-        return NULL;
-    }
-
-    /* Process key encoding. */
-    p = key;
-
-    _libssh2_htonu32(p, 7);  /* Key type. */
-    p += 4;
-    memcpy(p, "ssh-rsa", 7);
-    p += 7;
-
-    p = write_bn(p, e, e_bytes);
-    p = write_bn(p, n, n_bytes);
-
-    *key_len = (size_t)(p - key);
-    return key;
-}
-
-#if LIBSSH2_DSA
-static unsigned char *
-gen_publickey_from_dsa(LIBSSH2_SESSION* session, DSA *dsa,
-                       size_t *key_len)
-{
-    int            p_bytes, q_bytes, g_bytes, k_bytes;
-    unsigned long  len;
-    unsigned char *key;
-    unsigned char *p;
-
-    const BIGNUM * p_bn;
-    const BIGNUM * q;
-    const BIGNUM * g;
-    const BIGNUM * pub_key;
-#ifdef HAVE_OPAQUE_STRUCTS
-    DSA_get0_pqg(dsa, &p_bn, &q, &g);
-#else
-    p_bn = dsa->p;
-    q = dsa->q;
-    g = dsa->g;
-#endif
-
-#ifdef HAVE_OPAQUE_STRUCTS
-    DSA_get0_key(dsa, &pub_key, NULL);
-#else
-    pub_key = dsa->pub_key;
-#endif
-    p_bytes = BN_num_bytes(p_bn) + 1;
-    q_bytes = BN_num_bytes(q) + 1;
-    g_bytes = BN_num_bytes(g) + 1;
-    k_bytes = BN_num_bytes(pub_key) + 1;
-
-    /* Key form is "ssh-dss" + p + q + g + pub_key. */
-    len = 4 + 7 + 4 + p_bytes + 4 + q_bytes + 4 + g_bytes + 4 + k_bytes;
-
-    key = LIBSSH2_ALLOC(session, len);
-    if(key == NULL) {
-        return NULL;
-    }
-
-    /* Process key encoding. */
-    p = key;
-
-    _libssh2_htonu32(p, 7);  /* Key type. */
-    p += 4;
-    memcpy(p, "ssh-dss", 7);
-    p += 7;
-
-    p = write_bn(p, p_bn, p_bytes);
-    p = write_bn(p, q, q_bytes);
-    p = write_bn(p, g, g_bytes);
-    p = write_bn(p, pub_key, k_bytes);
-
-    *key_len = (size_t)(p - key);
-    return key;
-}
-#endif /* LIBSSH_DSA */
-
-static int
-gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
-                           unsigned char **method,
-                           size_t *method_len,
-                           unsigned char **pubkeydata,
-                           size_t *pubkeydata_len,
-                           EVP_PKEY *pk)
-{
-    RSA*           rsa = NULL;
-    unsigned char *key;
-    unsigned char *method_buf = NULL;
-    size_t  key_len;
-
-    _libssh2_debug(session,
-                   LIBSSH2_TRACE_AUTH,
-                   "Computing public key from RSA private key envelop");
-
-    rsa = EVP_PKEY_get1_RSA(pk);
-    if(rsa == NULL) {
-        /* Assume memory allocation error... what else could it be ? */
-        goto __alloc_error;
-    }
-
-    method_buf = LIBSSH2_ALLOC(session, 7);  /* ssh-rsa. */
-    if(method_buf == NULL) {
-        goto __alloc_error;
-    }
-
-    key = gen_publickey_from_rsa(session, rsa, &key_len);
-    if(key == NULL) {
-        goto __alloc_error;
-    }
-    RSA_free(rsa);
-
-    memcpy(method_buf, "ssh-rsa", 7);
-    *method         = method_buf;
-    *method_len     = 7;
-    *pubkeydata     = key;
-    *pubkeydata_len = key_len;
-    return 0;
-
-  __alloc_error:
-    if(rsa != NULL) {
-        RSA_free(rsa);
-    }
-    if(method_buf != NULL) {
-        LIBSSH2_FREE(session, method_buf);
-    }
-
-    return _libssh2_error(session,
-                          LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memory for private key data");
-}
-
-#if LIBSSH2_DSA
-static int
-gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
-                           unsigned char **method,
-                           size_t *method_len,
-                           unsigned char **pubkeydata,
-                           size_t *pubkeydata_len,
-                           EVP_PKEY *pk)
-{
-    DSA*           dsa = NULL;
-    unsigned char *key;
-    unsigned char *method_buf = NULL;
-    size_t  key_len;
-
-    _libssh2_debug(session,
-                   LIBSSH2_TRACE_AUTH,
-                   "Computing public key from DSA private key envelop");
-
-    dsa = EVP_PKEY_get1_DSA(pk);
-    if(dsa == NULL) {
-        /* Assume memory allocation error... what else could it be ? */
-        goto __alloc_error;
-    }
-
-    method_buf = LIBSSH2_ALLOC(session, 7);  /* ssh-dss. */
-    if(method_buf == NULL) {
-        goto __alloc_error;
-    }
-
-    key = gen_publickey_from_dsa(session, dsa, &key_len);
-    if(key == NULL) {
-        goto __alloc_error;
-    }
-    DSA_free(dsa);
-
-    memcpy(method_buf, "ssh-dss", 7);
-    *method         = method_buf;
-    *method_len     = 7;
-    *pubkeydata     = key;
-    *pubkeydata_len = key_len;
-    return 0;
-
-  __alloc_error:
-    if(dsa != NULL) {
-        DSA_free(dsa);
-    }
-    if(method_buf != NULL) {
-        LIBSSH2_FREE(session, method_buf);
-    }
-
-    return _libssh2_error(session,
-                          LIBSSH2_ERROR_ALLOC,
-                          "Unable to allocate memory for private key data");
-}
-#endif /* LIBSSH_DSA */
-
 #if LIBSSH2_ECDSA
 
 static int
@@ -1538,6 +2265,171 @@ clean_exit:
         LIBSSH2_FREE(session, method_buf);
 
     return -1;
+}
+
+int
+gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
+                                           libssh2_curve_type curve_type,
+                                           struct string_buf *decrypted,
+                                           unsigned char **method,
+                                           size_t *method_len,
+                                           unsigned char **pubkeydata,
+                                           size_t *pubkeydata_len,
+                                           libssh2_ecdsa_ctx **ec_ctx)
+{
+    int rc = 0;
+    int curvelen, exponentlen, pointlen;
+    unsigned char *curve, *exponent, *point_buf;
+    EC_KEY *ec_key = NULL;
+    BIGNUM *bn_exponent;
+
+    _libssh2_debug(session,
+                   LIBSSH2_TRACE_AUTH,
+                   "Computing ECDSA keys from private key data");
+
+    if ((curvelen = _libssh2_get_c_string(decrypted, &curve)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "ECDSA no curve");
+        return -1;
+    }
+
+    if ((pointlen = _libssh2_get_c_string(decrypted, &point_buf)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "ECDSA no point");
+        return -1;
+    }
+
+    if ((exponentlen = _libssh2_get_bignum_bytes(decrypted, &exponent)) <= 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "ECDSA no exponent");
+        return -1;
+    }
+
+    if ((rc = _libssh2_ecdsa_curve_name_with_octal_new(&ec_key, point_buf,
+        pointlen, curve_type)) != 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "ECDSA could not create key");
+        goto fail;
+    }
+
+    if ((bn_exponent = BN_new()) == NULL) {
+        rc = -1;
+        goto fail;
+    }
+
+    BN_bin2bn(exponent, exponentlen, bn_exponent);
+    rc = (EC_KEY_set_private_key(ec_key, bn_exponent) != 1);
+
+    if(rc == 0 && ec_key != NULL && pubkeydata != NULL && method != NULL) {
+        EVP_PKEY *pk = EVP_PKEY_new();
+        EVP_PKEY_set1_EC_KEY(pk, ec_key);
+
+        rc = gen_publickey_from_ec_evp(session, method, method_len,
+                                       pubkeydata, pubkeydata_len,
+                                       pk);
+
+        if(pk)
+            EVP_PKEY_free(pk);
+    }
+
+    if(ec_ctx != NULL)
+        *ec_ctx = ec_key;
+    else
+        EC_KEY_free(ec_key);
+
+    return rc;
+
+fail:
+
+    if(ec_key != NULL)
+        EC_KEY_free(ec_key);
+
+    return _libssh2_error(session,
+                          LIBSSH2_ERROR_ALLOC,
+                          "Unable to allocate memory for private key data");
+
+
+}
+
+int
+_libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx ** ec_ctx,
+                                   LIBSSH2_SESSION * session,
+                                   const char *filename,
+                                   unsigned const char *passphrase)
+{
+    FILE *fp;
+    int rc;
+    unsigned char *buf = NULL;
+    libssh2_curve_type type;
+    struct string_buf *decrypted = NULL;
+
+    if(session == NULL) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                           "Session is required");
+        return -1;
+    }
+
+    _libssh2_init_if_needed();
+
+    fp = fopen(filename, "r");
+    if (!fp) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                       "Unable to open OpenSSH ECDSA private key file");
+        return -1;
+    }
+
+    rc = _libssh2_openssh_pem_parse(session, passphrase, fp, &decrypted);
+    fclose(fp);
+    if(rc) {
+        return rc;
+    }
+
+    /* We have a new key file, now try and parse it using supported types  */
+    rc = _libssh2_get_c_string(decrypted, &buf);
+
+    if(rc < 1 || buf == NULL) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Public key type in decrypted key data not found");
+        return -1;
+    }
+
+    rc = _libssh2_ecdsa_curve_type_from_name((const char*)buf, &type);
+
+    if(rc == 0) {
+        rc = gen_publickey_from_ecdsa_openssh_priv_data(session, type,
+                                                        decrypted, NULL, 0,
+                                                        NULL, 0, ec_ctx);
+    }
+    else {
+        rc = -1;
+    }
+
+    if(decrypted)
+        _libssh2_string_buf_free(session, decrypted);
+
+    return rc;
+}
+
+int
+_libssh2_ecdsa_new_private(libssh2_ecdsa_ctx ** ec_ctx,
+       LIBSSH2_SESSION * session,
+       const char *filename, unsigned const char *passphrase)
+{
+    int rc;
+
+    pem_read_bio_func read_ec = (pem_read_bio_func) &PEM_read_bio_ECPrivateKey;
+    (void) session;
+
+    _libssh2_init_if_needed();
+
+    rc = read_private_key_from_file((void **) ec_ctx, read_ec,
+      filename, passphrase);
+
+    if(rc) {
+        return _libssh2_ecdsa_new_openssh_private(ec_ctx, session, filename, passphrase);
+    }
+
+    return rc;
 }
 
 /*
@@ -1679,6 +2571,243 @@ clean_exit:
 
 #endif /* LIBSSH2_ECDSA */
 
+#if LIBSSH2_ED25519
+
+int
+_libssh2_ed25519_sign(libssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
+                      uint8_t **out_sig, size_t *out_sig_len,
+                      const uint8_t *message, size_t message_len)
+{
+    int rc = -1;
+    EVP_MD_CTX *md_ctx = EVP_MD_CTX_new();
+    size_t sig_len = 0;
+    unsigned char *sig = NULL;
+
+    if(md_ctx != NULL) {
+        if (EVP_DigestSignInit(md_ctx, NULL, NULL, NULL, ctx->private_key) != 1)
+            goto clean_exit;
+        if (EVP_DigestSign(md_ctx, NULL, &sig_len, message, message_len) != 1)
+            goto clean_exit;
+
+        if(sig_len != LIBSSH2_ED25519_SIG_LEN)
+            goto clean_exit;
+
+        sig = LIBSSH2_CALLOC(session, sig_len);
+        if(sig == NULL)
+            goto clean_exit;
+
+        rc = EVP_DigestSign(md_ctx, sig, &sig_len, message, message_len);
+    }
+
+    if(rc == 1) {
+        *out_sig = sig;
+        *out_sig_len = sig_len;
+    } else {
+        *out_sig_len = 0;
+        *out_sig = NULL;
+        LIBSSH2_FREE(session, sig);
+    }
+
+clean_exit:
+
+    if(md_ctx)
+        EVP_MD_CTX_free(md_ctx);
+
+    return (rc == 1 ? 0 : -1);
+}
+
+int
+_libssh2_curve25519_gen_k(_libssh2_bn **k,
+                          uint8_t private_key[LIBSSH2_ED25519_KEY_LEN],
+                          uint8_t server_public_key[LIBSSH2_ED25519_KEY_LEN])
+{
+    int rc = -1;
+    unsigned char out_shared_key[LIBSSH2_ED25519_KEY_LEN];
+    EVP_PKEY *peer_key = NULL, *server_key = NULL;
+    EVP_PKEY_CTX *server_key_ctx = NULL;
+    BN_CTX *bn_ctx = NULL;
+    size_t out_len = 0;
+
+    if(k == NULL || *k == NULL)
+        return -1;
+
+    bn_ctx = BN_CTX_new();
+    if(bn_ctx == NULL)
+        return -1;
+
+    peer_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_X25519, NULL,
+                                           server_public_key,
+                                           LIBSSH2_ED25519_KEY_LEN);
+
+    server_key = EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL,
+                                              private_key,
+                                              LIBSSH2_ED25519_KEY_LEN);
+
+    if(peer_key == NULL || server_key == NULL) {
+        goto cleanExit;
+    }
+
+    server_key_ctx = EVP_PKEY_CTX_new(server_key, NULL);
+    if(server_key_ctx == NULL) {
+        goto cleanExit;
+    }
+
+    rc = EVP_PKEY_derive_init(server_key_ctx);
+    if(rc <= 0) goto cleanExit;
+
+    rc = EVP_PKEY_derive_set_peer(server_key_ctx, peer_key);
+    if(rc <= 0) goto cleanExit;
+
+    rc = EVP_PKEY_derive(server_key_ctx, NULL, &out_len);
+    if(rc <= 0) goto cleanExit;
+
+    if(out_len != LIBSSH2_ED25519_KEY_LEN) {
+        rc = -1;
+        goto cleanExit;
+    }
+
+    rc = EVP_PKEY_derive(server_key_ctx, out_shared_key, &out_len);
+
+    if(rc == 1 && out_len == LIBSSH2_ED25519_KEY_LEN) {
+        BN_bin2bn(out_shared_key, LIBSSH2_ED25519_KEY_LEN, *k);
+    } else {
+        rc = -1;
+    }
+
+cleanExit:
+
+    if(server_key_ctx)
+        EVP_PKEY_CTX_free(server_key_ctx);
+    if(peer_key)
+        EVP_PKEY_free(peer_key);
+    if(server_key)
+        EVP_PKEY_free(server_key);
+    if (bn_ctx != NULL)
+        BN_CTX_free(bn_ctx);
+
+    return (rc == 1) ? 0 : -1;
+}
+
+
+int
+_libssh2_ed25519_verify(libssh2_ed25519_ctx *ctx, const uint8_t *s,
+                        size_t s_len, const uint8_t *m, size_t m_len)
+{
+    int ret = -1;
+
+    EVP_MD_CTX *md_ctx = EVP_MD_CTX_new();
+    if(NULL == md_ctx)
+        return -1;
+
+    ret = EVP_DigestVerifyInit(md_ctx, NULL, NULL, NULL, ctx->public_key);
+    if(ret != 1)
+        goto clean_exit;
+
+    ret = EVP_DigestVerify(md_ctx, s, s_len, m, m_len);
+
+    clean_exit:
+
+    EVP_MD_CTX_free(md_ctx);
+
+    return (ret == 1) ? 0 : -1;
+}
+
+#endif /* LIBSSH2_ED25519 */
+
+int
+_libssh2_pub_priv_openssh_keyfile(LIBSSH2_SESSION *session,
+                                  unsigned char **method,
+                                  size_t *method_len,
+                                  unsigned char **pubkeydata,
+                                  size_t *pubkeydata_len,
+                                  const char *privatekey,
+                                  const char *passphrase)
+{
+    FILE *fp;
+    unsigned char *buf = NULL;
+    struct string_buf *decrypted = NULL;
+    int rc = 0;
+
+    if(session == NULL)
+    {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Session is required");
+        return -1;
+    }
+
+    _libssh2_init_if_needed();
+
+    fp = fopen(privatekey, "r");
+    if(!fp) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                       "Unable to open private key file");
+        return -1;
+    }
+
+    rc = _libssh2_openssh_pem_parse(session, (const unsigned char*)passphrase,
+                                    fp, &decrypted);
+    fclose(fp);
+    if(rc) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                       "Not an OpenSSH key file");
+        return rc;
+    }
+
+    /* We have a new key file, now try and parse it using supported types  */
+    rc = _libssh2_get_c_string(decrypted, &buf);
+
+    if(rc < 1 || buf == NULL){
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Public key type in decrypted key data not found");
+        return -1;
+    }
+
+    rc = -1;
+
+#if LIBSSH2_ED25519
+    if(strcmp("ssh-ed25519", (const char*)buf) == 0) {
+        rc = gen_publickey_from_ed25519_openssh_priv_data(session, decrypted,
+                                                          method, method_len,
+                                                          pubkeydata, pubkeydata_len, NULL);
+    }
+#endif
+#if LIBSSH2_RSA
+    if(strcmp("ssh-rsa", (const char*)buf) == 0) {
+        rc = gen_publickey_from_rsa_openssh_priv_data(session, decrypted,
+                                                       method, method_len,
+                                                       pubkeydata, pubkeydata_len, NULL);
+    }
+#endif
+#if LIBSSH2_DSA
+    if(strcmp("ssh-dss", (const char*)buf) == 0) {
+        rc = gen_publickey_from_dsa_openssh_priv_data(session, decrypted,
+                                                      method, method_len,
+                                                      pubkeydata, pubkeydata_len, NULL);
+    }
+#endif
+#if LIBSSH2_ECDSA
+    {
+        libssh2_curve_type type;
+
+        if(_libssh2_ecdsa_curve_type_from_name((const char*)buf, &type) == 0) {
+            rc = gen_publickey_from_ecdsa_openssh_priv_data(session, type, decrypted,
+                                                            method, method_len,
+                                                            pubkeydata, pubkeydata_len, NULL);
+        }
+    }
+#endif
+
+    if(decrypted)
+        _libssh2_string_buf_free(session, decrypted);
+
+    if(rc != 0) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                       "Unsupported OpenSSH key type");
+    }
+
+    return rc;
+}
+
 int
 _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           unsigned char **method,
@@ -1692,6 +2821,7 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     BIO*      bp;
     EVP_PKEY* pk;
     int       pktype;
+    int       rc;
 
     _libssh2_debug(session,
                    LIBSSH2_TRACE_AUTH,
@@ -1711,12 +2841,23 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     BIO_free(bp);
 
     if(pk == NULL) {
-        return _libssh2_error(session,
-                              LIBSSH2_ERROR_FILE,
-                              "Unable to extract public key "
-                              "from private key file: "
-                              "Wrong passphrase or invalid/unrecognized "
-                              "private key file format");
+
+        /* Try OpenSSH format */
+        rc = _libssh2_pub_priv_openssh_keyfile(session,
+                                               method,
+                                               method_len,
+                                               pubkeydata, pubkeydata_len,
+                                               privatekey, passphrase);
+        if(rc != 0) {
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_FILE,
+                                  "Unable to extract public key "
+                                  "from private key file: "
+                                  "Wrong passphrase or invalid/unrecognized "
+                                  "private key file format");
+        }
+
+        return 0;
     }
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -1759,6 +2900,120 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 }
 
 int
+_libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
+                                        void **key_ctx,
+                                        const char *key_type,
+                                        unsigned char **method,
+                                        size_t *method_len,
+                                        unsigned char **pubkeydata,
+                                        size_t *pubkeydata_len,
+                                        const char *privatekeydata,
+                                        size_t privatekeydata_len,
+                                        unsigned const char *passphrase)
+{
+    int rc;
+    unsigned char *buf = NULL;
+    struct string_buf *decrypted = NULL;
+
+    if(key_ctx != NULL)
+        *key_ctx = NULL;
+
+    if(session == NULL) {
+      _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                     "Session is required");
+      return -1;
+    }
+
+    if(key_type != NULL && (strlen(key_type) > 11 || strlen(key_type) < 7)) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "type is invalid");
+        return -1;
+    }
+
+    _libssh2_init_if_needed();
+
+    rc = _libssh2_openssh_pem_parse_memory(session, passphrase,
+                                           privatekeydata,
+                                           privatekeydata_len, &decrypted);
+
+    if(rc) {
+       return rc;
+    }
+
+   /* We have a new key file, now try and parse it using supported types  */
+   rc = _libssh2_get_c_string(decrypted, &buf);
+
+   if(rc < 1 || buf == NULL) {
+       _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                      "Public key type in decrypted key data not found");
+       return -1;
+   }
+
+#if LIBSSH2_ED25519
+    if(strcmp("ssh-ed25519", (const char*)buf) == 0) {
+        if(key_type == NULL || strcmp("ssh-ed25519", key_type) == 0) {
+           rc = gen_publickey_from_ed25519_openssh_priv_data(session, decrypted,
+                                                             method, method_len,
+                                                             pubkeydata, pubkeydata_len,
+                                                             (libssh2_ed25519_ctx**)key_ctx);
+        }
+   }
+#endif
+#if LIBSSH2_RSA
+    if(strcmp("ssh-rsa", (const char*)buf) == 0) {
+        if(key_type == NULL || strcmp("ssh-rsa", key_type) == 0) {
+            rc = gen_publickey_from_rsa_openssh_priv_data(session, decrypted,
+                                                         method, method_len,
+                                                         pubkeydata, pubkeydata_len,
+                                                         (libssh2_rsa_ctx**)key_ctx);
+        }
+   }
+#endif
+#if LIBSSH2_DSA
+    if(strcmp("ssh-dss", (const char*)buf) == 0) {
+        if(key_type == NULL || strcmp("ssh-dss", key_type) == 0) {
+            rc = gen_publickey_from_dsa_openssh_priv_data(session, decrypted,
+                                                         method, method_len,
+                                                         pubkeydata, pubkeydata_len,
+                                                         (libssh2_dsa_ctx**)key_ctx);
+        }
+   }
+#endif
+#if LIBSSH2_ECDSA
+{
+   libssh2_curve_type type;
+
+   if(_libssh2_ecdsa_curve_type_from_name((const char*)buf, &type) == 0) {
+       if(key_type == NULL || strcmp("ssh-ecdsa", key_type) == 0) {
+           rc = gen_publickey_from_ecdsa_openssh_priv_data(session, type, decrypted,
+                                                           method, method_len,
+                                                           pubkeydata, pubkeydata_len,
+                                                           (libssh2_ecdsa_ctx**)key_ctx);
+        }
+    }
+}
+#endif
+
+    if(decrypted)
+        _libssh2_string_buf_free(session, decrypted);
+
+    return rc;
+}
+
+int
+read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
+                                     const char *key_type,
+                                     const char *filedata,
+                                     size_t filedata_len,
+                                     unsigned const char *passphrase)
+{
+    return _libssh2_pub_priv_openssh_keyfilememory(session, key_ctx, key_type,
+                                                   NULL, NULL, NULL, NULL,
+                                                   filedata, filedata_len,
+                                                   passphrase);
+}
+
+int
 _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 unsigned char **method,
                                 size_t *method_len,
@@ -1787,12 +3042,24 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     BIO_free(bp);
 
     if(pk == NULL) {
-        return _libssh2_error(session,
-                              LIBSSH2_ERROR_FILE,
-                              "Unable to extract public key "
-                              "from private key file: "
-                              "Wrong passphrase or invalid/unrecognized "
-                              "private key file format");
+        /* Try OpenSSH format */
+        st = _libssh2_pub_priv_openssh_keyfilememory(session, NULL, NULL, method,
+                                                     method_len,
+                                                     pubkeydata,
+                                                     pubkeydata_len,
+                                                     privatekeydata,
+                                                     privatekeydata_len,
+                                                     (unsigned const char*)passphrase);
+        if(st != 0) {
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_FILE,
+                                  "Unable to extract public key "
+                                  "from private key file: "
+                                  "Wrong passphrase or invalid/unrecognized "
+                                  "private key file format");
+        }
+
+        return 0;
     }
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -1816,8 +3083,8 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     case EVP_PKEY_EC :
         st = gen_publickey_from_ec_evp(session, method, method_len,
                                        pubkeydata, pubkeydata_len, pk);
-    break;
-#endif
+        break;
+#endif /* LIBSSH2_ECDSA */
     default :
         st = _libssh2_error(session,
                             LIBSSH2_ERROR_FILE,

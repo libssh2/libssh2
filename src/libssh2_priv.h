@@ -278,6 +278,8 @@ typedef struct key_exchange_state_low_t
     _libssh2_ec_key *private_key;   /* SSH2 ecdh private key */
     unsigned char *public_key_oct;  /* SSH2 ecdh public key octal value */
     size_t public_key_oct_len;      /* SSH2 ecdh public key octal value length */
+    unsigned char *curve25519_public_key; /* curve25519 public key, 32 bytes */
+    unsigned char *curve25519_private_key; /* curve25519 private key, 32 bytes */
 } key_exchange_state_low_t;
 
 typedef struct key_exchange_state_t
@@ -1048,6 +1050,15 @@ int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
 const LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);
 const LIBSSH2_HOSTKEY_METHOD **libssh2_hostkey_methods(void);
 
+/* misc.c */
+int _libssh2_bcrypt_pbkdf(const char *pass,
+                          size_t passlen,
+                          const uint8_t *salt,
+                          size_t saltlen,
+                          uint8_t *key,
+                          size_t keylen,
+                          unsigned int rounds);
+
 /* pem.c */
 int _libssh2_pem_parse(LIBSSH2_SESSION * session,
                        const char *headerbegin,
@@ -1059,6 +1070,17 @@ int _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
                               const char *headerend,
                               const char *filedata, size_t filedata_len,
                               unsigned char **data, unsigned int *datalen);
+ /* OpenSSL keys */
+int
+_libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
+                           const unsigned char *passphrase,
+                           FILE * fp, struct string_buf **decrypted_buf);
+int
+_libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
+                                  const unsigned char *passphrase,
+                                  const char *filedata, size_t filedata_len,
+                                  struct string_buf **decrypted_buf);
+
 int _libssh2_pem_decode_sequence(unsigned char **data, unsigned int *datalen);
 int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
                                 unsigned char **i, unsigned int *ilen);

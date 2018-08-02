@@ -39,6 +39,7 @@
 
 #include "libssh2_priv.h"
 #include "misc.h"
+#include "blf.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -674,4 +675,137 @@ void _libssh2_aes_ctr_increment(unsigned char *ctr,
         *pc-- = val & 0xFF;
         carry = val >> 8;
     }
+}
+
+static void * (* const volatile memset_libssh)(void *, int, size_t) = memset;
+
+void _libssh2_explicit_zero(void *buf, size_t size)
+{
+#ifdef HAVE_DECL_SECUREZEROMEMORY
+    SecureZeroMemory(buf, size);
+#elif defined(HAVE_MEMSET_S)
+    (void)memset_s(buf, size, 0, size);
+#else
+    memset_libssh(buf, 0, size);
+#endif
+}
+
+/* String buffer */
+
+struct string_buf* _libssh2_string_buf_new(LIBSSH2_SESSION *session)
+{
+    struct string_buf *ret;
+
+    if((ret = _libssh2_calloc(session, sizeof(*ret))) == NULL)
+        return NULL;
+
+    return ret;
+}
+
+void _libssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf)
+{
+    if(buf == NULL)
+        return;
+
+    if(buf->data != NULL)
+        free(buf->data);
+
+    LIBSSH2_FREE(session, buf);
+    buf = NULL;
+}
+
+int _libssh2_get_u32(struct string_buf *buf, uint32_t *out)
+{
+    unsigned char *p = NULL;
+
+    if(!_libssh2_check_length(buf, 4)) {
+        return -1;
+    }
+
+    p = buf->dataptr;
+    *out = (((uint32_t) p[0]) << 24) + (((uint32_t) p[1]) << 16) +
+    (((uint32_t) p[2]) << 8) + ((uint32_t) p[3]);
+    buf->dataptr += 4;
+    buf->offset += 4;
+    return 0;
+}
+
+int _libssh2_match_string(struct string_buf *buf, const char *match)
+{
+    unsigned char *out;
+    if((size_t)_libssh2_get_c_string(buf, &out) != strlen(match) ||
+        strncmp((char*)out, match, strlen(match)) != 0) {
+        return -1;
+    }
+    return 0;
+}
+
+int _libssh2_get_c_string(struct string_buf *buf, unsigned char **outbuf)
+{
+    uint32_t data_len;
+    if(_libssh2_get_u32(buf, &data_len) != 0) {
+        return -1;
+    }
+    if(!_libssh2_check_length(buf, data_len)) {
+        return -1;
+    }
+    *outbuf = buf->dataptr;
+    buf->dataptr += data_len;
+    buf->offset += data_len;
+    return data_len;
+}
+
+int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf)
+{
+    uint32_t data_len;
+    uint32_t bn_len;
+    unsigned char *bnptr;
+
+    if(_libssh2_get_u32(buf, &data_len) != 0) {
+        return -1;
+    }
+    if(!_libssh2_check_length(buf, data_len)) {
+        return -1;
+    }
+
+    bn_len = data_len;
+    bnptr = buf->dataptr;
+
+    // trim leading zeros
+    while(bn_len > 0 && *bnptr == 0x00) {
+        bn_len--;
+        bnptr++;
+    }
+
+    *outbuf = bnptr;
+
+    buf->dataptr += data_len;
+    buf->offset += data_len;
+
+    return bn_len;
+}
+
+int _libssh2_check_length(struct string_buf *buf, size_t len)
+{
+    return ((int)(buf->dataptr - buf->data) <= (int)(buf->len - len)) ? 1 : 0;
+}
+
+/* Wrappers */
+
+int _libssh2_bcrypt_pbkdf(const char *pass,
+                          size_t passlen,
+                          const uint8_t *salt,
+                          size_t saltlen,
+                          uint8_t *key,
+                          size_t keylen,
+                          unsigned int rounds)
+{
+    /* defined in bcrypt_pbkdf.c */
+    return bcrypt_pbkdf(pass,
+                        passlen,
+                        salt,
+                        saltlen,
+                        key,
+                        keylen,
+                        rounds);
 }

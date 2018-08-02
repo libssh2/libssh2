@@ -176,6 +176,9 @@ include(GNUInstallDirs)
 set(SOURCES
   ${CRYPTO_SOURCES}
   agent.c
+  blf.h
+  bcrypt_pbkdf.c
+  blowfish.c
   channel.c
   channel.h
   comp.c
@@ -312,6 +315,7 @@ if (NOT HAVE_STRTOLL)
   check_symbol_exists(_strtoi64 stdlib.h HAVE_STRTOI64)
 endif()
 check_symbol_exists(snprintf stdio.h HAVE_SNPRINTF)
+check_symbol_exists(memset_s string.h HAVE_MEMSET_S)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR
    ${CMAKE_SYSTEM_NAME} STREQUAL "Interix")

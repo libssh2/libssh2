@@ -772,7 +772,219 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ecdsa_ssh_nistp521 = {
     NULL,                       /* encrypt */
     hostkey_method_ssh_ecdsa_dtor,
 };
+
 #endif /* LIBSSH2_ECDSA */
+
+#if LIBSSH2_ED25519
+
+/* ***********
+ * ed25519 *
+ *********** */
+
+static int hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION * session,
+                                           void **abstract);
+
+/*
+ * hostkey_method_ssh_ed25519_init
+ *
+ * Initialize the server hostkey working area with e/n pair
+ */
+static int
+hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
+                                const unsigned char *hostkey_data,
+                                size_t hostkey_data_len,
+                                void **abstract)
+{
+    const unsigned char *s;
+    unsigned long len, key_len;
+    EVP_PKEY *public_key = NULL;
+    libssh2_ed25519_ctx *ctx = NULL;
+
+    if(*abstract) {
+        hostkey_method_ssh_ed25519_dtor(session, abstract);
+        *abstract = NULL;
+    }
+
+    if(hostkey_data_len < 15) {
+        return -1;
+    }
+
+    s = hostkey_data;
+    len = _libssh2_ntohu32(s);
+    s += 4;
+
+    if(len != 11 || strncmp((char *) s, "ssh-ed25519", 11) != 0) {
+        return -1;
+    }
+
+    s += 11;
+
+    //public key
+    key_len = _libssh2_ntohu32(s);
+    s += 4;
+
+    public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL, (const unsigned char*)s, key_len);
+    if(public_key == NULL) {
+        return _libssh2_error(session, LIBSSH2_ERROR_PROTO, "could not create ED25519 public key");
+    }
+
+    ctx = LIBSSH2_CALLOC(session, sizeof(libssh2_ed25519_ctx));
+    if(ctx == NULL) {
+        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "could not alloc public/private key");
+    }
+
+    ctx->public_key = public_key;
+    *abstract = ctx;
+
+    return 0;
+}
+
+/*
+ * hostkey_method_ssh_ed25519_initPEM
+ *
+ * Load a Private Key from a PEM file
+ */
+static int
+hostkey_method_ssh_ed25519_initPEM(LIBSSH2_SESSION * session,
+                             const char *privkeyfile,
+                             unsigned const char *passphrase,
+                             void **abstract)
+{
+    libssh2_ed25519_ctx *ec_ctx = NULL;
+    int ret;
+
+    if(*abstract) {
+        hostkey_method_ssh_ed25519_dtor(session, abstract);
+        *abstract = NULL;
+    }
+
+    ret = _libssh2_ed25519_new_private(&ec_ctx, session, privkeyfile, passphrase);
+    if(ret) {
+        return -1;
+    }
+
+    *abstract = ec_ctx;
+
+    return ret;
+}
+
+/*
+ * hostkey_method_ssh_ed25519_initPEMFromMemory
+ *
+ * Load a Private Key from memory
+ */
+static int
+hostkey_method_ssh_ed25519_initPEMFromMemory(LIBSSH2_SESSION * session,
+                                             const char *privkeyfiledata,
+                                             size_t privkeyfiledata_len,
+                                             unsigned const char *passphrase,
+                                             void **abstract)
+{
+    libssh2_ed25519_ctx *ed_ctx = NULL;
+    int ret;
+
+    if(abstract != NULL && *abstract) {
+        hostkey_method_ssh_ed25519_dtor(session, abstract);
+        *abstract = NULL;
+    }
+
+    ret = _libssh2_ed25519_new_private_frommemory(&ed_ctx, session,
+                                                  privkeyfiledata,
+                                                  privkeyfiledata_len, passphrase);
+    if(ret) {
+        return -1;
+    }
+
+    if(abstract != NULL)
+        *abstract = ed_ctx;
+
+    return 0;
+}
+
+/*
+ * hostkey_method_ssh_ed25519_sig_verify
+ *
+ * Verify signature created by remote
+ */
+static int
+hostkey_method_ssh_ed25519_sig_verify(LIBSSH2_SESSION * session,
+                                      const unsigned char *sig,
+                                      size_t sig_len,
+                                      const unsigned char *m,
+                                      size_t m_len, void **abstract)
+{
+    libssh2_ed25519_ctx *ctx = (libssh2_ed25519_ctx *) (*abstract);
+    (void) session;
+
+    if(sig_len < 19)
+        return -1;
+
+    /* Skip past keyname_len(4) + keyname(11){"ssh-ed25519"} + signature_len(4) */
+    sig += 19;
+    sig_len -= 19;
+
+    if(sig_len != LIBSSH2_ED25519_SIG_LEN)
+        return -1;
+
+    return _libssh2_ed25519_verify(ctx, sig, sig_len, m, m_len);
+}
+
+/*
+ * hostkey_method_ssh_ed25519_signv
+ *
+ * Construct a signature from an array of vectors
+ */
+static int
+hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION * session,
+                           unsigned char **signature,
+                           size_t *signature_len,
+                           int veccount,
+                           const struct iovec datavec[],
+                           void **abstract)
+{
+    libssh2_ed25519_ctx *ctx = (libssh2_ed25519_ctx *) (*abstract);
+
+    if (veccount != 1) {
+        return -1;
+    }
+
+    return _libssh2_ed25519_sign(ctx, session, signature, signature_len,
+                                 datavec[0].iov_base, datavec[0].iov_len);
+}
+
+
+/*
+ * hostkey_method_ssh_ed25519_dtor
+ *
+ * Shutdown the hostkey by freeing key context
+ */
+static int
+hostkey_method_ssh_ed25519_dtor(LIBSSH2_SESSION * session, void **abstract)
+{
+    libssh2_ed25519_ctx *keyctx = (libssh2_ed25519_ctx*) (*abstract);
+    (void) session;
+
+    if(keyctx)
+        _libssh2_ed25519_free(keyctx);
+
+    *abstract = NULL;
+
+    return 0;
+}
+
+static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_ed25519 = {
+    "ssh-ed25519",
+    SHA256_DIGEST_LENGTH,
+    hostkey_method_ssh_ed25519_init,
+    hostkey_method_ssh_ed25519_initPEM,
+    hostkey_method_ssh_ed25519_initPEMFromMemory,
+    hostkey_method_ssh_ed25519_sig_verify,
+    hostkey_method_ssh_ed25519_signv,
+    NULL,                       /* encrypt */
+    hostkey_method_ssh_ed25519_dtor,
+};
+
+#endif /*LIBSSH2_ED25519*/
 
 
 static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
@@ -780,6 +992,9 @@ static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
     &hostkey_method_ecdsa_ssh_nistp256,
     &hostkey_method_ecdsa_ssh_nistp384,
     &hostkey_method_ecdsa_ssh_nistp521,
+#endif
+#if LIBSSH2_ED25519
+    &hostkey_method_ssh_ed25519,
 #endif
 #if LIBSSH2_RSA
     &hostkey_method_ssh_rsa,
@@ -847,6 +1062,9 @@ static int hostkey_type(const unsigned char *hostkey, size_t len)
     static const unsigned char ecdsa_521[] = {
         0, 0, 0, 0x13, 'e', 'c', 'd', 's', 'a', '-', 's', 'h', 'a', '2', '-', 'n', 'i', 's', 't', 'p', '5', '2', '1'
     };
+    static const unsigned char ed25519[] = {
+        0, 0, 0, 0x0b, 's', 's', 'h', '-', 'e', 'd', '2', '5', '5', '1', '9'
+    };
 
     if(len < 11)
         return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
@@ -859,6 +1077,9 @@ static int hostkey_type(const unsigned char *hostkey, size_t len)
 
     if(len < 15)
         return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
+
+    if (!memcmp(ed25519, hostkey, 15))
+        return LIBSSH2_HOSTKEY_TYPE_ED25519;
 
     if(len < 23)
         return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;

@@ -76,6 +76,11 @@
 # define LIBSSH2_ECDSA 1
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x10101000L && \
+!defined(LIBRESSL_VERSION_NUMBER)
+# define LIBSSH2_ED25519 1
+#endif
+
 #ifdef OPENSSL_NO_MD5
 # define LIBSSH2_MD5 0
 #else
@@ -306,7 +311,29 @@ typedef enum {
 libssh2_curve_type;
 #else
 #define _libssh2_ec_key void
-#endif
+#endif /* LIBSSH2_ECDSA */
+
+#if LIBSSH2_ED25519
+
+typedef struct {
+    EVP_PKEY *public_key;
+    EVP_PKEY *private_key;
+} libssh2_curve25519_keys;
+
+#define libssh2_ed25519_ctx libssh2_curve25519_keys
+#define libssh2_x25519_ctx libssh2_curve25519_keys
+
+#define _libssh2_ed25519_free(ctx) do { \
+ if(ctx) { \
+  if(ctx->public_key) EVP_PKEY_free(ctx->public_key); \
+  if(ctx->private_key) EVP_PKEY_free(ctx->private_key); \
+  free(ctx); \
+ } \
+} while(0)
+
+#define _libssh2_x25519_free(ctx) _libssh2_ed25519_free(ctx)
+
+#endif /* ED25519 */
 
 #define _libssh2_cipher_type(name) const EVP_CIPHER *(*name)(void)
 #ifdef HAVE_OPAQUE_STRUCTS

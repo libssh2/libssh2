@@ -54,6 +54,59 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h")
 append_needed_socket_libraries(LIBRARIES)
 
+## Cryptography backend choice
+
+set(CRYPTO_BACKEND
+  ""
+  CACHE
+  STRING
+  "The backend to use for cryptography: OpenSSL, Libgcrypt or WinCNG, mbedTLS
+or empty to try any available")
+
+# If the crypto backend was given, rather than searching for the first
+# we are able to find, the find_package commands must abort configuration
+# and report to the user.
+if(CRYPTO_BACKEND)
+  set(SPECIFIC_CRYPTO_REQUIREMENT REQUIRED)
+endif()
+
+if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
+
+  find_package(OpenSSL ${SPECIFIC_CRYPTO_REQUIREMENT})
+
+  if(OPENSSL_FOUND)
+    set(CRYPTO_BACKEND "OpenSSL")
+  endif()
+endif()
+
+if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
+
+  find_package(Libgcrypt ${SPECIFIC_CRYPTO_REQUIREMENT})
+
+  if(LIBGCRYPT_FOUND)
+    set(CRYPTO_BACKEND "Libgcrypt")
+  endif()
+endif()
+
+if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
+
+  # The check actually compiles the header.  This requires windows.h.
+  check_include_files("windows.h;bcrypt.h" HAVE_BCRYPT_H)
+
+  if(HAVE_BCRYPT_H)
+    set(CRYPTO_BACKEND "WinCNG")
+  endif()
+endif()
+
+if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
+
+  find_package(mbedTLS ${SPECIFIC_CRYPTO_REQUIREMENT})
+
+  if(MBEDTLS_FOUND)
+    set(CRYPTO_BACKEND "mbedTLS")
+  endif()
+endif()
+
 set(TESTS
   hostkey
   hostkey_hash
@@ -66,6 +119,19 @@ set(TESTS
   keyboard_interactive_auth_fails_with_wrong_response
   keyboard_interactive_auth_succeeds_with_correct_response
   )
+
+if(CRYPTO_BACKEND STREQUAL "OpenSSL")
+    list(APPEND TESTS
+      public_key_auth_succeeds_with_correct_rsa_openssh_key
+    )
+    if(OPENSSL_VERSION VERSION_GREATER "1.1.0")
+      list(APPEND TESTS
+        public_key_auth_succeeds_with_correct_ed25519_key
+        public_key_auth_succeeds_with_correct_encrypted_ed25519_key
+        public_key_auth_succeeds_with_correct_ed25519_key_from_mem
+      )
+    endif()
+endif()
 
 if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
   list(APPEND TESTS
