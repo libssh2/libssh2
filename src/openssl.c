@@ -639,13 +639,17 @@ static EVP_CIPHER * aes_256_ctr_cipher = NULL;
 void _libssh2_openssl_crypto_init(void)
 {
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
+#ifndef OPENSSL_NO_ENGINE
     ENGINE_load_builtin_engines();
     ENGINE_register_all_complete();
+#endif
 #else
     OpenSSL_add_all_algorithms();
     OpenSSL_add_all_ciphers();
+#ifndef OPENSSL_NO_ENGINE
     ENGINE_load_builtin_engines();
     ENGINE_register_all_complete();
+#endif
 #endif
 #ifndef HAVE_EVP_AES_128_CTR
     aes_128_ctr_cipher = (EVP_CIPHER *)_libssh2_EVP_aes_128_ctr();
