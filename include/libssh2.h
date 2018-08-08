@@ -146,11 +146,6 @@ typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
 #endif
 
-#ifndef INT64_C
-#define INT64_C(x) x ## I64
-#endif
-
-
 #ifdef WIN32
 typedef SOCKET libssh2_socket_t;
 #define LIBSSH2_INVALID_SOCKET INVALID_SOCKET
