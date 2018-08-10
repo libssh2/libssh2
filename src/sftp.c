@@ -3293,6 +3293,7 @@ static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
         retcode = _libssh2_ntohu32(data + 5);
         LIBSSH2_FREE(session, data);
         if(retcode == LIBSSH2_FX_OK) {
+            memset(attrs, 0, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
             return 0;
         }
         else {
