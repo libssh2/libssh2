@@ -424,11 +424,12 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
  * Remove all pending packets in the packet_list and the corresponding one(s)
  * in the SFTP packet brigade.
  */
-static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
+static int sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
 {
     struct sftp_pipeline_chunk *chunk;
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_SESSION *session = sftp->channel->session;
+    int ret = 0;
 
     /* remove pending packets, if any */
     chunk = _libssh2_list_first(&handle->packet_list);
@@ -444,9 +445,17 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
             rc = sftp_packet_ask(sftp, SSH_FXP_DATA,
                                  chunk->request_id, &data, &data_len);
 
-        if(!rc)
+        if(!rc) {
             /* we found a packet, free it */
+            if(chunk->packet[4] == SSH_FXP_WRITE) {
+                uint32_t retcode = _libssh2_ntohu32(data + 5);
+                sftp->last_errno = retcode;
+                if(retcode != LIBSSH2_FX_OK)
+                    ret = _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                                         "FXP write failed");
+            }
             LIBSSH2_FREE(session, data);
+        }
         else if(chunk->sent)
             /* there was no incoming packet for this request, mark this
                request as a zombie if it ever sent the request */
@@ -456,6 +465,7 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
         LIBSSH2_FREE(session, chunk);
         chunk = next;
     }
+    return ret;
 }
 
 
@@ -1826,39 +1836,24 @@ libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *hnd, char *buffer,
 /*
  * sftp_write
  *
- * Write data to an SFTP handle. Returns the number of bytes written, or
- * a negative error code.
- *
- * We recommend sending very large data buffers to this function!
+ * Write data to an SFTP handle. Returns the number of bytes fully written,
+ * (not necessarily acknowledged) or a negative error code.
  *
  * Concept:
- *
- * - Detect how much of the given buffer that was already sent in a previous
- *   call by inspecting the linked list of outgoing chunks. Make sure to skip
- *   passed the data that has already been taken care of.
+ * - Check if we have half-sent packet; if we do, send off the remainder
  *
  * - Split all (new) outgoing data in chunks no larger than N.
+ *   Each N bytes chunk gets created as a separate SFTP packet.
  *
- * - Each N bytes chunk gets created as a separate SFTP packet.
+ * - Add outgoing packets to the linked list and send them until EAGAIN
+ *   or all sent.
  *
- * - Add all created outgoing packets to the linked list.
+ * - Check for ACKs. If a chunk has been ACKed, remove it from the linked
+ *   list, otherwise discard outstanding data and abort the transfer.
  *
- * - Walk through the list and send the chunks that haven't been sent,
- *   as many as possible until EAGAIN. Some of the chunks may have been put
- *   in the list in a previous invoke.
+ * - Return bytes completely sent off.
  *
- * - For all the chunks in the list that have been completely sent off, check
- *   for ACKs. If a chunk has been ACKed, it is removed from the linked
- *   list and the "acked" counter gets increased with that data amount.
- *
- * - Return TOTAL bytes acked so far.
- *
- * Caveats:
- * -  be careful: we must not return a higher number than what was given!
- *
- * TODO:
- *   Introduce an option that disables this sort of "speculative" ahead writing
- *   as there's a risk that it will do harm to some app.
+ * - After the last write, remaining ACKs are processed on sftp_close
  */
 
 static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
@@ -1874,76 +1869,16 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     ssize_t rc;
     struct sftp_pipeline_chunk *chunk;
     struct sftp_pipeline_chunk *next;
-    size_t acked = 0;
+    size_t acked = handle->u.file.acked;
     size_t org_count = count;
     size_t already;
 
-    switch(sftp->write_state) {
-    default:
-    case libssh2_NB_state_idle:
-
-        /* Number of bytes sent off that haven't been acked and therefore we
-           will get passed in here again.
-
-           Also, add up the number of bytes that actually already have been
-           acked but we haven't been able to return as such yet, so we will
-           get that data as well passed in here again.
-        */
-        already = (size_t) (handle->u.file.offset_sent - handle->u.file.offset)+
-            handle->u.file.acked;
-
-        if(count >= already) {
-            /* skip the part already made into packets */
-            buffer += already;
-            count -= already;
-        }
-        else
-            /* there is more data already fine than what we got in this call */
-            count = 0;
-
-        sftp->write_state = libssh2_NB_state_idle;
-        while(count) {
-            /* TODO: Possibly this should have some logic to prevent a very
-               very small fraction to be left but lets ignore that for now */
-            uint32_t size = MIN(MAX_SFTP_OUTGOING_SIZE, count);
-            uint32_t request_id;
-
-            /* 25 = packet_len(4) + packet_type(1) + request_id(4) +
-               handle_len(4) + offset(8) + count(4) */
-            packet_len = handle->handle_len + size + 25;
-
-            chunk = LIBSSH2_ALLOC(session, packet_len +
-                                  sizeof(struct sftp_pipeline_chunk));
-            if(!chunk)
-                return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                      "malloc fail for FXP_WRITE");
-
-            chunk->len = size;
-            chunk->sent = 0;
-            chunk->lefttosend = packet_len;
-
-            s = chunk->packet;
-            _libssh2_store_u32(&s, packet_len - 4);
-
-            *(s++) = SSH_FXP_WRITE;
-            request_id = sftp->request_id++;
-            chunk->request_id = request_id;
-            _libssh2_store_u32(&s, request_id);
-            _libssh2_store_str(&s, handle->handle, handle->handle_len);
-            _libssh2_store_u64(&s, handle->u.file.offset_sent);
-            handle->u.file.offset_sent += size; /* advance offset at once */
-            _libssh2_store_str(&s, buffer, size);
-
-            /* add this new entry LAST in the list */
-            _libssh2_list_add(&handle->packet_list, &chunk->node);
-
-            buffer += size;
-            count -= size; /* deduct the size we used, as we might have
-                              to create more packets */
-        }
-
-        /* move through the WRITE packets that haven't been sent and send as many
-           as possible - remember that we don't block */
+    /* Number of bytes sent off that we haven't acked and therefore expect
+       to get passed in here again.
+    */
+    already = (size_t) (handle->u.file.offset_sent - handle->u.file.offset);
+    if(already > 0) {
+        /* There's a half-sent packet in queue; resume sending */
         chunk = _libssh2_list_first(&handle->packet_list);
 
         while(chunk) {
@@ -1952,7 +1887,6 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                                             &chunk->packet[chunk->sent],
                                             chunk->lefttosend);
                 if(rc < 0)
-                    /* remain in idle state */
                     return rc;
 
                 /* remember where to continue sending the next time */
@@ -1960,95 +1894,141 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                 chunk->sent += rc;
 
                 if(chunk->lefttosend)
-                    /* data left to send, get out of loop */
-                    break;
+                    goto exit;
+
+                acked += chunk->len;
+                handle->u.file.offset += chunk->len;
             }
 
             /* move on to the next chunk with data to send */
             chunk = _libssh2_list_next(&chunk->node);
         }
-
-        /* fall-through */
-    case libssh2_NB_state_sent:
-
-        sftp->write_state = libssh2_NB_state_idle;
-        /*
-         * Count all ACKed packets
-         */
-        chunk = _libssh2_list_first(&handle->packet_list);
-
-        while(chunk) {
-            if(chunk->lefttosend)
-                /* if the chunk still has data left to send, we shouldn't wait
-                   for an ACK for it just yet */
-                break;
-
-            else if(acked)
-                /* if we have sent data that is acked, we must return that
-                   info before we call a function that might return EAGAIN */
-                break;
-
-            /* we check the packets in order */
-            rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
-                                     chunk->request_id, &data, &data_len);
-            if(rc < 0) {
-                if(rc == LIBSSH2_ERROR_EAGAIN)
-                    sftp->write_state = libssh2_NB_state_sent;
-                return rc;
-            }
-
-            retcode = _libssh2_ntohu32(data + 5);
-            LIBSSH2_FREE(session, data);
-
-            sftp->last_errno = retcode;
-            if(retcode == LIBSSH2_FX_OK) {
-                acked += chunk->len; /* number of payload data that was acked
-                                        here */
-
-                /* we increase the offset value for all acks */
-                handle->u.file.offset += chunk->len;
-
-                next = _libssh2_list_next(&chunk->node);
-
-                _libssh2_list_remove(&chunk->node); /* remove from list */
-                LIBSSH2_FREE(session, chunk); /* free memory */
-
-                chunk = next;
-            }
-            else {
-                /* flush all pending packets from the outgoing list */
-                sftp_packetlist_flush(handle);
-
-                /* since we return error now, the application will not get any
-                   outstanding data acked, so we need to rewind the offset to
-                   where the application knows it has reached with acked data */
-                handle->u.file.offset -= handle->u.file.acked;
-
-                /* then reset the offset_sent to be the same as the offset */
-                handle->u.file.offset_sent = handle->u.file.offset;
-
-                /* clear the acked counter since we can have no pending data to
-                   ack after an error */
-                handle->u.file.acked = 0;
-
-                /* the server returned an error for that written chunk, propagate
-                   this back to our parent function */
-                return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                                      "FXP write failed");
-            }
-        }
-        break;
     }
 
-    /* if there were acked data in a previous call that wasn't returned then,
-       add that up and try to return it all now. This can happen if the app
-       first sends a huge buffer of data, and then in a second call it sends a
-       smaller one. */
-    acked += handle->u.file.acked;
+    if(count >= acked) {
+        /* skip the part that's already sent but not yet acked to user */
+        buffer += acked;
+        count -= acked;
+    }
+    else
+        /* there is more data already fine than what we got in this call */
+        count = 0;
 
+    while(count) {
+        /* TODO: Possibly this should have some logic to prevent a very
+           very small fraction to be left but lets ignore that for now */
+        uint32_t size = MIN(MAX_SFTP_OUTGOING_SIZE, count);
+        uint32_t request_id;
+
+        /* 25 = packet_len(4) + packet_type(1) + request_id(4) +
+           handle_len(4) + offset(8) + count(4) */
+        packet_len = handle->handle_len + size + 25;
+
+        chunk = LIBSSH2_ALLOC(session, packet_len +
+                              sizeof(struct sftp_pipeline_chunk));
+        if(!chunk)
+            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                  "malloc fail for FXP_WRITE");
+
+        chunk->len = size;
+        chunk->sent = 0;
+        chunk->lefttosend = packet_len;
+
+        s = chunk->packet;
+        _libssh2_store_u32(&s, packet_len - 4);
+
+        *(s++) = SSH_FXP_WRITE;
+        request_id = sftp->request_id++;
+        chunk->request_id = request_id;
+        _libssh2_store_u32(&s, request_id);
+        _libssh2_store_str(&s, handle->handle, handle->handle_len);
+        _libssh2_store_u64(&s, handle->u.file.offset_sent);
+        handle->u.file.offset_sent += size; /* advance offset at once */
+        _libssh2_store_str(&s, buffer, size);
+
+        /* add this new entry LAST in the list */
+        _libssh2_list_add(&handle->packet_list, &chunk->node);
+
+        buffer += size;
+        count -= size; /* deduct the size we used, as we might have
+                          to create more packets */
+
+        /* packet added to list, now send it off */
+        rc = _libssh2_channel_write(channel, 0,
+                                    &chunk->packet[chunk->sent],
+                                    chunk->lefttosend);
+        if(rc < 0)
+            /* remain in idle state */
+            return rc;
+
+        /* remember where to continue sending the next time */
+        chunk->lefttosend -= rc;
+        chunk->sent += rc;
+
+        if(chunk->lefttosend)
+            goto exit;
+
+        acked += chunk->len;
+        handle->u.file.offset += chunk->len;
+    }
+    /*
+     * Sweep all ACKed packets; this can abort transfer, so don't do this
+     * in the middle of sending a packet
+     */
+    chunk = _libssh2_list_first(&handle->packet_list);
+
+    while(chunk) {
+        if(chunk->lefttosend)
+            /* if the chunk still has data left to send, we shouldn't wait
+               for an ACK for it just yet */
+            break;
+
+        /* we check the packets in order */
+        rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
+                                 chunk->request_id, &data, &data_len);
+        if(rc < 0)
+            break;
+
+        retcode = _libssh2_ntohu32(data + 5);
+        LIBSSH2_FREE(session, data);
+
+        sftp->last_errno = retcode;
+        if(retcode == LIBSSH2_FX_OK) {
+            /* all good, just remove from pending list */
+            next = _libssh2_list_next(&chunk->node);
+
+            _libssh2_list_remove(&chunk->node); /* remove from list */
+            LIBSSH2_FREE(session, chunk); /* free memory */
+
+            chunk = next;
+        }
+        else {
+            /* flush all pending packets from the outgoing list */
+            sftp_packetlist_flush(handle);
+
+            /* since we return error now, the application will not get any
+               outstanding data acked, so we need to rewind the offset to
+               where the application knows it has reached with acked data */
+            handle->u.file.offset -= handle->u.file.acked;
+
+            /* then reset the offset_sent to be the same as the offset */
+            handle->u.file.offset_sent = handle->u.file.offset;
+
+            /* clear the acked counter since we can have no pending data to
+               ack after an error */
+            handle->u.file.acked = 0;
+
+            /* the server returned an error for that written chunk, propagate
+               this back to our parent function */
+            return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                                  "FXP write failed");
+        }
+    }
+
+exit:
     if(acked) {
         ssize_t ret = MIN(acked, org_count);
-        /* we got data acked so return that amount, but no more than what
+        /* we got data sent so return that amount, but no more than what
            was asked to get sent! */
 
         /* store the remainder. 'ret' is always equal to or less than 'acked'
@@ -2401,7 +2381,7 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     uint32_t packet_len = handle->handle_len + 13;
     unsigned char *s, *data = NULL;
-    int rc = 0;
+    int rc = 0, rc2 = 0;
 
     if(handle->close_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Closing handle");
@@ -2486,8 +2466,11 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         if(handle->u.file.data)
             LIBSSH2_FREE(session, handle->u.file.data);
     }
+    /* check status of buffered writes */
+    rc2 = sftp_packetlist_flush(handle);
+    if(!rc)
+        rc = rc2;
 
-    sftp_packetlist_flush(handle);
     sftp->read_state = libssh2_NB_state_idle;
 
     handle->close_state = libssh2_NB_state_idle;
