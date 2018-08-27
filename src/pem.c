@@ -611,8 +611,8 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
             goto out;
         }
 
-        out_buf->data = malloc(decrypted.len);
-        if(!out_buf->data)
+        out_buf->data = LIBSSH2_CALLOC(session, decrypted.len);
+        if(out_buf->data == NULL)
         {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory for decrypted struct");
