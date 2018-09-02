@@ -53,6 +53,10 @@
 #include <sys/time.h>
 #endif
 
+#ifdef HAVE_DECL_SECUREZEROMEMORY
+#include <windows.h>
+#endif
+
 #include <stdio.h>
 #include <errno.h>
 
