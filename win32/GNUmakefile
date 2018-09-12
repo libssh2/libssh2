@@ -125,7 +125,7 @@ endif
 -include $(OBJDIR)/version.inc
 
 # Global flags for all compilers
-CFLAGS	= $(LIBSSH2_CFLAG_EXTRAS) $(OPT) -D$(DB) -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
+CFLAGS	= $(LIBSSH2_CFLAG_EXTRAS) $(OPT) -D$(DB) -DLIBSSH2_WIN32 -DHAVE_WINDOWS_H # -DHAVE_CONFIG_H
 LDFLAGS = $(LIBSSH2_LDFLAG_EXTRAS)
 
 ifeq ($(CC),mwcc)
