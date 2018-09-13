@@ -571,13 +571,13 @@ make_ctr_evp (size_t keylen, EVP_CIPHER **aes_ctr_cipher, int type)
         EVP_CIPHER_meth_set_cleanup(*aes_ctr_cipher, aes_ctr_cleanup);
     }
 #else
-    *aes_ctr_cipher->nid = type;
-    *aes_ctr_cipher->block_size = 16;
-    *aes_ctr_cipher->key_len = keylen;
-    *aes_ctr_cipher->iv_len = 16;
-    *aes_ctr_cipher->init = aes_ctr_init;
-    *aes_ctr_cipher->do_cipher = aes_ctr_do_cipher;
-    *aes_ctr_cipher->cleanup = aes_ctr_cleanup;
+    (*aes_ctr_cipher)->nid = type;
+    (*aes_ctr_cipher)->block_size = 16;
+    (*aes_ctr_cipher)->key_len = keylen;
+    (*aes_ctr_cipher)->iv_len = 16;
+    (*aes_ctr_cipher)->init = aes_ctr_init;
+    (*aes_ctr_cipher)->do_cipher = aes_ctr_do_cipher;
+    (*aes_ctr_cipher)->cleanup = aes_ctr_cleanup;
 #endif
 
     return *aes_ctr_cipher;
