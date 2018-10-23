@@ -91,7 +91,7 @@
 
 /* This is the maximum packet length to accept, as larger than this indicate
    some kind of server problem. */
-#define LIBSSH2_SFTP_PACKET_MAXLEN  80000
+#define LIBSSH2_SFTP_PACKET_MAXLEN  (256 * 1024)
 
 static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
                            uint32_t request_id, unsigned char **data,
