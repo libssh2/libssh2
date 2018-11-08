@@ -79,6 +79,9 @@ typedef struct _LIBSSH2_SFTP_STATVFS        LIBSSH2_SFTP_STATVFS;
 #define LIBSSH2_SFTP_READLINK           1
 #define LIBSSH2_SFTP_REALPATH           2
 
+/* Flags for sftp_mkdir() */
+#define LIBSSH2_SFTP_DEFAULT_MODE      -1
+
 /* SFTP attribute flag bits */
 #define LIBSSH2_SFTP_ATTR_SIZE              0x00000001
 #define LIBSSH2_SFTP_ATTR_UIDGID            0x00000002
