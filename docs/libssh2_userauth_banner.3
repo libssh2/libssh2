@@ -1,0 +1,25 @@
+.TH libssh2_userauth_banner 3 "27 Nov 2018" "libssh2 0.15" "libssh2 manual"
+.SH NAME
+libssh2_userauth_banner - get the server's pre-auth banner message
+.SH SYNOPSIS
+.nf
+#include <libssh2.h>
+
+char *
+libssh2_userauth_banner(LIBSSH2_SESSION *session,
+                        size_t *banner_len_out);
+.SH DESCRIPTION
+\fIsession\fP - Session instance as returned by
+.BR libssh2_session_init_ex(3)
+
+\fIbanner_len_out\fP - The length of the server banner returned.
+
+After an authentication has been attempted, such as a \fBSSH_USERAUTH_NONE\fP request sent by
+.BR libssh2_userauth_list(3) ,
+this function  can be called to retrieve the pre-auth banner sent by the server. If no such banner is sent, or if an authentication has not yet been attempted, returns NULL.
+.SH RETURN VALUE
+On success a UTF-8 pre-authentication banner message from the server.
+On failure returns NULL.
+.SH SEE ALSO
+.BR libssh2_session_init_ex(3),
+.BR libssh2_userauth_list(3)
