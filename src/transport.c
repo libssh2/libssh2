@@ -477,8 +477,12 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 /* copy the data from index 5 to the end of
                    the blocksize from the temporary buffer to
                    the start of the decrypted buffer */
-                memcpy(p->wptr, &block[5], blocksize - 5);
-                p->wptr += blocksize - 5;       /* advance write pointer */
+                if (blocksize - 5 <= total_num) {
+                    memcpy(p->wptr, &block[5], blocksize - 5);
+                    p->wptr += blocksize - 5;       /* advance write pointer */
+                } else {
+                    return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+                }
             }
 
             /* init the data_num field to the number of bytes of
@@ -552,7 +556,13 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         /* if there are bytes to copy that aren't decrypted, simply
            copy them as-is to the target buffer */
         if (numbytes > 0) {
-            memcpy(p->wptr, &p->buf[p->readidx], numbytes);
+            
+            if (numbytes <= total_num - (p->wptr - p->payload)) {
+                memcpy(p->wptr, &p->buf[p->readidx], numbytes);
+            }
+            else {
+                return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+            }
 
             /* advance the read pointer */
             p->readidx += numbytes;
