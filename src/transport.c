@@ -444,6 +444,10 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             else if(p->packet_length > LIBSSH2_PACKET_MAXPAYLOAD) {
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
+            else if ( p->padding_length > p->packet_length - 1 ) {
+                return LIBSSH2_ERROR_DECRYPT;
+            }
+
 
             /* total_num is the number of bytes following the initial
                (5 bytes) packet length and padding length fields */
