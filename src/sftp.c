@@ -204,6 +204,10 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
     LIBSSH2_SFTP_PACKET *packet;
     uint32_t request_id;
 
+    if (data_len < 5) {
+        return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
+    }
+
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
                    "Received packet type %d (len %d)",
                    (int) data[0], data_len);
