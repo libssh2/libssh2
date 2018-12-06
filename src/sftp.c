@@ -932,17 +932,49 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     while(s < (data + data_len)) {
         size_t extname_len, extdata_len;
 
-        extname_len = _libssh2_ntohu32(s);
-        s += 4;
-        /* the extension name starts here */
-        s += extname_len;
+        if( s + 4 <= data + data_len ) {
+            extname_len = _libssh2_ntohu32(s);
+            s += 4;
+        }
+        else {
+            LIBSSH2_FREE(session, data);
+            _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                           "Data too short when extracting extname_len");
+            goto sftp_init_error;
+        }
 
-        extdata_len = _libssh2_ntohu32(s);
-        s += 4;
+        if(s + extname_len <= data + data_len) {
+            /* the extension name starts here */
+            s += extname_len;
+        }
+        else {
+            LIBSSH2_FREE(session, data);
+            _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                           "Data too short for extname");
+            goto sftp_init_error;
+        }
 
-        /* TODO: Actually process extensions */
-        s += extdata_len;
+        if( s + 4 <= data + data_len ) {
+            extdata_len = _libssh2_ntohu32(s);
+            s += 4;
+        }
+        else {
+            LIBSSH2_FREE(session, data);
+            _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                           "Data too short when extracting extdata_len");
+            goto sftp_init_error;
+        }
 
+        if(s + extdata_len <= data + data_len) {
+            /* TODO: Actually process extensions */
+            s += extdata_len;
+        }
+        else {
+            LIBSSH2_FREE(session, data);
+            _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                           "Data too short for extdata");
+            goto sftp_init_error;
+        }
     }
     LIBSSH2_FREE(session, data);
 
@@ -1756,11 +1788,18 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
             size_t real_filename_len;
             size_t filename_len;
             size_t longentry_len;
+            size_t names_packet_len = handle->u.dir.names_packet_len;
 
-            s = (unsigned char *) handle->u.dir.next_name;
-            real_filename_len = _libssh2_ntohu32(s);
-
-            s += 4;
+            if(names_packet_len >= 4) {
+                s = (unsigned char *) handle->u.dir.next_name;
+                real_filename_len = _libssh2_ntohu32(s);
+                s += 4;
+                names_packet_len -= 4;
+            }
+            else {
+                filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                goto end;
+            }
 
             filename_len = real_filename_len;
             if(filename_len >= buffer_maxlen) {
@@ -1768,17 +1807,31 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 goto end;
             }
 
-            memcpy(buffer, s, filename_len);
-            buffer[filename_len] = '\0';           /* zero terminate */
-            s += real_filename_len;
+            if(buffer_maxlen >= filename_len && names_packet_len >= filename_len) {
+                memcpy(buffer, s, filename_len);
+                buffer[filename_len] = '\0';           /* zero terminate */
+                s += real_filename_len;
+                names_packet_len -= real_filename_len;
+            }
+            else {
+                filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                goto end;
+            }
 
-            real_longentry_len = _libssh2_ntohu32(s);
-            s += 4;
+            if(names_packet_len >= 4) {
+                real_longentry_len = _libssh2_ntohu32(s);
+                s += 4;
+                names_packet_len -= 4;
+            }
+            else {
+                filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                goto end;
+            }
 
             if(longentry && (longentry_maxlen>1)) {
                 longentry_len = real_longentry_len;
 
-                if(longentry_len >= longentry_maxlen) {
+                if(longentry_len >= longentry_maxlen || longentry_len > names_packet_len) {
                     filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
                     goto end;
                 }
@@ -1786,14 +1839,32 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 memcpy(longentry, s, longentry_len);
                 longentry[longentry_len] = '\0'; /* zero terminate */
             }
-            s += real_longentry_len;
+
+            if(real_longentry_len <= names_packet_len) {
+                s += real_longentry_len;
+                names_packet_len -= real_longentry_len;
+            }
+            else {
+                filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                goto end;
+            }
 
             if(attrs)
                 memset(attrs, 0, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
 
-            s += sftp_bin2attr(attrs ? attrs : &attrs_dummy, s, 32);
+            int attr_len = sftp_bin2attr(attrs ? attrs : &attrs_dummy, s, names_packet_len);
+
+            if (attr_len >= 0) {
+                s += attr_len;
+                names_packet_len -= attr_len;
+            }
+            else {
+                filename_len = (size_t)LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+                goto end;
+            }
 
             handle->u.dir.next_name = (char *) s;
+            handle->u.dir.names_packet_len = names_packet_len;
           end:
 
             if((--handle->u.dir.names_left) == 0)
@@ -1890,6 +1961,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     handle->u.dir.names_left = num_names;
     handle->u.dir.names_packet = data;
     handle->u.dir.next_name = (char *) data + 9;
+    handle->u.dir.names_packet_len = data_len - 9;
 
     /* use the name popping mechanism from the start of the function */
     return sftp_readdir(handle, buffer, buffer_maxlen, longentry,
@@ -2602,11 +2674,11 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
     /* remove this handle from the parent's list */
     _libssh2_list_remove(&handle->node);
 
-    if((handle->handle_type == LIBSSH2_SFTP_HANDLE_DIR)
-        && handle->u.dir.names_left) {
-        LIBSSH2_FREE(session, handle->u.dir.names_packet);
+    if (handle->handle_type == LIBSSH2_SFTP_HANDLE_DIR) {
+        if (handle->u.dir.names_left)
+            LIBSSH2_FREE(session, handle->u.dir.names_packet);
     }
-    else {
+    else if (handle->handle_type == LIBSSH2_SFTP_HANDLE_FILE) {
         if(handle->u.file.data)
             LIBSSH2_FREE(session, handle->u.file.data);
     }
