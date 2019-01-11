@@ -689,6 +689,7 @@ void
 _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
 {
     mbedtls_mpi_free(*dhctx);
+    mbedtls_free(*dhctx);
     *dhctx = NULL;
 }
 
