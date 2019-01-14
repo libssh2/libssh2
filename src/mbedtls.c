@@ -688,8 +688,7 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
 void
 _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
 {
-    mbedtls_mpi_free(*dhctx);
-    mbedtls_free(*dhctx);
+    _libssh2_bn_free(*dhctx);
     *dhctx = NULL;
 }
 
