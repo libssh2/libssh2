@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
     if (!agent) {
         fprintf(stderr, "Failure initializing ssh-agent support\n");
         rc = 1;
-        goto shutdown;
+        goto shutdown_skip_agent;
     }
     if (libssh2_agent_connect(agent)) {
         fprintf(stderr, "Failure connecting to ssh-agent\n");
@@ -225,6 +225,8 @@ int main(int argc, char *argv[])
 
     libssh2_agent_disconnect(agent);
     libssh2_agent_free(agent);
+
+  shutdown_skip_agent:
 
     if(session) {
         libssh2_session_disconnect(session,
