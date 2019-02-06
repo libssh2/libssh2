@@ -3035,8 +3035,6 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
                                   "Unable to allocate memory for FXP_MKDIR "
                                   "packet");
         }
-        /* Filetype in SFTP 3 and earlier */
-        attrs.permissions = mode | LIBSSH2_SFTP_ATTR_PFILETYPE_DIR;
 
         _libssh2_store_u32(&s, packet_len - 4);
         *(s++) = SSH_FXP_MKDIR;
