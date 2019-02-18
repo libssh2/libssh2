@@ -646,6 +646,7 @@ void _libssh2_openssl_crypto_init(void)
 #else
     OpenSSL_add_all_algorithms();
     OpenSSL_add_all_ciphers();
+    OpenSSL_add_all_digests();
 #ifndef OPENSSL_NO_ENGINE
     ENGINE_load_builtin_engines();
     ENGINE_register_all_complete();
