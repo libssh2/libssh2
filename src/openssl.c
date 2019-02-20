@@ -1590,7 +1590,7 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
         goto clean_exit;
     }
 
-    ctx = LIBSSH2_CALLOC(session, sizeof(libssh2_ed25519_ctx));
+    ctx = _libssh2_ed25519_new_ctx();
     if (ctx == NULL) {
         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                        "Unable to allocate memory for ed25519 key");

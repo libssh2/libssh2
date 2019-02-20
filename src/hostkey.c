@@ -828,7 +828,7 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
         return _libssh2_error(session, LIBSSH2_ERROR_PROTO, "could not create ED25519 public key");
     }
 
-    ctx = LIBSSH2_CALLOC(session, sizeof(libssh2_ed25519_ctx));
+    ctx = _libssh2_ed25519_new_ctx();
     if(ctx == NULL) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "could not alloc public/private key");
     }
