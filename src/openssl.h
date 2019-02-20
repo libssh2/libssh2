@@ -325,6 +325,7 @@ typedef struct {
 #define libssh2_ed25519_ctx libssh2_curve25519_keys
 #define libssh2_x25519_ctx libssh2_curve25519_keys
 
+#define _libssh2_ed25519_new_ctx() malloc(sizeof(libssh2_ed25519_ctx))
 #define _libssh2_ed25519_free(ctx) do { \
  if(ctx) { \
   if(ctx->public_key) EVP_PKEY_free(ctx->public_key); \
