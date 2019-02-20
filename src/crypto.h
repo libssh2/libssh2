@@ -184,9 +184,15 @@ _libssh2_ed25519_verify(libssh2_ed25519_ctx *ctx, const uint8_t *s,
                         size_t s_len, const uint8_t *m, size_t m_len);
 
 int
-_libssh2_ed25519_new_private(libssh2_ed25519_ctx **ec_ctx,
+_libssh2_ed25519_new_private(libssh2_ed25519_ctx **ed_ctx,
                             LIBSSH2_SESSION *session,
                             const char *filename, const uint8_t *passphrase);
+
+int
+_libssh2_ed25519_new_public(libssh2_ed25519_ctx **ed_ctx,
+                            LIBSSH2_SESSION *session,
+                            const char *raw_pub_key, const uint8_t key_len);
+
 int
 _libssh2_ed25519_sign(libssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
                       uint8_t **out_sig, size_t *out_sig_len,
