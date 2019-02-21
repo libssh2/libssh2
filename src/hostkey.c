@@ -795,9 +795,8 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
                                 size_t hostkey_data_len,
                                 void **abstract)
 {
-    const unsigned char *s;
+    const char *s;
     unsigned long len, key_len;
-    EVP_PKEY *public_key = NULL;
     libssh2_ed25519_ctx *ctx = NULL;
 
     if(*abstract) {
@@ -823,17 +822,10 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
     key_len = _libssh2_ntohu32(s);
     s += 4;
 
-    public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL, (const unsigned char*)s, key_len);
-    if(public_key == NULL) {
-        return _libssh2_error(session, LIBSSH2_ERROR_PROTO, "could not create ED25519 public key");
+    if(_libssh2_ed25519_new_public(&ctx, session, s, key_len) != 0) {
+        return -1;
     }
 
-    ctx = _libssh2_ed25519_new_ctx();
-    if(ctx == NULL) {
-        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "could not alloc public/private key");
-    }
-
-    ctx->public_key = public_key;
     *abstract = ctx;
 
     return 0;

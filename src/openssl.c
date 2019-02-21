@@ -1774,6 +1774,37 @@ _libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx ** ed_ctx,
                                             filedata, filedata_len, passphrase);
 }
 
+int
+_libssh2_ed25519_new_public(libssh2_ed25519_ctx ** ed_ctx,
+                            LIBSSH2_SESSION * session,
+                            const char *raw_pub_key, const uint8_t key_len)
+{
+    libssh2_ed25519_ctx *ctx = NULL;
+    EVP_PKEY *public_key = NULL;
+
+    if(ed_ctx == NULL)
+        return -1;
+
+    public_key = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL, (const unsigned char*)raw_pub_key, key_len);
+    if(public_key == NULL) {
+        return _libssh2_error(session, LIBSSH2_ERROR_PROTO, "could not create ED25519 public key");
+    }
+    
+    ctx = _libssh2_ed25519_new_ctx();
+    if(ctx == NULL) {
+        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "could not alloc public/private key");
+    }
+    
+    ctx->public_key = public_key;
+    
+    if(ed_ctx != NULL)
+        *ed_ctx = ctx;
+    else if(ctx != NULL)
+        _libssh2_ed25519_free(ctx);
+
+    return 0;
+}
+
 #endif /* LIBSSH2_ED25519 */
 
 int
