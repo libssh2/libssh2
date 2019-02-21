@@ -1455,8 +1455,8 @@ _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
 #if LIBSSH2_ED25519
 
 int
-_libssh2_curve25519_new(libssh2_x25519_ctx **out_ctx, unsigned char **out_public_key,
-                        unsigned char **out_private_key)
+_libssh2_curve25519_new(LIBSSH2_SESSION *session, libssh2_x25519_ctx **out_ctx, 
+                        unsigned char **out_public_key, unsigned char **out_private_key)
 {
     EVP_PKEY *key = NULL;
     EVP_PKEY_CTX *pctx = NULL;
@@ -1501,7 +1501,7 @@ _libssh2_curve25519_new(libssh2_x25519_ctx **out_ctx, unsigned char **out_public
         goto cleanExit;
 
     if(out_private_key != NULL) {
-        *out_private_key = malloc(LIBSSH2_ED25519_KEY_LEN);
+        *out_private_key = LIBSSH2_ALLOC(session, LIBSSH2_ED25519_KEY_LEN);
         if(*out_private_key == NULL)
             goto cleanExit;
 
@@ -1509,7 +1509,7 @@ _libssh2_curve25519_new(libssh2_x25519_ctx **out_ctx, unsigned char **out_public
     }
 
     if(out_public_key != NULL) {
-        *out_public_key = malloc(LIBSSH2_ED25519_KEY_LEN);
+        *out_public_key = LIBSSH2_ALLOC(session, LIBSSH2_ED25519_KEY_LEN);
         if(*out_public_key == NULL)
             goto cleanExit;
 
@@ -2477,7 +2477,7 @@ _libssh2_ecdsa_new_private(libssh2_ecdsa_ctx ** ec_ctx,
  */
 
 int
-_libssh2_ecdsa_create_key(_libssh2_ec_key **out_private_key,
+_libssh2_ecdsa_create_key(LIBSSH2_SESSION *session, _libssh2_ec_key **out_private_key,
                           unsigned char **out_public_key_octal,
                           size_t *out_public_key_octal_len, libssh2_curve_type curve_type)
 {
@@ -2517,7 +2517,7 @@ _libssh2_ecdsa_create_key(_libssh2_ec_key **out_private_key,
         *out_private_key = private_key;
 
     if(out_public_key_octal) {
-        *out_public_key_octal = malloc(octal_len);
+        *out_public_key_octal = LIBSSH2_ALLOC(session, octal_len);
         if(*out_public_key_octal == NULL) {
             ret = -1;
             goto clean_exit;
