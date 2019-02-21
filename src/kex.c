@@ -2421,8 +2421,8 @@ kex_method_ecdh_key_exchange
             goto ecdh_clean_exit;
         }
 
-        rc = _libssh2_ecdsa_create_key(&key_state->private_key, &key_state->public_key_oct,
-                                       &key_state->public_key_oct_len, type);
+        rc = _libssh2_ecdsa_create_key(session, &key_state->private_key, 
+                                       &key_state->public_key_oct, &key_state->public_key_oct_len, type);
 
         if(rc != 0) {
             ret = _libssh2_error(session, rc,
@@ -2489,7 +2489,7 @@ kex_method_ecdh_key_exchange
 ecdh_clean_exit:
 
     if(key_state->public_key_oct) {
-        free(key_state->public_key_oct);
+        LIBSSH2_FREE(session, key_state->public_key_oct);
         key_state->public_key_oct = NULL;
     }
 
@@ -2988,7 +2988,7 @@ kex_method_curve25519_key_exchange
             goto clean_exit;
         }
 
-        rc = _libssh2_curve25519_new(NULL, &key_state->curve25519_public_key,
+        rc = _libssh2_curve25519_new(session, NULL, &key_state->curve25519_public_key,
                                      &key_state->curve25519_private_key);
 
         if( rc != 0 )
