@@ -822,7 +822,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                         }
                         else {
                             channelp->exit_signal = NULL;
-                        }                        
+                        }
 
                         if (!channelp->exit_signal)
                             rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
