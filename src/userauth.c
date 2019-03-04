@@ -1831,8 +1831,17 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
 
             for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
                 /* string    response[1] (ISO-10646 UTF-8) */
-                session->userauth_kybd_packet_len +=
-                    4 + session->userauth_kybd_responses[i].length;
+                 if(session->userauth_kybd_responses[i].length <=
+                   (SIZE_MAX - 4 - session->userauth_kybd_packet_len) ) {
+                    session->userauth_kybd_packet_len +=
+                        4 + session->userauth_kybd_responses[i].length;
+                }
+                else {
+                    _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                   "Unable to allocate memory for keyboard-"
+                                   "interactive response packet");
+                    goto cleanup;
+                }
             }
 
             /* A new userauth_kybd_data area is to be allocated, free the

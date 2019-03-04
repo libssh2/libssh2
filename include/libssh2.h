@@ -145,6 +145,18 @@ typedef int libssh2_socket_t;
 #define LIBSSH2_INVALID_SOCKET -1
 #endif /* WIN32 */
 
+#ifndef SIZE_MAX
+#if _WIN64
+#define SIZE_MAX 0xFFFFFFFFFFFFFFFF
+#else
+#define SIZE_MAX 0xFFFFFFFF
+#endif
+#endif
+
+#ifndef UINT_MAX
+#define UINT_MAX 0xFFFFFFFF
+#endif
+
 /*
  * Determine whether there is small or large file support on windows.
  */
