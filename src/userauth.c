@@ -1734,6 +1734,13 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             /* int       num-prompts */
             session->userauth_kybd_num_prompts = _libssh2_ntohu32(s);
             s += 4;
+            if(session->userauth_kybd_num_prompts && 
+               session->userauth_kybd_num_prompts > 100) {
+               _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                              "Too many replies for "
+                              "keyboard-interactive prompts");
+               goto cleanup;
+            }
 
             if(session->userauth_kybd_num_prompts) {
                 session->userauth_kybd_prompts =
