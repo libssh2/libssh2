@@ -1261,7 +1261,7 @@ libssh2_agent_free(LIBSSH2_AGENT *agent);
  */
 LIBSSH2_API void
 libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent,
-								const char *path);
+                                const char *path);
 
 /*
  * libssh2_agent_get_identity_path()
