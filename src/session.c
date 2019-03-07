@@ -1161,7 +1161,7 @@ libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason,
                               const char *desc, const char *lang)
 {
     int rc;
-
+    session->state = 0;
     BLOCK_ADJUST(rc, session,
                  session_disconnect(session, reason, desc, lang));
 
