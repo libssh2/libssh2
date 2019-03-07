@@ -795,7 +795,7 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
                                 size_t hostkey_data_len,
                                 void **abstract)
 {
-    const char *s;
+    const unsigned char *s;
     unsigned long len, key_len;
     libssh2_ed25519_ctx *ctx = NULL;
 

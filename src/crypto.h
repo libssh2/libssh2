@@ -191,7 +191,7 @@ _libssh2_ed25519_new_private(libssh2_ed25519_ctx **ed_ctx,
 int
 _libssh2_ed25519_new_public(libssh2_ed25519_ctx **ed_ctx,
                             LIBSSH2_SESSION *session,
-                            const char *raw_pub_key, const uint8_t key_len);
+                            const unsigned char *raw_pub_key, const uint8_t key_len);
 
 int
 _libssh2_ed25519_sign(libssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,

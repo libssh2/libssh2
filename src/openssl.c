@@ -1778,7 +1778,7 @@ _libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx ** ed_ctx,
 int
 _libssh2_ed25519_new_public(libssh2_ed25519_ctx ** ed_ctx,
                             LIBSSH2_SESSION * session,
-                            const char *raw_pub_key, const uint8_t key_len)
+                            const unsigned char *raw_pub_key, const uint8_t key_len)
 {
     libssh2_ed25519_ctx *ctx = NULL;
     EVP_PKEY *public_key = NULL;
