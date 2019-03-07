@@ -138,6 +138,8 @@ struct _LIBSSH2_AGENT
     struct agent_transaction_ctx transctx;
     struct agent_publickey *identity;
     struct list_head head;              /* list of public keys */
+
+    char *identity_agent_path; /* Path to a custom identity agent socket */
 };
 
 #ifdef PF_UNIX
@@ -147,10 +149,13 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
     const char *path;
     struct sockaddr_un s_un;
 
-    path = getenv("SSH_AUTH_SOCK");
-    if(!path)
-        return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_USE,
-                              "no auth sock variable");
+    path = agent->identity_agent_path;
+    if (!path) {
+        path = getenv("SSH_AUTH_SOCK");
+        if (!path)
+            return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_USE,
+                                  "no auth sock variable");
+    }
 
     agent->fd = socket(PF_UNIX, SOCK_STREAM, 0);
     if(agent->fd < 0)
@@ -673,6 +678,7 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
     }
     agent->fd = LIBSSH2_INVALID_SOCKET;
     agent->session = session;
+    agent->identity_agent_path = NULL;
     _libssh2_list_init(&agent->head);
 
     return agent;
@@ -809,6 +815,46 @@ libssh2_agent_free(LIBSSH2_AGENT *agent)
     if(agent->fd != LIBSSH2_INVALID_SOCKET) {
         libssh2_agent_disconnect(agent);
     }
+
+    if(agent->identity_agent_path != NULL)
+        LIBSSH2_FREE(agent->session, agent->identity_agent_path);
+
     agent_free_identities(agent);
     LIBSSH2_FREE(agent->session, agent);
+}
+
+/*
+ * libssh2_agent_set_identity_path()
+ *
+ * Allows a custom agent socket path beyond SSH_AUTH_SOCK env
+ *
+ */
+LIBSSH2_API void
+libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path)
+{
+    if (agent->identity_agent_path) {
+        LIBSSH2_FREE(agent->session, agent->identity_agent_path);
+        agent->identity_agent_path = NULL;
+    }
+    
+    if (path != NULL) {
+        size_t path_len = strlen(path);
+        if(path_len < SIZE_MAX - 1) {
+            char *path_buf = LIBSSH2_ALLOC(agent->session, path_len + 1);
+            memcpy(path_buf, path, path_len);
+            path_buf[path_len] = '\0';
+            agent->identity_agent_path = path_buf;
+        }
+    }
+}
+
+/*
+ * libssh2_agent_get_identity_path()
+ *
+ * Returns the custom agent socket path if set
+ *
+ */
+LIBSSH2_API const char * libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent)
+{
+    return agent->identity_agent_path;
 }
