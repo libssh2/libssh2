@@ -411,6 +411,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     int ret;
     mbedtls_pk_context pkey;
     mbedtls_rsa_context *pk_rsa;
+    void *filedata_null;
 
     *rsa = (libssh2_rsa_ctx *) mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
     if(*rsa == NULL)
@@ -418,8 +419,16 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 
     mbedtls_pk_init(&pkey);
 
-    ret = mbedtls_pk_parse_key(&pkey, (unsigned char *)filedata,
-                              filedata_len, NULL, 0);
+    /*
+    Hack: mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
+    Using a private-key from memory will fail if the last byte is not a null terminator
+    */
+    filedata_null = mbedtls_calloc(1, filedata_len + 1);
+    memcpy(filedata_null, filedata, filedata_len);
+    ret = mbedtls_pk_parse_key(&pkey, (unsigned char *)filedata_null,
+                               filedata_len + 1, passphrase, passphrase != NULL ? strlen((const char *)passphrase) : 0);
+    mbedtls_free(filedata_null);
+
     if(ret != 0 || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(&pkey);
         mbedtls_rsa_free(*rsa);
@@ -631,10 +640,20 @@ _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     mbedtls_pk_context pkey;
     char buf[1024];
     int ret;
+    void *privatekeydata_null;
 
     mbedtls_pk_init(&pkey);
-    ret = mbedtls_pk_parse_key(&pkey, (unsigned char *)privatekeydata,
-                              privatekeydata_len, NULL, 0);
+
+    /*
+    Hack: mbedtls checks in "mbedtls/pkparse.c:1184" if "key[keylen - 1] != '\0'"
+    Using a private-key from memory will fail if the last byte is not a null terminator
+    */
+    privatekeydata_null = mbedtls_calloc(1, privatekeydata_len + 1);
+    memcpy(privatekeydata_null, privatekeydata, privatekeydata_len);
+    ret = mbedtls_pk_parse_key(&pkey, (unsigned char *)privatekeydata_null,
+                               privatekeydata_len + 1, passphrase, passphrase != NULL ? strlen((const char *)passphrase) : 0);
+    mbedtls_free(privatekeydata_null);
+
     if(ret != 0) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
         mbedtls_pk_free(&pkey);
