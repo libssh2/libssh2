@@ -65,7 +65,7 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
 {
     libssh2_rsa_ctx *rsactx;
     unsigned char *e, *n;
-    unsigned int e_len, n_len;
+    int e_len, n_len;
     struct string_buf buf = { .len = 0, .offset = 0 };
 
     if(*abstract) {
@@ -283,7 +283,7 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
 {
     libssh2_dsa_ctx *dsactx;
     unsigned char *p, *q, *g, *y;
-    unsigned long p_len, q_len, g_len, y_len;
+    int p_len, q_len, g_len, y_len;
     struct string_buf buf = { .len = 0, .offset = 0 };
     
     if(*abstract) {
@@ -506,7 +506,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
 {
     libssh2_ecdsa_ctx *ecdsactx = NULL;
     unsigned char *type_str, *domain, *public_key;
-    unsigned int key_len;
+    int key_len;
     libssh2_curve_type type;
     struct string_buf buf = { .len = 0, .offset = 0 };
 
