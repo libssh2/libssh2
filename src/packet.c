@@ -815,8 +815,15 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                         /* set signal name (without SIG prefix) */
                         uint32_t namelen =
                             _libssh2_ntohu32(data + 9 + sizeof("exit-signal"));
-                        channelp->exit_signal =
-                            LIBSSH2_ALLOC(session, namelen + 1);
+
+                        if(namelen <= UINT_MAX - 1) {
+                            channelp->exit_signal =
+                                LIBSSH2_ALLOC(session, namelen + 1);
+                        }
+                        else {
+                            channelp->exit_signal = NULL;
+                        }
+
                         if (!channelp->exit_signal)
                             rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                                 "memory for signal name");
