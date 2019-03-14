@@ -107,7 +107,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
         LIBSSH2_FREE(session, session->userauth_list_data);
         session->userauth_list_data = NULL;
 
-        if (rc || (session->userauth_list_data_len < 1) {
+        if (rc || (session->userauth_list_data_len < 1)) {
             _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                            "Unable to send userauth-none request");
             session->userauth_list_state = libssh2_NB_state_idle;
