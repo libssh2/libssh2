@@ -972,7 +972,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         if (rc == LIBSSH2_ERROR_EAGAIN) {
             return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
         }
-        else if (rc || data_len < 1) {
+        else if (rc) {
             LIBSSH2_FREE(session, session->userauth_host_packet);
             session->userauth_host_packet = NULL;
             session->userauth_host_state = libssh2_NB_state_idle;
@@ -999,7 +999,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         }
 
         session->userauth_host_state = libssh2_NB_state_idle;
-        if (rc) {
+        if (rc || data_len < 1) {
             return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                                   "Auth failed");
         }
