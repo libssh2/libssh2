@@ -247,10 +247,22 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         }
 
         /* Parse KEXDH_REPLY */
+        if(exchange_state->s_packet_len < 5) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Unexpected packet length");
+            goto clean_exit;
+        }
+
         exchange_state->s = exchange_state->s_packet + 1;
 
         session->server_hostkey_len = _libssh2_ntohu32(exchange_state->s);
         exchange_state->s += 4;
+
+        if(session->server_hostkey_len > exchange_state->s_packet_len - 5) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                 "Host key length out of bounds");
+            goto clean_exit;
+        }
 
         if(session->server_hostkey)
             LIBSSH2_FREE(session, session->server_hostkey);
@@ -908,10 +920,22 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         }
 
         /* Parse KEXDH_REPLY */
+        if(exchange_state->s_packet_len < 5) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Unexpected packet length");
+            goto clean_exit;
+        }
+
         exchange_state->s = exchange_state->s_packet + 1;
 
         session->server_hostkey_len = _libssh2_ntohu32(exchange_state->s);
         exchange_state->s += 4;
+
+        if(session->server_hostkey_len > exchange_state->s_packet_len - 5) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                 "Host key length out of bounds");
+            goto clean_exit;
+        }
 
         if(session->server_hostkey)
             LIBSSH2_FREE(session, session->server_hostkey);
@@ -1583,7 +1607,6 @@ static int
 kex_method_diffie_hellman_group_exchange_sha1_key_exchange
 (LIBSSH2_SESSION * session, key_exchange_state_low_t * key_state)
 {
-    unsigned long p_len, g_len;
     int ret = 0;
     int rc;
 
@@ -1642,15 +1665,36 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     }
 
     if(key_state->state == libssh2_NB_state_sent1) {
-        unsigned char *s = key_state->data + 1;
-        p_len = _libssh2_ntohu32(s);
-        s += 4;
-        _libssh2_bn_from_bin(key_state->p, p_len, s);
-        s += p_len;
+        unsigned int p_len, g_len;
+        unsigned char *p, *g;
+        struct string_buf buf = { .len = 0, .offset = 0 };
+                
+        if(key_state->data_len < 9) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Unexpected key length");
+            goto dh_gex_clean_exit;
+        }
 
-        g_len = _libssh2_ntohu32(s);
-        s += 4;
-        _libssh2_bn_from_bin(key_state->g, g_len, s);
+        buf.data = key_state->data;
+        buf.dataptr = buf.data;
+        buf.len = key_state->data_len;
+        
+        buf.dataptr++; /* increment to big num */
+        
+        if((p_len = _libssh2_get_bignum_bytes(&buf, &p)) <= 0) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Unexpected value");
+            goto dh_gex_clean_exit;
+        }
+        
+        if((g_len = _libssh2_get_bignum_bytes(&buf, &g)) <= 0) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Unexpected value");
+            goto dh_gex_clean_exit;
+        }
+        
+        _libssh2_bn_from_bin(key_state->p, p_len, p);
+        _libssh2_bn_from_bin(key_state->g, g_len, g);
 
         ret = diffie_hellman_sha1(session, key_state->g, key_state->p, p_len,
                                   SSH_MSG_KEX_DH_GEX_INIT,
@@ -1685,7 +1729,6 @@ static int
 kex_method_diffie_hellman_group_exchange_sha256_key_exchange
 (LIBSSH2_SESSION * session, key_exchange_state_low_t * key_state)
 {
-    unsigned long p_len, g_len;
     int ret = 0;
     int rc;
 
@@ -1744,15 +1787,36 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
     }
 
     if(key_state->state == libssh2_NB_state_sent1) {
-        unsigned char *s = key_state->data + 1;
-        p_len = _libssh2_ntohu32(s);
-        s += 4;
-        _libssh2_bn_from_bin(key_state->p, p_len, s);
-        s += p_len;
+        unsigned char *p, *g;
+        unsigned long p_len, g_len;
+        struct string_buf buf = { .len = 0, .offset = 0 };
+  
+        if(key_state->data_len < 9) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Unexpected key length");
+            goto dh_gex_clean_exit;
+        }
 
-        g_len = _libssh2_ntohu32(s);
-        s += 4;
-        _libssh2_bn_from_bin(key_state->g, g_len, s);
+        buf.data = key_state->data;
+        buf.dataptr = buf.data;
+        buf.len = key_state->data_len;
+        
+        buf.dataptr++; /* increment to big num */
+        
+        if((p_len = _libssh2_get_bignum_bytes(&buf, &p)) <= 0) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Unexpected value");
+            goto dh_gex_clean_exit;
+        }
+        
+        if((g_len = _libssh2_get_bignum_bytes(&buf, &g)) <= 0) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Unexpected value");
+            goto dh_gex_clean_exit;
+        }
+        
+        _libssh2_bn_from_bin(key_state->p, p_len, p);
+        _libssh2_bn_from_bin(key_state->g, g_len, g);
 
         ret = diffie_hellman_sha256(session, key_state->g, key_state->p, p_len,
                                     SSH_MSG_KEX_DH_GEX_INIT,
@@ -2534,28 +2598,38 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         exchange_state->state = libssh2_NB_state_created;
     }
 
-    if( exchange_state->state == libssh2_NB_state_created) {
+    if(exchange_state->state == libssh2_NB_state_created) {
         /* parse INIT reply data */
+        unsigned char *server_public_key, *server_host_key;
+        unsigned int server_public_key_len;
+        struct string_buf buf = { .len = 0, .offset = 0 };
 
-        /*host key K_S*/
-        unsigned char *s = data + 1; //advance past packet type
-        unsigned char *server_public_key;
-        size_t server_public_key_len;
-        size_t host_sig_len;
+        if(data_len < 5) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Unexpected key length");
+            goto clean_exit;
+        }
+    
+        buf.data = data;
+        buf.len = data_len;
+        buf.dataptr = buf.data;
+        buf.dataptr++; /* advance past packet type */
 
-        session->server_hostkey_len = _libssh2_ntohu32((const unsigned char*)s);
-        s += 4;
-
+        if((session->server_hostkey_len = _libssh2_get_c_string(&buf, &server_host_key)) <= 0) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Unexpected key length");
+            goto clean_exit;
+        }
+        
         session->server_hostkey = LIBSSH2_ALLOC(session, session->server_hostkey_len);
-        if(!session->server_hostkey) {
+        if (!session->server_hostkey) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate memory for a copy "
                                  "of the host key");
             goto clean_exit;
         }
 
-        memcpy(session->server_hostkey, s, session->server_hostkey_len);
-        s += session->server_hostkey_len;
+        memcpy(session->server_hostkey, server_host_key, session->server_hostkey_len);
 
 #if LIBSSH2_MD5
         {
@@ -2647,8 +2721,12 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
 
         /* server public key Q_S */
-        server_public_key_len = _libssh2_ntohu32((const unsigned char*)s);
-        s += 4;
+        if((server_public_key_len = 
+            _libssh2_get_c_string(&buf, &server_public_key)) <= 0) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                     "Unexpected key length");
+            goto clean_exit;
+        }
 
         if( server_public_key_len != LIBSSH2_ED25519_KEY_LEN) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
@@ -2656,16 +2734,14 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             goto clean_exit;
         }
 
-        server_public_key = s;
-        s += server_public_key_len;
-
         /* server signature */
-        host_sig_len = _libssh2_ntohu32((const unsigned char*)s);
-        s += 4;
+        if((exchange_state->h_sig_len =
+            _libssh2_get_c_string(&buf, &exchange_state->h_sig)) <= 0) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                                 "Unexpected curve25519 server sig length");
+            goto clean_exit;
 
-        exchange_state->h_sig = s;
-        exchange_state->h_sig_len = host_sig_len;
-        s += host_sig_len;
+        }
 
         // Compute the shared secret K
         rc = _libssh2_curve25519_gen_k(&exchange_state->k, private_key, server_public_key);
