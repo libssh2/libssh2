@@ -64,38 +64,36 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
                             void **abstract)
 {
     libssh2_rsa_ctx *rsactx;
-    const unsigned char *s, *e, *n;
-    unsigned long len, e_len, n_len;
-    int ret;
-
-    (void) hostkey_data_len;
+    unsigned char *e, *n;
+    unsigned int e_len, n_len;
+    struct string_buf buf = { .len = 0, .offset = 0 };
 
     if(*abstract) {
         hostkey_method_ssh_rsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    s = hostkey_data;
-    len = _libssh2_ntohu32(s);
-    s += 4;
-
-    if(len != 7 || strncmp((char *) s, "ssh-rsa", 7) != 0) {
+    if(hostkey_data_len < 19) {
+       _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
+                      "host key length too short");
         return -1;
     }
-    s += 7;
 
-    e_len = _libssh2_ntohu32(s);
-    s += 4;
+    buf.data = (unsigned char*)hostkey_data;
+    buf.dataptr = buf.data;
+    buf.len = hostkey_data_len;
 
-    e = s;
-    s += e_len;
-    n_len = _libssh2_ntohu32(s);
-    s += 4;
-    n = s;
+    if(_libssh2_match_string(&buf, "ssh-rsa") != 0)
+        return -1;
 
-    ret = _libssh2_rsa_new(&rsactx, e, e_len, n, n_len, NULL, 0,
-                           NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0);
-    if(ret) {
+    if((e_len = _libssh2_get_c_string(&buf, &e)) <= 0)
+        return -1;
+    
+    if((n_len = _libssh2_get_c_string(&buf, &n)) <= 0)
+        return -1;
+
+    if(_libssh2_rsa_new(&rsactx, e, e_len, n, n_len, NULL, 0,
+                        NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0)) {
         return -1;
     }
 
@@ -181,6 +179,9 @@ hostkey_method_ssh_rsa_sig_verify(LIBSSH2_SESSION * session,
     (void) session;
 
     /* Skip past keyname_len(4) + keyname(7){"ssh-rsa"} + signature_len(4) */
+    if(sig_len < 15)
+        return -1;
+
     sig += 15;
     sig_len -= 15;
     return _libssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len);
@@ -281,45 +282,42 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
                             void **abstract)
 {
     libssh2_dsa_ctx *dsactx;
-    const unsigned char *p, *q, *g, *y, *s;
-    unsigned long p_len, q_len, g_len, y_len, len;
-    int ret;
-
-    (void) hostkey_data_len;
-
+    unsigned char *p, *q, *g, *y;
+    unsigned long p_len, q_len, g_len, y_len;
+    struct string_buf buf = { .len = 0, .offset = 0 };
+    
     if(*abstract) {
         hostkey_method_ssh_dss_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    s = hostkey_data;
-    len = _libssh2_ntohu32(s);
-    s += 4;
-    if(len != 7 || strncmp((char *) s, "ssh-dss", 7) != 0) {
+    if(hostkey_data_len < 27) {
+        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
+                       "host key length too short");
         return -1;
     }
-    s += 7;
+    
+    buf.data = (unsigned char*)hostkey_data;
+    buf.dataptr = buf.data;
+    buf.len = hostkey_data_len;
+    
+    if(_libssh2_match_string(&buf, "ssh-dss") != 0)
+        return -1;
+    
+    if((p_len = _libssh2_get_c_string(&buf, &p)) < 0)
+       return -1;
+    
+    if((q_len = _libssh2_get_c_string(&buf, &q)) < 0)
+        return -1;
+    
+    if((g_len = _libssh2_get_c_string(&buf, &g)) < 0)
+        return -1;
+    
+    if((y_len = _libssh2_get_c_string(&buf, &y)) < 0)
+        return -1;
 
-    p_len = _libssh2_ntohu32(s);
-    s += 4;
-    p = s;
-    s += p_len;
-    q_len = _libssh2_ntohu32(s);
-    s += 4;
-    q = s;
-    s += q_len;
-    g_len = _libssh2_ntohu32(s);
-    s += 4;
-    g = s;
-    s += g_len;
-    y_len = _libssh2_ntohu32(s);
-    s += 4;
-    y = s;
-    /* s += y_len; */
-
-    ret = _libssh2_dsa_new(&dsactx, p, p_len, q, q_len,
-                           g, g_len, y, y_len, NULL, 0);
-    if(ret) {
+    if(_libssh2_dsa_new(&dsactx, p, p_len, q, q_len,
+                           g, g_len, y, y_len, NULL, 0)) {
         return -1;
     }
 
@@ -404,12 +402,14 @@ hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION * session,
     libssh2_dsa_ctx *dsactx = (libssh2_dsa_ctx *) (*abstract);
 
     /* Skip past keyname_len(4) + keyname(7){"ssh-dss"} + signature_len(4) */
-    sig += 15;
-    sig_len -= 15;
-    if(sig_len != 40) {
+     if(sig_len != 55) {
         return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                               "Invalid DSS signature length");
     }
+
+    sig += 15;
+    sig_len -= 15;
+   
     return _libssh2_dsa_sha1_verify(dsactx, sig, m, m_len);
 }
 
@@ -505,65 +505,55 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
                           void **abstract)
 {
     libssh2_ecdsa_ctx *ecdsactx = NULL;
-    const unsigned char *s, *k;
-    size_t len, key_len, n_len;
+    unsigned char *type_str, *domain, *public_key;
+    unsigned int key_len;
     libssh2_curve_type type;
+    struct string_buf buf = { .len = 0, .offset = 0 };
 
     if(abstract != NULL && *abstract) {
         hostkey_method_ssh_ecdsa_dtor(session, abstract);
         *abstract = NULL;
     }
 
-    if(hostkey_data_len < 23)
+    if(hostkey_data_len < 39) {
+        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
+                       "host key length too short");
         return -1;
+    }
 
-    s = hostkey_data;
-    len = _libssh2_ntohu32(s);
-    s += 4;
+    buf.data = (unsigned char*)hostkey_data;
+    buf.dataptr = buf.data;
+    buf.len = hostkey_data_len;
 
-    if(len != 19)
+    if(_libssh2_get_c_string(&buf, &type_str) != 19)
         return -1;
-
-    if(strncmp((char *) s, "ecdsa-sha2-nistp256", 19) == 0) {
+    
+    if (strncmp((char*) type_str, "ecdsa-sha2-nistp256", 19) == 0 ){
         type = LIBSSH2_EC_CURVE_NISTP256;
-    }
-    else if(strncmp((char *) s, "ecdsa-sha2-nistp384", 19) == 0) {
+    }else if(strncmp((char*) type_str, "ecdsa-sha2-nistp384", 19) == 0 ){
         type = LIBSSH2_EC_CURVE_NISTP384;
-    }
-    else if(strncmp((char *) s, "ecdsa-sha2-nistp521", 19) == 0) {
+    }else if(strncmp((char*) type_str, "ecdsa-sha2-nistp521", 19) == 0 ){
         type = LIBSSH2_EC_CURVE_NISTP521;
-    }
-    else {
+    }else{
         return -1;
     }
-    s += 19;
-
-    /* Domain length */
-    n_len = _libssh2_ntohu32(s);
-    s += 4;
-
-    if(n_len != 8)
+    
+    if(_libssh2_get_c_string(&buf, &domain) != 8)
         return -1;
-
-    if(type == LIBSSH2_EC_CURVE_NISTP256 && strncmp((char *)s, "nistp256", 8) != 0) {
+    
+    if ( type == LIBSSH2_EC_CURVE_NISTP256 && strncmp((char*)domain, "nistp256", 8) != 0){
         return -1;
-    }
-    else if(type == LIBSSH2_EC_CURVE_NISTP384 && strncmp((char *)s, "nistp384", 8) != 0) {
+    }else if ( type == LIBSSH2_EC_CURVE_NISTP384 && strncmp((char*)domain, "nistp384", 8) != 0){
+        return -1;
+    }else if ( type == LIBSSH2_EC_CURVE_NISTP521 && strncmp((char*)domain, "nistp521", 8) != 0){
         return -1;
     }
-    else if(type == LIBSSH2_EC_CURVE_NISTP521 && strncmp((char *)s, "nistp521", 8) != 0) {
-        return -1;
-    }
-
-    s += 8;
-
+    
     /* public key */
-    key_len = _libssh2_ntohu32(s);
-    s += 4;
+    if((key_len = _libssh2_get_c_string(&buf, &public_key)) <= 0)
+        return -1;
 
-    k = s;
-
-    if(_libssh2_ecdsa_curve_name_with_octal_new(&ecdsactx, k, key_len, type) )
+    if(_libssh2_ecdsa_curve_name_with_octal_new(&ecdsactx, public_key, key_len, type) )
         return -1;
 
     if(abstract != NULL)
@@ -644,8 +634,9 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
                                     const unsigned char *m,
                                     size_t m_len, void **abstract)
 {
-    const unsigned char *r, *s, *p;
-    size_t r_len, s_len;
+    unsigned char *r, *s, *name;
+    unsigned int r_len, s_len, len;
+    struct string_buf buf = { .len = 0, .offset = 0 };
     libssh2_ecdsa_ctx *ctx = (libssh2_ecdsa_ctx *) (*abstract);
 
     (void) session;
@@ -653,18 +644,22 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
     if(sig_len < 35)
         return -1;
 
-    /* Skip past keyname_len(4) + keyname(19){"ecdsa-sha2-nistp256"} + signature_len(4) */
-    p = sig;
-    p += 27;
+    /* keyname_len(4) + keyname(19){"ecdsa-sha2-nistp256"} + signature_len(4) */
+    buf.data = (unsigned char*)sig;
+    buf.dataptr = buf.data;
+    buf.len = sig_len;
 
-    r_len = _libssh2_ntohu32(p);
-    p += 4;
-    r = p;
-    p += r_len;
-
-    s_len = _libssh2_ntohu32(p);
-    p += 4;
-    s = p;
+   if(_libssh2_get_c_string(&buf, &name) != 19)
+        return -1;
+    
+    if(_libssh2_get_u32(&buf, &len) != 0 || len < 8)
+        return -1;
+    
+    if((r_len = _libssh2_get_c_string(&buf, &r)) <= 0)
+       return -1;
+    
+    if((s_len = _libssh2_get_c_string(&buf, &s)) <= 0)
+        return -1;
 
     return _libssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len);
 }
@@ -804,7 +799,9 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
         *abstract = NULL;
     }
 
-    if(hostkey_data_len < 15) {
+    if(hostkey_data_len < 19) {
+        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
+                       "host key length too short");
         return -1;
     }
 
