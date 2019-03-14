@@ -67,7 +67,7 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     unsigned char *e, *n;
     unsigned int e_len, n_len;
     struct string_buf buf = { .len = 0, .offset = 0 };
-    
+
     if(*abstract) {
         hostkey_method_ssh_rsa_dtor(session, abstract);
         *abstract = NULL;
@@ -78,11 +78,11 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
                       "host key length too short");
         return -1;
     }
-    
+
     buf.data = (unsigned char*)hostkey_data;
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
-    
+
     if(_libssh2_match_string(&buf, "ssh-rsa") != 0)
         return -1;
 
@@ -524,7 +524,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     buf.data = (unsigned char*)hostkey_data;
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
-    
+
     if(_libssh2_get_c_string(&buf, &type_str) != 19)
         return -1;
     
