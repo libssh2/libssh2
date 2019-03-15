@@ -262,10 +262,10 @@ int main(int argc, char *argv[])
     gettimeofday(&end, NULL);
 
     time_ms = tvdiff(end, start);
-    fprintf(stderr, "Got " LIBSSH2_STRUCT_STAT_SIZE_FORMAT " bytes in %ld ms = %.1f bytes/sec spin: %d\n", total,
+    fprintf(stderr, "Got %ld bytes in %ld ms = %.1f bytes/sec spin: %d\n", (long)total,
            time_ms, total/(time_ms/1000.0), spin);
 #else
-    fprintf(stderr, "Got " LIBSSH2_STRUCT_STAT_SIZE_FORMAT " bytes spin: %d\n", total, spin);
+    fprintf(stderr, "Got %ld bytes spin: %d\n", (long)total, spin);
 #endif
 
     libssh2_channel_free(channel);

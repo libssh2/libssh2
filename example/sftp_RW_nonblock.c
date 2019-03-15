@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
     char mem[1000];
     struct timeval timeout;
     fd_set fd;
+    fd_set fd2;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -253,11 +254,12 @@ int main(int argc, char *argv[])
         timeout.tv_usec = 0;
 
         FD_ZERO(&fd);
-
+        FD_ZERO(&fd2);
         FD_SET(sock, &fd);
+        FD_SET(sock, &fd2);
 
         /* wait for readable or writeable */
-        rc = select(sock+1, &fd, &fd, NULL, &timeout);
+        rc = select(sock+1, &fd, &fd2, NULL, &timeout);
         if(rc <= 0) {
             /* negative is error
                0 is timeout */
@@ -312,11 +314,12 @@ int main(int argc, char *argv[])
             timeout.tv_usec = 0;
 
             FD_ZERO(&fd);
-
+            FD_ZERO(&fd2);
             FD_SET(sock, &fd);
+            FD_SET(sock, &fd2);
 
             /* wait for readable or writeable */
-            rc = select(sock+1, &fd, &fd, NULL, &timeout);
+            rc = select(sock+1, &fd, &fd2, NULL, &timeout);
             if(rc <= 0) {
                 /* negative is error
                    0 is timeout */

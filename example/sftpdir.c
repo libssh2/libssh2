@@ -36,21 +36,11 @@
 #include <stdio.h>
 #include <ctype.h>
 
-/* last resort for systems not defining PRIu64 in inttypes.h */
-#ifndef __PRI64_PREFIX
 #ifdef WIN32
-#define __PRI64_PREFIX "I64"
+#define __FILESIZE "I64"
 #else
-#if __WORDSIZE == 64
-#define __PRI64_PREFIX "l"
-#else
-#define __PRI64_PREFIX "ll"
-#endif /* __WORDSIZE */
-#endif /* WIN32 */
-#endif /* !__PRI64_PREFIX */
-#ifndef PRIu64
-#define PRIu64 __PRI64_PREFIX "u"
-#endif  /* PRIu64 */
+#define __FILESIZE "llu"
+#endif
 
 const char *keyfile1="~/.ssh/id_rsa.pub";
 const char *keyfile2="~/.ssh/id_rsa";
@@ -274,7 +264,7 @@ int main(int argc, char *argv[])
                 }
 
                 if(attrs.flags & LIBSSH2_SFTP_ATTR_SIZE) {
-                    printf("%8" PRIu64 " ", attrs.filesize);
+                    printf("%8" __FILESIZE " ", attrs.filesize);
                 }
 
                 printf("%s\n", mem);
