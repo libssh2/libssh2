@@ -83,9 +83,6 @@ AC_C_BIGENDIAN
 dnl check for how to do large files
 AC_SYS_LARGEFILE
 
-# Configure parameters
-
-
 # Crypto backends
 
 found_crypto=none
@@ -369,6 +366,9 @@ fi
 if test $missing_required_deps = 1; then
   AC_MSG_ERROR([Required dependencies are missing!])
 fi
+
+# Configure parameters
+LIBSSH2_CHECK_OPTION_WERROR
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
