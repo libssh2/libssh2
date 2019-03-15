@@ -439,7 +439,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     if((passphrase == NULL || strlen((const char*)passphrase) == 0) &&
         strcmp((const char*)ciphername, "none") != 0) {
-        // passphrase required
+        /* passphrase required */
         ret = LIBSSH2_ERROR_KEYFILE_AUTH_FAILED;
         goto out;
     }
