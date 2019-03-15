@@ -510,9 +510,11 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
  * Set (or reset) a callback function
  * Returns the prior address
  *
- * FIXME: this function relies on that we can typecast function pointers
+ * ALERT: this function relies on that we can typecast function pointers
  * to void pointers, which isn't allowed in ISO C!
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 LIBSSH2_API void *
 libssh2_session_callback_set(LIBSSH2_SESSION * session,
                              int cbtype, void *callback)
@@ -559,6 +561,7 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
 
     return NULL;
 }
+#pragma GCC diagnostic pop
 
 /*
  * _libssh2_wait_socket()
@@ -774,7 +777,7 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
                                      &session->startup_req_state);
         if(rc)
             return rc;
-        
+
         if(session->startup_data_len < 5) {
             return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                   "Unexpected packet length");
