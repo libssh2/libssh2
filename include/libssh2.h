@@ -155,7 +155,7 @@ typedef int libssh2_socket_t;
 #endif /* WIN32 */
 
 #ifndef SIZE_MAX
-#if _WIN64
+#ifdef _WIN64
 #define SIZE_MAX 0xFFFFFFFFFFFFFFFF
 #else
 #define SIZE_MAX 0xFFFFFFFF
