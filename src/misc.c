@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2014 by Daniel Stenberg
+ * Copyright (c) 2009-2019 by Daniel Stenberg
  * Copyright (c) 2010  Simon Josefsson
  * All rights reserved.
  *
@@ -785,7 +785,7 @@ int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf)
     bn_len = data_len;
     bnptr = buf->dataptr;
 
-    // trim leading zeros
+    /* trim leading zeros */
     while(bn_len > 0 && *bnptr == 0x00) {
         bn_len--;
         bnptr++;

@@ -871,8 +871,7 @@ gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
                           "Unable to allocate memory for private key data");
 }
 
-int
-_libssh2_rsa_new_additional_parameters(RSA *rsa)
+static int _libssh2_rsa_new_additional_parameters(RSA *rsa)
 {
     BN_CTX *ctx = NULL;
     BIGNUM *aux = NULL;
@@ -940,7 +939,7 @@ out:
     return rc;
 }
 
-int
+static int
 gen_publickey_from_rsa_openssh_priv_data(LIBSSH2_SESSION *session,
                                          struct string_buf *decrypted,
                                          unsigned char **method,
@@ -959,7 +958,7 @@ gen_publickey_from_rsa_openssh_priv_data(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing RSA keys from private key data");
 
-    // public key data
+    /* public key data */
     if((nlen = _libssh2_get_bignum_bytes(decrypted, &n)) <= 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no n");
@@ -972,7 +971,7 @@ gen_publickey_from_rsa_openssh_priv_data(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    // private key data
+    /* private key data */
     if((dlen = _libssh2_get_bignum_bytes(decrypted, &d)) <= 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no d");
@@ -1043,7 +1042,7 @@ fail:
                           "Unable to allocate memory for private key data");
 }
 
-int
+static int
 _libssh2_rsa_new_openssh_private(libssh2_rsa_ctx ** rsa,
                                  LIBSSH2_SESSION * session,
                                  const char *filename,
@@ -1257,7 +1256,7 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
                           "Unable to allocate memory for private key data");
 }
 
-int
+static int
 gen_publickey_from_dsa_openssh_priv_data(LIBSSH2_SESSION *session,
                                          struct string_buf *decrypted,
                                          unsigned char **method,
@@ -1342,7 +1341,7 @@ fail:
                           "Unable to allocate memory for private key data");
 }
 
-int
+static int
 _libssh2_dsa_new_openssh_private(libssh2_dsa_ctx ** dsa,
                                  LIBSSH2_SESSION * session,
                                  const char *filename,
@@ -1557,7 +1556,7 @@ cleanExit:
     return rc;
 }
 
-int
+static int
 gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
                                              struct string_buf *decrypted,
                                              unsigned char **method,
@@ -2304,7 +2303,7 @@ clean_exit:
     return -1;
 }
 
-int
+static int
 gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
                                            libssh2_curve_type curve_type,
                                            struct string_buf *decrypted,
@@ -2388,7 +2387,7 @@ fail:
 
 }
 
-int
+static int
 _libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx ** ec_ctx,
                                    LIBSSH2_SESSION * session,
                                    const char *filename,
@@ -2751,7 +2750,7 @@ _libssh2_ed25519_verify(libssh2_ed25519_ctx *ctx, const uint8_t *s,
 
 #endif /* LIBSSH2_ED25519 */
 
-int
+static int
 _libssh2_pub_priv_openssh_keyfile(LIBSSH2_SESSION *session,
                                   unsigned char **method,
                                   size_t *method_len,
@@ -2936,7 +2935,7 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     return st;
 }
 
-int
+static int
 _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                         void **key_ctx,
                                         const char *key_type,

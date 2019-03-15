@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2007 Eli Fant <elifantu@mail.ru>
- * Copyright (c) 2009-2014 by Daniel Stenberg
+ * Copyright (c) 2009-2019 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -1416,7 +1416,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                            "read request id %d sent (offset: %d, size: %d)",
                            request_id, (int)chunk->offset, (int)chunk->len);
         }
-
+        /* FALL-THROUGH */
     case libssh2_NB_state_sent:
 
         sftp->read_state = libssh2_NB_state_idle;
@@ -1456,6 +1456,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
             /* move on to the next chunk with data to send */
             chunk = _libssh2_list_next(&chunk->node);
         }
+        /* FALL-THROUGH */
 
     case libssh2_NB_state_sent2:
 

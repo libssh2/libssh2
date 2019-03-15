@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 by Daniel Stenberg
+ * Copyright (c) 2009-2019 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -1048,6 +1048,7 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
             break;
         }
         /* otherwise fallback to default and error */
+        /* FALL-THROUGH */
     default:
         return _libssh2_error(hosts->session,
                               LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
