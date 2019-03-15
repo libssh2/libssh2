@@ -81,7 +81,10 @@
 #if OPENSSL_VERSION_NUMBER >= 0x10101000L && \
 !defined(LIBRESSL_VERSION_NUMBER)
 # define LIBSSH2_ED25519 1
+#else
+# define LIBSSH2_ED25519 0
 #endif
+
 
 #ifdef OPENSSL_NO_MD5
 # define LIBSSH2_MD5 0
@@ -300,7 +303,7 @@ extern void _libssh2_openssl_crypto_exit(void);
 
 #define _libssh2_dsa_free(dsactx) DSA_free(dsactx)
 
-#if LIBSSH2_ECDSA
+#ifdef LIBSSH2_ECDSA
 #define libssh2_ecdsa_ctx EC_KEY
 #define _libssh2_ecdsa_free(ecdsactx) EC_KEY_free(ecdsactx)
 #define _libssh2_ec_key EC_KEY
@@ -308,14 +311,14 @@ extern void _libssh2_openssl_crypto_exit(void);
 typedef enum {
     LIBSSH2_EC_CURVE_NISTP256 = NID_X9_62_prime256v1,
     LIBSSH2_EC_CURVE_NISTP384 = NID_secp384r1,
-    LIBSSH2_EC_CURVE_NISTP521 = NID_secp521r1,
+    LIBSSH2_EC_CURVE_NISTP521 = NID_secp521r1
 }
 libssh2_curve_type;
 #else
 #define _libssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
 
-#if LIBSSH2_ED25519
+#ifdef LIBSSH2_ED25519
 
 typedef struct {
     EVP_PKEY *public_key;

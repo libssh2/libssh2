@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2010, Daniel Stenberg <daniel@haxx.se>
+ * Copyright (c) 2010-2019, Daniel Stenberg <daniel@haxx.se>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -1667,32 +1667,33 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     if(key_state->state == libssh2_NB_state_sent1) {
         unsigned int p_len, g_len;
         unsigned char *p, *g;
-        struct string_buf buf = { .len = 0, .offset = 0 };
-                
+        struct string_buf buf;
+
         if(key_state->data_len < 9) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected key length");
             goto dh_gex_clean_exit;
         }
 
+        buf.offset = 0;
         buf.data = key_state->data;
         buf.dataptr = buf.data;
         buf.len = key_state->data_len;
-        
+
         buf.dataptr++; /* increment to big num */
-        
+
         if((p_len = _libssh2_get_bignum_bytes(&buf, &p)) <= 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected value");
             goto dh_gex_clean_exit;
         }
-        
+
         if((g_len = _libssh2_get_bignum_bytes(&buf, &g)) <= 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected value");
             goto dh_gex_clean_exit;
         }
-        
+
         _libssh2_bn_from_bin(key_state->p, p_len, p);
         _libssh2_bn_from_bin(key_state->g, g_len, g);
 
@@ -1789,32 +1790,33 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
     if(key_state->state == libssh2_NB_state_sent1) {
         unsigned char *p, *g;
         unsigned long p_len, g_len;
-        struct string_buf buf = { .len = 0, .offset = 0 };
-  
+        struct string_buf buf;
+
         if(key_state->data_len < 9) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected key length");
             goto dh_gex_clean_exit;
         }
 
+        buf.offset = 0;
         buf.data = key_state->data;
         buf.dataptr = buf.data;
         buf.len = key_state->data_len;
-        
+
         buf.dataptr++; /* increment to big num */
-        
+
         if((p_len = _libssh2_get_bignum_bytes(&buf, &p)) <= 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected value");
             goto dh_gex_clean_exit;
         }
-        
+
         if((g_len = _libssh2_get_bignum_bytes(&buf, &g)) <= 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected value");
             goto dh_gex_clean_exit;
         }
-        
+
         _libssh2_bn_from_bin(key_state->p, p_len, p);
         _libssh2_bn_from_bin(key_state->g, g_len, g);
 
@@ -2485,7 +2487,7 @@ kex_method_ecdh_key_exchange
             goto ecdh_clean_exit;
         }
 
-        rc = _libssh2_ecdsa_create_key(session, &key_state->private_key, 
+        rc = _libssh2_ecdsa_create_key(session, &key_state->private_key,
                                        &key_state->public_key_oct, &key_state->public_key_oct_len, type);
 
         if(rc != 0) {
@@ -2602,14 +2604,15 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         /* parse INIT reply data */
         unsigned char *server_public_key, *server_host_key;
         unsigned int server_public_key_len;
-        struct string_buf buf = { .len = 0, .offset = 0 };
+        struct string_buf buf;
 
         if(data_len < 5) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected key length");
             goto clean_exit;
         }
-    
+
+        buf.offset = 0;
         buf.data = data;
         buf.len = data_len;
         buf.dataptr = buf.data;
@@ -2620,7 +2623,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
                                  "Unexpected key length");
             goto clean_exit;
         }
-        
+
         session->server_hostkey = LIBSSH2_ALLOC(session, session->server_hostkey_len);
         if (!session->server_hostkey) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -2721,7 +2724,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
 
         /* server public key Q_S */
-        if((server_public_key_len = 
+        if((server_public_key_len =
             _libssh2_get_c_string(&buf, &server_public_key)) <= 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                      "Unexpected key length");
@@ -2743,7 +2746,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
 
         }
 
-        // Compute the shared secret K
+        /* Compute the shared secret K */
         rc = _libssh2_curve25519_gen_k(&exchange_state->k, private_key, server_public_key);
         if( rc != 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
@@ -2753,7 +2756,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
 
         exchange_state->k_value_len = _libssh2_bn_bytes(exchange_state->k) + 5;
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
-            // don't need leading 00
+            /* don't need leading 00 */
             exchange_state->k_value_len--;
         }
         exchange_state->k_value =
@@ -2772,7 +2775,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
         }
 
-        // verify hash
+        /*/ verify hash */
         LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
 
         if( rc != 0) {
@@ -2809,11 +2812,14 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             goto clean_exit;
         }
 
-        // The first key exchange has been performed, switch to active crypt/comp/mac mode
+        /* The first key exchange has been performed, switch to active
+           crypt/comp/mac mode */
+
         session->state |= LIBSSH2_STATE_NEWKEYS;
         _libssh2_debug(session, LIBSSH2_TRACE_KEX, "Received NEWKEYS message");
 
-        // This will actually end up being just packet_type(1) for this packet type anyway
+        /* This will actually end up being just packet_type(1) for this packet
+           type anyway */
         LIBSSH2_FREE(session, exchange_state->tmp);
 
         if(!session->session_id) {
@@ -2831,13 +2837,13 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             _libssh2_debug(session, LIBSSH2_TRACE_KEX, "session_id calculated");
         }
 
-        // Cleanup any existing cipher
+        /* Cleanup any existing cipher */
         if(session->local.crypt->dtor) {
             session->local.crypt->dtor(session,
                                         &session->local.crypt_abstract);
         }
 
-        // Calculate IV/Secret/Key for each direction
+        /* Calculate IV/Secret/Key for each direction */
         if(session->local.crypt->init) {
             unsigned char *iv = NULL, *secret = NULL;
             int free_iv = 0, free_secret = 0;
@@ -2882,7 +2888,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
                         "Client to Server IV and Key calculated");
 
         if(session->remote.crypt->dtor) {
-            // Cleanup any existing cipher
+            /* Cleanup any existing cipher */
             session->remote.crypt->dtor(session,
                                         &session->remote.crypt_abstract);
         }
@@ -2984,9 +2990,9 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         _libssh2_debug(session, LIBSSH2_TRACE_KEX,
                         "Server to Client HMAC Key calculated");
 
-        // Initialize compression for each direction
+        /* Initialize compression for each direction */
 
-        // Cleanup any existing compression
+        /* Cleanup any existing compression */
         if(session->local.comp && session->local.comp->dtor) {
             session->local.comp->dtor(session, 1,
                                       &session->local.comp_abstract);

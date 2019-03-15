@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2014 by Daniel Stenberg
+ * Copyright (c) 2009-2019 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -66,7 +66,7 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     libssh2_rsa_ctx *rsactx;
     unsigned char *e, *n;
     int e_len, n_len;
-    struct string_buf buf = { .len = 0, .offset = 0 };
+    struct string_buf buf;
 
     if(*abstract) {
         hostkey_method_ssh_rsa_dtor(session, abstract);
@@ -79,6 +79,7 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
         return -1;
     }
 
+    buf.offset = 0;
     buf.data = (unsigned char*)hostkey_data;
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
@@ -88,7 +89,7 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
 
     if((e_len = _libssh2_get_c_string(&buf, &e)) <= 0)
         return -1;
-    
+
     if((n_len = _libssh2_get_c_string(&buf, &n)) <= 0)
         return -1;
 
@@ -284,8 +285,8 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
     libssh2_dsa_ctx *dsactx;
     unsigned char *p, *q, *g, *y;
     int p_len, q_len, g_len, y_len;
-    struct string_buf buf = { .len = 0, .offset = 0 };
-    
+    struct string_buf buf;
+
     if(*abstract) {
         hostkey_method_ssh_dss_dtor(session, abstract);
         *abstract = NULL;
@@ -296,23 +297,24 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
                        "host key length too short");
         return -1;
     }
-    
+
+    buf.offset = 0;
     buf.data = (unsigned char*)hostkey_data;
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
-    
+
     if(_libssh2_match_string(&buf, "ssh-dss") != 0)
         return -1;
-    
+
     if((p_len = _libssh2_get_c_string(&buf, &p)) < 0)
        return -1;
-    
+
     if((q_len = _libssh2_get_c_string(&buf, &q)) < 0)
         return -1;
-    
+
     if((g_len = _libssh2_get_c_string(&buf, &g)) < 0)
         return -1;
-    
+
     if((y_len = _libssh2_get_c_string(&buf, &y)) < 0)
         return -1;
 
@@ -409,7 +411,7 @@ hostkey_method_ssh_dss_sig_verify(LIBSSH2_SESSION * session,
 
     sig += 15;
     sig_len -= 15;
-   
+
     return _libssh2_dsa_sha1_verify(dsactx, sig, m, m_len);
 }
 
@@ -508,7 +510,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     unsigned char *type_str, *domain, *public_key;
     int key_len;
     libssh2_curve_type type;
-    struct string_buf buf = { .len = 0, .offset = 0 };
+    struct string_buf buf;
 
     if(abstract != NULL && *abstract) {
         hostkey_method_ssh_ecdsa_dtor(session, abstract);
@@ -521,13 +523,14 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
         return -1;
     }
 
+    buf.offset = 0;
     buf.data = (unsigned char*)hostkey_data;
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
 
     if(_libssh2_get_c_string(&buf, &type_str) != 19)
         return -1;
-    
+
     if (strncmp((char*) type_str, "ecdsa-sha2-nistp256", 19) == 0 ){
         type = LIBSSH2_EC_CURVE_NISTP256;
     }else if(strncmp((char*) type_str, "ecdsa-sha2-nistp384", 19) == 0 ){
@@ -537,10 +540,10 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     }else{
         return -1;
     }
-    
+
     if(_libssh2_get_c_string(&buf, &domain) != 8)
         return -1;
-    
+
     if ( type == LIBSSH2_EC_CURVE_NISTP256 && strncmp((char*)domain, "nistp256", 8) != 0){
         return -1;
     }else if ( type == LIBSSH2_EC_CURVE_NISTP384 && strncmp((char*)domain, "nistp384", 8) != 0){
@@ -548,7 +551,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     }else if ( type == LIBSSH2_EC_CURVE_NISTP521 && strncmp((char*)domain, "nistp521", 8) != 0){
         return -1;
     }
-    
+
     /* public key */
     if((key_len = _libssh2_get_c_string(&buf, &public_key)) <= 0)
         return -1;
@@ -636,7 +639,7 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
 {
     unsigned char *r, *s, *name;
     unsigned int r_len, s_len, len;
-    struct string_buf buf = { .len = 0, .offset = 0 };
+    struct string_buf buf;
     libssh2_ecdsa_ctx *ctx = (libssh2_ecdsa_ctx *) (*abstract);
 
     (void) session;
@@ -645,19 +648,20 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
         return -1;
 
     /* keyname_len(4) + keyname(19){"ecdsa-sha2-nistp256"} + signature_len(4) */
+    buf.offset = 0;
     buf.data = (unsigned char*)sig;
     buf.dataptr = buf.data;
     buf.len = sig_len;
 
    if(_libssh2_get_c_string(&buf, &name) != 19)
         return -1;
-    
+
     if(_libssh2_get_u32(&buf, &len) != 0 || len < 8)
         return -1;
-    
+
     if((r_len = _libssh2_get_c_string(&buf, &r)) <= 0)
        return -1;
-    
+
     if((s_len = _libssh2_get_c_string(&buf, &s)) <= 0)
         return -1;
 
@@ -815,7 +819,7 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
 
     s += 11;
 
-    //public key
+    /* public key */
     key_len = _libssh2_ntohu32(s);
     s += 4;
 
