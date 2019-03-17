@@ -46,6 +46,7 @@ compiler:
 
 env:
   matrix:
+   - B=style
    - ADDRESS_SIZE=64 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=OFF B=configure
    - ADDRESS_SIZE=64 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=OFF B=cmake
    - ADDRESS_SIZE=64 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=OFF B=cmake
@@ -99,6 +100,10 @@ before_install:
 install:
 
 script:
+  - |
+      if [ "$B" = "style" ]; then
+        perl src/checksrc.pl -i4 -m79 -ASIZEOFNOPAREN -ASNPRINTF -ACOPYRIGHT -AFOPENMODE -Wsrc/libssh2_config.h src/*.[ch]
+      fi
   - |
       if [ "$B" = "configure" ]; then
         ./buildconf
