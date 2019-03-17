@@ -924,7 +924,8 @@ _libssh2_os400qc3_crypto_dtor(_libssh2_os400qc3_crypto_ctx *x)
     if(!x)
         return;
     if(!null_token(x->hash.Alg_Context_Token)) {
-        Qc3DestroyAlgorithmContext(x->hash.Alg_Context_Token, (char *) &ecnull);
+        Qc3DestroyAlgorithmContext(x->hash.Alg_Context_Token,
+                                   (char *) &ecnull);
         memset(x->hash.Alg_Context_Token, 0, sizeof x->hash.Alg_Context_Token);
     }
     if(!null_token(x->key.Key_Context_Token)) {
@@ -1315,7 +1316,8 @@ _libssh2_os400qc3_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
     secretbuf = alloca(pubkeysize);
     set_EC_length(errcode, sizeof errcode);
     Qc3CalculateDHSecretKey(dhctx->token, pubkey, &pubkeysize,
-                            secretbuf, &secretbufsize, &secretbuflen, &errcode);
+                            secretbuf, &secretbufsize, &secretbuflen,
+                            &errcode);
     if(errcode.Bytes_Available)
         return -1;
     return _libssh2_bn_from_bin(secret,
@@ -1954,7 +1956,8 @@ pkcs1topkcs8(LIBSSH2_SESSION *session,
     }
     if(!pkcs8)
         return -1;
-    data = (unsigned char *) LIBSSH2_ALLOC(session, pkcs8->end - pkcs8->header);
+    data = (unsigned char *) LIBSSH2_ALLOC(session,
+                                           pkcs8->end - pkcs8->header);
     if(!data) {
         asn1delete(pkcs8);
         return -1;
@@ -2111,7 +2114,8 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx **rsa, LIBSSH2_SESSION *session,
     if(!ctx)
         return -1;
     ret = load_rsa_private_file(session, filename, passphrase,
-                                rsapkcs1privkey, rsapkcs8privkey, (void *) ctx);
+                                rsapkcs1privkey, rsapkcs8privkey,
+                                (void *) ctx);
     if(!ret) {
         /* Create the algorithm context. */
         algd.Public_Key_Alg = Qc3_RSA;

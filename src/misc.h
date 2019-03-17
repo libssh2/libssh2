@@ -50,13 +50,14 @@ struct list_node {
 };
 
 struct string_buf {
-	unsigned char *data;
-	unsigned char *dataptr;
-	size_t len;
-	size_t offset;
+    unsigned char *data;
+    unsigned char *dataptr;
+    size_t len;
+    size_t offset;
 };
 
-int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode, const char *errmsg, int errflags);
+int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
+                         const char *errmsg, int errflags);
 int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char *errmsg);
 
 void _libssh2_list_init(struct list_head *head);
@@ -89,7 +90,8 @@ void *_libssh2_calloc(LIBSSH2_SESSION *session, size_t size);
 void _libssh2_explicit_zero(void *buf, size_t size);
 
 struct string_buf* _libssh2_string_buf_new(LIBSSH2_SESSION *session);
-void _libssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf);
+void _libssh2_string_buf_free(LIBSSH2_SESSION *session,
+                              struct string_buf *buf);
 int _libssh2_get_u32(struct string_buf *buf, uint32_t *out);
 int _libssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out);
 int _libssh2_match_string(struct string_buf *buf, const char *match);

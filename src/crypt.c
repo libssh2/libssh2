@@ -54,10 +54,10 @@ crypt_none_crypt(LIBSSH2_SESSION * session, unsigned char *buf,
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_none = {
     "none",
     "DEK-Info: NONE",
-    8,                     /* blocksize (SSH2 defines minimum blocksize as 8) */
-    0,                     /* iv_len */
-    0,                     /* secret_len */
-    0,                     /* flags */
+    8,                /* blocksize (SSH2 defines minimum blocksize as 8) */
+    0,                /* iv_len */
+    0,                /* secret_len */
+    0,                /* flags */
     NULL,
     crypt_none_crypt,
     NULL

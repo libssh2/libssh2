@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007, 2019, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2010-2014, Daniel Stenberg <daniel@haxx.se>
  * All rights reserved.
  *
@@ -204,7 +204,8 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
     }
 
     _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
-                   "unhandled zlib compression error %d, avail_out", status, strm->avail_out);
+                   "unhandled zlib compression error %d, avail_out",
+                   status, strm->avail_out);
     return _libssh2_error(session, LIBSSH2_ERROR_ZLIB, "compression failure");
 }
 
@@ -226,8 +227,8 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
        reallocs */
     char *out;
     size_t out_maxlen = src_len;
-    
-    if (src_len <= SIZE_MAX / 4)
+
+    if(src_len <= SIZE_MAX / 4)
         out_maxlen = src_len * 4;
     else
         out_maxlen = payload_limit;
@@ -263,7 +264,8 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
 
         if(status == Z_OK) {
             if(strm->avail_out > 0)
-                /* status is OK and the output buffer has not been exhausted so we're done */
+                /* status is OK and the output buffer has not been exhausted
+                   so we're done */
                 break;
         }
         else if(status == Z_BUF_ERROR) {

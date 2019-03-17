@@ -27,7 +27,7 @@
 
 #include "blf.h"
 
-#define	MINIMUM(a,b) (((a) < (b)) ? (a) : (b))
+#define MINIMUM(a,b) (((a) < (b)) ? (a) : (b))
 
 /*
  * pkcs #5 pbkdf2 implementation using the "bcrypt" hash
@@ -59,120 +59,122 @@
 static void
 bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
 {
-	blf_ctx state;
-	uint8_t ciphertext[BCRYPT_HASHSIZE] =
-	    "OxychromaticBlowfishSwatDynamite";
-	uint32_t cdata[BCRYPT_BLOCKS];
-	int i;
-	uint16_t j;
-	size_t shalen = SHA512_DIGEST_LENGTH;
+    blf_ctx state;
+    uint8_t ciphertext[BCRYPT_HASHSIZE] =
+        "OxychromaticBlowfishSwatDynamite";
+    uint32_t cdata[BCRYPT_BLOCKS];
+    int i;
+    uint16_t j;
+    size_t shalen = SHA512_DIGEST_LENGTH;
 
-	/* key expansion */
-	Blowfish_initstate(&state);
-	Blowfish_expandstate(&state, sha2salt, shalen, sha2pass, shalen);
-	for (i = 0; i < 64; i++) {
-		Blowfish_expand0state(&state, sha2salt, shalen);
-		Blowfish_expand0state(&state, sha2pass, shalen);
-	}
+    /* key expansion */
+    Blowfish_initstate(&state);
+    Blowfish_expandstate(&state, sha2salt, shalen, sha2pass, shalen);
+    for(i = 0; i < 64; i++) {
+        Blowfish_expand0state(&state, sha2salt, shalen);
+        Blowfish_expand0state(&state, sha2pass, shalen);
+    }
 
-	/* encryption */
-	j = 0;
-	for (i = 0; i < BCRYPT_BLOCKS; i++)
-		cdata[i] = Blowfish_stream2word(ciphertext, sizeof(ciphertext),
-		    &j);
-	for (i = 0; i < 64; i++)
-		blf_enc(&state, cdata, sizeof(cdata) / sizeof(uint64_t));
+    /* encryption */
+    j = 0;
+    for(i = 0; i < BCRYPT_BLOCKS; i++)
+        cdata[i] = Blowfish_stream2word(ciphertext, sizeof(ciphertext),
+                                        &j);
+    for(i = 0; i < 64; i++)
+        blf_enc(&state, cdata, sizeof(cdata) / sizeof(uint64_t));
 
-	/* copy out */
-	for (i = 0; i < BCRYPT_BLOCKS; i++) {
-		out[4 * i + 3] = (cdata[i] >> 24) & 0xff;
-		out[4 * i + 2] = (cdata[i] >> 16) & 0xff;
-		out[4 * i + 1] = (cdata[i] >> 8) & 0xff;
-		out[4 * i + 0] = cdata[i] & 0xff;
-	}
+    /* copy out */
+    for(i = 0; i < BCRYPT_BLOCKS; i++) {
+        out[4 * i + 3] = (cdata[i] >> 24) & 0xff;
+        out[4 * i + 2] = (cdata[i] >> 16) & 0xff;
+        out[4 * i + 1] = (cdata[i] >> 8) & 0xff;
+        out[4 * i + 0] = cdata[i] & 0xff;
+    }
 
-	/* zap */
-	_libssh2_explicit_zero(ciphertext, sizeof(ciphertext));
-	_libssh2_explicit_zero(cdata, sizeof(cdata));
-	_libssh2_explicit_zero(&state, sizeof(state));
+    /* zap */
+    _libssh2_explicit_zero(ciphertext, sizeof(ciphertext));
+    _libssh2_explicit_zero(cdata, sizeof(cdata));
+    _libssh2_explicit_zero(&state, sizeof(state));
 }
 
 int
-bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt, size_t saltlen,
-    uint8_t *key, size_t keylen, unsigned int rounds)
+bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
+             size_t saltlen,
+             uint8_t *key, size_t keylen, unsigned int rounds)
 {
-	uint8_t sha2pass[SHA512_DIGEST_LENGTH];
-	uint8_t sha2salt[SHA512_DIGEST_LENGTH];
-	uint8_t out[BCRYPT_HASHSIZE];
-	uint8_t tmpout[BCRYPT_HASHSIZE];
-	uint8_t *countsalt;
-	size_t i, j, amt, stride;
-	uint32_t count;
-	size_t origkeylen = keylen;
-	libssh2_sha512_ctx ctx;
+    uint8_t sha2pass[SHA512_DIGEST_LENGTH];
+    uint8_t sha2salt[SHA512_DIGEST_LENGTH];
+    uint8_t out[BCRYPT_HASHSIZE];
+    uint8_t tmpout[BCRYPT_HASHSIZE];
+    uint8_t *countsalt;
+    size_t i, j, amt, stride;
+    uint32_t count;
+    size_t origkeylen = keylen;
+    libssh2_sha512_ctx ctx;
 
-	/* nothing crazy */
-	if (rounds < 1)
-		return -1;
-	if (passlen == 0 || saltlen == 0 || keylen == 0 ||
-	    keylen > sizeof(out) * sizeof(out) || saltlen > 1<<20)
-		return -1;
-	if ((countsalt = calloc(1, saltlen + 4)) == NULL)
-		return -1;
-	stride = (keylen + sizeof(out) - 1) / sizeof(out);
-	amt = (keylen + stride - 1) / stride;
+    /* nothing crazy */
+    if(rounds < 1)
+        return -1;
+    if(passlen == 0 || saltlen == 0 || keylen == 0 ||
+       keylen > sizeof(out) * sizeof(out) || saltlen > 1<<20)
+        return -1;
+    countsalt = calloc(1, saltlen + 4);
+    if(countsalt == NULL)
+        return -1;
+    stride = (keylen + sizeof(out) - 1) / sizeof(out);
+    amt = (keylen + stride - 1) / stride;
 
-	memcpy(countsalt, salt, saltlen);
+    memcpy(countsalt, salt, saltlen);
 
-	/* collapse password */
-	libssh2_sha512_init(&ctx);
-	libssh2_sha512_update(ctx, pass, passlen);
-	libssh2_sha512_final(ctx, sha2pass);
+    /* collapse password */
+    libssh2_sha512_init(&ctx);
+    libssh2_sha512_update(ctx, pass, passlen);
+    libssh2_sha512_final(ctx, sha2pass);
 
-	/* generate key, sizeof(out) at a time */
-	for (count = 1; keylen > 0; count++) {
-		countsalt[saltlen + 0] = (count >> 24) & 0xff;
-		countsalt[saltlen + 1] = (count >> 16) & 0xff;
-		countsalt[saltlen + 2] = (count >> 8) & 0xff;
-		countsalt[saltlen + 3] = count & 0xff;
+    /* generate key, sizeof(out) at a time */
+    for(count = 1; keylen > 0; count++) {
+        countsalt[saltlen + 0] = (count >> 24) & 0xff;
+        countsalt[saltlen + 1] = (count >> 16) & 0xff;
+        countsalt[saltlen + 2] = (count >> 8) & 0xff;
+        countsalt[saltlen + 3] = count & 0xff;
 
-		/* first round, salt is salt */
-		libssh2_sha512_init(&ctx);
-		libssh2_sha512_update(ctx, countsalt, saltlen + 4);
-		libssh2_sha512_final(ctx, sha2salt);
+        /* first round, salt is salt */
+        libssh2_sha512_init(&ctx);
+        libssh2_sha512_update(ctx, countsalt, saltlen + 4);
+        libssh2_sha512_final(ctx, sha2salt);
 
-		bcrypt_hash(sha2pass, sha2salt, tmpout);
-		memcpy(out, tmpout, sizeof(out));
+        bcrypt_hash(sha2pass, sha2salt, tmpout);
+        memcpy(out, tmpout, sizeof(out));
 
-		for (i = 1; i < rounds; i++) {
-			/* subsequent rounds, salt is previous output */
-			libssh2_sha512_init(&ctx);
-			libssh2_sha512_update(ctx, tmpout, sizeof(tmpout));
-			libssh2_sha512_final(ctx, sha2salt);
+        for(i = 1; i < rounds; i++) {
+            /* subsequent rounds, salt is previous output */
+            libssh2_sha512_init(&ctx);
+            libssh2_sha512_update(ctx, tmpout, sizeof(tmpout));
+            libssh2_sha512_final(ctx, sha2salt);
 
-			bcrypt_hash(sha2pass, sha2salt, tmpout);
-			for (j = 0; j < sizeof(out); j++)
-				out[j] ^= tmpout[j];
-		}
+            bcrypt_hash(sha2pass, sha2salt, tmpout);
+            for(j = 0; j < sizeof(out); j++)
+                out[j] ^= tmpout[j];
+        }
 
-		/*
-		 * pbkdf2 deviation: ouput the key material non-linearly.
-		 */
-		amt = MINIMUM(amt, keylen);
-		for (i = 0; i < amt; i++) {
-			size_t dest = i * stride + (count - 1);
-			if (dest >= origkeylen) {
-				break;
-			}
-			key[dest] = out[i];
-		}
-		keylen -= i;
-	}
+        /*
+         * pbkdf2 deviation: ouput the key material non-linearly.
+         */
+        amt = MINIMUM(amt, keylen);
+        for(i = 0; i < amt; i++) {
+            size_t dest = i * stride + (count - 1);
+            if(dest >= origkeylen) {
+                break;
+            }
+            key[dest] = out[i];
+        }
+        keylen -= i;
+    }
 
-	/* zap */
-	_libssh2_explicit_zero(out, sizeof(out));
-	free(countsalt);
+    /* zap */
+    _libssh2_explicit_zero(out, sizeof(out));
+    free(countsalt);
 
-	return 0;
+    return 0;
 }
 #endif /* HAVE_BCRYPT_PBKDF */

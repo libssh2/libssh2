@@ -437,7 +437,8 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
     memcpy(zhash + 1, hash, hash_len);
     zhash[0] = 0;
 
-    if(gcry_sexp_build(&data, NULL, "(data (value %b))", hash_len + 1, zhash)) {
+    if(gcry_sexp_build(&data, NULL, "(data (value %b))",
+                       hash_len + 1, zhash)) {
         return -1;
     }
 
@@ -603,8 +604,9 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 const char *passphrase)
 {
     return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                         "Unable to extract public key from private key in memory: "
-                         "Method unimplemented in libgcrypt backend");
+                          "Unable to extract public key from private "
+                          "key in memory: "
+                          "Method unimplemented in libgcrypt backend");
 }
 
 int

@@ -58,15 +58,12 @@
 #include <stdio.h>
 #include <time.h>
 
-/* The following CPP block should really only be in session.c and
-   packet.c.  However, AIX have #define's for 'events' and 'revents'
-   and we are using those names in libssh2.h, so we need to include
-   the AIX headers first, to make sure all code is compiled with
-   consistent names of these fields.  While arguable the best would to
-   change libssh2.h to use other names, that would break backwards
-   compatibility.  For more information, see:
-   https://www.mail-archive.com/libssh2-devel%40lists.sourceforge.net/msg00003.html
-   https://www.mail-archive.com/libssh2-devel%40lists.sourceforge.net/msg00224.html
+/* The following CPP block should really only be in session.c and packet.c.
+   However, AIX have #define's for 'events' and 'revents' and we are using
+   those names in libssh2.h, so we need to include the AIX headers first, to
+   make sure all code is compiled with consistent names of these fields.
+   While arguable the best would to change libssh2.h to use other names, that
+   would break backwards compatibility.
 */
 #ifdef HAVE_POLL
 # include <sys/poll.h>
@@ -289,9 +286,12 @@ typedef struct key_exchange_state_low_t
     size_t data_len;
     _libssh2_ec_key *private_key;   /* SSH2 ecdh private key */
     unsigned char *public_key_oct;  /* SSH2 ecdh public key octal value */
-    size_t public_key_oct_len;      /* SSH2 ecdh public key octal value length */
-    unsigned char *curve25519_public_key; /* curve25519 public key, 32 bytes */
-    unsigned char *curve25519_private_key; /* curve25519 private key, 32 bytes */
+    size_t public_key_oct_len;      /* SSH2 ecdh public key octal value
+                                       length */
+    unsigned char *curve25519_public_key; /* curve25519 public key, 32
+                                             bytes */
+    unsigned char *curve25519_private_key; /* curve25519 private key, 32
+                                              bytes */
 } key_exchange_state_low_t;
 
 typedef struct key_exchange_state_t
@@ -423,7 +423,8 @@ struct _LIBSSH2_CHANNEL
 
     /* State variables used in libssh2_channel_receive_window_adjust() */
     libssh2_nonblocking_states adjust_state;
-    unsigned char adjust_adjust[9];     /* packet_type(1) + channel(4) + adjustment(4) */
+    unsigned char adjust_adjust[9];     /* packet_type(1) + channel(4) +
+                                           adjustment(4) */
 
     /* State variables used in libssh2_channel_read_ex() */
     libssh2_nonblocking_states read_state;
@@ -662,7 +663,8 @@ struct _LIBSSH2_SESSION
     struct transportpacket packet;
 #ifdef LIBSSH2DEBUG
     int showmask;               /* what debug/trace messages to display */
-    libssh2_trace_handler_func tracehandler; /* callback to display trace messages */
+    libssh2_trace_handler_func tracehandler; /* callback to display trace
+                                                messages */
     void *tracehandler_context; /* context for the trace handler */
 #endif
 
@@ -870,7 +872,8 @@ struct _LIBSSH2_KEX_METHOD
 {
     const char *name;
 
-    /* Key exchange, populates session->* and returns 0 on success, non-0 on error */
+    /* Key exchange, populates session->* and returns 0 on success, non-0 on
+       error */
     int (*exchange_keys) (LIBSSH2_SESSION * session,
                           key_exchange_state_low_t * key_state);
 
@@ -887,8 +890,10 @@ struct _LIBSSH2_HOSTKEY_METHOD
     int (*initPEM) (LIBSSH2_SESSION * session, const char *privkeyfile,
                     unsigned const char *passphrase, void **abstract);
     int (*initPEMFromMemory) (LIBSSH2_SESSION * session,
-                              const char *privkeyfiledata, size_t privkeyfiledata_len,
-                              unsigned const char *passphrase, void **abstract);
+                              const char *privkeyfiledata,
+                              size_t privkeyfiledata_len,
+                              unsigned const char *passphrase,
+                              void **abstract);
     int (*sig_verify) (LIBSSH2_SESSION * session, const unsigned char *sig,
                        size_t sig_len, const unsigned char *m,
                        size_t m_len, void **abstract);
@@ -951,7 +956,8 @@ struct _LIBSSH2_COMP_METHOD
 void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format,
                     ...);
 #else
-#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__GNUC__)
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) ||     \
+    defined(__GNUC__)
 /* C99 supported and also by older GCC */
 #define _libssh2_debug(x,y,z,...) do {} while (0)
 #else
@@ -972,7 +978,8 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 
 /* Initial packet state, prior to MAC check */
 #define LIBSSH2_MAC_UNCONFIRMED                  1
-/* When MAC type is "none" (proto initiation phase) all packets are deemed "confirmed" */
+/* When MAC type is "none" (proto initiation phase) all packets are deemed
+   "confirmed" */
 #define LIBSSH2_MAC_CONFIRMED                    0
 /* Something very bad is going on */
 #define LIBSSH2_MAC_INVALID                     -1
@@ -997,7 +1004,8 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 #define SSH_MSG_KEXDH_INIT                          30
 #define SSH_MSG_KEXDH_REPLY                         31
 
-/* diffie-hellman-group-exchange-sha1 and diffie-hellman-group-exchange-sha256 */
+/* diffie-hellman-group-exchange-sha1 and
+   diffie-hellman-group-exchange-sha256 */
 #define SSH_MSG_KEX_DH_GEX_REQUEST_OLD              30
 #define SSH_MSG_KEX_DH_GEX_REQUEST                  34
 #define SSH_MSG_KEX_DH_GEX_GROUP                    31

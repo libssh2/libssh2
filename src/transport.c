@@ -445,7 +445,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             }
 
             p->padding_length = block[4];
-            if ( p->padding_length > p->packet_length - 1 ) {
+            if(p->padding_length > p->packet_length - 1) {
                 return LIBSSH2_ERROR_DECRYPT;
             }
 
@@ -482,10 +482,11 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 /* copy the data from index 5 to the end of
                    the blocksize from the temporary buffer to
                    the start of the decrypted buffer */
-                if (blocksize - 5 <= (int) total_num) {
+                if(blocksize - 5 <= (int) total_num) {
                     memcpy(p->wptr, &block[5], blocksize - 5);
                     p->wptr += blocksize - 5;       /* advance write pointer */
-                } else {
+                }
+                else {
                     return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                 }
             }
@@ -563,8 +564,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         /* if there are bytes to copy that aren't decrypted, simply
            copy them as-is to the target buffer */
         if(numbytes > 0) {
-            
-            if (numbytes <= (int)(total_num - (p->wptr - p->payload))) {
+
+            if(numbytes <= (int)(total_num - (p->wptr - p->payload))) {
                 memcpy(p->wptr, &p->buf[p->readidx], numbytes);
             }
             else {
@@ -591,12 +592,13 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
                 if(session->packAdd_state != libssh2_NB_state_idle) {
                     /* fullpacket only returns LIBSSH2_ERROR_EAGAIN if
-                     * libssh2_packet_add returns LIBSSH2_ERROR_EAGAIN. If that
-                     * returns LIBSSH2_ERROR_EAGAIN but the packAdd_state is idle,
-                     * then the packet has been added to the brigade, but some
-                     * immediate action that was taken based on the packet
-                     * type (such as key re-exchange) is not yet complete.
-                     * Clear the way for a new packet to be read in.
+                     * libssh2_packet_add returns LIBSSH2_ERROR_EAGAIN. If
+                     * that returns LIBSSH2_ERROR_EAGAIN but the packAdd_state
+                     * is idle, then the packet has been added to the brigade,
+                     * but some immediate action that was taken based on the
+                     * packet type (such as key re-exchange) is not yet
+                     * complete.  Clear the way for a new packet to be read
+                     * in.
                      */
                     session->readPack_encrypted = encrypted;
                     session->readPack_state = libssh2_NB_state_jump1;
@@ -783,7 +785,8 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
             dest2_len -= dest_len;
 
             rc = session->local.comp->comp(session,
-                                           &p->outbuf[5 + dest_len], &dest2_len,
+                                           &p->outbuf[5 + dest_len],
+                                           &dest2_len,
                                            data2, data2_len,
                                            &session->local.comp_abstract);
         }

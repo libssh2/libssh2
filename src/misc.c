@@ -62,7 +62,8 @@
 #include <stdio.h>
 #include <errno.h>
 
-int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode, const char *errmsg, int errflags)
+int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
+                         const char *errmsg, int errflags)
 {
     if(session->err_flags & LIBSSH2_ERR_FLAG_DUP)
         LIBSSH2_FREE(session, (char *)session->err_msg);
@@ -342,7 +343,8 @@ size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
     char *base64data;
     const char *indata = inp;
 
-    *outptr = NULL; /* set to NULL in case of failure before we reach the end */
+    *outptr = NULL; /* set to NULL in case of failure before we reach the
+                       end */
 
     if(0 == insize)
         insize = strlen(indata);
@@ -688,7 +690,8 @@ void _libssh2_aes_ctr_increment(unsigned char *ctr,
 }
 
 #ifdef WIN32
-static void * (__cdecl * const volatile memset_libssh)(void *, int, size_t) = memset;
+static void * (__cdecl * const volatile memset_libssh)(void *, int, size_t) =
+    memset;
 #else
 static void * (* const volatile memset_libssh)(void *, int, size_t) = memset;
 #endif
@@ -712,7 +715,8 @@ struct string_buf* _libssh2_string_buf_new(LIBSSH2_SESSION *session)
 {
     struct string_buf *ret;
 
-    if((ret = _libssh2_calloc(session, sizeof(*ret))) == NULL)
+    ret = _libssh2_calloc(session, sizeof(*ret));
+    if(ret == NULL)
         return NULL;
 
     return ret;
@@ -749,8 +753,8 @@ int _libssh2_get_u32(struct string_buf *buf, uint32_t *out)
 int _libssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out)
 {
        unsigned char *p = buf->dataptr;
-       if (!_libssh2_check_length(buf, 8)) {
-               return -1;
+       if(!_libssh2_check_length(buf, 8)) {
+           return -1;
        }
 
        *out = _libssh2_ntohu64(p);
@@ -763,7 +767,7 @@ int _libssh2_match_string(struct string_buf *buf, const char *match)
 {
     unsigned char *out;
     if((size_t)_libssh2_get_c_string(buf, &out) != strlen(match) ||
-        strncmp((char*)out, match, strlen(match)) != 0) {
+        strncmp((char *)out, match, strlen(match)) != 0) {
         return -1;
     }
     return 0;
