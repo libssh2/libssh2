@@ -134,6 +134,7 @@ set(MAN_PAGES
   libssh2_session_free.3
   libssh2_session_get_blocking.3
   libssh2_session_get_timeout.3
+  libssh2_session_handshake.3
   libssh2_session_hostkey.3
   libssh2_session_init.3
   libssh2_session_init_ex.3
@@ -200,6 +201,7 @@ set(MAN_PAGES
   libssh2_userauth_publickey.3
   libssh2_userauth_publickey_fromfile.3
   libssh2_userauth_publickey_fromfile_ex.3
+  libssh2_userauth_publickey_frommemory.3
   libssh2_version.3)
 
 include(GNUInstallDirs)
