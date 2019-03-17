@@ -82,3 +82,8 @@ on_failure:
   - ps: if($env:digitalocean_access_token) { docker-machine rm -y $($env:DOCKER_MACHINE_NAME) }
   - ps: if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
   - ps: if(Test-Path _builds/CMakeFiles/CMakeError.log) { cat _builds/CMakeFiles/CMakeError.log }
+
+# whitelist branches to avoid testing feature branches twice (as branch and as pull request)
+branches:
+    only:
+        - master
