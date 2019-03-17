@@ -39,24 +39,6 @@ environment:
     - GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: OFF
 
-    - GENERATOR: "Visual Studio 11 2012"
-      BUILD_SHARED_LIBS: ON
-
-    - GENERATOR: "Visual Studio 11 2012"
-      BUILD_SHARED_LIBS: OFF
-
-    - GENERATOR: "Visual Studio 10 2010"
-      BUILD_SHARED_LIBS: ON
-
-    - GENERATOR: "Visual Studio 10 2010"
-      BUILD_SHARED_LIBS: OFF
-
-    - GENERATOR: "Visual Studio 9 2008"
-      BUILD_SHARED_LIBS: ON
-
-    - GENERATOR: "Visual Studio 9 2008"
-      BUILD_SHARED_LIBS: OFF
-
   digitalocean_access_token:
     secure: 8qRitvrj69Xhf0Tmu27xnz5drmL2YhmOJLGpXIkYyTCC0JNtBoXW6fMcF3u4Uj1+pIQ+TjegQOwYimlz0oivKTro3v3EXro+osAMNJG6NKc=
 
