@@ -619,7 +619,7 @@ struct _LIBSSH2_SESSION
      * Or read from server in (eg) KEXDH_INIT (for client mode)
      */
     unsigned char *server_hostkey;
-    uint32_t server_hostkey_len;
+    size_t server_hostkey_len;
 #if LIBSSH2_MD5
     unsigned char server_hostkey_md5[MD5_DIGEST_LENGTH];
     int server_hostkey_md5_valid;
