@@ -1774,6 +1774,9 @@ _libssh2_ed25519_new_private(libssh2_ed25519_ctx ** ed_ctx,
                                                           NULL,
                                                           &ctx);
     }
+    else {
+        rc = -1;
+    }
 
     if(decrypted)
         _libssh2_string_buf_free(session, decrypted);
@@ -3041,6 +3044,8 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
                       "Public key type in decrypted key data not found");
        return -1;
    }
+
+   rc = -1;
 
 #if LIBSSH2_ED25519
     if(strcmp("ssh-ed25519", (const char *)buf) == 0) {
