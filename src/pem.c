@@ -424,7 +424,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         goto out;
     }
 
-    if(_libssh2_get_string(&decoded, &kdf, &kdf_len) != 0 || kdf_len == 0) {
+    if(_libssh2_get_string(&decoded, &kdf, &kdf_len) != 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                              "kdf is missing");
         goto out;
