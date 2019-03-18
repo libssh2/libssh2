@@ -1665,7 +1665,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     }
 
     if(key_state->state == libssh2_NB_state_sent1) {
-        unsigned int p_len, g_len;
+        size_t p_len, g_len;
         unsigned char *p, *g;
         struct string_buf buf;
 
@@ -1682,13 +1682,13 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
 
         buf.dataptr++; /* increment to big num */
 
-        if((p_len = _libssh2_get_bignum_bytes(&buf, &p)) <= 0) {
+        if(_libssh2_get_bignum_bytes(&buf, &p, &p_len) != 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected value");
             goto dh_gex_clean_exit;
         }
 
-        if((g_len = _libssh2_get_bignum_bytes(&buf, &g)) <= 0) {
+        if(_libssh2_get_bignum_bytes(&buf, &g, &g_len) != 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected value");
             goto dh_gex_clean_exit;
@@ -1789,7 +1789,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
 
     if(key_state->state == libssh2_NB_state_sent1) {
         unsigned char *p, *g;
-        unsigned long p_len, g_len;
+        size_t p_len, g_len;
         struct string_buf buf;
 
         if(key_state->data_len < 9) {
@@ -1805,13 +1805,13 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
 
         buf.dataptr++; /* increment to big num */
 
-        if((p_len = _libssh2_get_bignum_bytes(&buf, &p)) <= 0) {
+        if(_libssh2_get_bignum_bytes(&buf, &p, &p_len) != 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected value");
             goto dh_gex_clean_exit;
         }
 
-        if((g_len = _libssh2_get_bignum_bytes(&buf, &g)) <= 0) {
+        if(_libssh2_get_bignum_bytes(&buf, &g, &g_len) != 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected value");
             goto dh_gex_clean_exit;
@@ -2603,7 +2603,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
     if(exchange_state->state == libssh2_NB_state_created) {
         /* parse INIT reply data */
         unsigned char *server_public_key, *server_host_key;
-        unsigned int server_public_key_len;
+        size_t server_public_key_len;
         struct string_buf buf;
 
         if(data_len < 5) {
@@ -2618,7 +2618,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         buf.dataptr = buf.data;
         buf.dataptr++; /* advance past packet type */
 
-        if((session->server_hostkey_len = _libssh2_get_c_string(&buf, &server_host_key)) <= 0) {
+        if(_libssh2_get_string(&buf, &server_host_key, &(session->server_hostkey_len)) != 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected key length");
             goto clean_exit;
@@ -2724,8 +2724,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
 
         /* server public key Q_S */
-        if((server_public_key_len =
-            _libssh2_get_c_string(&buf, &server_public_key)) <= 0) {
+        if(_libssh2_get_string(&buf, &server_public_key, &server_public_key_len) != 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                      "Unexpected key length");
             goto clean_exit;
@@ -2738,8 +2737,7 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
 
         /* server signature */
-        if((exchange_state->h_sig_len =
-            _libssh2_get_c_string(&buf, &exchange_state->h_sig)) <= 0) {
+        if(_libssh2_get_string(&buf, &exchange_state->h_sig, &(exchange_state->h_sig_len)) != 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Unexpected curve25519 server sig length");
             goto clean_exit;

@@ -65,7 +65,7 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
 {
     libssh2_rsa_ctx *rsactx;
     unsigned char *e, *n;
-    int e_len, n_len;
+    size_t e_len, n_len;
     struct string_buf buf;
 
     if(*abstract) {
@@ -87,10 +87,10 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     if(_libssh2_match_string(&buf, "ssh-rsa") != 0)
         return -1;
 
-    if((e_len = _libssh2_get_c_string(&buf, &e)) <= 0)
+    if(_libssh2_get_string(&buf, &e, &e_len) != 0)
         return -1;
 
-    if((n_len = _libssh2_get_c_string(&buf, &n)) <= 0)
+    if(_libssh2_get_string(&buf, &n, &n_len) != 0)
         return -1;
 
     if(_libssh2_rsa_new(&rsactx, e, e_len, n, n_len, NULL, 0,
@@ -284,7 +284,7 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
 {
     libssh2_dsa_ctx *dsactx;
     unsigned char *p, *q, *g, *y;
-    int p_len, q_len, g_len, y_len;
+    size_t p_len, q_len, g_len, y_len;
     struct string_buf buf;
 
     if(*abstract) {
@@ -306,16 +306,16 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
     if(_libssh2_match_string(&buf, "ssh-dss") != 0)
         return -1;
 
-    if((p_len = _libssh2_get_c_string(&buf, &p)) < 0)
+    if(_libssh2_get_string(&buf, &p, &p_len) != 0)
        return -1;
 
-    if((q_len = _libssh2_get_c_string(&buf, &q)) < 0)
+    if(_libssh2_get_string(&buf, &q, &q_len) != 0)
         return -1;
 
-    if((g_len = _libssh2_get_c_string(&buf, &g)) < 0)
+    if(_libssh2_get_string(&buf, &g, &g_len) != 0)
         return -1;
 
-    if((y_len = _libssh2_get_c_string(&buf, &y)) < 0)
+    if(_libssh2_get_string(&buf, &y, &y_len) != 0)
         return -1;
 
     if(_libssh2_dsa_new(&dsactx, p, p_len, q, q_len,
@@ -508,7 +508,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
 {
     libssh2_ecdsa_ctx *ecdsactx = NULL;
     unsigned char *type_str, *domain, *public_key;
-    int key_len;
+    size_t key_len, len;
     libssh2_curve_type type;
     struct string_buf buf;
 
@@ -528,7 +528,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
 
-    if(_libssh2_get_c_string(&buf, &type_str) != 19)
+    if(_libssh2_get_string(&buf, &type_str, &len) != 0 || len != 19)
         return -1;
 
     if (strncmp((char*) type_str, "ecdsa-sha2-nistp256", 19) == 0 ){
@@ -541,7 +541,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    if(_libssh2_get_c_string(&buf, &domain) != 8)
+    if(_libssh2_get_string(&buf, &domain, &len) != 0 || len != 8)
         return -1;
 
     if ( type == LIBSSH2_EC_CURVE_NISTP256 && strncmp((char*)domain, "nistp256", 8) != 0){
@@ -553,7 +553,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     }
 
     /* public key */
-    if((key_len = _libssh2_get_c_string(&buf, &public_key)) <= 0)
+    if(_libssh2_get_string(&buf, &public_key, &key_len) != 0)
         return -1;
 
     if(_libssh2_ecdsa_curve_name_with_octal_new(&ecdsactx, public_key, key_len, type) )
@@ -638,7 +638,8 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
                                     size_t m_len, void **abstract)
 {
     unsigned char *r, *s, *name;
-    unsigned int r_len, s_len, len;
+    size_t r_len, s_len, name_len;
+    unsigned int len;
     struct string_buf buf;
     libssh2_ecdsa_ctx *ctx = (libssh2_ecdsa_ctx *) (*abstract);
 
@@ -653,16 +654,16 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
     buf.dataptr = buf.data;
     buf.len = sig_len;
 
-   if(_libssh2_get_c_string(&buf, &name) != 19)
+   if(_libssh2_get_string(&buf, &name, &name_len) != 0 || name_len != 19)
         return -1;
 
     if(_libssh2_get_u32(&buf, &len) != 0 || len < 8)
         return -1;
 
-    if((r_len = _libssh2_get_c_string(&buf, &r)) <= 0)
+    if(_libssh2_get_string(&buf, &r, &r_len) != 0)
        return -1;
 
-    if((s_len = _libssh2_get_c_string(&buf, &s)) <= 0)
+    if(_libssh2_get_string(&buf, &s, &s_len) != 0)
         return -1;
 
     return _libssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len);

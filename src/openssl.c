@@ -949,9 +949,8 @@ gen_publickey_from_rsa_openssh_priv_data(LIBSSH2_SESSION *session,
                                          libssh2_rsa_ctx **rsa_ctx)
 {
     int rc = 0;
-    int nlen, elen, dlen, plen, qlen, coefflen;
+    size_t nlen, elen, dlen, plen, qlen, coefflen, commentlen;
     unsigned char *n, *e, *d, *p, *q, *coeff, *comment;
-    int commentlen;
     RSA *rsa = NULL;
 
     _libssh2_debug(session,
@@ -959,44 +958,44 @@ gen_publickey_from_rsa_openssh_priv_data(LIBSSH2_SESSION *session,
                    "Computing RSA keys from private key data");
 
     /* public key data */
-    if((nlen = _libssh2_get_bignum_bytes(decrypted, &n)) <= 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &n, &nlen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no n");
         return -1;
     }
 
-    if((elen = _libssh2_get_bignum_bytes(decrypted, &e)) <= 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &e, &elen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no e");
         return -1;
     }
 
     /* private key data */
-    if((dlen = _libssh2_get_bignum_bytes(decrypted, &d)) <= 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &d, &dlen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no d");
         return -1;
     }
 
-    if((coefflen = _libssh2_get_bignum_bytes(decrypted, &coeff)) <= 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &coeff, &coefflen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no coeff");
         return -1;
     }
 
-    if((plen = _libssh2_get_bignum_bytes(decrypted, &p)) <= 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &p, &plen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no p");
         return -1;
     }
 
-    if((qlen = _libssh2_get_bignum_bytes(decrypted, &q)) <= 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &q, &qlen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no q");
         return -1;
     }
 
-    if((commentlen = _libssh2_get_c_string(decrypted, &comment)) < 0) {
+    if(_libssh2_get_string(decrypted, &comment, &commentlen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no comment");
         return -1;
@@ -1075,9 +1074,9 @@ _libssh2_rsa_new_openssh_private(libssh2_rsa_ctx ** rsa,
     }
 
     /* We have a new key file, now try and parse it using supported types  */
-    rc = _libssh2_get_c_string(decrypted, &buf);
+    rc = _libssh2_get_string(decrypted, &buf, NULL);
 
-    if(rc < 1 || buf == NULL) {
+    if(rc != 0 || buf == NULL) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Public key type in decrypted key data not found");
         return -1;
@@ -1266,7 +1265,7 @@ gen_publickey_from_dsa_openssh_priv_data(LIBSSH2_SESSION *session,
                                          libssh2_dsa_ctx **dsa_ctx)
 {
     int rc = 0;
-    int plen, qlen, glen, pub_len, priv_len;
+    size_t plen, qlen, glen, pub_len, priv_len;
     unsigned char *p, *q, *g, *pub_key, *priv_key;
     DSA *dsa = NULL;
 
@@ -1274,31 +1273,31 @@ gen_publickey_from_dsa_openssh_priv_data(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing DSA keys from private key data");
 
-    if((plen = _libssh2_get_bignum_bytes(decrypted, &p)) <= 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &p, &plen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "DSA no p");
         return -1;
     }
 
-    if((qlen = _libssh2_get_bignum_bytes(decrypted, &q)) <= 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &q, &qlen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "DSA no q");
         return -1;
     }
 
-    if((glen = _libssh2_get_bignum_bytes(decrypted, &g)) <= 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &g, &glen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "DSA no g");
         return -1;
     }
 
-    if((pub_len = _libssh2_get_bignum_bytes(decrypted, &pub_key)) <= 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &pub_key, &pub_len) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "DSA no public key");
         return -1;
     }
 
-    if((priv_len = _libssh2_get_bignum_bytes(decrypted, &priv_key)) <= 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &priv_key, &priv_len) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "DSA no private key");
         return -1;
@@ -1374,9 +1373,9 @@ _libssh2_dsa_new_openssh_private(libssh2_dsa_ctx ** dsa,
     }
 
     /* We have a new key file, now try and parse it using supported types  */
-    rc = _libssh2_get_c_string(decrypted, &buf);
+    rc = _libssh2_get_string(decrypted, &buf, NULL);
 
-    if(rc < 1 || buf == NULL) {
+    if(rc != 0 || buf == NULL) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Public key type in decrypted key data not found");
         return -1;
@@ -1568,22 +1567,24 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
     libssh2_ed25519_ctx *ctx = NULL;
     unsigned char* method_buf = NULL;
     unsigned char* key = NULL;
-    int i, rc, ret = 0;
+    int i, ret = 0;
     unsigned char *pub_key, *priv_key, *buf;
-    size_t  key_len = 0;
+    size_t key_len = 0, tmp_len = 0;
     unsigned char *p;
 
     _libssh2_debug(session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing ED25519 keys from private key data");
 
-    if(_libssh2_get_c_string(decrypted, &pub_key) != LIBSSH2_ED25519_KEY_LEN) {
+    if(_libssh2_get_string(decrypted, &pub_key, &tmp_len) != 0 || 
+       tmp_len != LIBSSH2_ED25519_KEY_LEN) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Wrong public key length");
         return -1;
     }
 
-    if(_libssh2_get_c_string(decrypted, &priv_key) != LIBSSH2_ED25519_PRIVATE_KEY_LEN) {
+    if(_libssh2_get_string(decrypted, &priv_key, &tmp_len) != 0 || 
+       tmp_len != LIBSSH2_ED25519_PRIVATE_KEY_LEN) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Wrong private key length");
         ret = -1;
@@ -1606,18 +1607,18 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
                         (const unsigned char*)pub_key, LIBSSH2_ED25519_KEY_LEN);
 
     /* comment */
-    if((rc = _libssh2_get_c_string(decrypted, &buf)) < 0) {
+    if(_libssh2_get_string(decrypted, &buf, &tmp_len) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Unable to read comment");
         ret = -1;
         goto clean_exit;
     }
 
-    if(rc > 0) {
-        unsigned char *comment = LIBSSH2_CALLOC(session, rc + 1);
+    if(tmp_len > 0) {
+        unsigned char *comment = LIBSSH2_CALLOC(session, tmp_len + 1);
         if(comment != NULL) {
-            memcpy(comment, buf, rc);
-            memcpy(comment + rc, "\0", 1);
+            memcpy(comment, buf, tmp_len);
+            memcpy(comment + tmp_len, "\0", 1);
 
             _libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Key comment: %s", comment);
 
@@ -1733,9 +1734,9 @@ _libssh2_ed25519_new_private(libssh2_ed25519_ctx ** ed_ctx,
     }
 
     /* We have a new key file, now try and parse it using supported types  */
-    rc = _libssh2_get_c_string(decrypted, &buf);
+    rc = _libssh2_get_string(decrypted, &buf, NULL);
 
-    if(rc < 1 || buf == NULL) {
+    if(rc != 0 || buf == NULL) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Public key type in decrypted key data not found");
         return -1;
@@ -2314,7 +2315,7 @@ gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
                                            libssh2_ecdsa_ctx **ec_ctx)
 {
     int rc = 0;
-    int curvelen, exponentlen, pointlen;
+    size_t curvelen, exponentlen, pointlen;
     unsigned char *curve, *exponent, *point_buf;
     EC_KEY *ec_key = NULL;
     BIGNUM *bn_exponent;
@@ -2323,19 +2324,20 @@ gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing ECDSA keys from private key data");
 
-    if ((curvelen = _libssh2_get_c_string(decrypted, &curve)) <= 0) {
+    if (_libssh2_get_string(decrypted, &curve, &curvelen) != 0 || 
+        curvelen == 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "ECDSA no curve");
         return -1;
     }
 
-    if ((pointlen = _libssh2_get_c_string(decrypted, &point_buf)) <= 0) {
+    if (_libssh2_get_string(decrypted, &point_buf, &pointlen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "ECDSA no point");
         return -1;
     }
 
-    if ((exponentlen = _libssh2_get_bignum_bytes(decrypted, &exponent)) <= 0) {
+    if (_libssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "ECDSA no exponent");
         return -1;
@@ -2421,9 +2423,9 @@ _libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx ** ec_ctx,
     }
 
     /* We have a new key file, now try and parse it using supported types  */
-    rc = _libssh2_get_c_string(decrypted, &buf);
+    rc = _libssh2_get_string(decrypted, &buf, NULL);
 
-    if(rc < 1 || buf == NULL) {
+    if(rc != 0 || buf == NULL) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Public key type in decrypted key data not found");
         return -1;
@@ -2790,9 +2792,9 @@ _libssh2_pub_priv_openssh_keyfile(LIBSSH2_SESSION *session,
     }
 
     /* We have a new key file, now try and parse it using supported types  */
-    rc = _libssh2_get_c_string(decrypted, &buf);
+    rc = _libssh2_get_string(decrypted, &buf, NULL);
 
-    if(rc < 1 || buf == NULL){
+    if(rc != 0 || buf == NULL){
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Public key type in decrypted key data not found");
         return -1;
@@ -2977,9 +2979,9 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
     }
 
    /* We have a new key file, now try and parse it using supported types  */
-   rc = _libssh2_get_c_string(decrypted, &buf);
+   rc = _libssh2_get_string(decrypted, &buf, NULL);
 
-   if(rc < 1 || buf == NULL) {
+   if(rc != 0 || buf == NULL) {
        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                       "Public key type in decrypted key data not found");
        return -1;
