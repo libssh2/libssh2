@@ -1,6 +1,6 @@
 /* Copyright (C) 2009, 2010 Simon Josefsson
  * Copyright (C) 2006, 2007 The Written Word, Inc.  All rights reserved.
- * Copyright (C) 2010 Daniel Stenberg
+ * Copyright (C) 2010-2019 Daniel Stenberg
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided

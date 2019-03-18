@@ -115,7 +115,10 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
     struct sockaddr_un addr;
     struct chan_X11_list *new;
     struct chan_X11_list *chan_iter;
-
+    (void)session;
+    (void)shost;
+    (void)sport;
+    (void)abstract;
     /*
      * Connect to the display
      * Inspired by x11_connect_display in openssh
@@ -319,9 +322,13 @@ main (int argc, char *argv[])
     if (set_debug_on == 1)
         libssh2_trace(session, LIBSSH2_TRACE_CONN);
 
+    /* ignore pedantic warnings by gcc on the callback argument */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
     /* Set X11 Callback */
     libssh2_session_callback_set(session, LIBSSH2_CALLBACK_X11,
                                  (void *)x11_callback);
+#pragma GCC diagnostic pop
 
     /* Authenticate via password */
     rc = libssh2_userauth_password(session, username, password);

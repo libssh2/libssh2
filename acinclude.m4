@@ -472,3 +472,40 @@ m4_case([$1],
 "
 fi
 ])
+
+
+dnl LIBSSH2_CHECK_OPTION_WERROR
+dnl -------------------------------------------------
+dnl Verify if configure has been invoked with option
+dnl --enable-werror or --disable-werror, and set
+dnl shell variable want_werror as appropriate.
+
+AC_DEFUN([LIBSSH2_CHECK_OPTION_WERROR], [
+  AC_BEFORE([$0],[LIBSSH2_CHECK_COMPILER])dnl
+  AC_MSG_CHECKING([whether to enable compiler warnings as errors])
+  OPT_COMPILER_WERROR="default"
+  AC_ARG_ENABLE(werror,
+AC_HELP_STRING([--enable-werror],[Enable compiler warnings as errors])
+AC_HELP_STRING([--disable-werror],[Disable compiler warnings as errors]),
+  OPT_COMPILER_WERROR=$enableval)
+  case "$OPT_COMPILER_WERROR" in
+    no)
+      dnl --disable-werror option used
+      want_werror="no"
+      ;;
+    default)
+      dnl configure option not specified
+      want_werror="no"
+      ;;
+    *)
+      dnl --enable-werror option used
+      want_werror="yes"
+      ;;
+  esac
+  AC_MSG_RESULT([$want_werror])
+
+  if test X"$want_werror" = Xyes; then
+    CFLAGS="$CFLAGS -Werror"
+  fi
+])
+

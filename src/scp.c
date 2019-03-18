@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2010 by Daniel Stenberg
+/* Copyright (c) 2009-2019 by Daniel Stenberg
  * Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
@@ -776,8 +776,9 @@ libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat * sb)
     LIBSSH2_CHANNEL *ptr;
 
     /* scp_recv uses libssh2_struct_stat, so pass one if the caller gave us a struct to populate... */
-    libssh2_struct_stat sb_intl = {0};
+    libssh2_struct_stat sb_intl;
     libssh2_struct_stat *sb_ptr;
+    memset(&sb_intl, 0, sizeof(sb_intl));
     sb_ptr = sb ? &sb_intl : NULL;
 
     BLOCK_ADJUST_ERRNO(ptr, session, scp_recv(session, path, sb_ptr));

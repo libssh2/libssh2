@@ -1,6 +1,6 @@
 /* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2005 Mikhail Gusarov <dottedmag@dottedmag.net>
- * Copyright (c) 2008-2014 by Daniel Stenberg
+ * Copyright (c) 2008-2019 by Daniel Stenberg
  *
  * All rights reserved.
  *
@@ -1180,7 +1180,7 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
 
             _libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
             for(i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++) {
-                snprintf((char *)&s[i*2], 3, "%02X%c", buffer[i], '\0');
+                snprintf((char *)&s[i*2], 3, "%02X", buffer[i]);
             }
         }
         s += cookie_len;
@@ -1439,7 +1439,7 @@ _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
                 && ((packet->data_len >= 5)
                 && (_libssh2_ntohu32(packet->data + 1) == channel->local.id))) {
                 /* It's our channel at least */
-                unsigned int packet_stream_id;
+                int packet_stream_id;
                 
                 if(packet_type == SSH_MSG_CHANNEL_DATA) {
                     packet_stream_id = 0;

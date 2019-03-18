@@ -39,24 +39,6 @@ environment:
     - GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: OFF
 
-    - GENERATOR: "Visual Studio 11 2012"
-      BUILD_SHARED_LIBS: ON
-
-    - GENERATOR: "Visual Studio 11 2012"
-      BUILD_SHARED_LIBS: OFF
-
-    - GENERATOR: "Visual Studio 10 2010"
-      BUILD_SHARED_LIBS: ON
-
-    - GENERATOR: "Visual Studio 10 2010"
-      BUILD_SHARED_LIBS: OFF
-
-    - GENERATOR: "Visual Studio 9 2008"
-      BUILD_SHARED_LIBS: ON
-
-    - GENERATOR: "Visual Studio 9 2008"
-      BUILD_SHARED_LIBS: OFF
-
   digitalocean_access_token:
     secure: 8qRitvrj69Xhf0Tmu27xnz5drmL2YhmOJLGpXIkYyTCC0JNtBoXW6fMcF3u4Uj1+pIQ+TjegQOwYimlz0oivKTro3v3EXro+osAMNJG6NKc=
 
@@ -100,3 +82,8 @@ on_failure:
   - ps: if($env:digitalocean_access_token) { docker-machine rm -y $($env:DOCKER_MACHINE_NAME) }
   - ps: if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
   - ps: if(Test-Path _builds/CMakeFiles/CMakeError.log) { cat _builds/CMakeFiles/CMakeError.log }
+
+# whitelist branches to avoid testing feature branches twice (as branch and as pull request)
+branches:
+    only:
+        - master
