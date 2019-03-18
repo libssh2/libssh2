@@ -482,7 +482,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 /* copy the data from index 5 to the end of
                    the blocksize from the temporary buffer to
                    the start of the decrypted buffer */
-                if (blocksize - 5 <= total_num) {
+                if (blocksize - 5 <= (int) total_num) {
                     memcpy(p->wptr, &block[5], blocksize - 5);
                     p->wptr += blocksize - 5;       /* advance write pointer */
                 } else {
@@ -564,7 +564,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
            copy them as-is to the target buffer */
         if(numbytes > 0) {
             
-            if (numbytes <= total_num - (p->wptr - p->payload)) {
+            if (numbytes <= (int)(total_num - (p->wptr - p->payload))) {
                 memcpy(p->wptr, &p->buf[p->readidx], numbytes);
             }
             else {

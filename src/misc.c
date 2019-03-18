@@ -746,11 +746,11 @@ int _libssh2_get_u32(struct string_buf *buf, uint32_t *out)
 
 int _libssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out)
 {
+       unsigned char *p = buf->dataptr;
        if (!_libssh2_check_length(buf, 8)) {
                return -1;
        }
 
-       unsigned char *p = buf->dataptr;
        *out = _libssh2_ntohu64(p);
        buf->dataptr += 8;
        buf->offset += 8;
