@@ -241,7 +241,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
     if(out_maxlen < 25)
         out_maxlen = 25;
 
-    if(out_maxlen > (int) payload_limit)
+    if(out_maxlen > payload_limit)
         out_maxlen = payload_limit;
 
     strm->next_in = (unsigned char *) src;
@@ -279,7 +279,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
                                   "decompression failure");
         }
 
-        if(out_maxlen > (int) payload_limit || out_maxlen > SIZE_MAX / 2) {
+        if(out_maxlen > payload_limit || out_maxlen > SIZE_MAX / 2) {
             LIBSSH2_FREE(session, out);
             return _libssh2_error(session, LIBSSH2_ERROR_ZLIB,
                                   "Excessive growth in decompression phase");
