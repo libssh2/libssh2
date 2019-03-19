@@ -225,7 +225,12 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
     /* A short-term alloc of a full data chunk is better than a series of
        reallocs */
     char *out;
-    int out_maxlen = 4 * src_len;
+    size_t out_maxlen = src_len;
+    
+    if (src_len <= SIZE_MAX / 4)
+        out_maxlen = src_len * 4;
+    else
+        out_maxlen = payload_limit;
 
     /* If strm is null, then we have not yet been initialized. */
     if(strm == NULL)
@@ -236,7 +241,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
     if(out_maxlen < 25)
         out_maxlen = 25;
 
-    if(out_maxlen > (int) payload_limit)
+    if(out_maxlen > payload_limit)
         out_maxlen = payload_limit;
 
     strm->next_in = (unsigned char *) src;
@@ -274,7 +279,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
                                   "decompression failure");
         }
 
-        if(out_maxlen >= (int) payload_limit) {
+        if(out_maxlen > payload_limit || out_maxlen > SIZE_MAX / 2) {
             LIBSSH2_FREE(session, out);
             return _libssh2_error(session, LIBSSH2_ERROR_ZLIB,
                                   "Excessive growth in decompression phase");

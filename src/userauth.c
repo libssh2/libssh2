@@ -1744,28 +1744,58 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             /* server requested PAM-like conversation */
             s = session->userauth_kybd_data + 1;
 
-            /* string    name (ISO-10646 UTF-8) */
-            session->userauth_kybd_auth_name_len = _libssh2_ntohu32(s);
-            s += 4;
-            if(session->userauth_kybd_auth_name_len) {
-                session->userauth_kybd_auth_name =
-                    LIBSSH2_ALLOC(session,
-                                  session->userauth_kybd_auth_name_len);
-                if(!session->userauth_kybd_auth_name) {
-                    _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                   "Unable to allocate memory for "
-                                   "keyboard-interactive 'name' "
-                                   "request field");
+            if(session->userauth_kybd_data_len >= 5) {
+                /* string    name (ISO-10646 UTF-8) */
+                session->userauth_kybd_auth_name_len = _libssh2_ntohu32(s);
+                s += 4;
+            }
+            else {
+                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                               "userauth keyboard data buffer too small"
+                               "to get length");
+                goto cleanup;
+            }
+ 
+             if(session->userauth_kybd_auth_name_len) {
+                 session->userauth_kybd_auth_name =
+                     LIBSSH2_ALLOC(session,
+                                   session->userauth_kybd_auth_name_len);
+                 if(!session->userauth_kybd_auth_name) {
+                     _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                    "Unable to allocate memory for "
+                                    "keyboard-interactive 'name' "
+                                    "request field");
+                     goto cleanup;
+                 }
+                if (s + session->userauth_list_data_len <=
+                    session->userauth_kybd_data +
+                    session->userauth_kybd_data_len) {
+                        memcpy(session->userauth_kybd_auth_name, s,
+                            session->userauth_kybd_auth_name_len);
+                        s += session->userauth_kybd_auth_name_len;
+                }
+                else {
+                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                   "userauth keyboard data buffer too small"
+                                   "for auth name");
                     goto cleanup;
                 }
-                memcpy(session->userauth_kybd_auth_name, s,
-                       session->userauth_kybd_auth_name_len);
-                s += session->userauth_kybd_auth_name_len;
+             }
+ 
+            if (s + 4 <= session->userauth_kybd_data +
+                session->userauth_kybd_data_len) {
+                    /* string    instruction (ISO-10646 UTF-8) */
+                    session->userauth_kybd_auth_instruction_len =
+                        _libssh2_ntohu32(s);
+                    s += 4;
+            }
+            else {
+                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                               "userauth keyboard data buffer too small"
+                               "for auth instruction length");
+                goto cleanup;
             }
 
-            /* string    instruction (ISO-10646 UTF-8) */
-            session->userauth_kybd_auth_instruction_len = _libssh2_ntohu32(s);
-            s += 4;
             if(session->userauth_kybd_auth_instruction_len) {
                 session->userauth_kybd_auth_instruction =
                     LIBSSH2_ALLOC(session,
@@ -1777,21 +1807,58 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                                    "request field");
                     goto cleanup;
                 }
-                memcpy(session->userauth_kybd_auth_instruction, s,
-                       session->userauth_kybd_auth_instruction_len);
-                s += session->userauth_kybd_auth_instruction_len;
+                if(s + session->userauth_kybd_auth_instruction_len <=
+                    session->userauth_kybd_data +
+                    session->userauth_kybd_data_len) {
+                        memcpy(session->userauth_kybd_auth_instruction, s,
+                            session->userauth_kybd_auth_instruction_len);
+                            s += session->userauth_kybd_auth_instruction_len;
+                 }
+                 else {
+                     _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                    "userauth keyboard data buffer too small"
+                                    "for auth instruction");
+                    goto cleanup;
+                }
             }
 
-            /* string    language tag (as defined in [RFC-3066]) */
-            language_tag_len = _libssh2_ntohu32(s);
-            s += 4;
+            if(s + 4 <= session->userauth_kybd_data +
+                session->userauth_kybd_data_len) {
+                    /* string    language tag (as defined in [RFC-3066]) */
+                    language_tag_len = _libssh2_ntohu32(s);
+                    s += 4;
+            }
+            else {
+                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                               "userauth keyboard data buffer too small"
+                               "for auth language tag length");
+                goto cleanup;
+            }
 
-            /* ignoring this field as deprecated */
-            s += language_tag_len;
+            if(s + language_tag_len <= session->userauth_kybd_data +
+                session->userauth_kybd_data_len) {
+                    /* ignoring this field as deprecated */
+                    s += language_tag_len;
+            }
+            else {
+                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                               "userauth keyboard data buffer too small"
+                               "for auth language tag");
+                goto cleanup;
+            }
 
-            /* int       num-prompts */
-            session->userauth_kybd_num_prompts = _libssh2_ntohu32(s);
-            s += 4;
+            if(s + 4 <= session->userauth_kybd_data +
+                session->userauth_kybd_data_len) {
+                    /* int       num-prompts */
+                    session->userauth_kybd_num_prompts = _libssh2_ntohu32(s);
+                    s += 4;
+            }
+            else {
+                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                               "userauth keyboard data buffer too small"
+                               "for auth num keyboard prompts");
+               goto cleanup;
+            }
 
             if(session->userauth_kybd_num_prompts > 100) {
                 _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
@@ -1824,10 +1891,20 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                 }
 
                 for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
-                    /* string    prompt[1] (ISO-10646 UTF-8) */
-                    session->userauth_kybd_prompts[i].length =
-                        _libssh2_ntohu32(s);
-                    s += 4;
+                    if(s + 4 <= session->userauth_kybd_data +
+                        session->userauth_kybd_data_len) {
+                            /* string    prompt[1] (ISO-10646 UTF-8) */
+                            session->userauth_kybd_prompts[i].length =
+                                    _libssh2_ntohu32(s);
+                            s += 4;
+                    }
+                    else {
+                        _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                       "userauth keyboard data buffer too small"
+                                       "for auth keyboard prompt length");
+                        goto cleanup;
+                    }
+
                     session->userauth_kybd_prompts[i].text =
                         LIBSSH2_CALLOC(session,
                                        session->userauth_kybd_prompts[i].length);
@@ -1837,12 +1914,31 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                                        "keyboard-interactive prompt message");
                         goto cleanup;
                     }
-                    memcpy(session->userauth_kybd_prompts[i].text, s,
-                           session->userauth_kybd_prompts[i].length);
-                    s += session->userauth_kybd_prompts[i].length;
-
-                    /* boolean   echo[1] */
-                    session->userauth_kybd_prompts[i].echo = *s++;
+                    
+                    if(s + session->userauth_kybd_prompts[i].length <=
+                        session->userauth_kybd_data +
+                        session->userauth_kybd_data_len) {
+                            memcpy(session->userauth_kybd_prompts[i].text, s,
+                                       session->userauth_kybd_prompts[i].length);
+                            s += session->userauth_kybd_prompts[i].length;
+                    }
+                    else {
+                        _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                       "userauth keyboard data buffer too small"
+                                       "for auth keyboard prompt");
+                        goto cleanup;
+                    }
+                    if(s < session->userauth_kybd_data +
+                        session->userauth_kybd_data_len) {
+                            /* boolean   echo[1] */
+                            session->userauth_kybd_prompts[i].echo = *s++;
+                    }
+                    else {
+                        _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                       "userauth keyboard data buffer too small"
+                                       "for auth keyboard prompt echo");
+                        goto cleanup;
+                    }
                 }
             }
 

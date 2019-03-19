@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
             }
 
             if(attrs.flags & LIBSSH2_SFTP_ATTR_UIDGID) {
-                printf("%4ld %4ld ", attrs.uid, attrs.gid);
+                printf("%4d %4d ", (int) attrs.uid, (int) attrs.gid);
             } else {
                 printf("   -    - ");
             }

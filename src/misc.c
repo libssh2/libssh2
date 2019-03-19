@@ -697,8 +697,10 @@ void _libssh2_explicit_zero(void *buf, size_t size)
 {
 #if defined(HAVE_DECL_SECUREZEROMEMORY) && HAVE_DECL_SECUREZEROMEMORY
     SecureZeroMemory(buf, size);
+    (void)memset_libssh; /* Silence unused variable warning */
 #elif defined(HAVE_MEMSET_S)
     (void)memset_s(buf, size, 0, size);
+    (void)memset_libssh; /* Silence unused variable warning */
 #else
     memset_libssh(buf, 0, size);
 #endif
@@ -742,6 +744,19 @@ int _libssh2_get_u32(struct string_buf *buf, uint32_t *out)
     buf->dataptr += 4;
     buf->offset += 4;
     return 0;
+}
+
+int _libssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out)
+{
+       unsigned char *p = buf->dataptr;
+       if (!_libssh2_check_length(buf, 8)) {
+               return -1;
+       }
+
+       *out = _libssh2_ntohu64(p);
+       buf->dataptr += 8;
+       buf->offset += 8;
+       return 0;
 }
 
 int _libssh2_match_string(struct string_buf *buf, const char *match)

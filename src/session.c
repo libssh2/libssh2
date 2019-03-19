@@ -786,6 +786,7 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         session->startup_service_length =
             _libssh2_ntohu32(session->startup_data + 1);
 
+
         if((session->startup_service_length != (sizeof("ssh-userauth") - 1))
             || strncmp("ssh-userauth", (char *) session->startup_data + 5,
                        session->startup_service_length)) {
@@ -1432,6 +1433,11 @@ libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
     packet = _libssh2_list_first(&session->packets);
 
     while(packet) {
+        if (packet->data_len < 5) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Packet too small");
+        }
+
         if(channel->local.id == _libssh2_ntohu32(packet->data + 1)) {
             if(extended == 1 &&
                 (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA
