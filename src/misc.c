@@ -697,8 +697,10 @@ void _libssh2_explicit_zero(void *buf, size_t size)
 {
 #if defined(HAVE_DECL_SECUREZEROMEMORY) && HAVE_DECL_SECUREZEROMEMORY
     SecureZeroMemory(buf, size);
+    (void)memset_libssh; /* Silence unused variable warning */
 #elif defined(HAVE_MEMSET_S)
     (void)memset_s(buf, size, 0, size);
+    (void)memset_libssh; /* Silence unused variable warning */
 #else
     memset_libssh(buf, 0, size);
 #endif
