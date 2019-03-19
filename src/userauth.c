@@ -127,7 +127,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block requesting userauth list");
             return NULL;
-        } else if (rc) {
+        } else if (rc || session->userauth_list_data_len < 1) {
             _libssh2_error(session, rc, "Failed getting response");
             session->userauth_list_state = libssh2_NB_state_idle;
             return NULL;
@@ -1172,7 +1172,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                                      NULL, 0);
         if (rc == LIBSSH2_ERROR_EAGAIN)
             return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
-        else if (rc || (session->userauth_pblc_data_len < 1)) {
+        else if (rc) {
             LIBSSH2_FREE(session, session->userauth_pblc_packet);
             session->userauth_pblc_packet = NULL;
             LIBSSH2_FREE(session, session->userauth_pblc_method);
