@@ -354,10 +354,10 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
     return ret;
 }
 
-/* OpenSSL formatted keys */
+/* OpenSSH formatted keys */
 #define AUTH_MAGIC "openssh-key-v1"
-#define OPENSSL_HEADER_BEGIN "-----BEGIN OPENSSH PRIVATE KEY-----"
-#define OPENSSL_HEADER_END "-----END OPENSSH PRIVATE KEY-----"
+#define OPENSSH_HEADER_BEGIN "-----BEGIN OPENSSH PRIVATE KEY-----"
+#define OPENSSH_HEADER_END "-----END OPENSSH PRIVATE KEY-----"
 
 static int
 _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
@@ -668,7 +668,7 @@ _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
             return -1;
         }
     }
-    while (strcmp(line, OPENSSL_HEADER_BEGIN) != 0);
+    while (strcmp(line, OPENSSH_HEADER_BEGIN) != 0);
 
     if(readline(line, LINE_SIZE, fp)) {
         return -1;
@@ -696,7 +696,7 @@ _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
             ret = -1;
             goto out;
         }
-    } while (strcmp(line, OPENSSL_HEADER_END) != 0);
+    } while (strcmp(line, OPENSSH_HEADER_END) != 0);
 
     if(!b64data) {
         return -1;
@@ -746,7 +746,7 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
             return -1;
         }
     }
-    while (strcmp(line, OPENSSL_HEADER_BEGIN) != 0);
+    while (strcmp(line, OPENSSH_HEADER_BEGIN) != 0);
 
     *line = '\0';
 
@@ -777,7 +777,7 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
             ret = -1;
             goto out;
         }
-    } while (strcmp(line, OPENSSL_HEADER_END) != 0);
+    } while (strcmp(line, OPENSSH_HEADER_END) != 0);
 
     if(!b64data) {
         return -1;
