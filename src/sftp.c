@@ -749,6 +749,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     size_t data_len;
     ssize_t rc;
     LIBSSH2_SFTP *sftp_handle;
+    struct string_buf buf;
 
     if(session->sftpInit_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
@@ -894,7 +895,6 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         goto sftp_init_error;
     }
 
-    struct string_buf buf;
     buf.data = data;
     buf.dataptr = buf.data + 1;
     buf.len = data_len;
@@ -1746,6 +1746,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
             size_t filename_len;
             size_t longentry_len;
             size_t names_packet_len = handle->u.dir.names_packet_len;
+            int attr_len = 0;
 
             if(names_packet_len >= 4) {
                 s = (unsigned char *) handle->u.dir.next_name;
@@ -1809,7 +1810,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
             if(attrs)
                 memset(attrs, 0, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
 
-            int attr_len = sftp_bin2attr(attrs ? attrs : &attrs_dummy, s, names_packet_len);
+            attr_len = sftp_bin2attr(attrs ? attrs : &attrs_dummy, s, names_packet_len);
 
             if (attr_len >= 0) {
                 s += attr_len;
