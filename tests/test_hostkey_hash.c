@@ -57,6 +57,10 @@ int test(LIBSSH2_SESSION *session)
     int type;
     size_t len;
 
+    /* these are the host keys under test, they are currently unused */
+    (void)EXPECTED_RSA_HOSTKEY;
+    (void)EXPECTED_ECDSA_HOSTKEY;
+
     const char *hostkey = libssh2_session_hostkey(session, &len, &type);
     if(hostkey == NULL) {
         print_last_session_error("libssh2_session_hostkey");
