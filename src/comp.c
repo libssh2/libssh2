@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+/* Copyright (c) 2004-2007, 2019, Sara Golemon <sarag@libssh2.org>
  * Copyright (c) 2010-2014, Daniel Stenberg <daniel@haxx.se>
  * All rights reserved.
  *
@@ -204,7 +204,8 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
     }
 
     _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
-                   "unhandled zlib compression error %d, avail_out", status, strm->avail_out);
+                   "unhandled zlib compression error %d, avail_out",
+                   status, strm->avail_out);
     return _libssh2_error(session, LIBSSH2_ERROR_ZLIB, "compression failure");
 }
 
@@ -225,7 +226,12 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
     /* A short-term alloc of a full data chunk is better than a series of
        reallocs */
     char *out;
-    int out_maxlen = 4 * src_len;
+    size_t out_maxlen = src_len;
+
+    if(src_len <= SIZE_MAX / 4)
+        out_maxlen = src_len * 4;
+    else
+        out_maxlen = payload_limit;
 
     /* If strm is null, then we have not yet been initialized. */
     if(strm == NULL)
@@ -236,7 +242,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
     if(out_maxlen < 25)
         out_maxlen = 25;
 
-    if(out_maxlen > (int) payload_limit)
+    if(out_maxlen > payload_limit)
         out_maxlen = payload_limit;
 
     strm->next_in = (unsigned char *) src;
@@ -258,7 +264,8 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
 
         if(status == Z_OK) {
             if(strm->avail_out > 0)
-                /* status is OK and the output buffer has not been exhausted so we're done */
+                /* status is OK and the output buffer has not been exhausted
+                   so we're done */
                 break;
         }
         else if(status == Z_BUF_ERROR) {
@@ -274,7 +281,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
                                   "decompression failure");
         }
 
-        if(out_maxlen >= (int) payload_limit) {
+        if(out_maxlen > payload_limit || out_maxlen > SIZE_MAX / 2) {
             LIBSSH2_FREE(session, out);
             return _libssh2_error(session, LIBSSH2_ERROR_ZLIB,
                                   "Excessive growth in decompression phase");

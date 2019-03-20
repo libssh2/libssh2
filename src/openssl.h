@@ -178,7 +178,8 @@ int _libssh2_sha256_init(libssh2_sha256_ctx *ctx);
                                            EVP_MD_CTX_free(ctx); \
                                        } while(0)
 #else
-#define libssh2_sha256_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
+#define libssh2_sha256_update(ctx, data, len) \
+    EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha256_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
 int _libssh2_sha256(const unsigned char *message, unsigned long len,
@@ -201,7 +202,8 @@ int _libssh2_sha384_init(libssh2_sha384_ctx *ctx);
                                             EVP_MD_CTX_free(ctx); \
                                        } while(0)
 #else
-#define libssh2_sha384_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
+#define libssh2_sha384_update(ctx, data, len)   \
+    EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha384_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
 int _libssh2_sha384(const unsigned char *message, unsigned long len,
@@ -224,7 +226,8 @@ int _libssh2_sha512_init(libssh2_sha512_ctx *ctx);
                                             EVP_MD_CTX_free(ctx); \
                                        } while(0)
 #else
-#define libssh2_sha512_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
+#define libssh2_sha512_update(ctx, data, len)   \
+    EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha512_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
 int _libssh2_sha512(const unsigned char *message, unsigned long len,
@@ -393,7 +396,8 @@ typedef struct {
 #define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
 extern void _libssh2_dh_init(_libssh2_dh_ctx *dhctx);
 extern int _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                                _libssh2_bn *g, _libssh2_bn *p, int group_order,
+                                _libssh2_bn *g, _libssh2_bn *p,
+                                int group_order,
                                 _libssh2_bn_ctx *bnctx);
 extern int _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                               _libssh2_bn *f, _libssh2_bn *p,

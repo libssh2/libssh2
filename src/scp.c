@@ -341,7 +341,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
         /* Request SCP for the desired file */
         rc = _libssh2_channel_process_startup(session->scpRecv_channel, "exec",
                                               sizeof("exec") - 1,
-                                              (char *) session->scpRecv_command,
+                                              (char *)session->scpRecv_command,
                                               session->scpRecv_command_len);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
@@ -475,7 +475,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                         LIBSSH2_SCP_RESPONSE_BUFLEN) {
                         /* You had your chance */
                         _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                                       "Unterminated response from SCP server");
+                                       "Unterminated response from "
+                                       "SCP server");
                         goto scp_recv_error;
                     }
                     /* Way too short to be an SCP response, or not done yet,
@@ -522,7 +523,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                 if(!s || ((s - p) <= 0)) {
                     /* No spaces or space in the wrong spot */
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                                   "Invalid response from SCP server, malformed mtime.usec");
+                                   "Invalid response from SCP server, "
+                                   "malformed mtime.usec");
                     goto scp_recv_error;
                 }
 
@@ -532,7 +534,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                 if(!p || ((p - s) <= 0)) {
                     /* No spaces or space in the wrong spot */
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                                   "Invalid response from SCP server, too short or malformed");
+                                   "Invalid response from SCP server, "
+                                   "too short or malformed");
                     goto scp_recv_error;
                 }
 
@@ -632,7 +635,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                         LIBSSH2_SCP_RESPONSE_BUFLEN) {
                         /* You had your chance */
                         _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                                       "Unterminated response from SCP server");
+                                       "Unterminated response "
+                                       "from SCP server");
                         goto scp_recv_error;
                     }
                     /* Way too short to be an SCP response, or not done yet,
@@ -656,7 +660,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                 if(session->scpRecv_response_len < 6) {
                     /* EOL came too soon */
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                                   "Invalid response from SCP server, too short");
+                                   "Invalid response from SCP server, "
+                                   "too short");
                     goto scp_recv_error;
                 }
 
@@ -666,7 +671,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                 if(!p || ((p - s) <= 0)) {
                     /* No spaces or space in the wrong spot */
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                                   "Invalid response from SCP server, malformed mode");
+                                   "Invalid response from SCP server, "
+                                   "malformed mode");
                     goto scp_recv_error;
                 }
 
@@ -676,7 +682,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                 session->scpRecv_mode = strtol(s, &e, 8);
                 if(e && *e) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                                   "Invalid response from SCP server, invalid mode");
+                                   "Invalid response from SCP server, "
+                                   "invalid mode");
                     goto scp_recv_error;
                 }
 
@@ -684,7 +691,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                 if(!s || ((s - p) <= 0)) {
                     /* No spaces or space in the wrong spot */
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                                   "Invalid response from SCP server, too short or malformed");
+                                   "Invalid response from SCP server, "
+                                   "too short or malformed");
                     goto scp_recv_error;
                 }
 
@@ -693,7 +701,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                 session->scpRecv_size = scpsize_strtol(p, &e, 10);
                 if(e && *e) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
-                                   "Invalid response from SCP server, invalid size");
+                                   "Invalid response from SCP server, "
+                                   "invalid size");
                     goto scp_recv_error;
                 }
 
@@ -765,9 +774,9 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
  *
  * DEPRECATED
  *
- * Open a channel and request a remote file via SCP.  This receives files larger
- * than 2 GB, but is unable to report the proper size on platforms where the
- * st_size member of struct stat is limited to 2 GB (e.g. windows).
+ * Open a channel and request a remote file via SCP.  This receives files
+ * larger than 2 GB, but is unable to report the proper size on platforms
+ * where the st_size member of struct stat is limited to 2 GB (e.g. windows).
  *
  */
 LIBSSH2_API LIBSSH2_CHANNEL *
@@ -775,7 +784,8 @@ libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat * sb)
 {
     LIBSSH2_CHANNEL *ptr;
 
-    /* scp_recv uses libssh2_struct_stat, so pass one if the caller gave us a struct to populate... */
+    /* scp_recv uses libssh2_struct_stat, so pass one if the caller gave us a
+       struct to populate... */
     libssh2_struct_stat sb_intl;
     libssh2_struct_stat *sb_ptr;
     memset(&sb_intl, 0, sizeof(sb_intl));
@@ -804,7 +814,8 @@ libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat * sb)
  *
  */
 LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path, libssh2_struct_stat * sb)
+libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
+                  libssh2_struct_stat *sb)
 {
     LIBSSH2_CHANNEL *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session, scp_recv(session, path, sb));
@@ -887,7 +898,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
         /* Request SCP for the desired file */
         rc = _libssh2_channel_process_startup(session->scpSend_channel, "exec",
                                               sizeof("exec") - 1,
-                                              (char *) session->scpSend_command,
+                                              (char *)session->scpSend_command,
                                               session->scpSend_command_len);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,

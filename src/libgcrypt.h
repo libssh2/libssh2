@@ -204,11 +204,16 @@
 #define _libssh2_bn_ctx_new() 0
 #define _libssh2_bn_ctx_free(bnctx) ((void)0)
 #define _libssh2_bn_init() gcry_mpi_new(0)
-#define _libssh2_bn_init_from_bin() NULL /* because gcry_mpi_scan() creates a new bignum */
+#define _libssh2_bn_init_from_bin() NULL /* because gcry_mpi_scan() creates a
+                                            new bignum */
 #define _libssh2_bn_set_word(bn, val) gcry_mpi_set_ui(bn, val)
-#define _libssh2_bn_from_bin(bn, len, val) gcry_mpi_scan(&((bn)), GCRYMPI_FMT_USG, val, len, NULL)
-#define _libssh2_bn_to_bin(bn, val) gcry_mpi_print (GCRYMPI_FMT_USG, val, _libssh2_bn_bytes(bn), NULL, bn)
-#define _libssh2_bn_bytes(bn) (gcry_mpi_get_nbits (bn) / 8 + ((gcry_mpi_get_nbits (bn) % 8 == 0) ? 0 : 1))
+#define _libssh2_bn_from_bin(bn, len, val)                      \
+    gcry_mpi_scan(&((bn)), GCRYMPI_FMT_USG, val, len, NULL)
+#define _libssh2_bn_to_bin(bn, val)                                     \
+    gcry_mpi_print(GCRYMPI_FMT_USG, val, _libssh2_bn_bytes(bn), NULL, bn)
+#define _libssh2_bn_bytes(bn)                                           \
+    (gcry_mpi_get_nbits (bn) / 8 +                                      \
+     ((gcry_mpi_get_nbits (bn) % 8 == 0) ? 0 : 1))
 #define _libssh2_bn_bits(bn) gcry_mpi_get_nbits (bn)
 #define _libssh2_bn_free(bn) gcry_mpi_release(bn)
 

@@ -481,7 +481,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                         /* 9 = packet_type(1) + reason(4) + message_len(4) */
                         message = (char *) data + 9;
 
-                        language_len = _libssh2_ntohu32(data + 9 + message_len);
+                        language_len =
+                            _libssh2_ntohu32(data + 9 + message_len);
                         language = (char *) data + 9 + message_len + 4;
 
                         if(language_len > (datalen-13-message_len)) {
@@ -543,7 +544,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                     if(message_len <= (datalen - 10)) {
                         /* 6 = packet_type(1) + display(1) + message_len(4) */
                         message = (char *) data + 6;
-                        language_len = _libssh2_ntohu32(data + 6 + message_len);
+                        language_len = _libssh2_ntohu32(data + 6 +
+                                                        message_len);
 
                         if(language_len <= (datalen - 10 - message_len))
                             language = (char *) data + 10 + message_len;
@@ -665,7 +667,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
                 channelp->remote.window_size -= datalen - data_head;
                 _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                               "shrinking window size by %lu bytes to %lu, read_avail %lu",
+                               "shrinking window size by %lu bytes to %lu, "
+                               "read_avail %lu",
                                datalen - data_head,
                                channelp->remote.window_size,
                                channelp->read_avail);
@@ -779,8 +782,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 uint32_t len = _libssh2_ntohu32(data + 5);
                 unsigned char want_reply = 1;
 
-                if(len < (datalen - 10))
-                    want_reply = data[9 + len];
+                if((len + 9) < datalen)
+                    want_reply = data[len + 9];
 
                 _libssh2_debug(session,
                                LIBSSH2_TRACE_CONN,
@@ -788,6 +791,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                channel, len, data + 9, want_reply);
 
                 if(len == sizeof("exit-status") - 1
+                    && (sizeof("exit-status") - 1 + 9) <= datalen
                     && !memcmp("exit-status", data + 9,
                                sizeof("exit-status") - 1)) {
 
@@ -796,7 +800,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                         channelp =
                             _libssh2_channel_locate(session, channel);
 
-                    if(channelp) {
+                    if(channelp && (sizeof("exit-status") + 13) <= datalen) {
                         channelp->exit_status =
                             _libssh2_ntohu32(data + 9 + sizeof("exit-status"));
                         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
@@ -809,13 +813,14 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
                 }
                 else if(len == sizeof("exit-signal") - 1
+                         && (sizeof("exit-signal") - 1 + 9) <= datalen
                          && !memcmp("exit-signal", data + 9,
                                     sizeof("exit-signal") - 1)) {
                     /* command terminated due to signal */
                     if(datalen >= 20)
                         channelp = _libssh2_channel_locate(session, channel);
 
-                    if(channelp) {
+                    if(channelp && (sizeof("exit-signal") + 13) <= datalen) {
                         /* set signal name (without SIG prefix) */
                         uint32_t namelen =
                             _libssh2_ntohu32(data + 9 + sizeof("exit-signal"));
@@ -831,9 +836,10 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                         if(!channelp->exit_signal)
                             rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                                 "memory for signal name");
-                        else {
+                        else if((sizeof("exit-signal") + 13 + namelen <=
+                                 datalen)) {
                             memcpy(channelp->exit_signal,
-                                   data + 13 + sizeof("exit_signal"), namelen);
+                                   data + 13 + sizeof("exit-signal"), namelen);
                             channelp->exit_signal[namelen] = '\0';
                             /* TODO: save error message and language tag */
                             _libssh2_debug(session, LIBSSH2_TRACE_CONN,

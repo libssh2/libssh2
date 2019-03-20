@@ -250,7 +250,7 @@ _libssh2_mbedtls_bignum_init(void)
 void
 _libssh2_mbedtls_bignum_free(_libssh2_bn *bn)
 {
-    if (bn) {
+    if(bn) {
         mbedtls_mpi_free(bn);
         mbedtls_free(bn);
     }
@@ -267,7 +267,8 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
         return -1;
 
     len = (bits + 7) >> 3;
-    err = mbedtls_mpi_fill_random(bn, len, mbedtls_ctr_drbg_random, &_libssh2_mbedtls_ctr_drbg);
+    err = mbedtls_mpi_fill_random(bn, len, mbedtls_ctr_drbg_random,
+                                  &_libssh2_mbedtls_ctr_drbg);
     if(err)
         return -1;
 
@@ -278,10 +279,11 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
             return -1;
     }
 
-    /* If `top` is -1, the most significant bit of the random number can be zero.
-       If top is 0, the most significant bit of the random number is set to 1,
-       and if top is 1, the two most significant bits of the number will be set
-       to 1, so that the product of two such random numbers will always have 2*bits length.
+    /* If `top` is -1, the most significant bit of the random number can be
+       zero.  If top is 0, the most significant bit of the random number is
+       set to 1, and if top is 1, the two most significant bits of the number
+       will be set to 1, so that the product of two such random numbers will
+       always have 2*bits length.
     */
     for(i = 0; i <= top; ++i) {
         err = mbedtls_mpi_set_bit(bn, bits-i-1, 1);
@@ -351,7 +353,8 @@ _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
            (ret = mbedtls_mpi_read_binary(&(ctx->Q), qdata, qlen) ) != 0 ||
            (ret = mbedtls_mpi_read_binary(&(ctx->DP), e1data, e1len) ) != 0 ||
            (ret = mbedtls_mpi_read_binary(&(ctx->DQ), e2data, e2len) ) != 0 ||
-           (ret = mbedtls_mpi_read_binary(&(ctx->QP), coeffdata, coefflen) ) != 0) {
+           (ret = mbedtls_mpi_read_binary(&(ctx->QP), coeffdata, coefflen) )
+           != 0) {
             ret = -1;
         }
         ret = mbedtls_rsa_check_privkey(ctx);
@@ -450,7 +453,8 @@ _libssh2_mbedtls_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
         return -1; /* failure */
 
     ret = mbedtls_rsa_pkcs1_verify(rsa, NULL, NULL, MBEDTLS_RSA_PUBLIC,
-                                   MBEDTLS_MD_SHA1, SHA_DIGEST_LENGTH, hash, sig);
+                                   MBEDTLS_MD_SHA1, SHA_DIGEST_LENGTH,
+                                   hash, sig);
 
     return (ret == 0) ? 0 : -1;
 }
