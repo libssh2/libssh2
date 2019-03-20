@@ -137,7 +137,7 @@ typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 typedef unsigned __int64 libssh2_uint64_t;
 typedef __int64 libssh2_int64_t;
-#ifndef ssize_t
+#if (!defined(HAVE_SSIZE_T) && !defined(ssize_t))
 typedef SSIZE_T ssize_t;
 #endif
 #else
