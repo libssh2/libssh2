@@ -2815,11 +2815,11 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
 
         /* server signature */
-        if(_libssh2_get_string(&buf, &exchange_state->h_sig, &(exchange_state->h_sig_len)) != 0) {
+        if(_libssh2_get_string(&buf, &exchange_state->h_sig,
+           &(exchange_state->h_sig_len)) != 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Unexpected curve25519 server sig length");
             goto clean_exit;
-
         }
 
         /* Compute the shared secret K */

@@ -2362,7 +2362,7 @@ gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing ECDSA keys from private key data");
 
-    if(_libssh2_get_string(decrypted, &curve, &curvelen) != 0 || 
+    if(_libssh2_get_string(decrypted, &curve, &curvelen) != 0 ||
         curvelen == 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "ECDSA no curve");
@@ -2381,9 +2381,8 @@ gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = _libssh2_ecdsa_curve_name_with_octal_new(&ec_key, point_buf,
-                                                  pointlen, curve_type);
-    if(rc != 0) {
+    if((rc = _libssh2_ecdsa_curve_name_with_octal_new(&ec_key, point_buf,
+        pointlen, curve_type)) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "ECDSA could not create key");
         goto fail;
