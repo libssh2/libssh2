@@ -1566,8 +1566,8 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
                                              libssh2_ed25519_ctx **out_ctx)
 {
     libssh2_ed25519_ctx *ctx = NULL;
-    unsigned char* method_buf = NULL;
-    unsigned char* key = NULL;
+    unsigned char *method_buf = NULL;
+    unsigned char *key = NULL;
     int i, ret = 0;
     unsigned char *pub_key, *priv_key, *buf;
     size_t key_len = 0, tmp_len = 0;
@@ -1577,14 +1577,14 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing ED25519 keys from private key data");
 
-    if(_libssh2_get_string(decrypted, &pub_key, &tmp_len) != 0 || 
+    if(_libssh2_get_string(decrypted, &pub_key, &tmp_len) != 0 ||
        tmp_len != LIBSSH2_ED25519_KEY_LEN) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Wrong public key length");
         return -1;
     }
 
-    if(_libssh2_get_string(decrypted, &priv_key, &tmp_len) != 0 || 
+    if(_libssh2_get_string(decrypted, &priv_key, &tmp_len) != 0 ||
        tmp_len != LIBSSH2_ED25519_PRIVATE_KEY_LEN) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Wrong private key length");
@@ -2328,26 +2328,26 @@ gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing ECDSA keys from private key data");
 
-    if (_libssh2_get_string(decrypted, &curve, &curvelen) != 0 || 
+    if(_libssh2_get_string(decrypted, &curve, &curvelen) != 0 ||
         curvelen == 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "ECDSA no curve");
         return -1;
     }
 
-    if (_libssh2_get_string(decrypted, &point_buf, &pointlen) != 0) {
+    if(_libssh2_get_string(decrypted, &point_buf, &pointlen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "ECDSA no point");
         return -1;
     }
 
-    if (_libssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "ECDSA no exponent");
         return -1;
     }
 
-    if ((rc = _libssh2_ecdsa_curve_name_with_octal_new(&ec_key, point_buf,
+    if((rc = _libssh2_ecdsa_curve_name_with_octal_new(&ec_key, point_buf,
         pointlen, curve_type)) != 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "ECDSA could not create key");

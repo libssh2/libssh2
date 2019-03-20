@@ -2618,7 +2618,8 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         buf.dataptr = buf.data;
         buf.dataptr++; /* advance past packet type */
 
-        if(_libssh2_get_string(&buf, &server_host_key, &(session->server_hostkey_len)) != 0) {
+        if(_libssh2_get_string(&buf, &server_host_key, 
+           &(session->server_hostkey_len)) != 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected key length");
             goto clean_exit;
@@ -2706,7 +2707,10 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
 #ifdef LIBSSH2DEBUG
         {
             char *base64Fingerprint = NULL;
-            _libssh2_base64_encode(session, (const char*)session->server_hostkey_sha256, SHA256_DIGEST_LENGTH, &base64Fingerprint);
+            _libssh2_base64_encode(session, 
+                                   (const char *)session->server_hostkey_sha256,
+                                   SHA256_DIGEST_LENGTH, &base64Fingerprint);
+
             if( base64Fingerprint != NULL) {
                 _libssh2_debug(session, LIBSSH2_TRACE_KEX,
                                   "Server's SHA256 Fingerprint: %s", base64Fingerprint);
@@ -2737,11 +2741,11 @@ static int curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
 
         /* server signature */
-        if(_libssh2_get_string(&buf, &exchange_state->h_sig, &(exchange_state->h_sig_len)) != 0) {
+        if(_libssh2_get_string(&buf, &exchange_state->h_sig,
+           &(exchange_state->h_sig_len)) != 0) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Unexpected curve25519 server sig length");
             goto clean_exit;
-
         }
 
         /* Compute the shared secret K */

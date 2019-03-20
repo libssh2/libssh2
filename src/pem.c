@@ -410,7 +410,8 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     decoded.dataptr += strlen(AUTH_MAGIC) + 1;
 
-    if(_libssh2_get_string(&decoded, &ciphername, &tmp_len) != 0 || tmp_len == 0)
+    if(_libssh2_get_string(&decoded, &ciphername, &tmp_len) != 0 ||
+       tmp_len == 0)
     {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                              "ciphername is missing");
@@ -437,20 +438,22 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         kdf_buf.len = kdf_len;
     }
 
-    if((passphrase == NULL || strlen((const char*)passphrase) == 0) &&
-        strcmp((const char*)ciphername, "none") != 0) {
+    if((passphrase == NULL || strlen((const char *)passphrase) == 0) &&
+        strcmp((const char *)ciphername, "none") != 0) {
         /* passphrase required */
         ret = LIBSSH2_ERROR_KEYFILE_AUTH_FAILED;
         goto out;
     }
 
-    if(strcmp((const char*)kdfname, "none") != 0 && strcmp((const char*)kdfname, "bcrypt") != 0) {
+    if(strcmp((const char *)kdfname, "none") != 0 &&
+       strcmp((const char *)kdfname, "bcrypt") != 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                              "unknown cipher");
         goto out;
     }
 
-    if(!strcmp((const char*)kdfname, "none") && strcmp((const char*)ciphername, "none") != 0) {
+    if(!strcmp((const char *)kdfname, "none") &&
+       strcmp((const char *)ciphername, "none") != 0) {
         ret =_libssh2_error(session, LIBSSH2_ERROR_PROTO,
                             "invalid format");
         goto out;
