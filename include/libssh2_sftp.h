@@ -79,6 +79,9 @@ typedef struct _LIBSSH2_SFTP_STATVFS        LIBSSH2_SFTP_STATVFS;
 #define LIBSSH2_SFTP_READLINK           1
 #define LIBSSH2_SFTP_REALPATH           2
 
+/* Flags for sftp_mkdir() */
+#define LIBSSH2_SFTP_DEFAULT_MODE      -1
+
 /* SFTP attribute flag bits */
 #define LIBSSH2_SFTP_ATTR_SIZE              0x00000001
 #define LIBSSH2_SFTP_ATTR_UIDGID            0x00000002
@@ -94,12 +97,12 @@ struct _LIBSSH2_SFTP_ATTRIBUTES {
     /* If flags & ATTR_* bit is set, then the value in this struct will be
      * meaningful Otherwise it should be ignored
      */
-    unsigned long flags;
+    uint32_t flags;
 
     libssh2_uint64_t filesize;
-    unsigned long uid, gid;
-    unsigned long permissions;
-    unsigned long atime, mtime;
+    uint32_t uid, gid;
+    uint32_t permissions;
+    uint32_t atime, mtime;
 };
 
 struct _LIBSSH2_SFTP_STATVFS {

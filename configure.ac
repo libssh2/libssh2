@@ -83,9 +83,6 @@ AC_C_BIGENDIAN
 dnl check for how to do large files
 AC_SYS_LARGEFILE
 
-# Configure parameters
-
-
 # Crypto backends
 
 found_crypto=none
@@ -322,7 +319,7 @@ case $host in
     ;;
 esac
 
-AC_CHECK_FUNCS(gettimeofday select strtoll)
+AC_CHECK_FUNCS(gettimeofday select strtoll memset_s)
 
 dnl Check for select() into ws2_32 for Msys/Mingw
 if test "$ac_cv_func_select" != "yes"; then
@@ -369,6 +366,9 @@ fi
 if test $missing_required_deps = 1; then
   AC_MSG_ERROR([Required dependencies are missing!])
 fi
+
+# Configure parameters
+LIBSSH2_CHECK_OPTION_WERROR
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile

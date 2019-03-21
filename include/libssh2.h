@@ -40,19 +40,19 @@
 #ifndef LIBSSH2_H
 #define LIBSSH2_H 1
 
-#define LIBSSH2_COPYRIGHT "2004-2016 The libssh2 project and its contributors."
+#define LIBSSH2_COPYRIGHT "2004-2019 The libssh2 project and its contributors."
 
 /* We use underscore instead of dash when appending DEV in dev versions just
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
    have dashes either. */
-#define LIBSSH2_VERSION                             "1.8.1_DEV"
+#define LIBSSH2_VERSION                             "1.9.0_DEV"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
 #define LIBSSH2_VERSION_MAJOR                       1
-#define LIBSSH2_VERSION_MINOR                       8
-#define LIBSSH2_VERSION_PATCH                       1
+#define LIBSSH2_VERSION_MINOR                       9
+#define LIBSSH2_VERSION_PATCH                       0
 
 /* This is the numeric version of the libssh2 version number, meant for easier
    parsing and comparions by programs. The LIBSSH2_VERSION_NUM define will
@@ -69,7 +69,7 @@
    and it is always a greater number in a more recent release. It makes
    comparisons with greater than and less than work.
 */
-#define LIBSSH2_VERSION_NUM                         0x010801
+#define LIBSSH2_VERSION_NUM                         0x010900
 
 /*
  * This is the date and time when the full source package was created. The
@@ -121,18 +121,28 @@ extern "C" {
 #if (defined(NETWARE) && !defined(__NOVELL_LIBC__))
 # include <sys/bsdskt.h>
 typedef unsigned char uint8_t;
+typedef unsigned short int uint16_t;
 typedef unsigned int uint32_t;
+typedef int int32_t;
+typedef unsigned long long uint64_t;
+typedef long long int64_t;
 #endif
 
 #ifdef _MSC_VER
 typedef unsigned char uint8_t;
+typedef unsigned short int uint16_t;
 typedef unsigned int uint32_t;
+typedef __int32 int32_t;
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
 typedef unsigned __int64 libssh2_uint64_t;
 typedef __int64 libssh2_int64_t;
-#ifndef ssize_t
+#if (!defined(HAVE_SSIZE_T) && !defined(ssize_t))
 typedef SSIZE_T ssize_t;
+#define HAVE_SSIZE_T
 #endif
 #else
+#include <stdint.h>
 typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
 #endif
@@ -403,11 +413,16 @@ typedef struct _LIBSSH2_POLLFD {
 /* Hash Types */
 #define LIBSSH2_HOSTKEY_HASH_MD5                            1
 #define LIBSSH2_HOSTKEY_HASH_SHA1                           2
+#define LIBSSH2_HOSTKEY_HASH_SHA256                         3
 
 /* Hostkey Types */
-#define LIBSSH2_HOSTKEY_TYPE_UNKNOWN			    0
-#define LIBSSH2_HOSTKEY_TYPE_RSA			    1
-#define LIBSSH2_HOSTKEY_TYPE_DSS			    2
+#define LIBSSH2_HOSTKEY_TYPE_UNKNOWN            0
+#define LIBSSH2_HOSTKEY_TYPE_RSA                1
+#define LIBSSH2_HOSTKEY_TYPE_DSS                2
+#define LIBSSH2_HOSTKEY_TYPE_ECDSA_256          3
+#define LIBSSH2_HOSTKEY_TYPE_ECDSA_384          4
+#define LIBSSH2_HOSTKEY_TYPE_ECDSA_521          5
+#define LIBSSH2_HOSTKEY_TYPE_ED25519            6
 
 /* Disconnect Codes (defined by SSH protocol) */
 #define SSH_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT          1
@@ -483,6 +498,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_BAD_SOCKET                -45
 #define LIBSSH2_ERROR_KNOWN_HOSTS               -46
 #define LIBSSH2_ERROR_CHANNEL_WINDOW_FULL       -47
+#define LIBSSH2_ERROR_KEYFILE_AUTH_FAILED       -48
 
 /* this is a define to provide the old (<= 1.2.7) name */
 #define LIBSSH2_ERROR_BANNER_NONE LIBSSH2_ERROR_BANNER_RECV
@@ -960,13 +976,17 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
 #define LIBSSH2_KNOWNHOST_KEYENC_RAW      (1<<16)
 #define LIBSSH2_KNOWNHOST_KEYENC_BASE64   (2<<16)
 
-/* type of key (2 bits) */
-#define LIBSSH2_KNOWNHOST_KEY_MASK     (7<<18)
-#define LIBSSH2_KNOWNHOST_KEY_SHIFT    18
-#define LIBSSH2_KNOWNHOST_KEY_RSA1     (1<<18)
-#define LIBSSH2_KNOWNHOST_KEY_SSHRSA   (2<<18)
-#define LIBSSH2_KNOWNHOST_KEY_SSHDSS   (3<<18)
-#define LIBSSH2_KNOWNHOST_KEY_UNKNOWN  (7<<18)
+/* type of key (3 bits) */
+#define LIBSSH2_KNOWNHOST_KEY_MASK         (15<<18)
+#define LIBSSH2_KNOWNHOST_KEY_SHIFT        18
+#define LIBSSH2_KNOWNHOST_KEY_RSA1         (1<<18)
+#define LIBSSH2_KNOWNHOST_KEY_SSHRSA       (2<<18)
+#define LIBSSH2_KNOWNHOST_KEY_SSHDSS       (3<<18)
+#define LIBSSH2_KNOWNHOST_KEY_ECDSA_256    (4<<18)
+#define LIBSSH2_KNOWNHOST_KEY_ECDSA_384    (5<<18)
+#define LIBSSH2_KNOWNHOST_KEY_ECDSA_521    (6<<18)
+#define LIBSSH2_KNOWNHOST_KEY_ED25519      (7<<18)
+#define LIBSSH2_KNOWNHOST_KEY_UNKNOWN      (15<<18)
 
 LIBSSH2_API int
 libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,

@@ -223,9 +223,11 @@ int main(int argc, char *argv[])
 
   shutdown:
 
-    libssh2_agent_disconnect(agent);
-    libssh2_agent_free(agent);
-
+    if (agent) {
+        libssh2_agent_disconnect(agent);
+        libssh2_agent_free(agent);
+    }
+    
     if(session) {
         libssh2_session_disconnect(session,
                                    "Normal Shutdown, Thank you for playing");
