@@ -2671,7 +2671,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
     if(exchange_state->state == libssh2_NB_state_created) {
         /* parse INIT reply data */
         unsigned char *server_public_key, *server_host_key;
-        size_t server_public_key_len;
+        size_t server_public_key_len, hostkey_len;
         struct string_buf buf;
 
         if(data_len < 5) {
@@ -2685,13 +2685,13 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         buf.dataptr = buf.data;
         buf.dataptr++; /* advance past packet type */
 
-        if(_libssh2_get_string(&buf, &server_host_key,
-                               &(session->server_hostkey_len))) {
+        if(_libssh2_get_string(&buf, &server_host_key, &hostkey_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Unexpected key length");
             goto clean_exit;
         }
 
+        session->server_hostkey_len = (u_int32_t)hostkey_len;
         session->server_hostkey = LIBSSH2_ALLOC(session,
                                                 session->server_hostkey_len);
         if(!session->server_hostkey) {
