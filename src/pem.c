@@ -411,20 +411,21 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     decoded.dataptr += strlen(AUTH_MAGIC) + 1;
 
-    if(_libssh2_get_string(&decoded, &ciphername, &tmp_len) != 0 ||
+    if(_libssh2_get_string(&decoded, &ciphername, &tmp_len) ||
        tmp_len == 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                              "ciphername is missing");
         goto out;
     }
 
-    if(_libssh2_get_string(&decoded, &kdfname, &tmp_len) != 0 || tmp_len == 0) {
+    if(_libssh2_get_string(&decoded, &kdfname, &tmp_len) ||
+       tmp_len == 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "kdfname is missing");
         goto out;
     }
 
-    if(_libssh2_get_string(&decoded, &kdf, &kdf_len) != 0) {
+    if(_libssh2_get_string(&decoded, &kdf, &kdf_len)) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                              "kdf is missing");
         goto out;
@@ -464,14 +465,14 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     /* unencrypted public key */
 
-    if(_libssh2_get_string(&decoded, &buf, &tmp_len) != 0 || tmp_len == 0) {
+    if(_libssh2_get_string(&decoded, &buf, &tmp_len) || tmp_len == 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                              "Invalid private key; "
                              "expect embedded public key");
         goto out;
     }
 
-    if(_libssh2_get_string(&decoded, &buf, &tmp_len) != 0 || tmp_len == 0) {
+    if(_libssh2_get_string(&decoded, &buf, &tmp_len) || tmp_len == 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Private key data not found");
         goto out;
@@ -518,8 +519,9 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
             goto out;
         }
 
-        if(strcmp((const char *)kdfname, "bcrypt") == 0 && passphrase != NULL) {
-            if((_libssh2_get_string(&kdf_buf, &salt, &salt_len) != 0) ||
+        if(strcmp((const char *)kdfname, "bcrypt") == 0 &&
+           passphrase != NULL) {
+            if((_libssh2_get_string(&kdf_buf, &salt, &salt_len)) ||
                 (_libssh2_get_u32(&kdf_buf, &rounds) != 0) ) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                      "kdf contains unexpected values");

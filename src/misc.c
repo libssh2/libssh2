@@ -760,7 +760,7 @@ int _libssh2_match_string(struct string_buf *buf, const char *match)
 {
     unsigned char *out;
     size_t len = 0;
-    if(_libssh2_get_string(buf, &out, &len) != 0 || len != strlen(match) ||
+    if(_libssh2_get_string(buf, &out, &len) || len != strlen(match) ||
         strncmp((char *)out, match, strlen(match)) != 0) {
         return -1;
     }
@@ -781,7 +781,7 @@ int _libssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
     buf->dataptr += data_len;
     buf->offset += data_len;
 
-    if(outlen != NULL)
+    if(outlen)
         *outlen = (size_t)data_len;
 
     return 0;
@@ -815,7 +815,7 @@ int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
     buf->dataptr += data_len;
     buf->offset += data_len;
 
-    if(outlen != NULL)
+    if(outlen)
         *outlen = (size_t)bn_len;
 
     return 0;

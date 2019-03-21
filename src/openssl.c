@@ -964,44 +964,44 @@ gen_publickey_from_rsa_openssh_priv_data(LIBSSH2_SESSION *session,
                    "Computing RSA keys from private key data");
 
     /* public key data */
-    if(_libssh2_get_bignum_bytes(decrypted, &n, &nlen) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &n, &nlen)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no n");
         return -1;
     }
 
-    if(_libssh2_get_bignum_bytes(decrypted, &e, &elen) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &e, &elen)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no e");
         return -1;
     }
 
     /* private key data */
-    if(_libssh2_get_bignum_bytes(decrypted, &d, &dlen) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &d, &dlen)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no d");
         return -1;
     }
 
-    if(_libssh2_get_bignum_bytes(decrypted, &coeff, &coefflen) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &coeff, &coefflen)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no coeff");
         return -1;
     }
 
-    if(_libssh2_get_bignum_bytes(decrypted, &p, &plen) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &p, &plen)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no p");
         return -1;
     }
 
-    if(_libssh2_get_bignum_bytes(decrypted, &q, &qlen) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &q, &qlen)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no q");
         return -1;
     }
 
-    if(_libssh2_get_string(decrypted, &comment, &commentlen) != 0) {
+    if(_libssh2_get_string(decrypted, &comment, &commentlen)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "RSA no comment");
         return -1;
@@ -1282,31 +1282,31 @@ gen_publickey_from_dsa_openssh_priv_data(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing DSA keys from private key data");
 
-    if(_libssh2_get_bignum_bytes(decrypted, &p, &plen) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &p, &plen)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "DSA no p");
         return -1;
     }
 
-    if(_libssh2_get_bignum_bytes(decrypted, &q, &qlen) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &q, &qlen)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "DSA no q");
         return -1;
     }
 
-    if(_libssh2_get_bignum_bytes(decrypted, &g, &glen) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &g, &glen)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "DSA no g");
         return -1;
     }
 
-    if(_libssh2_get_bignum_bytes(decrypted, &pub_key, &pub_len) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &pub_key, &pub_len)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "DSA no public key");
         return -1;
     }
 
-    if(_libssh2_get_bignum_bytes(decrypted, &priv_key, &priv_len) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &priv_key, &priv_len)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "DSA no private key");
         return -1;
@@ -1591,14 +1591,14 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing ED25519 keys from private key data");
 
-    if(_libssh2_get_string(decrypted, &pub_key, &tmp_len) != 0 ||
+    if(_libssh2_get_string(decrypted, &pub_key, &tmp_len) ||
        tmp_len != LIBSSH2_ED25519_KEY_LEN) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Wrong public key length");
         return -1;
     }
 
-    if(_libssh2_get_string(decrypted, &priv_key, &tmp_len) != 0 ||
+    if(_libssh2_get_string(decrypted, &priv_key, &tmp_len) ||
        tmp_len != LIBSSH2_ED25519_PRIVATE_KEY_LEN) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Wrong private key length");
@@ -1627,9 +1627,9 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
                                     LIBSSH2_ED25519_KEY_LEN);
 
     /* comment */
-    if(_libssh2_get_string(decrypted, &buf, &tmp_len) != 0) {
-       _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                      "Unable to read comment");
+    if(_libssh2_get_string(decrypted, &buf, &tmp_len)) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Unable to read comment");
         ret = -1;
         goto clean_exit;
     }
@@ -2362,20 +2362,20 @@ gen_publickey_from_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing ECDSA keys from private key data");
 
-    if(_libssh2_get_string(decrypted, &curve, &curvelen) != 0 ||
+    if(_libssh2_get_string(decrypted, &curve, &curvelen) ||
         curvelen == 0) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "ECDSA no curve");
         return -1;
     }
 
-    if(_libssh2_get_string(decrypted, &point_buf, &pointlen) != 0) {
+    if(_libssh2_get_string(decrypted, &point_buf, &pointlen)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "ECDSA no point");
         return -1;
     }
 
-    if(_libssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen) != 0) {
+    if(_libssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "ECDSA no exponent");
         return -1;

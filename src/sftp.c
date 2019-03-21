@@ -939,15 +939,15 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
                    sftp_handle->version);
     while(buf.dataptr < endp) {
         unsigned char *extname, *extdata;
-        
-        if(_libssh2_get_string(&buf, &extname, NULL) != 0) {
+
+        if(_libssh2_get_string(&buf, &extname, NULL)) {
             LIBSSH2_FREE(session, data);
             _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                            "Data too short when extracting extname");
             goto sftp_init_error;
         }
 
-        if(_libssh2_get_string(&buf, &extdata, NULL) != 0) {
+        if(_libssh2_get_string(&buf, &extdata, NULL)) {
             LIBSSH2_FREE(session, data);
             _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                            "Data too short when extracting extdata");
