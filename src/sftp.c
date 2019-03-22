@@ -2119,7 +2119,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
 
         /* we check the packets in order */
         rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
-                                 chunk->request_id, &data, &data_len);
+                                 chunk->request_id, &data, &data_len, 9);
         if(rc < 0)
             break;
 
