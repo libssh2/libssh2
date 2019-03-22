@@ -434,11 +434,12 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
  * Remove all pending packets in the packet_list and the corresponding one(s)
  * in the SFTP packet brigade.
  */
-static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
+static int sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
 {
     struct sftp_pipeline_chunk *chunk;
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_SESSION *session = sftp->channel->session;
+    int ret = 0;
 
     /* remove pending packets, if any */
     chunk = _libssh2_list_first(&handle->packet_list);
@@ -454,9 +455,17 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
             rc = sftp_packet_ask(sftp, SSH_FXP_DATA,
                                  chunk->request_id, &data, &data_len);
 
-        if(!rc)
+        if(!rc) {
             /* we found a packet, free it */
+            if(chunk->packet[4] == SSH_FXP_WRITE) {
+                uint32_t retcode = _libssh2_ntohu32(data + 5);
+                sftp->last_errno = retcode;
+                if(retcode != LIBSSH2_FX_OK)
+                    ret = _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                                         "FXP write failed");
+            }
             LIBSSH2_FREE(session, data);
+        }
         else if(chunk->sent)
             /* there was no incoming packet for this request, mark this
                request as a zombie if it ever sent the request */
@@ -466,6 +475,7 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
         LIBSSH2_FREE(session, chunk);
         chunk = next;
     }
+    return ret;
 }
 
 
@@ -1960,39 +1970,24 @@ libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *hnd, char *buffer,
 /*
  * sftp_write
  *
- * Write data to an SFTP handle. Returns the number of bytes written, or
- * a negative error code.
- *
- * We recommend sending very large data buffers to this function!
+ * Write data to an SFTP handle. Returns the number of bytes fully written,
+ * (not necessarily acknowledged) or a negative error code.
  *
  * Concept:
- *
- * - Detect how much of the given buffer that was already sent in a previous
- *   call by inspecting the linked list of outgoing chunks. Make sure to skip
- *   passed the data that has already been taken care of.
+ * - Check if we have half-sent packet; if we do, send off the remainder
  *
  * - Split all (new) outgoing data in chunks no larger than N.
+ *   Each N bytes chunk gets created as a separate SFTP packet.
  *
- * - Each N bytes chunk gets created as a separate SFTP packet.
+ * - Add outgoing packets to the linked list and send them until EAGAIN
+ *   or all sent.
  *
- * - Add all created outgoing packets to the linked list.
+ * - Check for ACKs. If a chunk has been ACKed, remove it from the linked
+ *   list, otherwise discard outstanding data and abort the transfer.
  *
- * - Walk through the list and send the chunks that haven't been sent,
- *   as many as possible until EAGAIN. Some of the chunks may have been put
- *   in the list in a previous invoke.
+ * - Return bytes completely sent off.
  *
- * - For all the chunks in the list that have been completely sent off, check
- *   for ACKs. If a chunk has been ACKed, it is removed from the linked
- *   list and the "acked" counter gets increased with that data amount.
- *
- * - Return TOTAL bytes acked so far.
- *
- * Caveats:
- * -  be careful: we must not return a higher number than what was given!
- *
- * TODO:
- *   Introduce an option that disables this sort of "speculative" ahead writing
- *   as there's a risk that it will do harm to some app.
+ * - After the last write, remaining ACKs are processed on sftp_close
  */
 
 static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
@@ -2087,7 +2082,6 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
                                             &chunk->packet[chunk->sent],
                                             chunk->lefttosend);
                 if(rc < 0)
-                    /* remain in idle state */
                     return rc;
 
                 /* remember where to continue sending the next time */
@@ -2563,7 +2557,7 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     uint32_t packet_len = handle->handle_len + 13;
     unsigned char *s, *data = NULL;
-    int rc = 0;
+    int rc = 0, rc2 = 0;
 
     if(handle->close_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Closing handle");
@@ -2655,8 +2649,11 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
         if(handle->u.file.data)
             LIBSSH2_FREE(session, handle->u.file.data);
     }
+    /* check status of buffered writes */
+    rc2 = sftp_packetlist_flush(handle);
+    if(!rc)
+        rc = rc2;
 
-    sftp_packetlist_flush(handle);
     sftp->read_state = libssh2_NB_state_idle;
 
     handle->close_state = libssh2_NB_state_idle;
