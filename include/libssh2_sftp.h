@@ -97,12 +97,12 @@ struct _LIBSSH2_SFTP_ATTRIBUTES {
     /* If flags & ATTR_* bit is set, then the value in this struct will be
      * meaningful Otherwise it should be ignored
      */
-    uint32_t flags;
+    unsigned long flags;
 
     libssh2_uint64_t filesize;
-    uint32_t uid, gid;
-    uint32_t permissions;
-    uint32_t atime, mtime;
+    unsigned long uid, gid;
+    unsigned long permissions;
+    unsigned long atime, mtime;
 };
 
 struct _LIBSSH2_SFTP_STATVFS {

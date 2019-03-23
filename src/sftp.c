@@ -671,18 +671,20 @@ sftp_attr2bin(unsigned char *p, const LIBSSH2_SFTP_ATTRIBUTES * attrs)
 /* sftp_bin2attr
  */
 static int
-sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES * attrs, const unsigned char *p,
+sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs, const unsigned char *p,
               size_t data_len)
 {
     struct string_buf buf;
+    uint32_t flags = 0;
     buf.data = (unsigned char *)p;
     buf.dataptr = buf.data;
     buf.len = data_len;
     buf.offset = 0;
 
-    if(_libssh2_get_u32(&buf, &(attrs->flags)) != 0) {
+    if(_libssh2_get_u32(&buf, &flags) != 0) {
         return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
     }
+    attrs->flags = flags;
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_SIZE) {
         if(_libssh2_get_u64(&buf, &(attrs->filesize)) != 0) {
@@ -691,23 +693,33 @@ sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES * attrs, const unsigned char *p,
     }
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_UIDGID) {
-        if(_libssh2_get_u32(&buf, &(attrs->uid)) != 0 ||
-           _libssh2_get_u32(&buf, &(attrs->gid)) != 0) {
+        uint32_t uid = 0;
+        uint32_t gid = 0;
+        if(_libssh2_get_u32(&buf, &uid) != 0 ||
+           _libssh2_get_u32(&buf, &gid) != 0) {
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
         }
+        attrs->uid = uid;
+        attrs->uid = gid;
     }
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) {
-        if(_libssh2_get_u32(&buf, &(attrs->permissions)) != 0) {
+        uint32_t permissions;
+        if(_libssh2_get_u32(&buf, &permissions) != 0) {
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
         }
+        attrs->permissions = permissions;
     }
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_ACMODTIME) {
-        if(_libssh2_get_u32(&buf, &(attrs->atime)) != 0 ||
-           _libssh2_get_u32(&buf, &(attrs->mtime)) != 0) {
+        uint32_t atime;
+        uint32_t mtime;
+        if(_libssh2_get_u32(&buf, &atime) != 0 ||
+           _libssh2_get_u32(&buf, &mtime) != 0) {
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
         }
+        attrs->atime = atime;
+        attrs->atime = mtime;
     }
 
     return (buf.dataptr - buf.data);
