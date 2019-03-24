@@ -23,20 +23,26 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-os: Visual Studio 2015
-
 environment:
   matrix:
-    - GENERATOR: "Visual Studio 14 2015"
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      GENERATOR: "Visual Studio 14 2015"
+      OPENSSL: "102"
       BUILD_SHARED_LIBS: ON
 
-    - GENERATOR: "Visual Studio 14 2015"
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      GENERATOR: "Visual Studio 14 2015"
+      OPENSSL: "102"
       BUILD_SHARED_LIBS: OFF
 
-    - GENERATOR: "Visual Studio 12 2013"
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      GENERATOR: "Visual Studio 12 2013"
+      OPENSSL: "102"
       BUILD_SHARED_LIBS: ON
 
-    - GENERATOR: "Visual Studio 12 2013"
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      GENERATOR: "Visual Studio 12 2013"
+      OPENSSL: "102"
       BUILD_SHARED_LIBS: OFF
 
   digitalocean_access_token:
@@ -48,7 +54,8 @@ platform:
 
 configuration:
 # - Debug
-  - Release
+# - Release
+  - RelWithDebInfo
 
 matrix:
   fast_finish: true
@@ -59,11 +66,30 @@ matrix:
 install:
   - choco install -y docker
   - choco install -y docker-machine
+  - ps: if($env:GENERATOR -eq "Visual Studio 15 2017") { $env:VC_VERSION="VC15" }
+  - ps: if($env:GENERATOR -eq "Visual Studio 14 2015") { $env:VC_VERSION="VC14" }
+  - ps: if($env:GENERATOR -eq "Visual Studio 12 2013") { $env:VC_VERSION="VC12" }
+  - ps: if($env:GENERATOR -eq "Visual Studio 11 2012") { $env:VC_VERSION="VC11" }
+  - ps: if($env:GENERATOR -eq "Visual Studio 9 2008") { $env:VC_VERSION="VC9" }
 
 build_script:
   - ps: if($env:PLATFORM -eq "x64") { $env:CMAKE_GEN_SUFFIX=" Win64" }
-  - cmake "-G%GENERATOR%%CMAKE_GEN_SUFFIX%" -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -H. -B_builds
-  - cmake --build _builds --config "%CONFIGURATION%"
+  - ps: if($env:BUILD_SHARED_LIBS -eq "ON") { $env:ZIP_SUFFIX="-dll" }
+  - ps: if($env:BUILD_SHARED_LIBS -eq "OFF") { $env:ZIP_SUFFIX="-lib" }
+  - ps: if($env:OPENSSL -eq "111" -And $env:PLATFORM -eq "x64") { $env:OPENSSL_ROOT_DIR="C:\OpenSSL-v111-Win64" }
+  - ps: if($env:OPENSSL -eq "111" -And $env:PLATFORM -eq "x86") { $env:OPENSSL_ROOT_DIR="C:\OpenSSL-v111-Win32" }
+  - ps: if($env:OPENSSL -eq "102" -And $env:PLATFORM -eq "x64") { $env:OPENSSL_ROOT_DIR="C:\OpenSSL-Win64" }
+  - ps: if($env:OPENSSL -eq "102" -And $env:PLATFORM -eq "x86") { $env:OPENSSL_ROOT_DIR="C:\OpenSSL-Win32" }
+  - cmake "-G%GENERATOR%%CMAKE_GEN_SUFFIX%" -DOPENSSL_ROOT_DIR=%OPENSSL_ROOT_DIR% -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -H. -B_builds
+  - cmake --build _builds --config "%CONFIGURATION%" || exit /b 0
+  - if exist _builds\src\%CONFIGURATION%\libssh2.lib cd _builds\src\%CONFIGURATION%
+  - if not exist libssh2.pdb if exist ..\libssh2.dir\%CONFIGURATION%\libssh2.pdb copy ..\libssh2.dir\%CONFIGURATION%\libssh2.pdb .
+  - dir
+  - if exist libssh2.lib 7z a ..\..\..\LibSSH2-%VC_VERSION%-%platform%-OpenSSL%OPENSSL%%ZIP_SUFFIX%.zip .
+  - if exist libssh2.lib cd ..\..\..
+
+artifacts:
+  - path: "*.zip"
 
 before_test:
   - set DOCKER_MACHINE_NAME=appveyor-%APPVEYOR_PROJECT_SLUG%-%APPVEYOR_JOB_ID%
