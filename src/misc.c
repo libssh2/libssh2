@@ -736,15 +736,11 @@ void _libssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf)
 
 int _libssh2_get_u32(struct string_buf *buf, uint32_t *out)
 {
-    unsigned char *p = NULL;
-
     if(!_libssh2_check_length(buf, 4)) {
         return -1;
     }
 
-    p = buf->dataptr;
-    *out = (((uint32_t) p[0]) << 24) + (((uint32_t) p[1]) << 16) +
-    (((uint32_t) p[2]) << 8) + ((uint32_t) p[3]);
+    *out = _libssh2_ntohu32(buf->dataptr);
     buf->dataptr += 4;
     buf->offset += 4;
     return 0;
@@ -752,22 +748,21 @@ int _libssh2_get_u32(struct string_buf *buf, uint32_t *out)
 
 int _libssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out)
 {
-       unsigned char *p = buf->dataptr;
-       if(!_libssh2_check_length(buf, 8)) {
-           return -1;
-       }
+    if(!_libssh2_check_length(buf, 8)) {
+        return -1;
+    }
 
-       *out = _libssh2_ntohu64(p);
-       buf->dataptr += 8;
-       buf->offset += 8;
-       return 0;
+    *out = _libssh2_ntohu64(buf->dataptr);
+    buf->dataptr += 8;
+    buf->offset += 8;
+    return 0;
 }
 
 int _libssh2_match_string(struct string_buf *buf, const char *match)
 {
     unsigned char *out;
     if((size_t)_libssh2_get_c_string(buf, &out) != strlen(match) ||
-        strncmp((char *)out, match, strlen(match)) != 0) {
+       strncmp((char *)out, match, strlen(match)) != 0) {
         return -1;
     }
     return 0;
