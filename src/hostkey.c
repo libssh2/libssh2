@@ -79,7 +79,6 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    buf.offset = 0;
     buf.data = (unsigned char *)hostkey_data;
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
@@ -300,7 +299,6 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    buf.offset = 0;
     buf.data = (unsigned char *)hostkey_data;
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
@@ -529,7 +527,6 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    buf.offset = 0;
     buf.data = (unsigned char *)hostkey_data;
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
@@ -667,7 +664,6 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
 
     /* keyname_len(4) + keyname(19){"ecdsa-sha2-nistp256"} +
        signature_len(4) */
-    buf.offset = 0;
     buf.data = (unsigned char *)sig;
     buf.dataptr = buf.data;
     buf.len = sig_len;

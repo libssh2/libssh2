@@ -679,7 +679,6 @@ sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs, const unsigned char *p,
     buf.data = (unsigned char *)p;
     buf.dataptr = buf.data;
     buf.len = data_len;
-    buf.offset = 0;
 
     if(_libssh2_get_u32(&buf, &flags) != 0) {
         return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
@@ -766,6 +765,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     ssize_t rc;
     LIBSSH2_SFTP *sftp_handle;
     struct string_buf buf;
+    unsigned char *endp;
 
     if(session->sftpInit_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
@@ -916,7 +916,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     buf.data = data;
     buf.dataptr = buf.data + 1;
     buf.len = data_len;
-    buf.offset = 1;
+    endp = &buf.data[data_len];
 
     if(_libssh2_get_u32(&buf, &(sftp_handle->version)) != 0) {
         LIBSSH2_FREE(session, data);
@@ -933,7 +933,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
                    "Enabling SFTP version %lu compatibility",
                    sftp_handle->version);
-    while(buf.offset < buf.len) {
+    while(buf.dataptr < endp) {
         unsigned char *extname, *extdata;
 
         if(_libssh2_get_c_string(&buf, &extname) < 0) {

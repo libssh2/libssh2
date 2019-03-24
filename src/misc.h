@@ -1,6 +1,6 @@
 #ifndef __LIBSSH2_MISC_H
 #define __LIBSSH2_MISC_H
-/* Copyright (c) 2009-2014 by Daniel Stenberg
+/* Copyright (c) 2009-2019 by Daniel Stenberg
  *
  * All rights reserved.
  *
@@ -53,7 +53,6 @@ struct string_buf {
     unsigned char *data;
     unsigned char *dataptr;
     size_t len;
-    size_t offset;
 };
 
 int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,

@@ -1715,7 +1715,6 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
             goto dh_gex_clean_exit;
         }
 
-        buf.offset = 0;
         buf.data = key_state->data;
         buf.dataptr = buf.data;
         buf.len = key_state->data_len;
@@ -1843,7 +1842,6 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
             goto dh_gex_clean_exit;
         }
 
-        buf.offset = 0;
         buf.data = key_state->data;
         buf.dataptr = buf.data;
         buf.len = key_state->data_len;
@@ -2686,7 +2684,6 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             goto clean_exit;
         }
 
-        buf.offset = 0;
         buf.data = data;
         buf.len = data_len;
         buf.dataptr = buf.data;
