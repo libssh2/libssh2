@@ -742,7 +742,6 @@ int _libssh2_get_u32(struct string_buf *buf, uint32_t *out)
 
     *out = _libssh2_ntohu32(buf->dataptr);
     buf->dataptr += 4;
-    buf->offset += 4;
     return 0;
 }
 
@@ -754,7 +753,6 @@ int _libssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out)
 
     *out = _libssh2_ntohu64(buf->dataptr);
     buf->dataptr += 8;
-    buf->offset += 8;
     return 0;
 }
 
@@ -779,7 +777,6 @@ int _libssh2_get_c_string(struct string_buf *buf, unsigned char **outbuf)
     }
     *outbuf = buf->dataptr;
     buf->dataptr += data_len;
-    buf->offset += data_len;
     return data_len;
 }
 
@@ -808,7 +805,6 @@ int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf)
     *outbuf = bnptr;
 
     buf->dataptr += data_len;
-    buf->offset += data_len;
 
     return bn_len;
 }
