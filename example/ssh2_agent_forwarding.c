@@ -83,7 +83,6 @@ int main(int argc, char *argv[])
     unsigned long hostaddr;
     int sock;
     struct sockaddr_in sin;
-    const char *fingerprint;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_AGENT *agent = NULL;
@@ -92,9 +91,6 @@ int main(int argc, char *argv[])
     int exitcode;
     char *exitsignal=(char *)"none";
     int bytecount = 0;
-    size_t len;
-    LIBSSH2_KNOWNHOSTS *nh;
-    int type;
 
 #ifdef WIN32
     WSADATA wsadata;
