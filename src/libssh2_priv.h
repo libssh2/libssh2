@@ -66,7 +66,7 @@
    would break backwards compatibility.
 */
 #ifdef HAVE_POLL
-# include <sys/poll.h>
+# include <poll.h>
 #else
 # if defined(HAVE_SELECT) && !defined(WIN32)
 # ifdef HAVE_SYS_SELECT_H
