@@ -811,7 +811,9 @@ int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf)
 
 int _libssh2_check_length(struct string_buf *buf, size_t len)
 {
-    return (len <= (size_t)((buf->data + buf->len) - buf->dataptr));
+    unsigned char *endp = &buf->data[buf->len];
+    size_t left = endp - buf->dataptr;
+    return ((len <= left) && (left <= buf->len));
 }
 
 /* Wrappers */
