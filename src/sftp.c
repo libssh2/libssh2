@@ -346,10 +346,14 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
             sftp->partial_len = _libssh2_ntohu32(sftp->partial_size);
             /* make sure we don't proceed if the packet size is unreasonably
                large */
-            if(sftp->partial_len > LIBSSH2_SFTP_PACKET_MAXLEN)
+            if(sftp->partial_len > LIBSSH2_SFTP_PACKET_MAXLEN) {
+                libssh2_channel_flush(channel);
+                sftp->partial_size_len = 0;
                 return _libssh2_error(session,
                                       LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
                                       "SFTP packet too large");
+            }
+
             if(sftp->partial_len == 0)
                 return _libssh2_error(session,
                                       LIBSSH2_ERROR_ALLOC,
