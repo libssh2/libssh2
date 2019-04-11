@@ -836,7 +836,7 @@ libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path)
         LIBSSH2_FREE(agent->session, agent->identity_agent_path);
         agent->identity_agent_path = NULL;
     }
-    
+
     if(path) {
         size_t path_len = strlen(path);
         if(path_len < SIZE_MAX - 1) {
