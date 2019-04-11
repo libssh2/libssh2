@@ -736,7 +736,7 @@ void _libssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf)
 
 int _libssh2_get_u32(struct string_buf *buf, uint32_t *out)
 {
-    if(_libssh2_check_length(buf, 4)) {
+    if(!_libssh2_check_length(buf, 4)) {
         return -1;
     }
 
@@ -774,7 +774,7 @@ int _libssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
     if(_libssh2_get_u32(buf, &data_len) != 0) {
         return -1;
     }
-    if(_libssh2_check_length(buf, data_len)) {
+    if(!_libssh2_check_length(buf, data_len)) {
         return -1;
     }
     *outbuf = buf->dataptr;
@@ -796,7 +796,7 @@ int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
     if(_libssh2_get_u32(buf, &data_len)) {
         return -1;
     }
-    if(_libssh2_check_length(buf, data_len)) {
+    if(!_libssh2_check_length(buf, data_len)) {
         return -1;
     }
 
