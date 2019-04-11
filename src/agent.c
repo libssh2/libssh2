@@ -150,9 +150,9 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
     struct sockaddr_un s_un;
 
     path = agent->identity_agent_path;
-    if (!path) {
+    if(!path) {
         path = getenv("SSH_AUTH_SOCK");
-        if (!path)
+        if(!path)
             return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_USE,
                                   "no auth sock variable");
     }
@@ -832,12 +832,12 @@ libssh2_agent_free(LIBSSH2_AGENT *agent)
 LIBSSH2_API void
 libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path)
 {
-    if (agent->identity_agent_path) {
+    if(agent->identity_agent_path) {
         LIBSSH2_FREE(agent->session, agent->identity_agent_path);
         agent->identity_agent_path = NULL;
     }
     
-    if (path != NULL) {
+    if(path) {
         size_t path_len = strlen(path);
         if(path_len < SIZE_MAX - 1) {
             char *path_buf = LIBSSH2_ALLOC(agent->session, path_len + 1);
@@ -854,7 +854,7 @@ libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path)
  * Returns the custom agent socket path if set
  *
  */
-LIBSSH2_API const char * libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent)
+LIBSSH2_API const char *libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent)
 {
     return agent->identity_agent_path;
 }
