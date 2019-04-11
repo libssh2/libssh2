@@ -1265,6 +1265,24 @@ libssh2_agent_disconnect(LIBSSH2_AGENT *agent);
 LIBSSH2_API void
 libssh2_agent_free(LIBSSH2_AGENT *agent);
 
+/*
+ * libssh2_agent_set_identity_path()
+ *
+ * Allows a custom agent identity socket path beyond SSH_AUTH_SOCK env
+ *
+ */
+LIBSSH2_API void
+libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent,
+                                const char *path);
+
+/*
+ * libssh2_agent_get_identity_path()
+ *
+ * Returns the custom agent identity socket path if set
+ *
+ */
+LIBSSH2_API const char *
+libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent);
 
 /*
  * libssh2_keepalive_config()
