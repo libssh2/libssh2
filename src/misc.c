@@ -779,7 +779,6 @@ int _libssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
     }
     *outbuf = buf->dataptr;
     buf->dataptr += data_len;
-    buf->offset += data_len;
 
     if(outlen)
         *outlen = (size_t)data_len;
@@ -811,9 +810,7 @@ int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
     }
 
     *outbuf = bnptr;
-
     buf->dataptr += data_len;
-    buf->offset += data_len;
 
     if(outlen)
         *outlen = (size_t)bn_len;
