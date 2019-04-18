@@ -170,6 +170,9 @@ banner_receive(LIBSSH2_SESSION * session)
     if(!banner_len)
         return LIBSSH2_ERROR_BANNER_RECV;
 
+    if(session->remote.banner)
+        LIBSSH2_FREE(session, session->remote.banner);
+
     session->remote.banner = LIBSSH2_ALLOC(session, banner_len + 1);
     if(!session->remote.banner) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
