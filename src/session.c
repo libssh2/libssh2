@@ -737,6 +737,11 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 
     if(session->startup_state == libssh2_NB_state_sent1) {
         rc = _libssh2_kex_exchange(session, 0, &session->startup_key_state);
+
+        if (session->err_code == LIBSSH2_ERROR_TIMEOUT)
+            return  _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,			
+                                  "API Timeout expired");
+
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
         else if(rc)
