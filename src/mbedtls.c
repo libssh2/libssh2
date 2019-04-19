@@ -436,8 +436,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     pwd_len = passphrase != NULL ? strlen((const char *)passphrase) : 0;
     ret = mbedtls_pk_parse_key(&pkey, (unsigned char *)filedata_nullterm,
                                filedata_len + 1,
-                               passphrase,
-                               pwd_len);
+                               passphrase, pwd_len);
     _libssh2_mbedtls_safe_free(filedata_nullterm, filedata_len);
 
     if(ret != 0 || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
@@ -671,7 +670,7 @@ _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     ret = mbedtls_pk_parse_key(&pkey,
                                (unsigned char *)privatekeydata_nullterm,
                                privatekeydata_len + 1,
-                               (const unsigned char *)passphrase, pwd_len );
+                               (const unsigned char *)passphrase, pwd_len);
     _libssh2_mbedtls_safe_free(privatekeydata_nullterm, privatekeydata_len);
 
     if(ret != 0) {
