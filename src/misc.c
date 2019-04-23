@@ -759,14 +759,16 @@ int _libssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out)
 int _libssh2_match_string(struct string_buf *buf, const char *match)
 {
     unsigned char *out;
-    if((size_t)_libssh2_get_c_string(buf, &out) != strlen(match) ||
-       strncmp((char *)out, match, strlen(match)) != 0) {
+    size_t len = 0;
+    if(_libssh2_get_string(buf, &out, &len) || len != strlen(match) ||
+        strncmp((char *)out, match, strlen(match)) != 0) {
         return -1;
     }
     return 0;
 }
 
-int _libssh2_get_c_string(struct string_buf *buf, unsigned char **outbuf)
+int _libssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
+                        size_t *outlen)
 {
     uint32_t data_len;
     if(_libssh2_get_u32(buf, &data_len) != 0) {
@@ -777,16 +779,21 @@ int _libssh2_get_c_string(struct string_buf *buf, unsigned char **outbuf)
     }
     *outbuf = buf->dataptr;
     buf->dataptr += data_len;
-    return data_len;
+
+    if(outlen)
+        *outlen = (size_t)data_len;
+
+    return 0;
 }
 
-int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf)
+int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
+                              size_t *outlen)
 {
     uint32_t data_len;
     uint32_t bn_len;
     unsigned char *bnptr;
 
-    if(_libssh2_get_u32(buf, &data_len) != 0) {
+    if(_libssh2_get_u32(buf, &data_len)) {
         return -1;
     }
     if(!_libssh2_check_length(buf, data_len)) {
@@ -803,11 +810,17 @@ int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf)
     }
 
     *outbuf = bnptr;
-
     buf->dataptr += data_len;
 
-    return bn_len;
+    if(outlen)
+        *outlen = (size_t)bn_len;
+
+    return 0;
 }
+
+/* Given the current location in buf, _libssh2_check_length ensures
+   callers can read the next len number of bytes out of the buffer
+   before reading the buffer content */
 
 int _libssh2_check_length(struct string_buf *buf, size_t len)
 {
