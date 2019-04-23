@@ -372,14 +372,15 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
     unsigned char *kdf = NULL;
     unsigned char *buf = NULL;
     unsigned char *salt = NULL;
-    uint32_t nkeys, check1, check2, salt_len;
+    uint32_t nkeys, check1, check2;
     uint32_t rounds = 0;
     unsigned char *key = NULL;
     unsigned char *key_part = NULL;
     unsigned char *iv_part = NULL;
     unsigned char *f = NULL;
     unsigned int f_len = 0;
-    int ret = 0, rc = 0, kdf_len = 0, keylen = 0, ivlen = 0, total_len = 0;
+    int ret = 0, keylen = 0, ivlen = 0, total_len = 0;
+    size_t kdf_len = 0, tmp_len = 0, salt_len = 0;
 
     if(decrypted_buf)
         *decrypted_buf = NULL;
@@ -410,20 +411,21 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     decoded.dataptr += strlen(AUTH_MAGIC) + 1;
 
-    if(_libssh2_get_c_string(&decoded, &ciphername) == 0) {
+    if(_libssh2_get_string(&decoded, &ciphername, &tmp_len) ||
+       tmp_len == 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                              "ciphername is missing");
         goto out;
     }
 
-    if(_libssh2_get_c_string(&decoded, &kdfname) == 0) {
+    if(_libssh2_get_string(&decoded, &kdfname, &tmp_len) ||
+       tmp_len == 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "kdfname is missing");
         goto out;
     }
 
-    kdf_len = _libssh2_get_c_string(&decoded, &kdf);
-    if(kdf == NULL) {
+    if(_libssh2_get_string(&decoded, &kdf, &kdf_len)) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                              "kdf is missing");
         goto out;
@@ -463,15 +465,14 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     /* unencrypted public key */
 
-    if(_libssh2_get_c_string(&decoded, &buf) < 0) {
+    if(_libssh2_get_string(&decoded, &buf, &tmp_len) || tmp_len == 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                              "Invalid private key; "
                              "expect embedded public key");
         goto out;
     }
 
-    rc = _libssh2_get_c_string(&decoded, &buf);
-    if(rc <= 0) {
+    if(_libssh2_get_string(&decoded, &buf, &tmp_len) || tmp_len == 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Private key data not found");
         goto out;
@@ -479,7 +480,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     /* decode encrypted private key */
     decrypted.data = decrypted.dataptr = buf;
-    decrypted.len = rc;
+    decrypted.len = tmp_len;
 
     if(ciphername && strcmp((const char *)ciphername, "none") != 0) {
         const LIBSSH2_CRYPT_METHOD **all_methods, *cur_method;
@@ -520,9 +521,8 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
         if(strcmp((const char *)kdfname, "bcrypt") == 0 &&
            passphrase != NULL) {
-            salt_len = _libssh2_get_c_string(&kdf_buf, &salt);
-            if((salt_len <= 0) ||
-               (_libssh2_get_u32(&kdf_buf, &rounds) != 0) ) {
+            if((_libssh2_get_string(&kdf_buf, &salt, &salt_len)) ||
+                (_libssh2_get_u32(&kdf_buf, &rounds) != 0) ) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                      "kdf contains unexpected values");
                 LIBSSH2_FREE(session, key);

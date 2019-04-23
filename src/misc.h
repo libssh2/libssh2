@@ -94,8 +94,10 @@ void _libssh2_string_buf_free(LIBSSH2_SESSION *session,
 int _libssh2_get_u32(struct string_buf *buf, uint32_t *out);
 int _libssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out);
 int _libssh2_match_string(struct string_buf *buf, const char *match);
-int _libssh2_get_c_string(struct string_buf *buf, unsigned char **outbuf);
-int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf);
+int _libssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
+                        size_t *outlen);
+int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
+                              size_t *outlen);
 int _libssh2_check_length(struct string_buf *buf, size_t requested_len);
 
 #if defined(LIBSSH2_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
