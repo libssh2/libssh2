@@ -1070,7 +1070,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
 
         _libssh2_bn_from_bin(exchange_state->f, exchange_state->f_value_len,
                              exchange_state->f_value);
-        
+
         if(_libssh2_get_string(&buf, &(exchange_state->h_sig),
                                &(exchange_state->h_sig_len))) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
