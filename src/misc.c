@@ -799,7 +799,7 @@ int _libssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
     *outbuf = LIBSSH2_ALLOC(session, str_len);
     if(*outbuf) {
         memcpy(*outbuf, str, str_len);
-    }else {
+    } else {
         return -1;
     }
 

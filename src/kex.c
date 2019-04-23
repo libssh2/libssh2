@@ -243,7 +243,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         /* Wait for KEX reply */
         struct string_buf buf;
         size_t host_key_len;
-        
+
         rc = _libssh2_packet_require(session, packet_type_reply,
                                      &exchange_state->s_packet,
                                      &exchange_state->s_packet_len, 0, NULL,
@@ -931,7 +931,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         /* Wait for KEX reply */
         struct string_buf buf;
         size_t host_key_len;
-        
+
         rc = _libssh2_packet_require(session, packet_type_reply,
                                      &exchange_state->s_packet,
                                      &exchange_state->s_packet_len, 0, NULL,
