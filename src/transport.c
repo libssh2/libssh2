@@ -281,7 +281,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
     unsigned char block[MAX_BLOCKSIZE];
     int blocksize;
     int encrypted = 1;
-    size_t total_num = 0;
+    size_t total_num;
 
     /* default clear the bit */
     session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
@@ -565,7 +565,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
            copy them as-is to the target buffer */
         if(numbytes > 0) {
 
-            if((size_t)numbytes <= (total_num - (p->wptr - p->payload))) {
+            if((size_t)numbytes <= (p->total_num - (p->wptr - p->payload))) {
                 memcpy(p->wptr, &p->buf[p->readidx], numbytes);
             }
             else {
