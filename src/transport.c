@@ -565,7 +565,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
            copy them as-is to the target buffer */
         if(numbytes > 0) {
 
-            if(numbytes <= (int)(total_num - (p->wptr - p->payload))) {
+            if(numbytes <= (int)(p->total_num - (p->wptr - p->payload))) {
                 memcpy(p->wptr, &p->buf[p->readidx], numbytes);
             }
             else {
