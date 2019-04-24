@@ -269,6 +269,9 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         buf.dataptr = buf.data;
         buf.dataptr++; /* advance past type */
 
+        if(session->server_hostkey)
+            LIBSSH2_FREE(session, session->server_hostkey);
+
         if(_libssh2_copy_string(session, &buf, &(session->server_hostkey),
                                 &host_key_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -956,6 +959,9 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         buf.len = exchange_state->s_packet_len;
         buf.dataptr = buf.data;
         buf.dataptr++; /* advance past type */
+
+        if(session->server_hostkey)
+            LIBSSH2_FREE(session, session->server_hostkey);
 
         if(_libssh2_copy_string(session, &buf, &(session->server_hostkey),
                                 &host_key_len)) {
