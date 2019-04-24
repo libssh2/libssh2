@@ -281,7 +281,6 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
     unsigned char block[MAX_BLOCKSIZE];
     int blocksize;
     int encrypted = 1;
-    size_t total_num;
 
     /* default clear the bit */
     session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
@@ -401,6 +400,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         numbytes = remainbuf;
 
         if(!p->total_num) {
+            size_t total_num;
+
             /* No payload package area allocated yet. To know the
                size of this payload, we need to decrypt the first
                blocksize data. */
