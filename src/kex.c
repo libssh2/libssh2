@@ -2691,7 +2691,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             goto clean_exit;
         }
 
-        session->server_hostkey_len = (u_int32_t)hostkey_len;
+        session->server_hostkey_len = (uint32_t)hostkey_len;
         session->server_hostkey = LIBSSH2_ALLOC(session,
                                                 session->server_hostkey_len);
         if(!session->server_hostkey) {
