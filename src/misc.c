@@ -147,8 +147,8 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length,
            Solaris and HP-UX */
         if(errno == ENOENT)
             return -EAGAIN;
-#ifdef EWOULDBLOCK // For VMS and other special unixes
-        else if ( errno == EWOULDBLOCK )
+#ifdef EWOULDBLOCK /* For VMS and other special unixes */
+        else if (errno == EWOULDBLOCK)
           return -EAGAIN;
 #endif
         else
