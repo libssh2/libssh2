@@ -148,7 +148,7 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length,
         if(errno == ENOENT)
             return -EAGAIN;
 #ifdef EWOULDBLOCK /* For VMS and other special unixes */
-        else if (errno == EWOULDBLOCK)
+        else if(errno == EWOULDBLOCK)
           return -EAGAIN;
 #endif
         else
@@ -175,9 +175,9 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
     if(rc < 0)
         return -wsa2errno();
 #else
-    if (rc < 0) {
+    if(rc < 0) {
 #ifdef EWOULDBLOCK /* For VMS and other special unixes */
-      if (errno == EWOULDBLOCK)
+      if(errno == EWOULDBLOCK)
         return -EAGAIN;
 #endif
       return -errno;
