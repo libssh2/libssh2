@@ -175,10 +175,9 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
     if(rc < 0)
         return -wsa2errno();
 #else
-    if (rc < 0 )
-    {
-#ifdef EWOULDBLOCK // For VMS and other special unixes
-      if ( errno == EWOULDBLOCK )
+    if (rc < 0) {
+#ifdef EWOULDBLOCK /* For VMS and other special unixes */
+      if (errno == EWOULDBLOCK)
         return -EAGAIN;
 #endif
       return -errno;
