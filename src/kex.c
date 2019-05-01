@@ -241,6 +241,9 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
 
     if(exchange_state->state == libssh2_NB_state_sent1) {
         /* Wait for KEX reply */
+        struct string_buf buf;
+        size_t host_key_len;
+
         rc = _libssh2_packet_require(session, packet_type_reply,
                                      &exchange_state->s_packet,
                                      &exchange_state->s_packet_len, 0, NULL,
@@ -261,31 +264,22 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        exchange_state->s = exchange_state->s_packet + 1;
-
-        session->server_hostkey_len = _libssh2_ntohu32(exchange_state->s);
-        exchange_state->s += 4;
-
-        if(session->server_hostkey_len > exchange_state->s_packet_len - 5) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                 "Host key length out of bounds");
-            goto clean_exit;
-        }
+        buf.data = exchange_state->s_packet;
+        buf.len = exchange_state->s_packet_len;
+        buf.dataptr = buf.data;
+        buf.dataptr++; /* advance past type */
 
         if(session->server_hostkey)
             LIBSSH2_FREE(session, session->server_hostkey);
 
-        session->server_hostkey =
-            LIBSSH2_ALLOC(session, session->server_hostkey_len);
-        if(!session->server_hostkey) {
+        if(_libssh2_copy_string(session, &buf, &(session->server_hostkey),
+                                &host_key_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                 "Unable to allocate memory for a copy "
-                                 "of the host key");
+                                 "Could not copy host key");
             goto clean_exit;
         }
-        memcpy(session->server_hostkey, exchange_state->s,
-               session->server_hostkey_len);
-        exchange_state->s += session->server_hostkey_len;
+
+        session->server_hostkey_len = (uint32_t)host_key_len;
 
 #if LIBSSH2_MD5
         {
@@ -383,16 +377,22 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        exchange_state->f_value_len = _libssh2_ntohu32(exchange_state->s);
-        exchange_state->s += 4;
-        exchange_state->f_value = exchange_state->s;
-        exchange_state->s += exchange_state->f_value_len;
+        if(_libssh2_get_string(&buf, &(exchange_state->f_value),
+                               &(exchange_state->f_value_len))) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                                 "Unable to get f value");
+            goto clean_exit;
+        }
+
         _libssh2_bn_from_bin(exchange_state->f, exchange_state->f_value_len,
                              exchange_state->f_value);
 
-        exchange_state->h_sig_len = _libssh2_ntohu32(exchange_state->s);
-        exchange_state->s += 4;
-        exchange_state->h_sig = exchange_state->s;
+        if(_libssh2_get_string(&buf, &(exchange_state->h_sig),
+                               &(exchange_state->h_sig_len))) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                                 "Unable to get h sig");
+            goto clean_exit;
+        }
 
         /* Compute the shared secret */
         libssh2_dh_secret(&exchange_state->x, exchange_state->k,
@@ -932,6 +932,9 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
 
     if(exchange_state->state == libssh2_NB_state_sent1) {
         /* Wait for KEX reply */
+        struct string_buf buf;
+        size_t host_key_len;
+
         rc = _libssh2_packet_require(session, packet_type_reply,
                                      &exchange_state->s_packet,
                                      &exchange_state->s_packet_len, 0, NULL,
@@ -952,31 +955,22 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        exchange_state->s = exchange_state->s_packet + 1;
-
-        session->server_hostkey_len = _libssh2_ntohu32(exchange_state->s);
-        exchange_state->s += 4;
-
-        if(session->server_hostkey_len > exchange_state->s_packet_len - 5) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                 "Host key length out of bounds");
-            goto clean_exit;
-        }
+        buf.data = exchange_state->s_packet;
+        buf.len = exchange_state->s_packet_len;
+        buf.dataptr = buf.data;
+        buf.dataptr++; /* advance past type */
 
         if(session->server_hostkey)
             LIBSSH2_FREE(session, session->server_hostkey);
 
-        session->server_hostkey =
-            LIBSSH2_ALLOC(session, session->server_hostkey_len);
-        if(!session->server_hostkey) {
+        if(_libssh2_copy_string(session, &buf, &(session->server_hostkey),
+                                &host_key_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                 "Unable to allocate memory for a copy "
-                                 "of the host key");
+                                 "Could not copy host key");
             goto clean_exit;
         }
-        memcpy(session->server_hostkey, exchange_state->s,
-               session->server_hostkey_len);
-        exchange_state->s += session->server_hostkey_len;
+
+        session->server_hostkey_len = (uint32_t)host_key_len;
 
 #if LIBSSH2_MD5
         {
@@ -1073,16 +1067,22 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        exchange_state->f_value_len = _libssh2_ntohu32(exchange_state->s);
-        exchange_state->s += 4;
-        exchange_state->f_value = exchange_state->s;
-        exchange_state->s += exchange_state->f_value_len;
+        if(_libssh2_get_string(&buf, &(exchange_state->f_value),
+                               &(exchange_state->f_value_len))) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                                 "Unable to get f value");
+            goto clean_exit;
+        }
+
         _libssh2_bn_from_bin(exchange_state->f, exchange_state->f_value_len,
                              exchange_state->f_value);
 
-        exchange_state->h_sig_len = _libssh2_ntohu32(exchange_state->s);
-        exchange_state->s += 4;
-        exchange_state->h_sig = exchange_state->s;
+        if(_libssh2_get_string(&buf, &(exchange_state->h_sig),
+                               &(exchange_state->h_sig_len))) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                                 "Unable to get h sig");
+            goto clean_exit;
+        }
 
         /* Compute the shared secret */
         libssh2_dh_secret(&exchange_state->x, exchange_state->k,

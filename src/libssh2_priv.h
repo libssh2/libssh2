@@ -261,7 +261,6 @@ typedef struct kmdhgGPshakex_state_t
     _libssh2_bn *e;
     _libssh2_bn *f;
     _libssh2_bn *k;
-    unsigned char *s;
     unsigned char *f_value;
     unsigned char *k_value;
     unsigned char *h_sig;
