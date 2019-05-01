@@ -96,6 +96,8 @@ int _libssh2_get_u64(struct string_buf *buf, libssh2_uint64_t *out);
 int _libssh2_match_string(struct string_buf *buf, const char *match);
 int _libssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
                         size_t *outlen);
+int _libssh2_copy_string(LIBSSH2_SESSION* session, struct string_buf *buf,
+                         unsigned char **outbuf, size_t *outlen);
 int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
                               size_t *outlen);
 int _libssh2_check_length(struct string_buf *buf, size_t requested_len);
