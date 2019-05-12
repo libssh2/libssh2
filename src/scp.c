@@ -37,6 +37,7 @@
  */
 
 #include "libssh2_priv.h"
+#include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
 
@@ -101,6 +102,10 @@
 
   => 3 * length(input) + 2
 
+  o  If the string begins with ~ then it is not quoted. Subsequent characters
+  are not quoted so long as they are alphanumerics or a slash. After the first
+  such slash, the regular quoting rules begin.
+
   Explanation:
   o  leading apostrophe
   o  one character / apostrophe pair (two characters) can get
@@ -131,12 +136,15 @@ shell_quotearg(const char *path, unsigned char *buf,
 
     /*
      * Processing States:
+     *  INITIAL:        initial state: ... -- used to prevent quoting ~
+     *  HOMEDIR:        after initial ~: ~user  -- used to prevent quoting user
+     *                  name after tilde
      *  UQSTRING:       unquoted string: ... -- used for quoting exclamation
      *                  marks. This is the initial state
      *  SQSTRING:       single-quoted-string: '... -- any character may follow
      *  QSTRING:        quoted string: "... -- only apostrophes may follow
      */
-    enum { UQSTRING, SQSTRING, QSTRING } state = UQSTRING;
+    enum { INITIAL, HOMEDIR, UQSTRING, SQSTRING, QSTRING } state = INITIAL;
 
     endp = &buf[bufsize];
     src = path;
@@ -152,6 +160,8 @@ shell_quotearg(const char *path, unsigned char *buf,
 
         case '\'':
             switch(state) {
+            case INITIAL:  /* fall-through */
+            case HOMEDIR:  /* fall-through */
             case UQSTRING:      /* Unquoted string */
                 if(dst + 1 >= endp)
                     return 0;
@@ -180,6 +190,8 @@ shell_quotearg(const char *path, unsigned char *buf,
 
         case '!':
             switch(state) {
+            case INITIAL:  /* fall-through */
+            case HOMEDIR:  /* fall-through */
             case UQSTRING:
                 if(dst + 1 >= endp)
                     return 0;
@@ -203,21 +215,37 @@ shell_quotearg(const char *path, unsigned char *buf,
             state = UQSTRING;
             break;
 
-            /*
-             * Ordinary character: prefer single-quoted string
-             */
-
         default:
             switch(state) {
+            case INITIAL:
+                if (*src == '~') {
+                    state = HOMEDIR;
+                    break;
+                }
+                if(dst + 1 >= endp)
+                    return 0;
+                state = SQSTRING;   /* Start single-quoted string */
+                *dst++ = '\'';
+                break;
+            case HOMEDIR:
+                if (isalnum(*src))
+                    break;
+                if (*src == '/') {
+                    state = UQSTRING;
+                    break;
+                }
+                /* fall-through */
             case UQSTRING:
                 if(dst + 1 >= endp)
                     return 0;
+                state = SQSTRING;   /* Start single-quoted string */
                 *dst++ = '\'';
                 break;
             case QSTRING:
                 if(dst + 2 >= endp)
                     return 0;
                 *dst++ = '"';           /* Closing quotation mark */
+                state = SQSTRING;   /* Start single-quoted string */
                 *dst++ = '\'';
                 break;
             case SQSTRING:      /* Continue single quoted string */
@@ -225,7 +253,6 @@ shell_quotearg(const char *path, unsigned char *buf,
             default:
                 break;
             }
-            state = SQSTRING;   /* Start single-quoted string */
             break;
         }
 
