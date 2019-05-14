@@ -293,7 +293,7 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define libssh2_hmac_cleanup(ctx) HMAC_cleanup(ctx)
 #endif
 
-extern void _libssh2_openssl_crypto_init(void);
+extern int _libssh2_openssl_crypto_init(void);
 extern void _libssh2_openssl_crypto_exit(void);
 #define libssh2_crypto_init() _libssh2_openssl_crypto_init()
 #define libssh2_crypto_exit() _libssh2_openssl_crypto_exit()

@@ -109,7 +109,7 @@ struct _libssh2_wincng_ctx _libssh2_wincng;
  * Windows CNG backend: Generic functions
  */
 
-void _libssh2_wincng_init(void);
+int _libssh2_wincng_init(void);
 void _libssh2_wincng_free(void);
 
 #define libssh2_crypto_init() \
@@ -397,7 +397,7 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
 /*
  * Windows CNG backend: forward declarations
  */
-void _libssh2_wincng_init(void);
+int _libssh2_wincng_init(void);
 void _libssh2_wincng_free(void);
 int _libssh2_wincng_random(void *buf, int len);
 

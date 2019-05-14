@@ -45,7 +45,8 @@ LIBSSH2_API int
 libssh2_init(int flags)
 {
     if(_libssh2_initialized == 0 && !(flags & LIBSSH2_INIT_NO_CRYPTO)) {
-        libssh2_crypto_init();
+        if(libssh2_crypto_init() < 0)
+            return -1;
     }
 
     _libssh2_initialized++;

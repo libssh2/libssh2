@@ -329,7 +329,7 @@
 /*
  * mbedTLS backend: forward declarations
  */
-void
+int
 _libssh2_mbedtls_init(void);
 
 void

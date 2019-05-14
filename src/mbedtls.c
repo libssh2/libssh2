@@ -52,7 +52,7 @@ static mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
  * mbedTLS backend: Generic functions
  */
 
-void
+int
 _libssh2_mbedtls_init(void)
 {
     int ret;
@@ -65,6 +65,8 @@ _libssh2_mbedtls_init(void)
                                 &_libssh2_mbedtls_entropy, NULL, 0);
     if(ret != 0)
         mbedtls_ctr_drbg_free(&_libssh2_mbedtls_ctr_drbg);
+
+    return ret;
 }
 
 void

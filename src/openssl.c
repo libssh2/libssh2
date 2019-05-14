@@ -632,7 +632,7 @@ static EVP_CIPHER * aes_192_ctr_cipher = NULL;
 static EVP_CIPHER * aes_256_ctr_cipher = NULL;
 #endif
 
-void _libssh2_openssl_crypto_init(void)
+int _libssh2_openssl_crypto_init(void)
 {
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L && \
     !defined(LIBRESSL_VERSION_NUMBER)
@@ -657,6 +657,8 @@ void _libssh2_openssl_crypto_init(void)
     if(!aes_256_ctr_cipher)
         aes_256_ctr_cipher = (EVP_CIPHER *) _libssh2_EVP_aes_256_ctr();
 #endif
+
+    return 0;
 }
 
 void _libssh2_openssl_crypto_exit(void)
