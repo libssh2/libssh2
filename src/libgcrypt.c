@@ -400,6 +400,7 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
 
     tmp = gcry_sexp_nth_data(data, 1, &size);
     if(!tmp) {
+        gcry_sexp_release(data);
         return -1;
     }
 
@@ -410,10 +411,13 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
 
     *signature = LIBSSH2_ALLOC(session, size);
     if(!*signature) {
+        gcry_sexp_release(data);
         return -1;
     }
     memcpy(*signature, tmp, size);
     *signature_len = size;
+
+    gcry_sexp_release(data);
 
     return rc;
 }
