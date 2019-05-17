@@ -218,7 +218,7 @@ shell_quotearg(const char *path, unsigned char *buf,
         default:
             switch(state) {
             case INITIAL:
-                if (*src == '~') {
+                if(*src == '~') {
                     state = HOMEDIR;
                     break;
                 }
@@ -228,9 +228,9 @@ shell_quotearg(const char *path, unsigned char *buf,
                 *dst++ = '\'';
                 break;
             case HOMEDIR:
-                if (isalnum(*src))
+                if(isalnum(*src))
                     break;
-                if (*src == '/') {
+                if(*src == '/') {
                     state = UQSTRING;
                     break;
                 }
