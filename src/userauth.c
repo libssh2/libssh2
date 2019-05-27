@@ -341,6 +341,7 @@ userauth_password(LIBSSH2_SESSION *session,
 
             if((session->userauth_pswd_state == libssh2_NB_state_sent1) ||
                 (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
+
                 if(session->userauth_pswd_state == libssh2_NB_state_sent1) {
                     _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
                                    "Password change required");
@@ -356,10 +357,12 @@ userauth_password(LIBSSH2_SESSION *session,
                 }
 
                 if(session->userauth_pswd_state == libssh2_NB_state_sent1) {
-                    unsigned char *s;
-                    passwd_change_cb(session,
-                                     &session->userauth_pswd_newpw,
-                                     &session->userauth_pswd_newpw_len,
+                    unsigned char *s, *packet;
+                    size_t packet_len;
+                    char *newpw = NULL;
+                    size_t newpw_len = 0;
+
+                    passwd_change_cb(session, &newpw, (int *)&newpw_len,
                                      &session->abstract);
                     if(!session->userauth_pswd_newpw) {
                         return _libssh2_error(session,
@@ -369,20 +372,17 @@ userauth_password(LIBSSH2_SESSION *session,
                     }
 
                     /* basic data_len + newpw_len(4) */
-                    if(username_len + password_len + 44 <= UINT_MAX) {
-                        session->userauth_pswd_data_len =
-                            username_len + password_len + 44;
-                        s = session->userauth_pswd_data =
-                            LIBSSH2_ALLOC(session,
-                                          session->userauth_pswd_data_len);
-                    }
-                    else {
+                    if(username_len + password_len + 44 > UINT_MAX) {
                         s = session->userauth_pswd_data = NULL;
                         session->userauth_pswd_data_len = 0;
+                        return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                              "Invalid length");
                     }
 
-                    if(!session->userauth_pswd_data) {
-                        LIBSSH2_FREE(session, session->userauth_pswd_newpw);
+                    packet_len = username_len + password_len + 44;
+                    s = packet = LIBSSH2_ALLOC(session, packet_len);
+                    if(!packet) {
+                        LIBSSH2_FREE(session, newpw);
                         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                               "Unable to allocate memory "
                                               "for userauth password "
@@ -397,9 +397,13 @@ userauth_password(LIBSSH2_SESSION *session,
                                        sizeof("password") - 1);
                     *s++ = 0x01;
                     _libssh2_store_str(&s, (char *)password, password_len);
-                    _libssh2_store_u32(&s, session->userauth_pswd_newpw_len);
+                    _libssh2_store_u32(&s, newpw_len);
                     /* send session->userauth_pswd_newpw separately */
 
+                    session->userauth_pswd_data = packet;
+                    session->userauth_pswd_data_len = packet_len;
+                    session->userauth_pswd_newpw = newpw;
+                    session->userauth_pswd_newpw_len = newpw_len;
                     session->userauth_pswd_state = libssh2_NB_state_sent2;
                 }
 
