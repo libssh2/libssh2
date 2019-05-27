@@ -371,6 +371,10 @@ else()
   target_link_libraries(libssh2 PRIVATE ${LIBRARIES})
 endif()
 
+if(LINT)
+  add_dependencies(libssh2 lint)
+endif()
+
 ## Installation
 
 install(FILES
