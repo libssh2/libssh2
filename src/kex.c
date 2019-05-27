@@ -3347,10 +3347,10 @@ static int kexinit(LIBSSH2_SESSION * session)
     size_t comp_cs_len, comp_sc_len;
     size_t mac_cs_len, mac_sc_len;
     size_t lang_cs_len, lang_sc_len;
-    unsigned char *data, *s;
     int rc;
 
     if(session->kexinit_state == libssh2_NB_state_idle) {
+        unsigned char *data, *s;
         kex_len =
             LIBSSH2_METHOD_PREFS_LEN(session->kex_prefs, libssh2_kex_methods);
         hostkey_len =
@@ -3456,34 +3456,29 @@ static int kexinit(LIBSSH2_SESSION * session)
         }
 #endif /* LIBSSH2DEBUG */
 
-        session->kexinit_state = libssh2_NB_state_created;
-    }
-    else {
-        data = session->kexinit_data;
-        data_len = session->kexinit_data_len;
-        /* zap the variables to ensure there is NOT a double free later */
-        session->kexinit_data = NULL;
-        session->kexinit_data_len = 0;
-    }
-
-    rc = _libssh2_transport_send(session, data, data_len, NULL, 0);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
         session->kexinit_data = data;
         session->kexinit_data_len = data_len;
+
+        session->kexinit_state = libssh2_NB_state_created;
+    }
+
+    rc = _libssh2_transport_send(session, session->kexinit_data,
+                                 session->kexinit_data_len, NULL, 0);
+    if(rc == LIBSSH2_ERROR_EAGAIN) {
         return rc;
     }
     else if(rc) {
-        LIBSSH2_FREE(session, data);
+        LIBSSH2_FREE(session, session->kexinit_data);
         session->kexinit_state = libssh2_NB_state_idle;
         return _libssh2_error(session, rc,
                               "Unable to send KEXINIT packet to remote host");
 
     }
 
+    /* Use successful kexinit as our local endpoint */
     LIBSSH2_FREE(session, session->local.kexinit);
-
-    session->local.kexinit = data;
-    session->local.kexinit_len = data_len;
+    session->local.kexinit = session->kexinit_data;
+    session->local.kexinit_len = session->kexinit_data_len;
 
     session->kexinit_state = libssh2_NB_state_idle;
 
