@@ -66,7 +66,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
                          const char *errmsg, int errflags)
 {
     if(session->err_flags & LIBSSH2_ERR_FLAG_DUP)
-        LIBSSH2_FREE(session, (char *)session->err_msg);
+        LIBSSH2_FREE(session, session->err_msg);
 
     session->err_code = errcode;
     session->err_flags = 0;
@@ -84,7 +84,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
             session->err_msg = "former error forgotten (OOM)";
     }
     else
-        session->err_msg = errmsg;
+        session->err_msg = (char *)errmsg;
 
 #ifdef LIBSSH2DEBUG
     if((errcode == LIBSSH2_ERROR_EAGAIN) && !session->api_block_mode)

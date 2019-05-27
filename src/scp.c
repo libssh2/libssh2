@@ -763,7 +763,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
     while(libssh2_channel_free(session->scpRecv_channel) ==
            LIBSSH2_ERROR_EAGAIN);
     session->err_code = tmp_err_code;
-    session->err_msg = tmp_err_msg;
+    session->err_msg = (char *)tmp_err_msg;
     session->scpRecv_channel = NULL;
     session->scpRecv_state = libssh2_NB_state_idle;
     return NULL;
@@ -1107,7 +1107,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
     while(libssh2_channel_free(session->scpSend_channel) ==
           LIBSSH2_ERROR_EAGAIN);
     session->err_code = tmp_err_code;
-    session->err_msg = tmp_err_msg;
+    session->err_msg = (char *)tmp_err_msg;
     session->scpSend_channel = NULL;
     session->scpSend_state = libssh2_NB_state_idle;
     return NULL;

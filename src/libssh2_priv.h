@@ -661,7 +661,7 @@ struct _LIBSSH2_SESSION
                                    when libssh2_session_startup() is called */
 
     /* Error tracking */
-    const char *err_msg;
+    char *err_msg;
     int err_code;
     int err_flags;
 
