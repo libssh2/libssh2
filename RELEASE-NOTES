@@ -11,7 +11,7 @@ This release includes the following enhancements and bugfixes:
  o adds libssh2_agent_get_identity_path() and libssh2_agent_set_identity_path()
  o adds explicit zeroing of sensitive data in memory
  o adds additional bounds checks to network buffer reads
- o added the ability to use the server default permissions when creating sftp directories
+ o adds the ability to use the server default permissions when creating sftp directories
  o adds support for building with OpenSSL no engine flag
  o adds support for building with LibreSSL
  o increased sftp packet size to 256k
