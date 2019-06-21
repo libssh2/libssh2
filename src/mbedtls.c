@@ -272,7 +272,7 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
     if(err)
         return -1;
 
-    /* Zero unsued bits above the most significant bit*/
+    /* Zero unused bits above the most significant bit*/
     for(i = len*8 - 1; bits <= i; --i) {
         err = mbedtls_mpi_set_bit(bn, i, 0);
         if(err)
