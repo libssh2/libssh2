@@ -1035,7 +1035,7 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
         { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
     int rc;
 
-    if (channel->req_auth_agent_state == libssh2_NB_state_idle) {
+    if(channel->req_auth_agent_state == libssh2_NB_state_idle) {
         /* Only valid options are "auth-agent-req" and
          * "auth-agent-req_at_openssh.com" so we make sure it is not
          * actually longer than the longest possible. */
@@ -1072,40 +1072,40 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
         channel->req_auth_agent_state = libssh2_NB_state_created;
     }
 
-    if (channel->req_auth_agent_state == libssh2_NB_state_created) {
+    if(channel->req_auth_agent_state == libssh2_NB_state_created) {
         /* Send the packet, we can use sizeof() on the packet because it
          * is always completely filled; there are no variable length fields. */
         rc = _libssh2_transport_send(session, channel->req_auth_agent_packet,
                                      channel->req_auth_agent_packet_len,
                                      NULL, 0);
 
-        if (rc == LIBSSH2_ERROR_EAGAIN) {
-	    _libssh2_error(session, rc,
-			   "Would block sending auth-agent request");
-        } else if (rc) {
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            _libssh2_error(session, rc,
+                           "Would block sending auth-agent request");
+        }
+        else if(rc) {
             channel->req_auth_agent_state = libssh2_NB_state_idle;
             return _libssh2_error(session, rc,
                                   "Unable to send auth-agent request");
         }
-
         _libssh2_htonu32(channel->req_auth_agent_local_channel,
                          channel->local.id);
-
         channel->req_auth_agent_state = libssh2_NB_state_sent;
     }
 
-    if (channel->req_auth_agent_state == libssh2_NB_state_sent) {
+    if(channel->req_auth_agent_state == libssh2_NB_state_sent) {
         unsigned char *data;
         size_t data_len;
         unsigned char code;
 
-        rc = _libssh2_packet_requirev(session, reply_codes, &data, &data_len,
-                                      1, channel->req_auth_agent_local_channel,
-                                      4, &channel->req_auth_agent_requirev_state);
-
-        if (rc == LIBSSH2_ERROR_EAGAIN) {
+        rc = _libssh2_packet_requirev(
+            session, reply_codes, &data, &data_len, 1,
+            channel->req_auth_agent_local_channel,
+            4, &channel->req_auth_agent_requirev_state);
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
             return rc;
-        } else if (rc) {
+        }
+        else if(rc) {
             channel->req_auth_agent_state = libssh2_NB_state_idle;
             return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                   "Failed to request auth-agent");
@@ -1116,7 +1116,7 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
         LIBSSH2_FREE(session, data);
         channel->req_auth_agent_state = libssh2_NB_state_idle;
 
-        if (code == SSH_MSG_CHANNEL_SUCCESS)
+        if(code == SSH_MSG_CHANNEL_SUCCESS)
             return 0;
     }
 
@@ -1136,14 +1136,14 @@ libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
 {
     int rc;
 
-    if (!channel)
+    if(!channel)
         return LIBSSH2_ERROR_BAD_USE;
 
     /* The current RFC draft for agent forwarding says you're supposed to
      * send "auth-agent-req," but most SSH servers out there right now
      * actually expect "auth-agent-req@openssh.com", so we try that
      * first. */
-    if (channel->req_auth_agent_try_state == libssh2_NB_state_idle) {
+    if(channel->req_auth_agent_try_state == libssh2_NB_state_idle) {
         BLOCK_ADJUST(rc, channel->session,
                      channel_request_auth_agent(channel,
                                                 "auth-agent-req@openssh.com",
@@ -1151,23 +1151,23 @@ libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
 
         /* If we failed (but not with EAGAIN), then we move onto
          * the next step to try another request type. */
-        if (rc != 0 && rc != LIBSSH2_ERROR_EAGAIN)
+        if(rc != 0 && rc != LIBSSH2_ERROR_EAGAIN)
             channel->req_auth_agent_try_state = libssh2_NB_state_sent;
     }
 
-    if (channel->req_auth_agent_try_state == libssh2_NB_state_sent) {
+    if(channel->req_auth_agent_try_state == libssh2_NB_state_sent) {
         BLOCK_ADJUST(rc, channel->session,
                      channel_request_auth_agent(channel,
                                                 "auth-agent-req", 14));
 
         /* If we failed without an EAGAIN, then move on with this
          * state machine. */
-        if (rc != 0 && rc != LIBSSH2_ERROR_EAGAIN)
+        if(rc != 0 && rc != LIBSSH2_ERROR_EAGAIN)
             channel->req_auth_agent_try_state = libssh2_NB_state_sent1;
     }
 
     /* If things are good, reset the try state. */
-    if (rc == 0)
+    if(rc == 0)
         channel->req_auth_agent_try_state = libssh2_NB_state_idle;
 
     return rc;

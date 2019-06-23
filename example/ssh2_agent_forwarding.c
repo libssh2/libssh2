@@ -89,14 +89,14 @@ int main(int argc, char *argv[])
     struct libssh2_agent_publickey *identity, *prev_identity = NULL;
     int rc;
     int exitcode;
-    char *exitsignal=(char *)"none";
+    char *exitsignal = (char *)"none";
     int bytecount = 0;
 
 #ifdef WIN32
     WSADATA wsadata;
-    WSAStartup(MAKEWORD(2,0), &wsadata);
+    WSAStartup(MAKEWORD(2, 0), &wsadata);
 #endif
-    if (argc < 2) {
+    if(argc < 2) {
         fprintf(stderr, "At least IP and username arguments are required.\n");
         return 1;
     }
@@ -104,13 +104,13 @@ int main(int argc, char *argv[])
     hostname = argv[1];
     username = argv[2];
 
-    if (argc > 3) {
+    if(argc > 3) {
         commandline = argv[3];
     }
 
-    rc = libssh2_init (0);
-    if (rc != 0) {
-        fprintf (stderr, "libssh2 initialization failed (%d)\n", rc);
+    rc = libssh2_init(0);
+    if(rc != 0) {
+        fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
 
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if (connect(sock, (struct sockaddr*)(&sin),
+    if(connect(sock, (struct sockaddr*)(&sin),
                 sizeof(struct sockaddr_in)) != 0) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
@@ -133,46 +133,47 @@ int main(int argc, char *argv[])
 
     /* Create a session instance */
     session = libssh2_session_init();
-    if (!session)
+    if(!session)
         return -1;
 
-    if (libssh2_session_handshake(session, sock) != 0) {
+    if(libssh2_session_handshake(session, sock) != 0) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         return -1;
     }
 
     /* Connect to the ssh-agent */
     agent = libssh2_agent_init(session);
-    if (!agent) {
+    if(!agent) {
         fprintf(stderr, "Failure initializing ssh-agent support\n");
         rc = 1;
         goto shutdown;
     }
-    if (libssh2_agent_connect(agent)) {
+    if(libssh2_agent_connect(agent)) {
         fprintf(stderr, "Failure connecting to ssh-agent\n");
         rc = 1;
         goto shutdown;
     }
-    if (libssh2_agent_list_identities(agent)) {
+    if(libssh2_agent_list_identities(agent)) {
         fprintf(stderr, "Failure requesting identities to ssh-agent\n");
         rc = 1;
         goto shutdown;
     }
-    while (1) {
+    while(1) {
         rc = libssh2_agent_get_identity(agent, &identity, prev_identity);
-        if (rc == 1)
+        if(rc == 1)
             break;
-        if (rc < 0) {
+        if(rc < 0) {
             fprintf(stderr,
                     "Failure obtaining identity from ssh-agent support\n");
             rc = 1;
             goto shutdown;
         }
-        if (libssh2_agent_userauth(agent, username, identity)) {
+        if(libssh2_agent_userauth(agent, username, identity)) {
             fprintf(stderr, "\tAuthentication with username %s and "
                    "public key %s failed!\n",
                    username, identity->comment);
-        } else {
+        }
+        else {
             fprintf(stderr, "\tAuthentication with username %s and "
                    "public key %s succeeded!\n",
                    username, identity->comment);
@@ -180,101 +181,94 @@ int main(int argc, char *argv[])
         }
         prev_identity = identity;
     }
-    if (rc) {
+    if(rc) {
         fprintf(stderr, "Couldn't continue authentication\n");
         goto shutdown;
     }
 
 #if 0
-    libssh2_trace(session, ~0 );
+    libssh2_trace(session, ~0);
 #endif
 
     /* Set session to non-blocking */
     libssh2_session_set_blocking(session, 0);
 
     /* Exec non-blocking on the remove host */
-    while( (channel = libssh2_channel_open_session(session)) == NULL &&
-           libssh2_session_last_error(session,NULL,NULL,0) ==
-           LIBSSH2_ERROR_EAGAIN )
-    {
+    while((channel = libssh2_channel_open_session(session)) == NULL &&
+          libssh2_session_last_error(session, NULL, NULL, 0) ==
+          LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session);
     }
-    if( channel == NULL )
-    {
-        fprintf(stderr,"Error\n");
-        exit( 1 );
+    if(channel == NULL) {
+        fprintf(stderr, "Error\n");
+        exit(1);
     }
-    while( (rc = libssh2_channel_request_auth_agent(channel)) ==
-           LIBSSH2_ERROR_EAGAIN )
-    {
+    while((rc = libssh2_channel_request_auth_agent(channel)) ==
+          LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session);
     }
-    if ( rc != 0 ) {
-        fprintf(stderr, "Error, couldn't request auth agent, error code %d.\n", rc);
+    if(rc != 0) {
+        fprintf(stderr, "Error, couldn't request auth agent, error code %d.\n",
+                rc);
         exit(1);
     }
     else {
         fprintf(stdout, "\tAgent forwarding request succeeded!\n");
     }
     while((rc = libssh2_channel_exec(channel, commandline)) ==
-	  LIBSSH2_ERROR_EAGAIN )
-    {
+          LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session);
     }
-    if( rc != 0 )
-    {
-        fprintf(stderr,"Error\n");
-        exit( 1 );
+    if(rc != 0) {
+        fprintf(stderr, "Error\n");
+        exit(1);
     }
-    for( ;; )
-    {
+    for(;;) {
         /* loop until we block */
         int rc;
-        do
-        {
+        do {
             char buffer[0x4000];
-            rc = libssh2_channel_read( channel, buffer, sizeof(buffer) );
-            if( rc > 0 )
-            {
+            rc = libssh2_channel_read(channel, buffer, sizeof(buffer) );
+            if(rc > 0) {
                 int i;
                 bytecount += rc;
                 fprintf(stderr, "We read:\n");
-                for( i=0; i < rc; ++i )
-                    fputc( buffer[i], stderr);
+                for(i = 0; i < rc; ++i)
+                    fputc(buffer[i], stderr);
                 fprintf(stderr, "\n");
             }
             else {
-                if( rc != LIBSSH2_ERROR_EAGAIN )
+                if(rc != LIBSSH2_ERROR_EAGAIN)
                     /* no need to output this for the EAGAIN case */
                     fprintf(stderr, "libssh2_channel_read returned %d\n", rc);
             }
         }
-        while( rc > 0 );
+        while(rc > 0);
 
         /* this is due to blocking that would occur otherwise so we loop on
            this condition */
-        if( rc == LIBSSH2_ERROR_EAGAIN )
-        {
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
             waitsocket(sock, session);
         }
         else
             break;
     }
     exitcode = 127;
-    while( (rc = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN )
+    while((rc = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session);
-
-    if( rc == 0 )
-    {
-        exitcode = libssh2_channel_get_exit_status( channel );
+    }
+    if(rc == 0) {
+        exitcode = libssh2_channel_get_exit_status(channel);
         libssh2_channel_get_exit_signal(channel, &exitsignal,
                                         NULL, NULL, NULL, NULL, NULL);
     }
 
-    if (exitsignal)
+    if(exitsignal) {
         printf("\nGot signal: %s\n", exitsignal);
-    else
+    }
+    else {
         printf("\nEXIT: %d bytecount: %d\n", exitcode, bytecount);
+    }
 
     libssh2_channel_free(channel);
     channel = NULL;
