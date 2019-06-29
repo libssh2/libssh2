@@ -266,9 +266,9 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
  */
 
 libssh2_curve_type
-_libssh2_ecdsa_key_get_curve_type(_libssh2_ec_key *key)
+_libssh2_ecdsa_key_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
 {
-    const EC_GROUP *group = EC_KEY_get0_group(key);
+    const EC_GROUP *group = EC_KEY_get0_group(ec_ctx);
     return EC_GROUP_get_curve_name(group);
 }
 
