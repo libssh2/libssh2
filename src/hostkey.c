@@ -709,7 +709,7 @@ hostkey_method_ssh_ecdsa_signv(LIBSSH2_SESSION * session,
                                void **abstract)
 {
     libssh2_ecdsa_ctx *ec_ctx = (libssh2_ecdsa_ctx *) (*abstract);
-    libssh2_curve_type type = _libssh2_ecdsa_key_get_curve_type(ec_ctx);
+    libssh2_curve_type type = _libssh2_ecdsa_get_curve_type(ec_ctx);
     int ret = 0;
 
     if(type == LIBSSH2_EC_CURVE_NISTP256) {
