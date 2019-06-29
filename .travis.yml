@@ -86,7 +86,7 @@ before_install:
   - if [ $ADDRESS_SIZE = '64' ]; then sudo apt-get install -y libgcrypt11-dev; fi
   - if [ $ADDRESS_SIZE = '32' ]; then export TOOLCHAIN_OPTION="-DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-Linux-32.cmake"; fi
   - if [ $CRYPTO_BACKEND = 'mbedTLS' ]; then
-      MBEDTLSVER=mbedtls-2.4.0;
+      MBEDTLSVER=mbedtls-2.7.0;
       curl -L https://github.com/ARMmbed/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -;
       cd mbedtls-$MBEDTLSVER;
       cmake $TOOLCHAIN_OPTION -DUSE_SHARED_MBEDTLS_LIBRARY=ON -DCMAKE_INSTALL_PREFIX:PATH=../usr .;
