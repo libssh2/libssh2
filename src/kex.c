@@ -4296,7 +4296,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
         }
     }
 
-    if(strlen(newprefs) == 0) {
+    if(!*newprefs) {
         LIBSSH2_FREE(session, newprefs);
         return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                               "The requested method(s) are not currently "
