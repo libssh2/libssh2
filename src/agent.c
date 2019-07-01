@@ -522,7 +522,9 @@ agent_list_identities(LIBSSH2_AGENT *agent)
 
     rc = agent->ops->transact(agent, transctx);
     if(rc) {
-        goto error;
+        LIBSSH2_FREE(agent->session, transctx->response);
+        transctx->response = NULL;
+        return rc;
     }
     transctx->request = NULL;
 
