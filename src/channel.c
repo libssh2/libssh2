@@ -236,6 +236,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             return NULL;
         }
         else if(rc) {
+            _libssh2_error(session, rc, "Unexpected error");
             goto channel_error;
         }
 
