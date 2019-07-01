@@ -214,7 +214,7 @@ struct _LIBSSH2_SFTP_STATVFS {
 #define LIBSSH2_FX_INVALID_FILENAME         20
 #define LIBSSH2_FX_LINK_LOOP                21
 
-/* Returned by any function that would block during a read/write opperation */
+/* Returned by any function that would block during a read/write operation */
 #define LIBSSH2SFTP_EAGAIN LIBSSH2_ERROR_EAGAIN
 
 /* SFTP API */

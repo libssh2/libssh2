@@ -545,7 +545,7 @@ LIBSSH2_API void libssh2_free(LIBSSH2_SESSION *session, void *ptr);
  *
  * Fills algs with a list of supported acryptographic algorithms. Returns a
  * non-negative number (number of supported algorithms) on success or a
- * negative number (an eror code) on failure.
+ * negative number (an error code) on failure.
  *
  * NOTE: on success, algs must be deallocated (by calling libssh2_free) when
  * not needed anymore
@@ -688,7 +688,7 @@ libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
  * response_callback is provided with filled by library prompts array,
  * but client must allocate and fill individual responses. Responses
  * array is already allocated. Responses data will be freed by libssh2
- * after callback return, but before subsequent callback invokation.
+ * after callback return, but before subsequent callback invocation.
  */
 LIBSSH2_API int
 libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION* session,
@@ -718,7 +718,7 @@ LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
 
 #define SSH_EXTENDED_DATA_STDERR 1
 
-/* Returned by any function that would block during a read/write opperation */
+/* Returned by any function that would block during a read/write operation */
 #define LIBSSH2CHANNEL_EAGAIN LIBSSH2_ERROR_EAGAIN
 
 LIBSSH2_API LIBSSH2_CHANNEL *
@@ -1165,7 +1165,7 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
  * libssh2_knownhost_get()
  *
  * Traverse the internal list of known hosts. Pass NULL to 'prev' to get
- * the first one. Or pass a poiner to the previously returned one to get the
+ * the first one. Or pass a pointer to the previously returned one to get the
  * next.
  *
  * Returns:
@@ -1221,7 +1221,7 @@ libssh2_agent_list_identities(LIBSSH2_AGENT *agent);
  * libssh2_agent_get_identity()
  *
  * Traverse the internal list of public keys. Pass NULL to 'prev' to get
- * the first one. Or pass a poiner to the previously returned one to get the
+ * the first one. Or pass a pointer to the previously returned one to get the
  * next.
  *
  * Returns:
