@@ -259,16 +259,16 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
 
 #if LIBSSH2_ECDSA
 
-/* _libssh2_ecdsa_key_get_curve_type
+/* _libssh2_ecdsa_get_curve_type
  *
  * returns key curve type that maps to libssh2_curve_type
  *
  */
 
 libssh2_curve_type
-_libssh2_ecdsa_key_get_curve_type(_libssh2_ec_key *key)
+_libssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
 {
-    const EC_GROUP *group = EC_KEY_get0_group(key);
+    const EC_GROUP *group = EC_KEY_get0_group(ec_ctx);
     return EC_GROUP_get_curve_name(group);
 }
 
@@ -355,7 +355,7 @@ _libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ctx,
 {
     int ret = 0;
     EC_KEY *ec_key = (EC_KEY*)ctx;
-    libssh2_curve_type type = _libssh2_ecdsa_key_get_curve_type(ec_key);
+    libssh2_curve_type type = _libssh2_ecdsa_get_curve_type(ec_key);
 
 #ifdef HAVE_OPAQUE_STRUCTS
     ECDSA_SIG *ecdsa_sig = ECDSA_SIG_new();
@@ -2251,7 +2251,7 @@ gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
 
     public_key = EC_KEY_get0_public_key(ec);
     group = EC_KEY_get0_group(ec);
-    type = _libssh2_ecdsa_key_get_curve_type(ec);
+    type = _libssh2_ecdsa_get_curve_type(ec);
 
     method_buf = LIBSSH2_ALLOC(session, 19);
     if(method_buf == NULL) {

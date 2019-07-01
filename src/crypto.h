@@ -170,7 +170,7 @@ int _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
                                           unsigned const char *passphrase);
 
 libssh2_curve_type
-_libssh2_ecdsa_key_get_curve_type(_libssh2_ec_key *key);
+_libssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx);
 
 int
 _libssh2_ecdsa_curve_type_from_name(const char *name,
