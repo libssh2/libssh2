@@ -589,14 +589,12 @@ const EVP_CIPHER *
 _libssh2_EVP_aes_128_ctr(void)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
-    static EVP_CIPHER * aes_ctr_cipher;
-    return !aes_ctr_cipher ?
-        make_ctr_evp(16, &aes_ctr_cipher, NID_aes_128_ctr) : aes_ctr_cipher;
+    EVP_CIPHER * aes_ctr_cipher;
+    return make_ctr_evp(16, &aes_ctr_cipher, NID_aes_128_ctr);
 #else
     static EVP_CIPHER aes_ctr_cipher;
-    static EVP_CIPHER * aes_ctr_cipher_ptr = &aes_ctr_cipher;
-    return !aes_ctr_cipher.key_len ?
-        make_ctr_evp(16, &aes_ctr_cipher_ptr, 0) : &aes_ctr_cipher;
+    EVP_CIPHER * aes_ctr_cipher_ptr = &aes_ctr_cipher;
+    return make_ctr_evp(16, &aes_ctr_cipher_ptr, 0);
 #endif
 }
 
@@ -604,14 +602,12 @@ const EVP_CIPHER *
 _libssh2_EVP_aes_192_ctr(void)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
-    static EVP_CIPHER * aes_ctr_cipher;
-    return !aes_ctr_cipher ?
-        make_ctr_evp(24, &aes_ctr_cipher, NID_aes_192_ctr) : aes_ctr_cipher;
+    EVP_CIPHER * aes_ctr_cipher;
+    return make_ctr_evp(24, &aes_ctr_cipher, NID_aes_192_ctr);
 #else
     static EVP_CIPHER aes_ctr_cipher;
-    static EVP_CIPHER * aes_ctr_cipher_ptr = &aes_ctr_cipher;
-    return !aes_ctr_cipher.key_len ?
-        make_ctr_evp(24, &aes_ctr_cipher_ptr, 0) : &aes_ctr_cipher;
+    EVP_CIPHER * aes_ctr_cipher_ptr = &aes_ctr_cipher;
+    return make_ctr_evp(24, &aes_ctr_cipher_ptr, 0);
 #endif
 }
 
@@ -619,14 +615,12 @@ const EVP_CIPHER *
 _libssh2_EVP_aes_256_ctr(void)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
-    static EVP_CIPHER * aes_ctr_cipher;
-    return !aes_ctr_cipher ?
-        make_ctr_evp(32, &aes_ctr_cipher, NID_aes_256_ctr) : aes_ctr_cipher;
+    EVP_CIPHER * aes_ctr_cipher;
+    return make_ctr_evp(32, &aes_ctr_cipher, NID_aes_256_ctr);
 #else
     static EVP_CIPHER aes_ctr_cipher;
-    static EVP_CIPHER * aes_ctr_cipher_ptr = &aes_ctr_cipher;
-    return !aes_ctr_cipher.key_len ?
-        make_ctr_evp(32, &aes_ctr_cipher_ptr, 0) : &aes_ctr_cipher;
+    EVP_CIPHER * aes_ctr_cipher_ptr = &aes_ctr_cipher;
+    return make_ctr_evp(32, &aes_ctr_cipher_ptr, 0);
 #endif
 }
 
@@ -656,9 +650,12 @@ void _libssh2_openssl_crypto_init(void)
 #endif
 #endif
 #ifndef HAVE_EVP_AES_128_CTR
-    aes_128_ctr_cipher = (EVP_CIPHER *)_libssh2_EVP_aes_128_ctr();
-    aes_192_ctr_cipher = (EVP_CIPHER *)_libssh2_EVP_aes_192_ctr();
-    aes_256_ctr_cipher = (EVP_CIPHER *)_libssh2_EVP_aes_256_ctr();
+    if(!aes_128_ctr_cipher)
+        aes_128_ctr_cipher = (EVP_CIPHER *) _libssh2_EVP_aes_128_ctr();
+    if(!aes_192_ctr_cipher)
+        aes_192_ctr_cipher = (EVP_CIPHER *) _libssh2_EVP_aes_192_ctr();
+    if(!aes_256_ctr_cipher)
+        aes_256_ctr_cipher = (EVP_CIPHER *) _libssh2_EVP_aes_256_ctr();
 #endif
 }
 
