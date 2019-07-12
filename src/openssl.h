@@ -306,7 +306,7 @@ extern void _libssh2_openssl_crypto_exit(void);
 
 #define _libssh2_dsa_free(dsactx) DSA_free(dsactx)
 
-#ifdef LIBSSH2_ECDSA
+#if LIBSSH2_ECDSA
 #define libssh2_ecdsa_ctx EC_KEY
 #define _libssh2_ecdsa_free(ecdsactx) EC_KEY_free(ecdsactx)
 #define _libssh2_ec_key EC_KEY
@@ -321,7 +321,7 @@ libssh2_curve_type;
 #define _libssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
 
-#ifdef LIBSSH2_ED25519
+#if LIBSSH2_ED25519
 
 typedef struct {
     EVP_PKEY *public_key;
