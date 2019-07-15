@@ -629,7 +629,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
 
     sp1++;
 
-    sp_len = sp1 > pubkey ? (sp1 - pubkey) - 1 : 0;
+    sp_len = sp1 > pubkey ? (sp1 - pubkey) : 0;
     sp2 = memchr(sp1, ' ', pubkey_len - sp_len);
     if(sp2 == NULL) {
         /* Assume that the id string is missing, but that it's okay */
