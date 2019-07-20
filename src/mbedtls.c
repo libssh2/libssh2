@@ -806,6 +806,8 @@ _libssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
     LIBSSH2_MBEDTLS_CHECK
     (*privkey = LIBSSH2_ALLOC(session, sizeof(mbedtls_ecp_keypair)));
 
+    mbedtls_ecdsa_init(*privkey);
+
     LIBSSH2_MBEDTLS_CHECK_RC
     (mbedtls_ecdsa_genkey(*privkey, (mbedtls_ecp_group_id)curve,
                           mbedtls_ctr_drbg_random,
