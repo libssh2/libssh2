@@ -69,6 +69,7 @@ AC_SEARCH_LIBS(inet_addr, nsl)
 AC_SUBST(LIBS)
 
 AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
@@ -284,6 +285,21 @@ esac], [build_examples='yes'])
 AC_MSG_RESULT($build_examples)
 AM_CONDITIONAL([BUILD_EXAMPLES], [test "x$build_examples" != "xno"])
 
+
+# Build OSS fuzzing targets?
+AC_ARG_ENABLE([ossfuzzers],
+  [AS_HELP_STRING([--enable-ossfuzzers],
+    [Whether to generate the fuzzers for OSS-Fuzz])],
+  [have_ossfuzzers=yes], [have_ossfuzzers=no])
+AM_CONDITIONAL([USE_OSSFUZZERS], [test "x$have_ossfuzzers" = "xyes"])
+
+
+# Set the correct flags for the given fuzzing engine.
+AC_SUBST([LIB_FUZZING_ENGINE])
+AM_CONDITIONAL([USE_OSSFUZZ_FLAG], [test "x$LIB_FUZZING_ENGINE" = "x-fsanitize=fuzzer"])
+AM_CONDITIONAL([USE_OSSFUZZ_STATIC], [test -f "$LIB_FUZZING_ENGINE"])
+
+
 # Checks for header files.
 # AC_HEADER_STDC
 AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h])
@@ -373,6 +389,7 @@ LIBSSH2_CHECK_OPTION_WERROR
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  tests/Makefile
+                 tests/ossfuzz/Makefile
                  example/Makefile
                  docs/Makefile
                  libssh2.pc])
