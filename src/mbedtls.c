@@ -1006,6 +1006,75 @@ cleanup:
     return -1;
 }
 
+static int
+_libssh2_mbedtls_parse_openssh_key(libssh2_ecdsa_ctx **ctx,
+                                   LIBSSH2_SESSION *session,
+                                   const unsigned char *data,
+                                   size_t data_len,
+                                   const unsigned char *pwd)
+{
+    libssh2_curve_type type;
+    unsigned char *name = NULL;
+    struct string_buf *decrypted = NULL;
+    size_t curvelen, exponentlen, pointlen;
+    unsigned char *curve, *exponent, *point_buf;
+    int rc = 0;
+
+    LIBSSH2_MBEDTLS_CHECK_RC(
+    _libssh2_openssh_pem_parse_memory(session, pwd,
+                                      (const char *)data, data_len,
+                                      &decrypted));
+
+    LIBSSH2_MBEDTLS_CHECK_RC(
+    _libssh2_get_string(decrypted, &name, NULL));
+
+    LIBSSH2_MBEDTLS_CHECK_RC(
+    _libssh2_mbedtls_ecdsa_curve_type_from_name((const char *)name, &type));
+
+    LIBSSH2_MBEDTLS_CHECK_RC(
+    _libssh2_get_string(decrypted, &curve, &curvelen));
+
+    LIBSSH2_MBEDTLS_CHECK_RC(
+    _libssh2_get_string(decrypted, &point_buf, &pointlen));
+
+    LIBSSH2_MBEDTLS_CHECK_RC(
+    _libssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen));
+
+    LIBSSH2_MBEDTLS_CHECK
+    (*ctx = LIBSSH2_ALLOC(session, sizeof(libssh2_ecdsa_ctx)));
+
+    mbedtls_ecdsa_init(*ctx);
+
+    LIBSSH2_MBEDTLS_CHECK_RC(
+    mbedtls_ecp_group_load(&(*ctx)->grp, (mbedtls_ecp_group_id)type));
+
+    LIBSSH2_MBEDTLS_CHECK_RC(
+    mbedtls_mpi_read_binary(&(*ctx)->d, exponent, exponentlen));
+
+    LIBSSH2_MBEDTLS_CHECK_RC(
+    mbedtls_ecp_check_privkey(&(*ctx)->grp, &(*ctx)->d));
+
+    LIBSSH2_MBEDTLS_CHECK_RC(
+    mbedtls_ecp_mul(&(*ctx)->grp, &(*ctx)->Q,
+                    &(*ctx)->d, &(*ctx)->grp.G,
+                    mbedtls_ctr_drbg_random,
+                    &_libssh2_mbedtls_ctr_drbg));
+
+    goto done;
+
+cleanup:
+
+    _libssh2_mbedtls_ecdsa_free(*ctx);
+    *ctx = NULL;
+
+done:
+
+    if(decrypted)
+        _libssh2_string_buf_free(session, decrypted);
+
+    return rc;
+}
+
 /* _libssh2_ecdsa_new_private
  *
  * Creates a new private key given a file path and password
@@ -1028,12 +1097,20 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ctx,
 
     mbedtls_pk_init(&pkey);
 
+    rc = _libssh2_mbedtls_parse_eckey(ctx, &pkey, session,
+                                      data, data_len, pwd);
+
+    if(rc == 0)
+        goto cleanup;
+
     LIBSSH2_MBEDTLS_CHECK_RC
-    (_libssh2_mbedtls_parse_eckey(ctx, &pkey, session, data, data_len, pwd));
+    (_libssh2_mbedtls_parse_openssh_key(ctx, session, data,
+                                        data_len, pwd));
 
 cleanup:
 
     mbedtls_pk_free(&pkey);
+
     _libssh2_mbedtls_safe_free(data, data_len);
 
     LIBSSH2_MBEDTLS_RETURN_ERROR(LIBSSH2_ERROR_FILE);
@@ -1054,25 +1131,32 @@ _libssh2_mbedtls_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx **ctx,
                                               size_t data_len,
                                               const unsigned char *pwd)
 {
-    unsigned char *data_nullterm;
+    unsigned char *ntdata;
     mbedtls_pk_context pkey;
     int rc = 0;
 
     mbedtls_pk_init(&pkey);
 
     LIBSSH2_MBEDTLS_CHECK
-    (data_nullterm = LIBSSH2_ALLOC(session, data_len + 1));
+    (ntdata = LIBSSH2_ALLOC(session, data_len + 1));
 
-    memcpy(data_nullterm, data, data_len);
+    memcpy(ntdata, data, data_len);
+
+    rc = _libssh2_mbedtls_parse_eckey(ctx, &pkey, session,
+                                      ntdata, data_len + 1, pwd);
+
+    if(rc == 0)
+        goto cleanup;
 
     LIBSSH2_MBEDTLS_CHECK_RC
-    (_libssh2_mbedtls_parse_eckey(ctx, &pkey, session,
-                                  data_nullterm, data_len + 1, pwd));
+    (_libssh2_mbedtls_parse_openssh_key(ctx, session,
+                                        ntdata, data_len + 1, pwd));
 
 cleanup:
 
     mbedtls_pk_free(&pkey);
-    _libssh2_mbedtls_safe_free(data_nullterm, data_len);
+
+    _libssh2_mbedtls_safe_free(ntdata, data_len);
 
     LIBSSH2_MBEDTLS_RETURN_ERROR(LIBSSH2_ERROR_FILE);
 
@@ -1168,6 +1252,39 @@ libssh2_curve_type
 _libssh2_mbedtls_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ctx)
 {
     return (libssh2_curve_type) ctx->grp.id;
+}
+
+/* _libssh2_ecdsa_curve_type_from_name
+ *
+ * returns 0 for success, key curve type that maps to libssh2_curve_type
+ *
+ */
+
+int
+_libssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
+                                            libssh2_curve_type *out_type)
+{
+    int ret = 0;
+    libssh2_curve_type type;
+
+    if(name == NULL || strlen(name) != 19)
+        return -1;
+
+    if(strcmp(name, "ecdsa-sha2-nistp256") == 0)
+        type = LIBSSH2_EC_CURVE_NISTP256;
+    else if(strcmp(name, "ecdsa-sha2-nistp384") == 0)
+        type = LIBSSH2_EC_CURVE_NISTP384;
+    else if(strcmp(name, "ecdsa-sha2-nistp521") == 0)
+        type = LIBSSH2_EC_CURVE_NISTP521;
+    else {
+        ret = -1;
+    }
+
+    if(ret == 0 && out_type) {
+        *out_type = type;
+    }
+
+    return ret;
 }
 
 void

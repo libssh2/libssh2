@@ -565,6 +565,9 @@ _libssh2_mbedtls_ecdsa_sign(LIBSSH2_SESSION *session,
                             size_t *signature_len);
 libssh2_curve_type
 _libssh2_mbedtls_ecdsa_key_get_curve_type(libssh2_ecdsa_ctx *ctx);
+int
+_libssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
+                                            libssh2_curve_type *type);
 void
 _libssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx);
 #endif /* LIBSSH2_ECDSA */
