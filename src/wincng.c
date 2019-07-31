@@ -302,6 +302,11 @@ _libssh2_wincng_init(void)
                                                0);
         }
     }
+
+#if LIBSSH2_USE_BCRYPT_DH
+    (void)BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgDH,
+                                      BCRYPT_DH_ALGORITHM, NULL, 0);
+#endif
 }
 
 void
@@ -323,6 +328,9 @@ _libssh2_wincng_free(void)
     (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgAES_CBC, 0);
     (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgRC4_NA, 0);
     (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlg3DES_CBC, 0);
+#if LIBSSH2_USE_BCRYPT_DH
+    (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgDH, 0);
+#endif
 
     memset(&_libssh2_wincng, 0, sizeof(_libssh2_wincng));
 }
@@ -2136,6 +2144,25 @@ _libssh2_wincng_bignum_free(_libssh2_bn *bn)
     }
 }
 
+#if LIBSSH2_USE_BCRYPT_DH
+/* We provide our own prototype for this function as the availability
+ * of the header that is documented to provide it is patchy across
+ * the various environments that the libssh2 CI builds on, and
+ * because the stdcall convention is important for the linker to
+ * be able to resolve the function in 32-bit MSVC compiler
+ * environments. */
+extern NTSTATUS __stdcall RtlGetVersion(OSVERSIONINFOW*);
+
+static int is_windows_10_or_later(void)
+{
+    OSVERSIONINFOW vers;
+    vers.dwOSVersionInfoSize = sizeof(vers);
+    if(RtlGetVersion(&vers) != 0) {
+        return 0;
+    }
+    return vers.dwMajorVersion >= 10;
+}
+#endif
 
 /*
  * Windows CNG backend: Diffie-Hellman support.
@@ -2144,34 +2171,287 @@ _libssh2_wincng_bignum_free(_libssh2_bn *bn)
 void
 _libssh2_dh_init(_libssh2_dh_ctx *dhctx)
 {
-    *dhctx = _libssh2_wincng_bignum_init();     /* Random from client */
-}
-
-int
-_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
-                     _libssh2_bn *g, _libssh2_bn *p, int group_order)
-{
-    /* Generate x and e */
-    if(_libssh2_wincng_bignum_rand(*dhctx, group_order * 8 - 1, 0, -1))
-        return -1;
-    if(_libssh2_wincng_bignum_mod_exp(public, g, *dhctx, p))
-        return -1;
-    return 0;
-}
-
-int
-_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
-                   _libssh2_bn *f, _libssh2_bn *p)
-{
-    /* Compute the shared secret */
-    return _libssh2_wincng_bignum_mod_exp(secret, f, *dhctx, p);
+#if LIBSSH2_USE_BCRYPT_DH
+    if(is_windows_10_or_later()) {
+        dhctx->dh_handle = NULL;
+        dhctx->dh_params = NULL;
+        return;
+    }
+#endif
+    /* Random from client */
+    dhctx->bn = _libssh2_wincng_bignum_init();
 }
 
 void
 _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
 {
-    _libssh2_wincng_bignum_free(*dhctx);
-    *dhctx = NULL;
+#if LIBSSH2_USE_BCRYPT_DH
+    if(is_windows_10_or_later()) {
+        if(dhctx->dh_handle) {
+            BCryptDestroyKey(dhctx->dh_handle);
+            dhctx->dh_handle = NULL;
+        }
+        if(dhctx->dh_params) {
+            /* Since dh_params were shared in clear text, we don't need
+             * to securely zero them out here */
+            free(dhctx->dh_params);
+            dhctx->dh_params = NULL;
+        }
+        return;
+    }
+#endif
+    if(dhctx->bn) {
+        _libssh2_wincng_bignum_free(dhctx->bn);
+        dhctx->bn = NULL;
+    }
+}
+
+/* Copy a big endian set of bits from src to dest.
+ * if the size of src is smaller than dest then pad the "left" (MSB)
+ * end with zeroes and copy the bits into the "right" (LSB) end. */
+static void
+memcpy_with_be_padding(unsigned char *dest, unsigned long dest_len,
+                       unsigned char *src, unsigned long src_len)
+{
+    if(dest_len > src_len) {
+        memset(dest, 0, dest_len - src_len);
+    }
+    memcpy(dest + dest_len - src_len, src, src_len);
+}
+
+static int
+round_down(int number, int multiple)
+{
+    return (number / multiple) * multiple;
+}
+
+/* Generates a Diffie-Hellman key pair using base `g', prime `p' and the given
+ * `group_order'. Can use the given big number context `bnctx' if needed.  The
+ * private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
+ * the public key is returned in `public'.  0 is returned upon success, else
+ * -1.  */
+int
+_libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
+                     _libssh2_bn *g, _libssh2_bn *p, int group_order)
+{
+#if LIBSSH2_USE_BCRYPT_DH
+    if(is_windows_10_or_later()) {
+        BCRYPT_DH_PARAMETER_HEADER *dh_params = NULL;
+        unsigned long dh_params_len;
+        unsigned char *blob = NULL;
+        int status;
+        DWORD public_key_len_bytes = 0;
+        /* Note that the DH provider requires that keys be multiples of 64 bits
+         * in length. At the time of writing a practical observed group_order
+         * value is 257, so we need to round down to 8 bytes of length (64/8)
+         * in order for kex to succeed */
+        DWORD key_length_bytes = max(round_down(group_order, 8),
+                                    max(g->length, p->length));
+        unsigned char *public_blob = NULL;
+        BCRYPT_DH_KEY_BLOB *dh_key_blob;
+
+        /* Prepare a key pair; pass the in the bit length of the key,
+        * but the key is not ready for consumption until it is finalized. */
+        status = BCryptGenerateKeyPair(_libssh2_wincng.hAlgDH,
+                                       &dhctx->dh_handle,
+                                       key_length_bytes * 8, 0);
+        if(!BCRYPT_SUCCESS(status)) {
+            return -1;
+        }
+
+        dh_params_len = sizeof(*dh_params) + 2 * key_length_bytes;
+        blob = malloc(dh_params_len);
+        if(!blob) {
+            return -1;
+        }
+
+        /* Populate DH parameters blob; after the header follows the `p`
+        * value and the `g` value. */
+        dh_params = (BCRYPT_DH_PARAMETER_HEADER*)blob;
+        dh_params->cbLength = dh_params_len;
+        dh_params->dwMagic = BCRYPT_DH_PARAMETERS_MAGIC;
+        dh_params->cbKeyLength = key_length_bytes;
+        memcpy_with_be_padding(blob + sizeof(*dh_params), key_length_bytes,
+                              p->bignum, p->length);
+        memcpy_with_be_padding(blob + sizeof(*dh_params) + key_length_bytes,
+                              key_length_bytes, g->bignum, g->length);
+
+        status = BCryptSetProperty(dhctx->dh_handle, BCRYPT_DH_PARAMETERS,
+                                  blob, dh_params_len, 0);
+        /* Pass ownership to dhctx; these parameters will be freed when
+         * the context is destroyed. We need to keep the parameters more
+         * easily available so that we have access to the `g` value when
+         * _libssh2_dh_secret is called later. */
+        dhctx->dh_params = dh_params;
+        blob = NULL;
+
+        if(!BCRYPT_SUCCESS(status)) {
+            return -1;
+        }
+
+        status = BCryptFinalizeKeyPair(dhctx->dh_handle, 0);
+        if(!BCRYPT_SUCCESS(status)) {
+            return -1;
+        }
+
+        /* Now we need to extract the public portion of the key so that we
+         * set it in the `public` bignum to satisfy our caller.
+         * First measure up the size of the required buffer. */
+        status = BCryptExportKey(dhctx->dh_handle, NULL, BCRYPT_DH_PUBLIC_BLOB,
+                                NULL, 0, &public_key_len_bytes, 0);
+        if(!BCRYPT_SUCCESS(status)) {
+            return -1;
+        }
+
+        public_blob = malloc(public_key_len_bytes);
+
+        status = BCryptExportKey(dhctx->dh_handle, NULL, BCRYPT_DH_PUBLIC_BLOB,
+                                public_blob, public_key_len_bytes,
+                                &public_key_len_bytes, 0);
+        if(!BCRYPT_SUCCESS(status)) {
+            return -1;
+        }
+
+        /* BCRYPT_DH_PUBLIC_BLOB corresponds to a BCRYPT_DH_KEY_BLOB header
+         * followed by the Modulus, Generator and Public data. Those components
+         * each have equal size, specified by dh_key_blob->cbKey. */
+        dh_key_blob = (BCRYPT_DH_KEY_BLOB*)public_blob;
+        if(_libssh2_wincng_bignum_resize(public, dh_key_blob->cbKey)) {
+            return -1;
+        }
+
+        /* Copy the public key data into the bignum data buffer */
+        memcpy(public->bignum,
+                public_blob + sizeof(*dh_key_blob) + 2 * dh_key_blob->cbKey,
+                dh_key_blob->cbKey);
+
+        return 0;
+    }
+#endif
+    /* Generate x and e */
+    if(_libssh2_wincng_bignum_rand(dhctx->bn, group_order * 8 - 1, 0, -1))
+        return -1;
+    if(_libssh2_wincng_bignum_mod_exp(public, g, dhctx->bn, p))
+        return -1;
+    return 0;
+}
+
+/* Computes the Diffie-Hellman secret from the previously created context
+ * `*dhctx', the public key `f' from the other party and the same prime `p'
+ * used at context creation. The result is stored in `secret'.  0 is returned
+ * upon success, else -1.  */
+int
+_libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
+                   _libssh2_bn *f, _libssh2_bn *p)
+{
+#if LIBSSH2_USE_BCRYPT_DH
+    if(is_windows_10_or_later()) {
+        BCRYPT_KEY_HANDLE peer_public = NULL;
+        BCRYPT_SECRET_HANDLE agreement = NULL;
+        ULONG secret_len_bytes = 0;
+        unsigned char *blob;
+        int status;
+        unsigned char *start, *end;
+        BCRYPT_DH_KEY_BLOB *public_blob = NULL;
+        DWORD key_length_bytes = max(f->length, dhctx->dh_params->cbKeyLength);
+        DWORD public_blob_len = sizeof(*public_blob) + 3 * key_length_bytes;
+
+        {
+            /* Populate a BCRYPT_DH_KEY_BLOB; after the header follows the
+             * Modulus, Generator and Public data. Those components must have
+             * equal size in this representation. */
+            unsigned char *dest;
+            unsigned char *src;
+
+            blob = malloc(public_blob_len);
+            if(!blob) {
+                return -1;
+            }
+            public_blob = (BCRYPT_DH_KEY_BLOB*)blob;
+            public_blob->dwMagic = BCRYPT_DH_PUBLIC_MAGIC;
+            public_blob->cbKey = key_length_bytes;
+
+            dest = (unsigned char *)(public_blob + 1);
+            src = (unsigned char *)(dhctx->dh_params + 1);
+
+            /* Modulus (the p-value from the first call) */
+            memcpy_with_be_padding(dest, key_length_bytes, src,
+                                  dhctx->dh_params->cbKeyLength);
+            /* Generator (the g-value from the first call) */
+            memcpy_with_be_padding(dest + key_length_bytes, key_length_bytes,
+                                  src + dhctx->dh_params->cbKeyLength,
+                                  dhctx->dh_params->cbKeyLength);
+            /* Public from the peer */
+            memcpy_with_be_padding(dest + 2*key_length_bytes, key_length_bytes,
+                                  f->bignum, f->length);
+        }
+
+        /* Import the peer public key information */
+        status = BCryptImportKeyPair(_libssh2_wincng.hAlgDH, NULL,
+                                    BCRYPT_DH_PUBLIC_BLOB, &peer_public, blob,
+                                    public_blob_len, 0);
+        if(!BCRYPT_SUCCESS(status)) {
+            goto out;
+        }
+
+        /* Set up a handle that we can use to establish the shared secret
+         * between ourselves (our saved dh_handle) and the peer. */
+        status = BCryptSecretAgreement(dhctx->dh_handle, peer_public,
+                                      &agreement, 0);
+        if(!BCRYPT_SUCCESS(status)) {
+            goto out;
+        }
+
+        /* Compute the size of the buffer that is needed to hold the derived
+         * shared secret. */
+        status = BCryptDeriveKey(agreement, BCRYPT_KDF_RAW_SECRET, NULL, NULL,
+                                 0, &secret_len_bytes, 0);
+        if(!BCRYPT_SUCCESS(status)) {
+            goto out;
+        }
+
+        /* Expand the secret bignum to be ready to receive the derived secret
+         * */
+        if(_libssh2_wincng_bignum_resize(secret, secret_len_bytes)) {
+            status = STATUS_NO_MEMORY;
+            goto out;
+        }
+
+        /* And populate the secret bignum */
+        status = BCryptDeriveKey(agreement, BCRYPT_KDF_RAW_SECRET, NULL,
+                                secret->bignum, secret_len_bytes,
+                                &secret_len_bytes, 0);
+        if(!BCRYPT_SUCCESS(status)) {
+            goto out;
+        }
+
+        /* Counter to all the other data in the BCrypt APIs, the raw secret is
+         * returned to us in host byte order, so we need to swap it to big
+         * endian order. */
+        start = secret->bignum;
+        end = secret->bignum + secret->length - 1;
+        while(start < end) {
+            unsigned char tmp = *end;
+            *end = *start;
+            *start = tmp;
+            start++;
+            end--;
+        }
+
+        status = 0;
+
+out:
+        if(peer_public) {
+            BCryptDestroyKey(peer_public);
+        }
+        if(agreement) {
+            BCryptDestroySecret(agreement);
+        }
+        return BCRYPT_SUCCESS(status) ? 0 : -1;
+    }
+#endif
+    /* Compute the shared secret */
+    return _libssh2_wincng_bignum_mod_exp(secret, f, dhctx->bn, p);
 }
 
 #endif /* LIBSSH2_WINCNG */
