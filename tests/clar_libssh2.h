@@ -92,8 +92,8 @@
 #define ECDSA_KEYFILE_ENC_PASSWORD "libssh2"
 
 
-LIBSSH2_SESSION *cl_ssh2_open_session(void *abstract);
-LIBSSH2_SESSION *cl_ssh2_open_session_openssh(void *abstract);
+LIBSSH2_SESSION *cl_ssh2_open_session(void *abstract, int blocking);
+LIBSSH2_SESSION *cl_ssh2_open_session_openssh(void *abstract, int blocking);
 void cl_ssh2_close_connected_session(void);
 
 LIBSSH2_SESSION *cl_ssh2_connected_session(void);
@@ -105,13 +105,33 @@ void cl_ssh2_stop_openssh_fixture(void);
 
 int cl_ssh2_openssh_server_socket(void);
 
-int cl_ssh2_wait(void);
+int cl_ssh2_wait_socket(void);
 
 int cl_ssh2_read_file(const char *path, char **buf, size_t *len);
 
+#define cl_ssh2__wait(cond, error)                  \
+    while((cond) && error == LIBSSH2_ERROR_EAGAIN)  \
+        cl_ssh2_wait_socket()
+
+#define cl_ssh2_check_while(rc, expr, body) \
+    do {                                    \
+        cl_ssh2_wait(rc, expr);             \
+        if(rc > 0) {                        \
+            body                            \
+            continue;                       \
+        }                                   \
+        cl_ssh2_check(rc);                  \
+    } while(0)
+
+#define cl_ssh2_wait(rc, expr) cl_ssh2__wait(((rc = (expr)) != 0), rc)
+
+#define cl_ssh2_wait_ptr(ptr, session, expr)    \
+    cl_ssh2__wait(((ptr = (expr)) == NULL),     \
+        libssh2_session_last_errno(session))
+
 #define cl_ssh2_check_(rc, expr)                \
 do {                                            \
-    rc = (expr);                                \
+    cl_ssh2_wait(rc, expr);                     \
     if(rc != 0) {                               \
         cl_fail_("Unexpected failure: %s (%d)", \
             cl_ssh2_last_error(), rc);          \
@@ -120,7 +140,7 @@ do {                                            \
 
 #define cl_ssh2_check_ptr_(ptr, session, expr)  \
 do {                                            \
-    ptr = (expr);                               \
+    cl_ssh2_wait_ptr(ptr, session, expr);       \
     if(ptr == NULL) {                           \
         cl_fail_("Unexpected failure: %s (%d)", \
             cl_ssh2_last_error(),               \
@@ -130,7 +150,8 @@ do {                                            \
 
 #define cl_ssh2_check(expr)                     \
 do {                                            \
-    int cl__rc = (expr);                        \
+    int cl__rc;                                 \
+    cl_ssh2_wait(cl__rc, expr);                 \
     if(cl__rc != 0) {                           \
         cl_fail_("Unexpected failure: %s (%d)", \
             cl_ssh2_last_error(), cl__rc);      \
@@ -142,7 +163,8 @@ do {                                            \
 
 #define cl_ssh2_fail(expected, expr)                    \
 do {                                                    \
-    int cl__rc = (expr);                                \
+    int cl__rc;                                         \
+    cl_ssh2_wait(cl__rc, expr);                         \
     if(cl__rc != (expected)) {                          \
         cl_fail_("Expected %d, got %d: %s",             \
             expected, cl__rc, cl_ssh2_last_error());    \
@@ -151,7 +173,7 @@ do {                                                    \
 
 #define cl_ssh2_fail_ptr(ptr, expr)                     \
 do {                                                    \
-    ptr = (expr);                                       \
+    cl_ssh2_wait_ptr(ptr, cl_ssh2_connected_session(), expr); \
     if(ptr != NULL) {                                   \
         cl_fail_("Expected NULL, got %x: %s",           \
         ptr, cl_ssh2_last_error());                     \

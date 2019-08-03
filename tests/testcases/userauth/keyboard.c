@@ -5,9 +5,14 @@
 
 static LIBSSH2_SESSION *g_session;
 
-void test_userauth_keyboard__initialize(void)
+void test_userauth_keyboard__initialize_blocking(void)
 {
-    g_session = cl_ssh2_open_session_openssh(NULL);
+    g_session = cl_ssh2_open_session_openssh(NULL, 1);
+}
+
+void test_userauth_keyboard__initialize_nonblocking(void)
+{
+    g_session = cl_ssh2_open_session_openssh(NULL, 0);
 }
 
 void test_userauth_keyboard__cleanup(void)

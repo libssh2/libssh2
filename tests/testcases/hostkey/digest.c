@@ -15,9 +15,14 @@ static void calculate_digest(const char *hash, size_t hash_len, char *buffer,
 }
 
 
-void test_hostkey_digest__initialize(void)
+void test_hostkey_digest__initialize_blocking(void)
 {
-    session = cl_ssh2_open_session_openssh(NULL);
+    session = cl_ssh2_open_session_openssh(NULL, 1);
+}
+
+void test_hostkey_digest__initialize_nonblocking(void)
+{
+    session = cl_ssh2_open_session_openssh(NULL, 0);
 }
 
 void test_hostkey_digest__cleanup(void)

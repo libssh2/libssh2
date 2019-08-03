@@ -4,7 +4,7 @@ static LIBSSH2_SESSION *g_session = NULL;
 
 void test_crypto_bignum__initialize(void)
 {
-    g_session = cl_ssh2_open_session(NULL);
+    g_session = cl_ssh2_open_session(NULL, 1);
 }
 
 void test_crypto_bignum__cleanup(void)

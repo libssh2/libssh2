@@ -5,7 +5,7 @@ static LIBSSH2_SESSION *g_session;
 
 void test_agent_auth__initialize(void)
 {
-    g_session = cl_ssh2_open_session_openssh(NULL);
+    g_session = cl_ssh2_open_session_openssh(NULL, 1);
     cl_fixture_sandbox("publickeys");
 }
 

@@ -400,7 +400,7 @@ void cl_ssh2_close_connected_session(void)
     connected_trace_size = connected_trace_slabs = 0;
 }
 
-LIBSSH2_SESSION *cl_ssh2_open_session(void *abstract)
+LIBSSH2_SESSION *cl_ssh2_open_session(void *abstract, int blocking)
 {
     LIBSSH2_SESSION *session = libssh2_session_init_ex(NULL, NULL, NULL,
                                                        abstract);
@@ -411,22 +411,58 @@ LIBSSH2_SESSION *cl_ssh2_open_session(void *abstract)
     libssh2_trace(session, ~0x0);
     cl_set_cleanup(trace_cleanup, NULL);
 
-    libssh2_session_set_blocking(session, 1);
+    libssh2_session_set_blocking(session, blocking);
 
     set_connected_session(session);
 
     return session;
 }
 
-LIBSSH2_SESSION *cl_ssh2_open_session_openssh(void *abstract)
+LIBSSH2_SESSION *cl_ssh2_open_session_openssh(void *abstract, int blocking)
 {
-    LIBSSH2_SESSION *session = cl_ssh2_open_session(abstract);
+    LIBSSH2_SESSION *session = cl_ssh2_open_session(abstract, blocking);
 
     int sock = cl_ssh2_openssh_server_socket();
     if(connect_session(sock))
         return NULL;
 
     return session;
+}
+
+static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
+{
+    struct timeval timeout;
+    int rc;
+    fd_set fd;
+    fd_set *writefd = NULL;
+    fd_set *readfd = NULL;
+    int dir;
+
+    timeout.tv_sec = 10;
+    timeout.tv_usec = 0;
+
+    FD_ZERO(&fd);
+
+    FD_SET(socket_fd, &fd);
+
+    /* now make sure we wait in the correct direction */
+    dir = libssh2_session_block_directions(session);
+
+    if(dir & LIBSSH2_SESSION_BLOCK_INBOUND)
+        readfd = &fd;
+
+    if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
+        writefd = &fd;
+
+    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+
+    return rc;
+}
+
+int cl_ssh2_wait_socket(void)
+{
+    cl_assert(connected_socket != -1 && connected_session != NULL);
+    return waitsocket(connected_socket, connected_session);
 }
 
 const char *cl_ssh2_last_error(void)

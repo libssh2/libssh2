@@ -3,9 +3,15 @@
 
 static LIBSSH2_SESSION *session;
 
-void test_userauth_publickey__initialize(void)
+void test_userauth_publickey__initialize_blocking(void)
 {
-    session = cl_ssh2_open_session_openssh(NULL);
+    session = cl_ssh2_open_session_openssh(NULL, 1);
+    cl_fixture_sandbox("publickeys");
+}
+
+void test_userauth_publickey__initialize_nonblocking(void)
+{
+    session = cl_ssh2_open_session_openssh(NULL, 0);
     cl_fixture_sandbox("publickeys");
 }
 

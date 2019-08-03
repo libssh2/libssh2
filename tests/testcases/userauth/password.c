@@ -6,9 +6,14 @@ static const char *WRONG_PASSWORD = "i'm not the password";
 
 static LIBSSH2_SESSION *session;
 
-void test_userauth_password__initialize(void)
+void test_userauth_password__initialize_blocking(void)
 {
-    session = cl_ssh2_open_session_openssh(NULL);
+    session = cl_ssh2_open_session_openssh(NULL, 1);
+}
+
+void test_userauth_password__initialize_nonblocking(void)
+{
+    session = cl_ssh2_open_session_openssh(NULL, 0);
 }
 
 void test_userauth_password__cleanup(void)
