@@ -181,3 +181,72 @@ void test_userauth_publickey__rsa_openssh_auth_ok(void)
 
     cl_assert_equal_i(1, libssh2_userauth_authenticated(session));
 }
+
+void test_userauth_publickey__ecdsa_auth_ok(void)
+{
+    struct stat _stat;
+
+#if defined(LIBSSH2_ECDSA) && !LIBSSH2_ECDSA
+    cl_skip();
+#endif
+
+    cl_must_pass(stat(ECDSA_KEYFILE_PUBLIC, &_stat));
+    cl_must_pass(stat(ECDSA_KEYFILE_PRIVATE, &_stat));
+
+    cl_userauth_check_mech(session, OPENSSH_USERNAME, "publickey");
+
+    cl_ssh2_check(libssh2_userauth_publickey_fromfile_ex(session,
+                                                OPENSSH_USERNAME,
+                                                strlen(OPENSSH_USERNAME),
+                                                ECDSA_KEYFILE_PUBLIC,
+                                                ECDSA_KEYFILE_PRIVATE,
+                                                NULL));
+
+    cl_assert_equal_i(1, libssh2_userauth_authenticated(session));
+}
+
+void test_userauth_publickey__ecdsa_mem_auth_ok(void)
+{
+    char *buffer = NULL;
+    size_t len = 0;
+
+#if defined(LIBSSH2_ECDSA) && !LIBSSH2_ECDSA
+    cl_skip();
+#endif
+
+    cl_userauth_check_mech(session, OPENSSH_USERNAME, "publickey");
+
+    if(cl_ssh2_read_file(ECDSA_KEYFILE_PRIVATE, &buffer, &len)) {
+        cl_fail("Reading key file failed");
+    }
+
+    cl_ssh2_check(libssh2_userauth_publickey_frommemory(session,
+        OPENSSH_USERNAME, strlen(OPENSSH_USERNAME),
+        NULL, 0, buffer, len, NULL));
+    free(buffer);
+
+    cl_assert_equal_i(1, libssh2_userauth_authenticated(session));
+}
+
+void test_userauth_publickey__ecdsa_encrypted_auth_ok(void)
+{
+    struct stat _stat;
+
+#if defined(LIBSSH2_ECDSA) && !LIBSSH2_ECDSA
+    cl_skip();
+#endif
+
+    cl_must_pass(stat(ECDSA_KEYFILE_ENC_PUBLIC, &_stat));
+    cl_must_pass(stat(ECDSA_KEYFILE_ENC_PRIVATE, &_stat));
+
+    cl_userauth_check_mech(session, OPENSSH_USERNAME, "publickey");
+
+    cl_ssh2_check(libssh2_userauth_publickey_fromfile_ex(session,
+                                                OPENSSH_USERNAME,
+                                                strlen(OPENSSH_USERNAME),
+                                                ECDSA_KEYFILE_ENC_PUBLIC,
+                                                ECDSA_KEYFILE_ENC_PRIVATE,
+                                                ECDSA_KEYFILE_ENC_PASSWORD));
+
+    cl_assert_equal_i(1, libssh2_userauth_authenticated(session));
+}

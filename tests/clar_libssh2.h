@@ -84,6 +84,13 @@
 #define WRONG_KEYFILE_PRIVATE "publickeys/key_dsa_wrong"
 #define WRONG_KEYFILE_PUBLIC "publickeys/key_dsa_wrong.pub"
 
+#define ECDSA_KEYFILE_PRIVATE "publickeys/key_ecdsa"
+#define ECDSA_KEYFILE_PUBLIC "publickeys/key_ecdsa.pub"
+
+#define ECDSA_KEYFILE_ENC_PRIVATE "publickeys/key_ecdsa_encrypted"
+#define ECDSA_KEYFILE_ENC_PUBLIC "publickeys/key_ecdsa_encrypted.pub"
+#define ECDSA_KEYFILE_ENC_PASSWORD "libssh2"
+
 
 LIBSSH2_SESSION *cl_ssh2_open_session(void *abstract);
 LIBSSH2_SESSION *cl_ssh2_open_session_openssh(void *abstract);
