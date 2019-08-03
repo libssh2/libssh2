@@ -36,7 +36,6 @@
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckSymbolExists)
-include(BundleUtilities)
 include(CopyRuntimeDependencies)
 include(SocketLibraries)
 
@@ -50,8 +49,8 @@ check_include_files(windows.h HAVE_WINDOWS_H)
 check_include_files(winsock2.h HAVE_WINSOCK2_H)
 check_include_files(netinet/in.h HAVE_NETINET_IN_H)
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config_cmake.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h")
+  "${CMAKE_CURRENT_SOURCE_DIR}/clar_libssh2_config_cmake.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/clar_libssh2_config.h")
 append_needed_socket_libraries(LIBRARIES)
 
 ## Cryptography backend choice
@@ -107,68 +106,65 @@ if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
   endif()
 endif()
 
-set(TESTS
-  hostkey
-  hostkey_hash
-  password_auth_succeeds_with_correct_credentials
-  password_auth_fails_with_wrong_password
-  password_auth_fails_with_wrong_username
-  public_key_auth_fails_with_wrong_key
-  public_key_auth_succeeds_with_correct_rsa_key
-  public_key_auth_succeeds_with_correct_encrypted_rsa_key
-  keyboard_interactive_auth_fails_with_wrong_response
-  keyboard_interactive_auth_succeeds_with_correct_response
-  agent_forward_succeeds
-  )
+# Turn around and grab our parent's COMPILE_DEFINITIONS so we use its #defines
+get_target_property(LIBSSH2_DEFINES libssh2-object COMPILE_DEFINITIONS)
+get_target_property(LIBSSH2_INCLUDES libssh2-object INCLUDE_DIRECTORIES)
+get_target_property(LIBSSH2_LIBS libssh2 LINK_LIBRARIES)
+get_target_property(LIBSSH2_SRC libssh2-object SOURCES)
 
-if(CRYPTO_BACKEND STREQUAL "OpenSSL")
-    list(APPEND TESTS
-      public_key_auth_succeeds_with_correct_rsa_openssh_key
-    )
-    if(OPENSSL_VERSION VERSION_GREATER "1.1.0")
-      list(APPEND TESTS
-        public_key_auth_succeeds_with_correct_ed25519_key
-        public_key_auth_succeeds_with_correct_encrypted_ed25519_key
-        public_key_auth_succeeds_with_correct_ed25519_key_from_mem
-      )
-    endif()
+find_package(PythonInterp)
+
+if(NOT PYTHONINTERP_FOUND)
+  message(FATAL_ERROR "Could not find a python interpreter, which is needed to "
+  "build the tests. Make sure python is available, or pass -DBUILD_TESTING=OFF to "
+  "skip building the tests")
 endif()
 
-if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
-  list(APPEND TESTS
-    public_key_auth_succeeds_with_correct_dsa_key
-    )
+set(CLAR_FIXTURES "${CMAKE_CURRENT_SOURCE_DIR}/resources/")
+set(CLAR_TESTCASES "${CMAKE_CURRENT_SOURCE_DIR}/testcases/")
+set(CLAR_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
+ADD_DEFINITIONS(-DCLAR_FIXTURE_PATH=\"${CLAR_FIXTURES}\")
+ADD_DEFINITIONS(-DCLAR_TMPDIR=\"libssh2_tests\")
+
+file(GLOB_RECURSE SRC_TEST ${CLAR_PATH}/*/*.c ${CLAR_PATH}/*/*.h)
+
+set(SRC_CLAR clar.c clar_libssh2.c clar_libssh2.h runner.c clar_libssh2_config.h)
+
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/clar.suite
+  COMMAND ${PYTHON_EXECUTABLE} generate.py
+    -o "${CMAKE_CURRENT_BINARY_DIR}" -f "${CLAR_TESTCASES}"
+  DEPENDS ${SRC_CLAR} generate.py
+  WORKING_DIRECTORY ${CLAR_PATH})
+
+set_source_files_properties(${CLAR_PATH}/clar.c
+  PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/clar.suite)
+
+add_executable(libssh2_clar ${SRC_CLAR} ${SRC_TEST}
+  $<TARGET_OBJECTS:libssh2-object>)
+
+target_compile_definitions(libssh2_clar PRIVATE ${LIBSSH2_DEFINES})
+# to find generated header
+target_include_directories(libssh2_clar PRIVATE
+  "${LIBSSH2_INCLUDES}"
+  "${CMAKE_CURRENT_SOURCE_DIR}"
+  "${CMAKE_CURRENT_BINARY_DIR}/../src/"
+  "${CMAKE_CURRENT_BINARY_DIR}")
+
+# FIXME: do we want that?
+set_target_properties(libssh2_clar PROPERTIES C_STANDARD 90)
+set_target_properties(libssh2_clar PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+  ${libssh2_BINARY_DIR})
+
+if(${CMAKE_VERSION} VERSION_LESS 2.8.12)
+  # Already handled by a global INCLUDE_DIRECTORY()
+else()
+  target_include_directories(libssh2_clar PRIVATE ../src PUBLIC ../include)
 endif()
 
-add_library(openssh_fixture STATIC openssh_fixture.h openssh_fixture.c)
-target_link_libraries(openssh_fixture ${LIBRARIES})
-target_include_directories(openssh_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_link_libraries(libssh2_clar ${LIBSSH2_LIBS})
 
-add_library(session_fixture STATIC session_fixture.h session_fixture.c)
-target_link_libraries(session_fixture ${LIBRARIES} openssh_fixture libssh2)
-target_include_directories(session_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
-
-add_library(runner STATIC runner.c)
-target_link_libraries(runner session_fixture)
-target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
-
-foreach(test ${TESTS})
-  add_executable(test_${test} test_${test}.c)
-  target_link_libraries(test_${test} libssh2 runner ${LIBRARIES})
-  target_include_directories(test_${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
-  list(APPEND TEST_TARGETS test_${test})
-  add_definitions(-DFIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
-
-  add_test(
-    NAME test_${test} COMMAND $<TARGET_FILE:test_${test}>
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-endforeach()
-
-add_target_to_copy_dependencies(
-  TARGET copy_test_dependencies
-  DEPENDENCIES ${RUNTIME_DEPENDENCIES}
-  BEFORE_TARGETS ${TEST_TARGETS})
-
+add_test(all   "${libssh2_BINARY_DIR}/libssh2_clar" -v)
 
 if(LINT)
   add_dependencies(libssh2_clar lint)

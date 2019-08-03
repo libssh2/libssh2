@@ -35,12 +35,8 @@
  * OF SUCH DAMAGE.
  */
 
-#include "openssh_fixture.h"
-#include "libssh2_config.h"
+#include "clar_libssh2.h"
 
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
@@ -50,14 +46,8 @@
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
+
+#include <limits.h>
 
 static int run_command_varg(char **output, const char *command, va_list args)
 {
@@ -269,7 +259,7 @@ cleanup:
 
 static char *running_container_id = NULL;
 
-int start_openssh_fixture()
+int cl_ssh2_start_openssh_fixture(void)
 {
     int ret;
 #ifdef HAVE_WINSOCK2_H
@@ -282,17 +272,23 @@ int start_openssh_fixture()
     }
 #endif
 
-    ret = build_openssh_server_docker_image();
-    if(ret == 0) {
-        return start_openssh_server(&running_container_id);
+    const char *openssh_server = cl_fixture("openssh_server");
+    ret = run_command(NULL, "cp -R \"%s\" \"%s\"", openssh_server,
+                      clar_sandbox_path());
+    if(ret != 0) {
+        fprintf(stderr, "Failed to copy openssh_server directory\n");
+        return ret;
     }
-    else {
+
+    ret = build_openssh_server_docker_image();
+    if(ret != 0) {
         fprintf(stderr, "Failed to build docker image\n");
         return ret;
     }
+    return start_openssh_server(&running_container_id);
 }
 
-void stop_openssh_fixture()
+void cl_ssh2_stop_openssh_fixture(void)
 {
     if(running_container_id) {
         stop_openssh_server(running_container_id);
@@ -304,7 +300,189 @@ void stop_openssh_fixture()
     }
 }
 
-int open_socket_to_openssh_server()
+int cl_ssh2_openssh_server_socket(void)
 {
-    return open_socket_to_container(running_container_id);
+    int sock = open_socket_to_container(running_container_id);
+    cl_assert(sock >= 0);
+    return sock;
+}
+
+static LIBSSH2_SESSION *connected_session = NULL;
+static int connected_socket = -1;
+static char *connected_trace = NULL;
+static size_t connected_trace_size = 0;
+static size_t connected_trace_slabs = 0;
+#define TRACE_SLAB 1024
+
+static void trace_handler(LIBSSH2_SESSION *session,
+                          void *context,
+                          const char *message,
+                          size_t length)
+{
+    char *last_message;
+    if(connected_trace == NULL ||
+       ((connected_trace_size + length + 2) >
+            (connected_trace_slabs * TRACE_SLAB))) {
+        void *tmp = realloc(connected_trace,
+                            (connected_trace_slabs + 1) * TRACE_SLAB);
+        cl_assert(tmp != NULL);
+
+        connected_trace_slabs++;
+        connected_trace = tmp;
+    }
+
+    last_message = connected_trace + connected_trace_size;
+    memcpy(last_message, message, length);
+    last_message[length] = '\n';
+    last_message[length + 1] = '\0';
+    /* only +1 because we want to overwrite the \0 on the next call */
+    connected_trace_size += length + 1;
+}
+
+void cl_ssh2_output_trace(void)
+{
+    printf("\ntrace:\n%s", connected_trace);
+}
+
+static void trace_cleanup(void *payload)
+{
+    if(cl_last_status() == CL_TEST_FAILURE)
+        cl_ssh2_output_trace();
+}
+
+static void set_connected_session(LIBSSH2_SESSION *session)
+{
+    cl_assert(connected_session == NULL);
+    connected_session = session;
+}
+
+static int connect_session(int socket)
+{
+    cl_assert(connected_socket == -1);
+    connected_socket = socket;
+    cl_ssh2_check(libssh2_session_handshake(connected_session,
+                                            connected_socket));
+    return 0;
+}
+
+LIBSSH2_SESSION *cl_ssh2_connected_session(void)
+{
+    cl_assert(connected_session != NULL);
+    return connected_session;
+}
+
+void cl_ssh2_close_connected_session(void)
+{
+    if(!connected_session) {
+        fprintf(stderr, "Cannot stop session - none started");
+        return;
+    }
+
+    if(connected_socket != -1)
+        cl_ssh2_check(libssh2_session_disconnect(connected_session,
+                                                 "test ended"));
+
+    libssh2_session_free(connected_session);
+
+    if(connected_socket != -1) {
+        shutdown(connected_socket, 2);
+        connected_socket = -1;
+    }
+
+    connected_session = NULL;
+    free(connected_trace);
+    connected_trace = NULL;
+    connected_trace_size = connected_trace_slabs = 0;
+}
+
+LIBSSH2_SESSION *cl_ssh2_open_session(void *abstract)
+{
+    LIBSSH2_SESSION *session = libssh2_session_init_ex(NULL, NULL, NULL,
+                                                       abstract);
+    if(!session)
+        cl_fail_("failed to initialize session: %s", cl_ssh2_last_error());
+
+    libssh2_trace_sethandler(session, NULL, trace_handler);
+    libssh2_trace(session, ~0x0);
+    cl_set_cleanup(trace_cleanup, NULL);
+
+    libssh2_session_set_blocking(session, 1);
+
+    set_connected_session(session);
+
+    return session;
+}
+
+LIBSSH2_SESSION *cl_ssh2_open_session_openssh(void *abstract)
+{
+    LIBSSH2_SESSION *session = cl_ssh2_open_session(abstract);
+
+    int sock = cl_ssh2_openssh_server_socket();
+    if(connect_session(sock))
+        return NULL;
+
+    return session;
+}
+
+const char *cl_ssh2_last_error(void)
+{
+    static char *message;
+    if(connected_session) {
+        int rc =
+        libssh2_session_last_error(connected_session, &message, NULL, 0);
+        if(rc == 0) {
+            message = "No last error";
+        }
+    }
+    else {
+        message = "No session";
+    }
+    return message;
+}
+
+int cl_ssh2_read_file(const char *path, char **out_buffer, size_t *out_len)
+{
+    FILE *fp = NULL;
+    char *buffer = NULL;
+    size_t len = 0;
+
+    if(out_buffer == NULL || out_len == NULL || path == NULL) {
+        fprintf(stderr, "invalid params.");
+        return 1;
+    }
+
+    *out_buffer = NULL;
+    *out_len = 0;
+
+    fp = fopen(path, "r");
+
+    if(!fp) {
+        fprintf(stderr, "File could not be read.");
+        return 1;
+    }
+
+    fseek(fp, 0L, SEEK_END);
+    len = ftell(fp);
+    rewind(fp);
+
+    buffer = calloc(1, len + 1);
+    if(!buffer) {
+        fclose(fp);
+        fprintf(stderr, "Could not alloc memory.");
+        return 1;
+    }
+
+    if(1 != fread(buffer, len, 1, fp)) {
+        fclose(fp);
+        free(buffer);
+        fprintf(stderr, "Could not read file into memory.");
+        return 1;
+    }
+
+    fclose(fp);
+
+    *out_buffer = buffer;
+    *out_len = len;
+
+    return 0;
 }

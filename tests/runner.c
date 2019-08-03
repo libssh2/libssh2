@@ -35,17 +35,41 @@
  * OF SUCH DAMAGE.
  */
 
-#include "session_fixture.h"
+#include "clar_libssh2.h"
 
-extern int test(LIBSSH2_SESSION *session);
-
-int main()
+int main(int argc, char *argv[])
 {
-    int exit_code = 1;
-    LIBSSH2_SESSION *session = start_session_fixture();
-    if(session != NULL) {
-        exit_code = (test(session) == 0) ? 0 : 1;
+    int res;
+    char *at_exit_cmd;
+
+    clar_test_init(argc, argv);
+
+    res = libssh2_init(0);
+    if(res != 0) {
+        fprintf(stderr, "libssh2_init failed (%d)\n", res);
+        return -1;
     }
-    stop_session_fixture();
-    return exit_code;
+
+    res = cl_ssh2_start_openssh_fixture();
+    if(res != 0) {
+        fprintf(stderr, "failed to start openssh fixture (%d)\n", res);
+        return -1;
+    }
+
+    /* Run the test suite */
+    res = clar_test_run();
+
+    clar_test_shutdown();
+
+    cl_ssh2_stop_openssh_fixture();
+
+    libssh2_exit();
+
+    at_exit_cmd = getenv("CLAR_AT_EXIT");
+    if(at_exit_cmd != NULL) {
+        int at_exit = system(at_exit_cmd);
+        return res || at_exit;
+    }
+
+    return res;
 }

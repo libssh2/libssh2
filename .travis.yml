@@ -33,6 +33,8 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
+dist: xenial
+
 sudo: required
 
 services:
@@ -49,71 +51,29 @@ addons:
 matrix:
   include:
     - name: "Check style"
+      install: ~
       script: ./ci/checksrc.sh
 
+    - name: "Package"
+      script:
+        - ./ci/build.sh
+        - cd build && cmake --build . --target package
+
 env:
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=OFF B=configure
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=OFF B=cmake
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=OFF B=cmake
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=ON B=cmake
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=ON B=cmake
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=Libgcrypt BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=OFF B=cmake
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=Libgcrypt BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=OFF B=cmake
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=Libgcrypt BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=ON B=cmake
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=Libgcrypt BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=ON B=cmake
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=mbedTLS BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=OFF B=cmake
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=mbedTLS BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=OFF B=cmake
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=mbedTLS BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=ON B=cmake
-   - ADDRESS_SIZE=64 CRYPTO_BACKEND=mbedTLS BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=ON B=cmake
-   - ADDRESS_SIZE=32 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=OFF B=cmake
-   - ADDRESS_SIZE=32 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=OFF B=cmake
-   - ADDRESS_SIZE=32 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=ON B=cmake
-   - ADDRESS_SIZE=32 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=ON B=cmake
-   - ADDRESS_SIZE=32 CRYPTO_BACKEND=Libgcrypt BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=OFF B=cmake
-   - ADDRESS_SIZE=32 CRYPTO_BACKEND=Libgcrypt BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=OFF B=cmake
-   - ADDRESS_SIZE=32 CRYPTO_BACKEND=Libgcrypt BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=ON B=cmake
-   - ADDRESS_SIZE=32 CRYPTO_BACKEND=Libgcrypt BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=ON B=cmake
-   - ADDRESS_SIZE=32 CRYPTO_BACKEND=mbedTLS BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=OFF B=cmake
-   - ADDRESS_SIZE=32 CRYPTO_BACKEND=mbedTLS BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=OFF B=cmake
-   - ADDRESS_SIZE=32 CRYPTO_BACKEND=mbedTLS BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=ON B=cmake
-   - ADDRESS_SIZE=32 CRYPTO_BACKEND=mbedTLS BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=ON B=cmake
+  - CRYPTO_BACKEND=OpenSSL ADDRESS_SIZE=64
+  - CRYPTO_BACKEND=OpenSSL ADDRESS_SIZE=32
+  - CRYPTO_BACKEND=mbedTLS ADDRESS_SIZE=64 LEAK_CHECK=valgrind
+  - CRYPTO_BACKEND=mbedTLS ADDRESS_SIZE=32
+  - CRYPTO_BACKEND=Libgcrypt ADDRESS_SIZE=64
+  - CRYPTO_BACKEND=Libgcrypt ADDRESS_SIZE=32
+  - ENABLE_ZLIB_COMPRESSION=OFF
+  - ENABLE_ZLIB_COMPRESSION=ON
 
-before_install:
-  - if [ $ADDRESS_SIZE = '32' ]; then sudo dpkg --add-architecture i386; fi
-  - if [ $ADDRESS_SIZE = '32' ]; then sudo apt-get update -qq; fi
-  - if [ $ADDRESS_SIZE = '32' ]; then sudo apt-get install -y gcc-multilib; fi
-  - if [ $ADDRESS_SIZE = '32' ]; then sudo apt-get install -y libssl-dev:i386 libgcrypt20-dev:i386 build-essential gcc-multilib; fi
-  - if [ $ADDRESS_SIZE = '32' ]; then sudo dpkg --purge --force-depends gcc-multilib && sudo dpkg --purge --force-depends libssl-dev; fi
-  - if [ $ADDRESS_SIZE = '64' ]; then sudo apt-get install -y libssl-dev; fi
-  - if [ $ADDRESS_SIZE = '64' ]; then sudo apt-get install -y libgcrypt11-dev; fi
-  - if [ $ADDRESS_SIZE = '32' ]; then export TOOLCHAIN_OPTION="-DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-Linux-32.cmake"; fi
-  - if [ $CRYPTO_BACKEND = 'mbedTLS' ]; then
-      MBEDTLSVER=mbedtls-2.4.0;
-      curl -L https://github.com/ARMmbed/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -;
-      cd mbedtls-$MBEDTLSVER;
-      cmake $TOOLCHAIN_OPTION -DUSE_SHARED_MBEDTLS_LIBRARY=ON -DCMAKE_INSTALL_PREFIX:PATH=../usr .;
-      make -j3 install;
-      cd ..;
-      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib;
-      export TOOLCHAIN_OPTION="$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr";
-    fi
-
-install:
+install: ./ci/setup.sh
 
 script:
-  - |
-      if [ "$B" = "configure" ]; then
-        ./buildconf
-        ./configure --enable-debug --enable-werror
-        make
-        make check
-      fi
-  - |
-      if [ "$B" = "cmake" ]; then
-        mkdir bin
-        cd bin
-        cmake $TOOLCHAIN_OPTION -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION .. && cmake --build . && CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target test && cmake --build . --target package
-      fi
+  - ./ci/build.sh
+  - ./ci/test.sh
 
 # whitelist branches to avoid testing feature branches twice (as branch and as pull request)
 branches:

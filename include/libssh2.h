@@ -99,17 +99,17 @@ extern "C" {
 
 /* Allow alternate API prefix from CFLAGS or calling app */
 #ifndef LIBSSH2_API
-# ifdef LIBSSH2_WIN32
-#  ifdef _WINDLL
+# ifdef _WIN32
+#  ifdef LIBSSH2_SHARED
 #   ifdef LIBSSH2_LIBRARY
 #    define LIBSSH2_API __declspec(dllexport)
 #   else
 #    define LIBSSH2_API __declspec(dllimport)
 #   endif /* LIBSSH2_LIBRARY */
 #  else
-#   define LIBSSH2_API
-#  endif
-# else /* !LIBSSH2_WIN32 */
+#   define LIBSSH2_API /* static */
+#  endif /* LIBSSH2_SHARED */
+# else /* !_WIN32 */
 #  define LIBSSH2_API
 # endif /* LIBSSH2_WIN32 */
 #endif /* LIBSSH2_API */

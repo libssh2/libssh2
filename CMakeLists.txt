@@ -34,6 +34,12 @@
 # OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.11)
+if(CMAKE_VERSION VERSION_GREATER 3.1)
+  cmake_policy(SET CMP0051 NEW)
+endif()
+if(CMAKE_VERSION VERSION_GREATER 3.0)
+  cmake_policy(SET CMP0042 NEW)
+endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -50,6 +56,7 @@ else()
 endif()
 
 option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Parse version
 
