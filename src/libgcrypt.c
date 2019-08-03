@@ -42,6 +42,14 @@
 
 #include <string.h>
 
+_libssh2_bn *_libssh2_bn_new_from_bin_(size_t len, const void *val)
+{
+    _libssh2_bn *bn;
+    if(gcry_mpi_scan(&bn, GCRYMPI_FMT_USG, val, len, NULL) < 0)
+        return NULL;
+    return bn;
+}
+
 int
 _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
                  const unsigned char *edata,

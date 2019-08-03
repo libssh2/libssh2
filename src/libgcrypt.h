@@ -203,12 +203,11 @@
 #define _libssh2_bn_ctx int
 #define _libssh2_bn_ctx_new() 0
 #define _libssh2_bn_ctx_free(bnctx) ((void)0)
-#define _libssh2_bn_init() gcry_mpi_new(0)
-#define _libssh2_bn_init_from_bin() NULL /* because gcry_mpi_scan() creates a
-                                            new bignum */
+#define _libssh2_bn_new() gcry_mpi_new(0)
+    _libssh2_bn *_libssh2_bn_new_from_bin_(size_t len, const void *val);
+#define _libssh2_bn_new_from_bin(len, val) \
+    _libssh2_bn_new_from_bin_(len, val)
 #define _libssh2_bn_set_word(bn, val) gcry_mpi_set_ui(bn, val)
-#define _libssh2_bn_from_bin(bn, len, val)                      \
-    gcry_mpi_scan(&((bn)), GCRYMPI_FMT_USG, val, len, NULL)
 #define _libssh2_bn_to_bin(bn, val)                                     \
     gcry_mpi_print(GCRYMPI_FMT_USG, val, _libssh2_bn_bytes(bn), NULL, bn)
 #define _libssh2_bn_bytes(bn)                                           \

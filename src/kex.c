@@ -144,12 +144,10 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
         exchange_state->s_packet = NULL;
         exchange_state->k_value = NULL;
         exchange_state->ctx = _libssh2_bn_ctx_new();
-        libssh2_dh_init(&exchange_state->x);
-        exchange_state->e = _libssh2_bn_init(); /* g^x mod p */
-        exchange_state->f = _libssh2_bn_init_from_bin(); /* g^(Random from
-                                                            server) mod p */
-        exchange_state->k = _libssh2_bn_init(); /* The shared secret: f^x mod
-                                                   p */
+        _libssh2_dh_init(&exchange_state->x);
+        exchange_state->e = _libssh2_bn_new();  /* g^x mod p */
+        exchange_state->f = NULL;               /* g^(server random) mod p */
+        exchange_state->k = _libssh2_bn_new();  /* f^x mod p: shared secret */
 
         /* Zero the whole thing out */
         memset(&exchange_state->req_state, 0, sizeof(packet_require_state_t));
@@ -384,8 +382,9 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        _libssh2_bn_from_bin(exchange_state->f, exchange_state->f_value_len,
-                             exchange_state->f_value);
+        exchange_state->f = _libssh2_bn_new_from_bin(
+            exchange_state->f_value_len,
+            exchange_state->f_value);
 
         if(_libssh2_get_string(&buf, &(exchange_state->h_sig),
                                &(exchange_state->h_sig_len))) {
@@ -835,12 +834,10 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
         exchange_state->s_packet = NULL;
         exchange_state->k_value = NULL;
         exchange_state->ctx = _libssh2_bn_ctx_new();
-        libssh2_dh_init(&exchange_state->x);
-        exchange_state->e = _libssh2_bn_init(); /* g^x mod p */
-        exchange_state->f = _libssh2_bn_init_from_bin(); /* g^(Random from
-                                                            server) mod p */
-        exchange_state->k = _libssh2_bn_init(); /* The shared secret: f^x mod
-                                                   p */
+        _libssh2_dh_init(&exchange_state->x);
+        exchange_state->e = _libssh2_bn_new();  /* g^x mod p */
+        exchange_state->f = NULL;               /* g^(server random) mod p */
+        exchange_state->k = _libssh2_bn_new();  /* f^x mod p: shared secret */
 
         /* Zero the whole thing out */
         memset(&exchange_state->req_state, 0, sizeof(packet_require_state_t));
@@ -1074,8 +1071,9 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        _libssh2_bn_from_bin(exchange_state->f, exchange_state->f_value_len,
-                             exchange_state->f_value);
+        exchange_state->f = _libssh2_bn_new_from_bin(
+            exchange_state->f_value_len,
+            exchange_state->f_value);
 
         if(_libssh2_get_string(&buf, &(exchange_state->h_sig),
                                &(exchange_state->h_sig_len))) {
@@ -1528,14 +1526,13 @@ kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION *session,
     int ret;
 
     if(key_state->state == libssh2_NB_state_idle) {
-        /* g == 2 */
-        key_state->p = _libssh2_bn_init_from_bin(); /* SSH2 defined value
-                                                       (p_value) */
-        key_state->g = _libssh2_bn_init();      /* SSH2 defined value (2) */
-
         /* Initialize P and G */
+        /* SSH2 defined value (2) */
+        /* g == 2 */
+        key_state->g = _libssh2_bn_new();
         _libssh2_bn_set_word(key_state->g, 2);
-        _libssh2_bn_from_bin(key_state->p, 128, p_value);
+        /* SSH2 defined value (p_value) */
+        key_state->p = _libssh2_bn_new_from_bin(128, p_value);
 
         _libssh2_debug(session, LIBSSH2_TRACE_KEX,
                        "Initiating Diffie-Hellman Group1 Key Exchange");
@@ -1605,14 +1602,13 @@ kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_SESSION *session,
     int ret;
 
     if(key_state->state == libssh2_NB_state_idle) {
-        key_state->p = _libssh2_bn_init_from_bin(); /* SSH2 defined value
-                                                       (p_value) */
-        key_state->g = _libssh2_bn_init();      /* SSH2 defined value (2) */
-
-        /* g == 2 */
         /* Initialize P and G */
+        /* SSH2 defined value (2) */
+        /* g == 2 */
+        key_state->g = _libssh2_bn_new();
         _libssh2_bn_set_word(key_state->g, 2);
-        _libssh2_bn_from_bin(key_state->p, 256, p_value);
+        /* SSH2 defined value (p_value) */
+        key_state->p = _libssh2_bn_new_from_bin(256, p_value);
 
         _libssh2_debug(session, LIBSSH2_TRACE_KEX,
                        "Initiating Diffie-Hellman Group14 Key Exchange");
@@ -1649,8 +1645,8 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
     int rc;
 
     if(key_state->state == libssh2_NB_state_idle) {
-        key_state->p = _libssh2_bn_init_from_bin();
-        key_state->g = _libssh2_bn_init_from_bin();
+        key_state->p = NULL;
+        key_state->g = NULL;
         /* Ask for a P and G pair */
 #ifdef LIBSSH2_DH_GEX_NEW
         key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST;
@@ -1733,8 +1729,10 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
             goto dh_gex_clean_exit;
         }
 
-        _libssh2_bn_from_bin(key_state->p, p_len, p);
-        _libssh2_bn_from_bin(key_state->g, g_len, g);
+        _libssh2_bn_free(key_state->p);
+        _libssh2_bn_free(key_state->g);
+        key_state->p = _libssh2_bn_new_from_bin(p_len, p);
+        key_state->g = _libssh2_bn_new_from_bin(g_len, g);
 
         ret = diffie_hellman_sha1(session, key_state->g, key_state->p, p_len,
                                   SSH_MSG_KEX_DH_GEX_INIT,
@@ -1773,8 +1771,8 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
     int rc;
 
     if(key_state->state == libssh2_NB_state_idle) {
-        key_state->p = _libssh2_bn_init();
-        key_state->g = _libssh2_bn_init();
+        key_state->p = NULL;
+        key_state->g = NULL;
         /* Ask for a P and G pair */
 #ifdef LIBSSH2_DH_GEX_NEW
         key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST;
@@ -1858,8 +1856,10 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
             goto dh_gex_clean_exit;
         }
 
-        _libssh2_bn_from_bin(key_state->p, p_len, p);
-        _libssh2_bn_from_bin(key_state->g, g_len, g);
+        _libssh2_bn_free(key_state->p);
+        _libssh2_bn_free(key_state->g);
+        key_state->p = _libssh2_bn_new_from_bin(p_len, p);
+        key_state->g = _libssh2_bn_new_from_bin(g_len, g);
 
         ret = diffie_hellman_sha256(session, key_state->g, key_state->p, p_len,
                                     SSH_MSG_KEX_DH_GEX_INIT,
@@ -2049,7 +2049,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
     if(exchange_state->state == libssh2_NB_state_idle) {
 
         /* Setup initial values */
-        exchange_state->k = _libssh2_bn_init();
+        exchange_state->k = _libssh2_bn_new();
 
         exchange_state->state = libssh2_NB_state_created;
     }
@@ -2663,7 +2663,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
     if(exchange_state->state == libssh2_NB_state_idle) {
 
         /* Setup initial values */
-        exchange_state->k = _libssh2_bn_init();
+        exchange_state->k = _libssh2_bn_new();
 
         exchange_state->state = libssh2_NB_state_created;
     }

@@ -247,6 +247,21 @@ _libssh2_mbedtls_bignum_init(void)
     return bignum;
 }
 
+_libssh2_bn *
+_libssh2_mbedtls_bignum_init_from_bin(size_t len, const void *bin)
+{
+    _libssh2_bn *bn = _libssh2_bn_new();
+    if(bn == NULL)
+        return NULL;
+
+    if(mbedtls_mpi_read_binary(bn, bin, len) < 0) {
+        _libssh2_bn_free(bn);
+        return NULL;
+    }
+
+    return bn;
+}
+
 void
 _libssh2_mbedtls_bignum_free(_libssh2_bn *bn)
 {

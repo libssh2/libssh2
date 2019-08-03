@@ -293,14 +293,12 @@
 
 #define _libssh2_bn mbedtls_mpi
 
-#define _libssh2_bn_init() \
+#define _libssh2_bn_new() \
   _libssh2_mbedtls_bignum_init()
-#define _libssh2_bn_init_from_bin() \
-  _libssh2_mbedtls_bignum_init()
+#define _libssh2_bn_new_from_bin(len, val) \
+  _libssh2_mbedtls_bignum_init_from_bin(len, val)
 #define _libssh2_bn_set_word(bn, word) \
   mbedtls_mpi_lset(bn, word)
-#define _libssh2_bn_from_bin(bn, len, bin) \
-  mbedtls_mpi_read_binary(bn, bin, len)
 #define _libssh2_bn_to_bin(bn, bin) \
   mbedtls_mpi_write_binary(bn, bin, mbedtls_mpi_size(bn))
 #define _libssh2_bn_bytes(bn) \
@@ -366,6 +364,9 @@ _libssh2_mbedtls_hash(const unsigned char *data, unsigned long datalen,
 
 _libssh2_bn *
 _libssh2_mbedtls_bignum_init(void);
+
+_libssh2_bn *
+_libssh2_mbedtls_bignum_init_from_bin(size_t len, const void *bin);
 
 void
 _libssh2_mbedtls_bignum_free(_libssh2_bn *bn);
