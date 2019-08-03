@@ -290,7 +290,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     HANDLE filemap;
     unsigned char *p;
     unsigned char *p2;
-    int id;
+    LRESULT id;
     COPYDATASTRUCT cds;
 
     if(!transctx || 4 + transctx->request_len > PAGEANT_MAX_MSGLEN)
@@ -322,7 +322,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
                        transctx->request_len);
 
     cds.dwData = PAGEANT_COPYDATA_ID;
-    cds.cbData = 1 + strlen(mapname);
+    cds.cbData = (DWORD)(1 + strlen(mapname));
     cds.lpData = mapname;
 
     id = SendMessage(hwnd, WM_COPYDATA, (WPARAM) NULL, (LPARAM) &cds);

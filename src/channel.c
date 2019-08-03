@@ -470,7 +470,7 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
         host = "0.0.0.0";
 
     if(session->fwdLstn_state == libssh2_NB_state_idle) {
-        session->fwdLstn_host_len = strlen(host);
+        session->fwdLstn_host_len = (uint32_t)strlen(host);
         /* 14 = packet_type(1) + request_len(4) + want_replay(1) + host_len(4)
            + port(4) */
         session->fwdLstn_packet_len =

@@ -561,7 +561,7 @@ _libssh2_wincng_load_pem(LIBSSH2_SESSION *session,
     }
 
     ret = _libssh2_pem_parse(session, headerbegin, headerend,
-                             passphrase,
+                             (unsigned char *)passphrase,
                              fp, data, datalen);
 
     fclose(fp);
@@ -1879,7 +1879,7 @@ _libssh2_wincng_bignum_new(void)
 }
 
 static int
-_libssh2_wincng_bignum_resize(_libssh2_bn *bn, unsigned long length)
+_libssh2_wincng_bignum_resize(_libssh2_bn *bn, size_t length)
 {
     unsigned char *bignum;
 
@@ -1909,7 +1909,7 @@ static int
 _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
 {
     unsigned char *bignum;
-    unsigned long length;
+    size_t length;
 
     if(!rnd)
         return -1;
@@ -2071,8 +2071,7 @@ _libssh2_wincng_bignum_bits(const _libssh2_bn *bn)
 }
 
 _libssh2_bn *
-_libssh2_wincng_bignum_new_from_bin(unsigned long len,
-                                const void *bin)
+_libssh2_wincng_bignum_new_from_bin(size_t len, const void *bin)
 {
     _libssh2_bn *bn = _libssh2_bn_new();
     unsigned char *bignum;

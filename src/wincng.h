@@ -364,7 +364,7 @@ struct _libssh2_wincng_bignum {
  */
 
 _libssh2_bn *_libssh2_wincng_bignum_new(void);
-_libssh2_bn *_libssh2_wincng_bignum_new_from_bin(unsigned long len,
+_libssh2_bn *_libssh2_wincng_bignum_new_from_bin(size_t len,
     const void *val);
 
 #define _libssh2_bn_new() \
@@ -553,7 +553,7 @@ _libssh2_wincng_bignum_set_word(_libssh2_bn *bn, unsigned long word);
 unsigned long
 _libssh2_wincng_bignum_bits(const _libssh2_bn *bn);
 void
-_libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, unsigned long len,
+_libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, size_t len,
                                 const unsigned char *bin);
 void
 _libssh2_wincng_bignum_to_bin(const _libssh2_bn *bn, unsigned char *bin);
