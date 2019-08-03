@@ -132,7 +132,12 @@ static int build_openssh_server_docker_image(void)
 static int start_openssh_server(char **container_id_out)
 {
     return run_command(container_id_out,
-                       "docker run --detach -P libssh2/openssh_server"
+                       "docker run "
+                       "--detach "
+                       "--publish-all "
+                       "-v \"%s\":%s "
+                       "libssh2/openssh_server",
+                       CLAR_FIXTURE_PATH, "/home/libssh2/sandbox"
                        );
 }
 

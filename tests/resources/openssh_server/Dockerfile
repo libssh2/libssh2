@@ -69,7 +69,6 @@ RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so
 USER libssh2
 
 RUN mkdir -p /home/libssh2/.ssh
-RUN mkdir -p /home/libssh2/sandbox
 
 COPY authorized_keys /tmp/libssh2/.ssh/authorized_keys
 RUN cp /tmp/libssh2/.ssh/authorized_keys /home/libssh2/.ssh/authorized_keys
