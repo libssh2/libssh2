@@ -20,6 +20,7 @@ sftp_write_nonblock
 config.h.in
 ssh2_exec
 ssh2_agent
+ssh2_agent_forwarding
 libssh2_config.h
 libssh2_config.h.in
 stamp-h2
