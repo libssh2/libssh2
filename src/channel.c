@@ -263,8 +263,9 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
             session->open_channel->local.packet_size =
                 _libssh2_ntohu32(session->open_data + 13);
             _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                           "Connection Established - ID: %lu/%lu win: %lu/%lu"
-                           " pack: %lu/%lu",
+                           "Connection Established - ID: %"PRIu32"/%"PRIu32""
+                           " win: %"PRIu32"/%"PRIu32
+                           " pack: %"PRIu32"/%"PRIu32,
                            session->open_channel->local.id,
                            session->open_channel->remote.id,
                            session->open_channel->local.window_size,
