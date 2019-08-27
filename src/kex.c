@@ -3937,34 +3937,9 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
 }
 
 
-
 /* TODO: When in server mode we need to turn this logic on its head
  * The Client gets to make the final call on "agreed methods"
  */
-
-/*
- * kex_string_pair() extracts a string from the packet and makes sure it fits
- * within the given packet.
- */
-static int kex_string_pair(unsigned char **sp,   /* parsing position */
-                           unsigned char *data,  /* start pointer to packet */
-                           size_t data_len,      /* size of total packet */
-                           size_t *lenp,         /* length of the string */
-                           unsigned char **strp) /* pointer to string start */
-{
-    unsigned char *s = *sp;
-    *lenp = _libssh2_ntohu32(s);
-
-    /* the length of the string must fit within the current pointer and the
-       end of the packet */
-    if(*lenp > (data_len - (s - data) -4))
-        return 1;
-    *strp = s + 4;
-    s += 4 + *lenp;
-
-    *sp = s;
-    return 0;
-}
 
 /* kex_agree_methods
  * Decide which specific method to use of the methods offered by each party
@@ -3976,40 +3951,48 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
         *mac_cs, *mac_sc;
     size_t kex_len, hostkey_len, crypt_cs_len, crypt_sc_len, comp_cs_len;
     size_t comp_sc_len, mac_cs_len, mac_sc_len;
-    unsigned char *s = data;
+    struct string_buf buf;
 
-    /* Skip packet_type, we know it already */
-    s++;
+    if(data_len < 17)
+        return -1;
+
+    buf.data = (unsigned char *)data;
+    buf.len = data_len;
+    buf.dataptr = buf.data;
+    buf.dataptr++; /* advance past packet type */
 
     /* Skip cookie, don't worry, it's preserved in the kexinit field */
-    s += 16;
+    buf.dataptr += 16;
 
     /* Locate each string */
-    if(kex_string_pair(&s, data, data_len, &kex_len, &kex))
+    if(_libssh2_get_string(&buf, &kex, &kex_len))
         return -1;
-    if(kex_string_pair(&s, data, data_len, &hostkey_len, &hostkey))
+    if(_libssh2_get_string(&buf, &hostkey, &hostkey_len))
         return -1;
-    if(kex_string_pair(&s, data, data_len, &crypt_cs_len, &crypt_cs))
+    if(_libssh2_get_string(&buf, &crypt_cs, &crypt_cs_len))
         return -1;
-    if(kex_string_pair(&s, data, data_len, &crypt_sc_len, &crypt_sc))
+    if(_libssh2_get_string(&buf, &crypt_sc, &crypt_sc_len))
         return -1;
-    if(kex_string_pair(&s, data, data_len, &mac_cs_len, &mac_cs))
+    if(_libssh2_get_string(&buf, &mac_cs, &mac_cs_len))
         return -1;
-    if(kex_string_pair(&s, data, data_len, &mac_sc_len, &mac_sc))
+    if(_libssh2_get_string(&buf, &mac_sc, &mac_sc_len))
         return -1;
-    if(kex_string_pair(&s, data, data_len, &comp_cs_len, &comp_cs))
+    if(_libssh2_get_string(&buf, &comp_cs, &comp_cs_len))
         return -1;
-    if(kex_string_pair(&s, data, data_len, &comp_sc_len, &comp_sc))
+    if(_libssh2_get_string(&buf, &comp_sc, &comp_sc_len))
         return -1;
 
     /* If the server sent an optimistic packet, assume that it guessed wrong.
      * If the guess is determined to be right (by kex_agree_kex_hostkey)
      * This flag will be reset to zero so that it's not ignored */
-    session->burn_optimistic_kexinit = *(s++);
-    /* Next uint32 in packet is all zeros (reserved) */
+    if(_libssh2_check_length(&buf, 1)) {
+        session->burn_optimistic_kexinit = *(buf.dataptr++);
+    }
+    else {
+        return -1;
+    }
 
-    if(data_len < (unsigned) (s - data))
-        return -1;              /* short packet */
+    /* Next uint32 in packet is all zeros (reserved) */
 
     if(kex_agree_kex_hostkey(session, kex, kex_len, hostkey, hostkey_len)) {
         return -1;
