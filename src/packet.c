@@ -537,26 +537,26 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         case SSH_MSG_DEBUG:
             if(datalen >= 2) {
                 int always_display = data[1];
-
+            
                 if(datalen >= 6) {
-                    message_len = _libssh2_ntohu32(data + 2);
+                    struct string_buf buf;
+                    buf.data = (unsigned char *)data;
+                    buf.dataptr = buf.data;
+                    buf.len = datalen;
+                    buf.dataptr += 2; /* advance past type & always display */
 
-                    if(message_len <= (datalen - 10)) {
-                        /* 6 = packet_type(1) + display(1) + message_len(4) */
-                        message = (char *) data + 6;
-                        language_len = _libssh2_ntohu32(data + 6 +
-                                                        message_len);
-
-                        if(language_len <= (datalen - 10 - message_len))
-                            language = (char *) data + 10 + message_len;
-                    }
+                    _libssh2_get_string(&buf, &message, &message_len);
+                    _libssh2_get_string(&buf, &language, &language_len);
                 }
 
                 if(session->ssh_msg_debug) {
-                    LIBSSH2_DEBUG(session, always_display, message,
-                                  message_len, language, language_len);
+                    LIBSSH2_DEBUG(session, always_display,
+                                  (const char *)message,
+                                  message_len, (const char *)language,
+                                  language_len);
                 }
             }
+
             /*
              * _libssh2_debug will actually truncate this for us so
              * that it's not an inordinate about of data
@@ -579,7 +579,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 uint32_t len = 0;
                 unsigned char want_reply = 0;
                 len = _libssh2_ntohu32(data + 1);
-                if(datalen >= (6 + len)) {
+                if((len <= (UINT_MAX - 6) && (datalen >= (6 + len))) {
                     want_reply = data[5 + len];
                     _libssh2_debug(session,
                                    LIBSSH2_TRACE_CONN,
