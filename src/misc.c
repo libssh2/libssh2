@@ -191,7 +191,10 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 unsigned int
 _libssh2_ntohu32(const unsigned char *buf)
 {
-    return (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
+    return (((unsigned int)buf[0] << 24)
+           | ((unsigned int)buf[1] << 16)
+           | ((unsigned int)buf[2] << 8)
+           | ((unsigned int)buf[3]));
 }
 
 
