@@ -569,7 +569,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 uint32_t len = 0;
                 unsigned char want_reply = 0;
                 len = _libssh2_ntohu32(data + 1);
-                if((len <= (UINT_MAX - 6) && (datalen >= (6 + len))) {
+                if(len <= (UINT_MAX - 6) && datalen >= (6 + len)) {
                     want_reply = data[5 + len];
                     _libssh2_debug(session,
                                    LIBSSH2_TRACE_CONN,
