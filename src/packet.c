@@ -537,7 +537,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         case SSH_MSG_DEBUG:
             if(datalen >= 2) {
                 int always_display = data[1];
-            
+
                 if(datalen >= 6) {
                     struct string_buf buf;
                     buf.data = (unsigned char *)data;
