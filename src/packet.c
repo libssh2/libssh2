@@ -85,30 +85,53 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     char failure_code = SSH_OPEN_ADMINISTRATIVELY_PROHIBITED;
     int rc;
 
-    (void) datalen;
-
     if(listen_state->state == libssh2_NB_state_idle) {
-        unsigned char *s = data + (sizeof("forwarded-tcpip") - 1) + 5;
-        listen_state->sender_channel = _libssh2_ntohu32(s);
-        s += 4;
+        int offset = (sizeof("forwarded-tcpip") - 1) + 5;
+        size_t temp_len = 0;
+        struct string_buf buf;
+        buf.data = data;
+        buf.dataptr = buf.data;
+        buf.len = datalen;
 
-        listen_state->initial_window_size = _libssh2_ntohu32(s);
-        s += 4;
-        listen_state->packet_size = _libssh2_ntohu32(s);
-        s += 4;
+        if(datalen < offset) {
+            return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                  "Unexpected packet size");
+        }
 
-        listen_state->host_len = _libssh2_ntohu32(s);
-        s += 4;
-        listen_state->host = s;
-        s += listen_state->host_len;
-        listen_state->port = _libssh2_ntohu32(s);
-        s += 4;
+        buf.dataptr += offset;
 
-        listen_state->shost_len = _libssh2_ntohu32(s);
-        s += 4;
-        listen_state->shost = s;
-        s += listen_state->shost_len;
-        listen_state->sport = _libssh2_ntohu32(s);
+        if(_libssh2_get_u32(&buf, &(listen_state->sender_channel))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting channel");
+        }
+        if(_libssh2_get_u32(&buf, &(listen_state->initial_window_size))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting window size");
+        }
+        if(_libssh2_get_u32(&buf, &(listen_state->packet_size))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting packet");
+        }
+        if(_libssh2_get_string(&buf, &(listen_state->host), &temp_len)) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting host");
+        }
+        listen_state->host_len = (uint32_t)temp_len;
+
+        if(_libssh2_get_u32(&buf, &(listen_state->port))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting port");
+        }
+        if(_libssh2_get_string(&buf, &(listen_state->shost), &temp_len)) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting shost");
+        }
+        listen_state->shost_len = (uint32_t)temp_len;
+
+        if(_libssh2_get_u32(&buf, &(listen_state->sport))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting sport");
+        }
 
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "Remote received connection from %s:%ld to %s:%ld",
