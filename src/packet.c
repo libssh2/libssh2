@@ -86,7 +86,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     int rc;
 
     if(listen_state->state == libssh2_NB_state_idle) {
-        int offset = (sizeof("forwarded-tcpip") - 1) + 5;
+        unsigned long offset = (sizeof("forwarded-tcpip") - 1) + 5;
         size_t temp_len = 0;
         struct string_buf buf;
         buf.data = data;
