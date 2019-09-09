@@ -37,10 +37,23 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
   FUZZ_ASSERT(rc == 0);
 
   written = send(socket_fds[1], data, size, 0);
-  FUZZ_ASSERT(written == size);
+
+  if (written != size)
+  {
+    // Handle whatever error case we're in.
+    fprintf(stderr, "send() of %zu bytes returned %zu (%d)\n",
+            size,
+            written,
+            errno);
+    goto EXIT_LABEL;
+  }
 
   rc = shutdown(socket_fds[1], SHUT_WR);
-  FUZZ_ASSERT(rc == 0);
+  if (rc != 0)
+  {
+    fprintf(stderr, "socket shutdown failed (%d)\n", rc);
+    goto EXIT_LABEL;
+  }
 
   // Create a session and start the handshake using the fuzz data passed in.
   session = libssh2_session_init();
