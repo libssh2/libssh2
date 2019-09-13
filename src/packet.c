@@ -295,21 +295,56 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
     LIBSSH2_CHANNEL *channel = x11open_state->channel;
     int rc;
 
-    (void) datalen;
-
     if(x11open_state->state == libssh2_NB_state_idle) {
-        unsigned char *s = data + (sizeof("x11") - 1) + 5;
-        x11open_state->sender_channel = _libssh2_ntohu32(s);
-        s += 4;
-        x11open_state->initial_window_size = _libssh2_ntohu32(s);
-        s += 4;
-        x11open_state->packet_size = _libssh2_ntohu32(s);
-        s += 4;
-        x11open_state->shost_len = _libssh2_ntohu32(s);
-        s += 4;
-        x11open_state->shost = s;
-        s += x11open_state->shost_len;
-        x11open_state->sport = _libssh2_ntohu32(s);
+
+        unsigned long offset = (sizeof("x11") - 1) + 5;
+        size_t temp_len = 0;
+        struct string_buf buf;
+        buf.data = data;
+        buf.dataptr = buf.data;
+        buf.len = datalen;
+
+        if(datalen < offset) {
+            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                           "unexpected data length");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
+
+        buf.dataptr += offset;
+
+        if(_libssh2_get_u32(&buf, &(x11open_state->sender_channel))) {
+            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                           "unexpected sender channel size");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
+        if(_libssh2_get_u32(&buf, &(x11open_state->initial_window_size))) {
+            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                           "unexpected window size");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
+        if(_libssh2_get_u32(&buf, &(x11open_state->packet_size))) {
+            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                           "unexpected window size");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
+        if(_libssh2_get_string(&buf, &(x11open_state->shost), &temp_len)) {
+            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                           "unexpected host size");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
+        x11open_state->shost_len = (uint32_t)temp_len;
+
+        if(_libssh2_get_u32(&buf, &(x11open_state->sport))) {
+            _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                           "unexpected port size");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
 
         _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                        "X11 Connection Received from %s:%ld on channel %lu",
