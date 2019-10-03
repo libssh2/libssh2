@@ -759,7 +759,6 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
 
     pem_read_bio_func read_rsa =
         (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
-    (void) session;
 
     _libssh2_init_if_needed();
 
