@@ -1837,7 +1837,8 @@ _libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx ** ed_ctx,
     _libssh2_init_if_needed();
 
     if(read_private_key_from_memory((void **)&ctx,
-                                    (pem_read_bio_func)&PEM_read_bio_PrivateKey,
+                                    (pem_read_bio_func)
+                                    &PEM_read_bio_PrivateKey,
                                     filedata, filedata_len, passphrase) == 0) {
         if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
             _libssh2_ed25519_free(ctx);
