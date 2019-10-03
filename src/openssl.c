@@ -1525,24 +1525,10 @@ _libssh2_curve25519_new(LIBSSH2_SESSION *session, libssh2_x25519_ctx **out_ctx,
     }
 
     if(out_ctx != NULL) {
-        ctx = malloc(sizeof(libssh2_x25519_ctx));
-        if(ctx == NULL)
+        ctx = EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL, priv,
+                                           LIBSSH2_ED25519_KEY_LEN);
+        if(!ctx)
             goto cleanExit;
-
-        ctx->private_key =
-            EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL,
-                                         (const unsigned char *)priv,
-                                         LIBSSH2_ED25519_KEY_LEN);
-
-        ctx->public_key =
-            EVP_PKEY_new_raw_public_key(EVP_PKEY_X25519, NULL,
-                                        (const unsigned char *)pub,
-                                        LIBSSH2_ED25519_KEY_LEN);
-
-        if(ctx->public_key == NULL || ctx->private_key == NULL) {
-            _libssh2_x25519_free(ctx);
-            goto cleanExit;
-        }
 
         *out_ctx = ctx;
     }
@@ -1565,6 +1551,72 @@ cleanExit:
 
     return rc;
 }
+
+
+static int
+gen_publickey_from_ed_evp(LIBSSH2_SESSION *session,
+                          unsigned char **method,
+                          size_t *method_len,
+                          unsigned char **pubkeydata,
+                          size_t *pubkeydata_len,
+                          EVP_PKEY *pk)
+{
+    const char methodName[] = "ssh-ed25519";
+    unsigned char *methodBuf = NULL;
+    size_t rawKeyLen = 0;
+    unsigned char *keyBuf = NULL;
+    size_t bufLen = 0;
+    unsigned char *bufPos = NULL;
+
+    _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
+                   "Computing public key from ED private key envelop");
+
+    methodBuf = LIBSSH2_ALLOC(session, sizeof(methodName) - 1);
+    if(!methodBuf) {
+        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                       "Unable to allocate memory for private key data");
+        goto fail;
+    }
+    memcpy(methodBuf, methodName, sizeof(methodName) - 1);
+
+    if(EVP_PKEY_get_raw_public_key(pk, NULL, &rawKeyLen) != 1) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "EVP_PKEY_get_raw_public_key failed");
+        goto fail;
+    }
+
+    /* Key form is: type_len(4) + type(11) + pub_key_len(4) + pub_key(32). */
+    bufLen = 4 + sizeof(methodName) - 1  + 4 + rawKeyLen;
+    bufPos = keyBuf = LIBSSH2_ALLOC(session, bufLen);
+    if(!keyBuf) {
+        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                       "Unable to allocate memory for private key data");
+        goto fail;
+    }
+
+    _libssh2_store_str(&bufPos, methodName, sizeof(methodName) - 1);
+    _libssh2_store_u32(&bufPos, rawKeyLen);
+
+    if(EVP_PKEY_get_raw_public_key(pk, bufPos, &rawKeyLen) != 1) {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "EVP_PKEY_get_raw_public_key failed");
+        goto fail;
+    }
+
+    *method         = methodBuf;
+    *method_len     = sizeof(methodName) - 1;
+    *pubkeydata     = keyBuf;
+    *pubkeydata_len = bufLen;
+    return 0;
+
+fail:
+    if(methodBuf)
+        LIBSSH2_FREE(session, methodBuf);
+    if(keyBuf)
+        LIBSSH2_FREE(session, keyBuf);
+    return -1;
+}
+
 
 static int
 gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
@@ -1602,25 +1654,11 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
         goto clean_exit;
     }
 
-    ctx = _libssh2_ed25519_new_ctx();
-    if(ctx == NULL) {
-        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                       "Unable to allocate memory for ed25519 key");
-        ret = -1;
-        goto clean_exit;
-    }
-
     /* first 32 bytes of priv_key is the private key, the last 32 bytes are
        the public key */
-    ctx->private_key =
-        EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
-                                     (const unsigned char *)priv_key,
-                                     LIBSSH2_ED25519_KEY_LEN);
-
-    ctx->public_key =
-        EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL,
-                                    (const unsigned char *)pub_key,
-                                    LIBSSH2_ED25519_KEY_LEN);
+    ctx = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
+                                       (const unsigned char*)priv_key,
+                                       LIBSSH2_ED25519_KEY_LEN);
 
     /* comment */
     if(_libssh2_get_string(decrypted, &buf, &tmp_len)) {
@@ -1794,6 +1832,22 @@ _libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx ** ed_ctx,
                                         size_t filedata_len,
                                         unsigned const char *passphrase)
 {
+    libssh2_ed25519_ctx *ctx = NULL;
+
+    _libssh2_init_if_needed();
+
+    if(read_private_key_from_memory((void**)&ctx, (pem_read_bio_func)&PEM_read_bio_PrivateKey,
+                                    filedata, filedata_len, passphrase) == 0) {
+        if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
+            _libssh2_ed25519_free(ctx);
+            return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                  "Private key is not an ed25519 key");
+        }
+
+        *ed_ctx = ctx;
+        return 0;
+    }
+
     return read_openssh_private_key_from_memory((void **)ed_ctx, session,
                                                 "ssh-ed25519",
                                                 filedata, filedata_len,
@@ -1807,37 +1861,25 @@ _libssh2_ed25519_new_public(libssh2_ed25519_ctx ** ed_ctx,
                             const uint8_t key_len)
 {
     libssh2_ed25519_ctx *ctx = NULL;
-    EVP_PKEY *public_key = NULL;
 
     if(ed_ctx == NULL)
         return -1;
 
-    public_key =
-        EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL,
-                                    (const unsigned char *)raw_pub_key,
-                                    key_len);
-    if(public_key == NULL) {
+    ctx = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, NULL,
+                                      raw_pub_key, key_len);
+    if(!ctx)
         return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                               "could not create ED25519 public key");
-    }
-
-    ctx = _libssh2_ed25519_new_ctx();
-    if(ctx == NULL) {
-        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                              "could not alloc public/private key");
-    }
-
-    ctx->public_key = public_key;
 
     if(ed_ctx != NULL)
         *ed_ctx = ctx;
-    else if(ctx != NULL)
+    else if(ctx)
         _libssh2_ed25519_free(ctx);
 
     return 0;
 }
-
 #endif /* LIBSSH2_ED25519 */
+
 
 int
 _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
@@ -2664,7 +2706,7 @@ _libssh2_ed25519_sign(libssh2_ed25519_ctx *ctx, LIBSSH2_SESSION *session,
     unsigned char *sig = NULL;
 
     if(md_ctx != NULL) {
-        if(EVP_DigestSignInit(md_ctx, NULL, NULL, NULL, ctx->private_key) != 1)
+        if(EVP_DigestSignInit(md_ctx, NULL, NULL, NULL, ctx) != 1)
             goto clean_exit;
         if(EVP_DigestSign(md_ctx, NULL, &sig_len, message, message_len) != 1)
             goto clean_exit;
@@ -2781,7 +2823,7 @@ _libssh2_ed25519_verify(libssh2_ed25519_ctx *ctx, const uint8_t *s,
     if(NULL == md_ctx)
         return -1;
 
-    ret = EVP_DigestVerifyInit(md_ctx, NULL, NULL, NULL, ctx->public_key);
+    ret = EVP_DigestVerifyInit(md_ctx, NULL, NULL, NULL, ctx);
     if(ret != 1)
         goto clean_exit;
 
@@ -2958,6 +3000,13 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 #endif
 
     switch(pktype) {
+#if LIBSSH2_ED25519
+    case EVP_PKEY_ED25519 :
+        st = gen_publickey_from_ed_evp(
+            session, method, method_len, pubkeydata, pubkeydata_len, pk);
+        break;
+
+#endif /* LIBSSH2_ED25519 */
     case EVP_PKEY_RSA :
         st = gen_publickey_from_rsa_evp(
             session, method, method_len, pubkeydata, pubkeydata_len, pk);
@@ -3170,6 +3219,13 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 #endif
 
     switch(pktype) {
+#if LIBSSH2_ED25519
+    case EVP_PKEY_ED25519 :
+        st = gen_publickey_from_ed_evp(
+            session, method, method_len, pubkeydata, pubkeydata_len, pk);
+        break;
+
+#endif /* LIBSSH2_ED25519 */
     case EVP_PKEY_RSA :
         st = gen_publickey_from_rsa_evp(session, method, method_len,
                                         pubkeydata, pubkeydata_len, pk);
