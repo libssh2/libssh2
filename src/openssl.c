@@ -1657,7 +1657,7 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
     /* first 32 bytes of priv_key is the private key, the last 32 bytes are
        the public key */
     ctx = EVP_PKEY_new_raw_private_key(EVP_PKEY_ED25519, NULL,
-                                       (const unsigned char*)priv_key,
+                                       (const unsigned char *)priv_key,
                                        LIBSSH2_ED25519_KEY_LEN);
 
     /* comment */
@@ -1836,12 +1836,13 @@ _libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx ** ed_ctx,
 
     _libssh2_init_if_needed();
 
-    if(read_private_key_from_memory((void**)&ctx, (pem_read_bio_func)&PEM_read_bio_PrivateKey,
+    if(read_private_key_from_memory((void **)&ctx,
+                                    (pem_read_bio_func)&PEM_read_bio_PrivateKey,
                                     filedata, filedata_len, passphrase) == 0) {
         if(EVP_PKEY_id(ctx) != EVP_PKEY_ED25519) {
             _libssh2_ed25519_free(ctx);
             return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                  "Private key is not an ed25519 key");
+                                  "Private key is not an ED25519 key");
         }
 
         *ed_ctx = ctx;
@@ -3005,7 +3006,6 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
         st = gen_publickey_from_ed_evp(
             session, method, method_len, pubkeydata, pubkeydata_len, pk);
         break;
-
 #endif /* LIBSSH2_ED25519 */
     case EVP_PKEY_RSA :
         st = gen_publickey_from_rsa_evp(
@@ -3224,7 +3224,6 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
         st = gen_publickey_from_ed_evp(
             session, method, method_len, pubkeydata, pubkeydata_len, pk);
         break;
-
 #endif /* LIBSSH2_ED25519 */
     case EVP_PKEY_RSA :
         st = gen_publickey_from_rsa_evp(session, method, method_len,
