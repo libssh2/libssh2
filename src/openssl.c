@@ -830,7 +830,7 @@ gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
 
     _libssh2_debug(session,
                    LIBSSH2_TRACE_AUTH,
-                   "Computing public key from RSA private key envelop");
+                   "Computing public key from RSA private key envelope");
 
     rsa = EVP_PKEY_get1_RSA(pk);
     if(rsa == NULL) {
@@ -1221,7 +1221,7 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
 
     _libssh2_debug(session,
                    LIBSSH2_TRACE_AUTH,
-                   "Computing public key from DSA private key envelop");
+                   "Computing public key from DSA private key envelope");
 
     dsa = EVP_PKEY_get1_DSA(pk);
     if(dsa == NULL) {
@@ -1569,7 +1569,7 @@ gen_publickey_from_ed_evp(LIBSSH2_SESSION *session,
     unsigned char *bufPos = NULL;
 
     _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                   "Computing public key from ED private key envelop");
+                   "Computing public key from ED private key envelope");
 
     methodBuf = LIBSSH2_ALLOC(session, sizeof(methodName) - 1);
     if(!methodBuf) {
@@ -1698,7 +1698,7 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
         _libssh2_debug(session,
                        LIBSSH2_TRACE_AUTH,
                        "Computing public key from ED25519 "
-                       "private key envelop");
+                       "private key envelope");
 
         method_buf = LIBSSH2_ALLOC(session, 11);  /* ssh-ed25519. */
         if(method_buf == NULL) {
@@ -2277,7 +2277,7 @@ gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
 
     _libssh2_debug(session,
        LIBSSH2_TRACE_AUTH,
-       "Computing public key from EC private key envelop");
+       "Computing public key from EC private key envelope");
 
     bn_ctx = BN_CTX_new();
     if(bn_ctx == NULL)
