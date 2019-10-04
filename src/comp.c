@@ -369,6 +369,7 @@ static const LIBSSH2_COMP_METHOD *no_comp_methods[] = {
 const LIBSSH2_COMP_METHOD **
 _libssh2_comp_methods(LIBSSH2_SESSION *session)
 {
+    #undef compress /* dodge name clash with ZLIB macro */
     if(session->flag.compress)
         return comp_methods;
     else
