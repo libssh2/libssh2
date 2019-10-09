@@ -6,7 +6,7 @@ noinst_PROGRAMS = ssh2
 ssh2_SOURCES = ssh2.c
 endif
 
-ctests = simple$(EXEEXT)
+ctests = simple$(EXEEXT) reinit$(EXEEXT)
 TESTS = $(ctests) mansyntax.sh
 if SSHD
 TESTS += ssh2.sh
