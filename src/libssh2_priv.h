@@ -590,7 +590,6 @@ struct _LIBSSH2_SESSION
 	void *lockhandle;
       LIBSSH2_LOCK_FUNC((*lock));
       LIBSSH2_UNLOCK_FUNC((*unlock));
-	  LIBSSH2_LOCK_FREE_FUNC((*lockfree));
 
     /* Other callbacks */
       LIBSSH2_IGNORE_FUNC((*ssh_msg_ignore));

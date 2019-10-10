@@ -269,10 +269,8 @@ typedef off_t libssh2_struct_stat_size;
 #define LIBSSH2_FREE_FUNC(name)    void name(void *ptr, void **abstract)
 
 /* lock callbacks */
-#define LIBSSH2_LOCK_INIT_FUNC(name)   void* name()
 #define LIBSSH2_LOCK_FUNC(name) 	   void name(void *ptr)
 #define LIBSSH2_UNLOCK_FUNC(name)      void name(void *ptr)
-#define LIBSSH2_LOCK_FREE_FUNC(name)	void name(void* ptr)
 
 typedef struct _LIBSSH2_USERAUTH_KBDINT_PROMPT
 {
@@ -565,13 +563,12 @@ LIBSSH2_API LIBSSH2_SESSION *
 libssh2_session_init_exv2(LIBSSH2_ALLOC_FUNC((*my_alloc)),
                         LIBSSH2_FREE_FUNC((*my_free)),
                         LIBSSH2_REALLOC_FUNC((*my_realloc)), 
-						LIBSSH2_LOCK_INIT_FUNC((*my_lockinit)), 
-						LIBSSH2_LOCK_FREE_FUNC((*my_lockfree)),
+						void* my_lockhandle,
                         LIBSSH2_LOCK_FUNC((*my_lock)),
                         LIBSSH2_UNLOCK_FUNC((*my_unlock)),
 						void *abstract);
-#define libssh2_session_init() libssh2_session_init_exv2(NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL)
-#define libssh2_session_init_ex(alloc,free,realloc, abstract) libssh2_session_init_exv2(alloc,free,realloc, NULL, NULL, NULL, NULL, abstract)
+#define libssh2_session_init() libssh2_session_init_exv2(NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+#define libssh2_session_init_ex(alloc,free,realloc, abstract) libssh2_session_init_exv2(alloc,free,realloc, NULL, NULL, NULL, abstract)
 
 LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session);
 

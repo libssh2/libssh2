@@ -473,8 +473,7 @@ LIBSSH2_API LIBSSH2_SESSION *
 libssh2_session_init_exv2(LIBSSH2_ALLOC_FUNC((*my_alloc)),
                         LIBSSH2_FREE_FUNC((*my_free)),
                         LIBSSH2_REALLOC_FUNC((*my_realloc)), 
-						LIBSSH2_LOCK_INIT_FUNC((*my_lockinit)), 
-						LIBSSH2_LOCK_FREE_FUNC((*my_lockfree)),
+						void* my_lockhandle, 
                         LIBSSH2_LOCK_FUNC((*my_lock)),
                         LIBSSH2_UNLOCK_FUNC((*my_unlock)), 
 						void *abstract)
@@ -482,8 +481,6 @@ libssh2_session_init_exv2(LIBSSH2_ALLOC_FUNC((*my_alloc)),
     LIBSSH2_ALLOC_FUNC((*local_alloc)) 			= libssh2_default_alloc;
     LIBSSH2_FREE_FUNC((*local_free)) 			= libssh2_default_free;
     LIBSSH2_REALLOC_FUNC((*local_realloc)) 		= libssh2_default_realloc;
-	LIBSSH2_LOCK_INIT_FUNC((*local_lockinit)) 	= NULL;
-	LIBSSH2_LOCK_FREE_FUNC((*local_lockfree)) 	= NULL;
     LIBSSH2_LOCK_FUNC((*local_lock)) 			= NULL;
     LIBSSH2_UNLOCK_FUNC((*local_unlock)) 		= NULL;
     LIBSSH2_SESSION *session					= NULL;
@@ -491,18 +488,8 @@ libssh2_session_init_exv2(LIBSSH2_ALLOC_FUNC((*my_alloc)),
     if(my_alloc) {
         local_alloc = my_alloc;
     }
-    if(my_free) {
-        local_free = my_free;
-    }
     if(my_realloc) {
         local_realloc = my_realloc;
-    }
-	
-    if(my_lockinit) {
-        local_lockinit = my_lockinit;
-    }
-    if(my_lockfree) {
-        local_lockfree = my_lockfree;
     }
     if(my_lock) {
         local_lock = my_lock;
@@ -514,11 +501,10 @@ libssh2_session_init_exv2(LIBSSH2_ALLOC_FUNC((*my_alloc)),
     session = local_alloc(sizeof(LIBSSH2_SESSION), &abstract);
     if(session) {
         memset(session, 0, sizeof(LIBSSH2_SESSION));
-		if(local_lockinit && local_lock && local_unlock && local_lockfree){
-			session->lockhandle = local_lockinit();
+		if(my_lockhandle && local_lock && local_unlock){
+			session->lockhandle = my_lockhandle;
 			session->lock=local_lock;
 			session->unlock=local_unlock;
-			session->lockfree=local_lockfree;
 		}
         session->alloc = local_alloc;
         session->free = local_free;
@@ -888,11 +874,6 @@ session_free(LIBSSH2_SESSION *session)
     LIBSSH2_CHANNEL *ch;
     LIBSSH2_LISTENER *l;
     int packets_left = 0;
-
-	if(session && session->lockhandle){
-		session->lockfree(session->lockhandle);
-		session->lockhandle= NULL;
-	}
 	
     if(session->free_state == libssh2_NB_state_idle) {
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
