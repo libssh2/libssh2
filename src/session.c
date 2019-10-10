@@ -461,7 +461,7 @@ libssh2_banner_set(LIBSSH2_SESSION * session, const char *banner)
 }
 
 /*
- * libssh2_session_init_ex
+ * libssh2_session_init_exv2
  *
  * Allocate and initialize a libssh2 session structure. Allows for malloc
  * callbacks in case the calling program has its own memory manager It's
@@ -470,14 +470,21 @@ libssh2_banner_set(LIBSSH2_SESSION * session, const char *banner)
  * to the callbacks (so they know who's asking)
  */
 LIBSSH2_API LIBSSH2_SESSION *
-libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
+libssh2_session_init_exv2(LIBSSH2_ALLOC_FUNC((*my_alloc)),
                         LIBSSH2_FREE_FUNC((*my_free)),
-                        LIBSSH2_REALLOC_FUNC((*my_realloc)), void *abstract)
+                        LIBSSH2_REALLOC_FUNC((*my_realloc)), 
+						LIBSSH2_LOCK_INIT_FUNC((*my_lockinit)),
+                        LIBSSH2_LOCK_FUNC((*my_lock)),
+                        LIBSSH2_UNLOCK_FUNC((*my_unlock)), 
+						void *abstract)
 {
-    LIBSSH2_ALLOC_FUNC((*local_alloc)) = libssh2_default_alloc;
-    LIBSSH2_FREE_FUNC((*local_free)) = libssh2_default_free;
-    LIBSSH2_REALLOC_FUNC((*local_realloc)) = libssh2_default_realloc;
-    LIBSSH2_SESSION *session;
+    LIBSSH2_ALLOC_FUNC((*local_alloc)) 			= libssh2_default_alloc;
+    LIBSSH2_FREE_FUNC((*local_free)) 			= libssh2_default_free;
+    LIBSSH2_REALLOC_FUNC((*local_realloc)) 		= libssh2_default_realloc;
+	LIBSSH2_LOCK_INIT_FUNC((*local_lockinit)) 	= NULL;
+    LIBSSH2_LOCK_FUNC((*local_lock)) 			= NULL;
+    LIBSSH2_UNLOCK_FUNC((*local_unlock)) 		= NULL;
+    LIBSSH2_SESSION *session					= NULL;
 
     if(my_alloc) {
         local_alloc = my_alloc;
@@ -488,10 +495,23 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
     if(my_realloc) {
         local_realloc = my_realloc;
     }
+	
+    if(my_lockinit) {
+        local_lockinit = my_lockinit;
+    }
+    if(my_lock) {
+        local_lock = my_lock;
+    }
+    if(my_unlock) {
+        local_unlock = my_unlock;
+    }
 
     session = local_alloc(sizeof(LIBSSH2_SESSION), &abstract);
     if(session) {
         memset(session, 0, sizeof(LIBSSH2_SESSION));
+		if(local_lockinit){
+			session->lockhandle = local_lockinit(session);
+		}
         session->alloc = local_alloc;
         session->free = local_free;
         session->realloc = local_realloc;

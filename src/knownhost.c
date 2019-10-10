@@ -950,12 +950,15 @@ libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
  */
 
 LIBSSH2_API int
-libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
+libssh2_knownhost_readfile_protection(LIBSSH2_SESSION* session,
+							LIBSSH2_KNOWNHOSTS *hosts,
                            const char *filename, int type)
 {
     FILE *file;
     int num = 0;
     char buf[4092];
+	
+	if(session && session->lockhandle)session->lock(session->lockhandle);
 
     if(type != LIBSSH2_KNOWNHOST_FILE_OPENSSH)
         return _libssh2_error(hosts->session,
@@ -978,7 +981,8 @@ libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
     else
         return _libssh2_error(hosts->session, LIBSSH2_ERROR_FILE,
                               "Failed to open file");
-
+							  
+	if(session && session->lockhandle)session->unlock(session->lockhandle);
     return num;
 }
 
@@ -1188,13 +1192,15 @@ libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
  * Write hosts+key pairs to the given file.
  */
 LIBSSH2_API int
-libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
+libssh2_knownhost_writefile_protection(LIBSSH2_SESSION* session, LIBSSH2_KNOWNHOSTS *hosts,
                             const char *filename, int type)
 {
     struct known_host *node;
     FILE *file;
     int rc = LIBSSH2_ERROR_NONE;
     char buffer[4092];
+	
+	if(session && session->lockhandle)session->lock(session->lockhandle);
 
     /* we only support this single file type for now, bail out on all other
        attempts */
@@ -1228,7 +1234,8 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
         }
     }
     fclose(file);
-
+	
+	if(session && session->lockhandle)session->unlock(session->lockhandle);
     return rc;
 }
 
@@ -1268,4 +1275,109 @@ libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
     *ext = knownhost_to_external(node);
 
     return 0;
+}
+
+
+
+
+static int libssh2_knownhost_get_next_host(LIBSSH2_KNOWNHOSTS*	kh, int typemask, char hostname[], struct libssh2_knownhost** pkh, struct known_host ** ppnode)
+{
+	struct known_host *node = NULL;
+	int 	match 	= 0;
+	int type = typemask & LIBSSH2_KNOWNHOST_TYPE_MASK;
+	if(ppnode && *ppnode != NULL){
+		/* search for the next host */
+		node = *ppnode;
+	}else{
+		/* test the first host */
+		node = _libssh2_list_first(&kh->head);		
+	}
+	*pkh = NULL;
+	*ppnode = NULL;
+	while(node) {
+		switch(node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) {
+		case LIBSSH2_KNOWNHOST_TYPE_PLAIN:
+			if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN)
+				match = !strcmp(hostname, node->name);
+			break;
+		case LIBSSH2_KNOWNHOST_TYPE_CUSTOM:
+			if(type == LIBSSH2_KNOWNHOST_TYPE_CUSTOM)
+				match = !strcmp(hostname, node->name);
+			break;
+		case LIBSSH2_KNOWNHOST_TYPE_SHA1:
+			if(type == LIBSSH2_KNOWNHOST_TYPE_PLAIN) {
+				/* when we have the sha1 version stored, we can use a
+				   plain input to produce a hash to compare with the
+				   stored hash.
+				*/
+				unsigned char hash[SHA_DIGEST_LENGTH];
+				libssh2_hmac_ctx ctx;
+				libssh2_hmac_ctx_init(ctx);
+
+				if(SHA_DIGEST_LENGTH != node->name_len) {
+					/* the name hash length must be the sha1 size or
+					   we can't match it */
+					break;
+				}
+				libssh2_hmac_sha1_init(&ctx, (unsigned char *)node->salt,
+									   node->salt_len);
+				libssh2_hmac_update(ctx, (unsigned char *)hostname,
+									strlen(hostname));
+				libssh2_hmac_final(ctx, hash);
+				libssh2_hmac_cleanup(&ctx);
+
+				if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
+					/* this is a node we're interested in */
+					match = 1;
+			}
+			break;
+		default: /* unsupported type */
+			break;
+		}
+		if(match) {
+			*pkh = &node->external;
+			*ppnode = _libssh2_list_next(&node->node);
+			return 0;
+		}
+		node = _libssh2_list_next(&node->node);
+	}
+	return 1;
+}	
+
+/*
+* @param key : key in format : ssh-rsa AA*************
+* @param hostfile: path to the known file
+*/
+LIBSSH2_API int libssh2_knownhost_add_unique(LIBSSH2_SESSION* session, int typemask, char hostname[], char key[], char hostfile[])
+{
+	int							ret 	= 1;
+	struct known_host*			node 	= NULL;
+	struct libssh2_knownhost* 	entry 	= NULL;
+	LIBSSH2_KNOWNHOSTS*			kh 		= NULL;
+	
+	if(session){
+		kh = libssh2_knownhost_init(session);
+		if(kh){
+			if(session->lockhandle)session->lock(session->lockhandle);
+			ret = libssh2_knownhost_readfile_protection(NULL,kh,
+											hostfile,
+											LIBSSH2_KNOWNHOST_FILE_OPENSSH);
+
+			/*let's delete every entry of this host:*/
+			while(libssh2_knownhost_get_next_host(kh, typemask, hostname, &entry, &node)==0){
+				libssh2_knownhost_del(kh, entry);
+			}
+			/* add the host line:*/
+			hostline(kh, hostname, strlen(hostname), key, strlen(key));
+			/* write to the file:*/
+			ret = libssh2_knownhost_writefile_protection(NULL,kh,
+										hostfile,
+										LIBSSH2_KNOWNHOST_FILE_OPENSSH);
+											
+			if(session->lockhandle)session->unlock(session->lockhandle);		
+			libssh2_knownhost_free(kh);
+		}
+		libssh2_session_free(session);
+	}
+	return ret;
 }

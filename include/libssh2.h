@@ -268,6 +268,11 @@ typedef off_t libssh2_struct_stat_size;
                                               void **abstract)
 #define LIBSSH2_FREE_FUNC(name)    void name(void *ptr, void **abstract)
 
+/* lock callbacks */
+#define LIBSSH2_LOCK_INIT_FUNC(name)   void *name(void **abstract)
+#define LIBSSH2_LOCK_FUNC(name) 	   void name(void *ptr)
+#define LIBSSH2_UNLOCK_FUNC(name)      void name(void *ptr)
+
 typedef struct _LIBSSH2_USERAUTH_KBDINT_PROMPT
 {
     char *text;
@@ -556,10 +561,15 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *
-libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
+libssh2_session_init_exv2(LIBSSH2_ALLOC_FUNC((*my_alloc)),
                         LIBSSH2_FREE_FUNC((*my_free)),
-                        LIBSSH2_REALLOC_FUNC((*my_realloc)), void *abstract);
-#define libssh2_session_init() libssh2_session_init_ex(NULL, NULL, NULL, NULL)
+                        LIBSSH2_REALLOC_FUNC((*my_realloc)), 
+						LIBSSH2_LOCK_INIT_FUNC((*my_lockinit)),
+                        LIBSSH2_LOCK_FUNC((*my_lock)),
+                        LIBSSH2_UNLOCK_FUNC((*my_unlock)), 
+						void *abstract);
+#define libssh2_session_init() libssh2_session_init_exv2(NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+#define libssh2_session_init_ex(alloc,free,realloc, abstract) libssh2_session_init_exv2(alloc,free,realloc, NULL, NULL, NULL, abstract)
 
 LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session);
 
@@ -1115,7 +1125,7 @@ libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
                            const char *line, size_t len, int type);
 
 /*
- * libssh2_knownhost_readfile
+ * libssh2_knownhost_readfile_protection
  *
  * Add hosts+key pairs from a given file.
  *
@@ -1126,10 +1136,11 @@ libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
  */
 
 #define LIBSSH2_KNOWNHOST_FILE_OPENSSH 1
-
-LIBSSH2_API int
-libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
+ LIBSSH2_API int
+libssh2_knownhost_readfile_protection(LIBSSH2_SESSION* session, LIBSSH2_KNOWNHOSTS *hosts,
                            const char *filename, int type);
+
+#define libssh2_knownhost_readfile(hosts,filename,type) libssh2_knownhost_readfile_protection(NULL,hosts,filename,type)
 
 /*
  * libssh2_knownhost_writeline()
@@ -1151,7 +1162,7 @@ libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
                             int type);
 
 /*
- * libssh2_knownhost_writefile
+ * libssh2_knownhost_writefile_protection
  *
  * Write hosts+key pairs to a given file.
  *
@@ -1160,8 +1171,17 @@ libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
  */
 
 LIBSSH2_API int
-libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
+libssh2_knownhost_writefile_protection(LIBSSH2_SESSION* session, LIBSSH2_KNOWNHOSTS *hosts,
                             const char *filename, int type);
+						
+#define libssh2_knownhost_writefile(hosts, filename, type) libssh2_knownhost_writefile_protection(NULL, hosts,filename, type)	
+
+/*
+* update the key of the host and delete older key
+* @param key : key in format : ssh-rsa AA*************
+* @param hostfile: path to the known file
+*/
+LIBSSH2_API int libssh2_knownhost_add_unique(LIBSSH2_SESSION* session, int typemask, char hostname[], char key[], char hostfile[]);
 
 /*
  * libssh2_knownhost_get()
