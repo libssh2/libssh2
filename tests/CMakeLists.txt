@@ -119,20 +119,11 @@ set(TESTS
   keyboard_interactive_auth_fails_with_wrong_response
   keyboard_interactive_auth_succeeds_with_correct_response
   agent_forward_succeeds
+  public_key_auth_succeeds_with_correct_rsa_openssh_key
+  public_key_auth_succeeds_with_correct_ed25519_key
+  public_key_auth_succeeds_with_correct_encrypted_ed25519_key
+  public_key_auth_succeeds_with_correct_ed25519_key_from_mem
   )
-
-if(CRYPTO_BACKEND STREQUAL "OpenSSL")
-    list(APPEND TESTS
-      public_key_auth_succeeds_with_correct_rsa_openssh_key
-    )
-    if(OPENSSL_VERSION VERSION_GREATER "1.1.0")
-      list(APPEND TESTS
-        public_key_auth_succeeds_with_correct_ed25519_key
-        public_key_auth_succeeds_with_correct_encrypted_ed25519_key
-        public_key_auth_succeeds_with_correct_ed25519_key_from_mem
-      )
-    endif()
-endif()
 
 if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
   list(APPEND TESTS

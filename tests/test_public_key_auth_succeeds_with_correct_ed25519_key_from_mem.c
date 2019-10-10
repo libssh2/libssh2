@@ -18,6 +18,11 @@ int test(LIBSSH2_SESSION *session)
     size_t len = 0;
     const char *userauth_list = NULL;
 
+#if defined(LIBSSH2_ED25519) && !LIBSSH2_ED25519
+    fprintf(stderr, "Libssh2 build without ED25519 support, skipping test.");
+    return 0;
+#endif
+    
     userauth_list = libssh2_userauth_list(session, USERNAME, strlen(USERNAME));
     if(userauth_list == NULL) {
         print_last_session_error("libssh2_userauth_list");

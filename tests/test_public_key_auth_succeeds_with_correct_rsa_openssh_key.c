@@ -12,6 +12,11 @@ int test(LIBSSH2_SESSION *session)
 {
     int rc;
 
+#if !defined(OPENSSL_VERSION_NUMBER)
+    fprintf(stderr, "Libssh2 backend not supported, skipping test.");
+    return 0;
+#endif
+
     const char *userauth_list =
         libssh2_userauth_list(session, USERNAME, strlen(USERNAME));
     if(userauth_list == NULL) {
