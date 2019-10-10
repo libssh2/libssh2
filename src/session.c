@@ -488,6 +488,9 @@ libssh2_session_init_exv2(LIBSSH2_ALLOC_FUNC((*my_alloc)),
     if(my_alloc) {
         local_alloc = my_alloc;
     }
+    if(my_free) {
+        local_free = my_free;
+    }
     if(my_realloc) {
         local_realloc = my_realloc;
     }
