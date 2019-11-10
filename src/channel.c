@@ -439,12 +439,13 @@ libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, const char *host,
  * Tunnel TCP/IP connect through the SSH session to direct UNIX socket
  */
 static LIBSSH2_CHANNEL *
-channel_direct_streamlocal(LIBSSH2_SESSION * session, const char *socket_path, const char *shost, int sport)
+channel_direct_streamlocal(LIBSSH2_SESSION * session, const char *socket_path,
+                           const char *shost, int sport)
 {
     LIBSSH2_CHANNEL *channel;
     unsigned char *s;
 
-    if (session->direct_state == libssh2_NB_state_idle) {
+    if(session->direct_state == libssh2_NB_state_idle) {
         session->direct_host_len = strlen(socket_path);
         session->direct_shost_len = strlen(shost);
         session->direct_message_len =
@@ -456,9 +457,9 @@ channel_direct_streamlocal(LIBSSH2_SESSION * session, const char *socket_path, c
 
         s = session->direct_message =
             LIBSSH2_ALLOC(session, session->direct_message_len);
-        if (!session->direct_message) {
+        if(!session->direct_message) {
             _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                           "Unable to allocate memory for direct-streamlocal connection");
+                "Unable to allocate memory for direct-streamlocal connection");
             return NULL;
         }
         _libssh2_store_str(&s, socket_path, session->direct_host_len);
@@ -474,7 +475,7 @@ channel_direct_streamlocal(LIBSSH2_SESSION * session, const char *socket_path, c
                               session->direct_message,
                               session->direct_message_len);
 
-    if (!channel &&
+    if(!channel &&
         libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
         /* The error code is still set to LIBSSH2_ERROR_EAGAIN, set our state
            to created to avoid re-creating the package on next invoke */
@@ -496,7 +497,9 @@ channel_direct_streamlocal(LIBSSH2_SESSION * session, const char *socket_path, c
  * Tunnel TCP/IP connect through the SSH session to direct UNIX socket
  */
 LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION * session, const char *socket_path, const char *shost, int sport)
+libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION * session,
+                                      const char *socket_path,
+                                      const char *shost, int sport)
 {
     LIBSSH2_CHANNEL *ptr;
 
@@ -504,7 +507,7 @@ libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION * session, const char *soc
         return NULL;
 
     BLOCK_ADJUST_ERRNO(ptr, session,
-                       channel_direct_streamlocal(session, socket_path, shost, sport));
+              channel_direct_streamlocal(session, socket_path, shost, sport));
     return ptr;
 }
 
@@ -2221,6 +2224,9 @@ libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 
     if(!channel)
         return LIBSSH2_ERROR_BAD_USE;
+
+    if(!channel->session)
+        return LIBSSH2_ERROR_SOCKET_RECV;
 
     BLOCK_ADJUST(rc, channel->session,
                  _libssh2_channel_write(channel, stream_id,
