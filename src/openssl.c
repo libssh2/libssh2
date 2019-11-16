@@ -640,7 +640,7 @@ _libssh2_EVP_aes_256_ctr(void)
 #endif
 }
 
-#endif /* LIBSSH2_AES_CTR */
+#endif /* LIBSSH2_AES_CTR && !defined(HAVE_EVP_AES_128_CTR) */
 
 void _libssh2_openssl_crypto_init(void)
 {
