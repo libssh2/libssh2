@@ -982,6 +982,13 @@ session_free(LIBSSH2_SESSION *session)
         LIBSSH2_FREE(session, session->remote.lang_prefs);
     }
 
+    /* Free startup_key_state.key_state_low variables */
+    if(session->startup_key_state.key_state_low.private_key != NULL)
+        _libssh2_ecdsa_free(session->startup_key_state.key_state_low.private_key);
+
+    if(session->startup_key_state.key_state_low.public_key_oct != NULL)
+       free(session->startup_key_state.key_state_low.public_key_oct);
+
     /*
      * Make sure all memory used in the state variables are free
      */
