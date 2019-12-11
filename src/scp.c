@@ -755,7 +755,10 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
         _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                        "Unexpected channel close");
     else
+    {
+        session->scpRecv_state = libssh2_NB_state_idle;
         return session->scpRecv_channel;
+    }
     /* fall-through */
   scp_recv_error:
     tmp_err_code = session->err_code;
@@ -1099,7 +1102,10 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                        "Unexpected channel close");
     }
     else
+    {
+        session->scpSend_state = libssh2_NB_state_idle;
         return session->scpSend_channel;
+    }
     /* fall-through */
   scp_send_error:
     tmp_err_code = session->err_code;
