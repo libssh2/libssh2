@@ -2616,6 +2616,7 @@ kex_method_ecdh_key_exchange
         }
 
         LIBSSH2_FREE(session, key_state->data);
+        key_state->data = NULL;
     }
 
 ecdh_clean_exit:
