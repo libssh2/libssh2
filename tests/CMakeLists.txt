@@ -170,6 +170,10 @@ add_target_to_copy_dependencies(
   BEFORE_TARGETS ${TEST_TARGETS})
 
 
+if(LINT)
+  add_dependencies(libssh2_clar lint)
+endif()
+
 # TODO convert mansyntax.sh into CMake script.
 # XXX Just because we can find all three programs, doesn't mean sh can
 # find man and grep
