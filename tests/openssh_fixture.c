@@ -118,9 +118,9 @@ static int run_command_varg(char **output, const char *command, va_list args)
     if(output) {
         /* command output may contain a trailing newline, so we trim
          * whitespace here */
-        size_t end = strlen(buf) - 1;
-        while(end > 0 && isspace(buf[end])) {
-            buf[end] = '\0';
+        size_t end = strlen(buf);
+        while(end > 0 && isspace(buf[end - 1])) {
+            buf[end - 1] = '\0';
         }
 
         *output = strdup(buf);
@@ -140,7 +140,7 @@ static int run_command(char **output, const char *command, ...)
     return ret;
 }
 
-static int build_openssh_server_docker_image()
+static int build_openssh_server_docker_image(void)
 {
     return run_command(NULL, "docker build -t libssh2/openssh_server "
                              "openssh_server");
@@ -157,7 +157,7 @@ static int stop_openssh_server(char *container_id)
     return run_command(NULL, "docker stop %s", container_id);
 }
 
-static const char *docker_machine_name()
+static const char *docker_machine_name(void)
 {
     return getenv("DOCKER_MACHINE_NAME");
 }

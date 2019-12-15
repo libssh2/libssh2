@@ -43,7 +43,7 @@ int test(LIBSSH2_SESSION *session)
     rc = libssh2_channel_request_auth_agent(channel);
     if(rc != 0) {
         fprintf(stderr, "Auth agent request for agent forwarding failed, "
-                "error code %d\n", rc);
+            "error code %d\n", rc);
         return 1;
     }
 
