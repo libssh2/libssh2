@@ -989,7 +989,7 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
 #define LIBSSH2_KNOWNHOST_KEYENC_RAW      (1<<16)
 #define LIBSSH2_KNOWNHOST_KEYENC_BASE64   (2<<16)
 
-/* type of key (3 bits) */
+/* type of key (4 bits) */
 #define LIBSSH2_KNOWNHOST_KEY_MASK         (15<<18)
 #define LIBSSH2_KNOWNHOST_KEY_SHIFT        18
 #define LIBSSH2_KNOWNHOST_KEY_RSA1         (1<<18)
