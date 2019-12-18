@@ -1,11 +1,6 @@
-License: see COPYING
+libssh2 Installation, using CMake
+=================================
 
-Source code: https://github.com/libssh2/libssh2
-
-Web site source code: https://github.com/libssh2/www
-
-Installation instructions are in docs/INSTALL
-=======
 To build libssh2 you will need CMake v2.8 or later [1] and one of the
 following cryptography libraries:
 
@@ -20,10 +15,10 @@ Getting started
 If you are happy with the default options, make a new build directory,
 change to it, configure the build environment and build the project:
 
-  mkdir bin
-  cd bin
-  cmake ..
-  cmake --build .
+    mkdir bin
+    cd bin
+    cmake ..
+    cmake --build .
 
 libssh2 will be built as a static library and will use any
 cryptography library available.  The library binary will be put in
@@ -119,28 +114,32 @@ Tests
 To test the build, run the appropriate test target for your build
 system.  For example:
 
-  cmake --build . --target test
+  cmake --build . --target libssh2_clar
 or
   cmake --build . --target RUN_TESTS
 
-How do I use libssh2 in my project if my project doesn't use CMake?
--------------------------------------------------------------------
+FAQ
+---
+
+### How do I use libssh2 in my project if my project doesn't use CMake?
 
 If you are not using CMake for your own project, install libssh2
 
-  cmake <libssh2 source location>
-  cmake --build .
-  cmake --build . --target install
+	cmake <libssh2 source location>
+  	cmake --build .
+  	cmake --build . --target install
 or
-  cmake --build . --target INSTALL
+
+  	cmake --build . --target INSTALL
 
 and then specify the install location to your project in the normal
 way for your build environment.  If you don't like the default install
 location, add `-DCMAKE_INSTALL_PREFIX=<chosen prefix>` when initially
 configuring the project.
 
-How can I use libssh2 in my project if it also uses CMake?
-----------------------------------------------------------
+--
+
+### How can I use libssh2 in my project if it also uses CMake?
 
 If your own project also uses CMake, you don't need to worry about
 setting it up with libssh2's location.  Just add just the following
