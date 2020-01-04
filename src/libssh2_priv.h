@@ -709,6 +709,8 @@ struct _LIBSSH2_SESSION
     libssh2_nonblocking_states userauth_list_state;
     unsigned char *userauth_list_data;
     size_t userauth_list_data_len;
+    char *userauth_banner;
+    size_t userauth_banner_len;
     packet_requirev_state_t userauth_list_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_password_ex() */

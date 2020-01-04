@@ -53,6 +53,7 @@
 #include "session.h"
 #include "userauth.h"
 
+#define LIBSSH2_USERAUTH_MAX_BANNER 2048
 /* libssh2_userauth_list
  *
  * List authentication methods
@@ -63,8 +64,8 @@
 static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                            unsigned int username_len)
 {
-    static const unsigned char reply_codes[3] =
-        { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
+    static const unsigned char reply_codes[4] =
+        { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_BANNER, 0 };
     /* packet_type(1) + username_len(4) + service_len(4) +
        service(14)"ssh-connection" + method_len(4) = 27 */
     unsigned long methods_len;
@@ -118,21 +119,54 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
     }
 
     if(session->userauth_list_state == libssh2_NB_state_sent) {
-        rc = _libssh2_packet_requirev(session, reply_codes,
-                                      &session->userauth_list_data,
-                                      &session->userauth_list_data_len, 0,
-                                      NULL, 0,
-                               &session->userauth_list_packet_requirev_state);
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
-            _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                           "Would block requesting userauth list");
-            return NULL;
-        }
-        else if(rc || (session->userauth_list_data_len < 1)) {
-            _libssh2_error(session, rc, "Failed getting response");
-            session->userauth_list_state = libssh2_NB_state_idle;
-            return NULL;
-        }
+        do {
+            rc = _libssh2_packet_requirev(session, reply_codes,
+                                          &session->userauth_list_data,
+                                          &session->userauth_list_data_len, 0,
+                                          NULL, 0,
+                                          &session->userauth_list_packet_requirev_state);
+            if(rc == LIBSSH2_ERROR_EAGAIN) {
+                _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                               "Would block requesting userauth list");
+                return NULL;
+            }
+            else if(rc || (session->userauth_list_data_len < 1)) {
+                _libssh2_error(session, rc, "Failed getting response");
+                session->userauth_list_state = libssh2_NB_state_idle;
+                return NULL;
+            }
+            if (session->userauth_list_data[0] == SSH_MSG_USERAUTH_BANNER && (session->userauth_list_data_len >= 5)) {
+                methods_len = _libssh2_ntohu32(session->userauth_list_data + 1);
+                /* Cap to 512 bytes. */
+                if (methods_len > LIBSSH2_USERAUTH_MAX_BANNER) {
+                    _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
+                            "Banner length %u exceeds max allowed (%u)",
+                            methods_len, LIBSSH2_USERAUTH_MAX_BANNER);
+                    methods_len = LIBSSH2_USERAUTH_MAX_BANNER - 1;
+                }
+
+                if (!session->userauth_banner) {
+                    session->userauth_banner = LIBSSH2_ALLOC(session, methods_len + 1);
+                }
+                else if (session->userauth_banner_len < methods_len) {
+                    session->userauth_banner = LIBSSH2_REALLOC(session, session->userauth_banner, methods_len + 1);
+                }
+                if (!session->userauth_banner) {
+                    _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                            "Unable to allocate memory for userauth_banner");
+                    continue;
+                }
+                session->userauth_banner_len = methods_len;
+
+                memmove(session->userauth_banner, session->userauth_list_data + 5, methods_len);
+                session->userauth_banner[methods_len] = '\0';
+                _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
+                        "Banner: %s",
+                        session->userauth_banner);
+                LIBSSH2_FREE(session, session->userauth_list_data);
+            }
+            else break;
+        } while (1);
 
         if(session->userauth_list_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
             /* Wow, who'dve thought... */
@@ -186,6 +220,30 @@ libssh2_userauth_list(LIBSSH2_SESSION * session, const char *user,
     char *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session,
                        userauth_list(session, user, user_len));
+    return ptr;
+}
+
+/* libssh2_userauth_banner
+ *
+ * Retrieve banner message from server, if available.
+ * If no such message is sent by the server or if no authentication attempt has
+ * been made, this function returns NULL.
+ * libssh2_userauth_list makes a "none" authentication attempt and is
+ * sufficient to collect the pre-auth banner message.
+ *
+ * Banner ought to be UTF-8 encoded, and will be truncated to
+ * LIBSSH2_USERAUTH_MAX_BANNER bytes. Length will be returned in
+ * banner_len_out.
+ */
+LIBSSH2_API char *
+libssh2_userauth_banner(LIBSSH2_SESSION * session,
+                       size_t *banner_len_out)
+{
+    char *ptr = NULL;
+    if (session->userauth_banner) {
+        ptr = session->userauth_banner;
+        *banner_len_out = session->userauth_banner_len;
+    }
     return ptr;
 }
 
