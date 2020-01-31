@@ -832,37 +832,35 @@ _libssh2_mbedtls_ecdh_gen_k(_libssh2_bn **k,
                             size_t server_pubkey_len)
 {
     mbedtls_ecp_point pubkey;
+    int rc = 0;
+
+    if(*k == NULL)
+        return -1;
 
     mbedtls_ecp_point_init(&pubkey);
 
     if(mbedtls_ecp_point_read_binary(&privkey->grp, &pubkey,
-                                     server_pubkey, server_pubkey_len) != 0)
-        goto failed;
-
-    *k = _libssh2_mbedtls_bignum_init();
-
-    if(*k == NULL)
-        goto failed;
+                                     server_pubkey, server_pubkey_len) != 0) {
+        rc = -1;
+        goto cleanup;
+    }
 
     if(mbedtls_ecdh_compute_shared(&privkey->grp, *k,
                                    &pubkey, &privkey->d,
                                    mbedtls_ctr_drbg_random,
-                                   &_libssh2_mbedtls_ctr_drbg) != 0)
-        goto failed;
-
-    if(mbedtls_ecp_check_privkey(&privkey->grp, *k) == 0)
+                                   &_libssh2_mbedtls_ctr_drbg) != 0) {
+        rc = -1;
         goto cleanup;
+    }
 
-failed:
-
-    _libssh2_mbedtls_bignum_free(*k);
-    *k = NULL;
+    if(mbedtls_ecp_check_privkey(&privkey->grp, *k) != 0)
+        rc = -1;
 
 cleanup:
 
     mbedtls_ecp_point_free(&pubkey);
 
-    return (*k == NULL) ? -1 : 0;
+    return rc;
 }
 
 #define LIBSSH2_MBEDTLS_ECDSA_VERIFY(digest_type)                             \
