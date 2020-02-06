@@ -237,24 +237,25 @@ libssh2_userauth_list(LIBSSH2_SESSION * session, const char *user,
  *
  * Retrieve banner message from server, if available.
  * If no such message is sent by the server or if no authentication attempt has
- * been made, this function returns NULL.
+ * been made, this function returns LIBSSH2_ERROR_MISSING_AUTH_BANNER.
  * libssh2_userauth_list makes a "none" authentication attempt and is
  * sufficient to collect the pre-auth banner message.
  *
  * Banner ought to be UTF-8 encoded, and will be truncated to
- * LIBSSH2_USERAUTH_MAX_BANNER bytes. Length will be returned in
- * banner_len_out.
+ * LIBSSH2_USERAUTH_MAX_BANNER bytes.
  */
-LIBSSH2_API char *
-libssh2_userauth_banner(LIBSSH2_SESSION * session,
-                       size_t *banner_len_out)
+LIBSSH2_API int
+libssh2_userauth_banner(LIBSSH2_SESSION* session,
+                        char **banner_out)
 {
-    char *ptr = NULL;
-    if(session->userauth_banner) {
-        ptr = session->userauth_banner;
-        *banner_len_out = session->userauth_banner_len;
+    if(!session->userauth_banner) {
+        return _libssh2_error(session,
+                              LIBSSH2_ERROR_MISSING_AUTH_BANNER,
+                              "Missing authentication banner");
     }
-    return ptr;
+
+    *banner_out = session->userauth_banner;
+    return LIBSSH2_ERROR_NONE;
 }
 
 /*
