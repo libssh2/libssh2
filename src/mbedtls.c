@@ -769,6 +769,9 @@ _libssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
     plen = 2 * mbedtls_mpi_size(&(*privkey)->grp.P) + 1;
     *pubkey_oct = LIBSSH2_ALLOC(session, plen);
 
+    if(*pubkey_oct == NULL)
+        goto failed;
+
     if(mbedtls_ecp_point_write_binary(&(*privkey)->grp, &(*privkey)->Q,
                                       MBEDTLS_ECP_PF_UNCOMPRESSED,
                                       pubkey_oct_len, *pubkey_oct, plen) == 0)
