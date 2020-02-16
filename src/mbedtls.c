@@ -766,7 +766,7 @@ _libssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
                             &_libssh2_mbedtls_ctr_drbg) != 0)
         goto failed;
 
-    plen        = 2 * mbedtls_mpi_size(&(*privkey)->grp.P) + 1;
+    plen = 2 * mbedtls_mpi_size(&(*privkey)->grp.P) + 1;
     *pubkey_oct = LIBSSH2_ALLOC(session, plen);
 
     if(mbedtls_ecp_point_write_binary(&(*privkey)->grp, &(*privkey)->Q,
