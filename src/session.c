@@ -589,7 +589,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
     session->err_code = LIBSSH2_ERROR_NONE;
 
     rc = libssh2_keepalive_send(session, &seconds_to_next);
-    if(rc < 0)
+    if(rc)
         return rc;
 
     ms_to_next = seconds_to_next * 1000;
