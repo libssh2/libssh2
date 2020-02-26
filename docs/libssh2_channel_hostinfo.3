@@ -1,0 +1,38 @@
+.TH libssh2_channel_hostinfo 3 "26 Feb 2020" "libssh2 1.9.0" "libssh2 manual"
+.SH NAME
+libssh2_channel_hostinfo - read host information.
+.SH SYNOPSIS
+#include <libssh2.h>
+
+LIBSSH2_API int libssh2_channel_hostinfo(LIBSSH2_CHANNEL *channel,
+                                         unsigned char *shost,
+                                         size_t shost_buffer_size,
+                                         unsigned int *sport,
+                                         unsigned int *shost_len);
+
+.SH DESCRIPTION
+This function is used to provide host information which is connection to the remote server from
+library to user space application. This information can then be used to perform a reverse SSH
+tunnel with libssh2.
+underlying function \fIlibssh2_channel_read_ex(3)\fP.
+
+\fIchannel\fP - Active channel stream to read from.
+
+\fIshost\fP - Pointer to host to tell the application the IP address the connection originated on.
+
+\fIshost_buffer_size\fP - Size of buffer allocated for shost.
+
+\fIsport\fP - Pointer to port to tell the application the port the connection originated from.
+
+\fIshost_len\fP - Pointer to length of shost to tell the application the length of shost.
+
+.SH RETURN VALUE
+Return 0 on successful and error values if failed.
+
+.SH ERRORS
+\fILIBSSH2_ERROR_BAD_USE\fP - channel/shost is not initialized.
+
+\fILIBSSH2_ERROR_INVAL\fP - shost_buffer_size is too small and overflow would occur.
+
+.SH SEE ALSO
+N/A

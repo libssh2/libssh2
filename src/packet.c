@@ -156,7 +156,8 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                                                           channel->
                                                           channel_type_len +
                                                           1);
-                    if(!channel->channel_type) {
+                    channel->shost = LIBSSH2_ALLOC(session, strlen((char *)listen_state->shost) + 1);
+                    if(!channel->channel_type || !channel->shost) {
                         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                        "Unable to allocate a channel for new"
                                        " connection");
@@ -167,7 +168,11 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                     }
                     memcpy(channel->channel_type, "forwarded-tcpip",
                            channel->channel_type_len + 1);
+                    memcpy(channel->shost, listen_state->shost, strlen((char *)listen_state->shost));
 
+                    channel->shost[strlen((char *)listen_state->shost)] = 0;
+                    channel->sport = listen_state->sport;
+                    channel->shost_len = listen_state->shost_len;
                     channel->remote.id = listen_state->sender_channel;
                     channel->remote.window_size_initial =
                         LIBSSH2_CHANNEL_WINDOW_DEFAULT;

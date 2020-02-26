@@ -54,6 +54,34 @@
 #include "session.h"
 
 /*
+ * libssh2_channel_hostinfo
+ *
+ * Pass shost, sport, and shost_len from library to user space application.
+ *
+ * Return 0 on success, LIBSSH2_ERROR_BAD_USE if channel/shost is not initialized
+ * and LIBSSH2_ERROR_INVAL if buffer overflow would occur.
+ */
+LIBSSH2_API int
+libssh2_channel_hostinfo(LIBSSH2_CHANNEL *channel, unsigned char *shost,
+                         size_t shost_buffer_size, unsigned int *sport,
+                         unsigned int *shost_len)
+{
+    int rc = 0;
+
+    if (!channel || !channel->shost)
+        return LIBSSH2_ERROR_BAD_USE;
+
+    if (shost_buffer_size < strlen((char*)channel->shost))
+        return LIBSSH2_ERROR_INVAL;
+
+    memcpy(shost, channel->shost, strlen((char*)channel->shost));
+    *sport = channel->sport;
+    *shost_len = channel->shost_len;
+
+    return rc;
+}
+
+/*
  *  _libssh2_channel_nextid
  *
  * Determine the next channel ID we can use at our end
@@ -2614,6 +2642,11 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     /* free "channel_type" */
     if(channel->channel_type) {
         LIBSSH2_FREE(session, channel->channel_type);
+    }
+
+    /* free "shost" */
+    if (channel->shost) {
+        LIBSSH2_FREE(session, channel->shost);
     }
 
     /* Unlink from channel list */
