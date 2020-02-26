@@ -274,7 +274,7 @@ static int
 agent_connect_pageant(LIBSSH2_AGENT *agent)
 {
     HWND hwnd;
-    hwnd = FindWindow("Pageant", "Pageant");
+    hwnd = FindWindowA("Pageant", "Pageant");
     if(!hwnd)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                               "failed connecting agent");
@@ -297,15 +297,15 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_INVAL,
                               "illegal input");
 
-    hwnd = FindWindow("Pageant", "Pageant");
+    hwnd = FindWindowA("Pageant", "Pageant");
     if(!hwnd)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                               "found no pageant");
 
     snprintf(mapname, sizeof(mapname),
              "PageantRequest%08x%c", (unsigned)GetCurrentThreadId(), '\0');
-    filemap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
-                                0, PAGEANT_MAX_MSGLEN, mapname);
+    filemap = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
+                                 0, PAGEANT_MAX_MSGLEN, mapname);
 
     if(filemap == NULL || filemap == INVALID_HANDLE_VALUE)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
