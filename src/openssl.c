@@ -601,7 +601,7 @@ _libssh2_EVP_aes_128_ctr(void)
 #else
     static EVP_CIPHER aes_ctr_cipher;
     if(!aes_128_ctr_cipher) {
-        aes_128_ctr_cipher = &aes_ctr_cipher; 
+        aes_128_ctr_cipher = &aes_ctr_cipher;
         make_ctr_evp(16, &aes_128_ctr_cipher, 0);
     }
     return aes_128_ctr_cipher;
@@ -620,7 +620,7 @@ _libssh2_EVP_aes_192_ctr(void)
     if(!aes_192_ctr_cipher) {
         aes_192_ctr_cipher = &aes_ctr_cipher;
         make_ctr_evp(24, &aes_192_ctr_cipher, 0);
-    }       
+    }
     return aes_192_ctr_cipher;
 #endif
 }
