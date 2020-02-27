@@ -600,9 +600,11 @@ _libssh2_EVP_aes_128_ctr(void)
         aes_128_ctr_cipher;
 #else
     static EVP_CIPHER aes_ctr_cipher;
-    static EVP_CIPHER * aes_ctr_cipher_ptr = &aes_ctr_cipher;
-    return !aes_ctr_cipher.key_len ?
-        make_ctr_evp(16, &aes_ctr_cipher_ptr, 0) : &aes_ctr_cipher;
+    if(!aes_128_ctr_cipher) {
+        aes_128_ctr_cipher = &aes_ctr_cipher; 
+        make_ctr_evp(16, &aes_128_ctr_cipher, 0);
+    }
+    return aes_128_ctr_cipher;
 #endif
 }
 
@@ -615,9 +617,11 @@ _libssh2_EVP_aes_192_ctr(void)
         aes_192_ctr_cipher;
 #else
     static EVP_CIPHER aes_ctr_cipher;
-    static EVP_CIPHER * aes_ctr_cipher_ptr = &aes_ctr_cipher;
-    return !aes_ctr_cipher.key_len ?
-        make_ctr_evp(24, &aes_ctr_cipher_ptr, 0) : &aes_ctr_cipher;
+    if(!aes_192_ctr_cipher) {
+        aes_192_ctr_cipher = &aes_ctr_cipher;
+        make_ctr_evp(24, &aes_192_ctr_cipher, 0);
+    }       
+    return aes_192_ctr_cipher;
 #endif
 }
 
@@ -630,9 +634,11 @@ _libssh2_EVP_aes_256_ctr(void)
         aes_256_ctr_cipher;
 #else
     static EVP_CIPHER aes_ctr_cipher;
-    static EVP_CIPHER * aes_ctr_cipher_ptr = &aes_ctr_cipher;
-    return !aes_ctr_cipher.key_len ?
-        make_ctr_evp(32, &aes_ctr_cipher_ptr, 0) : &aes_ctr_cipher;
+    if(!aes_256_ctr_cipher) {
+        aes_256_ctr_cipher = &aes_ctr_cipher;
+        make_ctr_evp(32, &aes_256_ctr_cipher, 0);
+    }
+    return aes_256_ctr_cipher;
 #endif
 }
 
