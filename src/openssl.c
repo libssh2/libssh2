@@ -433,12 +433,6 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     return ret == 1 ? 0 : 1;
 }
 
-#ifndef HAVE_EVP_AES_128_CTR
-static EVP_CIPHER * aes_128_ctr_cipher = NULL;
-static EVP_CIPHER * aes_192_ctr_cipher = NULL;
-static EVP_CIPHER * aes_256_ctr_cipher = NULL;
-#endif
-
 #if LIBSSH2_AES_CTR && !defined(HAVE_EVP_AES_128_CTR)
 
 #include <openssl/aes.h>
@@ -450,6 +444,10 @@ typedef struct
     EVP_CIPHER_CTX *aes_ctx;
     unsigned char ctr[AES_BLOCK_SIZE];
 } aes_ctr_ctx;
+
+static EVP_CIPHER * aes_128_ctr_cipher = NULL;
+static EVP_CIPHER * aes_192_ctr_cipher = NULL;
+static EVP_CIPHER * aes_256_ctr_cipher = NULL;
 
 static int
 aes_ctr_init(EVP_CIPHER_CTX *ctx, const unsigned char *key,
@@ -642,7 +640,7 @@ _libssh2_EVP_aes_256_ctr(void)
 #endif
 }
 
-#endif /* LIBSSH2_AES_CTR */
+#endif /* LIBSSH2_AES_CTR && !defined(HAVE_EVP_AES_128_CTR) */
 
 void _libssh2_openssl_crypto_init(void)
 {
@@ -661,16 +659,16 @@ void _libssh2_openssl_crypto_init(void)
     ENGINE_register_all_complete();
 #endif
 #endif
-#ifndef HAVE_EVP_AES_128_CTR
-        aes_128_ctr_cipher = (EVP_CIPHER *) _libssh2_EVP_aes_128_ctr();
-        aes_192_ctr_cipher = (EVP_CIPHER *) _libssh2_EVP_aes_192_ctr();
-        aes_256_ctr_cipher = (EVP_CIPHER *) _libssh2_EVP_aes_256_ctr();
+#if LIBSSH2_AES_CTR && !defined(HAVE_EVP_AES_128_CTR)
+    aes_128_ctr_cipher = (EVP_CIPHER *) _libssh2_EVP_aes_128_ctr();
+    aes_192_ctr_cipher = (EVP_CIPHER *) _libssh2_EVP_aes_192_ctr();
+    aes_256_ctr_cipher = (EVP_CIPHER *) _libssh2_EVP_aes_256_ctr();
 #endif
 }
 
 void _libssh2_openssl_crypto_exit(void)
 {
-#ifndef HAVE_EVP_AES_128_CTR
+#if LIBSSH2_AES_CTR && !defined(HAVE_EVP_AES_128_CTR)
 #ifdef HAVE_OPAQUE_STRUCTS
     if(aes_128_ctr_cipher) {
         EVP_CIPHER_meth_free(aes_128_ctr_cipher);
