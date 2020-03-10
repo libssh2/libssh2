@@ -2109,7 +2109,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
            that back. We may have gotten that info while draining the incoming
            transport layer until EAGAIN so we must not be fooled by that
            return code. */
-        if(channel->remote.eof || channel->remote.close)
+        if(channel->remote.eof || channel->closed)
             return 0;
         else if(rc != LIBSSH2_ERROR_EAGAIN)
             return 0;
@@ -2259,7 +2259,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                        (int) buflen, channel->local.id, channel->remote.id,
                        stream_id);
 
-        if(channel->local.close)
+        if(channel->closed)
             return _libssh2_error(channel->session,
                                   LIBSSH2_ERROR_CHANNEL_CLOSED,
                                   "We've already closed this channel");
@@ -2548,7 +2548,7 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
     LIBSSH2_SESSION *session = channel->session;
     int rc = 0;
 
-    if(channel->local.close) {
+    if(channel->closed) {
         /* Already closed, act like we sent another close,
          * even though we didn't... shhhhhh */
         channel->close_state = libssh2_NB_state_idle;
@@ -2603,16 +2603,12 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
     if(channel->close_state == libssh2_NB_state_sent) {
         /* We must wait for the remote SSH_MSG_CHANNEL_CLOSE message */
 
-        while(!channel->remote.close && !rc &&
+        while(!channel->closed && !rc &&
                (session->socket_state != LIBSSH2_SOCKET_DISCONNECTED))
             rc = _libssh2_transport_read(session);
     }
 
     if(rc != LIBSSH2_ERROR_EAGAIN) {
-        /* set the local close state first when we're perfectly confirmed to
-           not do any more EAGAINs */
-        channel->local.close = 1;
-
         /* We call the callback last in this function to make it keep the local
            data as long as EAGAIN is returned. */
         if(channel->close_cb) {
@@ -2671,10 +2667,10 @@ static int channel_wait_closed(LIBSSH2_CHANNEL *channel)
      * While channel is not closed, read more packets from the network.
      * Either the channel will be closed or network timeout will occur.
      */
-    if(!channel->remote.close) {
+    if(!channel->closed) {
         do {
             rc = _libssh2_transport_read(session);
-            if(channel->remote.close)
+            if(channel->closed)
                 /* it is now closed, move on! */
                 break;
         } while(rc > 0);
@@ -2731,7 +2727,7 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     }
 
     /* Allow channel freeing even when the socket has lost its connection */
-    if(!channel->local.close
+    if(!channel->closed
         && (session->socket_state == LIBSSH2_SOCKET_CONNECTED)) {
         rc = _libssh2_channel_close(channel);
 

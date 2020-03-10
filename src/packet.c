@@ -937,7 +937,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                            channelp->local.id,
                            channelp->remote.id);
 
-            channelp->remote.close = 1;
+            channelp->closed = 1;
             channelp->remote.eof = 1;
 
             LIBSSH2_FREE(session, data);

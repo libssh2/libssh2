@@ -358,8 +358,8 @@ typedef struct _libssh2_channel_data
     /* Limits and restrictions */
     uint32_t window_size_initial, window_size, packet_size;
 
-    /* Set to 1 when CHANNEL_CLOSE / CHANNEL_EOF sent/received */
-    char close, eof, extended_data_ignore_mode;
+    /* Set to 1 when CHANNEL_EOF sent/received */
+    char eof, extended_data_ignore_mode;
 } libssh2_channel_data;
 
 struct _LIBSSH2_CHANNEL
@@ -374,6 +374,9 @@ struct _LIBSSH2_CHANNEL
 
     /* channel's program exit signal (without the SIG prefix) */
     char *exit_signal;
+
+    /* set to 1 when the channel is closed */
+    char closed;
 
     libssh2_channel_data local, remote;
     /* Amount of bytes to be refunded to receive window (but not yet sent) */
