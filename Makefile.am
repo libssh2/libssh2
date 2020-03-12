@@ -119,7 +119,7 @@ $(DSP): win32/msvcproj.head win32/msvcproj.foot Makefile.am
 	for file in $$sorted_hdrs; do \
 		echo "# Begin Source File"; \
 		echo ""; \
-		if [ "$$file" == "libssh2_config.h" ]; \
+		if [ "$$file" = "libssh2_config.h" ]; \
 		then \
 			echo "SOURCE=.\\"$$file; \
 		else \
