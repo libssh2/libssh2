@@ -38,7 +38,8 @@
 
 #include "libssh2_priv.h"
 #ifdef LIBSSH2_HAVE_ZLIB
-# include <zlib.h>
+#include <zlib.h>
+#undef compress /* dodge name clash with ZLIB macro */
 #endif
 
 #include "comp.h"
@@ -369,7 +370,6 @@ static const LIBSSH2_COMP_METHOD *no_comp_methods[] = {
 const LIBSSH2_COMP_METHOD **
 _libssh2_comp_methods(LIBSSH2_SESSION *session)
 {
-    #undef compress /* dodge name clash with ZLIB macro */
     if(session->flag.compress)
         return comp_methods;
     else
