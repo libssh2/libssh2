@@ -647,7 +647,7 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
 {
     unsigned char *r, *s, *name;
     size_t r_len, s_len, name_len;
-    unsigned int len;
+    uint32_t len;
     struct string_buf buf;
     libssh2_ecdsa_ctx *ctx = (libssh2_ecdsa_ctx *) (*abstract);
 
