@@ -1671,7 +1671,7 @@ kex_method_diffie_hellman_group14_sha256_key_exchange(LIBSSH2_SESSION *session,
                                                       * key_state)
 {
     return kex_method_diffie_hellman_group14_key_exchange(session, key_state,
-                                                          diffie_hellman_sha256);
+                                                        diffie_hellman_sha256);
 }
 
 
