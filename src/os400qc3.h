@@ -233,6 +233,7 @@ typedef struct {        /* Diffie-Hellman context. */
 
 #define libssh2_sha1_ctx        Qc3_Format_ALGD0100_T
 #define libssh2_sha256_ctx      Qc3_Format_ALGD0100_T
+#define libssh2_sha512_ctx      Qc3_Format_ALGD0100_T
 #define libssh2_md5_ctx         Qc3_Format_ALGD0100_T
 #define libssh2_hmac_ctx        _libssh2_os400qc3_crypto_ctx
 #define _libssh2_cipher_ctx     _libssh2_os400qc3_crypto_ctx
@@ -247,9 +248,17 @@ typedef struct {        /* Diffie-Hellman context. */
                                 libssh2_os400qc3_hash_update(&(ctx), data, len)
 #define libssh2_sha256_final(ctx, out)                                      \
                                 libssh2_os400qc3_hash_final(&(ctx), out)
-#define libssh2_sha256(message,  len, out)                                   \
+#define libssh2_sha256(message, len, out)                                   \
                                 libssh2_os400qc3_hash(message, len, out,    \
                                                       Qc3_SHA256)
+#define libssh2_sha512_init(x)  libssh2_os400qc3_hash_init(x, Qc3_SHA512)
+#define libssh2_sha512_update(ctx, data, len)                               \
+                                libssh2_os400qc3_hash_update(&(ctx), data, len)
+#define libssh2_sha512_final(ctx, out)                                      \
+                                libssh2_os400qc3_hash_final(&(ctx), out)
+#define libssh2_sha512(message, len, out)                                   \
+                                libssh2_os400qc3_hash(message, len, out,    \
+                                                      Qc3_SHA512)
 #define libssh2_md5_init(x)     libssh2_os400qc3_hash_init(x, Qc3_MD5)
 #define libssh2_md5_update(ctx, data, len)                                  \
                                 libssh2_os400qc3_hash_update(&(ctx), data, len)
