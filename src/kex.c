@@ -1560,13 +1560,24 @@ kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION *session,
 
 
 
-/* kex_method_diffie_hellman_group14_sha1_key_exchange
- * Diffie-Hellman Group14 Key Exchange using SHA1
+/* kex_method_diffie_hellman_group14_key_exchange
+ * Diffie-Hellman Group14 Key Exchange with hash function callback
  */
+typedef int (*diffie_hellman_hash_func_t)(LIBSSH2_SESSION *,
+                                          _libssh2_bn *,
+                                          _libssh2_bn *,
+                                          int,
+                                          unsigned char,
+                                          unsigned char,
+                                          unsigned char *,
+                                          unsigned long,
+                                          kmdhgGPshakex_state_t *);
 static int
-kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_SESSION *session,
-                                                    key_exchange_state_low_t
-                                                    * key_state)
+kex_method_diffie_hellman_group14_key_exchange(LIBSSH2_SESSION *session,
+                                               key_exchange_state_low_t
+                                               * key_state,
+                                               diffie_hellman_hash_func_t
+                                               hashfunc)
 {
     static const unsigned char p_value[256] = {
         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -1619,9 +1630,9 @@ kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_SESSION *session,
 
         key_state->state = libssh2_NB_state_created;
     }
-    ret = diffie_hellman_sha1(session, key_state->g, key_state->p,
-                              256, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
-                              NULL, 0, &key_state->exchange_state);
+    ret = hashfunc(session, key_state->g, key_state->p,
+                   256, SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
+                   NULL, 0, &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN) {
         return ret;
     }
@@ -1633,6 +1644,34 @@ kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_SESSION *session,
     key_state->g = NULL;
 
     return ret;
+}
+
+
+
+/* kex_method_diffie_hellman_group14_sha1_key_exchange
+ * Diffie-Hellman Group14 Key Exchange using SHA1
+ */
+static int
+kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_SESSION *session,
+                                                    key_exchange_state_low_t
+                                                    * key_state)
+{
+    return kex_method_diffie_hellman_group14_key_exchange(session, key_state,
+                                                          diffie_hellman_sha1);
+}
+
+
+
+/* kex_method_diffie_hellman_group14_sha256_key_exchange
+ * Diffie-Hellman Group14 Key Exchange using SHA256
+ */
+static int
+kex_method_diffie_hellman_group14_sha256_key_exchange(LIBSSH2_SESSION *session,
+                                                      key_exchange_state_low_t
+                                                      * key_state)
+{
+    return kex_method_diffie_hellman_group14_key_exchange(session, key_state,
+                                                        diffie_hellman_sha256);
 }
 
 
@@ -3263,6 +3302,12 @@ static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group14_sha1 = {
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
+static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group14_sha256 = {
+    "diffie-hellman-group14-sha256",
+    kex_method_diffie_hellman_group14_sha256_key_exchange,
+    LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+};
+
 static const LIBSSH2_KEX_METHOD
 kex_method_diffie_helman_group_exchange_sha1 = {
     "diffie-hellman-group-exchange-sha1",
@@ -3325,6 +3370,7 @@ static const LIBSSH2_KEX_METHOD *libssh2_kex_methods[] = {
     &kex_method_ssh_curve25519_sha256,
     &kex_method_ssh_curve25519_sha256_libssh,
 #endif
+    &kex_method_diffie_helman_group14_sha256,
     &kex_method_diffie_helman_group_exchange_sha256,
     &kex_method_diffie_helman_group_exchange_sha1,
     &kex_method_diffie_helman_group14_sha1,
