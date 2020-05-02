@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015-2016 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+ * Copyright (C) 2020 Patrick Monnerat <patrick@monnerat.net>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -355,7 +356,8 @@ extern void     _libssh2_os400qc3_crypto_dtor(_libssh2_os400qc3_crypto_ctx *x);
 extern int      libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x,
                                            unsigned int algo);
 extern void     libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
-                                             unsigned char *data, int len);
+                                             const unsigned char *data,
+                                             int len);
 extern void     libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
                                             unsigned char *out);
 extern int      libssh2_os400qc3_hash(const unsigned char *message,

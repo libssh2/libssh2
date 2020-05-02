@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2015-2016 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+ * Copyright (C) 2020 Patrick Monnerat <patrick@monnerat.net>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -965,7 +966,7 @@ libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algorithm)
 
 void
 libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
-                             unsigned char *data, int len)
+                             const unsigned char *data, int len)
 {
     char dummy[64];
 
@@ -995,7 +996,7 @@ libssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
     if(!libssh2_os400qc3_hash_init(&ctx, algo))
         return 1;
 
-    libssh2_os400qc3_hash_update(&ctx, (unsigned char *) message, len);
+    libssh2_os400qc3_hash_update(&ctx, message, len);
     libssh2_os400qc3_hash_final(&ctx, out);
     return 0;
 }
@@ -1390,8 +1391,7 @@ pbkdf1(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
 
     /* Initial hash. */
     libssh2_os400qc3_hash_init(&hctx, pkcs5->hash);
-    libssh2_os400qc3_hash_update(&hctx, (unsigned char *) passphrase,
-                                 strlen(passphrase));
+    libssh2_os400qc3_hash_update(&hctx, passphrase, strlen(passphrase));
     hctx.Final_Op_Flag = Qc3_Final;
     Qc3CalculateHash((char *) pkcs5->salt, &len, Qc3_Data, (char *) &hctx,
                      Qc3_Alg_Token, anycsp, NULL, *dk, (char *) &ecnull);
