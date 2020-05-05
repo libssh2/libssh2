@@ -176,7 +176,7 @@ static void _libssh2_sha_algo_ctx_final(int sha_algo, void *ctx,
     }
 }
 
-static void _libssh2_sha_algo_value_hash(int sha_algo, 
+static void _libssh2_sha_algo_value_hash(int sha_algo,
                   LIBSSH2_SESSION *session,
                   kmdhgGPshakex_state_t *exchange_state,
                   unsigned char **data, size_t data_len,
