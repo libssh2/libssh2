@@ -128,16 +128,16 @@ static void _libssh2_sha_algo_ctx_update(int sha_algo, void *ctx,
                                   void *data, size_t len)
 {
     if(sha_algo == 512) {
-        libssh2_sha512_update((libssh2_sha512_ctx)ctx, data, len);
+        libssh2_sha512_update(ctx, data, len);
     }
     else if(sha_algo == 384) {
-        libssh2_sha384_update((libssh2_sha384_ctx)ctx, data, len);
+        libssh2_sha384_update(ctx, data, len);
     }
     else if(sha_algo == 256) {
-        libssh2_sha256_update((libssh2_sha256_ctx)ctx, data, len);
+        libssh2_sha256_update(ctx, data, len);
     }
     else if(sha_algo == 1) {
-        libssh2_sha1_update((libssh2_sha1_ctx)ctx, data, len);
+        libssh2_sha1_update(ctx, data, len);
     }
     else {
 #if LIBSSH2DEBUG
@@ -150,16 +150,16 @@ static void _libssh2_sha_algo_ctx_final(int sha_algo, void *ctx,
                                  void *hash)
 {
     if(sha_algo == 512) {
-        libssh2_sha512_final((libssh2_sha512_ctx)ctx, hash);
+        libssh2_sha512_final(ctx, hash);
     }
     else if(sha_algo == 384) {
-        libssh2_sha384_final((libssh2_sha384_ctx)ctx, hash);
+        libssh2_sha384_final(ctx, hash);
     }
     else if(sha_algo == 256) {
-        libssh2_sha256_final((libssh2_sha256_ctx)ctx, hash);
+        libssh2_sha256_final(ctx, hash);
     }
     else if(sha_algo == 1) {
-        libssh2_sha1_final((libssh2_sha1_ctx)ctx, hash);
+        libssh2_sha1_final(ctx, hash);
     }
     else {
 #if LIBSSH2DEBUG
