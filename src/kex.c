@@ -125,19 +125,23 @@ static void _libssh2_sha_algo_ctx_init(int sha_algo, void *ctx)
 }
 
 static void _libssh2_sha_algo_ctx_update(int sha_algo, void *ctx,
-                                  void *data, size_t len)
+                                         void *data, size_t len)
 {
     if(sha_algo == 512) {
-        libssh2_sha512_update(ctx, data, len);
+        libssh2_sha512_ctx *_ctx = (libssh2_sha512_ctx*)ctx;
+        libssh2_sha512_update(*_ctx, data, len);
     }
     else if(sha_algo == 384) {
-        libssh2_sha384_update(ctx, data, len);
+        libssh2_sha384_ctx *_ctx = (libssh2_sha384_ctx*)ctx;
+        libssh2_sha384_update(*_ctx, data, len);
     }
     else if(sha_algo == 256) {
-        libssh2_sha256_update(ctx, data, len);
+        libssh2_sha256_ctx *_ctx = (libssh2_sha256_ctx*)ctx;
+        libssh2_sha256_update(*_ctx, data, len);
     }
     else if(sha_algo == 1) {
-        libssh2_sha1_update(ctx, data, len);
+        libssh2_sha1_ctx *_ctx = (libssh2_sha1_ctx*)ctx;
+        libssh2_sha1_update(*_ctx, data, len);
     }
     else {
 #if LIBSSH2DEBUG
@@ -147,19 +151,23 @@ static void _libssh2_sha_algo_ctx_update(int sha_algo, void *ctx,
 }
 
 static void _libssh2_sha_algo_ctx_final(int sha_algo, void *ctx,
-                                 void *hash)
+                                        void *hash)
 {
     if(sha_algo == 512) {
-        libssh2_sha512_final(ctx, hash);
+        libssh2_sha512_ctx *_ctx = (libssh2_sha512_ctx*)ctx;
+        libssh2_sha512_final(*_ctx, hash);
     }
     else if(sha_algo == 384) {
-        libssh2_sha384_final(ctx, hash);
+        libssh2_sha384_ctx *_ctx = (libssh2_sha384_ctx*)ctx;
+        libssh2_sha384_final(*_ctx, hash);
     }
     else if(sha_algo == 256) {
-        libssh2_sha256_final(ctx, hash);
+        libssh2_sha256_ctx *_ctx = (libssh2_sha256_ctx*)ctx;
+        libssh2_sha256_final(*_ctx, hash);
     }
     else if(sha_algo == 1) {
-        libssh2_sha1_final(ctx, hash);
+        libssh2_sha1_ctx *_ctx = (libssh2_sha1_ctx*)ctx;
+        libssh2_sha1_final(*_ctx, hash);
     }
     else {
 #if LIBSSH2DEBUG
@@ -523,18 +531,18 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         if(session->local.banner) {
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              strlen((char *) session->local.banner) - 2);
-            _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+            _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                          exchange_state->h_sig_comp, 4);
-            _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+            _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                 session->local.banner,
                                 strlen((char *) session->local.banner) - 2);
         }
         else {
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-            _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+            _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                          exchange_state->h_sig_comp, 4);
-            _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+            _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                     (unsigned char *)
                                     LIBSSH2_SSH_DEFAULT_BANNER,
                                     sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
@@ -542,33 +550,33 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          strlen((char *) session->remote.banner));
-        _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                      exchange_state->h_sig_comp, 4);
-        _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                      session->remote.banner,
                                      strlen((char *) session->remote.banner));
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->local.kexinit_len);
-        _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                      exchange_state->h_sig_comp, 4);
-        _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                      session->local.kexinit,
                                      session->local.kexinit_len);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->remote.kexinit_len);
-        _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                      exchange_state->h_sig_comp, 4);
-        _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                      session->remote.kexinit,
                                      session->remote.kexinit_len);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->server_hostkey_len);
-        _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                      exchange_state->h_sig_comp, 4);
-        _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                      session->server_hostkey,
                                      session->server_hostkey_len);
 
@@ -581,38 +589,38 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                              LIBSSH2_DH_GEX_OPTGROUP);
             _libssh2_htonu32(exchange_state->h_sig_comp + 8,
                              LIBSSH2_DH_GEX_MAXGROUP);
-            _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+            _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                          exchange_state->h_sig_comp, 12);
 #else
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              LIBSSH2_DH_GEX_OPTGROUP);
-            _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+            _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                          exchange_state->h_sig_comp, 4);
 #endif
         }
 
         if(midhash) {
-            _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+            _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                          midhash, midhash_len);
         }
 
-        _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                      exchange_state->e_packet + 1,
                                      exchange_state->e_packet_len - 1);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          exchange_state->f_value_len);
-        _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                      exchange_state->h_sig_comp, 4);
-        _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                      exchange_state->f_value,
                                      exchange_state->f_value_len);
 
-        _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_update(sha_algo_value, &exchange_hash_ctx,
                                      exchange_state->k_value,
                                      exchange_state->k_value_len);
 
-        _libssh2_sha_algo_ctx_final(sha_algo_value, exchange_hash_ctx,
+        _libssh2_sha_algo_ctx_final(sha_algo_value, &exchange_hash_ctx,
                                     exchange_state->h_sig_comp);
 
         if(session->hostkey->
