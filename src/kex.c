@@ -105,7 +105,7 @@
  * don't allow it so we have to wrap them up in helper functions
  */
 
-void _libssh2_sha_algo_ctx_init(int sha_algo, void *ctx)
+static void _libssh2_sha_algo_ctx_init(int sha_algo, void *ctx)
 {
     if(sha_algo == 512) {
         libssh2_sha512_init((libssh2_sha512_ctx*)ctx);
@@ -124,7 +124,7 @@ void _libssh2_sha_algo_ctx_init(int sha_algo, void *ctx)
     }
 }
 
-void _libssh2_sha_algo_ctx_update(int sha_algo, void *ctx,
+static void _libssh2_sha_algo_ctx_update(int sha_algo, void *ctx,
                                   void *data, size_t len)
 {
     if(sha_algo == 512) {
@@ -146,7 +146,7 @@ void _libssh2_sha_algo_ctx_update(int sha_algo, void *ctx,
     }
 }
 
-void _libssh2_sha_algo_ctx_final(int sha_algo, void *ctx,
+static void _libssh2_sha_algo_ctx_final(int sha_algo, void *ctx,
                                  void *hash)
 {
     if(sha_algo == 512) {
@@ -168,7 +168,8 @@ void _libssh2_sha_algo_ctx_final(int sha_algo, void *ctx,
     }
 }
 
-void _libssh2_sha_algo_value_hash(int sha_algo, LIBSSH2_SESSION *session,
+static void _libssh2_sha_algo_value_hash(int sha_algo, 
+                  LIBSSH2_SESSION *session,
                   kmdhgGPshakex_state_t *exchange_state,
                   unsigned char **data, size_t data_len,
                   const unsigned char *version)
