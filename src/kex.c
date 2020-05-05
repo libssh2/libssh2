@@ -111,7 +111,7 @@ void _libssh2_sha_algo_ctx_init(int sha_algo, void *ctx)
         libssh2_sha512_init((libssh2_sha512_ctx*)ctx);
     }
     else if(sha_algo == 384) {
-        libssh2_sha512_init((libssh2_sha384_ctx*)ctx);
+        libssh2_sha384_init((libssh2_sha384_ctx*)ctx);
     }
     else if(sha_algo == 256) {
         libssh2_sha256_init((libssh2_sha256_ctx*)ctx);
