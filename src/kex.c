@@ -204,7 +204,8 @@ static void _libssh2_sha_algo_value_hash(int sha_algo,
 
 /*!
  * @function diffie_hellman_sha_algo
- * @abstract Diffie Hellman Key Exchange, Group Agnostic, SHA Algorithm Agnostic
+ * @abstract Diffie Hellman Key Exchange, Group Agnostic,
+ * SHA Algorithm Agnostic
  * @result 0 on success, error code on failure
  */
 static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
