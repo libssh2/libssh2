@@ -526,7 +526,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
         }
 
-        exchange_state->exchange_hash = &exchange_hash_ctx;
+        exchange_state->exchange_hash = (void *)&exchange_hash_ctx;
         _libssh2_sha_algo_ctx_init(sha_algo_value, &exchange_hash_ctx);
 
         if(session->local.banner) {
