@@ -143,7 +143,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                 methods_len =
                   _libssh2_ntohu32(session->userauth_list_data + 1);
 
-                /* Cap to 512 bytes. */
+                /* Cap to 2048 bytes. */
                 if(methods_len > LIBSSH2_USERAUTH_MAX_BANNER) {
                     _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
                              "Banner length %u exceeds max allowed (%u)",
