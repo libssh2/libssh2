@@ -1457,15 +1457,14 @@ userauth_publickey_frommemory(LIBSSH2_SESSION *session,
         }
         else if(privatekeydata_len && privatekeydata) {
             /* Compute public key from private key. */
-            if(_libssh2_pub_priv_keyfilememory(session,
+            rc = _libssh2_pub_priv_keyfilememory(session,
                                             &session->userauth_pblc_method,
                                             &session->userauth_pblc_method_len,
                                             &pubkeydata, &pubkeydata_len,
                                             privatekeydata, privatekeydata_len,
-                                            passphrase))
-                return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-                                      "Unable to extract public key "
-                                      "from private key.");
+                                            passphrase);
+            if(rc)
+                return rc;
         }
         else {
             return _libssh2_error(session, LIBSSH2_ERROR_FILE,
