@@ -773,7 +773,8 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
             tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
             if(!tmp) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                     "Unable to allocate memory for PEM parsing");
+                                     "Unable to allocate memory for "
+                                     "PEM parsing");
                 goto out;
             }
             memcpy(tmp + b64datalen, line, linelen);
