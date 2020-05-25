@@ -176,6 +176,8 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
             linelen = strlen(line);
             tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
             if(!tmp) {
+                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate memory for PEM parsing");
                 ret = -1;
                 goto out;
             }
@@ -319,6 +321,8 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
             linelen = strlen(line);
             tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
             if(!tmp) {
+                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate memory for PEM parsing");
                 ret = -1;
                 goto out;
             }
@@ -690,6 +694,8 @@ _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
             linelen = strlen(line);
             tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
             if(!tmp) {
+                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate memory for PEM parsing");
                 ret = -1;
                 goto out;
             }
@@ -766,6 +772,8 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
             linelen = strlen(line);
             tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
             if(!tmp) {
+                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate memory for PEM parsing");
                 ret = -1;
                 goto out;
             }
