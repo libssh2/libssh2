@@ -3085,7 +3085,8 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
 
    if(rc != 0 || buf == NULL)
        return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                             "Public key type in decrypted key data not found");
+                             "Public key type in decrypted "
+                             "key data not found");
 
    rc = LIBSSH2_ERROR_FILE;
 
@@ -3143,8 +3144,8 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
 
     if(rc == LIBSSH2_ERROR_FILE)
         rc = _libssh2_error(session, LIBSSH2_ERROR_FILE,
-                          "Unable to extract public key from private key file: "
-                           "invalid/unrecognized private key file format");
+                         "Unable to extract public key from private key file: "
+                         "invalid/unrecognized private key file format");
 
     if(decrypted)
         _libssh2_string_buf_free(session, decrypted);
