@@ -744,17 +744,17 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
     size_t off = 0;
     int ret;
 
-    if(filedata == NULL || filedata_len <= 0) {
-        return -1;
-    }
+    if(filedata == NULL || filedata_len <= 0)
+        return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                              "Error parsing PEM: filedata missing");
 
     do {
 
         *line = '\0';
 
-        if(off >= filedata_len) {
-            return -1;
-        }
+        if(off >= filedata_len)
+            return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                  "Error parsing PEM: offset out of bounds");
 
         if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             return -1;
@@ -772,9 +772,8 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
             linelen = strlen(line);
             tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
             if(!tmp) {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate memory for PEM parsing");
-                ret = -1;
+                ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                     "Unable to allocate memory for PEM parsing");
                 goto out;
             }
             memcpy(tmp + b64datalen, line, linelen);
@@ -785,7 +784,8 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
         *line = '\0';
 
         if(off >= filedata_len) {
-            ret = -1;
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Error parsing PEM: offset out of bounds");
             goto out;
         }
 
@@ -795,9 +795,9 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
         }
     } while(strcmp(line, OPENSSH_HEADER_END) != 0);
 
-    if(!b64data) {
-        return -1;
-    }
+    if(!b64data)
+        return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                              "Error parsing PEM: base 64 data missing");
 
     ret = _libssh2_openssh_pem_parse_data(session, passphrase, b64data,
                                           b64datalen, decrypted_buf);
