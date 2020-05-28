@@ -465,14 +465,14 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
              * or less (including length, padding length, payload,
              * padding, and MAC.)."
              */
-            if(total_num > LIBSSH2_PACKET_MAXPAYLOAD) {
+            if(total_num > LIBSSH2_PACKET_MAXPAYLOAD || total_num == 0) {
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
 
             /* Get a packet handle put data into. We get one to
                hold all data, including padding and MAC. */
             p->payload = LIBSSH2_ALLOC(session, total_num);
-            if(total_num == 0 || !p->payload) {
+            if(!p->payload) {
                 return LIBSSH2_ERROR_ALLOC;
             }
             p->total_num = total_num;
