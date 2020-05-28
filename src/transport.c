@@ -472,7 +472,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             /* Get a packet handle put data into. We get one to
                hold all data, including padding and MAC. */
             p->payload = LIBSSH2_ALLOC(session, total_num);
-            if(!p->payload) {
+            if(total_num == 0 || !p->payload) {
                 return LIBSSH2_ERROR_ALLOC;
             }
             p->total_num = total_num;
