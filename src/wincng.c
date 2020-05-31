@@ -208,6 +208,8 @@
  * Windows CNG backend: Generic functions
  */
 
+struct _libssh2_wincng_ctx _libssh2_wincng;
+
 void
 _libssh2_wincng_init(void)
 {
