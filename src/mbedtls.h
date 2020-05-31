@@ -1,3 +1,5 @@
+#ifndef __LIBSSH2_MBEDTLS_H
+#define __LIBSSH2_MBEDTLS_H
 /* Copyright (c) 2016, Art <https://github.com/wildart>
  * All rights reserved.
  *
@@ -445,3 +447,5 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                   _libssh2_bn *f, _libssh2_bn *p);
 extern void
 _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
+
+#endif /* __LIBSSH2_MBEDTLS_H */
