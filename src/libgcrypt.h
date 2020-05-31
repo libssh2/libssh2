@@ -1,3 +1,5 @@
+#ifndef __LIBSSH2_LIBGCRYPT_H
+#define __LIBSSH2_LIBGCRYPT_H
 /*
  * Copyright (C) 2008, 2009, 2010 Simon Josefsson
  * Copyright (C) 2006, 2007, The Written Word, Inc.
@@ -232,3 +234,4 @@ extern int _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                               _libssh2_bn *f, _libssh2_bn *p);
 extern void _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
 
+#endif /* __LIBSSH2_LIBGCRYPT_H */
