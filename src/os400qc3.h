@@ -1,3 +1,5 @@
+#ifndef __LIBSSH2_OS400QC3_H
+#define __LIBSSH2_OS400QC3_H
 /*
  * Copyright (C) 2015-2016 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
  * Copyright (C) 2020 Patrick Monnerat <patrick@monnerat.net>.
@@ -36,9 +38,6 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  */
-
-#ifndef LIBSSH2_OS400QC3_H
-#define LIBSSH2_OS400QC3_H
 
 #include <stdlib.h>
 #include <string.h>
@@ -387,6 +386,6 @@ extern int      _libssh2_os400qc3_dh_secret(_libssh2_dh_ctx *dhctx,
                                             _libssh2_bn *f, _libssh2_bn *p);
 extern void     _libssh2_os400qc3_dh_dtor(_libssh2_dh_ctx *dhctx);
 
-#endif
+#endif /* __LIBSSH2_OS400QC3_H */
 
 /* vim: set expandtab ts=4 sw=4: */

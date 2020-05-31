@@ -1,3 +1,5 @@
+#ifndef __LIBSSH2_OPENSSL_H
+#define __LIBSSH2_OPENSSL_H
 /* Copyright (C) 2009, 2010 Simon Josefsson
  * Copyright (C) 2006, 2007 The Written Word, Inc.  All rights reserved.
  *
@@ -392,3 +394,5 @@ extern void _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
 const EVP_CIPHER *_libssh2_EVP_aes_128_ctr(void);
 const EVP_CIPHER *_libssh2_EVP_aes_192_ctr(void);
 const EVP_CIPHER *_libssh2_EVP_aes_256_ctr(void);
+
+#endif /* __LIBSSH2_OPENSSL_H */
