@@ -866,15 +866,16 @@ cleanup:
     return rc;
 }
 
-#define LIBSSH2_MBEDTLS_ECDSA_VERIFY(digest_type)                             \
-{                                                                             \
-    size_t hshlen = SHA##digest_type##_DIGEST_LENGTH;                         \
-    unsigned char hsh[hshlen];                                                \
-                                                                              \
-    if(libssh2_sha##digest_type(m, m_len, hsh) == 0) {                        \
-        rc = mbedtls_ecdsa_verify(&ctx->grp, hsh, hshlen, &ctx->Q, &pr, &ps); \
-    }                                                                         \
-                                                                              \
+#define LIBSSH2_MBEDTLS_ECDSA_VERIFY(digest_type)                   \
+{                                                                   \
+    unsigned char hsh[SHA##digest_type##_DIGEST_LENGTH];            \
+                                                                    \
+    if(libssh2_sha##digest_type(m, m_len, hsh) == 0) {              \
+        rc = mbedtls_ecdsa_verify(&ctx->grp, hsh,                   \
+                                  SHA##digest_type##_DIGEST_LENGTH, \
+                                  &ctx->Q, &pr, &ps);               \
+    }                                                               \
+                                                                    \
 }
 
 /* _libssh2_ecdsa_sign
