@@ -29,15 +29,35 @@ environment:
   matrix:
     - GENERATOR: "Visual Studio 14 2015"
       BUILD_SHARED_LIBS: ON
+      CRYPTO_BACKEND: "OpenSSL"
 
     - GENERATOR: "Visual Studio 14 2015"
       BUILD_SHARED_LIBS: OFF
+      CRYPTO_BACKEND: "OpenSSL"
 
     - GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: ON
+      CRYPTO_BACKEND: "OpenSSL"
 
     - GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: OFF
+      CRYPTO_BACKEND: "OpenSSL"
+
+    - GENERATOR: "Visual Studio 14 2015"
+      BUILD_SHARED_LIBS: ON
+      CRYPTO_BACKEND: "WinCNG"
+
+    - GENERATOR: "Visual Studio 14 2015"
+      BUILD_SHARED_LIBS: OFF
+      CRYPTO_BACKEND: "WinCNG"
+
+    - GENERATOR: "Visual Studio 12 2013"
+      BUILD_SHARED_LIBS: ON
+      CRYPTO_BACKEND: "WinCNG"
+
+    - GENERATOR: "Visual Studio 12 2013"
+      BUILD_SHARED_LIBS: OFF
+      CRYPTO_BACKEND: "WinCNG"
 
   digitalocean_access_token:
     secure: 8qRitvrj69Xhf0Tmu27xnz5drmL2YhmOJLGpXIkYyTCC0JNtBoXW6fMcF3u4Uj1+pIQ+TjegQOwYimlz0oivKTro3v3EXro+osAMNJG6NKc=
@@ -62,7 +82,7 @@ install:
 
 build_script:
   - ps: if($env:PLATFORM -eq "x64") { $env:CMAKE_GEN_SUFFIX=" Win64" }
-  - cmake "-G%GENERATOR%%CMAKE_GEN_SUFFIX%" -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -H. -B_builds
+  - cmake "-G%GENERATOR%%CMAKE_GEN_SUFFIX%" -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -H. -B_builds
   - cmake --build _builds --config "%CONFIGURATION%"
 
 before_test:
