@@ -1916,7 +1916,8 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
     if(!rnd)
         return -1;
 
-    length = (unsigned long)(ceil((float)bits / 8) * sizeof(unsigned char));
+    length = (unsigned long) (ceil(((double)bits) / 8.0) *
+                              sizeof(unsigned char));
     if(_libssh2_wincng_bignum_resize(rnd, length))
         return -1;
 
@@ -2032,8 +2033,9 @@ _libssh2_wincng_bignum_set_word(_libssh2_bn *bn, unsigned long word)
     number = word;
     while(number >>= 1)
         bits++;
+    bits++;
 
-    length = (unsigned long) (ceil(((double)(bits + 1)) / 8.0) *
+    length = (unsigned long) (ceil(((double)bits) / 8.0) *
                               sizeof(unsigned char));
     if(_libssh2_wincng_bignum_resize(bn, length))
         return -1;
