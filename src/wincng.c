@@ -2246,12 +2246,12 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
          * value is 257, so we need to round down to 8 bytes of length (64/8)
          * in order for kex to succeed */
         DWORD key_length_bytes = max(round_down(group_order, 8),
-                                    max(g->length, p->length));
+                                     max(g->length, p->length));
         unsigned char *public_blob = NULL;
         BCRYPT_DH_KEY_BLOB *dh_key_blob;
 
         /* Prepare a key pair; pass the in the bit length of the key,
-        * but the key is not ready for consumption until it is finalized. */
+         * but the key is not ready for consumption until it is finalized. */
         status = BCryptGenerateKeyPair(_libssh2_wincng.hAlgDH,
                                        &dhctx->dh_handle,
                                        key_length_bytes * 8, 0);
@@ -2266,18 +2266,18 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
         }
 
         /* Populate DH parameters blob; after the header follows the `p`
-        * value and the `g` value. */
+         * value and the `g` value. */
         dh_params = (BCRYPT_DH_PARAMETER_HEADER*)blob;
         dh_params->cbLength = dh_params_len;
         dh_params->dwMagic = BCRYPT_DH_PARAMETERS_MAGIC;
         dh_params->cbKeyLength = key_length_bytes;
         memcpy_with_be_padding(blob + sizeof(*dh_params), key_length_bytes,
-                              p->bignum, p->length);
+                               p->bignum, p->length);
         memcpy_with_be_padding(blob + sizeof(*dh_params) + key_length_bytes,
-                              key_length_bytes, g->bignum, g->length);
+                               key_length_bytes, g->bignum, g->length);
 
         status = BCryptSetProperty(dhctx->dh_handle, BCRYPT_DH_PARAMETERS,
-                                  blob, dh_params_len, 0);
+                                   blob, dh_params_len, 0);
         /* Pass ownership to dhctx; these parameters will be freed when
          * the context is destroyed. We need to keep the parameters more
          * easily available so that we have access to the `g` value when
@@ -2306,8 +2306,8 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
         public_blob = malloc(public_key_len_bytes);
 
         status = BCryptExportKey(dhctx->dh_handle, NULL, BCRYPT_DH_PUBLIC_BLOB,
-                                public_blob, public_key_len_bytes,
-                                &public_key_len_bytes, 0);
+                                 public_blob, public_key_len_bytes,
+                                 &public_key_len_bytes, 0);
         if(!BCRYPT_SUCCESS(status)) {
             return -1;
         }
@@ -2320,10 +2320,10 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             return -1;
         }
 
-        /* Copy the public key data into the bignum data buffer */
+        /* Copy the public key data into the public bignum data buffer */
         memcpy(public->bignum,
-                public_blob + sizeof(*dh_key_blob) + 2 * dh_key_blob->cbKey,
-                dh_key_blob->cbKey);
+               public_blob + sizeof(*dh_key_blob) + 2 * dh_key_blob->cbKey,
+               dh_key_blob->cbKey);
 
         return 0;
     }
@@ -2376,20 +2376,20 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
 
             /* Modulus (the p-value from the first call) */
             memcpy_with_be_padding(dest, key_length_bytes, src,
-                                  dhctx->dh_params->cbKeyLength);
+                                   dhctx->dh_params->cbKeyLength);
             /* Generator (the g-value from the first call) */
             memcpy_with_be_padding(dest + key_length_bytes, key_length_bytes,
-                                  src + dhctx->dh_params->cbKeyLength,
-                                  dhctx->dh_params->cbKeyLength);
+                                   src + dhctx->dh_params->cbKeyLength,
+                                   dhctx->dh_params->cbKeyLength);
             /* Public from the peer */
             memcpy_with_be_padding(dest + 2*key_length_bytes, key_length_bytes,
-                                  f->bignum, f->length);
+                                   f->bignum, f->length);
         }
 
         /* Import the peer public key information */
         status = BCryptImportKeyPair(_libssh2_wincng.hAlgDH, NULL,
-                                    BCRYPT_DH_PUBLIC_BLOB, &peer_public, blob,
-                                    public_blob_len, 0);
+                                     BCRYPT_DH_PUBLIC_BLOB, &peer_public, blob,
+                                     public_blob_len, 0);
         if(!BCRYPT_SUCCESS(status)) {
             goto out;
         }
@@ -2397,7 +2397,7 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
         /* Set up a handle that we can use to establish the shared secret
          * between ourselves (our saved dh_handle) and the peer. */
         status = BCryptSecretAgreement(dhctx->dh_handle, peer_public,
-                                      &agreement, 0);
+                                       &agreement, 0);
         if(!BCRYPT_SUCCESS(status)) {
             goto out;
         }
@@ -2419,8 +2419,8 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
 
         /* And populate the secret bignum */
         status = BCryptDeriveKey(agreement, BCRYPT_KDF_RAW_SECRET, NULL,
-                                secret->bignum, secret_len_bytes,
-                                &secret_len_bytes, 0);
+                                 secret->bignum, secret_len_bytes,
+                                 &secret_len_bytes, 0);
         if(!BCRYPT_SUCCESS(status)) {
             goto out;
         }
