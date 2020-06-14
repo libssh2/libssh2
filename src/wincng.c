@@ -2044,15 +2044,17 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
 
     /* calculate significant bits in most significant byte */
     bits %= 8;
+    if(bits == 0)
+        bits = 8;
 
     /* fill most significant byte with zero padding */
-    bignum[0] &= (1 << (8 - bits)) - 1;
+    bignum[0] &= ((1 << bits) - 1);
 
-    /* set some special last bits in most significant byte */
+    /* set most significant bits in most significant byte */
     if(top == 0)
-        bignum[0] |= (1 << (7 - bits));
+        bignum[0] |= (1 << (bits - 1));
     else if(top == 1)
-        bignum[0] |= (3 << (6 - bits));
+        bignum[0] |= (3 << (bits - 2));
 
     /* make odd by setting first bit in least significant byte */
     if(bottom)
