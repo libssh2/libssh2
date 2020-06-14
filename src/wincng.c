@@ -1993,9 +1993,7 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
     memcpy(key + offset, m->bignum, m->length);
 
     ret = BCryptImportKeyPair(_libssh2_wincng.hAlgRSA, NULL,
-                              BCRYPT_RSAPUBLIC_BLOB, &hKey, key, keylen,
-                              BCRYPT_NO_KEY_VALIDATION);
-
+                              BCRYPT_RSAPUBLIC_BLOB, &hKey, key, keylen, 0);
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptEncrypt(hKey, a->bignum, a->length, NULL, NULL, 0,
                             NULL, 0, &length, BCRYPT_PAD_NONE);
