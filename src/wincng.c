@@ -2052,21 +2052,18 @@ _libssh2_wincng_bignum_bits(const _libssh2_bn *bn)
     unsigned char number;
     unsigned long offset, length, bits;
 
-    if(!bn)
+    if(!bn || !bn->bignum || !bn->length)
         return 0;
 
-    length = bn->length - 1;
-
     offset = 0;
-    while(!(*(bn->bignum + offset)) && (offset < length))
+    length = bn->length - 1;
+    while(!bn->bignum[offset] && offset < length)
         offset++;
 
     bits = (length - offset) * 8;
     number = bn->bignum[offset];
-
     while(number >>= 1)
         bits++;
-
     bits++;
 
     return bits;
