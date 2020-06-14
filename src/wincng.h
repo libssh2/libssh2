@@ -49,13 +49,6 @@
 #include <windows.h>
 #include <bcrypt.h>
 
-#if defined(BCRYPT_KDF_RAW_SECRET) && defined(BCRYPT_DH_ALGORITHM)
-/* BCRYPT_KDF_RAW_SECRET is available from Windows 8.1 and onwards */
-#define LIBSSH2_USE_BCRYPT_DH 1
-#else
-#define LIBSSH2_USE_BCRYPT_DH 0
-#endif
-
 #define LIBSSH2_MD5 1
 
 #define LIBSSH2_HMAC_RIPEMD 0
@@ -110,9 +103,8 @@ struct _libssh2_wincng_ctx {
     BCRYPT_ALG_HANDLE hAlgAES_ECB;
     BCRYPT_ALG_HANDLE hAlgRC4_NA;
     BCRYPT_ALG_HANDLE hAlg3DES_CBC;
-#if LIBSSH2_USE_BCRYPT_DH
     BCRYPT_ALG_HANDLE hAlgDH;
-#endif
+    volatile int hasAlgDHwithKDF; /* -1=no, 0=maybe, 1=yes */
 };
 
 extern struct _libssh2_wincng_ctx _libssh2_wincng;
@@ -410,16 +402,16 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
  */
 
 typedef struct {
-#if LIBSSH2_USE_BCRYPT_DH
-    /* holds our private+public key components */
+    /* holds our private and public key components */
     BCRYPT_KEY_HANDLE dh_handle;
-    /* records the parsed out modulus and generator parameters that are shared
-    * with the peer */
+    /* records the parsed out modulus and generator
+     * parameters that are shared  with the peer */
     BCRYPT_DH_PARAMETER_HEADER *dh_params;
-#endif
-    /* fallback if the newer DH api doesn't work on this system */
+    /* records the parsed out private key component for
+     * fallback if the DH API raw KDF is not supported */
     struct _libssh2_wincng_bignum *bn;
 } _libssh2_dh_ctx;
+
 #define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
         _libssh2_dh_key_pair(dhctx, public, g, p, group_order)
