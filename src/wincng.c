@@ -2167,8 +2167,7 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                    _libssh2_bn *f, _libssh2_bn *p)
 {
     /* Compute the shared secret */
-    _libssh2_wincng_bignum_mod_exp(secret, f, *dhctx, p);
-    return 0;
+    return _libssh2_wincng_bignum_mod_exp(secret, f, *dhctx, p);
 }
 
 void
