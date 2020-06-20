@@ -51,6 +51,7 @@ int test(LIBSSH2_SESSION *session)
 {
     char buf[BUFSIZ];
 
+    const char *hostkey;
     const char *md5_hash;
     const char *sha1_hash;
     const char *sha256_hash;
@@ -61,7 +62,7 @@ int test(LIBSSH2_SESSION *session)
     (void)EXPECTED_RSA_HOSTKEY;
     (void)EXPECTED_ECDSA_HOSTKEY;
 
-    const char *hostkey = libssh2_session_hostkey(session, &len, &type);
+    hostkey = libssh2_session_hostkey(session, &len, &type);
     if(hostkey == NULL) {
         print_last_session_error("libssh2_session_hostkey");
         return 1;
