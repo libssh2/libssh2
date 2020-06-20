@@ -4,9 +4,9 @@
 
 #include <stdio.h>
 
-const char *USERNAME = "libssh2"; /* configured in Dockerfile */
+const char *USERNAME = "libssh2"; /* set in Dockerfile */
 const char *KEY_FILE_PRIVATE = "key_rsa";
-const char *KEY_FILE_PUBLIC = "key_rsa.pub"; /* configured in Dockerfile */
+const char *KEY_FILE_PUBLIC = "key_rsa.pub"; /* set in Dockerfile */
 
 int test(LIBSSH2_SESSION *session)
 {
@@ -42,8 +42,8 @@ int test(LIBSSH2_SESSION *session)
 
     rc = libssh2_channel_request_auth_agent(channel);
     if(rc != 0) {
-        fprintf(stderr, "Auth agent request for agent forwarding failed, error code %d\n",
-                rc);
+        fprintf(stderr, "Auth agent request for agent forwarding failed, "
+                "error code %d\n", rc);
         return 1;
     }
 

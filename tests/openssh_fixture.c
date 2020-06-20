@@ -136,14 +136,14 @@ static int run_command(char **output, const char *command, ...)
 
 static int build_openssh_server_docker_image()
 {
-    return run_command(NULL, "docker build -t libssh2/openssh_server openssh_server");
+    return run_command(NULL, "docker build -t libssh2/openssh_server "
+                             "openssh_server");
 }
 
 static int start_openssh_server(char **container_id_out)
 {
     return run_command(container_id_out,
-                       "docker run --detach -P libssh2/openssh_server"
-                       );
+                       "docker run --detach -P libssh2/openssh_server");
 }
 
 static int stop_openssh_server(char *container_id)
@@ -167,7 +167,8 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
         int attempt_no = 0;
         int wait_time = 500;
         for(;;) {
-            int ret = run_command(ip_address_out, "docker-machine ip %s", active_docker_machine);
+            int ret = run_command(ip_address_out, "docker-machine ip %s",
+                                  active_docker_machine);
             if(ret == 0) {
                 return 0;
             }
@@ -220,14 +221,16 @@ static int open_socket_to_container(char *container_id)
 
     int ret = ip_address_from_container(container_id, &ip_address);
     if(ret != 0) {
-        fprintf(stderr, "Failed to get IP address for container %s\n", container_id);
+        fprintf(stderr, "Failed to get IP address for container %s\n",
+                container_id);
         ret = -1;
         goto cleanup;
     }
 
     ret = port_from_container(container_id, &port_string);
     if(ret != 0) {
-        fprintf(stderr, "Failed to get port for container %s\n", container_id);
+        fprintf(stderr, "Failed to get port for container %s\n",
+                container_id);
         ret = -1;
     }
 
@@ -259,7 +262,8 @@ static int open_socket_to_container(char *container_id)
 
     if(connect(sock, (struct sockaddr *)(&sin),
                sizeof(struct sockaddr_in)) != 0) {
-        fprintf(stderr, "Failed to connect to %s:%s\n", ip_address, port_string);
+        fprintf(stderr, "Failed to connect to %s:%s\n",
+                ip_address, port_string);
         ret = -1;
         goto cleanup;
     }
