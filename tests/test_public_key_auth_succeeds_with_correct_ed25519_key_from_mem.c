@@ -66,8 +66,8 @@ int read_file(const char *path, char **out_buffer, size_t *out_len)
     fp = fopen(path, "r");
 
     if(!fp) {
-       fprintf(stderr, "File could not be read.");
-       return 1;
+        fprintf(stderr, "File could not be read.");
+        return 1;
     }
 
     fseek(fp, 0L, SEEK_END);
@@ -76,16 +76,16 @@ int read_file(const char *path, char **out_buffer, size_t *out_len)
 
     buffer = calloc(1, len + 1);
     if(!buffer) {
-       fclose(fp);
-       fprintf(stderr, "Could not alloc memory.");
-       return 1;
+        fclose(fp);
+        fprintf(stderr, "Could not alloc memory.");
+        return 1;
     }
 
     if(1 != fread(buffer, len, 1, fp)) {
-       fclose(fp);
-       free(buffer);
-       fprintf(stderr, "Could not read file into memory.");
-       return 1;
+        fclose(fp);
+        free(buffer);
+        fprintf(stderr, "Could not read file into memory.");
+        return 1;
     }
 
     fclose(fp);
