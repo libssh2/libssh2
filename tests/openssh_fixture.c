@@ -167,9 +167,11 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
         int attempt_no = 0;
         int wait_time = 500;
         for(;;) {
-            return run_command(ip_address_out, "docker-machine ip %s", active_docker_machine);
-
-            if(attempt_no > 5) {
+            int ret = run_command(ip_address_out, "docker-machine ip %s", active_docker_machine);
+            if(ret == 0) {
+                return 0;
+            }
+            else if(attempt_no > 5) {
                 fprintf(
                     stderr,
                     "Unable to get IP from docker-machine after %d attempts\n",
