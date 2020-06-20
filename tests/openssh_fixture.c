@@ -231,6 +231,14 @@ static int open_socket_to_container(char *container_id)
         ret = -1;
     }
 
+    /* 0.0.0.0 is returned by Docker for Windows, because the container
+       is reachable from anywhere. But we cannot connect to 0.0.0.0,
+       instead we assume localhost and try to connect to 127.0.0.1. */
+    if(ip_address && strcmp(ip_address, "0.0.0.0") == 0) {
+        free(ip_address);
+        ip_address = strdup("127.0.0.1");
+    }
+
     hostaddr = inet_addr(ip_address);
     if(hostaddr == (unsigned long)(-1)) {
         fprintf(stderr, "Failed to convert %s host address\n", ip_address);
