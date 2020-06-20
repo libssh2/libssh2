@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static const char *USERNAME = "libssh2"; /* configured in Dockerfile */
+static const char *USERNAME = "libssh2"; /* set in Dockerfile */
 static const char *KEY_FILE_ED25519_PRIVATE = "key_ed25519";
 
 int read_file(const char *path, char **buf, size_t *len);
@@ -35,7 +35,8 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    rc = libssh2_userauth_publickey_frommemory(session, USERNAME, strlen(USERNAME),
+    rc = libssh2_userauth_publickey_frommemory(session, USERNAME,
+                                               strlen(USERNAME),
                                                NULL, 0, buffer, len, NULL);
 
     free(buffer);
