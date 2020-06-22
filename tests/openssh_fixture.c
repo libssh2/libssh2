@@ -62,10 +62,12 @@
 static int run_command_varg(char **output, const char *command, va_list args)
 {
     FILE *pipe;
+    char redirect_stderr[] = "%s 2>&1";
     char command_buf[BUFSIZ];
     char buf[BUFSIZ];
     char *p;
     int ret;
+
     if(output) {
         *output = NULL;
     }
@@ -78,18 +80,22 @@ static int run_command_varg(char **output, const char *command, va_list args)
     }
 
     /* Rewrite the command to redirect stderr to stdout to we can output it */
-    if(strlen(command_buf) + 6 >= sizeof(command_buf)) {
+    if(strlen(command_buf) + strlen(redirect_stderr) >= sizeof(buf)) {
         fprintf(stderr, "Unable to rewrite command (%s)\n", command);
         return -1;
     }
 
-    strncat(command_buf, " 2>&1", 6);
+    ret = snprintf(buf, sizeof(buf), redirect_stderr, command_buf);
+    if(ret < 0 || ret >= BUFSIZ) {
+        fprintf(stderr, "Unable to rewrite command (%s)\n", command);
+        return -1;
+    }
 
     fprintf(stdout, "Command: %s\n", command);
 #ifdef WIN32
-    pipe = _popen(command_buf, "r");
+    pipe = _popen(buf, "r");
 #else
-    pipe = popen(command_buf, "r");
+    pipe = popen(buf, "r");
 #endif
     if(!pipe) {
         fprintf(stderr, "Unable to execute command '%s'\n", command);
