@@ -187,10 +187,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
             }
             else {
 #ifdef WIN32
-#pragma warning(push)
-#pragma warning(disable : 4996)
-                _sleep(wait_time);
-#pragma warning(pop)
+                Sleep(wait_time);
 #else
                 sleep(wait_time);
 #endif
