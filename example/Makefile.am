@@ -13,5 +13,5 @@ if HAVE_SYS_UN_H
 noinst_PROGRAMS += x11
 endif
 
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/example
+AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/example -I../src
 LDADD = $(top_builddir)/src/libssh2.la
