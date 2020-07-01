@@ -107,7 +107,7 @@ script:
       fi
   - |
       if [ "$B" = "configure" ]; then
-        ./buildconf
+        autoreconf -fi
         ./configure --enable-debug --enable-werror
         make
         make check

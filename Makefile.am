@@ -43,7 +43,7 @@ os400/libssh2rpg/libssh2_publickey.rpgle				\
 os400/libssh2rpg/libssh2_sftp.rpgle					\
 Makefile.os400qc3.inc
 
-EXTRA_DIST = $(WIN32FILES) buildconf $(NETWAREFILES) get_ver.awk \
+EXTRA_DIST = $(WIN32FILES) $(NETWAREFILES) get_ver.awk \
  maketgz NMakefile RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
  CMakeLists.txt cmake $(OS400FILES)
 
