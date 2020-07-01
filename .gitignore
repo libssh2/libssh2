@@ -13,6 +13,8 @@ Makefile
 Makefile.in
 aclocal.m4
 autom4te.cache
+compile
+test-driver
 config.guess
 config.log
 config.status
