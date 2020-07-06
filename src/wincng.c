@@ -372,6 +372,24 @@ _libssh2_wincng_safe_free(void *buf, int len)
     free(buf);
 }
 
+/* Copy a big endian set of bits from src to dest.
+ * if the size of src is smaller than dest then pad the "left" (MSB)
+ * end with zeroes and copy the bits into the "right" (LSB) end. */
+static void
+memcpy_with_be_padding(unsigned char *dest, unsigned long dest_len,
+                       unsigned char *src, unsigned long src_len)
+{
+    if(dest_len > src_len) {
+        memset(dest, 0, dest_len - src_len);
+    }
+    memcpy((dest + dest_len) - src_len, src, src_len);
+}
+
+static int
+round_down(int number, int multiple)
+{
+    return (number / multiple) * multiple;
+}
 
 /*******************************************************************/
 /*
@@ -2009,6 +2027,7 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
     offset += p->length;
 
     memcpy(key + offset, m->bignum, m->length);
+    offset = 0;
 
     ret = BCryptImportKeyPair(_libssh2_wincng.hAlgRSA, NULL,
                               BCRYPT_RSAPUBLIC_BLOB, &hKey, key, keylen, 0);
@@ -2020,9 +2039,8 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
                 length = max(a->length, length);
                 bignum = malloc(length);
                 if(bignum) {
-                    offset = length - a->length;
-                    memset(bignum, 0, offset);
-                    memcpy(bignum + offset, a->bignum, a->length);
+                    memcpy_with_be_padding(bignum, length,
+                                           a->bignum, a->length);
 
                     ret = BCryptEncrypt(hKey, bignum, length, NULL, NULL, 0,
                                         r->bignum, r->length, &offset,
@@ -2153,6 +2171,7 @@ _libssh2_wincng_bignum_free(_libssh2_bn *bn)
     }
 }
 
+
 /*******************************************************************/
 /*
  * Windows CNG backend: Diffie-Hellman support.
@@ -2184,25 +2203,6 @@ _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
         _libssh2_wincng_bignum_free(dhctx->bn);
         dhctx->bn = NULL;
     }
-}
-
-/* Copy a big endian set of bits from src to dest.
- * if the size of src is smaller than dest then pad the "left" (MSB)
- * end with zeroes and copy the bits into the "right" (LSB) end. */
-static void
-memcpy_with_be_padding(unsigned char *dest, unsigned long dest_len,
-                       unsigned char *src, unsigned long src_len)
-{
-    if(dest_len > src_len) {
-        memset(dest, 0, dest_len - src_len);
-    }
-    memcpy(dest + dest_len - src_len, src, src_len);
-}
-
-static int
-round_down(int number, int multiple)
-{
-    return (number / multiple) * multiple;
 }
 
 /* Generates a Diffie-Hellman key pair using base `g', prime `p' and the given
