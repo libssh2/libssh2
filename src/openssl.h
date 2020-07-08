@@ -325,10 +325,8 @@ libssh2_curve_type;
 
 #if LIBSSH2_ED25519
 #define libssh2_ed25519_ctx EVP_PKEY
-#define libssh2_x25519_ctx EVP_PKEY
 
 #define _libssh2_ed25519_free(ctx) EVP_PKEY_free(ctx)
-#define _libssh2_x25519_free(ctx) EVP_PKEY_free(ctx)
 #endif /* ED25519 */
 
 #define _libssh2_cipher_type(name) const EVP_CIPHER *(*name)(void)

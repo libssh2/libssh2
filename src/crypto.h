@@ -181,8 +181,8 @@ _libssh2_ecdsa_curve_type_from_name(const char *name,
 #if LIBSSH2_ED25519
 
 int
-_libssh2_curve25519_new(LIBSSH2_SESSION *session, libssh2_ed25519_ctx **ctx,
-                        uint8_t **out_public_key, uint8_t **out_private_key);
+_libssh2_curve25519_new(LIBSSH2_SESSION *session, uint8_t **out_public_key,
+                        uint8_t **out_private_key);
 
 int
 _libssh2_curve25519_gen_k(_libssh2_bn **k,
