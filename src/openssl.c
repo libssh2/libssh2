@@ -1465,75 +1465,53 @@ _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
 #if LIBSSH2_ED25519
 
 int
-_libssh2_curve25519_new(LIBSSH2_SESSION *session, libssh2_x25519_ctx **out_ctx,
+_libssh2_curve25519_new(LIBSSH2_SESSION *session,
                         unsigned char **out_public_key,
                         unsigned char **out_private_key)
 {
     EVP_PKEY *key = NULL;
     EVP_PKEY_CTX *pctx = NULL;
-    PKCS8_PRIV_KEY_INFO *info = NULL;
-    ASN1_OCTET_STRING *oct = NULL;
-    X509_PUBKEY *pubkey = NULL;
-    libssh2_ed25519_ctx *ctx = NULL;
-    const unsigned char *pkcs, *priv, *pub;
-    int privLen, pubLen, pkcsLen;
+    unsigned char *priv = NULL, *pub = NULL;
+    size_t privLen, pubLen;
     int rc = -1;
 
     pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_X25519, NULL);
     if(pctx == NULL)
         return -1;
 
-    EVP_PKEY_keygen_init(pctx);
-    EVP_PKEY_keygen(pctx, &key);
-    info = EVP_PKEY2PKCS8(key);
-
-    if(info == NULL || !PKCS8_pkey_get0(NULL, &pkcs, &pkcsLen, NULL, info))
-        goto cleanExit;
-
-    oct = d2i_ASN1_OCTET_STRING(NULL, &pkcs, pkcsLen);
-    if(oct == NULL) {
+    if(EVP_PKEY_keygen_init(pctx) != 1 ||
+       EVP_PKEY_keygen(pctx, &key) != 1) {
         goto cleanExit;
     }
 
-    priv = ASN1_STRING_get0_data(oct);
-    privLen = ASN1_STRING_length(oct);
-
-    if(privLen != LIBSSH2_ED25519_KEY_LEN)
-        goto cleanExit;
-
-    pubkey = X509_PUBKEY_new();
-    if(pubkey == NULL || !X509_PUBKEY_set(&pubkey, key))
-        goto cleanExit;
-
-    if(!X509_PUBKEY_get0_param(NULL, &pub, &pubLen, NULL, pubkey))
-        goto cleanExit;
-
-    if(pubLen != LIBSSH2_ED25519_KEY_LEN)
-        goto cleanExit;
-
     if(out_private_key != NULL) {
-        *out_private_key = LIBSSH2_ALLOC(session, LIBSSH2_ED25519_KEY_LEN);
-        if(*out_private_key == NULL)
+        privLen = LIBSSH2_ED25519_KEY_LEN;
+        priv = LIBSSH2_ALLOC(session, privLen);
+        if(priv == NULL)
             goto cleanExit;
 
-        memcpy(*out_private_key, priv, LIBSSH2_ED25519_KEY_LEN);
+        if(EVP_PKEY_get_raw_private_key(key, priv, &privLen) != 1 ||
+           privLen != LIBSSH2_ED25519_KEY_LEN) {
+            goto cleanExit;
+        }
+
+        *out_private_key = priv;
+        priv = NULL;
     }
 
     if(out_public_key != NULL) {
-        *out_public_key = LIBSSH2_ALLOC(session, LIBSSH2_ED25519_KEY_LEN);
-        if(*out_public_key == NULL)
+        pubLen = LIBSSH2_ED25519_KEY_LEN;
+        pub = LIBSSH2_ALLOC(session, pubLen);
+        if(pub == NULL)
             goto cleanExit;
 
-        memcpy(*out_public_key, pub, LIBSSH2_ED25519_KEY_LEN);
-    }
-
-    if(out_ctx != NULL) {
-        ctx = EVP_PKEY_new_raw_private_key(EVP_PKEY_X25519, NULL, priv,
-                                           LIBSSH2_ED25519_KEY_LEN);
-        if(!ctx)
+        if(EVP_PKEY_get_raw_public_key(key, pub, &pubLen) != 1 ||
+           pubLen != LIBSSH2_ED25519_KEY_LEN) {
             goto cleanExit;
+        }
 
-        *out_ctx = ctx;
+        *out_public_key = pub;
+        pub = NULL;
     }
 
     /* success */
@@ -1541,16 +1519,14 @@ _libssh2_curve25519_new(LIBSSH2_SESSION *session, libssh2_x25519_ctx **out_ctx,
 
 cleanExit:
 
-    if(info)
-        PKCS8_PRIV_KEY_INFO_free(info);
     if(pctx)
         EVP_PKEY_CTX_free(pctx);
-    if(oct)
-        ASN1_OCTET_STRING_free(oct);
-    if(pubkey)
-        X509_PUBKEY_free(pubkey);
     if(key)
         EVP_PKEY_free(key);
+    if(priv)
+        LIBSSH2_FREE(session, priv);
+    if(pub)
+        LIBSSH2_FREE(session, pub);
 
     return rc;
 }
