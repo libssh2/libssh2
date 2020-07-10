@@ -323,7 +323,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
     do {
         if(session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) {
-            return LIBSSH2_ERROR_NONE;
+            return LIBSSH2_ERROR_SOCKET_DISCONNECT;
         }
 
         if(session->state & LIBSSH2_STATE_NEWKEYS) {
