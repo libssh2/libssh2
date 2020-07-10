@@ -2850,7 +2850,7 @@ kex_method_curve25519_key_exchange
             goto clean_exit;
         }
 
-        rc = _libssh2_curve25519_new(session, NULL,
+        rc = _libssh2_curve25519_new(session,
                                      &key_state->curve25519_public_key,
                                      &key_state->curve25519_private_key);
 
