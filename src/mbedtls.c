@@ -1114,12 +1114,17 @@ _libssh2_mbedtls_mpi_write_binary(unsigned char *buf,
 {
     unsigned char *p = buf;
 
-    p += 4;
+    if(strlen((const char *) p) > 3) {
+        p += 4;
+    }
+
     *p = 0;
 
-    mbedtls_mpi_write_binary(mpi, p + 1, bytes - 1);
+    if(bytes > 0) {
+        mbedtls_mpi_write_binary(mpi, p + 1, bytes - 1);
+    }
 
-    if(!(*(p + 1) & 0x80)) {
+    if(bytes > 0 && !(*(p + 1) & 0x80)) {
         memmove(p, p + 1, --bytes);
     }
 
