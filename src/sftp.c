@@ -1114,11 +1114,10 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     unsigned char *s;
     ssize_t rc;
     int open_file = (open_type == LIBSSH2_SFTP_OPENFILE)?1:0;
-    if (attrs_in)
-    {
-        memcpy(&attrs,attrs_in,sizeof(LIBSSH2_SFTP_ATTRIBUTES));
+    if(attrs_in) {
+        memcpy(&attrs, attrs_in, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
     }
-    
+
 
     if(sftp->open_state == libssh2_NB_state_idle) {
         /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
@@ -1336,7 +1335,7 @@ libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, const char *filename,
 LIBSSH2_API LIBSSH2_SFTP_HANDLE *
 libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp, const char *filename,
                      unsigned int filename_len, unsigned long flags, long mode,
-                     int open_type,LIBSSH2_SFTP_ATTRIBUTES *attrs_in)
+                     int open_type, LIBSSH2_SFTP_ATTRIBUTES *attrs_in)
 {
     LIBSSH2_SFTP_HANDLE *hnd;
 
