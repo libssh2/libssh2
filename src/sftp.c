@@ -1111,12 +1111,12 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     LIBSSH2_SFTP_ATTRIBUTES attrs = {
         LIBSSH2_SFTP_ATTR_PERMISSIONS, 0, 0, 0, 0, 0, 0
     };
+    unsigned char *s;
+    ssize_t rc;
     if (attrs_in)
     {
         memcpy(&attrs,attrs_in,sizeof(LIBSSH2_SFTP_ATTRIBUTES));
     }
-    unsigned char *s;
-    ssize_t rc;
     int open_file = (open_type == LIBSSH2_SFTP_OPENFILE)?1:0;
 
     if(sftp->open_state == libssh2_NB_state_idle) {
