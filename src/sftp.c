@@ -1335,7 +1335,7 @@ libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, const char *filename,
 LIBSSH2_API LIBSSH2_SFTP_HANDLE *
 libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp, const char *filename,
                      unsigned int filename_len, unsigned long flags, long mode,
-                     int open_type, LIBSSH2_SFTP_ATTRIBUTES *attrs_in)
+                     int open_type, LIBSSH2_SFTP_ATTRIBUTES *attrs)
 {
     LIBSSH2_SFTP_HANDLE *hnd;
 
@@ -1344,7 +1344,7 @@ libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp, const char *filename,
 
     BLOCK_ADJUST_ERRNO(hnd, sftp->channel->session,
                        sftp_open(sftp, filename, filename_len, flags, mode,
-                                 open_type, attrs_in));
+                                 open_type, attrs));
     return hnd;
 }
 /*

@@ -242,10 +242,10 @@ libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp,
                      unsigned int filename_len,
                      unsigned long flags,
                      long mode, int open_type,
-                     LIBSSH2_SFTP_ATTRIBUTES *attrs_in);
-#define libssh2_sftp_open_r(sftp, filename, flags, mode, attr_in) \
+                     LIBSSH2_SFTP_ATTRIBUTES *attrs);
+#define libssh2_sftp_open_r(sftp, filename, flags, mode, attrs \
     libssh2_sftp_open_ex_r((sftp), (filename), strlen(filename), (flags), \
-                         (mode), LIBSSH2_SFTP_OPENFILE, (attr_in))
+                         (mode), LIBSSH2_SFTP_OPENFILE, (attrs))
 #define libssh2_sftp_opendir_r(sftp, path) \
     libssh2_sftp_open_ex((sftp), (path), strlen(path), 0, 0, \
                          LIBSSH2_SFTP_OPENDIR, (attr_in))
