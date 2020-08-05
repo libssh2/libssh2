@@ -246,9 +246,6 @@ libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp,
 #define libssh2_sftp_open_r(sftp, filename, flags, mode, attrs) \
     libssh2_sftp_open_ex_r((sftp), (filename), strlen(filename), (flags), \
                          (mode), LIBSSH2_SFTP_OPENFILE, (attrs))
-#define libssh2_sftp_opendir_r(sftp, path) \
-    libssh2_sftp_open_ex((sftp), (path), strlen(path), 0, 0, \
-                         LIBSSH2_SFTP_OPENDIR, (attr_in))
 
 LIBSSH2_API ssize_t libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
                                       char *buffer, size_t buffer_maxlen);
