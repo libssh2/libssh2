@@ -1114,10 +1114,11 @@ _libssh2_mbedtls_mpi_write_binary(unsigned char *buf,
 {
     unsigned char *p = buf;
 
-    if(strlen((const char *) p) > 3) {
-        p += 4;
+    if(sizeof(&p) / sizeof(p[0]) < 4) {
+        goto done;
     }
 
+    p += 4;
     *p = 0;
 
     if(bytes > 0) {
@@ -1129,6 +1130,8 @@ _libssh2_mbedtls_mpi_write_binary(unsigned char *buf,
     }
 
     _libssh2_htonu32(p - 4, bytes);
+
+done:
 
     return p + bytes;
 }
