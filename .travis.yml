@@ -75,6 +75,7 @@ env:
    - ADDRESS_SIZE=32 CRYPTO_BACKEND=mbedTLS BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=OFF B=cmake
    - ADDRESS_SIZE=32 CRYPTO_BACKEND=mbedTLS BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=ON B=cmake
    - ADDRESS_SIZE=32 CRYPTO_BACKEND=mbedTLS BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=ON B=cmake
+   - B=fuzzer
 
 before_install:
   - if [ $ADDRESS_SIZE = '32' ]; then sudo dpkg --add-architecture i386; fi
@@ -117,6 +118,10 @@ script:
         mkdir bin
         cd bin
         cmake $TOOLCHAIN_OPTION -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION .. && cmake --build . && CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target test && cmake --build . --target package
+      fi
+  - |
+      if [ "$B" = "fuzzer" ]; then
+        ./tests/ossfuzz/travisoss.sh
       fi
 
 # whitelist branches to avoid testing feature branches twice (as branch and as pull request)
