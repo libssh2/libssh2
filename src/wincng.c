@@ -252,7 +252,7 @@ _libssh2_wincng_init(void)
     if(!BCRYPT_SUCCESS(ret)) {
         _libssh2_wincng.hAlgHashSHA256 = NULL;
     }
-    ret = BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHashSHA384
+    ret = BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHashSHA384,
                                       BCRYPT_SHA384_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         _libssh2_wincng.hAlgHashSHA384 = NULL;
