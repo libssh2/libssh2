@@ -397,7 +397,7 @@ set(RUNTIME_DEPENDENCIES ${_RUNTIME_DEPENDENCIES} CACHE INTERNAL
 ## During package installation, install Libssh2Config.cmake
 install(EXPORT Libssh2Config
   NAMESPACE Libssh2::
-  DESTINATION lib/cmake/libssh2)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)
 
 ## During build, register directly from build tree
 # create Libssh2Config.cmake
@@ -429,4 +429,4 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion)
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/Libssh2ConfigVersion.cmake
-  DESTINATION lib/cmake/libssh2)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)
