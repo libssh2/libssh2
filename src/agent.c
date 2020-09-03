@@ -152,6 +152,7 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
     path = agent->identity_agent_path;
     if(!path) {
         path = getenv("SSH_AUTH_SOCK");
+
         if(!path)
             return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_USE,
                                   "no auth sock variable");
