@@ -1317,6 +1317,20 @@ LIBSSH2_API void libssh2_keepalive_config(LIBSSH2_SESSION *session,
 LIBSSH2_API int libssh2_keepalive_send(LIBSSH2_SESSION *session,
                                        int *seconds_to_next);
 
+/*
+ * libssh2_agent_sign()
+ *
+ * Sign specified `data` with specified agent.
+ * `sig` must be freed with libssh2_free().
+ *
+ * Returns 0 if succeeded, or a negative value for error.
+ */
+LIBSSH2_API int libssh2_agent_sign(LIBSSH2_AGENT *agent,
+                                   const unsigned char *data,
+                                   size_t data_len,
+                                   unsigned char **sig,
+                                   size_t *sig_len);
+
 /* NOTE NOTE NOTE
    libssh2_trace() has no function in builds that aren't built with debug
    enabled

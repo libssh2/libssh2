@@ -855,3 +855,23 @@ LIBSSH2_API const char *libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent)
 {
     return agent->identity_agent_path;
 }
+
+/*
+ * libssh2_agent_sign()
+ *
+ * Sign specified `data` with specified agent.
+ * `sig` must be freed with libssh2_free().
+ *
+ * Returns 0 if succeeded, or a negative value for error.
+ */
+LIBSSH2_API int libssh2_agent_sign(LIBSSH2_AGENT *agent,
+                                   const unsigned char *data,
+                                   size_t data_len,
+                                   unsigned char **sig,
+                                   size_t *sig_len)
+{
+    return agent_sign(agent->session,
+                      sig, sig_len,
+                      data, data_len,
+                      (void *)&agent);
+}
