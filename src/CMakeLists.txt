@@ -176,6 +176,7 @@ include(GNUInstallDirs)
 set(SOURCES
   ${CRYPTO_SOURCES}
   agent.c
+  agent_win.c
   blf.h
   bcrypt_pbkdf.c
   blowfish.c
