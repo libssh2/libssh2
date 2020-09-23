@@ -176,21 +176,19 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
 }
 
 #define RECV_SEND_ALL(func, socket, buffer, length, flags, abstract) \
-    int rc; \
-    size_t finished; \
-    \
-    finished = 0; \
-    \
-    while(finished < length) { \
-        rc = func(socket, \
-                  (char *)buffer + finished, length - finished, \
-                  flags, abstract); \
-        if(rc < 0) \
-            return rc; \
-        \
-        finished += rc; \
-    } \
-    \
+    int rc;                                                          \
+    size_t finished = 0;                                             \
+                                                                     \
+    while(finished < length) {                                       \
+        rc = func(socket,                                            \
+                  (char *)buffer + finished, length - finished,      \
+                  flags, abstract);                                  \
+        if(rc < 0)                                                   \
+            return rc;                                               \
+                                                                     \
+        finished += rc;                                              \
+    }                                                                \
+                                                                     \
     return finished;
 
 static ssize_t _send_all(LIBSSH2_SEND_FUNC(func), libssh2_socket_t socket,
