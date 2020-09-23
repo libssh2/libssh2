@@ -239,6 +239,8 @@ typedef off_t libssh2_struct_stat_size;
 #define LIBSSH2_DH_GEX_OPTGROUP     4096
 #define LIBSSH2_DH_GEX_MAXGROUP     8192
 
+#define LIBSSH2_DH_MAX_MODULUS_BITS 16384
+
 /* Defaults for pty requests */
 #define LIBSSH2_TERM_WIDTH      80
 #define LIBSSH2_TERM_HEIGHT     24
