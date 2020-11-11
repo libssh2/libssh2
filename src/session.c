@@ -219,7 +219,7 @@ banner_send(LIBSSH2_SESSION * session)
         }
         else {
             memcpy(banner_dup, banner, 255);
-            banner[255] = '\0';
+            banner_dup[255] = '\0';
         }
 
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Sending Banner: %s",
