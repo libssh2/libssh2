@@ -158,7 +158,15 @@ agent_connect_openssh(LIBSSH2_AGENT *agent)
             0,
             NULL,
             OPEN_EXISTING,
-            FILE_FLAG_OVERLAPPED |
+            /* Non-blocking mode for agent connections is not implemented at
+             * the point this was implemented. The code for Win32 OpenSSH
+             * should support non-blocking IO, but the code calling it doesn't
+             * support it as of yet.
+             * When non-blocking IO is implemented for the surrounding code,
+             * uncomment the following line to enable support within the Win32
+             * OpenSSH code.
+             */
+            /* FILE_FLAG_OVERLAPPED | */
             SECURITY_SQOS_PRESENT |
             SECURITY_IDENTIFICATION,
             NULL
