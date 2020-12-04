@@ -45,7 +45,7 @@ sed -i.bak -e 's/^#define LIBSSH2_VERSION .*/#define LIBSSH2_VERSION "'$libversi
     -e "s/^#define LIBSSH2_TIMESTAMP .*/#define LIBSSH2_TIMESTAMP \"$datestamp\"/g" \
  $HEADER
 
-rm $HEADER.bak
+rm -f "$HEADER.bak"
 
 echo "libssh2 version $libversion"
 echo "libssh2 numerical $numeric"
