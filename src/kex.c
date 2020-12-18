@@ -4069,7 +4069,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
       supported algorithms (needed to allocate the proper size of array) and
       the second time to actually copy the pointers.  Typically this function
       will not be called often (typically at the beginning of a session) and
-      the number of algorithms (i.e. niumber of iterations in one loop) will
+      the number of algorithms (i.e. number of iterations in one loop) will
       not be high (typically it will not exceed 20) for quite a long time.
 
       So double looping really shouldn't be an issue and it is definitely a
