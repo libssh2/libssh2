@@ -219,7 +219,7 @@ if(BUILD_BOTH_LIBS OR BUILD_SHARED_LIBS)
   add_library(libssh2-shared SHARED $<TARGET_OBJECTS:libssh2>)
    # we want it to be called libssh2 on all platforms
   set_target_properties(libssh2-shared PROPERTIES PREFIX "" OUTPUT_NAME "libssh2")
-  set_target_properties(libssh2 PROPERTIES POSITIION_INDEPENDENT_CODE ON)
+  set_target_properties(libssh2 PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 if(BUILD_BOTH_LIBS OR NOT BUILD_SHARED_LIBS)
   add_library(libssh2-static STATIC $<TARGET_OBJECTS:libssh2>)
