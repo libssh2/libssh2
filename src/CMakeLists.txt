@@ -391,7 +391,7 @@ install(FILES
   ${PROJECT_SOURCE_DIR}/include/libssh2_sftp.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(TARGETS libssh2
+install(TARGETS libssh2 libssh2-shared libssh2-static
   EXPORT Libssh2Config
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
