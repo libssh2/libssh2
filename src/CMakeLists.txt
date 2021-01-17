@@ -383,6 +383,10 @@ else()
   target_link_libraries(libssh2 PRIVATE ${LIBRARIES})
 endif()
 
+if(BUILD_BOTH_LIBS OR BUILD_SHARED_LIBS)
+  target_link_libraries(libssh2-shared PUBLIC libssh2)
+endif()
+
 ## Installation
 
 install(FILES
@@ -392,6 +396,11 @@ install(FILES
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(BUILD_BOTH_LIBS OR BUILD_SHARED_LIBS)
+  install(TARGETS libssh2
+    EXPORT Libssh2Config
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
   install(TARGETS libssh2-shared
     EXPORT Libssh2Config
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -439,9 +448,16 @@ install(
 
 ## Versioning
 
-set_target_properties(libssh2 PROPERTIES
-  SOVERSION 1
-  VERSION 1.0.1)
+if(BUILD_BOTH_LIBS OR BUILD_SHARED_LIBS)
+  set_target_properties(libssh2-shared PROPERTIES
+    SOVERSION 1
+    VERSION 1.0.1)
+endif()
+if(BUILD_BOTH_LIBS OR NOT BUILD_SHARED_LIBS)
+  set_target_properties(libssh2-static PROPERTIES
+    SOVERSION 1
+    VERSION 1.0.1)
+endif()
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
