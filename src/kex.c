@@ -1579,39 +1579,6 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
 }
 
 
-#if LIBSSH2_ECDSA
-
-/* kex_session_ecdh_curve_type
- * returns the EC curve type by name used in key exchange
- */
-
-static int
-kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
-{
-    int ret = 0;
-    libssh2_curve_type type;
-
-    if(name == NULL)
-        return -1;
-
-    if(strcmp(name, "ecdh-sha2-nistp256") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP256;
-    else if(strcmp(name, "ecdh-sha2-nistp384") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP384;
-    else if(strcmp(name, "ecdh-sha2-nistp521") == 0)
-        type = LIBSSH2_EC_CURVE_NISTP521;
-    else {
-        ret = -1;
-    }
-
-    if(ret == 0 && out_type) {
-        *out_type = type;
-    }
-
-    return ret;
-}
-
-
 /* LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY
  *
  * Macro that create and verifies EC SHA hash with a given digest bytes
@@ -1719,6 +1686,39 @@ kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
         rc = -1;                                                        \
     }                                                                   \
 }                                                                       \
+
+
+#if LIBSSH2_ECDSA
+
+/* kex_session_ecdh_curve_type
+ * returns the EC curve type by name used in key exchange
+ */
+
+static int
+kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
+{
+    int ret = 0;
+    libssh2_curve_type type;
+
+    if(name == NULL)
+        return -1;
+
+    if(strcmp(name, "ecdh-sha2-nistp256") == 0)
+        type = LIBSSH2_EC_CURVE_NISTP256;
+    else if(strcmp(name, "ecdh-sha2-nistp384") == 0)
+        type = LIBSSH2_EC_CURVE_NISTP384;
+    else if(strcmp(name, "ecdh-sha2-nistp521") == 0)
+        type = LIBSSH2_EC_CURVE_NISTP521;
+    else {
+        ret = -1;
+    }
+
+    if(ret == 0 && out_type) {
+        *out_type = type;
+    }
+
+    return ret;
+}
 
 
 /* ecdh_sha2_nistp
