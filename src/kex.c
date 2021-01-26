@@ -1752,26 +1752,23 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         /* parse INIT reply data */
 
         /* host key K_S */
-        unsigned char *s = data + 1; /* Advance past packet type */
         unsigned char *server_public_key;
         size_t server_public_key_len;
-        size_t host_sig_len;
+        struct string_buf buf;
 
-        session->server_hostkey_len =
-            _libssh2_ntohu32((const unsigned char *)s);
-        s += 4;
+        buf.data = data;
+        buf.len = data_len;
+        buf.dataptr = buf.data;
+        buf.dataptr++; /* Advance past packet type */
 
-        session->server_hostkey = LIBSSH2_ALLOC(session,
-                                                session->server_hostkey_len);
-        if(!session->server_hostkey) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                 "Unable to allocate memory for a copy "
+         if(_libssh2_copy_string(session, &buf, &(session->server_hostkey),
+                                &server_public_key_len)) {
+                                "Unable to allocate memory for a copy "
                                  "of the host key");
             goto clean_exit;
         }
 
-        memcpy(session->server_hostkey, s, session->server_hostkey_len);
-        s += session->server_hostkey_len;
+        session->server_hostkey_len = (uint32_t)server_public_key_len;
 
 #if LIBSSH2_MD5
         {
@@ -1870,19 +1867,20 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         }
 
         /* server public key Q_S */
-        server_public_key_len = _libssh2_ntohu32((const unsigned char *)s);
-        s += 4;
-
-        server_public_key = s;
-        s += server_public_key_len;
+        if(_libssh2_get_string(&buf, &server_public_key,
+                               &server_public_key_len)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                     "Unexpected key length");
+            goto clean_exit;
+        }
 
         /* server signature */
-        host_sig_len = _libssh2_ntohu32((const unsigned char *)s);
-        s += 4;
-
-        exchange_state->h_sig = s;
-        exchange_state->h_sig_len = host_sig_len;
-        s += host_sig_len;
+        if(_libssh2_get_string(&buf, &exchange_state->h_sig,
+           &(exchange_state->h_sig_len))) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                                 "Unexpected ecdh_sha2_mistp server sig length");
+            goto clean_exit;
+        }
 
         /* Compute the shared secret K */
         rc = _libssh2_ecdh_gen_k(&exchange_state->k, private_key,
