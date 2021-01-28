@@ -1879,7 +1879,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         if(_libssh2_get_string(&buf, &exchange_state->h_sig,
            &(exchange_state->h_sig_len))) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
-                                 "Unexpected ecdh_sha2_mistp server sig length");
+                                 "Unexpected ecdh server sig length");
             goto clean_exit;
         }
 
