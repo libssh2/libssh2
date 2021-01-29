@@ -1763,7 +1763,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
 
          if(_libssh2_copy_string(session, &buf, &(session->server_hostkey),
                                 &server_public_key_len)) {
-             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,		
+             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                   "Unable to allocate memory for a copy "
                                   "of the host key");
             goto clean_exit;
