@@ -3285,10 +3285,12 @@ static unsigned char *
 kex_agree_instr(unsigned char *haystack, unsigned long haystack_len,
                 const unsigned char *needle, unsigned long needle_len)
 {
-    unsigned char *s;
+    unsigned char *s = haystack;
+    unsigned char *end_haystack = &haystack[haystack_len];
+    unsigned long left = end_haystack - s;
 
     /* Haystack too short to bother trying */
-    if(haystack_len < needle_len) {
+    if(haystack_len < needle_len || needle_len == 0) {
         return NULL;
     }
 
@@ -3298,12 +3300,16 @@ kex_agree_instr(unsigned char *haystack, unsigned long haystack_len,
         return haystack;
     }
 
-    s = haystack;
     /* Search until we run out of comas or we run out of haystack,
        whichever comes first */
-    while((s = (unsigned char *) strchr((char *) s, ','))
-           && ((haystack_len - (s - haystack)) > needle_len)) {
-        s++;
+    while((s = (unsigned char *) memchr((char *) s, ',', left))) {
+        /* Advance buffer past coma if we can */
+        left = end_haystack - s;
+        if((left >= 1) && (left <= haystack_len) && (left > needle_len))
+            s++;
+        else
+            return NULL;
+
         /* Needle at X position */
         if((strncmp((char *) s, (char *) needle, needle_len) == 0) &&
             (((s - haystack) + needle_len) == haystack_len
