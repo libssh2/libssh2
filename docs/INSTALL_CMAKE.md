@@ -42,6 +42,11 @@ pass the options to CMake on the command line:
 
 The following options are available:
 
+ * `LINT=ON`
+
+    Enables running the source code linter when building. Can be `ON` or `OFF`.
+
+
  * `BUILD_SHARED_LIBS=OFF`
 
     Determines whether libssh2 is built as a static library or as a

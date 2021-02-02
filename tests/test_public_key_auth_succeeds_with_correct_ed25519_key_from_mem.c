@@ -35,9 +35,11 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    rc = libssh2_userauth_publickey_frommemory(session, USERNAME,
-                                               strlen(USERNAME),
-                                               NULL, 0, buffer, len, NULL);
+    rc = libssh2_userauth_publickey_frommemory(session,
+                                               USERNAME, strlen(USERNAME),
+                                               NULL, 0,
+                                               buffer, len,
+                                               NULL);
 
     free(buffer);
 

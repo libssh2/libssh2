@@ -4,8 +4,9 @@
 
 #include <stdio.h>
 
-static const char *USERNAME = "libssh2";          /* set in Dockerfile */
-static const char *PASSWORD = "my test password"; /* set in Dockerfile */
+/* configured in Dockerfile */
+static const char *USERNAME = "libssh2";
+static const char *PASSWORD = "my test password";
 
 static void kbd_callback(const char *name, int name_len,
                          const char *instruct, int instruct_len,
