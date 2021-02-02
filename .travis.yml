@@ -46,10 +46,12 @@ compiler:
 
 addons:
   chrome: stable
+matrix:
+  include:
+    - name: "Check style"
+      script: ./ci/checksrc.sh
 
 env:
-  matrix:
-   - B=style
    - ADDRESS_SIZE=64 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=OFF B=configure
    - ADDRESS_SIZE=64 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=OFF ENABLE_ZLIB_COMPRESSION=OFF B=cmake
    - ADDRESS_SIZE=64 CRYPTO_BACKEND=OpenSSL BUILD_SHARED_LIBS=ON ENABLE_ZLIB_COMPRESSION=OFF B=cmake
@@ -100,12 +102,6 @@ before_install:
 install:
 
 script:
-  - |
-      if [ "$B" = "style" ]; then
-        ./buildconf
-        ./configure
-        make checksrc
-      fi
   - |
       if [ "$B" = "configure" ]; then
         autoreconf -fi
