@@ -3319,7 +3319,7 @@ kex_agree_instr(unsigned char *haystack, unsigned long haystack_len,
         else {
             return NULL;
         }
-        
+
         /* Needle at X position */
         if((strncmp((char *) s, (char *) needle, needle_len) == 0) &&
             (((s - haystack) + needle_len) == haystack_len
