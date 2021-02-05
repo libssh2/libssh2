@@ -87,5 +87,4 @@ EXIT_LABEL:
   close(socket_fds[1]);
 
   return 0;
-
-                                 "Normal Shutdown, Thank you for playing")
+}
