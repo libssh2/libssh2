@@ -488,6 +488,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                     p->wptr += blocksize - 5;       /* advance write pointer */
                 }
                 else {
+                    if(p->payload)
+                        LIBSSH2_FREE(session, p->payload);
                     return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                 }
             }
@@ -570,6 +572,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 memcpy(p->wptr, &p->buf[p->readidx], numbytes);
             }
             else {
+                if(p->payload)
+                    LIBSSH2_FREE(session, p->payload);
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
 
