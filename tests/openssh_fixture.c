@@ -178,6 +178,34 @@ static const char *docker_machine_name(void)
     return getenv("DOCKER_MACHINE_NAME");
 }
 
+static int is_running_inside_a_container()
+{
+#ifdef WIN32
+    return 0;
+#else
+    const char *cgroup_filename = "/proc/self/cgroup";
+    FILE *f = NULL;
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read = 0;
+    int found = 0;
+    f = fopen(cgroup_filename, "r");
+    if(f == NULL) {
+        /* Don't go further, we are not in a container */
+        return 0;
+    }
+    while((read = getline(&line, &len, f)) != -1) {
+        if(strstr(line, "docker") != NULL) {
+            found = 1;
+            break;
+        }
+    }
+    fclose(f);
+    free(line);
+    return found;
+#endif
+}
+
 static int ip_address_from_container(char *container_id, char **ip_address_out)
 {
     const char *active_docker_machine = docker_machine_name();
@@ -213,21 +241,37 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
         }
     }
     else {
-        return run_command(ip_address_out,
-                           "docker inspect --format "
-                           "\"{{ index (index (index .NetworkSettings.Ports "
-                           "\\\"22/tcp\\\") 0) \\\"HostIp\\\" }}\" %s",
-                           container_id);
+        if(is_running_inside_a_container()) {
+            return run_command(ip_address_out,
+                               "docker inspect --format "
+                               "\"{{ .NetworkSettings.IPAddress }}\""
+                               " %s",
+                               container_id);
+        }
+        else {
+            return run_command(ip_address_out,
+                               "docker inspect --format "
+                               "\"{{ index (index (index "
+                               ".NetworkSettings.Ports "
+                               "\\\"22/tcp\\\") 0) \\\"HostIp\\\" }}\" %s",
+                               container_id);
+        }
     }
 }
 
 static int port_from_container(char *container_id, char **port_out)
 {
-    return run_command(port_out,
-                       "docker inspect --format "
-                       "\"{{ index (index (index .NetworkSettings.Ports "
-                       "\\\"22/tcp\\\") 0) \\\"HostPort\\\" }}\" %s",
-                       container_id);
+    if(is_running_inside_a_container()) {
+        *port_out = strdup("22");
+        return 0;
+    }
+    else {
+        return run_command(port_out,
+                           "docker inspect --format "
+                           "\"{{ index (index (index .NetworkSettings.Ports "
+                           "\\\"22/tcp\\\") 0) \\\"HostPort\\\" }}\" %s",
+                           container_id);
+    }
 }
 
 static int open_socket_to_container(char *container_id)
