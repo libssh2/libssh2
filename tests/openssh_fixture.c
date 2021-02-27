@@ -206,6 +206,15 @@ static int is_running_inside_a_container()
 #endif
 }
 
+static unsigned int portable_sleep(unsigned int seconds)
+{
+#ifdef WIN32
+    Sleep(seconds);
+#else
+    sleep(seconds);
+#endif
+}
+
 static int ip_address_from_container(char *container_id, char **ip_address_out)
 {
     const char *active_docker_machine = docker_machine_name();
@@ -230,11 +239,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                 return -1;
             }
             else {
-#ifdef WIN32
-                Sleep(wait_time);
-#else
-                sleep(wait_time);
-#endif
+                portable_sleep(wait_time);
                 ++attempt_no;
                 wait_time *= 2;
             }
@@ -281,6 +286,7 @@ static int open_socket_to_container(char *container_id)
     unsigned long hostaddr;
     int sock;
     struct sockaddr_in sin;
+    int counter = 0;
 
     int ret = ip_address_from_container(container_id, &ip_address);
     if(ret != 0) {
@@ -323,15 +329,25 @@ static int open_socket_to_container(char *container_id)
     sin.sin_port = htons((short)strtol(port_string, NULL, 0));
     sin.sin_addr.s_addr = hostaddr;
 
-    if(connect(sock, (struct sockaddr *)(&sin),
-               sizeof(struct sockaddr_in)) != 0) {
+    for(counter = 0; counter < 3; ++counter) {
+        if(connect(sock, (struct sockaddr *)(&sin),
+                   sizeof(struct sockaddr_in)) != 0) {
+            ret = -1;
+            fprintf(stderr,
+                    "Connection to %s:%s attempt #%d failed: retrying...\n",
+                    ip_address, port_string, counter);
+            portable_sleep(1 + 2*counter);
+        }
+        else {
+            ret = sock;
+            break;
+        }
+    }
+    if(ret == -1) {
         fprintf(stderr, "Failed to connect to %s:%s\n",
                 ip_address, port_string);
-        ret = -1;
         goto cleanup;
     }
-
-    ret = sock;
 
 cleanup:
     free(ip_address);
