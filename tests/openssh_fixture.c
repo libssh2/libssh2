@@ -159,12 +159,14 @@ static int start_openssh_server(char **container_id_out)
     const char *container_host_port = openssh_server_port();
     if(container_host_port != NULL) {
         return run_command(container_id_out,
-                           "docker run -d -p %s:22 libssh2/openssh_server",
+                           "docker run --rm -d -p %s:22 "
+                           "libssh2/openssh_server",
                            container_host_port);
     }
     else {
         return run_command(container_id_out,
-                           "docker run -d -p 22 libssh2/openssh_server");
+                           "docker run --rm -d -p 22 "
+                           "libssh2/openssh_server");
     }
 }
 
