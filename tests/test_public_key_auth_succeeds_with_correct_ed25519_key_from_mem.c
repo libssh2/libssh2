@@ -13,7 +13,6 @@ int read_file(const char *path, char **buf, size_t *len);
 int test(LIBSSH2_SESSION *session)
 {
     int rc;
-    FILE *fp = NULL;
     char *buffer = NULL;
     size_t len = 0;
     const char *userauth_list = NULL;
@@ -53,7 +52,6 @@ int test(LIBSSH2_SESSION *session)
 
 int read_file(const char *path, char **out_buffer, size_t *out_len)
 {
-    int rc;
     FILE *fp = NULL;
     char *buffer = NULL;
     size_t len = 0;
