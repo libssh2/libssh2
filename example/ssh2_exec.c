@@ -115,6 +115,21 @@ int main(int argc, char *argv[])
         password = argv[3];
     }
     if(argc > 4) {
+        /*
+        Please pay some attention to this parameter; if it includes space, it needs quotation marks.
+        Another thing is, not all the shell command output to stdout. Some of them are naughty and prefer stderr.
+
+        For example, the following command needs quotation marks.
+        Without proper quotation, it becomes two parameters. That leaves an interactive python shell waiting for your input and never returns.
+
+            python -V becomes a "python" and a "-V"; Add quotation marks "python -V" to tell it is 
+
+        Also, please note that "python -V" output goes through the stderr, so remember to change your channel behavior like the following, or you'll miss the output:
+            libssh2_channel_handle_extended_data2(channel, LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE);
+
+        Or, As an alternative, calling below function to read stderr separately:
+            libssh2_channel_read_stderr(channel, buf, buflen);
+        */
         commandline = argv[4];
     }
 
