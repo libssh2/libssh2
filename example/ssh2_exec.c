@@ -115,6 +115,20 @@ int main(int argc, char *argv[])
         password = argv[3];
     }
     if(argc > 4) {
+        /*
+        Please pay attention to this parameter; if it includes space, you need
+        to put the whole command inside double quotation marks.
+
+        Another thing is, not all the shell commands go through stdout; error
+        messages go through stderr. So we need:
+
+            libssh2_channel_handle_extended_data2(
+                channel,
+                LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE);
+
+        Or, calling the below function to deal with error messages:
+            libssh2_channel_read_stderr(channel, buf, buflen);
+        */
         commandline = argv[4];
     }
 
