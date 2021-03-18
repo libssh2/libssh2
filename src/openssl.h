@@ -58,7 +58,8 @@
 #include <openssl/rand.h>
 
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L && \
-    !defined(LIBRESSL_VERSION_NUMBER)
+    !defined(LIBRESSL_VERSION_NUMBER)  && \
+    !defined(OPENSSL_IS_BORINGSSL)
 # define HAVE_OPAQUE_STRUCTS 1
 #endif
 
@@ -292,7 +293,11 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define libssh2_hmac_update(ctx, data, datalen) \
   HMAC_Update(&(ctx), data, datalen)
 #define libssh2_hmac_final(ctx, data) HMAC_Final(&(ctx), data, NULL)
-#define libssh2_hmac_cleanup(ctx) HMAC_cleanup(ctx)
+     #if defined(OPENSSL_IS_BORINGSSL) \
+     #define libssh2_hmac_cleanup(ctx) HMAC_CTX_free(ctx) \
+     #else
+     #define libssh2_hmac_cleanup(ctx) HMAC_cleanup(ctx)
+    #endif
 #endif
 
 extern void _libssh2_openssl_crypto_init(void);
