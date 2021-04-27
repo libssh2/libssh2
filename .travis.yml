@@ -117,7 +117,7 @@ script:
       fi
   - |
       if [ "$B" = "fuzzer" ]; then
-        ./tests/ossfuzz/travisoss.sh
+        GIT_BRANCH=$TRAVIS_BRANCH ./ci/ossfuzz.sh
       fi
 
 # whitelist branches to avoid testing feature branches twice (as branch and as pull request)

@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
 # This script is called by the oss-fuzz main project when compiling the fuzz
-# targets. This script is regression tested by travisoss.sh.
+# targets. This script is regression tested by ci/ossfuzz.sh.
 
 # Save off the current folder as the build root.
 export BUILD_ROOT=$PWD

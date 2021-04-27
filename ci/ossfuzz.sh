@@ -16,8 +16,8 @@ then
     exit 0
 fi
 
-# Modify the oss-fuzz Dockerfile so that we're checking out the current branch on travis.
-sed -i "s@https://github.com/libssh2/libssh2.git@-b $TRAVIS_BRANCH https://github.com/libssh2/libssh2.git@" /tmp/ossfuzz/projects/${PROJECT_NAME}/Dockerfile
+# Modify the oss-fuzz Dockerfile so that we're checking out the current branch in the CI system.
+sed -i "s@https://github.com/libssh2/libssh2.git@-b $GIT_BRANCH https://github.com/libssh2/libssh2.git@" /tmp/ossfuzz/projects/${PROJECT_NAME}/Dockerfile
 
 # Try and build the fuzzers
 pushd /tmp/ossfuzz

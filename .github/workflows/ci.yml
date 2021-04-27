@@ -99,4 +99,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run Fuzzer
-        run: TRAVIS_BRANCH=${GITHUB_REF#refs/heads/} ./tests/ossfuzz/travisoss.sh
+        run: GIT_BRANCH=${GITHUB_REF#refs/heads/} ./ci/ossfuzz.sh
