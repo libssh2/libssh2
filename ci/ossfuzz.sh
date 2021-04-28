@@ -17,7 +17,10 @@ then
 fi
 
 # Modify the oss-fuzz Dockerfile so that we're checking out the current branch in the CI system.
-sed -i "s@https://github.com/libssh2/libssh2.git@-b $GIT_BRANCH https://github.com/libssh2/libssh2.git@" /tmp/ossfuzz/projects/${PROJECT_NAME}/Dockerfile
+sed -i \
+    -e "s@--depth 1@--no-checkout@" \
+    -e "s@/src/libssh2@/src/libssh2 ; git -C /src/libssh2 fetch origin $GIT_REF:ci; git -C /src/libssh2 checkout ci@" \
+    /tmp/ossfuzz/projects/${PROJECT_NAME}/Dockerfile
 
 # Try and build the fuzzers
 pushd /tmp/ossfuzz

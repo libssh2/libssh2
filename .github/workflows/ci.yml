@@ -99,4 +99,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run Fuzzer
-        run: GIT_BRANCH=${GITHUB_REF#refs/heads/} ./ci/ossfuzz.sh
+        run: GIT_REF=$GITHUB_REF ./ci/ossfuzz.sh
