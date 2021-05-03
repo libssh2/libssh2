@@ -65,8 +65,8 @@ static int run_command_varg(char **output, const char *command, va_list args)
     char redirect_stderr[] = "%s 2>&1";
     char command_buf[BUFSIZ];
     char buf[BUFSIZ];
-    char *p;
     int ret;
+    size_t buf_len;
 
     if(output) {
         *output = NULL;
@@ -101,9 +101,12 @@ static int run_command_varg(char **output, const char *command, va_list args)
         fprintf(stderr, "Unable to execute command '%s'\n", command);
         return -1;
     }
-    p = buf;
-    while(fgets(p, sizeof(buf) - (p - buf), pipe) != NULL)
-        ;
+    buf[0] = 0;
+    buf_len = 0;
+    while(buf_len < (sizeof(buf) - 1) &&
+        fgets(&buf[buf_len], sizeof(buf) - buf_len, pipe) != NULL) {
+        buf_len = strlen(buf);
+    }
 
 #ifdef WIN32
     ret = _pclose(pipe);
