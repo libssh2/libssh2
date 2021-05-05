@@ -113,6 +113,7 @@ script:
       if [ "$B" = "cmake" ]; then
         mkdir bin
         cd tests
+        (docker pull ghcr.io/libssh2/ci_tests_openssh_server && docker tag ghcr.io/libssh2/ci_tests_openssh_server libssh2/openssh_server) || true
         docker build -t libssh2/openssh_server openssh_server
         cd ../bin
         cmake $TOOLCHAIN_OPTION -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION .. && cmake --build . && CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target test && cmake --build . --target package

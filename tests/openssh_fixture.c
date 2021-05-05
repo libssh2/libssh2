@@ -145,8 +145,14 @@ static int run_command(char **output, const char *command, ...)
 
 static int build_openssh_server_docker_image(void)
 {
-    return run_command(NULL, "docker build -t libssh2/openssh_server "
-                             "openssh_server");
+    int ret = 0;
+
+    if(NULL == getenv("DISABLE_DOCKER_BUILD")) {
+        ret = run_command(NULL, "docker build -t libssh2/openssh_server "
+                          "openssh_server");
+    }
+
+    return ret;
 }
 
 static int start_openssh_server(char **container_id_out)

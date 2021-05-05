@@ -45,7 +45,6 @@ jobs:
       ENABLE_ZLIB_COMPRESSION: ${{ matrix.enable_zlib_compression }}
     steps:
       - uses: actions/checkout@v2
-      - uses: satackey/action-docker-layer-caching@v0.0.11
       - name: Install 32 Bit Dependencies
         if: ${{ matrix.address_size == 32 }}
         run: |
@@ -72,6 +71,22 @@ jobs:
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Prepare OpenSSH Server Container for Testing
+        uses: docker/build-push-action@v2
+        with:
+          pull: true
+          load: true
+          push: ${{ github.event_name == 'push' }}
+          context: ./tests/openssh_server
+          tags: |
+            libssh2/openssh_server
+            ghcr.io/libssh2/ci_tests_openssh_server
       - name: Build with Configure
         if: ${{ matrix.b == 'configure' }}
         run: |
@@ -86,10 +101,7 @@ jobs:
           cd bin
           cmake $TOOLCHAIN_OPTION -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
           cmake --build .
-          pushd ../tests
-          docker build -t libssh2/openssh_server openssh_server
-          popd
-          CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target test
+          DISABLE_DOCKER_BUILD=1 CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target test
           cmake --build . --target package
   fuzzer:
     runs-on: ubuntu-16.04
