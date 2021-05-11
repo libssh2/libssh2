@@ -45,7 +45,6 @@ jobs:
       ENABLE_ZLIB_COMPRESSION: ${{ matrix.enable_zlib_compression }}
     steps:
       - uses: actions/checkout@v2
-      - uses: satackey/action-docker-layer-caching@v0.0.11
       - name: Install 32 Bit Dependencies
         if: ${{ matrix.address_size == 32 }}
         run: |
