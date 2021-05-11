@@ -862,7 +862,10 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     p->outbuf[4] = (unsigned char)padding_length;
 
     /* fill the padding area with random junk */
-    _libssh2_random(p->outbuf + 5 + data_len, padding_length);
+    if(_libssh2_random(p->outbuf + 5 + data_len, padding_length)) {
+        return _libssh2_error(session, LIBSSH2_ERROR_RANDGEN,
+                              "Unable to get random bytes for packet padding");
+    }
 
     if(encrypted) {
         size_t i;

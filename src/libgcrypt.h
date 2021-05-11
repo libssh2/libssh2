@@ -68,7 +68,7 @@
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
 #define _libssh2_random(buf, len)                \
-  (gcry_randomize ((buf), (len), GCRY_STRONG_RANDOM), 1)
+  (gcry_randomize ((buf), (len), GCRY_STRONG_RANDOM), 0)
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 
