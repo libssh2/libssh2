@@ -43,7 +43,7 @@ This release includes the following enhancements and bugfixes:
  o builds now use autoreconf instead of a custom build script
  o cmake now respects install directory
  o improved CI backend
- o updated HACKING.CRYPTO documentation
+ o updated HACKING-CRYPTO documentation
  o use markdown file extensions
  o improved unit tests
 
