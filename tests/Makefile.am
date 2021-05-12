@@ -56,6 +56,8 @@ EXTRA_DIST =								\
  test_public_key_auth_succeeds_with_correct_dsa_key.c			\
  test_public_key_auth_succeeds_with_correct_ed25519_key.c		\
  test_public_key_auth_succeeds_with_correct_ed25519_key_from_mem.c	\
+ test_public_key_auth_succeeds_with_correct_ecdsa_key.c 	\
+ test_public_key_auth_succeeds_with_correct_signed_ecdsa_key.c 	\
  test_public_key_auth_succeeds_with_correct_encrypted_ed25519_key.c	\
  test_public_key_auth_succeeds_with_correct_encrypted_rsa_key.c		\
  test_public_key_auth_succeeds_with_correct_rsa_key.c			\
