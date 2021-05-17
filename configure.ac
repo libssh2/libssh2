@@ -36,12 +36,9 @@ case "$host" in
     CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
     LIBS="$LIBS -lws2_32"
     ;;
-	*-cygwin)
-	CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
+    *darwin*)
+    CFLAGS="$CFLAGS -DLIBSSH2_DARWIN"
     ;;
-	*darwin*)
-	CFLAGS="$CFLAGS -DLIBSSH2_DARWIN"
-	;;
     *hpux*)
     ;;
     *osf*)
