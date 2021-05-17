@@ -35,6 +35,7 @@
  * OF SUCH DAMAGE.
  */
 
+#include "libssh2_export.h"
 /* Headers */
 #cmakedefine HAVE_UNISTD_H
 #cmakedefine HAVE_INTTYPES_H

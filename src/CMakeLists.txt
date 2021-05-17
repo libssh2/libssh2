@@ -216,6 +216,10 @@ if(WIN32)
 endif()
 
 add_library(libssh2 ${SOURCES})
+
+include(GenerateExportHeader)
+generate_export_header(libssh2 EXPORT_MACRO_NAME "LIBSSH2_API")
+
 # we want it to be called libssh2 on all platforms
 set_target_properties(libssh2 PROPERTIES PREFIX "")
 
