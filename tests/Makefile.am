@@ -28,8 +28,18 @@ EXTRA_DIST =                                                           \
  key_dsa.pub                                                           \
  key_dsa_wrong                                                         \
  key_dsa_wrong.pub                                                     \
+ key_ecdsa                                                             \
+ key_ecdsa.pub                                                         \
+ key_ed25519                                                           \
+ key_ed25519.pub                                                       \
+ key_ed25519_encrypted                                                 \
+ key_ed25519_encrypted.pub                                             \
  key_rsa                                                               \
  key_rsa.pub                                                           \
+ key_rsa_encrypted                                                     \
+ key_rsa_encrypted.pub                                                 \
+ key_rsa_openssh                                                       \
+ key_rsa_openssh.pub                                                   \
  libssh2_config_cmake.h.in                                             \
  mansyntax.sh                                                          \
  openssh_fixture.c                                                     \
