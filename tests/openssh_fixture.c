@@ -149,10 +149,23 @@ static int build_openssh_server_docker_image(void)
                              "openssh_server");
 }
 
+static const char *openssh_server_port(void)
+{
+    return getenv("OPENSSH_SERVER_PORT");
+}
+
 static int start_openssh_server(char **container_id_out)
 {
-    return run_command(container_id_out,
-                       "docker run --detach -P libssh2/openssh_server");
+    const char *container_host_port = openssh_server_port();
+    if(container_host_port != NULL) {
+        return run_command(container_id_out,
+                           "docker run -d -p %s:22 libssh2/openssh_server",
+                           container_host_port);
+    }
+    else {
+        return run_command(container_id_out,
+                           "docker run -d -p 22 libssh2/openssh_server");
+    }
 }
 
 static int stop_openssh_server(char *container_id)
