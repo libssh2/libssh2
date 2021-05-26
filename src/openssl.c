@@ -2230,8 +2230,14 @@ _libssh2_md5_init(libssh2_md5_ctx *ctx)
      * "digital envelope routines:FIPS_DIGESTINIT:disabled for fips"
      * So, just return 0 in FIPS mode
      */
+#if OPENSSL_VERSION_NUMBER >= 0x000907000L && \
+    defined(OPENSSL_VERSION_MAJOR) && \
+    OPENSSL_VERSION_MAJOR < 3 && \
+    !defined(LIBRESSL_VERSION_NUMBER)
      if(FIPS_mode() != 0)
          return 0;
+#endif
+
 #ifdef HAVE_OPAQUE_STRUCTS
     *ctx = EVP_MD_CTX_new();
 
