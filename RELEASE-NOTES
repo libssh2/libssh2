@@ -18,6 +18,7 @@ This release includes the following enhancements and bugfixes:
  o restores os400 building
  o increases min, max and opt Diffie Hellman group values
  o improves portiablity of the make file
+ o improves timeout behavior with 2FA keyboard auth
  o various improvements to the Wincng backend
  o fixes reading parital packet replies when using an agent
  o fixes Diffie Hellman key exchange on Windows 1903+ builds
@@ -28,14 +29,13 @@ This release includes the following enhancements and bugfixes:
  o improved linking when using Mbed TLS
  o fixes call to libssh2_crypto_exit() if crypto hasn't been initialized
  o fixes crash when loading public keys with no id
- o fixes possible crashes when exchanging keys
- o fixes possible crash when reading packets
- o fixes possible crash when opening an X11 connection
- o fixes possible crash when reading ecdh host keys
+ o fixes possible out of bounds read when exchanging keys
+ o fixes possible out of bounds read when reading packets
+ o fixes possible out of bounds read when opening an X11 connection
+ o fixes possible out of bounds read when ecdh host keys
  o fixes possible hang when trying to read a disconnected socket
- o fixes possible timeout with 2FA keyboard auth
  o fixes a crash when using the delayed compression option
- o fixes unexpected error with large known host entries
+ o fixes read error with large known host entries
  o fixes various warnings
  o fixes various small memory leaks
  o improved error handling, various detailed errors will now be reported
