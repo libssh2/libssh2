@@ -65,7 +65,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
 {
     unsigned char reply_codes[4] =
         { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
-	  SSH_MSG_USERAUTH_BANNER, 0 };
+          SSH_MSG_USERAUTH_BANNER, 0 };
     /* packet_type(1) + username_len(4) + service_len(4) +
        service(14)"ssh-connection" + method_len(4) = 27 */
     unsigned long methods_len;
@@ -157,7 +157,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                 LIBSSH2_FREE(session, session->userauth_list_data);
                 session->userauth_list_data = NULL;
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate memory for userauth_banner");
+                              "Unable to allocate memory for userauth_banner");
                 return NULL;
             }
             memmove(session->userauth_banner, session->userauth_list_data + 5,
@@ -165,15 +165,15 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
             _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
                            "Banner: %s",
                            session->userauth_banner);
-	    LIBSSH2_FREE(session, session->userauth_list_data);
-	    session->userauth_list_data = NULL;
+            LIBSSH2_FREE(session, session->userauth_list_data);
+            session->userauth_list_data = NULL;
             /* SSH_MSG_USERAUTH_BANNER has been handled */
             reply_codes[2] = 0;
             rc = _libssh2_packet_requirev(session, reply_codes,
                                           &session->userauth_list_data,
                                           &session->userauth_list_data_len, 0,
                                           NULL, 0,
-                                 &session->userauth_list_packet_requirev_state);
+                                &session->userauth_list_packet_requirev_state);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
                 _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                "Would block requesting userauth list");
