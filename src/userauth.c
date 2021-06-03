@@ -248,7 +248,7 @@ libssh2_userauth_list(LIBSSH2_SESSION * session, const char *user,
  * been made, this function returns LIBSSH2_ERROR_MISSING_AUTH_BANNER.
  */
 LIBSSH2_API int
-libssh2_userauth_banner(LIBSSH2_SESSION *session, const char **banner)
+libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
 {
     if(!session->userauth_banner) {
         return _libssh2_error(session,
