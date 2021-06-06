@@ -127,7 +127,7 @@ fi
 m4_set_foreach([crypto_backends], [backend],
   [AM_CONDITIONAL(m4_toupper(backend), test "$found_crypto" = "backend")]
 )
-m4_undefine([backend])
+#m4_undefine([backend])
 
 
 # libz
