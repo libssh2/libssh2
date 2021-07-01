@@ -1124,7 +1124,11 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
            flags(4) */
         sftp->open_packet_len = filename_len + 13 +
             (open_file? (4 +
-                         sftp_attrsize(LIBSSH2_SFTP_ATTR_PERMISSIONS)) : 0);
+                         sftp_attrsize(LIBSSH2_SFTP_ATTR_PERMISSIONS)
+                         +sftp_attrsize(LIBSSH2_SFTP_ATTR_SIZE)
+                         +sftp_attrsize(LIBSSH2_SFTP_ATTR_ACMODTIME)
+                         +sftp_attrsize(LIBSSH2_SFTP_ATTR_EXTENDED)
+                         +sftp_attrsize(LIBSSH2_SFTP_ATTR_UIDGID)) : 0);
 
         /* surprise! this starts out with nothing sent */
         sftp->open_packet_sent = 0;
