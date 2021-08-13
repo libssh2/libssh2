@@ -884,11 +884,14 @@ _libssh2_bn_from_bn(_libssh2_bn *to, _libssh2_bn *from)
     return 0;
 }
 
-void
+int
 _libssh2_random(unsigned char *buf, int len)
 {
     Qc3GenPRNs(buf, len,
         Qc3PRN_TYPE_NORMAL, Qc3PRN_NO_PARITY, (char *) &ecnull);
+    /* FIXME: any error is silently discarded! But Qc3GenPRNs could fail,
+       including if "The system seed digest is not ready" dixit IBM doc. */
+    return 0;
 }
 
 

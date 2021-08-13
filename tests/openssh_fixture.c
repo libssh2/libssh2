@@ -65,8 +65,8 @@ static int run_command_varg(char **output, const char *command, va_list args)
     char redirect_stderr[] = "%s 2>&1";
     char command_buf[BUFSIZ];
     char buf[BUFSIZ];
-    char *p;
     int ret;
+    size_t buf_len;
 
     if(output) {
         *output = NULL;
@@ -101,9 +101,12 @@ static int run_command_varg(char **output, const char *command, va_list args)
         fprintf(stderr, "Unable to execute command '%s'\n", command);
         return -1;
     }
-    p = buf;
-    while(fgets(p, sizeof(buf) - (p - buf), pipe) != NULL)
-        ;
+    buf[0] = 0;
+    buf_len = 0;
+    while(buf_len < (sizeof(buf) - 1) &&
+        fgets(&buf[buf_len], sizeof(buf) - buf_len, pipe) != NULL) {
+        buf_len = strlen(buf);
+    }
 
 #ifdef WIN32
     ret = _pclose(pipe);
@@ -146,10 +149,25 @@ static int build_openssh_server_docker_image(void)
                              "openssh_server");
 }
 
+static const char *openssh_server_port(void)
+{
+    return getenv("OPENSSH_SERVER_PORT");
+}
+
 static int start_openssh_server(char **container_id_out)
 {
-    return run_command(container_id_out,
-                       "docker run --detach -P libssh2/openssh_server");
+    const char *container_host_port = openssh_server_port();
+    if(container_host_port != NULL) {
+        return run_command(container_id_out,
+                           "docker run --rm -d -p %s:22 "
+                           "libssh2/openssh_server",
+                           container_host_port);
+    }
+    else {
+        return run_command(container_id_out,
+                           "docker run --rm -d -p 22 "
+                           "libssh2/openssh_server");
+    }
 }
 
 static int stop_openssh_server(char *container_id)
@@ -160,6 +178,43 @@ static int stop_openssh_server(char *container_id)
 static const char *docker_machine_name(void)
 {
     return getenv("DOCKER_MACHINE_NAME");
+}
+
+static int is_running_inside_a_container()
+{
+#ifdef WIN32
+    return 0;
+#else
+    const char *cgroup_filename = "/proc/self/cgroup";
+    FILE *f = NULL;
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read = 0;
+    int found = 0;
+    f = fopen(cgroup_filename, "r");
+    if(f == NULL) {
+        /* Don't go further, we are not in a container */
+        return 0;
+    }
+    while((read = getline(&line, &len, f)) != -1) {
+        if(strstr(line, "docker") != NULL) {
+            found = 1;
+            break;
+        }
+    }
+    fclose(f);
+    free(line);
+    return found;
+#endif
+}
+
+static unsigned int portable_sleep(unsigned int seconds)
+{
+#ifdef WIN32
+    Sleep(seconds);
+#else
+    sleep(seconds);
+#endif
 }
 
 static int ip_address_from_container(char *container_id, char **ip_address_out)
@@ -186,32 +241,44 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                 return -1;
             }
             else {
-#ifdef WIN32
-                Sleep(wait_time);
-#else
-                sleep(wait_time);
-#endif
+                portable_sleep(wait_time);
                 ++attempt_no;
                 wait_time *= 2;
             }
         }
     }
     else {
-        return run_command(ip_address_out,
-                           "docker inspect --format "
-                           "\"{{ index (index (index .NetworkSettings.Ports "
-                           "\\\"22/tcp\\\") 0) \\\"HostIp\\\" }}\" %s",
-                           container_id);
+        if(is_running_inside_a_container()) {
+            return run_command(ip_address_out,
+                               "docker inspect --format "
+                               "\"{{ .NetworkSettings.IPAddress }}\""
+                               " %s",
+                               container_id);
+        }
+        else {
+            return run_command(ip_address_out,
+                               "docker inspect --format "
+                               "\"{{ index (index (index "
+                               ".NetworkSettings.Ports "
+                               "\\\"22/tcp\\\") 0) \\\"HostIp\\\" }}\" %s",
+                               container_id);
+        }
     }
 }
 
 static int port_from_container(char *container_id, char **port_out)
 {
-    return run_command(port_out,
-                       "docker inspect --format "
-                       "\"{{ index (index (index .NetworkSettings.Ports "
-                       "\\\"22/tcp\\\") 0) \\\"HostPort\\\" }}\" %s",
-                       container_id);
+    if(is_running_inside_a_container()) {
+        *port_out = strdup("22");
+        return 0;
+    }
+    else {
+        return run_command(port_out,
+                           "docker inspect --format "
+                           "\"{{ index (index (index .NetworkSettings.Ports "
+                           "\\\"22/tcp\\\") 0) \\\"HostPort\\\" }}\" %s",
+                           container_id);
+    }
 }
 
 static int open_socket_to_container(char *container_id)
@@ -221,6 +288,7 @@ static int open_socket_to_container(char *container_id)
     unsigned long hostaddr;
     int sock;
     struct sockaddr_in sin;
+    int counter = 0;
 
     int ret = ip_address_from_container(container_id, &ip_address);
     if(ret != 0) {
@@ -263,15 +331,25 @@ static int open_socket_to_container(char *container_id)
     sin.sin_port = htons((short)strtol(port_string, NULL, 0));
     sin.sin_addr.s_addr = hostaddr;
 
-    if(connect(sock, (struct sockaddr *)(&sin),
-               sizeof(struct sockaddr_in)) != 0) {
+    for(counter = 0; counter < 3; ++counter) {
+        if(connect(sock, (struct sockaddr *)(&sin),
+                   sizeof(struct sockaddr_in)) != 0) {
+            ret = -1;
+            fprintf(stderr,
+                    "Connection to %s:%s attempt #%d failed: retrying...\n",
+                    ip_address, port_string, counter);
+            portable_sleep(1 + 2*counter);
+        }
+        else {
+            ret = sock;
+            break;
+        }
+    }
+    if(ret == -1) {
         fprintf(stderr, "Failed to connect to %s:%s\n",
                 ip_address, port_string);
-        ret = -1;
         goto cleanup;
     }
-
-    ret = sock;
 
 cleanup:
     free(ip_address);

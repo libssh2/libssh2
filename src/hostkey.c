@@ -783,6 +783,42 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ecdsa_ssh_nistp521 = {
     hostkey_method_ssh_ecdsa_dtor,
 };
 
+static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ecdsa_ssh_nistp256_cert = {
+    "ecdsa-sha2-nistp256-cert-v01@openssh.com",
+    SHA256_DIGEST_LENGTH,
+    NULL,
+    hostkey_method_ssh_ecdsa_initPEM,
+    hostkey_method_ssh_ecdsa_initPEMFromMemory,
+    NULL,
+    hostkey_method_ssh_ecdsa_signv,
+    NULL,                       /* encrypt */
+    hostkey_method_ssh_ecdsa_dtor,
+};
+
+static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ecdsa_ssh_nistp384_cert = {
+    "ecdsa-sha2-nistp384-cert-v01@openssh.com",
+    SHA384_DIGEST_LENGTH,
+    NULL,
+    hostkey_method_ssh_ecdsa_initPEM,
+    hostkey_method_ssh_ecdsa_initPEMFromMemory,
+    NULL,
+    hostkey_method_ssh_ecdsa_signv,
+    NULL,                       /* encrypt */
+    hostkey_method_ssh_ecdsa_dtor,
+};
+
+static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ecdsa_ssh_nistp521_cert = {
+    "ecdsa-sha2-nistp521-cert-v01@openssh.com",
+    SHA512_DIGEST_LENGTH,
+    NULL,
+    hostkey_method_ssh_ecdsa_initPEM,
+    hostkey_method_ssh_ecdsa_initPEMFromMemory,
+    NULL,
+    hostkey_method_ssh_ecdsa_signv,
+    NULL,                       /* encrypt */
+    hostkey_method_ssh_ecdsa_dtor,
+};
+
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
@@ -999,6 +1035,9 @@ static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
     &hostkey_method_ecdsa_ssh_nistp256,
     &hostkey_method_ecdsa_ssh_nistp384,
     &hostkey_method_ecdsa_ssh_nistp521,
+    &hostkey_method_ecdsa_ssh_nistp256_cert,
+    &hostkey_method_ecdsa_ssh_nistp384_cert,
+    &hostkey_method_ecdsa_ssh_nistp521_cert,
 #endif
 #if LIBSSH2_ED25519
     &hostkey_method_ssh_ed25519,

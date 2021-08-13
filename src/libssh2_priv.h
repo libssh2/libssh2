@@ -109,13 +109,18 @@
 #define inline __inline
 #endif
 
-/* Provide iovec / writev on WIN32 platform. */
-#ifdef WIN32
+/* 3DS doesn't seem to have iovec */
+#if defined(WIN32) || defined(_3DS)
 
 struct iovec {
     size_t iov_len;
     void *iov_base;
 };
+
+#endif
+
+/* Provide iovec / writev on WIN32 platform. */
+#ifdef WIN32
 
 static inline int writev(int sock, struct iovec *iov, int nvecs)
 {

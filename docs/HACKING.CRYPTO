@@ -897,5 +897,6 @@ In example, this is needed to preset unused structure slacks on platforms
 requiring it.
 If this is not needed, it should be defined as an empty macro.
 
-void _libssh2_random(unsigned char *buf, int len);
+int _libssh2_random(unsigned char *buf, int len);
 Store len random bytes at buf.
+Returns 0 if OK, else -1.

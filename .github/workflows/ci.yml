@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  style-check:
+    runs-on: ubuntu-16.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check Style
+        run: ./ci/checksrc.sh
+  build:
+    runs-on: ubuntu-16.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+        address_size: [32, 64]
+        crypto_backend: [OpenSSL, Libgcrypt, mbedTLS]
+        build_shared_libs: [OFF, ON]
+        enable_zlib_compression: [OFF, ON]
+        b: [cmake]
+        include:
+          - compiler: gcc
+            address_size: 64
+            crypto_backend: OpenSSL
+            build_shared_libs: OFF
+            enable_zlib_compression: OFF
+            b: configure
+          - compiler: clang
+            address_size: 64
+            crypto_backend: OpenSSL
+            build_shared_libs: OFF
+            enable_zlib_compression: OFF
+            b: configure
+    env:
+      CC: ${{ matrix.compiler }}
+      CC_FOR_BUILD: ${{ matrix.compiler }}
+      CRYPTO_BACKEND: ${{ matrix.crypto_backend }}
+      BUILD_SHARED_LIBS: ${{ matrix.build_shared_libs }}
+      ENABLE_ZLIB_COMPRESSION: ${{ matrix.enable_zlib_compression }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install 32 Bit Dependencies
+        if: ${{ matrix.address_size == 32 }}
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update -qq
+          sudo apt-get install -y gcc-multilib
+          sudo apt-get install -y libssl-dev:i386 libgcrypt20-dev:i386 zlib1g-dev:i386 build-essential gcc-multilib
+          sudo dpkg --purge --force-depends gcc-multilib
+          sudo dpkg --purge --force-depends libssl-dev
+          echo "TOOLCHAIN_OPTION=-DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-Linux-32.cmake" >> $GITHUB_ENV
+      - name: Install 64 Bit Dependencies
+        if: ${{ matrix.address_size == 64 }}
+        run: |
+          sudo apt-get install -y libssl-dev
+          sudo apt-get install -y libgcrypt11-dev
+      - name: Install mbedTLS Dependencies
+        if: ${{ matrix.crypto_backend == 'mbedTLS' }}
+        run: |
+          MBEDTLSVER=mbedtls-2.7.0
+          curl -L https://github.com/ARMmbed/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
+          cd mbedtls-$MBEDTLSVER
+          cmake $TOOLCHAIN_OPTION -DUSE_SHARED_MBEDTLS_LIBRARY=ON -DCMAKE_INSTALL_PREFIX:PATH=../usr .
+          make -j3 install
+          cd ..
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+      - name: Build with Configure
+        if: ${{ matrix.b == 'configure' }}
+        run: |
+          autoreconf -fi
+          ./configure --enable-debug --enable-werror
+          make
+          make check
+      - name: Build with CMake
+        if: ${{ matrix.b == 'cmake' }}
+        run: |
+          mkdir bin
+          cd bin
+          cmake $TOOLCHAIN_OPTION -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
+          cmake --build .
+          pushd ../tests
+          docker build -t libssh2/openssh_server openssh_server
+          popd
+          CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target test
+          cmake --build . --target package
+  fuzzer:
+    runs-on: ubuntu-16.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    env:
+      CC: ${{ matrix.compiler }}
+      CC_FOR_BUILD: ${{ matrix.compiler }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Fuzzer
+        run: GIT_REF=$GITHUB_REF ./ci/ossfuzz.sh

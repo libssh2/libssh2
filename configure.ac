@@ -36,12 +36,9 @@ case "$host" in
     CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
     LIBS="$LIBS -lws2_32"
     ;;
-	*-cygwin)
-	CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
+    *darwin*)
+    CFLAGS="$CFLAGS -DLIBSSH2_DARWIN"
     ;;
-	*darwin*)
-	CFLAGS="$CFLAGS -DLIBSSH2_DARWIN"
-	;;
     *hpux*)
     ;;
     *osf*)
@@ -128,8 +125,6 @@ fi
 m4_set_foreach([crypto_backends], [backend],
   [AM_CONDITIONAL(m4_toupper(backend), test "$found_crypto" = "backend")]
 )
-m4_undefine([backend])
-
 
 # libz
 

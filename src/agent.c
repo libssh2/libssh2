@@ -38,6 +38,7 @@
  */
 
 #include "libssh2_priv.h"
+#include "agent.h"
 #include "misc.h"
 #include <errno.h>
 #ifdef HAVE_SYS_UN_H
@@ -50,6 +51,9 @@
 #endif
 #include "userauth.h"
 #include "session.h"
+#ifdef WIN32
+#include <stdlib.h>
+#endif
 
 /* Requests from client to agent for protocol 1 key operations */
 #define SSH_AGENTC_REQUEST_RSA_IDENTITIES 1
@@ -89,58 +93,6 @@
 /* Key constraint identifiers */
 #define SSH_AGENT_CONSTRAIN_LIFETIME 1
 #define SSH_AGENT_CONSTRAIN_CONFIRM 2
-
-/* non-blocking mode on agent connection is not yet implemented, but
-   for future use. */
-typedef enum {
-    agent_NB_state_init = 0,
-    agent_NB_state_request_created,
-    agent_NB_state_request_length_sent,
-    agent_NB_state_request_sent,
-    agent_NB_state_response_length_received,
-    agent_NB_state_response_received
-} agent_nonblocking_states;
-
-typedef struct agent_transaction_ctx {
-    unsigned char *request;
-    size_t request_len;
-    unsigned char *response;
-    size_t response_len;
-    agent_nonblocking_states state;
-} *agent_transaction_ctx_t;
-
-typedef int (*agent_connect_func)(LIBSSH2_AGENT *agent);
-typedef int (*agent_transact_func)(LIBSSH2_AGENT *agent,
-                                   agent_transaction_ctx_t transctx);
-typedef int (*agent_disconnect_func)(LIBSSH2_AGENT *agent);
-
-struct agent_publickey {
-    struct list_node node;
-
-    /* this is the struct we expose externally */
-    struct libssh2_agent_publickey external;
-};
-
-struct agent_ops {
-    agent_connect_func connect;
-    agent_transact_func transact;
-    agent_disconnect_func disconnect;
-};
-
-struct _LIBSSH2_AGENT
-{
-    LIBSSH2_SESSION *session;  /* the session this "belongs to" */
-
-    libssh2_socket_t fd;
-
-    struct agent_ops *ops;
-
-    struct agent_transaction_ctx transctx;
-    struct agent_publickey *identity;
-    struct list_head head;              /* list of public keys */
-
-    char *identity_agent_path; /* Path to a custom identity agent socket */
-};
 
 #ifdef PF_UNIX
 static int
@@ -404,6 +356,7 @@ static struct {
 } supported_backends[] = {
 #ifdef WIN32
     {"Pageant", &agent_ops_pageant},
+    {"OpenSSH", &agent_ops_openssh},
 #endif  /* WIN32 */
 #ifdef PF_UNIX
     {"Unix", &agent_ops_unix},
@@ -441,6 +394,7 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
         _libssh2_store_u32(&s, 0);
 
         transctx->request_len = s - transctx->request;
+        transctx->send_recv_total = 0;
         transctx->state = agent_NB_state_request_created;
     }
 
@@ -541,6 +495,7 @@ agent_list_identities(LIBSSH2_AGENT *agent)
     if(transctx->state == agent_NB_state_init) {
         transctx->request = &c;
         transctx->request_len = 1;
+        transctx->send_recv_total = 0;
         transctx->state = agent_NB_state_request_created;
     }
 
@@ -716,6 +671,12 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
     agent->session = session;
     agent->identity_agent_path = NULL;
     _libssh2_list_init(&agent->head);
+
+#ifdef WIN32
+    agent->pipe = INVALID_HANDLE_VALUE;
+    memset(&agent->overlapped, 0, sizeof(OVERLAPPED));
+    agent->pending_io = FALSE;
+#endif
 
     return agent;
 }

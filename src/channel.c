@@ -1338,7 +1338,11 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
                border */
             unsigned char buffer[(LIBSSH2_X11_RANDOM_COOKIE_LEN / 2) + 1];
 
-            _libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
+            if(_libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2)) {
+                return _libssh2_error(session, LIBSSH2_ERROR_RANDGEN,
+                                      "Unable to get random bytes "
+                                      "for x11-req cookie");
+            }
             for(i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++) {
                 snprintf((char *)&s[i*2], 3, "%02X", buffer[i]);
             }
