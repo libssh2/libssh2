@@ -3342,32 +3342,4 @@ _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
     *dhctx = NULL;
 }
 
-#pragma mark PANIC
-
-int
-_libssh2_cipher_crypt_buffer(_libssh2_cipher_ctx * ctx,
-                             _libssh2_cipher_type(algo),
-                             int encrypt, unsigned int seqno, unsigned char *buf,
-                             size_t buf_len, unsigned char *out_buf, int blocksize)
-{
-    int ret = 0;
-
-    while (buf_len >= blocksize) {
-
-#ifdef HAVE_OPAQUE_STRUCTS
-        ret = EVP_Cipher(*ctx, out_buf, buf, blocksize);
-#else
-        ret = EVP_Cipher(ctx, out_buf, buf, blocksize);
-#endif
-
-        buf_len -= blocksize;     /* less bytes left */
-        out_buf += blocksize;     /* advance write pointer */
-        buf += blocksize;            /* advance read pointer */
-    }
-
-    return ret == 1 ? 0 : 1;
-}
-
-#pragma mark END PANIC
-
 #endif /* LIBSSH2_OPENSSL */
