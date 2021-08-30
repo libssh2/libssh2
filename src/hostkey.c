@@ -232,6 +232,7 @@ hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION * session,
  *
  * Verify signature created by remote
  */
+#if LIBSSH2_RSA_SHA2
 
 static int
 hostkey_method_ssh_rsa_sha2_256_sig_verify(LIBSSH2_SESSION * session,
@@ -359,6 +360,8 @@ hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION * session,
 #endif
 }
 
+#endif /* LIBSSH2_RSA_SHA2 */
+
 
 /*
  * hostkey_method_ssh_rsa_dtor
@@ -394,6 +397,7 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa = {
     hostkey_method_ssh_rsa_dtor,
 };
 
+#if LIBSSH2_RSA_SHA2
 
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_sha2_256 = {
     "rsa-sha2-256",
@@ -418,6 +422,8 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_sha2_512 = {
     NULL,                       /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
+
+#endif /* LIBSSH2_RSA_SHA2 */
 
 #endif /* LIBSSH2_RSA */
 
@@ -1202,8 +1208,10 @@ static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
     &hostkey_method_ssh_ed25519,
 #endif
 #if LIBSSH2_RSA
+#if LIBSSH2_RSA_SHA2
     &hostkey_method_ssh_rsa_sha2_512,
     &hostkey_method_ssh_rsa_sha2_256,
+#endif /* LIBSSH2_RSA_SHA2 */
     &hostkey_method_ssh_rsa,
 #endif /* LIBSSH2_RSA */
 #if LIBSSH2_DSA
