@@ -30,6 +30,9 @@ EXTRA_DIST =                                                           \
  key_dsa_wrong.pub                                                     \
  key_ecdsa                                                             \
  key_ecdsa.pub                                                         \
+ signed_key_ecdsa                                                      \
+ signed_key_ecdsa.pub                                                  \
+ signed_key_ecdsa-cert.pub                                             \
  key_ed25519                                                           \
  key_ed25519.pub                                                       \
  key_ed25519_encrypted                                                 \
