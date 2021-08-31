@@ -145,7 +145,8 @@ static int run_command(char **output, const char *command, ...)
 
 static int build_openssh_server_docker_image(void)
 {
-    return run_command(NULL, "docker build -t libssh2/openssh_server "
+    return run_command(NULL, "docker build --quiet "
+                             "-t libssh2/openssh_server "
                              "openssh_server");
 }
 
