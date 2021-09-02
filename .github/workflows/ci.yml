@@ -59,7 +59,7 @@ jobs:
         if: ${{ matrix.address_size == 64 }}
         run: |
           sudo apt-get install -y libssl-dev
-          sudo apt-get install -y libgcrypt11-dev
+          sudo apt-get install -y libgcrypt-dev
       - name: Install mbedTLS Dependencies
         if: ${{ matrix.crypto_backend == 'mbedTLS' }}
         run: |
