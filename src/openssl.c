@@ -163,7 +163,7 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
     int ret;
     int nid_type;
     unsigned char *hash = malloc(hash_len);
-    if (hash == NULL)
+    if(hash == NULL)
         return -1;
 
     if(hash_len == SHA_DIGEST_LENGTH) {
@@ -182,8 +182,7 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
     else
         ret = -1; /* unsupported digest */
 
-    if(ret != 0)
-    {
+    if(ret != 0) {
         free(hash);
         return -1; /* failure */
     }
@@ -202,7 +201,8 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
                          unsigned long sig_len,
                          const unsigned char *m, unsigned long m_len)
 {
-    return _libssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH, sig, sig_len, m, m_len);
+    return _libssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH, sig, sig_len, m,
+                                    m_len);
 }
 
 #if LIBSSH2_DSA
@@ -1959,10 +1959,10 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
                        const unsigned char *hash,
                        size_t hash_len,
                        unsigned char **signature, size_t *signature_len)
- {
-     return _libssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
-                                   signature, signature_len);
- }
+{
+    return _libssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
+                                  signature, signature_len);
+}
 
 
 #if LIBSSH2_DSA

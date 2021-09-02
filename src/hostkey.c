@@ -244,13 +244,15 @@ hostkey_method_ssh_rsa_sha2_256_sig_verify(LIBSSH2_SESSION * session,
     libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *) (*abstract);
     (void) session;
 
-    /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-256"} + signature_len(4) */
+    /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-256"} +
+    signature_len(4) */
     if(sig_len < 20)
         return -1;
 
     sig += 20;
     sig_len -= 20;
-    return _libssh2_rsa_sha2_verify(rsactx, SHA256_DIGEST_LENGTH, sig, sig_len, m, m_len);
+    return _libssh2_rsa_sha2_verify(rsactx, SHA256_DIGEST_LENGTH, sig, sig_len,
+                                    m, m_len);
 }
 
 /*
@@ -310,13 +312,15 @@ hostkey_method_ssh_rsa_sha2_512_sig_verify(LIBSSH2_SESSION * session,
     libssh2_rsa_ctx *rsactx = (libssh2_rsa_ctx *) (*abstract);
     (void) session;
 
-    /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-512"} + signature_len(4) */
+    /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-512"} +
+    signature_len(4) */
     if(sig_len < 20)
         return -1;
 
     sig += 20;
     sig_len -= 20;
-    return _libssh2_rsa_sha2_verify(rsactx, SHA512_DIGEST_LENGTH, sig, sig_len, m, m_len);
+    return _libssh2_rsa_sha2_verify(rsactx, SHA512_DIGEST_LENGTH, sig,
+                                    sig_len, m, m_len);
 }
 
 
