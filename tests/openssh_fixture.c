@@ -208,7 +208,7 @@ static int is_running_inside_a_container()
 #endif
 }
 
-static unsigned int portable_sleep(unsigned int seconds)
+static void portable_sleep(unsigned int seconds)
 {
 #ifdef WIN32
     Sleep(seconds);
