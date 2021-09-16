@@ -259,7 +259,9 @@ libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
                               "Missing userauth banner");
     }
 
-    *banner = session->userauth_banner;
+    if(banner != NULL)
+        *banner = session->userauth_banner;
+
     return LIBSSH2_ERROR_NONE;
 }
 
