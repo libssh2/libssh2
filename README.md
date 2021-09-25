@@ -7,7 +7,7 @@ the revised BSD license.
 
 [Mailing list](https://lists.haxx.se/listinfo/libssh2-devel)
 
-[BSD Licensed](https://libssh2.org/license.html)
+[BSD Licensed](https://www.libssh2.org/license.html)
 
 [Web site source code](https://github.com/libssh2/www)
 
