@@ -78,7 +78,7 @@
     }                                                                       \
     if(value)                                                               \
         while(len < (unsigned long)reqlen) {                                \
-            libssh2_sha##digest_type##_init(&hash);                         \
+            (void)libssh2_sha##digest_type##_init(&hash);                   \
             libssh2_sha##digest_type##_update(hash,                         \
                                               exchange_state->k_value,      \
                                               exchange_state->k_value_len); \
@@ -108,16 +108,16 @@
 static void _libssh2_sha_algo_ctx_init(int sha_algo, void *ctx)
 {
     if(sha_algo == 512) {
-        libssh2_sha512_init((libssh2_sha512_ctx*)ctx);
+        (void)libssh2_sha512_init((libssh2_sha512_ctx*)ctx);
     }
     else if(sha_algo == 384) {
-        libssh2_sha384_init((libssh2_sha384_ctx*)ctx);
+        (void)libssh2_sha384_init((libssh2_sha384_ctx*)ctx);
     }
     else if(sha_algo == 256) {
-        libssh2_sha256_init((libssh2_sha256_ctx*)ctx);
+        (void)libssh2_sha256_init((libssh2_sha256_ctx*)ctx);
     }
     else if(sha_algo == 1) {
-        libssh2_sha1_init((libssh2_sha1_ctx*)ctx);
+        (void)libssh2_sha1_init((libssh2_sha1_ctx*)ctx);
     }
     else {
         assert(0);
@@ -1600,7 +1600,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
 {                                                                       \
     libssh2_sha##digest_type##_ctx ctx;                                 \
     exchange_state->exchange_hash = (void *)&ctx;                       \
-    libssh2_sha##digest_type##_init(&ctx);                              \
+    (void)libssh2_sha##digest_type##_init(&ctx);                        \
     if(session->local.banner) {                                         \
         _libssh2_htonu32(exchange_state->h_sig_comp,                    \
                          strlen((char *) session->local.banner) - 2);   \
