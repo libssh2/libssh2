@@ -30,22 +30,6 @@ environment:
   matrix:
     - GENERATOR: "Visual Studio 14 2015"
       BUILD_SHARED_LIBS: ON
-      CRYPTO_BACKEND: "OpenSSL"
-
-    - GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: OFF
-      CRYPTO_BACKEND: "OpenSSL"
-
-    - GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: ON
-      CRYPTO_BACKEND: "OpenSSL"
-
-    - GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: OFF
-      CRYPTO_BACKEND: "OpenSSL"
-
-    - GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: ON
       CRYPTO_BACKEND: "WinCNG"
 
     - GENERATOR: "Visual Studio 14 2015"
@@ -59,6 +43,22 @@ environment:
     - GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: OFF
       CRYPTO_BACKEND: "WinCNG"
+
+    - GENERATOR: "Visual Studio 14 2015"
+      BUILD_SHARED_LIBS: ON
+      CRYPTO_BACKEND: "OpenSSL"
+
+    - GENERATOR: "Visual Studio 14 2015"
+      BUILD_SHARED_LIBS: OFF
+      CRYPTO_BACKEND: "OpenSSL"
+
+    - GENERATOR: "Visual Studio 12 2013"
+      BUILD_SHARED_LIBS: ON
+      CRYPTO_BACKEND: "OpenSSL"
+
+    - GENERATOR: "Visual Studio 12 2013"
+      BUILD_SHARED_LIBS: OFF
+      CRYPTO_BACKEND: "OpenSSL"
 
 platform:
   - x86
