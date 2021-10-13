@@ -1,5 +1,6 @@
 # Copyright (c) 2014, Ruslan Baratov
 # Copyright (c) 2014, 2016 Alexander Lamaison
+# Copyright (c) 2020, 2021 Marc Hoersken
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,18 +30,35 @@ environment:
   matrix:
     - GENERATOR: "Visual Studio 14 2015"
       BUILD_SHARED_LIBS: ON
+      CRYPTO_BACKEND: "OpenSSL"
 
     - GENERATOR: "Visual Studio 14 2015"
       BUILD_SHARED_LIBS: OFF
+      CRYPTO_BACKEND: "OpenSSL"
 
     - GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: ON
+      CRYPTO_BACKEND: "OpenSSL"
 
     - GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: OFF
+      CRYPTO_BACKEND: "OpenSSL"
 
-  digitalocean_access_token:
-    secure: 8qRitvrj69Xhf0Tmu27xnz5drmL2YhmOJLGpXIkYyTCC0JNtBoXW6fMcF3u4Uj1+pIQ+TjegQOwYimlz0oivKTro3v3EXro+osAMNJG6NKc=
+    - GENERATOR: "Visual Studio 14 2015"
+      BUILD_SHARED_LIBS: ON
+      CRYPTO_BACKEND: "WinCNG"
+
+    - GENERATOR: "Visual Studio 14 2015"
+      BUILD_SHARED_LIBS: OFF
+      CRYPTO_BACKEND: "WinCNG"
+
+    - GENERATOR: "Visual Studio 12 2013"
+      BUILD_SHARED_LIBS: ON
+      CRYPTO_BACKEND: "WinCNG"
+
+    - GENERATOR: "Visual Studio 12 2013"
+      BUILD_SHARED_LIBS: OFF
+      CRYPTO_BACKEND: "WinCNG"
 
 platform:
   - x86
@@ -57,31 +75,46 @@ matrix:
       platform: x64
 
 install:
-  - choco install -y docker
-  - choco install -y docker-machine
+  # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
+  - ps: |
+      $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
+      [System.Environment]::SetEnvironmentVariable("OPENSSH_SERVER_PORT", $env:OPENSSH_SERVER_PORT)
+  - ps: .\ci\appveyor\docker-bridge.ps1
+  - choco install -y docker-cli
 
 build_script:
   - ps: if($env:PLATFORM -eq "x64") { $env:CMAKE_GEN_SUFFIX=" Win64" }
-  - cmake "-G%GENERATOR%%CMAKE_GEN_SUFFIX%" -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -H. -B_builds
+  - cmake "-G%GENERATOR%%CMAKE_GEN_SUFFIX%" -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -H. -B_builds
   - cmake --build _builds --config "%CONFIGURATION%"
 
 before_test:
-  - set DOCKER_MACHINE_NAME=appveyor-%APPVEYOR_PROJECT_SLUG%-%APPVEYOR_JOB_ID%
-  - ps: if($env:digitalocean_access_token) { echo "Using DigitalOcean for testing." } else { echo "DigitalOcean not available. Skipping testing." }
-  - ps: if($env:digitalocean_access_token) { docker-machine create --driver digitalocean --digitalocean-access-token $($env:digitalocean_access_token) $($env:DOCKER_MACHINE_NAME) }
-  - ps: if($env:digitalocean_access_token) { docker-machine env $($env:DOCKER_MACHINE_NAME) --shell powershell | Invoke-Expression }
+  - ps: |
+      Write-Host "Waiting for SSH connection from GitHub Actions" -NoNewline
+      while((Get-Process -Name "sshd" -ErrorAction SilentlyContinue).Count -eq 1) {
+        Write-Host "." -NoNewline
+        Start-Sleep -Seconds 1
+      }
+      if((Get-Process -Name "sshd" -ErrorAction SilentlyContinue).Count -gt 1) {
+        $env:DOCKER_HOST = "tcp://127.0.0.1:2375"
+        [System.Environment]::SetEnvironmentVariable("DOCKER_HOST", $env:DOCKER_HOST)
+        Write-Host "... ready!"
+      } else {
+        Write-Host "... failed!"
+      }
 
 test_script:
   - ps: cd _builds
-  - ps: if($env:digitalocean_access_token) { ctest -VV -C $($env:CONFIGURATION) --output-on-failure }
-
-after_test:
-  - ps: if($env:digitalocean_access_token) { docker-machine rm -y $($env:DOCKER_MACHINE_NAME) }
+  - ps: ctest -VV -C $($env:CONFIGURATION) --output-on-failure
 
 on_failure:
-  - ps: if($env:digitalocean_access_token) { docker-machine rm -y $($env:DOCKER_MACHINE_NAME) }
   - ps: if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
   - ps: if(Test-Path _builds/CMakeFiles/CMakeError.log) { cat _builds/CMakeFiles/CMakeError.log }
+
+on_finish:
+  - ps: |
+      Get-Process -Name "sleep" -ErrorAction SilentlyContinue | Stop-Process
+      Start-Sleep -Seconds 3
+      Get-Process -Name "sshd" -ErrorAction SilentlyContinue | Stop-Process
 
 # whitelist branches to avoid testing feature branches twice (as branch and as pull request)
 branches:

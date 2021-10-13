@@ -5,12 +5,12 @@ the revised BSD license.
 
 [Web site](https://www.libssh2.org/)
 
-[Mailing list](https://cool.haxx.se/mailman/listinfo/libssh2-devel)
+[Mailing list](https://lists.haxx.se/listinfo/libssh2-devel)
 
-[BSD Licensed](https://libssh2.org/license.html)
+[BSD Licensed](https://www.libssh2.org/license.html)
 
 [Web site source code](https://github.com/libssh2/www)
 
 Installation instructions:
- - [for CMake](docs/INSTALL_CMAKE)
+ - [for CMake](docs/INSTALL_CMAKE.md)
  - [for autotools](docs/INSTALL_AUTOTOOLS)

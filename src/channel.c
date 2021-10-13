@@ -1140,6 +1140,8 @@ libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
     if(!channel)
         return LIBSSH2_ERROR_BAD_USE;
 
+    rc = LIBSSH2_ERROR_CHANNEL_UNKNOWN;
+
     /* The current RFC draft for agent forwarding says you're supposed to
      * send "auth-agent-req," but most SSH servers out there right now
      * actually expect "auth-agent-req@openssh.com", so we try that
@@ -1152,7 +1154,8 @@ libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
 
         /* If we failed (but not with EAGAIN), then we move onto
          * the next step to try another request type. */
-        if(rc != 0 && rc != LIBSSH2_ERROR_EAGAIN)
+        if(rc != LIBSSH2_ERROR_NONE &&
+           rc != LIBSSH2_ERROR_EAGAIN)
             channel->req_auth_agent_try_state = libssh2_NB_state_sent;
     }
 
@@ -1163,12 +1166,13 @@ libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
 
         /* If we failed without an EAGAIN, then move on with this
          * state machine. */
-        if(rc != 0 && rc != LIBSSH2_ERROR_EAGAIN)
+        if(rc != LIBSSH2_ERROR_NONE &&
+           rc != LIBSSH2_ERROR_EAGAIN)
             channel->req_auth_agent_try_state = libssh2_NB_state_sent1;
     }
 
     /* If things are good, reset the try state. */
-    if(rc == 0)
+    if(rc == LIBSSH2_ERROR_NONE)
         channel->req_auth_agent_try_state = libssh2_NB_state_idle;
 
     return rc;
@@ -1338,7 +1342,11 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
                border */
             unsigned char buffer[(LIBSSH2_X11_RANDOM_COOKIE_LEN / 2) + 1];
 
-            _libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2);
+            if(_libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2)) {
+                return _libssh2_error(session, LIBSSH2_ERROR_RANDGEN,
+                                      "Unable to get random bytes "
+                                      "for x11-req cookie");
+            }
             for(i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++) {
                 snprintf((char *)&s[i*2], 3, "%02X", buffer[i]);
             }

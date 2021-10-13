@@ -81,7 +81,7 @@ bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
         cdata[i] = Blowfish_stream2word(ciphertext, sizeof(ciphertext),
                                         &j);
     for(i = 0; i < 64; i++)
-        blf_enc(&state, cdata, sizeof(cdata) / sizeof(uint64_t));
+        blf_enc(&state, cdata, BCRYPT_BLOCKS / 2);
 
     /* copy out */
     for(i = 0; i < BCRYPT_BLOCKS; i++) {
@@ -127,7 +127,7 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
     memcpy(countsalt, salt, saltlen);
 
     /* collapse password */
-    libssh2_sha512_init(&ctx);
+    (void)libssh2_sha512_init(&ctx);
     libssh2_sha512_update(ctx, pass, passlen);
     libssh2_sha512_final(ctx, sha2pass);
 
@@ -139,7 +139,7 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
         countsalt[saltlen + 3] = count & 0xff;
 
         /* first round, salt is salt */
-        libssh2_sha512_init(&ctx);
+        (void)libssh2_sha512_init(&ctx);
         libssh2_sha512_update(ctx, countsalt, saltlen + 4);
         libssh2_sha512_final(ctx, sha2salt);
 
@@ -148,7 +148,7 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
 
         for(i = 1; i < rounds; i++) {
             /* subsequent rounds, salt is previous output */
-            libssh2_sha512_init(&ctx);
+            (void)libssh2_sha512_init(&ctx);
             libssh2_sha512_update(ctx, tmpout, sizeof(tmpout));
             libssh2_sha512_final(ctx, sha2salt);
 

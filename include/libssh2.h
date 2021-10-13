@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2009, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2015 Daniel Stenberg
+ * Copyright (c) 2009-2021 Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
@@ -40,19 +40,19 @@
 #ifndef LIBSSH2_H
 #define LIBSSH2_H 1
 
-#define LIBSSH2_COPYRIGHT "2004-2019 The libssh2 project and its contributors."
+#define LIBSSH2_COPYRIGHT "2004-2021 The libssh2 project and its contributors."
 
 /* We use underscore instead of dash when appending DEV in dev versions just
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
    have dashes either. */
-#define LIBSSH2_VERSION                             "1.9.0_DEV"
+#define LIBSSH2_VERSION                             "1.10.1_DEV"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
 #define LIBSSH2_VERSION_MAJOR                       1
-#define LIBSSH2_VERSION_MINOR                       9
-#define LIBSSH2_VERSION_PATCH                       0
+#define LIBSSH2_VERSION_MINOR                       10
+#define LIBSSH2_VERSION_PATCH                       1
 
 /* This is the numeric version of the libssh2 version number, meant for easier
    parsing and comparions by programs. The LIBSSH2_VERSION_NUM define will
@@ -69,7 +69,7 @@
    and it is always a greater number in a more recent release. It makes
    comparisons with greater than and less than work.
 */
-#define LIBSSH2_VERSION_NUM                         0x010900
+#define LIBSSH2_VERSION_NUM                         0x010a01
 
 /*
  * This is the date and time when the full source package was created. The
@@ -235,9 +235,11 @@ typedef off_t libssh2_struct_stat_size;
 
 /* Default generate and safe prime sizes for
    diffie-hellman-group-exchange-sha1 */
-#define LIBSSH2_DH_GEX_MINGROUP     1024
-#define LIBSSH2_DH_GEX_OPTGROUP     1536
-#define LIBSSH2_DH_GEX_MAXGROUP     2048
+#define LIBSSH2_DH_GEX_MINGROUP     2048
+#define LIBSSH2_DH_GEX_OPTGROUP     4096
+#define LIBSSH2_DH_GEX_MAXGROUP     8192
+
+#define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
 /* Defaults for pty requests */
 #define LIBSSH2_TERM_WIDTH      80
@@ -503,7 +505,8 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_KNOWN_HOSTS               -46
 #define LIBSSH2_ERROR_CHANNEL_WINDOW_FULL       -47
 #define LIBSSH2_ERROR_KEYFILE_AUTH_FAILED       -48
-#define LIBSSH2_ERROR_MISSING_AUTH_BANNER       -49
+#define LIBSSH2_ERROR_RANDGEN                   -49
+#define LIBSSH2_ERROR_MISSING_AUTH_BANNER       -50
 
 /* this is a define to provide the old (<= 1.2.7) name */
 #define LIBSSH2_ERROR_BANNER_NONE LIBSSH2_ERROR_BANNER_RECV

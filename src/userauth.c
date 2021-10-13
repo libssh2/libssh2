@@ -897,11 +897,6 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
 {
     int rc;
 
-#if !LIBSSH2_RSA
-    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                          "RSA is not supported by crypto backend");
-#endif
-
     if(session->userauth_host_state == libssh2_NB_state_idle) {
         const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
         unsigned char *pubkeydata = NULL;
@@ -1144,7 +1139,21 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
     return rc;
 }
 
-
+static int plain_method_len(const char *method, size_t method_len)
+{
+    if(!strncmp("ecdsa-sha2-nistp256-cert-v01@openssh.com",
+                method,
+                method_len) ||
+       !strncmp("ecdsa-sha2-nistp384-cert-v01@openssh.com",
+                method,
+                method_len) ||
+       !strncmp("ecdsa-sha2-nistp521-cert-v01@openssh.com",
+                method,
+                method_len)) {
+        return 19;
+    }
+    return method_len;
+}
 
 int
 _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
@@ -1409,6 +1418,10 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         s = session->userauth_pblc_packet + session->userauth_pblc_packet_len;
         session->userauth_pblc_b = NULL;
 
+        session->userauth_pblc_method_len =
+           plain_method_len((const char *)session->userauth_pblc_method,
+                            session->userauth_pblc_method_len);
+
         _libssh2_store_u32(&s,
                            4 + session->userauth_pblc_method_len + 4 +
                            sig_len);
@@ -1507,11 +1520,6 @@ userauth_publickey_frommemory(LIBSSH2_SESSION *session,
     void *abstract = &privkey_file;
     int rc;
 
-#if !LIBSSH2_RSA
-    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                          "RSA is not supported by crypto backend");
-#endif
-
     privkey_file.filename = privatekeydata;
     privkey_file.passphrase = passphrase;
 
@@ -1526,15 +1534,14 @@ userauth_publickey_frommemory(LIBSSH2_SESSION *session,
         }
         else if(privatekeydata_len && privatekeydata) {
             /* Compute public key from private key. */
-            if(_libssh2_pub_priv_keyfilememory(session,
+            rc = _libssh2_pub_priv_keyfilememory(session,
                                             &session->userauth_pblc_method,
                                             &session->userauth_pblc_method_len,
                                             &pubkeydata, &pubkeydata_len,
                                             privatekeydata, privatekeydata_len,
-                                            passphrase))
-                return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-                                      "Unable to extract public key "
-                                      "from private key.");
+                                            passphrase);
+            if(rc)
+                return rc;
         }
         else {
             return _libssh2_error(session, LIBSSH2_ERROR_FILE,
@@ -1568,11 +1575,6 @@ userauth_publickey_fromfile(LIBSSH2_SESSION *session,
     struct privkey_file privkey_file;
     void *abstract = &privkey_file;
     int rc;
-
-#if !LIBSSH2_RSA
-    return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                          "RSA is not supported by crypto backend");
-#endif
 
     privkey_file.filename = privatekey;
     privkey_file.passphrase = passphrase;
