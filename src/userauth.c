@@ -480,6 +480,24 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username,
     return rc;
 }
 
+/*
+ * upgrade_publickey_method 
+ *
+ * Change method from ssh-rsa to rsa-sha2-256 is RSA SHA2 is supported.
+ */
+static void upgrade_publickey_method(LIBSSH2_SESSION * session, 
+                                     unsigned char **method,
+                                     size_t *method_len) {
+#if LIBSSH2_RSA_SHA2
+    if(*method_len == 7 && memcmp(*method, "ssh-rsa", 7) == 0) {
+        LIBSSH2_FREE(session, *method);
+        *method_len = 12;
+        *method = LIBSSH2_ALLOC(session, 12);
+        memcpy(*method, "rsa-sha2-256", 12);
+    }
+#endif
+}
+
 static int
 memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
                       size_t *method_len,
@@ -545,6 +563,9 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
      */
     *method = pubkey;
     *method_len = sp1 - pubkey - 1;
+
+     /* upgrade to sha2 for rsa keys when supported */
+    upgrade_publickey_method(session, method, method_len);
 
     *pubkeydata = tmp;
     *pubkeydata_len = tmp_len;
@@ -648,6 +669,9 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
      * it a wash */
     *method = pubkey;
     *method_len = sp1 - pubkey - 1;
+    
+    /* upgrade to sha2 for rsa keys when supported */
+    upgrade_publickey_method(session, method, method_len);
 
     *pubkeydata = tmp;
     *pubkeydata_len = tmp_len;
@@ -1150,10 +1174,19 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
          * TODO: The data should match too but we don't check that. Should we?
          */
         else if(session->userauth_pblc_method_len !=
-                 _libssh2_ntohu32(pubkeydata))
-            return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
-                                  "Invalid public key");
+                 _libssh2_ntohu32(pubkeydata)) {
+        
+            // we accept mismatch if public key is "ssh-rsa" and 
+            // method has prefix "rsa-sha2-" to satisfy RFC 8332
+            if(session->userauth_pblc_method_len < 9 ||
+               _libssh2_ntohu32(pubkeydata) != 7 ||
+               memcmp(pubkeydata + 4, "ssh-rsa", 7) ||
+               memcmp(session->userauth_pblc_method, "rsa-sha2-", 9)) {
 
+                return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                                  "Invalid public key");
+            }
+        }
         /*
          * 45 = packet_type(1) + username_len(4) + servicename_len(4) +
          * service_name(14)"ssh-connection" + authmethod_len(4) +
