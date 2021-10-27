@@ -640,6 +640,10 @@ struct _LIBSSH2_SESSION
     unsigned char server_hostkey_sha256[SHA256_DIGEST_LENGTH];
     int server_hostkey_sha256_valid;
 
+    /* public key algorithms accepted as comma separated list */
+    unsigned char *server_sign_algorithms;
+    size_t server_sign_algorithms_len;
+
     /* (remote as source of data -- packet_read ) */
     libssh2_endpoint_data remote;
 
@@ -1008,6 +1012,7 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 #define SSH_MSG_DEBUG                               4
 #define SSH_MSG_SERVICE_REQUEST                     5
 #define SSH_MSG_SERVICE_ACCEPT                      6
+#define SSH_MSG_EXT_INFO                            7
 
 #define SSH_MSG_KEXINIT                             20
 #define SSH_MSG_NEWKEYS                             21
