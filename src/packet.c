@@ -616,6 +616,49 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             return 0;
 
             /*
+              byte      SSH_MSG_EXT_INFO
+              uint32    nr-extensions
+              [repeat "nr-extensions" times]
+                string   extension-name  [RFC8308]
+                string   extension-value (binary)
+            */
+
+        case SSH_MSG_EXT_INFO:
+            if(datalen >= 5) {
+                uint32_t nr_extensions = _libssh2_ntohu32(data + 1);
+                size_t pos = 5;
+                while(nr_extensions > 0) {
+                    nr_extensions -= 1;
+
+                    /* stop if name or value can't fit in remaining data */
+                    if(pos + 4 > datalen) break;                    
+                    size_t name_len = _libssh2_ntohu32(data + pos);
+                    if(pos + 4 + name_len + 4 > datalen) break;                    
+                    size_t value_len =  _libssh2_ntohu32(data + pos + 4 + name_len);
+                    if(pos + 8 + name_len + value_len > datalen) break;
+
+                    unsigned char const* name = data + pos + 4;
+                    unsigned char const* value = data + pos + 8 + name_len;
+                    pos += 8 + name_len + value_len;
+
+                    _libssh2_debug(session,
+                                   LIBSSH2_TRACE_CONN,
+                                   "Received extension %.*s:\n%.*s",
+                                   name_len, name, value_len, value);
+
+                    if(name_len == 15 && memcmp(name, "server-sig-algs", 15) == 0) {
+                        if(session->server_sign_algorithms) {
+                            LIBSSH2_FREE(session, session->server_sign_algorithms);
+                        }
+                        session->server_sign_algorithms_len = value_len;
+                        session->server_sign_algorithms = LIBSSH2_ALLOC(session, value_len);
+                        memcpy(session->server_sign_algorithms, value, value_len);
+                    }
+                }
+            }
+            return 0;
+
+            /*
               byte      SSH_MSG_GLOBAL_REQUEST
               string    request name in US-ASCII only
               boolean   want reply
