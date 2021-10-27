@@ -490,10 +490,43 @@ static void upgrade_publickey_method(LIBSSH2_SESSION * session,
                                      size_t *method_len) {
 #if LIBSSH2_RSA_SHA2
     if(*method_len == 7 && memcmp(*method, "ssh-rsa", 7) == 0) {
-        LIBSSH2_FREE(session, *method);
-        *method_len = 12;
-        *method = LIBSSH2_ALLOC(session, 12);
-        memcpy(*method, "rsa-sha2-256", 12);
+        /* we upgrade signing method if server supports it */
+        if(session->server_sign_algorithms) {
+            size_t pos = 0;
+            while(pos < session->server_sign_algorithms_len) {
+                /* values are comma separated and we locate next boundary */
+                size_t start = pos;
+                while(pos < session->server_sign_algorithms_len) {
+                    if(session->server_sign_algorithms[pos] == ',') break;
+                    pos += 1;
+                }
+
+                size_t part_len = pos - start;
+                if(pos < session->server_sign_algorithms_len) {
+                    pos += 1; /* skip past comma */
+                }
+
+                if(part_len == 12) {
+                    unsigned char* part = session->server_sign_algorithms + start;
+                    if(memcmp(part, "rsa-sha2-256", 12) == 0 || 
+                       memcmp(part, "rsa-sha2-512", 12) == 0) {
+
+                        _libssh2_debug(session,
+                                   LIBSSH2_TRACE_AUTH,
+                                   "Upgrading authentication method from %.*s to %.*s",
+                                   *method_len, *method, part_len, part);
+                        
+                        // server supports one of the upgraded methods client knows
+                        LIBSSH2_FREE(session, *method);
+                        *method_len = part_len;
+                        *method = LIBSSH2_ALLOC(session, part_len);
+                        memcpy(*method, part, part_len);
+
+                        return;
+                    }
+                }
+            }
+        }
     }
 #endif
 }
