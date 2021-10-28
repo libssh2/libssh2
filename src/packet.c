@@ -625,38 +625,55 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
         case SSH_MSG_EXT_INFO:
             if(datalen >= 5) {
-                uint32_t nr_extensions = _libssh2_ntohu32(data + 1);
-                size_t pos = 5;
-                while(nr_extensions > 0) {
-                    nr_extensions -= 1;
+                struct string_buf buf;
+                buf.data = (unsigned char *)data;
+                buf.dataptr = buf.data;
+                buf.len = datalen;
+                buf.dataptr += 1; /* advance past type */
 
-                    /* stop if name or value can't fit in remaining data */
-                    if(pos + 4 > datalen) break;                    
-                    size_t name_len = _libssh2_ntohu32(data + pos);
-                    if(pos + 4 + name_len + 4 > datalen) break;                    
-                    size_t value_len =  _libssh2_ntohu32(data + pos + 4 + name_len);
-                    if(pos + 8 + name_len + value_len > datalen) break;
+                uint32_t nr_extensions = 0;
+                if (_libssh2_get_u32(&buf, &nr_extensions) != 0 ) {
+                    rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                        "Invalid ext info received");
+    			}
 
-                    unsigned char const* name = data + pos + 4;
-                    unsigned char const* value = data + pos + 8 + name_len;
-                    pos += 8 + name_len + value_len;
+                while(rc == 0 && nr_extensions > 0) {
+                    size_t name_len = 0;
+    				size_t value_len = 0;
+	    			unsigned char *name = NULL;
+		    		unsigned char *value = NULL;
 
-                    _libssh2_debug(session,
-                                   LIBSSH2_TRACE_CONN,
-                                   "Received extension %.*s:\n%.*s",
-                                   name_len, name, value_len, value);
+			    	nr_extensions -= 1;
 
-                    if(name_len == 15 && memcmp(name, "server-sig-algs", 15) == 0) {
+    				_libssh2_get_string(&buf, &name, &name_len);
+	    			_libssh2_get_string(&buf, &value, &value_len);
+
+		    		if ( name != NULL && value != NULL ) {
+			    		_libssh2_debug(session,
+				    				   LIBSSH2_TRACE_CONN,
+					    			   "Received extension %.*s:\n%.*s",
+						    		   name_len, name, value_len, value);
+    				}
+
+	    			if(name_len == 15 && memcmp(name, "server-sig-algs", 15) == 0) {
+		    			if(session->server_sign_algorithms) {
+			    			LIBSSH2_FREE(session, session->server_sign_algorithms);
+				    	}
+
+				    	session->server_sign_algorithms = LIBSSH2_ALLOC(session, value_len);
                         if(session->server_sign_algorithms) {
-                            LIBSSH2_FREE(session, session->server_sign_algorithms);
-                        }
-                        session->server_sign_algorithms_len = value_len;
-                        session->server_sign_algorithms = LIBSSH2_ALLOC(session, value_len);
-                        memcpy(session->server_sign_algorithms, value, value_len);
-                    }
+    					    session->server_sign_algorithms_len = value_len;
+							memcpy(session->server_sign_algorithms, value, value_len);
+						} else {
+							rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+												  "memory for server sign algo");
+						}
+				    }
                 }
             }
-            return 0;
+            LIBSSH2_FREE(session, data);
+            session->packAdd_state = libssh2_NB_state_idle;
+            return rc;
 
             /*
               byte      SSH_MSG_GLOBAL_REQUEST
