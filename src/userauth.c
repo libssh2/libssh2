@@ -554,9 +554,9 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username,
  *
  * Change method from ssh-rsa to rsa-sha2-256 is RSA SHA2 is supported.
  */
-static void upgrade_publickey_method(LIBSSH2_SESSION * session, 
-                                     unsigned char **method,
-                                     size_t *method_len) {
+void upgrade_publickey_method(LIBSSH2_SESSION * session, 
+                              unsigned char **method,
+                              size_t *method_len) {
 #if LIBSSH2_RSA_SHA2
     if(*method_len == 7 && memcmp(*method, "ssh-rsa", 7) == 0) {
         /* we upgrade signing method if server supports it */

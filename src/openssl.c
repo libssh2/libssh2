@@ -906,6 +906,10 @@ gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
     *method_len     = 7;
     *pubkeydata     = key;
     *pubkeydata_len = key_len;
+
+    /* upgrade to sha2 for rsa keys when supported */
+    upgrade_publickey_method(session, method, method_len);
+
     return 0;
 
   __alloc_error:

@@ -1122,6 +1122,11 @@ int _libssh2_pem_decode_sequence(unsigned char **data, unsigned int *datalen);
 int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
                                 unsigned char **i, unsigned int *ilen);
 
+/* userauth.c */
+void upgrade_publickey_method(LIBSSH2_SESSION * session, 
+                              unsigned char **method,
+                              size_t *method_len);
+
 /* global.c */
 void _libssh2_init_if_needed(void);
 
