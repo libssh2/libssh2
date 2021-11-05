@@ -631,7 +631,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                     want_reply = data[5 + len];
                     _libssh2_debug(session,
                                    LIBSSH2_TRACE_CONN,
-                                   "Received global request type %.*s (wr %X)",
+                                   "Received global request type %d: %s (wr %X)",
                                    len, data + 5, want_reply);
                 }
 
