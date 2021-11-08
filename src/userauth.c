@@ -1103,18 +1103,18 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
                             unsigned char **key_method,
                             size_t *key_method_len)
 {
-    char *s = NULL;
-    char *p = NULL;
-    char *f = NULL;
-    char *a = NULL;
+    const char *s = NULL;
+    const char *a = NULL;
+    const char *match = NULL;
+    const char *p = NULL;
+    const char *f = NULL;
     char *i = NULL;
     int p_len = 0;
     int f_len = 0;
     int rc = 0;
-    char *match = NULL;
     int match_len = 0;
 
-    char *supported_algs =
+    const char *supported_algs =
     _libssh2_supported_key_sign_algorithms(session,
                                            *key_method,
                                            *key_method_len);

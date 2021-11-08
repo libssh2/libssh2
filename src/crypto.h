@@ -272,7 +272,7 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
  * there is no upgrade option return NULL
  */
 
-char *
+const char *
 _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        unsigned char *key_method,
                                        size_t key_method_len);

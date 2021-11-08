@@ -2415,7 +2415,7 @@ _libssh2_os400qc3_rsa_sha1_signv(LIBSSH2_SESSION *session,
  *
  */
 
-char *
+const char *
 _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        unsigned char *key_method,
                                        size_t key_method_len)
