@@ -1113,6 +1113,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     int f_len = 0;
     int rc = 0;
     int match_len = 0;
+    char *filtered_algs = NULL;
 
     const char *supported_algs =
     _libssh2_supported_key_sign_algorithms(session,
@@ -1124,7 +1125,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         return LIBSSH2_ERROR_NONE;
     }
 
-    char *filtered_algs = LIBSSH2_ALLOC(session, strlen(supported_algs) + 1);
+    filtered_algs = LIBSSH2_ALLOC(session, strlen(supported_algs) + 1);
     if(!filtered_algs) {
         rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate filtered algs");
