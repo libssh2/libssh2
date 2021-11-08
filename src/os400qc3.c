@@ -2420,6 +2420,10 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        unsigned char *key_method,
                                        size_t key_method_len)
 {
+    (void)session;
+    (void)key_method;
+    (void)key_method_len;
+
     return NULL;
 }
 

@@ -3353,6 +3353,8 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        unsigned char *key_method,
                                        size_t key_method_len)
 {
+    (void)session;
+
 #if LIBSSH2_RSA_SHA2
     if(key_method_len == 7 &&
        memcmp(key_method, "ssh-rsa", key_method_len) == 0) {
