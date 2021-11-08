@@ -3978,6 +3978,11 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
         mlist = NULL;
         break;
 
+    case LIBSSH2_METHOD_SIGN_ALGO:
+        prefvar = &session->sign_algo_prefs;
+        mlist = NULL;
+        break;
+
     default:
         return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                               "Invalid parameter specified for method_type");
@@ -4071,6 +4076,11 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     case LIBSSH2_METHOD_COMP_SC:
         mlist = (const LIBSSH2_COMMON_METHOD **)
             _libssh2_comp_methods(session);
+        break;
+
+    case LIBSSH2_METHOD_SIGN_ALGO:
+        /* no built-in supported list due to backend support */
+        mlist = NULL;
         break;
 
     default:

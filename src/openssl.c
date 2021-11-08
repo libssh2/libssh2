@@ -3342,4 +3342,25 @@ _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
     *dhctx = NULL;
 }
 
+/* _libssh2_supported_key_sign_algorithms
+ *
+ * Return supported key hash algo upgrades, see crypto.h
+ *
+ */
+
+char *
+_libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
+                                       unsigned char *key_method,
+                                       size_t key_method_len)
+{
+#if LIBSSH2_RSA_SHA2
+    if (key_method_len == 7 && memcmp(key_method, "ssh-rsa", key_method_len) == 0)
+    {
+        return "rsa-sha2-512,rsa-sha2-256,ssh-rsa";
+    }
+#endif
+
+    return NULL;
+}
+
 #endif /* LIBSSH2_OPENSSL */

@@ -2590,4 +2590,18 @@ fb:
     return _libssh2_wincng_bignum_mod_exp(secret, f, dhctx->bn, p);
 }
 
+/* _libssh2_supported_key_sign_algorithms
+ *
+ * Return supported key hash algo upgrades, see crypto.h
+ *
+ */
+
+char *
+_libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
+                                       unsigned char *key_method,
+                                       size_t key_method_len)
+{
+    return NULL;
+}
+
 #endif /* LIBSSH2_WINCNG */
