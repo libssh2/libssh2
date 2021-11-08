@@ -1146,7 +1146,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
             f = strchr(a, ',');
             f_len = f ? (f - a) : (int) strlen(a);
 
-            if(memmem(a, f_len, s, p_len)) {
+            if(f_len == p_len && memcmp(a, s, p_len)) {
 
                 if(i != filtered_algs) {
                     memcpy(i, ",", 1);
@@ -1184,7 +1184,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
             f = strchr(a, ',');
             f_len = f ? (f - a) : (int) strlen(a);
 
-            if(memmem(a, f_len, s, p_len)) {
+            if(f_len == p_len && memcmp(a, s, p_len)) {
                 /* found a match, upgrade key method */
                 match = s;
                 match_len = p_len;
