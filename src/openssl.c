@@ -3354,8 +3354,8 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        size_t key_method_len)
 {
 #if LIBSSH2_RSA_SHA2
-    if (key_method_len == 7 && memcmp(key_method, "ssh-rsa", key_method_len) == 0)
-    {
+    if(key_method_len == 7 &&
+       memcmp(key_method, "ssh-rsa", key_method_len) == 0) {
         return "rsa-sha2-512,rsa-sha2-256,ssh-rsa";
     }
 #endif

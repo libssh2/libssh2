@@ -1185,8 +1185,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
             f_len = f ? (f - a) : (int) strlen(a);
 
             if(memmem(a, f_len, s, p_len)) {
-
-                //found a match, upgrade key method
+                /* found a match, upgrade key method */
                 match = s;
                 match_len = p_len;
             }
@@ -1198,14 +1197,12 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         s = p ? (p + 1) : NULL;
     }
 
-    if(match != NULL)
-    {
+    if(match != NULL) {
         if(*key_method)
             LIBSSH2_FREE(session, *key_method);
 
         *key_method = LIBSSH2_ALLOC(session, match_len);
-        if(key_method)
-        {
+        if(key_method) {
             memcpy(*key_method, match, match_len);
             *key_method_len = match_len;
 

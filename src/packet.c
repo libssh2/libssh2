@@ -632,7 +632,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 buf.dataptr += 1; /* advance past type */
 
                 uint32_t nr_extensions = 0;
-                if(_libssh2_get_u32(&buf, &nr_extensions) != 0 ) {
+                if(_libssh2_get_u32(&buf, &nr_extensions) != 0) {
                     rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                         "Invalid extension info received");
                 }
