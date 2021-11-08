@@ -664,4 +664,18 @@ _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
     *dhctx = NULL;
 }
 
+/* _libssh2_supported_key_sign_algorithms
+ *
+ * Return supported key hash algo upgrades, see crypto.h
+ *
+ */
+
+char *
+_libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
+                                       unsigned char *key_method,
+                                       size_t key_method_len)
+{
+    return NULL;
+}
+
 #endif /* LIBSSH2_LIBGCRYPT */

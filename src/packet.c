@@ -625,13 +625,13 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
         case SSH_MSG_EXT_INFO:
             if(datalen >= 5) {
+                uint32_t nr_extensions = 0;
                 struct string_buf buf;
                 buf.data = (unsigned char *)data;
                 buf.dataptr = buf.data;
                 buf.len = datalen;
                 buf.dataptr += 1; /* advance past type */
 
-                uint32_t nr_extensions = 0;
                 if(_libssh2_get_u32(&buf, &nr_extensions) != 0) {
                     rc = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                         "Invalid extension info received");
