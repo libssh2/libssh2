@@ -3026,6 +3026,17 @@ kex_method_ssh_curve25519_sha256 = {
 };
 #endif
 
+/* this kex method signals that client can receive extensions
+ * as described in https://datatracker.ietf.org/doc/html/rfc8308
+*/
+
+static const LIBSSH2_KEX_METHOD
+kex_method_extension_negotiation = {
+    "ext-info-c",
+    NULL,
+    0,
+};
+
 static const LIBSSH2_KEX_METHOD *libssh2_kex_methods[] = {
 #if LIBSSH2_ED25519
     &kex_method_ssh_curve25519_sha256,
@@ -3043,6 +3054,7 @@ static const LIBSSH2_KEX_METHOD *libssh2_kex_methods[] = {
     &kex_method_diffie_helman_group14_sha1,
     &kex_method_diffie_helman_group1_sha1,
     &kex_method_diffie_helman_group_exchange_sha1,
+    &kex_method_extension_negotiation,
   NULL
 };
 
