@@ -836,8 +836,9 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
                 _libssh2_debug(session,
                                LIBSSH2_TRACE_CONN,
-                               "Channel %d received request type %.*s (wr %X)",
-                               channel, len, data + 9, want_reply);
+                               "Channel %d received request type: %s"
+                               "(len=%d, want_reply=%X)",
+                               channel, data + 9, len, want_reply);
 
                 if(len == sizeof("exit-status") - 1
                     && (sizeof("exit-status") - 1 + 9) <= datalen
