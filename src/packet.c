@@ -738,7 +738,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             }
 
             /*
-             * REMEMBER! remote means remote as source of data,
+             * REMEMBER! remote means remote as a source of data,
              * NOT remote window!
              */
             if(channelp->remote.packet_size < (datalen - data_head)) {
