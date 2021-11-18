@@ -687,7 +687,7 @@ memory_read_privatekey(LIBSSH2_SESSION * session,
                           (unsigned char *) passphrase,
                           hostkey_abstract)) {
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-                              "Unable to initialize private key from file");
+                              "Unable to initialize private key from memory");
     }
 
     return 0;
