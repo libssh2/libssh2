@@ -56,7 +56,7 @@ const char *libssh2_version(int req_version_num)
 LIBSSH2_API
 libssh2_crypto_engine_t libssh2_crypto_engine()
 {
-#if defined LIBSSH2_OPENSSL
+#if defined LIBSSH2_OPENSSL3
     return libssh2_openssl;
 #elif defined LIBSSH2_LIBGCRYPT
     return libssh2_gcrypt;
@@ -65,6 +65,6 @@ libssh2_crypto_engine_t libssh2_crypto_engine()
 #elif defined LIBSSH2_WINCNG
     return libssh2_wincng;
 #else
-    #error "Unhandled crypto engine"
+    return libssh2_no_crypto;
 #endif
 }

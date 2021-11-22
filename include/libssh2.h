@@ -940,6 +940,7 @@ LIBSSH2_API
 const char *libssh2_version(int req_version_num);
 
 typedef enum {
+    libssh2_no_crypto,
     libssh2_openssl,
     libssh2_gcrypt,
     libssh2_mbedtls,
@@ -947,7 +948,7 @@ typedef enum {
 } libssh2_crypto_engine_t;
 
 LIBSSH2_API
-libssh2_crypto_engine_t libssh2_crypto_engine();
+libssh2_crypto_engine_t libssh2_crypto_engine(void);
 
 #define HAVE_LIBSSH2_KNOWNHOST_API 0x010101 /* since 1.1.1 */
 #define HAVE_LIBSSH2_VERSION_API   0x010100 /* libssh2_version since 1.1 */
