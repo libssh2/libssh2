@@ -939,6 +939,16 @@ LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
 LIBSSH2_API
 const char *libssh2_version(int req_version_num);
 
+typedef enum {
+    libssh2_openssl,
+    libssh2_gcrypt,
+    libssh2_mbedtls,
+    libssh2_wincng
+} libssh2_crypto_engine_t;
+
+LIBSSH2_API
+libssh2_crypto_engine_t libssh2_crypto_engine();
+
 #define HAVE_LIBSSH2_KNOWNHOST_API 0x010101 /* since 1.1.1 */
 #define HAVE_LIBSSH2_VERSION_API   0x010100 /* libssh2_version since 1.1 */
 

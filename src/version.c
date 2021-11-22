@@ -52,3 +52,19 @@ const char *libssh2_version(int req_version_num)
         return LIBSSH2_VERSION;
     return NULL; /* this is not a suitable library! */
 }
+
+LIBSSH2_API
+libssh2_crypto_engine_t libssh2_crypto_engine()
+{
+#if defined LIBSSH2_OPENSSL
+    return libssh2_openssl;
+#elif defined LIBSSH2_LIBGCRYPT
+    return libssh2_gcrypt;
+#elif defined LIBSSH2_MBEDTLS
+    return libssh2_mbedtls;
+#elif defined LIBSSH2_WINCNG
+    return libssh2_wincng;
+#else
+    #error "Unhandled crypto engine"
+#endif
+}
