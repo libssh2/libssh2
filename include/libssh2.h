@@ -952,7 +952,7 @@ libssh2_crypto_engine_t libssh2_crypto_engine(void);
 
 #define HAVE_LIBSSH2_KNOWNHOST_API 0x010101 /* since 1.1.1 */
 #define HAVE_LIBSSH2_VERSION_API   0x010100 /* libssh2_version since 1.1 */
-#define HAVE_LIBSSH2_CRYPTOENGINE_API 0x011001 /* libssh2_crypto_engine since 1.10.1 */
+#define HAVE_LIBSSH2_CRYPTOENGINE_API 0x011100 /* libssh2_crypto_engine since 1.11 */
 
 struct libssh2_knownhost {
     unsigned int magic;  /* magic stored by the library */
