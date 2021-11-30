@@ -87,13 +87,13 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    // we accept one of 3 header types
-    if(type_len == 7 && strncmp("ssh-rsa", (char*)type, 7) == 0) {
+    /* we accept one of 3 header types */
+    if(type_len == 7 && strncmp("ssh-rsa", (char *)type, 7) == 0) {
     }
 #if LIBSSH2_RSA_SHA2
-    else if(type_len == 12 && strncmp("rsa-sha2-256", (char*)type, 12) == 0) {
+    else if(type_len == 12 && strncmp("rsa-sha2-256", (char *)type, 12) == 0) {
     }
-    else if(type_len == 12 && strncmp("rsa-sha2-512", (char*)type, 12) == 0) {
+    else if(type_len == 12 && strncmp("rsa-sha2-512", (char *)type, 12) == 0) {
     }
 #endif
     else {
