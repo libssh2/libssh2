@@ -64,8 +64,8 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
                             void **abstract)
 {
     libssh2_rsa_ctx *rsactx;
-    unsigned char *e, *n;
-    size_t e_len, n_len;
+    unsigned char *e, *n, *type;
+    size_t e_len, n_len, type_len;
     struct string_buf buf;
 
     if(*abstract) {
@@ -83,8 +83,24 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
 
-    if(_libssh2_match_string(&buf, "ssh-rsa"))
+    if(_libssh2_get_string(&buf, &type, &type_len)) {
         return -1;
+    }
+
+    // we accept one of 3 header types
+    if(type_len == 7 && strncmp("ssh-rsa", (char*)type, 7) == 0) {
+    }
+#if LIBSSH2_RSA_SHA2
+    else if(type_len == 12 && strncmp("rsa-sha2-256", (char*)type, 12) == 0) {
+    }
+    else if(type_len == 12 && strncmp("rsa-sha2-512", (char*)type, 12) == 0) {
+    }
+#endif
+    else {
+        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
+                       "unexpected rsa type: %.*s", type_len, type);
+        return -1;
+    }
 
     if(_libssh2_get_string(&buf, &e, &e_len))
         return -1;
