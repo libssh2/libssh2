@@ -872,7 +872,7 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    *abstract = ctx; 
+    *abstract = ctx;
 
     return 0;
 }
