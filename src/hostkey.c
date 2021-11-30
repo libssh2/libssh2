@@ -67,6 +67,8 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     unsigned char *e, *n;
     size_t e_len, n_len;
     struct string_buf buf;
+    char* type;
+    size_t type_len;
 
     if(*abstract) {
         hostkey_method_ssh_rsa_dtor(session, abstract);
@@ -83,8 +85,19 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     buf.dataptr = buf.data;
     buf.len = hostkey_data_len;
 
-    if(_libssh2_match_string(&buf, "ssh-rsa"))
+    if(_libssh2_get_string(&buf, (unsigned char**)&type, &type_len)) {
         return -1;
+    }
+
+    // we accept one of 3 header types
+    if(type_len == 7 && strncmp("ssh-rsa", type, 7) == 0) {        
+    } else if(type_len == 12 && strncmp("rsa-sha2-256", type, 12) == 0) {  
+    } else if(type_len == 12 && strncmp("rsa-sha2-512", type, 12) == 0) {  
+    } else {
+        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
+                       "bad type: %.*s", type_len, type);
+        return -1;
+    }
 
     if(_libssh2_get_string(&buf, &e, &e_len))
         return -1;
