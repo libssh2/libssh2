@@ -940,7 +940,7 @@ LIBSSH2_API
 const char *libssh2_version(int req_version_num);
 
 typedef enum {
-    libssh2_no_crypto,
+    libssh2_no_crypto = 0,
     libssh2_openssl,
     libssh2_gcrypt,
     libssh2_mbedtls,
