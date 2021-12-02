@@ -816,6 +816,19 @@ LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
                                   sizeof("subsystem") - 1, (subsystem), \
                                   (unsigned int)strlen(subsystem))
 
+/* Deliver custom channel request. 
+
+   data is allowed to be NULL when data_len is zero
+
+   While you can wait for reply this needs to be either success or failure as 
+   there is no way to bring back anything else. */ 
+LIBSSH2_API int libssh2_channel_custom_request(LIBSSH2_CHANNEL *channel, 
+                                               int want_reply,
+                                               const char *request_type, 
+                                               unsigned int request_type_len,                               
+                                               const char *data, 
+                                               unsigned int data_len);
+
 LIBSSH2_API ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel,
                                             int stream_id, char *buf,
                                             size_t buflen);

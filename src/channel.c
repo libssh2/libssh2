@@ -1273,6 +1273,125 @@ libssh2_channel_request_pty_size_ex(LIBSSH2_CHANNEL *channel, int width,
     return rc;
 }
 
+static int channel_custom_request(LIBSSH2_CHANNEL *channel, int want_reply,
+                                  const char *request_type, unsigned int request_type_len,                               
+                                  const char *data, unsigned int data_len) {
+    LIBSSH2_SESSION *session = channel->session;
+    static const unsigned char reply_codes[3] =
+        { SSH_MSG_CHANNEL_SUCCESS, SSH_MSG_CHANNEL_FAILURE, 0 };
+    int rc;
+
+    if(channel->channel_custom_state == libssh2_NB_state_idle) {
+        /* 10 = packet_type(1) + channel(4) + request_type_len(4) + want_reply(1) */
+        channel->channel_custom_packet_len = 10 + request_type_len + data_len;
+
+        /* Zero the whole thing out */
+        memset(&channel->channel_custom_packet_requirev_state, 0,
+               sizeof(channel->channel_custom_packet_requirev_state));
+
+        _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+            "custom request on channel %lu/%lu %.*s",
+            channel->local.id, channel->remote.id, 
+            request_type_len, request_type);
+
+        /* make sure there isn't previous packet we would leak */
+        if(channel->channel_custom_packet) {
+            LIBSSH2_FREE(session, channel->channel_custom_packet);
+        }
+
+        /* allocate memory for packet */
+        channel->channel_custom_packet =
+            LIBSSH2_ALLOC(session, channel->channel_custom_packet_len);
+        if(!channel->channel_custom_packet) {
+            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for custom channel request");
+        }
+
+        /* compose packet */
+        unsigned char *s = channel->channel_custom_packet;
+        *(s++) = SSH_MSG_CHANNEL_REQUEST;
+        _libssh2_store_u32(&s, channel->remote.id);
+        _libssh2_store_str(&s, request_type, request_type_len);
+        *(s++) = want_reply; 
+        if(data_len > 0) {
+            memcpy(s, data, data_len);
+        }
+
+        channel->channel_custom_state = libssh2_NB_state_created;
+    }
+
+    if(channel->channel_custom_state == libssh2_NB_state_created) {
+        rc = _libssh2_transport_send(session, channel->channel_custom_packet,
+                                     channel->channel_custom_packet_len,
+                                     NULL, 0);
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            _libssh2_error(session, rc,
+                           "Would block sending custom channel request");
+            return rc;
+        }
+        else if(rc) {
+            channel->channel_custom_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, rc,
+                                  "Unable to send custom channel request packet");
+        }
+        _libssh2_htonu32(channel->channel_custom_local_channel, channel->local.id);
+        channel->channel_custom_state = libssh2_NB_state_sent;
+    }
+
+    if(channel->channel_custom_state == libssh2_NB_state_sent) {
+        if(!want_reply) {
+            channel->channel_custom_state = libssh2_NB_state_idle;
+            return 0;
+        }
+
+        unsigned char *data = 0;
+        size_t data_len = 0;
+        unsigned char code = 0;
+
+        rc = _libssh2_packet_requirev(
+            session, reply_codes, &data, &data_len, 1,
+            channel->channel_custom_local_channel,
+            4, &channel->channel_custom_packet_requirev_state);
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            return rc;
+        }
+        else if(rc) {
+            channel->channel_custom_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                  "Failed custom channel request");
+        }
+
+        if(data_len >= 1) {
+            code = data[0];
+        }
+        if(data) LIBSSH2_FREE(session, data);
+        channel->channel_custom_state = libssh2_NB_state_idle;
+
+        if(code == SSH_MSG_CHANNEL_SUCCESS) return 0;
+
+        return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
+                          "Failed custom channel request");
+    }
+
+    return _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_REQUEST_DENIED,
+                          "Unable to complete custom channel request");
+}
+
+LIBSSH2_API int
+libssh2_channel_custom_request(LIBSSH2_CHANNEL *channel, int want_reply,
+                               const char *request_type, unsigned int request_type_len,                               
+                               const char *data, unsigned int data_len) {
+    int rc;
+
+    if(!channel)
+        return LIBSSH2_ERROR_BAD_USE;
+
+    BLOCK_ADJUST(rc, channel->session,
+                 channel_custom_request(channel, want_reply, request_type, 
+                                        request_type_len, data, data_len));
+    return rc;
+}
+
 /* Keep this an even number */
 #define LIBSSH2_X11_RANDOM_COOKIE_LEN       32
 
@@ -2791,6 +2910,9 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     }
     if(channel->process_packet) {
         LIBSSH2_FREE(session, channel->process_packet);
+    }
+    if(channel->channel_custom_packet) {
+        LIBSSH2_FREE(session, channel->channel_custom_packet);
     }
 
     LIBSSH2_FREE(session, channel);

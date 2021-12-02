@@ -419,6 +419,13 @@ struct _LIBSSH2_CHANNEL
     unsigned char process_local_channel[4];
     packet_requirev_state_t process_packet_requirev_state;
 
+    /* State variables used in libssh2_channel_custom_request() */
+    libssh2_nonblocking_states channel_custom_state;
+    unsigned char *channel_custom_packet;
+    size_t channel_custom_packet_len;
+    unsigned char channel_custom_local_channel[4];
+    packet_requirev_state_t channel_custom_packet_requirev_state;
+
     /* State variables used in libssh2_channel_flush_ex() */
     libssh2_nonblocking_states flush_state;
     size_t flush_refund_bytes;
