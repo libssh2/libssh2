@@ -1769,6 +1769,11 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             if(session->userauth_kybd_data_len >= 5) {
                 /* string    name (ISO-10646 UTF-8) */
                 session->userauth_kybd_auth_name_len = _libssh2_ntohu32(s);
+                if(session->userauth_kybd_auth_name_len >
+                   session->userauth_kybd_data_len - 5)
+                    return _libssh2_error(session,
+                                          LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                          "Bad keyboard auth name");
                 s += 4;
             }
             else {
