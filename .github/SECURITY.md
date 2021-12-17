@@ -1,6 +1,6 @@
 # Security Policy
 
-See [SECURITY.md](../docs/SECURITY.md) for full details.
+See [SECURITY.md](https://github.com/libssh2/libssh2/blob/master/docs/SECURITY.md) for full details.
 
 ## Reporting a Vulnerability
 
