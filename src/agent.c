@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2009 by Daiki Ueno
- * Copyright (C) 2010-2014 by Daniel Stenberg
+ * Copyright (C) 2010-2021 by Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -541,7 +541,7 @@ agent_list_identities(LIBSSH2_AGENT *agent)
 
     while(num_identities--) {
         struct agent_publickey *identity;
-        ssize_t comment_len;
+        size_t comment_len;
 
         /* Read the length of the blob */
         len -= 4;
@@ -586,14 +586,14 @@ agent_list_identities(LIBSSH2_AGENT *agent)
         comment_len = _libssh2_ntohu32(s);
         s += 4;
 
-        /* Read the comment */
-        len -= comment_len;
-        if(len < 0) {
+        if(comment_len > (size_t)len) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
             LIBSSH2_FREE(agent->session, identity->external.blob);
             LIBSSH2_FREE(agent->session, identity);
             goto error;
         }
+        /* Read the comment */
+        len -= comment_len;
 
         identity->external.comment = LIBSSH2_ALLOC(agent->session,
                                                    comment_len + 1);
