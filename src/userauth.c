@@ -1794,7 +1794,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                                    "request field");
                     goto cleanup;
                 }
-                if(s + session->userauth_list_data_len <=
+                if(s + session->userauth_kybd_auth_name_len <=
                    session->userauth_kybd_data +
                    session->userauth_kybd_data_len) {
                     memcpy(session->userauth_kybd_auth_name, s,
