@@ -540,7 +540,8 @@ struct transportpacket
                                packet_length + padding_length + 4 +
                                mac_length. */
     unsigned char *payload; /* this is a pointer to a LIBSSH2_ALLOC()
-                               area to which we write decrypted data */
+                               area to which we write incoming packet data 
+                               which is not yet decrypted in etm mode. */
     unsigned char *wptr;    /* write pointer into the payload to where we
                                are currently writing decrypted data */
 

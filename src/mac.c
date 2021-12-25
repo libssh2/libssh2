@@ -60,7 +60,8 @@ static LIBSSH2_MAC_METHOD mac_method_none = {
     0,
     NULL,
     mac_none_MAC,
-    NULL
+    NULL,
+    0
 };
 #endif /* LIBSSH2_MAC_NONE */
 
@@ -127,8 +128,6 @@ mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION * session,
     return 0;
 }
 
-
-
 static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512 = {
     "hmac-sha2-512",
     64,
@@ -136,7 +135,19 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512 = {
     mac_method_common_init,
     mac_method_hmac_sha2_512_hash,
     mac_method_common_dtor,
+    0
 };
+
+static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512_etm = {
+    "hmac-sha2-512-etm@openssh.com",
+    64,
+    64,
+    mac_method_common_init,
+    mac_method_hmac_sha2_512_hash,
+    mac_method_common_dtor,
+    1
+};
+
 #endif
 
 
@@ -181,7 +192,19 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_256 = {
     mac_method_common_init,
     mac_method_hmac_sha2_256_hash,
     mac_method_common_dtor,
+    0
 };
+
+static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_256_etm = {
+    "hmac-sha2-256-etm@openssh.com",
+    32,
+    32,
+    mac_method_common_init,
+    mac_method_hmac_sha2_256_hash,
+    mac_method_common_dtor,
+    1
+};
+
 #endif
 
 
@@ -226,6 +249,17 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1 = {
     mac_method_common_init,
     mac_method_hmac_sha1_hash,
     mac_method_common_dtor,
+    0
+};
+
+static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1_etm = {
+    "hmac-sha1-etm@openssh.com",
+    20,
+    20,
+    mac_method_common_init,
+    mac_method_hmac_sha1_hash,
+    mac_method_common_dtor,
+    1
 };
 
 /* mac_method_hmac_sha1_96_hash
@@ -257,6 +291,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1_96 = {
     mac_method_common_init,
     mac_method_hmac_sha1_96_hash,
     mac_method_common_dtor,
+    0
 };
 
 #if LIBSSH2_MD5
@@ -299,6 +334,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_md5 = {
     mac_method_common_init,
     mac_method_hmac_md5_hash,
     mac_method_common_dtor,
+    0
 };
 
 /* mac_method_hmac_md5_96_hash
@@ -328,6 +364,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_md5_96 = {
     mac_method_common_init,
     mac_method_hmac_md5_96_hash,
     mac_method_common_dtor,
+    0
 };
 #endif /* LIBSSH2_MD5 */
 
@@ -372,6 +409,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_ripemd160 = {
     mac_method_common_init,
     mac_method_hmac_ripemd160_hash,
     mac_method_common_dtor,
+    0
 };
 
 static const LIBSSH2_MAC_METHOD mac_method_hmac_ripemd160_openssh_com = {
@@ -381,17 +419,21 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_ripemd160_openssh_com = {
     mac_method_common_init,
     mac_method_hmac_ripemd160_hash,
     mac_method_common_dtor,
+    0
 };
 #endif /* LIBSSH2_HMAC_RIPEMD */
 
 static const LIBSSH2_MAC_METHOD *mac_methods[] = {
 #if LIBSSH2_HMAC_SHA256
     &mac_method_hmac_sha2_256,
+    &mac_method_hmac_sha2_256_etm,
 #endif
 #if LIBSSH2_HMAC_SHA512
     &mac_method_hmac_sha2_512,
+    &mac_method_hmac_sha2_512_etm,
 #endif
     &mac_method_hmac_sha1,
+    &mac_method_hmac_sha1_etm,
     &mac_method_hmac_sha1_96,
 #if LIBSSH2_MD5
     &mac_method_hmac_md5,
