@@ -40,7 +40,8 @@
 
 #include "libssh2_priv.h"
 
-#ifdef LIBSSH2_OPENSSL /* compile only if we build with openssl */
+/* compile only if we build with openssl or wolfSSL */
+#if defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
 
 #include <string.h>
 #include "misc.h"
@@ -455,27 +456,20 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
 {
     unsigned char buf[EVP_MAX_BLOCK_LENGTH];
     int ret;
+    int outlen;
     (void) algo;
     (void) encrypt;
 
 #ifdef HAVE_OPAQUE_STRUCTS
-    ret = EVP_Cipher(*ctx, buf, block, blocksize);
+    ret = EVP_CipherUpdate(*ctx, buf, &outlen, block, blocksize);
 #else
-    ret = EVP_Cipher(ctx, buf, block, blocksize);
+    ret = EVP_CipherUpdate(ctx, buf, &outlen, block, blocksize);
 #endif
-#if defined(OPENSSL_VERSION_MAJOR) && OPENSSL_VERSION_MAJOR >= 3
-    if(ret != -1) {
-#else
     if(ret == 1) {
-#endif
         memcpy(block, buf, blocksize);
     }
 
-#if defined(OPENSSL_VERSION_MAJOR) && OPENSSL_VERSION_MAJOR >= 3
-    return ret != -1 ? 0 : 1;
-#else
     return ret == 1 ? 0 : 1;
-#endif
 }
 
 #if LIBSSH2_AES_CTR && !defined(HAVE_EVP_AES_128_CTR)

@@ -92,6 +92,7 @@ m4_set_add([crypto_backends], [openssl])
 m4_set_add([crypto_backends], [libgcrypt])
 m4_set_add([crypto_backends], [mbedtls])
 m4_set_add([crypto_backends], [wincng])
+m4_set_add([crypto_backends], [wolfssl])
 
 AC_ARG_WITH([crypto],
   AC_HELP_STRING([--with-crypto=auto|]m4_set_contents([crypto_backends], [|]),

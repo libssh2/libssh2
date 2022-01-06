@@ -5,6 +5,9 @@ AUTOMAKE_OPTIONS = foreign nostdinc
 if OPENSSL
 include ../Makefile.OpenSSL.inc
 endif
+if WOLFSSL
+include ../Makefile.wolfSSL.inc
+endif
 if LIBGCRYPT
 include ../Makefile.libgcrypt.inc
 endif
