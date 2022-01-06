@@ -2409,6 +2409,24 @@ _libssh2_os400qc3_rsa_sha1_signv(LIBSSH2_SESSION *session,
     return 0;
 }
 
+/* _libssh2_supported_key_sign_algorithms
+ *
+ * Return supported key hash algo upgrades, see crypto.h
+ *
+ */
+
+const char *
+_libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
+                                       unsigned char *key_method,
+                                       size_t key_method_len)
+{
+    (void)session;
+    (void)key_method;
+    (void)key_method_len;
+
+    return NULL;
+}
+
 #endif /* LIBSSH2_OS400QC3 */
 
 /* vim: set expandtab ts=4 sw=4: */
