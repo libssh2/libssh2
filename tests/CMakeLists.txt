@@ -169,10 +169,25 @@ endforeach()
 add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
 target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE LIBSSH2_OPENSSL)
 target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "../src/")
-target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2)
+find_program(GCOV_PATH gcov)
+if(CMAKE_COMPILER_IS_GNUCC AND GCOV_PATH)
+  target_compile_options(test_keyboard_interactive_auth_info_request BEFORE PRIVATE
+    -g --coverage -fprofile-abs-path)
+  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2 gcov)
+else()
+  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2)
+endif()
 add_test(
   NAME test_keyboard_interactive_auth_info_request COMMAND $<TARGET_FILE:test_keyboard_interactive_auth_info_request>
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+add_custom_target(coverage
+  COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/*
+  COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/coverage/"
+  COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/* --html-details --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
+
+add_custom_target(clean-coverage
+  COMMAND rm -rf "${CMAKE_CURRENT_BINARY_DIR}/coverage/")
 
 add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
