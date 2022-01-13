@@ -20,8 +20,9 @@ this function can be called to retrieve the userauth banner sent by
 the server. If no such banner is sent, or if an authentication has not
 yet been attempted, returns LIBSSH2_ERROR_MISSING_USERAUTH_BANNER.
 .SH RETURN VALUE
-On success returns 0 and an UTF-8 userauth banner is stored in the
-\fIbanner\fP.
+On success returns 0 and an UTF-8 NUL-terminated string is stored in the
+\fIbanner\fP. This string is internally managed by libssh2 and will be
+deallocated upon session termination.
 On failure returns
 LIBSSH2_ERROR_MISSING_USERAUTH_BANNER.
 .SH SEE ALSO
