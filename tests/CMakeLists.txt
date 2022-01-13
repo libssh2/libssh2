@@ -166,6 +166,14 @@ foreach(test ${TESTS})
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
+add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
+target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE LIBSSH2_OPENSSL)
+target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "../src/")
+target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2)
+add_test(
+  NAME test_keyboard_interactive_auth_info_request COMMAND $<TARGET_FILE:test_keyboard_interactive_auth_info_request>
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
 add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
   DEPENDENCIES ${RUNTIME_DEPENDENCIES}
