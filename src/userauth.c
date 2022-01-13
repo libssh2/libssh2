@@ -52,6 +52,7 @@
 #include "transport.h"
 #include "session.h"
 #include "userauth.h"
+#include "userauth_kbd_packet.h"
 
 /* libssh2_userauth_list
  *
@@ -1878,7 +1879,6 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                               ((*response_callback)))
 {
     unsigned char *s;
-    struct string_buf decoded;
 
     int rc;
 
@@ -1886,8 +1886,6 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
         SSH_MSG_USERAUTH_SUCCESS,
         SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST, 0
     };
-    unsigned char *language_tag;
-    size_t language_tag_len;
     unsigned int i;
 
     if(session->userauth_kybd_state == libssh2_NB_state_idle) {
@@ -2010,116 +2008,15 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             }
 
             /* server requested PAM-like conversation */
-            s = session->userauth_kybd_data + 1;
-
-            decoded.data = s;
-            decoded.dataptr = s;
-            decoded.len = session->userauth_kybd_data_len - 1;
-
-            if (session->userauth_kybd_data_len < 5) {
-                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                               "userauth keyboard data buffer too small"
-                               "to get length");
+            if(userauth_keyboard_interactive_decode_info_request(session)
+               < 0) {
                 goto cleanup;
-            }
-
-            if (_libssh2_copy_string(session, &decoded, &session->userauth_kybd_auth_name,
-                                     &session->userauth_kybd_auth_name_len) == -1)
-            {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate memory for "
-                               "keyboard-interactive 'name' "
-                               "request field");
-                goto cleanup;
-            }
-
-            if (_libssh2_copy_string(session, &decoded, &session->userauth_kybd_auth_instruction,
-                                     &session->userauth_kybd_auth_instruction_len) == -1)
-            {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate memory for "
-                               "keyboard-interactive 'instruction' "
-                               "request field");
-                goto cleanup;
-            }
-
-            if (_libssh2_get_string(&decoded, &language_tag,
-                                     &language_tag_len) == -1)
-            {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate memory for "
-                               "keyboard-interactive 'language tag' "
-                               "request field");
-                goto cleanup;
-            }
-
-            if (_libssh2_get_u32(&decoded, &session->userauth_kybd_num_prompts) == -1)
-            {
-                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                               "userauth keyboard data buffer too small"
-                               "for auth num keyboard prompts");
-                goto cleanup;
-            }
-
-            s += session->userauth_kybd_auth_name_len + 4 +
-                 session->userauth_kybd_auth_instruction_len + 4 +
-                 language_tag_len + 4
-                 + 4;
-
-            if(session->userauth_kybd_num_prompts > 100) {
-                _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                               "Too many replies for "
-                               "keyboard-interactive prompts");
-                goto cleanup;
-            }
-
-            if(session->userauth_kybd_num_prompts) {
-                session->userauth_kybd_prompts =
-                    LIBSSH2_CALLOC(session,
-                                   sizeof(LIBSSH2_USERAUTH_KBDINT_PROMPT) *
-                                   session->userauth_kybd_num_prompts);
-                if(!session->userauth_kybd_prompts) {
-                    _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                   "Unable to allocate memory for "
-                                   "keyboard-interactive prompts array");
-                    goto cleanup;
-                }
-
-                session->userauth_kybd_responses =
-                    LIBSSH2_CALLOC(session,
-                                   sizeof(LIBSSH2_USERAUTH_KBDINT_RESPONSE) *
-                                   session->userauth_kybd_num_prompts);
-                if(!session->userauth_kybd_responses) {
-                    _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                   "Unable to allocate memory for "
-                                   "keyboard-interactive responses array");
-                    goto cleanup;
-                }
-
-                for (i = 0; i < session->userauth_kybd_num_prompts; i++)
-                {
-                    if (_libssh2_copy_string(session, &decoded, &session->userauth_kybd_prompts[i].text,
-                                             &session->userauth_kybd_prompts[i].length) == -1)
-                    {
-                         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                       "Unable to allocate memory for "
-                                       "keyboard-interactive prompt message");
-                        goto cleanup;
-                    }
-
-                    if(_libssh2_get_boolean(&decoded, &session->userauth_kybd_prompts[i].echo) == -1)
-                    {
-                        _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                                       "userauth keyboard data buffer too "
-                                       "small for auth keyboard prompt echo");
-                        goto cleanup;
-                    }
-                }
             }
 
             response_callback((const char *)session->userauth_kybd_auth_name,
                               session->userauth_kybd_auth_name_len,
-                              (const char *)session->userauth_kybd_auth_instruction,
+                              (const char *)
+                              session->userauth_kybd_auth_instruction,
                               session->userauth_kybd_auth_instruction_len,
                               session->userauth_kybd_num_prompts,
                               session->userauth_kybd_prompts,
