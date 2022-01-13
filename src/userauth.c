@@ -1878,13 +1878,16 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                               ((*response_callback)))
 {
     unsigned char *s;
+    struct string_buf decoded;
+
     int rc;
 
     static const unsigned char reply_codes[4] = {
         SSH_MSG_USERAUTH_SUCCESS,
         SSH_MSG_USERAUTH_FAILURE, SSH_MSG_USERAUTH_INFO_REQUEST, 0
     };
-    unsigned int language_tag_len;
+    unsigned char *language_tag;
+    size_t language_tag_len;
     unsigned int i;
 
     if(session->userauth_kybd_state == libssh2_NB_state_idle) {
@@ -2009,126 +2012,59 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             /* server requested PAM-like conversation */
             s = session->userauth_kybd_data + 1;
 
-            if(session->userauth_kybd_data_len >= 5) {
-                /* string    name (ISO-10646 UTF-8) */
-                session->userauth_kybd_auth_name_len = _libssh2_ntohu32(s);
-                if(session->userauth_kybd_auth_name_len >
-                   session->userauth_kybd_data_len - 5)
-                    return _libssh2_error(session,
-                                          LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                          "Bad keyboard auth name");
-                s += 4;
-            }
-            else {
+            decoded.data = s;
+            decoded.dataptr = s;
+            decoded.len = session->userauth_kybd_data_len - 1;
+
+            if (session->userauth_kybd_data_len < 5) {
                 _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                "userauth keyboard data buffer too small"
                                "to get length");
                 goto cleanup;
             }
 
-            if(session->userauth_kybd_auth_name_len) {
-                session->userauth_kybd_auth_name =
-                    LIBSSH2_ALLOC(session,
-                                  session->userauth_kybd_auth_name_len);
-                if(!session->userauth_kybd_auth_name) {
-                    _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                   "Unable to allocate memory for "
-                                   "keyboard-interactive 'name' "
-                                   "request field");
-                    goto cleanup;
-                }
-                if(s + session->userauth_kybd_auth_name_len <=
-                   session->userauth_kybd_data +
-                   session->userauth_kybd_data_len) {
-                    memcpy(session->userauth_kybd_auth_name, s,
-                           session->userauth_kybd_auth_name_len);
-                    s += session->userauth_kybd_auth_name_len;
-                }
-                else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                                   "userauth keyboard data buffer too small"
-                                   "for auth name");
-                    goto cleanup;
-                }
-            }
-
-            if(s + 4 <= session->userauth_kybd_data +
-               session->userauth_kybd_data_len) {
-                /* string    instruction (ISO-10646 UTF-8) */
-                session->userauth_kybd_auth_instruction_len =
-                    _libssh2_ntohu32(s);
-                s += 4;
-            }
-            else {
-                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                               "userauth keyboard data buffer too small"
-                               "for auth instruction length");
+            if (_libssh2_copy_string(session, &decoded, &session->userauth_kybd_auth_name,
+                                     &session->userauth_kybd_auth_name_len) == -1)
+            {
+                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate memory for "
+                               "keyboard-interactive 'name' "
+                               "request field");
                 goto cleanup;
             }
 
-            if(session->userauth_kybd_auth_instruction_len) {
-                session->userauth_kybd_auth_instruction =
-                    LIBSSH2_ALLOC(session,
-                                  session->userauth_kybd_auth_instruction_len);
-                if(!session->userauth_kybd_auth_instruction) {
-                    _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                   "Unable to allocate memory for "
-                                   "keyboard-interactive 'instruction' "
-                                   "request field");
-                    goto cleanup;
-                }
-                if(s + session->userauth_kybd_auth_instruction_len <=
-                   session->userauth_kybd_data +
-                   session->userauth_kybd_data_len) {
-                    memcpy(session->userauth_kybd_auth_instruction, s,
-                           session->userauth_kybd_auth_instruction_len);
-                    s += session->userauth_kybd_auth_instruction_len;
-                }
-                else {
-                    _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                                   "userauth keyboard data buffer too small"
-                                   "for auth instruction");
-                    goto cleanup;
-                }
-            }
-
-            if(s + 4 <= session->userauth_kybd_data +
-               session->userauth_kybd_data_len) {
-                /* string    language tag (as defined in [RFC-3066]) */
-                language_tag_len = _libssh2_ntohu32(s);
-                s += 4;
-            }
-            else {
-                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                               "userauth keyboard data buffer too small"
-                               "for auth language tag length");
+            if (_libssh2_copy_string(session, &decoded, &session->userauth_kybd_auth_instruction,
+                                     &session->userauth_kybd_auth_instruction_len) == -1)
+            {
+                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate memory for "
+                               "keyboard-interactive 'instruction' "
+                               "request field");
                 goto cleanup;
             }
 
-            if(s + language_tag_len <= session->userauth_kybd_data +
-               session->userauth_kybd_data_len) {
-                /* ignoring this field as deprecated */
-                s += language_tag_len;
-            }
-            else {
-                _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                               "userauth keyboard data buffer too small"
-                               "for auth language tag");
+            if (_libssh2_get_string(&decoded, &language_tag,
+                                     &language_tag_len) == -1)
+            {
+                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate memory for "
+                               "keyboard-interactive 'language tag' "
+                               "request field");
                 goto cleanup;
             }
 
-            if(s + 4 <= session->userauth_kybd_data +
-               session->userauth_kybd_data_len) {
-                /* int       num-prompts */
-                session->userauth_kybd_num_prompts = _libssh2_ntohu32(s);
-                s += 4;
-            }
-            else {
+            if (_libssh2_get_u32(&decoded, &session->userauth_kybd_num_prompts) == -1)
+            {
                 _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                "userauth keyboard data buffer too small"
                                "for auth num keyboard prompts");
                 goto cleanup;
             }
+
+            s += session->userauth_kybd_auth_name_len + 4 +
+                 session->userauth_kybd_auth_instruction_len + 4 +
+                 language_tag_len + 4
+                 + 4;
 
             if(session->userauth_kybd_num_prompts > 100) {
                 _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
@@ -2160,52 +2096,19 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                     goto cleanup;
                 }
 
-                for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
-                    if(s + 4 <= session->userauth_kybd_data +
-                       session->userauth_kybd_data_len) {
-                        /* string    prompt[1] (ISO-10646 UTF-8) */
-                        session->userauth_kybd_prompts[i].length =
-                            _libssh2_ntohu32(s);
-                        s += 4;
-                    }
-                    else {
-                        _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                                       "userauth keyboard data buffer too "
-                                       "small for auth keyboard "
-                                       "prompt length");
-                        goto cleanup;
-                    }
-
-                    session->userauth_kybd_prompts[i].text =
-                        LIBSSH2_CALLOC(session,
-                                       session->userauth_kybd_prompts[i].
-                                       length);
-                    if(!session->userauth_kybd_prompts[i].text) {
-                        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                for (i = 0; i < session->userauth_kybd_num_prompts; i++)
+                {
+                    if (_libssh2_copy_string(session, &decoded, &session->userauth_kybd_prompts[i].text,
+                                             &session->userauth_kybd_prompts[i].length) == -1)
+                    {
+                         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                        "Unable to allocate memory for "
                                        "keyboard-interactive prompt message");
                         goto cleanup;
                     }
 
-                    if(s + session->userauth_kybd_prompts[i].length <=
-                       session->userauth_kybd_data +
-                       session->userauth_kybd_data_len) {
-                        memcpy(session->userauth_kybd_prompts[i].text, s,
-                               session->userauth_kybd_prompts[i].length);
-                        s += session->userauth_kybd_prompts[i].length;
-                    }
-                    else {
-                        _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
-                                       "userauth keyboard data buffer too "
-                                       "small for auth keyboard prompt");
-                        goto cleanup;
-                    }
-                    if(s < session->userauth_kybd_data +
-                       session->userauth_kybd_data_len) {
-                        /* boolean   echo[1] */
-                        session->userauth_kybd_prompts[i].echo = *s++;
-                    }
-                    else {
+                    if(_libssh2_get_boolean(&decoded, &session->userauth_kybd_prompts[i].echo) == -1)
+                    {
                         _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                        "userauth keyboard data buffer too "
                                        "small for auth keyboard prompt echo");
@@ -2214,9 +2117,9 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                 }
             }
 
-            response_callback(session->userauth_kybd_auth_name,
+            response_callback((const char *)session->userauth_kybd_auth_name,
                               session->userauth_kybd_auth_name_len,
-                              session->userauth_kybd_auth_instruction,
+                              (const char *)session->userauth_kybd_auth_instruction,
                               session->userauth_kybd_auth_instruction_len,
                               session->userauth_kybd_num_prompts,
                               session->userauth_kybd_prompts,
