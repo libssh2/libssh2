@@ -69,7 +69,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
     /* packet_type(1) + username_len(4) + service_len(4) +
        service(14)"ssh-connection" + method_len(4) = 27 */
     unsigned long methods_len;
-    unsigned long banner_len;
+    unsigned int banner_len;
     unsigned char *s;
     int rc;
 
