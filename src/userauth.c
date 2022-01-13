@@ -162,6 +162,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
             }
             memmove(session->userauth_banner, session->userauth_list_data + 5,
                     banner_len);
+            session->userauth_banner[banner_len] = '\0';
             _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
                            "Banner: %s",
                            session->userauth_banner);
