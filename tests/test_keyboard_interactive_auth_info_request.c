@@ -1,4 +1,4 @@
-/* Copyright (C) 2016 Xaver Loppenstedt
+/* Copyright (C) 2022 Xaver Loppenstedt
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -199,9 +199,11 @@ int main()
             fprintf(stderr, "libssh2_session_init_ex failed\n");
             return 1;
         }
-        session->userauth_kybd_data = LIBSSH2_ALLOC(session, test_cases[i].data_len);
+        session->userauth_kybd_data =
+            LIBSSH2_ALLOC(session, test_cases[i].data_len);
         session->userauth_kybd_data_len = test_cases[i].data_len;
-        memcpy(session->userauth_kybd_data, test_cases[i].data, test_cases[i].data_len);
+        memcpy(session->userauth_kybd_data,
+               test_cases[i].data, test_cases[i].data_len);
         int rc = userauth_keyboard_interactive_decode_info_request(session);
 
         if(rc != test_cases[i].expected.rc) {
