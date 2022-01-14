@@ -510,6 +510,10 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     memcpy(*sig, s, *sig_len);
 
   error:
+
+    if(method_name)
+        LIBSSH2_FREE(session, method_name);
+
     LIBSSH2_FREE(session, transctx->request);
     transctx->request = NULL;
 
