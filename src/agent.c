@@ -377,9 +377,9 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     struct agent_publickey *identity = agent->identity;
     ssize_t len = 1 + 4 + identity->external.blob_len + 4 + data_len + 4;
     ssize_t method_len;
-    unsigned char *method_name;
     unsigned char *s;
     int rc;
+    unsigned char *method_name = NULL;
     uint32_t sign_flags = 0;
 
     /* Create a request to sign the data */
@@ -477,7 +477,7 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     s += method_len;
 
     /* check to see if we match requested */
-    if(method_len == session->userauth_pblc_method_len) {
+    if((size_t)method_len == session->userauth_pblc_method_len) {
         if(memcmp(method_name, session->userauth_pblc_method, method_len)) {
             _libssh2_debug(session,
                            LIBSSH2_TRACE_KEX,
