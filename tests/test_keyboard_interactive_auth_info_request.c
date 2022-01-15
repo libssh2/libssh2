@@ -115,7 +115,7 @@ int main()
             {FAIL, -38,
             "Unable to decode keyboard-interactive number of "
             "keyboard prompts"}},
-        /* to many prompts */
+        /* too many prompts */
         {
             "<"
             "\0\0\0\0"
