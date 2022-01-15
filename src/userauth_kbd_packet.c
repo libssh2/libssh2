@@ -36,6 +36,7 @@
  */
 
 #include "libssh2_priv.h"
+#include "userauth_kbd_packet.h"
 
 int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
 {
