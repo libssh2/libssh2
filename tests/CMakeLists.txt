@@ -166,7 +166,12 @@ foreach(test ${TESTS})
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
-add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
+if(WIN32)
+  # Workaround for Visual Studio
+  add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c ../src/misc.c)
+else()
+  add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
+endif()
 target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE LIBSSH2_OPENSSL)
 target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "../src/" "${OPENSSL_INCLUDE_DIR}")
 find_program(GCOV_PATH gcov)
