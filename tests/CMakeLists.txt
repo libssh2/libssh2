@@ -168,7 +168,7 @@ endforeach()
 
 add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
 target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE LIBSSH2_OPENSSL)
-target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "../src/")
+target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "../src/" "${OPENSSL_INCLUDE_DIR}")
 find_program(GCOV_PATH gcov)
 if(CMAKE_COMPILER_IS_GNUCC AND GCOV_PATH)
   target_compile_options(test_keyboard_interactive_auth_info_request BEFORE PRIVATE
