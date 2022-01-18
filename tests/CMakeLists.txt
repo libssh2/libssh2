@@ -76,6 +76,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
 
   if(OPENSSL_FOUND)
     set(CRYPTO_BACKEND "OpenSSL")
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
   endif()
 endif()
 
@@ -85,6 +86,7 @@ if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
 
   if(LIBGCRYPT_FOUND)
     set(CRYPTO_BACKEND "Libgcrypt")
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_LIBGCRYPT")
   endif()
 endif()
 
@@ -95,6 +97,7 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
 
   if(HAVE_BCRYPT_H)
     set(CRYPTO_BACKEND "WinCNG")
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WINCNG")
   endif()
 endif()
 
@@ -104,6 +107,7 @@ if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
 
   if(MBEDTLS_FOUND)
     set(CRYPTO_BACKEND "mbedTLS")
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")
   endif()
 endif()
 
@@ -172,7 +176,7 @@ if(WIN32 AND BUILD_SHARED_LIBS)
 else()
   add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
 endif()
-target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE LIBSSH2_OPENSSL)
+target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "../src/" "${OPENSSL_INCLUDE_DIR}")
 find_program(GCOV_PATH gcov)
 if(CMAKE_COMPILER_IS_GNUCC AND GCOV_PATH)
