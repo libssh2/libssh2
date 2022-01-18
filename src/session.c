@@ -984,7 +984,7 @@ session_free(LIBSSH2_SESSION *session)
     if(session->server_sign_algorithms) {
 		LIBSSH2_FREE(session, session->server_sign_algorithms);
 	}
-	if ( session->sign_algo_prefs) {
+	if(session->sign_algo_prefs) {
 		LIBSSH2_FREE(session, session->sign_algo_prefs);
 	}
     /*
