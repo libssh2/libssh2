@@ -166,7 +166,7 @@ foreach(test ${TESTS})
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
-if(WIN32)
+if(WIN32 AND BUILD_SHARED_LIBS)
   # Workaround for Visual Studio
   add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c ../src/misc.c)
 else()
