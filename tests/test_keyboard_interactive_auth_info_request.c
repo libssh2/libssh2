@@ -52,187 +52,260 @@ struct test_case {
     struct expected expected;
 };
 
-#define FIXTURE_LEN 16
+#define TEST_CASES_LEN 16
+struct test_case test_cases[TEST_CASES_LEN] = {
+    /* to small */
+    {
+        NULL, 0,
+        {FAIL, -38,
+        "userauth keyboard data buffer too small to get length"}},
+    /* to small */
+    {
+        "1234", 4,
+        {FAIL, -38,
+        "userauth keyboard data buffer too small to get length"}},
+    /* smalest valid packet possible */
+    {
+        "<"
+        "\0\0\0\0"
+        "\0\0\0\0"
+        "\0\0\0\0"
+        "\0\0\0\0", 17,
+        {PASS, 0, ""}},
+    /* overrun name */
+    {
+        "<"
+        "\0\0\0\x7f"
+        "\0\0\0\0"
+        "\0\0\0\0"
+        "\0\0\0\0", 17,
+            {FAIL, -6,
+            "Unable to decode keyboard-interactive 'name' request field"}},
+    /* overrun instruction */
+    {
+        "<"
+        "\0\0\0\0"
+        "\0\0\0\x7f"
+        "\0\0\0\0"
+        "\0\0\0\0", 17,
+        {FAIL, -6,
+        "Unable to decode keyboard-interactive 'instruction' "
+        "request field"}},
+    /* overrun language */
+    {
+        "<"
+        "\0\0\0\0"
+        "\0\0\0\0"
+        "\0\0\0\x7f"
+        "\0\0\0\0", 17,
+        {FAIL, -6, "Unable to decode keyboard-interactive 'language tag' "
+        "request field"}},
+    /* underrun prompt number */
+    {
+        "<"
+        "\0\0\0\x01"
+        "\0\0\0\0"
+        "\0\0\0\0"
+        "\0\0\0\0", 17,
+        {FAIL, -38,
+        "Unable to decode keyboard-interactive number of "
+        "keyboard prompts"}},
+    /* too many prompts */
+    {
+        "<"
+        "\0\0\0\0"
+        "\0\0\0\0"
+        "\0\0\0\0"
+        "\0\0\0\x7f", 17,
+        {FAIL, -41, "Too many replies for keyboard-interactive prompts"}},
+    /* empty prompt */
+    {
+        "<"
+        "\0\0\0\0"
+        "\0\0\0\0"
+        "\0\0\0\0"
+        "\0\0\0\x01"
+        "\0\0\0\0"
+        "\0", 22, {PASS, 0, ""}},
+    /* copied from OpenSSH */
+    {
+        "<"
+        "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01"
+        "\0\0\0\x0aPassword: \0", 32, {PASS, 0, ""}},
+    /* overrun in prompt text */
+    {
+        "<"
+        "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01"
+        "\0\0\0\x7bPassword: \0", 32,
+        {FAIL, -6, "Unable to decode keyboard-interactive "
+        "prompt message"}},
+    /* no echo prompt boolean */
+    {
+        "<"
+        "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01"
+        "\0\0\0\x0bPassword: \0", 32,
+        {FAIL, -38, "Unable to decode user auth keyboard prompt echo"}},
+    /* two prompts */
+    {
+        "<"
+        "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02"
+        "\0\0\0\x0aPassword: \0"
+        "\0\0\0\x07Token: \1", 44,
+        {PASS, 0, ""}},
+    /* example from RFC 4256 */
+    {
+        "<"
+        "\0\0\0\x19""CRYPTOCard Authentication"
+        "\0\0\0\x1b""The challenge is '14315716'"
+        "\0\0\0\x05""en-US"
+        "\0\0\0\x01"
+        "\0\0\0\x0aResponse: "
+        "\x01"
+        , 89, {PASS, 0, ""}},
+    /* three prompts, 3rd missing*/
+    {
+        "<"
+        "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x03"
+        "\0\0\0\x0aPassword: \0"
+        "\0\0\0\x07Token: \1", 44,
+        {FAIL, -6,
+            "Unable to decode keyboard-interactive prompt message"}},
+    /* overflow language on 32 bit platform */
+    {
+        "<"
+        "\0\0\0\x19"
+            "\0\0\0\x01"
+            "\0\0\0\x05""PWN3D\0\1\2\3\4\5\6\7\1\2\3"
+            "\x01"
+        "\0\0\0\x1b""The challenge is '14315716'"
+        "\xff\xff\xff\xc4""en-US"
+        "\0\0\0\x01"
+        "\0\0\0\x0aResponse: "
+        "\x01",
+        89,
+        {FAIL, -6,
+            "Unable to decode keyboard-interactive 'language tag' "
+            "request field"}},
+};
+
+#define FAILED_MALLOC_TEST_CASES_LEN 2
+struct test_case failed_malloc_test_cases[FAILED_MALLOC_TEST_CASES_LEN] = {
+    /* malloc fail */
+    {
+        "<"
+        "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01"
+        "\0\0\0\x0aPassword: \0", 32,
+        {FAIL, -6,
+            "Unable to allocate memory for "
+            "keyboard-interactive prompts array"}},
+    /* malloc fail */
+    {
+        "<"
+        "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01"
+        "\0\0\0\x0aPassword: \0", 32,
+        {FAIL, -6,
+            "Unable to allocate memory for "
+            "keyboard-interactive responses array"
+        }}
+};
+
+static int alloc_count = 0;
+static int free_count = 0;
+
+/* libssh2_default_alloc
+ */
+static
+LIBSSH2_ALLOC_FUNC(test_alloc)
+{
+    alloc_count++;
+
+    int *threshold_int_ptr = *abstract;
+    if (*abstract != NULL && *threshold_int_ptr == alloc_count) {
+        return NULL;
+    }
+
+    return malloc(count);
+}
+
+/* libssh2_default_free
+ */
+static
+LIBSSH2_FREE_FUNC(test_free)
+{
+    (void) abstract;
+    free_count++;
+    free(ptr);
+}
+
+static
+int test_case(int num,
+              char *data, int data_len, void *abstract,
+              struct expected expected)
+{
+    alloc_count = 0;
+    free_count = 0;
+    LIBSSH2_SESSION *session = NULL;
+    session = libssh2_session_init_ex(test_alloc, test_free, NULL, abstract);
+    if(session == NULL) {
+        fprintf(stderr, "libssh2_session_init_ex failed\n");
+        return 1;
+    }
+
+    session->userauth_kybd_data = LIBSSH2_ALLOC(session, data_len);
+    session->userauth_kybd_data_len = data_len;
+    memcpy(session->userauth_kybd_data, data, data_len);
+
+    int rc = userauth_keyboard_interactive_decode_info_request(session);
+
+    if(rc != expected.rc) {
+        fprintf(stdout,
+                "Test case %d: expected return code to be %d got %d\n",
+                num, expected.rc, rc);
+        return 1;
+    }
+
+    char *message;
+    int error_code = libssh2_session_last_error(session, &message, NULL, 0);
+
+    if(expected.last_error_code != error_code) {
+        fprintf(stdout,
+                "Test case %d: expected last error code to be "
+                "\"%d\" got \"%d\"\n",
+                num, expected.last_error_code, error_code);
+        return 1;
+    }
+
+    if(strcmp(expected.last_error_message, message) != 0) {
+        fprintf(stdout,
+                "Test case %d: expected last error message to be "
+                "\"%s\" got \"%s\"\n",
+                num, expected.last_error_message, message);
+        return 1;
+    }
+    libssh2_session_free(session);
+
+    return 0;
+}
 
 int main()
 {
     int i;
-    LIBSSH2_SESSION *session = NULL;
-    struct test_case test_cases[FIXTURE_LEN] = {
-        /* to small */
-        {
-            NULL, 0,
-            {FAIL, -38,
-            "userauth keyboard data buffer too small to get length"}},
-        /* to small */
-        {
-            "1234", 4,
-            {FAIL, -38,
-            "userauth keyboard data buffer too small to get length"}},
-        /* smalest valid packet possible */
-        {
-            "<"
-            "\0\0\0\0"
-            "\0\0\0\0"
-            "\0\0\0\0"
-            "\0\0\0\0", 17,
-            {PASS, 0, ""}},
-        /* overrun name */
-        {
-            "<"
-            "\0\0\0\x7f"
-            "\0\0\0\0"
-            "\0\0\0\0"
-            "\0\0\0\0", 17,
-             {FAIL, -6,
-             "Unable to decode keyboard-interactive 'name' request field"}},
-        /* overrun instruction */
-        {
-            "<"
-            "\0\0\0\0"
-            "\0\0\0\x7f"
-            "\0\0\0\0"
-            "\0\0\0\0", 17,
-            {FAIL, -6,
-            "Unable to decode keyboard-interactive 'instruction' "
-            "request field"}},
-        /* overrun language */
-        {
-            "<"
-            "\0\0\0\0"
-            "\0\0\0\0"
-            "\0\0\0\x7f"
-            "\0\0\0\0", 17,
-            {FAIL, -6, "Unable to decode keyboard-interactive 'language tag' "
-            "request field"}},
-        /* underrun prompt number */
-        {
-            "<"
-            "\0\0\0\x01"
-            "\0\0\0\0"
-            "\0\0\0\0"
-            "\0\0\0\0", 17,
-            {FAIL, -38,
-            "Unable to decode keyboard-interactive number of "
-            "keyboard prompts"}},
-        /* too many prompts */
-        {
-            "<"
-            "\0\0\0\0"
-            "\0\0\0\0"
-            "\0\0\0\0"
-            "\0\0\0\x7f", 17,
-            {FAIL, -41, "Too many replies for keyboard-interactive prompts"}},
-        /* empty prompt */
-        {
-            "<"
-            "\0\0\0\0"
-            "\0\0\0\0"
-            "\0\0\0\0"
-            "\0\0\0\x01"
-            "\0\0\0\0"
-            "\0", 22, {PASS, 0, ""}},
-        /* copied from OpenSSH */
-        {
-            "<"
-            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01"
-            "\0\0\0\x0aPassword: \0", 32, {PASS, 0, ""}},
-        /* overrun in prompt text */
-        {
-            "<"
-            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01"
-            "\0\0\0\x7bPassword: \0", 32,
-            {FAIL, -6, "Unable to decode keyboard-interactive "
-            "prompt message"}},
-        /* no echo prompt boolean */
-        {
-            "<"
-            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01"
-            "\0\0\0\x0bPassword: \0", 32,
-            {FAIL, -38, "Unable to decode user auth keyboard prompt echo"}},
-        /* two prompts */
-        {
-            "<"
-            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02"
-            "\0\0\0\x0aPassword: \0"
-            "\0\0\0\x07Token: \1", 44,
-            {PASS, 0, ""}},
-        /* example from RFC 4256 */
-        {
-            "<"
-            "\0\0\0\x19""CRYPTOCard Authentication"
-            "\0\0\0\x1b""The challenge is '14315716'"
-            "\0\0\0\x05""en-US"
-            "\0\0\0\x01"
-            "\0\0\0\x0aResponse: "
-            "\x01"
-            , 89, {PASS, 0, ""}},
-        /* three prompts, 3rd missing*/
-        {
-            "<"
-            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x03"
-            "\0\0\0\x0aPassword: \0"
-            "\0\0\0\x07Token: \1", 44,
-            {FAIL, -6,
-                "Unable to decode keyboard-interactive prompt message"}},
-        /* overflow language on 32 bit platform */
-        {
-            "<"
-            "\0\0\0\x19"
-                "\0\0\0\x01"
-                "\0\0\0\x05""PWN3D\0\1\2\3\4\5\6\7\1\2\3"
-                "\x01"
-            "\0\0\0\x1b""The challenge is '14315716'"
-            "\xff\xff\xff\xc4""en-US"
-            "\0\0\0\x01"
-            "\0\0\0\x0aResponse: "
-            "\x01",
-            89,
-            {FAIL, -6,
-                "Unable to decode keyboard-interactive 'language tag' "
-                "request field"}},
-    };
 
-    for(i = 0; i < FIXTURE_LEN; i++) {
-        session = libssh2_session_init_ex(NULL, NULL, NULL, NULL);
-        if(session == NULL) {
-            fprintf(stderr, "libssh2_session_init_ex failed\n");
-            return 1;
-        }
-        session->userauth_kybd_data =
-            LIBSSH2_ALLOC(session, test_cases[i].data_len);
-        session->userauth_kybd_data_len = test_cases[i].data_len;
-        memcpy(session->userauth_kybd_data,
-               test_cases[i].data, test_cases[i].data_len);
-        int rc = userauth_keyboard_interactive_decode_info_request(session);
+    for(i = 0; i < TEST_CASES_LEN; i++) {
+        test_case(i,
+                  test_cases[i].data, test_cases[i].data_len,
+                  NULL,
+                  test_cases[i].expected);
+    }
 
-        if(rc != test_cases[i].expected.rc) {
-            fprintf(stdout,
-                    "Test case %d: expected return code to be %d got %d\n",
-                    i, test_cases[i].expected.rc, rc);
-            return 1;
-        }
-
-        char *message;
-        int error_code = libssh2_session_last_error(session,
-                                                    &message, NULL, 0);
-
-        if(test_cases[i].expected.last_error_code != error_code) {
-            fprintf(stdout,
-                    "Fixture %d: expected last error code to be "
-                    "\"%d\" got \"%d\"\n",
-                    i, test_cases[i].expected.last_error_code, error_code);
-            return 1;
-        }
-
-        if(strcmp(test_cases[i].expected.last_error_message, message) != 0) {
-            fprintf(stdout,
-                    "Fixture %d: expected last error message to be "
-                    "\"%s\" got \"%s\"\n",
-                    i, test_cases[i].expected.last_error_message, message);
-            return 1;
-        }
-        libssh2_session_free(session);
+    for(i = 0; i < FAILED_MALLOC_TEST_CASES_LEN; i++) {
+        int tc =  i + TEST_CASES_LEN;
+        int malloc_call_num = 5 + i;
+        test_case(tc,
+                    failed_malloc_test_cases[i].data,
+                    failed_malloc_test_cases[i].data_len,
+                    &malloc_call_num,
+                    failed_malloc_test_cases[i].expected);
     }
 
     return 0;
