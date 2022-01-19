@@ -115,7 +115,7 @@
 # define LIBSSH2_DSA 1
 #endif
 
-#ifdef OPENSSL_NO_ECDSA
+#if defined(OPENSSL_NO_ECDSA) || defined(OPENSSL_NO_EC)
 # define LIBSSH2_ECDSA 0
 #else
 # define LIBSSH2_ECDSA 1
@@ -135,7 +135,7 @@
 # define LIBSSH2_MD5 1
 #endif
 
-#ifdef OPENSSL_NO_RIPEMD
+#if defined(OPENSSL_NO_RIPEMD) || defined(OPENSSL_NO_RMD160)
 # define LIBSSH2_HMAC_RIPEMD 0
 #else
 # define LIBSSH2_HMAC_RIPEMD 1
