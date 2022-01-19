@@ -35,6 +35,8 @@
  * OF SUCH DAMAGE.
  */
 
+#include <stdlib.h>
+
 #include "libssh2_priv.h"
 #include "userauth_kbd_packet.h"
 
@@ -284,6 +286,8 @@ int test_case(int num,
     }
     libssh2_session_free(session);
 
+    fprintf(stderr, "Test case %d passed\n", num);
+
     return 0;
 }
 
@@ -292,14 +296,14 @@ int main()
     int i;
 
     for(i = 0; i < TEST_CASES_LEN; i++) {
-        test_case(i,
+        test_case(i + 1,
                   test_cases[i].data, test_cases[i].data_len,
                   NULL,
                   test_cases[i].expected);
     }
 
     for(i = 0; i < FAILED_MALLOC_TEST_CASES_LEN; i++) {
-        int tc =  i + TEST_CASES_LEN;
+        int tc =  i + TEST_CASES_LEN + 1;
         int malloc_call_num = 5 + i;
         test_case(tc,
                     failed_malloc_test_cases[i].data,
