@@ -665,10 +665,9 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
                         session->server_sign_algorithms =
                                                 LIBSSH2_ALLOC(session,
-                                                              value_len+1);
+                                                              value_len + 1);
 
                         if(session->server_sign_algorithms) {
-                            session->server_sign_algorithms_len = value_len;
                             memcpy(session->server_sign_algorithms,
                                    value, value_len);
                             session->server_sign_algorithms[value_len] = '\0';
