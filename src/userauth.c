@@ -1875,7 +1875,10 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                               const char *username,
                               unsigned int username_len,
                               LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC
-                              ((*response_callback)))
+                              ((*old_response_cb)),
+                              LIBSSH2_USERAUTH_KBDINT2_RESPONSE_FUNC
+                              ((*response_cb)),
+                              void **abstract)
 {
     unsigned char *s;
     int rc;
@@ -2213,15 +2216,40 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                     }
                 }
             }
+            session->userauth_kybd_state = libssh2_NB_state_sent1;
+        }
 
-            response_callback(session->userauth_kybd_auth_name,
-                              session->userauth_kybd_auth_name_len,
-                              session->userauth_kybd_auth_instruction,
-                              session->userauth_kybd_auth_instruction_len,
-                              session->userauth_kybd_num_prompts,
-                              session->userauth_kybd_prompts,
-                              session->userauth_kybd_responses,
-                              &session->abstract);
+        if(session->userauth_kybd_state == libssh2_NB_state_sent1) {
+            if(response_cb) {
+                rc = response_cb(session->userauth_kybd_auth_name,
+                                 session->userauth_kybd_auth_name_len,
+                                 session->userauth_kybd_auth_instruction,
+                                 session->userauth_kybd_auth_instruction_len,
+                                 session->userauth_kybd_num_prompts,
+                                 session->userauth_kybd_prompts,
+                                 session->userauth_kybd_responses,
+                                 abstract);
+                if(rc == LIBSSH2_ERROR_EAGAIN) {
+                    return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                                          "Would block");
+                }
+                if(rc) {
+                    _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                                   "Unable to send userauth keyboard "
+                                   "interactive request");
+                    goto cleanup;
+                }
+            }
+            else {
+                old_response_cb(session->userauth_kybd_auth_name,
+                                session->userauth_kybd_auth_name_len,
+                                session->userauth_kybd_auth_instruction,
+                                session->userauth_kybd_auth_instruction_len,
+                                session->userauth_kybd_num_prompts,
+                                session->userauth_kybd_prompts,
+                                session->userauth_kybd_responses,
+                                &session->abstract);
+            }
 
             _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
                            "Keyboard-interactive response callback function"
@@ -2270,10 +2298,10 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                                    session->userauth_kybd_responses[i].length);
             }
 
-            session->userauth_kybd_state = libssh2_NB_state_sent1;
+            session->userauth_kybd_state = libssh2_NB_state_sent2;
         }
 
-        if(session->userauth_kybd_state == libssh2_NB_state_sent1) {
+        if(session->userauth_kybd_state == libssh2_NB_state_sent2) {
             rc = _libssh2_transport_send(session, session->userauth_kybd_data,
                                          session->userauth_kybd_packet_len,
                                          NULL, 0);
@@ -2355,6 +2383,28 @@ libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session,
     int rc;
     BLOCK_ADJUST(rc, session,
                  userauth_keyboard_interactive(session, user, user_len,
-                                               response_callback));
+                                               response_callback, NULL,
+                                               NULL));
+    return rc;
+}
+
+/*
+ * libssh2_userauth_keyboard_interactive2_ex
+ *
+ * Authenticate using a challenge-response authentication
+ */
+LIBSSH2_API int
+libssh2_userauth_keyboard_interactive2_ex(LIBSSH2_SESSION *session,
+                                         const char *user,
+                                         unsigned int user_len,
+                                         LIBSSH2_USERAUTH_KBDINT2_RESPONSE_FUNC
+                                         ((*response_callback)),
+                                         void **abstract)
+{
+    int rc;
+    BLOCK_ADJUST(rc, session,
+                 userauth_keyboard_interactive(session, user, user_len,
+                                               NULL, response_callback,
+                                               abstract));
     return rc;
 }
