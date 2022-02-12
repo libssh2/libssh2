@@ -850,6 +850,12 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel,
 #define libssh2_channel_x11_req(channel, screen_number) \
     libssh2_channel_x11_req_ex((channel), 0, NULL, NULL, (screen_number))
 
+LIBSSH2_API int libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
+                                          const char *signame,
+                                          size_t signame_len);
+#define libssh2_channel_signal(channel, signame) \
+    libssh2_channel_signal_ex((channel), signame, strlen(signame))
+
 LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
                                                 const char *request,
                                                 unsigned int request_len,
