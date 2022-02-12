@@ -463,6 +463,11 @@ struct _LIBSSH2_CHANNEL
     size_t req_auth_agent_packet_len;
     unsigned char req_auth_agent_local_channel[4];
     packet_requirev_state_t req_auth_agent_requirev_state;
+
+    /* State variables used in libssh2_channel_signal_ex() */
+    libssh2_nonblocking_states sendsignal_state;
+    unsigned char *sendsignal_packet;
+    size_t sendsignal_packet_len;
 };
 
 struct _LIBSSH2_LISTENER
