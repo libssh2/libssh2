@@ -98,6 +98,8 @@ struct _LIBSSH2_AGENT
 
     char *identity_agent_path; /* Path to a custom identity agent socket */
 
+    int backend_idx; /* Index of the backed to use or used */
+    
 #ifdef WIN32
     OVERLAPPED overlapped;
     HANDLE pipe;

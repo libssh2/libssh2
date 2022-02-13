@@ -1202,6 +1202,7 @@ libssh2_knownhost_get(LIBSSH2_KNOWNHOSTS *hosts,
                       struct libssh2_knownhost *prev);
 
 #define HAVE_LIBSSH2_AGENT_API 0x010202 /* since 1.2.2 */
+#define HAVE_LIBSSH2_AGENT_BACKEND_API 1
 
 struct libssh2_agent_publickey {
     unsigned int magic;              /* magic stored by the library */
@@ -1210,6 +1211,33 @@ struct libssh2_agent_publickey {
     size_t blob_len;               /* length of the public key blob */
     char *comment;                 /* comment in printable format */
 };
+
+/*
+ * libssh2_agent_get_backend_list_size
+ *
+ * Returns size the backend list.
+ *
+ */
+LIBSSH2_API int
+libssh2_agent_get_backend_list_size();
+
+/*
+ * libssh2_agent_set_backend_idx
+ *
+ * Set the index of the backend to use. 
+ *
+ */
+LIBSSH2_API void
+libssh2_agent_set_backend_idx(LIBSSH2_AGENT *agent, int idx);
+
+/*
+ * libssh2_agent_get_backend_name
+ *
+ * Returns the name of the backend used. 
+ *
+ */
+LIBSSH2_API const char *
+libssh2_agent_get_backend_name(LIBSSH2_AGENT *agent);
 
 /*
  * libssh2_agent_init

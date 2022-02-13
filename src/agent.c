@@ -715,6 +715,8 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
     agent->identity_agent_path = NULL;
     _libssh2_list_init(&agent->head);
 
+    agent->backend_idx = -1;
+
 #ifdef WIN32
     agent->pipe = INVALID_HANDLE_VALUE;
     memset(&agent->overlapped, 0, sizeof(OVERLAPPED));
@@ -722,6 +724,50 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
 #endif
 
     return agent;
+}
+
+/*
+ * libssh2_agent_backend_list_size()
+ *
+ * Returns size the backend list.
+ *
+ */
+LIBSSH2_API int
+libssh2_agent_get_backend_list_size()
+{
+    int count = 0;
+    int i = 0;
+
+    for(i = 0; supported_backends[i].name; i++)
+        count++;
+    return count;
+}
+
+/*
+ * libssh2_agent_set_backend_idx()
+ *
+ * Set the index of the backend to use. 
+ *
+ */
+LIBSSH2_API void
+libssh2_agent_set_backend_idx(LIBSSH2_AGENT *agent, int idx)
+{
+    agent->backend_idx = idx;
+}
+
+/*
+ * libssh2_agent_get_backend_name()
+ *
+ * Returns the name of the backend used. 
+ *
+ */
+LIBSSH2_API const char *
+libssh2_agent_get_backend_name(LIBSSH2_AGENT *agent)
+{
+    if (agent->backend_idx == -1) return NULL;
+    if (agent->backend_idx >= libssh2_agent_get_backend_list_size()) return NULL;
+
+    return supported_backends[agent->backend_idx].name;
 }
 
 /*
@@ -735,8 +781,18 @@ LIBSSH2_API int
 libssh2_agent_connect(LIBSSH2_AGENT *agent)
 {
     int i, rc = -1;
-    for(i = 0; supported_backends[i].name; i++) {
-        agent->ops = supported_backends[i].ops;
+    if (agent->backend_idx == -1) {
+        for(i = 0; supported_backends[i].name; i++) {
+            agent->ops = supported_backends[i].ops;
+            rc = (agent->ops->connect)(agent);
+            if(!rc) {
+                agent->backend_idx = i;
+                return 0;
+            }
+        }
+    }
+    else if (agent->backend_idx < libssh2_agent_get_backend_list_size()) {
+        agent->ops = supported_backends[agent->backend_idx].ops;
         rc = (agent->ops->connect)(agent);
         if(!rc)
             return 0;
