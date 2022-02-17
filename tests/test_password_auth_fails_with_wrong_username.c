@@ -13,7 +13,7 @@ int test(LIBSSH2_SESSION *session)
     int rc;
 
     const char *userauth_list =
-        libssh2_userauth_list(session, WRONG_USERNAME, strlen(WRONG_USERNAME));
+        libssh2_userauth_list(session, WRONG_USERNAME);
     if(userauth_list == NULL) {
         print_last_session_error("libssh2_userauth_list");
         return 1;

@@ -41,6 +41,7 @@
 
 #include <ctype.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <assert.h>
 
@@ -233,9 +234,12 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
  * username should be NULL, or a null terminated string
  */
 LIBSSH2_API char *
-libssh2_userauth_list(LIBSSH2_SESSION * session, const char *user,
-                      unsigned int user_len)
+libssh2_userauth_list(LIBSSH2_SESSION * session, const char *user)
 {
+    unsigned int user_len = 0;
+    /* Un-initialized variable may break this! */
+    if (user) 
+        user_len = (unsigned int) strlen(user);
     char *ptr;
     BLOCK_ADJUST_ERRNO(ptr, session,
                        userauth_list(session, user, user_len));
