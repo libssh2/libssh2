@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username);
+    userauthlist = libssh2_userauth_list(session, username, strlen(username));
     fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password"))
         auth |= AUTH_PASSWORD;

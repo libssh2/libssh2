@@ -660,6 +660,12 @@
      d                 pr              *   extproc('libssh2_userauth_list')     char *
      d  session                        *   value                                LIBSSH2_SESSION *
      d  username                       *   value options(*string)               const char *
+     d  username_len                       value like(libssh2_Cuint)
+
+     d libssh2_userauth_list_ex...
+     d                 pr              *   extproc('libssh2_userauth_list')     char *
+     d  session                        *   value                                LIBSSH2_SESSION *
+     d  username                       *   value options(*string)               const char *
 
      d libssh2_userauth_authenticated...
      d                 pr                  extproc(
