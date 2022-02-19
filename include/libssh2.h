@@ -272,8 +272,8 @@ typedef off_t libssh2_struct_stat_size;
 
 typedef struct _LIBSSH2_USERAUTH_KBDINT_PROMPT
 {
-    char *text;
-    unsigned int length;
+    unsigned char *text;
+    size_t length;
     unsigned char echo;
 } LIBSSH2_USERAUTH_KBDINT_PROMPT;
 

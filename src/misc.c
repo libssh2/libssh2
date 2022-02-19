@@ -732,6 +732,29 @@ void _libssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf)
     buf = NULL;
 }
 
+int _libssh2_get_byte(struct string_buf *buf, unsigned char *out)
+{
+    if(!_libssh2_check_length(buf, 1)) {
+        return -1;
+    }
+
+    *out = buf->dataptr[0];
+    buf->dataptr += 1;
+    return 0;
+}
+
+int _libssh2_get_boolean(struct string_buf *buf, unsigned char *out)
+{
+    if(!_libssh2_check_length(buf, 1)) {
+        return -1;
+    }
+
+
+    *out = buf->dataptr[0] == 0 ? 0 : 1;
+    buf->dataptr += 1;
+    return 0;
+}
+
 int _libssh2_get_u32(struct string_buf *buf, uint32_t *out)
 {
     if(!_libssh2_check_length(buf, 4)) {
