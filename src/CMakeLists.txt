@@ -217,17 +217,9 @@ if(WIN32)
   list(APPEND SOURCES ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
 endif()
 
-add_library(libssh2 OBJECT ${SOURCES})
-if(BUILD_BOTH_LIBS OR BUILD_SHARED_LIBS)
-  add_library(libssh2-shared SHARED $<TARGET_OBJECTS:libssh2>)
-   # we want it to be called libssh2 on all platforms
-  set_target_properties(libssh2-shared PROPERTIES PREFIX "" OUTPUT_NAME "libssh2")
-  set_target_properties(libssh2 PROPERTIES POSITION_INDEPENDENT_CODE ON)
-endif()
-if(BUILD_BOTH_LIBS OR NOT BUILD_SHARED_LIBS)
-  add_library(libssh2-static STATIC $<TARGET_OBJECTS:libssh2>)
-  set_target_properties(libssh2-static PROPERTIES PREFIX "" OUTPUT_NAME "libssh2")
-endif()
+add_library(libssh2 ${SOURCES})
+# we want it to be called libssh2 on all platforms
+set_target_properties(libssh2 PROPERTIES PREFIX "")
 
 target_compile_definitions(libssh2 PRIVATE ${PRIVATE_COMPILE_DEFINITIONS})
 target_include_directories(libssh2
@@ -245,10 +237,6 @@ endif(CLEAR_MEMORY)
 
 add_feature_info("Shared library" BUILD_SHARED_LIBS
   "creating libssh2 as a shared library (.so/.dll)")
-
-option(BUILD_BOTH_LIBS "Build both static and shared libraries" OFF)
-add_feature_info("Static and Shared libraries" BUILD_BOTH_LIBS
-  "creating libssh2 as a both a static (.a) and shared library (.so/.dll)")
 
 option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression")
 add_feature_info(Compression ENABLE_ZLIB_COMPRESSION
@@ -386,10 +374,6 @@ else()
   target_link_libraries(libssh2 PRIVATE ${LIBRARIES})
 endif()
 
-if(BUILD_BOTH_LIBS OR BUILD_SHARED_LIBS)
-  target_link_libraries(libssh2-shared PUBLIC libssh2)
-endif()
-
 ## Installation
 
 install(FILES
@@ -398,28 +382,14 @@ install(FILES
   ${PROJECT_SOURCE_DIR}/include/libssh2_sftp.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-if(BUILD_BOTH_LIBS OR BUILD_SHARED_LIBS)
-  install(TARGETS libssh2
-    EXPORT Libssh2Config
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-  install(TARGETS libssh2-shared
-    EXPORT Libssh2Config
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif()
-if(BUILD_BOTH_LIBS OR NOT BUILD_SHARED_LIBS)
-  install(TARGETS libssh2-static
-    EXPORT Libssh2Config
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-endif()
+install(TARGETS libssh2
+  EXPORT Libssh2Config
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-if(BUILD_BOTH_LIBS OR BUILD_SHARED_LIBS)
-  list(APPEND _RUNTIME_DEPENDENCIES $<TARGET_FILE:libssh2-shared>)
+if(BUILD_SHARED_LIBS)
+  list(APPEND _RUNTIME_DEPENDENCIES $<TARGET_FILE:libssh2>)
 endif()
 
 set(RUNTIME_DEPENDENCIES ${_RUNTIME_DEPENDENCIES} CACHE INTERNAL
@@ -451,16 +421,9 @@ install(
 
 ## Versioning
 
-if(BUILD_BOTH_LIBS OR BUILD_SHARED_LIBS)
-  set_target_properties(libssh2-shared PROPERTIES
-    SOVERSION 1
-    VERSION 1.0.1)
-endif()
-if(BUILD_BOTH_LIBS OR NOT BUILD_SHARED_LIBS)
-  set_target_properties(libssh2-static PROPERTIES
-    SOVERSION 1
-    VERSION 1.0.1)
-endif()
+set_target_properties(libssh2 PROPERTIES
+  SOVERSION 1
+  VERSION 1.0.1)
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
