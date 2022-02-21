@@ -252,7 +252,7 @@ libssh2_userauth_list_ex(LIBSSH2_SESSION * session, const char *user)
 {
     unsigned int user_len = 0;
     /* Un-initialized variable may break this! */
-    if (user) 
+    if(user) 
         user_len = (unsigned int) strlen(user);
     return libssh2_userauth_list(session, user, user_len);
 }

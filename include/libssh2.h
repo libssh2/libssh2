@@ -618,7 +618,7 @@ LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session,
                                         const char *username,
                                         unsigned int username_len);
 
-LIBSSH2_API char *libssh2_userauth_list_ex(LIBSSH2_SESSION * session, 
+LIBSSH2_API char *libssh2_userauth_list_ex(LIBSSH2_SESSION * session,
                                            const char *user);
                                         
 LIBSSH2_API int libssh2_userauth_banner(LIBSSH2_SESSION *session,
