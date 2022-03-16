@@ -103,8 +103,8 @@ before_test:
       }
 
 test_script:
-  - ps: cd _builds
-  - ps: ctest -VV -C $($env:CONFIGURATION) --output-on-failure
+  - ps: $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
+  - ps: cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure
 
 on_failure:
   - ps: if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }

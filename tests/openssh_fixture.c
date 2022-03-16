@@ -143,8 +143,26 @@ static int run_command(char **output, const char *command, ...)
     return ret;
 }
 
+static const char *openssh_server_image(void)
+{
+    return getenv("OPENSSH_SERVER_IMAGE");
+}
+
 static int build_openssh_server_docker_image(void)
 {
+    const char *container_image_name = openssh_server_image();
+    if(container_image_name != NULL) {
+        int ret = run_command(NULL, "docker pull --quiet %s",
+                              container_image_name);
+        if(ret == 0) {
+            ret = run_command(NULL, "docker tag %s libssh2/openssh_server",
+                              container_image_name);
+            if(ret == 0) {
+                return ret;
+            }
+        }
+    }
+
     return run_command(NULL, "docker build --quiet "
                              "-t libssh2/openssh_server "
                              "openssh_server");
@@ -164,11 +182,10 @@ static int start_openssh_server(char **container_id_out)
                            "libssh2/openssh_server",
                            container_host_port);
     }
-    else {
-        return run_command(container_id_out,
-                           "docker run --rm -d -p 22 "
-                           "libssh2/openssh_server");
-    }
+
+    return run_command(container_id_out,
+                       "docker run --rm -d -p 22 "
+                       "libssh2/openssh_server");
 }
 
 static int stop_openssh_server(char *container_id)
