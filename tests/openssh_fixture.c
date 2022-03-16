@@ -91,7 +91,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
         return -1;
     }
 
-    fprintf(stdout, "Command: %s\n", command);
+    fprintf(stdout, "Command: %s\n", command_buf);
 #ifdef WIN32
     pipe = _popen(buf, "r");
 #else
