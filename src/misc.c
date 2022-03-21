@@ -817,12 +817,18 @@ int _libssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
         return -1;
     }
 
-    *outbuf = LIBSSH2_ALLOC(session, str_len);
-    if(*outbuf) {
-        memcpy(*outbuf, str, str_len);
+    if(str_len) {
+        *outbuf = LIBSSH2_ALLOC(session, str_len);
+        if(*outbuf) {
+            memcpy(*outbuf, str, str_len);
+        }
+        else {
+            return -1;
+        }
     }
     else {
-        return -1;
+        *outlen = 0;
+        *outbuf = NULL;
     }
 
     if(outlen)
