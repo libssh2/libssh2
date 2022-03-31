@@ -250,8 +250,8 @@
 #define _libssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len) \
   _libssh2_mbedtls_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len)
 
-#define _libssh2_rsa_sha2_verify(rsactx,hash_len, sig, sig_len, m, m_len) \
-  _libssh2_mbedtls_rsa_sha2_verify(rsactx,hash_len, sig, sig_len, m, m_len)
+#define _libssh2_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len) \
+  _libssh2_mbedtls_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len)
 
 #define _libssh2_rsa_free(rsactx) \
   _libssh2_mbedtls_rsa_free(rsactx)

@@ -481,7 +481,7 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
         return -1; /* unsupported digest */
     }
     ret = _libssh2_mbedtls_hash(m, m_len, md_type, hash);
-    
+
     if(ret != 0) {
         free(hash);
         return -1; /* failure */
@@ -501,8 +501,8 @@ _libssh2_mbedtls_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
                          unsigned long sig_len,
                          const unsigned char *m, unsigned long m_len)
 {
-    return _libssh2_mbedtls_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH, sig, sig_len, m,
-                                    m_len);
+    return _libssh2_mbedtls_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH,
+                                            sig, sig_len, m, m_len);
 }
 
 int
