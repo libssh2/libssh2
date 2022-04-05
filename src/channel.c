@@ -1991,6 +1991,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     int unlink_packet;
     LIBSSH2_PACKET *read_packet;
     LIBSSH2_PACKET *read_next;
+    uint32_t read_local_id;
 
     _libssh2_debug(session, LIBSSH2_TRACE_CONN,
                    "channel_read() wants %d bytes from channel %lu/%lu "
@@ -2050,7 +2051,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
             continue;
         }
 
-        channel->read_local_id =
+        read_local_id =
             _libssh2_ntohu32(readpkt->data + 1);
 
         /*
@@ -2062,14 +2063,14 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
          */
         if((stream_id
              && (readpkt->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
-             && (channel->local.id == channel->read_local_id)
+             && (channel->local.id == read_local_id)
              && (readpkt->data_len >= 9)
              && (stream_id == (int) _libssh2_ntohu32(readpkt->data + 5)))
             || (!stream_id && (readpkt->data[0] == SSH_MSG_CHANNEL_DATA)
-                && (channel->local.id == channel->read_local_id))
+                && (channel->local.id == read_local_id))
             || (!stream_id
                 && (readpkt->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
-                && (channel->local.id == channel->read_local_id)
+                && (channel->local.id == read_local_id)
                 && (channel->remote.extended_data_ignore_mode ==
                     LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
 
