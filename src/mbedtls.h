@@ -71,7 +71,7 @@
 #define LIBSSH2_3DES            1
 
 #define LIBSSH2_RSA             1
-#define LIBSSH2_RSA_SHA2        0
+#define LIBSSH2_RSA_SHA2        1
 #define LIBSSH2_DSA             0
 #ifdef MBEDTLS_ECDSA_C
 # define LIBSSH2_ECDSA          1
@@ -243,8 +243,15 @@
 #define _libssh2_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len) \
   _libssh2_mbedtls_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len)
 
+#define _libssh2_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len) \
+  _libssh2_mbedtls_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len)
+
+
 #define _libssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len) \
   _libssh2_mbedtls_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len)
+
+#define _libssh2_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len) \
+  _libssh2_mbedtls_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len)
 
 #define _libssh2_rsa_free(rsactx) \
   _libssh2_mbedtls_rsa_free(rsactx)

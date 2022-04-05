@@ -765,7 +765,7 @@ LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor)
 static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 {
     unsigned char *data;
-    size_t data_len;
+    size_t data_len = 0;
     ssize_t rc;
     LIBSSH2_SFTP *sftp_handle;
     struct string_buf buf;
@@ -1561,7 +1561,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
         while(chunk) {
             unsigned char *data;
-            size_t data_len;
+            size_t data_len = 0;
             uint32_t rc32;
             static const unsigned char read_responses[2] = {
                 SSH_FXP_DATA, SSH_FXP_STATUS
@@ -1751,7 +1751,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len;
+    size_t data_len = 0;
     uint32_t num_names;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     uint32_t packet_len = handle->handle_len + 13;
@@ -2017,10 +2017,10 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len;
+    size_t data_len = 0;
     uint32_t retcode;
     uint32_t packet_len;
-    unsigned char *s, *data;
+    unsigned char *s, *data = NULL;
     ssize_t rc;
     struct sftp_pipeline_chunk *chunk;
     struct sftp_pipeline_chunk *next;
@@ -2245,8 +2245,8 @@ static int sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
     /* 34 = packet_len(4) + packet_type(1) + request_id(4) +
        string_len(4) + strlen("fsync@openssh.com")(17) + handle_len(4) */
     uint32_t packet_len = handle->handle_len + 34;
-    size_t data_len;
-    unsigned char *packet, *s, *data;
+    size_t data_len = 0;
+    unsigned char *packet, *s, *data = NULL;
     ssize_t rc;
     uint32_t retcode;
 
@@ -2350,11 +2350,11 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len;
+    size_t data_len = 0;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     uint32_t packet_len =
         handle->handle_len + 13 + (setstat ? sftp_attrsize(attrs->flags) : 0);
-    unsigned char *s, *data;
+    unsigned char *s, *data = NULL;
     static const unsigned char fstat_responses[2] =
         { SSH_FXP_ATTRS, SSH_FXP_STATUS };
     ssize_t rc;
@@ -2575,7 +2575,7 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len;
+    size_t data_len = 0;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + handle_len(4) */
     uint32_t packet_len = handle->handle_len + 13;
     unsigned char *s, *data = NULL;
@@ -2705,11 +2705,11 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename,
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len;
+    size_t data_len = 0;
     int retcode;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) */
     uint32_t packet_len = filename_len + 13;
-    unsigned char *s, *data;
+    unsigned char *s, *data = NULL;
     int rc;
 
     if(sftp->unlink_state == libssh2_NB_state_idle) {
@@ -2809,14 +2809,14 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len;
+    size_t data_len = 0;
     int retcode;
     uint32_t packet_len =
         source_filename_len + dest_filename_len + 17 + (sftp->version >=
                                                         5 ? 4 : 0);
     /* packet_len(4) + packet_type(1) + request_id(4) +
        source_filename_len(4) + dest_filename_len(4) + flags(4){SFTP5+) */
-    unsigned char *data;
+    unsigned char *data = NULL;
     ssize_t rc;
 
     if(sftp->version < 2) {
@@ -2949,12 +2949,12 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len;
+    size_t data_len = 0;
     /* 17 = packet_len(4) + packet_type(1) + request_id(4) + ext_len(4)
        + handle_len (4) */
     /* 20 = strlen ("fstatvfs@openssh.com") */
     uint32_t packet_len = handle->handle_len + 20 + 17;
-    unsigned char *packet, *s, *data;
+    unsigned char *packet, *s, *data = NULL;
     ssize_t rc;
     unsigned int flag;
     static const unsigned char responses[2] =
@@ -3085,12 +3085,12 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len;
+    size_t data_len = 0;
     /* 17 = packet_len(4) + packet_type(1) + request_id(4) + ext_len(4)
        + path_len (4) */
     /* 19 = strlen ("statvfs@openssh.com") */
     uint32_t packet_len = path_len + 19 + 17;
-    unsigned char *packet, *s, *data;
+    unsigned char *packet, *s, *data = NULL;
     ssize_t rc;
     unsigned int flag;
     static const unsigned char responses[2] =
@@ -3225,10 +3225,10 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
     LIBSSH2_SFTP_ATTRIBUTES attrs = {
         0, 0, 0, 0, 0, 0, 0
     };
-    size_t data_len;
+    size_t data_len = 0;
     int retcode;
     ssize_t packet_len;
-    unsigned char *packet, *s, *data;
+    unsigned char *packet, *s, *data = NULL;
     int rc;
 
     if(mode != LIBSSH2_SFTP_DEFAULT_MODE) {
@@ -3340,11 +3340,11 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len;
+    size_t data_len = 0;
     int retcode;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
     ssize_t packet_len = path_len + 13;
-    unsigned char *s, *data;
+    unsigned char *s, *data = NULL;
     int rc;
 
     if(sftp->rmdir_state == libssh2_NB_state_idle) {
@@ -3442,13 +3442,13 @@ static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len;
+    size_t data_len = 0;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
     ssize_t packet_len =
         path_len + 13 +
         ((stat_type ==
           LIBSSH2_SFTP_SETSTAT) ? sftp_attrsize(attrs->flags) : 0);
-    unsigned char *s, *data;
+    unsigned char *s, *data = NULL;
     static const unsigned char stat_responses[2] =
         { SSH_FXP_ATTRS, SSH_FXP_STATUS };
     int rc;
@@ -3580,12 +3580,12 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    size_t data_len, link_len;
+    size_t data_len = 0, link_len;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
     ssize_t packet_len =
         path_len + 13 +
         ((link_type == LIBSSH2_SFTP_SYMLINK) ? (4 + target_len) : 0);
-    unsigned char *s, *data;
+    unsigned char *s, *data = NULL;
     static const unsigned char link_responses[2] =
         { SSH_FXP_NAME, SSH_FXP_STATUS };
     int retcode;

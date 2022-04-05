@@ -1,5 +1,5 @@
 # AC_PREREQ(2.57)
-AC_INIT(libssh2, [-], libssh2-devel@cool.haxx.se)
+AC_INIT(libssh2, [-], libssh2-devel@lists.haxx.se)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([src/libssh2_config.h])
@@ -92,6 +92,7 @@ m4_set_add([crypto_backends], [openssl])
 m4_set_add([crypto_backends], [libgcrypt])
 m4_set_add([crypto_backends], [mbedtls])
 m4_set_add([crypto_backends], [wincng])
+m4_set_add([crypto_backends], [wolfssl])
 
 AC_ARG_WITH([crypto],
   AC_HELP_STRING([--with-crypto=auto|]m4_set_contents([crypto_backends], [|]),

@@ -8,18 +8,18 @@ on:
 
 jobs:
   style-check:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Check Style
         run: ./ci/checksrc.sh
   build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         compiler: [gcc, clang]
-        address_size: [32, 64]
+        address_size: [64]
         crypto_backend: [OpenSSL, Libgcrypt, mbedTLS]
         build_shared_libs: [OFF, ON]
         enable_zlib_compression: [OFF, ON]
@@ -59,7 +59,7 @@ jobs:
         if: ${{ matrix.address_size == 64 }}
         run: |
           sudo apt-get install -y libssl-dev
-          sudo apt-get install -y libgcrypt11-dev
+          sudo apt-get install -y libgcrypt-dev
       - name: Install mbedTLS Dependencies
         if: ${{ matrix.crypto_backend == 'mbedTLS' }}
         run: |
@@ -85,13 +85,11 @@ jobs:
           cd bin
           cmake $TOOLCHAIN_OPTION -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
           cmake --build .
-          pushd ../tests
-          docker build -t libssh2/openssh_server openssh_server
-          popd
-          CTEST_OUTPUT_ON_FAILURE=1 cmake --build . --target test
+          export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
+          ctest -VV --output-on-failure
           cmake --build . --target package
   fuzzer:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:

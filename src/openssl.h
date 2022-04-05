@@ -39,6 +39,43 @@
  * OF SUCH DAMAGE.
  */
 
+#ifdef LIBSSH2_WOLFSSL
+
+#include <wolfssl/options.h>
+#include <openssl/ecdh.h>
+
+#if defined(NO_DSA) || defined(HAVE_FIPS)
+#define OPENSSL_NO_DSA
+#endif
+
+#if defined(NO_MD5) || defined(HAVE_FIPS)
+#define OPENSSL_NO_MD5
+#endif
+
+#if !defined(WOLFSSL_RIPEMD) || defined(HAVE_FIPS)
+#define OPENSSL_NO_RIPEMD
+#endif
+
+#if defined(NO_RC4) || defined(HAVE_FIPS)
+#define OPENSSL_NO_RC4
+#endif
+
+#ifdef NO_DES3
+#define OPENSSL_NO_DES
+#endif
+
+#ifdef EVP_aes_128_ctr
+#define HAVE_EVP_AES_128_CTR
+#endif
+
+/* wolfSSL doesn't support Blowfish or CAST. */
+#define OPENSSL_NO_BF
+#define OPENSSL_NO_CAST
+/* wolfSSL has no engine framework. */
+#define OPENSSL_NO_ENGINE
+
+#endif /* LIBSSH2_WOLFSSL */
+
 #include <openssl/opensslconf.h>
 #include <openssl/sha.h>
 #include <openssl/rsa.h>
@@ -57,8 +94,10 @@
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && \
-    !defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && \
+    !defined(LIBRESSL_VERSION_NUMBER)) || defined(LIBSSH2_WOLFSSL)
+/* For wolfSSL, whether the structs are truly opaque or not, it's best to not
+ * rely on their internal data members being exposed publicly. */
 # define HAVE_OPAQUE_STRUCTS 1
 #endif
 
@@ -76,7 +115,7 @@
 # define LIBSSH2_DSA 1
 #endif
 
-#ifdef OPENSSL_NO_ECDSA
+#if defined(OPENSSL_NO_ECDSA) || defined(OPENSSL_NO_EC)
 # define LIBSSH2_ECDSA 0
 #else
 # define LIBSSH2_ECDSA 1
@@ -96,7 +135,7 @@
 # define LIBSSH2_MD5 1
 #endif
 
-#ifdef OPENSSL_NO_RIPEMD
+#if defined(OPENSSL_NO_RIPEMD) || defined(OPENSSL_NO_RMD160)
 # define LIBSSH2_HMAC_RIPEMD 0
 #else
 # define LIBSSH2_HMAC_RIPEMD 1
@@ -105,7 +144,8 @@
 #define LIBSSH2_HMAC_SHA256 1
 #define LIBSSH2_HMAC_SHA512 1
 
-#if OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES)
+#if (OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES)) || \
+    (defined(LIBSSH2_WOLFSSL) && defined(WOLFSSL_AES_COUNTER))
 # define LIBSSH2_AES_CTR 1
 # define LIBSSH2_AES 1
 #else

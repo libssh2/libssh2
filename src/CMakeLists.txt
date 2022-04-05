@@ -207,6 +207,8 @@ set(SOURCES
   sftp.h
   transport.c
   transport.h
+  userauth_kbd_packet.c
+  userauth_kbd_packet.h
   userauth.c
   userauth.h
   version.c)

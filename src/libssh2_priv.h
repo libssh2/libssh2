@@ -721,6 +721,7 @@ struct _LIBSSH2_SESSION
     libssh2_nonblocking_states userauth_list_state;
     unsigned char *userauth_list_data;
     size_t userauth_list_data_len;
+    char *userauth_banner;
     packet_requirev_state_t userauth_list_packet_requirev_state;
 
     /* State variables used in libssh2_userauth_password_ex() */
@@ -761,10 +762,10 @@ struct _LIBSSH2_SESSION
     size_t userauth_kybd_data_len;
     unsigned char *userauth_kybd_packet;
     size_t userauth_kybd_packet_len;
-    unsigned int userauth_kybd_auth_name_len;
-    char *userauth_kybd_auth_name;
-    unsigned userauth_kybd_auth_instruction_len;
-    char *userauth_kybd_auth_instruction;
+    size_t userauth_kybd_auth_name_len;
+    unsigned char *userauth_kybd_auth_name;
+    size_t userauth_kybd_auth_instruction_len;
+    unsigned char *userauth_kybd_auth_instruction;
     unsigned int userauth_kybd_num_prompts;
     int userauth_kybd_auth_failure;
     LIBSSH2_USERAUTH_KBDINT_PROMPT *userauth_kybd_prompts;

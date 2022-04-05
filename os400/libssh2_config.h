@@ -230,7 +230,7 @@
 #define PACKAGE "libssh2"
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "libssh2-devel@cool.haxx.se"
+#define PACKAGE_BUGREPORT "libssh2-devel@lists.haxx.se"
 
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "libssh2"

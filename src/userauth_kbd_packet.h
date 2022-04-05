@@ -1,4 +1,5 @@
-/* Copyright (C) 2009 Daniel Stenberg.  All rights reserved.
+/* Copyright (c) 2022, Xaver Loppenstedt <xaver@loppenstedt.de>
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided
@@ -32,39 +33,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
- *
  */
 
-#include "libssh2_priv.h"
+#ifndef __LIBSSH2_USERAUTH_KBD_PARSE_H
+#define __LIBSSH2_USERAUTH_KBD_PARSE_H
 
-/*
-  libssh2_version() can be used like this:
+int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *);
 
-  if (!libssh2_version(LIBSSH2_VERSION_NUM)) {
-    fprintf (stderr, "Runtime libssh2 version too old!\n");
-    exit(1);
-  }
-*/
-LIBSSH2_API
-const char *libssh2_version(int req_version_num)
-{
-    if(req_version_num <= LIBSSH2_VERSION_NUM)
-        return LIBSSH2_VERSION;
-    return NULL; /* this is not a suitable library! */
-}
-
-LIBSSH2_API
-libssh2_crypto_engine_t libssh2_crypto_engine()
-{
-#if defined LIBSSH2_OPENSSL
-    return libssh2_openssl;
-#elif defined LIBSSH2_LIBGCRYPT
-    return libssh2_gcrypt;
-#elif defined LIBSSH2_MBEDTLS
-    return libssh2_mbedtls;
-#elif defined LIBSSH2_WINCNG
-    return libssh2_wincng;
-#else
-    return libssh2_no_crypto;
-#endif
-}
+#endif /* __LIBSSH2_USERAUTH_KBD_PARSE_H */

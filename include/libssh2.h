@@ -1,5 +1,5 @@
 /* Copyright (c) 2004-2009, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2015 Daniel Stenberg
+ * Copyright (c) 2009-2021 Daniel Stenberg
  * Copyright (c) 2010 Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
@@ -40,19 +40,19 @@
 #ifndef LIBSSH2_H
 #define LIBSSH2_H 1
 
-#define LIBSSH2_COPYRIGHT "2004-2019 The libssh2 project and its contributors."
+#define LIBSSH2_COPYRIGHT "2004-2021 The libssh2 project and its contributors."
 
 /* We use underscore instead of dash when appending DEV in dev versions just
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
    have dashes either. */
-#define LIBSSH2_VERSION                             "1.9.0_DEV"
+#define LIBSSH2_VERSION                             "1.10.1_DEV"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
 #define LIBSSH2_VERSION_MAJOR                       1
-#define LIBSSH2_VERSION_MINOR                       9
-#define LIBSSH2_VERSION_PATCH                       0
+#define LIBSSH2_VERSION_MINOR                       10
+#define LIBSSH2_VERSION_PATCH                       1
 
 /* This is the numeric version of the libssh2 version number, meant for easier
    parsing and comparions by programs. The LIBSSH2_VERSION_NUM define will
@@ -69,7 +69,7 @@
    and it is always a greater number in a more recent release. It makes
    comparisons with greater than and less than work.
 */
-#define LIBSSH2_VERSION_NUM                         0x010900
+#define LIBSSH2_VERSION_NUM                         0x010a01
 
 /*
  * This is the date and time when the full source package was created. The
@@ -100,7 +100,7 @@ extern "C" {
 /* Allow alternate API prefix from CFLAGS or calling app */
 #ifndef LIBSSH2_API
 # ifdef LIBSSH2_WIN32
-#  ifdef _WINDLL
+#  if defined(_WINDLL) || defined(libssh2_EXPORTS)
 #   ifdef LIBSSH2_LIBRARY
 #    define LIBSSH2_API __declspec(dllexport)
 #   else
@@ -272,8 +272,8 @@ typedef off_t libssh2_struct_stat_size;
 
 typedef struct _LIBSSH2_USERAUTH_KBDINT_PROMPT
 {
-    char *text;
-    unsigned int length;
+    unsigned char *text;
+    size_t length;
     unsigned char echo;
 } LIBSSH2_USERAUTH_KBDINT_PROMPT;
 
@@ -507,6 +507,8 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_CHANNEL_WINDOW_FULL       -47
 #define LIBSSH2_ERROR_KEYFILE_AUTH_FAILED       -48
 #define LIBSSH2_ERROR_RANDGEN                   -49
+#define LIBSSH2_ERROR_MISSING_USERAUTH_BANNER   -50
+#define LIBSSH2_ERROR_ALGO_UNSUPPORTED          -51
 
 /* this is a define to provide the old (<= 1.2.7) name */
 #define LIBSSH2_ERROR_BANNER_NONE LIBSSH2_ERROR_BANNER_RECV
@@ -615,6 +617,8 @@ LIBSSH2_API const char *libssh2_session_banner_get(LIBSSH2_SESSION *session);
 LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session,
                                         const char *username,
                                         unsigned int username_len);
+LIBSSH2_API int libssh2_userauth_banner(LIBSSH2_SESSION *session,
+                                        char **banner);
 LIBSSH2_API int libssh2_userauth_authenticated(LIBSSH2_SESSION *session);
 
 LIBSSH2_API int
@@ -940,8 +944,21 @@ LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
 LIBSSH2_API
 const char *libssh2_version(int req_version_num);
 
+typedef enum {
+    libssh2_no_crypto = 0,
+    libssh2_openssl,
+    libssh2_gcrypt,
+    libssh2_mbedtls,
+    libssh2_wincng
+} libssh2_crypto_engine_t;
+
+LIBSSH2_API
+libssh2_crypto_engine_t libssh2_crypto_engine(void);
+
 #define HAVE_LIBSSH2_KNOWNHOST_API 0x010101 /* since 1.1.1 */
 #define HAVE_LIBSSH2_VERSION_API   0x010100 /* libssh2_version since 1.1 */
+#define HAVE_LIBSSH2_CRYPTOENGINE_API 0x011100 /* libssh2_crypto_engine
+                                                  since 1.11 */
 
 struct libssh2_knownhost {
     unsigned int magic;  /* magic stored by the library */

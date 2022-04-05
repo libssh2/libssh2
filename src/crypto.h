@@ -38,7 +38,7 @@
  * OF SUCH DAMAGE.
  */
 
-#ifdef LIBSSH2_OPENSSL
+#if defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
 #include "openssl.h"
 #endif
 

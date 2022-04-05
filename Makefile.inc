@@ -1,5 +1,6 @@
 CSOURCES = channel.c comp.c crypt.c hostkey.c kex.c mac.c misc.c \
  packet.c publickey.c scp.c session.c sftp.c userauth.c transport.c \
+ userauth_kbd_packet.c \
  version.c knownhost.c agent.c $(CRYPTO_CSOURCES) pem.c keepalive.c global.c \
  blowfish.c bcrypt_pbkdf.c agent_win.c
 

@@ -230,7 +230,7 @@ hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION * session,
     unsigned char hash[SHA_DIGEST_LENGTH];
     libssh2_sha1_ctx ctx;
 
-    libssh2_sha1_init(&ctx);
+    (void)libssh2_sha1_init(&ctx);
     for(i = 0; i < veccount; i++) {
         libssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
     }
@@ -626,7 +626,7 @@ hostkey_method_ssh_dss_signv(LIBSSH2_SESSION * session,
 
     *signature_len = 2 * SHA_DIGEST_LENGTH;
 
-    libssh2_sha1_init(&ctx);
+    (void)libssh2_sha1_init(&ctx);
     for(i = 0; i < veccount; i++) {
         libssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
     }
@@ -871,7 +871,7 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
         unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];           \
         libssh2_sha##digest_type##_ctx ctx;                             \
         int i;                                                          \
-        libssh2_sha##digest_type##_init(&ctx);                          \
+        (void)libssh2_sha##digest_type##_init(&ctx);                    \
         for(i = 0; i < veccount; i++) {                                 \
             libssh2_sha##digest_type##_update(ctx, datavec[i].iov_base, \
                                               datavec[i].iov_len);      \
@@ -1029,9 +1029,10 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
                                 size_t hostkey_data_len,
                                 void **abstract)
 {
-    const unsigned char *s;
-    unsigned long len, key_len;
+    size_t key_len;
+    unsigned char *key;
     libssh2_ed25519_ctx *ctx = NULL;
+    struct string_buf buf;
 
     if(*abstract) {
         hostkey_method_ssh_ed25519_dtor(session, abstract);
@@ -1044,21 +1045,18 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    s = hostkey_data;
-    len = _libssh2_ntohu32(s);
-    s += 4;
+    buf.data = (unsigned char *)hostkey_data;
+    buf.dataptr = buf.data;
+    buf.len = hostkey_data_len;
 
-    if(len != 11 || strncmp((char *) s, "ssh-ed25519", 11) != 0) {
+    if(_libssh2_match_string(&buf, "ssh-ed25519"))
         return -1;
-    }
-
-    s += 11;
 
     /* public key */
-    key_len = _libssh2_ntohu32(s);
-    s += 4;
+    if(_libssh2_get_string(&buf, &key, &key_len))
+        return -1;
 
-    if(_libssh2_ed25519_new_public(&ctx, session, s, key_len) != 0) {
+    if(_libssh2_ed25519_new_public(&ctx, session, key, key_len) != 0) {
         return -1;
     }
 

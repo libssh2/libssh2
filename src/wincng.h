@@ -410,7 +410,7 @@ typedef struct {
     BCRYPT_DH_PARAMETER_HEADER *dh_params;
     /* records the parsed out private key component for
      * fallback if the DH API raw KDF is not supported */
-    struct _libssh2_wincng_bignum *bn;
+    struct _libssh2_wincng_bignum *dh_privbn;
 } _libssh2_dh_ctx;
 
 #define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
