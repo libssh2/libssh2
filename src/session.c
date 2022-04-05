@@ -130,7 +130,7 @@ banner_receive(LIBSSH2_SESSION * session)
 
         if(ret < 0) {
             if(ret == -EAGAIN) {
-                session->socket_block_directions =
+                session->socket_block_directions |=
                     LIBSSH2_SESSION_BLOCK_INBOUND;
                 session->banner_TxRx_total_send = banner_len;
                 return LIBSSH2_ERROR_EAGAIN;
@@ -249,7 +249,7 @@ banner_send(LIBSSH2_SESSION * session)
     if(ret != (banner_len - session->banner_TxRx_total_send)) {
         if(ret >= 0 || ret == -EAGAIN) {
             /* the whole packet could not be sent, save the what was */
-            session->socket_block_directions =
+            session->socket_block_directions |=
                 LIBSSH2_SESSION_BLOCK_OUTBOUND;
             if(ret > 0)
                 session->banner_TxRx_total_send += ret;
