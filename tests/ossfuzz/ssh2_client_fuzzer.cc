@@ -60,6 +60,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
   if(session) {
     libssh2_session_set_blocking(session, 1);
   }
+  else {
+      goto EXIT_LABEL;
+  }
 
   if(libssh2_session_handshake(session, socket_fds[0])) {
     goto EXIT_LABEL;

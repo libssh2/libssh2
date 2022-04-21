@@ -76,6 +76,8 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
 
   if(OPENSSL_FOUND)
     set(CRYPTO_BACKEND "OpenSSL")
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
+    set(CRYPTO_BACKEND_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR})
   endif()
 endif()
 
@@ -85,6 +87,8 @@ if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
 
   if(LIBGCRYPT_FOUND)
     set(CRYPTO_BACKEND "Libgcrypt")
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_LIBGCRYPT")
+    set(CRYPTO_BACKEND_INCLUDE_DIR ${LIBGCRYPT_INCLUDE_DIRS})
   endif()
 endif()
 
@@ -95,6 +99,8 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
 
   if(HAVE_BCRYPT_H)
     set(CRYPTO_BACKEND "WinCNG")
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WINCNG")
+    set(CRYPTO_BACKEND_INCLUDE_DIR "")
   endif()
 endif()
 
@@ -104,6 +110,8 @@ if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
 
   if(MBEDTLS_FOUND)
     set(CRYPTO_BACKEND "mbedTLS")
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")
+    set(CRYPTO_BACKEND_INCLUDE_DIR ${MBEDTLS_INCLUDE_DIR})
   endif()
 endif()
 
@@ -165,6 +173,34 @@ foreach(test ${TESTS})
     NAME test_${test} COMMAND $<TARGET_FILE:test_${test}>
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
+
+if(WIN32 AND BUILD_SHARED_LIBS)
+  # Workaround for Visual Studio
+  add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c ../src/misc.c)
+else()
+  add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
+endif()
+target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE "${CRYPTO_BACKEND_DEFINE}")
+target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "../src/" "${CRYPTO_BACKEND_INCLUDE_DIR}")
+find_program(GCOV_PATH gcov)
+if(CMAKE_COMPILER_IS_GNUCC AND GCOV_PATH)
+  target_compile_options(test_keyboard_interactive_auth_info_request BEFORE PRIVATE
+    -g --coverage -fprofile-abs-path)
+  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2 gcov)
+else()
+  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2)
+endif()
+add_test(
+  NAME test_keyboard_interactive_auth_info_request COMMAND $<TARGET_FILE:test_keyboard_interactive_auth_info_request>
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
+add_custom_target(coverage
+  COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/*
+  COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/coverage/"
+  COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/* --html-details --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
+
+add_custom_target(clean-coverage
+  COMMAND rm -rf "${CMAKE_CURRENT_BINARY_DIR}/coverage/")
 
 add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
