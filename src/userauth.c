@@ -146,14 +146,14 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                 return NULL;
             }
             banner_len = _libssh2_ntohu32(session->userauth_list_data + 1);
-            if(banner_len >= session->userauth_list_data_len - 5) {
+            if(banner_len > session->userauth_list_data_len - 5) {
                 LIBSSH2_FREE(session, session->userauth_list_data);
                 session->userauth_list_data = NULL;
                 _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                "Unexpected userauth banner size");
                 return NULL;
             }
-            session->userauth_banner = LIBSSH2_ALLOC(session, banner_len);
+            session->userauth_banner = LIBSSH2_ALLOC(session, banner_len + 1);
             if(!session->userauth_banner) {
                 LIBSSH2_FREE(session, session->userauth_list_data);
                 session->userauth_list_data = NULL;
@@ -161,7 +161,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                               "Unable to allocate memory for userauth_banner");
                 return NULL;
             }
-            memmove(session->userauth_banner, session->userauth_list_data + 5,
+            memcpy(session->userauth_banner, session->userauth_list_data + 5,
                     banner_len);
             session->userauth_banner[banner_len] = '\0';
             _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
