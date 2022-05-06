@@ -880,6 +880,12 @@ int _libssh2_check_length(struct string_buf *buf, size_t len)
     return ((len <= left) && (left <= buf->len));
 }
 
+int _libssh2_eob(struct string_buf *buf)
+{
+    unsigned char *endp = &buf->data[buf->len];
+    return buf->dataptr >= endp;
+}
+
 /* Wrappers */
 
 int _libssh2_bcrypt_pbkdf(const char *pass,
