@@ -1826,7 +1826,7 @@ clean_exit:
     return -1;
 }
 
-int
+static int
 gen_publickey_from_sk_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
                                                 struct string_buf *decrypted,
                                                 unsigned char **method,
@@ -2841,7 +2841,7 @@ fail:
     return rc;
 }
 
-int
+static int
 gen_publickey_from_sk_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
                                               struct string_buf *decrypted,
                                               unsigned char **method,
