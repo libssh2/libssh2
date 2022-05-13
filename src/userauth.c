@@ -905,6 +905,7 @@ static int
 sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
         const unsigned char *data, size_t data_len, void **abstract)
 {
+    int rc = -1;
     struct privkey_sk *sk_info = (struct privkey_sk *) (*abstract);
     LIBSSH2_SK_SIG_INFO sig_info = { 0 };
 
@@ -912,17 +913,17 @@ sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
         return LIBSSH2_ERROR_DECRYPT;
     }
 
-    int rc = sk_info->sign_callback(session,
-                                    &sig_info,
-                                    data,
-                                    data_len,
-                                    sk_info->algorithm,
-                                    sk_info->flags,
-                                    sk_info->application,
-                                    sk_info->key_handle,
-                                    sk_info->handle_len,
-                                    sk_info->passphrase,
-                                    sk_info->orig_abstract);
+    rc = sk_info->sign_callback(session,
+                                &sig_info,
+                                data,
+                                data_len,
+                                sk_info->algorithm,
+                                sk_info->flags,
+                                sk_info->application,
+                                sk_info->key_handle,
+                                sk_info->handle_len,
+                                sk_info->passphrase,
+                                sk_info->orig_abstract);
 
     if(rc == 0 && sig_info.sig_r_len > 0 && sig_info.sig_r) {
         unsigned char *p = NULL;
@@ -934,6 +935,7 @@ sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
             *sig = LIBSSH2_ALLOC(session, *sig_len);
 
             if(*sig) {
+                unsigned char *x = *sig;
                 p = *sig;
 
                 _libssh2_store_u32(&p, 0);
@@ -948,7 +950,6 @@ sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
 
                 *sig_len = p - *sig;
 
-                unsigned char *x = *sig;
                 _libssh2_store_u32(&x, *sig_len - 4);
             }
             else {
