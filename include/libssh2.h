@@ -308,7 +308,7 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 #define LIBSSH2_USERAUTH_SK_SIGN_FUNC(name) \
 int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info, \
 const unsigned char *data, size_t data_len, int algorithm, uint8_t flags, \
-const char *application, const unsigned char* key_handle, size_t handle_len,\
+const char *application, const unsigned char *key_handle, size_t handle_len, \
 const char *passphrase, void **abstract)
 
 /* Flags for SK authentication */

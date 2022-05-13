@@ -897,7 +897,7 @@ struct privkey_sk {
     const unsigned char *key_handle;
     size_t handle_len;
     const char *passphrase;
-    LIBSSH2_USERAUTH_SK_SIGN_FUNC ((*sign_callback));
+    LIBSSH2_USERAUTH_SK_SIGN_FUNC((*sign_callback));
     void **orig_abstract;
 };
 
@@ -908,7 +908,7 @@ sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     struct privkey_sk *sk_info = (struct privkey_sk *) (*abstract);
     LIBSSH2_SK_SIG_INFO sig_info = { 0 };
 
-    if (sk_info->handle_len <= 0 ) {
+    if(sk_info->handle_len <= 0) {
         return LIBSSH2_ERROR_DECRYPT;
     }
 
@@ -924,16 +924,16 @@ sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                                     sk_info->passphrase,
                                     sk_info->orig_abstract);
 
-    if (rc == 0 && sig_info.sig_r_len > 0 && sig_info.sig_r) {
+    if(rc == 0 && sig_info.sig_r_len > 0 && sig_info.sig_r) {
         unsigned char *p = NULL;
 
-        if (sig_info.sig_s_len > 0 && sig_info.sig_s) {
-            // sig length, sig_r, sig_s, flags, counter, plus 4 bytes for each
-            // component's length, and up to 1 extra byte for each component
+        if(sig_info.sig_s_len > 0 && sig_info.sig_s) {
+            /* sig length, sig_r, sig_s, flags, counter, plus 4 bytes for each
+            component's length, and up to 1 extra byte for each component */
             *sig_len = 4 + 5 + sig_info.sig_r_len + 5 + sig_info.sig_s_len + 5;
             *sig = LIBSSH2_ALLOC(session, *sig_len);
 
-            if (*sig) {
+            if(*sig) {
                 p = *sig;
 
                 _libssh2_store_u32(&p, 0);
@@ -958,13 +958,12 @@ sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                 rc = LIBSSH2_ERROR_ALLOC;
             }
         }
-        else
-        {
-            // sig, flags, counter, plus 4 bytes for sig length.
+        else {
+            /* sig, flags, counter, plus 4 bytes for sig length. */
             *sig_len = 4 + sig_info.sig_r_len + 1 + 4;
             *sig = LIBSSH2_ALLOC(session, *sig_len);
 
-            if (*sig) {
+            if(*sig) {
                 p = *sig;
 
                 _libssh2_store_str(&p,
@@ -979,7 +978,7 @@ sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
             }
         }
 
-        if (p) {
+        if(p) {
             *p = sig_info.flags;
             ++p;
             _libssh2_store_u32(&p, sig_info.counter);
@@ -989,7 +988,7 @@ sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
 
         LIBSSH2_FREE(session, sig_info.sig_r);
 
-        if (sig_info.sig_s != NULL) {
+        if(sig_info.sig_s != NULL) {
             LIBSSH2_FREE(session, sig_info.sig_s);
         }
     }
@@ -1708,12 +1707,12 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
            plain_method_len((const char *)session->userauth_pblc_method,
                             session->userauth_pblc_method_len);
 
-        if (strncmp((const char*)session->userauth_pblc_method,
-                    "sk-ecdsa-sha2-nistp256@openssh.com",
-                    session->userauth_pblc_method_len) == 0 ||
-            strncmp((const char *)session->userauth_pblc_method,
-                    "sk-ssh-ed25519@openssh.com",
-                    session->userauth_pblc_method_len) == 0) {
+        if(strncmp((const char *)session->userauth_pblc_method,
+                   "sk-ecdsa-sha2-nistp256@openssh.com",
+                   session->userauth_pblc_method_len) == 0 ||
+           strncmp((const char *)session->userauth_pblc_method,
+                   "sk-ssh-ed25519@openssh.com",
+                   session->userauth_pblc_method_len) == 0) {
             _libssh2_store_u32(&s,
                                4 + session->userauth_pblc_method_len +
                                sig_len);
@@ -2345,8 +2344,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
     if(pubkeydata)
         LIBSSH2_FREE(session, pubkeydata);
 
-    if(sk_info.application)
-    {
+    if(sk_info.application) {
         LIBSSH2_FREE(session, (void *)sk_info.application);
     }
 

@@ -245,22 +245,23 @@ void _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
 
 /* _libssh2_store_bignum2_bytes
  */
-void _libssh2_store_bignum2_bytes(unsigned char **buf, const unsigned char *bytes, size_t len)
+void _libssh2_store_bignum2_bytes(unsigned char **buf,
+                                  const unsigned char *bytes,
+                                  size_t len)
 {
     int extraByte = 0;
-    const unsigned char * p;
-    for (p = bytes; len > 0 && *p == 0; --len, ++p) {}
+    const unsigned char *p;
+    for(p = bytes; len > 0 && *p == 0; --len, ++p) {}
 
     extraByte = (len > 0 && (p[0] & 0x80) != 0);
     _libssh2_store_u32(buf, len + extraByte);
 
-    if (extraByte)
-    {
+    if(extraByte) {
         *buf[0] = 0;
         *buf += 1;
     }
 
-    if (len > 0) {
+    if(len > 0) {
         memcpy(*buf, p, len);
         *buf += len;
     }
