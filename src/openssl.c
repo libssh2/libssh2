@@ -2706,8 +2706,8 @@ gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
            goto clean_exit;
     }
 
-    /* Key form is: type_len(4) + type(method_len) + domain_len(4) + domain(8) +
-       pub_key_len(4) + pub_key(~65). */
+    /* Key form is: type_len(4) + type(method_len) + domain_len(4) + domain(8)
+       + pub_key_len(4) + pub_key(~65). */
     key_len = 4 + *method_len + 4 + 8 + 4 + octal_len;
     key = LIBSSH2_ALLOC(session, key_len);
     if(key == NULL) {

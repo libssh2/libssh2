@@ -2335,7 +2335,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                                      pubkeydata, pubkeydata_len,
                                      sign_sk, &sign_abstract);
 
-    while (rc == LIBSSH2_ERROR_EAGAIN) {
+    while(rc == LIBSSH2_ERROR_EAGAIN) {
         rc = _libssh2_userauth_publickey(session, username, username_len,
                                          pubkeydata, pubkeydata_len,
                                          sign_sk, &sign_abstract);
