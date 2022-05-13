@@ -342,9 +342,9 @@ typedef enum {
                                                      pk, pk_len, pw) \
   _libssh2_mbedtls_pub_priv_keyfilememory(s, m, m_len, p, p_len, \
                                                       pk, pk_len, pw)
-#define _libssh2_sk_pub_keyfilememory(s, m, m_len, p, p_len, pk, app, \
+#define _libssh2_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
                                       f, kh, kh_len, pk, pk_len, pw) \
-  _libssh2_mbedtls_sk_pub_keyfilememory(s, m, m_len, p, p_len, pk, app, \
+  _libssh2_mbedtls_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
                                         f, kh, kh_len, pk, pk_len, pw)
 
 
