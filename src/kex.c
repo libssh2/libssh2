@@ -2603,7 +2603,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             session->session_id = LIBSSH2_ALLOC(session, digest_length);
             if(!session->session_id) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                     "Unable to allxcocate buffer for "
+                                     "Unable to allocate buffer for "
                                      "SHA digest");
                 goto clean_exit;
             }
