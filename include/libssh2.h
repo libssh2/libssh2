@@ -732,15 +732,15 @@ libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION* session,
                                              (response_callback))
 
 LIBSSH2_API int
- libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
-                               const char *username,
-                               size_t username_len,
-                               const char *privatekeydata,
-                               size_t privatekeydata_len,
-                               const char *passphrase,
-                               LIBSSH2_USERAUTH_SK_SIGN_FUNC
-                               ((*sign_callback)),
-                               void **abstract);
+libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
+                              const char *username,
+                              size_t username_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const char *passphrase,
+                              LIBSSH2_USERAUTH_SK_SIGN_FUNC
+                              ((*sign_callback)),
+                              void **abstract);
 
 LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
                              long timeout);

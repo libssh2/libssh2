@@ -1925,7 +1925,7 @@ gen_publickey_from_sk_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
 
         if(application != NULL && app_len > 0) {
             *application = (const char *)LIBSSH2_ALLOC(session, app_len + 1);
-            memset((void *)*application, 0, app_len + 1);
+            _libssh2_explicit_zero((void *)*application, app_len + 1);
             memcpy((void *)*application, app, app_len);
         }
 
@@ -2941,7 +2941,7 @@ gen_publickey_from_sk_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
 
         if(application != NULL && app_len > 0) {
             *application = (const char *)LIBSSH2_ALLOC(session, app_len + 1);
-            memset((void *)*application, 0, app_len + 1);
+            _libssh2_explicit_zero((void *)*application, app_len + 1);
             memcpy((void *)*application, app, app_len);
         }
 
