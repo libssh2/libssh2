@@ -213,7 +213,7 @@ set(SOURCES
   userauth.h
   version.c)
 
-if(WIN32)
+if(WIN32 AND BUILD_SHARED_LIBS)
   list(APPEND SOURCES ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
 endif()
 
