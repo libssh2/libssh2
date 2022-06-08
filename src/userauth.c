@@ -890,23 +890,12 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     return 0;
 }
 
-struct privkey_sk {
-    int algorithm;
-    uint8_t flags;
-    const char *application;
-    const unsigned char *key_handle;
-    size_t handle_len;
-    const char *passphrase;
-    LIBSSH2_USERAUTH_SK_SIGN_FUNC((*sign_callback));
-    void **orig_abstract;
-};
-
-static int
-sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
-        const unsigned char *data, size_t data_len, void **abstract)
+int
+libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
+                const unsigned char *data, size_t data_len, void **abstract)
 {
     int rc = -1;
-    struct privkey_sk *sk_info = (struct privkey_sk *) (*abstract);
+    LIBSSH2_PRIVKEY_SK *sk_info = (LIBSSH2_PRIVKEY_SK *) (*abstract);
     LIBSSH2_SK_SIG_INFO sig_info = { 0 };
 
     if(sk_info->handle_len <= 0) {
@@ -2302,7 +2291,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
 {
     unsigned char *pubkeydata = NULL;
     size_t pubkeydata_len = 0;
-    struct privkey_sk sk_info = { 0 };
+    LIBSSH2_PRIVKEY_SK sk_info = { 0 };
     void *sign_abstract = &sk_info;
     int rc;
 
@@ -2334,12 +2323,12 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
 
     rc = _libssh2_userauth_publickey(session, username, username_len,
                                      pubkeydata, pubkeydata_len,
-                                     sign_sk, &sign_abstract);
+                                     libssh2_sign_sk, &sign_abstract);
 
     while(rc == LIBSSH2_ERROR_EAGAIN) {
         rc = _libssh2_userauth_publickey(session, username, username_len,
                                          pubkeydata, pubkeydata_len,
-                                         sign_sk, &sign_abstract);
+                                         libssh2_sign_sk, &sign_abstract);
     }
 
     if(pubkeydata)

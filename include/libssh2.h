@@ -388,6 +388,26 @@ typedef struct _LIBSSH2_LISTENER                    LIBSSH2_LISTENER;
 typedef struct _LIBSSH2_KNOWNHOSTS                  LIBSSH2_KNOWNHOSTS;
 typedef struct _LIBSSH2_AGENT                       LIBSSH2_AGENT;
 
+/* SK signature callback */
+typedef struct _LIBSSH2_PRIVKEY_SK {
+    int algorithm;
+    uint8_t flags;
+    const char *application;
+    const unsigned char *key_handle;
+    size_t handle_len;
+    const char *passphrase;
+    LIBSSH2_USERAUTH_SK_SIGN_FUNC((*sign_callback));
+    void **orig_abstract;
+} LIBSSH2_PRIVKEY_SK;
+
+int
+libssh2_sign_sk(LIBSSH2_SESSION *session,
+                unsigned char **sig,
+                size_t *sig_len,
+                const unsigned char *data,
+                size_t data_len,
+                void **abstract);
+
 typedef struct _LIBSSH2_POLLFD {
     unsigned char type; /* LIBSSH2_POLLFD_* below */
 
