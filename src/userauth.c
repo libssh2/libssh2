@@ -894,7 +894,7 @@ int
 libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                 const unsigned char *data, size_t data_len, void **abstract)
 {
-    int rc = -1;
+    int rc = LIBSSH2_ERROR_DECRYPT;
     LIBSSH2_PRIVKEY_SK *sk_info = (LIBSSH2_PRIVKEY_SK *) (*abstract);
     LIBSSH2_SK_SIG_INFO sig_info = { 0 };
 
@@ -911,7 +911,6 @@ libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                                 sk_info->application,
                                 sk_info->key_handle,
                                 sk_info->handle_len,
-                                sk_info->passphrase,
                                 sk_info->orig_abstract);
 
     if(rc == 0 && sig_info.sig_r_len > 0 && sig_info.sig_r) {
@@ -2295,7 +2294,6 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
     void *sign_abstract = &sk_info;
     int rc;
 
-    sk_info.passphrase = passphrase;
     sk_info.sign_callback = sign_callback;
     sk_info.orig_abstract = abstract;
 
