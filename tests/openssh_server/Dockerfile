@@ -33,7 +33,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
-FROM debian:jessie
+FROM debian:bullseye
 
 RUN apt-get update \
  && apt-get install -y openssh-server \
@@ -60,17 +60,27 @@ RUN chmod 600 /etc/ssh/ssh_host_ed25519_key
 
 COPY ca_ecdsa.pub /tmp/etc/ssh/ca_ecdsa.pub
 RUN mv /tmp/etc/ssh/ca_ecdsa.pub /etc/ssh/ca_ecdsa.pub
-RUN chmod 600 /etc/ssh/ca_ecdsa.pub
+RUN cp /etc/ssh/ca_ecdsa.pub /etc/ssh/ca_main.pub
+RUN chmod 600 /etc/ssh/ca_main.pub
 
 COPY ca_ecdsa /tmp/etc/ssh/ca_ecdsa
 RUN mv /tmp/etc/ssh/ca_ecdsa /etc/ssh/ca_ecdsa
 RUN chmod 600 /etc/ssh/ca_ecdsa
 
+COPY ca_rsa.pub /tmp/etc/ssh/ca_rsa.pub
+RUN mv /tmp/etc/ssh/ca_rsa.pub /etc/ssh/ca_rsa.pub
+RUN cat /etc/ssh/ca_rsa.pub >> /etc/ssh/ca_main.pub
+
+COPY ca_rsa /tmp/etc/ssh/ca_rsa
+RUN mv /tmp/etc/ssh/ca_rsa /etc/ssh/ca_rsa
+RUN chmod 600 /etc/ssh/ca_rsa
+
 RUN adduser --disabled-password --gecos 'Test user for libssh2 integration tests' libssh2
 RUN echo 'libssh2:my test password' | chpasswd
 
 RUN sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config
-RUN echo "TrustedUserCAKeys /etc/ssh/ca_ecdsa.pub" >> /etc/ssh/sshd_config
+RUN echo "TrustedUserCAKeys /etc/ssh/ca_main.pub" >> /etc/ssh/sshd_config
+RUN echo "PubkeyAcceptedKeyTypes=+ssh-dss" >> /etc/ssh/sshd_config
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
