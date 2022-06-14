@@ -1150,12 +1150,12 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
 
 static int plain_method_len(const char *method, size_t method_len)
 {
-    if (!strncmp("ssh-rsa-cert-v01@openssh.com",
+    if(!strncmp("ssh-rsa-cert-v01@openssh.com",
                 method,
                 method_len)) {
         return 7;
     }
-    
+
     if(!strncmp("ecdsa-sha2-nistp256-cert-v01@openssh.com",
                 method,
                 method_len) ||

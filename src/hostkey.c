@@ -449,6 +449,8 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_sha2_512 = {
     hostkey_method_ssh_rsa_dtor,
 };
 
+#endif /* LIBSSH2_RSA_SHA2 */
+
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_cert = {
     "ssh-rsa-cert-v01@openssh.com",
     MD5_DIGEST_LENGTH,
@@ -460,8 +462,6 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_cert = {
     NULL,                       /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
-
-#endif /* LIBSSH2_RSA_SHA2 */
 
 #endif /* LIBSSH2_RSA */
 
