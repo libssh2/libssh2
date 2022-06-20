@@ -340,10 +340,12 @@ endif()
 
 append_needed_socket_libraries(LIBRARIES)
 
-# Non-blocking socket support tests.  Must be after library tests to
-# link correctly
+# Non-blocking socket support tests. Use a separate, yet unset variable
+# for the socket libraries to not link against the other configured
+# dependencies which might not have been built yet.
+append_needed_socket_libraries(SOCKET_LIBRARIES)
 set(SAVE_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
-set(CMAKE_REQUIRED_LIBRARIES ${LIBRARIES})
+set(CMAKE_REQUIRED_LIBRARIES ${SOCKET_LIBRARIES})
 check_nonblocking_socket_support()
 set(CMAKE_REQUIRED_LIBRARIES ${SAVE_CMAKE_REQUIRED_LIBRARIES})
 
