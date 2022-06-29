@@ -265,6 +265,18 @@ AC_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibi
        AC_MSG_RESULT(no)
 )
 
+# Build tests?
+AC_ARG_ENABLE([tests],
+  [AS_HELP_STRING([--disable-tests], [Disable tests @<:@default=enabled@:>@])],
+  [
+    if ! test "x${enable_tests}" = "xyes"; then
+      enable_tests="no"
+    fi
+  ],
+  [enable_tests="yes"])
+AM_CONDITIONAL([ENABLE_TESTS], [test "x$enable_tests" = xyes])
+
+
 # Build example applications?
 AC_MSG_CHECKING([whether to build example applications])
 AC_ARG_ENABLE([examples-build],
