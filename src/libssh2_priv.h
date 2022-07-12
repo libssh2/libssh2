@@ -235,6 +235,7 @@ typedef enum
     libssh2_NB_state_jump3,
     libssh2_NB_state_jump4,
     libssh2_NB_state_jump5,
+    libssh2_NB_state_error_closing,
     libssh2_NB_state_end
 } libssh2_nonblocking_states;
 

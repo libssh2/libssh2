@@ -896,6 +896,22 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         }
     }
 
+    if(session->sftpInit_state == libssh2_NB_state_error_closing) {
+      rc = _libssh2_channel_free(session->sftpInit_channel);
+      if(rc == LIBSSH2_ERROR_EAGAIN) {
+            _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                           "Would block closing channel");
+	    return NULL;
+      }
+      session->sftpInit_channel = NULL;
+      if(session->sftpInit_sftp) {
+        LIBSSH2_FREE(session, session->sftpInit_sftp);
+        session->sftpInit_sftp = NULL;
+      }
+      session->sftpInit_state = libssh2_NB_state_idle;
+      return NULL;
+    }
+    
     rc = sftp_packet_require(sftp_handle, SSH_FXP_VERSION,
                              0, &data, &data_len, 5);
     if(rc == LIBSSH2_ERROR_EAGAIN) {
@@ -972,14 +988,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     return sftp_handle;
 
   sftp_init_error:
-    while(_libssh2_channel_free(session->sftpInit_channel) ==
-           LIBSSH2_ERROR_EAGAIN);
-    session->sftpInit_channel = NULL;
-    if(session->sftpInit_sftp) {
-        LIBSSH2_FREE(session, session->sftpInit_sftp);
-        session->sftpInit_sftp = NULL;
-    }
-    session->sftpInit_state = libssh2_NB_state_idle;
+    session->sftpInit_state = libssh2_NB_state_error_closing;
     return NULL;
 }
 

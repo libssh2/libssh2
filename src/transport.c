@@ -641,7 +641,8 @@ send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
            we don't add this one up until the previous one has been sent. To
            make the caller really notice his/hers flaw, we return error for
            this case */
-        return LIBSSH2_ERROR_BAD_USE;
+        // return LIBSSH2_ERROR_BAD_USE;
+        _libssh2_debug (session, LIBSSH2_TRACE_SOCKET, "Address is different, but will resume nonetheless");
     }
 
     *ret = 1;                   /* set to make our parent return */
