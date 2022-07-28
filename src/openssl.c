@@ -342,8 +342,7 @@ _libssh2_ecdsa_curve_type_from_name(const char *name,
     if(name == NULL || strlen(name) != 19)
         return -1;
 
-    if(strcmp(name, "ecdsa-sha2-nistp256") == 0 ||
-       strcmp(name, "sk-ecdsa-sha2-nistp256@openssh.com") == 0)
+    if(strcmp(name, "ecdsa-sha2-nistp256") == 0)
         type = LIBSSH2_EC_CURVE_NISTP256;
     else if(strcmp(name, "ecdsa-sha2-nistp384") == 0)
         type = LIBSSH2_EC_CURVE_NISTP384;
