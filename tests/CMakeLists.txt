@@ -140,6 +140,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL")
         public_key_auth_succeeds_with_correct_ed25519_key_from_mem
         public_key_auth_succeeds_with_correct_ecdsa_key
         public_key_auth_succeeds_with_correct_signed_ecdsa_key
+        public_key_auth_succeeds_with_correct_signed_rsa_key
        )
     endif()
 endif()
