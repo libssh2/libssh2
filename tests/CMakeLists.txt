@@ -186,7 +186,7 @@ target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "
 find_program(GCOV_PATH gcov)
 if(CMAKE_COMPILER_IS_GNUCC AND GCOV_PATH)
   target_compile_options(test_keyboard_interactive_auth_info_request BEFORE PRIVATE
-    -g --coverage -fprofile-abs-path)
+    -g --coverage)
   target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2 gcov)
 else()
   target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2)
