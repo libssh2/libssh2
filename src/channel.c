@@ -2046,7 +2046,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
         if(readpkt->data_len < 5) {
             read_packet = read_next;
 
-            if (readpkt->data_len != 1 ||
+            if(readpkt->data_len != 1 ||
                 readpkt->data[0] != SSH_MSG_REQUEST_FAILURE) {
                 _libssh2_debug(channel->session, LIBSSH2_TRACE_ERROR,
                                "Unexpected packet length");
