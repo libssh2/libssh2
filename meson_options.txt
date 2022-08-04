@@ -1,0 +1,3 @@
+option('crypto_backend', type : 'combo',
+    choices : ['openssl', 'mbedtls', 'gcrypt'], value : 'openssl')
+option('examples', type: 'boolean', value: false)
