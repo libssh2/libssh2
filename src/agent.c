@@ -408,7 +408,7 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                 sign_flags = SSH_AGENT_RSA_SHA2_256;
             }
         }
-        _libssh2_store_u32(&s, 4);
+        _libssh2_store_u32(&s, sign_flags);
 
         transctx->request_len = s - transctx->request;
         transctx->send_recv_total = 0;
