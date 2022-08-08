@@ -45,9 +45,12 @@
 #ifdef HAVE_WINDOWS_H
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#ifndef WIN32_NO_STATUS
+#define WIN32_NO_STATUS
 #endif
 #include <windows.h>
 #undef WIN32_LEAN_AND_MEAN
+#undef WIN32_NO_STATUS
 #endif
 
 #ifdef HAVE_WS2TCPIP_H
