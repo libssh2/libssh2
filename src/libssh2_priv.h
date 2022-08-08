@@ -45,6 +45,7 @@
 #ifdef HAVE_WINDOWS_H
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #ifndef WIN32_NO_STATUS
 #define WIN32_NO_STATUS
 #endif
