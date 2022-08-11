@@ -50,6 +50,11 @@
 #undef WIN32_LEAN_AND_MEAN
 #endif
 
+/* Windows UWP/WinRT platform. */
+#if defined(WINAPI_PARTITION_APP) && WINAPI_PARTITION_APP
+#define WINAPP
+#endif
+
 #ifdef HAVE_WS2TCPIP_H
 #include <ws2tcpip.h>
 #endif
