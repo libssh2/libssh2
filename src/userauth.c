@@ -1209,6 +1209,28 @@ static int plain_method_len(const char *method, size_t method_len)
                 method_len)) {
         return 19;
     }
+
+    if(!strncmp("ssh-ed25519-cert-v01@openssh.com",
+                method,
+                method_len)) {
+        return 11;
+    }
+
+    if(!strncmp("ssh-rsa-cert-v01@openssh.com",
+                method,
+                method_len)) {
+        return 7;
+    }
+
+    if(!strncmp("rsa-sha2-256-cert-v01@openssh.com",
+                method,
+                method_len) ||
+       !strncmp("rsa-sha2-512-cert-v01@openssh.com",
+                method,
+                method_len)) {
+        return 12;
+    }
+
     return method_len;
 }
 
