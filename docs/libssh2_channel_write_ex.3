@@ -41,6 +41,11 @@ LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 \fILIBSSH2_ERROR_CHANNEL_CLOSED\fP - The channel has been closed.
 
 \fILIBSSH2_ERROR_CHANNEL_EOF_SENT\fP - The channel has been requested to be
+
+\fILIBSSH2_ERROR_BAD_USE\fP - This can be returned if you ignored a previous
+return for LIBSSH2_ERROR_EAGAIN and rather than sending the original buffer with 
+the original size, you sent a new buffer with a different size.   
+
 closed.
 .SH SEE ALSO
 .BR libssh2_channel_open_ex(3)
