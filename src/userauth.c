@@ -1234,6 +1234,24 @@ static int plain_method_len(const char *method, size_t method_len)
     return method_len;
 }
 
+// authentication with sk-ecdsa-sha2-nistp256@openssh.com do not include 
+// flags and counter (1 + 4 bytes) as part of signature size even though
+// there are included in signature and we need to take this into account
+// when composing SSH_MSG_USERAUTH_REQUEST
+static size_t actual_signature_length(const unsigned char *userauth_pblc_method,
+                                      size_t userauth_pblc_method_len,
+                                      size_t sig_len) {
+    if(sig_len < 5) return sig_len;
+
+    if(userauth_pblc_method_len == 34 &&
+       memcmp(userauth_pblc_method, "sk-ecdsa-sha2-nistp256@openssh.com", 34) == 0) {
+
+       return sig_len - 5;
+    }
+
+    return sig_len;
+}
+
 int
 _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                             const char *username,
@@ -1510,6 +1528,12 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
            plain_method_len((const char *)session->userauth_pblc_method,
                             session->userauth_pblc_method_len);
 
+        /* special case for sk-ecdsa-sha2-nistp256@openssh.com that doesn't include flag+counter
+           in signature length but includes it in signature */
+        size_t inner_sig_length = actual_signature_length(session->userauth_pblc_method, 
+                                                          session->userauth_pblc_method_len, 
+                                                          sig_len);
+
         _libssh2_store_u32(&s,
                            4 + session->userauth_pblc_method_len + 4 +
                            sig_len);
@@ -1519,7 +1543,12 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         LIBSSH2_FREE(session, session->userauth_pblc_method);
         session->userauth_pblc_method = NULL;
 
-        _libssh2_store_str(&s, (const char *)sig, sig_len);
+        /* write signature itself but with possibly modified length */
+        _libssh2_store_u32(&s, (uint32_t)inner_sig_length);
+        if(sig_len) {
+            memcpy(s, sig, sig_len);
+            s += sig_len;
+        }
         LIBSSH2_FREE(session, sig);
 
         _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
