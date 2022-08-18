@@ -612,23 +612,23 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
     int ret;
 
     if(hashlen == SHA_DIGEST_LENGTH) {
-       hAlgHash = _libssh2_wincng.hAlgHashSHA1;
-       paddingInfoPKCS1.pszAlgId = BCRYPT_SHA1_ALGORITHM;
+        hAlgHash = _libssh2_wincng.hAlgHashSHA1;
+        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA1_ALGORITHM;
     }
     else if(hashlen == SHA256_DIGEST_LENGTH) {
-       hAlgHash = _libssh2_wincng.hAlgHashSHA256;
-       paddingInfoPKCS1.pszAlgId = BCRYPT_SHA256_ALGORITHM;
+        hAlgHash = _libssh2_wincng.hAlgHashSHA256;
+        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA256_ALGORITHM;
     }
     else if(hashlen == SHA384_DIGEST_LENGTH) {
-       hAlgHash = _libssh2_wincng.hAlgHashSHA384;
-       paddingInfoPKCS1.pszAlgId = BCRYPT_SHA384_ALGORITHM;
+        hAlgHash = _libssh2_wincng.hAlgHashSHA384;
+        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA384_ALGORITHM;
     }
     else if(hashlen == SHA512_DIGEST_LENGTH) {
-       hAlgHash = _libssh2_wincng.hAlgHashSHA512;
-       paddingInfoPKCS1.pszAlgId = BCRYPT_SHA512_ALGORITHM;
+        hAlgHash = _libssh2_wincng.hAlgHashSHA512;
+        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA512_ALGORITHM;
     }
     else {
-       return -1;
+        return -1;
     }
 
     datalen = m_len;
@@ -1273,7 +1273,7 @@ _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
     datalen = (unsigned long)hash_len;
     data = malloc(datalen);
     if(!data) {
-       return -1;
+        return -1;
     }
     memcpy(data, hash, datalen);
 
