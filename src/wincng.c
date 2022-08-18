@@ -611,28 +611,23 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
     unsigned long datalen;
     int ret;
 
-    if (hashlen == SHA_DIGEST_LENGTH)
-    {
+    if(hashlen == SHA_DIGEST_LENGTH) {
        hAlgHash = _libssh2_wincng.hAlgHashSHA1;
        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA1_ALGORITHM;
     }
-    else if (hashlen == SHA256_DIGEST_LENGTH)
-    {
+    else if(hashlen == SHA256_DIGEST_LENGTH) {
        hAlgHash = _libssh2_wincng.hAlgHashSHA256;
        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA256_ALGORITHM;
     }
-    else if (hashlen == SHA384_DIGEST_LENGTH)
-    {
+    else if(hashlen == SHA384_DIGEST_LENGTH) {
        hAlgHash = _libssh2_wincng.hAlgHashSHA384;
        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA384_ALGORITHM;
     }
-    else if (hashlen == SHA512_DIGEST_LENGTH)
-    {
+    else if(hashlen == SHA512_DIGEST_LENGTH) {
        hAlgHash = _libssh2_wincng.hAlgHashSHA512;
        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA512_ALGORITHM;
     }
-    else
-    {
+    else {
        return -1;
     }
 
@@ -649,8 +644,8 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
     }
     memcpy(data, m, datalen);
 
-    ret = _libssh2_wincng_hash(data, datalen, 
-                               hAlgHash, 
+    ret = _libssh2_wincng_hash(data, datalen,
+                               hAlgHash,
                                hash, hashlen);
     _libssh2_wincng_safe_free(data, datalen);
 
@@ -1232,19 +1227,20 @@ _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                 const unsigned char *m,
                                 unsigned long m_len)
 {
-    return _libssh2_wincng_key_sha_verify(rsa, SHA_DIGEST_LENGTH, sig, sig_len, m, m_len, 
-                                          BCRYPT_PAD_PKCS1);
+   return _libssh2_wincng_key_sha_verify(rsa, SHA_DIGEST_LENGTH, sig, sig_len,
+                                         m, m_len, BCRYPT_PAD_PKCS1);
 }
 
 int
 _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx* rsa,
    size_t hash_len,
-   const unsigned char* sig,
+   const unsigned char *sig,
    unsigned long sig_len,
-   const unsigned char* m,
+   const unsigned char *m,
    unsigned long m_len)
 {
-   return _libssh2_wincng_key_sha_verify(rsa, hash_len, sig, sig_len, m, m_len, BCRYPT_PAD_PKCS1);
+   return _libssh2_wincng_key_sha_verify(rsa, hash_len, sig, sig_len, m,
+                                         m_len, BCRYPT_PAD_PKCS1);
 }
 
 int
@@ -1260,23 +1256,23 @@ _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
     unsigned long cbData, datalen, siglen;
     int ret;
 
-    if (hash_len == SHA_DIGEST_LENGTH)
+    if(hash_len == SHA_DIGEST_LENGTH)
       paddingInfo.pszAlgId = BCRYPT_SHA1_ALGORITHM;
-    else if (hash_len == SHA256_DIGEST_LENGTH)
+    else if(hash_len == SHA256_DIGEST_LENGTH)
        paddingInfo.pszAlgId = BCRYPT_SHA256_ALGORITHM;
-    else if (hash_len == SHA384_DIGEST_LENGTH)
+    else if(hash_len == SHA384_DIGEST_LENGTH)
        paddingInfo.pszAlgId = BCRYPT_SHA384_ALGORITHM;
-    else if (hash_len == SHA512_DIGEST_LENGTH)
+    else if(hash_len == SHA512_DIGEST_LENGTH)
        paddingInfo.pszAlgId = BCRYPT_SHA512_ALGORITHM;
-    else
-    {
-       _libssh2_error(session, LIBSSH2_ERROR_PROTO, "Unsupported hash digest length");                     
+    else {
+       _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                      "Unsupported hash digest length");
        return -1;
     }
 
     datalen = (unsigned long)hash_len;
     data = malloc(datalen);
-    if (!data) {
+    if(!data) {
        return -1;
     }
     memcpy(data, hash, datalen);
@@ -1549,7 +1545,8 @@ _libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
                                 const unsigned char *m,
                                 unsigned long m_len)
 {
-    return _libssh2_wincng_key_sha_verify(dsa, SHA_DIGEST_LENGTH, sig_fixed, 40, m, m_len, 0);
+    return _libssh2_wincng_key_sha_verify(dsa, SHA_DIGEST_LENGTH, sig_fixed,
+                                          40, m, m_len, 0);
 }
 
 int
@@ -2651,7 +2648,7 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     (void)session;
 
 #if LIBSSH2_RSA_SHA2
-    if (key_method_len == 7 &&
+    if(key_method_len == 7 &&
        memcmp(key_method, "ssh-rsa", key_method_len) == 0) {
        return "rsa-sha2-512,rsa-sha2-256,ssh-rsa";
     }
