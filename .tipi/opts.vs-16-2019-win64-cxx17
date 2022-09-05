@@ -1,0 +1,10 @@
+add_compile_definitions(
+    NOMINMAX
+    WIN32_LEAN_AND_MEAN
+    _WIN32_WINNT=0x0A00 # We have to set the windows version targeted
+    WINVER=0x0A00 # We have to set the windows version targeted
+)
+
+add_compile_options(
+    /bigobj
+)

@@ -43,6 +43,10 @@ include(CheckNonblockingSocketSupport)
 include(SocketLibraries)
 
 ## Cryptography backend choice
+hunter_add_package(OpenSSL COMPONENTS )
+hunter_add_package(ZLIB COMPONENTS)
+
+
 
 set(CRYPTO_BACKEND
   ""
@@ -211,7 +215,7 @@ set(SOURCES
   userauth.h
   version.c)
 
-if(WIN32)
+if(WIN32 AND BUILD_SHARED_LIBS)
   list(APPEND SOURCES ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
 endif()
 

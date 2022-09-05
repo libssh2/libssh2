@@ -1,0 +1,8 @@
+set(CRYPTO_BACKEND "OpenSSL" CACHE STRING "crypto backend" FORCE)
+set(ENABLE_ZLIB_COMPRESSION ON CACHE BOOL "Enable zlib compression" FORCE)
+
+# Examples
+set(BUILD_EXAMPLES OFF CACHE BOOL "no example" FORCE)
+
+# Tests
+set(BUILD_TESTING OFF CACHE BOOL "no test" FORCE)
