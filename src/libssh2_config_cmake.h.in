@@ -68,7 +68,7 @@
 #cmakedefine HAVE_SNPRINTF
 
 /* OpenSSL functions */
-#cmakedefine HAVE_EVP_AES_128_CTR
+//#cmakedefine HAVE_EVP_AES_128_CTR
 
 /* Socket non-blocking support */
 #cmakedefine HAVE_O_NONBLOCK

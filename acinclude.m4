@@ -423,7 +423,7 @@ m4_case([$1],
     # Not all OpenSSL have AES-CTR functions.
     libssh2_save_LIBS="$LIBS"
     LIBS="$LIBS $LIBSSL"
-    AC_CHECK_FUNCS(EVP_aes_128_ctr)
+    #AC_CHECK_FUNCS(EVP_aes_128_ctr)
     LIBS="$libssh2_save_LIBS"
 
     found_crypto="$1"
