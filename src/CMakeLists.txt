@@ -215,6 +215,8 @@ set(SOURCES
 
 if(WIN32 AND BUILD_SHARED_LIBS)
   list(APPEND SOURCES ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
+  list(APPEND LIBRARIES ws2_32)
+  list(APPEND PC_LIBS -lws2_32)
 endif()
 
 add_library(libssh2 ${SOURCES})
