@@ -549,6 +549,35 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username,
     return rc;
 }
 
+/* return 1 if the given algorithm is part of "server-sigs" extension list. */
+LIBSSH2_API int libssh2_session_has_signing_algorithm(LIBSSH2_SESSION * session,
+                                                      char const* algorithm) {
+    if(!session->server_sign_algorithms) return 0;
+
+    size_t algorithm_len = strlen(algorithm);
+    size_t pos = 0;
+    while(pos < session->server_sign_algorithms_len) {
+        /* values are comma separated and we locate next boundary */
+        size_t start = pos;
+        while(pos < session->server_sign_algorithms_len) {
+            if(session->server_sign_algorithms[pos] == ',') break;
+            pos += 1;
+        }
+
+        size_t part_len = pos - start;
+        if(pos < session->server_sign_algorithms_len) {
+            pos += 1; /* skip past comma */
+        }
+
+        if(part_len == algorithm_len) {
+            unsigned char* part = session->server_sign_algorithms + start;
+            if(memcmp(part, algorithm, algorithm_len) == 0) return 1;
+        }
+    }
+
+    return 0;
+}
+
 /*
  * upgrade_publickey_method 
  *
@@ -1243,8 +1272,10 @@ static size_t actual_signature_length(const unsigned char *userauth_pblc_method,
                                       size_t sig_len) {
     if(sig_len < 5) return sig_len;
 
-    if(userauth_pblc_method_len == 34 &&
-       memcmp(userauth_pblc_method, "sk-ecdsa-sha2-nistp256@openssh.com", 34) == 0) {
+    if((userauth_pblc_method_len == 34 &&
+        memcmp(userauth_pblc_method, "sk-ecdsa-sha2-nistp256@openssh.com", 34) == 0) ||
+       (userauth_pblc_method_len == 43 &&
+        memcmp(userauth_pblc_method, "webauthn-sk-ecdsa-sha2-nistp256@openssh.com", 43) == 0)) {
 
        return sig_len - 5;
     }
@@ -1534,11 +1565,17 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                                                           session->userauth_pblc_method_len, 
                                                           sig_len);
 
-        _libssh2_store_u32(&s,
-                           4 + session->userauth_pblc_method_len + 4 +
-                           sig_len);
-        _libssh2_store_str(&s, (const char *)session->userauth_pblc_method,
-                           session->userauth_pblc_method_len);
+        // sometimes we want a different signature algorithm
+        char const* signature_algorithm = session->userauth_pblc_method;
+        size_t signature_algorithm_len = session->userauth_pblc_method_len;
+        if(session->flag.webauthn_sk && signature_algorithm_len == 34 &&
+           memcmp(signature_algorithm, "sk-ecdsa-sha2-nistp256@openssh.com", 34) == 0) {
+            signature_algorithm = "webauthn-sk-ecdsa-sha2-nistp256@openssh.com";
+            signature_algorithm_len = 43;
+        }
+
+        _libssh2_store_u32(&s, 4 + signature_algorithm_len + 4 + sig_len);
+        _libssh2_store_str(&s, signature_algorithm, signature_algorithm_len);
 
         LIBSSH2_FREE(session, session->userauth_pblc_method);
         session->userauth_pblc_method = NULL;

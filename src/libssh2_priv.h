@@ -586,8 +586,9 @@ struct _LIBSSH2_PUBLICKEY
 #define LIBSSH2_SCP_RESPONSE_BUFLEN     256
 
 struct flags {
-    int sigpipe;  /* LIBSSH2_FLAG_SIGPIPE */
-    int compress; /* LIBSSH2_FLAG_COMPRESS */
+    int sigpipe;     /* LIBSSH2_FLAG_SIGPIPE */
+    int compress;    /* LIBSSH2_FLAG_COMPRESS */
+    int webauthn_sk; /* LIBSSH2_FLAG_WEBAUTHN */
 };
 
 struct _LIBSSH2_SESSION

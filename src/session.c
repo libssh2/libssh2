@@ -1356,6 +1356,9 @@ libssh2_session_flag(LIBSSH2_SESSION * session, int flag, int value)
     case LIBSSH2_FLAG_COMPRESS:
         session->flag.compress = value;
         break;
+    case LIBSSH2_FLAG_WEBAUTHN:
+        session->flag.webauthn_sk = value;
+        break;
     default:
         /* unknown flag */
         return LIBSSH2_ERROR_INVAL;

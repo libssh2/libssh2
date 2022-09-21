@@ -360,6 +360,7 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
 /* flags */
 #define LIBSSH2_FLAG_SIGPIPE        1
 #define LIBSSH2_FLAG_COMPRESS       2
+#define LIBSSH2_FLAG_WEBAUTHN       4 /* use webauthn for sk-ecdsa signatures */
 
 typedef struct _LIBSSH2_SESSION                     LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL                     LIBSSH2_CHANNEL;
@@ -618,6 +619,10 @@ LIBSSH2_API char *libssh2_userauth_list(LIBSSH2_SESSION *session,
 LIBSSH2_API int libssh2_userauth_banner(LIBSSH2_SESSION* session,
                                         char **banner_out);
 LIBSSH2_API int libssh2_userauth_authenticated(LIBSSH2_SESSION *session);
+
+/* return 1 if the given algorithm is part of "server-sigs" extension list. */
+LIBSSH2_API int libssh2_session_has_signing_algorithm(LIBSSH2_SESSION * session,
+                                                      char const* algorithm);
 
 LIBSSH2_API int
 libssh2_userauth_password_ex(LIBSSH2_SESSION *session,
