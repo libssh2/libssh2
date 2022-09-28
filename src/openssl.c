@@ -1965,12 +1965,12 @@ clean_exit:
     if(key)
         LIBSSH2_FREE(session, key);
 
-    if(*application) {
+    if(application != NULL && *application != NULL) {
         LIBSSH2_FREE(session, (void *)application);
         *application = NULL;
     }
 
-    if(*key_handle) {
+    if(key_handle != NULL && *key_handle != NULL) {
         LIBSSH2_FREE(session, (void *)key_handle);
         *key_handle = NULL;
     }
@@ -2964,12 +2964,12 @@ fail:
     if(ec_key != NULL)
         EC_KEY_free(ec_key);
 
-    if(*application) {
+    if(application != NULL && *application != NULL) {
         LIBSSH2_FREE(session, (void *)application);
         *application = NULL;
     }
 
-    if(*key_handle) {
+    if(key_handle != NULL && *key_handle != NULL) {
         LIBSSH2_FREE(session, (void *)key_handle);
         *key_handle = NULL;
     }
