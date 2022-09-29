@@ -304,7 +304,10 @@ typedef struct __libssh2_wincng_key_ctx {
                                                      pk, pk_len, pw) \
   _libssh2_wincng_pub_priv_keyfilememory(s, m, m_len, p, p_len, \
                                                       pk, pk_len, pw)
-
+#define _libssh2_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
+                                      f, kh, kh_len, pk, pk_len, pw) \
+  _libssh2_wincng_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
+                                       f, kh, kh_len, pk, pk_len, pw)
 
 /*******************************************************************/
 /*

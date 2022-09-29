@@ -147,11 +147,22 @@ _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ecdsactx,
                                          const unsigned char *k,
                                          size_t k_len,
                                          libssh2_curve_type type);
+
 int
 _libssh2_ecdsa_new_private(libssh2_ecdsa_ctx ** ec_ctx,
                            LIBSSH2_SESSION * session,
                            const char *filename,
                            unsigned const char *passphrase);
+
+int
+_libssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx ** ec_ctx,
+                              unsigned char *flags,
+                              const char **application,
+                              const unsigned char **key_handle,
+                              size_t *handle_len,
+                              LIBSSH2_SESSION * session,
+                              const char *filename,
+                              unsigned const char *passphrase);
 
 int
 _libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ctx,
@@ -181,6 +192,16 @@ int _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
                                           const char *filedata,
                                           size_t filedata_len,
                                           unsigned const char *passphrase);
+
+int _libssh2_ecdsa_new_private_frommemory_sk(libssh2_ecdsa_ctx ** ec_ctx,
+                                             unsigned char *flags,
+                                             const char **application,
+                                             const unsigned char **key_handle,
+                                             size_t *handle_len,
+                                             LIBSSH2_SESSION * session,
+                                             const char *filedata,
+                                             size_t filedata_len,
+                                             unsigned const char *passphrase);
 
 libssh2_curve_type
 _libssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx);
@@ -212,6 +233,16 @@ _libssh2_ed25519_new_private(libssh2_ed25519_ctx **ed_ctx,
                             const char *filename, const uint8_t *passphrase);
 
 int
+_libssh2_ed25519_new_private_sk(libssh2_ed25519_ctx **ed_ctx,
+                                unsigned char *flags,
+                                const char **application,
+                                const unsigned char **key_handle,
+                                size_t *handle_len,
+                                LIBSSH2_SESSION *session,
+                                const char *filename,
+                                const uint8_t *passphrase);
+
+int
 _libssh2_ed25519_new_public(libssh2_ed25519_ctx **ed_ctx,
                             LIBSSH2_SESSION *session,
                             const unsigned char *raw_pub_key,
@@ -228,6 +259,17 @@ _libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx **ed_ctx,
                                         const char *filedata,
                                         size_t filedata_len,
                                         unsigned const char *passphrase);
+
+int
+_libssh2_ed25519_new_private_frommemory_sk(libssh2_ed25519_ctx **ed_ctx,
+                                           unsigned char *flags,
+                                           const char **application,
+                                           const unsigned char **key_handle,
+                                           size_t *handle_len,
+                                           LIBSSH2_SESSION *session,
+                                           const char *filedata,
+                                           size_t filedata_len,
+                                           unsigned const char *passphrase);
 
 #endif /* LIBSSH2_ED25519 */
 
@@ -258,6 +300,20 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                     size_t privatekeydata_len,
                                     const char *passphrase);
 
+
+int _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
+                                  unsigned char **method,
+                                  size_t *method_len,
+                                  unsigned char **pubkeydata,
+                                  size_t *pubkeydata_len,
+                                  int *algorithm,
+                                  unsigned char *flags,
+                                  const char **application,
+                                  const unsigned char **key_handle,
+                                  size_t *handle_len,
+                                  const char *privatekeydata,
+                                  size_t privatekeydata_len,
+                                  const char *passphrase);
 
 /**
  * @function _libssh2_supported_key_sign_algorithms

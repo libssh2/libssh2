@@ -283,6 +283,15 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
     unsigned int length;
 } LIBSSH2_USERAUTH_KBDINT_RESPONSE;
 
+typedef struct _LIBSSH2_SK_SIG_INFO {
+    uint8_t flags;
+    uint32_t counter;
+    unsigned char *sig_r;
+    size_t sig_r_len;
+    unsigned char *sig_s;
+    size_t sig_s_len;
+} LIBSSH2_SK_SIG_INFO;
+
 /* 'publickey' authentication callback */
 #define LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(name) \
   int name(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len, \
@@ -294,6 +303,17 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
             int instruction_len, int num_prompts, \
             const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,              \
             LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses, void **abstract)
+
+/* SK authentication callback */
+#define LIBSSH2_USERAUTH_SK_SIGN_FUNC(name) \
+int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info, \
+const unsigned char *data, size_t data_len, int algorithm, uint8_t flags, \
+const char *application, const unsigned char *key_handle, size_t handle_len, \
+void **abstract)
+
+/* Flags for SK authentication */
+#define LIBSSH2_SK_PRESENCE_REQUIRED     0x01
+#define LIBSSH2_SK_VERIFICATION_REQUIRED 0x04
 
 /* Callbacks for special SSH packets */
 #define LIBSSH2_IGNORE_FUNC(name) \
@@ -367,6 +387,25 @@ typedef struct _LIBSSH2_CHANNEL                     LIBSSH2_CHANNEL;
 typedef struct _LIBSSH2_LISTENER                    LIBSSH2_LISTENER;
 typedef struct _LIBSSH2_KNOWNHOSTS                  LIBSSH2_KNOWNHOSTS;
 typedef struct _LIBSSH2_AGENT                       LIBSSH2_AGENT;
+
+/* SK signature callback */
+typedef struct _LIBSSH2_PRIVKEY_SK {
+    int algorithm;
+    uint8_t flags;
+    const char *application;
+    const unsigned char *key_handle;
+    size_t handle_len;
+    LIBSSH2_USERAUTH_SK_SIGN_FUNC((*sign_callback));
+    void **orig_abstract;
+} LIBSSH2_PRIVKEY_SK;
+
+int
+libssh2_sign_sk(LIBSSH2_SESSION *session,
+                unsigned char **sig,
+                size_t *sig_len,
+                const unsigned char *data,
+                size_t data_len,
+                void **abstract);
 
 typedef struct _LIBSSH2_POLLFD {
     unsigned char type; /* LIBSSH2_POLLFD_* below */
@@ -710,6 +749,17 @@ libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION* session,
     libssh2_userauth_keyboard_interactive_ex((session), (username),     \
                                              (unsigned int)strlen(username), \
                                              (response_callback))
+
+LIBSSH2_API int
+libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
+                              const char *username,
+                              size_t username_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const char *passphrase,
+                              LIBSSH2_USERAUTH_SK_SIGN_FUNC
+                              ((*sign_callback)),
+                              void **abstract);
 
 LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
                              long timeout);
