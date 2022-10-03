@@ -196,6 +196,18 @@ static inline int writev(int sock, struct iovec *iov, int nvecs)
     channel->session->x11(((channel)->session), (channel), \
                           (shost), (sport), (&(channel)->session->abstract))
 
+#define LIBSSH2_AUTHAGENT(channel) \
+    channel->session->authagent(((channel)->session), (channel), \
+    (&(channel)->session->abstract))
+
+#define LIBSSH2_ADD_IDENTITIES(session, buffer, agentPath) \
+    session->addLocalIdentities((session), (buffer), (agentPath), \
+    (&(session->abstract)))
+
+#define LIBSSH2_AUTHAGENT_SIGN(session, blob, blen, data, dlen, sig, sigLen, \
+    agentPath) session->agentSignCallback((session), (blob), (blen), \
+    (data), (dlen), (sig), (sigLen), (agentPath), (&(session->abstract)))
+
 #define LIBSSH2_CHANNEL_CLOSE(session, channel)          \
     channel->close_cb((session), &(session)->abstract, \
                       (channel), &(channel)->abstract)
@@ -235,7 +247,8 @@ typedef enum
     libssh2_NB_state_jump3,
     libssh2_NB_state_jump4,
     libssh2_NB_state_jump5,
-    libssh2_NB_state_end
+    libssh2_NB_state_end,
+    libssh2_NB_state_jumpauthagent
 } libssh2_nonblocking_states;
 
 typedef struct packet_require_state_t
@@ -340,6 +353,25 @@ typedef struct packet_x11_open_state_t
     uint32_t shost_len;
     LIBSSH2_CHANNEL *channel;
 } packet_x11_open_state_t;
+
+#define AuthAgentUnavail "Auth Agent unavailable"
+
+typedef struct packet_authagent_state_t
+{
+    libssh2_nonblocking_states state;
+    unsigned char packet[17 + (sizeof(AuthAgentUnavail) - 1)];
+    uint32_t sender_channel;
+    uint32_t initial_window_size;
+    uint32_t packet_size;
+    LIBSSH2_CHANNEL *channel;
+} packet_authagent_state_t;
+
+
+typedef enum
+{
+  libssh2_requires_size_decryption = (1 << 0),
+  libssh2_requires_size_field_in_packet = (1 << 1)
+} libssh2_crypt_flags;
 
 struct _LIBSSH2_PACKET
 {
@@ -510,7 +542,7 @@ typedef struct _libssh2_endpoint_data
     char *lang_prefs;
 } libssh2_endpoint_data;
 
-#define PACKETBUFSIZE (1024*16)
+#define PACKETBUFSIZE MAX_SSH_PACKET_LEN
 
 struct transportpacket
 {
@@ -596,6 +628,9 @@ struct _LIBSSH2_SESSION
       LIBSSH2_DISCONNECT_FUNC((*ssh_msg_disconnect));
       LIBSSH2_MACERROR_FUNC((*macerror));
       LIBSSH2_X11_OPEN_FUNC((*x11));
+      LIBSSH2_AUTHAGENT_FUNC((*authagent));
+      LIBSSH2_ADD_IDENTITIES_FUNC((*addLocalIdentities));
+      LIBSSH2_AUTHAGENT_SIGN_FUNC((*agentSignCallback));
       LIBSSH2_SEND_FUNC((*send));
       LIBSSH2_RECV_FUNC((*recv));
 
@@ -810,6 +845,7 @@ struct _LIBSSH2_SESSION
                                           states */
     packet_queue_listener_state_t packAdd_Qlstn_state;
     packet_x11_open_state_t packAdd_x11open_state;
+    packet_authagent_state_t packAdd_authagent_state;
 
     /* State variables used in fullpacket() */
     libssh2_nonblocking_states fullpacket_state;

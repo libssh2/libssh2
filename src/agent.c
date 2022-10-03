@@ -828,6 +828,55 @@ libssh2_agent_userauth(LIBSSH2_AGENT *agent,
 }
 
 /*
+ * libssh2_agent_sign()
+ *
+ * Sign a payload using a system-installed ssh-agent.
+ *
+ * Returns 0 if succeeded, or a negative value for error.
+ */
+LIBSSH2_API int
+libssh2_agent_sign(LIBSSH2_AGENT *agent,
+                   struct libssh2_agent_publickey *identity,
+                   unsigned char **sig,
+                   size_t *s_len,
+                   unsigned char *data,
+                   size_t d_len,
+                   const char *method,
+                   u_int method_len)
+{
+    void *abstract = agent;
+
+    if(agent->session->userauth_pblc_state == libssh2_NB_state_idle) {
+        memset(&agent->transctx, 0, sizeof agent->transctx);
+        agent->identity = identity->node;
+    }
+
+    if(identity->blob_len < sizeof(uint32_t)) {
+        return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    uint32_t methodLen = _libssh2_ntohu32(identity->blob);
+
+    if(identity->blob_len < sizeof(uint32_t) + methodLen) {
+        return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    agent->session->userauth_pblc_method_len = method_len;
+    agent->session->userauth_pblc_method = LIBSSH2_ALLOC(agent->session,
+                                                         method_len);
+
+    memcpy(agent->session->userauth_pblc_method, method, methodLen);
+
+    int rc = agent_sign(agent->session, sig, s_len, data, d_len, &abstract);
+
+    LIBSSH2_FREE(agent->session, agent->session->userauth_pblc_method);
+    agent->session->userauth_pblc_method = NULL;
+    agent->session->userauth_pblc_method_len = 0;
+
+    return rc;
+}
+
+/*
  * libssh2_agent_disconnect()
  *
  * Close a connection to an ssh-agent.

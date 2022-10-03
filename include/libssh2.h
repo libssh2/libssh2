@@ -342,6 +342,19 @@ void **abstract)
  void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
            const char *shost, int sport, void **abstract)
 
+#define LIBSSH2_AUTHAGENT_FUNC(name) \
+ void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
+           void **abstract)
+
+#define LIBSSH2_ADD_IDENTITIES_FUNC(name) \
+ void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
+           void **abstract)
+
+#define LIBSSH2_AUTHAGENT_SIGN_FUNC(name) \
+ int name(LIBSSH2_SESSION* session, unsigned char *blob, unsigned int blen, \
+          unsigned char *data, unsigned int dlen, unsigned char **signature, \
+          unsigned int *sigLen, const char *agentPath, void **abstract)
+
 #define LIBSSH2_CHANNEL_CLOSE_FUNC(name) \
   void name(LIBSSH2_SESSION *session, void **session_abstract, \
             LIBSSH2_CHANNEL *channel, void **channel_abstract)
@@ -357,13 +370,16 @@ void **abstract)
                  int flags, void **abstract)
 
 /* libssh2_session_callback_set() constants */
-#define LIBSSH2_CALLBACK_IGNORE             0
-#define LIBSSH2_CALLBACK_DEBUG              1
-#define LIBSSH2_CALLBACK_DISCONNECT         2
-#define LIBSSH2_CALLBACK_MACERROR           3
-#define LIBSSH2_CALLBACK_X11                4
-#define LIBSSH2_CALLBACK_SEND               5
-#define LIBSSH2_CALLBACK_RECV               6
+#define LIBSSH2_CALLBACK_IGNORE               0
+#define LIBSSH2_CALLBACK_DEBUG                1
+#define LIBSSH2_CALLBACK_DISCONNECT           2
+#define LIBSSH2_CALLBACK_MACERROR             3
+#define LIBSSH2_CALLBACK_X11                  4
+#define LIBSSH2_CALLBACK_SEND                 5
+#define LIBSSH2_CALLBACK_RECV                 6
+#define LIBSSH2_CALLBACK_AUTHAGENT            7
+#define LIBSSH2_CALLBACK_AUTHAGENT_IDENTITIES 8
+#define LIBSSH2_CALLBACK_AUTHAGENT_SIGN       9
 
 /* libssh2_session_method_pref() constants */
 #define LIBSSH2_METHOD_KEX          0
@@ -618,6 +634,7 @@ LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION *session,
 LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int sock);
 LIBSSH2_API int libssh2_session_handshake(LIBSSH2_SESSION *session,
                                           libssh2_socket_t sock);
+
 LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session,
                                               int reason,
                                               const char *description,
@@ -1318,6 +1335,23 @@ LIBSSH2_API int
 libssh2_agent_userauth(LIBSSH2_AGENT *agent,
                const char *username,
                struct libssh2_agent_publickey *identity);
+
+/*
+ * libssh2_agent_sign()
+ *
+ * Sign a payload using a system-installed ssh-agent.
+ *
+ * Returns 0 if succeeded, or a negative value for error.
+ */
+LIBSSH2_API int
+libssh2_agent_sign(LIBSSH2_AGENT *agent,
+                   struct libssh2_agent_publickey *identity,
+                   unsigned char **sig,
+                   size_t *s_len,
+                   unsigned char *data,
+                   size_t d_len,
+                   const char *method,
+                   u_int method_len);
 
 /*
  * libssh2_agent_disconnect()
