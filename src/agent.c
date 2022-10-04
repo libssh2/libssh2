@@ -476,8 +476,12 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     memcpy(method_name, s, method_len);
     s += method_len;
 
+    ssize_t plain_len = plain_method((char *)session->userauth_pblc_method,
+                                     session->userauth_pblc_method_len);
+
     /* check to see if we match requested */
-    if((size_t)method_len != session->userauth_pblc_method_len ||
+    if(((size_t)method_len != session->userauth_pblc_method_len &&
+        method_len != plain_len) ||
         memcmp(method_name, session->userauth_pblc_method, method_len)) {
         _libssh2_debug(session,
                        LIBSSH2_TRACE_KEX,

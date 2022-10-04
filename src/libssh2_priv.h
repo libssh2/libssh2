@@ -1162,6 +1162,8 @@ int _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
 /* global.c */
 void _libssh2_init_if_needed(void);
 
+/* Utility function for certificate auth */
+size_t plain_method(char *method, size_t method_len);
 
 #define ARRAY_SIZE(a) (sizeof ((a)) / sizeof ((a)[0]))
 

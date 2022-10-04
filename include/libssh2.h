@@ -771,6 +771,8 @@ LIBSSH2_API int
 libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                               const char *username,
                               size_t username_len,
+                              const unsigned char *pubkeydata,
+                              size_t pubkeydata_len,
                               const char *privatekeydata,
                               size_t privatekeydata_len,
                               const char *passphrase,

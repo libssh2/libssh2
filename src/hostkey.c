@@ -1237,6 +1237,19 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_ed25519 = {
     hostkey_method_ssh_ed25519_dtor,
 };
 
+static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_ed25519_cert = {
+    "ssh-ed25519-cert-v01@openssh.com",
+    SHA256_DIGEST_LENGTH,
+    hostkey_method_ssh_ed25519_init,
+    hostkey_method_ssh_ed25519_initPEM,
+    hostkey_method_ssh_ed25519_initPEMFromMemory,
+    hostkey_method_ssh_ed25519_sig_verify,
+    hostkey_method_ssh_ed25519_signv,
+    NULL,                       /* encrypt */
+    hostkey_method_ssh_ed25519_dtor,
+};
+
+
 #endif /*LIBSSH2_ED25519*/
 
 
@@ -1251,6 +1264,7 @@ static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
 #endif
 #if LIBSSH2_ED25519
     &hostkey_method_ssh_ed25519,
+    &hostkey_method_ssh_ed25519_cert,
 #endif
 #if LIBSSH2_RSA
 #if LIBSSH2_RSA_SHA2
