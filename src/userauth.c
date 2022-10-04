@@ -2362,12 +2362,12 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
             pubkeydata = tmp_publickeydata;
         }
         else {
+            const char *ecdsa = "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com";
+            const char *ed25519 = "sk-ssh-ed25519-cert-v01@openssh.com";
+
             if(tmp_method != NULL) {
                 LIBSSH2_FREE(session, tmp_method);
             }
-
-            const char *ecdsa = "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com";
-            const char *ed25519 = "sk-ssh-ed25519-cert-v01@openssh.com";
 
             if(!strncmp((char *)publickeydata, ecdsa, strlen(ecdsa))) {
                 session->userauth_pblc_method_len = strlen(ecdsa);
