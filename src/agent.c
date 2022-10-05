@@ -381,6 +381,7 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     int rc;
     unsigned char *method_name = NULL;
     uint32_t sign_flags = 0;
+    ssize_t plain_len;
 
     /* Create a request to sign the data */
     if(transctx->state == agent_NB_state_init) {
@@ -476,8 +477,8 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     memcpy(method_name, s, method_len);
     s += method_len;
 
-    ssize_t plain_len = plain_method((char *)session->userauth_pblc_method,
-                                     session->userauth_pblc_method_len);
+    plain_len = plain_method((char *)session->userauth_pblc_method,
+                             session->userauth_pblc_method_len);
 
     /* check to see if we match requested */
     if(((size_t)method_len != session->userauth_pblc_method_len &&
@@ -849,6 +850,8 @@ libssh2_agent_sign(LIBSSH2_AGENT *agent,
                    u_int method_len)
 {
     void *abstract = agent;
+    int rc;
+    uint32_t methodLen;
 
     if(agent->session->userauth_pblc_state == libssh2_NB_state_idle) {
         memset(&agent->transctx, 0, sizeof agent->transctx);
@@ -859,7 +862,7 @@ libssh2_agent_sign(LIBSSH2_AGENT *agent,
         return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
     }
 
-    uint32_t methodLen = _libssh2_ntohu32(identity->blob);
+    methodLen = _libssh2_ntohu32(identity->blob);
 
     if(identity->blob_len < sizeof(uint32_t) + methodLen) {
         return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
@@ -871,7 +874,7 @@ libssh2_agent_sign(LIBSSH2_AGENT *agent,
 
     memcpy(agent->session->userauth_pblc_method, method, methodLen);
 
-    int rc = agent_sign(agent->session, sig, s_len, data, d_len, &abstract);
+    rc = agent_sign(agent->session, sig, s_len, data, d_len, &abstract);
 
     LIBSSH2_FREE(agent->session, agent->session->userauth_pblc_method);
     agent->session->userauth_pblc_method = NULL;

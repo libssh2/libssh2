@@ -219,9 +219,10 @@ static int free_count = 0;
 static
 LIBSSH2_ALLOC_FUNC(test_alloc)
 {
+    int *threshold_int_ptr = *abstract;
+
     alloc_count++;
 
-    int *threshold_int_ptr = *abstract;
     if (*abstract != NULL && *threshold_int_ptr == alloc_count) {
         return NULL;
     }
@@ -244,9 +245,13 @@ int test_case(int num,
               char *data, int data_len, void *abstract,
               struct expected expected)
 {
+    LIBSSH2_SESSION *session = NULL;
+    int rc;
+    char *message;
+    int error_code;
+
     alloc_count = 0;
     free_count = 0;
-    LIBSSH2_SESSION *session = NULL;
     session = libssh2_session_init_ex(test_alloc, test_free, NULL, abstract);
     if(session == NULL) {
         fprintf(stderr, "libssh2_session_init_ex failed\n");
@@ -257,7 +262,7 @@ int test_case(int num,
     session->userauth_kybd_data_len = data_len;
     memcpy(session->userauth_kybd_data, data, data_len);
 
-    int rc = userauth_keyboard_interactive_decode_info_request(session);
+    rc = userauth_keyboard_interactive_decode_info_request(session);
 
     if(rc != expected.rc) {
         fprintf(stdout,
@@ -266,8 +271,7 @@ int test_case(int num,
         return 1;
     }
 
-    char *message;
-    int error_code = libssh2_session_last_error(session, &message, NULL, 0);
+    error_code = libssh2_session_last_error(session, &message, NULL, 0);
 
     if(expected.last_error_code != error_code) {
         fprintf(stdout,
