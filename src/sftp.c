@@ -1852,11 +1852,11 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
 
             handle->u.dir.next_name = (char *) s;
             handle->u.dir.names_packet_len = names_packet_len;
-          end:
 
             if((--handle->u.dir.names_left) == 0)
                 LIBSSH2_FREE(session, handle->u.dir.names_packet);
 
+          end:
             _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
                            "libssh2_sftp_readdir_ex() return %d",
                            filename_len);

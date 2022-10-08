@@ -220,6 +220,7 @@ endif()
 add_library(libssh2 ${SOURCES})
 # we want it to be called libssh2 on all platforms
 set_target_properties(libssh2 PROPERTIES PREFIX "")
+set_target_properties(libssh2 PROPERTIES IMPORT_PREFIX "")
 
 target_compile_definitions(libssh2 PRIVATE ${PRIVATE_COMPILE_DEFINITIONS})
 target_include_directories(libssh2
