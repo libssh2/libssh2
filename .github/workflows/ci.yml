@@ -7,13 +7,16 @@ on:
     branches: [ master ]
 
 jobs:
-  style-check:
+  check_style:
+    name: style-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Check Style
         run: ./ci/checksrc.sh
-  build:
+
+  build_linux:
+    name: linux
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -88,6 +91,7 @@ jobs:
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
           ctest -VV --output-on-failure
           cmake --build . --target package
+
   fuzzer:
     runs-on: ubuntu-latest
     strategy:
