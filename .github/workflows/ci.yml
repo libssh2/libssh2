@@ -92,20 +92,6 @@ jobs:
           ctest -VV --output-on-failure
           cmake --build . --target package
 
-  fuzzer:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        compiler: [gcc, clang]
-    env:
-      CC: ${{ matrix.compiler }}
-      CC_FOR_BUILD: ${{ matrix.compiler }}
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run Fuzzer
-        run: GIT_REF=$GITHUB_REF ./ci/ossfuzz.sh
-
   build_msys2:
     name: msys2
     runs-on: windows-latest
