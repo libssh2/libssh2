@@ -1005,6 +1005,8 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 /* Error message is allocated on the heap */
 #define LIBSSH2_ERR_FLAG_DUP                     1
 
+#define SSH_USERAUTH_PARTIAL_SUCCESS             1
+
 /* SSH Packet Types -- Defined by internet draft */
 /* Transport Layer */
 #define SSH_MSG_DISCONNECT                          1
