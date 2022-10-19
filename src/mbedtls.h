@@ -65,8 +65,16 @@
 
 #define LIBSSH2_AES             1
 #define LIBSSH2_AES_CTR         1
-#define LIBSSH2_BLOWFISH        1
+#ifdef MBEDTLS_CIPHER_BLOWFISH_CBC
+# define LIBSSH2_BLOWFISH       1
+#else
+# define LIBSSH2_BLOWFISH       0
+#endif
+#ifdef MBEDTLS_CIPHER_ARC4_128
 #define LIBSSH2_RC4             1
+#else
+#define LIBSSH2_RC4             0
+#endif
 #define LIBSSH2_CAST            0
 #define LIBSSH2_3DES            1
 
@@ -88,6 +96,12 @@
 
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
+#if MBEDTLS_VERSION_NUMBER < 0x03000000
+#define mbedtls_cipher_info_get_key_bitlen(c) (c->key_bitlen)
+#define mbedtls_cipher_info_get_iv_size(c)    (c->iv_size)
+#define mbedtls_rsa_get_len(rsa)              (rsa->len)
+#define MBEDTLS_PRIVATE(m)                    m
+#endif
 
 /*******************************************************************/
 /*
@@ -363,7 +377,9 @@ typedef enum {
 #define _libssh2_cipher_aes256    MBEDTLS_CIPHER_AES_256_CBC
 #define _libssh2_cipher_aes192    MBEDTLS_CIPHER_AES_192_CBC
 #define _libssh2_cipher_aes128    MBEDTLS_CIPHER_AES_128_CBC
+#if LIBSSH2_BLOWFISH
 #define _libssh2_cipher_blowfish  MBEDTLS_CIPHER_BLOWFISH_CBC
+#endif
 #define _libssh2_cipher_arcfour   MBEDTLS_CIPHER_ARC4_128
 #define _libssh2_cipher_cast5     MBEDTLS_CIPHER_NULL
 #define _libssh2_cipher_3des      MBEDTLS_CIPHER_DES_EDE3_CBC
