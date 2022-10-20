@@ -31,6 +31,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.sha }}-${{ github.event.target_url }}
   cancel-in-progress: true
 
+permissions:
+  statuses: write
+
 jobs:
   split:
     runs-on: ubuntu-latest
