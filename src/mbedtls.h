@@ -96,11 +96,6 @@
 
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
-#if MBEDTLS_VERSION_NUMBER < 0x03000000
-#define mbedtls_cipher_info_get_key_bitlen(c) (c->key_bitlen)
-#define mbedtls_cipher_info_get_iv_size(c)    (c->iv_size)
-#define mbedtls_rsa_get_len(rsa)              (rsa->len)
-#endif
 
 /*******************************************************************/
 /*

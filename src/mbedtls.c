@@ -40,6 +40,10 @@
 #ifdef LIBSSH2_MBEDTLS /* compile only if we build with mbedtls */
 
 #if MBEDTLS_VERSION_NUMBER < 0x03000000
+#define mbedtls_cipher_info_get_key_bitlen(c) (c->key_bitlen)
+#define mbedtls_cipher_info_get_iv_size(c)    (c->iv_size)
+#define mbedtls_rsa_get_len(rsa)              (rsa->len)
+
 /* !checksrc! disable LONGLINE 1 */
 #define MBEDTLS_PRIVATE(m) m
 #endif
