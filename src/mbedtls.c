@@ -996,14 +996,16 @@ _libssh2_mbedtls_ecdh_gen_k(_libssh2_bn **k,
 
     mbedtls_ecp_point_init(&pubkey);
 
-    if(mbedtls_ecp_point_read_binary(&privkey->MBEDTLS_PRIVATE(grp), &pubkey,
+    if(mbedtls_ecp_point_read_binary(&privkey->MBEDTLS_PRIVATE(grp),
+                                     &pubkey,
                                      server_pubkey, server_pubkey_len) != 0) {
         rc = -1;
         goto cleanup;
     }
 
     if(mbedtls_ecdh_compute_shared(&privkey->MBEDTLS_PRIVATE(grp), *k,
-                                   &pubkey, &privkey->MBEDTLS_PRIVATE(d),
+                                   &pubkey,
+                                   &privkey->MBEDTLS_PRIVATE(d),
                                    mbedtls_ctr_drbg_random,
                                    &_libssh2_mbedtls_ctr_drbg) != 0) {
         rc = -1;
