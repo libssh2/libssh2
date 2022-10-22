@@ -116,6 +116,9 @@ LIBSSH2_SESSION *start_session_fixture()
     }
 
     connected_session = libssh2_session_init_ex(NULL, NULL, NULL, NULL);
+    if(getenv("FIXTURE_TRACE_ALL")) {
+        libssh2_trace(connected_session, ~0);
+    }
     libssh2_session_set_blocking(connected_session, 1);
     if(connected_session == NULL) {
         fprintf(stderr, "libssh2_session_init_ex failed\n");
