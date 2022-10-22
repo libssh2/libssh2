@@ -377,7 +377,6 @@ typedef enum {
 #ifdef MBEDTLS_CIPHER_ARC4_128
 #define _libssh2_cipher_arcfour   MBEDTLS_CIPHER_ARC4_128
 #endif
-#define _libssh2_cipher_cast5     MBEDTLS_CIPHER_NULL
 #define _libssh2_cipher_3des      MBEDTLS_CIPHER_DES_EDE3_CBC
 
 
