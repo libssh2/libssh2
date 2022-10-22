@@ -100,7 +100,6 @@
 #define mbedtls_cipher_info_get_key_bitlen(c) (c->key_bitlen)
 #define mbedtls_cipher_info_get_iv_size(c)    (c->iv_size)
 #define mbedtls_rsa_get_len(rsa)              (rsa->len)
-#define MBEDTLS_PRIVATE(m)                    m
 #endif
 
 /*******************************************************************/
