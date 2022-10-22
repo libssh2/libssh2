@@ -39,6 +39,11 @@
 
 #ifdef LIBSSH2_MBEDTLS /* compile only if we build with mbedtls */
 
+#if MBEDTLS_VERSION_NUMBER < 0x03000000
+/* !checksrc! disable LONGLINE 1 */
+#define MBEDTLS_PRIVATE(m) m
+#endif
+
 /*******************************************************************/
 /*
  * mbedTLS backend: Global context handles
