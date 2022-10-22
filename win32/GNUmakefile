@@ -171,6 +171,12 @@ ifdef WITH_WINCNG
 CFLAGS	+= -DLIBSSH2_WINCNG
 LDLIBS	+= -lbcrypt -lcrypt32
 else
+ifdef MBEDTLS_PATH
+CFLAGS += -DLIBSSH2_MBEDTLS
+CFLAGS += -I"$(MBEDTLS_PATH)/include"
+LIBPATH += -L"$(MBEDTLS_PATH)/libs"
+LDLIBS += -lmbedtls -lmbedx509 -lmbedcrypto
+else
 CFLAGS	+= -DLIBSSH2_OPENSSL
 ifndef OPENSSL_INCLUDE
 	ifeq "$(wildcard $(OPENSSL_PATH)/outinc)" "$(OPENSSL_PATH)/outinc"
@@ -201,6 +207,7 @@ else
 	LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
 endif
 endif
+endif
 ifeq ($(CC),mwcc)
 LDLIBS	+= -lkernel32.lib -luser32.lib -lwsock32.lib
 else
@@ -225,7 +232,11 @@ vpath %.c $(PROOT)/src
 ifdef WITH_WINCNG
 include $(PROOT)/Makefile.WinCNG.inc
 else
+ifdef MBEDTLS_PATH
+include $(PROOT)/Makefile.mbedTLS.inc
+else
 include $(PROOT)/Makefile.OpenSSL.inc
+endif
 endif
 
 # include Makefile.inc to get CSOURCES define
