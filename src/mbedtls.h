@@ -71,9 +71,9 @@
 # define LIBSSH2_BLOWFISH       0
 #endif
 #ifdef MBEDTLS_CIPHER_ARC4_128
-#define LIBSSH2_RC4             1
+# define LIBSSH2_RC4            1
 #else
-#define LIBSSH2_RC4             0
+# define LIBSSH2_RC4            0
 #endif
 #define LIBSSH2_CAST            0
 #define LIBSSH2_3DES            1
