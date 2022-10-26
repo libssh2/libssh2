@@ -541,7 +541,7 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 #endif
     free(hash);
 
-    return (ret == 1) ? 0 : -1;
+    return (ret == 0) ? 0 : -1;
 }
 
 int
