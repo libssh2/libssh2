@@ -471,22 +471,29 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
                       _libssh2_cipher_type(algo),
                       int encrypt, unsigned char *block, size_t blocksize)
 {
-    unsigned char buf[EVP_MAX_BLOCK_LENGTH];
-    int ret;
-    int outlen;
     (void) algo;
     (void) encrypt;
+    unsigned char buf[EVP_MAX_BLOCK_LENGTH];
+    int ret;
+    int rc = 1;
 
 #ifdef HAVE_OPAQUE_STRUCTS
-    ret = EVP_CipherUpdate(*ctx, buf, &outlen, block, blocksize);
+    ret = EVP_Cipher(*ctx, buf, block, blocksize);
 #else
-    ret = EVP_CipherUpdate(ctx, buf, &outlen, block, blocksize);
+    ret = EVP_Cipher(ctx, buf, block, blocksize);
 #endif
-    if(ret == 1) {
+
+#if (defined(OPENSSL_VERSION_MAJOR) && OPENSSL_VERSION_MAJOR >= 3) || defined(LIBSSH2_WOLFSSL)
+    if(ret != -1)
+#else
+    if(ret == 1)
+#endif
+    {
+        rc = 0;
         memcpy(block, buf, blocksize);
     }
 
-    return ret == 1 ? 0 : 1;
+    return rc;
 }
 
 #if LIBSSH2_AES_CTR && !defined(HAVE_EVP_AES_128_CTR)
