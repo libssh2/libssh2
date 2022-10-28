@@ -483,7 +483,8 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     ret = EVP_Cipher(ctx, buf, block, blocksize);
 #endif
 
-#if (defined(OPENSSL_VERSION_MAJOR) && OPENSSL_VERSION_MAJOR >= 3) || defined(LIBSSH2_WOLFSSL)
+#if (defined(OPENSSL_VERSION_MAJOR) && OPENSSL_VERSION_MAJOR >= 3) || \
+     defined(LIBSSH2_WOLFSSL)
     if(ret != -1)
 #else
     if(ret == 1)
