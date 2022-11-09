@@ -147,6 +147,10 @@ banner_receive(LIBSSH2_SESSION * session)
             return LIBSSH2_ERROR_SOCKET_DISCONNECT;
         }
 
+        if((c == '\r' || c == '\n') && banner_len == 0) {
+            continue;
+        }
+
         if(c == '\0') {
             /* NULLs are not allowed in SSH banners */
             session->banner_TxRx_state = libssh2_NB_state_idle;
