@@ -85,6 +85,9 @@ libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
 void _libssh2_htonu32(unsigned char *buf, uint32_t val);
 void _libssh2_store_u32(unsigned char **buf, uint32_t value);
 void _libssh2_store_str(unsigned char **buf, const char *str, size_t len);
+void _libssh2_store_bignum2_bytes(unsigned char **buf,
+                                  const unsigned char *bytes,
+                                  size_t len);
 void *_libssh2_calloc(LIBSSH2_SESSION *session, size_t size);
 void _libssh2_explicit_zero(void *buf, size_t size);
 
@@ -103,6 +106,7 @@ int _libssh2_copy_string(LIBSSH2_SESSION* session, struct string_buf *buf,
 int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
                               size_t *outlen);
 int _libssh2_check_length(struct string_buf *buf, size_t requested_len);
+int _libssh2_eob(struct string_buf *buf);
 
 #if defined(LIBSSH2_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
 /* provide a private one */

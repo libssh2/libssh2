@@ -111,6 +111,9 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     if(_libssh2_get_string(&buf, &n, &n_len))
         return -1;
 
+    if(!_libssh2_eob(&buf))
+        return -1;
+
     if(_libssh2_rsa_new(&rsactx, e, e_len, n, n_len, NULL, 0,
                         NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0)) {
         return -1;
@@ -448,6 +451,18 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_sha2_512 = {
 
 #endif /* LIBSSH2_RSA_SHA2 */
 
+static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_cert = {
+    "ssh-rsa-cert-v01@openssh.com",
+    MD5_DIGEST_LENGTH,
+    NULL,
+    hostkey_method_ssh_rsa_initPEM,
+    hostkey_method_ssh_rsa_initPEMFromMemory,
+    NULL,
+    hostkey_method_ssh_rsa_signv,
+    NULL,                       /* encrypt */
+    hostkey_method_ssh_rsa_dtor,
+};
+
 #endif /* LIBSSH2_RSA */
 
 #if LIBSSH2_DSA
@@ -502,6 +517,9 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
         return -1;
 
     if(_libssh2_get_string(&buf, &y, &y_len))
+        return -1;
+
+    if(!_libssh2_eob(&buf))
         return -1;
 
     if(_libssh2_dsa_new(&dsactx, p, p_len, q, q_len,
@@ -747,6 +765,9 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
 
     /* public key */
     if(_libssh2_get_string(&buf, &public_key, &key_len))
+        return -1;
+
+    if(!_libssh2_eob(&buf))
         return -1;
 
     if(_libssh2_ecdsa_curve_name_with_octal_new(&ecdsactx, public_key,
@@ -1056,6 +1077,9 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
     if(_libssh2_get_string(&buf, &key, &key_len))
         return -1;
 
+    if(!_libssh2_eob(&buf))
+        return -1;
+
     if(_libssh2_ed25519_new_public(&ctx, session, key, key_len) != 0) {
         return -1;
     }
@@ -1234,6 +1258,7 @@ static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
     &hostkey_method_ssh_rsa_sha2_256,
 #endif /* LIBSSH2_RSA_SHA2 */
     &hostkey_method_ssh_rsa,
+    &hostkey_method_ssh_rsa_cert,
 #endif /* LIBSSH2_RSA */
 #if LIBSSH2_DSA
     &hostkey_method_ssh_dss,

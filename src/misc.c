@@ -243,6 +243,30 @@ void _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
     }
 }
 
+/* _libssh2_store_bignum2_bytes
+ */
+void _libssh2_store_bignum2_bytes(unsigned char **buf,
+                                  const unsigned char *bytes,
+                                  size_t len)
+{
+    int extraByte = 0;
+    const unsigned char *p;
+    for(p = bytes; len > 0 && *p == 0; --len, ++p) {}
+
+    extraByte = (len > 0 && (p[0] & 0x80) != 0);
+    _libssh2_store_u32(buf, len + extraByte);
+
+    if(extraByte) {
+        *buf[0] = 0;
+        *buf += 1;
+    }
+
+    if(len > 0) {
+        memcpy(*buf, p, len);
+        *buf += len;
+    }
+}
+
 /* Base64 Conversion */
 
 static const short base64_reverse_table[256] = {
@@ -878,6 +902,12 @@ int _libssh2_check_length(struct string_buf *buf, size_t len)
     unsigned char *endp = &buf->data[buf->len];
     size_t left = endp - buf->dataptr;
     return ((len <= left) && (left <= buf->len));
+}
+
+int _libssh2_eob(struct string_buf *buf)
+{
+    unsigned char *endp = &buf->data[buf->len];
+    return buf->dataptr >= endp;
 }
 
 /* Wrappers */

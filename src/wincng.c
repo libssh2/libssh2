@@ -596,7 +596,8 @@ _libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx)
  */
 
 int
-_libssh2_wincng_key_sha1_verify(_libssh2_wincng_key_ctx *ctx,
+_libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
+                                size_t hashlen,
                                 const unsigned char *sig,
                                 unsigned long sig_len,
                                 const unsigned char *m,
@@ -604,10 +605,31 @@ _libssh2_wincng_key_sha1_verify(_libssh2_wincng_key_ctx *ctx,
                                 unsigned long flags)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfoPKCS1;
+    BCRYPT_ALG_HANDLE hAlgHash;
     void *pPaddingInfo;
     unsigned char *data, *hash;
-    unsigned long datalen, hashlen;
+    unsigned long datalen;
     int ret;
+
+    if(hashlen == SHA_DIGEST_LENGTH) {
+        hAlgHash = _libssh2_wincng.hAlgHashSHA1;
+        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA1_ALGORITHM;
+    }
+    else if(hashlen == SHA256_DIGEST_LENGTH) {
+        hAlgHash = _libssh2_wincng.hAlgHashSHA256;
+        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA256_ALGORITHM;
+    }
+    else if(hashlen == SHA384_DIGEST_LENGTH) {
+        hAlgHash = _libssh2_wincng.hAlgHashSHA384;
+        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA384_ALGORITHM;
+    }
+    else if(hashlen == SHA512_DIGEST_LENGTH) {
+        hAlgHash = _libssh2_wincng.hAlgHashSHA512;
+        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA512_ALGORITHM;
+    }
+    else {
+        return -1;
+    }
 
     datalen = m_len;
     data = malloc(datalen);
@@ -615,19 +637,16 @@ _libssh2_wincng_key_sha1_verify(_libssh2_wincng_key_ctx *ctx,
         return -1;
     }
 
-    hashlen = SHA_DIGEST_LENGTH;
     hash = malloc(hashlen);
     if(!hash) {
         free(data);
         return -1;
     }
-
     memcpy(data, m, datalen);
 
     ret = _libssh2_wincng_hash(data, datalen,
-                               _libssh2_wincng.hAlgHashSHA1,
+                               hAlgHash,
                                hash, hashlen);
-
     _libssh2_wincng_safe_free(data, datalen);
 
     if(ret) {
@@ -643,7 +662,6 @@ _libssh2_wincng_key_sha1_verify(_libssh2_wincng_key_ctx *ctx,
     }
 
     if(flags & BCRYPT_PAD_PKCS1) {
-        paddingInfoPKCS1.pszAlgId = BCRYPT_SHA1_ALGORITHM;
         pPaddingInfo = &paddingInfoPKCS1;
     }
     else
@@ -1209,12 +1227,24 @@ _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                 const unsigned char *m,
                                 unsigned long m_len)
 {
-    return _libssh2_wincng_key_sha1_verify(rsa, sig, sig_len, m, m_len,
-                                           BCRYPT_PAD_PKCS1);
+    return _libssh2_wincng_key_sha_verify(rsa, SHA_DIGEST_LENGTH, sig, sig_len,
+                                          m, m_len, BCRYPT_PAD_PKCS1);
 }
 
 int
-_libssh2_wincng_rsa_sha1_sign(LIBSSH2_SESSION *session,
+_libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx* rsa,
+                                size_t hash_len,
+                                const unsigned char *sig,
+                                unsigned long sig_len,
+                                const unsigned char *m,
+                                unsigned long m_len)
+{
+    return _libssh2_wincng_key_sha_verify(rsa, hash_len, sig, sig_len, m,
+                                          m_len, BCRYPT_PAD_PKCS1);
+}
+
+int
+_libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
                               libssh2_rsa_ctx *rsa,
                               const unsigned char *hash,
                               size_t hash_len,
@@ -1226,14 +1256,25 @@ _libssh2_wincng_rsa_sha1_sign(LIBSSH2_SESSION *session,
     unsigned long cbData, datalen, siglen;
     int ret;
 
+    if(hash_len == SHA_DIGEST_LENGTH)
+        paddingInfo.pszAlgId = BCRYPT_SHA1_ALGORITHM;
+    else if(hash_len == SHA256_DIGEST_LENGTH)
+        paddingInfo.pszAlgId = BCRYPT_SHA256_ALGORITHM;
+    else if(hash_len == SHA384_DIGEST_LENGTH)
+        paddingInfo.pszAlgId = BCRYPT_SHA384_ALGORITHM;
+    else if(hash_len == SHA512_DIGEST_LENGTH)
+        paddingInfo.pszAlgId = BCRYPT_SHA512_ALGORITHM;
+    else {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                      "Unsupported hash digest length");
+        return -1;
+    }
+
     datalen = (unsigned long)hash_len;
     data = malloc(datalen);
     if(!data) {
         return -1;
     }
-
-    paddingInfo.pszAlgId = BCRYPT_SHA1_ALGORITHM;
-
     memcpy(data, hash, datalen);
 
     ret = BCryptSignHash(rsa->hKey, &paddingInfo,
@@ -1504,7 +1545,8 @@ _libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
                                 const unsigned char *m,
                                 unsigned long m_len)
 {
-    return _libssh2_wincng_key_sha1_verify(dsa, sig_fixed, 40, m, m_len, 0);
+    return _libssh2_wincng_key_sha_verify(dsa, SHA_DIGEST_LENGTH, sig_fixed,
+                                          40, m, m_len, 0);
 }
 
 int
@@ -1790,6 +1832,26 @@ _libssh2_wincng_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                "Unable to extract public key from private key in memory: "
                "Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
+}
+
+int
+_libssh2_wincng_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
+                                     unsigned char **method,
+                                     size_t *method_len,
+                                     unsigned char **pubkeydata,
+                                     size_t *pubkeydata_len,
+                                     int *algorithm,
+                                     unsigned char *flags,
+                                     const char **application,
+                                     const unsigned char **key_handle,
+                                     size_t *handle_len,
+                                     const char *privatekeydata,
+                                     size_t privatekeydata_len,
+                                     const char *passphrase)
+{
+    return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                    "Unable to extract public SK key from private key file: "
+                    "Method unimplemented in Windows CNG backend");
 }
 
 /*******************************************************************/
@@ -2604,8 +2666,13 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        size_t key_method_len)
 {
     (void)session;
-    (void)key_method;
-    (void)key_method_len;
+
+#if LIBSSH2_RSA_SHA2
+    if(key_method_len == 7 &&
+        memcmp(key_method, "ssh-rsa", key_method_len) == 0) {
+        return "rsa-sha2-512,rsa-sha2-256,ssh-rsa";
+    }
+#endif
 
     return NULL;
 }
