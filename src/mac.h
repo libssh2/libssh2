@@ -64,5 +64,7 @@ struct _LIBSSH2_MAC_METHOD
 typedef struct _LIBSSH2_MAC_METHOD LIBSSH2_MAC_METHOD;
 
 const LIBSSH2_MAC_METHOD **_libssh2_mac_methods(void);
+const LIBSSH2_MAC_METHOD *_libssh2_mac_override(
+        const LIBSSH2_CRYPT_METHOD *crypt);
 
 #endif /* __LIBSSH2_MAC_H */
