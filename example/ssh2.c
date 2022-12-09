@@ -4,7 +4,10 @@
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * "ssh2 host user password [-p|-i|-k]"
+ * Usage: ssh2 hostip user password [-p|-i|-k]
+ *  -p authenticate using password
+ *  -i authenticate using keyboard-interactive
+ *  -k authenticate using public key (password argument decrypts keyfile)
  */
 
 #include "libssh2_config.h"
@@ -30,15 +33,19 @@
 #include <arpa/inet.h>
 #endif
 
+#include <stdlib.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#define snprintf _snprintf
+#endif
 
-const char *keyfile1 = "~/.ssh/id_rsa.pub";
-const char *keyfile2 = "~/.ssh/id_rsa";
+const char *keyfile1 = ".ssh/id_rsa.pub";
+const char *keyfile2 = ".ssh/id_rsa";
 const char *username = "username";
 const char *password = "password";
 
@@ -112,6 +119,10 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
+
+    fprintf(stderr, "Connecting to %s as user %s\n",
+            inet_ntoa(sin.sin_addr), username);
+
     if(connect(sock, (struct sockaddr*)(&sin),
                 sizeof(struct sockaddr_in)) != 0) {
         fprintf(stderr, "failed to connect!\n");
@@ -190,14 +201,37 @@ int main(int argc, char *argv[])
     }
     else if(auth_pw & 4) {
         /* Or by public key */
-        if(libssh2_userauth_publickey_fromfile(session, username, keyfile1,
-                                               keyfile2, password)) {
+        size_t fn1sz, fn2sz;
+        char *fn1, *fn2;
+        char const *h = getenv("HOME");
+        if(!h || !*h)
+            h = ".";
+        fn1sz = strlen(h) + strlen(keyfile1) + 2;
+        fn2sz = strlen(h) + strlen(keyfile2) + 2;
+        fn1 = malloc(fn1sz);
+        fn2 = malloc(fn2sz);
+        if(!fn1 || !fn2) {
+            free(fn2);
+            free(fn1);
+            fprintf(stderr, "out of memory\n");
+            goto shutdown;
+        }
+        /* Using asprintf() here would be much cleaner, but less portable */
+        snprintf(fn1, fn1sz, "%s/%s", h, keyfile1);
+        snprintf(fn2, fn2sz, "%s/%s", h, keyfile2);
+
+        if(libssh2_userauth_publickey_fromfile(session, username, fn1,
+                                               fn2, password)) {
             fprintf(stderr, "\tAuthentication by public key failed!\n");
+            free(fn2);
+            free(fn1);
             goto shutdown;
         }
         else {
             fprintf(stderr, "\tAuthentication by public key succeeded.\n");
         }
+        free(fn2);
+        free(fn1);
     }
     else {
         fprintf(stderr, "No supported authentication methods found!\n");
