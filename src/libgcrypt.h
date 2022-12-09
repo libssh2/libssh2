@@ -51,6 +51,7 @@
 
 #define LIBSSH2_AES 1
 #define LIBSSH2_AES_CTR 1
+#define LIBSSH2_AES_GCM 0
 #define LIBSSH2_BLOWFISH 1
 #define LIBSSH2_RC4 1
 #define LIBSSH2_CAST 1

@@ -260,7 +260,11 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
 
         while(len_decrypted <= (int)*datalen - blocksize) {
             if(method->crypt(session, *data + len_decrypted, blocksize,
-                              &abstract)) {
+                              &abstract,
+                              len_decrypted == 0 ? FIRST_BLOCK :
+                                ((len_decrypted == (int)*datalen - blocksize) ?
+                               LAST_BLOCK : MIDDLE_BLOCK)
+                             )) {
                 ret = LIBSSH2_ERROR_DECRYPT;
                 _libssh2_explicit_zero((char *)secret, sizeof(secret));
                 method->dtor(session, &abstract);
@@ -589,7 +593,11 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         while((size_t)len_decrypted <= decrypted.len - blocksize) {
             if(method->crypt(session, decrypted.data + len_decrypted,
                              blocksize,
-                             &abstract)) {
+                             &abstract,
+                             len_decrypted == 0 ? FIRST_BLOCK : (
+                         ((size_t)len_decrypted == decrypted.len - blocksize) ?
+                               LAST_BLOCK : MIDDLE_BLOCK)
+                             )) {
                 ret = LIBSSH2_ERROR_DECRYPT;
                 method->dtor(session, &abstract);
                 goto out;
