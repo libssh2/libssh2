@@ -1787,6 +1787,15 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         return 0;
     }
 
+    if (session->userauth_pblc_data[session->userauth_pblc_data_len - 1] == 1) {
+        /* This public key is accepted, but require more authentication */
+        LIBSSH2_FREE(session, session->userauth_pblc_data);
+        session->userauth_pblc_data = NULL;
+        session->userauth_pblc_state = libssh2_NB_state_idle;
+        return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PARTIAL,
+                            "Publickey authentication partial successful");
+    }
+
     /* This public key is not allowed for this user on this server */
     LIBSSH2_FREE(session, session->userauth_pblc_data);
     session->userauth_pblc_data = NULL;
