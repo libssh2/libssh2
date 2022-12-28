@@ -140,6 +140,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL")
         public_key_auth_succeeds_with_correct_ed25519_key_from_mem
         public_key_auth_succeeds_with_correct_ecdsa_key
         public_key_auth_succeeds_with_correct_signed_ecdsa_key
+        public_key_auth_succeeds_with_correct_signed_rsa_key
        )
     endif()
 endif()
@@ -183,9 +184,13 @@ endif()
 target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "../src/" "${CRYPTO_BACKEND_INCLUDE_DIR}")
 find_program(GCOV_PATH gcov)
+set(TGT_OPTIONS -g --coverage -fprofile-abs-path)
+if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+        set(TGT_OPTIONS -g --coverage)
+endif()
 if(CMAKE_COMPILER_IS_GNUCC AND GCOV_PATH)
   target_compile_options(test_keyboard_interactive_auth_info_request BEFORE PRIVATE
-    -g --coverage -fprofile-abs-path)
+    ${TGT_OPTIONS})
   target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2 gcov)
 else()
   target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2)

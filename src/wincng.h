@@ -63,7 +63,7 @@
 #define LIBSSH2_3DES 1
 
 #define LIBSSH2_RSA 1
-#define LIBSSH2_RSA_SHA2 0
+#define LIBSSH2_RSA_SHA2 1
 #define LIBSSH2_DSA 1
 #define LIBSSH2_ECDSA 0
 #define LIBSSH2_ED25519 0
@@ -262,9 +262,13 @@ typedef struct __libssh2_wincng_key_ctx {
   _libssh2_wincng_rsa_new_private_frommemory(rsactx, s, filedata, \
                                              filedata_len, passphrase)
 #define _libssh2_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len) \
-  _libssh2_wincng_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len)
+  _libssh2_wincng_rsa_sha_sign(s, rsactx, hash, hash_len, sig, sig_len)
+#define _libssh2_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len) \
+  _libssh2_wincng_rsa_sha_sign(s, rsactx, hash, hash_len, sig, sig_len)
 #define _libssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len) \
   _libssh2_wincng_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len)
+#define _libssh2_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len) \
+  _libssh2_wincng_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len)
 #define _libssh2_rsa_free(rsactx) \
   _libssh2_wincng_rsa_free(rsactx)
 
@@ -300,7 +304,10 @@ typedef struct __libssh2_wincng_key_ctx {
                                                      pk, pk_len, pw) \
   _libssh2_wincng_pub_priv_keyfilememory(s, m, m_len, p, p_len, \
                                                       pk, pk_len, pw)
-
+#define _libssh2_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
+                                      f, kh, kh_len, pk, pk_len, pw) \
+  _libssh2_wincng_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
+                                       f, kh, kh_len, pk, pk_len, pw)
 
 /*******************************************************************/
 /*
@@ -450,7 +457,8 @@ void
 _libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx);
 
 int
-_libssh2_wincng_key_sha1_verify(_libssh2_wincng_key_ctx *ctx,
+_libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
+                                size_t hashlen,
                                 const unsigned char *sig,
                                 unsigned long sig_len,
                                 const unsigned char *m,
@@ -493,7 +501,7 @@ _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                 const unsigned char *m,
                                 unsigned long m_len);
 int
-_libssh2_wincng_rsa_sha1_sign(LIBSSH2_SESSION *session,
+_libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
                               libssh2_rsa_ctx *rsa,
                               const unsigned char *hash,
                               size_t hash_len,

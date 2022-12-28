@@ -7,13 +7,16 @@ on:
     branches: [ master ]
 
 jobs:
-  style-check:
+  check_style:
+    name: style-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Check Style
         run: ./ci/checksrc.sh
-  build:
+
+  build_linux:
+    name: linux
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -63,7 +66,7 @@ jobs:
       - name: Install mbedTLS Dependencies
         if: ${{ matrix.crypto_backend == 'mbedTLS' }}
         run: |
-          MBEDTLSVER=mbedtls-2.7.0
+          MBEDTLSVER=mbedtls-3.2.1
           curl -L https://github.com/ARMmbed/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
           cd mbedtls-$MBEDTLSVER
           cmake $TOOLCHAIN_OPTION -DUSE_SHARED_MBEDTLS_LIBRARY=ON -DCMAKE_INSTALL_PREFIX:PATH=../usr .
@@ -88,16 +91,31 @@ jobs:
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
           ctest -VV --output-on-failure
           cmake --build . --target package
-  fuzzer:
-    runs-on: ubuntu-latest
+
+  build_msys2:
+    name: msys2
+    runs-on: windows-latest
     strategy:
-      fail-fast: false
       matrix:
-        compiler: [gcc, clang]
-    env:
-      CC: ${{ matrix.compiler }}
-      CC_FOR_BUILD: ${{ matrix.compiler }}
+        include:
+          - { sys: mingw64, env: x86_64 }
+          - { sys: mingw32, env: i686 }
+          - { sys: ucrt64,  env: ucrt-x86_64 }
+          - { sys: clang64, env: clang-x86_64 }
+      fail-fast: false
     steps:
-      - uses: actions/checkout@v2
-      - name: Run Fuzzer
-        run: GIT_REF=$GITHUB_REF ./ci/ossfuzz.sh
+      - uses: actions/checkout@v3
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          install: >-
+            mingw-w64-${{matrix.env}}-cc
+            mingw-w64-${{matrix.env}}-autotools
+            mingw-w64-${{matrix.env}}-openssl
+      - name: Building libssh2
+        shell: msys2 {0}
+        run: |
+          autoreconf -fi
+          ./configure --enable-debug --enable-static --disable-shared --with-crypto=openssl
+          make
+          make check

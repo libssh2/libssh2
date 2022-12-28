@@ -265,6 +265,18 @@ AC_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibi
        AC_MSG_RESULT(no)
 )
 
+# Build tests?
+AC_ARG_ENABLE([tests],
+  [AS_HELP_STRING([--disable-tests], [Disable tests @<:@default=enabled@:>@])],
+  [
+    if ! test "x${enable_tests}" = "xyes"; then
+      enable_tests="no"
+    fi
+  ],
+  [enable_tests="yes"])
+AM_CONDITIONAL([ENABLE_TESTS], [test "x$enable_tests" = xyes])
+
+
 # Build example applications?
 AC_MSG_CHECKING([whether to build example applications])
 AC_ARG_ENABLE([examples-build],
@@ -298,7 +310,7 @@ AM_CONDITIONAL([USE_OSSFUZZ_STATIC], [test -f "$LIB_FUZZING_ENGINE"])
 
 # Checks for header files.
 # AC_HEADER_STDC
-AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h])
+AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/param.h sys/uio.h])
 AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
 AC_CHECK_HEADERS([sys/un.h], [have_sys_un_h=yes], [have_sys_un_h=no])
