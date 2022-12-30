@@ -216,7 +216,7 @@ static const char *docker_machine_name(void)
     return getenv("DOCKER_MACHINE_NAME");
 }
 
-static int is_running_inside_a_container()
+static int is_running_inside_a_container(void)
 {
 #ifdef WIN32
     return 0;
@@ -413,7 +413,7 @@ cleanup:
 
 static char *running_container_id = NULL;
 
-int start_openssh_fixture()
+int start_openssh_fixture(void)
 {
     int ret;
 #ifdef HAVE_WINSOCK2_H
@@ -438,7 +438,7 @@ int start_openssh_fixture()
     }
 }
 
-void stop_openssh_fixture()
+void stop_openssh_fixture(void)
 {
     if(running_container_id) {
         stop_openssh_server(running_container_id);
@@ -450,7 +450,7 @@ void stop_openssh_fixture()
     }
 }
 
-int open_socket_to_openssh_server()
+int open_socket_to_openssh_server(void)
 {
     return open_socket_to_container(running_container_id);
 }

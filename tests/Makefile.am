@@ -55,6 +55,7 @@ EXTRA_DIST =                                                           \
  openssh_server/ssh_host_ed25519_key                                   \
  openssh_server/ssh_host_rsa_key                                       \
  runner.c                                                              \
+ runner.h                                                              \
  session_fixture.c                                                     \
  session_fixture.h                                                     \
  simple.c                                                              \
