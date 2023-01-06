@@ -11,7 +11,7 @@ jobs:
     name: style-check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Check Style
         run: ./ci/checksrc.sh
 
@@ -47,7 +47,7 @@ jobs:
       BUILD_SHARED_LIBS: ${{ matrix.build_shared_libs }}
       ENABLE_ZLIB_COMPRESSION: ${{ matrix.enable_zlib_compression }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install 32 Bit Dependencies
         if: ${{ matrix.address_size == 32 }}
         run: |
