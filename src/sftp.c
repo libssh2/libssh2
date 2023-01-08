@@ -250,6 +250,7 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
     case SSH_FXP_EXTENDED_REPLY:
         break;
     default:
+        sftp->last_errno = LIBSSH2_FX_OK;
         return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                               "Out of sync with the world");
     }
@@ -1116,6 +1117,8 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     int open_file = (open_type == LIBSSH2_SFTP_OPENFILE)?1:0;
 
     if(sftp->open_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
         /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
            flags(4) */
         sftp->open_packet_len = filename_len + 13 +
@@ -1382,6 +1385,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
     switch(sftp->read_state) {
     case libssh2_NB_state_idle:
+        sftp->last_errno = LIBSSH2_FX_OK;
 
         /* Some data may already have been read from the server in the
            previous call but didn't fit in the buffer at the time.  If so, we
@@ -1761,6 +1765,8 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     ssize_t retcode;
 
     if(sftp->readdir_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
         if(handle->u.dir.names_left) {
             /*
              * A prior request returned more than one directory entry,
@@ -2031,6 +2037,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     switch(sftp->write_state) {
     default:
     case libssh2_NB_state_idle:
+        sftp->last_errno = LIBSSH2_FX_OK;
 
         /* Number of bytes sent off that haven't been acked and therefore we
            will get passed in here again.
@@ -2251,6 +2258,8 @@ static int sftp_fsync(LIBSSH2_SFTP_HANDLE *handle)
     uint32_t retcode;
 
     if(sftp->fsync_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
                        "Issuing fsync command");
         s = packet = LIBSSH2_ALLOC(session, packet_len);
@@ -2360,6 +2369,8 @@ static int sftp_fstat(LIBSSH2_SFTP_HANDLE *handle,
     ssize_t rc;
 
     if(sftp->fstat_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Issuing %s command",
                        setstat ? "set-stat" : "stat");
         s = sftp->fstat_packet = LIBSSH2_ALLOC(session, packet_len);
@@ -2582,6 +2593,8 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
     int rc = 0;
 
     if(handle->close_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Closing handle");
         s = handle->close_packet = LIBSSH2_ALLOC(session, packet_len);
         if(!handle->close_packet) {
@@ -2713,6 +2726,8 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename,
     int rc;
 
     if(sftp->unlink_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Unlinking %s", filename);
         s = sftp->unlink_packet = LIBSSH2_ALLOC(session, packet_len);
         if(!sftp->unlink_packet) {
@@ -2819,12 +2834,14 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
     unsigned char *data = NULL;
     ssize_t rc;
 
-    if(sftp->version < 2) {
-        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                              "Server does not support RENAME");
-    }
-
     if(sftp->rename_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
+        if(sftp->version < 2) {
+            return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                                  "Server does not support RENAME");
+        }
+
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Renaming %s to %s",
                        source_filename, dest_filename);
         sftp->rename_s = sftp->rename_packet =
@@ -2961,6 +2978,8 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
         { SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS };
 
     if(sftp->fstatvfs_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
                        "Getting file system statistics");
         s = packet = LIBSSH2_ALLOC(session, packet_len);
@@ -3097,6 +3116,8 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
         { SSH_FXP_EXTENDED_REPLY, SSH_FXP_STATUS };
 
     if(sftp->statvfs_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
                        "Getting file system statistics of %s", path);
         s = packet = LIBSSH2_ALLOC(session, packet_len);
@@ -3241,6 +3262,8 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
     packet_len = path_len + 13 + sftp_attrsize(attrs.flags);
 
     if(sftp->mkdir_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
                        "Creating directory %s with mode 0%lo", path, mode);
         s = packet = LIBSSH2_ALLOC(session, packet_len);
@@ -3348,6 +3371,8 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
     int rc;
 
     if(sftp->rmdir_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "Removing directory: %s",
                        path);
         s = sftp->rmdir_packet = LIBSSH2_ALLOC(session, packet_len);
@@ -3454,6 +3479,8 @@ static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
     int rc;
 
     if(sftp->stat_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
         _libssh2_debug(session, LIBSSH2_TRACE_SFTP, "%s %s",
                        (stat_type == LIBSSH2_SFTP_SETSTAT) ? "Set-statting" :
                        (stat_type ==
@@ -3590,12 +3617,14 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
         { SSH_FXP_NAME, SSH_FXP_STATUS };
     int retcode;
 
-    if((sftp->version < 3) && (link_type != LIBSSH2_SFTP_REALPATH)) {
-        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                              "Server does not support SYMLINK or READLINK");
-    }
-
     if(sftp->symlink_state == libssh2_NB_state_idle) {
+        sftp->last_errno = LIBSSH2_FX_OK;
+        
+        if((sftp->version < 3) && (link_type != LIBSSH2_SFTP_REALPATH)) {
+            return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                                  "Server does not support SYMLINK or READLINK");
+        }
+
         s = sftp->symlink_packet = LIBSSH2_ALLOC(session, packet_len);
         if(!sftp->symlink_packet) {
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
