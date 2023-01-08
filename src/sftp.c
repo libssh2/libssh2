@@ -3622,7 +3622,8 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
 
         if((sftp->version < 3) && (link_type != LIBSSH2_SFTP_REALPATH)) {
             return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                                  "Server does not support SYMLINK or READLINK");
+                                  "Server does not support SYMLINK or"
+                                  " READLINK");
         }
 
         s = sftp->symlink_packet = LIBSSH2_ALLOC(session, packet_len);
