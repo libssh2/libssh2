@@ -3919,6 +3919,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     BIO*      bp;
     EVP_PKEY* pk;
     int       pktype;
+    unsigned long sslError;
 
     _libssh2_debug(session,
                    LIBSSH2_TRACE_AUTH,
@@ -3931,6 +3932,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                               "computing public key");
     BIO_reset(bp);
     pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void *)passphrase);
+    sslError = ERR_get_error();
     BIO_free(bp);
 
     if(pk == NULL) {
@@ -3943,9 +3945,21 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                                      privatekeydata,
                                                      privatekeydata_len,
                                            (unsigned const char *)passphrase);
-        if(st != 0)
-            return st;
-        return 0;
+        if(st == 0)
+            return 0;
+
+        if((ERR_GET_LIB(sslError) == ERR_LIB_PEM &&
+            ERR_GET_REASON(sslError) == PEM_R_BAD_DECRYPT) ||
+           (ERR_GET_LIB(sslError) == ERR_LIB_PROV &&
+            ERR_GET_REASON(sslError) == EVP_R_BAD_DECRYPT))
+            return _libssh2_error(session, LIBSSH2_ERROR_KEYFILE_AUTH_FAILED,
+                                  "Wrong passphrase for private key");
+
+        return _libssh2_error(session,
+                              LIBSSH2_ERROR_FILE,
+                              "Unable to extract public key "
+                              "from private key file: "
+                              "Unsupported private key file format");
     }
 
 #ifdef HAVE_OPAQUE_STRUCTS
