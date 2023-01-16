@@ -883,6 +883,9 @@ struct _LIBSSH2_SESSION
     int keepalive_interval;
     int keepalive_want_reply;
     time_t keepalive_last_sent;
+
+    /* Configurable timeout for packets. Replaces LIBSSH2_READ_TIMEOUT */
+    long packet_read_timeout;
 };
 
 /* session.state bits */
