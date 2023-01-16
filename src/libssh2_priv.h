@@ -1092,8 +1092,8 @@ ssize_t _libssh2_recv(libssh2_socket_t socket, void *buffer,
 ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer,
                       size_t length, int flags, void **abstract);
 
-#define LIBSSH2_READ_TIMEOUT 60 /* generic timeout in seconds used when
-                                   waiting for more data to arrive */
+#define LIBSSH2_DEFAULT_READ_TIMEOUT 60 /* generic timeout in seconds used when
+                                           waiting for more data to arrive */
 
 
 int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,

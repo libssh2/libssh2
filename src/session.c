@@ -518,7 +518,7 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
         session->abstract = abstract;
         session->api_timeout = 0; /* timeout-free API by default */
         session->api_block_mode = 1; /* blocking API by default */
-        session->packet_read_timeout = LIBSSH2_READ_TIMEOUT;
+        session->packet_read_timeout = LIBSSH2_DEFAULT_READ_TIMEOUT;
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                        "New session resource allocated"));
         _libssh2_init_if_needed();
@@ -1478,7 +1478,7 @@ libssh2_session_get_timeout(LIBSSH2_SESSION * session)
 LIBSSH2_API void
 libssh2_session_set_read_timeout(LIBSSH2_SESSION * session, long timeout)
 {
-    if(timeout == 0) {
+    if(timeout <= 0) {
         timeout = LIBSSH2_DEFAULT_READ_TIMEOUT;
     }
     session->packet_read_timeout = timeout;
