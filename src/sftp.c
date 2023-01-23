@@ -330,7 +330,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
 
             /* each packet starts with a 32 bit length field */
             rc = _libssh2_channel_read(channel, 0,
-                                       (char*)&sftp->packet_header[
+                                       (char *)&sftp->packet_header[
                                            sftp->packet_header_len],
                                        sizeof(sftp->packet_header) -
                                        sftp->packet_header_len);
@@ -341,22 +341,22 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
 
             sftp->packet_header_len += rc;
 
-            if (sftp->packet_header_len != sizeof(sftp->packet_header))
+            if(sftp->packet_header_len != sizeof(sftp->packet_header))
                 /* we got a short read for the header part */
                 return LIBSSH2_ERROR_EAGAIN;
 
-            //parse SFTP packet header
+            /* parse SFTP packet header */
             sftp->partial_len = _libssh2_ntohu32(sftp->packet_header);
             packet_type = sftp->packet_header[4];
             request_id = _libssh2_ntohu32(sftp->packet_header + 5);
 
             /* make sure we don't proceed if the packet size is unreasonably
                large */
-            if ((sftp->partial_len > LIBSSH2_SFTP_PACKET_MAXLEN) &&
-                //exception: response to SSH_FXP_READDIR request
-                !(sftp->readdir_state != libssh2_NB_state_idle && 
-                  sftp->readdir_request_id == request_id && 
-                  packet_type == SSH_FXP_NAME)) {
+            if(sftp->partial_len > LIBSSH2_SFTP_PACKET_MAXLEN &&
+               /* exception: response to SSH_FXP_READDIR request */
+               !(sftp->readdir_state != libssh2_NB_state_idle &&
+                 sftp->readdir_request_id == request_id &&
+                 packet_type == SSH_FXP_NAME)) {
                 libssh2_channel_flush(channel);
                 sftp->packet_header_len = 0;
                 return _libssh2_error(session,
@@ -378,7 +378,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
                                       "Unable to allocate SFTP packet");
             sftp->packet_header_len = 0;
             sftp->partial_packet = packet;
-            //copy over packet type(4) and request id(1)
+            /* copy over packet type(4) and request id(1) */
             sftp->partial_received = 5;
             memcpy(packet, sftp->packet_header + 4, 5);
 
