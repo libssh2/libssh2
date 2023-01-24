@@ -364,10 +364,10 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
                                       "SFTP packet too large");
             }
 
-            if(sftp->partial_len == 0)
+            if(sftp->partial_len < 5)
                 return _libssh2_error(session,
                                       LIBSSH2_ERROR_ALLOC,
-                                      "Unable to allocate empty SFTP packet");
+                                      "Invalid SFTP packet size");
 
             _libssh2_debug(session, LIBSSH2_TRACE_SFTP,
                            "Data begin - Packet Length: %lu",
