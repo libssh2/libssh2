@@ -65,8 +65,16 @@
 
 #define LIBSSH2_AES             1
 #define LIBSSH2_AES_CTR         1
-#define LIBSSH2_BLOWFISH        1
-#define LIBSSH2_RC4             1
+#ifdef MBEDTLS_CIPHER_BLOWFISH_CBC
+# define LIBSSH2_BLOWFISH       1
+#else
+# define LIBSSH2_BLOWFISH       0
+#endif
+#ifdef MBEDTLS_CIPHER_ARC4_128
+# define LIBSSH2_RC4            1
+#else
+# define LIBSSH2_RC4            0
+#endif
 #define LIBSSH2_CAST            0
 #define LIBSSH2_3DES            1
 
@@ -363,9 +371,12 @@ typedef enum {
 #define _libssh2_cipher_aes256    MBEDTLS_CIPHER_AES_256_CBC
 #define _libssh2_cipher_aes192    MBEDTLS_CIPHER_AES_192_CBC
 #define _libssh2_cipher_aes128    MBEDTLS_CIPHER_AES_128_CBC
+#ifdef MBEDTLS_CIPHER_BLOWFISH_CBC
 #define _libssh2_cipher_blowfish  MBEDTLS_CIPHER_BLOWFISH_CBC
+#endif
+#ifdef MBEDTLS_CIPHER_ARC4_128
 #define _libssh2_cipher_arcfour   MBEDTLS_CIPHER_ARC4_128
-#define _libssh2_cipher_cast5     MBEDTLS_CIPHER_NULL
+#endif
 #define _libssh2_cipher_3des      MBEDTLS_CIPHER_DES_EDE3_CBC
 
 

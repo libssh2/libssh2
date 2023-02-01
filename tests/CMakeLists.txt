@@ -159,7 +159,7 @@ add_library(session_fixture STATIC session_fixture.h session_fixture.c)
 target_link_libraries(session_fixture ${LIBRARIES} openssh_fixture libssh2)
 target_include_directories(session_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
-add_library(runner STATIC runner.c)
+add_library(runner STATIC runner.h runner.c)
 target_link_libraries(runner session_fixture)
 target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 

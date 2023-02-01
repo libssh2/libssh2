@@ -1,4 +1,5 @@
 #include "session_fixture.h"
+#include "runner.h"
 
 #include <libssh2.h>
 

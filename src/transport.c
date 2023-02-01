@@ -122,7 +122,8 @@ debugdump(LIBSSH2_SESSION * session,
 #endif
 
 
-/* decrypt() decrypts 'len' bytes from 'source' to 'dest'.
+/* decrypt() decrypts 'len' bytes from 'source' to 'dest' in units of
+ * blocksize.
  *
  * returns 0 on success and negative on failure
  */
@@ -274,13 +275,17 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 {
     int rc;
     struct transportpacket *p = &session->packet;
-    int remainbuf;
-    int remainpack;
-    int numbytes;
-    int numdecrypt;
-    unsigned char block[MAX_BLOCKSIZE];
-    int blocksize;
-    int encrypted = 1;
+    int remainpack; /* how much there is left to add to the current payload
+                       package */
+    int remainbuf;  /* how much data there is remaining in the buffer to deal
+                       with before we should read more from the network */
+    int numbytes;   /* how much data to deal with from the buffer on this
+                       iteration through the loop */
+    int numdecrypt; /* number of bytes to decrypt this iteration */
+    unsigned char block[MAX_BLOCKSIZE]; /* working block buffer */
+    int blocksize;  /* minimum number of bytes we need before we can
+                       use them */
+    int encrypted = 1; /* whether the packet is encrypted or not */
 
     /* default clear the bit */
     session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
@@ -400,7 +405,9 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         numbytes = remainbuf;
 
         if(!p->total_num) {
-            size_t total_num;
+            size_t total_num; /* the number of bytes following the initial
+                                 (5 bytes) packet length and padding length
+                                 fields */
 
             /* No payload package area allocated yet. To know the
                size of this payload, we need to decrypt the first

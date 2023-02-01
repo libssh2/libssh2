@@ -61,7 +61,7 @@
 LIBSSH2_SESSION *connected_session = NULL;
 int connected_socket = -1;
 
-static int connect_to_server()
+static int connect_to_server(void)
 {
     int rc;
     connected_socket = open_socket_to_openssh_server();
@@ -78,7 +78,7 @@ static int connect_to_server()
     return 0;
 }
 
-void setup_fixture_workdir()
+static void setup_fixture_workdir(void)
 {
     char *wd = getenv("FIXTURE_WORKDIR");
 #ifdef FIXTURE_WORKDIR
@@ -99,7 +99,7 @@ void setup_fixture_workdir()
     chdir(wd);
 }
 
-LIBSSH2_SESSION *start_session_fixture()
+LIBSSH2_SESSION *start_session_fixture(void)
 {
     int rc;
 
@@ -116,6 +116,9 @@ LIBSSH2_SESSION *start_session_fixture()
     }
 
     connected_session = libssh2_session_init_ex(NULL, NULL, NULL, NULL);
+    if(getenv("FIXTURE_TRACE_ALL")) {
+        libssh2_trace(connected_session, ~0);
+    }
     libssh2_session_set_blocking(connected_session, 1);
     if(connected_session == NULL) {
         fprintf(stderr, "libssh2_session_init_ex failed\n");
@@ -143,7 +146,7 @@ void print_last_session_error(const char *function)
     }
 }
 
-void stop_session_fixture()
+void stop_session_fixture(void)
 {
     if(connected_session) {
         libssh2_session_disconnect(connected_session, "test ended");

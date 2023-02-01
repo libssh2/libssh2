@@ -877,7 +877,9 @@ static int channel_setenv(LIBSSH2_CHANNEL *channel,
         }
         if(rc) {
             channel->setenv_state = libssh2_NB_state_idle;
-            return rc;
+            return _libssh2_error(session, rc,
+                                  "Failed getting response for "
+                                  "channel-setenv");
         }
         else if(data_len < 1) {
             channel->setenv_state = libssh2_NB_state_idle;

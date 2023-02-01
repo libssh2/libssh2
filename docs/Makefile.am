@@ -41,6 +41,7 @@ dist_man_MANS = \
 	libssh2_channel_read_stderr.3 \
 	libssh2_channel_receive_window_adjust.3 \
 	libssh2_channel_receive_window_adjust2.3 \
+	libssh2_channel_request_auth_agent.3 \
 	libssh2_channel_request_pty.3 \
 	libssh2_channel_request_pty_ex.3 \
 	libssh2_channel_request_pty_size.3 \
@@ -161,6 +162,7 @@ dist_man_MANS = \
 	libssh2_sftp_unlink.3 \
 	libssh2_sftp_unlink_ex.3 \
 	libssh2_sftp_write.3 \
+	libssh2_sign_sk.3 \
 	libssh2_trace.3 \
 	libssh2_trace_sethandler.3 \
 	libssh2_userauth_authenticated.3 \
@@ -176,4 +178,5 @@ dist_man_MANS = \
 	libssh2_userauth_publickey_fromfile.3 \
 	libssh2_userauth_publickey_fromfile_ex.3 \
 	libssh2_userauth_publickey_frommemory.3 \
+	libssh2_userauth_publickey_sk.3 \
 	libssh2_version.3

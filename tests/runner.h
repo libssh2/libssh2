@@ -35,13 +35,9 @@
  * OF SUCH DAMAGE.
  */
 
-#ifndef LIBSSH2_TESTS_SESSION_FIXTURE_H
-#define LIBSSH2_TESTS_SESSION_FIXTURE_H
+#ifndef LIBSSH2_TESTS_RUNNER_H
+#define LIBSSH2_TESTS_RUNNER_H
 
-#include <libssh2.h>
-
-LIBSSH2_SESSION *start_session_fixture(void);
-void stop_session_fixture(void);
-void print_last_session_error(const char *function);
+int test(LIBSSH2_SESSION *session);
 
 #endif
