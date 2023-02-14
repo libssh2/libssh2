@@ -70,7 +70,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
             fprintf(stderr, "Session is NULL, error: %s\n", errmsg);
         return errcode;
     }
-    
+
     if(session->err_flags & LIBSSH2_ERR_FLAG_DUP)
         LIBSSH2_FREE(session, (char *)session->err_msg);
 
