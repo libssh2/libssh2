@@ -66,7 +66,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
                          const char *errmsg, int errflags)
 {
     if(session == NULL) {
-        if (errmsg != NULL)
+        if(errmsg != NULL)
             fprintf(stderr, "Session is NULL, error: %s\n", errmsg);
         return errcode;
     }
