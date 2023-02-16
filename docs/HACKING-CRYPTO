@@ -317,7 +317,8 @@ int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
                           _libssh2_cipher_type(algo),
                           int encrypt,
                           unsigned char *block,
-                          size_t blocksize);
+                          size_t blocksize,
+                          int firstlast);
 Encrypt or decrypt in-place data at (block, blocksize) using the given
 context and/or algorithm.
 Return 0 if OK, else -1.

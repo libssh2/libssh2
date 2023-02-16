@@ -57,6 +57,7 @@
 
 #define LIBSSH2_AES 1
 #define LIBSSH2_AES_CTR 1
+#define LIBSSH2_AES_GCM 0
 #define LIBSSH2_BLOWFISH 0
 #define LIBSSH2_RC4 1
 #define LIBSSH2_CAST 0
@@ -349,7 +350,7 @@ struct _libssh2_wincng_cipher_type {
 
 #define _libssh2_cipher_init(ctx, type, iv, secret, encrypt) \
   _libssh2_wincng_cipher_init(ctx, type, iv, secret, encrypt)
-#define _libssh2_cipher_crypt(ctx, type, encrypt, block, blocklen) \
+#define _libssh2_cipher_crypt(ctx, type, encrypt, block, blocklen, fl) \
   _libssh2_wincng_cipher_crypt(ctx, type, encrypt, block, blocklen)
 #define _libssh2_cipher_dtor(ctx) \
   _libssh2_wincng_cipher_dtor(ctx)

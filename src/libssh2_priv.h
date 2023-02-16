@@ -949,11 +949,35 @@ struct _LIBSSH2_CRYPT_METHOD
                  int *free_iv, unsigned char *secret, int *free_secret,
                  int encrypt, void **abstract);
     int (*crypt) (LIBSSH2_SESSION * session, unsigned char *block,
-                  size_t blocksize, void **abstract);
+                  size_t blocksize, void **abstract, int firstlast);
     int (*dtor) (LIBSSH2_SESSION * session, void **abstract);
 
       _libssh2_cipher_type(algo);
 };
+
+/* Bit flags for _LIBSSH2_CRYPT_METHOD */
+
+/* Crypto method has integrated message authentication */
+#define LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC            1
+/* Crypto method does not encrypt the packet length */
+#define LIBSSH2_CRYPT_FLAG_PKTLEN_AAD                2
+
+/* Convenience macros for accessing crypt flags */
+/* Local crypto flags */
+#define CRYPT_FLAG_L(session, flag) ((session)->local.crypt && \
+            ((session)->local.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
+/* Remote crypto flags */
+#define CRYPT_FLAG_R(session, flag) ((session)->remote.crypt && \
+            ((session)->remote.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
+
+/* Values for firstlast */
+#define FIRST_BLOCK 1
+#define MIDDLE_BLOCK 0
+#define LAST_BLOCK 2
+
+/* Convenience macros for accessing firstlast */
+#define IS_FIRST(firstlast) (firstlast & FIRST_BLOCK)
+#define IS_LAST(firstlast) (firstlast & LAST_BLOCK)
 
 struct _LIBSSH2_COMP_METHOD
 {
