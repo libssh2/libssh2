@@ -150,13 +150,14 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
         int decryptlen = MIN(blocksize, len);
         /* The first block is special (since it needs to be decoded to get the
            length of the remainder of the block) and takes priority. When the
-           length finally gets to the last blocksize bytes, it's the end. */
+           length finally gets to the last blocksize bytes, and there's no
+           more data to come, it's the end. */
         int lowerfirstlast = IS_FIRST(firstlast) ? FIRST_BLOCK :
-            ((len <= blocksize) ? LAST_BLOCK : MIDDLE_BLOCK);
+            ((len <= blocksize) ? firstlast : MIDDLE_BLOCK);
         /* If the last block would be less than a whole blocksize, combine it
            with the previous block to make it larger. This ensures that the
            whole MAC is included in a single decrypt call. */
-        if(CRYPT_FLAG_L(session, PKTLEN_AAD) && !IS_FIRST(firstlast)
+        if(CRYPT_FLAG_L(session, PKTLEN_AAD) && IS_LAST(firstlast)
             && (len < blocksize*2)) {
             decryptlen = len;
             lowerfirstlast = LAST_BLOCK;
