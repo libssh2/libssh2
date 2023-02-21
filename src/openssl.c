@@ -492,6 +492,7 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     (void) algo;
 
     assert(blocksize <= sizeof(buf));
+    assert(cryptlen >= 0);
 
     /* First block */
     if(IS_FIRST(firstlast)) {

@@ -51,6 +51,9 @@
 #include "transport.h"
 #include "mac.h"
 
+#ifndef MAX
+#define MAX(x,y) ((x)>(y)?(x):(y))
+#endif
 #ifndef MIN
 #define MIN(x,y) ((x)<(y)?(x):(y))
 #endif
@@ -638,7 +641,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                amount to decrypt even more */
             if((p->data_num + numbytes) >= (p->total_num - skip)) {
                 /* decrypt the entire rest of the package */
-                numdecrypt = (p->total_num - skip) - p->data_num;
+                numdecrypt = MAX(0,
+                               (int)(p->total_num - skip) - (int)p->data_num);
                 firstlast = LAST_BLOCK;
             }
             else {
@@ -653,6 +657,13 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                        after it */
                     numbytes = 0;
                 }
+                if(CRYPT_FLAG_R(session, INTEGRATED_MAC)) {
+                    /* Make sure that we save enough bytes to make the last
+                     * block large enough to hold the entire integrated MAC */
+                    numdecrypt = MIN(numdecrypt, (int)
+                       (p->total_num - skip - blocksize - p->data_num));
+                    numbytes = 0;
+                }
                 firstlast = MIDDLE_BLOCK;
             }
 
@@ -661,6 +672,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             /* unencrypted data should not be decrypted at all */
             numdecrypt = 0;
         }
+        assert(numdecrypt >= 0);
 
         /* if there are bytes to decrypt, do that */
         if(numdecrypt > 0) {
