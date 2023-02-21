@@ -4,10 +4,11 @@
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * Usage: ssh2 hostip user password [-p|-i|-k]
+ * Usage: ssh2 hostip user password [[-p|-i|-k] [command]]
  *  -p authenticate using password
  *  -i authenticate using keyboard-interactive
  *  -k authenticate using public key (password argument decrypts keyfile)
+ *  command executes on the remote machine
  */
 
 #include "libssh2_config.h"
@@ -82,11 +83,10 @@ int main(int argc, char *argv[])
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc != 0) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #endif
@@ -120,8 +120,8 @@ int main(int argc, char *argv[])
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
 
-    fprintf(stderr, "Connecting to %s as user %s\n",
-            inet_ntoa(sin.sin_addr), username);
+    fprintf(stderr, "Connecting to %s:%d as user %s\n",
+            inet_ntoa(sin.sin_addr), ntohs(sin.sin_port), username);
 
     if(connect(sock, (struct sockaddr*)(&sin),
                 sizeof(struct sockaddr_in)) != 0) {
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    /* Request a shell */
+    /* Request a session channel on which to run a shell */
     channel = libssh2_channel_open_session(session);
     if(!channel) {
         fprintf(stderr, "Unable to open a session\n");
@@ -264,33 +264,62 @@ int main(int argc, char *argv[])
     libssh2_channel_setenv(channel, "FOO", "bar");
 
     /* Request a terminal with 'vanilla' terminal emulation
-     * See /etc/termcap for more options
+     * See /etc/termcap for more options. This is useful when opening
+     * an interactive shell.
      */
-    if(libssh2_channel_request_pty(channel, "vanilla")) {
-        fprintf(stderr, "Failed requesting pty\n");
-        goto skip_shell;
+//  if(libssh2_channel_request_pty(channel, "vanilla")) {
+//      fprintf(stderr, "Failed requesting pty\n");
+//  }
+
+    if(argc > 5) {
+        if(libssh2_channel_exec(channel, argv[5])) {
+            fprintf(stderr, "Unable to request command on channel\n");
+            goto shutdown;
+        }
+        /* Instead of just running a single command with libssh2_channel_exec,
+         * a shell can be opened on the channel instead, for interactive use.
+         * You usually want a pty allocated first in that case (see above). */
+//        if(libssh2_channel_shell(channel)) {
+//            fprintf(stderr, "Unable to request shell on allocated pty\n");
+//            goto shutdown;
+//        }
+
+/* At this point the shell can be interacted with using
+ * libssh2_channel_read()
+ * libssh2_channel_read_stderr()
+ * libssh2_channel_write()
+ * libssh2_channel_write_stderr()
+ *
+ * Blocking mode may be (en|dis)abled with: libssh2_channel_set_blocking()
+ * If the server send EOF, libssh2_channel_eof() will return non-0
+ * To send EOF to the server use: libssh2_channel_send_eof()
+ * A channel can be closed with: libssh2_channel_close()
+ * A channel can be freed with: libssh2_channel_free()
+ */
+
+        /* Read and display all the data received on stdout (ignoring stderr)
+         * until the channel closes. This will eventually block if the command
+         * produces too much data on stderr; the loop must be rewritten to use
+         * non-blocking mode and include interspersed calls to
+         * libssh2_channel_read_stderr() to avoid this. See ssh2_echo.c for
+         * an idea of how such a loop might look.
+         */
+        while(!libssh2_channel_eof(channel)) {
+            char buf[1024];
+            ssize_t err = libssh2_channel_read(channel, buf, sizeof(buf));
+            if(err < 0)
+                fprintf(stderr, "Unable to read response: %zd\n", err);
+            else {
+                fwrite(buf, 1, err, stdout);
+            }
+        }
     }
 
-    /* Open a SHELL on that pty */
-    if(libssh2_channel_shell(channel)) {
-        fprintf(stderr, "Unable to request shell on allocated pty\n");
-        goto shutdown;
-    }
+    rc = libssh2_channel_get_exit_status(channel);
 
-    /* At this point the shell can be interacted with using
-     * libssh2_channel_read()
-     * libssh2_channel_read_stderr()
-     * libssh2_channel_write()
-     * libssh2_channel_write_stderr()
-     *
-     * Blocking mode may be (en|dis)abled with: libssh2_channel_set_blocking()
-     * If the server send EOF, libssh2_channel_eof() will return non-0
-     * To send EOF to the server use: libssh2_channel_send_eof()
-     * A channel can be closed with: libssh2_channel_close()
-     * A channel can be freed with: libssh2_channel_free()
-     */
+    if(libssh2_channel_close(channel))
+        fprintf(stderr, "Unable to close channel\n");
 
-  skip_shell:
     if(channel) {
         libssh2_channel_free(channel);
         channel = NULL;
@@ -317,5 +346,5 @@ int main(int argc, char *argv[])
 
     libssh2_exit();
 
-    return 0;
+    return rc;
 }
