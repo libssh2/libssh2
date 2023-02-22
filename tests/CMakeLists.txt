@@ -153,7 +153,7 @@ endif()
 
 add_library(openssh_fixture STATIC openssh_fixture.h openssh_fixture.c)
 target_link_libraries(openssh_fixture ${LIBRARIES})
-target_include_directories(openssh_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_include_directories(openssh_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" ../include)
 
 add_library(session_fixture STATIC session_fixture.h session_fixture.c)
 target_link_libraries(session_fixture ${LIBRARIES} openssh_fixture libssh2)

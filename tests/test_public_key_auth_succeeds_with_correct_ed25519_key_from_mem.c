@@ -30,7 +30,7 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    if(read_file(KEY_FILE_ED25519_PRIVATE, &buffer, &len)) {
+    if(read_file(srcdir_path(KEY_FILE_ED25519_PRIVATE), &buffer, &len)) {
         fprintf(stderr, "Reading key file failed.");
         return 1;
     }

@@ -57,6 +57,7 @@
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
+#include <assert.h>
 
 LIBSSH2_SESSION *connected_session = NULL;
 int connected_socket = -1;
@@ -159,4 +160,36 @@ void stop_session_fixture(void)
     }
 
     stop_openssh_fixture();
+}
+
+
+/* Return a static string that contains a file path relative to the srcdir
+ * variable, if found. It does so in a way that avoids leaking memory by using
+ * a fixed number of static buffers.
+ */
+#define NUMPATHS 3
+const char *srcdir_path(const char *file)
+{
+#ifdef WIN32
+    static char filepath[NUMPATHS][_MAX_PATH];
+#else
+    static char filepath[NUMPATHS][MAXPATHLEN];
+#endif
+    static int curpath;
+    char *p = getenv("srcdir");
+    assert(curpath < NUMPATHS);
+    if(p) {
+        /* Ensure the final string is nul-terminated on Windows */
+        filepath[curpath][sizeof(filepath[0])-1] = 0;
+        snprintf(filepath[curpath], sizeof(filepath[0])-1, "%s/%s",
+                p, file);
+    }
+    else {
+        /* Ensure the final string is nul-terminated on Windows */
+        filepath[curpath][sizeof(filepath[0])-1] = 0;
+        snprintf(filepath[curpath], sizeof(filepath[0])-1, "%s",
+                file);
+    }
+
+    return filepath[curpath++];
 }
