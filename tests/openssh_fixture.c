@@ -36,6 +36,7 @@
  */
 
 #include "openssh_fixture.h"
+#include "session_fixture.h"
 #include "libssh2_config.h"
 
 #ifdef HAVE_WINSOCK2_H
@@ -153,6 +154,7 @@ static const char *openssh_server_image(void)
 static int build_openssh_server_docker_image(void)
 {
     if(have_docker) {
+        char buildcmd[1024];
         const char *container_image_name = openssh_server_image();
         if(container_image_name != NULL) {
             int ret = run_command(NULL, "docker pull --quiet %s",
@@ -165,10 +167,12 @@ static int build_openssh_server_docker_image(void)
                 }
             }
         }
+        buildcmd[sizeof(buildcmd)-1] = 0;
+        snprintf(buildcmd, sizeof(buildcmd)-1,
+                "docker build --quiet -t libssh2/openssh_server %s",
+                srcdir_path("openssh_server"));
 
-        return run_command(NULL, "docker build --quiet "
-                                 "-t libssh2/openssh_server "
-                                 "openssh_server");
+        return run_command(NULL, buildcmd);
     }
     else {
         return 0;
