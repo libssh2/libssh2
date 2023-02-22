@@ -37,7 +37,7 @@
 #include <ctype.h>
 
 #ifdef WIN32
-#define __FILESIZE "I64"
+#define __FILESIZE "I64u"
 #else
 #define __FILESIZE "llu"
 #endif
