@@ -48,10 +48,10 @@ int main(int argc, char *argv[])
     size_t nread;
     char *ptr;
     struct stat fileinfo;
+    int err;
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
     err = WSAStartup(MAKEWORD(2, 0), &wsadata);
     if(err != 0) {
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
     if(!channel) {
         char *errmsg;
         int errlen;
-        int err = libssh2_session_last_error(session, &errmsg, &errlen, 0);
+        err = libssh2_session_last_error(session, &errmsg, &errlen, 0);
         fprintf(stderr, "Unable to open a session: (%d) %s\n", err, errmsg);
         goto shutdown;
     }

@@ -225,7 +225,6 @@ int main(int argc, char *argv[])
     }
     for(;;) {
         /* loop until we block */
-        int rc;
         do {
             char buffer[0x4000];
             rc = libssh2_channel_read(channel, buffer, sizeof(buffer) );

@@ -231,7 +231,6 @@ int main(int argc, char *argv[])
 
     while(got < fileinfo.st_size) {
         char mem[1024*24];
-        int rc;
 
         do {
             int amount = sizeof(mem);

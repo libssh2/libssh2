@@ -81,6 +81,11 @@ static int connect_to_server(void)
 
 static void setup_fixture_workdir(void)
 {
+#ifdef WIN32
+    char wd_buf[_MAX_PATH];
+#else
+    char wd_buf[MAXPATHLEN];
+#endif
     char *wd = getenv("FIXTURE_WORKDIR");
 #ifdef FIXTURE_WORKDIR
     if(!wd) {
@@ -88,11 +93,6 @@ static void setup_fixture_workdir(void)
     }
 #endif
     if(!wd) {
-#ifdef WIN32
-        char wd_buf[_MAX_PATH];
-#else
-        char wd_buf[MAXPATHLEN];
-#endif
         getcwd(wd_buf, sizeof(wd_buf));
         wd = wd_buf;
     }

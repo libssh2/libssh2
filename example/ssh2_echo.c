@@ -250,8 +250,8 @@ int main(int argc, char *argv[])
         fds[0].events = LIBSSH2_POLLFD_POLLIN | LIBSSH2_POLLFD_POLLOUT;
 
         do {
-            int rc = (libssh2_poll(fds, 1, 10));
             int act = 0;
+            rc = (libssh2_poll(fds, 1, 10));
 
             if(rc < 1)
                 continue;
