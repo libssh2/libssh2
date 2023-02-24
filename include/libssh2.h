@@ -372,6 +372,7 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 /* flags */
 #define LIBSSH2_FLAG_SIGPIPE        1
 #define LIBSSH2_FLAG_COMPRESS       2
+#define LIBSSH2_FLAG_QUOTE_PATHS    3
 
 typedef struct _LIBSSH2_SESSION                     LIBSSH2_SESSION;
 typedef struct _LIBSSH2_CHANNEL                     LIBSSH2_CHANNEL;
