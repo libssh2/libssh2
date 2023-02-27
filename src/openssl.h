@@ -94,6 +94,9 @@
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 
+/* disable deprecated warnings in OpenSSL 3 */
+#define OPENSSL_SUPPRESS_DEPRECATED
+
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L && \
     !defined(LIBRESSL_VERSION_NUMBER)) || defined(LIBSSH2_WOLFSSL) || \
     LIBRESSL_VERSION_NUMBER >= 0x3050000fL
