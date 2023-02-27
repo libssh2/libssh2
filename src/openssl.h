@@ -41,6 +41,9 @@
 
 #ifdef LIBSSH2_WOLFSSL
 
+/* disable deprecated warnings in OpenSSL 3 */
+#define OPENSSL_SUPPRESS_DEPRECATED
+
 #include <wolfssl/options.h>
 #include <openssl/ecdh.h>
 
@@ -93,9 +96,6 @@
 #include <openssl/bn.h>
 #include <openssl/pem.h>
 #include <openssl/rand.h>
-
-/* disable deprecated warnings in OpenSSL 3 */
-#define OPENSSL_SUPPRESS_DEPRECATED
 
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L && \
     !defined(LIBRESSL_VERSION_NUMBER)) || defined(LIBSSH2_WOLFSSL) || \
