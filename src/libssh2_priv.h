@@ -59,6 +59,12 @@
 #    define LIBSSH2_WINDOWS_APP
 #  endif
 # endif
+
+#if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0501) && \
+    !defined(LIBSSH2_WINDOWS_APP)
+#define USE_SECUREZEROMEMORY
+#endif
+
 #endif
 
 #ifdef HAVE_WS2TCPIP_H

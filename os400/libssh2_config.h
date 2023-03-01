@@ -59,10 +59,6 @@
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #define HAVE_ARPA_INET_H 1
 
-/* Define to 1 if you have the declaration of `SecureZeroMemory', and to 0 if
-   you don't. */
-#undef HAVE_DECL_SECUREZEROMEMORY
-
 /* disabled non-blocking sockets */
 #undef HAVE_DISABLED_NONBLOCKING
 
