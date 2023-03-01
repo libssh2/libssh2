@@ -987,7 +987,7 @@ void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format,
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) ||     \
     defined(__GNUC__)
 /* C99 supported and also by older GCC */
-#define _libssh2_debug(x,y,z,...) do {} while (0)
+#define _libssh2_debug(x,y,...) do {} while (0)
 #else
 /* no gcc and not C99, do static and hopefully inline */
 static inline void
