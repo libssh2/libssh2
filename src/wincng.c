@@ -58,7 +58,6 @@
 
 #include <windows.h>
 #include <bcrypt.h>
-#include <ntstatus.h>
 #include <math.h>
 #include "misc.h"
 
@@ -74,6 +73,12 @@
 #define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
 #define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
 
+
+/* Define this manually to avoid including <ntstatus.h> and thus
+   clashing with <windows.h> symbols. */
+#ifndef STATUS_NOT_SUPPORTED
+#define STATUS_NOT_SUPPORTED ((NTSTATUS)0xC00000BB)
+#endif
 
 /*******************************************************************/
 /*
