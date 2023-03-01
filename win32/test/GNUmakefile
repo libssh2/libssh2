@@ -279,5 +279,3 @@ help: $(OBJDIR)/version.inc
 	@echo $(DL)$(MAKE) clean$(DL)
 	@echo $(DL)$(MAKE) objclean$(DL)
 	@echo $(DL)===========================================================$(DL)
-
-

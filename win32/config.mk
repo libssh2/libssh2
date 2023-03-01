@@ -1,4 +1,3 @@
-
 # Tweak these for your system
 !if "$(OPENSSLINC)" == ""
 OPENSSLINC=..\openssl-0.9.8zc\inc32
@@ -50,5 +49,3 @@ DLLFLAGS=$(CFLAGS) $(DLLFLAGS)
 LIBS=$(LIBS) ws2_32.lib user32.lib advapi32.lib gdi32.lib
 
 INTDIR=$(TARGET)\$(SUBDIR)
-
-
