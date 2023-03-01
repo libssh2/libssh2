@@ -103,6 +103,7 @@ static void setup_fixture_workdir(void)
 LIBSSH2_SESSION *start_session_fixture(void)
 {
     int rc;
+    const char *env;
 
     setup_fixture_workdir();
 
@@ -120,11 +121,37 @@ LIBSSH2_SESSION *start_session_fixture(void)
     if(getenv("FIXTURE_TRACE_ALL")) {
         libssh2_trace(connected_session, ~0);
     }
-    libssh2_session_set_blocking(connected_session, 1);
     if(connected_session == NULL) {
         fprintf(stderr, "libssh2_session_init_ex failed\n");
         return NULL;
     }
+
+    /* Override crypt algorithm for the test */
+    env = getenv("FIXTURE_TEST_CRYPT");
+    if(env) {
+        if(libssh2_session_method_pref(connected_session,
+                                       LIBSSH2_METHOD_CRYPT_CS, env) ||
+           libssh2_session_method_pref(connected_session,
+                                       LIBSSH2_METHOD_CRYPT_SC, env)) {
+            fprintf(stderr, "libssh2_session_method_pref CRYPT failed "
+                    "(probably disabled in the build)\n");
+            return NULL;
+        }
+    }
+    /* Override mac algorithm for the test */
+    env = getenv("FIXTURE_TEST_MAC");
+    if(env) {
+        if(libssh2_session_method_pref(connected_session,
+                                       LIBSSH2_METHOD_MAC_CS, env) ||
+           libssh2_session_method_pref(connected_session,
+                                       LIBSSH2_METHOD_MAC_SC, env)) {
+            fprintf(stderr, "libssh2_session_method_pref MAC failed "
+                    "(probably disabled in the build)\n");
+            return NULL;
+        }
+    }
+
+    libssh2_session_set_blocking(connected_session, 1);
 
     rc = connect_to_server();
     if(rc != 0) {

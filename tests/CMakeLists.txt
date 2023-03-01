@@ -176,6 +176,43 @@ foreach(test ${TESTS})
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
+if(WIN32)
+    set(test_ext ".bat")
+endif()
+
+foreach(test
+  read_aes128-ctr
+  read_aes192-ctr
+  read_aes256-ctr
+  read_hmac-md5
+  read_hmac-md5-96
+  read_hmac-sha1
+  read_hmac-sha1-96
+  read_hmac-sha2-256
+  read_hmac-sha2-512
+  )
+  add_test(
+      NAME test_${test} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test_${test}${test_ext}")
+  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "builddir=$<TARGET_FILE_DIR:test_read>")
+endforeach()
+
+# Due to a bug with mbedTLS support, these crypt methods fail. Until that bug
+# is fixed, don't run them there to avoid this known issue causing red tests.
+# See https://github.com/libssh2/libssh2/issues/793
+if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
+    foreach(test
+      read_3des-cbc
+      read_aes128-cbc
+      read_aes192-cbc
+      read_aes256-cbc
+      read_rijndael-cbc
+      )
+      add_test(
+          NAME test_${test} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test_${test}${test_ext}")
+      set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "builddir=$<TARGET_FILE_DIR:test_read>")
+    endforeach()
+endif()
+
 if(WIN32 AND BUILD_SHARED_LIBS)
   # Workaround for Visual Studio
   add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c ../src/misc.c)
