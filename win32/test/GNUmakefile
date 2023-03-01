@@ -101,7 +101,7 @@ endif
 -include $(OBJDIR)/version.inc
 
 # Global flags for all compilers
-CFLAGS	= $(OPT) -D$(DB) -DLIBSSH2_WIN32 # -DHAVE_CONFIG_H
+CFLAGS	= $(OPT) -D$(DB)
 
 ifeq ($(CC),mwcc)
 LD	= mwld

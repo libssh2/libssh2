@@ -33,7 +33,6 @@ AB_INIT
 AC_CANONICAL_HOST
 case "$host" in
     *-mingw*)
-    CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
     LIBS="$LIBS -lws2_32"
     ;;
     *darwin*)
