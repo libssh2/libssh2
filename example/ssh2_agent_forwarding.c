@@ -13,6 +13,12 @@
  *
  */
 
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
+
 #include "libssh2_config.h"
 #include <libssh2.h>
 

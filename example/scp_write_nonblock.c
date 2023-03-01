@@ -2,8 +2,13 @@
  * Sample showing how to do an SCP non-blocking upload transfer.
  */
 
-#include "libssh2_config.h"
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
 
+#include "libssh2_config.h"
 #include <libssh2.h>
 
 #ifdef HAVE_WINSOCK2_H

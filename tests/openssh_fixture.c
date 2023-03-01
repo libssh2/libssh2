@@ -35,6 +35,12 @@
  * OF SUCH DAMAGE.
  */
 
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
+
 #include "openssh_fixture.h"
 #include "session_fixture.h"
 #include "libssh2_config.h"
