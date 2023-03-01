@@ -1,3 +1,5 @@
+include(CheckCCompilerFlag)
+
 if(MSVC)
   # Use the highest warning level for visual studio.
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
@@ -20,4 +22,23 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
   if(NOT CMAKE_C_FLAGS MATCHES "-Wall")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
   endif()
+
+  foreach(_CCOPT -pedantic -W -Wpointer-arith -Wwrite-strings -Wunused -Wshadow -Winline -Wnested-externs -Wmissing-declarations -Wmissing-prototypes -Wfloat-equal -Wsign-compare -Wundef -Wendif-labels -Wstrict-prototypes -Wdeclaration-after-statement -Wstrict-aliasing=3 -Wcast-align -Wtype-limits -Wold-style-declaration -Wmissing-parameter-type -Wempty-body -Wclobbered -Wignored-qualifiers -Wconversion -Wvla -Wdouble-promotion -Wenum-conversion -Warith-conversion)
+    # surprisingly, CHECK_C_COMPILER_FLAG needs a new variable to store each new
+    # test result in.
+    string(MAKE_C_IDENTIFIER "OPT${_CCOPT}" _optvarname)
+    check_c_compiler_flag(${_CCOPT} ${_optvarname})
+    if(${_optvarname})
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_CCOPT}")
+    endif()
+  endforeach()
+  foreach(_CCOPT long-long multichar format-nonliteral sign-conversion system-headers pedantic-ms-format)
+    # GCC only warns about unknown -Wno- options if there are also other diagnostic messages,
+    # so test for the positive form instead
+    string(MAKE_C_IDENTIFIER "OPT${_CCOPT}" _optvarname)
+    check_c_compiler_flag("-W${_CCOPT}" ${_optvarname})
+    if(${_optvarname})
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-${_CCOPT}")
+    endif()
+  endforeach()
 endif()
