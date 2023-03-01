@@ -302,7 +302,9 @@ hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION * session,
     unsigned char hash[SHA256_DIGEST_LENGTH];
     libssh2_sha256_ctx ctx;
 
-    libssh2_sha256_init(&ctx);
+    if(!libssh2_sha256_init(&ctx)) {
+        return -1;
+    }
     for(i = 0; i < veccount; i++) {
         libssh2_sha256_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
     }
@@ -370,7 +372,9 @@ hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION * session,
     unsigned char hash[SHA512_DIGEST_LENGTH];
     libssh2_sha512_ctx ctx;
 
-    libssh2_sha512_init(&ctx);
+    if(!libssh2_sha512_init(&ctx)) {
+        return -1;
+    }
     for(i = 0; i < veccount; i++) {
         libssh2_sha512_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
     }
