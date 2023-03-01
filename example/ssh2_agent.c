@@ -16,7 +16,7 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINDOWS_H
+#ifdef WIN32
 # include <windows.h>
 #endif
 #ifdef HAVE_WINSOCK2_H

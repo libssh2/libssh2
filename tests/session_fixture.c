@@ -45,7 +45,7 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_WINDOWS_H
+#ifdef WIN32
 #include <windows.h>
 #endif
 #ifdef HAVE_WINSOCK2_H

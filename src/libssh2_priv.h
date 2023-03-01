@@ -42,7 +42,7 @@
 #define LIBSSH2_LIBRARY
 #include "libssh2_config.h"
 
-#ifdef HAVE_WINDOWS_H
+#ifdef WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
