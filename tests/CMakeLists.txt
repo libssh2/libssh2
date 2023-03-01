@@ -36,7 +36,6 @@
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckSymbolExists)
-include(BundleUtilities)
 include(CopyRuntimeDependencies)
 include(SocketLibraries)
 
