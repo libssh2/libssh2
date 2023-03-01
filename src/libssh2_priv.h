@@ -65,6 +65,16 @@
 #define USE_SECUREZEROMEMORY
 #endif
 
+/* TODO: Enable this unconditionally for all platforms.
+         Also delete autotools logic that enables it only for mbedTLS.
+         And CMake logic which already enabled it unconditionally.
+         The actual memory clearing logic uses SecureZeroMemory(),
+         memset_s() or plain memset(), whichever is available, and
+         does not depend on any crypto backend function. */
+#ifndef LIBSSH2_CLEAR_MEMORY
+#define LIBSSH2_CLEAR_MEMORY
+#endif
+
 #endif
 
 #ifdef HAVE_WS2TCPIP_H
