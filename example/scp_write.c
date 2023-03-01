@@ -33,7 +33,8 @@
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int sock, i, auth_pw = 1;
+    libssh2_socket_t sock;
+    int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session = NULL;
@@ -98,7 +99,7 @@ int main(int argc, char *argv[])
      * connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(-1 == sock) {
+    if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr, "failed to create socket!\n");
         return -1;
     }

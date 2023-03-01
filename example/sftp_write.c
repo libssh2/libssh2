@@ -36,7 +36,8 @@
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int sock, i, auth_pw = 1;
+    libssh2_socket_t sock;
+    int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;

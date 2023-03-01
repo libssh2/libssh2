@@ -120,9 +120,9 @@ int main(int argc, char *argv[])
     LIBSSH2_CHANNEL *channel = NULL;
     char buf[1048576]; /* avoid any buffer reallocation for simplicity */
     ssize_t len;
+    libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
 
 #ifdef WIN32
-    SOCKET sock = INVALID_SOCKET;
     WSADATA wsadata;
     int err;
 
@@ -131,8 +131,6 @@ int main(int argc, char *argv[])
         fprintf(stderr, "WSAStartup failed with error: %d\n", err);
         return 1;
     }
-#else
-    int sock = -1;
 #endif
 
     if(argc > 1)
@@ -150,17 +148,14 @@ int main(int argc, char *argv[])
 
     /* Connect to SSH server */
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(sock == LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    if(sock == INVALID_SOCKET) {
         fprintf(stderr, "failed to open socket!\n");
-        return -1;
-    }
 #else
-    if(sock == -1) {
         perror("socket");
+#endif
         return -1;
     }
-#endif
 
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = inet_addr(server_ip);

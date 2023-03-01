@@ -347,7 +347,7 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
  * gets the given blocking or non-blocking state of the socket.
  */
 static int
-get_socket_nonblocking(int sockfd)
+get_socket_nonblocking(libssh2_socket_t sockfd)
 {                               /* operate on this */
 #undef GETBLOCK
 #define GETBLOCK 0

@@ -43,7 +43,7 @@
                                        example uses to store the downloaded
                                        file in */
 
-static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
+static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
     int rc;
@@ -75,7 +75,8 @@ static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
 
 int main(int argc, char *argv[])
 {
-    int sock, i, auth_pw = 1;
+    libssh2_socket_t sock;
+    int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;

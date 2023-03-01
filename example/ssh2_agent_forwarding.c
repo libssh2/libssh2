@@ -45,7 +45,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
+static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
     int rc;
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     const char *commandline = "uptime";
     const char *username    = NULL;
     unsigned long hostaddr;
-    int sock;
+    libssh2_socket_t sock;
     struct sockaddr_in sin;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;

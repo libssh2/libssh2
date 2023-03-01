@@ -41,7 +41,8 @@ const char *username = "username";
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int sock = -1, i, rc;
+    libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
+    int i, rc;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
@@ -82,7 +83,7 @@ int main(int argc, char *argv[])
      * responsible for creating the socket establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(sock == -1) {
+    if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr, "failed to create socket!\n");
         rc = 1;
         goto shutdown;
@@ -237,7 +238,7 @@ int main(int argc, char *argv[])
         libssh2_session_free(session);
     }
 
-    if(sock != -1) {
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
         closesocket(sock);
 #else

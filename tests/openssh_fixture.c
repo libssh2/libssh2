@@ -326,7 +326,7 @@ static int open_socket_to_container(char *container_id)
     char *ip_address = NULL;
     char *port_string = NULL;
     unsigned long hostaddr;
-    int sock;
+    libssh2_socket_t sock;
     struct sockaddr_in sin;
     int counter = 0;
     int ret;

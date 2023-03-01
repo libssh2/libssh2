@@ -144,7 +144,7 @@ static void _libssh2_sha_algo_ctx_update(int sha_algo, void *ctx,
         libssh2_sha1_update(*_ctx, data, len);
     }
     else {
-#if LIBSSH2DEBUG
+#ifdef LIBSSH2DEBUG
         assert(0);
 #endif
     }
@@ -170,7 +170,7 @@ static void _libssh2_sha_algo_ctx_final(int sha_algo, void *ctx,
         libssh2_sha1_final(*_ctx, hash);
     }
     else {
-#if LIBSSH2DEBUG
+#ifdef LIBSSH2DEBUG
         assert(0);
 #endif
     }
@@ -195,7 +195,7 @@ static void _libssh2_sha_algo_value_hash(int sha_algo,
         LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(1, *data, data_len, version);
     }
     else {
-#if LIBSSH2DEBUG
+#ifdef LIBSSH2DEBUG
         assert(0);
 #endif
     }

@@ -64,9 +64,10 @@ int main(int argc, char *argv[])
     struct timeval tv;
     ssize_t len, wr;
     char buf[16384];
+    libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
+    libssh2_socket_t forwardsock = LIBSSH2_INVALID_SOCKET;
 
 #ifdef WIN32
-    SOCKET sock = INVALID_SOCKET, forwardsock = INVALID_SOCKET;
     WSADATA wsadata;
     int err;
 
@@ -75,8 +76,6 @@ int main(int argc, char *argv[])
         fprintf(stderr, "WSAStartup failed with error: %d\n", err);
         return 1;
     }
-#else
-    int sock = -1, forwardsock = -1;
 #endif
 
     if(argc > 1)
@@ -102,17 +101,14 @@ int main(int argc, char *argv[])
 
     /* Connect to SSH server */
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(sock == LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    if(sock == INVALID_SOCKET) {
         fprintf(stderr, "failed to open socket!\n");
-        return -1;
-    }
 #else
-    if(sock == -1) {
         perror("socket");
+#endif
         return -1;
     }
-#endif
 
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = inet_addr(server_ip);
@@ -217,17 +213,14 @@ int main(int argc, char *argv[])
         "Accepted remote connection. Connecting to local server %s:%d\n",
         local_destip, local_destport);
     forwardsock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(forwardsock == LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    if(forwardsock == INVALID_SOCKET) {
         fprintf(stderr, "failed to open forward socket!\n");
-        goto shutdown;
-    }
 #else
-    if(forwardsock == -1) {
         perror("socket");
+#endif
         goto shutdown;
     }
-#endif
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(local_destport);
