@@ -1084,6 +1084,7 @@ session_free(LIBSSH2_SESSION *session)
         LIBSSH2_FREE(session, pkg->data);
         LIBSSH2_FREE(session, pkg);
     }
+    (void)packets_left;
     _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
          "Extra packets left %d", packets_left);
 
