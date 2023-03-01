@@ -141,7 +141,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         }
 
         all_methods = libssh2_crypt_methods();
-        while((cur_method = *all_methods++)) {
+        while((cur_method = *all_methods++) != NULL) {
             if(*cur_method->pem_annotation &&
                     memcmp(line, cur_method->pem_annotation,
                            strlen(cur_method->pem_annotation)) == 0) {
@@ -490,7 +490,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         const LIBSSH2_CRYPT_METHOD **all_methods, *cur_method;
 
         all_methods = libssh2_crypt_methods();
-        while((cur_method = *all_methods++)) {
+        while((cur_method = *all_methods++) != NULL) {
             if(*cur_method->name &&
                 memcmp(ciphername, cur_method->name,
                        strlen(cur_method->name)) == 0) {
