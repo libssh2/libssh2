@@ -31,7 +31,8 @@ INTEGRATION_TESTS = \
   test_public_key_auth_succeeds_with_correct_rsa_key \
   test_public_key_auth_succeeds_with_correct_rsa_openssh_key \
   test_public_key_auth_succeeds_with_correct_signed_ecdsa_key \
-  test_public_key_auth_succeeds_with_correct_signed_rsa_key
+  test_public_key_auth_succeeds_with_correct_signed_rsa_key \
+  test_read
 
 # Integration tests using Docker
 # Enable this once the tests are working

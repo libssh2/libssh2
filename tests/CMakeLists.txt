@@ -127,6 +127,7 @@ set(TESTS
   keyboard_interactive_auth_fails_with_wrong_response
   keyboard_interactive_auth_succeeds_with_correct_response
   agent_forward_succeeds
+  read
   )
 
 if(CRYPTO_BACKEND STREQUAL "OpenSSL")
