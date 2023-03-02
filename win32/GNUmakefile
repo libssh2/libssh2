@@ -340,7 +340,7 @@ $(libssh2_dll_LIBRARY) $(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT): $(OBJL)
 
 $(OBJDIR)/%.res: %.rc
 	@echo Creating $@
-	@$(RC) $(RCFLAGS) -i $< -o $@
+	@$(RC) $(RCFLAGS) $(LIBSSH2_RCFLAG_EXTRAS) -i $< -o $@
 
 
 $(DISTDIR)/readme.txt: GNUmakefile

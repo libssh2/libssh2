@@ -232,7 +232,7 @@ $(OBJDIR):
 
 $(OBJDIR)/%.res: $(OBJDIR)/%.rc
 	@echo Creating $@
-	@$(RC) $(RCFLAGS) -i $< -o $@
+	@$(RC) $(RCFLAGS) $(LIBSSH2_RCFLAG_EXTRAS) -i $< -o $@
 
 $(OBJDIR)/%.rc: GNUmakefile $(OBJDIR)/version.inc
 	@echo $(DL)1 VERSIONINFO$(DL) > $@
