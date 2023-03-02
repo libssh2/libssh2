@@ -1,5 +1,16 @@
 include(CheckCCompilerFlag)
 
+option(ENABLE_WERROR "Turn compiler warnings into errors" OFF)
+if(ENABLE_WERROR)
+  if(MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
+  else()  # llvm/clang and gcc style options
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+  endif()
+endif()
+
 if(MSVC)
   # Use the highest warning level for visual studio.
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
