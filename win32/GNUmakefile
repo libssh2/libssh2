@@ -86,6 +86,9 @@ CAT	= type
 ECHONL	= $(ComSpec) /c echo.
 endif
 
+ifeq ($(LIBSSH2_RC),)
+LIBSSH2_RC := $(CROSSPREFIX)windres
+endif
 ifeq ($(LIBSSH2_CC),)
 LIBSSH2_CC := $(CROSSPREFIX)gcc
 endif
@@ -145,7 +148,7 @@ CFLAGS	+= -w on,nounused,nounusedexpr # -ansi strict
 else
 LIBEXT	= a
 LD	= $(LIBSSH2_CC)
-RC	= $(CROSSPREFIX)windres
+RC	= $(LIBSSH2_RC)
 LDFLAGS	+= -s -shared -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT)
 AR	= $(LIBSSH2_AR)
 ARFLAGS	= cru
