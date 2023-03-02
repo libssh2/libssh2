@@ -36,7 +36,6 @@ case "$host" in
     LIBS="$LIBS -lws2_32"
     ;;
     *darwin*)
-    CFLAGS="$CFLAGS -DLIBSSH2_DARWIN"
     ;;
     *hpux*)
     ;;

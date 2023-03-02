@@ -353,13 +353,6 @@ configure_file(
 # to find generated header
 target_include_directories(libssh2 PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-# Check for the OS.
-# Daniel's note: this should not be necessary and we need to work to
-# get this removed.
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-  target_compile_definitions(libssh2 PRIVATE LIBSSH2_DARWIN)
-endif()
-
 if(MSVC)
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi /Od")
   set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /DEBUG")
