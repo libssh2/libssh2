@@ -134,8 +134,10 @@ ifeq ($(ARCH),w64)
 CFLAGS	+= -m64
 RCFLAGS	+= -F pe-x86-64
 else
+ifeq ($(ARCH),w32)
 CFLAGS	+= -m32
 RCFLAGS	+= -F pe-i386
+endif
 endif
 endif
 
