@@ -60,11 +60,6 @@
 #  endif
 # endif
 
-#if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0501) && \
-    !defined(LIBSSH2_WINDOWS_APP)
-#define USE_SECUREZEROMEMORY
-#endif
-
 /* TODO: Enable this unconditionally for all platforms.
          Also delete autotools logic that enables it only for mbedTLS.
          And CMake logic which already enabled it unconditionally.
