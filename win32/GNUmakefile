@@ -155,7 +155,7 @@ CFLAGS	+= -fno-builtin
 CFLAGS	+= -fno-strict-aliasing
 CFLAGS	+= -Wall # -pedantic
 ifeq ($(ARCH),w64)
-CFLAGS	+= -m64 -D_AMD64_
+CFLAGS	+= -m64
 LDFLAGS += -m64
 RCFLAGS	+= -F pe-x86-64
 else

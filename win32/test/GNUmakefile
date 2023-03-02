@@ -131,7 +131,7 @@ CFLAGS	+= -fno-builtin
 CFLAGS	+= -fno-strict-aliasing
 CFLAGS	+= -Wall #-Wno-unused #-pedantic
 ifeq ($(ARCH),w64)
-CFLAGS	+= -D_AMD64_
+CFLAGS	+= -m64
 RCFLAGS	+= -F pe-x86-64
 else
 CFLAGS	+= -m32
