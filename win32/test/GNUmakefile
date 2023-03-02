@@ -77,12 +77,7 @@ CAT	= type
 ECHONL	= $(ComSpec) /c echo.
 endif
 
-# The following line defines your compiler.
-ifdef METROWERKS
-	CC = mwcc
-else
-	CC = $(CROSSPREFIX)gcc
-endif
+CC = $(CROSSPREFIX)gcc
 
 # Set environment var ARCH to your architecture to override autodetection.
 ifndef ARCH
@@ -103,21 +98,6 @@ endif
 # Global flags for all compilers
 CFLAGS	= $(OPT) -D$(DB)
 
-ifeq ($(CC),mwcc)
-LD	= mwld
-RC	= mwwinrc
-LDFLAGS	= -nostdlib
-AR	= $(LD)
-ARFLAGS	= -nostdlib -library -o
-LIBEXT	= lib
-LIBPATH	+= -lr "$(METROWERKS)/MSL" -lr "$(METROWERKS)/Win32-x86 Support"
-LDLIBS	+= -lMSL_Runtime_x86.lib -lMSL_C_x86.lib -lMSL_Extras_x86.lib
-LDLIBS	+= -lkernel32.lib -luser32.lib -lwsock32.lib
-RCFLAGS	=
-CFLAGS	+= -nostdinc -gccinc -msgstyle gcc -inline off -opt nointrinsics -proc 586
-CFLAGS	+= -ir "$(METROWERKS)/MSL" -ir "$(METROWERKS)/Win32-x86 Support"
-CFLAGS	+= -w on,nounused,nounusedexpr # -ansi strict
-else
 LD	= $(CROSSPREFIX)gcc
 RC	= $(CROSSPREFIX)windres
 LDFLAGS	= -s
@@ -137,7 +117,6 @@ else
 ifeq ($(ARCH),w32)
 CFLAGS	+= -m32
 RCFLAGS	+= -F pe-i386
-endif
 endif
 endif
 

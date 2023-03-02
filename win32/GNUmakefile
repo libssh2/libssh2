@@ -104,12 +104,7 @@ endif
 
 libssh2_dll_LIBRARY = $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
 
-# The following line defines your compiler.
-ifdef METROWERKS
-	CC = mwcc
-else
-	CC = $(LIBSSH2_CC)
-endif
+CC = $(LIBSSH2_CC)
 
 # Set environment var ARCH to your architecture to override autodetection.
 ifndef ARCH
@@ -131,21 +126,6 @@ endif
 CFLAGS	= $(LIBSSH2_CFLAG_EXTRAS) $(OPT) -D$(DB)
 LDFLAGS = $(LIBSSH2_LDFLAG_EXTRAS)
 
-ifeq ($(CC),mwcc)
-LD	= mwld
-RC	= mwwinrc
-LDFLAGS	+= -nostdlib
-AR	= $(LD)
-ARFLAGS	= -nostdlib -library -o
-LIBEXT	= lib
-#RANLIB	=
-LIBPATH	+= -lr "$(METROWERKS)/MSL" -lr "$(METROWERKS)/Win32-x86 Support"
-LDLIBS	+= -lMSL_Runtime_x86.lib -lMSL_C_x86.lib -lMSL_Extras_x86.lib
-RCFLAGS	=
-CFLAGS	+= -nostdinc -gccinc -msgstyle gcc -inline off -opt nointrinsics -proc 586
-CFLAGS	+= -ir "$(METROWERKS)/MSL" -ir "$(METROWERKS)/Win32-x86 Support"
-CFLAGS	+= -w on,nounused,nounusedexpr # -ansi strict
-else
 LIBEXT	= a
 LD	= $(LIBSSH2_CC)
 RC	= $(LIBSSH2_RC)
@@ -166,7 +146,6 @@ ifeq ($(ARCH),w32)
 CFLAGS	+= -m32
 LDFLAGS += -m32
 RCFLAGS	+= -F pe-i386
-endif
 endif
 endif
 
@@ -213,12 +192,7 @@ else
 endif
 endif
 endif
-ifeq ($(CC),mwcc)
-LDLIBS	+= -lkernel32.lib -luser32.lib -lwsock32.lib
-else
-#LDLIBS	+= -lwsock32
 LDLIBS	+= -lws2_32
-endif
 
 ifdef WITH_ZLIB
 	CFLAGS += -DLIBSSH2_HAVE_ZLIB
