@@ -146,20 +146,6 @@ struct iovec {
 
 #endif
 
-/* Provide iovec / writev on WIN32 platform. */
-#ifdef WIN32
-
-static inline int writev(int sock, struct iovec *iov, int nvecs)
-{
-    DWORD ret;
-    if(WSASend(sock, (LPWSABUF)iov, nvecs, &ret, 0, NULL, NULL) == 0) {
-        return ret;
-    }
-    return -1;
-}
-
-#endif /* WIN32 */
-
 #ifdef __OS400__
 /* Force parameter type. */
 #define send(s, b, l, f)    send((s), (unsigned char *) (b), (l), (f))
