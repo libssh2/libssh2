@@ -7,9 +7,6 @@
 #ifndef _CRT_SECURE_NO_DEPRECATE
 #define _CRT_SECURE_NO_DEPRECATE 1
 #endif /* _CRT_SECURE_NO_DEPRECATE */
-#include <winsock2.h>
-#include <mswsock.h>
-#include <ws2tcpip.h>
 
 #ifdef __MINGW32__
 #define HAVE_UNISTD_H
