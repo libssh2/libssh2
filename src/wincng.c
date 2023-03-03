@@ -436,7 +436,7 @@ _libssh2_wincng_safe_free(void *buf, int len)
 
 #ifdef LIBSSH2_CLEAR_MEMORY
     if(len > 0)
-        SecureZeroMemory(buf, len);
+        _libssh2_explicit_zero(buf, len);
 #else
     (void)len;
 #endif
@@ -2087,7 +2087,7 @@ _libssh2_wincng_bignum_resize(_libssh2_bn *bn, unsigned long length)
 
 #ifdef LIBSSH2_CLEAR_MEMORY
     if(bn->bignum && bn->length > 0 && length < bn->length) {
-        SecureZeroMemory(bn->bignum + length, bn->length - length);
+        _libssh2_explicit_zero(bn->bignum + length, bn->length - length);
     }
 #endif
 
@@ -2289,7 +2289,7 @@ _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, unsigned long len,
         memmove(bn->bignum, bn->bignum + offset, length);
 
 #ifdef LIBSSH2_CLEAR_MEMORY
-        SecureZeroMemory(bn->bignum + length, offset);
+        _libssh2_explicit_zero(bn->bignum + length, offset);
 #endif
 
         bignum = realloc(bn->bignum, length);
