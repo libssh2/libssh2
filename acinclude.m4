@@ -464,7 +464,6 @@ m4_case([$1],
   # Look for Windows Cryptography API: Next Generation
 
   AC_CHECK_HEADERS([ntdef.h ntstatus.h], [], [], [#include <windows.h>])
-  AC_CHECK_DECLS([SecureZeroMemory], [], [], [#include <windows.h>])
 
   LIBSSH2_LIB_HAVE_LINKFLAGS([crypt32], [], [
     #include <windows.h>
@@ -477,7 +476,6 @@ m4_case([$1],
     AC_DEFINE(LIBSSH2_WINCNG, 1, [Use $1])
     found_crypto="$1"
     found_crypto_str="Windows Cryptography API: Next Generation"
-    support_clear_memory="$ac_cv_have_decl_SecureZeroMemory"
   ])
 ],
 )

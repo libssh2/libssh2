@@ -35,6 +35,12 @@
  * OF SUCH DAMAGE.
  */
 
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
+
 #include "openssh_fixture.h"
 #include "session_fixture.h"
 #include "libssh2_config.h"
@@ -326,7 +332,7 @@ static int open_socket_to_container(char *container_id)
     char *ip_address = NULL;
     char *port_string = NULL;
     unsigned long hostaddr;
-    int sock;
+    libssh2_socket_t sock;
     struct sockaddr_in sin;
     int counter = 0;
     int ret;

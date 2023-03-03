@@ -108,7 +108,7 @@ int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
 int _libssh2_check_length(struct string_buf *buf, size_t requested_len);
 int _libssh2_eob(struct string_buf *buf);
 
-#if defined(LIBSSH2_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
+#if defined(WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
 /* provide a private one */
 #undef HAVE_GETTIMEOFDAY
 int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp);

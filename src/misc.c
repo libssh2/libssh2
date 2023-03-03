@@ -53,10 +53,8 @@
 #include <sys/time.h>
 #endif
 
-#if defined(HAVE_DECL_SECUREZEROMEMORY) && HAVE_DECL_SECUREZEROMEMORY
-#ifdef HAVE_WINDOWS_H
+#ifdef WIN32
 #include <windows.h>
-#endif
 #endif
 
 #include <stdio.h>
@@ -717,21 +715,16 @@ void _libssh2_aes_ctr_increment(unsigned char *ctr,
     }
 }
 
-#ifdef WIN32
-static void * (__cdecl * const volatile memset_libssh)(void *, int, size_t) =
-    memset;
-#else
+#if !defined(WIN32) && !defined(HAVE_MEMSET_S)
 static void * (* const volatile memset_libssh)(void *, int, size_t) = memset;
 #endif
 
 void _libssh2_explicit_zero(void *buf, size_t size)
 {
-#if defined(HAVE_DECL_SECUREZEROMEMORY) && HAVE_DECL_SECUREZEROMEMORY
+#ifdef WIN32
     SecureZeroMemory(buf, size);
-    (void)memset_libssh; /* Silence unused variable warning */
 #elif defined(HAVE_MEMSET_S)
     (void)memset_s(buf, size, 0, size);
-    (void)memset_libssh; /* Silence unused variable warning */
 #else
     memset_libssh(buf, 0, size);
 #endif

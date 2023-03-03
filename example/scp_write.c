@@ -2,6 +2,12 @@
  * Sample showing how to do an SCP upload.
  */
 
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
+
 #include "libssh2_config.h"
 #include <libssh2.h>
 
@@ -33,7 +39,8 @@
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int sock, i, auth_pw = 1;
+    libssh2_socket_t sock;
+    int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session = NULL;
@@ -98,7 +105,7 @@ int main(int argc, char *argv[])
      * connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(-1 == sock) {
+    if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr, "failed to create socket!\n");
         return -1;
     }

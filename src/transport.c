@@ -118,7 +118,7 @@ debugdump(LIBSSH2_SESSION * session,
     }
 }
 #else
-#define debugdump(a,x,y,z)
+#define debugdump(a,x,y,z) do {} while(0)
 #endif
 
 

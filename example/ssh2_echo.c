@@ -8,6 +8,12 @@
  *
  */
 
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
+
 #include "libssh2_config.h"
 #include <libssh2.h>
 
@@ -41,7 +47,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
+static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
     int rc;
@@ -80,7 +86,7 @@ int main(int argc, char *argv[])
     const char *username    = "user";
     const char *password    = "password";
     unsigned long hostaddr;
-    int sock;
+    libssh2_socket_t sock;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
@@ -231,7 +237,6 @@ int main(int argc, char *argv[])
         int totsize = 1500000;
         int totwritten = 0;
         int totread = 0;
-        int partials = 0;
         int rereads = 0;
         int rewrites = 0;
         int i;
@@ -297,7 +302,6 @@ int main(int argc, char *argv[])
                         fprintf(stderr, "wrote %d bytes (%d in total)",
                                 n, totwritten);
                         if(left >= bufsize && n != bufsize) {
-                            partials++;
                             fprintf(stderr, " PARTIAL");
                         }
                         fprintf(stderr, "\n");

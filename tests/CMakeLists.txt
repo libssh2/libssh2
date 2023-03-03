@@ -36,7 +36,6 @@
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckSymbolExists)
-include(BundleUtilities)
 include(CopyRuntimeDependencies)
 include(SocketLibraries)
 
@@ -46,7 +45,6 @@ check_include_files(unistd.h HAVE_UNISTD_H)
 check_include_files(sys/param.h HAVE_SYS_PARAM_H)
 check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
 check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
-check_include_files(windows.h HAVE_WINDOWS_H)
 check_include_files(winsock2.h HAVE_WINSOCK2_H)
 check_include_files(netinet/in.h HAVE_NETINET_IN_H)
 configure_file(

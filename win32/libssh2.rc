@@ -33,7 +33,7 @@ BEGIN
       VALUE "OriginalFilename", "libssh2.dll\0"
       VALUE "ProductName",      "The libssh2 library\0"
       VALUE "ProductVersion",   LIBSSH2_VERSION "\0"
-      VALUE "LegalCopyright",   "© " LIBSSH2_COPYRIGHT "\0"
+      VALUE "LegalCopyright",   "Copyright (C) " LIBSSH2_COPYRIGHT "\0"
       VALUE "License",          "https://www.libssh2.org/license.html\0"
     END
   END

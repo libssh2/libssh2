@@ -86,6 +86,9 @@ CAT	= type
 ECHONL	= $(ComSpec) /c echo.
 endif
 
+ifeq ($(LIBSSH2_RC),)
+LIBSSH2_RC := $(CROSSPREFIX)windres
+endif
 ifeq ($(LIBSSH2_CC),)
 LIBSSH2_CC := $(CROSSPREFIX)gcc
 endif
@@ -101,12 +104,7 @@ endif
 
 libssh2_dll_LIBRARY = $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
 
-# The following line defines your compiler.
-ifdef METROWERKS
-	CC = mwcc
-else
-	CC = $(LIBSSH2_CC)
-endif
+CC = $(LIBSSH2_CC)
 
 # Set environment var ARCH to your architecture to override autodetection.
 ifndef ARCH
@@ -125,27 +123,12 @@ endif
 -include $(OBJDIR)/version.inc
 
 # Global flags for all compilers
-CFLAGS	= $(LIBSSH2_CFLAG_EXTRAS) $(OPT) -D$(DB) -DLIBSSH2_WIN32 -DHAVE_WINDOWS_H # -DHAVE_CONFIG_H
+CFLAGS	= $(LIBSSH2_CFLAG_EXTRAS) $(OPT) -D$(DB)
 LDFLAGS = $(LIBSSH2_LDFLAG_EXTRAS)
 
-ifeq ($(CC),mwcc)
-LD	= mwld
-RC	= mwwinrc
-LDFLAGS	+= -nostdlib
-AR	= $(LD)
-ARFLAGS	= -nostdlib -library -o
-LIBEXT	= lib
-#RANLIB	=
-LIBPATH	+= -lr "$(METROWERKS)/MSL" -lr "$(METROWERKS)/Win32-x86 Support"
-LDLIBS	+= -lMSL_Runtime_x86.lib -lMSL_C_x86.lib -lMSL_Extras_x86.lib
-RCFLAGS	=
-CFLAGS	+= -nostdinc -gccinc -msgstyle gcc -inline off -opt nointrinsics -proc 586
-CFLAGS	+= -ir "$(METROWERKS)/MSL" -ir "$(METROWERKS)/Win32-x86 Support"
-CFLAGS	+= -w on,nounused,nounusedexpr # -ansi strict
-else
 LIBEXT	= a
 LD	= $(LIBSSH2_CC)
-RC	= $(CROSSPREFIX)windres
+RC	= $(LIBSSH2_RC)
 LDFLAGS	+= -s -shared -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT)
 AR	= $(LIBSSH2_AR)
 ARFLAGS	= cru
@@ -155,10 +138,11 @@ CFLAGS	+= -fno-builtin
 CFLAGS	+= -fno-strict-aliasing
 CFLAGS	+= -Wall # -pedantic
 ifeq ($(ARCH),w64)
-CFLAGS	+= -m64 -D_AMD64_
+CFLAGS	+= -m64
 LDFLAGS += -m64
 RCFLAGS	+= -F pe-x86-64
 else
+ifeq ($(ARCH),w32)
 CFLAGS	+= -m32
 LDFLAGS += -m32
 RCFLAGS	+= -F pe-i386
@@ -208,12 +192,7 @@ else
 endif
 endif
 endif
-ifeq ($(CC),mwcc)
-LDLIBS	+= -lkernel32.lib -luser32.lib -lwsock32.lib
-else
-#LDLIBS	+= -lwsock32
 LDLIBS	+= -lws2_32
-endif
 
 ifdef WITH_ZLIB
 	CFLAGS += -DLIBSSH2_HAVE_ZLIB
@@ -338,7 +317,7 @@ $(libssh2_dll_LIBRARY) $(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT): $(OBJL)
 
 $(OBJDIR)/%.res: %.rc
 	@echo Creating $@
-	@$(RC) $(RCFLAGS) -i $< -o $@
+	@$(RC) $(RCFLAGS) $(LIBSSH2_RCFLAG_EXTRAS) -i $< -o $@
 
 
 $(DISTDIR)/readme.txt: GNUmakefile

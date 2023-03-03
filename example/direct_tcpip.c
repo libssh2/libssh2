@@ -1,3 +1,9 @@
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
+
 #include "libssh2_config.h"
 #include <libssh2.h>
 
@@ -64,11 +70,12 @@ int main(int argc, char *argv[])
     struct timeval tv;
     ssize_t len, wr;
     char buf[16384];
+    libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
+    libssh2_socket_t listensock = LIBSSH2_INVALID_SOCKET;
+    libssh2_socket_t forwardsock = LIBSSH2_INVALID_SOCKET;
 
 #ifdef WIN32
     char sockopt;
-    SOCKET sock = INVALID_SOCKET;
-    SOCKET listensock = INVALID_SOCKET, forwardsock = INVALID_SOCKET;
     WSADATA wsadata;
     int err;
 
@@ -78,8 +85,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 #else
-    int sockopt, sock = -1;
-    int listensock = -1, forwardsock = -1;
+    int sockopt;
 #endif
 
     if(argc > 1)
@@ -105,17 +111,14 @@ int main(int argc, char *argv[])
 
     /* Connect to SSH server */
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(sock == LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    if(sock == INVALID_SOCKET) {
         fprintf(stderr, "failed to open socket!\n");
-        return -1;
-    }
 #else
-    if(sock == -1) {
         perror("socket");
+#endif
         return -1;
     }
-#endif
 
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = inet_addr(server_ip);
@@ -193,17 +196,14 @@ int main(int argc, char *argv[])
     }
 
     listensock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(listensock == LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    if(listensock == INVALID_SOCKET) {
         fprintf(stderr, "failed to open listen socket!\n");
-        return -1;
-    }
 #else
-    if(listensock == -1) {
         perror("socket");
+#endif
         return -1;
     }
-#endif
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(local_listenport);
@@ -229,17 +229,14 @@ int main(int argc, char *argv[])
         inet_ntoa(sin.sin_addr), ntohs(sin.sin_port));
 
     forwardsock = accept(listensock, (struct sockaddr *)&sin, &sinlen);
+    if(forwardsock == LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    if(forwardsock == INVALID_SOCKET) {
         fprintf(stderr, "failed to accept forward socket!\n");
-        goto shutdown;
-    }
 #else
-    if(forwardsock == -1) {
         perror("accept");
+#endif
         goto shutdown;
     }
-#endif
 
     shost = inet_ntoa(sin.sin_addr);
     sport = ntohs(sin.sin_port);

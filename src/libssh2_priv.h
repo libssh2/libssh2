@@ -42,12 +42,34 @@
 #define LIBSSH2_LIBRARY
 #include "libssh2_config.h"
 
-#ifdef HAVE_WINDOWS_H
+#ifdef WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
 #undef WIN32_LEAN_AND_MEAN
+
+/* Detect Windows App environment which has a restricted access
+   to the Win32 APIs. */
+# if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
+  defined(WINAPI_FAMILY)
+#  include <winapifamily.h>
+#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  \
+     !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#    define LIBSSH2_WINDOWS_APP
+#  endif
+# endif
+
+/* TODO: Enable this unconditionally for all platforms.
+         Also delete autotools logic that enables it only for mbedTLS.
+         And CMake logic which already enabled it unconditionally.
+         The actual memory clearing logic uses SecureZeroMemory(),
+         memset_s() or plain memset(), whichever is available, and
+         does not depend on any crypto backend function. */
+#ifndef LIBSSH2_CLEAR_MEMORY
+#define LIBSSH2_CLEAR_MEMORY
+#endif
+
 #endif
 
 #ifdef HAVE_WS2TCPIP_H
@@ -118,20 +140,6 @@ struct iovec {
 };
 
 #endif
-
-/* Provide iovec / writev on WIN32 platform. */
-#ifdef WIN32
-
-static inline int writev(int sock, struct iovec *iov, int nvecs)
-{
-    DWORD ret;
-    if(WSASend(sock, (LPWSABUF)iov, nvecs, &ret, 0, NULL, NULL) == 0) {
-        return ret;
-    }
-    return -1;
-}
-
-#endif /* WIN32 */
 
 #ifdef __OS400__
 /* Force parameter type. */
@@ -976,7 +984,7 @@ void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format,
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) ||     \
     defined(__GNUC__)
 /* C99 supported and also by older GCC */
-#define _libssh2_debug(x,y,z,...) do {} while (0)
+#define _libssh2_debug(x,y,...) do {} while (0)
 #else
 /* no gcc and not C99, do static and hopefully inline */
 static inline void

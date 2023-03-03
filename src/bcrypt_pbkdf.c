@@ -60,8 +60,11 @@ static void
 bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
 {
     blf_ctx state;
-    uint8_t ciphertext[BCRYPT_HASHSIZE] =
-        "OxychromaticBlowfishSwatDynamite";
+    uint8_t ciphertext[BCRYPT_HASHSIZE] = {
+        'O', 'x', 'y', 'c', 'h', 'r', 'o', 'm', 'a', 't', 'i', 'c',
+        'B', 'l', 'o', 'w', 'f', 'i', 's', 'h',
+        'S', 'w', 'a', 't',
+        'D', 'y', 'n', 'a', 'm', 'i', 't', 'e' };
     uint32_t cdata[BCRYPT_BLOCKS];
     int i;
     uint16_t j;

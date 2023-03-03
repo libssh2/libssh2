@@ -11,11 +11,17 @@
  *  command executes on the remote machine
  */
 
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
+
 #include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINDOWS_H
+#ifdef WIN32
 # include <windows.h>
 #endif
 #ifdef HAVE_WINSOCK2_H
@@ -74,7 +80,8 @@ static void kbd_callback(const char *name, int name_len,
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int rc, sock, i, auth_pw = 0;
+    libssh2_socket_t sock;
+    int rc, i, auth_pw = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
