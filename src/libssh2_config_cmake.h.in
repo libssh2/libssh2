@@ -58,7 +58,6 @@
 
 /* Functions */
 #cmakedefine HAVE_GETTIMEOFDAY
-#cmakedefine HAVE_INET_ADDR
 #cmakedefine HAVE_POLL
 #cmakedefine HAVE_SELECT
 #cmakedefine HAVE_STRTOLL

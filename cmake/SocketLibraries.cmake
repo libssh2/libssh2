@@ -42,11 +42,9 @@ macro(append_needed_socket_libraries LIBRARIES_LIST)
     # meaning the platform checks don't work. Hardcoding these until we get
     # a better solution.
     set(HAVE_SELECT 1)
-    set(HAVE_INET_ADDR 1)
     set(NEED_LIB_WS2_32 1)
   else()
     check_function_exists_may_need_library(select HAVE_SELECT ws2_32)
-    check_function_exists_may_need_library(inet_addr HAVE_INET_ADDR nsl ws2_32)
   endif()
 
   if(NEED_LIB_SOCKET)
