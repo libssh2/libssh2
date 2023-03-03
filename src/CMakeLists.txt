@@ -139,8 +139,6 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
     list(APPEND LIBRARIES bcrypt)
     list(APPEND PC_LIBS -lbcrypt)
 
-    check_include_files(ntdef.h HAVE_NTDEF_H)
-
     # Reading keys from files is optional and depends on Wincrypt
     check_include_files("windows.h;wincrypt.h" HAVE_WINCRYPT_H)
 
