@@ -116,9 +116,6 @@
 /* Define to 1 if you have the <ntdef.h> header file. */
 #undef HAVE_NTDEF_H
 
-/* Define to 1 if you have the <ntstatus.h> header file. */
-#undef HAVE_NTSTATUS_H
-
 /* use O_NONBLOCK for non-blocking sockets */
 #define HAVE_O_NONBLOCK 1
 

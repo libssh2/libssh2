@@ -48,7 +48,6 @@
 #cmakedefine HAVE_WS2TCPIP_H
 #cmakedefine HAVE_WINSOCK2_H
 #cmakedefine HAVE_NTDEF_H
-#cmakedefine HAVE_NTSTATUS_H
 
 /* Libraries */
 #cmakedefine HAVE_LIBCRYPT32
