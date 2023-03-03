@@ -185,9 +185,6 @@
 /* to make a symbol visible */
 #undef LIBSSH2_API
 
-/* Enable clearing of memory before being freed */
-#define LIBSSH2_CLEAR_MEMORY 1
-
 /* Enable "none" cipher -- NOT RECOMMENDED */
 #undef LIBSSH2_CRYPT_NONE
 

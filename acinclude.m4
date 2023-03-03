@@ -456,7 +456,6 @@ m4_case([$1],
     AC_DEFINE(LIBSSH2_MBEDTLS, 1, [Use $1])
     LIBS="$LIBS -lmbedcrypto"
     found_crypto="$1"
-    support_clear_memory=yes
   ])
 ],
 
