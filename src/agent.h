@@ -40,7 +40,6 @@
  */
 
 #include "libssh2_priv.h"
-#include "misc.h"
 #include "session.h"
 #ifdef WIN32
 #include <stdlib.h>

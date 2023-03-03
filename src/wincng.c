@@ -59,7 +59,6 @@
 #include <windows.h>
 #include <bcrypt.h>
 #include <math.h>
-#include "misc.h"
 
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>

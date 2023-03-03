@@ -56,7 +56,6 @@
 #include "session.h"
 #include "channel.h"
 #include "mac.h"
-#include "misc.h"
 
 /* libssh2_default_alloc
  */

@@ -44,7 +44,6 @@
 #if defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
 
 #include <string.h>
-#include "misc.h"
 
 #ifndef EVP_MAX_BLOCK_LENGTH
 #define EVP_MAX_BLOCK_LENGTH 32
