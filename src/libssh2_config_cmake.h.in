@@ -61,7 +61,6 @@
 #cmakedefine HAVE_INET_ADDR
 #cmakedefine HAVE_POLL
 #cmakedefine HAVE_SELECT
-#cmakedefine HAVE_SOCKET
 #cmakedefine HAVE_STRTOLL
 #cmakedefine HAVE_STRTOI64
 #cmakedefine HAVE_SNPRINTF

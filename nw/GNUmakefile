@@ -446,7 +446,6 @@ endif
 	@echo $(DL)#define HAVE_SIGNAL 1$(DL) >> $@
 	@echo $(DL)#define HAVE_SIGNAL_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_SIG_ATOMIC_T 1$(DL) >> $@
-	@echo $(DL)#define HAVE_SOCKET 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STDLIB_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STRDUP 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STRFTIME 1$(DL) >> $@
