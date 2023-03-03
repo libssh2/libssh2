@@ -73,8 +73,8 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     if (WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
       # This should really be handled by FindOpenSSL.cmake.
-      list(APPEND LIBRARIES crypt32)
-      list(APPEND PC_LIBS -lcrypt32)
+      list(APPEND LIBRARIES crypt32 bcrypt)
+      list(APPEND PC_LIBS -lcrypt32 -lbcrypt)
 
       find_file(DLL_LIBEAY32
         NAMES libeay32.dll crypto.dll libcrypto-1_1.dll libcrypto-1_1-x64.dll
@@ -102,6 +102,10 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     # Not all OpenSSL have AES-CTR functions.
     set(SAVE_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
     set(CMAKE_REQUIRED_LIBRARIES ${OPENSSL_LIBRARIES})
+    if(WIN32)
+      # For OpenSSL and LibreSSL
+      set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}" "ws2_32" "bcrypt")
+    endif()
     check_function_exists(EVP_aes_128_ctr HAVE_EVP_AES_128_CTR)
     set(CMAKE_REQUIRED_LIBRARIES ${SAVE_CMAKE_REQUIRED_LIBRARIES})
   endif()
