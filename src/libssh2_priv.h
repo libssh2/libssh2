@@ -117,7 +117,7 @@
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
-#include "misc.h" /* for the linked list stuff */
+#include "misc.h"
 
 #ifndef FALSE
 #define FALSE 0
