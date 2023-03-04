@@ -126,6 +126,12 @@
 #define TRUE 1
 #endif
 
+/* Use local implementation when not available */
+#if !defined(HAVE_SNPRINTF)
+#define LIBSSH2_SNPRINTF
+#define snprintf _libssh2_snprintf
+#endif
+
 #ifdef _MSC_VER
 /* "inline" keyword is valid only with C++ engine! */
 #define inline __inline

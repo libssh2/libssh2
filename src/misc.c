@@ -60,6 +60,30 @@
 #include <stdio.h>
 #include <errno.h>
 
+/* snprintf not in Visual Studio CRT and _snprintf dangerously incompatible.
+   We provide a safe wrapper if snprintf not found */
+#ifdef LIBSSH2_SNPRINTF
+#include <stdarg.h>
+
+/* Want safe, 'n += snprintf(b + n ...)' like function. If cp_max_len is 1
+* then assume cp is pointing to a null char and do nothing. Returns number
+* number of chars placed in cp excluding the trailing null char. So for
+* cp_max_len > 0 the return value is always < cp_max_len; for cp_max_len
+* <= 0 the return value is 0 (and no chars are written to cp). */
+int _libssh2_snprintf(char * cp, int cp_max_len, const char * fmt, ...)
+{
+    va_list args;
+    int n;
+
+    if (cp_max_len < 2)
+        return 0;
+    va_start(args, fmt);
+    n = vsnprintf(cp, cp_max_len, fmt, args);
+    va_end(args);
+    return (n < cp_max_len) ? n : (cp_max_len - 1);
+}
+#endif
+
 int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
                          const char *errmsg, int errflags)
 {
