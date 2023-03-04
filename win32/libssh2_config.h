@@ -19,10 +19,11 @@
 #define HAVE_WINSOCK2_H
 #define HAVE_IOCTLSOCKET
 #define HAVE_SELECT
+#define HAVE_SNPRINTF
 
 #ifdef _MSC_VER
 #if _MSC_VER < 1900
-#define snprintf _snprintf
+#undef HAVE_SNPRINTF
 #if _MSC_VER < 1500
 #define vsnprintf _vsnprintf
 #endif

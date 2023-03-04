@@ -424,6 +424,7 @@ ifdef ENABLE_IPV6
 	@echo $(DL)#define ENABLE_IPV6 1$(DL) >> $@
 endif
 endif
+	@echo $(DL)#define HAVE_SNPRINTF 1$(DL) >> $@
 	@echo $(DL)#define HAVE_ARPA_INET_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_ASSERT_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_CTYPE_H 1$(DL) >> $@

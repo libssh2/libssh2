@@ -341,7 +341,7 @@ case $host in
     ;;
 esac
 
-AC_CHECK_FUNCS(gettimeofday select strtoll memset_s)
+AC_CHECK_FUNCS(gettimeofday select strtoll memset_s snprintf)
 
 dnl Check for select() into ws2_32 for Msys/Mingw
 if test "$ac_cv_func_select" != "yes"; then
