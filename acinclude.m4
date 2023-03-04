@@ -463,8 +463,6 @@ m4_case([$1],
 [wincng], [
   # Look for Windows Cryptography API: Next Generation
 
-  AC_CHECK_HEADERS([ntdef.h ntstatus.h], [], [], [#include <windows.h>])
-
   LIBSSH2_LIB_HAVE_LINKFLAGS([crypt32], [], [
     #include <windows.h>
     #include <wincrypt.h>
