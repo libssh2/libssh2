@@ -70,7 +70,7 @@
 * number of chars placed in cp excluding the trailing null char. So for
 * cp_max_len > 0 the return value is always < cp_max_len; for cp_max_len
 * <= 0 the return value is 0 (and no chars are written to cp). */
-int _libssh2_snprintf(char * cp, int cp_max_len, const char * fmt, ...)
+int _libssh2_snprintf(char * cp, size_t cp_max_len, const char * fmt, ...)
 {
     va_list args;
     int n;
