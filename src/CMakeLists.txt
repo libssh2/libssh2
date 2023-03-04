@@ -362,12 +362,7 @@ if(MSVC)
   set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /DEBUG")
 endif()
 
-if(CMAKE_VERSION VERSION_LESS "2.8.12")
-  # Fall back to over-linking dependencies
-  target_link_libraries(libssh2 ${LIBRARIES})
-else()
-  target_link_libraries(libssh2 PRIVATE ${LIBRARIES})
-endif()
+target_link_libraries(libssh2 PRIVATE ${LIBRARIES})
 
 ## Installation
 
