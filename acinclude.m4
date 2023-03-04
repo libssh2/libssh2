@@ -422,7 +422,9 @@ m4_case([$1],
 
     # Not all OpenSSL have AES-CTR functions.
     libssh2_save_LIBS="$LIBS"
-    LIBS="$LIBS $LIBSSL"
+    # Duplicate $LIBS to make binutils ld (known to be fatally
+    # sensitive to lib order) happy.
+    LIBS="$LIBS $LIBSSL $LIBS"
     AC_CHECK_FUNCS(EVP_aes_128_ctr)
     LIBS="$libssh2_save_LIBS"
 
