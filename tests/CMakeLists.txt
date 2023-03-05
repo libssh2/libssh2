@@ -174,7 +174,7 @@ foreach(test ${TESTS})
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
-# MAC
+# MAC tests
 foreach(test
   hmac-md5
   hmac-md5-96
@@ -187,32 +187,29 @@ foreach(test
   set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
 endforeach()
 
-# CRYPT
-foreach(test
+# CRYPT tests
+set(TESTS
   aes128-ctr
   aes192-ctr
   aes256-ctr
   )
-  add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
-  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
-endforeach()
-
 # Due to a bug with mbedTLS support, these crypt methods fail. Until that bug
 # is fixed, don't run them there to avoid this known issue causing red tests.
 # See https://github.com/libssh2/libssh2/issues/793
 if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
-    # CRYPT
-    foreach(test
-      3des-cbc
-      aes128-cbc
-      aes192-cbc
-      aes256-cbc
-      rijndael-cbc@lysator.liu.se
-      )
-      add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
-      set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
-    endforeach()
+  list(APPEND TESTS
+    3des-cbc
+    aes128-cbc
+    aes192-cbc
+    aes256-cbc
+    rijndael-cbc@lysator.liu.se
+    )
 endif()
+foreach(test ${TESTS})
+  add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
+  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
+endforeach()
+
 
 if(WIN32 AND BUILD_SHARED_LIBS)
   # Workaround for Visual Studio
