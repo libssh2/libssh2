@@ -3,7 +3,7 @@ SUBDIRS = ossfuzz
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/include -I$(top_builddir)/src
 
 ctests = simple$(EXEEXT)
-TESTS = $(ctests) mansyntax.sh
+TESTS = $(ctests) mansyntax.sh test_read_all.sh
 check_PROGRAMS = $(ctests)
 
 if SSHD
