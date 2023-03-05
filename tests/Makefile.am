@@ -98,4 +98,5 @@ EXTRA_DIST =                                                           \
  sshdwrap                                                              \
  ssh2.c                                                                \
  ssh2.sh                                                               \
- sshd_fixture.sh.in
+ sshd_fixture.sh.in                                                    \
+ test_read_all.sh
