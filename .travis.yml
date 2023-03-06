@@ -107,7 +107,7 @@ script:
         autoreconf -fi
         ./configure --enable-debug --enable-werror
         make
-        make check
+        make check VERBOSE=1
       fi
   - |
       if [ "$B" = "cmake" ]; then
