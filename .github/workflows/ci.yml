@@ -80,7 +80,7 @@ jobs:
           autoreconf -fi
           ./configure --enable-debug --enable-werror
           make
-          make check VERBOSE=1
+          make check
       - name: Build with CMake
         if: ${{ matrix.b == 'cmake' }}
         run: |
@@ -118,4 +118,4 @@ jobs:
           autoreconf -fi
           ./configure --enable-debug --enable-static --disable-shared --with-crypto=openssl
           make
-          make check VERBOSE=1
+          make check
