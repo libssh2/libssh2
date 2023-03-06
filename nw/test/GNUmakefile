@@ -13,12 +13,12 @@ endif
 
 # Edit the path below to point to the base of your Zlib sources.
 ifndef ZLIB_PATH
-ZLIB_PATH = ../../../zlib-1.2.8
+ZLIB_PATH = ../../../zlib
 endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../../openssl-0.9.8zc
+OPENSSL_PATH = ../../../openssl
 endif
 
 # Edit the var below to enable static linking of libssh2 and libz
@@ -308,4 +308,3 @@ ifdef LDLIBS
 endif
 	@echo $(DL)output $(notdir $(@:.def=.nlm))$(DL) >> $@
 endif
-
