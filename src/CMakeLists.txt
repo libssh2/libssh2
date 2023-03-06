@@ -40,7 +40,6 @@ include(CheckIncludeFiles)
 include(CheckTypeSize)
 include(CheckSymbolExists)
 include(CheckNonblockingSocketSupport)
-include(SocketLibraries)
 
 ## Cryptography backend choice
 
@@ -339,7 +338,10 @@ else()
   check_function_exists(poll HAVE_POLL)
 endif()
 
-append_needed_socket_libraries(LIBRARIES)
+if(WIN32)
+  set(HAVE_SELECT 1)
+  list(APPEND PC_LIBS -lws2_32)
+endif()
 
 # Non-blocking socket support tests.  Must be after library tests to
 # link correctly

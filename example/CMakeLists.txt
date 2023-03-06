@@ -36,7 +36,6 @@
 include(CheckIncludeFiles)
 include(CheckSymbolExists)
 include(CopyRuntimeDependencies)
-include(SocketLibraries)
 
 set(EXAMPLES
   direct_tcpip
@@ -62,8 +61,6 @@ set(EXAMPLES
   sftp_append
   subsystem_netconf
   tcpip-forward)
-
-append_needed_socket_libraries(LIBRARIES)
 
 foreach(example ${EXAMPLES})
   add_executable(example-${example} ${example}.c)

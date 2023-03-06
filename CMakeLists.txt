@@ -85,6 +85,10 @@ install(
 include(max_warnings)
 include(FeatureSummary)
 
+if(WIN32)
+  list(APPEND LIBRARIES ws2_32)
+endif()
+
 add_subdirectory(src)
 
 option(BUILD_EXAMPLES "Build libssh2 examples" ON)
