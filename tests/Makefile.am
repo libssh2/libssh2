@@ -98,4 +98,18 @@ EXTRA_DIST =                                                           \
  sshdwrap                                                              \
  ssh2.c                                                                \
  ssh2.sh                                                               \
- sshd_fixture.sh.in
+ sshd_fixture.sh.in                                                    \
+ test_read_3des-cbc                                                    \
+ test_read_aes128-cbc                                                  \
+ test_read_aes128-ctr                                                  \
+ test_read_aes192-cbc                                                  \
+ test_read_aes192-ctr                                                  \
+ test_read_aes256-cbc                                                  \
+ test_read_aes256-ctr                                                  \
+ test_read_hmac-md5                                                    \
+ test_read_hmac-md5-96                                                 \
+ test_read_hmac-sha1                                                   \
+ test_read_hmac-sha1-96                                                \
+ test_read_hmac-sha2-256                                               \
+ test_read_hmac-sha2-512                                               \
+ test_read_rijndael-cbc

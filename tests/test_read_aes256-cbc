@@ -1,0 +1,2 @@
+#!/bin/sh
+FIXTURE_TEST_CRYPT=aes256-cbc exec ./test_read
