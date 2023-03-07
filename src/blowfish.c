@@ -53,10 +53,12 @@
 
 #undef inline
 #ifdef __GNUC__
+#define inline __inline__
+#elif defined(_MSC_VER)
 #define inline __inline
-#else                           /* !__GNUC__ */
+#else
 #define inline
-#endif                          /* !__GNUC__ */
+#endif
 
 /* Function for Feistel Networks */
 
