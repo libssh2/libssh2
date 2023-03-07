@@ -1331,7 +1331,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
             f_len = f ? (f - a) : (int) strlen(a);
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
-              
+
                 if(i != filtered_algs) {
                     memcpy(i, ",", 1);
                     i += 1;

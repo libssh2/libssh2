@@ -181,7 +181,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
             size_t mac_len = session->remote.mac->mac_len;
             if(etm) {
                  /* store hash here */
-                session->remote.mac->hash(session, macbuf, 
+                session->remote.mac->hash(session, macbuf,
                                           session->remote.seqno,
                                           p->payload, p->total_num - mac_len,
                                           NULL, 0,
@@ -223,7 +223,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
 
                 /* we need buffer for decrypt */
                 size_t decrypt_size = p->total_num - mac_len - 4;
-                unsigned char * decrypt_buffer = LIBSSH2_ALLOC(session,
+                unsigned char *decrypt_buffer = LIBSSH2_ALLOC(session,
                                                                decrypt_size);
                 if(!decrypt_buffer) {
                     return LIBSSH2_ERROR_ALLOC;
@@ -853,7 +853,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         return rc;
 
     encrypted = (session->state & LIBSSH2_STATE_NEWKEYS) ? 1 : 0;
- 
+
     int etm = encrypted && session->local.mac ? session->local.mac->etm : 0;
 
     compressed =
@@ -982,7 +982,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         for(i = crypt_offset; i < packet_length; i += blocksize) {
             unsigned char *ptr = &p->outbuf[i];
             _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                           "crypting bytes %d-%d", i, 
+                           "crypting bytes %d-%d", i,
                            i + session->local.crypt->blocksize - 1);
             if(session->local.crypt->crypt(session, ptr,
                                             session->local.crypt->blocksize,
