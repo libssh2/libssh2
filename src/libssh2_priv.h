@@ -59,17 +59,6 @@
 #    define LIBSSH2_WINDOWS_APP
 #  endif
 # endif
-
-/* TODO: Enable this unconditionally for all platforms.
-         Also delete autotools logic that enables it only for mbedTLS.
-         And CMake logic which already enabled it unconditionally.
-         The actual memory clearing logic uses SecureZeroMemory(),
-         memset_s() or plain memset(), whichever is available, and
-         does not depend on any crypto backend function. */
-#ifndef LIBSSH2_CLEAR_MEMORY
-#define LIBSSH2_CLEAR_MEMORY
-#endif
-
 #endif
 
 #ifdef HAVE_WS2TCPIP_H
@@ -117,7 +106,7 @@
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
-#include "misc.h" /* for the linked list stuff */
+#include "misc.h"
 
 #ifndef FALSE
 #define FALSE 0

@@ -37,7 +37,6 @@
  */
 
 #include "libssh2_priv.h"
-#include "misc.h"
 
 struct known_host {
     struct list_node node;

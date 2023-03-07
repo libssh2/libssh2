@@ -59,7 +59,6 @@
 #include <windows.h>
 #include <bcrypt.h>
 #include <math.h>
-#include "misc.h"
 
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
@@ -435,12 +434,8 @@ _libssh2_wincng_safe_free(void *buf, int len)
     if(!buf)
         return;
 
-#ifdef LIBSSH2_CLEAR_MEMORY
     if(len > 0)
-        SecureZeroMemory(buf, len);
-#else
-    (void)len;
-#endif
+        _libssh2_explicit_zero(buf, len);
 
     free(buf);
 }
@@ -2086,11 +2081,9 @@ _libssh2_wincng_bignum_resize(_libssh2_bn *bn, unsigned long length)
     if(length == bn->length)
         return 0;
 
-#ifdef LIBSSH2_CLEAR_MEMORY
     if(bn->bignum && bn->length > 0 && length < bn->length) {
-        SecureZeroMemory(bn->bignum + length, bn->length - length);
+        _libssh2_explicit_zero(bn->bignum + length, bn->length - length);
     }
-#endif
 
     bignum = realloc(bn->bignum, length);
     if(!bignum)
@@ -2289,9 +2282,7 @@ _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, unsigned long len,
     if(offset > 0) {
         memmove(bn->bignum, bn->bignum + offset, length);
 
-#ifdef LIBSSH2_CLEAR_MEMORY
-        SecureZeroMemory(bn->bignum + length, offset);
-#endif
+        _libssh2_explicit_zero(bn->bignum + length, offset);
 
         bignum = realloc(bn->bignum, length);
         if(bignum) {

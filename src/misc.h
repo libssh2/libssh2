@@ -38,6 +38,23 @@
  * OF SUCH DAMAGE.
  */
 
+#ifdef LIBSSH2_NO_CLEAR_MEMORY
+#define _libssh2_explicit_zero(buf, size) do { \
+                                              (void)buf; \
+                                              (void)size; \
+                                          } while(0)
+#else
+#ifdef WIN32
+#define _libssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
+#elif defined(HAVE_MEMSET_S)
+#define _libssh2_explicit_zero(buf, size) (void)memset_s(buf, size, 0, size)
+#else
+#define LIBSSH2_MEMZERO
+void _libssh2_memzero(void *buf, size_t size);
+#define _libssh2_explicit_zero(buf, size) _libssh2_memzero(buf, size)
+#endif
+#endif
+
 struct list_head {
     struct list_node *last;
     struct list_node *first;
@@ -89,7 +106,6 @@ void _libssh2_store_bignum2_bytes(unsigned char **buf,
                                   const unsigned char *bytes,
                                   size_t len);
 void *_libssh2_calloc(LIBSSH2_SESSION *session, size_t size);
-void _libssh2_explicit_zero(void *buf, size_t size);
 
 struct string_buf* _libssh2_string_buf_new(LIBSSH2_SESSION *session);
 void _libssh2_string_buf_free(LIBSSH2_SESSION *session,

@@ -39,7 +39,6 @@
 
 #include "libssh2_priv.h"
 #include "agent.h"
-#include "misc.h"
 #include <errno.h>
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
