@@ -214,6 +214,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                    all other blocks to the right location in memory
                    avoiding moving a larger block of memory one byte. */
                 unsigned char first_block[MAX_BLOCKSIZE];
+                int decrypt_size;
+                unsigned char *decrypt_buffer;
                 int blocksize = session->remote.crypt->blocksize;
                 int rc = decrypt(session, p->payload + 4,
                                  first_block, blocksize);
@@ -222,9 +224,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                 }
 
                 /* we need buffer for decrypt */
-                size_t decrypt_size = p->total_num - mac_len - 4;
-                unsigned char *decrypt_buffer = LIBSSH2_ALLOC(session,
-                                                               decrypt_size);
+                decrypt_size = p->total_num - mac_len - 4;
+                decrypt_buffer = LIBSSH2_ALLOC(session, decrypt_size);
                 if(!decrypt_buffer) {
                     return LIBSSH2_ERROR_ALLOC;
                 }
@@ -385,6 +386,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
     }
 
     do {
+        int etm;
         if(session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) {
             return LIBSSH2_ERROR_SOCKET_DISCONNECT;
         }
@@ -398,8 +400,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                                    make the checks below work fine still */
         }
 
-        int etm = encrypted && session->local.mac ?
-                  session->local.mac->etm : 0;
+        etm = encrypted && session->local.mac ? session->local.mac->etm : 0;
 
         /* read/use a whole big chunk into a temporary area stored in
            the LIBSSH2_SESSION struct. We will decrypt data from that
@@ -472,7 +473,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
             /* packet length is not encrypted in encode-then-mac mode
                and we donøt need to decrypt first block */
-            size_t required_size = etm ? 4 : blocksize;
+            int required_size = etm ? 4 : blocksize;
 
             /* No payload package area allocated yet. To know the
                size of this payload, we need enough decrypt the first
@@ -813,10 +814,12 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     struct transportpacket *p = &session->packet;
     int encrypted;
     int compressed;
+    int etm;
     ssize_t ret;
     int rc;
     const unsigned char *orgdata = data;
     size_t orgdata_len = data_len;
+    size_t crypt_offset;
 
     /*
      * If the last read operation was interrupted in the middle of a key
@@ -854,7 +857,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     encrypted = (session->state & LIBSSH2_STATE_NEWKEYS) ? 1 : 0;
 
-    int etm = encrypted && session->local.mac ? session->local.mac->etm : 0;
+    etm = encrypted && session->local.mac ? session->local.mac->etm : 0;
 
     compressed =
         session->local.comp != NULL &&
@@ -919,7 +922,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     packet_length = data_len + 1 + 4;   /* 1 is for padding_length field
                                            4 for the packet_length field */
     /* length field is not encrypted with etm */
-    size_t crypt_offset = etm ? 4 : 0;
+    crypt_offset = etm ? 4 : 0;
 
     /* at this point we have it all except the padding */
 
@@ -964,6 +967,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     if(encrypted) {
         size_t i;
+        size_t blocksize;
 
         if(!etm) {
             /* Calculate MAC hash. Put the output at index packet_length,
@@ -978,7 +982,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
         /* Encrypt the whole packet data, one block size at a time.
            The MAC field is not encrypted. */
-        size_t blocksize = session->local.crypt->blocksize;
+        blocksize = session->local.crypt->blocksize;
         for(i = crypt_offset; i < packet_length; i += blocksize) {
             unsigned char *ptr = &p->outbuf[i];
             _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
