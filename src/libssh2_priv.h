@@ -121,8 +121,10 @@
 #define snprintf _libssh2_snprintf
 #endif
 
-#ifdef _MSC_VER
 /* "inline" keyword is valid only with C++ engine! */
+#ifdef __GNUC__
+#define inline __inline__
+#elif defined(_MSC_VER)
 #define inline __inline
 #endif
 
@@ -977,7 +979,7 @@ void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format,
                     ...);
 #else
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) ||     \
-    defined(__GNUC__)
+    (defined(__GNUC__) && !defined(__clang__))
 /* C99 supported and also by older GCC */
 #define _libssh2_debug(x,y,...) do {} while (0)
 #else

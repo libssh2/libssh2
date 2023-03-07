@@ -37,7 +37,6 @@ include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckSymbolExists)
 include(CopyRuntimeDependencies)
-include(SocketLibraries)
 
 ## Platform checks
 check_include_files(inttypes.h HAVE_INTTYPES_H)
@@ -50,7 +49,6 @@ check_include_files(netinet/in.h HAVE_NETINET_IN_H)
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config_cmake.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h")
-append_needed_socket_libraries(LIBRARIES)
 
 ## Cryptography backend choice
 

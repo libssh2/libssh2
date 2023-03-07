@@ -47,8 +47,6 @@
 #cmakedefine HAVE_SYS_UN_H
 #cmakedefine HAVE_WS2TCPIP_H
 #cmakedefine HAVE_WINSOCK2_H
-#cmakedefine HAVE_NTDEF_H
-#cmakedefine HAVE_NTSTATUS_H
 
 /* Libraries */
 #cmakedefine HAVE_LIBCRYPT32
@@ -58,10 +56,8 @@
 
 /* Functions */
 #cmakedefine HAVE_GETTIMEOFDAY
-#cmakedefine HAVE_INET_ADDR
 #cmakedefine HAVE_POLL
 #cmakedefine HAVE_SELECT
-#cmakedefine HAVE_SOCKET
 #cmakedefine HAVE_STRTOLL
 #cmakedefine HAVE_STRTOI64
 #cmakedefine HAVE_SNPRINTF

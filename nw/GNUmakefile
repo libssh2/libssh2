@@ -14,12 +14,12 @@ endif
 
 # Edit the path below to point to the base of your Zlib sources.
 ifndef ZLIB_PATH
-ZLIB_PATH = ../../zlib-1.2.8
+ZLIB_PATH = ../../zlib
 endif
 
 # Edit the path below to point to the base of your OpenSSL package.
 ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl-0.9.8zc
+OPENSSL_PATH = ../../openssl
 endif
 
 # Edit the path below to point to your Distribution folder.
@@ -436,7 +436,6 @@ endif
 	@echo $(DL)#define HAVE_GETHOSTBYNAME 1$(DL) >> $@
 	@echo $(DL)#define HAVE_GETPROTOBYNAME 1$(DL) >> $@
 	@echo $(DL)#define HAVE_GMTIME_R 1$(DL) >> $@
-	@echo $(DL)#define HAVE_INET_ADDR 1$(DL) >> $@
 	@echo $(DL)#define HAVE_INET_NTOA 1$(DL) >> $@
 	@echo $(DL)#define HAVE_LL 1$(DL) >> $@
 	@echo $(DL)#define HAVE_LOCALTIME_R 1$(DL) >> $@
@@ -447,7 +446,6 @@ endif
 	@echo $(DL)#define HAVE_SIGNAL 1$(DL) >> $@
 	@echo $(DL)#define HAVE_SIGNAL_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_SIG_ATOMIC_T 1$(DL) >> $@
-	@echo $(DL)#define HAVE_SOCKET 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STDLIB_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STRDUP 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STRFTIME 1$(DL) >> $@
@@ -627,5 +625,3 @@ endif
 	@echo $(DL)$(MAKE) objclean$(DL)
 	@echo $(DL)$(MAKE) test$(DL)
 	@echo $(DL)===========================================================$(DL)
-
-

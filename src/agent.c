@@ -279,7 +279,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     HANDLE filemap;
     unsigned char *p;
     unsigned char *p2;
-    int id;
+    LRESULT id;
     COPYDATASTRUCT cds;
 
     if(!transctx || 4 + transctx->request_len > PAGEANT_MAX_MSGLEN)
@@ -292,7 +292,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
                               "found no pageant");
 
     snprintf(mapname, sizeof(mapname),
-             "PageantRequest%08x%c", (unsigned)GetCurrentThreadId(), '\0');
+             "PageantRequest%08x", (unsigned)GetCurrentThreadId());
     filemap = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
                                  0, PAGEANT_MAX_MSGLEN, mapname);
 

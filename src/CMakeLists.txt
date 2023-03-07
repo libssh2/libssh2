@@ -40,7 +40,6 @@ include(CheckIncludeFiles)
 include(CheckTypeSize)
 include(CheckSymbolExists)
 include(CheckNonblockingSocketSupport)
-include(SocketLibraries)
 
 ## Cryptography backend choice
 
@@ -138,9 +137,6 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
     set(HAVE_LIBCRYPT32 TRUE)
     list(APPEND LIBRARIES bcrypt)
     list(APPEND PC_LIBS -lbcrypt)
-
-    check_include_files(ntdef.h HAVE_NTDEF_H)
-    check_include_files(ntstatus.h HAVE_NTSTATUS_H)
 
     # Reading keys from files is optional and depends on Wincrypt
     check_include_files("windows.h;wincrypt.h" HAVE_WINCRYPT_H)
@@ -342,7 +338,10 @@ else()
   check_function_exists(poll HAVE_POLL)
 endif()
 
-append_needed_socket_libraries(LIBRARIES)
+if(WIN32)
+  set(HAVE_SELECT 1)
+  list(APPEND PC_LIBS -lws2_32)
+endif()
 
 # Non-blocking socket support tests.  Must be after library tests to
 # link correctly
