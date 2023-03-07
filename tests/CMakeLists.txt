@@ -188,6 +188,9 @@ foreach(test
   read_hmac-sha1-96
   read_hmac-sha2-256
   read_hmac-sha2-512
+  read_hmac-sha1-etm
+  read_hmac-sha2-256-etm
+  read_hmac-sha2-512-etm
   )
   add_test(
       NAME test_${test} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test_${test}${test_ext}")

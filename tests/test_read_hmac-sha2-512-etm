@@ -1,0 +1,2 @@
+#!/bin/sh
+FIXTURE_TEST_MAC=hmac-sha2-512-etm@openssh.com exec ./test_read
