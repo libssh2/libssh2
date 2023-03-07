@@ -36,7 +36,6 @@
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckSymbolExists)
-include(BundleUtilities)
 include(CopyRuntimeDependencies)
 include(SocketLibraries)
 
@@ -46,7 +45,6 @@ check_include_files(unistd.h HAVE_UNISTD_H)
 check_include_files(sys/param.h HAVE_SYS_PARAM_H)
 check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
 check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
-check_include_files(windows.h HAVE_WINDOWS_H)
 check_include_files(winsock2.h HAVE_WINSOCK2_H)
 check_include_files(netinet/in.h HAVE_NETINET_IN_H)
 configure_file(
@@ -127,6 +125,7 @@ set(TESTS
   keyboard_interactive_auth_fails_with_wrong_response
   keyboard_interactive_auth_succeeds_with_correct_response
   agent_forward_succeeds
+  read
   )
 
 if(CRYPTO_BACKEND STREQUAL "OpenSSL")
@@ -153,13 +152,13 @@ endif()
 
 add_library(openssh_fixture STATIC openssh_fixture.h openssh_fixture.c)
 target_link_libraries(openssh_fixture ${LIBRARIES})
-target_include_directories(openssh_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_include_directories(openssh_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" ../include)
 
 add_library(session_fixture STATIC session_fixture.h session_fixture.c)
 target_link_libraries(session_fixture ${LIBRARIES} openssh_fixture libssh2)
 target_include_directories(session_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
-add_library(runner STATIC runner.c)
+add_library(runner STATIC runner.h runner.c)
 target_link_libraries(runner session_fixture)
 target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
@@ -174,6 +173,43 @@ foreach(test ${TESTS})
     NAME test_${test} COMMAND $<TARGET_FILE:test_${test}>
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
+
+if(WIN32)
+    set(test_ext ".bat")
+endif()
+
+foreach(test
+  read_aes128-ctr
+  read_aes192-ctr
+  read_aes256-ctr
+  read_hmac-md5
+  read_hmac-md5-96
+  read_hmac-sha1
+  read_hmac-sha1-96
+  read_hmac-sha2-256
+  read_hmac-sha2-512
+  )
+  add_test(
+      NAME test_${test} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test_${test}${test_ext}")
+  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "builddir=$<TARGET_FILE_DIR:test_read>")
+endforeach()
+
+# Due to a bug with mbedTLS support, these crypt methods fail. Until that bug
+# is fixed, don't run them there to avoid this known issue causing red tests.
+# See https://github.com/libssh2/libssh2/issues/793
+if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
+    foreach(test
+      read_3des-cbc
+      read_aes128-cbc
+      read_aes192-cbc
+      read_aes256-cbc
+      read_rijndael-cbc
+      )
+      add_test(
+          NAME test_${test} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test_${test}${test_ext}")
+      set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "builddir=$<TARGET_FILE_DIR:test_read>")
+    endforeach()
+endif()
 
 if(WIN32 AND BUILD_SHARED_LIBS)
   # Workaround for Visual Studio

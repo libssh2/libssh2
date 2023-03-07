@@ -347,7 +347,7 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
  * gets the given blocking or non-blocking state of the socket.
  */
 static int
-get_socket_nonblocking(int sockfd)
+get_socket_nonblocking(libssh2_socket_t sockfd)
 {                               /* operate on this */
 #undef GETBLOCK
 #define GETBLOCK 0
@@ -520,8 +520,14 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
  * ALERT: this function relies on that we can typecast function pointers
  * to void pointers, which isn't allowed in ISO C!
  */
+#ifdef _MSC_VER
+#pragma warning(push)
+/* nonstandard extension, function/data pointer conversion in expression */
+#pragma warning(disable:4152)
+#else
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#endif
 LIBSSH2_API void *
 libssh2_session_callback_set(LIBSSH2_SESSION * session,
                              int cbtype, void *callback)
@@ -569,7 +575,11 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
 
     return NULL;
 }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#else
 #pragma GCC diagnostic pop
+#endif
 
 /*
  * _libssh2_wait_socket()
@@ -876,7 +886,7 @@ session_free(LIBSSH2_SESSION *session)
     }
 
     if(session->free_state == libssh2_NB_state_created) {
-        while((ch = _libssh2_list_first(&session->channels))) {
+        while((ch = _libssh2_list_first(&session->channels)) != NULL) {
 
             rc = _libssh2_channel_free(ch);
             if(rc == LIBSSH2_ERROR_EAGAIN)
@@ -887,7 +897,7 @@ session_free(LIBSSH2_SESSION *session)
     }
 
     if(session->free_state == libssh2_NB_state_sent) {
-        while((l = _libssh2_list_first(&session->listeners))) {
+        while((l = _libssh2_list_first(&session->listeners)) != NULL) {
             rc = _libssh2_channel_forward_cancel(l);
             if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
@@ -1073,7 +1083,7 @@ session_free(LIBSSH2_SESSION *session)
     }
 
     /* Cleanup all remaining packets */
-    while((pkg = _libssh2_list_first(&session->packets))) {
+    while((pkg = _libssh2_list_first(&session->packets)) != NULL) {
         packets_left++;
         _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
             "packet left with id %d", pkg->data[0]);
@@ -1084,6 +1094,7 @@ session_free(LIBSSH2_SESSION *session)
         LIBSSH2_FREE(session, pkg->data);
         LIBSSH2_FREE(session, pkg);
     }
+    (void)packets_left;
     _libssh2_debug(session, LIBSSH2_TRACE_TRANS,
          "Extra packets left %d", packets_left);
 

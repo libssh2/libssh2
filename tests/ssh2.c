@@ -4,7 +4,7 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINDOWS_H
+#ifdef WIN32
 # include <windows.h>
 #endif
 #ifdef HAVE_WINSOCK2_H
@@ -33,7 +33,8 @@
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int sock, i, auth_pw = 0;
+    libssh2_socket_t sock;
+    int i, auth_pw = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;

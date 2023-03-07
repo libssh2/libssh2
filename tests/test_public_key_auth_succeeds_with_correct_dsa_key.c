@@ -1,4 +1,5 @@
 #include "session_fixture.h"
+#include "runner.h"
 
 #include <libssh2.h>
 
@@ -27,8 +28,8 @@ int test(LIBSSH2_SESSION *session)
     }
 
     rc = libssh2_userauth_publickey_fromfile_ex(
-        session, USERNAME, strlen(USERNAME), KEY_FILE_PUBLIC, KEY_FILE_PRIVATE,
-        NULL);
+        session, USERNAME, strlen(USERNAME),
+        srcdir_path(KEY_FILE_PUBLIC), srcdir_path(KEY_FILE_PRIVATE), NULL);
     if(rc != 0) {
         print_last_session_error("libssh2_userauth_publickey_fromfile_ex");
         return 1;

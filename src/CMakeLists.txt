@@ -73,8 +73,8 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     if (WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
       # This should really be handled by FindOpenSSL.cmake.
-      list(APPEND LIBRARIES crypt32)
-      list(APPEND PC_LIBS -lcrypt32)
+      list(APPEND LIBRARIES crypt32 bcrypt)
+      list(APPEND PC_LIBS -lcrypt32 -lbcrypt)
 
       find_file(DLL_LIBEAY32
         NAMES libeay32.dll crypto.dll libcrypto-1_1.dll libcrypto-1_1-x64.dll
@@ -102,6 +102,10 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     # Not all OpenSSL have AES-CTR functions.
     set(SAVE_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
     set(CMAKE_REQUIRED_LIBRARIES ${OPENSSL_LIBRARIES})
+    if(WIN32)
+      # For OpenSSL and LibreSSL
+      set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}" "ws2_32" "bcrypt")
+    endif()
     check_function_exists(EVP_aes_128_ctr HAVE_EVP_AES_128_CTR)
     set(CMAKE_REQUIRED_LIBRARIES ${SAVE_CMAKE_REQUIRED_LIBRARIES})
   endif()
@@ -298,7 +302,6 @@ check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
 check_include_files(sys/ioctl.h HAVE_SYS_IOCTL_H)
 check_include_files(sys/time.h HAVE_SYS_TIME_H)
 check_include_files(sys/un.h HAVE_SYS_UN_H)
-check_include_files(windows.h HAVE_WINDOWS_H)
 check_include_files(ws2tcpip.h HAVE_WS2TCPIP_H)
 check_include_files(winsock2.h HAVE_WINSOCK2_H)
 
@@ -353,15 +356,6 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h)
 # to find generated header
 target_include_directories(libssh2 PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-
-# Check for the OS.
-# Daniel's note: this should not be necessary and we need to work to
-# get this removed.
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-  target_compile_definitions(libssh2 PRIVATE LIBSSH2_WIN32)
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-  target_compile_definitions(libssh2 PRIVATE LIBSSH2_DARWIN)
-endif()
 
 if(MSVC)
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi /Od")

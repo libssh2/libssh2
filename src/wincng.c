@@ -58,7 +58,6 @@
 
 #include <windows.h>
 #include <bcrypt.h>
-#include <ntstatus.h>
 #include <math.h>
 #include "misc.h"
 
@@ -74,6 +73,12 @@
 #define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
 #define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
 
+
+/* Define this manually to avoid including <ntstatus.h> and thus
+   clashing with <windows.h> symbols. */
+#ifndef STATUS_NOT_SUPPORTED
+#define STATUS_NOT_SUPPORTED ((NTSTATUS)0xC00000BB)
+#endif
 
 /*******************************************************************/
 /*
@@ -427,16 +432,14 @@ _libssh2_wincng_random(void *buf, int len)
 static void
 _libssh2_wincng_safe_free(void *buf, int len)
 {
-#ifndef LIBSSH2_CLEAR_MEMORY
-    (void)len;
-#endif
-
     if(!buf)
         return;
 
 #ifdef LIBSSH2_CLEAR_MEMORY
     if(len > 0)
         SecureZeroMemory(buf, len);
+#else
+    (void)len;
 #endif
 
     free(buf);
@@ -1849,6 +1852,19 @@ _libssh2_wincng_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                                      size_t privatekeydata_len,
                                      const char *passphrase)
 {
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)algorithm;
+    (void)flags;
+    (void)application;
+    (void)key_handle;
+    (void)handle_len;
+    (void)privatekeydata;
+    (void)privatekeydata_len;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                     "Unable to extract public SK key from private key file: "
                     "Method unimplemented in Windows CNG backend");

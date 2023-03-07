@@ -50,8 +50,8 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release_dll"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\win32" /I "..\include" /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\win32" /I "..\include" /D "WIN32" /D "NDEBUG" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /YX /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -77,8 +77,8 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Debug_dll"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "..\win32" /I "..\include" /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /D "LIBSSH2DEBUG" /YX /FD /GZ /c
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "..\win32" /I "..\include" /D "WIN32" /D "_DEBUG" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /D "LIBSSH2DEBUG" /YX /FD /GZ /c
 # SUBTRACT CPP /WX /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -104,8 +104,8 @@ LINK32=link.exe
 # PROP Output_Dir "Release_lib"
 # PROP Intermediate_Dir "Release_lib"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\win32" /I "..\include" /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\win32" /I "..\include" /D "WIN32" /D "NDEBUG" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -128,8 +128,8 @@ LIB32=link.exe -lib
 # PROP Output_Dir "Debug_lib"
 # PROP Intermediate_Dir "Debug_lib"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "..\win32" /I "..\include" /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /D "LIBSSH2DEBUG" /YX /FD /GZ /c
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "..\win32" /I "..\include" /D "WIN32" /D "_DEBUG" /D "LIBSSH2_OPENSSL" /D "_MBCS" /D "_LIB" /D "LIBSSH2DEBUG" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -152,8 +152,8 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Release_dll"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\win32" /I "..\include" /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\win32" /I "..\include" /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -179,8 +179,8 @@ LINK32=link.exe
 # PROP Intermediate_Dir "Debug_dll"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "..\win32" /I "..\include" /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /D "LIBSSH2DEBUG" /YX /FD /GZ /c
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "..\win32" /I "..\include" /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /D "LIBSSH2DEBUG" /YX /FD /GZ /c
 # SUBTRACT CPP /WX /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -206,8 +206,8 @@ LINK32=link.exe
 # PROP Output_Dir "Release_lib"
 # PROP Intermediate_Dir "Release_lib"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\win32" /I "..\include" /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\win32" /I "..\include" /D "WIN32" /D "NDEBUG" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -230,8 +230,8 @@ LIB32=link.exe -lib
 # PROP Output_Dir "Debug_lib"
 # PROP Intermediate_Dir "Debug_lib"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "..\win32" /I "..\include" /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WIN32" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /D "LIBSSH2DEBUG" /YX /FD /GZ /c
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /I "..\win32" /I "..\include" /D "WIN32" /D "_DEBUG" /D "LIBSSH2_WINCNG" /D "_MBCS" /D "_LIB" /D "LIBSSH2DEBUG" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe

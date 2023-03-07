@@ -35,7 +35,14 @@
  * OF SUCH DAMAGE.
  */
 
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
+
 #include "openssh_fixture.h"
+#include "session_fixture.h"
 #include "libssh2_config.h"
 
 #ifdef HAVE_WINSOCK2_H
@@ -153,6 +160,7 @@ static const char *openssh_server_image(void)
 static int build_openssh_server_docker_image(void)
 {
     if(have_docker) {
+        char buildcmd[1024];
         const char *container_image_name = openssh_server_image();
         if(container_image_name != NULL) {
             int ret = run_command(NULL, "docker pull --quiet %s",
@@ -165,10 +173,12 @@ static int build_openssh_server_docker_image(void)
                 }
             }
         }
+        buildcmd[sizeof(buildcmd)-1] = 0;
+        snprintf(buildcmd, sizeof(buildcmd)-1,
+                "docker build --quiet -t libssh2/openssh_server %s",
+                srcdir_path("openssh_server"));
 
-        return run_command(NULL, "docker build --quiet "
-                                 "-t libssh2/openssh_server "
-                                 "openssh_server");
+        return run_command(NULL, buildcmd);
     }
     else {
         return 0;
@@ -216,7 +226,7 @@ static const char *docker_machine_name(void)
     return getenv("DOCKER_MACHINE_NAME");
 }
 
-static int is_running_inside_a_container()
+static int is_running_inside_a_container(void)
 {
 #ifdef WIN32
     return 0;
@@ -322,7 +332,7 @@ static int open_socket_to_container(char *container_id)
     char *ip_address = NULL;
     char *port_string = NULL;
     unsigned long hostaddr;
-    int sock;
+    libssh2_socket_t sock;
     struct sockaddr_in sin;
     int counter = 0;
     int ret;
@@ -413,7 +423,7 @@ cleanup:
 
 static char *running_container_id = NULL;
 
-int start_openssh_fixture()
+int start_openssh_fixture(void)
 {
     int ret;
 #ifdef HAVE_WINSOCK2_H
@@ -438,7 +448,7 @@ int start_openssh_fixture()
     }
 }
 
-void stop_openssh_fixture()
+void stop_openssh_fixture(void)
 {
     if(running_container_id) {
         stop_openssh_server(running_container_id);
@@ -450,7 +460,7 @@ void stop_openssh_fixture()
     }
 }
 
-int open_socket_to_openssh_server()
+int open_socket_to_openssh_server(void)
 {
     return open_socket_to_container(running_container_id);
 }

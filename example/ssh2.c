@@ -4,14 +4,24 @@
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * "ssh2 host user password [-p|-i|-k]"
+ * Usage: ssh2 hostip user password [[-p|-i|-k] [command]]
+ *  -p authenticate using password
+ *  -i authenticate using keyboard-interactive
+ *  -k authenticate using public key (password argument decrypts keyfile)
+ *  command executes on the remote machine
  */
+
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
 
 #include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINDOWS_H
+#ifdef WIN32
 # include <windows.h>
 #endif
 #ifdef HAVE_WINSOCK2_H
@@ -30,15 +40,19 @@
 #include <arpa/inet.h>
 #endif
 
+#include <stdlib.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#define snprintf _snprintf
+#endif
 
-const char *keyfile1 = "~/.ssh/id_rsa.pub";
-const char *keyfile2 = "~/.ssh/id_rsa";
+const char *keyfile1 = ".ssh/id_rsa.pub";
+const char *keyfile2 = ".ssh/id_rsa";
 const char *username = "username";
 const char *password = "password";
 
@@ -66,7 +80,8 @@ static void kbd_callback(const char *name, int name_len,
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int rc, sock, i, auth_pw = 0;
+    libssh2_socket_t sock;
+    int rc, i, auth_pw = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
@@ -75,11 +90,10 @@ int main(int argc, char *argv[])
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc != 0) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #endif
@@ -112,6 +126,10 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
+
+    fprintf(stderr, "Connecting to %s:%d as user %s\n",
+            inet_ntoa(sin.sin_addr), ntohs(sin.sin_port), username);
+
     if(connect(sock, (struct sockaddr*)(&sin),
                 sizeof(struct sockaddr_in)) != 0) {
         fprintf(stderr, "failed to connect!\n");
@@ -122,6 +140,19 @@ int main(int argc, char *argv[])
      * banners, exchange keys, and setup crypto, compression, and MAC layers
      */
     session = libssh2_session_init();
+    /* Enable all debugging when libssh2 was built with debugging enabled */
+    libssh2_trace(session,
+        LIBSSH2_TRACE_TRANS     |
+        LIBSSH2_TRACE_KEX       |
+        LIBSSH2_TRACE_AUTH      |
+        LIBSSH2_TRACE_CONN      |
+        LIBSSH2_TRACE_SCP       |
+        LIBSSH2_TRACE_SFTP      |
+        LIBSSH2_TRACE_ERROR     |
+        LIBSSH2_TRACE_PUBLICKEY |
+        LIBSSH2_TRACE_SOCKET
+    );
+
     if(libssh2_session_handshake(session, sock)) {
         fprintf(stderr, "Failure establishing SSH session\n");
         return -1;
@@ -190,21 +221,44 @@ int main(int argc, char *argv[])
     }
     else if(auth_pw & 4) {
         /* Or by public key */
-        if(libssh2_userauth_publickey_fromfile(session, username, keyfile1,
-                                               keyfile2, password)) {
+        size_t fn1sz, fn2sz;
+        char *fn1, *fn2;
+        char const *h = getenv("HOME");
+        if(!h || !*h)
+            h = ".";
+        fn1sz = strlen(h) + strlen(keyfile1) + 2;
+        fn2sz = strlen(h) + strlen(keyfile2) + 2;
+        fn1 = malloc(fn1sz);
+        fn2 = malloc(fn2sz);
+        if(!fn1 || !fn2) {
+            free(fn2);
+            free(fn1);
+            fprintf(stderr, "out of memory\n");
+            goto shutdown;
+        }
+        /* Using asprintf() here would be much cleaner, but less portable */
+        snprintf(fn1, fn1sz, "%s/%s", h, keyfile1);
+        snprintf(fn2, fn2sz, "%s/%s", h, keyfile2);
+
+        if(libssh2_userauth_publickey_fromfile(session, username, fn1,
+                                               fn2, password)) {
             fprintf(stderr, "\tAuthentication by public key failed!\n");
+            free(fn2);
+            free(fn1);
             goto shutdown;
         }
         else {
             fprintf(stderr, "\tAuthentication by public key succeeded.\n");
         }
+        free(fn2);
+        free(fn1);
     }
     else {
         fprintf(stderr, "No supported authentication methods found!\n");
         goto shutdown;
     }
 
-    /* Request a shell */
+    /* Request a session channel on which to run a shell */
     channel = libssh2_channel_open_session(session);
     if(!channel) {
         fprintf(stderr, "Unable to open a session\n");
@@ -217,33 +271,62 @@ int main(int argc, char *argv[])
     libssh2_channel_setenv(channel, "FOO", "bar");
 
     /* Request a terminal with 'vanilla' terminal emulation
-     * See /etc/termcap for more options
+     * See /etc/termcap for more options. This is useful when opening
+     * an interactive shell.
      */
-    if(libssh2_channel_request_pty(channel, "vanilla")) {
-        fprintf(stderr, "Failed requesting pty\n");
-        goto skip_shell;
+//  if(libssh2_channel_request_pty(channel, "vanilla")) {
+//      fprintf(stderr, "Failed requesting pty\n");
+//  }
+
+    if(argc > 5) {
+        if(libssh2_channel_exec(channel, argv[5])) {
+            fprintf(stderr, "Unable to request command on channel\n");
+            goto shutdown;
+        }
+        /* Instead of just running a single command with libssh2_channel_exec,
+         * a shell can be opened on the channel instead, for interactive use.
+         * You usually want a pty allocated first in that case (see above). */
+//        if(libssh2_channel_shell(channel)) {
+//            fprintf(stderr, "Unable to request shell on allocated pty\n");
+//            goto shutdown;
+//        }
+
+/* At this point the shell can be interacted with using
+ * libssh2_channel_read()
+ * libssh2_channel_read_stderr()
+ * libssh2_channel_write()
+ * libssh2_channel_write_stderr()
+ *
+ * Blocking mode may be (en|dis)abled with: libssh2_channel_set_blocking()
+ * If the server send EOF, libssh2_channel_eof() will return non-0
+ * To send EOF to the server use: libssh2_channel_send_eof()
+ * A channel can be closed with: libssh2_channel_close()
+ * A channel can be freed with: libssh2_channel_free()
+ */
+
+        /* Read and display all the data received on stdout (ignoring stderr)
+         * until the channel closes. This will eventually block if the command
+         * produces too much data on stderr; the loop must be rewritten to use
+         * non-blocking mode and include interspersed calls to
+         * libssh2_channel_read_stderr() to avoid this. See ssh2_echo.c for
+         * an idea of how such a loop might look.
+         */
+        while(!libssh2_channel_eof(channel)) {
+            char buf[1024];
+            ssize_t err = libssh2_channel_read(channel, buf, sizeof(buf));
+            if(err < 0)
+                fprintf(stderr, "Unable to read response: %zd\n", err);
+            else {
+                fwrite(buf, 1, err, stdout);
+            }
+        }
     }
 
-    /* Open a SHELL on that pty */
-    if(libssh2_channel_shell(channel)) {
-        fprintf(stderr, "Unable to request shell on allocated pty\n");
-        goto shutdown;
-    }
+    rc = libssh2_channel_get_exit_status(channel);
 
-    /* At this point the shell can be interacted with using
-     * libssh2_channel_read()
-     * libssh2_channel_read_stderr()
-     * libssh2_channel_write()
-     * libssh2_channel_write_stderr()
-     *
-     * Blocking mode may be (en|dis)abled with: libssh2_channel_set_blocking()
-     * If the server send EOF, libssh2_channel_eof() will return non-0
-     * To send EOF to the server use: libssh2_channel_send_eof()
-     * A channel can be closed with: libssh2_channel_close()
-     * A channel can be freed with: libssh2_channel_free()
-     */
+    if(libssh2_channel_close(channel))
+        fprintf(stderr, "Unable to close channel\n");
 
-  skip_shell:
     if(channel) {
         libssh2_channel_free(channel);
         channel = NULL;
@@ -270,5 +353,5 @@ int main(int argc, char *argv[])
 
     libssh2_exit();
 
-    return 0;
+    return rc;
 }

@@ -39,6 +39,9 @@
  * OF SUCH DAMAGE.
  */
 
+/* disable deprecated warnings in OpenSSL 3 */
+#define OPENSSL_SUPPRESS_DEPRECATED
+
 #ifdef LIBSSH2_WOLFSSL
 
 #include <wolfssl/options.h>
@@ -122,8 +125,9 @@
 # define LIBSSH2_ECDSA 1
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x10101000L && \
-!defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER >= 0x10101000L && \
+    !defined(LIBRESSL_VERSION_NUMBER)) || \
+    LIBRESSL_VERSION_NUMBER >= 0x3070000fL
 # define LIBSSH2_ED25519 1
 #else
 # define LIBSSH2_ED25519 0

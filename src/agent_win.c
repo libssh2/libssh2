@@ -55,7 +55,7 @@
 #include <stdlib.h>
 #endif
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP)
 /* Code to talk to OpenSSH was taken and modified from the Win32 port of
  * Portable OpenSSH by the PowerShell team. Commit
  * 8ab565c53f3619d6a1f5ac229e212cad8a52852c of
@@ -358,4 +358,4 @@ struct agent_ops agent_ops_openssh = {
     agent_transact_openssh,
     agent_disconnect_openssh
 };
-#endif  /* WIN32 */
+#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP) */

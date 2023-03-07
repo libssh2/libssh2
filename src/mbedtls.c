@@ -93,16 +93,14 @@ _libssh2_mbedtls_random(unsigned char *buf, int len)
 static void
 _libssh2_mbedtls_safe_free(void *buf, int len)
 {
-#ifndef LIBSSH2_CLEAR_MEMORY
-    (void)len;
-#endif
-
     if(!buf)
         return;
 
 #ifdef LIBSSH2_CLEAR_MEMORY
     if(len > 0)
         _libssh2_explicit_zero(buf, len);
+#else
+    (void)len;
 #endif
 
     mbedtls_free(buf);
