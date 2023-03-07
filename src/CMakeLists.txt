@@ -35,7 +35,6 @@
 
 include(CheckFunctionExists)
 include(CheckSymbolExists)
-include(CheckFunctionExistsMayNeedLibrary)
 include(CheckIncludeFiles)
 include(CheckTypeSize)
 include(CheckSymbolExists)
