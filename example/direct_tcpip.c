@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
     }
 
     sin.sin_family = AF_INET;
-    sin.sin_port = htons(local_listenport);
+    sin.sin_port = htons((unsigned short)local_listenport);
     sin.sin_addr.s_addr = inet_addr(local_listenip);
     if(INADDR_NONE == sin.sin_addr.s_addr) {
         perror("inet_addr");
