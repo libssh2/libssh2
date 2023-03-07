@@ -48,8 +48,6 @@
 /* Functions */
 #cmakedefine HAVE_STRCASECMP
 #cmakedefine HAVE__STRICMP
-#cmakedefine HAVE_SNPRINTF
-#cmakedefine HAVE__SNPRINTF
 
 /* Workaround for platforms without POSIX strcasecmp (e.g. Windows) */
 #ifndef HAVE_STRCASECMP
