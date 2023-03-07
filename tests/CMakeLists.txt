@@ -37,7 +37,6 @@ include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckSymbolExists)
 include(CopyRuntimeDependencies)
-include(SocketLibraries)
 
 ## Platform checks
 check_include_files(inttypes.h HAVE_INTTYPES_H)
@@ -50,7 +49,6 @@ check_include_files(netinet/in.h HAVE_NETINET_IN_H)
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config_cmake.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h")
-append_needed_socket_libraries(LIBRARIES)
 
 ## Cryptography backend choice
 
@@ -174,10 +172,7 @@ foreach(test ${TESTS})
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
-if(WIN32)
-    set(test_ext ".bat")
-endif()
-
+# MAC tests
 foreach(test
   read_aes128-ctr
   read_aes192-ctr
@@ -192,27 +187,32 @@ foreach(test
   read_hmac-sha2-256-etm
   read_hmac-sha2-512-etm
   )
-  add_test(
-      NAME test_${test} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test_${test}${test_ext}")
-  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "builddir=$<TARGET_FILE_DIR:test_read>")
+  add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
+  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
 endforeach()
 
+# CRYPT tests
+set(TESTS
+  aes128-ctr
+  aes192-ctr
+  aes256-ctr
+  )
 # Due to a bug with mbedTLS support, these crypt methods fail. Until that bug
 # is fixed, don't run them there to avoid this known issue causing red tests.
 # See https://github.com/libssh2/libssh2/issues/793
 if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
-    foreach(test
-      read_3des-cbc
-      read_aes128-cbc
-      read_aes192-cbc
-      read_aes256-cbc
-      read_rijndael-cbc
-      )
-      add_test(
-          NAME test_${test} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test_${test}${test_ext}")
-      set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "builddir=$<TARGET_FILE_DIR:test_read>")
-    endforeach()
+  list(APPEND TESTS
+    3des-cbc
+    aes128-cbc
+    aes192-cbc
+    aes256-cbc
+    rijndael-cbc@lysator.liu.se
+    )
 endif()
+foreach(test ${TESTS})
+  add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
+  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
+endforeach()
 
 if(WIN32 AND BUILD_SHARED_LIBS)
   # Workaround for Visual Studio

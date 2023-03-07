@@ -757,10 +757,9 @@ _libssh2_bn_free(_libssh2_bn *bn)
 {
     if(bn) {
         if(bn->bignum) {
-#ifdef LIBSSH2_CLEAR_MEMORY
             if(bn->length)
-                memset((char *) bn->bignum, 0, bn->length);
-#endif
+                _libssh2_explicit_zero(bn->bignum, bn->length);
+
             free(bn->bignum);
         }
 
@@ -781,10 +780,9 @@ _libssh2_bn_resize(_libssh2_bn *bn, size_t newlen)
     if(!bn->bignum)
         bignum = (unsigned char *) malloc(newlen);
     else {
-#ifdef LIBSSH2_CLEAR_MEMORY
         if(newlen < bn->length)
-            memset((char *) bn->bignum + newlen, 0, bn->length - newlen);
-#endif
+            _libssh2_explicit_zero(bn->bignum + newlen, bn->length - newlen);
+
         if(!newlen) {
             free((char *) bn->bignum);
             bn->bignum = NULL;

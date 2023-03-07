@@ -47,6 +47,11 @@
 
 #ifdef WIN32
 #include <windows.h>
+#ifdef _MSC_VER
+#include <direct.h>
+#define getcwd _getcwd
+#define chdir _chdir
+#endif
 #endif
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
@@ -134,7 +139,7 @@ LIBSSH2_SESSION *start_session_fixture(void)
            libssh2_session_method_pref(connected_session,
                                        LIBSSH2_METHOD_CRYPT_SC, env)) {
             fprintf(stderr, "libssh2_session_method_pref CRYPT failed "
-                    "(probably disabled in the build)\n");
+                    "(probably disabled in the build): '%s'\n", env);
             return NULL;
         }
     }
@@ -146,7 +151,7 @@ LIBSSH2_SESSION *start_session_fixture(void)
            libssh2_session_method_pref(connected_session,
                                        LIBSSH2_METHOD_MAC_SC, env)) {
             fprintf(stderr, "libssh2_session_method_pref MAC failed "
-                    "(probably disabled in the build)\n");
+                    "(probably disabled in the build): '%s'\n", env);
             return NULL;
         }
     }

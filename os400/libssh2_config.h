@@ -113,12 +113,6 @@
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #define HAVE_NETINET_IN_H 1
 
-/* Define to 1 if you have the <ntdef.h> header file. */
-#undef HAVE_NTDEF_H
-
-/* Define to 1 if you have the <ntstatus.h> header file. */
-#undef HAVE_NTSTATUS_H
-
 /* use O_NONBLOCK for non-blocking sockets */
 #define HAVE_O_NONBLOCK 1
 
@@ -185,9 +179,6 @@
 /* to make a symbol visible */
 #undef LIBSSH2_API
 
-/* Enable clearing of memory before being freed */
-#define LIBSSH2_CLEAR_MEMORY 1
-
 /* Enable "none" cipher -- NOT RECOMMENDED */
 #undef LIBSSH2_CRYPT_NONE
 
@@ -211,6 +202,10 @@
 
 /* Use OS/400 Qc3 */
 #define LIBSSH2_OS400QC3
+
+/* Use our platform-specific local implementation:
+   _libssh2_os400_snprintf */
+#define HAVE_SNPRINTF 1
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
 */

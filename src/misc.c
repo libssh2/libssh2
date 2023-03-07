@@ -60,6 +60,30 @@
 #include <stdio.h>
 #include <errno.h>
 
+/* snprintf not in Visual Studio CRT and _snprintf dangerously incompatible.
+   We provide a safe wrapper if snprintf not found */
+#ifdef LIBSSH2_SNPRINTF
+#include <stdarg.h>
+
+/* Want safe, 'n += snprintf(b + n ...)' like function. If cp_max_len is 1
+* then assume cp is pointing to a null char and do nothing. Returns number
+* number of chars placed in cp excluding the trailing null char. So for
+* cp_max_len > 0 the return value is always < cp_max_len; for cp_max_len
+* <= 0 the return value is 0 (and no chars are written to cp). */
+int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
+{
+    va_list args;
+    int n;
+
+    if(cp_max_len < 2)
+        return 0;
+    va_start(args, fmt);
+    n = vsnprintf(cp, cp_max_len, fmt, args);
+    va_end(args);
+    return (n < cp_max_len) ? n : (cp_max_len - 1);
+}
+#endif
+
 int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
                          const char *errmsg, int errflags)
 {
@@ -715,20 +739,14 @@ void _libssh2_aes_ctr_increment(unsigned char *ctr,
     }
 }
 
-#if !defined(WIN32) && !defined(HAVE_MEMSET_S)
+#ifdef LIBSSH2_MEMZERO
 static void * (* const volatile memset_libssh)(void *, int, size_t) = memset;
-#endif
 
-void _libssh2_explicit_zero(void *buf, size_t size)
+void _libssh2_memzero(void *buf, size_t size)
 {
-#ifdef WIN32
-    SecureZeroMemory(buf, size);
-#elif defined(HAVE_MEMSET_S)
-    (void)memset_s(buf, size, 0, size);
-#else
     memset_libssh(buf, 0, size);
-#endif
 }
+#endif
 
 /* String buffer */
 

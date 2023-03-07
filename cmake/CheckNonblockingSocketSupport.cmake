@@ -86,7 +86,7 @@ int main()
       HAVE_IOCTLSOCKET)
 
       if(NOT HAVE_IOCTLSOCKET)
-	check_c_source_compiles("/* IoctlSocket test (Amiga?) */
+        check_c_source_compiles("/* IoctlSocket test (Amiga?) */
 #include <sys/ioctl.h>
 
 int main()
@@ -97,7 +97,7 @@ int main()
         HAVE_IOCTLSOCKET_CASE)
 
         if(NOT HAVE_IOCTLSOCKET_CASE)
-	  check_c_source_compiles("/* SO_NONBLOCK test (BeOS) */
+          check_c_source_compiles("/* SO_NONBLOCK test (BeOS) */
 #include <socket.h>
 
 int main()
@@ -108,11 +108,11 @@ int main()
 }"
           HAVE_SO_NONBLOCK)
 
-	  if(NOT HAVE_SO_NONBLOCK)
-	    # No non-blocking socket method found
-	    set(HAVE_DISABLED_NONBLOCKING 1)
-	  endif()
-	endif()
+          if(NOT HAVE_SO_NONBLOCK)
+            # No non-blocking socket method found
+            set(HAVE_DISABLED_NONBLOCKING 1)
+          endif()
+        endif()
       endif()
     endif()
   endif()

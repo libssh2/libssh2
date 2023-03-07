@@ -59,17 +59,6 @@
 #    define LIBSSH2_WINDOWS_APP
 #  endif
 # endif
-
-/* TODO: Enable this unconditionally for all platforms.
-         Also delete autotools logic that enables it only for mbedTLS.
-         And CMake logic which already enabled it unconditionally.
-         The actual memory clearing logic uses SecureZeroMemory(),
-         memset_s() or plain memset(), whichever is available, and
-         does not depend on any crypto backend function. */
-#ifndef LIBSSH2_CLEAR_MEMORY
-#define LIBSSH2_CLEAR_MEMORY
-#endif
-
 #endif
 
 #ifdef HAVE_WS2TCPIP_H
@@ -117,7 +106,7 @@
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
-#include "misc.h" /* for the linked list stuff */
+#include "misc.h"
 
 #ifndef FALSE
 #define FALSE 0
@@ -126,8 +115,16 @@
 #define TRUE 1
 #endif
 
-#ifdef _MSC_VER
+/* Use local implementation when not available */
+#if !defined(HAVE_SNPRINTF)
+#define LIBSSH2_SNPRINTF
+#define snprintf _libssh2_snprintf
+#endif
+
 /* "inline" keyword is valid only with C++ engine! */
+#ifdef __GNUC__
+#define inline __inline__
+#elif defined(_MSC_VER)
 #define inline __inline
 #endif
 
@@ -983,7 +980,7 @@ void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format,
                     ...);
 #else
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) ||     \
-    defined(__GNUC__)
+    (defined(__GNUC__) && !defined(__clang__))
 /* C99 supported and also by older GCC */
 #define _libssh2_debug(x,y,...) do {} while (0)
 #else

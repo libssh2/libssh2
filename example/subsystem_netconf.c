@@ -37,10 +37,8 @@
 #define INADDR_NONE (in_addr_t)~0
 #endif
 
-#ifndef HAVE_SNPRINTF
-# ifdef HAVE__SNPRINTF
-# define snprintf _snprintf
-# endif
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#define snprintf _snprintf
 #endif
 
 const char *keyfile1 = "/home/username/.ssh/id_rsa.pub";

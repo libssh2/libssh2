@@ -422,7 +422,9 @@ m4_case([$1],
 
     # Not all OpenSSL have AES-CTR functions.
     libssh2_save_LIBS="$LIBS"
-    LIBS="$LIBS $LIBSSL"
+    # Duplicate $LIBS to make binutils ld (known to be fatally
+    # sensitive to lib order) happy.
+    LIBS="$LIBS $LIBSSL $LIBS"
     AC_CHECK_FUNCS(EVP_aes_128_ctr)
     LIBS="$libssh2_save_LIBS"
 
@@ -456,14 +458,11 @@ m4_case([$1],
     AC_DEFINE(LIBSSH2_MBEDTLS, 1, [Use $1])
     LIBS="$LIBS -lmbedcrypto"
     found_crypto="$1"
-    support_clear_memory=yes
   ])
 ],
 
 [wincng], [
   # Look for Windows Cryptography API: Next Generation
-
-  AC_CHECK_HEADERS([ntdef.h ntstatus.h], [], [], [#include <windows.h>])
 
   LIBSSH2_LIB_HAVE_LINKFLAGS([crypt32], [], [
     #include <windows.h>

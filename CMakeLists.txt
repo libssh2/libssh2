@@ -33,7 +33,10 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 2.8.12)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+include(CheckFunctionExistsMayNeedLibrary)
+
+cmake_minimum_required(VERSION 3.1)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -41,13 +44,7 @@ project(libssh2 C)
 set(PROJECT_URL "https://www.libssh2.org/")
 set(PROJECT_DESCRIPTION "The SSH library")
 
-if (CMAKE_VERSION VERSION_LESS "3.1")
-  if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    set (CMAKE_C_FLAGS "--std=gnu90 ${CMAKE_C_FLAGS}")
-  endif()
-else()
-  set (CMAKE_C_STANDARD 90)
-endif()
+set(CMAKE_C_STANDARD 90)
 
 option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
 
@@ -84,6 +81,20 @@ install(
 
 include(max_warnings)
 include(FeatureSummary)
+
+# Add socket libraries
+if(WIN32)
+  list(APPEND LIBRARIES ws2_32)
+else()
+  check_function_exists_may_need_library(socket HAVE_SOCKET socket)
+  if(NEED_LIB_SOCKET)
+    list(APPEND LIBRARIES socket)
+  endif()
+  check_function_exists_may_need_library(inet_addr HAVE_INET_ADDR nsl)
+  if(NEED_LIB_NSL)
+    list(APPEND LIBRARIES nsl)
+  endif()
+endif()
 
 add_subdirectory(src)
 

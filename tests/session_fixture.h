@@ -40,6 +40,10 @@
 
 #include <libssh2.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#define snprintf _snprintf
+#endif
+
 LIBSSH2_SESSION *start_session_fixture(void);
 void stop_session_fixture(void);
 void print_last_session_error(const char *function);

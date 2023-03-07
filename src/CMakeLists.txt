@@ -35,12 +35,10 @@
 
 include(CheckFunctionExists)
 include(CheckSymbolExists)
-include(CheckFunctionExistsMayNeedLibrary)
 include(CheckIncludeFiles)
 include(CheckTypeSize)
 include(CheckSymbolExists)
 include(CheckNonblockingSocketSupport)
-include(SocketLibraries)
 
 ## Cryptography backend choice
 
@@ -139,9 +137,6 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
     list(APPEND LIBRARIES bcrypt)
     list(APPEND PC_LIBS -lbcrypt)
 
-    check_include_files(ntdef.h HAVE_NTDEF_H)
-    check_include_files(ntstatus.h HAVE_NTSTATUS_H)
-
     # Reading keys from files is optional and depends on Wincrypt
     check_include_files("windows.h;wincrypt.h" HAVE_WINCRYPT_H)
 
@@ -236,9 +231,9 @@ target_include_directories(libssh2
 ## Options
 
 option(CLEAR_MEMORY "Enable clearing of memory before being freed" ON)
-if(CLEAR_MEMORY)
-    add_definitions(-DLIBSSH2_CLEAR_MEMORY)
-endif(CLEAR_MEMORY)
+if(NOT CLEAR_MEMORY)
+    add_definitions(-DLIBSSH2_NO_CLEAR_MEMORY)
+endif()
 
 add_feature_info("Shared library" BUILD_SHARED_LIBS
   "creating libssh2 as a shared library (.so/.dll)")
@@ -342,7 +337,10 @@ else()
   check_function_exists(poll HAVE_POLL)
 endif()
 
-append_needed_socket_libraries(LIBRARIES)
+if(WIN32)
+  set(HAVE_SELECT 1)
+  list(APPEND PC_LIBS -lws2_32)
+endif()
 
 # Non-blocking socket support tests.  Must be after library tests to
 # link correctly
@@ -362,12 +360,7 @@ if(MSVC)
   set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /DEBUG")
 endif()
 
-if(CMAKE_VERSION VERSION_LESS "2.8.12")
-  # Fall back to over-linking dependencies
-  target_link_libraries(libssh2 ${LIBRARIES})
-else()
-  target_link_libraries(libssh2 PRIVATE ${LIBRARIES})
-endif()
+target_link_libraries(libssh2 PRIVATE ${LIBRARIES})
 
 ## Installation
 
