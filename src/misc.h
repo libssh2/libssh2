@@ -40,8 +40,8 @@
 
 #ifdef LIBSSH2_NO_CLEAR_MEMORY
 #define _libssh2_explicit_zero(buf, size) do { \
-                                              (void)buf; \
-                                              (void)size; \
+                                              (void)(buf); \
+                                              (void)(size); \
                                           } while(0)
 #else
 #ifdef WIN32
