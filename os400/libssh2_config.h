@@ -203,10 +203,6 @@
 /* Use OS/400 Qc3 */
 #define LIBSSH2_OS400QC3
 
-/* Use our platform-specific local implementation:
-   _libssh2_os400_snprintf */
-#define HAVE_SNPRINTF 1
-
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
 */
 #define LT_OBJDIR ".libs/"

@@ -87,6 +87,8 @@ check_include_files(winsock2.h HAVE_WINSOCK2_H)
 
 check_symbol_exists(strcasecmp strings.h HAVE_STRCASECMP)
 check_symbol_exists(_stricmp string.h HAVE__STRICMP)
+check_symbol_exists(snprintf stdio.h HAVE_SNPRINTF)
+check_symbol_exists(_snprintf stdio.h HAVE__SNPRINTF)
 
 check_symbol_exists(__func__ "" HAVE___FUNC__)
 check_symbol_exists(__FUNCTION__ "" HAVE___FUNCTION__)

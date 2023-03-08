@@ -115,12 +115,6 @@
 #define TRUE 1
 #endif
 
-/* Use local implementation when not available */
-#if !defined(HAVE_SNPRINTF)
-#define LIBSSH2_SNPRINTF
-#define snprintf _libssh2_snprintf
-#endif
-
 /* "inline" keyword is valid only with C++ engine! */
 #ifdef __GNUC__
 #define inline __inline__
