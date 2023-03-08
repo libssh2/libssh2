@@ -42,6 +42,9 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#pragma warning(disable:4127)
+#endif
 
 const char *keyfile1 = "~/.ssh/id_rsa.pub";
 const char *keyfile2 = "~/.ssh/id_rsa";

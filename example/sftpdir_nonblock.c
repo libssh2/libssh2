@@ -42,6 +42,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#pragma warning(disable:4127)
+#endif
+
 #ifdef WIN32
 #define __FILESIZE "I64u"
 #else
