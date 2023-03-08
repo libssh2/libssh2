@@ -218,6 +218,7 @@ set(SOURCES
   mac.h
   misc.c
   misc.h
+  os400qc3.c
   packet.c
   packet.h
   pem.c
