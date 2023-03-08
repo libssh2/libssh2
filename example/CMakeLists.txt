@@ -62,6 +62,8 @@ set(EXAMPLES
   subsystem_netconf
   tcpip-forward)
 
+list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
+
 foreach(example ${EXAMPLES})
   add_executable(example-${example} ${example}.c)
   list(APPEND EXAMPLE_TARGETS example-${example})

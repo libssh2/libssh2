@@ -361,6 +361,8 @@ else()
   check_function_exists(poll HAVE_POLL)
 endif()
 
+list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
+
 if(WIN32)
   set(HAVE_SELECT 1)
   list(APPEND PC_LIBS -lws2_32)

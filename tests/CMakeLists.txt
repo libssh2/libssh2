@@ -50,6 +50,8 @@ configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config_cmake.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h")
 
+list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
+
 ## Cryptography backend choice
 
 set(CRYPTO_BACKEND
