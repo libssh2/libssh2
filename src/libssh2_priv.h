@@ -44,8 +44,20 @@
 #pragma warning(disable:4127)
 #endif
 
+/* Define mingw-w64 version macros, eg __MINGW{32,64}_{MINOR,MAJOR}_VERSION */
+#ifdef __MINGW32__
+#include <_mingw.h>
+#endif
+
 #define LIBSSH2_LIBRARY
 #include "libssh2_config.h"
+
+/* Number of bits in a file offset, on hosts where this is settable. */
+#if defined(__MINGW32__) && defined(__MINGW64_VERSION_MAJOR)
+# ifndef _FILE_OFFSET_BITS
+# define _FILE_OFFSET_BITS 64
+# endif
+#endif
 
 #ifdef WIN32
 #ifndef WIN32_LEAN_AND_MEAN
