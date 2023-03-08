@@ -44,8 +44,6 @@ project(libssh2 C)
 set(PROJECT_URL "https://www.libssh2.org/")
 set(PROJECT_DESCRIPTION "The SSH library")
 
-set(CMAKE_C_STANDARD 90)
-
 option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
 
 # Parse version
