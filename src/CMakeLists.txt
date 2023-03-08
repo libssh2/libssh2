@@ -74,26 +74,30 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       list(APPEND LIBRARIES crypt32 bcrypt)
       list(APPEND PC_LIBS -lcrypt32 -lbcrypt)
 
-      find_file(DLL_LIBEAY32
-        NAMES libeay32.dll crypto.dll libcrypto-1_1.dll libcrypto-1_1-x64.dll
+      find_file(DLL_LIBCRYPTO
+        NAMES libeay32.dll crypto.dll libcrypto.dll
+          libcrypto-1_1.dll libcrypto-1_1-x64.dll
+          libcrypto-3.dll libcrypto-3-x64.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES bin)
-      if (NOT DLL_LIBEAY32)
+      if(NOT DLL_LIBCRYPTO)
         message(WARNING
-          "Unable to find OpenSSL crypto (aka libeay32) DLL, executables may not run")
+          "Unable to find OpenSSL libcrypto DLL, executables may not run")
       endif()
 
-      find_file(DLL_SSLEAY32
-        NAMES ssleay32.dll ssl.dll libssl-1_1.dll libssl-1_1-x64.dll
+      find_file(DLL_LIBSSL
+        NAMES ssleay32.dll ssl.dll libssl.dll
+          libssl-1_1.dll libssl-1_1-x64.dll
+          libssl-3.dll libssl-3-x64.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES bin)
-      if (NOT DLL_SSLEAY32)
+      if(NOT DLL_LIBSSL)
         message(WARNING
-          "Unable to find OpenSSL ssl (aka ssleay32) DLL, executables may not run")
+          "Unable to find OpenSSL libssl DLL, executables may not run")
       endif()
 
-      if(DLL_LIBEAY32 AND DLL_SSLEAY32)
-        list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBEAY32} ${DLL_SSLEAY32})
+      if(DLL_LIBCRYPTO AND DLL_LIBSSL)
+        list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO} ${DLL_LIBSSL})
       endif()
     endif()
 
