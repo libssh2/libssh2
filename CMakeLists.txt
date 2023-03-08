@@ -95,7 +95,6 @@ else()
     list(APPEND SOCKET_LIBRARIES nsl)
   endif()
 endif()
-list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 add_subdirectory(src)
 
