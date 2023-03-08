@@ -39,6 +39,11 @@
  * OF SUCH DAMAGE.
  */
 
+/* Disable warnings: C4127: conditional expression is constant */
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#pragma warning(disable:4127)
+#endif
+
 #define LIBSSH2_LIBRARY
 #include "libssh2_config.h"
 
