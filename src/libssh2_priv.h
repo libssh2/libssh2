@@ -136,6 +136,7 @@
 #if !defined(HAVE_SNPRINTF)
 #define LIBSSH2_SNPRINTF
 #define snprintf _libssh2_snprintf
+int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...);
 #endif
 
 /* "inline" keyword is valid only with C++ engine! */
