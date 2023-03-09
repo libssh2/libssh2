@@ -256,7 +256,7 @@ int main(int argc, char *argv[])
     /* Must use non-blocking IO hereafter due to the current libssh2 API */
     libssh2_session_set_blocking(session, 0);
 
-    while(1) {
+    for(;;) {
         FD_ZERO(&fds);
         FD_SET(forwardsock, &fds);
         tv.tv_sec = 0;
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
                 wr += i;
             }
         }
-        while(1) {
+        for(;;) {
             len = libssh2_channel_read(channel, buf, sizeof(buf));
             if(LIBSSH2_ERROR_EAGAIN == len)
                 break;
