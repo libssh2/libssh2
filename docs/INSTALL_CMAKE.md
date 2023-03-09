@@ -10,6 +10,7 @@ To build libssh2 you will need CMake v2.8 or later [1] and one of the
 following cryptography libraries:
 
 * OpenSSL
+* wolfSSL
 * Libgcrypt
 * WinCNG
 * mbedTLS
