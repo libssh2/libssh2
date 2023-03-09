@@ -2516,6 +2516,8 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             }
         }
 
+        _libssh2_wincng_safe_free(blob, key_length_bytes);
+
         return 0;
     }
 
