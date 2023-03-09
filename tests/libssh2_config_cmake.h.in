@@ -42,3 +42,6 @@
 #cmakedefine HAVE_ARPA_INET_H
 #cmakedefine HAVE_NETINET_IN_H
 #cmakedefine HAVE_WINSOCK2_H
+
+/* Functions */
+#cmakedefine HAVE_SNPRINTF
