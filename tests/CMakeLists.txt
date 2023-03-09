@@ -59,8 +59,8 @@ set(CRYPTO_BACKEND
   ""
   CACHE
   STRING
-  "The backend to use for cryptography: OpenSSL, Libgcrypt or WinCNG, mbedTLS
-or empty to try any available")
+  "The backend to use for cryptography: OpenSSL, wolfSSL, Libgcrypt,
+WinCNG, mbedTLS, or empty to try any available")
 
 # If the crypto backend was given, rather than searching for the first
 # we are able to find, the find_package commands must abort configuration
@@ -77,6 +77,23 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND "OpenSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
     set(CRYPTO_BACKEND_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR})
+  endif()
+endif()
+
+if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
+
+  find_package(wolfssl ${SPECIFIC_CRYPTO_REQUIREMENT})
+
+  if(WOLFSSL_FOUND)
+    set(CRYPTO_BACKEND "wolfSSL")
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WOLFSSL")
+    set(CRYPTO_BACKEND_INCLUDE_DIR ${WOLFSSL_INCLUDE_DIR} ${WOLFSSL_INCLUDE_DIR}/wolfssl)
+
+    find_package(ZLIB)
+
+    if(ZLIB_FOUND)
+      set(CRYPTO_BACKEND_INCLUDE_DIR ${ZLIB_INCLUDE_DIR} ${CRYPTO_BACKEND_INCLUDE_DIR})
+    endif()
   endif()
 endif()
 
@@ -130,11 +147,11 @@ set(TESTS
   read
   )
 
-if(CRYPTO_BACKEND STREQUAL "OpenSSL")
+if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
     list(APPEND TESTS
       public_key_auth_succeeds_with_correct_rsa_openssh_key
     )
-    if(OPENSSL_VERSION VERSION_GREATER "1.1.0")
+    if(OPENSSL_VERSION VERSION_GREATER "1.1.0" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
       list(APPEND TESTS
         public_key_auth_succeeds_with_correct_ed25519_key
         public_key_auth_succeeds_with_correct_encrypted_ed25519_key
