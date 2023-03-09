@@ -119,8 +119,8 @@ int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
         /* if this is EAGAIN and we're in non-blocking mode, don't generate
            a debug output for this */
         return errcode;
-    _libssh2_debug(session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code,
-                   session->err_msg);
+    _libssh2_debug((session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code,
+                   session->err_msg));
 #endif
 
     return errcode;
@@ -477,7 +477,8 @@ libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *handler_context,
 }
 
 void
-_libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
+_libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
+                   ...)
 {
     char buffer[1536];
     int len, msglen, buflen = sizeof(buffer);

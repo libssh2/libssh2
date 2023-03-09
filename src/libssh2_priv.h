@@ -993,23 +993,12 @@ struct _LIBSSH2_COMP_METHOD
 };
 
 #ifdef LIBSSH2DEBUG
-void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format,
-                    ...);
+void
+_libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
+                   ...);
+#define _libssh2_debug(x) _libssh2_debug_low x
 #else
-#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) ||     \
-    (defined(__GNUC__) && !defined(__clang__))
-/* C99 supported and also by older GCC */
-#define _libssh2_debug(x,y,...) do {} while (0)
-#else
-/* no gcc and not C99, do static and hopefully inline */
-static inline void
-_libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
-{
-    (void)session;
-    (void)context;
-    (void)format;
-}
-#endif
+#define _libssh2_debug(x) do {} while (0)
 #endif
 
 #define LIBSSH2_SOCKET_UNKNOWN                   1

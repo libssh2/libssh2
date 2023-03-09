@@ -73,8 +73,8 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     }
 
     if(hostkey_data_len < 19) {
-        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
-                       "host key length too short");
+        _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
+                       "host key length too short"));
         return -1;
     }
 
@@ -99,8 +99,8 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     }
 #endif
     else {
-        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
-                       "unexpected rsa type: %.*s", type_len, type);
+        _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
+                       "unexpected rsa type: %.*s", type_len, type));
         return -1;
     }
 
@@ -498,8 +498,8 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
     }
 
     if(hostkey_data_len < 27) {
-        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
-                       "host key length too short");
+        _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
+                       "host key length too short"));
         return -1;
     }
 
@@ -725,8 +725,8 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     }
 
     if(hostkey_data_len < 39) {
-        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
-                       "host key length too short");
+        _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
+                       "host key length too short"));
         return -1;
     }
 
@@ -1064,8 +1064,8 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
     }
 
     if(hostkey_data_len < 19) {
-        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
-                       "host key length too short");
+        _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
+                       "host key length too short"));
         return -1;
     }
 
