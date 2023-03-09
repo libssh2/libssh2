@@ -115,6 +115,7 @@ if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
 endif()
 
 set(TESTS
+  warmup
   hostkey
   hostkey_hash
   password_auth_succeeds_with_correct_credentials
@@ -165,7 +166,11 @@ target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
 foreach(test ${TESTS})
   add_executable(test_${test} test_${test}.c)
-  target_link_libraries(test_${test} libssh2 runner ${LIBRARIES})
+  if(TESTS STREQUAL "warmup")
+    target_link_libraries(test_${test} libssh2 ${LIBRARIES})
+  else()
+    target_link_libraries(test_${test} libssh2 runner ${LIBRARIES})
+  endif()
   target_include_directories(test_${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
   list(APPEND TEST_TARGETS test_${test})
   add_definitions(-DFIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
