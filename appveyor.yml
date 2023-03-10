@@ -88,7 +88,7 @@ install:
       $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
       [System.Environment]::SetEnvironmentVariable("OPENSSH_SERVER_PORT", $env:OPENSSH_SERVER_PORT)
   - ps: .\ci\appveyor\docker-bridge.ps1
-  - choco install -y docker-cli
+  - appveyor-retry choco install -y docker-cli
 
 build_script:
   - ps: if($env:PLATFORM -eq "x64") { $env:CMAKE_GEN_SUFFIX=" Win64" }
