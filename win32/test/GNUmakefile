@@ -18,30 +18,30 @@ OPENSSL_PATH = ../../../openssl
 endif
 
 # Project root
-PROOT	= ../..
+PROOT = ../..
 
 # Edit the var below to enable static linking of libssh2 and libz
 LINK_STATIC = 1
 
 # Edit the vars below to change target settings.
-SAMPLES	= $(PROOT)/example
+SAMPLES = $(PROOT)/example
 TARGETS := $(filter-out x11.exe,$(patsubst $(SAMPLES)/%.c,%.exe,$(strip $(wildcard $(SAMPLES)/*.c))))
-WWWURL	= https://www.libssh2.org/
-DESCR	= libssh2 $(subst .rc,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
-#STACK	= 64000
+WWWURL = https://www.libssh2.org/
+DESCR = libssh2 $(subst .rc,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
+#STACK = 64000
 
 # must be equal to DEBUG or NDEBUG
 ifndef DB
-	DB	= NDEBUG
-	# DB	= DEBUG
+  DB = NDEBUG
+# DB = DEBUG
 endif
 # Optimization: -O<n> or debugging: -g
 ifeq ($(DB),NDEBUG)
-	OPT	= -O2
-	OBJDIR	= release
+  OPT = -O2
+  OBJDIR = release
 else
-	OPT	= -g
-	OBJDIR	= debug
+  OPT = -g
+  OBJDIR = debug
 endif
 
 # Here you can find a native Win32 binary of the original awk:
@@ -51,30 +51,30 @@ ZIP     = zip -qzr9
 
 # Platform-dependent helper tool macros
 ifeq ($(findstring /sh,$(SHELL)),/sh)
-DEL	= rm -f $1
-RMDIR	= rm -fr $1
-MKDIR	= mkdir -p $1
-COPY	= -cp -afv $1 $2
-#COPYR	= -cp -afr $1/* $2
-COPYR	= -rsync -aC $1/* $2
-TOUCH	= touch $1
-CAT	= cat
-ECHONL	= echo ""
-DL	= '
+DEL     = rm -f $1
+RMDIR   = rm -fr $1
+MKDIR   = mkdir -p $1
+COPY    = -cp -afv $1 $2
+#COPYR  = -cp -afr $1/* $2
+COPYR   = -rsync -aC $1/* $2
+TOUCH   = touch $1
+CAT     = cat
+ECHONL  = echo ""
+DL      = '
 else
 ifeq "$(OS)" "Windows_NT"
-DEL	= -del 2>NUL /q /f $(subst /,\,$1)
-RMDIR	= -rd 2>NUL /q /s $(subst /,\,$1)
+DEL     = -del 2>NUL /q /f $(subst /,\,$1)
+RMDIR   = -rd 2>NUL /q /s $(subst /,\,$1)
 else
-DEL	= -del 2>NUL $(subst /,\,$1)
-RMDIR	= -deltree 2>NUL /y $(subst /,\,$1)
+DEL     = -del 2>NUL $(subst /,\,$1)
+RMDIR   = -deltree 2>NUL /y $(subst /,\,$1)
 endif
-MKDIR	= -md 2>NUL $(subst /,\,$1)
-COPY	= -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
-COPYR	= -xcopy 2>NUL /q /y /e $(subst /,\,$1) $(subst /,\,$2)
-TOUCH	= copy 2>&1>NUL /b $(subst /,\,$1) +,,
-CAT	= type
-ECHONL	= $(ComSpec) /c echo.
+MKDIR   = -md 2>NUL $(subst /,\,$1)
+COPY    = -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
+COPYR   = -xcopy 2>NUL /q /y /e $(subst /,\,$1) $(subst /,\,$2)
+TOUCH   = copy 2>&1>NUL /b $(subst /,\,$1) +,,
+CAT     = type
+ECHONL  = $(ComSpec) /c echo.
 endif
 
 CC = $(CROSSPREFIX)gcc
@@ -83,12 +83,12 @@ CC = $(CROSSPREFIX)gcc
 ifndef ARCH
 ifeq ($(findstring gcc,$(CC)),gcc)
 ifeq ($(findstring x86_64,$(shell $(CC) -dumpmachine)),x86_64)
-ARCH	= w64
+ARCH = w64
 else
-ARCH	= w32
+ARCH = w32
 endif
 else
-ARCH	= w32
+ARCH = w32
 endif
 endif
 
@@ -96,27 +96,27 @@ endif
 -include $(OBJDIR)/version.inc
 
 # Global flags for all compilers
-CFLAGS	= $(OPT) -D$(DB)
+CFLAGS = $(OPT) -D$(DB)
 
-LD	= $(CROSSPREFIX)gcc
-RC	= $(CROSSPREFIX)windres
-LDFLAGS	= -s
-AR	= $(CROSSPREFIX)ar
-ARFLAGS	= -cq
-LIBEXT	= a
-#LDLIBS	+= -lwsock32
-LDLIBS	+= -lws2_32
-RCFLAGS	= -I $(PROOT)/include -O coff
-CFLAGS	+= -fno-builtin
-CFLAGS	+= -fno-strict-aliasing
-CFLAGS	+= -Wall #-Wno-unused #-pedantic
+LD = $(CROSSPREFIX)gcc
+RC = $(CROSSPREFIX)windres
+LDFLAGS = -s
+AR = $(CROSSPREFIX)ar
+ARFLAGS = -cq
+LIBEXT = a
+#LDLIBS += -lwsock32
+LDLIBS += -lws2_32
+RCFLAGS = -I $(PROOT)/include -O coff
+CFLAGS += -fno-builtin
+CFLAGS += -fno-strict-aliasing
+CFLAGS += -Wall #-Wno-unused #-pedantic
 ifeq ($(ARCH),w64)
-CFLAGS	+= -m64
-RCFLAGS	+= -F pe-x86-64
+CFLAGS += -m64
+RCFLAGS += -F pe-x86-64
 else
 ifeq ($(ARCH),w32)
-CFLAGS	+= -m32
-RCFLAGS	+= -F pe-i386
+CFLAGS += -m32
+RCFLAGS += -F pe-i386
 endif
 endif
 
@@ -124,59 +124,59 @@ INCLUDES = -I$(PROOT)/win32 -I$(PROOT)/include
 LIBPATH += -L$(PROOT)/win32
 
 ifdef LINK_STATIC
-	LDLIBS += -llibssh2
+  LDLIBS += -llibssh2
 else
-	LDLIBS += -llibssh2dll
+  LDLIBS += -llibssh2dll
 endif
 
 ifdef WITH_WINCNG
-# CFLAGS	+= -DLIBSSH2_WINCNG
-LDLIBS	+= -lbcrypt -lcrypt32
+# CFLAGS += -DLIBSSH2_WINCNG
+LDLIBS += -lbcrypt -lcrypt32
 else
-# CFLAGS	+= -DLIBSSH2_OPENSSL
+# CFLAGS += -DLIBSSH2_OPENSSL
 ifndef OPENSSL_INCLUDE
-	ifeq "$(wildcard $(OPENSSL_PATH)/outinc)" "$(OPENSSL_PATH)/outinc"
-		OPENSSL_INCLUDE = $(OPENSSL_PATH)/outinc
-	endif
-	ifeq "$(wildcard $(OPENSSL_PATH)/include)" "$(OPENSSL_PATH)/include"
-		OPENSSL_INCLUDE = $(OPENSSL_PATH)/include
-	endif
+  ifeq "$(wildcard $(OPENSSL_PATH)/outinc)" "$(OPENSSL_PATH)/outinc"
+    OPENSSL_INCLUDE = $(OPENSSL_PATH)/outinc
+  endif
+  ifeq "$(wildcard $(OPENSSL_PATH)/include)" "$(OPENSSL_PATH)/include"
+    OPENSSL_INCLUDE = $(OPENSSL_PATH)/include
+  endif
 endif
 ifneq "$(wildcard $(OPENSSL_INCLUDE)/openssl/opensslv.h)" "$(OPENSSL_INCLUDE)/openssl/opensslv.h"
 $(error Invalid OPENSSL_PATH: $(OPENSSL_PATH))
 endif
 INCLUDES += -I"$(OPENSSL_INCLUDE)"
 ifndef OPENSSL_LIBPATH
-	OPENSSL_LIBS_STAT = crypto ssl
-	ifeq "$(wildcard $(OPENSSL_PATH)/out)" "$(OPENSSL_PATH)/out"
-		OPENSSL_LIBPATH = $(OPENSSL_PATH)/out
-		OPENSSL_LIBS_DYN = eay32 ssl32
-	endif
-	ifeq "$(wildcard $(OPENSSL_PATH)/lib)" "$(OPENSSL_PATH)/lib"
-		OPENSSL_LIBPATH = $(OPENSSL_PATH)/lib
-		OPENSSL_LIBS_DYN = crypto.dll ssl.dll
-	endif
+  OPENSSL_LIBS_STAT = crypto ssl
+  ifeq "$(wildcard $(OPENSSL_PATH)/out)" "$(OPENSSL_PATH)/out"
+    OPENSSL_LIBPATH = $(OPENSSL_PATH)/out
+    OPENSSL_LIBS_DYN = eay32 ssl32
+  endif
+  ifeq "$(wildcard $(OPENSSL_PATH)/lib)" "$(OPENSSL_PATH)/lib"
+    OPENSSL_LIBPATH = $(OPENSSL_PATH)/lib
+    OPENSSL_LIBS_DYN = crypto.dll ssl.dll
+  endif
 endif
 ifdef LINK_STATIC
 ifdef LINK_OPENSSL_STATIC
-	LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_STAT)) -lgdi32
+  LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_STAT)) -lgdi32
 else
-	LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
+  LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
 endif
 endif
 endif
 
 ifdef WITH_ZLIB
-	CFLAGS += -DLIBSSH2_HAVE_ZLIB
-	INCLUDES += -I$(ZLIB_PATH)
-	ifdef LINK_ZLIB_STATIC
-		LDLIBS += $(ZLIB_PATH)/libz.$(LIBEXT)
-	else
-		LDLIBS += $(ZLIB_PATH)/libzdll.$(LIBEXT)
-	endif
+  CFLAGS += -DLIBSSH2_HAVE_ZLIB
+  INCLUDES += -I$(ZLIB_PATH)
+  ifdef LINK_ZLIB_STATIC
+    LDLIBS += $(ZLIB_PATH)/libz.$(LIBEXT)
+  else
+    LDLIBS += $(ZLIB_PATH)/libzdll.$(LIBEXT)
+  endif
 endif
 
-CFLAGS	+= $(INCLUDES)
+CFLAGS += $(INCLUDES)
 
 vpath %.c $(PROOT)/example
 
