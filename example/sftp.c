@@ -196,6 +196,13 @@ int main(int argc, char *argv[])
 
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    /*
+     * libssh2_userauth_list() can return NULL even though the session
+     * has been authenticated. Try libssh2_sftp_init() if userauthlist
+     * is NULL.
+     */
+    if(!userauthlist)
+        goto auth_maybe_done;
     fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password") != NULL) {
         auth_pw |= 1;
@@ -256,6 +263,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
+auth_maybe_done:
     fprintf(stderr, "libssh2_sftp_init()!\n");
     sftp_session = libssh2_sftp_init(session);
 
