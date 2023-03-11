@@ -825,6 +825,19 @@ _libssh2_mbedtls_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                                       size_t privatekeydata_len,
                                       const char *passphrase)
 {
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)algorithm;
+    (void)flags;
+    (void)application;
+    (void)key_handle;
+    (void)handle_len;
+    (void)privatekeydata;
+    (void)privatekeydata_len;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                     "Unable to extract public SK key from private key file: "
                     "Method unimplemented in mbedTLS backend");
