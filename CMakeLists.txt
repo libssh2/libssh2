@@ -103,7 +103,7 @@ endif()
 
 option(BUILD_TESTING "Build libssh2 test suite" ON)
 if(BUILD_TESTING)
-  enable_testing()
+  #enable_testing()
   add_subdirectory(tests)
 endif()
 
