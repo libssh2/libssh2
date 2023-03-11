@@ -7,15 +7,14 @@
 #
 #########################################################################
 
+# Project root
+PROOT := ..
+
 # Edit the path below to point to the base of your Zlib sources.
-ifndef ZLIB_PATH
-ZLIB_PATH = ../../zlib
-endif
+ZLIB_PATH ?= $(PROOT)/../zlib
 
 # Edit the path below to point to the base of your OpenSSL package.
-ifndef OPENSSL_PATH
-OPENSSL_PATH = ../../openssl
-endif
+OPENSSL_PATH ?= $(PROOT)/../openssl
 
 # Edit the path below to point to your Distribution folder.
 ifndef DISTDIR
@@ -29,9 +28,6 @@ DEVLDIR = libssh2-$(LIBSSH2_VERSION_STR)-dev-$(ARCH)
 endif
 DEVLARC = $(DEVLDIR).zip
 
-# Project root
-PROOT = ..
-
 # Edit the vars below to change target settings.
 TARGET = libssh2
 WWWURL = https://www.libssh2.org/
@@ -39,10 +35,7 @@ DESCR  = libssh2 $(LIBSSH2_VERSION_STR)
 #STACK = 64000
 
 # must be equal to DEBUG or NDEBUG
-ifndef DB
-  DB = NDEBUG
-# DB = DEBUG
-endif
+DB ?= NDEBUG
 # Optimization: -O<n> or debugging: -g
 ifeq ($(DB),NDEBUG)
   OPT = -O2
@@ -86,37 +79,26 @@ CAT    = type
 ECHONL = $(ComSpec) /c echo.
 endif
 
-ifeq ($(LIBSSH2_RC),)
-LIBSSH2_RC := $(CROSSPREFIX)windres
-endif
-ifeq ($(LIBSSH2_CC),)
-LIBSSH2_CC := $(CROSSPREFIX)gcc
-endif
-ifeq ($(LIBSSH2_AR),)
-LIBSSH2_AR := $(CROSSPREFIX)ar
-endif
-ifeq ($(LIBSSH2_RANLIB),)
-LIBSSH2_RANLIB := $(CROSSPREFIX)ranlib
-endif
-ifeq ($(LIBSSH2_DLL_A_SUFFIX),)
-LIBSSH2_DLL_A_SUFFIX := dll
-endif
+LIBSSH2_RC ?= $(CROSSPREFIX)windres
+LIBSSH2_CC ?= $(CROSSPREFIX)gcc
+LIBSSH2_AR ?= $(CROSSPREFIX)ar
 
+LIBSSH2_DLL_A_SUFFIX ?= dll
 libssh2_dll_LIBRARY = $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
 
 CC = $(LIBSSH2_CC)
 
 # Set environment var ARCH to your architecture to override autodetection.
 ifndef ARCH
-ifeq ($(findstring gcc,$(CC)),gcc)
-ifeq ($(findstring x86_64,$(shell $(CC) -dumpmachine)),x86_64)
-ARCH = w64
-else
-ARCH = w32
-endif
-else
-ARCH = w32
-endif
+  ifeq ($(findstring gcc,$(CC)),gcc)
+    ifeq ($(findstring x86_64,$(shell $(CC) -dumpmachine)),x86_64)
+      ARCH = w64
+    else
+      ARCH = w32
+    endif
+  else
+    ARCH = w32
+  endif
 endif
 
 # Include the version info retrieved from libssh2.h
@@ -132,65 +114,60 @@ RC = $(LIBSSH2_RC)
 LDFLAGS += -s -shared -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT)
 AR = $(LIBSSH2_AR)
 ARFLAGS = cru
-RANLIB = $(LIBSSH2_RANLIB)
 RCFLAGS = -I $(PROOT)/include -O coff
 CFLAGS += -fno-builtin
 CFLAGS += -fno-strict-aliasing
 CFLAGS += -Wall # -pedantic
 ifeq ($(ARCH),w64)
-CFLAGS  += -m64
-LDFLAGS += -m64
-RCFLAGS += -F pe-x86-64
-else
-ifeq ($(ARCH),w32)
-CFLAGS  += -m32
-LDFLAGS += -m32
-RCFLAGS += -F pe-i386
-endif
+  CFLAGS  += -m64
+  LDFLAGS += -m64
+  RCFLAGS += -F pe-x86-64
+else ifeq ($(ARCH),w32)
+  CFLAGS  += -m32
+  LDFLAGS += -m32
+  RCFLAGS += -F pe-i386
 endif
 
 INCLUDES = -I$(PROOT)/win32 -I$(PROOT)/include
 
 ifdef WITH_WINCNG
-CFLAGS += -DLIBSSH2_WINCNG
-LDLIBS += -lbcrypt -lcrypt32
+  CFLAGS += -DLIBSSH2_WINCNG
+  LDLIBS += -lbcrypt -lcrypt32
+else ifdef MBEDTLS_PATH
+  CFLAGS += -DLIBSSH2_MBEDTLS
+  CFLAGS += -I"$(MBEDTLS_PATH)/include"
+  LIBPATH += -L"$(MBEDTLS_PATH)/libs"
+  LDLIBS += -lmbedtls -lmbedx509 -lmbedcrypto
 else
-ifdef MBEDTLS_PATH
-CFLAGS += -DLIBSSH2_MBEDTLS
-CFLAGS += -I"$(MBEDTLS_PATH)/include"
-LIBPATH += -L"$(MBEDTLS_PATH)/libs"
-LDLIBS += -lmbedtls -lmbedx509 -lmbedcrypto
-else
-CFLAGS += -DLIBSSH2_OPENSSL
-ifndef OPENSSL_INCLUDE
-  ifeq "$(wildcard $(OPENSSL_PATH)/outinc)" "$(OPENSSL_PATH)/outinc"
-    OPENSSL_INCLUDE = $(OPENSSL_PATH)/outinc
+  CFLAGS += -DLIBSSH2_OPENSSL
+  ifndef OPENSSL_INCLUDE
+    ifeq "$(wildcard $(OPENSSL_PATH)/outinc)" "$(OPENSSL_PATH)/outinc"
+      OPENSSL_INCLUDE = $(OPENSSL_PATH)/outinc
+    endif
+    ifeq "$(wildcard $(OPENSSL_PATH)/include)" "$(OPENSSL_PATH)/include"
+      OPENSSL_INCLUDE = $(OPENSSL_PATH)/include
+    endif
   endif
-  ifeq "$(wildcard $(OPENSSL_PATH)/include)" "$(OPENSSL_PATH)/include"
-    OPENSSL_INCLUDE = $(OPENSSL_PATH)/include
+  ifneq "$(wildcard $(OPENSSL_INCLUDE)/openssl/opensslv.h)" "$(OPENSSL_INCLUDE)/openssl/opensslv.h"
+    $(error Invalid OPENSSL_PATH: $(OPENSSL_PATH))
   endif
-endif
-ifneq "$(wildcard $(OPENSSL_INCLUDE)/openssl/opensslv.h)" "$(OPENSSL_INCLUDE)/openssl/opensslv.h"
-$(error Invalid OPENSSL_PATH: $(OPENSSL_PATH))
-endif
-INCLUDES += -I"$(OPENSSL_INCLUDE)"
-ifndef OPENSSL_LIBPATH
-  OPENSSL_LIBS_STAT = crypto ssl
-  ifeq "$(wildcard $(OPENSSL_PATH)/out)" "$(OPENSSL_PATH)/out"
-    OPENSSL_LIBPATH = $(OPENSSL_PATH)/out
-    OPENSSL_LIBS_DYN = eay32 ssl32
+  INCLUDES += -I"$(OPENSSL_INCLUDE)"
+  ifndef OPENSSL_LIBPATH
+    OPENSSL_LIBS_STAT = crypto ssl
+    ifeq "$(wildcard $(OPENSSL_PATH)/out)" "$(OPENSSL_PATH)/out"
+      OPENSSL_LIBPATH = $(OPENSSL_PATH)/out
+      OPENSSL_LIBS_DYN = eay32 ssl32
+    endif
+    ifeq "$(wildcard $(OPENSSL_PATH)/lib)" "$(OPENSSL_PATH)/lib"
+      OPENSSL_LIBPATH = $(OPENSSL_PATH)/lib
+      OPENSSL_LIBS_DYN = crypto.dll ssl.dll
+    endif
   endif
-  ifeq "$(wildcard $(OPENSSL_PATH)/lib)" "$(OPENSSL_PATH)/lib"
-    OPENSSL_LIBPATH = $(OPENSSL_PATH)/lib
-    OPENSSL_LIBS_DYN = crypto.dll ssl.dll
+  ifdef LINK_OPENSSL_STATIC
+    LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_STAT)) -lgdi32
+  else
+    LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
   endif
-endif
-ifdef LINK_OPENSSL_STATIC
-  LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_STAT)) -lgdi32
-else
-  LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
-endif
-endif
 endif
 LDLIBS += -lws2_32
 
@@ -209,13 +186,11 @@ CFLAGS += $(INCLUDES)
 vpath %.c $(PROOT)/src
 
 ifdef WITH_WINCNG
-include $(PROOT)/Makefile.WinCNG.inc
+  include $(PROOT)/Makefile.WinCNG.inc
+else ifdef MBEDTLS_PATH
+  include $(PROOT)/Makefile.mbedTLS.inc
 else
-ifdef MBEDTLS_PATH
-include $(PROOT)/Makefile.mbedTLS.inc
-else
-include $(PROOT)/Makefile.OpenSSL.inc
-endif
+  include $(PROOT)/Makefile.OpenSSL.inc
 endif
 
 # include Makefile.inc to get CSOURCES define
@@ -305,9 +280,6 @@ $(TARGET).$(LIBEXT): $(OBJS)
 	@echo Creating $@
 	@$(call DEL, $@)
 	@$(AR) $(ARFLAGS) $@ $^
-ifdef RANLIB
-	@$(RANLIB) $@
-endif
 
 $(libssh2_dll_LIBRARY) $(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT): $(OBJL)
 	@echo Linking $@
