@@ -179,7 +179,7 @@ else
   endif
   include $(PROOT)/Makefile.OpenSSL.inc
 endif
-LDLIBS += -lws2_32
+LDLIBS += -lws2_32 -lcrypt32 -lbcrypt
 
 ifdef WITH_ZLIB
   CFLAGS += -DLIBSSH2_HAVE_ZLIB
