@@ -1,16 +1,13 @@
 #########################################################################
 #
 # Makefile for building libssh2 (Windows version - GNU Make)
-# Use: make -f GNUmakefile [help|all|clean|dev|devclean|dist|distclean|dll|objclean]
+# Use: make -f GNUmakefile [help|all|clean|dev|devclean|dist|distclean|dll|objclean|test|testclean]
 #
 # Hacked by: Guenter Knauf
 #
 #########################################################################
 
-ifndef PROOT
-  PROOT := ..
-  LOCAL := 1
-endif
+PROOT := ..
 
 ### Common
 
@@ -49,6 +46,25 @@ endif
 
 CPPFLAGS += -I$(PROOT)/win32 -I$(PROOT)/include
 RCFLAGS  += -I$(PROOT)/include
+
+# src
+
+CPPFLAGS_LIB := -DHAVE_STRTOLL
+
+# examples, tests
+
+LDFLAGS_BIN += -L$(PROOT)/win32
+LIBS_BIN    += -lssh2 -lws2_32
+
+ifdef DYN
+  libssh2_DEPENDENCIES += $(PROOT)/win32/libssh2.dll.a
+  LDFLAGS_BIN += -shared
+else
+  libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.a
+  LDFLAGS_BIN += -static
+endif
+
+libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.a
 
 ### Optional features
 
@@ -103,9 +119,12 @@ endif
 
 _LIBS += -lws2_32 -lcrypt32 -lbcrypt
 
+LDFLAGS_LIB += $(_LDFLAGS)
+LIBS_LIB += $(_LIBS)
+
 ifndef DYN
-  LDFLAGS += $(_LDFLAGS)
-  LIBS += $(_LIBS)
+  LDFLAGS_BIN += $(_LDFLAGS)
+  LIBS_BIN += $(_LIBS)
 endif
 
 ### Common rules
@@ -129,12 +148,6 @@ ZIP := zip -qzr9
 # Include the version info retrieved from libssh2.h
 -include $(OBJDIR)/version.inc
 
-### Local
-
-ifdef LOCAL
-
-CPPFLAGS += -DHAVE_STRTOLL
-
 vpath %.c $(PROOT)/src
 
 # include Makefile.inc to get CSOURCES define
@@ -156,6 +169,9 @@ DEVLARC = $(DEVLDIR).zip
 libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
 libssh2_dll_a_LIBRARY := $(TARGET).dll.a
 
+EXAMPLES := $(PROOT)/example
+TARGETS_EXAMPLES := $(filter-out $(EXAMPLES)/x11.exe,$(patsubst %.c,%.exe,$(strip $(wildcard $(EXAMPLES)/*.c))))
+
 all: lib dll
 
 dll: prebuild $(libssh2_dll_LIBRARY)
@@ -165,11 +181,25 @@ lib: prebuild $(TARGET).a
 prebuild: $(OBJDIR) $(OBJDIR)/version.inc
 # libssh2_config.h
 
-test: all
-	$(MAKE) -C test -f GNUmakefile
+test: $(TARGETS_EXAMPLES)
+
+%.exe: %.c $(libssh2_DEPENDENCIES)
+	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LDFLAGS_BIN) $< -o $@ $(LIBS) $(LIBS_BIN)
 
 $(OBJDIR)/%.o: %.c
-	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(CPPFLAGS_LIB) -c $< -o $@
+
+$(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY): $(OBJS) $(OBJDIR)/$(TARGET).res
+	@$(call DEL, $@)
+	$(CC) $(LDFLAGS) $(LDFLAGS_LIB) -shared $^ -o $@ $(LIBS) $(LIBS_LIB) \
+	  -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(libssh2_dll_a_LIBRARY)
+
+$(OBJDIR)/%.res: %.rc
+	$(RC) -O coff $(RCFLAGS) -i $< -o $@
+
+$(TARGET).a: $(OBJS)
+	@$(call DEL, $@)
+	$(AR) rcs $@ $^
 
 $(OBJDIR)/version.inc: $(PROOT)/get_ver.awk $(PROOT)/include/libssh2.h $(OBJDIR)
 	$(AWK) -f $^ > $@
@@ -213,7 +243,7 @@ objclean: all
 	$(call RMDIR, $(OBJDIR))
 
 testclean: clean
-	$(MAKE) -C test -f GNUmakefile clean
+	$(call DEL, $(TARGETS_EXAMPLES))
 
 clean:
 	$(call DEL, $(libssh2_dll_LIBRARY) $(libssh2_dll_LIBRARY:.dll=.def) $(TARGET).a $(libssh2_dll_a_LIBRARY))
@@ -227,18 +257,6 @@ $(DISTDIR):
 
 $(DEVLDIR):
 	@$(call MKDIR, $@)
-
-$(TARGET).a: $(OBJS)
-	@$(call DEL, $@)
-	$(AR) rcs $@ $^
-
-$(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY): $(OBJS) $(OBJDIR)/$(TARGET).res
-	@$(call DEL, $@)
-	$(CC) $(LDFLAGS) -shared $^ -o $@ $(LIBS) \
-	  -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(libssh2_dll_a_LIBRARY)
-
-$(OBJDIR)/%.res: %.rc
-	$(RC) -O coff $(RCFLAGS) -i $< -o $@
 
 $(DISTDIR)/readme.txt: GNUmakefile
 	@echo Creating $@
@@ -272,6 +290,5 @@ help: $(OBJDIR)/version.inc
 	@echo $(DL)$(MAKE) distclean$(DL)
 	@echo $(DL)$(MAKE) objclean$(DL)
 	@echo $(DL)$(MAKE) test$(DL)
+	@echo $(DL)$(MAKE) testclean$(DL)
 	@echo $(DL)===========================================================$(DL)
-
-endif
