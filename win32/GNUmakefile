@@ -45,37 +45,32 @@ else
   OBJDIR := debug
 endif
 
-# Here you can find a native Win32 binary of the original awk:
-# http://www.gknw.net/development/prgtools/awk-20100523.zip
-AWK := awk
-ZIP := zip -qzr9
-
 # Platform-dependent helper tool macros
 ifeq ($(findstring /sh,$(SHELL)),/sh)
 DEL    = rm -f $1
 RMDIR  = rm -fr $1
 MKDIR  = mkdir -p $1
 COPY   = -cp -afv $1 $2
-COPYR  = -rsync -aC $1/* $2
-TOUCH  = touch $1
 CAT    = cat
-ECHONL = echo ""
 DL     = '
 else
-ifeq "$(OS)" "Windows_NT"
 DEL    = -del 2>NUL /q /f $(subst /,\,$1)
 RMDIR  = -rd 2>NUL /q /s $(subst /,\,$1)
-else
-DEL    = -del 2>NUL $(subst /,\,$1)
-RMDIR  = -deltree 2>NUL /y $(subst /,\,$1)
-endif
 MKDIR  = -md 2>NUL $(subst /,\,$1)
 COPY   = -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
-COPYR  = -xcopy 2>NUL /q /y /e $(subst /,\,$1) $(subst /,\,$2)
-TOUCH  = copy 2>&1>NUL /b $(subst /,\,$1) +,,
 CAT    = type
-ECHONL = $(ComSpec) /c echo.
 endif
+
+AWK := awk
+ZIP := zip -qzr9
+
+CFLAGS ?=
+CPPFLAGS ?=
+RCFLAGS ?=
+LDFLAGS ?=
+LIBS ?=
+
+CROSSPREFIX ?=
 
 ifeq ($(CC),cc)
   CC := gcc
@@ -84,46 +79,32 @@ CC := $(CROSSPREFIX)$(CC)
 AR := $(CROSSPREFIX)$(AR)
 RC ?= $(CROSSPREFIX)windres
 
+# For compatibility
+ARCH ?=
+ifeq ($(ARCH),w64)
+  TRIPLET := x86_64-w64-mingw32
+  CFLAGS  += -m64
+  LDFLAGS += -m64
+  RCFLAGS += --target=pe-x86-64
+else ifdef ARCH
+  TRIPLET := i686-w64-mingw32
+  CFLAGS  += -m32
+  LDFLAGS += -m32
+  RCFLAGS += --target=pe-i386
+else
+  TRIPLET ?= $(shell $(CC) -dumpmachine)
+endif
+
 libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
 libssh2_dll_a_LIBRARY := $(TARGET).dll.a
-
-# Set environment var ARCH to your architecture to override autodetection.
-ifndef ARCH
-  ifeq ($(findstring gcc,$(CC)),gcc)
-    ifeq ($(findstring x86_64,$(shell $(CC) -dumpmachine)),x86_64)
-      ARCH := w64
-    else
-      ARCH := w32
-    endif
-  else
-    ARCH := w32
-  endif
-endif
 
 # Include the version info retrieved from libssh2.h
 -include $(OBJDIR)/version.inc
 
-CFLAGS ?=
-CPPFLAGS ?=
-RCFLAGS ?=
-LDFLAGS ?=
-LIBS ?=
-
 CFLAGS += $(OPT)
 CFLAGS += -DHAVE_STRTOLL
 CPPFLAGS += -D$(DB)
-LDFLAGS += -s
 RCFLAGS += -I$(PROOT)/include
-ifeq ($(ARCH),w64)
-  CFLAGS  += -m64
-  LDFLAGS += -m64
-  RCFLAGS += -F pe-x86-64
-else ifeq ($(ARCH),w32)
-  CFLAGS  += -m32
-  LDFLAGS += -m32
-  RCFLAGS += -F pe-i386
-endif
-
 CPPFLAGS += -I$(PROOT)/win32 -I$(PROOT)/include
 
 ifdef WITH_WINCNG
