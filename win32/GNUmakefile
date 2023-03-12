@@ -137,7 +137,7 @@ ifdef WITH_WINCNG
 else ifdef MBEDTLS_PATH
   CFLAGS += -DLIBSSH2_MBEDTLS
   CFLAGS += -I"$(MBEDTLS_PATH)/include"
-  LIBPATH += -L"$(MBEDTLS_PATH)/libs"
+  LIBPATH += -L"$(MBEDTLS_PATH)/lib"
   LDLIBS += -lmbedtls -lmbedx509 -lmbedcrypto
   include $(PROOT)/Makefile.mbedTLS.inc
 else ifdef WOLFSSL_PATH
