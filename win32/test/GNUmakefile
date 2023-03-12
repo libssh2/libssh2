@@ -56,9 +56,6 @@ else
   TRIPLET ?= $(shell $(CC) -dumpmachine)
 endif
 
-# Include the version info retrieved from libssh2.h
--include $(OBJDIR)/version.inc
-
 CPPFLAGS += -I$(PROOT)/win32 -I$(PROOT)/include
 RCFLAGS += -I$(PROOT)/include
 
@@ -66,12 +63,14 @@ RCFLAGS += -I$(PROOT)/include
 DB ?= NDEBUG
 CPPFLAGS += -D$(DB)
 ifeq ($(DB),NDEBUG)
-  CFLAGS += -O2
   OBJDIR := release
 else
-  CFLAGS += -g
   OBJDIR := debug
+  CFLAGS += -g
 endif
+
+# Include the version info retrieved from libssh2.h
+-include $(OBJDIR)/version.inc
 
 LDFLAGS += -L$(PROOT)/win32
 ifdef LINK_STATIC

@@ -63,9 +63,6 @@ endif
 libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
 libssh2_dll_a_LIBRARY := $(TARGET).dll.a
 
-# Include the version info retrieved from libssh2.h
--include $(OBJDIR)/version.inc
-
 CFLAGS += -DHAVE_STRTOLL
 CPPFLAGS += -I$(PROOT)/win32 -I$(PROOT)/include
 RCFLAGS += -I$(PROOT)/include
@@ -74,13 +71,15 @@ RCFLAGS += -I$(PROOT)/include
 DB ?= NDEBUG
 CPPFLAGS += -D$(DB)
 ifeq ($(DB),NDEBUG)
-  CFLAGS += -O2
   OBJDIR := release
 else
+  OBJDIR := debug
   CFLAGS += -g
   CPPFLAGS += -DLIBSSH2DEBUG
-  OBJDIR := debug
 endif
+
+# Include the version info retrieved from libssh2.h
+-include $(OBJDIR)/version.inc
 
 ifdef WITH_WINCNG
   CPPFLAGS += -DLIBSSH2_WINCNG
