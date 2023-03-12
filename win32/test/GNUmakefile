@@ -150,7 +150,7 @@ else
 endif
 LIBS += -lws2_32 -lcrypt32 -lbcrypt
 
-ifdef WITH_ZLIB
+ifdef ZLIB_PATH
   ifdef LINK_ZLIB_STATIC
     LIBS += $(ZLIB_PATH)/lib/libz.a
   else

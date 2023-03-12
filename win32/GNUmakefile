@@ -116,6 +116,7 @@ RCFLAGS += $(LIBSSH2_RCFLAG_EXTRAS)
 LIBS += $(LDLIBS)
 
 CFLAGS += $(OPT)
+CFLAGS += -DHAVE_STRTOLL
 CPPFLAGS += -D$(DB)
 LDFLAGS += -s
 RCFLAGS += -I$(PROOT)/include
@@ -163,7 +164,7 @@ else
 endif
 LIBS += -lws2_32 -lcrypt32 -lbcrypt
 
-ifdef WITH_ZLIB
+ifdef ZLIB_PATH
   CPPFLAGS += -DLIBSSH2_HAVE_ZLIB
   CPPFLAGS += -I"$(ZLIB_PATH)/include"
   ifdef LINK_ZLIB_STATIC
