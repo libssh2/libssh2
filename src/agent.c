@@ -39,7 +39,6 @@
 
 #include "libssh2_priv.h"
 #include "agent.h"
-#include "misc.h"
 #include <errno.h>
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
@@ -249,7 +248,7 @@ struct agent_ops agent_ops_unix = {
 };
 #endif  /* PF_UNIX */
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP)
 /* Code to talk to Pageant was taken from PuTTY.
  *
  * Portions copyright Robert de Bath, Joris van Rantwijk, Delian
@@ -280,7 +279,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     HANDLE filemap;
     unsigned char *p;
     unsigned char *p2;
-    int id;
+    LRESULT id;
     COPYDATASTRUCT cds;
 
     if(!transctx || 4 + transctx->request_len > PAGEANT_MAX_MSGLEN)
@@ -293,7 +292,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
                               "found no pageant");
 
     snprintf(mapname, sizeof(mapname),
-             "PageantRequest%08x%c", (unsigned)GetCurrentThreadId(), '\0');
+             "PageantRequest%08x", (unsigned)GetCurrentThreadId());
     filemap = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
                                  0, PAGEANT_MAX_MSGLEN, mapname);
 
@@ -352,16 +351,16 @@ struct agent_ops agent_ops_pageant = {
     agent_transact_pageant,
     agent_disconnect_pageant
 };
-#endif  /* WIN32 */
+#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP) */
 
 static struct {
     const char *name;
     struct agent_ops *ops;
 } supported_backends[] = {
-#ifdef WIN32
+#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP)
     {"Pageant", &agent_ops_pageant},
     {"OpenSSH", &agent_ops_openssh},
-#endif  /* WIN32 */
+#endif
 #ifdef PF_UNIX
     {"Unix", &agent_ops_unix},
 #endif  /* PF_UNIX */
@@ -479,10 +478,10 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     /* check to see if we match requested */
     if((size_t)method_len != session->userauth_pblc_method_len ||
         memcmp(method_name, session->userauth_pblc_method, method_len)) {
-        _libssh2_debug(session,
+        _libssh2_debug((session,
                        LIBSSH2_TRACE_KEX,
                        "Agent sign method %.*s",
-                       method_len, method_name);
+                       method_len, method_name));
 
         rc = LIBSSH2_ERROR_ALGO_UNSUPPORTED;
         goto error;

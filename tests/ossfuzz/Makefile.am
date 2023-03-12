@@ -30,3 +30,5 @@ ssh2_client_fuzzer_LDFLAGS = $(AM_LDFLAGS) -static
 
 libstandaloneengine_a_SOURCES = standaloneengine.cc
 libstandaloneengine_a_CXXFLAGS = $(AM_CXXFLAGS)
+
+EXTRA_DIST = ossfuzz.sh

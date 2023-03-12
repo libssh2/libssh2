@@ -1,19 +1,18 @@
-
 # Tweak these for your system
 !if "$(OPENSSLINC)" == ""
-OPENSSLINC=..\openssl-0.9.8zc\inc32
+OPENSSLINC=..\openssl\include
 !endif
 
 !if "$(OPENSSLLIB)" == ""
-OPENSSLLIB=..\openssl-0.9.8zc\out32dll
+OPENSSLLIB=..\openssl\lib
 !endif
 
 !if "$(ZLIBINC)" == ""
-ZLIBINC=..\zlib-1.2.8
+ZLIBINC=..\zlib
 !endif
 
 !if "$(ZLIBLIB)" == ""
-ZLIBLIB=..\zlib-1.2.8
+ZLIBLIB=..\zlib
 !endif
 
 !if "$(TARGET)" == ""
@@ -50,5 +49,3 @@ DLLFLAGS=$(CFLAGS) $(DLLFLAGS)
 LIBS=$(LIBS) ws2_32.lib user32.lib advapi32.lib gdi32.lib
 
 INTDIR=$(TARGET)\$(SUBDIR)
-
-

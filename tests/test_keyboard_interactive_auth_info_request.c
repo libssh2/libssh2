@@ -46,27 +46,27 @@
 struct expected {
     int rc;
     int last_error_code;
-    char *last_error_message;
+    const char *last_error_message;
 };
 struct test_case {
-    char *data;
+    const char *data;
     int data_len;
     struct expected expected;
 };
 
 #define TEST_CASES_LEN 16
 struct test_case test_cases[TEST_CASES_LEN] = {
-    /* to small */
+    /* too small */
     {
         NULL, 0,
         {FAIL, -38,
         "userauth keyboard data buffer too small to get length"}},
-    /* to small */
+    /* too small */
     {
         "1234", 4,
         {FAIL, -38,
         "userauth keyboard data buffer too small to get length"}},
-    /* smalest valid packet possible */
+    /* smallest valid packet possible */
     {
         "<"
         "\0\0\0\0"
@@ -219,9 +219,8 @@ static int free_count = 0;
 static
 LIBSSH2_ALLOC_FUNC(test_alloc)
 {
-    alloc_count++;
-
     int *threshold_int_ptr = *abstract;
+    alloc_count++;
     if (*abstract != NULL && *threshold_int_ptr == alloc_count) {
         return NULL;
     }
@@ -241,12 +240,15 @@ LIBSSH2_FREE_FUNC(test_free)
 
 static
 int test_case(int num,
-              char *data, int data_len, void *abstract,
+              const char *data, int data_len, void *abstract,
               struct expected expected)
 {
+    int rc;
+    char *message;
+    int error_code;
+    LIBSSH2_SESSION *session = NULL;
     alloc_count = 0;
     free_count = 0;
-    LIBSSH2_SESSION *session = NULL;
     session = libssh2_session_init_ex(test_alloc, test_free, NULL, abstract);
     if(session == NULL) {
         fprintf(stderr, "libssh2_session_init_ex failed\n");
@@ -257,7 +259,7 @@ int test_case(int num,
     session->userauth_kybd_data_len = data_len;
     memcpy(session->userauth_kybd_data, data, data_len);
 
-    int rc = userauth_keyboard_interactive_decode_info_request(session);
+    rc = userauth_keyboard_interactive_decode_info_request(session);
 
     if(rc != expected.rc) {
         fprintf(stdout,
@@ -266,8 +268,7 @@ int test_case(int num,
         return 1;
     }
 
-    char *message;
-    int error_code = libssh2_session_last_error(session, &message, NULL, 0);
+    error_code = libssh2_session_last_error(session, &message, NULL, 0);
 
     if(expected.last_error_code != error_code) {
         fprintf(stdout,
@@ -291,7 +292,7 @@ int test_case(int num,
     return 0;
 }
 
-int main()
+int main(void)
 {
     int i;
 

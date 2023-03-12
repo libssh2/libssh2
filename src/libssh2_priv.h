@@ -39,15 +39,43 @@
  * OF SUCH DAMAGE.
  */
 
+/* Disable warnings: C4127: conditional expression is constant */
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#pragma warning(disable:4127)
+#endif
+
+/* Define mingw-w64 version macros, eg __MINGW{32,64}_{MINOR,MAJOR}_VERSION */
+#ifdef __MINGW32__
+#include <_mingw.h>
+#endif
+
 #define LIBSSH2_LIBRARY
 #include "libssh2_config.h"
 
-#ifdef HAVE_WINDOWS_H
+/* Number of bits in a file offset, on hosts where this is settable. */
+#if defined(__MINGW32__) && defined(__MINGW64_VERSION_MAJOR)
+# ifndef _FILE_OFFSET_BITS
+# define _FILE_OFFSET_BITS 64
+# endif
+#endif
+
+#ifdef WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
 #undef WIN32_LEAN_AND_MEAN
+
+/* Detect Windows App environment which has a restricted access
+   to the Win32 APIs. */
+# if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
+  defined(WINAPI_FAMILY)
+#  include <winapifamily.h>
+#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  \
+     !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#    define LIBSSH2_WINDOWS_APP
+#  endif
+# endif
 #endif
 
 #ifdef HAVE_WS2TCPIP_H
@@ -95,7 +123,7 @@
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
-#include "misc.h" /* for the linked list stuff */
+#include "misc.h"
 
 #ifndef FALSE
 #define FALSE 0
@@ -104,8 +132,17 @@
 #define TRUE 1
 #endif
 
-#ifdef _MSC_VER
+/* Use local implementation when not available */
+#if !defined(HAVE_SNPRINTF)
+#define LIBSSH2_SNPRINTF
+#define snprintf _libssh2_snprintf
+int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...);
+#endif
+
 /* "inline" keyword is valid only with C++ engine! */
+#ifdef __GNUC__
+#define inline __inline__
+#elif defined(_MSC_VER)
 #define inline __inline
 #endif
 
@@ -118,20 +155,6 @@ struct iovec {
 };
 
 #endif
-
-/* Provide iovec / writev on WIN32 platform. */
-#ifdef WIN32
-
-static inline int writev(int sock, struct iovec *iov, int nvecs)
-{
-    DWORD ret;
-    if(WSASend(sock, (LPWSABUF)iov, nvecs, &ret, 0, NULL, NULL) == 0) {
-        return ret;
-    }
-    return -1;
-}
-
-#endif /* WIN32 */
 
 #ifdef __OS400__
 /* Force parameter type. */
@@ -975,23 +998,12 @@ struct _LIBSSH2_COMP_METHOD
 };
 
 #ifdef LIBSSH2DEBUG
-void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format,
-                    ...);
+void
+_libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
+                   ...);
+#define _libssh2_debug(x) _libssh2_debug_low x
 #else
-#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) ||     \
-    defined(__GNUC__)
-/* C99 supported and also by older GCC */
-#define _libssh2_debug(x,y,z,...) do {} while (0)
-#else
-/* no gcc and not C99, do static and hopefully inline */
-static inline void
-_libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
-{
-    (void)session;
-    (void)context;
-    (void)format;
-}
-#endif
+#define _libssh2_debug(x) do {} while (0)
 #endif
 
 #define LIBSSH2_SOCKET_UNKNOWN                   1

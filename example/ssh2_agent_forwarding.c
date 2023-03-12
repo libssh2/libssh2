@@ -13,6 +13,12 @@
  *
  */
 
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
+
 #include "libssh2_config.h"
 #include <libssh2.h>
 
@@ -45,7 +51,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
+static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
     int rc;
@@ -81,7 +87,7 @@ int main(int argc, char *argv[])
     const char *commandline = "uptime";
     const char *username    = NULL;
     unsigned long hostaddr;
-    int sock;
+    libssh2_socket_t sock;
     struct sockaddr_in sin;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
@@ -158,7 +164,7 @@ int main(int argc, char *argv[])
         rc = 1;
         goto shutdown;
     }
-    while(1) {
+    for(;;) {
         rc = libssh2_agent_get_identity(agent, &identity, prev_identity);
         if(rc == 1)
             break;
@@ -225,7 +231,6 @@ int main(int argc, char *argv[])
     }
     for(;;) {
         /* loop until we block */
-        int rc;
         do {
             char buffer[0x4000];
             rc = libssh2_channel_read(channel, buffer, sizeof(buffer) );

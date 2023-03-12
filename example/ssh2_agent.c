@@ -6,11 +6,17 @@
  * "ssh2_agent host user"
  */
 
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
+
 #include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINDOWS_H
+#ifdef WIN32
 # include <windows.h>
 #endif
 #ifdef HAVE_WINSOCK2_H
@@ -41,7 +47,8 @@ const char *username = "username";
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int sock = -1, i, rc;
+    libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
+    int i, rc;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
@@ -82,7 +89,7 @@ int main(int argc, char *argv[])
      * responsible for creating the socket establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(sock == -1) {
+    if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr, "failed to create socket!\n");
         rc = 1;
         goto shutdown;
@@ -143,7 +150,7 @@ int main(int argc, char *argv[])
         rc = 1;
         goto shutdown;
     }
-    while(1) {
+    for(;;) {
         rc = libssh2_agent_get_identity(agent, &identity, prev_identity);
         if(rc == 1)
             break;
@@ -237,7 +244,7 @@ int main(int argc, char *argv[])
         libssh2_session_free(session);
     }
 
-    if(sock != -1) {
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
         closesocket(sock);
 #else

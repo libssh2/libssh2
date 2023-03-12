@@ -1,4 +1,5 @@
 #include "session_fixture.h"
+#include "runner.h"
 
 #include <libssh2.h>
 
@@ -21,8 +22,8 @@ static void kbd_callback(const char *name, int name_len,
     fprintf(stdout, "Kb-int name: %.*s\n", name_len, name);
     fprintf(stdout, "Kb-int instruction: %.*s\n", instruct_len, instruct);
     for(i = 0; i < num_prompts; ++i) {
-        fprintf(stdout, "Kb-int prompt %d: %.*s\n", i, prompts[i].length,
-                prompts[i].text);
+        fprintf(stdout, "Kb-int prompt %d: %.*s\n", i,
+                (int)prompts[i].length, prompts[i].text);
     }
 
     if(num_prompts == 1) {

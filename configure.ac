@@ -33,11 +33,9 @@ AB_INIT
 AC_CANONICAL_HOST
 case "$host" in
     *-mingw*)
-    CFLAGS="$CFLAGS -DLIBSSH2_WIN32"
     LIBS="$LIBS -lws2_32"
     ;;
     *darwin*)
-    CFLAGS="$CFLAGS -DLIBSSH2_DARWIN"
     ;;
     *hpux*)
     ;;
@@ -85,7 +83,6 @@ AC_SYS_LARGEFILE
 
 found_crypto=none
 found_crypto_str=""
-support_clear_memory=no
 crypto_errors=""
 
 m4_set_add([crypto_backends], [openssl])
@@ -178,25 +175,11 @@ fi
 AC_ARG_ENABLE(clear-memory,
   AC_HELP_STRING([--disable-clear-memory],[Disable clearing of memory before being freed]),
   [CLEAR_MEMORY=$enableval])
-if test "$CLEAR_MEMORY" != "no"; then
-  if test "$support_clear_memory" = "yes"; then
-    AC_DEFINE(LIBSSH2_CLEAR_MEMORY, 1, [Enable clearing of memory before being freed])
-    enable_clear_memory=yes
-  else
-    if test "$CLEAR_MEMORY" = "yes"; then
-      AC_MSG_ERROR([secure clearing/zeroing of memory is not supported by the selected crypto backend])
-    else
-      AC_MSG_WARN([secure clearing/zeroing of memory is not supported by the selected crypto backend])
-    fi
-    enable_clear_memory=unsupported
-  fi
+if test "$CLEAR_MEMORY" = "no"; then
+  AC_DEFINE(LIBSSH2_NO_CLEAR_MEMORY, 1, [Disable clearing of memory before being freed])
+  enable_clear_memory=no
 else
-  if test "$support_clear_memory" = "yes"; then
-    enable_clear_memory=no
-  else
-    AC_MSG_WARN([secure clearing/zeroing of memory is not supported by the selected crypto backend])
-    enable_clear_memory=unsupported
-  fi
+  enable_clear_memory=yes
 fi
 
 dnl ************************************************************
@@ -265,6 +248,18 @@ AC_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibi
        AC_MSG_RESULT(no)
 )
 
+# Build tests?
+AC_ARG_ENABLE([tests],
+  [AS_HELP_STRING([--disable-tests], [Disable tests @<:@default=enabled@:>@])],
+  [
+    if ! test "x${enable_tests}" = "xyes"; then
+      enable_tests="no"
+    fi
+  ],
+  [enable_tests="yes"])
+AM_CONDITIONAL([ENABLE_TESTS], [test "x$enable_tests" = xyes])
+
+
 # Build example applications?
 AC_MSG_CHECKING([whether to build example applications])
 AC_ARG_ENABLE([examples-build],
@@ -298,7 +293,7 @@ AM_CONDITIONAL([USE_OSSFUZZ_STATIC], [test -f "$LIB_FUZZING_ENGINE"])
 
 # Checks for header files.
 # AC_HEADER_STDC
-AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/uio.h])
+AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/param.h sys/uio.h])
 AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
 AC_CHECK_HEADERS([sys/un.h], [have_sys_un_h=yes], [have_sys_un_h=no])
@@ -331,7 +326,7 @@ case $host in
     ;;
 esac
 
-AC_CHECK_FUNCS(gettimeofday select strtoll memset_s)
+AC_CHECK_FUNCS(gettimeofday select strtoll memset_s snprintf)
 
 dnl Check for select() into ws2_32 for Msys/Mingw
 if test "$ac_cv_func_select" != "yes"; then

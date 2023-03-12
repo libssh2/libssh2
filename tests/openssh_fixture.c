@@ -35,7 +35,14 @@
  * OF SUCH DAMAGE.
  */
 
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
+
 #include "openssh_fixture.h"
+#include "session_fixture.h"
 #include "libssh2_config.h"
 
 #ifdef HAVE_WINSOCK2_H
@@ -58,6 +65,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+
+static int have_docker = 0;
 
 static int run_command_varg(char **output, const char *command, va_list args)
 {
@@ -150,22 +159,30 @@ static const char *openssh_server_image(void)
 
 static int build_openssh_server_docker_image(void)
 {
-    const char *container_image_name = openssh_server_image();
-    if(container_image_name != NULL) {
-        int ret = run_command(NULL, "docker pull --quiet %s",
-                              container_image_name);
-        if(ret == 0) {
-            ret = run_command(NULL, "docker tag %s libssh2/openssh_server",
-                              container_image_name);
+    if(have_docker) {
+        char buildcmd[1024];
+        const char *container_image_name = openssh_server_image();
+        if(container_image_name != NULL) {
+            int ret = run_command(NULL, "docker pull --quiet %s",
+                                  container_image_name);
             if(ret == 0) {
-                return ret;
+                ret = run_command(NULL, "docker tag %s libssh2/openssh_server",
+                                  container_image_name);
+                if(ret == 0) {
+                    return ret;
+                }
             }
         }
-    }
+        buildcmd[sizeof(buildcmd)-1] = 0;
+        snprintf(buildcmd, sizeof(buildcmd)-1,
+                "docker build --quiet -t libssh2/openssh_server %s",
+                srcdir_path("openssh_server"));
 
-    return run_command(NULL, "docker build --quiet "
-                             "-t libssh2/openssh_server "
-                             "openssh_server");
+        return run_command(NULL, buildcmd);
+    }
+    else {
+        return 0;
+    }
 }
 
 static const char *openssh_server_port(void)
@@ -175,22 +192,33 @@ static const char *openssh_server_port(void)
 
 static int start_openssh_server(char **container_id_out)
 {
-    const char *container_host_port = openssh_server_port();
-    if(container_host_port != NULL) {
-        return run_command(container_id_out,
-                           "docker run --rm -d -p %s:22 "
-                           "libssh2/openssh_server",
-                           container_host_port);
-    }
+    if(have_docker) {
+        const char *container_host_port = openssh_server_port();
+        if(container_host_port != NULL) {
+            return run_command(container_id_out,
+                               "docker run --rm -d -p %s:22 "
+                               "libssh2/openssh_server",
+                               container_host_port);
+        }
 
-    return run_command(container_id_out,
-                       "docker run --rm -d -p 22 "
-                       "libssh2/openssh_server");
+        return run_command(container_id_out,
+                           "docker run --rm -d -p 22 "
+                           "libssh2/openssh_server");
+    }
+    else {
+        *container_id_out = strdup("");
+        return 0;
+    }
 }
 
 static int stop_openssh_server(char *container_id)
 {
-    return run_command(NULL, "docker stop %s", container_id);
+    if(have_docker) {
+        return run_command(NULL, "docker stop %s", container_id);
+    }
+    else {
+        return 0;
+    }
 }
 
 static const char *docker_machine_name(void)
@@ -198,7 +226,7 @@ static const char *docker_machine_name(void)
     return getenv("DOCKER_MACHINE_NAME");
 }
 
-static int is_running_inside_a_container()
+static int is_running_inside_a_container(void)
 {
 #ifdef WIN32
     return 0;
@@ -304,23 +332,40 @@ static int open_socket_to_container(char *container_id)
     char *ip_address = NULL;
     char *port_string = NULL;
     unsigned long hostaddr;
-    int sock;
+    libssh2_socket_t sock;
     struct sockaddr_in sin;
     int counter = 0;
+    int ret;
 
-    int ret = ip_address_from_container(container_id, &ip_address);
-    if(ret != 0) {
-        fprintf(stderr, "Failed to get IP address for container %s\n",
-                container_id);
-        ret = -1;
-        goto cleanup;
+    if(have_docker) {
+        ret = ip_address_from_container(container_id, &ip_address);
+        if(ret != 0) {
+            fprintf(stderr, "Failed to get IP address for container %s\n",
+                    container_id);
+            ret = -1;
+            goto cleanup;
+        }
+
+        ret = port_from_container(container_id, &port_string);
+        if(ret != 0) {
+            fprintf(stderr, "Failed to get port for container %s\n",
+                    container_id);
+            ret = -1;
+        }
     }
-
-    ret = port_from_container(container_id, &port_string);
-    if(ret != 0) {
-        fprintf(stderr, "Failed to get port for container %s\n",
-                container_id);
-        ret = -1;
+    else {
+        const char *env;
+        env = getenv("OPENSSH_SERVER_HOST");
+        if(!env) {
+            env = "127.0.0.1";
+        }
+        ip_address = strdup(env);
+        env = openssh_server_port();
+        if(!env) {
+            env = "4711";
+        }
+        port_string = strdup(env);
+        ret = 0;
     }
 
     /* 0.0.0.0 is returned by Docker for Windows, because the container
@@ -378,7 +423,7 @@ cleanup:
 
 static char *running_container_id = NULL;
 
-int start_openssh_fixture()
+int start_openssh_fixture(void)
 {
     int ret;
 #ifdef HAVE_WINSOCK2_H
@@ -391,6 +436,8 @@ int start_openssh_fixture()
     }
 #endif
 
+    have_docker = (getenv("OPENSSH_NO_DOCKER") == NULL);
+
     ret = build_openssh_server_docker_image();
     if(ret == 0) {
         return start_openssh_server(&running_container_id);
@@ -401,19 +448,19 @@ int start_openssh_fixture()
     }
 }
 
-void stop_openssh_fixture()
+void stop_openssh_fixture(void)
 {
     if(running_container_id) {
         stop_openssh_server(running_container_id);
         free(running_container_id);
         running_container_id = NULL;
     }
-    else {
+    else if(have_docker) {
         fprintf(stderr, "Cannot stop container - none started");
     }
 }
 
-int open_socket_to_openssh_server()
+int open_socket_to_openssh_server(void)
 {
     return open_socket_to_container(running_container_id);
 }

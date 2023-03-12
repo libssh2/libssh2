@@ -1,6 +1,9 @@
 AUTOMAKE_OPTIONS = foreign nostdinc
 
-SUBDIRS = src tests docs
+SUBDIRS = src docs
+if ENABLE_TESTS
+SUBDIRS += tests
+endif
 if BUILD_EXAMPLES
 SUBDIRS += example
 endif
@@ -45,7 +48,8 @@ Makefile.os400qc3.inc
 
 EXTRA_DIST = $(WIN32FILES) $(NETWAREFILES) get_ver.awk \
  maketgz NMakefile RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
- CMakeLists.txt cmake $(OS400FILES)
+ CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES) \
+ buildconf
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -98,6 +102,7 @@ WIN32HEADERS = $(HHEADERS) libssh2_config.h
 
 $(DSP): win32/msvcproj.head win32/msvcproj.foot Makefile.am
 	echo "creating $(DSP)"
+	-$(MKDIR_P) "`echo "$@" | sed 's@[/\\][^/\\]*$$@@'`"
 	@( (cat $(srcdir)/win32/msvcproj.head; \
 	echo "# Begin Group \"Source Files\""; \
 	echo ""; \

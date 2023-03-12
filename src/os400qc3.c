@@ -757,10 +757,9 @@ _libssh2_bn_free(_libssh2_bn *bn)
 {
     if(bn) {
         if(bn->bignum) {
-#ifdef LIBSSH2_CLEAR_MEMORY
             if(bn->length)
-                memset((char *) bn->bignum, 0, bn->length);
-#endif
+                _libssh2_explicit_zero(bn->bignum, bn->length);
+
             free(bn->bignum);
         }
 
@@ -781,10 +780,9 @@ _libssh2_bn_resize(_libssh2_bn *bn, size_t newlen)
     if(!bn->bignum)
         bignum = (unsigned char *) malloc(newlen);
     else {
-#ifdef LIBSSH2_CLEAR_MEMORY
         if(newlen < bn->length)
-            memset((char *) bn->bignum + newlen, 0, bn->length - newlen);
-#endif
+            _libssh2_explicit_zero(bn->bignum + newlen, bn->length - newlen);
+
         if(!newlen) {
             free((char *) bn->bignum);
             bn->bignum = NULL;
@@ -2357,6 +2355,26 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     }
 
     return ret;
+}
+
+int
+_libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
+                              unsigned char **method,
+                              size_t *method_len,
+                              unsigned char **pubkeydata,
+                              size_t *pubkeydata_len,
+                              int *algorithm,
+                              unsigned char *flags,
+                              const char **application,
+                              const unsigned char **key_handle,
+                              size_t *handle_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const char *passphrase)
+{
+    return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                    "Unable to extract public SK key from private key file: "
+                    "Method unimplemented in OS/400 QC3 backend");
 }
 
 int

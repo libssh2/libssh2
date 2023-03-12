@@ -7,6 +7,12 @@
  * "sftp_nonblock 192.168.0.1 user password /tmp/secrets"
  */
 
+#ifdef WIN32
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#endif
+#endif
+
 #include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
@@ -39,6 +45,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#pragma warning(disable:4127)
+#endif
+
 #ifdef HAVE_GETTIMEOFDAY
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)
@@ -48,7 +58,7 @@ static long tvdiff(struct timeval newer, struct timeval older)
 }
 #endif
 
-static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
+static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
     int rc;
@@ -81,7 +91,8 @@ static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;
-    int sock, i, auth_pw = 1;
+    libssh2_socket_t sock;
+    int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;

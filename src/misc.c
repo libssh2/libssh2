@@ -53,18 +53,46 @@
 #include <sys/time.h>
 #endif
 
-#if defined(HAVE_DECL_SECUREZEROMEMORY) && HAVE_DECL_SECUREZEROMEMORY
-#ifdef HAVE_WINDOWS_H
+#ifdef WIN32
 #include <windows.h>
-#endif
 #endif
 
 #include <stdio.h>
 #include <errno.h>
 
+/* snprintf not in Visual Studio CRT and _snprintf dangerously incompatible.
+   We provide a safe wrapper if snprintf not found */
+#ifdef LIBSSH2_SNPRINTF
+#include <stdarg.h>
+
+/* Want safe, 'n += snprintf(b + n ...)' like function. If cp_max_len is 1
+* then assume cp is pointing to a null char and do nothing. Returns number
+* number of chars placed in cp excluding the trailing null char. So for
+* cp_max_len > 0 the return value is always < cp_max_len; for cp_max_len
+* <= 0 the return value is 0 (and no chars are written to cp). */
+int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
+{
+    va_list args;
+    int n;
+
+    if(cp_max_len < 2)
+        return 0;
+    va_start(args, fmt);
+    n = vsnprintf(cp, cp_max_len, fmt, args);
+    va_end(args);
+    return (n < cp_max_len) ? n : (cp_max_len - 1);
+}
+#endif
+
 int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
                          const char *errmsg, int errflags)
 {
+    if(session == NULL) {
+        if(errmsg != NULL)
+            fprintf(stderr, "Session is NULL, error: %s\n", errmsg);
+        return errcode;
+    }
+
     if(session->err_flags & LIBSSH2_ERR_FLAG_DUP)
         LIBSSH2_FREE(session, (char *)session->err_msg);
 
@@ -91,8 +119,8 @@ int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
         /* if this is EAGAIN and we're in non-blocking mode, don't generate
            a debug output for this */
         return errcode;
-    _libssh2_debug(session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code,
-                   session->err_msg);
+    _libssh2_debug((session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code,
+                   session->err_msg));
 #endif
 
     return errcode;
@@ -239,6 +267,30 @@ void _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
     _libssh2_store_u32(buf, (uint32_t)len);
     if(len) {
         memcpy(*buf, str, len);
+        *buf += len;
+    }
+}
+
+/* _libssh2_store_bignum2_bytes
+ */
+void _libssh2_store_bignum2_bytes(unsigned char **buf,
+                                  const unsigned char *bytes,
+                                  size_t len)
+{
+    int extraByte = 0;
+    const unsigned char *p;
+    for(p = bytes; len > 0 && *p == 0; --len, ++p) {}
+
+    extraByte = (len > 0 && (p[0] & 0x80) != 0);
+    _libssh2_store_u32(buf, len + extraByte);
+
+    if(extraByte) {
+        *buf[0] = 0;
+        *buf += 1;
+    }
+
+    if(len > 0) {
+        memcpy(*buf, p, len);
         *buf += len;
     }
 }
@@ -425,7 +477,8 @@ libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *handler_context,
 }
 
 void
-_libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
+_libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
+                   ...)
 {
     char buffer[1536];
     int len, msglen, buflen = sizeof(buffer);
@@ -687,25 +740,14 @@ void _libssh2_aes_ctr_increment(unsigned char *ctr,
     }
 }
 
-#ifdef WIN32
-static void * (__cdecl * const volatile memset_libssh)(void *, int, size_t) =
-    memset;
-#else
+#ifdef LIBSSH2_MEMZERO
 static void * (* const volatile memset_libssh)(void *, int, size_t) = memset;
-#endif
 
-void _libssh2_explicit_zero(void *buf, size_t size)
+void _libssh2_memzero(void *buf, size_t size)
 {
-#if defined(HAVE_DECL_SECUREZEROMEMORY) && HAVE_DECL_SECUREZEROMEMORY
-    SecureZeroMemory(buf, size);
-    (void)memset_libssh; /* Silence unused variable warning */
-#elif defined(HAVE_MEMSET_S)
-    (void)memset_s(buf, size, 0, size);
-    (void)memset_libssh; /* Silence unused variable warning */
-#else
     memset_libssh(buf, 0, size);
-#endif
 }
+#endif
 
 /* String buffer */
 
@@ -878,6 +920,12 @@ int _libssh2_check_length(struct string_buf *buf, size_t len)
     unsigned char *endp = &buf->data[buf->len];
     size_t left = endp - buf->dataptr;
     return ((len <= left) && (left <= buf->len));
+}
+
+int _libssh2_eob(struct string_buf *buf)
+{
+    unsigned char *endp = &buf->data[buf->len];
+    return buf->dataptr >= endp;
 }
 
 /* Wrappers */

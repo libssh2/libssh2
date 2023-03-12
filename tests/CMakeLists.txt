@@ -36,9 +36,7 @@
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckSymbolExists)
-include(BundleUtilities)
 include(CopyRuntimeDependencies)
-include(SocketLibraries)
 
 ## Platform checks
 check_include_files(inttypes.h HAVE_INTTYPES_H)
@@ -46,13 +44,14 @@ check_include_files(unistd.h HAVE_UNISTD_H)
 check_include_files(sys/param.h HAVE_SYS_PARAM_H)
 check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
 check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
-check_include_files(windows.h HAVE_WINDOWS_H)
 check_include_files(winsock2.h HAVE_WINSOCK2_H)
 check_include_files(netinet/in.h HAVE_NETINET_IN_H)
+check_symbol_exists(snprintf stdio.h HAVE_SNPRINTF)
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config_cmake.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h")
-append_needed_socket_libraries(LIBRARIES)
+
+list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 ## Cryptography backend choice
 
@@ -60,8 +59,8 @@ set(CRYPTO_BACKEND
   ""
   CACHE
   STRING
-  "The backend to use for cryptography: OpenSSL, Libgcrypt or WinCNG, mbedTLS
-or empty to try any available")
+  "The backend to use for cryptography: OpenSSL, wolfSSL, Libgcrypt,
+WinCNG, mbedTLS, or empty to try any available")
 
 # If the crypto backend was given, rather than searching for the first
 # we are able to find, the find_package commands must abort configuration
@@ -78,6 +77,23 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND "OpenSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
     set(CRYPTO_BACKEND_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR})
+  endif()
+endif()
+
+if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
+
+  find_package(wolfssl ${SPECIFIC_CRYPTO_REQUIREMENT})
+
+  if(WOLFSSL_FOUND)
+    set(CRYPTO_BACKEND "wolfSSL")
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WOLFSSL")
+    set(CRYPTO_BACKEND_INCLUDE_DIR ${WOLFSSL_INCLUDE_DIR} ${WOLFSSL_INCLUDE_DIR}/wolfssl)
+
+    find_package(ZLIB)
+
+    if(ZLIB_FOUND)
+      set(CRYPTO_BACKEND_INCLUDE_DIR ${ZLIB_INCLUDE_DIR} ${CRYPTO_BACKEND_INCLUDE_DIR})
+    endif()
   endif()
 endif()
 
@@ -116,6 +132,7 @@ if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
 endif()
 
 set(TESTS
+  warmup
   hostkey
   hostkey_hash
   password_auth_succeeds_with_correct_credentials
@@ -127,19 +144,21 @@ set(TESTS
   keyboard_interactive_auth_fails_with_wrong_response
   keyboard_interactive_auth_succeeds_with_correct_response
   agent_forward_succeeds
+  read
   )
 
-if(CRYPTO_BACKEND STREQUAL "OpenSSL")
+if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
     list(APPEND TESTS
       public_key_auth_succeeds_with_correct_rsa_openssh_key
     )
-    if(OPENSSL_VERSION VERSION_GREATER "1.1.0")
+    if(OPENSSL_VERSION VERSION_GREATER "1.1.0" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
       list(APPEND TESTS
         public_key_auth_succeeds_with_correct_ed25519_key
         public_key_auth_succeeds_with_correct_encrypted_ed25519_key
         public_key_auth_succeeds_with_correct_ed25519_key_from_mem
         public_key_auth_succeeds_with_correct_ecdsa_key
         public_key_auth_succeeds_with_correct_signed_ecdsa_key
+        public_key_auth_succeeds_with_correct_signed_rsa_key
        )
     endif()
 endif()
@@ -152,13 +171,13 @@ endif()
 
 add_library(openssh_fixture STATIC openssh_fixture.h openssh_fixture.c)
 target_link_libraries(openssh_fixture ${LIBRARIES})
-target_include_directories(openssh_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_include_directories(openssh_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" ../include)
 
 add_library(session_fixture STATIC session_fixture.h session_fixture.c)
 target_link_libraries(session_fixture ${LIBRARIES} openssh_fixture libssh2)
 target_include_directories(session_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
-add_library(runner STATIC runner.c)
+add_library(runner STATIC runner.h runner.c)
 target_link_libraries(runner session_fixture)
 target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 
@@ -174,6 +193,42 @@ foreach(test ${TESTS})
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
+# MAC tests
+foreach(test
+  hmac-md5
+  hmac-md5-96
+  hmac-sha1
+  hmac-sha1-96
+  hmac-sha2-256
+  hmac-sha2-512
+  )
+  add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
+  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
+endforeach()
+
+# CRYPT tests
+set(TESTS
+  aes128-ctr
+  aes192-ctr
+  aes256-ctr
+  )
+# Due to a bug with mbedTLS support, these crypt methods fail. Until that bug
+# is fixed, don't run them there to avoid this known issue causing red tests.
+# See https://github.com/libssh2/libssh2/issues/793
+if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
+  list(APPEND TESTS
+    3des-cbc
+    aes128-cbc
+    aes192-cbc
+    aes256-cbc
+    rijndael-cbc@lysator.liu.se
+    )
+endif()
+foreach(test ${TESTS})
+  add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
+  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
+endforeach()
+
 if(WIN32 AND BUILD_SHARED_LIBS)
   # Workaround for Visual Studio
   add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c ../src/misc.c)
@@ -183,9 +238,13 @@ endif()
 target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "../src/" "${CRYPTO_BACKEND_INCLUDE_DIR}")
 find_program(GCOV_PATH gcov)
+set(TGT_OPTIONS -g --coverage -fprofile-abs-path)
+if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+        set(TGT_OPTIONS -g --coverage)
+endif()
 if(CMAKE_COMPILER_IS_GNUCC AND GCOV_PATH)
   target_compile_options(test_keyboard_interactive_auth_info_request BEFORE PRIVATE
-    -g --coverage -fprofile-abs-path)
+    ${TGT_OPTIONS})
   target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2 gcov)
 else()
   target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2)

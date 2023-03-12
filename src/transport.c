@@ -118,11 +118,12 @@ debugdump(LIBSSH2_SESSION * session,
     }
 }
 #else
-#define debugdump(a,x,y,z)
+#define debugdump(a,x,y,z) do {} while(0)
 #endif
 
 
-/* decrypt() decrypts 'len' bytes from 'source' to 'dest'.
+/* decrypt() decrypts 'len' bytes from 'source' to 'dest' in units of
+ * blocksize.
  *
  * returns 0 on success and negative on failure
  */
@@ -274,13 +275,17 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 {
     int rc;
     struct transportpacket *p = &session->packet;
-    int remainbuf;
-    int remainpack;
-    int numbytes;
-    int numdecrypt;
-    unsigned char block[MAX_BLOCKSIZE];
-    int blocksize;
-    int encrypted = 1;
+    int remainpack; /* how much there is left to add to the current payload
+                       package */
+    int remainbuf;  /* how much data there is remaining in the buffer to deal
+                       with before we should read more from the network */
+    int numbytes;   /* how much data to deal with from the buffer on this
+                       iteration through the loop */
+    int numdecrypt; /* number of bytes to decrypt this iteration */
+    unsigned char block[MAX_BLOCKSIZE]; /* working block buffer */
+    int blocksize;  /* minimum number of bytes we need before we can
+                       use them */
+    int encrypted = 1; /* whether the packet is encrypted or not */
 
     /* default clear the bit */
     session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
@@ -303,8 +308,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         /* Whoever wants a packet won't get anything until the key re-exchange
          * is done!
          */
-        _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
-                       " key re-exchange from _libssh2_transport_read");
+        _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
+                       " key re-exchange from _libssh2_transport_read"));
         rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc)
             return rc;
@@ -378,14 +383,14 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                         LIBSSH2_SESSION_BLOCK_INBOUND;
                     return LIBSSH2_ERROR_EAGAIN;
                 }
-                _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
+                _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                                "Error recving %d bytes (got %d)",
-                               PACKETBUFSIZE - remainbuf, -nread);
+                               PACKETBUFSIZE - remainbuf, -nread));
                 return LIBSSH2_ERROR_SOCKET_RECV;
             }
-            _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
+            _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                            "Recved %d/%d bytes to %p+%d", nread,
-                           PACKETBUFSIZE - remainbuf, p->buf, remainbuf);
+                           PACKETBUFSIZE - remainbuf, p->buf, remainbuf));
 
             debugdump(session, "libssh2_transport_read() raw",
                       &p->buf[remainbuf], nread);
@@ -400,7 +405,9 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         numbytes = remainbuf;
 
         if(!p->total_num) {
-            size_t total_num;
+            size_t total_num; /* the number of bytes following the initial
+                                 (5 bytes) packet length and padding length
+                                 fields */
 
             /* No payload package area allocated yet. To know the
                size of this payload, we need to decrypt the first
@@ -652,12 +659,12 @@ send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     rc = LIBSSH2_SEND(session, &p->outbuf[p->osent], length,
                        LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(rc < 0)
-        _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                       "Error sending %d bytes: %d", length, -rc);
+        _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+                       "Error sending %d bytes: %d", length, -rc));
     else {
-        _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
+        _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                        "Sent %d/%d bytes at %p+%d", rc, length, p->outbuf,
-                       p->osent);
+                       p->osent));
         debugdump(session, "libssh2_transport_write send()",
                   &p->outbuf[p->osent], rc);
     }
@@ -738,8 +745,8 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         !(session->state & LIBSSH2_STATE_KEX_ACTIVE)) {
         /* Don't write any new packets if we're still in the middle of a key
          * exchange. */
-        _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
-                       " key re-exchange from _libssh2_transport_send");
+        _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Redirecting into the"
+                       " key re-exchange from _libssh2_transport_send"));
         rc = _libssh2_kex_exchange(session, 1, &session->startup_key_state);
         if(rc)
             return rc;
@@ -895,11 +902,12 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     ret = LIBSSH2_SEND(session, p->outbuf, total_length,
                         LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(ret < 0)
-        _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                       "Error sending %d bytes: %d", total_length, -ret);
+        _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+                       "Error sending %d bytes: %d", total_length, -ret));
     else {
-        _libssh2_debug(session, LIBSSH2_TRACE_SOCKET, "Sent %d/%d bytes at %p",
-                       ret, total_length, p->outbuf);
+        _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+                       "Sent %d/%d bytes at %p",
+                       ret, total_length, p->outbuf));
         debugdump(session, "libssh2_transport_write send()", p->outbuf, ret);
     }
 
