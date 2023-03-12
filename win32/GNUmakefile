@@ -281,17 +281,17 @@ $(DEVLDIR):
 $(TARGET).$(LIBEXT): $(OBJS)
 	@echo Creating $@
 	@$(call DEL, $@)
-	@$(AR) $(ARFLAGS) $@ $^
+	$(AR) $(ARFLAGS) $@ $^
 
 $(libssh2_dll_LIBRARY) $(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT): $(OBJL)
 	@echo Linking $@
 	@$(call DEL, $@)
-	@$(LD) $(LDFLAGS) $^ -o $@ $(LIBPATH) $(LDLIBS)
+	$(LD) $(LDFLAGS) $^ -o $@ $(LIBPATH) $(LDLIBS)
 
 
 $(OBJDIR)/%.res: %.rc
 	@echo Creating $@
-	@$(RC) $(RCFLAGS) $(LIBSSH2_RCFLAG_EXTRAS) -i $< -o $@
+	$(RC) $(RCFLAGS) $(LIBSSH2_RCFLAG_EXTRAS) -i $< -o $@
 
 
 $(DISTDIR)/readme.txt: GNUmakefile
