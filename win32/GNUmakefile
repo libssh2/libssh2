@@ -29,27 +29,26 @@ endif
 DEVLARC = $(DEVLDIR).zip
 
 # Edit the vars below to change target settings.
-TARGET = libssh2
-WWWURL = https://www.libssh2.org/
+TARGET := libssh2
+WWWURL := https://www.libssh2.org/
 DESCR  = libssh2 $(LIBSSH2_VERSION_STR)
-#STACK = 64000
 
 # must be equal to DEBUG or NDEBUG
 DB ?= NDEBUG
 # Optimization: -O<n> or debugging: -g
 ifeq ($(DB),NDEBUG)
-  OPT = -O2
-  OBJDIR = release
+  OPT := -O2
+  OBJDIR := release
 else
-  OPT = -g
+  OPT := -g
   OPT += -DLIBSSH2DEBUG
-  OBJDIR = debug
+  OBJDIR := debug
 endif
 
 # Here you can find a native Win32 binary of the original awk:
 # http://www.gknw.net/development/prgtools/awk-20100523.zip
-AWK = awk
-ZIP = zip -qzr9
+AWK := awk
+ZIP := zip -qzr9
 
 # Platform-dependent helper tool macros
 ifeq ($(findstring /sh,$(SHELL)),/sh)
@@ -57,7 +56,6 @@ DEL    = rm -f $1
 RMDIR  = rm -fr $1
 MKDIR  = mkdir -p $1
 COPY   = -cp -afv $1 $2
-#COPYR = -cp -afr $1/* $2
 COPYR  = -rsync -aC $1/* $2
 TOUCH  = touch $1
 CAT    = cat
@@ -83,24 +81,25 @@ LIBSSH2_RC ?= $(CROSSPREFIX)windres
 LIBSSH2_CC ?= $(CROSSPREFIX)gcc
 LIBSSH2_AR ?= $(CROSSPREFIX)ar
 
-LIBSSH2_DLL_A_SUFFIX ?= dll
-libssh2_dll_LIBRARY = $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
+CC := $(LIBSSH2_CC)
+LD := $(LIBSSH2_CC)
+RC := $(LIBSSH2_RC)
+AR := $(LIBSSH2_AR)
 
-CC = $(LIBSSH2_CC)
-LD = $(LIBSSH2_CC)
-RC = $(LIBSSH2_RC)
-AR = $(LIBSSH2_AR)
+LIBSSH2_DLL_A_SUFFIX ?= dll
+libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
+libssh2_dll_a_LIBRARY := $(TARGET)$(LIBSSH2_DLL_A_SUFFIX)
 
 # Set environment var ARCH to your architecture to override autodetection.
 ifndef ARCH
   ifeq ($(findstring gcc,$(CC)),gcc)
     ifeq ($(findstring x86_64,$(shell $(CC) -dumpmachine)),x86_64)
-      ARCH = w64
+      ARCH := w64
     else
-      ARCH = w32
+      ARCH := w32
     endif
   else
-    ARCH = w32
+    ARCH := w32
   endif
 endif
 
@@ -119,12 +118,10 @@ LDFLAGS += $(LIBSSH2_LDFLAG_EXTRAS) $(LIBPATH)
 RCFLAGS += $(LIBSSH2_RCFLAG_EXTRAS)
 LIBS += $(LDLIBS)
 
-LIBEXT = a
 CFLAGS += $(OPT)
 CPPFLAGS += -D$(DB)
 LDFLAGS += -s
-LDFLAGS += -shared -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT)
-RCFLAGS += -I $(PROOT)/include
+RCFLAGS += -I$(PROOT)/include
 ifeq ($(ARCH),w64)
   CFLAGS  += -m64
   LDFLAGS += -m64
@@ -161,9 +158,9 @@ else
   OPENSSL_LIBS_STAT = crypto ssl
   OPENSSL_LIBS_DYN = crypto.dll ssl.dll
   ifdef LINK_OPENSSL_STATIC
-    LIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_STAT))
+    LIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.a, $(OPENSSL_LIBS_STAT))
   else
-    LIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
+    LIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.a, $(OPENSSL_LIBS_DYN))
   endif
   include $(PROOT)/Makefile.OpenSSL.inc
 endif
@@ -171,11 +168,11 @@ LIBS += -lws2_32 -lcrypt32 -lbcrypt
 
 ifdef WITH_ZLIB
   CPPFLAGS += -DLIBSSH2_HAVE_ZLIB
-  CPPFLAGS += -I$(ZLIB_PATH)/include
+  CPPFLAGS += -I"$(ZLIB_PATH)/include"
   ifdef LINK_ZLIB_STATIC
-    LIBS += $(ZLIB_PATH)/lib/libz.$(LIBEXT)
+    LIBS += $(ZLIB_PATH)/lib/libz.a
   else
-    LIBS += $(ZLIB_PATH)/lib/libz.dll.$(LIBEXT)
+    LIBS += $(ZLIB_PATH)/lib/libz.dll.a
   endif
 endif
 
@@ -192,7 +189,7 @@ all: lib dll
 
 dll: prebuild $(libssh2_dll_LIBRARY)
 
-lib: prebuild $(TARGET).$(LIBEXT)
+lib: prebuild $(TARGET).a
 
 prebuild: $(OBJDIR) $(OBJDIR)/version.inc
 # libssh2_config.h
@@ -230,7 +227,7 @@ dev: all $(DEVLDIR) $(DEVLDIR)/readme.txt
 	@$(call COPY, $(libssh2_dll_LIBRARY), $(DEVLDIR)/bin)
 	@$(call COPY, $(PROOT)/include/*.h, $(DEVLDIR)/include)
 	@$(call COPY, libssh2_config.h, $(DEVLDIR)/include)
-	@$(call COPY, *.$(LIBEXT), $(DEVLDIR)/win32)
+	@$(call COPY, *.a, $(DEVLDIR)/win32)
 	@echo Creating $(DEVLARC)
 	@$(ZIP) $(DEVLARC) $(DEVLDIR)/* < $(DEVLDIR)/readme.txt
 
@@ -250,7 +247,7 @@ testclean: clean
 
 clean:
 #	$(call DEL, libssh2_config.h)
-	$(call DEL, $(libssh2_dll_LIBRARY) $(libssh2_dll_LIBRARY:.dll=.def) $(TARGET).$(LIBEXT) $(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT))
+	$(call DEL, $(libssh2_dll_LIBRARY) $(libssh2_dll_LIBRARY:.dll=.def) $(TARGET).a $(libssh2_dll_a_LIBRARY).a)
 	$(call RMDIR, $(OBJDIR))
 
 $(OBJDIR):
@@ -262,15 +259,16 @@ $(DISTDIR):
 $(DEVLDIR):
 	@$(call MKDIR, $@)
 
-$(TARGET).$(LIBEXT): $(OBJS)
+$(TARGET).a: $(OBJS)
 	@echo Creating $@
 	@$(call DEL, $@)
 	$(AR) rcs $@ $^
 
-$(libssh2_dll_LIBRARY) $(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT): $(OBJS) $(OBJDIR)/$(TARGET).res
+$(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY).a: $(OBJS) $(OBJDIR)/$(TARGET).res
 	@echo Linking $@
 	@$(call DEL, $@)
-	$(LD) $(LDFLAGS) $^ -o $@ $(LIBS)
+	$(LD) $(LDFLAGS) -shared $^ -o $@ $(LIBS) \
+	  -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(libssh2_dll_a_LIBRARY).a
 
 
 $(OBJDIR)/%.res: %.rc

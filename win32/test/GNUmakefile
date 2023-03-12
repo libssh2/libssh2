@@ -20,27 +20,26 @@ OPENSSL_PATH ?= $(PROOT)/../openssl
 LINK_STATIC := 1
 
 # Edit the vars below to change target settings.
-SAMPLES = $(PROOT)/example
+SAMPLES := $(PROOT)/example
 TARGETS := $(filter-out x11.exe,$(patsubst $(SAMPLES)/%.c,%.exe,$(strip $(wildcard $(SAMPLES)/*.c))))
-WWWURL = https://www.libssh2.org/
+WWWURL := https://www.libssh2.org/
 DESCR  = libssh2 $(subst .rc,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
-#STACK = 64000
 
 # must be equal to DEBUG or NDEBUG
 DB ?= NDEBUG
 # Optimization: -O<n> or debugging: -g
 ifeq ($(DB),NDEBUG)
-  OPT = -O2
-  OBJDIR = release
+  OPT := -O2
+  OBJDIR := release
 else
-  OPT = -g
-  OBJDIR = debug
+  OPT := -g
+  OBJDIR := debug
 endif
 
 # Here you can find a native Win32 binary of the original awk:
 # http://www.gknw.net/development/prgtools/awk-20100523.zip
-AWK = awk
-ZIP = zip -qzr9
+AWK := awk
+ZIP := zip -qzr9
 
 # Platform-dependent helper tool macros
 ifeq ($(findstring /sh,$(SHELL)),/sh)
@@ -48,12 +47,12 @@ DEL    = rm -f $1
 RMDIR  = rm -fr $1
 MKDIR  = mkdir -p $1
 COPY   = -cp -afv $1 $2
-#COPYR = -cp -afr $1/* $2
 COPYR  = -rsync -aC $1/* $2
 TOUCH  = touch $1
 CAT    = cat
 ECHONL = echo ""
 DL     = '
+NUL    = \\0
 else
 ifeq "$(OS)" "Windows_NT"
 DEL    = -del 2>NUL /q /f $(subst /,\,$1)
@@ -68,27 +67,28 @@ COPYR  = -xcopy 2>NUL /q /y /e $(subst /,\,$1) $(subst /,\,$2)
 TOUCH  = copy 2>&1>NUL /b $(subst /,\,$1) +,,
 CAT    = type
 ECHONL = $(ComSpec) /c echo.
+NUL    = \0
 endif
 
 LIBSSH2_RC ?= $(CROSSPREFIX)windres
 LIBSSH2_CC ?= $(CROSSPREFIX)gcc
 LIBSSH2_AR ?= $(CROSSPREFIX)ar
 
-CC = $(LIBSSH2_CC)
-LD = $(LIBSSH2_CC)
-RC = $(LIBSSH2_RC)
-AR = $(LIBSSH2_AR)
+CC := $(LIBSSH2_CC)
+LD := $(LIBSSH2_CC)
+RC := $(LIBSSH2_RC)
+AR := $(LIBSSH2_AR)
 
 # Set environment var ARCH to your architecture to override autodetection.
 ifndef ARCH
   ifeq ($(findstring gcc,$(CC)),gcc)
     ifeq ($(findstring x86_64,$(shell $(CC) -dumpmachine)),x86_64)
-      ARCH = w64
+      ARCH := w64
     else
-      ARCH = w32
+      ARCH := w32
     endif
   else
-    ARCH = w32
+    ARCH := w32
   endif
 endif
 
@@ -107,11 +107,10 @@ LDFLAGS += $(LIBSSH2_LDFLAG_EXTRAS) $(LIBPATH)
 RCFLAGS += $(LIBSSH2_RCFLAG_EXTRAS)
 LIBS += $(LDLIBS)
 
-LIBEXT = a
 CFLAGS += $(OPT)
 CPPFLAGS += -D$(DB)
 LDFLAGS += -s
-RCFLAGS += -I $(PROOT)/include
+RCFLAGS += -I$(PROOT)/include
 ifeq ($(ARCH),w64)
   CFLAGS  += -m64
   LDFLAGS += -m64
@@ -141,13 +140,13 @@ else ifdef WOLFSSL_PATH
 else
   OPENSSL_INCLUDE ?= $(OPENSSL_PATH)/include
   OPENSSL_LIBPATH ?= $(OPENSSL_PATH)/lib
-  OPENSSL_LIBS_STAT = crypto ssl
-  OPENSSL_LIBS_DYN = crypto.dll ssl.dll
+  OPENSSL_LIBS_STAT := crypto ssl
+  OPENSSL_LIBS_DYN := crypto.dll ssl.dll
   ifdef LINK_STATIC
     ifdef LINK_OPENSSL_STATIC
-      LIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_STAT)) -lgdi32
+      LIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.a, $(OPENSSL_LIBS_STAT)) -lgdi32
     else
-      LIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
+      LIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.a, $(OPENSSL_LIBS_DYN))
     endif
   endif
 endif
@@ -155,9 +154,9 @@ LIBS += -lws2_32 -lcrypt32 -lbcrypt
 
 ifdef WITH_ZLIB
   ifdef LINK_ZLIB_STATIC
-    LIBS += $(ZLIB_PATH)/lib/libz.$(LIBEXT)
+    LIBS += $(ZLIB_PATH)/lib/libz.a
   else
-    LIBS += $(ZLIB_PATH)/lib/libz.dll.$(LIBEXT)
+    LIBS += $(ZLIB_PATH)/lib/libz.dll.a
   endif
 endif
 
@@ -209,23 +208,23 @@ $(OBJDIR)/%.rc: GNUmakefile $(OBJDIR)/version.inc
 	@echo $(DL)  BEGIN$(DL) >> $@
 	@echo $(DL)    BLOCK "040904E4"$(DL) >> $@
 	@echo $(DL)    BEGIN$(DL) >> $@
-	@echo $(DL)      VALUE "LegalCopyright","(C) $(LIBSSH2_COPYRIGHT_STR)\0"$(DL) >> $@
+	@echo $(DL)      VALUE "LegalCopyright","(C) $(LIBSSH2_COPYRIGHT_STR)$(NUL)"$(DL) >> $@
 ifdef COMPANY
-	@echo $(DL)      VALUE "CompanyName","$(COMPANY)\0"$(DL) >> $@
+	@echo $(DL)      VALUE "CompanyName","$(COMPANY)$(NUL)"$(DL) >> $@
 endif
-	@echo $(DL)      VALUE "ProductName","$(notdir $(@:.rc=.exe))\0"$(DL) >> $@
-	@echo $(DL)      VALUE "ProductVersion","$(LIBSSH2_VERSION_STR)\0"$(DL) >> $@
-	@echo $(DL)      VALUE "License","Released under GPL.\0"$(DL) >> $@
-	@echo $(DL)      VALUE "FileDescription","$(DESCR)\0"$(DL) >> $@
-	@echo $(DL)      VALUE "FileVersion","$(LIBSSH2_VERSION_STR)\0"$(DL) >> $@
-	@echo $(DL)      VALUE "InternalName","$(notdir $(@:.rc=))\0"$(DL) >> $@
-	@echo $(DL)      VALUE "OriginalFilename","$(notdir $(@:.rc=.exe))\0"$(DL) >> $@
-	@echo $(DL)      VALUE "WWW","$(WWWURL)\0"$(DL) >> $@
+	@echo $(DL)      VALUE "ProductName","$(notdir $(@:.rc=.exe))$(NUL)"$(DL) >> $@
+	@echo $(DL)      VALUE "ProductVersion","$(LIBSSH2_VERSION_STR)$(NUL)"$(DL) >> $@
+	@echo $(DL)      VALUE "License","Released under GPL.$(NUL)"$(DL) >> $@
+	@echo $(DL)      VALUE "FileDescription","$(DESCR)$(NUL)"$(DL) >> $@
+	@echo $(DL)      VALUE "FileVersion","$(LIBSSH2_VERSION_STR)$(NUL)"$(DL) >> $@
+	@echo $(DL)      VALUE "InternalName","$(notdir $(@:.rc=))$(NUL)"$(DL) >> $@
+	@echo $(DL)      VALUE "OriginalFilename","$(notdir $(@:.rc=.exe))$(NUL)"$(DL) >> $@
+	@echo $(DL)      VALUE "WWW","$(WWWURL)$(NUL)"$(DL) >> $@
 	@echo $(DL)    END$(DL) >> $@
 	@echo $(DL)  END$(DL) >> $@
 	@echo $(DL)  BLOCK "VarFileInfo"$(DL) >> $@
 	@echo $(DL)  BEGIN$(DL) >> $@
-	@echo $(DL)    VALUE "Translation", 0x409, 1252$(DL) >> $@
+	@echo $(DL)    VALUE "Translation", 0x409, 1200$(DL) >> $@
 	@echo $(DL)  END$(DL) >> $@
 	@echo $(DL)END$(DL) >> $@
 ifdef ICON
