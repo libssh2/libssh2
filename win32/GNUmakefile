@@ -175,7 +175,6 @@ dll: prebuild $(libssh2_dll_LIBRARY)
 lib: prebuild $(TARGET).a
 
 prebuild: $(OBJDIR) $(OBJDIR)/version.inc
-# libssh2_config.h
 
 test: $(TARGETS_EXAMPLES)
 
@@ -247,7 +246,7 @@ help: $(OBJDIR)/version.inc
 	@echo $(DL)OpenSSL path    = $(OPENSSL_PATH)$(DL)
 	@echo $(DL)wolfSSL path    = $(WOLFSSL_PATH)$(DL)
 	@echo $(DL)mbedTLS path    = $(MBEDTLS_PATH)$(DL)
-	@echo $(DL)Zlib path       = $(ZLIB_PATH)$(DL)
+	@echo $(DL)zlib path       = $(ZLIB_PATH)$(DL)
 	@echo $(DL)===========================================================$(DL)
 	@echo $(DL)libssh2 $(LIBSSH2_VERSION_STR) - available targets are:$(DL)
 	@echo $(DL)$(MAKE) all$(DL)
