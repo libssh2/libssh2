@@ -17,6 +17,8 @@ CFLAGS ?=
 CPPFLAGS ?=
 RCFLAGS ?=
 LDFLAGS ?=
+LIBSSH2_LDFLAGS_BIN ?=
+LIBSSH2_LDFLAGS_LIB ?=
 LIBS ?=
 
 CROSSPREFIX ?=
@@ -53,15 +55,15 @@ CPPFLAGS_LIB := -DHAVE_STRTOLL
 
 # examples, tests
 
-LDFLAGS_BIN += -L$(PROOT)/win32
-LIBS_BIN    += -lssh2 -lws2_32
+LIBSSH2_LDFLAGS_BIN += -L$(PROOT)/win32
+LIBS_BIN := -lssh2 -lws2_32
 
 ifdef DYN
   libssh2_DEPENDENCIES += $(PROOT)/win32/libssh2.dll.a
-  LDFLAGS_BIN += -shared
+  LIBSSH2_LDFLAGS_BIN += -shared
 else
   libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.a
-  LDFLAGS_BIN += -static
+  LIBSSH2_LDFLAGS_BIN += -static
 endif
 
 libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.a
@@ -119,11 +121,11 @@ endif
 
 _LIBS += -lws2_32 -lcrypt32 -lbcrypt
 
-LDFLAGS_LIB += $(_LDFLAGS)
+LIBSSH2_LDFLAGS_LIB += $(_LDFLAGS)
 LIBS_LIB += $(_LIBS)
 
 ifndef DYN
-  LDFLAGS_BIN += $(_LDFLAGS)
+  LIBSSH2_LDFLAGS_BIN += $(_LDFLAGS)
   LIBS_BIN += $(_LIBS)
 endif
 
@@ -162,6 +164,7 @@ TARGET := libssh2
 DISTDIR ?= $(TARGET)-$(LIBSSH2_VERSION_STR)-bin-$(word 1,$(subst -, ,$(TRIPLET)))
 DISTARC := $(DISTDIR).zip
 
+LIBSSH2_DLL_SUFFIX ?=
 libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
 libssh2_dll_a_LIBRARY := $(TARGET).dll.a
 
@@ -179,14 +182,14 @@ prebuild: $(OBJDIR) $(OBJDIR)/version.inc
 test: $(TARGETS_EXAMPLES)
 
 %.exe: %.c $(libssh2_DEPENDENCIES)
-	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LDFLAGS_BIN) $< -o $@ $(LIBS) $(LIBS_BIN)
+	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBSSH2_LDFLAGS_BIN) $< -o $@ $(LIBS) $(LIBS_BIN)
 
 $(OBJDIR)/%.o: %.c
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(CPPFLAGS_LIB) -c $< -o $@
 
 $(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY): $(OBJS) $(OBJDIR)/$(TARGET).res
 	@$(call DEL, $@)
-	$(CC) $(LDFLAGS) $(LDFLAGS_LIB) -shared $^ -o $@ $(LIBS) $(LIBS_LIB) \
+	$(CC) $(LDFLAGS) -shared $(LIBSSH2_LDFLAGS_LIB) $^ -o $@ $(LIBS) $(LIBS_LIB) \
 	  -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(libssh2_dll_a_LIBRARY)
 
 $(OBJDIR)/%.res: %.rc
