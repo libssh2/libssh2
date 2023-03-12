@@ -81,10 +81,9 @@ LIBSSH2_RC ?= $(CROSSPREFIX)windres
 LIBSSH2_CC ?= $(CROSSPREFIX)gcc
 LIBSSH2_AR ?= $(CROSSPREFIX)ar
 
-CC := $(LIBSSH2_CC)
-LD := $(LIBSSH2_CC)
-RC := $(LIBSSH2_RC)
-AR := $(LIBSSH2_AR)
+CC ?= $(LIBSSH2_CC)
+RC ?= $(LIBSSH2_RC)
+AR ?= $(LIBSSH2_AR)
 
 LIBSSH2_DLL_A_SUFFIX ?= dll
 libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
@@ -267,7 +266,7 @@ $(TARGET).a: $(OBJS)
 $(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY).a: $(OBJS) $(OBJDIR)/$(TARGET).res
 	@echo Linking $@
 	@$(call DEL, $@)
-	$(LD) $(LDFLAGS) -shared $^ -o $@ $(LIBS) \
+	$(CC) $(LDFLAGS) -shared $^ -o $@ $(LIBS) \
 	  -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(libssh2_dll_a_LIBRARY).a
 
 

@@ -74,10 +74,9 @@ LIBSSH2_RC ?= $(CROSSPREFIX)windres
 LIBSSH2_CC ?= $(CROSSPREFIX)gcc
 LIBSSH2_AR ?= $(CROSSPREFIX)ar
 
-CC := $(LIBSSH2_CC)
-LD := $(LIBSSH2_CC)
-RC := $(LIBSSH2_RC)
-AR := $(LIBSSH2_AR)
+CC ?= $(LIBSSH2_CC)
+RC ?= $(LIBSSH2_RC)
+AR ?= $(LIBSSH2_AR)
 
 # Set environment var ARCH to your architecture to override autodetection.
 ifndef ARCH
@@ -188,7 +187,7 @@ $(OBJDIR):
 %.exe: $(OBJDIR)/%.o $(OBJDIR)/%.res
 	@echo Linking $@
 	@$(call DEL, $@)
-	$(LD) $(LDFLAGS) $^ -o $@ $(LIBS)
+	$(CC) $(LDFLAGS) $^ -o $@ $(LIBS)
 
 $(OBJDIR)/%.res: $(OBJDIR)/%.rc
 	@echo Creating $@
