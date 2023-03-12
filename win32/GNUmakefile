@@ -127,7 +127,7 @@ ifndef DYN
   LIBS_BIN += $(_LIBS)
 endif
 
-### Common rules
+### Rules
 
 # Platform-dependent helper tool macros
 ifneq ($(findstring /sh,$(SHELL)),)
