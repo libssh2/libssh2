@@ -1,9 +1,9 @@
 #########################################################################
 #
-## Makefile for building libssh2 samples (Win32 version - gnu make)
-## Use: make -f GNUmakefile [help]
-##
-## Hacked by: Guenter Knauf
+# Makefile for building libssh2 samples (Windows version - GNU Make)
+# Use: make -f GNUmakefile [help]
+#
+# Hacked by: Guenter Knauf
 #
 #########################################################################
 
@@ -24,36 +24,6 @@ SAMPLES := $(PROOT)/example
 TARGETS := $(filter-out x11.exe,$(patsubst $(SAMPLES)/%.c,%.exe,$(strip $(wildcard $(SAMPLES)/*.c))))
 WWWURL := https://www.libssh2.org/
 DESCR  = libssh2 $(subst .rc,,$(notdir $@)) $(LIBSSH2_VERSION_STR)
-
-# must be equal to DEBUG or NDEBUG
-DB ?= NDEBUG
-# Optimization: -O<n> or debugging: -g
-ifeq ($(DB),NDEBUG)
-  OPT := -O2
-  OBJDIR := release
-else
-  OPT := -g
-  OBJDIR := debug
-endif
-
-# Platform-dependent helper tool macros
-ifneq ($(findstring /sh,$(SHELL)),)
-DEL   = rm -f $1
-RMDIR = rm -fr $1
-MKDIR = mkdir -p $1
-COPY  = -cp -afv $1 $2
-DL    = '
-NUL   = \\0
-else
-DEL   = -del 2>NUL /q /f $(subst /,\,$1)
-RMDIR = -rd 2>NUL /q /s $(subst /,\,$1)
-MKDIR = -md 2>NUL $(subst /,\,$1)
-COPY  = -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
-NUL   = \0
-endif
-
-AWK := awk
-ZIP := zip -qzr9
 
 CFLAGS ?=
 CPPFLAGS ?=
@@ -89,12 +59,21 @@ endif
 # Include the version info retrieved from libssh2.h
 -include $(OBJDIR)/version.inc
 
-CFLAGS += $(OPT)
-CPPFLAGS += -D$(DB)
-RCFLAGS += -I$(PROOT)/include
 CPPFLAGS += -I$(PROOT)/win32 -I$(PROOT)/include
-LDFLAGS += -L$(PROOT)/win32
+RCFLAGS += -I$(PROOT)/include
 
+# must be equal to DEBUG or NDEBUG
+DB ?= NDEBUG
+CPPFLAGS += -D$(DB)
+ifeq ($(DB),NDEBUG)
+  CFLAGS += -O2
+  OBJDIR := release
+else
+  CFLAGS += -g
+  OBJDIR := debug
+endif
+
+LDFLAGS += -L$(PROOT)/win32
 ifdef LINK_STATIC
   LIBS += -llibssh2
 else
@@ -131,10 +110,29 @@ ifdef ZLIB_PATH
   endif
 endif
 
+
+# Platform-dependent helper tool macros
+ifneq ($(findstring /sh,$(SHELL)),)
+DEL   = rm -f $1
+RMDIR = rm -fr $1
+MKDIR = mkdir -p $1
+COPY  = -cp -afv $1 $2
+DL    = '
+NUL   = \\0
+else
+DEL   = -del 2>NUL /q /f $(subst /,\,$1)
+RMDIR = -rd 2>NUL /q /s $(subst /,\,$1)
+MKDIR = -md 2>NUL $(subst /,\,$1)
+COPY  = -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
+NUL   = \0
+endif
+AWK := awk
+ZIP := zip -qzr9
+
+
 vpath %.c $(PROOT)/example
 
 .PRECIOUS: $(OBJDIR)/%.o $(OBJDIR)/%.rc $(OBJDIR)/%.res
-
 
 all: prebuild $(TARGETS)
 

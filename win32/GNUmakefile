@@ -1,9 +1,9 @@
 #########################################################################
 #
-## Makefile for building libssh2 (Win32 version - gnu make)
-## Use: make -f GNUmakefile [help|all|clean|dev|devclean|dist|distclean|dll|objclean]
-##
-## Hacked by: Guenter Knauf
+# Makefile for building libssh2 (Windows version - GNU Make)
+# Use: make -f GNUmakefile [help|all|clean|dev|devclean|dist|distclean|dll|objclean]
+#
+# Hacked by: Guenter Knauf
 #
 #########################################################################
 
@@ -28,35 +28,6 @@ DEVLARC = $(DEVLDIR).zip
 TARGET := libssh2
 WWWURL := https://www.libssh2.org/
 DESCR  = libssh2 $(LIBSSH2_VERSION_STR)
-
-# must be equal to DEBUG or NDEBUG
-DB ?= NDEBUG
-# Optimization: -O<n> or debugging: -g
-ifeq ($(DB),NDEBUG)
-  OPT := -O2
-  OBJDIR := release
-else
-  OPT := -g
-  OPT += -DLIBSSH2DEBUG
-  OBJDIR := debug
-endif
-
-# Platform-dependent helper tool macros
-ifneq ($(findstring /sh,$(SHELL)),)
-DEL   = rm -f $1
-RMDIR = rm -fr $1
-MKDIR = mkdir -p $1
-COPY  = -cp -afv $1 $2
-DL    = '
-else
-DEL   = -del 2>NUL /q /f $(subst /,\,$1)
-RMDIR = -rd 2>NUL /q /s $(subst /,\,$1)
-MKDIR = -md 2>NUL $(subst /,\,$1)
-COPY  = -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
-endif
-
-AWK := awk
-ZIP := zip -qzr9
 
 CFLAGS ?=
 CPPFLAGS ?=
@@ -95,11 +66,21 @@ libssh2_dll_a_LIBRARY := $(TARGET).dll.a
 # Include the version info retrieved from libssh2.h
 -include $(OBJDIR)/version.inc
 
-CFLAGS += $(OPT)
 CFLAGS += -DHAVE_STRTOLL
-CPPFLAGS += -D$(DB)
-RCFLAGS += -I$(PROOT)/include
 CPPFLAGS += -I$(PROOT)/win32 -I$(PROOT)/include
+RCFLAGS += -I$(PROOT)/include
+
+# must be equal to DEBUG or NDEBUG
+DB ?= NDEBUG
+CPPFLAGS += -D$(DB)
+ifeq ($(DB),NDEBUG)
+  CFLAGS += -O2
+  OBJDIR := release
+else
+  CFLAGS += -g
+  CPPFLAGS += -DLIBSSH2DEBUG
+  OBJDIR := debug
+endif
 
 ifdef WITH_WINCNG
   CPPFLAGS += -DLIBSSH2_WINCNG
@@ -143,6 +124,24 @@ ifdef ZLIB_PATH
   endif
 endif
 
+
+# Platform-dependent helper tool macros
+ifneq ($(findstring /sh,$(SHELL)),)
+DEL   = rm -f $1
+RMDIR = rm -fr $1
+MKDIR = mkdir -p $1
+COPY  = -cp -afv $1 $2
+DL    = '
+else
+DEL   = -del 2>NUL /q /f $(subst /,\,$1)
+RMDIR = -rd 2>NUL /q /s $(subst /,\,$1)
+MKDIR = -md 2>NUL $(subst /,\,$1)
+COPY  = -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
+endif
+AWK := awk
+ZIP := zip -qzr9
+
+
 vpath %.c $(PROOT)/src
 
 # include Makefile.inc to get CSOURCES define
@@ -168,7 +167,7 @@ $(OBJDIR)/%.o: %.c
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(OBJDIR)/version.inc: $(PROOT)/get_ver.awk $(PROOT)/include/libssh2.h $(OBJDIR)
-	@$(AWK) -f $^ > $@
+	$(AWK) -f $^ > $@
 
 dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@$(call MKDIR, $(DISTDIR)/bin)
@@ -212,7 +211,6 @@ testclean: clean
 	$(MAKE) -C test -f GNUmakefile clean
 
 clean:
-#	$(call DEL, libssh2_config.h)
 	$(call DEL, $(libssh2_dll_LIBRARY) $(libssh2_dll_LIBRARY:.dll=.def) $(TARGET).a $(libssh2_dll_a_LIBRARY))
 	$(call RMDIR, $(OBJDIR))
 
