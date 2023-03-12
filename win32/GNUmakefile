@@ -77,13 +77,12 @@ CAT    = type
 ECHONL = $(ComSpec) /c echo.
 endif
 
-LIBSSH2_RC ?= $(CROSSPREFIX)windres
-LIBSSH2_CC ?= $(CROSSPREFIX)gcc
-LIBSSH2_AR ?= $(CROSSPREFIX)ar
-
-CC ?= $(LIBSSH2_CC)
-RC ?= $(LIBSSH2_RC)
-AR ?= $(LIBSSH2_AR)
+ifeq ($(CC),cc)
+  CC := gcc
+endif
+CC := $(CROSSPREFIX)$(CC)
+AR := $(CROSSPREFIX)$(AR)
+RC ?= $(CROSSPREFIX)windres
 
 libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
 libssh2_dll_a_LIBRARY := $(TARGET).dll.a
@@ -110,7 +109,7 @@ RCFLAGS ?=
 LDFLAGS ?=
 LIBS ?=
 
-# Global flags for all compilers
+# Compatibility
 CFLAGS += $(LIBSSH2_CFLAG_EXTRAS)
 LDFLAGS += $(LIBSSH2_LDFLAG_EXTRAS) $(LIBPATH)
 RCFLAGS += $(LIBSSH2_RCFLAG_EXTRAS)
