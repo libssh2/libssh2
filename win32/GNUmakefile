@@ -7,27 +7,14 @@
 #
 #########################################################################
 
-# Project root
-PROOT := ..
+ifndef PROOT
+  PROOT := ..
+  LOCAL := 1
+endif
 
-# Edit the path below to point to the base of your Zlib sources.
-ZLIB_PATH ?= $(PROOT)/../zlib
+### Common
 
-# Edit the path below to point to the base of your OpenSSL package.
-OPENSSL_PATH ?= $(PROOT)/../openssl
-
-# Edit the path below to point to your Distribution folder.
-DISTDIR ?= libssh2-$(LIBSSH2_VERSION_STR)-bin-$(ARCH)
-DISTARC = $(DISTDIR).zip
-
-# Edit the path below to point to your Development folder.
-DEVLDIR ?= libssh2-$(LIBSSH2_VERSION_STR)-dev-$(ARCH)
-DEVLARC = $(DEVLDIR).zip
-
-# Edit the vars below to change target settings.
-TARGET := libssh2
 WWWURL := https://www.libssh2.org/
-DESCR  = libssh2 $(LIBSSH2_VERSION_STR)
 
 CFLAGS ?=
 CPPFLAGS ?=
@@ -60,12 +47,10 @@ else
   TRIPLET ?= $(shell $(CC) -dumpmachine)
 endif
 
-libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
-libssh2_dll_a_LIBRARY := $(TARGET).dll.a
-
-CFLAGS += -DHAVE_STRTOLL
 CPPFLAGS += -I$(PROOT)/win32 -I$(PROOT)/include
-RCFLAGS += -I$(PROOT)/include
+RCFLAGS  += -I$(PROOT)/include
+
+### Optional features
 
 # must be equal to DEBUG or NDEBUG
 DB ?= NDEBUG
@@ -78,8 +63,9 @@ else
   CPPFLAGS += -DLIBSSH2DEBUG
 endif
 
-# Include the version info retrieved from libssh2.h
--include $(OBJDIR)/version.inc
+# Linker options to exclude for shared mode executables.
+_LDFLAGS :=
+_LIBS :=
 
 ifdef WITH_WINCNG
   CPPFLAGS += -DLIBSSH2_WINCNG
@@ -87,42 +73,42 @@ ifdef WITH_WINCNG
 else ifdef MBEDTLS_PATH
   CPPFLAGS += -DLIBSSH2_MBEDTLS
   CPPFLAGS += -I"$(MBEDTLS_PATH)/include"
-  LDFLAGS += -L"$(MBEDTLS_PATH)/lib"
-  LIBS += -lmbedtls -lmbedx509 -lmbedcrypto
+  _LDFLAGS += -L"$(MBEDTLS_PATH)/lib"
+  _LIBS += -lmbedtls -lmbedx509 -lmbedcrypto
   include $(PROOT)/Makefile.mbedTLS.inc
 else ifdef WOLFSSL_PATH
   CPPFLAGS += -DLIBSSH2_WOLFSSL
   CPPFLAGS += -I"$(WOLFSSL_PATH)/include"
   CPPFLAGS += -I"$(WOLFSSL_PATH)/include/wolfssl"
-  LDFLAGS += -L"$(WOLFSSL_PATH)/lib"
-  LIBS += -lwolfssl
+  _LDFLAGS += -L"$(WOLFSSL_PATH)/lib"
+  _LIBS += -lwolfssl
   include $(PROOT)/Makefile.wolfSSL.inc
 else
   CPPFLAGS += -DLIBSSH2_OPENSSL
+  OPENSSL_PATH ?= $(PROOT)/../openssl
   OPENSSL_INCLUDE ?= $(OPENSSL_PATH)/include
   OPENSSL_LIBPATH ?= $(OPENSSL_PATH)/lib
   CPPFLAGS += -I"$(OPENSSL_INCLUDE)"
-  OPENSSL_LIBS_STAT = crypto ssl
-  OPENSSL_LIBS_DYN = crypto.dll ssl.dll
-  ifdef LINK_OPENSSL_STATIC
-    LIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.a, $(OPENSSL_LIBS_STAT))
-  else
-    LIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.a, $(OPENSSL_LIBS_DYN))
-  endif
+  _LDFLAGS += -L"$(OPENSSL_LIBPATH)"
+  _LIBS += -lssl -lcrypto
   include $(PROOT)/Makefile.OpenSSL.inc
 endif
-LIBS += -lws2_32 -lcrypt32 -lbcrypt
 
 ifdef ZLIB_PATH
   CPPFLAGS += -DLIBSSH2_HAVE_ZLIB
   CPPFLAGS += -I"$(ZLIB_PATH)/include"
-  ifdef LINK_ZLIB_STATIC
-    LIBS += $(ZLIB_PATH)/lib/libz.a
-  else
-    LIBS += $(ZLIB_PATH)/lib/libz.dll.a
-  endif
+  _LDFLAGS += -L"$(ZLIB_PATH)/lib"
+  _LIBS += -lz
 endif
 
+_LIBS += -lws2_32 -lcrypt32 -lbcrypt
+
+ifndef DYN
+  LDFLAGS += $(_LDFLAGS)
+  LIBS += $(_LIBS)
+endif
+
+### Common rules
 
 # Platform-dependent helper tool macros
 ifneq ($(findstring /sh,$(SHELL)),)
@@ -140,6 +126,14 @@ endif
 AWK := awk
 ZIP := zip -qzr9
 
+# Include the version info retrieved from libssh2.h
+-include $(OBJDIR)/version.inc
+
+### Local
+
+ifdef LOCAL
+
+CPPFLAGS += -DHAVE_STRTOLL
 
 vpath %.c $(PROOT)/src
 
@@ -149,6 +143,18 @@ include $(PROOT)/Makefile.inc
 OBJECTS := $(patsubst %.c,%.o,$(CSOURCES))
 OBJS    := $(addprefix $(OBJDIR)/,$(OBJECTS))
 
+TARGET := libssh2
+
+# Edit the path below to point to your Distribution folder.
+DISTDIR ?= $(TARGET)-$(LIBSSH2_VERSION_STR)-bin-$(ARCH)
+DISTARC = $(DISTDIR).zip
+
+# Edit the path below to point to your Development folder.
+DEVLDIR ?= $(TARGET)-$(LIBSSH2_VERSION_STR)-dev-$(ARCH)
+DEVLARC = $(DEVLDIR).zip
+
+libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
+libssh2_dll_a_LIBRARY := $(TARGET).dll.a
 
 all: lib dll
 
@@ -231,24 +237,22 @@ $(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY): $(OBJS) $(OBJDIR)/$(TARGET).res
 	$(CC) $(LDFLAGS) -shared $^ -o $@ $(LIBS) \
 	  -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(libssh2_dll_a_LIBRARY)
 
-
 $(OBJDIR)/%.res: %.rc
 	$(RC) -O coff $(RCFLAGS) -i $< -o $@
 
-
 $(DISTDIR)/readme.txt: GNUmakefile
 	@echo Creating $@
-	@echo $(DL)This is a binary distribution for Win32 platform.$(DL) > $@
-	@echo $(DL)libssh version $(LIBSSH2_VERSION_STR)$(DL) >> $@
-	@echo $(DL)Please download the complete libssh package for$(DL) >> $@
+	@echo $(DL)This is a binary distribution for Windows.$(DL) > $@
+	@echo $(DL)libssh2 version $(LIBSSH2_VERSION_STR)$(DL) >> $@
+	@echo $(DL)Please download the complete libssh2 package for$(DL) >> $@
 	@echo $(DL)any further documentation:$(DL) >> $@
 	@echo $(DL)$(WWWURL)$(DL) >> $@
 
 $(DEVLDIR)/readme.txt: GNUmakefile
 	@echo Creating $@
-	@echo $(DL)This is a development distribution for Win32 platform.$(DL) > $@
-	@echo $(DL)libssh version $(LIBSSH2_VERSION_STR)$(DL) >> $@
-	@echo $(DL)Please download the complete libssh package for$(DL) >> $@
+	@echo $(DL)This is a development distribution for Windows.$(DL) > $@
+	@echo $(DL)libssh2 version $(LIBSSH2_VERSION_STR)$(DL) >> $@
+	@echo $(DL)Please download the complete libssh2 package for$(DL) >> $@
 	@echo $(DL)any further documentation:$(DL) >> $@
 	@echo $(DL)$(WWWURL)$(DL) >> $@
 
@@ -257,7 +261,7 @@ help: $(OBJDIR)/version.inc
 	@echo $(DL)OpenSSL path    = $(OPENSSL_PATH)$(DL)
 	@echo $(DL)Zlib path       = $(ZLIB_PATH)$(DL)
 	@echo $(DL)===========================================================$(DL)
-	@echo $(DL)libssh $(LIBSSH2_VERSION_STR) - available targets are:$(DL)
+	@echo $(DL)libssh2 $(LIBSSH2_VERSION_STR) - available targets are:$(DL)
 	@echo $(DL)$(MAKE) all$(DL)
 	@echo $(DL)$(MAKE) dll$(DL)
 	@echo $(DL)$(MAKE) lib$(DL)
@@ -269,3 +273,5 @@ help: $(OBJDIR)/version.inc
 	@echo $(DL)$(MAKE) objclean$(DL)
 	@echo $(DL)$(MAKE) test$(DL)
 	@echo $(DL)===========================================================$(DL)
+
+endif
