@@ -85,9 +85,8 @@ CC ?= $(LIBSSH2_CC)
 RC ?= $(LIBSSH2_RC)
 AR ?= $(LIBSSH2_AR)
 
-LIBSSH2_DLL_A_SUFFIX ?= dll
 libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
-libssh2_dll_a_LIBRARY := $(TARGET)$(LIBSSH2_DLL_A_SUFFIX)
+libssh2_dll_a_LIBRARY := $(TARGET).dll.a
 
 # Set environment var ARCH to your architecture to override autodetection.
 ifndef ARCH
@@ -246,7 +245,7 @@ testclean: clean
 
 clean:
 #	$(call DEL, libssh2_config.h)
-	$(call DEL, $(libssh2_dll_LIBRARY) $(libssh2_dll_LIBRARY:.dll=.def) $(TARGET).a $(libssh2_dll_a_LIBRARY).a)
+	$(call DEL, $(libssh2_dll_LIBRARY) $(libssh2_dll_LIBRARY:.dll=.def) $(TARGET).a $(libssh2_dll_a_LIBRARY))
 	$(call RMDIR, $(OBJDIR))
 
 $(OBJDIR):
@@ -263,11 +262,11 @@ $(TARGET).a: $(OBJS)
 	@$(call DEL, $@)
 	$(AR) rcs $@ $^
 
-$(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY).a: $(OBJS) $(OBJDIR)/$(TARGET).res
+$(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY): $(OBJS) $(OBJDIR)/$(TARGET).res
 	@echo Linking $@
 	@$(call DEL, $@)
 	$(CC) $(LDFLAGS) -shared $^ -o $@ $(LIBS) \
-	  -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(libssh2_dll_a_LIBRARY).a
+	  -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(libssh2_dll_a_LIBRARY)
 
 
 $(OBJDIR)/%.res: %.rc
