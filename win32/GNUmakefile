@@ -183,11 +183,11 @@ LDLIBS += -lws2_32
 
 ifdef WITH_ZLIB
   CFLAGS += -DLIBSSH2_HAVE_ZLIB
-  INCLUDES += -I$(ZLIB_PATH)
+  INCLUDES += -I$(ZLIB_PATH)/include
   ifdef LINK_ZLIB_STATIC
-    LDLIBS += $(ZLIB_PATH)/libz.$(LIBEXT)
+    LDLIBS += $(ZLIB_PATH)/lib/libz.$(LIBEXT)
   else
-    LDLIBS += $(ZLIB_PATH)/libz.dll.$(LIBEXT)
+    LDLIBS += $(ZLIB_PATH)/lib/libz.dll.$(LIBEXT)
   endif
 endif
 
