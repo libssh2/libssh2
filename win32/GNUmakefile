@@ -1,7 +1,7 @@
 #########################################################################
 #
 # Makefile for building libssh2 (Windows version - GNU Make)
-# Use: make -f GNUmakefile [help|all|clean|dev|devclean|dist|distclean|dll|objclean|test|testclean]
+# Use: make -f GNUmakefile [help|all|clean|dist|distclean|dll|objclean|test|testclean]
 #
 # Hacked by: Guenter Knauf
 #
@@ -11,7 +11,7 @@ PROOT := ..
 
 ### Common
 
-WWWURL := https://www.libssh2.org/
+HOMEPAGE := https://www.libssh2.org/
 
 CFLAGS ?=
 CPPFLAGS ?=
@@ -158,13 +158,9 @@ OBJS    := $(addprefix $(OBJDIR)/,$(OBJECTS))
 
 TARGET := libssh2
 
-# Edit the path below to point to your Distribution folder.
-DISTDIR ?= $(TARGET)-$(LIBSSH2_VERSION_STR)-bin-$(ARCH)
-DISTARC = $(DISTDIR).zip
-
-# Edit the path below to point to your Development folder.
-DEVLDIR ?= $(TARGET)-$(LIBSSH2_VERSION_STR)-dev-$(ARCH)
-DEVLARC = $(DEVLDIR).zip
+# Override the path below to point to your Distribution folder.
+DISTDIR ?= $(TARGET)-$(LIBSSH2_VERSION_STR)-bin-$(word 1,$(subst -, ,$(TRIPLET)))
+DISTARC := $(DISTDIR).zip
 
 libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
 libssh2_dll_a_LIBRARY := $(TARGET).dll.a
@@ -206,38 +202,21 @@ $(OBJDIR)/version.inc: $(PROOT)/get_ver.awk $(PROOT)/include/libssh2.h $(OBJDIR)
 
 dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@$(call MKDIR, $(DISTDIR)/bin)
-	@$(call COPY, $(PROOT)/AUTHORS, $(DISTDIR))
+	@$(call MKDIR, $(DISTDIR)/include)
+	@$(call MKDIR, $(DISTDIR)/win32)
 	@$(call COPY, $(PROOT)/COPYING, $(DISTDIR))
-	@$(call COPY, $(PROOT)/INSTALL, $(DISTDIR))
 	@$(call COPY, $(PROOT)/README, $(DISTDIR))
 	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DISTDIR))
 	@$(call COPY, $(libssh2_dll_LIBRARY), $(DISTDIR)/bin)
-	@echo Creating $(DISTARC)
+	@$(call COPY, $(PROOT)/include/*.h, $(DISTDIR)/include)
+	@$(call COPY, libssh2_config.h, $(DISTDIR)/include)
+	@$(call COPY, *.a, $(DISTDIR)/win32)
+	@echo Creating... $(DISTARC)
 	@$(ZIP) $(DISTARC) $(DISTDIR)/* < $(DISTDIR)/readme.txt
-
-dev: all $(DEVLDIR) $(DEVLDIR)/readme.txt
-	@$(call MKDIR, $(DEVLDIR)/bin)
-	@$(call MKDIR, $(DEVLDIR)/include)
-	@$(call MKDIR, $(DEVLDIR)/win32)
-	@$(call COPY, $(PROOT)/AUTHORS, $(DEVLDIR))
-	@$(call COPY, $(PROOT)/COPYING, $(DEVLDIR))
-	@$(call COPY, $(PROOT)/INSTALL, $(DEVLDIR))
-	@$(call COPY, $(PROOT)/README, $(DEVLDIR))
-	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DEVLDIR))
-	@$(call COPY, $(libssh2_dll_LIBRARY), $(DEVLDIR)/bin)
-	@$(call COPY, $(PROOT)/include/*.h, $(DEVLDIR)/include)
-	@$(call COPY, libssh2_config.h, $(DEVLDIR)/include)
-	@$(call COPY, *.a, $(DEVLDIR)/win32)
-	@echo Creating $(DEVLARC)
-	@$(ZIP) $(DEVLARC) $(DEVLDIR)/* < $(DEVLDIR)/readme.txt
 
 distclean vclean: clean
 	$(call RMDIR, $(DISTDIR))
 	$(call DEL, $(DISTARC))
-
-devclean: clean
-	$(call RMDIR, $(DEVLDIR))
-	$(call DEL, $(DEVLARC))
 
 objclean: all
 	$(call RMDIR, $(OBJDIR))
@@ -255,28 +234,19 @@ $(OBJDIR):
 $(DISTDIR):
 	@$(call MKDIR, $@)
 
-$(DEVLDIR):
-	@$(call MKDIR, $@)
-
 $(DISTDIR)/readme.txt: GNUmakefile
-	@echo Creating $@
+	@echo Creating... $@
 	@echo $(DL)This is a binary distribution for Windows.$(DL) > $@
 	@echo $(DL)libssh2 version $(LIBSSH2_VERSION_STR)$(DL) >> $@
 	@echo $(DL)Please download the complete libssh2 package for$(DL) >> $@
 	@echo $(DL)any further documentation:$(DL) >> $@
-	@echo $(DL)$(WWWURL)$(DL) >> $@
-
-$(DEVLDIR)/readme.txt: GNUmakefile
-	@echo Creating $@
-	@echo $(DL)This is a development distribution for Windows.$(DL) > $@
-	@echo $(DL)libssh2 version $(LIBSSH2_VERSION_STR)$(DL) >> $@
-	@echo $(DL)Please download the complete libssh2 package for$(DL) >> $@
-	@echo $(DL)any further documentation:$(DL) >> $@
-	@echo $(DL)$(WWWURL)$(DL) >> $@
+	@echo $(DL)$(HOMEPAGE)$(DL) >> $@
 
 help: $(OBJDIR)/version.inc
 	@echo $(DL)===========================================================$(DL)
 	@echo $(DL)OpenSSL path    = $(OPENSSL_PATH)$(DL)
+	@echo $(DL)wolfSSL path    = $(WOLFSSL_PATH)$(DL)
+	@echo $(DL)mbedTLS path    = $(MBEDTLS_PATH)$(DL)
 	@echo $(DL)Zlib path       = $(ZLIB_PATH)$(DL)
 	@echo $(DL)===========================================================$(DL)
 	@echo $(DL)libssh2 $(LIBSSH2_VERSION_STR) - available targets are:$(DL)
@@ -284,8 +254,6 @@ help: $(OBJDIR)/version.inc
 	@echo $(DL)$(MAKE) dll$(DL)
 	@echo $(DL)$(MAKE) lib$(DL)
 	@echo $(DL)$(MAKE) clean$(DL)
-	@echo $(DL)$(MAKE) dev$(DL)
-	@echo $(DL)$(MAKE) devclean$(DL)
 	@echo $(DL)$(MAKE) dist$(DL)
 	@echo $(DL)$(MAKE) distclean$(DL)
 	@echo $(DL)$(MAKE) objclean$(DL)
