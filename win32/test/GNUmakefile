@@ -37,21 +37,19 @@ else
 endif
 
 # Platform-dependent helper tool macros
-ifeq ($(findstring /sh,$(SHELL)),/sh)
-DEL    = rm -f $1
-RMDIR  = rm -fr $1
-MKDIR  = mkdir -p $1
-COPY   = -cp -afv $1 $2
-CAT    = cat
-DL     = '
-NUL    = \\0
+ifneq ($(findstring /sh,$(SHELL)),)
+DEL   = rm -f $1
+RMDIR = rm -fr $1
+MKDIR = mkdir -p $1
+COPY  = -cp -afv $1 $2
+DL    = '
+NUL   = \\0
 else
-DEL    = -del 2>NUL /q /f $(subst /,\,$1)
-RMDIR  = -rd 2>NUL /q /s $(subst /,\,$1)
-MKDIR  = -md 2>NUL $(subst /,\,$1)
-COPY   = -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
-CAT    = type
-NUL    = \0
+DEL   = -del 2>NUL /q /f $(subst /,\,$1)
+RMDIR = -rd 2>NUL /q /s $(subst /,\,$1)
+MKDIR = -md 2>NUL $(subst /,\,$1)
+COPY  = -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
+NUL   = \0
 endif
 
 AWK := awk
@@ -146,8 +144,7 @@ $(OBJDIR)/%.o: %.c
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(OBJDIR)/version.inc: $(PROOT)/include/libssh2.h $(OBJDIR)
-	@echo Creating $@
-	@$(AWK) -f $(PROOT)/get_ver.awk $< > $@
+	$(AWK) -f $(PROOT)/get_ver.awk $< > $@
 
 objclean:
 	$(call RMDIR, $(OBJDIR))
@@ -159,12 +156,10 @@ $(OBJDIR):
 	$(call MKDIR, $@)
 
 %.exe: $(OBJDIR)/%.o $(OBJDIR)/%.res
-	@echo Linking $@
 	@$(call DEL, $@)
 	$(CC) $(LDFLAGS) $^ -o $@ $(LIBS)
 
 $(OBJDIR)/%.res: $(OBJDIR)/%.rc
-	@echo Creating $@
 	$(RC) -O coff $(RCFLAGS) -i $< -o $@
 
 $(OBJDIR)/%.rc: GNUmakefile $(OBJDIR)/version.inc

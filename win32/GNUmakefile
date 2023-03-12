@@ -17,15 +17,11 @@ ZLIB_PATH ?= $(PROOT)/../zlib
 OPENSSL_PATH ?= $(PROOT)/../openssl
 
 # Edit the path below to point to your Distribution folder.
-ifndef DISTDIR
-DISTDIR = libssh2-$(LIBSSH2_VERSION_STR)-bin-$(ARCH)
-endif
+DISTDIR ?= libssh2-$(LIBSSH2_VERSION_STR)-bin-$(ARCH)
 DISTARC = $(DISTDIR).zip
 
 # Edit the path below to point to your Development folder.
-ifndef DEVLDIR
-DEVLDIR = libssh2-$(LIBSSH2_VERSION_STR)-dev-$(ARCH)
-endif
+DEVLDIR ?= libssh2-$(LIBSSH2_VERSION_STR)-dev-$(ARCH)
 DEVLARC = $(DEVLDIR).zip
 
 # Edit the vars below to change target settings.
@@ -46,19 +42,17 @@ else
 endif
 
 # Platform-dependent helper tool macros
-ifeq ($(findstring /sh,$(SHELL)),/sh)
-DEL    = rm -f $1
-RMDIR  = rm -fr $1
-MKDIR  = mkdir -p $1
-COPY   = -cp -afv $1 $2
-CAT    = cat
-DL     = '
+ifneq ($(findstring /sh,$(SHELL)),)
+DEL   = rm -f $1
+RMDIR = rm -fr $1
+MKDIR = mkdir -p $1
+COPY  = -cp -afv $1 $2
+DL    = '
 else
-DEL    = -del 2>NUL /q /f $(subst /,\,$1)
-RMDIR  = -rd 2>NUL /q /s $(subst /,\,$1)
-MKDIR  = -md 2>NUL $(subst /,\,$1)
-COPY   = -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
-CAT    = type
+DEL   = -del 2>NUL /q /f $(subst /,\,$1)
+RMDIR = -rd 2>NUL /q /s $(subst /,\,$1)
+MKDIR = -md 2>NUL $(subst /,\,$1)
+COPY  = -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
 endif
 
 AWK := awk
@@ -174,7 +168,6 @@ $(OBJDIR)/%.o: %.c
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(OBJDIR)/version.inc: $(PROOT)/get_ver.awk $(PROOT)/include/libssh2.h $(OBJDIR)
-	@echo Creating $@
 	@$(AWK) -f $^ > $@
 
 dist: all $(DISTDIR) $(DISTDIR)/readme.txt
@@ -233,19 +226,16 @@ $(DEVLDIR):
 	@$(call MKDIR, $@)
 
 $(TARGET).a: $(OBJS)
-	@echo Creating $@
 	@$(call DEL, $@)
 	$(AR) rcs $@ $^
 
 $(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY): $(OBJS) $(OBJDIR)/$(TARGET).res
-	@echo Linking $@
 	@$(call DEL, $@)
 	$(CC) $(LDFLAGS) -shared $^ -o $@ $(LIBS) \
 	  -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(libssh2_dll_a_LIBRARY)
 
 
 $(OBJDIR)/%.res: %.rc
-	@echo Creating $@
 	$(RC) -O coff $(RCFLAGS) -i $< -o $@
 
 
