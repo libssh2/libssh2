@@ -105,19 +105,15 @@ endif
 -include $(OBJDIR)/version.inc
 
 # Global flags for all compilers
-CFLAGS  = $(LIBSSH2_CFLAG_EXTRAS) $(OPT) -D$(DB)
-LDFLAGS = $(LIBSSH2_LDFLAG_EXTRAS)
+CFLAGS  += $(LIBSSH2_CFLAG_EXTRAS) $(OPT) -D$(DB)
+LDFLAGS += $(LIBSSH2_LDFLAG_EXTRAS)
 
 LIBEXT = a
 LD = $(LIBSSH2_CC)
 RC = $(LIBSSH2_RC)
 LDFLAGS += -s -shared -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT)
 AR = $(LIBSSH2_AR)
-ARFLAGS = cru
-RCFLAGS = -I $(PROOT)/include -O coff
-CFLAGS += -fno-builtin
-CFLAGS += -fno-strict-aliasing
-CFLAGS += -Wall # -pedantic
+RCFLAGS = -I $(PROOT)/include
 ifeq ($(ARCH),w64)
   CFLAGS  += -m64
   LDFLAGS += -m64
@@ -217,7 +213,7 @@ test: all
 
 $(OBJDIR)/%.o: %.c
 #	@echo Compiling $<
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(OBJDIR)/version.inc: $(PROOT)/get_ver.awk $(PROOT)/include/libssh2.h $(OBJDIR)
 	@echo Creating $@
@@ -281,7 +277,7 @@ $(DEVLDIR):
 $(TARGET).$(LIBEXT): $(OBJS)
 	@echo Creating $@
 	@$(call DEL, $@)
-	$(AR) $(ARFLAGS) $@ $^
+	$(AR) rcs $@ $^
 
 $(libssh2_dll_LIBRARY) $(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT): $(OBJL)
 	@echo Linking $@
@@ -291,7 +287,7 @@ $(libssh2_dll_LIBRARY) $(TARGET)$(LIBSSH2_DLL_A_SUFFIX).$(LIBEXT): $(OBJL)
 
 $(OBJDIR)/%.res: %.rc
 	@echo Creating $@
-	$(RC) $(RCFLAGS) $(LIBSSH2_RCFLAG_EXTRAS) -i $< -o $@
+	$(RC) -O coff $(RCFLAGS) $(LIBSSH2_RCFLAG_EXTRAS) -i $< -o $@
 
 
 $(DISTDIR)/readme.txt: GNUmakefile
