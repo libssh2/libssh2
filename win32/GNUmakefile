@@ -133,11 +133,20 @@ INCLUDES = -I$(PROOT)/win32 -I$(PROOT)/include
 ifdef WITH_WINCNG
   CFLAGS += -DLIBSSH2_WINCNG
   LDLIBS += -lbcrypt -lcrypt32
+  include $(PROOT)/Makefile.WinCNG.inc
 else ifdef MBEDTLS_PATH
   CFLAGS += -DLIBSSH2_MBEDTLS
   CFLAGS += -I"$(MBEDTLS_PATH)/include"
   LIBPATH += -L"$(MBEDTLS_PATH)/libs"
   LDLIBS += -lmbedtls -lmbedx509 -lmbedcrypto
+  include $(PROOT)/Makefile.mbedTLS.inc
+else ifdef WOLFSSL_PATH
+  CFLAGS += -DLIBSSH2_WOLFSSL
+  CFLAGS += -I"$(WOLFSSL_PATH)/include"
+  CFLAGS += -I"$(WOLFSSL_PATH)/include/wolfssl"
+  LIBPATH += -L"$(WOLFSSL_PATH)/lib"
+  LDLIBS += -lwolfssl
+  include $(PROOT)/Makefile.wolfSSL.inc
 else
   CFLAGS += -DLIBSSH2_OPENSSL
   ifndef OPENSSL_INCLUDE
@@ -168,6 +177,7 @@ else
   else
     LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
   endif
+  include $(PROOT)/Makefile.OpenSSL.inc
 endif
 LDLIBS += -lws2_32
 
@@ -184,14 +194,6 @@ endif
 CFLAGS += $(INCLUDES)
 
 vpath %.c $(PROOT)/src
-
-ifdef WITH_WINCNG
-  include $(PROOT)/Makefile.WinCNG.inc
-else ifdef MBEDTLS_PATH
-  include $(PROOT)/Makefile.mbedTLS.inc
-else
-  include $(PROOT)/Makefile.OpenSSL.inc
-endif
 
 # include Makefile.inc to get CSOURCES define
 include $(PROOT)/Makefile.inc
