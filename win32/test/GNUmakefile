@@ -75,6 +75,9 @@ LIBSSH2_CC ?= $(CROSSPREFIX)gcc
 LIBSSH2_AR ?= $(CROSSPREFIX)ar
 
 CC = $(LIBSSH2_CC)
+LD = $(LIBSSH2_CC)
+RC = $(LIBSSH2_RC)
+AR = $(LIBSSH2_AR)
 
 # Set environment var ARCH to your architecture to override autodetection.
 ifndef ARCH
@@ -92,20 +95,23 @@ endif
 # Include the version info retrieved from libssh2.h
 -include $(OBJDIR)/version.inc
 
+CFLAGS ?=
+CPPFLAGS ?=
+RCFLAGS ?=
+LDFLAGS ?=
+LIBS ?=
+
 # Global flags for all compilers
-CFLAGS  = $(LIBSSH2_CFLAG_EXTRAS) $(OPT) -D$(DB)
-LDFLAGS = $(LIBSSH2_LDFLAG_EXTRAS)
+CFLAGS += $(LIBSSH2_CFLAG_EXTRAS)
+LDFLAGS += $(LIBSSH2_LDFLAG_EXTRAS) $(LIBPATH)
+RCFLAGS += $(LIBSSH2_RCFLAG_EXTRAS)
+LIBS += $(LDLIBS)
 
 LIBEXT = a
-LD = $(LIBSSH2_CC)
-RC = $(LIBSSH2_RC)
+CFLAGS += $(OPT)
+CPPFLAGS += -D$(DB)
 LDFLAGS += -s
-AR = $(LIBSSH2_AR)
-ARFLAGS = cru
-RCFLAGS = -I $(PROOT)/include -O coff
-CFLAGS += -fno-builtin
-CFLAGS += -fno-strict-aliasing
-CFLAGS += -Wall # -pedantic
+RCFLAGS += -I $(PROOT)/include
 ifeq ($(ARCH),w64)
   CFLAGS  += -m64
   LDFLAGS += -m64
@@ -116,66 +122,44 @@ else ifeq ($(ARCH),w32)
   RCFLAGS += -F pe-i386
 endif
 
-INCLUDES = -I$(PROOT)/win32 -I$(PROOT)/include
-LIBPATH += -L$(PROOT)/win32
+CPPFLAGS += -I$(PROOT)/win32 -I$(PROOT)/include
+LDFLAGS += -L$(PROOT)/win32
 
 ifdef LINK_STATIC
-  LDLIBS += -llibssh2
+  LIBS += -llibssh2
 else
-  LDLIBS += -llibssh2dll
+  LIBS += -llibssh2dll
 endif
 
 ifdef WITH_WINCNG
-  LDLIBS += -lbcrypt -lcrypt32
 else ifdef MBEDTLS_PATH
-  CFLAGS += -I"$(MBEDTLS_PATH)/include"
-  LIBPATH += -L"$(MBEDTLS_PATH)/libs"
-  LDLIBS += -lmbedtls -lmbedx509 -lmbedcrypto
+  LDFLAGS += -L"$(MBEDTLS_PATH)/lib"
+  LIBS += -lmbedtls -lmbedx509 -lmbedcrypto
+else ifdef WOLFSSL_PATH
+  LDFLAGS += -L"$(WOLFSSL_PATH)/lib"
+  LIBS += -lwolfssl
 else
-  ifndef OPENSSL_INCLUDE
-    ifeq "$(wildcard $(OPENSSL_PATH)/outinc)" "$(OPENSSL_PATH)/outinc"
-      OPENSSL_INCLUDE = $(OPENSSL_PATH)/outinc
-    endif
-    ifeq "$(wildcard $(OPENSSL_PATH)/include)" "$(OPENSSL_PATH)/include"
-      OPENSSL_INCLUDE = $(OPENSSL_PATH)/include
-    endif
-  endif
-  ifneq "$(wildcard $(OPENSSL_INCLUDE)/openssl/opensslv.h)" "$(OPENSSL_INCLUDE)/openssl/opensslv.h"
-    $(error Invalid OPENSSL_PATH: $(OPENSSL_PATH))
-  endif
-  INCLUDES += -I"$(OPENSSL_INCLUDE)"
-  ifndef OPENSSL_LIBPATH
-    OPENSSL_LIBS_STAT = crypto ssl
-    ifeq "$(wildcard $(OPENSSL_PATH)/out)" "$(OPENSSL_PATH)/out"
-      OPENSSL_LIBPATH = $(OPENSSL_PATH)/out
-      OPENSSL_LIBS_DYN = eay32 ssl32
-    endif
-    ifeq "$(wildcard $(OPENSSL_PATH)/lib)" "$(OPENSSL_PATH)/lib"
-      OPENSSL_LIBPATH = $(OPENSSL_PATH)/lib
-      OPENSSL_LIBS_DYN = crypto.dll ssl.dll
-    endif
-  endif
+  OPENSSL_INCLUDE ?= $(OPENSSL_PATH)/include
+  OPENSSL_LIBPATH ?= $(OPENSSL_PATH)/lib
+  OPENSSL_LIBS_STAT = crypto ssl
+  OPENSSL_LIBS_DYN = crypto.dll ssl.dll
   ifdef LINK_STATIC
     ifdef LINK_OPENSSL_STATIC
-      LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_STAT)) -lgdi32
+      LIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_STAT)) -lgdi32
     else
-      LDLIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
+      LIBS += $(patsubst %,$(OPENSSL_LIBPATH)/lib%.$(LIBEXT), $(OPENSSL_LIBS_DYN))
     endif
   endif
 endif
-LDLIBS += -lws2_32
+LIBS += -lws2_32 -lcrypt32 -lbcrypt
 
 ifdef WITH_ZLIB
-  CFLAGS += -DLIBSSH2_HAVE_ZLIB
-  INCLUDES += -I$(ZLIB_PATH)
   ifdef LINK_ZLIB_STATIC
-    LDLIBS += $(ZLIB_PATH)/libz.$(LIBEXT)
+    LIBS += $(ZLIB_PATH)/lib/libz.$(LIBEXT)
   else
-    LDLIBS += $(ZLIB_PATH)/libz.dll.$(LIBEXT)
+    LIBS += $(ZLIB_PATH)/lib/libz.dll.$(LIBEXT)
   endif
 endif
-
-CFLAGS += $(INCLUDES)
 
 vpath %.c $(PROOT)/example
 
@@ -187,8 +171,7 @@ all: prebuild $(TARGETS)
 prebuild: $(OBJDIR) $(OBJDIR)/version.inc
 
 $(OBJDIR)/%.o: %.c
-#	@echo Compiling $<
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(OBJDIR)/version.inc: $(PROOT)/include/libssh2.h $(OBJDIR)
 	@echo Creating $@
@@ -206,11 +189,11 @@ $(OBJDIR):
 %.exe: $(OBJDIR)/%.o $(OBJDIR)/%.res
 	@echo Linking $@
 	@$(call DEL, $@)
-	$(LD) $(LDFLAGS) $^ -o $@ $(LIBPATH) $(LDLIBS)
+	$(LD) $(LDFLAGS) $^ -o $@ $(LIBS)
 
 $(OBJDIR)/%.res: $(OBJDIR)/%.rc
 	@echo Creating $@
-	@$(RC) $(RCFLAGS) $(LIBSSH2_RCFLAG_EXTRAS) -i $< -o $@
+	$(RC) -O coff $(RCFLAGS) -i $< -o $@
 
 $(OBJDIR)/%.rc: GNUmakefile $(OBJDIR)/version.inc
 	@echo $(DL)1 VERSIONINFO$(DL) > $@
