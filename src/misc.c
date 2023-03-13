@@ -483,7 +483,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
     int len, msglen, buflen = sizeof(buffer);
     va_list vargs;
     struct timeval now;
-    static int firstsec;
+    static long firstsec;
     static const char *const contexts[] = {
         "Unknown",
         "Transport",
