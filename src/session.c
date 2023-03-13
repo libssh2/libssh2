@@ -662,7 +662,11 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
         struct timeval tv;
 
         tv.tv_sec = ms_to_next / 1000;
+#ifdef WIN32
+        tv.tv_usec = (long)((ms_to_next - tv.tv_sec*1000) * 1000);
+#else
         tv.tv_usec = (ms_to_next - tv.tv_sec*1000) * 1000;
+#endif
 
         if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
             FD_ZERO(&rfd);
