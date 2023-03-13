@@ -49,10 +49,6 @@ endif
 CPPFLAGS += -I$(PROOT)/win32 -I$(PROOT)/include
 RCFLAGS  += -I$(PROOT)/include
 
-# src
-
-CPPFLAGS_LIB := -DHAVE_STRTOLL
-
 # examples, tests
 
 LIBSSH2_LDFLAGS_BIN += -L$(PROOT)/win32
@@ -186,7 +182,7 @@ test: $(TARGETS_EXAMPLES)
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBSSH2_LDFLAGS_BIN) $< -o $@ $(LIBS) $(LIBS_BIN)
 
 $(OBJDIR)/%.o: %.c
-	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(CPPFLAGS_LIB) -c $< -o $@
+	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY): $(OBJS) $(OBJDIR)/$(TARGET).res
 	@$(call DEL, $@)

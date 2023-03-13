@@ -20,6 +20,7 @@
 # define HAVE_INTTYPES_H
 # define HAVE_SYS_TIME_H
 # define HAVE_GETTIMEOFDAY
+# define HAVE_STRTOLL
 #elif defined(_MSC_VER)
 # if _MSC_VER < 1900
 #  undef HAVE_SNPRINTF
