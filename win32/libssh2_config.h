@@ -22,6 +22,9 @@
 # define HAVE_GETTIMEOFDAY
 # define HAVE_STRTOLL
 #elif defined(_MSC_VER)
+# if _MSC_VER >= 1800
+#  define HAVE_STRTOLL
+# endif
 # if _MSC_VER < 1900
 #  undef HAVE_SNPRINTF
 #  if _MSC_VER < 1500
