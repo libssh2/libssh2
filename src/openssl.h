@@ -304,15 +304,15 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define libssh2_hmac_ctx HMAC_CTX *
 #define libssh2_hmac_ctx_init(ctx) ctx = HMAC_CTX_new()
 #define libssh2_hmac_sha1_init(ctx, key, keylen) \
-  HMAC_Init_ex(*(ctx), key, keylen, EVP_sha1(), NULL)
+  HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_sha1(), NULL)
 #define libssh2_hmac_md5_init(ctx, key, keylen) \
-  HMAC_Init_ex(*(ctx), key, keylen, EVP_md5(), NULL)
+  HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_md5(), NULL)
 #define libssh2_hmac_ripemd160_init(ctx, key, keylen) \
-  HMAC_Init_ex(*(ctx), key, keylen, EVP_ripemd160(), NULL)
+  HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_ripemd160(), NULL)
 #define libssh2_hmac_sha256_init(ctx, key, keylen) \
-  HMAC_Init_ex(*(ctx), key, keylen, EVP_sha256(), NULL)
+  HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_sha256(), NULL)
 #define libssh2_hmac_sha512_init(ctx, key, keylen) \
-  HMAC_Init_ex(*(ctx), key, keylen, EVP_sha512(), NULL)
+  HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_sha512(), NULL)
 
 #define libssh2_hmac_update(ctx, data, datalen) \
   HMAC_Update(ctx, data, datalen)
@@ -323,15 +323,15 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define libssh2_hmac_ctx_init(ctx) \
   HMAC_CTX_init(&ctx)
 #define libssh2_hmac_sha1_init(ctx, key, keylen) \
-  HMAC_Init_ex(ctx, key, keylen, EVP_sha1(), NULL)
+  HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha1(), NULL)
 #define libssh2_hmac_md5_init(ctx, key, keylen) \
-  HMAC_Init_ex(ctx, key, keylen, EVP_md5(), NULL)
+  HMAC_Init_ex(ctx, key, (int)keylen, EVP_md5(), NULL)
 #define libssh2_hmac_ripemd160_init(ctx, key, keylen) \
-  HMAC_Init_ex(ctx, key, keylen, EVP_ripemd160(), NULL)
+  HMAC_Init_ex(ctx, key, (int)keylen, EVP_ripemd160(), NULL)
 #define libssh2_hmac_sha256_init(ctx, key, keylen) \
-  HMAC_Init_ex(ctx, key, keylen, EVP_sha256(), NULL)
+  HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha256(), NULL)
 #define libssh2_hmac_sha512_init(ctx, key, keylen) \
-  HMAC_Init_ex(ctx, key, keylen, EVP_sha512(), NULL)
+  HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha512(), NULL)
 
 #define libssh2_hmac_update(ctx, data, datalen) \
   HMAC_Update(&(ctx), data, datalen)
@@ -404,7 +404,7 @@ libssh2_curve_type;
 #define _libssh2_bn_init() BN_new()
 #define _libssh2_bn_init_from_bin() _libssh2_bn_init()
 #define _libssh2_bn_set_word(bn, val) BN_set_word(bn, val)
-#define _libssh2_bn_from_bin(bn, len, val) BN_bin2bn(val, len, bn)
+#define _libssh2_bn_from_bin(bn, len, val) BN_bin2bn(val, (int)len, bn)
 #define _libssh2_bn_to_bin(bn, val) BN_bn2bin(bn, val)
 #define _libssh2_bn_bytes(bn) BN_num_bytes(bn)
 #define _libssh2_bn_bits(bn) BN_num_bits(bn)
