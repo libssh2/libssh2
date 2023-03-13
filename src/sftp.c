@@ -1185,7 +1185,7 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     }
 
     if(sftp->open_state == libssh2_NB_state_sent) {
-        size_t data_len;
+        size_t data_len = 0;
         unsigned char *data;
         static const unsigned char fopen_responses[2] =
             { SSH_FXP_HANDLE, SSH_FXP_STATUS };

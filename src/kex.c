@@ -1712,6 +1712,11 @@ kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
     else if(strcmp(name, "ecdh-sha2-nistp521") == 0)
         type = LIBSSH2_EC_CURVE_NISTP521;
     else {
+/* silence:
+   warning C4701: potentially uninitialized local variable 'type' used */
+#if defined(_MSC_VER)
+        type = (libssh2_curve_type)0;
+#endif
         ret = -1;
     }
 
@@ -2298,7 +2303,13 @@ kex_method_ecdh_key_exchange
 
     if(key_state->state == libssh2_NB_state_sent2) {
 
-        (void)kex_session_ecdh_curve_type(session->kex->name, &type);
+        rc = kex_session_ecdh_curve_type(session->kex->name, &type);
+
+        if(rc != 0) {
+            ret = _libssh2_error(session, -1,
+                                 "Unknown KEX nistp curve type");
+            goto ecdh_clean_exit;
+        }
 
         ret = ecdh_sha2_nistp(session, type, key_state->data,
                               key_state->data_len,
