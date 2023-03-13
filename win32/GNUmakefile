@@ -102,13 +102,14 @@ else ifdef WOLFSSL_PATH
   _LIBS += -lwolfssl
   include $(PROOT)/Makefile.wolfSSL.inc
 else
-  CPPFLAGS += -DLIBSSH2_OPENSSL
   OPENSSL_PATH ?= $(PROOT)/../openssl
+  CPPFLAGS += -DLIBSSH2_OPENSSL
   OPENSSL_INCLUDE ?= $(OPENSSL_PATH)/include
   OPENSSL_LIBPATH ?= $(OPENSSL_PATH)/lib
   CPPFLAGS += -I"$(OPENSSL_INCLUDE)"
   _LDFLAGS += -L"$(OPENSSL_LIBPATH)"
-  _LIBS += -lssl -lcrypto
+  OPENSSL_LIBS ?= -lssl -lcrypto
+  _LIBS += $(OPENSSL_LIBS)
   include $(PROOT)/Makefile.OpenSSL.inc
 endif
 
