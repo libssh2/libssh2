@@ -91,7 +91,7 @@ static void setup_fixture_workdir(void)
 #else
     char wd_buf[MAXPATHLEN];
 #endif
-    char *wd = getenv("FIXTURE_WORKDIR");
+    const char *wd = getenv("FIXTURE_WORKDIR");
 #ifdef FIXTURE_WORKDIR
     if(!wd) {
         wd = FIXTURE_WORKDIR;
