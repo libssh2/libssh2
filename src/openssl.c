@@ -196,8 +196,14 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
         nid_type = NID_sha512;
         ret = _libssh2_sha512(m, m_len, hash);
     }
-    else
+    else {
+/* silence:
+   warning C4701: potentially uninitialized local variable 'nid_type' used */
+#if defined(_MSC_VER)
+        nid_type = 0;
+#endif
         ret = -1; /* unsupported digest */
+    }
 
     if(ret != 0) {
         free(hash);
@@ -348,6 +354,11 @@ _libssh2_ecdsa_curve_type_from_name(const char *name,
     else if(strcmp(name, "ecdsa-sha2-nistp521") == 0)
         type = LIBSSH2_EC_CURVE_NISTP521;
     else {
+/* silence:
+   warning C4701: potentially uninitialized local variable 'type' used */
+#if defined(_MSC_VER)
+        type = (libssh2_curve_type)0;
+#endif
         ret = -1;
     }
 
