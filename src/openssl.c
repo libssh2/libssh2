@@ -1444,7 +1444,7 @@ gen_publickey_from_ed_evp(LIBSSH2_SESSION *session,
     }
 
     _libssh2_store_str(&bufPos, methodName, sizeof(methodName) - 1);
-    _libssh2_store_u32(&bufPos, rawKeyLen);
+    _libssh2_store_u32(&bufPos, (uint32_t) rawKeyLen);
 
     if(EVP_PKEY_get_raw_public_key(pk, bufPos, &rawKeyLen) != 1) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
