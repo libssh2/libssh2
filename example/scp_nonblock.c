@@ -238,6 +238,7 @@ int main(int argc, char *argv[])
 
     while(got < fileinfo.st_size) {
         char mem[1024*24];
+        ssize_t nread;
 
         do {
             int amount = sizeof(mem);
@@ -247,15 +248,15 @@ int main(int argc, char *argv[])
             }
 
             /* loop until we block */
-            rc = libssh2_channel_read(channel, mem, amount);
-            if(rc > 0) {
-                write(1, mem, rc);
-                got += rc;
-                total += rc;
+            nread = libssh2_channel_read(channel, mem, amount);
+            if(nread > 0) {
+                write(1, mem, nread);
+                got += nread;
+                total += nread;
             }
-        } while(rc > 0);
+        } while(nread > 0);
 
-        if((rc == LIBSSH2_ERROR_EAGAIN) && (got < fileinfo.st_size)) {
+        if((nread == LIBSSH2_ERROR_EAGAIN) && (got < fileinfo.st_size)) {
             /* this is due to blocking that would occur otherwise
             so we loop on this condition */
 

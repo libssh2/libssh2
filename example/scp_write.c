@@ -191,16 +191,17 @@ int main(int argc, char *argv[])
         ptr = mem;
 
         do {
+            ssize_t nwritten;
             /* write the same data over and over, until error or completion */
-            rc = libssh2_channel_write(channel, ptr, nread);
-            if(rc < 0) {
-                fprintf(stderr, "ERROR %d\n", rc);
+            nwritten = libssh2_channel_write(channel, ptr, nread);
+            if(nwritten < 0) {
+                fprintf(stderr, "ERROR %zd\n", nwritten);
                 break;
             }
             else {
-                /* rc indicates how many bytes were written this time */
-                ptr += rc;
-                nread -= rc;
+                /* nwritten indicates how many bytes were written this time */
+                ptr += nwritten;
+                nread -= nwritten;
             }
         } while(nread);
 

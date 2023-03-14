@@ -280,15 +280,16 @@ int main(int argc, char *argv[])
             }
             wr = 0;
             while(wr < len) {
-                i = libssh2_channel_write(channel, buf + wr, len - wr);
-                if(LIBSSH2_ERROR_EAGAIN == i) {
+                ssize_t nwritten = libssh2_channel_write(channel,
+                                                         buf + wr, len - wr);
+                if(nwritten == LIBSSH2_ERROR_EAGAIN) {
                     continue;
                 }
-                if(i < 0) {
-                    fprintf(stderr, "libssh2_channel_write: %d\n", i);
+                if(nwritten < 0) {
+                    fprintf(stderr, "libssh2_channel_write: %zd\n", nwritten);
                     goto shutdown;
                 }
-                wr += i;
+                wr += nwritten;
             }
         }
         for(;;) {
@@ -296,17 +297,17 @@ int main(int argc, char *argv[])
             if(LIBSSH2_ERROR_EAGAIN == len)
                 break;
             else if(len < 0) {
-                fprintf(stderr, "libssh2_channel_read: %d", (int)len);
+                fprintf(stderr, "libssh2_channel_read: %zd", len);
                 goto shutdown;
             }
             wr = 0;
             while(wr < len) {
-                i = send(forwardsock, buf + wr, len - wr, 0);
-                if(i <= 0) {
+                ssize_t nsent = send(forwardsock, buf + wr, len - wr, 0);
+                if(nsent <= 0) {
                     perror("write");
                     goto shutdown;
                 }
-                wr += i;
+                wr += nsent;
             }
             if(libssh2_channel_eof(channel)) {
                 fprintf(stderr, "The server at %s:%d disconnected!\n",

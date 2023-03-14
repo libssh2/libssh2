@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
     int rc;
     int exitcode;
     char *exitsignal = (char *)"none";
-    int bytecount = 0;
+    ssize_t bytecount = 0;
     size_t len;
     LIBSSH2_KNOWNHOSTS *nh;
     int type;
@@ -259,25 +259,27 @@ int main(int argc, char *argv[])
         exit(1);
     }
     for(;;) {
+        ssize_t nread;
         /* loop until we block */
         do {
             char buffer[0x4000];
-            rc = libssh2_channel_read(channel, buffer, sizeof(buffer) );
-            if(rc > 0) {
-                int i;
-                bytecount += rc;
+            nread = libssh2_channel_read(channel, buffer, sizeof(buffer));
+            if(nread > 0) {
+                ssize_t i;
+                bytecount += nread;
                 fprintf(stderr, "We read:\n");
-                for(i = 0; i < rc; ++i)
+                for(i = 0; i < nread; ++i)
                     fputc(buffer[i], stderr);
                 fprintf(stderr, "\n");
             }
             else {
-                if(rc != LIBSSH2_ERROR_EAGAIN)
+                if(nread != LIBSSH2_ERROR_EAGAIN)
                     /* no need to output this for the EAGAIN case */
-                    fprintf(stderr, "libssh2_channel_read returned %d\n", rc);
+                    fprintf(stderr, "libssh2_channel_read returned %zd\n",
+                            nread);
             }
         }
-        while(rc > 0);
+        while(nread > 0);
 
         /* this is due to blocking that would occur otherwise so we loop on
            this condition */
@@ -300,7 +302,7 @@ int main(int argc, char *argv[])
     if(exitsignal)
         fprintf(stderr, "\nGot signal: %s\n", exitsignal);
     else
-        fprintf(stderr, "\nEXIT: %d bytecount: %d\n", exitcode, bytecount);
+        fprintf(stderr, "\nEXIT: %d bytecount: %zd\n", exitcode, bytecount);
 
     libssh2_channel_free(channel);
     channel = NULL;

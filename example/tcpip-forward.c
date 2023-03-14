@@ -258,6 +258,7 @@ int main(int argc, char *argv[])
             goto shutdown;
         }
         if(rc && FD_ISSET(forwardsock, &fds)) {
+            ssize_t nwritten;
             len = recv(forwardsock, buf, sizeof(buf), 0);
             if(len < 0) {
                 perror("read");
@@ -270,30 +271,31 @@ int main(int argc, char *argv[])
             }
             wr = 0;
             do {
-                i = libssh2_channel_write(channel, buf, len);
-                if(i < 0) {
-                    fprintf(stderr, "libssh2_channel_write: %d\n", i);
+                nwritten = libssh2_channel_write(channel, buf, len);
+                if(nwritten < 0) {
+                    fprintf(stderr, "libssh2_channel_write: %zd\n", nwritten);
                     goto shutdown;
                 }
-                wr += i;
-            } while(i > 0 && wr < len);
+                wr += nwritten;
+            } while(nwritten > 0 && wr < len);
         }
         for(;;) {
+            ssize_t nsent;
             len = libssh2_channel_read(channel, buf, sizeof(buf));
             if(LIBSSH2_ERROR_EAGAIN == len)
                 break;
             else if(len < 0) {
-                fprintf(stderr, "libssh2_channel_read: %d", (int)len);
+                fprintf(stderr, "libssh2_channel_read: %zd", len);
                 goto shutdown;
             }
             wr = 0;
             while(wr < len) {
-                i = send(forwardsock, buf + wr, len - wr, 0);
-                if(i <= 0) {
+                nsent = send(forwardsock, buf + wr, len - wr, 0);
+                if(nsent <= 0) {
                     perror("write");
                     goto shutdown;
                 }
-                wr += i;
+                wr += nsent;
             }
             if(libssh2_channel_eof(channel)) {
                 fprintf(stderr, "The remote client at %s:%d disconnected!\n",

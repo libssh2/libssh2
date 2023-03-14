@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
     char *ptr;
     struct stat fileinfo;
     time_t start;
-    long total = 0;
+    ssize_t total = 0;
     int duration;
     size_t prev;
 
@@ -236,29 +236,30 @@ int main(int argc, char *argv[])
 
         prev = 0;
         do {
-            while((rc = libssh2_channel_write(channel, ptr, nread)) ==
+            ssize_t nwritten;
+            while((nwritten = libssh2_channel_write(channel, ptr, nread)) ==
                   LIBSSH2_ERROR_EAGAIN) {
                 waitsocket(sock, session);
                 prev = 0;
             }
-            if(rc < 0) {
-                fprintf(stderr, "ERROR %d total %ld / %d prev %d\n", rc,
-                        total, (int)nread, (int)prev);
+            if(nwritten < 0) {
+                fprintf(stderr, "ERROR %zd total %zd / %zd prev %zd\n",
+                        nwritten, total, nread, prev);
                 break;
             }
             else {
                 prev = nread;
 
-                /* rc indicates how many bytes were written this time */
-                nread -= rc;
-                ptr += rc;
+                /* nwritten indicates how many bytes were written this time */
+                nread -= nwritten;
+                ptr += nwritten;
             }
         } while(nread);
     } while(!nread); /* only continue if nread was drained */
 
     duration = (int)(time(NULL)-start);
 
-    fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
+    fprintf(stderr, "%zd bytes in %d seconds makes %.1f bytes/sec\n",
            total, duration, total/(double)duration);
 
     fprintf(stderr, "Sending EOF\n");

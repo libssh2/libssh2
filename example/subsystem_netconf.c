@@ -85,7 +85,7 @@ static ssize_t netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
         if(LIBSSH2_ERROR_EAGAIN == len)
             continue;
         else if(len < 0) {
-            fprintf(stderr, "libssh2_channel_read: %d\n", (int)len);
+            fprintf(stderr, "libssh2_channel_read: %zd\n", len);
             return -1;
         }
         rd += len;
@@ -273,8 +273,8 @@ int main(int argc, char *argv[])
     if(-1 == len)
         goto shutdown;
 
-    fprintf(stderr, "Got %d bytes:\n----------------------\n%s",
-            (int)len, buf);
+    fprintf(stderr, "Got %zd bytes:\n----------------------\n%s",
+            len, buf);
 
     fprintf(stderr, "Sending NETCONF <rpc>\n");
     snprintf(buf, sizeof(buf),
@@ -291,8 +291,8 @@ int main(int argc, char *argv[])
     if(-1 == len)
         goto shutdown;
 
-    fprintf(stderr, "Got %d bytes:\n----------------------\n%s",
-            (int)len, buf);
+    fprintf(stderr, "Got %zd bytes:\n----------------------\n%s",
+            len, buf);
 
 shutdown:
     if(channel)

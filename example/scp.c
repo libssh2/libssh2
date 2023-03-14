@@ -159,20 +159,21 @@ int main(int argc, char *argv[])
     while(got < fileinfo.st_size) {
         char mem[1024];
         int amount = sizeof(mem);
+        ssize_t nread;
 
-        if((fileinfo.st_size -got) < amount) {
-            amount = (int)(fileinfo.st_size -got);
+        if((fileinfo.st_size - got) < amount) {
+            amount = (int)(fileinfo.st_size - got);
         }
 
-        rc = libssh2_channel_read(channel, mem, amount);
-        if(rc > 0) {
-            write(1, mem, rc);
+        nread = libssh2_channel_read(channel, mem, amount);
+        if(nread > 0) {
+            write(1, mem, nread);
         }
-        else if(rc < 0) {
-            fprintf(stderr, "libssh2_channel_read() failed: %d\n", rc);
+        else if(nread < 0) {
+            fprintf(stderr, "libssh2_channel_read() failed: %zd\n", nread);
             break;
         }
-        got += rc;
+        got += nread;
     }
 
     libssh2_channel_free(channel);
