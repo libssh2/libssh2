@@ -126,7 +126,7 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,
     if(!ret)
         ret = mbedtls_cipher_setkey(ctx,
                   secret,
-                  mbedtls_cipher_info_get_key_bitlen(cipher_info),
+                  (int)mbedtls_cipher_info_get_key_bitlen(cipher_info),
                   op);
 
     if(!ret)
@@ -526,11 +526,11 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
     ret = mbedtls_rsa_pkcs1_verify(rsactx,
-                                   md_type, hash_len,
+                                   md_type, (unsigned int)hash_len,
                                    hash, sig);
 #else
     ret = mbedtls_rsa_pkcs1_verify(rsactx, NULL, NULL, MBEDTLS_RSA_PUBLIC,
-                                   md_type, hash_len,
+                                   md_type, (unsigned int)hash_len,
                                    hash, sig);
 #endif
     free(hash);
@@ -558,7 +558,7 @@ _libssh2_mbedtls_rsa_sha2_sign(LIBSSH2_SESSION *session,
 {
     int ret;
     unsigned char *sig;
-    unsigned int sig_len;
+    size_t sig_len;
     int md_type;
     (void)hash_len;
 
@@ -587,11 +587,11 @@ _libssh2_mbedtls_rsa_sha2_sign(LIBSSH2_SESSION *session,
         ret = mbedtls_rsa_pkcs1_sign(rsa,
                                      mbedtls_ctr_drbg_random,
                                      &_libssh2_mbedtls_ctr_drbg,
-                                     md_type, hash_len,
+                                     md_type, (unsigned int)hash_len,
                                      hash, sig);
 #else
         ret = mbedtls_rsa_pkcs1_sign(rsa, NULL, NULL, MBEDTLS_RSA_PRIVATE,
-                                     md_type, hash_len,
+                                     md_type, (unsigned int)hash_len,
                                      hash, sig);
 #endif
     }
@@ -634,8 +634,8 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     unsigned char *key;
     unsigned char *p;
 
-    e_bytes = mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(E));
-    n_bytes = mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N));
+    e_bytes = (int)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(E));
+    n_bytes = (int)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N));
 
     /* Key form is "ssh-rsa" + e + n. */
     len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
