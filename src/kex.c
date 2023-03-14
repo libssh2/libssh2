@@ -3106,8 +3106,8 @@ kex_method_strlen(LIBSSH2_COMMON_METHOD ** method)
 /* kex_method_list
  * Generate formatted preference list in buf
  */
-static size_t
-kex_method_list(unsigned char *buf, size_t list_strlen,
+static uint32_t
+kex_method_list(unsigned char *buf, uint32_t list_strlen,
                 LIBSSH2_COMMON_METHOD ** method)
 {
     _libssh2_htonu32(buf, list_strlen);
@@ -3118,7 +3118,7 @@ kex_method_list(unsigned char *buf, size_t list_strlen,
     }
 
     while(*method && (*method)->name) {
-        int mlen = strlen((*method)->name);
+        uint32_t mlen = (uint32_t)strlen((*method)->name);
         memcpy(buf, (*method)->name, mlen);
         buf += mlen;
         *(buf++) = ',';
@@ -3131,7 +3131,7 @@ kex_method_list(unsigned char *buf, size_t list_strlen,
 
 
 #define LIBSSH2_METHOD_PREFS_LEN(prefvar, defaultvar)           \
-    ((prefvar) ? strlen(prefvar) :                              \
+    (uint32_t)((prefvar) ? strlen(prefvar) :                    \
      kex_method_strlen((LIBSSH2_COMMON_METHOD**)(defaultvar)))
 
 #define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)  \
@@ -3154,15 +3154,16 @@ static int kexinit(LIBSSH2_SESSION * session)
     /* 62 = packet_type(1) + cookie(16) + first_packet_follows(1) +
        reserved(4) + length longs(40) */
     size_t data_len = 62;
-    size_t kex_len, hostkey_len = 0;
-    size_t crypt_cs_len, crypt_sc_len;
-    size_t comp_cs_len, comp_sc_len;
-    size_t mac_cs_len, mac_sc_len;
-    size_t lang_cs_len, lang_sc_len;
     unsigned char *data, *s;
     int rc;
 
     if(session->kexinit_state == libssh2_NB_state_idle) {
+        uint32_t kex_len, hostkey_len;
+        uint32_t crypt_cs_len, crypt_sc_len;
+        uint32_t comp_cs_len, comp_sc_len;
+        uint32_t mac_cs_len, mac_sc_len;
+        uint32_t lang_cs_len, lang_sc_len;
+
         kex_len =
             LIBSSH2_METHOD_PREFS_LEN(session->kex_prefs, libssh2_kex_methods);
         hostkey_len =
