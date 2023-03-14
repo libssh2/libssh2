@@ -298,7 +298,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                  session->scpRecv_command_len,
                  "scp -%sf ", sb?"p":"");
 
-        cmd_len = strlen((char *)session->scpRecv_command);
+        cmd_len = (int)strlen((char *)session->scpRecv_command);
         cmd_len += shell_quotearg(path,
                                   &session->scpRecv_command[cmd_len],
                                   session->scpRecv_command_len - cmd_len);
@@ -859,7 +859,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                  session->scpSend_command_len,
                  "scp -%st ", (mtime || atime)?"p":"");
 
-        cmd_len = strlen((char *)session->scpSend_command);
+        cmd_len = (int)strlen((char *)session->scpSend_command);
         cmd_len += shell_quotearg(path,
                                   &session->scpSend_command[cmd_len],
                                   session->scpSend_command_len - cmd_len);
