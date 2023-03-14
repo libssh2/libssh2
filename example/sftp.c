@@ -278,12 +278,13 @@ int main(int argc, char *argv[])
     fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
     do {
         char mem[1024];
+        ssize_t nread;
 
         /* loop until we fail */
         fprintf(stderr, "libssh2_sftp_read()!\n");
-        rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
-        if(rc > 0) {
-            write(1, mem, rc);
+        nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
+        if(nread > 0) {
+            write(1, mem, nread);
         }
         else {
             break;

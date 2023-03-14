@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     long time_ms;
 #endif
     int rc;
-    int total = 0;
+    ssize_t total = 0;
     int spin = 0;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
@@ -258,16 +258,17 @@ int main(int argc, char *argv[])
     fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
     do {
         char mem[1024*24];
+        ssize_t nread;
 
         /* loop until we fail */
-        while((rc = libssh2_sftp_read(sftp_handle, mem,
-                                       sizeof(mem))) == LIBSSH2_ERROR_EAGAIN) {
+        while((nread = libssh2_sftp_read(sftp_handle, mem,
+                              sizeof(mem))) == LIBSSH2_ERROR_EAGAIN) {
             spin++;
             waitsocket(sock, session); /* now we wait */
         }
-        if(rc > 0) {
-            total += rc;
-            write(1, mem, rc);
+        if(nread > 0) {
+            total += nread;
+            write(1, mem, nread);
         }
         else {
             break;
@@ -277,11 +278,11 @@ int main(int argc, char *argv[])
 #ifdef HAVE_GETTIMEOFDAY
     gettimeofday(&end, NULL);
     time_ms = tvdiff(end, start);
-    fprintf(stderr, "Got %d bytes in %ld ms = %.1f bytes/sec spin: %d\n",
+    fprintf(stderr, "Got %zd bytes in %ld ms = %.1f bytes/sec spin: %d\n",
             total,
             time_ms, total/(time_ms/1000.0), spin);
 #else
-    fprintf(stderr, "Got %d bytes spin: %d\n", total, spin);
+    fprintf(stderr, "Got %zd bytes spin: %d\n", total, spin);
 #endif
 
     libssh2_sftp_close(sftp_handle);

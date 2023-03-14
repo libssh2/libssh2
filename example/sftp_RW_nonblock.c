@@ -237,21 +237,22 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
     do {
+        ssize_t nread;
         do {
             /* read in a loop until we block */
-            rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
-            fprintf(stderr, "libssh2_sftp_read returned %d\n",
-                    rc);
+            nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
+            fprintf(stderr, "libssh2_sftp_read returned %zd\n",
+                    nread);
 
-            if(rc > 0) {
+            if(nread > 0) {
                 /* write to stderr */
-                write(2, mem, rc);
+                write(2, mem, nread);
                 /* write to temporary storage area */
-                fwrite(mem, rc, 1, tempstorage);
+                fwrite(mem, nread, 1, tempstorage);
             }
-        } while(rc > 0);
+        } while(nread > 0);
 
-        if(rc != LIBSSH2_ERROR_EAGAIN) {
+        if(nread != LIBSSH2_ERROR_EAGAIN) {
             /* error or end of file */
             break;
         }
@@ -296,6 +297,7 @@ int main(int argc, char *argv[])
         size_t nread;
         char *ptr;
         do {
+            ssize_t nwritten;
             nread = fread(mem, 1, sizeof(mem), tempstorage);
             if(nread <= 0) {
                 /* end of file */
@@ -305,13 +307,13 @@ int main(int argc, char *argv[])
 
             do {
                 /* write data in a loop until we block */
-                rc = libssh2_sftp_write(sftp_handle, ptr,
-                                        nread);
-                ptr += rc;
-                nread -= nread;
-            } while(rc >= 0);
+                nwritten = libssh2_sftp_write(sftp_handle, ptr,
+                                              nread);
+                ptr += nwritten;
+                nread -= nwritten;
+            } while(nwritten >= 0);
 
-            if(rc != LIBSSH2_ERROR_EAGAIN) {
+            if(nwritten != LIBSSH2_ERROR_EAGAIN) {
                 /* error or end of file */
                 break;
             }

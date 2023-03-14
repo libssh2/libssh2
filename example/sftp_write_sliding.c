@@ -95,8 +95,9 @@ int main(int argc, char *argv[])
     char mem[1024 * 1000];
     size_t nread;
     size_t memuse;
+    ssize_t nwritten;
     time_t start;
-    long total = 0;
+    ssize_t total = 0;
     int duration;
 
 #ifdef WIN32
@@ -258,27 +259,27 @@ int main(int argc, char *argv[])
         total += nread;
 
         /* write data in a loop until we block */
-        while((rc = libssh2_sftp_write(sftp_handle, mem, memuse)) ==
+        while((nwritten = libssh2_sftp_write(sftp_handle, mem, memuse)) ==
                LIBSSH2_ERROR_EAGAIN) {
             waitsocket(sock, session);
         }
-        if(rc < 0)
+        if(nwritten < 0)
             break;
 
-        if(memuse - rc) {
+        if(memuse - nwritten) {
             /* make room for more data at the end of the buffer */
-            memmove(&mem[0], &mem[rc], memuse - rc);
-            memuse -= rc;
+            memmove(&mem[0], &mem[nwritten], memuse - nwritten);
+            memuse -= nwritten;
         }
         else
             /* 'mem' was consumed fully */
             memuse = 0;
 
-    } while(rc > 0);
+    } while(nwritten > 0);
 
     duration = (int)(time(NULL)-start);
 
-    fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
+    fprintf(stderr, "%zd bytes in %d seconds makes %.1f bytes/sec\n",
            total, duration, total/(double)duration);
 
 

@@ -94,9 +94,10 @@ int main(int argc, char *argv[])
     LIBSSH2_SFTP_HANDLE *sftp_handle;
     char mem[1024 * 100];
     size_t nread;
+    ssize_t nwritten;
     char *ptr;
     time_t start;
-    long total = 0;
+    ssize_t total = 0;
     int duration;
 
 #ifdef WIN32
@@ -254,21 +255,21 @@ int main(int argc, char *argv[])
 
         do {
             /* write data in a loop until we block */
-            while((rc = libssh2_sftp_write(sftp_handle, ptr, nread)) ==
+            while((nwritten = libssh2_sftp_write(sftp_handle, ptr, nread)) ==
                    LIBSSH2_ERROR_EAGAIN) {
                 waitsocket(sock, session);
             }
-            if(rc < 0)
+            if(nwritten < 0)
                 break;
-            ptr += rc;
-            nread -= rc;
+            ptr += nwritten;
+            nread -= nwritten;
 
         } while(nread);
-    } while(rc > 0);
+    } while(nwritten > 0);
 
     duration = (int)(time(NULL)-start);
 
-    fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
+    fprintf(stderr, "%zd bytes in %d seconds makes %.1f bytes/sec\n",
            total, duration, total/(double)duration);
 
 

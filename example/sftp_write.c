@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
     LIBSSH2_SFTP_HANDLE *sftp_handle;
     char mem[1024*100];
     size_t nread;
+    ssize_t nwritten;
     char *ptr;
 
 #ifdef WIN32
@@ -197,14 +198,14 @@ int main(int argc, char *argv[])
 
         do {
             /* write data in a loop until we block */
-            rc = libssh2_sftp_write(sftp_handle, ptr, nread);
-            if(rc < 0)
+            nwritten = libssh2_sftp_write(sftp_handle, ptr, nread);
+            if(nwritten < 0)
                 break;
-            ptr += rc;
-            nread -= rc;
+            ptr += nwritten;
+            nread -= nwritten;
         } while(nread);
 
-    } while(rc > 0);
+    } while(nwritten > 0);
 
     libssh2_sftp_close(sftp_handle);
     libssh2_sftp_shutdown(sftp_session);
