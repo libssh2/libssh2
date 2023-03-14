@@ -122,9 +122,9 @@
   until then it is kept static and in this source file.
 */
 
-static unsigned
+static size_t
 shell_quotearg(const char *path, unsigned char *buf,
-               unsigned bufsize)
+               size_t bufsize)
 {
     const char *src;
     unsigned char *dst, *endp;
@@ -299,9 +299,9 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                  "scp -%sf ", sb?"p":"");
 
         cmd_len = (int)strlen((char *)session->scpRecv_command);
-        cmd_len += shell_quotearg(path,
-                                  &session->scpRecv_command[cmd_len],
-                                  session->scpRecv_command_len - cmd_len);
+        cmd_len += (int)shell_quotearg(path,
+                                       &session->scpRecv_command[cmd_len],
+                                       session->scpRecv_command_len - cmd_len);
 
         /* the command to exec should _not_ be NUL-terminated */
         session->scpRecv_command_len = cmd_len;
@@ -860,9 +860,9 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                  "scp -%st ", (mtime || atime)?"p":"");
 
         cmd_len = (int)strlen((char *)session->scpSend_command);
-        cmd_len += shell_quotearg(path,
-                                  &session->scpSend_command[cmd_len],
-                                  session->scpSend_command_len - cmd_len);
+        cmd_len += (int)shell_quotearg(path,
+                                       &session->scpSend_command[cmd_len],
+                                       session->scpSend_command_len - cmd_len);
 
         /* the command to exec should _not_ be NUL-terminated */
         session->scpSend_command_len = cmd_len;
