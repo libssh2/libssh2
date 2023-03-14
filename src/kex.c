@@ -3968,7 +3968,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
                             const char *prefs)
 {
     char **prefvar, *s, *newprefs;
-    int prefs_len = strlen(prefs);
+    size_t prefs_len = strlen(prefs);
     const LIBSSH2_COMMON_METHOD **mlist;
 
     switch(method_type) {
