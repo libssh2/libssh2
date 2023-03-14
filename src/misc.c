@@ -344,15 +344,15 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
             d[len] = (unsigned char)(v << 2);
             break;
         case 1:
-            d[len++] |= v >> 4;
+            d[len++] |= (unsigned char)(v >> 4);
             d[len] = (unsigned char)(v << 4);
             break;
         case 2:
-            d[len++] |= v >> 2;
+            d[len++] |= (unsigned char)(v >> 2);
             d[len] = (unsigned char)(v << 6);
             break;
         case 3:
-            d[len++] |= v;
+            d[len++] |= (unsigned char)v;
             break;
         }
         i++;
