@@ -91,7 +91,7 @@ _libssh2_mbedtls_random(unsigned char *buf, int len)
 }
 
 static void
-_libssh2_mbedtls_safe_free(void *buf, int len)
+_libssh2_mbedtls_safe_free(void *buf, size_t len)
 {
     if(!buf)
         return;

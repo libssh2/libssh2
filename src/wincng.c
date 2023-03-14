@@ -429,7 +429,7 @@ _libssh2_wincng_random(void *buf, int len)
 }
 
 static void
-_libssh2_wincng_safe_free(void *buf, int len)
+_libssh2_wincng_safe_free(void *buf, size_t len)
 {
     if(!buf)
         return;
