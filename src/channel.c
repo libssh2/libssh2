@@ -1332,7 +1332,7 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         _libssh2_store_str(&s, auth_proto ? auth_proto : "MIT-MAGIC-COOKIE-1",
                            proto_len);
 
-        _libssh2_store_u32(&s, cookie_len);
+        _libssh2_store_u32(&s, (uint32_t)cookie_len);
         if(auth_cookie) {
             memcpy(s, auth_cookie, cookie_len);
         }
@@ -1482,7 +1482,7 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         *(s++) = 0x01;
 
         if(message)
-            _libssh2_store_u32(&s, message_len);
+            _libssh2_store_u32(&s, (uint32_t)message_len);
 
         channel->process_state = libssh2_NB_state_created;
     }

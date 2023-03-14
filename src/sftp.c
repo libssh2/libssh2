@@ -649,24 +649,24 @@ sftp_attr2bin(unsigned char *p, const LIBSSH2_SFTP_ATTRIBUTES * attrs)
         return 4;
     }
 
-    _libssh2_store_u32(&s, attrs->flags & flag_mask);
+    _libssh2_store_u32(&s, (uint32_t)(attrs->flags & flag_mask));
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_SIZE) {
         _libssh2_store_u64(&s, attrs->filesize);
     }
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_UIDGID) {
-        _libssh2_store_u32(&s, attrs->uid);
-        _libssh2_store_u32(&s, attrs->gid);
+        _libssh2_store_u32(&s, (uint32_t)attrs->uid);
+        _libssh2_store_u32(&s, (uint32_t)attrs->gid);
     }
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) {
-        _libssh2_store_u32(&s, attrs->permissions);
+        _libssh2_store_u32(&s, (uint32_t)attrs->permissions);
     }
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_ACMODTIME) {
-        _libssh2_store_u32(&s, attrs->atime);
-        _libssh2_store_u32(&s, attrs->mtime);
+        _libssh2_store_u32(&s, (uint32_t)attrs->atime);
+        _libssh2_store_u32(&s, (uint32_t)attrs->mtime);
     }
 
     return (s - p);
