@@ -90,7 +90,7 @@ static void kbd_callback(const char *name, int name_len,
         buf[n] = 0;
 
         responses[i].text = strdup(buf);
-        responses[i].length = n;
+        responses[i].length = (unsigned int)n;
 
         fprintf(stderr, "Response %d from user is '", i);
         fwrite(responses[i].text, 1, responses[i].length, stderr);
@@ -195,7 +195,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
     fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password") != NULL) {
         auth_pw |= 1;

@@ -18,7 +18,8 @@ int test(LIBSSH2_SESSION *session)
     size_t len = 0;
     const char *userauth_list = NULL;
 
-    userauth_list = libssh2_userauth_list(session, USERNAME, strlen(USERNAME));
+    userauth_list = libssh2_userauth_list(session, USERNAME,
+                                          (unsigned int)strlen(USERNAME));
     if(userauth_list == NULL) {
         print_last_session_error("libssh2_userauth_list");
         return 1;
