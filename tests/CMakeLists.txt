@@ -201,9 +201,9 @@ foreach(test
   hmac-sha1-96
   hmac-sha2-256
   hmac-sha2-512
-  hmac-sha1-etm
-  hmac-sha2-256-etm
-  hmac-sha2-512-etm
+  hmac-sha1-etm@openssh.com
+  hmac-sha2-256-etm@openssh.com
+  hmac-sha2-512-etm@openssh.com
   )
   add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
   set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
