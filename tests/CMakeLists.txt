@@ -193,25 +193,20 @@ foreach(test ${TESTS})
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
-if(WIN32)
-    set(test_ext ".bat")
-endif()
-
 # MAC tests
 foreach(test
-  read_hmac-md5
-  read_hmac-md5-96
-  read_hmac-sha1
-  read_hmac-sha1-96
-  read_hmac-sha2-256
-  read_hmac-sha2-512
-  read_hmac-sha1-etm
-  read_hmac-sha2-256-etm
-  read_hmac-sha2-512-etm
+  hmac-md5
+  hmac-md5-96
+  hmac-sha1
+  hmac-sha1-96
+  hmac-sha2-256
+  hmac-sha2-512
+  hmac-sha1-etm
+  hmac-sha2-256-etm
+  hmac-sha2-512-etm
   )
-  add_test(
-      NAME test_${test} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/test_${test}${test_ext}")
-  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "builddir=$<TARGET_FILE_DIR:test_read>")
+  add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
+  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
 endforeach()
 
 # CRYPT tests
