@@ -56,13 +56,13 @@ enum {
 
 static int netconf_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t len)
 {
-    int i;
+    ssize_t i;
     ssize_t wr = 0;
 
     do {
         i = libssh2_channel_write(channel, buf, len);
         if(i < 0) {
-            fprintf(stderr, "libssh2_channel_write: %d\n", i);
+            fprintf(stderr, "libssh2_channel_write: %zd\n", i);
             return -1;
         }
         wr += i;
@@ -71,8 +71,8 @@ static int netconf_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t len)
     return 0;
 }
 
-static int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
-                              char *buf, size_t buflen)
+static ssize_t netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
+                                  char *buf, size_t buflen)
 {
     ssize_t len;
     size_t rd = 0;
