@@ -203,8 +203,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
              * field which includes the padding but not the MAC.
              */
             if(memcmp(macbuf, p->payload + p->total_num - mac_len, mac_len)) {
-                _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                               "Failed MAC check");
+                _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+                                "Failed MAC check"));
                 session->fullpacket_macstate = LIBSSH2_MAC_INVALID;
 
             }
@@ -985,9 +985,9 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         blocksize = session->local.crypt->blocksize;
         for(i = crypt_offset; i < packet_length; i += blocksize) {
             unsigned char *ptr = &p->outbuf[i];
-            _libssh2_debug(session, LIBSSH2_TRACE_SOCKET,
-                           "crypting bytes %d-%d", i,
-                           i + session->local.crypt->blocksize - 1);
+            _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+                            "crypting bytes %d-%d", i,
+                            i + session->local.crypt->blocksize - 1));
             if(session->local.crypt->crypt(session, ptr,
                                             session->local.crypt->blocksize,
                                             &session->local.crypt_abstract))
