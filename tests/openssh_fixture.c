@@ -113,7 +113,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
     buf[0] = 0;
     buf_len = 0;
     while(buf_len < (sizeof(buf) - 1) &&
-        fgets(&buf[buf_len], sizeof(buf) - buf_len, pipe) != NULL) {
+        fgets(&buf[buf_len], (int)(sizeof(buf) - buf_len), pipe) != NULL) {
         buf_len = strlen(buf);
     }
 
