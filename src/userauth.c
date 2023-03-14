@@ -737,7 +737,7 @@ static int
 memory_read_privatekey(LIBSSH2_SESSION * session,
                        const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
                        void **hostkey_abstract,
-                       const unsigned char *method, int method_len,
+                       const unsigned char *method, size_t method_len,
                        const char *privkeyfiledata, size_t privkeyfiledata_len,
                        const char *passphrase)
 {
@@ -778,7 +778,7 @@ static int
 file_read_privatekey(LIBSSH2_SESSION * session,
                      const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
                      void **hostkey_abstract,
-                     const unsigned char *method, int method_len,
+                     const unsigned char *method, size_t method_len,
                      const char *privkeyfile, const char *passphrase)
 {
     const LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail =
@@ -1247,7 +1247,7 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
     return rc;
 }
 
-static int plain_method_len(const char *method, size_t method_len)
+static size_t plain_method_len(const char *method, size_t method_len)
 {
     if(!strncmp("ssh-rsa-cert-v01@openssh.com",
                 method,
@@ -1292,10 +1292,10 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     const char *p = NULL;
     const char *f = NULL;
     char *i = NULL;
-    int p_len = 0;
-    int f_len = 0;
+    size_t p_len = 0;
+    size_t f_len = 0;
     int rc = 0;
-    int match_len = 0;
+    size_t match_len = 0;
     char *filtered_algs = NULL;
 
     const char *supported_algs =
@@ -1323,12 +1323,12 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
     while(s && *s) {
         p = strchr(s, ',');
-        p_len = p ? (p - s) : (int) strlen(s);
+        p_len = (p ? (size_t)(p - s) : strlen(s));
         a = supported_algs;
 
         while(a && *a) {
             f = strchr(a, ',');
-            f_len = f ? (f - a) : (int) strlen(a);
+            f_len = (f ? (size_t)(f - a) : strlen(a));
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
 
@@ -1361,12 +1361,12 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
     while(s && *s && !match) {
         p = strchr(s, ',');
-        p_len = p ? (p - s) : (int) strlen(s);
+        p_len = (p ? (size_t)(p - s) : strlen(s));
         a = filtered_algs;
 
         while(a && *a && !match) {
             f = strchr(a, ',');
-            f_len = f ? (f - a) : (int) strlen(a);
+            f_len = (f ? (size_t)(f - a) : strlen(a));
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
                 /* found a match, upgrade key method */
@@ -1411,7 +1411,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 int
 _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                             const char *username,
-                            unsigned int username_len,
+                            size_t username_len,
                             const unsigned char *pubkeydata,
                             size_t pubkeydata_len,
                             LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
@@ -2135,10 +2135,10 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             }
 
             response_callback((const char *)session->userauth_kybd_auth_name,
-                              session->userauth_kybd_auth_name_len,
+                              (int)session->userauth_kybd_auth_name_len,
                               (const char *)
                               session->userauth_kybd_auth_instruction,
-                              session->userauth_kybd_auth_instruction_len,
+                              (int)session->userauth_kybd_auth_instruction_len,
                               session->userauth_kybd_num_prompts,
                               session->userauth_kybd_prompts,
                               session->userauth_kybd_responses,
