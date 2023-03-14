@@ -3324,12 +3324,12 @@ static int kexinit(LIBSSH2_SESSION * session)
  * Needle must be precede by BOL or ',', and followed by ',' or EOL
  */
 static unsigned char *
-kex_agree_instr(unsigned char *haystack, unsigned long haystack_len,
-                const unsigned char *needle, unsigned long needle_len)
+kex_agree_instr(unsigned char *haystack, size_t haystack_len,
+                const unsigned char *needle, size_t needle_len)
 {
     unsigned char *s;
     unsigned char *end_haystack;
-    unsigned long left;
+    size_t left;
 
     if(haystack == NULL || needle == NULL) {
         return NULL;
