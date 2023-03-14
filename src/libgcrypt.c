@@ -560,7 +560,7 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
     int ret;
     int cipher = _libssh2_gcry_cipher(algo);
     int mode = _libssh2_gcry_mode(algo);
-    int keylen = gcry_cipher_get_algo_keylen(cipher);
+    size_t keylen = gcry_cipher_get_algo_keylen(cipher);
 
     (void) encrypt;
 
@@ -576,7 +576,7 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
     }
 
     if(mode != GCRY_CIPHER_MODE_STREAM) {
-        int blklen = gcry_cipher_get_algo_blklen(cipher);
+        size_t blklen = gcry_cipher_get_algo_blklen(cipher);
         if(mode == GCRY_CIPHER_MODE_CTR)
             ret = gcry_cipher_setctr(*h, iv, blklen);
         else
