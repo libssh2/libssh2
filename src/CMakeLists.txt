@@ -46,8 +46,8 @@ set(CRYPTO_BACKEND
   ""
   CACHE
   STRING
-  "The backend to use for cryptography: OpenSSL, Libgcrypt or WinCNG, mbedTLS
-or empty to try any available")
+  "The backend to use for cryptography: OpenSSL, wolfSSL, Libgcrypt,
+WinCNG, mbedTLS, or empty to try any available")
 
 # If the crypto backend was given, rather than searching for the first
 # we are able to find, the find_package commands must abort configuration
@@ -74,26 +74,30 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       list(APPEND LIBRARIES crypt32 bcrypt)
       list(APPEND PC_LIBS -lcrypt32 -lbcrypt)
 
-      find_file(DLL_LIBEAY32
-        NAMES libeay32.dll crypto.dll libcrypto-1_1.dll libcrypto-1_1-x64.dll
+      find_file(DLL_LIBCRYPTO
+        NAMES libeay32.dll crypto.dll libcrypto.dll
+          libcrypto-1_1.dll libcrypto-1_1-x64.dll
+          libcrypto-3.dll libcrypto-3-x64.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES bin)
-      if (NOT DLL_LIBEAY32)
+      if(NOT DLL_LIBCRYPTO)
         message(WARNING
-          "Unable to find OpenSSL crypto (aka libeay32) DLL, executables may not run")
+          "Unable to find OpenSSL libcrypto DLL, executables may not run")
       endif()
 
-      find_file(DLL_SSLEAY32
-        NAMES ssleay32.dll ssl.dll libssl-1_1.dll libssl-1_1-x64.dll
+      find_file(DLL_LIBSSL
+        NAMES ssleay32.dll ssl.dll libssl.dll
+          libssl-1_1.dll libssl-1_1-x64.dll
+          libssl-3.dll libssl-3-x64.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES bin)
-      if (NOT DLL_SSLEAY32)
+      if(NOT DLL_LIBSSL)
         message(WARNING
-          "Unable to find OpenSSL ssl (aka ssleay32) DLL, executables may not run")
+          "Unable to find OpenSSL libssl DLL, executables may not run")
       endif()
 
-      if(DLL_LIBEAY32 AND DLL_SSLEAY32)
-        list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBEAY32} ${DLL_SSLEAY32})
+      if(DLL_LIBCRYPTO AND DLL_LIBSSL)
+        list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO} ${DLL_LIBSSL})
       endif()
     endif()
 
@@ -106,6 +110,25 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     endif()
     check_function_exists(EVP_aes_128_ctr HAVE_EVP_AES_128_CTR)
     set(CMAKE_REQUIRED_LIBRARIES ${SAVE_CMAKE_REQUIRED_LIBRARIES})
+  endif()
+endif()
+
+if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
+
+  find_package(wolfssl ${SPECIFIC_CRYPTO_REQUIREMENT})
+
+  if(WOLFSSL_FOUND)
+    set(CRYPTO_BACKEND "wolfSSL")
+    set(CRYPTO_SOURCES openssl.c openssl.h)
+    list(APPEND PRIVATE_COMPILE_DEFINITIONS LIBSSH2_WOLFSSL)
+    list(APPEND PRIVATE_INCLUDE_DIRECTORIES ${WOLFSSL_INCLUDE_DIR} ${WOLFSSL_INCLUDE_DIR}/wolfssl)
+    list(APPEND LIBRARIES ${WOLFSSL_LIBRARIES})
+    list(APPEND PC_LIBS -lwolfssl)
+
+    if (WIN32)
+      list(APPEND LIBRARIES crypt32)
+      list(APPEND PC_LIBS -lcrypt32)
+    endif()
   endif()
 endif()
 
@@ -195,6 +218,7 @@ set(SOURCES
   mac.h
   misc.c
   misc.h
+  os400qc3.c
   packet.c
   packet.h
   pem.c
@@ -337,15 +361,18 @@ else()
   check_function_exists(poll HAVE_POLL)
 endif()
 
+list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
+
 if(WIN32)
   set(HAVE_SELECT 1)
   list(APPEND PC_LIBS -lws2_32)
 endif()
 
-# Non-blocking socket support tests.  Must be after library tests to
-# link correctly
+# Non-blocking socket support tests. Use a separate, yet unset variable
+# for the socket libraries to not link against the other configured
+# dependencies which might not have been built yet.
 set(SAVE_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
-set(CMAKE_REQUIRED_LIBRARIES ${LIBRARIES})
+set(CMAKE_REQUIRED_LIBRARIES ${SOCKET_LIBRARIES})
 check_nonblocking_socket_support()
 set(CMAKE_REQUIRED_LIBRARIES ${SAVE_CMAKE_REQUIRED_LIBRARIES})
 

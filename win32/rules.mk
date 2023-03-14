@@ -1,4 +1,3 @@
-
 all-sub: $(INTDIR) all
 
 clean-sub: clean
@@ -11,5 +10,3 @@ $(INTDIR):
 
 {$(SUBDIR)}.c{$(INTDIR)}.obj::
 	$(CC) -c $(CFLAGS) /Fo"$(INTDIR)\\" $<
-
-

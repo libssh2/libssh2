@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
         rc = 1;
         goto shutdown;
     }
-    while(1) {
+    for(;;) {
         rc = libssh2_agent_get_identity(agent, &identity, prev_identity);
         if(rc == 1)
             break;

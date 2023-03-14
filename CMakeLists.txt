@@ -44,8 +44,6 @@ project(libssh2 C)
 set(PROJECT_URL "https://www.libssh2.org/")
 set(PROJECT_DESCRIPTION "The SSH library")
 
-set(CMAKE_C_STANDARD 90)
-
 option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
 
 # Parse version
@@ -84,15 +82,15 @@ include(FeatureSummary)
 
 # Add socket libraries
 if(WIN32)
-  list(APPEND LIBRARIES ws2_32)
+  list(APPEND SOCKET_LIBRARIES ws2_32)
 else()
   check_function_exists_may_need_library(socket HAVE_SOCKET socket)
   if(NEED_LIB_SOCKET)
-    list(APPEND LIBRARIES socket)
+    list(APPEND SOCKET_LIBRARIES socket)
   endif()
   check_function_exists_may_need_library(inet_addr HAVE_INET_ADDR nsl)
   if(NEED_LIB_NSL)
-    list(APPEND LIBRARIES nsl)
+    list(APPEND SOCKET_LIBRARIES nsl)
   endif()
 endif()
 

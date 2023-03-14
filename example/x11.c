@@ -389,7 +389,7 @@ main (int argc, char *argv[])
     memset(&w_size, 0, sizeof(struct winsize));
     memset(&w_size_bck, 0, sizeof(struct winsize));
 
-    while(1) {
+    for(;;) {
 
         FD_ZERO(&set);
         FD_SET(fileno(stdin), &set);

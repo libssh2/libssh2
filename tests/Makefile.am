@@ -12,6 +12,7 @@ check_PROGRAMS += ssh2
 endif
 
 INTEGRATION_TESTS = \
+  test_warmup \
   test_agent_forward_succeeds \
   test_hostkey \
   test_hostkey_hash \

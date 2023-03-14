@@ -39,8 +39,25 @@
  * OF SUCH DAMAGE.
  */
 
+/* Disable warnings: C4127: conditional expression is constant */
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#pragma warning(disable:4127)
+#endif
+
+/* Define mingw-w64 version macros, eg __MINGW{32,64}_{MINOR,MAJOR}_VERSION */
+#ifdef __MINGW32__
+#include <_mingw.h>
+#endif
+
 #define LIBSSH2_LIBRARY
 #include "libssh2_config.h"
+
+/* Number of bits in a file offset, on hosts where this is settable. */
+#if defined(__MINGW32__) && defined(__MINGW64_VERSION_MAJOR)
+# ifndef _FILE_OFFSET_BITS
+# define _FILE_OFFSET_BITS 64
+# endif
+#endif
 
 #ifdef WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -119,6 +136,7 @@
 #if !defined(HAVE_SNPRINTF)
 #define LIBSSH2_SNPRINTF
 #define snprintf _libssh2_snprintf
+int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...);
 #endif
 
 /* "inline" keyword is valid only with C++ engine! */
@@ -976,23 +994,12 @@ struct _LIBSSH2_COMP_METHOD
 };
 
 #ifdef LIBSSH2DEBUG
-void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format,
-                    ...);
+void
+_libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
+                   ...);
+#define _libssh2_debug(x) _libssh2_debug_low x
 #else
-#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) ||     \
-    (defined(__GNUC__) && !defined(__clang__))
-/* C99 supported and also by older GCC */
-#define _libssh2_debug(x,y,...) do {} while (0)
-#else
-/* no gcc and not C99, do static and hopefully inline */
-static inline void
-_libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
-{
-    (void)session;
-    (void)context;
-    (void)format;
-}
-#endif
+#define _libssh2_debug(x) do {} while (0)
 #endif
 
 #define LIBSSH2_SOCKET_UNKNOWN                   1

@@ -157,6 +157,11 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
                                     const char *filedata, size_t filedata_len,
                                     unsigned const char *passphrase)
 {
+    (void)rsa;
+    (void)filedata;
+    (void)filedata_len;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                          "Unable to extract private key from memory: "
                          "Method unimplemented in libgcrypt backend");
@@ -269,6 +274,11 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
                                     const char *filedata, size_t filedata_len,
                                     unsigned const char *passphrase)
 {
+    (void)dsa;
+    (void)filedata;
+    (void)filedata_len;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                          "Unable to extract private key from memory: "
                          "Method unimplemented in libgcrypt backend");
@@ -607,6 +617,14 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 size_t privatekeydata_len,
                                 const char *passphrase)
 {
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)privatekeydata;
+    (void)privatekeydata_len;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                           "Unable to extract public key from private "
                           "key in memory: "
@@ -622,6 +640,13 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           const char *privatekey,
                           const char *passphrase)
 {
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)privatekey;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                          "Unable to extract public key from private key file: "
                          "Method unimplemented in libgcrypt backend");
@@ -642,6 +667,19 @@ _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                               size_t privatekeydata_len,
                               const char *passphrase)
 {
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)algorithm;
+    (void)flags;
+    (void)application;
+    (void)key_handle;
+    (void)handle_len;
+    (void)privatekeydata;
+    (void)privatekeydata_len;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                     "Unable to extract public SK key from private key file: "
                     "Method unimplemented in libgcrypt backend");
