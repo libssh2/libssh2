@@ -66,6 +66,12 @@
 #include <string.h>
 #include <stdarg.h>
 
+#if defined(WIN32) && (defined(_M_X64) || defined(__x86_64__))
+#define LIBSSH2_SOCKET_MASK "%lld"
+#else
+#define LIBSSH2_SOCKET_MASK "%d"
+#endif
+
 static int have_docker = 0;
 
 static int run_command_varg(char **output, const char *command, va_list args)
@@ -385,7 +391,8 @@ static int open_socket_to_container(char *container_id)
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock <= 0) {
-        fprintf(stderr, "Failed to open socket (%d)\n", sock);
+        fprintf(stderr,
+                "Failed to open socket (" LIBSSH2_SOCKET_MASK ")\n", sock);
         ret = -1;
         goto cleanup;
     }
