@@ -204,17 +204,19 @@ struct iovec {
  session->ssh_msg_ignore((session), (data), (datalen), &(session)->abstract)
 #define LIBSSH2_DEBUG(session, always_display, message, message_len, \
                       language, language_len)    \
-    session->ssh_msg_debug((session), (always_display), (message), \
-                           (message_len), (language), (language_len), \
+    session->ssh_msg_debug((session), (always_display), \
+                           (message), (int)(message_len), \
+                           (language), (int)(language_len), \
                            &(session)->abstract)
 #define LIBSSH2_DISCONNECT(session, reason, message, message_len, \
                            language, language_len)                \
-    session->ssh_msg_disconnect((session), (reason), (message),   \
-                                (message_len), (language), (language_len), \
+    session->ssh_msg_disconnect((session), (reason), \
+                                (message), (int)(message_len), \
+                                (language), (int)(language_len), \
                                 &(session)->abstract)
 
 #define LIBSSH2_MACERROR(session, data, datalen)         \
-    session->macerror((session), (data), (datalen), &(session)->abstract)
+    session->macerror((session), (data), (int)(datalen), &(session)->abstract)
 #define LIBSSH2_X11_OPEN(channel, shost, sport)          \
     channel->session->x11(((channel)->session), (channel), \
                           (shost), (sport), (&(channel)->session->abstract))
