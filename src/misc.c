@@ -319,6 +319,7 @@ static const short base64_reverse_table[256] = {
  *
  * Decode a base64 chunk and store it into a newly alloc'd buffer
  */
+/* FIXME: datalen, src_len -> size_t */
 LIBSSH2_API int
 libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
                       unsigned int *datalen, const char *src,
