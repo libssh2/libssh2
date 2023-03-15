@@ -567,7 +567,7 @@ struct transportpacket
     /* ------------- for outgoing data --------------- */
     unsigned char outbuf[MAX_SSH_PACKET_LEN]; /* area for the outgoing data */
 
-    int ototal_num;         /* size of outbuf in number of bytes */
+    ssize_t ototal_num;     /* size of outbuf in number of bytes */
     const unsigned char *odata; /* original pointer to the data */
     size_t olen;            /* original size of the data we stored in
                                outbuf */
