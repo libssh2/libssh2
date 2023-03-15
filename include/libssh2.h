@@ -192,7 +192,9 @@ typedef int libssh2_socket_t;
 #  include <io.h>
 #  include <sys/types.h>
 #  include <sys/stat.h>
-#  define LIBSSH2_STRUCT_STAT_SIZE_FORMAT    "%I64d"
+#  if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__MINGW32__)
+#    define LIBSSH2_STRUCT_STAT_SIZE_FORMAT    "%I64d"
+#  endif
 typedef struct _stati64 libssh2_struct_stat;
 typedef __int64 libssh2_struct_stat_size;
 #endif
@@ -221,7 +223,7 @@ typedef off_t libssh2_struct_stat_size;
 #      define LIBSSH2_STRUCT_STAT_SIZE_FORMAT      "%d"
 #    endif
 #  else
-#    define LIBSSH2_STRUCT_STAT_SIZE_FORMAT      "%zd"
+#    define LIBSSH2_STRUCT_STAT_SIZE_FORMAT      "%lld"
 #  endif
 typedef struct stat libssh2_struct_stat;
 typedef off_t libssh2_struct_stat_size;
