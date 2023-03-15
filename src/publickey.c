@@ -272,7 +272,7 @@ publickey_response_success(LIBSSH2_PUBLICKEY * pkey)
                 return 0;
 
             publickey_status_error(pkey, session, status);
-            return -1;
+            goto err_exit;
         }
         default:
             LIBSSH2_FREE(session, data);
@@ -287,7 +287,7 @@ publickey_response_success(LIBSSH2_PUBLICKEY * pkey)
             data = NULL;
         }
     }
-    /* never reached, but include `return` to silence compiler warnings */
+  err_exit:
     return -1;
 }
 
