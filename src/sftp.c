@@ -674,7 +674,7 @@ sftp_attr2bin(unsigned char *p, const LIBSSH2_SFTP_ATTRIBUTES * attrs)
 
 /* sftp_bin2attr
  */
-static int
+static ssize_t
 sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs, const unsigned char *p,
               size_t data_len)
 {
@@ -1774,7 +1774,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
             size_t filename_len;
             size_t longentry_len;
             size_t names_packet_len = handle->u.dir.names_packet_len;
-            int attr_len = 0;
+            ssize_t attr_len = 0;
 
             if(names_packet_len >= 4) {
                 s = (unsigned char *) handle->u.dir.next_name;
