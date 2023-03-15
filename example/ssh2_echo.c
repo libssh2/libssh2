@@ -276,8 +276,8 @@ int main(int argc, char *argv[])
                 }
                 else {
                     totread += n;
-                    fprintf(stderr, "read %zd bytes (%zd in total)\n",
-                            n, totread);
+                    fprintf(stderr, "read %d bytes (%d in total)\n",
+                            (int)n, (int)totread);
                 }
             }
 
@@ -301,8 +301,8 @@ int main(int argc, char *argv[])
                     }
                     else {
                         totwritten += n;
-                        fprintf(stderr, "wrote %zd bytes (%zd in total)",
-                                n, totwritten);
+                        fprintf(stderr, "wrote %d bytes (%d in total)",
+                                (int)n, (int)totwritten);
                         if(left >= bufsize && n != bufsize) {
                             fprintf(stderr, " PARTIAL");
                         }
@@ -350,12 +350,12 @@ int main(int argc, char *argv[])
         libssh2_channel_free(channel);
         channel = NULL;
 
-        fprintf(stderr, "\nrereads: %d rewrites: %d totwritten %zd\n",
-                rereads, rewrites, totwritten);
+        fprintf(stderr, "\nrereads: %d rewrites: %d totwritten %d\n",
+                rereads, rewrites, (int)totwritten);
 
         if(totwritten != totread) {
-            fprintf(stderr, "\n*** FAIL bytes written: %zd bytes "
-                    "read: %zd ***\n", totwritten, totread);
+            fprintf(stderr, "\n*** FAIL bytes written: %d bytes "
+                    "read: %d ***\n", (int)totwritten, (int)totread);
             exit(1);
         }
     }

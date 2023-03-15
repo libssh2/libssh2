@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
     char *ptr;
     struct stat fileinfo;
     time_t start;
-    ssize_t total = 0;
+    libssh2_struct_stat_size total = 0;
     int duration;
     size_t prev;
 
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
     /* Send a file via scp. The mode parameter must only have permissions! */
     do {
         channel = libssh2_scp_send(session, scppath, fileinfo.st_mode & 0777,
-                                   (unsigned long)fileinfo.st_size);
+                                   (size_t)fileinfo.st_size);
 
         if((!channel) && (libssh2_session_last_errno(session) !=
                           LIBSSH2_ERROR_EAGAIN)) {
@@ -243,8 +243,10 @@ int main(int argc, char *argv[])
                 prev = 0;
             }
             if(nwritten < 0) {
-                fprintf(stderr, "ERROR %d total %zd / %zd prev %zd\n",
-                        (int)nwritten, total, nread, prev);
+                fprintf(stderr, "ERROR %d"
+                        " total " LIBSSH2_STRUCT_STAT_SIZE_FORMAT
+                        " / %d prev %d\n",
+                        (int)nwritten, total, (int)nread, (int)prev);
                 break;
             }
             else {
@@ -259,7 +261,8 @@ int main(int argc, char *argv[])
 
     duration = (int)(time(NULL)-start);
 
-    fprintf(stderr, "%zd bytes in %d seconds makes %.1f bytes/sec\n",
+    fprintf(stderr, LIBSSH2_STRUCT_STAT_SIZE_FORMAT " bytes"
+           " in %d seconds makes %.1f bytes/sec\n",
            total, duration, (double)total / duration);
 
     fprintf(stderr, "Sending EOF\n");

@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 
     /* Send a file via scp. The mode parameter must only have permissions! */
     channel = libssh2_scp_send(session, scppath, fileinfo.st_mode & 0777,
-                               (unsigned long)fileinfo.st_size);
+                               (size_t)fileinfo.st_size);
 
     if(!channel) {
         char *errmsg;

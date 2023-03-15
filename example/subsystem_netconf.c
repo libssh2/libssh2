@@ -273,8 +273,8 @@ int main(int argc, char *argv[])
     if(-1 == len)
         goto shutdown;
 
-    fprintf(stderr, "Got %zd bytes:\n----------------------\n%s",
-            len, buf);
+    fprintf(stderr, "Got %d bytes:\n----------------------\n%s",
+            (int)len, buf);
 
     fprintf(stderr, "Sending NETCONF <rpc>\n");
     snprintf(buf, sizeof(buf),
@@ -291,8 +291,8 @@ int main(int argc, char *argv[])
     if(-1 == len)
         goto shutdown;
 
-    fprintf(stderr, "Got %zd bytes:\n----------------------\n%s",
-            len, buf);
+    fprintf(stderr, "Got %d bytes:\n----------------------\n%s",
+            (int)len, buf);
 
 shutdown:
     if(channel)

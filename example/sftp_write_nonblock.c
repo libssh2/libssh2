@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     ssize_t nwritten;
     char *ptr;
     time_t start;
-    ssize_t total = 0;
+    libssh2_struct_stat_size total = 0;
     int duration;
 
 #ifdef WIN32
@@ -269,9 +269,9 @@ int main(int argc, char *argv[])
 
     duration = (int)(time(NULL)-start);
 
-    fprintf(stderr, "%zd bytes in %d seconds makes %.1f bytes/sec\n",
+    fprintf(stderr, LIBSSH2_STRUCT_STAT_SIZE_FORMAT " bytes"
+           " in %d seconds makes %.1f bytes/sec\n",
            total, duration, (double)total / duration);
-
 
     fclose(local);
     libssh2_sftp_close(sftp_handle);
