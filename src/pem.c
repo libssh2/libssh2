@@ -391,7 +391,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     /* decode file */
     if(libssh2_base64_decode(session, (char **)&f, &f_len,
-                             b64data, b64datalen)) {
+                             b64data, (unsigned int)b64datalen)) {
        ret = -1;
        goto out;
     }
