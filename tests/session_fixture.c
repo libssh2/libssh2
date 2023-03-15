@@ -65,13 +65,13 @@
 #include <assert.h>
 
 LIBSSH2_SESSION *connected_session = NULL;
-int connected_socket = -1;
+libssh2_socket_t connected_socket = LIBSSH2_INVALID_SOCKET;
 
 static int connect_to_server(void)
 {
     int rc;
     connected_socket = open_socket_to_openssh_server();
-    if(connected_socket <= 0) {
+    if(connected_socket == LIBSSH2_INVALID_SOCKET) {
         return -1;
     }
 

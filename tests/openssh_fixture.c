@@ -41,8 +41,8 @@
 #endif
 #endif
 
-#include "openssh_fixture.h"
 #include "session_fixture.h"
+#include "openssh_fixture.h"
 #include "libssh2_config.h"
 
 #ifdef HAVE_WINSOCK2_H
@@ -333,7 +333,7 @@ static int port_from_container(char *container_id, char **port_out)
     }
 }
 
-static int open_socket_to_container(char *container_id)
+static libssh2_socket_t open_socket_to_container(char *container_id)
 {
     char *ip_address = NULL;
     char *port_string = NULL;
@@ -341,22 +341,23 @@ static int open_socket_to_container(char *container_id)
     libssh2_socket_t sock;
     struct sockaddr_in sin;
     int counter = 0;
-    int ret;
+    libssh2_socket_t ret;
 
     if(have_docker) {
-        ret = ip_address_from_container(container_id, &ip_address);
-        if(ret != 0) {
+        int res;
+        res = ip_address_from_container(container_id, &ip_address);
+        if(res != 0) {
             fprintf(stderr, "Failed to get IP address for container %s\n",
                     container_id);
-            ret = -1;
+            ret = LIBSSH2_INVALID_SOCKET;
             goto cleanup;
         }
 
-        ret = port_from_container(container_id, &port_string);
-        if(ret != 0) {
+        res = port_from_container(container_id, &port_string);
+        if(res != 0) {
             fprintf(stderr, "Failed to get port for container %s\n",
                     container_id);
-            ret = -1;
+            ret = LIBSSH2_INVALID_SOCKET;
         }
     }
     else {
@@ -371,7 +372,6 @@ static int open_socket_to_container(char *container_id)
             env = "4711";
         }
         port_string = strdup(env);
-        ret = 0;
     }
 
     /* 0.0.0.0 is returned by Docker for Windows, because the container
@@ -385,15 +385,15 @@ static int open_socket_to_container(char *container_id)
     hostaddr = inet_addr(ip_address);
     if(hostaddr == (unsigned long)(-1)) {
         fprintf(stderr, "Failed to convert %s host address\n", ip_address);
-        ret = -1;
+        ret = LIBSSH2_INVALID_SOCKET;
         goto cleanup;
     }
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(sock <= 0) {
+    if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr,
                 "Failed to open socket (" LIBSSH2_SOCKET_MASK ")\n", sock);
-        ret = -1;
+        ret = LIBSSH2_INVALID_SOCKET;
         goto cleanup;
     }
 
@@ -404,7 +404,7 @@ static int open_socket_to_container(char *container_id)
     for(counter = 0; counter < 3; ++counter) {
         if(connect(sock, (struct sockaddr *)(&sin),
                    sizeof(struct sockaddr_in)) != 0) {
-            ret = -1;
+            ret = LIBSSH2_INVALID_SOCKET;
             fprintf(stderr,
                     "Connection to %s:%s attempt #%d failed: retrying...\n",
                     ip_address, port_string, counter);
@@ -415,7 +415,7 @@ static int open_socket_to_container(char *container_id)
             break;
         }
     }
-    if(ret == -1) {
+    if(ret == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr, "Failed to connect to %s:%s\n",
                 ip_address, port_string);
         goto cleanup;
@@ -467,7 +467,7 @@ void stop_openssh_fixture(void)
     }
 }
 
-int open_socket_to_openssh_server(void)
+libssh2_socket_t open_socket_to_openssh_server(void)
 {
     return open_socket_to_container(running_container_id);
 }
