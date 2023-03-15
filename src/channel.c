@@ -2837,7 +2837,7 @@ libssh2_channel_free(LIBSSH2_CHANNEL *channel)
  */
 LIBSSH2_API unsigned long
 libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
-                               unsigned long *read_avail,
+        /* FIXME: -> size_t */ unsigned long *read_avail,
                                unsigned long *window_size_initial)
 {
     if(!channel)
@@ -2877,7 +2877,7 @@ libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
             packet = next_packet;
         }
 
-        *read_avail = bytes_queued;
+        *read_avail = (unsigned long)bytes_queued;
     }
 
     return channel->remote.window_size;
