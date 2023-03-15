@@ -79,7 +79,7 @@ int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
     va_start(args, fmt);
     n = vsnprintf(cp, cp_max_len, fmt, args);
     va_end(args);
-    return (n < cp_max_len) ? n : (cp_max_len - 1);
+    return (n < (int)cp_max_len) ? n : (cp_max_len - 1);
 }
 #endif
 
