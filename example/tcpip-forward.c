@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
         FD_SET(forwardsock, &fds);
         tv.tv_sec = 0;
         tv.tv_usec = 100000;
-        rc = select(forwardsock + 1, &fds, NULL, NULL, &tv);
+        rc = select((int)(forwardsock + 1), &fds, NULL, NULL, &tv);
         if(-1 == rc) {
             perror("select");
             goto shutdown;

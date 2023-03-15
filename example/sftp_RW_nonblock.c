@@ -72,7 +72,7 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         writefd = &fd;
 
-    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
 
     return rc;
 }
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
         FD_SET(sock, &fd2);
 
         /* wait for readable or writeable */
-        rc = select(sock + 1, &fd, &fd2, NULL, &timeout);
+        rc = select((int)(sock + 1), &fd, &fd2, NULL, &timeout);
         if(rc <= 0) {
             /* negative is error
                0 is timeout */
@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
             FD_SET(sock, &fd2);
 
             /* wait for readable or writeable */
-            rc = select(sock + 1, &fd, &fd2, NULL, &timeout);
+            rc = select((int)(sock + 1), &fd, &fd2, NULL, &timeout);
             if(rc <= 0) {
                 /* negative is error
                    0 is timeout */

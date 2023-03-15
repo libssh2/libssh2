@@ -219,7 +219,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
         write(sock, buf, nread);
     }
 
-    rc = select(sock + 1, &set, NULL, NULL, &timeval_out);
+    rc = select((int)(sock + 1), &set, NULL, NULL, &timeval_out);
     if(rc > 0) {
         memset((void *)buf, 0, bufsize);
 
@@ -449,7 +449,7 @@ main (int argc, char *argv[])
         }
 
 
-        rc = select(fileno(stdin) + 1, &set, NULL, NULL, &timeval_out);
+        rc = select((int)(fileno(stdin) + 1), &set, NULL, NULL, &timeval_out);
         if(rc > 0) {
             /* Data in stdin*/
             rc = read(fileno(stdin), buf, 1);
