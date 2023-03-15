@@ -201,7 +201,8 @@ struct iovec {
 #define LIBSSH2_FREE(session, ptr) \
  session->free((ptr), &(session)->abstract)
 #define LIBSSH2_IGNORE(session, data, datalen) \
- session->ssh_msg_ignore((session), (data), (datalen), &(session)->abstract)
+ session->ssh_msg_ignore((session), (data), (int)(datalen), \
+                         &(session)->abstract)
 #define LIBSSH2_DEBUG(session, always_display, message, message_len, \
                       language, language_len)    \
     session->ssh_msg_debug((session), (always_display), \
