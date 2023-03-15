@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     long time_ms;
 #endif
     int rc;
-    ssize_t total = 0;
+    libssh2_struct_stat_size total = 0;
     int spin = 0;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
@@ -278,11 +278,12 @@ int main(int argc, char *argv[])
 #ifdef HAVE_GETTIMEOFDAY
     gettimeofday(&end, NULL);
     time_ms = tvdiff(end, start);
-    fprintf(stderr, "Got %zd bytes in %ld ms = %.1f bytes/sec spin: %d\n",
-            total,
-            time_ms, total/(time_ms/1000.0), spin);
+    fprintf(stderr, "Got " LIBSSH2_STRUCT_STAT_SIZE_FORMAT " bytes"
+                    " in %ld ms = %.1f bytes/sec spin: %d\n", total,
+            time_ms, (double)total/(time_ms/1000.0), spin);
 #else
-    fprintf(stderr, "Got %zd bytes spin: %d\n", total, spin);
+    fprintf(stderr, "Got " LIBSSH2_STRUCT_STAT_SIZE_FORMAT " bytes"
+                    " spin: %d\n", total, spin);
 #endif
 
     libssh2_sftp_close(sftp_handle);

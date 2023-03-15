@@ -280,8 +280,7 @@ int main(int argc, char *argv[])
     duration = (int)(time(NULL)-start);
 
     fprintf(stderr, "%zd bytes in %d seconds makes %.1f bytes/sec\n",
-           total, duration, (double)total / duration);
-
+            total, duration, (double)total / duration);
 
     fclose(local);
     libssh2_sftp_close(sftp_handle);

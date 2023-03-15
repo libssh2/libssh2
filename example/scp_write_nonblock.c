@@ -243,8 +243,8 @@ int main(int argc, char *argv[])
                 prev = 0;
             }
             if(nwritten < 0) {
-                fprintf(stderr, "ERROR %zd total %zd / %zd prev %zd\n",
-                        nwritten, total, nread, prev);
+                fprintf(stderr, "ERROR %d total %zd / %zd prev %zd\n",
+                        (int)nwritten, total, nread, prev);
                 break;
             }
             else {

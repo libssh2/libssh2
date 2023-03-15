@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
             char buf[1024];
             ssize_t err = libssh2_channel_read(channel, buf, sizeof(buf));
             if(err < 0)
-                fprintf(stderr, "Unable to read response: %zd\n", err);
+                fprintf(stderr, "Unable to read response: %d\n", (int)err);
             else {
                 fwrite(buf, 1, err, stdout);
             }

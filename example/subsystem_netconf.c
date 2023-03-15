@@ -62,7 +62,7 @@ static int netconf_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t len)
     do {
         i = libssh2_channel_write(channel, buf, len);
         if(i < 0) {
-            fprintf(stderr, "libssh2_channel_write: %zd\n", i);
+            fprintf(stderr, "libssh2_channel_write: %d\n", (int)i);
             return -1;
         }
         wr += i;
@@ -85,7 +85,7 @@ static ssize_t netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
         if(LIBSSH2_ERROR_EAGAIN == len)
             continue;
         else if(len < 0) {
-            fprintf(stderr, "libssh2_channel_read: %zd\n", len);
+            fprintf(stderr, "libssh2_channel_read: %d\n", (int)len);
             return -1;
         }
         rd += len;

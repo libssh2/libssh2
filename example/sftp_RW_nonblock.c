@@ -241,8 +241,8 @@ int main(int argc, char *argv[])
         do {
             /* read in a loop until we block */
             nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
-            fprintf(stderr, "libssh2_sftp_read returned %zd\n",
-                    nread);
+            fprintf(stderr, "libssh2_sftp_read returned %d\n",
+                    (int)nread);
 
             if(nread > 0) {
                 /* write to stderr */

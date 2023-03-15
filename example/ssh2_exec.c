@@ -275,8 +275,8 @@ int main(int argc, char *argv[])
             else {
                 if(nread != LIBSSH2_ERROR_EAGAIN)
                     /* no need to output this for the EAGAIN case */
-                    fprintf(stderr, "libssh2_channel_read returned %zd\n",
-                            nread);
+                    fprintf(stderr, "libssh2_channel_read returned %d\n",
+                            (int)nread);
             }
         }
         while(nread > 0);
