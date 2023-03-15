@@ -172,9 +172,9 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
     do {
         if(*line) {
             char *tmp;
-            size_t linelen;
+            unsigned int linelen;
 
-            linelen = strlen(line);
+            linelen = (unsigned int)strlen(line);
             tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
             if(!tmp) {
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
