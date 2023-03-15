@@ -453,12 +453,6 @@ memcpy_with_be_padding(unsigned char *dest, unsigned long dest_len,
     memcpy((dest + dest_len) - src_len, src, src_len);
 }
 
-static int
-round_down(int number, int multiple)
-{
-    return (number / multiple) * multiple;
-}
-
 /*******************************************************************/
 /*
  * Windows CNG backend: Hash functions
@@ -2347,6 +2341,12 @@ _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
     }
 }
 
+static int
+round_down(int number, int multiple)
+{
+    return (number / multiple) * multiple;
+}
+
 /* Generates a Diffie-Hellman key pair using base `g', prime `p' and the given
  * `group_order'. Can use the given big number context `bnctx' if needed.  The
  * private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
@@ -2357,6 +2357,10 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
                      _libssh2_bn *g, _libssh2_bn *p, int group_order)
 {
     const int hasAlgDHwithKDF = _libssh2_wincng.hasAlgDHwithKDF;
+
+    if(group_order < 0)
+        return -1;
+
     while(_libssh2_wincng.hAlgDH && hasAlgDHwithKDF != -1) {
         BCRYPT_DH_PARAMETER_HEADER *dh_params = NULL;
         unsigned long dh_params_len;
@@ -2366,7 +2370,7 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
          * in length. At the time of writing a practical observed group_order
          * value is 257, so we need to round down to 8 bytes of length (64/8)
          * in order for kex to succeed */
-        DWORD key_length_bytes = max(round_down(group_order, 8),
+        DWORD key_length_bytes = max((unsigned long)round_down(group_order, 8),
                                      max(g->length, p->length));
         BCRYPT_DH_KEY_BLOB *dh_key_blob;
         LPCWSTR key_type;
