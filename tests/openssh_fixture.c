@@ -341,7 +341,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     libssh2_socket_t sock;
     struct sockaddr_in sin;
     int counter = 0;
-    libssh2_socket_t ret;
+    libssh2_socket_t ret = LIBSSH2_INVALID_SOCKET;
 
     if(have_docker) {
         int res;
@@ -349,7 +349,6 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
         if(res != 0) {
             fprintf(stderr, "Failed to get IP address for container %s\n",
                     container_id);
-            ret = LIBSSH2_INVALID_SOCKET;
             goto cleanup;
         }
 
@@ -357,7 +356,6 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
         if(res != 0) {
             fprintf(stderr, "Failed to get port for container %s\n",
                     container_id);
-            ret = LIBSSH2_INVALID_SOCKET;
             goto cleanup;
         }
     }
@@ -386,7 +384,6 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     hostaddr = inet_addr(ip_address);
     if(hostaddr == (unsigned long)(-1)) {
         fprintf(stderr, "Failed to convert %s host address\n", ip_address);
-        ret = LIBSSH2_INVALID_SOCKET;
         goto cleanup;
     }
 
@@ -394,7 +391,6 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr,
                 "Failed to open socket (" LIBSSH2_SOCKET_MASK ")\n", sock);
-        ret = LIBSSH2_INVALID_SOCKET;
         goto cleanup;
     }
 
@@ -405,7 +401,6 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     for(counter = 0; counter < 3; ++counter) {
         if(connect(sock, (struct sockaddr *)(&sin),
                    sizeof(struct sockaddr_in)) != 0) {
-            ret = LIBSSH2_INVALID_SOCKET;
             fprintf(stderr,
                     "Connection to %s:%s attempt #%d failed: retrying...\n",
                     ip_address, port_string, counter);
