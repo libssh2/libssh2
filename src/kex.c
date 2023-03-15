@@ -1428,7 +1428,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
         _libssh2_bn_from_bin(key_state->g, g_len, g);
 
         ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p,
-                                      p_len, 1,
+                                      (int)p_len, 1,
                                       (void *)&exchange_hash_ctx,
                                       SSH_MSG_KEX_DH_GEX_INIT,
                                       SSH_MSG_KEX_DH_GEX_REPLY,
@@ -1556,7 +1556,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
         _libssh2_bn_from_bin(key_state->g, g_len, g);
 
         ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p,
-                                      p_len, 256,
+                                      (int)p_len, 256,
                                       (void *)&exchange_hash_ctx,
                                       SSH_MSG_KEX_DH_GEX_INIT,
                                       SSH_MSG_KEX_DH_GEX_REPLY,
