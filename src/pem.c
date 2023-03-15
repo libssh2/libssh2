@@ -157,7 +157,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
 
         /* Decode IV from hex */
         for(i = 0; i < method->iv_len; ++i) {
-            iv[i]  = hex_decode(iv[2*i]) << 4;
+            iv[i]  = (unsigned char)(hex_decode(iv[2*i]) << 4);
             iv[i] |= hex_decode(iv[2*i + 1]);
         }
 
