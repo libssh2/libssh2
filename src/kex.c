@@ -4043,7 +4043,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
 
     while(s && *s && mlist) {
         char *p = strchr(s, ',');
-        int method_len = p ? (p - s) : (int) strlen(s);
+        int method_len = (int)(p ? (p - s) : strlen(s));
 
         if(!kex_get_method_by_name(s, method_len, mlist)) {
             /* Strip out unsupported method */
