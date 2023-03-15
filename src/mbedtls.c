@@ -267,7 +267,7 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
 {
     size_t len;
     int err;
-    int i;
+    size_t i;
 
     if(!bn || bits <= 0)
         return -1;
@@ -279,7 +279,7 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
         return -1;
 
     /* Zero unused bits above the most significant bit*/
-    for(i = len*8 - 1; bits <= i; --i) {
+    for(i = len*8 - 1; (size_t)bits <= i; --i) {
         err = mbedtls_mpi_set_bit(bn, i, 0);
         if(err)
             return -1;
@@ -291,10 +291,12 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
        will be set to 1, so that the product of two such random numbers will
        always have 2*bits length.
     */
-    for(i = 0; i <= top; ++i) {
-        err = mbedtls_mpi_set_bit(bn, bits-i-1, 1);
-        if(err)
-            return -1;
+    if(top >= 0) {
+        for(i = 0; i <= (size_t)top; ++i) {
+            err = mbedtls_mpi_set_bit(bn, bits-i-1, 1);
+            if(err)
+                return -1;
+        }
     }
 
     /* make odd by setting first bit in least significant byte */
@@ -500,7 +502,12 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 {
     int ret;
     int md_type;
-    unsigned char *hash = malloc(hash_len);
+    unsigned char *hash;
+
+    if(sig_len < mbedtls_rsa_get_len(rsactx))
+        return -1;
+
+    hash = malloc(hash_len);
     if(hash == NULL)
         return -1;
 
@@ -560,7 +567,6 @@ _libssh2_mbedtls_rsa_sha2_sign(LIBSSH2_SESSION *session,
     unsigned char *sig;
     size_t sig_len;
     int md_type;
-    (void)hash_len;
 
     sig_len = mbedtls_rsa_get_len(rsa);
     sig = LIBSSH2_ALLOC(session, sig_len);
@@ -629,13 +635,13 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session,
                       mbedtls_rsa_context *rsa,
                       size_t *keylen)
 {
-    int            e_bytes, n_bytes;
-    unsigned long  len;
+    uint32_t e_bytes, n_bytes;
+    uint32_t len;
     unsigned char *key;
     unsigned char *p;
 
-    e_bytes = (int)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(E));
-    n_bytes = (int)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N));
+    e_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(E));
+    n_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N));
 
     /* Key form is "ssh-rsa" + e + n. */
     len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
@@ -1289,6 +1295,7 @@ _libssh2_mbedtls_mpi_write_binary(unsigned char *buf,
                                   size_t bytes)
 {
     unsigned char *p = buf;
+    uint32_t size = (uint32_t)bytes;
 
     if(sizeof(&p) / sizeof(p[0]) < 4) {
         goto done;
@@ -1297,19 +1304,19 @@ _libssh2_mbedtls_mpi_write_binary(unsigned char *buf,
     p += 4;
     *p = 0;
 
-    if(bytes > 0) {
-        mbedtls_mpi_write_binary(mpi, p + 1, bytes - 1);
+    if(size > 0) {
+        mbedtls_mpi_write_binary(mpi, p + 1, size - 1);
     }
 
-    if(bytes > 0 && !(*(p + 1) & 0x80)) {
-        memmove(p, p + 1, --bytes);
+    if(size > 0 && !(*(p + 1) & 0x80)) {
+        memmove(p, p + 1, --size);
     }
 
-    _libssh2_htonu32(p - 4, bytes);
+    _libssh2_htonu32(p - 4, size);
 
 done:
 
-    return p + bytes;
+    return p + size;
 }
 
 /* _libssh2_ecdsa_sign
