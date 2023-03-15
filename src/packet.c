@@ -1207,7 +1207,7 @@ _libssh2_packet_askv(LIBSSH2_SESSION * session,
                      const unsigned char *match_buf,
                      size_t match_len)
 {
-    int i, packet_types_len = strlen((char *) packet_types);
+    size_t i, packet_types_len = strlen((const char *) packet_types);
 
     for(i = 0; i < packet_types_len; i++) {
         if(0 == _libssh2_packet_ask(session, packet_types[i], data,

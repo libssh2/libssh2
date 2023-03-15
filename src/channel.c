@@ -1671,7 +1671,7 @@ _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
 
     channel->flush_state = libssh2_NB_state_idle;
 
-    return channel->flush_flush_bytes;
+    return (int)channel->flush_flush_bytes;
 }
 
 /*
@@ -1871,7 +1871,8 @@ libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
         return (unsigned long)LIBSSH2_ERROR_BAD_USE;
 
     BLOCK_ADJUST(rc, channel->session,
-                 _libssh2_channel_receive_window_adjust(channel, adj,
+                 _libssh2_channel_receive_window_adjust(channel,
+                                                        (uint32_t)adj,
                                                         force, &window));
 
     /* stupid - but this is how it was made to work before and this is just
@@ -1902,8 +1903,9 @@ libssh2_channel_receive_window_adjust2(LIBSSH2_CHANNEL *channel,
         return LIBSSH2_ERROR_BAD_USE;
 
     BLOCK_ADJUST(rc, channel->session,
-                 _libssh2_channel_receive_window_adjust(channel, adj, force,
-                                                        window));
+                 _libssh2_channel_receive_window_adjust(channel,
+                                                        (uint32_t)adj,
+                                                        force, window));
     return rc;
 }
 
@@ -2157,7 +2159,7 @@ LIBSSH2_API ssize_t
 libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf,
                         size_t buflen)
 {
-    int rc;
+    ssize_t rc;
     unsigned long recv_window;
 
     if(!channel)
