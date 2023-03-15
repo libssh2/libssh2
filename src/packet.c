@@ -72,21 +72,21 @@
  */
 static inline int
 packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
-                      unsigned long datalen,
+                      size_t datalen,
                       packet_queue_listener_state_t *listen_state)
 {
     /*
      * Look for a matching listener
      */
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
-    unsigned long packet_len = 17 + (sizeof(FwdNotReq) - 1);
+    size_t packet_len = 17 + (sizeof(FwdNotReq) - 1);
     unsigned char *p;
     LIBSSH2_LISTENER *listn = _libssh2_list_first(&session->listeners);
     char failure_code = SSH_OPEN_ADMINISTRATIVELY_PROHIBITED;
     int rc;
 
     if(listen_state->state == libssh2_NB_state_idle) {
-        unsigned long offset = (sizeof("forwarded-tcpip") - 1) + 5;
+        size_t offset = (sizeof("forwarded-tcpip") - 1) + 5;
         size_t temp_len = 0;
         struct string_buf buf;
         buf.data = data;
@@ -285,19 +285,19 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
  */
 static inline int
 packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
-                unsigned long datalen,
+                size_t datalen,
                 packet_x11_open_state_t *x11open_state)
 {
     int failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
-    unsigned long packet_len = 17 + (sizeof(X11FwdUnAvil) - 1);
+    size_t packet_len = 17 + (sizeof(X11FwdUnAvil) - 1);
     unsigned char *p;
     LIBSSH2_CHANNEL *channel = x11open_state->channel;
     int rc;
 
     if(x11open_state->state == libssh2_NB_state_idle) {
 
-        unsigned long offset = (sizeof("x11") - 1) + 5;
+        size_t offset = (sizeof("x11") - 1) + 5;
         size_t temp_len = 0;
         struct string_buf buf;
         buf.data = data;
@@ -797,7 +797,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 session->packAdd_state = libssh2_NB_state_jump1;
                 rc = _libssh2_channel_receive_window_adjust(session->
                                                             packAdd_channelp,
-                                                            datalen - 13,
+                                                    (uint32_t)(datalen - 13),
                                                             1, NULL);
                 if(rc == LIBSSH2_ERROR_EAGAIN)
                     return rc;
