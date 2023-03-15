@@ -96,7 +96,7 @@ static int
 banner_receive(LIBSSH2_SESSION * session)
 {
     int ret;
-    int banner_len;
+    size_t banner_len;
 
     if(session->banner_TxRx_state == libssh2_NB_state_idle) {
         banner_len = 0;
@@ -107,7 +107,7 @@ banner_receive(LIBSSH2_SESSION * session)
         banner_len = session->banner_TxRx_total_send;
     }
 
-    while((banner_len < (int) sizeof(session->banner_TxRx_banner)) &&
+    while((banner_len < sizeof(session->banner_TxRx_banner)) &&
            ((banner_len == 0)
             || (session->banner_TxRx_banner[banner_len - 1] != '\n'))) {
         char c = '\0';
@@ -202,7 +202,7 @@ static int
 banner_send(LIBSSH2_SESSION * session)
 {
     char *banner = (char *) LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
-    int banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
+    size_t banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
     ssize_t ret;
 #ifdef LIBSSH2DEBUG
     char banner_dup[256];
@@ -249,7 +249,7 @@ banner_send(LIBSSH2_SESSION * session)
                        banner_len - session->banner_TxRx_total_send,
                        banner, session->banner_TxRx_total_send));
 
-    if(ret != (banner_len - session->banner_TxRx_total_send)) {
+    if(ret != (ssize_t)(banner_len - session->banner_TxRx_total_send)) {
         if(ret >= 0 || ret == -EAGAIN) {
             /* the whole packet could not be sent, save the what was */
             session->socket_block_directions =
@@ -747,7 +747,7 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
             else if(rc)
                 return _libssh2_error(session, rc,
                                       "Failed getting banner");
-        } while(strncmp("SSH-", (char *)session->remote.banner, 4));
+        } while(strncmp("SSH-", (const char *)session->remote.banner, 4));
 
         session->startup_state = libssh2_NB_state_sent1;
     }
@@ -811,7 +811,8 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 
 
         if((session->startup_service_length != (sizeof("ssh-userauth") - 1))
-            || strncmp("ssh-userauth", (char *) session->startup_data + 5,
+            || strncmp("ssh-userauth",
+                       (const char *) session->startup_data + 5,
                        session->startup_service_length)) {
             LIBSSH2_FREE(session, session->startup_data);
             session->startup_data = NULL;
@@ -1150,7 +1151,7 @@ session_disconnect(LIBSSH2_SESSION *session, int reason,
                    const char *lang)
 {
     unsigned char *s;
-    unsigned long descr_len = 0, lang_len = 0;
+    size_t descr_len = 0, lang_len = 0;
     int rc;
 
     if(session->disconnect_state == libssh2_NB_state_idle) {
@@ -1167,6 +1168,10 @@ session_disconnect(LIBSSH2_SESSION *session, int reason,
             return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                                   "too long description");
 
+        if(lang_len > 256)
+            return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                                  "too long language string");
+
         /* 13 = packet_type(1) + reason code(4) + descr_len(4) + lang_len(4) */
         session->disconnect_data_len = descr_len + lang_len + 13;
 
@@ -1176,14 +1181,14 @@ session_disconnect(LIBSSH2_SESSION *session, int reason,
         _libssh2_store_u32(&s, reason);
         _libssh2_store_str(&s, description, descr_len);
         /* store length only, lang is sent separately */
-        _libssh2_store_u32(&s, lang_len);
+        _libssh2_store_u32(&s, (uint32_t)lang_len);
 
         session->disconnect_state = libssh2_NB_state_created;
     }
 
     rc = _libssh2_transport_send(session, session->disconnect_data,
                                  session->disconnect_data_len,
-                                 (unsigned char *)lang, lang_len);
+                                 (const unsigned char *)lang, lang_len);
     if(rc == LIBSSH2_ERROR_EAGAIN)
         return rc;
 
@@ -1332,7 +1337,7 @@ libssh2_session_last_error(LIBSSH2_SESSION * session, char **errmsg,
     }
 
     if(errmsg_len) {
-        *errmsg_len = msglen;
+        *errmsg_len = (int)msglen;
     }
 
     return session->err_code;
