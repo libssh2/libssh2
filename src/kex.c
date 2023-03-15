@@ -3717,7 +3717,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
  * Decide which specific method to use of the methods offered by each party
  */
 static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
-                             unsigned data_len)
+                             size_t data_len)
 {
     unsigned char *kex, *hostkey, *crypt_cs, *crypt_sc, *comp_cs, *comp_sc,
         *mac_cs, *mac_sc;
