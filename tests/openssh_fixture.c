@@ -358,6 +358,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
             fprintf(stderr, "Failed to get port for container %s\n",
                     container_id);
             ret = LIBSSH2_INVALID_SOCKET;
+            goto cleanup;
         }
     }
     else {
