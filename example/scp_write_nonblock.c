@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
     duration = (int)(time(NULL)-start);
 
     fprintf(stderr, "%zd bytes in %d seconds makes %.1f bytes/sec\n",
-           total, duration, total/(double)duration);
+           total, duration, (double)total / duration);
 
     fprintf(stderr, "Sending EOF\n");
     while(libssh2_channel_send_eof(channel) == LIBSSH2_ERROR_EAGAIN);

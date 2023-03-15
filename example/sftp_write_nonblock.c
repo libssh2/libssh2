@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
     duration = (int)(time(NULL)-start);
 
     fprintf(stderr, "%zd bytes in %d seconds makes %.1f bytes/sec\n",
-           total, duration, total/(double)duration);
+           total, duration, (double)total / duration);
 
 
     fclose(local);
