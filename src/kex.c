@@ -71,13 +71,13 @@
                                           reqlen, version)                  \
 {                                                                           \
     libssh2_sha##digest_type##_ctx hash;                                    \
-    unsigned long len = 0;                                                  \
+    size_t len = 0;                                                         \
     if(!(value)) {                                                          \
         value = LIBSSH2_ALLOC(session,                                      \
                               reqlen + SHA##digest_type##_DIGEST_LENGTH);   \
     }                                                                       \
     if(value)                                                               \
-        while(len < (unsigned long)reqlen) {                                \
+        while(len < (size_t)reqlen) {                                       \
             (void)libssh2_sha##digest_type##_init(&hash);                   \
             libssh2_sha##digest_type##_update(hash,                         \
                                               exchange_state->k_value,      \
@@ -217,7 +217,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                    unsigned char packet_type_init,
                                    unsigned char packet_type_reply,
                                    unsigned char *midhash,
-                                   unsigned long midhash_len,
+                                   size_t midhash_len,
                                    kmdhgGPshakex_state_t *exchange_state)
 {
     int ret = 0;
@@ -285,7 +285,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         }
         exchange_state->e_packet[0] = packet_type_init;
         _libssh2_htonu32(exchange_state->e_packet + 1,
-                         exchange_state->e_packet_len - 5);
+                         (uint32_t)(exchange_state->e_packet_len - 5));
         if(_libssh2_bn_bits(exchange_state->e) % 8) {
             _libssh2_bn_to_bin(exchange_state->e,
                                exchange_state->e_packet + 5);
@@ -517,7 +517,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
         _libssh2_htonu32(exchange_state->k_value,
-                         exchange_state->k_value_len - 4);
+                         (uint32_t)(exchange_state->k_value_len - 4));
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
             _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 4);
         }
@@ -610,7 +610,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                      exchange_state->e_packet_len - 1);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
-                         exchange_state->f_value_len);
+                         (uint32_t)exchange_state->f_value_len);
         _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                      exchange_state->h_sig_comp, 4);
         _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
@@ -992,7 +992,7 @@ typedef int (*diffie_hellman_hash_func_t)(LIBSSH2_SESSION *,
                                           unsigned char,
                                           unsigned char,
                                           unsigned char *,
-                                          unsigned long,
+                                          size_t,
                                           kmdhgGPshakex_state_t *);
 static int
 kex_method_diffie_hellman_group14_key_exchange(LIBSSH2_SESSION *session,
@@ -3397,8 +3397,8 @@ kex_get_method_by_name(const char *name, size_t name_len,
  * Agree on a Hostkey which works with this kex
  */
 static int kex_agree_hostkey(LIBSSH2_SESSION * session,
-                             unsigned long kex_flags,
-                             unsigned char *hostkey, unsigned long hostkey_len)
+                             size_t kex_flags,
+                             unsigned char *hostkey, size_t hostkey_len)
 {
     const LIBSSH2_HOSTKEY_METHOD **hostkeyp = libssh2_hostkey_methods();
     unsigned char *s;
@@ -3474,8 +3474,8 @@ static int kex_agree_hostkey(LIBSSH2_SESSION * session,
  * Agree on a Key Exchange method and a hostkey encoding type
  */
 static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, unsigned char *kex,
-                                 unsigned long kex_len, unsigned char *hostkey,
-                                 unsigned long hostkey_len)
+                                 size_t kex_len, unsigned char *hostkey,
+                                 size_t hostkey_len)
 {
     const LIBSSH2_KEX_METHOD **kexp = libssh2_kex_methods;
     unsigned char *s;
@@ -3552,7 +3552,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, unsigned char *kex,
 static int kex_agree_crypt(LIBSSH2_SESSION * session,
                            libssh2_endpoint_data *endpoint,
                            unsigned char *crypt,
-                           unsigned long crypt_len)
+                           size_t crypt_len)
 {
     const LIBSSH2_CRYPT_METHOD **cryptp = libssh2_crypt_methods();
     unsigned char *s;
@@ -3608,7 +3608,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION * session,
  */
 static int kex_agree_mac(LIBSSH2_SESSION * session,
                          libssh2_endpoint_data * endpoint, unsigned char *mac,
-                         unsigned long mac_len)
+                         size_t mac_len)
 {
     const LIBSSH2_MAC_METHOD **macp = _libssh2_mac_methods();
     unsigned char *s;
@@ -3661,7 +3661,7 @@ static int kex_agree_mac(LIBSSH2_SESSION * session,
  */
 static int kex_agree_comp(LIBSSH2_SESSION *session,
                           libssh2_endpoint_data *endpoint, unsigned char *comp,
-                          unsigned long comp_len)
+                          size_t comp_len)
 {
     const LIBSSH2_COMP_METHOD **compp = _libssh2_comp_methods(session);
     unsigned char *s;
@@ -4043,7 +4043,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
 
     while(s && *s && mlist) {
         char *p = strchr(s, ',');
-        int method_len = (int)(p ? (p - s) : strlen(s));
+        size_t method_len = (p ? (size_t)(p - s) : strlen(s));
 
         if(!kex_get_method_by_name(s, method_len, mlist)) {
             /* Strip out unsupported method */
