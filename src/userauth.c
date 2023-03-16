@@ -938,7 +938,7 @@ libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
 
                 *sig_len = p - *sig;
 
-                _libssh2_store_u32(&x, *sig_len - 4);
+                _libssh2_store_u32(&x, (uint32_t)(*sig_len - 4));
             }
             else {
                 _libssh2_debug((session,
@@ -1144,8 +1144,8 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             session->userauth_host_packet + session->userauth_host_packet_len;
 
         _libssh2_store_u32(&session->userauth_host_s,
-                           4 + session->userauth_host_method_len +
-                           4 + sig_len);
+                           (uint32_t)(4 + session->userauth_host_method_len +
+                                      4 + sig_len));
         _libssh2_store_str(&session->userauth_host_s,
                            (const char *)session->userauth_host_method,
                            session->userauth_host_method_len);
@@ -1709,8 +1709,8 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                    "sk-ssh-ed25519@openssh.com",
                    session->userauth_pblc_method_len) == 0) {
             _libssh2_store_u32(&s,
-                               4 + session->userauth_pblc_method_len +
-                               sig_len);
+                             (uint32_t)(4 + session->userauth_pblc_method_len +
+                                        sig_len));
             _libssh2_store_str(&s, (const char *)session->userauth_pblc_method,
                                session->userauth_pblc_method_len);
             memcpy(s, sig, sig_len);
@@ -1718,8 +1718,8 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         }
         else {
             _libssh2_store_u32(&s,
-                               4 + session->userauth_pblc_method_len + 4 +
-                               sig_len);
+                             (uint32_t)(4 + session->userauth_pblc_method_len +
+                                        4 + sig_len));
             _libssh2_store_str(&s, (const char *)session->userauth_pblc_method,
                                session->userauth_pblc_method_len);
             _libssh2_store_str(&s, (const char *)sig, sig_len);
