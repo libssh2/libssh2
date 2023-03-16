@@ -279,9 +279,8 @@ int main(int argc, char *argv[])
 
     duration = (int)(time(NULL)-start);
 
-    fprintf(stderr, LIBSSH2_STRUCT_STAT_SIZE_FORMAT " bytes"
-            " in %d seconds makes %.1f bytes/sec\n",
-            total, duration, (double)total / duration);
+    fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
+            (long)total, duration, (double)total / duration);
 
     fclose(local);
     libssh2_sftp_close(sftp_handle);

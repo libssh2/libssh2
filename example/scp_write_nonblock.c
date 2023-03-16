@@ -243,10 +243,8 @@ int main(int argc, char *argv[])
                 prev = 0;
             }
             if(nwritten < 0) {
-                fprintf(stderr, "ERROR %d"
-                        " total " LIBSSH2_STRUCT_STAT_SIZE_FORMAT
-                        " / %d prev %d\n",
-                        (int)nwritten, total, (int)nread, (int)prev);
+                fprintf(stderr, "ERROR %d total %ld / %d prev %d\n",
+                        (int)nwritten, (long)total, (int)nread, (int)prev);
                 break;
             }
             else {
@@ -261,9 +259,8 @@ int main(int argc, char *argv[])
 
     duration = (int)(time(NULL)-start);
 
-    fprintf(stderr, LIBSSH2_STRUCT_STAT_SIZE_FORMAT " bytes"
-           " in %d seconds makes %.1f bytes/sec\n",
-           total, duration, (double)total / duration);
+    fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
+           (long)total, duration, (double)total / duration);
 
     fprintf(stderr, "Sending EOF\n");
     while(libssh2_channel_send_eof(channel) == LIBSSH2_ERROR_EAGAIN);
