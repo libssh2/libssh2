@@ -1912,7 +1912,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             goto clean_exit;
         }
         _libssh2_htonu32(exchange_state->k_value,
-                         exchange_state->k_value_len - 4);
+                         (uint32_t)(exchange_state->k_value_len - 4));
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
             _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 4);
         }
@@ -2008,7 +2008,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             }
             memcpy(session->session_id, exchange_state->h_sig_comp,
                    digest_length);
-             session->session_id_len = digest_length;
+             session->session_id_len = (uint32_t)digest_length;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                            "session_id calculated"));
         }
@@ -2552,7 +2552,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             goto clean_exit;
         }
         _libssh2_htonu32(exchange_state->k_value,
-                         exchange_state->k_value_len - 4);
+                         (uint32_t)(exchange_state->k_value_len - 4));
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
             _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 4);
         }
@@ -2624,7 +2624,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             }
             memcpy(session->session_id, exchange_state->h_sig_comp,
                    digest_length);
-            session->session_id_len = digest_length;
+            session->session_id_len = (uint32_t)digest_length;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                            "session_id calculated"));
         }
