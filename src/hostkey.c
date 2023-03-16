@@ -113,8 +113,11 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     if(!_libssh2_eob(&buf))
         return -1;
 
-    if(_libssh2_rsa_new(&rsactx, e, e_len, n, n_len, NULL, 0,
-                        NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0)) {
+    if(_libssh2_rsa_new(&rsactx,
+                        e, (unsigned long)e_len,
+                        n, (unsigned long)n_len,
+                        NULL, 0, NULL, 0, NULL, 0,
+                        NULL, 0, NULL, 0, NULL, 0)) {
         return -1;
     }
 

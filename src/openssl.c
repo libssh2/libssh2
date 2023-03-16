@@ -852,9 +852,14 @@ gen_publickey_from_rsa_openssh_priv_data(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    if((rc = _libssh2_rsa_new(&rsa, e, elen, n, nlen, d, dlen, p, plen,
-                              q, qlen, NULL, 0, NULL, 0,
-                              coeff, coefflen)) != 0) {
+    if((rc = _libssh2_rsa_new(&rsa,
+                              e, (unsigned long)elen,
+                              n, (unsigned long)nlen,
+                              d, (unsigned long)dlen,
+                              p, (unsigned long)plen,
+                              q, (unsigned long)qlen,
+                              NULL, 0, NULL, 0,
+                              coeff, (unsigned long)coefflen)) != 0) {
         _libssh2_debug((session,
                        LIBSSH2_TRACE_AUTH,
                        "Could not create RSA private key"));
