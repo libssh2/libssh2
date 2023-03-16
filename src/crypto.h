@@ -130,7 +130,7 @@ int _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
                              unsigned const char *passphrase);
 int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
                              const unsigned char *sig,
-                             const unsigned char *m, unsigned long m_len);
+                             const unsigned char *m, size_t m_len);
 int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
                            const unsigned char *hash,
                            unsigned long hash_len, unsigned char *sig);

@@ -1539,10 +1539,10 @@ int
 _libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
                                 const unsigned char *sig_fixed,
                                 const unsigned char *m,
-                                unsigned long m_len)
+                                size_t m_len)
 {
     return _libssh2_wincng_key_sha_verify(dsa, SHA_DIGEST_LENGTH, sig_fixed,
-                                          40, m, m_len, 0);
+                                          40, m, (unsigned long)m_len, 0);
 }
 
 int
