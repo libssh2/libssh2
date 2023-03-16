@@ -1470,7 +1470,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
             /* 25 = packet_len(4) + packet_type(1) + request_id(4) +
                handle_len(4) + offset(8) + count(4) */
-            uint32_t packet_len = (uint32_t)handle->handle_len + 25;
+            uint32_t packet_len = (uint32_t)(handle->handle_len + 25);
             uint32_t request_id;
 
             uint32_t size = count;
