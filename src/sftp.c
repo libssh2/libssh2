@@ -2850,7 +2850,7 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
         _libssh2_store_str(&sftp->rename_s, dest_filename, dest_filename_len);
 
         if(sftp->version >= 5)
-            _libssh2_store_u32(&sftp->rename_s, flags);
+            _libssh2_store_u32(&sftp->rename_s, (uint32_t)flags);
 
         sftp->rename_state = libssh2_NB_state_created;
     }
