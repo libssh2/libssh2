@@ -33,19 +33,9 @@ environment:
       BUILD_SHARED_LIBS: ON
       CRYPTO_BACKEND: "OpenSSL"
 
-    - job_name: "VS2015, OpenSSL, Static"
-      GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: OFF
-      CRYPTO_BACKEND: "OpenSSL"
-
     - job_name: "VS2013, OpenSSL, Shared"
       GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: ON
-      CRYPTO_BACKEND: "OpenSSL"
-
-    - job_name: "VS2013, OpenSSL, Static"
-      GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: OFF
       CRYPTO_BACKEND: "OpenSSL"
 
     - job_name: "VS2015, WinCNG, Shared"
@@ -53,14 +43,24 @@ environment:
       BUILD_SHARED_LIBS: ON
       CRYPTO_BACKEND: "WinCNG"
 
-    - job_name: "VS2015, WinCNG, Static"
-      GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: OFF
-      CRYPTO_BACKEND: "WinCNG"
-
     - job_name: "VS2013, WinCNG, Shared"
       GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: ON
+      CRYPTO_BACKEND: "WinCNG"
+
+    - job_name: "VS2015, OpenSSL, Static"
+      GENERATOR: "Visual Studio 14 2015"
+      BUILD_SHARED_LIBS: OFF
+      CRYPTO_BACKEND: "OpenSSL"
+
+    - job_name: "VS2013, OpenSSL, Static"
+      GENERATOR: "Visual Studio 12 2013"
+      BUILD_SHARED_LIBS: OFF
+      CRYPTO_BACKEND: "OpenSSL"
+
+    - job_name: "VS2015, WinCNG, Static"
+      GENERATOR: "Visual Studio 14 2015"
+      BUILD_SHARED_LIBS: OFF
       CRYPTO_BACKEND: "WinCNG"
 
     - job_name: "VS2013, WinCNG, Static"
@@ -69,8 +69,8 @@ environment:
       CRYPTO_BACKEND: "WinCNG"
 
 platform:
-  - x86
   - x64
+  - x86
 
 configuration:
 # - Debug
@@ -78,9 +78,6 @@ configuration:
 
 matrix:
   fast_finish: true
-  allow_failures:
-    - GENERATOR: "Visual Studio 9 2008"
-      platform: x64
 
 install:
   # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
