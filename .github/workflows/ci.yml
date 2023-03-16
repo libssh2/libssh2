@@ -67,7 +67,7 @@ jobs:
         if: ${{ matrix.crypto_backend == 'mbedTLS' }}
         run: |
           MBEDTLSVER=mbedtls-3.2.1
-          curl -L https://github.com/ARMmbed/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
+          curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
           cd mbedtls-$MBEDTLSVER
           cmake $TOOLCHAIN_OPTION -DUSE_SHARED_MBEDTLS_LIBRARY=ON -DCMAKE_INSTALL_PREFIX:PATH=../usr .
           make -j3 install
