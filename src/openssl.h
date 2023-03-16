@@ -204,7 +204,7 @@ int _libssh2_sha1_init(libssh2_sha1_ctx *ctx);
 #define libssh2_sha1_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha1_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
-int _libssh2_sha1(const unsigned char *message, unsigned long len,
+int _libssh2_sha1(const unsigned char *message, size_t len,
                   unsigned char *out);
 #define libssh2_sha1(x,y,z) _libssh2_sha1(x,y,z)
 
@@ -228,8 +228,8 @@ int _libssh2_sha256_init(libssh2_sha256_ctx *ctx);
     EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha256_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
-int _libssh2_sha256(const unsigned char *message, unsigned long len,
-                  unsigned char *out);
+int _libssh2_sha256(const unsigned char *message, size_t len,
+                    unsigned char *out);
 #define libssh2_sha256(x,y,z) _libssh2_sha256(x,y,z)
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -252,7 +252,7 @@ int _libssh2_sha384_init(libssh2_sha384_ctx *ctx);
     EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha384_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
-int _libssh2_sha384(const unsigned char *message, unsigned long len,
+int _libssh2_sha384(const unsigned char *message, size_t len,
                     unsigned char *out);
 #define libssh2_sha384(x,y,z) _libssh2_sha384(x,y,z)
 
@@ -276,7 +276,7 @@ int _libssh2_sha512_init(libssh2_sha512_ctx *ctx);
     EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha512_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
-int _libssh2_sha512(const unsigned char *message, unsigned long len,
+int _libssh2_sha512(const unsigned char *message, size_t len,
                     unsigned char *out);
 #define libssh2_sha512(x,y,z) _libssh2_sha512(x,y,z)
 

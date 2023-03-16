@@ -1215,9 +1215,9 @@ _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 int
 _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                 const unsigned char *sig,
-                                unsigned long sig_len,
+                                size_t sig_len,
                                 const unsigned char *m,
-                                unsigned long m_len)
+                                size_t m_len)
 {
     return _libssh2_wincng_key_sha_verify(rsa, SHA_DIGEST_LENGTH, sig, sig_len,
                                           m, m_len, BCRYPT_PAD_PKCS1);
@@ -1227,9 +1227,9 @@ int
 _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx* rsa,
                                 size_t hash_len,
                                 const unsigned char *sig,
-                                unsigned long sig_len,
+                                size_t sig_len,
                                 const unsigned char *m,
-                                unsigned long m_len)
+                                size_t m_len)
 {
     return _libssh2_wincng_key_sha_verify(rsa, hash_len, sig, sig_len, m,
                                           m_len, BCRYPT_PAD_PKCS1);

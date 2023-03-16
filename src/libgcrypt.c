@@ -88,8 +88,8 @@ _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
 int
 _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
                          const unsigned char *sig,
-                         unsigned long sig_len,
-                         const unsigned char *m, unsigned long m_len)
+                         size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
     unsigned char hash[SHA_DIGEST_LENGTH];
     gcry_sexp_t s_sig, s_hash;
