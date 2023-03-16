@@ -1923,14 +1923,15 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
     }
 
     if(data[0] == SSH_FXP_STATUS) {
-        retcode = _libssh2_ntohu32(data + 5);
+        unsigned int rerrno;
+        rerrno = _libssh2_ntohu32(data + 5);
         LIBSSH2_FREE(session, data);
-        if(retcode == LIBSSH2_FX_EOF) {
+        if(rerrno == LIBSSH2_FX_EOF) {
             sftp->readdir_state = libssh2_NB_state_idle;
             return 0;
         }
         else {
-            sftp->last_errno = retcode;
+            sftp->last_errno = rerrno;
             sftp->readdir_state = libssh2_NB_state_idle;
             return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                   "SFTP Protocol Error");
