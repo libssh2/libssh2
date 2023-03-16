@@ -640,25 +640,25 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name,
         }
 
         pkey->add_s = pkey->add_packet;
-        _libssh2_htonu32(pkey->add_s, packet_len - 4);
+        _libssh2_htonu32(pkey->add_s, (uint32_t)(packet_len - 4));
         pkey->add_s += 4;
         _libssh2_htonu32(pkey->add_s, sizeof("add") - 1);
         pkey->add_s += 4;
         memcpy(pkey->add_s, "add", sizeof("add") - 1);
         pkey->add_s += sizeof("add") - 1;
         if(pkey->version == 1) {
-            _libssh2_htonu32(pkey->add_s, comment_len);
+            _libssh2_htonu32(pkey->add_s, (uint32_t)comment_len);
             pkey->add_s += 4;
             if(comment) {
                 memcpy(pkey->add_s, comment, comment_len);
                 pkey->add_s += comment_len;
             }
 
-            _libssh2_htonu32(pkey->add_s, name_len);
+            _libssh2_htonu32(pkey->add_s, (uint32_t)name_len);
             pkey->add_s += 4;
             memcpy(pkey->add_s, name, name_len);
             pkey->add_s += name_len;
-            _libssh2_htonu32(pkey->add_s, blob_len);
+            _libssh2_htonu32(pkey->add_s, (uint32_t)blob_len);
             pkey->add_s += 4;
             memcpy(pkey->add_s, blob, blob_len);
             pkey->add_s += blob_len;
@@ -666,23 +666,23 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name,
         else {
             /* Version == 2 */
 
-            _libssh2_htonu32(pkey->add_s, name_len);
+            _libssh2_htonu32(pkey->add_s, (uint32_t)name_len);
             pkey->add_s += 4;
             memcpy(pkey->add_s, name, name_len);
             pkey->add_s += name_len;
-            _libssh2_htonu32(pkey->add_s, blob_len);
+            _libssh2_htonu32(pkey->add_s, (uint32_t)blob_len);
             pkey->add_s += 4;
             memcpy(pkey->add_s, blob, blob_len);
             pkey->add_s += blob_len;
             *(pkey->add_s++) = overwrite ? 0x01 : 0;
-            _libssh2_htonu32(pkey->add_s, num_attrs);
+            _libssh2_htonu32(pkey->add_s, (uint32_t)num_attrs);
             pkey->add_s += 4;
             for(i = 0; i < num_attrs; i++) {
-                _libssh2_htonu32(pkey->add_s, attrs[i].name_len);
+                _libssh2_htonu32(pkey->add_s, (uint32_t)attrs[i].name_len);
                 pkey->add_s += 4;
                 memcpy(pkey->add_s, attrs[i].name, attrs[i].name_len);
                 pkey->add_s += attrs[i].name_len;
-                _libssh2_htonu32(pkey->add_s, attrs[i].value_len);
+                _libssh2_htonu32(pkey->add_s, (uint32_t)attrs[i].value_len);
                 pkey->add_s += 4;
                 memcpy(pkey->add_s, attrs[i].value, attrs[i].value_len);
                 pkey->add_s += attrs[i].value_len;
@@ -760,17 +760,17 @@ libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY * pkey,
         }
 
         pkey->remove_s = pkey->remove_packet;
-        _libssh2_htonu32(pkey->remove_s, packet_len - 4);
+        _libssh2_htonu32(pkey->remove_s, (uint32_t)(packet_len - 4));
         pkey->remove_s += 4;
         _libssh2_htonu32(pkey->remove_s, sizeof("remove") - 1);
         pkey->remove_s += 4;
         memcpy(pkey->remove_s, "remove", sizeof("remove") - 1);
         pkey->remove_s += sizeof("remove") - 1;
-        _libssh2_htonu32(pkey->remove_s, name_len);
+        _libssh2_htonu32(pkey->remove_s, (uint32_t)name_len);
         pkey->remove_s += 4;
         memcpy(pkey->remove_s, name, name_len);
         pkey->remove_s += name_len;
-        _libssh2_htonu32(pkey->remove_s, blob_len);
+        _libssh2_htonu32(pkey->remove_s, (uint32_t)blob_len);
         pkey->remove_s += 4;
         memcpy(pkey->remove_s, blob, blob_len);
         pkey->remove_s += blob_len;
@@ -838,7 +838,7 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
         pkey->listFetch_data = NULL;
 
         pkey->listFetch_s = pkey->listFetch_buffer;
-        _libssh2_htonu32(pkey->listFetch_s, buffer_len - 4);
+        _libssh2_htonu32(pkey->listFetch_s, (uint32_t)(buffer_len - 4));
         pkey->listFetch_s += 4;
         _libssh2_htonu32(pkey->listFetch_s, sizeof("list") - 1);
         pkey->listFetch_s += 4;
