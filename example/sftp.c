@@ -46,6 +46,10 @@
 #pragma warning(disable:4127)
 #endif
 
+#ifdef WIN32
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
+#endif
+
 const char *keyfile1 = "~/.ssh/id_rsa.pub";
 const char *keyfile2 = "~/.ssh/id_rsa";
 const char *username = "username";

@@ -44,6 +44,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#ifdef WIN32
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
+#endif
+
 #ifdef HAVE_GETTIMEOFDAY
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)

@@ -36,6 +36,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#ifdef WIN32
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
+#endif
+
 int main(int argc, char *argv[])
 {
     unsigned long hostaddr;

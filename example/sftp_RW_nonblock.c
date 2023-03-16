@@ -43,6 +43,10 @@
 #pragma warning(disable:4127)
 #endif
 
+#ifdef WIN32
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
+#endif
+
 #define STORAGE "/tmp/sftp-storage" /* this is the local file name this
                                        example uses to store the downloaded
                                        file in */
