@@ -170,7 +170,7 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Send the length of the request */
     if(transctx->state == agent_NB_state_request_created) {
-        _libssh2_htonu32(buf, transctx->request_len);
+        _libssh2_htonu32(buf, (uint32_t)transctx->request_len);
         rc = (int)_send_all(agent->session->send, agent->fd,
                             buf, sizeof buf, 0,
                             &agent->session->abstract);
