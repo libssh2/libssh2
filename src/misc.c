@@ -230,18 +230,14 @@ _libssh2_ntohu32(const unsigned char *buf)
 libssh2_uint64_t
 _libssh2_ntohu64(const unsigned char *buf)
 {
-    uint32_t msl, lsl;
-
-    msl = ((uint32_t)buf[0] << 24)
-        | ((uint32_t)buf[1] << 16)
-        | ((uint32_t)buf[2] <<  8)
-        |  (uint32_t)buf[3];
-    lsl = ((uint32_t)buf[4] << 24)
-        | ((uint32_t)buf[5] << 16)
-        | ((uint32_t)buf[6] <<  8)
-        |  (uint32_t)buf[7];
-
-    return ((libssh2_uint64_t)msl << 32) | lsl;
+    return ((libssh2_uint64_t)buf[0] << 56)
+         | ((libssh2_uint64_t)buf[1] << 48)
+         | ((libssh2_uint64_t)buf[2] << 40)
+         | ((libssh2_uint64_t)buf[3] << 32)
+         | ((libssh2_uint64_t)buf[4] << 24)
+         | ((libssh2_uint64_t)buf[5] << 16)
+         | ((libssh2_uint64_t)buf[6] <<  8)
+         | ((libssh2_uint64_t)buf[7]);
 }
 
 /* _libssh2_htonu32
