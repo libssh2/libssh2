@@ -1658,7 +1658,7 @@ _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
     }
 
     channel->read_avail -= channel->flush_flush_bytes;
-    channel->remote.window_size -= channel->flush_flush_bytes;
+    channel->remote.window_size -= (uint32_t)channel->flush_flush_bytes;
 
     if(channel->flush_refund_bytes) {
         int rc =
@@ -2136,7 +2136,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     }
 
     channel->read_avail -= bytes_read;
-    channel->remote.window_size -= bytes_read;
+    channel->remote.window_size -= (uint32_t)bytes_read;
 
     return bytes_read;
 }
@@ -2362,7 +2362,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                                   "Unable to send channel data");
         }
         /* Shrink local window size */
-        channel->local.window_size -= channel->write_bufwrite;
+        channel->local.window_size -= (uint32_t)channel->write_bufwrite;
 
         wrote += channel->write_bufwrite;
 
