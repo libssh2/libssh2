@@ -525,7 +525,7 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 int
 _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
                          const unsigned char *sig,
-                         const unsigned char *m, unsigned long m_len)
+                         const unsigned char *m, size_t m_len)
 {
     unsigned char hash[SHA_DIGEST_LENGTH + 1];
     gcry_sexp_t s_sig, s_hash;

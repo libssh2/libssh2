@@ -546,7 +546,7 @@ int
 _libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
                                 const unsigned char *sig_fixed,
                                 const unsigned char *m,
-                                unsigned long m_len);
+                                size_t m_len);
 int
 _libssh2_wincng_dsa_sha1_sign(libssh2_dsa_ctx *dsa,
                               const unsigned char *hash,
