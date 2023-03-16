@@ -410,7 +410,7 @@ struct _LIBSSH2_CHANNEL
     /* Amount of bytes to be refunded to receive window (but not yet sent) */
     uint32_t adjust_queue;
     /* Data immediately available for reading */
-    uint32_t read_avail;
+    size_t read_avail;
 
     LIBSSH2_SESSION *session;
 
