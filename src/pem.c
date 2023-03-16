@@ -114,7 +114,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
     char line[LINE_SIZE];
     unsigned char iv[LINE_SIZE];
     char *b64data = NULL;
-    unsigned int b64datalen = 0;
+    size_t b64datalen = 0;
     int ret;
     const LIBSSH2_CRYPT_METHOD *method = NULL;
 
@@ -172,9 +172,9 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
     do {
         if(*line) {
             char *tmp;
-            unsigned int linelen;
+            size_t linelen;
 
-            linelen = (unsigned int)strlen(line);
+            linelen = strlen(line);
             tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
             if(!tmp) {
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -200,7 +200,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
     }
 
     if(libssh2_base64_decode(session, (char **) data, datalen,
-                              b64data, b64datalen)) {
+                             b64data, (unsigned int)b64datalen)) {
         ret = -1;
         goto out;
     }
@@ -299,7 +299,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
-    unsigned int b64datalen = 0;
+    size_t b64datalen = 0;
     size_t off = 0;
     int ret;
 
@@ -345,7 +345,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
     }
 
     if(libssh2_base64_decode(session, (char **) data, datalen,
-                              b64data, b64datalen)) {
+                             b64data, (unsigned int)b64datalen)) {
         ret = -1;
         goto out;
     }
@@ -669,7 +669,7 @@ _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
-    unsigned int b64datalen = 0;
+    size_t b64datalen = 0;
     int ret = 0;
 
     /* read file */
@@ -720,7 +720,7 @@ _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
     ret = _libssh2_openssh_pem_parse_data(session,
                                           passphrase,
                                           (const char *)b64data,
-                                          (size_t)b64datalen,
+                                          b64datalen,
                                           decrypted_buf);
 
     if(b64data) {
@@ -741,7 +741,7 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
-    unsigned int b64datalen = 0;
+    size_t b64datalen = 0;
     size_t off = 0;
     int ret;
 
