@@ -281,7 +281,7 @@ void _libssh2_store_bignum2_bytes(unsigned char **buf,
     for(p = bytes; len > 0 && *p == 0; --len, ++p) {}
 
     extraByte = (len > 0 && (p[0] & 0x80) != 0);
-    _libssh2_store_u32(buf, len + extraByte);
+    _libssh2_store_u32(buf, (uint32_t)(len + extraByte));
 
     if(extraByte) {
         *buf[0] = 0;
