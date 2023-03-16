@@ -466,7 +466,7 @@ _libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx);
 
 int
 _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
-                                size_t hashlen,
+                                unsigned long hashlen,
                                 const unsigned char *sig,
                                 unsigned long sig_len,
                                 const unsigned char *m,

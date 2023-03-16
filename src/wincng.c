@@ -589,7 +589,7 @@ _libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx)
 
 int
 _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
-                                size_t hashlen,
+                                unsigned long hashlen,
                                 const unsigned char *sig,
                                 unsigned long sig_len,
                                 const unsigned char *m,
@@ -662,7 +662,7 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
     memcpy(data, sig, datalen);
 
     ret = BCryptVerifySignature(ctx->hKey, pPaddingInfo,
-                                hash, (ULONG)hashlen, data, datalen, flags);
+                                hash, hashlen, data, datalen, flags);
 
     _libssh2_wincng_safe_free(hash, hashlen);
     _libssh2_wincng_safe_free(data, datalen);
@@ -1219,8 +1219,10 @@ _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                 const unsigned char *m,
                                 size_t m_len)
 {
-    return _libssh2_wincng_key_sha_verify(rsa, SHA_DIGEST_LENGTH, sig, sig_len,
-                                          m, m_len, BCRYPT_PAD_PKCS1);
+    return _libssh2_wincng_key_sha_verify(rsa, SHA_DIGEST_LENGTH,
+                                          sig, (unsigned long)sig_len,
+                                          m, (unsigned long)m_len,
+                                          BCRYPT_PAD_PKCS1);
 }
 
 int
@@ -1231,8 +1233,10 @@ _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx* rsa,
                                 const unsigned char *m,
                                 size_t m_len)
 {
-    return _libssh2_wincng_key_sha_verify(rsa, hash_len, sig, sig_len, m,
-                                          m_len, BCRYPT_PAD_PKCS1);
+    return _libssh2_wincng_key_sha_verify(rsa, (unsigned long)hash_len,
+                                          sig, (unsigned long)sig_len,
+                                          m, (unsigned long)m_len,
+                                          BCRYPT_PAD_PKCS1);
 }
 
 int
