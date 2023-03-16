@@ -470,7 +470,7 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
         host = "0.0.0.0";
 
     if(session->fwdLstn_state == libssh2_NB_state_idle) {
-        session->fwdLstn_host_len = strlen(host);
+        session->fwdLstn_host_len = (uint32_t)strlen(host);
         /* 14 = packet_type(1) + request_len(4) + want_replay(1) + host_len(4)
            + port(4) */
         session->fwdLstn_packet_len =
@@ -1663,8 +1663,8 @@ _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
     if(channel->flush_refund_bytes) {
         int rc =
             _libssh2_channel_receive_window_adjust(channel,
-                                                   channel->flush_refund_bytes,
-                                                   1, NULL);
+                                         (uint32_t)channel->flush_refund_bytes,
+                                         1, NULL);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
     }
@@ -2007,8 +2007,8 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
        (channel->remote.window_size <
         channel->remote.window_size_initial / 4 * 3 + buflen) ) {
 
-        uint32_t adjustment = channel->remote.window_size_initial + buflen -
-            channel->remote.window_size;
+        uint32_t adjustment = (uint32_t)(channel->remote.window_size_initial +
+            buflen - channel->remote.window_size);
         if(adjustment < LIBSSH2_CHANNEL_MINADJUST)
             adjustment = LIBSSH2_CHANNEL_MINADJUST;
 
@@ -2169,8 +2169,8 @@ libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf,
 
     if(buflen > recv_window) {
         BLOCK_ADJUST(rc, channel->session,
-                     _libssh2_channel_receive_window_adjust(channel, buflen,
-                                                            1, NULL));
+                     _libssh2_channel_receive_window_adjust(channel,
+                                                   (uint32_t)buflen, 1, NULL));
     }
 
     BLOCK_ADJUST(rc, channel->session,
@@ -2337,7 +2337,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         }
         /* store the size here only, the buffer is passed in as-is to
            _libssh2_transport_send() */
-        _libssh2_store_u32(&s, channel->write_bufwrite);
+        _libssh2_store_u32(&s, (uint32_t)channel->write_bufwrite);
         channel->write_packet_len = s - channel->write_packet;
 
         _libssh2_debug((session, LIBSSH2_TRACE_CONN,
