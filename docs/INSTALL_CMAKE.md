@@ -47,11 +47,17 @@ The following options are available:
 
     Enables running the source code linter when building. Can be `ON` or `OFF`.
 
+ * `BUILD_STATIC_LIBS=ON`
+
+    Determines whether to build a libssh2 static library.
+    Can be `ON` or `OFF`.
 
  * `BUILD_SHARED_LIBS=OFF`
 
-    Determines whether libssh2 is built as a static library or as a
-    shared library (.dll/.so).  Can be `ON` or `OFF`.
+    Determines whether to build a libssh2 shared library (.dll/.so).
+    Can be `ON` or `OFF`.
+
+    If enabled, the optional static lib is also built with PIC enabled.
 
  * `CRYPTO_BACKEND=`
 
