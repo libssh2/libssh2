@@ -1160,8 +1160,12 @@ gen_publickey_from_dsa_openssh_priv_data(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    rc = _libssh2_dsa_new(&dsa, p, plen, q, qlen, g, glen, pub_key, pub_len,
-                          priv_key, priv_len);
+    rc = _libssh2_dsa_new(&dsa,
+                          p, (unsigned long)plen,
+                          q, (unsigned long)qlen,
+                          g, (unsigned long)glen,
+                          pub_key, (unsigned long)pub_len,
+                          priv_key, (unsigned long)priv_len);
     if(rc != 0) {
         _libssh2_debug((session,
                        LIBSSH2_ERROR_PROTO,
