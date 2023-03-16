@@ -528,8 +528,12 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
     if(!_libssh2_eob(&buf))
         return -1;
 
-    if(_libssh2_dsa_new(&dsactx, p, p_len, q, q_len,
-                        g, g_len, y, y_len, NULL, 0)) {
+    if(_libssh2_dsa_new(&dsactx,
+                        p, (unsigned long)p_len,
+                        q, (unsigned long)q_len,
+                        g, (unsigned long)g_len,
+                        y, (unsigned long)y_len,
+                        NULL, 0)) {
         return -1;
     }
 
