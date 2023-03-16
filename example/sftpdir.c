@@ -46,7 +46,7 @@
 #pragma warning(disable:4127)
 #endif
 
-#ifdef WIN32
+#if defined(_MSC_VER)
 #define __FILESIZE "I64u"
 #else
 #define __FILESIZE "llu"
