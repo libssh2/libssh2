@@ -85,8 +85,8 @@ int _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
                              unsigned const char *passphrase);
 int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
                              const unsigned char *sig,
-                             unsigned long sig_len,
-                             const unsigned char *m, unsigned long m_len);
+                             size_t sig_len,
+                             const unsigned char *m, size_t m_len);
 int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
                            libssh2_rsa_ctx * rsactx,
                            const unsigned char *hash,
@@ -103,8 +103,8 @@ int _libssh2_rsa_sha2_sign(LIBSSH2_SESSION * session,
 int _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsa,
                              size_t hash_len,
                              const unsigned char *sig,
-                             unsigned long sig_len,
-                             const unsigned char *m, unsigned long m_len);
+                             size_t sig_len,
+                             const unsigned char *m, size_t m_len);
 #endif
 int _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
                                         LIBSSH2_SESSION * session,

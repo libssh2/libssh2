@@ -174,8 +174,8 @@ int
 _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
                          size_t hash_len,
                          const unsigned char *sig,
-                         unsigned long sig_len,
-                         const unsigned char *m, unsigned long m_len)
+                         size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
     int ret;
     int nid_type;
@@ -222,8 +222,8 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 int
 _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
                          const unsigned char *sig,
-                         unsigned long sig_len,
-                         const unsigned char *m, unsigned long m_len)
+                         size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
     return _libssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH, sig, sig_len, m,
                                     m_len);
@@ -2196,7 +2196,7 @@ _libssh2_sha1_init(libssh2_sha1_ctx *ctx)
 }
 
 int
-_libssh2_sha1(const unsigned char *message, unsigned long len,
+_libssh2_sha1(const unsigned char *message, size_t len,
               unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -2248,7 +2248,7 @@ _libssh2_sha256_init(libssh2_sha256_ctx *ctx)
 }
 
 int
-_libssh2_sha256(const unsigned char *message, unsigned long len,
+_libssh2_sha256(const unsigned char *message, size_t len,
                 unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -2300,8 +2300,8 @@ _libssh2_sha384_init(libssh2_sha384_ctx *ctx)
 }
 
 int
-_libssh2_sha384(const unsigned char *message, unsigned long len,
-    unsigned char *out)
+_libssh2_sha384(const unsigned char *message, size_t len,
+                unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX * ctx = EVP_MD_CTX_new();
@@ -2352,8 +2352,8 @@ _libssh2_sha512_init(libssh2_sha512_ctx *ctx)
 }
 
 int
-_libssh2_sha512(const unsigned char *message, unsigned long len,
-    unsigned char *out)
+_libssh2_sha512(const unsigned char *message, size_t len,
+                unsigned char *out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
     EVP_MD_CTX * ctx = EVP_MD_CTX_new();

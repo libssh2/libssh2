@@ -2379,12 +2379,12 @@ _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
 
 int
 _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
-                         const unsigned char *sig, unsigned long sig_len,
-                         const unsigned char *m, unsigned long m_len)
+                         const unsigned char *sig, size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
     Qus_EC_t errcode;
-    int slen = sig_len;
-    int mlen = m_len;
+    int slen = (int)sig_len;
+    int mlen = (int)m_len;
 
     set_EC_length(errcode, sizeof errcode);
     Qc3VerifySignature((char *) sig, &slen, (char *) m, &mlen, Qc3_Data,

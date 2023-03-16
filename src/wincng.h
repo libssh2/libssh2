@@ -509,9 +509,9 @@ _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 int
 _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                 const unsigned char *sig,
-                                unsigned long sig_len,
+                                size_t sig_len,
                                 const unsigned char *m,
-                                unsigned long m_len);
+                                size_t m_len);
 int
 _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
                               libssh2_rsa_ctx *rsa,
