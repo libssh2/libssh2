@@ -651,7 +651,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
         if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
             sockets[0].events |= POLLOUT;
 
-        rc = poll(sockets, 1, has_timeout?ms_to_next: -1);
+        rc = poll(sockets, 1, has_timeout ? (int)ms_to_next : -1);
     }
 #else
     {
@@ -1714,7 +1714,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
             struct timeval tv_begin, tv_end;
 
             _libssh2_gettimeofday((struct timeval *) &tv_begin, NULL);
-            sysret = poll(sockets, nfds, timeout_remaining);
+            sysret = poll(sockets, nfds, (int)timeout_remaining);
             _libssh2_gettimeofday((struct timeval *) &tv_end, NULL);
             timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
             timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
@@ -1723,7 +1723,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         /* If the platform doesn't support gettimeofday,
          * then just make the call non-blocking and walk away
          */
-        sysret = poll(sockets, nfds, timeout_remaining);
+        sysret = poll(sockets, nfds, (int)timeout_remaining);
         timeout_remaining = 0;
 #endif /* HAVE_GETTIMEOFDAY */
 
