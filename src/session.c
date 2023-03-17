@@ -1547,7 +1547,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         switch(fds[i].type) {
         case LIBSSH2_POLLFD_SOCKET:
             sockets[i].fd = fds[i].fd.socket;
-            sockets[i].events = fds[i].events;
+            sockets[i].events = (short)fds[i].events;
             sockets[i].revents = 0;
             break;
 
