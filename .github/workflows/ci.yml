@@ -10,6 +10,7 @@ jobs:
   check_style:
     name: style-check
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v3
       - name: Check Style
@@ -18,6 +19,7 @@ jobs:
   build_linux:
     name: linux
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -89,12 +91,13 @@ jobs:
           cmake $TOOLCHAIN_OPTION -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
           cmake --build .
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
-          ctest -VV --output-on-failure
+          ctest -VV --output-on-failure --timeout 450
           cmake --build . --target package
 
   build_msys2:
     name: msys2
     runs-on: windows-latest
+    timeout-minutes: 30
     strategy:
       matrix:
         include:

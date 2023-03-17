@@ -30,42 +30,42 @@ environment:
   matrix:
     - job_name: "VS2015, OpenSSL, Shared"
       GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: ON
+      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
     - job_name: "VS2013, OpenSSL, Shared"
       GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: ON
+      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
     - job_name: "VS2015, WinCNG, Shared"
       GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: ON
+      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
 
     - job_name: "VS2013, WinCNG, Shared"
       GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: ON
+      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
 
     - job_name: "VS2015, OpenSSL, Static"
       GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: OFF
+      BUILD_SHARED_LIBS: "OFF"
       CRYPTO_BACKEND: "OpenSSL"
 
     - job_name: "VS2013, OpenSSL, Static"
       GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: OFF
+      BUILD_SHARED_LIBS: "OFF"
       CRYPTO_BACKEND: "OpenSSL"
 
     - job_name: "VS2015, WinCNG, Static"
       GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: OFF
+      BUILD_SHARED_LIBS: "OFF"
       CRYPTO_BACKEND: "WinCNG"
 
     - job_name: "VS2013, WinCNG, Static"
       GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: OFF
+      BUILD_SHARED_LIBS: "OFF"
       CRYPTO_BACKEND: "WinCNG"
 
 platform:
@@ -85,7 +85,6 @@ install:
       $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
       [System.Environment]::SetEnvironmentVariable("OPENSSH_SERVER_PORT", $env:OPENSSH_SERVER_PORT)
   - ps: .\ci\appveyor\docker-bridge.ps1
-  - appveyor-retry choco install -y --no-progress --limit-output --timeout 180 docker-cli
 
 build_script:
   - ps: if($env:PLATFORM -eq "x64") { $env:CMAKE_GEN_SUFFIX=" Win64" }
@@ -93,6 +92,7 @@ build_script:
   - cmake --build _builds --config "%CONFIGURATION%"
 
 before_test:
+  - appveyor-retry choco install -y --no-progress --limit-output --timeout 180 docker-cli
   - ps: |
       Write-Host "Waiting for SSH connection from GitHub Actions" -NoNewline
       while((Get-Process -Name "sshd" -ErrorAction SilentlyContinue).Count -eq 1) {
@@ -109,7 +109,7 @@ before_test:
 
 test_script:
   - ps: $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
-  - ps: cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure
+  - ps: cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
 
 on_failure:
   - ps: if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
@@ -123,5 +123,5 @@ on_finish:
 
 # whitelist branches to avoid testing feature branches twice (as branch and as pull request)
 branches:
-    only:
-        - master
+  only:
+    - master
