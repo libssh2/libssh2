@@ -419,11 +419,15 @@ _libssh2_wincng_free(void)
 }
 
 int
-_libssh2_wincng_random(void *buf, int len)
+_libssh2_wincng_random(void *buf, size_t len)
 {
     int ret;
 
-    ret = BCryptGenRandom(_libssh2_wincng.hAlgRNG, buf, len, 0);
+    if(len > ULONG_MAX) {
+        return -1;
+    }
+
+    ret = BCryptGenRandom(_libssh2_wincng.hAlgRNG, buf, (ULONG)len, 0);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }

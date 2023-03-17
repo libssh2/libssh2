@@ -445,7 +445,7 @@ typedef struct {
  */
 void _libssh2_wincng_init(void);
 void _libssh2_wincng_free(void);
-int _libssh2_wincng_random(void *buf, int len);
+int _libssh2_wincng_random(void *buf, size_t len);
 
 int
 _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,

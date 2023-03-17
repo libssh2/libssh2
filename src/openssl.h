@@ -181,7 +181,8 @@
 
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
-#define _libssh2_random(buf, len) (RAND_bytes((buf), (len)) == 1 ? 0 : -1)
+#define _libssh2_random(buf, len) \
+  _libssh2_openssl_random((buf), (len))
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 
@@ -426,6 +427,8 @@ extern int _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                               _libssh2_bn *f, _libssh2_bn *p,
                               _libssh2_bn_ctx *bnctx);
 extern void _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
+
+extern int _libssh2_openssl_random(void *buf, size_t len);
 
 const EVP_CIPHER *_libssh2_EVP_aes_128_ctr(void);
 const EVP_CIPHER *_libssh2_EVP_aes_192_ctr(void);

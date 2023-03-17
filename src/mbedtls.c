@@ -83,7 +83,7 @@ _libssh2_mbedtls_free(void)
 }
 
 int
-_libssh2_mbedtls_random(unsigned char *buf, int len)
+_libssh2_mbedtls_random(unsigned char *buf, size_t len)
 {
     int ret;
     ret = mbedtls_ctr_drbg_random(&_libssh2_mbedtls_ctr_drbg, buf, len);
