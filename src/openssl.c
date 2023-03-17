@@ -92,6 +92,16 @@ write_bn(unsigned char *buf, const BIGNUM *bn, int bn_bytes)
 }
 
 int
+_libssh2_openssl_random(void *buf, size_t len)
+{
+    if(len > INT_MAX) {
+        return -1;
+    }
+
+    return RAND_bytes(buf, (int)len) == 1 ? 0 : -1;
+}
+
+int
 _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
                  const unsigned char *edata,
                  unsigned long elen,

@@ -883,7 +883,7 @@ _libssh2_bn_from_bn(_libssh2_bn *to, _libssh2_bn *from)
 }
 
 int
-_libssh2_random(unsigned char *buf, int len)
+_libssh2_random(unsigned char *buf, size_t len)
 {
     Qc3GenPRNs(buf, len,
         Qc3PRN_TYPE_NORMAL, Qc3PRN_NO_PARITY, (char *) &ecnull);
