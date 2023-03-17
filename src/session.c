@@ -330,6 +330,8 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 #endif
 
 #ifdef HAVE_DISABLED_NONBLOCKING
+    (void)sockfd;
+    (void)nonblock;
     return 0;                   /* returns success */
 #undef SETBLOCK
 #define SETBLOCK 6
@@ -409,6 +411,7 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
 #endif
 
 #ifdef HAVE_DISABLED_NONBLOCKING
+    (void)sockfd;
     return 1;                   /* returns blocking */
 #undef GETBLOCK
 #define GETBLOCK 7
