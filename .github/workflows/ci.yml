@@ -84,6 +84,7 @@ jobs:
           make
           make check
       - name: Build with CMake
+        timeout-minutes: 10
         if: ${{ matrix.b == 'cmake' }}
         run: |
           mkdir bin
@@ -91,7 +92,7 @@ jobs:
           cmake $TOOLCHAIN_OPTION -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
           cmake --build .
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
-          ctest -VV --output-on-failure --timeout 450
+          ctest -VV --output-on-failure
           cmake --build . --target package
 
   build_msys2:
