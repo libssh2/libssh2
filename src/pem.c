@@ -100,7 +100,8 @@ static const char *crypt_annotation = "Proc-Type: 4,ENCRYPTED";
 
 static unsigned char hex_decode(char digit)
 {
-    return (digit >= 'A') ? 0xA + (digit - 'A') : (digit - '0');
+    return (unsigned char)
+        ((digit >= 'A') ? (0xA + (digit - 'A')) : (digit - '0'));
 }
 
 int

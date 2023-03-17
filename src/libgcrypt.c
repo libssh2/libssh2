@@ -595,7 +595,7 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
                       _libssh2_cipher_type(algo),
                       int encrypt, unsigned char *block, size_t blklen)
 {
-    int cipher = _libssh2_gcry_cipher(algo);
+    int cipher = _libssh2_gcry_cipher(algo);  /* FIXME: unused variable */
     int ret;
 
     if(encrypt) {
