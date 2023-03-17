@@ -474,7 +474,8 @@ channel_forward_listen(LIBSSH2_SESSION * session, const char *host,
         /* 14 = packet_type(1) + request_len(4) + want_replay(1) + host_len(4)
            + port(4) */
         session->fwdLstn_packet_len =
-            session->fwdLstn_host_len + (sizeof("tcpip-forward") - 1) + 14;
+            session->fwdLstn_host_len +
+            (uint32_t)(sizeof("tcpip-forward") - 1) + 14;
 
         /* Zero the whole thing out */
         memset(&session->fwdLstn_packet_requirev_state, 0,
