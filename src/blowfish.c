@@ -422,9 +422,9 @@ Blowfish_stream2word(const uint8_t *data, uint16_t databytes,
 void
 Blowfish_expand0state(blf_ctx *c, const uint8_t *key, uint16_t keybytes)
 {
-    uint16_t i;
+    int i;
+    int k;
     uint16_t j;
-    uint16_t k;
     uint32_t temp;
     uint32_t datal;
     uint32_t datar;
@@ -461,9 +461,9 @@ void
 Blowfish_expandstate(blf_ctx *c, const uint8_t *data, uint16_t databytes,
                      const uint8_t *key, uint16_t keybytes)
 {
-    uint16_t i;
+    int i;
+    int k;
     uint16_t j;
-    uint16_t k;
     uint32_t temp;
     uint32_t datal;
     uint32_t datar;
