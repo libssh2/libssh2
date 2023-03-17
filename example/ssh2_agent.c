@@ -46,7 +46,7 @@ const char *username = "username";
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
     int i, rc;
     struct sockaddr_in sin;

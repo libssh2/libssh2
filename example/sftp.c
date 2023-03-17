@@ -108,7 +108,7 @@ static void kbd_callback(const char *name, int name_len,
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 0;
     struct sockaddr_in sin;

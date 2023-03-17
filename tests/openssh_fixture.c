@@ -337,7 +337,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
 {
     char *ip_address = NULL;
     char *port_string = NULL;
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
     int counter = 0;
@@ -382,7 +382,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     }
 
     hostaddr = inet_addr(ip_address);
-    if(hostaddr == (unsigned long)(-1)) {
+    if(hostaddr == (uint32_t)(-1)) {
         fprintf(stderr, "Failed to convert %s host address\n", ip_address);
         goto cleanup;
     }

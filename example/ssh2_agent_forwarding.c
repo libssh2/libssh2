@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     const char *hostname = "127.0.0.1";
     const char *commandline = "uptime";
     const char *username    = NULL;
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
     LIBSSH2_SESSION *session;

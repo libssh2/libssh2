@@ -248,7 +248,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
 int
 main (int argc, char *argv[])
 {
-    unsigned long hostaddr = 0;
+    uint32_t hostaddr = 0;
     int sock = 0;
     int rc = 0;
     struct sockaddr_in sin;

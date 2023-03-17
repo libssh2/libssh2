@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     const char *commandline = "cat";
     const char *username    = "user";
     const char *password    = "password";
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
     const char *fingerprint;
