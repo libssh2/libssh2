@@ -189,11 +189,11 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
                       void **abstract)
 {
     z_stream *strm = *abstract;
-    int out_maxlen = *dest_len;
+    uInt out_maxlen = (uInt)*dest_len;
     int status;
 
     strm->next_in = (unsigned char *) src;
-    strm->avail_in = src_len;
+    strm->avail_in = (uInt)src_len;
     strm->next_out = dest;
     strm->avail_out = out_maxlen;
 
