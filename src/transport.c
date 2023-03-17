@@ -720,7 +720,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     int blocksize =
         (session->state & LIBSSH2_STATE_NEWKEYS) ?
         session->local.crypt->blocksize : 8;
-    int padding_length;
+    ssize_t padding_length;
     size_t packet_length;
     ssize_t total_length;
 #ifdef RANDOM_PADDING
