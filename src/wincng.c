@@ -855,16 +855,17 @@ _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
                               unsigned char **ppbDecoded,
                               unsigned long *pcbDecoded)
 {
-    unsigned char *pbDecoded = NULL, *pbInteger;
+    unsigned char *pbDecoded = NULL;
+    PCRYPT_DATA_BLOB pbInteger;
     unsigned long cbDecoded = 0, cbInteger;
     int ret;
 
     ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
                                      X509_MULTI_BYTE_UINT,
-                                     &pbInteger, &cbInteger);
+                                     (void *)&pbInteger, &cbInteger);
     if(!ret) {
-        ret = _libssh2_wincng_bn_ltob(((PCRYPT_DATA_BLOB)pbInteger)->pbData,
-                                      ((PCRYPT_DATA_BLOB)pbInteger)->cbData,
+        ret = _libssh2_wincng_bn_ltob(pbInteger->pbData,
+                                      pbInteger->cbData,
                                       &pbDecoded, &cbDecoded);
         if(!ret) {
             *ppbDecoded = pbDecoded;
