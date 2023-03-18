@@ -1925,7 +1925,8 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
     }
 
 
-    keylen = sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) + type.dwKeyLength;
+    keylen = (unsigned long)sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) +
+             type.dwKeyLength;
     header = (BCRYPT_KEY_DATA_BLOB_HEADER *)malloc(keylen);
     if(!header) {
         free(pbKeyObject);
@@ -2137,13 +2138,13 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
         bits = 8;
 
     /* fill most significant byte with zero padding */
-    bignum[0] &= ((1 << bits) - 1);
+    bignum[0] &= (unsigned char)((1 << bits) - 1);
 
     /* set most significant bits in most significant byte */
     if(top == 0)
-        bignum[0] |= (1 << (bits - 1));
+        bignum[0] |= (unsigned char)(1 << (bits - 1));
     else if(top == 1)
-        bignum[0] |= (3 << (bits - 2));
+        bignum[0] |= (unsigned char)(3 << (bits - 2));
 
     /* make odd by setting first bit in least significant byte */
     if(bottom)
@@ -2406,7 +2407,8 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             return -1;
         }
 
-        dh_params_len = sizeof(*dh_params) + 2 * key_length_bytes;
+        dh_params_len = (unsigned long)sizeof(*dh_params) +
+                        2 * key_length_bytes;
         dh_params = (BCRYPT_DH_PARAMETER_HEADER *)malloc(dh_params_len);
         if(!dh_params) {
             return -1;
