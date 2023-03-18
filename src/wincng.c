@@ -989,7 +989,6 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
     LPCWSTR lpszBlobType;
-    unsigned char *key;
     unsigned long keylen, offset, mlen, p1len = 0, p2len = 0;
     int ret;
 
@@ -1005,65 +1004,76 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
         keylen += p1len * 3 + p2len * 2 + mlen;
     }
 
-    key = malloc(keylen);
-    if(!key) {
+    rsakey = (BCRYPT_RSAKEY_BLOB *)malloc(keylen);
+    if(!rsakey) {
         return -1;
     }
 
-    memset(key, 0, keylen);
+    memset(rsakey, 0, keylen);
 
 
     /* https://msdn.microsoft.com/library/windows/desktop/aa375531.aspx */
-    rsakey = (BCRYPT_RSAKEY_BLOB *)key;
     rsakey->BitLength = mlen * 8;
     rsakey->cbPublicExp = elen;
     rsakey->cbModulus = mlen;
 
-    memcpy(key + offset, edata, elen);
+    memcpy((unsigned char *)rsakey + offset, edata, elen);
     offset += elen;
 
     if(nlen < mlen)
-        memcpy(key + offset + mlen - nlen, ndata, nlen);
+        memcpy((unsigned char *)rsakey + offset + mlen - nlen, ndata, nlen);
     else
-        memcpy(key + offset, ndata + nlen - mlen, mlen);
+        memcpy((unsigned char *)rsakey + offset, ndata + nlen - mlen, mlen);
 
     if(ddata && dlen > 0) {
         offset += mlen;
 
         if(plen < p1len)
-            memcpy(key + offset + p1len - plen, pdata, plen);
+            memcpy((unsigned char *)rsakey + offset + p1len - plen,
+                   pdata, plen);
         else
-            memcpy(key + offset, pdata + plen - p1len, p1len);
+            memcpy((unsigned char *)rsakey + offset,
+                   pdata + plen - p1len, p1len);
         offset += p1len;
 
         if(qlen < p2len)
-            memcpy(key + offset + p2len - qlen, qdata, qlen);
+            memcpy((unsigned char *)rsakey + offset + p2len - qlen,
+                   qdata, qlen);
         else
-            memcpy(key + offset, qdata + qlen - p2len, p2len);
+            memcpy((unsigned char *)rsakey + offset,
+                   qdata + qlen - p2len, p2len);
         offset += p2len;
 
         if(e1len < p1len)
-            memcpy(key + offset + p1len - e1len, e1data, e1len);
+            memcpy((unsigned char *)rsakey + offset + p1len - e1len,
+                   e1data, e1len);
         else
-            memcpy(key + offset, e1data + e1len - p1len, p1len);
+            memcpy((unsigned char *)rsakey + offset,
+                   e1data + e1len - p1len, p1len);
         offset += p1len;
 
         if(e2len < p2len)
-            memcpy(key + offset + p2len - e2len, e2data, e2len);
+            memcpy((unsigned char *)rsakey + offset + p2len - e2len,
+                   e2data, e2len);
         else
-            memcpy(key + offset, e2data + e2len - p2len, p2len);
+            memcpy((unsigned char *)rsakey + offset,
+                   e2data + e2len - p2len, p2len);
         offset += p2len;
 
         if(coefflen < p1len)
-            memcpy(key + offset + p1len - coefflen, coeffdata, coefflen);
+            memcpy((unsigned char *)rsakey + offset + p1len - coefflen,
+                   coeffdata, coefflen);
         else
-            memcpy(key + offset, coeffdata + coefflen - p1len, p1len);
+            memcpy((unsigned char *)rsakey + offset,
+                   coeffdata + coefflen - p1len, p1len);
         offset += p1len;
 
         if(dlen < mlen)
-            memcpy(key + offset + mlen - dlen, ddata, dlen);
+            memcpy((unsigned char *)rsakey + offset + mlen - dlen,
+                   ddata, dlen);
         else
-            memcpy(key + offset, ddata + dlen - mlen, mlen);
+            memcpy((unsigned char *)rsakey + offset,
+                   ddata + dlen - mlen, mlen);
 
         lpszBlobType = BCRYPT_RSAFULLPRIVATE_BLOB;
         rsakey->Magic = BCRYPT_RSAFULLPRIVATE_MAGIC;
@@ -1079,9 +1089,9 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
 
 
     ret = BCryptImportKeyPair(_libssh2_wincng.hAlgRSA, NULL, lpszBlobType,
-                              &hKey, key, keylen, 0);
+                              &hKey, (PUCHAR)rsakey, keylen, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        _libssh2_wincng_safe_free(key, keylen);
+        _libssh2_wincng_safe_free(rsakey, keylen);
         return -1;
     }
 
@@ -1089,12 +1099,12 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
     *rsa = malloc(sizeof(libssh2_rsa_ctx));
     if(!(*rsa)) {
         BCryptDestroyKey(hKey);
-        _libssh2_wincng_safe_free(key, keylen);
+        _libssh2_wincng_safe_free(rsakey, keylen);
         return -1;
     }
 
     (*rsa)->hKey = hKey;
-    (*rsa)->pbKeyObject = key;
+    (*rsa)->pbKeyObject = rsakey;
     (*rsa)->cbKeyObject = keylen;
 
     return 0;
