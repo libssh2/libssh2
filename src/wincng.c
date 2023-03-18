@@ -2370,9 +2370,8 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
         return -1;
 
     while(_libssh2_wincng.hAlgDH && hasAlgDHwithKDF != -1) {
-        BCRYPT_DH_PARAMETER_HEADER *dh_params = NULL;
+        BCRYPT_DH_PARAMETER_HEADER *dh_params;
         unsigned long dh_params_len;
-        unsigned char *blob = NULL;
         int status;
         /* Note that the DH provider requires that keys be multiples of 64 bits
          * in length. At the time of writing a practical observed group_order
@@ -2393,27 +2392,28 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
         }
 
         dh_params_len = sizeof(*dh_params) + 2 * key_length_bytes;
-        blob = malloc(dh_params_len);
-        if(!blob) {
+        dh_params = (BCRYPT_DH_PARAMETER_HEADER *)malloc(dh_params_len);
+        if(!dh_params) {
             return -1;
         }
 
         /* Populate DH parameters blob; after the header follows the `p`
          * value and the `g` value. */
-        dh_params = (BCRYPT_DH_PARAMETER_HEADER*)blob;
         dh_params->cbLength = dh_params_len;
         dh_params->dwMagic = BCRYPT_DH_PARAMETERS_MAGIC;
         dh_params->cbKeyLength = key_length_bytes;
-        memcpy_with_be_padding(blob + sizeof(*dh_params), key_length_bytes,
-                               p->bignum, p->length);
-        memcpy_with_be_padding(blob + sizeof(*dh_params) + key_length_bytes,
+        memcpy_with_be_padding((unsigned char *)dh_params +
+                               sizeof(*dh_params),
+                               key_length_bytes, p->bignum, p->length);
+        memcpy_with_be_padding((unsigned char *)dh_params +
+                               sizeof(*dh_params) + key_length_bytes,
                                key_length_bytes, g->bignum, g->length);
 
         status = BCryptSetProperty(dhctx->dh_handle, BCRYPT_DH_PARAMETERS,
-                                   blob, dh_params_len, 0);
+                                   (PUCHAR)dh_params, dh_params_len, 0);
         if(hasAlgDHwithKDF == -1) {
             /* We know that the raw KDF is not supported, so discard this. */
-            free(blob);
+            free(dh_params);
         }
         else {
             /* Pass ownership to dhctx; these parameters will be freed when
@@ -2423,7 +2423,6 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             dhctx->dh_params = dh_params;
         }
         dh_params = NULL;
-        blob = NULL;
 
         if(!BCRYPT_SUCCESS(status)) {
             return -1;
@@ -2453,21 +2452,21 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             return -1;
         }
 
-        blob = malloc(key_length_bytes);
-        if(!blob) {
+        dh_key_blob = (BCRYPT_DH_KEY_BLOB *)malloc(key_length_bytes);
+        if(!dh_key_blob) {
             return -1;
         }
 
         status = BCryptExportKey(dhctx->dh_handle, NULL, key_type,
-                                 blob, key_length_bytes,
+                                 (PUCHAR)dh_key_blob, key_length_bytes,
                                  &key_length_bytes, 0);
         if(!BCRYPT_SUCCESS(status)) {
             if(hasAlgDHwithKDF == 1) {
                 /* We have no private data, because raw KDF is supported */
-                free(blob);
+                free(dh_key_blob);
             }
             else { /* we may have potentially private data, use secure free */
-                _libssh2_wincng_safe_free(blob, key_length_bytes);
+                _libssh2_wincng_safe_free(dh_key_blob, key_length_bytes);
             }
             return -1;
         }
@@ -2481,46 +2480,47 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
         /* BCRYPT_DH_PUBLIC_BLOB corresponds to a BCRYPT_DH_KEY_BLOB header
          * followed by the Modulus, Generator and Public data. Those components
          * each have equal size, specified by dh_key_blob->cbKey. */
-        dh_key_blob = (BCRYPT_DH_KEY_BLOB*)blob;
         if(_libssh2_wincng_bignum_resize(public, dh_key_blob->cbKey)) {
             if(hasAlgDHwithKDF == 1) {
                 /* We have no private data, because raw KDF is supported */
-                free(blob);
+                free(dh_key_blob);
             }
             else { /* we may have potentially private data, use secure free */
-                _libssh2_wincng_safe_free(blob, key_length_bytes);
+                _libssh2_wincng_safe_free(dh_key_blob, key_length_bytes);
             }
             return -1;
         }
 
         /* Copy the public key data into the public bignum data buffer */
-        memcpy(public->bignum,
-               blob + sizeof(*dh_key_blob) + 2 * dh_key_blob->cbKey,
+        memcpy(public->bignum, (unsigned char *)dh_key_blob +
+                               sizeof(*dh_key_blob) +
+                               2 * dh_key_blob->cbKey,
                dh_key_blob->cbKey);
 
         if(dh_key_blob->dwMagic == BCRYPT_DH_PRIVATE_MAGIC) {
             /* BCRYPT_DH_PRIVATE_BLOB additionally contains the Private data */
             dhctx->dh_privbn = _libssh2_wincng_bignum_init();
             if(!dhctx->dh_privbn) {
-                _libssh2_wincng_safe_free(blob, key_length_bytes);
+                _libssh2_wincng_safe_free(dh_key_blob, key_length_bytes);
                 return -1;
             }
             if(_libssh2_wincng_bignum_resize(dhctx->dh_privbn,
                                              dh_key_blob->cbKey)) {
-                _libssh2_wincng_safe_free(blob, key_length_bytes);
+                _libssh2_wincng_safe_free(dh_key_blob, key_length_bytes);
                 return -1;
             }
 
             /* Copy the private key data into the dhctx bignum data buffer */
-            memcpy(dhctx->dh_privbn->bignum,
-                   blob + sizeof(*dh_key_blob) + 3 * dh_key_blob->cbKey,
+            memcpy(dhctx->dh_privbn->bignum, (unsigned char *)dh_key_blob +
+                                             sizeof(*dh_key_blob) +
+                                             3 * dh_key_blob->cbKey,
                    dh_key_blob->cbKey);
 
             /* Make sure the private key is an odd number, because only
              * odd primes can be used with the RSA-based fallback while
              * DH itself does not seem to care about it being odd or not. */
             if(!(dhctx->dh_privbn->bignum[dhctx->dh_privbn->length-1] % 2)) {
-                _libssh2_wincng_safe_free(blob, key_length_bytes);
+                _libssh2_wincng_safe_free(dh_key_blob, key_length_bytes);
                 /* discard everything first, then try again */
                 _libssh2_dh_dtor(dhctx);
                 _libssh2_dh_init(dhctx);
@@ -2528,7 +2528,7 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             }
         }
 
-        _libssh2_wincng_safe_free(blob, key_length_bytes);
+        _libssh2_wincng_safe_free(dh_key_blob, key_length_bytes);
 
         return 0;
     }
