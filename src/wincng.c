@@ -2558,10 +2558,9 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
         BCRYPT_KEY_HANDLE peer_public = NULL;
         BCRYPT_SECRET_HANDLE agreement = NULL;
         ULONG secret_len_bytes = 0;
-        unsigned char *blob;
         int status;
         unsigned char *start, *end;
-        BCRYPT_DH_KEY_BLOB *public_blob = NULL;
+        BCRYPT_DH_KEY_BLOB *public_blob;
         DWORD key_length_bytes = max(f->length, dhctx->dh_params->cbKeyLength);
         DWORD public_blob_len = (DWORD)(sizeof(*public_blob) +
                                         3 * key_length_bytes);
@@ -2573,11 +2572,10 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
             unsigned char *dest;
             unsigned char *src;
 
-            blob = malloc(public_blob_len);
-            if(!blob) {
+            public_blob = (BCRYPT_DH_KEY_BLOB *)malloc(public_blob_len);
+            if(!public_blob) {
                 return -1;
             }
-            public_blob = (BCRYPT_DH_KEY_BLOB*)blob;
             public_blob->dwMagic = BCRYPT_DH_PUBLIC_MAGIC;
             public_blob->cbKey = key_length_bytes;
 
@@ -2598,8 +2596,8 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
 
         /* Import the peer public key information */
         status = BCryptImportKeyPair(_libssh2_wincng.hAlgDH, NULL,
-                                     BCRYPT_DH_PUBLIC_BLOB, &peer_public, blob,
-                                     public_blob_len, 0);
+                                     BCRYPT_DH_PUBLIC_BLOB, &peer_public,
+                                     (PUCHAR)public_blob, public_blob_len, 0);
         if(!BCRYPT_SUCCESS(status)) {
             goto out;
         }
@@ -2665,7 +2663,7 @@ out:
             BCryptDestroySecret(agreement);
         }
 
-        free(blob);
+        free(public_blob);
 
         if(status == STATUS_NOT_SUPPORTED &&
            _libssh2_wincng.hasAlgDHwithKDF == -1) {
