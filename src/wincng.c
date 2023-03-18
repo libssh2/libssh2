@@ -1925,7 +1925,8 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
     }
 
 
-    keylen = sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) + type.dwKeyLength;
+    keylen = (unsigned long)sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) +
+             type.dwKeyLength;
     header = (BCRYPT_KEY_DATA_BLOB_HEADER *)malloc(keylen);
     if(!header) {
         free(pbKeyObject);
@@ -2406,7 +2407,8 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             return -1;
         }
 
-        dh_params_len = sizeof(*dh_params) + 2 * key_length_bytes;
+        dh_params_len = (unsigned long)sizeof(*dh_params) +
+                        2 * key_length_bytes;
         dh_params = (BCRYPT_DH_PARAMETER_HEADER *)malloc(dh_params_len);
         if(!dh_params) {
             return -1;
