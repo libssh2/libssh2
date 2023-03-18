@@ -2145,7 +2145,7 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
-    unsigned char *key, *bignum;
+    unsigned char *bignum;
     unsigned long keylen, offset, length;
     int ret;
 
@@ -2155,13 +2155,12 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
     offset = sizeof(BCRYPT_RSAKEY_BLOB);
     keylen = offset + p->length + m->length;
 
-    key = malloc(keylen);
-    if(!key)
+    rsakey = (BCRYPT_RSAKEY_BLOB *)malloc(keylen);
+    if(!rsakey)
         return -1;
 
 
     /* https://msdn.microsoft.com/library/windows/desktop/aa375531.aspx */
-    rsakey = (BCRYPT_RSAKEY_BLOB *)key;
     rsakey->Magic = BCRYPT_RSAPUBLIC_MAGIC;
     rsakey->BitLength = m->length * 8;
     rsakey->cbPublicExp = p->length;
@@ -2169,14 +2168,15 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
     rsakey->cbPrime1 = 0;
     rsakey->cbPrime2 = 0;
 
-    memcpy(key + offset, p->bignum, p->length);
+    memcpy((unsigned char *)rsakey + offset, p->bignum, p->length);
     offset += p->length;
 
-    memcpy(key + offset, m->bignum, m->length);
+    memcpy((unsigned char *)rsakey + offset, m->bignum, m->length);
     offset = 0;
 
     ret = BCryptImportKeyPair(_libssh2_wincng.hAlgRSA, NULL,
-                              BCRYPT_RSAPUBLIC_BLOB, &hKey, key, keylen, 0);
+                              BCRYPT_RSAPUBLIC_BLOB, &hKey,
+                              (PUCHAR)rsakey, keylen, 0);
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptEncrypt(hKey, a->bignum, a->length, NULL, NULL, 0,
                             NULL, 0, &length, BCRYPT_PAD_NONE);
@@ -2208,7 +2208,7 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
         BCryptDestroyKey(hKey);
     }
 
-    _libssh2_wincng_safe_free(key, keylen);
+    _libssh2_wincng_safe_free(rsakey, keylen);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
