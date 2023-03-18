@@ -316,8 +316,13 @@ int main(void)
     return 0;
 }
 
-/* Workaround for Visual Studio */
-#ifdef _MSC_VER
+/* Provide stub to not require this internal function from libssh2 */
+#ifdef USE_BCRYPT_STUB
+int
+bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
+             size_t saltlen,
+             uint8_t *key, size_t keylen, unsigned int rounds);
+
 int
 bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
              size_t saltlen,
