@@ -251,7 +251,7 @@ typedef struct __libssh2_wincng_hash_ctx {
 
 typedef struct __libssh2_wincng_key_ctx {
     BCRYPT_KEY_HANDLE hKey;
-    unsigned char *pbKeyObject;
+    void *pbKeyObject;
     unsigned long cbKeyObject;
 } _libssh2_wincng_key_ctx;
 
