@@ -885,23 +885,23 @@ _libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
                                unsigned long *pcbCount)
 {
     PCRYPT_DER_BLOB pBlob;
-    unsigned char *pbDecoded, **rpbDecoded;
+    unsigned char **rpbDecoded;
+    PCRYPT_DATA_BLOB pbDecoded;
     unsigned long cbDecoded, *rcbDecoded, index, length;
     int ret;
 
     ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
                                      X509_SEQUENCE_OF_ANY,
-                                     &pbDecoded, &cbDecoded);
+                                     (void *)&pbDecoded, &cbDecoded);
     if(!ret) {
-        length = ((PCRYPT_DATA_BLOB)pbDecoded)->cbData;
+        length = pbDecoded->cbData;
 
         rpbDecoded = malloc(sizeof(PBYTE) * length);
         if(rpbDecoded) {
             rcbDecoded = malloc(sizeof(DWORD) * length);
             if(rcbDecoded) {
                 for(index = 0; index < length; index++) {
-                    pBlob = &((PCRYPT_DER_BLOB)
-                              ((PCRYPT_DATA_BLOB)pbDecoded)->pbData)[index];
+                    pBlob = &((PCRYPT_DER_BLOB)(pbDecoded)->pbData)[index];
                     ret = _libssh2_wincng_asn_decode_bn(pBlob->pbData,
                                                         pBlob->cbData,
                                                         &rpbDecoded[index],
