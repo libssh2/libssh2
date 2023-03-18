@@ -1881,7 +1881,7 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_KEY_DATA_BLOB_HEADER *header;
-    unsigned char *pbKeyObject, *pbIV, *key, *pbCtr, *pbIVCopy;
+    unsigned char *pbKeyObject, *pbIV, *pbCtr, *pbIVCopy;
     unsigned long dwKeyObject, dwIV, dwCtrLength, dwBlockLength,
                   cbData, keylen;
     int ret;
@@ -1911,25 +1911,25 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
 
 
     keylen = sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) + type.dwKeyLength;
-    key = malloc(keylen);
-    if(!key) {
+    header = (BCRYPT_KEY_DATA_BLOB_HEADER *)malloc(keylen);
+    if(!header) {
         free(pbKeyObject);
         return -1;
     }
 
 
-    header = (BCRYPT_KEY_DATA_BLOB_HEADER *)key;
     header->dwMagic = BCRYPT_KEY_DATA_BLOB_MAGIC;
     header->dwVersion = BCRYPT_KEY_DATA_BLOB_VERSION1;
     header->cbKeyData = type.dwKeyLength;
 
-    memcpy(key + sizeof(BCRYPT_KEY_DATA_BLOB_HEADER),
+    memcpy((unsigned char *)header + sizeof(BCRYPT_KEY_DATA_BLOB_HEADER),
            secret, type.dwKeyLength);
 
     ret = BCryptImportKey(*type.phAlg, NULL, BCRYPT_KEY_DATA_BLOB, &hKey,
-                          pbKeyObject, dwKeyObject, key, keylen, 0);
+                          pbKeyObject, dwKeyObject,
+                          (PUCHAR)header, keylen, 0);
 
-    _libssh2_wincng_safe_free(key, keylen);
+    _libssh2_wincng_safe_free(header, keylen);
 
     if(!BCRYPT_SUCCESS(ret)) {
         _libssh2_wincng_safe_free(pbKeyObject, dwKeyObject);
