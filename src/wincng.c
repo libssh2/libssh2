@@ -1340,7 +1340,6 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_DSA_KEY_BLOB *dsakey;
     LPCWSTR lpszBlobType;
-    unsigned char *key;
     unsigned long keylen, offset, length;
     int ret;
 
@@ -1352,16 +1351,15 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
     if(xdata && xlen > 0)
         keylen += 20;
 
-    key = malloc(keylen);
-    if(!key) {
+    dsakey = (BCRYPT_DSA_KEY_BLOB *)malloc(keylen);
+    if(!dsakey) {
         return -1;
     }
 
-    memset(key, 0, keylen);
+    memset(dsakey, 0, keylen);
 
 
     /* https://msdn.microsoft.com/library/windows/desktop/aa833126.aspx */
-    dsakey = (BCRYPT_DSA_KEY_BLOB *)key;
     dsakey->cbKey = length;
 
     memset(dsakey->Count, -1, sizeof(dsakey->Count));
@@ -1373,29 +1371,35 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
         memcpy(dsakey->q, qdata + qlen - 20, 20);
 
     if(plen < length)
-        memcpy(key + offset + length - plen, pdata, plen);
+        memcpy((unsigned char *)dsakey + offset + length - plen,
+               pdata, plen);
     else
-        memcpy(key + offset, pdata + plen - length, length);
+        memcpy((unsigned char *)dsakey + offset,
+               pdata + plen - length, length);
     offset += length;
 
     if(glen < length)
-        memcpy(key + offset + length - glen, gdata, glen);
+        memcpy((unsigned char *)dsakey + offset + length - glen,
+               gdata, glen);
     else
-        memcpy(key + offset, gdata + glen - length, length);
+        memcpy((unsigned char *)dsakey + offset,
+               gdata + glen - length, length);
     offset += length;
 
     if(ylen < length)
-        memcpy(key + offset + length - ylen, ydata, ylen);
+        memcpy((unsigned char *)dsakey + offset + length - ylen,
+               ydata, ylen);
     else
-        memcpy(key + offset, ydata + ylen - length, length);
+        memcpy((unsigned char *)dsakey + offset,
+               ydata + ylen - length, length);
 
     if(xdata && xlen > 0) {
         offset += length;
 
         if(xlen < 20)
-            memcpy(key + offset + 20 - xlen, xdata, xlen);
+            memcpy((unsigned char *)dsakey + offset + 20 - xlen, xdata, xlen);
         else
-            memcpy(key + offset, xdata + xlen - 20, 20);
+            memcpy((unsigned char *)dsakey + offset, xdata + xlen - 20, 20);
 
         lpszBlobType = BCRYPT_DSA_PRIVATE_BLOB;
         dsakey->dwMagic = BCRYPT_DSA_PRIVATE_MAGIC;
@@ -1407,9 +1411,9 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
 
 
     ret = BCryptImportKeyPair(_libssh2_wincng.hAlgDSA, NULL, lpszBlobType,
-                              &hKey, key, keylen, 0);
+                              &hKey, (PUCHAR)dsakey, keylen, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        _libssh2_wincng_safe_free(key, keylen);
+        _libssh2_wincng_safe_free(dsakey, keylen);
         return -1;
     }
 
@@ -1417,12 +1421,12 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
     *dsa = malloc(sizeof(libssh2_dsa_ctx));
     if(!(*dsa)) {
         BCryptDestroyKey(hKey);
-        _libssh2_wincng_safe_free(key, keylen);
+        _libssh2_wincng_safe_free(dsakey, keylen);
         return -1;
     }
 
     (*dsa)->hKey = hKey;
-    (*dsa)->pbKeyObject = key;
+    (*dsa)->pbKeyObject = dsakey;
     (*dsa)->cbKeyObject = keylen;
 
     return 0;
