@@ -102,8 +102,8 @@ static int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
     } while(!specialsequence && rd < buflen);
 
     if(!specialsequence) {
-        fprintf(stderr, "%s: ]]>]]> not found! read buffer too small?\n",
-                __func__);
+        fprintf(stderr, "netconf_read_until(): ]]>]]> not found!"
+                        " read buffer too small?\n");
         return -1;
     }
 
