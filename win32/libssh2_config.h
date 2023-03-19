@@ -31,12 +31,7 @@
 #   define vsnprintf _vsnprintf
 #  endif
 #  define strdup _strdup
-#  define strncasecmp _strnicmp
-#  define strcasecmp _stricmp
 # endif
-#else
-# define strncasecmp strnicmp
-# define strcasecmp stricmp
 #endif
 
 /* Enable newer diffie-hellman-group-exchange-sha1 syntax */

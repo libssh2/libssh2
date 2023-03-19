@@ -211,9 +211,9 @@ int main(int argc, char *argv[])
 
     /* check for options */
     if(argc > 4) {
-        if((auth & AUTH_PASSWORD) && !strcasecmp(argv[4], "-p"))
+        if((auth & AUTH_PASSWORD) && !strcmp(argv[4], "-p"))
             auth = AUTH_PASSWORD;
-        if((auth & AUTH_PUBLICKEY) && !strcasecmp(argv[4], "-k"))
+        if((auth & AUTH_PUBLICKEY) && !strcmp(argv[4], "-k"))
             auth = AUTH_PUBLICKEY;
     }
 

@@ -44,15 +44,3 @@
 #cmakedefine HAVE_ARPA_INET_H
 #cmakedefine HAVE_NETINET_IN_H
 #cmakedefine HAVE_WINSOCK2_H
-
-/* Functions */
-#cmakedefine HAVE_STRCASECMP
-#cmakedefine HAVE__STRICMP
-
-/* Workaround for platforms without POSIX strcasecmp (e.g. Windows) */
-#ifndef HAVE_STRCASECMP
-# ifdef HAVE__STRICMP
-# define strcasecmp _stricmp
-# define HAVE_STRCASECMP
-# endif
-#endif
