@@ -326,6 +326,14 @@ check_include_files(winsock2.h HAVE_WINSOCK2_H)
 
 check_type_size("long long" LONGLONG)
 
+# CMake uses C syntax in check_symbol_exists() that generates a warning with
+# MSVC. To not break detection with ENABLE_WERRROR, we disable it for the
+# duration of these tests.
+if(MSVC AND ENABLE_WERROR)
+  set(SAVE_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+  string(REGEX REPLACE "/WX" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+endif()
+
 if(HAVE_SYS_TIME_H)
   check_symbol_exists(gettimeofday sys/time.h HAVE_GETTIMEOFDAY)
 else()
@@ -342,6 +350,10 @@ if (NOT HAVE_STRTOLL)
 endif()
 check_symbol_exists(snprintf stdio.h HAVE_SNPRINTF)
 check_symbol_exists(memset_s string.h HAVE_MEMSET_S)
+
+if(MSVC AND ENABLE_WERROR)
+  set(CMAKE_C_FLAGS ${SAVE_CMAKE_C_FLAGS})
+endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR
    ${CMAKE_SYSTEM_NAME} STREQUAL "Interix")
