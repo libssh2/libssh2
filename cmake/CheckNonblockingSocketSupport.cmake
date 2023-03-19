@@ -47,10 +47,10 @@ macro(check_nonblocking_socket_support)
 #error \"O_NONBLOCK does not work on this platform\"
 #endif
 
-int main()
+int main(void)
 {
-    int socket;
-    int flags = fcntl(socket, F_SETFL, flags | O_NONBLOCK);
+    int socket = 0;
+    (void)fcntl(socket, F_SETFL, O_NONBLOCK);
 }"
   HAVE_O_NONBLOCK)
 
@@ -59,10 +59,11 @@ int main()
 #include <unistd.h>
 #include <stropts.h>
 
-int main()
+int main(void)
 {
-    int socket;
-    int flags = ioctl(socket, FIONBIO, &flags);
+    int socket = 0;
+    int flags = 0;
+    (void)ioctl(socket, FIONBIO, &flags);
 }"
     HAVE_FIONBIO)
 
@@ -76,12 +77,11 @@ int main()
 #include <windows.h>
 #include <winsock2.h>
 
-int main()
+int main(void)
 {
-    SOCKET sd;
+    SOCKET sd = socket(0, 0, 0);
     unsigned long flags = 0;
-    sd = socket(0, 0, 0);
-    ioctlsocket(sd, FIONBIO, &flags);
+    (void)ioctlsocket(sd, FIONBIO, &flags);
 }"
       HAVE_IOCTLSOCKET)
 
@@ -89,10 +89,10 @@ int main()
         check_c_source_compiles("/* IoctlSocket test (Amiga?) */
 #include <sys/ioctl.h>
 
-int main()
+int main(void)
 {
-    int socket;
-    int flags = IoctlSocket(socket, FIONBIO, (long)1);
+    int socket = 0;
+    (void)IoctlSocket(socket, FIONBIO, (long)1);
 }"
         HAVE_IOCTLSOCKET_CASE)
 
@@ -100,11 +100,11 @@ int main()
           check_c_source_compiles("/* SO_NONBLOCK test (BeOS) */
 #include <socket.h>
 
-int main()
+int main(void)
 {
     long b = 1;
-    int socket;
-    int flags = setsockopt(socket, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
+    int socket = 0;
+    (void)setsockopt(socket, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
 }"
           HAVE_SO_NONBLOCK)
 
