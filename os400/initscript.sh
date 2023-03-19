@@ -198,7 +198,7 @@ make_module()
         DEFINES="${3}"
 
         if [ "${WITH_ZLIB}" != "0" ]
-        then    DEFINES="${DEFINES} HAVE_LIBZ LIBSSH2_HAVE_ZLIB"
+        then    DEFINES="${DEFINES} LIBSSH2_HAVE_ZLIB"
         fi
 
         if [ "${DEFINES}" ]
