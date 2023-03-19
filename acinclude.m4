@@ -419,17 +419,8 @@ m4_case([$1],
   LIBSSH2_LIB_HAVE_LINKFLAGS([ssl], [crypto], [#include <openssl/ssl.h>], [
     AC_DEFINE(LIBSSH2_OPENSSL, 1, [Use $1])
     LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }libssl libcrypto"
-
-    # Not all OpenSSL have AES-CTR functions.
-    libssh2_save_LIBS="$LIBS"
-    # Duplicate $LIBS to make binutils ld (known to be fatally
-    # sensitive to lib order) happy.
-    LIBS="$LIBS $LIBSSL $LIBS"
-    AC_CHECK_FUNCS(EVP_aes_128_ctr)
-    LIBS="$libssh2_save_LIBS"
-
     found_crypto="$1"
-    found_crypto_str="OpenSSL (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A})"
+    found_crypto_str="OpenSSL"
   ])
 ],
 
