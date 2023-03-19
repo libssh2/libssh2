@@ -331,8 +331,8 @@ check_type_size("long long" LONGLONG)
 # MSVC. To not break detection with ENABLE_WERRROR, we disable it for the
 # duration of these tests.
 if(MSVC AND ENABLE_WERROR)
-  set(SAVE_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
-  string(REGEX REPLACE "/WX" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+  cmake_push_check_state()
+  set(CMAKE_REQUIRED_FLAGS "/WX-")
 endif()
 
 if(HAVE_SYS_TIME_H)
@@ -353,7 +353,7 @@ check_symbol_exists(snprintf stdio.h HAVE_SNPRINTF)
 check_symbol_exists(memset_s string.h HAVE_MEMSET_S)
 
 if(MSVC AND ENABLE_WERROR)
-  set(CMAKE_C_FLAGS ${SAVE_CMAKE_C_FLAGS})
+  cmake_pop_check_state()
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR
