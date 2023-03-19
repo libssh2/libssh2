@@ -2651,6 +2651,9 @@ out:
         if(agreement) {
             BCryptDestroySecret(agreement);
         }
+
+        free(blob);
+
         if(status == STATUS_NOT_SUPPORTED &&
            _libssh2_wincng.hasAlgDHwithKDF == -1) {
             goto fb; /* fallback to RSA-based implementation */
