@@ -2653,7 +2653,7 @@ sftp_close_handle(LIBSSH2_SFTP_HANDLE *handle)
 
     }
     else {
-        int retcode = _libssh2_ntohu32(data + 5);
+        uint32_t retcode = _libssh2_ntohu32(data + 5);
         LIBSSH2_FREE(session, data);
 
         if(retcode != LIBSSH2_FX_OK) {
@@ -2710,7 +2710,7 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename,
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     size_t data_len = 0;
-    int retcode;
+    uint32_t retcode;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) */
     uint32_t packet_len = (uint32_t)(filename_len + 13);
     unsigned char *s, *data = NULL;
@@ -3028,7 +3028,7 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
     }
 
     if(data[0] == SSH_FXP_STATUS) {
-        int retcode = _libssh2_ntohu32(data + 5);
+        uint32_t retcode = _libssh2_ntohu32(data + 5);
         sftp->fstatvfs_state = libssh2_NB_state_idle;
         LIBSSH2_FREE(session, data);
         sftp->last_errno = retcode;
@@ -3163,7 +3163,7 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
     }
 
     if(data[0] == SSH_FXP_STATUS) {
-        int retcode = _libssh2_ntohu32(data + 5);
+        uint32_t retcode = _libssh2_ntohu32(data + 5);
         sftp->statvfs_state = libssh2_NB_state_idle;
         LIBSSH2_FREE(session, data);
         sftp->last_errno = retcode;
@@ -3232,7 +3232,7 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
         0, 0, 0, 0, 0, 0, 0
     };
     size_t data_len = 0;
-    int retcode;
+    uint32_t retcode;
     ssize_t packet_len;
     unsigned char *packet, *s, *data = NULL;
     int rc;
@@ -3348,7 +3348,7 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
     size_t data_len = 0;
-    int retcode;
+    uint32_t retcode;
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
     ssize_t packet_len = path_len + 13;
     unsigned char *s, *data = NULL;
@@ -3538,7 +3538,7 @@ static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
     sftp->stat_state = libssh2_NB_state_idle;
 
     if(data[0] == SSH_FXP_STATUS) {
-        int retcode;
+        uint32_t retcode;
 
         retcode = _libssh2_ntohu32(data + 5);
         LIBSSH2_FREE(session, data);
@@ -3677,7 +3677,7 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
     }
     else if(retcode) {
         sftp->symlink_state = libssh2_NB_state_idle;
-        return _libssh2_error(session, (int)retcode,
+        return _libssh2_error(session, retcode,
                               "Error waiting for status message");
     }
 

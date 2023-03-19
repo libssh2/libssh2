@@ -215,13 +215,13 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 
 /* libssh2_ntohu32
  */
-unsigned int
+uint32_t
 _libssh2_ntohu32(const unsigned char *buf)
 {
-    return (((unsigned int)buf[0] << 24)
-           | ((unsigned int)buf[1] << 16)
-           | ((unsigned int)buf[2] << 8)
-           | ((unsigned int)buf[3]));
+    return ((uint32_t)buf[0] << 24)
+         | ((uint32_t)buf[1] << 16)
+         | ((uint32_t)buf[2] << 8)
+         | ((uint32_t)buf[3]);
 }
 
 
