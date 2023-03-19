@@ -232,7 +232,6 @@ endforeach()
 if(WIN32 AND BUILD_SHARED_LIBS)
   # Workaround for platforms not exporting internal functions from libssh2 shared lib
   add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c ../src/misc.c)
-  target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE USE_BCRYPT_STUB)
 else()
   add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
 endif()
