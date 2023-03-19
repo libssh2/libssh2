@@ -392,11 +392,8 @@ libssh2_config.h: GNUmakefile
 ifeq ($(LIBARCH),CLIB)
 	@echo $(DL)#define OS "i586-pc-clib-NetWare"$(DL) >> $@
 	@echo $(DL)#define NETDB_USE_INTERNET 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRICMP 1$(DL) >> $@
 	@echo $(DL)#define socklen_t int$(DL) >> $@
 	@echo $(DL)#define sleep(s) delay(1000 * s)$(DL) >> $@
-	@echo $(DL)#define strcasecmp stricmp$(DL) >> $@
-	@echo $(DL)#define strncasecmp strnicmp$(DL) >> $@
 else
 	@echo $(DL)#define OS "i586-pc-libc-NetWare"$(DL) >> $@
 	@echo $(DL)#define HAVE_DLFCN_H 1$(DL) >> $@
@@ -408,7 +405,6 @@ else
 	@echo $(DL)#define HAVE_LIMITS_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_LONGLONG 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STDINT_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRCASECMP 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STRLCAT 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STRLCPY 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STRTOLL 1$(DL) >> $@
