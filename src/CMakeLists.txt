@@ -39,6 +39,7 @@ include(CheckIncludeFiles)
 include(CheckTypeSize)
 include(CheckSymbolExists)
 include(CheckNonblockingSocketSupport)
+include(CMakePushCheckState)
 
 ## Cryptography backend choice
 
@@ -102,14 +103,14 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     endif()
 
     # Not all OpenSSL have AES-CTR functions.
-    set(SAVE_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
+    cmake_push_check_state()
     set(CMAKE_REQUIRED_LIBRARIES ${OPENSSL_LIBRARIES})
     if(WIN32)
       # For OpenSSL and LibreSSL
       set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}" "ws2_32" "bcrypt")
     endif()
     check_function_exists(EVP_aes_128_ctr HAVE_EVP_AES_128_CTR)
-    set(CMAKE_REQUIRED_LIBRARIES ${SAVE_CMAKE_REQUIRED_LIBRARIES})
+    cmake_pop_check_state()
   endif()
 endif()
 
@@ -383,10 +384,10 @@ endif()
 # Non-blocking socket support tests. Use a separate, yet unset variable
 # for the socket libraries to not link against the other configured
 # dependencies which might not have been built yet.
-set(SAVE_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
+cmake_push_check_state()
 set(CMAKE_REQUIRED_LIBRARIES ${SOCKET_LIBRARIES})
 check_nonblocking_socket_support()
-set(CMAKE_REQUIRED_LIBRARIES ${SAVE_CMAKE_REQUIRED_LIBRARIES})
+cmake_pop_check_state()
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config_cmake.h.in
