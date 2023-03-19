@@ -611,7 +611,8 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     }
 
     if(libssh2_base64_decode(session, (char **) &tmp, &tmp_len,
-                              (char *) sp1, (unsigned int)(sp2 - sp1))) {
+                              (const char *) sp1,
+                              (unsigned int)(sp2 - sp1))) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                                   "Invalid key data, not base64 encoded");
@@ -715,7 +716,8 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     }
 
     if(libssh2_base64_decode(session, (char **) &tmp, &tmp_len,
-                              (char *) sp1, (unsigned int)(sp2 - sp1))) {
+                              (const char *) sp1,
+                              (unsigned int)(sp2 - sp1))) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Invalid key data, not base64 encoded");
