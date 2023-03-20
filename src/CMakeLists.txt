@@ -76,7 +76,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       list(APPEND PC_LIBS -lcrypt32 -lbcrypt)
 
       find_file(DLL_LIBCRYPTO
-        NAMES libeay32.dll crypto.dll libcrypto.dll
+        NAMES crypto.dll libcrypto.dll
           libcrypto-1_1.dll libcrypto-1_1-x64.dll
           libcrypto-3.dll libcrypto-3-x64.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
@@ -87,7 +87,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       endif()
 
       find_file(DLL_LIBSSL
-        NAMES ssleay32.dll ssl.dll libssl.dll
+        NAMES ssl.dll libssl.dll
           libssl-1_1.dll libssl-1_1-x64.dll
           libssl-3.dll libssl-3-x64.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
@@ -101,16 +101,6 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
         list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO} ${DLL_LIBSSL})
       endif()
     endif()
-
-    # Not all OpenSSL have AES-CTR functions.
-    cmake_push_check_state()
-    set(CMAKE_REQUIRED_LIBRARIES ${OPENSSL_LIBRARIES})
-    if(WIN32)
-      # For OpenSSL and LibreSSL
-      set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}" "ws2_32" "bcrypt")
-    endif()
-    check_function_exists(EVP_aes_128_ctr HAVE_EVP_AES_128_CTR)
-    cmake_pop_check_state()
   endif()
 endif()
 

@@ -62,9 +62,6 @@
 /* disabled non-blocking sockets */
 #undef HAVE_DISABLED_NONBLOCKING
 
-/* Define to 1 if you have the `EVP_aes_128_ctr' function. */
-#undef HAVE_EVP_AES_128_CTR
-
 /* use FIONBIO for non-blocking sockets */
 #undef HAVE_FIONBIO
 

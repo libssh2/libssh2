@@ -35,7 +35,7 @@ CPPFLAGS=$(CPPFLAGS) /DLIBSSH2_WINCNG
 # LIBS=bcrypt.lib crypt32.lib
 !else
 CPPFLAGS=$(CPPFLAGS) /DLIBSSH2_OPENSSL /I$(OPENSSLINC)
-LIBS=$(LIBS) $(OPENSSLLIB)\libeay32.lib $(OPENSSLLIB)\ssleay32.lib
+LIBS=$(LIBS) $(OPENSSLLIB)\lib\crypto.lib $(OPENSSLLIB)\lib\ssl.lib
 !endif
 
 !if "$(WITH_ZLIB)" == "1"
