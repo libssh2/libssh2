@@ -39,7 +39,6 @@
 
 #include "libssh2_priv.h"
 #include "misc.h"
-#include "blf.h"
 
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
@@ -834,7 +833,7 @@ int _libssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
                         size_t *outlen)
 {
     uint32_t data_len;
-    if(_libssh2_get_u32(buf, &data_len) != 0) {
+    if(!buf || _libssh2_get_u32(buf, &data_len) != 0) {
         return -1;
     }
     if(!_libssh2_check_length(buf, data_len)) {
@@ -926,24 +925,4 @@ int _libssh2_eob(struct string_buf *buf)
 {
     unsigned char *endp = &buf->data[buf->len];
     return buf->dataptr >= endp;
-}
-
-/* Wrappers */
-
-int _libssh2_bcrypt_pbkdf(const char *pass,
-                          size_t passlen,
-                          const uint8_t *salt,
-                          size_t saltlen,
-                          uint8_t *key,
-                          size_t keylen,
-                          unsigned int rounds)
-{
-    /* defined in bcrypt_pbkdf.c */
-    return bcrypt_pbkdf(pass,
-                        passlen,
-                        salt,
-                        saltlen,
-                        key,
-                        keylen,
-                        rounds);
 }

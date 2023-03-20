@@ -39,6 +39,7 @@ include(CheckIncludeFiles)
 include(CheckTypeSize)
 include(CheckSymbolExists)
 include(CheckNonblockingSocketSupport)
+include(CMakePushCheckState)
 
 ## Cryptography backend choice
 
@@ -75,7 +76,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       list(APPEND PC_LIBS -lcrypt32 -lbcrypt)
 
       find_file(DLL_LIBCRYPTO
-        NAMES libeay32.dll crypto.dll libcrypto.dll
+        NAMES crypto.dll libcrypto.dll
           libcrypto-1_1.dll libcrypto-1_1-x64.dll
           libcrypto-3.dll libcrypto-3-x64.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
@@ -86,7 +87,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       endif()
 
       find_file(DLL_LIBSSL
-        NAMES ssleay32.dll ssl.dll libssl.dll
+        NAMES ssl.dll libssl.dll
           libssl-1_1.dll libssl-1_1-x64.dll
           libssl-3.dll libssl-3-x64.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
@@ -100,16 +101,6 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
         list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO} ${DLL_LIBSSL})
       endif()
     endif()
-
-    # Not all OpenSSL have AES-CTR functions.
-    set(SAVE_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
-    set(CMAKE_REQUIRED_LIBRARIES ${OPENSSL_LIBRARIES})
-    if(WIN32)
-      # For OpenSSL and LibreSSL
-      set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}" "ws2_32" "bcrypt")
-    endif()
-    check_function_exists(EVP_aes_128_ctr HAVE_EVP_AES_128_CTR)
-    set(CMAKE_REQUIRED_LIBRARIES ${SAVE_CMAKE_REQUIRED_LIBRARIES})
   endif()
 endif()
 
@@ -326,6 +317,14 @@ check_include_files(winsock2.h HAVE_WINSOCK2_H)
 
 check_type_size("long long" LONGLONG)
 
+# CMake uses C syntax in check_symbol_exists() that generates a warning with
+# MSVC. To not break detection with ENABLE_WERRROR, we disable it for the
+# duration of these tests.
+if(MSVC AND ENABLE_WERROR)
+  cmake_push_check_state()
+  set(CMAKE_REQUIRED_FLAGS "/WX-")
+endif()
+
 if(HAVE_SYS_TIME_H)
   check_symbol_exists(gettimeofday sys/time.h HAVE_GETTIMEOFDAY)
 else()
@@ -342,6 +341,10 @@ if (NOT HAVE_STRTOLL)
 endif()
 check_symbol_exists(snprintf stdio.h HAVE_SNPRINTF)
 check_symbol_exists(memset_s string.h HAVE_MEMSET_S)
+
+if(MSVC AND ENABLE_WERROR)
+  cmake_pop_check_state()
+endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR
    ${CMAKE_SYSTEM_NAME} STREQUAL "Interix")
@@ -371,10 +374,10 @@ endif()
 # Non-blocking socket support tests. Use a separate, yet unset variable
 # for the socket libraries to not link against the other configured
 # dependencies which might not have been built yet.
-set(SAVE_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
+cmake_push_check_state()
 set(CMAKE_REQUIRED_LIBRARIES ${SOCKET_LIBRARIES})
 check_nonblocking_socket_support()
-set(CMAKE_REQUIRED_LIBRARIES ${SAVE_CMAKE_REQUIRED_LIBRARIES})
+cmake_pop_check_state()
 
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config_cmake.h.in

@@ -392,104 +392,34 @@ libssh2_config.h: GNUmakefile
 ifeq ($(LIBARCH),CLIB)
 	@echo $(DL)#define OS "i586-pc-clib-NetWare"$(DL) >> $@
 	@echo $(DL)#define NETDB_USE_INTERNET 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRICMP 1$(DL) >> $@
 	@echo $(DL)#define socklen_t int$(DL) >> $@
 	@echo $(DL)#define sleep(s) delay(1000 * s)$(DL) >> $@
-	@echo $(DL)#define strcasecmp stricmp$(DL) >> $@
-	@echo $(DL)#define strncasecmp strnicmp$(DL) >> $@
 else
 	@echo $(DL)#define OS "i586-pc-libc-NetWare"$(DL) >> $@
-	@echo $(DL)#define HAVE_DLFCN_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_DLOPEN 1$(DL) >> $@
-	@echo $(DL)#define HAVE_FTRUNCATE 1$(DL) >> $@
 	@echo $(DL)#define HAVE_GETTIMEOFDAY 1$(DL) >> $@
-	@echo $(DL)#define HAVE_INET_PTON 1$(DL) >> $@
 	@echo $(DL)#define HAVE_INTTYPES_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_LIMITS_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_LONGLONG 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STDINT_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRCASECMP 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRLCAT 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRLCPY 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STRTOLL 1$(DL) >> $@
 	@echo $(DL)#define HAVE_SYS_PARAM_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_SYS_SELECT_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_TERMIOS_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_AF_INET6 1$(DL) >> $@
-	@echo $(DL)#define HAVE_PF_INET6 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRUCT_IN6_ADDR 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRUCT_SOCKADDR_IN6 1$(DL) >> $@
-	@echo $(DL)#define SIZEOF_STRUCT_IN6_ADDR 16$(DL) >> $@
-ifdef ENABLE_IPV6
-	@echo $(DL)#define ENABLE_IPV6 1$(DL) >> $@
-endif
 endif
 	@echo $(DL)#define HAVE_SNPRINTF 1$(DL) >> $@
 	@echo $(DL)#define HAVE_ARPA_INET_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_ASSERT_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_CTYPE_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_ERR_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_ERRNO_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_FCNTL_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_FIONBIO 1$(DL) >> $@
-	@echo $(DL)#define HAVE_GETHOSTBYADDR 1$(DL) >> $@
-	@echo $(DL)#define HAVE_GETHOSTBYNAME 1$(DL) >> $@
-	@echo $(DL)#define HAVE_GETPROTOBYNAME 1$(DL) >> $@
-	@echo $(DL)#define HAVE_GMTIME_R 1$(DL) >> $@
-	@echo $(DL)#define HAVE_INET_NTOA 1$(DL) >> $@
-	@echo $(DL)#define HAVE_LL 1$(DL) >> $@
-	@echo $(DL)#define HAVE_LOCALTIME_R 1$(DL) >> $@
-	@echo $(DL)#define HAVE_MALLOC_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_NETINET_IN_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_SELECT 1$(DL) >> $@
-	@echo $(DL)#define HAVE_SETJMP_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_SIGNAL 1$(DL) >> $@
-	@echo $(DL)#define HAVE_SIGNAL_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_SIG_ATOMIC_T 1$(DL) >> $@
 	@echo $(DL)#define HAVE_STDLIB_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRDUP 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRFTIME 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRING_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRSTR 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRUCT_ADDRINFO 1$(DL) >> $@
-	@echo $(DL)#define HAVE_STRUCT_TIMEVAL 1$(DL) >> $@
 	@echo $(DL)#define HAVE_SYS_IOCTL_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_SYS_STAT_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_SYS_TIME_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_TIME_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_UNAME 1$(DL) >> $@
 	@echo $(DL)#define HAVE_UNISTD_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_UTIME 1$(DL) >> $@
-	@echo $(DL)#define HAVE_UTIME_H 1$(DL) >> $@
-	@echo $(DL)#define RETSIGTYPE void$(DL) >> $@
-	@echo $(DL)#define SIZEOF_STRUCT_IN_ADDR 4$(DL) >> $@
 	@echo $(DL)#define STDC_HEADERS 1$(DL) >> $@
-	@echo $(DL)#define TIME_WITH_SYS_TIME 1$(DL) >> $@
-	@echo $(DL)#define USE_SSLEAY 1$(DL) >> $@
-	@echo $(DL)#define USE_OPENSSL 1$(DL) >> $@
-	@echo $(DL)#define HAVE_OPENSSL_X509_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_OPENSSL_SSL_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_OPENSSL_RSA_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_OPENSSL_PEM_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_OPENSSL_ERR_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_OPENSSL_CRYPTO_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_OPENSSL_ENGINE_H 1$(DL) >> $@
 	@echo $(DL)#define HAVE_O_NONBLOCK 1$(DL) >> $@
-	@echo $(DL)#define HAVE_LIBSSL 1$(DL) >> $@
-	@echo $(DL)#define HAVE_LIBCRYPTO 1$(DL) >> $@
-	@echo $(DL)#define OPENSSL_NO_KRB5 1$(DL) >> $@
 ifdef WITH_ZLIB
-	@echo $(DL)#define HAVE_ZLIB_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_LIBZ 1$(DL) >> $@
 	@echo $(DL)#define LIBSSH2_HAVE_ZLIB 1$(DL) >> $@
 endif
-ifdef NW_WINSOCK
-	@echo $(DL)#define HAVE_CLOSESOCKET 1$(DL) >> $@
-else
-	@echo $(DL)#define HAVE_SYS_TYPES_H 1$(DL) >> $@
+ifndef NW_WINSOCK
 	@echo $(DL)#define HAVE_SYS_SOCKET_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_SYS_SOCKIO_H 1$(DL) >> $@
-	@echo $(DL)#define HAVE_NETDB_H 1$(DL) >> $@
 endif
 ifdef OLD_NOVELLSDK
 	@echo $(DL)#define socklen_t int$(DL) >> $@

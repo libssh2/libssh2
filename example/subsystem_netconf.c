@@ -102,8 +102,8 @@ static int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
     } while(!specialsequence && rd < buflen);
 
     if(!specialsequence) {
-        fprintf(stderr, "%s: ]]>]]> not found! read buffer too small?\n",
-                __func__);
+        fprintf(stderr, "netconf_read_until(): ]]>]]> not found!"
+                        " read buffer too small?\n");
         return -1;
     }
 
@@ -211,9 +211,9 @@ int main(int argc, char *argv[])
 
     /* check for options */
     if(argc > 4) {
-        if((auth & AUTH_PASSWORD) && !strcasecmp(argv[4], "-p"))
+        if((auth & AUTH_PASSWORD) && !strcmp(argv[4], "-p"))
             auth = AUTH_PASSWORD;
-        if((auth & AUTH_PUBLICKEY) && !strcasecmp(argv[4], "-k"))
+        if((auth & AUTH_PUBLICKEY) && !strcmp(argv[4], "-k"))
             auth = AUTH_PUBLICKEY;
     }
 

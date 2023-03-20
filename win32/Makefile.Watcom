@@ -54,10 +54,6 @@ CFLAGS += -d3 $(DEBUG)
 CFLAGS += -d0
 !endif
 
-!ifdef %use_ipv6
-CFLAGS += -d_WIN32_WINNT=0x0501 -dENABLE_IPV6
-!endif
-
 #
 # Change to suite.
 #
@@ -175,13 +171,12 @@ $(LINK_ARG): $(__MAKEFILES__)
 !ifdef %use_zlib
 	@%append $^@ library '$(ZLIB_ROOT)\zlib.lib'
 !endif
-!ifdef %use_wincng
-	@%append $^@ library bcrypt.lib
-	@%append $^@ library crypt32.lib
-!else
-	@%append $^@ library '$(OPENSSL_ROOT)\out32\libeay32.lib'
-	@%append $^@ library '$(OPENSSL_ROOT)\out32\ssleay32.lib'
+!ifndef %use_wincng
+	@%append $^@ library '$(OPENSSL_ROOT)\lib\crypt.lib'
+	@%append $^@ library '$(OPENSSL_ROOT)\lib\ssl.lib'
 !endif
+@%append $^@ library bcrypt.lib
+@%append $^@ library crypt32.lib
 
 $(LIB_ARG): $(__MAKEFILES__)
 	%create $^@

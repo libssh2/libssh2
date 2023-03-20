@@ -185,13 +185,13 @@ int main(int argc, char *argv[])
 
     /* if we got an 4. argument we set this option if supported */
     if(argc > 4) {
-        if((auth_pw & 1) && !strcasecmp(argv[4], "-p")) {
+        if((auth_pw & 1) && !strcmp(argv[4], "-p")) {
             auth_pw = 1;
         }
-        if((auth_pw & 2) && !strcasecmp(argv[4], "-i")) {
+        if((auth_pw & 2) && !strcmp(argv[4], "-i")) {
             auth_pw = 2;
         }
-        if((auth_pw & 4) && !strcasecmp(argv[4], "-k")) {
+        if((auth_pw & 4) && !strcmp(argv[4], "-k")) {
             auth_pw = 4;
         }
     }

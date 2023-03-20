@@ -62,18 +62,6 @@
 /* disabled non-blocking sockets */
 #undef HAVE_DISABLED_NONBLOCKING
 
-/* Define to 1 if you have the <dlfcn.h> header file. */
-#undef HAVE_DLFCN_H
-
-/* Define to 1 if you have the <errno.h> header file. */
-#define HAVE_ERRNO_H 1
-
-/* Define to 1 if you have the `EVP_aes_128_ctr' function. */
-#undef HAVE_EVP_AES_128_CTR
-
-/* Define to 1 if you have the <fcntl.h> header file. */
-#define HAVE_FCNTL_H 1
-
 /* use FIONBIO for non-blocking sockets */
 #undef HAVE_FIONBIO
 
@@ -89,26 +77,14 @@
 /* use Ioctlsocket() for non-blocking sockets */
 #undef HAVE_IOCTLSOCKET_CASE
 
-/* Define if you have the bcrypt library. */
-#undef HAVE_LIBBCRYPT
-
 /* Define if you have the crypt32 library. */
 #undef HAVE_LIBCRYPT32
 
 /* Define if you have the gcrypt library. */
 #undef HAVE_LIBGCRYPT
 
-/* Define if you have the ssl library. */
-#undef HAVE_LIBSSL
-
-/* Define if you have the z library. */
-/* #undef HAVE_LIBZ */
-
 /* Define to 1 if the compiler supports the 'long long' data type. */
 #define HAVE_LONGLONG 1
-
-/* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #define HAVE_NETINET_IN_H 1
@@ -134,12 +110,6 @@
 /* Define to 1 if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1
 
-/* Define to 1 if you have the <strings.h> header file. */
-#define HAVE_STRINGS_H 1
-
-/* Define to 1 if you have the <string.h> header file. */
-#define HAVE_STRING_H 1
-
 /* Define to 1 if you have the `strtoll' function. */
 #define HAVE_STRTOLL 1
 
@@ -152,14 +122,8 @@
 /* Define to 1 if you have the <sys/socket.h> header file. */
 #define HAVE_SYS_SOCKET_H 1
 
-/* Define to 1 if you have the <sys/stat.h> header file. */
-#define HAVE_SYS_STAT_H 1
-
 /* Define to 1 if you have the <sys/time.h> header file. */
 #define HAVE_SYS_TIME_H 1
-
-/* Define to 1 if you have the <sys/types.h> header file. */
-#define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <sys/uio.h> header file. */
 #define HAVE_SYS_UIO_H 1
