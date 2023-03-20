@@ -56,13 +56,13 @@ enum {
 
 static int netconf_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t len)
 {
-    int i;
+    ssize_t i;
     ssize_t wr = 0;
 
     do {
         i = libssh2_channel_write(channel, buf, len);
         if(i < 0) {
-            fprintf(stderr, "libssh2_channel_write: %d\n", i);
+            fprintf(stderr, "libssh2_channel_write: %d\n", (int)i);
             return -1;
         }
         wr += i;
@@ -71,8 +71,8 @@ static int netconf_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t len)
     return 0;
 }
 
-static int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
-                              char *buf, size_t buflen)
+static ssize_t netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
+                                  char *buf, size_t buflen)
 {
     ssize_t len;
     size_t rd = 0;
@@ -202,7 +202,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
     fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password"))
         auth |= AUTH_PASSWORD;

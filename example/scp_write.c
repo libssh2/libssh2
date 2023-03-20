@@ -42,7 +42,7 @@
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 1;
     struct sockaddr_in sin;
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 
     /* Send a file via scp. The mode parameter must only have permissions! */
     channel = libssh2_scp_send(session, scppath, fileinfo.st_mode & 0777,
-                               (unsigned long)fileinfo.st_size);
+                               (size_t)fileinfo.st_size);
 
     if(!channel) {
         char *errmsg;
@@ -191,16 +191,17 @@ int main(int argc, char *argv[])
         ptr = mem;
 
         do {
+            ssize_t nwritten;
             /* write the same data over and over, until error or completion */
-            rc = libssh2_channel_write(channel, ptr, nread);
-            if(rc < 0) {
-                fprintf(stderr, "ERROR %d\n", rc);
+            nwritten = libssh2_channel_write(channel, ptr, nread);
+            if(nwritten < 0) {
+                fprintf(stderr, "ERROR %d\n", (int)nwritten);
                 break;
             }
             else {
-                /* rc indicates how many bytes were written this time */
-                ptr += rc;
-                nread -= rc;
+                /* nwritten indicates how many bytes were written this time */
+                ptr += nwritten;
+                nread -= nwritten;
             }
         } while(nread);
 

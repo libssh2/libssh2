@@ -46,7 +46,7 @@
 #pragma warning(disable:4127)
 #endif
 
-#ifdef WIN32
+#if defined(_MSC_VER)
 #define __FILESIZE "I64u"
 #else
 #define __FILESIZE "llu"
@@ -70,7 +70,7 @@ static void kbd_callback(const char *name, int name_len,
     (void)instruction_len;
     if(num_prompts == 1) {
         responses[0].text = strdup(password);
-        responses[0].length = strlen(password);
+        responses[0].length = (unsigned int)strlen(password);
     }
     (void)prompts;
     (void)abstract;
@@ -78,7 +78,7 @@ static void kbd_callback(const char *name, int name_len,
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int rc, i, auth_pw = 0;
     struct sockaddr_in sin;
@@ -166,7 +166,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
     fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password") != NULL) {
         auth_pw |= 1;

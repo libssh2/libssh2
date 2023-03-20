@@ -11,6 +11,8 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
+#define send(s, b, l, f)  send((s), (b), (int)(l), (f))
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -157,7 +159,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
     fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password"))
         auth |= AUTH_PASSWORD;
@@ -251,12 +254,13 @@ int main(int argc, char *argv[])
         FD_SET(forwardsock, &fds);
         tv.tv_sec = 0;
         tv.tv_usec = 100000;
-        rc = select(forwardsock + 1, &fds, NULL, NULL, &tv);
+        rc = select((int)(forwardsock + 1), &fds, NULL, NULL, &tv);
         if(-1 == rc) {
             perror("select");
             goto shutdown;
         }
         if(rc && FD_ISSET(forwardsock, &fds)) {
+            ssize_t nwritten;
             len = recv(forwardsock, buf, sizeof(buf), 0);
             if(len < 0) {
                 perror("read");
@@ -269,30 +273,33 @@ int main(int argc, char *argv[])
             }
             wr = 0;
             do {
-                i = libssh2_channel_write(channel, buf, len);
-                if(i < 0) {
-                    fprintf(stderr, "libssh2_channel_write: %d\n", i);
+                nwritten = libssh2_channel_write(channel, buf, len);
+                if(nwritten < 0) {
+                    fprintf(stderr, "libssh2_channel_write: %d\n",
+                            (int)nwritten);
                     goto shutdown;
                 }
-                wr += i;
-            } while(i > 0 && wr < len);
+                wr += nwritten;
+            } while(nwritten > 0 && wr < len);
         }
         for(;;) {
+            ssize_t nsent;
             len = libssh2_channel_read(channel, buf, sizeof(buf));
             if(LIBSSH2_ERROR_EAGAIN == len)
                 break;
             else if(len < 0) {
-                fprintf(stderr, "libssh2_channel_read: %d", (int)len);
+                fprintf(stderr, "libssh2_channel_read: %d",
+                        (int)len);
                 goto shutdown;
             }
             wr = 0;
             while(wr < len) {
-                i = send(forwardsock, buf + wr, len - wr, 0);
-                if(i <= 0) {
+                nsent = send(forwardsock, buf + wr, len - wr, 0);
+                if(nsent <= 0) {
                     perror("write");
                     goto shutdown;
                 }
-                wr += i;
+                wr += nsent;
             }
             if(libssh2_channel_eof(channel)) {
                 fprintf(stderr, "The remote client at %s:%d disconnected!\n",

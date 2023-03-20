@@ -46,6 +46,10 @@
 #pragma warning(disable:4127)
 #endif
 
+#ifdef WIN32
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
+#endif
+
 const char *keyfile1 = "~/.ssh/id_rsa.pub";
 const char *keyfile2 = "~/.ssh/id_rsa";
 const char *username = "username";
@@ -90,7 +94,7 @@ static void kbd_callback(const char *name, int name_len,
         buf[n] = 0;
 
         responses[i].text = strdup(buf);
-        responses[i].length = n;
+        responses[i].length = (unsigned int)n;
 
         fprintf(stderr, "Response %d from user is '", i);
         fwrite(responses[i].text, 1, responses[i].length, stderr);
@@ -104,7 +108,7 @@ static void kbd_callback(const char *name, int name_len,
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 0;
     struct sockaddr_in sin;
@@ -195,7 +199,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
     fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password") != NULL) {
         auth_pw |= 1;
@@ -277,12 +282,13 @@ int main(int argc, char *argv[])
     fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
     do {
         char mem[1024];
+        ssize_t nread;
 
         /* loop until we fail */
         fprintf(stderr, "libssh2_sftp_read()!\n");
-        rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
-        if(rc > 0) {
-            write(1, mem, rc);
+        nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
+        if(nread > 0) {
+            write(1, mem, nread);
         }
         else {
             break;

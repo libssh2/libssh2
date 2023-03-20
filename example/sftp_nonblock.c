@@ -49,6 +49,10 @@
 #pragma warning(disable:4127)
 #endif
 
+#ifdef WIN32
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
+#endif
+
 #ifdef HAVE_GETTIMEOFDAY
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)
@@ -83,14 +87,14 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         writefd = &fd;
 
-    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
 
     return rc;
 }
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 1;
     struct sockaddr_in sin;
@@ -105,7 +109,7 @@ int main(int argc, char *argv[])
     long time_ms;
 #endif
     int rc;
-    int total = 0;
+    libssh2_struct_stat_size total = 0;
     int spin = 0;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
@@ -258,16 +262,17 @@ int main(int argc, char *argv[])
     fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
     do {
         char mem[1024*24];
+        ssize_t nread;
 
         /* loop until we fail */
-        while((rc = libssh2_sftp_read(sftp_handle, mem,
-                                       sizeof(mem))) == LIBSSH2_ERROR_EAGAIN) {
+        while((nread = libssh2_sftp_read(sftp_handle, mem,
+                              sizeof(mem))) == LIBSSH2_ERROR_EAGAIN) {
             spin++;
             waitsocket(sock, session); /* now we wait */
         }
-        if(rc > 0) {
-            total += rc;
-            write(1, mem, rc);
+        if(nread > 0) {
+            total += nread;
+            write(1, mem, nread);
         }
         else {
             break;
@@ -277,11 +282,10 @@ int main(int argc, char *argv[])
 #ifdef HAVE_GETTIMEOFDAY
     gettimeofday(&end, NULL);
     time_ms = tvdiff(end, start);
-    fprintf(stderr, "Got %d bytes in %ld ms = %.1f bytes/sec spin: %d\n",
-            total,
-            time_ms, total/(time_ms/1000.0), spin);
+    fprintf(stderr, "Got %ld bytes in %ld ms = %.1f bytes/sec spin: %d\n",
+            (long)total, time_ms, (double)total/(time_ms/1000.0), spin);
 #else
-    fprintf(stderr, "Got %d bytes spin: %d\n", total, spin);
+    fprintf(stderr, "Got %ld bytes spin: %d\n", (long)total, spin);
 #endif
 
     libssh2_sftp_close(sftp_handle);

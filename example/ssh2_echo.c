@@ -72,7 +72,7 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         writefd = &fd;
 
-    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
 
     return rc;
 }
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     const char *commandline = "cat";
     const char *username    = "user";
     const char *password    = "password";
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
     const char *fingerprint;
@@ -232,11 +232,11 @@ int main(int argc, char *argv[])
     else {
         LIBSSH2_POLLFD *fds = NULL;
         int running = 1;
-        int bufsize = BUFSIZE;
+        ssize_t bufsize = BUFSIZE;
         char buffer[BUFSIZE];
-        int totsize = 1500000;
-        int totwritten = 0;
-        int totread = 0;
+        ssize_t totsize = 1500000;
+        ssize_t totwritten = 0;
+        ssize_t totread = 0;
         int rereads = 0;
         int rewrites = 0;
         int i;
@@ -262,7 +262,8 @@ int main(int argc, char *argv[])
                 continue;
 
             if(fds[0].revents & LIBSSH2_POLLFD_POLLIN) {
-                int n = libssh2_channel_read(channel, buffer, sizeof(buffer));
+                ssize_t n = libssh2_channel_read(channel,
+                                                 buffer, sizeof(buffer));
                 act++;
 
                 if(n == LIBSSH2_ERROR_EAGAIN) {
@@ -276,7 +277,7 @@ int main(int argc, char *argv[])
                 else {
                     totread += n;
                     fprintf(stderr, "read %d bytes (%d in total)\n",
-                            n, totread);
+                            (int)n, (int)totread);
                 }
             }
 
@@ -285,9 +286,10 @@ int main(int argc, char *argv[])
 
                 if(totwritten < totsize) {
                     /* we have not written all data yet */
-                    int left = totsize - totwritten;
-                    int size = (left < bufsize) ? left : bufsize;
-                    int n = libssh2_channel_write_ex(channel, 0, buffer, size);
+                    ssize_t left = totsize - totwritten;
+                    ssize_t size = (left < bufsize) ? left : bufsize;
+                    ssize_t n = libssh2_channel_write_ex(channel, 0,
+                                                         buffer, size);
 
                     if(n == LIBSSH2_ERROR_EAGAIN) {
                         rewrites++;
@@ -300,7 +302,7 @@ int main(int argc, char *argv[])
                     else {
                         totwritten += n;
                         fprintf(stderr, "wrote %d bytes (%d in total)",
-                                n, totwritten);
+                                (int)n, (int)totwritten);
                         if(left >= bufsize && n != bufsize) {
                             fprintf(stderr, " PARTIAL");
                         }
@@ -349,11 +351,11 @@ int main(int argc, char *argv[])
         channel = NULL;
 
         fprintf(stderr, "\nrereads: %d rewrites: %d totwritten %d\n",
-                rereads, rewrites, totwritten);
+                rereads, rewrites, (int)totwritten);
 
         if(totwritten != totread) {
             fprintf(stderr, "\n*** FAIL bytes written: %d bytes "
-                    "read: %d ***\n", totwritten, totread);
+                    "read: %d ***\n", (int)totwritten, (int)totread);
             exit(1);
         }
     }

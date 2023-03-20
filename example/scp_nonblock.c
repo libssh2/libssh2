@@ -44,6 +44,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#ifdef WIN32
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
+#endif
+
 #ifdef HAVE_GETTIMEOFDAY
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)
@@ -78,14 +82,14 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         writefd = &fd;
 
-    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
 
     return rc;
 }
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 1;
     struct sockaddr_in sin;
@@ -238,6 +242,7 @@ int main(int argc, char *argv[])
 
     while(got < fileinfo.st_size) {
         char mem[1024*24];
+        ssize_t nread;
 
         do {
             int amount = sizeof(mem);
@@ -247,15 +252,15 @@ int main(int argc, char *argv[])
             }
 
             /* loop until we block */
-            rc = libssh2_channel_read(channel, mem, amount);
-            if(rc > 0) {
-                write(1, mem, rc);
-                got += rc;
-                total += rc;
+            nread = libssh2_channel_read(channel, mem, amount);
+            if(nread > 0) {
+                write(1, mem, nread);
+                got += nread;
+                total += nread;
             }
-        } while(rc > 0);
+        } while(nread > 0);
 
-        if((rc == LIBSSH2_ERROR_EAGAIN) && (got < fileinfo.st_size)) {
+        if((nread == LIBSSH2_ERROR_EAGAIN) && (got < fileinfo.st_size)) {
             /* this is due to blocking that would occur otherwise
             so we loop on this condition */
 
@@ -271,8 +276,7 @@ int main(int argc, char *argv[])
 
     time_ms = tvdiff(end, start);
     fprintf(stderr, "Got %ld bytes in %ld ms = %.1f bytes/sec spin: %d\n",
-            (long)total,
-            time_ms, total/(time_ms/1000.0), spin);
+            (long)total, time_ms, (double)total/(time_ms/1000.0), spin);
 #else
     fprintf(stderr, "Got %ld bytes spin: %d\n", (long)total, spin);
 #endif

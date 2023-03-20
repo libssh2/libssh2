@@ -71,14 +71,14 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         writefd = &fd;
 
-    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
 
     return rc;
 }
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 1;
     struct sockaddr_in sin;
@@ -94,9 +94,10 @@ int main(int argc, char *argv[])
     LIBSSH2_SFTP_HANDLE *sftp_handle;
     char mem[1024 * 100];
     size_t nread;
+    ssize_t nwritten;
     char *ptr;
     time_t start;
-    long total = 0;
+    libssh2_struct_stat_size total = 0;
     int duration;
 
 #ifdef WIN32
@@ -254,23 +255,22 @@ int main(int argc, char *argv[])
 
         do {
             /* write data in a loop until we block */
-            while((rc = libssh2_sftp_write(sftp_handle, ptr, nread)) ==
+            while((nwritten = libssh2_sftp_write(sftp_handle, ptr, nread)) ==
                    LIBSSH2_ERROR_EAGAIN) {
                 waitsocket(sock, session);
             }
-            if(rc < 0)
+            if(nwritten < 0)
                 break;
-            ptr += rc;
-            nread -= rc;
+            ptr += nwritten;
+            nread -= nwritten;
 
         } while(nread);
-    } while(rc > 0);
+    } while(nwritten > 0);
 
     duration = (int)(time(NULL)-start);
 
     fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
-           total, duration, total/(double)duration);
-
+            (long)total, duration, (double)total / duration);
 
     fclose(local);
     libssh2_sftp_close(sftp_handle);

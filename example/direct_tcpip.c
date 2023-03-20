@@ -11,6 +11,8 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
+#define send(s, b, l, f)  send((s), (b), (int)(l), (f))
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -161,7 +163,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
     fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password"))
         auth |= AUTH_PASSWORD;
@@ -261,7 +264,7 @@ int main(int argc, char *argv[])
         FD_SET(forwardsock, &fds);
         tv.tv_sec = 0;
         tv.tv_usec = 100000;
-        rc = select(forwardsock + 1, &fds, NULL, NULL, &tv);
+        rc = select((int)(forwardsock + 1), &fds, NULL, NULL, &tv);
         if(-1 == rc) {
             perror("select");
             goto shutdown;
@@ -279,15 +282,17 @@ int main(int argc, char *argv[])
             }
             wr = 0;
             while(wr < len) {
-                i = libssh2_channel_write(channel, buf + wr, len - wr);
-                if(LIBSSH2_ERROR_EAGAIN == i) {
+                ssize_t nwritten = libssh2_channel_write(channel,
+                                                         buf + wr, len - wr);
+                if(nwritten == LIBSSH2_ERROR_EAGAIN) {
                     continue;
                 }
-                if(i < 0) {
-                    fprintf(stderr, "libssh2_channel_write: %d\n", i);
+                if(nwritten < 0) {
+                    fprintf(stderr, "libssh2_channel_write: %d\n",
+                            (int)nwritten);
                     goto shutdown;
                 }
-                wr += i;
+                wr += nwritten;
             }
         }
         for(;;) {
@@ -300,12 +305,12 @@ int main(int argc, char *argv[])
             }
             wr = 0;
             while(wr < len) {
-                i = send(forwardsock, buf + wr, len - wr, 0);
-                if(i <= 0) {
+                ssize_t nsent = send(forwardsock, buf + wr, len - wr, 0);
+                if(nsent <= 0) {
                     perror("write");
                     goto shutdown;
                 }
-                wr += i;
+                wr += nsent;
             }
             if(libssh2_channel_eof(channel)) {
                 fprintf(stderr, "The server at %s:%d disconnected!\n",
