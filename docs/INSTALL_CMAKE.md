@@ -96,18 +96,6 @@ The following options are available:
     however it still requires that the method be advertized by the
     remote end and that no more-preferable methods are available.
 
- * `ENABLE_GEX_NEW=ON`
-
-    The diffie-hellman-group-exchange-sha1 (dh-gex) key exchange
-    method originally defined an exchange negotiation using packet
-    type 30 to request a generation pair based on a single target
-    value.  Later refinement of dh-gex provided for range and target
-    values.  By default libssh2 will use the newer range method.
-
-    If you experience trouble connecting to an old SSH server using
-    dh-gex, try this option to fallback on the older more reliable
-    method.
-
  * `ENABLE_DEBUG_LOGGING=ON` in Debug, `=OFF` in Release
 
     Will enable the libssh2_trace() function for showing debug traces.

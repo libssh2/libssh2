@@ -81,9 +81,5 @@ typedef unsigned int socklen_t; /* missing in headers on VMS */
 
 #define LIBSSH2_HAVE_ZLIB
 
-/* Enable newer diffie-hellman-group-exchange-sha1 syntax */
-
-#define LIBSSH2_DH_GEX_NEW 1
-
 #endif /* __VMS */
 #endif /* LIBSSH2_CONFIG_H */                             

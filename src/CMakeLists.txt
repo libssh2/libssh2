@@ -222,14 +222,6 @@ if(ENABLE_MAC_NONE)
   list(APPEND libssh2_DEFINITIONS LIBSSH2_MAC_NONE=1)
 endif()
 
-option(ENABLE_GEX_NEW
-  "Enable diffie-hellman-group-exchange-sha1 method" ON)
-add_feature_info("diffie-hellman-group-exchange-sha1" ENABLE_GEX_NEW
-  "\"new\" diffie-hellman-group-exchange-sha1 method")
-if(ENABLE_GEX_NEW)
-  list(APPEND libssh2_DEFINITIONS LIBSSH2_DH_GEX_NEW=1)
-endif()
-
 # Enable debugging logging by default if the user configured a debug build
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(DEBUG_LOGGING_DEFAULT ON)

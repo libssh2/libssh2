@@ -165,13 +165,6 @@ AC_ARG_ENABLE(mac-none,
   AC_HELP_STRING([--enable-mac-none],[Permit "none" MAC -- NOT RECOMMENDED]),
   [AC_DEFINE(LIBSSH2_MAC_NONE, 1, [Enable "none" MAC -- NOT RECOMMENDED])])
 
-AC_ARG_ENABLE(gex-new,
-  AC_HELP_STRING([--disable-gex-new],[Disable "new" diffie-hellman-group-exchange-sha1 method]),
-  [GEX_NEW=$enableval])
-if test "$GEX_NEW" != "no"; then
-  AC_DEFINE(LIBSSH2_DH_GEX_NEW, 1, [Enable newer diffie-hellman-group-exchange-sha1 syntax])
-fi
-
 AC_ARG_ENABLE(clear-memory,
   AC_HELP_STRING([--disable-clear-memory],[Disable clearing of memory before being freed]),
   [CLEAR_MEMORY=$enableval])
