@@ -175,7 +175,7 @@ target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURC
 
 # test building against shared libssh2 lib
 if(BUILD_SHARED_LIBS)
-  set(test warmup)
+  set(test warmup)  # any test will do
   add_executable(test_${test}_shared test_${test}.c)
   target_include_directories(test_${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
   target_link_libraries(test_${test}_shared runner libssh2_shared ${LIBRARIES})

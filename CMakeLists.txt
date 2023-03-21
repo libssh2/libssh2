@@ -79,7 +79,7 @@ install(
   DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
 if(MSVC)
-  set(CMAKE_VS_GLOBALS "TrackFileAccess=false")  # faster builds, cleaner logs
+  set(CMAKE_VS_GLOBALS "TrackFileAccess=false")  # faster builds
 endif()
 
 include(max_warnings)
