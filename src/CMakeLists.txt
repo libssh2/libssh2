@@ -251,7 +251,11 @@ if(BUILD_SHARED_LIBS)
     # Extra suffix to avoid filename conflict with the static lib.
     set_target_properties(libssh2-shared PROPERTIES IMPORT_SUFFIX "_imp${CMAKE_IMPORT_LIBRARY_SUFFIX}")
   endif()
+
   set_target_properties(libssh2-object PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  if(WIN32)
+    target_compile_definitions(libssh2-object PRIVATE libssh2_EXPORTS)
+  endif()
 
   target_include_directories(libssh2-shared
     PRIVATE "${PROJECT_SOURCE_DIR}/include/"
