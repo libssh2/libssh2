@@ -171,6 +171,7 @@ endif()
 
 add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
 target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" ../include)
+target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # test building against shared libssh2 lib
 if(BUILD_SHARED_LIBS)
@@ -178,7 +179,6 @@ if(BUILD_SHARED_LIBS)
   add_executable(test_${test}_shared test_${test}.c)
   target_include_directories(test_${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
   target_link_libraries(test_${test}_shared runner libssh2-shared ${LIBRARIES})
-  add_definitions(-DFIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
 
 foreach(test ${TESTS})
@@ -186,7 +186,6 @@ foreach(test ${TESTS})
   list(APPEND TEST_TARGETS test_${test})
   target_include_directories(test_${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
   target_link_libraries(test_${test} runner libssh2-static ${LIBRARIES})
-  add_definitions(-DFIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
   add_test(
     NAME test_${test} COMMAND $<TARGET_FILE:test_${test}>
