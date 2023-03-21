@@ -78,6 +78,10 @@ install(
   FILES docs/AUTHORS COPYING docs/HACKING README RELEASE-NOTES NEWS
   DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
+if(MSVC)
+  set(CMAKE_VS_GLOBALS "TrackFileAccess=false")  # faster builds, cleaner logs
+endif()
+
 include(max_warnings)
 include(FeatureSummary)
 
