@@ -231,7 +231,7 @@ set(SOURCES
 add_library(libssh2-object OBJECT ${SOURCES})
 if(BUILD_STATIC_LIBS)
   add_library(libssh2-static STATIC $<TARGET_OBJECTS:libssh2-object>)
-  set_target_properties(libssh2-static PROPERTIES PREFIX "" OUTPUT_NAME "libssh2")
+  set_target_properties(libssh2-static PROPERTIES PREFIX "" OUTPUT_NAME "libssh2${STATIC_LIB_SUFFIX}")
 
   target_include_directories(libssh2-static
     PRIVATE "${PROJECT_SOURCE_DIR}/include/"
@@ -248,7 +248,9 @@ if(BUILD_SHARED_LIBS)
   add_library(libssh2-shared SHARED ${SOURCES_SHARED})
   set_target_properties(libssh2-shared PROPERTIES PREFIX "" OUTPUT_NAME "libssh2")
   set_target_properties(libssh2-shared PROPERTIES IMPORT_PREFIX "")
-  if(WIN32 AND BUILD_STATIC_LIBS AND CMAKE_IMPORT_LIBRARY_SUFFIX STREQUAL CMAKE_STATIC_LIBRARY_SUFFIX)
+  if(WIN32 AND BUILD_STATIC_LIBS AND
+     NOT STATIC_LIB_SUFFIX AND
+     CMAKE_IMPORT_LIBRARY_SUFFIX STREQUAL CMAKE_STATIC_LIBRARY_SUFFIX)
     # Extra suffix to avoid filename conflict with the static lib.
     set_target_properties(libssh2-shared PROPERTIES IMPORT_SUFFIX "_imp${CMAKE_IMPORT_LIBRARY_SUFFIX}")
   endif()
