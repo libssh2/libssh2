@@ -245,8 +245,7 @@ if(BUILD_SHARED_LIBS)
     add_library(libssh2-winres OBJECT ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
     set_property(TARGET libssh2-shared APPEND PROPERTY SOURCES $<TARGET_OBJECTS:libssh2-winres>)
   endif()
-  set_target_properties(libssh2-shared PROPERTIES PREFIX "" OUTPUT_NAME "libssh2")
-  set_target_properties(libssh2-shared PROPERTIES IMPORT_PREFIX "")
+  set_target_properties(libssh2-shared PROPERTIES PREFIX "" OUTPUT_NAME "libssh2" IMPORT_PREFIX "")
   if(WIN32 AND BUILD_STATIC_LIBS AND
      NOT STATIC_LIB_SUFFIX AND
      CMAKE_IMPORT_LIBRARY_SUFFIX STREQUAL CMAKE_STATIC_LIBRARY_SUFFIX)
