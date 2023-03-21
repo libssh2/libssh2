@@ -121,7 +121,7 @@ if(LINT)
   add_custom_target(lint ALL
     ./ci/checksrc.sh
     WORKING_DIRECTORY ${libssh2_SOURCE_DIR})
-  add_dependencies(libssh2-object lint)
+  add_dependencies(libssh2_object lint)
 endif()
 
 add_subdirectory(docs)

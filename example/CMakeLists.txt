@@ -68,7 +68,7 @@ foreach(example ${EXAMPLES})
   list(APPEND EXAMPLE_TARGETS example-${example})
   # to find generated header
   target_include_directories(example-${example} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-  target_link_libraries(example-${example} libssh2-static ${LIBRARIES})
+  target_link_libraries(example-${example} libssh2_static ${LIBRARIES})
 endforeach()
 add_target_to_copy_dependencies(
   TARGET copy_example_dependencies
