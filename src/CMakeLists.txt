@@ -247,6 +247,10 @@ if(BUILD_SHARED_LIBS)
   add_library(libssh2-shared SHARED $<TARGET_OBJECTS:libssh2-object>)
   set_target_properties(libssh2-shared PROPERTIES PREFIX "" OUTPUT_NAME "libssh2")
   set_target_properties(libssh2-shared PROPERTIES IMPORT_PREFIX "")
+  if(WIN32 AND NOT MINGW AND BUILD_STATIC_LIBS)
+    # Extra suffix to avoid filename conflict with the static lib.
+    set_target_properties(libssh2-shared PROPERTIES IMPORT_SUFFIX "_imp${CMAKE_IMPORT_LIBRARY_SUFFIX}")
+  endif()
   set_target_properties(libssh2-object PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
   target_include_directories(libssh2-shared
