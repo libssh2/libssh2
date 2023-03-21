@@ -227,10 +227,6 @@ set(SOURCES
   userauth.h
   version.c)
 
-if(WIN32 AND BUILD_SHARED_LIBS)
-  list(APPEND SOURCES ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
-endif()
-
 # we want it to be called libssh2 on all platforms
 add_library(libssh2-object OBJECT ${SOURCES})
 if(BUILD_STATIC_LIBS)
@@ -244,10 +240,15 @@ if(BUILD_STATIC_LIBS)
       $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 endif()
 if(BUILD_SHARED_LIBS)
-  add_library(libssh2-shared SHARED $<TARGET_OBJECTS:libssh2-object>)
+  set(SOURCES_SHARED $<TARGET_OBJECTS:libssh2-object>)
+  if(WIN32)
+    add_library(libssh2-winres OBJECT ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
+    list(APPEND SOURCES_SHARED $<TARGET_OBJECTS:libssh2-winres>)
+  endif()
+  add_library(libssh2-shared SHARED ${SOURCES_SHARED})
   set_target_properties(libssh2-shared PROPERTIES PREFIX "" OUTPUT_NAME "libssh2")
   set_target_properties(libssh2-shared PROPERTIES IMPORT_PREFIX "")
-  if(WIN32 AND NOT MINGW AND BUILD_STATIC_LIBS)
+  if(WIN32 AND BUILD_STATIC_LIBS AND CMAKE_IMPORT_LIBRARY_SUFFIX STREQUAL CMAKE_STATIC_LIBRARY_SUFFIX)
     # Extra suffix to avoid filename conflict with the static lib.
     set_target_properties(libssh2-shared PROPERTIES IMPORT_SUFFIX "_imp${CMAKE_IMPORT_LIBRARY_SUFFIX}")
   endif()
