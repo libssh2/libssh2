@@ -78,8 +78,16 @@ install:
   - ps: .\ci\appveyor\docker-bridge.ps1
 
 build_script:
-  - ps: if($env:PLATFORM -eq "x64") { $env:CMAKE_GEN_SUFFIX=" Win64" }
-  - cmake "-G%GENERATOR%%CMAKE_GEN_SUFFIX%" -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -H. -B_builds
+  - ps: |
+      if($env:PLATFORM -eq "x64") { $env:GENERATOR = "$env:GENERATOR Win64" }
+      if($env:SKIP_CTEST -ne "yes") {
+        if($env:PLATFORM -eq "x64") {
+          $env:CMAKE_ARG = "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
+        } elseif($env:PLATFORM -eq "x86") {
+          $env:CMAKE_ARG = "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
+        }
+      }
+  - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
   - cmake --build _builds --config "%CONFIGURATION%" --parallel 2
 
 before_test:
