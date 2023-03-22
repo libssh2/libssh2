@@ -28,22 +28,22 @@ os: Visual Studio 2015
 
 environment:
   matrix:
-    - job_name: "VS2015, OpenSSL, Shared"
+    - job_name: "VS2015, OpenSSL"
       GENERATOR: "Visual Studio 14 2015"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
-    - job_name: "VS2013, OpenSSL, Shared"
+    - job_name: "VS2013, OpenSSL"
       GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
-    - job_name: "VS2015, WinCNG, Shared"
+    - job_name: "VS2015, WinCNG"
       GENERATOR: "Visual Studio 14 2015"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
 
-    - job_name: "VS2013, WinCNG, Shared"
+    - job_name: "VS2013, WinCNG"
       GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
@@ -52,21 +52,6 @@ environment:
       GENERATOR: "Visual Studio 14 2015"
       BUILD_SHARED_LIBS: "OFF"
       CRYPTO_BACKEND: "OpenSSL"
-
-    - job_name: "VS2013, OpenSSL, Static"
-      GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: "OFF"
-      CRYPTO_BACKEND: "OpenSSL"
-
-    - job_name: "VS2015, WinCNG, Static"
-      GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: "OFF"
-      CRYPTO_BACKEND: "WinCNG"
-
-    - job_name: "VS2013, WinCNG, Static"
-      GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: "OFF"
-      CRYPTO_BACKEND: "WinCNG"
 
 platform:
   - x64
