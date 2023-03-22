@@ -378,33 +378,27 @@ set(SOURCES
   version.c)
 
 # we want it to be called libssh2 on all platforms
-add_library(libssh2_object OBJECT ${SOURCES})
-target_compile_definitions(libssh2_object PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
-target_include_directories(libssh2_object
-  PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${libssh2_INCLUDE_DIRS} ${PRIVATE_INCLUDE_DIRECTORIES}
-  PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
-
 if(BUILD_STATIC_LIBS)
   list(APPEND libssh2_export libssh2_static)
-  add_library(libssh2_static STATIC $<TARGET_OBJECTS:libssh2_object>)
+  add_library(libssh2_static STATIC ${SOURCES})
+  target_compile_definitions(libssh2_static PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
   target_link_libraries(libssh2_static PRIVATE ${LIBRARIES})
   set_target_properties(libssh2_static PROPERTIES PREFIX "" OUTPUT_NAME "libssh2${STATIC_LIB_SUFFIX}")
 
   target_include_directories(libssh2_static
-    PRIVATE "${PROJECT_SOURCE_DIR}/include/"
+    PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${libssh2_INCLUDE_DIRS} ${PRIVATE_INCLUDE_DIRECTORIES}
     PUBLIC
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 endif()
 if(BUILD_SHARED_LIBS)
   list(APPEND libssh2_export libssh2_shared)
-  add_library(libssh2_shared SHARED $<TARGET_OBJECTS:libssh2_object>)
+  add_library(libssh2_shared SHARED ${SOURCES})
   if(WIN32)
-    add_library(libssh2_winres OBJECT ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
-    set_property(TARGET libssh2_shared APPEND PROPERTY SOURCES $<TARGET_OBJECTS:libssh2_winres>)
+    set_property(TARGET libssh2_shared APPEND PROPERTY SOURCES ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
+    target_compile_definitions(libssh2_shared PRIVATE libssh2_EXPORTS)
   endif()
+  target_compile_definitions(libssh2_shared PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
   target_link_libraries(libssh2_shared PRIVATE ${LIBRARIES})
   set_target_properties(libssh2_shared PROPERTIES PREFIX "" IMPORT_PREFIX "" OUTPUT_NAME "libssh2")
   if(WIN32 AND BUILD_STATIC_LIBS AND NOT STATIC_LIB_SUFFIX AND
@@ -413,13 +407,10 @@ if(BUILD_SHARED_LIBS)
     set_target_properties(libssh2_shared PROPERTIES IMPORT_SUFFIX "_imp${CMAKE_IMPORT_LIBRARY_SUFFIX}")
   endif()
 
-  set_target_properties(libssh2_object PROPERTIES POSITION_INDEPENDENT_CODE ON)
-  if(WIN32)
-    target_compile_definitions(libssh2_object PRIVATE libssh2_EXPORTS)
-  endif()
+  set_target_properties(libssh2_shared PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
   target_include_directories(libssh2_shared
-    PRIVATE "${PROJECT_SOURCE_DIR}/include/"
+    PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${libssh2_INCLUDE_DIRS} ${PRIVATE_INCLUDE_DIRECTORIES}
     PUBLIC
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
