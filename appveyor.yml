@@ -90,9 +90,6 @@ install:
 build_script:
   - ps: |
       if($env:GENERATOR -eq "Visual Studio 17 2022") {
-        if($env:PLATFORM -eq "x86" -and $env:CRYPTO_BACKEND -eq "WinCNG") {
-          $env:PLATFORM = "ARM64"
-        }
         $env:TARGET = "-A $env:PLATFORM"
       } elseif($env:PLATFORM -eq "x64") {
         $env:GENERATOR = "$env:GENERATOR Win64"
