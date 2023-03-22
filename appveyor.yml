@@ -74,7 +74,7 @@ install:
 build_script:
   - ps: if($env:PLATFORM -eq "x64") { $env:CMAKE_GEN_SUFFIX=" Win64" }
   - cmake "-G%GENERATOR%%CMAKE_GEN_SUFFIX%" -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -H. -B_builds
-  - cmake --build _builds --config "%CONFIGURATION%"
+  - cmake --build _builds --config "%CONFIGURATION%" --parallel 2
 
 before_test:
   - appveyor-retry choco install -y --no-progress --limit-output --timeout 180 docker-cli
