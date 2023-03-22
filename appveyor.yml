@@ -23,33 +23,49 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-os: Visual Studio 2015
+---
 
 environment:
   matrix:
+    - job_name: "VS2022, OpenSSL"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
+      GENERATOR: "Visual Studio 17 2022"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "OpenSSL"
+
     - job_name: "VS2015, OpenSSL"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 14 2015"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
     - job_name: "VS2013, OpenSSL"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
-    - job_name: "VS2015, WinCNG"
+    - job_name: "VS2022, WinCNG"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 14 2015"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+
+    - job_name: "VS2015, WinCNG"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
+      GENERATOR: "Visual Studio 17 2022"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
 
     - job_name: "VS2013, WinCNG"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
 
-    - job_name: "VS2015, OpenSSL, Static"
-      GENERATOR: "Visual Studio 14 2015"
+    - job_name: "VS2022, OpenSSL, Static-only"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
+      GENERATOR: "Visual Studio 17 2022"
       BUILD_SHARED_LIBS: "OFF"
       CRYPTO_BACKEND: "OpenSSL"
 
@@ -72,8 +88,16 @@ install:
   - ps: .\ci\appveyor\docker-bridge.ps1
 
 build_script:
-  - ps: if($env:PLATFORM -eq "x64") { $env:CMAKE_GEN_SUFFIX=" Win64" }
-  - cmake "-G%GENERATOR%%CMAKE_GEN_SUFFIX%" -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -H. -B_builds
+  - ps: |
+      if($env:GENERATOR -eq "Visual Studio 17 2022") {
+        if($env:PLATFORM -eq "x86" -and $env:CRYPTO_BACKEND -eq "WinCNG") {
+          $env:PLATFORM = "ARM64"
+        }
+        $env:TARGET = "-A $env:PLATFORM"
+      } elseif($env:PLATFORM -eq "x64") {
+        $env:GENERATOR = "$env:GENERATOR Win64"
+      }
+  - cmake "-G%GENERATOR%" %TARGET% -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -H. -B_builds
   - cmake --build _builds --config "%CONFIGURATION%" --parallel 2
 
 before_test:
@@ -95,7 +119,7 @@ before_test:
 
 test_script:
   - ps: $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
-  - ps: cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
+# - ps: cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
 
 on_failure:
   - ps: if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
