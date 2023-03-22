@@ -183,101 +183,11 @@ if(NOT CRYPTO_BACKEND)
   message(FATAL_ERROR "No suitable cryptography backend found.")
 endif()
 
-## Library definition
-
-include(GNUInstallDirs)
-set(SOURCES
-  ${CRYPTO_SOURCES}
-  agent.c
-  agent_win.c
-  blf.h
-  bcrypt_pbkdf.c
-  blowfish.c
-  channel.c
-  channel.h
-  comp.c
-  comp.h
-  crypt.c
-  crypto.h
-  global.c
-  hostkey.c
-  keepalive.c
-  kex.c
-  knownhost.c
-  libssh2_priv.h
-  mac.c
-  mac.h
-  misc.c
-  misc.h
-  os400qc3.c
-  packet.c
-  packet.h
-  pem.c
-  publickey.c
-  scp.c
-  session.c
-  session.h
-  sftp.c
-  sftp.h
-  transport.c
-  transport.h
-  userauth_kbd_packet.c
-  userauth_kbd_packet.h
-  userauth.c
-  userauth.h
-  version.c)
-
-# we want it to be called libssh2 on all platforms
-add_library(libssh2_object OBJECT ${SOURCES})
-target_compile_definitions(libssh2_object PRIVATE ${PRIVATE_COMPILE_DEFINITIONS})
-target_include_directories(libssh2_object
-  PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${PRIVATE_INCLUDE_DIRECTORIES}
-  PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
-
-if(BUILD_STATIC_LIBS)
-  list(APPEND libssh2_export libssh2_static)
-  add_library(libssh2_static STATIC $<TARGET_OBJECTS:libssh2_object>)
-  set_target_properties(libssh2_static PROPERTIES PREFIX "" OUTPUT_NAME "libssh2${STATIC_LIB_SUFFIX}")
-
-  target_include_directories(libssh2_static
-    PRIVATE "${PROJECT_SOURCE_DIR}/include/"
-    PUBLIC
-      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-      $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
-endif()
-if(BUILD_SHARED_LIBS)
-  list(APPEND libssh2_export libssh2_shared)
-  add_library(libssh2_shared SHARED $<TARGET_OBJECTS:libssh2_object>)
-  if(WIN32)
-    add_library(libssh2_winres OBJECT ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
-    set_property(TARGET libssh2_shared APPEND PROPERTY SOURCES $<TARGET_OBJECTS:libssh2_winres>)
-  endif()
-  set_target_properties(libssh2_shared PROPERTIES PREFIX "" IMPORT_PREFIX "" OUTPUT_NAME "libssh2")
-  if(WIN32 AND BUILD_STATIC_LIBS AND NOT STATIC_LIB_SUFFIX AND
-     CMAKE_IMPORT_LIBRARY_SUFFIX STREQUAL CMAKE_STATIC_LIBRARY_SUFFIX)
-    # Extra suffix to avoid filename conflict with the static lib.
-    set_target_properties(libssh2_shared PROPERTIES IMPORT_SUFFIX "_imp${CMAKE_IMPORT_LIBRARY_SUFFIX}")
-  endif()
-
-  set_target_properties(libssh2_object PROPERTIES POSITION_INDEPENDENT_CODE ON)
-  if(WIN32)
-    target_compile_definitions(libssh2_object PRIVATE libssh2_EXPORTS)
-  endif()
-
-  target_include_directories(libssh2_shared
-    PRIVATE "${PROJECT_SOURCE_DIR}/include/"
-    PUBLIC
-      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-      $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
-endif()
-
 ## Options
 
 option(CLEAR_MEMORY "Enable clearing of memory before being freed" ON)
 if(NOT CLEAR_MEMORY)
-    add_definitions(-DLIBSSH2_NO_CLEAR_MEMORY)
+  list(APPEND libssh2_DEFINITIONS LIBSSH2_NO_CLEAR_MEMORY)
 endif()
 
 add_feature_info("Static library" BUILD_STATIC_LIBS
@@ -292,24 +202,24 @@ add_feature_info(Compression ENABLE_ZLIB_COMPRESSION
 if(ENABLE_ZLIB_COMPRESSION)
   find_package(ZLIB REQUIRED)
 
-  target_include_directories(libssh2_object PRIVATE ${ZLIB_INCLUDE_DIRS})
+  list(APPEND libssh2_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS})
   list(APPEND LIBRARIES ${ZLIB_LIBRARIES})
   list(APPEND PC_REQUIRES_PRIVATE zlib)
   if(ZLIB_FOUND)
-    target_compile_definitions(libssh2_object PRIVATE LIBSSH2_HAVE_ZLIB=1)
+    list(APPEND libssh2_DEFINITIONS LIBSSH2_HAVE_ZLIB=1)
   endif()
 endif()
 
 option(ENABLE_CRYPT_NONE "Permit \"none\" cipher -- NOT RECOMMENDED")
 add_feature_info("\"none\" cipher" ENABLE_CRYPT_NONE "")
 if(ENABLE_CRYPT_NONE)
-  target_compile_definitions(libssh2_object PRIVATE LIBSSH2_CRYPT_NONE=1)
+  list(APPEND libssh2_DEFINITIONS LIBSSH2_CRYPT_NONE=1)
 endif()
 
 option(ENABLE_MAC_NONE "Permit \"none\" MAC -- NOT RECOMMMENDED")
 add_feature_info("\"none\" MAC" ENABLE_MAC_NONE "")
 if(ENABLE_MAC_NONE)
-  target_compile_definitions(libssh2_object PRIVATE LIBSSH2_MAC_NONE=1)
+  list(APPEND libssh2_DEFINITIONS LIBSSH2_MAC_NONE=1)
 endif()
 
 option(ENABLE_GEX_NEW
@@ -317,7 +227,7 @@ option(ENABLE_GEX_NEW
 add_feature_info("diffie-hellman-group-exchange-sha1" ENABLE_GEX_NEW
   "\"new\" diffie-hellman-group-exchange-sha1 method")
 if(ENABLE_GEX_NEW)
-  target_compile_definitions(libssh2_object PRIVATE LIBSSH2_DH_GEX_NEW=1)
+  list(APPEND libssh2_DEFINITIONS LIBSSH2_DH_GEX_NEW=1)
 endif()
 
 # Enable debugging logging by default if the user configured a debug build
@@ -331,7 +241,7 @@ option(ENABLE_DEBUG_LOGGING "log execution with debug trace"
 add_feature_info(Logging ENABLE_DEBUG_LOGGING
    "Logging of execution with debug trace")
 if(ENABLE_DEBUG_LOGGING)
-  target_compile_definitions(libssh2_object PRIVATE LIBSSH2DEBUG)
+  list(APPEND libssh2_DEFINITIONS LIBSSH2DEBUG)
 endif()
 
 ## Platform checks
@@ -416,18 +326,103 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config_cmake.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h)
 # to find generated header
-target_include_directories(libssh2_object PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+list(APPEND libssh2_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR})
 
 if(MSVC)
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi /Od")
   set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /DEBUG")
 endif()
 
+## Library definition
+
+include(GNUInstallDirs)
+set(SOURCES
+  ${CRYPTO_SOURCES}
+  agent.c
+  agent_win.c
+  blf.h
+  bcrypt_pbkdf.c
+  blowfish.c
+  channel.c
+  channel.h
+  comp.c
+  comp.h
+  crypt.c
+  crypto.h
+  global.c
+  hostkey.c
+  keepalive.c
+  kex.c
+  knownhost.c
+  libssh2_priv.h
+  mac.c
+  mac.h
+  misc.c
+  misc.h
+  os400qc3.c
+  packet.c
+  packet.h
+  pem.c
+  publickey.c
+  scp.c
+  session.c
+  session.h
+  sftp.c
+  sftp.h
+  transport.c
+  transport.h
+  userauth_kbd_packet.c
+  userauth_kbd_packet.h
+  userauth.c
+  userauth.h
+  version.c)
+
+# we want it to be called libssh2 on all platforms
+add_library(libssh2_object OBJECT ${SOURCES})
+target_compile_definitions(libssh2_object PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
+target_include_directories(libssh2_object
+  PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${libssh2_INCLUDE_DIRS} ${PRIVATE_INCLUDE_DIRECTORIES}
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
+
 if(BUILD_STATIC_LIBS)
+  list(APPEND libssh2_export libssh2_static)
+  add_library(libssh2_static STATIC $<TARGET_OBJECTS:libssh2_object>)
   target_link_libraries(libssh2_static PRIVATE ${LIBRARIES})
+  set_target_properties(libssh2_static PROPERTIES PREFIX "" OUTPUT_NAME "libssh2${STATIC_LIB_SUFFIX}")
+
+  target_include_directories(libssh2_static
+    PRIVATE "${PROJECT_SOURCE_DIR}/include/"
+    PUBLIC
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+      $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 endif()
 if(BUILD_SHARED_LIBS)
+  list(APPEND libssh2_export libssh2_shared)
+  add_library(libssh2_shared SHARED $<TARGET_OBJECTS:libssh2_object>)
+  if(WIN32)
+    add_library(libssh2_winres OBJECT ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
+    set_property(TARGET libssh2_shared APPEND PROPERTY SOURCES $<TARGET_OBJECTS:libssh2_winres>)
+  endif()
   target_link_libraries(libssh2_shared PRIVATE ${LIBRARIES})
+  set_target_properties(libssh2_shared PROPERTIES PREFIX "" IMPORT_PREFIX "" OUTPUT_NAME "libssh2")
+  if(WIN32 AND BUILD_STATIC_LIBS AND NOT STATIC_LIB_SUFFIX AND
+     CMAKE_IMPORT_LIBRARY_SUFFIX STREQUAL CMAKE_STATIC_LIBRARY_SUFFIX)
+    # Extra suffix to avoid filename conflict with the static lib.
+    set_target_properties(libssh2_shared PROPERTIES IMPORT_SUFFIX "_imp${CMAKE_IMPORT_LIBRARY_SUFFIX}")
+  endif()
+
+  set_target_properties(libssh2_object PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  if(WIN32)
+    target_compile_definitions(libssh2_object PRIVATE libssh2_EXPORTS)
+  endif()
+
+  target_include_directories(libssh2_shared
+    PRIVATE "${PROJECT_SOURCE_DIR}/include/"
+    PUBLIC
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+      $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 endif()
 
 ## Installation
