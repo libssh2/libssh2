@@ -99,21 +99,22 @@ else()
   endif()
 endif()
 
+option(BUILD_EXAMPLES "Build libssh2 examples" ON)
+option(BUILD_TESTING "Build libssh2 test suite" ON)
+
+if(NOT BUILD_STATIC_LIBS AND (NOT BUILD_SHARED_LIBS OR BUILD_EXAMPLES OR BUILD_TESTING))
+  set(BUILD_STATIC_LIBS ON)
+endif()
+
 add_subdirectory(src)
 
-option(BUILD_EXAMPLES "Build libssh2 examples" ON)
 if(BUILD_EXAMPLES)
   add_subdirectory(example)
 endif()
 
-option(BUILD_TESTING "Build libssh2 test suite" ON)
 if(BUILD_TESTING)
   enable_testing()
   add_subdirectory(tests)
-endif()
-
-if(NOT BUILD_STATIC_LIBS AND (NOT BUILD_SHARED_LIBS OR BUILD_EXAMPLES OR BUILD_TESTING))
-  set(BUILD_STATIC_LIBS ON)
 endif()
 
 option(LINT "Check style while building" OFF)
