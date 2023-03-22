@@ -77,7 +77,7 @@ jobs:
         run: |
           autoreconf -fi
           ./configure --enable-debug --enable-werror
-          make
+          make -j3
           make check
       - name: Build with CMake
         timeout-minutes: 10
@@ -86,7 +86,7 @@ jobs:
           mkdir bin
           cd bin
           cmake $TOOLCHAIN_OPTION -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
-          cmake --build .
+          cmake --build . --parallel 2
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
           ctest -VV --output-on-failure
           cmake --build . --target package
@@ -117,5 +117,5 @@ jobs:
         run: |
           autoreconf -fi
           ./configure --enable-debug --enable-static --disable-shared --with-crypto=openssl
-          make
+          make -j3
           make check
