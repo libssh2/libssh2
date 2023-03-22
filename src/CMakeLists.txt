@@ -229,6 +229,13 @@ set(SOURCES
 
 # we want it to be called libssh2 on all platforms
 add_library(libssh2_object OBJECT ${SOURCES})
+target_compile_definitions(libssh2_object PRIVATE ${PRIVATE_COMPILE_DEFINITIONS})
+target_include_directories(libssh2_object
+  PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${PRIVATE_INCLUDE_DIRECTORIES}
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
+
 if(BUILD_STATIC_LIBS)
   list(APPEND libssh2_export libssh2_static)
   add_library(libssh2_static STATIC $<TARGET_OBJECTS:libssh2_object>)
@@ -265,13 +272,6 @@ if(BUILD_SHARED_LIBS)
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 endif()
-
-target_compile_definitions(libssh2_object PRIVATE ${PRIVATE_COMPILE_DEFINITIONS})
-target_include_directories(libssh2_object
-  PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${PRIVATE_INCLUDE_DIRECTORIES}
-  PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 
 ## Options
 
