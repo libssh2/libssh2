@@ -169,24 +169,23 @@ if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
     )
 endif()
 
-add_library(openssh_fixture STATIC openssh_fixture.h openssh_fixture.c)
-target_link_libraries(openssh_fixture ${LIBRARIES})
-target_include_directories(openssh_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" ../include)
+add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
+target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" ../include)
+target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
-add_library(session_fixture STATIC session_fixture.h session_fixture.c)
-target_link_libraries(session_fixture ${LIBRARIES} openssh_fixture libssh2)
-target_include_directories(session_fixture PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
-
-add_library(runner STATIC runner.h runner.c)
-target_link_libraries(runner session_fixture)
-target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+# test building against shared libssh2 lib
+if(BUILD_SHARED_LIBS)
+  set(test warmup)  # any test will do
+  add_executable(test_${test}_shared test_${test}.c)
+  target_include_directories(test_${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+  target_link_libraries(test_${test}_shared runner libssh2_shared ${LIBRARIES})
+endif()
 
 foreach(test ${TESTS})
   add_executable(test_${test} test_${test}.c)
-  target_link_libraries(test_${test} libssh2 runner ${LIBRARIES})
-  target_include_directories(test_${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
   list(APPEND TEST_TARGETS test_${test})
-  add_definitions(-DFIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  target_include_directories(test_${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+  target_link_libraries(test_${test} runner libssh2_static ${LIBRARIES})
 
   add_test(
     NAME test_${test} COMMAND $<TARGET_FILE:test_${test}>
@@ -229,12 +228,7 @@ foreach(test ${TESTS})
   set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
 endforeach()
 
-if(WIN32 AND BUILD_SHARED_LIBS)
-  # Workaround for platforms not exporting internal functions from libssh2 shared lib
-  add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c ../src/misc.c)
-else()
-  add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
-endif()
+add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
 target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "../src/" "${CRYPTO_BACKEND_INCLUDE_DIR}")
 find_program(GCOV_PATH gcov)
@@ -245,9 +239,9 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCC AND GCOV_PATH)
   target_compile_options(test_keyboard_interactive_auth_info_request BEFORE PRIVATE
     ${TGT_OPTIONS})
-  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2 gcov)
+  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2_static gcov)
 else()
-  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2)
+  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2_static)
 endif()
 add_test(
   NAME test_keyboard_interactive_auth_info_request COMMAND $<TARGET_FILE:test_keyboard_interactive_auth_info_request>

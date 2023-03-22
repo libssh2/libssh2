@@ -44,6 +44,7 @@ project(libssh2 C)
 set(PROJECT_URL "https://www.libssh2.org/")
 set(PROJECT_DESCRIPTION "The SSH library")
 
+option(BUILD_STATIC_LIBS "Build Static Libraries" ON)
 option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
 
 # Parse version
@@ -77,6 +78,10 @@ install(
   FILES docs/AUTHORS COPYING docs/HACKING README RELEASE-NOTES NEWS
   DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
+if(MSVC)
+  set(CMAKE_VS_GLOBALS "TrackFileAccess=false")  # faster builds
+endif()
+
 include(max_warnings)
 include(FeatureSummary)
 
@@ -107,12 +112,20 @@ if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
 
+if(NOT BUILD_STATIC_LIBS AND (NOT BUILD_SHARED_LIBS OR BUILD_EXAMPLES OR BUILD_TESTING))
+  set(BUILD_STATIC_LIBS ON)
+endif()
+
 option(LINT "Check style while building" OFF)
 if(LINT)
   add_custom_target(lint ALL
     ./ci/checksrc.sh
     WORKING_DIRECTORY ${libssh2_SOURCE_DIR})
-  add_dependencies(libssh2 lint)
+  if(BUILD_STATIC_LIBS)
+    add_dependencies(libssh2_static lint)
+  else()
+    add_dependencies(libssh2_shared lint)
+  endif()
 endif()
 
 add_subdirectory(docs)
