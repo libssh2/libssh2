@@ -38,6 +38,13 @@ environment:
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
+    - job_name: "VS2013, OpenSSL, Static"
+      GENERATOR: "Visual Studio 12 2013"
+      BUILD_SHARED_LIBS: "OFF"
+      CRYPTO_BACKEND: "OpenSSL"
+      SKIP_CTEST: "yes"
+      SKIP_X86: "yes"
+
     - job_name: "VS2015, WinCNG"
       GENERATOR: "Visual Studio 14 2015"
       BUILD_SHARED_LIBS: "ON"
@@ -47,11 +54,6 @@ environment:
       GENERATOR: "Visual Studio 12 2013"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
-
-    - job_name: "VS2015, OpenSSL, Static"
-      GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: "OFF"
-      CRYPTO_BACKEND: "OpenSSL"
 
 platform:
   - x64
@@ -63,6 +65,10 @@ configuration:
 
 matrix:
   fast_finish: true
+  # Enough to test the build itself on a single platform
+  exclude:
+    - platform: x86
+      SKIP_X86: "yes"
 
 install:
   # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
@@ -94,8 +100,11 @@ before_test:
       }
 
 test_script:
-  - ps: $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
-  - ps: cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
+  - ps: |
+      if($env:SKIP_CTEST -ne "yes") {
+        $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
+        cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
+      }
 
 on_failure:
   - ps: if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
