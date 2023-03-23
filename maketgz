@@ -99,3 +99,52 @@ git log --pretty=fuller --no-color --date=short --decorate=full -1000 | ./git2ne
 echo "make dist"
 targz="libssh2-$version.tar.gz"
 make -s dist VERSION=$version
+res=$?
+
+if test "$res" != 0; then
+  echo "make dist failed"
+  exit 2
+fi
+
+############################################################################
+#
+# Now make a bz2 archive from the tar.gz original
+#
+
+bzip2="libssh2-$version.tar.bz2"
+echo "Generating $bzip2"
+gzip -dc $targz | bzip2 --best > $bzip2
+
+############################################################################
+#
+# Now make an xz archive from the tar.gz original
+#
+
+xz="libssh2-$version.tar.xz"
+echo "Generating $xz"
+gzip -dc $targz | xz -6e - > $xz
+
+############################################################################
+#
+# Now make a zip archive from the tar.gz original
+#
+makezip() {
+  rm -rf $tempdir
+  mkdir $tempdir
+  cd $tempdir
+  gzip -dc ../$targz | tar -xf -
+  find . | zip $zip -@ >/dev/null
+  mv $zip ../
+  cd ..
+  rm -rf $tempdir
+}
+
+zip="libssh2-$version.zip"
+echo "Generating $zip"
+tempdir=".builddir"
+makezip
+
+echo "------------------"
+echo "maketgz report:"
+echo ""
+ls -l $targz $bzip2 $zip $xz

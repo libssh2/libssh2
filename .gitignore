@@ -25,7 +25,10 @@ libtool
 ltmain.sh
 missing
 ssh2_sample
+libssh2-*.tar.bz2
 libssh2-*.tar.gz
+libssh2-*.tar.xz
+libssh2-*.zip
 install-sh
 *.o
 *.lo
