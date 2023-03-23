@@ -210,18 +210,6 @@ if(ENABLE_ZLIB_COMPRESSION)
   endif()
 endif()
 
-option(ENABLE_CRYPT_NONE "Permit \"none\" cipher -- NOT RECOMMENDED")
-add_feature_info("\"none\" cipher" ENABLE_CRYPT_NONE "")
-if(ENABLE_CRYPT_NONE)
-  list(APPEND libssh2_DEFINITIONS LIBSSH2_CRYPT_NONE=1)
-endif()
-
-option(ENABLE_MAC_NONE "Permit \"none\" MAC -- NOT RECOMMMENDED")
-add_feature_info("\"none\" MAC" ENABLE_MAC_NONE "")
-if(ENABLE_MAC_NONE)
-  list(APPEND libssh2_DEFINITIONS LIBSSH2_MAC_NONE=1)
-endif()
-
 # Enable debugging logging by default if the user configured a debug build
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(DEBUG_LOGGING_DEFAULT ON)

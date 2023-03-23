@@ -38,9 +38,9 @@
 #include "libssh2_priv.h"
 #include "mac.h"
 
-#ifdef LIBSSH2_MAC_NONE
+#if defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE)
 /* mac_none_MAC
- * Minimalist MAC: No MAC
+ * Minimalist MAC: No MAC. DO NOT USE.
  */
 static int
 mac_none_MAC(LIBSSH2_SESSION * session, unsigned char *buf,
@@ -62,7 +62,7 @@ static LIBSSH2_MAC_METHOD mac_method_none = {
     mac_none_MAC,
     NULL
 };
-#endif /* LIBSSH2_MAC_NONE */
+#endif /* defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE) */
 
 /* mac_method_common_init
  * Initialize simple mac methods
@@ -401,9 +401,9 @@ static const LIBSSH2_MAC_METHOD *mac_methods[] = {
     &mac_method_hmac_ripemd160,
     &mac_method_hmac_ripemd160_openssh_com,
 #endif /* LIBSSH2_HMAC_RIPEMD */
-#ifdef LIBSSH2_MAC_NONE
+#if defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE)
     &mac_method_none,
-#endif /* LIBSSH2_MAC_NONE */
+#endif
     NULL
 };
 
