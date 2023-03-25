@@ -573,7 +573,11 @@ read_private_key_from_memory(void **key_ctx,
 
     *key_ctx = NULL;
 
+#if OPENSSL_VERSION_NUMBER >= 0x1000200fL
+    bp = BIO_new_mem_buf(filedata, (int)filedata_len);
+#else
     bp = BIO_new_mem_buf((char *)filedata, (int)filedata_len);
+#endif
     if(!bp) {
         return -1;
     }
@@ -3724,7 +3728,11 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing public key from private key."));
 
+#if OPENSSL_VERSION_NUMBER >= 0x1000200fL
+    bp = BIO_new_mem_buf(privatekeydata, (int)privatekeydata_len);
+#else
     bp = BIO_new_mem_buf((char *)privatekeydata, (int)privatekeydata_len);
+#endif
     if(!bp)
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory when"
@@ -3814,7 +3822,11 @@ _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing public key from private key."));
 
+#if OPENSSL_VERSION_NUMBER >= 0x1000200fL
+    bp = BIO_new_mem_buf(privatekeydata, (int)privatekeydata_len);
+#else
     bp = BIO_new_mem_buf((char *)privatekeydata, (int)privatekeydata_len);
+#endif
     if(!bp)
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory when"
