@@ -270,7 +270,7 @@ shell_quotearg(const char *path, unsigned char *buf,
 static LIBSSH2_CHANNEL *
 scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 {
-    int cmd_len;
+    size_t cmd_len;
     int rc;
     int tmp_err_code;
     const char *tmp_err_msg;
@@ -298,10 +298,10 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                  session->scpRecv_command_len,
                  "scp -%sf ", sb?"p":"");
 
-        cmd_len = (int)strlen((char *)session->scpRecv_command);
-        cmd_len += (int)shell_quotearg(path,
-                                       &session->scpRecv_command[cmd_len],
-                                       session->scpRecv_command_len - cmd_len);
+        cmd_len = strlen((char *)session->scpRecv_command);
+        cmd_len += shell_quotearg(path,
+                                  &session->scpRecv_command[cmd_len],
+                                  session->scpRecv_command_len - cmd_len);
 
         /* the command to exec should _not_ be NUL-terminated */
         session->scpRecv_command_len = cmd_len;
@@ -835,7 +835,7 @@ static LIBSSH2_CHANNEL *
 scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
          libssh2_int64_t size, time_t mtime, time_t atime)
 {
-    int cmd_len;
+    size_t cmd_len;
     int rc;
     int tmp_err_code;
     const char *tmp_err_msg;
@@ -859,10 +859,10 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                  session->scpSend_command_len,
                  "scp -%st ", (mtime || atime)?"p":"");
 
-        cmd_len = (int)strlen((char *)session->scpSend_command);
-        cmd_len += (int)shell_quotearg(path,
-                                       &session->scpSend_command[cmd_len],
-                                       session->scpSend_command_len - cmd_len);
+        cmd_len = strlen((char *)session->scpSend_command);
+        cmd_len += shell_quotearg(path,
+                                  &session->scpSend_command[cmd_len],
+                                  session->scpSend_command_len - cmd_len);
 
         /* the command to exec should _not_ be NUL-terminated */
         session->scpSend_command_len = cmd_len;
