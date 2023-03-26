@@ -330,6 +330,8 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 #endif
 
 #ifdef HAVE_DISABLED_NONBLOCKING
+    (void)sockfd;
+    (void)nonblock;
     return 0;                   /* returns success */
 #undef SETBLOCK
 #define SETBLOCK 6
@@ -409,6 +411,7 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
 #endif
 
 #ifdef HAVE_DISABLED_NONBLOCKING
+    (void)sockfd;
     return 1;                   /* returns blocking */
 #undef GETBLOCK
 #define GETBLOCK 7
@@ -651,7 +654,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
         if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
             sockets[0].events |= POLLOUT;
 
-        rc = poll(sockets, 1, has_timeout?ms_to_next: -1);
+        rc = poll(sockets, 1, has_timeout ? (int)ms_to_next : -1);
     }
 #else
     {
@@ -662,7 +665,11 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
         struct timeval tv;
 
         tv.tv_sec = ms_to_next / 1000;
+#ifdef WIN32
+        tv.tv_usec = (long)((ms_to_next - tv.tv_sec*1000) * 1000);
+#else
         tv.tv_usec = (ms_to_next - tv.tv_sec*1000) * 1000;
+#endif
 
         if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
             FD_ZERO(&rfd);
@@ -676,7 +683,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
             writefd = &wfd;
         }
 
-        rc = select(session->socket_fd + 1, readfd, writefd, NULL,
+        rc = select((int)(session->socket_fd + 1), readfd, writefd, NULL,
                     has_timeout ? &tv : NULL);
     }
 #endif
@@ -1538,7 +1545,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         switch(fds[i].type) {
         case LIBSSH2_POLLFD_SOCKET:
             sockets[i].fd = fds[i].fd.socket;
-            sockets[i].events = fds[i].events;
+            sockets[i].events = (short)fds[i].events;
             sockets[i].revents = 0;
             break;
 
@@ -1705,7 +1712,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
             struct timeval tv_begin, tv_end;
 
             _libssh2_gettimeofday((struct timeval *) &tv_begin, NULL);
-            sysret = poll(sockets, nfds, timeout_remaining);
+            sysret = poll(sockets, nfds, (int)timeout_remaining);
             _libssh2_gettimeofday((struct timeval *) &tv_end, NULL);
             timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
             timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
@@ -1714,7 +1721,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         /* If the platform doesn't support gettimeofday,
          * then just make the call non-blocking and walk away
          */
-        sysret = poll(sockets, nfds, timeout_remaining);
+        sysret = poll(sockets, nfds, (int)timeout_remaining);
         timeout_remaining = 0;
 #endif /* HAVE_GETTIMEOFDAY */
 
@@ -1768,7 +1775,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
             struct timeval tv_begin, tv_end;
 
             _libssh2_gettimeofday((struct timeval *) &tv_begin, NULL);
-            sysret = select(maxfd + 1, &rfds, &wfds, NULL, &tv);
+            sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
             _libssh2_gettimeofday((struct timeval *) &tv_end, NULL);
 
             timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
@@ -1778,7 +1785,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         /* If the platform doesn't support gettimeofday,
          * then just make the call non-blocking and walk away
          */
-        sysret = select(maxfd + 1, &rfds, &wfds, NULL, &tv);
+        sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
         timeout_remaining = 0;
 #endif
 

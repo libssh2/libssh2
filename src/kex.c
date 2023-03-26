@@ -531,7 +531,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
         if(session->local.banner) {
             _libssh2_htonu32(exchange_state->h_sig_comp,
-                             strlen((char *) session->local.banner) - 2);
+                (uint32_t)(strlen((char *) session->local.banner) - 2));
             _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                          exchange_state->h_sig_comp, 4);
             _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
@@ -550,7 +550,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         }
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
-                         strlen((char *) session->remote.banner));
+                         (uint32_t)strlen((char *) session->remote.banner));
         _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                      exchange_state->h_sig_comp, 4);
         _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
@@ -558,7 +558,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                      strlen((char *) session->remote.banner));
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
-                         session->local.kexinit_len);
+                         (uint32_t)session->local.kexinit_len);
         _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                      exchange_state->h_sig_comp, 4);
         _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
@@ -566,7 +566,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                      session->local.kexinit_len);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
-                         session->remote.kexinit_len);
+                         (uint32_t)session->remote.kexinit_len);
         _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                      exchange_state->h_sig_comp, 4);
         _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
@@ -1428,7 +1428,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
         _libssh2_bn_from_bin(key_state->g, g_len, g);
 
         ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p,
-                                      p_len, 1,
+                                      (int)p_len, 1,
                                       (void *)&exchange_hash_ctx,
                                       SSH_MSG_KEX_DH_GEX_INIT,
                                       SSH_MSG_KEX_DH_GEX_REPLY,
@@ -1556,7 +1556,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
         _libssh2_bn_from_bin(key_state->g, g_len, g);
 
         ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p,
-                                      p_len, 256,
+                                      (int)p_len, 256,
                                       (void *)&exchange_hash_ctx,
                                       SSH_MSG_KEX_DH_GEX_INIT,
                                       SSH_MSG_KEX_DH_GEX_REPLY,
@@ -1605,7 +1605,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
     (void)libssh2_sha##digest_type##_init(&ctx);                        \
     if(session->local.banner) {                                         \
         _libssh2_htonu32(exchange_state->h_sig_comp,                    \
-                         strlen((char *) session->local.banner) - 2);   \
+            (uint32_t)(strlen((char *) session->local.banner) - 2));    \
         libssh2_sha##digest_type##_update(ctx,                          \
                                           exchange_state->h_sig_comp, 4); \
         libssh2_sha##digest_type##_update(ctx,                          \
@@ -1626,7 +1626,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
     }                                                                   \
                                                                         \
     _libssh2_htonu32(exchange_state->h_sig_comp,                        \
-                     strlen((char *) session->remote.banner));          \
+        (uint32_t)strlen((char *) session->remote.banner));             \
     libssh2_sha##digest_type##_update(ctx,                              \
                                       exchange_state->h_sig_comp, 4);   \
     libssh2_sha##digest_type##_update(ctx,                              \
@@ -1635,7 +1635,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
                                              session->remote.banner));  \
                                                                         \
     _libssh2_htonu32(exchange_state->h_sig_comp,                        \
-                     session->local.kexinit_len);                       \
+                     (uint32_t)session->local.kexinit_len);             \
     libssh2_sha##digest_type##_update(ctx,                              \
                                       exchange_state->h_sig_comp, 4);   \
     libssh2_sha##digest_type##_update(ctx,                              \
@@ -1643,7 +1643,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
                                       session->local.kexinit_len);      \
                                                                         \
     _libssh2_htonu32(exchange_state->h_sig_comp,                        \
-                     session->remote.kexinit_len);                      \
+                     (uint32_t)session->remote.kexinit_len);            \
     libssh2_sha##digest_type##_update(ctx,                              \
                                       exchange_state->h_sig_comp, 4);   \
     libssh2_sha##digest_type##_update(ctx,                              \
@@ -1659,7 +1659,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
                                       session->server_hostkey_len);     \
                                                                         \
     _libssh2_htonu32(exchange_state->h_sig_comp,                        \
-                     public_key_len);                                   \
+                     (uint32_t)public_key_len);                         \
     libssh2_sha##digest_type##_update(ctx,                              \
                                       exchange_state->h_sig_comp, 4);   \
     libssh2_sha##digest_type##_update(ctx,                              \
@@ -1667,7 +1667,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
                                       public_key_len);                  \
                                                                         \
     _libssh2_htonu32(exchange_state->h_sig_comp,                        \
-                     server_public_key_len);                            \
+                     (uint32_t)server_public_key_len);                  \
     libssh2_sha##digest_type##_update(ctx,                              \
                                       exchange_state->h_sig_comp, 4);   \
     libssh2_sha##digest_type##_update(ctx,                              \
@@ -1712,6 +1712,11 @@ kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
     else if(strcmp(name, "ecdh-sha2-nistp521") == 0)
         type = LIBSSH2_EC_CURVE_NISTP521;
     else {
+/* silence:
+   warning C4701: potentially uninitialized local variable 'type' used */
+#if defined(_MSC_VER)
+        type = (libssh2_curve_type)0;
+#endif
         ret = -1;
     }
 
@@ -1907,7 +1912,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             goto clean_exit;
         }
         _libssh2_htonu32(exchange_state->k_value,
-                         exchange_state->k_value_len - 4);
+                         (uint32_t)(exchange_state->k_value_len - 4));
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
             _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 4);
         }
@@ -2003,7 +2008,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             }
             memcpy(session->session_id, exchange_state->h_sig_comp,
                    digest_length);
-             session->session_id_len = digest_length;
+             session->session_id_len = (uint32_t)digest_length;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                            "session_id calculated"));
         }
@@ -2298,7 +2303,13 @@ kex_method_ecdh_key_exchange
 
     if(key_state->state == libssh2_NB_state_sent2) {
 
-        (void)kex_session_ecdh_curve_type(session->kex->name, &type);
+        rc = kex_session_ecdh_curve_type(session->kex->name, &type);
+
+        if(rc != 0) {
+            ret = _libssh2_error(session, -1,
+                                 "Unknown KEX nistp curve type");
+            goto ecdh_clean_exit;
+        }
 
         ret = ecdh_sha2_nistp(session, type, key_state->data,
                               key_state->data_len,
@@ -2541,7 +2552,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             goto clean_exit;
         }
         _libssh2_htonu32(exchange_state->k_value,
-                         exchange_state->k_value_len - 4);
+                         (uint32_t)(exchange_state->k_value_len - 4));
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
             _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 4);
         }
@@ -2613,7 +2624,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             }
             memcpy(session->session_id, exchange_state->h_sig_comp,
                    digest_length);
-            session->session_id_len = digest_length;
+            session->session_id_len = (uint32_t)digest_length;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                            "session_id calculated"));
         }
@@ -3956,7 +3967,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
                             const char *prefs)
 {
     char **prefvar, *s, *newprefs;
-    int prefs_len = strlen(prefs);
+    size_t prefs_len = strlen(prefs);
     const LIBSSH2_COMMON_METHOD **mlist;
 
     switch(method_type) {
@@ -4031,7 +4042,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
 
     while(s && *s && mlist) {
         char *p = strchr(s, ',');
-        int method_len = p ? (p - s) : (int) strlen(s);
+        size_t method_len = (p ? (size_t)(p - s) : strlen(s));
 
         if(!kex_get_method_by_name(s, method_len, mlist)) {
             /* Strip out unsupported method */

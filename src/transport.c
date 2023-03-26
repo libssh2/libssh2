@@ -864,7 +864,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     /* store packet_length, which is the size of the whole packet except
        the MAC and the packet_length field itself */
-    _libssh2_htonu32(p->outbuf, packet_length - 4);
+    _libssh2_htonu32(p->outbuf, (uint32_t)(packet_length - 4));
     /* store padding_length */
     p->outbuf[4] = (unsigned char)padding_length;
 

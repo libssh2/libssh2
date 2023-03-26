@@ -164,10 +164,11 @@ struct iovec {
 #include "crypto.h"
 
 #ifdef HAVE_WINSOCK2_H
-
 #include <winsock2.h>
 #include <ws2tcpip.h>
-
+/* Force parameter type. */
+#define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
+#define send(s, b, l, f)  send((s), (b), (int)(l), (f))
 #endif
 
 #ifndef SIZE_MAX
@@ -201,20 +202,23 @@ struct iovec {
 #define LIBSSH2_FREE(session, ptr) \
  session->free((ptr), &(session)->abstract)
 #define LIBSSH2_IGNORE(session, data, datalen) \
- session->ssh_msg_ignore((session), (data), (datalen), &(session)->abstract)
+ session->ssh_msg_ignore((session), (data), (int)(datalen), \
+                         &(session)->abstract)
 #define LIBSSH2_DEBUG(session, always_display, message, message_len, \
                       language, language_len)    \
-    session->ssh_msg_debug((session), (always_display), (message), \
-                           (message_len), (language), (language_len), \
+    session->ssh_msg_debug((session), (always_display), \
+                           (message), (int)(message_len), \
+                           (language), (int)(language_len), \
                            &(session)->abstract)
 #define LIBSSH2_DISCONNECT(session, reason, message, message_len, \
                            language, language_len)                \
-    session->ssh_msg_disconnect((session), (reason), (message),   \
-                                (message_len), (language), (language_len), \
+    session->ssh_msg_disconnect((session), (reason), \
+                                (message), (int)(message_len), \
+                                (language), (int)(language_len), \
                                 &(session)->abstract)
 
 #define LIBSSH2_MACERROR(session, data, datalen)         \
-    session->macerror((session), (data), (datalen), &(session)->abstract)
+    session->macerror((session), (data), (int)(datalen), &(session)->abstract)
 #define LIBSSH2_X11_OPEN(channel, shost, sport)          \
     channel->session->x11(((channel)->session), (channel), \
                           (shost), (sport), (&(channel)->session->abstract))
@@ -633,7 +637,7 @@ struct _LIBSSH2_SESSION
 
     /* Agreed Key Exchange Method */
     const LIBSSH2_KEX_METHOD *kex;
-    unsigned int burn_optimistic_kexinit:1;
+    unsigned int burn_optimistic_kexinit;
 
     unsigned char *session_id;
     uint32_t session_id_len;
@@ -1142,7 +1146,7 @@ void _libssh2_init_if_needed(void);
 #define ARRAY_SIZE(a) (sizeof ((a)) / sizeof ((a)[0]))
 
 /* define to output the libssh2_int64_t type in a *printf() */
-#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__MINGW32__)
+#if defined(__BORLANDC__) || defined(_MSC_VER)
 #define LIBSSH2_INT64_T_FORMAT "I64d"
 #else
 #define LIBSSH2_INT64_T_FORMAT "lld"

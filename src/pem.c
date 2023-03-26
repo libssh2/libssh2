@@ -100,7 +100,8 @@ static const char *crypt_annotation = "Proc-Type: 4,ENCRYPTED";
 
 static unsigned char hex_decode(char digit)
 {
-    return (digit >= 'A') ? 0xA + (digit - 'A') : (digit - '0');
+    return (unsigned char)
+        ((digit >= 'A') ? (0xA + (digit - 'A')) : (digit - '0'));
 }
 
 int
@@ -157,7 +158,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
 
         /* Decode IV from hex */
         for(i = 0; i < method->iv_len; ++i) {
-            iv[i]  = hex_decode(iv[2*i]) << 4;
+            iv[i]  = (unsigned char)(hex_decode(iv[2*i]) << 4);
             iv[i] |= hex_decode(iv[2*i + 1]);
         }
 
@@ -391,7 +392,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     /* decode file */
     if(libssh2_base64_decode(session, (char **)&f, &f_len,
-                             b64data, b64datalen)) {
+                             b64data, (unsigned int)b64datalen)) {
        ret = -1;
        goto out;
     }

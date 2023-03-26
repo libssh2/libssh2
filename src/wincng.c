@@ -668,7 +668,7 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
     memcpy(data, sig, datalen);
 
     ret = BCryptVerifySignature(ctx->hKey, pPaddingInfo,
-                                hash, hashlen, data, datalen, flags);
+                                hash, (ULONG)hashlen, data, datalen, flags);
 
     _libssh2_wincng_safe_free(hash, hashlen);
     _libssh2_wincng_safe_free(data, datalen);
@@ -2120,13 +2120,13 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
         bits = 8;
 
     /* fill most significant byte with zero padding */
-    bignum[0] &= ((1 << bits) - 1);
+    bignum[0] &= (unsigned char)((1 << bits) - 1);
 
     /* set most significant bits in most significant byte */
     if(top == 0)
-        bignum[0] |= (1 << (bits - 1));
+        bignum[0] |= (unsigned char)(1 << (bits - 1));
     else if(top == 1)
-        bignum[0] |= (3 << (bits - 2));
+        bignum[0] |= (unsigned char)(3 << (bits - 2));
 
     /* make odd by setting first bit in least significant byte */
     if(bottom)
@@ -2551,7 +2551,8 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
         unsigned char *start, *end;
         BCRYPT_DH_KEY_BLOB *public_blob = NULL;
         DWORD key_length_bytes = max(f->length, dhctx->dh_params->cbKeyLength);
-        DWORD public_blob_len = sizeof(*public_blob) + 3 * key_length_bytes;
+        DWORD public_blob_len = (DWORD)(sizeof(*public_blob) +
+                                        3 * key_length_bytes);
 
         {
             /* Populate a BCRYPT_DH_KEY_BLOB; after the header follows the

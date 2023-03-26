@@ -88,7 +88,7 @@ bcrypt_hash(uint8_t *sha2pass, uint8_t *sha2salt, uint8_t *out)
 
     /* copy out */
     for(i = 0; i < BCRYPT_BLOCKS; i++) {
-        out[4 * i + 3] = (cdata[i] >> 24) & 0xff;
+        out[4 * i + 3] = (uint8_t)((cdata[i] >> 24) & 0xff);
         out[4 * i + 2] = (cdata[i] >> 16) & 0xff;
         out[4 * i + 1] = (cdata[i] >> 8) & 0xff;
         out[4 * i + 0] = cdata[i] & 0xff;
@@ -136,7 +136,7 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
 
     /* generate key, sizeof(out) at a time */
     for(count = 1; keylen > 0; count++) {
-        countsalt[saltlen + 0] = (count >> 24) & 0xff;
+        countsalt[saltlen + 0] = (uint8_t)((count >> 24) & 0xff);
         countsalt[saltlen + 1] = (count >> 16) & 0xff;
         countsalt[saltlen + 2] = (count >> 8) & 0xff;
         countsalt[saltlen + 3] = count & 0xff;

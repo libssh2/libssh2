@@ -782,7 +782,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                     datalen = channelp->remote.window_size -
                         channelp->read_avail + data_head;
 
-                channelp->remote.window_size -= datalen - data_head;
+                channelp->remote.window_size -= (uint32_t)(datalen -
+                                                           data_head);
                 _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                                "shrinking window size by %lu bytes to %lu, "
                                "read_avail %lu",
