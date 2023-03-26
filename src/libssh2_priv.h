@@ -135,6 +135,7 @@
 /* Use local implementation when not available */
 #if !defined(HAVE_SNPRINTF)
 #define LIBSSH2_SNPRINTF
+#undef snprintf
 #define snprintf _libssh2_snprintf
 int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...);
 #endif
