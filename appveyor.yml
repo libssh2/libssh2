@@ -87,7 +87,7 @@ build_script:
           $env:CMAKE_ARG = "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
         }
       }
-  - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
+  - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
   - cmake --build _builds --config "%CONFIGURATION%" --parallel 2
 
 before_test:
