@@ -855,16 +855,17 @@ _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
                               unsigned char **ppbDecoded,
                               unsigned long *pcbDecoded)
 {
-    unsigned char *pbDecoded = NULL, *pbInteger;
+    unsigned char *pbDecoded = NULL;
+    PCRYPT_DATA_BLOB pbInteger;
     unsigned long cbDecoded = 0, cbInteger;
     int ret;
 
     ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
                                      X509_MULTI_BYTE_UINT,
-                                     &pbInteger, &cbInteger);
+                                     (void *)&pbInteger, &cbInteger);
     if(!ret) {
-        ret = _libssh2_wincng_bn_ltob(((PCRYPT_DATA_BLOB)pbInteger)->pbData,
-                                      ((PCRYPT_DATA_BLOB)pbInteger)->cbData,
+        ret = _libssh2_wincng_bn_ltob(pbInteger->pbData,
+                                      pbInteger->cbData,
                                       &pbDecoded, &cbDecoded);
         if(!ret) {
             *ppbDecoded = pbDecoded;
@@ -884,23 +885,23 @@ _libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
                                unsigned long *pcbCount)
 {
     PCRYPT_DER_BLOB pBlob;
-    unsigned char *pbDecoded, **rpbDecoded;
+    unsigned char **rpbDecoded;
+    PCRYPT_SEQUENCE_OF_ANY pbDecoded;
     unsigned long cbDecoded, *rcbDecoded, index, length;
     int ret;
 
     ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
                                      X509_SEQUENCE_OF_ANY,
-                                     &pbDecoded, &cbDecoded);
+                                     (void *)&pbDecoded, &cbDecoded);
     if(!ret) {
-        length = ((PCRYPT_DATA_BLOB)pbDecoded)->cbData;
+        length = pbDecoded->cValue;
 
         rpbDecoded = malloc(sizeof(PBYTE) * length);
         if(rpbDecoded) {
             rcbDecoded = malloc(sizeof(DWORD) * length);
             if(rcbDecoded) {
                 for(index = 0; index < length; index++) {
-                    pBlob = &((PCRYPT_DER_BLOB)
-                              ((PCRYPT_DATA_BLOB)pbDecoded)->pbData)[index];
+                    pBlob = &pbDecoded->rgValue[index];
                     ret = _libssh2_wincng_asn_decode_bn(pBlob->pbData,
                                                         pBlob->cbData,
                                                         &rpbDecoded[index],
@@ -989,7 +990,6 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
     LPCWSTR lpszBlobType;
-    unsigned char *key;
     unsigned long keylen, offset, mlen, p1len = 0, p2len = 0;
     int ret;
 
@@ -1005,65 +1005,76 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
         keylen += p1len * 3 + p2len * 2 + mlen;
     }
 
-    key = malloc(keylen);
-    if(!key) {
+    rsakey = (BCRYPT_RSAKEY_BLOB *)malloc(keylen);
+    if(!rsakey) {
         return -1;
     }
 
-    memset(key, 0, keylen);
+    memset(rsakey, 0, keylen);
 
 
     /* https://msdn.microsoft.com/library/windows/desktop/aa375531.aspx */
-    rsakey = (BCRYPT_RSAKEY_BLOB *)key;
     rsakey->BitLength = mlen * 8;
     rsakey->cbPublicExp = elen;
     rsakey->cbModulus = mlen;
 
-    memcpy(key + offset, edata, elen);
+    memcpy((unsigned char *)rsakey + offset, edata, elen);
     offset += elen;
 
     if(nlen < mlen)
-        memcpy(key + offset + mlen - nlen, ndata, nlen);
+        memcpy((unsigned char *)rsakey + offset + mlen - nlen, ndata, nlen);
     else
-        memcpy(key + offset, ndata + nlen - mlen, mlen);
+        memcpy((unsigned char *)rsakey + offset, ndata + nlen - mlen, mlen);
 
     if(ddata && dlen > 0) {
         offset += mlen;
 
         if(plen < p1len)
-            memcpy(key + offset + p1len - plen, pdata, plen);
+            memcpy((unsigned char *)rsakey + offset + p1len - plen,
+                   pdata, plen);
         else
-            memcpy(key + offset, pdata + plen - p1len, p1len);
+            memcpy((unsigned char *)rsakey + offset,
+                   pdata + plen - p1len, p1len);
         offset += p1len;
 
         if(qlen < p2len)
-            memcpy(key + offset + p2len - qlen, qdata, qlen);
+            memcpy((unsigned char *)rsakey + offset + p2len - qlen,
+                   qdata, qlen);
         else
-            memcpy(key + offset, qdata + qlen - p2len, p2len);
+            memcpy((unsigned char *)rsakey + offset,
+                   qdata + qlen - p2len, p2len);
         offset += p2len;
 
         if(e1len < p1len)
-            memcpy(key + offset + p1len - e1len, e1data, e1len);
+            memcpy((unsigned char *)rsakey + offset + p1len - e1len,
+                   e1data, e1len);
         else
-            memcpy(key + offset, e1data + e1len - p1len, p1len);
+            memcpy((unsigned char *)rsakey + offset,
+                   e1data + e1len - p1len, p1len);
         offset += p1len;
 
         if(e2len < p2len)
-            memcpy(key + offset + p2len - e2len, e2data, e2len);
+            memcpy((unsigned char *)rsakey + offset + p2len - e2len,
+                   e2data, e2len);
         else
-            memcpy(key + offset, e2data + e2len - p2len, p2len);
+            memcpy((unsigned char *)rsakey + offset,
+                   e2data + e2len - p2len, p2len);
         offset += p2len;
 
         if(coefflen < p1len)
-            memcpy(key + offset + p1len - coefflen, coeffdata, coefflen);
+            memcpy((unsigned char *)rsakey + offset + p1len - coefflen,
+                   coeffdata, coefflen);
         else
-            memcpy(key + offset, coeffdata + coefflen - p1len, p1len);
+            memcpy((unsigned char *)rsakey + offset,
+                   coeffdata + coefflen - p1len, p1len);
         offset += p1len;
 
         if(dlen < mlen)
-            memcpy(key + offset + mlen - dlen, ddata, dlen);
+            memcpy((unsigned char *)rsakey + offset + mlen - dlen,
+                   ddata, dlen);
         else
-            memcpy(key + offset, ddata + dlen - mlen, mlen);
+            memcpy((unsigned char *)rsakey + offset,
+                   ddata + dlen - mlen, mlen);
 
         lpszBlobType = BCRYPT_RSAFULLPRIVATE_BLOB;
         rsakey->Magic = BCRYPT_RSAFULLPRIVATE_MAGIC;
@@ -1079,9 +1090,9 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
 
 
     ret = BCryptImportKeyPair(_libssh2_wincng.hAlgRSA, NULL, lpszBlobType,
-                              &hKey, key, keylen, 0);
+                              &hKey, (PUCHAR)rsakey, keylen, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        _libssh2_wincng_safe_free(key, keylen);
+        _libssh2_wincng_safe_free(rsakey, keylen);
         return -1;
     }
 
@@ -1089,12 +1100,12 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
     *rsa = malloc(sizeof(libssh2_rsa_ctx));
     if(!(*rsa)) {
         BCryptDestroyKey(hKey);
-        _libssh2_wincng_safe_free(key, keylen);
+        _libssh2_wincng_safe_free(rsakey, keylen);
         return -1;
     }
 
     (*rsa)->hKey = hKey;
-    (*rsa)->pbKeyObject = key;
+    (*rsa)->pbKeyObject = rsakey;
     (*rsa)->cbKeyObject = keylen;
 
     return 0;
@@ -1340,7 +1351,6 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_DSA_KEY_BLOB *dsakey;
     LPCWSTR lpszBlobType;
-    unsigned char *key;
     unsigned long keylen, offset, length;
     int ret;
 
@@ -1352,16 +1362,15 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
     if(xdata && xlen > 0)
         keylen += 20;
 
-    key = malloc(keylen);
-    if(!key) {
+    dsakey = (BCRYPT_DSA_KEY_BLOB *)malloc(keylen);
+    if(!dsakey) {
         return -1;
     }
 
-    memset(key, 0, keylen);
+    memset(dsakey, 0, keylen);
 
 
     /* https://msdn.microsoft.com/library/windows/desktop/aa833126.aspx */
-    dsakey = (BCRYPT_DSA_KEY_BLOB *)key;
     dsakey->cbKey = length;
 
     memset(dsakey->Count, -1, sizeof(dsakey->Count));
@@ -1373,29 +1382,35 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
         memcpy(dsakey->q, qdata + qlen - 20, 20);
 
     if(plen < length)
-        memcpy(key + offset + length - plen, pdata, plen);
+        memcpy((unsigned char *)dsakey + offset + length - plen,
+               pdata, plen);
     else
-        memcpy(key + offset, pdata + plen - length, length);
+        memcpy((unsigned char *)dsakey + offset,
+               pdata + plen - length, length);
     offset += length;
 
     if(glen < length)
-        memcpy(key + offset + length - glen, gdata, glen);
+        memcpy((unsigned char *)dsakey + offset + length - glen,
+               gdata, glen);
     else
-        memcpy(key + offset, gdata + glen - length, length);
+        memcpy((unsigned char *)dsakey + offset,
+               gdata + glen - length, length);
     offset += length;
 
     if(ylen < length)
-        memcpy(key + offset + length - ylen, ydata, ylen);
+        memcpy((unsigned char *)dsakey + offset + length - ylen,
+               ydata, ylen);
     else
-        memcpy(key + offset, ydata + ylen - length, length);
+        memcpy((unsigned char *)dsakey + offset,
+               ydata + ylen - length, length);
 
     if(xdata && xlen > 0) {
         offset += length;
 
         if(xlen < 20)
-            memcpy(key + offset + 20 - xlen, xdata, xlen);
+            memcpy((unsigned char *)dsakey + offset + 20 - xlen, xdata, xlen);
         else
-            memcpy(key + offset, xdata + xlen - 20, 20);
+            memcpy((unsigned char *)dsakey + offset, xdata + xlen - 20, 20);
 
         lpszBlobType = BCRYPT_DSA_PRIVATE_BLOB;
         dsakey->dwMagic = BCRYPT_DSA_PRIVATE_MAGIC;
@@ -1407,9 +1422,9 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
 
 
     ret = BCryptImportKeyPair(_libssh2_wincng.hAlgDSA, NULL, lpszBlobType,
-                              &hKey, key, keylen, 0);
+                              &hKey, (PUCHAR)dsakey, keylen, 0);
     if(!BCRYPT_SUCCESS(ret)) {
-        _libssh2_wincng_safe_free(key, keylen);
+        _libssh2_wincng_safe_free(dsakey, keylen);
         return -1;
     }
 
@@ -1417,12 +1432,12 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
     *dsa = malloc(sizeof(libssh2_dsa_ctx));
     if(!(*dsa)) {
         BCryptDestroyKey(hKey);
-        _libssh2_wincng_safe_free(key, keylen);
+        _libssh2_wincng_safe_free(dsakey, keylen);
         return -1;
     }
 
     (*dsa)->hKey = hKey;
-    (*dsa)->pbKeyObject = key;
+    (*dsa)->pbKeyObject = dsakey;
     (*dsa)->cbKeyObject = keylen;
 
     return 0;
@@ -1881,7 +1896,7 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_KEY_DATA_BLOB_HEADER *header;
-    unsigned char *pbKeyObject, *pbIV, *key, *pbCtr, *pbIVCopy;
+    unsigned char *pbKeyObject, *pbIV, *pbCtr, *pbIVCopy;
     unsigned long dwKeyObject, dwIV, dwCtrLength, dwBlockLength,
                   cbData, keylen;
     int ret;
@@ -1910,26 +1925,27 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
     }
 
 
-    keylen = sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) + type.dwKeyLength;
-    key = malloc(keylen);
-    if(!key) {
+    keylen = (unsigned long)sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) +
+             type.dwKeyLength;
+    header = (BCRYPT_KEY_DATA_BLOB_HEADER *)malloc(keylen);
+    if(!header) {
         free(pbKeyObject);
         return -1;
     }
 
 
-    header = (BCRYPT_KEY_DATA_BLOB_HEADER *)key;
     header->dwMagic = BCRYPT_KEY_DATA_BLOB_MAGIC;
     header->dwVersion = BCRYPT_KEY_DATA_BLOB_VERSION1;
     header->cbKeyData = type.dwKeyLength;
 
-    memcpy(key + sizeof(BCRYPT_KEY_DATA_BLOB_HEADER),
+    memcpy((unsigned char *)header + sizeof(BCRYPT_KEY_DATA_BLOB_HEADER),
            secret, type.dwKeyLength);
 
     ret = BCryptImportKey(*type.phAlg, NULL, BCRYPT_KEY_DATA_BLOB, &hKey,
-                          pbKeyObject, dwKeyObject, key, keylen, 0);
+                          pbKeyObject, dwKeyObject,
+                          (PUCHAR)header, keylen, 0);
 
-    _libssh2_wincng_safe_free(key, keylen);
+    _libssh2_wincng_safe_free(header, keylen);
 
     if(!BCRYPT_SUCCESS(ret)) {
         _libssh2_wincng_safe_free(pbKeyObject, dwKeyObject);
@@ -2145,7 +2161,7 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
 {
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
-    unsigned char *key, *bignum;
+    unsigned char *bignum;
     unsigned long keylen, offset, length;
     int ret;
 
@@ -2155,13 +2171,12 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
     offset = sizeof(BCRYPT_RSAKEY_BLOB);
     keylen = offset + p->length + m->length;
 
-    key = malloc(keylen);
-    if(!key)
+    rsakey = (BCRYPT_RSAKEY_BLOB *)malloc(keylen);
+    if(!rsakey)
         return -1;
 
 
     /* https://msdn.microsoft.com/library/windows/desktop/aa375531.aspx */
-    rsakey = (BCRYPT_RSAKEY_BLOB *)key;
     rsakey->Magic = BCRYPT_RSAPUBLIC_MAGIC;
     rsakey->BitLength = m->length * 8;
     rsakey->cbPublicExp = p->length;
@@ -2169,14 +2184,15 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
     rsakey->cbPrime1 = 0;
     rsakey->cbPrime2 = 0;
 
-    memcpy(key + offset, p->bignum, p->length);
+    memcpy((unsigned char *)rsakey + offset, p->bignum, p->length);
     offset += p->length;
 
-    memcpy(key + offset, m->bignum, m->length);
+    memcpy((unsigned char *)rsakey + offset, m->bignum, m->length);
     offset = 0;
 
     ret = BCryptImportKeyPair(_libssh2_wincng.hAlgRSA, NULL,
-                              BCRYPT_RSAPUBLIC_BLOB, &hKey, key, keylen, 0);
+                              BCRYPT_RSAPUBLIC_BLOB, &hKey,
+                              (PUCHAR)rsakey, keylen, 0);
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptEncrypt(hKey, a->bignum, a->length, NULL, NULL, 0,
                             NULL, 0, &length, BCRYPT_PAD_NONE);
@@ -2208,7 +2224,7 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
         BCryptDestroyKey(hKey);
     }
 
-    _libssh2_wincng_safe_free(key, keylen);
+    _libssh2_wincng_safe_free(rsakey, keylen);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -2370,9 +2386,8 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
         return -1;
 
     while(_libssh2_wincng.hAlgDH && hasAlgDHwithKDF != -1) {
-        BCRYPT_DH_PARAMETER_HEADER *dh_params = NULL;
+        BCRYPT_DH_PARAMETER_HEADER *dh_params;
         unsigned long dh_params_len;
-        unsigned char *blob = NULL;
         int status;
         /* Note that the DH provider requires that keys be multiples of 64 bits
          * in length. At the time of writing a practical observed group_order
@@ -2392,28 +2407,30 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             return -1;
         }
 
-        dh_params_len = sizeof(*dh_params) + 2 * key_length_bytes;
-        blob = malloc(dh_params_len);
-        if(!blob) {
+        dh_params_len = (unsigned long)sizeof(*dh_params) +
+                        2 * key_length_bytes;
+        dh_params = (BCRYPT_DH_PARAMETER_HEADER *)malloc(dh_params_len);
+        if(!dh_params) {
             return -1;
         }
 
         /* Populate DH parameters blob; after the header follows the `p`
          * value and the `g` value. */
-        dh_params = (BCRYPT_DH_PARAMETER_HEADER*)blob;
         dh_params->cbLength = dh_params_len;
         dh_params->dwMagic = BCRYPT_DH_PARAMETERS_MAGIC;
         dh_params->cbKeyLength = key_length_bytes;
-        memcpy_with_be_padding(blob + sizeof(*dh_params), key_length_bytes,
-                               p->bignum, p->length);
-        memcpy_with_be_padding(blob + sizeof(*dh_params) + key_length_bytes,
+        memcpy_with_be_padding((unsigned char *)dh_params +
+                               sizeof(*dh_params),
+                               key_length_bytes, p->bignum, p->length);
+        memcpy_with_be_padding((unsigned char *)dh_params +
+                               sizeof(*dh_params) + key_length_bytes,
                                key_length_bytes, g->bignum, g->length);
 
         status = BCryptSetProperty(dhctx->dh_handle, BCRYPT_DH_PARAMETERS,
-                                   blob, dh_params_len, 0);
+                                   (PUCHAR)dh_params, dh_params_len, 0);
         if(hasAlgDHwithKDF == -1) {
             /* We know that the raw KDF is not supported, so discard this. */
-            free(blob);
+            free(dh_params);
         }
         else {
             /* Pass ownership to dhctx; these parameters will be freed when
@@ -2423,7 +2440,6 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             dhctx->dh_params = dh_params;
         }
         dh_params = NULL;
-        blob = NULL;
 
         if(!BCRYPT_SUCCESS(status)) {
             return -1;
@@ -2453,21 +2469,21 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             return -1;
         }
 
-        blob = malloc(key_length_bytes);
-        if(!blob) {
+        dh_key_blob = (BCRYPT_DH_KEY_BLOB *)malloc(key_length_bytes);
+        if(!dh_key_blob) {
             return -1;
         }
 
         status = BCryptExportKey(dhctx->dh_handle, NULL, key_type,
-                                 blob, key_length_bytes,
+                                 (PUCHAR)dh_key_blob, key_length_bytes,
                                  &key_length_bytes, 0);
         if(!BCRYPT_SUCCESS(status)) {
             if(hasAlgDHwithKDF == 1) {
                 /* We have no private data, because raw KDF is supported */
-                free(blob);
+                free(dh_key_blob);
             }
             else { /* we may have potentially private data, use secure free */
-                _libssh2_wincng_safe_free(blob, key_length_bytes);
+                _libssh2_wincng_safe_free(dh_key_blob, key_length_bytes);
             }
             return -1;
         }
@@ -2481,46 +2497,47 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
         /* BCRYPT_DH_PUBLIC_BLOB corresponds to a BCRYPT_DH_KEY_BLOB header
          * followed by the Modulus, Generator and Public data. Those components
          * each have equal size, specified by dh_key_blob->cbKey. */
-        dh_key_blob = (BCRYPT_DH_KEY_BLOB*)blob;
         if(_libssh2_wincng_bignum_resize(public, dh_key_blob->cbKey)) {
             if(hasAlgDHwithKDF == 1) {
                 /* We have no private data, because raw KDF is supported */
-                free(blob);
+                free(dh_key_blob);
             }
             else { /* we may have potentially private data, use secure free */
-                _libssh2_wincng_safe_free(blob, key_length_bytes);
+                _libssh2_wincng_safe_free(dh_key_blob, key_length_bytes);
             }
             return -1;
         }
 
         /* Copy the public key data into the public bignum data buffer */
-        memcpy(public->bignum,
-               blob + sizeof(*dh_key_blob) + 2 * dh_key_blob->cbKey,
+        memcpy(public->bignum, (unsigned char *)dh_key_blob +
+                               sizeof(*dh_key_blob) +
+                               2 * dh_key_blob->cbKey,
                dh_key_blob->cbKey);
 
         if(dh_key_blob->dwMagic == BCRYPT_DH_PRIVATE_MAGIC) {
             /* BCRYPT_DH_PRIVATE_BLOB additionally contains the Private data */
             dhctx->dh_privbn = _libssh2_wincng_bignum_init();
             if(!dhctx->dh_privbn) {
-                _libssh2_wincng_safe_free(blob, key_length_bytes);
+                _libssh2_wincng_safe_free(dh_key_blob, key_length_bytes);
                 return -1;
             }
             if(_libssh2_wincng_bignum_resize(dhctx->dh_privbn,
                                              dh_key_blob->cbKey)) {
-                _libssh2_wincng_safe_free(blob, key_length_bytes);
+                _libssh2_wincng_safe_free(dh_key_blob, key_length_bytes);
                 return -1;
             }
 
             /* Copy the private key data into the dhctx bignum data buffer */
-            memcpy(dhctx->dh_privbn->bignum,
-                   blob + sizeof(*dh_key_blob) + 3 * dh_key_blob->cbKey,
+            memcpy(dhctx->dh_privbn->bignum, (unsigned char *)dh_key_blob +
+                                             sizeof(*dh_key_blob) +
+                                             3 * dh_key_blob->cbKey,
                    dh_key_blob->cbKey);
 
             /* Make sure the private key is an odd number, because only
              * odd primes can be used with the RSA-based fallback while
              * DH itself does not seem to care about it being odd or not. */
             if(!(dhctx->dh_privbn->bignum[dhctx->dh_privbn->length-1] % 2)) {
-                _libssh2_wincng_safe_free(blob, key_length_bytes);
+                _libssh2_wincng_safe_free(dh_key_blob, key_length_bytes);
                 /* discard everything first, then try again */
                 _libssh2_dh_dtor(dhctx);
                 _libssh2_dh_init(dhctx);
@@ -2528,7 +2545,7 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             }
         }
 
-        _libssh2_wincng_safe_free(blob, key_length_bytes);
+        _libssh2_wincng_safe_free(dh_key_blob, key_length_bytes);
 
         return 0;
     }
@@ -2558,10 +2575,9 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
         BCRYPT_KEY_HANDLE peer_public = NULL;
         BCRYPT_SECRET_HANDLE agreement = NULL;
         ULONG secret_len_bytes = 0;
-        unsigned char *blob;
         int status;
         unsigned char *start, *end;
-        BCRYPT_DH_KEY_BLOB *public_blob = NULL;
+        BCRYPT_DH_KEY_BLOB *public_blob;
         DWORD key_length_bytes = max(f->length, dhctx->dh_params->cbKeyLength);
         DWORD public_blob_len = (DWORD)(sizeof(*public_blob) +
                                         3 * key_length_bytes);
@@ -2573,11 +2589,10 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
             unsigned char *dest;
             unsigned char *src;
 
-            blob = malloc(public_blob_len);
-            if(!blob) {
+            public_blob = (BCRYPT_DH_KEY_BLOB *)malloc(public_blob_len);
+            if(!public_blob) {
                 return -1;
             }
-            public_blob = (BCRYPT_DH_KEY_BLOB*)blob;
             public_blob->dwMagic = BCRYPT_DH_PUBLIC_MAGIC;
             public_blob->cbKey = key_length_bytes;
 
@@ -2598,8 +2613,8 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
 
         /* Import the peer public key information */
         status = BCryptImportKeyPair(_libssh2_wincng.hAlgDH, NULL,
-                                     BCRYPT_DH_PUBLIC_BLOB, &peer_public, blob,
-                                     public_blob_len, 0);
+                                     BCRYPT_DH_PUBLIC_BLOB, &peer_public,
+                                     (PUCHAR)public_blob, public_blob_len, 0);
         if(!BCRYPT_SUCCESS(status)) {
             goto out;
         }
@@ -2665,7 +2680,7 @@ out:
             BCryptDestroySecret(agreement);
         }
 
-        free(blob);
+        free(public_blob);
 
         if(status == STATUS_NOT_SUPPORTED &&
            _libssh2_wincng.hasAlgDHwithKDF == -1) {
