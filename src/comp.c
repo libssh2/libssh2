@@ -189,11 +189,11 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
                       void **abstract)
 {
     z_stream *strm = *abstract;
-    int out_maxlen = *dest_len;
+    uInt out_maxlen = (uInt)*dest_len;
     int status;
 
     strm->next_in = (unsigned char *) src;
-    strm->avail_in = src_len;
+    strm->avail_in = (uInt)src_len;
     strm->next_out = dest;
     strm->avail_out = out_maxlen;
 
@@ -227,10 +227,10 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
     /* A short-term alloc of a full data chunk is better than a series of
        reallocs */
     char *out;
-    size_t out_maxlen = src_len;
+    size_t out_maxlen;
 
     if(src_len <= SIZE_MAX / 4)
-        out_maxlen = src_len * 4;
+        out_maxlen = (uInt)src_len * 4;
     else
         out_maxlen = payload_limit;
 
@@ -247,10 +247,11 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
         out_maxlen = payload_limit;
 
     strm->next_in = (unsigned char *) src;
-    strm->avail_in = src_len;
-    strm->next_out = (unsigned char *) LIBSSH2_ALLOC(session, out_maxlen);
+    strm->avail_in = (uInt)src_len;
+    strm->next_out = (unsigned char *) LIBSSH2_ALLOC(session,
+                                                     (uInt)out_maxlen);
     out = (char *) strm->next_out;
-    strm->avail_out = out_maxlen;
+    strm->avail_out = (uInt)out_maxlen;
     if(!strm->next_out)
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate decompression buffer");
@@ -299,7 +300,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
         }
         out = newout;
         strm->next_out = (unsigned char *) out + out_ofs;
-        strm->avail_out = out_maxlen - out_ofs;
+        strm->avail_out = (uInt)(out_maxlen - out_ofs);
     }
 
     *dest = (unsigned char *) out;
