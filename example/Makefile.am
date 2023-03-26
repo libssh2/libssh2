@@ -2,12 +2,31 @@ AUTOMAKE_OPTIONS = foreign nostdinc
 
 EXTRA_DIST = libssh2_config_cmake.h.in CMakeLists.txt
 
-# samples
-noinst_PROGRAMS = direct_tcpip ssh2 scp scp_nonblock scp_write		\
- scp_write_nonblock sftp sftp_nonblock sftp_write sftp_write_nonblock	\
- sftp_mkdir sftp_mkdir_nonblock sftp_RW_nonblock sftp_write_sliding	\
- sftpdir sftpdir_nonblock ssh2_exec ssh2_agent ssh2_agent_forwarding \
- ssh2_echo sftp_append subsystem_netconf tcpip-forward
+# examples
+noinst_PROGRAMS = \
+  direct_tcpip \
+  ssh2 \
+  scp \
+  scp_nonblock \
+  scp_write \
+  scp_write_nonblock \
+  sftp \
+  sftp_nonblock \
+  sftp_write \
+  sftp_write_nonblock \
+  sftp_mkdir \
+  sftp_mkdir_nonblock \
+  sftp_RW_nonblock \
+  sftp_write_sliding \
+  sftpdir \
+  sftpdir_nonblock \
+  ssh2_exec \
+  ssh2_agent \
+  ssh2_agent_forwarding \
+  ssh2_echo \
+  sftp_append \
+  subsystem_netconf \
+  tcpip-forward
 
 if HAVE_SYS_UN_H
 noinst_PROGRAMS += x11

@@ -11,45 +11,45 @@ endif
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libssh2.pc
 
-include_HEADERS =			\
-	include/libssh2.h		\
-	include/libssh2_publickey.h	\
-	include/libssh2_sftp.h
+include_HEADERS = \
+  include/libssh2.h \
+  include/libssh2_publickey.h \
+  include/libssh2_sftp.h
 
 NETWAREFILES =  nw/keepscreen.c \
-	nw/nwlib.c \
-	nw/GNUmakefile \
-	nw/test/GNUmakefile
+  nw/nwlib.c \
+  nw/GNUmakefile \
+  nw/test/GNUmakefile
 
 DSP = win32/libssh2.dsp
 VCPROJ = win32/libssh2.vcproj
 
 DISTCLEANFILES = $(DSP)
 
-VMSFILES = vms/libssh2_make_example.dcl vms/libssh2_make_help.dcl	\
-vms/libssh2_make_kit.dcl vms/libssh2_make_lib.dcl vms/man2help.c	\
-vms/readme.vms vms/libssh2_config.h
+VMSFILES = vms/libssh2_make_example.dcl vms/libssh2_make_help.dcl \
+  vms/libssh2_make_kit.dcl vms/libssh2_make_lib.dcl vms/man2help.c \
+  vms/readme.vms vms/libssh2_config.h
 
-WIN32FILES = win32/GNUmakefile		\
-win32/libssh2_config.h win32/config.mk win32/rules.mk		\
-win32/Makefile.Watcom win32/libssh2.dsw win32/tests.dsp $(DSP)	\
-win32/msvcproj.head win32/msvcproj.foot win32/libssh2.rc
+WIN32FILES = win32/GNUmakefile \
+  win32/libssh2_config.h win32/config.mk win32/rules.mk \
+  win32/Makefile.Watcom win32/libssh2.dsw win32/tests.dsp $(DSP) \
+  win32/msvcproj.head win32/msvcproj.foot win32/libssh2.rc
 
-OS400FILES = os400/README400 os400/initscript.sh os400/make.sh		\
-os400/make-src.sh os400/make-rpg.sh os400/make-include.sh		\
-os400/os400sys.c os400/ccsid.c						\
-os400/libssh2_config.h os400/macros.h os400/libssh2_ccsid.h		\
-os400/include/alloca.h os400/include/sys/socket.h os400/include/stdio.h	\
-os400/libssh2rpg/libssh2.rpgle.in					\
-os400/libssh2rpg/libssh2_ccsid.rpgle.in					\
-os400/libssh2rpg/libssh2_publickey.rpgle				\
-os400/libssh2rpg/libssh2_sftp.rpgle					\
-Makefile.os400qc3.inc
+OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
+  os400/make-src.sh os400/make-rpg.sh os400/make-include.sh \
+  os400/os400sys.c os400/ccsid.c \
+  os400/libssh2_config.h os400/macros.h os400/libssh2_ccsid.h \
+  os400/include/alloca.h os400/include/sys/socket.h os400/include/stdio.h \
+  os400/libssh2rpg/libssh2.rpgle.in \
+  os400/libssh2rpg/libssh2_ccsid.rpgle.in \
+  os400/libssh2rpg/libssh2_publickey.rpgle \
+  os400/libssh2rpg/libssh2_sftp.rpgle \
+  Makefile.os400qc3.inc
 
 EXTRA_DIST = $(WIN32FILES) $(NETWAREFILES) get_ver.awk \
- maketgz NMakefile RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
- CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES) \
- buildconf
+  maketgz NMakefile RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
+  CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES) \
+  buildconf
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -110,10 +110,10 @@ $(DSP): win32/msvcproj.head win32/msvcproj.foot Makefile.am
 	win32_srcs='$(WIN32SOURCES)'; \
 	sorted_srcs=`for file in $$win32_srcs; do echo $$file; done | sort`; \
 	for file in $$sorted_srcs; do \
-		echo "# Begin Source File"; \
-		echo ""; \
-		echo "SOURCE=..\\src\\"$$file; \
-		echo "# End Source File"; \
+	  echo "# Begin Source File"; \
+	  echo ""; \
+	  echo "SOURCE=..\\src\\"$$file; \
+	  echo "# End Source File"; \
 	done; \
 	echo "# End Group"; \
 	echo "# Begin Group \"Header Files\""; \
@@ -122,15 +122,14 @@ $(DSP): win32/msvcproj.head win32/msvcproj.foot Makefile.am
 	win32_hdrs='$(WIN32HEADERS)'; \
 	sorted_hdrs=`for file in $$win32_hdrs; do echo $$file; done | sort`; \
 	for file in $$sorted_hdrs; do \
-		echo "# Begin Source File"; \
-		echo ""; \
-		if [ "$$file" = "libssh2_config.h" ]; \
-		then \
-			echo "SOURCE=.\\"$$file; \
-		else \
-			echo "SOURCE=..\\src\\"$$file; \
-		fi; \
-		echo "# End Source File"; \
+	  echo "# Begin Source File"; \
+	  echo ""; \
+	  if [ "$$file" = "libssh2_config.h" ]; then \
+	    echo "SOURCE=.\\"$$file; \
+	  else \
+	    echo "SOURCE=..\\src\\"$$file; \
+	  fi; \
+	  echo "# End Source File"; \
 	done; \
 	echo "# End Group"; \
 	cat $(srcdir)/win32/msvcproj.foot) | \
@@ -142,18 +141,18 @@ $(VCPROJ): win32/vc8proj.head win32/vc8proj.foot Makefile.am
 	win32_srcs='$(WIN32SOURCES)'; \
 	sorted_srcs=`for file in $$win32_srcs; do echo $$file; done | sort`; \
 	for file in $$sorted_srcs; do \
-		echo "<File RelativePath=\""..\src\$$file"\"></File>"; \
+	  echo "<File RelativePath=\""..\src\$$file"\"></File>"; \
 	done; \
-	echo "</Filter><Filter	Name=\"Header Files\">"; \
+	echo "</Filter><Filter Name=\"Header Files\">"; \
 	win32_hdrs='$(WIN32HEADERS)'; \
 	sorted_hdrs=`for file in $$win32_hdrs; do echo $$file; done | sort`; \
 	for file in $$sorted_hdrs; do \
-		echo "<File RelativePath=\""..\src\$$file"\"></File>"; \
+	  echo "<File RelativePath=\""..\src\$$file"\"></File>"; \
 	done; \
 	cat $(srcdir)/vc8proj.foot) | \
 	awk '{printf("%s\r\n", gensub("\r", "", "g"))}' > $@ )
 
 checksrc:
 	perl src/checksrc.pl -i4 -m79 -ASIZEOFNOPAREN -ASNPRINTF -ACOPYRIGHT \
-		-AFOPENMODE -Wsrc/libssh2_config.h src/*.[ch] include/*.h example/*.c \
-		tests/*.[ch]
+	  -AFOPENMODE -Wsrc/libssh2_config.h src/*.[ch] include/*.h example/*.c \
+	  tests/*.[ch]

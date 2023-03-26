@@ -64,5 +64,5 @@ VERSION=-version-info 1:1:0
 #
 
 libssh2_la_LDFLAGS = $(VERSION) -no-undefined \
-	-export-symbols-regex '^libssh2_.*' \
-	$(CRYPTO_LTLIBS) $(LTLIBZ)
+  -export-symbols-regex '^libssh2_.*' \
+  $(CRYPTO_LTLIBS) $(LTLIBZ)
