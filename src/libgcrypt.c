@@ -88,8 +88,8 @@ _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
 int
 _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
                          const unsigned char *sig,
-                         unsigned long sig_len,
-                         const unsigned char *m, unsigned long m_len)
+                         size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
     unsigned char hash[SHA_DIGEST_LENGTH];
     gcry_sexp_t s_sig, s_hash;
@@ -525,7 +525,7 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 int
 _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
                          const unsigned char *sig,
-                         const unsigned char *m, unsigned long m_len)
+                         const unsigned char *m, size_t m_len)
 {
     unsigned char hash[SHA_DIGEST_LENGTH + 1];
     gcry_sexp_t s_sig, s_hash;
@@ -560,7 +560,7 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
     int ret;
     int cipher = _libssh2_gcry_cipher(algo);
     int mode = _libssh2_gcry_mode(algo);
-    int keylen = gcry_cipher_get_algo_keylen(cipher);
+    size_t keylen = gcry_cipher_get_algo_keylen(cipher);
 
     (void) encrypt;
 
@@ -576,7 +576,7 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
     }
 
     if(mode != GCRY_CIPHER_MODE_STREAM) {
-        int blklen = gcry_cipher_get_algo_blklen(cipher);
+        size_t blklen = gcry_cipher_get_algo_blklen(cipher);
         if(mode == GCRY_CIPHER_MODE_CTR)
             ret = gcry_cipher_setctr(*h, iv, blklen);
         else

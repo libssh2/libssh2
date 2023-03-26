@@ -419,17 +419,21 @@ _libssh2_wincng_free(void)
 }
 
 int
-_libssh2_wincng_random(void *buf, int len)
+_libssh2_wincng_random(void *buf, size_t len)
 {
     int ret;
 
-    ret = BCryptGenRandom(_libssh2_wincng.hAlgRNG, buf, len, 0);
+    if(len > ULONG_MAX) {
+        return -1;
+    }
+
+    ret = BCryptGenRandom(_libssh2_wincng.hAlgRNG, buf, (ULONG)len, 0);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
 
 static void
-_libssh2_wincng_safe_free(void *buf, int len)
+_libssh2_wincng_safe_free(void *buf, size_t len)
 {
     if(!buf)
         return;
@@ -451,12 +455,6 @@ memcpy_with_be_padding(unsigned char *dest, unsigned long dest_len,
         memset(dest, 0, dest_len - src_len);
     }
     memcpy((dest + dest_len) - src_len, src, src_len);
-}
-
-static int
-round_down(int number, int multiple)
-{
-    return (number / multiple) * multiple;
 }
 
 /*******************************************************************/
@@ -595,7 +593,7 @@ _libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx)
 
 int
 _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
-                                size_t hashlen,
+                                unsigned long hashlen,
                                 const unsigned char *sig,
                                 unsigned long sig_len,
                                 const unsigned char *m,
@@ -668,7 +666,7 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
     memcpy(data, sig, datalen);
 
     ret = BCryptVerifySignature(ctx->hKey, pPaddingInfo,
-                                hash, (ULONG)hashlen, data, datalen, flags);
+                                hash, hashlen, data, datalen, flags);
 
     _libssh2_wincng_safe_free(hash, hashlen);
     _libssh2_wincng_safe_free(data, datalen);
@@ -1221,24 +1219,28 @@ _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 int
 _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                 const unsigned char *sig,
-                                unsigned long sig_len,
+                                size_t sig_len,
                                 const unsigned char *m,
-                                unsigned long m_len)
+                                size_t m_len)
 {
-    return _libssh2_wincng_key_sha_verify(rsa, SHA_DIGEST_LENGTH, sig, sig_len,
-                                          m, m_len, BCRYPT_PAD_PKCS1);
+    return _libssh2_wincng_key_sha_verify(rsa, SHA_DIGEST_LENGTH,
+                                          sig, (unsigned long)sig_len,
+                                          m, (unsigned long)m_len,
+                                          BCRYPT_PAD_PKCS1);
 }
 
 int
 _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx* rsa,
                                 size_t hash_len,
                                 const unsigned char *sig,
-                                unsigned long sig_len,
+                                size_t sig_len,
                                 const unsigned char *m,
-                                unsigned long m_len)
+                                size_t m_len)
 {
-    return _libssh2_wincng_key_sha_verify(rsa, hash_len, sig, sig_len, m,
-                                          m_len, BCRYPT_PAD_PKCS1);
+    return _libssh2_wincng_key_sha_verify(rsa, (unsigned long)hash_len,
+                                          sig, (unsigned long)sig_len,
+                                          m, (unsigned long)m_len,
+                                          BCRYPT_PAD_PKCS1);
 }
 
 int
@@ -1541,10 +1543,10 @@ int
 _libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
                                 const unsigned char *sig_fixed,
                                 const unsigned char *m,
-                                unsigned long m_len)
+                                size_t m_len)
 {
     return _libssh2_wincng_key_sha_verify(dsa, SHA_DIGEST_LENGTH, sig_fixed,
-                                          40, m, m_len, 0);
+                                          40, m, (unsigned long)m_len, 0);
 }
 
 int
@@ -2347,6 +2349,12 @@ _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
     }
 }
 
+static int
+round_down(int number, int multiple)
+{
+    return (number / multiple) * multiple;
+}
+
 /* Generates a Diffie-Hellman key pair using base `g', prime `p' and the given
  * `group_order'. Can use the given big number context `bnctx' if needed.  The
  * private key is stored as opaque in the Diffie-Hellman context `*dhctx' and
@@ -2357,6 +2365,10 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
                      _libssh2_bn *g, _libssh2_bn *p, int group_order)
 {
     const int hasAlgDHwithKDF = _libssh2_wincng.hasAlgDHwithKDF;
+
+    if(group_order < 0)
+        return -1;
+
     while(_libssh2_wincng.hAlgDH && hasAlgDHwithKDF != -1) {
         BCRYPT_DH_PARAMETER_HEADER *dh_params = NULL;
         unsigned long dh_params_len;
@@ -2366,7 +2378,7 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
          * in length. At the time of writing a practical observed group_order
          * value is 257, so we need to round down to 8 bytes of length (64/8)
          * in order for kex to succeed */
-        DWORD key_length_bytes = max(round_down(group_order, 8),
+        DWORD key_length_bytes = max((unsigned long)round_down(group_order, 8),
                                      max(g->length, p->length));
         BCRYPT_DH_KEY_BLOB *dh_key_blob;
         LPCWSTR key_type;

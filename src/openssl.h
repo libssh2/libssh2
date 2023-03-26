@@ -181,7 +181,8 @@
 
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
-#define _libssh2_random(buf, len) (RAND_bytes((buf), (len)) == 1 ? 0 : -1)
+#define _libssh2_random(buf, len) \
+  _libssh2_openssl_random((buf), (len))
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 
@@ -204,7 +205,7 @@ int _libssh2_sha1_init(libssh2_sha1_ctx *ctx);
 #define libssh2_sha1_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha1_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
-int _libssh2_sha1(const unsigned char *message, unsigned long len,
+int _libssh2_sha1(const unsigned char *message, size_t len,
                   unsigned char *out);
 #define libssh2_sha1(x,y,z) _libssh2_sha1(x,y,z)
 
@@ -228,8 +229,8 @@ int _libssh2_sha256_init(libssh2_sha256_ctx *ctx);
     EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha256_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
-int _libssh2_sha256(const unsigned char *message, unsigned long len,
-                  unsigned char *out);
+int _libssh2_sha256(const unsigned char *message, size_t len,
+                    unsigned char *out);
 #define libssh2_sha256(x,y,z) _libssh2_sha256(x,y,z)
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -252,7 +253,7 @@ int _libssh2_sha384_init(libssh2_sha384_ctx *ctx);
     EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha384_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
-int _libssh2_sha384(const unsigned char *message, unsigned long len,
+int _libssh2_sha384(const unsigned char *message, size_t len,
                     unsigned char *out);
 #define libssh2_sha384(x,y,z) _libssh2_sha384(x,y,z)
 
@@ -276,7 +277,7 @@ int _libssh2_sha512_init(libssh2_sha512_ctx *ctx);
     EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha512_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
-int _libssh2_sha512(const unsigned char *message, unsigned long len,
+int _libssh2_sha512(const unsigned char *message, size_t len,
                     unsigned char *out);
 #define libssh2_sha512(x,y,z) _libssh2_sha512(x,y,z)
 
@@ -426,6 +427,8 @@ extern int _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                               _libssh2_bn *f, _libssh2_bn *p,
                               _libssh2_bn_ctx *bnctx);
 extern void _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
+
+extern int _libssh2_openssl_random(void *buf, size_t len);
 
 const EVP_CIPHER *_libssh2_EVP_aes_128_ctr(void);
 const EVP_CIPHER *_libssh2_EVP_aes_192_ctr(void);

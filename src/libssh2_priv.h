@@ -410,7 +410,7 @@ struct _LIBSSH2_CHANNEL
     /* Amount of bytes to be refunded to receive window (but not yet sent) */
     uint32_t adjust_queue;
     /* Data immediately available for reading */
-    uint32_t read_avail;
+    size_t read_avail;
 
     LIBSSH2_SESSION *session;
 
@@ -567,7 +567,7 @@ struct transportpacket
     /* ------------- for outgoing data --------------- */
     unsigned char outbuf[MAX_SSH_PACKET_LEN]; /* area for the outgoing data */
 
-    int ototal_num;         /* size of outbuf in number of bytes */
+    ssize_t ototal_num;     /* size of outbuf in number of bytes */
     const unsigned char *odata; /* original pointer to the data */
     size_t olen;            /* original size of the data we stored in
                                outbuf */
@@ -850,8 +850,8 @@ struct _LIBSSH2_SESSION
     LIBSSH2_CHANNEL *sftpInit_channel;
     unsigned char sftpInit_buffer[9];   /* sftp_header(5){excludes request_id}
                                            + version_id(4) */
-    int sftpInit_sent; /* number of bytes from the buffer that have been
-                          sent */
+    size_t sftpInit_sent; /* number of bytes from the buffer that have been
+                             sent */
 
     /* State variables used in libssh2_scp_recv() / libssh_scp_recv2() */
     libssh2_nonblocking_states scpRecv_state;

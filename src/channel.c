@@ -2160,7 +2160,7 @@ LIBSSH2_API ssize_t
 libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel, int stream_id, char *buf,
                         size_t buflen)
 {
-    int rc;
+    ssize_t rc;
     unsigned long recv_window;
 
     if(!channel)

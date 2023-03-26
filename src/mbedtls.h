@@ -448,7 +448,7 @@ void
 _libssh2_mbedtls_free(void);
 
 int
-_libssh2_mbedtls_random(unsigned char *buf, int len);
+_libssh2_mbedtls_random(unsigned char *buf, size_t len);
 
 int
 _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,

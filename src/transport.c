@@ -130,7 +130,7 @@ debugdump(LIBSSH2_SESSION * session,
 
 static int
 decrypt(LIBSSH2_SESSION * session, unsigned char *source,
-        unsigned char *dest, int len)
+        unsigned char *dest, ssize_t len)
 {
     struct transportpacket *p = &session->packet;
     int blocksize = session->remote.crypt->blocksize;
@@ -275,13 +275,14 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 {
     int rc;
     struct transportpacket *p = &session->packet;
-    int remainpack; /* how much there is left to add to the current payload
-                       package */
-    int remainbuf;  /* how much data there is remaining in the buffer to deal
-                       with before we should read more from the network */
-    int numbytes;   /* how much data to deal with from the buffer on this
-                       iteration through the loop */
-    int numdecrypt; /* number of bytes to decrypt this iteration */
+    ssize_t remainpack; /* how much there is left to add to the current payload
+                           package */
+    ssize_t remainbuf;  /* how much data there is remaining in the buffer to
+                           deal with before we should read more from the
+                           network */
+    ssize_t numbytes;   /* how much data to deal with from the buffer on this
+                           iteration through the loop */
+    ssize_t numdecrypt; /* number of bytes to decrypt this iteration */
     unsigned char block[MAX_BLOCKSIZE]; /* working block buffer */
     int blocksize;  /* minimum number of bytes we need before we can
                        use them */
@@ -533,7 +534,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 numdecrypt = (p->total_num - skip) - p->data_num;
             }
             else {
-                int frac;
+                ssize_t frac;
                 numdecrypt = numbytes;
                 frac = numdecrypt % blocksize;
                 if(frac) {
@@ -575,7 +576,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
            copy them as-is to the target buffer */
         if(numbytes > 0) {
 
-            if(numbytes <= (int)(p->total_num - (p->wptr - p->payload))) {
+            if((size_t)numbytes <= (p->total_num - (p->wptr - p->payload))) {
                 memcpy(p->wptr, &p->buf[p->readidx], numbytes);
             }
             else {
@@ -719,9 +720,9 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     int blocksize =
         (session->state & LIBSSH2_STATE_NEWKEYS) ?
         session->local.crypt->blocksize : 8;
-    int padding_length;
+    ssize_t padding_length;
     size_t packet_length;
-    int total_length;
+    ssize_t total_length;
 #ifdef RANDOM_PADDING
     int rand_max;
     int seed = data[0];         /* FIXME: make this random */

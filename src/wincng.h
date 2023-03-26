@@ -445,7 +445,7 @@ typedef struct {
  */
 void _libssh2_wincng_init(void);
 void _libssh2_wincng_free(void);
-int _libssh2_wincng_random(void *buf, int len);
+int _libssh2_wincng_random(void *buf, size_t len);
 
 int
 _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
@@ -470,7 +470,7 @@ _libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx);
 
 int
 _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
-                                size_t hashlen,
+                                unsigned long hashlen,
                                 const unsigned char *sig,
                                 unsigned long sig_len,
                                 const unsigned char *m,
@@ -509,9 +509,9 @@ _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 int
 _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                 const unsigned char *sig,
-                                unsigned long sig_len,
+                                size_t sig_len,
                                 const unsigned char *m,
-                                unsigned long m_len);
+                                size_t m_len);
 int
 _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
                               libssh2_rsa_ctx *rsa,
@@ -550,7 +550,7 @@ int
 _libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
                                 const unsigned char *sig_fixed,
                                 const unsigned char *m,
-                                unsigned long m_len);
+                                size_t m_len);
 int
 _libssh2_wincng_dsa_sha1_sign(libssh2_dsa_ctx *dsa,
                               const unsigned char *hash,
