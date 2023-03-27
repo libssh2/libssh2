@@ -86,7 +86,7 @@ jobs:
           mkdir bin
           cd bin
           cmake $TOOLCHAIN_OPTION -DENABLE_WERROR=ON -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
-          cmake --build . --parallel 2
+          cmake --build .
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
           ctest -VV --output-on-failure
           cmake --build . --target package
