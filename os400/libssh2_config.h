@@ -146,9 +146,6 @@
 /* Enable "none" cipher -- NOT RECOMMENDED */
 #undef LIBSSH2_CRYPT_NONE
 
-/* Enable newer diffie-hellman-group-exchange-sha1 syntax */
-#define LIBSSH2_DH_GEX_NEW 1
-
 /* Compile in zlib support */
 /* #undef LIBSSH2_HAVE_ZLIB */
 

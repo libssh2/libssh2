@@ -34,7 +34,4 @@
 # endif
 #endif
 
-/* Enable newer diffie-hellman-group-exchange-sha1 syntax */
-#define LIBSSH2_DH_GEX_NEW 1
-
 #endif /* LIBSSH2_CONFIG_H */

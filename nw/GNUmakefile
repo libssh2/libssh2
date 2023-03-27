@@ -424,7 +424,6 @@ endif
 ifdef OLD_NOVELLSDK
 	@echo $(DL)#define socklen_t int$(DL) >> $@
 endif
-	@echo $(DL)#define LIBSSH2_DH_GEX_NEW 1$(DL) >> $@
 ifeq ($(DB),DEBUG)
 	@echo $(DL)#define LIBSSH2_DEBUG_CONNECTION 1$(DL) >> $@
 	@echo $(DL)#define LIBSSH2_DEBUG_ERRORS 1$(DL) >> $@

@@ -583,7 +583,6 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
         if(packet_type_init == SSH_MSG_KEX_DH_GEX_INIT) {
             /* diffie-hellman-group-exchange hashes additional fields */
-#ifdef LIBSSH2_DH_GEX_NEW
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              LIBSSH2_DH_GEX_MINGROUP);
             _libssh2_htonu32(exchange_state->h_sig_comp + 4,
@@ -592,12 +591,6 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                              LIBSSH2_DH_GEX_MAXGROUP);
             _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                          exchange_state->h_sig_comp, 12);
-#else
-            _libssh2_htonu32(exchange_state->h_sig_comp,
-                             LIBSSH2_DH_GEX_OPTGROUP);
-            _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
-                                         exchange_state->h_sig_comp, 4);
-#endif
         }
 
         if(midhash) {
@@ -1342,23 +1335,13 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange
         key_state->p = _libssh2_bn_init_from_bin();
         key_state->g = _libssh2_bn_init_from_bin();
         /* Ask for a P and G pair */
-#ifdef LIBSSH2_DH_GEX_NEW
         key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST;
         _libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_MINGROUP);
         _libssh2_htonu32(key_state->request + 5, LIBSSH2_DH_GEX_OPTGROUP);
         _libssh2_htonu32(key_state->request + 9, LIBSSH2_DH_GEX_MAXGROUP);
         key_state->request_len = 13;
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                       "Initiating Diffie-Hellman Group-Exchange "
-                       "(New Method)"));
-#else
-        key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST_OLD;
-        _libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_OPTGROUP);
-        key_state->request_len = 5;
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                       "Initiating Diffie-Hellman Group-Exchange "
-                       "(Old Method)"));
-#endif
+                       "Initiating Diffie-Hellman Group-Exchange SHA1"));
 
         key_state->state = libssh2_NB_state_created;
     }
@@ -1469,23 +1452,13 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
         key_state->p = _libssh2_bn_init();
         key_state->g = _libssh2_bn_init();
         /* Ask for a P and G pair */
-#ifdef LIBSSH2_DH_GEX_NEW
         key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST;
         _libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_MINGROUP);
         _libssh2_htonu32(key_state->request + 5, LIBSSH2_DH_GEX_OPTGROUP);
         _libssh2_htonu32(key_state->request + 9, LIBSSH2_DH_GEX_MAXGROUP);
         key_state->request_len = 13;
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                       "Initiating Diffie-Hellman Group-Exchange "
-                       "(New Method SHA256)"));
-#else
-        key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST_OLD;
-        _libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_OPTGROUP);
-        key_state->request_len = 5;
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                       "Initiating Diffie-Hellman Group-Exchange "
-                       "(Old Method SHA256)"));
-#endif
+                       "Initiating Diffie-Hellman Group-Exchange SHA256"));
 
         key_state->state = libssh2_NB_state_created;
     }
