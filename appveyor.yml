@@ -80,7 +80,7 @@ install:
 build_script:
   - ps: |
       if($env:PLATFORM -eq "x64") { $env:GENERATOR = "$env:GENERATOR Win64" }
-      if($env:SKIP_CTEST -ne "yes") {
+      if($env:SKIP_CTEST -ne "yes" -and $env:CRYPTO_BACKEND -eq "OpenSSL") {
         if($env:PLATFORM -eq "x64") {
           $env:CMAKE_ARG = "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
         } elseif($env:PLATFORM -eq "x86") {
