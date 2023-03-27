@@ -14,7 +14,7 @@ sub nicedate {
     return $date;
 }
 
-print 
+print
 '   Changelog for the libssh2 project. Generated with git2news.pl
 ';
 

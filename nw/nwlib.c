@@ -300,5 +300,3 @@ int main ( void )
 #endif /* __NOVELL_LIBC__ */
 
 #endif /* NETWARE */
-
-

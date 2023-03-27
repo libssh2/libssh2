@@ -9,7 +9,7 @@
 
 # Edit the path below to point to the base of your Novell NDK.
 ifndef NDKBASE
-NDKBASE	= c:/novell
+NDKBASE = c:/novell
 endif
 
 # Edit the path below to point to the base of your Zlib sources.
@@ -24,26 +24,26 @@ endif
 
 # Edit the path below to point to your Distribution folder.
 ifndef DISTDIR
-DISTDIR	= libssh2-$(LIBSSH2_VERSION_STR)-bin-nw
+DISTDIR = libssh2-$(LIBSSH2_VERSION_STR)-bin-nw
 endif
-DISTARC	= $(DISTDIR).zip
+DISTARC = $(DISTDIR).zip
 
 # Edit the path below to point to your Development folder.
 ifndef DEVLDIR
-DEVLDIR	= libssh2-$(LIBSSH2_VERSION_STR)-dev-nw
+DEVLDIR = libssh2-$(LIBSSH2_VERSION_STR)-dev-nw
 endif
-DEVLARC	= $(DEVLDIR).zip
+DEVLARC = $(DEVLDIR).zip
 
 # Edit the vars below to change NLM target settings.
-TARGET	= libssh2
-VERSION	= $(LIBSSH2_VERSION)
-CPRIGHT	= Copyright (c) $(LIBSSH2_COPYRIGHT_STR)
-WWWURL	= https://www.libssh2.org/
-DESCR	= libssh2 $(LIBSSH2_VERSION_STR) ($(LIBARCH)) - $(WWWURL)
-MTSAFE	= YES
-STACK	= 64000
-SCREEN	= none
-EXPORTS	= @$(TARGET).imp
+TARGET  = libssh2
+VERSION = $(LIBSSH2_VERSION)
+CPRIGHT = Copyright (c) $(LIBSSH2_COPYRIGHT_STR)
+WWWURL  = https://www.libssh2.org/
+DESCR   = libssh2 $(LIBSSH2_VERSION_STR) ($(LIBARCH)) - $(WWWURL)
+MTSAFE  = YES
+STACK   = 64000
+SCREEN  = none
+EXPORTS = @$(TARGET).imp
 
 # Edit the var below to point to your lib architecture.
 ifndef LIBARCH
@@ -52,66 +52,66 @@ endif
 
 # must be equal to DEBUG or NDEBUG
 ifndef DB
-	DB	= NDEBUG
-	# DB	= DEBUG
+  DB = NDEBUG
+# DB = DEBUG
 endif
 # Optimization: -O<n> or debugging: -g
 ifeq ($(DB),NDEBUG)
-	OPT	= -O2
-	OBJDIR	= release
+  OPT    = -O2
+  OBJDIR = release
 else
-	OPT	= -g
-	OPT	+= -DLIBSSH2DEBUG
-	OBJDIR	= debug
+  OPT    = -g
+  OPT   += -DLIBSSH2DEBUG
+  OBJDIR = debug
 endif
 
 # The following lines defines your compiler.
 ifdef CWFolder
-	METROWERKS = $(CWFolder)
+  METROWERKS = $(CWFolder)
 endif
 ifdef METROWERKS
-	# MWCW_PATH = $(subst \,/,$(METROWERKS))/Novell Support
-	MWCW_PATH = $(subst \,/,$(METROWERKS))/Novell Support/Metrowerks Support
-	CC = mwccnlm
+# MWCW_PATH = $(subst \,/,$(METROWERKS))/Novell Support
+  MWCW_PATH = $(subst \,/,$(METROWERKS))/Novell Support/Metrowerks Support
+  CC = mwccnlm
 else
-	CC = $(CROSSPREFIX)gcc
+  CC = $(CROSSPREFIX)gcc
 endif
 
 # Here you can find a native Win32 binary of the original awk:
 # http://www.gknw.net/development/prgtools/awk-20100523.zip
-AWK	= awk
+AWK = awk
 # If you want to mark the target as MTSAFE you will need a tool for
 # generating the xdc data for the linker; here's a minimal tool:
 # http://www.gknw.net/development/prgtools/mkxdc.zip
-MPKXDC	= mkxdc
-ZIP	= zip -qzr9
+MPKXDC = mkxdc
+ZIP = zip -qzr9
 
 # Platform-dependent helper tool macros
 ifeq ($(findstring /sh,$(SHELL)),/sh)
-DEL	= rm -f $1
-RMDIR	= rm -fr $1
-MKDIR	= mkdir -p $1
-COPY	= -cp -afv $1 $2
-#COPYR	= -cp -afr $1/* $2
-COPYR	= -rsync -aC $1/* $2
-TOUCH	= touch $1
-CAT	= cat
-ECHONL	= echo ""
-DL	= '
+DEL     = rm -f $1
+RMDIR   = rm -fr $1
+MKDIR   = mkdir -p $1
+COPY    = -cp -afv $1 $2
+#COPYR  = -cp -afr $1/* $2
+COPYR   = -rsync -aC $1/* $2
+TOUCH   = touch $1
+CAT     = cat
+ECHONL  = echo ""
+DL      = '
 else
 ifeq "$(OS)" "Windows_NT"
-DEL	= -del 2>NUL /q /f $(subst /,\,$1)
-RMDIR	= -rd 2>NUL /q /s $(subst /,\,$1)
+DEL     = -del 2>NUL /q /f $(subst /,\,$1)
+RMDIR   = -rd 2>NUL /q /s $(subst /,\,$1)
 else
-DEL	= -del 2>NUL $(subst /,\,$1)
-RMDIR	= -deltree 2>NUL /y $(subst /,\,$1)
-endif     
-MKDIR	= -md 2>NUL $(subst /,\,$1)
-COPY	= -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
-COPYR	= -xcopy 2>NUL /q /y /e $(subst /,\,$1) $(subst /,\,$2)
-TOUCH	= copy 2>&1>NUL /b $(subst /,\,$1) +,,
-CAT	= type
-ECHONL	= $(ComSpec) /c echo.
+DEL     = -del 2>NUL $(subst /,\,$1)
+RMDIR   = -deltree 2>NUL /y $(subst /,\,$1)
+endif
+MKDIR   = -md 2>NUL $(subst /,\,$1)
+COPY    = -copy 2>NUL /y $(subst /,\,$1) $(subst /,\,$2)
+COPYR   = -xcopy 2>NUL /q /y /e $(subst /,\,$1) $(subst /,\,$2)
+TOUCH   = copy 2>&1>NUL /b $(subst /,\,$1) +,,
+CAT     = type
+ECHONL  = $(ComSpec) /c echo.
 endif
 
 # LIBARCH_U = $(shell $(AWK) 'BEGIN {print toupper(ARGV[1])}' $(LIBARCH))
@@ -121,52 +121,52 @@ LIBARCH_L = $(shell $(AWK) 'BEGIN {print tolower(ARGV[1])}' $(LIBARCH))
 -include $(OBJDIR)/version.inc
 
 # Global flags for all compilers
-CFLAGS	+= $(OPT) -D$(DB) -DNETWARE -nostdinc
-#CFLAGS	+= -DHAVE_CONFIG_H
+CFLAGS += $(OPT) -D$(DB) -DNETWARE -nostdinc
+#CFLAGS += -DHAVE_CONFIG_H
 
 ifeq ($(CC),mwccnlm)
-LD	= mwldnlm
-LDFLAGS	= -nostdlib $(PRELUDE) $(OBJL) -o $@ -commandfile
-AR	= mwldnlm
-ARFLAGS	= -nostdlib -type library -o
-LIBEXT	= lib
-CFLAGS	+= -msgstyle gcc -gccinc -inline on -opt nointrinsics -proc 586
-CFLAGS	+= -relax_pointers
-#CFLAGS	+= -w on
+LD      = mwldnlm
+LDFLAGS = -nostdlib $(PRELUDE) $(OBJL) -o $@ -commandfile
+AR      = mwldnlm
+ARFLAGS = -nostdlib -type library -o
+LIBEXT  = lib
+CFLAGS  += -msgstyle gcc -gccinc -inline on -opt nointrinsics -proc 586
+CFLAGS  += -relax_pointers
+#CFLAGS += -w on
 ifeq ($(LIBARCH),LIBC)
-	PRELUDE = $(SDK_LIBC)/imports/libcpre.o
-	CFLAGS += -align 4
+  PRELUDE = $(SDK_LIBC)/imports/libcpre.o
+  CFLAGS += -align 4
 else
-	# PRELUDE = $(SDK_CLIB)/imports/clibpre.o
-	# to avoid the __init_* / __deinit_* whoes dont use prelude from NDK
-	PRELUDE = "$(MWCW_PATH)/libraries/runtime/prelude.obj"
-	# CFLAGS += -include "$(MWCW_PATH)/headers/nlm_clib_prefix.h"
-	CFLAGS += -align 1
+# PRELUDE = $(SDK_CLIB)/imports/clibpre.o
+  # to avoid the __init_* / __deinit_* whoes dont use prelude from NDK
+  PRELUDE = "$(MWCW_PATH)/libraries/runtime/prelude.obj"
+# CFLAGS += -include "$(MWCW_PATH)/headers/nlm_clib_prefix.h"
+  CFLAGS += -align 1
 endif
 else
-LD	= $(CROSSPREFIX)nlmconv
-LDFLAGS	= -UT
-AR	= $(CROSSPREFIX)ar
-ARFLAGS	= -cq
-LIBEXT	= a
-RANLIB	= $(CROSSPREFIX)ranlib
-CFLAGS	+= -m32
-CFLAGS	+= -fno-builtin -fpcc-struct-return
-CFLAGS	+= -fno-strict-aliasing
-CFLAGS	+= -Wall # -pedantic
-#CFLAGS	+= -Wno-pointer-sign
+LD      = $(CROSSPREFIX)nlmconv
+LDFLAGS = -UT
+AR      = $(CROSSPREFIX)ar
+ARFLAGS = -cq
+LIBEXT  = a
+RANLIB  = $(CROSSPREFIX)ranlib
+CFLAGS  += -m32
+CFLAGS  += -fno-builtin -fpcc-struct-return
+CFLAGS  += -fno-strict-aliasing
+CFLAGS  += -Wall # -pedantic
+#CFLAGS += -Wno-pointer-sign
 ifeq ($(LIBARCH),LIBC)
-	PRELUDE = $(SDK_LIBC)/imports/libcpre.gcc.o
+  PRELUDE = $(SDK_LIBC)/imports/libcpre.gcc.o
 else
-	# PRELUDE = $(SDK_CLIB)/imports/clibpre.gcc.o
-	# to avoid the __init_* / __deinit_* whoes dont use prelude from NDK
-	# http://www.gknw.net/development/mk_nlm/gcc_pre.zip
-	PRELUDE = $(NDK_ROOT)/pre/prelude.o
-	CFLAGS += -include $(NDKBASE)/nlmconv/genlm.h
+# PRELUDE = $(SDK_CLIB)/imports/clibpre.gcc.o
+  # to avoid the __init_* / __deinit_* whoes dont use prelude from NDK
+  # http://www.gknw.net/development/mk_nlm/gcc_pre.zip
+  PRELUDE = $(NDK_ROOT)/pre/prelude.o
+  CFLAGS += -include $(NDKBASE)/nlmconv/genlm.h
 endif
 endif
 
-LDLIBS	=
+LDLIBS =
 
 NDK_ROOT = $(NDKBASE)/ndk
 SDK_CLIB = $(NDK_ROOT)/nwsdk
@@ -176,12 +176,12 @@ SNPRINTF = $(NDKBASE)/snprintf
 INCLUDES = -I. -I../include
 
 ifdef WITH_ZLIB
-	INCLUDES += -I$(ZLIB_PATH)
+  INCLUDES += -I$(ZLIB_PATH)
 ifdef LINK_STATIC
-	LDLIBS += $(ZLIB_PATH)/nw/$(LIBARCH)/libz.$(LIBEXT)
+  LDLIBS += $(ZLIB_PATH)/nw/$(LIBARCH)/libz.$(LIBEXT)
 else
-	MODULES += libz.nlm
-	IMPORTS += @$(ZLIB_PATH)/nw/$(LIBARCH)/libz.imp
+  MODULES += libz.nlm
+  IMPORTS += @$(ZLIB_PATH)/nw/$(LIBARCH)/libz.imp
 endif
 endif
 INCLUDES += -I$(OPENSSL_PATH)/outinc_nw_$(LIBARCH_L)
@@ -190,25 +190,25 @@ LDLIBS += $(OPENSSL_PATH)/out_nw_$(LIBARCH_L)/crypto.$(LIBEXT)
 IMPORTS += GetProcessSwitchCount RunningProcess
 
 ifeq ($(LIBARCH),LIBC)
-	INCLUDES += -I$(SDK_LIBC)/include
-	# INCLUDES += -I$(SDK_LIBC)/include/nks
-	# INCLUDES += -I$(SDK_LIBC)/include/winsock
-	CFLAGS += -D_POSIX_SOURCE
+  INCLUDES += -I$(SDK_LIBC)/include
+# INCLUDES += -I$(SDK_LIBC)/include/nks
+# INCLUDES += -I$(SDK_LIBC)/include/winsock
+  CFLAGS += -D_POSIX_SOURCE
 else
-	INCLUDES += -I$(SDK_CLIB)/include/nlm
-	# INCLUDES += -I$(SDK_CLIB)/include/nlm/obsolete
-	# INCLUDES += -I$(SDK_CLIB)/include
+  INCLUDES += -I$(SDK_CLIB)/include/nlm
+# INCLUDES += -I$(SDK_CLIB)/include/nlm/obsolete
+# INCLUDES += -I$(SDK_CLIB)/include
 endif
-CFLAGS	+= $(INCLUDES)
+CFLAGS += $(INCLUDES)
 
 ifeq ($(MTSAFE),YES)
-	XDCOPT = -n
+  XDCOPT = -n
 endif
 ifeq ($(MTSAFE),NO)
-	XDCOPT = -u
+  XDCOPT = -u
 endif
 ifdef XDCOPT
-	XDCDATA = $(OBJDIR)/$(TARGET).xdc
+  XDCDATA = $(OBJDIR)/$(TARGET).xdc
 endif
 
 vpath %.c . ../src
@@ -228,8 +228,8 @@ OBJECTS += snprintf.o
 vpath %.c $(SNPRINTF)
 endif
 
-OBJS	:= $(addprefix $(OBJDIR)/,$(OBJECTS))
-OBJL	= $(OBJS) $(OBJDIR)/nwlib.o $(LDLIBS)
+OBJS := $(addprefix $(OBJDIR)/,$(OBJECTS))
+OBJL = $(OBJS) $(OBJDIR)/nwlib.o $(LDLIBS)
 
 all: lib nlm
 
