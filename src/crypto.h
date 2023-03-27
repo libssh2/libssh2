@@ -324,7 +324,7 @@ int _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
  * @related _libssh2_key_sign_algorithm()
  * @param key_method current key method, usually the default key sig method
  * @param key_method_len length of the key method buffer
- * @result comma seperated list of supported upgrade options per RFC 8332, if
+ * @result comma separated list of supported upgrade options per RFC 8332, if
  * there is no upgrade option return NULL
  */
 

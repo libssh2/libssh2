@@ -20,7 +20,7 @@ This release includes the following enhancements and bugfixes:
  o improves portiablity of the make file
  o improves timeout behavior with 2FA keyboard auth
  o various improvements to the Wincng backend
- o fixes reading parital packet replies when using an agent
+ o fixes reading partial packet replies when using an agent
  o fixes Diffie Hellman key exchange on Windows 1903+ builds
  o fixes building tests with older versions of OpenSSL
  o fixes possible multiple definition warnings

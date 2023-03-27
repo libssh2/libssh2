@@ -148,7 +148,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             rc = connect(sock, (struct sockaddr *) &addr, sizeof(addr));
 
             if(rc != -1) {
-                /* Connection Successfull */
+                /* Connection Successful */
                 if(gp_x11_chan == NULL) {
                     /* Calloc ensure that gp_X11_chan is full of 0 */
                     gp_x11_chan = (struct chan_X11_list *)

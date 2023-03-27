@@ -264,7 +264,7 @@ Some ./configure options deserve additional comments:
 
         Enabling this option will allow for "none" as a
         negotiable method, however it still requires that the
-        method be advertized by the remote end and that no
+        method be advertised by the remote end and that no
         more-preferable methods are available.
 
  * --enable-mac-none
@@ -277,7 +277,7 @@ Some ./configure options deserve additional comments:
 
         Enabling this option will allow for "none" as a
         negotiable method, however it still requires that the
-        method be advertized by the remote end and that no
+        method be advertised by the remote end and that no
         more-preferable methods are available.
 
  * --with-libgcrypt

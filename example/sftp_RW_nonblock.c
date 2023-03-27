@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
 
     libssh2_session_set_blocking(session, 0);
 
-    /* At this point we havn't yet authenticated.  The first thing to do
+    /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call

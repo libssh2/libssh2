@@ -2193,7 +2193,7 @@ clean_exit:
 /* kex_method_ecdh_key_exchange
  *
  * Elliptic Curve Diffie Hellman Key Exchange
- * supports SHA256/384/512 hashes based on negotated ecdh method
+ * supports SHA256/384/512 hashes based on negotiated ecdh method
  *
  */
 

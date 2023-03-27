@@ -392,7 +392,7 @@ _libssh2_cipher_cast5
 CAST5-CBC algorithm identifier initializer.
 #define with constant value of type _libssh2_cipher_type().
 
-4.5) Tripple DES in CBC block mode.
+4.5) Triple DES in CBC block mode.
 LIBSSH2_3DES
 #define as 1 if the crypto library supports TripleDES in CBC mode, else 0.
 If defined as 0, the rest of this section can be omitted.
@@ -939,5 +939,5 @@ This function is for implementing key hash upgrading as defined in RFC 8332.
 
 Based on the incoming key_method value, this function will return a
 list of supported algorithms that can upgrade the original key method algorithm
-as a comma seperated list, if there is no upgrade option this function should
+as a comma separated list, if there is no upgrade option this function should
 return NULL.
