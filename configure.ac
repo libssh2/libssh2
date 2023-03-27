@@ -157,14 +157,6 @@ AC_SUBST(LIBSREQUIRED)
 #
 # Optional Settings
 #
-AC_ARG_ENABLE(crypt-none,
-  AC_HELP_STRING([--enable-crypt-none],[Permit "none" cipher -- NOT RECOMMENDED]),
-  [AC_DEFINE(LIBSSH2_CRYPT_NONE, 1, [Enable "none" cipher -- NOT RECOMMENDED])])
-
-AC_ARG_ENABLE(mac-none,
-  AC_HELP_STRING([--enable-mac-none],[Permit "none" MAC -- NOT RECOMMENDED]),
-  [AC_DEFINE(LIBSSH2_MAC_NONE, 1, [Enable "none" MAC -- NOT RECOMMENDED])])
-
 AC_ARG_ENABLE(clear-memory,
   AC_HELP_STRING([--disable-clear-memory],[Disable clearing of memory before being freed]),
   [CLEAR_MEMORY=$enableval])

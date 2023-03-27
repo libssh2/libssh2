@@ -143,17 +143,11 @@
 /* to make a symbol visible */
 #undef LIBSSH2_API
 
-/* Enable "none" cipher -- NOT RECOMMENDED */
-#undef LIBSSH2_CRYPT_NONE
-
 /* Compile in zlib support */
 /* #undef LIBSSH2_HAVE_ZLIB */
 
 /* Use libgcrypt */
 #undef LIBSSH2_LIBGCRYPT
-
-/* Enable "none" MAC -- NOT RECOMMENDED */
-#undef LIBSSH2_MAC_NONE
 
 /* Use OpenSSL */
 #undef LIBSSH2_OPENSSL
