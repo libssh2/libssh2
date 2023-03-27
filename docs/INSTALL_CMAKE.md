@@ -71,7 +71,7 @@ The following options are available:
 
  * `ENABLE_ZLIB_COMPRESSION=OFF`
 
-    Will use zlib (http://www.zlib.org) for payload compression.  Can
+    Will use zlib (https://zlib.net/) for payload compression.  Can
     be `ON` or `OFF`.
 
  * `ENABLE_CRYPT_NONE=OFF`
