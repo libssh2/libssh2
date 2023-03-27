@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /* At this point we havn't authenticated. The first thing to do is check
+    /* At this point we have not authenticated. The first thing to do is check
      * the hostkey's fingerprint against our known hosts Your app may have it
      * hard coded, may go to a file, may present it to the user, that's your
      * call

@@ -95,7 +95,7 @@ define this logical in your systartup like so:
 
 $ define/system/executive gnv$libssh2 dev:[dir..]gnv$libssh2_x_y_z.exe
 
-Optionally, you can install the executbale like so:
+Optionally, you can install the executable like so:
 
 $ mc sysgen install dev:[dir..]gnv$libssh2_x_y_z.exe/open/share/header
 
@@ -120,7 +120,7 @@ Compiling and linking against libssh2
 
 The  shared image library has a vector table with both uppercase and
 mixed case entry points, allowing to link directly against the shared
-image wether you need the /NAMES=AS_IS or not.
+image whether you need the /NAMES=AS_IS or not.
 
 To link successfully, you MUST use /NAMES=shortened, as some function
 names in libssh2 are longer than the VMS maximum of 32 characters.
@@ -309,6 +309,6 @@ Building a PCSI kit
 -------------------
 
 When you have built the shared library and the help library,
-you can build a PCSI kit by issueing this command:
+you can build a PCSI kit by issuing this command:
 
 @libssh2_make_kit.dcl

@@ -28,7 +28,7 @@ AC_DEFUN([CURL_DETECT_ICC],
 ])
 
 dnl We create a function for detecting which compiler we use and then set as
-dnl pendantic compiler options as possible for that particular compiler. The
+dnl pedantic compiler options as possible for that particular compiler. The
 dnl options are only used for debug-builds.
 
 AC_DEFUN([CURL_CC_DEBUG_OPTS],
@@ -237,7 +237,7 @@ dnl ioctlsocket test was good
 nonblock="ioctlsocket"
 AC_DEFINE(HAVE_IOCTLSOCKET, 1, [use ioctlsocket() for non-blocking sockets])
 ],[
-dnl ioctlsocket didnt compile!, go to test 4
+dnl ioctlsocket did not compile!, go to test 4
 
   AC_TRY_LINK([
 /* headers for IoctlSocket test (Amiga?) */
@@ -251,7 +251,7 @@ dnl ioctlsocket test was good
 nonblock="IoctlSocket"
 AC_DEFINE(HAVE_IOCTLSOCKET_CASE, 1, [use Ioctlsocket() for non-blocking sockets])
 ],[
-dnl Ioctlsocket didnt compile, do test 5!
+dnl Ioctlsocket did not compile, do test 5!
   AC_TRY_COMPILE([
 /* headers for SO_NONBLOCK test (BeOS) */
 #include <socket.h>
@@ -265,7 +265,7 @@ dnl the SO_NONBLOCK test was good
 nonblock="SO_NONBLOCK"
 AC_DEFINE(HAVE_SO_NONBLOCK, 1, [use SO_NONBLOCK for non-blocking sockets])
 ],[
-dnl test 5 didnt compile!
+dnl test 5 did not compile!
 nonblock="nada"
 AC_DEFINE(HAVE_DISABLED_NONBLOCKING, 1, [disabled non-blocking sockets])
 ])

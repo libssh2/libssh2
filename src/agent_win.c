@@ -59,7 +59,7 @@
  * Portable OpenSSH by the PowerShell team. Commit
  * 8ab565c53f3619d6a1f5ac229e212cad8a52852c of
  * https://github.com/PowerShell/openssh-portable.git was used as the base,
- * specificaly the following files:
+ * specifically the following files:
  *
  * - contrib\win32\win32compat\fileio.c
  *   - Structure of agent_connect_openssh from ssh_get_authentication_socket

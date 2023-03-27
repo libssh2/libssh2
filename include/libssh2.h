@@ -55,7 +55,7 @@
 #define LIBSSH2_VERSION_PATCH                       1
 
 /* This is the numeric version of the libssh2 version number, meant for easier
-   parsing and comparions by programs. The LIBSSH2_VERSION_NUM define will
+   parsing and comparisons by programs. The LIBSSH2_VERSION_NUM define will
    always follow this syntax:
 
          0xXXYYZZ

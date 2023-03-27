@@ -82,7 +82,7 @@ The following options are available:
     libssh2 by default as well.
 
     Enabling this option will allow for "none" as a negotiable method,
-    however it still requires that the method be advertized by the
+    however it still requires that the method be advertised by the
     remote end and that no more-preferable methods are available.
 
  * `ENABLE_MAC_NONE=OFF`
@@ -93,7 +93,7 @@ The following options are available:
     MAC hashes removes a layer of security.
 
     Enabling this option will allow for "none" as a negotiable method,
-    however it still requires that the method be advertized by the
+    however it still requires that the method be advertised by the
     remote end and that no more-preferable methods are available.
 
  * `ENABLE_DEBUG_LOGGING=ON` in Debug, `=OFF` in Release

@@ -112,7 +112,7 @@ esac
 
 if test "$found_crypto" = "none"; then
   crypto_errors="${crypto_errors}
-Specify --with-crypto=\$backend and/or the neccessary library search prefix.
+Specify --with-crypto=\$backend and/or the necessary library search prefix.
 
 Known crypto backends: auto, m4_set_contents([crypto_backends], [, ])"
   AS_MESSAGE([ERROR: ${crypto_errors}])
