@@ -50,11 +50,11 @@ $ cc_include = "/include=([],[-.include],""/gnv$zlib_include"")"
 $ cc_define = "/DEFINE=(_USE_STD_STAT=1)"
 $ link_opts  = "objdir:libssh2_''thisid'.opt"
 $!
-$ pipe search [-.include]libssh2.h libssh2_version_major/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; - 
+$ pipe search [-.include]libssh2.h libssh2_version_major/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; -
        define/job majorv &l )
-$ pipe search [-.include]libssh2.h libssh2_version_minor/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; - 
+$ pipe search [-.include]libssh2.h libssh2_version_minor/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; -
        define/job minorv &l )
-$ pipe search [-.include]libssh2.h libssh2_version_patch/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; - 
+$ pipe search [-.include]libssh2.h libssh2_version_patch/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; -
        define/job patchv &l )
 $!
 $ majorv   = f$trnlnm("majorv")
@@ -300,8 +300,8 @@ $ endif
 $!
 $ if uitregel .nes. "" .and. mode .eq. 1
 $ then
-$   write uit "''uitregel'=PROCEDURE, -" 
-$   write uit "''uitasis'/''uitregel'=PROCEDURE, -" 
+$   write uit "''uitregel'=PROCEDURE, -"
+$   write uit "''uitasis'/''uitregel'=PROCEDURE, -"
 $!
 $   uitregel = ""
 $   uitasis  = ""

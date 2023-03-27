@@ -32,14 +32,14 @@ $ set default 'mdir'
 $!
 $ define/translation_attributes=concealed libssh2_kf 'libssh2_kf'
 $!
-$ product package libssh2 - 
-    /base='arch' - 
+$ product package libssh2 -
+    /base='arch' -
     /producer=jcb -
-    /source=[] - ! where to find PDF and PTF 
-    /destination=[] - ! where to put .PCSI file 
-    /material=libssh2_kf:[000000...] -      ! where to find product material 
+    /source=[] - ! where to find PDF and PTF
+    /destination=[] - ! where to put .PCSI file
+    /material=libssh2_kf:[000000...] -      ! where to find product material
     /version="''vms_majorv'.''minorv'-''patchv'''datename'" -
-    /format=sequential 
+    /format=sequential
 $!
 $End:
 $!
@@ -66,11 +66,11 @@ $ mdir   = mdir - f$parse(mdir,,,"name") - f$parse(mdir,,,"type") - f$parse(mdir
 $!
 $ set default 'mdir'
 $!
-$ pipe search [-.include]*.h libssh2_version_major/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; - 
+$ pipe search [-.include]*.h libssh2_version_major/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; -
        define/job majorv &l )
-$ pipe search [-.include]*.h libssh2_version_minor/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; - 
+$ pipe search [-.include]*.h libssh2_version_minor/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; -
        define/job minorv &l )
-$ pipe search [-.include]*.h libssh2_version_patch/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; - 
+$ pipe search [-.include]*.h libssh2_version_patch/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; -
        define/job patchv &l )
 $!
 $ majorv   = f$trnlnm("majorv")
