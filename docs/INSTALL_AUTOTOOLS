@@ -327,7 +327,7 @@ Some ./configure options deserve additional comments:
  * --with-libz-prefix=[DIR]
 
         If present, libssh2 will attempt to use the zlib
-        (http://www.zlib.org) for payload compression, however
+        (https://zlib.net/) for payload compression, however
         zlib is not required.
 
         If your installation of Libz is in another location,

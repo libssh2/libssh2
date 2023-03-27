@@ -112,7 +112,7 @@
 
   References:
   o  csh-compatible quotation (special handling for '!' etc.), see
-  http://www.grymoire.com/Unix/Csh.html#toc-uh-10
+  https://www.grymoire.com/Unix/Csh.html#toc-uh-10
 
   Return value:
   Length of the resulting string (not counting the terminating '\0'),

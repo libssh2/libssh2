@@ -29,7 +29,7 @@ SAMPLES = ../../example
 TARGETS := $(filter-out x11.nlm,$(patsubst $(SAMPLES)/%.c,%.nlm,$(strip $(wildcard $(SAMPLES)/*.c))))
 VERSION = $(LIBSSH2_VERSION)
 COPYR   = Copyright (c) $(LIBSSH2_COPYRIGHT_STR)
-WWWURL  = http://www.libssh2.org/
+WWWURL  = https://www.libssh2.org/
 DESCR   = libssh2 $(notdir $(@:.def=)) $(LIBSSH2_VERSION_STR) ($(LIBARCH)) - $(WWWURL)
 MTSAFE  = YES
 STACK   = 64000

@@ -1,7 +1,8 @@
 #
 #  Watcom / OpenWatcom Win32 makefile for libssh2.
 #
-#  Comments to: Guenter Knauf http://www.gknw.net/phpbb
+#  Comments to: Guenter Knauf
+#               https://web.archive.org/web/20100126042636/www.gknw.net/phpbb/
 #
 
 !ifndef %watcom
