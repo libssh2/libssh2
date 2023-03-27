@@ -4,11 +4,11 @@ libssh2_session_banner_set - set the SSH protocol banner for the local client
 .SH SYNOPSIS
 #include <libssh2.h>
 
-int 
+int
 libssh2_session_banner_set(LIBSSH2_SESSION *session, const char *banner);
 
 .SH DESCRIPTION
-\fIsession\fP - Session instance as returned by 
+\fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
 
 \fIbanner\fP - A pointer to a zero-terminated string holding the user defined

@@ -5,14 +5,14 @@ libssh2_sftp_shutdown - shut down an SFTP session
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int 
+int
 libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp);
 
 .SH DESCRIPTION
-\fIsftp\fP - SFTP instance as returned by 
+\fIsftp\fP - SFTP instance as returned by
 .BR libssh2_sftp_init(3)
 
-Destroys a previously initialized SFTP session and frees all resources 
+Destroys a previously initialized SFTP session and frees all resources
 associated with it.
 
 .SH RETURN VALUE

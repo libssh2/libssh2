@@ -10,15 +10,15 @@ int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, const char *path,
                          unsigned int path_len, int stat_type,
                          LIBSSH2_SFTP_ATTRIBUTES *attrs);
 .SH DESCRIPTION
-\fIsftp\fP - SFTP instance as returned by 
+\fIsftp\fP - SFTP instance as returned by
 .BR libssh2_sftp_init(3)
 
 \fIpath\fP - Remote filesystem object to stat/lstat/setstat.
 
-\fIpath_len\fP - Length of the name of the remote filesystem object 
+\fIpath_len\fP - Length of the name of the remote filesystem object
 to stat/lstat/setstat.
 
-\fIstat_type\fP - One of the three constants specifying the type of 
+\fIstat_type\fP - One of the three constants specifying the type of
 stat operation to perform:
 
 .br
@@ -34,9 +34,9 @@ metadata from or into depending on the value of stat_type.
 Get or Set statbuf type data on a remote filesystem object. When getting
 statbuf data,
 .BR libssh2_sftp_stat(3)
-will follow all symlinks, while 
+will follow all symlinks, while
 .BR libssh2_sftp_lstat(3)
-will return data about the object encountered, even if that object 
+will return data about the object encountered, even if that object
 happens to be a symlink.
 
 The LIBSSH2_SFTP_ATTRIBUTES struct looks like this:
@@ -65,10 +65,10 @@ number, it isn't really a failure per se.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
-\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP - 
+\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP -
 
-\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was 
-received on the socket, or an SFTP operation caused an errorcode to 
+\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was
+received on the socket, or an SFTP operation caused an errorcode to
 be returned by the server.
 .SH SEE ALSO
 .BR libssh2_sftp_init(3)

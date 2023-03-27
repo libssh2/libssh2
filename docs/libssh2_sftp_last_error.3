@@ -5,11 +5,11 @@ libssh2_sftp_last_error - return the last SFTP-specific error code
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-unsigned long 
+unsigned long
 libssh2_sftp_last_error(LIBSSH2_SFTP *sftp);
 
 .SH DESCRIPTION
-\fIsftp\fP - SFTP instance as returned by 
+\fIsftp\fP - SFTP instance as returned by
 .BR libssh2_sftp_init(3)
 
 Returns the last error code produced by the SFTP layer. Note that this only

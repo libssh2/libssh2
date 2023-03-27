@@ -11,7 +11,7 @@ int libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, const char *path,
 .SH DESCRIPTION
 Remove a directory from the remote file system.
 
-\fIsftp\fP - SFTP instance as returned by 
+\fIsftp\fP - SFTP instance as returned by
 .BR libssh2_sftp_init(3)
 
 \fIsourcefile\fP - Full path of the existing directory to remove.
@@ -27,10 +27,10 @@ LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
-\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP - 
+\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP -
 
-\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was 
-received on the socket, or an SFTP operation caused an errorcode to 
+\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was
+received on the socket, or an SFTP operation caused an errorcode to
 be returned by the server.
 .SH SEE ALSO
 .BR libssh2_sftp_init(3)

@@ -6,7 +6,7 @@ libssh2_sftp_fstat_ex - get or set attributes on an SFTP file handle
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int 
+int
 libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
                       LIBSSH2_SFTP_ATTRIBUTES *attrs, int setstat)
 
@@ -16,14 +16,14 @@ libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
     libssh2_sftp_fstat_ex((handle), (attrs), 1)
 .fi
 .SH DESCRIPTION
-\fIhandle\fP - SFTP File Handle as returned by 
+\fIhandle\fP - SFTP File Handle as returned by
 .BR libssh2_sftp_open_ex(3)
 
 \fIattrs\fP - Pointer to an LIBSSH2_SFTP_ATTRIBUTES structure to set file
 metadata from or into depending on the value of setstat.
 
-\fIsetstat\fP - When non-zero, the file's metadata will be updated 
-with the data found in attrs according to the values of attrs->flags 
+\fIsetstat\fP - When non-zero, the file's metadata will be updated
+with the data found in attrs according to the values of attrs->flags
 and other relevant member attributes.
 
 Get or Set statbuf type data for a given LIBSSH2_SFTP_HANDLE instance.
@@ -91,10 +91,10 @@ LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
-\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP - 
+\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP -
 
-\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was 
-received on the socket, or an SFTP operation caused an errorcode to 
+\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was
+received on the socket, or an SFTP operation caused an errorcode to
 be returned by the server.
 .SH AVAILABILITY
 This function has been around since forever, but most of the
