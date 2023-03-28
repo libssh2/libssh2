@@ -178,14 +178,14 @@ if(BUILD_SHARED_LIBS)
   set(test warmup)  # any test will do
   add_executable(test_${test}_shared test_${test}.c)
   target_include_directories(test_${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
-  target_link_libraries(test_${test}_shared runner libssh2_shared ${LIBRARIES})
+  target_link_libraries(test_${test}_shared runner ${LIB_SHARED} ${LIBRARIES})
 endif()
 
 foreach(test ${TESTS})
   add_executable(test_${test} test_${test}.c)
   list(APPEND TEST_TARGETS test_${test})
   target_include_directories(test_${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
-  target_link_libraries(test_${test} runner libssh2_static ${LIBRARIES})
+  target_link_libraries(test_${test} runner ${LIB_STATIC} ${LIBRARIES})
 
   add_test(
     NAME test_${test} COMMAND $<TARGET_FILE:test_${test}>
@@ -239,9 +239,9 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCC AND GCOV_PATH)
   target_compile_options(test_keyboard_interactive_auth_info_request BEFORE PRIVATE
     ${TGT_OPTIONS})
-  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2_static gcov)
+  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} ${LIB_STATIC} gcov)
 else()
-  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} libssh2_static)
+  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} ${LIB_STATIC})
 endif()
 add_test(
   NAME test_keyboard_interactive_auth_info_request COMMAND $<TARGET_FILE:test_keyboard_interactive_auth_info_request>

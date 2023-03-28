@@ -106,6 +106,9 @@ if(NOT BUILD_STATIC_LIBS AND (NOT BUILD_SHARED_LIBS OR BUILD_EXAMPLES OR BUILD_T
   set(BUILD_STATIC_LIBS ON)
 endif()
 
+set(LIB_STATIC "libssh2_static")
+set(LIB_SHARED "libssh2_shared")  # Must match libssh2_shared_EXPORTS macro in include/libssh2.h
+
 add_subdirectory(src)
 
 if(BUILD_EXAMPLES)
@@ -123,9 +126,9 @@ if(LINT)
     ./ci/checksrc.sh
     WORKING_DIRECTORY ${libssh2_SOURCE_DIR})
   if(BUILD_STATIC_LIBS)
-    add_dependencies(libssh2_static lint)
+    add_dependencies(${LIB_STATIC} lint)
   else()
-    add_dependencies(libssh2_shared lint)
+    add_dependencies(${LIB_SHARED} lint)
   endif()
 endif()
 

@@ -363,36 +363,36 @@ set(SOURCES
 
 # we want it to be called libssh2 on all platforms
 if(BUILD_STATIC_LIBS)
-  list(APPEND libssh2_export libssh2_static)
-  add_library(libssh2_static STATIC ${SOURCES})
-  target_compile_definitions(libssh2_static PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
-  target_link_libraries(libssh2_static PRIVATE ${LIBRARIES})
-  set_target_properties(libssh2_static PROPERTIES PREFIX "" OUTPUT_NAME "libssh2${STATIC_LIB_SUFFIX}")
+  list(APPEND libssh2_export ${LIB_STATIC})
+  add_library(${LIB_STATIC} STATIC ${SOURCES})
+  target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
+  target_link_libraries(${LIB_STATIC} PRIVATE ${LIBRARIES})
+  set_target_properties(${LIB_STATIC} PROPERTIES PREFIX "" OUTPUT_NAME "libssh2${STATIC_LIB_SUFFIX}")
 
-  target_include_directories(libssh2_static
+  target_include_directories(${LIB_STATIC}
     PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${libssh2_INCLUDE_DIRS} ${PRIVATE_INCLUDE_DIRECTORIES}
     PUBLIC
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 endif()
 if(BUILD_SHARED_LIBS)
-  list(APPEND libssh2_export libssh2_shared)
-  add_library(libssh2_shared SHARED ${SOURCES})
+  list(APPEND libssh2_export ${LIB_SHARED})
+  add_library(${LIB_SHARED} SHARED ${SOURCES})
   if(WIN32)
-    set_property(TARGET libssh2_shared APPEND PROPERTY SOURCES ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
+    set_property(TARGET ${LIB_SHARED} APPEND PROPERTY SOURCES ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
   endif()
-  target_compile_definitions(libssh2_shared PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
-  target_link_libraries(libssh2_shared PRIVATE ${LIBRARIES})
-  set_target_properties(libssh2_shared PROPERTIES PREFIX "" IMPORT_PREFIX "" OUTPUT_NAME "libssh2")
+  target_compile_definitions(${LIB_SHARED} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
+  target_link_libraries(${LIB_SHARED} PRIVATE ${LIBRARIES})
+  set_target_properties(${LIB_SHARED} PROPERTIES PREFIX "" IMPORT_PREFIX "" OUTPUT_NAME "libssh2")
   if(WIN32 AND BUILD_STATIC_LIBS AND NOT STATIC_LIB_SUFFIX AND
      CMAKE_IMPORT_LIBRARY_SUFFIX STREQUAL CMAKE_STATIC_LIBRARY_SUFFIX)
     # Extra suffix to avoid filename conflict with the static lib.
-    set_target_properties(libssh2_shared PROPERTIES IMPORT_SUFFIX "_imp${CMAKE_IMPORT_LIBRARY_SUFFIX}")
+    set_target_properties(${LIB_SHARED} PROPERTIES IMPORT_SUFFIX "_imp${CMAKE_IMPORT_LIBRARY_SUFFIX}")
   endif()
 
-  set_target_properties(libssh2_shared PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  set_target_properties(${LIB_SHARED} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-  target_include_directories(libssh2_shared
+  target_include_directories(${LIB_SHARED}
     PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${libssh2_INCLUDE_DIRS} ${PRIVATE_INCLUDE_DIRECTORIES}
     PUBLIC
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -408,20 +408,20 @@ install(FILES
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(BUILD_STATIC_LIBS)
-  install(TARGETS libssh2_static
+  install(TARGETS ${LIB_STATIC}
     EXPORT Libssh2Config
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 if(BUILD_SHARED_LIBS)
-  install(TARGETS libssh2_shared
+  install(TARGETS ${LIB_SHARED}
     EXPORT Libssh2Config
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-  list(APPEND _RUNTIME_DEPENDENCIES $<TARGET_FILE:libssh2_shared>)
+  list(APPEND _RUNTIME_DEPENDENCIES $<TARGET_FILE:${LIB_SHARED}>)
 endif()
 
 set(RUNTIME_DEPENDENCIES ${_RUNTIME_DEPENDENCIES} CACHE INTERNAL
@@ -456,12 +456,12 @@ install(
 set(LIBSSH2_SOVERSION 1)
 set(LIBSSH2_VERSION 1.0.1)
 if(BUILD_STATIC_LIBS)
-  set_target_properties(libssh2_static PROPERTIES
+  set_target_properties(${LIB_STATIC} PROPERTIES
     SOVERSION ${LIBSSH2_SOVERSION}
     VERSION ${LIBSSH2_VERSION})
 endif()
 if(BUILD_SHARED_LIBS)
-  set_target_properties(libssh2_shared PROPERTIES
+  set_target_properties(${LIB_SHARED} PROPERTIES
     SOVERSION ${LIBSSH2_SOVERSION}
     VERSION ${LIBSSH2_VERSION})
 endif()
