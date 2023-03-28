@@ -55,14 +55,12 @@ LIBSSH2_LDFLAGS_BIN += -L$(PROOT)/win32
 LIBS_BIN := -lssh2 -lws2_32
 
 ifdef DYN
-  libssh2_DEPENDENCIES += $(PROOT)/win32/libssh2.dll.a
+  libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.dll.a
   LIBSSH2_LDFLAGS_BIN += -shared
 else
   libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.a
   LIBSSH2_LDFLAGS_BIN += -static
 endif
-
-libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.a
 
 ### Optional features
 
