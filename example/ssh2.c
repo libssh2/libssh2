@@ -275,9 +275,11 @@ int main(int argc, char *argv[])
      * See /etc/termcap for more options. This is useful when opening
      * an interactive shell.
      */
-//  if(libssh2_channel_request_pty(channel, "vanilla")) {
-//      fprintf(stderr, "Failed requesting pty\n");
-//  }
+    #if 0
+    if(libssh2_channel_request_pty(channel, "vanilla")) {
+        fprintf(stderr, "Failed requesting pty\n");
+    }
+    #endif
 
     if(argc > 5) {
         if(libssh2_channel_exec(channel, argv[5])) {
@@ -287,10 +289,12 @@ int main(int argc, char *argv[])
         /* Instead of just running a single command with libssh2_channel_exec,
          * a shell can be opened on the channel instead, for interactive use.
          * You usually want a pty allocated first in that case (see above). */
-//        if(libssh2_channel_shell(channel)) {
-//            fprintf(stderr, "Unable to request shell on allocated pty\n");
-//            goto shutdown;
-//        }
+          #if 0
+          if(libssh2_channel_shell(channel)) {
+              fprintf(stderr, "Unable to request shell on allocated pty\n");
+              goto shutdown;
+          }
+          #endif
 
 /* At this point the shell can be interacted with using
  * libssh2_channel_read()

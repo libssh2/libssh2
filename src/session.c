@@ -295,7 +295,7 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 #endif
 
 #if defined(HAVE_FIONBIO) && (SETBLOCK == 0)
-    /* older unix versions and VMS*/
+    /* older unix versions and VMS */
     int flags;
 
     flags = nonblock;
@@ -402,8 +402,12 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
 
     callstat = getsockopt(sockfd, SOL_SOCKET, SO_STATE,
                                   (char *)&sockstat, &size);
-    if(callstat == -1) return 0;
-    if((sockstat&SS_NBIO) != 0) return 1;
+    if(callstat == -1) {
+        return 0;
+    }
+    if((sockstat&SS_NBIO) != 0) {
+        return 1;
+    }
     return 0;
 
 #undef GETBLOCK

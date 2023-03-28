@@ -683,7 +683,7 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
 int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp)
 {
     union {
-        unsigned __int64 ns100; /*time since 1 Jan 1601 in 100ns units */
+        unsigned __int64 ns100; /* time since 1 Jan 1601 in 100ns units */
         FILETIME ft;
     } _now;
     (void)tzp;
@@ -751,7 +751,7 @@ void _libssh2_memzero(void *buf, size_t size)
 
 /* String buffer */
 
-struct string_buf* _libssh2_string_buf_new(LIBSSH2_SESSION *session)
+struct string_buf *_libssh2_string_buf_new(LIBSSH2_SESSION *session)
 {
     struct string_buf *ret;
 
