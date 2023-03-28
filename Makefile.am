@@ -153,6 +153,13 @@ $(VCPROJ): win32/vc8proj.head win32/vc8proj.foot Makefile.am
 	awk '{printf("%s\r\n", gensub("\r", "", "g"))}' > $@ )
 
 checksrc:
-	perl src/checksrc.pl -i4 -m79 -ASIZEOFNOPAREN -ASNPRINTF -ACOPYRIGHT \
-	  -AFOPENMODE -Wsrc/libssh2_config.h src/*.[ch] include/*.h example/*.c \
+	perl ci/checksrc.pl -i4 -m79 \
+	  -ASIZEOFNOPAREN \
+	  -ASNPRINTF \
+	  -ACOPYRIGHT \
+	  -AFOPENMODE \
+	  -AEQUALSNULL \
+	  -ANOTEQUALSZERO \
+	  -ATYPEDEFSTRUCT \
+	  -Wsrc/libssh2_config.h src/*.[ch] include/*.h example/*.c \
 	  tests/*.[ch]
