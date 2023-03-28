@@ -30,4 +30,3 @@ win32\objects.mk: Makefile.inc
 	@echo OBJECTS = \>$@
 	@for %O in ($(OBJECTS)) do @echo $$(INTDIR)\%O \>>$@
 	@echo $$(EOL)>>$@
-

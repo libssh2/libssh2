@@ -164,7 +164,7 @@ struct test_case test_cases[TEST_CASES_LEN] = {
         "\0\0\0\x0aResponse: "
         "\x01"
         , 89, {PASS, 0, ""}},
-    /* three prompts, 3rd missing*/
+    /* three prompts, 3rd missing */
     {
         "<"
         "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x03"

@@ -107,7 +107,7 @@ void _libssh2_store_bignum2_bytes(unsigned char **buf,
                                   size_t len);
 void *_libssh2_calloc(LIBSSH2_SESSION *session, size_t size);
 
-struct string_buf* _libssh2_string_buf_new(LIBSSH2_SESSION *session);
+struct string_buf *_libssh2_string_buf_new(LIBSSH2_SESSION *session);
 void _libssh2_string_buf_free(LIBSSH2_SESSION *session,
                               struct string_buf *buf);
 int _libssh2_get_boolean(struct string_buf *buf, unsigned char *out);

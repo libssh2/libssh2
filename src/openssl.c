@@ -3199,13 +3199,19 @@ _libssh2_curve25519_gen_k(_libssh2_bn **k,
     }
 
     rc = EVP_PKEY_derive_init(server_key_ctx);
-    if(rc <= 0) goto cleanExit;
+    if(rc <= 0) {
+        goto cleanExit;
+    }
 
     rc = EVP_PKEY_derive_set_peer(server_key_ctx, peer_key);
-    if(rc <= 0) goto cleanExit;
+    if(rc <= 0) {
+        goto cleanExit;
+    }
 
     rc = EVP_PKEY_derive(server_key_ctx, NULL, &out_len);
-    if(rc <= 0) goto cleanExit;
+    if(rc <= 0) {
+        goto cleanExit;
+    }
 
     if(out_len != LIBSSH2_ED25519_KEY_LEN) {
         rc = -1;

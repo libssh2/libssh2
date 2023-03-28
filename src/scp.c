@@ -599,7 +599,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                     return NULL;
                 }
                 else if(rc < 0) {
-                    /* error, bail out*/
+                    /* error, bail out */
                     _libssh2_error(session, rc, "Failed reading SCP response");
                     goto scp_recv_error;
                 }
@@ -783,7 +783,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
  *
  */
 LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat * sb)
+libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb)
 {
     LIBSSH2_CHANNEL *ptr;
 

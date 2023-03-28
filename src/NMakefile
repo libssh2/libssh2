@@ -27,4 +27,3 @@ $(RESOURCE): win32\libssh2.rc
 	$(RC) $(RCFLAGS) /Fo"$@" $?
 
 !include "win32/rules.mk"
-

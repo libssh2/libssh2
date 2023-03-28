@@ -1104,7 +1104,6 @@ static int
 kex_method_diffie_hellman_group16_sha512_key_exchange(LIBSSH2_SESSION *session,
                                                       key_exchange_state_low_t
                                                       * key_state)
-
 {
     static const unsigned char p_value[512] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2,
@@ -1194,7 +1193,6 @@ static int
 kex_method_diffie_hellman_group18_sha512_key_exchange(LIBSSH2_SESSION *session,
                                                       key_exchange_state_low_t
                                                       * key_state)
-
 {
     static const unsigned char p_value[1024] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2,
@@ -2315,7 +2313,7 @@ ecdh_clean_exit:
     return ret;
 }
 
-#endif /*LIBSSH2_ECDSA*/
+#endif /* LIBSSH2_ECDSA */
 
 
 #if LIBSSH2_ED25519
@@ -2926,7 +2924,7 @@ clean_exit:
 }
 
 
-#endif /*LIBSSH2_ED25519*/
+#endif /* LIBSSH2_ED25519 */
 
 
 #define LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY     0x0001

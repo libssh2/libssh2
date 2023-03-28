@@ -1247,7 +1247,7 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_ed25519 = {
     hostkey_method_ssh_ed25519_dtor,
 };
 
-#endif /*LIBSSH2_ED25519*/
+#endif /* LIBSSH2_ED25519 */
 
 
 static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
