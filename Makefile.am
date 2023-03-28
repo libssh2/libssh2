@@ -21,10 +21,7 @@ NETWAREFILES =  nw/keepscreen.c \
   nw/GNUmakefile \
   nw/test/GNUmakefile
 
-DSP = win32/libssh2.dsp
-VCPROJ = win32/libssh2.vcproj
-
-DISTCLEANFILES = $(DSP)
+DISTCLEANFILES =
 
 VMSFILES = vms/libssh2_make_example.dcl vms/libssh2_make_help.dcl \
   vms/libssh2_make_kit.dcl vms/libssh2_make_lib.dcl vms/man2help.c \
@@ -32,8 +29,7 @@ VMSFILES = vms/libssh2_make_example.dcl vms/libssh2_make_help.dcl \
 
 WIN32FILES = win32/GNUmakefile \
   win32/libssh2_config.h win32/config.mk win32/rules.mk \
-  win32/libssh2.dsw win32/tests.dsp $(DSP) \
-  win32/msvcproj.head win32/msvcproj.foot win32/libssh2.rc
+  win32/libssh2.rc
 
 OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   os400/make-src.sh os400/make-rpg.sh os400/make-include.sh \
@@ -89,68 +85,6 @@ gen-coverage:
 		--title "$(PACKAGE_NAME)"
 
 coverage: init-coverage build-coverage gen-coverage
-
-# DSP/VCPROJ generation adapted from libcurl
-# only OpenSSL and WinCNG are supported with this build system
-CRYPTO_CSOURCES = openssl.c wincng.c mbedtls.c
-CRYPTO_HHEADERS = openssl.h wincng.h mbedtls.h
-# Makefile.inc provides the CSOURCES and HHEADERS defines
-include Makefile.inc
-
-WIN32SOURCES = $(CSOURCES)
-WIN32HEADERS = $(HHEADERS) libssh2_config.h
-
-$(DSP): win32/msvcproj.head win32/msvcproj.foot Makefile.am
-	echo "creating $(DSP)"
-	-$(MKDIR_P) "`echo "$@" | sed 's@[/\\][^/\\]*$$@@'`"
-	@( (cat $(srcdir)/win32/msvcproj.head; \
-	echo "# Begin Group \"Source Files\""; \
-	echo ""; \
-	echo "# PROP Default_Filter \"cpp;c;cxx\""; \
-	win32_srcs='$(WIN32SOURCES)'; \
-	sorted_srcs=`for file in $$win32_srcs; do echo $$file; done | sort`; \
-	for file in $$sorted_srcs; do \
-	  echo "# Begin Source File"; \
-	  echo ""; \
-	  echo "SOURCE=..\\src\\"$$file; \
-	  echo "# End Source File"; \
-	done; \
-	echo "# End Group"; \
-	echo "# Begin Group \"Header Files\""; \
-	echo ""; \
-	echo "# PROP Default_Filter \"h;hpp;hxx\""; \
-	win32_hdrs='$(WIN32HEADERS)'; \
-	sorted_hdrs=`for file in $$win32_hdrs; do echo $$file; done | sort`; \
-	for file in $$sorted_hdrs; do \
-	  echo "# Begin Source File"; \
-	  echo ""; \
-	  if [ "$$file" = "libssh2_config.h" ]; then \
-	    echo "SOURCE=.\\"$$file; \
-	  else \
-	    echo "SOURCE=..\\src\\"$$file; \
-	  fi; \
-	  echo "# End Source File"; \
-	done; \
-	echo "# End Group"; \
-	cat $(srcdir)/win32/msvcproj.foot) | \
-	awk '{printf("%s\r\n", gensub("\r", "", "g"))}' > $@ )
-
-$(VCPROJ): win32/vc8proj.head win32/vc8proj.foot Makefile.am
-	echo "creating $(VCPROJ)"
-	@( (cat $(srcdir)/vc8proj.head; \
-	win32_srcs='$(WIN32SOURCES)'; \
-	sorted_srcs=`for file in $$win32_srcs; do echo $$file; done | sort`; \
-	for file in $$sorted_srcs; do \
-	  echo "<File RelativePath=\""..\src\$$file"\"></File>"; \
-	done; \
-	echo "</Filter><Filter Name=\"Header Files\">"; \
-	win32_hdrs='$(WIN32HEADERS)'; \
-	sorted_hdrs=`for file in $$win32_hdrs; do echo $$file; done | sort`; \
-	for file in $$sorted_hdrs; do \
-	  echo "<File RelativePath=\""..\src\$$file"\"></File>"; \
-	done; \
-	cat $(srcdir)/vc8proj.foot) | \
-	awk '{printf("%s\r\n", gensub("\r", "", "g"))}' > $@ )
 
 checksrc:
 	perl ci/checksrc.pl -i4 -m79 \
