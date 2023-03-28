@@ -315,8 +315,14 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define libssh2_hmac_sha512_init(ctx, key, keylen) \
   HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_sha512(), NULL)
 
+#ifdef LIBSSH2_WOLFSSL
+/* FIXME: upstream bug as of v5.6.0: datalen is int instead of size_t */
+#define libssh2_hmac_update(ctx, data, datalen) \
+  HMAC_Update(ctx, data, (int)datalen)
+#else
 #define libssh2_hmac_update(ctx, data, datalen) \
   HMAC_Update(ctx, data, datalen)
+#endif /* LIBSSH2_WOLFSSL */
 #define libssh2_hmac_final(ctx, data) HMAC_Final(ctx, data, NULL)
 #define libssh2_hmac_cleanup(ctx) HMAC_CTX_free(*(ctx))
 #else
