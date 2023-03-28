@@ -10,5 +10,4 @@ Release
 *.ncb
 *.opt
 *.plg
-libssh2.dsp
 objects.mk
