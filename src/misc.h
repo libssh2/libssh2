@@ -46,6 +46,10 @@
 #else
 #ifdef WIN32
 #define _libssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
+#elif defined(HAVE_EXPLICIT_BZERO)
+#define _libssh2_explicit_zero(buf, size) explicit_bzero(buf, size)
+#elif defined(HAVE_EXPLICIT_MEMSET)
+#define _libssh2_explicit_zero(buf, size) (void)explicit_memset(buf, 0, size)
 #elif defined(HAVE_MEMSET_S)
 #define _libssh2_explicit_zero(buf, size) (void)memset_s(buf, size, 0, size)
 #else
