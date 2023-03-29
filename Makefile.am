@@ -71,13 +71,13 @@ build-coverage:
 	make CFLAGS=$(COVERAGE_CCOPTS) check
 	mkdir -p $(COVERAGE_OUT)
 	lcov --directory . --output-file $(COVERAGE_OUT)/$(PACKAGE).info \
-		--capture
+	  --capture
 
 gen-coverage:
 	genhtml --output-directory $(COVERAGE_OUT) \
-		$(COVERAGE_OUT)/$(PACKAGE).info \
-		--highlight --frames --legend \
-		--title "$(PACKAGE_NAME)"
+	  $(COVERAGE_OUT)/$(PACKAGE).info \
+	  --highlight --frames --legend \
+	  --title "$(PACKAGE_NAME)"
 
 coverage: init-coverage build-coverage gen-coverage
 
