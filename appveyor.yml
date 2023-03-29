@@ -26,68 +26,89 @@
 
 environment:
   matrix:
-    - job_name: "VS2022, OpenSSL"
+    - job_name: "VS2022, OpenSSL, x64"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
+      PLATFORM: "x64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
+      CONFIGURATION: "Release"
 
-    - job_name: "VS2015, OpenSSL"
+    - job_name: "VS2015, OpenSSL, x86"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 14 2015"
+      PLATFORM: "x86"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
+      CONFIGURATION: "Release"
 
-    - job_name: "VS2013, OpenSSL"
+    - job_name: "VS2015, OpenSSL, x64, Logging"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-      GENERATOR: "Visual Studio 12 2013"
+      GENERATOR: "Visual Studio 14 2015"
+      PLATFORM: "x64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
+      CONFIGURATION: "Debug"
 
-    - job_name: "VS2013, OpenSSL, Static"
+    - job_name: "VS2013, OpenSSL, x64"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 12 2013"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "OpenSSL"
+      CONFIGURATION: "Release"
+
+    - job_name: "VS2013, OpenSSL, x86"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 12 2013"
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "OpenSSL"
+      CONFIGURATION: "Release"
+
+    - job_name: "VS2013, OpenSSL, x64, Static-only"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 12 2013"
+      PLATFORM: "x64"
       BUILD_SHARED_LIBS: "OFF"
       CRYPTO_BACKEND: "OpenSSL"
       SKIP_CTEST: "yes"
-      SKIP_X86: "yes"
+      CONFIGURATION: "Release"
 
-    - job_name: "VS2022, WinCNG"
+    - job_name: "VS2022, WinCNG, x64, Logging"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
+      PLATFORM: "x64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
+      CONFIGURATION: "Debug"
 
-    - job_name: "VS2015, WinCNG"
+    - job_name: "VS2022, WinCNG, ARM64"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
+      GENERATOR: "Visual Studio 17 2022"
+      PLATFORM: "ARM64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      CONFIGURATION: "Release"
+
+    - job_name: "VS2015, WinCNG, x86"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 14 2015"
+      PLATFORM: "x86"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
+      CONFIGURATION: "Release"
 
-platform:
-  - x64
-  - ARM64
-  - x86
-
-configuration:
-# - Debug
-  - Release
+    - job_name: "VS2015, WinCNG, x64"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 14 2015"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      CONFIGURATION: "Release"
 
 matrix:
   fast_finish: true
-  # Enough to test the build itself on a single platform
-  exclude:
-    # Supported via '-A Win32', but skip this in favour of ARM64 builds
-    - platform: x86
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
-    # No ARM64 support before Visual Studio 2022
-    - platform: ARM64
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-    # No ARM64 binaries provided by the image
-    - platform: ARM64
-      CRYPTO_BACKEND: "OpenSSL"
-    - platform: x86
-      SKIP_X86: "yes"
 
 install:
   # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
