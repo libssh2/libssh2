@@ -75,27 +75,35 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       list(APPEND LIBRARIES crypt32 bcrypt)
       list(APPEND PC_LIBS -lcrypt32 -lbcrypt)
 
+      #set(CMAKE_FIND_DEBUG_MODE TRUE)
+
       find_file(DLL_LIBCRYPTO
-        NAMES crypto.dll libcrypto.dll
+        NAMES crypto.dll
           libcrypto-1_1.dll libcrypto-1_1-x64.dll
           libcrypto-3.dll libcrypto-3-x64.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
-        PATH_SUFFIXES bin)
-      if(NOT DLL_LIBCRYPTO)
+        PATH_SUFFIXES bin NO_DEFAULT_PATH)
+      if(DLL_LIBCRYPTO)
+        message(STATUS "Found libcrypto DLL: ${DLL_LIBCRYPTO}")
+      else()
         message(WARNING
           "Unable to find OpenSSL libcrypto DLL, executables may not run")
       endif()
 
       find_file(DLL_LIBSSL
-        NAMES ssl.dll libssl.dll
+        NAMES ssl.dll
           libssl-1_1.dll libssl-1_1-x64.dll
           libssl-3.dll libssl-3-x64.dll
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
-        PATH_SUFFIXES bin)
-      if(NOT DLL_LIBSSL)
+        PATH_SUFFIXES bin NO_DEFAULT_PATH)
+      if(DLL_LIBSSL)
+        message(STATUS "Found libssl DLL: ${DLL_LIBSSL}")
+      else()
         message(WARNING
           "Unable to find OpenSSL libssl DLL, executables may not run")
       endif()
+
+      #set(CMAKE_FIND_DEBUG_MODE FALSE)
 
       if(DLL_LIBCRYPTO AND DLL_LIBSSL)
         list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO} ${DLL_LIBSSL})

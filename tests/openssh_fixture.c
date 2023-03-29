@@ -66,7 +66,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#if defined(WIN32) && (defined(_M_X64) || defined(__x86_64__))
+#if defined(WIN32) && defined(_WIN64)
 #define LIBSSH2_SOCKET_MASK "%lld"
 #else
 #define LIBSSH2_SOCKET_MASK "%d"
