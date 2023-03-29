@@ -57,6 +57,14 @@
 #include "channel.h"
 #include "mac.h"
 
+#if defined(WIN32)
+#define libssh2_usec_t long
+#elif defined(__APPLE__)
+#define libssh2_usec_t suseconds_t
+#else
+#undef libssh2_usec_t
+#endif
+
 /* libssh2_default_alloc
  */
 static
@@ -669,8 +677,8 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
         struct timeval tv;
 
         tv.tv_sec = ms_to_next / 1000;
-#ifdef WIN32
-        tv.tv_usec = (long)((ms_to_next - tv.tv_sec*1000) * 1000);
+#ifdef libssh2_usec_t
+        tv.tv_usec = (libssh2_usec_t)((ms_to_next - tv.tv_sec*1000) * 1000);
 #else
         tv.tv_usec = (ms_to_next - tv.tv_sec*1000) * 1000;
 #endif
