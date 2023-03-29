@@ -16,11 +16,6 @@ include_HEADERS = \
   include/libssh2_publickey.h \
   include/libssh2_sftp.h
 
-NETWAREFILES =  nw/keepscreen.c \
-  nw/nwlib.c \
-  nw/GNUmakefile \
-  nw/test/GNUmakefile
-
 DISTCLEANFILES =
 
 VMSFILES = vms/libssh2_make_example.dcl vms/libssh2_make_help.dcl \
@@ -42,7 +37,7 @@ OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   os400/libssh2rpg/libssh2_sftp.rpgle \
   Makefile.os400qc3.inc
 
-EXTRA_DIST = $(WIN32FILES) $(NETWAREFILES) get_ver.awk \
+EXTRA_DIST = $(WIN32FILES) get_ver.awk \
   maketgz NMakefile RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
   CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES) \
   buildconf

@@ -119,16 +119,6 @@ extern "C" {
 # include <sys/uio.h>
 #endif
 
-#if (defined(NETWARE) && !defined(__NOVELL_LIBC__))
-# include <sys/bsdskt.h>
-typedef unsigned char uint8_t;
-typedef unsigned short int uint16_t;
-typedef unsigned int uint32_t;
-typedef int int32_t;
-typedef unsigned long long uint64_t;
-typedef long long int64_t;
-#endif
-
 #ifdef _MSC_VER
 typedef unsigned char uint8_t;
 typedef unsigned short int uint16_t;
