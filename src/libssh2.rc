@@ -1,8 +1,8 @@
 /***************************************************************************
-* libssh2 Win32 resource file                                              *
+* libssh2 Windows resource file                                            *
 ***************************************************************************/
 #include <winver.h>
-#include "../include/libssh2.h"
+#include "libssh2.h"
 
 LANGUAGE  0x09,0x01
 
