@@ -22,7 +22,7 @@ VMSFILES = vms/libssh2_make_example.dcl vms/libssh2_make_help.dcl \
   vms/libssh2_make_kit.dcl vms/libssh2_make_lib.dcl vms/man2help.c \
   vms/readme.vms vms/libssh2_config.h
 
-WIN32FILES = win32/GNUmakefile \
+WIN32FILES = win32/GNUmakefile NMakefile \
   win32/libssh2_config.h \
   win32/libssh2.rc
 
@@ -38,7 +38,7 @@ OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   Makefile.os400qc3.inc
 
 EXTRA_DIST = $(WIN32FILES) get_ver.awk \
-  maketgz NMakefile RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
+  maketgz RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
   CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES) \
   buildconf
 

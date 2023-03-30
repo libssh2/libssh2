@@ -32,7 +32,7 @@ CPPFLAGS=/nologo /GL /Zi /EHsc $(CPPFLAGS) /Iwin32 /Iinclude
 
 !if "$(WITH_WINCNG)" == "1"
 CPPFLAGS=$(CPPFLAGS) /DLIBSSH2_WINCNG
-LIBS=ws2_32.lib crypt32.lib bcrypt.lib
+LIBS=crypt32.lib bcrypt.lib
 !else
 CPPFLAGS=$(CPPFLAGS) /DLIBSSH2_OPENSSL /I$(OPENSSLINC)
 LIBS=$(LIBS) $(OPENSSLLIB)\lib\crypto.lib $(OPENSSLLIB)\lib\ssl.lib
