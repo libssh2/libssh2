@@ -24,7 +24,7 @@ include ../Makefile.inc
 libssh2_la_SOURCES = $(CSOURCES) $(HHEADERS)
 
 EXTRA_DIST = libssh2_config.h.in libssh2_config_cmake.h.in libssh2.pc.in
-EXTRA_DIST += CMakeLists.txt NMakefile
+EXTRA_DIST += CMakeLists.txt
 
 lib_LTLIBRARIES = libssh2.la
 
