@@ -1,4 +1,6 @@
+*.a
 *.dll
+*.def
 *.exe
-Debug
-Release
+debug
+release
