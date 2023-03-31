@@ -1,9 +1,18 @@
-#ifndef LIBSSH2_CONFIG_H
-#define LIBSSH2_CONFIG_H
+#ifndef LIBSSH2_SETUP_H
+#define LIBSSH2_SETUP_H
 
-#ifndef WIN32
+#if defined(_WIN32) && !defined(WIN32)
 #define WIN32
 #endif
+
+/* provided by autotools and CMake,
+   and in platform-specific dirs for os400 and vms */
+#if defined(HAVE_CONFIG_H) || defined(__OS400__) || defined(__VMS)
+
+#include "libssh2_config.h"
+
+/* Hand-crafted configuration for platforms which lack config tool. */
+#elif defined(WIN32)
 
 #define HAVE_IOCTLSOCKET
 #define HAVE_SELECT
@@ -35,4 +44,6 @@
 # endif
 #endif
 
-#endif /* LIBSSH2_CONFIG_H */
+#endif
+
+#endif /* LIBSSH2_SETUP_H */

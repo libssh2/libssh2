@@ -8,10 +8,9 @@
 *.exe
 *.obj
 .*.swp
+*-*-*
 Debug
 Release
-debug-*
-release-*
 *.exp
 Makefile
 Makefile.in

@@ -50,7 +50,9 @@
 #endif
 
 #define LIBSSH2_LIBRARY
-#include "libssh2_config.h"
+
+/* platform/compiler-specific setup */
+#include "libssh2_setup.h"
 
 /* Number of bits in a file offset, on hosts where this is settable. */
 #if defined(__MINGW32__) && defined(__MINGW64_VERSION_MAJOR)
