@@ -68,9 +68,9 @@ endif
 DB ?= NDEBUG
 CPPFLAGS += -D$(DB)
 ifeq ($(DB),NDEBUG)
-  OBJDIR := release
+  OBJ_DIR := release
 else
-  OBJDIR := debug
+  OBJ_DIR := debug
   CFLAGS += -g
   CPPFLAGS += -DLIBSSH2DEBUG
 endif
@@ -143,7 +143,7 @@ AWK := awk
 ZIP := zip -qzr9
 
 # Include the version info retrieved from libssh2.h
--include $(OBJDIR)/version.inc
+-include $(OBJ_DIR)/version.inc
 
 vpath %.c $(PROOT)/src
 
@@ -151,7 +151,7 @@ vpath %.c $(PROOT)/src
 include $(PROOT)/Makefile.inc
 
 OBJECTS := $(patsubst %.c,%.o,$(CSOURCES))
-OBJS    := $(addprefix $(OBJDIR)/,$(OBJECTS))
+OBJS    := $(addprefix $(OBJ_DIR)/,$(OBJECTS))
 
 TARGET := libssh2
 
@@ -172,29 +172,29 @@ dll: prebuild $(libssh2_dll_LIBRARY)
 
 lib: prebuild $(TARGET).a
 
-prebuild: $(OBJDIR) $(OBJDIR)/version.inc
+prebuild: $(OBJ_DIR) $(OBJ_DIR)/version.inc
 
 test: $(TARGETS_EXAMPLES)
 
 %.exe: %.c $(libssh2_DEPENDENCIES)
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBSSH2_LDFLAGS_BIN) $< -o $@ $(LIBS) $(LIBS_BIN)
 
-$(OBJDIR)/%.o: %.c
+$(OBJ_DIR)/%.o: %.c
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
-$(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY): $(OBJS) $(OBJDIR)/$(TARGET).res
+$(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY): $(OBJS) $(OBJ_DIR)/$(TARGET).res
 	@$(call DEL, $@)
 	$(CC) $(LDFLAGS) -shared $(LIBSSH2_LDFLAGS_LIB) $^ -o $@ $(LIBS) $(LIBS_LIB) \
 	  -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(libssh2_dll_a_LIBRARY)
 
-$(OBJDIR)/%.res: %.rc
+$(OBJ_DIR)/%.res: %.rc
 	$(RC) -O coff $(RCFLAGS) -i $< -o $@
 
 $(TARGET).a: $(OBJS)
 	@$(call DEL, $@)
 	$(AR) rcs $@ $^
 
-$(OBJDIR)/version.inc: $(PROOT)/get_ver.awk $(PROOT)/include/libssh2.h $(OBJDIR)
+$(OBJ_DIR)/version.inc: $(PROOT)/get_ver.awk $(PROOT)/include/libssh2.h $(OBJ_DIR)
 	$(AWK) -f $^ > $@
 
 dist: all $(DISTDIR) $(DISTDIR)/readme.txt
@@ -216,16 +216,16 @@ distclean vclean: clean
 	$(call DEL, $(DISTARC))
 
 objclean: all
-	$(call RMDIR, $(OBJDIR))
+	$(call RMDIR, $(OBJ_DIR))
 
 testclean: clean
 	$(call DEL, $(TARGETS_EXAMPLES))
 
 clean:
 	$(call DEL, $(libssh2_dll_LIBRARY) $(libssh2_dll_LIBRARY:.dll=.def) $(TARGET).a $(libssh2_dll_a_LIBRARY))
-	$(call RMDIR, $(OBJDIR))
+	$(call RMDIR, $(OBJ_DIR))
 
-$(OBJDIR):
+$(OBJ_DIR):
 	@$(call MKDIR, $@)
 
 $(DISTDIR):
@@ -239,7 +239,7 @@ $(DISTDIR)/readme.txt: GNUmakefile
 	@echo $(DL)any further documentation:$(DL) >> $@
 	@echo $(DL)$(HOMEPAGE)$(DL) >> $@
 
-help: $(OBJDIR)/version.inc
+help: $(OBJ_DIR)/version.inc
 	@echo $(DL)===========================================================$(DL)
 	@echo $(DL)OpenSSL path    = $(OPENSSL_PATH)$(DL)
 	@echo $(DL)wolfSSL path    = $(WOLFSSL_PATH)$(DL)

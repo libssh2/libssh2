@@ -1740,7 +1740,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
          */
         sysret = poll(sockets, nfds, (int)timeout_remaining);
         timeout_remaining = 0;
-#endif /* HAVE_GETTIMEOFDAY */
+#endif /* HAVE_LIBSSH2_GETTIMEOFDAY */
 
         if(sysret > 0) {
             for(i = 0; i < nfds; i++) {
