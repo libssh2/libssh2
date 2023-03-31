@@ -53,18 +53,6 @@ configure_file(
 
 list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
-## Cryptography backend choice
-
-if(CRYPTO_BACKEND STREQUAL "wolfSSL")
-  find_package(ZLIB)
-
-  if(ZLIB_FOUND)
-    list(PREPEND CRYPTO_BACKEND_INCLUDE_DIR ${ZLIB_INCLUDE_DIR})
-  endif()
-endif()
-
-#
-
 set(TESTS
   warmup
   hostkey

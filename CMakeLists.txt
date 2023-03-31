@@ -196,6 +196,15 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
       list(APPEND LIBRARIES crypt32)
       list(APPEND PC_LIBS -lcrypt32)
     endif()
+
+    find_package(ZLIB)
+
+    if(ZLIB_FOUND)
+      list(PREPEND CRYPTO_BACKEND_INCLUDE_DIR ${ZLIB_INCLUDE_DIR})
+
+      list(APPEND LIBRARIES ${ZLIB_LIBRARIES})  # Public wolfSSL headers require zlib headers
+      list(APPEND PC_REQUIRES_PRIVATE zlib)
+    endif()
   endif()
 endif()
 
