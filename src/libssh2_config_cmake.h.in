@@ -61,14 +61,15 @@
 
 /* Functions */
 #cmakedefine HAVE_GETTIMEOFDAY
-#cmakedefine HAVE_POLL
-#cmakedefine HAVE_SELECT
 #cmakedefine HAVE_STRTOLL
 #cmakedefine HAVE_STRTOI64
 #cmakedefine HAVE_SNPRINTF
 #cmakedefine HAVE_EXPLICIT_BZERO
 #cmakedefine HAVE_EXPLICIT_MEMSET
 #cmakedefine HAVE_MEMSET_S
+
+#cmakedefine HAVE_POLL
+#cmakedefine HAVE_SELECT
 
 /* Socket non-blocking support */
 #cmakedefine HAVE_O_NONBLOCK

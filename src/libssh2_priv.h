@@ -76,7 +76,7 @@
 #    define LIBSSH2_WINDOWS_APP
 #  endif
 # endif
-#endif
+#endif /* WIN32 */
 
 #ifdef HAVE_WS2TCPIP_H
 #include <ws2tcpip.h>

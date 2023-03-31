@@ -41,26 +41,26 @@ add_definitions(-DHAVE_CONFIG_H)
 
 set(EXAMPLES
   direct_tcpip
-  ssh2
   scp
   scp_nonblock
   scp_write
   scp_write_nonblock
   sftp
+  sftp_RW_nonblock
+  sftp_append
+  sftp_mkdir
+  sftp_mkdir_nonblock
   sftp_nonblock
   sftp_write
   sftp_write_nonblock
-  sftp_mkdir
-  sftp_mkdir_nonblock
-  sftp_RW_nonblock
   sftp_write_sliding
   sftpdir
   sftpdir_nonblock
-  ssh2_exec
+  ssh2
   ssh2_agent
   ssh2_agent_forwarding
   ssh2_echo
-  sftp_append
+  ssh2_exec
   subsystem_netconf
   tcpip-forward)
 
@@ -71,6 +71,7 @@ foreach(example ${EXAMPLES})
   target_include_directories(example-${example} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../src)
   target_link_libraries(example-${example} ${LIB_STATIC} ${LIBRARIES})
 endforeach()
+
 add_target_to_copy_dependencies(
   TARGET copy_example_dependencies
   DEPENDENCIES ${RUNTIME_DEPENDENCIES}

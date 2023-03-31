@@ -1406,4 +1406,3 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
     state->start = 0;
     return LIBSSH2_ERROR_SOCKET_DISCONNECT;
 }
-
