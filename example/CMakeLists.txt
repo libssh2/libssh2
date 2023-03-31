@@ -62,7 +62,8 @@ set(EXAMPLES
   ssh2_echo
   ssh2_exec
   subsystem_netconf
-  tcpip-forward)
+  tcpip-forward
+  x11)
 
 foreach(example ${EXAMPLES})
   add_executable(example-${example} ${example}.c)

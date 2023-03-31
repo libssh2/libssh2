@@ -26,11 +26,8 @@ noinst_PROGRAMS = \
   ssh2_echo \
   ssh2_exec \
   subsystem_netconf \
-  tcpip-forward
-
-if HAVE_SYS_UN_H
-noinst_PROGRAMS += x11
-endif
+  tcpip-forward \
+  x11
 
 AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/example -I../src
 LDADD = $(top_builddir)/src/libssh2.la

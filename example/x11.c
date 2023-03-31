@@ -5,6 +5,13 @@
  * "ssh2 host user password [DEBUG]"
  */
 
+#include <libssh2.h>
+#include "libssh2_config.h"
+
+#include <stdio.h>
+
+#ifdef HAVE_SYS_UN_H
+
 #include <string.h>
 #include <sys/ioctl.h>
 #include <netinet/in.h>
@@ -16,12 +23,9 @@
 #include <sys/un.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <termios.h>
-
-#include <libssh2.h>
 
 #define _PATH_UNIX_X "/tmp/.X11-unix/X%d"
 
@@ -474,3 +478,14 @@ main (int argc, char *argv[])
 
     return 0;
 }
+
+#else
+
+int
+main (void)
+{
+    printf("Sorry, this platform is not supported.");
+    return 1;
+}
+
+#endif /* HAVE_SYS_UN_H */
