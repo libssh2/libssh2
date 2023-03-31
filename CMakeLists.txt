@@ -133,7 +133,7 @@ check_include_files(sys/un.h HAVE_SYS_UN_H)
 check_include_files(ws2tcpip.h HAVE_WS2TCPIP_H)
 check_include_files(winsock2.h HAVE_WINSOCK2_H)
 
-# for tests
+# for example and tests
 check_include_files(sys/param.h HAVE_SYS_PARAM_H)
 check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
 check_include_files(netinet/in.h HAVE_NETINET_IN_H)
