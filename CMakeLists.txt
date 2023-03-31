@@ -33,6 +33,8 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
+include(CheckIncludeFiles)
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 include(CheckFunctionExistsMayNeedLibrary)
 
