@@ -48,6 +48,11 @@
 #cmakedefine HAVE_WS2TCPIP_H
 #cmakedefine HAVE_WINSOCK2_H
 
+/* for tests */
+#cmakedefine HAVE_SYS_PARAM_H
+#cmakedefine HAVE_ARPA_INET_H
+#cmakedefine HAVE_NETINET_IN_H
+
 /* Libraries */
 #cmakedefine HAVE_LIBCRYPT32
 
