@@ -61,6 +61,9 @@
 #cmakedefine HAVE_STRTOLL
 #cmakedefine HAVE_STRTOI64
 #cmakedefine HAVE_SNPRINTF
+#cmakedefine HAVE_EXPLICIT_BZERO
+#cmakedefine HAVE_EXPLICIT_MEMSET
+#cmakedefine HAVE_MEMSET_S
 
 /* Socket non-blocking support */
 #cmakedefine HAVE_O_NONBLOCK
