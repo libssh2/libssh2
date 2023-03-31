@@ -33,25 +33,11 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
-include(CheckIncludeFiles)
-include(CheckFunctionExists)
-include(CheckSymbolExists)
 include(CopyRuntimeDependencies)
 
-## Platform checks
-check_include_files(inttypes.h HAVE_INTTYPES_H)
-check_include_files(unistd.h HAVE_UNISTD_H)
-check_include_files(sys/param.h HAVE_SYS_PARAM_H)
-check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
-check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
-check_include_files(winsock2.h HAVE_WINSOCK2_H)
-check_include_files(netinet/in.h HAVE_NETINET_IN_H)
-check_symbol_exists(snprintf stdio.h HAVE_SNPRINTF)
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config_cmake.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h")
-
 list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
+
+add_definitions(-DHAVE_CONFIG_H)
 
 set(TESTS
   warmup
@@ -92,21 +78,21 @@ if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
 endif()
 
 add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
-target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" ../include)
+target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../include)
 target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # test building against shared libssh2 lib
 if(BUILD_SHARED_LIBS)
   set(test warmup)  # any test will do
   add_executable(test_${test}_shared test_${test}.c)
-  target_include_directories(test_${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+  target_include_directories(test_${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src")
   target_link_libraries(test_${test}_shared runner ${LIB_SHARED} ${LIBRARIES})
 endif()
 
 foreach(test ${TESTS})
   add_executable(test_${test} test_${test}.c)
   list(APPEND TEST_TARGETS test_${test})
-  target_include_directories(test_${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+  target_include_directories(test_${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src")
   target_link_libraries(test_${test} runner ${LIB_STATIC} ${LIBRARIES})
 
   add_test(
@@ -152,7 +138,7 @@ endforeach()
 
 add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
 target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE "${CRYPTO_BACKEND_DEFINE}")
-target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}" "../src/" "${CRYPTO_BACKEND_INCLUDE_DIR}")
+target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" "../src/" "${CRYPTO_BACKEND_INCLUDE_DIR}")
 find_program(GCOV_PATH gcov)
 set(TGT_OPTIONS -g --coverage -fprofile-abs-path)
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)

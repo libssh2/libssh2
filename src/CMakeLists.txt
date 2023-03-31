@@ -33,14 +33,6 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
-include(CheckFunctionExists)
-include(CheckSymbolExists)
-include(CheckIncludeFiles)
-include(CheckTypeSize)
-include(CheckSymbolExists)
-include(CheckNonblockingSocketSupport)
-include(CMakePushCheckState)
-
 if(CRYPTO_BACKEND)
   list(APPEND PRIVATE_COMPILE_DEFINITIONS ${CRYPTO_BACKEND_DEFINE})
   list(APPEND PRIVATE_INCLUDE_DIRECTORIES ${CRYPTO_BACKEND_INCLUDE_DIR})
@@ -89,73 +81,6 @@ if(ENABLE_DEBUG_LOGGING)
   list(APPEND libssh2_DEFINITIONS LIBSSH2DEBUG)
 endif()
 
-## Platform checks
-check_include_files(unistd.h HAVE_UNISTD_H)
-check_include_files(inttypes.h HAVE_INTTYPES_H)
-check_include_files(stdlib.h HAVE_STDLIB_H)
-check_include_files(sys/select.h HAVE_SYS_SELECT_H)
-
-check_include_files(sys/uio.h HAVE_SYS_UIO_H)
-check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
-check_include_files(sys/ioctl.h HAVE_SYS_IOCTL_H)
-check_include_files(sys/time.h HAVE_SYS_TIME_H)
-check_include_files(sys/un.h HAVE_SYS_UN_H)
-check_include_files(ws2tcpip.h HAVE_WS2TCPIP_H)
-check_include_files(winsock2.h HAVE_WINSOCK2_H)
-
-check_type_size("long long" LONGLONG)
-
-# CMake uses C syntax in check_symbol_exists() that generates a warning with
-# MSVC. To not break detection with ENABLE_WERRROR, we disable it for the
-# duration of these tests.
-if(MSVC AND ENABLE_WERROR)
-  cmake_push_check_state()
-  set(CMAKE_REQUIRED_FLAGS "/WX-")
-endif()
-
-if(HAVE_SYS_TIME_H)
-  check_symbol_exists(gettimeofday sys/time.h HAVE_GETTIMEOFDAY)
-else()
-  check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
-endif()
-if(HAVE_STDLIB_H)
-  check_symbol_exists(strtoll stdlib.h HAVE_STRTOLL)
-else()
-  check_function_exists(strtoll HAVE_STRTOLL)
-endif()
-if (NOT HAVE_STRTOLL)
-  # Try _strtoi64 if strtoll isn't available
-  check_symbol_exists(_strtoi64 stdlib.h HAVE_STRTOI64)
-endif()
-check_symbol_exists(snprintf stdio.h HAVE_SNPRINTF)
-if(NOT WIN32)
-  check_symbol_exists(explicit_bzero string.h HAVE_EXPLICIT_BZERO)
-  check_symbol_exists(explicit_memset string.h HAVE_EXPLICIT_MEMSET)
-  check_symbol_exists(memset_s string.h HAVE_MEMSET_S)
-endif()
-
-if(MSVC AND ENABLE_WERROR)
-  cmake_pop_check_state()
-endif()
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR
-   ${CMAKE_SYSTEM_NAME} STREQUAL "Interix")
-  # poll() does not work on these platforms
-  #
-  # Interix: "does provide poll(), but the implementing developer must
-  # have been in a bad mood, because poll() only works on the /proc
-  # filesystem here"
-  #
-  # Mac OS X's poll has funny behaviors, like:
-  # not being able to do poll on no filedescriptors (10.3?)
-  # not being able to poll on some files (like anything in /dev)
-  # not having reliable timeout support
-  # inconsistent return of POLLHUP where other implementations give POLLIN
-  message("poll use is disabled on this platform")
-else()
-  check_function_exists(poll HAVE_POLL)
-endif()
-
 list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 if(WIN32)
@@ -163,17 +88,11 @@ if(WIN32)
   list(APPEND PC_LIBS -lws2_32)
 endif()
 
-# Non-blocking socket support tests. Use a separate, yet unset variable
-# for the socket libraries to not link against the other configured
-# dependencies which might not have been built yet.
-cmake_push_check_state()
-set(CMAKE_REQUIRED_LIBRARIES ${SOCKET_LIBRARIES})
-check_nonblocking_socket_support()
-cmake_pop_check_state()
+add_definitions(-DHAVE_CONFIG_H)
 
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config_cmake.h.in
+configure_file(libssh2_config_cmake.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h)
+
 # to find generated header
 list(APPEND libssh2_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR})
 

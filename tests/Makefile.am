@@ -85,7 +85,6 @@ EXTRA_DIST = \
   key_rsa_encrypted.pub \
   key_rsa_openssh \
   key_rsa_openssh.pub \
-  libssh2_config_cmake.h.in \
   mansyntax.sh \
   openssh_server/Dockerfile \
   openssh_server/authorized_keys \

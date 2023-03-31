@@ -276,7 +276,8 @@ int main(int argc, char *argv[])
 
     time_ms = tvdiff(end, start);
     fprintf(stderr, "Got %ld bytes in %ld ms = %.1f bytes/sec spin: %d\n",
-            (long)total, time_ms, (double)total/(time_ms/1000.0), spin);
+            (long)total, time_ms,
+            (double)total/((double)time_ms/1000.0), spin);
 #else
     fprintf(stderr, "Got %ld bytes spin: %d\n", (long)total, spin);
 #endif

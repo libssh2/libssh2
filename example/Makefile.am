@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign nostdinc
 
-EXTRA_DIST = libssh2_config_cmake.h.in CMakeLists.txt
+EXTRA_DIST = CMakeLists.txt
 
 # examples
 noinst_PROGRAMS = \
