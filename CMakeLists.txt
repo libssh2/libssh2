@@ -177,6 +177,13 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
         list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO} ${DLL_LIBSSL})
       endif()
     endif()
+
+    find_package(ZLIB)
+
+    if(ZLIB_FOUND)
+      list(APPEND LIBRARIES ${ZLIB_LIBRARIES})
+      list(APPEND PC_REQUIRES_PRIVATE zlib)
+    endif()
   endif()
 endif()
 
