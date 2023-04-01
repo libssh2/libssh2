@@ -318,6 +318,23 @@ if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
   endif()
 endif()
 
+if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
+
+  find_package(mbedTLS ${SPECIFIC_CRYPTO_REQUIREMENT})
+
+  if(MBEDTLS_FOUND)
+    set(CRYPTO_BACKEND "mbedTLS")
+    set(CRYPTO_SOURCES mbedtls.c mbedtls.h)
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")
+    set(CRYPTO_BACKEND_INCLUDE_DIR ${MBEDTLS_INCLUDE_DIR})
+    list(APPEND LIBRARIES ${MBEDTLS_LIBRARIES})
+    list(APPEND PC_LIBS -lmbedcrypto)
+    link_directories(${MBEDTLS_LIBRARY_DIR})
+  endif()
+endif()
+
+# Detect platform-specific crypto-backends last:
+
 if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
 
   # The check actually compiles the header.  This requires windows.h.
@@ -343,21 +360,6 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
 
   elseif(${SPECIFIC_CRYPTO_REQUIREMENT} STREQUAL ${REQUIRED})
     message(FATAL_ERROR "WinCNG not available")
-  endif()
-endif()
-
-if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
-
-  find_package(mbedTLS ${SPECIFIC_CRYPTO_REQUIREMENT})
-
-  if(MBEDTLS_FOUND)
-    set(CRYPTO_BACKEND "mbedTLS")
-    set(CRYPTO_SOURCES mbedtls.c mbedtls.h)
-    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")
-    set(CRYPTO_BACKEND_INCLUDE_DIR ${MBEDTLS_INCLUDE_DIR})
-    list(APPEND LIBRARIES ${MBEDTLS_LIBRARIES})
-    list(APPEND PC_LIBS -lmbedcrypto)
-    link_directories(${MBEDTLS_LIBRARY_DIR})
   endif()
 endif()
 
