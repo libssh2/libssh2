@@ -79,24 +79,7 @@ endif
 _LDFLAGS :=
 _LIBS :=
 
-ifdef WITH_WINCNG
-  CPPFLAGS += -DLIBSSH2_WINCNG
-  include $(PROOT)/Makefile.WinCNG.inc
-else ifdef MBEDTLS_PATH
-  CPPFLAGS += -DLIBSSH2_MBEDTLS
-  CPPFLAGS += -I"$(MBEDTLS_PATH)/include"
-  _LDFLAGS += -L"$(MBEDTLS_PATH)/lib"
-  _LIBS += -lmbedtls -lmbedx509 -lmbedcrypto
-  include $(PROOT)/Makefile.mbedTLS.inc
-else ifdef WOLFSSL_PATH
-  CPPFLAGS += -DLIBSSH2_WOLFSSL
-  CPPFLAGS += -I"$(WOLFSSL_PATH)/include"
-  CPPFLAGS += -I"$(WOLFSSL_PATH)/include/wolfssl"
-  _LDFLAGS += -L"$(WOLFSSL_PATH)/lib"
-  _LIBS += -lwolfssl
-  include $(PROOT)/Makefile.wolfSSL.inc
-else
-  OPENSSL_PATH ?= $(PROOT)/../openssl
+ifdef OPENSSL_PATH
   CPPFLAGS += -DLIBSSH2_OPENSSL
   OPENSSL_INCLUDE ?= $(OPENSSL_PATH)/include
   OPENSSL_LIBPATH ?= $(OPENSSL_PATH)/lib
@@ -105,6 +88,22 @@ else
   OPENSSL_LIBS ?= -lssl -lcrypto
   _LIBS += $(OPENSSL_LIBS)
   include $(PROOT)/Makefile.OpenSSL.inc
+else ifdef WOLFSSL_PATH
+  CPPFLAGS += -DLIBSSH2_WOLFSSL
+  CPPFLAGS += -I"$(WOLFSSL_PATH)/include"
+  CPPFLAGS += -I"$(WOLFSSL_PATH)/include/wolfssl"
+  _LDFLAGS += -L"$(WOLFSSL_PATH)/lib"
+  _LIBS += -lwolfssl
+  include $(PROOT)/Makefile.wolfSSL.inc
+else ifdef MBEDTLS_PATH
+  CPPFLAGS += -DLIBSSH2_MBEDTLS
+  CPPFLAGS += -I"$(MBEDTLS_PATH)/include"
+  _LDFLAGS += -L"$(MBEDTLS_PATH)/lib"
+  _LIBS += -lmbedtls -lmbedx509 -lmbedcrypto
+  include $(PROOT)/Makefile.mbedTLS.inc
+else
+  CPPFLAGS += -DLIBSSH2_WINCNG
+  include $(PROOT)/Makefile.WinCNG.inc
 endif
 
 ifdef ZLIB_PATH
