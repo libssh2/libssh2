@@ -11,6 +11,7 @@
 
 #define HAVE_LIBCRYPT32
 #define HAVE_WINSOCK2_H
+#define HAVE_STDLIB_H
 #define HAVE_IOCTLSOCKET
 #define HAVE_SELECT
 #define HAVE_SNPRINTF
@@ -20,8 +21,12 @@
 # define HAVE_INTTYPES_H
 # define HAVE_SYS_TIME_H
 # define HAVE_GETTIMEOFDAY
+# define HAVE_LONGLONG
 # define HAVE_STRTOLL
 #elif defined(_MSC_VER)
+# if _MSC_VER >= 1310
+#  define HAVE_LONGLONG
+# endif
 # if _MSC_VER >= 1800
 #  define HAVE_STRTOLL
 # endif
