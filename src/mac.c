@@ -41,6 +41,16 @@
 #if defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE)
 /* mac_none_MAC
  * Minimalist MAC: No MAC. DO NOT USE.
+ *
+ * The SSH2 Transport allows implementations to forego a message
+ * authentication code.  While this is less of a security risk than using
+ * a "none" cipher, it is still not recommended as disabling MAC hashes
+ * removes a layer of security.
+ *
+ * Enabling this option will allow for "none" as a negotiable method,
+ * however it still requires that the method be advertised by the remote
+ * end and that no more-preferable methods are available.
+ *
  */
 static int
 mac_none_MAC(LIBSSH2_SESSION * session, unsigned char *buf,
