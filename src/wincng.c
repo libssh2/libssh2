@@ -60,9 +60,8 @@
 #include <bcrypt.h>
 #include <math.h>
 
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
+
 #ifdef HAVE_LIBCRYPT32
 #include <wincrypt.h>
 #endif

@@ -41,9 +41,7 @@
 
 #ifdef LIBSSH2_OS400QC3 /* compile only if we build with OS/400 QC3 library */
 
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 
 #include <stdio.h>
 #include <stdarg.h>

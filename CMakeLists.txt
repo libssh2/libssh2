@@ -122,7 +122,6 @@ set(LIB_SHARED "libssh2_shared")  # Must match libssh2_shared_EXPORTS macro in i
 ## Platform checks
 check_include_files(unistd.h HAVE_UNISTD_H)
 check_include_files(inttypes.h HAVE_INTTYPES_H)
-check_include_files(stdlib.h HAVE_STDLIB_H)
 check_include_files(sys/select.h HAVE_SYS_SELECT_H)
 
 check_include_files(sys/uio.h HAVE_SYS_UIO_H)
@@ -151,11 +150,7 @@ if(HAVE_SYS_TIME_H)
 else()
   check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
 endif()
-if(HAVE_STDLIB_H)
-  check_symbol_exists(strtoll stdlib.h HAVE_STRTOLL)
-else()
-  check_function_exists(strtoll HAVE_STRTOLL)
-endif()
+check_symbol_exists(strtoll stdlib.h HAVE_STRTOLL)
 if (NOT HAVE_STRTOLL)
   # Try _strtoi64 if strtoll isn't available
   check_symbol_exists(_strtoi64 stdlib.h HAVE_STRTOI64)

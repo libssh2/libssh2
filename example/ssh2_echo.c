@@ -39,9 +39,7 @@
 #include <sys/time.h>
 #endif
 #include <sys/types.h>
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
