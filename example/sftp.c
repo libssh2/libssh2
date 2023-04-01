@@ -17,8 +17,9 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINSOCK2_H
+#ifdef WIN32
 # include <winsock2.h>
+# define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
@@ -44,10 +45,6 @@
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #pragma warning(disable:4127)
-#endif
-
-#ifdef WIN32
-#define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
 
 const char *keyfile1 = "~/.ssh/id_rsa.pub";

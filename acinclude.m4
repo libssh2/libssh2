@@ -218,13 +218,7 @@ dnl the code was bad, try a different program now, test 3
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
-#ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
-#else
-#ifdef HAVE_WINSOCK_H
-#include <winsock.h>
-#endif
-#endif
 #endif
 ],[
 /* ioctlsocket source code */

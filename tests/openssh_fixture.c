@@ -45,7 +45,7 @@
 #include "openssh_fixture.h"
 #include "libssh2_config.h"
 
-#ifdef HAVE_WINSOCK2_H
+#ifdef WIN32
 #include <winsock2.h>
 #endif
 #ifdef HAVE_SYS_SOCKET_H
@@ -429,7 +429,7 @@ static char *running_container_id = NULL;
 int start_openssh_fixture(void)
 {
     int ret;
-#ifdef HAVE_WINSOCK2_H
+#ifdef WIN32
     WSADATA wsadata;
 
     ret = WSAStartup(MAKEWORD(2, 0), &wsadata);

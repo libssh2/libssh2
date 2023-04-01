@@ -47,15 +47,14 @@
 
 #ifdef WIN32
 #include <windows.h>
+#include <winsock2.h>
 #ifdef _MSC_VER
 #include <direct.h>
 #define getcwd _getcwd
 #define chdir _chdir
 #endif
 #endif
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
+
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
