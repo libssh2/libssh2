@@ -74,28 +74,6 @@ The following options are available:
     Will use zlib (https://zlib.net/) for payload compression.  Can
     be `ON` or `OFF`.
 
- * `ENABLE_CRYPT_NONE=OFF`
-
-    The SSH2 Transport allows for unencrypted data transmission using
-    the "none" cipher.  Because this is such a huge security hole, it
-    is typically disabled on SSH2 implementations and is disabled in
-    libssh2 by default as well.
-
-    Enabling this option will allow for "none" as a negotiable method,
-    however it still requires that the method be advertised by the
-    remote end and that no more-preferable methods are available.
-
- * `ENABLE_MAC_NONE=OFF`
-
-    The SSH2 Transport also allows implementations to forego a message
-    authentication code.  While this is less of a security risk than
-    using a "none" cipher, it is still not recommended as disabling
-    MAC hashes removes a layer of security.
-
-    Enabling this option will allow for "none" as a negotiable method,
-    however it still requires that the method be advertised by the
-    remote end and that no more-preferable methods are available.
-
  * `ENABLE_DEBUG_LOGGING=ON` in Debug, `=OFF` in Release
 
     Will enable the libssh2_trace() function for showing debug traces.
