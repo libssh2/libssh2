@@ -1,9 +1,11 @@
 #########################################################################
 #
 # Makefile for building libssh2 with GCC-like toolchains.
-# Use: make -f GNUmakefile [help|all|clean|dist|distclean|dll|objclean|test|testclean]
+# Use: make -f GNUmakefile [help|all|clean|dist|distclean|dyn|objclean|test|testclean]
 #
 # Hacked by: Guenter Knauf
+#
+# Look for ' ?=' to find accepted customization variables.
 #
 #########################################################################
 
@@ -18,7 +20,7 @@ CPPFLAGS ?=
 RCFLAGS ?=
 LDFLAGS ?=
 LIBSSH2_LDFLAGS_BIN ?=
-LIBSSH2_LDFLAGS_LIB ?=
+LIBSSH2_LDFLAGS_DYN ?=
 LIBS ?=
 
 CROSSPREFIX ?=
@@ -132,8 +134,8 @@ ifdef WIN32
   _LIBS += -lws2_32 -lcrypt32 -lbcrypt
 endif
 
-LIBSSH2_LDFLAGS_LIB += $(_LDFLAGS)
-LIBS_LIB += $(_LIBS)
+LIBSSH2_LDFLAGS_DYN += $(_LDFLAGS)
+LIBS_DYN += $(_LIBS)
 
 ifndef DYN
   LIBSSH2_LDFLAGS_BIN += $(_LDFLAGS)
@@ -175,20 +177,23 @@ TARGET := libssh2
 DISTDIR ?= $(TARGET)-$(LIBSSH2_VERSION_STR)-bin-$(word 1,$(subst -, ,$(TRIPLET)))
 DISTARC := $(DISTDIR).zip
 
-LIBSSH2_DLL_SUFFIX ?=
-libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX)$(DYN_EXT)
-OBJS_dll := $(OBJS)
+LIBSSH2_DYN_SUFFIX ?=
+libssh2_dyn_LIBRARY := $(TARGET)$(LIBSSH2_DYN_SUFFIX)$(DYN_EXT)
+OBJS_dyn := $(OBJS)
 ifdef WIN32
-  libssh2_dll_a_LIBRARY := $(TARGET).dll.a
-  OBJS_dll += $(OBJ_DIR)/$(TARGET).res
-  LIBSSH2_LDFLAGS_LIB += -Wl,--output-def,$(libssh2_dll_LIBRARY:$(DYN_EXT)=.def),--out-implib,$(libssh2_dll_a_LIBRARY)
+  libssh2_dyn_a_LIBRARY := $(TARGET).dll.a
+  OBJS_dyn += $(OBJ_DIR)/$(TARGET).res
+  LIBSSH2_LDFLAGS_DYN += -Wl,--output-def,$(libssh2_dyn_LIBRARY:$(DYN_EXT)=.def),--out-implib,$(libssh2_dyn_a_LIBRARY)
 endif
 
 TARGETS_EXAMPLES := $(patsubst %.c,%$(BIN_EXT),$(strip $(wildcard $(PROOT)/example/*.c)))
 
-all: lib dll
+all: lib dyn
 
-dll: prebuild $(libssh2_dll_LIBRARY)
+# For compatibility
+dll: dyn
+
+dyn: prebuild $(libssh2_dyn_LIBRARY)
 
 lib: prebuild $(TARGET).a
 
@@ -202,9 +207,9 @@ test: $(TARGETS_EXAMPLES)
 $(OBJ_DIR)/%.o: %.c
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
-$(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY): $(OBJS_dll)
+$(libssh2_dyn_LIBRARY) $(libssh2_dyn_a_LIBRARY): $(OBJS_dyn)
 	@$(call DEL, $@)
-	$(CC) $(LDFLAGS) -shared $(LIBSSH2_LDFLAGS_LIB) $^ -o $@ $(LIBS) $(LIBS_LIB)
+	$(CC) $(LDFLAGS) -shared $(LIBSSH2_LDFLAGS_DYN) $^ -o $@ $(LIBS) $(LIBS_DYN)
 
 ifdef WIN32
 $(OBJ_DIR)/%.res: %.rc
@@ -225,7 +230,7 @@ dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@$(call COPY, $(PROOT)/COPYING, $(DISTDIR))
 	@$(call COPY, $(PROOT)/README, $(DISTDIR))
 	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DISTDIR))
-	@$(call COPY, $(libssh2_dll_LIBRARY), $(DISTDIR)/bin)
+	@$(call COPY, $(libssh2_dyn_LIBRARY), $(DISTDIR)/bin)
 	@$(call COPY, $(PROOT)/include/*.h, $(DISTDIR)/include)
 	@$(call COPY, libssh2_config.h, $(DISTDIR)/include)
 	@$(call COPY, *.a, $(DISTDIR)/lib)
@@ -243,7 +248,7 @@ testclean: clean
 	$(call DEL, $(TARGETS_EXAMPLES))
 
 clean:
-	$(call DEL, $(libssh2_dll_LIBRARY) $(libssh2_dll_LIBRARY:$(DYN_EXT)=.def) $(TARGET).a $(libssh2_dll_a_LIBRARY))
+	$(call DEL, $(libssh2_dyn_LIBRARY) $(libssh2_dyn_LIBRARY:$(DYN_EXT)=.def) $(TARGET).a $(libssh2_dyn_a_LIBRARY))
 	$(call RMDIR, $(OBJ_DIR))
 
 $(OBJ_DIR):
@@ -269,7 +274,7 @@ help: $(OBJ_DIR)/version.inc
 	@echo $(DL)===========================================================$(DL)
 	@echo $(DL)libssh2 $(LIBSSH2_VERSION_STR) - available targets are:$(DL)
 	@echo $(DL)$(MAKE) all$(DL)
-	@echo $(DL)$(MAKE) dll$(DL)
+	@echo $(DL)$(MAKE) dyn$(DL)
 	@echo $(DL)$(MAKE) lib$(DL)
 	@echo $(DL)$(MAKE) clean$(DL)
 	@echo $(DL)$(MAKE) dist$(DL)
