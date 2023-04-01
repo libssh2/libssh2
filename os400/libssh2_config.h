@@ -137,9 +137,6 @@
 /* Define to 1 if you have the <winsock2.h> header file. */
 #undef HAVE_WINSOCK2_H
 
-/* Define to 1 if you have the <ws2tcpip.h> header file. */
-#undef HAVE_WS2TCPIP_H
-
 /* to make a symbol visible */
 #undef LIBSSH2_API
 
