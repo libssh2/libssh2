@@ -449,10 +449,8 @@ m4_case([$1],
 [wincng], [
   # Look for Windows Cryptography API: Next Generation
 
-  LIBSSH2_LIB_HAVE_LINKFLAGS([crypt32], [], [
-    #include <windows.h>
-    #include <wincrypt.h>
-  ])
+  LIBS="$LIBS -lcrypt32"
+
   LIBSSH2_LIB_HAVE_LINKFLAGS([bcrypt], [], [
     #include <windows.h>
     #include <bcrypt.h>
@@ -504,4 +502,3 @@ AC_HELP_STRING([--disable-werror],[Disable compiler warnings as errors]),
     CFLAGS="$CFLAGS -Werror"
   fi
 ])
-

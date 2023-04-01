@@ -9,7 +9,6 @@
 #define _CRT_SECURE_NO_DEPRECATE 1
 #endif
 
-#define HAVE_LIBCRYPT32
 #define HAVE_IOCTLSOCKET
 #define HAVE_SELECT
 #define HAVE_SNPRINTF
