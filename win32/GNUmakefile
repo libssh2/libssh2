@@ -52,7 +52,7 @@ RCFLAGS  += -I$(PROOT)/include
 # examples, tests
 
 LIBSSH2_LDFLAGS_BIN += -L$(PROOT)/win32
-LIBS_BIN := -lssh2
+LIBS_BIN := -lssh2 -lws2_32
 
 ifdef DYN
   libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.dll.a
@@ -163,8 +163,7 @@ LIBSSH2_DLL_SUFFIX ?=
 libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
 libssh2_dll_a_LIBRARY := $(TARGET).dll.a
 
-EXAMPLES := $(PROOT)/example
-TARGETS_EXAMPLES := $(patsubst %.c,%.exe,$(strip $(wildcard $(EXAMPLES)/*.c)))
+TARGETS_EXAMPLES := $(patsubst %.c,%.exe,$(strip $(wildcard $(PROOT)/example/*.c)))
 
 all: lib dll
 
