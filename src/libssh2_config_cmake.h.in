@@ -45,7 +45,6 @@
 #cmakedefine HAVE_SYS_IOCTL_H
 #cmakedefine HAVE_SYS_TIME_H
 #cmakedefine HAVE_SYS_UN_H
-#cmakedefine HAVE_WS2TCPIP_H
 #cmakedefine HAVE_WINSOCK2_H
 
 /* for example and tests */
