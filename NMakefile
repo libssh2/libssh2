@@ -1,20 +1,3 @@
-# Tweak these for your system
-!if "$(OPENSSLINC)" == ""
-OPENSSLINC=..\openssl\include
-!endif
-
-!if "$(OPENSSLLIB)" == ""
-OPENSSLLIB=..\openssl\lib
-!endif
-
-!if "$(ZLIBINC)" == ""
-ZLIBINC=..\zlib
-!endif
-
-!if "$(ZLIBLIB)" == ""
-ZLIBLIB=..\zlib
-!endif
-
 !if "$(TARGET)" == ""
 TARGET=Release
 !endif
@@ -30,17 +13,19 @@ DLLFLAGS=/DEBUG /LD
 
 CPPFLAGS=/nologo /GL /Zi /EHsc $(CPPFLAGS) /Iwin32 /Iinclude
 
-!if "$(WITH_WINCNG)" == "1"
+!if "$(OPENSSL_PATH)" != ""
+CPPFLAGS=$(CPPFLAGS) /DLIBSSH2_OPENSSL /I$(OPENSSL_PATH)\include
+LIBS=$(LIBS) $(OPENSSL_PATH)\lib\crypto.lib $(OPENSSL_PATH)\lib\ssl.lib
+!include "Makefile.OpenSSL.inc"
+!else
 CPPFLAGS=$(CPPFLAGS) /DLIBSSH2_WINCNG
 LIBS=crypt32.lib bcrypt.lib
-!else
-CPPFLAGS=$(CPPFLAGS) /DLIBSSH2_OPENSSL /I$(OPENSSLINC)
-LIBS=$(LIBS) $(OPENSSLLIB)\lib\crypto.lib $(OPENSSLLIB)\lib\ssl.lib
+!include "Makefile.WinCNG.inc"
 !endif
 
-!if "$(WITH_ZLIB)" == "1"
-CPPFLAGS=$(CPPFLAGS) /DLIBSSH2_HAVE_ZLIB /I$(ZLIBINC)
-LIBS=$(LIBS) $(ZLIBLIB)\zlib.lib
+!if "$(ZLIB_PATH)" != ""
+CPPFLAGS=$(CPPFLAGS) /DLIBSSH2_HAVE_ZLIB /I$(ZLIB_PATH)\include
+LIBS=$(LIBS) $(ZLIB_PATH)\lib\zlib.lib
 !endif
 
 CFLAGS=$(CPPFLAGS)
@@ -52,11 +37,6 @@ INTDIR=$(TARGET)
 
 SUBDIR=src
 
-!if "$(WITH_WINCNG)" == "1"
-!include "Makefile.WinCNG.inc"
-!else
-!include "Makefile.OpenSSL.inc"
-!endif
 !include "Makefile.inc"
 
 OBJECTS=$(CSOURCES:.c=.obj)
