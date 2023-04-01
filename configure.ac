@@ -289,7 +289,7 @@ case $host in
     # These are POSIX-like systems using BSD-like sockets API.
     ;;
   *)
-    AC_CHECK_HEADERS([windows.h winsock2.h])
+    AC_CHECK_HEADERS([windows.h])
     ;;
 esac
 
@@ -317,7 +317,7 @@ dnl Check for select() into ws2_32 for Msys/Mingw
 if test "$ac_cv_func_select" != "yes"; then
   AC_MSG_CHECKING([for select in ws2_32])
   AC_TRY_LINK([
-#ifdef HAVE_WINSOCK2_H
+#ifdef HAVE_WINDOWS_H
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif

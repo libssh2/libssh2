@@ -16,8 +16,9 @@
 #include "libssh2_config.h"
 #include <libssh2.h>
 
-#ifdef HAVE_WINSOCK2_H
+#ifdef WIN32
 # include <winsock2.h>
+# define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
@@ -43,10 +44,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
-
-#ifdef WIN32
-#define write(f, b, c)  write((f), (b), (unsigned int)(c))
-#endif
 
 #ifdef HAVE_GETTIMEOFDAY
 /* diff in ms */

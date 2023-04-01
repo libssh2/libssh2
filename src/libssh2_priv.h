@@ -76,9 +76,7 @@
 #    define LIBSSH2_WINDOWS_APP
 #  endif
 # endif
-#endif /* WIN32 */
 
-#ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
 #include <ws2tcpip.h>
 /* Force parameter type. */
