@@ -1,6 +1,6 @@
 #########################################################################
 #
-# Makefile for building libssh2 (Windows version - GNU Make)
+# Makefile for building libssh2 with GCC-like toolchains.
 # Use: make -f GNUmakefile [help|all|clean|dist|distclean|dll|objclean|test|testclean]
 #
 # Hacked by: Guenter Knauf
@@ -46,16 +46,31 @@ else
   TRIPLET ?= $(shell $(CC) -dumpmachine)
 endif
 
+ifneq ($(findstring -w,$(TRIPLET)),)
+  WIN32 := 1
+  BIN_EXT := .exe
+  DYN_EXT := .dll
+endif
+
 CPPFLAGS += -I$(PROOT)/win32 -I$(PROOT)/include
 RCFLAGS  += -I$(PROOT)/include
+
+OBJ_DIR := $(TRIPLET)
 
 # examples, tests
 
 LIBSSH2_LDFLAGS_BIN += -L$(PROOT)/win32
-LIBS_BIN := -lssh2 -lws2_32
+LIBS_BIN := -lssh2
+ifdef WIN32
+  LIBS_BIN += -lws2_32
+endif
 
 ifdef DYN
-  libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.dll.a
+  ifdef WIN32
+    libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.dll.a
+  else
+    libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2$(DYN_EXT)
+  endif
   LIBSSH2_LDFLAGS_BIN += -shared
 else
   libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.a
@@ -68,9 +83,9 @@ endif
 DB ?= NDEBUG
 CPPFLAGS += -D$(DB)
 ifeq ($(DB),NDEBUG)
-  OBJ_DIR := release
+  OBJ_DIR := $(OBJ_DIR)-release
 else
-  OBJ_DIR := debug
+  OBJ_DIR := $(OBJ_DIR)-debug
   CFLAGS += -g
   CPPFLAGS += -DLIBSSH2DEBUG
 endif
@@ -101,7 +116,7 @@ else ifdef MBEDTLS_PATH
   _LDFLAGS += -L"$(MBEDTLS_PATH)/lib"
   _LIBS += -lmbedtls -lmbedx509 -lmbedcrypto
   include $(PROOT)/Makefile.mbedTLS.inc
-else
+else ifdef WIN32
   CPPFLAGS += -DLIBSSH2_WINCNG
   include $(PROOT)/Makefile.WinCNG.inc
 endif
@@ -113,7 +128,9 @@ ifdef ZLIB_PATH
   _LIBS += -lz
 endif
 
-_LIBS += -lws2_32 -lcrypt32 -lbcrypt
+ifdef WIN32
+  _LIBS += -lws2_32 -lcrypt32 -lbcrypt
+endif
 
 LIBSSH2_LDFLAGS_LIB += $(_LDFLAGS)
 LIBS_LIB += $(_LIBS)
@@ -159,10 +176,15 @@ DISTDIR ?= $(TARGET)-$(LIBSSH2_VERSION_STR)-bin-$(word 1,$(subst -, ,$(TRIPLET))
 DISTARC := $(DISTDIR).zip
 
 LIBSSH2_DLL_SUFFIX ?=
-libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX).dll
-libssh2_dll_a_LIBRARY := $(TARGET).dll.a
+libssh2_dll_LIBRARY := $(TARGET)$(LIBSSH2_DLL_SUFFIX)$(DYN_EXT)
+OBJS_dll := $(OBJS)
+ifdef WIN32
+  libssh2_dll_a_LIBRARY := $(TARGET).dll.a
+  OBJS_dll += $(OBJ_DIR)/$(TARGET).res
+  LIBSSH2_LDFLAGS_LIB += -Wl,--output-def,$(libssh2_dll_LIBRARY:$(DYN_EXT)=.def),--out-implib,$(libssh2_dll_a_LIBRARY)
+endif
 
-TARGETS_EXAMPLES := $(patsubst %.c,%.exe,$(strip $(wildcard $(PROOT)/example/*.c)))
+TARGETS_EXAMPLES := $(patsubst %.c,%$(BIN_EXT),$(strip $(wildcard $(PROOT)/example/*.c)))
 
 all: lib dll
 
@@ -174,19 +196,20 @@ prebuild: $(OBJ_DIR) $(OBJ_DIR)/version.inc
 
 test: $(TARGETS_EXAMPLES)
 
-%.exe: %.c $(libssh2_DEPENDENCIES)
+%$(BIN_EXT): %.c $(libssh2_DEPENDENCIES)
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBSSH2_LDFLAGS_BIN) $< -o $@ $(LIBS) $(LIBS_BIN)
 
 $(OBJ_DIR)/%.o: %.c
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
-$(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY): $(OBJS) $(OBJ_DIR)/$(TARGET).res
+$(libssh2_dll_LIBRARY) $(libssh2_dll_a_LIBRARY): $(OBJS_dll)
 	@$(call DEL, $@)
-	$(CC) $(LDFLAGS) -shared $(LIBSSH2_LDFLAGS_LIB) $^ -o $@ $(LIBS) $(LIBS_LIB) \
-	  -Wl,--output-def,$(libssh2_dll_LIBRARY:.dll=.def),--out-implib,$(libssh2_dll_a_LIBRARY)
+	$(CC) $(LDFLAGS) -shared $(LIBSSH2_LDFLAGS_LIB) $^ -o $@ $(LIBS) $(LIBS_LIB)
 
+ifdef WIN32
 $(OBJ_DIR)/%.res: %.rc
 	$(RC) -O coff $(RCFLAGS) -i $< -o $@
+endif
 
 $(TARGET).a: $(OBJS)
 	@$(call DEL, $@)
@@ -198,14 +221,14 @@ $(OBJ_DIR)/version.inc: $(PROOT)/get_ver.awk $(PROOT)/include/libssh2.h $(OBJ_DI
 dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@$(call MKDIR, $(DISTDIR)/bin)
 	@$(call MKDIR, $(DISTDIR)/include)
-	@$(call MKDIR, $(DISTDIR)/win32)
+	@$(call MKDIR, $(DISTDIR)/lib)
 	@$(call COPY, $(PROOT)/COPYING, $(DISTDIR))
 	@$(call COPY, $(PROOT)/README, $(DISTDIR))
 	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DISTDIR))
 	@$(call COPY, $(libssh2_dll_LIBRARY), $(DISTDIR)/bin)
 	@$(call COPY, $(PROOT)/include/*.h, $(DISTDIR)/include)
 	@$(call COPY, libssh2_config.h, $(DISTDIR)/include)
-	@$(call COPY, *.a, $(DISTDIR)/win32)
+	@$(call COPY, *.a, $(DISTDIR)/lib)
 	@echo Creating... $(DISTARC)
 	@$(ZIP) $(DISTARC) $(DISTDIR)/* < $(DISTDIR)/readme.txt
 
@@ -220,7 +243,7 @@ testclean: clean
 	$(call DEL, $(TARGETS_EXAMPLES))
 
 clean:
-	$(call DEL, $(libssh2_dll_LIBRARY) $(libssh2_dll_LIBRARY:.dll=.def) $(TARGET).a $(libssh2_dll_a_LIBRARY))
+	$(call DEL, $(libssh2_dll_LIBRARY) $(libssh2_dll_LIBRARY:$(DYN_EXT)=.def) $(TARGET).a $(libssh2_dll_a_LIBRARY))
 	$(call RMDIR, $(OBJ_DIR))
 
 $(OBJ_DIR):
@@ -231,7 +254,7 @@ $(DISTDIR):
 
 $(DISTDIR)/readme.txt: GNUmakefile
 	@echo Creating... $@
-	@echo $(DL)This is a binary distribution for Windows.$(DL) > $@
+	@echo $(DL)This is a binary distribution for $(TRIPLET).$(DL) > $@
 	@echo $(DL)libssh2 version $(LIBSSH2_VERSION_STR)$(DL) >> $@
 	@echo $(DL)Please download the complete libssh2 package for$(DL) >> $@
 	@echo $(DL)any further documentation:$(DL) >> $@
