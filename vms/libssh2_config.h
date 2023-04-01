@@ -14,7 +14,6 @@ typedef unsigned int socklen_t; /* missing in headers on VMS */
 /* Have's */
 
 #define HAVE_UNISTD_H
-#define HAVE_STDLIB_H
 #define HAVE_INTTYPES_H
 #define HAVE_SYS_TIME_H
 #define HAVE_SELECT

@@ -38,9 +38,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <ctype.h>
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 
 #include <termios.h>
 

@@ -10,7 +10,6 @@
 #endif
 
 #define HAVE_LIBCRYPT32
-#define HAVE_STDLIB_H
 #define HAVE_IOCTLSOCKET
 #define HAVE_SELECT
 #define HAVE_SNPRINTF

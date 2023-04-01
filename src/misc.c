@@ -40,9 +40,7 @@
 #include "libssh2_priv.h"
 #include "misc.h"
 
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
