@@ -112,6 +112,12 @@ else ifdef WOLFSSL_PATH
   _LDFLAGS += -L"$(WOLFSSL_PATH)/lib"
   _LIBS += -lwolfssl
   include $(PROOT)/Makefile.wolfSSL.inc
+else ifdef LIBGCRYPT_PATH
+  CPPFLAGS += -DLIBSSH2_LIBGCRYPT
+  CPPFLAGS += -I"$(LIBGCRYPT_PATH)/include"
+  _LDFLAGS += -L"$(LIBGCRYPT_PATH)/lib"
+  _LIBS += -lgcrypt
+  include $(PROOT)/Makefile.libgcrypt.inc
 else ifdef MBEDTLS_PATH
   CPPFLAGS += -DLIBSSH2_MBEDTLS
   CPPFLAGS += -I"$(MBEDTLS_PATH)/include"
