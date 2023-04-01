@@ -4,31 +4,30 @@ TARGET=Release
 
 !if "$(TARGET)" == "Debug"
 SUFFIX=_debug
-CPPFLAGS=/Od /MDd
+CFLAGS=/Od /MDd
 DLLFLAGS=/DEBUG /LDd
 !else
-CPPFLAGS=/Oi /O2 /Oy /GF /Y- /MD /DNDEBUG
+CFLAGS=/Oi /O2 /Oy /GF /Y- /MD /DNDEBUG
 DLLFLAGS=/DEBUG /LD
 !endif
 
-CPPFLAGS=/nologo /GL /Zi /EHsc $(CPPFLAGS) /Iwin32 /Iinclude
+CFLAGS=/nologo /GL /Zi /EHsc $(CFLAGS) /Iwin32 /Iinclude
 
 !if "$(OPENSSL_PATH)" != ""
-CPPFLAGS=$(CPPFLAGS) /DLIBSSH2_OPENSSL /I$(OPENSSL_PATH)\include
+CFLAGS=$(CFLAGS) /DLIBSSH2_OPENSSL /I$(OPENSSL_PATH)\include
 LIBS=$(LIBS) $(OPENSSL_PATH)\lib\crypto.lib $(OPENSSL_PATH)\lib\ssl.lib
 !include "Makefile.OpenSSL.inc"
 !else
-CPPFLAGS=$(CPPFLAGS) /DLIBSSH2_WINCNG
+CFLAGS=$(CFLAGS) /DLIBSSH2_WINCNG
 LIBS=crypt32.lib bcrypt.lib
 !include "Makefile.WinCNG.inc"
 !endif
 
 !if "$(ZLIB_PATH)" != ""
-CPPFLAGS=$(CPPFLAGS) /DLIBSSH2_HAVE_ZLIB /I$(ZLIB_PATH)\include
+CFLAGS=$(CFLAGS) /DLIBSSH2_HAVE_ZLIB /I$(ZLIB_PATH)\include
 LIBS=$(LIBS) $(ZLIB_PATH)\lib\zlib.lib
 !endif
 
-CFLAGS=$(CPPFLAGS)
 RCFLAGS=/Iinclude
 DLLFLAGS=$(CFLAGS) $(DLLFLAGS)
 LIBS=$(LIBS) ws2_32.lib user32.lib advapi32.lib gdi32.lib
@@ -49,8 +48,6 @@ TARGET=Release
 OBJECTS=Release/$(OBJECTS: = Release/)
 OBJECTS=$(OBJECTS: Release/ = )
 !endif
-
-CFLAGS=$(CFLAGS)
 
 !if "$(AR)" == ""
 AR=lib
