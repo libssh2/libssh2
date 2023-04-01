@@ -5,23 +5,44 @@
  * "ssh2 host user password [DEBUG]"
  */
 
+#include <libssh2.h>
+#include "libssh2_config.h"
+
+#include <stdio.h>
+
+#ifdef HAVE_SYS_UN_H
+
 #include <string.h>
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <sys/types.h>
+#ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
+#endif
 #include <fcntl.h>
 #include <errno.h>
-#include <stdio.h>
 #include <ctype.h>
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#include <termios.h>
+#endif
 
-#include <libssh2.h>
+#include <termios.h>
 
 #define _PATH_UNIX_X "/tmp/.X11-unix/X%d"
 
@@ -67,7 +88,7 @@ static void remove_node(struct chan_X11_list *elem)
 static void session_shutdown(LIBSSH2_SESSION *session)
 {
     libssh2_session_disconnect(session,
-                                "Session Shutdown, Thank you for playing");
+                               "Session Shutdown, Thank you for playing");
     libssh2_session_free(session);
 }
 
@@ -109,8 +130,8 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
     char *ptr          = NULL;
     char *temp_buff    = NULL;
     int   display_port = 0;
-    int   sock         = 0;
     int   rc           = 0;
+    libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
     struct sockaddr_un addr;
     struct chan_X11_list *new;
     struct chan_X11_list *chan_iter;
@@ -138,7 +159,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             free(temp_buff);
 
             sock = socket(AF_UNIX, SOCK_STREAM, 0);
-            if(sock < 0)
+            if(sock == LIBSSH2_INVALID_SOCKET)
                 return;
             memset(&addr, 0, sizeof(addr));
             addr.sun_family = AF_UNIX;
@@ -212,7 +233,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
     fds[0].revents = LIBSSH2_POLLFD_POLLIN;
 
     rc = libssh2_poll(fds, nfds, 0);
-    if(rc >0) {
+    if(rc > 0) {
         ssize_t nread;
         nread = libssh2_channel_read(channel, buf, bufsize);
         write(sock, buf, nread);
@@ -220,12 +241,14 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
 
     rc = select((int)(sock + 1), &set, NULL, NULL, &timeval_out);
     if(rc > 0) {
+        ssize_t nread;
+
         memset((void *)buf, 0, bufsize);
 
         /* Data in sock */
-        rc = read(sock, buf, bufsize);
-        if(rc > 0) {
-            libssh2_channel_write(channel, buf, rc);
+        nread = read(sock, buf, bufsize);
+        if(nread > 0) {
+            libssh2_channel_write(channel, buf, nread);
         }
         else {
             free(buf);
@@ -248,8 +271,8 @@ int
 main (int argc, char *argv[])
 {
     uint32_t hostaddr = 0;
-    int sock = 0;
     int rc = 0;
+    libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
     struct sockaddr_in sin;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
@@ -298,7 +321,7 @@ main (int argc, char *argv[])
     }
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(sock == -1) {
+    if(sock == LIBSSH2_INVALID_SOCKET) {
         perror("socket");
         return -1;
     }
@@ -450,9 +473,11 @@ main (int argc, char *argv[])
 
         rc = select((int)(fileno(stdin) + 1), &set, NULL, NULL, &timeval_out);
         if(rc > 0) {
+            ssize_t nread;
+
             /* Data in stdin */
-            rc = read(fileno(stdin), buf, 1);
-            if(rc > 0)
+            nread = read(fileno(stdin), buf, 1);
+            if(nread > 0)
                 libssh2_channel_write(channel, buf, sizeof(buf));
         }
 
@@ -474,3 +499,14 @@ main (int argc, char *argv[])
 
     return 0;
 }
+
+#else
+
+int
+main (void)
+{
+    printf("Sorry, this platform is not supported.");
+    return 1;
+}
+
+#endif /* HAVE_SYS_UN_H */
