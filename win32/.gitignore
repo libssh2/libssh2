@@ -2,5 +2,6 @@
 *.dll
 *.def
 *.exe
-debug
-release
+debug-*
+release-*
+libssh2-*.zip

@@ -85,9 +85,9 @@ endif
 DB ?= NDEBUG
 CPPFLAGS += -D$(DB)
 ifeq ($(DB),NDEBUG)
-  OBJ_DIR := $(OBJ_DIR)-release
+  OBJ_DIR := release-$(OBJ_DIR)
 else
-  OBJ_DIR := $(OBJ_DIR)-debug
+  OBJ_DIR := debug-$(OBJ_DIR)
   CFLAGS += -g
   CPPFLAGS += -DLIBSSH2DEBUG
 endif
