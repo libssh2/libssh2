@@ -51,6 +51,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1700
+#pragma warning(disable:4127)
+#endif
+
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
