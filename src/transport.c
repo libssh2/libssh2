@@ -855,6 +855,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
        total */
     rand_max = (255 - padding_length) / blocksize + 1;
     padding_length += blocksize * (seed % rand_max);
+    #error "RANDOM_PADDING_ENABLED"
 #endif
 
     packet_length += padding_length;
