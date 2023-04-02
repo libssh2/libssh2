@@ -26,18 +26,18 @@
 
 environment:
   matrix:
-    - job_name: "VS2013, WinCNG, x86"
+    - job_name: "VS2010, WinCNG, x86"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-      GENERATOR: "Visual Studio 12 2013"
+      GENERATOR: "Visual Studio 10 2010"
       PLATFORM: "x86"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
       CONFIGURATION: "Release"
       SKIP_CTEST: "yes"
 
-    - job_name: "VS2010, WinCNG, x86"
+    - job_name: "VS2013, WinCNG, x86"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-      GENERATOR: "Visual Studio 10 2010"
+      GENERATOR: "Visual Studio 12 2013"
       PLATFORM: "x86"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
