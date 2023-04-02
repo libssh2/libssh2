@@ -338,18 +338,8 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WINCNG")
     set(CRYPTO_BACKEND_INCLUDE_DIR "")
 
-    set(HAVE_LIBCRYPT32 TRUE)
-    list(APPEND LIBRARIES bcrypt)
-    list(APPEND PC_LIBS -lbcrypt)
-
-    # Reading keys from files is optional and depends on Wincrypt
-    check_include_files("windows.h;wincrypt.h" HAVE_WINCRYPT_H)
-
-    if(HAVE_WINCRYPT_H)
-      list(APPEND LIBRARIES crypt32)
-      list(APPEND PC_LIBS -lcrypt32)
-    endif()
-
+    list(APPEND LIBRARIES crypt32 bcrypt)
+    list(APPEND PC_LIBS -lcrypt32 -lbcrypt)
   elseif(${SPECIFIC_CRYPTO_REQUIREMENT} STREQUAL ${REQUIRED})
     message(FATAL_ERROR "WinCNG not available")
   endif()

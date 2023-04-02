@@ -48,6 +48,10 @@
 #define _WIN32_WINNT 0x0600
 #endif
 
+#if !defined(LIBSSH2_WINCNG_DISABLE_WINCRYPT) && !defined(HAVE_LIBCRYPT32)
+#define HAVE_LIBCRYPT32
+#endif
+
 /* specify the required libraries for dependencies using MSVC */
 #ifdef _MSC_VER
 #pragma comment(lib, "bcrypt.lib")
@@ -63,7 +67,7 @@
 #include <stdlib.h>
 
 #ifdef HAVE_LIBCRYPT32
-#include <wincrypt.h>
+#include <wincrypt.h>  /* for CryptDecodeObjectEx() */
 #endif
 
 #define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"

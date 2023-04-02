@@ -77,9 +77,6 @@
 /* use Ioctlsocket() for non-blocking sockets */
 #undef HAVE_IOCTLSOCKET_CASE
 
-/* Define if you have the crypt32 library. */
-#undef HAVE_LIBCRYPT32
-
 /* Define if you have the gcrypt library. */
 #undef HAVE_LIBGCRYPT
 

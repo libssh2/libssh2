@@ -50,9 +50,6 @@
 #cmakedefine HAVE_ARPA_INET_H
 #cmakedefine HAVE_NETINET_IN_H
 
-/* Libraries */
-#cmakedefine HAVE_LIBCRYPT32
-
 /* Types */
 #cmakedefine HAVE_LONGLONG
 
