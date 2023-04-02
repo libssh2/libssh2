@@ -127,6 +127,8 @@ else ifdef MBEDTLS_PATH
 else ifdef WIN32
   CPPFLAGS += -DLIBSSH2_WINCNG
   include $(PROOT)/Makefile.WinCNG.inc
+else
+  $(error No suitable cryptography backend found)
 endif
 
 ifdef ZLIB_PATH
@@ -275,6 +277,7 @@ help: $(OBJ_DIR)/version.inc
 	@echo $(DL)===========================================================$(DL)
 	@echo $(DL)OpenSSL path    = $(OPENSSL_PATH)$(DL)
 	@echo $(DL)wolfSSL path    = $(WOLFSSL_PATH)$(DL)
+	@echo $(DL)libgcrypt path  = $(LIBGCRYPT_PATH)$(DL)
 	@echo $(DL)mbedTLS path    = $(MBEDTLS_PATH)$(DL)
 	@echo $(DL)zlib path       = $(ZLIB_PATH)$(DL)
 	@echo $(DL)===========================================================$(DL)
