@@ -223,6 +223,16 @@
 #define PKCS_RSA_PRIVATE_KEY (LPCSTR)43
 #endif
 
+#if defined(_MSC_VER) && _MSC_VER < 1700
+/* Workaround for warning C4306:
+   'type cast' : conversion from 'int' to 'LPCSTR' of greater size */
+#undef X509_SEQUENCE_OF_ANY
+#undef X509_MULTI_BYTE_UINT
+#undef PKCS_RSA_PRIVATE_KEY
+#define X509_SEQUENCE_OF_ANY ((LPCSTR)(size_t)34)
+#define X509_MULTI_BYTE_UINT ((LPCSTR)(size_t)38)
+#define PKCS_RSA_PRIVATE_KEY ((LPCSTR)(size_t)43)
+#endif
 
 /*******************************************************************/
 /*
