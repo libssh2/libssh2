@@ -26,6 +26,32 @@
 
 environment:
   matrix:
+    - job_name: "VS2013, WinCNG, x86"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 12 2013"
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      CONFIGURATION: "Release"
+      SKIP_CTEST: "yes"
+
+    - job_name: "VS2010, WinCNG, x86"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 10 2010"
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      CONFIGURATION: "Release"
+      SKIP_CTEST: "yes"
+
+    - job_name: "VS2008, WinCNG, x86"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 9 2008"
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      CONFIGURATION: "Release"
+
     - job_name: "VS2022, OpenSSL, x64"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
@@ -72,8 +98,8 @@ environment:
       PLATFORM: "x64"
       BUILD_SHARED_LIBS: "OFF"
       CRYPTO_BACKEND: "OpenSSL"
-      SKIP_CTEST: "yes"
       CONFIGURATION: "Release"
+      SKIP_CTEST: "yes"
 
     - job_name: "VS2022, WinCNG, x64, Logging"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
