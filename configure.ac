@@ -76,6 +76,8 @@ AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
 AC_C_BIGENDIAN
 
+LT_LANG([Windows Resource])
+
 dnl check for how to do large files
 AC_SYS_LARGEFILE
 
@@ -288,7 +290,7 @@ case $host in
     # These are POSIX-like systems using BSD-like sockets API.
     ;;
   *)
-    AC_CHECK_HEADERS([windows.h])
+    AC_CHECK_HEADERS([windows.h], [have_windows_h=yes], [have_windows_h=no])
     ;;
 esac
 
@@ -357,6 +359,9 @@ fi
 if test $missing_required_deps = 1; then
   AC_MSG_ERROR([Required dependencies are missing!])
 fi
+
+AM_CONDITIONAL([HAVE_WINDRES],
+  [test "x$have_windows_h" = "xyes" && test "x${enable_shared}" = "xyes" && test -n "${RC}"])
 
 # Configure parameters
 LIBSSH2_CHECK_OPTION_WERROR

@@ -22,6 +22,9 @@ endif
 include ../Makefile.inc
 
 libssh2_la_SOURCES = $(CSOURCES) $(HHEADERS)
+if HAVE_WINDRES
+libssh2_la_SOURCES += libssh2.rc
+endif
 
 EXTRA_DIST = libssh2_config.h.in libssh2_config_cmake.h.in
 EXTRA_DIST += CMakeLists.txt
@@ -66,3 +69,8 @@ VERSION=-version-info 1:1:0
 libssh2_la_LDFLAGS = $(VERSION) -no-undefined \
   -export-symbols-regex '^libssh2_.*' \
   $(CRYPTO_LTLIBS) $(LTLIBZ)
+
+if HAVE_WINDRES
+.rc.lo:
+	$(LIBTOOL) --tag=RC --mode=compile $(RC) -I$(top_srcdir)/include $(RCFLAGS) -i $< -o $@
+endif
