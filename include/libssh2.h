@@ -100,7 +100,7 @@ extern "C" {
 /* Allow alternate API prefix from CFLAGS or calling app */
 #ifndef LIBSSH2_API
 # ifdef WIN32
-#  if defined(LIBSSH2_EXPORTS) || \
+#  if defined(LIBSSH2_EXPORTS) || defined(DLL_EXPORT) || \
       defined(_WINDLL) || defined(libssh2_shared_EXPORTS)
 #   ifdef LIBSSH2_LIBRARY
 #    define LIBSSH2_API __declspec(dllexport)
