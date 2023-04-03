@@ -58,6 +58,10 @@
 #include "mbedtls.h"
 #endif
 
+#ifdef LIBSSH2_NO_MD5
+#undef LIBSSH2_MD5
+#endif
+
 #define LIBSSH2_ED25519_KEY_LEN 32
 #define LIBSSH2_ED25519_PRIVATE_KEY_LEN 64
 #define LIBSSH2_ED25519_SIG_LEN 64
