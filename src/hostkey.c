@@ -413,13 +413,9 @@ hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION * session, void **abstract)
     return 0;
 }
 
-#ifdef OPENSSL_NO_MD5
-#define MD5_DIGEST_LENGTH 16
-#endif
-
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa = {
     "ssh-rsa",
-    MD5_DIGEST_LENGTH,
+    SHA_DIGEST_LENGTH,
     hostkey_method_ssh_rsa_init,
     hostkey_method_ssh_rsa_initPEM,
     hostkey_method_ssh_rsa_initPEMFromMemory,
@@ -459,7 +455,7 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_sha2_512 = {
 
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_cert = {
     "ssh-rsa-cert-v01@openssh.com",
-    MD5_DIGEST_LENGTH,
+    SHA_DIGEST_LENGTH,
     NULL,
     hostkey_method_ssh_rsa_initPEM,
     hostkey_method_ssh_rsa_initPEMFromMemory,
@@ -688,7 +684,7 @@ hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION * session, void **abstract)
 
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_dss = {
     "ssh-dss",
-    MD5_DIGEST_LENGTH,
+    SHA_DIGEST_LENGTH,
     hostkey_method_ssh_dss_init,
     hostkey_method_ssh_dss_initPEM,
     hostkey_method_ssh_dss_initPEMFromMemory,
