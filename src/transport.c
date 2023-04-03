@@ -723,7 +723,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     ssize_t padding_length;
     size_t packet_length;
     ssize_t total_length;
-#ifdef RANDOM_PADDING
+#ifdef LIBSSH2_RANDOM_PADDING
     int rand_max;
     int seed = data[0];         /* FIXME: make this random */
 #endif
@@ -846,7 +846,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     if(padding_length < 4) {
         padding_length += blocksize;
     }
-#ifdef RANDOM_PADDING
+#ifdef LIBSSH2_RANDOM_PADDING
     /* FIXME: we can add padding here, but that also makes the packets
        bigger etc */
 
