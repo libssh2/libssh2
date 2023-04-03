@@ -5,10 +5,6 @@
 #define WIN32
 #endif
 
-#ifndef _CRT_SECURE_NO_DEPRECATE
-#define _CRT_SECURE_NO_DEPRECATE 1
-#endif
-
 #define HAVE_IOCTLSOCKET
 #define HAVE_SELECT
 #define HAVE_SNPRINTF
@@ -21,6 +17,9 @@
 # define HAVE_LONGLONG
 # define HAVE_STRTOLL
 #elif defined(_MSC_VER)
+# ifndef _CRT_SECURE_NO_WARNINGS
+# define _CRT_SECURE_NO_WARNINGS
+# endif
 # if _MSC_VER >= 1310
 #  define HAVE_LONGLONG
 # endif
