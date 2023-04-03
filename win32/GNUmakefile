@@ -50,16 +50,19 @@ ifneq ($(findstring -w,$(TRIPLET)),)
   WIN32 := 1
   BIN_EXT := .exe
   DYN_EXT := .dll
+  BLD_DIR ?= $(PROOT)/win32
+  CONFIG_H_DIR ?= $(PROOT)/win32
+else
+  BLD_DIR ?= $(PROOT)
+  CONFIG_H_DIR ?= $(PROOT)
 endif
 
-CPPFLAGS += -I$(PROOT)/win32 -I$(PROOT)/include
+CPPFLAGS += -I$(CONFIG_H_DIR) -I$(PROOT)/include
 RCFLAGS  += -I$(PROOT)/include
-
-OBJ_DIR := $(TRIPLET)
 
 # examples, tests
 
-LIBSSH2_LDFLAGS_BIN += -L$(PROOT)/win32
+LIBSSH2_LDFLAGS_BIN += -L$(BLD_DIR)
 LIBS_BIN := -lssh2
 ifdef WIN32
   LIBS_BIN += -lws2_32
@@ -67,13 +70,13 @@ endif
 
 ifdef DYN
   ifdef WIN32
-    libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.dll.a
+    libssh2_DEPENDENCIES := $(BLD_DIR)/libssh2.dll.a
   else
-    libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2$(DYN_EXT)
+    libssh2_DEPENDENCIES := $(BLD_DIR)/libssh2$(DYN_EXT)
   endif
   LIBSSH2_LDFLAGS_BIN += -shared
 else
-  libssh2_DEPENDENCIES := $(PROOT)/win32/libssh2.a
+  libssh2_DEPENDENCIES := $(BLD_DIR)/libssh2.a
   LIBSSH2_LDFLAGS_BIN += -static
 endif
 
@@ -83,12 +86,14 @@ endif
 DB ?= NDEBUG
 CPPFLAGS += -D$(DB)
 ifeq ($(DB),NDEBUG)
-  OBJ_DIR := release-$(OBJ_DIR)
+  OBJ_DIR := release-$(TRIPLET)
 else
-  OBJ_DIR := debug-$(OBJ_DIR)
+  OBJ_DIR := debug-$(TRIPLET)
   CFLAGS += -g
   CPPFLAGS += -DLIBSSH2DEBUG
 endif
+
+OBJ_DIR := $(BLD_DIR)/$(OBJ_DIR)
 
 # Linker options to exclude for shared mode executables.
 _LDFLAGS :=
@@ -177,22 +182,23 @@ endif
 # include Makefile.inc to get CSOURCES define
 include $(PROOT)/Makefile.inc
 
-OBJECTS := $(patsubst %.c,%.o,$(CSOURCES))
-OBJS    := $(addprefix $(OBJ_DIR)/,$(OBJECTS))
+OBJS := $(addprefix $(OBJ_DIR)/,$(patsubst %.c,%.o,$(CSOURCES)))
 
-TARGET := libssh2
+TARGET := $(BLD_DIR)/libssh2
 
 # Override the path below to point to your Distribution folder.
-DISTDIR ?= $(TARGET)-$(LIBSSH2_VERSION_STR)-bin-$(word 1,$(subst -, ,$(TRIPLET)))
+DISTNAM ?= libssh2-$(LIBSSH2_VERSION_STR)-bin-$(word 1,$(subst -, ,$(TRIPLET)))
+DISTDIR := $(BLD_DIR)/$(DISTNAM)
 DISTARC := $(DISTDIR).zip
 
 LIBSSH2_DYN_SUFFIX ?=
 libssh2_dyn_LIBRARY := $(TARGET)$(LIBSSH2_DYN_SUFFIX)$(DYN_EXT)
 OBJS_dyn := $(OBJS)
 ifdef WIN32
+  libssh2_def_LIBRARY := $(libssh2_dyn_LIBRARY:$(DYN_EXT)=.def)
   libssh2_dyn_a_LIBRARY := $(TARGET).dll.a
-  OBJS_dyn += $(OBJ_DIR)/$(TARGET).res
-  LIBSSH2_LDFLAGS_DYN += -Wl,--output-def,$(libssh2_dyn_LIBRARY:$(DYN_EXT)=.def),--out-implib,$(libssh2_dyn_a_LIBRARY)
+  OBJS_dyn += $(OBJ_DIR)/libssh2.res
+  LIBSSH2_LDFLAGS_DYN += -Wl,--output-def,$(libssh2_def_LIBRARY),--out-implib,$(libssh2_dyn_a_LIBRARY)
 endif
 
 TARGETS_EXAMPLES := $(patsubst %.c,%$(BIN_EXT),$(strip $(wildcard $(PROOT)/example/*.c)))
@@ -241,10 +247,14 @@ dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DISTDIR))
 	@$(call COPY, $(libssh2_dyn_LIBRARY), $(DISTDIR)/bin)
 	@$(call COPY, $(PROOT)/include/*.h, $(DISTDIR)/include)
-	@$(call COPY, libssh2_config.h, $(DISTDIR)/include)
-	@$(call COPY, *.a, $(DISTDIR)/lib)
+	@$(call COPY, $(CONFIG_H_DIR)/libssh2_config.h, $(DISTDIR)/include)
+	@$(call COPY, $(TARGET).a, $(DISTDIR)/lib)
+ifdef WIN32
+	@$(call COPY, $(libssh2_dyn_a_LIBRARY), $(DISTDIR)/lib)
+	@$(call COPY, $(libssh2_def_LIBRARY), $(DISTDIR)/bin)
+endif
 	@echo Creating... $(DISTARC)
-	@$(ZIP) $(DISTARC) $(DISTDIR)/* < $(DISTDIR)/readme.txt
+	(cd $(DISTDIR)/.. && $(ZIP) $(abspath $(DISTARC)) $(DISTNAM)/* < $(abspath $(DISTDIR)/readme.txt))
 
 distclean vclean: clean
 	$(call RMDIR, $(DISTDIR))
@@ -257,7 +267,7 @@ testclean: clean
 	$(call DEL, $(TARGETS_EXAMPLES))
 
 clean:
-	$(call DEL, $(libssh2_dyn_LIBRARY) $(libssh2_dyn_LIBRARY:$(DYN_EXT)=.def) $(TARGET).a $(libssh2_dyn_a_LIBRARY))
+	$(call DEL, $(TARGET).a $(libssh2_dyn_LIBRARY) $(libssh2_def_LIBRARY) $(libssh2_dyn_a_LIBRARY))
 	$(call RMDIR, $(OBJ_DIR))
 
 $(OBJ_DIR):
