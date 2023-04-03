@@ -69,8 +69,6 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          dnl this is a set of options we believe *ALL* gcc versions support:
          WARN="-W -Wall -Wwrite-strings -pedantic -Wpointer-arith -Wnested-externs -Winline -Wmissing-prototypes"
 
-         dnl -Wcast-align is a bit too annoying on all gcc versions ;-)
-
          if test "$gccnum" -ge "207"; then
            dnl gcc 2.7 or later
            WARN="$WARN -Wmissing-declarations"
@@ -106,6 +104,80 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          if test "$gccnum" -ge "304"; then
            # try these on gcc 3.4
            WARN="$WARN -Wdeclaration-after-statement"
+         fi
+
+         dnl Only gcc 4.0 or later
+         if test "$gccnum" -ge "400"; then
+           WARN="$WARN -Wstrict-aliasing=3"
+         fi
+         #
+         dnl Only gcc 4.2 or later
+         if test "$gccnum" -ge "402"; then
+           CURL_ADD_COMPILER_WARNINGS([WARN], [cast-align])
+         fi
+         #
+         dnl Only gcc 4.3 or later
+         if test "$gccnum" -ge "403"; then
+           CURL_ADD_COMPILER_WARNINGS([WARN], [type-limits old-style-declaration])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [missing-parameter-type empty-body])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [clobbered ignored-qualifiers])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [conversion])
+           WARN="$WARN -Wno-sign-conversion"
+           CURL_ADD_COMPILER_WARNINGS([WARN], [vla])
+           dnl required for -Warray-bounds, included in -Wall
+           WARN="$WARN -ftree-vrp"
+         fi
+         #
+         dnl Only gcc 4.5 or later
+         if test "$gccnum" -ge "405"; then
+           dnl Only windows targets
+           if test "$curl_cv_have_def__WIN32" = "yes"; then
+             WARN="$WARN -Wno-pedantic-ms-format"
+           fi
+         fi
+         #
+         dnl Only gcc 4.6 or later
+         if test "$gccnum" -ge "406"; then
+           CURL_ADD_COMPILER_WARNINGS([WARN], [double-promotion])
+         fi
+         #
+         dnl only gcc 4.8 or later
+         if test "$gccnum" -ge "408"; then
+           WARN="$WARN -Wformat=2"
+         fi
+         #
+         dnl Only gcc 5 or later
+         if test "$gccnum" -ge "500"; then
+           WARN="$WARN -Warray-bounds=2"
+         fi
+         #
+         dnl Only gcc 6 or later
+         if test "$gccnum" -ge "600"; then
+           CURL_ADD_COMPILER_WARNINGS([WARN], [shift-negative-value])
+           WARN="$WARN -Wshift-overflow=2"
+           CURL_ADD_COMPILER_WARNINGS([WARN], [null-dereference])
+           WARN="$WARN -fdelete-null-pointer-checks"
+           CURL_ADD_COMPILER_WARNINGS([WARN], [duplicated-cond])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [unused-const-variable])
+         fi
+         #
+         dnl Only gcc 7 or later
+         if test "$gccnum" -ge "700"; then
+           CURL_ADD_COMPILER_WARNINGS([WARN], [duplicated-branches])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [restrict])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [alloc-zero])
+           WARN="$WARN -Wformat-overflow=2"
+           WARN="$WARN -Wformat-truncation=2"
+           if test "$gccnum" -lt "1200"; then
+             dnl gcc 12 doesn't acknowledge our comment markups
+             WARN="$WARN -Wimplicit-fallthrough=4"
+           fi
+         fi
+         #
+         dnl Only gcc 10 or later
+         if test "$gccnum" -ge "1000"; then
+           CURL_ADD_COMPILER_WARNINGS([WARN], [arith-conversion])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [enum-conversion])
          fi
 
          for flag in $CPPFLAGS; do
@@ -147,6 +219,67 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
     CFLAGS=$NEWFLAGS
 
 ]) dnl end of AC_DEFUN()
+
+dnl CURL_ADD_COMPILER_WARNINGS (WARNING-LIST, NEW-WARNINGS)
+dnl -------------------------------------------------------
+dnl Contents of variable WARNING-LIST and NEW-WARNINGS are
+dnl handled as whitespace separated lists of words.
+dnl Add each compiler warning from NEW-WARNINGS that has not
+dnl been disabled via CFLAGS to WARNING-LIST.
+
+AC_DEFUN([CURL_ADD_COMPILER_WARNINGS], [
+  AC_REQUIRE([CURL_SHFUNC_SQUEEZE])dnl
+  ac_var_added_warnings=""
+  for warning in [$2]; do
+    CURL_VAR_MATCH(CFLAGS, [-Wno-$warning -W$warning])
+    if test "$ac_var_match_word" = "no"; then
+      ac_var_added_warnings="$ac_var_added_warnings -W$warning"
+    fi
+  done
+  dnl squeeze whitespace out of result
+  [$1]="$[$1] $ac_var_added_warnings"
+  squeeze [$1]
+])
+
+dnl CURL_SHFUNC_SQUEEZE
+dnl -------------------------------------------------
+dnl Declares a shell function squeeze() which removes
+dnl redundant whitespace out of a shell variable.
+
+AC_DEFUN([CURL_SHFUNC_SQUEEZE], [
+squeeze() {
+  _sqz_result=""
+  eval _sqz_input=\[$][$]1
+  for _sqz_token in $_sqz_input; do
+    if test -z "$_sqz_result"; then
+      _sqz_result="$_sqz_token"
+    else
+      _sqz_result="$_sqz_result $_sqz_token"
+    fi
+  done
+  eval [$]1=\$_sqz_result
+  return 0
+}
+])
+
+dnl CURL_VAR_MATCH (VARNAME, VALUE)
+dnl -------------------------------------------------
+dnl Verifies if shell variable VARNAME contains VALUE.
+dnl Contents of variable VARNAME and VALUE are handled
+dnl as whitespace separated lists of words. If at least
+dnl one word of VALUE is present in VARNAME the match
+dnl is considered positive, otherwise false.
+
+AC_DEFUN([CURL_VAR_MATCH], [
+  ac_var_match_word="no"
+  for word1 in $[$1]; do
+    for word2 in [$2]; do
+      if test "$word1" = "$word2"; then
+        ac_var_match_word="yes"
+      fi
+    done
+  done
+])
 
 dnl CURL_CHECK_NONBLOCKING_SOCKET
 dnl -------------------------------------------------
