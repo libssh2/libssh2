@@ -73,7 +73,7 @@ $(DLL): $(OBJECTS) $(RESOURCE)
 $(STATICLIB): $(OBJECTS)
 	$(AR) $(ARFLAGS) -out:$@ $(OBJECTS)
 
-$(RESOURCE): win32\libssh2.rc
+$(RESOURCE): src\libssh2.rc
 	$(RC) $(RCFLAGS) /Fo"$@" $?
 
 all-sub: $(INTDIR) all

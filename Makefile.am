@@ -24,7 +24,7 @@ VMSFILES = vms/libssh2_make_example.dcl vms/libssh2_make_help.dcl \
 
 WIN32FILES = win32/GNUmakefile NMakefile \
   win32/libssh2_config.h \
-  win32/libssh2.rc
+  src/libssh2.rc
 
 OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   os400/make-src.sh os400/make-rpg.sh os400/make-include.sh \

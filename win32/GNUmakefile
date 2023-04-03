@@ -172,6 +172,9 @@ ZIP := zip -qzr9
 -include $(OBJ_DIR)/version.inc
 
 vpath %.c $(PROOT)/src
+ifdef WIN32
+vpath %.rc $(PROOT)/src
+endif
 
 # include Makefile.inc to get CSOURCES define
 include $(PROOT)/Makefile.inc
