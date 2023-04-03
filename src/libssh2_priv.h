@@ -86,6 +86,7 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <limits.h>
 
 /* The following CPP block should really only be in session.c and packet.c.
    However, AIX have #define's for 'events' and 'revents' and we are using
