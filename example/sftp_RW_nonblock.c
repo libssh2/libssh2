@@ -40,10 +40,6 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#pragma warning(disable:4127)
-#endif
-
 #define STORAGE "/tmp/sftp-storage" /* this is the local file name this
                                        example uses to store the downloaded
                                        file in */

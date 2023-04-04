@@ -42,10 +42,6 @@
 
 #include <termios.h>
 
-#if defined(_MSC_VER) && _MSC_VER < 1700
-#pragma warning(disable:4127)
-#endif
-
 #define _PATH_UNIX_X "/tmp/.X11-unix/X%d"
 
 /*

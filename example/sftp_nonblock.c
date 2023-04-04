@@ -40,10 +40,6 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#pragma warning(disable:4127)
-#endif
-
 #ifdef HAVE_GETTIMEOFDAY
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)

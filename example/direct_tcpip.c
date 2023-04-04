@@ -29,10 +29,6 @@
 #define INADDR_NONE (in_addr_t)-1
 #endif
 
-#if defined(_MSC_VER) && _MSC_VER < 1700
-#pragma warning(disable:4127)
-#endif
-
 const char *keyfile1 = "/home/username/.ssh/id_rsa.pub";
 const char *keyfile2 = "/home/username/.ssh/id_rsa";
 const char *username = "username";
