@@ -46,21 +46,6 @@
 /* platform/compiler-specific setup */
 #include "libssh2_setup.h"
 
-#ifdef WIN32
-#include <winsock2.h>
-
-/* Detect Windows App environment which has a restricted access
-   to the Win32 APIs. */
-# if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
-  defined(WINAPI_FAMILY)
-#  include <winapifamily.h>
-#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  \
-     !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#    define LIBSSH2_WINDOWS_APP
-#  endif
-# endif
-#endif
-
 #include <stdio.h>
 #include <time.h>
 #include <limits.h>
@@ -104,6 +89,19 @@
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
 #include "misc.h"
+
+#ifdef WIN32
+/* Detect Windows App environment which has a restricted access
+   to the Win32 APIs. */
+# if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
+  defined(WINAPI_FAMILY)
+#  include <winapifamily.h>
+#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  \
+     !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#    define LIBSSH2_WINDOWS_APP
+#  endif
+# endif
+#endif
 
 #ifndef FALSE
 #define FALSE 0
