@@ -46,7 +46,6 @@
 #endif
 
 #ifdef WIN32
-#include <windows.h>
 #include <winsock2.h>
 #ifdef _MSC_VER
 #include <direct.h>
