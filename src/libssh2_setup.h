@@ -51,6 +51,10 @@
 
 #ifdef WIN32
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #ifdef __MINGW32__
 # ifdef __MINGW64_VERSION_MAJOR
 /* Number of bits in a file offset, on hosts where this is settable. */

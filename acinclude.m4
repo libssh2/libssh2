@@ -214,6 +214,9 @@ dnl the code was bad, try a different program now, test 3
 /* headers for ioctlsocket test (Windows) */
 #undef inline
 #ifdef HAVE_WINDOWS_H
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <winsock2.h>
 #endif
 ],[
