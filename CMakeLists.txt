@@ -149,7 +149,7 @@ else()
   check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
 endif()
 check_symbol_exists(strtoll stdlib.h HAVE_STRTOLL)
-if (NOT HAVE_STRTOLL)
+if(NOT HAVE_STRTOLL)
   # Try _strtoi64 if strtoll isn't available
   check_symbol_exists(_strtoi64 stdlib.h HAVE_STRTOI64)
 endif()
@@ -218,7 +218,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     list(APPEND LIBRARIES ${OPENSSL_LIBRARIES})
     list(APPEND PC_REQUIRES_PRIVATE libssl libcrypto)
 
-    if (WIN32)
+    if(WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
       # This should really be handled by FindOpenSSL.cmake.
       list(APPEND LIBRARIES crypt32 bcrypt)
@@ -280,7 +280,7 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
     list(APPEND LIBRARIES ${WOLFSSL_LIBRARIES})
     list(APPEND PC_LIBS -lwolfssl)
 
-    if (WIN32)
+    if(WIN32)
       list(APPEND LIBRARIES crypt32)
       list(APPEND PC_LIBS -lcrypt32)
     endif()
