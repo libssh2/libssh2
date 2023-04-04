@@ -7,7 +7,7 @@
  * Using the SFTP server running on 127.0.0.1
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 

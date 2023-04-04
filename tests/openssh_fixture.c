@@ -37,7 +37,7 @@
 
 #include "session_fixture.h"
 #include "openssh_fixture.h"
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 
 #ifdef WIN32
 #include <winsock2.h>

@@ -7,7 +7,7 @@
  * "sftp 192.168.0.1 user password sftp_write.c /tmp/secrets"
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 

@@ -10,7 +10,7 @@
  *
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 
 #ifdef WIN32

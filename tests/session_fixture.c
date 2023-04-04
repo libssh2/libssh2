@@ -36,7 +36,7 @@
  */
 
 #include "session_fixture.h"
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include "openssh_fixture.h"
 
 #include <stdio.h>
