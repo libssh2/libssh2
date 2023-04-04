@@ -41,11 +41,6 @@
 
 /* Header used by 'src' */
 
-/* Define mingw-w64 version macros, eg __MINGW{32,64}_{MINOR,MAJOR}_VERSION */
-#ifdef __MINGW32__
-#include <_mingw.h>
-#endif
-
 #define LIBSSH2_LIBRARY
 
 /* platform/compiler-specific setup */

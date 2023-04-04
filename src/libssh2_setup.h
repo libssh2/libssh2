@@ -8,6 +8,11 @@
 #define WIN32
 #endif
 
+/* Define mingw-w64 version macros, eg __MINGW{32,64}_{MINOR,MAJOR}_VERSION */
+#ifdef __MINGW32__
+#include <_mingw.h>
+#endif
+
 /* Configuration provided by build tools (autotools and CMake),
    and via platform-specific directories for os400 and vms */
 #if defined(HAVE_CONFIG_H) || defined(__OS400__) || defined(__VMS)
