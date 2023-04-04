@@ -1,9 +1,7 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifdef WIN32
-#include <winsock2.h>
-#else
+#ifndef WIN32
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>

@@ -11,7 +11,6 @@
 #include <libssh2.h>
 
 #ifdef WIN32
-# include <winsock2.h>
 # define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
 #ifdef HAVE_SYS_SOCKET_H

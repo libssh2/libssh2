@@ -2,7 +2,6 @@
 #include <libssh2.h>
 
 #ifdef WIN32
-#include <winsock2.h>
 #include <ws2tcpip.h>  /* for socklen_t */
 #define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
 #define send(s, b, l, f)  send((s), (b), (int)(l), (f))

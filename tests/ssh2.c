@@ -4,9 +4,6 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef WIN32
-# include <winsock2.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
