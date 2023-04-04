@@ -44,6 +44,12 @@
 
 /* Below applies to both auto-detected and hand-crafted configs */
 
+#ifdef WIN32
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #ifdef _MSC_VER
 # ifndef _CRT_SECURE_NO_WARNINGS
 # define _CRT_SECURE_NO_WARNINGS
@@ -55,5 +61,7 @@
 #  define strdup _strdup
 # endif
 #endif
+
+#endif /* WIN32 */
 
 #endif /* LIBSSH2_SETUP_H */
