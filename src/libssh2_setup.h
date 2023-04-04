@@ -1,12 +1,15 @@
 #ifndef LIBSSH2_SETUP_H
 #define LIBSSH2_SETUP_H
 
+/* Header for platform/compiler-specific initialization.
+   Used by 'src', 'example', 'tests' */
+
 #if defined(_WIN32) && !defined(WIN32)
 #define WIN32
 #endif
 
-/* provided by autotools and CMake,
-   and in platform-specific dirs for os400 and vms */
+/* Configuration provided by build tools (autotools and CMake),
+   and via platform-specific directories for os400 and vms */
 #if defined(HAVE_CONFIG_H) || defined(__OS400__) || defined(__VMS)
 
 #include "libssh2_config.h"
