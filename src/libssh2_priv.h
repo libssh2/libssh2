@@ -65,8 +65,9 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <windows.h>
-#undef WIN32_LEAN_AND_MEAN
 
 /* Detect Windows App environment which has a restricted access
    to the Win32 APIs. */
@@ -79,8 +80,6 @@
 #  endif
 # endif
 
-#include <winsock2.h>
-#include <ws2tcpip.h>
 /* Force parameter type. */
 #define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
 #define send(s, b, l, f)  send((s), (b), (int)(l), (f))
