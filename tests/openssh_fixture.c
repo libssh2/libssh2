@@ -35,9 +35,9 @@
  * OF SUCH DAMAGE.
  */
 
+#include "libssh2_setup.h"
 #include "session_fixture.h"
 #include "openssh_fixture.h"
-#include "libssh2_setup.h"
 
 #ifdef WIN32
 #include <winsock2.h>
