@@ -50,11 +50,11 @@
 #endif
 #include "userauth.h"
 #include "session.h"
-#ifdef WIN32
-#include <stdlib.h>
-#endif
 
 #if defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP)
+
+#include <stdlib.h>  /* for getenv() */
+
 /* Code to talk to OpenSSH was taken and modified from the Win32 port of
  * Portable OpenSSH by the PowerShell team. Commit
  * 8ab565c53f3619d6a1f5ac229e212cad8a52852c of
