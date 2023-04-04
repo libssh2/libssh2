@@ -55,7 +55,14 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#ifdef _MSC_VER
+#ifdef __MINGW32__
+# ifdef __MINGW64_VERSION_MAJOR
+/* Number of bits in a file offset, on hosts where this is settable. */
+#  ifndef _FILE_OFFSET_BITS
+#  define _FILE_OFFSET_BITS 64
+#  endif
+# endif
+#elif defined(_MSC_VER)
 # ifndef _CRT_SECURE_NO_WARNINGS
 # define _CRT_SECURE_NO_WARNINGS
 # endif

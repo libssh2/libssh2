@@ -46,13 +46,6 @@
 /* platform/compiler-specific setup */
 #include "libssh2_setup.h"
 
-/* Number of bits in a file offset, on hosts where this is settable. */
-#if defined(__MINGW32__) && defined(__MINGW64_VERSION_MAJOR)
-# ifndef _FILE_OFFSET_BITS
-# define _FILE_OFFSET_BITS 64
-# endif
-#endif
-
 #ifdef WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
