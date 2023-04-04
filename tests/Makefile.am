@@ -1,6 +1,6 @@
 SUBDIRS = ossfuzz
 
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/include -I$(top_builddir)/src
+AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 
 ctests = simple$(EXEEXT)
 TESTS = $(ctests) mansyntax.sh
