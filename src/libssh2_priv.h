@@ -61,10 +61,6 @@
 #    define LIBSSH2_WINDOWS_APP
 #  endif
 # endif
-
-/* Force parameter type. */
-#define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
-#define send(s, b, l, f)  send((s), (b), (int)(l), (f))
 #endif
 
 #include <stdio.h>

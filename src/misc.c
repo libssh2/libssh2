@@ -52,6 +52,9 @@
 
 #ifdef WIN32
 #include <windows.h>
+/* Force parameter type. */
+#define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
+#define send(s, b, l, f)  send((s), (b), (int)(l), (f))
 #endif
 
 #include <stdio.h>
