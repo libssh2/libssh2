@@ -70,9 +70,6 @@ int main(void)
     if(NOT HAVE_FIONBIO)
       check_c_source_compiles("/* ioctlsocket test (Windows) */
 #undef inline
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
 
 #include <winsock2.h>
 
