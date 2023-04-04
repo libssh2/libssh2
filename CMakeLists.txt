@@ -330,6 +330,7 @@ endif()
 if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
 
   # The check actually compiles the header.  This requires windows.h.
+  # Check necessary for old-MinGW
   check_include_files("windows.h;bcrypt.h" HAVE_BCRYPT_H)
 
   if(HAVE_BCRYPT_H)

@@ -450,6 +450,7 @@ m4_case([$1],
 
   LIBS="$LIBS -lcrypt32"
 
+  # Check necessary for old-MinGW
   LIBSSH2_LIB_HAVE_LINKFLAGS([bcrypt], [], [
     #include <windows.h>
     #include <bcrypt.h>
