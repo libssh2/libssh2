@@ -74,7 +74,7 @@ foreach(example ${EXAMPLES})
   add_executable(example-${example} ${example}.c)
   list(APPEND EXAMPLE_TARGETS example-${example})
   # to find generated header
-  target_include_directories(example-${example} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../src)
+  target_include_directories(example-${example} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../src ../src)
   target_link_libraries(example-${example} ${LIB_STATIC} ${LIBRARIES})
 endforeach()
 
