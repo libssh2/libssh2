@@ -1,7 +1,7 @@
 #########################################################################
 #
 # Makefile for building libssh2 with GCC-like toolchains.
-# Use: make -f GNUmakefile [help|all|clean|dist|distclean|dyn|objclean|test|testclean]
+# Use: make -f Makefile.mk [help|all|clean|dist|distclean|dyn|objclean|test|testclean]
 #
 # Hacked by: Guenter Knauf
 #
@@ -9,7 +9,7 @@
 #
 #########################################################################
 
-PROOT := ..
+PROOT := .
 
 ### Common
 
@@ -276,7 +276,7 @@ $(OBJ_DIR):
 $(DISTDIR):
 	@$(call MKDIR, $@)
 
-$(DISTDIR)/readme.txt: GNUmakefile
+$(DISTDIR)/readme.txt: Makefile.mk
 	@echo Creating... $@
 	@echo $(DL)This is a binary distribution for $(TRIPLET).$(DL) > $@
 	@echo $(DL)libssh2 version $(LIBSSH2_VERSION_STR)$(DL) >> $@
