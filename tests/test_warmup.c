@@ -4,8 +4,6 @@
 #include "session_fixture.h"
 #include "runner.h"
 
-#include <libssh2.h>
-
 #include <stdio.h>
 
 int test(LIBSSH2_SESSION *session)
