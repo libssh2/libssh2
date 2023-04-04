@@ -26,9 +26,6 @@
 # define HAVE_LONGLONG
 # define HAVE_STRTOLL
 #elif defined(_MSC_VER)
-# ifndef _CRT_SECURE_NO_WARNINGS
-# define _CRT_SECURE_NO_WARNINGS
-# endif
 # if _MSC_VER >= 1310
 #  define HAVE_LONGLONG
 # endif
@@ -37,13 +34,23 @@
 # endif
 # if _MSC_VER < 1900
 #  undef HAVE_SNPRINTF
-#  if _MSC_VER < 1500
-#   define vsnprintf _vsnprintf
-#  endif
-#  define strdup _strdup
 # endif
 #endif
 
+#endif /* defined(HAVE_CONFIG_H) */
+
+/* Below applies to both auto-detected and hand-crafted configs */
+
+#ifdef _MSC_VER
+# ifndef _CRT_SECURE_NO_WARNINGS
+# define _CRT_SECURE_NO_WARNINGS
+# endif
+# if _MSC_VER < 1500
+#  define vsnprintf _vsnprintf
+# endif
+# if _MSC_VER < 1900
+#  define strdup _strdup
+# endif
 #endif
 
 #endif /* LIBSSH2_SETUP_H */
