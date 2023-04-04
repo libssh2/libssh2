@@ -1,4 +1,3 @@
-#include "libssh2_setup.h"
 #include "session_fixture.h"
 #include "runner.h"
 

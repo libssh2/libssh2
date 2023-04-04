@@ -35,7 +35,6 @@
  * OF SUCH DAMAGE.
  */
 
-#include "libssh2_setup.h"
 #include "session_fixture.h"
 #include "openssh_fixture.h"
 
