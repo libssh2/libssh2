@@ -48,7 +48,6 @@
 
 #ifdef WIN32
 #include <winsock2.h>
-#include <ws2tcpip.h>
 #include <windows.h>
 
 /* Detect Windows App environment which has a restricted access
