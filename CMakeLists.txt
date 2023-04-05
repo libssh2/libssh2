@@ -127,9 +127,9 @@ check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
 check_include_files(sys/ioctl.h HAVE_SYS_IOCTL_H)
 check_include_files(sys/time.h HAVE_SYS_TIME_H)
 check_include_files(sys/un.h HAVE_SYS_UN_H)
+check_include_files(sys/param.h HAVE_SYS_PARAM_H)
 
 # for example and tests
-check_include_files(sys/param.h HAVE_SYS_PARAM_H)
 check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
 check_include_files(netinet/in.h HAVE_NETINET_IN_H)
 
