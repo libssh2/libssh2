@@ -1,4 +1,3 @@
-#include "session_fixture.h"
 #include "runner.h"
 
 /* configured in Dockerfile */

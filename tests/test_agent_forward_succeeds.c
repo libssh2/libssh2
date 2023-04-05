@@ -1,4 +1,3 @@
-#include "session_fixture.h"
 #include "runner.h"
 
 const char *USERNAME = "libssh2"; /* set in Dockerfile */

@@ -1,6 +1,5 @@
 /* libssh2 test receiving large amounts of data through a channel */
 
-#include "session_fixture.h"
 #include "runner.h"
 
 /* configured in Dockerfile */

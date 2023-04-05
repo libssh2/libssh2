@@ -1,4 +1,3 @@
-#include "session_fixture.h"
 #include "runner.h"
 
 static const char *EXPECTED_RSA_HOSTKEY =
