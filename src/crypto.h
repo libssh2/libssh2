@@ -60,6 +60,7 @@
 
 #ifdef LIBSSH2_NO_MD5
 #undef LIBSSH2_MD5
+#define LIBSSH2_MD5 0
 #endif
 
 #define LIBSSH2_ED25519_KEY_LEN 32
