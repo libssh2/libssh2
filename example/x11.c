@@ -5,8 +5,8 @@
  * "ssh2 host user password [DEBUG]"
  */
 
-#include <libssh2.h>
 #include "libssh2_setup.h"
+#include <libssh2.h>
 
 #include <stdio.h>
 

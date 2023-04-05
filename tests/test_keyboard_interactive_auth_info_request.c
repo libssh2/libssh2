@@ -35,10 +35,10 @@
  * OF SUCH DAMAGE.
  */
 
-#include <stdlib.h>
-
 #include "libssh2_priv.h"
 #include "userauth_kbd_packet.h"
+
+#include <stdlib.h>
 
 #define PASS 0
 #define FAIL -1
