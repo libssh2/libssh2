@@ -4,8 +4,6 @@
 #include "session_fixture.h"
 #include "runner.h"
 
-#include <stdio.h>
-
 int test(LIBSSH2_SESSION *session)
 {
     size_t len = 0;

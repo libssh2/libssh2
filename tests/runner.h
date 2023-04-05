@@ -38,6 +38,9 @@
 #ifndef LIBSSH2_TESTS_RUNNER_H
 #define LIBSSH2_TESTS_RUNNER_H
 
+/* Most tests will need this */
+#include <stdio.h>
+
 int test(LIBSSH2_SESSION *session);
 
 #endif

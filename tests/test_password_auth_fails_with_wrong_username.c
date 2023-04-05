@@ -1,8 +1,6 @@
 #include "session_fixture.h"
 #include "runner.h"
 
-#include <stdio.h>
-
 /* configured in Dockerfile */
 static const char *PASSWORD = "my test password";
 static const char *WRONG_USERNAME = "i dont exist";

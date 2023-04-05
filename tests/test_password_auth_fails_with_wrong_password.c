@@ -1,8 +1,6 @@
 #include "session_fixture.h"
 #include "runner.h"
 
-#include <stdio.h>
-
 static const char *USERNAME = "libssh2"; /* set in Dockerfile */
 static const char *WRONG_PASSWORD = "i'm not the password";
 

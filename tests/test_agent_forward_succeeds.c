@@ -1,8 +1,6 @@
 #include "session_fixture.h"
 #include "runner.h"
 
-#include <stdio.h>
-
 const char *USERNAME = "libssh2"; /* set in Dockerfile */
 const char *KEY_FILE_PRIVATE = "key_rsa";
 const char *KEY_FILE_PUBLIC = "key_rsa.pub"; /* set in Dockerfile */
