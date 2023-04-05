@@ -151,7 +151,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             display[0] == ':') {
             /* Connect to the local unix domain */
             ptr = strrchr(display, ':');
-            temp_buff = (char *) calloc(strlen(ptr + 1), sizeof(char));
+            temp_buff = (char *) calloc(strlen(ptr + 1) + 1, sizeof(char));
             if(!temp_buff) {
                 perror("calloc");
                 return;
