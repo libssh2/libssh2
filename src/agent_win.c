@@ -40,16 +40,6 @@
 #include "libssh2_priv.h"
 #include "agent.h"
 #include <errno.h>
-#ifdef HAVE_SYS_UN_H
-#include <sys/un.h>
-#else
-/* Use the existence of sys/un.h as a test if Unix domain socket is
-   supported.  winsock*.h define PF_UNIX/AF_UNIX but do not actually
-   support them. */
-#undef PF_UNIX
-#endif
-#include "userauth.h"
-#include "session.h"
 
 #if defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP)
 
