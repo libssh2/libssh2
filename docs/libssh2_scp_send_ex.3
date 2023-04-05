@@ -12,7 +12,7 @@ libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode,
 This function has been deemed deprecated since libssh2 1.2.6. See
 \fIlibssh2_scp_send64(3)\fP.
 
-\fIsession\fP - Session instance as returned by 
+\fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
 
 \fIpath\fP - Full path and filename of file to transfer to. That is the remote
@@ -20,12 +20,12 @@ file name.
 
 \fImode\fP - File access mode to create file with
 
-\fIsize\fP - Size of file being transmitted (Must be known 
+\fIsize\fP - Size of file being transmitted (Must be known
 ahead of time precisely)
 
 \fImtime\fP - mtime to assign to file being created
 
-\fIatime\fP - atime to assign to file being created (Set this and 
+\fIatime\fP - atime to assign to file being created (Set this and
 mtime to zero to instruct remote host to use current time).
 
 Send a file to the remote host via SCP.
@@ -37,7 +37,7 @@ Pointer to a newly allocated LIBSSH2_CHANNEL instance, or NULL on errors.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
-\fILIBSSH2_ERROR_SCP_PROTOCOL\fP - 
+\fILIBSSH2_ERROR_SCP_PROTOCOL\fP -
 
 \fILIBSSH2_ERROR_EAGAIN\fP - Marked for non-blocking I/O but the call would
 block.

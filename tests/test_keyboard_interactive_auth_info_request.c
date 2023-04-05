@@ -164,7 +164,7 @@ struct test_case test_cases[TEST_CASES_LEN] = {
         "\0\0\0\x0aResponse: "
         "\x01"
         , 89, {PASS, 0, ""}},
-    /* three prompts, 3rd missing*/
+    /* three prompts, 3rd missing */
     {
         "<"
         "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x03"
@@ -315,22 +315,3 @@ int main(void)
 
     return 0;
 }
-
-/* Workaround for Visual Studio */
-#ifdef _MSC_VER
-int
-bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
-             size_t saltlen,
-             uint8_t *key, size_t keylen, unsigned int rounds)
-{
-    (void)pass;
-    (void)passlen;
-    (void)salt;
-    (void)saltlen;
-    (void)key;
-    (void)keylen;
-    (void)rounds;
-
-    return -1;
-}
-#endif

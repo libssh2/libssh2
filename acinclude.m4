@@ -28,7 +28,7 @@ AC_DEFUN([CURL_DETECT_ICC],
 ])
 
 dnl We create a function for detecting which compiler we use and then set as
-dnl pendantic compiler options as possible for that particular compiler. The
+dnl pedantic compiler options as possible for that particular compiler. The
 dnl options are only used for debug-builds.
 
 AC_DEFUN([CURL_CC_DEBUG_OPTS],
@@ -218,13 +218,7 @@ dnl the code was bad, try a different program now, test 3
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
-#ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
-#else
-#ifdef HAVE_WINSOCK_H
-#include <winsock.h>
-#endif
-#endif
 #endif
 ],[
 /* ioctlsocket source code */
@@ -237,7 +231,7 @@ dnl ioctlsocket test was good
 nonblock="ioctlsocket"
 AC_DEFINE(HAVE_IOCTLSOCKET, 1, [use ioctlsocket() for non-blocking sockets])
 ],[
-dnl ioctlsocket didnt compile!, go to test 4
+dnl ioctlsocket did not compile!, go to test 4
 
   AC_TRY_LINK([
 /* headers for IoctlSocket test (Amiga?) */
@@ -251,7 +245,7 @@ dnl ioctlsocket test was good
 nonblock="IoctlSocket"
 AC_DEFINE(HAVE_IOCTLSOCKET_CASE, 1, [use Ioctlsocket() for non-blocking sockets])
 ],[
-dnl Ioctlsocket didnt compile, do test 5!
+dnl Ioctlsocket did not compile, do test 5!
   AC_TRY_COMPILE([
 /* headers for SO_NONBLOCK test (BeOS) */
 #include <socket.h>
@@ -265,7 +259,7 @@ dnl the SO_NONBLOCK test was good
 nonblock="SO_NONBLOCK"
 AC_DEFINE(HAVE_SO_NONBLOCK, 1, [use SO_NONBLOCK for non-blocking sockets])
 ],[
-dnl test 5 didnt compile!
+dnl test 5 did not compile!
 nonblock="nada"
 AC_DEFINE(HAVE_DISABLED_NONBLOCKING, 1, [disabled non-blocking sockets])
 ])
@@ -419,17 +413,8 @@ m4_case([$1],
   LIBSSH2_LIB_HAVE_LINKFLAGS([ssl], [crypto], [#include <openssl/ssl.h>], [
     AC_DEFINE(LIBSSH2_OPENSSL, 1, [Use $1])
     LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }libssl libcrypto"
-
-    # Not all OpenSSL have AES-CTR functions.
-    libssh2_save_LIBS="$LIBS"
-    # Duplicate $LIBS to make binutils ld (known to be fatally
-    # sensitive to lib order) happy.
-    LIBS="$LIBS $LIBSSL $LIBS"
-    AC_CHECK_FUNCS(EVP_aes_128_ctr)
-    LIBS="$libssh2_save_LIBS"
-
     found_crypto="$1"
-    found_crypto_str="OpenSSL (AES-CTR: ${ac_cv_func_EVP_aes_128_ctr:-N/A})"
+    found_crypto_str="OpenSSL"
   ])
 ],
 
@@ -464,10 +449,8 @@ m4_case([$1],
 [wincng], [
   # Look for Windows Cryptography API: Next Generation
 
-  LIBSSH2_LIB_HAVE_LINKFLAGS([crypt32], [], [
-    #include <windows.h>
-    #include <wincrypt.h>
-  ])
+  LIBS="$LIBS -lcrypt32"
+
   LIBSSH2_LIB_HAVE_LINKFLAGS([bcrypt], [], [
     #include <windows.h>
     #include <bcrypt.h>
@@ -519,4 +502,3 @@ AC_HELP_STRING([--disable-werror],[Disable compiler warnings as errors]),
     CFLAGS="$CFLAGS -Werror"
   fi
 ])
-

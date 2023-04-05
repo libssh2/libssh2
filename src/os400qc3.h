@@ -361,7 +361,7 @@ extern int      _libssh2_bn_from_bin(_libssh2_bn *bn, int len,
                                      const unsigned char *v);
 extern int      _libssh2_bn_set_word(_libssh2_bn *bn, unsigned long val);
 extern int      _libssh2_bn_to_bin(_libssh2_bn *bn, unsigned char *val);
-extern int      _libssh2_random(unsigned char *buf, int len);
+extern int      _libssh2_random(unsigned char *buf, size_t len);
 extern void     _libssh2_os400qc3_crypto_dtor(_libssh2_os400qc3_crypto_ctx *x);
 extern int      libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x,
                                            unsigned int algo);

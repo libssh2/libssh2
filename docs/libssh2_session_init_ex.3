@@ -4,27 +4,27 @@ libssh2_session_init_ex - initializes an SSH session object
 .SH SYNOPSIS
 #include <libssh2.h>
 
-LIBSSH2_SESSION * 
+LIBSSH2_SESSION *
 libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*myalloc)), LIBSSH2_FREE_FUNC((*myfree)), LIBSSH2_REALLOC_FUNC((*myrealloc)), void *abstract);
 
 LIBSSH2_SESSION *
 libssh2_session_init(void);
 
 .SH DESCRIPTION
-\fImyalloc\fP - Custom allocator function. Refer to the section on Callbacks 
-for implementing an allocator callback. Pass a value of NULL to use the 
+\fImyalloc\fP - Custom allocator function. Refer to the section on Callbacks
+for implementing an allocator callback. Pass a value of NULL to use the
 default system allocator.
 
-\fImyfree\fP - Custom de-allocator function. Refer to the section on Callbacks 
-for implementing a deallocator callback. Pass a value of NULL to use the 
+\fImyfree\fP - Custom de-allocator function. Refer to the section on Callbacks
+for implementing a deallocator callback. Pass a value of NULL to use the
 default system deallocator.
 
-\fImyrealloc\fP - Custom re-allocator function. Refer to the section on 
-Callbacks for implementing a reallocator callback. Pass a value of NULL to 
+\fImyrealloc\fP - Custom re-allocator function. Refer to the section on
+Callbacks for implementing a reallocator callback. Pass a value of NULL to
 use the default system reallocator.
 
-\fIabstract\fP - Arbitrary pointer to application specific callback data. 
-This value will be passed to any callback function associated with the named 
+\fIabstract\fP - Arbitrary pointer to application specific callback data.
+This value will be passed to any callback function associated with the named
 session instance.
 
 Initializes an SSH session object. By default system memory allocators

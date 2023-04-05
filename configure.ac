@@ -112,7 +112,7 @@ esac
 
 if test "$found_crypto" = "none"; then
   crypto_errors="${crypto_errors}
-Specify --with-crypto=\$backend and/or the neccessary library search prefix.
+Specify --with-crypto=\$backend and/or the necessary library search prefix.
 
 Known crypto backends: auto, m4_set_contents([crypto_backends], [, ])"
   AS_MESSAGE([ERROR: ${crypto_errors}])
@@ -157,21 +157,6 @@ AC_SUBST(LIBSREQUIRED)
 #
 # Optional Settings
 #
-AC_ARG_ENABLE(crypt-none,
-  AC_HELP_STRING([--enable-crypt-none],[Permit "none" cipher -- NOT RECOMMENDED]),
-  [AC_DEFINE(LIBSSH2_CRYPT_NONE, 1, [Enable "none" cipher -- NOT RECOMMENDED])])
-
-AC_ARG_ENABLE(mac-none,
-  AC_HELP_STRING([--enable-mac-none],[Permit "none" MAC -- NOT RECOMMENDED]),
-  [AC_DEFINE(LIBSSH2_MAC_NONE, 1, [Enable "none" MAC -- NOT RECOMMENDED])])
-
-AC_ARG_ENABLE(gex-new,
-  AC_HELP_STRING([--disable-gex-new],[Disable "new" diffie-hellman-group-exchange-sha1 method]),
-  [GEX_NEW=$enableval])
-if test "$GEX_NEW" != "no"; then
-  AC_DEFINE(LIBSSH2_DH_GEX_NEW, 1, [Enable newer diffie-hellman-group-exchange-sha1 syntax])
-fi
-
 AC_ARG_ENABLE(clear-memory,
   AC_HELP_STRING([--disable-clear-memory],[Disable clearing of memory before being freed]),
   [CLEAR_MEMORY=$enableval])
@@ -293,18 +278,17 @@ AM_CONDITIONAL([USE_OSSFUZZ_STATIC], [test -f "$LIB_FUZZING_ENGINE"])
 
 # Checks for header files.
 # AC_HEADER_STDC
-AC_CHECK_HEADERS([errno.h fcntl.h stdio.h stdlib.h unistd.h sys/param.h sys/uio.h])
+AC_CHECK_HEADERS([errno.h fcntl.h stdio.h unistd.h sys/param.h sys/uio.h])
 AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
-AC_CHECK_HEADERS([sys/un.h], [have_sys_un_h=yes], [have_sys_un_h=no])
-AM_CONDITIONAL([HAVE_SYS_UN_H], test "x$have_sys_un_h" = xyes)
+AC_CHECK_HEADERS([sys/un.h])
 
 case $host in
   *-*-cygwin* | *-*-cegcc*)
     # These are POSIX-like systems using BSD-like sockets API.
     ;;
   *)
-    AC_CHECK_HEADERS([windows.h winsock2.h ws2tcpip.h])
+    AC_CHECK_HEADERS([windows.h])
     ;;
 esac
 
@@ -326,13 +310,13 @@ case $host in
     ;;
 esac
 
-AC_CHECK_FUNCS(gettimeofday select strtoll memset_s snprintf)
+AC_CHECK_FUNCS(gettimeofday select strtoll explicit_bzero explicit_memset memset_s snprintf)
 
 dnl Check for select() into ws2_32 for Msys/Mingw
 if test "$ac_cv_func_select" != "yes"; then
   AC_MSG_CHECKING([for select in ws2_32])
   AC_TRY_LINK([
-#ifdef HAVE_WINSOCK2_H
+#ifdef HAVE_WINDOWS_H
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif

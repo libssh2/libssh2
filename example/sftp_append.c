@@ -7,17 +7,11 @@
  * sftp_append 192.168.0.1 user password localfile /tmp/remotefile
  */
 
-#ifdef WIN32
-#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#endif
-#endif
-
 #include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINSOCK2_H
+#ifdef WIN32
 # include <winsock2.h>
 #endif
 #ifdef HAVE_SYS_SOCKET_H
@@ -41,7 +35,7 @@
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 1;
     struct sockaddr_in sin;
@@ -58,6 +52,7 @@ int main(int argc, char *argv[])
     LIBSSH2_SFTP_ATTRIBUTES attrs;
     char mem[1024*100];
     size_t nread;
+    ssize_t nwritten;
     char *ptr;
 
 #ifdef WIN32
@@ -136,7 +131,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do
+    /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call
@@ -213,14 +208,14 @@ int main(int argc, char *argv[])
 
         do {
             /* write data in a loop until we block */
-            rc = libssh2_sftp_write(sftp_handle, ptr, nread);
-            if(rc < 0)
+            nwritten = libssh2_sftp_write(sftp_handle, ptr, nread);
+            if(nwritten < 0)
                 break;
-            ptr += rc;
-            nread -= rc;
+            ptr += nwritten;
+            nread -= nwritten;
         } while(nread);
 
-    } while(rc > 0);
+    } while(nwritten > 0);
 
     libssh2_sftp_close(sftp_handle);
     libssh2_sftp_shutdown(sftp_session);

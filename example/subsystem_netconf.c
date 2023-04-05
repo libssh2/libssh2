@@ -1,9 +1,3 @@
-#ifdef WIN32
-#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#endif
-#endif
-
 #include "libssh2_config.h"
 #include <libssh2.h>
 
@@ -22,9 +16,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -56,13 +48,13 @@ enum {
 
 static int netconf_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t len)
 {
-    int i;
+    ssize_t i;
     ssize_t wr = 0;
 
     do {
         i = libssh2_channel_write(channel, buf, len);
         if(i < 0) {
-            fprintf(stderr, "libssh2_channel_write: %d\n", i);
+            fprintf(stderr, "libssh2_channel_write: %d\n", (int)i);
             return -1;
         }
         wr += i;
@@ -71,8 +63,8 @@ static int netconf_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t len)
     return 0;
 }
 
-static int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
-                              char *buf, size_t buflen)
+static ssize_t netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
+                                  char *buf, size_t buflen)
 {
     ssize_t len;
     size_t rd = 0;
@@ -102,8 +94,8 @@ static int netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
     } while(!specialsequence && rd < buflen);
 
     if(!specialsequence) {
-        fprintf(stderr, "%s: ]]>]]> not found! read buffer too small?\n",
-                __func__);
+        fprintf(stderr, "netconf_read_until(): ]]>]]> not found!"
+                        " read buffer too small?\n");
         return -1;
     }
 
@@ -190,7 +182,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do
+    /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call
@@ -202,7 +194,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
     fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password"))
         auth |= AUTH_PASSWORD;
@@ -211,9 +204,9 @@ int main(int argc, char *argv[])
 
     /* check for options */
     if(argc > 4) {
-        if((auth & AUTH_PASSWORD) && !strcasecmp(argv[4], "-p"))
+        if((auth & AUTH_PASSWORD) && !strcmp(argv[4], "-p"))
             auth = AUTH_PASSWORD;
-        if((auth & AUTH_PUBLICKEY) && !strcasecmp(argv[4], "-k"))
+        if((auth & AUTH_PUBLICKEY) && !strcmp(argv[4], "-k"))
             auth = AUTH_PUBLICKEY;
     }
 

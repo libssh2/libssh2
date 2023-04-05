@@ -83,7 +83,7 @@ _libssh2_mbedtls_free(void)
 }
 
 int
-_libssh2_mbedtls_random(unsigned char *buf, int len)
+_libssh2_mbedtls_random(unsigned char *buf, size_t len)
 {
     int ret;
     ret = mbedtls_ctr_drbg_random(&_libssh2_mbedtls_ctr_drbg, buf, len);
@@ -91,7 +91,7 @@ _libssh2_mbedtls_random(unsigned char *buf, int len)
 }
 
 static void
-_libssh2_mbedtls_safe_free(void *buf, int len)
+_libssh2_mbedtls_safe_free(void *buf, size_t len)
 {
     if(!buf)
         return;
@@ -126,7 +126,7 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,
     if(!ret)
         ret = mbedtls_cipher_setkey(ctx,
                   secret,
-                  mbedtls_cipher_info_get_key_bitlen(cipher_info),
+                  (int)mbedtls_cipher_info_get_key_bitlen(cipher_info),
                   op);
 
     if(!ret)
@@ -267,7 +267,7 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
 {
     size_t len;
     int err;
-    int i;
+    size_t i;
 
     if(!bn || bits <= 0)
         return -1;
@@ -278,8 +278,8 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
     if(err)
         return -1;
 
-    /* Zero unused bits above the most significant bit*/
-    for(i = len*8 - 1; bits <= i; --i) {
+    /* Zero unused bits above the most significant bit */
+    for(i = len*8 - 1; (size_t)bits <= i; --i) {
         err = mbedtls_mpi_set_bit(bn, i, 0);
         if(err)
             return -1;
@@ -291,10 +291,12 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
        will be set to 1, so that the product of two such random numbers will
        always have 2*bits length.
     */
-    for(i = 0; i <= top; ++i) {
-        err = mbedtls_mpi_set_bit(bn, bits-i-1, 1);
-        if(err)
-            return -1;
+    if(top >= 0) {
+        for(i = 0; i <= (size_t)top; ++i) {
+            err = mbedtls_mpi_set_bit(bn, bits-i-1, 1);
+            if(err)
+                return -1;
+        }
     }
 
     /* make odd by setting first bit in least significant byte */
@@ -500,7 +502,12 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 {
     int ret;
     int md_type;
-    unsigned char *hash = malloc(hash_len);
+    unsigned char *hash;
+
+    if(sig_len < mbedtls_rsa_get_len(rsactx))
+        return -1;
+
+    hash = malloc(hash_len);
     if(hash == NULL)
         return -1;
 
@@ -526,11 +533,11 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
     ret = mbedtls_rsa_pkcs1_verify(rsactx,
-                                   md_type, hash_len,
+                                   md_type, (unsigned int)hash_len,
                                    hash, sig);
 #else
     ret = mbedtls_rsa_pkcs1_verify(rsactx, NULL, NULL, MBEDTLS_RSA_PUBLIC,
-                                   md_type, hash_len,
+                                   md_type, (unsigned int)hash_len,
                                    hash, sig);
 #endif
     free(hash);
@@ -558,9 +565,8 @@ _libssh2_mbedtls_rsa_sha2_sign(LIBSSH2_SESSION *session,
 {
     int ret;
     unsigned char *sig;
-    unsigned int sig_len;
+    size_t sig_len;
     int md_type;
-    (void)hash_len;
 
     sig_len = mbedtls_rsa_get_len(rsa);
     sig = LIBSSH2_ALLOC(session, sig_len);
@@ -587,11 +593,11 @@ _libssh2_mbedtls_rsa_sha2_sign(LIBSSH2_SESSION *session,
         ret = mbedtls_rsa_pkcs1_sign(rsa,
                                      mbedtls_ctr_drbg_random,
                                      &_libssh2_mbedtls_ctr_drbg,
-                                     md_type, hash_len,
+                                     md_type, (unsigned int)hash_len,
                                      hash, sig);
 #else
         ret = mbedtls_rsa_pkcs1_sign(rsa, NULL, NULL, MBEDTLS_RSA_PRIVATE,
-                                     md_type, hash_len,
+                                     md_type, (unsigned int)hash_len,
                                      hash, sig);
 #endif
     }
@@ -629,13 +635,13 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session,
                       mbedtls_rsa_context *rsa,
                       size_t *keylen)
 {
-    int            e_bytes, n_bytes;
-    unsigned long  len;
+    uint32_t e_bytes, n_bytes;
+    uint32_t len;
     unsigned char *key;
     unsigned char *p;
 
-    e_bytes = mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(E));
-    n_bytes = mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N));
+    e_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(E));
+    n_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N));
 
     /* Key form is "ssh-rsa" + e + n. */
     len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
@@ -825,6 +831,19 @@ _libssh2_mbedtls_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                                       size_t privatekeydata_len,
                                       const char *passphrase)
 {
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)algorithm;
+    (void)flags;
+    (void)application;
+    (void)key_handle;
+    (void)handle_len;
+    (void)privatekeydata;
+    (void)privatekeydata_len;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                     "Unable to extract public SK key from private key file: "
                     "Method unimplemented in mbedTLS backend");
@@ -1276,6 +1295,7 @@ _libssh2_mbedtls_mpi_write_binary(unsigned char *buf,
                                   size_t bytes)
 {
     unsigned char *p = buf;
+    uint32_t size = (uint32_t)bytes;
 
     if(sizeof(&p) / sizeof(p[0]) < 4) {
         goto done;
@@ -1284,19 +1304,19 @@ _libssh2_mbedtls_mpi_write_binary(unsigned char *buf,
     p += 4;
     *p = 0;
 
-    if(bytes > 0) {
-        mbedtls_mpi_write_binary(mpi, p + 1, bytes - 1);
+    if(size > 0) {
+        mbedtls_mpi_write_binary(mpi, p + 1, size - 1);
     }
 
-    if(bytes > 0 && !(*(p + 1) & 0x80)) {
-        memmove(p, p + 1, --bytes);
+    if(size > 0 && !(*(p + 1) & 0x80)) {
+        memmove(p, p + 1, --size);
     }
 
-    _libssh2_htonu32(p - 4, bytes);
+    _libssh2_htonu32(p - 4, size);
 
 done:
 
-    return p + bytes;
+    return p + size;
 }
 
 /* _libssh2_ecdsa_sign

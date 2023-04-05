@@ -46,6 +46,10 @@
 #else
 #ifdef WIN32
 #define _libssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
+#elif defined(HAVE_EXPLICIT_BZERO)
+#define _libssh2_explicit_zero(buf, size) explicit_bzero(buf, size)
+#elif defined(HAVE_EXPLICIT_MEMSET)
+#define _libssh2_explicit_zero(buf, size) (void)explicit_memset(buf, 0, size)
 #elif defined(HAVE_MEMSET_S)
 #define _libssh2_explicit_zero(buf, size) (void)memset_s(buf, size, 0, size)
 #else
@@ -97,7 +101,7 @@ void _libssh2_list_remove(struct list_node *entry);
 size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
                               const char *inp, size_t insize, char **outptr);
 
-unsigned int _libssh2_ntohu32(const unsigned char *buf);
+uint32_t _libssh2_ntohu32(const unsigned char *buf);
 libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
 void _libssh2_htonu32(unsigned char *buf, uint32_t val);
 void _libssh2_store_u32(unsigned char **buf, uint32_t value);
@@ -107,7 +111,7 @@ void _libssh2_store_bignum2_bytes(unsigned char **buf,
                                   size_t len);
 void *_libssh2_calloc(LIBSSH2_SESSION *session, size_t size);
 
-struct string_buf* _libssh2_string_buf_new(LIBSSH2_SESSION *session);
+struct string_buf *_libssh2_string_buf_new(LIBSSH2_SESSION *session);
 void _libssh2_string_buf_free(LIBSSH2_SESSION *session,
                               struct string_buf *buf);
 int _libssh2_get_boolean(struct string_buf *buf, unsigned char *out);

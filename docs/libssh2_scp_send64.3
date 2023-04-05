@@ -9,7 +9,7 @@ LIBSSH2_CHANNEL *
 libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
                    libssh2_uint64_t size, time_t mtime, time_t atime);
 .SH DESCRIPTION
-\fIsession\fP - Session instance as returned by 
+\fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
 
 \fIpath\fP - Full path and filename of file to transfer to. That is the remote
@@ -24,7 +24,7 @@ compilers.
 
 \fImtime\fP - mtime to assign to file being created
 
-\fIatime\fP - atime to assign to file being created (Set this and 
+\fIatime\fP - atime to assign to file being created (Set this and
 mtime to zero to instruct remote host to use current time).
 
 Send a file to the remote host via SCP.
@@ -36,7 +36,7 @@ Pointer to a newly allocated LIBSSH2_CHANNEL instance, or NULL on errors.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
-\fILIBSSH2_ERROR_SCP_PROTOCOL\fP - 
+\fILIBSSH2_ERROR_SCP_PROTOCOL\fP -
 
 \fILIBSSH2_ERROR_EAGAIN\fP - Marked for non-blocking I/O but the call would
 block.

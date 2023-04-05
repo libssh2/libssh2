@@ -41,7 +41,7 @@ At next SONAME bump
   libssh2_poll()
   libssh2_poll_channel_read()
   libssh2_session_startup() (libssh2_session_handshake() is the replacement)
-  libssh2_banner_set() (libssh2_session_banner_set() is the repacement)
+  libssh2_banner_set() (libssh2_session_banner_set() is the replacement)
 
 * Rename a few function:
 
@@ -60,7 +60,7 @@ At next SONAME bump
 * remove the existing libssh2_scp_send_ex() function and rename
   libssh2_scp_send64 to become the new libssh2_scp_send instead.
 
-* remove the existing libssh2_knownhost_check() functin and rename
+* remove the existing libssh2_knownhost_check() function and rename
   libssh2_knownhost_checkp() to become the new libssh2_knownhost_check instead
 
 Buffering Improvements

@@ -7,17 +7,11 @@
  * "sftp 192.168.0.1 user password thisfile /tmp/storehere"
  */
 
-#ifdef WIN32
-#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#endif
-#endif
-
 #include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINSOCK2_H
+#ifdef WIN32
 # include <winsock2.h>
 #endif
 #ifdef HAVE_SYS_SOCKET_H
@@ -46,6 +40,10 @@
 #include <ctype.h>
 #include <time.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1700
+#pragma warning(disable:4127)
+#endif
+
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
@@ -71,14 +69,14 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         writefd = &fd;
 
-    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
 
     return rc;
 }
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 1;
     struct sockaddr_in sin;
@@ -94,9 +92,10 @@ int main(int argc, char *argv[])
     LIBSSH2_SFTP_HANDLE *sftp_handle;
     char mem[1024 * 100];
     size_t nread;
+    ssize_t nwritten;
     char *ptr;
     time_t start;
-    long total = 0;
+    libssh2_struct_stat_size total = 0;
     int duration;
 
 #ifdef WIN32
@@ -167,8 +166,8 @@ int main(int argc, char *argv[])
     libssh2_session_set_blocking(session, 0);
 
     /* ... start it up. This will trade welcome banners, exchange keys,
-        * and setup crypto, compression, and MAC layers
-        */
+     * and setup crypto, compression, and MAC layers
+     */
     while((rc = libssh2_session_handshake(session, sock))
            == LIBSSH2_ERROR_EAGAIN);
     if(rc) {
@@ -176,7 +175,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do is
+    /* At this point we have not yet authenticated.  The first thing to do is
      * check the hostkey's fingerprint against our known hosts Your app may
      * have it hard coded, may go to a file, may present it to the user,
      * that's your call
@@ -254,23 +253,22 @@ int main(int argc, char *argv[])
 
         do {
             /* write data in a loop until we block */
-            while((rc = libssh2_sftp_write(sftp_handle, ptr, nread)) ==
+            while((nwritten = libssh2_sftp_write(sftp_handle, ptr, nread)) ==
                    LIBSSH2_ERROR_EAGAIN) {
                 waitsocket(sock, session);
             }
-            if(rc < 0)
+            if(nwritten < 0)
                 break;
-            ptr += rc;
-            nread -= rc;
+            ptr += nwritten;
+            nread -= nwritten;
 
         } while(nread);
-    } while(rc > 0);
+    } while(nwritten > 0);
 
     duration = (int)(time(NULL)-start);
 
     fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
-           total, duration, total/(double)duration);
-
+            (long)total, duration, (double)total / duration);
 
     fclose(local);
     libssh2_sftp_close(sftp_handle);

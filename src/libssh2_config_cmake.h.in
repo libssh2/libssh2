@@ -38,32 +38,32 @@
 /* Headers */
 #cmakedefine HAVE_UNISTD_H
 #cmakedefine HAVE_INTTYPES_H
-#cmakedefine HAVE_STDLIB_H
 #cmakedefine HAVE_SYS_SELECT_H
 #cmakedefine HAVE_SYS_UIO_H
 #cmakedefine HAVE_SYS_SOCKET_H
 #cmakedefine HAVE_SYS_IOCTL_H
 #cmakedefine HAVE_SYS_TIME_H
 #cmakedefine HAVE_SYS_UN_H
-#cmakedefine HAVE_WS2TCPIP_H
-#cmakedefine HAVE_WINSOCK2_H
 
-/* Libraries */
-#cmakedefine HAVE_LIBCRYPT32
+/* for example and tests */
+#cmakedefine HAVE_SYS_PARAM_H
+#cmakedefine HAVE_ARPA_INET_H
+#cmakedefine HAVE_NETINET_IN_H
 
 /* Types */
 #cmakedefine HAVE_LONGLONG
 
 /* Functions */
 #cmakedefine HAVE_GETTIMEOFDAY
-#cmakedefine HAVE_POLL
-#cmakedefine HAVE_SELECT
 #cmakedefine HAVE_STRTOLL
 #cmakedefine HAVE_STRTOI64
 #cmakedefine HAVE_SNPRINTF
+#cmakedefine HAVE_EXPLICIT_BZERO
+#cmakedefine HAVE_EXPLICIT_MEMSET
+#cmakedefine HAVE_MEMSET_S
 
-/* OpenSSL functions */
-#cmakedefine HAVE_EVP_AES_128_CTR
+#cmakedefine HAVE_POLL
+#cmakedefine HAVE_SELECT
 
 /* Socket non-blocking support */
 #cmakedefine HAVE_O_NONBLOCK

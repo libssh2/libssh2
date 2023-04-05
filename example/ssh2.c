@@ -11,20 +11,12 @@
  *  command executes on the remote machine
  */
 
-#ifdef WIN32
-#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#endif
-#endif
-
 #include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
 #ifdef WIN32
 # include <windows.h>
-#endif
-#ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
 #endif
 #ifdef HAVE_SYS_SOCKET_H
@@ -70,7 +62,7 @@ static void kbd_callback(const char *name, int name_len,
     (void)instruction_len;
     if(num_prompts == 1) {
         responses[0].text = strdup(password);
-        responses[0].length = strlen(password);
+        responses[0].length = (unsigned int)strlen(password);
     }
     (void)prompts;
     (void)abstract;
@@ -79,7 +71,7 @@ static void kbd_callback(const char *name, int name_len,
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int rc, i, auth_pw = 0;
     struct sockaddr_in sin;
@@ -158,7 +150,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't authenticated. The first thing to do is check
+    /* At this point we have not authenticated. The first thing to do is check
      * the hostkey's fingerprint against our known hosts Your app may have it
      * hard coded, may go to a file, may present it to the user, that's your
      * call
@@ -171,7 +163,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
     fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password") != NULL) {
         auth_pw |= 1;
@@ -185,13 +178,13 @@ int main(int argc, char *argv[])
 
     /* if we got an 4. argument we set this option if supported */
     if(argc > 4) {
-        if((auth_pw & 1) && !strcasecmp(argv[4], "-p")) {
+        if((auth_pw & 1) && !strcmp(argv[4], "-p")) {
             auth_pw = 1;
         }
-        if((auth_pw & 2) && !strcasecmp(argv[4], "-i")) {
+        if((auth_pw & 2) && !strcmp(argv[4], "-i")) {
             auth_pw = 2;
         }
-        if((auth_pw & 4) && !strcasecmp(argv[4], "-k")) {
+        if((auth_pw & 4) && !strcmp(argv[4], "-k")) {
             auth_pw = 4;
         }
     }
@@ -274,9 +267,11 @@ int main(int argc, char *argv[])
      * See /etc/termcap for more options. This is useful when opening
      * an interactive shell.
      */
-//  if(libssh2_channel_request_pty(channel, "vanilla")) {
-//      fprintf(stderr, "Failed requesting pty\n");
-//  }
+    #if 0
+    if(libssh2_channel_request_pty(channel, "vanilla")) {
+        fprintf(stderr, "Failed requesting pty\n");
+    }
+    #endif
 
     if(argc > 5) {
         if(libssh2_channel_exec(channel, argv[5])) {
@@ -286,10 +281,12 @@ int main(int argc, char *argv[])
         /* Instead of just running a single command with libssh2_channel_exec,
          * a shell can be opened on the channel instead, for interactive use.
          * You usually want a pty allocated first in that case (see above). */
-//        if(libssh2_channel_shell(channel)) {
-//            fprintf(stderr, "Unable to request shell on allocated pty\n");
-//            goto shutdown;
-//        }
+          #if 0
+          if(libssh2_channel_shell(channel)) {
+              fprintf(stderr, "Unable to request shell on allocated pty\n");
+              goto shutdown;
+          }
+          #endif
 
 /* At this point the shell can be interacted with using
  * libssh2_channel_read()
@@ -315,7 +312,7 @@ int main(int argc, char *argv[])
             char buf[1024];
             ssize_t err = libssh2_channel_read(channel, buf, sizeof(buf));
             if(err < 0)
-                fprintf(stderr, "Unable to read response: %zd\n", err);
+                fprintf(stderr, "Unable to read response: %d\n", (int)err);
             else {
                 fwrite(buf, 1, err, stdout);
             }

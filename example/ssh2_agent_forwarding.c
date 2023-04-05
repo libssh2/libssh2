@@ -13,16 +13,10 @@
  *
  */
 
-#ifdef WIN32
-#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#endif
-#endif
-
 #include "libssh2_config.h"
 #include <libssh2.h>
 
-#ifdef HAVE_WINSOCK2_H
+#ifdef WIN32
 # include <winsock2.h>
 #endif
 #ifdef HAVE_SYS_SOCKET_H
@@ -51,6 +45,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1700
+#pragma warning(disable:4127)
+#endif
+
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
@@ -76,7 +74,7 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         writefd = &fd;
 
-    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
 
     return rc;
 }
@@ -86,7 +84,7 @@ int main(int argc, char *argv[])
     const char *hostname = "127.0.0.1";
     const char *commandline = "uptime";
     const char *username    = NULL;
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
     LIBSSH2_SESSION *session;
@@ -96,7 +94,7 @@ int main(int argc, char *argv[])
     int rc;
     int exitcode;
     char *exitsignal = (char *)"none";
-    int bytecount = 0;
+    ssize_t bytecount = 0;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -230,29 +228,31 @@ int main(int argc, char *argv[])
         exit(1);
     }
     for(;;) {
+        ssize_t nread;
         /* loop until we block */
         do {
             char buffer[0x4000];
-            rc = libssh2_channel_read(channel, buffer, sizeof(buffer) );
-            if(rc > 0) {
-                int i;
-                bytecount += rc;
+            nread = libssh2_channel_read(channel, buffer, sizeof(buffer) );
+            if(nread > 0) {
+                ssize_t i;
+                bytecount += nread;
                 fprintf(stderr, "We read:\n");
-                for(i = 0; i < rc; ++i)
+                for(i = 0; i < nread; ++i)
                     fputc(buffer[i], stderr);
                 fprintf(stderr, "\n");
             }
             else {
-                if(rc != LIBSSH2_ERROR_EAGAIN)
+                if(nread != LIBSSH2_ERROR_EAGAIN)
                     /* no need to output this for the EAGAIN case */
-                    fprintf(stderr, "libssh2_channel_read returned %d\n", rc);
+                    fprintf(stderr, "libssh2_channel_read returned %d\n",
+                            (int)nread);
             }
         }
-        while(rc > 0);
+        while(nread > 0);
 
         /* this is due to blocking that would occur otherwise so we loop on
            this condition */
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
+        if(nread == LIBSSH2_ERROR_EAGAIN) {
             waitsocket(sock, session);
         }
         else
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
         printf("\nGot signal: %s\n", exitsignal);
     }
     else {
-        printf("\nEXIT: %d bytecount: %d\n", exitcode, bytecount);
+        printf("\nEXIT: %d bytecount: %d\n", exitcode, (int)bytecount);
     }
 
     libssh2_channel_free(channel);

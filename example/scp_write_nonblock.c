@@ -2,16 +2,10 @@
  * Sample showing how to do an SCP non-blocking upload transfer.
  */
 
-#ifdef WIN32
-#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#endif
-#endif
-
 #include "libssh2_config.h"
 #include <libssh2.h>
 
-#ifdef HAVE_WINSOCK2_H
+#ifdef WIN32
 # include <winsock2.h>
 #endif
 #ifdef HAVE_SYS_SOCKET_H
@@ -40,6 +34,10 @@
 #include <ctype.h>
 #include <time.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1700
+#pragma warning(disable:4127)
+#endif
+
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
@@ -65,14 +63,14 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         writefd = &fd;
 
-    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
 
     return rc;
 }
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 1;
     struct sockaddr_in sin;
@@ -90,7 +88,7 @@ int main(int argc, char *argv[])
     char *ptr;
     struct stat fileinfo;
     time_t start;
-    long total = 0;
+    libssh2_struct_stat_size total = 0;
     int duration;
     size_t prev;
 
@@ -172,7 +170,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do
+    /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call
@@ -210,7 +208,7 @@ int main(int argc, char *argv[])
     /* Send a file via scp. The mode parameter must only have permissions! */
     do {
         channel = libssh2_scp_send(session, scppath, fileinfo.st_mode & 0777,
-                                   (unsigned long)fileinfo.st_size);
+                                   (size_t)fileinfo.st_size);
 
         if((!channel) && (libssh2_session_last_errno(session) !=
                           LIBSSH2_ERROR_EAGAIN)) {
@@ -236,22 +234,23 @@ int main(int argc, char *argv[])
 
         prev = 0;
         do {
-            while((rc = libssh2_channel_write(channel, ptr, nread)) ==
+            ssize_t nwritten;
+            while((nwritten = libssh2_channel_write(channel, ptr, nread)) ==
                   LIBSSH2_ERROR_EAGAIN) {
                 waitsocket(sock, session);
                 prev = 0;
             }
-            if(rc < 0) {
-                fprintf(stderr, "ERROR %d total %ld / %d prev %d\n", rc,
-                        total, (int)nread, (int)prev);
+            if(nwritten < 0) {
+                fprintf(stderr, "ERROR %d total %ld / %d prev %d\n",
+                        (int)nwritten, (long)total, (int)nread, (int)prev);
                 break;
             }
             else {
                 prev = nread;
 
-                /* rc indicates how many bytes were written this time */
-                nread -= rc;
-                ptr += rc;
+                /* nwritten indicates how many bytes were written this time */
+                nread -= nwritten;
+                ptr += nwritten;
             }
         } while(nread);
     } while(!nread); /* only continue if nread was drained */
@@ -259,7 +258,7 @@ int main(int argc, char *argv[])
     duration = (int)(time(NULL)-start);
 
     fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
-           total, duration, total/(double)duration);
+           (long)total, duration, (double)total / duration);
 
     fprintf(stderr, "Sending EOF\n");
     while(libssh2_channel_send_eof(channel) == LIBSSH2_ERROR_EAGAIN);

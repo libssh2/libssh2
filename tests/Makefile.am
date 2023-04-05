@@ -39,9 +39,10 @@ INTEGRATION_TESTS = \
 # Enable this once the tests are working
 #TESTS += $(INTEGRATION_TESTS)
 check_PROGRAMS += $(INTEGRATION_TESTS)
-librunner_la_SOURCES = runner.c runner.h \
-					   session_fixture.c session_fixture.h \
-					   openssh_fixture.c openssh_fixture.h
+librunner_la_SOURCES = \
+  runner.c runner.h \
+  session_fixture.c session_fixture.h \
+  openssh_fixture.c openssh_fixture.h
 LDADD = librunner.la
 check_LTLIBRARIES = librunner.la
 
@@ -55,62 +56,61 @@ LDADD += ../src/libssh2.la
 TESTS_ENVIRONMENT = SSHD=$(SSHD) EXEEXT=$(EXEEXT)
 TESTS_ENVIRONMENT += srcdir=$(top_srcdir)/tests builddir=$(top_builddir)/tests
 
-EXTRA_DIST =                                                           \
- CMakeLists.txt                                                        \
- etc/host                                                              \
- etc/host.pub                                                          \
- etc/sshd_config                                                       \
- etc/user                                                              \
- etc/user.pub                                                          \
- key_dsa                                                               \
- key_dsa.pub                                                           \
- key_dsa_wrong                                                         \
- key_dsa_wrong.pub                                                     \
- key_ecdsa                                                             \
- key_ecdsa.pub                                                         \
- signed_key_ecdsa                                                      \
- signed_key_ecdsa.pub                                                  \
- signed_key_ecdsa-cert.pub                                             \
- signed_key_rsa                                                        \
- signed_key_rsa-cert.pub                                               \
- signed_key_rsa.pub                                                    \
- key_ed25519                                                           \
- key_ed25519.pub                                                       \
- key_ed25519_encrypted                                                 \
- key_ed25519_encrypted.pub                                             \
- key_rsa                                                               \
- key_rsa.pub                                                           \
- key_rsa_encrypted                                                     \
- key_rsa_encrypted.pub                                                 \
- key_rsa_openssh                                                       \
- key_rsa_openssh.pub                                                   \
- libssh2_config_cmake.h.in                                             \
- mansyntax.sh                                                          \
- openssh_server/Dockerfile                                             \
- openssh_server/authorized_keys                                        \
- openssh_server/ca_rsa                                                 \
- openssh_server/ca_rsa.pub                                             \
- openssh_server/ca_ecdsa                                               \
- openssh_server/ca_ecdsa.pub                                           \
- openssh_server/ssh_host_ecdsa_key                                     \
- openssh_server/ssh_host_ed25519_key                                   \
- openssh_server/ssh_host_rsa_key                                       \
- simple.c                                                              \
- sshdwrap                                                              \
- ssh2.c                                                                \
- ssh2.sh                                                               \
- sshd_fixture.sh.in                                                    \
- test_read_3des-cbc                                                    \
- test_read_aes128-cbc                                                  \
- test_read_aes128-ctr                                                  \
- test_read_aes192-cbc                                                  \
- test_read_aes192-ctr                                                  \
- test_read_aes256-cbc                                                  \
- test_read_aes256-ctr                                                  \
- test_read_hmac-md5                                                    \
- test_read_hmac-md5-96                                                 \
- test_read_hmac-sha1                                                   \
- test_read_hmac-sha1-96                                                \
- test_read_hmac-sha2-256                                               \
- test_read_hmac-sha2-512                                               \
- test_read_rijndael-cbc
+EXTRA_DIST = \
+  CMakeLists.txt \
+  etc/host \
+  etc/host.pub \
+  etc/sshd_config \
+  etc/user \
+  etc/user.pub \
+  key_dsa \
+  key_dsa.pub \
+  key_dsa_wrong \
+  key_dsa_wrong.pub \
+  key_ecdsa \
+  key_ecdsa.pub \
+  signed_key_ecdsa \
+  signed_key_ecdsa.pub \
+  signed_key_ecdsa-cert.pub \
+  signed_key_rsa \
+  signed_key_rsa-cert.pub \
+  signed_key_rsa.pub \
+  key_ed25519 \
+  key_ed25519.pub \
+  key_ed25519_encrypted \
+  key_ed25519_encrypted.pub \
+  key_rsa \
+  key_rsa.pub \
+  key_rsa_encrypted \
+  key_rsa_encrypted.pub \
+  key_rsa_openssh \
+  key_rsa_openssh.pub \
+  mansyntax.sh \
+  openssh_server/Dockerfile \
+  openssh_server/authorized_keys \
+  openssh_server/ca_rsa \
+  openssh_server/ca_rsa.pub \
+  openssh_server/ca_ecdsa \
+  openssh_server/ca_ecdsa.pub \
+  openssh_server/ssh_host_ecdsa_key \
+  openssh_server/ssh_host_ed25519_key \
+  openssh_server/ssh_host_rsa_key \
+  simple.c \
+  sshdwrap \
+  ssh2.c \
+  ssh2.sh \
+  sshd_fixture.sh.in \
+  test_read_3des-cbc \
+  test_read_aes128-cbc \
+  test_read_aes128-ctr \
+  test_read_aes192-cbc \
+  test_read_aes192-ctr \
+  test_read_aes256-cbc \
+  test_read_aes256-ctr \
+  test_read_hmac-md5 \
+  test_read_hmac-md5-96 \
+  test_read_hmac-sha1 \
+  test_read_hmac-sha1-96 \
+  test_read_hmac-sha2-256 \
+  test_read_hmac-sha2-512 \
+  test_read_rijndael-cbc

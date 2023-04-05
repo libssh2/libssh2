@@ -11,8 +11,9 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINSOCK2_H
+#ifdef WIN32
 # include <winsock2.h>
+# define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
@@ -72,7 +73,7 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         writefd = &fd;
 
-    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
 
     return rc;
 }
@@ -146,7 +147,7 @@ int main(int argc, char *argv[])
 
     libssh2_session_set_blocking(session, 0);
 
-    /* At this point we havn't yet authenticated.  The first thing to do
+    /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call
@@ -237,21 +238,22 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
     do {
+        ssize_t nread;
         do {
             /* read in a loop until we block */
-            rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
+            nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
             fprintf(stderr, "libssh2_sftp_read returned %d\n",
-                    rc);
+                    (int)nread);
 
-            if(rc > 0) {
+            if(nread > 0) {
                 /* write to stderr */
-                write(2, mem, rc);
+                write(2, mem, nread);
                 /* write to temporary storage area */
-                fwrite(mem, rc, 1, tempstorage);
+                fwrite(mem, nread, 1, tempstorage);
             }
-        } while(rc > 0);
+        } while(nread > 0);
 
-        if(rc != LIBSSH2_ERROR_EAGAIN) {
+        if(nread != LIBSSH2_ERROR_EAGAIN) {
             /* error or end of file */
             break;
         }
@@ -265,7 +267,7 @@ int main(int argc, char *argv[])
         FD_SET(sock, &fd2);
 
         /* wait for readable or writeable */
-        rc = select(sock + 1, &fd, &fd2, NULL, &timeout);
+        rc = select((int)(sock + 1), &fd, &fd2, NULL, &timeout);
         if(rc <= 0) {
             /* negative is error
                0 is timeout */
@@ -296,6 +298,7 @@ int main(int argc, char *argv[])
         size_t nread;
         char *ptr;
         do {
+            ssize_t nwritten;
             nread = fread(mem, 1, sizeof(mem), tempstorage);
             if(nread <= 0) {
                 /* end of file */
@@ -305,13 +308,13 @@ int main(int argc, char *argv[])
 
             do {
                 /* write data in a loop until we block */
-                rc = libssh2_sftp_write(sftp_handle, ptr,
-                                        nread);
-                ptr += rc;
-                nread -= nread;
-            } while(rc >= 0);
+                nwritten = libssh2_sftp_write(sftp_handle, ptr,
+                                              nread);
+                ptr += nwritten;
+                nread -= nwritten;
+            } while(nwritten >= 0);
 
-            if(rc != LIBSSH2_ERROR_EAGAIN) {
+            if(nwritten != LIBSSH2_ERROR_EAGAIN) {
                 /* error or end of file */
                 break;
             }
@@ -325,7 +328,7 @@ int main(int argc, char *argv[])
             FD_SET(sock, &fd2);
 
             /* wait for readable or writeable */
-            rc = select(sock + 1, &fd, &fd2, NULL, &timeout);
+            rc = select((int)(sock + 1), &fd, &fd2, NULL, &timeout);
             if(rc <= 0) {
                 /* negative is error
                    0 is timeout */

@@ -4,16 +4,16 @@ libssh2_channel_free - free all resources associated with a channel
 .SH SYNOPSIS
 #include <libssh2.h>
 
-int 
+int
 libssh2_channel_free(LIBSSH2_CHANNEL *channel);
 
 .SH DESCRIPTION
 \fIchannel\fP - Channel stream to free.
 
-Release all resources associated with a channel stream. If the channel has 
-not yet been closed with 
+Release all resources associated with a channel stream. If the channel has
+not yet been closed with
 .BR libssh2_channel_close(3)
-, it will be called automatically so that the remote end may know that it 
+, it will be called automatically so that the remote end may know that it
 can safely free its own resources.
 
 .SH RETURN VALUE

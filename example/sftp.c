@@ -7,18 +7,13 @@
  * "sftp 192.168.0.1 user password /tmp/secrets -p|-i|-k"
  */
 
-#ifdef WIN32
-#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#endif
-#endif
-
 #include "libssh2_config.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINSOCK2_H
+#ifdef WIN32
 # include <winsock2.h>
+# define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
@@ -90,7 +85,7 @@ static void kbd_callback(const char *name, int name_len,
         buf[n] = 0;
 
         responses[i].text = strdup(buf);
-        responses[i].length = n;
+        responses[i].length = (unsigned int)n;
 
         fprintf(stderr, "Response %d from user is '", i);
         fwrite(responses[i].text, 1, responses[i].length, stderr);
@@ -104,7 +99,7 @@ static void kbd_callback(const char *name, int name_len,
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 0;
     struct sockaddr_in sin;
@@ -182,7 +177,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do
+    /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call
@@ -195,7 +190,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
     /*
      * libssh2_userauth_list() can return NULL even though the session
      * has been authenticated. Try libssh2_sftp_init() if userauthlist
@@ -216,13 +212,13 @@ int main(int argc, char *argv[])
 
     /* if we got an 4. argument we set this option if supported */
     if(argc > 5) {
-        if((auth_pw & 1) && !strcasecmp(argv[5], "-p")) {
+        if((auth_pw & 1) && !strcmp(argv[5], "-p")) {
             auth_pw = 1;
         }
-        if((auth_pw & 2) && !strcasecmp(argv[5], "-i")) {
+        if((auth_pw & 2) && !strcmp(argv[5], "-i")) {
             auth_pw = 2;
         }
-        if((auth_pw & 4) && !strcasecmp(argv[5], "-k")) {
+        if((auth_pw & 4) && !strcmp(argv[5], "-k")) {
             auth_pw = 4;
         }
     }
@@ -285,12 +281,13 @@ auth_maybe_done:
     fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
     do {
         char mem[1024];
+        ssize_t nread;
 
         /* loop until we fail */
         fprintf(stderr, "libssh2_sftp_read()!\n");
-        rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
-        if(rc > 0) {
-            write(1, mem, rc);
+        nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
+        if(nread > 0) {
+            write(1, mem, nread);
         }
         else {
             break;
