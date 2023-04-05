@@ -611,7 +611,7 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
         else if(rc <= 0) {
             /* prevent busy-looping */
             long left =
-                LIBSSH2_READ_TIMEOUT -
+                sftp->channel->session->packet_read_timeout -
                 (long)(time(NULL) - sftp->requirev_start);
 
             if(left <= 0) {
