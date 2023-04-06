@@ -39,11 +39,6 @@ list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 add_definitions(-DHAVE_CONFIG_H)
 
-if(MSVC)
-  add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
-  add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS)
-endif()
-
 set(TESTS
   warmup
   hostkey

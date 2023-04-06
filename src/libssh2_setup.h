@@ -67,6 +67,14 @@
 # ifndef _CRT_SECURE_NO_WARNINGS
 # define _CRT_SECURE_NO_WARNINGS
 # endif
+# ifndef LIBSSH2_LIBRARY  /* apply to examples and tests only */
+#  ifndef _CRT_NONSTDC_NO_DEPRECATE
+#  define _CRT_NONSTDC_NO_DEPRECATE  /* for strdup(), write() */
+#  endif
+#  ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#  define _WINSOCK_DEPRECATED_NO_WARNINGS  /* for inet_addr() */
+#  endif
+# endif
 # if _MSC_VER < 1500
 #  define vsnprintf _vsnprintf
 # endif
