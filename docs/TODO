@@ -16,7 +16,7 @@ Things TODO
 
 * Extend the test suite to actually test lots of aspects of libssh2
 
-* Fix all compiler warnings (some can't be done without API changes)
+* Update public API to drop casts added to fix compiler warnings
 
 * Expose error messages sent by the server
 
