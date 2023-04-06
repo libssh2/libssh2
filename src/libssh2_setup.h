@@ -65,7 +65,7 @@
 # endif
 #elif defined(_MSC_VER)
 # ifndef _CRT_SECURE_NO_WARNINGS
-# define _CRT_SECURE_NO_WARNINGS
+# define _CRT_SECURE_NO_WARNINGS  /* for fopen(), getenv() */
 # endif
 # ifndef LIBSSH2_LIBRARY  /* apply to examples and tests only */
 #  ifndef _CRT_NONSTDC_NO_DEPRECATE
