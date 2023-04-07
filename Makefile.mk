@@ -9,8 +9,6 @@
 #
 #########################################################################
 
-PROOT := .
-
 ### Common
 
 CFLAGS ?=
@@ -47,7 +45,7 @@ else
   TRIPLET ?= $(shell $(CC) -dumpmachine)
 endif
 
-BLD_DIR ?= $(PROOT)/$(TRIPLET)
+BLD_DIR ?= $(TRIPLET)
 
 ifneq ($(findstring -w,$(TRIPLET)),)
   WIN32 := 1
@@ -57,8 +55,8 @@ else
   CPPFLAGS += -I$(BLD_DIR) -DHAVE_CONFIG_H
 endif
 
-CPPFLAGS += -I$(PROOT)/src -I$(PROOT)/include
-RCFLAGS  += -I$(PROOT)/include
+CPPFLAGS += -Isrc -Iinclude
+RCFLAGS  += -Iinclude
 
 # examples, tests
 
@@ -107,29 +105,29 @@ ifdef OPENSSL_PATH
   _LDFLAGS += -L"$(OPENSSL_LIBPATH)"
   OPENSSL_LIBS ?= -lssl -lcrypto
   _LIBS += $(OPENSSL_LIBS)
-  include $(PROOT)/Makefile.OpenSSL.inc
+  include Makefile.OpenSSL.inc
 else ifdef WOLFSSL_PATH
   CPPFLAGS += -DLIBSSH2_WOLFSSL
   CPPFLAGS += -I"$(WOLFSSL_PATH)/include"
   CPPFLAGS += -I"$(WOLFSSL_PATH)/include/wolfssl"
   _LDFLAGS += -L"$(WOLFSSL_PATH)/lib"
   _LIBS += -lwolfssl
-  include $(PROOT)/Makefile.wolfSSL.inc
+  include Makefile.wolfSSL.inc
 else ifdef LIBGCRYPT_PATH
   CPPFLAGS += -DLIBSSH2_LIBGCRYPT
   CPPFLAGS += -I"$(LIBGCRYPT_PATH)/include"
   _LDFLAGS += -L"$(LIBGCRYPT_PATH)/lib"
   _LIBS += -lgcrypt
-  include $(PROOT)/Makefile.libgcrypt.inc
+  include Makefile.libgcrypt.inc
 else ifdef MBEDTLS_PATH
   CPPFLAGS += -DLIBSSH2_MBEDTLS
   CPPFLAGS += -I"$(MBEDTLS_PATH)/include"
   _LDFLAGS += -L"$(MBEDTLS_PATH)/lib"
   _LIBS += -lmbedtls -lmbedx509 -lmbedcrypto
-  include $(PROOT)/Makefile.mbedTLS.inc
+  include Makefile.mbedTLS.inc
 else ifdef WIN32
   CPPFLAGS += -DLIBSSH2_WINCNG
-  include $(PROOT)/Makefile.WinCNG.inc
+  include Makefile.WinCNG.inc
 else
   $(error No suitable cryptography backend found)
 endif
@@ -174,13 +172,13 @@ ZIP := zip -qzr9
 # Include the version info retrieved from libssh2.h
 -include $(OBJ_DIR)/version.inc
 
-vpath %.c $(PROOT)/src
+vpath %.c src
 ifdef WIN32
-vpath %.rc $(PROOT)/src
+vpath %.rc src
 endif
 
 # include Makefile.inc to get CSOURCES define
-include $(PROOT)/Makefile.inc
+include Makefile.inc
 
 OBJS := $(addprefix $(OBJ_DIR)/,$(patsubst %.c,%.o,$(CSOURCES)))
 
@@ -201,7 +199,7 @@ ifdef WIN32
   LIBSSH2_LDFLAGS_DYN += -Wl,--output-def,$(libssh2_def_LIBRARY),--out-implib,$(libssh2_dyn_a_LIBRARY)
 endif
 
-TARGETS_EXAMPLES := $(patsubst %.c,%$(BIN_EXT),$(strip $(wildcard $(PROOT)/example/*.c)))
+TARGETS_EXAMPLES := $(patsubst %.c,%$(BIN_EXT),$(strip $(wildcard example/*.c)))
 
 all: lib dyn
 
@@ -218,12 +216,12 @@ example: $(TARGETS_EXAMPLES)
 
 TARGETS_RUNNER := $(TARGET)-runner.a
 TARGETS_RUNNER_OBJS := $(addprefix $(OBJ_DIR)/,$(patsubst %.c,%.o,runner.c session_fixture.c openssh_fixture.c))
-TARGETS_TESTS := $(patsubst %.c,%$(BIN_EXT),$(strip $(wildcard $(PROOT)/tests/test_*.c)))
+TARGETS_TESTS := $(patsubst %.c,%$(BIN_EXT),$(strip $(wildcard tests/test_*.c)))
 
 test: $(TARGETS_RUNNER) $(TARGETS_TESTS)
 
 $(TARGETS_RUNNER_OBJS):
-	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $(patsubst $(OBJ_DIR)/%.o,$(PROOT)/tests/%.c,$@) -o $@
+	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $(patsubst $(OBJ_DIR)/%.o,tests/%.c,$@) -o $@
 
 $(TARGETS_RUNNER): $(TARGETS_RUNNER_OBJS)
 	@$(call DEL, $@)
@@ -252,17 +250,17 @@ $(TARGET).a: $(OBJS)
 	@$(call DEL, $@)
 	$(AR) rcs $@ $^
 
-$(OBJ_DIR)/version.inc: $(PROOT)/get_ver.awk $(PROOT)/include/libssh2.h $(OBJ_DIR)
+$(OBJ_DIR)/version.inc: get_ver.awk include/libssh2.h $(OBJ_DIR)
 	$(AWK) -f $^ > $@
 
 dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@$(call MKDIR, $(DISTDIR)/bin)
 	@$(call MKDIR, $(DISTDIR)/include)
 	@$(call MKDIR, $(DISTDIR)/lib)
-	@$(call COPY, $(PROOT)/COPYING, $(DISTDIR))
-	@$(call COPY, $(PROOT)/README, $(DISTDIR))
-	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DISTDIR))
-	@$(call COPY, $(PROOT)/include/*.h, $(DISTDIR)/include)
+	@$(call COPY, COPYING, $(DISTDIR))
+	@$(call COPY, README, $(DISTDIR))
+	@$(call COPY, RELEASE-NOTES, $(DISTDIR))
+	@$(call COPY, include/*.h, $(DISTDIR)/include)
 	@$(call COPY, $(TARGET).a, $(DISTDIR)/lib)
 ifdef WIN32
 	@$(call COPY, $(libssh2_def_LIBRARY), $(DISTDIR)/bin)
