@@ -7,13 +7,10 @@
  * "sftp 192.168.0.1 user password thisfile /tmp/storehere"
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef WIN32
-# include <winsock2.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
@@ -23,8 +20,8 @@
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif
-# ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
@@ -39,10 +36,6 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <time.h>
-
-#if defined(_MSC_VER) && _MSC_VER < 1700
-#pragma warning(disable:4127)
-#endif
 
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {

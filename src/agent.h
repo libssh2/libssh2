@@ -41,9 +41,6 @@
 
 #include "libssh2_priv.h"
 #include "session.h"
-#ifdef WIN32
-#include <stdlib.h>
-#endif
 
 /* non-blocking mode on agent connection is not yet implemented, but
    for future use. */

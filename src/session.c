@@ -38,6 +38,11 @@
  */
 
 #include "libssh2_priv.h"
+
+#ifdef WIN32
+#include <ws2tcpip.h>  /* for socklen_t */
+#endif
+
 #include <errno.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>

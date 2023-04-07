@@ -7,11 +7,10 @@
  * "scp_nonblock 192.168.0.1 user password /tmp/secrets"
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 
 #ifdef WIN32
-# include <winsock2.h>
 # define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
 #ifdef HAVE_SYS_SOCKET_H
@@ -23,8 +22,8 @@
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif
-# ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
@@ -38,10 +37,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
-
-#if defined(_MSC_VER) && _MSC_VER < 1700
-#pragma warning(disable:4127)
-#endif
 
 #ifdef HAVE_GETTIMEOFDAY
 /* diff in ms */

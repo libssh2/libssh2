@@ -2,11 +2,10 @@
  * Sample showing how to do a simple SCP transfer.
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 
 #ifdef WIN32
-# include <winsock2.h>
 # define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
 #ifdef HAVE_SYS_SOCKET_H
@@ -15,8 +14,8 @@
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
-# ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>

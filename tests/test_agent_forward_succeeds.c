@@ -1,9 +1,4 @@
-#include "session_fixture.h"
 #include "runner.h"
-
-#include <libssh2.h>
-
-#include <stdio.h>
 
 const char *USERNAME = "libssh2"; /* set in Dockerfile */
 const char *KEY_FILE_PRIVATE = "key_rsa";

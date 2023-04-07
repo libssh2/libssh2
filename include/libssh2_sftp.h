@@ -40,7 +40,7 @@
 
 #include "libssh2.h"
 
-#ifndef WIN32
+#ifndef _LIBSSH2_WIN32
 #include <unistd.h>
 #endif
 

@@ -39,11 +39,6 @@ list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 add_definitions(-DHAVE_CONFIG_H)
 
-if(MSVC)
-  add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
-  add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS)
-endif()
-
 set(EXAMPLES
   direct_tcpip
   scp
@@ -74,7 +69,7 @@ foreach(example ${EXAMPLES})
   add_executable(example-${example} ${example}.c)
   list(APPEND EXAMPLE_TARGETS example-${example})
   # to find generated header
-  target_include_directories(example-${example} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../src)
+  target_include_directories(example-${example} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../src ../src)
   target_link_libraries(example-${example} ${LIB_STATIC} ${LIBRARIES})
 endforeach()
 

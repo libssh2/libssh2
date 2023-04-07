@@ -1,16 +1,22 @@
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 
 #ifdef WIN32
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#include <ws2tcpip.h>  /* for socklen_t */
 #define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
 #define send(s, b, l, f)  send((s), (b), (int)(l), (f))
-#else
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
 
@@ -28,10 +34,6 @@
 
 #ifndef INADDR_NONE
 #define INADDR_NONE (in_addr_t)-1
-#endif
-
-#if defined(_MSC_VER) && _MSC_VER < 1700
-#pragma warning(disable:4127)
 #endif
 
 const char *keyfile1 = "/home/username/.ssh/id_rsa.pub";

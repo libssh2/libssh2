@@ -11,22 +11,18 @@
  *  command executes on the remote machine
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef WIN32
-# include <windows.h>
-# include <winsock2.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
-# ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
 #endif
 # ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>

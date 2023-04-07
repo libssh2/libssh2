@@ -5,8 +5,8 @@
  * "ssh2 host user password [DEBUG]"
  */
 
+#include "libssh2_setup.h"
 #include <libssh2.h>
-#include "libssh2_config.h"
 
 #include <stdio.h>
 
@@ -41,10 +41,6 @@
 #include <stdlib.h>
 
 #include <termios.h>
-
-#if defined(_MSC_VER) && _MSC_VER < 1700
-#pragma warning(disable:4127)
-#endif
 
 #define _PATH_UNIX_X "/tmp/.X11-unix/X%d"
 

@@ -39,11 +39,6 @@ list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 add_definitions(-DHAVE_CONFIG_H)
 
-if(MSVC)
-  add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
-  add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS)
-endif()
-
 set(TESTS
   warmup
   hostkey
@@ -83,21 +78,21 @@ if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
 endif()
 
 add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
-target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../include)
+target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include)
 target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # test building against shared libssh2 lib
 if(BUILD_SHARED_LIBS)
   set(test warmup)  # any test will do
   add_executable(test_${test}_shared test_${test}.c)
-  target_include_directories(test_${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src")
+  target_include_directories(test_${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src)
   target_link_libraries(test_${test}_shared runner ${LIB_SHARED} ${LIBRARIES})
 endif()
 
 foreach(test ${TESTS})
   add_executable(test_${test} test_${test}.c)
   list(APPEND TEST_TARGETS test_${test})
-  target_include_directories(test_${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src")
+  target_include_directories(test_${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src)
   target_link_libraries(test_${test} runner ${LIB_STATIC} ${LIBRARIES})
 
   add_test(
@@ -143,7 +138,7 @@ endforeach()
 
 add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
 target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE "${CRYPTO_BACKEND_DEFINE}")
-target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" "../src/" "${CRYPTO_BACKEND_INCLUDE_DIR}")
+target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src "${CRYPTO_BACKEND_INCLUDE_DIR}")
 find_program(GCOV_PATH gcov)
 set(TGT_OPTIONS -g --coverage -fprofile-abs-path)
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)

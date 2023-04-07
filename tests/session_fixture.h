@@ -38,6 +38,7 @@
 #ifndef LIBSSH2_TESTS_SESSION_FIXTURE_H
 #define LIBSSH2_TESTS_SESSION_FIXTURE_H
 
+#include "libssh2_setup.h"
 #include <libssh2.h>
 
 #if defined(_MSC_VER) && _MSC_VER < 1900

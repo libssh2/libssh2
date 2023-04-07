@@ -47,18 +47,17 @@ else
   TRIPLET ?= $(shell $(CC) -dumpmachine)
 endif
 
+BLD_DIR ?= $(PROOT)/$(TRIPLET)
+
 ifneq ($(findstring -w,$(TRIPLET)),)
   WIN32 := 1
   BIN_EXT := .exe
   DYN_EXT := .dll
-  BLD_DIR ?= $(PROOT)/win32
-  CONFIG_H_DIR ?= $(PROOT)/win32
 else
-  BLD_DIR ?= $(PROOT)
-  CONFIG_H_DIR ?= $(PROOT)
+  CPPFLAGS += -I$(BLD_DIR) -DHAVE_CONFIG_H
 endif
 
-CPPFLAGS += -I$(CONFIG_H_DIR) -I$(PROOT)/include
+CPPFLAGS += -I$(PROOT)/src -I$(PROOT)/include
 RCFLAGS  += -I$(PROOT)/include
 
 # examples, tests
@@ -87,9 +86,9 @@ endif
 DB ?= NDEBUG
 CPPFLAGS += -D$(DB)
 ifeq ($(DB),NDEBUG)
-  OBJ_DIR := release-$(TRIPLET)
+  OBJ_DIR := release
 else
-  OBJ_DIR := debug-$(TRIPLET)
+  OBJ_DIR := debug
   CFLAGS += -g
   CPPFLAGS += -DLIBSSH2DEBUG
 endif
@@ -264,7 +263,6 @@ dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@$(call COPY, $(PROOT)/README, $(DISTDIR))
 	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DISTDIR))
 	@$(call COPY, $(PROOT)/include/*.h, $(DISTDIR)/include)
-	@$(call COPY, $(CONFIG_H_DIR)/libssh2_config.h, $(DISTDIR)/include)
 	@$(call COPY, $(TARGET).a, $(DISTDIR)/lib)
 ifdef WIN32
 	@$(call COPY, $(libssh2_def_LIBRARY), $(DISTDIR)/bin)

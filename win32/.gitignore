@@ -1,7 +1,0 @@
-*.a
-*.dll
-*.def
-*.exe
-debug-*
-release-*
-libssh2-*.zip

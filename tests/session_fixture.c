@@ -36,7 +36,6 @@
  */
 
 #include "session_fixture.h"
-#include "libssh2_config.h"
 #include "openssh_fixture.h"
 
 #include <stdio.h>
@@ -45,14 +44,10 @@
 #include <unistd.h>
 #endif
 
-#ifdef WIN32
-#include <windows.h>
-#include <winsock2.h>
 #ifdef _MSC_VER
 #include <direct.h>
 #define getcwd _getcwd
 #define chdir _chdir
-#endif
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H

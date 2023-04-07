@@ -39,50 +39,12 @@
  * OF SUCH DAMAGE.
  */
 
-/* Disable warnings: C4127: conditional expression is constant */
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#pragma warning(disable:4127)
-#endif
-
-/* Define mingw-w64 version macros, eg __MINGW{32,64}_{MINOR,MAJOR}_VERSION */
-#ifdef __MINGW32__
-#include <_mingw.h>
-#endif
+/* Header used by 'src' */
 
 #define LIBSSH2_LIBRARY
-#include "libssh2_config.h"
 
-/* Number of bits in a file offset, on hosts where this is settable. */
-#if defined(__MINGW32__) && defined(__MINGW64_VERSION_MAJOR)
-# ifndef _FILE_OFFSET_BITS
-# define _FILE_OFFSET_BITS 64
-# endif
-#endif
-
-#ifdef WIN32
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-#undef WIN32_LEAN_AND_MEAN
-
-/* Detect Windows App environment which has a restricted access
-   to the Win32 APIs. */
-# if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
-  defined(WINAPI_FAMILY)
-#  include <winapifamily.h>
-#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  \
-     !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#    define LIBSSH2_WINDOWS_APP
-#  endif
-# endif
-
-#include <winsock2.h>
-#include <ws2tcpip.h>
-/* Force parameter type. */
-#define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
-#define send(s, b, l, f)  send((s), (b), (int)(l), (f))
-#endif
+/* platform/compiler-specific setup */
+#include "libssh2_setup.h"
 
 #include <stdio.h>
 #include <time.h>
@@ -127,6 +89,19 @@
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
 #include "misc.h"
+
+#ifdef WIN32
+/* Detect Windows App environment which has a restricted access
+   to the Win32 APIs. */
+# if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
+  defined(WINAPI_FAMILY)
+#  include <winapifamily.h>
+#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  \
+     !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#    define LIBSSH2_WINDOWS_APP
+#  endif
+# endif
+#endif
 
 #ifndef FALSE
 #define FALSE 0

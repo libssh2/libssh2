@@ -50,9 +50,6 @@
 #endif
 #include "userauth.h"
 #include "session.h"
-#ifdef WIN32
-#include <stdlib.h>
-#endif
 
 /* Requests from client to agent for protocol 1 key operations */
 #define SSH_AGENTC_REQUEST_RSA_IDENTITIES 1

@@ -7,12 +7,11 @@
  * Using the SFTP server running on 127.0.0.1
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
 #ifdef WIN32
-# include <winsock2.h>
 # define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
 #ifdef HAVE_SYS_SOCKET_H
@@ -24,8 +23,8 @@
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
 #endif
-# ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
@@ -39,10 +38,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
-
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#pragma warning(disable:4127)
-#endif
 
 #define STORAGE "/tmp/sftp-storage" /* this is the local file name this
                                        example uses to store the downloaded

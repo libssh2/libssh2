@@ -1,11 +1,6 @@
 /* libssh2 test receiving large amounts of data through a channel */
 
-#include "session_fixture.h"
 #include "runner.h"
-
-#include <libssh2.h>
-
-#include <stdio.h>
 
 /* configured in Dockerfile */
 static const char *USERNAME = "libssh2";

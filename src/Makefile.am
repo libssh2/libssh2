@@ -31,7 +31,7 @@ lib_LTLIBRARIES = libssh2.la
 # srcdir/include for the shipped headers
 # builddir/src for the generated config header when building out of the source
 # tree
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/src
+AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/include
 
 VERSION=-version-info 1:1:0
 

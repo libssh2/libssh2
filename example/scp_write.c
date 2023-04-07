@@ -2,20 +2,17 @@
  * Sample showing how to do an SCP upload.
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifdef WIN32
-# include <winsock2.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
-# ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
@@ -29,10 +26,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
-
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#pragma warning(disable:4127)
-#endif
 
 int main(int argc, char *argv[])
 {

@@ -1,9 +1,4 @@
-#include "session_fixture.h"
 #include "runner.h"
-
-#include <libssh2.h>
-
-#include <stdio.h>
 
 static const char *EXPECTED_RSA_HOSTKEY =
     "AAAAB3NzaC1yc2EAAAABIwAAAQEArrr/JuJmaZligyfS8vcNur+mWR2ddDQtVdhHzdKU"

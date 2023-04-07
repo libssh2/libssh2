@@ -11,7 +11,7 @@ CFLAGS=/Oi /O2 /Oy /GF /Y- /MD /DNDEBUG
 DLLFLAGS=/LD
 !endif
 
-CFLAGS=/nologo /GL /Zi /EHsc $(CFLAGS) /Iwin32 /Iinclude
+CFLAGS=/nologo /GL /Zi /EHsc $(CFLAGS) /Iinclude
 
 !if "$(OPENSSL_PATH)" != ""
 CFLAGS=$(CFLAGS) /DLIBSSH2_OPENSSL /I$(OPENSSL_PATH)\include

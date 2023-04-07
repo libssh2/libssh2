@@ -7,13 +7,10 @@
  * "sftpdir 192.168.0.1 user password /tmp/secretdir"
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef WIN32
-# include <winsock2.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
@@ -35,10 +32,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
-
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#pragma warning(disable:4127)
-#endif
 
 #if defined(_MSC_VER)
 #define __FILESIZE "I64u"
