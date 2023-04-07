@@ -5,10 +5,10 @@ TARGET=Release
 !if "$(TARGET)" == "Debug"
 SUFFIX=_debug
 CFLAGS=/Od /MDd
-DLLFLAGS=/DEBUG /LDd
+DLLFLAGS=/LDd /DEBUG
 !else
 CFLAGS=/Oi /O2 /Oy /GF /Y- /MD /DNDEBUG
-DLLFLAGS=/DEBUG /LD
+DLLFLAGS=/LD
 !endif
 
 CFLAGS=/nologo /GL /Zi /EHsc $(CFLAGS) /Iwin32 /Iinclude
