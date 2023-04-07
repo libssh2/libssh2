@@ -28,8 +28,6 @@ CFLAGS=$(CFLAGS) /DLIBSSH2_HAVE_ZLIB /I$(ZLIB_PATH)\include
 LIBS=$(LIBS) $(ZLIB_PATH)\lib\zlib.lib
 !endif
 
-RCFLAGS=/Iinclude
-DLLFLAGS=$(CFLAGS) $(DLLFLAGS)
 LIBS=$(LIBS) ws2_32.lib user32.lib advapi32.lib gdi32.lib
 
 INTDIR=$(TARGET)
@@ -68,13 +66,13 @@ $(INTDIR):
 	@if not exist $(INTDIR) mkdir $(INTDIR)
 
 $(DLL): $(OBJECTS) $(RESOURCE)
-	$(CC) -o $(DLL) $(DLLFLAGS) $(OBJECTS) $(RESOURCE) $(LIBS)
+	$(CC) -o $(DLL) $(CFLAGS) $(DLLFLAGS) $(OBJECTS) $(RESOURCE) $(LIBS)
 
 $(STATICLIB): $(OBJECTS)
 	$(AR) $(ARFLAGS) -out:$@ $(OBJECTS)
 
 $(RESOURCE): src\libssh2.rc
-	$(RC) $(RCFLAGS) /Fo"$@" $?
+	$(RC) /Iinclude /Fo"$@" $?
 
 all-sub: $(INTDIR) all
 
