@@ -270,10 +270,7 @@ clean:
 	$(call DEL, $(TARGET).a $(libssh2_dyn_LIBRARY) $(libssh2_def_LIBRARY) $(libssh2_dyn_a_LIBRARY))
 	$(call RMDIR, $(OBJ_DIR))
 
-$(OBJ_DIR):
-	@$(call MKDIR, $@)
-
-$(DISTDIR):
+$(OBJ_DIR) $(DISTDIR):
 	@$(call MKDIR, $@)
 
 $(DISTDIR)/readme.txt: Makefile.mk
