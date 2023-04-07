@@ -1,7 +1,7 @@
 #########################################################################
 #
 # Makefile for building libssh2 with GCC-like toolchains.
-# Use: make -f Makefile.mk [help|all|clean|dist|distclean|dyn|objclean|test|testclean]
+# Use: make -f Makefile.mk [help|all|clean|dist|distclean|dyn|objclean|example|exampleclean|test|testclean]
 #
 # Hacked by: Guenter Knauf
 #
@@ -15,6 +15,7 @@ PROOT := .
 
 CFLAGS ?=
 CPPFLAGS ?=
+LIBSSH2_CPPFLAGS_LIB ?=
 RCFLAGS ?=
 LDFLAGS ?=
 LIBSSH2_LDFLAGS_BIN ?=
@@ -214,13 +215,30 @@ lib: prebuild $(TARGET).a
 
 prebuild: $(OBJ_DIR) $(OBJ_DIR)/version.inc
 
-test: $(TARGETS_EXAMPLES)
+example: $(TARGETS_EXAMPLES)
+
+TARGETS_RUNNER := $(TARGET)-runner.a
+TARGETS_RUNNER_OBJS := $(addprefix $(OBJ_DIR)/,$(patsubst %.c,%.o,runner.c session_fixture.c openssh_fixture.c))
+TARGETS_TESTS := $(patsubst %.c,%$(BIN_EXT),$(strip $(wildcard $(PROOT)/tests/test_*.c)))
+
+test: $(TARGETS_RUNNER) $(TARGETS_TESTS)
+
+$(TARGETS_RUNNER_OBJS):
+	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $(patsubst $(OBJ_DIR)/%.o,$(PROOT)/tests/%.c,$@) -o $@
+
+$(TARGETS_RUNNER): $(TARGETS_RUNNER_OBJS)
+	@$(call DEL, $@)
+	$(AR) rcs $@ $^
+
+test_%$(BIN_EXT): $(libssh2_DEPENDENCIES)
+	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBSSH2_LDFLAGS_BIN) \
+	  $(patsubst %$(BIN_EXT),%.c,$@) -o $@ $(TARGETS_RUNNER) $(LIBS) $(LIBS_BIN)
 
 %$(BIN_EXT): %.c $(libssh2_DEPENDENCIES)
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBSSH2_LDFLAGS_BIN) $< -o $@ $(LIBS) $(LIBS_BIN)
 
 $(OBJ_DIR)/%.o: %.c
-	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(LIBSSH2_CPPFLAGS_LIB) -c $< -o $@
 
 $(libssh2_dyn_LIBRARY) $(libssh2_dyn_a_LIBRARY): $(OBJS_dyn)
 	@$(call DEL, $@)
@@ -245,13 +263,15 @@ dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@$(call COPY, $(PROOT)/COPYING, $(DISTDIR))
 	@$(call COPY, $(PROOT)/README, $(DISTDIR))
 	@$(call COPY, $(PROOT)/RELEASE-NOTES, $(DISTDIR))
-	@$(call COPY, $(libssh2_dyn_LIBRARY), $(DISTDIR)/bin)
 	@$(call COPY, $(PROOT)/include/*.h, $(DISTDIR)/include)
 	@$(call COPY, $(CONFIG_H_DIR)/libssh2_config.h, $(DISTDIR)/include)
 	@$(call COPY, $(TARGET).a, $(DISTDIR)/lib)
 ifdef WIN32
-	@$(call COPY, $(libssh2_dyn_a_LIBRARY), $(DISTDIR)/lib)
 	@$(call COPY, $(libssh2_def_LIBRARY), $(DISTDIR)/bin)
+	@$(call COPY, $(libssh2_dyn_LIBRARY), $(DISTDIR)/bin)
+	@$(call COPY, $(libssh2_dyn_a_LIBRARY), $(DISTDIR)/lib)
+else
+	@$(call COPY, $(libssh2_dyn_LIBRARY), $(DISTDIR)/lib)
 endif
 	@echo Creating... $(DISTARC)
 	(cd $(DISTDIR)/.. && $(ZIP) $(abspath $(DISTARC)) $(DISTNAM)/* < $(abspath $(DISTDIR)/readme.txt))
@@ -263,8 +283,11 @@ distclean vclean: clean
 objclean: all
 	$(call RMDIR, $(OBJ_DIR))
 
-testclean: clean
+exampleclean:
 	$(call DEL, $(TARGETS_EXAMPLES))
+
+testclean:
+	$(call DEL, $(TARGETS_RUNNER_OBJS) $(TARGETS_RUNNER) $(TARGETS_TESTS))
 
 clean:
 	$(call DEL, $(TARGET).a $(libssh2_dyn_LIBRARY) $(libssh2_def_LIBRARY) $(libssh2_dyn_a_LIBRARY))
@@ -297,6 +320,8 @@ help: $(OBJ_DIR)/version.inc
 	@echo $(DL)$(MAKE) dist$(DL)
 	@echo $(DL)$(MAKE) distclean$(DL)
 	@echo $(DL)$(MAKE) objclean$(DL)
+	@echo $(DL)$(MAKE) example$(DL)
+	@echo $(DL)$(MAKE) exampleclean$(DL)
 	@echo $(DL)$(MAKE) test$(DL)
 	@echo $(DL)$(MAKE) testclean$(DL)
 	@echo $(DL)===========================================================$(DL)
