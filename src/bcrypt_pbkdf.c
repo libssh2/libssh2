@@ -25,7 +25,7 @@
 #include <sys/param.h>
 #endif
 
-#include "blf.h"
+#include "blowfish.c"
 
 #define MINIMUM(a,b) (((a) < (b)) ? (a) : (b))
 
