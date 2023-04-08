@@ -18,31 +18,31 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
 
-#include <stdlib.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
 #endif
 
-const char *keyfile1 = ".ssh/id_rsa.pub";
-const char *keyfile2 = ".ssh/id_rsa";
-const char *username = "username";
-const char *password = "password";
+static const char *keyfile1 = ".ssh/id_rsa.pub";
+static const char *keyfile2 = ".ssh/id_rsa";
+static const char *username = "username";
+static const char *password = "password";
 
 
 static void kbd_callback(const char *name, int name_len,
@@ -92,7 +92,6 @@ int main(int argc, char *argv[])
     else {
         hostaddr = htonl(0x7F000001);
     }
-
     if(argc > 2) {
         username = argv[2];
     }
@@ -118,8 +117,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "Connecting to %s:%d as user %s\n",
             inet_ntoa(sin.sin_addr), ntohs(sin.sin_port), username);
 
-    if(connect(sock, (struct sockaddr*)(&sin),
-                sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
@@ -146,10 +144,10 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we have not authenticated. The first thing to do is check
-     * the hostkey's fingerprint against our known hosts Your app may have it
-     * hard coded, may go to a file, may present it to the user, that's your
-     * call
+    /* At this point we have not yet authenticated.  The first thing to do
+     * is check the hostkey's fingerprint against our known hosts Your app
+     * may have it hard coded, may go to a file, may present it to the
+     * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
@@ -284,18 +282,19 @@ int main(int argc, char *argv[])
           }
           #endif
 
-/* At this point the shell can be interacted with using
- * libssh2_channel_read()
- * libssh2_channel_read_stderr()
- * libssh2_channel_write()
- * libssh2_channel_write_stderr()
- *
- * Blocking mode may be (en|dis)abled with: libssh2_channel_set_blocking()
- * If the server send EOF, libssh2_channel_eof() will return non-0
- * To send EOF to the server use: libssh2_channel_send_eof()
- * A channel can be closed with: libssh2_channel_close()
- * A channel can be freed with: libssh2_channel_free()
- */
+        /* At this point the shell can be interacted with using
+         * libssh2_channel_read()
+         * libssh2_channel_read_stderr()
+         * libssh2_channel_write()
+         * libssh2_channel_write_stderr()
+         *
+         * Blocking mode may be (en|dis)abled with:
+         *    libssh2_channel_set_blocking()
+         * If the server send EOF, libssh2_channel_eof() will return non-0
+         * To send EOF to the server use: libssh2_channel_send_eof()
+         * A channel can be closed with: libssh2_channel_close()
+         * A channel can be freed with: libssh2_channel_free()
+         */
 
         /* Read and display all the data received on stdout (ignoring stderr)
          * until the channel closes. This will eventually block if the command
@@ -331,10 +330,9 @@ int main(int argc, char *argv[])
      * libssh2_channel_direct_tcpip()
      */
 
-  shutdown:
+shutdown:
 
-    libssh2_session_disconnect(session,
-                               "Normal Shutdown, Thank you for playing");
+    libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
 
 #ifdef WIN32
@@ -342,7 +340,7 @@ int main(int argc, char *argv[])
 #else
     close(sock);
 #endif
-    fprintf(stderr, "all done!\n");
+    fprintf(stderr, "all done\n");
 
     libssh2_exit();
 

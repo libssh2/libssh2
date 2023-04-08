@@ -389,8 +389,8 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     sin.sin_addr.s_addr = hostaddr;
 
     for(counter = 0; counter < 3; ++counter) {
-        if(connect(sock, (struct sockaddr *)(&sin),
-                   sizeof(struct sockaddr_in)) != 0) {
+        if(connect(sock, (struct sockaddr*)(&sin),
+                   sizeof(struct sockaddr_in))) {
             fprintf(stderr,
                     "Connection to %s:%s attempt #%d failed: retrying...\n",
                     ip_address, port_string, counter);

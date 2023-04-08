@@ -13,11 +13,11 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -27,10 +27,10 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
-#include <ctype.h>
 #include <stdlib.h>
+#include <ctype.h>
 
-const char *username = "username";
+static const char *username = "username";
 
 int main(int argc, char *argv[])
 {
@@ -86,8 +86,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-                sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         goto shutdown;
     }
@@ -101,10 +100,10 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /* At this point we have not authenticated. The first thing to do is check
-     * the hostkey's fingerprint against our known hosts Your app may have it
-     * hard coded, may go to a file, may present it to the user, that's your
-     * call
+    /* At this point we have not yet authenticated.  The first thing to do
+     * is check the hostkey's fingerprint against our known hosts Your app
+     * may have it hard coded, may go to a file, may present it to the
+     * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
@@ -208,7 +207,7 @@ int main(int argc, char *argv[])
      * A channel can be freed with: libssh2_channel_free()
      */
 
-  skip_shell:
+skip_shell:
     if(channel) {
         libssh2_channel_free(channel);
         channel = NULL;
@@ -220,7 +219,7 @@ int main(int argc, char *argv[])
      * libssh2_channel_direct_tcpip()
      */
 
-  shutdown:
+shutdown:
 
     if(agent) {
         libssh2_agent_disconnect(agent);
@@ -228,8 +227,7 @@ int main(int argc, char *argv[])
     }
 
     if(session) {
-        libssh2_session_disconnect(session,
-                                   "Normal Shutdown, Thank you for playing");
+        libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
     }
 
@@ -241,7 +239,7 @@ int main(int argc, char *argv[])
 #endif
     }
 
-    fprintf(stderr, "all done!\n");
+    fprintf(stderr, "all done\n");
 
     libssh2_exit();
 

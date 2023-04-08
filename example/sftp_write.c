@@ -14,11 +14,11 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -68,7 +68,6 @@ int main(int argc, char *argv[])
     else {
         hostaddr = htonl(0x7F000001);
     }
-
     if(argc > 2) {
         username = argv[2];
     }
@@ -103,8 +102,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-            sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
@@ -202,8 +200,7 @@ int main(int argc, char *argv[])
     libssh2_sftp_shutdown(sftp_session);
 
 shutdown:
-    libssh2_session_disconnect(session,
-                               "Normal Shutdown, Thank you for playing");
+    libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
 
 #ifdef WIN32

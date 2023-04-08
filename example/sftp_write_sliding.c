@@ -14,14 +14,14 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -108,7 +108,6 @@ int main(int argc, char *argv[])
     else {
         hostaddr = htonl(0x7F000001);
     }
-
     if(argc > 2) {
         username = argv[2];
     }
@@ -143,14 +142,13 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-                sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
 
     /* Create a session instance
-        */
+     */
     session = libssh2_session_init();
     if(!session)
         return -1;
@@ -168,10 +166,10 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we have not yet authenticated.  The first thing to do is
-     * check the hostkey's fingerprint against our known hosts Your app may
-     * have it hard coded, may go to a file, may present it to the user,
-     * that's your call
+    /* At this point we have not yet authenticated.  The first thing to do
+     * is check the hostkey's fingerprint against our known hosts Your app
+     * may have it hard coded, may go to a file, may present it to the
+     * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
@@ -191,10 +189,10 @@ int main(int argc, char *argv[])
     }
     else {
         /* Or by public key */
-#define PUBKEY "/home/username/.ssh/id_rsa.pub"
-#define PRIVKEY "/home/username/.ssh/id_rsa"
+        const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+        const char *privkey = "/home/username/.ssh/id_rsa";
         while((rc = libssh2_userauth_publickey_fromfile(session, username,
-                                                        PUBKEY, PRIVKEY,
+                                                        pubkey, privkey,
                                                         password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
@@ -223,7 +221,6 @@ int main(int argc, char *argv[])
                               LIBSSH2_FXF_TRUNC,
                               LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|
                               LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH);
-
         if(!sftp_handle &&
            (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
             fprintf(stderr, "Unable to open file with SFTP\n");

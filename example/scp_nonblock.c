@@ -11,19 +11,20 @@
 #include <libssh2.h>
 
 #ifdef WIN32
-# define write(f, b, c)  write((f), (b), (unsigned int)(c))
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
+
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -277,8 +278,7 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    libssh2_session_disconnect(session,
-                               "Normal Shutdown, Thank you for playing");
+    libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
 
 #ifdef WIN32

@@ -16,14 +16,14 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -31,11 +31,12 @@
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
+
 #include <sys/types.h>
-#include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
@@ -99,10 +100,9 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    if(argc > 1)
-        /* must be ip address only */
-        hostname = argv[1];
-
+    if(argc > 1) {
+        hostname = argv[1];  /* must be ip address only */
+    }
     if(argc > 2) {
         username = argv[2];
     }
@@ -130,8 +130,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-                sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
@@ -148,7 +147,7 @@ int main(int argc, char *argv[])
      * and setup crypto, compression, and MAC layers
      */
     while((rc = libssh2_session_handshake(session, sock)) ==
-           LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         return -1;
@@ -240,11 +239,11 @@ int main(int argc, char *argv[])
         exit(1);
     }
     while((rc = libssh2_channel_exec(channel, commandline)) ==
-           LIBSSH2_ERROR_EAGAIN) {
+          LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session);
     }
     if(rc != 0) {
-        fprintf(stderr, "Error\n");
+        fprintf(stderr, "exec error\n");
         exit(1);
     }
     for(;;) {
@@ -299,8 +298,7 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    libssh2_session_disconnect(session,
-                               "Normal Shutdown, Thank you for playing");
+    libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
 
 #ifdef WIN32

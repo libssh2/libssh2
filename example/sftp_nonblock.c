@@ -12,19 +12,20 @@
 #include <libssh2_sftp.h>
 
 #ifdef WIN32
-# define write(f, b, c)  write((f), (b), (unsigned int)(c))
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
+
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -117,7 +118,6 @@ int main(int argc, char *argv[])
     else {
         hostaddr = htonl(0x7F000001);
     }
-
     if(argc > 2) {
         username = argv[2];
     }
@@ -143,8 +143,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-                sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
@@ -281,9 +280,8 @@ int main(int argc, char *argv[])
 shutdown:
 
     fprintf(stderr, "libssh2_session_disconnect\n");
-    while(libssh2_session_disconnect(session,
-                                      "Normal Shutdown, Thank you") ==
-           LIBSSH2_ERROR_EAGAIN);
+    while(libssh2_session_disconnect(session, "Normal Shutdown")
+          == LIBSSH2_ERROR_EAGAIN);
     libssh2_session_free(session);
 
 #ifdef WIN32
