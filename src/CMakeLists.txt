@@ -108,9 +108,7 @@ set(SOURCES
   ${CRYPTO_SOURCES}
   agent.c
   agent_win.c
-  blf.h
   bcrypt_pbkdf.c
-  blowfish.c
   channel.c
   channel.h
   comp.c
