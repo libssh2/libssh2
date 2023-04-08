@@ -62,10 +62,10 @@
 #else
 # if defined(HAVE_SELECT) && !defined(WIN32)
 # ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
+#  include <sys/select.h>
 # else
-# include <sys/time.h>
-# include <sys/types.h>
+#  include <sys/time.h>
+#  include <sys/types.h>
 # endif
 # endif
 #endif
@@ -76,10 +76,10 @@
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
+#include <sys/socket.h>
 #endif
 #ifdef HAVE_SYS_IOCTL_H
-# include <sys/ioctl.h>
+#include <sys/ioctl.h>
 #endif
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
