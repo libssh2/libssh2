@@ -39,8 +39,8 @@
 #define __FILESIZE "llu"
 #endif
 
-static const char *pubkey = "~/.ssh/id_rsa.pub";
-static const char *privkey = "~/.ssh/id_rsa";
+static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+static const char *privkey = "/home/username/.ssh/id_rsa";
 static const char *username = "username";
 static const char *password = "password";
 

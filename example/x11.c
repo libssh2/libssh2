@@ -211,7 +211,6 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
     timeval_out.tv_sec = 0;
     timeval_out.tv_usec = 0;
 
-
     FD_ZERO(&set);
     FD_SET(sock, &set);
 
@@ -295,7 +294,6 @@ main(int argc, char *argv[])
     timeval_out.tv_sec = 0;
     timeval_out.tv_usec = 10;
 
-
     if(argc > 3) {
         hostaddr = inet_addr(argv[1]);
         username = argv[2];
@@ -368,7 +366,6 @@ main(int argc, char *argv[])
         close(sock);
         return -1;
     }
-
 
     /* Request a PTY */
     rc = libssh2_channel_request_pty(channel, "xterm");

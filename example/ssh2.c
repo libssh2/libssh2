@@ -44,7 +44,6 @@ static const char *privkey = ".ssh/id_rsa";
 static const char *username = "username";
 static const char *password = "password";
 
-
 static void kbd_callback(const char *name, int name_len,
                          const char *instruction, int instruction_len,
                          int num_prompts,
@@ -62,8 +61,7 @@ static void kbd_callback(const char *name, int name_len,
     }
     (void)prompts;
     (void)abstract;
-} /* kbd_callback */
-
+}
 
 int main(int argc, char *argv[])
 {

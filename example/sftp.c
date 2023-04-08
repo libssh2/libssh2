@@ -37,12 +37,11 @@
 #include <stdio.h>
 #include <ctype.h>
 
-static const char *pubkey = "~/.ssh/id_rsa.pub";
-static const char *privkey = "~/.ssh/id_rsa";
+static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+static const char *privkey = "/home/username/.ssh/id_rsa";
 static const char *username = "username";
 static const char *password = "password";
 static const char *sftppath = "/tmp/TEST";
-
 
 static void kbd_callback(const char *name, int name_len,
                          const char *instruction, int instruction_len,
@@ -91,7 +90,6 @@ static void kbd_callback(const char *name, int name_len,
     fprintf(stderr,
         "Done. Sending keyboard-interactive responses to server now.\n");
 }
-
 
 int main(int argc, char *argv[])
 {

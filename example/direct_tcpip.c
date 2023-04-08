@@ -44,10 +44,10 @@ static const char *password = "";
 static const char *server_ip = "127.0.0.1";
 
 static const char *local_listenip = "127.0.0.1";
-unsigned int local_listenport = 2222;
+static unsigned int local_listenport = 2222;
 
 static const char *remote_desthost = "localhost"; /* resolved by the server */
-unsigned int remote_destport = 22;
+static unsigned int remote_destport = 22;
 
 enum {
     AUTH_NONE = 0,
