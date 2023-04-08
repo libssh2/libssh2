@@ -38,6 +38,8 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
     const char *username = "username";
     const char *password = "password";
     const char *sftppath = "/tmp/sftp_mkdir_nonblock";
@@ -128,9 +130,8 @@ int main(int argc, char *argv[])
     else {
         /* Or by public key */
         if(libssh2_userauth_publickey_fromfile(session, username,
-                            "/home/username/.ssh/id_rsa.pub",
-                            "/home/username/.ssh/id_rsa",
-                            password)) {
+                                               pubkey, privkey,
+                                               password)) {
             fprintf(stderr, "\tAuthentication by public key failed\n");
             goto shutdown;
         }

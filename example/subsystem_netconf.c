@@ -35,8 +35,8 @@
 #define snprintf _snprintf
 #endif
 
-static const char *keyfile1 = "/home/username/.ssh/id_rsa.pub";
-static const char *keyfile2 = "/home/username/.ssh/id_rsa";
+static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+static const char *privkey = "/home/username/.ssh/id_rsa";
 static const char *username = "username";
 static const char *password = "";
 
@@ -214,8 +214,9 @@ int main(int argc, char *argv[])
         }
     }
     else if(auth & AUTH_PUBLICKEY) {
-        if(libssh2_userauth_publickey_fromfile(session, username, keyfile1,
-                                               keyfile2, password)) {
+        if(libssh2_userauth_publickey_fromfile(session, username,
+                                               pubkey, privkey,
+                                               password)) {
             fprintf(stderr, "\tAuthentication by public key failed!\n");
             goto shutdown;
         }

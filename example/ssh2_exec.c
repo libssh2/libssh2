@@ -73,8 +73,10 @@ int main(int argc, char *argv[])
 {
     const char *hostname = "127.0.0.1";
     const char *commandline = "uptime";
-    const char *username    = "user";
-    const char *password    = "password";
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
+    const char *username = "user";
+    const char *password = "password";
     uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
@@ -212,11 +214,8 @@ int main(int argc, char *argv[])
     else {
         /* Or by public key */
         while((rc = libssh2_userauth_publickey_fromfile(session, username,
-                                                         "/home/user/"
-                                                         ".ssh/id_rsa.pub",
-                                                         "/home/user/"
-                                                         ".ssh/id_rsa",
-                                                         password)) ==
+                                                        pubkey, privkey,
+                                                        password)) ==
                LIBSSH2_ERROR_EAGAIN);
         if(rc) {
             fprintf(stderr, "\tAuthentication by public key failed\n");

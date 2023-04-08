@@ -70,6 +70,8 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
     const char *username = "username";
     const char *password = "password";
     const char *loclfile = "scp_write.c";
@@ -185,10 +187,8 @@ int main(int argc, char *argv[])
     }
     else {
         /* Or by public key */
-#define HOME "/home/username/"
         while((rc = libssh2_userauth_publickey_fromfile(session, username,
-                                                        HOME ".ssh/id_rsa.pub",
-                                                        HOME ".ssh/id_rsa",
+                                                        pubkey, privkey,
                                                         password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {

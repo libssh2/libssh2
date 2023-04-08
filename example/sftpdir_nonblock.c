@@ -47,11 +47,11 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
     const char *username = "username";
     const char *password = "password";
     const char *sftppath = "/tmp/secretdir";
-    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
-    const char *privkey = "/home/username/.ssh/id_rsa";
     int rc;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;

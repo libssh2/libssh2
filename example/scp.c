@@ -40,6 +40,8 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
     const char *username = "username";
     const char *password = "password";
     const char *scppath = "/tmp/TEST";
@@ -130,10 +132,8 @@ int main(int argc, char *argv[])
     }
     else {
         /* Or by public key */
-#define HOME_DIR "/home/username/"
         if(libssh2_userauth_publickey_fromfile(session, username,
-                                               HOME_DIR ".ssh/id_rsa.pub",
-                                               HOME_DIR ".ssh/id_rsa",
+                                               pubkey, privkey,
                                                password)) {
             fprintf(stderr, "\tAuthentication by public key failed\n");
             goto shutdown;

@@ -1,4 +1,4 @@
-/* Self test, based on examples/ssh2.c. */
+/* Self test, based on example/ssh2.c. */
 
 #include "libssh2_setup.h"
 #include <libssh2.h>
@@ -34,8 +34,8 @@ int main(int argc, char *argv[])
     char *userauthlist;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
-    const char *pubkeyfile = "etc/user.pub";
-    const char *privkeyfile = "etc/user";
+    const char *pubkey = "etc/user.pub";
+    const char *privkey = "etc/user";
     const char *username = "username";
     const char *password = "password";
     int ec = 1;
@@ -58,10 +58,10 @@ int main(int argc, char *argv[])
       username = getenv("USER");
 
     if(getenv("PRIVKEY"))
-      privkeyfile = getenv("PRIVKEY");
+      privkey = getenv("PRIVKEY");
 
     if(getenv("PUBKEY"))
-      pubkeyfile = getenv("PUBKEY");
+      pubkey = getenv("PUBKEY");
 
     hostaddr = htonl(0x7F000001);
 
@@ -116,8 +116,9 @@ int main(int argc, char *argv[])
 
     if(auth_pw & 4) {
         /* Authenticate by public key */
-        if(libssh2_userauth_publickey_fromfile(session, username, pubkeyfile,
-                                               privkeyfile, password)) {
+        if(libssh2_userauth_publickey_fromfile(session, username,
+                                               pubkey, privkey,
+                                               password)) {
             printf("\tAuthentication by public key failed!\n");
             goto shutdown;
         }

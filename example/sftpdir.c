@@ -39,8 +39,8 @@
 #define __FILESIZE "llu"
 #endif
 
-static const char *keyfile1 = "~/.ssh/id_rsa.pub";
-static const char *keyfile2 = "~/.ssh/id_rsa";
+static const char *pubkey = "~/.ssh/id_rsa.pub";
+static const char *privkey = "~/.ssh/id_rsa";
 static const char *username = "username";
 static const char *password = "password";
 
@@ -202,8 +202,9 @@ int main(int argc, char *argv[])
     }
     else if(auth_pw & 4) {
         /* Or by public key */
-        if(libssh2_userauth_publickey_fromfile(session, username, keyfile1,
-                                               keyfile2, password)) {
+        if(libssh2_userauth_publickey_fromfile(session, username,
+                                               pubkey, privkey,
+                                               password)) {
             fprintf(stderr, "\tAuthentication by public key failed!\n");
             goto shutdown;
         }
