@@ -14,11 +14,11 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -39,10 +39,10 @@
 #define __FILESIZE "llu"
 #endif
 
-const char *keyfile1 = "~/.ssh/id_rsa.pub";
-const char *keyfile2 = "~/.ssh/id_rsa";
-const char *username = "username";
-const char *password = "password";
+static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+static const char *privkey = "/home/username/.ssh/id_rsa";
+static const char *username = "username";
+static const char *password = "password";
 
 static void kbd_callback(const char *name, int name_len,
                          const char *instruction, int instruction_len,
@@ -93,7 +93,6 @@ int main(int argc, char *argv[])
     else {
         hostaddr = htonl(0x7F000001);
     }
-
     if(argc > 2) {
         username = argv[2];
     }
@@ -119,8 +118,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-               sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
@@ -204,8 +202,9 @@ int main(int argc, char *argv[])
     }
     else if(auth_pw & 4) {
         /* Or by public key */
-        if(libssh2_userauth_publickey_fromfile(session, username, keyfile1,
-                                               keyfile2, password)) {
+        if(libssh2_userauth_publickey_fromfile(session, username,
+                                               pubkey, privkey,
+                                               password)) {
             fprintf(stderr, "\tAuthentication by public key failed!\n");
             goto shutdown;
         }
@@ -277,15 +276,16 @@ int main(int argc, char *argv[])
                 printf("%s\n", mem);
             }
         }
-        else
+        else {
             break;
+        }
 
     } while(1);
 
     libssh2_sftp_closedir(sftp_handle);
     libssh2_sftp_shutdown(sftp_session);
 
- shutdown:
+shutdown:
 
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);

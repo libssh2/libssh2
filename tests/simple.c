@@ -36,10 +36,10 @@
  * OF SUCH DAMAGE.
  */
 
+#include <libssh2.h>
+
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "libssh2.h"
 
 static int test_libssh2_base64_decode(LIBSSH2_SESSION *session)
 {

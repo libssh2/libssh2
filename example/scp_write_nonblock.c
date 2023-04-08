@@ -8,14 +8,14 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -70,6 +70,8 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
     const char *username = "username";
     const char *password = "password";
     const char *loclfile = "scp_write.c";
@@ -138,8 +140,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-               sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
@@ -186,10 +187,8 @@ int main(int argc, char *argv[])
     }
     else {
         /* Or by public key */
-#define HOME "/home/username/"
         while((rc = libssh2_userauth_publickey_fromfile(session, username,
-                                                        HOME ".ssh/id_rsa.pub",
-                                                        HOME ".ssh/id_rsa",
+                                                        pubkey, privkey,
                                                         password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
@@ -265,11 +264,10 @@ int main(int argc, char *argv[])
     libssh2_channel_free(channel);
     channel = NULL;
 
- shutdown:
+shutdown:
 
-    while(libssh2_session_disconnect(session,
-                                     "Normal Shutdown,") ==
-          LIBSSH2_ERROR_EAGAIN);
+    while(libssh2_session_disconnect(session, "Normal Shutdown")
+          == LIBSSH2_ERROR_EAGAIN);
     libssh2_session_free(session);
 
 #ifdef WIN32

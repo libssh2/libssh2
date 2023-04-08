@@ -12,7 +12,6 @@
 
 #ifdef HAVE_SYS_UN_H
 
-#include <string.h>
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
@@ -25,20 +24,22 @@
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <sys/types.h>
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
 #endif
+
+#include <sys/types.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <ctype.h>
 #include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
 
 #include <termios.h>
 
@@ -85,8 +86,7 @@ static void remove_node(struct chan_X11_list *elem)
 
 static void session_shutdown(LIBSSH2_SESSION *session)
 {
-    libssh2_session_disconnect(session,
-                               "Session Shutdown, Thank you for playing");
+    libssh2_session_disconnect(session, "Session Shutdown");
     libssh2_session_free(session);
 }
 
@@ -205,12 +205,11 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
     int   bufsize      = 8192;
     int   rc           = 0;
     int   nfds         = 1;
-    LIBSSH2_POLLFD  *fds      = NULL;
+    LIBSSH2_POLLFD *fds = NULL;
     fd_set set;
     struct timeval timeval_out;
     timeval_out.tv_sec = 0;
     timeval_out.tv_usec = 0;
-
 
     FD_ZERO(&set);
     FD_SET(sock, &set);
@@ -219,7 +218,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
     if(!buf)
         return 0;
 
-    fds = malloc(sizeof (LIBSSH2_POLLFD));
+    fds = malloc(sizeof(LIBSSH2_POLLFD));
     if(!fds) {
         free(buf);
         return 0;
@@ -266,7 +265,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
  * Main, more than inspired by ssh2.c by Bagder
  */
 int
-main (int argc, char *argv[])
+main(int argc, char *argv[])
 {
     uint32_t hostaddr = 0;
     int rc = 0;
@@ -294,7 +293,6 @@ main (int argc, char *argv[])
     struct timeval timeval_out;
     timeval_out.tv_sec = 0;
     timeval_out.tv_usec = 10;
-
 
     if(argc > 3) {
         hostaddr = inet_addr(argv[1]);
@@ -328,9 +326,7 @@ main (int argc, char *argv[])
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
 
-    rc = connect(sock, (struct sockaddr *) &sin,
-                 sizeof(struct sockaddr_in));
-    if(rc != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "Failed to established connection!\n");
         return -1;
     }
@@ -370,7 +366,6 @@ main (int argc, char *argv[])
         close(sock);
         return -1;
     }
-
 
     /* Request a PTY */
     rc = libssh2_channel_request_pty(channel, "xterm");
@@ -430,7 +425,7 @@ main (int argc, char *argv[])
         if(buf == NULL)
             break;
 
-        fds = malloc(sizeof (LIBSSH2_POLLFD));
+        fds = malloc(sizeof(LIBSSH2_POLLFD));
         if(fds == NULL) {
             free(buf);
             break;
@@ -468,7 +463,6 @@ main (int argc, char *argv[])
             current_node = next_node;
         }
 
-
         rc = select((int)(fileno(stdin) + 1), &set, NULL, NULL, &timeval_out);
         if(rc > 0) {
             ssize_t nread;
@@ -482,7 +476,7 @@ main (int argc, char *argv[])
         free(fds);
         free(buf);
 
-        if(libssh2_channel_eof (channel) == 1) {
+        if(libssh2_channel_eof(channel) == 1) {
             break;
         }
     }
@@ -501,7 +495,7 @@ main (int argc, char *argv[])
 #else
 
 int
-main (void)
+main(void)
 {
     printf("Sorry, this platform is not supported.");
     return 1;

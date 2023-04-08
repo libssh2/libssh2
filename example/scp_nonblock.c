@@ -11,19 +11,20 @@
 #include <libssh2.h>
 
 #ifdef WIN32
-# define write(f, b, c)  write((f), (b), (unsigned int)(c))
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
+
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -42,8 +43,8 @@
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)
 {
-  return (newer.tv_sec-older.tv_sec)*1000+
-      (newer.tv_usec-older.tv_usec)/1000;
+    return (newer.tv_sec-older.tv_sec)*1000+
+        (newer.tv_usec-older.tv_usec)/1000;
 }
 #endif
 
@@ -86,6 +87,8 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
     const char *username = "username";
     const char *password = "password";
     const char *scppath = "/tmp/TEST";
@@ -193,10 +196,7 @@ int main(int argc, char *argv[])
     else {
         /* Or by public key */
         while((rc = libssh2_userauth_publickey_fromfile(session, username,
-                                                        "/home/username/"
-                                                        ".ssh/id_rsa.pub",
-                                                        "/home/username/"
-                                                        ".ssh/id_rsa",
+                                                        pubkey, privkey,
                                                         password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
@@ -277,8 +277,7 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    libssh2_session_disconnect(session,
-                               "Normal Shutdown, Thank you for playing");
+    libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
 
 #ifdef WIN32
