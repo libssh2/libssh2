@@ -41,30 +41,21 @@
                                     !defined(HAVE_BLOWFISH_EXPAND0STATE) || \
                                     !defined(HAVE_BLF_ENC))
 
-#if 0
-#include <stdio.h>              /* used for debugging */
+#ifdef _DEBUG_BLOWFISH
+#include <stdio.h>
 #include <string.h>
 #endif
-
-#include <sys/types.h>
 
 #include "libssh2.h"
 #include "blf.h"
 
-#undef inline
-#ifdef __GNUC__
-#define inline __inline__
-#elif defined(_MSC_VER)
-#define inline __inline
-#else
-#define inline
-#endif
+#include <sys/types.h>
 
 /* Function for Feistel Networks */
 
-#define F(s, x) ((((s)[        (((x)>>24)&0xFF)]        \
-                   + (s)[0x100 + (((x)>>16)&0xFF)])     \
-                  ^ (s)[0x200 + (((x)>> 8)&0xFF)])      \
+#define F(s, x) ((((s)[        (((x)>>24)&0xFF)]      \
+                 + (s)[0x100 + (((x)>>16)&0xFF)])     \
+                 ^ (s)[0x200 + (((x)>> 8)&0xFF)])     \
                  + (s)[0x300 + ( (x)     &0xFF)])
 
 #define BLFRND(s,p,i,j,n) (i ^= F(s,j) ^ (p)[n])
@@ -646,7 +637,7 @@ blf_cbc_decrypt(blf_ctx *c, uint8_t *iva, uint8_t *data, uint32_t len)
         data[j] ^= iva[j];
 }
 
-#if 0
+#ifdef _DEBUG_BLOWFISH
 void
 report(uint32_t data[], uint16_t len)
 {

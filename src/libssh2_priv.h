@@ -120,8 +120,10 @@ int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...);
 
 /* "inline" keyword is valid only with C++ engine! */
 #ifdef __GNUC__
+#undef inline
 #define inline __inline__
 #elif defined(_MSC_VER)
+#undef inline
 #define inline __inline
 #endif
 
