@@ -55,6 +55,12 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
+#ifndef NOGDI
+#define NOGDI
+#endif
+#ifndef NONLS
+#define NONLS
+#endif
 
 #ifdef __MINGW32__
 # ifdef __MINGW64_VERSION_MAJOR
