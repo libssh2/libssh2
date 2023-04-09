@@ -1,8 +1,8 @@
 # $Id: Makefile.am,v 1.21 2009/05/07 17:21:56 bagder Exp $
 AUTOMAKE_OPTIONS = foreign nostdinc
 
-# Makefile.inc provides the CSOURCES and HHEADERS defines
-include ../Makefile.inc
+# Get the CSOURCES and HHEADERS defines
+include Makefile.inc
 
 libssh2_la_SOURCES = $(CSOURCES) $(HHEADERS)
 

@@ -78,7 +78,7 @@ fi
 
 #       Get source list.
 
-cat ../Makefile.inc                                                     |
+cat Makefile.inc                                                        |
   sed -e ':begin'                                                       \
     -e '/\\$/{'                                                         \
     -e 's/\\$/ /'                                                       \

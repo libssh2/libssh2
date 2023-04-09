@@ -172,8 +172,8 @@ ifdef WIN32
 vpath %.rc src
 endif
 
-# include Makefile.inc to get CSOURCES define
-include Makefile.inc
+# Get CSOURCES define
+include src/Makefile.inc
 
 OBJS := $(addprefix $(OBJ_DIR)/,$(patsubst %.c,%.o,$(CSOURCES)))
 

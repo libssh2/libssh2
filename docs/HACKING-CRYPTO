@@ -31,7 +31,7 @@ LIBSSH2_LIB_HAVE_LINKFLAGS from LIBSSH2_CRYPTO_CHECK, which automatically
 creates and handles a --with-$newname-prefix option and sets an
 LTLIBNEWNAME variable on success.
 
-0.3) Add new header to Makefile.inc
+0.3) Add new header to src/Makefile.inc
 
 0.4) Include new source in src/crypto.c
 

@@ -32,7 +32,7 @@ INTDIR=$(TARGET)
 
 SUBDIR=src
 
-!include "Makefile.inc"
+!include "src/Makefile.inc"
 
 OBJECTS=$(CSOURCES:.c=.obj)
 

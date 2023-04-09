@@ -99,7 +99,7 @@ endif()
 ## Sources
 
 include(GNUInstallDirs)
-transform_makefile_inc("${PROJECT_SOURCE_DIR}/Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
+transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'CSOURCES' and 'HHEADERS' variables
 include(${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake)
 set(SOURCES ${CSOURCES} ${HHEADERS})
