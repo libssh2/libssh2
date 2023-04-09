@@ -3948,7 +3948,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
         if(st == 0)
             return 0;
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L /*OpenSSL 3.0.0*/
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L /* OpenSSL 3.0.0 */
         if((ERR_GET_LIB(sslError) == ERR_LIB_PEM &&
             ERR_GET_REASON(sslError) == PEM_R_BAD_DECRYPT) ||
            (ERR_GET_LIB(sslError) == ERR_LIB_PROV &&
