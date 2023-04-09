@@ -1,4 +1,3 @@
-# $Id: Makefile.am,v 1.21 2009/05/07 17:21:56 bagder Exp $
 AUTOMAKE_OPTIONS = foreign nostdinc
 
 # Get the CSOURCES and HHEADERS defines
@@ -6,8 +5,7 @@ include Makefile.inc
 
 libssh2_la_SOURCES = $(CSOURCES) $(HHEADERS)
 
-EXTRA_DIST = libssh2_config.h.in libssh2_config_cmake.h.in
-EXTRA_DIST += CMakeLists.txt
+EXTRA_DIST = libssh2_config.h.in libssh2_config_cmake.h.in CMakeLists.txt
 
 lib_LTLIBRARIES = libssh2.la
 
