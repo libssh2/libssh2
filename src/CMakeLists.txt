@@ -88,11 +88,6 @@ if(WIN32)
   list(APPEND PC_LIBS -lws2_32)
 endif()
 
-add_definitions(-DHAVE_CONFIG_H)
-
-configure_file(libssh2_config_cmake.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h)
-
 # to find generated header
 list(APPEND libssh2_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -179,7 +174,33 @@ if(BUILD_SHARED_LIBS)
     PUBLIC
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
+
+  # Symbol hiding
+
+  option(HIDE_SYMBOLS "Set to ON to hide all libssh2 symbols that aren't officially external." ON)
+  mark_as_advanced(HIDE_SYMBOLS)
+
+  if(HIDE_SYMBOLS)
+    target_compile_definitions(${LIB_SHARED} PRIVATE LIBSSH2_EXPORTS)
+    if(WIN32)
+    elseif((CMAKE_C_COMPILER_ID MATCHES "Clang") OR
+           (CMAKE_COMPILER_IS_GNUCC AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.0) OR
+           (CMAKE_C_COMPILER_ID MATCHES "Intel" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1))
+      target_compile_options(${LIB_SHARED} PRIVATE -fvisibility=hidden)
+      set(LIBSSH2_API "__attribute__ ((__visibility__ (\"default\")))")
+    elseif(CMAKE_C_COMPILER_ID MATCHES "SunPro" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 8.0)
+      target_compile_options(${LIB_SHARED} PRIVATE -xldscope=hidden)
+      set(LIBSSH2_API "__global")
+    endif()
+  endif()
 endif()
+
+# Config file
+
+add_definitions(-DHAVE_CONFIG_H)
+
+configure_file(libssh2_config_cmake.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h)
 
 ## Installation
 
