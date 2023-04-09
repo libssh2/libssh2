@@ -39,31 +39,10 @@ list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 add_definitions(-DHAVE_CONFIG_H)
 
-set(EXAMPLES
-  direct_tcpip
-  scp
-  scp_nonblock
-  scp_write
-  scp_write_nonblock
-  sftp
-  sftp_RW_nonblock
-  sftp_append
-  sftp_mkdir
-  sftp_mkdir_nonblock
-  sftp_nonblock
-  sftp_write
-  sftp_write_nonblock
-  sftp_write_sliding
-  sftpdir
-  sftpdir_nonblock
-  ssh2
-  ssh2_agent
-  ssh2_agent_forwarding
-  ssh2_echo
-  ssh2_exec
-  subsystem_netconf
-  tcpip-forward
-  x11)
+transform_makefile_inc("Makefile.am" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cmake")
+# Get 'noinst_PROGRAMS' variable
+include(${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cmake)
+set(EXAMPLES ${noinst_PROGRAMS})
 
 foreach(example ${EXAMPLES})
   add_executable(example-${example} ${example}.c)
