@@ -61,7 +61,7 @@ announcement.
   contributors properly.
 
 - Request a CVE number from
-  [distros@openwall](http://oss-security.openwall.org/wiki/mailing-lists/distros)
+  [distros@openwall](https://oss-security.openwall.org/wiki/mailing-lists/distros)
   when also informing and preparing them for the upcoming public security
   vulnerability announcement - attach the advisory draft for information. Note
   that 'distros' won't accept an embargo longer than 14 days.

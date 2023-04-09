@@ -4,7 +4,7 @@ libssh2_channel_get_exit_signal - get the remote exit signal
 .SH SYNOPSIS
 #include <libssh2.h>
 
-int 
+int
 libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel, char **exitsignal, size_t *exitsignal_len, char **errmsg, size_t *errmsg_len, char **langtag, size_t *langtag_len);
 
 .SH DESCRIPTION
@@ -13,10 +13,10 @@ libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel, char **exitsignal, siz
 \fIexitsignal\fP - If not NULL, is populated by reference with the exit signal
 (without leading "SIG"). Note that the string is stored in a newly allocated
 buffer. If the remote program exited cleanly, the referenced string pointer
-will be set to NULL. 
+will be set to NULL.
 
 \fIexitsignal_len\fP - If not NULL, is populated by reference with the length
-of exitsignal. 
+of exitsignal.
 
 \fIerrmsg\fP - If not NULL, is populated by reference with the error message
 (if provided by remote server, if not it will be set to NULL). Note that the
@@ -24,7 +24,7 @@ string is stored in a newly allocated buffer.
 
 \fIerrmsg_len\fP - If not NULL, is populated by reference with the length of errmsg.
 
-\fIlangtag\fP - If not NULL, is populated by reference with the language tag 
+\fIlangtag\fP - If not NULL, is populated by reference with the language tag
 (if provided by remote server, if not it will be set to NULL). Note that the
 string is stored in a newly allocated buffer.
 

@@ -7,29 +7,30 @@
  * "scp_nonblock 192.168.0.1 user password /tmp/secrets"
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
+#ifdef WIN32
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
+
 #ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
+#include <sys/socket.h>
 #endif
 #ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
+#include <sys/select.h>
 #endif
-# ifdef HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
 #ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
+#include <arpa/inet.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 #include <sys/types.h>
@@ -42,12 +43,12 @@
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)
 {
-  return (newer.tv_sec-older.tv_sec)*1000+
-      (newer.tv_usec-older.tv_usec)/1000;
+    return (newer.tv_sec-older.tv_sec)*1000+
+        (newer.tv_usec-older.tv_usec)/1000;
 }
 #endif
 
-static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
+static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
     int rc;
@@ -72,19 +73,22 @@ static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         writefd = &fd;
 
-    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
 
     return rc;
 }
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
-    int sock, i, auth_pw = 1;
+    uint32_t hostaddr;
+    libssh2_socket_t sock;
+    int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
     const char *username = "username";
     const char *password = "password";
     const char *scppath = "/tmp/TEST";
@@ -168,7 +172,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do
+    /* At this point we have not yet authenticated.  The first thing to do
         * is check the hostkey's fingerprint against our known hosts Your app
         * may have it hard coded, may go to a file, may present it to the
         * user, that's your call
@@ -192,10 +196,7 @@ int main(int argc, char *argv[])
     else {
         /* Or by public key */
         while((rc = libssh2_userauth_publickey_fromfile(session, username,
-                                                        "/home/username/"
-                                                        ".ssh/id_rsa.pub",
-                                                        "/home/username/"
-                                                        ".ssh/id_rsa",
+                                                        pubkey, privkey,
                                                         password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
@@ -231,7 +232,7 @@ int main(int argc, char *argv[])
 
     while(got < fileinfo.st_size) {
         char mem[1024*24];
-        int rc;
+        ssize_t nread;
 
         do {
             int amount = sizeof(mem);
@@ -241,15 +242,15 @@ int main(int argc, char *argv[])
             }
 
             /* loop until we block */
-            rc = libssh2_channel_read(channel, mem, amount);
-            if(rc > 0) {
-                write(1, mem, rc);
-                got += rc;
-                total += rc;
+            nread = libssh2_channel_read(channel, mem, amount);
+            if(nread > 0) {
+                write(1, mem, nread);
+                got += nread;
+                total += nread;
             }
-        } while(rc > 0);
+        } while(nread > 0);
 
-        if((rc == LIBSSH2_ERROR_EAGAIN) && (got < fileinfo.st_size)) {
+        if((nread == LIBSSH2_ERROR_EAGAIN) && (got < fileinfo.st_size)) {
             /* this is due to blocking that would occur otherwise
             so we loop on this condition */
 
@@ -265,8 +266,8 @@ int main(int argc, char *argv[])
 
     time_ms = tvdiff(end, start);
     fprintf(stderr, "Got %ld bytes in %ld ms = %.1f bytes/sec spin: %d\n",
-            (long)total,
-            time_ms, total/(time_ms/1000.0), spin);
+            (long)total, time_ms,
+            (double)total/((double)time_ms/1000.0), spin);
 #else
     fprintf(stderr, "Got %ld bytes spin: %d\n", (long)total, spin);
 #endif
@@ -276,8 +277,7 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    libssh2_session_disconnect(session,
-                               "Normal Shutdown, Thank you for playing");
+    libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
 
 #ifdef WIN32

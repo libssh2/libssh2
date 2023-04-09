@@ -10,13 +10,13 @@
     (c-comment-only-line-offset . 0)
     (c-hanging-braces-alist     . ((substatement-open before after)))
     (c-offsets-alist . ((topmost-intro        . 0)
-			(topmost-intro-cont   . 0)
-			(substatement         . +)
-			(substatement-open    . 0)
-			(statement-case-intro . +)
-			(statement-case-open  . 0)
-			(case-label           . 0)
-			))
+                        (topmost-intro-cont   . 0)
+                        (substatement         . +)
+                        (substatement-open    . 0)
+                        (statement-case-intro . +)
+                        (statement-case-open  . 0)
+                        (case-label           . 0)
+                        ))
     )
   "Libssh2 C Programming Style")
 
@@ -33,10 +33,10 @@
   ;; add libssh2 style and set it for the current buffer
   (c-add-style "libssh2" libssh2-c-style t)
   (setq tab-width 8
-	indent-tabs-mode nil		; Use spaces, not tabs.
-	comment-column 40
-	c-font-lock-extra-types (append '("libssh2_int64_t" "LIBSSH2_USERAUTH_KBDINT_PROMPT" "LIBSSH2_SESSION" "LIBSSH2_CHANNEL" "ssize_t" "size_t" "uint32_t" "LIBSSH2_LISTENER" "LIBSSH2_POLLFD"))
-	)
+        indent-tabs-mode nil            ; Use spaces, not tabs.
+        comment-column 40
+        c-font-lock-extra-types (append '("libssh2_int64_t" "LIBSSH2_USERAUTH_KBDINT_PROMPT" "LIBSSH2_SESSION" "LIBSSH2_CHANNEL" "ssize_t" "size_t" "uint32_t" "LIBSSH2_LISTENER" "LIBSSH2_POLLFD"))
+        )
   ;; keybindings for C, C++, and Objective-C.  We can put these in
   ;; c-mode-base-map because of inheritance ...
   (define-key c-mode-base-map "\M-q" 'c-fill-paragraph)

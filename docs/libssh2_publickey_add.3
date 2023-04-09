@@ -5,7 +5,7 @@ libssh2_publickey_add - convenience macro for \fIlibssh2_publickey_add_ex(3)\fP 
 #include <libssh2.h>
 
 int libssh2_publickey_add(LIBSSH2_PUBLICKEY *pkey,
-			  const unsigned char *name,
+                          const unsigned char *name,
                           const unsigned char *blob, unsigned long blob_len, char overwrite,
                           unsigned long num_attrs, const libssh2_publickey_attribute attrs[]);
 

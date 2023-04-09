@@ -96,9 +96,9 @@ String transcoding support:
 values from/to the libssh2 API, three non-standard additional procedures are
 provided. They use a session pointer and a "string cache" pointer.
   Each time a string is transcoded, it is cached in the given cache. It is
-the responsibility of the caller to release the cache when its associted strings
-are no longer needed. These procedures and the string cache type are defined
-in a new libssh2_ccsid.h header file.
+the responsibility of the caller to release the cache when its associated
+strings are no longer needed. These procedures and the string cache type are
+defined in a new libssh2_ccsid.h header file.
   To create a string cache, use:
 
 #include <libssh2_ccsid.h>

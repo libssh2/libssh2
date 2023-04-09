@@ -39,7 +39,6 @@
 
 #include "libssh2_priv.h"
 #include "agent.h"
-#include "misc.h"
 #include <errno.h>
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
@@ -51,9 +50,6 @@
 #endif
 #include "userauth.h"
 #include "session.h"
-#ifdef WIN32
-#include <stdlib.h>
-#endif
 
 /* Requests from client to agent for protocol 1 key operations */
 #define SSH_AGENTC_REQUEST_RSA_IDENTITIES 1
@@ -132,10 +128,10 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
 }
 
 #define RECV_SEND_ALL(func, socket, buffer, length, flags, abstract) \
-    int rc;                                                          \
     size_t finished = 0;                                             \
                                                                      \
     while(finished < length) {                                       \
+        ssize_t rc;                                                  \
         rc = func(socket,                                            \
                   (char *)buffer + finished, length - finished,      \
                   flags, abstract);                                  \
@@ -171,9 +167,10 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Send the length of the request */
     if(transctx->state == agent_NB_state_request_created) {
-        _libssh2_htonu32(buf, transctx->request_len);
-        rc = _send_all(agent->session->send, agent->fd,
-                       buf, sizeof buf, 0, &agent->session->abstract);
+        _libssh2_htonu32(buf, (uint32_t)transctx->request_len);
+        rc = (int)_send_all(agent->session->send, agent->fd,
+                            buf, sizeof buf, 0,
+                            &agent->session->abstract);
         if(rc == -EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
         else if(rc < 0)
@@ -184,8 +181,9 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Send the request body */
     if(transctx->state == agent_NB_state_request_length_sent) {
-        rc = _send_all(agent->session->send, agent->fd, transctx->request,
-                       transctx->request_len, 0, &agent->session->abstract);
+        rc = (int)_send_all(agent->session->send, agent->fd,
+                            transctx->request, transctx->request_len, 0,
+                            &agent->session->abstract);
         if(rc == -EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
         else if(rc < 0)
@@ -196,8 +194,9 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Receive the length of a response */
     if(transctx->state == agent_NB_state_request_sent) {
-        rc = _recv_all(agent->session->recv, agent->fd,
-                       buf, sizeof buf, 0, &agent->session->abstract);
+        rc = (int)_recv_all(agent->session->recv, agent->fd,
+                            buf, sizeof buf, 0,
+                            &agent->session->abstract);
         if(rc < 0) {
             if(rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
@@ -215,8 +214,9 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Receive the response body */
     if(transctx->state == agent_NB_state_response_length_received) {
-        rc = _recv_all(agent->session->recv, agent->fd, transctx->response,
-                       transctx->response_len, 0, &agent->session->abstract);
+        rc = (int)_recv_all(agent->session->recv, agent->fd,
+                            transctx->response, transctx->response_len, 0,
+                            &agent->session->abstract);
         if(rc < 0) {
             if(rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
@@ -249,7 +249,7 @@ struct agent_ops agent_ops_unix = {
 };
 #endif  /* PF_UNIX */
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP)
 /* Code to talk to Pageant was taken from PuTTY.
  *
  * Portions copyright Robert de Bath, Joris van Rantwijk, Delian
@@ -280,7 +280,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     HANDLE filemap;
     unsigned char *p;
     unsigned char *p2;
-    int id;
+    LRESULT id;
     COPYDATASTRUCT cds;
 
     if(!transctx || 4 + transctx->request_len > PAGEANT_MAX_MSGLEN)
@@ -293,7 +293,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
                               "found no pageant");
 
     snprintf(mapname, sizeof(mapname),
-             "PageantRequest%08x%c", (unsigned)GetCurrentThreadId(), '\0');
+             "PageantRequest%08x", (unsigned)GetCurrentThreadId());
     filemap = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
                                  0, PAGEANT_MAX_MSGLEN, mapname);
 
@@ -312,7 +312,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
                        transctx->request_len);
 
     cds.dwData = PAGEANT_COPYDATA_ID;
-    cds.cbData = 1 + strlen(mapname);
+    cds.cbData = (DWORD)(1 + strlen(mapname));
     cds.lpData = mapname;
 
     id = SendMessage(hwnd, WM_COPYDATA, (WPARAM) NULL, (LPARAM) &cds);
@@ -352,16 +352,16 @@ struct agent_ops agent_ops_pageant = {
     agent_transact_pageant,
     agent_disconnect_pageant
 };
-#endif  /* WIN32 */
+#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP) */
 
 static struct {
     const char *name;
     struct agent_ops *ops;
 } supported_backends[] = {
-#ifdef WIN32
+#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP)
     {"Pageant", &agent_ops_pageant},
     {"OpenSSH", &agent_ops_openssh},
-#endif  /* WIN32 */
+#endif
 #ifdef PF_UNIX
     {"Unix", &agent_ops_unix},
 #endif  /* PF_UNIX */
@@ -479,10 +479,10 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     /* check to see if we match requested */
     if((size_t)method_len != session->userauth_pblc_method_len ||
         memcmp(method_name, session->userauth_pblc_method, method_len)) {
-        _libssh2_debug(session,
+        _libssh2_debug((session,
                        LIBSSH2_TRACE_KEX,
                        "Agent sign method %.*s",
-                       method_len, method_name);
+                       method_len, method_name));
 
         rc = LIBSSH2_ERROR_ALGO_UNSUPPORTED;
         goto error;

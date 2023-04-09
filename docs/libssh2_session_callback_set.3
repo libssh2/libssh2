@@ -12,12 +12,12 @@ Sets a custom callback handler for a previously initialized session
 object. Callbacks are triggered by the receipt of special packets at the
 Transport layer. To disable a callback, set it to NULL.
 
-\fIsession\fP - Session instance as returned by 
+\fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
 
 \fIcbtype\fP - Callback type. One of the types listed in Callback Types.
 
-\fIcallback\fP - Pointer to custom callback function. The prototype for 
+\fIcallback\fP - Pointer to custom callback function. The prototype for
 this function must match the associated callback declaration macro.
 .SH CALLBACK TYPES
 .IP LIBSSH2_CALLBACK_IGNORE

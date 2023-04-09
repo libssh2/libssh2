@@ -38,6 +38,10 @@
 #ifndef LIBSSH2_TESTS_RUNNER_H
 #define LIBSSH2_TESTS_RUNNER_H
 
+/* Most tests need these */
+#include "session_fixture.h"
+#include <stdio.h>
+
 int test(LIBSSH2_SESSION *session);
 
 #endif

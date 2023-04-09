@@ -37,7 +37,6 @@
  */
 
 #include "libssh2_priv.h"
-#include "misc.h"
 
 struct known_host {
     struct list_node node;
@@ -171,14 +170,14 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         break;
     case LIBSSH2_KNOWNHOST_TYPE_SHA1:
         rc = libssh2_base64_decode(hosts->session, &ptr, &ptrlen,
-                                   host, hostlen);
+                                   host, (unsigned int)hostlen);
         if(rc)
             goto error;
         entry->name = ptr;
         entry->name_len = ptrlen;
 
         rc = libssh2_base64_decode(hosts->session, &ptr, &ptrlen,
-                                   salt, strlen(salt));
+                                   salt, (unsigned int)strlen(salt));
         if(rc)
             goto error;
         entry->salt = ptr;

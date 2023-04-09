@@ -2,26 +2,23 @@
  * Sample showing how to do an SCP upload.
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
+#include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-# ifdef HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
 #ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
+#include <arpa/inet.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 #include <sys/types.h>
@@ -32,12 +29,15 @@
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
-    int sock, i, auth_pw = 1;
+    uint32_t hostaddr;
+    libssh2_socket_t sock;
+    int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
     const char *username = "username";
     const char *password = "password";
     const char *loclfile = "scp_write.c";
@@ -48,10 +48,10 @@ int main(int argc, char *argv[])
     size_t nread;
     char *ptr;
     struct stat fileinfo;
+    int err;
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
     err = WSAStartup(MAKEWORD(2, 0), &wsadata);
     if(err != 0) {
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
      * connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(-1 == sock) {
+    if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr, "failed to create socket!\n");
         return -1;
     }
@@ -106,8 +106,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-               sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
@@ -127,7 +126,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do
+    /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call
@@ -148,10 +147,8 @@ int main(int argc, char *argv[])
     }
     else {
         /* Or by public key */
-#define HOME "/home/username/"
         if(libssh2_userauth_publickey_fromfile(session, username,
-                                               HOME ".ssh/id_rsa.pub",
-                                               HOME ".ssh/id_rsa",
+                                               pubkey, privkey,
                                                password)) {
             fprintf(stderr, "\tAuthentication by public key failed\n");
             goto shutdown;
@@ -160,12 +157,12 @@ int main(int argc, char *argv[])
 
     /* Send a file via scp. The mode parameter must only have permissions! */
     channel = libssh2_scp_send(session, scppath, fileinfo.st_mode & 0777,
-                               (unsigned long)fileinfo.st_size);
+                               (size_t)fileinfo.st_size);
 
     if(!channel) {
         char *errmsg;
         int errlen;
-        int err = libssh2_session_last_error(session, &errmsg, &errlen, 0);
+        err = libssh2_session_last_error(session, &errmsg, &errlen, 0);
         fprintf(stderr, "Unable to open a session: (%d) %s\n", err, errmsg);
         goto shutdown;
     }
@@ -180,16 +177,17 @@ int main(int argc, char *argv[])
         ptr = mem;
 
         do {
+            ssize_t nwritten;
             /* write the same data over and over, until error or completion */
-            rc = libssh2_channel_write(channel, ptr, nread);
-            if(rc < 0) {
-                fprintf(stderr, "ERROR %d\n", rc);
+            nwritten = libssh2_channel_write(channel, ptr, nread);
+            if(nwritten < 0) {
+                fprintf(stderr, "ERROR %d\n", (int)nwritten);
                 break;
             }
             else {
-                /* rc indicates how many bytes were written this time */
-                ptr += rc;
-                nread -= rc;
+                /* nwritten indicates how many bytes were written this time */
+                ptr += nwritten;
+                nread -= nwritten;
             }
         } while(nread);
 
@@ -207,7 +205,7 @@ int main(int argc, char *argv[])
     libssh2_channel_free(channel);
     channel = NULL;
 
- shutdown:
+shutdown:
 
     if(session) {
         libssh2_session_disconnect(session, "Normal Shutdown");

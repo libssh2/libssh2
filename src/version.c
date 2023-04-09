@@ -54,7 +54,7 @@ const char *libssh2_version(int req_version_num)
 }
 
 LIBSSH2_API
-libssh2_crypto_engine_t libssh2_crypto_engine()
+libssh2_crypto_engine_t libssh2_crypto_engine(void)
 {
 #if defined LIBSSH2_OPENSSL
     return libssh2_openssl;

@@ -6,19 +6,19 @@ libssh2_sftp_symlink_ex - read or set a symbolic link
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int 
+int
 libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path,
                         unsigned int path_len, char *target,
                         unsigned int target_len, int link_type);
 .SH DESCRIPTION
 Create a symlink or read out symlink information from the remote side.
 
-\fIsftp\fP - SFTP instance as returned by 
+\fIsftp\fP - SFTP instance as returned by
 .BR libssh2_sftp_init(3)
 
 \fIpath\fP - Remote filesystem object to create a symlink from or resolve.
 
-\fIpath_len\fP - Length of the name of the remote filesystem object to 
+\fIpath_len\fP - Length of the name of the remote filesystem object to
 create a symlink from or resolve.
 
 \fItarget\fP - a pointer to a buffer. The buffer has different uses depending
@@ -34,7 +34,7 @@ into.
 
 \fItarget_len\fP - Length of the name of the remote filesystem target object.
 
-\fIlink_type\fP - One of the three previously mentioned constants which 
+\fIlink_type\fP - One of the three previously mentioned constants which
 determines the resulting behavior of this function.
 
 These are convenience macros:
@@ -69,10 +69,10 @@ for the application to tell when it happens!
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
-\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP - 
+\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP -
 
-\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was 
-received on the socket, or an SFTP operation caused an errorcode to 
+\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was
+received on the socket, or an SFTP operation caused an errorcode to
 be returned by the server.
 
 .SH SEE ALSO

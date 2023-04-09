@@ -88,8 +88,8 @@ _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
 int
 _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
                          const unsigned char *sig,
-                         unsigned long sig_len,
-                         const unsigned char *m, unsigned long m_len)
+                         size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
     unsigned char hash[SHA_DIGEST_LENGTH];
     gcry_sexp_t s_sig, s_hash;
@@ -157,6 +157,11 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
                                     const char *filedata, size_t filedata_len,
                                     unsigned const char *passphrase)
 {
+    (void)rsa;
+    (void)filedata;
+    (void)filedata_len;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                          "Unable to extract private key from memory: "
                          "Method unimplemented in libgcrypt backend");
@@ -269,6 +274,11 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
                                     const char *filedata, size_t filedata_len,
                                     unsigned const char *passphrase)
 {
+    (void)dsa;
+    (void)filedata;
+    (void)filedata_len;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                          "Unable to extract private key from memory: "
                          "Method unimplemented in libgcrypt backend");
@@ -515,7 +525,7 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 int
 _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
                          const unsigned char *sig,
-                         const unsigned char *m, unsigned long m_len)
+                         const unsigned char *m, size_t m_len)
 {
     unsigned char hash[SHA_DIGEST_LENGTH + 1];
     gcry_sexp_t s_sig, s_hash;
@@ -550,7 +560,7 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
     int ret;
     int cipher = _libssh2_gcry_cipher(algo);
     int mode = _libssh2_gcry_mode(algo);
-    int keylen = gcry_cipher_get_algo_keylen(cipher);
+    size_t keylen = gcry_cipher_get_algo_keylen(cipher);
 
     (void) encrypt;
 
@@ -566,7 +576,7 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
     }
 
     if(mode != GCRY_CIPHER_MODE_STREAM) {
-        int blklen = gcry_cipher_get_algo_blklen(cipher);
+        size_t blklen = gcry_cipher_get_algo_blklen(cipher);
         if(mode == GCRY_CIPHER_MODE_CTR)
             ret = gcry_cipher_setctr(*h, iv, blklen);
         else
@@ -585,8 +595,9 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
                       _libssh2_cipher_type(algo),
                       int encrypt, unsigned char *block, size_t blklen)
 {
-    int cipher = _libssh2_gcry_cipher(algo);
     int ret;
+
+    (void)algo;
 
     if(encrypt) {
         ret = gcry_cipher_encrypt(*ctx, block, blklen, block, blklen);
@@ -607,6 +618,14 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 size_t privatekeydata_len,
                                 const char *passphrase)
 {
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)privatekeydata;
+    (void)privatekeydata_len;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                           "Unable to extract public key from private "
                           "key in memory: "
@@ -622,6 +641,13 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           const char *privatekey,
                           const char *passphrase)
 {
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)privatekey;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                          "Unable to extract public key from private key file: "
                          "Method unimplemented in libgcrypt backend");
@@ -642,6 +668,19 @@ _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                               size_t privatekeydata_len,
                               const char *passphrase)
 {
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)algorithm;
+    (void)flags;
+    (void)application;
+    (void)key_handle;
+    (void)handle_len;
+    (void)privatekeydata;
+    (void)privatekeydata_len;
+    (void)passphrase;
+
     return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                     "Unable to extract public SK key from private key file: "
                     "Method unimplemented in libgcrypt backend");

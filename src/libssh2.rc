@@ -1,25 +1,25 @@
 /***************************************************************************
-* libssh2 Win32 resource file                                              *
+* libssh2 Windows resource file                                            *
 ***************************************************************************/
 #include <winver.h>
-#include "../include/libssh2.h"
+#include "libssh2.h"
 
-LANGUAGE  0x09,0x01
+LANGUAGE 0, 0
 
 #define RC_VERSION  LIBSSH2_VERSION_MAJOR, LIBSSH2_VERSION_MINOR, LIBSSH2_VERSION_PATCH, 0
 
 VS_VERSION_INFO VERSIONINFO
   FILEVERSION     RC_VERSION
   PRODUCTVERSION  RC_VERSION
-  FILEFLAGSMASK   0x3fL
-#if defined(DEBUGBUILD) || defined(_DEBUG)
-  FILEFLAGS 1
+  FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+#if defined(LIBSSH2DEBUG) || defined(_DEBUG)
+  FILEFLAGS VS_FF_DEBUG
 #else
   FILEFLAGS 0
 #endif
   FILEOS      VOS__WINDOWS32
   FILETYPE    VFT_DLL
-  FILESUBTYPE 0x0L
+  FILESUBTYPE 0
 
 BEGIN
   BLOCK "StringFileInfo"
@@ -33,7 +33,7 @@ BEGIN
       VALUE "OriginalFilename", "libssh2.dll\0"
       VALUE "ProductName",      "The libssh2 library\0"
       VALUE "ProductVersion",   LIBSSH2_VERSION "\0"
-      VALUE "LegalCopyright",   "© " LIBSSH2_COPYRIGHT "\0"
+      VALUE "LegalCopyright",   "Copyright (C) " LIBSSH2_COPYRIGHT "\0"
       VALUE "License",          "https://www.libssh2.org/license.html\0"
     END
   END

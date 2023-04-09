@@ -100,7 +100,8 @@ static const char *crypt_annotation = "Proc-Type: 4,ENCRYPTED";
 
 static unsigned char hex_decode(char digit)
 {
-    return (digit >= 'A') ? 0xA + (digit - 'A') : (digit - '0');
+    return (unsigned char)
+        ((digit >= 'A') ? (0xA + (digit - 'A')) : (digit - '0'));
 }
 
 int
@@ -113,7 +114,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
     char line[LINE_SIZE];
     unsigned char iv[LINE_SIZE];
     char *b64data = NULL;
-    unsigned int b64datalen = 0;
+    size_t b64datalen = 0;
     int ret;
     const LIBSSH2_CRYPT_METHOD *method = NULL;
 
@@ -141,7 +142,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         }
 
         all_methods = libssh2_crypt_methods();
-        while((cur_method = *all_methods++)) {
+        while((cur_method = *all_methods++) != NULL) {
             if(*cur_method->pem_annotation &&
                     memcmp(line, cur_method->pem_annotation,
                            strlen(cur_method->pem_annotation)) == 0) {
@@ -157,7 +158,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
 
         /* Decode IV from hex */
         for(i = 0; i < method->iv_len; ++i) {
-            iv[i]  = hex_decode(iv[2*i]) << 4;
+            iv[i]  = (unsigned char)(hex_decode(iv[2*i]) << 4);
             iv[i] |= hex_decode(iv[2*i + 1]);
         }
 
@@ -199,7 +200,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
     }
 
     if(libssh2_base64_decode(session, (char **) data, datalen,
-                              b64data, b64datalen)) {
+                             b64data, (unsigned int)b64datalen)) {
         ret = -1;
         goto out;
     }
@@ -298,7 +299,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
-    unsigned int b64datalen = 0;
+    size_t b64datalen = 0;
     size_t off = 0;
     int ret;
 
@@ -344,7 +345,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
     }
 
     if(libssh2_base64_decode(session, (char **) data, datalen,
-                              b64data, b64datalen)) {
+                             b64data, (unsigned int)b64datalen)) {
         ret = -1;
         goto out;
     }
@@ -391,7 +392,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     /* decode file */
     if(libssh2_base64_decode(session, (char **)&f, &f_len,
-                             b64data, b64datalen)) {
+                             b64data, (unsigned int)b64datalen)) {
        ret = -1;
        goto out;
     }
@@ -490,7 +491,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         const LIBSSH2_CRYPT_METHOD **all_methods, *cur_method;
 
         all_methods = libssh2_crypt_methods();
-        while((cur_method = *all_methods++)) {
+        while((cur_method = *all_methods++) != NULL) {
             if(*cur_method->name &&
                 memcmp(ciphername, cur_method->name,
                        strlen(cur_method->name)) == 0) {
@@ -668,7 +669,7 @@ _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
-    unsigned int b64datalen = 0;
+    size_t b64datalen = 0;
     int ret = 0;
 
     /* read file */
@@ -719,7 +720,7 @@ _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
     ret = _libssh2_openssh_pem_parse_data(session,
                                           passphrase,
                                           (const char *)b64data,
-                                          (size_t)b64datalen,
+                                          b64datalen,
                                           decrypted_buf);
 
     if(b64data) {
@@ -740,7 +741,7 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
-    unsigned int b64datalen = 0;
+    size_t b64datalen = 0;
     size_t off = 0;
     int ret;
 

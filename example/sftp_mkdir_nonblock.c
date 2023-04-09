@@ -7,24 +7,21 @@
  * "sftp 192.168.0.1 user password /tmp/sftp_write_nonblock.c"
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
+#include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-# ifdef HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
 #ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
+#include <arpa/inet.h>
 #endif
 
 #include <sys/types.h>
@@ -35,11 +32,14 @@
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
-    int sock, i, auth_pw = 1;
+    uint32_t hostaddr;
+    libssh2_socket_t sock;
+    int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
     const char *username = "username";
     const char *password = "password";
     const char *sftppath = "/tmp/sftp_mkdir_nonblock";
@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
     else {
         hostaddr = htonl(0x7F000001);
     }
-
     if(argc > 2) {
         username = argv[2];
     }
@@ -89,8 +88,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-            sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
@@ -110,7 +108,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do
+    /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call
@@ -132,9 +130,8 @@ int main(int argc, char *argv[])
     else {
         /* Or by public key */
         if(libssh2_userauth_publickey_fromfile(session, username,
-                            "/home/username/.ssh/id_rsa.pub",
-                            "/home/username/.ssh/id_rsa",
-                            password)) {
+                                               pubkey, privkey,
+                                               password)) {
             fprintf(stderr, "\tAuthentication by public key failed\n");
             goto shutdown;
         }
@@ -161,7 +158,7 @@ int main(int argc, char *argv[])
 
     libssh2_sftp_shutdown(sftp_session);
 
- shutdown:
+shutdown:
 
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);

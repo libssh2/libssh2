@@ -23,15 +23,15 @@ include ../Makefile.inc
 
 libssh2_la_SOURCES = $(CSOURCES) $(HHEADERS)
 
-EXTRA_DIST = libssh2_config.h.in libssh2_config_cmake.h.in libssh2.pc.in
-EXTRA_DIST += CMakeLists.txt NMakefile
+EXTRA_DIST = libssh2_config.h.in libssh2_config_cmake.h.in
+EXTRA_DIST += CMakeLists.txt
 
 lib_LTLIBRARIES = libssh2.la
 
 # srcdir/include for the shipped headers
 # builddir/src for the generated config header when building out of the source
 # tree
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/src
+AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/include
 
 VERSION=-version-info 1:1:0
 
@@ -64,5 +64,5 @@ VERSION=-version-info 1:1:0
 #
 
 libssh2_la_LDFLAGS = $(VERSION) -no-undefined \
-	-export-symbols-regex '^libssh2_.*' \
-	$(CRYPTO_LTLIBS) $(LTLIBZ)
+  -export-symbols-regex '^libssh2_.*' \
+  $(CRYPTO_LTLIBS) $(LTLIBZ)

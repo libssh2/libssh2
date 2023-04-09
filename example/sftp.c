@@ -7,27 +7,28 @@
  * "sftp 192.168.0.1 user password /tmp/secrets -p|-i|-k"
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
+#ifdef WIN32
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
+
 #ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
+#include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-# ifdef HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
 #ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
+#include <arpa/inet.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 #include <sys/types.h>
@@ -36,13 +37,11 @@
 #include <stdio.h>
 #include <ctype.h>
 
-
-const char *keyfile1 = "~/.ssh/id_rsa.pub";
-const char *keyfile2 = "~/.ssh/id_rsa";
-const char *username = "username";
-const char *password = "password";
-const char *sftppath = "/tmp/TEST";
-
+static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+static const char *privkey = "/home/username/.ssh/id_rsa";
+static const char *username = "username";
+static const char *password = "password";
+static const char *sftppath = "/tmp/TEST";
 
 static void kbd_callback(const char *name, int name_len,
                          const char *instruction, int instruction_len,
@@ -81,7 +80,7 @@ static void kbd_callback(const char *name, int name_len,
         buf[n] = 0;
 
         responses[i].text = strdup(buf);
-        responses[i].length = n;
+        responses[i].length = (unsigned int)n;
 
         fprintf(stderr, "Response %d from user is '", i);
         fwrite(responses[i].text, 1, responses[i].length, stderr);
@@ -92,11 +91,11 @@ static void kbd_callback(const char *name, int name_len,
         "Done. Sending keyboard-interactive responses to server now.\n");
 }
 
-
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
-    int sock, i, auth_pw = 0;
+    uint32_t hostaddr;
+    libssh2_socket_t sock;
+    int i, auth_pw = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
@@ -122,7 +121,6 @@ int main(int argc, char *argv[])
     else {
         hostaddr = htonl(0x7F000001);
     }
-
     if(argc > 2) {
         username = argv[2];
     }
@@ -148,8 +146,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-               sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
@@ -172,7 +169,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do
+    /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call
@@ -185,7 +182,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
     fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password") != NULL) {
         auth_pw |= 1;
@@ -199,13 +197,13 @@ int main(int argc, char *argv[])
 
     /* if we got an 4. argument we set this option if supported */
     if(argc > 5) {
-        if((auth_pw & 1) && !strcasecmp(argv[5], "-p")) {
+        if((auth_pw & 1) && !strcmp(argv[5], "-p")) {
             auth_pw = 1;
         }
-        if((auth_pw & 2) && !strcasecmp(argv[5], "-i")) {
+        if((auth_pw & 2) && !strcmp(argv[5], "-i")) {
             auth_pw = 2;
         }
-        if((auth_pw & 4) && !strcasecmp(argv[5], "-k")) {
+        if((auth_pw & 4) && !strcmp(argv[5], "-k")) {
             auth_pw = 4;
         }
     }
@@ -232,8 +230,9 @@ int main(int argc, char *argv[])
     }
     else if(auth_pw & 4) {
         /* Or by public key */
-        if(libssh2_userauth_publickey_fromfile(session, username, keyfile1,
-                                               keyfile2, password)) {
+        if(libssh2_userauth_publickey_fromfile(session, username,
+                                               pubkey, privkey,
+                                               password)) {
             fprintf(stderr, "\tAuthentication by public key failed!\n");
             goto shutdown;
         }
@@ -267,12 +266,13 @@ int main(int argc, char *argv[])
     fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
     do {
         char mem[1024];
+        ssize_t nread;
 
         /* loop until we fail */
         fprintf(stderr, "libssh2_sftp_read()!\n");
-        rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
-        if(rc > 0) {
-            write(1, mem, rc);
+        nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
+        if(nread > 0) {
+            write(1, mem, nread);
         }
         else {
             break;
@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
     libssh2_sftp_close(sftp_handle);
     libssh2_sftp_shutdown(sftp_session);
 
-  shutdown:
+shutdown:
 
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);

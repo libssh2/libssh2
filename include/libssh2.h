@@ -40,7 +40,7 @@
 #ifndef LIBSSH2_H
 #define LIBSSH2_H 1
 
-#define LIBSSH2_COPYRIGHT "2004-2021 The libssh2 project and its contributors."
+#define LIBSSH2_COPYRIGHT "2004-2023 The libssh2 project and its contributors."
 
 /* We use underscore instead of dash when appending DEV in dev versions just
    to make the BANNER define (used by src/session.c) be a valid SSH
@@ -55,7 +55,7 @@
 #define LIBSSH2_VERSION_PATCH                       1
 
 /* This is the numeric version of the libssh2 version number, meant for easier
-   parsing and comparions by programs. The LIBSSH2_VERSION_NUM define will
+   parsing and comparisons by programs. The LIBSSH2_VERSION_NUM define will
    always follow this syntax:
 
          0xXXYYZZ
@@ -87,7 +87,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#ifdef _WIN32
+
+#if defined(_WIN32) || defined(WIN32)
+#define _LIBSSH2_WIN32
+#endif
+
+#ifdef _LIBSSH2_WIN32
 # include <basetsd.h>
 # include <winsock2.h>
 #endif
@@ -99,8 +104,9 @@ extern "C" {
 
 /* Allow alternate API prefix from CFLAGS or calling app */
 #ifndef LIBSSH2_API
-# ifdef LIBSSH2_WIN32
-#  if defined(_WINDLL) || defined(libssh2_EXPORTS)
+# ifdef _LIBSSH2_WIN32
+#  if defined(LIBSSH2_EXPORTS) || defined(DLL_EXPORT) || \
+      defined(_WINDLL) || defined(libssh2_shared_EXPORTS)
 #   ifdef LIBSSH2_LIBRARY
 #    define LIBSSH2_API __declspec(dllexport)
 #   else
@@ -109,23 +115,13 @@ extern "C" {
 #  else
 #   define LIBSSH2_API
 #  endif
-# else /* !LIBSSH2_WIN32 */
+# else /* !_LIBSSH2_WIN32 */
 #  define LIBSSH2_API
-# endif /* LIBSSH2_WIN32 */
+# endif /* _LIBSSH2_WIN32 */
 #endif /* LIBSSH2_API */
 
 #ifdef HAVE_SYS_UIO_H
 # include <sys/uio.h>
-#endif
-
-#if (defined(NETWARE) && !defined(__NOVELL_LIBC__))
-# include <sys/bsdskt.h>
-typedef unsigned char uint8_t;
-typedef unsigned short int uint16_t;
-typedef unsigned int uint32_t;
-typedef int int32_t;
-typedef unsigned long long uint64_t;
-typedef long long int64_t;
 #endif
 
 #ifdef _MSC_VER
@@ -147,13 +143,13 @@ typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
 #endif
 
-#ifdef WIN32
+#ifdef _LIBSSH2_WIN32
 typedef SOCKET libssh2_socket_t;
 #define LIBSSH2_INVALID_SOCKET INVALID_SOCKET
-#else /* !WIN32 */
+#else /* !_LIBSSH2_WIN32 */
 typedef int libssh2_socket_t;
 #define LIBSSH2_INVALID_SOCKET -1
-#endif /* WIN32 */
+#endif /* _LIBSSH2_WIN32 */
 
 /*
  * Determine whether there is small or large file support on windows.
@@ -179,7 +175,7 @@ typedef int libssh2_socket_t;
 #  undef LIBSSH2_USE_WIN32_LARGE_FILES
 #endif
 
-#if defined(_WIN32) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES) && \
+#if defined(_LIBSSH2_WIN32) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES) && \
     !defined(LIBSSH2_USE_WIN32_SMALL_FILES)
 #  define LIBSSH2_USE_WIN32_SMALL_FILES
 #endif
@@ -924,6 +920,10 @@ LIBSSH2_API void libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel,
 LIBSSH2_API void libssh2_session_set_timeout(LIBSSH2_SESSION* session,
                                              long timeout);
 LIBSSH2_API long libssh2_session_get_timeout(LIBSSH2_SESSION* session);
+
+LIBSSH2_API void libssh2_session_set_read_timeout(LIBSSH2_SESSION* session,
+                                                  long timeout);
+LIBSSH2_API long libssh2_session_get_read_timeout(LIBSSH2_SESSION* session);
 
 /* libssh2_channel_handle_extended_data is DEPRECATED, do not use! */
 LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,

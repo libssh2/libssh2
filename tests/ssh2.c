@@ -1,25 +1,19 @@
-/* Self test, based on examples/ssh2.c. */
+/* Self test, based on example/ssh2.c. */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINDOWS_H
-# include <windows.h>
-#endif
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
+#include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-# ifdef HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-# ifdef HAVE_ARPA_INET_H
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
 
@@ -32,15 +26,16 @@
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
-    int sock, i, auth_pw = 0;
+    uint32_t hostaddr;
+    libssh2_socket_t sock;
+    int i, auth_pw = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
-    const char *pubkeyfile = "etc/user.pub";
-    const char *privkeyfile = "etc/user";
+    const char *pubkey = "etc/user.pub";
+    const char *privkey = "etc/user";
     const char *username = "username";
     const char *password = "password";
     int ec = 1;
@@ -62,11 +57,11 @@ int main(int argc, char *argv[])
     if(getenv("USER"))
       username = getenv("USER");
 
-    if(getenv ("PRIVKEY"))
-      privkeyfile = getenv("PRIVKEY");
+    if(getenv("PRIVKEY"))
+      privkey = getenv("PRIVKEY");
 
     if(getenv("PUBKEY"))
-      pubkeyfile = getenv("PUBKEY");
+      pubkey = getenv("PUBKEY");
 
     hostaddr = htonl(0x7F000001);
 
@@ -77,8 +72,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(4711);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-                sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return 1;
     }
@@ -107,7 +101,8 @@ int main(int argc, char *argv[])
     printf("\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
     printf("Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "password") != NULL) {
         auth_pw |= 1;
@@ -121,8 +116,9 @@ int main(int argc, char *argv[])
 
     if(auth_pw & 4) {
         /* Authenticate by public key */
-        if(libssh2_userauth_publickey_fromfile(session, username, pubkeyfile,
-                                               privkeyfile, password)) {
+        if(libssh2_userauth_publickey_fromfile(session, username,
+                                               pubkey, privkey,
+                                               password)) {
             printf("\tAuthentication by public key failed!\n");
             goto shutdown;
         }
@@ -163,13 +159,13 @@ int main(int argc, char *argv[])
 
     ec = 0;
 
-  skip_shell:
+skip_shell:
     if(channel) {
         libssh2_channel_free(channel);
         channel = NULL;
     }
 
-  shutdown:
+shutdown:
 
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);

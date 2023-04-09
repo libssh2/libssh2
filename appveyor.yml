@@ -24,63 +24,109 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-os: Visual Studio 2015
-
 environment:
   matrix:
-    - job_name: "VS2015, OpenSSL, Shared"
-      GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: ON
+    - job_name: "VS2022, OpenSSL, x64"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
+      GENERATOR: "Visual Studio 17 2022"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
+      CONFIGURATION: "Release"
 
-    - job_name: "VS2015, OpenSSL, Static"
+    - job_name: "VS2015, OpenSSL, x86"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: OFF
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
+      CONFIGURATION: "Release"
 
-    - job_name: "VS2013, OpenSSL, Shared"
-      GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: ON
-      CRYPTO_BACKEND: "OpenSSL"
-
-    - job_name: "VS2013, OpenSSL, Static"
-      GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: OFF
-      CRYPTO_BACKEND: "OpenSSL"
-
-    - job_name: "VS2015, WinCNG, Shared"
+    - job_name: "VS2015, OpenSSL, x64, Logging"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: ON
-      CRYPTO_BACKEND: "WinCNG"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "OpenSSL"
+      CONFIGURATION: "Debug"
 
-    - job_name: "VS2015, WinCNG, Static"
+    - job_name: "VS2013, OpenSSL, x64"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 12 2013"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "OpenSSL"
+      CONFIGURATION: "Release"
+
+    - job_name: "VS2013, OpenSSL, x86"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 12 2013"
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "OpenSSL"
+      CONFIGURATION: "Release"
+
+    - job_name: "VS2013, OpenSSL, x64, Static-only, Build-only"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 12 2013"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "OFF"
+      CRYPTO_BACKEND: "OpenSSL"
+      CONFIGURATION: "Release"
+      SKIP_CTEST: "yes"
+
+    - job_name: "VS2010, WinCNG, x64, Build-only"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 10 2010"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      CONFIGURATION: "Release"
+      SKIP_CTEST: "yes"
+
+    - job_name: "VS2008, WinCNG, x86, Build-only"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 9 2008"
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      CONFIGURATION: "Release"
+      SKIP_CTEST: "yes"
+
+    - job_name: "VS2022, WinCNG, x64, Logging"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
+      GENERATOR: "Visual Studio 17 2022"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      CONFIGURATION: "Debug"
+
+    - job_name: "VS2022, WinCNG, ARM64, Build-only"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
+      GENERATOR: "Visual Studio 17 2022"
+      PLATFORM: "ARM64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      CONFIGURATION: "Release"
+
+    - job_name: "VS2015, WinCNG, x86"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 14 2015"
-      BUILD_SHARED_LIBS: OFF
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
+      CONFIGURATION: "Release"
 
-    - job_name: "VS2013, WinCNG, Shared"
-      GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: ON
+    - job_name: "VS2015, WinCNG, x64"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 14 2015"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
-
-    - job_name: "VS2013, WinCNG, Static"
-      GENERATOR: "Visual Studio 12 2013"
-      BUILD_SHARED_LIBS: OFF
-      CRYPTO_BACKEND: "WinCNG"
-
-platform:
-  - x86
-  - x64
-
-configuration:
-# - Debug
-  - Release
+      CONFIGURATION: "Release"
 
 matrix:
   fast_finish: true
-  allow_failures:
-    - GENERATOR: "Visual Studio 9 2008"
-      platform: x64
 
 install:
   # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
@@ -88,17 +134,35 @@ install:
       $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
       [System.Environment]::SetEnvironmentVariable("OPENSSH_SERVER_PORT", $env:OPENSSH_SERVER_PORT)
   - ps: .\ci\appveyor\docker-bridge.ps1
-  - choco install -y docker-cli
 
 build_script:
-  - ps: if($env:PLATFORM -eq "x64") { $env:CMAKE_GEN_SUFFIX=" Win64" }
-  - cmake "-G%GENERATOR%%CMAKE_GEN_SUFFIX%" -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -H. -B_builds
+  - ps: |
+      if($env:GENERATOR -eq "Visual Studio 17 2022") {
+        if($env:PLATFORM -eq "x86") {
+          $env:CMAKE_ARG = "-A Win32"
+        } else {
+          $env:CMAKE_ARG = "-A $env:PLATFORM"
+        }
+      } elseif($env:PLATFORM -eq "x64") {
+        $env:GENERATOR += " Win64"
+      }
+      if($env:SKIP_CTEST -ne "yes" -and $env:CRYPTO_BACKEND -eq "OpenSSL") {
+        if($env:PLATFORM -eq "x64") {
+          $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
+        } elseif($env:PLATFORM -eq "x86") {
+          $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
+        }
+      }
+  - echo cmake         "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
+  - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
   - cmake --build _builds --config "%CONFIGURATION%"
 
 before_test:
+  - appveyor-retry choco install -y --no-progress --limit-output --timeout 180 docker-cli
   - ps: |
       Write-Host "Waiting for SSH connection from GitHub Actions" -NoNewline
-      while((Get-Process -Name "sshd" -ErrorAction SilentlyContinue).Count -eq 1) {
+      $endDate = (Get-Date).AddMinutes(2)
+      while((Get-Process -Name "sshd" -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
         Write-Host "." -NoNewline
         Start-Sleep -Seconds 1
       }
@@ -111,10 +175,14 @@ before_test:
       }
 
 test_script:
-  - ps: $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
-  - ps: cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure
+  - ps: |
+      if($env:SKIP_CTEST -ne "yes" -and $env:PLATFORM -ne "ARM64") {
+        $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
+        cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
+      }
 
 on_failure:
+  - ps: if(Test-Path _builds/CMakeFiles/CMakeConfigureLog.yaml) { cat _builds/CMakeFiles/CMakeConfigureLog.yaml }
   - ps: if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
   - ps: if(Test-Path _builds/CMakeFiles/CMakeError.log) { cat _builds/CMakeFiles/CMakeError.log }
 
@@ -124,7 +192,7 @@ on_finish:
       Start-Sleep -Seconds 3
       Get-Process -Name "sshd" -ErrorAction SilentlyContinue | Stop-Process
 
-# whitelist branches to avoid testing feature branches twice (as branch and as pull request)
+# Limit branches to avoid testing feature branches twice (as branch and as pull request)
 branches:
-    only:
-        - master
+  only:
+    - master

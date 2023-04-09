@@ -37,7 +37,6 @@
  */
 
 #include "libssh2_priv.h"
-#include "misc.h"
 
 /* Needed for struct iovec on some platforms */
 #ifdef HAVE_SYS_UIO_H
@@ -74,8 +73,8 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     }
 
     if(hostkey_data_len < 19) {
-        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
-                       "host key length too short");
+        _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
+                       "host key length too short"));
         return -1;
     }
 
@@ -100,8 +99,8 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     }
 #endif
     else {
-        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
-                       "unexpected rsa type: %.*s", type_len, type);
+        _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
+                       "unexpected rsa type: %.*s", type_len, type));
         return -1;
     }
 
@@ -114,8 +113,11 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     if(!_libssh2_eob(&buf))
         return -1;
 
-    if(_libssh2_rsa_new(&rsactx, e, e_len, n, n_len, NULL, 0,
-                        NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0)) {
+    if(_libssh2_rsa_new(&rsactx,
+                        e, (unsigned long)e_len,
+                        n, (unsigned long)n_len,
+                        NULL, 0, NULL, 0, NULL, 0,
+                        NULL, 0, NULL, 0, NULL, 0)) {
         return -1;
     }
 
@@ -302,7 +304,9 @@ hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION * session,
     unsigned char hash[SHA256_DIGEST_LENGTH];
     libssh2_sha256_ctx ctx;
 
-    libssh2_sha256_init(&ctx);
+    if(!libssh2_sha256_init(&ctx)) {
+        return -1;
+    }
     for(i = 0; i < veccount; i++) {
         libssh2_sha256_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
     }
@@ -370,7 +374,9 @@ hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION * session,
     unsigned char hash[SHA512_DIGEST_LENGTH];
     libssh2_sha512_ctx ctx;
 
-    libssh2_sha512_init(&ctx);
+    if(!libssh2_sha512_init(&ctx)) {
+        return -1;
+    }
     for(i = 0; i < veccount; i++) {
         libssh2_sha512_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
     }
@@ -407,13 +413,9 @@ hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION * session, void **abstract)
     return 0;
 }
 
-#ifdef OPENSSL_NO_MD5
-#define MD5_DIGEST_LENGTH 16
-#endif
-
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa = {
     "ssh-rsa",
-    MD5_DIGEST_LENGTH,
+    SHA_DIGEST_LENGTH,
     hostkey_method_ssh_rsa_init,
     hostkey_method_ssh_rsa_initPEM,
     hostkey_method_ssh_rsa_initPEMFromMemory,
@@ -453,7 +455,7 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_sha2_512 = {
 
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_cert = {
     "ssh-rsa-cert-v01@openssh.com",
-    MD5_DIGEST_LENGTH,
+    SHA_DIGEST_LENGTH,
     NULL,
     hostkey_method_ssh_rsa_initPEM,
     hostkey_method_ssh_rsa_initPEMFromMemory,
@@ -495,8 +497,8 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
     }
 
     if(hostkey_data_len < 27) {
-        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
-                       "host key length too short");
+        _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
+                       "host key length too short"));
         return -1;
     }
 
@@ -522,8 +524,12 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
     if(!_libssh2_eob(&buf))
         return -1;
 
-    if(_libssh2_dsa_new(&dsactx, p, p_len, q, q_len,
-                        g, g_len, y, y_len, NULL, 0)) {
+    if(_libssh2_dsa_new(&dsactx,
+                        p, (unsigned long)p_len,
+                        q, (unsigned long)q_len,
+                        g, (unsigned long)g_len,
+                        y, (unsigned long)y_len,
+                        NULL, 0)) {
         return -1;
     }
 
@@ -678,7 +684,7 @@ hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION * session, void **abstract)
 
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_dss = {
     "ssh-dss",
-    MD5_DIGEST_LENGTH,
+    SHA_DIGEST_LENGTH,
     hostkey_method_ssh_dss_init,
     hostkey_method_ssh_dss_initPEM,
     hostkey_method_ssh_dss_initPEMFromMemory,
@@ -722,8 +728,8 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     }
 
     if(hostkey_data_len < 39) {
-        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
-                       "host key length too short");
+        _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
+                       "host key length too short"));
         return -1;
     }
 
@@ -1061,8 +1067,8 @@ hostkey_method_ssh_ed25519_init(LIBSSH2_SESSION * session,
     }
 
     if(hostkey_data_len < 19) {
-        _libssh2_debug(session, LIBSSH2_TRACE_ERROR,
-                       "host key length too short");
+        _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
+                       "host key length too short"));
         return -1;
     }
 
@@ -1237,7 +1243,7 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_ed25519 = {
     hostkey_method_ssh_ed25519_dtor,
 };
 
-#endif /*LIBSSH2_ED25519*/
+#endif /* LIBSSH2_ED25519 */
 
 
 static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
