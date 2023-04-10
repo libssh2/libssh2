@@ -1,5 +1,4 @@
 ;;;; Emacs Lisp help for writing libssh2 code. ;;;;
-;;;; $Id: libssh2-style.el,v 1.1 2008/12/20 12:36:50 bagder Exp $
 
 ;;; The libssh2 hacker's C conventions.
 ;;; See the sample.emacs file on how this file can be made to take

@@ -80,7 +80,7 @@ clean-sub: clean
 	$(CC) -c $(CFLAGS) /Fo"$(INTDIR)\\" $<
 
 clean:
-	-rmdir 2>NUL /s/q $(TARGET)
+	-rd 2>NUL /q /s $(TARGET)
 
 real-clean vclean: clean
 	-del 2>NUL libssh2.dll
