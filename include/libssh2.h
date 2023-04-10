@@ -289,22 +289,24 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 
 /* 'publickey' authentication callback */
 #define LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC(name) \
-  int name(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len, \
-           const unsigned char *data, size_t data_len, void **abstract)
+    int name(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len, \
+             const unsigned char *data, size_t data_len, void **abstract)
 
 /* 'keyboard-interactive' authentication callback */
 #define LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(name_) \
- void name_(const char *name, int name_len, const char *instruction, \
-            int instruction_len, int num_prompts, \
-            const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,              \
-            LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses, void **abstract)
+    void name_(const char *name, int name_len, const char *instruction, \
+               int instruction_len, int num_prompts, \
+               const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts, \
+               LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses, void **abstract)
 
 /* SK authentication callback */
 #define LIBSSH2_USERAUTH_SK_SIGN_FUNC(name) \
-int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info, \
-const unsigned char *data, size_t data_len, int algorithm, uint8_t flags, \
-const char *application, const unsigned char *key_handle, size_t handle_len, \
-void **abstract)
+    int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info, \
+             const unsigned char *data, size_t data_len, \
+             int algorithm, uint8_t flags, \
+             const char *application, const unsigned char *key_handle, \
+             size_t handle_len, \
+             void **abstract)
 
 /* Flags for SK authentication */
 #define LIBSSH2_SK_PRESENCE_REQUIRED     0x01
@@ -312,34 +314,36 @@ void **abstract)
 
 /* Callbacks for special SSH packets */
 #define LIBSSH2_IGNORE_FUNC(name) \
- void name(LIBSSH2_SESSION *session, const char *message, int message_len, \
-           void **abstract)
+    void name(LIBSSH2_SESSION *session, const char *message, int message_len, \
+              void **abstract)
 
 #define LIBSSH2_DEBUG_FUNC(name) \
- void name(LIBSSH2_SESSION *session, int always_display, const char *message, \
-           int message_len, const char *language, int language_len, \
-           void **abstract)
+    void name(LIBSSH2_SESSION *session, int always_display, \
+              const char *message, int message_len, \
+              const char *language, int language_len, \
+              void **abstract)
 
 #define LIBSSH2_DISCONNECT_FUNC(name) \
- void name(LIBSSH2_SESSION *session, int reason, const char *message, \
-           int message_len, const char *language, int language_len, \
-           void **abstract)
+    void name(LIBSSH2_SESSION *session, int reason, \
+              const char *message, int message_len, \
+              const char *language, int language_len, \
+              void **abstract)
 
 #define LIBSSH2_PASSWD_CHANGEREQ_FUNC(name) \
- void name(LIBSSH2_SESSION *session, char **newpw, int *newpw_len, \
-           void **abstract)
+    void name(LIBSSH2_SESSION *session, char **newpw, int *newpw_len, \
+              void **abstract)
 
 #define LIBSSH2_MACERROR_FUNC(name) \
- int name(LIBSSH2_SESSION *session, const char *packet, int packet_len, \
-          void **abstract)
+    int name(LIBSSH2_SESSION *session, const char *packet, int packet_len, \
+             void **abstract)
 
 #define LIBSSH2_X11_OPEN_FUNC(name) \
- void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
-           const char *shost, int sport, void **abstract)
+    void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
+              const char *shost, int sport, void **abstract)
 
 #define LIBSSH2_CHANNEL_CLOSE_FUNC(name) \
-  void name(LIBSSH2_SESSION *session, void **session_abstract, \
-            LIBSSH2_CHANNEL *channel, void **channel_abstract)
+    void name(LIBSSH2_SESSION *session, void **session_abstract, \
+              LIBSSH2_CHANNEL *channel, void **channel_abstract)
 
 /* I/O callbacks */
 #define LIBSSH2_RECV_FUNC(name)                                         \
@@ -618,8 +622,8 @@ LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session,
                                               const char *description,
                                               const char *lang);
 #define libssh2_session_disconnect(session, description) \
-  libssh2_session_disconnect_ex((session), SSH_DISCONNECT_BY_APPLICATION, \
-                                (description), "")
+    libssh2_session_disconnect_ex((session), SSH_DISCONNECT_BY_APPLICATION, \
+                                  (description), "")
 
 LIBSSH2_API int libssh2_session_free(LIBSSH2_SESSION *session);
 
@@ -662,12 +666,13 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session,
                              const char *password,
                              unsigned int password_len,
                              LIBSSH2_PASSWD_CHANGEREQ_FUNC
-                             ((*passwd_change_cb)));
+                                 ((*passwd_change_cb)));
 
 #define libssh2_userauth_password(session, username, password) \
- libssh2_userauth_password_ex((session), (username),           \
-                              (unsigned int)strlen(username),  \
-                              (password), (unsigned int)strlen(password), NULL)
+    libssh2_userauth_password_ex((session), (username), \
+                                 (unsigned int)strlen(username), \
+                                 (password), (unsigned int)strlen(password), \
+                                 NULL)
 
 LIBSSH2_API int
 libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
@@ -677,11 +682,11 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
                                        const char *privatekey,
                                        const char *passphrase);
 
-#define libssh2_userauth_publickey_fromfile(session, username, publickey, \
-                                            privatekey, passphrase)     \
-    libssh2_userauth_publickey_fromfile_ex((session), (username),       \
+#define libssh2_userauth_publickey_fromfile(session, username, publickey,  \
+                                            privatekey, passphrase)        \
+    libssh2_userauth_publickey_fromfile_ex((session), (username),          \
                                            (unsigned int)strlen(username), \
-                                           (publickey),                 \
+                                           (publickey),                    \
                                            (privatekey), (passphrase))
 
 LIBSSH2_API int
@@ -690,7 +695,7 @@ libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                            const unsigned char *pubkeydata,
                            size_t pubkeydata_len,
                            LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
-                           ((*sign_callback)),
+                               ((*sign_callback)),
                            void **abstract);
 
 LIBSSH2_API int
@@ -705,16 +710,16 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
                                        const char *local_username,
                                        unsigned int local_username_len);
 
-#define libssh2_userauth_hostbased_fromfile(session, username, publickey, \
+#define libssh2_userauth_hostbased_fromfile(session, username, publickey,     \
                                             privatekey, passphrase, hostname) \
- libssh2_userauth_hostbased_fromfile_ex((session), (username), \
-                                        (unsigned int)strlen(username), \
-                                        (publickey),                    \
-                                        (privatekey), (passphrase),     \
-                                        (hostname),                     \
-                                        (unsigned int)strlen(hostname), \
-                                        (username),                     \
-                                        (unsigned int)strlen(username))
+    libssh2_userauth_hostbased_fromfile_ex((session), (username),             \
+                                           (unsigned int)strlen(username),    \
+                                           (publickey),                       \
+                                           (privatekey), (passphrase),        \
+                                           (hostname),                        \
+                                           (unsigned int)strlen(hostname),    \
+                                           (username),                        \
+                                           (unsigned int)strlen(username))
 
 LIBSSH2_API int
 libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
@@ -736,12 +741,12 @@ LIBSSH2_API int
 libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION* session,
                                          const char *username,
                                          unsigned int username_len,
-                                         LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(
-                                                       (*response_callback)));
+                                         LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC
+                                             ((*response_callback)));
 
-#define libssh2_userauth_keyboard_interactive(session, username,        \
-                                              response_callback)        \
-    libssh2_userauth_keyboard_interactive_ex((session), (username),     \
+#define libssh2_userauth_keyboard_interactive(session, username,             \
+                                              response_callback)             \
+    libssh2_userauth_keyboard_interactive_ex((session), (username),          \
                                              (unsigned int)strlen(username), \
                                              (response_callback))
 
@@ -753,7 +758,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                               size_t privatekeydata_len,
                               const char *passphrase,
                               LIBSSH2_USERAUTH_SK_SIGN_FUNC
-                              ((*sign_callback)),
+                                  ((*sign_callback)),
                               void **abstract);
 
 LIBSSH2_API int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds,
@@ -781,15 +786,15 @@ libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type,
                         const char *message, unsigned int message_len);
 
 #define libssh2_channel_open_session(session) \
-  libssh2_channel_open_ex((session), "session", sizeof("session") - 1, \
-                          LIBSSH2_CHANNEL_WINDOW_DEFAULT, \
-                          LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0)
+    libssh2_channel_open_ex((session), "session", sizeof("session") - 1, \
+                            LIBSSH2_CHANNEL_WINDOW_DEFAULT, \
+                            LIBSSH2_CHANNEL_PACKET_DEFAULT, NULL, 0)
 
 LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_channel_direct_tcpip_ex(LIBSSH2_SESSION *session, const char *host,
                                 int port, const char *shost, int sport);
 #define libssh2_channel_direct_tcpip(session, host, port) \
-  libssh2_channel_direct_tcpip_ex((session), (host), (port), "127.0.0.1", 22)
+    libssh2_channel_direct_tcpip_ex((session), (host), (port), "127.0.0.1", 22)
 
 LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION * session,
@@ -801,7 +806,7 @@ libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, const char *host,
                                   int port, int *bound_port,
                                   int queue_maxsize);
 #define libssh2_channel_forward_listen(session, port) \
- libssh2_channel_forward_listen_ex((session), NULL, (port), NULL, 16)
+    libssh2_channel_forward_listen_ex((session), NULL, (port), NULL, 16)
 
 LIBSSH2_API int libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener);
 
@@ -842,7 +847,7 @@ LIBSSH2_API int libssh2_channel_request_pty_size_ex(LIBSSH2_CHANNEL *channel,
                                                     int width_px,
                                                     int height_px);
 #define libssh2_channel_request_pty_size(channel, width, height) \
-  libssh2_channel_request_pty_size_ex((channel), (width), (height), 0, 0)
+    libssh2_channel_request_pty_size_ex((channel), (width), (height), 0, 0)
 
 LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel,
                                            int single_connection,
@@ -850,7 +855,7 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel,
                                            const char *auth_cookie,
                                            int screen_number);
 #define libssh2_channel_x11_req(channel, screen_number) \
- libssh2_channel_x11_req_ex((channel), 0, NULL, NULL, (screen_number))
+    libssh2_channel_x11_req_ex((channel), 0, NULL, NULL, (screen_number))
 
 LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
                                                 const char *request,
@@ -858,23 +863,25 @@ LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
                                                 const char *message,
                                                 unsigned int message_len);
 #define libssh2_channel_shell(channel) \
-  libssh2_channel_process_startup((channel), "shell", sizeof("shell") - 1, \
-                                  NULL, 0)
+    libssh2_channel_process_startup((channel), "shell", sizeof("shell") - 1, \
+                                    NULL, 0)
 #define libssh2_channel_exec(channel, command) \
-  libssh2_channel_process_startup((channel), "exec", sizeof("exec") - 1, \
-                                  (command), (unsigned int)strlen(command))
+    libssh2_channel_process_startup((channel), "exec", sizeof("exec") - 1, \
+                                    (command), (unsigned int)strlen(command))
 #define libssh2_channel_subsystem(channel, subsystem) \
-  libssh2_channel_process_startup((channel), "subsystem",              \
-                                  sizeof("subsystem") - 1, (subsystem), \
-                                  (unsigned int)strlen(subsystem))
+    libssh2_channel_process_startup((channel), "subsystem", \
+                                    sizeof("subsystem") - 1, (subsystem), \
+                                    (unsigned int)strlen(subsystem))
 
 LIBSSH2_API ssize_t libssh2_channel_read_ex(LIBSSH2_CHANNEL *channel,
                                             int stream_id, char *buf,
                                             size_t buflen);
 #define libssh2_channel_read(channel, buf, buflen) \
-  libssh2_channel_read_ex((channel), 0, (buf), (buflen))
+    libssh2_channel_read_ex((channel), 0, \
+                            (buf), (buflen))
 #define libssh2_channel_read_stderr(channel, buf, buflen) \
-  libssh2_channel_read_ex((channel), SSH_EXTENDED_DATA_STDERR, (buf), (buflen))
+    libssh2_channel_read_ex((channel), SSH_EXTENDED_DATA_STDERR, \
+                            (buf), (buflen))
 
 LIBSSH2_API int libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel,
                                           int extended);
@@ -884,9 +891,9 @@ libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
                                unsigned long *read_avail,
                                unsigned long *window_size_initial);
 #define libssh2_channel_window_read(channel) \
-  libssh2_channel_window_read_ex((channel), NULL, NULL)
+    libssh2_channel_window_read_ex((channel), NULL, NULL)
 
-/* libssh2_channel_receive_window_adjust is DEPRECATED, do not use! */
+/* libssh2_channel_receive_window_adjust() is DEPRECATED, do not use! */
 LIBSSH2_API unsigned long
 libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
                                       unsigned long adjustment,
@@ -903,16 +910,17 @@ LIBSSH2_API ssize_t libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel,
                                              size_t buflen);
 
 #define libssh2_channel_write(channel, buf, buflen) \
-  libssh2_channel_write_ex((channel), 0, (buf), (buflen))
-#define libssh2_channel_write_stderr(channel, buf, buflen)              \
-    libssh2_channel_write_ex((channel), SSH_EXTENDED_DATA_STDERR,       \
+    libssh2_channel_write_ex((channel), 0, \
+                             (buf), (buflen))
+#define libssh2_channel_write_stderr(channel, buf, buflen) \
+    libssh2_channel_write_ex((channel), SSH_EXTENDED_DATA_STDERR, \
                              (buf), (buflen))
 
 LIBSSH2_API unsigned long
 libssh2_channel_window_write_ex(LIBSSH2_CHANNEL *channel,
                                 unsigned long *window_size_initial);
 #define libssh2_channel_window_write(channel) \
-  libssh2_channel_window_write_ex((channel), NULL)
+    libssh2_channel_window_write_ex((channel), NULL)
 
 LIBSSH2_API void libssh2_session_set_blocking(LIBSSH2_SESSION* session,
                                               int blocking);
@@ -929,7 +937,7 @@ LIBSSH2_API void libssh2_session_set_read_timeout(LIBSSH2_SESSION* session,
                                                   long timeout);
 LIBSSH2_API long libssh2_session_get_read_timeout(LIBSSH2_SESSION* session);
 
-/* libssh2_channel_handle_extended_data is DEPRECATED, do not use! */
+/* libssh2_channel_handle_extended_data() is DEPRECATED, do not use! */
 LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
                                                       int ignore_mode);
 LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
@@ -943,9 +951,8 @@ LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
  * (FIFO) from the standard data channel
  */
 /* DEPRECATED */
-#define libssh2_channel_ignore_extended_data(channel, ignore) \
-  libssh2_channel_handle_extended_data((channel),                       \
-                                       (ignore) ?                       \
+#define libssh2_channel_ignore_extended_data(channel, ignore)                 \
+    libssh2_channel_handle_extended_data((channel), (ignore) ?                \
                                        LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE : \
                                        LIBSSH2_CHANNEL_EXTENDED_DATA_NORMAL)
 
@@ -955,7 +962,7 @@ LIBSSH2_API int libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel,
                                          int streamid);
 #define libssh2_channel_flush(channel) libssh2_channel_flush_ex((channel), 0)
 #define libssh2_channel_flush_stderr(channel) \
- libssh2_channel_flush_ex((channel), SSH_EXTENDED_DATA_STDERR)
+    libssh2_channel_flush_ex((channel), SSH_EXTENDED_DATA_STDERR)
 
 LIBSSH2_API int libssh2_channel_get_exit_status(LIBSSH2_CHANNEL* channel);
 LIBSSH2_API int libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL* channel,
@@ -976,7 +983,7 @@ LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session,
                                               const char *path,
                                               struct stat *sb);
-/* Use libssh2_scp_recv2 for large (> 2GB) file support on windows */
+/* Use libssh2_scp_recv2() for large (> 2GB) file support on windows */
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv2(LIBSSH2_SESSION *session,
                                                const char *path,
                                                libssh2_struct_stat *sb);
@@ -989,7 +996,7 @@ libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
                    libssh2_int64_t size, time_t mtime, time_t atime);
 
 #define libssh2_scp_send(session, path, mode, size) \
-  libssh2_scp_send_ex((session), (path), (mode), (size), 0, 0)
+    libssh2_scp_send_ex((session), (path), (mode), (size), 0, 0)
 
 LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
                                       unsigned int *dest_len,
@@ -1023,7 +1030,7 @@ struct libssh2_knownhost {
 };
 
 /*
- * libssh2_knownhost_init
+ * libssh2_knownhost_init()
  *
  * Init a collection of known hosts. Returns the pointer to a collection.
  *
@@ -1032,7 +1039,7 @@ LIBSSH2_API LIBSSH2_KNOWNHOSTS *
 libssh2_knownhost_init(LIBSSH2_SESSION *session);
 
 /*
- * libssh2_knownhost_add
+ * libssh2_knownhost_add()
  *
  * Add a host and its associated key to the collection of known hosts.
  *
@@ -1084,7 +1091,7 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                       struct libssh2_knownhost **store);
 
 /*
- * libssh2_knownhost_addc
+ * libssh2_knownhost_addc()
  *
  * Add a host and its associated key to the collection of known hosts.
  *
@@ -1102,8 +1109,8 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
  * If 'sha1' is selected as type, the salt must be provided to the salt
  * argument. This too base64 encoded.
  *
- * The SHA-1 hash is what OpenSSH can be told to use in known_hosts files.  If
- * a custom type is used, salt is ignored and you must provide the host
+ * The SHA-1 hash is what OpenSSH can be told to use in known_hosts files.
+ * If a custom type is used, salt is ignored and you must provide the host
  * pre-hashed when checking for it in the libssh2_knownhost_check() function.
  *
  * The keylen parameter may be omitted (zero) if the key is provided as a
@@ -1119,7 +1126,7 @@ libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
                        struct libssh2_knownhost **store);
 
 /*
- * libssh2_knownhost_check
+ * libssh2_knownhost_check()
  *
  * Check a host and its associated key against the collection of known hosts.
  *
@@ -1158,7 +1165,7 @@ libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
                          struct libssh2_knownhost **knownhost);
 
 /*
- * libssh2_knownhost_del
+ * libssh2_knownhost_del()
  *
  * Remove a host from the collection of known hosts. The 'entry' struct is
  * retrieved by a call to libssh2_knownhost_check().
@@ -1169,7 +1176,7 @@ libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
                       struct libssh2_knownhost *entry);
 
 /*
- * libssh2_knownhost_free
+ * libssh2_knownhost_free()
  *
  * Free an entire collection of known hosts.
  *
@@ -1190,7 +1197,7 @@ libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
                            const char *line, size_t len, int type);
 
 /*
- * libssh2_knownhost_readfile
+ * libssh2_knownhost_readfile()
  *
  * Add hosts+key pairs from a given file.
  *
@@ -1226,7 +1233,7 @@ libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
                             int type);
 
 /*
- * libssh2_knownhost_writefile
+ * libssh2_knownhost_writefile()
  *
  * Write hosts+key pairs to a given file.
  *
@@ -1266,7 +1273,7 @@ struct libssh2_agent_publickey {
 };
 
 /*
- * libssh2_agent_init
+ * libssh2_agent_init()
  *
  * Init an ssh-agent handle. Returns the pointer to the handle.
  *
@@ -1308,8 +1315,8 @@ libssh2_agent_list_identities(LIBSSH2_AGENT *agent);
  */
 LIBSSH2_API int
 libssh2_agent_get_identity(LIBSSH2_AGENT *agent,
-               struct libssh2_agent_publickey **store,
-               struct libssh2_agent_publickey *prev);
+                           struct libssh2_agent_publickey **store,
+                           struct libssh2_agent_publickey *prev);
 
 /*
  * libssh2_agent_userauth()
@@ -1320,8 +1327,8 @@ libssh2_agent_get_identity(LIBSSH2_AGENT *agent,
  */
 LIBSSH2_API int
 libssh2_agent_userauth(LIBSSH2_AGENT *agent,
-               const char *username,
-               struct libssh2_agent_publickey *identity);
+                       const char *username,
+                       struct libssh2_agent_publickey *identity);
 
 /*
  * libssh2_agent_disconnect()
@@ -1394,15 +1401,15 @@ LIBSSH2_API int libssh2_keepalive_send(LIBSSH2_SESSION *session,
    enabled
  */
 LIBSSH2_API int libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
-#define LIBSSH2_TRACE_TRANS (1<<1)
-#define LIBSSH2_TRACE_KEX   (1<<2)
-#define LIBSSH2_TRACE_AUTH  (1<<3)
-#define LIBSSH2_TRACE_CONN  (1<<4)
-#define LIBSSH2_TRACE_SCP   (1<<5)
-#define LIBSSH2_TRACE_SFTP  (1<<6)
-#define LIBSSH2_TRACE_ERROR (1<<7)
-#define LIBSSH2_TRACE_PUBLICKEY (1<<8)
-#define LIBSSH2_TRACE_SOCKET (1<<9)
+#define LIBSSH2_TRACE_TRANS      (1<<1)
+#define LIBSSH2_TRACE_KEX        (1<<2)
+#define LIBSSH2_TRACE_AUTH       (1<<3)
+#define LIBSSH2_TRACE_CONN       (1<<4)
+#define LIBSSH2_TRACE_SCP        (1<<5)
+#define LIBSSH2_TRACE_SFTP       (1<<6)
+#define LIBSSH2_TRACE_ERROR      (1<<7)
+#define LIBSSH2_TRACE_PUBLICKEY  (1<<8)
+#define LIBSSH2_TRACE_SOCKET     (1<<9)
 
 typedef void (*libssh2_trace_handler_func)(LIBSSH2_SESSION*,
                                            void *,
