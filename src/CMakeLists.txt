@@ -96,47 +96,15 @@ if(MSVC)
   set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /DEBUG")
 endif()
 
-## Library definition
+## Sources
 
 include(GNUInstallDirs)
-set(SOURCES
-  ${CRYPTO_SOURCES}
-  agent.c
-  agent_win.c
-  bcrypt_pbkdf.c
-  channel.c
-  channel.h
-  comp.c
-  comp.h
-  crypt.c
-  crypto.h
-  global.c
-  hostkey.c
-  keepalive.c
-  kex.c
-  knownhost.c
-  libssh2_priv.h
-  mac.c
-  mac.h
-  misc.c
-  misc.h
-  os400qc3.c
-  packet.c
-  packet.h
-  pem.c
-  publickey.c
-  scp.c
-  session.c
-  session.h
-  sftp.c
-  sftp.h
-  transport.c
-  transport.h
-  userauth_kbd_packet.c
-  userauth_kbd_packet.h
-  userauth.c
-  userauth.h
-  version.c)
+transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
+# Get 'CSOURCES' and 'HHEADERS' variables
+include(${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake)
+set(SOURCES ${CSOURCES} ${HHEADERS})
+
+## Library definition
 
 # we want it to be called libssh2 on all platforms
 if(BUILD_STATIC_LIBS)

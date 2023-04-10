@@ -120,9 +120,17 @@ else
   test "$found_crypto_str" = "" && found_crypto_str="$found_crypto"
 fi
 
-m4_set_foreach([crypto_backends], [backend],
-  [AM_CONDITIONAL(m4_toupper(backend), test "$found_crypto" = "backend")]
-)
+if   test "$found_crypto" = "openssl"; then
+  LIBS="${LIBS} ${LTLIBSSL}"
+elif test "$found_crypto" = "wolfssl"; then
+  LIBS="${LIBS} ${LTLIBWOLFSSL}"
+elif test "$found_crypto" = "libgcrypt"; then
+  LIBS="${LIBS} ${LTLIBGCRYPT}"
+elif test "$found_crypto" = "wincng"; then
+  LIBS="${LIBS} ${LTLIBBCRYPT}"
+elif test "$found_crypto" = "mbedtls"; then
+  LIBS="${LIBS} ${LTLIBMBEDCRYPTO}"
+fi
 
 # libz
 

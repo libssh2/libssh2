@@ -33,8 +33,7 @@ OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   os400/libssh2rpg/libssh2.rpgle.in \
   os400/libssh2rpg/libssh2_ccsid.rpgle.in \
   os400/libssh2rpg/libssh2_publickey.rpgle \
-  os400/libssh2rpg/libssh2_sftp.rpgle \
-  Makefile.os400qc3.inc
+  os400/libssh2rpg/libssh2_sftp.rpgle
 
 EXTRA_DIST = $(WIN32FILES) get_ver.awk \
   maketgz RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \

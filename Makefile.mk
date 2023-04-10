@@ -105,29 +105,24 @@ ifdef OPENSSL_PATH
   _LDFLAGS += -L"$(OPENSSL_LIBPATH)"
   OPENSSL_LIBS ?= -lssl -lcrypto
   _LIBS += $(OPENSSL_LIBS)
-  include Makefile.OpenSSL.inc
 else ifdef WOLFSSL_PATH
   CPPFLAGS += -DLIBSSH2_WOLFSSL
   CPPFLAGS += -I"$(WOLFSSL_PATH)/include"
   CPPFLAGS += -I"$(WOLFSSL_PATH)/include/wolfssl"
   _LDFLAGS += -L"$(WOLFSSL_PATH)/lib"
   _LIBS += -lwolfssl
-  include Makefile.wolfSSL.inc
 else ifdef LIBGCRYPT_PATH
   CPPFLAGS += -DLIBSSH2_LIBGCRYPT
   CPPFLAGS += -I"$(LIBGCRYPT_PATH)/include"
   _LDFLAGS += -L"$(LIBGCRYPT_PATH)/lib"
   _LIBS += -lgcrypt
-  include Makefile.libgcrypt.inc
 else ifdef MBEDTLS_PATH
   CPPFLAGS += -DLIBSSH2_MBEDTLS
   CPPFLAGS += -I"$(MBEDTLS_PATH)/include"
   _LDFLAGS += -L"$(MBEDTLS_PATH)/lib"
   _LIBS += -lmbedtls -lmbedx509 -lmbedcrypto
-  include Makefile.mbedTLS.inc
 else ifdef WIN32
   CPPFLAGS += -DLIBSSH2_WINCNG
-  include Makefile.WinCNG.inc
 else
   $(error No suitable cryptography backend found)
 endif
@@ -177,8 +172,8 @@ ifdef WIN32
 vpath %.rc src
 endif
 
-# include Makefile.inc to get CSOURCES define
-include Makefile.inc
+# Get CSOURCES define
+include src/Makefile.inc
 
 OBJS := $(addprefix $(OBJ_DIR)/,$(patsubst %.c,%.o,$(CSOURCES)))
 
