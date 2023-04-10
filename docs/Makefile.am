@@ -14,6 +14,7 @@ dist_man_MANS = \
   libssh2_banner_set.3 \
   libssh2_base64_decode.3 \
   libssh2_channel_close.3 \
+  libssh2_channel_direct_streamlocal_ex.3 \
   libssh2_channel_direct_tcpip.3 \
   libssh2_channel_direct_tcpip_ex.3 \
   libssh2_channel_eof.3 \
