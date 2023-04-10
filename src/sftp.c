@@ -1107,7 +1107,7 @@ libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp)
 static LIBSSH2_SFTP_HANDLE *
 sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
           size_t filename_len, uint32_t flags, long mode,
-          int open_type)
+          int open_type, LIBSSH2_SFTP_ATTRIBUTES *attrs_in)
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
@@ -1118,6 +1118,10 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     unsigned char *s;
     ssize_t rc;
     int open_file = (open_type == LIBSSH2_SFTP_OPENFILE)?1:0;
+
+    if(attrs_in) {
+        memcpy(&attrs, attrs_in, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
+    }
 
     if(sftp->open_state == libssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
@@ -1331,7 +1335,25 @@ libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, const char *filename,
 
     BLOCK_ADJUST_ERRNO(hnd, sftp->channel->session,
                        sftp_open(sftp, filename, filename_len, (uint32_t)flags,
-                                 mode, open_type));
+                                 mode, open_type, NULL));
+    return hnd;
+}
+
+/* libssh2_sftp_open_ex_r
+ */
+LIBSSH2_API LIBSSH2_SFTP_HANDLE *
+libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp, const char *filename,
+                       unsigned int filename_len, unsigned long flags, long mode,
+                       int open_type, LIBSSH2_SFTP_ATTRIBUTES *attrs)
+{
+    LIBSSH2_SFTP_HANDLE *hnd;
+
+    if(!sftp)
+        return NULL;
+
+    BLOCK_ADJUST_ERRNO(hnd, sftp->channel->session,
+                       sftp_open(sftp, filename, filename_len, (uint32_t)flags,
+                                 mode, open_type, attrs));
     return hnd;
 }
 
