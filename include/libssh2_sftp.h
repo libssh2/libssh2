@@ -241,7 +241,7 @@ libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp,
 LIBSSH2_API LIBSSH2_SFTP_HANDLE *
 libssh2_sftp_open_ex_r(LIBSSH2_SFTP *sftp,
                        const char *filename,
-                       unsigned int filename_len,
+                       size_t filename_len,
                        unsigned long flags,
                        long mode, int open_type,
                        LIBSSH2_SFTP_ATTRIBUTES *attrs);
