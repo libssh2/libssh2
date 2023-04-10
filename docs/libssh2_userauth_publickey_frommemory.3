@@ -2,17 +2,18 @@
 .SH NAME
 libssh2_userauth_publickey_frommemory - authenticate a session with a public key, read from memory
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-.nf
 int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
-                                           const char *username,
-                                           size_t username_len,
-                                           const char *publickeydata,
-                                           size_t publickeydata_len,
-                                           const char *privatekeydata,
-                                           size_t privatekeydata_len,
-                                           const char *passphrase);
+                                          const char *username,
+                                          size_t username_len,
+                                          const char *publickeydata,
+                                          size_t publickeydata_len,
+                                          const char *privatekeydata,
+                                          size_t privatekeydata_len,
+                                          const char *passphrase);
+.fi
 .SH DESCRIPTION
 This function allows to authenticate a session with a public key read from memory.
 It's only supported when libssh2 is backed by OpenSSL.

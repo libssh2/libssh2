@@ -7,6 +7,7 @@ libssh2_session_callback_set - set a callback function
 
 void *libssh2_session_callback_set(LIBSSH2_SESSION *session,
                                    int cbtype, void *callback);
+.fi
 .SH DESCRIPTION
 Sets a custom callback handler for a previously initialized session
 object. Callbacks are triggered by the receipt of special packets at the

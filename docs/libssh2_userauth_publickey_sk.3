@@ -10,8 +10,7 @@ int libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                                   const char *privatekeydata,
                                   size_t privatekeydata_len,
                                   const char *passphrase,
-                                  LIBSSH2_USERAUTH_SK_SIGN_FUNC
-                                  ((*sign_callback)),
+                  LIBSSH2_USERAUTH_SK_SIGN_FUNC((*sign_callback)),
                                   void **abstract);
 
 .SH CALLBACK
@@ -34,7 +33,6 @@ int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info,
          const unsigned char *key_handle, size_t handle_len,
          void **abstract);
 .fi
-
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)

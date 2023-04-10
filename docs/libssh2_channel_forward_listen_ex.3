@@ -9,7 +9,6 @@ libssh2_channel_forward_listen_ex(LIBSSH2_SESSION *session, char *host, int port
 
 LIBSSH2_LISTENER *
 libssh2_channel_forward_listen(LIBSSH2_SESSION *session, int port);
-
 .SH DESCRIPTION
 Instruct the remote SSH server to begin listening for inbound TCP/IP
 connections. New connections will be queued by the library until accepted by

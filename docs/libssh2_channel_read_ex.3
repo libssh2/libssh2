@@ -12,7 +12,6 @@ libssh2_channel_read(LIBSSH2_CHANNEL *channel, char *buf, size_t buflen);
 
 ssize_t
 libssh2_channel_read_stderr(LIBSSH2_CHANNEL *channel, char *buf, size_t buflen);
-
 .SH DESCRIPTION
 Attempt to read data from an active channel stream. All channel streams have
 one standard I/O substream (stream_id == 0), and may have up to 2^32 extended

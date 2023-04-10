@@ -2,9 +2,11 @@
 .SH NAME
 libssh2_session_set_read_timeout - set timeout for packet read functions
 .SH SYNOPSIS
-#include <libssh2.h>
 .nf
+#include <libssh2.h>
+
 void libssh2_session_set_read_timeout(LIBSSH2_SESSION *session, long timeout);
+.fi
 .SH DESCRIPTION
 Set the \fBtimeout\fP in seconds for how long libssh2 packet read
 function calls may wait until they consider the situation an error and return

@@ -8,6 +8,7 @@ libssh2_session_supported_algs - get list of supported algorithms
 int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
                                    int method_type,
                                    const char*** algs);
+.fi
 .SH DESCRIPTION
 \fIsession\fP - An instance of initialized LIBSSH2_SESSION (the function will
 use its pointer to the memory allocation function).  \fImethod_type\fP -

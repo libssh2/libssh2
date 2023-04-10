@@ -1,4 +1,4 @@
-
+.\"
 .\" Copyright (c) 2009, 2010 by Daniel Stenberg
 .\"
 .TH libssh2_knownhost_add 3 "28 May 2009" "libssh2 1.2" "libssh2 manual"
@@ -13,6 +13,7 @@ int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                           char *key, size_t keylen,
                           int typemask,
                           struct libssh2_knownhost **store);
+.fi
 .SH DESCRIPTION
 We discourage use of this function as of libssh2 1.2.5. Instead we strongly
 urge users to use \fIlibssh2_knownhost_addc(3)\fP instead, which as a more

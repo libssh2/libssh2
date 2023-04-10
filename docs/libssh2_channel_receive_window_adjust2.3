@@ -9,7 +9,6 @@ libssh2_channel_receive_window_adjust2(LIBSSH2_CHANNEL * channel,
                                        unsigned long adjustment,
                                        unsigned char force,
                                        unsigned int *window);
-
 .SH DESCRIPTION
 Adjust the receive window for a channel by adjustment bytes. If the amount to
 be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the

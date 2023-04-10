@@ -9,6 +9,7 @@ libssh2_sftp_write - write SFTP data
 ssize_t libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *handle,
                            const char *buffer,
                            size_t count);
+.fi
 .SH DESCRIPTION
 \fBlibssh2_sftp_write(3)\fP writes a block of data to the SFTP server. This
 method is modeled after the POSIX write() function and uses the same calling
