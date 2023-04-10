@@ -526,7 +526,8 @@ libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION * session,
         return NULL;
 
     BLOCK_ADJUST_ERRNO(ptr, session,
-                       channel_direct_streamlocal(session, socket_path, shost, sport));
+                       channel_direct_streamlocal(session,
+                       socket_path, shost, sport));
     return ptr;
 }
 
@@ -2476,9 +2477,6 @@ libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 
     if(!channel)
         return LIBSSH2_ERROR_BAD_USE;
-
-    if(!channel->session)
-        return LIBSSH2_ERROR_SOCKET_RECV;
 
     BLOCK_ADJUST(rc, channel->session,
                  _libssh2_channel_write(channel, stream_id,
