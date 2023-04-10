@@ -1,4 +1,3 @@
-
 Creative people have written bindings or interfaces for various environments
 and programming languages. Using one of these bindings allows you to take
 advantage of libssh2 directly from within your favourite language.
