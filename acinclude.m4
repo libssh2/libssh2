@@ -1,3 +1,145 @@
+dnl CURL_CPP_P
+dnl
+dnl Check if $cpp -P should be used for extract define values due to gcc 5
+dnl splitting up strings and defines between line outputs. gcc by default
+dnl (without -P) will show TEST EINVAL TEST as
+dnl
+dnl # 13 "conftest.c"
+dnl TEST
+dnl # 13 "conftest.c" 3 4
+dnl     22
+dnl # 13 "conftest.c"
+dnl            TEST
+
+AC_DEFUN([CURL_CPP_P], [
+  AC_MSG_CHECKING([if cpp -P is needed])
+  AC_EGREP_CPP([TEST.*TEST], [
+ #include <errno.h>
+TEST EINVAL TEST
+  ], [cpp=no], [cpp=yes])
+  AC_MSG_RESULT([$cpp])
+
+  dnl we need cpp -P so check if it works then
+  if test "x$cpp" = "xyes"; then
+    AC_MSG_CHECKING([if cpp -P works])
+    OLDCPPFLAGS=$CPPFLAGS
+    CPPFLAGS="$CPPFLAGS -P"
+    AC_EGREP_CPP([TEST.*TEST], [
+ #include <errno.h>
+TEST EINVAL TEST
+    ], [cpp_p=yes], [cpp_p=no])
+    AC_MSG_RESULT([$cpp_p])
+
+    if test "x$cpp_p" = "xno"; then
+      AC_MSG_WARN([failed to figure out cpp -P alternative])
+      # without -P
+      CPPPFLAG=""
+    else
+      # with -P
+      CPPPFLAG="-P"
+    fi
+    dnl restore CPPFLAGS
+    CPPFLAGS=$OLDCPPFLAGS
+  else
+    # without -P
+    CPPPFLAG=""
+  fi
+])
+
+dnl CURL_CHECK_DEF (SYMBOL, [INCLUDES], [SILENT])
+dnl -------------------------------------------------
+dnl Use the C preprocessor to find out if the given object-style symbol
+dnl is defined and get its expansion. This macro will not use default
+dnl includes even if no INCLUDES argument is given. This macro will run
+dnl silently when invoked with three arguments. If the expansion would
+dnl result in a set of double-quoted strings the returned expansion will
+dnl actually be a single double-quoted string concatenating all them.
+
+AC_DEFUN([CURL_CHECK_DEF], [
+  AC_REQUIRE([CURL_CPP_P])dnl
+  OLDCPPFLAGS=$CPPFLAGS
+  # CPPPFLAG comes from CURL_CPP_P
+  CPPFLAGS="$CPPFLAGS $CPPPFLAG"
+  AS_VAR_PUSHDEF([ac_HaveDef], [curl_cv_have_def_$1])dnl
+  AS_VAR_PUSHDEF([ac_Def], [curl_cv_def_$1])dnl
+  if test -z "$SED"; then
+    AC_MSG_ERROR([SED not set. Cannot continue without SED being set.])
+  fi
+  if test -z "$GREP"; then
+    AC_MSG_ERROR([GREP not set. Cannot continue without GREP being set.])
+  fi
+  ifelse($3,,[AC_MSG_CHECKING([for preprocessor definition of $1])])
+  tmp_exp=""
+  AC_PREPROC_IFELSE([
+    AC_LANG_SOURCE(
+ifelse($2,,,[$2])[[
+#ifdef $1
+CURL_DEF_TOKEN $1
+#endif
+    ]])
+  ],[
+    tmp_exp=`eval "$ac_cpp conftest.$ac_ext" 2>/dev/null | \
+      "$GREP" CURL_DEF_TOKEN 2>/dev/null | \
+      "$SED" 's/.*CURL_DEF_TOKEN[[ ]][[ ]]*//' 2>/dev/null | \
+      "$SED" 's/[["]][[ ]]*[["]]//g' 2>/dev/null`
+    if test -z "$tmp_exp" || test "$tmp_exp" = "$1"; then
+      tmp_exp=""
+    fi
+  ])
+  if test -z "$tmp_exp"; then
+    AS_VAR_SET(ac_HaveDef, no)
+    ifelse($3,,[AC_MSG_RESULT([no])])
+  else
+    AS_VAR_SET(ac_HaveDef, yes)
+    AS_VAR_SET(ac_Def, $tmp_exp)
+    ifelse($3,,[AC_MSG_RESULT([$tmp_exp])])
+  fi
+  AS_VAR_POPDEF([ac_Def])dnl
+  AS_VAR_POPDEF([ac_HaveDef])dnl
+  CPPFLAGS=$OLDCPPFLAGS
+])
+
+dnl CURL_CHECK_COMPILER_CLANG
+dnl -------------------------------------------------
+dnl Verify if compiler being used is clang.
+
+AC_DEFUN([CURL_CHECK_COMPILER_CLANG], [
+  AC_BEFORE([$0],[CURL_CHECK_COMPILER_GNU_C])dnl
+  AC_MSG_CHECKING([if compiler is clang])
+  CURL_CHECK_DEF([__clang__], [], [silent])
+  if test "$curl_cv_have_def___clang__" = "yes"; then
+    AC_MSG_RESULT([yes])
+    AC_MSG_CHECKING([if compiler is xlclang])
+    CURL_CHECK_DEF([__ibmxl__], [], [silent])
+    if test "$curl_cv_have_def___ibmxl__" = "yes" ; then
+      dnl IBM's almost-compatible clang version
+      AC_MSG_RESULT([yes])
+      compiler_id="XLCLANG"
+    else
+      AC_MSG_RESULT([no])
+      compiler_id="CLANG"
+    fi
+    fullclangver=`$CC -v 2>&1 | grep version`
+    clangver=`echo $fullclangver | grep "based on LLVM " | "$SED" 's/.*(based on LLVM \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*)/\1/'`
+    if test -z "$clangver"; then
+      if echo $fullclangver | grep "Apple LLVM version " >/dev/null; then
+        dnl Starting with XCode 7 / clang 3.7, Apple clang won't tell its upstream version
+        clangver="3.7"
+      else
+        clangver=`echo $fullclangver | "$SED" 's/.*version \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*/\1/'`
+      fi
+    fi
+    clangvhi=`echo $clangver | cut -d . -f1`
+    clangvlo=`echo $clangver | cut -d . -f2`
+    compiler_num=`(expr $clangvhi "*" 100 + $clangvlo) 2>/dev/null`
+    flags_dbg_yes="-g"
+    flags_opt_all="-O -O0 -O1 -O2 -Os -O3 -O4"
+    flags_opt_yes="-O2"
+    flags_opt_off="-O0"
+  else
+    AC_MSG_RESULT([no])
+  fi
+])
 
 dnl **********************************************************************
 dnl CURL_DETECT_ICC ([ACTION-IF-YES])
@@ -33,11 +175,101 @@ dnl options are only used for debug-builds.
 
 AC_DEFUN([CURL_CC_DEBUG_OPTS],
 [
-    if test "z$ICC" = "z"; then
+    if test "z$CLANG" = "z"; then
+      CURL_CHECK_COMPILER_CLANG
+    elif test "z$ICC" = "z"; then
       CURL_DETECT_ICC
     fi
 
-    if test "$GCC" = "yes"; then
+    if test "z$compiler_id" = "zCLANG"; then
+
+       CLANG="yes"
+
+       fullclangver=`$CC -v 2>&1 | grep version`
+       clangver=`echo $fullclangver | grep "based on LLVM " | "$SED" 's/.*(based on LLVM \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*)/\1/'`
+       if test -z "$clangver"; then
+         if echo $fullclangver | grep "Apple LLVM version " >/dev/null; then
+           dnl Starting with Xcode 7 / clang 3.7, Apple clang won't tell its upstream version
+           clangver="3.7"
+         else
+           clangver=`echo $fullclangver | "$SED" 's/.*version \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*/\1/'`
+         fi
+       fi
+       clangvhi=`echo $clangver | cut -d . -f1`
+       clangvlo=`echo $clangver | cut -d . -f2`
+       gccver=`(expr $clangvhi "*" 100 + $clangvlo) 2>/dev/null`
+
+       WARN="-pedantic"
+       CURL_ADD_COMPILER_WARNINGS([WARN], [all extra])
+       CURL_ADD_COMPILER_WARNINGS([WARN], [pointer-arith write-strings])
+       CURL_ADD_COMPILER_WARNINGS([WARN], [shadow])
+       CURL_ADD_COMPILER_WARNINGS([WARN], [inline nested-externs])
+       CURL_ADD_COMPILER_WARNINGS([WARN], [missing-declarations])
+       CURL_ADD_COMPILER_WARNINGS([WARN], [missing-prototypes])
+       WARN="$WARN -Wno-long-long"
+       CURL_ADD_COMPILER_WARNINGS([WARN], [float-equal])
+       CURL_ADD_COMPILER_WARNINGS([WARN], [no-multichar sign-compare])
+       CURL_ADD_COMPILER_WARNINGS([WARN], [undef])
+       WARN="$WARN -Wno-format-nonliteral"
+       CURL_ADD_COMPILER_WARNINGS([WARN], [endif-labels strict-prototypes])
+       CURL_ADD_COMPILER_WARNINGS([WARN], [declaration-after-statement])
+       CURL_ADD_COMPILER_WARNINGS([WARN], [cast-align])
+       WARN="$WARN -Wno-system-headers"
+       CURL_ADD_COMPILER_WARNINGS([WARN], [shorten-64-to-32])
+       #
+       dnl Only clang 1.1 or later
+       if test "$gccver" -ge "101"; then
+         CURL_ADD_COMPILER_WARNINGS([WARN], [unused])
+       fi
+       #
+       dnl Only clang 2.8 or later
+       if test "$gccver" -ge "208"; then
+         CURL_ADD_COMPILER_WARNINGS([WARN], [vla])
+       fi
+       #
+       dnl Only clang 2.9 or later
+       if test "$gccver" -ge "209"; then
+         CURL_ADD_COMPILER_WARNINGS([WARN], [shift-sign-overflow])
+       fi
+       #
+       dnl Only clang 3.2 or later
+       if test "$gccver" -ge "302"; then
+         case $host_os in
+         cygwin* | mingw*)
+           dnl skip missing-variable-declarations warnings for cygwin and
+           dnl mingw because the libtool wrapper executable causes them
+           ;;
+         *)
+           CURL_ADD_COMPILER_WARNINGS([WARN], [missing-variable-declarations])
+           ;;
+         esac
+       fi
+       #
+       dnl Only clang 3.6 or later
+       if test "$gccver" -ge "306"; then
+         CURL_ADD_COMPILER_WARNINGS([WARN], [double-promotion])
+       fi
+       #
+       dnl Only clang 3.9 or later
+       if test "$gccver" -ge "309"; then
+         CURL_ADD_COMPILER_WARNINGS([WARN], [comma])
+         # avoid the varargs warning, fixed in 4.0
+         # https://bugs.llvm.org/show_bug.cgi?id=29140
+         if test "$gccver" -lt "400"; then
+           WARN="$WARN -Wno-varargs"
+         fi
+       fi
+       dnl clang 7 or later
+       if test "$gccver" -ge "700"; then
+         CURL_ADD_COMPILER_WARNINGS([WARN], [assign-enum])
+         CURL_ADD_COMPILER_WARNINGS([WARN], [extra-semi-stmt])
+       fi
+
+       CFLAGS="$CFLAGS $WARN"
+
+       AC_MSG_NOTICE([Added this set of compiler options: $WARN])
+
+    elif test "$GCC" = "yes"; then
 
        dnl figure out gcc version!
        AC_MSG_CHECKING([gcc version])
