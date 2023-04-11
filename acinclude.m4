@@ -232,8 +232,18 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          CURL_ADD_COMPILER_WARNINGS([WARN], [shift-sign-overflow])
        fi
        #
+       dnl Only clang 3.0 or later (possibly earlier)
+       if test "$gccver" -ge "300"; then
+         CURL_ADD_COMPILER_WARNINGS([WARN], [conversion])
+         CURL_ADD_COMPILER_WARNINGS([WARN], [empty-body])
+         CURL_ADD_COMPILER_WARNINGS([WARN], [ignored-qualifiers])
+         CURL_ADD_COMPILER_WARNINGS([WARN], [type-limits])
+         CURL_ADD_COMPILER_WARNINGS([WARN], [no-sign-conversion])
+       fi
+       #
        dnl Only clang 3.2 or later
        if test "$gccver" -ge "302"; then
+         CURL_ADD_COMPILER_WARNINGS([WARN], [enum-conversion])
          case $host_os in
          cygwin* | mingw*)
            dnl skip missing-variable-declarations warnings for cygwin and

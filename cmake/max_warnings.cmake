@@ -65,14 +65,14 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Warith-conversion                   #             gcc 10.0
       -Wcast-align                         # clang  1.0  gcc  4.2
       -Wclobbered                          #             gcc  4.3/-Wextra
-      -Wconversion                         # clang _3.0  gcc  4.3 (or even 4.1) --> autotools-clang
+      -Wconversion                         # clang _3.0  gcc  4.3 (or even 4.1)
       -Wdeclaration-after-statement        # clang  1.0  gcc  3.4
       -Wdouble-promotion                   # clang  3.6  gcc  4.6
-      -Wempty-body                         # clang _3.0  gcc  4.3              --> autotools-clang
+      -Wempty-body                         # clang _3.0  gcc  4.3
       -Wendif-labels                       # clang  1.0  gcc  3.3
-      -Wenum-conversion                    # clang  3.2  gcc 10.0 (for C, 11.0 for C++) --> autotools-clang
+      -Wenum-conversion                    # clang  3.2  gcc 10.0 (for C, 11.0 for C++)
       -Wfloat-equal                        # clang  1.0  gcc  2.96
-      -Wignored-qualifiers                 # clang _3.0  gcc  4.3              --> autotools-clang
+      -Wignored-qualifiers                 # clang _3.0  gcc  4.3
       -Winline                             # clang  1.0  gcc  1.0
       -Wmissing-declarations               # clang  1.0  gcc  2.7
       -Wmissing-parameter-type             #             gcc  4.3
@@ -84,7 +84,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wsign-compare                       # clang  1.0  gcc  2.95
       -Wstrict-aliasing=3                  #             gcc  4.0
       -Wstrict-prototypes                  # clang  1.0  gcc  3.3
-      -Wtype-limits                        # clang _3.0  gcc  4.3              --> autotools-clang
+      -Wtype-limits                        # clang _3.0  gcc  4.3
       -Wundef                              # clang  1.0  gcc  2.95
       -Wunused                             # clang  1.1  gcc _4.1 (or earlier) --> autotools-gcc
       -Wvla                                # clang  2.8  gcc  4.3
@@ -93,7 +93,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wno-long-long                       # clang  1.0  gcc  2.95
       -Wno-multichar                       # clang  1.0  gcc _4.1 (or earlier) --> autotools-gcc
       -Wno-pedantic-ms-format              #             gcc  4.5 (mingw-only) --> autotools-gcc
-      -Wno-sign-conversion                 # clang _3.0  gcc  4.3              --> autotools-clang
+      -Wno-sign-conversion                 # clang _3.0  gcc  4.3
       -Wno-system-headers                  # clang  1.0  gcc _4.1 (or earlier) --> autotools-gcc
       )
       # surprisingly, CHECK_C_COMPILER_FLAG needs a new variable to store each new
