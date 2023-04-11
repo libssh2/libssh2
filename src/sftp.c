@@ -1119,12 +1119,12 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     ssize_t rc;
     int open_file = (open_type == LIBSSH2_SFTP_OPENFILE)?1:0;
 
-    if(attrs_in) {
-        memcpy(&attrs, attrs_in, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
-    }
-
     if(sftp->open_state == libssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
+
+        if(attrs_in) {
+            memcpy(&attrs, attrs_in, sizeof(LIBSSH2_SFTP_ATTRIBUTES));
+        }
 
         /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
            flags(4) */
