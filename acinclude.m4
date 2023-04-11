@@ -373,9 +373,11 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          dnl Only gcc 4.5 or later
          if test "$gccnum" -ge "405"; then
            dnl Only windows targets
-           if test "$curl_cv_have_def__WIN32" = "yes"; then
+           case $host_os in
+           mingw*)
              WARN="$WARN -Wno-pedantic-ms-format"
-           fi
+             ;;
+           esac
          fi
          #
          dnl Only gcc 4.6 or later

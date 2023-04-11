@@ -92,7 +92,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wno-format-nonliteral               # clang  1.0  gcc  2.96
       -Wno-long-long                       # clang  1.0  gcc  2.95
       -Wno-multichar                       # clang  1.0  gcc _4.1 (or earlier) --> autotools-gcc
-      -Wno-pedantic-ms-format              #             gcc  4.5 (mingw-only) --> autotools-gcc
+      -Wno-pedantic-ms-format              #             gcc  4.5 (mingw-only)
       -Wno-sign-conversion                 # clang _3.0  gcc  4.3
       -Wno-system-headers                  # clang  1.0  gcc _4.1 (or earlier) --> autotools-gcc
       )
