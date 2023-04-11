@@ -45,7 +45,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                             const unsigned char *pubkeydata,
                             size_t pubkeydata_len,
                             LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
-                            ((*sign_callback)),
+                                ((*sign_callback)),
                             void *abstract);
 
 #endif /* __LIBSSH2_USERAUTH_H */

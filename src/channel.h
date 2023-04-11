@@ -39,7 +39,7 @@
  */
 
 /*
- * _libssh2_channel_receive_window_adjust
+ * _libssh2_channel_receive_window_adjust()
  *
  * Adjust the receive window for a channel by adjustment bytes. If the amount
  * to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
@@ -53,7 +53,7 @@ int _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
                                            unsigned int *store);
 
 /*
- * _libssh2_channel_flush
+ * _libssh2_channel_flush()
  *
  * Flush data from one (or all) stream
  * Returns number of bytes flushed, or negative on failure
@@ -61,7 +61,7 @@ int _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
 int _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid);
 
 /*
- * _libssh2_channel_free
+ * _libssh2_channel_free()
  *
  * Make sure a channel is closed, then remove the channel from the session
  * and free its resource(s)
@@ -74,7 +74,7 @@ int
 _libssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode);
 
 /*
- * _libssh2_channel_write
+ * _libssh2_channel_write()
  *
  * Send data to a channel
  */
@@ -83,7 +83,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                        const unsigned char *buf, size_t buflen);
 
 /*
- * _libssh2_channel_open
+ * _libssh2_channel_open()
  *
  * Establish a generic session channel
  */
@@ -96,7 +96,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
 
 
 /*
- * _libssh2_channel_process_startup
+ * _libssh2_channel_process_startup()
  *
  * Primitive for libssh2_channel_(shell|exec|subsystem)
  */
@@ -106,7 +106,7 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
                                  const char *message, size_t message_len);
 
 /*
- * _libssh2_channel_read
+ * _libssh2_channel_read()
  *
  * Read data from a channel
  *
@@ -128,7 +128,7 @@ size_t _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel,
 int _libssh2_channel_close(LIBSSH2_CHANNEL * channel);
 
 /*
- * _libssh2_channel_forward_cancel
+ * _libssh2_channel_forward_cancel()
  *
  * Stop listening on a remote port and free the listener
  * Toss out any pending (un-accept()ed) connections
