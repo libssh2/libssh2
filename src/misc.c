@@ -213,7 +213,7 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
     return rc;
 }
 
-/* libssh2_ntohu32
+/* libssh2_ntohu32()
  */
 uint32_t
 _libssh2_ntohu32(const unsigned char *buf)
@@ -315,7 +315,7 @@ static const short base64_reverse_table[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
 
-/* libssh2_base64_decode
+/* libssh2_base64_decode()
  *
  * Decode a base64 chunk and store it into a newly alloc'd buffer
  */
@@ -656,7 +656,7 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
 /* this define is defined in misc.h for the correct platforms */
 #ifdef LIBSSH2_GETTIMEOFDAY_WIN32
 /*
- * gettimeofday
+ * _libssh2_gettimeofday()
  * Implementation according to:
  * The Open Group Base Specifications Issue 6
  * IEEE Std 1003.1, 2004 Edition

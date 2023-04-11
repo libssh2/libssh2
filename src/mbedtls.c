@@ -898,7 +898,7 @@ _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
  */
 
 /*
- * _libssh2_ecdsa_create_key
+ * _libssh2_ecdsa_create_key()
  *
  * Creates a local private key based on input curve
  * and returns octal value and octal length

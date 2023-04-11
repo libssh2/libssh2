@@ -696,7 +696,7 @@ agent_publickey_to_external(struct agent_publickey *node)
 }
 
 /*
- * libssh2_agent_init
+ * libssh2_agent_init()
  *
  * Init an ssh-agent handle. Returns the pointer to the handle.
  *

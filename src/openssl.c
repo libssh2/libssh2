@@ -2968,7 +2968,7 @@ _libssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx ** ec_ctx,
 
 
 /*
- * _libssh2_ecdsa_create_key
+ * _libssh2_ecdsa_create_key()
  *
  * Creates a local private key based on input curve
  * and returns octal value and octal length

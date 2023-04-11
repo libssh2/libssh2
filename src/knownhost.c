@@ -83,7 +83,7 @@ static void free_host(LIBSSH2_SESSION *session, struct known_host *entry)
 }
 
 /*
- * libssh2_knownhost_init
+ * libssh2_knownhost_init()
  *
  * Init a collection of known hosts. Returns the pointer to a collection.
  *
@@ -257,7 +257,7 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_add
+ * libssh2_knownhost_add()
  *
  * Add a host and its associated key to the collection of known hosts.
  *
@@ -290,7 +290,7 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 
 
 /*
- * libssh2_knownhost_addc
+ * libssh2_knownhost_addc()
  *
  * Add a host and its associated key to the collection of known hosts.
  *
@@ -328,7 +328,7 @@ libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * knownhost_check
+ * knownhost_check()
  *
  * Check a host and its associated key against the collection of known hosts.
  *
@@ -491,7 +491,7 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_check
+ * libssh2_knownhost_check()
  *
  * Check a host and its associated key against the collection of known hosts.
  *
@@ -519,7 +519,7 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_checkp
+ * libssh2_knownhost_checkp()
  *
  * Check a host+port and its associated key against the collection of known
  * hosts.
@@ -554,7 +554,7 @@ libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
 
 
 /*
- * libssh2_knownhost_del
+ * libssh2_knownhost_del()
  *
  * Remove a host from the collection of known hosts.
  *
@@ -587,7 +587,7 @@ libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_free
+ * libssh2_knownhost_free()
  *
  * Free an entire collection of known hosts.
  *
@@ -940,7 +940,7 @@ libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_readfile
+ * libssh2_knownhost_readfile()
  *
  * Read hosts+key pairs from a given file.
  *
