@@ -38,10 +38,19 @@
 
 #include "libssh2_priv.h"
 
-#ifdef LIBSSH2_CRYPT_NONE
-
+#if defined(LIBSSH2DEBUG) && defined(LIBSSH2_CRYPT_NONE_INSECURE)
 /* crypt_none_crypt
- * Minimalist cipher: VERY secure *wink*
+ * Minimalist cipher: no encryption. DO NOT USE.
+ *
+ * The SSH2 Transport allows for unencrypted data transmission using
+ * the "none" cipher.  Because this is such a huge security hole, it is
+ * typically disabled on SSH2 implementations and is disabled in libssh2
+ * by default as well.
+ *
+ * Enabling this option will allow for "none" as a negotiable method,
+ * however it still requires that the method be advertised by the remote
+ * end and that no more-preferable methods are available.
+ *
  */
 static int
 crypt_none_crypt(LIBSSH2_SESSION * session, unsigned char *buf,
@@ -62,7 +71,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_none = {
     crypt_none_crypt,
     NULL
 };
-#endif /* LIBSSH2_CRYPT_NONE */
+#endif /* defined(LIBSSH2DEBUG) && defined(LIBSSH2_CRYPT_NONE_INSECURE) */
 
 struct crypt_ctx
 {
@@ -337,7 +346,7 @@ static const LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
 #if LIBSSH2_3DES
     &libssh2_crypt_method_3des_cbc,
 #endif /*  LIBSSH2_DES */
-#ifdef LIBSSH2_CRYPT_NONE
+#if defined(LIBSSH2DEBUG) && defined(LIBSSH2_CRYPT_NONE_INSECURE)
     &libssh2_crypt_method_none,
 #endif
     NULL

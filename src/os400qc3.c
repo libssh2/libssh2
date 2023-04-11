@@ -41,9 +41,7 @@
 
 #ifdef LIBSSH2_OS400QC3 /* compile only if we build with OS/400 QC3 library */
 
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -883,7 +881,7 @@ _libssh2_bn_from_bn(_libssh2_bn *to, _libssh2_bn *from)
 }
 
 int
-_libssh2_random(unsigned char *buf, int len)
+_libssh2_random(unsigned char *buf, size_t len)
 {
     Qc3GenPRNs(buf, len,
         Qc3PRN_TYPE_NORMAL, Qc3PRN_NO_PARITY, (char *) &ecnull);
@@ -2142,7 +2140,6 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           unsigned char **method, size_t *method_len,
                           unsigned char **pubkeydata, size_t *pubkeydata_len,
                           const char *privatekey, const char *passphrase)
-
 {
     loadpubkeydata p;
     int ret;
@@ -2379,12 +2376,12 @@ _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
 
 int
 _libssh2_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
-                         const unsigned char *sig, unsigned long sig_len,
-                         const unsigned char *m, unsigned long m_len)
+                         const unsigned char *sig, size_t sig_len,
+                         const unsigned char *m, size_t m_len)
 {
     Qus_EC_t errcode;
-    int slen = sig_len;
-    int mlen = m_len;
+    int slen = (int)sig_len;
+    int mlen = (int)m_len;
 
     set_EC_length(errcode, sizeof errcode);
     Qc3VerifySignature((char *) sig, &slen, (char *) m, &mlen, Qc3_Data,

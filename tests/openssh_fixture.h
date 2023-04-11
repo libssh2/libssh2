@@ -40,6 +40,6 @@
 
 int start_openssh_fixture(void);
 void stop_openssh_fixture(void);
-int open_socket_to_openssh_server(void);
+libssh2_socket_t open_socket_to_openssh_server(void);
 
 #endif

@@ -35,7 +35,6 @@
  * OF SUCH DAMAGE.
  */
 
-#include "session_fixture.h"
 #include "runner.h"
 
 int main(void)

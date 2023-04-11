@@ -113,8 +113,11 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     if(!_libssh2_eob(&buf))
         return -1;
 
-    if(_libssh2_rsa_new(&rsactx, e, e_len, n, n_len, NULL, 0,
-                        NULL, 0, NULL, 0, NULL, 0, NULL, 0, NULL, 0)) {
+    if(_libssh2_rsa_new(&rsactx,
+                        e, (unsigned long)e_len,
+                        n, (unsigned long)n_len,
+                        NULL, 0, NULL, 0, NULL, 0,
+                        NULL, 0, NULL, 0, NULL, 0)) {
         return -1;
     }
 
@@ -410,13 +413,9 @@ hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION * session, void **abstract)
     return 0;
 }
 
-#ifdef OPENSSL_NO_MD5
-#define MD5_DIGEST_LENGTH 16
-#endif
-
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa = {
     "ssh-rsa",
-    MD5_DIGEST_LENGTH,
+    SHA_DIGEST_LENGTH,
     hostkey_method_ssh_rsa_init,
     hostkey_method_ssh_rsa_initPEM,
     hostkey_method_ssh_rsa_initPEMFromMemory,
@@ -456,7 +455,7 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_sha2_512 = {
 
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_cert = {
     "ssh-rsa-cert-v01@openssh.com",
-    MD5_DIGEST_LENGTH,
+    SHA_DIGEST_LENGTH,
     NULL,
     hostkey_method_ssh_rsa_initPEM,
     hostkey_method_ssh_rsa_initPEMFromMemory,
@@ -525,8 +524,12 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
     if(!_libssh2_eob(&buf))
         return -1;
 
-    if(_libssh2_dsa_new(&dsactx, p, p_len, q, q_len,
-                        g, g_len, y, y_len, NULL, 0)) {
+    if(_libssh2_dsa_new(&dsactx,
+                        p, (unsigned long)p_len,
+                        q, (unsigned long)q_len,
+                        g, (unsigned long)g_len,
+                        y, (unsigned long)y_len,
+                        NULL, 0)) {
         return -1;
     }
 
@@ -681,7 +684,7 @@ hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION * session, void **abstract)
 
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_dss = {
     "ssh-dss",
-    MD5_DIGEST_LENGTH,
+    SHA_DIGEST_LENGTH,
     hostkey_method_ssh_dss_init,
     hostkey_method_ssh_dss_initPEM,
     hostkey_method_ssh_dss_initPEMFromMemory,
@@ -1240,7 +1243,7 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_ed25519 = {
     hostkey_method_ssh_ed25519_dtor,
 };
 
-#endif /*LIBSSH2_ED25519*/
+#endif /* LIBSSH2_ED25519 */
 
 
 static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {

@@ -35,10 +35,10 @@
  * OF SUCH DAMAGE.
  */
 
-#include <stdlib.h>
-
 #include "libssh2_priv.h"
 #include "userauth_kbd_packet.h"
+
+#include <stdlib.h>
 
 #define PASS 0
 #define FAIL -1
@@ -164,7 +164,7 @@ struct test_case test_cases[TEST_CASES_LEN] = {
         "\0\0\0\x0aResponse: "
         "\x01"
         , 89, {PASS, 0, ""}},
-    /* three prompts, 3rd missing*/
+    /* three prompts, 3rd missing */
     {
         "<"
         "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x03"
@@ -221,7 +221,7 @@ LIBSSH2_ALLOC_FUNC(test_alloc)
 {
     int *threshold_int_ptr = *abstract;
     alloc_count++;
-    if (*abstract != NULL && *threshold_int_ptr == alloc_count) {
+    if(*abstract != NULL && *threshold_int_ptr == alloc_count) {
         return NULL;
     }
 
@@ -233,7 +233,7 @@ LIBSSH2_ALLOC_FUNC(test_alloc)
 static
 LIBSSH2_FREE_FUNC(test_free)
 {
-    (void) abstract;
+    (void)abstract;
     free_count++;
     free(ptr);
 }
@@ -307,10 +307,10 @@ int main(void)
         int tc =  i + TEST_CASES_LEN + 1;
         int malloc_call_num = 3 + i;
         test_case(tc,
-                    failed_malloc_test_cases[i].data,
-                    failed_malloc_test_cases[i].data_len,
-                    &malloc_call_num,
-                    failed_malloc_test_cases[i].expected);
+                  failed_malloc_test_cases[i].data,
+                  failed_malloc_test_cases[i].data_len,
+                  &malloc_call_num,
+                  failed_malloc_test_cases[i].expected);
     }
 
     return 0;

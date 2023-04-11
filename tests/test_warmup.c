@@ -1,27 +1,19 @@
-/* Warm-up test. Always return 0.
+/* Warm-up test. Always return success.
    Workaround for CI/docker/etc flakiness on the first run. */
 
-#include "session_fixture.h"
 #include "runner.h"
 
-#include <libssh2.h>
-
-#include <stdio.h>
-
-int main(void)
+int test(LIBSSH2_SESSION *session)
 {
-    LIBSSH2_SESSION *session = start_session_fixture();
-    if(session != NULL) {
-        size_t len = 0;
-        int type = 0;
-        const char *hostkey = libssh2_session_hostkey(session, &len, &type);
+    size_t len = 0;
+    int type = 0;
+    const char *hostkey = libssh2_session_hostkey(session, &len, &type);
 
-        (void)hostkey;
+    (void)hostkey;
 
-        fprintf(stdout,
-                "libssh2_session_hostkey returned len, type: %d, %d\n",
-                (int)len, type);
-    }
-    stop_session_fixture();
-    return 0;
+    fprintf(stdout,
+            "libssh2_session_hostkey returned len, type: %d, %d\n",
+            (int)len, type);
+
+    return 0;  /* always return success */
 }

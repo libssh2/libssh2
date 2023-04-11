@@ -7,30 +7,31 @@
  * Using the SFTP server running on 127.0.0.1
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
+#ifdef WIN32
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
+
 #ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
+#include <sys/socket.h>
 #endif
 #ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
+#include <sys/select.h>
 #endif
-# ifdef HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
 #ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
+#include <arpa/inet.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 #include <sys/types.h>
@@ -38,10 +39,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <ctype.h>
-
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#pragma warning(disable:4127)
-#endif
 
 #define STORAGE "/tmp/sftp-storage" /* this is the local file name this
                                        example uses to store the downloaded
@@ -72,7 +69,7 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         writefd = &fd;
 
-    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
 
     return rc;
 }
@@ -84,6 +81,8 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
     const char *username = "username";
     const char *password = "password";
     const char *sftppath = "/tmp/TEST"; /* source path */
@@ -123,8 +122,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = htonl(0x7F000001);
-    if(connect(sock, (struct sockaddr*)(&sin),
-                sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
@@ -146,7 +144,7 @@ int main(int argc, char *argv[])
 
     libssh2_session_set_blocking(session, 0);
 
-    /* At this point we havn't yet authenticated.  The first thing to do
+    /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call
@@ -190,10 +188,7 @@ int main(int argc, char *argv[])
         /* Or by public key */
         while((rc =
                libssh2_userauth_publickey_fromfile(session, username,
-                                                   "/home/username/"
-                                                   ".ssh/id_rsa.pub",
-                                                   "/home/username/"
-                                                   ".ssh/id_rsa",
+                                                   pubkey, privkey,
                                                    password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
@@ -237,21 +232,22 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
     do {
+        ssize_t nread;
         do {
             /* read in a loop until we block */
-            rc = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
+            nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
             fprintf(stderr, "libssh2_sftp_read returned %d\n",
-                    rc);
+                    (int)nread);
 
-            if(rc > 0) {
+            if(nread > 0) {
                 /* write to stderr */
-                write(2, mem, rc);
+                write(2, mem, nread);
                 /* write to temporary storage area */
-                fwrite(mem, rc, 1, tempstorage);
+                fwrite(mem, nread, 1, tempstorage);
             }
-        } while(rc > 0);
+        } while(nread > 0);
 
-        if(rc != LIBSSH2_ERROR_EAGAIN) {
+        if(nread != LIBSSH2_ERROR_EAGAIN) {
             /* error or end of file */
             break;
         }
@@ -265,7 +261,7 @@ int main(int argc, char *argv[])
         FD_SET(sock, &fd2);
 
         /* wait for readable or writeable */
-        rc = select(sock + 1, &fd, &fd2, NULL, &timeout);
+        rc = select((int)(sock + 1), &fd, &fd2, NULL, &timeout);
         if(rc <= 0) {
             /* negative is error
                0 is timeout */
@@ -296,6 +292,7 @@ int main(int argc, char *argv[])
         size_t nread;
         char *ptr;
         do {
+            ssize_t nwritten;
             nread = fread(mem, 1, sizeof(mem), tempstorage);
             if(nread <= 0) {
                 /* end of file */
@@ -305,13 +302,13 @@ int main(int argc, char *argv[])
 
             do {
                 /* write data in a loop until we block */
-                rc = libssh2_sftp_write(sftp_handle, ptr,
-                                        nread);
-                ptr += rc;
-                nread -= nread;
-            } while(rc >= 0);
+                nwritten = libssh2_sftp_write(sftp_handle, ptr,
+                                              nread);
+                ptr += nwritten;
+                nread -= nwritten;
+            } while(nwritten >= 0);
 
-            if(rc != LIBSSH2_ERROR_EAGAIN) {
+            if(nwritten != LIBSSH2_ERROR_EAGAIN) {
                 /* error or end of file */
                 break;
             }
@@ -325,7 +322,7 @@ int main(int argc, char *argv[])
             FD_SET(sock, &fd2);
 
             /* wait for readable or writeable */
-            rc = select(sock + 1, &fd, &fd2, NULL, &timeout);
+            rc = select((int)(sock + 1), &fd, &fd2, NULL, &timeout);
             if(rc <= 0) {
                 /* negative is error
                    0 is timeout */
@@ -343,7 +340,7 @@ int main(int argc, char *argv[])
 
     libssh2_sftp_shutdown(sftp_session);
 
-  shutdown:
+shutdown:
 
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);

@@ -26,27 +26,23 @@ jobs:
         compiler: [gcc, clang]
         address_size: [64]
         crypto_backend: [OpenSSL, Libgcrypt, mbedTLS]
-        build_shared_libs: [OFF, ON]
         enable_zlib_compression: [OFF, ON]
         b: [cmake]
         include:
           - compiler: gcc
             address_size: 64
             crypto_backend: OpenSSL
-            build_shared_libs: OFF
             enable_zlib_compression: OFF
             b: configure
           - compiler: clang
             address_size: 64
             crypto_backend: OpenSSL
-            build_shared_libs: OFF
             enable_zlib_compression: OFF
             b: configure
     env:
       CC: ${{ matrix.compiler }}
       CC_FOR_BUILD: ${{ matrix.compiler }}
       CRYPTO_BACKEND: ${{ matrix.crypto_backend }}
-      BUILD_SHARED_LIBS: ${{ matrix.build_shared_libs }}
       ENABLE_ZLIB_COMPRESSION: ${{ matrix.enable_zlib_compression }}
     steps:
       - uses: actions/checkout@v3
@@ -68,7 +64,7 @@ jobs:
       - name: Install mbedTLS Dependencies
         if: ${{ matrix.crypto_backend == 'mbedTLS' }}
         run: |
-          MBEDTLSVER=mbedtls-3.2.1
+          MBEDTLSVER=mbedtls-3.4.0
           curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
           cd mbedtls-$MBEDTLSVER
           cmake $TOOLCHAIN_OPTION -DUSE_SHARED_MBEDTLS_LIBRARY=ON -DCMAKE_INSTALL_PREFIX:PATH=../usr .
@@ -81,7 +77,7 @@ jobs:
         run: |
           autoreconf -fi
           ./configure --enable-debug --enable-werror
-          make
+          make -j3
           make check
       - name: Build with CMake
         timeout-minutes: 10
@@ -89,7 +85,7 @@ jobs:
         run: |
           mkdir bin
           cd bin
-          cmake $TOOLCHAIN_OPTION -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
+          cmake $TOOLCHAIN_OPTION -DENABLE_WERROR=ON -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
           cmake --build .
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
           ctest -VV --output-on-failure
@@ -121,5 +117,5 @@ jobs:
         run: |
           autoreconf -fi
           ./configure --enable-debug --enable-static --disable-shared --with-crypto=openssl
-          make
+          make -j3
           make check

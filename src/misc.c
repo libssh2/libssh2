@@ -40,9 +40,7 @@
 #include "libssh2_priv.h"
 #include "misc.h"
 
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -53,7 +51,9 @@
 #endif
 
 #ifdef WIN32
-#include <windows.h>
+/* Force parameter type. */
+#define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
+#define send(s, b, l, f)  send((s), (b), (int)(l), (f))
 #endif
 
 #include <stdio.h>
@@ -79,7 +79,7 @@ int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
     va_start(args, fmt);
     n = vsnprintf(cp, cp_max_len, fmt, args);
     va_end(args);
-    return (n < cp_max_len) ? n : (cp_max_len - 1);
+    return (n < (int)cp_max_len) ? n : (int)(cp_max_len - 1);
 }
 #endif
 
@@ -215,13 +215,13 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 
 /* libssh2_ntohu32
  */
-unsigned int
+uint32_t
 _libssh2_ntohu32(const unsigned char *buf)
 {
-    return (((unsigned int)buf[0] << 24)
-           | ((unsigned int)buf[1] << 16)
-           | ((unsigned int)buf[2] << 8)
-           | ((unsigned int)buf[3]));
+    return ((uint32_t)buf[0] << 24)
+         | ((uint32_t)buf[1] << 16)
+         | ((uint32_t)buf[2] << 8)
+         | ((uint32_t)buf[3]);
 }
 
 
@@ -230,14 +230,14 @@ _libssh2_ntohu32(const unsigned char *buf)
 libssh2_uint64_t
 _libssh2_ntohu64(const unsigned char *buf)
 {
-    unsigned long msl, lsl;
-
-    msl = ((libssh2_uint64_t)buf[0] << 24) | ((libssh2_uint64_t)buf[1] << 16)
-        | ((libssh2_uint64_t)buf[2] << 8) | (libssh2_uint64_t)buf[3];
-    lsl = ((libssh2_uint64_t)buf[4] << 24) | ((libssh2_uint64_t)buf[5] << 16)
-        | ((libssh2_uint64_t)buf[6] << 8) | (libssh2_uint64_t)buf[7];
-
-    return ((libssh2_uint64_t)msl <<32) | lsl;
+    return ((libssh2_uint64_t)buf[0] << 56)
+         | ((libssh2_uint64_t)buf[1] << 48)
+         | ((libssh2_uint64_t)buf[2] << 40)
+         | ((libssh2_uint64_t)buf[3] << 32)
+         | ((libssh2_uint64_t)buf[4] << 24)
+         | ((libssh2_uint64_t)buf[5] << 16)
+         | ((libssh2_uint64_t)buf[6] <<  8)
+         | ((libssh2_uint64_t)buf[7]);
 }
 
 /* _libssh2_htonu32
@@ -245,7 +245,7 @@ _libssh2_ntohu64(const unsigned char *buf)
 void
 _libssh2_htonu32(unsigned char *buf, uint32_t value)
 {
-    buf[0] = (value >> 24) & 0xFF;
+    buf[0] = (unsigned char)((value >> 24) & 0xFF);
     buf[1] = (value >> 16) & 0xFF;
     buf[2] = (value >> 8) & 0xFF;
     buf[3] = value & 0xFF;
@@ -281,7 +281,7 @@ void _libssh2_store_bignum2_bytes(unsigned char **buf,
     for(p = bytes; len > 0 && *p == 0; --len, ++p) {}
 
     extraByte = (len > 0 && (p[0] & 0x80) != 0);
-    _libssh2_store_u32(buf, len + extraByte);
+    _libssh2_store_u32(buf, (uint32_t)(len + extraByte));
 
     if(extraByte) {
         *buf[0] = 0;
@@ -319,6 +319,7 @@ static const short base64_reverse_table[256] = {
  *
  * Decode a base64 chunk and store it into a newly alloc'd buffer
  */
+/* FIXME: datalen, src_len -> size_t */
 LIBSSH2_API int
 libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
                       unsigned int *datalen, const char *src,
@@ -344,15 +345,15 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
             d[len] = (unsigned char)(v << 2);
             break;
         case 1:
-            d[len++] |= v >> 4;
+            d[len++] |= (unsigned char)(v >> 4);
             d[len] = (unsigned char)(v << 4);
             break;
         case 2:
-            d[len++] |= v >> 2;
+            d[len++] |= (unsigned char)(v >> 2);
             d[len] = (unsigned char)(v << 6);
             break;
         case 3:
-            d[len++] |= v;
+            d[len++] |= (unsigned char)v;
             break;
         }
         i++;
@@ -483,7 +484,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
     int len, msglen, buflen = sizeof(buffer);
     va_list vargs;
     struct timeval now;
-    static int firstsec;
+    static long firstsec;
     static const char *const contexts[] = {
         "Unknown",
         "Transport",
@@ -682,7 +683,7 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
 int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp)
 {
     union {
-        unsigned __int64 ns100; /*time since 1 Jan 1601 in 100ns units */
+        unsigned __int64 ns100; /* time since 1 Jan 1601 in 100ns units */
         FILETIME ft;
     } _now;
     (void)tzp;
@@ -750,7 +751,7 @@ void _libssh2_memzero(void *buf, size_t size)
 
 /* String buffer */
 
-struct string_buf* _libssh2_string_buf_new(LIBSSH2_SESSION *session)
+struct string_buf *_libssh2_string_buf_new(LIBSSH2_SESSION *session)
 {
     struct string_buf *ret;
 

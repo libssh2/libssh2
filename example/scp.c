@@ -2,32 +2,27 @@
  * Sample showing how to do a simple SCP transfer.
  */
 
-#ifdef WIN32
-#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#endif
-#endif
-
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
+#ifdef WIN32
+#define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
+
 #ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
+#include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-# ifdef HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
 #ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
+#include <arpa/inet.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 #include <sys/types.h>
@@ -38,13 +33,15 @@
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
     const char *username = "username";
     const char *password = "password";
     const char *scppath = "/tmp/TEST";
@@ -94,8 +91,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-               sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
@@ -115,7 +111,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do
+    /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
      * user, that's your call
@@ -136,10 +132,8 @@ int main(int argc, char *argv[])
     }
     else {
         /* Or by public key */
-#define HOME_DIR "/home/username/"
         if(libssh2_userauth_publickey_fromfile(session, username,
-                                               HOME_DIR ".ssh/id_rsa.pub",
-                                               HOME_DIR ".ssh/id_rsa",
+                                               pubkey, privkey,
                                                password)) {
             fprintf(stderr, "\tAuthentication by public key failed\n");
             goto shutdown;
@@ -159,29 +153,30 @@ int main(int argc, char *argv[])
     while(got < fileinfo.st_size) {
         char mem[1024];
         int amount = sizeof(mem);
+        ssize_t nread;
 
-        if((fileinfo.st_size -got) < amount) {
-            amount = (int)(fileinfo.st_size -got);
+        if((fileinfo.st_size - got) < amount) {
+            amount = (int)(fileinfo.st_size - got);
         }
 
-        rc = libssh2_channel_read(channel, mem, amount);
-        if(rc > 0) {
-            write(1, mem, rc);
+        nread = libssh2_channel_read(channel, mem, amount);
+        if(nread > 0) {
+            write(1, mem, nread);
         }
-        else if(rc < 0) {
-            fprintf(stderr, "libssh2_channel_read() failed: %d\n", rc);
+        else if(nread < 0) {
+            fprintf(stderr, "libssh2_channel_read() failed: %d\n",
+                    (int)nread);
             break;
         }
-        got += rc;
+        got += nread;
     }
 
     libssh2_channel_free(channel);
     channel = NULL;
 
- shutdown:
+shutdown:
 
-    libssh2_session_disconnect(session,
-                               "Normal Shutdown, Thank you for playing");
+    libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
 
 #ifdef WIN32

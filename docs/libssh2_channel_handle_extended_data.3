@@ -2,11 +2,13 @@
 .SH NAME
 libssh2_channel_handle_extended_data - set extended data handling mode
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-void 
-libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode);
-
+void
+libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
+                                     int ignore_mode);
+.fi
 .SH DESCRIPTION
 This function is deprecated. Use the
 \fIlibssh2_channel_handle_extended_data2(3)\fP function instead!
@@ -15,7 +17,7 @@ This function is deprecated. Use the
 
 \fIignore_mode\fP - One of the three LIBSSH2_CHANNEL_EXTENDED_DATA_* Constants.
 .br
-\fBLIBSSH2_CHANNEL_EXTENDED_DATA_NORMAL\fP: Queue extended data for eventual 
+\fBLIBSSH2_CHANNEL_EXTENDED_DATA_NORMAL\fP: Queue extended data for eventual
 reading
 .br
 \fBLIBSSH2_CHANNEL_EXTENDED_DATA_MERGE\fP: Treat extended data and ordinary
@@ -23,7 +25,7 @@ data the same. Merge all substreams such that calls to
 \fIlibssh2_channel_read(3)\fP will pull from all substreams on a
 first-in/first-out basis.
 .br
-\fBLIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE\fP: Discard all extended data as it 
+\fBLIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE\fP: Discard all extended data as it
 arrives.
 
 Change how a channel deals with extended data packets. By default all extended

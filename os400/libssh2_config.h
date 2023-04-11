@@ -77,9 +77,6 @@
 /* use Ioctlsocket() for non-blocking sockets */
 #undef HAVE_IOCTLSOCKET_CASE
 
-/* Define if you have the crypt32 library. */
-#undef HAVE_LIBCRYPT32
-
 /* Define if you have the gcrypt library. */
 #undef HAVE_LIBGCRYPT
 
@@ -107,9 +104,6 @@
 /* Define to 1 if you have the <stdio.h> header file. */
 #define HAVE_STDIO_H 1
 
-/* Define to 1 if you have the <stdlib.h> header file. */
-#define HAVE_STDLIB_H 1
-
 /* Define to 1 if you have the `strtoll' function. */
 #define HAVE_STRTOLL 1
 
@@ -134,29 +128,14 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
 
-/* Define to 1 if you have the <winsock2.h> header file. */
-#undef HAVE_WINSOCK2_H
-
-/* Define to 1 if you have the <ws2tcpip.h> header file. */
-#undef HAVE_WS2TCPIP_H
-
 /* to make a symbol visible */
 #undef LIBSSH2_API
-
-/* Enable "none" cipher -- NOT RECOMMENDED */
-#undef LIBSSH2_CRYPT_NONE
-
-/* Enable newer diffie-hellman-group-exchange-sha1 syntax */
-#define LIBSSH2_DH_GEX_NEW 1
 
 /* Compile in zlib support */
 /* #undef LIBSSH2_HAVE_ZLIB */
 
 /* Use libgcrypt */
 #undef LIBSSH2_LIBGCRYPT
-
-/* Enable "none" MAC -- NOT RECOMMENDED */
-#undef LIBSSH2_MAC_NONE
 
 /* Use OpenSSL */
 #undef LIBSSH2_OPENSSL
@@ -202,9 +181,9 @@
 /* If using the C implementation of alloca, define if you know the
    direction of stack growth for your system; otherwise it will be
    automatically deduced at runtime.
-	STACK_DIRECTION > 0 => grows toward higher addresses
-	STACK_DIRECTION < 0 => grows toward lower addresses
-	STACK_DIRECTION = 0 => direction of growth unknown */
+     STACK_DIRECTION > 0 => grows toward higher addresses
+     STACK_DIRECTION < 0 => grows toward lower addresses
+     STACK_DIRECTION = 0 => direction of growth unknown */
 #undef STACK_DIRECTION
 
 /* Define to 1 if you have the ANSI C header files. */

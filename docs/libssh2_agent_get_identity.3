@@ -5,11 +5,14 @@
 .SH NAME
 libssh2_agent_get_identity - get a public key off the collection of public keys managed by ssh-agent
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-int libssh2_agent_get_identity(LIBSSH2_AGENT *agent,
-                               struct libssh2_agent_publickey **store,
-                               struct libssh2_agent_publickey *prev);
+int
+libssh2_agent_get_identity(LIBSSH2_AGENT *agent,
+                           struct libssh2_agent_publickey **store,
+                           struct libssh2_agent_publickey *prev);
+.fi
 .SH DESCRIPTION
 \fIlibssh2_agent_get_identity(3)\fP allows an application to iterate
 over all public keys in the collection managed by ssh-agent.

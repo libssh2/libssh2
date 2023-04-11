@@ -2,10 +2,12 @@
 .SH NAME
 libssh2_trace - enable debug info from inside libssh2
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-void libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
-
+void
+libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
+.fi
 .SH DESCRIPTION
 This is a function present in the library that can be used to get debug info
 from within libssh2 when it is running. Helpful when trying to trace or debug

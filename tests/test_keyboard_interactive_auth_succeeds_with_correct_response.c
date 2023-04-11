@@ -1,9 +1,4 @@
-#include "session_fixture.h"
 #include "runner.h"
-
-#include <libssh2.h>
-
-#include <stdio.h>
 
 /* configured in Dockerfile */
 static const char *USERNAME = "libssh2";
@@ -28,7 +23,7 @@ static void kbd_callback(const char *name, int name_len,
 
     if(num_prompts == 1) {
         responses[0].text = strdup(PASSWORD);
-        responses[0].length = strlen(PASSWORD);
+        responses[0].length = (unsigned int)strlen(PASSWORD);
     }
 }
 
@@ -37,7 +32,8 @@ int test(LIBSSH2_SESSION *session)
     int rc;
 
     const char *userauth_list =
-        libssh2_userauth_list(session, USERNAME, strlen(USERNAME));
+        libssh2_userauth_list(session, USERNAME,
+                              (unsigned int)strlen(USERNAME));
     if(userauth_list == NULL) {
         print_last_session_error("libssh2_userauth_list");
         return 1;
@@ -51,7 +47,7 @@ int test(LIBSSH2_SESSION *session)
     }
 
     rc = libssh2_userauth_keyboard_interactive_ex(
-        session, USERNAME, strlen(USERNAME), kbd_callback);
+        session, USERNAME, (unsigned int)strlen(USERNAME), kbd_callback);
     if(rc != 0) {
         print_last_session_error("libssh2_userauth_keyboard_interactive_ex");
         return 1;

@@ -7,36 +7,27 @@
  * "sftp 192.168.0.1 user password file /tmp/storehere"
  */
 
-#ifdef WIN32
-#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#endif
-#endif
-
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
-#endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
+#include <sys/socket.h>
 #endif
 #ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
+#include <sys/select.h>
 #endif
-# ifdef HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
 #ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
+#include <arpa/inet.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 #include <sys/types.h>
@@ -71,19 +62,21 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
     if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
         writefd = &fd;
 
-    rc = select(socket_fd + 1, readfd, writefd, NULL, &timeout);
+    rc = select((int)(socket_fd + 1), readfd, writefd, NULL, &timeout);
 
     return rc;
 }
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock;
     int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
+    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+    const char *privkey = "/home/username/.ssh/id_rsa";
     const char *username = "username";
     const char *password = "password";
     const char *loclfile = "sftp_write_nonblock.c";
@@ -95,8 +88,9 @@ int main(int argc, char *argv[])
     char mem[1024 * 1000];
     size_t nread;
     size_t memuse;
+    ssize_t nwritten;
     time_t start;
-    long total = 0;
+    libssh2_struct_stat_size total = 0;
     int duration;
 
 #ifdef WIN32
@@ -116,7 +110,6 @@ int main(int argc, char *argv[])
     else {
         hostaddr = htonl(0x7F000001);
     }
-
     if(argc > 2) {
         username = argv[2];
     }
@@ -151,14 +144,13 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-                sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         return -1;
     }
 
     /* Create a session instance
-        */
+     */
     session = libssh2_session_init();
     if(!session)
         return -1;
@@ -167,8 +159,8 @@ int main(int argc, char *argv[])
     libssh2_session_set_blocking(session, 0);
 
     /* ... start it up. This will trade welcome banners, exchange keys,
-        * and setup crypto, compression, and MAC layers
-        */
+     * and setup crypto, compression, and MAC layers
+     */
     while((rc = libssh2_session_handshake(session, sock))
            == LIBSSH2_ERROR_EAGAIN);
     if(rc) {
@@ -176,10 +168,10 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* At this point we havn't yet authenticated.  The first thing to do is
-     * check the hostkey's fingerprint against our known hosts Your app may
-     * have it hard coded, may go to a file, may present it to the user,
-     * that's your call
+    /* At this point we have not yet authenticated.  The first thing to do
+     * is check the hostkey's fingerprint against our known hosts Your app
+     * may have it hard coded, may go to a file, may present it to the
+     * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
@@ -199,10 +191,8 @@ int main(int argc, char *argv[])
     }
     else {
         /* Or by public key */
-#define PUBKEY "/home/username/.ssh/id_rsa.pub"
-#define PRIVKEY "/home/username/.ssh/id_rsa"
         while((rc = libssh2_userauth_publickey_fromfile(session, username,
-                                                        PUBKEY, PRIVKEY,
+                                                        pubkey, privkey,
                                                         password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
@@ -231,7 +221,6 @@ int main(int argc, char *argv[])
                               LIBSSH2_FXF_TRUNC,
                               LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|
                               LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH);
-
         if(!sftp_handle &&
            (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
             fprintf(stderr, "Unable to open file with SFTP\n");
@@ -258,29 +247,28 @@ int main(int argc, char *argv[])
         total += nread;
 
         /* write data in a loop until we block */
-        while((rc = libssh2_sftp_write(sftp_handle, mem, memuse)) ==
+        while((nwritten = libssh2_sftp_write(sftp_handle, mem, memuse)) ==
                LIBSSH2_ERROR_EAGAIN) {
             waitsocket(sock, session);
         }
-        if(rc < 0)
+        if(nwritten < 0)
             break;
 
-        if(memuse - rc) {
+        if(memuse - nwritten) {
             /* make room for more data at the end of the buffer */
-            memmove(&mem[0], &mem[rc], memuse - rc);
-            memuse -= rc;
+            memmove(&mem[0], &mem[nwritten], memuse - nwritten);
+            memuse -= nwritten;
         }
         else
             /* 'mem' was consumed fully */
             memuse = 0;
 
-    } while(rc > 0);
+    } while(nwritten > 0);
 
     duration = (int)(time(NULL)-start);
 
     fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
-           total, duration, total/(double)duration);
-
+            (long)total, duration, (double)total / duration);
 
     fclose(local);
     libssh2_sftp_close(sftp_handle);

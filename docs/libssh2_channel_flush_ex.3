@@ -2,28 +2,29 @@
 .SH NAME
 libssh2_channel_flush_ex - flush a channel
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-int 
+int
 libssh2_channel_flush_ex(LIBSSH2_CHANNEL *channel, int streamid);
 
-int 
+int
 libssh2_channel_flush(LIBSSH2_CHANNEL *channel);
 
-int 
+int
 libssh2_channel_flush_stderr(LIBSSH2_CHANNEL *channel);
-
+.fi
 .SH DESCRIPTION
 \fIchannel\fP - Active channel stream to flush.
 
-\fIstreamid\fP - Specific substream number to flush. Groups of substreams may 
+\fIstreamid\fP - Specific substream number to flush. Groups of substreams may
 be flushed by passing on of the following Constants.
 .br
 \fBLIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA\fP: Flush all extended data substreams
 .br
 \fBLIBSSH2_CHANNEL_FLUSH_ALL\fP: Flush all substreams
 
-Flush the read buffer for a given channel instance. Individual substreams may 
+Flush the read buffer for a given channel instance. Individual substreams may
 be flushed by number or using one of the provided macros.
 
 .SH RETURN VALUE

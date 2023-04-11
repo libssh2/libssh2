@@ -6,32 +6,20 @@
  * "ssh2_agent host user"
  */
 
-#ifdef WIN32
-#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#endif
-#endif
-
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef WIN32
-# include <windows.h>
-#endif
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
+#include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-# ifdef HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-# ifdef HAVE_ARPA_INET_H
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
 
@@ -39,14 +27,14 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
-#include <ctype.h>
 #include <stdlib.h>
+#include <ctype.h>
 
-const char *username = "username";
+static const char *username = "username";
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
+    uint32_t hostaddr;
     libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
     int i, rc;
     struct sockaddr_in sin;
@@ -98,8 +86,7 @@ int main(int argc, char *argv[])
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin),
-                sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
         goto shutdown;
     }
@@ -113,10 +100,10 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /* At this point we havn't authenticated. The first thing to do is check
-     * the hostkey's fingerprint against our known hosts Your app may have it
-     * hard coded, may go to a file, may present it to the user, that's your
-     * call
+    /* At this point we have not yet authenticated.  The first thing to do
+     * is check the hostkey's fingerprint against our known hosts Your app
+     * may have it hard coded, may go to a file, may present it to the
+     * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
@@ -126,7 +113,8 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
     fprintf(stderr, "Authentication methods: %s\n", userauthlist);
     if(strstr(userauthlist, "publickey") == NULL) {
         fprintf(stderr, "\"publickey\" authentication is not supported\n");
@@ -219,7 +207,7 @@ int main(int argc, char *argv[])
      * A channel can be freed with: libssh2_channel_free()
      */
 
-  skip_shell:
+skip_shell:
     if(channel) {
         libssh2_channel_free(channel);
         channel = NULL;
@@ -231,7 +219,7 @@ int main(int argc, char *argv[])
      * libssh2_channel_direct_tcpip()
      */
 
-  shutdown:
+shutdown:
 
     if(agent) {
         libssh2_agent_disconnect(agent);
@@ -239,8 +227,7 @@ int main(int argc, char *argv[])
     }
 
     if(session) {
-        libssh2_session_disconnect(session,
-                                   "Normal Shutdown, Thank you for playing");
+        libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
     }
 
@@ -252,7 +239,7 @@ int main(int argc, char *argv[])
 #endif
     }
 
-    fprintf(stderr, "all done!\n");
+    fprintf(stderr, "all done\n");
 
     libssh2_exit();
 

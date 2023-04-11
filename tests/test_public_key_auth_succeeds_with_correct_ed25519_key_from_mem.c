@@ -1,9 +1,5 @@
-#include "session_fixture.h"
 #include "runner.h"
 
-#include <libssh2.h>
-
-#include <stdio.h>
 #include <stdlib.h>
 
 static const char *USERNAME = "libssh2"; /* set in Dockerfile */
@@ -18,7 +14,8 @@ int test(LIBSSH2_SESSION *session)
     size_t len = 0;
     const char *userauth_list = NULL;
 
-    userauth_list = libssh2_userauth_list(session, USERNAME, strlen(USERNAME));
+    userauth_list = libssh2_userauth_list(session, USERNAME,
+                                          (unsigned int)strlen(USERNAME));
     if(userauth_list == NULL) {
         print_last_session_error("libssh2_userauth_list");
         return 1;

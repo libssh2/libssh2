@@ -611,7 +611,8 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     }
 
     if(libssh2_base64_decode(session, (char **) &tmp, &tmp_len,
-                              (char *) sp1, sp2 - sp1)) {
+                              (const char *) sp1,
+                              (unsigned int)(sp2 - sp1))) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                                   "Invalid key data, not base64 encoded");
@@ -715,7 +716,8 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     }
 
     if(libssh2_base64_decode(session, (char **) &tmp, &tmp_len,
-                              (char *) sp1, sp2 - sp1)) {
+                              (const char *) sp1,
+                              (unsigned int)(sp2 - sp1))) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Invalid key data, not base64 encoded");
@@ -737,7 +739,7 @@ static int
 memory_read_privatekey(LIBSSH2_SESSION * session,
                        const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
                        void **hostkey_abstract,
-                       const unsigned char *method, int method_len,
+                       const unsigned char *method, size_t method_len,
                        const char *privkeyfiledata, size_t privkeyfiledata_len,
                        const char *passphrase)
 {
@@ -778,7 +780,7 @@ static int
 file_read_privatekey(LIBSSH2_SESSION * session,
                      const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
                      void **hostkey_abstract,
-                     const unsigned char *method, int method_len,
+                     const unsigned char *method, size_t method_len,
                      const char *privkeyfile, const char *passphrase)
 {
     const LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail =
@@ -938,7 +940,7 @@ libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
 
                 *sig_len = p - *sig;
 
-                _libssh2_store_u32(&x, *sig_len - 4);
+                _libssh2_store_u32(&x, (uint32_t)(*sig_len - 4));
             }
             else {
                 _libssh2_debug((session,
@@ -1144,8 +1146,8 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             session->userauth_host_packet + session->userauth_host_packet_len;
 
         _libssh2_store_u32(&session->userauth_host_s,
-                           4 + session->userauth_host_method_len +
-                           4 + sig_len);
+                           (uint32_t)(4 + session->userauth_host_method_len +
+                                      4 + sig_len));
         _libssh2_store_str(&session->userauth_host_s,
                            (const char *)session->userauth_host_method,
                            session->userauth_host_method_len);
@@ -1247,7 +1249,7 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
     return rc;
 }
 
-static int plain_method_len(const char *method, size_t method_len)
+static size_t plain_method_len(const char *method, size_t method_len)
 {
     if(!strncmp("ssh-rsa-cert-v01@openssh.com",
                 method,
@@ -1292,10 +1294,10 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     const char *p = NULL;
     const char *f = NULL;
     char *i = NULL;
-    int p_len = 0;
-    int f_len = 0;
+    size_t p_len = 0;
+    size_t f_len = 0;
     int rc = 0;
-    int match_len = 0;
+    size_t match_len = 0;
     char *filtered_algs = NULL;
 
     const char *supported_algs =
@@ -1323,12 +1325,12 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
     while(s && *s) {
         p = strchr(s, ',');
-        p_len = p ? (p - s) : (int) strlen(s);
+        p_len = (p ? (size_t)(p - s) : strlen(s));
         a = supported_algs;
 
         while(a && *a) {
             f = strchr(a, ',');
-            f_len = f ? (f - a) : (int) strlen(a);
+            f_len = (f ? (size_t)(f - a) : strlen(a));
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
 
@@ -1361,12 +1363,12 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
     while(s && *s && !match) {
         p = strchr(s, ',');
-        p_len = p ? (p - s) : (int) strlen(s);
+        p_len = (p ? (size_t)(p - s) : strlen(s));
         a = filtered_algs;
 
         while(a && *a && !match) {
             f = strchr(a, ',');
-            f_len = f ? (f - a) : (int) strlen(a);
+            f_len = (f ? (size_t)(f - a) : strlen(a));
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
                 /* found a match, upgrade key method */
@@ -1411,9 +1413,9 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 int
 _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                             const char *username,
-                            unsigned int username_len,
+                            size_t username_len,
                             const unsigned char *pubkeydata,
-                            unsigned long pubkeydata_len,
+                            size_t pubkeydata_len,
                             LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
                             ((*sign_callback)),
                             void *abstract)
@@ -1709,8 +1711,8 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                    "sk-ssh-ed25519@openssh.com",
                    session->userauth_pblc_method_len) == 0) {
             _libssh2_store_u32(&s,
-                               4 + session->userauth_pblc_method_len +
-                               sig_len);
+                             (uint32_t)(4 + session->userauth_pblc_method_len +
+                                        sig_len));
             _libssh2_store_str(&s, (const char *)session->userauth_pblc_method,
                                session->userauth_pblc_method_len);
             memcpy(s, sig, sig_len);
@@ -1718,8 +1720,8 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         }
         else {
             _libssh2_store_u32(&s,
-                               4 + session->userauth_pblc_method_len + 4 +
-                               sig_len);
+                             (uint32_t)(4 + session->userauth_pblc_method_len +
+                                        4 + sig_len));
             _libssh2_store_str(&s, (const char *)session->userauth_pblc_method,
                                session->userauth_pblc_method_len);
             _libssh2_store_str(&s, (const char *)sig, sig_len);
@@ -2135,10 +2137,10 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             }
 
             response_callback((const char *)session->userauth_kybd_auth_name,
-                              session->userauth_kybd_auth_name_len,
+                              (int)session->userauth_kybd_auth_name_len,
                               (const char *)
                               session->userauth_kybd_auth_instruction,
-                              session->userauth_kybd_auth_instruction_len,
+                              (int)session->userauth_kybd_auth_instruction_len,
                               session->userauth_kybd_num_prompts,
                               session->userauth_kybd_prompts,
                               session->userauth_kybd_responses,

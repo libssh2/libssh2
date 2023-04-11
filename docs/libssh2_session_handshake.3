@@ -2,10 +2,12 @@
 .SH NAME
 libssh2_session_handshake - perform the SSH handshake
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 int
 libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t socket);
+.fi
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)

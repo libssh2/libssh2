@@ -1,30 +1,30 @@
 /***************************************************************************
-* libssh2 Win32 resource file                                              *
+* libssh2 Windows resource file                                            *
 ***************************************************************************/
 #include <winver.h>
-#include "../include/libssh2.h"
+#include "libssh2.h"
 
-LANGUAGE  0x09,0x01
+LANGUAGE 0, 0
 
 #define RC_VERSION  LIBSSH2_VERSION_MAJOR, LIBSSH2_VERSION_MINOR, LIBSSH2_VERSION_PATCH, 0
 
 VS_VERSION_INFO VERSIONINFO
   FILEVERSION     RC_VERSION
   PRODUCTVERSION  RC_VERSION
-  FILEFLAGSMASK   0x3fL
-#if defined(DEBUGBUILD) || defined(_DEBUG)
-  FILEFLAGS 1
+  FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+#if defined(LIBSSH2DEBUG) || defined(_DEBUG)
+  FILEFLAGS VS_FF_DEBUG
 #else
   FILEFLAGS 0
 #endif
   FILEOS      VOS__WINDOWS32
   FILETYPE    VFT_DLL
-  FILESUBTYPE 0x0L
+  FILESUBTYPE 0
 
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
-    BLOCK "040904b0"
+    BLOCK "040904b0"  /* 0x0409: en-US, 1200/0x04b0: UTF-16LE */
     BEGIN
       VALUE "CompanyName",      "The libssh2 library, https://www.libssh2.org/\0"
       VALUE "FileDescription",  "libssh2 Shared Library\0"
@@ -40,6 +40,6 @@ BEGIN
 
   BLOCK "VarFileInfo"
   BEGIN
-    VALUE "Translation", 0x409, 1200
+    VALUE "Translation", 0x0409, 0x04b0  /* 0x0409: en-US, 1200/0x04b0: UTF-16LE */
   END
 END
