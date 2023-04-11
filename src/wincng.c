@@ -36,8 +36,7 @@
  * OF SUCH DAMAGE.
  */
 
-#include "libssh2_priv.h"
-
+#ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
 #ifdef LIBSSH2_WINCNG /* compile only if we build with wincng */
 
 /* required for cross-compilation against the w64 mingw-runtime package */
@@ -2731,3 +2730,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
 }
 
 #endif /* LIBSSH2_WINCNG */
+#endif /* LIBSSH2_CRYPTO_C */

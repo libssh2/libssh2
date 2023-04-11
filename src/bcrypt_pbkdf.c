@@ -25,6 +25,7 @@
 #include <sys/param.h>
 #endif
 
+#define LIBSSH2_BCRYPT_PBKDF_C
 #include "blowfish.c"
 
 #define MINIMUM(a,b) (((a) < (b)) ? (a) : (b))
