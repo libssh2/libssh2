@@ -175,7 +175,7 @@
 #define LIBSSH2_3DES            1
 
 #define LIBSSH2_RSA             1
-#define LIBSSH2_RSA_SHA2        0
+#define LIBSSH2_RSA_SHA2        1
 #define LIBSSH2_DSA             0
 #define LIBSSH2_ECDSA           0
 #define LIBSSH2_ED25519         0
@@ -336,8 +336,14 @@ typedef struct {        /* Diffie-Hellman context. */
 #define libssh2_prepare_iovec(vec, len) memset((char *) (vec), 0,           \
                                                (len) * sizeof(struct iovec))
 #define _libssh2_rsa_sha1_signv(session, sig, siglen, count, vector, ctx)   \
-            _libssh2_os400qc3_rsa_sha1_signv(session, sig, siglen,          \
+            _libssh2_os400qc3_rsa_signv(session, Qc3_SHA1, sig, siglen,     \
                                              count, vector, ctx)
+#define _libssh2_rsa_sha2_256_signv(session, sig, siglen, cnt, vector, ctx) \
+            _libssh2_os400qc3_rsa_signv(session, Qc3_SHA256, sig, siglen,   \
+                                             cnt, vector, ctx)
+#define _libssh2_rsa_sha2_512_signv(session, sig, siglen, cnt, vector, ctx) \
+            _libssh2_os400qc3_rsa_signv(session, Qc3_SHA512, sig, siglen,   \
+                                             cnt, vector, ctx)
 
 /* Default generate and safe prime sizes for diffie-hellman-group-exchange-sha1
    Qc3 is limited to a maximum 2048-bit modulus/key size. */
@@ -389,12 +395,12 @@ extern void     libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
                                              int len);
 extern void     libssh2_os400qc3_hmac_final(_libssh2_os400qc3_crypto_ctx *ctx,
                                             unsigned char *out);
-extern int      _libssh2_os400qc3_rsa_sha1_signv(LIBSSH2_SESSION *session,
-                                                 unsigned char **signature,
-                                                 size_t *signature_len,
-                                                 int veccount,
-                                                 const struct iovec vector[],
-                                                 libssh2_rsa_ctx *ctx);
+extern int      _libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
+                                            unsigned char **signature,
+                                            size_t *signature_len,
+                                            int veccount,
+                                            const struct iovec vector[],
+                                            libssh2_rsa_ctx *ctx);
 extern void     _libssh2_os400qc3_dh_init(_libssh2_dh_ctx *dhctx);
 extern int      _libssh2_os400qc3_dh_key_pair(_libssh2_dh_ctx *dhctx,
                                               _libssh2_bn *public,

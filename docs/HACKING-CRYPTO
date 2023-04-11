@@ -673,7 +673,28 @@ the allocated signature at (signature, signature_len).
 Signature buffer must be allocated from the given session.
 Returns 0 if OK, else -1.
 This procedure is already prototyped in crypto.h.
-Note: this procedure is not used if macro _libssh2_rsa_sha1_signv() is defined.
+Note: this procedure is not used if both macros _libssh2_rsa_sha2_256_signv()
+and _libssh2_rsa_sha2_512_signv are defined.
+
+int _libssh2_rsa_sha2_256_signv(LIBSSH2_SESSION *session,
+                                unsigned char **sig, size_t *siglen,
+                                int count, const struct iovec vector[],
+                                libssh2_rsa_ctx *ctx);
+RSA signs the SHA-256 hash computed over the count data chunks in vector.
+Signature is stored at (sig, siglen).
+Signature buffer must be allocated from the given session.
+Returns 0 if OK, else -1.
+Note: this procedure is optional: if provided, it MUST be defined as a macro.
+
+int _libssh2_rsa_sha2_512_signv(LIBSSH2_SESSION *session,
+                                unsigned char **sig, size_t *siglen,
+                                int count, const struct iovec vector[],
+                                libssh2_rsa_ctx *ctx);
+RSA signs the SHA-512 hash computed over the count data chunks in vector.
+Signature is stored at (sig, siglen).
+Signature buffer must be allocated from the given session.
+Returns 0 if OK, else -1.
+Note: this procedure is optional: if provided, it MUST be defined as a macro.
 
 int _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsa,
                              size_t hash_len,
