@@ -257,7 +257,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
 
 
 /*
- * _libssh2_transport_read()
+ * _libssh2_transport_read
  *
  * Collect a packet into the input queue.
  *
@@ -696,7 +696,7 @@ send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
 }
 
 /*
- * libssh2_transport_send()
+ * libssh2_transport_send
  *
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.

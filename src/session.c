@@ -70,7 +70,7 @@
 #undef libssh2_usec_t
 #endif
 
-/* libssh2_default_alloc()
+/* libssh2_default_alloc
  */
 static
 LIBSSH2_ALLOC_FUNC(libssh2_default_alloc)
@@ -79,7 +79,7 @@ LIBSSH2_ALLOC_FUNC(libssh2_default_alloc)
     return malloc(count);
 }
 
-/* libssh2_default_free()
+/* libssh2_default_free
  */
 static
 LIBSSH2_FREE_FUNC(libssh2_default_free)
@@ -88,7 +88,7 @@ LIBSSH2_FREE_FUNC(libssh2_default_free)
     free(ptr);
 }
 
-/* libssh2_default_realloc()
+/* libssh2_default_realloc
  */
 static
 LIBSSH2_REALLOC_FUNC(libssh2_default_realloc)
@@ -98,7 +98,7 @@ LIBSSH2_REALLOC_FUNC(libssh2_default_realloc)
 }
 
 /*
- * banner_receive()
+ * banner_receive
  *
  * Wait for a hello from the remote host
  * Allocate a buffer and store the banner in session->remote.banner
@@ -202,7 +202,7 @@ banner_receive(LIBSSH2_SESSION * session)
 }
 
 /*
- * banner_send()
+ * banner_send
  *
  * Send the default banner, or the one set via libssh2_setopt_string
  *
@@ -356,7 +356,7 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 }
 
 /*
- * get_socket_nonblocking()
+ * get_socket_nonblocking
  *
  * gets the given blocking or non-blocking state of the socket.
  */
@@ -439,7 +439,7 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
 #endif
 }
 
-/* libssh2_session_banner_set()
+/* libssh2_session_banner_set
  * Set the local banner to use in the server handshake.
  */
 LIBSSH2_API int
@@ -474,7 +474,7 @@ libssh2_session_banner_set(LIBSSH2_SESSION * session, const char *banner)
     return 0;
 }
 
-/* libssh2_banner_set()
+/* libssh2_banner_set
  * Set the local banner. DEPRECATED VERSION
  */
 LIBSSH2_API int
@@ -484,7 +484,7 @@ libssh2_banner_set(LIBSSH2_SESSION * session, const char *banner)
 }
 
 /*
- * libssh2_session_init_ex()
+ * libssh2_session_init_ex
  *
  * Allocate and initialize a libssh2 session structure. Allows for malloc
  * callbacks in case the calling program has its own memory manager It's
@@ -532,7 +532,7 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
 }
 
 /*
- * libssh2_session_callback_set()
+ * libssh2_session_callback_set
  *
  * Set (or reset) a callback function
  * Returns the prior address
@@ -602,7 +602,7 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
 #endif
 
 /*
- * _libssh2_wait_socket()
+ * _libssh2_wait_socket
  *
  * Utility function that waits for action on the socket. Returns 0 when ready
  * to run again or error on timeout.
@@ -853,7 +853,7 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 }
 
 /*
- * libssh2_session_handshake()
+ * libssh2_session_handshake
  *
  * session: LIBSSH2_SESSION struct allocated and owned by the calling program
  * sock:    *must* be populated with an opened and connected socket.
@@ -871,7 +871,7 @@ libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 }
 
 /*
- * libssh2_session_startup()
+ * libssh2_session_startup
  *
  * DEPRECATED. Use libssh2_session_handshake() instead! This function is not
  * portable enough.
@@ -888,7 +888,7 @@ libssh2_session_startup(LIBSSH2_SESSION *session, int sock)
 }
 
 /*
- * session_free()
+ * session_free
  *
  * Frees the memory allocated to the session
  * Also closes and frees any channels attached to this session
@@ -1148,7 +1148,7 @@ session_free(LIBSSH2_SESSION *session)
 }
 
 /*
- * libssh2_session_free()
+ * libssh2_session_free
  *
  * Frees the memory allocated to the session
  * Also closes and frees any channels attached to this session
@@ -1164,7 +1164,7 @@ libssh2_session_free(LIBSSH2_SESSION * session)
 }
 
 /*
- * session_disconnect()
+ * session_disconnect
  */
 static int
 session_disconnect(LIBSSH2_SESSION *session, int reason,
@@ -1219,7 +1219,7 @@ session_disconnect(LIBSSH2_SESSION *session, int reason,
 }
 
 /*
- * libssh2_session_disconnect_ex()
+ * libssh2_session_disconnect_ex
  */
 LIBSSH2_API int
 libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason,
@@ -1233,7 +1233,7 @@ libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason,
     return rc;
 }
 
-/* libssh2_session_methods()
+/* libssh2_session_methods
  *
  * Return the currently active methods for method_type
  *
@@ -1300,7 +1300,7 @@ libssh2_session_methods(LIBSSH2_SESSION * session, int method_type)
     return method->name;
 }
 
-/* libssh2_session_abstract()
+/* libssh2_session_abstract
  * Retrieve a pointer to the abstract property
  */
 LIBSSH2_API void **
@@ -1309,7 +1309,7 @@ libssh2_session_abstract(LIBSSH2_SESSION * session)
     return &session->abstract;
 }
 
-/* libssh2_session_last_error()
+/* libssh2_session_last_error
  *
  * Returns error code and populates an error string into errmsg If want_buf is
  * non-zero then the string placed into errmsg must be freed by the calling
@@ -1364,7 +1364,7 @@ libssh2_session_last_error(LIBSSH2_SESSION * session, char **errmsg,
     return session->err_code;
 }
 
-/* libssh2_session_last_errno()
+/* libssh2_session_last_errno
  *
  * Returns error code
  */
@@ -1374,7 +1374,7 @@ libssh2_session_last_errno(LIBSSH2_SESSION * session)
     return session->err_code;
 }
 
-/* libssh2_session_set_last_error()
+/* libssh2_session_set_last_error
  *
  * Sets the internal error code for the session.
  *
@@ -1391,7 +1391,7 @@ libssh2_session_set_last_error(LIBSSH2_SESSION* session,
                                 LIBSSH2_ERR_FLAG_DUP);
 }
 
-/* Libssh2_session_flag()
+/* Libssh2_session_flag
  *
  * Set/Get session flags
  *
@@ -1432,7 +1432,7 @@ _libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking)
     return bl;
 }
 
-/* libssh2_session_set_blocking()
+/* libssh2_session_set_blocking
  *
  * Set a channel's blocking mode on or off, similar to a socket's
  * fcntl(fd, F_SETFL, O_NONBLOCK); type command
@@ -1443,7 +1443,7 @@ libssh2_session_set_blocking(LIBSSH2_SESSION * session, int blocking)
     (void) _libssh2_session_set_blocking(session, blocking);
 }
 
-/* libssh2_session_get_blocking()
+/* libssh2_session_get_blocking
  *
  * Returns a session's blocking mode on or off
  */
@@ -1454,7 +1454,7 @@ libssh2_session_get_blocking(LIBSSH2_SESSION * session)
 }
 
 
-/* libssh2_session_set_timeout()
+/* libssh2_session_set_timeout
  *
  * Set a session's timeout (in msec) for blocking mode,
  * or 0 to disable timeouts.
@@ -1465,7 +1465,7 @@ libssh2_session_set_timeout(LIBSSH2_SESSION * session, long timeout)
     session->api_timeout = timeout;
 }
 
-/* libssh2_session_get_timeout()
+/* libssh2_session_get_timeout
  *
  * Returns a session's timeout, or 0 if disabled
  */
@@ -1475,7 +1475,7 @@ libssh2_session_get_timeout(LIBSSH2_SESSION * session)
     return session->api_timeout;
 }
 
-/* libssh2_session_set_read_timeout()
+/* libssh2_session_set_read_timeout
  *
  * Set a session's timeout (in sec) when reading packets,
  * or 0 to use default of 60 seconds.
@@ -1489,7 +1489,7 @@ libssh2_session_set_read_timeout(LIBSSH2_SESSION * session, long timeout)
     session->packet_read_timeout = timeout;
 }
 
-/* libssh2_session_get_read_timeout()
+/* libssh2_session_get_read_timeout
  *
  * Returns a session's timeout. Default is 60 seconds.
  */
@@ -1500,7 +1500,7 @@ libssh2_session_get_read_timeout(LIBSSH2_SESSION * session)
 }
 
 /*
- * libssh2_poll_channel_read()
+ * libssh2_poll_channel_read
  *
  * Returns 0 if no data is waiting on channel,
  * non-0 if data is available
@@ -1542,7 +1542,7 @@ libssh2_poll_channel_read(LIBSSH2_CHANNEL *channel, int extended)
 }
 
 /*
- * poll_channel_write()
+ * poll_channel_write
  *
  * Returns 0 if writing to channel would block,
  * non-0 if data can be written without blocking
@@ -1553,7 +1553,7 @@ poll_channel_write(LIBSSH2_CHANNEL * channel)
     return channel->local.window_size ? 1 : 0;
 }
 
-/* poll_listener_queued()
+/* poll_listener_queued
  *
  * Returns 0 if no connections are waiting to be accepted
  * non-0 if one or more connections are available
@@ -1565,7 +1565,7 @@ poll_listener_queued(LIBSSH2_LISTENER * listener)
 }
 
 /*
- * libssh2_poll()
+ * libssh2_poll
  *
  * Poll sockets, channels, and listeners for activity
  */
@@ -1881,7 +1881,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
 }
 
 /*
- * libssh2_session_block_directions()
+ * libssh2_session_block_directions
  *
  * Get blocked direction when a function returns LIBSSH2_ERROR_EAGAIN
  * Returns LIBSSH2_SOCKET_BLOCK_INBOUND if recv() blocked
@@ -1893,7 +1893,7 @@ libssh2_session_block_directions(LIBSSH2_SESSION *session)
     return session->socket_block_directions;
 }
 
-/* libssh2_session_banner_get()
+/* libssh2_session_banner_get
  * Get the remote banner (server ID string)
  */
 

@@ -39,7 +39,7 @@
 #include "mac.h"
 
 #if defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE)
-/* mac_none_MAC()
+/* mac_none_MAC
  *
  * Minimalist MAC: No MAC. DO NOT USE.
  *
@@ -75,7 +75,7 @@ static LIBSSH2_MAC_METHOD mac_method_none = {
 };
 #endif /* defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE) */
 
-/* mac_method_common_init()
+/* mac_method_common_init
  * Initialize simple mac methods
  */
 static int
@@ -91,7 +91,7 @@ mac_method_common_init(LIBSSH2_SESSION * session, unsigned char *key,
 
 
 
-/* mac_method_common_dtor()
+/* mac_method_common_dtor
  * Cleanup simple mac methods
  */
 static int

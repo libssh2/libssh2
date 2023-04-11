@@ -44,7 +44,7 @@
 #include "packet.h"
 
 /*
- * libssh2_transport_send()
+ * libssh2_transport_send
  *
  * Send a packet, encrypting it and adding a MAC code if necessary
  * Returns 0 on success, non-zero on failure.
@@ -66,7 +66,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                             const unsigned char *data2, size_t data2_len);
 
 /*
- * _libssh2_transport_read()
+ * _libssh2_transport_read
  *
  * Collect a packet into the input brigade block only controls whether or not
  * to wait for a packet to start.

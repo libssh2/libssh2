@@ -262,7 +262,7 @@ shell_quotearg(const char *path, unsigned char *buf,
 }
 
 /*
- * scp_recv()
+ * scp_recv
  *
  * Open a channel and request a remote file via SCP
  *
@@ -773,7 +773,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 }
 
 /*
- * libssh2_scp_recv()
+ * libssh2_scp_recv
  *
  * DEPRECATED
  *
@@ -810,7 +810,7 @@ libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb)
 }
 
 /*
- * libssh2_scp_recv2()
+ * libssh2_scp_recv2
  *
  * Open a channel and request a remote file via SCP.  This supports files > 2GB
  * on platforms that support it.
@@ -826,7 +826,7 @@ libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
 }
 
 /*
- * scp_send()
+ * scp_send
  *
  * Send a file using SCP
  *
@@ -1119,7 +1119,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 }
 
 /*
- * libssh2_scp_send_ex()
+ * libssh2_scp_send_ex
  *
  * Send a file using SCP. Old API.
  */
@@ -1135,7 +1135,7 @@ libssh2_scp_send_ex(LIBSSH2_SESSION *session, const char *path, int mode,
 }
 
 /*
- * libssh2_scp_send64()
+ * libssh2_scp_send64
  *
  * Send a file using SCP
  */

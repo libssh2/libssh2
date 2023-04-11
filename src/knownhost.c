@@ -83,7 +83,7 @@ static void free_host(LIBSSH2_SESSION *session, struct known_host *entry)
 }
 
 /*
- * libssh2_knownhost_init()
+ * libssh2_knownhost_init
  *
  * Init a collection of known hosts. Returns the pointer to a collection.
  *
@@ -110,7 +110,7 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session)
 
 #define KNOWNHOST_MAGIC 0xdeadcafe
 /*
- * knownhost_to_external()
+ * knownhost_to_external
  *
  * Copies data from the internal to the external representation struct.
  *
@@ -257,7 +257,7 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_add()
+ * libssh2_knownhost_add
  *
  * Add a host and its associated key to the collection of known hosts.
  *
@@ -290,7 +290,7 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
 
 
 /*
- * libssh2_knownhost_addc()
+ * libssh2_knownhost_addc
  *
  * Add a host and its associated key to the collection of known hosts.
  *
@@ -328,7 +328,7 @@ libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * knownhost_check()
+ * knownhost_check
  *
  * Check a host and its associated key against the collection of known hosts.
  *
@@ -491,7 +491,7 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_check()
+ * libssh2_knownhost_check
  *
  * Check a host and its associated key against the collection of known hosts.
  *
@@ -519,7 +519,7 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_checkp()
+ * libssh2_knownhost_checkp
  *
  * Check a host+port and its associated key against the collection of known
  * hosts.
@@ -554,7 +554,7 @@ libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
 
 
 /*
- * libssh2_knownhost_del()
+ * libssh2_knownhost_del
  *
  * Remove a host from the collection of known hosts.
  *
@@ -587,7 +587,7 @@ libssh2_knownhost_del(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_free()
+ * libssh2_knownhost_free
  *
  * Free an entire collection of known hosts.
  *
@@ -726,7 +726,7 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * hostline()
+ * hostline
  *
  * Parse a single known_host line pre-split into host and key.
  *
@@ -840,7 +840,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_readline()
+ * libssh2_knownhost_readline
  *
  * Pass in a line of a file of 'type'.
  *
@@ -940,7 +940,7 @@ libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_readfile()
+ * libssh2_knownhost_readfile
  *
  * Read hosts+key pairs from a given file.
  *
@@ -982,7 +982,7 @@ libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * knownhost_writeline()
+ * knownhost_writeline
  *
  * Ask libssh2 to convert a known host to an output line for storage.
  *
@@ -1156,7 +1156,7 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_writeline()
+ * libssh2_knownhost_writeline
  *
  * Ask libssh2 to convert a known host to an output line for storage.
  *
@@ -1182,7 +1182,7 @@ libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_writefile()
+ * libssh2_knownhost_writefile
  *
  * Write hosts+key pairs to the given file.
  */
@@ -1233,7 +1233,7 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
 
 
 /*
- * libssh2_knownhost_get()
+ * libssh2_knownhost_get
  *
  * Traverse the internal list of known hosts. Pass NULL to 'prev' to get
  * the first one.

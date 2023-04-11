@@ -49,7 +49,7 @@
  ******** */
 
 /*
- * comp_method_none_comp()
+ * comp_method_none_comp
  *
  * Minimalist compression: Absolutely none
  */
@@ -72,7 +72,7 @@ comp_method_none_comp(LIBSSH2_SESSION *session,
 }
 
 /*
- * comp_method_none_decomp()
+ * comp_method_none_decomp
  *
  * Minimalist decompression: Absolutely none
  */
@@ -132,7 +132,7 @@ comp_method_zlib_free(voidpf opaque, voidpf address)
 
 
 
-/* libssh2_comp_method_zlib_init()
+/* libssh2_comp_method_zlib_init
  * All your bandwidth are belong to us (so save some)
  */
 static int
@@ -173,7 +173,7 @@ comp_method_zlib_init(LIBSSH2_SESSION * session, int compr,
 }
 
 /*
- * libssh2_comp_method_zlib_comp()
+ * libssh2_comp_method_zlib_comp
  *
  * Compresses source to destination. Without allocation.
  */
@@ -211,7 +211,7 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
 }
 
 /*
- * libssh2_comp_method_zlib_decomp()
+ * libssh2_comp_method_zlib_decomp
  *
  * Decompresses source to destination. Allocates the output memory.
  */
@@ -310,7 +310,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
 }
 
 
-/* libssh2_comp_method_zlib_dtor()
+/* libssh2_comp_method_zlib_dtor
  * All done, no more compression for you
  */
 static int

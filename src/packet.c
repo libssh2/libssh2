@@ -66,7 +66,7 @@
 #include "packet.h"
 
 /*
- * libssh2_packet_queue_listener()
+ * libssh2_packet_queue_listener
  *
  * Queue a connection request for a listener
  */
@@ -461,7 +461,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
 }
 
 /*
- * _libssh2_packet_add()
+ * _libssh2_packet_add
  *
  * Create a new packet and attach it to the brigade. Called from the transport
  * layer when it has received a packet.
@@ -1157,7 +1157,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 }
 
 /*
- * _libssh2_packet_ask()
+ * _libssh2_packet_ask
  *
  * Scan the brigade for a matching packet type, optionally poll the socket for
  * a packet first
@@ -1195,7 +1195,7 @@ _libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
 }
 
 /*
- * libssh2_packet_askv()
+ * libssh2_packet_askv
  *
  * Scan for any of a list of packet types in the brigade, optionally poll the
  * socket for a packet first
@@ -1222,7 +1222,7 @@ _libssh2_packet_askv(LIBSSH2_SESSION * session,
 }
 
 /*
- * _libssh2_packet_require()
+ * _libssh2_packet_require
  *
  * Loops _libssh2_transport_read() until the packet requested is available
  * SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause a bailout
@@ -1283,7 +1283,7 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
 }
 
 /*
- * _libssh2_packet_burn()
+ * _libssh2_packet_burn
  *
  * Loops _libssh2_transport_read() until any packet is available and promptly
  * discards it.
@@ -1347,7 +1347,7 @@ _libssh2_packet_burn(LIBSSH2_SESSION * session,
 }
 
 /*
- * _libssh2_packet_requirev()
+ * _libssh2_packet_requirev
  *
  * Loops _libssh2_transport_read() until one of a list of packet types
  * requested is available. SSH_DISCONNECT or a SOCKET_DISCONNECTED will cause

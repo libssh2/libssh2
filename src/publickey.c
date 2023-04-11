@@ -99,7 +99,7 @@ static const LIBSSH2_PUBLICKEY_CODE_LIST publickey_status_codes[] = {
 };
 
 /*
- * publickey_status_error()
+ * publickey_status_error
  *
  * Format an error message from a status code
  */
@@ -125,7 +125,7 @@ publickey_status_error(const LIBSSH2_PUBLICKEY *pkey,
 }
 
 /*
- * publickey_packet_receive()
+ * publickey_packet_receive
  *
  * Read a packet from the subsystem
  */
@@ -186,7 +186,7 @@ publickey_packet_receive(LIBSSH2_PUBLICKEY * pkey,
     return 0;
 }
 
-/* publickey_response_id()
+/* publickey_response_id
  *
  * Translate a string response name to a numeric code
  * Data will be incremented by 4 + response_len on success only
@@ -222,7 +222,7 @@ publickey_response_id(unsigned char **pdata, size_t data_len)
     return -1;
 }
 
-/* publickey_response_success()
+/* publickey_response_success
  *
  * Generic helper routine to wait for success response and nothing else
  */
@@ -296,7 +296,7 @@ publickey_response_success(LIBSSH2_PUBLICKEY * pkey)
  ***************** */
 
 /*
- * publickey_init()
+ * publickey_init
  *
  * Startup the publickey subsystem
  */
@@ -562,7 +562,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
 }
 
 /*
- * libssh2_publickey_init()
+ * libssh2_publickey_init
  *
  * Startup the publickey subsystem
  */
@@ -579,7 +579,7 @@ libssh2_publickey_init(LIBSSH2_SESSION *session)
 
 
 /*
- * libssh2_publickey_add_ex()
+ * libssh2_publickey_add_ex
  *
  * Add a new public key entry
  */
@@ -727,7 +727,7 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name,
     return rc;
 }
 
-/* libssh2_publickey_remove_ex()
+/* libssh2_publickey_remove_ex
  * Remove an existing publickey so that authentication can no longer be
  * performed using it
  */
@@ -813,7 +813,7 @@ libssh2_publickey_remove_ex(LIBSSH2_PUBLICKEY * pkey,
     return rc;
 }
 
-/* libssh2_publickey_list_fetch()
+/* libssh2_publickey_list_fetch
  * Fetch a list of supported public key from a server
  */
 LIBSSH2_API int
@@ -1213,7 +1213,7 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
     return -1;
 }
 
-/* libssh2_publickey_list_free()
+/* libssh2_publickey_list_free
  * Free a previously fetched list of public keys
  */
 LIBSSH2_API void
@@ -1239,7 +1239,7 @@ libssh2_publickey_list_free(LIBSSH2_PUBLICKEY * pkey,
     LIBSSH2_FREE(session, pkey_list);
 }
 
-/* libssh2_publickey_shutdown()
+/* libssh2_publickey_shutdown
  * Shutdown the publickey subsystem
  */
 LIBSSH2_API int

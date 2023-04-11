@@ -1554,7 +1554,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange
 }
 
 
-/* LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY()
+/* LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY
  *
  * Macro that create and verifies EC SHA hash with a given digest bytes
  *
@@ -1665,7 +1665,7 @@ do {                                                                         \
 
 #if LIBSSH2_ECDSA
 
-/* kex_session_ecdh_curve_type()
+/* kex_session_ecdh_curve_type
  * returns the EC curve type by name used in key exchange
  */
 
@@ -2190,7 +2190,7 @@ clean_exit:
     return ret;
 }
 
-/* kex_method_ecdh_key_exchange()
+/* kex_method_ecdh_key_exchange
  *
  * Elliptic Curve Diffie Hellman Key Exchange
  * supports SHA256/384/512 hashes based on negotiated ecdh method
@@ -3050,7 +3050,7 @@ typedef struct _LIBSSH2_COMMON_METHOD
     const char *name;
 } LIBSSH2_COMMON_METHOD;
 
-/* kex_method_strlen()
+/* kex_method_strlen
  *
  * Calculate the length of a particular method list's resulting string
  * Includes SUM(strlen() of each individual method plus 1 (for coma)) - 1
@@ -3076,7 +3076,7 @@ kex_method_strlen(LIBSSH2_COMMON_METHOD ** method)
 
 
 
-/* kex_method_list()
+/* kex_method_list
  * Generate formatted preference list in buf
  */
 static uint32_t
@@ -3121,7 +3121,7 @@ kex_method_list(unsigned char *buf, uint32_t list_strlen,
         }                                                                  \
     } while(0)
 
-/* kexinit()
+/* kexinit
  * Send SSH_MSG_KEXINIT packet
  */
 static int kexinit(LIBSSH2_SESSION * session)
@@ -3294,7 +3294,7 @@ static int kexinit(LIBSSH2_SESSION * session)
     return 0;
 }
 
-/* kex_agree_instr()
+/* kex_agree_instr
  * Kex specific variant of strstr()
  * Needle must be precede by BOL or ',', and followed by ',' or EOL
  */
@@ -3350,7 +3350,7 @@ kex_agree_instr(unsigned char *haystack, size_t haystack_len,
 
 
 
-/* kex_get_method_by_name()
+/* kex_get_method_by_name
  */
 static const LIBSSH2_COMMON_METHOD *
 kex_get_method_by_name(const char *name, size_t name_len,
@@ -3368,7 +3368,7 @@ kex_get_method_by_name(const char *name, size_t name_len,
 
 
 
-/* kex_agree_hostkey()
+/* kex_agree_hostkey
  * Agree on a Hostkey which works with this kex
  */
 static int kex_agree_hostkey(LIBSSH2_SESSION * session,
@@ -3445,7 +3445,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION * session,
 
 
 
-/* kex_agree_kex_hostkey()
+/* kex_agree_kex_hostkey
  * Agree on a Key Exchange method and a hostkey encoding type
  */
 static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, unsigned char *kex,
@@ -3521,7 +3521,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, unsigned char *kex,
 
 
 
-/* kex_agree_crypt()
+/* kex_agree_crypt
  * Agree on a cipher algo
  */
 static int kex_agree_crypt(LIBSSH2_SESSION * session,
@@ -3578,7 +3578,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION * session,
 
 
 
-/* kex_agree_mac()
+/* kex_agree_mac
  * Agree on a message authentication hash
  */
 static int kex_agree_mac(LIBSSH2_SESSION * session,
@@ -3631,7 +3631,7 @@ static int kex_agree_mac(LIBSSH2_SESSION * session,
 
 
 
-/* kex_agree_comp()
+/* kex_agree_comp
  * Agree on a compression scheme
  */
 static int kex_agree_comp(LIBSSH2_SESSION *session,
@@ -3688,7 +3688,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
  * The Client gets to make the final call on "agreed methods"
  */
 
-/* kex_agree_methods()
+/* kex_agree_methods
  * Decide which specific method to use of the methods offered by each party
  */
 static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
@@ -3935,7 +3935,7 @@ _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
 
 
 
-/* libssh2_session_method_pref()
+/* libssh2_session_method_pref
  * Set preferred method
  */
 LIBSSH2_API int
@@ -4055,7 +4055,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
 }
 
 /*
- * libssh2_session_supported_algs()
+ * libssh2_session_supported_algs
  * returns a number of returned algorithms (a positive number) on success,
  * a negative number on failure
  */
