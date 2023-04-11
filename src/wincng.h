@@ -421,6 +421,14 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
  * Windows CNG backend: Diffie-Hellman support
  */
 
+/* Default generate and safe prime sizes for
+   diffie-hellman-group-exchange-sha1 */
+#define LIBSSH2_DH_GEX_MINGROUP     2048
+#define LIBSSH2_DH_GEX_OPTGROUP     4096
+#define LIBSSH2_DH_GEX_MAXGROUP     8192
+
+#define LIBSSH2_DH_MAX_MODULUS_BITS 16384
+
 typedef struct {
     /* holds our private and public key components */
     BCRYPT_KEY_HANDLE dh_handle;

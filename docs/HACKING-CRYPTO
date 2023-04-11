@@ -406,6 +406,21 @@ TripleDES-CBC algorithm identifier initializer.
 
 5) Diffie-Hellman support.
 
+LIBSSH2_DH_GEX_MINGROUP
+The minimum Diffie-Hellman group length in bits supported by the backend.
+Usually defined as 2048.
+
+LIBSSH2_DH_GEX_OPTGROUP
+The preferred Diffie-Hellman group length in bits. Usually defined as 4096.
+
+LIBSSH2_DH_GEX_MAXGROUP
+The maximum Diffie-Hellman group length in bits supported by the backend.
+Usually defined as 8192.
+ 
+LIBSSH2_DH_MAX_MODULUS_BITS
+The maximum Diffie-Hellman modulus bit count accepted from the server. This
+value must be supported by the backend.  Usually 16384.
+
 5.1) Diffie-Hellman context.
 _libssh2_dh_ctx
 Type of a Diffie-Hellman computation context.
