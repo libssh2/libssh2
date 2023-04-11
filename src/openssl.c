@@ -39,8 +39,6 @@
  */
 
 #ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
-/* compile only if we build with openssl or wolfSSL */
-#if defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
 
 #include <string.h>
 
@@ -3917,5 +3915,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     return NULL;
 }
 
-#endif /* LIBSSH2_OPENSSL */
 #endif /* LIBSSH2_CRYPTO_C */

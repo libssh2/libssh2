@@ -37,7 +37,6 @@
  */
 
 #ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
-#ifdef LIBSSH2_LIBGCRYPT /* compile only if we build with libgcrypt */
 
 #include <string.h>
 
@@ -740,5 +739,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     return NULL;
 }
 
-#endif /* LIBSSH2_LIBGCRYPT */
 #endif /* LIBSSH2_CRYPTO_C */

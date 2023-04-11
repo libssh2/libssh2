@@ -37,7 +37,6 @@
  */
 
 #ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
-#ifdef LIBSSH2_WINCNG /* compile only if we build with wincng */
 
 /* required for cross-compilation against the w64 mingw-runtime package */
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
@@ -2729,5 +2728,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     return NULL;
 }
 
-#endif /* LIBSSH2_WINCNG */
 #endif /* LIBSSH2_CRYPTO_C */
