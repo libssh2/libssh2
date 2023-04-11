@@ -2,7 +2,7 @@
 #define __LIBSSH2_OS400QC3_H
 /*
  * Copyright (C) 2015-2016 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
- * Copyright (C) 2020 Patrick Monnerat <patrick@monnerat.net>.
+ * Copyright (C) 2020-2023 Patrick Monnerat <patrick@monnerat.net>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -314,19 +314,19 @@ typedef struct {        /* Diffie-Hellman context. */
 #define _libssh2_cipher_type(name)  _libssh2_os400qc3_cipher_t name
 #define _libssh2_cipher_aes128 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
                                 Qc3_CBC, 16}
-#define _libssh2_cipher_aes192 {Qc3_Alg_Block_Cipher, Qc3_AES, 24,          \
+#define _libssh2_cipher_aes192 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
                                 Qc3_CBC, 24}
-#define _libssh2_cipher_aes256 {Qc3_Alg_Block_Cipher, Qc3_AES, 32,          \
+#define _libssh2_cipher_aes256 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
                                 Qc3_CBC, 32}
 #define _libssh2_cipher_aes128ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16,       \
                                    Qc3_CTR, 16}
-#define _libssh2_cipher_aes192ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 24,       \
+#define _libssh2_cipher_aes192ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16,       \
                                    Qc3_CTR, 24}
-#define _libssh2_cipher_aes256ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 32,       \
+#define _libssh2_cipher_aes256ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16,       \
                                    Qc3_CTR, 32}
-#define _libssh2_cipher_3des {Qc3_Alg_Block_Cipher, Qc3_TDES, 0,            \
+#define _libssh2_cipher_3des {Qc3_Alg_Block_Cipher, Qc3_TDES, 8,            \
                               Qc3_CBC, 24}
-#define _libssh2_cipher_arcfour {Qc3_Alg_Stream_Cipher, Qc3_RC4, 0, 0, 16}
+#define _libssh2_cipher_arcfour {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
 
 #define _libssh2_cipher_dtor(ctx) _libssh2_os400qc3_crypto_dtor(ctx)
 
