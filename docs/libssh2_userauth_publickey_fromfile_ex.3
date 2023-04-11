@@ -1,16 +1,18 @@
-.TH libssh2_userauth_publickey_fromfile 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
+.TH libssh2_userauth_publickey_fromfile_ex 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
-libssh2_userauth_publickey_fromfile - authenticate a session with a public key, read from a file
+libssh2_userauth_publickey_fromfile_ex - authenticate a session with a public key, read from a file
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-.nf
-int libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
-                                           const char *username,
-                                           unsigned int ousername_len,
-                                           const char *publickey,
-                                           const char *privatekey,
-                                           const char *passphrase);
+int
+libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
+                                       const char *username,
+                                       unsigned int ousername_len,
+                                       const char *publickey,
+                                       const char *privatekey,
+                                       const char *passphrase);
+.fi
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by
 \fBlibssh2_session_init_ex(3)\fP

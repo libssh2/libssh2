@@ -2,11 +2,12 @@
 .SH NAME
 libssh2_session_set_blocking - set or clear blocking mode on session
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 void
 libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);
-
+.fi
 .SH DESCRIPTION
 \fIsession\fP - session instance as returned by
 .BR libssh2_session_init_ex(3)

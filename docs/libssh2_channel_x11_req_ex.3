@@ -2,14 +2,18 @@
 .SH NAME
 libssh2_channel_x11_req_ex - request an X11 forwarding channel
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 int
-libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection, const char *auth_proto, const char *auth_cookie, int screen_number);
+libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection,
+                           const char *auth_proto, const char *auth_cookie,
+                           int screen_number);
 
 int
-libssh2_channel_x11_req(LIBSSH2_CHANNEL *channel, int screen_number);
-
+libssh2_channel_x11_req(LIBSSH2_CHANNEL *channel,
+                        int screen_number);
+.fi
 .SH DESCRIPTION
 \fIchannel\fP - Previously opened channel instance such as returned by
 .BR libssh2_channel_open_ex(3)

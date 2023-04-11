@@ -2,11 +2,12 @@
 .SH NAME
 libssh2_channel_wait_closed - wait for the remote to close the channel
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 int
 libssh2_channel_wait_closed(LIBSSH2_CHANNEL *channel);
-
+.fi
 .SH DESCRIPTION
 Enter a temporary blocking state until the remote host closes the named
 channel. Typically sent after \fIlibssh2_channel_close(3)\fP in order to

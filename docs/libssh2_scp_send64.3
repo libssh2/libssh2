@@ -8,6 +8,7 @@ libssh2_scp_send64 - Send a file via SCP
 LIBSSH2_CHANNEL *
 libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
                    libssh2_uint64_t size, time_t mtime, time_t atime);
+.fi
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)

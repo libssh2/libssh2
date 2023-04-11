@@ -5,10 +5,12 @@
 .SH NAME
 libssh2_agent_get_identity_path - gets the custom ssh-agent socket path
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 const char *
 libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent);
+.fi
 .SH DESCRIPTION
 Returns the custom agent identity socket path if set using libssh2_agent_set_identity_path()
 

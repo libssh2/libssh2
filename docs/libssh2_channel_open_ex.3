@@ -2,14 +2,19 @@
 .SH NAME
 libssh2_channel_open_ex - establish a generic session channel
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 LIBSSH2_CHANNEL *
-libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type, unsigned int channel_type_len, unsigned int window_size, unsigned int packet_size, const char *message, unsigned int message_len);
+libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *channel_type,
+                        unsigned int channel_type_len,
+                        unsigned int window_size,
+                        unsigned int packet_size,
+                        const char *message, unsigned int message_len);
 
 LIBSSH2_CHANNEL *
 libssh2_channel_open_session(session);
-
+.fi
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)

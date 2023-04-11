@@ -2,10 +2,12 @@
 .SH NAME
 libssh2_session_startup - begin transport layer
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 int
 libssh2_session_startup(LIBSSH2_SESSION *session, int socket);
+.fi
 .SH DESCRIPTION
 Starting in libssh2 version 1.2.8 this function is considered deprecated. Use
 \fIlibssh2_session_handshake(3)\fP instead.

@@ -2,11 +2,12 @@
 .SH NAME
 libssh2_channel_send_eof - send EOF to remote server
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 int
 libssh2_channel_send_eof(LIBSSH2_CHANNEL *channel);
-
+.fi
 .SH DESCRIPTION
 Tell the remote host that no further data will be sent on the specified
 channel. Processes typically interpret this as a closed stdin descriptor.

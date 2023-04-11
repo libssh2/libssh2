@@ -2,11 +2,13 @@
 .SH NAME
 libssh2_session_method_pref - set preferred key exchange method
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 int
-libssh2_session_method_pref(LIBSSH2_SESSION *session, int method_type, const char *prefs);
-
+libssh2_session_method_pref(LIBSSH2_SESSION *session,
+                            int method_type, const char *prefs);
+.fi
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
