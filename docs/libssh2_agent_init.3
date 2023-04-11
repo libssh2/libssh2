@@ -5,9 +5,12 @@
 .SH NAME
 libssh2_agent_init - init an ssh-agent handle
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-LIBSSH2_AGENT *libssh2_agent_init(LIBSSH2_SESSION *session);
+LIBSSH2_AGENT *
+libssh2_agent_init(LIBSSH2_SESSION *session);
+.fi
 .SH DESCRIPTION
 Init an ssh-agent handle. Returns the handle to an internal
 representation of an ssh-agent connection.  After the successful

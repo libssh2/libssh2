@@ -2,10 +2,14 @@
 .SH NAME
 libssh2_channel_direct_streamlocal_ex - Tunnel a UNIX socket connection through an SSH session
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 LIBSSH2_CHANNEL *
-libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION *session, const char *socket_path, const char *shost, int sport);
+libssh2_channel_direct_streamlocal_ex(LIBSSH2_SESSION *session,
+                                      const char *socket_path,
+                                      const char *shost, int sport);
+.fi
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)

@@ -2,6 +2,7 @@
 .SH NAME
 libssh2_session_init_ex - initializes an SSH session object
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 LIBSSH2_SESSION *
@@ -12,6 +13,7 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*myalloc)),
 
 LIBSSH2_SESSION *
 libssh2_session_init(void);
+.fi
 .SH DESCRIPTION
 \fImyalloc\fP - Custom allocator function. Refer to the section on Callbacks
 for implementing an allocator callback. Pass a value of NULL to use the

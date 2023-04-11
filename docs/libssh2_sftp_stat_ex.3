@@ -6,9 +6,10 @@ libssh2_sftp_stat_ex - get status about an SFTP file
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, const char *path,
-                         unsigned int path_len, int stat_type,
-                         LIBSSH2_SFTP_ATTRIBUTES *attrs);
+int
+libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, const char *path,
+                     unsigned int path_len, int stat_type,
+                     LIBSSH2_SFTP_ATTRIBUTES *attrs);
 .fi
 .SH DESCRIPTION
 \fIsftp\fP - SFTP instance as returned by

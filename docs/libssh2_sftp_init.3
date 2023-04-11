@@ -2,11 +2,13 @@
 .SH NAME
 libssh2_sftp_init - open SFTP channel for the given SSH session.
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
 LIBSSH2_SFTP *
 libssh2_sftp_init(LIBSSH2_SESSION *session);
+.fi
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)

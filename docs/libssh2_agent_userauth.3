@@ -5,11 +5,14 @@
 .SH NAME
 libssh2_agent_userauth - authenticate a session with a public key, with the help of ssh-agent
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-int libssh2_agent_userauth(LIBSSH2_AGENT *agent,
-                           const char *username,
-                           struct libssh2_agent_publickey *identity);
+int
+libssh2_agent_userauth(LIBSSH2_AGENT *agent,
+                       const char *username,
+                       struct libssh2_agent_publickey *identity);
+.fi
 .SH DESCRIPTION
 \fIagent\fP - ssh-agent handle as returned by
 .BR libssh2_agent_init(3)

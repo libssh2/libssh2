@@ -2,14 +2,23 @@
 .SH NAME
 libssh2_sftp_rename_ex - rename an SFTP file
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
 int
-libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp, const char *source_filename, unsigned int source_filename_len, const char *dest_filename, unsigned int dest_filename_len, long flags);
+libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,
+                       const char *source_filename,
+                       unsigned int source_filename_len,
+                       const char *dest_filename,
+                       unsigned int dest_filename_len,
+                       long flags);
 
 int
-libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp, const char *source_filename, const char *dest_filename);
+libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,
+                       const char *source_filename,
+                       const char *dest_filename);
+.fi
 .SH DESCRIPTION
 \fIsftp\fP - SFTP instance as returned by
 .BR libssh2_sftp_init(3)

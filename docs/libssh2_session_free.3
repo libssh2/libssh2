@@ -2,10 +2,12 @@
 .SH NAME
 libssh2_session_free - frees resources associated with a session instance
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 int
 libssh2_session_free(LIBSSH2_SESSION *session);
+.fi
 .SH DESCRIPTION
 Frees all resources associated with a session instance. Typically called after
 .BR libssh2_session_disconnect_ex(3)

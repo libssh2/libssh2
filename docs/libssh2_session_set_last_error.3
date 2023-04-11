@@ -2,10 +2,13 @@
 .SH NAME
 libssh2_session_set_last_error - sets the internal error state
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 int
-libssh2_session_set_last_error(LIBSSH2_SESSION *session, int errcode, const char *errmsg)
+libssh2_session_set_last_error(LIBSSH2_SESSION *session,
+                               int errcode, const char *errmsg)
+.fi
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)

@@ -5,9 +5,10 @@ libssh2_session_supported_algs - get list of supported algorithms
 .nf
 #include <libssh2.h>
 
-int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
-                                   int method_type,
-                                   const char*** algs);
+int
+libssh2_session_supported_algs(LIBSSH2_SESSION* session,
+                               int method_type,
+                               const char*** algs);
 .fi
 .SH DESCRIPTION
 \fIsession\fP - An instance of initialized LIBSSH2_SESSION (the function will
@@ -42,11 +43,11 @@ session = libssh2_session_init();
 rc = libssh2_session_supported_algs(session,
                                     LIBSSH2_METHOD_CRYPT_CS,
                                     &algorithms);
-if (rc>0) {
+if(rc > 0) {
     /* the call succeeded, do sth. with the list of algorithms
        (e.g. list them)... */
     printf("Supported symmetric algorithms:\\n");
-    for ( i=0; i<rc; i++ )
+    for(i = 0; i < rc; i++)
         printf("\\t%s\\n", algorithms[i]);
 
     /* ... and free the allocated memory when not needed anymore */
@@ -55,6 +56,7 @@ if (rc>0) {
 else {
     /* call failed, error handling */
 }
+.fi
 .SH RETURN VALUE
 On success, a number of returned algorithms (i.e a positive number will be
 returned).  In case of a failure, an error code (a negative number, see below)
