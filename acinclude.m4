@@ -255,6 +255,11 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          esac
        fi
        #
+       dnl Only clang 3.4 or later
+       if test "$gccver" -ge "304"; then
+         CURL_ADD_COMPILER_WARNINGS([WARN], [unused-const-variable])
+       fi
+       #
        dnl Only clang 3.6 or later
        if test "$gccver" -ge "306"; then
          CURL_ADD_COMPILER_WARNINGS([WARN], [double-promotion])
