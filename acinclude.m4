@@ -400,10 +400,6 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
            CURL_ADD_COMPILER_WARNINGS([WARN], [alloc-zero])
            WARN="$WARN -Wformat-overflow=2"
            WARN="$WARN -Wformat-truncation=2"
-           if test "$gccnum" -lt "1200"; then
-             dnl gcc 12 doesn't acknowledge our comment markups
-             WARN="$WARN -Wimplicit-fallthrough=4"
-           fi
          fi
          #
          dnl Only gcc 10 or later
