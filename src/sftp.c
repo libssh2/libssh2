@@ -45,11 +45,12 @@
 #include "session.h"
 #include "sftp.h"
 
-/* Note: Version 6 was documented at the time of writing
- * However it was marked as "DO NOT IMPLEMENT" due to pending changes
- *
- * This release of libssh2 implements Version 5 with automatic downgrade
+/* This release of libssh2 implements Version 5 with automatic downgrade
  * based on server's declaration
+ *   https://www.ietf.org/archive/id/draft-ietf-secsh-filexfer-05.txt
+ *
+ * Version 6:
+ *   https://www.ietf.org/archive/id/draft-ietf-secsh-filexfer-13.txt
  */
 
 /* SFTP packet types */
@@ -97,19 +98,6 @@ static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
                            uint32_t request_id, unsigned char **data,
                            size_t *data_len);
 static void sftp_packet_flush(LIBSSH2_SFTP *sftp);
-
-/* sftp_attrsize
- * Size that attr with this flagset will occupy when turned into a bin struct
- */
-static int sftp_attrsize(unsigned long flags)
-{
-    return (4 +                                 /* flags(4) */
-            ((flags & LIBSSH2_SFTP_ATTR_SIZE) ? 8 : 0) +
-            ((flags & LIBSSH2_SFTP_ATTR_UIDGID) ? 8 : 0) +
-            ((flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) ? 4 : 0) +
-            ((flags & LIBSSH2_SFTP_ATTR_ACMODTIME) ? 8 : 0));
-    /* atime + mtime as u32 */
-}
 
 /* _libssh2_store_u64
  */
@@ -631,6 +619,19 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
     return LIBSSH2_ERROR_SOCKET_DISCONNECT;
 }
 
+/* sftp_attrsize
+ * Size that attr with this flagset will occupy when turned into a bin struct
+ */
+static int sftp_attrsize(unsigned long flags)
+{
+    return (4 +                                 /* flags(4) */
+            ((flags & LIBSSH2_SFTP_ATTR_SIZE) ? 8 : 0) +
+            ((flags & LIBSSH2_SFTP_ATTR_UIDGID) ? 8 : 0) +
+            ((flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) ? 4 : 0) +
+            ((flags & LIBSSH2_SFTP_ATTR_ACMODTIME) ? 8 : 0));
+    /* atime + mtime as u32 */
+}
+
 /* sftp_attr2bin
  * Populate attributes into an SFTP block
  */
@@ -639,8 +640,10 @@ sftp_attr2bin(unsigned char *p, const LIBSSH2_SFTP_ATTRIBUTES * attrs)
 {
     unsigned char *s = p;
     uint32_t flag_mask =
-        LIBSSH2_SFTP_ATTR_SIZE | LIBSSH2_SFTP_ATTR_UIDGID |
-        LIBSSH2_SFTP_ATTR_PERMISSIONS | LIBSSH2_SFTP_ATTR_ACMODTIME;
+        LIBSSH2_SFTP_ATTR_SIZE |
+        LIBSSH2_SFTP_ATTR_UIDGID |
+        LIBSSH2_SFTP_ATTR_PERMISSIONS |
+        LIBSSH2_SFTP_ATTR_ACMODTIME;
 
     /* TODO: When we add SFTP4+ functionality flag_mask can get additional
        bits */
@@ -1122,8 +1125,7 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
         /* packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) +
            flags(4) */
         sftp->open_packet_len = (uint32_t)(filename_len + 13 +
-            (open_file? (4 +
-                         sftp_attrsize(LIBSSH2_SFTP_ATTR_PERMISSIONS)) : 0));
+            (open_file? (4 + sftp_attrsize(attrs.flags)) : 0));
 
         /* surprise! this starts out with nothing sent */
         sftp->open_packet_sent = 0;
