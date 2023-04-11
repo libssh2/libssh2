@@ -39,6 +39,8 @@
  * OF SUCH DAMAGE.
  */
 
+#define LIBSSH2_CRYPTO_ENGINE libssh2_openssl
+
 /* disable deprecated warnings in OpenSSL 3 */
 #define OPENSSL_SUPPRESS_DEPRECATED
 

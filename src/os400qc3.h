@@ -39,6 +39,8 @@
  * OF SUCH DAMAGE.
  */
 
+#define LIBSSH2_CRYPTO_ENGINE libssh2_os400qc3
+
 #include <stdlib.h>
 #include <string.h>
 

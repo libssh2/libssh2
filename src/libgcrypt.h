@@ -39,6 +39,8 @@
  * OF SUCH DAMAGE.
  */
 
+#define LIBSSH2_CRYPTO_ENGINE libssh2_gcrypt
+
 #include <gcrypt.h>
 
 #define LIBSSH2_MD5 1
