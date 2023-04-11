@@ -41,10 +41,16 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
 
   if(PICKY_COMPILER)
 
-    # common gcc and clang warnings
-    set(WARNOPTS
+    # assume these options always exist
+    foreach(_CCOPT
       -W
       -pedantic
+      )
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_CCOPT}")
+    endforeach()
+
+    # common gcc and clang warnings
+    set(WARNOPTS
       -Wcast-align                     # clang  1.0  gcc  4.2
       -Wconversion                     # clang _3.0  gcc  4.3 (or even 4.1)
       -Wdeclaration-after-statement    # clang  1.0  gcc  3.4
