@@ -181,21 +181,6 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
       CURL_DETECT_ICC
     fi
 
-# clang missing:
-# -Wconversion
-# -Wempty-body
-# -Wenum-conversion
-# -Wignored-qualifiers
-# -Wno-sign-conversion
-# -Wtype-limits
-
-# gcc missing:
-# -Wno-multichar
-# -Wno-pedantic-ms-format
-# -Wno-system-headers
-# -Wshadow
-# -Wunused
-
     if test "z$compiler_id" = "zCLANG"; then
 
        CLANG="yes"

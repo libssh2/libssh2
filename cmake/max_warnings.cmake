@@ -39,80 +39,72 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
   endif()
 
-# clang missing:
-# -Wassign-enum
-# -Wcomma
-# -Wextra-semi-stmt
-# -Wshift-sign-overflow
-# -Wshorten-64-to-32
+# cmake clang missing:
+# -Wassign-enum                                         # clang  7.0
+# -Wcomma                                               # clang  3.9
+# -Wextra-semi-stmt                                     # clang  7.0
+# -Wshift-sign-overflow                                 # clang  2.9
+# -Wshorten-64-to-32                                    # clang  1.0
 
-# gcc missing:
-# -Walloc-zero
-# -Warray-bounds=2 -ftree-vrp
-# -Wduplicated-branches
-# -Wduplicated-cond
-# -Wformat-overflow=2
-# -Wformat-truncation=2
-# -Wformat=2
-# -Wnull-dereference -fdelete-null-pointer-checks
-# -Wrestrict
-# -Wshift-negative-value
-# -Wshift-overflow=2
-# -Wunused-const-variable
+# cmake gcc missing:
+# -Walloc-zero                                          #             gcc 7.0
+# -Warray-bounds=2 -ftree-vrp                           # clang _3.0  gcc 5.0 [clang default -Warray-bounds]
+# -Wduplicated-branches                                 #             gcc 7.0
+# -Wduplicated-cond                                     #             gcc 6.0
+# -Wformat-overflow=2                                   #             gcc 7.0
+# -Wformat-truncation=2                                 #             gcc 7.0
+# -Wformat=2                                            # clang _3.0  gcc 4.8 [clang some-default]
+# -Wnull-dereference -fdelete-null-pointer-checks       # clang _3.0  gcc 6.0 [clang default]
+# -Wrestrict                                            #             gcc 7.0
+# -Wshift-negative-value                                # clang  3.7  gcc 6.0 [clang default]
+# -Wshift-overflow=2                                    # clang _3.0  gcc 6.0 [clang default -Wshift-overflow]
+# -Wunused-const-variable                               # clang  3.4  gcc 6.0
 
   if(PICKY_COMPILER)
-    message(STATUS "C compiler version: ${CMAKE_C_COMPILER_VERSION}")
     foreach(_CCOPT -pedantic -W
-        -Warith-conversion                   # gcc
-        -Wcast-align
-        -Wclobbered                          # gcc, part of -Wextra
-        -Wconversion
-        -Wdeclaration-after-statement
-        -Wdouble-promotion
-        -Wempty-body
-        -Wendif-labels
-        -Wenum-conversion
-        -Wfloat-equal
-        -Wignored-qualifiers
-        -Winline
-        -Wmissing-declarations
-        -Wmissing-parameter-type             # gcc
-        -Wmissing-prototypes
-        -Wnested-externs
-        -Wold-style-declaration              # gcc
-        -Wpointer-arith
-        -Wshadow
-        -Wsign-compare
-        -Wstrict-aliasing=3                  # gcc
-        -Wstrict-prototypes
-        -Wtype-limits
-        -Wundef
-        -Wunused
-        -Wvla
-        -Wwrite-strings
+      -Warith-conversion                   #             gcc 10.0
+      -Wcast-align                         # clang  1.0  gcc  4.2
+      -Wclobbered                          #             gcc  4.3/-Wextra
+      -Wconversion                         # clang _3.0  gcc  4.3 (or even 4.1) --> autotools-clang
+      -Wdeclaration-after-statement        # clang  1.0  gcc  3.4
+      -Wdouble-promotion                   # clang  3.6  gcc  4.6
+      -Wempty-body                         # clang _3.0  gcc  4.3              --> autotools-clang
+      -Wendif-labels                       # clang  1.0  gcc  3.3
+      -Wenum-conversion                    # clang  3.2  gcc 10.0 (for C, 11.0 for C++) --> autotools-clang
+      -Wfloat-equal                        # clang  1.0  gcc  2.96
+      -Wignored-qualifiers                 # clang _3.0  gcc  4.3              --> autotools-clang
+      -Winline                             # clang  1.0  gcc  1.0
+      -Wmissing-declarations               # clang  1.0  gcc  2.7
+      -Wmissing-parameter-type             #             gcc  4.3
+      -Wmissing-prototypes                 # clang  1.0  gcc  1.0
+      -Wnested-externs                     # clang  1.0  gcc  1.0
+      -Wold-style-declaration              #             gcc  4.3
+      -Wpointer-arith                      # clang  1.0  gcc  1.0
+      -Wshadow                             # clang  1.0  gcc _4.1 (or earlier) --> autotools-gcc
+      -Wsign-compare                       # clang  1.0  gcc  2.95
+      -Wstrict-aliasing=3                  #             gcc  4.0
+      -Wstrict-prototypes                  # clang  1.0  gcc  3.3
+      -Wtype-limits                        # clang _3.0  gcc  4.3              --> autotools-clang
+      -Wundef                              # clang  1.0  gcc  2.95
+      -Wunused                             # clang  1.1  gcc _4.1 (or earlier) --> autotools-gcc
+      -Wvla                                # clang  2.8  gcc  4.3
+      -Wwrite-strings                      # clang  1.0  gcc  1.0
+      -Wno-format-nonliteral               # clang  1.0  gcc  2.96
+      -Wno-long-long                       # clang  1.0  gcc  2.95
+      -Wno-multichar                       # clang  1.0  gcc _4.1 (or earlier) --> autotools-gcc
+      -Wno-pedantic-ms-format              #             gcc  4.5 (mingw-only) --> autotools-gcc
+      -Wno-sign-conversion                 # clang _3.0  gcc  4.3              --> autotools-clang
+      -Wno-system-headers                  # clang  1.0  gcc _4.1 (or earlier) --> autotools-gcc
       )
       # surprisingly, CHECK_C_COMPILER_FLAG needs a new variable to store each new
       # test result in.
       string(MAKE_C_IDENTIFIER "OPT${_CCOPT}" _optvarname)
-      check_c_compiler_flag(${_CCOPT} ${_optvarname})
-      if(${_optvarname})
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_CCOPT}")
-      endif()
-    endforeach()
-    foreach(_CCOPT
-        format-nonliteral
-        long-long
-        multichar
-        pedantic-ms-format                   # gcc
-        sign-conversion
-        system-headers
-      )
       # GCC only warns about unknown -Wno- options if there are also other diagnostic messages,
       # so test for the positive form instead
-      string(MAKE_C_IDENTIFIER "OPT${_CCOPT}" _optvarname)
-      check_c_compiler_flag("-W${_CCOPT}" ${_optvarname})
+      string(REPLACE "-Wno-" "-W" _CCOPT_ON "${_CCOPT}")
+      check_c_compiler_flag(${_CCOPT_ON} ${_optvarname})
       if(${_optvarname})
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-${_CCOPT}")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_CCOPT}")
       endif()
     endforeach()
   endif()
