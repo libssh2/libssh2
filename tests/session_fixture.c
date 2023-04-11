@@ -58,8 +58,8 @@
 #endif
 #include <assert.h>
 
-LIBSSH2_SESSION *connected_session = NULL;
-libssh2_socket_t connected_socket = LIBSSH2_INVALID_SOCKET;
+static LIBSSH2_SESSION *connected_session = NULL;
+static libssh2_socket_t connected_socket = LIBSSH2_INVALID_SOCKET;
 
 static int connect_to_server(void)
 {

@@ -1033,17 +1033,16 @@ cleanup:
     return rc;
 }
 
-#define LIBSSH2_MBEDTLS_ECDSA_VERIFY(digest_type)                      \
-{                                                                      \
-    unsigned char hsh[SHA##digest_type##_DIGEST_LENGTH];               \
-                                                                       \
-    if(libssh2_sha##digest_type(m, m_len, hsh) == 0) {                 \
-        rc = mbedtls_ecdsa_verify(&ctx->MBEDTLS_PRIVATE(grp), hsh,     \
-                                  SHA##digest_type##_DIGEST_LENGTH,    \
-                                  &ctx->MBEDTLS_PRIVATE(Q), &pr, &ps); \
-    }                                                                  \
-                                                                       \
-}
+#define LIBSSH2_MBEDTLS_ECDSA_VERIFY(digest_type)                           \
+    do {                                                                    \
+        unsigned char hsh[SHA##digest_type##_DIGEST_LENGTH];                \
+                                                                            \
+        if(libssh2_sha##digest_type(m, m_len, hsh) == 0) {                  \
+            rc = mbedtls_ecdsa_verify(&ctx->MBEDTLS_PRIVATE(grp), hsh,      \
+                                      SHA##digest_type##_DIGEST_LENGTH,     \
+                                      &ctx->MBEDTLS_PRIVATE(Q), &pr, &ps);  \
+        }                                                                   \
+    } while(0)
 
 /* _libssh2_ecdsa_sign
  *

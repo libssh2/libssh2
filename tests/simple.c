@@ -46,11 +46,11 @@ static int test_libssh2_base64_decode(LIBSSH2_SESSION *session)
     char *data;
     unsigned int datalen;
     const char *src = "Zm5vcmQ=";
-    unsigned int src_len = strlen(src);
+    size_t src_len = strlen(src);
     int ret;
 
     ret = libssh2_base64_decode(session, &data, &datalen,
-                                src, src_len);
+                                src, (unsigned int)src_len);
     if(ret)
         return ret;
 

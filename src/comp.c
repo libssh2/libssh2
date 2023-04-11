@@ -237,7 +237,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
     /* If strm is null, then we have not yet been initialized. */
     if(strm == NULL)
         return _libssh2_error(session, LIBSSH2_ERROR_COMPRESS,
-                              "decompression uninitialized");;
+                              "decompression uninitialized");
 
     /* In practice they never come smaller than this */
     if(out_maxlen < 25)
