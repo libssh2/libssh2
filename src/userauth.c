@@ -54,7 +54,7 @@
 #include "userauth.h"
 #include "userauth_kbd_packet.h"
 
-/* libssh2_userauth_list()
+/* userauth_list()
  *
  * List authentication methods
  * Will yield successful login if "none" happens to be allowable for this user
