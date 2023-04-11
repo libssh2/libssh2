@@ -978,7 +978,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
                    ...);
 #define _libssh2_debug(x) _libssh2_debug_low x
 #else
-#define _libssh2_debug(x) do {} while (0)
+#define _libssh2_debug(x) do {} while(0)
 #endif
 
 #define LIBSSH2_SOCKET_UNKNOWN                   1
