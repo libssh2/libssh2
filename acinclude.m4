@@ -353,6 +353,14 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
            WARN="$WARN -Wstrict-aliasing=3"
          fi
          #
+         dnl Only gcc 4.1 or later (possibly earlier)
+         if test "$gccnum" -ge "401"; then
+           CURL_ADD_COMPILER_WARNINGS([WARN], [shadow])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [unused])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [no-multichar])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [no-system-headers])
+         fi
+         #
          dnl Only gcc 4.2 or later
          if test "$gccnum" -ge "402"; then
            CURL_ADD_COMPILER_WARNINGS([WARN], [cast-align])

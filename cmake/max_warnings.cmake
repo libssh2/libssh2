@@ -80,21 +80,21 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wnested-externs                     # clang  1.0  gcc  1.0
       -Wold-style-declaration              #             gcc  4.3
       -Wpointer-arith                      # clang  1.0  gcc  1.0
-      -Wshadow                             # clang  1.0  gcc _4.1 (or earlier) --> autotools-gcc
+      -Wshadow                             # clang  1.0  gcc _4.1 (or earlier)
       -Wsign-compare                       # clang  1.0  gcc  2.95
       -Wstrict-aliasing=3                  #             gcc  4.0
       -Wstrict-prototypes                  # clang  1.0  gcc  3.3
       -Wtype-limits                        # clang _3.0  gcc  4.3
       -Wundef                              # clang  1.0  gcc  2.95
-      -Wunused                             # clang  1.1  gcc _4.1 (or earlier) --> autotools-gcc
+      -Wunused                             # clang  1.1  gcc _4.1 (or earlier)
       -Wvla                                # clang  2.8  gcc  4.3
       -Wwrite-strings                      # clang  1.0  gcc  1.0
       -Wno-format-nonliteral               # clang  1.0  gcc  2.96
       -Wno-long-long                       # clang  1.0  gcc  2.95
-      -Wno-multichar                       # clang  1.0  gcc _4.1 (or earlier) --> autotools-gcc
+      -Wno-multichar                       # clang  1.0  gcc _4.1 (or earlier)
       -Wno-pedantic-ms-format              #             gcc  4.5 (mingw-only)
       -Wno-sign-conversion                 # clang _3.0  gcc  4.3
-      -Wno-system-headers                  # clang  1.0  gcc _4.1 (or earlier) --> autotools-gcc
+      -Wno-system-headers                  # clang  1.0  gcc _4.1 (or earlier)
       )
       # surprisingly, CHECK_C_COMPILER_FLAG needs a new variable to store each new
       # test result in.
