@@ -28,6 +28,10 @@ if(MSVC)
     endif()
   endif()
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+
+  # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
+  # https://clang.llvm.org/docs/DiagnosticsReference.html
+
   if(NOT CMAKE_CXX_FLAGS MATCHES "-Wall")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
   endif()
@@ -35,8 +39,58 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
   endif()
 
+# clang missing:
+# -Wassign-enum
+# -Wcomma
+# -Wextra-semi-stmt
+# -Wshift-sign-overflow
+# -Wshorten-64-to-32
+
+# gcc missing:
+# -Walloc-zero
+# -Warray-bounds=2 -ftree-vrp
+# -Wduplicated-branches
+# -Wduplicated-cond
+# -Wformat-overflow=2
+# -Wformat-truncation=2
+# -Wformat=2
+# -Wnull-dereference -fdelete-null-pointer-checks
+# -Wrestrict
+# -Wshift-negative-value
+# -Wshift-overflow=2
+# -Wunused-const-variable
+
   if(PICKY_COMPILER)
-    foreach(_CCOPT -pedantic -W -Wpointer-arith -Wwrite-strings -Wunused -Wshadow -Winline -Wnested-externs -Wmissing-declarations -Wmissing-prototypes -Wfloat-equal -Wsign-compare -Wundef -Wendif-labels -Wstrict-prototypes -Wdeclaration-after-statement -Wstrict-aliasing=3 -Wcast-align -Wtype-limits -Wold-style-declaration -Wmissing-parameter-type -Wempty-body -Wclobbered -Wignored-qualifiers -Wconversion -Wvla -Wdouble-promotion -Wenum-conversion -Warith-conversion)
+    message(STATUS "C compiler version: ${CMAKE_C_COMPILER_VERSION}")
+    foreach(_CCOPT -pedantic -W
+        -Warith-conversion                   # gcc
+        -Wcast-align
+        -Wclobbered                          # gcc, part of -Wextra
+        -Wconversion
+        -Wdeclaration-after-statement
+        -Wdouble-promotion
+        -Wempty-body
+        -Wendif-labels
+        -Wenum-conversion
+        -Wfloat-equal
+        -Wignored-qualifiers
+        -Winline
+        -Wmissing-declarations
+        -Wmissing-parameter-type             # gcc
+        -Wmissing-prototypes
+        -Wnested-externs
+        -Wold-style-declaration              # gcc
+        -Wpointer-arith
+        -Wshadow
+        -Wsign-compare
+        -Wstrict-aliasing=3                  # gcc
+        -Wstrict-prototypes
+        -Wtype-limits
+        -Wundef
+        -Wunused
+        -Wvla
+        -Wwrite-strings
+      )
       # surprisingly, CHECK_C_COMPILER_FLAG needs a new variable to store each new
       # test result in.
       string(MAKE_C_IDENTIFIER "OPT${_CCOPT}" _optvarname)
@@ -45,7 +99,14 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_CCOPT}")
       endif()
     endforeach()
-    foreach(_CCOPT long-long multichar format-nonliteral sign-conversion system-headers pedantic-ms-format)
+    foreach(_CCOPT
+        format-nonliteral
+        long-long
+        multichar
+        pedantic-ms-format                   # gcc
+        sign-conversion
+        system-headers
+      )
       # GCC only warns about unknown -Wno- options if there are also other diagnostic messages,
       # so test for the positive form instead
       string(MAKE_C_IDENTIFIER "OPT${_CCOPT}" _optvarname)
