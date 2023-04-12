@@ -110,7 +110,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wduplicated-branches          #             gcc  7.0
         -Wduplicated-cond              #             gcc  6.0
         -Wformat-overflow=2            #             gcc  7.0
-        -Wformat-truncation=2          #             gcc  7.0
+        -Wformat-truncation=1          #             gcc  7.0
         -Wformat=2                     # clang  3.0  gcc  4.8 [clang some-default]
         -Wmissing-parameter-type       #             gcc  4.3
         -Wno-pedantic-ms-format        #             gcc  4.5 (mingw-only)

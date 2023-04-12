@@ -421,7 +421,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
            CURL_ADD_COMPILER_WARNINGS([WARN], [restrict])
            CURL_ADD_COMPILER_WARNINGS([WARN], [alloc-zero])
            WARN="$WARN -Wformat-overflow=2"
-           WARN="$WARN -Wformat-truncation=2"
+           WARN="$WARN -Wformat-truncation=1"
          fi
          #
          dnl Only gcc 10 or later
