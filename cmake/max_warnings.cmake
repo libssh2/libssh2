@@ -79,9 +79,9 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
 
     # Enable if available
     set(WARNOPTS_TOCHECK
-      -Wdouble-promotion               # clang  3.6  gcc  4.6
-      -Wenum-conversion                # clang  3.2  gcc 10.0 (for C, 11.0 for C++)
-      -Wunused-const-variable          # clang  3.4  gcc  6.0
+      -Wdouble-promotion               # clang  3.6  gcc  4.6  appleclang  6.3
+      -Wenum-conversion                # clang  3.2  gcc 10.0  appleclang  4.6  g++ 11.0
+      -Wunused-const-variable          # clang  3.4  gcc  6.0  appleclang  5.1
     )
 
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -91,9 +91,9 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wshorten-64-to-32             # clang  1.0
       )
       list(APPEND WARNOPTS_TOCHECK
-        -Wassign-enum                  # clang  7.0
-        -Wcomma                        # clang  3.9
-        -Wextra-semi-stmt              # clang  7.0
+        -Wassign-enum                  # clang  7.0            appleclang 10.3
+        -Wcomma                        # clang  3.9            appleclang  8.3
+        -Wextra-semi-stmt              # clang  7.0            appleclang 10.3
       )
     else()
       if(MINGW)
