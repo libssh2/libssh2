@@ -26,7 +26,7 @@
 
 environment:
   matrix:
-    - job_name: "VS2022, OpenSSL, x64"
+    - job_name: "VS2022, OpenSSL3, x64"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
       PLATFORM: "x64"
@@ -147,10 +147,16 @@ build_script:
         $env:GENERATOR += " Win64"
       }
       if($env:SKIP_CTEST -ne "yes" -and $env:CRYPTO_BACKEND -eq "OpenSSL") {
-        if($env:PLATFORM -eq "x64") {
-          $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
-        } elseif($env:PLATFORM -eq "x86") {
-          $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
+        if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2022") {
+          if($env:PLATFORM -eq "x64") {
+            $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64"
+          }
+        } else {
+          if($env:PLATFORM -eq "x64") {
+            $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
+          } elseif($env:PLATFORM -eq "x86") {
+            $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
+          }
         }
       }
   - echo cmake         "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
