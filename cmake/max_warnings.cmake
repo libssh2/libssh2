@@ -52,9 +52,12 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wnested-externs                 # clang  1.0  gcc  1.0
       -Wno-format-nonliteral           # clang  1.0  gcc  2.96
       -Wno-long-long                   # clang  1.0  gcc  2.95
+      -Wno-multichar                   # clang  1.0  gcc  2.95
       -Wpointer-arith                  # clang  1.0  gcc  1.0
+      -Wshadow                         # clang  1.0  gcc  2.95
       -Wsign-compare                   # clang  1.0  gcc  2.95
       -Wundef                          # clang  1.0  gcc  2.95
+      -Wunused                         # clang  1.1  gcc  2.95
       -Wwrite-strings                  # clang  1.0  gcc  1.0
     )
 
@@ -66,7 +69,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wenum-conversion                # clang  3.2  gcc 10.0 (for C, 11.0 for C++)
       -Wignored-qualifiers             # clang _3.0  gcc  4.3
       -Wtype-limits                    # clang _3.0  gcc  4.3
-      -Wunused                         # clang  1.1  gcc _4.1 (or earlier)
       -Wunused-const-variable          # clang  3.4  gcc  6.0
       -Wvla                            # clang  2.8  gcc  4.3
       -Wno-sign-conversion             # clang _3.0  gcc  4.3
@@ -78,9 +80,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wcast-align                   # clang  1.0  gcc  4.2
         -Wdeclaration-after-statement  # clang  1.0  gcc  3.4
         -Wendif-labels                 # clang  1.0  gcc  3.3
-        -Wno-multichar                 # clang  1.0  gcc _4.1 (or earlier)
         -Wno-system-headers            # clang  1.0  gcc _4.1 (or earlier)
-        -Wshadow                       # clang  1.0  gcc _4.1 (or earlier)
         -Wstrict-prototypes            # clang  1.0  gcc  3.3
       )
       # clang-only
@@ -99,9 +99,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wcast-align                   # clang  1.0  gcc  4.2
         -Wdeclaration-after-statement  # clang  1.0  gcc  3.4
         -Wendif-labels                 # clang  1.0  gcc  3.3
-        -Wno-multichar                 # clang  1.0  gcc _4.1 (or earlier)
         -Wno-system-headers            # clang  1.0  gcc _4.1 (or earlier)
-        -Wshadow                       # clang  1.0  gcc _4.1 (or earlier)
         -Wstrict-prototypes            # clang  1.0  gcc  3.3
       )
       # gcc-only
