@@ -94,6 +94,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wassign-enum                    # clang  7.0            appleclang 10.3
         -Wcomma                          # clang  3.9            appleclang  8.3
         -Wextra-semi-stmt                # clang  7.0            appleclang 10.3
+        -Wmissing-variable-declarations  # clang  3.2            appleclang  4.6
       )
     else()
       if(MINGW)
