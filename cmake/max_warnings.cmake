@@ -103,15 +103,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wmissing-variable-declarations    # clang  3.2            appleclang  4.6
       )
     else()  # gcc
-      if(MINGW)
-        list(APPEND WARNOPTS_DETECT
-          -Wno-pedantic-ms-format          #             gcc  4.5 (mingw-only)
-        )
-      endif()
-      list(APPEND WARNOPTS_DETECT
-        -Wformat=2                         # clang  3.0  gcc  4.8 (clang part-default, enabling it fully causes -Wformat-nonliteral warnings)
-      )
-
       # Enable based on compiler version
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.3)
         list(APPEND WARNOPTS_ENABLE
@@ -119,6 +110,16 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
           -Wmissing-parameter-type         #             gcc  4.3
           -Wold-style-declaration          #             gcc  4.3
           -Wstrict-aliasing=3              #             gcc  4.0
+        )
+      endif()
+      if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.5 AND MINGW)
+        list(APPEND WARNOPTS_ENABLE
+          -Wno-pedantic-ms-format          #             gcc  4.5 (mingw-only)
+        )
+      endif()
+      if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.8)
+        list(APPEND WARNOPTS_ENABLE
+          -Wformat=2                       # clang  3.0  gcc  4.8 (clang part-default, enabling it fully causes -Wformat-nonliteral warnings)
         )
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 5.0)
