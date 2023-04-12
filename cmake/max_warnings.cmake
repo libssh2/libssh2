@@ -94,6 +94,11 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wshift-sign-overflow          # clang  2.9
       )
     else()
+      if(MINGW)
+        list(APPEND WARNOPTS_TOCHECK
+          -Wno-pedantic-ms-format      #             gcc  4.5 (mingw-only)
+        )
+      endif()
       # common with clang
       list(APPEND WARNOPTS_TOCHECK
         -Wcast-align                   # clang  1.0  gcc  4.2
@@ -113,7 +118,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wformat-truncation=1          #             gcc  7.0
         -Wformat=2                     # clang  3.0  gcc  4.8 [clang some-default]
         -Wmissing-parameter-type       #             gcc  4.3
-        -Wno-pedantic-ms-format        #             gcc  4.5 (mingw-only)
         -Wold-style-declaration        #             gcc  4.3
         -Wrestrict                     #             gcc  7.0
         -Wshift-negative-value         # clang  3.7  gcc  6.0 [clang default]
