@@ -189,105 +189,105 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
 
     if test "$CLANG" = "yes"; then
 
-       fullclangver=`$CC -v 2>&1 | grep version`
-       clangver=`echo $fullclangver | grep "based on LLVM " | "$SED" 's/.*(based on LLVM \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*)/\1/'`
-       if test -z "$clangver"; then
-         if echo $fullclangver | grep "Apple LLVM version " >/dev/null; then
-           dnl Starting with Xcode 7 / clang 3.7, Apple clang won't tell its upstream version
-           clangver="3.7"
-         else
-           clangver=`echo $fullclangver | "$SED" 's/.*version \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*/\1/'`
-         fi
-       fi
-       clangvhi=`echo $clangver | cut -d . -f1`
-       clangvlo=`echo $clangver | cut -d . -f2`
-       compiler_num=`(expr $clangvhi "*" 100 + $clangvlo) 2>/dev/null`
-       AC_MSG_RESULT($compiler_num)
+      fullclangver=`$CC -v 2>&1 | grep version`
+      clangver=`echo $fullclangver | grep "based on LLVM " | "$SED" 's/.*(based on LLVM \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*)/\1/'`
+      if test -z "$clangver"; then
+        if echo $fullclangver | grep "Apple LLVM version " >/dev/null; then
+          dnl Starting with Xcode 7 / clang 3.7, Apple clang won't tell its upstream version
+          clangver="3.7"
+        else
+          clangver=`echo $fullclangver | "$SED" 's/.*version \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*/\1/'`
+        fi
+      fi
+      clangvhi=`echo $clangver | cut -d . -f1`
+      clangvlo=`echo $clangver | cut -d . -f2`
+      compiler_num=`(expr $clangvhi "*" 100 + $clangvlo) 2>/dev/null`
+      AC_MSG_RESULT($compiler_num)
 
-       WARN="-pedantic"
-       CURL_ADD_COMPILER_WARNINGS([WARN], [all extra])
-       CURL_ADD_COMPILER_WARNINGS([WARN], [pointer-arith write-strings])
-       CURL_ADD_COMPILER_WARNINGS([WARN], [shadow])
-       CURL_ADD_COMPILER_WARNINGS([WARN], [inline nested-externs])
-       CURL_ADD_COMPILER_WARNINGS([WARN], [missing-declarations])
-       CURL_ADD_COMPILER_WARNINGS([WARN], [missing-prototypes])
-       WARN="$WARN -Wno-long-long"
-       CURL_ADD_COMPILER_WARNINGS([WARN], [float-equal])
-       CURL_ADD_COMPILER_WARNINGS([WARN], [no-multichar sign-compare])
-       CURL_ADD_COMPILER_WARNINGS([WARN], [undef])
-       WARN="$WARN -Wno-format-nonliteral"
-       CURL_ADD_COMPILER_WARNINGS([WARN], [endif-labels strict-prototypes])
-       CURL_ADD_COMPILER_WARNINGS([WARN], [declaration-after-statement])
-       CURL_ADD_COMPILER_WARNINGS([WARN], [cast-align])
-       WARN="$WARN -Wno-system-headers"
-       CURL_ADD_COMPILER_WARNINGS([WARN], [shorten-64-to-32])
-       #
-       dnl Only clang 1.1 or later
-       if test "$compiler_num" -ge "101"; then
-         CURL_ADD_COMPILER_WARNINGS([WARN], [unused])
-       fi
-       #
-       dnl Only clang 2.8 or later
-       if test "$compiler_num" -ge "208"; then
-         CURL_ADD_COMPILER_WARNINGS([WARN], [vla])
-       fi
-       #
-       dnl Only clang 2.9 or later
-       if test "$compiler_num" -ge "209"; then
-         CURL_ADD_COMPILER_WARNINGS([WARN], [shift-sign-overflow])
-       fi
-       #
-       dnl Only clang 3.0 or later (possibly earlier)
-       if test "$compiler_num" -ge "300"; then
-         CURL_ADD_COMPILER_WARNINGS([WARN], [conversion])
-         CURL_ADD_COMPILER_WARNINGS([WARN], [empty-body])
-         CURL_ADD_COMPILER_WARNINGS([WARN], [ignored-qualifiers])
-         CURL_ADD_COMPILER_WARNINGS([WARN], [type-limits])
-         CURL_ADD_COMPILER_WARNINGS([WARN], [no-sign-conversion])
-       fi
-       #
-       dnl Only clang 3.2 or later
-       if test "$compiler_num" -ge "302"; then
-         CURL_ADD_COMPILER_WARNINGS([WARN], [enum-conversion])
-         case $host_os in
-         cygwin* | mingw*)
-           dnl skip missing-variable-declarations warnings for cygwin and
-           dnl mingw because the libtool wrapper executable causes them
-           ;;
-         *)
-           CURL_ADD_COMPILER_WARNINGS([WARN], [missing-variable-declarations])
-           ;;
-         esac
-       fi
-       #
-       dnl Only clang 3.4 or later
-       if test "$compiler_num" -ge "304"; then
-         CURL_ADD_COMPILER_WARNINGS([WARN], [unused-const-variable])
-       fi
-       #
-       dnl Only clang 3.6 or later
-       if test "$compiler_num" -ge "306"; then
-         CURL_ADD_COMPILER_WARNINGS([WARN], [double-promotion])
-       fi
-       #
-       dnl Only clang 3.9 or later
-       if test "$compiler_num" -ge "309"; then
-         CURL_ADD_COMPILER_WARNINGS([WARN], [comma])
-         # avoid the varargs warning, fixed in 4.0
-         # https://bugs.llvm.org/show_bug.cgi?id=29140
-         if test "$compiler_num" -lt "400"; then
-           WARN="$WARN -Wno-varargs"
-         fi
-       fi
-       dnl clang 7 or later
-       if test "$compiler_num" -ge "700"; then
-         CURL_ADD_COMPILER_WARNINGS([WARN], [assign-enum])
-         CURL_ADD_COMPILER_WARNINGS([WARN], [extra-semi-stmt])
-       fi
+      WARN="-pedantic"
+      CURL_ADD_COMPILER_WARNINGS([WARN], [all extra])
+      CURL_ADD_COMPILER_WARNINGS([WARN], [pointer-arith write-strings])
+      CURL_ADD_COMPILER_WARNINGS([WARN], [shadow])
+      CURL_ADD_COMPILER_WARNINGS([WARN], [inline nested-externs])
+      CURL_ADD_COMPILER_WARNINGS([WARN], [missing-declarations])
+      CURL_ADD_COMPILER_WARNINGS([WARN], [missing-prototypes])
+      WARN="$WARN -Wno-long-long"
+      CURL_ADD_COMPILER_WARNINGS([WARN], [float-equal])
+      CURL_ADD_COMPILER_WARNINGS([WARN], [no-multichar sign-compare])
+      CURL_ADD_COMPILER_WARNINGS([WARN], [undef])
+      WARN="$WARN -Wno-format-nonliteral"
+      CURL_ADD_COMPILER_WARNINGS([WARN], [endif-labels strict-prototypes])
+      CURL_ADD_COMPILER_WARNINGS([WARN], [declaration-after-statement])
+      CURL_ADD_COMPILER_WARNINGS([WARN], [cast-align])
+      WARN="$WARN -Wno-system-headers"
+      CURL_ADD_COMPILER_WARNINGS([WARN], [shorten-64-to-32])
+      #
+      dnl Only clang 1.1 or later
+      if test "$compiler_num" -ge "101"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [unused])
+      fi
+      #
+      dnl Only clang 2.8 or later
+      if test "$compiler_num" -ge "208"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [vla])
+      fi
+      #
+      dnl Only clang 2.9 or later
+      if test "$compiler_num" -ge "209"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [shift-sign-overflow])
+      fi
+      #
+      dnl Only clang 3.0 or later (possibly earlier)
+      if test "$compiler_num" -ge "300"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [conversion])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [empty-body])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [ignored-qualifiers])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [type-limits])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [no-sign-conversion])
+      fi
+      #
+      dnl Only clang 3.2 or later
+      if test "$compiler_num" -ge "302"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [enum-conversion])
+        case $host_os in
+        cygwin* | mingw*)
+          dnl skip missing-variable-declarations warnings for cygwin and
+          dnl mingw because the libtool wrapper executable causes them
+          ;;
+        *)
+          CURL_ADD_COMPILER_WARNINGS([WARN], [missing-variable-declarations])
+          ;;
+        esac
+      fi
+      #
+      dnl Only clang 3.4 or later
+      if test "$compiler_num" -ge "304"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [unused-const-variable])
+      fi
+      #
+      dnl Only clang 3.6 or later
+      if test "$compiler_num" -ge "306"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [double-promotion])
+      fi
+      #
+      dnl Only clang 3.9 or later
+      if test "$compiler_num" -ge "309"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [comma])
+        # avoid the varargs warning, fixed in 4.0
+        # https://bugs.llvm.org/show_bug.cgi?id=29140
+        if test "$compiler_num" -lt "400"; then
+          WARN="$WARN -Wno-varargs"
+        fi
+      fi
+      dnl clang 7 or later
+      if test "$compiler_num" -ge "700"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [assign-enum])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [extra-semi-stmt])
+      fi
 
-       CFLAGS="$CFLAGS $WARN"
+      CFLAGS="$CFLAGS $WARN"
 
-       AC_MSG_NOTICE([Added this set of compiler options: $WARN])
+      AC_MSG_NOTICE([Added this set of compiler options: $WARN])
 
     elif test "$GCC" = "yes"; then
 
