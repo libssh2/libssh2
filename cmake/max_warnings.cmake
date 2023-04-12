@@ -67,6 +67,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wdouble-promotion               # clang  3.6  gcc  4.6
       -Wempty-body                     # clang  3.0  gcc  4.3
       -Wenum-conversion                # clang  3.2  gcc 10.0 (for C, 11.0 for C++)
+      -Wformat=2                       # clang  3.0  gcc  4.8
       -Wignored-qualifiers             # clang  3.0  gcc  4.3
       -Wtype-limits                    # clang  3.0  gcc  4.3
       -Wunused-const-variable          # clang  3.4  gcc  6.0
@@ -116,7 +117,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wduplicated-cond              #             gcc  6.0
         -Wformat-overflow=2            #             gcc  7.0
         -Wformat-truncation=1          #             gcc  7.0
-        -Wformat=2                     # clang  3.0  gcc  4.8 (clang part-default)
         -Wmissing-parameter-type       #             gcc  4.3
         -Wold-style-declaration        #             gcc  4.3
         -Wrestrict                     #             gcc  7.0
