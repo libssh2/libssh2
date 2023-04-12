@@ -58,16 +58,14 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     )
 
     # Assume these options always exist with both clang and gcc.
-    # Require clang 3.0 / gcc 2.96 or later.
+    # Require clang 3.0 / gcc 2.95 or later.
     list(APPEND WARNOPTS_ENABLE
       -pedantic
       -Wconversion                         # clang  3.0  gcc  2.95
-      -Wfloat-equal                        # clang  1.0  gcc  2.96
       -Winline                             # clang  1.0  gcc  1.0
       -Wmissing-declarations               # clang  1.0  gcc  2.7
       -Wmissing-prototypes                 # clang  1.0  gcc  1.0
       -Wnested-externs                     # clang  1.0  gcc  1.0
-      -Wno-format-nonliteral               # clang  1.0  gcc  2.96
       -Wno-long-long                       # clang  1.0  gcc  2.95
       -Wno-multichar                       # clang  1.0  gcc  2.95
       -Wpointer-arith                      # clang  1.0  gcc  1.0
@@ -84,7 +82,9 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wdeclaration-after-statement        # clang  1.0  gcc  3.4
       -Wempty-body                         # clang  3.0  gcc  4.3
       -Wendif-labels                       # clang  1.0  gcc  3.3
+      -Wfloat-equal                        # clang  1.0  gcc  2.96 (3.0)
       -Wignored-qualifiers                 # clang  3.0  gcc  4.3
+      -Wno-format-nonliteral               # clang  1.0  gcc  2.96 (3.0)
       -Wno-sign-conversion                 # clang  3.0  gcc  4.3
       -Wno-system-headers                  # clang  1.0  gcc  3.0
       -Wstrict-prototypes                  # clang  1.0  gcc  3.3
