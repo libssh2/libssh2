@@ -332,7 +332,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
            dnl only if the compiler is newer than 2.95 since we got lots of
            dnl "`_POSIX_C_SOURCE' is not defined" in system headers with
            dnl gcc 2.95.4 on FreeBSD 4.9!
-           WARN="$WARN -Wno-long-long -Wno-multichar -Wshadow -Wsign-compare -Wundef -Wunused"
+           WARN="$WARN -Wundef -Wno-long-long -Wno-multichar -Wshadow -Wsign-compare -Wunused"
          fi
 
          if test "$gccnum" -ge "296"; then
