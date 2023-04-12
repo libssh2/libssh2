@@ -85,13 +85,13 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       )
       # clang-only
       list(APPEND WARNOPTS_ENABLE
+        -Wshift-sign-overflow          # clang  2.9
         -Wshorten-64-to-32             # clang  1.0
       )
       list(APPEND WARNOPTS_TOCHECK
         -Wassign-enum                  # clang  7.0
         -Wcomma                        # clang  3.9
         -Wextra-semi-stmt              # clang  7.0
-        -Wshift-sign-overflow          # clang  2.9
       )
     else()
       if(MINGW)
