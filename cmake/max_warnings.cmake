@@ -60,26 +60,30 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
 
     # Enable if available
     set(WARNOPTS_TOCHECK
-      -Wcast-align                     # clang  1.0  gcc  4.2
       -Wconversion                     # clang _3.0  gcc  4.3 (or even 4.1)
-      -Wdeclaration-after-statement    # clang  1.0  gcc  3.4
       -Wdouble-promotion               # clang  3.6  gcc  4.6
       -Wempty-body                     # clang _3.0  gcc  4.3
-      -Wendif-labels                   # clang  1.0  gcc  3.3
       -Wenum-conversion                # clang  3.2  gcc 10.0 (for C, 11.0 for C++)
       -Wignored-qualifiers             # clang _3.0  gcc  4.3
-      -Wshadow                         # clang  1.0  gcc _4.1 (or earlier)
-      -Wstrict-prototypes              # clang  1.0  gcc  3.3
       -Wtype-limits                    # clang _3.0  gcc  4.3
       -Wunused                         # clang  1.1  gcc _4.1 (or earlier)
       -Wunused-const-variable          # clang  3.4  gcc  6.0
       -Wvla                            # clang  2.8  gcc  4.3
-      -Wno-multichar                   # clang  1.0  gcc _4.1 (or earlier)
       -Wno-sign-conversion             # clang _3.0  gcc  4.3
-      -Wno-system-headers              # clang  1.0  gcc _4.1 (or earlier)
     )
 
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+      # common with gcc, but save detection with clang
+      list(APPEND WARNOPTS_ENABLE
+        -Wcast-align                   # clang  1.0  gcc  4.2
+        -Wdeclaration-after-statement  # clang  1.0  gcc  3.4
+        -Wendif-labels                 # clang  1.0  gcc  3.3
+        -Wno-multichar                 # clang  1.0  gcc _4.1 (or earlier)
+        -Wno-system-headers            # clang  1.0  gcc _4.1 (or earlier)
+        -Wshadow                       # clang  1.0  gcc _4.1 (or earlier)
+        -Wstrict-prototypes            # clang  1.0  gcc  3.3
+      )
+      # clang-only
       list(APPEND WARNOPTS_ENABLE
         -Wshorten-64-to-32             # clang  1.0
       )
@@ -90,6 +94,17 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wshift-sign-overflow          # clang  2.9
       )
     else()
+      # common with clang
+      list(APPEND WARNOPTS_TOCHECK
+        -Wcast-align                   # clang  1.0  gcc  4.2
+        -Wdeclaration-after-statement  # clang  1.0  gcc  3.4
+        -Wendif-labels                 # clang  1.0  gcc  3.3
+        -Wno-multichar                 # clang  1.0  gcc _4.1 (or earlier)
+        -Wno-system-headers            # clang  1.0  gcc _4.1 (or earlier)
+        -Wshadow                       # clang  1.0  gcc _4.1 (or earlier)
+        -Wstrict-prototypes            # clang  1.0  gcc  3.3
+      )
+      # gcc-only
       list(APPEND WARNOPTS_TOCHECK
         -Walloc-zero                   #             gcc  7.0
         -Warith-conversion             #             gcc 10.0
