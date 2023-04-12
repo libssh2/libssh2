@@ -239,7 +239,6 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          CURL_ADD_COMPILER_WARNINGS([WARN], [ignored-qualifiers])
          CURL_ADD_COMPILER_WARNINGS([WARN], [type-limits])
          CURL_ADD_COMPILER_WARNINGS([WARN], [no-sign-conversion])
-         WARN="$WARN -Wformat=2"
        fi
        #
        dnl Only clang 3.2 or later
