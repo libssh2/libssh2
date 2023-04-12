@@ -111,28 +111,28 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       list(APPEND WARNOPTS_TOCHECK
         -Walloc-zero                   #             gcc  7.0
         -Warith-conversion             #             gcc 10.0
-        -Wclobbered                    #             gcc  4.3 (-Wextra default)
+        -Wclobbered                    #             gcc  4.3 (comes with -Wextra)
         -Wduplicated-branches          #             gcc  7.0
         -Wduplicated-cond              #             gcc  6.0
         -Wformat-overflow=2            #             gcc  7.0
         -Wformat-truncation=1          #             gcc  7.0
-        -Wformat=2                     # clang  3.0  gcc  4.8 [clang some-default]
+        -Wformat=2                     # clang  3.0  gcc  4.8 (clang part-default)
         -Wmissing-parameter-type       #             gcc  4.3
         -Wold-style-declaration        #             gcc  4.3
         -Wrestrict                     #             gcc  7.0
-        -Wshift-negative-value         # clang  3.7  gcc  6.0 [clang default]
-        -Wshift-overflow=2             # clang  3.0  gcc  6.0 [clang default -Wshift-overflow]
+        -Wshift-negative-value         # clang  3.7  gcc  6.0 (clang default)
+        -Wshift-overflow=2             # clang  3.0  gcc  6.0 (clang default: -Wshift-overflow)
         -Wstrict-aliasing=3            #             gcc  4.0
       )
 
       # Enable based on compiler version
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 5.0)
         list(APPEND WARNOPTS_ENABLE -Warray-bounds=2 -ftree-vrp)
-                                       # clang  3.0  gcc  5.0 [clang default -Warray-bounds]
+                                       # clang  3.0  gcc  5.0 (clang default: -Warray-bounds)
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 6.0)
         list(APPEND WARNOPTS_ENABLE -Wnull-dereference -fdelete-null-pointer-checks)
-                                       # clang  3.0  gcc  6.0 [clang default]
+                                       # clang  3.0  gcc  6.0 (clang default)
       endif()
     endif()
 
