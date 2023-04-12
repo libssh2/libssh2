@@ -130,7 +130,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     endif()
 
     foreach(_CCOPT ${WARNOPTS_ENABLE})
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_CCOPT}")
+      set(WARNOPTS "${WARNOPTS} ${_CCOPT}")
     endforeach()
 
     foreach(_CCOPT ${WARNOPTS_TOCHECK})
@@ -142,8 +142,11 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       string(REPLACE "-Wno-" "-W" _CCOPT_ON "${_CCOPT}")
       check_c_compiler_flag(${_CCOPT_ON} ${_optvarname})
       if(${_optvarname})
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_CCOPT}")
+        set(WARNOPTS "${WARNOPTS} ${_CCOPT}")
       endif()
     endforeach()
+
+    message(STATUS "Picky compiler options:${WARNOPTS}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNOPTS}")
   endif()
 endif()
