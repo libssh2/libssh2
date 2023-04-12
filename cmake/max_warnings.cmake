@@ -69,8 +69,8 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wwrite-strings                      # clang  1.0  gcc  1.0
     )
 
-    # Skip check with clang, do check with gcc
-    set(WARNOPTS_COMMON
+    # Skip check with clang, use conditions with gcc
+    set(WARNOPTS_COMMON_OLD
       -Wcast-align                         # clang  1.0  gcc  4.2
       -Wdeclaration-after-statement        # clang  1.0  gcc  3.4
       -Wempty-body                         # clang  3.0  gcc  4.3
@@ -83,7 +83,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wvla                                # clang  2.8  gcc  4.3
     )
 
-    # Enable if available
+    # Detect
     set(WARNOPTS_TOCHECK
       -Wdouble-promotion                   # clang  3.6  gcc  4.6  appleclang  6.3
       -Wenum-conversion                    # clang  3.2  gcc 10.0  appleclang  4.6  g++ 11.0
@@ -92,10 +92,11 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
 
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
       list(APPEND WARNOPTS_ENABLE
-        ${WARNOPTS_COMMON}
+        ${WARNOPTS_COMMON_OLD}
         -Wshift-sign-overflow              # clang  2.9
         -Wshorten-64-to-32                 # clang  1.0
       )
+      # Detect
       list(APPEND WARNOPTS_TOCHECK
         -Wassign-enum                      # clang  7.0            appleclang 10.3
         -Wcomma                            # clang  3.9            appleclang  8.3
@@ -103,36 +104,52 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wmissing-variable-declarations    # clang  3.2            appleclang  4.6
       )
     else()
+      # Detect
       if(MINGW)
         list(APPEND WARNOPTS_TOCHECK
           -Wno-pedantic-ms-format          #             gcc  4.5 (mingw-only)
         )
       endif()
       list(APPEND WARNOPTS_TOCHECK
-        ${WARNOPTS_COMMON}
-        -Walloc-zero                       #             gcc  7.0
-        -Warith-conversion                 #             gcc 10.0
-        -Wduplicated-branches              #             gcc  7.0
-        -Wduplicated-cond                  #             gcc  6.0
-        -Wformat-overflow=2                #             gcc  7.0
-        -Wformat-truncation=1              #             gcc  7.0
         -Wformat=2                         # clang  3.0  gcc  4.8 (clang part-default, enabling it fully causes -Wformat-nonliteral warnings)
-        -Wmissing-parameter-type           #             gcc  4.3
-        -Wold-style-declaration            #             gcc  4.3
-        -Wrestrict                         #             gcc  7.0
-        -Wshift-negative-value             # clang  3.7  gcc  6.0 (clang default)
-        -Wshift-overflow=2                 # clang  3.0  gcc  6.0 (clang default: -Wshift-overflow)
-        -Wstrict-aliasing=3                #             gcc  4.0
       )
 
       # Enable based on compiler version
+      if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.3)
+        list(APPEND WARNOPTS_ENABLE
+          ${WARNOPTS_COMMON_OLD}
+          -Wmissing-parameter-type         #             gcc  4.3
+          -Wold-style-declaration          #             gcc  4.3
+          -Wstrict-aliasing=3              #             gcc  4.0
+        )
+      endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 5.0)
-        list(APPEND WARNOPTS_ENABLE -Warray-bounds=2 -ftree-vrp)
-                                           # clang  3.0  gcc  5.0 (clang default: -Warray-bounds)
+        list(APPEND WARNOPTS_ENABLE
+          -Warray-bounds=2 -ftree-vrp      # clang  3.0  gcc  5.0 (clang default: -Warray-bounds)
+        )
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 6.0)
-        list(APPEND WARNOPTS_ENABLE -Wnull-dereference -fdelete-null-pointer-checks)
-                                           # clang  3.0  gcc  6.0 (clang default)
+        list(APPEND WARNOPTS_ENABLE
+          -Wnull-dereference               # clang  3.0  gcc  6.0 (clang default)
+            -fdelete-null-pointer-checks
+          -Wduplicated-cond                #             gcc  6.0
+          -Wshift-negative-value           # clang  3.7  gcc  6.0 (clang default)
+          -Wshift-overflow=2               # clang  3.0  gcc  6.0 (clang default: -Wshift-overflow)
+        )
+      endif()
+      if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0)
+        list(APPEND WARNOPTS_ENABLE
+        -Walloc-zero                       #             gcc  7.0
+        -Wduplicated-branches              #             gcc  7.0
+        -Wformat-overflow=2                #             gcc  7.0
+        -Wformat-truncation=1              #             gcc  7.0
+        -Wrestrict                         #             gcc  7.0
+        )
+      endif()
+      if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 10.0)
+        list(APPEND WARNOPTS_ENABLE
+          -Warith-conversion               #             gcc 10.0
+        )
       endif()
     endif()
 
