@@ -373,7 +373,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          if test "$gccnum" -ge "403"; then
            CURL_ADD_COMPILER_WARNINGS([WARN], [type-limits old-style-declaration])
            CURL_ADD_COMPILER_WARNINGS([WARN], [missing-parameter-type empty-body])
-           CURL_ADD_COMPILER_WARNINGS([WARN], [clobbered ignored-qualifiers])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [ignored-qualifiers])
            CURL_ADD_COMPILER_WARNINGS([WARN], [conversion])
            WARN="$WARN -Wno-sign-conversion"
            CURL_ADD_COMPILER_WARNINGS([WARN], [vla])

@@ -112,7 +112,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       list(APPEND WARNOPTS_TOCHECK
         -Walloc-zero                   #             gcc  7.0
         -Warith-conversion             #             gcc 10.0
-        -Wclobbered                    #             gcc  4.3 (comes with -Wextra)
         -Wduplicated-branches          #             gcc  7.0
         -Wduplicated-cond              #             gcc  6.0
         -Wformat-overflow=2            #             gcc  7.0
