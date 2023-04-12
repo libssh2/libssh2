@@ -201,7 +201,8 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
        fi
        clangvhi=`echo $clangver | cut -d . -f1`
        clangvlo=`echo $clangver | cut -d . -f2`
-       gccver=`(expr $clangvhi "*" 100 + $clangvlo) 2>/dev/null`
+       compiler_num=`(expr $clangvhi "*" 100 + $clangvlo) 2>/dev/null`
+       AC_MSG_RESULT($compiler_num)
 
        WARN="-pedantic"
        CURL_ADD_COMPILER_WARNINGS([WARN], [all extra])
@@ -222,22 +223,22 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
        CURL_ADD_COMPILER_WARNINGS([WARN], [shorten-64-to-32])
        #
        dnl Only clang 1.1 or later
-       if test "$gccver" -ge "101"; then
+       if test "$compiler_num" -ge "101"; then
          CURL_ADD_COMPILER_WARNINGS([WARN], [unused])
        fi
        #
        dnl Only clang 2.8 or later
-       if test "$gccver" -ge "208"; then
+       if test "$compiler_num" -ge "208"; then
          CURL_ADD_COMPILER_WARNINGS([WARN], [vla])
        fi
        #
        dnl Only clang 2.9 or later
-       if test "$gccver" -ge "209"; then
+       if test "$compiler_num" -ge "209"; then
          CURL_ADD_COMPILER_WARNINGS([WARN], [shift-sign-overflow])
        fi
        #
        dnl Only clang 3.0 or later (possibly earlier)
-       if test "$gccver" -ge "300"; then
+       if test "$compiler_num" -ge "300"; then
          CURL_ADD_COMPILER_WARNINGS([WARN], [conversion])
          CURL_ADD_COMPILER_WARNINGS([WARN], [empty-body])
          CURL_ADD_COMPILER_WARNINGS([WARN], [ignored-qualifiers])
@@ -246,7 +247,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
        fi
        #
        dnl Only clang 3.2 or later
-       if test "$gccver" -ge "302"; then
+       if test "$compiler_num" -ge "302"; then
          CURL_ADD_COMPILER_WARNINGS([WARN], [enum-conversion])
          case $host_os in
          cygwin* | mingw*)
@@ -260,26 +261,26 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
        fi
        #
        dnl Only clang 3.4 or later
-       if test "$gccver" -ge "304"; then
+       if test "$compiler_num" -ge "304"; then
          CURL_ADD_COMPILER_WARNINGS([WARN], [unused-const-variable])
        fi
        #
        dnl Only clang 3.6 or later
-       if test "$gccver" -ge "306"; then
+       if test "$compiler_num" -ge "306"; then
          CURL_ADD_COMPILER_WARNINGS([WARN], [double-promotion])
        fi
        #
        dnl Only clang 3.9 or later
-       if test "$gccver" -ge "309"; then
+       if test "$compiler_num" -ge "309"; then
          CURL_ADD_COMPILER_WARNINGS([WARN], [comma])
          # avoid the varargs warning, fixed in 4.0
          # https://bugs.llvm.org/show_bug.cgi?id=29140
-         if test "$gccver" -lt "400"; then
+         if test "$compiler_num" -lt "400"; then
            WARN="$WARN -Wno-varargs"
          fi
        fi
        dnl clang 7 or later
-       if test "$gccver" -ge "700"; then
+       if test "$compiler_num" -ge "700"; then
          CURL_ADD_COMPILER_WARNINGS([WARN], [assign-enum])
          CURL_ADD_COMPILER_WARNINGS([WARN], [extra-semi-stmt])
        fi
