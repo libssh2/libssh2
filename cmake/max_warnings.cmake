@@ -115,7 +115,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wduplicated-cond              #             gcc  6.0
         -Wformat-overflow=2            #             gcc  7.0
         -Wformat-truncation=1          #             gcc  7.0
-        -Wformat=2                     # clang  3.0  gcc  4.8 (clang part-default)
+        -Wformat=2                     # clang  3.0  gcc  4.8 (clang part-default, enabling it fully causes -Wformat-nonliteral warnings)
         -Wmissing-parameter-type       #             gcc  4.3
         -Wold-style-declaration        #             gcc  4.3
         -Wrestrict                     #             gcc  7.0
