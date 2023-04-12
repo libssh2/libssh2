@@ -45,6 +45,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     set(WARNOPTS_ENABLE
       -W
       -pedantic
+      -Wconversion                     # clang  3.0  gcc  2.95
       -Wfloat-equal                    # clang  1.0  gcc  2.96
       -Winline                         # clang  1.0  gcc  1.0
       -Wmissing-declarations           # clang  1.0  gcc  2.7
@@ -63,7 +64,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
 
     # Enable if available
     set(WARNOPTS_TOCHECK
-      -Wconversion                     # clang  3.0  gcc  4.3 (or even 4.1)
       -Wdouble-promotion               # clang  3.6  gcc  4.6
       -Wempty-body                     # clang  3.0  gcc  4.3
       -Wenum-conversion                # clang  3.2  gcc 10.0 (for C, 11.0 for C++)
