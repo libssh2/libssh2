@@ -63,15 +63,15 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
 
     # Enable if available
     set(WARNOPTS_TOCHECK
-      -Wconversion                     # clang _3.0  gcc  4.3 (or even 4.1)
+      -Wconversion                     # clang  3.0  gcc  4.3 (or even 4.1)
       -Wdouble-promotion               # clang  3.6  gcc  4.6
-      -Wempty-body                     # clang _3.0  gcc  4.3
+      -Wempty-body                     # clang  3.0  gcc  4.3
       -Wenum-conversion                # clang  3.2  gcc 10.0 (for C, 11.0 for C++)
-      -Wignored-qualifiers             # clang _3.0  gcc  4.3
-      -Wtype-limits                    # clang _3.0  gcc  4.3
+      -Wignored-qualifiers             # clang  3.0  gcc  4.3
+      -Wtype-limits                    # clang  3.0  gcc  4.3
       -Wunused-const-variable          # clang  3.4  gcc  6.0
       -Wvla                            # clang  2.8  gcc  4.3
-      -Wno-sign-conversion             # clang _3.0  gcc  4.3
+      -Wno-sign-conversion             # clang  3.0  gcc  4.3
     )
 
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -80,7 +80,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wcast-align                   # clang  1.0  gcc  4.2
         -Wdeclaration-after-statement  # clang  1.0  gcc  3.4
         -Wendif-labels                 # clang  1.0  gcc  3.3
-        -Wno-system-headers            # clang  1.0  gcc _4.1 (or earlier)
+        -Wno-system-headers            # clang  1.0  gcc  3.0
         -Wstrict-prototypes            # clang  1.0  gcc  3.3
       )
       # clang-only
@@ -99,7 +99,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wcast-align                   # clang  1.0  gcc  4.2
         -Wdeclaration-after-statement  # clang  1.0  gcc  3.4
         -Wendif-labels                 # clang  1.0  gcc  3.3
-        -Wno-system-headers            # clang  1.0  gcc _4.1 (or earlier)
+        -Wno-system-headers            # clang  1.0  gcc  3.0
         -Wstrict-prototypes            # clang  1.0  gcc  3.3
       )
       # gcc-only
@@ -111,24 +111,24 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wduplicated-cond              #             gcc  6.0
         -Wformat-overflow=2            #             gcc  7.0
         -Wformat-truncation=2          #             gcc  7.0
-        -Wformat=2                     # clang _3.0  gcc  4.8 [clang some-default]
+        -Wformat=2                     # clang  3.0  gcc  4.8 [clang some-default]
         -Wmissing-parameter-type       #             gcc  4.3
         -Wno-pedantic-ms-format        #             gcc  4.5 (mingw-only)
         -Wold-style-declaration        #             gcc  4.3
         -Wrestrict                     #             gcc  7.0
         -Wshift-negative-value         # clang  3.7  gcc  6.0 [clang default]
-        -Wshift-overflow=2             # clang _3.0  gcc  6.0 [clang default -Wshift-overflow]
+        -Wshift-overflow=2             # clang  3.0  gcc  6.0 [clang default -Wshift-overflow]
         -Wstrict-aliasing=3            #             gcc  4.0
       )
 
       # Enable based on compiler version
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 5.0)
         list(APPEND WARNOPTS_ENABLE -Warray-bounds=2 -ftree-vrp)
-                                       # clang _3.0  gcc  5.0 [clang default -Warray-bounds]
+                                       # clang  3.0  gcc  5.0 [clang default -Warray-bounds]
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 6.0)
         list(APPEND WARNOPTS_ENABLE -Wnull-dereference -fdelete-null-pointer-checks)
-                                       # clang _3.0  gcc  6.0 [clang default]
+                                       # clang  3.0  gcc  6.0 [clang default]
       endif()
     endif()
 
