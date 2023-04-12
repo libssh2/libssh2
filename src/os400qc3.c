@@ -37,9 +37,7 @@
  * OF SUCH DAMAGE.
  */
 
-#include "libssh2_priv.h"
-
-#ifdef LIBSSH2_OS400QC3 /* compile only if we build with OS/400 QC3 library */
+#ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
 
 #include <stdlib.h>
 
@@ -2442,6 +2440,6 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     return NULL;
 }
 
-#endif /* LIBSSH2_OS400QC3 */
+#endif /* LIBSSH2_CRYPTO_C */
 
 /* vim: set expandtab ts=4 sw=4: */

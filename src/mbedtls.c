@@ -35,9 +35,7 @@
  * OF SUCH DAMAGE.
  */
 
-#include "libssh2_priv.h"
-
-#ifdef LIBSSH2_MBEDTLS /* compile only if we build with mbedtls */
+#ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
 
 #if MBEDTLS_VERSION_NUMBER < 0x03000000
 #define mbedtls_cipher_info_get_key_bitlen(c) (c->key_bitlen)
@@ -1456,4 +1454,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
 }
 
 #endif /* LIBSSH2_ECDSA */
-#endif /* LIBSSH2_MBEDTLS */
+#endif /* LIBSSH2_CRYPTO_C */

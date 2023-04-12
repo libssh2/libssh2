@@ -36,9 +36,7 @@
  * OF SUCH DAMAGE.
  */
 
-#include "libssh2_priv.h"
-
-#ifdef LIBSSH2_LIBGCRYPT /* compile only if we build with libgcrypt */
+#ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
 
 #include <string.h>
 
@@ -741,4 +739,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     return NULL;
 }
 
-#endif /* LIBSSH2_LIBGCRYPT */
+#endif /* LIBSSH2_CRYPTO_C */

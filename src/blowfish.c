@@ -37,6 +37,8 @@
  * Bruce Schneier.
  */
 
+#if defined(LIBSSH2_BCRYPT_PBKDF_C) || defined(_DEBUG_BLOWFISH)
+
 #if !defined(HAVE_BCRYPT_PBKDF) && (!defined(HAVE_BLOWFISH_INITSTATE) || \
                                     !defined(HAVE_BLOWFISH_EXPAND0STATE) || \
                                     !defined(HAVE_BLF_ENC))
@@ -743,3 +745,5 @@ main(void)
           (!defined(HAVE_BLOWFISH_INITSTATE) ||   \
           !defined(HAVE_BLOWFISH_EXPAND0STATE) || \
           '!defined(HAVE_BLF_ENC)) */
+
+#endif /* defined(LIBSSH2_BCRYPT_PBKDF_C) || defined(_DEBUG_BLOWFISH) */

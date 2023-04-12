@@ -40,22 +40,16 @@
 
 #if defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)
 #include "openssl.h"
-#endif
-
-#ifdef LIBSSH2_LIBGCRYPT
+#elif defined(LIBSSH2_LIBGCRYPT)
 #include "libgcrypt.h"
-#endif
-
-#ifdef LIBSSH2_WINCNG
-#include "wincng.h"
-#endif
-
-#ifdef LIBSSH2_OS400QC3
-#include "os400qc3.h"
-#endif
-
-#ifdef LIBSSH2_MBEDTLS
+#elif defined(LIBSSH2_MBEDTLS)
 #include "mbedtls.h"
+#elif defined(LIBSSH2_OS400QC3)
+#include "os400qc3.h"
+#elif defined(LIBSSH2_WINCNG)
+#include "wincng.h"
+#else
+#error "no cryptography backend selected"
 #endif
 
 #ifdef LIBSSH2_NO_MD5
