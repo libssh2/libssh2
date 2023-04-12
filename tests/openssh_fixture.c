@@ -66,8 +66,9 @@ static int have_docker = 0;
 
 static int run_command_varg(char **output, const char *command, va_list args)
 {
+    static const char redirect_stderr[] = "%s 2>&1";
+
     FILE *pipe;
-    const char redirect_stderr[] = "%s 2>&1";
     char command_buf[BUFSIZ];
     char buf[BUFSIZ];
     int ret;
