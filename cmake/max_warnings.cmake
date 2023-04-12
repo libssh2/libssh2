@@ -41,10 +41,16 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
 
   if(PICKY_COMPILER)
 
+    # Prefer the -Wextra alias with clang.
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+      set(WARNOPTS_ENABLE "-Wextra")
+    else()
+      set(WARNOPTS_ENABLE "-W")
+    endif()
+
     # Assume these options always exist with both clang and gcc.
     # Require clang 3.0 / gcc 2.96 or later.
-    set(WARNOPTS_ENABLE
-      -W
+    list(APPEND WARNOPTS_ENABLE
       -pedantic
       -Wconversion                       # clang  3.0  gcc  2.95
       -Wfloat-equal                      # clang  1.0  gcc  2.96
