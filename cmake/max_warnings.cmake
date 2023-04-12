@@ -98,12 +98,21 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wshift-sign-overflow              # clang  2.9
         -Wshorten-64-to-32                 # clang  1.0
       )
-      list(APPEND WARNOPTS_DETECT
-        -Wassign-enum                      # clang  7.0            appleclang 10.3
-        -Wcomma                            # clang  3.9            appleclang  8.3
-        -Wextra-semi-stmt                  # clang  7.0            appleclang 10.3
-        -Wmissing-variable-declarations    # clang  3.2            appleclang  4.6
-      )
+      # Enable based on compiler version
+      if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 3.9) OR
+         (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 8.3))
+        list(APPEND WARNOPTS_ENABLE
+          -Wcomma                          # clang  3.9            appleclang  8.3
+          -Wmissing-variable-declarations  # clang  3.2            appleclang  4.6
+        )
+      endif()
+      if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0) OR
+         (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 10.3))
+        list(APPEND WARNOPTS_ENABLE
+          -Wassign-enum                    # clang  7.0            appleclang 10.3
+          -Wextra-semi-stmt                # clang  7.0            appleclang 10.3
+        )
+      endif()
     else()  # gcc
       # Enable based on compiler version
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.3)
