@@ -75,7 +75,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     )
 
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-      # common with gcc, but save detection with clang
+      # common with gcc, but skip detection with clang
       list(APPEND WARNOPTS_ENABLE
         -Wcast-align                   # clang  1.0  gcc  4.2
         -Wdeclaration-after-statement  # clang  1.0  gcc  3.4
