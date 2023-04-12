@@ -177,13 +177,17 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
 [
     if test "z$CLANG" = "z"; then
       CURL_CHECK_COMPILER_CLANG
-    elif test "z$ICC" = "z"; then
+      if test "z$compiler_id" = "zCLANG"; then
+        CLANG="yes"
+      else
+        CLANG="no"
+      fi
+    fi
+    if test "z$ICC" = "z"; then
       CURL_DETECT_ICC
     fi
 
-    if test "z$compiler_id" = "zCLANG"; then
-
-       CLANG="yes"
+    if test "$CLANG" = "yes"; then
 
        fullclangver=`$CC -v 2>&1 | grep version`
        clangver=`echo $fullclangver | grep "based on LLVM " | "$SED" 's/.*(based on LLVM \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*)/\1/'`
