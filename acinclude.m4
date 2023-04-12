@@ -189,6 +189,8 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
 
     if test "$CLANG" = "yes"; then
 
+      dnl figure out clang version!
+      AC_MSG_CHECKING([clang version])
       fullclangver=`$CC -v 2>&1 | grep version`
       clangver=`echo $fullclangver | grep "based on LLVM " | "$SED" 's/.*(based on LLVM \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*)/\1/'`
       if test -z "$clangver"; then
