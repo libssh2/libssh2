@@ -140,9 +140,9 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 6.0)
         list(APPEND WARNOPTS_ENABLE
+          -Wduplicated-cond                #             gcc  6.0
           -Wnull-dereference               # clang  3.0  gcc  6.0 (clang default)
             -fdelete-null-pointer-checks
-          -Wduplicated-cond                #             gcc  6.0
           -Wshift-negative-value           # clang  3.7  gcc  6.0 (clang default)
           -Wshift-overflow=2               # clang  3.0  gcc  6.0 (clang default: -Wshift-overflow)
         )
