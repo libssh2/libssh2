@@ -83,6 +83,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wvla                                # clang  2.8  gcc  4.3
     )
 
+    # Add new options here if in doubt:
     set(WARNOPTS_DETECT
       -Wdouble-promotion                   # clang  3.6  gcc  4.6  appleclang  6.3
       -Wenum-conversion                    # clang  3.2  gcc 10.0  appleclang  4.6  g++ 11.0
