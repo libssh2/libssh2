@@ -230,13 +230,13 @@ int main(int argc, char *argv[])
     fprintf(stderr, "libssh2_scp_recv() is done, now receive data!\n");
 
     while(got < fileinfo.st_size) {
-        char mem[1024*24];
+        char mem[1024 * 24];
         ssize_t nread;
 
         do {
             int amount = sizeof(mem);
 
-            if((fileinfo.st_size -got) < amount) {
+            if((fileinfo.st_size - got) < amount) {
                 amount = (int)(fileinfo.st_size - got);
             }
 
@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
             }
         } while(nread > 0);
 
-        if((nread == LIBSSH2_ERROR_EAGAIN) && (got < fileinfo.st_size)) {
+        if(nread == LIBSSH2_ERROR_EAGAIN && got < fileinfo.st_size) {
             /* this is due to blocking that would occur otherwise
             so we loop on this condition */
 

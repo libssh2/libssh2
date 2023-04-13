@@ -156,8 +156,8 @@ int main(int argc, char *argv[])
     /* ... start it up. This will trade welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
-    while((rc = libssh2_session_handshake(session, sock))
-          == LIBSSH2_ERROR_EAGAIN);
+    while((rc = libssh2_session_handshake(session, sock)) ==
+          LIBSSH2_ERROR_EAGAIN);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         return -1;
@@ -201,8 +201,8 @@ int main(int argc, char *argv[])
         channel = libssh2_scp_send(session, scppath, fileinfo.st_mode & 0777,
                                    (size_t)fileinfo.st_size);
 
-        if((!channel) && (libssh2_session_last_errno(session) !=
-                          LIBSSH2_ERROR_EAGAIN)) {
+        if(!channel &&
+           libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
             char *err_msg;
 
             libssh2_session_last_error(session, &err_msg, NULL, 0);
@@ -265,8 +265,8 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    while(libssh2_session_disconnect(session, "Normal Shutdown")
-          == LIBSSH2_ERROR_EAGAIN);
+    while(libssh2_session_disconnect(session, "Normal Shutdown") ==
+          LIBSSH2_ERROR_EAGAIN);
     libssh2_session_free(session);
 
 #ifdef WIN32

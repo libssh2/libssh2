@@ -161,8 +161,8 @@ int main(int argc, char *argv[])
     /* ... start it up. This will trade welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
-    while((rc = libssh2_session_handshake(session, sock))
-           == LIBSSH2_ERROR_EAGAIN);
+    while((rc = libssh2_session_handshake(session, sock)) ==
+          LIBSSH2_ERROR_EAGAIN);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         return -1;
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
     if(auth_pw) {
         /* We could authenticate via password */
         while((rc = libssh2_userauth_password(session, username, password)) ==
-               LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN);
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
         sftp_session = libssh2_sftp_init(session);
 
         if(!sftp_session &&
-            (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
+           libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
             fprintf(stderr, "Unable to init SFTP session\n");
             goto shutdown;
         }
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
                               LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|
                               LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH);
         if(!sftp_handle &&
-           (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
+           libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
             fprintf(stderr, "Unable to open file with SFTP\n");
             goto shutdown;
         }
@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
         do {
             /* write data in a loop until we block */
             while((nwritten = libssh2_sftp_write(sftp_handle, ptr, nread)) ==
-                   LIBSSH2_ERROR_EAGAIN) {
+                  LIBSSH2_ERROR_EAGAIN) {
                 waitsocket(sock, session);
             }
             if(nwritten < 0)
@@ -267,8 +267,8 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    while(libssh2_session_disconnect(session, "Normal Shutdown")
-          == LIBSSH2_ERROR_EAGAIN);
+    while(libssh2_session_disconnect(session, "Normal Shutdown") ==
+          LIBSSH2_ERROR_EAGAIN);
     libssh2_session_free(session);
 
 #ifdef WIN32

@@ -156,8 +156,8 @@ int main(int argc, char *argv[])
     do {
         sftp_session = libssh2_sftp_init(session);
 
-        if((!sftp_session) && (libssh2_session_last_errno(session) !=
-                               LIBSSH2_ERROR_EAGAIN)) {
+        if(!sftp_session &&
+           libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
             fprintf(stderr, "Unable to init SFTP session\n");
             goto shutdown;
         }
@@ -168,8 +168,8 @@ int main(int argc, char *argv[])
     do {
         sftp_handle = libssh2_sftp_opendir(sftp_session, sftppath);
 
-        if((!sftp_handle) && (libssh2_session_last_errno(session) !=
-                              LIBSSH2_ERROR_EAGAIN)) {
+        if(!sftp_handle &&
+           libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
             fprintf(stderr, "Unable to open dir with SFTP\n");
             goto shutdown;
         }

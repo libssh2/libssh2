@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
     if(strlen(password) != 0) {
         /* We could authenticate via password */
         while((rc = libssh2_userauth_password(session, username, password)) ==
-               LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN);
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_publickey_fromfile(session, username,
                                                         pubkey, privkey,
                                                         password)) ==
-               LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN);
         if(rc) {
             fprintf(stderr, "Authentication by public key failed.\n");
             goto shutdown;

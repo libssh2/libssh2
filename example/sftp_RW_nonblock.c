@@ -176,8 +176,8 @@ int main(int argc, char *argv[])
 
     if(auth_pw) {
         /* We could authenticate via password */
-        while((rc = libssh2_userauth_password(session, username, password))
-               == LIBSSH2_ERROR_EAGAIN);
+        while((rc = libssh2_userauth_password(session, username, password)) ==
+              LIBSSH2_ERROR_EAGAIN);
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
@@ -200,8 +200,7 @@ int main(int argc, char *argv[])
         sftp_session = libssh2_sftp_init(session);
 
         if(!sftp_session) {
-            if(libssh2_session_last_errno(session) ==
-               LIBSSH2_ERROR_EAGAIN) {
+            if(libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
                 fprintf(stderr, "non-blocking init\n");
                 waitsocket(sock, session); /* now we wait */
             }

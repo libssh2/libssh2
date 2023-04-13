@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
      * and setup crypto, compression, and MAC layers
      */
     while((rc = libssh2_session_handshake(session, sock)) ==
-           LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         return -1;
@@ -186,8 +186,8 @@ int main(int argc, char *argv[])
 
     if(auth_pw) {
         /* We could authenticate via password */
-        while((rc = libssh2_userauth_password(session, username, password))
-               == LIBSSH2_ERROR_EAGAIN);
+        while((rc = libssh2_userauth_password(session, username, password)) ==
+              LIBSSH2_ERROR_EAGAIN);
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
@@ -213,8 +213,7 @@ int main(int argc, char *argv[])
         sftp_session = libssh2_sftp_init(session);
 
         if(!sftp_session) {
-            if(libssh2_session_last_errno(session) ==
-               LIBSSH2_ERROR_EAGAIN) {
+            if(libssh2_session_last_errno(session) == LIBSSH2_ERROR_EAGAIN) {
                 fprintf(stderr, "non-blocking init\n");
                 waitsocket(sock, session); /* now we wait */
             }
@@ -249,8 +248,8 @@ int main(int argc, char *argv[])
         ssize_t nread;
 
         /* loop until we fail */
-        while((nread = libssh2_sftp_read(sftp_handle, mem,
-                              sizeof(mem))) == LIBSSH2_ERROR_EAGAIN) {
+        while((nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem))) ==
+              LIBSSH2_ERROR_EAGAIN) {
             spin++;
             waitsocket(sock, session); /* now we wait */
         }
@@ -279,8 +278,8 @@ int main(int argc, char *argv[])
 shutdown:
 
     fprintf(stderr, "libssh2_session_disconnect\n");
-    while(libssh2_session_disconnect(session, "Normal Shutdown")
-          == LIBSSH2_ERROR_EAGAIN);
+    while(libssh2_session_disconnect(session, "Normal Shutdown") ==
+          LIBSSH2_ERROR_EAGAIN);
     libssh2_session_free(session);
 
 #ifdef WIN32
