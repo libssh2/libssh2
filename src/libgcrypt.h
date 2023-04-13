@@ -71,7 +71,7 @@
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
 #define _libssh2_random(buf, len) \
-    (gcry_randomize ((buf), (len), GCRY_STRONG_RANDOM), 0)
+    (gcry_randomize((buf), (len), GCRY_STRONG_RANDOM), 0)
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 
@@ -79,7 +79,7 @@
 
 /* returns 0 in case of failure */
 #define libssh2_sha1_init(ctx) \
-    (GPG_ERR_NO_ERROR == gcry_md_open(ctx,  GCRY_MD_SHA1, 0))
+    (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA1, 0))
 #define libssh2_sha1_update(ctx, data, len) \
     gcry_md_write(ctx, (unsigned char *) data, len)
 #define libssh2_sha1_final(ctx, out) \
@@ -90,7 +90,7 @@
 #define libssh2_sha256_ctx gcry_md_hd_t
 
 #define libssh2_sha256_init(ctx) \
-    (GPG_ERR_NO_ERROR == gcry_md_open(ctx,  GCRY_MD_SHA256, 0))
+    (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA256, 0))
 #define libssh2_sha256_update(ctx, data, len) \
     gcry_md_write(ctx, (unsigned char *) data, len)
 #define libssh2_sha256_final(ctx, out) \
@@ -101,7 +101,7 @@
 #define libssh2_sha384_ctx gcry_md_hd_t
 
 #define libssh2_sha384_init(ctx) \
-    (GPG_ERR_NO_ERROR == gcry_md_open(ctx,  GCRY_MD_SHA384, 0))
+    (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA384, 0))
 #define libssh2_sha384_update(ctx, data, len) \
     gcry_md_write(ctx, (unsigned char *) data, len)
 #define libssh2_sha384_final(ctx, out) \
@@ -112,7 +112,7 @@
 #define libssh2_sha512_ctx gcry_md_hd_t
 
 #define libssh2_sha512_init(ctx) \
-    (GPG_ERR_NO_ERROR == gcry_md_open(ctx,  GCRY_MD_SHA512, 0))
+    (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA512, 0))
 #define libssh2_sha512_update(ctx, data, len) \
     gcry_md_write(ctx, (unsigned char *) data, len)
 #define libssh2_sha512_final(ctx, out) \
@@ -124,7 +124,7 @@
 
 /* returns 0 in case of failure */
 #define libssh2_md5_init(ctx) \
-    (GPG_ERR_NO_ERROR == gcry_md_open(ctx,  GCRY_MD_MD5, 0))
+    (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_MD5, 0))
 
 #define libssh2_md5_update(ctx, data, len) \
     gcry_md_write(ctx, (unsigned char *) data, len)
@@ -157,16 +157,16 @@
            gcry_md_get_algo_dlen(gcry_md_get_algo(ctx)))
 #define libssh2_hmac_cleanup(ctx) gcry_md_close(*ctx)
 
-#define libssh2_crypto_init() gcry_control (GCRYCTL_DISABLE_SECMEM)
+#define libssh2_crypto_init() gcry_control(GCRYCTL_DISABLE_SECMEM)
 #define libssh2_crypto_exit()
 
 #define libssh2_rsa_ctx struct gcry_sexp
 
-#define _libssh2_rsa_free(rsactx)  gcry_sexp_release (rsactx)
+#define _libssh2_rsa_free(rsactx)  gcry_sexp_release(rsactx)
 
 #define libssh2_dsa_ctx struct gcry_sexp
 
-#define _libssh2_dsa_free(dsactx)  gcry_sexp_release (dsactx)
+#define _libssh2_dsa_free(dsactx)  gcry_sexp_release(dsactx)
 
 #if LIBSSH2_ECDSA
 #else
@@ -209,17 +209,17 @@
 #define _libssh2_bn_ctx_new() 0
 #define _libssh2_bn_ctx_free(bnctx) ((void)0)
 #define _libssh2_bn_init() gcry_mpi_new(0)
-#define _libssh2_bn_init_from_bin() NULL /* because gcry_mpi_scan() creates a
-                                            new bignum */
+#define _libssh2_bn_init_from_bin() NULL  /* because gcry_mpi_scan() creates a
+                                             new bignum */
 #define _libssh2_bn_set_word(bn, val) gcry_mpi_set_ui(bn, val)
 #define _libssh2_bn_from_bin(bn, len, val) \
     gcry_mpi_scan(&((bn)), GCRYMPI_FMT_USG, val, len, NULL)
 #define _libssh2_bn_to_bin(bn, val) \
     gcry_mpi_print(GCRYMPI_FMT_USG, val, _libssh2_bn_bytes(bn), NULL, bn)
 #define _libssh2_bn_bytes(bn) \
-    (gcry_mpi_get_nbits (bn) / 8 + \
-         ((gcry_mpi_get_nbits (bn) % 8 == 0) ? 0 : 1))
-#define _libssh2_bn_bits(bn) gcry_mpi_get_nbits (bn)
+    (gcry_mpi_get_nbits(bn) / 8 + \
+         ((gcry_mpi_get_nbits(bn) % 8 == 0) ? 0 : 1))
+#define _libssh2_bn_bits(bn) gcry_mpi_get_nbits(bn)
 #define _libssh2_bn_free(bn) gcry_mpi_release(bn)
 
 /* Default generate and safe prime sizes for
