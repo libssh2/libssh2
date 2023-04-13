@@ -3296,7 +3296,7 @@ static int kexinit(LIBSSH2_SESSION * session)
 
 /* kex_agree_instr
  * Kex specific variant of strstr()
- * Needle must be precede by BOL or ',', and followed by ',' or EOL
+ * Needle must be preceded by BOL or ',', and followed by ',' or EOL
  */
 static unsigned char *
 kex_agree_instr(unsigned char *haystack, size_t haystack_len,
