@@ -171,12 +171,14 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "libssh2_sftp_open()!\n");
     /* Request a file via SFTP */
-    sftp_handle =
-        libssh2_sftp_open(sftp_session, sftppath,
-                      LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC,
-                      LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|
-                      LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH);
-
+    sftp_handle = libssh2_sftp_open(sftp_session, sftppath,
+                                    LIBSSH2_FXF_WRITE |
+                                    LIBSSH2_FXF_CREAT |
+                                    LIBSSH2_FXF_TRUNC,
+                                    LIBSSH2_SFTP_S_IRUSR |
+                                    LIBSSH2_SFTP_S_IWUSR |
+                                    LIBSSH2_SFTP_S_IRGRP |
+                                    LIBSSH2_SFTP_S_IROTH);
     if(!sftp_handle) {
         fprintf(stderr, "Unable to open file with SFTP\n");
         goto shutdown;
