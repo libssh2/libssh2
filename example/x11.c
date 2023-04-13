@@ -266,14 +266,13 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
 /*
  * Main, more than inspired by ssh2.c by Bagder
  */
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     uint32_t hostaddr = 0;
     int rc;
     libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
     struct sockaddr_in sin;
-    LIBSSH2_SESSION *session;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     char *username = NULL;
     char *password = NULL;
@@ -496,8 +495,7 @@ main(int argc, char *argv[])
 
 #else
 
-int
-main(void)
+int main(void)
 {
     printf("Sorry, this platform is not supported.");
     return 1;

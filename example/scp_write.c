@@ -208,13 +208,17 @@ shutdown:
         libssh2_session_free(session);
     }
 
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    closesocket(sock);
+        closesocket(sock);
 #else
-    close(sock);
+        close(sock);
 #endif
+    }
+
     if(local)
         fclose(local);
+
     fprintf(stderr, "all done\n");
 
     libssh2_exit();

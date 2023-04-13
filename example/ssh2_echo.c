@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     int rc;
-    LIBSSH2_SESSION *session;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     int exitcode = 0;
     char *exitsignal = (char *)"none";
@@ -347,14 +347,19 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    libssh2_session_disconnect(session, "Normal Shutdown");
-    libssh2_session_free(session);
+    if(session) {
+        libssh2_session_disconnect(session, "Normal Shutdown");
+        libssh2_session_free(session);
+    }
 
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    closesocket(sock);
+        closesocket(sock);
 #else
-    close(sock);
+        close(sock);
 #endif
+    }
+
     fprintf(stderr, "all done\n");
 
     libssh2_exit();

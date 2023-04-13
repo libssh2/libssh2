@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     int rc;
-    LIBSSH2_SESSION *session;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
 #ifdef HAVE_GETTIMEOFDAY
@@ -277,16 +277,21 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    fprintf(stderr, "libssh2_session_disconnect\n");
-    while(libssh2_session_disconnect(session, "Normal Shutdown") ==
-          LIBSSH2_ERROR_EAGAIN);
-    libssh2_session_free(session);
+    if(session) {
+        fprintf(stderr, "libssh2_session_disconnect\n");
+        while(libssh2_session_disconnect(session, "Normal Shutdown") ==
+              LIBSSH2_ERROR_EAGAIN);
+        libssh2_session_free(session);
+    }
 
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    closesocket(sock);
+        closesocket(sock);
 #else
-    close(sock);
+        close(sock);
 #endif
+    }
+
     fprintf(stderr, "all done\n");
 
     libssh2_exit();
