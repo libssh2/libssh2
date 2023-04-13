@@ -269,10 +269,11 @@ int main(int argc, char *argv[])
     }
 
     if(exitsignal) {
-        printf("\nGot signal: %s\n", exitsignal);
+        fprintf(stderr, "\nGot signal: %s\n", exitsignal);
     }
     else {
-        printf("\nEXIT: %d bytecount: %d\n", exitcode, (int)bytecount);
+        fprintf(stderr, "\nEXIT: %d bytecount: %d\n",
+                exitcode, (int)bytecount);
     }
 
     libssh2_channel_free(channel);

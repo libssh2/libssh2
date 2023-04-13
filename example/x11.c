@@ -497,7 +497,7 @@ int main(int argc, char *argv[])
 
 int main(void)
 {
-    printf("Sorry, this platform is not supported.");
+    fprintf(stderr, "Sorry, this platform is not supported.");
     return 1;
 }
 
