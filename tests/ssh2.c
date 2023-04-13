@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     sin.sin_addr.s_addr = hostaddr;
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
-        return 1;
+        goto shutdown;
     }
 
     /* Create a session instance and start it up. This will trade welcome
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
     session = libssh2_session_init();
     if(libssh2_session_handshake(session, sock)) {
         fprintf(stderr, "Failure establishing SSH session\n");
-        return 1;
+        goto shutdown;
     }
 
     /* At this point we have not yet authenticated.  The first thing to do

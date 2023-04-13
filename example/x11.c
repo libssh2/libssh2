@@ -152,7 +152,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             ptr = strrchr(display, ':');
             temp_buff = (char *) calloc(strlen(ptr + 1) + 1, sizeof(char));
             if(!temp_buff) {
-                perror("calloc");
+                fprintf(stderr, "failed to calloc()!\n");
                 return;
             }
             memcpy(temp_buff, ptr + 1, strlen(ptr + 1));

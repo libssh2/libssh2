@@ -152,19 +152,19 @@ int main(int argc, char *argv[])
     sin.sin_addr.s_addr = inet_addr(server_ip);
     if(INADDR_NONE == sin.sin_addr.s_addr) {
         fprintf(stderr, "inet_addr: Invalid IP address \"%s\"\n", server_ip);
-        return -1;
+        goto shutdown;
     }
     sin.sin_port = htons(830);
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "Failed to connect to %s!\n", inet_ntoa(sin.sin_addr));
-        return -1;
+        goto shutdown;
     }
 
     /* Create a session instance */
     session = libssh2_session_init();
     if(!session) {
         fprintf(stderr, "Could not initialize SSH session!\n");
-        return -1;
+        goto shutdown;
     }
 
     /* ... start it up. This will trade welcome banners, exchange keys,
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
         fprintf(stderr, "Error when starting up SSH session: %d\n", rc);
-        return -1;
+        goto shutdown;
     }
 
     /* At this point we have not yet authenticated.  The first thing to do

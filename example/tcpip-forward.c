@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
         local_destport = atoi(argv[7]);
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -118,19 +118,19 @@ int main(int argc, char *argv[])
     sin.sin_addr.s_addr = inet_addr(server_ip);
     if(INADDR_NONE == sin.sin_addr.s_addr) {
         fprintf(stderr, "inet_addr: Invalid IP address \"%s\"\n", server_ip);
-        return -1;
+        goto shutdown;
     }
     sin.sin_port = htons(22);
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "Failed to connect to %s!\n", inet_ntoa(sin.sin_addr));
-        return -1;
+        goto shutdown;
     }
 
     /* Create a session instance */
     session = libssh2_session_init();
     if(!session) {
         fprintf(stderr, "Could not initialize SSH session!\n");
-        return -1;
+        goto shutdown;
     }
 
     /* ... start it up. This will trade welcome banners, exchange keys,
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
         fprintf(stderr, "Error when starting up SSH session: %d\n", rc);
-        return -1;
+        goto shutdown;
     }
 
     /* At this point we have not yet authenticated.  The first thing to do
@@ -231,11 +231,11 @@ int main(int argc, char *argv[])
     sin.sin_port = htons((unsigned short)local_destport);
     sin.sin_addr.s_addr = inet_addr(local_destip);
     if(INADDR_NONE == sin.sin_addr.s_addr) {
-        perror("inet_addr");
+        fprintf(stderr, "failed in inet_addr()!\n");
         goto shutdown;
     }
     if(-1 == connect(forwardsock, (struct sockaddr *)&sin, sinlen)) {
-        perror("connect");
+        fprintf(stderr, "failed to connect()!\n");
         goto shutdown;
     }
 
@@ -252,14 +252,14 @@ int main(int argc, char *argv[])
         tv.tv_usec = 100000;
         rc = select((int)(forwardsock + 1), &fds, NULL, NULL, &tv);
         if(-1 == rc) {
-            perror("select");
+            fprintf(stderr, "failed to select()!\n");
             goto shutdown;
         }
         if(rc && FD_ISSET(forwardsock, &fds)) {
             ssize_t nwritten;
             len = recv(forwardsock, buf, sizeof(buf), 0);
             if(len < 0) {
-                perror("read");
+                fprintf(stderr, "failed to recv()!\n");
                 goto shutdown;
             }
             else if(0 == len) {
@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
             while(wr < len) {
                 nsent = send(forwardsock, buf + wr, len - wr, 0);
                 if(nsent <= 0) {
-                    perror("write");
+                    fprintf(stderr, "failed to send()!\n");
                     goto shutdown;
                 }
                 wr += nsent;
