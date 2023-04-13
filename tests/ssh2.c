@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     char *userauthlist;
     int rc;
-    LIBSSH2_SESSION *session;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
 
 #ifdef WIN32
@@ -55,13 +55,13 @@ int main(int argc, char *argv[])
     (void)argv;
 
     if(getenv("USER"))
-      username = getenv("USER");
+        username = getenv("USER");
 
     if(getenv("PRIVKEY"))
-      privkey = getenv("PRIVKEY");
+        privkey = getenv("PRIVKEY");
 
     if(getenv("PUBKEY"))
-      pubkey = getenv("PUBKEY");
+        pubkey = getenv("PUBKEY");
 
     hostaddr = htonl(0x7F000001);
 
@@ -74,6 +74,11 @@ int main(int argc, char *argv[])
     rc = 1;
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock == LIBSSH2_INVALID_SOCKET) {
+        fprintf(stderr, "failed to create socket!\n");
+        goto shutdown;
+    }
+
 #ifndef WIN32
     fcntl(sock, F_SETFL, 0);
 #endif
@@ -176,16 +181,21 @@ skip_shell:
 
 shutdown:
 
-    libssh2_session_disconnect(session, "Normal Shutdown");
-    libssh2_session_free(session);
+    if(session) {
+        libssh2_session_disconnect(session, "Normal Shutdown");
+        libssh2_session_free(session);
+    }
 
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    Sleep(1000);
-    closesocket(sock);
+        Sleep(1000);
+        closesocket(sock);
 #else
-    sleep(1);
-    close(sock);
+        sleep(1);
+        close(sock);
 #endif
+    }
+
     fprintf(stderr, "all done\n");
 
     libssh2_exit();

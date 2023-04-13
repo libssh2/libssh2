@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     char *userauthlist;
     int rc;
-    LIBSSH2_SESSION *session;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
 
 #ifdef WIN32
@@ -108,6 +108,10 @@ int main(int argc, char *argv[])
      * responsible for creating the socket establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock == LIBSSH2_INVALID_SOCKET) {
+        fprintf(stderr, "failed to create socket!\n");
+        goto shutdown;
+    }
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
@@ -335,14 +339,19 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    libssh2_session_disconnect(session, "Normal Shutdown");
-    libssh2_session_free(session);
+    if(session) {
+        libssh2_session_disconnect(session, "Normal Shutdown");
+        libssh2_session_free(session);
+    }
 
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    closesocket(sock);
+        closesocket(sock);
 #else
-    close(sock);
+        close(sock);
 #endif
+    }
+
     fprintf(stderr, "all done\n");
 
     libssh2_exit();
