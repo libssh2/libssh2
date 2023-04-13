@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
                                          (unsigned int)strlen(username));
     if(userauthlist) {
         fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-        if(strstr(userauthlist, "publickey") == NULL) {
+        if(!strstr(userauthlist, "publickey")) {
             fprintf(stderr, "\"publickey\" authentication is not supported\n");
             goto shutdown;
         }

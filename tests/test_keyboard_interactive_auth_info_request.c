@@ -223,7 +223,7 @@ LIBSSH2_ALLOC_FUNC(test_alloc)
 {
     int *threshold_int_ptr = *abstract;
     alloc_count++;
-    if(*abstract != NULL && *threshold_int_ptr == alloc_count) {
+    if(*abstract && *threshold_int_ptr == alloc_count) {
         return NULL;
     }
 

@@ -41,7 +41,7 @@ int main(void)
 {
     int exit_code = 1;
     LIBSSH2_SESSION *session = start_session_fixture();
-    if(session != NULL) {
+    if(session) {
         exit_code = (test(session) == 0) ? 0 : 1;
     }
     stop_session_fixture();

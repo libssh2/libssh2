@@ -220,12 +220,12 @@ int main(int argc, char *argv[])
 #endif
 
     /* Exec non-blocking on the remove host */
-    while((channel = libssh2_channel_open_session(session)) == NULL &&
+    while(!(channel = libssh2_channel_open_session(session)) &&
           libssh2_session_last_error(session, NULL, NULL, 0) ==
           LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session);
     }
-    if(channel == NULL) {
+    if(!channel) {
         fprintf(stderr, "Error\n");
         exit(1);
     }

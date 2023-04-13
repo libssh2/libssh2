@@ -185,13 +185,13 @@ int main(int argc, char *argv[])
                                          (unsigned int)strlen(username));
     if(userauthlist) {
         fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-        if(strstr(userauthlist, "password") != NULL) {
+        if(strstr(userauthlist, "password")) {
             auth_pw |= 1;
         }
-        if(strstr(userauthlist, "keyboard-interactive") != NULL) {
+        if(strstr(userauthlist, "keyboard-interactive")) {
             auth_pw |= 2;
         }
-        if(strstr(userauthlist, "publickey") != NULL) {
+        if(strstr(userauthlist, "publickey")) {
             auth_pw |= 4;
         }
 

@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
-    FILE *tempstorage;
+    FILE *tempstorage = NULL;
     char mem[1000];
     struct timeval timeout;
     fd_set fd;

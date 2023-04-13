@@ -73,7 +73,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
 EXIT_LABEL:
 
-  if(session != NULL)
+  if(session)
   {
     if(handshake_completed)
     {

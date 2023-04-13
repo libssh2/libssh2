@@ -75,7 +75,7 @@ static void remove_node(struct chan_X11_list *elem)
         return;
     }
 
-    while(current_node->next != NULL) {
+    while(current_node->next) {
         if(current_node->next == elem) {
             current_node->next = current_node->next->next;
             current_node = current_node->next;
@@ -144,7 +144,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
      * Inspired by x11_connect_display in openssh
      */
     display = getenv("DISPLAY");
-    if(display != NULL) {
+    if(display) {
         if(strncmp(display, "unix:", 5) == 0 ||
             display[0] == ':') {
             /* Connect to the local unix domain */
@@ -169,7 +169,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
 
             if(rc != -1) {
                 /* Connection Successful */
-                if(gp_x11_chan == NULL) {
+                if(!gp_x11_chan) {
                     /* Calloc ensure that gp_X11_chan is full of 0 */
                     gp_x11_chan = (struct chan_X11_list *)
                         calloc(1, sizeof(struct chan_X11_list));
@@ -179,7 +179,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
                 }
                 else {
                     chan_iter = gp_x11_chan;
-                    while(chan_iter->next != NULL)
+                    while(chan_iter->next)
                         chan_iter = chan_iter->next;
                     /* Create the new Node */
                     new = (struct chan_X11_list *)
@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
 
     /* Open a channel */
     channel = libssh2_channel_open_session(session);
-    if(channel == NULL) {
+    if(!channel) {
         fprintf(stderr, "Failed to open a new channel\n");
         session_shutdown(session);
         close(sock);
@@ -423,11 +423,11 @@ int main(int argc, char *argv[])
         }
 
         buf = calloc(bufsiz, sizeof(char));
-        if(buf == NULL)
+        if(!buf)
             break;
 
         fds = malloc(sizeof(LIBSSH2_POLLFD));
-        if(fds == NULL) {
+        if(!fds) {
             free(buf);
             break;
         }
@@ -445,13 +445,13 @@ int main(int argc, char *argv[])
         }
 
         /* Looping on X clients */
-        if(gp_x11_chan != NULL) {
+        if(gp_x11_chan) {
             current_node = gp_x11_chan;
         }
         else
             current_node = NULL;
 
-        while(current_node != NULL) {
+        while(current_node) {
             struct chan_X11_list *next_node;
             rc = x11_send_receive(current_node->chan, current_node->sock);
             next_node = current_node->next;

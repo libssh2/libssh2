@@ -110,7 +110,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
     buf[0] = 0;
     buf_len = 0;
     while(buf_len < (sizeof(buf) - 1) &&
-        fgets(&buf[buf_len], (int)(sizeof(buf) - buf_len), pipe) != NULL) {
+        fgets(&buf[buf_len], (int)(sizeof(buf) - buf_len), pipe)) {
         buf_len = strlen(buf);
     }
 
@@ -159,7 +159,7 @@ static int build_openssh_server_docker_image(void)
     if(have_docker) {
         char buildcmd[1024];
         const char *container_image_name = openssh_server_image();
-        if(container_image_name != NULL) {
+        if(container_image_name) {
             int ret = run_command(NULL, "docker pull --quiet %s",
                                   container_image_name);
             if(ret == 0) {
@@ -191,7 +191,7 @@ static int start_openssh_server(char **container_id_out)
 {
     if(have_docker) {
         const char *container_host_port = openssh_server_port();
-        if(container_host_port != NULL) {
+        if(container_host_port) {
             return run_command(container_id_out,
                                "docker run --rm -d -p %s:22 "
                                "libssh2/openssh_server",
@@ -240,7 +240,7 @@ static int is_running_inside_a_container(void)
         return 0;
     }
     while((read = getline(&line, &len, f)) != -1) {
-        if(strstr(line, "docker") != NULL) {
+        if(strstr(line, "docker")) {
             found = 1;
             break;
         }
@@ -263,7 +263,7 @@ static void portable_sleep(unsigned int seconds)
 static int ip_address_from_container(char *container_id, char **ip_address_out)
 {
     const char *active_docker_machine = docker_machine_name();
-    if(active_docker_machine != NULL) {
+    if(active_docker_machine) {
 
         /* This can be flaky when tests run in parallel (see
            https://github.com/docker/machine/issues/2612), so we retry a few
