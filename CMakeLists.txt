@@ -33,17 +33,9 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.17.0)
-##### PLATFORM deps ##### 
-set(HUNTER_ROOT $ENV{HUNTER_ROOT})
-include(HunterGate)
-HunterGate(
-    URL "unused"
-    SHA1 "unused"
-)
-##### PLATFORM deps #####
+cmake_minimum_required(VERSION 2.8.11)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 project(libssh2 C)
 set(PROJECT_URL "https://www.libssh2.org/")

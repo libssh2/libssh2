@@ -1,0 +1,14 @@
+{
+  "u" : true,
+  "nxxm/boringssl" : { "@" : ":64b173d5c7acb7e8e270997418685d9a00f0537b",
+    "u": true
+    , "packages" : ["OpenSSL"]
+    , "targets" : ["OpenSSL::SSL", "OpenSSL::Crypto"]
+    , "find_mode" : "MODULE"
+  },
+  "hunter-packages/zlib": { "@": "v1.2.11-p1",
+    "u": true,
+    "packages": [ "ZLIB" ], 
+    "targets": [ "ZLIB::zlib" ]
+  }
+}
