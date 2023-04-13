@@ -190,40 +190,42 @@ int main(int argc, char *argv[])
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username,
                                          (unsigned int)strlen(username));
-    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-    if(strstr(userauthlist, "password"))
-        auth |= AUTH_PASSWORD;
-    if(strstr(userauthlist, "publickey"))
-        auth |= AUTH_PUBLICKEY;
+    if(userauthlist) {
+        fprintf(stderr, "Authentication methods: %s\n", userauthlist);
+        if(strstr(userauthlist, "password"))
+            auth |= AUTH_PASSWORD;
+        if(strstr(userauthlist, "publickey"))
+            auth |= AUTH_PUBLICKEY;
 
-    /* check for options */
-    if(argc > 4) {
-        if((auth & AUTH_PASSWORD) && !strcmp(argv[4], "-p"))
-            auth = AUTH_PASSWORD;
-        if((auth & AUTH_PUBLICKEY) && !strcmp(argv[4], "-k"))
-            auth = AUTH_PUBLICKEY;
-    }
-
-    if(auth & AUTH_PASSWORD) {
-        if(libssh2_userauth_password(session, username, password)) {
-            fprintf(stderr, "Authentication by password failed!\n");
-            goto shutdown;
+        /* check for options */
+        if(argc > 4) {
+            if((auth & AUTH_PASSWORD) && !strcmp(argv[4], "-p"))
+                auth = AUTH_PASSWORD;
+            if((auth & AUTH_PUBLICKEY) && !strcmp(argv[4], "-k"))
+                auth = AUTH_PUBLICKEY;
         }
-    }
-    else if(auth & AUTH_PUBLICKEY) {
-        if(libssh2_userauth_publickey_fromfile(session, username,
-                                               pubkey, privkey,
-                                               password)) {
-            fprintf(stderr, "Authentication by public key failed!\n");
-            goto shutdown;
+
+        if(auth & AUTH_PASSWORD) {
+            if(libssh2_userauth_password(session, username, password)) {
+                fprintf(stderr, "Authentication by password failed!\n");
+                goto shutdown;
+            }
+        }
+        else if(auth & AUTH_PUBLICKEY) {
+            if(libssh2_userauth_publickey_fromfile(session, username,
+                                                   pubkey, privkey,
+                                                   password)) {
+                fprintf(stderr, "Authentication by public key failed!\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr, "Authentication by public key succeeded.\n");
+            }
         }
         else {
-            fprintf(stderr, "Authentication by public key succeeded.\n");
+            fprintf(stderr, "No supported authentication methods found!\n");
+            goto shutdown;
         }
-    }
-    else {
-        fprintf(stderr, "No supported authentication methods found!\n");
-        goto shutdown;
     }
 
     /* open a channel */
