@@ -89,10 +89,12 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    /* Create a session instance and start it up. This will trade welcome
-     * banners, exchange keys, and setup crypto, compression, and MAC layers
-     */
+    /* Create a session instance */
     session = libssh2_session_init();
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session!\n");
+        goto shutdown;
+    }
 
     rc = libssh2_session_handshake(session, sock);
     if(rc) {

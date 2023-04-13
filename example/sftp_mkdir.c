@@ -99,8 +99,10 @@ int main(int argc, char *argv[])
 
     /* Create a session instance */
     session = libssh2_session_init();
-    if(!session)
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session!\n");
         goto shutdown;
+    }
 
     /* ... start it up. This will trade welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers

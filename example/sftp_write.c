@@ -115,8 +115,10 @@ int main(int argc, char *argv[])
 
     /* Create a session instance */
     session = libssh2_session_init();
-    if(!session)
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session!\n");
         goto shutdown;
+    }
 
     /* Since we have set non-blocking, tell libssh2 we are blocking */
     libssh2_session_set_blocking(session, 1);

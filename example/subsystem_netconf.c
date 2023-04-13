@@ -41,8 +41,8 @@ static const char *server_ip = "127.0.0.1";
 
 enum {
     AUTH_NONE = 0,
-    AUTH_PASSWORD,
-    AUTH_PUBLICKEY
+    AUTH_PASSWORD = 1,
+    AUTH_PUBLICKEY = 2
 };
 
 static int netconf_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t len)

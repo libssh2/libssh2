@@ -130,6 +130,10 @@ int main(int argc, char *argv[])
      * banners, exchange keys, and setup crypto, compression, and MAC layers
      */
     session = libssh2_session_init();
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session!\n");
+        goto shutdown;
+    }
 
     /* Enable all debugging when libssh2 was built with debugging enabled */
     libssh2_trace(session,
@@ -177,7 +181,7 @@ int main(int argc, char *argv[])
             auth_pw |= 4;
         }
 
-        /* if we got an 4. argument we set this option if supported */
+        /* check for options */
         if(argc > 4) {
             if((auth_pw & 1) && !strcmp(argv[4], "-p")) {
                 auth_pw = 1;

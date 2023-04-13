@@ -51,8 +51,8 @@ static unsigned int remote_destport = 22;
 
 enum {
     AUTH_NONE = 0,
-    AUTH_PASSWORD,
-    AUTH_PUBLICKEY
+    AUTH_PASSWORD = 1,
+    AUTH_PUBLICKEY = 2
 };
 
 int main(int argc, char *argv[])

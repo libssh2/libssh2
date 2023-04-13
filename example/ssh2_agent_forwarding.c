@@ -137,8 +137,10 @@ int main(int argc, char *argv[])
 
     /* Create a session instance */
     session = libssh2_session_init();
-    if(!session)
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session!\n");
         goto shutdown;
+    }
 
     if(libssh2_session_handshake(session, sock) != 0) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);

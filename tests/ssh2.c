@@ -93,6 +93,10 @@ int main(int argc, char *argv[])
      * banners, exchange keys, and setup crypto, compression, and MAC layers
      */
     session = libssh2_session_init();
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session!\n");
+        goto shutdown;
+    }
 
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
