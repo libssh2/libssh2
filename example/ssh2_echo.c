@@ -73,8 +73,8 @@ int main(int argc, char *argv[])
 {
     const char *hostname = "127.0.0.1";
     const char *commandline = "cat";
-    const char *username    = "user";
-    const char *password    = "password";
+    const char *username = "user";
+    const char *password = "password";
     uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
@@ -90,11 +90,10 @@ int main(int argc, char *argv[])
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc != 0) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #endif

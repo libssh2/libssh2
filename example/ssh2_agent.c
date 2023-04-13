@@ -47,11 +47,10 @@ int main(int argc, char *argv[])
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc != 0) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #endif
@@ -115,55 +114,57 @@ int main(int argc, char *argv[])
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username,
                                          (unsigned int)strlen(username));
-    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-    if(strstr(userauthlist, "publickey") == NULL) {
-        fprintf(stderr, "\"publickey\" authentication is not supported\n");
-        goto shutdown;
-    }
+    if(userauthlist) {
+        fprintf(stderr, "Authentication methods: %s\n", userauthlist);
+        if(strstr(userauthlist, "publickey") == NULL) {
+            fprintf(stderr, "\"publickey\" authentication is not supported\n");
+            goto shutdown;
+        }
 
-    /* Connect to the ssh-agent */
-    agent = libssh2_agent_init(session);
-    if(!agent) {
-        fprintf(stderr, "Failure initializing ssh-agent support\n");
-        rc = 1;
-        goto shutdown;
-    }
-    if(libssh2_agent_connect(agent)) {
-        fprintf(stderr, "Failure connecting to ssh-agent\n");
-        rc = 1;
-        goto shutdown;
-    }
-    if(libssh2_agent_list_identities(agent)) {
-        fprintf(stderr, "Failure requesting identities to ssh-agent\n");
-        rc = 1;
-        goto shutdown;
-    }
-    for(;;) {
-        rc = libssh2_agent_get_identity(agent, &identity, prev_identity);
-        if(rc == 1)
-            break;
-        if(rc < 0) {
-            fprintf(stderr,
-                    "Failure obtaining identity from ssh-agent support\n");
+        /* Connect to the ssh-agent */
+        agent = libssh2_agent_init(session);
+        if(!agent) {
+            fprintf(stderr, "Failure initializing ssh-agent support\n");
             rc = 1;
             goto shutdown;
         }
-        if(libssh2_agent_userauth(agent, username, identity)) {
-            fprintf(stderr, "\tAuthentication with username %s and "
-                   "public key %s failed!\n",
-                   username, identity->comment);
+        if(libssh2_agent_connect(agent)) {
+            fprintf(stderr, "Failure connecting to ssh-agent\n");
+            rc = 1;
+            goto shutdown;
         }
-        else {
-            fprintf(stderr, "\tAuthentication with username %s and "
-                   "public key %s succeeded!\n",
-                   username, identity->comment);
-            break;
+        if(libssh2_agent_list_identities(agent)) {
+            fprintf(stderr, "Failure requesting identities to ssh-agent\n");
+            rc = 1;
+            goto shutdown;
         }
-        prev_identity = identity;
-    }
-    if(rc) {
-        fprintf(stderr, "Couldn't continue authentication\n");
-        goto shutdown;
+        for(;;) {
+            rc = libssh2_agent_get_identity(agent, &identity, prev_identity);
+            if(rc == 1)
+                break;
+            if(rc < 0) {
+                fprintf(stderr,
+                        "Failure obtaining identity from ssh-agent support\n");
+                rc = 1;
+                goto shutdown;
+            }
+            if(libssh2_agent_userauth(agent, username, identity)) {
+                fprintf(stderr, "Authentication with username %s and "
+                        "public key %s failed!\n",
+                        username, identity->comment);
+            }
+            else {
+                fprintf(stderr, "Authentication with username %s and "
+                        "public key %s succeeded.\n",
+                        username, identity->comment);
+                break;
+            }
+            prev_identity = identity;
+        }
+        if(rc) {
+            fprintf(stderr, "Couldn't continue authentication\n");
+            goto shutdown;
+        }
     }
 
     /* We're authenticated now. */

@@ -57,11 +57,12 @@ enum {
 
 int main(int argc, char *argv[])
 {
-    int rc, i, auth = AUTH_NONE;
+    int i, auth = AUTH_NONE;
     struct sockaddr_in sin;
     socklen_t sinlen;
     const char *fingerprint;
     char *userauthlist;
+    int rc;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel = NULL;
     const char *shost;
@@ -77,11 +78,10 @@ int main(int argc, char *argv[])
 #ifdef WIN32
     char sockopt;
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc != 0) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #else
@@ -158,38 +158,42 @@ int main(int argc, char *argv[])
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username,
                                          (unsigned int)strlen(username));
-    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-    if(strstr(userauthlist, "password"))
-        auth |= AUTH_PASSWORD;
-    if(strstr(userauthlist, "publickey"))
-        auth |= AUTH_PUBLICKEY;
+    if(userauthlist) {
+        fprintf(stderr, "Authentication methods: %s\n", userauthlist);
+        if(strstr(userauthlist, "password"))
+            auth |= AUTH_PASSWORD;
+        if(strstr(userauthlist, "publickey"))
+            auth |= AUTH_PUBLICKEY;
 
-    /* check for options */
-    if(argc > 8) {
-        if((auth & AUTH_PASSWORD) && !strcmp(argv[8], "-p"))
-            auth = AUTH_PASSWORD;
-        if((auth & AUTH_PUBLICKEY) && !strcmp(argv[8], "-k"))
-            auth = AUTH_PUBLICKEY;
-    }
+        /* check for options */
+        if(argc > 8) {
+            if((auth & AUTH_PASSWORD) && !strcmp(argv[8], "-p"))
+                auth = AUTH_PASSWORD;
+            if((auth & AUTH_PUBLICKEY) && !strcmp(argv[8], "-k"))
+                auth = AUTH_PUBLICKEY;
+        }
 
-    if(auth & AUTH_PASSWORD) {
-        if(libssh2_userauth_password(session, username, password)) {
-            fprintf(stderr, "Authentication by password failed.\n");
+        if(auth & AUTH_PASSWORD) {
+            if(libssh2_userauth_password(session, username, password)) {
+                fprintf(stderr, "Authentication by password failed.\n");
+                goto shutdown;
+            }
+        }
+        else if(auth & AUTH_PUBLICKEY) {
+            if(libssh2_userauth_publickey_fromfile(session, username,
+                                                   pubkey, privkey,
+                                                   password)) {
+                fprintf(stderr, "Authentication by public key failed!\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr, "Authentication by public key succeeded.\n");
+            }
+        }
+        else {
+            fprintf(stderr, "No supported authentication methods found!\n");
             goto shutdown;
         }
-    }
-    else if(auth & AUTH_PUBLICKEY) {
-        if(libssh2_userauth_publickey_fromfile(session, username,
-                                               pubkey, privkey,
-                                               password)) {
-            fprintf(stderr, "\tAuthentication by public key failed!\n");
-            goto shutdown;
-        }
-        fprintf(stderr, "\tAuthentication by public key succeeded.\n");
-    }
-    else {
-        fprintf(stderr, "No supported authentication methods found!\n");
-        goto shutdown;
     }
 
     listensock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);

@@ -24,6 +24,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+static const char *pubkey = "etc/user.pub";
+static const char *privkey = "etc/user";
+static const char *username = "username";
+static const char *password = "password";
+
 int main(int argc, char *argv[])
 {
     uint32_t hostaddr;
@@ -32,22 +37,17 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
+    int rc;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
-    const char *pubkey = "etc/user.pub";
-    const char *privkey = "etc/user";
-    const char *username = "username";
-    const char *password = "password";
-    int ec = 1;
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
-        return -1;
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc != 0) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
+        return 1;
     }
 #endif
 
@@ -65,6 +65,14 @@ int main(int argc, char *argv[])
 
     hostaddr = htonl(0x7F000001);
 
+    rc = libssh2_init(0);
+    if(rc != 0) {
+        fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
+        return 1;
+    }
+
+    rc = 1;
+
     sock = socket(AF_INET, SOCK_STREAM, 0);
 #ifndef WIN32
     fcntl(sock, F_SETFL, 0);
@@ -77,9 +85,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /* Create a session instance and start it up
-     * This will trade welcome banners, exchange keys,
-     * and setup crypto, compression, and MAC layers
+    /* Create a session instance and start it up. This will trade welcome
+     * banners, exchange keys, and setup crypto, compression, and MAC layers
      */
     session = libssh2_session_init();
     if(libssh2_session_handshake(session, sock)) {
@@ -87,51 +94,52 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /* At this point we haven't authenticated,
-     * The first thing to do is check the hostkey's
-     * fingerprint against our known hosts
-     * Your app may have it hard coded, may go to a file,
-     * may present it to the user, that's your call
+    /* At this point we have not yet authenticated.  The first thing to do
+     * is check the hostkey's fingerprint against our known hosts Your app
+     * may have it hard coded, may go to a file, may present it to the
+     * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
-    printf("Fingerprint: ");
+    fprintf(stderr, "Fingerprint: ");
     for(i = 0; i < 20; i++) {
-        printf("%02X ", (unsigned char)fingerprint[i]);
+        fprintf(stderr, "%02X ", (unsigned char)fingerprint[i]);
     }
-    printf("\n");
+    fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username,
                                          (unsigned int)strlen(username));
-    printf("Authentication methods: %s\n", userauthlist);
-    if(strstr(userauthlist, "password") != NULL) {
-        auth_pw |= 1;
-    }
-    if(strstr(userauthlist, "keyboard-interactive") != NULL) {
-        auth_pw |= 2;
-    }
-    if(strstr(userauthlist, "publickey") != NULL) {
-        auth_pw |= 4;
-    }
+    if(userauthlist) {
+        fprintf(stderr, "Authentication methods: %s\n", userauthlist);
+        if(strstr(userauthlist, "password") != NULL) {
+            auth_pw |= 1;
+        }
+        if(strstr(userauthlist, "keyboard-interactive") != NULL) {
+            auth_pw |= 2;
+        }
+        if(strstr(userauthlist, "publickey") != NULL) {
+            auth_pw |= 4;
+        }
 
-    if(auth_pw & 4) {
-        /* Authenticate by public key */
-        if(libssh2_userauth_publickey_fromfile(session, username,
-                                               pubkey, privkey,
-                                               password)) {
-            printf("\tAuthentication by public key failed!\n");
-            goto shutdown;
+        if(auth_pw & 4) {
+            /* Authenticate by public key */
+            if(libssh2_userauth_publickey_fromfile(session, username,
+                                                   pubkey, privkey,
+                                                   password)) {
+                fprintf(stderr, "Authentication by public key failed!\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr, "Authentication by public key succeeded.\n");
+            }
         }
         else {
-            printf("\tAuthentication by public key succeeded.\n");
+            fprintf(stderr, "No supported authentication methods found!\n");
+            goto shutdown;
         }
     }
-    else {
-        printf("No supported authentication methods found!\n");
-        goto shutdown;
-    }
 
-    /* Request a shell */
+    /* Request a session channel on which to run a shell */
     channel = libssh2_channel_open_session(session);
     if(!channel) {
         fprintf(stderr, "Unable to open a session\n");
@@ -144,7 +152,8 @@ int main(int argc, char *argv[])
     libssh2_channel_setenv(channel, "FOO", "bar");
 
     /* Request a terminal with 'vanilla' terminal emulation
-     * See /etc/termcap for more options
+     * See /etc/termcap for more options. This is useful when opening
+     * an interactive shell.
      */
     if(libssh2_channel_request_pty(channel, "vanilla")) {
         fprintf(stderr, "Failed requesting pty\n");
@@ -157,7 +166,7 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    ec = 0;
+    rc = 0;
 
 skip_shell:
     if(channel) {
@@ -177,6 +186,9 @@ shutdown:
     sleep(1);
     close(sock);
 #endif
+    fprintf(stderr, "all done\n");
 
-    return ec;
+    libssh2_exit();
+
+    return rc;
 }

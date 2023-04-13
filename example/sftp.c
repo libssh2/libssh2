@@ -27,9 +27,6 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
 
 #include <sys/types.h>
 #include <fcntl.h>
@@ -99,18 +96,17 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
-    LIBSSH2_SESSION *session;
     int rc;
+    LIBSSH2_SESSION *session;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc != 0) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #endif
@@ -184,65 +180,67 @@ int main(int argc, char *argv[])
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username,
                                          (unsigned int)strlen(username));
-    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-    if(strstr(userauthlist, "password") != NULL) {
-        auth_pw |= 1;
-    }
-    if(strstr(userauthlist, "keyboard-interactive") != NULL) {
-        auth_pw |= 2;
-    }
-    if(strstr(userauthlist, "publickey") != NULL) {
-        auth_pw |= 4;
-    }
+    if(userauthlist) {
+        fprintf(stderr, "Authentication methods: %s\n", userauthlist);
+        if(strstr(userauthlist, "password") != NULL) {
+            auth_pw |= 1;
+        }
+        if(strstr(userauthlist, "keyboard-interactive") != NULL) {
+            auth_pw |= 2;
+        }
+        if(strstr(userauthlist, "publickey") != NULL) {
+            auth_pw |= 4;
+        }
 
-    /* if we got an 4. argument we set this option if supported */
-    if(argc > 5) {
-        if((auth_pw & 1) && !strcmp(argv[5], "-p")) {
-            auth_pw = 1;
+        /* if we got an 5. argument we set this option if supported */
+        if(argc > 5) {
+            if((auth_pw & 1) && !strcmp(argv[5], "-p")) {
+                auth_pw = 1;
+            }
+            if((auth_pw & 2) && !strcmp(argv[5], "-i")) {
+                auth_pw = 2;
+            }
+            if((auth_pw & 4) && !strcmp(argv[5], "-k")) {
+                auth_pw = 4;
+            }
         }
-        if((auth_pw & 2) && !strcmp(argv[5], "-i")) {
-            auth_pw = 2;
-        }
-        if((auth_pw & 4) && !strcmp(argv[5], "-k")) {
-            auth_pw = 4;
-        }
-    }
 
-    if(auth_pw & 1) {
-        /* We could authenticate via password */
-        if(libssh2_userauth_password(session, username, password)) {
-            fprintf(stderr, "Authentication by password failed.\n");
-            goto shutdown;
+        if(auth_pw & 1) {
+            /* We could authenticate via password */
+            if(libssh2_userauth_password(session, username, password)) {
+                fprintf(stderr, "Authentication by password failed!\n");
+                goto shutdown;
+            }
         }
-    }
-    else if(auth_pw & 2) {
-        /* Or via keyboard-interactive */
-        if(libssh2_userauth_keyboard_interactive(session, username,
-                                                 &kbd_callback) ) {
-            fprintf(stderr,
-                "\tAuthentication by keyboard-interactive failed!\n");
-            goto shutdown;
+        else if(auth_pw & 2) {
+            /* Or via keyboard-interactive */
+            if(libssh2_userauth_keyboard_interactive(session, username,
+                                                     &kbd_callback) ) {
+                fprintf(stderr,
+                        "Authentication by keyboard-interactive failed!\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr,
+                        "Authentication by keyboard-interactive succeeded.\n");
+            }
+        }
+        else if(auth_pw & 4) {
+            /* Or by public key */
+            if(libssh2_userauth_publickey_fromfile(session, username,
+                                                   pubkey, privkey,
+                                                   password)) {
+                fprintf(stderr, "Authentication by public key failed!\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr, "Authentication by public key succeeded.\n");
+            }
         }
         else {
-            fprintf(stderr,
-                "\tAuthentication by keyboard-interactive succeeded.\n");
-        }
-    }
-    else if(auth_pw & 4) {
-        /* Or by public key */
-        if(libssh2_userauth_publickey_fromfile(session, username,
-                                               pubkey, privkey,
-                                               password)) {
-            fprintf(stderr, "\tAuthentication by public key failed!\n");
+            fprintf(stderr, "No supported authentication methods found!\n");
             goto shutdown;
         }
-        else {
-            fprintf(stderr, "\tAuthentication by public key succeeded.\n");
-        }
-    }
-    else {
-        fprintf(stderr, "No supported authentication methods found!\n");
-        goto shutdown;
     }
 
     fprintf(stderr, "libssh2_sftp_init()!\n");

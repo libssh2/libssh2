@@ -16,9 +16,6 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
 
 #include <sys/types.h>
 #include <fcntl.h>
@@ -110,10 +107,11 @@ static ssize_t netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
 
 int main(int argc, char *argv[])
 {
-    int rc, i, auth = AUTH_NONE;
+    int i, auth = AUTH_NONE;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
+    int rc;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel = NULL;
     char buf[1048576]; /* avoid any buffer reallocation for simplicity */
@@ -122,11 +120,10 @@ int main(int argc, char *argv[])
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc != 0) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #endif
@@ -217,10 +214,12 @@ int main(int argc, char *argv[])
         if(libssh2_userauth_publickey_fromfile(session, username,
                                                pubkey, privkey,
                                                password)) {
-            fprintf(stderr, "\tAuthentication by public key failed!\n");
+            fprintf(stderr, "Authentication by public key failed!\n");
             goto shutdown;
         }
-        fprintf(stderr, "\tAuthentication by public key succeeded.\n");
+        else {
+            fprintf(stderr, "Authentication by public key succeeded.\n");
+        }
     }
     else {
         fprintf(stderr, "No supported authentication methods found!\n");

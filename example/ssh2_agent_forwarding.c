@@ -91,8 +91,14 @@ int main(int argc, char *argv[])
 
 #ifdef WIN32
     WSADATA wsadata;
-    WSAStartup(MAKEWORD(2, 0), &wsadata);
+
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc != 0) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
+        return 1;
+    }
 #endif
+
     if(argc < 2) {
         fprintf(stderr, "At least IP and username arguments are required.\n");
         return 1;
@@ -165,14 +171,14 @@ int main(int argc, char *argv[])
             goto shutdown;
         }
         if(libssh2_agent_userauth(agent, username, identity)) {
-            fprintf(stderr, "\tAuthentication with username %s and "
-                   "public key %s failed!\n",
-                   username, identity->comment);
+            fprintf(stderr, "Authentication with username %s and "
+                    "public key %s failed!\n",
+                    username, identity->comment);
         }
         else {
-            fprintf(stderr, "\tAuthentication with username %s and "
-                   "public key %s succeeded!\n",
-                   username, identity->comment);
+            fprintf(stderr, "Authentication with username %s and "
+                    "public key %s succeeded.\n",
+                    username, identity->comment);
             break;
         }
         prev_identity = identity;
@@ -209,7 +215,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
     else {
-        fprintf(stdout, "\tAgent forwarding request succeeded!\n");
+        fprintf(stdout, "Agent forwarding request succeeded!\n");
     }
     while((rc = libssh2_channel_exec(channel, commandline)) ==
           LIBSSH2_ERROR_EAGAIN) {

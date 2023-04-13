@@ -67,10 +67,11 @@ int main(int argc, char *argv[])
 {
     uint32_t hostaddr;
     libssh2_socket_t sock;
-    int rc, i, auth_pw = 0;
+    int i, auth_pw = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
+    int rc;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
 
@@ -157,91 +158,94 @@ int main(int argc, char *argv[])
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username,
                                          (unsigned int)strlen(username));
-    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-    if(strstr(userauthlist, "password") != NULL) {
-        auth_pw |= 1;
-    }
-    if(strstr(userauthlist, "keyboard-interactive") != NULL) {
-        auth_pw |= 2;
-    }
-    if(strstr(userauthlist, "publickey") != NULL) {
-        auth_pw |= 4;
-    }
+    if(userauthlist) {
+        fprintf(stderr, "Authentication methods: %s\n", userauthlist);
+        if(strstr(userauthlist, "password") != NULL) {
+            auth_pw |= 1;
+        }
+        if(strstr(userauthlist, "keyboard-interactive") != NULL) {
+            auth_pw |= 2;
+        }
+        if(strstr(userauthlist, "publickey") != NULL) {
+            auth_pw |= 4;
+        }
 
-    /* if we got an 4. argument we set this option if supported */
-    if(argc > 4) {
-        if((auth_pw & 1) && !strcmp(argv[4], "-p")) {
-            auth_pw = 1;
+        /* if we got an 4. argument we set this option if supported */
+        if(argc > 4) {
+            if((auth_pw & 1) && !strcmp(argv[4], "-p")) {
+                auth_pw = 1;
+            }
+            if((auth_pw & 2) && !strcmp(argv[4], "-i")) {
+                auth_pw = 2;
+            }
+            if((auth_pw & 4) && !strcmp(argv[4], "-k")) {
+                auth_pw = 4;
+            }
         }
-        if((auth_pw & 2) && !strcmp(argv[4], "-i")) {
-            auth_pw = 2;
-        }
-        if((auth_pw & 4) && !strcmp(argv[4], "-k")) {
-            auth_pw = 4;
-        }
-    }
 
-    if(auth_pw & 1) {
-        /* We could authenticate via password */
-        if(libssh2_userauth_password(session, username, password)) {
-            fprintf(stderr, "\tAuthentication by password failed!\n");
-            goto shutdown;
+        if(auth_pw & 1) {
+            /* We could authenticate via password */
+            if(libssh2_userauth_password(session, username, password)) {
+                fprintf(stderr, "Authentication by password failed!\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr, "Authentication by password succeeded.\n");
+            }
         }
-        else {
-            fprintf(stderr, "\tAuthentication by password succeeded.\n");
+        else if(auth_pw & 2) {
+            /* Or via keyboard-interactive */
+            if(libssh2_userauth_keyboard_interactive(session, username,
+                                                     &kbd_callback) ) {
+                fprintf(stderr,
+                        "Authentication by keyboard-interactive failed!\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr,
+                        "Authentication by keyboard-interactive succeeded.\n");
+            }
         }
-    }
-    else if(auth_pw & 2) {
-        /* Or via keyboard-interactive */
-        if(libssh2_userauth_keyboard_interactive(session, username,
-                                                 &kbd_callback) ) {
-            fprintf(stderr,
-                    "\tAuthentication by keyboard-interactive failed!\n");
-            goto shutdown;
-        }
-        else {
-            fprintf(stderr,
-                    "\tAuthentication by keyboard-interactive succeeded.\n");
-        }
-    }
-    else if(auth_pw & 4) {
-        /* Or by public key */
-        size_t fn1sz, fn2sz;
-        char *fn1, *fn2;
-        char const *h = getenv("HOME");
-        if(!h || !*h)
-            h = ".";
-        fn1sz = strlen(h) + strlen(pubkey) + 2;
-        fn2sz = strlen(h) + strlen(privkey) + 2;
-        fn1 = malloc(fn1sz);
-        fn2 = malloc(fn2sz);
-        if(!fn1 || !fn2) {
+        else if(auth_pw & 4) {
+            /* Or by public key */
+            size_t fn1sz, fn2sz;
+            char *fn1, *fn2;
+            char const *h = getenv("HOME");
+            if(!h || !*h)
+                h = ".";
+            fn1sz = strlen(h) + strlen(pubkey) + 2;
+            fn2sz = strlen(h) + strlen(privkey) + 2;
+            fn1 = malloc(fn1sz);
+            fn2 = malloc(fn2sz);
+            if(!fn1 || !fn2) {
+                free(fn2);
+                free(fn1);
+                fprintf(stderr, "out of memory\n");
+                goto shutdown;
+            }
+            /* Using asprintf() here would be much cleaner,
+               but less portable */
+            snprintf(fn1, fn1sz, "%s/%s", h, pubkey);
+            snprintf(fn2, fn2sz, "%s/%s", h, privkey);
+
+            if(libssh2_userauth_publickey_fromfile(session, username,
+                                                   fn1, fn2,
+                                                   password)) {
+                fprintf(stderr, "Authentication by public key failed!\n");
+                free(fn2);
+                free(fn1);
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr, "Authentication by public key succeeded.\n");
+            }
             free(fn2);
             free(fn1);
-            fprintf(stderr, "out of memory\n");
-            goto shutdown;
-        }
-        /* Using asprintf() here would be much cleaner, but less portable */
-        snprintf(fn1, fn1sz, "%s/%s", h, pubkey);
-        snprintf(fn2, fn2sz, "%s/%s", h, privkey);
-
-        if(libssh2_userauth_publickey_fromfile(session, username,
-                                               fn1, fn2,
-                                               password)) {
-            fprintf(stderr, "\tAuthentication by public key failed!\n");
-            free(fn2);
-            free(fn1);
-            goto shutdown;
         }
         else {
-            fprintf(stderr, "\tAuthentication by public key succeeded.\n");
+            fprintf(stderr, "No supported authentication methods found!\n");
+            goto shutdown;
         }
-        free(fn2);
-        free(fn1);
-    }
-    else {
-        fprintf(stderr, "No supported authentication methods found!\n");
-        goto shutdown;
     }
 
     /* Request a session channel on which to run a shell */

@@ -30,6 +30,9 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
 #endif
@@ -124,11 +127,11 @@ static int _normal_mode(void)
 static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
                          char *shost, int sport, void **abstract)
 {
-    const char *display = NULL;
-    char *ptr          = NULL;
-    char *temp_buff    = NULL;
-    int   display_port = 0;
-    int   rc           = 0;
+    const char *display;
+    char *ptr;
+    char *temp_buff;
+    int display_port;
+    int rc;
     libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
     struct sockaddr_un addr;
     struct chan_X11_list *new;
@@ -201,10 +204,10 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
  */
 static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
 {
-    char *buf          = NULL;
-    int   bufsize      = 8192;
-    int   rc           = 0;
-    int   nfds         = 1;
+    char *buf;
+    int bufsize = 8192;
+    int rc;
+    int nfds = 1;
     LIBSSH2_POLLFD *fds = NULL;
     fd_set set;
     struct timeval timeval_out;
@@ -268,7 +271,7 @@ int
 main(int argc, char *argv[])
 {
     uint32_t hostaddr = 0;
-    int rc = 0;
+    int rc;
     libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
     struct sockaddr_in sin;
     LIBSSH2_SESSION *session;
