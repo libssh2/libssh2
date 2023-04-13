@@ -130,6 +130,7 @@ int main(int argc, char *argv[])
      * banners, exchange keys, and setup crypto, compression, and MAC layers
      */
     session = libssh2_session_init();
+
     /* Enable all debugging when libssh2 was built with debugging enabled */
     libssh2_trace(session,
         LIBSSH2_TRACE_TRANS     |
@@ -143,8 +144,9 @@ int main(int argc, char *argv[])
         LIBSSH2_TRACE_SOCKET
     );
 
-    if(libssh2_session_handshake(session, sock)) {
-        fprintf(stderr, "Failure establishing SSH session\n");
+    rc = libssh2_session_handshake(session, sock);
+    if(rc) {
+        fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
         goto shutdown;
     }
 

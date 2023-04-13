@@ -93,9 +93,11 @@ int main(int argc, char *argv[])
      * banners, exchange keys, and setup crypto, compression, and MAC layers
      */
     session = libssh2_session_init();
-    if(libssh2_session_handshake(session, sock)) {
-        fprintf(stderr, "Failure establishing SSH session\n");
-        return 1;
+
+    rc = libssh2_session_handshake(session, sock);
+    if(rc) {
+        fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
+        goto shutdown;
     }
 
     /* At this point we have not yet authenticated.  The first thing to do
