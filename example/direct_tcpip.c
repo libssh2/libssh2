@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     char *userauthlist;
     int rc;
-    LIBSSH2_SESSION *session;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel = NULL;
     const char *shost;
     unsigned int sport;
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     struct timeval tv;
     ssize_t len, wr;
     char buf[16384];
-    libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
+    libssh2_socket_t sock;
     libssh2_socket_t listensock = LIBSSH2_INVALID_SOCKET;
     libssh2_socket_t forwardsock = LIBSSH2_INVALID_SOCKET;
 
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr, "failed to open socket!\n");
-        return -1;
+        goto shutdown;
     }
 
     sin.sin_family = AF_INET;
@@ -311,23 +311,37 @@ int main(int argc, char *argv[])
     }
 
 shutdown:
+    if(forwardsock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    closesocket(forwardsock);
-    closesocket(listensock);
+        closesocket(forwardsock);
 #else
-    close(forwardsock);
-    close(listensock);
+        close(forwardsock);
 #endif
+    }
+
+    if(listensock != LIBSSH2_INVALID_SOCKET) {
+#ifdef WIN32
+        closesocket(listensock);
+#else
+        close(listensock);
+#endif
+    }
+
     if(channel)
         libssh2_channel_free(channel);
-    libssh2_session_disconnect(session, "Client disconnecting normally");
-    libssh2_session_free(session);
 
+    if(session) {
+        libssh2_session_disconnect(session, "Client disconnecting normally");
+        libssh2_session_free(session);
+    }
+
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    closesocket(sock);
+        closesocket(sock);
 #else
-    close(sock);
+        close(sock);
 #endif
+    }
 
     libssh2_exit();
 

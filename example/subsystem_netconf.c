@@ -112,11 +112,11 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     char *userauthlist;
     int rc;
-    LIBSSH2_SESSION *session;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel = NULL;
     char buf[1048576]; /* avoid any buffer reallocation for simplicity */
     ssize_t len;
-    libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
+    libssh2_socket_t sock;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr, "failed to open socket!\n");
-        return -1;
+        goto shutdown;
     }
 
     sin.sin_family = AF_INET;
@@ -286,14 +286,19 @@ int main(int argc, char *argv[])
 shutdown:
     if(channel)
         libssh2_channel_free(channel);
-    libssh2_session_disconnect(session, "Client disconnecting normally");
-    libssh2_session_free(session);
 
+    if(session) {
+        libssh2_session_disconnect(session, "Client disconnecting normally");
+        libssh2_session_free(session);
+    }
+
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    closesocket(sock);
+        closesocket(sock);
 #else
-    close(sock);
+        close(sock);
 #endif
+    }
 
     libssh2_exit();
 
