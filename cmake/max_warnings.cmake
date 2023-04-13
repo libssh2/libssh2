@@ -56,9 +56,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     # Add new options here, if in doubt:
     # ----------------------------------
     set(WARNOPTS_DETECT
-      -Wdouble-promotion                   # clang  3.6  gcc  4.6  appleclang  6.3
-      -Wenum-conversion                    # clang  3.2  gcc 10.0  appleclang  4.6  g++ 11.0
-      -Wunused-const-variable              # clang  3.4  gcc  6.0  appleclang  5.1
     )
 
     # Assume these options always exist with both clang and gcc.
@@ -95,6 +92,12 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wvla                                # clang  2.8  gcc  4.3
     )
 
+    set(WARNOPTS_COMMON
+      -Wdouble-promotion                   # clang  3.6  gcc  4.6  appleclang  6.3
+      -Wenum-conversion                    # clang  3.2  gcc 10.0  appleclang  4.6  g++ 11.0
+      -Wunused-const-variable              # clang  3.4  gcc  6.0  appleclang  5.1
+    )
+
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
       list(APPEND WARNOPTS_ENABLE
         ${WARNOPTS_COMMON_OLD}
@@ -102,6 +105,12 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wshorten-64-to-32                 # clang  1.0
       )
       # Enable based on compiler version
+      if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 3.6) OR
+         (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 6.3))
+        list(APPEND WARNOPTS_ENABLE
+          ${WARNOPTS_COMMON}
+        )
+      endif()
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 3.9) OR
          (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 8.3))
         list(APPEND WARNOPTS_ENABLE
@@ -117,6 +126,9 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         )
       endif()
     else()  # gcc
+      list(APPEND WARNOPTS_DETECT
+        ${WARNOPTS_COMMON}
+      )
       # Enable based on compiler version
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.3)
         list(APPEND WARNOPTS_ENABLE
