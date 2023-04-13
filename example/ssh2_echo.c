@@ -80,9 +80,9 @@ int main(int argc, char *argv[])
     libssh2_socket_t sock;
     struct sockaddr_in sin;
     const char *fingerprint;
+    int rc;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
-    int rc;
     int exitcode = 0;
     char *exitsignal = (char *)"none";
     size_t len;
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_password(session, username, password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed!\n");
             exit(1);
         }
     }
@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
           LIBSSH2_ERROR_EAGAIN)
         waitsocket(sock, session);
 
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "exec error\n");
         exit(1);
     }

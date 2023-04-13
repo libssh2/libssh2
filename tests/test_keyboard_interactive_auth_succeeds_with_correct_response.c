@@ -48,7 +48,7 @@ int test(LIBSSH2_SESSION *session)
 
     rc = libssh2_userauth_keyboard_interactive_ex(
         session, USERNAME, (unsigned int)strlen(USERNAME), kbd_callback);
-    if(rc != 0) {
+    if(rc) {
         print_last_session_error("libssh2_userauth_keyboard_interactive_ex");
         return 1;
     }

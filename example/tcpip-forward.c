@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
 
         if(auth & AUTH_PASSWORD) {
             if(libssh2_userauth_password(session, username, password)) {
-                fprintf(stderr, "Authentication by password failed.\n");
+                fprintf(stderr, "Authentication by password failed!\n");
                 goto shutdown;
             }
         }
@@ -306,6 +306,7 @@ int main(int argc, char *argv[])
     }
 
 shutdown:
+
     if(forwardsock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
         closesocket(forwardsock);
@@ -321,7 +322,7 @@ shutdown:
         libssh2_channel_forward_cancel(listener);
 
     if(session) {
-        libssh2_session_disconnect(session, "Client disconnecting normally");
+        libssh2_session_disconnect(session, "Normal Shutdown");
         libssh2_session_free(session);
     }
 

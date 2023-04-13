@@ -91,7 +91,8 @@ int main(int argc, char *argv[])
     int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
-    LIBSSH2_SESSION *session;
+    int rc;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     libssh2_struct_stat fileinfo;
 #ifdef HAVE_GETTIMEOFDAY
@@ -99,7 +100,6 @@ int main(int argc, char *argv[])
     struct timeval end;
     long time_ms;
 #endif
-    int rc;
     int spin = 0;
     libssh2_struct_stat_size got = 0;
     libssh2_struct_stat_size total = 0;
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -140,6 +140,10 @@ int main(int argc, char *argv[])
      * responsible for creating the socket establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock == LIBSSH2_INVALID_SOCKET) {
+        fprintf(stderr, "failed to create socket!\n");
+        return -1;
+    }
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
@@ -172,10 +176,10 @@ int main(int argc, char *argv[])
     }
 
     /* At this point we have not yet authenticated.  The first thing to do
-        * is check the hostkey's fingerprint against our known hosts Your app
-        * may have it hard coded, may go to a file, may present it to the
-        * user, that's your call
-        */
+     * is check the hostkey's fingerprint against our known hosts Your app
+     * may have it hard coded, may go to a file, may present it to the
+     * user, that's your call
+     */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
     for(i = 0; i < 20; i++) {
@@ -188,7 +192,7 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_password(session, username, password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed!\n");
             goto shutdown;
         }
     }
@@ -199,7 +203,7 @@ int main(int argc, char *argv[])
                                                         password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by public key failed.\n");
+            fprintf(stderr, "Authentication by public key failed!\n");
             goto shutdown;
         }
     }
@@ -276,8 +280,10 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    libssh2_session_disconnect(session, "Normal Shutdown");
-    libssh2_session_free(session);
+    if(session) {
+        libssh2_session_disconnect(session, "Normal Shutdown");
+        libssh2_session_free(session);
+    }
 
 #ifdef WIN32
     closesocket(sock);

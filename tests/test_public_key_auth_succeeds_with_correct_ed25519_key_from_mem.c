@@ -40,7 +40,7 @@ int test(LIBSSH2_SESSION *session)
 
     free(buffer);
 
-    if(rc != 0) {
+    if(rc) {
         print_last_session_error("libssh2_userauth_publickey_fromfile_ex");
         return 1;
     }

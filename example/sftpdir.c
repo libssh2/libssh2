@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     char *userauthlist;
     int rc;
-    LIBSSH2_SESSION *session;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
 
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -120,8 +120,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* Create a session instance
-     */
+    /* Create a session instance */
     session = libssh2_session_init();
     if(!session)
         return -1;
@@ -283,8 +282,10 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    libssh2_session_disconnect(session, "Normal Shutdown");
-    libssh2_session_free(session);
+    if(session) {
+        libssh2_session_disconnect(session, "Normal Shutdown");
+        libssh2_session_free(session);
+    }
 
 #ifdef WIN32
     closesocket(sock);

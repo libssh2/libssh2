@@ -26,7 +26,7 @@ int test(LIBSSH2_SESSION *session)
                                       (unsigned int)strlen(USERNAME),
                                       PASSWORD,
                                       (unsigned int)strlen(PASSWORD), NULL);
-    if(rc != 0) {
+    if(rc) {
         print_last_session_error("libssh2_userauth_password_ex");
         return 1;
     }

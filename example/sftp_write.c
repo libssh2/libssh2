@@ -44,12 +44,12 @@ int main(int argc, char *argv[])
     int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
-    LIBSSH2_SESSION *session;
     int rc;
+    LIBSSH2_SESSION *session;
     FILE *local;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
-    char mem[1024*100];
+    char mem[1024 * 100];
     size_t nread;
     ssize_t nwritten;
     char *ptr;
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -109,8 +109,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* Create a session instance
-     */
+    /* Create a session instance */
     session = libssh2_session_init();
     if(!session)
         return -1;
@@ -142,7 +141,7 @@ int main(int argc, char *argv[])
     if(auth_pw) {
         /* We could authenticate via password */
         if(libssh2_userauth_password(session, username, password)) {
-            fprintf(stderr, "Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed!\n");
             goto shutdown;
         }
     }
@@ -151,7 +150,7 @@ int main(int argc, char *argv[])
         if(libssh2_userauth_publickey_fromfile(session, username,
                                                pubkey, privkey,
                                                password)) {
-            fprintf(stderr, "Authentication by public key failed.\n");
+            fprintf(stderr, "Authentication by public key failed!\n");
             goto shutdown;
         }
     }
@@ -193,13 +192,13 @@ int main(int argc, char *argv[])
             ptr += nwritten;
             nread -= nwritten;
         } while(nread);
-
     } while(nwritten > 0);
 
     libssh2_sftp_close(sftp_handle);
     libssh2_sftp_shutdown(sftp_session);
 
 shutdown:
+
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
 

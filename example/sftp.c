@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -147,8 +147,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* Create a session instance
-     */
+    /* Create a session instance */
     session = libssh2_session_init();
     if(!session)
         return -1;

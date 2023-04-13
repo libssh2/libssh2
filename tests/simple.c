@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     (void)argc;
 
     rc = libssh2_init(LIBSSH2_INIT_NO_CRYPTO);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2_init() failed: %d\n", rc);
         return 1;
     }

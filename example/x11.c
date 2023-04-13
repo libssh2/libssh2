@@ -89,7 +89,7 @@ static void remove_node(struct chan_X11_list *elem)
 
 static void session_shutdown(LIBSSH2_SESSION *session)
 {
-    libssh2_session_disconnect(session, "Session Shutdown");
+    libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
 }
 
@@ -314,7 +314,7 @@ main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -336,7 +336,7 @@ main(int argc, char *argv[])
     /* Open a session */
     session = libssh2_session_init();
     rc      = libssh2_session_handshake(session, sock);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "Failed Start the SSH session\n");
         return -1;
     }
@@ -354,7 +354,7 @@ main(int argc, char *argv[])
 
     /* Authenticate via password */
     rc = libssh2_userauth_password(session, username, password);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "Failed to authenticate\n");
         session_shutdown(session);
         close(sock);
@@ -372,7 +372,7 @@ main(int argc, char *argv[])
 
     /* Request a PTY */
     rc = libssh2_channel_request_pty(channel, "xterm");
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "Failed to request a pty\n");
         session_shutdown(session);
         close(sock);
@@ -381,7 +381,7 @@ main(int argc, char *argv[])
 
     /* Request X11 */
     rc = libssh2_channel_x11_req(channel, 0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "Failed to request X11 forwarding\n");
         session_shutdown(session);
         close(sock);
@@ -390,7 +390,7 @@ main(int argc, char *argv[])
 
     /* Request a shell */
     rc = libssh2_channel_shell(channel);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "Failed to open a shell\n");
         session_shutdown(session);
         close(sock);
@@ -398,7 +398,7 @@ main(int argc, char *argv[])
     }
 
     rc = _raw_mode();
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "Failed to entered in raw mode\n");
         session_shutdown(session);
         close(sock);

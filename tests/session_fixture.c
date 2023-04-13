@@ -70,7 +70,7 @@ static int connect_to_server(void)
     }
 
     rc = libssh2_session_handshake(connected_session, connected_socket);
-    if(rc != 0) {
+    if(rc) {
         print_last_session_error("libssh2_session_handshake");
         return -1;
     }
@@ -107,11 +107,11 @@ LIBSSH2_SESSION *start_session_fixture(void)
     setup_fixture_workdir();
 
     rc = start_openssh_fixture();
-    if(rc != 0) {
+    if(rc) {
         return NULL;
     }
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2_init failed (%d)\n", rc);
         return NULL;
     }
@@ -153,7 +153,7 @@ LIBSSH2_SESSION *start_session_fixture(void)
     libssh2_session_set_blocking(connected_session, 1);
 
     rc = connect_to_server();
-    if(rc != 0) {
+    if(rc) {
         return NULL;
     }
 

@@ -87,8 +87,8 @@ int main(int argc, char *argv[])
     int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
-    LIBSSH2_SESSION *session;
     int rc;
+    LIBSSH2_SESSION *session;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
     FILE *tempstorage;
@@ -101,14 +101,27 @@ int main(int argc, char *argv[])
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #endif
 
+    if(argc > 1) {
+        username = argv[1];
+    }
+    if(argc > 2) {
+        password = argv[2];
+    }
+    if(argc > 3) {
+        sftppath = argv[3];
+    }
+    if(argc > 4) {
+        dest = argv[4];
+    }
+
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -126,8 +139,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* Create a session instance
-     */
+    /* Create a session instance */
     session = libssh2_session_init();
     if(!session)
         return -1;
@@ -155,19 +167,6 @@ int main(int argc, char *argv[])
     }
     fprintf(stderr, "\n");
 
-    if(argc > 1) {
-        username = argv[1];
-    }
-    if(argc > 2) {
-        password = argv[2];
-    }
-    if(argc > 3) {
-        sftppath = argv[3];
-    }
-    if(argc > 4) {
-        dest = argv[4];
-    }
-
     tempstorage = fopen(STORAGE, "wb");
     if(!tempstorage) {
         fprintf(stderr, "Can't open temp storage file %s\n", STORAGE);
@@ -179,19 +178,19 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_password(session, username, password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed!\n");
             goto shutdown;
         }
     }
     else {
         /* Or by public key */
         while((rc =
-               libssh2_userauth_publickey_fromfile(session, username,
-                                                   pubkey, privkey,
-                                                   password)) ==
+              libssh2_userauth_publickey_fromfile(session, username,
+                                                  pubkey, privkey,
+                                                  password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by public key failed\n");
+            fprintf(stderr, "Authentication by public key failed!\n");
             goto shutdown;
         }
     }

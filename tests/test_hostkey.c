@@ -41,7 +41,7 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    if(rc != 0) {
+    if(rc) {
         print_last_session_error("libssh2_base64_decode");
         return 1;
     }

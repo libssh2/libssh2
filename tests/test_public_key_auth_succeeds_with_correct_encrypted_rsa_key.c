@@ -28,7 +28,7 @@ int test(LIBSSH2_SESSION *session)
         session, USERNAME, (unsigned int)strlen(USERNAME),
        srcdir_path(KEY_FILE_PUBLIC), srcdir_path(KEY_FILE_PRIVATE),
         PASSWORD);
-    if(rc != 0) {
+    if(rc) {
         print_last_session_error("libssh2_userauth_publickey_fromfile_ex");
         return 1;
     }

@@ -4,7 +4,7 @@
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * "sftp 192.168.0.1 user password file /tmp/storehere"
+ * "sftp 192.168.0.1 user password thisfile /tmp/storehere"
  */
 
 #include "libssh2_setup.h"
@@ -81,15 +81,15 @@ int main(int argc, char *argv[])
     int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
-    LIBSSH2_SESSION *session;
     int rc;
+    LIBSSH2_SESSION *session;
     FILE *local;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
     char mem[1024 * 1000];
     size_t nread;
-    size_t memuse;
     ssize_t nwritten;
+    size_t memuse;
     time_t start;
     libssh2_struct_stat_size total = 0;
     int duration;
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -149,8 +149,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* Create a session instance
-     */
+    /* Create a session instance */
     session = libssh2_session_init();
     if(!session)
         return -1;
@@ -185,7 +184,7 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_password(session, username, password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed!\n");
             goto shutdown;
         }
     }
@@ -196,7 +195,7 @@ int main(int argc, char *argv[])
                                                         password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by public key failed.\n");
+            fprintf(stderr, "Authentication by public key failed!\n");
             goto shutdown;
         }
     }

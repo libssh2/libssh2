@@ -92,23 +92,23 @@ int main(int argc, char *argv[])
     int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
+    int rc;
     LIBSSH2_SESSION *session;
+    LIBSSH2_SFTP *sftp_session;
+    LIBSSH2_SFTP_HANDLE *sftp_handle;
 #ifdef HAVE_GETTIMEOFDAY
     struct timeval start;
     struct timeval end;
     long time_ms;
 #endif
-    int rc;
     libssh2_struct_stat_size total = 0;
     int spin = 0;
-    LIBSSH2_SFTP *sftp_session;
-    LIBSSH2_SFTP_HANDLE *sftp_handle;
 
 #ifdef WIN32
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_password(session, username, password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed!\n");
             goto shutdown;
         }
     }
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
                                                    password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by public key failed.\n");
+            fprintf(stderr, "Authentication by public key failed!\n");
             goto shutdown;
         }
     }
@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
     do {
-        char mem[1024*24];
+        char mem[1024 * 24];
         ssize_t nread;
 
         /* loop until we fail */

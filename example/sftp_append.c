@@ -4,7 +4,7 @@
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * sftp_append 192.168.0.1 user password localfile /tmp/remotefile
+ * "sftp_append 192.168.0.1 user password localfile /tmp/remotefile"
  */
 
 #include "libssh2_setup.h"
@@ -44,13 +44,13 @@ int main(int argc, char *argv[])
     int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
-    LIBSSH2_SESSION *session;
     int rc;
-    FILE *local;
+    LIBSSH2_SESSION *session;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
     LIBSSH2_SFTP_ATTRIBUTES attrs;
-    char mem[1024*100];
+    char mem[1024 * 100];
+    FILE *local;
     size_t nread;
     ssize_t nwritten;
     char *ptr;
@@ -110,8 +110,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* Create a session instance
-     */
+    /* Create a session instance */
     session = libssh2_session_init();
     if(!session)
         return -1;
@@ -143,7 +142,7 @@ int main(int argc, char *argv[])
     if(auth_pw) {
         /* We could authenticate via password */
         if(libssh2_userauth_password(session, username, password)) {
-            fprintf(stderr, "Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed!\n");
             goto shutdown;
         }
     }
@@ -152,7 +151,7 @@ int main(int argc, char *argv[])
         if(libssh2_userauth_publickey_fromfile(session, username,
                                                pubkey, privkey,
                                                password)) {
-            fprintf(stderr, "Authentication by public key failed.\n");
+            fprintf(stderr, "Authentication by public key failed!\n");
             goto shutdown;
         }
     }
@@ -167,7 +166,6 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "libssh2_sftp_open() for READ and WRITE!\n");
     /* Request a file via SFTP */
-
     sftp_handle =
         libssh2_sftp_open(sftp_session, sftppath,
                           LIBSSH2_FXF_WRITE|LIBSSH2_FXF_READ,
@@ -216,6 +214,7 @@ int main(int argc, char *argv[])
     libssh2_sftp_shutdown(sftp_session);
 
 shutdown:
+
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);
 

@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
           LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session);
     }
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "Error, couldn't request auth agent, error code %d.\n",
                 rc);
         exit(1);
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
           LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session);
     }
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "Error\n");
         exit(1);
     }
