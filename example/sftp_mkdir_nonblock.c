@@ -4,7 +4,7 @@
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * "sftp 192.168.0.1 user password /tmp/sftp_write_nonblock.c"
+ * $ ./sftp_mkdir_nonblock 192.168.0.1 user password /tmp/sftp_write_nonblock.c
  */
 
 #include "libssh2_setup.h"

@@ -4,7 +4,7 @@
  * The sample code has default values for host name, user name, password and
  * path, but you can specify them on the command line like:
  *
- * "sftpdir 192.168.0.1 user password /tmp/secretdir"
+ * $ ./sftpdir 192.168.0.1 user password /tmp/secretdir
  */
 
 #include "libssh2_setup.h"

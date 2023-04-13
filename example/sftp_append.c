@@ -4,7 +4,7 @@
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * "sftp_append 192.168.0.1 user password localfile /tmp/remotefile"
+ * $ ./sftp_append 192.168.0.1 user password localfile /tmp/remotefile
  */
 
 #include "libssh2_setup.h"

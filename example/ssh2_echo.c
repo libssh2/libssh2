@@ -1,10 +1,8 @@
 /*
- * Run it like this:
- *
- * $ ./ssh2_echo 127.0.0.1 user password
- *
  * The code sends a 'cat' command, and then writes a lot of data to it only to
  * check that reading the returned data sums up to the same amount.
+ *
+ * $ ./ssh2_echo 127.0.0.1 user password
  *
  */
 
@@ -209,9 +207,9 @@ int main(int argc, char *argv[])
         exit(1);
     }
     while((rc = libssh2_channel_exec(channel, commandline)) ==
-          LIBSSH2_ERROR_EAGAIN)
+          LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session);
-
+    }
     if(rc) {
         fprintf(stderr, "exec error\n");
         exit(1);
@@ -346,6 +344,8 @@ int main(int argc, char *argv[])
             exit(1);
         }
     }
+
+shutdown:
 
     libssh2_session_disconnect(session, "Normal Shutdown");
     libssh2_session_free(session);

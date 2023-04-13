@@ -1,8 +1,7 @@
 /*
  * Sample showing how to makes SSH2 with X11 Forwarding works.
  *
- * Usage:
- * "ssh2 host user password [DEBUG]"
+ * $ ./x11 host user password [DEBUG]
  */
 
 #include "libssh2_setup.h"

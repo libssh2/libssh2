@@ -4,7 +4,8 @@
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * Usage: ssh2 hostip user password [[-p|-i|-k] [command]]
+ * $ ./ssh2 hostip user password [[-p|-i|-k] [command]]
+ *
  *  -p authenticate using password
  *  -i authenticate using keyboard-interactive
  *  -k authenticate using public key (password argument decrypts keyfile)
@@ -13,7 +14,6 @@
 
 #include "libssh2_setup.h"
 #include <libssh2.h>
-#include <libssh2_sftp.h>
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
@@ -110,6 +110,7 @@ int main(int argc, char *argv[])
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr, "failed to create socket!\n");
+        rc = 1;
         goto shutdown;
     }
 
@@ -122,7 +123,7 @@ int main(int argc, char *argv[])
 
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
-        return -1;
+        goto shutdown;
     }
 
     /* Create a session instance and start it up. This will trade welcome

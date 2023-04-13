@@ -7,8 +7,6 @@
  * The example uses agent authentication to ensure an agent to forward
  * is running.
  *
- * Run it like this:
- *
  * $ ./ssh2_agent_forwarding 127.0.0.1 user "uptime"
  *
  */

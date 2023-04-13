@@ -3,12 +3,11 @@
  *
  * The sample code has default values for host name, user name:
  *
- * "ssh2_agent host user"
+ * $ ./ssh2_agent host user
  */
 
 #include "libssh2_setup.h"
 #include <libssh2.h>
-#include <libssh2_sftp.h>
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
@@ -62,7 +61,6 @@ int main(int argc, char *argv[])
     else {
         hostaddr = htonl(0x7F000001);
     }
-
     if(argc > 2) {
         username = argv[2];
     }
@@ -183,7 +181,8 @@ int main(int argc, char *argv[])
     libssh2_channel_setenv(channel, "FOO", "bar");
 
     /* Request a terminal with 'vanilla' terminal emulation
-     * See /etc/termcap for more options
+     * See /etc/termcap for more options. This is useful when opening
+     * an interactive shell.
      */
     if(libssh2_channel_request_pty(channel, "vanilla")) {
         fprintf(stderr, "Failed requesting pty\n");

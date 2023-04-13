@@ -4,8 +4,6 @@
  * The sample code has fixed values for host name, user name, password
  * and command to run.
  *
- * Run it like this:
- *
  * $ ./ssh2_exec 127.0.0.1 user password "uptime"
  *
  */
@@ -176,6 +174,7 @@ int main(int argc, char *argv[])
                                              LIBSSH2_KNOWNHOST_TYPE_PLAIN|
                                              LIBSSH2_KNOWNHOST_KEYENC_RAW,
                                              &host);
+
         fprintf(stderr, "Host check: %d, key: %s\n", check,
                 (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH)?
                 host->key:"<none>");
