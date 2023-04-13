@@ -2,7 +2,6 @@
 
 #include "libssh2_setup.h"
 #include <libssh2.h>
-#include <libssh2_sftp.h>
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
@@ -189,10 +188,8 @@ shutdown:
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-        Sleep(1000);
         closesocket(sock);
 #else
-        sleep(1);
         close(sock);
 #endif
     }

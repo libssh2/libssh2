@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
 
     if(libssh2_session_handshake(session, sock)) {
         fprintf(stderr, "Failure establishing SSH session\n");
-        return -1;
+        goto shutdown;
     }
 
     /* At this point we have not yet authenticated.  The first thing to do

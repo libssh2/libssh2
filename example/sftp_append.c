@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     local = fopen(loclfile, "rb");
     if(!local) {
         fprintf(stderr, "Can't open local file %s\n", loclfile);
-        return -1;
+        return 1;
     }
 
     /*
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == LIBSSH2_INVALID_SOCKET) {
         fprintf(stderr, "failed to create socket!\n");
-        return -1;
+        goto shutdown;
     }
 
     sin.sin_family = AF_INET;
@@ -111,13 +111,13 @@ int main(int argc, char *argv[])
     sin.sin_addr.s_addr = hostaddr;
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
-        return -1;
+        goto shutdown;
     }
 
     /* Create a session instance */
     session = libssh2_session_init();
     if(!session)
-        return -1;
+        goto shutdown;
 
     /* Since we have set non-blocking, tell libssh2 we are blocking */
     libssh2_session_set_blocking(session, 1);
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
-        return -1;
+        goto shutdown;
     }
 
     /* At this point we have not yet authenticated.  The first thing to do
