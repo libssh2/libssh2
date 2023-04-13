@@ -243,8 +243,9 @@ typedef struct __libssh2_wincng_hash_ctx {
                               SHA512_DIGEST_LENGTH, \
                               key, (unsigned long) keylen)
 #define libssh2_hmac_update(ctx, data, datalen) \
-    _libssh2_wincng_hash_update(&ctx, (const unsigned char *) data, \
-                                      (unsigned long) datalen)
+    _libssh2_wincng_hash_update(&ctx, \
+                                (const unsigned char *) data, \
+                                (unsigned long) datalen)
 #define libssh2_hmac_final(ctx, hash) \
     _libssh2_wincng_hmac_final(&ctx, hash)
 #define libssh2_hmac_cleanup(ctx) \
