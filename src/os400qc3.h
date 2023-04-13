@@ -2,7 +2,7 @@
 #define __LIBSSH2_OS400QC3_H
 /*
  * Copyright (C) 2015-2016 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
- * Copyright (C) 2020 Patrick Monnerat <patrick@monnerat.net>.
+ * Copyright (C) 2020-2023 Patrick Monnerat <patrick@monnerat.net>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -177,7 +177,7 @@
 #define LIBSSH2_3DES            1
 
 #define LIBSSH2_RSA             1
-#define LIBSSH2_RSA_SHA2        0
+#define LIBSSH2_RSA_SHA2        1
 #define LIBSSH2_DSA             0
 #define LIBSSH2_ECDSA           0
 #define LIBSSH2_ED25519         0
@@ -316,19 +316,19 @@ typedef struct {        /* Diffie-Hellman context. */
 #define _libssh2_cipher_type(name)  _libssh2_os400qc3_cipher_t name
 #define _libssh2_cipher_aes128 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
                                 Qc3_CBC, 16}
-#define _libssh2_cipher_aes192 {Qc3_Alg_Block_Cipher, Qc3_AES, 24,          \
+#define _libssh2_cipher_aes192 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
                                 Qc3_CBC, 24}
-#define _libssh2_cipher_aes256 {Qc3_Alg_Block_Cipher, Qc3_AES, 32,          \
+#define _libssh2_cipher_aes256 {Qc3_Alg_Block_Cipher, Qc3_AES, 16,          \
                                 Qc3_CBC, 32}
 #define _libssh2_cipher_aes128ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16,       \
                                    Qc3_CTR, 16}
-#define _libssh2_cipher_aes192ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 24,       \
+#define _libssh2_cipher_aes192ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16,       \
                                    Qc3_CTR, 24}
-#define _libssh2_cipher_aes256ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 32,       \
+#define _libssh2_cipher_aes256ctr {Qc3_Alg_Block_Cipher, Qc3_AES, 16,       \
                                    Qc3_CTR, 32}
-#define _libssh2_cipher_3des {Qc3_Alg_Block_Cipher, Qc3_TDES, 0,            \
+#define _libssh2_cipher_3des {Qc3_Alg_Block_Cipher, Qc3_TDES, 8,            \
                               Qc3_CBC, 24}
-#define _libssh2_cipher_arcfour {Qc3_Alg_Stream_Cipher, Qc3_RC4, 0, 0, 16}
+#define _libssh2_cipher_arcfour {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
 
 #define _libssh2_cipher_dtor(ctx) _libssh2_os400qc3_crypto_dtor(ctx)
 
@@ -338,8 +338,22 @@ typedef struct {        /* Diffie-Hellman context. */
 #define libssh2_prepare_iovec(vec, len) memset((char *) (vec), 0,           \
                                                (len) * sizeof(struct iovec))
 #define _libssh2_rsa_sha1_signv(session, sig, siglen, count, vector, ctx)   \
-            _libssh2_os400qc3_rsa_sha1_signv(session, sig, siglen,          \
+            _libssh2_os400qc3_rsa_signv(session, Qc3_SHA1, sig, siglen,     \
                                              count, vector, ctx)
+#define _libssh2_rsa_sha2_256_signv(session, sig, siglen, cnt, vector, ctx) \
+            _libssh2_os400qc3_rsa_signv(session, Qc3_SHA256, sig, siglen,   \
+                                             cnt, vector, ctx)
+#define _libssh2_rsa_sha2_512_signv(session, sig, siglen, cnt, vector, ctx) \
+            _libssh2_os400qc3_rsa_signv(session, Qc3_SHA512, sig, siglen,   \
+                                             cnt, vector, ctx)
+
+/* Default generate and safe prime sizes for diffie-hellman-group-exchange-sha1
+   Qc3 is limited to a maximum 2048-bit modulus/key size. */
+#define LIBSSH2_DH_GEX_MINGROUP     1024
+#define LIBSSH2_DH_GEX_OPTGROUP     1536
+#define LIBSSH2_DH_GEX_MAXGROUP     2048
+
+#define LIBSSH2_DH_MAX_MODULUS_BITS 2048
 
 #define _libssh2_dh_ctx         _libssh2_os400qc3_dh_ctx
 #define libssh2_dh_init(dhctx)  _libssh2_os400qc3_dh_init(dhctx)
@@ -383,12 +397,12 @@ extern void     libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
                                              int len);
 extern void     libssh2_os400qc3_hmac_final(_libssh2_os400qc3_crypto_ctx *ctx,
                                             unsigned char *out);
-extern int      _libssh2_os400qc3_rsa_sha1_signv(LIBSSH2_SESSION *session,
-                                                 unsigned char **signature,
-                                                 size_t *signature_len,
-                                                 int veccount,
-                                                 const struct iovec vector[],
-                                                 libssh2_rsa_ctx *ctx);
+extern int      _libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
+                                            unsigned char **signature,
+                                            size_t *signature_len,
+                                            int veccount,
+                                            const struct iovec vector[],
+                                            libssh2_rsa_ctx *ctx);
 extern void     _libssh2_os400qc3_dh_init(_libssh2_dh_ctx *dhctx);
 extern int      _libssh2_os400qc3_dh_key_pair(_libssh2_dh_ctx *dhctx,
                                               _libssh2_bn *public,

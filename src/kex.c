@@ -263,8 +263,11 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
         rc = libssh2_dh_key_pair(&exchange_state->x, exchange_state->e, g, p,
                                  group_order, exchange_state->ctx);
-        if(rc)
+        if(rc) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
+                                 "dh key pair generation failed");
             goto clean_exit;
+        }
 
         /* Send KEX init */
         /* packet_type(1) + String Length(4) + leading 0(1) */
