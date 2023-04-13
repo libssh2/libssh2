@@ -48,6 +48,10 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       set(WARNOPTS_ENABLE "-W")
     endif()
 
+    list(APPEND WARNOPTS_ENABLE
+      -pedantic
+    )
+
     # ----------------------------------
     # Add new options here, if in doubt:
     # ----------------------------------
@@ -60,7 +64,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     # Assume these options always exist with both clang and gcc.
     # Require clang 3.0 / gcc 2.95 or later.
     list(APPEND WARNOPTS_ENABLE
-      -pedantic
       -Wconversion                         # clang  3.0  gcc  2.95
       -Winline                             # clang  1.0  gcc  1.0
       -Wmissing-declarations               # clang  1.0  gcc  2.7
