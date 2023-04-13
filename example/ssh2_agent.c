@@ -36,10 +36,11 @@ int main(int argc, char *argv[])
 {
     uint32_t hostaddr;
     libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
-    int i, rc;
+    int i;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
+    int rc;
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_AGENT *agent = NULL;
