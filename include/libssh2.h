@@ -89,10 +89,10 @@ extern "C" {
 #endif
 
 #if defined(_WIN32) || defined(WIN32)
-#define _LIBSSH2_WIN32
+#define LIBSSH2_WIN32
 #endif
 
-#ifdef _LIBSSH2_WIN32
+#ifdef LIBSSH2_WIN32
 # include <basetsd.h>
 # include <winsock2.h>
 #endif
@@ -104,7 +104,7 @@ extern "C" {
 
 /* Allow alternate API prefix from CFLAGS or calling app */
 #ifndef LIBSSH2_API
-# ifdef _LIBSSH2_WIN32
+# ifdef LIBSSH2_WIN32
 #  if defined(LIBSSH2_EXPORTS) || defined(DLL_EXPORT) || defined(_WINDLL)
 #   ifdef LIBSSH2_LIBRARY
 #    define LIBSSH2_API __declspec(dllexport)
@@ -114,9 +114,9 @@ extern "C" {
 #  else
 #   define LIBSSH2_API
 #  endif
-# else /* !_LIBSSH2_WIN32 */
+# else /* !LIBSSH2_WIN32 */
 #  define LIBSSH2_API
-# endif /* _LIBSSH2_WIN32 */
+# endif /* LIBSSH2_WIN32 */
 #endif /* LIBSSH2_API */
 
 #ifdef HAVE_SYS_UIO_H
@@ -142,13 +142,13 @@ typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
 #endif
 
-#ifdef _LIBSSH2_WIN32
+#ifdef LIBSSH2_WIN32
 typedef SOCKET libssh2_socket_t;
 #define LIBSSH2_INVALID_SOCKET INVALID_SOCKET
-#else /* !_LIBSSH2_WIN32 */
+#else /* !LIBSSH2_WIN32 */
 typedef int libssh2_socket_t;
 #define LIBSSH2_INVALID_SOCKET -1
-#endif /* _LIBSSH2_WIN32 */
+#endif /* LIBSSH2_WIN32 */
 
 /*
  * Determine whether there is small or large file support on windows.
@@ -174,7 +174,7 @@ typedef int libssh2_socket_t;
 #  undef LIBSSH2_USE_WIN32_LARGE_FILES
 #endif
 
-#if defined(_LIBSSH2_WIN32) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES) && \
+#if defined(LIBSSH2_WIN32) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES) && \
     !defined(LIBSSH2_USE_WIN32_SMALL_FILES)
 #  define LIBSSH2_USE_WIN32_SMALL_FILES
 #endif
