@@ -2447,7 +2447,7 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             /* Pass ownership to dhctx; these parameters will be freed when
              * the context is destroyed. We need to keep the parameters more
              * easily available so that we have access to the `g` value when
-             * _libssh2_dh_secret is called later. */
+             * _libssh2_dh_secret() is called later. */
             dhctx->dh_params = dh_params;
         }
         dh_params = NULL;

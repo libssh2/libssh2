@@ -606,7 +606,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             }
 
             /*
-             * _libssh2_debug will actually truncate this for us so
+             * _libssh2_debug() will actually truncate this for us so
              * that it's not an inordinate about of data
              */
             _libssh2_debug((session, LIBSSH2_TRACE_TRANS,

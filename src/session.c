@@ -356,7 +356,7 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 }
 
 /*
- * get_socket_nonblocking()
+ * get_socket_nonblocking
  *
  * gets the given blocking or non-blocking state of the socket.
  */
@@ -602,7 +602,7 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
 #endif
 
 /*
- * _libssh2_wait_socket()
+ * _libssh2_wait_socket
  *
  * Utility function that waits for action on the socket. Returns 0 when ready
  * to run again or error on timeout.
@@ -853,7 +853,7 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 }
 
 /*
- * libssh2_session_handshake()
+ * libssh2_session_handshake
  *
  * session: LIBSSH2_SESSION struct allocated and owned by the calling program
  * sock:    *must* be populated with an opened and connected socket.
@@ -871,7 +871,7 @@ libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 }
 
 /*
- * libssh2_session_startup()
+ * libssh2_session_startup
  *
  * DEPRECATED. Use libssh2_session_handshake() instead! This function is not
  * portable enough.
@@ -888,7 +888,7 @@ libssh2_session_startup(LIBSSH2_SESSION *session, int sock)
 }
 
 /*
- * libssh2_session_free
+ * session_free
  *
  * Frees the memory allocated to the session
  * Also closes and frees any channels attached to this session
@@ -1164,7 +1164,7 @@ libssh2_session_free(LIBSSH2_SESSION * session)
 }
 
 /*
- * libssh2_session_disconnect_ex
+ * session_disconnect
  */
 static int
 session_disconnect(LIBSSH2_SESSION *session, int reason,

@@ -54,7 +54,7 @@
 #include "userauth.h"
 #include "userauth_kbd_packet.h"
 
-/* libssh2_userauth_list
+/* userauth_list
  *
  * List authentication methods
  * Will yield successful login if "none" happens to be allowable for this user
@@ -1037,7 +1037,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                            &pubkeydata, &pubkeydata_len,
                                            privatekey, passphrase);
             if(rc)
-                /* libssh2_pub_priv_keyfile calls _libssh2_error() */
+                /* libssh2_pub_priv_keyfile() calls _libssh2_error() */
                 return rc;
         }
 
@@ -1798,10 +1798,10 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                           "username/public key combination");
 }
 
- /*
-  * userauth_publickey_frommemory
-  * Authenticate using a keypair from memory
-  */
+/*
+ * userauth_publickey_frommemory
+ * Authenticate using a keypair from memory
+ */
 static int
 userauth_publickey_frommemory(LIBSSH2_SESSION *session,
                               const char *username,
@@ -2282,7 +2282,9 @@ libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session,
     return rc;
 }
 
-/* libssh2_userauth_publickey_sk
+/*
+ * libssh2_userauth_publickey_sk
+ *
  * Authenticate using an external callback function
  */
 LIBSSH2_API int

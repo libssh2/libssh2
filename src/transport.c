@@ -605,7 +605,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
                 if(session->packAdd_state != libssh2_NB_state_idle) {
                     /* fullpacket only returns LIBSSH2_ERROR_EAGAIN if
-                     * libssh2_packet_add returns LIBSSH2_ERROR_EAGAIN. If
+                     * libssh2_packet_add() returns LIBSSH2_ERROR_EAGAIN. If
                      * that returns LIBSSH2_ERROR_EAGAIN but the packAdd_state
                      * is idle, then the packet has been added to the brigade,
                      * but some immediate action that was taken based on the

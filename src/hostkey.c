@@ -1367,7 +1367,7 @@ static int hostkey_type(const unsigned char *hostkey, size_t len)
 }
 
 /*
- * libssh2_session_hostkey()
+ * libssh2_session_hostkey
  *
  * Returns the server key and length.
  *

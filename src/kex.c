@@ -2196,7 +2196,6 @@ clean_exit:
  * supports SHA256/384/512 hashes based on negotiated ecdh method
  *
  */
-
 static int
 kex_method_ecdh_key_exchange
 (LIBSSH2_SESSION * session, key_exchange_state_low_t * key_state)
@@ -3052,6 +3051,7 @@ typedef struct _LIBSSH2_COMMON_METHOD
 } LIBSSH2_COMMON_METHOD;
 
 /* kex_method_strlen
+ *
  * Calculate the length of a particular method list's resulting string
  * Includes SUM(strlen() of each individual method plus 1 (for coma)) - 1
  * (because the last coma isn't used)
@@ -3296,7 +3296,7 @@ static int kexinit(LIBSSH2_SESSION * session)
 
 /* kex_agree_instr
  * Kex specific variant of strstr()
- * Needle must be precede by BOL or ',', and followed by ',' or EOL
+ * Needle must be preceded by BOL or ',', and followed by ',' or EOL
  */
 static unsigned char *
 kex_agree_instr(unsigned char *haystack, size_t haystack_len,
@@ -4055,7 +4055,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
 }
 
 /*
- * libssh2_session_supported_algs()
+ * libssh2_session_supported_algs
  * returns a number of returned algorithms (a positive number) on success,
  * a negative number on failure
  */

@@ -679,7 +679,7 @@ agent_free_identities(LIBSSH2_AGENT *agent)
 
 #define AGENT_PUBLICKEY_MAGIC 0x3bdefed2
 /*
- * agent_publickey_to_external()
+ * agent_publickey_to_external
  *
  * Copies data from the internal to the external representation struct.
  *
@@ -727,7 +727,7 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
 }
 
 /*
- * libssh2_agent_connect()
+ * libssh2_agent_connect
  *
  * Connect to an ssh-agent.
  *
@@ -747,7 +747,7 @@ libssh2_agent_connect(LIBSSH2_AGENT *agent)
 }
 
 /*
- * libssh2_agent_list_identities()
+ * libssh2_agent_list_identities
  *
  * Request ssh-agent to list identities.
  *
@@ -763,7 +763,7 @@ libssh2_agent_list_identities(LIBSSH2_AGENT *agent)
 }
 
 /*
- * libssh2_agent_get_identity()
+ * libssh2_agent_get_identity
  *
  * Traverse the internal list of public keys. Pass NULL to 'prev' to get
  * the first one. Or pass a pointer to the previously returned one to get the
@@ -800,7 +800,7 @@ libssh2_agent_get_identity(LIBSSH2_AGENT *agent,
 }
 
 /*
- * libssh2_agent_userauth()
+ * libssh2_agent_userauth
  *
  * Do publickey user authentication with the help of ssh-agent.
  *
@@ -830,7 +830,7 @@ libssh2_agent_userauth(LIBSSH2_AGENT *agent,
 }
 
 /*
- * libssh2_agent_disconnect()
+ * libssh2_agent_disconnect
  *
  * Close a connection to an ssh-agent.
  *
@@ -845,7 +845,7 @@ libssh2_agent_disconnect(LIBSSH2_AGENT *agent)
 }
 
 /*
- * libssh2_agent_free()
+ * libssh2_agent_free
  *
  * Free an ssh-agent handle.  This function also frees the internal
  * collection of public keys.
@@ -866,7 +866,7 @@ libssh2_agent_free(LIBSSH2_AGENT *agent)
 }
 
 /*
- * libssh2_agent_set_identity_path()
+ * libssh2_agent_set_identity_path
  *
  * Allows a custom agent socket path beyond SSH_AUTH_SOCK env
  *
@@ -891,7 +891,7 @@ libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path)
 }
 
 /*
- * libssh2_agent_get_identity_path()
+ * libssh2_agent_get_identity_path
  *
  * Returns the custom agent socket path if set
  *

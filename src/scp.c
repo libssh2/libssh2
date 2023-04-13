@@ -826,7 +826,7 @@ libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
 }
 
 /*
- * scp_send()
+ * scp_send
  *
  * Send a file using SCP
  *

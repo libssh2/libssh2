@@ -375,7 +375,7 @@ static const char table64[]=
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*
- * _libssh2_base64_encode()
+ * _libssh2_base64_encode
  *
  * Returns the length of the newly created base64 string. The third argument
  * is a pointer to an allocated area holding the base64 data. If something
@@ -656,7 +656,7 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
 /* this define is defined in misc.h for the correct platforms */
 #ifdef LIBSSH2_GETTIMEOFDAY_WIN32
 /*
- * gettimeofday
+ * _libssh2_gettimeofday
  * Implementation according to:
  * The Open Group Base Specifications Issue 6
  * IEEE Std 1003.1, 2004 Edition

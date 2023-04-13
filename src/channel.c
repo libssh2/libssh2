@@ -1207,13 +1207,14 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
                           "Unable to complete request for auth-agent");
 }
 
-/**
+/*
  * libssh2_channel_request_auth_agent
+ *
  * Requests that agent forwarding be enabled for the session. The
  * request must be sent over a specific channel, which starts the agent
  * listener on the remote side. Once the channel is closed, the agent
  * listener continues to exist.
- * */
+ */
 LIBSSH2_API int
 libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel)
 {
@@ -2017,7 +2018,7 @@ _libssh2_channel_extended_data(LIBSSH2_CHANNEL *channel, int ignore_mode)
 }
 
 /*
- * libssh2_channel_handle_extended_data2()
+ * libssh2_channel_handle_extended_data2
  *
  */
 LIBSSH2_API int

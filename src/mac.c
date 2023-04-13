@@ -40,6 +40,7 @@
 
 #if defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE)
 /* mac_none_MAC
+ *
  * Minimalist MAC: No MAC. DO NOT USE.
  *
  * The SSH2 Transport allows implementations to forego a message
