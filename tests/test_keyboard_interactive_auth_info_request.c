@@ -252,7 +252,7 @@ int test_case(int num,
     alloc_count = 0;
     free_count = 0;
     session = libssh2_session_init_ex(test_alloc, test_free, NULL, abstract);
-    if(session == NULL) {
+    if(!session) {
         fprintf(stderr, "libssh2_session_init_ex failed\n");
         return 1;
     }

@@ -120,7 +120,7 @@ LIBSSH2_SESSION *start_session_fixture(void)
     if(getenv("FIXTURE_TRACE_ALL")) {
         libssh2_trace(connected_session, ~0);
     }
-    if(connected_session == NULL) {
+    if(!connected_session) {
         fprintf(stderr, "libssh2_session_init_ex failed\n");
         return NULL;
     }

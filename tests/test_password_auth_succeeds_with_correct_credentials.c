@@ -11,12 +11,12 @@ int test(LIBSSH2_SESSION *session)
     const char *userauth_list =
         libssh2_userauth_list(session, USERNAME,
                               (unsigned int)strlen(USERNAME));
-    if(userauth_list == NULL) {
+    if(!userauth_list) {
         print_last_session_error("libssh2_userauth_list");
         return 1;
     }
 
-    if(strstr(userauth_list, "password") == NULL) {
+    if(!strstr(userauth_list, "password")) {
         fprintf(stderr, "'password' was expected in userauth list: %s\n",
                 userauth_list);
         return 1;

@@ -119,7 +119,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
 #else
     ret = pclose(pipe);
 #endif
-    if(ret != 0) {
+    if(ret) {
         fprintf(stderr, "Error running command '%s' (exit %d): %s\n",
                 command, ret, buf);
     }
@@ -235,7 +235,7 @@ static int is_running_inside_a_container(void)
     ssize_t read = 0;
     int found = 0;
     f = fopen(cgroup_filename, "r");
-    if(f == NULL) {
+    if(!f) {
         /* Don't go further, we are not in a container */
         return 0;
     }
@@ -337,14 +337,14 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     if(have_docker) {
         int res;
         res = ip_address_from_container(container_id, &ip_address);
-        if(res != 0) {
+        if(res) {
             fprintf(stderr, "Failed to get IP address for container %s\n",
                     container_id);
             goto cleanup;
         }
 
         res = port_from_container(container_id, &port_string);
-        if(res != 0) {
+        if(res) {
             fprintf(stderr, "Failed to get port for container %s\n",
                     container_id);
             goto cleanup;
@@ -424,7 +424,7 @@ int start_openssh_fixture(void)
     WSADATA wsadata;
 
     ret = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(ret != 0) {
+    if(ret) {
         fprintf(stderr, "WSAStartup failed with error: %d\n", ret);
         return 1;
     }
@@ -433,7 +433,7 @@ int start_openssh_fixture(void)
     have_docker = (getenv("OPENSSH_NO_DOCKER") == NULL);
 
     ret = build_openssh_server_docker_image();
-    if(ret == 0) {
+    if(!ret) {
         return start_openssh_server(&running_container_id);
     }
     else {
