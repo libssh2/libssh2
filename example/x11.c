@@ -243,7 +243,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
     if(rc > 0) {
         ssize_t nread;
 
-        memset((void *)buf, 0, bufsize);
+        memset(buf, 0, bufsize);
 
         /* Data in sock */
         nread = read(sock, buf, bufsize);
