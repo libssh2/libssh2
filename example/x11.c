@@ -321,7 +321,7 @@ main(int argc, char *argv[])
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == LIBSSH2_INVALID_SOCKET) {
-        perror("socket");
+        fprintf(stderr, "failed to open socket!\n");
         return -1;
     }
 
@@ -362,7 +362,7 @@ main(int argc, char *argv[])
     }
 
     /* Open a channel */
-    channel  = libssh2_channel_open_session(session);
+    channel = libssh2_channel_open_session(session);
     if(channel == NULL) {
         fprintf(stderr, "Failed to open a new channel\n");
         session_shutdown(session);

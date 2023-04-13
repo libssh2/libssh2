@@ -37,6 +37,13 @@
 #include <ctype.h>
 #include <time.h>
 
+static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+static const char *privkey = "/home/username/.ssh/id_rsa";
+static const char *username = "username";
+static const char *password = "password";
+static const char *loclfile = "sftp_write_nonblock.c";
+static const char *sftppath = "/tmp/sftp_write_nonblock.c";
+
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
@@ -75,12 +82,6 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
-    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
-    const char *privkey = "/home/username/.ssh/id_rsa";
-    const char *username = "username";
-    const char *password = "password";
-    const char *loclfile = "sftp_write_nonblock.c";
-    const char *sftppath = "/tmp/sftp_write_nonblock.c";
     int rc;
     FILE *local;
     LIBSSH2_SFTP *sftp_session;

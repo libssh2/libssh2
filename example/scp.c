@@ -28,6 +28,12 @@
 #include <stdio.h>
 #include <ctype.h>
 
+static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+static const char *privkey = "/home/username/.ssh/id_rsa";
+static const char *username = "username";
+static const char *password = "password";
+static const char *scppath = "/tmp/TEST";
+
 int main(int argc, char *argv[])
 {
     uint32_t hostaddr;
@@ -37,11 +43,6 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
-    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
-    const char *privkey = "/home/username/.ssh/id_rsa";
-    const char *username = "username";
-    const char *password = "password";
-    const char *scppath = "/tmp/TEST";
     libssh2_struct_stat fileinfo;
     int rc;
     libssh2_struct_stat_size got = 0;
@@ -78,9 +79,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /* Ultra basic "connect to port 22 on localhost"
-     * Your code is responsible for creating the socket establishing the
-     * connection
+    /* Ultra basic "connect to port 22 on localhost".  Your code is
+     * responsible for creating the socket establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
 

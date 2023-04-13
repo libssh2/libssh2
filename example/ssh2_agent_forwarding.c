@@ -42,6 +42,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+static const char *hostname = "127.0.0.1";
+static const char *commandline = "uptime";
+static const char *username;
+
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
@@ -74,17 +78,14 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 
 int main(int argc, char *argv[])
 {
-    const char *hostname = "127.0.0.1";
-    const char *commandline = "uptime";
-    const char *username    = NULL;
     uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
+    int rc;
     LIBSSH2_SESSION *session;
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_AGENT *agent = NULL;
     struct libssh2_agent_publickey *identity, *prev_identity = NULL;
-    int rc;
     int exitcode;
     char *exitsignal = (char *)"none";
     ssize_t bytecount = 0;
@@ -119,9 +120,8 @@ int main(int argc, char *argv[])
 
     hostaddr = inet_addr(hostname);
 
-    /* Ultra basic "connect to port 22 on localhost"
-     * Your code is responsible for creating the socket establishing the
-     * connection
+    /* Ultra basic "connect to port 22 on localhost".  Your code is
+     * responsible for creating the socket establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
 

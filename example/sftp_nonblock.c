@@ -40,6 +40,12 @@
 #include <stdio.h>
 #include <ctype.h>
 
+static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+static const char *privkey = "/home/username/.ssh/id_rsa";
+static const char *username = "username";
+static const char *password = "password";
+static const char *sftppath = "/tmp/TEST";
+
 #ifdef HAVE_GETTIMEOFDAY
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)
@@ -87,11 +93,6 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     LIBSSH2_SESSION *session;
-    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
-    const char *privkey = "/home/username/.ssh/id_rsa";
-    const char *username = "username";
-    const char *password = "password";
-    const char *sftppath = "/tmp/TEST";
 #ifdef HAVE_GETTIMEOFDAY
     struct timeval start;
     struct timeval end;

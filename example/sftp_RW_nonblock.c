@@ -113,9 +113,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /* Ultra basic "connect to port 22 on localhost"
-     * The application is responsible for creating the socket establishing
-     * the connection
+    /* Ultra basic "connect to port 22 on localhost".  Your code is
+     * responsible for creating the socket establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
