@@ -100,6 +100,10 @@ int main(int argc, char *argv[])
      * and establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock == LIBSSH2_INVALID_SOCKET) {
+        fprintf(stderr, "failed to create socket!\n");
+        return -1;
+    }
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
