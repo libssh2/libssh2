@@ -221,12 +221,15 @@ int main(int argc, char *argv[])
     libssh2_trace(session, ~0);
 #endif
 
-    /* Exec non-blocking on the remove host */
-    while(!(channel = libssh2_channel_open_session(session)) &&
-          libssh2_session_last_error(session, NULL, NULL, 0) ==
-          LIBSSH2_ERROR_EAGAIN) {
+    /* Exec non-blocking on the remote host */
+    do {
+        channel = libssh2_channel_open_session(session);
+        if(channel ||
+           libssh2_session_last_error(session, NULL, NULL, 0) !=
+           LIBSSH2_ERROR_EAGAIN)
+            break;
         waitsocket(sock, session);
-    }
+    } while(1);
     if(!channel) {
         fprintf(stderr, "Error\n");
         exit(1);
