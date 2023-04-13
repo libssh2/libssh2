@@ -155,7 +155,7 @@
 #define libssh2_hmac_final(ctx, data) \
   memcpy(data, gcry_md_read(ctx, 0), \
       gcry_md_get_algo_dlen(gcry_md_get_algo(ctx)))
-#define libssh2_hmac_cleanup(ctx) gcry_md_close (*ctx);
+#define libssh2_hmac_cleanup(ctx) gcry_md_close(*ctx)
 
 #define libssh2_crypto_init() gcry_control (GCRYCTL_DISABLE_SECMEM)
 #define libssh2_crypto_exit()

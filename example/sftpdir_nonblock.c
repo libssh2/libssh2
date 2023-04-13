@@ -185,9 +185,7 @@ int main(int argc, char *argv[])
 
         /* loop until we fail */
         while((rc = libssh2_sftp_readdir(sftp_handle, mem, sizeof(mem),
-                                         &attrs)) == LIBSSH2_ERROR_EAGAIN) {
-            ;
-        }
+                                         &attrs)) == LIBSSH2_ERROR_EAGAIN);
         if(rc > 0) {
             /* rc is the length of the file name in the mem
                buffer */

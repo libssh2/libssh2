@@ -410,14 +410,13 @@ _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
     return (ret == 1) ? 0 : -1;
 }
 
-#define LIBSSH2_ECDSA_VERIFY(digest_type)                           \
-{                                                                   \
-    unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];           \
-    libssh2_sha##digest_type(m, m_len, hash);                       \
-    ret = ECDSA_do_verify(hash, SHA##digest_type##_DIGEST_LENGTH,   \
-      ecdsa_sig, ec_key);                                           \
-                                                                    \
-}
+#define LIBSSH2_ECDSA_VERIFY(digest_type)                               \
+    do {                                                                \
+        unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];           \
+        libssh2_sha##digest_type(m, m_len, hash);                       \
+        ret = ECDSA_do_verify(hash, SHA##digest_type##_DIGEST_LENGTH,   \
+                              ecdsa_sig, ec_key);                       \
+    } while(0)
 
 int
 _libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ctx,

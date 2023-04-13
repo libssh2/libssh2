@@ -55,8 +55,8 @@ struct chan_X11_list {
     struct chan_X11_list *next;
 };
 
-struct chan_X11_list * gp_x11_chan = NULL;
-struct termios         _saved_tio;
+static struct chan_X11_list * gp_x11_chan = NULL;
+static struct termios         _saved_tio;
 
 /*
  * Utility function to remove a Node of the chained list

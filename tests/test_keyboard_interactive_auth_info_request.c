@@ -55,7 +55,8 @@ struct test_case {
 };
 
 #define TEST_CASES_LEN 16
-struct test_case test_cases[TEST_CASES_LEN] = {
+static const struct test_case
+    test_cases[TEST_CASES_LEN] = {
     /* too small */
     {
         NULL, 0,
@@ -191,7 +192,8 @@ struct test_case test_cases[TEST_CASES_LEN] = {
 };
 
 #define FAILED_MALLOC_TEST_CASES_LEN 2
-struct test_case failed_malloc_test_cases[FAILED_MALLOC_TEST_CASES_LEN] = {
+static const struct test_case
+    failed_malloc_test_cases[FAILED_MALLOC_TEST_CASES_LEN] = {
     /* malloc fail */
     {
         "<"
@@ -298,7 +300,8 @@ int main(void)
 
     for(i = 0; i < TEST_CASES_LEN; i++) {
         test_case(i + 1,
-                  test_cases[i].data, test_cases[i].data_len,
+                  test_cases[i].data,
+                  test_cases[i].data_len,
                   NULL,
                   test_cases[i].expected);
     }

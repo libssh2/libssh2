@@ -56,19 +56,19 @@ set(TESTS
   )
 
 if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
+  list(APPEND TESTS
+    public_key_auth_succeeds_with_correct_rsa_openssh_key
+  )
+  if(OPENSSL_VERSION VERSION_GREATER "1.1.0" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
     list(APPEND TESTS
-      public_key_auth_succeeds_with_correct_rsa_openssh_key
+      public_key_auth_succeeds_with_correct_ed25519_key
+      public_key_auth_succeeds_with_correct_encrypted_ed25519_key
+      public_key_auth_succeeds_with_correct_ed25519_key_from_mem
+      public_key_auth_succeeds_with_correct_ecdsa_key
+      public_key_auth_succeeds_with_correct_signed_ecdsa_key
+      public_key_auth_succeeds_with_correct_signed_rsa_key
     )
-    if(OPENSSL_VERSION VERSION_GREATER "1.1.0" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
-      list(APPEND TESTS
-        public_key_auth_succeeds_with_correct_ed25519_key
-        public_key_auth_succeeds_with_correct_encrypted_ed25519_key
-        public_key_auth_succeeds_with_correct_ed25519_key_from_mem
-        public_key_auth_succeeds_with_correct_ecdsa_key
-        public_key_auth_succeeds_with_correct_signed_ecdsa_key
-        public_key_auth_succeeds_with_correct_signed_rsa_key
-       )
-    endif()
+  endif()
 endif()
 
 if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
@@ -83,10 +83,11 @@ target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURC
 
 # test building against shared libssh2 lib
 if(BUILD_SHARED_LIBS)
-  set(test warmup)  # any test will do
-  add_executable(test_${test}_shared test_${test}.c)
-  target_include_directories(test_${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src)
-  target_link_libraries(test_${test}_shared runner ${LIB_SHARED} ${LIBRARIES})
+  foreach(test simple ssh2)
+    add_executable(test_${test}_shared ${test}.c)
+    target_include_directories(test_${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src)
+    target_link_libraries(test_${test}_shared ${LIB_SHARED} ${LIBRARIES})
+  endforeach()
 endif()
 
 foreach(test ${TESTS})
@@ -142,7 +143,7 @@ target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "
 find_program(GCOV_PATH gcov)
 set(TGT_OPTIONS -g --coverage -fprofile-abs-path)
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
-        set(TGT_OPTIONS -g --coverage)
+  set(TGT_OPTIONS -g --coverage)
 endif()
 if(CMAKE_COMPILER_IS_GNUCC AND GCOV_PATH)
   target_compile_options(test_keyboard_interactive_auth_info_request BEFORE PRIVATE

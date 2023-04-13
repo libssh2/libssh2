@@ -46,11 +46,11 @@ static const char *server_ip = "127.0.0.1";
 /* resolved by the server */
 static const char *remote_listenhost = "localhost";
 
-int remote_wantport = 2222;
-int remote_listenport;
+static int remote_wantport = 2222;
+static int remote_listenport;
 
 static const char *local_destip = "127.0.0.1";
-int local_destport = 22;
+static int local_destport = 22;
 
 enum {
     AUTH_NONE = 0,

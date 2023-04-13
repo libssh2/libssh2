@@ -128,20 +128,22 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
 }
 
 #define RECV_SEND_ALL(func, socket, buffer, length, flags, abstract) \
-    size_t finished = 0;                                             \
+    do {                                                             \
+        size_t finished = 0;                                         \
                                                                      \
-    while(finished < length) {                                       \
-        ssize_t rc;                                                  \
-        rc = func(socket,                                            \
-                  (char *)buffer + finished, length - finished,      \
-                  flags, abstract);                                  \
-        if(rc < 0)                                                   \
-            return rc;                                               \
+        while(finished < length) {                                   \
+            ssize_t rc;                                              \
+            rc = func(socket,                                        \
+                      (char *)buffer + finished, length - finished,  \
+                      flags, abstract);                              \
+            if(rc < 0)                                               \
+                return rc;                                           \
                                                                      \
-        finished += rc;                                              \
-    }                                                                \
+            finished += rc;                                          \
+        }                                                            \
                                                                      \
-    return finished;
+        return finished;                                             \
+    } while(0)
 
 static ssize_t _send_all(LIBSSH2_SEND_FUNC(func), libssh2_socket_t socket,
                          const void *buffer, size_t length,
@@ -242,7 +244,7 @@ agent_disconnect_unix(LIBSSH2_AGENT *agent)
     return LIBSSH2_ERROR_NONE;
 }
 
-struct agent_ops agent_ops_unix = {
+static struct agent_ops agent_ops_unix = {
     agent_connect_unix,
     agent_transact_unix,
     agent_disconnect_unix
@@ -347,7 +349,7 @@ agent_disconnect_pageant(LIBSSH2_AGENT *agent)
     return 0;
 }
 
-struct agent_ops agent_ops_pageant = {
+static struct agent_ops agent_ops_pageant = {
     agent_connect_pageant,
     agent_transact_pageant,
     agent_disconnect_pageant
