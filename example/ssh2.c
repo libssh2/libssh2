@@ -136,17 +136,7 @@ int main(int argc, char *argv[])
     }
 
     /* Enable all debugging when libssh2 was built with debugging enabled */
-    libssh2_trace(session,
-        LIBSSH2_TRACE_TRANS     |
-        LIBSSH2_TRACE_KEX       |
-        LIBSSH2_TRACE_AUTH      |
-        LIBSSH2_TRACE_CONN      |
-        LIBSSH2_TRACE_SCP       |
-        LIBSSH2_TRACE_SFTP      |
-        LIBSSH2_TRACE_ERROR     |
-        LIBSSH2_TRACE_PUBLICKEY |
-        LIBSSH2_TRACE_SOCKET
-    );
+    libssh2_trace(session, ~0);
 
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
