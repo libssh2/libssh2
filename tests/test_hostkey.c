@@ -20,7 +20,7 @@ int test(LIBSSH2_SESSION *session)
     int rc;
     size_t len;
     int type;
-    unsigned int expected_len = 0;
+    size_t expected_len = 0;
     char *expected_hostkey = NULL;
 
     const char *hostkey = libssh2_session_hostkey(session, &len, &type);
@@ -30,19 +30,19 @@ int test(LIBSSH2_SESSION *session)
     }
 
     if(type == LIBSSH2_HOSTKEY_TYPE_ED25519) {
-        rc = libssh2_base64_decode(session, &expected_hostkey, &expected_len,
-                 EXPECTED_ED25519_HOSTKEY,
-                 (unsigned int)strlen(EXPECTED_ED25519_HOSTKEY));
+        rc = _libssh2_base64_decode(session, &expected_hostkey, &expected_len,
+                                    EXPECTED_ED25519_HOSTKEY,
+                                    strlen(EXPECTED_ED25519_HOSTKEY));
     }
     else if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
-        rc = libssh2_base64_decode(session, &expected_hostkey, &expected_len,
-                 EXPECTED_ECDSA_HOSTKEY,
-                 (unsigned int)strlen(EXPECTED_ECDSA_HOSTKEY));
+        rc = _libssh2_base64_decode(session, &expected_hostkey, &expected_len,
+                                    EXPECTED_ECDSA_HOSTKEY,
+                                    strlen(EXPECTED_ECDSA_HOSTKEY));
     }
     else if(type == LIBSSH2_HOSTKEY_TYPE_RSA) {
-        rc = libssh2_base64_decode(session, &expected_hostkey, &expected_len,
-                 EXPECTED_RSA_HOSTKEY,
-                 (unsigned int)strlen(EXPECTED_RSA_HOSTKEY));
+        rc = _libssh2_base64_decode(session, &expected_hostkey, &expected_len,
+                                    EXPECTED_RSA_HOSTKEY,
+                                    strlen(EXPECTED_RSA_HOSTKEY));
     }
     else {
         fprintf(stderr, "Unexpected type of hostkey: %i\n", type);
@@ -50,13 +50,13 @@ int test(LIBSSH2_SESSION *session)
     }
 
     if(rc) {
-        print_last_session_error("libssh2_base64_decode");
+        print_last_session_error("_libssh2_base64_decode");
         return 1;
     }
 
     if(len != expected_len) {
-        fprintf(stderr, "Hostkey does not have the expected length %ld!=%d\n",
-                (unsigned long)len, expected_len);
+        fprintf(stderr, "Hostkey does not have the expected length %ld!=%ld\n",
+                (unsigned long)len, (unsigned long)expected_len);
         return 1;
     }
 
