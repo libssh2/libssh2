@@ -40,41 +40,44 @@ list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 add_definitions(-DHAVE_CONFIG_H)
 
 set(TESTS
-  warmup
-  hostkey
-  hostkey_hash
-  password_auth_succeeds_with_correct_credentials
-  password_auth_fails_with_wrong_password
-  password_auth_fails_with_wrong_username
-  public_key_auth_fails_with_wrong_key
-  public_key_auth_succeeds_with_correct_rsa_key
-  public_key_auth_succeeds_with_correct_encrypted_rsa_key
-  keyboard_interactive_auth_fails_with_wrong_response
-  keyboard_interactive_auth_succeeds_with_correct_response
-  agent_forward_succeeds
-  read
-  )
+  simple
+  ssh2
+  test_warmup    # keep this the first test
+  test_hostkey
+  test_hostkey_hash
+  test_password_auth_succeeds_with_correct_credentials
+  test_password_auth_fails_with_wrong_password
+  test_password_auth_fails_with_wrong_username
+  test_public_key_auth_fails_with_wrong_key
+  test_public_key_auth_succeeds_with_correct_rsa_key
+  test_public_key_auth_succeeds_with_correct_encrypted_rsa_key
+  test_keyboard_interactive_auth_fails_with_wrong_response
+  test_keyboard_interactive_auth_succeeds_with_correct_response
+  test_keyboard_interactive_auth_info_request
+  test_agent_forward_succeeds
+  test_read
+)
 
 if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
   list(APPEND TESTS
-    public_key_auth_succeeds_with_correct_rsa_openssh_key
+    test_public_key_auth_succeeds_with_correct_rsa_openssh_key
   )
   if(OPENSSL_VERSION VERSION_GREATER "1.1.0" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
     list(APPEND TESTS
-      public_key_auth_succeeds_with_correct_ed25519_key
-      public_key_auth_succeeds_with_correct_encrypted_ed25519_key
-      public_key_auth_succeeds_with_correct_ed25519_key_from_mem
-      public_key_auth_succeeds_with_correct_ecdsa_key
-      public_key_auth_succeeds_with_correct_signed_ecdsa_key
-      public_key_auth_succeeds_with_correct_signed_rsa_key
+      test_public_key_auth_succeeds_with_correct_ed25519_key
+      test_public_key_auth_succeeds_with_correct_encrypted_ed25519_key
+      test_public_key_auth_succeeds_with_correct_ed25519_key_from_mem
+      test_public_key_auth_succeeds_with_correct_ecdsa_key
+      test_public_key_auth_succeeds_with_correct_signed_ecdsa_key
+      test_public_key_auth_succeeds_with_correct_signed_rsa_key
     )
   endif()
 endif()
 
 if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
   list(APPEND TESTS
-    public_key_auth_succeeds_with_correct_dsa_key
-    )
+    test_public_key_auth_succeeds_with_correct_dsa_key
+  )
 endif()
 
 add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
@@ -83,22 +86,42 @@ target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURC
 
 # test building against shared libssh2 lib
 if(BUILD_SHARED_LIBS)
-  foreach(test simple ssh2)
-    add_executable(test_${test}_shared ${test}.c)
-    target_include_directories(test_${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src)
-    target_link_libraries(test_${test}_shared ${LIB_SHARED} ${LIBRARIES})
+  foreach(test ssh2)
+    add_executable(${test}_shared ${test}.c)
+    target_include_directories(${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src)
+    target_link_libraries(${test}_shared ${LIB_SHARED} ${LIBRARIES})
   endforeach()
 endif()
 
-foreach(test ${TESTS})
-  add_executable(test_${test} test_${test}.c)
-  list(APPEND TEST_TARGETS test_${test})
-  target_include_directories(test_${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src)
-  target_link_libraries(test_${test} runner ${LIB_STATIC} ${LIBRARIES})
+if(CMAKE_COMPILER_IS_GNUCC)
+  find_program(GCOV_PATH gcov)
+  if(GCOV_PATH)
+    set(GCOV_OPTIONS -g --coverage)
+    if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+      set(GCOV_OPTIONS "${GCOV_OPTIONS} -fprofile-abs-path")
+    endif()
+  endif()
+endif()
 
-  add_test(
-    NAME test_${test} COMMAND $<TARGET_FILE:test_${test}>
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+foreach(test ${TESTS})
+  add_executable(${test} ${test}.c)
+  target_compile_definitions(${test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
+  target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src "${CRYPTO_BACKEND_INCLUDE_DIR}")
+
+  # build a single test with gcov
+  if(GCOV_PATH AND test STREQUAL test_keyboard_interactive_auth_info_request)
+    target_compile_options(${test} BEFORE PRIVATE ${GCOV_OPTIONS})
+    target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES} gcov)
+  else()
+    target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES})
+  endif()
+
+  if(test MATCHES "^test_")
+    list(APPEND TEST_TARGETS ${test})
+    add_test(
+      NAME ${test} COMMAND $<TARGET_FILE:${test}>
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  endif()
 endforeach()
 
 # MAC tests
@@ -109,7 +132,7 @@ foreach(test
   hmac-sha1-96
   hmac-sha2-256
   hmac-sha2-512
-  )
+)
   add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
   set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
 endforeach()
@@ -119,7 +142,7 @@ set(TESTS
   aes128-ctr
   aes192-ctr
   aes256-ctr
-  )
+)
 # Due to a bug with mbedTLS support, these crypt methods fail. Until that bug
 # is fixed, don't run them there to avoid this known issue causing red tests.
 # See https://github.com/libssh2/libssh2/issues/793
@@ -130,31 +153,12 @@ if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
     aes192-cbc
     aes256-cbc
     rijndael-cbc@lysator.liu.se
-    )
+  )
 endif()
 foreach(test ${TESTS})
   add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
   set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
 endforeach()
-
-add_executable(test_keyboard_interactive_auth_info_request test_keyboard_interactive_auth_info_request.c ../src/userauth_kbd_packet.c)
-target_compile_definitions(test_keyboard_interactive_auth_info_request PRIVATE "${CRYPTO_BACKEND_DEFINE}")
-target_include_directories(test_keyboard_interactive_auth_info_request PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src "${CRYPTO_BACKEND_INCLUDE_DIR}")
-find_program(GCOV_PATH gcov)
-set(TGT_OPTIONS -g --coverage -fprofile-abs-path)
-if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
-  set(TGT_OPTIONS -g --coverage)
-endif()
-if(CMAKE_COMPILER_IS_GNUCC AND GCOV_PATH)
-  target_compile_options(test_keyboard_interactive_auth_info_request BEFORE PRIVATE
-    ${TGT_OPTIONS})
-  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} ${LIB_STATIC} gcov)
-else()
-  target_link_libraries(test_keyboard_interactive_auth_info_request ${LIBRARIES} ${LIB_STATIC})
-endif()
-add_test(
-  NAME test_keyboard_interactive_auth_info_request COMMAND $<TARGET_FILE:test_keyboard_interactive_auth_info_request>
-  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_custom_target(coverage
   COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/*
