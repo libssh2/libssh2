@@ -299,12 +299,12 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     filemap = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
                                  0, PAGEANT_MAX_MSGLEN, mapname);
 
-    if(filemap == NULL || filemap == INVALID_HANDLE_VALUE)
+    if(!filemap || filemap == INVALID_HANDLE_VALUE)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                               "failed setting up pageant filemap");
 
     p2 = p = MapViewOfFile(filemap, FILE_MAP_WRITE, 0, 0, 0);
-    if(p == NULL || p2 == NULL) {
+    if(!p || !p2) {
         CloseHandle(filemap);
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                               "failed to open pageant filemap for writing");

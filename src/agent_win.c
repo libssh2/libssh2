@@ -184,7 +184,7 @@ agent_connect_openssh(LIBSSH2_AGENT *agent)
     }
 
     event = CreateEventA(NULL, TRUE, FALSE, NULL);
-    if(event == NULL) {
+    if(!event) {
         ret = _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                              "unable to create async I/O event");
         goto cleanup;

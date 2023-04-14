@@ -430,7 +430,7 @@ int start_openssh_fixture(void)
     }
 #endif
 
-    have_docker = (getenv("OPENSSH_NO_DOCKER") == NULL);
+    have_docker = !getenv("OPENSSH_NO_DOCKER");
 
     ret = build_openssh_server_docker_image();
     if(!ret) {

@@ -1675,7 +1675,7 @@ kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
     int ret = 0;
     libssh2_curve_type type;
 
-    if(name == NULL)
+    if(!name)
         return -1;
 
     if(strcmp(name, "ecdh-sha2-nistp256") == 0)
@@ -3306,7 +3306,7 @@ kex_agree_instr(unsigned char *haystack, size_t haystack_len,
     unsigned char *end_haystack;
     size_t left;
 
-    if(haystack == NULL || needle == NULL) {
+    if(!haystack || !needle) {
         return NULL;
     }
 

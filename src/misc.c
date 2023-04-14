@@ -86,7 +86,7 @@ int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
 int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
                          const char *errmsg, int errflags)
 {
-    if(session == NULL) {
+    if(!session) {
         if(errmsg)
             fprintf(stderr, "Session is NULL, error: %s\n", errmsg);
         return errcode;
@@ -756,7 +756,7 @@ struct string_buf *_libssh2_string_buf_new(LIBSSH2_SESSION *session)
     struct string_buf *ret;
 
     ret = _libssh2_calloc(session, sizeof(*ret));
-    if(ret == NULL)
+    if(!ret)
         return NULL;
 
     return ret;
@@ -764,7 +764,7 @@ struct string_buf *_libssh2_string_buf_new(LIBSSH2_SESSION *session)
 
 void _libssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf)
 {
-    if(buf == NULL)
+    if(!buf)
         return;
 
     if(buf->data)

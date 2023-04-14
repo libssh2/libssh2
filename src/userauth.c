@@ -596,7 +596,7 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     }
 
     sp1 = memchr(pubkey, ' ', pubkey_len);
-    if(sp1 == NULL) {
+    if(!sp1) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Invalid public key data");
@@ -605,7 +605,7 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     sp1++;
 
     sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey));
-    if(sp2 == NULL) {
+    if(!sp2) {
         /* Assume that the id string is missing, but that it's okay */
         sp2 = pubkey + pubkey_len;
     }
@@ -700,7 +700,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     }
 
     sp1 = memchr(pubkey, ' ', pubkey_len);
-    if(sp1 == NULL) {
+    if(!sp1) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Invalid public key data");
@@ -710,7 +710,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
 
     sp_len = sp1 > pubkey ? (sp1 - pubkey) : 0;
     sp2 = memchr(sp1, ' ', pubkey_len - sp_len);
-    if(sp2 == NULL) {
+    if(!sp2) {
         /* Assume that the id string is missing, but that it's okay */
         sp2 = pubkey + pubkey_len;
     }
@@ -1305,7 +1305,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
                                            *key_method,
                                            *key_method_len);
 
-    if(supported_algs == NULL || session->server_sign_algorithms == NULL) {
+    if(!supported_algs || !session->server_sign_algorithms) {
         /* no upgrading key algorithm supported, do nothing */
         return LIBSSH2_ERROR_NONE;
     }
