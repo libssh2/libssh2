@@ -69,7 +69,7 @@ _libssh2_mbedtls_init(void)
     ret = mbedtls_ctr_drbg_seed(&_libssh2_mbedtls_ctr_drbg,
                                 mbedtls_entropy_func,
                                 &_libssh2_mbedtls_entropy, NULL, 0);
-    if(ret != 0)
+    if(ret)
         mbedtls_ctr_drbg_free(&_libssh2_mbedtls_ctr_drbg);
 }
 
@@ -348,9 +348,9 @@ _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
 
     /* !checksrc! disable ASSIGNWITHINCONDITION 1 */
     if((ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(E)),
-                                      edata, elen) ) != 0 ||
+                                      edata, elen)) ||
        (ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(N)),
-                                      ndata, nlen) ) != 0) {
+                                      ndata, nlen))) {
         ret = -1;
     }
 
@@ -362,18 +362,17 @@ _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
     if(!ret && ddata) {
         /* !checksrc! disable ASSIGNWITHINCONDITION 1 */
         if((ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(D)),
-                                          ddata, dlen) ) != 0 ||
+                                          ddata, dlen)) ||
            (ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(P)),
-                                          pdata, plen) ) != 0 ||
+                                          pdata, plen)) ||
            (ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(Q)),
-                                          qdata, qlen) ) != 0 ||
+                                          qdata, qlen)) ||
            (ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(DP)),
-                                          e1data, e1len) ) != 0 ||
+                                          e1data, e1len)) ||
            (ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(DQ)),
-                                          e2data, e2len) ) != 0 ||
+                                          e2data, e2len)) ||
            (ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(QP)),
-                                          coeffdata, coefflen) )
-           != 0) {
+                                          coeffdata, coefflen))) {
             ret = -1;
         }
         ret = mbedtls_rsa_check_privkey(ctx);
@@ -418,7 +417,7 @@ _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
 #else
     ret = mbedtls_pk_parse_keyfile(&pkey, filename, (char *)passphrase);
 #endif
-    if(ret != 0 || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
+    if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(&pkey);
         mbedtls_rsa_free(*rsa);
         LIBSSH2_FREE(session, *rsa);
@@ -476,7 +475,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 #endif
     _libssh2_mbedtls_safe_free(filedata_nullterm, filedata_len);
 
-    if(ret != 0 || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
+    if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(&pkey);
         mbedtls_rsa_free(*rsa);
         LIBSSH2_FREE(session, *rsa);
@@ -524,7 +523,7 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
     }
     ret = _libssh2_mbedtls_hash(m, m_len, md_type, hash);
 
-    if(ret != 0) {
+    if(ret) {
         free(hash);
         return -1; /* failure */
     }
@@ -742,7 +741,7 @@ _libssh2_mbedtls_pub_priv_keyfile(LIBSSH2_SESSION *session,
 #else
     ret = mbedtls_pk_parse_keyfile(&pkey, privatekey, passphrase);
 #endif
-    if(ret != 0) {
+    if(ret) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
         mbedtls_pk_free(&pkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE, buf);
@@ -800,7 +799,7 @@ _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 #endif
     _libssh2_mbedtls_safe_free(privatekeydata_nullterm, privatekeydata_len);
 
-    if(ret != 0) {
+    if(ret) {
         mbedtls_strerror(ret, (char *)buf, sizeof(buf));
         mbedtls_pk_free(&pkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE, buf);
@@ -923,7 +922,7 @@ _libssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
 
     if(mbedtls_ecdsa_genkey(*privkey, (mbedtls_ecp_group_id)curve,
                             mbedtls_ctr_drbg_random,
-                            &_libssh2_mbedtls_ctr_drbg) != 0)
+                            &_libssh2_mbedtls_ctr_drbg))
         goto failed;
 
     plen = 2 * mbedtls_mpi_size(&(*privkey)->MBEDTLS_PRIVATE(grp).P) + 1;
@@ -967,12 +966,12 @@ _libssh2_mbedtls_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ctx,
     mbedtls_ecdsa_init(*ctx);
 
     if(mbedtls_ecp_group_load(&(*ctx)->MBEDTLS_PRIVATE(grp),
-                              (mbedtls_ecp_group_id)curve) != 0)
+                              (mbedtls_ecp_group_id)curve))
         goto failed;
 
     if(mbedtls_ecp_point_read_binary(&(*ctx)->MBEDTLS_PRIVATE(grp),
                                      &(*ctx)->MBEDTLS_PRIVATE(Q),
-                                     k, k_len) != 0)
+                                     k, k_len))
         goto failed;
 
     if(mbedtls_ecp_check_pubkey(&(*ctx)->MBEDTLS_PRIVATE(grp),
@@ -1009,7 +1008,7 @@ _libssh2_mbedtls_ecdh_gen_k(_libssh2_bn **k,
 
     if(mbedtls_ecp_point_read_binary(&privkey->MBEDTLS_PRIVATE(grp),
                                      &pubkey,
-                                     server_pubkey, server_pubkey_len) != 0) {
+                                     server_pubkey, server_pubkey_len)) {
         rc = -1;
         goto cleanup;
     }
@@ -1018,12 +1017,12 @@ _libssh2_mbedtls_ecdh_gen_k(_libssh2_bn **k,
                                    &pubkey,
                                    &privkey->MBEDTLS_PRIVATE(d),
                                    mbedtls_ctr_drbg_random,
-                                   &_libssh2_mbedtls_ctr_drbg) != 0) {
+                                   &_libssh2_mbedtls_ctr_drbg)) {
         rc = -1;
         goto cleanup;
     }
 
-    if(mbedtls_ecp_check_privkey(&privkey->MBEDTLS_PRIVATE(grp), *k) != 0)
+    if(mbedtls_ecp_check_privkey(&privkey->MBEDTLS_PRIVATE(grp), *k))
         rc = -1;
 
 cleanup:
@@ -1062,10 +1061,10 @@ _libssh2_mbedtls_ecdsa_verify(libssh2_ecdsa_ctx *ctx,
     mbedtls_mpi_init(&pr);
     mbedtls_mpi_init(&ps);
 
-    if(mbedtls_mpi_read_binary(&pr, r, r_len) != 0)
+    if(mbedtls_mpi_read_binary(&pr, r, r_len))
         goto cleanup;
 
-    if(mbedtls_mpi_read_binary(&ps, s, s_len) != 0)
+    if(mbedtls_mpi_read_binary(&ps, s, s_len))
         goto cleanup;
 
     switch(_libssh2_ecdsa_get_curve_type(ctx)) {
@@ -1105,11 +1104,11 @@ _libssh2_mbedtls_parse_eckey(libssh2_ecdsa_ctx **ctx,
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
     if(mbedtls_pk_parse_key(pkey, data, data_len, pwd, pwd_len,
                             mbedtls_ctr_drbg_random,
-                            &_libssh2_mbedtls_ctr_drbg) != 0)
+                            &_libssh2_mbedtls_ctr_drbg))
 
         goto failed;
 #else
-    if(mbedtls_pk_parse_key(pkey, data, data_len, pwd, pwd_len) != 0)
+    if(mbedtls_pk_parse_key(pkey, data, data_len, pwd, pwd_len))
         goto failed;
 #endif
 
@@ -1149,23 +1148,23 @@ _libssh2_mbedtls_parse_openssh_key(libssh2_ecdsa_ctx **ctx,
 
     if(_libssh2_openssh_pem_parse_memory(session, pwd,
                                          (const char *)data, data_len,
-                                         &decrypted) != 0)
+                                         &decrypted))
         goto failed;
 
-    if(_libssh2_get_string(decrypted, &name, NULL) != 0)
+    if(_libssh2_get_string(decrypted, &name, NULL))
         goto failed;
 
     if(_libssh2_mbedtls_ecdsa_curve_type_from_name((const char *)name,
-                                                   &type) != 0)
+                                                   &type))
         goto failed;
 
-    if(_libssh2_get_string(decrypted, &curve, &curvelen) != 0)
+    if(_libssh2_get_string(decrypted, &curve, &curvelen))
         goto failed;
 
-    if(_libssh2_get_string(decrypted, &point_buf, &pointlen) != 0)
+    if(_libssh2_get_string(decrypted, &point_buf, &pointlen))
         goto failed;
 
-    if(_libssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen) != 0)
+    if(_libssh2_get_bignum_bytes(decrypted, &exponent, &exponentlen))
         goto failed;
 
     *ctx = LIBSSH2_ALLOC(session, sizeof(libssh2_ecdsa_ctx));
@@ -1176,11 +1175,11 @@ _libssh2_mbedtls_parse_openssh_key(libssh2_ecdsa_ctx **ctx,
     mbedtls_ecdsa_init(*ctx);
 
     if(mbedtls_ecp_group_load(&(*ctx)->MBEDTLS_PRIVATE(grp),
-                              (mbedtls_ecp_group_id)type) != 0)
+                              (mbedtls_ecp_group_id)type))
         goto failed;
 
     if(mbedtls_mpi_read_binary(&(*ctx)->MBEDTLS_PRIVATE(d),
-                               exponent, exponentlen) != 0)
+                               exponent, exponentlen))
         goto failed;
 
     if(mbedtls_ecp_mul(&(*ctx)->MBEDTLS_PRIVATE(grp),
@@ -1188,7 +1187,7 @@ _libssh2_mbedtls_parse_openssh_key(libssh2_ecdsa_ctx **ctx,
                        &(*ctx)->MBEDTLS_PRIVATE(d),
                        &(*ctx)->MBEDTLS_PRIVATE(grp).G,
                        mbedtls_ctr_drbg_random,
-                       &_libssh2_mbedtls_ctr_drbg) != 0)
+                       &_libssh2_mbedtls_ctr_drbg))
         goto failed;
 
     if(mbedtls_ecp_check_privkey(&(*ctx)->MBEDTLS_PRIVATE(grp),
@@ -1225,7 +1224,7 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ctx,
     unsigned char *data;
     size_t data_len;
 
-    if(mbedtls_pk_load_file(filename, &data, &data_len) != 0)
+    if(mbedtls_pk_load_file(filename, &data, &data_len))
         goto cleanup;
 
     mbedtls_pk_init(&pkey);
@@ -1341,7 +1340,7 @@ _libssh2_mbedtls_ecdsa_sign(LIBSSH2_SESSION *session,
                           &ctx->MBEDTLS_PRIVATE(d),
                           hash, hash_len,
                           mbedtls_ctr_drbg_random,
-                          &_libssh2_mbedtls_ctr_drbg) != 0)
+                          &_libssh2_mbedtls_ctr_drbg))
         goto cleanup;
 
     r_len = mbedtls_mpi_size(&pr) + 1;

@@ -10,6 +10,5 @@ perl ./ci/checksrc.pl -i4 -m79 \
   -ACOPYRIGHT \
   -AFOPENMODE \
   -AEQUALSNULL \
-  -ANOTEQUALSZERO \
   -ATYPEDEFSTRUCT \
   $WHITELIST $FILES

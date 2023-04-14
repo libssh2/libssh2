@@ -1866,7 +1866,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         /* Compute the shared secret K */
         rc = _libssh2_ecdh_gen_k(&exchange_state->k, private_key,
                                  server_public_key, server_public_key_len);
-        if(rc != 0) {
+        if(rc) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
                                  "Unable to create ECDH shared secret");
             goto clean_exit;
@@ -1909,7 +1909,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                 break;
         }
 
-        if(rc != 0) {
+        if(rc) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
                                  "Unable to verify hostkey signature");
             goto clean_exit;
@@ -2214,7 +2214,7 @@ kex_method_ecdh_key_exchange
     if(key_state->state == libssh2_NB_state_created) {
         rc = kex_session_ecdh_curve_type(session->kex->name, &type);
 
-        if(rc != 0) {
+        if(rc) {
             ret = _libssh2_error(session, -1,
                                  "Unknown KEX nistp curve type");
             goto ecdh_clean_exit;
@@ -2224,7 +2224,7 @@ kex_method_ecdh_key_exchange
                                        &key_state->public_key_oct,
                                        &key_state->public_key_oct_len, type);
 
-        if(rc != 0) {
+        if(rc) {
             ret = _libssh2_error(session, rc,
                                  "Unable to create private key");
             goto ecdh_clean_exit;
@@ -2277,7 +2277,7 @@ kex_method_ecdh_key_exchange
 
         rc = kex_session_ecdh_curve_type(session->kex->name, &type);
 
-        if(rc != 0) {
+        if(rc) {
             ret = _libssh2_error(session, -1,
                                  "Unknown KEX nistp curve type");
             goto ecdh_clean_exit;
@@ -2505,7 +2505,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         /* Compute the shared secret K */
         rc = _libssh2_curve25519_gen_k(&exchange_state->k, private_key,
                                        server_public_key);
-        if(rc != 0) {
+        if(rc) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
                                  "Unable to create ECDH shared secret");
             goto clean_exit;
@@ -2536,7 +2536,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         /*/ verify hash */
         LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
 
-        if(rc != 0) {
+        if(rc) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
                                  "Unable to verify hostkey signature");
             goto clean_exit;
@@ -2827,10 +2827,10 @@ kex_method_curve25519_key_exchange
         unsigned char *s = NULL;
 
         rc = strcmp(session->kex->name, "curve25519-sha256@libssh.org");
-        if(rc != 0)
+        if(rc)
             rc = strcmp(session->kex->name, "curve25519-sha256");
 
-        if(rc != 0) {
+        if(rc) {
             ret = _libssh2_error(session, -1,
                                  "Unknown KEX curve25519 curve type");
             goto clean_exit;
@@ -2840,7 +2840,7 @@ kex_method_curve25519_key_exchange
                                      &key_state->curve25519_public_key,
                                      &key_state->curve25519_private_key);
 
-        if(rc != 0) {
+        if(rc) {
             ret = _libssh2_error(session, rc,
                                  "Unable to create private key");
             goto clean_exit;
@@ -4134,7 +4134,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     }
 
     /* weird situation, no algorithm found */
-    if(0 == ialg)
+    if(ialg == 0)
         return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                               "No algorithm found");
 

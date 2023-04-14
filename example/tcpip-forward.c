@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "failed to recv()!\n");
                 goto shutdown;
             }
-            else if(0 == len) {
+            else if(len == 0) {
                 fprintf(stderr, "The local server at %s:%d disconnected!\n",
                     local_destip, local_destport);
                 goto shutdown;

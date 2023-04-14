@@ -939,7 +939,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
         else if(!rc)
             /* remain in the same state */
             goto scp_send_empty_channel;
-        else if(session->scpSend_response[0] != 0) {
+        else if(session->scpSend_response[0]) {
             _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                            "Invalid ACK response from remote");
             goto scp_send_error;
@@ -994,7 +994,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
             else if(!rc)
                 /* remain in the same state */
                 goto scp_send_empty_channel;
-            else if(session->scpSend_response[0] != 0) {
+            else if(session->scpSend_response[0]) {
                 _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                "Invalid SCP ACK response");
                 goto scp_send_error;
@@ -1064,7 +1064,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
         else if(rc == 0)
             goto scp_send_empty_channel;
 
-        else if(session->scpSend_response[0] != 0) {
+        else if(session->scpSend_response[0]) {
             size_t err_len;
             char *err_msg;
 

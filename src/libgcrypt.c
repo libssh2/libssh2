@@ -98,12 +98,12 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
     rc = gcry_sexp_build(&s_hash, NULL,
                          "(data (flags pkcs1) (hash sha1 %b))",
                          SHA_DIGEST_LENGTH, hash);
-    if(rc != 0) {
+    if(rc) {
         return -1;
     }
 
     rc = gcry_sexp_build(&s_sig, NULL, "(sig-val(rsa(s %b)))", sig_len, sig);
-    if(rc != 0) {
+    if(rc) {
         gcry_sexp_release(s_hash);
         return -1;
     }
@@ -200,55 +200,55 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
     }
 /* First read Version field (should be 0). */
     ret = _libssh2_pem_decode_integer(&data, &datalen, &n, &nlen);
-    if(ret != 0 || (nlen != 1 && *n != '\0')) {
+    if(ret || (nlen != 1 && *n != '\0')) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &n, &nlen);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &e, &elen);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &d, &dlen);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &p, &plen);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &q, &qlen);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &e1, &e1len);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &e2, &e2len);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &coeff, &coefflen);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
@@ -318,42 +318,42 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
 
 /* First read Version field (should be 0). */
     ret = _libssh2_pem_decode_integer(&data, &datalen, &p, &plen);
-    if(ret != 0 || (plen != 1 && *p != '\0')) {
+    if(ret || (plen != 1 && *p != '\0')) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &p, &plen);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &q, &qlen);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &g, &glen);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &y, &ylen);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
 
     ret = _libssh2_pem_decode_integer(&data, &datalen, &x, &xlen);
-    if(ret != 0) {
+    if(ret) {
         ret = -1;
         goto fail;
     }
 
-    if(datalen != 0) {
+    if(datalen) {
         ret = -1;
         goto fail;
     }
@@ -397,7 +397,7 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
 
     gcry_sexp_release(data);
 
-    if(rc != 0) {
+    if(rc) {
         return -1;
     }
 
@@ -458,7 +458,7 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 
     gcry_sexp_release(data);
 
-    if(ret != 0) {
+    if(ret) {
         return -1;
     }
 
