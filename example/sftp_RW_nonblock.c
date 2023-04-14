@@ -217,10 +217,10 @@ int main(int argc, char *argv[])
     do {
         sftp_handle = libssh2_sftp_open(sftp_session, sftppath,
                                         LIBSSH2_FXF_READ, 0);
-
         if(!sftp_handle) {
             if(libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
-                fprintf(stderr, "Unable to open file with SFTP\n");
+                fprintf(stderr, "Unable to open file with SFTP: %ld\n",
+                        libssh2_sftp_last_error(sftp_session));
                 goto shutdown;
             }
             else {
@@ -283,11 +283,13 @@ int main(int argc, char *argv[])
 
     /* we're done downloading, now reverse the process and upload the
        temporarily stored data to the destination path */
-    sftp_handle =
-        libssh2_sftp_open(sftp_session, dest,
-                          LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT,
-                          LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|
-                          LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH);
+    sftp_handle = libssh2_sftp_open(sftp_session, dest,
+                                    LIBSSH2_FXF_WRITE |
+                                    LIBSSH2_FXF_CREAT,
+                                    LIBSSH2_SFTP_S_IRUSR |
+                                    LIBSSH2_SFTP_S_IWUSR |
+                                    LIBSSH2_SFTP_S_IRGRP |
+                                    LIBSSH2_SFTP_S_IROTH);
     if(sftp_handle) {
         size_t nread;
         char *ptr;

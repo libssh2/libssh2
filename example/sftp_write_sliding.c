@@ -83,9 +83,9 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     int rc;
     LIBSSH2_SESSION *session = NULL;
-    FILE *local;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
+    FILE *local;
     char mem[1024 * 1000];
     size_t nread;
     ssize_t nwritten;
@@ -230,18 +230,17 @@ int main(int argc, char *argv[])
                                         LIBSSH2_SFTP_S_IROTH);
         if(!sftp_handle &&
            libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
-            fprintf(stderr, "Unable to open file with SFTP\n");
+            fprintf(stderr, "Unable to open file with SFTP: %ld\n",
+                    libssh2_sftp_last_error(sftp_session));
             goto shutdown;
         }
     } while(!sftp_handle);
 
     fprintf(stderr, "libssh2_sftp_open() is done, now send data!\n");
-
     start = time(NULL);
-
-    memuse = 0; /* it starts blank */
+    memuse = 0;  /* it starts blank */
     do {
-        nread = fread(&mem[memuse], 1, sizeof(mem)-memuse, local);
+        nread = fread(&mem[memuse], 1, sizeof(mem) - memuse, local);
         if(nread <= 0) {
             /* end of file */
             if(memuse > 0)
@@ -272,7 +271,7 @@ int main(int argc, char *argv[])
 
     } while(nwritten > 0);
 
-    duration = (int)(time(NULL)-start);
+    duration = (int)(time(NULL) - start);
 
     fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
             (long)total, duration, (double)total / duration);

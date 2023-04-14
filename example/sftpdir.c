@@ -232,11 +232,11 @@ int main(int argc, char *argv[])
     fprintf(stderr, "libssh2_sftp_opendir()!\n");
     /* Request a dir listing via SFTP */
     sftp_handle = libssh2_sftp_opendir(sftp_session, sftppath);
-
     if(!sftp_handle) {
         fprintf(stderr, "Unable to open dir with SFTP\n");
         goto shutdown;
     }
+
     fprintf(stderr, "libssh2_sftp_opendir() is done, now receive listing!\n");
     do {
         char mem[512];

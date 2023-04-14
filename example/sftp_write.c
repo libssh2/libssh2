@@ -46,9 +46,9 @@ int main(int argc, char *argv[])
     const char *fingerprint;
     int rc;
     LIBSSH2_SESSION *session = NULL;
-    FILE *local;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
+    FILE *local;
     char mem[1024 * 100];
     size_t nread;
     ssize_t nwritten;
@@ -180,9 +180,11 @@ int main(int argc, char *argv[])
                                     LIBSSH2_SFTP_S_IRGRP |
                                     LIBSSH2_SFTP_S_IROTH);
     if(!sftp_handle) {
-        fprintf(stderr, "Unable to open file with SFTP\n");
+        fprintf(stderr, "Unable to open file with SFTP: %ld\n",
+                libssh2_sftp_last_error(sftp_session));
         goto shutdown;
     }
+
     fprintf(stderr, "libssh2_sftp_open() is done, now send data!\n");
     do {
         nread = fread(mem, 1, sizeof(mem), local);

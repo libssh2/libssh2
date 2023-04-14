@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
         } while(nread);
     } while(!nread); /* only continue if nread was drained */
 
-    duration = (int)(time(NULL)-start);
+    duration = (int)(time(NULL) - start);
 
     fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
            (long)total, duration, (double)total / duration);

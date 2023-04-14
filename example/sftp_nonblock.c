@@ -235,10 +235,10 @@ int main(int argc, char *argv[])
     do {
         sftp_handle = libssh2_sftp_open(sftp_session, sftppath,
                                         LIBSSH2_FXF_READ, 0);
-
         if(!sftp_handle) {
             if(libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
-                fprintf(stderr, "Unable to open file with SFTP\n");
+                fprintf(stderr, "Unable to open file with SFTP: %ld\n",
+                        libssh2_sftp_last_error(sftp_session));
                 goto shutdown;
             }
             else {
