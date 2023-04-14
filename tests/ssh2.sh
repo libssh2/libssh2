@@ -8,7 +8,7 @@
 srcdir="${srcdir:-$PWD}"
 SSHD="${SSHD:-/usr/sbin/sshd}"
 
-cmd="./ssh2${EXEEXT}"
+cmd="./test_ssh2${EXEEXT}"
 srcdir="$(cd "$srcdir" || exit; pwd)"
 
 export PRIVKEY="$srcdir/etc/user"

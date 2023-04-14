@@ -39,60 +39,6 @@ list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 add_definitions(-DHAVE_CONFIG_H)
 
-set(TESTS
-  simple
-  ssh2
-  test_warmup    # keep this the first test
-  test_hostkey
-  test_hostkey_hash
-  test_password_auth_succeeds_with_correct_credentials
-  test_password_auth_fails_with_wrong_password
-  test_password_auth_fails_with_wrong_username
-  test_public_key_auth_fails_with_wrong_key
-  test_public_key_auth_succeeds_with_correct_rsa_key
-  test_public_key_auth_succeeds_with_correct_encrypted_rsa_key
-  test_keyboard_interactive_auth_fails_with_wrong_response
-  test_keyboard_interactive_auth_succeeds_with_correct_response
-  test_keyboard_interactive_auth_info_request
-  test_agent_forward_succeeds
-  test_read
-)
-
-if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
-  list(APPEND TESTS
-    test_public_key_auth_succeeds_with_correct_rsa_openssh_key
-  )
-  if(OPENSSL_VERSION VERSION_GREATER "1.1.0" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
-    list(APPEND TESTS
-      test_public_key_auth_succeeds_with_correct_ed25519_key
-      test_public_key_auth_succeeds_with_correct_encrypted_ed25519_key
-      test_public_key_auth_succeeds_with_correct_ed25519_key_from_mem
-      test_public_key_auth_succeeds_with_correct_ecdsa_key
-      test_public_key_auth_succeeds_with_correct_signed_ecdsa_key
-      test_public_key_auth_succeeds_with_correct_signed_rsa_key
-    )
-  endif()
-endif()
-
-if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
-  list(APPEND TESTS
-    test_public_key_auth_succeeds_with_correct_dsa_key
-  )
-endif()
-
-add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
-target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include)
-target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
-
-# test building against shared libssh2 lib
-if(BUILD_SHARED_LIBS)
-  foreach(test ssh2)
-    add_executable(${test}_shared ${test}.c)
-    target_include_directories(${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src)
-    target_link_libraries(${test}_shared ${LIB_SHARED} ${LIBRARIES})
-  endforeach()
-endif()
-
 if(CMAKE_COMPILER_IS_GNUCC)
   find_program(GCOV_PATH gcov)
   if(GCOV_PATH)
@@ -103,20 +49,61 @@ if(CMAKE_COMPILER_IS_GNUCC)
   endif()
 endif()
 
+set(TESTS
+  test_aa_warmup  # keep this first
+  test_agent_forward_ok
+  test_auth_keyboard_fail
+  test_auth_keyboard_info_request
+  test_auth_keyboard_ok
+  test_auth_password_fail_password
+  test_auth_password_fail_username
+  test_auth_password_ok
+  test_auth_pubkey_fail
+  test_auth_pubkey_ok_dsa
+  test_auth_pubkey_ok_ecdsa
+  test_auth_pubkey_ok_ecdsa_signed
+  test_auth_pubkey_ok_ed25519
+  test_auth_pubkey_ok_ed25519_encrypted
+  test_auth_pubkey_ok_ed25519_mem
+  test_auth_pubkey_ok_rsa
+  test_auth_pubkey_ok_rsa_encrypted
+  test_auth_pubkey_ok_rsa_openssh
+  test_auth_pubkey_ok_rsa_signed
+  test_hostkey
+  test_hostkey_hash
+  test_read
+  test_simple
+  test_ssh2
+)
+
+add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
+target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
+target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include "${CRYPTO_BACKEND_INCLUDE_DIR}")
+target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+
+# test building against shared libssh2 lib
+if(BUILD_SHARED_LIBS)
+  foreach(test test_ssh2)
+    add_executable(${test}_shared ${test}.c)
+    target_include_directories(${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src)
+    target_link_libraries(${test}_shared ${LIB_SHARED} ${LIBRARIES})
+  endforeach()
+endif()
+
 foreach(test ${TESTS})
   add_executable(${test} ${test}.c)
   target_compile_definitions(${test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
   target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src "${CRYPTO_BACKEND_INCLUDE_DIR}")
 
   # build a single test with gcov
-  if(GCOV_PATH AND test STREQUAL test_keyboard_interactive_auth_info_request)
+  if(GCOV_PATH AND test STREQUAL test_auth_keyboard_info_request)
     target_compile_options(${test} BEFORE PRIVATE ${GCOV_OPTIONS})
     target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES} gcov)
   else()
     target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES})
   endif()
 
-  if(test MATCHES "^test_")
+  if(NOT test STREQUAL "test_ssh2")  # skip test that needs ssh2.sh to run
     list(APPEND TEST_TARGETS ${test})
     add_test(
       NAME ${test} COMMAND $<TARGET_FILE:${test}>
@@ -138,24 +125,16 @@ foreach(test
 endforeach()
 
 # CRYPT tests
-set(TESTS
+foreach(test
+  3des-cbc
+  aes128-cbc
   aes128-ctr
+  aes192-cbc
   aes192-ctr
+  aes256-cbc
   aes256-ctr
+  rijndael-cbc@lysator.liu.se
 )
-# Due to a bug with mbedTLS support, these crypt methods fail. Until that bug
-# is fixed, don't run them there to avoid this known issue causing red tests.
-# See https://github.com/libssh2/libssh2/issues/793
-if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
-  list(APPEND TESTS
-    3des-cbc
-    aes128-cbc
-    aes192-cbc
-    aes256-cbc
-    rijndael-cbc@lysator.liu.se
-  )
-endif()
-foreach(test ${TESTS})
   add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
   set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
 endforeach()

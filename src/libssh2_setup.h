@@ -73,7 +73,8 @@
 # ifndef _CRT_SECURE_NO_WARNINGS
 # define _CRT_SECURE_NO_WARNINGS  /* for fopen(), getenv() */
 # endif
-# ifndef LIBSSH2_LIBRARY  /* apply to examples and tests only */
+# if !defined(LIBSSH2_LIBRARY) || defined(LIBSSH2_TESTS)
+   /* apply to examples and tests only */
 #  ifndef _CRT_NONSTDC_NO_DEPRECATE
 #  define _CRT_NONSTDC_NO_DEPRECATE  /* for strdup(), write() */
 #  endif

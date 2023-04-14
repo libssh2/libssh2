@@ -2,7 +2,7 @@
 
 #include "runner.h"
 
-/* configured in Dockerfile */
+/* set in Dockerfile */
 static const char *USERNAME = "libssh2";
 static const char *KEY_FILE_PRIVATE = "key_rsa";
 static const char *KEY_FILE_PUBLIC = "key_rsa.pub";
@@ -43,9 +43,11 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    rc = libssh2_userauth_publickey_fromfile_ex(
-        session, USERNAME, (unsigned int)strlen(USERNAME),
-        srcdir_path(KEY_FILE_PUBLIC), srcdir_path(KEY_FILE_PRIVATE), NULL);
+    rc = libssh2_userauth_publickey_fromfile_ex(session, USERNAME,
+                                                (unsigned int)strlen(USERNAME),
+                                                srcdir_path(KEY_FILE_PUBLIC),
+                                                srcdir_path(KEY_FILE_PRIVATE),
+                                                NULL);
     if(rc) {
         print_last_session_error("libssh2_userauth_publickey_fromfile_ex");
         return 1;
