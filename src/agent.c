@@ -115,10 +115,10 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
                               "failed creating socket");
 
     s_un.sun_family = AF_UNIX;
-    strncpy(s_un.sun_path, path, sizeof s_un.sun_path);
+    strncpy(s_un.sun_path, path, sizeof(s_un.sun_path));
     s_un.sun_path[sizeof(s_un.sun_path)-1] = 0; /* make sure there's a trailing
                                                    zero */
-    if(connect(agent->fd, (struct sockaddr*)(&s_un), sizeof s_un) != 0) {
+    if(connect(agent->fd, (struct sockaddr*)(&s_un), sizeof(s_un)) != 0) {
         close(agent->fd);
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
                               "failed connecting with agent");
@@ -171,7 +171,7 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     if(transctx->state == agent_NB_state_request_created) {
         _libssh2_htonu32(buf, (uint32_t)transctx->request_len);
         rc = (int)_send_all(agent->session->send, agent->fd,
-                            buf, sizeof buf, 0,
+                            buf, sizeof(buf), 0,
                             &agent->session->abstract);
         if(rc == -EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
@@ -197,7 +197,7 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     /* Receive the length of a response */
     if(transctx->state == agent_NB_state_request_sent) {
         rc = (int)_recv_all(agent->session->recv, agent->fd,
-                            buf, sizeof buf, 0,
+                            buf, sizeof(buf), 0,
                             &agent->session->abstract);
         if(rc < 0) {
             if(rc == -EAGAIN)
@@ -594,7 +594,7 @@ agent_list_identities(LIBSSH2_AGENT *agent)
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
             goto error;
         }
-        identity = LIBSSH2_ALLOC(agent->session, sizeof *identity);
+        identity = LIBSSH2_ALLOC(agent->session, sizeof(*identity));
         if(!identity) {
             rc = LIBSSH2_ERROR_ALLOC;
             goto error;
@@ -706,7 +706,7 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
 {
     LIBSSH2_AGENT *agent;
 
-    agent = LIBSSH2_CALLOC(session, sizeof *agent);
+    agent = LIBSSH2_CALLOC(session, sizeof(*agent));
     if(!agent) {
         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                        "Unable to allocate space for agent connection");
@@ -756,7 +756,7 @@ libssh2_agent_connect(LIBSSH2_AGENT *agent)
 LIBSSH2_API int
 libssh2_agent_list_identities(LIBSSH2_AGENT *agent)
 {
-    memset(&agent->transctx, 0, sizeof agent->transctx);
+    memset(&agent->transctx, 0, sizeof(agent->transctx));
     /* Abandon the last fetched identities */
     agent_free_identities(agent);
     return agent_list_identities(agent);
@@ -815,7 +815,7 @@ libssh2_agent_userauth(LIBSSH2_AGENT *agent,
     int rc;
 
     if(agent->session->userauth_pblc_state == libssh2_NB_state_idle) {
-        memset(&agent->transctx, 0, sizeof agent->transctx);
+        memset(&agent->transctx, 0, sizeof(agent->transctx));
         agent->identity = identity->node;
     }
 

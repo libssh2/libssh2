@@ -80,7 +80,6 @@ coverage: init-coverage build-coverage gen-coverage
 
 checksrc:
 	perl ci/checksrc.pl -i4 -m79 \
-	  -ASIZEOFNOPAREN \
 	  -ASNPRINTF \
 	  -ACOPYRIGHT \
 	  -AFOPENMODE \

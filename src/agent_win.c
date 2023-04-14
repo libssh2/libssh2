@@ -262,7 +262,7 @@ agent_transact_openssh(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     /* Send the length of the request */
     if(transctx->state == agent_NB_state_request_created) {
         _libssh2_htonu32(buf, (uint32_t)transctx->request_len);
-        rc = win32_openssh_send_all(agent, buf, sizeof buf,
+        rc = win32_openssh_send_all(agent, buf, sizeof(buf),
                                     &transctx->send_recv_total);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
@@ -287,7 +287,7 @@ agent_transact_openssh(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
 
     /* Receive the length of the body */
     if(transctx->state == agent_NB_state_request_sent) {
-        rc = win32_openssh_recv_all(agent, buf, sizeof buf,
+        rc = win32_openssh_recv_all(agent, buf, sizeof(buf),
                                     &transctx->send_recv_total);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return LIBSSH2_ERROR_EAGAIN;
