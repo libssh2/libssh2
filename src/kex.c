@@ -3327,7 +3327,8 @@ kex_agree_instr(unsigned char *haystack, size_t haystack_len,
 
     /* Search until we run out of comas or we run out of haystack,
        whichever comes first */
-    while((s = (unsigned char *) memchr((char *) s, ',', left))) {
+    /* !checksrc! disable EQUALSNULL 1 */
+    while((s = (unsigned char *) memchr((char *) s, ',', left)) != NULL) {
         /* Advance buffer past coma if we can */
         left = end_haystack - s;
         if((left >= 1) && (left <= haystack_len) && (left > needle_len)) {
