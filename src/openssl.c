@@ -3250,7 +3250,7 @@ _libssh2_ed25519_verify(libssh2_ed25519_ctx *ctx, const uint8_t *s,
     int ret = -1;
 
     EVP_MD_CTX *md_ctx = EVP_MD_CTX_new();
-    if(NULL == md_ctx)
+    if(!md_ctx)
         return -1;
 
     ret = EVP_DigestVerifyInit(md_ctx, NULL, NULL, NULL, ctx);

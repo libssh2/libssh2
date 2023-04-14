@@ -252,7 +252,7 @@ libssh2_userauth_list(LIBSSH2_SESSION * session, const char *user,
 LIBSSH2_API int
 libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
 {
-    if(NULL == session)
+    if(!session)
         return LIBSSH2_ERROR_MISSING_USERAUTH_BANNER;
 
     if(!session->userauth_banner) {
@@ -1923,7 +1923,7 @@ libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 {
     int rc;
 
-    if(NULL == passphrase)
+    if(!passphrase)
         /* if given a NULL pointer, make it point to a zero-length
            string to save us from having to check this all over */
         passphrase = "";
@@ -1951,7 +1951,7 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 {
     int rc;
 
-    if(NULL == passphrase)
+    if(!passphrase)
         /* if given a NULL pointer, make it point to a zero-length
            string to save us from having to check this all over */
         passphrase = "";

@@ -1901,10 +1901,10 @@ LIBSSH2_API const char *
 libssh2_session_banner_get(LIBSSH2_SESSION *session)
 {
     /* to avoid a coredump when session is NULL */
-    if(NULL == session)
+    if(!session)
         return NULL;
 
-    if(NULL == session->remote.banner)
+    if(!session->remote.banner)
         return NULL;
 
     return (const char *) session->remote.banner;

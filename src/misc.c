@@ -400,7 +400,7 @@ size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
         insize = strlen(indata);
 
     base64data = output = LIBSSH2_ALLOC(session, insize * 4 / 3 + 4);
-    if(NULL == output)
+    if(!output)
         return 0;
 
     while(insize > 0) {

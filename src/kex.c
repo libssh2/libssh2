@@ -4070,7 +4070,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     const LIBSSH2_COMMON_METHOD **mlist;
 
     /* to prevent coredumps due to dereferencing of NULL */
-    if(NULL == algs)
+    if(!algs)
         return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE,
                               "algs must not be NULL");
 
@@ -4110,7 +4110,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     }  /* switch */
 
     /* weird situation */
-    if(NULL == mlist)
+    if(!mlist)
         return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                               "No algorithm found");
 
@@ -4140,7 +4140,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
 
     /* allocate buffer */
     *algs = (const char **) LIBSSH2_ALLOC(session, ialg*sizeof(const char *));
-    if(NULL == *algs) {
+    if(!*algs) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Memory allocation failed");
     }
@@ -4148,7 +4148,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
 
     /* copy non-NULL pointers only */
     for(i = 0, j = 0; mlist[i] && j < ialg; i++) {
-        if(NULL == mlist[i]->name) {
+        if(!mlist[i]->name) {
             /* maybe a weird situation but if it occurs, do not include NULL
                pointers */
             continue;
