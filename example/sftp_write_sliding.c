@@ -4,7 +4,7 @@
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * "sftp 192.168.0.1 user password file /tmp/storehere"
+ * $ ./sftp_write_sliding 192.168.0.1 user password thisfile /tmp/storehere
  */
 
 #include "libssh2_setup.h"
@@ -36,6 +36,13 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <time.h>
+
+static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
+static const char *privkey = "/home/username/.ssh/id_rsa";
+static const char *username = "username";
+static const char *password = "password";
+static const char *loclfile = "sftp_write_nonblock.c";
+static const char *sftppath = "/tmp/sftp_write_nonblock.c";
 
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
@@ -74,32 +81,25 @@ int main(int argc, char *argv[])
     int i, auth_pw = 1;
     struct sockaddr_in sin;
     const char *fingerprint;
-    LIBSSH2_SESSION *session;
-    const char *pubkey = "/home/username/.ssh/id_rsa.pub";
-    const char *privkey = "/home/username/.ssh/id_rsa";
-    const char *username = "username";
-    const char *password = "password";
-    const char *loclfile = "sftp_write_nonblock.c";
-    const char *sftppath = "/tmp/sftp_write_nonblock.c";
     int rc;
-    FILE *local;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
+    FILE *local;
     char mem[1024 * 1000];
     size_t nread;
-    size_t memuse;
     ssize_t nwritten;
+    size_t memuse;
     time_t start;
     libssh2_struct_stat_size total = 0;
     int duration;
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #endif
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
     local = fopen(loclfile, "rb");
     if(!local) {
         fprintf(stderr, "Can't open local file %s\n", loclfile);
-        return -1;
+        return 1;
     }
 
     /*
@@ -140,20 +140,25 @@ int main(int argc, char *argv[])
      * and establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock == LIBSSH2_INVALID_SOCKET) {
+        fprintf(stderr, "failed to create socket!\n");
+        goto shutdown;
+    }
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
-        return -1;
+        goto shutdown;
     }
 
-    /* Create a session instance
-     */
+    /* Create a session instance */
     session = libssh2_session_init();
-    if(!session)
-        return -1;
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session!\n");
+        goto shutdown;
+    }
 
     /* Since we have set non-blocking, tell libssh2 we are non-blocking */
     libssh2_session_set_blocking(session, 0);
@@ -161,11 +166,11 @@ int main(int argc, char *argv[])
     /* ... start it up. This will trade welcome banners, exchange keys,
      * and setup crypto, compression, and MAC layers
      */
-    while((rc = libssh2_session_handshake(session, sock))
-           == LIBSSH2_ERROR_EAGAIN);
+    while((rc = libssh2_session_handshake(session, sock)) ==
+          LIBSSH2_ERROR_EAGAIN);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
-        return -1;
+        goto shutdown;
     }
 
     /* At this point we have not yet authenticated.  The first thing to do
@@ -183,9 +188,9 @@ int main(int argc, char *argv[])
     if(auth_pw) {
         /* We could authenticate via password */
         while((rc = libssh2_userauth_password(session, username, password)) ==
-               LIBSSH2_ERROR_EAGAIN);
+              LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed!\n");
             goto shutdown;
         }
     }
@@ -196,7 +201,7 @@ int main(int argc, char *argv[])
                                                         password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "\tAuthentication by public key failed\n");
+            fprintf(stderr, "Authentication by public key failed!\n");
             goto shutdown;
         }
     }
@@ -206,7 +211,7 @@ int main(int argc, char *argv[])
         sftp_session = libssh2_sftp_init(session);
 
         if(!sftp_session &&
-            (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
+           libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
             fprintf(stderr, "Unable to init SFTP session\n");
             goto shutdown;
         }
@@ -215,26 +220,27 @@ int main(int argc, char *argv[])
     fprintf(stderr, "libssh2_sftp_open()!\n");
     /* Request a file via SFTP */
     do {
-        sftp_handle =
-            libssh2_sftp_open(sftp_session, sftppath,
-                              LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|
-                              LIBSSH2_FXF_TRUNC,
-                              LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|
-                              LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH);
+        sftp_handle = libssh2_sftp_open(sftp_session, sftppath,
+                                        LIBSSH2_FXF_WRITE |
+                                        LIBSSH2_FXF_CREAT |
+                                        LIBSSH2_FXF_TRUNC,
+                                        LIBSSH2_SFTP_S_IRUSR |
+                                        LIBSSH2_SFTP_S_IWUSR |
+                                        LIBSSH2_SFTP_S_IRGRP |
+                                        LIBSSH2_SFTP_S_IROTH);
         if(!sftp_handle &&
-           (libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN)) {
-            fprintf(stderr, "Unable to open file with SFTP\n");
+           libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {
+            fprintf(stderr, "Unable to open file with SFTP: %ld\n",
+                    libssh2_sftp_last_error(sftp_session));
             goto shutdown;
         }
     } while(!sftp_handle);
 
     fprintf(stderr, "libssh2_sftp_open() is done, now send data!\n");
-
     start = time(NULL);
-
-    memuse = 0; /* it starts blank */
+    memuse = 0;  /* it starts blank */
     do {
-        nread = fread(&mem[memuse], 1, sizeof(mem)-memuse, local);
+        nread = fread(&mem[memuse], 1, sizeof(mem) - memuse, local);
         if(nread <= 0) {
             /* end of file */
             if(memuse > 0)
@@ -248,7 +254,7 @@ int main(int argc, char *argv[])
 
         /* write data in a loop until we block */
         while((nwritten = libssh2_sftp_write(sftp_handle, mem, memuse)) ==
-               LIBSSH2_ERROR_EAGAIN) {
+              LIBSSH2_ERROR_EAGAIN) {
             waitsocket(sock, session);
         }
         if(nwritten < 0)
@@ -265,7 +271,7 @@ int main(int argc, char *argv[])
 
     } while(nwritten > 0);
 
-    duration = (int)(time(NULL)-start);
+    duration = (int)(time(NULL) - start);
 
     fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
             (long)total, duration, (double)total / duration);
@@ -276,15 +282,20 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    while(libssh2_session_disconnect(session, "Normal Shutdown")
-          == LIBSSH2_ERROR_EAGAIN);
-    libssh2_session_free(session);
+    if(session) {
+        while(libssh2_session_disconnect(session, "Normal Shutdown") ==
+              LIBSSH2_ERROR_EAGAIN);
+        libssh2_session_free(session);
+    }
 
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    closesocket(sock);
+        closesocket(sock);
 #else
-    close(sock);
+        close(sock);
 #endif
+    }
+
     fprintf(stderr, "all done\n");
 
     libssh2_exit();

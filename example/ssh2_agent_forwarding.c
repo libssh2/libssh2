@@ -7,8 +7,6 @@
  * The example uses agent authentication to ensure an agent to forward
  * is running.
  *
- * Run it like this:
- *
  * $ ./ssh2_agent_forwarding 127.0.0.1 user "uptime"
  *
  */
@@ -42,6 +40,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+static const char *hostname = "127.0.0.1";
+static const char *commandline = "uptime";
+static const char *username;
+
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
     struct timeval timeout;
@@ -74,25 +76,28 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 
 int main(int argc, char *argv[])
 {
-    const char *hostname = "127.0.0.1";
-    const char *commandline = "uptime";
-    const char *username    = NULL;
     uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
-    LIBSSH2_SESSION *session;
+    int rc;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_AGENT *agent = NULL;
     struct libssh2_agent_publickey *identity, *prev_identity = NULL;
-    int rc;
     int exitcode;
     char *exitsignal = (char *)"none";
     ssize_t bytecount = 0;
 
 #ifdef WIN32
     WSADATA wsadata;
-    WSAStartup(MAKEWORD(2, 0), &wsadata);
+
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
+        return 1;
+    }
 #endif
+
     if(argc < 2) {
         fprintf(stderr, "At least IP and username arguments are required.\n");
         return 1;
@@ -106,35 +111,40 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
 
     hostaddr = inet_addr(hostname);
 
-    /* Ultra basic "connect to port 22 on localhost"
-     * Your code is responsible for creating the socket establishing the
-     * connection
+    /* Ultra basic "connect to port 22 on localhost".  Your code is
+     * responsible for creating the socket establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock == LIBSSH2_INVALID_SOCKET) {
+        fprintf(stderr, "failed to create socket!\n");
+        goto shutdown;
+    }
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
-        return -1;
+        goto shutdown;
     }
 
     /* Create a session instance */
     session = libssh2_session_init();
-    if(!session)
-        return -1;
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session!\n");
+        goto shutdown;
+    }
 
     if(libssh2_session_handshake(session, sock) != 0) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
-        return -1;
+        goto shutdown;
     }
 
     /* Connect to the ssh-agent */
@@ -165,14 +175,14 @@ int main(int argc, char *argv[])
             goto shutdown;
         }
         if(libssh2_agent_userauth(agent, username, identity)) {
-            fprintf(stderr, "\tAuthentication with username %s and "
-                   "public key %s failed!\n",
-                   username, identity->comment);
+            fprintf(stderr, "Authentication with username %s and "
+                    "public key %s failed!\n",
+                    username, identity->comment);
         }
         else {
-            fprintf(stderr, "\tAuthentication with username %s and "
-                   "public key %s succeeded!\n",
-                   username, identity->comment);
+            fprintf(stderr, "Authentication with username %s and "
+                    "public key %s succeeded.\n",
+                    username, identity->comment);
             break;
         }
         prev_identity = identity;
@@ -189,13 +199,16 @@ int main(int argc, char *argv[])
     /* Set session to non-blocking */
     libssh2_session_set_blocking(session, 0);
 
-    /* Exec non-blocking on the remove host */
-    while((channel = libssh2_channel_open_session(session)) == NULL &&
-          libssh2_session_last_error(session, NULL, NULL, 0) ==
-          LIBSSH2_ERROR_EAGAIN) {
+    /* Exec non-blocking on the remote host */
+    do {
+        channel = libssh2_channel_open_session(session);
+        if(channel ||
+           libssh2_session_last_error(session, NULL, NULL, 0) !=
+           LIBSSH2_ERROR_EAGAIN)
+            break;
         waitsocket(sock, session);
-    }
-    if(channel == NULL) {
+    } while(1);
+    if(!channel) {
         fprintf(stderr, "Error\n");
         exit(1);
     }
@@ -203,19 +216,19 @@ int main(int argc, char *argv[])
           LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session);
     }
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "Error, couldn't request auth agent, error code %d.\n",
                 rc);
         exit(1);
     }
     else {
-        fprintf(stdout, "\tAgent forwarding request succeeded!\n");
+        fprintf(stdout, "Agent forwarding request succeeded!\n");
     }
     while((rc = libssh2_channel_exec(channel, commandline)) ==
           LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session);
     }
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "Error\n");
         exit(1);
     }
@@ -261,10 +274,11 @@ int main(int argc, char *argv[])
     }
 
     if(exitsignal) {
-        printf("\nGot signal: %s\n", exitsignal);
+        fprintf(stderr, "\nGot signal: %s\n", exitsignal);
     }
     else {
-        printf("\nEXIT: %d bytecount: %d\n", exitcode, (int)bytecount);
+        fprintf(stderr, "\nEXIT: %d bytecount: %d\n",
+                exitcode, (int)bytecount);
     }
 
     libssh2_channel_free(channel);
@@ -272,14 +286,19 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    libssh2_session_disconnect(session, "Normal Shutdown");
-    libssh2_session_free(session);
+    if(session) {
+        libssh2_session_disconnect(session, "Normal Shutdown");
+        libssh2_session_free(session);
+    }
 
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    closesocket(sock);
+        closesocket(sock);
 #else
-    close(sock);
+        close(sock);
 #endif
+    }
+
     fprintf(stderr, "all done\n");
 
     libssh2_exit();

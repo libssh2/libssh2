@@ -4,7 +4,7 @@
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * "sftp 192.168.0.1 user password /tmp/secrets -p|-i|-k"
+ * $ ./sftp 192.168.0.1 user password /tmp/secrets -p|-i|-k
  */
 
 #include "libssh2_setup.h"
@@ -26,9 +26,6 @@
 #endif
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
-#endif
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
 #endif
 
 #include <sys/types.h>
@@ -76,7 +73,7 @@ static void kbd_callback(const char *name, int name_len,
         fgets(buf, sizeof(buf), stdin);
         n = strlen(buf);
         while(n > 0 && strchr("\r\n", buf[n - 1]))
-          n--;
+            n--;
         buf[n] = 0;
 
         responses[i].text = strdup(buf);
@@ -99,18 +96,17 @@ int main(int argc, char *argv[])
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
-    LIBSSH2_SESSION *session;
     int rc;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #endif
@@ -132,7 +128,7 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -142,20 +138,25 @@ int main(int argc, char *argv[])
      * and establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock == LIBSSH2_INVALID_SOCKET) {
+        fprintf(stderr, "failed to create socket!\n");
+        goto shutdown;
+    }
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
-        return -1;
+        goto shutdown;
     }
 
-    /* Create a session instance
-     */
+    /* Create a session instance */
     session = libssh2_session_init();
-    if(!session)
-        return -1;
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session!\n");
+        goto shutdown;
+    }
 
     /* Since we have set non-blocking, tell libssh2 we are blocking */
     libssh2_session_set_blocking(session, 1);
@@ -166,7 +167,7 @@ int main(int argc, char *argv[])
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
-        return -1;
+        goto shutdown;
     }
 
     /* At this point we have not yet authenticated.  The first thing to do
@@ -184,65 +185,67 @@ int main(int argc, char *argv[])
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username,
                                          (unsigned int)strlen(username));
-    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-    if(strstr(userauthlist, "password") != NULL) {
-        auth_pw |= 1;
-    }
-    if(strstr(userauthlist, "keyboard-interactive") != NULL) {
-        auth_pw |= 2;
-    }
-    if(strstr(userauthlist, "publickey") != NULL) {
-        auth_pw |= 4;
-    }
+    if(userauthlist) {
+        fprintf(stderr, "Authentication methods: %s\n", userauthlist);
+        if(strstr(userauthlist, "password")) {
+            auth_pw |= 1;
+        }
+        if(strstr(userauthlist, "keyboard-interactive")) {
+            auth_pw |= 2;
+        }
+        if(strstr(userauthlist, "publickey")) {
+            auth_pw |= 4;
+        }
 
-    /* if we got an 4. argument we set this option if supported */
-    if(argc > 5) {
-        if((auth_pw & 1) && !strcmp(argv[5], "-p")) {
-            auth_pw = 1;
+        /* check for options */
+        if(argc > 5) {
+            if((auth_pw & 1) && !strcmp(argv[5], "-p")) {
+                auth_pw = 1;
+            }
+            if((auth_pw & 2) && !strcmp(argv[5], "-i")) {
+                auth_pw = 2;
+            }
+            if((auth_pw & 4) && !strcmp(argv[5], "-k")) {
+                auth_pw = 4;
+            }
         }
-        if((auth_pw & 2) && !strcmp(argv[5], "-i")) {
-            auth_pw = 2;
-        }
-        if((auth_pw & 4) && !strcmp(argv[5], "-k")) {
-            auth_pw = 4;
-        }
-    }
 
-    if(auth_pw & 1) {
-        /* We could authenticate via password */
-        if(libssh2_userauth_password(session, username, password)) {
-            fprintf(stderr, "Authentication by password failed.\n");
-            goto shutdown;
+        if(auth_pw & 1) {
+            /* We could authenticate via password */
+            if(libssh2_userauth_password(session, username, password)) {
+                fprintf(stderr, "Authentication by password failed!\n");
+                goto shutdown;
+            }
         }
-    }
-    else if(auth_pw & 2) {
-        /* Or via keyboard-interactive */
-        if(libssh2_userauth_keyboard_interactive(session, username,
-                                                 &kbd_callback) ) {
-            fprintf(stderr,
-                "\tAuthentication by keyboard-interactive failed!\n");
-            goto shutdown;
+        else if(auth_pw & 2) {
+            /* Or via keyboard-interactive */
+            if(libssh2_userauth_keyboard_interactive(session, username,
+                                                     &kbd_callback) ) {
+                fprintf(stderr,
+                        "Authentication by keyboard-interactive failed!\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr,
+                        "Authentication by keyboard-interactive succeeded.\n");
+            }
+        }
+        else if(auth_pw & 4) {
+            /* Or by public key */
+            if(libssh2_userauth_publickey_fromfile(session, username,
+                                                   pubkey, privkey,
+                                                   password)) {
+                fprintf(stderr, "Authentication by public key failed!\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr, "Authentication by public key succeeded.\n");
+            }
         }
         else {
-            fprintf(stderr,
-                "\tAuthentication by keyboard-interactive succeeded.\n");
-        }
-    }
-    else if(auth_pw & 4) {
-        /* Or by public key */
-        if(libssh2_userauth_publickey_fromfile(session, username,
-                                               pubkey, privkey,
-                                               password)) {
-            fprintf(stderr, "\tAuthentication by public key failed!\n");
+            fprintf(stderr, "No supported authentication methods found!\n");
             goto shutdown;
         }
-        else {
-            fprintf(stderr, "\tAuthentication by public key succeeded.\n");
-        }
-    }
-    else {
-        fprintf(stderr, "No supported authentication methods found!\n");
-        goto shutdown;
     }
 
     fprintf(stderr, "libssh2_sftp_init()!\n");
@@ -255,14 +258,14 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "libssh2_sftp_open()!\n");
     /* Request a file via SFTP */
-    sftp_handle =
-        libssh2_sftp_open(sftp_session, sftppath, LIBSSH2_FXF_READ, 0);
-
+    sftp_handle = libssh2_sftp_open(sftp_session, sftppath,
+                                    LIBSSH2_FXF_READ, 0);
     if(!sftp_handle) {
         fprintf(stderr, "Unable to open file with SFTP: %ld\n",
                 libssh2_sftp_last_error(sftp_session));
         goto shutdown;
     }
+
     fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
     do {
         char mem[1024];
@@ -284,14 +287,19 @@ int main(int argc, char *argv[])
 
 shutdown:
 
-    libssh2_session_disconnect(session, "Normal Shutdown");
-    libssh2_session_free(session);
+    if(session) {
+        libssh2_session_disconnect(session, "Normal Shutdown");
+        libssh2_session_free(session);
+    }
 
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    closesocket(sock);
+        closesocket(sock);
 #else
-    close(sock);
+        close(sock);
 #endif
+    }
+
     fprintf(stderr, "all done\n");
 
     libssh2_exit();

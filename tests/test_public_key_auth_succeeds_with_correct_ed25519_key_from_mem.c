@@ -16,12 +16,12 @@ int test(LIBSSH2_SESSION *session)
 
     userauth_list = libssh2_userauth_list(session, USERNAME,
                                           (unsigned int)strlen(USERNAME));
-    if(userauth_list == NULL) {
+    if(!userauth_list) {
         print_last_session_error("libssh2_userauth_list");
         return 1;
     }
 
-    if(strstr(userauth_list, "publickey") == NULL) {
+    if(!strstr(userauth_list, "publickey")) {
         fprintf(stderr, "'publickey' was expected in userauth list: %s\n",
                 userauth_list);
         return 1;
@@ -40,7 +40,7 @@ int test(LIBSSH2_SESSION *session)
 
     free(buffer);
 
-    if(rc != 0) {
+    if(rc) {
         print_last_session_error("libssh2_userauth_publickey_fromfile_ex");
         return 1;
     }
@@ -54,7 +54,7 @@ static int read_file(const char *path, char **out_buffer, size_t *out_len)
     char *buffer = NULL;
     size_t len = 0;
 
-    if(out_buffer == NULL || out_len == NULL || path == NULL) {
+    if(!out_buffer || !out_len || !path) {
         fprintf(stderr, "invalid params.");
         return 1;
     }

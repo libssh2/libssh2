@@ -3,12 +3,11 @@
  *
  * The sample code has default values for host name, user name:
  *
- * "ssh2_agent host user"
+ * $ ./ssh2_agent host user
  */
 
 #include "libssh2_setup.h"
 #include <libssh2.h>
-#include <libssh2_sftp.h>
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
@@ -35,11 +34,12 @@ static const char *username = "username";
 int main(int argc, char *argv[])
 {
     uint32_t hostaddr;
-    libssh2_socket_t sock = LIBSSH2_INVALID_SOCKET;
-    int i, rc;
+    libssh2_socket_t sock;
+    int i;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
+    int rc;
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     LIBSSH2_AGENT *agent = NULL;
@@ -47,11 +47,10 @@ int main(int argc, char *argv[])
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #endif
@@ -62,13 +61,12 @@ int main(int argc, char *argv[])
     else {
         hostaddr = htonl(0x7F000001);
     }
-
     if(argc > 2) {
         username = argv[2];
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -91,13 +89,17 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-    /* Create a session instance and start it up. This will trade welcome
-     * banners, exchange keys, and setup crypto, compression, and MAC layers
-     */
+    /* Create a session instance */
     session = libssh2_session_init();
-    if(libssh2_session_handshake(session, sock)) {
-        fprintf(stderr, "Failure establishing SSH session\n");
-        return 1;
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session!\n");
+        goto shutdown;
+    }
+
+    rc = libssh2_session_handshake(session, sock);
+    if(rc) {
+        fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
+        goto shutdown;
     }
 
     /* At this point we have not yet authenticated.  The first thing to do
@@ -115,55 +117,57 @@ int main(int argc, char *argv[])
     /* check what authentication methods are available */
     userauthlist = libssh2_userauth_list(session, username,
                                          (unsigned int)strlen(username));
-    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-    if(strstr(userauthlist, "publickey") == NULL) {
-        fprintf(stderr, "\"publickey\" authentication is not supported\n");
-        goto shutdown;
-    }
+    if(userauthlist) {
+        fprintf(stderr, "Authentication methods: %s\n", userauthlist);
+        if(!strstr(userauthlist, "publickey")) {
+            fprintf(stderr, "\"publickey\" authentication is not supported\n");
+            goto shutdown;
+        }
 
-    /* Connect to the ssh-agent */
-    agent = libssh2_agent_init(session);
-    if(!agent) {
-        fprintf(stderr, "Failure initializing ssh-agent support\n");
-        rc = 1;
-        goto shutdown;
-    }
-    if(libssh2_agent_connect(agent)) {
-        fprintf(stderr, "Failure connecting to ssh-agent\n");
-        rc = 1;
-        goto shutdown;
-    }
-    if(libssh2_agent_list_identities(agent)) {
-        fprintf(stderr, "Failure requesting identities to ssh-agent\n");
-        rc = 1;
-        goto shutdown;
-    }
-    for(;;) {
-        rc = libssh2_agent_get_identity(agent, &identity, prev_identity);
-        if(rc == 1)
-            break;
-        if(rc < 0) {
-            fprintf(stderr,
-                    "Failure obtaining identity from ssh-agent support\n");
+        /* Connect to the ssh-agent */
+        agent = libssh2_agent_init(session);
+        if(!agent) {
+            fprintf(stderr, "Failure initializing ssh-agent support\n");
             rc = 1;
             goto shutdown;
         }
-        if(libssh2_agent_userauth(agent, username, identity)) {
-            fprintf(stderr, "\tAuthentication with username %s and "
-                   "public key %s failed!\n",
-                   username, identity->comment);
+        if(libssh2_agent_connect(agent)) {
+            fprintf(stderr, "Failure connecting to ssh-agent\n");
+            rc = 1;
+            goto shutdown;
         }
-        else {
-            fprintf(stderr, "\tAuthentication with username %s and "
-                   "public key %s succeeded!\n",
-                   username, identity->comment);
-            break;
+        if(libssh2_agent_list_identities(agent)) {
+            fprintf(stderr, "Failure requesting identities to ssh-agent\n");
+            rc = 1;
+            goto shutdown;
         }
-        prev_identity = identity;
-    }
-    if(rc) {
-        fprintf(stderr, "Couldn't continue authentication\n");
-        goto shutdown;
+        for(;;) {
+            rc = libssh2_agent_get_identity(agent, &identity, prev_identity);
+            if(rc == 1)
+                break;
+            if(rc < 0) {
+                fprintf(stderr,
+                        "Failure obtaining identity from ssh-agent support\n");
+                rc = 1;
+                goto shutdown;
+            }
+            if(libssh2_agent_userauth(agent, username, identity)) {
+                fprintf(stderr, "Authentication with username %s and "
+                        "public key %s failed!\n",
+                        username, identity->comment);
+            }
+            else {
+                fprintf(stderr, "Authentication with username %s and "
+                        "public key %s succeeded.\n",
+                        username, identity->comment);
+                break;
+            }
+            prev_identity = identity;
+        }
+        if(rc) {
+            fprintf(stderr, "Couldn't continue authentication\n");
+            goto shutdown;
+        }
     }
 
     /* We're authenticated now. */
@@ -181,7 +185,8 @@ int main(int argc, char *argv[])
     libssh2_channel_setenv(channel, "FOO", "bar");
 
     /* Request a terminal with 'vanilla' terminal emulation
-     * See /etc/termcap for more options
+     * See /etc/termcap for more options. This is useful when opening
+     * an interactive shell.
      */
     if(libssh2_channel_request_pty(channel, "vanilla")) {
         fprintf(stderr, "Failed requesting pty\n");
@@ -208,6 +213,7 @@ int main(int argc, char *argv[])
      */
 
 skip_shell:
+
     if(channel) {
         libssh2_channel_free(channel);
         channel = NULL;
