@@ -1,8 +1,7 @@
 #include "runner.h"
 
-/* configured in Dockerfile */
-static const char *USERNAME = "libssh2";
-static const char *PASSWORD = "my test password";
+static const char *USERNAME = "libssh2"; /* set in Dockerfile */
+static const char *PASSWORD = "my test password"; /* set in Dockerfile */
 
 static void kbd_callback(const char *name, int name_len,
                          const char *instruct, int instruct_len,
@@ -46,8 +45,9 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    rc = libssh2_userauth_keyboard_interactive_ex(
-        session, USERNAME, (unsigned int)strlen(USERNAME), kbd_callback);
+    rc = libssh2_userauth_keyboard_interactive_ex(session, USERNAME,
+                                                (unsigned int)strlen(USERNAME),
+                                                  kbd_callback);
     if(rc) {
         print_last_session_error("libssh2_userauth_keyboard_interactive_ex");
         return 1;

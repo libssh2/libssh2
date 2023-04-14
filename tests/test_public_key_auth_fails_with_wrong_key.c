@@ -22,10 +22,11 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    rc = libssh2_userauth_publickey_fromfile_ex(
-        session, USERNAME, (unsigned int)strlen(USERNAME),
-        srcdir_path(KEY_FILE_PUBLIC), srcdir_path(KEY_FILE_PRIVATE),
-        NULL);
+    rc = libssh2_userauth_publickey_fromfile_ex(session, USERNAME,
+                                                (unsigned int)strlen(USERNAME),
+                                                srcdir_path(KEY_FILE_PUBLIC),
+                                                srcdir_path(KEY_FILE_PRIVATE),
+                                                NULL);
     if(rc == 0) {
         fprintf(stderr, "Public-key auth succeeded with wrong key\n");
         return 1;

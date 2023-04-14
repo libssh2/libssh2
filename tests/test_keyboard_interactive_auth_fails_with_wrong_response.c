@@ -12,6 +12,7 @@ static void kbd_callback(const char *name, int name_len,
 {
     int i;
     (void)abstract;
+
     fprintf(stdout, "Kb-int name: %.*s\n", name_len, name);
     fprintf(stdout, "Kb-int instruction: %.*s\n", instruct_len, instruct);
     for(i = 0; i < num_prompts; ++i) {
@@ -44,8 +45,9 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    rc = libssh2_userauth_keyboard_interactive_ex(
-        session, USERNAME, (unsigned int)strlen(USERNAME), kbd_callback);
+    rc = libssh2_userauth_keyboard_interactive_ex(session, USERNAME,
+                                                (unsigned int)strlen(USERNAME),
+                                                  kbd_callback);
     if(rc == 0) {
         fprintf(stderr,
                 "Keyboard-interactive auth succeeded with wrong response\n");

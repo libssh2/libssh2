@@ -1,8 +1,7 @@
 #include "runner.h"
 
-/* configured in Dockerfile */
-static const char *USERNAME = "libssh2";
-static const char *PASSWORD = "my test password";
+static const char *USERNAME = "libssh2"; /* set in Dockerfile */
+static const char *PASSWORD = "my test password"; /* set in Dockerfile */
 
 int test(LIBSSH2_SESSION *session)
 {
@@ -25,7 +24,8 @@ int test(LIBSSH2_SESSION *session)
     rc = libssh2_userauth_password_ex(session, USERNAME,
                                       (unsigned int)strlen(USERNAME),
                                       PASSWORD,
-                                      (unsigned int)strlen(PASSWORD), NULL);
+                                      (unsigned int)strlen(PASSWORD),
+                                      NULL);
     if(rc) {
         print_last_session_error("libssh2_userauth_password_ex");
         return 1;

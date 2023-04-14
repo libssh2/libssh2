@@ -12,10 +12,10 @@ int test(LIBSSH2_SESSION *session)
     int rc;
     char *buffer = NULL;
     size_t len = 0;
-    const char *userauth_list = NULL;
 
-    userauth_list = libssh2_userauth_list(session, USERNAME,
-                                          (unsigned int)strlen(USERNAME));
+    const char *userauth_list =
+        libssh2_userauth_list(session, USERNAME,
+                              (unsigned int)strlen(USERNAME));
     if(!userauth_list) {
         print_last_session_error("libssh2_userauth_list");
         return 1;
