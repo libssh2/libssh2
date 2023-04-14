@@ -57,6 +57,11 @@
 #define LIBSSH2_MD5 0
 #endif
 
+#ifdef LIBSSH2_NO_HMAC_RIPEMD
+#undef LIBSSH2_HMAC_RIPEMD
+#define LIBSSH2_HMAC_RIPEMD 0
+#endif
+
 #ifdef LIBSSH2_NO_DSA
 #undef LIBSSH2_DSA
 #define LIBSSH2_DSA 0
