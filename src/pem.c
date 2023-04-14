@@ -426,7 +426,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
     if(_libssh2_get_string(&decoded, &kdfname, &tmp_len) ||
        tmp_len == 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                       "kdfname is missing");
+                             "kdfname is missing");
         goto out;
     }
 
@@ -479,7 +479,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     if(_libssh2_get_string(&decoded, &buf, &tmp_len) || tmp_len == 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                       "Private key data not found");
+                             "Private key data not found");
         goto out;
     }
 
@@ -503,7 +503,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
         if(method == NULL) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                "No supported cipher found");
+                                 "No supported cipher found");
             goto out;
         }
     }
@@ -520,7 +520,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         key = LIBSSH2_CALLOC(session, total_len);
         if(key == NULL) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                           "Could not alloc key");
+                                 "Could not alloc key");
             goto out;
         }
 
@@ -546,7 +546,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         }
         else {
             ret = _libssh2_error(session, LIBSSH2_ERROR_KEYFILE_AUTH_FAILED,
-                                            "bcrypted without passphrase");
+                                 "bcrypted without passphrase");
             LIBSSH2_FREE(session, key);
             goto out;
         }
@@ -573,7 +573,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
         /* Initialize the decryption */
         if(method->init(session, method, iv_part, &free_iv, key_part,
-                         &free_secret, 0, &abstract)) {
+                        &free_secret, 0, &abstract)) {
             ret = LIBSSH2_ERROR_DECRYPT;
             goto out;
         }

@@ -54,7 +54,7 @@
  */
 static int
 crypt_none_crypt(LIBSSH2_SESSION * session, unsigned char *buf,
-                         void **abstract)
+                 void **abstract)
 {
     /* Do nothing to the data! */
     return 0;

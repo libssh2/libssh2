@@ -162,7 +162,7 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length,
 {
     ssize_t rc;
 
-    (void) abstract;
+    (void)abstract;
 
     rc = recv(sock, buffer, length, flags);
 #ifdef WIN32
@@ -195,7 +195,7 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 {
     ssize_t rc;
 
-    (void) abstract;
+    (void)abstract;
 
     rc = send(sock, buffer, length, flags);
 #ifdef WIN32
@@ -372,7 +372,7 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
 
 /* ---- Base64 Encoding/Decoding Table --- */
 static const char table64[]=
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*
  * _libssh2_base64_encode
@@ -545,8 +545,8 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
 LIBSSH2_API int
 libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
 {
-    (void) session;
-    (void) bitmask;
+    (void)session;
+    (void)bitmask;
     return 0;
 }
 
@@ -554,9 +554,9 @@ LIBSSH2_API int
 libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *handler_context,
                          libssh2_trace_handler_func callback)
 {
-    (void) session;
-    (void) handler_context;
-    (void) callback;
+    (void)session;
+    (void)handler_context;
+    (void)callback;
     return 0;
 }
 #endif

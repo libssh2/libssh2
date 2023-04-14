@@ -573,7 +573,7 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
     while(sftp->channel->session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
         for(i = 0; i < num_valid_responses; i++) {
             if(sftp_packet_ask(sftp, valid_responses[i], request_id,
-                                data, data_len) == 0) {
+                               data, data_len) == 0) {
                 /*
                  * Set to zero before all returns to say
                  * the timeout is not active
@@ -741,8 +741,8 @@ LIBSSH2_CHANNEL_CLOSE_FUNC(libssh2_sftp_dtor)
 {
     LIBSSH2_SFTP *sftp = (LIBSSH2_SFTP *) (*channel_abstract);
 
-    (void) session_abstract;
-    (void) channel;
+    (void)session_abstract;
+    (void)channel;
 
     /* Free the partial packet storage for sftp_packet_read */
     if(sftp->partial_packet) {
@@ -971,7 +971,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
   sftp_init_error:
     while(_libssh2_channel_free(session->sftpInit_channel) ==
-           LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN);
     session->sftpInit_channel = NULL;
     if(session->sftpInit_sftp) {
         LIBSSH2_FREE(session, session->sftpInit_sftp);
@@ -1107,7 +1107,7 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     };
     unsigned char *s;
     ssize_t rc;
-    int open_file = (open_type == LIBSSH2_SFTP_OPENFILE)?1:0;
+    int open_file = (open_type == LIBSSH2_SFTP_OPENFILE) ? 1 : 0;
 
     if(sftp->open_state == libssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
@@ -2059,8 +2059,8 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
            acked but we haven't been able to return as such yet, so we will
            get that data as well passed in here again.
         */
-        already = (size_t) (handle->u.file.offset_sent -
-                            handle->u.file.offset)+
+        already = (size_t)(handle->u.file.offset_sent -
+                           handle->u.file.offset)+
             handle->u.file.acked;
 
         if(count >= already) {
@@ -2839,8 +2839,8 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
     size_t data_len = 0;
     int retcode;
     uint32_t packet_len =
-        source_filename_len + dest_filename_len + 17 + (sftp->version >=
-                                                        5 ? 4 : 0);
+        source_filename_len + dest_filename_len + 17 +
+        (sftp->version >= 5 ? 4 : 0);
     /* packet_len(4) + packet_type(1) + request_id(4) +
        source_filename_len(4) + dest_filename_len(4) + flags(4){SFTP5+) */
     unsigned char *data = NULL;
