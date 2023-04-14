@@ -684,13 +684,13 @@ sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs, const unsigned char *p,
     buf.dataptr = buf.data;
     buf.len = data_len;
 
-    if(_libssh2_get_u32(&buf, &flags) != 0) {
+    if(_libssh2_get_u32(&buf, &flags)) {
         return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
     }
     attrs->flags = flags;
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_SIZE) {
-        if(_libssh2_get_u64(&buf, &(attrs->filesize)) != 0) {
+        if(_libssh2_get_u64(&buf, &(attrs->filesize))) {
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
         }
     }
@@ -698,8 +698,8 @@ sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs, const unsigned char *p,
     if(attrs->flags & LIBSSH2_SFTP_ATTR_UIDGID) {
         uint32_t uid = 0;
         uint32_t gid = 0;
-        if(_libssh2_get_u32(&buf, &uid) != 0 ||
-           _libssh2_get_u32(&buf, &gid) != 0) {
+        if(_libssh2_get_u32(&buf, &uid) ||
+           _libssh2_get_u32(&buf, &gid)) {
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
         }
         attrs->uid = uid;
@@ -708,7 +708,7 @@ sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs, const unsigned char *p,
 
     if(attrs->flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) {
         uint32_t permissions;
-        if(_libssh2_get_u32(&buf, &permissions) != 0) {
+        if(_libssh2_get_u32(&buf, &permissions)) {
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
         }
         attrs->permissions = permissions;
@@ -717,8 +717,8 @@ sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs, const unsigned char *p,
     if(attrs->flags & LIBSSH2_SFTP_ATTR_ACMODTIME) {
         uint32_t atime;
         uint32_t mtime;
-        if(_libssh2_get_u32(&buf, &atime) != 0 ||
-           _libssh2_get_u32(&buf, &mtime) != 0) {
+        if(_libssh2_get_u32(&buf, &atime) ||
+           _libssh2_get_u32(&buf, &mtime)) {
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
         }
         attrs->atime = atime;
@@ -920,7 +920,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     buf.len = data_len;
     endp = &buf.data[data_len];
 
-    if(_libssh2_get_u32(&buf, &(sftp_handle->version)) != 0) {
+    if(_libssh2_get_u32(&buf, &(sftp_handle->version))) {
         LIBSSH2_FREE(session, data);
         rc = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
         goto sftp_init_error;
@@ -1599,7 +1599,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
             rc = sftp_packet_requirev(sftp, 2, read_responses,
                                       chunk->request_id, &data, &data_len, 9);
-            if(rc == LIBSSH2_ERROR_EAGAIN && bytes_in_buffer != 0) {
+            if(rc == LIBSSH2_ERROR_EAGAIN && bytes_in_buffer) {
                 /* do not return EAGAIN if we have already
                  * written data into the buffer */
                 return bytes_in_buffer;
