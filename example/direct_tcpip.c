@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "failed to recv()!\n");
                 goto shutdown;
             }
-            else if(0 == len) {
+            else if(len == 0) {
                 fprintf(stderr, "The client at %s:%d disconnected!\n", shost,
                     sport);
                 goto shutdown;

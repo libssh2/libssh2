@@ -4134,7 +4134,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     }
 
     /* weird situation, no algorithm found */
-    if(0 == ialg)
+    if(ialg == 0)
         return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                               "No algorithm found");
 
