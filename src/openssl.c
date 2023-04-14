@@ -241,7 +241,7 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
     BN_bin2bn(sig + 20, 20, s);
 
     dsasig = DSA_SIG_new();
-#ifdef HAVE_OPAQUE_STRUCTS
+#if defined(HAVE_OPAQUE_STRUCTS) && !defined(OPENSSL_IS_BORINGSSL)
     DSA_SIG_set0(dsasig, r, s);
 #else
     dsasig->r = r;
@@ -1923,7 +1923,7 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
         return -1;
     }
 
-#ifdef HAVE_OPAQUE_STRUCTS
+#if defined(HAVE_OPAQUE_STRUCTS) && !defined(OPENSSL_IS_BORINGSSL)
     DSA_SIG_get0(sig, &r, &s);
 #else
     r = sig->r;
