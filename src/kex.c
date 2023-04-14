@@ -4127,7 +4127,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     */
 
     /* count the number of supported algorithms */
-    for(i = 0, ialg = 0; NULL != mlist[i]; i++) {
+    for(i = 0, ialg = 0; mlist[i]; i++) {
         /* do not count fields with NULL name */
         if(mlist[i]->name)
             ialg++;
@@ -4147,7 +4147,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     /* Past this point *algs must be deallocated in case of an error!! */
 
     /* copy non-NULL pointers only */
-    for(i = 0, j = 0; NULL != mlist[i] && j < ialg; i++) {
+    for(i = 0, j = 0; mlist[i] && j < ialg; i++) {
         if(NULL == mlist[i]->name) {
             /* maybe a weird situation but if it occurs, do not include NULL
                pointers */
