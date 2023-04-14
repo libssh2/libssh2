@@ -142,7 +142,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         }
 
         all_methods = libssh2_crypt_methods();
-        while((cur_method = *all_methods++) != NULL) {
+        while((cur_method = *all_methods++)) {
             if(*cur_method->pem_annotation &&
                     memcmp(line, cur_method->pem_annotation,
                            strlen(cur_method->pem_annotation)) == 0) {
@@ -491,7 +491,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         const LIBSSH2_CRYPT_METHOD **all_methods, *cur_method;
 
         all_methods = libssh2_crypt_methods();
-        while((cur_method = *all_methods++) != NULL) {
+        while((cur_method = *all_methods++)) {
             if(*cur_method->name &&
                 memcmp(ciphername, cur_method->name,
                        strlen(cur_method->name)) == 0) {
@@ -524,8 +524,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
             goto out;
         }
 
-        if(strcmp((const char *)kdfname, "bcrypt") == 0 &&
-           passphrase != NULL) {
+        if(strcmp((const char *)kdfname, "bcrypt") == 0 && passphrase) {
             if((_libssh2_get_string(&kdf_buf, &salt, &salt_len)) ||
                 (_libssh2_get_u32(&kdf_buf, &rounds) != 0) ) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
@@ -613,7 +612,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
        goto out;
     }
 
-    if(decrypted_buf != NULL) {
+    if(decrypted_buf) {
         /* copy data to out-going buffer */
         struct string_buf *out_buf = _libssh2_string_buf_new(session);
         if(!out_buf) {

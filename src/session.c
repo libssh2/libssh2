@@ -911,7 +911,7 @@ session_free(LIBSSH2_SESSION *session)
     }
 
     if(session->free_state == libssh2_NB_state_created) {
-        while((ch = _libssh2_list_first(&session->channels)) != NULL) {
+        while((ch = _libssh2_list_first(&session->channels))) {
 
             rc = _libssh2_channel_free(ch);
             if(rc == LIBSSH2_ERROR_EAGAIN)
@@ -922,7 +922,7 @@ session_free(LIBSSH2_SESSION *session)
     }
 
     if(session->free_state == libssh2_NB_state_sent) {
-        while((l = _libssh2_list_first(&session->listeners)) != NULL) {
+        while((l = _libssh2_list_first(&session->listeners))) {
             rc = _libssh2_channel_forward_cancel(l);
             if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;
@@ -1108,7 +1108,7 @@ session_free(LIBSSH2_SESSION *session)
     }
 
     /* Cleanup all remaining packets */
-    while((pkg = _libssh2_list_first(&session->packets)) != NULL) {
+    while((pkg = _libssh2_list_first(&session->packets))) {
         packets_left++;
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                        "packet left with id %d", pkg->data[0]));

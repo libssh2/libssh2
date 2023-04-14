@@ -261,7 +261,7 @@ libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
                               "Missing userauth banner");
     }
 
-    if(banner != NULL)
+    if(banner)
         *banner = session->userauth_banner;
 
     return LIBSSH2_ERROR_NONE;
@@ -979,7 +979,7 @@ libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
 
         LIBSSH2_FREE(session, sig_info.sig_r);
 
-        if(sig_info.sig_s != NULL) {
+        if(sig_info.sig_s) {
             LIBSSH2_FREE(session, sig_info.sig_s);
         }
     }
@@ -1383,7 +1383,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         s = p ? (p + 1) : NULL;
     }
 
-    if(match != NULL) {
+    if(match) {
         if(*key_method)
             LIBSSH2_FREE(session, *key_method);
 

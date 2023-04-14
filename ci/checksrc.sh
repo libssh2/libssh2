@@ -9,6 +9,5 @@ perl ./ci/checksrc.pl -i4 -m79 \
   -ASNPRINTF \
   -ACOPYRIGHT \
   -AFOPENMODE \
-  -AEQUALSNULL \
   -ATYPEDEFSTRUCT \
   $WHITELIST $FILES

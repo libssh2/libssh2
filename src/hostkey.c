@@ -722,7 +722,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
     libssh2_curve_type type;
     struct string_buf buf;
 
-    if(abstract != NULL && *abstract) {
+    if(abstract && *abstract) {
         hostkey_method_ssh_ecdsa_dtor(session, abstract);
         *abstract = NULL;
     }
@@ -780,7 +780,7 @@ hostkey_method_ssh_ecdsa_init(LIBSSH2_SESSION * session,
                                                 key_len, type))
         return -1;
 
-    if(abstract != NULL)
+    if(abstract)
         *abstract = ecdsactx;
 
     return 0;
@@ -800,7 +800,7 @@ hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION * session,
     libssh2_ecdsa_ctx *ec_ctx = NULL;
     int ret;
 
-    if(abstract != NULL && *abstract) {
+    if(abstract && *abstract) {
         hostkey_method_ssh_ecdsa_dtor(session, abstract);
         *abstract = NULL;
     }
@@ -808,7 +808,7 @@ hostkey_method_ssh_ecdsa_initPEM(LIBSSH2_SESSION * session,
     ret = _libssh2_ecdsa_new_private(&ec_ctx, session,
                                      privkeyfile, passphrase);
 
-    if(abstract != NULL)
+    if(abstract)
         *abstract = ec_ctx;
 
     return ret;
@@ -829,7 +829,7 @@ hostkey_method_ssh_ecdsa_initPEMFromMemory(LIBSSH2_SESSION * session,
     libssh2_ecdsa_ctx *ec_ctx = NULL;
     int ret;
 
-    if(abstract != NULL && *abstract) {
+    if(abstract && *abstract) {
         hostkey_method_ssh_ecdsa_dtor(session, abstract);
         *abstract = NULL;
     }
@@ -842,7 +842,7 @@ hostkey_method_ssh_ecdsa_initPEMFromMemory(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    if(abstract != NULL)
+    if(abstract)
         *abstract = ec_ctx;
 
     return 0;
@@ -954,7 +954,7 @@ hostkey_method_ssh_ecdsa_dtor(LIBSSH2_SESSION * session, void **abstract)
     libssh2_ecdsa_ctx *keyctx = (libssh2_ecdsa_ctx *) (*abstract);
     (void) session;
 
-    if(keyctx != NULL)
+    if(keyctx)
         _libssh2_ecdsa_free(keyctx);
 
     *abstract = NULL;
@@ -1140,7 +1140,7 @@ hostkey_method_ssh_ed25519_initPEMFromMemory(LIBSSH2_SESSION * session,
     libssh2_ed25519_ctx *ed_ctx = NULL;
     int ret;
 
-    if(abstract != NULL && *abstract) {
+    if(abstract && *abstract) {
         hostkey_method_ssh_ed25519_dtor(session, abstract);
         *abstract = NULL;
     }
@@ -1153,7 +1153,7 @@ hostkey_method_ssh_ed25519_initPEMFromMemory(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    if(abstract != NULL)
+    if(abstract)
         *abstract = ed_ctx;
 
     return 0;

@@ -468,7 +468,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                    (const char *)
                                    session->server_hostkey_sha256,
                                    SHA256_DIGEST_LENGTH, &base64Fingerprint);
-            if(base64Fingerprint != NULL) {
+            if(base64Fingerprint) {
                 _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                                "Server's SHA256 Fingerprint: %s",
                                base64Fingerprint));
@@ -1830,7 +1830,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                                    (const char *)
                                    session->server_hostkey_sha256,
                                    SHA256_DIGEST_LENGTH, &base64Fingerprint);
-            if(base64Fingerprint != NULL) {
+            if(base64Fingerprint) {
                 _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                                "Server's SHA256 Fingerprint: %s",
                                base64Fingerprint));
@@ -2462,7 +2462,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
                                    (const char *)
                                    session->server_hostkey_sha256,
                                    SHA256_DIGEST_LENGTH, &base64Fingerprint);
-            if(base64Fingerprint != NULL) {
+            if(base64Fingerprint) {
                 _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                                "Server's SHA256 Fingerprint: %s",
                                base64Fingerprint));
@@ -3327,7 +3327,7 @@ kex_agree_instr(unsigned char *haystack, size_t haystack_len,
 
     /* Search until we run out of comas or we run out of haystack,
        whichever comes first */
-    while((s = (unsigned char *) memchr((char *) s, ',', left)) != NULL) {
+    while((s = (unsigned char *) memchr((char *) s, ',', left))) {
         /* Advance buffer past coma if we can */
         left = end_haystack - s;
         if((left >= 1) && (left <= haystack_len) && (left > needle_len)) {

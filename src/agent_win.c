@@ -197,7 +197,7 @@ agent_connect_openssh(LIBSSH2_AGENT *agent)
     agent->fd = 0; /* Mark as the connection has been established */
 
 cleanup:
-    if(event != NULL)
+    if(event)
         CloseHandle(event);
     if(pipe != INVALID_HANDLE_VALUE)
         CloseHandle(pipe);

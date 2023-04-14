@@ -83,7 +83,6 @@ checksrc:
 	  -ASNPRINTF \
 	  -ACOPYRIGHT \
 	  -AFOPENMODE \
-	  -AEQUALSNULL \
 	  -ATYPEDEFSTRUCT \
 	  -Wsrc/libssh2_config.h src/*.[ch] include/*.h example/*.c \
 	  tests/*.[ch]

@@ -858,7 +858,7 @@ libssh2_agent_free(LIBSSH2_AGENT *agent)
         libssh2_agent_disconnect(agent);
     }
 
-    if(agent->identity_agent_path != NULL)
+    if(agent->identity_agent_path)
         LIBSSH2_FREE(agent->session, agent->identity_agent_path);
 
     agent_free_identities(agent);

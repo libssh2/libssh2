@@ -336,7 +336,7 @@ _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
     libssh2_rsa_ctx *ctx;
 
     ctx = (libssh2_rsa_ctx *) mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
-    if(ctx != NULL) {
+    if(ctx) {
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
         mbedtls_rsa_init(ctx);
 #else
@@ -461,7 +461,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 
     mbedtls_pk_init(&pkey);
 
-    pwd_len = passphrase != NULL ? strlen((const char *)passphrase) : 0;
+    pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
     ret = mbedtls_pk_parse_key(&pkey, (unsigned char *)filedata_nullterm,
                                filedata_len + 1,
@@ -783,7 +783,7 @@ _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     mbedtls_pk_init(&pkey);
 
-    pwd_len = passphrase != NULL ? strlen((const char *)passphrase) : 0;
+    pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
     ret = mbedtls_pk_parse_key(&pkey,
                                (unsigned char *)privatekeydata_nullterm,
