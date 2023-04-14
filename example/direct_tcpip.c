@@ -241,8 +241,8 @@ int main(int argc, char *argv[])
         remote_destport, shost, sport);
     if(!channel) {
         fprintf(stderr, "Could not open the direct-tcpip channel!\n"
-                "(Note that this can be a problem at the server!"
-                " Please review the server logs.)\n");
+                        "(Note that this can be a problem at the server!"
+                        " Please review the server logs.)\n");
         goto shutdown;
     }
 

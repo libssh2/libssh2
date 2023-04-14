@@ -176,8 +176,8 @@ int main(int argc, char *argv[])
                                              &host);
 
         fprintf(stderr, "Host check: %d, key: %s\n", check,
-                (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH)?
-                host->key:"<none>");
+                (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) ?
+                host->key : "<none>");
 
         /*****
          * At this point, we could verify that 'check' tells us the key is
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
 
         do {
             int act = 0;
-            rc = (libssh2_poll(fds, 1, 10));
+            rc = libssh2_poll(fds, 1, 10);
 
             if(rc < 1)
                 continue;

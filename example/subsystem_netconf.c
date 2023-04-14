@@ -229,16 +229,16 @@ int main(int argc, char *argv[])
     channel = libssh2_channel_open_session(session);
     if(!channel) {
         fprintf(stderr, "Could not open the channel!\n"
-                "(Note that this can be a problem at the server!"
-                " Please review the server logs.)\n");
+                        "(Note that this can be a problem at the server!"
+                       " Please review the server logs.)\n");
         goto shutdown;
     }
 
     /* execute the subsystem on our channel */
     if(libssh2_channel_subsystem(channel, "netconf")) {
         fprintf(stderr, "Could not execute the \"netconf\" subsystem!\n"
-                "(Note that this can be a problem at the server!"
-                " Please review the server logs.)\n");
+                        "(Note that this can be a problem at the server!"
+                        " Please review the server logs.)\n");
         goto shutdown;
     }
 

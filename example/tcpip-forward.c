@@ -201,8 +201,8 @@ int main(int argc, char *argv[])
         remote_wantport, &remote_listenport, 1);
     if(!listener) {
         fprintf(stderr, "Could not start the tcpip-forward listener!\n"
-                "(Note that this can be a problem at the server!"
-                " Please review the server logs.)\n");
+                        "(Note that this can be a problem at the server!"
+                        " Please review the server logs.)\n");
         goto shutdown;
     }
 
@@ -213,8 +213,8 @@ int main(int argc, char *argv[])
     channel = libssh2_channel_forward_accept(listener);
     if(!channel) {
         fprintf(stderr, "Could not accept connection!\n"
-                "(Note that this can be a problem at the server!"
-                " Please review the server logs.)\n");
+                        "(Note that this can be a problem at the server!"
+                        " Please review the server logs.)\n");
         goto shutdown;
     }
 

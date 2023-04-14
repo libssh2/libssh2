@@ -49,8 +49,8 @@ static const char *scppath = "/tmp/TEST";
 /* diff in ms */
 static long tvdiff(struct timeval newer, struct timeval older)
 {
-    return (newer.tv_sec-older.tv_sec)*1000+
-        (newer.tv_usec-older.tv_usec)/1000;
+    return (newer.tv_sec - older.tv_sec) * 1000 +
+        (newer.tv_usec - older.tv_usec) / 1000;
 }
 #endif
 
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
     time_ms = tvdiff(end, start);
     fprintf(stderr, "Got %ld bytes in %ld ms = %.1f bytes/sec spin: %d\n",
             (long)total, time_ms,
-            (double)total/((double)time_ms/1000.0), spin);
+            (double)total / ((double)time_ms / 1000.0), spin);
 #else
     fprintf(stderr, "Got %ld bytes spin: %d\n", (long)total, spin);
 #endif
