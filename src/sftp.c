@@ -909,6 +909,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         session->sftpInit_state = libssh2_NB_state_idle;
         return NULL;
     }
+
     rc = sftp_packet_require(sftp_handle, SSH_FXP_VERSION,
                              0, &data, &data_len, 5);
     if(rc == LIBSSH2_ERROR_EAGAIN) {
