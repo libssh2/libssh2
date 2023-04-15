@@ -242,7 +242,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                     rc = decrypt(session, p->payload + blocksize + 4,
                                  decrypt_buffer + blocksize - 1,
                                  decrypt_size - blocksize);
-                    if(rc != 0) {
+                    if(rc) {
                         LIBSSH2_FREE(session, decrypt_buffer);
                         return rc;
                     }
