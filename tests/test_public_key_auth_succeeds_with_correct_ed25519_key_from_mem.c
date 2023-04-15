@@ -5,7 +5,7 @@
 static const char *USERNAME = "libssh2"; /* set in Dockerfile */
 static const char *KEY_FILE_ED25519_PRIVATE = "key_ed25519";
 
-static int read_file(const char *path, char **buf, size_t *len);
+static int read_file(const char *path, char **out_buffer, size_t *out_len);
 
 int test(LIBSSH2_SESSION *session)
 {
