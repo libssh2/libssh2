@@ -1,96 +1,11 @@
 #include "runner.h"
 
-#include <stdlib.h>
-
-static const char *USERNAME = "libssh2"; /* set in Dockerfile */
-static const char *KEY_FILE_ED25519_PRIVATE = "key_ed25519";
-
-static int read_file(const char *path, char **out_buffer, size_t *out_len);
-
 int test(LIBSSH2_SESSION *session)
 {
-    int rc;
-    char *buffer = NULL;
-    size_t len = 0;
-
-    const char *userauth_list =
-        libssh2_userauth_list(session, USERNAME,
-                              (unsigned int)strlen(USERNAME));
-    if(!userauth_list) {
-        print_last_session_error("libssh2_userauth_list");
-        return 1;
-    }
-
-    if(!strstr(userauth_list, "publickey")) {
-        fprintf(stderr, "'publickey' was expected in userauth list: %s\n",
-                userauth_list);
-        return 1;
-    }
-
-    if(read_file(srcdir_path(KEY_FILE_ED25519_PRIVATE), &buffer, &len)) {
-        fprintf(stderr, "Reading key file failed.");
-        return 1;
-    }
-
-    rc = libssh2_userauth_publickey_frommemory(session,
-                                               USERNAME, strlen(USERNAME),
-                                               NULL, 0,
-                                               buffer, len,
-                                               NULL);
-
-    free(buffer);
-
-    if(rc) {
-        print_last_session_error("libssh2_userauth_publickey_fromfile_ex");
-        return 1;
-    }
-
-    return 0;
-}
-
-static int read_file(const char *path, char **out_buffer, size_t *out_len)
-{
-    FILE *fp = NULL;
-    char *buffer = NULL;
-    size_t len = 0;
-
-    if(!out_buffer || !out_len || !path) {
-        fprintf(stderr, "invalid params.");
-        return 1;
-    }
-
-    *out_buffer = NULL;
-    *out_len = 0;
-
-    fp = fopen(path, "r");
-
-    if(!fp) {
-        fprintf(stderr, "File could not be read.");
-        return 1;
-    }
-
-    fseek(fp, 0L, SEEK_END);
-    len = ftell(fp);
-    rewind(fp);
-
-    buffer = calloc(1, len + 1);
-    if(!buffer) {
-        fclose(fp);
-        fprintf(stderr, "Could not alloc memory.");
-        return 1;
-    }
-
-    if(1 != fread(buffer, len, 1, fp)) {
-        fclose(fp);
-        free(buffer);
-        fprintf(stderr, "Could not read file into memory.");
-        return 1;
-    }
-
-    fclose(fp);
-
-    *out_buffer = buffer;
-    *out_len = len;
-
-    return 0;
+    /* configured in Dockerfile */
+    return test_auth_pubkey(session, TEST_AUTH_FROMMEM,
+                            "libssh2",
+                            NULL,
+                            NULL,
+                            "key_ed25519");
 }

@@ -219,3 +219,232 @@ const char *srcdir_path(const char *file)
 
     return filepath[curpath++];
 }
+
+static const char *kbd_password;
+
+static void kbd_callback(const char *name, int name_len,
+                         const char *instruct, int instruct_len,
+                         int num_prompts,
+                         const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
+                         LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
+                         void **abstract)
+{
+    int i;
+    (void)abstract;
+
+    fprintf(stdout, "Kb-int name: %.*s\n", name_len, name);
+    fprintf(stdout, "Kb-int instruction: %.*s\n", instruct_len, instruct);
+    for(i = 0; i < num_prompts; ++i) {
+        fprintf(stdout, "Kb-int prompt %d: %.*s\n", i,
+                (int)prompts[i].length, prompts[i].text);
+    }
+
+    if(num_prompts == 1) {
+        responses[0].text = strdup(kbd_password);
+        responses[0].length = (unsigned int)strlen(kbd_password);
+    }
+}
+
+int test_auth_keyboard(LIBSSH2_SESSION *session, int flags,
+                       const char *username,
+                       const char *password)
+{
+    int rc;
+
+    const char *userauth_list =
+        libssh2_userauth_list(session, username,
+                              (unsigned int)strlen(username));
+    if(!userauth_list) {
+        print_last_session_error("libssh2_userauth_list");
+        return 1;
+    }
+
+    if(!strstr(userauth_list, "keyboard-interactive")) {
+        fprintf(stderr,
+                "'keyboard-interactive' was expected in userauth list: %s\n",
+                userauth_list);
+        return 1;
+    }
+
+    kbd_password = password;
+
+    rc = libssh2_userauth_keyboard_interactive_ex(session, username,
+                                                (unsigned int)strlen(username),
+                                                  kbd_callback);
+
+    if((flags & TEST_AUTH_SHOULDFAIL) != 0) {
+        if(rc == 0) {
+            fprintf(stderr,
+                    "Keyboard-interactive auth succeeded "
+                    "with wrong response\n");
+            return 1;
+        }
+    }
+    else {
+        if(rc) {
+            print_last_session_error(
+                "libssh2_userauth_keyboard_interactive_ex");
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+int test_auth_password(LIBSSH2_SESSION *session, int flags,
+                       const char *username,
+                       const char *password)
+{
+    int rc;
+
+    const char *userauth_list =
+        libssh2_userauth_list(session, username,
+                              (unsigned int)strlen(username));
+    if(!userauth_list) {
+        print_last_session_error("libssh2_userauth_list");
+        return 1;
+    }
+
+    if(!strstr(userauth_list, "password")) {
+        fprintf(stderr, "'password' was expected in userauth list: %s\n",
+                userauth_list);
+        return 1;
+    }
+
+    rc = libssh2_userauth_password_ex(session, username,
+                                      (unsigned int)strlen(username),
+                                      password,
+                                      (unsigned int)strlen(password),
+                                      NULL);
+
+    if((flags & TEST_AUTH_SHOULDFAIL) != 0) {
+        if(rc == 0) {
+            fprintf(stderr, "Password auth succeeded with wrong password\n");
+            return 1;
+        }
+    }
+    else {
+        if(rc) {
+            print_last_session_error("libssh2_userauth_password_ex");
+            return 1;
+        }
+
+        if(libssh2_userauth_authenticated(session) == 0) {
+            fprintf(stderr, "Password auth appeared to succeed but "
+                            "libssh2_userauth_authenticated returned 0\n");
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static int read_file(const char *path, char **out_buffer, size_t *out_len)
+{
+    FILE *fp = NULL;
+    char *buffer = NULL;
+    size_t len = 0;
+
+    if(!out_buffer || !out_len || !path) {
+        fprintf(stderr, "invalid params.");
+        return 1;
+    }
+
+    *out_buffer = NULL;
+    *out_len = 0;
+
+    fp = fopen(path, "r");
+
+    if(!fp) {
+        fprintf(stderr, "File could not be read.");
+        return 1;
+    }
+
+    fseek(fp, 0L, SEEK_END);
+    len = ftell(fp);
+    rewind(fp);
+
+    buffer = calloc(1, len + 1);
+    if(!buffer) {
+        fclose(fp);
+        fprintf(stderr, "Could not alloc memory.");
+        return 1;
+    }
+
+    if(1 != fread(buffer, len, 1, fp)) {
+        fclose(fp);
+        free(buffer);
+        fprintf(stderr, "Could not read file into memory.");
+        return 1;
+    }
+
+    fclose(fp);
+
+    *out_buffer = buffer;
+    *out_len = len;
+
+    return 0;
+}
+
+int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
+                     const char *username,
+                     const char *password,
+                     const char *fn_pub,
+                     const char *fn_priv)
+{
+    int rc;
+
+    const char *userauth_list =
+        libssh2_userauth_list(session, username,
+                              (unsigned int)strlen(username));
+    if(!userauth_list) {
+        print_last_session_error("libssh2_userauth_list");
+        return 1;
+    }
+
+    if(!strstr(userauth_list, "publickey")) {
+        fprintf(stderr, "'publickey' was expected in userauth list: %s\n",
+                userauth_list);
+        return 1;
+    }
+
+    if((flags & TEST_AUTH_FROMMEM) != 0) {
+        char *buffer = NULL;
+        size_t len = 0;
+
+        if(read_file(srcdir_path(fn_priv), &buffer, &len)) {
+            fprintf(stderr, "Reading key file failed.");
+            return 1;
+        }
+
+        rc = libssh2_userauth_publickey_frommemory(session,
+                                                   username, strlen(username),
+                                                   NULL, 0,
+                                                   buffer, len,
+                                                   NULL);
+
+        free(buffer);
+    }
+    else {
+        rc = libssh2_userauth_publickey_fromfile_ex(session, username,
+                                                (unsigned int)strlen(username),
+                                                    srcdir_path(fn_pub),
+                                                    srcdir_path(fn_priv),
+                                                    password);
+    }
+
+    if((flags & TEST_AUTH_SHOULDFAIL) != 0) {
+        if(rc == 0) {
+            fprintf(stderr, "Public-key auth succeeded with wrong key\n");
+            return 1;
+        }
+    }
+    else {
+        if(rc) {
+            print_last_session_error("libssh2_userauth_publickey_fromfile_ex");
+            return 1;
+        }
+    }
+
+    return 0;
+}
