@@ -1793,7 +1793,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         session->userauth_pblc_data = NULL;
         session->userauth_pblc_state = libssh2_NB_state_idle;
         return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_PARTIAL,
-                            "Publickey authentication partial successful");
+                              "Publickey authentication partially successful");
     }
 
     /* This public key is not allowed for this user on this server */
