@@ -45,38 +45,38 @@ set(TESTS
   test_warmup    # keep this the first test
   test_hostkey
   test_hostkey_hash
-  test_password_auth_succeeds_with_correct_credentials
-  test_password_auth_fails_with_wrong_password
-  test_password_auth_fails_with_wrong_username
-  test_public_key_auth_fails_with_wrong_key
-  test_public_key_auth_succeeds_with_correct_rsa_key
-  test_public_key_auth_succeeds_with_correct_encrypted_rsa_key
-  test_keyboard_interactive_auth_fails_with_wrong_response
-  test_keyboard_interactive_auth_succeeds_with_correct_response
-  test_keyboard_interactive_auth_info_request
-  test_agent_forward_succeeds
+  test_auth_password_ok
+  test_auth_password_fail_password
+  test_auth_password_fail_username
+  test_auth_pubkey_fail
+  test_auth_pubkey_ok_rsa
+  test_auth_pubkey_ok_rsa_encrypted
+  test_auth_keyboard_fail
+  test_auth_keyboard_ok
+  test_auth_keyboard_info_request
+  test_agent_forward_ok
   test_read
 )
 
 if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
   list(APPEND TESTS
-    test_public_key_auth_succeeds_with_correct_rsa_openssh_key
+    test_auth_pubkey_ok_rsa_openssh
   )
   if(OPENSSL_VERSION VERSION_GREATER "1.1.0" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
     list(APPEND TESTS
-      test_public_key_auth_succeeds_with_correct_ed25519_key
-      test_public_key_auth_succeeds_with_correct_encrypted_ed25519_key
-      test_public_key_auth_succeeds_with_correct_ed25519_key_from_mem
-      test_public_key_auth_succeeds_with_correct_ecdsa_key
-      test_public_key_auth_succeeds_with_correct_signed_ecdsa_key
-      test_public_key_auth_succeeds_with_correct_signed_rsa_key
+      test_auth_pubkey_ok_ed25519
+      test_auth_pubkey_ok_ed25519_encrypted
+      test_auth_pubkey_ok_ed25519_mem
+      test_auth_pubkey_ok_ecdsa
+      test_auth_pubkey_ok_ecdsa_signed
+      test_auth_pubkey_ok_rsa_signed
     )
   endif()
 endif()
 
 if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
   list(APPEND TESTS
-    test_public_key_auth_succeeds_with_correct_dsa_key
+    test_auth_pubkey_ok_dsa
   )
 endif()
 
@@ -109,7 +109,7 @@ foreach(test ${TESTS})
   target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src "${CRYPTO_BACKEND_INCLUDE_DIR}")
 
   # build a single test with gcov
-  if(GCOV_PATH AND test STREQUAL test_keyboard_interactive_auth_info_request)
+  if(GCOV_PATH AND test STREQUAL test_auth_keyboard_info_request)
     target_compile_options(${test} BEFORE PRIVATE ${GCOV_OPTIONS})
     target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES} gcov)
   else()

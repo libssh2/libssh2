@@ -6,6 +6,6 @@ int test(LIBSSH2_SESSION *session)
     return test_auth_pubkey(session, 0,
                             "libssh2",
                             NULL,
-                            "signed_key_ecdsa-cert.pub",
-                            "signed_key_ecdsa");
+                            "key_rsa_signed-cert.pub",
+                            "key_rsa_signed");
 }
