@@ -885,8 +885,8 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
         }
         else {
             cmd_len += shell_quotearg(path,
-                                    &session->scpSend_command[cmd_len],
-                                    session->scpSend_command_len - cmd_len);
+                                      &session->scpSend_command[cmd_len],
+                                      session->scpSend_command_len - cmd_len);
         }
 
         /* the command to exec should _not_ be NUL-terminated */
