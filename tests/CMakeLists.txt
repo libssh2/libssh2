@@ -39,6 +39,16 @@ list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 add_definitions(-DHAVE_CONFIG_H)
 
+if(CMAKE_COMPILER_IS_GNUCC)
+  find_program(GCOV_PATH gcov)
+  if(GCOV_PATH)
+    set(GCOV_OPTIONS -g --coverage)
+    if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+      set(GCOV_OPTIONS "${GCOV_OPTIONS} -fprofile-abs-path")
+    endif()
+  endif()
+endif()
+
 set(TESTS
   test_simple
   test_ssh2
@@ -80,16 +90,6 @@ if(BUILD_SHARED_LIBS)
   endforeach()
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC)
-  find_program(GCOV_PATH gcov)
-  if(GCOV_PATH)
-    set(GCOV_OPTIONS -g --coverage)
-    if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
-      set(GCOV_OPTIONS "${GCOV_OPTIONS} -fprofile-abs-path")
-    endif()
-  endif()
-endif()
-
 foreach(test ${TESTS})
   add_executable(${test} ${test}.c)
   target_compile_definitions(${test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
@@ -110,6 +110,7 @@ foreach(test ${TESTS})
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
   endif()
 endforeach()
+
 
 # MAC tests
 foreach(test
@@ -139,6 +140,7 @@ foreach(test
   set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
 endforeach()
 
+
 add_custom_target(coverage
   COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/*
   COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/coverage/"
@@ -146,6 +148,7 @@ add_custom_target(coverage
 
 add_custom_target(clean-coverage
   COMMAND rm -rf "${CMAKE_CURRENT_BINARY_DIR}/coverage/")
+
 
 add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
