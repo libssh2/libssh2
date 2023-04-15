@@ -2,7 +2,7 @@
 
 int test(LIBSSH2_SESSION *session)
 {
-#if !defined(LIBSSH2_MBEDTLS)
+#if LIBSSH2_DSA
     /* configured in Dockerfile */
     return test_auth_pubkey(session, 0,
                             "libssh2",

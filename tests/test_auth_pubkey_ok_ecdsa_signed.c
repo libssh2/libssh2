@@ -2,7 +2,7 @@
 
 int test(LIBSSH2_SESSION *session)
 {
-#if defined(LIBSSH2_OPENSSL)  /* FIXME: 1.1.1 or upper */
+#if LIBSSH2_ECDSA
     /* configured in Dockerfile */
     return test_auth_pubkey(session, 0,
                             "libssh2",
