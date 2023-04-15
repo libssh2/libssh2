@@ -2,13 +2,13 @@ SUBDIRS = ossfuzz
 
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 
-ctests = simple$(EXEEXT)
+ctests = test_simple$(EXEEXT)
 TESTS = $(ctests) mansyntax.sh
 check_PROGRAMS = $(ctests)
 
 if SSHD
 TESTS += ssh2.sh
-check_PROGRAMS += ssh2
+check_PROGRAMS += test_ssh2
 endif
 
 INTEGRATION_TESTS = \
@@ -95,9 +95,9 @@ EXTRA_DIST = \
   openssh_server/ssh_host_ecdsa_key \
   openssh_server/ssh_host_ed25519_key \
   openssh_server/ssh_host_rsa_key \
-  simple.c \
+  test_simple.c \
   sshdwrap \
-  ssh2.c \
+  test_ssh2.c \
   ssh2.sh \
   sshd_fixture.sh.in \
   test_read_3des-cbc \

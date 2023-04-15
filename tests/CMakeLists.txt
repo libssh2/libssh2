@@ -40,8 +40,8 @@ list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 add_definitions(-DHAVE_CONFIG_H)
 
 set(TESTS
-  simple
-  ssh2
+  test_simple
+  test_ssh2
   test_warmup    # keep this the first test
   test_agent_forward_ok
   test_auth_keyboard_fail
@@ -72,7 +72,7 @@ target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURC
 
 # test building against shared libssh2 lib
 if(BUILD_SHARED_LIBS)
-  foreach(test ssh2)
+  foreach(test test_ssh2)
     add_executable(${test}_shared ${test}.c)
     target_include_directories(${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src)
     target_link_libraries(${test}_shared ${LIB_SHARED} ${LIBRARIES})
@@ -102,7 +102,7 @@ foreach(test ${TESTS})
     target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES})
   endif()
 
-  if(test MATCHES "^test_")
+  if(NOT test STREQUAL "test_ssh2")  # skip test that needs ssh2.sh to run
     list(APPEND TEST_TARGETS ${test})
     add_test(
       NAME ${test} COMMAND $<TARGET_FILE:${test}>
