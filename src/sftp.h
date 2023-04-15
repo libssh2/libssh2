@@ -156,7 +156,7 @@ struct _LIBSSH2_SFTP
     unsigned char packet_header[9];
     /* packet size (4) packet type (1) request id (4) */
     size_t packet_header_len;           /* packet_header length    */
-    unsigned char *partial_packet;      /* The data, including header */
+    unsigned char *partial_packet;      /* The data, with header   */
     uint32_t partial_len;               /* Desired number of bytes */
     size_t partial_received;            /* Bytes received so far   */
 
