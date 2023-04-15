@@ -899,7 +899,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block closing channel");
-           return NULL;
+            return NULL;
         }
         session->sftpInit_channel = NULL;
         if(session->sftpInit_sftp) {
