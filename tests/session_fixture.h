@@ -45,7 +45,7 @@
 #define snprintf _snprintf
 #endif
 
-LIBSSH2_SESSION *start_session_fixture(void);
+LIBSSH2_SESSION *start_session_fixture(int *skipped);
 void stop_session_fixture(void);
 void print_last_session_error(const char *function);
 const char *srcdir_path(const char *file);

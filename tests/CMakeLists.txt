@@ -125,24 +125,16 @@ foreach(test
 endforeach()
 
 # CRYPT tests
-set(TESTS
+foreach(test
+  3des-cbc
+  aes128-cbc
   aes128-ctr
+  aes192-cbc
   aes192-ctr
+  aes256-cbc
   aes256-ctr
+  rijndael-cbc@lysator.liu.se
 )
-# Due to a bug with mbedTLS support, these crypt methods fail. Until that bug
-# is fixed, don't run them there to avoid this known issue causing red tests.
-# See https://github.com/libssh2/libssh2/issues/793
-if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
-  list(APPEND TESTS
-    3des-cbc
-    aes128-cbc
-    aes192-cbc
-    aes256-cbc
-    rijndael-cbc@lysator.liu.se
-  )
-endif()
-foreach(test ${TESTS})
   add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
   set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
 endforeach()

@@ -99,10 +99,34 @@ static void setup_fixture_workdir(void)
     chdir(wd);
 }
 
-LIBSSH2_SESSION *start_session_fixture(void)
+LIBSSH2_SESSION *start_session_fixture(int *skipped)
 {
     int rc;
-    const char *env;
+
+    const char *crypt = getenv("FIXTURE_TEST_CRYPT");
+    const char *mac = getenv("FIXTURE_TEST_MAC");
+
+    *skipped = 0;
+
+    if(crypt) {
+#ifdef LIBSSH2_MBEDTLS
+        /* Due to a bug with mbedTLS support, these crypt methods fail.
+           Until that bug is fixed, don't run them there to avoid this
+           known issue causing red tests.
+           See: https://github.com/libssh2/libssh2/issues/793
+         */
+        if(strcmp(crypt, "3des-cbc") == 0 ||
+           strcmp(crypt, "aes128-cbc") == 0 ||
+           strcmp(crypt, "aes192-cbc") == 0 ||
+           strcmp(crypt, "aes256-cbc") == 0 ||
+           strcmp(crypt, "rijndael-cbc@lysator.liu.se") == 0) {
+            fprintf(stderr, "crypt algorithm (%s) skipped "
+                            "for this crypto backend.\n", crypt);
+            *skipped = 1;
+            return NULL;
+        }
+#endif
+    }
 
     setup_fixture_workdir();
 
@@ -126,26 +150,25 @@ LIBSSH2_SESSION *start_session_fixture(void)
     }
 
     /* Override crypt algorithm for the test */
-    env = getenv("FIXTURE_TEST_CRYPT");
-    if(env) {
+    if(crypt) {
         if(libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_CRYPT_CS, env) ||
+                                       LIBSSH2_METHOD_CRYPT_CS, crypt) ||
            libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_CRYPT_SC, env)) {
+                                       LIBSSH2_METHOD_CRYPT_SC, crypt)) {
             fprintf(stderr, "libssh2_session_method_pref CRYPT failed "
-                    "(probably disabled in the build): '%s'\n", env);
+                            "(probably disabled in the build): '%s'\n", crypt);
             return NULL;
         }
     }
+
     /* Override mac algorithm for the test */
-    env = getenv("FIXTURE_TEST_MAC");
-    if(env) {
+    if(mac) {
         if(libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_MAC_CS, env) ||
+                                       LIBSSH2_METHOD_MAC_CS, mac) ||
            libssh2_session_method_pref(connected_session,
-                                       LIBSSH2_METHOD_MAC_SC, env)) {
+                                       LIBSSH2_METHOD_MAC_SC, mac)) {
             fprintf(stderr, "libssh2_session_method_pref MAC failed "
-                    "(probably disabled in the build): '%s'\n", env);
+                            "(probably disabled in the build): '%s'\n", mac);
             return NULL;
         }
     }
