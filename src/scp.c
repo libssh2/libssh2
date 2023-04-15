@@ -311,8 +311,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
         }
         else {
             cmd_len += shell_quotearg(path,
-                                    &session->scpRecv_command[cmd_len],
-                                    session->scpRecv_command_len - cmd_len);
+                                      &session->scpRecv_command[cmd_len],
+                                      session->scpRecv_command_len - cmd_len);
         }
 
         /* the command to exec should _not_ be NUL-terminated */
