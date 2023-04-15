@@ -504,7 +504,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 }
                 else {
                     /* the data is plain, just copy it verbatim to
-                    the working block buffer */
+                       the working block buffer */
                     memcpy(block, &p->buf[p->readidx], blocksize);
                 }
 
