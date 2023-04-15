@@ -206,15 +206,15 @@ const char *srcdir_path(const char *file)
     assert(curpath < NUMPATHS);
     if(p) {
         /* Ensure the final string is nul-terminated on Windows */
-        filepath[curpath][sizeof(filepath[0])-1] = 0;
-        snprintf(filepath[curpath], sizeof(filepath[0])-1, "%s/%s",
-                p, file);
+        filepath[curpath][sizeof(filepath[0]) - 1] = 0;
+        snprintf(filepath[curpath], sizeof(filepath[0]) - 1, "%s/%s",
+                 p, file);
     }
     else {
         /* Ensure the final string is nul-terminated on Windows */
-        filepath[curpath][sizeof(filepath[0])-1] = 0;
-        snprintf(filepath[curpath], sizeof(filepath[0])-1, "%s",
-                file);
+        filepath[curpath][sizeof(filepath[0]) - 1] = 0;
+        snprintf(filepath[curpath], sizeof(filepath[0]) - 1, "%s",
+                 file);
     }
 
     return filepath[curpath++];
