@@ -861,7 +861,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     compressed = session->local.comp &&
                  session->local.comp->compress &&
                  ((session->state & LIBSSH2_STATE_AUTHENTICATED) ||
-                 session->local.comp->use_in_auth);
+                  session->local.comp->use_in_auth);
 
     if(encrypted && compressed && session->local.comp_abstract) {
         /* the idea here is that these function must fail if the output gets
