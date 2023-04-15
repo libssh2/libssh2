@@ -989,7 +989,7 @@ session_free(LIBSSH2_SESSION *session)
                session->startup_key_state.key_state_low.private_key);
 #endif
     if(session->startup_key_state.key_state_low.public_key_oct != NULL)
-       free(session->startup_key_state.key_state_low.public_key_oct);
+        free(session->startup_key_state.key_state_low.public_key_oct);
 
     /*
      * Make sure all memory used in the state variables are free
