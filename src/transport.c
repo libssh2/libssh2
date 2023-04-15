@@ -202,7 +202,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
 
         /* Check for and deal with decompression */
         compressed =
-            session->local.comp != NULL &&
+            session->local.comp &&
             session->local.comp->compress &&
             ((session->state & LIBSSH2_STATE_AUTHENTICATED) ||
              session->local.comp->use_in_auth);
@@ -772,7 +772,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     encrypted = (session->state & LIBSSH2_STATE_NEWKEYS) ? 1 : 0;
 
     compressed =
-        session->local.comp != NULL &&
+        session->local.comp &&
         session->local.comp->compress &&
         ((session->state & LIBSSH2_STATE_AUTHENTICATED) ||
          session->local.comp->use_in_auth);

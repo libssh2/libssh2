@@ -2274,7 +2274,7 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
     uint32_t read_local_id;
 
     read_packet = _libssh2_list_first(&session->packets);
-    if(read_packet == NULL)
+    if(!read_packet)
         return 0;
 
     while(read_packet) {

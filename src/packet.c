@@ -649,7 +649,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                     _libssh2_get_string(&buf, &name, &name_len);
                     _libssh2_get_string(&buf, &value, &value_len);
 
-                    if(name != NULL && value != NULL) {
+                    if(name && value) {
                         _libssh2_debug((session,
                                        LIBSSH2_TRACE_KEX,
                                        "Server to Client extension %.*s: %.*s",

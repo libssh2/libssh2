@@ -33,10 +33,12 @@ int test(LIBSSH2_SESSION *session)
     }
 
     channel = libssh2_channel_open_session(session);
-    /* if(channel == NULL) { */
-    /*     printf("Error opening channel\n"); */
-    /*     return 1; */
-    /* } */
+    #if 0
+    if(!channel) {
+        printf("Error opening channel\n");
+        return 1;
+    }
+    #endif
 
     rc = libssh2_channel_request_auth_agent(channel);
     if(rc) {

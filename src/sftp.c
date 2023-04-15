@@ -508,7 +508,7 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
     LIBSSH2_SESSION *session = sftp->channel->session;
     int rc;
 
-    if(data == NULL || data_len == NULL || required_size == 0) {
+    if(!data || !data_len || required_size == 0) {
         return LIBSSH2_ERROR_BAD_USE;
     }
 
@@ -562,7 +562,7 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
     int i;
     int rc;
 
-    if(data == NULL || data_len == NULL || required_size == 0) {
+    if(!data || !data_len || required_size == 0) {
         return LIBSSH2_ERROR_BAD_USE;
     }
 
@@ -785,7 +785,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
          * including *EAGAIN).
          */
 
-        assert(session->sftpInit_sftp == NULL);
+        assert(!session->sftpInit_sftp);
         session->sftpInit_sftp = NULL;
         session->sftpInit_state = libssh2_NB_state_created;
     }

@@ -192,7 +192,7 @@ _libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
     if(!md_info)
         return 0;
 
-    hmac = key == NULL ? 0 : 1;
+    hmac = key ? 1 : 0;
 
     mbedtls_md_init(ctx);
     ret = mbedtls_md_setup(ctx, md_info, hmac);
@@ -336,7 +336,7 @@ _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
     libssh2_rsa_ctx *ctx;
 
     ctx = (libssh2_rsa_ctx *) mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
-    if(ctx != NULL) {
+    if(ctx) {
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
         mbedtls_rsa_init(ctx);
 #else
@@ -400,7 +400,7 @@ _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
     mbedtls_rsa_context *pk_rsa;
 
     *rsa = (libssh2_rsa_ctx *) LIBSSH2_ALLOC(session, sizeof(libssh2_rsa_ctx));
-    if(*rsa == NULL)
+    if(!*rsa)
         return -1;
 
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
@@ -446,7 +446,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     size_t pwd_len;
 
     *rsa = (libssh2_rsa_ctx *) mbedtls_calloc(1, sizeof(libssh2_rsa_ctx));
-    if(*rsa == NULL)
+    if(!*rsa)
         return -1;
 
     /*
@@ -454,14 +454,14 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     private-key from memory will fail if the last byte is not a null byte
     */
     filedata_nullterm = mbedtls_calloc(filedata_len + 1, 1);
-    if(filedata_nullterm == NULL) {
+    if(!filedata_nullterm) {
         return -1;
     }
     memcpy(filedata_nullterm, filedata, filedata_len);
 
     mbedtls_pk_init(&pkey);
 
-    pwd_len = passphrase != NULL ? strlen((const char *)passphrase) : 0;
+    pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
     ret = mbedtls_pk_parse_key(&pkey, (unsigned char *)filedata_nullterm,
                                filedata_len + 1,
@@ -505,7 +505,7 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
         return -1;
 
     hash = malloc(hash_len);
-    if(hash == NULL)
+    if(!hash)
         return -1;
 
     if(hash_len == SHA_DIGEST_LENGTH) {
@@ -699,7 +699,7 @@ _libssh2_mbedtls_pub_priv_key(LIBSSH2_SESSION *session,
 
     rsa = mbedtls_pk_rsa(*pkey);
     key = gen_publickey_from_rsa(session, rsa, &keylen);
-    if(key == NULL) {
+    if(!key) {
         ret = -1;
     }
 
@@ -776,14 +776,14 @@ _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     private-key from memory will fail if the last byte is not a null byte
     */
     privatekeydata_nullterm = mbedtls_calloc(privatekeydata_len + 1, 1);
-    if(privatekeydata_nullterm == NULL) {
+    if(!privatekeydata_nullterm) {
         return -1;
     }
     memcpy(privatekeydata_nullterm, privatekeydata, privatekeydata_len);
 
     mbedtls_pk_init(&pkey);
 
-    pwd_len = passphrase != NULL ? strlen((const char *)passphrase) : 0;
+    pwd_len = passphrase ? strlen((const char *)passphrase) : 0;
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
     ret = mbedtls_pk_parse_key(&pkey,
                                (unsigned char *)privatekeydata_nullterm,
@@ -915,7 +915,7 @@ _libssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
 
     *privkey = LIBSSH2_ALLOC(session, sizeof(mbedtls_ecp_keypair));
 
-    if(*privkey == NULL)
+    if(!*privkey)
         goto failed;
 
     mbedtls_ecdsa_init(*privkey);
@@ -928,7 +928,7 @@ _libssh2_mbedtls_ecdsa_create_key(LIBSSH2_SESSION *session,
     plen = 2 * mbedtls_mpi_size(&(*privkey)->MBEDTLS_PRIVATE(grp).P) + 1;
     *pubkey_oct = LIBSSH2_ALLOC(session, plen);
 
-    if(*pubkey_oct == NULL)
+    if(!*pubkey_oct)
         goto failed;
 
     if(mbedtls_ecp_point_write_binary(&(*privkey)->MBEDTLS_PRIVATE(grp),
@@ -960,7 +960,7 @@ _libssh2_mbedtls_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx **ctx,
 {
     *ctx = mbedtls_calloc(1, sizeof(mbedtls_ecp_keypair));
 
-    if(*ctx == NULL)
+    if(!*ctx)
         goto failed;
 
     mbedtls_ecdsa_init(*ctx);
@@ -1001,7 +1001,7 @@ _libssh2_mbedtls_ecdh_gen_k(_libssh2_bn **k,
     mbedtls_ecp_point pubkey;
     int rc = 0;
 
-    if(*k == NULL)
+    if(!*k)
         return -1;
 
     mbedtls_ecp_point_init(&pubkey);
@@ -1117,7 +1117,7 @@ _libssh2_mbedtls_parse_eckey(libssh2_ecdsa_ctx **ctx,
 
     *ctx = LIBSSH2_ALLOC(session, sizeof(libssh2_ecdsa_ctx));
 
-    if(*ctx == NULL)
+    if(!*ctx)
         goto failed;
 
     mbedtls_ecdsa_init(*ctx);
@@ -1169,7 +1169,7 @@ _libssh2_mbedtls_parse_openssh_key(libssh2_ecdsa_ctx **ctx,
 
     *ctx = LIBSSH2_ALLOC(session, sizeof(libssh2_ecdsa_ctx));
 
-    if(*ctx == NULL)
+    if(!*ctx)
         goto failed;
 
     mbedtls_ecdsa_init(*ctx);
@@ -1205,7 +1205,7 @@ cleanup:
         _libssh2_string_buf_free(session, decrypted);
     }
 
-    return (*ctx == NULL) ? -1 : 0;
+    return *ctx ? 0 : -1;
 }
 
 /* _libssh2_ecdsa_new_private
@@ -1241,7 +1241,7 @@ cleanup:
 
     _libssh2_mbedtls_safe_free(data, data_len);
 
-    return (*ctx == NULL) ? -1 : 0;
+    return *ctx ? 0 : -1;
 }
 
 /* _libssh2_ecdsa_new_private
@@ -1264,7 +1264,7 @@ _libssh2_mbedtls_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx **ctx,
 
     ntdata = LIBSSH2_ALLOC(session, data_len + 1);
 
-    if(ntdata == NULL)
+    if(!ntdata)
         goto cleanup;
 
     memcpy(ntdata, data, data_len);
@@ -1282,7 +1282,7 @@ cleanup:
 
     _libssh2_mbedtls_safe_free(ntdata, data_len);
 
-    return (*ctx == NULL) ? -1 : 0;
+    return *ctx ? 0 : -1;
 }
 
 static unsigned char *
@@ -1349,7 +1349,7 @@ _libssh2_mbedtls_ecdsa_sign(LIBSSH2_SESSION *session,
 
     tmp_sign = LIBSSH2_CALLOC(session, tmp_sign_len);
 
-    if(tmp_sign == NULL)
+    if(!tmp_sign)
         goto cleanup;
 
     sp = tmp_sign;
@@ -1360,7 +1360,7 @@ _libssh2_mbedtls_ecdsa_sign(LIBSSH2_SESSION *session,
 
     *sign = LIBSSH2_CALLOC(session, *sign_len);
 
-    if(*sign == NULL)
+    if(!*sign)
         goto cleanup;
 
     memcpy(*sign, tmp_sign, *sign_len);
@@ -1372,7 +1372,7 @@ cleanup:
 
     _libssh2_mbedtls_safe_free(tmp_sign, tmp_sign_len);
 
-    return (*sign == NULL) ? -1 : 0;
+    return *sign ? 0 : -1;
 }
 
 /* _libssh2_ecdsa_get_curve_type
@@ -1400,7 +1400,7 @@ _libssh2_mbedtls_ecdsa_curve_type_from_name(const char *name,
     int ret = 0;
     libssh2_curve_type type;
 
-    if(name == NULL || strlen(name) != 19)
+    if(!name || strlen(name) != 19)
         return -1;
 
     if(strcmp(name, "ecdsa-sha2-nistp256") == 0)

@@ -252,7 +252,7 @@ libssh2_userauth_list(LIBSSH2_SESSION * session, const char *user,
 LIBSSH2_API int
 libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
 {
-    if(NULL == session)
+    if(!session)
         return LIBSSH2_ERROR_MISSING_USERAUTH_BANNER;
 
     if(!session->userauth_banner) {
@@ -261,7 +261,7 @@ libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
                               "Missing userauth banner");
     }
 
-    if(banner != NULL)
+    if(banner)
         *banner = session->userauth_banner;
 
     return LIBSSH2_ERROR_NONE;
@@ -596,7 +596,7 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     }
 
     sp1 = memchr(pubkey, ' ', pubkey_len);
-    if(sp1 == NULL) {
+    if(!sp1) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Invalid public key data");
@@ -605,7 +605,7 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     sp1++;
 
     sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey));
-    if(sp2 == NULL) {
+    if(!sp2) {
         /* Assume that the id string is missing, but that it's okay */
         sp2 = pubkey + pubkey_len;
     }
@@ -700,7 +700,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     }
 
     sp1 = memchr(pubkey, ' ', pubkey_len);
-    if(sp1 == NULL) {
+    if(!sp1) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Invalid public key data");
@@ -710,7 +710,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
 
     sp_len = sp1 > pubkey ? (sp1 - pubkey) : 0;
     sp2 = memchr(sp1, ' ', pubkey_len - sp_len);
-    if(sp2 == NULL) {
+    if(!sp2) {
         /* Assume that the id string is missing, but that it's okay */
         sp2 = pubkey + pubkey_len;
     }
@@ -979,7 +979,7 @@ libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
 
         LIBSSH2_FREE(session, sig_info.sig_r);
 
-        if(sig_info.sig_s != NULL) {
+        if(sig_info.sig_s) {
             LIBSSH2_FREE(session, sig_info.sig_s);
         }
     }
@@ -1305,7 +1305,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
                                            *key_method,
                                            *key_method_len);
 
-    if(supported_algs == NULL || session->server_sign_algorithms == NULL) {
+    if(!supported_algs || !session->server_sign_algorithms) {
         /* no upgrading key algorithm supported, do nothing */
         return LIBSSH2_ERROR_NONE;
     }
@@ -1383,7 +1383,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         s = p ? (p + 1) : NULL;
     }
 
-    if(match != NULL) {
+    if(match) {
         if(*key_method)
             LIBSSH2_FREE(session, *key_method);
 
@@ -1923,7 +1923,7 @@ libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 {
     int rc;
 
-    if(NULL == passphrase)
+    if(!passphrase)
         /* if given a NULL pointer, make it point to a zero-length
            string to save us from having to check this all over */
         passphrase = "";
@@ -1951,7 +1951,7 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 {
     int rc;
 
-    if(NULL == passphrase)
+    if(!passphrase)
         /* if given a NULL pointer, make it point to a zero-length
            string to save us from having to check this all over */
         passphrase = "";

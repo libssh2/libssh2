@@ -468,7 +468,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                    (const char *)
                                    session->server_hostkey_sha256,
                                    SHA256_DIGEST_LENGTH, &base64Fingerprint);
-            if(base64Fingerprint != NULL) {
+            if(base64Fingerprint) {
                 _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                                "Server's SHA256 Fingerprint: %s",
                                base64Fingerprint));
@@ -1675,7 +1675,7 @@ kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
     int ret = 0;
     libssh2_curve_type type;
 
-    if(name == NULL)
+    if(!name)
         return -1;
 
     if(strcmp(name, "ecdh-sha2-nistp256") == 0)
@@ -1830,7 +1830,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                                    (const char *)
                                    session->server_hostkey_sha256,
                                    SHA256_DIGEST_LENGTH, &base64Fingerprint);
-            if(base64Fingerprint != NULL) {
+            if(base64Fingerprint) {
                 _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                                "Server's SHA256 Fingerprint: %s",
                                base64Fingerprint));
@@ -2462,7 +2462,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
                                    (const char *)
                                    session->server_hostkey_sha256,
                                    SHA256_DIGEST_LENGTH, &base64Fingerprint);
-            if(base64Fingerprint != NULL) {
+            if(base64Fingerprint) {
                 _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                                "Server's SHA256 Fingerprint: %s",
                                base64Fingerprint));
@@ -3306,7 +3306,7 @@ kex_agree_instr(unsigned char *haystack, size_t haystack_len,
     unsigned char *end_haystack;
     size_t left;
 
-    if(haystack == NULL || needle == NULL) {
+    if(!haystack || !needle) {
         return NULL;
     }
 
@@ -3327,6 +3327,7 @@ kex_agree_instr(unsigned char *haystack, size_t haystack_len,
 
     /* Search until we run out of comas or we run out of haystack,
        whichever comes first */
+    /* !checksrc! disable EQUALSNULL 1 */
     while((s = (unsigned char *) memchr((char *) s, ',', left)) != NULL) {
         /* Advance buffer past coma if we can */
         left = end_haystack - s;
@@ -4070,7 +4071,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     const LIBSSH2_COMMON_METHOD **mlist;
 
     /* to prevent coredumps due to dereferencing of NULL */
-    if(NULL == algs)
+    if(!algs)
         return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE,
                               "algs must not be NULL");
 
@@ -4110,7 +4111,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     }  /* switch */
 
     /* weird situation */
-    if(NULL == mlist)
+    if(!mlist)
         return _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                               "No algorithm found");
 
@@ -4127,7 +4128,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
     */
 
     /* count the number of supported algorithms */
-    for(i = 0, ialg = 0; NULL != mlist[i]; i++) {
+    for(i = 0, ialg = 0; mlist[i]; i++) {
         /* do not count fields with NULL name */
         if(mlist[i]->name)
             ialg++;
@@ -4140,15 +4141,15 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
 
     /* allocate buffer */
     *algs = (const char **) LIBSSH2_ALLOC(session, ialg*sizeof(const char *));
-    if(NULL == *algs) {
+    if(!*algs) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Memory allocation failed");
     }
     /* Past this point *algs must be deallocated in case of an error!! */
 
     /* copy non-NULL pointers only */
-    for(i = 0, j = 0; NULL != mlist[i] && j < ialg; i++) {
-        if(NULL == mlist[i]->name) {
+    for(i = 0, j = 0; mlist[i] && j < ialg; i++) {
+        if(!mlist[i]->name) {
             /* maybe a weird situation but if it occurs, do not include NULL
                pointers */
             continue;
