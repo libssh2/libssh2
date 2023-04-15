@@ -2,9 +2,12 @@
 .SH NAME
 libssh2_session_set_timeout - set timeout for blocking functions
 .SH SYNOPSIS
-#include <libssh2.h>
 .nf
-void libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout);
+#include <libssh2.h>
+
+void
+libssh2_session_set_timeout(LIBSSH2_SESSION *session, long timeout);
+.fi
 .SH DESCRIPTION
 Set the \fBtimeout\fP in milliseconds for how long a blocking the libssh2
 function calls may wait until they consider the situation an error and return

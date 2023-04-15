@@ -4,51 +4,45 @@
  * The sample code has default values for host name, user name, password
  * and path to copy, but you can specify them on the command line like:
  *
- * Usage: ssh2 hostip user password [-p|-i|-k]
+ * $ ./ssh2 hostip user password [[-p|-i|-k] [command]]
+ *
  *  -p authenticate using password
  *  -i authenticate using keyboard-interactive
  *  -k authenticate using public key (password argument decrypts keyfile)
+ *  command executes on the remote machine
  */
 
-#include "libssh2_config.h"
+#include "libssh2_setup.h"
 #include <libssh2.h>
-#include <libssh2_sftp.h>
 
-#ifdef HAVE_WINDOWS_H
-# include <windows.h>
-#endif
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
-#endif
 #ifdef HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
+#include <sys/socket.h>
 #endif
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-# ifdef HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-# ifdef HAVE_ARPA_INET_H
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
 
-#include <stdlib.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf
 #endif
 
-const char *keyfile1 = ".ssh/id_rsa.pub";
-const char *keyfile2 = ".ssh/id_rsa";
-const char *username = "username";
-const char *password = "password";
-
+static const char *pubkey = ".ssh/id_rsa.pub";
+static const char *privkey = ".ssh/id_rsa";
+static const char *username = "username";
+static const char *password = "password";
 
 static void kbd_callback(const char *name, int name_len,
                          const char *instruction, int instruction_len,
@@ -63,30 +57,30 @@ static void kbd_callback(const char *name, int name_len,
     (void)instruction_len;
     if(num_prompts == 1) {
         responses[0].text = strdup(password);
-        responses[0].length = strlen(password);
+        responses[0].length = (unsigned int)strlen(password);
     }
     (void)prompts;
     (void)abstract;
-} /* kbd_callback */
-
+}
 
 int main(int argc, char *argv[])
 {
-    unsigned long hostaddr;
-    int rc, sock, i, auth_pw = 0;
+    uint32_t hostaddr;
+    libssh2_socket_t sock;
+    int i, auth_pw = 0;
     struct sockaddr_in sin;
     const char *fingerprint;
     char *userauthlist;
-    LIBSSH2_SESSION *session;
+    int rc;
+    LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #endif
@@ -97,7 +91,6 @@ int main(int argc, char *argv[])
     else {
         hostaddr = htonl(0x7F000001);
     }
-
     if(argc > 2) {
         username = argv[2];
     }
@@ -106,7 +99,7 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
@@ -115,46 +108,46 @@ int main(int argc, char *argv[])
      * responsible for creating the socket establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock == LIBSSH2_INVALID_SOCKET) {
+        fprintf(stderr, "failed to create socket!\n");
+        rc = 1;
+        goto shutdown;
+    }
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
 
-    fprintf(stderr, "Connecting to %s as user %s\n",
-            inet_ntoa(sin.sin_addr), username);
+    fprintf(stderr, "Connecting to %s:%d as user %s\n",
+            inet_ntoa(sin.sin_addr), ntohs(sin.sin_port), username);
 
-    if(connect(sock, (struct sockaddr*)(&sin),
-                sizeof(struct sockaddr_in)) != 0) {
+    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
-        return -1;
+        goto shutdown;
     }
 
     /* Create a session instance and start it up. This will trade welcome
      * banners, exchange keys, and setup crypto, compression, and MAC layers
      */
     session = libssh2_session_init();
-    /* Enable all debugging when libssh2 was built with debugging enabled */
-    libssh2_trace(session,
-        LIBSSH2_TRACE_TRANS     |
-        LIBSSH2_TRACE_KEX       |
-        LIBSSH2_TRACE_AUTH      |
-        LIBSSH2_TRACE_CONN      |
-        LIBSSH2_TRACE_SCP       |
-        LIBSSH2_TRACE_SFTP      |
-        LIBSSH2_TRACE_ERROR     |
-        LIBSSH2_TRACE_PUBLICKEY |
-        LIBSSH2_TRACE_SOCKET
-    );
-
-    if(libssh2_session_handshake(session, sock)) {
-        fprintf(stderr, "Failure establishing SSH session\n");
-        return -1;
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session!\n");
+        goto shutdown;
     }
 
-    /* At this point we havn't authenticated. The first thing to do is check
-     * the hostkey's fingerprint against our known hosts Your app may have it
-     * hard coded, may go to a file, may present it to the user, that's your
-     * call
+    /* Enable all debugging when libssh2 was built with debugging enabled */
+    libssh2_trace(session, ~0);
+
+    rc = libssh2_session_handshake(session, sock);
+    if(rc) {
+        fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
+        goto shutdown;
+    }
+
+    /* At this point we have not yet authenticated.  The first thing to do
+     * is check the hostkey's fingerprint against our known hosts Your app
+     * may have it hard coded, may go to a file, may present it to the
+     * user, that's your call
      */
     fingerprint = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
     fprintf(stderr, "Fingerprint: ");
@@ -164,94 +157,99 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n");
 
     /* check what authentication methods are available */
-    userauthlist = libssh2_userauth_list(session, username, strlen(username));
-    fprintf(stderr, "Authentication methods: %s\n", userauthlist);
-    if(strstr(userauthlist, "password") != NULL) {
-        auth_pw |= 1;
-    }
-    if(strstr(userauthlist, "keyboard-interactive") != NULL) {
-        auth_pw |= 2;
-    }
-    if(strstr(userauthlist, "publickey") != NULL) {
-        auth_pw |= 4;
-    }
+    userauthlist = libssh2_userauth_list(session, username,
+                                         (unsigned int)strlen(username));
+    if(userauthlist) {
+        fprintf(stderr, "Authentication methods: %s\n", userauthlist);
+        if(strstr(userauthlist, "password")) {
+            auth_pw |= 1;
+        }
+        if(strstr(userauthlist, "keyboard-interactive")) {
+            auth_pw |= 2;
+        }
+        if(strstr(userauthlist, "publickey")) {
+            auth_pw |= 4;
+        }
 
-    /* if we got an 4. argument we set this option if supported */
-    if(argc > 4) {
-        if((auth_pw & 1) && !strcasecmp(argv[4], "-p")) {
-            auth_pw = 1;
+        /* check for options */
+        if(argc > 4) {
+            if((auth_pw & 1) && !strcmp(argv[4], "-p")) {
+                auth_pw = 1;
+            }
+            if((auth_pw & 2) && !strcmp(argv[4], "-i")) {
+                auth_pw = 2;
+            }
+            if((auth_pw & 4) && !strcmp(argv[4], "-k")) {
+                auth_pw = 4;
+            }
         }
-        if((auth_pw & 2) && !strcasecmp(argv[4], "-i")) {
-            auth_pw = 2;
-        }
-        if((auth_pw & 4) && !strcasecmp(argv[4], "-k")) {
-            auth_pw = 4;
-        }
-    }
 
-    if(auth_pw & 1) {
-        /* We could authenticate via password */
-        if(libssh2_userauth_password(session, username, password)) {
-            fprintf(stderr, "\tAuthentication by password failed!\n");
-            goto shutdown;
+        if(auth_pw & 1) {
+            /* We could authenticate via password */
+            if(libssh2_userauth_password(session, username, password)) {
+                fprintf(stderr, "Authentication by password failed!\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr, "Authentication by password succeeded.\n");
+            }
         }
-        else {
-            fprintf(stderr, "\tAuthentication by password succeeded.\n");
+        else if(auth_pw & 2) {
+            /* Or via keyboard-interactive */
+            if(libssh2_userauth_keyboard_interactive(session, username,
+                                                     &kbd_callback) ) {
+                fprintf(stderr,
+                        "Authentication by keyboard-interactive failed!\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr,
+                        "Authentication by keyboard-interactive succeeded.\n");
+            }
         }
-    }
-    else if(auth_pw & 2) {
-        /* Or via keyboard-interactive */
-        if(libssh2_userauth_keyboard_interactive(session, username,
-                                                 &kbd_callback) ) {
-            fprintf(stderr,
-                    "\tAuthentication by keyboard-interactive failed!\n");
-            goto shutdown;
-        }
-        else {
-            fprintf(stderr,
-                    "\tAuthentication by keyboard-interactive succeeded.\n");
-        }
-    }
-    else if(auth_pw & 4) {
-        /* Or by public key */
-        size_t fn1sz, fn2sz;
-        char *fn1, *fn2;
-        char const *h = getenv("HOME");
-        if(!h || !*h)
-            h = ".";
-        fn1sz = strlen(h) + strlen(keyfile1) + 2;
-        fn2sz = strlen(h) + strlen(keyfile2) + 2;
-        fn1 = malloc(fn1sz);
-        fn2 = malloc(fn2sz);
-        if(!fn1 || !fn2) {
+        else if(auth_pw & 4) {
+            /* Or by public key */
+            size_t fn1sz, fn2sz;
+            char *fn1, *fn2;
+            char const *h = getenv("HOME");
+            if(!h || !*h)
+                h = ".";
+            fn1sz = strlen(h) + strlen(pubkey) + 2;
+            fn2sz = strlen(h) + strlen(privkey) + 2;
+            fn1 = malloc(fn1sz);
+            fn2 = malloc(fn2sz);
+            if(!fn1 || !fn2) {
+                free(fn2);
+                free(fn1);
+                fprintf(stderr, "out of memory\n");
+                goto shutdown;
+            }
+            /* Using asprintf() here would be much cleaner,
+               but less portable */
+            snprintf(fn1, fn1sz, "%s/%s", h, pubkey);
+            snprintf(fn2, fn2sz, "%s/%s", h, privkey);
+
+            if(libssh2_userauth_publickey_fromfile(session, username,
+                                                   fn1, fn2,
+                                                   password)) {
+                fprintf(stderr, "Authentication by public key failed!\n");
+                free(fn2);
+                free(fn1);
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr, "Authentication by public key succeeded.\n");
+            }
             free(fn2);
             free(fn1);
-            fprintf(stderr, "out of memory\n");
-            goto shutdown;
-        }
-        /* Using asprintf() here would be much cleaner, but less portable */
-        snprintf(fn1, fn1sz, "%s/%s", h, keyfile1);
-        snprintf(fn2, fn2sz, "%s/%s", h, keyfile2);
-
-        if(libssh2_userauth_publickey_fromfile(session, username, fn1,
-                                               fn2, password)) {
-            fprintf(stderr, "\tAuthentication by public key failed!\n");
-            free(fn2);
-            free(fn1);
-            goto shutdown;
         }
         else {
-            fprintf(stderr, "\tAuthentication by public key succeeded.\n");
+            fprintf(stderr, "No supported authentication methods found!\n");
+            goto shutdown;
         }
-        free(fn2);
-        free(fn1);
-    }
-    else {
-        fprintf(stderr, "No supported authentication methods found!\n");
-        goto shutdown;
     }
 
-    /* Request a shell */
+    /* Request a session channel on which to run a shell */
     channel = libssh2_channel_open_session(session);
     if(!channel) {
         fprintf(stderr, "Unable to open a session\n");
@@ -264,33 +262,67 @@ int main(int argc, char *argv[])
     libssh2_channel_setenv(channel, "FOO", "bar");
 
     /* Request a terminal with 'vanilla' terminal emulation
-     * See /etc/termcap for more options
+     * See /etc/termcap for more options. This is useful when opening
+     * an interactive shell.
      */
+    #if 0
     if(libssh2_channel_request_pty(channel, "vanilla")) {
         fprintf(stderr, "Failed requesting pty\n");
-        goto skip_shell;
+    }
+    #endif
+
+    if(argc > 5) {
+        if(libssh2_channel_exec(channel, argv[5])) {
+            fprintf(stderr, "Unable to request command on channel\n");
+            goto shutdown;
+        }
+        /* Instead of just running a single command with libssh2_channel_exec,
+         * a shell can be opened on the channel instead, for interactive use.
+         * You usually want a pty allocated first in that case (see above). */
+          #if 0
+          if(libssh2_channel_shell(channel)) {
+              fprintf(stderr, "Unable to request shell on allocated pty\n");
+              goto shutdown;
+          }
+          #endif
+
+        /* At this point the shell can be interacted with using
+         * libssh2_channel_read()
+         * libssh2_channel_read_stderr()
+         * libssh2_channel_write()
+         * libssh2_channel_write_stderr()
+         *
+         * Blocking mode may be (en|dis)abled with:
+         *    libssh2_channel_set_blocking()
+         * If the server send EOF, libssh2_channel_eof() will return non-0
+         * To send EOF to the server use: libssh2_channel_send_eof()
+         * A channel can be closed with: libssh2_channel_close()
+         * A channel can be freed with: libssh2_channel_free()
+         */
+
+        /* Read and display all the data received on stdout (ignoring stderr)
+         * until the channel closes. This will eventually block if the command
+         * produces too much data on stderr; the loop must be rewritten to use
+         * non-blocking mode and include interspersed calls to
+         * libssh2_channel_read_stderr() to avoid this. See ssh2_echo.c for
+         * an idea of how such a loop might look.
+         */
+        while(!libssh2_channel_eof(channel)) {
+            char buf[1024];
+            ssize_t err = libssh2_channel_read(channel, buf, sizeof(buf));
+            if(err < 0)
+                fprintf(stderr, "Unable to read response: %d\n", (int)err);
+            else {
+                fwrite(buf, 1, err, stdout);
+            }
+        }
     }
 
-    /* Open a SHELL on that pty */
-    if(libssh2_channel_shell(channel)) {
-        fprintf(stderr, "Unable to request shell on allocated pty\n");
-        goto shutdown;
-    }
+    rc = libssh2_channel_get_exit_status(channel);
 
-    /* At this point the shell can be interacted with using
-     * libssh2_channel_read()
-     * libssh2_channel_read_stderr()
-     * libssh2_channel_write()
-     * libssh2_channel_write_stderr()
-     *
-     * Blocking mode may be (en|dis)abled with: libssh2_channel_set_blocking()
-     * If the server send EOF, libssh2_channel_eof() will return non-0
-     * To send EOF to the server use: libssh2_channel_send_eof()
-     * A channel can be closed with: libssh2_channel_close()
-     * A channel can be freed with: libssh2_channel_free()
-     */
+    if(libssh2_channel_close(channel))
+        fprintf(stderr, "Unable to close channel\n");
 
-  skip_shell:
     if(channel) {
         libssh2_channel_free(channel);
         channel = NULL;
@@ -302,20 +334,24 @@ int main(int argc, char *argv[])
      * libssh2_channel_direct_tcpip()
      */
 
-  shutdown:
+shutdown:
 
-    libssh2_session_disconnect(session,
-                               "Normal Shutdown, Thank you for playing");
-    libssh2_session_free(session);
+    if(session) {
+        libssh2_session_disconnect(session, "Normal Shutdown");
+        libssh2_session_free(session);
+    }
 
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    closesocket(sock);
+        closesocket(sock);
 #else
-    close(sock);
+        close(sock);
 #endif
-    fprintf(stderr, "all done!\n");
+    }
+
+    fprintf(stderr, "all done\n");
 
     libssh2_exit();
 
-    return 0;
+    return rc;
 }

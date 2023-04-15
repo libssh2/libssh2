@@ -2,11 +2,13 @@
 .SH NAME
 libssh2_keepalive_send - short function description
 .SH SYNOPSIS
-#include <libssh2.h>
 .nf
+#include <libssh2.h>
 
-int libssh2_keepalive_send(LIBSSH2_SESSION *session,
-                           int *seconds_to_next);
+int
+libssh2_keepalive_send(LIBSSH2_SESSION *session,
+                       int *seconds_to_next);
+.fi
 .SH DESCRIPTION
 Send a keepalive message if needed.  \fBseconds_to_next\fP indicates how many
 seconds you can sleep after this call before you need to call it again.

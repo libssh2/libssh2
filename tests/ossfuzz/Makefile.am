@@ -18,10 +18,10 @@ noinst_LIBRARIES =
 
 if USE_OSSFUZZERS
 noinst_PROGRAMS += \
-	ssh2_client_fuzzer
+  ssh2_client_fuzzer
 
 noinst_LIBRARIES += \
-	libstandaloneengine.a
+  libstandaloneengine.a
 endif
 
 ssh2_client_fuzzer_SOURCES = ssh2_client_fuzzer.cc testinput.h

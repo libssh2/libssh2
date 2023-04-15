@@ -5,10 +5,13 @@
 .SH NAME
 libssh2_knownhost_readline - read a known host line
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-int libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
-                               const char *line, size_t len, int type):
+int
+libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
+                           const char *line, size_t len, int type):
+.fi
 .SH DESCRIPTION
 Tell libssh2 to read a buffer as it if is a line from a known hosts file.
 

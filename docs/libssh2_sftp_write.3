@@ -6,9 +6,11 @@ libssh2_sftp_write - write SFTP data
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-ssize_t libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *handle,
-                           const char *buffer,
-                           size_t count);
+ssize_t
+libssh2_sftp_write(LIBSSH2_SFTP_HANDLE *handle,
+                   const char *buffer,
+                   size_t count);
+.fi
 .SH DESCRIPTION
 \fBlibssh2_sftp_write(3)\fP writes a block of data to the SFTP server. This
 method is modeled after the POSIX write() function and uses the same calling
@@ -62,10 +64,10 @@ end.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
-\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP - 
+\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP -
 
-\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was 
-received on the socket, or an SFTP operation caused an errorcode to 
+\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was
+received on the socket, or an SFTP operation caused an errorcode to
 be returned by the server.
 .SH SEE ALSO
 .BR libssh2_sftp_open_ex(3)

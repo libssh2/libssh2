@@ -1,9 +1,4 @@
-#include "session_fixture.h"
 #include "runner.h"
-
-#include <libssh2.h>
-
-#include <stdio.h>
 
 static const char *EXPECTED_RSA_HOSTKEY =
     "AAAAB3NzaC1yc2EAAAABIwAAAQEArrr/JuJmaZligyfS8vcNur+mWR2ddDQtVdhHzdKU"
@@ -26,27 +21,27 @@ int test(LIBSSH2_SESSION *session)
     char *expected_hostkey = NULL;
 
     const char *hostkey = libssh2_session_hostkey(session, &len, &type);
-    if(hostkey == NULL) {
+    if(!hostkey) {
         print_last_session_error("libssh2_session_hostkey");
         return 1;
     }
 
     if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
         rc = libssh2_base64_decode(session, &expected_hostkey, &expected_len,
-                                   EXPECTED_ECDSA_HOSTKEY,
-                                   strlen(EXPECTED_ECDSA_HOSTKEY));
+                 EXPECTED_ECDSA_HOSTKEY,
+                 (unsigned int)strlen(EXPECTED_ECDSA_HOSTKEY));
     }
     else if(type == LIBSSH2_HOSTKEY_TYPE_RSA) {
         rc = libssh2_base64_decode(session, &expected_hostkey, &expected_len,
-                                   EXPECTED_RSA_HOSTKEY,
-                                   strlen(EXPECTED_RSA_HOSTKEY));
+                 EXPECTED_RSA_HOSTKEY,
+                 (unsigned int)strlen(EXPECTED_RSA_HOSTKEY));
     }
     else {
         fprintf(stderr, "Unexpected type of hostkey: %i\n", type);
         return 1;
     }
 
-    if(rc != 0) {
+    if(rc) {
         print_last_session_error("libssh2_base64_decode");
         return 1;
     }
