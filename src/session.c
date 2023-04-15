@@ -217,9 +217,6 @@ banner_send(LIBSSH2_SESSION * session)
     char *banner = (char *) LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
     size_t banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
     ssize_t ret;
-#ifdef LIBSSH2DEBUG
-    char banner_dup[256];
-#endif
 
     if(session->banner_TxRx_state == libssh2_NB_state_idle) {
         if(session->local.banner) {
@@ -228,18 +225,22 @@ banner_send(LIBSSH2_SESSION * session)
             banner = (char *) session->local.banner;
         }
 #ifdef LIBSSH2DEBUG
-        /* Hack and slash to avoid sending CRLF in debug output */
-        if(banner_len < 256) {
-            memcpy(banner_dup, banner, banner_len - 2);
-            banner_dup[banner_len - 2] = '\0';
-        }
-        else {
-            memcpy(banner_dup, banner, 255);
-            banner_dup[255] = '\0';
-        }
+        {
+            char banner_dup[256];
 
-        _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Sending Banner: %s",
-                       banner_dup));
+            /* Hack and slash to avoid sending CRLF in debug output */
+            if(banner_len < 256) {
+                memcpy(banner_dup, banner, banner_len - 2);
+                banner_dup[banner_len - 2] = '\0';
+            }
+            else {
+                memcpy(banner_dup, banner, 255);
+                banner_dup[255] = '\0';
+            }
+
+            _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
+                           "Sending Banner: %s", banner_dup));
+        }
 #endif
 
         session->banner_TxRx_state = libssh2_NB_state_created;
@@ -292,8 +293,6 @@ static int
 session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
                  int nonblock /* TRUE or FALSE */ )
 {
-#undef SETBLOCK
-#define SETBLOCK 0
 #ifdef HAVE_O_NONBLOCK
     /* most recent unix versions */
     int flags;
@@ -303,54 +302,30 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
         return fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
     else
         return fcntl(sockfd, F_SETFL, flags & (~O_NONBLOCK));
-#undef SETBLOCK
-#define SETBLOCK 1
-#endif
-
-#if defined(HAVE_FIONBIO) && (SETBLOCK == 0)
+#elif defined(HAVE_FIONBIO)
     /* older unix versions and VMS */
     int flags;
 
     flags = nonblock;
     return ioctl(sockfd, FIONBIO, &flags);
-#undef SETBLOCK
-#define SETBLOCK 2
-#endif
-
-#if defined(HAVE_IOCTLSOCKET) && (SETBLOCK == 0)
-    /* Windows? */
+#elif defined(HAVE_IOCTLSOCKET)
+    /* Windows */
     unsigned long flags;
     flags = nonblock;
 
     return ioctlsocket(sockfd, FIONBIO, &flags);
-#undef SETBLOCK
-#define SETBLOCK 3
-#endif
-
-#if defined(HAVE_IOCTLSOCKET_CASE) && (SETBLOCK == 0)
+#elif defined(HAVE_IOCTLSOCKET_CASE)
     /* presumably for Amiga */
     return IoctlSocket(sockfd, FIONBIO, (long) nonblock);
-#undef SETBLOCK
-#define SETBLOCK 4
-#endif
-
-#if defined(HAVE_SO_NONBLOCK) && (SETBLOCK == 0)
+#elif defined(HAVE_SO_NONBLOCK)
     /* BeOS */
     long b = nonblock ? 1 : 0;
     return setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
-#undef SETBLOCK
-#define SETBLOCK 5
-#endif
-
-#ifdef HAVE_DISABLED_NONBLOCKING
+#elif defined(HAVE_DISABLED_NONBLOCKING)
     (void)sockfd;
     (void)nonblock;
     return 0;                   /* returns success */
-#undef SETBLOCK
-#define SETBLOCK 6
-#endif
-
-#if(SETBLOCK == 0)
+#else
 #error "no non-blocking method was found/used/set"
 #endif
 }
@@ -363,8 +338,6 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 static int
 get_socket_nonblocking(libssh2_socket_t sockfd)
 {                               /* operate on this */
-#undef GETBLOCK
-#define GETBLOCK 0
 #ifdef HAVE_O_NONBLOCK
     /* most recent unix versions */
     int flags = fcntl(sockfd, F_GETFL, 0);
@@ -374,12 +347,8 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
         return 1;
     }
     return (flags & O_NONBLOCK);
-#undef GETBLOCK
-#define GETBLOCK 1
-#endif
-
-#if defined(WSAEWOULDBLOCK) && (GETBLOCK == 0)
-    /* Windows? */
+#elif defined(WSAEWOULDBLOCK)
+    /* Windows */
     unsigned int option_value;
     socklen_t option_len = sizeof(option_value);
 
@@ -389,11 +358,7 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
         return 1;
     }
     return (int) option_value;
-#undef GETBLOCK
-#define GETBLOCK 2
-#endif
-
-#if defined(HAVE_SO_NONBLOCK) && (GETBLOCK == 0)
+#elif defined(HAVE_SO_NONBLOCK)
     /* BeOS */
     long b;
     if(getsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b))) {
@@ -401,12 +366,7 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
         return 1;
     }
     return (int) b;
-#undef GETBLOCK
-#define GETBLOCK 5
-#endif
-
-#if defined(SO_STATE) && defined(__VMS) && (GETBLOCK == 0)
-
+#elif defined(SO_STATE) && defined(__VMS)
     /* VMS TCP/IP Services */
 
     size_t sockstat = 0;
@@ -422,19 +382,10 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
         return 1;
     }
     return 0;
-
-#undef GETBLOCK
-#define GETBLOCK 6
-#endif
-
-#ifdef HAVE_DISABLED_NONBLOCKING
+#elif defined(HAVE_DISABLED_NONBLOCKING)
     (void)sockfd;
     return 1;                   /* returns blocking */
-#undef GETBLOCK
-#define GETBLOCK 7
-#endif
-
-#if(GETBLOCK == 0)
+#else
 #error "no non-blocking method was found/used/get"
 #endif
 }
