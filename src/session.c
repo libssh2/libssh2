@@ -524,6 +524,8 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
         session->api_timeout = 0; /* timeout-free API by default */
         session->api_block_mode = 1; /* blocking API by default */
         session->packet_read_timeout = LIBSSH2_DEFAULT_READ_TIMEOUT;
+        session->flag.quote_paths = 1; /* default behavior is to quote paths
+                                          for the scp subsystem */
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                        "New session resource allocated"));
         _libssh2_init_if_needed();
@@ -1408,6 +1410,9 @@ libssh2_session_flag(LIBSSH2_SESSION * session, int flag, int value)
         break;
     case LIBSSH2_FLAG_COMPRESS:
         session->flag.compress = value;
+        break;
+    case LIBSSH2_FLAG_QUOTE_PATHS:
+        session->flag.quote_paths = value;
         break;
     default:
         /* unknown flag */

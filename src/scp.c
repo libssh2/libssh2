@@ -299,9 +299,21 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                  "scp -%sf ", sb ? "p" : "");
 
         cmd_len = strlen((char *)session->scpRecv_command);
-        cmd_len += shell_quotearg(path,
-                                  &session->scpRecv_command[cmd_len],
-                                  session->scpRecv_command_len - cmd_len);
+
+        if(!session->flag.quote_paths) {
+            size_t path_len;
+
+            path_len = strlen(path);
+
+            /* no NUL-termination neeed, so memcpy will do */
+            memcpy(&session->scpRecv_command[cmd_len], path, path_len);
+            cmd_len += path_len;
+        }
+        else {
+            cmd_len += shell_quotearg(path,
+                                      &session->scpRecv_command[cmd_len],
+                                      session->scpRecv_command_len - cmd_len);
+        }
 
         /* the command to exec should _not_ be NUL-terminated */
         session->scpRecv_command_len = cmd_len;
@@ -860,9 +872,22 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                  "scp -%st ", (mtime || atime) ? "p" : "");
 
         cmd_len = strlen((char *)session->scpSend_command);
-        cmd_len += shell_quotearg(path,
-                                  &session->scpSend_command[cmd_len],
-                                  session->scpSend_command_len - cmd_len);
+
+        if(!session->flag.quote_paths) {
+            size_t path_len;
+
+            path_len = strlen(path);
+
+            /* no NUL-termination neeed, so memcpy will do */
+            memcpy(&session->scpSend_command[cmd_len], path, path_len);
+            cmd_len += path_len;
+
+        }
+        else {
+            cmd_len += shell_quotearg(path,
+                                      &session->scpSend_command[cmd_len],
+                                      session->scpSend_command_len - cmd_len);
+        }
 
         /* the command to exec should _not_ be NUL-terminated */
         session->scpSend_command_len = cmd_len;
