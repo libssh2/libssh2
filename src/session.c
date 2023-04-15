@@ -984,11 +984,11 @@ session_free(LIBSSH2_SESSION *session)
 
     /* Free startup_key_state.key_state_low variables */
 #if LIBSSH2_ECDSA
-    if(session->startup_key_state.key_state_low.private_key != NULL)
+    if(session->startup_key_state.key_state_low.private_key)
         _libssh2_ecdsa_free(
                session->startup_key_state.key_state_low.private_key);
 #endif
-    if(session->startup_key_state.key_state_low.public_key_oct != NULL)
+    if(session->startup_key_state.key_state_low.public_key_oct)
         free(session->startup_key_state.key_state_low.public_key_oct);
 
     /*
