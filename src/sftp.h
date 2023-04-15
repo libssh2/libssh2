@@ -154,7 +154,7 @@ struct _LIBSSH2_SFTP
 
     /* Holder for partial packet, use in libssh2_sftp_packet_read() */
     unsigned char packet_header[9];
-    /*packet size (4) packet type (1) request id (4) */
+    /* packet size (4) packet type (1) request id (4) */
     size_t packet_header_len;            /* packet_header length     */
     unsigned char *partial_packet;      /* The data, including header */
     uint32_t partial_len;               /* Desired number of bytes */
