@@ -86,8 +86,8 @@ int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
 int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
                          const char *errmsg, int errflags)
 {
-    if(session == NULL) {
-        if(errmsg != NULL)
+    if(!session) {
+        if(errmsg)
             fprintf(stderr, "Session is NULL, error: %s\n", errmsg);
         return errcode;
     }
@@ -98,7 +98,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
     session->err_code = errcode;
     session->err_flags = 0;
 
-    if((errmsg != NULL) && ((errflags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
+    if(errmsg && ((errflags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
         size_t len = strlen(errmsg);
         char *copy = LIBSSH2_ALLOC(session, len + 1);
         if(copy) {
@@ -162,7 +162,7 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length,
 {
     ssize_t rc;
 
-    (void) abstract;
+    (void)abstract;
 
     rc = recv(sock, buffer, length, flags);
 #ifdef WIN32
@@ -195,7 +195,7 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 {
     ssize_t rc;
 
-    (void) abstract;
+    (void)abstract;
 
     rc = send(sock, buffer, length, flags);
 #ifdef WIN32
@@ -372,10 +372,10 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
 
 /* ---- Base64 Encoding/Decoding Table --- */
 static const char table64[]=
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*
- * _libssh2_base64_encode()
+ * _libssh2_base64_encode
  *
  * Returns the length of the newly created base64 string. The third argument
  * is a pointer to an allocated area holding the base64 data. If something
@@ -396,11 +396,11 @@ size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
     *outptr = NULL; /* set to NULL in case of failure before we reach the
                        end */
 
-    if(0 == insize)
+    if(insize == 0)
         insize = strlen(indata);
 
     base64data = output = LIBSSH2_ALLOC(session, insize * 4 / 3 + 4);
-    if(NULL == output)
+    if(!output)
         return 0;
 
     while(insize > 0) {
@@ -545,8 +545,8 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
 LIBSSH2_API int
 libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
 {
-    (void) session;
-    (void) bitmask;
+    (void)session;
+    (void)bitmask;
     return 0;
 }
 
@@ -554,9 +554,9 @@ LIBSSH2_API int
 libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *handler_context,
                          libssh2_trace_handler_func callback)
 {
-    (void) session;
-    (void) handler_context;
-    (void) callback;
+    (void)session;
+    (void)handler_context;
+    (void)callback;
     return 0;
 }
 #endif
@@ -656,7 +656,7 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
 /* this define is defined in misc.h for the correct platforms */
 #ifdef LIBSSH2_GETTIMEOFDAY_WIN32
 /*
- * gettimeofday
+ * _libssh2_gettimeofday
  * Implementation according to:
  * The Open Group Base Specifications Issue 6
  * IEEE Std 1003.1, 2004 Edition
@@ -756,7 +756,7 @@ struct string_buf *_libssh2_string_buf_new(LIBSSH2_SESSION *session)
     struct string_buf *ret;
 
     ret = _libssh2_calloc(session, sizeof(*ret));
-    if(ret == NULL)
+    if(!ret)
         return NULL;
 
     return ret;
@@ -764,10 +764,10 @@ struct string_buf *_libssh2_string_buf_new(LIBSSH2_SESSION *session)
 
 void _libssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf)
 {
-    if(buf == NULL)
+    if(!buf)
         return;
 
-    if(buf->data != NULL)
+    if(buf->data)
         LIBSSH2_FREE(session, buf->data);
 
     LIBSSH2_FREE(session, buf);

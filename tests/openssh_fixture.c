@@ -66,8 +66,9 @@ static int have_docker = 0;
 
 static int run_command_varg(char **output, const char *command, va_list args)
 {
+    static const char redirect_stderr[] = "%s 2>&1";
+
     FILE *pipe;
-    char redirect_stderr[] = "%s 2>&1";
     char command_buf[BUFSIZ];
     char buf[BUFSIZ];
     int ret;
@@ -109,7 +110,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
     buf[0] = 0;
     buf_len = 0;
     while(buf_len < (sizeof(buf) - 1) &&
-        fgets(&buf[buf_len], (int)(sizeof(buf) - buf_len), pipe) != NULL) {
+        fgets(&buf[buf_len], (int)(sizeof(buf) - buf_len), pipe)) {
         buf_len = strlen(buf);
     }
 
@@ -118,7 +119,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
 #else
     ret = pclose(pipe);
 #endif
-    if(ret != 0) {
+    if(ret) {
         fprintf(stderr, "Error running command '%s' (exit %d): %s\n",
                 command, ret, buf);
     }
@@ -158,7 +159,7 @@ static int build_openssh_server_docker_image(void)
     if(have_docker) {
         char buildcmd[1024];
         const char *container_image_name = openssh_server_image();
-        if(container_image_name != NULL) {
+        if(container_image_name) {
             int ret = run_command(NULL, "docker pull --quiet %s",
                                   container_image_name);
             if(ret == 0) {
@@ -190,7 +191,7 @@ static int start_openssh_server(char **container_id_out)
 {
     if(have_docker) {
         const char *container_host_port = openssh_server_port();
-        if(container_host_port != NULL) {
+        if(container_host_port) {
             return run_command(container_id_out,
                                "docker run --rm -d -p %s:22 "
                                "libssh2/openssh_server",
@@ -234,12 +235,12 @@ static int is_running_inside_a_container(void)
     ssize_t read = 0;
     int found = 0;
     f = fopen(cgroup_filename, "r");
-    if(f == NULL) {
+    if(!f) {
         /* Don't go further, we are not in a container */
         return 0;
     }
     while((read = getline(&line, &len, f)) != -1) {
-        if(strstr(line, "docker") != NULL) {
+        if(strstr(line, "docker")) {
             found = 1;
             break;
         }
@@ -262,7 +263,7 @@ static void portable_sleep(unsigned int seconds)
 static int ip_address_from_container(char *container_id, char **ip_address_out)
 {
     const char *active_docker_machine = docker_machine_name();
-    if(active_docker_machine != NULL) {
+    if(active_docker_machine) {
 
         /* This can be flaky when tests run in parallel (see
            https://github.com/docker/machine/issues/2612), so we retry a few
@@ -336,14 +337,14 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     if(have_docker) {
         int res;
         res = ip_address_from_container(container_id, &ip_address);
-        if(res != 0) {
+        if(res) {
             fprintf(stderr, "Failed to get IP address for container %s\n",
                     container_id);
             goto cleanup;
         }
 
         res = port_from_container(container_id, &port_string);
-        if(res != 0) {
+        if(res) {
             fprintf(stderr, "Failed to get port for container %s\n",
                     container_id);
             goto cleanup;
@@ -423,16 +424,16 @@ int start_openssh_fixture(void)
     WSADATA wsadata;
 
     ret = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(ret != 0) {
+    if(ret) {
         fprintf(stderr, "WSAStartup failed with error: %d\n", ret);
         return 1;
     }
 #endif
 
-    have_docker = (getenv("OPENSSH_NO_DOCKER") == NULL);
+    have_docker = !getenv("OPENSSH_NO_DOCKER");
 
     ret = build_openssh_server_docker_image();
-    if(ret == 0) {
+    if(!ret) {
         return start_openssh_server(&running_container_id);
     }
     else {

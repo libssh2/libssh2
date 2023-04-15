@@ -25,6 +25,7 @@
 #include <sys/param.h>
 #endif
 
+#define LIBSSH2_BCRYPT_PBKDF_C
 #include "blowfish.c"
 
 #define MINIMUM(a,b) (((a) < (b)) ? (a) : (b))
@@ -122,7 +123,7 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
        keylen > sizeof(out) * sizeof(out) || saltlen > 1<<20)
         return -1;
     countsalt = calloc(1, saltlen + 4);
-    if(countsalt == NULL)
+    if(!countsalt)
         return -1;
     stride = (keylen + sizeof(out) - 1) / sizeof(out);
     amt = (keylen + stride - 1) / stride;

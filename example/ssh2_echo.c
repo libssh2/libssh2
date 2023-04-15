@@ -1,10 +1,8 @@
 /*
- * Run it like this:
- *
- * $ ./ssh2_echo 127.0.0.1 user password
- *
  * The code sends a 'cat' command, and then writes a lot of data to it only to
  * check that reading the returned data sums up to the same amount.
+ *
+ * $ ./ssh2_echo 127.0.0.1 user password
  *
  */
 
@@ -36,6 +34,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+
+static const char *hostname = "127.0.0.1";
+static const char *commandline = "cat";
+static const char *username = "user";
+static const char *password = "password";
 
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
@@ -71,17 +74,13 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 
 int main(int argc, char *argv[])
 {
-    const char *hostname = "127.0.0.1";
-    const char *commandline = "cat";
-    const char *username    = "user";
-    const char *password    = "password";
     uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
     const char *fingerprint;
-    LIBSSH2_SESSION *session;
-    LIBSSH2_CHANNEL *channel;
     int rc;
+    LIBSSH2_SESSION *session = NULL;
+    LIBSSH2_CHANNEL *channel;
     int exitcode = 0;
     char *exitsignal = (char *)"none";
     size_t len;
@@ -90,11 +89,10 @@ int main(int argc, char *argv[])
 
 #ifdef WIN32
     WSADATA wsadata;
-    int err;
 
-    err = WSAStartup(MAKEWORD(2, 0), &wsadata);
-    if(err != 0) {
-        fprintf(stderr, "WSAStartup failed with error: %d\n", err);
+    rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
+    if(rc) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
 #endif
@@ -110,31 +108,36 @@ int main(int argc, char *argv[])
     }
 
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
         return 1;
     }
 
     hostaddr = inet_addr(hostname);
 
-    /* Ultra basic "connect to port 22 on localhost"
-     * Your code is responsible for creating the socket establishing the
-     * connection
+    /* Ultra basic "connect to port 22 on localhost".  Your code is
+     * responsible for creating the socket establishing the connection
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock == LIBSSH2_INVALID_SOCKET) {
+        fprintf(stderr, "failed to create socket!\n");
+        goto shutdown;
+    }
 
     sin.sin_family = AF_INET;
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect!\n");
-        return -1;
+        goto shutdown;
     }
 
     /* Create a session instance */
     session = libssh2_session_init();
-    if(!session)
-        return -1;
+    if(!session) {
+        fprintf(stderr, "Could not initialize SSH session!\n");
+        goto shutdown;
+    }
 
     /* tell libssh2 we want it all done non-blocking */
     libssh2_session_set_blocking(session, 0);
@@ -146,7 +149,7 @@ int main(int argc, char *argv[])
           LIBSSH2_ERROR_EAGAIN);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
-        return -1;
+        goto shutdown;
     }
 
     nh = libssh2_knownhost_init(session);
@@ -173,8 +176,8 @@ int main(int argc, char *argv[])
                                              &host);
 
         fprintf(stderr, "Host check: %d, key: %s\n", check,
-                (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH)?
-                host->key:"<none>");
+                (check <= LIBSSH2_KNOWNHOST_CHECK_MISMATCH) ?
+                host->key : "<none>");
 
         /*****
          * At this point, we could verify that 'check' tells us the key is
@@ -192,28 +195,31 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_password(session, username, password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by password failed.\n");
+            fprintf(stderr, "Authentication by password failed!\n");
             exit(1);
         }
     }
 
     libssh2_trace(session, LIBSSH2_TRACE_SOCKET);
 
-    /* Exec non-blocking on the remove host */
-    while((channel = libssh2_channel_open_session(session)) == NULL &&
-          libssh2_session_last_error(session, NULL, NULL, 0) ==
-          LIBSSH2_ERROR_EAGAIN) {
+    /* Exec non-blocking on the remote host */
+    do {
+        channel = libssh2_channel_open_session(session);
+        if(channel ||
+           libssh2_session_last_error(session, NULL, NULL, 0) !=
+           LIBSSH2_ERROR_EAGAIN)
+            break;
         waitsocket(sock, session);
-    }
-    if(channel == NULL) {
+    } while(1);
+    if(!channel) {
         fprintf(stderr, "Error\n");
         exit(1);
     }
     while((rc = libssh2_channel_exec(channel, commandline)) ==
-          LIBSSH2_ERROR_EAGAIN)
+          LIBSSH2_ERROR_EAGAIN) {
         waitsocket(sock, session);
-
-    if(rc != 0) {
+    }
+    if(rc) {
         fprintf(stderr, "exec error\n");
         exit(1);
     }
@@ -244,7 +250,7 @@ int main(int argc, char *argv[])
 
         do {
             int act = 0;
-            rc = (libssh2_poll(fds, 1, 10));
+            rc = libssh2_poll(fds, 1, 10);
 
             if(rc < 1)
                 continue;
@@ -348,14 +354,21 @@ int main(int argc, char *argv[])
         }
     }
 
-    libssh2_session_disconnect(session, "Normal Shutdown");
-    libssh2_session_free(session);
+shutdown:
 
+    if(session) {
+        libssh2_session_disconnect(session, "Normal Shutdown");
+        libssh2_session_free(session);
+    }
+
+    if(sock != LIBSSH2_INVALID_SOCKET) {
 #ifdef WIN32
-    closesocket(sock);
+        closesocket(sock);
 #else
-    close(sock);
+        close(sock);
 #endif
+    }
+
     fprintf(stderr, "all done\n");
 
     libssh2_exit();

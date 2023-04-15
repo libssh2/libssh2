@@ -36,9 +36,7 @@
  * OF SUCH DAMAGE.
  */
 
-#include "libssh2_priv.h"
-
-#ifdef LIBSSH2_WINCNG /* compile only if we build with wincng */
+#ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
 
 /* required for cross-compilation against the w64 mingw-runtime package */
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
@@ -606,12 +604,12 @@ _libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx)
 
 int
 _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
-                                unsigned long hashlen,
-                                const unsigned char *sig,
-                                unsigned long sig_len,
-                                const unsigned char *m,
-                                unsigned long m_len,
-                                unsigned long flags)
+                               unsigned long hashlen,
+                               const unsigned char *sig,
+                               unsigned long sig_len,
+                               const unsigned char *m,
+                               unsigned long m_len,
+                               unsigned long flags)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfoPKCS1;
     BCRYPT_ALG_HANDLE hAlgHash;
@@ -1269,11 +1267,11 @@ _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx* rsa,
 
 int
 _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
-                              libssh2_rsa_ctx *rsa,
-                              const unsigned char *hash,
-                              size_t hash_len,
-                              unsigned char **signature,
-                              size_t *signature_len)
+                             libssh2_rsa_ctx *rsa,
+                             const unsigned char *hash,
+                             size_t hash_len,
+                             unsigned char **signature,
+                             size_t *signature_len)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfo;
     unsigned char *data, *sig;
@@ -2449,7 +2447,7 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             /* Pass ownership to dhctx; these parameters will be freed when
              * the context is destroyed. We need to keep the parameters more
              * easily available so that we have access to the `g` value when
-             * _libssh2_dh_secret is called later. */
+             * _libssh2_dh_secret() is called later. */
             dhctx->dh_params = dh_params;
         }
         dh_params = NULL;
@@ -2730,4 +2728,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     return NULL;
 }
 
-#endif /* LIBSSH2_WINCNG */
+#endif /* LIBSSH2_CRYPTO_C */

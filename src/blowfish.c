@@ -37,6 +37,8 @@
  * Bruce Schneier.
  */
 
+#if defined(LIBSSH2_BCRYPT_PBKDF_C) || defined(_DEBUG_BLOWFISH)
+
 #if !defined(HAVE_BCRYPT_PBKDF) && (!defined(HAVE_BLOWFISH_INITSTATE) || \
                                     !defined(HAVE_BLOWFISH_EXPAND0STATE) || \
                                     !defined(HAVE_BLF_ENC))
@@ -60,8 +62,8 @@
 
 /* Blowfish context */
 typedef struct BlowfishContext {
-        uint32_t S[4][256];     /* S-Boxes */
-        uint32_t P[BLF_N + 2];  /* Subkeys */
+    uint32_t S[4][256];     /* S-Boxes */
+    uint32_t P[BLF_N + 2];  /* Subkeys */
 } blf_ctx;
 
 /* Raw access to customized Blowfish
@@ -102,10 +104,10 @@ static uint32_t Blowfish_stream2word(const uint8_t *, uint16_t, uint16_t *);
 
 /* Function for Feistel Networks */
 
-#define F(s, x) ((((s)[        (((x)>>24)&0xFF)]      \
-                 + (s)[0x100 + (((x)>>16)&0xFF)])     \
-                 ^ (s)[0x200 + (((x)>> 8)&0xFF)])     \
-                 + (s)[0x300 + ( (x)     &0xFF)])
+#define F(s, x) ((((s)[        (((x) >> 24) & 0xFF)]      \
+                 + (s)[0x100 + (((x) >> 16) & 0xFF)])     \
+                 ^ (s)[0x200 + (((x) >>  8) & 0xFF)])     \
+                 + (s)[0x300 + ( (x)        & 0xFF)])
 
 #define BLFRND(s,p,i,j,n) (i ^= F(s,j) ^ (p)[n])
 
@@ -743,3 +745,5 @@ main(void)
           (!defined(HAVE_BLOWFISH_INITSTATE) ||   \
           !defined(HAVE_BLOWFISH_EXPAND0STATE) || \
           '!defined(HAVE_BLF_ENC)) */
+
+#endif /* defined(LIBSSH2_BCRYPT_PBKDF_C) || defined(_DEBUG_BLOWFISH) */

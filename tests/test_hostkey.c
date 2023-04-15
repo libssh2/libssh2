@@ -21,7 +21,7 @@ int test(LIBSSH2_SESSION *session)
     char *expected_hostkey = NULL;
 
     const char *hostkey = libssh2_session_hostkey(session, &len, &type);
-    if(hostkey == NULL) {
+    if(!hostkey) {
         print_last_session_error("libssh2_session_hostkey");
         return 1;
     }
@@ -41,7 +41,7 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    if(rc != 0) {
+    if(rc) {
         print_last_session_error("libssh2_base64_decode");
         return 1;
     }

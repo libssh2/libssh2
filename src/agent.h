@@ -75,9 +75,9 @@ struct agent_publickey {
 };
 
 struct agent_ops {
-    agent_connect_func connect;
-    agent_transact_func transact;
-    agent_disconnect_func disconnect;
+    const agent_connect_func connect;
+    const agent_transact_func transact;
+    const agent_disconnect_func disconnect;
 };
 
 struct _LIBSSH2_AGENT

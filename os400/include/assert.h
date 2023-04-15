@@ -1,7 +1,5 @@
-#ifndef __LIBSSH2_USERAUTH_H
-#define __LIBSSH2_USERAUTH_H
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2010 by Daniel Stenberg
+/*
+ * Copyright (C) 2023 Patrick Monnerat <patrick@monnerat.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -38,14 +36,23 @@
  * OF SUCH DAMAGE.
  */
 
-int
-_libssh2_userauth_publickey(LIBSSH2_SESSION *session,
-                            const char *username,
-                            size_t username_len,
-                            const unsigned char *pubkeydata,
-                            size_t pubkeydata_len,
-                            LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
-                                ((*sign_callback)),
-                            void *abstract);
+#ifndef LIBSSH2_ASSERT_H
+#define LIBSSH2_ASSERT_H
 
-#endif /* __LIBSSH2_USERAUTH_H */
+#include <stdio.h>
+#include <stdlib.h>
+
+/* Ascii assert() macro. */
+
+#ifndef NDEBUG
+#pragma convert(819)
+
+#define assert(expr)    ((expr)? ((void) 0): (fprintf(stderr,           \
+                "Assertion failed: %s in file %s line %u. Aborting\n",  \
+                #expr, __FILE__, __LINE__), abort()))
+#else
+#define assert(expr)    ((void) 0)
+#endif
+#endif
+
+/* vim: set expandtab ts=4 sw=4: */

@@ -282,7 +282,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
         session->scpRecv_atime = 0;
 
         session->scpRecv_command_len =
-            _libssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb?1:0);
+            _libssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb ? 1 : 0);
 
         session->scpRecv_command =
             LIBSSH2_ALLOC(session, session->scpRecv_command_len);
@@ -296,12 +296,24 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 
         snprintf((char *)session->scpRecv_command,
                  session->scpRecv_command_len,
-                 "scp -%sf ", sb?"p":"");
+                 "scp -%sf ", sb ? "p" : "");
 
         cmd_len = strlen((char *)session->scpRecv_command);
-        cmd_len += shell_quotearg(path,
-                                  &session->scpRecv_command[cmd_len],
-                                  session->scpRecv_command_len - cmd_len);
+
+        if(!session->flag.quote_paths) {
+            size_t path_len;
+
+            path_len = strlen(path);
+
+            /* no NUL-termination neeed, so memcpy will do */
+            memcpy(&session->scpRecv_command[cmd_len], path, path_len);
+            cmd_len += path_len;
+        }
+        else {
+            cmd_len += shell_quotearg(path,
+                                      &session->scpRecv_command[cmd_len],
+                                      session->scpRecv_command_len - cmd_len);
+        }
 
         /* the command to exec should _not_ be NUL-terminated */
         session->scpRecv_command_len = cmd_len;
@@ -384,7 +396,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
     if((session->scpRecv_state == libssh2_NB_state_sent2)
         || (session->scpRecv_state == libssh2_NB_state_sent3)) {
         while(sb && (session->scpRecv_response_len <
-                      LIBSSH2_SCP_RESPONSE_BUFLEN)) {
+                     LIBSSH2_SCP_RESPONSE_BUFLEN)) {
             unsigned char *s, *p;
 
             if(session->scpRecv_state == libssh2_NB_state_sent2) {
@@ -826,7 +838,7 @@ libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
 }
 
 /*
- * scp_send()
+ * scp_send
  *
  * Send a file using SCP
  *
@@ -843,7 +855,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
     if(session->scpSend_state == libssh2_NB_state_idle) {
         session->scpSend_command_len =
             _libssh2_shell_quotedsize(path) + sizeof("scp -t ") +
-            ((mtime || atime)?1:0);
+            ((mtime || atime) ? 1 : 0);
 
         session->scpSend_command =
             LIBSSH2_ALLOC(session, session->scpSend_command_len);
@@ -857,12 +869,25 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
         snprintf((char *)session->scpSend_command,
                  session->scpSend_command_len,
-                 "scp -%st ", (mtime || atime)?"p":"");
+                 "scp -%st ", (mtime || atime) ? "p" : "");
 
         cmd_len = strlen((char *)session->scpSend_command);
-        cmd_len += shell_quotearg(path,
-                                  &session->scpSend_command[cmd_len],
-                                  session->scpSend_command_len - cmd_len);
+
+        if(!session->flag.quote_paths) {
+            size_t path_len;
+
+            path_len = strlen(path);
+
+            /* no NUL-termination neeed, so memcpy will do */
+            memcpy(&session->scpSend_command[cmd_len], path, path_len);
+            cmd_len += path_len;
+
+        }
+        else {
+            cmd_len += shell_quotearg(path,
+                                      &session->scpSend_command[cmd_len],
+                                      session->scpSend_command_len - cmd_len);
+        }
 
         /* the command to exec should _not_ be NUL-terminated */
         session->scpSend_command_len = cmd_len;
@@ -939,7 +964,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
         else if(!rc)
             /* remain in the same state */
             goto scp_send_empty_channel;
-        else if(session->scpSend_response[0] != 0) {
+        else if(session->scpSend_response[0]) {
             _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                            "Invalid ACK response from remote");
             goto scp_send_error;
@@ -994,7 +1019,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
             else if(!rc)
                 /* remain in the same state */
                 goto scp_send_empty_channel;
-            else if(session->scpSend_response[0] != 0) {
+            else if(session->scpSend_response[0]) {
                 _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                "Invalid SCP ACK response");
                 goto scp_send_error;
@@ -1064,7 +1089,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
         else if(rc == 0)
             goto scp_send_empty_channel;
 
-        else if(session->scpSend_response[0] != 0) {
+        else if(session->scpSend_response[0]) {
             size_t err_len;
             char *err_msg;
 

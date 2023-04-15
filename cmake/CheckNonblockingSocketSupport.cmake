@@ -27,7 +27,8 @@ include(CheckCSourceCompiles)
 macro(check_nonblocking_socket_support)
   # There are two known platforms (AIX 3.x and SunOS 4.1.x) where the
   # O_NONBLOCK define is found but does not work.
-  check_c_source_compiles("
+  if(NOT WIN32)
+    check_c_source_compiles("
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -52,10 +53,12 @@ int main(void)
     int socket = 0;
     (void)fcntl(socket, F_SETFL, O_NONBLOCK);
 }"
-  HAVE_O_NONBLOCK)
+      HAVE_O_NONBLOCK)
+  endif()
 
   if(NOT HAVE_O_NONBLOCK)
-    check_c_source_compiles("/* FIONBIO test (old-style unix) */
+    if(NOT WIN32)
+      check_c_source_compiles("/* FIONBIO test (old-style unix) */
 #include <unistd.h>
 #include <stropts.h>
 
@@ -65,10 +68,12 @@ int main(void)
     int flags = 0;
     (void)ioctl(socket, FIONBIO, &flags);
 }"
-    HAVE_FIONBIO)
+        HAVE_FIONBIO)
+    endif()
 
     if(NOT HAVE_FIONBIO)
-      check_c_source_compiles("/* ioctlsocket test (Windows) */
+      if(WIN32)
+        check_c_source_compiles("/* ioctlsocket test (Windows) */
 #undef inline
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -82,7 +87,8 @@ int main(void)
     unsigned long flags = 0;
     (void)ioctlsocket(sd, FIONBIO, &flags);
 }"
-      HAVE_IOCTLSOCKET)
+          HAVE_IOCTLSOCKET)
+      endif()
 
       if(NOT HAVE_IOCTLSOCKET)
         check_c_source_compiles("/* IoctlSocket test (Amiga?) */
@@ -93,7 +99,7 @@ int main(void)
     int socket = 0;
     (void)IoctlSocket(socket, FIONBIO, (long)1);
 }"
-        HAVE_IOCTLSOCKET_CASE)
+          HAVE_IOCTLSOCKET_CASE)
 
         if(NOT HAVE_IOCTLSOCKET_CASE)
           check_c_source_compiles("/* SO_NONBLOCK test (BeOS) */
@@ -105,7 +111,7 @@ int main(void)
     int socket = 0;
     (void)setsockopt(socket, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
 }"
-          HAVE_SO_NONBLOCK)
+            HAVE_SO_NONBLOCK)
 
           if(NOT HAVE_SO_NONBLOCK)
             # No non-blocking socket method found

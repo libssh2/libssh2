@@ -40,6 +40,7 @@
 
 #if defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE)
 /* mac_none_MAC
+ *
  * Minimalist MAC: No MAC. DO NOT USE.
  *
  * The SSH2 Transport allows implementations to forego a message
@@ -84,7 +85,7 @@ mac_method_common_init(LIBSSH2_SESSION * session, unsigned char *key,
 {
     *abstract = key;
     *free_key = 0;
-    (void) session;
+    (void)session;
 
     return 0;
 }
@@ -113,15 +114,15 @@ mac_method_common_dtor(LIBSSH2_SESSION * session, void **abstract)
  */
 static int
 mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION * session,
-                          unsigned char *buf, uint32_t seqno,
-                          const unsigned char *packet,
-                          size_t packet_len,
-                          const unsigned char *addtl,
-                          size_t addtl_len, void **abstract)
+                              unsigned char *buf, uint32_t seqno,
+                              const unsigned char *packet,
+                              size_t packet_len,
+                              const unsigned char *addtl,
+                              size_t addtl_len, void **abstract)
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
-    (void) session;
+    (void)session;
 
     _libssh2_htonu32(seqno_buf, seqno);
 
@@ -168,15 +169,15 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512_etm = {
  */
 static int
 mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION * session,
-                          unsigned char *buf, uint32_t seqno,
-                          const unsigned char *packet,
-                          size_t packet_len,
-                          const unsigned char *addtl,
-                          size_t addtl_len, void **abstract)
+                              unsigned char *buf, uint32_t seqno,
+                              const unsigned char *packet,
+                              size_t packet_len,
+                              const unsigned char *addtl,
+                              size_t addtl_len, void **abstract)
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
-    (void) session;
+    (void)session;
 
     _libssh2_htonu32(seqno_buf, seqno);
 
@@ -233,7 +234,7 @@ mac_method_hmac_sha1_hash(LIBSSH2_SESSION * session,
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
-    (void) session;
+    (void)session;
 
     _libssh2_htonu32(seqno_buf, seqno);
 
@@ -318,7 +319,7 @@ mac_method_hmac_md5_hash(LIBSSH2_SESSION * session, unsigned char *buf,
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
-    (void) session;
+    (void)session;
 
     _libssh2_htonu32(seqno_buf, seqno);
 
@@ -393,7 +394,7 @@ mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION * session,
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
-    (void) session;
+    (void)session;
 
     _libssh2_htonu32(seqno_buf, seqno);
 

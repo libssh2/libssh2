@@ -13,12 +13,12 @@ int test(LIBSSH2_SESSION *session)
     const char *userauth_list =
         libssh2_userauth_list(session, USERNAME,
                               (unsigned int)strlen(USERNAME));
-    if(userauth_list == NULL) {
+    if(!userauth_list) {
         print_last_session_error("libssh2_userauth_list");
         return 1;
     }
 
-    if(strstr(userauth_list, "publickey") == NULL) {
+    if(!strstr(userauth_list, "publickey")) {
         fprintf(stderr, "'publickey' was expected in userauth list: %s\n",
                 userauth_list);
         return 1;
@@ -28,7 +28,7 @@ int test(LIBSSH2_SESSION *session)
         session, USERNAME, (unsigned int)strlen(USERNAME),
        srcdir_path(KEY_FILE_PUBLIC), srcdir_path(KEY_FILE_PRIVATE),
         PASSWORD);
-    if(rc != 0) {
+    if(rc) {
         print_last_session_error("libssh2_userauth_publickey_fromfile_ex");
         return 1;
     }

@@ -39,6 +39,8 @@
  * OF SUCH DAMAGE.
  */
 
+#define LIBSSH2_CRYPTO_ENGINE libssh2_openssl
+
 /* disable deprecated warnings in OpenSSL 3 */
 #define OPENSSL_SUPPRESS_DEPRECATED
 
@@ -182,7 +184,7 @@
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
 #define _libssh2_random(buf, len) \
-  _libssh2_openssl_random((buf), (len))
+    _libssh2_openssl_random((buf), (len))
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 
@@ -305,43 +307,43 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define libssh2_hmac_ctx HMAC_CTX *
 #define libssh2_hmac_ctx_init(ctx) ctx = HMAC_CTX_new()
 #define libssh2_hmac_sha1_init(ctx, key, keylen) \
-  HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_sha1(), NULL)
+    HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_sha1(), NULL)
 #define libssh2_hmac_md5_init(ctx, key, keylen) \
-  HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_md5(), NULL)
+    HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_md5(), NULL)
 #define libssh2_hmac_ripemd160_init(ctx, key, keylen) \
-  HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_ripemd160(), NULL)
+    HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_ripemd160(), NULL)
 #define libssh2_hmac_sha256_init(ctx, key, keylen) \
-  HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_sha256(), NULL)
+    HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_sha256(), NULL)
 #define libssh2_hmac_sha512_init(ctx, key, keylen) \
-  HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_sha512(), NULL)
+    HMAC_Init_ex(*(ctx), key, (int)keylen, EVP_sha512(), NULL)
 
 #ifdef LIBSSH2_WOLFSSL
 /* FIXME: upstream bug as of v5.6.0: datalen is int instead of size_t */
 #define libssh2_hmac_update(ctx, data, datalen) \
-  HMAC_Update(ctx, data, (int)datalen)
+    HMAC_Update(ctx, data, (int)datalen)
 #else
 #define libssh2_hmac_update(ctx, data, datalen) \
-  HMAC_Update(ctx, data, datalen)
+    HMAC_Update(ctx, data, datalen)
 #endif /* LIBSSH2_WOLFSSL */
 #define libssh2_hmac_final(ctx, data) HMAC_Final(ctx, data, NULL)
 #define libssh2_hmac_cleanup(ctx) HMAC_CTX_free(*(ctx))
 #else
 #define libssh2_hmac_ctx HMAC_CTX
 #define libssh2_hmac_ctx_init(ctx) \
-  HMAC_CTX_init(&ctx)
+    HMAC_CTX_init(&ctx)
 #define libssh2_hmac_sha1_init(ctx, key, keylen) \
-  HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha1(), NULL)
+    HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha1(), NULL)
 #define libssh2_hmac_md5_init(ctx, key, keylen) \
-  HMAC_Init_ex(ctx, key, (int)keylen, EVP_md5(), NULL)
+    HMAC_Init_ex(ctx, key, (int)keylen, EVP_md5(), NULL)
 #define libssh2_hmac_ripemd160_init(ctx, key, keylen) \
-  HMAC_Init_ex(ctx, key, (int)keylen, EVP_ripemd160(), NULL)
+    HMAC_Init_ex(ctx, key, (int)keylen, EVP_ripemd160(), NULL)
 #define libssh2_hmac_sha256_init(ctx, key, keylen) \
-  HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha256(), NULL)
+    HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha256(), NULL)
 #define libssh2_hmac_sha512_init(ctx, key, keylen) \
-  HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha512(), NULL)
+    HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha512(), NULL)
 
 #define libssh2_hmac_update(ctx, data, datalen) \
-  HMAC_Update(&(ctx), data, datalen)
+    HMAC_Update(&(ctx), data, datalen)
 #define libssh2_hmac_final(ctx, data) HMAC_Final(&(ctx), data, NULL)
 #define libssh2_hmac_cleanup(ctx) HMAC_cleanup(ctx)
 #endif
@@ -417,12 +419,20 @@ libssh2_curve_type;
 #define _libssh2_bn_bits(bn) BN_num_bits(bn)
 #define _libssh2_bn_free(bn) BN_clear_free(bn)
 
+/* Default generate and safe prime sizes for
+   diffie-hellman-group-exchange-sha1 */
+#define LIBSSH2_DH_GEX_MINGROUP     2048
+#define LIBSSH2_DH_GEX_OPTGROUP     4096
+#define LIBSSH2_DH_GEX_MAXGROUP     8192
+
+#define LIBSSH2_DH_MAX_MODULUS_BITS 16384
+
 #define _libssh2_dh_ctx BIGNUM *
 #define libssh2_dh_init(dhctx) _libssh2_dh_init(dhctx)
 #define libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx) \
-        _libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx)
+    _libssh2_dh_key_pair(dhctx, public, g, p, group_order, bnctx)
 #define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
-        _libssh2_dh_secret(dhctx, secret, f, p, bnctx)
+    _libssh2_dh_secret(dhctx, secret, f, p, bnctx)
 #define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
 extern void _libssh2_dh_init(_libssh2_dh_ctx *dhctx);
 extern int _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
