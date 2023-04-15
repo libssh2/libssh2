@@ -2,13 +2,14 @@
 .SH NAME
 libssh2_userauth_authenticated - return authentication status
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-int 
+int
 libssh2_userauth_authenticated(LIBSSH2_SESSION *session);
-
+.fi
 .SH DESCRIPTION
-\fIsession\fP - Session instance as returned by 
+\fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
 
 Indicates whether or not the named session has been successfully authenticated.

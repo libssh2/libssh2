@@ -54,7 +54,7 @@
 #include "userauth.h"
 #include "userauth_kbd_packet.h"
 
-/* libssh2_userauth_list
+/* userauth_list
  *
  * List authentication methods
  * Will yield successful login if "none" happens to be allowable for this user
@@ -164,9 +164,9 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
             memcpy(session->userauth_banner, session->userauth_list_data + 5,
                     banner_len);
             session->userauth_banner[banner_len] = '\0';
-            _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
                            "Banner: %s",
-                           session->userauth_banner);
+                           session->userauth_banner));
             LIBSSH2_FREE(session, session->userauth_list_data);
             session->userauth_list_data = NULL;
             /* SSH_MSG_USERAUTH_BANNER has been handled */
@@ -217,13 +217,13 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
         memmove(session->userauth_list_data, session->userauth_list_data + 5,
                 methods_len);
         session->userauth_list_data[methods_len] = '\0';
-        _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
+        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
                        "Permitted auth methods: %s",
-                       session->userauth_list_data);
+                       session->userauth_list_data));
     }
 
     session->userauth_list_state = libssh2_NB_state_idle;
-    return (char *) session->userauth_list_data;
+    return (char *)session->userauth_list_data;
 }
 
 /* libssh2_userauth_list
@@ -252,7 +252,7 @@ libssh2_userauth_list(LIBSSH2_SESSION * session, const char *user,
 LIBSSH2_API int
 libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
 {
-    if(NULL == session)
+    if(!session)
         return LIBSSH2_ERROR_MISSING_USERAUTH_BANNER;
 
     if(!session->userauth_banner) {
@@ -261,7 +261,7 @@ libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
                               "Missing userauth banner");
     }
 
-    if(banner != NULL)
+    if(banner)
         *banner = session->userauth_banner;
 
     return LIBSSH2_ERROR_NONE;
@@ -276,7 +276,7 @@ libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner)
 LIBSSH2_API int
 libssh2_userauth_authenticated(LIBSSH2_SESSION * session)
 {
-    return (session->state & LIBSSH2_STATE_AUTHENTICATED)?1:0;
+    return (session->state & LIBSSH2_STATE_AUTHENTICATED) ? 1 : 0;
 }
 
 
@@ -329,8 +329,8 @@ userauth_password(LIBSSH2_SESSION *session,
         _libssh2_store_u32(&s, password_len);
         /* 'password' is sent separately */
 
-        _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                       "Attempting to login using password authentication");
+        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                       "Attempting to login using password authentication"));
 
         session->userauth_pswd_state = libssh2_NB_state_created;
     }
@@ -384,8 +384,8 @@ userauth_password(LIBSSH2_SESSION *session,
             }
 
             if(session->userauth_pswd_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-                _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                               "Password authentication successful");
+                _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                               "Password authentication successful"));
                 LIBSSH2_FREE(session, session->userauth_pswd_data);
                 session->userauth_pswd_data = NULL;
                 session->state |= LIBSSH2_STATE_AUTHENTICATED;
@@ -394,8 +394,8 @@ userauth_password(LIBSSH2_SESSION *session,
             }
             else if(session->userauth_pswd_data[0] ==
                     SSH_MSG_USERAUTH_FAILURE) {
-                _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                               "Password authentication failed");
+                _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                               "Password authentication failed"));
                 LIBSSH2_FREE(session, session->userauth_pswd_data);
                 session->userauth_pswd_data = NULL;
                 session->userauth_pswd_state = libssh2_NB_state_idle;
@@ -426,8 +426,8 @@ userauth_password(LIBSSH2_SESSION *session,
             if((session->userauth_pswd_state == libssh2_NB_state_sent1) ||
                 (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
                 if(session->userauth_pswd_state == libssh2_NB_state_sent1) {
-                    _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                                   "Password change required");
+                    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                                   "Password change required"));
                     LIBSSH2_FREE(session, session->userauth_pswd_data);
                     session->userauth_pswd_data = NULL;
                 }
@@ -596,7 +596,7 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     }
 
     sp1 = memchr(pubkey, ' ', pubkey_len);
-    if(sp1 == NULL) {
+    if(!sp1) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Invalid public key data");
@@ -605,13 +605,14 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     sp1++;
 
     sp2 = memchr(sp1, ' ', pubkey_len - (sp1 - pubkey));
-    if(sp2 == NULL) {
+    if(!sp2) {
         /* Assume that the id string is missing, but that it's okay */
         sp2 = pubkey + pubkey_len;
     }
 
-    if(libssh2_base64_decode(session, (char **) &tmp, &tmp_len,
-                              (char *) sp1, sp2 - sp1)) {
+    if(libssh2_base64_decode(session, (char **)&tmp, &tmp_len,
+                             (const char *)sp1,
+                             (unsigned int)(sp2 - sp1))) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                                   "Invalid key data, not base64 encoded");
@@ -653,8 +654,8 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     size_t pubkey_len = 0, sp_len;
     unsigned int tmp_len;
 
-    _libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Loading public key file: %s",
-                   pubkeyfile);
+    _libssh2_debug((session, LIBSSH2_TRACE_AUTH, "Loading public key file: %s",
+                   pubkeyfile));
     /* Read Public Key */
     fd = fopen(pubkeyfile, FOPEN_READTEXT);
     if(!fd) {
@@ -699,7 +700,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     }
 
     sp1 = memchr(pubkey, ' ', pubkey_len);
-    if(sp1 == NULL) {
+    if(!sp1) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Invalid public key data");
@@ -709,13 +710,14 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
 
     sp_len = sp1 > pubkey ? (sp1 - pubkey) : 0;
     sp2 = memchr(sp1, ' ', pubkey_len - sp_len);
-    if(sp2 == NULL) {
+    if(!sp2) {
         /* Assume that the id string is missing, but that it's okay */
         sp2 = pubkey + pubkey_len;
     }
 
-    if(libssh2_base64_decode(session, (char **) &tmp, &tmp_len,
-                              (char *) sp1, sp2 - sp1)) {
+    if(libssh2_base64_decode(session, (char **)&tmp, &tmp_len,
+                             (const char *)sp1,
+                             (unsigned int)(sp2 - sp1))) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Invalid key data, not base64 encoded");
@@ -737,7 +739,7 @@ static int
 memory_read_privatekey(LIBSSH2_SESSION * session,
                        const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
                        void **hostkey_abstract,
-                       const unsigned char *method, int method_len,
+                       const unsigned char *method, size_t method_len,
                        const char *privkeyfiledata, size_t privkeyfiledata_len,
                        const char *passphrase)
 {
@@ -778,14 +780,14 @@ static int
 file_read_privatekey(LIBSSH2_SESSION * session,
                      const LIBSSH2_HOSTKEY_METHOD ** hostkey_method,
                      void **hostkey_abstract,
-                     const unsigned char *method, int method_len,
+                     const unsigned char *method, size_t method_len,
                      const char *privkeyfile, const char *passphrase)
 {
     const LIBSSH2_HOSTKEY_METHOD **hostkey_methods_avail =
         libssh2_hostkey_methods();
 
-    _libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Loading private key file: %s",
-                   privkeyfile);
+    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                   "Loading private key file: %s", privkeyfile));
     *hostkey_method = NULL;
     *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
@@ -841,7 +843,7 @@ sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     datavec.iov_len  = data_len;
 
     if(privkeyobj->signv(session, sig, sig_len, 1, &datavec,
-                          &hostkey_abstract)) {
+                         &hostkey_abstract)) {
         if(privkeyobj->dtor) {
             privkeyobj->dtor(session, &hostkey_abstract);
         }
@@ -877,7 +879,7 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     datavec.iov_len  = data_len;
 
     if(privkeyobj->signv(session, sig, sig_len, 1, &datavec,
-                          &hostkey_abstract)) {
+                         &hostkey_abstract)) {
         if(privkeyobj->dtor) {
             privkeyobj->dtor(session, &hostkey_abstract);
         }
@@ -890,7 +892,106 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     return 0;
 }
 
+int
+libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
+                const unsigned char *data, size_t data_len, void **abstract)
+{
+    int rc = LIBSSH2_ERROR_DECRYPT;
+    LIBSSH2_PRIVKEY_SK *sk_info = (LIBSSH2_PRIVKEY_SK *) (*abstract);
+    LIBSSH2_SK_SIG_INFO sig_info = { 0 };
 
+    if(sk_info->handle_len <= 0) {
+        return LIBSSH2_ERROR_DECRYPT;
+    }
+
+    rc = sk_info->sign_callback(session,
+                                &sig_info,
+                                data,
+                                data_len,
+                                sk_info->algorithm,
+                                sk_info->flags,
+                                sk_info->application,
+                                sk_info->key_handle,
+                                sk_info->handle_len,
+                                sk_info->orig_abstract);
+
+    if(rc == 0 && sig_info.sig_r_len > 0 && sig_info.sig_r) {
+        unsigned char *p = NULL;
+
+        if(sig_info.sig_s_len > 0 && sig_info.sig_s) {
+            /* sig length, sig_r, sig_s, flags, counter, plus 4 bytes for each
+            component's length, and up to 1 extra byte for each component */
+            *sig_len = 4 + 5 + sig_info.sig_r_len + 5 + sig_info.sig_s_len + 5;
+            *sig = LIBSSH2_ALLOC(session, *sig_len);
+
+            if(*sig) {
+                unsigned char *x = *sig;
+                p = *sig;
+
+                _libssh2_store_u32(&p, 0);
+
+                _libssh2_store_bignum2_bytes(&p,
+                                             sig_info.sig_r,
+                                             sig_info.sig_r_len);
+
+                _libssh2_store_bignum2_bytes(&p,
+                                             sig_info.sig_s,
+                                             sig_info.sig_s_len);
+
+                *sig_len = p - *sig;
+
+                _libssh2_store_u32(&x, (uint32_t)(*sig_len - 4));
+            }
+            else {
+                _libssh2_debug((session,
+                               LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate ecdsa-sk signature."));
+                rc = LIBSSH2_ERROR_ALLOC;
+            }
+        }
+        else {
+            /* sig, flags, counter, plus 4 bytes for sig length. */
+            *sig_len = 4 + sig_info.sig_r_len + 1 + 4;
+            *sig = LIBSSH2_ALLOC(session, *sig_len);
+
+            if(*sig) {
+                p = *sig;
+
+                _libssh2_store_str(&p,
+                                   (const char *)sig_info.sig_r,
+                                   sig_info.sig_r_len);
+            }
+            else {
+                _libssh2_debug((session,
+                               LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate ed25519-sk signature."));
+                rc = LIBSSH2_ERROR_ALLOC;
+            }
+        }
+
+        if(p) {
+            *p = sig_info.flags;
+            ++p;
+            _libssh2_store_u32(&p, sig_info.counter);
+
+            *sig_len = p - *sig;
+        }
+
+        LIBSSH2_FREE(session, sig_info.sig_r);
+
+        if(sig_info.sig_s) {
+            LIBSSH2_FREE(session, sig_info.sig_s);
+        }
+    }
+    else {
+        _libssh2_debug((session,
+                       LIBSSH2_ERROR_DECRYPT,
+                       "sign_callback failed or returned invalid signature."));
+        *sig_len = 0;
+    }
+
+    return rc;
+}
 
 /* userauth_hostbased_fromfile
  * Authenticate using a keypair found in the named files
@@ -936,7 +1037,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                                            &pubkeydata, &pubkeydata_len,
                                            privatekey, passphrase);
             if(rc)
-                /* libssh2_pub_priv_keyfile calls _libssh2_error() */
+                /* libssh2_pub_priv_keyfile() calls _libssh2_error() */
                 return rc;
         }
 
@@ -1005,8 +1106,8 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         datavec[2].iov_len = session->userauth_host_packet_len;
 
         if(privkeyobj && privkeyobj->signv &&
-                          privkeyobj->signv(session, &sig, &sig_len, 3,
-                                            datavec, &abstract)) {
+                         privkeyobj->signv(session, &sig, &sig_len, 3,
+                                           datavec, &abstract)) {
             LIBSSH2_FREE(session, session->userauth_host_method);
             session->userauth_host_method = NULL;
             LIBSSH2_FREE(session, session->userauth_host_packet);
@@ -1045,8 +1146,8 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             session->userauth_host_packet + session->userauth_host_packet_len;
 
         _libssh2_store_u32(&session->userauth_host_s,
-                           4 + session->userauth_host_method_len +
-                           4 + sig_len);
+                           (uint32_t)(4 + session->userauth_host_method_len +
+                                      4 + sig_len));
         _libssh2_store_str(&session->userauth_host_s,
                            (const char *)session->userauth_host_method,
                            session->userauth_host_method_len);
@@ -1057,8 +1158,8 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                            sig_len);
         LIBSSH2_FREE(session, sig);
 
-        _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                       "Attempting hostbased authentication");
+        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                       "Attempting hostbased authentication"));
 
         session->userauth_host_state = libssh2_NB_state_created;
     }
@@ -1106,8 +1207,8 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
         }
 
         if(session->userauth_host_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-            _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                           "Hostbased authentication successful");
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                           "Hostbased authentication successful"));
             /* We are us and we've proved it. */
             LIBSSH2_FREE(session, session->userauth_host_data);
             session->userauth_host_data = NULL;
@@ -1148,8 +1249,14 @@ libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
     return rc;
 }
 
-static int plain_method_len(const char *method, size_t method_len)
+static size_t plain_method_len(const char *method, size_t method_len)
 {
+    if(!strncmp("ssh-rsa-cert-v01@openssh.com",
+                method,
+                method_len)) {
+        return 7;
+    }
+
     if(!strncmp("ecdsa-sha2-nistp256-cert-v01@openssh.com",
                 method,
                 method_len) ||
@@ -1187,10 +1294,10 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     const char *p = NULL;
     const char *f = NULL;
     char *i = NULL;
-    int p_len = 0;
-    int f_len = 0;
+    size_t p_len = 0;
+    size_t f_len = 0;
     int rc = 0;
-    int match_len = 0;
+    size_t match_len = 0;
     char *filtered_algs = NULL;
 
     const char *supported_algs =
@@ -1198,7 +1305,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
                                            *key_method,
                                            *key_method_len);
 
-    if(supported_algs == NULL || session->server_sign_algorithms == NULL) {
+    if(!supported_algs || !session->server_sign_algorithms) {
         /* no upgrading key algorithm supported, do nothing */
         return LIBSSH2_ERROR_NONE;
     }
@@ -1218,12 +1325,12 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
     while(s && *s) {
         p = strchr(s, ',');
-        p_len = p ? (p - s) : (int) strlen(s);
+        p_len = (p ? (size_t)(p - s) : strlen(s));
         a = supported_algs;
 
         while(a && *a) {
             f = strchr(a, ',');
-            f_len = f ? (f - a) : (int) strlen(a);
+            f_len = (f ? (size_t)(f - a) : strlen(a));
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
 
@@ -1256,12 +1363,12 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
     while(s && *s && !match) {
         p = strchr(s, ',');
-        p_len = p ? (p - s) : (int) strlen(s);
+        p_len = (p ? (size_t)(p - s) : strlen(s));
         a = filtered_algs;
 
         while(a && *a && !match) {
             f = strchr(a, ',');
-            f_len = f ? (f - a) : (int) strlen(a);
+            f_len = (f ? (size_t)(f - a) : strlen(a));
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
                 /* found a match, upgrade key method */
@@ -1276,7 +1383,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         s = p ? (p + 1) : NULL;
     }
 
-    if(match != NULL) {
+    if(match) {
         if(*key_method)
             LIBSSH2_FREE(session, *key_method);
 
@@ -1306,9 +1413,9 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 int
 _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                             const char *username,
-                            unsigned int username_len,
+                            size_t username_len,
                             const unsigned char *pubkeydata,
-                            unsigned long pubkeydata_len,
+                            size_t pubkeydata_len,
                             LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
                             ((*sign_callback)),
                             void *abstract)
@@ -1371,8 +1478,8 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
          * the key default algo */
         if(auth_attempts == 1) {
             rc = _libssh2_key_sign_algorithm(session,
-                                        &session->userauth_pblc_method,
-                                        &session->userauth_pblc_method_len);
+                                           &session->userauth_pblc_method,
+                                           &session->userauth_pblc_method_len);
 
             if(rc)
                 return rc;
@@ -1380,11 +1487,11 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
 
         if(session->userauth_pblc_method_len &&
            session->userauth_pblc_method) {
-            _libssh2_debug(session,
+            _libssh2_debug((session,
                            LIBSSH2_TRACE_KEX,
                            "Signing using %.*s",
                            session->userauth_pblc_method_len,
-                           session->userauth_pblc_method);
+                           session->userauth_pblc_method));
         }
 
         /*
@@ -1431,8 +1538,8 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                            session->userauth_pblc_method_len);
         _libssh2_store_str(&s, (const char *)pubkeydata, pubkeydata_len);
 
-        _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                       "Attempting publickey authentication");
+        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                       "Attempting publickey authentication"));
 
         session->userauth_pblc_state = libssh2_NB_state_created;
     }
@@ -1479,8 +1586,8 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         }
 
         if(session->userauth_pblc_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-            _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                           "Pubkey authentication prematurely successful");
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                           "Pubkey authentication prematurely successful"));
             /*
              * God help any SSH server that allows an UNVERIFIED
              * public key to validate the user
@@ -1597,20 +1704,36 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
            plain_method_len((const char *)session->userauth_pblc_method,
                             session->userauth_pblc_method_len);
 
-        _libssh2_store_u32(&s,
-                           4 + session->userauth_pblc_method_len + 4 +
-                           sig_len);
-        _libssh2_store_str(&s, (const char *)session->userauth_pblc_method,
-                           session->userauth_pblc_method_len);
+        if(strncmp((const char *)session->userauth_pblc_method,
+                   "sk-ecdsa-sha2-nistp256@openssh.com",
+                   session->userauth_pblc_method_len) == 0 ||
+           strncmp((const char *)session->userauth_pblc_method,
+                   "sk-ssh-ed25519@openssh.com",
+                   session->userauth_pblc_method_len) == 0) {
+            _libssh2_store_u32(&s,
+                             (uint32_t)(4 + session->userauth_pblc_method_len +
+                                        sig_len));
+            _libssh2_store_str(&s, (const char *)session->userauth_pblc_method,
+                               session->userauth_pblc_method_len);
+            memcpy(s, sig, sig_len);
+            s += sig_len;
+        }
+        else {
+            _libssh2_store_u32(&s,
+                             (uint32_t)(4 + session->userauth_pblc_method_len +
+                                        4 + sig_len));
+            _libssh2_store_str(&s, (const char *)session->userauth_pblc_method,
+                               session->userauth_pblc_method_len);
+            _libssh2_store_str(&s, (const char *)sig, sig_len);
+        }
 
         LIBSSH2_FREE(session, session->userauth_pblc_method);
         session->userauth_pblc_method = NULL;
 
-        _libssh2_store_str(&s, (const char *)sig, sig_len);
         LIBSSH2_FREE(session, sig);
 
-        _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                       "Attempting publickey authentication -- phase 2");
+        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                       "Attempting publickey authentication -- phase 2"));
 
         session->userauth_pblc_s = s;
         session->userauth_pblc_state = libssh2_NB_state_sent2;
@@ -1656,8 +1779,8 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
     }
 
     if(session->userauth_pblc_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-        _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                       "Publickey authentication successful");
+        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                       "Publickey authentication successful"));
         /* We are us and we've proved it. */
         LIBSSH2_FREE(session, session->userauth_pblc_data);
         session->userauth_pblc_data = NULL;
@@ -1675,10 +1798,10 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                           "username/public key combination");
 }
 
- /*
-  * userauth_publickey_frommemory
-  * Authenticate using a keypair from memory
-  */
+/*
+ * userauth_publickey_frommemory
+ * Authenticate using a keypair from memory
+ */
 static int
 userauth_publickey_frommemory(LIBSSH2_SESSION *session,
                               const char *username,
@@ -1800,7 +1923,7 @@ libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 {
     int rc;
 
-    if(NULL == passphrase)
+    if(!passphrase)
         /* if given a NULL pointer, make it point to a zero-length
            string to save us from having to check this all over */
         passphrase = "";
@@ -1828,7 +1951,7 @@ libssh2_userauth_publickey_fromfile_ex(LIBSSH2_SESSION *session,
 {
     int rc;
 
-    if(NULL == passphrase)
+    if(!passphrase)
         /* if given a NULL pointer, make it point to a zero-length
            string to save us from having to check this all over */
         passphrase = "";
@@ -1849,7 +1972,7 @@ libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                            const unsigned char *pubkeydata,
                            size_t pubkeydata_len,
                            LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
-                           ((*sign_callback)),
+                               ((*sign_callback)),
                            void **abstract)
 {
     int rc;
@@ -1876,7 +1999,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                               const char *username,
                               unsigned int username_len,
                               LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC
-                              ((*response_callback)))
+                                  ((*response_callback)))
 {
     unsigned char *s;
 
@@ -1936,8 +2059,8 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
         /* submethods */
         _libssh2_store_u32(&s, 0);
 
-        _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                       "Attempting keyboard-interactive authentication");
+        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                       "Attempting keyboard-interactive authentication"));
 
         session->userauth_kybd_state = libssh2_NB_state_created;
     }
@@ -1985,9 +2108,9 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             }
 
             if(session->userauth_kybd_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-                _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
+                _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
                                "Keyboard-interactive "
-                               "authentication successful");
+                               "authentication successful"));
                 LIBSSH2_FREE(session, session->userauth_kybd_data);
                 session->userauth_kybd_data = NULL;
                 session->state |= LIBSSH2_STATE_AUTHENTICATED;
@@ -1996,8 +2119,8 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             }
 
             if(session->userauth_kybd_data[0] == SSH_MSG_USERAUTH_FAILURE) {
-                _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
-                               "Keyboard-interactive authentication failed");
+                _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                               "Keyboard-interactive authentication failed"));
                 LIBSSH2_FREE(session, session->userauth_kybd_data);
                 session->userauth_kybd_data = NULL;
                 session->userauth_kybd_state = libssh2_NB_state_idle;
@@ -2014,18 +2137,18 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             }
 
             response_callback((const char *)session->userauth_kybd_auth_name,
-                              session->userauth_kybd_auth_name_len,
+                              (int)session->userauth_kybd_auth_name_len,
                               (const char *)
                               session->userauth_kybd_auth_instruction,
-                              session->userauth_kybd_auth_instruction_len,
+                              (int)session->userauth_kybd_auth_instruction_len,
                               session->userauth_kybd_num_prompts,
                               session->userauth_kybd_prompts,
                               session->userauth_kybd_responses,
                               &session->abstract);
 
-            _libssh2_debug(session, LIBSSH2_TRACE_AUTH,
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
                            "Keyboard-interactive response callback function"
-                           " invoked");
+                           " invoked"));
 
             session->userauth_kybd_packet_len =
                 1 /* byte      SSH_MSG_USERAUTH_INFO_RESPONSE */
@@ -2150,11 +2273,78 @@ libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session,
                                          const char *user,
                                          unsigned int user_len,
                                          LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC
-                                         ((*response_callback)))
+                                             ((*response_callback)))
 {
     int rc;
     BLOCK_ADJUST(rc, session,
                  userauth_keyboard_interactive(session, user, user_len,
                                                response_callback));
+    return rc;
+}
+
+/*
+ * libssh2_userauth_publickey_sk
+ *
+ * Authenticate using an external callback function
+ */
+LIBSSH2_API int
+libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
+                              const char *username,
+                              size_t username_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const char *passphrase,
+                              LIBSSH2_USERAUTH_SK_SIGN_FUNC
+                                  ((*sign_callback)),
+                              void **abstract)
+{
+    unsigned char *pubkeydata = NULL;
+    size_t pubkeydata_len = 0;
+    LIBSSH2_PRIVKEY_SK sk_info = { 0 };
+    void *sign_abstract = &sk_info;
+    int rc;
+
+    sk_info.sign_callback = sign_callback;
+    sk_info.orig_abstract = abstract;
+
+    if(privatekeydata_len && privatekeydata) {
+
+        if(_libssh2_sk_pub_keyfilememory(session,
+                                         &session->userauth_pblc_method,
+                                         &session->userauth_pblc_method_len,
+                                         &pubkeydata, &pubkeydata_len,
+                                         &(sk_info.algorithm),
+                                         &(sk_info.flags),
+                                         &(sk_info.application),
+                                         &(sk_info.key_handle),
+                                         &(sk_info.handle_len),
+                                         privatekeydata, privatekeydata_len,
+                                         passphrase))
+            return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                                  "Unable to extract public key "
+                                  "from private key.");
+    }
+    else {
+        return _libssh2_error(session, LIBSSH2_ERROR_FILE,
+                              "Invalid data in public and private key.");
+    }
+
+    rc = _libssh2_userauth_publickey(session, username, username_len,
+                                     pubkeydata, pubkeydata_len,
+                                     libssh2_sign_sk, &sign_abstract);
+
+    while(rc == LIBSSH2_ERROR_EAGAIN) {
+        rc = _libssh2_userauth_publickey(session, username, username_len,
+                                         pubkeydata, pubkeydata_len,
+                                         libssh2_sign_sk, &sign_abstract);
+    }
+
+    if(pubkeydata)
+        LIBSSH2_FREE(session, pubkeydata);
+
+    if(sk_info.application) {
+        LIBSSH2_FREE(session, (void *)sk_info.application);
+    }
+
     return rc;
 }

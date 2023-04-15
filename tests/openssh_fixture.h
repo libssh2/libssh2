@@ -38,8 +38,8 @@
 #ifndef LIBSSH2_TESTS_OPENSSH_FIXTURE_H
 #define LIBSSH2_TESTS_OPENSSH_FIXTURE_H
 
-int start_openssh_fixture();
-void stop_openssh_fixture();
-int open_socket_to_openssh_server();
+int start_openssh_fixture(void);
+void stop_openssh_fixture(void);
+libssh2_socket_t open_socket_to_openssh_server(void);
 
 #endif

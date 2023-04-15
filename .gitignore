@@ -1,11 +1,14 @@
 .deps
 .libs
+*.a
 *.lib
 *.pdb
 *.dll
+*.def
 *.exe
 *.obj
 .*.swp
+*-*-*
 Debug
 Release
 *.exp
@@ -25,7 +28,10 @@ libtool
 ltmain.sh
 missing
 ssh2_sample
+libssh2-*.tar.bz2
 libssh2-*.tar.gz
+libssh2-*.tar.xz
+libssh2-*.zip
 install-sh
 *.o
 *.lo
@@ -36,3 +42,4 @@ libssh2.pc
 TAGS
 *~
 .DS_Store
+build

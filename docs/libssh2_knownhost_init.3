@@ -5,9 +5,12 @@
 .SH NAME
 libssh2_knownhost_init - init a collection of known hosts
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-LIBSSH2_KNOWNHOSTS *libssh2_knownhost_init(LIBSSH2_SESSION *session);
+LIBSSH2_KNOWNHOSTS *
+libssh2_knownhost_init(LIBSSH2_SESSION *session);
+.fi
 .SH DESCRIPTION
 Init a collection of known hosts for this session. Returns the handle to an
 internal representation of a known host collection.

@@ -2,12 +2,14 @@
 .SH NAME
 libssh2_init - global library initialization
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 #define LIBSSH2_INIT_NO_CRYPTO 0x0001
 
 int
 libssh2_init(int flags);
+.fi
 .SH DESCRIPTION
 Initialize the libssh2 functions.  This typically initialize the
 crypto library.  It uses a global state, and is not thread safe -- you
