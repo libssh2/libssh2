@@ -192,7 +192,7 @@ void print_last_session_error(const char *function)
         fprintf(stderr, "%s failed (%d): %s\n", function, rc, message);
     }
     else {
-        fprintf(stderr, "No session");
+        fprintf(stderr, "No session\n");
     }
 }
 
@@ -205,7 +205,7 @@ void stop_session_fixture(void)
         connected_session = NULL;
     }
     else {
-        fprintf(stderr, "Cannot stop session - none started");
+        fprintf(stderr, "Cannot stop session - none started\n");
     }
 
     stop_openssh_fixture();
@@ -297,9 +297,8 @@ int test_auth_keyboard(LIBSSH2_SESSION *session, int flags,
 
     if((flags & TEST_AUTH_SHOULDFAIL) != 0) {
         if(rc == 0) {
-            fprintf(stderr,
-                    "Keyboard-interactive auth succeeded "
-                    "with wrong response\n");
+            fprintf(stderr, "Keyboard-interactive auth succeeded "
+                            "with wrong response\n");
             return 1;
         }
     }
@@ -369,7 +368,7 @@ static int read_file(const char *path, char **out_buffer, size_t *out_len)
     size_t len = 0;
 
     if(!out_buffer || !out_len || !path) {
-        fprintf(stderr, "invalid params.");
+        fprintf(stderr, "invalid params.\n");
         return 1;
     }
 
@@ -379,7 +378,7 @@ static int read_file(const char *path, char **out_buffer, size_t *out_len)
     fp = fopen(path, "r");
 
     if(!fp) {
-        fprintf(stderr, "File could not be read.");
+        fprintf(stderr, "File could not be read: %s\n", path);
         return 1;
     }
 
@@ -390,14 +389,14 @@ static int read_file(const char *path, char **out_buffer, size_t *out_len)
     buffer = calloc(1, len + 1);
     if(!buffer) {
         fclose(fp);
-        fprintf(stderr, "Could not alloc memory.");
+        fprintf(stderr, "Could not alloc memory.\n");
         return 1;
     }
 
     if(1 != fread(buffer, len, 1, fp)) {
         fclose(fp);
         free(buffer);
-        fprintf(stderr, "Could not read file into memory.");
+        fprintf(stderr, "Could not read file into memory.\n");
         return 1;
     }
 
@@ -436,7 +435,7 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
         size_t len = 0;
 
         if(read_file(srcdir_path(fn_priv), &buffer, &len)) {
-            fprintf(stderr, "Reading key file failed.");
+            fprintf(stderr, "Reading key file failed.\n");
             return 1;
         }
 
