@@ -120,20 +120,21 @@ set(LIB_SHARED "libssh2_shared")  # Must match libssh2_shared_EXPORTS macro in i
 # Auto-detection
 
 ## Platform checks
-check_include_files(unistd.h HAVE_UNISTD_H)
 check_include_files(inttypes.h HAVE_INTTYPES_H)
-check_include_files(sys/select.h HAVE_SYS_SELECT_H)
-
-check_include_files(sys/uio.h HAVE_SYS_UIO_H)
-check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
-check_include_files(sys/ioctl.h HAVE_SYS_IOCTL_H)
-check_include_files(sys/time.h HAVE_SYS_TIME_H)
-check_include_files(sys/un.h HAVE_SYS_UN_H)
-check_include_files(sys/param.h HAVE_SYS_PARAM_H)
-
-# for example and tests
-check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
-check_include_files(netinet/in.h HAVE_NETINET_IN_H)
+if(NOT MSVC)
+  check_include_files(unistd.h HAVE_UNISTD_H)
+  check_include_files(sys/time.h HAVE_SYS_TIME_H)
+  check_include_files(sys/param.h HAVE_SYS_PARAM_H)
+endif()
+if(NOT WIN32)
+  check_include_files(sys/select.h HAVE_SYS_SELECT_H)
+  check_include_files(sys/uio.h HAVE_SYS_UIO_H)
+  check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
+  check_include_files(sys/ioctl.h HAVE_SYS_IOCTL_H)
+  check_include_files(sys/un.h HAVE_SYS_UN_H)
+  check_include_files(arpa/inet.h HAVE_ARPA_INET_H)  # example and tests
+  check_include_files(netinet/in.h HAVE_NETINET_IN_H)  # example and tests
+endif()
 
 check_type_size("long long" LONGLONG)
 
