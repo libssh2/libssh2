@@ -70,11 +70,8 @@ EXTRA_DIST = \
   key_ecdsa \
   key_ecdsa.pub \
   key_ecdsa_signed \
-  key_ecdsa_signed.pub \
   key_ecdsa_signed-cert.pub \
-  key_rsa_signed \
-  key_rsa_signed-cert.pub \
-  key_rsa_signed.pub \
+  key_ecdsa_signed.pub \
   key_ed25519 \
   key_ed25519.pub \
   key_ed25519_encrypted \
@@ -85,6 +82,9 @@ EXTRA_DIST = \
   key_rsa_encrypted.pub \
   key_rsa_openssh \
   key_rsa_openssh.pub \
+  key_rsa_signed \
+  key_rsa_signed-cert.pub \
+  key_rsa_signed.pub \
   mansyntax.sh \
   openssh_server/Dockerfile \
   openssh_server/authorized_keys \
