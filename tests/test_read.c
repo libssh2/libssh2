@@ -2,7 +2,7 @@
 
 #include "runner.h"
 
-/* configured in Dockerfile */
+/* set in Dockerfile */
 static const char *USERNAME = "libssh2";
 static const char *KEY_FILE_PRIVATE = "key_rsa";
 static const char *KEY_FILE_PUBLIC = "key_rsa.pub";

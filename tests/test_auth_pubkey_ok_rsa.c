@@ -2,7 +2,7 @@
 
 int test(LIBSSH2_SESSION *session)
 {
-    /* configured in Dockerfile */
+    /* set in Dockerfile */
     return test_auth_pubkey(session, 0,
                             "libssh2",
                             NULL,

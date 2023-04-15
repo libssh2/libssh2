@@ -3,7 +3,7 @@
 int test(LIBSSH2_SESSION *session)
 {
 #if LIBSSH2_ED25519
-    /* configured in Dockerfile */
+    /* set in Dockerfile */
     return test_auth_pubkey(session, TEST_AUTH_FROMMEM,
                             "libssh2",
                             NULL,
