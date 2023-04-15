@@ -604,12 +604,12 @@ _libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx)
 
 int
 _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
-                                unsigned long hashlen,
-                                const unsigned char *sig,
-                                unsigned long sig_len,
-                                const unsigned char *m,
-                                unsigned long m_len,
-                                unsigned long flags)
+                               unsigned long hashlen,
+                               const unsigned char *sig,
+                               unsigned long sig_len,
+                               const unsigned char *m,
+                               unsigned long m_len,
+                               unsigned long flags)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfoPKCS1;
     BCRYPT_ALG_HANDLE hAlgHash;
@@ -1267,11 +1267,11 @@ _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx* rsa,
 
 int
 _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
-                              libssh2_rsa_ctx *rsa,
-                              const unsigned char *hash,
-                              size_t hash_len,
-                              unsigned char **signature,
-                              size_t *signature_len)
+                             libssh2_rsa_ctx *rsa,
+                             const unsigned char *hash,
+                             size_t hash_len,
+                             unsigned char **signature,
+                             size_t *signature_len)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfo;
     unsigned char *data, *sig;

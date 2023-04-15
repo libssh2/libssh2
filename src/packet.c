@@ -1240,8 +1240,8 @@ _libssh2_packet_require(LIBSSH2_SESSION * session, unsigned char packet_type,
 {
     if(state->start == 0) {
         if(_libssh2_packet_ask(session, packet_type, data, data_len,
-                                match_ofs, match_buf,
-                                match_len) == 0) {
+                               match_ofs, match_buf,
+                               match_len) == 0) {
             /* A packet was available in the packet brigade */
             return 0;
         }
@@ -1305,7 +1305,7 @@ _libssh2_packet_burn(LIBSSH2_SESSION * session,
         all_packets[254] = 0;
 
         if(_libssh2_packet_askv(session, all_packets, &data, &data_len, 0,
-                                 NULL, 0) == 0) {
+                                NULL, 0) == 0) {
             i = data[0];
             /* A packet was available in the packet brigade, burn it */
             LIBSSH2_FREE(session, data);
@@ -1334,7 +1334,7 @@ _libssh2_packet_burn(LIBSSH2_SESSION * session,
         /* Be lazy, let packet_ask pull it out of the brigade */
         if(0 ==
             _libssh2_packet_ask(session, (unsigned char)ret,
-                                         &data, &data_len, 0, NULL, 0)) {
+                                &data, &data_len, 0, NULL, 0)) {
             /* Smoke 'em if you got 'em */
             LIBSSH2_FREE(session, data);
             *state = libssh2_NB_state_idle;
@@ -1363,7 +1363,7 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
                          packet_requirev_state_t * state)
 {
     if(_libssh2_packet_askv(session, packet_types, data, data_len, match_ofs,
-                             match_buf, match_len) == 0) {
+                            match_buf, match_len) == 0) {
         /* One of the packets listed was available in the packet brigade */
         state->start = 0;
         return 0;

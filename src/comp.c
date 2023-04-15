@@ -61,12 +61,12 @@ comp_method_none_comp(LIBSSH2_SESSION *session,
                       size_t src_len,
                       void **abstract)
 {
-    (void) session;
-    (void) abstract;
-    (void) dest;
-    (void) dest_len;
-    (void) src;
-    (void) src_len;
+    (void)session;
+    (void)abstract;
+    (void)dest;
+    (void)dest_len;
+    (void)src;
+    (void)src_len;
 
     return 0;
 }
@@ -84,9 +84,9 @@ comp_method_none_decomp(LIBSSH2_SESSION * session,
                         const unsigned char *src,
                         size_t src_len, void **abstract)
 {
-    (void) session;
-    (void) payload_limit;
-    (void) abstract;
+    (void)session;
+    (void)payload_limit;
+    (void)abstract;
     *dest = (unsigned char *) src;
     *dest_len = src_len;
     return 0;

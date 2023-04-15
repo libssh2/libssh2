@@ -75,7 +75,7 @@
 static
 LIBSSH2_ALLOC_FUNC(libssh2_default_alloc)
 {
-    (void) abstract;
+    (void)abstract;
     return malloc(count);
 }
 
@@ -84,7 +84,7 @@ LIBSSH2_ALLOC_FUNC(libssh2_default_alloc)
 static
 LIBSSH2_FREE_FUNC(libssh2_default_free)
 {
-    (void) abstract;
+    (void)abstract;
     free(ptr);
 }
 
@@ -93,7 +93,7 @@ LIBSSH2_FREE_FUNC(libssh2_default_free)
 static
 LIBSSH2_REALLOC_FUNC(libssh2_default_realloc)
 {
-    (void) abstract;
+    (void)abstract;
     return realloc(ptr, count);
 }
 
@@ -121,15 +121,15 @@ banner_receive(LIBSSH2_SESSION * session)
     }
 
     while((banner_len < sizeof(session->banner_TxRx_banner)) &&
-           ((banner_len == 0)
-            || (session->banner_TxRx_banner[banner_len - 1] != '\n'))) {
+          ((banner_len == 0)
+           || (session->banner_TxRx_banner[banner_len - 1] != '\n'))) {
         char c = '\0';
 
         /* no incoming block yet! */
         session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
 
         ret = LIBSSH2_RECV(session, &c, 1,
-                            LIBSSH2_SOCKET_RECV_FLAGS(session));
+                           LIBSSH2_SOCKET_RECV_FLAGS(session));
         if(ret < 0) {
             if(session->api_block_mode || (ret != -EAGAIN))
                 /* ignore EAGAIN when non-blocking */
@@ -174,8 +174,8 @@ banner_receive(LIBSSH2_SESSION * session)
     }
 
     while(banner_len &&
-           ((session->banner_TxRx_banner[banner_len - 1] == '\n') ||
-            (session->banner_TxRx_banner[banner_len - 1] == '\r'))) {
+          ((session->banner_TxRx_banner[banner_len - 1] == '\n') ||
+           (session->banner_TxRx_banner[banner_len - 1] == '\r'))) {
         banner_len--;
     }
 
@@ -249,9 +249,9 @@ banner_send(LIBSSH2_SESSION * session)
     session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_OUTBOUND;
 
     ret = LIBSSH2_SEND(session,
-                        banner + session->banner_TxRx_total_send,
-                        banner_len - session->banner_TxRx_total_send,
-                        LIBSSH2_SOCKET_SEND_FLAGS(session));
+                       banner + session->banner_TxRx_total_send,
+                       banner_len - session->banner_TxRx_total_send,
+                       LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(ret < 0)
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                        "Error sending %d bytes: %d",
@@ -414,7 +414,7 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
     size_t size = sizeof(int);
 
     callstat = getsockopt(sockfd, SOL_SOCKET, SO_STATE,
-                                  (char *)&sockstat, &size);
+                          (char *)&sockstat, &size);
     if(callstat == -1) {
         return 0;
     }
@@ -1428,7 +1428,7 @@ _libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking)
 {
     int bl = session->api_block_mode;
     _libssh2_debug((session, LIBSSH2_TRACE_CONN,
-                   "Setting blocking mode %s", blocking?"ON":"OFF"));
+                   "Setting blocking mode %s", blocking ? "ON" : "OFF"));
     session->api_block_mode = blocking;
 
     return bl;
@@ -1442,7 +1442,7 @@ _libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking)
 LIBSSH2_API void
 libssh2_session_set_blocking(LIBSSH2_SESSION * session, int blocking)
 {
-    (void) _libssh2_session_set_blocking(session, blocking);
+    (void)_libssh2_session_set_blocking(session, blocking);
 }
 
 /* libssh2_session_get_blocking

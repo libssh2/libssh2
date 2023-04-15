@@ -141,7 +141,7 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
 
     while(len >= blocksize) {
         if(session->remote.crypt->crypt(session, source, blocksize,
-                                         &session->remote.crypt_abstract)) {
+                                        &session->remote.crypt_abstract)) {
             LIBSSH2_FREE(session, p->payload);
             return LIBSSH2_ERROR_DECRYPT;
         }
@@ -201,11 +201,10 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
         session->fullpacket_payload_len -= p->padding_length;
 
         /* Check for and deal with decompression */
-        compressed =
-            session->local.comp &&
-            session->local.comp->compress &&
-            ((session->state & LIBSSH2_STATE_AUTHENTICATED) ||
-             session->local.comp->use_in_auth);
+        compressed = session->local.comp &&
+                     session->local.comp->compress &&
+                     ((session->state & LIBSSH2_STATE_AUTHENTICATED) ||
+                      session->local.comp->use_in_auth);
 
         if(compressed && session->remote.comp_abstract) {
             /*
@@ -372,10 +371,9 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             }
 
             /* now read a big chunk from the network into the temp buffer */
-            nread =
-                LIBSSH2_RECV(session, &p->buf[remainbuf],
-                              PACKETBUFSIZE - remainbuf,
-                              LIBSSH2_SOCKET_RECV_FLAGS(session));
+            nread = LIBSSH2_RECV(session, &p->buf[remainbuf],
+                                 PACKETBUFSIZE - remainbuf,
+                                 LIBSSH2_SOCKET_RECV_FLAGS(session));
             if(nread <= 0) {
                 /* check if this is due to EAGAIN and return the special
                    return code if so, error out normally otherwise */
@@ -461,9 +459,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
             /* total_num is the number of bytes following the initial
                (5 bytes) packet length and padding length fields */
-            total_num =
-                p->packet_length - 1 +
-                (encrypted ? session->remote.mac->mac_len : 0);
+            total_num = p->packet_length - 1 +
+                        (encrypted ? session->remote.mac->mac_len : 0);
 
             /* RFC4253 section 6.1 Maximum Packet Length says:
              *
@@ -658,7 +655,7 @@ send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
     length = p->ototal_num - p->osent;
 
     rc = LIBSSH2_SEND(session, &p->outbuf[p->osent], length,
-                       LIBSSH2_SOCKET_SEND_FLAGS(session));
+                      LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(rc < 0)
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                        "Error sending %d bytes: %d", length, -rc));
@@ -771,11 +768,10 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     encrypted = (session->state & LIBSSH2_STATE_NEWKEYS) ? 1 : 0;
 
-    compressed =
-        session->local.comp &&
-        session->local.comp->compress &&
-        ((session->state & LIBSSH2_STATE_AUTHENTICATED) ||
-         session->local.comp->use_in_auth);
+    compressed = session->local.comp &&
+                 session->local.comp->compress &&
+                 ((session->state & LIBSSH2_STATE_AUTHENTICATED) ||
+                  session->local.comp->use_in_auth);
 
     if(encrypted && compressed && session->local.comp_abstract) {
         /* the idea here is that these function must fail if the output gets
@@ -892,8 +888,8 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         for(i = 0; i < packet_length; i += session->local.crypt->blocksize) {
             unsigned char *ptr = &p->outbuf[i];
             if(session->local.crypt->crypt(session, ptr,
-                                            session->local.crypt->blocksize,
-                                            &session->local.crypt_abstract))
+                                           session->local.crypt->blocksize,
+                                           &session->local.crypt_abstract))
                 return LIBSSH2_ERROR_ENCRYPT;     /* encryption failure */
         }
     }
@@ -901,7 +897,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     session->local.seqno++;
 
     ret = LIBSSH2_SEND(session, p->outbuf, total_length,
-                        LIBSSH2_SOCKET_SEND_FLAGS(session));
+                       LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(ret < 0)
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                        "Error sending %d bytes: %d", total_length, -ret));

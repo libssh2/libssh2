@@ -282,7 +282,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
         session->scpRecv_atime = 0;
 
         session->scpRecv_command_len =
-            _libssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb?1:0);
+            _libssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb ? 1 : 0);
 
         session->scpRecv_command =
             LIBSSH2_ALLOC(session, session->scpRecv_command_len);
@@ -296,7 +296,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 
         snprintf((char *)session->scpRecv_command,
                  session->scpRecv_command_len,
-                 "scp -%sf ", sb?"p":"");
+                 "scp -%sf ", sb ? "p" : "");
 
         cmd_len = strlen((char *)session->scpRecv_command);
         cmd_len += shell_quotearg(path,
@@ -384,7 +384,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
     if((session->scpRecv_state == libssh2_NB_state_sent2)
         || (session->scpRecv_state == libssh2_NB_state_sent3)) {
         while(sb && (session->scpRecv_response_len <
-                      LIBSSH2_SCP_RESPONSE_BUFLEN)) {
+                     LIBSSH2_SCP_RESPONSE_BUFLEN)) {
             unsigned char *s, *p;
 
             if(session->scpRecv_state == libssh2_NB_state_sent2) {
@@ -843,7 +843,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
     if(session->scpSend_state == libssh2_NB_state_idle) {
         session->scpSend_command_len =
             _libssh2_shell_quotedsize(path) + sizeof("scp -t ") +
-            ((mtime || atime)?1:0);
+            ((mtime || atime) ? 1 : 0);
 
         session->scpSend_command =
             LIBSSH2_ALLOC(session, session->scpSend_command_len);
@@ -857,7 +857,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
         snprintf((char *)session->scpSend_command,
                  session->scpSend_command_len,
-                 "scp -%st ", (mtime || atime)?"p":"");
+                 "scp -%st ", (mtime || atime) ? "p" : "");
 
         cmd_len = strlen((char *)session->scpSend_command);
         cmd_len += shell_quotearg(path,

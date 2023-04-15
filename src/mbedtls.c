@@ -145,8 +145,8 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
     unsigned char *output;
     size_t osize, olen, finish_olen;
 
-    (void) encrypt;
-    (void) algo;
+    (void)encrypt;
+    (void)algo;
 
     osize = blocklen + mbedtls_cipher_get_block_size(ctx);
 
@@ -182,8 +182,8 @@ _libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx)
 
 int
 _libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
-                          mbedtls_md_type_t mdtype,
-                          const unsigned char *key, unsigned long keylen)
+                           mbedtls_md_type_t mdtype,
+                           const unsigned char *key, unsigned long keylen)
 {
     const mbedtls_md_info_t *md_info;
     int ret, hmac;
@@ -315,22 +315,22 @@ _libssh2_mbedtls_bignum_random(_libssh2_bn *bn, int bits, int top, int bottom)
 
 int
 _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
-                        const unsigned char *edata,
-                        unsigned long elen,
-                        const unsigned char *ndata,
-                        unsigned long nlen,
-                        const unsigned char *ddata,
-                        unsigned long dlen,
-                        const unsigned char *pdata,
-                        unsigned long plen,
-                        const unsigned char *qdata,
-                        unsigned long qlen,
-                        const unsigned char *e1data,
-                        unsigned long e1len,
-                        const unsigned char *e2data,
-                        unsigned long e2len,
-                        const unsigned char *coeffdata,
-                        unsigned long coefflen)
+                         const unsigned char *edata,
+                         unsigned long elen,
+                         const unsigned char *ndata,
+                         unsigned long nlen,
+                         const unsigned char *ddata,
+                         unsigned long dlen,
+                         const unsigned char *pdata,
+                         unsigned long plen,
+                         const unsigned char *qdata,
+                         unsigned long qlen,
+                         const unsigned char *e1data,
+                         unsigned long e1len,
+                         const unsigned char *e2data,
+                         unsigned long e2len,
+                         const unsigned char *coeffdata,
+                         unsigned long coefflen)
 {
     int ret;
     libssh2_rsa_ctx *ctx;
@@ -391,9 +391,9 @@ _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
 
 int
 _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
-                                LIBSSH2_SESSION *session,
-                                const char *filename,
-                                const unsigned char *passphrase)
+                                 LIBSSH2_SESSION *session,
+                                 const char *filename,
+                                 const unsigned char *passphrase)
 {
     int ret;
     mbedtls_pk_context pkey;
@@ -434,10 +434,10 @@ _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
 
 int
 _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
-                                           LIBSSH2_SESSION *session,
-                                           const char *filedata,
-                                           size_t filedata_len,
-                                           unsigned const char *passphrase)
+                                            LIBSSH2_SESSION *session,
+                                            const char *filedata,
+                                            size_t filedata_len,
+                                            unsigned const char *passphrase)
 {
     int ret;
     mbedtls_pk_context pkey;
@@ -492,10 +492,10 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 
 int
 _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
-                         size_t hash_len,
-                         const unsigned char *sig,
-                         unsigned long sig_len,
-                         const unsigned char *m, unsigned long m_len)
+                                 size_t hash_len,
+                                 const unsigned char *sig,
+                                 unsigned long sig_len,
+                                 const unsigned char *m, unsigned long m_len)
 {
     int ret;
     int md_type;
@@ -544,9 +544,9 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 
 int
 _libssh2_mbedtls_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
-                         const unsigned char *sig,
-                         unsigned long sig_len,
-                         const unsigned char *m, unsigned long m_len)
+                                 const unsigned char *sig,
+                                 unsigned long sig_len,
+                                 const unsigned char *m, unsigned long m_len)
 {
     return _libssh2_mbedtls_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH,
                                             sig, sig_len, m, m_len);
@@ -554,11 +554,11 @@ _libssh2_mbedtls_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
 
 int
 _libssh2_mbedtls_rsa_sha2_sign(LIBSSH2_SESSION *session,
-                              libssh2_rsa_ctx *rsa,
-                              const unsigned char *hash,
-                              size_t hash_len,
-                              unsigned char **signature,
-                              size_t *signature_len)
+                               libssh2_rsa_ctx *rsa,
+                               const unsigned char *hash,
+                               size_t hash_len,
+                               unsigned char **signature,
+                               size_t *signature_len)
 {
     int ret;
     unsigned char *sig;
@@ -611,13 +611,14 @@ _libssh2_mbedtls_rsa_sha2_sign(LIBSSH2_SESSION *session,
 
 int
 _libssh2_mbedtls_rsa_sha1_sign(LIBSSH2_SESSION * session,
-                       libssh2_rsa_ctx * rsactx,
-                       const unsigned char *hash,
-                       size_t hash_len,
-                       unsigned char **signature, size_t *signature_len)
+                               libssh2_rsa_ctx * rsactx,
+                               const unsigned char *hash,
+                               size_t hash_len,
+                               unsigned char **signature,
+                               size_t *signature_len)
 {
     return _libssh2_mbedtls_rsa_sha2_sign(session, rsactx, hash, hash_len,
-                                  signature, signature_len);
+                                          signature, signature_len);
 }
 
 void
@@ -629,8 +630,8 @@ _libssh2_mbedtls_rsa_free(libssh2_rsa_ctx *ctx)
 
 static unsigned char *
 gen_publickey_from_rsa(LIBSSH2_SESSION *session,
-                      mbedtls_rsa_context *rsa,
-                      size_t *keylen)
+                       mbedtls_rsa_context *rsa,
+                       size_t *keylen)
 {
     uint32_t e_bytes, n_bytes;
     uint32_t len;
@@ -670,11 +671,11 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session,
 
 static int
 _libssh2_mbedtls_pub_priv_key(LIBSSH2_SESSION *session,
-                               unsigned char **method,
-                               size_t *method_len,
-                               unsigned char **pubkeydata,
-                               size_t *pubkeydata_len,
-                               mbedtls_pk_context *pkey)
+                              unsigned char **method,
+                              size_t *method_len,
+                              unsigned char **pubkeydata,
+                              size_t *pubkeydata_len,
+                              mbedtls_pk_context *pkey)
 {
     unsigned char *key = NULL, *mth = NULL;
     size_t keylen = 0, mthlen = 0;
@@ -722,12 +723,12 @@ _libssh2_mbedtls_pub_priv_key(LIBSSH2_SESSION *session,
 
 int
 _libssh2_mbedtls_pub_priv_keyfile(LIBSSH2_SESSION *session,
-                                 unsigned char **method,
-                                 size_t *method_len,
-                                 unsigned char **pubkeydata,
-                                 size_t *pubkeydata_len,
-                                 const char *privatekey,
-                                 const char *passphrase)
+                                  unsigned char **method,
+                                  size_t *method_len,
+                                  unsigned char **pubkeydata,
+                                  size_t *pubkeydata_len,
+                                  const char *privatekey,
+                                  const char *passphrase)
 {
     mbedtls_pk_context pkey;
     char buf[1024];
@@ -748,7 +749,7 @@ _libssh2_mbedtls_pub_priv_keyfile(LIBSSH2_SESSION *session,
     }
 
     ret = _libssh2_mbedtls_pub_priv_key(session, method, method_len,
-                                       pubkeydata, pubkeydata_len, &pkey);
+                                        pubkeydata, pubkeydata_len, &pkey);
 
     mbedtls_pk_free(&pkey);
 
@@ -757,13 +758,13 @@ _libssh2_mbedtls_pub_priv_keyfile(LIBSSH2_SESSION *session,
 
 int
 _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
-                                       unsigned char **method,
-                                       size_t *method_len,
-                                       unsigned char **pubkeydata,
-                                       size_t *pubkeydata_len,
-                                       const char *privatekeydata,
-                                       size_t privatekeydata_len,
-                                       const char *passphrase)
+                                        unsigned char **method,
+                                        size_t *method_len,
+                                        unsigned char **pubkeydata,
+                                        size_t *pubkeydata_len,
+                                        const char *privatekeydata,
+                                        size_t privatekeydata_len,
+                                        const char *passphrase)
 {
     mbedtls_pk_context pkey;
     char buf[1024];
@@ -806,7 +807,7 @@ _libssh2_mbedtls_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     }
 
     ret = _libssh2_mbedtls_pub_priv_key(session, method, method_len,
-                                       pubkeydata, pubkeydata_len, &pkey);
+                                        pubkeydata, pubkeydata_len, &pkey);
 
     mbedtls_pk_free(&pkey);
 
