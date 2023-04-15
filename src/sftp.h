@@ -68,7 +68,7 @@ struct sftp_zombie_requests {
 };
 
 #ifndef MIN
-#define MIN(x,y) ((x)<(y)?(x):(y))
+#define MIN(x,y) ((x) < (y) ? (x) : (y))
 #endif
 
 struct _LIBSSH2_SFTP_PACKET

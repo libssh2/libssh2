@@ -44,6 +44,7 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     size_t language_tag_len;
     unsigned int i;
     unsigned char packet_type;
+    uint32_t tmp_u32;
 
     struct string_buf decoded;
 
@@ -95,7 +96,8 @@ int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *session)
     }
 
     /* int       num-prompts */
-    if(_libssh2_get_u32(&decoded, &session->userauth_kybd_num_prompts) == -1) {
+    if(_libssh2_get_u32(&decoded, &tmp_u32) == -1 ||
+       (session->userauth_kybd_num_prompts = tmp_u32) != tmp_u32) {
         _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                        "Unable to decode "
                        "keyboard-interactive number of keyboard prompts");

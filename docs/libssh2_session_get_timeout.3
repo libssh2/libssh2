@@ -2,9 +2,12 @@
 .SH NAME
 libssh2_session_get_timeout - get the timeout for blocking functions
 .SH SYNOPSIS
-#include <libssh2.h>
 .nf
-long libssh2_session_get_timeout(LIBSSH2_SESSION *session);
+#include <libssh2.h>
+
+long
+libssh2_session_get_timeout(LIBSSH2_SESSION *session);
+.fi
 .SH DESCRIPTION
 Returns the \fBtimeout\fP (in milliseconds) for how long a blocking the
 libssh2 function calls may wait until they consider the situation an error and

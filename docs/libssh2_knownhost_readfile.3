@@ -5,10 +5,13 @@
 .SH NAME
 libssh2_knownhost_readfile - parse a file of known hosts
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-int libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
-                               const char *filename, int type);
+int
+libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
+                           const char *filename, int type);
+.fi
 .SH DESCRIPTION
 Reads a collection of known hosts from a specified file and adds them to the
 collection of known hosts.

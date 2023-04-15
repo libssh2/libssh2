@@ -2,6 +2,7 @@
 .SH NAME
 libssh2_userauth_publickey_fromfile - convenience macro for \fIlibssh2_userauth_publickey_fromfile_ex(3)\fP calls
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 int
@@ -10,7 +11,7 @@ libssh2_userauth_publickey_fromfile(LIBSSH2_SESSION *session,
                                     const char *publickey,
                                     const char *privatekey,
                                     const char *passphrase);
-
+.fi
 .SH DESCRIPTION
 This is a macro defined in a public libssh2 header file that is using the
 underlying function \fIlibssh2_userauth_publickey_fromfile_ex(3)\fP.

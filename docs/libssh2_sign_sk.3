@@ -2,14 +2,16 @@
 .SH NAME
 libssh2_sign_sk - Create a signature from a FIDO2 authenticator.
 .SH SYNOPSIS
-#include <libssh2.h>
 .nf
-int libssh2_sign_sk(LIBSSH2_SESSION *session,
-                    unsigned char **sig,
-                    size_t *sig_len,
-                    const unsigned char *data,
-                    size_t data_len,
-                    void **abstract);
+#include <libssh2.h>
+
+int
+libssh2_sign_sk(LIBSSH2_SESSION *session,
+                unsigned char **sig,
+                size_t *sig_len,
+                const unsigned char *data,
+                size_t data_len,
+                void **abstract);
 
 typedef struct _LIBSSH2_PRIVKEY_SK {
     int algorithm;
@@ -20,12 +22,12 @@ typedef struct _LIBSSH2_PRIVKEY_SK {
     LIBSSH2_USERAUTH_SK_SIGN_FUNC((*sign_callback));
     void **orig_abstract;
 } LIBSSH2_PRIVKEY_SK;
-
+.fi
 .SH DESCRIPTION
-\fIsession\fP - Session instance as returned by 
+\fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
 
-\fIsig\fP - A pointer to a buffer in which to place the signature. The caller 
+\fIsig\fP - A pointer to a buffer in which to place the signature. The caller
 is responsible for freeing the signature with LIBSSH2_FREE.
 
 \fIsig_len\fP - A pointer to the length of the sig parameter.
@@ -34,48 +36,48 @@ is responsible for freeing the signature with LIBSSH2_FREE.
 
 \fIdata_len\fP - The length of the data parameter.
 
-\fIabstract\fP - A pointer to a pointer to a LIBSSH2_PRIVKEY_SK. See 
+\fIabstract\fP - A pointer to a pointer to a LIBSSH2_PRIVKEY_SK. See
 description below.
 
-Create a signature from a FIDO2 authenticator, using either the 
-sk-ssh-ed25519@openssh.com or sk-ecdsa-sha2-nistp256@openssh.com key 
+Create a signature from a FIDO2 authenticator, using either the
+sk-ssh-ed25519@openssh.com or sk-ecdsa-sha2-nistp256@openssh.com key
 exchange algorithms.
 
-The abstract parameter is a pointer to a pointer due to the internal workings 
-of libssh2. The LIBSSH2_PRIVKEY_SK must be completely filled out, and the 
+The abstract parameter is a pointer to a pointer due to the internal workings
+of libssh2. The LIBSSH2_PRIVKEY_SK must be completely filled out, and the
 caller is responsible for all memory management of its fields.
 
-\fIalgorithm\fP - The signing algorithm to use. Possible values are 
+\fIalgorithm\fP - The signing algorithm to use. Possible values are
 LIBSSH2_HOSTKEY_TYPE_ED25519 and LIBSSH2_HOSTKEY_TYPE_ECDSA_256.
 
-\fIflags\fP - A bitmask specifying options for the authenticator. When 
+\fIflags\fP - A bitmask specifying options for the authenticator. When
 LIBSSH2_SK_PRESENCE_REQUIRED is set, the authenticator requires a touch. When
-LIBSSH2_SK_VERIFICATION_REQUIRED is set, the authenticator requires a PIN. 
-Many servers and authenticators do not work properly when 
+LIBSSH2_SK_VERIFICATION_REQUIRED is set, the authenticator requires a PIN.
+Many servers and authenticators do not work properly when
 LIBSSH2_SK_PRESENCE_REQUIRED is not set.
 
-\fIapplication\fP - A user-defined string to use as the RP name for the 
+\fIapplication\fP - A user-defined string to use as the RP name for the
 authenticator. Usually "ssh:".
 
 \fIkey_handle\fP - The key handle to use for the authenticator's allow list.
 
 \fIhandle_len\fP - The length of the key_handle parameter.
 
-\fIabstract\fP - User-defined data. When a PIN is required, use this to pass in 
+\fIabstract\fP - User-defined data. When a PIN is required, use this to pass in
 the PIN, or a function pointer to retrieve the PIN.
 
 \fIkey_handle\fP The decoded key handle from the private key file.
 
 \fIhandle_len\fP The length of the key_handle parameter.
 
-\fIsign_callback\fP - Responsible for communicating with the hardware 
+\fIsign_callback\fP - Responsible for communicating with the hardware
 authenticator to generate a signature. On success, the signature information
-must be placed in the `\fIsig_info\fP sig_info parameter and the callback must 
+must be placed in the `\fIsig_info\fP sig_info parameter and the callback must
 return 0. On failure, it should return a negative number. See
 .BR libssh2_userauth_publickey_sk(3)
  for more information.
 
-\fIorig_abstract\fP - User-defined data. When a PIN is required, use this to 
+\fIorig_abstract\fP - User-defined data. When a PIN is required, use this to
 pass in the PIN, or a function pointer to retrieve the PIN.
 
 .SH RETURN VALUE

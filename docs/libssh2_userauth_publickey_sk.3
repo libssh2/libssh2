@@ -2,20 +2,21 @@
 .SH NAME
 libssh2_userauth_publickey_sk - authenticate a session with a FIDO2 authenticator
 .SH SYNOPSIS
-#include <libssh2.h>
 .nf
-int libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
-                                  const char *username,
-                                  size_t username_len,
-                                  const unsigned char *publickeydata,
-                                  size_t publickeydata_len,
-                                  const char *privatekeydata,
-                                  size_t privatekeydata_len,
-                                  const char *passphrase,
-                                  LIBSSH2_USERAUTH_SK_SIGN_FUNC
-                                  ((*sign_callback)),
-                                  void **abstract);
+#include <libssh2.h>
 
+int
+libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
+                              const char *username,
+                              size_t username_len,
+                              const unsigned char *publickeydata,
+                              size_t publickeydata_len,
+                              const char *privatekeydata,
+                              size_t privatekeydata_len,
+                              const char *passphrase,
+                              LIBSSH2_USERAUTH_SK_SIGN_FUNC((*sign_callback)),
+                              void **abstract);
+.fi
 .SH CALLBACK
 .nf
 #define LIBSSH2_SK_PRESENCE_REQUIRED     0x01
@@ -30,15 +31,14 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
     size_t sig_s_len;
 } LIBSSH2_SK_SIG_INFO;
 
-int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info, 
+int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info,
          const unsigned char *data, size_t data_len, int algorithm,
          uint8_t flags, const char *application,
-         const unsigned char *key_handle, size_t handle_len, 
+         const unsigned char *key_handle, size_t handle_len,
          void **abstract);
 .fi
-
 .SH DESCRIPTION
-\fIsession\fP - Session instance as returned by 
+\fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
 
 \fIusername\fP - Name of user to attempt authentication for.
@@ -62,49 +62,49 @@ data.
 
 \fIabstract\fP - User-provided data to pass to callback.
 
-Attempt FIDO2 authentication. using either the sk-ssh-ed25519@openssh.com or 
+Attempt FIDO2 authentication. using either the sk-ssh-ed25519@openssh.com or
 sk-ecdsa-sha2-nistp256@openssh.com key exchange algorithms.
 
 This function is only supported when libssh2 is backed by OpenSSL.
 
 .SH CALLBACK DESCRIPTION
-\fIsession\fP - Session instance as returned by 
+\fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
 
-\fIsig_info\fP - Filled in by the callback with the signature and accompanying 
+\fIsig_info\fP - Filled in by the callback with the signature and accompanying
 information from the authenticator.
 
 \fIdata\fP - The data to sign.
 
 \fIdata_len\fP - The length of the data parameter.
 
-\fIalgorithm\fP - The signing algorithm to use. Possible values are 
+\fIalgorithm\fP - The signing algorithm to use. Possible values are
 LIBSSH2_HOSTKEY_TYPE_ED25519 and LIBSSH2_HOSTKEY_TYPE_ECDSA_256.
 
-\fIflags\fP - A bitmask specifying options for the authenticator. When 
+\fIflags\fP - A bitmask specifying options for the authenticator. When
 LIBSSH2_SK_PRESENCE_REQUIRED is set, the authenticator requires a touch. When
-LIBSSH2_SK_VERIFICATION_REQUIRED is set, the authenticator requires a PIN. 
-Many servers and authenticators do not work properly when 
+LIBSSH2_SK_VERIFICATION_REQUIRED is set, the authenticator requires a PIN.
+Many servers and authenticators do not work properly when
 LIBSSH2_SK_PRESENCE_REQUIRED is not set.
 
-\fIapplication\fP - A user-defined string to use as the RP name for the 
+\fIapplication\fP - A user-defined string to use as the RP name for the
 authenticator. Usually "ssh:".
 
 \fIkey_handle\fP - The key handle to use for the authenticator's allow list.
 
 \fIhandle_len\fP - The length of the key_handle parameter.
 
-\fIabstract\fP - User-defined data. When a PIN is required, use this to pass in 
+\fIabstract\fP - User-defined data. When a PIN is required, use this to pass in
 the PIN, or a function pointer to retrieve the PIN.
 
-The \fIsign_callback\fP is responsible for communicating with the hardware 
+The \fIsign_callback\fP is responsible for communicating with the hardware
 authenticator to generate a signature. On success, the signature information
-must be placed in the `\fIsig_info\fP sig_info parameter and the callback must 
+must be placed in the `\fIsig_info\fP sig_info parameter and the callback must
 return 0. On failure, it should return a negative number.
 
 The fields of the LIBSSH2_SK_SIG_INFO are as follows.
 
-\fIflags\fP - A bitmask specifying options for the authenticator. This should 
+\fIflags\fP - A bitmask specifying options for the authenticator. This should
 be read from the authenticator and not merely copied from the flags parameter
 to the callback.
 
@@ -112,15 +112,15 @@ to the callback.
 
 \fIsig_r\fP - For Ed25519 signatures, this contains the entire signature, as
 returned directly from the authenticator. For ECDSA signatures, this contains
-the r component of the signature in a big-endian binary representation. For 
+the r component of the signature in a big-endian binary representation. For
 both algorithms, use LIBSSH2_ALLOC to allocate memory. It will be freed by the
 caller.
 
 \fIsig_r_len\fP - The length of the sig_r parameter.
 
-\fIsig_s\fP - For ECDSA signatures, this contains the s component of the 
-signature in a big-endian binary representation. Use LIBSSH2_ALLOC to allocate 
-memory. It will be freed by the caller. For Ed25519 signatures, set this to 
+\fIsig_s\fP - For ECDSA signatures, this contains the s component of the
+signature in a big-endian binary representation. Use LIBSSH2_ALLOC to allocate
+memory. It will be freed by the caller. For Ed25519 signatures, set this to
 NULL.
 
 \fIsig_s_len\fP - The length of the sig_s parameter.
