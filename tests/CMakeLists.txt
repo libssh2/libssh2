@@ -43,26 +43,26 @@ set(TESTS
   simple
   ssh2
   test_warmup    # keep this the first test
-  test_hostkey
-  test_hostkey_hash
-  test_auth_password_ok
+  test_agent_forward_ok
+  test_auth_keyboard_fail
+  test_auth_keyboard_info_request
+  test_auth_keyboard_ok
   test_auth_password_fail_password
   test_auth_password_fail_username
+  test_auth_password_ok
   test_auth_pubkey_fail
-  test_auth_pubkey_ok_rsa
-  test_auth_pubkey_ok_rsa_encrypted
-  test_auth_keyboard_fail
-  test_auth_keyboard_ok
-  test_auth_keyboard_info_request
   test_auth_pubkey_ok_dsa
-  test_auth_pubkey_ok_rsa_openssh
+  test_auth_pubkey_ok_ecdsa
+  test_auth_pubkey_ok_ecdsa_signed
   test_auth_pubkey_ok_ed25519
   test_auth_pubkey_ok_ed25519_encrypted
   test_auth_pubkey_ok_ed25519_mem
-  test_auth_pubkey_ok_ecdsa
-  test_auth_pubkey_ok_ecdsa_signed
+  test_auth_pubkey_ok_rsa
+  test_auth_pubkey_ok_rsa_encrypted
+  test_auth_pubkey_ok_rsa_openssh
   test_auth_pubkey_ok_rsa_signed
-  test_agent_forward_ok
+  test_hostkey
+  test_hostkey_hash
   test_read
 )
 
