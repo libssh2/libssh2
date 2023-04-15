@@ -54,31 +54,17 @@ set(TESTS
   test_auth_keyboard_fail
   test_auth_keyboard_ok
   test_auth_keyboard_info_request
+  test_auth_pubkey_ok_dsa
+  test_auth_pubkey_ok_rsa_openssh
+  test_auth_pubkey_ok_ed25519
+  test_auth_pubkey_ok_ed25519_encrypted
+  test_auth_pubkey_ok_ed25519_mem
+  test_auth_pubkey_ok_ecdsa
+  test_auth_pubkey_ok_ecdsa_signed
+  test_auth_pubkey_ok_rsa_signed
   test_agent_forward_ok
   test_read
 )
-
-if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
-  list(APPEND TESTS
-    test_auth_pubkey_ok_rsa_openssh
-  )
-  if(OPENSSL_VERSION VERSION_GREATER "1.1.0" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
-    list(APPEND TESTS
-      test_auth_pubkey_ok_ed25519
-      test_auth_pubkey_ok_ed25519_encrypted
-      test_auth_pubkey_ok_ed25519_mem
-      test_auth_pubkey_ok_ecdsa
-      test_auth_pubkey_ok_ecdsa_signed
-      test_auth_pubkey_ok_rsa_signed
-    )
-  endif()
-endif()
-
-if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
-  list(APPEND TESTS
-    test_auth_pubkey_ok_dsa
-  )
-endif()
 
 add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
 target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include)
