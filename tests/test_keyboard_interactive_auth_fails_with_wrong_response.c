@@ -1,7 +1,7 @@
 #include "runner.h"
 
 static const char *USERNAME = "libssh2"; /* set in Dockerfile */
-static const char *WRONG_PASSWORD = "i'm not the password";
+static const char *PASSWORD = "I'm the wrong password";
 
 static void kbd_callback(const char *name, int name_len,
                          const char *instruct, int instruct_len,
@@ -21,8 +21,8 @@ static void kbd_callback(const char *name, int name_len,
     }
 
     if(num_prompts == 1) {
-        responses[0].text = strdup(WRONG_PASSWORD);
-        responses[0].length = (unsigned int)strlen(WRONG_PASSWORD);
+        responses[0].text = strdup(PASSWORD);
+        responses[0].length = (unsigned int)strlen(PASSWORD);
     }
 }
 

@@ -1,6 +1,6 @@
 #include "runner.h"
 
-static const char *WRONG_USERNAME = "i dont exist";
+static const char *USERNAME = "I'm the wrong username";
 static const char *PASSWORD = "my test password"; /* set in Dockerfile */
 
 int test(LIBSSH2_SESSION *session)
@@ -8,8 +8,8 @@ int test(LIBSSH2_SESSION *session)
     int rc;
 
     const char *userauth_list =
-        libssh2_userauth_list(session, WRONG_USERNAME,
-                              (unsigned int)strlen(WRONG_USERNAME));
+        libssh2_userauth_list(session, USERNAME,
+                              (unsigned int)strlen(USERNAME));
     if(!userauth_list) {
         print_last_session_error("libssh2_userauth_list");
         return 1;
@@ -21,8 +21,8 @@ int test(LIBSSH2_SESSION *session)
         return 1;
     }
 
-    rc = libssh2_userauth_password_ex(session, WRONG_USERNAME,
-                                      (unsigned int)strlen(WRONG_USERNAME),
+    rc = libssh2_userauth_password_ex(session, USERNAME,
+                                      (unsigned int)strlen(USERNAME),
                                       PASSWORD,
                                       (unsigned int)strlen(PASSWORD),
                                       NULL);

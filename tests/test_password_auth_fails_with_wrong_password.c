@@ -1,7 +1,7 @@
 #include "runner.h"
 
 static const char *USERNAME = "libssh2"; /* set in Dockerfile */
-static const char *WRONG_PASSWORD = "i'm not the password";
+static const char *PASSWORD = "I'm the wrong password";
 
 int test(LIBSSH2_SESSION *session)
 {
@@ -23,8 +23,8 @@ int test(LIBSSH2_SESSION *session)
 
     rc = libssh2_userauth_password_ex(session, USERNAME,
                                       (unsigned int)strlen(USERNAME),
-                                      WRONG_PASSWORD,
-                                      (unsigned int)strlen(WRONG_PASSWORD),
+                                      PASSWORD,
+                                      (unsigned int)strlen(PASSWORD),
                                       NULL);
     if(rc == 0) {
         fprintf(stderr, "Password auth succeeded with wrong password\n");
