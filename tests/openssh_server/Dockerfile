@@ -33,7 +33,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
-FROM debian:bullseye
+FROM debian:testing-slim
 
 RUN apt-get update \
  && apt-get install -y openssh-server \
