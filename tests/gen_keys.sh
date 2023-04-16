@@ -6,14 +6,14 @@
 
 rm ./openssh_server/*_key || true
 
-ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -C ''                      -f 'openssh_server/ssh_host_rsa_key'
-ssh-keygen -t ecdsa   -b  256 -N ''          -m PEM -C ''                      -f 'openssh_server/ssh_host_ecdsa_key'
-ssh-keygen -t ed25519         -N ''                 -C ''                      -f 'openssh_server/ssh_host_ed25519_key'
+ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -C ''                        -f 'openssh_server/ssh_host_rsa_key'
+ssh-keygen -t ecdsa   -b  256 -N ''          -m PEM -C ''                        -f 'openssh_server/ssh_host_ecdsa_key'
+ssh-keygen -t ed25519         -N ''                 -C ''                        -f 'openssh_server/ssh_host_ed25519_key'
 
 rm ./openssh_server/ca_* || true
 
-ssh-keygen -t ecdsa   -b  521 -N ''                 -C 'ca_ecdsa'              -f 'openssh_server/ca_ecdsa'
-ssh-keygen -t rsa     -b 3072 -N ''                 -C 'ca_rsa'                -f 'openssh_server/ca_rsa'
+ssh-keygen -t ecdsa   -b  521 -N ''                 -C 'ca_ecdsa'                -f 'openssh_server/ca_ecdsa'
+ssh-keygen -t rsa     -b 3072 -N ''                 -C 'ca_rsa'                  -f 'openssh_server/ca_rsa'
 
 # tests
 
@@ -23,21 +23,21 @@ pw='libssh2'
 id='identity'
 pr='libssh2'
 
-ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa'               -f 'key_dsa'
-ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa_wrong'         -f 'key_dsa_wrong'  # FIXME?
+ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa'                 -f 'key_dsa'
+ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa_wrong'           -f 'key_dsa_wrong'  # FIXME?
 
-ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -C 'key_rsa'               -f 'key_rsa'
-ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PEM -C 'key_rsa_encrypted'     -f 'key_rsa_encrypted'
-ssh-keygen -t rsa     -b 2048 -N ''                 -C 'key_rsa_openssh'       -f 'key_rsa_openssh'
-ssh-keygen -t rsa     -b 4096 -N ''                 -C 'key_rsa_signed'        -f 'key_rsa_signed'
-                   ssh-keygen -I "${id}" -n "${pr}" -s 'key_rsa_signed'           'key_rsa_signed'
+ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -C 'key_rsa'                 -f 'key_rsa'
+ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PEM -C 'key_rsa_encrypted'       -f 'key_rsa_encrypted'
+ssh-keygen -t rsa     -b 2048 -N ''                 -C 'key_rsa_openssh'         -f 'key_rsa_openssh'
+ssh-keygen -t rsa     -b 4096 -N ''                 -C 'key_rsa_signed'          -f 'key_rsa_signed'
+                   ssh-keygen -I "${id}" -n "${pr}" -s 'openssh_server/ca_rsa'      'key_rsa_signed.pub'
 
-ssh-keygen -t ecdsa   -b  384 -N ''                 -C 'key_ecdsa'             -f 'key_ecdsa'
-ssh-keygen -t ecdsa   -b  384 -N ''                 -C 'key_ecdsa_signed'      -f 'key_ecdsa_signed'
-                   ssh-keygen -I "${id}" -n "${pr}" -s 'key_ecdsa_signed'         'key_ecdsa_signed'
+ssh-keygen -t ecdsa   -b  384 -N ''                 -C 'key_ecdsa'               -f 'key_ecdsa'
+ssh-keygen -t ecdsa   -b  384 -N ''                 -C 'key_ecdsa_signed'        -f 'key_ecdsa_signed'
+                   ssh-keygen -I "${id}" -n "${pr}" -s 'openssh_server/ca_ecdsa'    'key_ecdsa_signed.pub'
 
-ssh-keygen -t ed25519         -N ''                 -C 'key_ed25519'           -f 'key_ed25519'
-ssh-keygen -t ed25519         -N "${pw}"            -C 'key_ed25519_encrypted' -f 'key_ed25519_encrypted'
+ssh-keygen -t ed25519         -N ''                 -C 'key_ed25519'             -f 'key_ed25519'
+ssh-keygen -t ed25519         -N "${pw}"            -C 'key_ed25519_encrypted'   -f 'key_ed25519_encrypted'
 
 cat \
   'key_dsa.pub' \
@@ -53,8 +53,8 @@ cat \
 
 rm etc/host* etc/user* || true
 
-ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -f 'etc/host'              -C 'etc_host_rsa'
-ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -f 'etc/user'              -C 'etc_user_rsa'
+ssh-keygen -t rsa     -b 2048 -N ''           -m PEM -C 'etc_host_rsa'           -f 'etc/host'
+ssh-keygen -t rsa     -b 2048 -N ''           -m PEM -C 'etc_user_rsa'           -f 'etc/user'
 
 # tests/test_*.c
 
