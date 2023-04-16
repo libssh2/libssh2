@@ -38,6 +38,8 @@
 #ifndef LIBSSH2_TESTS_SESSION_FIXTURE_H
 #define LIBSSH2_TESTS_SESSION_FIXTURE_H
 
+#define LIBSSH2_TESTS
+
 #include "libssh2_priv.h"
 #include <libssh2.h>
 
