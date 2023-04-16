@@ -50,9 +50,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
 endif()
 
 set(TESTS
-  test_simple
-  test_ssh2
-  test_warmup    # keep this the first test
+  test_warmup  # keep this first
   test_agent_forward_ok
   test_auth_keyboard_fail
   test_auth_keyboard_info_request
@@ -74,6 +72,8 @@ set(TESTS
   test_hostkey
   test_hostkey_hash
   test_read
+  test_simple
+  test_ssh2
 )
 
 add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
