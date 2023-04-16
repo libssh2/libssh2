@@ -23,7 +23,7 @@ chmod go-rwx "$srcdir"/etc/host*
 "$SSHD" -f /dev/null -h "$srcdir/etc/host" \
   -o 'Port 4711' \
   -o 'Protocol 2' \
-  -o "AuthorizedKeysFile \"$srcdir/etc/user.pub\"" \
+  -o "AuthorizedKeysFile $srcdir/etc/user.pub" \
   -o 'UsePrivilegeSeparation no' \
   -o 'StrictModes no' \
   -D \
