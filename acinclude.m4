@@ -299,7 +299,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
        gccver=`$CC -dumpversion`
        num1=`echo $gccver | cut -d . -f1`
        num2=`echo $gccver | cut -d . -f2`
-       gccnum=`(expr $num1 "*" 100 + $num2) 2>/dev/null`
+       compiler_num=`(expr $num1 "*" 100 + $num2) 2>/dev/null`
        AC_MSG_RESULT($gccver)
 
        if test "$ICC" = "yes"; then
@@ -316,7 +316,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
 
          WARN="-wd279,269,981,1418,1419"
 
-         if test "$gccnum" -gt "600"; then
+         if test "$compiler_num" -gt "600"; then
             dnl icc 6.0 and older doesn't have the -Wall flag
             WARN="-Wall $WARN"
          fi
@@ -324,24 +324,24 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          dnl this is a set of options we believe *ALL* gcc versions support:
          WARN="-W -Wall -Wwrite-strings -pedantic -Wpointer-arith -Wnested-externs -Winline -Wmissing-prototypes"
 
-         if test "$gccnum" -ge "207"; then
+         if test "$compiler_num" -ge "207"; then
            dnl gcc 2.7 or later
            WARN="$WARN -Wmissing-declarations"
          fi
 
-         if test "$gccnum" -gt "295"; then
+         if test "$compiler_num" -gt "295"; then
            dnl only if the compiler is newer than 2.95 since we got lots of
            dnl "`_POSIX_C_SOURCE' is not defined" in system headers with
            dnl gcc 2.95.4 on FreeBSD 4.9!
            WARN="$WARN -Wbad-function-cast -Wundef -Wno-long-long -Wno-multichar -Wshadow -Wsign-compare -Wunused"
          fi
 
-         if test "$gccnum" -ge "296"; then
+         if test "$compiler_num" -ge "296"; then
            dnl gcc 2.96 or later
            WARN="$WARN -Wfloat-equal"
          fi
 
-         if test "$gccnum" -gt "296"; then
+         if test "$compiler_num" -gt "296"; then
            dnl this option does not exist in 2.96
            WARN="$WARN -Wno-format-nonliteral"
          fi
@@ -351,33 +351,33 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          dnl Also, on gcc 4.0.X it is totally unbearable and complains all
          dnl over making it unusable for generic purposes. Let's not use it.
 
-         if test "$gccnum" -ge "303"; then
+         if test "$compiler_num" -ge "303"; then
            dnl gcc 3.3 and later
            WARN="$WARN -Wendif-labels -Wstrict-prototypes"
          fi
 
-         if test "$gccnum" -ge "304"; then
+         if test "$compiler_num" -ge "304"; then
            # try these on gcc 3.4
            WARN="$WARN -Wdeclaration-after-statement"
          fi
 
          dnl Only gcc 4.0 or later
-         if test "$gccnum" -ge "400"; then
+         if test "$compiler_num" -ge "400"; then
            WARN="$WARN -Wstrict-aliasing=3"
          fi
          #
          dnl Only gcc 4.1 or later (possibly earlier)
-         if test "$gccnum" -ge "401"; then
+         if test "$compiler_num" -ge "401"; then
            CURL_ADD_COMPILER_WARNINGS([WARN], [no-system-headers])
          fi
          #
          dnl Only gcc 4.2 or later
-         if test "$gccnum" -ge "402"; then
+         if test "$compiler_num" -ge "402"; then
            CURL_ADD_COMPILER_WARNINGS([WARN], [cast-align])
          fi
          #
          dnl Only gcc 4.3 or later
-         if test "$gccnum" -ge "403"; then
+         if test "$compiler_num" -ge "403"; then
            CURL_ADD_COMPILER_WARNINGS([WARN], [type-limits old-style-declaration])
            CURL_ADD_COMPILER_WARNINGS([WARN], [missing-parameter-type empty-body])
            CURL_ADD_COMPILER_WARNINGS([WARN], [ignored-qualifiers])
@@ -389,7 +389,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          fi
          #
          dnl Only gcc 4.5 or later
-         if test "$gccnum" -ge "405"; then
+         if test "$compiler_num" -ge "405"; then
            dnl Only windows targets
            case $host_os in
            mingw*)
@@ -399,22 +399,22 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          fi
          #
          dnl Only gcc 4.6 or later
-         if test "$gccnum" -ge "406"; then
+         if test "$compiler_num" -ge "406"; then
            CURL_ADD_COMPILER_WARNINGS([WARN], [double-promotion])
          fi
          #
          dnl only gcc 4.8 or later
-         if test "$gccnum" -ge "408"; then
+         if test "$compiler_num" -ge "408"; then
            WARN="$WARN -Wformat=2"
          fi
          #
          dnl Only gcc 5 or later
-         if test "$gccnum" -ge "500"; then
+         if test "$compiler_num" -ge "500"; then
            WARN="$WARN -Warray-bounds=2"
          fi
          #
          dnl Only gcc 6 or later
-         if test "$gccnum" -ge "600"; then
+         if test "$compiler_num" -ge "600"; then
            CURL_ADD_COMPILER_WARNINGS([WARN], [shift-negative-value])
            WARN="$WARN -Wshift-overflow=2"
            CURL_ADD_COMPILER_WARNINGS([WARN], [null-dereference])
@@ -424,7 +424,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          fi
          #
          dnl Only gcc 7 or later
-         if test "$gccnum" -ge "700"; then
+         if test "$compiler_num" -ge "700"; then
            CURL_ADD_COMPILER_WARNINGS([WARN], [duplicated-branches])
            CURL_ADD_COMPILER_WARNINGS([WARN], [restrict])
            CURL_ADD_COMPILER_WARNINGS([WARN], [alloc-zero])
@@ -433,7 +433,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          fi
          #
          dnl Only gcc 10 or later
-         if test "$gccnum" -ge "1000"; then
+         if test "$compiler_num" -ge "1000"; then
            CURL_ADD_COMPILER_WARNINGS([WARN], [arith-conversion])
            CURL_ADD_COMPILER_WARNINGS([WARN], [enum-conversion])
          fi
