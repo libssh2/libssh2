@@ -50,7 +50,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
 endif()
 
 set(TESTS
-  test_warmup  # keep this first
+  test_aa_warmup  # keep this first
   test_agent_forward_ok
   test_auth_keyboard_fail
   test_auth_keyboard_info_request

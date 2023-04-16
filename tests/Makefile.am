@@ -12,7 +12,7 @@ check_PROGRAMS += test_ssh2
 endif
 
 INTEGRATION_TESTS = \
-  test_warmup \
+  test_aa_warmup \
   test_agent_forward_ok \
   test_auth_keyboard_fail \
   test_auth_keyboard_info_request \
