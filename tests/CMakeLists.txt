@@ -111,7 +111,6 @@ foreach(test ${TESTS})
   endif()
 endforeach()
 
-
 # MAC tests
 foreach(test
   hmac-md5
@@ -140,7 +139,6 @@ foreach(test
   set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
 endforeach()
 
-
 add_custom_target(coverage
   COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/*
   COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/coverage/"
@@ -148,7 +146,6 @@ add_custom_target(coverage
 
 add_custom_target(clean-coverage
   COMMAND rm -rf "${CMAKE_CURRENT_BINARY_DIR}/coverage/")
-
 
 add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
