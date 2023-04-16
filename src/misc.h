@@ -38,6 +38,27 @@
  * OF SUCH DAMAGE.
  */
 
+#ifdef LIBSSH2_NO_CLEAR_MEMORY
+#define _libssh2_explicit_zero(buf, size) do { \
+                                              (void)(buf); \
+                                              (void)(size); \
+                                          } while(0)
+#else
+#ifdef WIN32
+#define _libssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
+#elif defined(HAVE_EXPLICIT_BZERO)
+#define _libssh2_explicit_zero(buf, size) explicit_bzero(buf, size)
+#elif defined(HAVE_EXPLICIT_MEMSET)
+#define _libssh2_explicit_zero(buf, size) (void)explicit_memset(buf, 0, size)
+#elif defined(HAVE_MEMSET_S)
+#define _libssh2_explicit_zero(buf, size) (void)memset_s(buf, size, 0, size)
+#else
+#define LIBSSH2_MEMZERO
+void _libssh2_memzero(void *buf, size_t size);
+#define _libssh2_explicit_zero(buf, size) _libssh2_memzero(buf, size)
+#endif
+#endif
+
 struct list_head {
     struct list_node *last;
     struct list_node *first;
@@ -80,15 +101,17 @@ void _libssh2_list_remove(struct list_node *entry);
 size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
                               const char *inp, size_t insize, char **outptr);
 
-unsigned int _libssh2_ntohu32(const unsigned char *buf);
+uint32_t _libssh2_ntohu32(const unsigned char *buf);
 libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
 void _libssh2_htonu32(unsigned char *buf, uint32_t val);
 void _libssh2_store_u32(unsigned char **buf, uint32_t value);
 void _libssh2_store_str(unsigned char **buf, const char *str, size_t len);
+void _libssh2_store_bignum2_bytes(unsigned char **buf,
+                                  const unsigned char *bytes,
+                                  size_t len);
 void *_libssh2_calloc(LIBSSH2_SESSION *session, size_t size);
-void _libssh2_explicit_zero(void *buf, size_t size);
 
-struct string_buf* _libssh2_string_buf_new(LIBSSH2_SESSION *session);
+struct string_buf *_libssh2_string_buf_new(LIBSSH2_SESSION *session);
 void _libssh2_string_buf_free(LIBSSH2_SESSION *session,
                               struct string_buf *buf);
 int _libssh2_get_boolean(struct string_buf *buf, unsigned char *out);
@@ -103,8 +126,9 @@ int _libssh2_copy_string(LIBSSH2_SESSION* session, struct string_buf *buf,
 int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
                               size_t *outlen);
 int _libssh2_check_length(struct string_buf *buf, size_t requested_len);
+int _libssh2_eob(struct string_buf *buf);
 
-#if defined(LIBSSH2_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
+#if defined(WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
 /* provide a private one */
 #undef HAVE_GETTIMEOFDAY
 int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp);

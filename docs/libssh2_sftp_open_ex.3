@@ -1,6 +1,6 @@
 .TH libssh2_sftp_open_ex 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
 .SH NAME
-libssh2_sftp_open - open filehandle for file on SFTP.
+libssh2_sftp_open_ex - open filehandle for file on SFTP.
 .SH SYNOPSIS
 .nf
 #include <libssh2.h>
@@ -8,14 +8,17 @@ libssh2_sftp_open - open filehandle for file on SFTP.
 
 LIBSSH2_SFTP_HANDLE *
 libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, const char *filename,
-                     unsigned int filename_len, unsigned long flags,
-                     long mode, int open_type);
+                     unsigned int filename_len,
+                     unsigned long flags,
+                     long mode,
+                     int open_type);
+.fi
 .SH DESCRIPTION
 \fIsftp\fP - SFTP instance as returned by \fIlibssh2_sftp_init(3)\fP
 
-\fIfilename\fP - Remote file/directory resource to open 
+\fIfilename\fP - Remote file/directory resource to open
 
-\fIfilename_len\fP - Length of filename 
+\fIfilename_len\fP - Length of filename
 
 \fIflags\fP - Any reasonable combination of the LIBSSH2_FXF_* constants:
 .RS
@@ -52,14 +55,13 @@ failure.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
-\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP - 
+\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP -
 
-\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was 
-received on the socket, or an SFTP operation caused an errorcode to be 
+\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was
+received on the socket, or an SFTP operation caused an errorcode to be
 returned by the server.
 
 \fILIBSSH2_ERROR_EAGAIN\fP - Marked for non-blocking I/O but the call would
 block.
 .SH SEE ALSO
 .BR libssh2_sftp_close_handle(3)
-

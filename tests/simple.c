@@ -36,21 +36,21 @@
  * OF SUCH DAMAGE.
  */
 
+#include <libssh2.h>
+
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "libssh2.h"
 
 static int test_libssh2_base64_decode(LIBSSH2_SESSION *session)
 {
     char *data;
     unsigned int datalen;
     const char *src = "Zm5vcmQ=";
-    unsigned int src_len = strlen(src);
+    size_t src_len = strlen(src);
     int ret;
 
     ret = libssh2_base64_decode(session, &data, &datalen,
-                                src, src_len);
+                                src, (unsigned int)src_len);
     if(ret)
         return ret;
 
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     (void)argc;
 
     rc = libssh2_init(LIBSSH2_INIT_NO_CRYPTO);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2_init() failed: %d\n", rc);
         return 1;
     }

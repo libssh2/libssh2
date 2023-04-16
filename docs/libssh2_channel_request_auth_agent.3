@@ -2,11 +2,12 @@
 .SH NAME
 libssh2_channel_request_auth_agent - request agent forwarding for a session
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 int
 libssh2_channel_request_auth_agent(LIBSSH2_CHANNEL *channel);
-
+.fi
 .SH DESCRIPTION
 Request that agent forwarding be enabled for this SSH session. This sends the
 request over this specific channel, which causes the agent listener to be

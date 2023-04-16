@@ -67,10 +67,6 @@ struct sftp_zombie_requests {
     uint32_t request_id;
 };
 
-#ifndef MIN
-#define MIN(x,y) ((x)<(y)?(x):(y))
-#endif
-
 struct _LIBSSH2_SFTP_PACKET
 {
     struct list_node node;   /* linked list header */

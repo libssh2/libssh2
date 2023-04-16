@@ -5,13 +5,16 @@
 .SH NAME
 libssh2_knownhost_writeline - convert a known host to a line for storage
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
+int
 libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
                             struct libssh2_knownhost *known,
                             char *buffer, size_t buflen,
                             size_t *outlen,
                             int type);
+.fi
 .SH DESCRIPTION
 Converts a single known host to a single line of output for storage, using
 the 'type' output format.
@@ -43,4 +46,3 @@ Added in libssh2 1.2
 .BR libssh2_knownhost_get(3)
 .BR libssh2_knownhost_readline(3)
 .BR libssh2_knownhost_writefile(3)
-

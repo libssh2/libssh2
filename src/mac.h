@@ -54,8 +54,8 @@ struct _LIBSSH2_MAC_METHOD
                  void **abstract);
     int (*hash) (LIBSSH2_SESSION * session, unsigned char *buf,
                  uint32_t seqno, const unsigned char *packet,
-                 uint32_t packet_len, const unsigned char *addtl,
-                 uint32_t addtl_len, void **abstract);
+                 size_t packet_len, const unsigned char *addtl,
+                 size_t addtl_len, void **abstract);
     int (*dtor) (LIBSSH2_SESSION * session, void **abstract);
 };
 

@@ -36,7 +36,6 @@
  */
 
 #include "session_fixture.h"
-#include "libssh2_config.h"
 #include "openssh_fixture.h"
 
 #include <stdio.h>
@@ -45,32 +44,33 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_WINDOWS_H
-#include <windows.h>
+#ifdef _MSC_VER
+#include <direct.h>
+#define getcwd _getcwd
+#define chdir _chdir
 #endif
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
+
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
+#include <assert.h>
 
-LIBSSH2_SESSION *connected_session = NULL;
-int connected_socket = -1;
+static LIBSSH2_SESSION *connected_session = NULL;
+static libssh2_socket_t connected_socket = LIBSSH2_INVALID_SOCKET;
 
-static int connect_to_server()
+static int connect_to_server(void)
 {
     int rc;
     connected_socket = open_socket_to_openssh_server();
-    if(connected_socket <= 0) {
+    if(connected_socket == LIBSSH2_INVALID_SOCKET) {
         return -1;
     }
 
     rc = libssh2_session_handshake(connected_session, connected_socket);
-    if(rc != 0) {
+    if(rc) {
         print_last_session_error("libssh2_session_handshake");
         return -1;
     }
@@ -78,20 +78,20 @@ static int connect_to_server()
     return 0;
 }
 
-void setup_fixture_workdir()
+static void setup_fixture_workdir(void)
 {
-    char *wd = getenv("FIXTURE_WORKDIR");
+#ifdef WIN32
+    char wd_buf[_MAX_PATH];
+#else
+    char wd_buf[MAXPATHLEN];
+#endif
+    const char *wd = getenv("FIXTURE_WORKDIR");
 #ifdef FIXTURE_WORKDIR
     if(!wd) {
         wd = FIXTURE_WORKDIR;
     }
 #endif
     if(!wd) {
-#ifdef WIN32
-        char wd_buf[_MAX_PATH];
-#else
-        char wd_buf[MAXPATHLEN];
-#endif
         getcwd(wd_buf, sizeof(wd_buf));
         wd = wd_buf;
     }
@@ -99,31 +99,61 @@ void setup_fixture_workdir()
     chdir(wd);
 }
 
-LIBSSH2_SESSION *start_session_fixture()
+LIBSSH2_SESSION *start_session_fixture(void)
 {
     int rc;
+    const char *env;
 
     setup_fixture_workdir();
 
     rc = start_openssh_fixture();
-    if(rc != 0) {
+    if(rc) {
         return NULL;
     }
     rc = libssh2_init(0);
-    if(rc != 0) {
+    if(rc) {
         fprintf(stderr, "libssh2_init failed (%d)\n", rc);
         return NULL;
     }
 
     connected_session = libssh2_session_init_ex(NULL, NULL, NULL, NULL);
-    libssh2_session_set_blocking(connected_session, 1);
-    if(connected_session == NULL) {
+    if(getenv("FIXTURE_TRACE_ALL")) {
+        libssh2_trace(connected_session, ~0);
+    }
+    if(!connected_session) {
         fprintf(stderr, "libssh2_session_init_ex failed\n");
         return NULL;
     }
 
+    /* Override crypt algorithm for the test */
+    env = getenv("FIXTURE_TEST_CRYPT");
+    if(env) {
+        if(libssh2_session_method_pref(connected_session,
+                                       LIBSSH2_METHOD_CRYPT_CS, env) ||
+           libssh2_session_method_pref(connected_session,
+                                       LIBSSH2_METHOD_CRYPT_SC, env)) {
+            fprintf(stderr, "libssh2_session_method_pref CRYPT failed "
+                    "(probably disabled in the build): '%s'\n", env);
+            return NULL;
+        }
+    }
+    /* Override mac algorithm for the test */
+    env = getenv("FIXTURE_TEST_MAC");
+    if(env) {
+        if(libssh2_session_method_pref(connected_session,
+                                       LIBSSH2_METHOD_MAC_CS, env) ||
+           libssh2_session_method_pref(connected_session,
+                                       LIBSSH2_METHOD_MAC_SC, env)) {
+            fprintf(stderr, "libssh2_session_method_pref MAC failed "
+                    "(probably disabled in the build): '%s'\n", env);
+            return NULL;
+        }
+    }
+
+    libssh2_session_set_blocking(connected_session, 1);
+
     rc = connect_to_server();
-    if(rc != 0) {
+    if(rc) {
         return NULL;
     }
 
@@ -143,7 +173,7 @@ void print_last_session_error(const char *function)
     }
 }
 
-void stop_session_fixture()
+void stop_session_fixture(void)
 {
     if(connected_session) {
         libssh2_session_disconnect(connected_session, "test ended");
@@ -156,4 +186,36 @@ void stop_session_fixture()
     }
 
     stop_openssh_fixture();
+}
+
+
+/* Return a static string that contains a file path relative to the srcdir
+ * variable, if found. It does so in a way that avoids leaking memory by using
+ * a fixed number of static buffers.
+ */
+#define NUMPATHS 3
+const char *srcdir_path(const char *file)
+{
+#ifdef WIN32
+    static char filepath[NUMPATHS][_MAX_PATH];
+#else
+    static char filepath[NUMPATHS][MAXPATHLEN];
+#endif
+    static int curpath;
+    char *p = getenv("srcdir");
+    assert(curpath < NUMPATHS);
+    if(p) {
+        /* Ensure the final string is nul-terminated on Windows */
+        filepath[curpath][sizeof(filepath[0])-1] = 0;
+        snprintf(filepath[curpath], sizeof(filepath[0])-1, "%s/%s",
+                p, file);
+    }
+    else {
+        /* Ensure the final string is nul-terminated on Windows */
+        filepath[curpath][sizeof(filepath[0])-1] = 0;
+        snprintf(filepath[curpath], sizeof(filepath[0])-1, "%s",
+                file);
+    }
+
+    return filepath[curpath++];
 }

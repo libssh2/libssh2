@@ -2,9 +2,12 @@
 .SH NAME
 libssh2_session_banner_get - get the remote banner
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-const char *libssh2_session_banner_get(oLIBSSH2_SESSION *session);
+const char *
+libssh2_session_banner_get(oLIBSSH2_SESSION *session);
+.fi
 .SH DESCRIPTION
 Once the session has been setup and \fIlibssh2_session_handshake(3)\fP has
 completed successfully, this function can be used to get the server id from

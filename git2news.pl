@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # git log --pretty=fuller --no-color --date=short --decorate=full
 
@@ -14,7 +14,7 @@ sub nicedate {
     return $date;
 }
 
-print 
+print
 '   Changelog for the libssh2 project. Generated with git2news.pl
 ';
 

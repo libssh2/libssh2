@@ -1,11 +1,13 @@
-.TH libssh2_exit 3 "13 Oct 2010" "libssh2 1.2.8" "libssh2 manual"
+.TH libssh2_free 3 "13 Oct 2010" "libssh2 1.2.8" "libssh2 manual"
 .SH NAME
 libssh2_free - deallocate libssh2 memory
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 void
 libssh2_free(LIBSSH2_SESSION *session, void *ptr);
+.fi
 .SH DESCRIPTION
 Deallocate memory allocated by earlier call to libssh2 functions.  It
 uses the memory allocation callbacks provided by the application, if

@@ -35,10 +35,10 @@
  * OF SUCH DAMAGE.
  */
 
-#include <stdlib.h>
-
 #include "libssh2_priv.h"
 #include "userauth_kbd_packet.h"
+
+#include <stdlib.h>
 
 #define PASS 0
 #define FAIL -1
@@ -46,27 +46,28 @@
 struct expected {
     int rc;
     int last_error_code;
-    char *last_error_message;
+    const char *last_error_message;
 };
 struct test_case {
-    char *data;
+    const char *data;
     int data_len;
     struct expected expected;
 };
 
 #define TEST_CASES_LEN 16
-struct test_case test_cases[TEST_CASES_LEN] = {
-    /* to small */
+static const struct test_case
+    test_cases[TEST_CASES_LEN] = {
+    /* too small */
     {
         NULL, 0,
         {FAIL, -38,
         "userauth keyboard data buffer too small to get length"}},
-    /* to small */
+    /* too small */
     {
         "1234", 4,
         {FAIL, -38,
         "userauth keyboard data buffer too small to get length"}},
-    /* smalest valid packet possible */
+    /* smallest valid packet possible */
     {
         "<"
         "\0\0\0\0"
@@ -164,7 +165,7 @@ struct test_case test_cases[TEST_CASES_LEN] = {
         "\0\0\0\x0aResponse: "
         "\x01"
         , 89, {PASS, 0, ""}},
-    /* three prompts, 3rd missing*/
+    /* three prompts, 3rd missing */
     {
         "<"
         "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x03"
@@ -191,7 +192,8 @@ struct test_case test_cases[TEST_CASES_LEN] = {
 };
 
 #define FAILED_MALLOC_TEST_CASES_LEN 2
-struct test_case failed_malloc_test_cases[FAILED_MALLOC_TEST_CASES_LEN] = {
+static const struct test_case
+    failed_malloc_test_cases[FAILED_MALLOC_TEST_CASES_LEN] = {
     /* malloc fail */
     {
         "<"
@@ -219,10 +221,9 @@ static int free_count = 0;
 static
 LIBSSH2_ALLOC_FUNC(test_alloc)
 {
-    alloc_count++;
-
     int *threshold_int_ptr = *abstract;
-    if (*abstract != NULL && *threshold_int_ptr == alloc_count) {
+    alloc_count++;
+    if(*abstract && *threshold_int_ptr == alloc_count) {
         return NULL;
     }
 
@@ -234,21 +235,24 @@ LIBSSH2_ALLOC_FUNC(test_alloc)
 static
 LIBSSH2_FREE_FUNC(test_free)
 {
-    (void) abstract;
+    (void)abstract;
     free_count++;
     free(ptr);
 }
 
 static
 int test_case(int num,
-              char *data, int data_len, void *abstract,
+              const char *data, int data_len, void *abstract,
               struct expected expected)
 {
+    int rc;
+    char *message;
+    int error_code;
+    LIBSSH2_SESSION *session = NULL;
     alloc_count = 0;
     free_count = 0;
-    LIBSSH2_SESSION *session = NULL;
     session = libssh2_session_init_ex(test_alloc, test_free, NULL, abstract);
-    if(session == NULL) {
+    if(!session) {
         fprintf(stderr, "libssh2_session_init_ex failed\n");
         return 1;
     }
@@ -257,7 +261,7 @@ int test_case(int num,
     session->userauth_kybd_data_len = data_len;
     memcpy(session->userauth_kybd_data, data, data_len);
 
-    int rc = userauth_keyboard_interactive_decode_info_request(session);
+    rc = userauth_keyboard_interactive_decode_info_request(session);
 
     if(rc != expected.rc) {
         fprintf(stdout,
@@ -266,8 +270,7 @@ int test_case(int num,
         return 1;
     }
 
-    char *message;
-    int error_code = libssh2_session_last_error(session, &message, NULL, 0);
+    error_code = libssh2_session_last_error(session, &message, NULL, 0);
 
     if(expected.last_error_code != error_code) {
         fprintf(stdout,
@@ -291,13 +294,14 @@ int test_case(int num,
     return 0;
 }
 
-int main()
+int main(void)
 {
     int i;
 
     for(i = 0; i < TEST_CASES_LEN; i++) {
         test_case(i + 1,
-                  test_cases[i].data, test_cases[i].data_len,
+                  test_cases[i].data,
+                  test_cases[i].data_len,
                   NULL,
                   test_cases[i].expected);
     }
@@ -306,30 +310,11 @@ int main()
         int tc =  i + TEST_CASES_LEN + 1;
         int malloc_call_num = 5 + i;
         test_case(tc,
-                    failed_malloc_test_cases[i].data,
-                    failed_malloc_test_cases[i].data_len,
-                    &malloc_call_num,
-                    failed_malloc_test_cases[i].expected);
+                  failed_malloc_test_cases[i].data,
+                  failed_malloc_test_cases[i].data_len,
+                  &malloc_call_num,
+                  failed_malloc_test_cases[i].expected);
     }
 
     return 0;
 }
-
-/* Workaround for Visual Studio */
-#ifdef _MSC_VER
-int
-bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
-             size_t saltlen,
-             uint8_t *key, size_t keylen, unsigned int rounds)
-{
-    (void)pass;
-    (void)passlen;
-    (void)salt;
-    (void)saltlen;
-    (void)key;
-    (void)keylen;
-    (void)rounds;
-
-    return -1;
-}
-#endif
