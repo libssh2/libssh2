@@ -25,6 +25,8 @@ chmod go-rwx "$srcdir"/etc/host*
   -o 'Protocol 2' \
   -o "AuthorizedKeysFile \"$srcdir/etc/user.pub\"" \
   -o 'UsePrivilegeSeparation no' \
+  -o 'HostKeyAlgorithms +ssh-rsa' \
+  -o 'PubkeyAcceptedKeyTypes +ssh-rsa' \
   -o 'StrictModes no' \
   -D \
   $libssh2_sshd_params &
