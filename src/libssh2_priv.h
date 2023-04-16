@@ -156,6 +156,9 @@ struct iovec {
 #define UINT_MAX 0xFFFFFFFF
 #endif
 
+#define LIBSSH2_MAX(x, y)  ((x) > (y) ? (x) : (y))
+#define LIBSSH2_MIN(x, y)  ((x) < (y) ? (x) : (y))
+
 /* RFC4253 section 6.1 Maximum Packet Length says:
  *
  * "All implementations MUST be able to process packets with
