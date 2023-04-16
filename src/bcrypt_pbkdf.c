@@ -28,8 +28,6 @@
 #define LIBSSH2_BCRYPT_PBKDF_C
 #include "blowfish.c"
 
-#define MINIMUM(a,b) (((a) < (b)) ? (a) : (b))
-
 /*
  * pkcs #5 pbkdf2 implementation using the "bcrypt" hash
  *
@@ -164,7 +162,7 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
         /*
          * pbkdf2 deviation: output the key material non-linearly.
          */
-        amt = MINIMUM(amt, keylen);
+        amt = LIBSSH2_MIN(amt, keylen);
         for(i = 0; i < amt; i++) {
             size_t dest = i * stride + (count - 1);
             if(dest >= origkeylen) {
