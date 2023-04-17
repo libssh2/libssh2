@@ -293,11 +293,7 @@ static int
 session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
                  int nonblock /* TRUE or FALSE */ )
 {
-#if defined(HAVE_DISABLED_NONBLOCKING)
-    (void)sockfd;
-    (void)nonblock;
-    return 0;                   /* returns success */
-#elif defined(HAVE_O_NONBLOCK)
+#ifdef HAVE_O_NONBLOCK
     /* most recent unix versions */
     int flags;
 
@@ -325,7 +321,9 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 
     return ioctlsocket(sockfd, FIONBIO, &flags);
 #else
-#error "no non-blocking method was found/used/set"
+    (void)sockfd;
+    (void)nonblock;
+    return 0;                   /* returns success */
 #endif
 }
 
@@ -337,10 +335,7 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 static int
 get_socket_nonblocking(libssh2_socket_t sockfd)
 {                               /* operate on this */
-#if defined(HAVE_DISABLED_NONBLOCKING)
-    (void)sockfd;
-    return 1;                   /* returns blocking */
-#elif defined(HAVE_O_NONBLOCK)
+#ifdef HAVE_O_NONBLOCK
     /* most recent unix versions */
     int flags = fcntl(sockfd, F_GETFL, 0);
 
@@ -384,7 +379,8 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
     }
     return (int) option_value;
 #else
-#error "no non-blocking method was found/used/get"
+    (void)sockfd;
+    return 1;                   /* returns blocking */
 #endif
 }
 

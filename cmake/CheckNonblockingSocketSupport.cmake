@@ -13,7 +13,6 @@ include(CheckCSourceCompiles)
 #   HAVE_FIONBIO
 #   HAVE_IOCTLSOCKET_CASE
 #   HAVE_SO_NONBLOCK
-#   HAVE_DISABLED_NONBLOCKING
 #
 # The following variables may be set before calling this macro to
 # modify the way the check is run:
@@ -88,11 +87,6 @@ int main(void)
     (void)setsockopt(socket, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
 }"
           HAVE_SO_NONBLOCK)
-
-        if(NOT HAVE_SO_NONBLOCK)
-          # No non-blocking socket method found
-          set(HAVE_DISABLED_NONBLOCKING 1)
-        endif()
       endif()
     endif()
   endif()

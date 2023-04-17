@@ -629,7 +629,6 @@ AC_DEFINE(HAVE_SO_NONBLOCK, 1, [use SO_NONBLOCK for non-blocking sockets])
 ],[
 dnl test 4 did not compile!
 nonblock="nada"
-AC_DEFINE(HAVE_DISABLED_NONBLOCKING, 1, [disabled non-blocking sockets])
 ])
 dnl end of forth test
 
