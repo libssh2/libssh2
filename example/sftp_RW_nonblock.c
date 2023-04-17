@@ -37,16 +37,14 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#define STORAGE "/tmp/sftp-storage" /* this is the local file name this
-                                       example uses to store the downloaded
-                                       file in */
-
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";
 static const char *username = "username";
 static const char *password = "password";
 static const char *sftppath = "/tmp/TEST"; /* source path */
 static const char *dest = "/tmp/TEST2";    /* destination path */
+static const char *storage = "/tmp/sftp-storage"; /* local file name to store
+                                                     the downloaded file in */
 
 static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 {
@@ -170,9 +168,9 @@ int main(int argc, char *argv[])
     }
     fprintf(stderr, "\n");
 
-    tempstorage = fopen(STORAGE, "wb");
+    tempstorage = fopen(storage, "wb");
     if(!tempstorage) {
-        fprintf(stderr, "Can't open temp storage file %s\n", STORAGE);
+        fprintf(stderr, "Can't open temp storage file %s\n", storage);
         goto shutdown;
     }
 
@@ -274,10 +272,10 @@ int main(int argc, char *argv[])
     libssh2_sftp_close(sftp_handle);
     fclose(tempstorage);
 
-    tempstorage = fopen(STORAGE, "rb");
+    tempstorage = fopen(storage, "rb");
     if(!tempstorage) {
         /* weird, we can't read the file we just wrote to... */
-        fprintf(stderr, "can't open %s for reading\n", STORAGE);
+        fprintf(stderr, "can't open %s for reading\n", storage);
         goto shutdown;
     }
 
