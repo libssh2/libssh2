@@ -920,7 +920,7 @@ libssh2_sign_sk(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
 
         if(sig_info.sig_s_len > 0 && sig_info.sig_s) {
             /* sig length, sig_r, sig_s, flags, counter, plus 4 bytes for each
-            component's length, and up to 1 extra byte for each component */
+               component's length, and up to 1 extra byte for each component */
             *sig_len = 4 + 5 + sig_info.sig_r_len + 5 + sig_info.sig_s_len + 5;
             *sig = LIBSSH2_ALLOC(session, *sig_len);
 
@@ -1321,7 +1321,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     i = filtered_algs;
 
     /* this walks the server algo list and the supported algo list and creates
-     a filtered list that includes matches */
+       a filtered list that includes matches */
 
     while(s && *s) {
         p = strchr(s, ',');
@@ -1359,7 +1359,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     }
 
     /* now that we have the possible supported algos, match based on the prefs
-     or what is supported by the crypto backend, look for a match */
+       or what is supported by the crypto backend, look for a match */
 
     while(s && *s && !match) {
         p = strchr(s, ',');

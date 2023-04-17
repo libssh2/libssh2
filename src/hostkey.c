@@ -269,7 +269,7 @@ hostkey_method_ssh_rsa_sha2_256_sig_verify(LIBSSH2_SESSION * session,
     (void)session;
 
     /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-256"} +
-    signature_len(4) */
+       signature_len(4) */
     if(sig_len < 20)
         return -1;
 
@@ -339,7 +339,7 @@ hostkey_method_ssh_rsa_sha2_512_sig_verify(LIBSSH2_SESSION * session,
     (void)session;
 
     /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-512"} +
-    signature_len(4) */
+       signature_len(4) */
     if(sig_len < 20)
         return -1;
 

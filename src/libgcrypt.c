@@ -197,6 +197,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
         ret = -1;
         goto fail;
     }
+
     /* First read Version field (should be 0). */
     ret = _libssh2_pem_decode_integer(&data, &datalen, &n, &nlen);
     if(ret || (nlen != 1 && *n != '\0')) {
