@@ -36,7 +36,7 @@ if command -v grep >/dev/null 2>&1 && \
     fi
   done
 else
-  echo 'Required tool not found, skipping mansyntax tests.'
+  echo 'mansyntax: Required tool not found, skipping tests.'
 fi
 
 exit "$ec"
