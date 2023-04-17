@@ -37,8 +37,6 @@ include(CopyRuntimeDependencies)
 
 list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
-add_definitions(-DHAVE_CONFIG_H)
-
 if(CMAKE_COMPILER_IS_GNUCC)
   find_program(GCOV_PATH gcov)
   if(GCOV_PATH)

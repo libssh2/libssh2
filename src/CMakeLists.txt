@@ -163,13 +163,6 @@ if(BUILD_SHARED_LIBS)
   endif()
 endif()
 
-# Config file
-
-add_definitions(-DHAVE_CONFIG_H)
-
-configure_file(libssh2_config_cmake.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h)
-
 ## Installation
 
 install(FILES

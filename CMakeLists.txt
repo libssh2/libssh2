@@ -193,6 +193,13 @@ set(CMAKE_REQUIRED_LIBRARIES ${SOCKET_LIBRARIES})
 check_nonblocking_socket_support()
 cmake_pop_check_state()
 
+# Config file
+
+add_definitions(-DHAVE_CONFIG_H)
+
+configure_file(src/libssh2_config_cmake.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/src/libssh2_config.h)
+
 ## Cryptography backend choice
 
 set(CRYPTO_BACKEND
