@@ -369,7 +369,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         /* Parse KEXDH_REPLY */
         if(exchange_state->s_packet_len < 5) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                 "Unexpected packet length");
+                                 "Unexpected packet length DH-SHA");
             goto clean_exit;
         }
 
@@ -481,14 +481,15 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                   session->server_hostkey_len,
                                   &session->server_hostkey_abstract)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
-                                 "Unable to initialize hostkey importer");
+                                 "Unable to initialize hostkey importer "
+                                 "DH-SHA");
             goto clean_exit;
         }
 
         if(_libssh2_get_string(&buf, &(exchange_state->f_value),
                                &(exchange_state->f_value_len))) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
-                                 "Unable to get f value");
+                                 "Unable to get DH-SHA f value");
             goto clean_exit;
         }
 
@@ -498,7 +499,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         if(_libssh2_get_string(&buf, &(exchange_state->h_sig),
                                &(exchange_state->h_sig_len))) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
-                                 "Unable to get h sig");
+                                 "Unable to get DH-SHA h sig");
             goto clean_exit;
         }
 
@@ -514,7 +515,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             LIBSSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                 "Unable to allocate buffer for K");
+                                 "Unable to allocate buffer for DH-SHA K");
             goto clean_exit;
         }
         _libssh2_htonu32(exchange_state->k_value,
@@ -623,7 +624,8 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                        exchange_state->h_sig_len, exchange_state->h_sig_comp,
                        digest_len, &session->server_hostkey_abstract)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
-                                 "Unable to verify hostkey signature");
+                                 "Unable to verify hostkey signature "
+                                 "DH-SHA");
             goto clean_exit;
         }
 
@@ -641,7 +643,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         }
         else if(rc) {
             ret = _libssh2_error(session, rc,
-                                 "Unable to send NEWKEYS message");
+                                 "Unable to send NEWKEYS message DH-SHA");
             goto clean_exit;
         }
 
@@ -657,14 +659,16 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc, "Timed out waiting for NEWKEYS");
+            ret = _libssh2_error(session, rc,
+                                 "Timed out waiting for NEWKEYS DH-SHA");
             goto clean_exit;
         }
+
         /* The first key exchange has been performed,
            switch to active crypt/comp/mac mode */
         session->state |= LIBSSH2_STATE_NEWKEYS;
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                       "Received NEWKEYS message"));
+                       "Received NEWKEYS message DH-SHA"));
 
         /* This will actually end up being just packet_type(1)
            for this packet type anyway */
@@ -1385,7 +1389,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
 
         if(key_state->data_len < 9) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                 "Unexpected key length");
+                                 "Unexpected key length DH-SHA1");
             goto dh_gex_clean_exit;
         }
 
@@ -1397,13 +1401,13 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
 
         if(_libssh2_get_bignum_bytes(&buf, &p, &p_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                 "Unexpected value");
+                                 "Unexpected value DH-SHA1 p");
             goto dh_gex_clean_exit;
         }
 
         if(_libssh2_get_bignum_bytes(&buf, &g, &g_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                 "Unexpected value");
+                                 "Unexpected value DH-SHA1 g");
             goto dh_gex_clean_exit;
         }
 
@@ -1504,7 +1508,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
 
         if(key_state->data_len < 9) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                 "Unexpected key length");
+                                 "Unexpected key length DH-SHA256");
             goto dh_gex_clean_exit;
         }
 
@@ -1516,13 +1520,13 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
 
         if(_libssh2_get_bignum_bytes(&buf, &p, &p_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                 "Unexpected value");
+                                 "Unexpected value DH-SHA256 p");
             goto dh_gex_clean_exit;
         }
 
         if(_libssh2_get_bignum_bytes(&buf, &g, &g_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                 "Unexpected value");
+                                 "Unexpected value DH-SHA256 g");
             goto dh_gex_clean_exit;
         }
 
@@ -1746,7 +1750,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                                 &server_public_key_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate memory for a copy "
-                                 "of the host key");
+                                 "of the host ECDH key");
             goto clean_exit;
         }
 
@@ -1843,7 +1847,8 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                                   session->server_hostkey_len,
                                   &session->server_hostkey_abstract)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
-                                 "Unable to initialize hostkey importer");
+                                 "Unable to initialize hostkey importer "
+                                 "ECDH");
             goto clean_exit;
         }
 
@@ -1851,7 +1856,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         if(_libssh2_get_string(&buf, &server_public_key,
                                &server_public_key_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                 "Unexpected key length");
+                                 "Unexpected key length ECDH");
             goto clean_exit;
         }
 
@@ -1859,7 +1864,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         if(_libssh2_get_string(&buf, &exchange_state->h_sig,
            &(exchange_state->h_sig_len))) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
-                                 "Unexpected ecdh server sig length");
+                                 "Unexpected ECDH server sig length");
             goto clean_exit;
         }
 
@@ -1881,7 +1886,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         LIBSSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                 "Unable to allocate buffer for K");
+                                 "Unable to allocate buffer for ECDH K");
             goto clean_exit;
         }
         _libssh2_htonu32(exchange_state->k_value,
@@ -1911,7 +1916,8 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
 
         if(rc) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
-                                 "Unable to verify hostkey signature");
+                                 "Unable to verify hostkey signature "
+                                 "ECDH");
             goto clean_exit;
         }
 
@@ -1926,7 +1932,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         }
         else if(rc) {
             ret = _libssh2_error(session, rc,
-                                 "Unable to send NEWKEYS message");
+                                 "Unable to send NEWKEYS message ECDH");
             goto clean_exit;
         }
 
@@ -1942,7 +1948,8 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc, "Timed out waiting for NEWKEYS");
+            ret = _libssh2_error(session, rc,
+                                 "Timed out waiting for NEWKEYS ECDH");
             goto clean_exit;
         }
 
@@ -1950,7 +1957,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
            switch to active crypt/comp/mac mode */
         session->state |= LIBSSH2_STATE_NEWKEYS;
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                       "Received NEWKEYS message"));
+                       "Received NEWKEYS message ECDH"));
 
         /* This will actually end up being just packet_type(1)
            for this packet type anyway */
@@ -2353,7 +2360,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
 
         if(data_len < 5) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                 "Unexpected key length");
+                                 "Unexpected curve25519 key length 1");
             goto clean_exit;
         }
 
@@ -2364,7 +2371,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
 
         if(_libssh2_get_string(&buf, &server_host_key, &hostkey_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                 "Unexpected key length");
+                                 "Unexpected curve25519 key length 2");
             goto clean_exit;
         }
 
@@ -2374,7 +2381,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         if(!session->server_hostkey) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate memory for a copy "
-                                 "of the host key");
+                                 "of the host curve25519 key");
             goto clean_exit;
         }
 
@@ -2472,7 +2479,8 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
                                   session->server_hostkey_len,
                                   &session->server_hostkey_abstract)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
-                                 "Unable to initialize hostkey importer");
+                                 "Unable to initialize hostkey importer "
+                                 "curve25519");
             goto clean_exit;
         }
 
@@ -2480,7 +2488,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         if(_libssh2_get_string(&buf, &server_public_key,
                                &server_public_key_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                 "Unexpected key length");
+                                 "Unexpected curve25519 key length");
             goto clean_exit;
         }
 
@@ -2504,7 +2512,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
                                        server_public_key);
         if(rc) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
-                                 "Unable to create ECDH shared secret");
+                                 "Unable to create curve25519 shared secret");
             goto clean_exit;
         }
 
@@ -2535,7 +2543,8 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
 
         if(rc) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
-                                 "Unable to verify hostkey signature");
+                                 "Unable to verify hostkey signature "
+                                 "curve25519");
             goto clean_exit;
         }
 
@@ -2550,7 +2559,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
         else if(rc) {
             ret = _libssh2_error(session, rc,
-                                 "Unable to send NEWKEYS message");
+                                 "Unable to send NEWKEYS message curve25519");
             goto clean_exit;
         }
 
@@ -2566,7 +2575,8 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             return rc;
         }
         else if(rc) {
-            ret = _libssh2_error(session, rc, "Timed out waiting for NEWKEYS");
+            ret = _libssh2_error(session, rc,
+                                 "Timed out waiting for NEWKEYS curve25519");
             goto clean_exit;
         }
 
@@ -2574,7 +2584,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
            switch to active crypt/comp/mac mode */
         session->state |= LIBSSH2_STATE_NEWKEYS;
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                       "Received NEWKEYS message"));
+                       "Received NEWKEYS message curve25519"));
 
         /* This will actually end up being just packet_type(1)
            for this packet type anyway */
