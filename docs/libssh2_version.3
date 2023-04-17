@@ -24,8 +24,8 @@ string or NULL if the \fIrequired_version\fP isn't fulfilled.
 To make sure you run with the correct libssh2 version:
 
 .nf
-if (!libssh2_version(LIBSSH2_VERSION_NUM)) {
-  fprintf (stderr, \&"Runtime libssh2 version too old!\&");
+if(!libssh2_version(LIBSSH2_VERSION_NUM)) {
+  fprintf(stderr, \&"Runtime libssh2 version too old!\&");
   exit(1);
 }
 .fi

@@ -279,12 +279,12 @@ int main(int argc, char *argv[])
         /* Instead of just running a single command with libssh2_channel_exec,
          * a shell can be opened on the channel instead, for interactive use.
          * You usually want a pty allocated first in that case (see above). */
-          #if 0
-          if(libssh2_channel_shell(channel)) {
-              fprintf(stderr, "Unable to request shell on allocated pty\n");
-              goto shutdown;
-          }
-          #endif
+        #if 0
+        if(libssh2_channel_shell(channel)) {
+            fprintf(stderr, "Unable to request shell on allocated pty\n");
+            goto shutdown;
+        }
+        #endif
 
         /* At this point the shell can be interacted with using
          * libssh2_channel_read()

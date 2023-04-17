@@ -323,9 +323,9 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_3des_cbc = {
    towards the start are chosen in preference to ones further down the list. */
 static const LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
 #if LIBSSH2_AES_CTR
-  &libssh2_crypt_method_aes256_ctr,
-  &libssh2_crypt_method_aes192_ctr,
-  &libssh2_crypt_method_aes128_ctr,
+    &libssh2_crypt_method_aes256_ctr,
+    &libssh2_crypt_method_aes192_ctr,
+    &libssh2_crypt_method_aes128_ctr,
 #endif /* LIBSSH2_AES */
 #if LIBSSH2_AES
     &libssh2_crypt_method_aes256_cbc,

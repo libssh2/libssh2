@@ -510,7 +510,7 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
         return -1;
 
     if(_libssh2_get_string(&buf, &p, &p_len))
-       return -1;
+        return -1;
 
     if(_libssh2_get_string(&buf, &q, &q_len))
         return -1;
@@ -877,14 +877,14 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
     buf.dataptr = buf.data;
     buf.len = sig_len;
 
-   if(_libssh2_get_string(&buf, &name, &name_len) || name_len != 19)
+    if(_libssh2_get_string(&buf, &name, &name_len) || name_len != 19)
         return -1;
 
     if(_libssh2_get_u32(&buf, &len) != 0 || len < 8)
         return -1;
 
     if(_libssh2_get_string(&buf, &r, &r_len))
-       return -1;
+        return -1;
 
     if(_libssh2_get_string(&buf, &s, &s_len))
         return -1;

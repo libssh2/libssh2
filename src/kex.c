@@ -620,9 +620,9 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                     exchange_state->h_sig_comp);
 
         if(session->hostkey->
-           sig_verify(session, exchange_state->h_sig,
-                      exchange_state->h_sig_len, exchange_state->h_sig_comp,
-                      digest_len, &session->server_hostkey_abstract)) {
+            sig_verify(session, exchange_state->h_sig,
+                       exchange_state->h_sig_len, exchange_state->h_sig_comp,
+                       digest_len, &session->server_hostkey_abstract)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
                                  "Unable to verify hostkey signature");
             goto clean_exit;
@@ -1745,9 +1745,9 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
 
         if(_libssh2_copy_string(session, &buf, &(session->server_hostkey),
                                 &server_public_key_len)) {
-             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                  "Unable to allocate memory for a copy "
-                                  "of the host key");
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Unable to allocate memory for a copy "
+                                 "of the host key");
             goto clean_exit;
         }
 
