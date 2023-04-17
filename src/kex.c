@@ -437,7 +437,6 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         {
             char fingerprint[64], *fprint = fingerprint;
             int i;
-
             for(i = 0; i < 20; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
             }
@@ -1800,7 +1799,6 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         {
             char fingerprint[64], *fprint = fingerprint;
             int i;
-
             for(i = 0; i < 20; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
             }
@@ -2430,7 +2428,6 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         {
             char fingerprint[64], *fprint = fingerprint;
             int i;
-
             for(i = 0; i < 20; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
             }
