@@ -568,7 +568,7 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
 {
     unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
     size_t pubkey_len = pubkeyfiledata_len;
-    unsigned int tmp_len;
+    size_t tmp_len;
 
     if(pubkeyfiledata_len <= 1) {
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
@@ -610,12 +610,12 @@ memory_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
         sp2 = pubkey + pubkey_len;
     }
 
-    if(libssh2_base64_decode(session, (char **)&tmp, &tmp_len,
-                             (const char *)sp1,
-                             (unsigned int)(sp2 - sp1))) {
+    if(_libssh2_base64_decode(session, (char **)&tmp, &tmp_len,
+                              (const char *)sp1,
+                              sp2 - sp1)) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-                                  "Invalid key data, not base64 encoded");
+                              "Invalid key data, not base64 encoded");
     }
 
     /* Wasting some bytes here (okay, more than some), but since it's likely
@@ -652,7 +652,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     char c;
     unsigned char *pubkey = NULL, *sp1, *sp2, *tmp;
     size_t pubkey_len = 0, sp_len;
-    unsigned int tmp_len;
+    size_t tmp_len;
 
     _libssh2_debug((session, LIBSSH2_TRACE_AUTH, "Loading public key file: %s",
                    pubkeyfile));
@@ -715,9 +715,9 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
         sp2 = pubkey + pubkey_len;
     }
 
-    if(libssh2_base64_decode(session, (char **)&tmp, &tmp_len,
-                             (const char *)sp1,
-                             (unsigned int)(sp2 - sp1))) {
+    if(_libssh2_base64_decode(session, (char **)&tmp, &tmp_len,
+                              (const char *)sp1,
+                              sp2 - sp1)) {
         LIBSSH2_FREE(session, pubkey);
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Invalid key data, not base64 encoded");

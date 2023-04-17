@@ -317,27 +317,46 @@ static const short base64_reverse_table[256] = {
 
 /* libssh2_base64_decode
  *
- * Decode a base64 chunk and store it into a newly alloc'd buffer
+ * Legacy public function. DEPRECATED.
  */
-/* FIXME: datalen, src_len -> size_t */
 LIBSSH2_API int
 libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
                       unsigned int *datalen, const char *src,
                       unsigned int src_len)
 {
-    unsigned char *s, *d;
-    short v;
-    int i = 0, len = 0;
+    int rc;
+    size_t dlen;
 
-    *data = LIBSSH2_ALLOC(session, (3 * src_len / 4) + 1);
+    rc = _libssh2_base64_decode(session, data, &dlen, src, src_len);
+
+    if(datalen)
+        *datalen = (unsigned int)dlen;
+
+    return rc;
+}
+
+/* _libssh2_base64_decode
+ *
+ * Decode a base64 chunk and store it into a newly alloc'd buffer
+ */
+int _libssh2_base64_decode(LIBSSH2_SESSION *session,
+                           char **data, size_t *datalen,
+                           const char *src, size_t src_len)
+{
+    unsigned char *d;
+    const char *s;
+    short v;
+    ssize_t i = 0, len = 0;
+
+    *data = LIBSSH2_ALLOC(session, ((src_len / 4) * 3) + 1);
     d = (unsigned char *) *data;
     if(!d) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory for base64 decoding");
     }
 
-    for(s = (unsigned char *) src; ((char *) s) < (src + src_len); s++) {
-        v = base64_reverse_table[*s];
+    for(s = src; s < (src + src_len); s++) {
+        v = base64_reverse_table[(unsigned char)*s];
         if(v < 0)
             continue;
         switch(i % 4) {

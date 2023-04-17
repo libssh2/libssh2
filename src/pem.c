@@ -109,7 +109,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
                    const char *headerbegin,
                    const char *headerend,
                    const unsigned char *passphrase,
-                   FILE * fp, unsigned char **data, unsigned int *datalen)
+                   FILE * fp, unsigned char **data, size_t *datalen)
 {
     char line[LINE_SIZE];
     unsigned char iv[LINE_SIZE];
@@ -200,8 +200,8 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    if(libssh2_base64_decode(session, (char **) data, datalen,
-                             b64data, (unsigned int)b64datalen)) {
+    if(_libssh2_base64_decode(session, (char **) data, datalen,
+                              b64data, b64datalen)) {
         ret = -1;
         goto out;
     }
@@ -296,7 +296,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
                           const char *headerbegin,
                           const char *headerend,
                           const char *filedata, size_t filedata_len,
-                          unsigned char **data, unsigned int *datalen)
+                          unsigned char **data, size_t *datalen)
 {
     char line[LINE_SIZE];
     char *b64data = NULL;
@@ -345,8 +345,8 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
         return -1;
     }
 
-    if(libssh2_base64_decode(session, (char **) data, datalen,
-                             b64data, (unsigned int)b64datalen)) {
+    if(_libssh2_base64_decode(session, (char **) data, datalen,
+                              b64data, b64datalen)) {
         ret = -1;
         goto out;
     }
@@ -384,7 +384,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
     unsigned char *key_part = NULL;
     unsigned char *iv_part = NULL;
     unsigned char *f = NULL;
-    unsigned int f_len = 0;
+    size_t f_len = 0;
     int ret = 0, keylen = 0, ivlen = 0, total_len = 0;
     size_t kdf_len = 0, tmp_len = 0, salt_len = 0;
 
@@ -392,8 +392,8 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         *decrypted_buf = NULL;
 
     /* decode file */
-    if(libssh2_base64_decode(session, (char **)&f, &f_len,
-                             b64data, (unsigned int)b64datalen)) {
+    if(_libssh2_base64_decode(session, (char **)&f, &f_len,
+                              b64data, b64datalen)) {
        ret = -1;
        goto out;
     }
@@ -816,7 +816,7 @@ out:
 
 static int
 read_asn1_length(const unsigned char *data,
-                 unsigned int datalen, unsigned int *len)
+                 size_t datalen, size_t *len)
 {
     unsigned int lenlen;
     int nextpos;
@@ -850,9 +850,9 @@ read_asn1_length(const unsigned char *data,
 }
 
 int
-_libssh2_pem_decode_sequence(unsigned char **data, unsigned int *datalen)
+_libssh2_pem_decode_sequence(unsigned char **data, size_t *datalen)
 {
-    unsigned int len;
+    size_t len;
     int lenlen;
 
     if(*datalen < 1) {
@@ -878,10 +878,10 @@ _libssh2_pem_decode_sequence(unsigned char **data, unsigned int *datalen)
 }
 
 int
-_libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
+_libssh2_pem_decode_integer(unsigned char **data, size_t *datalen,
                             unsigned char **i, unsigned int *ilen)
 {
-    unsigned int len;
+    size_t len;
     int lenlen;
 
     if(*datalen < 1) {
@@ -904,7 +904,7 @@ _libssh2_pem_decode_integer(unsigned char **data, unsigned int *datalen,
     *datalen -= lenlen;
 
     *i = *data;
-    *ilen = len;
+    *ilen = (unsigned int)len;
 
     *data += len;
     *datalen -= len;

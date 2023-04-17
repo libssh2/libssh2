@@ -171,7 +171,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
 {
     FILE *fp;
     unsigned char *data, *save_data;
-    unsigned int datalen;
+    size_t datalen;
     int ret;
     unsigned char *n, *e, *d, *p, *q, *e1, *e2, *coeff;
     unsigned int nlen, elen, dlen, plen, qlen, e1len, e2len, coefflen;
@@ -288,7 +288,7 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
 {
     FILE *fp;
     unsigned char *data, *save_data;
-    unsigned int datalen;
+    size_t datalen;
     int ret;
     unsigned char *p, *q, *g, *y, *x;
     unsigned int plen, qlen, glen, ylen, xlen;

@@ -46,9 +46,11 @@ librunner_la_SOURCES = \
 LDADD = librunner.la
 check_LTLIBRARIES = librunner.la
 
-# This program uses an internal libssh2 function so it needs to be statically
+# These programs use internal libssh2 functions so they need to be statically
 # linked against libssh2
 test_auth_keyboard_info_request_LDFLAGS = -static
+test_hostkey_LDFLAGS = -static
+test_simple_LDFLAGS = -static
 
 # This must be last in the list so it resolves symbols in previous libraries
 LDADD += ../src/libssh2.la

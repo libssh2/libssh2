@@ -991,6 +991,7 @@ libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
 #define libssh2_scp_send(session, path, mode, size) \
     libssh2_scp_send_ex((session), (path), (mode), (size), 0, 0)
 
+/* DEPRECATED */
 LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
                                       unsigned int *dest_len,
                                       const char *src, unsigned int src_len);
