@@ -22,7 +22,6 @@
 /* Hand-crafted configuration for platforms which lack config tool. */
 #elif defined(WIN32)
 
-#define HAVE_IOCTLSOCKET
 #define HAVE_SELECT
 #define HAVE_SNPRINTF
 

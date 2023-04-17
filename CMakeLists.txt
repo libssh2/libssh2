@@ -188,10 +188,12 @@ endif()
 # Non-blocking socket support tests. Use a separate, yet unset variable
 # for the socket libraries to not link against the other configured
 # dependencies which might not have been built yet.
-cmake_push_check_state()
-set(CMAKE_REQUIRED_LIBRARIES ${SOCKET_LIBRARIES})
-check_nonblocking_socket_support()
-cmake_pop_check_state()
+if(NOT WIN32)
+  cmake_push_check_state()
+  set(CMAKE_REQUIRED_LIBRARIES ${SOCKET_LIBRARIES})
+  check_nonblocking_socket_support()
+  cmake_pop_check_state()
+endif()
 
 ## Cryptography backend choice
 

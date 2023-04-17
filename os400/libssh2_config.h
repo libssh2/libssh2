@@ -71,9 +71,6 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
 
-/* use ioctlsocket() for non-blocking sockets */
-#undef HAVE_IOCTLSOCKET
-
 /* use Ioctlsocket() for non-blocking sockets */
 #undef HAVE_IOCTLSOCKET_CASE
 
