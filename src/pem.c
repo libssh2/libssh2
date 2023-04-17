@@ -458,8 +458,8 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     if(!strcmp((const char *)kdfname, "none") &&
        strcmp((const char *)ciphername, "none") != 0) {
-        ret =_libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                            "invalid format");
+        ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                             "invalid format");
         goto out;
     }
 
