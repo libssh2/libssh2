@@ -816,8 +816,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                  * Spec says we MAY ignore bytes sent beyond
                  * packet_size
                  */
-                _libssh2_error(session,
-                               LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
+                _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
                                "Packet contains more data than we offered"
                                " to receive, truncating");
                 datalen = channelp->remote.packet_size + data_head;
@@ -827,8 +826,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                  * Spec says we MAY ignore bytes sent beyond
                  * window_size
                  */
-                _libssh2_error(session,
-                               LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
+                _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
                                "The current receive window is full,"
                                " data ignored");
                 LIBSSH2_FREE(session, data);
@@ -840,8 +838,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
             if(channelp->read_avail + datalen - data_head >
                 channelp->remote.window_size) {
-                _libssh2_error(session,
-                               LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
+                _libssh2_error(session, LIBSSH2_ERROR_CHANNEL_WINDOW_EXCEEDED,
                                "Remote sent more data than current "
                                "window allows, truncating");
                 datalen = channelp->remote.window_size -
