@@ -317,8 +317,8 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
     return setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
 #elif defined(WIN32)
     unsigned long flags;
-    flags = nonblock;
 
+    flags = nonblock;
     return ioctlsocket(sockfd, FIONBIO, &flags);
 #else
     (void)sockfd;
@@ -372,8 +372,8 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
     unsigned int option_value;
     socklen_t option_len = sizeof(option_value);
 
-    if(getsockopt
-        (sockfd, SOL_SOCKET, SO_ERROR, (void *) &option_value, &option_len)) {
+    if(getsockopt(sockfd, SOL_SOCKET, SO_ERROR,
+                  (void *) &option_value, &option_len)) {
         /* Assume blocking on error */
         return 1;
     }
