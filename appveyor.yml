@@ -42,7 +42,7 @@ environment:
       CRYPTO_BACKEND: "OpenSSL"
       CONFIGURATION: "Release"
 
-    - job_name: "VS2015, OpenSSL, x64, Logging"
+    - job_name: "VS2015, OpenSSL, x64, Debug"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 14 2015"
       PLATFORM: "x64"
@@ -93,7 +93,7 @@ environment:
       CONFIGURATION: "Release"
       SKIP_CTEST: "yes"
 
-    - job_name: "VS2022, WinCNG, x64, Logging"
+    - job_name: "VS2022, WinCNG, x64, Debug"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
       PLATFORM: "x64"
