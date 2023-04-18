@@ -601,28 +601,6 @@ AC_DEFINE(HAVE_FIONBIO, 1, [use FIONBIO for non-blocking sockets])
 dnl FIONBIO test was also bad
 dnl the code was bad, try a different program now, test 3
 
-  AC_TRY_COMPILE([
-/* headers for ioctlsocket test (Windows) */
-#undef inline
-#ifdef HAVE_WINDOWS_H
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <winsock2.h>
-#endif
-],[
-/* ioctlsocket source code */
- SOCKET sd;
- unsigned long flags = 0;
- sd = socket(0, 0, 0);
- ioctlsocket(sd, FIONBIO, &flags);
-],[
-dnl ioctlsocket test was good
-nonblock="ioctlsocket"
-AC_DEFINE(HAVE_IOCTLSOCKET, 1, [use ioctlsocket() for non-blocking sockets])
-],[
-dnl ioctlsocket did not compile!, go to test 4
-
   AC_TRY_LINK([
 /* headers for IoctlSocket test (Amiga?) */
 #include <sys/ioctl.h>
@@ -635,7 +613,7 @@ dnl ioctlsocket test was good
 nonblock="IoctlSocket"
 AC_DEFINE(HAVE_IOCTLSOCKET_CASE, 1, [use Ioctlsocket() for non-blocking sockets])
 ],[
-dnl Ioctlsocket did not compile, do test 5!
+dnl Ioctlsocket did not compile, do test 4!
   AC_TRY_COMPILE([
 /* headers for SO_NONBLOCK test (BeOS) */
 #include <socket.h>
@@ -649,12 +627,8 @@ dnl the SO_NONBLOCK test was good
 nonblock="SO_NONBLOCK"
 AC_DEFINE(HAVE_SO_NONBLOCK, 1, [use SO_NONBLOCK for non-blocking sockets])
 ],[
-dnl test 5 did not compile!
+dnl test 4 did not compile!
 nonblock="nada"
-AC_DEFINE(HAVE_DISABLED_NONBLOCKING, 1, [disabled non-blocking sockets])
-])
-dnl end of fifth test
-
 ])
 dnl end of forth test
 

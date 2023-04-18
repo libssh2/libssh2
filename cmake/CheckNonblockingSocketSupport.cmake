@@ -1,6 +1,6 @@
 include(CheckCSourceCompiles)
 
-# - check_nonblocking_socket_support()
+# check_nonblocking_socket_support()
 #
 # Check for how to set a socket to non-blocking state. There seems to exist
 # four known different ways, with the one used almost everywhere being POSIX
@@ -11,10 +11,8 @@ include(CheckCSourceCompiles)
 # method (if any):
 #   HAVE_O_NONBLOCK
 #   HAVE_FIONBIO
-#   HAVE_IOCTLSOCKET
 #   HAVE_IOCTLSOCKET_CASE
 #   HAVE_SO_NONBLOCK
-#   HAVE_DISABLED_NONBLOCKING
 #
 # The following variables may be set before calling this macro to
 # modify the way the check is run:
@@ -27,8 +25,7 @@ include(CheckCSourceCompiles)
 macro(check_nonblocking_socket_support)
   # There are two known platforms (AIX 3.x and SunOS 4.1.x) where the
   # O_NONBLOCK define is found but does not work.
-  if(NOT WIN32)
-    check_c_source_compiles("
+  check_c_source_compiles("
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -53,12 +50,10 @@ int main(void)
     int socket = 0;
     (void)fcntl(socket, F_SETFL, O_NONBLOCK);
 }"
-      HAVE_O_NONBLOCK)
-  endif()
+    HAVE_O_NONBLOCK)
 
   if(NOT HAVE_O_NONBLOCK)
-    if(NOT WIN32)
-      check_c_source_compiles("/* FIONBIO test (old-style unix) */
+    check_c_source_compiles("/* FIONBIO test (old-style unix) */
 #include <unistd.h>
 #include <stropts.h>
 
@@ -68,30 +63,10 @@ int main(void)
     int flags = 0;
     (void)ioctl(socket, FIONBIO, &flags);
 }"
-        HAVE_FIONBIO)
-    endif()
+      HAVE_FIONBIO)
 
     if(NOT HAVE_FIONBIO)
-      if(WIN32)
-        check_c_source_compiles("/* ioctlsocket test (Windows) */
-#undef inline
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <winsock2.h>
-
-int main(void)
-{
-    SOCKET sd = socket(0, 0, 0);
-    unsigned long flags = 0;
-    (void)ioctlsocket(sd, FIONBIO, &flags);
-}"
-          HAVE_IOCTLSOCKET)
-      endif()
-
-      if(NOT HAVE_IOCTLSOCKET)
-        check_c_source_compiles("/* IoctlSocket test (Amiga?) */
+      check_c_source_compiles("/* IoctlSocket test (Amiga?) */
 #include <sys/ioctl.h>
 
 int main(void)
@@ -99,10 +74,10 @@ int main(void)
     int socket = 0;
     (void)IoctlSocket(socket, FIONBIO, (long)1);
 }"
-          HAVE_IOCTLSOCKET_CASE)
+        HAVE_IOCTLSOCKET_CASE)
 
-        if(NOT HAVE_IOCTLSOCKET_CASE)
-          check_c_source_compiles("/* SO_NONBLOCK test (BeOS) */
+      if(NOT HAVE_IOCTLSOCKET_CASE)
+        check_c_source_compiles("/* SO_NONBLOCK test (BeOS) */
 #include <socket.h>
 
 int main(void)
@@ -111,13 +86,7 @@ int main(void)
     int socket = 0;
     (void)setsockopt(socket, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
 }"
-            HAVE_SO_NONBLOCK)
-
-          if(NOT HAVE_SO_NONBLOCK)
-            # No non-blocking socket method found
-            set(HAVE_DISABLED_NONBLOCKING 1)
-          endif()
-        endif()
+          HAVE_SO_NONBLOCK)
       endif()
     endif()
   endif()

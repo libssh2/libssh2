@@ -308,12 +308,6 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 
     flags = nonblock;
     return ioctl(sockfd, FIONBIO, &flags);
-#elif defined(HAVE_IOCTLSOCKET)
-    /* Windows */
-    unsigned long flags;
-    flags = nonblock;
-
-    return ioctlsocket(sockfd, FIONBIO, &flags);
 #elif defined(HAVE_IOCTLSOCKET_CASE)
     /* presumably for Amiga */
     return IoctlSocket(sockfd, FIONBIO, (long) nonblock);
@@ -321,12 +315,15 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
     /* BeOS */
     long b = nonblock ? 1 : 0;
     return setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
-#elif defined(HAVE_DISABLED_NONBLOCKING)
+#elif defined(WIN32)
+    unsigned long flags;
+
+    flags = nonblock;
+    return ioctlsocket(sockfd, FIONBIO, &flags);
+#else
     (void)sockfd;
     (void)nonblock;
     return 0;                   /* returns success */
-#else
-#error "no non-blocking method was found/used/set"
 #endif
 }
 
@@ -347,17 +344,6 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
         return 1;
     }
     return (flags & O_NONBLOCK);
-#elif defined(WSAEWOULDBLOCK)
-    /* Windows */
-    unsigned int option_value;
-    socklen_t option_len = sizeof(option_value);
-
-    if(getsockopt
-        (sockfd, SOL_SOCKET, SO_ERROR, (void *) &option_value, &option_len)) {
-        /* Assume blocking on error */
-        return 1;
-    }
-    return (int) option_value;
 #elif defined(HAVE_SO_NONBLOCK)
     /* BeOS */
     long b;
@@ -382,11 +368,19 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
         return 1;
     }
     return 0;
-#elif defined(HAVE_DISABLED_NONBLOCKING)
+#elif defined(WIN32)
+    unsigned int option_value;
+    socklen_t option_len = sizeof(option_value);
+
+    if(getsockopt(sockfd, SOL_SOCKET, SO_ERROR,
+                  (void *) &option_value, &option_len)) {
+        /* Assume blocking on error */
+        return 1;
+    }
+    return (int) option_value;
+#else
     (void)sockfd;
     return 1;                   /* returns blocking */
-#else
-#error "no non-blocking method was found/used/get"
 #endif
 }
 
