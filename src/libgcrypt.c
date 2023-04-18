@@ -40,6 +40,7 @@
 
 #include <string.h>
 
+#if LIBSSH2_RSA
 int
 _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
                  const unsigned char *edata,
@@ -83,6 +84,7 @@ _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
     return 0;
 }
 
+#if LIBSSH2_RSA_SHA1
 int
 _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
                          const unsigned char *sig,
@@ -114,7 +116,10 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
 
     return (rc == 0) ? 0 : -1;
 }
+#endif
+#endif
 
+#if LIBSSH2_DSA
 int
 _libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
                  const unsigned char *p,
@@ -147,7 +152,9 @@ _libssh2_dsa_new(libssh2_dsa_ctx ** dsactx,
 
     return 0;
 }
+#endif
 
+#if LIBSSH2_RSA
 int
 _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
                                     LIBSSH2_SESSION * session,
@@ -265,7 +272,9 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
     LIBSSH2_FREE(session, save_data);
     return ret;
 }
+#endif
 
+#if LIBSSH2_DSA
 int
 _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
                                     LIBSSH2_SESSION * session,
@@ -369,7 +378,10 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
     LIBSSH2_FREE(session, save_data);
     return ret;
 }
+#endif
 
+#if LIBSSH2_RSA
+#if LIBSSH2_RSA_SHA1
 int
 _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
                        libssh2_rsa_ctx * rsactx,
@@ -429,7 +441,10 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
 
     return rc;
 }
+#endif
+#endif
 
+#if LIBSSH2_DSA
 int
 _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
                        const unsigned char *hash,
@@ -549,6 +564,7 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
 
     return (rc == 0) ? 0 : -1;
 }
+#endif
 
 int
 _libssh2_cipher_init(_libssh2_cipher_ctx * h,

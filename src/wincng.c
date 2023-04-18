@@ -953,6 +953,7 @@ _libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
 }
 #endif /* HAVE_LIBCRYPT32 */
 
+#if LIBSSH2_RSA || LIBSSH2_DSA
 static unsigned long
 _libssh2_wincng_bn_size(const unsigned char *bignum,
                         unsigned long length)
@@ -972,8 +973,10 @@ _libssh2_wincng_bn_size(const unsigned char *bignum,
 
     return length - offset;
 }
+#endif
 
 
+#if LIBSSH2_RSA
 /*******************************************************************/
 /*
  * Windows CNG backend: RSA functions
@@ -1238,6 +1241,7 @@ _libssh2_wincng_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 #endif /* HAVE_LIBCRYPT32 */
 }
 
+#if LIBSSH2_RSA_SHA1
 int
 _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                 const unsigned char *sig,
@@ -1250,7 +1254,9 @@ _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                           m, (unsigned long)m_len,
                                           BCRYPT_PAD_PKCS1);
 }
+#endif
 
+#if LIBSSH2_RSA_SHA2
 int
 _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx* rsa,
                                 size_t hash_len,
@@ -1264,6 +1270,7 @@ _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx* rsa,
                                           m, (unsigned long)m_len,
                                           BCRYPT_PAD_PKCS1);
 }
+#endif
 
 int
 _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
@@ -1338,7 +1345,7 @@ _libssh2_wincng_rsa_free(libssh2_rsa_ctx *rsa)
     _libssh2_wincng_safe_free(rsa->pbKeyObject, rsa->cbKeyObject);
     _libssh2_wincng_safe_free(rsa, sizeof(libssh2_rsa_ctx));
 }
-
+#endif
 
 /*******************************************************************/
 /*
@@ -1665,11 +1672,11 @@ _libssh2_wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
                                        unsigned char *pbEncoded,
                                        size_t cbEncoded)
 {
-    unsigned char **rpbDecoded;
-    unsigned long *rcbDecoded;
+    unsigned char **rpbDecoded = NULL;
+    unsigned long *rcbDecoded = NULL;
     unsigned char *key = NULL, *mth = NULL;
     unsigned long keylen = 0, mthlen = 0;
-    unsigned long index, offset, length;
+    unsigned long index, offset, length = 0;
     int ret;
 
     ret = _libssh2_wincng_asn_decode_bns(pbEncoded, cbEncoded,

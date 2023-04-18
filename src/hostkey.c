@@ -87,18 +87,22 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     }
 
     /* we accept one of 3 header types */
+#if LIBSSH2_RSA_SHA1
     if(type_len == 7 && strncmp("ssh-rsa", (char *)type, 7) == 0) {
         /* ssh-rsa */
     }
+    else
+#endif
 #if LIBSSH2_RSA_SHA2
-    else if(type_len == 12 && strncmp("rsa-sha2-256", (char *)type, 12) == 0) {
+    if(type_len == 12 && strncmp("rsa-sha2-256", (char *)type, 12) == 0) {
         /* rsa-sha2-256 */
     }
     else if(type_len == 12 && strncmp("rsa-sha2-512", (char *)type, 12) == 0) {
         /* rsa-sha2-512 */
     }
+    else
 #endif
-    else {
+    {
         _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
                        "unexpected rsa type: %.*s", type_len, type));
         return -1;
@@ -187,6 +191,7 @@ hostkey_method_ssh_rsa_initPEMFromMemory(LIBSSH2_SESSION * session,
     return 0;
 }
 
+#if LIBSSH2_RSA_SHA1
 /*
  * hostkey_method_ssh_rsa_sign
  *
@@ -250,6 +255,7 @@ hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION * session,
     return 0;
 #endif
 }
+#endif
 
 /*
  * hostkey_method_ssh_rsa_sha2_256_sig_verify
@@ -413,6 +419,8 @@ hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION * session, void **abstract)
     return 0;
 }
 
+#if LIBSSH2_RSA_SHA1
+
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa = {
     "ssh-rsa",
     SHA_DIGEST_LENGTH,
@@ -424,6 +432,8 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa = {
     NULL,                       /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
+
+#endif /* LIBSSH2_RSA_SHA1 */
 
 #if LIBSSH2_RSA_SHA2
 
@@ -453,6 +463,8 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_sha2_512 = {
 
 #endif /* LIBSSH2_RSA_SHA2 */
 
+#if LIBSSH2_RSA_SHA1
+
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_cert = {
     "ssh-rsa-cert-v01@openssh.com",
     SHA_DIGEST_LENGTH,
@@ -464,6 +476,8 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_cert = {
     NULL,                       /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
+
+#endif /* LIBSSH2_RSA_SHA1 */
 
 #endif /* LIBSSH2_RSA */
 
@@ -1263,8 +1277,10 @@ static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
     &hostkey_method_ssh_rsa_sha2_512,
     &hostkey_method_ssh_rsa_sha2_256,
 #endif /* LIBSSH2_RSA_SHA2 */
+#if LIBSSH2_RSA_SHA1
     &hostkey_method_ssh_rsa,
     &hostkey_method_ssh_rsa_cert,
+#endif /* LIBSSH2_RSA_SHA1 */
 #endif /* LIBSSH2_RSA */
 #if LIBSSH2_DSA
     &hostkey_method_ssh_dss,

@@ -70,6 +70,7 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                       size_t privatekeydata_len,
                                       unsigned const char *passphrase);
 
+#if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA
 static unsigned char *
 write_bn(unsigned char *buf, const BIGNUM *bn, int bn_bytes)
 {
@@ -87,6 +88,7 @@ write_bn(unsigned char *buf, const BIGNUM *bn, int bn_bytes)
 
     return p + bn_bytes;
 }
+#endif
 
 int
 _libssh2_openssl_random(void *buf, size_t len)
@@ -98,6 +100,7 @@ _libssh2_openssl_random(void *buf, size_t len)
     return RAND_bytes(buf, (int)len) == 1 ? 0 : -1;
 }
 
+#if LIBSSH2_RSA
 int
 _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
                  const unsigned char *edata,
@@ -226,6 +229,7 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
     return (ret == 1) ? 0 : -1;
 }
 
+#if LIBSSH2_RSA_SHA1
 int
 _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
                          const unsigned char *sig,
@@ -235,6 +239,8 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
     return _libssh2_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH, sig, sig_len, m,
                                     m_len);
 }
+#endif
+#endif
 
 #if LIBSSH2_DSA
 int
@@ -587,7 +593,7 @@ read_private_key_from_memory(void **key_ctx,
 }
 
 
-
+#if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA
 static int
 read_private_key_from_file(void **key_ctx,
                            pem_read_bio_func read_private_key,
@@ -609,7 +615,9 @@ read_private_key_from_file(void **key_ctx,
     BIO_free(bp);
     return (*key_ctx) ? 0 : -1;
 }
+#endif
 
+#if LIBSSH2_RSA
 int
 _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
                                     LIBSSH2_SESSION * session,
@@ -989,6 +997,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
 
     return rc;
 }
+#endif
 
 #if LIBSSH2_DSA
 int
@@ -1296,7 +1305,6 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
 
     return rc;
 }
-
 #endif /* LIBSSH_DSA */
 
 #if LIBSSH2_ECDSA
@@ -2024,6 +2032,7 @@ _libssh2_ed25519_new_public(libssh2_ed25519_ctx ** ed_ctx,
 #endif /* LIBSSH2_ED25519 */
 
 
+#if LIBSSH2_RSA
 int
 _libssh2_rsa_sha2_sign(LIBSSH2_SESSION * session,
                        libssh2_rsa_ctx * rsactx,
@@ -2068,7 +2077,7 @@ _libssh2_rsa_sha2_sign(LIBSSH2_SESSION * session,
     return 0;
 }
 
-
+#if LIBSSH2_RSA_SHA1
 int
 _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
                        libssh2_rsa_ctx * rsactx,
@@ -2079,7 +2088,8 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
     return _libssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
                                   signature, signature_len);
 }
-
+#endif
+#endif
 
 #if LIBSSH2_DSA
 int
@@ -3442,30 +3452,29 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
 
     switch(pktype) {
 #if LIBSSH2_ED25519
-    case EVP_PKEY_ED25519 :
+    case EVP_PKEY_ED25519:
         st = gen_publickey_from_ed_evp(
             session, method, method_len, pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_ED25519 */
-    case EVP_PKEY_RSA :
+#if LIBSSH2_RSA
+    case EVP_PKEY_RSA:
         st = gen_publickey_from_rsa_evp(
             session, method, method_len, pubkeydata, pubkeydata_len, pk);
         break;
-
+#endif /* LIBSSH2_RSA */
 #if LIBSSH2_DSA
-    case EVP_PKEY_DSA :
+    case EVP_PKEY_DSA:
         st = gen_publickey_from_dsa_evp(
             session, method, method_len, pubkeydata, pubkeydata_len, pk);
         break;
-#endif /* LIBSSH_DSA */
-
+#endif /* LIBSSH2_DSA */
 #if LIBSSH2_ECDSA
-    case EVP_PKEY_EC :
+    case EVP_PKEY_EC:
         st = gen_publickey_from_ec_evp(
             session, method, method_len, pubkeydata, pubkeydata_len, 0, pk);
     break;
-#endif
-
+#endif /* LIBSSH2_ECDSA */
     default :
         st = _libssh2_error(session,
                             LIBSSH2_ERROR_FILE,
@@ -3782,29 +3791,31 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 
     switch(pktype) {
 #if LIBSSH2_ED25519
-    case EVP_PKEY_ED25519 :
+    case EVP_PKEY_ED25519:
         st = gen_publickey_from_ed_evp(
             session, method, method_len, pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_ED25519 */
-    case EVP_PKEY_RSA :
+#if LIBSSH2_RSA
+    case EVP_PKEY_RSA:
         st = gen_publickey_from_rsa_evp(session, method, method_len,
                                         pubkeydata, pubkeydata_len, pk);
         break;
+#endif /* LIBSSH2_RSA */
 #if LIBSSH2_DSA
-    case EVP_PKEY_DSA :
+    case EVP_PKEY_DSA:
         st = gen_publickey_from_dsa_evp(session, method, method_len,
                                         pubkeydata, pubkeydata_len, pk);
         break;
-#endif /* LIBSSH_DSA */
+#endif /* LIBSSH2_DSA */
 #if LIBSSH2_ECDSA
-    case EVP_PKEY_EC :
+    case EVP_PKEY_EC:
         st = gen_publickey_from_ec_evp(session, method, method_len,
                                        pubkeydata, pubkeydata_len,
                                        0, pk);
         break;
 #endif /* LIBSSH2_ECDSA */
-    default :
+    default:
         st = _libssh2_error(session,
                             LIBSSH2_ERROR_FILE,
                             "Unable to extract public key "
