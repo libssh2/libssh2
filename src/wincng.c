@@ -1288,7 +1288,7 @@ _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
         paddingInfo.pszAlgId = BCRYPT_SHA512_ALGORITHM;
     else {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                      "Unsupported hash digest length");
+                       "Unsupported hash digest length");
         return -1;
     }
 
@@ -1855,8 +1855,8 @@ _libssh2_wincng_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-               "Unable to extract public key from private key in memory: "
-               "Method unsupported in Windows CNG backend");
+                    "Unable to extract public key from private key in memory: "
+                    "Method unsupported in Windows CNG backend");
 #endif /* HAVE_LIBCRYPT32 */
 }
 

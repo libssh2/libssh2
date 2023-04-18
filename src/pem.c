@@ -394,8 +394,8 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
     /* decode file */
     if(_libssh2_base64_decode(session, (char **)&f, &f_len,
                               b64data, b64datalen)) {
-       ret = -1;
-       goto out;
+        ret = -1;
+        goto out;
     }
 
     /* Parse the file */
@@ -458,8 +458,8 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 
     if(!strcmp((const char *)kdfname, "none") &&
        strcmp((const char *)ciphername, "none") != 0) {
-        ret =_libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                            "invalid format");
+        ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                             "invalid format");
         goto out;
     }
 
@@ -608,10 +608,10 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
     if(_libssh2_get_u32(&decrypted, &check1) != 0 ||
        _libssh2_get_u32(&decrypted, &check2) != 0 ||
        check1 != check2) {
-       _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                      "Private key unpack failed (correct password?)");
-       ret = LIBSSH2_ERROR_KEYFILE_AUTH_FAILED;
-       goto out;
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Private key unpack failed (correct password?)");
+        ret = LIBSSH2_ERROR_KEYFILE_AUTH_FAILED;
+        goto out;
     }
 
     if(decrypted_buf) {

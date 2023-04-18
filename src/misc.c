@@ -204,10 +204,10 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 #else
     if(rc < 0) {
 #ifdef EWOULDBLOCK /* For VMS and other special unixes */
-      if(errno == EWOULDBLOCK)
-        return -EAGAIN;
+        if(errno == EWOULDBLOCK)
+            return -EAGAIN;
 #endif
-      return -errno;
+        return -errno;
     }
 #endif
     return rc;

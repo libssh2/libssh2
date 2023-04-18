@@ -693,7 +693,6 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 
                 *(p++) = '\0';
                 /* Make sure we don't get fooled by leftover values */
-
                 session->scpRecv_mode = strtol(s, &e, 8);
                 if(e && *e) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,

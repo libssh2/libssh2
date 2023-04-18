@@ -1654,7 +1654,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                        requested, which shouldn't happen for normal files. See:
                        https://tools.ietf.org/html/draft-ietf-secsh-filexfer-02
                        #section-6.4
-                    */
+                     */
                     return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                           "Read Packet At Unexpected Offset");
                 }

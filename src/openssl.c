@@ -631,7 +631,7 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
                         "ssh-rsa", filedata, filedata_len, passphrase);
     }
 
-return rc;
+    return rc;
 }
 
 static unsigned char *
@@ -2410,8 +2410,9 @@ _libssh2_md5_init(libssh2_md5_ctx *ctx)
     defined(OPENSSL_VERSION_MAJOR) && \
     OPENSSL_VERSION_MAJOR < 3 && \
     !defined(LIBRESSL_VERSION_NUMBER)
-     if(FIPS_mode())
-         return 0;
+
+    if(FIPS_mode())
+        return 0;
 #endif
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -2520,8 +2521,8 @@ gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
     /* convert to octal */
     if(EC_POINT_point2oct(group, public_key, POINT_CONVERSION_UNCOMPRESSED,
        octal_value, octal_len, bn_ctx) != octal_len) {
-           rc = -1;
-           goto clean_exit;
+        rc = -1;
+        goto clean_exit;
     }
 
     /* Key form is: type_len(4) + type(method_len) + domain_len(4) + domain(8)
@@ -3027,8 +3028,8 @@ _libssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
     /* convert to octal */
     if(EC_POINT_point2oct(group, public_key, POINT_CONVERSION_UNCOMPRESSED,
        octal_value, octal_len, bn_ctx) != octal_len) {
-           ret = -1;
-           goto clean_exit;
+        ret = -1;
+        goto clean_exit;
     }
 
     if(out_private_key)
@@ -3514,15 +3515,15 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
     if(rc)
         return rc;
 
-   /* We have a new key file, now try and parse it using supported types  */
-   rc = _libssh2_get_string(decrypted, &buf, NULL);
+    /* We have a new key file, now try and parse it using supported types  */
+    rc = _libssh2_get_string(decrypted, &buf, NULL);
 
-   if(rc || !buf)
-       return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                             "Public key type in decrypted "
-                             "key data not found");
+    if(rc || !buf)
+        return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                              "Public key type in decrypted "
+                              "key data not found");
 
-   rc = LIBSSH2_ERROR_FILE;
+    rc = LIBSSH2_ERROR_FILE;
 
 #if LIBSSH2_ED25519
     if(strcmp("ssh-ed25519", (const char *)buf) == 0) {
@@ -3535,7 +3536,7 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                               pubkeydata_len,
                                               (libssh2_ed25519_ctx**)key_ctx);
         }
-   }
+    }
 
     if(strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf) == 0) {
         if(!key_type ||
@@ -3563,7 +3564,7 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                           pubkeydata_len,
                                                    (libssh2_rsa_ctx**)key_ctx);
         }
-   }
+    }
 #endif
 #if LIBSSH2_DSA
     if(strcmp("ssh-dss", (const char *)buf) == 0) {
@@ -3574,7 +3575,7 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                           pubkeydata_len,
                                                    (libssh2_dsa_ctx**)key_ctx);
         }
-   }
+    }
 #endif
 #if LIBSSH2_ECDSA
 {
@@ -3656,15 +3657,15 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
     if(rc)
         return rc;
 
-   /* We have a new key file, now try and parse it using supported types  */
-   rc = _libssh2_get_string(decrypted, &buf, NULL);
+    /* We have a new key file, now try and parse it using supported types  */
+    rc = _libssh2_get_string(decrypted, &buf, NULL);
 
-   if(rc || !buf)
-       return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                             "Public key type in decrypted "
-                             "key data not found");
+    if(rc || !buf)
+        return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                              "Public key type in decrypted "
+                              "key data not found");
 
-   rc = LIBSSH2_ERROR_FILE;
+    rc = LIBSSH2_ERROR_FILE;
 
 #if LIBSSH2_ED25519
     if(strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf) == 0) {

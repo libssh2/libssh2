@@ -1821,7 +1821,7 @@ libssh2_channel_get_exit_signal(LIBSSH2_CHANNEL *channel,
                 *exitsignal = LIBSSH2_ALLOC(session, namelen + 1);
                 if(!*exitsignal) {
                     return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                        "Unable to allocate memory for signal name");
+                                  "Unable to allocate memory for signal name");
                 }
                 memcpy(*exitsignal, channel->exit_signal, namelen);
                 (*exitsignal)[namelen] = '\0';
@@ -2660,7 +2660,7 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel)
                 return rc;
             }
             _libssh2_error(session, rc,
-                "Unable to send EOF, but closing channel anyway");
+                           "Unable to send EOF, but closing channel anyway");
         }
     }
 

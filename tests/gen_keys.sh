@@ -30,11 +30,11 @@ ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -C 'key_rsa'                
 ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PEM -C 'key_rsa_encrypted'       -f 'key_rsa_encrypted'
 ssh-keygen -t rsa     -b 2048 -N ''                 -C 'key_rsa_openssh'         -f 'key_rsa_openssh'
 ssh-keygen -t rsa     -b 4096 -N ''                 -C 'key_rsa_signed'          -f 'key_rsa_signed'
-                   ssh-keygen -I "${id}" -n "${pr}" -s 'openssh_server/ca_rsa'      'key_rsa_signed.pub'
+ssh-keygen                    -I "${id}" -n "${pr}" -s 'openssh_server/ca_rsa'      'key_rsa_signed.pub'
 
 ssh-keygen -t ecdsa   -b  384 -N ''                 -C 'key_ecdsa'               -f 'key_ecdsa'
 ssh-keygen -t ecdsa   -b  384 -N ''                 -C 'key_ecdsa_signed'        -f 'key_ecdsa_signed'
-                   ssh-keygen -I "${id}" -n "${pr}" -s 'openssh_server/ca_ecdsa'    'key_ecdsa_signed.pub'
+ssh-keygen                    -I "${id}" -n "${pr}" -s 'openssh_server/ca_ecdsa'    'key_ecdsa_signed.pub'
 
 ssh-keygen -t ed25519         -N ''                 -C 'key_ed25519'             -f 'key_ed25519'
 ssh-keygen -t ed25519         -N "${pw}"            -C 'key_ed25519_encrypted'   -f 'key_ed25519_encrypted'

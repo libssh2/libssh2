@@ -160,8 +160,8 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
     (void)passphrase;
 
     return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                         "Unable to extract private key from memory: "
-                         "Method unimplemented in libgcrypt backend");
+                          "Unable to extract private key from memory: "
+                          "Method unimplemented in libgcrypt backend");
 }
 
 int
@@ -197,6 +197,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
         ret = -1;
         goto fail;
     }
+
     /* First read Version field (should be 0). */
     ret = _libssh2_pem_decode_integer(&data, &datalen, &n, &nlen);
     if(ret || (nlen != 1 && *n != '\0')) {
@@ -277,8 +278,8 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
     (void)passphrase;
 
     return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
-                         "Unable to extract private key from memory: "
-                         "Method unimplemented in libgcrypt backend");
+                          "Unable to extract private key from memory: "
+                          "Method unimplemented in libgcrypt backend");
 }
 
 int
@@ -646,8 +647,8 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     (void)passphrase;
 
     return _libssh2_error(session, LIBSSH2_ERROR_FILE,
-                         "Unable to extract public key from private key file: "
-                         "Method unimplemented in libgcrypt backend");
+                    "Unable to extract public key from private key file: "
+                    "Method unimplemented in libgcrypt backend");
 }
 
 int

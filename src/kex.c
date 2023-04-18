@@ -437,7 +437,6 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         {
             char fingerprint[64], *fprint = fingerprint;
             int i;
-
             for(i = 0; i < 20; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
             }
@@ -620,9 +619,9 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                     exchange_state->h_sig_comp);
 
         if(session->hostkey->
-           sig_verify(session, exchange_state->h_sig,
-                      exchange_state->h_sig_len, exchange_state->h_sig_comp,
-                      digest_len, &session->server_hostkey_abstract)) {
+            sig_verify(session, exchange_state->h_sig,
+                       exchange_state->h_sig_len, exchange_state->h_sig_comp,
+                       digest_len, &session->server_hostkey_abstract)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
                                  "Unable to verify hostkey signature");
             goto clean_exit;
@@ -1718,7 +1717,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
 
     if(data_len < 5) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
-                            "Host key data is too short");
+                             "Host key data is too short");
         return ret;
     }
 
@@ -1745,9 +1744,9 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
 
         if(_libssh2_copy_string(session, &buf, &(session->server_hostkey),
                                 &server_public_key_len)) {
-             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                  "Unable to allocate memory for a copy "
-                                  "of the host key");
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Unable to allocate memory for a copy "
+                                 "of the host key");
             goto clean_exit;
         }
 
@@ -1800,7 +1799,6 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         {
             char fingerprint[64], *fprint = fingerprint;
             int i;
-
             for(i = 0; i < 20; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
             }
@@ -1853,7 +1851,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         if(_libssh2_get_string(&buf, &server_public_key,
                                &server_public_key_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                     "Unexpected key length");
+                                 "Unexpected key length");
             goto clean_exit;
         }
 
@@ -1949,13 +1947,13 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         }
 
         /* The first key exchange has been performed,
-         switch to active crypt/comp/mac mode */
+           switch to active crypt/comp/mac mode */
         session->state |= LIBSSH2_STATE_NEWKEYS;
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                        "Received NEWKEYS message"));
 
         /* This will actually end up being just packet_type(1)
-         for this packet type anyway */
+           for this packet type anyway */
         LIBSSH2_FREE(session, exchange_state->tmp);
 
         if(!session->session_id) {
@@ -2430,7 +2428,6 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         {
             char fingerprint[64], *fprint = fingerprint;
             int i;
-
             for(i = 0; i < 20; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
             }
@@ -2573,15 +2570,14 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             goto clean_exit;
         }
 
-        /* The first key exchange has been performed, switch to active
-           crypt/comp/mac mode */
-
+        /* The first key exchange has been performed,
+           switch to active crypt/comp/mac mode */
         session->state |= LIBSSH2_STATE_NEWKEYS;
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                        "Received NEWKEYS message"));
 
-        /* This will actually end up being just packet_type(1) for this packet
-           type anyway */
+        /* This will actually end up being just packet_type(1)
+           for this packet type anyway */
         LIBSSH2_FREE(session, exchange_state->tmp);
 
         if(!session->session_id) {
