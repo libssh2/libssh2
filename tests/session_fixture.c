@@ -141,12 +141,18 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped)
     }
 
     connected_session = libssh2_session_init_ex(NULL, NULL, NULL, NULL);
-    if(getenv("FIXTURE_TRACE_ALL")) {
-        libssh2_trace(connected_session, ~0);
-    }
     if(!connected_session) {
         fprintf(stderr, "libssh2_session_init_ex failed\n");
         return NULL;
+    }
+
+    if(getenv("FIXTURE_TRACE_ALL_CONNECT")) {
+        libssh2_trace(connected_session, ~0);
+        fprintf(stdout, "Trace all enabled for connect_to_server.\n");
+    }
+    else if(getenv("FIXTURE_TRACE_ALL")) {
+        libssh2_trace(connected_session, ~0);
+        fprintf(stdout, "Trace all enabled.\n");
     }
 
     /* Override crypt algorithm for the test */
@@ -178,6 +184,10 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped)
     rc = connect_to_server();
     if(rc) {
         return NULL;
+    }
+
+    if(getenv("FIXTURE_TRACE_ALL_CONNECT")) {
+        libssh2_trace(connected_session, 0);
     }
 
     return connected_session;
