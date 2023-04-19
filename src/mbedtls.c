@@ -139,7 +139,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
                               _libssh2_cipher_type(algo),
                               int encrypt,
                               unsigned char *block,
-                              size_t blocklen)
+                              size_t blocklen, int firstlast)
 {
     int ret;
     unsigned char *output;
@@ -147,6 +147,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
 
     (void)encrypt;
     (void)algo;
+    (void)firstlast;
 
     osize = blocklen + mbedtls_cipher_get_block_size(ctx);
 
