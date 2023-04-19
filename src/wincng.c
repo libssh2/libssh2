@@ -679,6 +679,14 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
     ret = BCryptVerifySignature(ctx->hKey, pPaddingInfo,
                                 hash, hashlen, data, datalen, flags);
 
+    fprintf(stderr, "BCryptVerifySignature()\n"
+                    "|ret=%x|hKey=%p|pPaddingInfo=%p|\n"
+                    "|hash=%p|hashlen=%lx|\n"
+                    "|data=%p|datalen=%lx|flags=%lx|\n",
+            ret, ctx->hKey, pPaddingInfo,
+            hash, hashlen,
+            data, datalen, flags);
+
     _libssh2_wincng_safe_free(hash, hashlen);
     _libssh2_wincng_safe_free(data, datalen);
 
