@@ -151,7 +151,7 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
 
     while(len > 0) {
         /* normally decrypt up to blocksize bytes at a time */
-        int decryptlen = MIN(blocksize, len);
+        ssize_t decryptlen = LIBSSH2_MIN(blocksize, len);
         /* The first block is special (since it needs to be decoded to get the
            length of the remainder of the block) and takes priority. When the
            length finally gets to the last blocksize bytes, and there's no
