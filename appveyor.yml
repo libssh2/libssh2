@@ -177,6 +177,9 @@ before_test:
 test_script:
   - ps: |
       if($env:SKIP_CTEST -ne "yes" -and $env:PLATFORM -ne "ARM64") {
+        if($env:CRYPTO_BACKEND -eq "WinCNG") {
+          $env:FIXTURE_TRACE_ALL_CONNECT = "1"
+        }
         $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
         cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
       }
