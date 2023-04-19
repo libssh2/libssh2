@@ -352,6 +352,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         /* Wait for KEX reply */
         struct string_buf buf;
         size_t host_key_len;
+        int err;
 
         rc = _libssh2_packet_require(session, packet_type_reply,
                                      &exchange_state->s_packet,
@@ -618,10 +619,17 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         _libssh2_sha_algo_ctx_final(sha_algo_value, exchange_hash_ctx,
                                     exchange_state->h_sig_comp);
 
-        if(session->hostkey->
-            sig_verify(session, exchange_state->h_sig,
-                       exchange_state->h_sig_len, exchange_state->h_sig_comp,
-                       digest_len, &session->server_hostkey_abstract)) {
+        err = session->hostkey->sig_verify(session,
+                                           exchange_state->h_sig,
+                                           exchange_state->h_sig_len,
+                                           exchange_state->h_sig_comp,
+                                           digest_len,
+                                           &session->server_hostkey_abstract);
+
+        if(err) {
+            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+                           "sig_verify: %s -> %d",
+                           session->hostkey->name, err));
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
                                  "Unable to verify hostkey signature");
             goto clean_exit;

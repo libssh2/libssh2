@@ -385,6 +385,10 @@ _libssh2_wincng_init(void)
                                       BCRYPT_DH_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         _libssh2_wincng.hAlgDH = NULL;
+        fprintf(stderr, "!! hAlgDH = NULL\n");
+    }
+    else {
+        fprintf(stderr, "!! hAlgDH = BCRYPT_DH_ALGORITHM\n");
     }
 }
 
@@ -635,19 +639,19 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA512_ALGORITHM;
     }
     else {
-        return -1;
+        return -2;
     }
 
     datalen = m_len;
     data = malloc(datalen);
     if(!data) {
-        return -1;
+        return -3;
     }
 
     hash = malloc(hashlen);
     if(!hash) {
         free(data);
-        return -1;
+        return -4;
     }
     memcpy(data, m, datalen);
 
@@ -658,14 +662,14 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
 
     if(ret) {
         _libssh2_wincng_safe_free(hash, hashlen);
-        return -1;
+        return -5;
     }
 
     datalen = sig_len;
     data = malloc(datalen);
     if(!data) {
         _libssh2_wincng_safe_free(hash, hashlen);
-        return -1;
+        return -6;
     }
 
     if(flags & BCRYPT_PAD_PKCS1) {
@@ -679,10 +683,18 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
     ret = BCryptVerifySignature(ctx->hKey, pPaddingInfo,
                                 hash, hashlen, data, datalen, flags);
 
+    fprintf(stderr, "BCryptVerifySignature()\n"
+                    "|ret=%x|hKey=%p|pPaddingInfo=%p|\n"
+                    "|hash=%p|hashlen=%lx|\n"
+                    "|data=%p|datalen=%lx|flags=%lx|\n",
+            ret, ctx->hKey, pPaddingInfo,
+            hash, hashlen,
+            data, datalen, flags);
+
     _libssh2_wincng_safe_free(hash, hashlen);
     _libssh2_wincng_safe_free(data, datalen);
 
-    return BCRYPT_SUCCESS(ret) ? 0 : -1;
+    return BCRYPT_SUCCESS(ret) ? 0 : -9;
 }
 
 #ifdef HAVE_LIBCRYPT32
@@ -2401,6 +2413,9 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
 {
     const int hasAlgDHwithKDF = _libssh2_wincng.hasAlgDHwithKDF;
 
+    fprintf(stderr, "_libssh2_dh_key_pair()|%d|%d|\n",
+            group_order, _libssh2_wincng.hasAlgDHwithKDF);
+
     if(group_order < 0)
         return -1;
 
@@ -2692,6 +2707,9 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
         _libssh2_wincng.hasAlgDHwithKDF = 1;
 
 out:
+        fprintf(stderr, "_libssh2_dh_secret()|%x|%d|\n",
+                status, _libssh2_wincng.hasAlgDHwithKDF);
+
         if(peer_public) {
             BCryptDestroyKey(peer_public);
         }
