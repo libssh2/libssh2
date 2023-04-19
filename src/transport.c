@@ -51,13 +51,6 @@
 #include "transport.h"
 #include "mac.h"
 
-#ifndef MAX
-#define MAX(x,y) ((x)>(y)?(x):(y))
-#endif
-#ifndef MIN
-#define MIN(x,y) ((x)<(y)?(x):(y))
-#endif
-
 #define MAX_BLOCKSIZE 32    /* MUST fit biggest crypto block size we use/get */
 #define MAX_MACSIZE 64      /* MUST fit biggest MAC length we support */
 
@@ -569,7 +562,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                amount to decrypt even more */
             if((p->data_num + numbytes) >= (p->total_num - skip)) {
                 /* decrypt the entire rest of the package */
-                numdecrypt = MAX(0,
+                numdecrypt = LIBSSH2_MAX(0,
                                (int)(p->total_num - skip) - (int)p->data_num);
                 firstlast = LAST_BLOCK;
             }
@@ -588,7 +581,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 if(CRYPT_FLAG_R(session, INTEGRATED_MAC)) {
                     /* Make sure that we save enough bytes to make the last
                      * block large enough to hold the entire integrated MAC */
-                    numdecrypt = MIN(numdecrypt, (int)
+                    numdecrypt = LIBSSH2_MIN(numdecrypt, (int)
                        (p->total_num - skip - blocksize - p->data_num));
                     numbytes = 0;
                 }
@@ -950,7 +943,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
            into blocksize-sized chunks to satisfy them all. */
         for(i = 0; i < packet_length; i += session->local.crypt->blocksize) {
             unsigned char *ptr = &p->outbuf[i];
-            size_t bsize = MIN(session->local.crypt->blocksize,
+            size_t bsize = LIBSSH2_MIN(session->local.crypt->blocksize,
                                    (int)(packet_length-i));
             /* The INTEGRATED_MAC case always has an extra call below, so it
                will never be LAST_BLOCK up here. */
