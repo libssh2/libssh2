@@ -379,7 +379,7 @@ struct _libssh2_wincng_cipher_type {
 #define _libssh2_cipher_init(ctx, type, iv, secret, encrypt) \
     _libssh2_wincng_cipher_init(ctx, type, iv, secret, encrypt)
 #define _libssh2_cipher_crypt(ctx, type, encrypt, block, blocklen, fl) \
-    _libssh2_wincng_cipher_crypt(ctx, type, encrypt, block, blocklen)
+    _libssh2_wincng_cipher_crypt(ctx, type, encrypt, block, blocklen, fl)
 #define _libssh2_cipher_dtor(ctx) \
     _libssh2_wincng_cipher_dtor(ctx)
 
@@ -607,7 +607,7 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              _libssh2_cipher_type(type),
                              int encrypt,
                              unsigned char *block,
-                             size_t blocklen);
+                             size_t blocklen, int firstlast);
 void
 _libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx);
 
