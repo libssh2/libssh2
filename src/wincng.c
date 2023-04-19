@@ -552,7 +552,7 @@ _libssh2_wincng_hash_final(_libssh2_wincng_hash_ctx *ctx,
 }
 
 int
-_libssh2_wincng_hash(unsigned char *data, unsigned long datalen,
+_libssh2_wincng_hash(const unsigned char *data, unsigned long datalen,
                      BCRYPT_ALG_HANDLE hAlg,
                      unsigned char *hash, unsigned long hashlen)
 {
