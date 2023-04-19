@@ -531,8 +531,9 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     /* size of AT, if present */
     const int authenticationtag = IS_LAST(firstlast) ? authlen : 0;
     /* length to encrypt */
-    const int cryptlen = blocksize - aadlen - authenticationtag;
-    (void) algo;
+    const int cryptlen = (unsigned int)blocksize - aadlen - authenticationtag;
+
+    (void)algo;
 
     assert(blocksize <= sizeof(buf));
     assert(cryptlen >= 0);
