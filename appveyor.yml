@@ -25,6 +25,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 environment:
+  CONFIGURATION: "Release"
   matrix:
     - job_name: "VS2022, OpenSSL3, x64"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
@@ -32,7 +33,6 @@ environment:
       PLATFORM: "x64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
-      CONFIGURATION: "Release"
 
     - job_name: "VS2015, OpenSSL, x86"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
@@ -40,15 +40,14 @@ environment:
       PLATFORM: "x86"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
-      CONFIGURATION: "Release"
 
-    - job_name: "VS2015, OpenSSL, x64, Debug"
+    - job_name: "VS2015, OpenSSL, x64, Logging"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 14 2015"
       PLATFORM: "x64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
-      CONFIGURATION: "Debug"
+      ENABLE_DEBUG_LOGGING: "ON"
 
     - job_name: "VS2013, OpenSSL, x64"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
@@ -56,7 +55,6 @@ environment:
       PLATFORM: "x64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
-      CONFIGURATION: "Release"
 
     - job_name: "VS2013, OpenSSL, x86"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
@@ -64,7 +62,6 @@ environment:
       PLATFORM: "x86"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
-      CONFIGURATION: "Release"
 
     - job_name: "VS2013, OpenSSL, x64, Static-only, Build-only"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
@@ -72,7 +69,6 @@ environment:
       PLATFORM: "x64"
       BUILD_SHARED_LIBS: "OFF"
       CRYPTO_BACKEND: "OpenSSL"
-      CONFIGURATION: "Release"
       SKIP_CTEST: "yes"
 
     - job_name: "VS2010, WinCNG, x64, Build-only"
@@ -81,7 +77,6 @@ environment:
       PLATFORM: "x64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
-      CONFIGURATION: "Release"
       SKIP_CTEST: "yes"
 
     - job_name: "VS2008, WinCNG, x86, Build-only"
@@ -90,16 +85,15 @@ environment:
       PLATFORM: "x86"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
-      CONFIGURATION: "Release"
       SKIP_CTEST: "yes"
 
-    - job_name: "VS2022, WinCNG, x64, Debug"
+    - job_name: "VS2022, WinCNG, x64, Logging"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
       PLATFORM: "x64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
-      CONFIGURATION: "Debug"
+      ENABLE_DEBUG_LOGGING: "ON"
 
     - job_name: "VS2022, WinCNG, ARM64, Build-only"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
@@ -107,7 +101,6 @@ environment:
       PLATFORM: "ARM64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
-      CONFIGURATION: "Release"
 
     - job_name: "VS2015, WinCNG, x86"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
@@ -115,7 +108,6 @@ environment:
       PLATFORM: "x86"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
-      CONFIGURATION: "Release"
 
     - job_name: "VS2015, WinCNG, x64"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
@@ -123,7 +115,6 @@ environment:
       PLATFORM: "x64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
-      CONFIGURATION: "Release"
 
 matrix:
   fast_finish: true
@@ -158,6 +149,9 @@ build_script:
             $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
           }
         }
+      }
+      if($env:ENABLE_DEBUG_LOGGING -eq "ON") {
+        $env:CMAKE_ARG += " -DENABLE_DEBUG_LOGGING=ON"
       }
   - echo cmake         "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
   - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
