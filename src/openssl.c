@@ -481,13 +481,13 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
                      _libssh2_cipher_type(algo),
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
+#ifdef HAVE_OPAQUE_STRUCTS
 #if LIBSSH2_AES_GCM
     const int is_aesgcm = (algo == EVP_aes_128_gcm) ||
                           (algo == EVP_aes_256_gcm);
 #endif /* LIBSSH2_AES_GCM */
     int rc;
 
-#ifdef HAVE_OPAQUE_STRUCTS
     *h = EVP_CIPHER_CTX_new();
     rc = !EVP_CipherInit(*h, algo(), secret, iv, encrypt);
 #if LIBSSH2_AES_GCM
