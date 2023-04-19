@@ -385,6 +385,10 @@ _libssh2_wincng_init(void)
                                       BCRYPT_DH_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         _libssh2_wincng.hAlgDH = NULL;
+        fprintf(stderr, "!! hAlgDH = NULL\n");
+    }
+    else {
+        fprintf(stderr, "!! hAlgDH = BCRYPT_DH_ALGORITHM\n");
     }
 }
 
