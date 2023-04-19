@@ -2413,6 +2413,9 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
 {
     const int hasAlgDHwithKDF = _libssh2_wincng.hasAlgDHwithKDF;
 
+    fprintf(stderr, "_libssh2_dh_key_pair()|%d|%d|\n",
+            group_order, _libssh2_wincng.hasAlgDHwithKDF);
+
     if(group_order < 0)
         return -1;
 
@@ -2704,6 +2707,9 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
         _libssh2_wincng.hasAlgDHwithKDF = 1;
 
 out:
+        fprintf(stderr, "_libssh2_dh_secret()|%x|%d|\n",
+                status, _libssh2_wincng.hasAlgDHwithKDF);
+
         if(peer_public) {
             BCryptDestroyKey(peer_public);
         }
