@@ -133,7 +133,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_gcm = {
     16,                         /* blocksize */
     12,                         /* initial value length */
     32,                         /* secret length -- 32*8 == 256bit */
-    LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC | LIBSSH2_CRYPT_FLAG_PKTLEN_AAD, /*flag*/
+    LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC | LIBSSH2_CRYPT_FLAG_PKTLEN_AAD,
     &crypt_init,
     &crypt_encrypt,
     &crypt_dtor,
@@ -146,7 +146,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_gcm = {
     16,                         /* blocksize */
     12,                         /* initial value length */
     16,                         /* secret length -- 16*8 == 128bit */
-    LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC | LIBSSH2_CRYPT_FLAG_PKTLEN_AAD, /*flag*/
+    LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC | LIBSSH2_CRYPT_FLAG_PKTLEN_AAD,
     &crypt_init,
     &crypt_encrypt,
     &crypt_dtor,
