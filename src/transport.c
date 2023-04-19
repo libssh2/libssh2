@@ -155,7 +155,7 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
            with the previous block to make it larger. This ensures that the
            whole MAC is included in a single decrypt call. */
         if(CRYPT_FLAG_L(session, PKTLEN_AAD) && IS_LAST(firstlast)
-            && (len < blocksize*2)) {
+           && (len < blocksize*2)) {
             decryptlen = len;
             lowerfirstlast = LAST_BLOCK;
         }
@@ -563,7 +563,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             if((p->data_num + numbytes) >= (p->total_num - skip)) {
                 /* decrypt the entire rest of the package */
                 numdecrypt = LIBSSH2_MAX(0,
-                               (int)(p->total_num - skip) - (int)p->data_num);
+                    (int)(p->total_num - skip) - (int)p->data_num);
                 firstlast = LAST_BLOCK;
             }
             else {
@@ -581,8 +581,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 if(CRYPT_FLAG_R(session, INTEGRATED_MAC)) {
                     /* Make sure that we save enough bytes to make the last
                      * block large enough to hold the entire integrated MAC */
-                    numdecrypt = LIBSSH2_MIN(numdecrypt, (int)
-                       (p->total_num - skip - blocksize - p->data_num));
+                    numdecrypt = LIBSSH2_MIN(numdecrypt,
+                        (int)(p->total_num - skip - blocksize - p->data_num));
                     numbytes = 0;
                 }
                 firstlast = MIDDLE_BLOCK;
@@ -931,10 +931,10 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
            INTEGRATED_MAC case, where the crypto algorithm also does its
            own hash. */
         if(!CRYPT_FLAG_R(session, INTEGRATED_MAC))
-          session->local.mac->hash(session, p->outbuf + packet_length,
-                                 session->local.seqno, p->outbuf,
-                                 packet_length, NULL, 0,
-                                 &session->local.mac_abstract);
+            session->local.mac->hash(session, p->outbuf + packet_length,
+                                     session->local.seqno, p->outbuf,
+                                     packet_length, NULL, 0,
+                                     &session->local.mac_abstract);
 
         /* Encrypt the whole packet data, one block size at a time.
            The MAC field is not encrypted unless INTEGRATED_MAC. */
@@ -944,7 +944,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         for(i = 0; i < packet_length; i += session->local.crypt->blocksize) {
             unsigned char *ptr = &p->outbuf[i];
             size_t bsize = LIBSSH2_MIN(session->local.crypt->blocksize,
-                                   (int)(packet_length-i));
+                                       (int)(packet_length-i));
             /* The INTEGRATED_MAC case always has an extra call below, so it
                will never be LAST_BLOCK up here. */
             int firstlast = i == 0 ? FIRST_BLOCK :
@@ -976,9 +976,9 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
             assert((size_t)total_length <=
                    packet_length + session->local.crypt->blocksize);
             if(session->local.crypt->crypt(session, &p->outbuf[packet_length],
-                                            authlen,
-                                            &session->local.crypt_abstract,
-                                            LAST_BLOCK))
+                                           authlen,
+                                           &session->local.crypt_abstract,
+                                           LAST_BLOCK))
                 return LIBSSH2_ERROR_ENCRYPT;     /* encryption failure */
         }
     }

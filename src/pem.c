@@ -260,10 +260,10 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
 
         while(len_decrypted <= (int)*datalen - blocksize) {
             if(method->crypt(session, *data + len_decrypted, blocksize,
-                              &abstract,
-                              len_decrypted == 0 ? FIRST_BLOCK :
-                                ((len_decrypted == (int)*datalen - blocksize) ?
-                               LAST_BLOCK : MIDDLE_BLOCK)
+                             &abstract,
+                             len_decrypted == 0 ? FIRST_BLOCK :
+                               ((len_decrypted == (int)*datalen - blocksize) ?
+                              LAST_BLOCK : MIDDLE_BLOCK)
                              )) {
                 ret = LIBSSH2_ERROR_DECRYPT;
                 _libssh2_explicit_zero((char *)secret, sizeof(secret));

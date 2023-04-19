@@ -964,10 +964,10 @@ struct _LIBSSH2_CRYPT_METHOD
 /* Convenience macros for accessing crypt flags */
 /* Local crypto flags */
 #define CRYPT_FLAG_L(session, flag) ((session)->local.crypt && \
-            ((session)->local.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
+    ((session)->local.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
 /* Remote crypto flags */
 #define CRYPT_FLAG_R(session, flag) ((session)->remote.crypt && \
-            ((session)->remote.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
+    ((session)->remote.crypt->flags & LIBSSH2_CRYPT_FLAG_##flag))
 
 /* Values for firstlast */
 #define FIRST_BLOCK 1
