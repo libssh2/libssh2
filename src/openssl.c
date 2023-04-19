@@ -538,9 +538,9 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     assert(blocksize <= sizeof(buf));
     assert(cryptlen >= 0);
 
+#if LIBSSH2_AES_GCM
     /* First block */
     if(IS_FIRST(firstlast)) {
-#if LIBSSH2_AES_GCM
         /* Increments invocation_counter portion of IV */
         if(is_aesgcm) {
             ret = EVP_CIPHER_CTX_ctrl(*ctx, EVP_CTRL_GCM_IV_GEN, 1, lastiv);
@@ -550,11 +550,9 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
             /* Include the 4 byte packet length as AAD */
             ret = EVP_Cipher(*ctx, NULL, block, aadlen);
         }
-#endif /* LIBSSH2_AES_GCM */
     }
 
     /* Last portion of block to encrypt/decrypt */
-#if LIBSSH2_AES_GCM
     if(IS_LAST(firstlast)) {
         if(is_aesgcm && !encrypt) {
             /* set tag on decryption */
@@ -562,6 +560,9 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
                                       block + blocksize - authlen);
         }
     }
+#else
+    (void)encrypt;
+    (void)firstlast;
 #endif /* LIBSSH2_AES_GCM */
 
     if(cryptlen > 0) {
