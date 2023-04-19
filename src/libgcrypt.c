@@ -613,6 +613,7 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     int ret;
 
     (void)algo;
+    (void)firstlast;
 
     if(encrypt) {
         ret = gcry_cipher_encrypt(*ctx, block, blklen, block, blklen);
