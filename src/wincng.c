@@ -635,19 +635,19 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
         paddingInfoPKCS1.pszAlgId = BCRYPT_SHA512_ALGORITHM;
     }
     else {
-        return -1;
+        return -2;
     }
 
     datalen = m_len;
     data = malloc(datalen);
     if(!data) {
-        return -1;
+        return -3;
     }
 
     hash = malloc(hashlen);
     if(!hash) {
         free(data);
-        return -1;
+        return -4;
     }
     memcpy(data, m, datalen);
 
@@ -658,14 +658,14 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
 
     if(ret) {
         _libssh2_wincng_safe_free(hash, hashlen);
-        return -1;
+        return -5;
     }
 
     datalen = sig_len;
     data = malloc(datalen);
     if(!data) {
         _libssh2_wincng_safe_free(hash, hashlen);
-        return -1;
+        return -6;
     }
 
     if(flags & BCRYPT_PAD_PKCS1) {
@@ -682,7 +682,7 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
     _libssh2_wincng_safe_free(hash, hashlen);
     _libssh2_wincng_safe_free(data, datalen);
 
-    return BCRYPT_SUCCESS(ret) ? 0 : -1;
+    return BCRYPT_SUCCESS(ret) ? 0 : -9;
 }
 
 #ifdef HAVE_LIBCRYPT32
