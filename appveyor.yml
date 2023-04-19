@@ -28,6 +28,30 @@ environment:
   CONFIGURATION: "Release"
   FIXTURE_XFER_COUNT: 35020
   matrix:
+    - job_name: "VS2022, WinCNG, x64, Server 2019, Logging"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
+      GENERATOR: "Visual Studio 17 2022"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      ENABLE_DEBUG_LOGGING: "ON"
+
+    - job_name: "VS2015, WinCNG, x86, Server 2016, Logging"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
+      GENERATOR: "Visual Studio 14 2015"
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      ENABLE_DEBUG_LOGGING: "ON"
+
+    - job_name: "VS2015, WinCNG, x64, Server 2012 R2, Logging"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 14 2015"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      ENABLE_DEBUG_LOGGING: "ON"
+
     - job_name: "VS2022, OpenSSL3, x64, Server 2019"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
@@ -88,32 +112,10 @@ environment:
       CRYPTO_BACKEND: "WinCNG"
       SKIP_CTEST: "yes"
 
-    - job_name: "VS2022, WinCNG, x64, Server 2019, Logging"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
-      GENERATOR: "Visual Studio 17 2022"
-      PLATFORM: "x64"
-      BUILD_SHARED_LIBS: "ON"
-      CRYPTO_BACKEND: "WinCNG"
-      ENABLE_DEBUG_LOGGING: "ON"
-
     - job_name: "VS2022, WinCNG, ARM64, Build-only"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
       PLATFORM: "ARM64"
-      BUILD_SHARED_LIBS: "ON"
-      CRYPTO_BACKEND: "WinCNG"
-
-    - job_name: "VS2015, WinCNG, x86, Server 2016"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
-      GENERATOR: "Visual Studio 14 2015"
-      PLATFORM: "x86"
-      BUILD_SHARED_LIBS: "ON"
-      CRYPTO_BACKEND: "WinCNG"
-
-    - job_name: "VS2015, WinCNG, x64, Server 2012 R2"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-      GENERATOR: "Visual Studio 14 2015"
-      PLATFORM: "x64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
 
@@ -187,7 +189,7 @@ test_script:
           $env:FIXTURE_TRACE_ALL_CONNECT = "1"
         }
         $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
-        cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
+        cd _builds; ctest -VV -C $($env:CONFIGURATION) --stop-on-failure --output-on-failure --timeout 900
       }
 
 on_failure:
