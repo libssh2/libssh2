@@ -239,7 +239,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                 int blocksize = session->remote.crypt->blocksize;
 
                 rc = decrypt(session, p->payload + 4,
-                             first_block, blocksize, 0);
+                             first_block, blocksize, FIRST_BLOCK);
                 if(rc) {
                     return rc;
                 }
@@ -262,7 +262,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                 if(blocksize < decrypt_size) {
                     rc = decrypt(session, p->payload + blocksize + 4,
                                  decrypt_buffer + blocksize - 1,
-                                 decrypt_size - blocksize, 0);
+                                 decrypt_size - blocksize, LAST_BLOCK);
                     if(rc) {
                         LIBSSH2_FREE(session, decrypt_buffer);
                         return rc;
@@ -553,7 +553,6 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                    packet length field that we run MAC over */
                 total_num = 4 + p->packet_length +
                             session->remote.mac->mac_len;
-
             }
             else {
                 /* padding_length has not been authenticated yet, but it won't
