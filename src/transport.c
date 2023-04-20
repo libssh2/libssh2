@@ -1042,16 +1042,6 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                                                0))
                     return LIBSSH2_ERROR_ENCRYPT;     /* encryption failure */
             }
-
-            /* Calculate MAC hash. Put the output at index packet_length,
-               since that size includes the whole packet. The MAC is
-               calculated on the entire packet (length plain the rest
-               encrypted), including all fields except the MAC field
-               itself. */
-            session->local.mac->hash(session, p->outbuf + packet_length,
-                                     session->local.seqno, p->outbuf,
-                                     packet_length, NULL, 0,
-                                     &session->local.mac_abstract);
         }
         else {
             /* Encrypt the whole packet data, one block size at a time.
@@ -1102,6 +1092,18 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                                                LAST_BLOCK))
                     return LIBSSH2_ERROR_ENCRYPT;     /* encryption failure */
             }
+        }
+
+        if(etm) {
+            /* Calculate MAC hash. Put the output at index packet_length,
+               since that size includes the whole packet. The MAC is
+               calculated on the entire packet (length plain the rest
+               encrypted), including all fields except the MAC field
+               itself. */
+            session->local.mac->hash(session, p->outbuf + packet_length,
+                                     session->local.seqno, p->outbuf,
+                                     packet_length, NULL, 0,
+                                     &session->local.mac_abstract);
         }
     }
 
