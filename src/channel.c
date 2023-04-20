@@ -3003,7 +3003,7 @@ libssh2_channel_window_write_ex(LIBSSH2_CHANNEL *channel,
    this section.
 */
 static int channel_signal(LIBSSH2_CHANNEL *channel,
-                          const char *signame, unsigned int signame_len)
+                          const char *signame, size_t signame_len)
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s;
@@ -3056,7 +3056,7 @@ static int channel_signal(LIBSSH2_CHANNEL *channel,
 LIBSSH2_API int
 libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
                           const char *signame,
-                          unsigned int signame_len)
+                          size_t signame_len)
 {
     int rc;
 
