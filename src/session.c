@@ -227,19 +227,17 @@ banner_send(LIBSSH2_SESSION * session)
 #ifdef LIBSSH2DEBUG
         {
             char banner_dup[256];
-
+            size_t banner_dup_len;
             /* Hack and slash to avoid sending CRLF in debug output */
-            if(banner_len < 256) {
-                memcpy(banner_dup, banner, banner_len - 2);
-                banner_dup[banner_len - 2] = '\0';
-            }
-            else {
-                memcpy(banner_dup, banner, 255);
-                banner_dup[255] = '\0';
-            }
+            if(banner_len < sizeof(banner_dup))
+                banner_dup_len = banner_len - 2;
+            else
+                banner_dup_len = sizeof(banner_dup) - 1;
+            memcpy(banner_dup, banner, banner_dup_len);
+            banner_dup[banner_dup_len] = '\0';
 
-            _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
-                           "Sending Banner: %s", banner_dup));
+            _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Sending Banner: %s",
+                           banner_dup));
         }
 #endif
 
