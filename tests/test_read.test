@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+# https://testanything.org/tap-specification.html
+
+if [[ "$(uname)" = *'_NT'* ]]; then
+  echo "1..0 # skip test_read tests due to docker issues"
+  exit 0
+fi
+
+d="$(dirname "$0")"
+
+testbin='./test_read'
+
+crypts="$(cat "${d}/test_read_crypt")"
+macs="$(cat "${d}/test_read_mac")"
+
+total=0
+((total=total + $(echo "${crypts}" | wc -l)))
+((total=total + $(echo "${macs}" | wc -l)))
+
+count=1
+
+echo "${count}..${total}"
+
+while read -r test; do
+  if FIXTURE_TEST_CRYPT="${test}" "${testbin}"; then
+    res='ok'
+  else
+    res='not ok'
+  fi
+  echo "${res} ${count} - test_read-crypt-${test}"
+  ((count++))
+done <<< "${crypts}"
+
+while read -r test; do
+  if FIXTURE_TEST_MAC="${test}" "${testbin}"; then
+    res='ok'
+  else
+    res='not ok'
+  fi
+  echo "${res} ${count} - test_read-mac-${test}"
+  ((count++))
+done <<< "${macs}"

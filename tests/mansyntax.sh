@@ -20,7 +20,7 @@ ec=0
 # Only test if suitable man is available
 #
 if command -v grep >/dev/null 2>&1 && \
-   man --help | grep -q warnings; then
+   man --help 2>/dev/null | grep -q warnings; then
 
   trap 'rm -f "$dstdir/man3"' EXIT
 
