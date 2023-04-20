@@ -501,7 +501,7 @@ packet_authagent_open(LIBSSH2_SESSION * session, unsigned char *data,
 
             if(!channel) {
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                         "allocate a channel for new connection");
+                               "allocate a channel for new connection");
                 failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                 goto authagent_exit;
             }
@@ -510,38 +510,38 @@ packet_authagent_open(LIBSSH2_SESSION * session, unsigned char *data,
             channel->session = session;
             channel->channel_type_len = sizeof("auth agent") - 1;
             channel->channel_type = LIBSSH2_ALLOC(session,
-                                channel->channel_type_len +
-                                1);
+                                                  channel->channel_type_len +
+                                                  1);
             if(!channel->channel_type) {
                 _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                         "allocate a channel for new connection");
+                               "allocate a channel for new connection");
                 LIBSSH2_FREE(session, channel);
                 failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
                 goto authagent_exit;
             }
             memcpy(channel->channel_type, "auth agent",
-                 channel->channel_type_len + 1);
+                   channel->channel_type_len + 1);
 
             channel->remote.id = authagent_state->sender_channel;
             channel->remote.window_size_initial =
-              LIBSSH2_CHANNEL_WINDOW_DEFAULT;
+                LIBSSH2_CHANNEL_WINDOW_DEFAULT;
             channel->remote.window_size = LIBSSH2_CHANNEL_WINDOW_DEFAULT;
             channel->remote.packet_size = LIBSSH2_CHANNEL_PACKET_DEFAULT;
 
             channel->local.id = _libssh2_channel_nextid(session);
             channel->local.window_size_initial =
-              authagent_state->initial_window_size;
+                authagent_state->initial_window_size;
             channel->local.window_size = authagent_state->initial_window_size;
             channel->local.packet_size = authagent_state->packet_size;
 
             _libssh2_debug(session, LIBSSH2_TRACE_CONN,
-                     "Auth Agent Connection established: channel %lu/%lu "
-                     "win %lu/%lu packet %lu/%lu",
-                     channel->local.id, channel->remote.id,
-                     channel->local.window_size,
-                     channel->remote.window_size,
-                     channel->local.packet_size,
-                     channel->remote.packet_size);
+                           "Auth Agent Connection established: channel "
+                           "%lu/%lu win %lu/%lu packet %lu/%lu",
+                           channel->local.id, channel->remote.id,
+                           channel->local.window_size,
+                           channel->remote.window_size,
+                           channel->local.packet_size,
+                           channel->remote.packet_size);
 
             p = authagent_state->packet;
             *(p++) = SSH_MSG_CHANNEL_OPEN_CONFIRMATION;
@@ -555,15 +555,15 @@ packet_authagent_open(LIBSSH2_SESSION * session, unsigned char *data,
 
         if(authagent_state->state == libssh2_NB_state_created) {
             rc = _libssh2_transport_send(session, authagent_state->packet, 17,
-                         NULL, 0);
+                                         NULL, 0);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
                 return rc;
             }
             else if(rc) {
                 authagent_state->state = libssh2_NB_state_idle;
                 return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
-                            "Unable to send channel open "
-                            "confirmation");
+                                      "Unable to send channel open "
+                                      "confirmation");
             }
 
             /* Link the channel into the session */
@@ -574,21 +574,19 @@ packet_authagent_open(LIBSSH2_SESSION * session, unsigned char *data,
             session->packet.total_num = 0;
             session->fullpacket_state = libssh2_NB_state_idle;
 
-            /*
-            * Pass control to the callback, they may turn right around and
-            * free the channel, or actually use it
-            */
+            /* Pass control to the callback, they may turn right around and
+               and free the channel, or actually use it */
 
             LIBSSH2_AUTHAGENT(channel);
 
             authagent_state->state = libssh2_NB_state_idle;
             return 0;
         }
-  }
+    }
     else
         failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
 
-    /* fall-trough */
+    /* fall-through */
 authagent_exit:
     p = authagent_state->packet;
     *(p++) = SSH_MSG_CHANNEL_OPEN_FAILURE;
@@ -1207,18 +1205,18 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                      &session->packAdd_x11open_state);
             }
             else if((datalen >= (sizeof("auth-agent@openssh.com") + 4)) &&
-                     ((sizeof("auth-agent@openssh.com") - 1) ==
-                        _libssh2_ntohu32(data + 1)) &&
-                     (memcmp(data + 5, "auth-agent@openssh.com",
-                        sizeof("auth-agent@openssh.com") - 1) == 0)) {
+                    ((sizeof("auth-agent@openssh.com") - 1) ==
+                      _libssh2_ntohu32(data + 1)) &&
+                    (memcmp(data + 5, "auth-agent@openssh.com",
+                            sizeof("auth-agent@openssh.com") - 1) == 0)) {
 
                 /* init the state struct */
                 memset(&session->packAdd_authagent_state, 0,
                        sizeof(session->packAdd_authagent_state));
 
-                libssh2_packet_add_jump_authagent:
-                    rc = packet_authagent_open(session, data, datalen,
-                        &session->packAdd_authagent_state);
+              libssh2_packet_add_jump_authagent:
+                rc = packet_authagent_open(session, data, datalen,
+                                           &session->packAdd_authagent_state);
             }
             if(rc == LIBSSH2_ERROR_EAGAIN)
                 return rc;

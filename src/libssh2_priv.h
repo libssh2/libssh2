@@ -198,15 +198,18 @@ struct iovec {
 
 #define LIBSSH2_AUTHAGENT(channel) \
     channel->session->authagent(((channel)->session), (channel), \
-    (&(channel)->session->abstract))
+                                (&(channel)->session->abstract))
 
 #define LIBSSH2_ADD_IDENTITIES(session, buffer, agentPath) \
-    session->addLocalIdentities((session), (buffer), (agentPath), \
-    (&(session->abstract)))
+    session->addLocalIdentities((session), (buffer), \
+                                (agentPath), (&(session->abstract)))
 
-#define LIBSSH2_AUTHAGENT_SIGN(session, blob, blen, data, dlen, sig, sigLen, \
-    agentPath) session->agentSignCallback((session), (blob), (blen), \
-    (data), (dlen), (sig), (sigLen), (agentPath), (&(session->abstract)))
+#define LIBSSH2_AUTHAGENT_SIGN(session, blob, blen, \
+                               data, dlen, sig, sigLen, \
+                               agentPath) \
+    session->agentSignCallback((session), (blob), (blen), \
+                               (data), (dlen), (sig), (sigLen), \
+                               (agentPath), (&(session->abstract)))
 
 #define LIBSSH2_CHANNEL_CLOSE(session, channel)          \
     channel->close_cb((session), &(session)->abstract, \
@@ -366,11 +369,10 @@ typedef struct packet_authagent_state_t
     LIBSSH2_CHANNEL *channel;
 } packet_authagent_state_t;
 
-
 typedef enum
 {
-  libssh2_requires_size_decryption = (1 << 0),
-  libssh2_requires_size_field_in_packet = (1 << 1)
+    libssh2_requires_size_decryption = (1 << 0),
+    libssh2_requires_size_field_in_packet = (1 << 1)
 } libssh2_crypt_flags;
 
 struct _LIBSSH2_PACKET

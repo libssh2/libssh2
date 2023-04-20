@@ -1724,8 +1724,8 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
         session->userauth_pblc_b = NULL;
 
         session->userauth_pblc_method_len =
-        plain_method((char *)session->userauth_pblc_method,
-                     session->userauth_pblc_method_len);
+            plain_method((char *)session->userauth_pblc_method,
+                         session->userauth_pblc_method_len);
 
         if(strncmp((const char *)session->userauth_pblc_method,
                    "sk-ecdsa-sha2-nistp256@openssh.com",
