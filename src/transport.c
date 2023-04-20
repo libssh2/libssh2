@@ -234,7 +234,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                    all other blocks to the right location in memory
                    avoiding moving a larger block of memory one byte. */
                 unsigned char first_block[MAX_BLOCKSIZE];
-                size_t decrypt_size;
+                ssize_t decrypt_size;
                 unsigned char *decrypt_buffer;
                 int blocksize = session->remote.crypt->blocksize;
 
