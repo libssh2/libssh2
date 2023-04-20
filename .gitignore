@@ -27,7 +27,8 @@ depcomp
 libtool
 ltmain.sh
 missing
-ssh2_sample
+tap-driver.sh
+test-driver
 libssh2-*.tar.bz2
 libssh2-*.tar.gz
 libssh2-*.tar.xz

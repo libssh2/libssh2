@@ -1,2 +1,0 @@
-#!/bin/sh
-FIXTURE_TEST_CRYPT=aes256-ctr exec ./test_read

@@ -68,7 +68,7 @@ jobs:
           autoreconf -fi
           ./configure --enable-debug --enable-werror
           make -j3
-          make check
+          make check VERBOSE=1
       - name: Build with CMake
         timeout-minutes: 10
         if: ${{ matrix.b == 'cmake' }}
@@ -108,4 +108,4 @@ jobs:
           autoreconf -fi
           ./configure --enable-debug --enable-static --disable-shared --with-crypto=openssl
           make -j3
-          make check
+          make check VERBOSE=1

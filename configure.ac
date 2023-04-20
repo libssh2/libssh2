@@ -3,6 +3,7 @@ AC_INIT(libssh2, [-], libssh2-devel@lists.haxx.se)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_HEADERS([src/libssh2_config.h])
+AC_REQUIRE_AUX_FILE([tap-driver.sh])
 AM_MAINTAINER_MODE
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
@@ -370,6 +371,14 @@ fi
 
 AM_CONDITIONAL([HAVE_WINDRES],
   [test "x$have_windows_h" = "xyes" && test "x${enable_shared}" = "xyes" && test -n "${RC}"])
+
+case "`uname`" in
+  *_NT*) host_windows=yes
+         ;;
+  *) host_windows=no
+     ;;
+esac
+AM_CONDITIONAL([HOST_WINDOWS], [test "x$host_windows" = "xyes"])
 
 # Configure parameters
 LIBSSH2_CHECK_OPTION_WERROR

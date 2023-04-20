@@ -109,38 +109,17 @@ foreach(test ${TESTS})
   endif()
 endforeach()
 
-# MAC tests
-foreach(test
-  hmac-md5
-  hmac-md5-96
-  hmac-sha1
-  hmac-sha1-96
-  hmac-sha2-256
-  hmac-sha2-512
-  hmac-sha1-etm@openssh.com
-  hmac-sha2-256-etm@openssh.com
-  hmac-sha2-512-etm@openssh.com
-)
-  add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
-  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
-endforeach()
-
-# CRYPT tests
-foreach(test
-  3des-cbc
-  aes128-cbc
-  aes128-ctr
-  aes128-gcm@openssh.com
-  aes192-cbc
-  aes192-ctr
-  aes256-cbc
-  aes256-ctr
-  aes256-gcm@openssh.com
-  rijndael-cbc@lysator.liu.se
-)
-  string(REGEX REPLACE "@.*" "" testfn "${test}")
-  add_test(NAME test_${testfn} COMMAND "$<TARGET_FILE:test_read>")
-  set_tests_properties(test_${testfn} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
+# CRYPT/MAC algo tests
+file(READ "test_read_algos.txt" TESTS)
+string(REGEX REPLACE "\\\n" ";" TESTS ${TESTS})
+foreach(test ${TESTS})
+  set(testname test_read-${test})
+  add_test(NAME ${testname} COMMAND "$<TARGET_FILE:test_read>")
+  if(test MATCHES "mac-")
+    set_tests_properties(${testname} PROPERTIES ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
+  else()
+    set_tests_properties(${testname} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
+  endif()
 endforeach()
 
 add_custom_target(coverage
