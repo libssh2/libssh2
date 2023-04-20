@@ -3007,11 +3007,10 @@ static int channel_signal(LIBSSH2_CHANNEL *channel,
                           size_t signame_len)
 {
     LIBSSH2_SESSION *session = channel->session;
-    unsigned char *s;
-    int rc;
     int retcode = LIBSSH2_ERROR_PROTO;
 
     if(channel->sendsignal_state == libssh2_NB_state_idle) {
+        unsigned char *s;
 
         /* 20 = packet_type(1) + channel(4) +
                 signal_len + sizeof(signal) - 1 + want_reply(1) +
@@ -3035,6 +3034,7 @@ static int channel_signal(LIBSSH2_CHANNEL *channel,
     }
 
     if(channel->sendsignal_state == libssh2_NB_state_created) {
+        int rc;
 
         rc = _libssh2_transport_send(session, channel->sendsignal_packet,
                                      channel->sendsignal_packet_len,
