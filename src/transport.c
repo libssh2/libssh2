@@ -239,7 +239,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                 int blocksize = session->remote.crypt->blocksize;
 
                 rc = decrypt(session, p->payload + 4,
-                             first_block, blocksize);
+                             first_block, blocksize, 0);
                 if(rc) {
                     return rc;
                 }
@@ -262,7 +262,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                 if(blocksize < decrypt_size) {
                     rc = decrypt(session, p->payload + blocksize + 4,
                                  decrypt_buffer + blocksize - 1,
-                                 decrypt_size - blocksize);
+                                 decrypt_size - blocksize, 0);
                     if(rc) {
                         LIBSSH2_FREE(session, decrypt_buffer);
                         return rc;
