@@ -423,3 +423,32 @@ _libssh2_mac_methods(void)
 {
     return mac_methods;
 }
+
+#if LIBSSH2_AES_GCM
+/* Stub for aes256-gcm@openssh.com crypto type, which has an integrated
+   HMAC method. This must not be added to mac_methods[] since it cannot be
+   negotiated separately. */
+static const LIBSSH2_MAC_METHOD mac_method_hmac_aesgcm = {
+    "INTEGRATED-AES-GCM",  /* made up name for display only */
+    16,
+    16,
+    NULL,
+    NULL,
+    NULL,
+};
+#endif /* LIBSSH2_AES_GCM */
+
+/* See if the negotiated crypto method has its own authentication scheme that
+ * obviates the need for a separate negotiated hmac method */
+const LIBSSH2_MAC_METHOD *
+_libssh2_mac_override(const LIBSSH2_CRYPT_METHOD *crypt)
+{
+#if LIBSSH2_AES_GCM
+    if(!strcmp(crypt->name, "aes256-gcm@openssh.com") ||
+       !strcmp(crypt->name, "aes128-gcm@openssh.com"))
+        return &mac_method_hmac_aesgcm;
+#else
+    (void) crypt;
+#endif /* LIBSSH2_AES_GCM */
+    return NULL;
+}

@@ -2010,13 +2010,14 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              _libssh2_cipher_type(type),
                              int encrypt,
                              unsigned char *block,
-                             size_t blocklen)
+                             size_t blocklen, int firstlast)
 {
     unsigned char *pbOutput, *pbInput;
     unsigned long cbOutput, cbInput;
     int ret;
 
     (void)type;
+    (void)firstlast;
 
     cbInput = (unsigned long)blocklen;
 

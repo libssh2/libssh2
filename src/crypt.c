@@ -54,7 +54,7 @@
  */
 static int
 crypt_none_crypt(LIBSSH2_SESSION * session, unsigned char *buf,
-                 void **abstract)
+                 void **abstract, int firstlast)
 {
     /* Do nothing to the data! */
     return 0;
@@ -106,12 +106,12 @@ crypt_init(LIBSSH2_SESSION * session,
 
 static int
 crypt_encrypt(LIBSSH2_SESSION * session, unsigned char *block,
-              size_t blocksize, void **abstract)
+              size_t blocksize, void **abstract, int firstlast)
 {
     struct crypt_ctx *cctx = *(struct crypt_ctx **) abstract;
     (void) session;
     return _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block,
-                                 blocksize);
+                                 blocksize, firstlast);
 }
 
 static int
@@ -125,6 +125,34 @@ crypt_dtor(LIBSSH2_SESSION * session, void **abstract)
     }
     return 0;
 }
+
+#if LIBSSH2_AES_GCM
+static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_gcm = {
+    "aes256-gcm@openssh.com",
+    "",
+    16,                         /* blocksize */
+    12,                         /* initial value length */
+    32,                         /* secret length -- 32*8 == 256bit */
+    LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC | LIBSSH2_CRYPT_FLAG_PKTLEN_AAD,
+    &crypt_init,
+    &crypt_encrypt,
+    &crypt_dtor,
+    _libssh2_cipher_aes256gcm
+};
+
+static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_gcm = {
+    "aes128-gcm@openssh.com",
+    "",
+    16,                         /* blocksize */
+    12,                         /* initial value length */
+    16,                         /* secret length -- 16*8 == 128bit */
+    LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC | LIBSSH2_CRYPT_FLAG_PKTLEN_AAD,
+    &crypt_init,
+    &crypt_encrypt,
+    &crypt_dtor,
+    _libssh2_cipher_aes128gcm
+};
+#endif
 
 #if LIBSSH2_AES_CTR
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_ctr = {
@@ -269,7 +297,8 @@ crypt_init_arcfour128(LIBSSH2_SESSION * session,
         size_t discard = 1536;
         for(; discard; discard -= 8)
             _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block,
-                                  method->blocksize);
+                                  method->blocksize, MIDDLE_BLOCK);
+                               /* Not all middle, but here it doesn't matter */
     }
 
     return rc;
@@ -322,6 +351,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_3des_cbc = {
 /* These are the crypt methods that are available to be negotiated. Methods
    towards the start are chosen in preference to ones further down the list. */
 static const LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
+#if LIBSSH2_AES_GCM
+    &libssh2_crypt_method_aes256_gcm,
+    &libssh2_crypt_method_aes128_gcm,
+#endif /* LIBSSH2_AES_GCM */
 #if LIBSSH2_AES_CTR
     &libssh2_crypt_method_aes256_ctr,
     &libssh2_crypt_method_aes192_ctr,

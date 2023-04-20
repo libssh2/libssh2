@@ -1097,7 +1097,8 @@ _libssh2_cipher_init(_libssh2_cipher_ctx *h, _libssh2_cipher_type(algo),
 int
 _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
                       _libssh2_cipher_type(algo),
-                      int encrypt, unsigned char *block, size_t blocksize)
+                      int encrypt, unsigned char *block, size_t blocksize,
+                      int firstlast)
 {
     Qus_EC_t errcode;
     int outlen;

@@ -40,6 +40,7 @@
 
 #ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
 
+#include <assert.h>
 #include <string.h>
 
 #ifndef EVP_MAX_BLOCK_LENGTH
@@ -481,9 +482,26 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
                      unsigned char *iv, unsigned char *secret, int encrypt)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
+#if LIBSSH2_AES_GCM
+    const int is_aesgcm = (algo == EVP_aes_128_gcm) ||
+                          (algo == EVP_aes_256_gcm);
+#endif /* LIBSSH2_AES_GCM */
+    int rc;
+
     *h = EVP_CIPHER_CTX_new();
-    return !EVP_CipherInit(*h, algo(), secret, iv, encrypt);
+    rc = !EVP_CipherInit(*h, algo(), secret, iv, encrypt);
+#if LIBSSH2_AES_GCM
+    if(is_aesgcm) {
+        /* Sets both fixed and invocation_counter parts of IV */
+        rc |= !EVP_CIPHER_CTX_ctrl(*h, EVP_CTRL_AEAD_SET_IV_FIXED, -1, iv);
+    }
+#endif /* LIBSSH2_AES_GCM */
+
+    return rc;
 #else
+# if LIBSSH2_AES_GCM
+#  error AES-GCM is only supported with opaque structs in use
+# endif /* LIBSSH2_AES_GCM */
     EVP_CIPHER_CTX_init(h);
     return !EVP_CipherInit(h, algo(), secret, iv, encrypt);
 #endif
@@ -492,32 +510,113 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
 int
 _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
                       _libssh2_cipher_type(algo),
-                      int encrypt, unsigned char *block, size_t blocksize)
+                      int encrypt, unsigned char *block, size_t blocksize,
+                      int firstlast)
 {
     unsigned char buf[EVP_MAX_BLOCK_LENGTH];
-    int ret;
+    int ret = 1;
     int rc = 1;
 
-    (void)algo;
-    (void)encrypt;
-
-#ifdef HAVE_OPAQUE_STRUCTS
-    ret = EVP_Cipher(*ctx, buf, block, (unsigned int) blocksize);
+#if LIBSSH2_AES_GCM
+    const int is_aesgcm = (algo == EVP_aes_128_gcm) ||
+                          (algo == EVP_aes_256_gcm);
+    char lastiv[1];
 #else
-    ret = EVP_Cipher(ctx, buf, block, (unsigned int) blocksize);
+    const int is_aesgcm = 0;
+#endif /* LIBSSH2_AES_GCM */
+    /* length of AES-GCM Authentication Tag */
+    const int authlen = is_aesgcm ? 16 : 0;
+    /* length of AAD, only on the first block */
+    const int aadlen = (is_aesgcm && IS_FIRST(firstlast)) ? 4 : 0;
+    /* size of AT, if present */
+    const int authenticationtag = IS_LAST(firstlast) ? authlen : 0;
+    /* length to encrypt */
+    const int cryptlen = (unsigned int)blocksize - aadlen - authenticationtag;
+
+    (void)algo;
+
+    assert(blocksize <= sizeof(buf));
+    assert(cryptlen >= 0);
+
+#if LIBSSH2_AES_GCM
+    /* First block */
+    if(IS_FIRST(firstlast)) {
+        /* Increments invocation_counter portion of IV */
+        if(is_aesgcm) {
+            ret = EVP_CIPHER_CTX_ctrl(*ctx, EVP_CTRL_GCM_IV_GEN, 1, lastiv);
+        }
+
+        if(aadlen) {
+            /* Include the 4 byte packet length as AAD */
+            ret = EVP_Cipher(*ctx, NULL, block, aadlen);
+        }
+    }
+
+    /* Last portion of block to encrypt/decrypt */
+    if(IS_LAST(firstlast)) {
+        if(is_aesgcm && !encrypt) {
+            /* set tag on decryption */
+            ret = EVP_CIPHER_CTX_ctrl(*ctx, EVP_CTRL_GCM_SET_TAG, authlen,
+                                      block + blocksize - authlen);
+        }
+    }
+#else
+    (void)encrypt;
+    (void)firstlast;
+#endif /* LIBSSH2_AES_GCM */
+
+    if(cryptlen > 0) {
+#ifdef HAVE_OPAQUE_STRUCTS
+        ret = EVP_Cipher(*ctx, buf + aadlen, block + aadlen, cryptlen);
+#else
+        ret = EVP_Cipher(ctx, buf + aadlen, block + aadlen, cryptlen);
 #endif
+    }
 
 #if (defined(OPENSSL_VERSION_MAJOR) && OPENSSL_VERSION_MAJOR >= 3) || \
      defined(LIBSSH2_WOLFSSL)
     if(ret != -1)
 #else
-    if(ret == 1)
+    if(ret >= 1)
 #endif
     {
         rc = 0;
-        memcpy(block, buf, blocksize);
+        if(IS_LAST(firstlast)) {
+            /* This is the last block.
+               encrypt: compute tag, if applicable
+               decrypt: verify tag, if applicable
+               in!=NULL is equivalent to EVP_CipherUpdate
+               in==NULL is equivalent to EVP_CipherFinal */
+#ifdef HAVE_OPAQUE_STRUCTS
+            ret = EVP_Cipher(*ctx, NULL, NULL, 0); /* final */
+#else
+            ret = EVP_Cipher(ctx, NULL, NULL, 0); /* final */
+#endif
+            if(ret < 0) {
+                ret = 0;
+            }
+            else {
+                ret = 1;
+#if LIBSSH2_AES_GCM
+                if(is_aesgcm && encrypt) {
+                    /* write the Authentication Tag a.k.a. MAC at the end
+                       of the block */
+                    assert(authenticationtag == authlen);
+                    ret = EVP_CIPHER_CTX_ctrl(*ctx, EVP_CTRL_GCM_GET_TAG,
+                            authlen, block + blocksize - authenticationtag);
+                }
+#endif /* LIBSSH2_AES_GCM */
+            }
+        }
+        /* Copy en/decrypted data back to the caller.
+           The first aadlen should not be touched because they weren't
+           encrypted and are unmodified. */
+        memcpy(block + aadlen, buf + aadlen, cryptlen);
+        rc = !ret;
     }
 
+    /* TODO: the return code should distinguish between decryption errors and
+       invalid MACs */
     return rc;
 }
 
