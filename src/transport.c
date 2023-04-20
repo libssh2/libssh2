@@ -940,22 +940,23 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         /* Some crypto back-ends could handle a single crypt() call for
            encryption, but (presumably) others cannot, so break it up
            into blocksize-sized chunks to satisfy them all. */
-        for(i = 0; i < packet_length; i += session->local.crypt->blocksize) {
+        for(i = 0; i < packet_length;
+            i += session->local.crypt->blocksize) {
             unsigned char *ptr = &p->outbuf[i];
             size_t bsize = LIBSSH2_MIN(session->local.crypt->blocksize,
                                        (int)(packet_length-i));
-            /* The INTEGRATED_MAC case always has an extra call below, so it
-               will never be LAST_BLOCK up here. */
+            /* The INTEGRATED_MAC case always has an extra call below,
+               so it will never be LAST_BLOCK up here. */
             int firstlast = i == 0 ? FIRST_BLOCK :
                 (!CRYPT_FLAG_L(session, INTEGRATED_MAC)
                  && (i == packet_length - session->local.crypt->blocksize)
                    ? LAST_BLOCK: MIDDLE_BLOCK);
-            /* In the AAD case, the last block would be only 4 bytes because
-               everything is offset by 4 since the initial packet_length isn't
-               encrypted. In this case, combine that last short packet with the
-               previous one since AES-GCM crypt() assumes that the entire MAC
-               is available in that packet so it can set that to the
-               authentication tag. */
+            /* In the AAD case, the last block would be only 4 bytes
+               because everything is offset by 4 since the initial
+               packet_length isn't encrypted. In this case, combine that
+               last short packet with the previous one since AES-GCM
+               crypt() assumes that the entire MAC is available in that
+               packet so it can set that to the authentication tag. */
             if(!CRYPT_FLAG_L(session, INTEGRATED_MAC))
                 if(i > packet_length - 2*bsize) {
                     /* increase the final block size */
@@ -969,12 +970,14 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                                            firstlast))
                 return LIBSSH2_ERROR_ENCRYPT;     /* encryption failure */
         }
-        /* Call crypt() one last time so it can be filled in with the MAC */
+        /* Call crypt() one last time so it can be filled in with
+           the MAC */
         if(CRYPT_FLAG_L(session, INTEGRATED_MAC)) {
             int authlen = session->local.mac->mac_len;
             assert((size_t)total_length <=
                    packet_length + session->local.crypt->blocksize);
-            if(session->local.crypt->crypt(session, &p->outbuf[packet_length],
+            if(session->local.crypt->crypt(session,
+                                           &p->outbuf[packet_length],
                                            authlen,
                                            &session->local.crypt_abstract,
                                            LAST_BLOCK))
