@@ -2151,8 +2151,8 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                            " invoked"));
 
             session->userauth_kybd_packet_len =
-                1 /* byte      SSH_MSG_USERAUTH_INFO_RESPONSE */
-                + 4             /* int       num-responses */
+                1    /* byte      SSH_MSG_USERAUTH_INFO_RESPONSE */
+                + 4  /* int       num-responses */
                 ;
 
             for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
