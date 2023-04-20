@@ -494,7 +494,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
             /* packet length is not encrypted in encode-then-mac mode
                and we donøt need to decrypt first block */
-            size_t required_size = etm ? 4 : blocksize;
+            ssize_t required_size = etm ? 4 : blocksize;
 
             /* No payload package area allocated yet. To know the
                size of this payload, we need enough to decrypt the first
