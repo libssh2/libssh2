@@ -10,7 +10,8 @@ int
 libssh2_userauth_keyboard_interactive_ex(LIBSSH2_SESSION *session,
                                          const char *username,
                                          unsigned int username_len,
-            LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback));
+                   LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(*response_callback));
+.fi
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by
 \fIlibssh2_session_init_ex(3)\fP.
@@ -28,13 +29,13 @@ control. Responses will be sent to the host. String values will be free(3)ed
 by the library. The callback prototype must match this:
 
 .nf
- void response(const char *name,
-               int name_len, const char *instruction,
-               int instruction_len,
-               int num_prompts,
-               const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
-               LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
-               void **abstract);
+void response(const char *name,
+              int name_len, const char *instruction,
+              int instruction_len,
+              int num_prompts,
+              const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
+              LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
+              void **abstract);
 .fi
 
 Attempts keyboard-interactive (challenge/response) authentication.
@@ -52,7 +53,7 @@ number, it isn't really a failure per se.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
-\fLIBSSH2_ERROR_AUTHENTICATION_FAILED\fP - failed, invalid username/password
+\fILIBSSH2_ERROR_AUTHENTICATION_FAILED\fP - failed, invalid username/password
 or public/private key.
 .SH SEE ALSO
 .BR libssh2_session_init_ex(3)

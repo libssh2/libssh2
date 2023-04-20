@@ -2,9 +2,12 @@
 .SH NAME
 libssh2_poll - poll for activity on a socket, channel or listener
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-int libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout);
+int
+libssh2_poll(LIBSSH2_POLLFD *fds, unsigned int nfds, long timeout);
+.fi
 .SH DESCRIPTION
 This function is deprecated. Do note use. We encourage users to instead use
 the \fIpoll(3)\fP or \fIselect(3)\fP functions to check for socket activity or

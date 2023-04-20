@@ -2,19 +2,25 @@
 .SH NAME
 libssh2_sftp_mkdir_ex - create a directory on the remote file system
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-int 
-libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp, const char *path, unsigned int path_len, long mode);
+int
+libssh2_sftp_mkdir_ex(LIBSSH2_SFTP *sftp,
+                      const char *path, unsigned int path_len,
+                      long mode);
 
-int 
-libssh2_sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path, long mode);
+int
+libssh2_sftp_mkdir(LIBSSH2_SFTP *sftp,
+                   const char *path,
+                   long mode);
+.fi
 .SH DESCRIPTION
-\fIsftp\fP - SFTP instance as returned by 
+\fIsftp\fP - SFTP instance as returned by
 .BR libssh2_sftp_init(3)
 
-\fIpath\fP - full path of the new directory to create. Note that the new 
+\fIpath\fP - full path of the new directory to create. Note that the new
 directory's parents must all exist prior to making this call.
 
 \fIpath_len\fP - length of the full path of the new directory to create.
@@ -31,10 +37,10 @@ LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
-\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP - 
+\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP -
 
-\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was 
-received on the socket, or an SFTP operation caused an errorcode to be 
+\fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was
+received on the socket, or an SFTP operation caused an errorcode to be
 returned by the server.
 .SH SEE ALSO
 .BR libssh2_sftp_open_ex(3)

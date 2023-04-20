@@ -35,16 +35,19 @@
  * OF SUCH DAMAGE.
  */
 
-#include "session_fixture.h"
+#include "runner.h"
 
-extern int test(LIBSSH2_SESSION *session);
-
-int main()
+int main(void)
 {
     int exit_code = 1;
-    LIBSSH2_SESSION *session = start_session_fixture();
-    if(session != NULL) {
+    int skipped;
+    LIBSSH2_SESSION *session = start_session_fixture(&skipped);
+    if(session) {
         exit_code = (test(session) == 0) ? 0 : 1;
+    }
+    else if(skipped) {
+        fprintf(stderr, "Test skipped.\n");
+        exit_code = 0;
     }
     stop_session_fixture();
     return exit_code;

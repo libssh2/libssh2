@@ -38,10 +38,31 @@
 #ifndef LIBSSH2_TESTS_SESSION_FIXTURE_H
 #define LIBSSH2_TESTS_SESSION_FIXTURE_H
 
+#define LIBSSH2_TESTS
+
+#include "libssh2_priv.h"
 #include <libssh2.h>
 
-LIBSSH2_SESSION *start_session_fixture();
-void stop_session_fixture();
+LIBSSH2_SESSION *start_session_fixture(int *skipped);
+void stop_session_fixture(void);
 void print_last_session_error(const char *function);
+const char *srcdir_path(const char *file);
+
+#define TEST_AUTH_SHOULDFAIL  1
+#define TEST_AUTH_FROMMEM     2
+
+int test_auth_keyboard(LIBSSH2_SESSION *session, int flags,
+                       const char *username,
+                       const char *password);
+
+int test_auth_password(LIBSSH2_SESSION *session, int flags,
+                       const char *username,
+                       const char *password);
+
+int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
+                     const char *username,
+                     const char *password,
+                     const char *fn_pub,
+                     const char *fn_priv);
 
 #endif

@@ -33,7 +33,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
-FROM debian:jessie
+FROM debian:bullseye-slim
 
 RUN apt-get update \
  && apt-get install -y openssh-server \
@@ -60,17 +60,30 @@ RUN chmod 600 /etc/ssh/ssh_host_ed25519_key
 
 COPY ca_ecdsa.pub /tmp/etc/ssh/ca_ecdsa.pub
 RUN mv /tmp/etc/ssh/ca_ecdsa.pub /etc/ssh/ca_ecdsa.pub
-RUN chmod 600 /etc/ssh/ca_ecdsa.pub
+RUN cp /etc/ssh/ca_ecdsa.pub /etc/ssh/ca_main.pub
+RUN chmod 600 /etc/ssh/ca_main.pub
 
 COPY ca_ecdsa /tmp/etc/ssh/ca_ecdsa
 RUN mv /tmp/etc/ssh/ca_ecdsa /etc/ssh/ca_ecdsa
 RUN chmod 600 /etc/ssh/ca_ecdsa
 
+COPY ca_rsa.pub /tmp/etc/ssh/ca_rsa.pub
+RUN mv /tmp/etc/ssh/ca_rsa.pub /etc/ssh/ca_rsa.pub
+RUN cat /etc/ssh/ca_rsa.pub >> /etc/ssh/ca_main.pub
+
+COPY ca_rsa /tmp/etc/ssh/ca_rsa
+RUN mv /tmp/etc/ssh/ca_rsa /etc/ssh/ca_rsa
+RUN chmod 600 /etc/ssh/ca_rsa
+
 RUN adduser --disabled-password --gecos 'Test user for libssh2 integration tests' libssh2
 RUN echo 'libssh2:my test password' | chpasswd
 
 RUN sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config
-RUN echo "TrustedUserCAKeys /etc/ssh/ca_ecdsa.pub" >> /etc/ssh/sshd_config
+RUN echo "TrustedUserCAKeys /etc/ssh/ca_main.pub" >> /etc/ssh/sshd_config
+RUN echo "PubkeyAcceptedKeyTypes=+ssh-dss" >> /etc/ssh/sshd_config
+RUN echo "MACs +hmac-sha1,hmac-sha1-96,hmac-sha2-256,hmac-sha2-512,hmac-md5,hmac-md5-96,umac-64@openssh.com,umac-128@openssh.com,hmac-sha1-etm@openssh.com,hmac-sha1-96-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-md5-etm@openssh.com,hmac-md5-96-etm@openssh.com,umac-64-etm@openssh.com,umac-128-etm@openssh.com" >> /etc/ssh/sshd_config
+RUN echo "Ciphers +3des-cbc,aes128-cbc,aes192-cbc,aes256-cbc,rijndael-cbc@lysator.liu.se,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com" >> /etc/ssh/sshd_config
+
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd

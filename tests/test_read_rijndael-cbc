@@ -1,0 +1,2 @@
+#!/bin/sh
+FIXTURE_TEST_CRYPT=rijndael-cbc@lysator.liu.se exec ./test_read
