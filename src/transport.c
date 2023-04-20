@@ -586,7 +586,6 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 }
                 firstlast = MIDDLE_BLOCK;
             }
-
         }
         else {
             /* unencrypted data should not be decrypted at all */
