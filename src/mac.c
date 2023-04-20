@@ -477,6 +477,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_aesgcm = {
     NULL,
     NULL,
     NULL,
+    0
 };
 #endif /* LIBSSH2_AES_GCM */
 
