@@ -1,14 +1,17 @@
-.TH libssh2_agent_sign 3 "29 May 2021" "libssh2 1.9.1" "libssh2 manual"
+.TH libssh2_agent_sign 3 "20 Apr 2023" "libssh2 1.11.0" "libssh2 manual"
 .SH NAME
 libssh2_agent_sign - sign specified bytes with specified agent.
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-int libssh2_agent_sign(LIBSSH2_AGENT *agent,
-                       const unsigned char *data,
-                       size_t data_len,
-                       unsigned char **sig,
-                       size_t *sig_len);
+int
+libssh2_agent_sign(LIBSSH2_AGENT *agent,
+                   const unsigned char *data,
+                   size_t data_len,
+                   unsigned char **sig,
+                   size_t *sig_len);
+.fi
 .SH DESCRIPTION
 Generates signature for specified data with specified agent.
 
