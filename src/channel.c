@@ -3050,11 +3050,11 @@ static int channel_signal(LIBSSH2_CHANNEL *channel,
         }
         LIBSSH2_FREE(session, channel->sendsignal_packet);
         retcode = LIBSSH2_ERROR_NONE;
-
     }
-    channel->sendsignal_state = libssh2_NB_state_idle;
-    return retcode;
 
+    channel->sendsignal_state = libssh2_NB_state_idle;
+
+    return retcode;
 }
 
 LIBSSH2_API int
