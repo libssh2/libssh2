@@ -4027,7 +4027,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
         if(!kex_get_method_by_name(s, method_len, mlist)) {
             /* Strip out unsupported method */
             if(p) {
-                memcpy(s, p + 1, strlen(s) - method_len);
+                memmove(s, p + 1, strlen(s) - method_len);
             }
             else {
                 if(s > newprefs) {
