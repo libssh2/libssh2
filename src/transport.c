@@ -445,14 +445,14 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
             if(encrypted) {
                 /* first decrypted block */
-                rc = decrypt(session, &p->buf[p->readidx], block, blocksize,
-                             FIRST_BLOCK);
+                rc = decrypt(session, &p->buf[p->readidx],
+                             block, blocksize, FIRST_BLOCK);
                 if(rc != LIBSSH2_ERROR_NONE) {
                     return rc;
                 }
                 /* Save the first 5 bytes of the decrypted package, to be
-                   used in the hash calculation later down.  This is ignored
-                   in the INTEGRATED_MAC case. */
+                   used in the hash calculation later down.
+                   This is ignored in the INTEGRATED_MAC case. */
                 memcpy(p->init, block, 5);
             }
             else {
@@ -477,8 +477,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
             /* padding_length has not been authenticated yet, but it won't
                actually be used (except for the sanity check immediately
-               following) until after the entire packet is authenticated, so
-               this is safe. */
+               following) until after the entire packet is authenticated,
+               so this is safe. */
             p->padding_length = block[4];
             if(p->padding_length > p->packet_length - 1) {
                 return LIBSSH2_ERROR_DECRYPT;
@@ -763,7 +763,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         (session->state & LIBSSH2_STATE_NEWKEYS) ?
         session->local.crypt->blocksize : 8;
     ssize_t padding_length;
-    size_t packet_length, crypt_offset;
+    size_t packet_length;
     ssize_t total_length;
 #ifdef LIBSSH2_RANDOM_PADDING
     int rand_max;
@@ -776,6 +776,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     int rc;
     const unsigned char *orgdata = data;
     size_t orgdata_len = data_len;
+    size_t crypt_offset;
 
     /*
      * If the last read operation was interrupted in the middle of a key
@@ -881,7 +882,6 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     /* first figure out our minimum padding amount to make it an even
        block size */
-
     padding_length = blocksize - ((packet_length - crypt_offset) % blocksize);
 
     /* if the padding becomes too small we add another blocksize worth
@@ -928,11 +928,12 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
            fields except the MAC field itself. This is skipped in the
            INTEGRATED_MAC case, where the crypto algorithm also does its
            own hash. */
-        if(!CRYPT_FLAG_R(session, INTEGRATED_MAC))
+        if(!CRYPT_FLAG_R(session, INTEGRATED_MAC)) {
             session->local.mac->hash(session, p->outbuf + packet_length,
                                      session->local.seqno, p->outbuf,
                                      packet_length, NULL, 0,
                                      &session->local.mac_abstract);
+        }
 
         /* Encrypt the whole packet data, one block size at a time.
            The MAC field is not encrypted unless INTEGRATED_MAC. */
