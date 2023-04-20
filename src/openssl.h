@@ -105,9 +105,11 @@
 
 #ifdef OPENSSL_NO_RSA
 # define LIBSSH2_RSA 0
+# define LIBSSH2_RSA_SHA1 0
 # define LIBSSH2_RSA_SHA2 0
 #else
 # define LIBSSH2_RSA 1
+# define LIBSSH2_RSA_SHA1 1
 # define LIBSSH2_RSA_SHA2 1
 #endif
 
@@ -353,13 +355,17 @@ extern void _libssh2_openssl_crypto_exit(void);
 #define libssh2_crypto_init() _libssh2_openssl_crypto_init()
 #define libssh2_crypto_exit() _libssh2_openssl_crypto_exit()
 
+#if LIBSSH2_RSA
 #define libssh2_rsa_ctx RSA
 
 #define _libssh2_rsa_free(rsactx) RSA_free(rsactx)
+#endif
 
+#if LIBSSH2_DSA
 #define libssh2_dsa_ctx DSA
 
 #define _libssh2_dsa_free(dsactx) DSA_free(dsactx)
+#endif
 
 #if LIBSSH2_ECDSA
 #define libssh2_ecdsa_ctx EC_KEY

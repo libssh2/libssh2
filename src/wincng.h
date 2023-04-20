@@ -65,6 +65,7 @@
 #define LIBSSH2_3DES 1
 
 #define LIBSSH2_RSA 1
+#define LIBSSH2_RSA_SHA1 1
 #define LIBSSH2_RSA_SHA2 1
 #define LIBSSH2_DSA 1
 #define LIBSSH2_ECDSA 0

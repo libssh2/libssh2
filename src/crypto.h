@@ -67,6 +67,46 @@
 #define LIBSSH2_DSA 0
 #endif
 
+#ifdef LIBSSH2_NO_RSA
+#undef LIBSSH2_RSA
+#define LIBSSH2_RSA 0
+#endif
+
+#ifdef LIBSSH2_NO_RSA_SHA1
+#undef LIBSSH2_RSA_SHA1
+#define LIBSSH2_RSA_SHA1 0
+#endif
+
+#ifdef LIBSSH2_NO_ECDSA
+#undef LIBSSH2_ECDSA
+#define LIBSSH2_ECDSA 0
+#endif
+
+#ifdef LIBSSH2_NO_AES_CTR
+#undef LIBSSH2_AES_CTR
+#define LIBSSH2_AES_CTR 0
+#endif
+
+#ifdef LIBSSH2_NO_BLOWFISH
+#undef LIBSSH2_BLOWFISH
+#define LIBSSH2_BLOWFISH 0
+#endif
+
+#ifdef LIBSSH2_NO_RC4
+#undef LIBSSH2_RC4
+#define LIBSSH2_RC4 0
+#endif
+
+#ifdef LIBSSH2_NO_CAST
+#undef LIBSSH2_CAST
+#define LIBSSH2_CAST 0
+#endif
+
+#ifdef LIBSSH2_NO_3DES
+#undef LIBSSH2_3DES
+#define LIBSSH2_3DES 0
+#endif
+
 #define LIBSSH2_ED25519_KEY_LEN 32
 #define LIBSSH2_ED25519_PRIVATE_KEY_LEN 64
 #define LIBSSH2_ED25519_SIG_LEN 64
@@ -92,6 +132,7 @@ int _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
                              LIBSSH2_SESSION * session,
                              const char *filename,
                              unsigned const char *passphrase);
+#if LIBSSH2_RSA_SHA1
 int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
                              const unsigned char *sig,
                              size_t sig_len,
@@ -102,6 +143,7 @@ int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
                            size_t hash_len,
                            unsigned char **signature,
                            size_t *signature_len);
+#endif
 #if LIBSSH2_RSA_SHA2
 int _libssh2_rsa_sha2_sign(LIBSSH2_SESSION * session,
                            libssh2_rsa_ctx * rsactx,
