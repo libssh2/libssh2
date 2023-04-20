@@ -487,9 +487,9 @@ packet_authagent_open(LIBSSH2_SESSION * session, unsigned char *data,
         s += 4;
         authagent_state->packet_size = _libssh2_ntohu32(s);
 
-        _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+        _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                        "Auth Agent Connection Received on channel %lu",
-                       authagent_state->sender_channel);
+                       authagent_state->sender_channel));
 
         authagent_state->state = libssh2_NB_state_allocated;
     }
@@ -534,14 +534,14 @@ packet_authagent_open(LIBSSH2_SESSION * session, unsigned char *data,
             channel->local.window_size = authagent_state->initial_window_size;
             channel->local.packet_size = authagent_state->packet_size;
 
-            _libssh2_debug(session, LIBSSH2_TRACE_CONN,
+            _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                            "Auth Agent Connection established: channel "
                            "%lu/%lu win %lu/%lu packet %lu/%lu",
                            channel->local.id, channel->remote.id,
                            channel->local.window_size,
                            channel->remote.window_size,
                            channel->local.packet_size,
-                           channel->remote.packet_size);
+                           channel->remote.packet_size));
 
             p = authagent_state->packet;
             *(p++) = SSH_MSG_CHANNEL_OPEN_CONFIRMATION;
