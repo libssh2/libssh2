@@ -1032,54 +1032,38 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         /* Some crypto back-ends could handle a single crypt() call for
            encryption, but (presumably) others cannot, so break it up
            into blocksize-sized chunks to satisfy them all. */
-        if(etm) {
-            for(i = crypt_offset; i < packet_length;
-                i += session->local.crypt->blocksize) {
-                unsigned char *ptr = &p->outbuf[i];
-                _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                               "crypting bytes %d-%d", i,
-                               i + session->local.crypt->blocksize - 1));
-                if(session->local.crypt->crypt(session, ptr,
-                                               session->local.crypt->blocksize,
-                                               &session->local.crypt_abstract,
-                                               0))
-                    return LIBSSH2_ERROR_ENCRYPT;     /* encryption failure */
-            }
-        }
-        else {
-            for(i = etm_crypt_offset; i < packet_length;
-                i += session->local.crypt->blocksize) {
-                unsigned char *ptr = &p->outbuf[i];
-                size_t bsize = LIBSSH2_MIN(session->local.crypt->blocksize,
-                                           (int)(packet_length-i));
-                /* The INTEGRATED_MAC case always has an extra call below, so it
-                   will never be LAST_BLOCK up here. */
-                int firstlast = i == 0 ? FIRST_BLOCK :
-                    (!CRYPT_FLAG_L(session, INTEGRATED_MAC)
-                     && (i == packet_length - session->local.crypt->blocksize)
-                       ? LAST_BLOCK: MIDDLE_BLOCK);
-                /* In the AAD case, the last block would be only 4 bytes because
-                   everything is offset by 4 since the initial packet_length isn't
-                   encrypted. In this case, combine that last short packet with the
-                   previous one since AES-GCM crypt() assumes that the entire MAC
-                   is available in that packet so it can set that to the
-                   authentication tag. */
-                if(!CRYPT_FLAG_L(session, INTEGRATED_MAC))
-                    if(i > packet_length - 2*bsize) {
-                        /* increase the final block size */
-                        bsize = packet_length - i;
-                        /* advance the loop counter by the extra amount */
-                        i += bsize - session->local.crypt->blocksize;
-                    }
-                _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                               "crypting bytes %d-%d", i,
-                               i + session->local.crypt->blocksize - 1));
-                if(session->local.crypt->crypt(session, ptr,
-                                               bsize,
-                                               &session->local.crypt_abstract,
-                                               firstlast))
-                    return LIBSSH2_ERROR_ENCRYPT;     /* encryption failure */
-            }
+        for(i = etm_crypt_offset; i < packet_length;
+            i += session->local.crypt->blocksize) {
+            unsigned char *ptr = &p->outbuf[i];
+            size_t bsize = LIBSSH2_MIN(session->local.crypt->blocksize,
+                                       (int)(packet_length-i));
+            /* The INTEGRATED_MAC case always has an extra call below, so it
+               will never be LAST_BLOCK up here. */
+            int firstlast = i == 0 ? FIRST_BLOCK :
+                (!CRYPT_FLAG_L(session, INTEGRATED_MAC)
+                 && (i == packet_length - session->local.crypt->blocksize)
+                   ? LAST_BLOCK: MIDDLE_BLOCK);
+            /* In the AAD case, the last block would be only 4 bytes because
+               everything is offset by 4 since the initial packet_length isn't
+               encrypted. In this case, combine that last short packet with the
+               previous one since AES-GCM crypt() assumes that the entire MAC
+               is available in that packet so it can set that to the
+               authentication tag. */
+            if(!CRYPT_FLAG_L(session, INTEGRATED_MAC))
+                if(i > packet_length - 2*bsize) {
+                    /* increase the final block size */
+                    bsize = packet_length - i;
+                    /* advance the loop counter by the extra amount */
+                    i += bsize - session->local.crypt->blocksize;
+                }
+            _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+                           "crypting bytes %d-%d", i,
+                           i + session->local.crypt->blocksize - 1));
+            if(session->local.crypt->crypt(session, ptr,
+                                           bsize,
+                                           &session->local.crypt_abstract,
+                                           firstlast))
+                return LIBSSH2_ERROR_ENCRYPT;     /* encryption failure */
         }
         /* Call crypt() one last time so it can be filled in with the MAC */
         if(CRYPT_FLAG_L(session, INTEGRATED_MAC)) {
