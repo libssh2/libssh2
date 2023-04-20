@@ -355,7 +355,6 @@ static const LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
     &libssh2_crypt_method_aes256_gcm,
     &libssh2_crypt_method_aes128_gcm,
 #endif /* LIBSSH2_AES_GCM */
-
 #if LIBSSH2_AES_CTR
     &libssh2_crypt_method_aes256_ctr,
     &libssh2_crypt_method_aes192_ctr,
