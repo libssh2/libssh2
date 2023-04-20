@@ -32,17 +32,16 @@ Returns 0 if succeeded, or a negative value for error.
 .SH EXAMPLE
 .nf
 struct libssh2_agent_publickey* ident = NULL, identPrev = NULL;
-while (libssh2_agent_get_identity(agent, &ident, identPrev) == 0) {
+while(libssh2_agent_get_identity(agent, &ident, identPrev) == 0) {
+    unsigned char* sig = NULL;
+    size_t len = 0;
+    int code;
+
     libssh2_agent_userauth(agent, username, ident);
 
-    unsigned char* sig = nullptr;
-    size_t len = 0;
-
-    const int code = libssh2_agent_sign(
-        agent,
-        (unsigned char*)data, data_len,
-        &sig, &len);
-    if (0 != code) goto err;
+    code = libssh2_agent_sign(agent, data, data_len, &sig, &len);
+    if(code)
+        goto err;
 
     /* do_something(sig, len); */
     libssh2_free(session, sig);
