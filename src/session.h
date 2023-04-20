@@ -41,9 +41,9 @@
 
 /* Conveniance-macros to allow code like this;
 
-   int rc = BLOCK_ADJUST(rc, session, session_startup(session, sock) );
+   int rc = BLOCK_ADJUST(rc, session, session_startup(session, sock));
 
-   int rc = BLOCK_ADJUST_ERRNO(ptr, session, session_startup(session, sock) );
+   int rc = BLOCK_ADJUST_ERRNO(ptr, session, session_startup(session, sock));
 
    The point of course being to make sure that while in non-blocking mode
    these always return no matter what the return code is, but in blocking mode
@@ -78,7 +78,7 @@
             ptr = x; \
             if(!sess->api_block_mode || \
                (ptr != NULL) || \
-               (libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN) ) \
+               (libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN)) \
                 break; \
             rc = _libssh2_wait_socket(sess, entry_time); \
         } while(!rc); \

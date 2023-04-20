@@ -2158,7 +2158,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             for(i = 0; i < session->userauth_kybd_num_prompts; i++) {
                 /* string    response[1] (ISO-10646 UTF-8) */
                 if(session->userauth_kybd_responses[i].length <=
-                   (SIZE_MAX - 4 - session->userauth_kybd_packet_len) ) {
+                   (SIZE_MAX - 4 - session->userauth_kybd_packet_len)) {
                     session->userauth_kybd_packet_len +=
                         4 + session->userauth_kybd_responses[i].length;
                 }

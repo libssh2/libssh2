@@ -2086,7 +2086,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     /* expand the receiving window first if it has become too narrow */
     if((channel->read_state == libssh2_NB_state_jump1) ||
        (channel->remote.window_size <
-        channel->remote.window_size_initial / 4 * 3 + buflen) ) {
+        channel->remote.window_size_initial / 4 * 3 + buflen)) {
 
         uint32_t adjustment = (uint32_t)(channel->remote.window_size_initial +
             buflen - channel->remote.window_size);
@@ -2737,7 +2737,7 @@ libssh2_channel_close(LIBSSH2_CHANNEL *channel)
     if(!channel)
         return LIBSSH2_ERROR_BAD_USE;
 
-    BLOCK_ADJUST(rc, channel->session, _libssh2_channel_close(channel) );
+    BLOCK_ADJUST(rc, channel->session, _libssh2_channel_close(channel));
     return rc;
 }
 
