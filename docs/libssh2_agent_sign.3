@@ -33,7 +33,7 @@ Returns 0 if succeeded, or a negative value for error.
 .nf
 struct libssh2_agent_publickey* ident = NULL, identPrev = NULL;
 while(libssh2_agent_get_identity(agent, &ident, identPrev) == 0) {
-    unsigned char* sig = NULL;
+    unsigned char *sig = NULL;
     size_t len = 0;
     int code;
 
