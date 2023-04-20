@@ -99,6 +99,33 @@ static void setup_fixture_workdir(void)
     chdir(wd);
 }
 
+/* List of crypto protocols for which tests are skipped */
+static char const *skip_crypt[] = {
+#ifdef LIBSSH2_MBEDTLS
+    /* Due to a bug with mbedTLS support, these crypt methods fail.
+       Until that bug is fixed, don't run them there to avoid this
+       known issue causing red tests.
+       See: https://github.com/libssh2/libssh2/issues/793
+     */
+    "3des-cbc",
+    "aes128-cbc",
+    "aes192-cbc",
+    "aes256-cbc",
+    "aes128-gcm@openssh.com",
+    "aes256-gcm@openssh.com",
+    "rijndael-cbc@lysator.liu.se",
+#endif
+
+#if defined(LIBSSH2_LIBGCRYPT) || defined(LIBSSH2_OS400QC3) || \
+    defined(LIBSSH2_WINCNG)
+    /* Support for AES-GCM hasn't been added to these back-ends yet */
+    "aes128-gcm@openssh.com",
+    "aes256-gcm@openssh.com",
+#endif
+
+    NULL
+};
+
 LIBSSH2_SESSION *start_session_fixture(int *skipped)
 {
     int rc;
@@ -109,23 +136,15 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped)
     *skipped = 0;
 
     if(crypt) {
-#ifdef LIBSSH2_MBEDTLS
-        /* Due to a bug with mbedTLS support, these crypt methods fail.
-           Until that bug is fixed, don't run them there to avoid this
-           known issue causing red tests.
-           See: https://github.com/libssh2/libssh2/issues/793
-         */
-        if(strcmp(crypt, "3des-cbc") == 0 ||
-           strcmp(crypt, "aes128-cbc") == 0 ||
-           strcmp(crypt, "aes192-cbc") == 0 ||
-           strcmp(crypt, "aes256-cbc") == 0 ||
-           strcmp(crypt, "rijndael-cbc@lysator.liu.se") == 0) {
-            fprintf(stderr, "crypt algorithm (%s) skipped "
-                            "for this crypto backend.\n", crypt);
-            *skipped = 1;
-            return NULL;
+        char const * const *cr;
+        for(cr = skip_crypt; *cr; ++cr) {
+            if(strcmp(*cr, crypt) == 0) {
+                fprintf(stderr, "crypt algorithm (%s) skipped "
+                                "for this crypto backend.\n", crypt);
+                *skipped = 1;
+                return NULL;
+            }
         }
-#endif
     }
 
     setup_fixture_workdir();
