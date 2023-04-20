@@ -2358,7 +2358,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                                   "Unable to extract public key "
                                   "from private key.");
         }
-        else if(publickeydata_len == 0 || publickeydata == NULL) {
+        else if(publickeydata_len == 0 || !publickeydata) {
             session->userauth_pblc_method = tmp_method;
             session->userauth_pblc_method_len = tmp_method_len;
 
@@ -2369,7 +2369,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
             const char *ecdsa = "sk-ecdsa-sha2-nistp256-cert-v01@openssh.com";
             const char *ed25519 = "sk-ssh-ed25519-cert-v01@openssh.com";
 
-            if(tmp_method != NULL) {
+            if(tmp_method) {
                 LIBSSH2_FREE(session, tmp_method);
             }
 

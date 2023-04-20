@@ -856,7 +856,7 @@ libssh2_agent_sign(LIBSSH2_AGENT *agent,
     uint32_t methodLen;
 
     if(agent->session->userauth_pblc_state == libssh2_NB_state_idle) {
-        memset(&agent->transctx, 0, sizeof agent->transctx);
+        memset(&agent->transctx, 0, sizeof(agent->transctx));
         agent->identity = identity->node;
     }
 
