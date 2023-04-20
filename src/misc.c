@@ -263,10 +263,12 @@ void _libssh2_store_u32(unsigned char **buf, uint32_t value)
  */
 void _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
 {
-    _libssh2_store_u32(buf, (uint32_t)len);
+    uint32_t len_stored = (uint32_t)len;
+
+    _libssh2_store_u32(buf, len_stored);
     if(len) {
-        memcpy(*buf, str, len);
-        *buf += len;
+        memcpy(*buf, str, len_stored);
+        *buf += len_stored;
     }
 }
 
@@ -276,12 +278,17 @@ void _libssh2_store_bignum2_bytes(unsigned char **buf,
                                   const unsigned char *bytes,
                                   size_t len)
 {
-    int extraByte = 0;
+    uint32_t len_stored;
+    uint32_t extraByte;
     const unsigned char *p;
+
     for(p = bytes; len > 0 && *p == 0; --len, ++p) {}
 
     extraByte = (len > 0 && (p[0] & 0x80) != 0);
-    _libssh2_store_u32(buf, (uint32_t)(len + extraByte));
+    len_stored = (uint32_t)len;
+    if(extraByte && len_stored == 0xffffffff)
+        len_stored--;
+    _libssh2_store_u32(buf, len_stored + extraByte);
 
     if(extraByte) {
         *buf[0] = 0;
@@ -289,8 +296,8 @@ void _libssh2_store_bignum2_bytes(unsigned char **buf,
     }
 
     if(len > 0) {
-        memcpy(*buf, p, len);
-        *buf += len;
+        memcpy(*buf, p, len_stored);
+        *buf += len_stored;
     }
 }
 
