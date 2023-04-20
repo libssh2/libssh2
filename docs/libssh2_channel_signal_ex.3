@@ -6,7 +6,9 @@ libssh2_channel_signal_ex -- Send a signal to process previously opened on chann
 #include <libssh2.h>
 
 int
-libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel, const char *signame, size_t signame_len)
+libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
+                          const char *signame,
+                          size_t signame_len)
 .fi
 .SH DESCRIPTION
 A signal can be delivered to the remote process/service.  Some servers or

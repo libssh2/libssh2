@@ -3001,9 +3001,10 @@ libssh2_channel_window_write_ex(LIBSSH2_CHANNEL *channel,
    'signal name' values will be encoded as discussed in the passage
    describing SSH_MSG_CHANNEL_REQUEST messages using "exit-signal" in
    this section.
-*/
+ */
 static int channel_signal(LIBSSH2_CHANNEL *channel,
-                          const char *signame, size_t signame_len)
+                          const char *signame,
+                          size_t signame_len)
 {
     LIBSSH2_SESSION *session = channel->session;
     unsigned char *s;
@@ -3012,14 +3013,17 @@ static int channel_signal(LIBSSH2_CHANNEL *channel,
 
     if(channel->sendsignal_state == libssh2_NB_state_idle) {
 
-        /* 20 = packet_type(1) + channel(4) + signal_len + sizeof(signal) - 1 + want_reply(1) +
-         * signame_len_len(4) */
+        /* 20 = packet_type(1) + channel(4) +
+                signal_len + sizeof(signal) - 1 + want_reply(1) +
+                signame_len_len(4) */
         channel->sendsignal_packet_len = 20 + signame_len;
 
-        s = channel->sendsignal_packet = LIBSSH2_ALLOC(session, channel->sendsignal_packet_len);
+        s = channel->sendsignal_packet =
+            LIBSSH2_ALLOC(session, channel->sendsignal_packet_len);
         if(!channel->sendsignal_packet)
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                  "Unable to allocate memory for signal request");
+                                  "Unable to allocate memory for "
+                                  "signal request");
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         _libssh2_store_u32(&s, channel->remote.id);
