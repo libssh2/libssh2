@@ -234,7 +234,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                    all other blocks to the right location in memory
                    avoiding moving a larger block of memory one byte. */
                 unsigned char first_block[MAX_BLOCKSIZE];
-                ssize_t decrypt_size;
+                size_t decrypt_size;
                 unsigned char *decrypt_buffer;
                 int blocksize = session->remote.crypt->blocksize;
 
@@ -494,7 +494,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
             /* packet length is not encrypted in encode-then-mac mode
                and we donøt need to decrypt first block */
-            int required_size = etm ? 4 : blocksize;
+            size_t required_size = etm ? 4 : blocksize;
 
             /* No payload package area allocated yet. To know the
                size of this payload, we need enough to decrypt the first
@@ -863,7 +863,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     int rc;
     const unsigned char *orgdata = data;
     size_t orgdata_len = data_len;
-    size_t crypt_offset;
+    size_t crypt_offset, etm_crypt_offset;
 
     /*
      * If the last read operation was interrupted in the middle of a key
@@ -964,10 +964,11 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     packet_length = data_len + 1 + 4;   /* 1 is for padding_length field
                                            4 for the packet_length field */
-    /* subtract 4 bytes of the packet_length field when padding AES-GCM,
-       and length field is not encrypted with etm. */
-    crypt_offset = ((encrypted && CRYPT_FLAG_R(session, PKTLEN_AAD)) || etm)
+    /* subtract 4 bytes of the packet_length field when padding AES-GCM
+       or with ETM */
+    crypt_offset = (etm || (encrypted && CRYPT_FLAG_R(session, PKTLEN_AAD)))
                    ? 4 : 0;
+    etm_crypt_offset = etm ? 4 : 0;
 
     /* at this point we have it all except the padding */
 
@@ -1019,14 +1020,13 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
            fields except the MAC field itself. This is skipped in the
            INTEGRATED_MAC case, where the crypto algorithm also does its
            own hash. */
-        if(!CRYPT_FLAG_R(session, INTEGRATED_MAC) && !etm) {
+        if(!etm && !CRYPT_FLAG_R(session, INTEGRATED_MAC)) {
             session->local.mac->hash(session, p->outbuf + packet_length,
                                      session->local.seqno, p->outbuf,
                                      packet_length, NULL, 0,
                                      &session->local.mac_abstract);
         }
 
-        /* FIXME: The if/else blocks here may possibly be merged. */
         if(etm) {
             /* Encrypt the whole packet data, one block size at a time.
                The MAC field is not encrypted. */
