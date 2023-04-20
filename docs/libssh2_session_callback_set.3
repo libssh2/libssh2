@@ -88,7 +88,8 @@ a SSH2_AGENTC_REQUEST_IDENTITIES message has been received.
 The prototype of the callback:
 
 .nf
-void identities(LIBSSH2_SESSION* session, void *buffer, const char *agent_path,
+void identities(LIBSSH2_SESSION* session, void *buffer,
+                const char *agent_path,
                 void **abstract)
 .fi
 
@@ -117,8 +118,10 @@ a SSH2_AGENTC_SIGN_REQUEST message has been received.
 The prototype of the callback:
 
 .nf
-void sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
-   const unsigned char *data, size_t data_len, void **abstract);
+void sign(LIBSSH2_SESSION *session,
+          unsigned char **sig, size_t *sig_len,
+          const unsigned char *data, size_t data_len,
+          void **abstract);
 .fi
 
 When interfacing with an ssh-agent installed on the client system, this method

@@ -1,18 +1,20 @@
-.TH libssh2_agent_sign 3 "1 Oct 2022" "libssh2 1.10.0" "libssh2 manual"
+.TH libssh2_agent_sign 3 "1 Oct 2022" "libssh2 1.11.0" "libssh2 manual"
 .SH NAME
 libssh2_agent_sign - sign data, with the help of ssh-agent
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-int libssh2_agent_sign(LIBSSH2_AGENT *agent,
-                       struct libssh2_agent_publickey *identity,
-                       unsigned char **sig,
-                       size_t *s_len,
-                       unsigned char *data,
-                       size_t d_len,
-                       const char *method,
-                       u_int method_len);
-
+int
+libssh2_agent_sign(LIBSSH2_AGENT *agent,
+                   struct libssh2_agent_publickey *identity,
+                   unsigned char **sig,
+                   size_t *s_len,
+                   unsigned char *data,
+                   size_t d_len,
+                   const char *method,
+                   u_int method_len);
+.fi
 .SH DESCRIPTION
 \fIagent\fP - ssh-agent handle as returned by
 .BR libssh2_agent_init(3)
@@ -42,7 +44,7 @@ this callback in response to a SSH2_AGENTC_SIGN_REQUEST message.
 .SH RETURN VALUE
 Returns 0 if succeeded, or a negative value for error.
 .SH AVAILABILITY
-Added in libssh2 1.2
+Added in libssh2 1.11.0
 .SH SEE ALSO
 .BR libssh2_agent_init(3)
 .BR libssh2_agent_get_identity(3)
