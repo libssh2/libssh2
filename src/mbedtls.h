@@ -65,7 +65,7 @@
 #define LIBSSH2_HMAC_SHA256     1
 #define LIBSSH2_HMAC_SHA512     1
 
-#define LIBSSH2_AES             1
+#define LIBSSH2_AES_CBC         1
 #define LIBSSH2_AES_CTR         1
 #ifdef MBEDTLS_CIPHER_BLOWFISH_CBC
 # define LIBSSH2_BLOWFISH       1

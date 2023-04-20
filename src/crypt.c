@@ -167,7 +167,7 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_ctr = {
 };
 #endif
 
-#if LIBSSH2_AES
+#if LIBSSH2_AES_CBC
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_cbc = {
     "aes128-cbc",
     "DEK-Info: AES-128-CBC",
@@ -221,7 +221,7 @@ static const LIBSSH2_CRYPT_METHOD
     &crypt_dtor,
     _libssh2_cipher_aes256
 };
-#endif /* LIBSSH2_AES */
+#endif /* LIBSSH2_AES_CBC */
 
 #if LIBSSH2_BLOWFISH
 static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_blowfish_cbc = {
@@ -326,13 +326,13 @@ static const LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
     &libssh2_crypt_method_aes256_ctr,
     &libssh2_crypt_method_aes192_ctr,
     &libssh2_crypt_method_aes128_ctr,
-#endif /* LIBSSH2_AES */
-#if LIBSSH2_AES
+#endif /* LIBSSH2_AES_CTR */
+#if LIBSSH2_AES_CBC
     &libssh2_crypt_method_aes256_cbc,
     &libssh2_crypt_method_rijndael_cbc_lysator_liu_se,  /* == aes256-cbc */
     &libssh2_crypt_method_aes192_cbc,
     &libssh2_crypt_method_aes128_cbc,
-#endif /* LIBSSH2_AES */
+#endif /* LIBSSH2_AES_CBC */
 #if LIBSSH2_BLOWFISH
     &libssh2_crypt_method_blowfish_cbc,
 #endif /* LIBSSH2_BLOWFISH */
