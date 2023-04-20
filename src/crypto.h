@@ -87,6 +87,11 @@
 #define LIBSSH2_AES_CTR 0
 #endif
 
+#ifdef LIBSSH2_NO_AES_CBC
+#undef LIBSSH2_AES_CBC
+#define LIBSSH2_AES_CBC 0
+#endif
+
 #ifdef LIBSSH2_NO_BLOWFISH
 #undef LIBSSH2_BLOWFISH
 #define LIBSSH2_BLOWFISH 0

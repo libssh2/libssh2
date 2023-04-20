@@ -153,10 +153,10 @@
 #if (OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES)) || \
     (defined(LIBSSH2_WOLFSSL) && defined(WOLFSSL_AES_COUNTER))
 # define LIBSSH2_AES_CTR 1
-# define LIBSSH2_AES 1
+# define LIBSSH2_AES_CBC 1
 #else
 # define LIBSSH2_AES_CTR 0
-# define LIBSSH2_AES 0
+# define LIBSSH2_AES_CBC 0
 #endif
 
 #if (OPENSSL_VERSION_NUMBER >= 0x01010100fL && !defined(OPENSSL_NO_AES))
