@@ -109,20 +109,17 @@ foreach(test ${TESTS})
   endif()
 endforeach()
 
-# CRYPT tests
-file(READ "test_read_crypt" TESTS)
+# CRYPT/MAC tests
+file(READ "test_read_crypt_mac.txt" TESTS)
 string(REGEX REPLACE "\\\n" ";" TESTS ${TESTS})
 foreach(test ${TESTS})
-  add_test(NAME test_read-crypt-${test} COMMAND "$<TARGET_FILE:test_read>")
-  set_tests_properties(test_read-crypt-${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
-endforeach()
-
-# MAC tests
-file(READ "test_read_mac" TESTS)
-string(REGEX REPLACE "\\\n" ";" TESTS ${TESTS})
-foreach(test ${TESTS})
-  add_test(NAME test_read-mac-${test} COMMAND "$<TARGET_FILE:test_read>")
-  set_tests_properties(test_read-mac-${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
+  set(testname test_read-${test})
+  add_test(NAME ${testname} COMMAND "$<TARGET_FILE:test_read>")
+  if(test MATCHES "mac-")
+    set_tests_properties(${testname} PROPERTIES ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
+  else()
+    set_tests_properties(${testname} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
+  endif()
 endforeach()
 
 add_custom_target(coverage
