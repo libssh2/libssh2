@@ -138,6 +138,14 @@ add_target_to_copy_dependencies(
 find_program(SH_EXECUTABLE sh)
 mark_as_advanced(SH_EXECUTABLE)
 if(SH_EXECUTABLE)
+
+  find_program(SSHD_EXECUTABLE sshd)
+  mark_as_advanced(SSHD_EXECUTABLE)
+  if(SSHD_EXECUTABLE)
+    add_test(ssh2 ${SH_EXECUTABLE} -c
+      "srcdir=${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/ssh2.sh")
+  endif()
+
   add_test(mansyntax ${SH_EXECUTABLE} -c
     "srcdir=${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
 endif()

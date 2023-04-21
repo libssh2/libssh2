@@ -2,20 +2,12 @@ SUBDIRS = ossfuzz
 
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 
-ctests = test_simple$(EXEEXT)
-TESTS = $(ctests) mansyntax.sh
-check_PROGRAMS = $(ctests)
+# Tests to run
+TESTS =
+# Tests to build
+check_PROGRAMS =
 
-TEST_EXTENSIONS = .test
-# 'TEST' in 'TEST_LOG_DRIVER' is the test extension in uppercase.
-TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
-TESTS += test_read_algos.test
-
-if SSHD
-TESTS += ssh2.sh
-check_PROGRAMS += test_ssh2
-endif
-
+# Tests using Docker
 INTEGRATION_TESTS = \
   test_aa_warmup \
   test_agent_forward_ok \
@@ -40,11 +32,33 @@ INTEGRATION_TESTS = \
   test_hostkey_hash \
   test_read
 
-# Integration tests using Docker
 if ! HOST_WINDOWS
 TESTS += $(INTEGRATION_TESTS)
 endif
 check_PROGRAMS += $(INTEGRATION_TESTS)
+
+# Raw tests
+ctests = \
+  test_simple
+
+TESTS += $(ctests)
+check_PROGRAMS += $(ctests)
+
+# TAP scripts
+TEST_EXTENSIONS = .test
+# 'TEST' in 'TEST_LOG_DRIVER' is the test extension in uppercase.
+TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
+TESTS += test_read_algos.test
+
+# Individual scripts
+if SSHD
+TESTS += ssh2.sh
+check_PROGRAMS += test_ssh2
+endif
+
+TESTS += mansyntax.sh
+
+# Internal library used by tests
 librunner_la_SOURCES = \
   runner.c runner.h \
   session_fixture.c session_fixture.h \
