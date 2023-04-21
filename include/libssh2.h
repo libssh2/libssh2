@@ -344,7 +344,7 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 #define LIBSSH2_AUTHAGENT_SIGN_FUNC(name) \
    int name(LIBSSH2_SESSION* session, \
             unsigned char *blob, unsigned int blen, \
-            unsigned char *data, unsigned int dlen, \
+            const unsigned char *data, unsigned int dlen, \
             unsigned char **signature, unsigned int *sigLen, \
             const char *agentPath, \
             void **abstract)
