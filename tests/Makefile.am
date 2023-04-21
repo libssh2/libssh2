@@ -80,8 +80,6 @@ TESTS_ENVIRONMENT += srcdir=$(top_srcdir)/tests builddir=$(top_builddir)/tests
 
 EXTRA_DIST = \
   CMakeLists.txt \
-  etc/user \
-  etc/user.pub \
   key_dsa \
   key_dsa.pub \
   key_dsa_wrong \

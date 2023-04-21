@@ -49,12 +49,6 @@ cat \
   'key_ed25519_encrypted.pub' \
   > openssh_server/authorized_keys
 
-# tests/etc
-
-rm etc/host* etc/user* || true
-
-ssh-keygen -t rsa     -b 2048 -N ''           -m PEM -C 'etc_user_rsa'           -f 'etc/user'
-
 # tests/test_*.c
 
 echo 'Add these public keys and hashes to:'

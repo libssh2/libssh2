@@ -23,8 +23,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-static const char *pubkey = "etc/user.pub";
-static const char *privkey = "etc/user";
+static const char *pubkey = "key_rsa.pub";
+static const char *privkey = "key_rsa";
 static const char *username = "username";
 static const char *password = "password";
 

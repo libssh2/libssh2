@@ -18,8 +18,8 @@ SSHD="${SSHD:-/usr/sbin/sshd}"
 srcdir="$(cd "$srcdir" || exit; pwd)"
 
 # for our test clients:
-export PRIVKEY="$srcdir/etc/user"
-export PUBKEY="$srcdir/etc/user.pub"
+export PRIVKEY="$srcdir/key_rsa"
+export PUBKEY="$srcdir/key_rsa.pub"
 
 if [ -n "$DEBUG" ]; then
   libssh2_sshd_params="-d -d"
