@@ -52,7 +52,7 @@ TESTS += test_read_algos.test
 
 # Individual scripts
 if SSHD
-TESTS += ssh2.sh
+TESTS += sshd_wrap.sh
 endif
 check_PROGRAMS += test_ssh2
 
@@ -121,4 +121,4 @@ EXTRA_DIST = \
   test_read_algos.txt \
   test_simple.c \
   test_ssh2.c \
-  ssh2.sh
+  sshd_wrap.sh

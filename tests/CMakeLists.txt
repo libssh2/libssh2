@@ -103,7 +103,7 @@ foreach(test ${TESTS})
 
   list(APPEND TEST_TARGETS ${test})
 
-  if(NOT test STREQUAL "test_ssh2")  # skip test that needs ssh2.sh to run
+  if(NOT test STREQUAL "test_ssh2")  # skip test that needs sshd_wrap.sh to run
     add_test(
       NAME ${test} COMMAND $<TARGET_FILE:${test}>
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -144,7 +144,7 @@ if(SH_EXECUTABLE)
   mark_as_advanced(SSHD_EXECUTABLE)
   if(SSHD_EXECUTABLE)
     add_test(NAME ssh2 COMMAND ${SH_EXECUTABLE} -c
-      "${CMAKE_CURRENT_SOURCE_DIR}/ssh2.sh $<TARGET_FILE:test_ssh2>")
+      "${CMAKE_CURRENT_SOURCE_DIR}/sshd_wrap.sh $<TARGET_FILE:test_ssh2>")
     set_property(TEST ssh2 APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
     set_property(TEST ssh2 APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
   endif()
