@@ -115,4 +115,7 @@ EXTRA_DIST = \
   test_read_hmac-sha1-96 \
   test_read_hmac-sha2-256 \
   test_read_hmac-sha2-512 \
-  test_read_rijndael-cbc
+  test_read_rijndael-cbc \
+  test_read_hmac-sha1-etm@openssh.com \
+  test_read_hmac-sha2-256-etm@openssh.com \
+  test_read_hmac-sha2-512-etm@openssh.com

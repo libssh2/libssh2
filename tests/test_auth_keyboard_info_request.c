@@ -310,7 +310,7 @@ int main(void)
 
     for(i = 0; i < FAILED_MALLOC_TEST_CASES_LEN; i++) {
         int tc =  i + TEST_CASES_LEN + 1;
-        int malloc_call_num = 5 + i;
+        int malloc_call_num = 3 + i;
         test_case(tc,
                   failed_malloc_test_cases[i].data,
                   failed_malloc_test_cases[i].data_len,

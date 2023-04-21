@@ -197,21 +197,81 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
         if(encrypted && !CRYPT_FLAG_L(session, INTEGRATED_MAC)) {
 
             /* Calculate MAC hash */
-            session->remote.mac->hash(session, macbuf,  /* store hash here */
-                                      session->remote.seqno,
-                                      p->init, 5,
-                                      p->payload,
-                                      session->fullpacket_payload_len,
-                                      &session->remote.mac_abstract);
+            int etm = session->remote.mac->etm;
+            size_t mac_len = session->remote.mac->mac_len;
+            if(etm) {
+                /* store hash here */
+                session->remote.mac->hash(session, macbuf,
+                                          session->remote.seqno,
+                                          p->payload, p->total_num - mac_len,
+                                          NULL, 0,
+                                          &session->remote.mac_abstract);
+            }
+            else {
+                /* store hash here */
+                session->remote.mac->hash(session, macbuf,
+                                          session->remote.seqno,
+                                          p->init, 5,
+                                          p->payload,
+                                          session->fullpacket_payload_len,
+                                          &session->remote.mac_abstract);
+            }
 
             /* Compare the calculated hash with the MAC we just read from
              * the network. The read one is at the very end of the payload
              * buffer. Note that 'payload_len' here is the packet_length
              * field which includes the padding but not the MAC.
              */
-            if(memcmp(macbuf, p->payload + session->fullpacket_payload_len,
-                       session->remote.mac->mac_len)) {
+            if(memcmp(macbuf, p->payload + p->total_num - mac_len, mac_len)) {
+                _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+                               "Failed MAC check"));
                 session->fullpacket_macstate = LIBSSH2_MAC_INVALID;
+
+            }
+            else if(etm) {
+                /* MAC was ok and we start by decrypting the first block that
+                   contains padding length since this allows us to decrypt
+                   all other blocks to the right location in memory
+                   avoiding moving a larger block of memory one byte. */
+                unsigned char first_block[MAX_BLOCKSIZE];
+                ssize_t decrypt_size;
+                unsigned char *decrypt_buffer;
+                int blocksize = session->remote.crypt->blocksize;
+
+                rc = decrypt(session, p->payload + 4,
+                             first_block, blocksize, FIRST_BLOCK);
+                if(rc) {
+                    return rc;
+                }
+
+                /* we need buffer for decrypt */
+                decrypt_size = p->total_num - mac_len - 4;
+                decrypt_buffer = LIBSSH2_ALLOC(session, decrypt_size);
+                if(!decrypt_buffer) {
+                    return LIBSSH2_ERROR_ALLOC;
+                }
+
+                /* grab padding length and copy anything else
+                   into target buffer */
+                p->padding_length = first_block[0];
+                if(blocksize > 1) {
+                    memcpy(decrypt_buffer, first_block + 1, blocksize - 1);
+                }
+
+                /* decrypt all other blocks packet */
+                if(blocksize < decrypt_size) {
+                    rc = decrypt(session, p->payload + blocksize + 4,
+                                 decrypt_buffer + blocksize - 1,
+                                 decrypt_size - blocksize, LAST_BLOCK);
+                    if(rc) {
+                        LIBSSH2_FREE(session, decrypt_buffer);
+                        return rc;
+                    }
+                }
+
+                /* replace encrypted payload with plain text payload */
+                LIBSSH2_FREE(session, p->payload);
+                p->payload = decrypt_buffer;
             }
         }
 
@@ -348,6 +408,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
     }
 
     do {
+        int etm;
         if(session->socket_state == LIBSSH2_SOCKET_DISCONNECTED) {
             return LIBSSH2_ERROR_SOCKET_DISCONNECT;
         }
@@ -360,6 +421,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             blocksize = 5;      /* not strictly true, but we can use 5 here to
                                    make the checks below work fine still */
         }
+
+        etm = encrypted && session->local.mac ? session->local.mac->etm : 0;
 
         /* read/use a whole big chunk into a temporary area stored in
            the LIBSSH2_SESSION struct. We will decrypt data from that
@@ -429,45 +492,55 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                                  (5 bytes) packet length and padding length
                                  fields */
 
+            /* packet length is not encrypted in encode-then-mac mode
+               and we donøt need to decrypt first block */
+            ssize_t required_size = etm ? 4 : blocksize;
+
             /* No payload package area allocated yet. To know the
-               size of this payload, we need to decrypt the first
+               size of this payload, we need enough to decrypt the first
                blocksize data. */
 
-            if(numbytes < blocksize) {
+            if(numbytes < required_size) {
                 /* we can't act on anything less than blocksize, but this
                    check is only done for the initial block since once we have
                    got the start of a block we can in fact deal with fractions
-                 */
+                */
                 session->socket_block_directions |=
                     LIBSSH2_SESSION_BLOCK_INBOUND;
                 return LIBSSH2_ERROR_EAGAIN;
             }
 
-            if(encrypted) {
-                /* first decrypted block */
-                rc = decrypt(session, &p->buf[p->readidx],
-                             block, blocksize, FIRST_BLOCK);
-                if(rc != LIBSSH2_ERROR_NONE) {
-                    return rc;
-                }
-                /* Save the first 5 bytes of the decrypted package, to be
-                   used in the hash calculation later down.
-                   This is ignored in the INTEGRATED_MAC case. */
-                memcpy(p->init, block, 5);
+            if(etm) {
+                p->packet_length = _libssh2_ntohu32(&p->buf[p->readidx]);
             }
             else {
-                /* the data is plain, just copy it verbatim to
-                   the working block buffer */
-                memcpy(block, &p->buf[p->readidx], blocksize);
+                if(encrypted) {
+                    /* first decrypted block */
+                    rc = decrypt(session, &p->buf[p->readidx],
+                                 block, blocksize, FIRST_BLOCK);
+                    if(rc != LIBSSH2_ERROR_NONE) {
+                        return rc;
+                    }
+                    /* Save the first 5 bytes of the decrypted package, to be
+                       used in the hash calculation later down.
+                       This is ignored in the INTEGRATED_MAC case. */
+                    memcpy(p->init, block, 5);
+                }
+                else {
+                    /* the data is plain, just copy it verbatim to
+                       the working block buffer */
+                    memcpy(block, &p->buf[p->readidx], blocksize);
+                }
+
+                /* advance the read pointer */
+                p->readidx += blocksize;
+
+                /* we now have the initial blocksize bytes decrypted,
+                 * and we can extract packet and padding length from it
+                 */
+                p->packet_length = _libssh2_ntohu32(block);
             }
 
-            /* advance the read pointer */
-            p->readidx += blocksize;
-
-            /* we now have the initial blocksize bytes decrypted,
-             * and we can extract packet and padding length from it
-             */
-            p->packet_length = _libssh2_ntohu32(block);
             if(p->packet_length < 1) {
                 return LIBSSH2_ERROR_DECRYPT;
             }
@@ -475,19 +548,27 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
 
-            /* padding_length has not been authenticated yet, but it won't
-               actually be used (except for the sanity check immediately
-               following) until after the entire packet is authenticated,
-               so this is safe. */
-            p->padding_length = block[4];
-            if(p->padding_length > p->packet_length - 1) {
-                return LIBSSH2_ERROR_DECRYPT;
+            if(etm) {
+                /* we collect entire undecrypted packet including the
+                   packet length field that we run MAC over */
+                total_num = 4 + p->packet_length +
+                            session->remote.mac->mac_len;
             }
+            else {
+                /* padding_length has not been authenticated yet, but it won't
+                   actually be used (except for the sanity check immediately
+                   following) until after the entire packet is authenticated,
+                   so this is safe. */
+                p->padding_length = block[4];
+                if(p->padding_length > p->packet_length - 1) {
+                    return LIBSSH2_ERROR_DECRYPT;
+                }
 
-            /* total_num is the number of bytes following the initial
-               (5 bytes) packet length and padding length fields */
-            total_num = p->packet_length - 1 +
-                        (encrypted ? session->remote.mac->mac_len : 0);
+                /* total_num is the number of bytes following the initial
+                   (5 bytes) packet length and padding length fields */
+                total_num = p->packet_length - 1 +
+                            (encrypted ? session->remote.mac->mac_len : 0);
+            }
 
             /* RFC4253 section 6.1 Maximum Packet Length says:
              *
@@ -511,13 +592,17 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             /* init write pointer to start of payload buffer */
             p->wptr = p->payload;
 
-            if(blocksize > 5) {
+            if(!etm && blocksize > 5) {
                 /* copy the data from index 5 to the end of
                    the blocksize from the temporary buffer to
                    the start of the decrypted buffer */
                 if(blocksize - 5 <= (int) total_num) {
                     memcpy(p->wptr, &block[5], blocksize - 5);
                     p->wptr += blocksize - 5;       /* advance write pointer */
+                    if(etm) {
+                        /* advance past unencrypted packet length */
+                        p->wptr += 4;
+                    }
                 }
                 else {
                     if(p->payload)
@@ -531,7 +616,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             p->data_num = p->wptr - p->payload;
 
             /* we already dealt with a blocksize worth of data */
-            numbytes -= blocksize;
+            if(!etm)
+                numbytes -= blocksize;
         }
 
         /* how much there is left to add to the current payload
@@ -544,7 +630,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             numbytes = remainpack;
         }
 
-        if(encrypted) {
+        if(encrypted && !etm) {
             /* At the end of the incoming stream, there is a MAC,
                and we don't want to decrypt that since we need it
                "raw". We MUST however decrypt the padding data
@@ -772,11 +858,12 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     struct transportpacket *p = &session->packet;
     int encrypted;
     int compressed;
+    int etm;
     ssize_t ret;
     int rc;
     const unsigned char *orgdata = data;
     size_t orgdata_len = data_len;
-    size_t crypt_offset;
+    size_t crypt_offset, etm_crypt_offset;
 
     /*
      * If the last read operation was interrupted in the middle of a key
@@ -813,6 +900,8 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         return rc;
 
     encrypted = (session->state & LIBSSH2_STATE_NEWKEYS) ? 1 : 0;
+
+    etm = encrypted && session->local.mac ? session->local.mac->etm : 0;
 
     compressed = session->local.comp &&
                  session->local.comp->compress &&
@@ -875,8 +964,11 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
 
     packet_length = data_len + 1 + 4;   /* 1 is for padding_length field
                                            4 for the packet_length field */
-    /* subtract 4 bytes of the packet_length field when padding AES-GCM */
-    crypt_offset = (encrypted && CRYPT_FLAG_R(session, PKTLEN_AAD)) ? 4 : 0;
+    /* subtract 4 bytes of the packet_length field when padding AES-GCM
+       or with ETM */
+    crypt_offset = (etm || (encrypted && CRYPT_FLAG_R(session, PKTLEN_AAD)))
+                   ? 4 : 0;
+    etm_crypt_offset = etm ? 4 : 0;
 
     /* at this point we have it all except the padding */
 
@@ -928,7 +1020,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
            fields except the MAC field itself. This is skipped in the
            INTEGRATED_MAC case, where the crypto algorithm also does its
            own hash. */
-        if(!CRYPT_FLAG_R(session, INTEGRATED_MAC)) {
+        if(!etm && !CRYPT_FLAG_R(session, INTEGRATED_MAC)) {
             session->local.mac->hash(session, p->outbuf + packet_length,
                                      session->local.seqno, p->outbuf,
                                      packet_length, NULL, 0,
@@ -940,23 +1032,23 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         /* Some crypto back-ends could handle a single crypt() call for
            encryption, but (presumably) others cannot, so break it up
            into blocksize-sized chunks to satisfy them all. */
-        for(i = 0; i < packet_length;
+        for(i = etm_crypt_offset; i < packet_length;
             i += session->local.crypt->blocksize) {
             unsigned char *ptr = &p->outbuf[i];
             size_t bsize = LIBSSH2_MIN(session->local.crypt->blocksize,
                                        (int)(packet_length-i));
-            /* The INTEGRATED_MAC case always has an extra call below,
-               so it will never be LAST_BLOCK up here. */
+            /* The INTEGRATED_MAC case always has an extra call below, so it
+               will never be LAST_BLOCK up here. */
             int firstlast = i == 0 ? FIRST_BLOCK :
                 (!CRYPT_FLAG_L(session, INTEGRATED_MAC)
                  && (i == packet_length - session->local.crypt->blocksize)
                    ? LAST_BLOCK: MIDDLE_BLOCK);
-            /* In the AAD case, the last block would be only 4 bytes
-               because everything is offset by 4 since the initial
-               packet_length isn't encrypted. In this case, combine that
-               last short packet with the previous one since AES-GCM
-               crypt() assumes that the entire MAC is available in that
-               packet so it can set that to the authentication tag. */
+            /* In the AAD case, the last block would be only 4 bytes because
+               everything is offset by 4 since the initial packet_length isn't
+               encrypted. In this case, combine that last short packet with the
+               previous one since AES-GCM crypt() assumes that the entire MAC
+               is available in that packet so it can set that to the
+               authentication tag. */
             if(!CRYPT_FLAG_L(session, INTEGRATED_MAC))
                 if(i > packet_length - 2*bsize) {
                     /* increase the final block size */
@@ -964,24 +1056,37 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                     /* advance the loop counter by the extra amount */
                     i += bsize - session->local.crypt->blocksize;
                 }
+            _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
+                           "crypting bytes %d-%d", i,
+                           i + session->local.crypt->blocksize - 1));
             if(session->local.crypt->crypt(session, ptr,
                                            bsize,
                                            &session->local.crypt_abstract,
                                            firstlast))
                 return LIBSSH2_ERROR_ENCRYPT;     /* encryption failure */
         }
-        /* Call crypt() one last time so it can be filled in with
-           the MAC */
+        /* Call crypt() one last time so it can be filled in with the MAC */
         if(CRYPT_FLAG_L(session, INTEGRATED_MAC)) {
             int authlen = session->local.mac->mac_len;
             assert((size_t)total_length <=
                    packet_length + session->local.crypt->blocksize);
-            if(session->local.crypt->crypt(session,
-                                           &p->outbuf[packet_length],
+            if(session->local.crypt->crypt(session, &p->outbuf[packet_length],
                                            authlen,
                                            &session->local.crypt_abstract,
                                            LAST_BLOCK))
                 return LIBSSH2_ERROR_ENCRYPT;     /* encryption failure */
+        }
+
+        if(etm) {
+            /* Calculate MAC hash. Put the output at index packet_length,
+               since that size includes the whole packet. The MAC is
+               calculated on the entire packet (length plain the rest
+               encrypted), including all fields except the MAC field
+               itself. */
+            session->local.mac->hash(session, p->outbuf + packet_length,
+                                     session->local.seqno, p->outbuf,
+                                     packet_length, NULL, 0,
+                                     &session->local.mac_abstract);
         }
     }
 
