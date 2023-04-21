@@ -10,7 +10,7 @@ static const char *KEY_FILE_PUBLIC = "key_rsa.pub";
 int test(LIBSSH2_SESSION *session)
 {
     int rc;
-    long xfer_bytes = 0;
+    unsigned long xfer_bytes = 0;
     LIBSSH2_CHANNEL *channel;
 
     /* Size and number of blocks to transfer
@@ -20,8 +20,8 @@ int test(LIBSSH2_SESSION *session)
      * probably a reasonable compromise. The block size is an odd number to
      * increase the chance that various internal buffer and block boundaries
      * are overlapped. */
-    const long xfer_bs = 997;
-    long xfer_count = 140080;
+    const unsigned long xfer_bs = 997;
+    unsigned long xfer_count = 140080;
 
     char remote_command[256];
     const char *env;
@@ -59,13 +59,13 @@ int test(LIBSSH2_SESSION *session)
 
     env = getenv("FIXTURE_XFER_COUNT");
     if(env) {
-        xfer_count = strtol(env, NULL, 0);
-        fprintf(stderr, "Custom xfer_count: %ld\n", xfer_count);
+        xfer_count = (unsigned long)strtol(env, NULL, 0);
+        fprintf(stderr, "Custom xfer_count: %lu\n", xfer_count);
     }
 
     /* command to transfer the desired amount of data */
     snprintf(remote_command, sizeof(remote_command),
-             "dd if=/dev/zero bs=%ld count=%ld status=none",
+             "dd if=/dev/zero bs=%lu count=%lu status=none",
              xfer_bs, xfer_count);
 
     /* Send the command to transfer data */
@@ -81,7 +81,7 @@ int test(LIBSSH2_SESSION *session)
         if(err < 0)
             fprintf(stderr, "Unable to read response: %d\n", (int)err);
         else {
-            int i;
+            unsigned int i;
             for(i = 0; i < err; ++i) {
                 if(buf[i]) {
                     fprintf(stderr, "Bad data received\n");
@@ -106,7 +106,7 @@ shutdown:
 
     /* Test check */
     if(xfer_bytes != xfer_count * xfer_bs) {
-        fprintf(stderr, "Not enough bytes received: %ld not %ld\n",
+        fprintf(stderr, "Not enough bytes received: %lu not %lu\n",
                 xfer_bytes, xfer_count * xfer_bs);
         return 1;  /* error */
     }
