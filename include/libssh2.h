@@ -1357,7 +1357,7 @@ libssh2_agent_sign(LIBSSH2_AGENT *agent,
                    struct libssh2_agent_publickey *identity,
                    unsigned char **sig,
                    size_t *s_len,
-                   unsigned char *data,
+                   const unsigned char *data,
                    size_t d_len,
                    const char *method,
                    unsigned int method_len);
