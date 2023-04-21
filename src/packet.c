@@ -466,8 +466,8 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
  * Open a connection to authentication agent
  */
 static inline int
-packet_authagent_open(LIBSSH2_SESSION * session, unsigned char *data,
-                      size_t datalen,
+packet_authagent_open(LIBSSH2_SESSION * session,
+                      unsigned char *data, size_t datalen,
                       packet_authagent_state_t *authagent_state)
 {
     int failure_code = SSH_OPEN_CONNECT_FAILED;
