@@ -122,5 +122,4 @@ EXTRA_DIST = \
   test_simple.c \
   test_ssh2.c \
   ssh2.sh \
-  sshd_fixture.sh.in \
   sshdwrap
