@@ -7,10 +7,9 @@ if [[ "$(uname)" = *'_NT'* ]]; then
   exit 0
 fi
 
-d="$(dirname "$0")"
-
 testbin='./test_read'
 
+d="$(dirname "$0")"
 algos="$(cat "${d}/test_read_algos.txt")"
 
 count=1
