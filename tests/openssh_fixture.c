@@ -160,7 +160,7 @@ static int build_openssh_server_docker_image(void)
         char buildcmd[1024];
         const char *container_image_name = openssh_server_image();
         if(container_image_name) {
-            int ret = run_command(NULL, "docker pull --quiet %s",
+            int ret = run_command(NULL, "docker pull %s",
                                   container_image_name);
             if(ret == 0) {
                 ret = run_command(NULL, "docker tag %s libssh2/openssh_server",
