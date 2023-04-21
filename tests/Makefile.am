@@ -9,7 +9,7 @@ check_PROGRAMS = $(ctests)
 TEST_EXTENSIONS = .test
 # 'TEST' in 'TEST_LOG_DRIVER' is the test extension in uppercase.
 TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
-TESTS += test_read_crypt_mac.test
+TESTS += test_read_algo.test
 
 if SSHD
 TESTS += ssh2.sh
@@ -103,8 +103,8 @@ EXTRA_DIST = \
   openssh_server/ssh_host_ecdsa_key \
   openssh_server/ssh_host_ed25519_key \
   openssh_server/ssh_host_rsa_key \
-  test_read_crypt_mac.test \
-  test_read_crypt_mac.txt \
+  test_read_algo.test \
+  test_read_algo.txt \
   test_simple.c \
   test_ssh2.c \
   ssh2.sh \

@@ -109,8 +109,8 @@ foreach(test ${TESTS})
   endif()
 endforeach()
 
-# CRYPT/MAC tests
-file(READ "test_read_crypt_mac.txt" TESTS)
+# CRYPT/MAC algo tests
+file(READ "test_read_algo.txt" TESTS)
 string(REGEX REPLACE "\\\n" ";" TESTS ${TESTS})
 foreach(test ${TESTS})
   set(testname test_read-${test})
