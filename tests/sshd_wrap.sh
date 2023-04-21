@@ -17,6 +17,7 @@ SSHD="${SSHD:-/usr/sbin/sshd}"
 
 srcdir="$(cd "$srcdir" || exit; pwd)"
 
+# for our test clients:
 export PRIVKEY="$srcdir/etc/user"
 export PUBKEY="$srcdir/etc/user.pub"
 
@@ -29,7 +30,7 @@ chmod go-rwx "$srcdir"/etc/host*
 "$SSHD" -f /dev/null -h "$srcdir/etc/host" \
   -o 'Port 4711' \
   -o 'Protocol 2' \
-  -o "AuthorizedKeysFile $srcdir/etc/user.pub" \
+  -o "AuthorizedKeysFile ${PUBKEY}" \
   -o 'StrictModes no' \
   -D \
   $libssh2_sshd_params &
