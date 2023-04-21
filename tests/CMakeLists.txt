@@ -101,8 +101,9 @@ foreach(test ${TESTS})
     target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES})
   endif()
 
+  list(APPEND TEST_TARGETS ${test})
+
   if(NOT test STREQUAL "test_ssh2")  # skip test that needs ssh2.sh to run
-    list(APPEND TEST_TARGETS ${test})
     add_test(
       NAME ${test} COMMAND $<TARGET_FILE:${test}>
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
