@@ -82,7 +82,6 @@ EXTRA_DIST = \
   CMakeLists.txt \
   etc/host \
   etc/host.pub \
-  etc/sshd_config \
   etc/user \
   etc/user.pub \
   key_dsa \
