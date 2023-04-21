@@ -472,12 +472,12 @@ packet_authagent_open(LIBSSH2_SESSION * session, unsigned char *data,
 {
     int failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
-    unsigned long packet_len = 17 + (sizeof(X11FwdUnAvil) - 1);
+    size_t packet_len = 17 + (sizeof(X11FwdUnAvil) - 1);
     unsigned char *p;
     LIBSSH2_CHANNEL *channel = authagent_state->channel;
     int rc;
 
-    (void) datalen;
+    (void)datalen;
 
     if(authagent_state->state == libssh2_NB_state_idle) {
         unsigned char *s = data + (sizeof("auth-agent@openssh.org") - 1) + 5;
