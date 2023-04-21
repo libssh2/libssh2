@@ -121,5 +121,4 @@ EXTRA_DIST = \
   test_read_algos.txt \
   test_simple.c \
   test_ssh2.c \
-  ssh2.sh \
-  sshdwrap
+  ssh2.sh
