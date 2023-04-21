@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # Written by Simon Josefsson
 
@@ -12,6 +12,8 @@ else
 fi
 srcdir="${srcdir:-$PWD}"
 SSHD="${SSHD:-/usr/sbin/sshd}"
+
+[[ "$(uname)" = *'_NT'* ]] && SSHD="$(cygpath -u "${SSHD}")"
 
 srcdir="$(cd "$srcdir" || exit; pwd)"
 
