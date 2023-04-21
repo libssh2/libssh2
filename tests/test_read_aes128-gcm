@@ -1,0 +1,2 @@
+#!/bin/sh
+FIXTURE_TEST_CRYPT=aes128-gcm@openssh.com exec ./test_read

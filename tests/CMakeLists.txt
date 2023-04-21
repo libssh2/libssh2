@@ -130,14 +130,17 @@ foreach(test
   3des-cbc
   aes128-cbc
   aes128-ctr
+  aes128-gcm@openssh.com
   aes192-cbc
   aes192-ctr
   aes256-cbc
   aes256-ctr
+  aes256-gcm@openssh.com
   rijndael-cbc@lysator.liu.se
 )
-  add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
-  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
+  string(REGEX REPLACE "@.*" "" testfn "${test}")
+  add_test(NAME test_${testfn} COMMAND "$<TARGET_FILE:test_read>")
+  set_tests_properties(test_${testfn} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
 endforeach()
 
 add_custom_target(coverage
