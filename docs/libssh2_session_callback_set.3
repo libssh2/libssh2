@@ -118,9 +118,11 @@ a SSH2_AGENTC_SIGN_REQUEST message has been received.
 The prototype of the callback:
 
 .nf
-void sign(LIBSSH2_SESSION *session,
-          unsigned char **sig, size_t *sig_len,
-          const unsigned char *data, size_t data_len,
+void sign(LIBSSH2_SESSION* session,
+          unsigned char *blob, unsigned int blen,
+          unsigned char *data, const unsigned int dlen,
+          unsigned char **sig, unsigned int *sig_len,
+          const char *agent_path,
           void **abstract);
 .fi
 
