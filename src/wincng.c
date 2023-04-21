@@ -2411,7 +2411,7 @@ int
 _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
                      _libssh2_bn *g, _libssh2_bn *p, int group_order)
 {
-    const int hasAlgDHwithKDF = 1; /* _libssh2_wincng.hasAlgDHwithKDF; */
+    const int hasAlgDHwithKDF = _libssh2_wincng.hasAlgDHwithKDF;
 
     fprintf(stderr, "_libssh2_dh_key_pair()|%d|%d|\n",
             group_order, _libssh2_wincng.hasAlgDHwithKDF);
