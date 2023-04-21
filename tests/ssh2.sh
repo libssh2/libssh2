@@ -8,7 +8,7 @@
 if [ -n "$1" ]; then
   cmd="$*"
 else
-  cmd="${cmd:-./test_ssh2${EXEEXT}}"
+  cmd="${cmd:-./test-ssh}"
 fi
 srcdir="${srcdir:-$PWD}"
 SSHD="${SSHD:-/usr/sbin/sshd}"
@@ -39,7 +39,7 @@ trap 'kill "${sshdpid}"; echo signal killing sshd; exit 1;' EXIT
 
 sleep 3
 
-: "Invoking $cmd..."
+: "Invoking '$cmd'..."
 eval "$cmd"
 ec=$?
 : "Self-test exit code $ec"

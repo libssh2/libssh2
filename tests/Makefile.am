@@ -75,7 +75,7 @@ test_simple_LDFLAGS = -static
 # This must be last in the list so it resolves symbols in previous libraries
 LDADD += ../src/libssh2.la
 
-TESTS_ENVIRONMENT = SSHD=$(SSHD) EXEEXT=$(EXEEXT)
+TESTS_ENVIRONMENT = SSHD=$(SSHD) cmd=./test_ssh2$(EXEEXT)
 TESTS_ENVIRONMENT += srcdir=$(top_srcdir)/tests builddir=$(top_builddir)/tests
 
 EXTRA_DIST = \

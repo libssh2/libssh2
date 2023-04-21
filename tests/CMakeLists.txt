@@ -142,10 +142,13 @@ if(SH_EXECUTABLE)
   find_program(SSHD_EXECUTABLE sshd)
   mark_as_advanced(SSHD_EXECUTABLE)
   if(SSHD_EXECUTABLE)
-    add_test(ssh2 ${SH_EXECUTABLE} -c
-      "srcdir=${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/ssh2.sh")
+    add_test(NAME ssh2 COMMAND ${SH_EXECUTABLE} -c
+      "${CMAKE_CURRENT_SOURCE_DIR}/ssh2.sh $<TARGET_FILE:test_ssh2>")
+    set_property(TEST ssh2 APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
+    set_property(TEST ssh2 APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
   endif()
 
-  add_test(mansyntax ${SH_EXECUTABLE} -c
-    "srcdir=${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
+  add_test(NAME mansyntax COMMAND ${SH_EXECUTABLE} -c
+    "${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
+  set_property(TEST mansyntax APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
