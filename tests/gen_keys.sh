@@ -53,7 +53,6 @@ cat \
 
 rm etc/host* etc/user* || true
 
-ssh-keygen -t rsa     -b 2048 -N ''           -m PEM -C 'etc_host_rsa'           -f 'etc/host'
 ssh-keygen -t rsa     -b 2048 -N ''           -m PEM -C 'etc_user_rsa'           -f 'etc/user'
 
 # tests/test_*.c

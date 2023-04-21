@@ -25,9 +25,9 @@ if [ -n "$DEBUG" ]; then
   libssh2_sshd_params="-d -d"
 fi
 
-chmod go-rwx "$srcdir"/etc/host*
+chmod go-rwx "$srcdir"/openssh_server/ssh_host*
 # shellcheck disable=SC2086
-"$SSHD" -f /dev/null -h "$srcdir/etc/host" \
+"$SSHD" -f /dev/null -h "$srcdir/openssh_server/ssh_host_rsa_key" \
   -o 'Port 4711' \
   -o 'Protocol 2' \
   -o "AuthorizedKeysFile ${PUBKEY}" \
