@@ -7,27 +7,24 @@ static const char *USERNAME = "libssh2";
 static const char *KEY_FILE_PRIVATE = "key_rsa";
 static const char *KEY_FILE_PUBLIC = "key_rsa.pub";
 
-/* Size and number of blocks to transfer
- * This needs to be large to increase the chance of timing effects causing
- * different code paths to be hit in the unframing code, but not so long that
- * the integration tests take too long. 5 seconds of run time is probably a
- * reasonable compromise. The block size is an odd number to increase the
- * chance that various internal buffer and block boundaries are overlapped. */
-#define XFER_BS 997
-#define XFER_COUNT 140080
-
-#define STRINGIFY(x) STRINGIFY2(x)
-#define STRINGIFY2(x) #x
-
-/* command to transfer the desired amount of data */
-#define REMOTE_COMMAND "dd if=/dev/zero bs=" STRINGIFY(XFER_BS) \
-                       " count=" STRINGIFY(XFER_COUNT) " status=none"
-
 int test(LIBSSH2_SESSION *session)
 {
     int rc;
     long xfer_bytes = 0;
     LIBSSH2_CHANNEL *channel;
+
+    /* Size and number of blocks to transfer
+     * This needs to be large to increase the chance of timing effects causing
+     * different code paths to be hit in the unframing code, but not so long
+     * that the integration tests take too long. 5 seconds of run time is
+     * probably a reasonable compromise. The block size is an odd number to
+     * increase the chance that various internal buffer and block boundaries
+     * are overlapped. */
+    const long xfer_bs = 997;
+    long xfer_count = 140080;
+
+    char remote_command[256];
+    const char *env;
 
     const char *userauth_list =
         libssh2_userauth_list(session, USERNAME,
@@ -60,8 +57,19 @@ int test(LIBSSH2_SESSION *session)
         goto shutdown;
     }
 
+    env = getenv("FIXTURE_XFER_COUNT");
+    if(env) {
+        xfer_count = strtol(env, NULL, 0);
+        fprintf(stderr, "Custom xfer_count: %ld\n", xfer_count);
+    }
+
+    /* command to transfer the desired amount of data */
+    snprintf(remote_command, sizeof(remote_command),
+             "dd if=/dev/zero bs=%ld count=%ld status=none",
+             xfer_bs, xfer_count);
+
     /* Send the command to transfer data */
-    if(libssh2_channel_exec(channel, REMOTE_COMMAND)) {
+    if(libssh2_channel_exec(channel, remote_command)) {
         fprintf(stderr, "Unable to request command on channel\n");
         goto shutdown;
     }
@@ -97,9 +105,9 @@ int test(LIBSSH2_SESSION *session)
 shutdown:
 
     /* Test check */
-    if(xfer_bytes != XFER_COUNT * XFER_BS) {
+    if(xfer_bytes != xfer_count * xfer_bs) {
         fprintf(stderr, "Not enough bytes received: %ld not %ld\n",
-                xfer_bytes, (long)XFER_COUNT * XFER_BS);
+                xfer_bytes, xfer_count * xfer_bs);
         return 1;  /* error */
     }
     return 0;
