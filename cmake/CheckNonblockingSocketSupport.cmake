@@ -1,6 +1,6 @@
 include(CheckCSourceCompiles)
 
-# check_nonblocking_socket_support()
+# - check_nonblocking_socket_support()
 #
 # Check for how to set a socket to non-blocking state. There seems to exist
 # four known different ways, with the one used almost everywhere being POSIX
