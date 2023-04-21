@@ -334,20 +334,20 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
               const char *shost, int sport, void **abstract)
 
 #define LIBSSH2_AUTHAGENT_FUNC(name) \
-   void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
-             void **abstract)
+    void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
+              void **abstract)
 
 #define LIBSSH2_ADD_IDENTITIES_FUNC(name) \
-   void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
-             void **abstract)
+    void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
+              void **abstract)
 
 #define LIBSSH2_AUTHAGENT_SIGN_FUNC(name) \
-   int name(LIBSSH2_SESSION* session, \
-            unsigned char *blob, unsigned int blen, \
-            const unsigned char *data, unsigned int dlen, \
-            unsigned char **signature, unsigned int *sigLen, \
-            const char *agentPath, \
-            void **abstract)
+    int name(LIBSSH2_SESSION* session, \
+             unsigned char *blob, unsigned int blen, \
+             const unsigned char *data, unsigned int dlen, \
+             unsigned char **signature, unsigned int *sigLen, \
+             const char *agentPath, \
+             void **abstract)
 
 #define LIBSSH2_CHANNEL_CLOSE_FUNC(name) \
     void name(LIBSSH2_SESSION *session, void **session_abstract, \
