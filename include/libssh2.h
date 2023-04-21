@@ -338,8 +338,8 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
               void **abstract)
 
 #define LIBSSH2_ADD_IDENTITIES_FUNC(name) \
-   void name(LIBSSH2_SESSION *session, void *buffer, \
-             const char *agent_path, void **abstract)
+    void name(LIBSSH2_SESSION *session, void *buffer, \
+              const char *agent_path, void **abstract)
 
 #define LIBSSH2_AUTHAGENT_SIGN_FUNC(name) \
     int name(LIBSSH2_SESSION* session, \
