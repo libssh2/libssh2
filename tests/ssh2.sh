@@ -24,7 +24,6 @@ chmod go-rwx "$srcdir"/etc/host*
   -o 'Port 4711' \
   -o 'Protocol 2' \
   -o "AuthorizedKeysFile $srcdir/etc/user.pub" \
-  -o 'UsePrivilegeSeparation no' \
   -o 'StrictModes no' \
   -D \
   $libssh2_sshd_params &
