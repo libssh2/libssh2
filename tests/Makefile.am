@@ -53,8 +53,8 @@ TESTS += test_read_algos.test
 # Individual scripts
 if SSHD
 TESTS += ssh2.sh
-check_PROGRAMS += test_ssh2
 endif
+check_PROGRAMS += test_ssh2
 
 TESTS += mansyntax.sh
 
