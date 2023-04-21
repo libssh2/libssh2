@@ -9,7 +9,7 @@ check_PROGRAMS = $(ctests)
 TEST_EXTENSIONS = .test
 # 'TEST' in 'TEST_LOG_DRIVER' is the test extension in uppercase.
 TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
-TESTS += test_read.test
+TESTS += test_read_crypt_mac.test
 
 if SSHD
 TESTS += ssh2.sh
@@ -41,8 +41,9 @@ INTEGRATION_TESTS = \
   test_read
 
 # Integration tests using Docker
-# Enable this once the tests are working
-#TESTS += $(INTEGRATION_TESTS)
+if ! HOST_WINDOWS
+TESTS += $(INTEGRATION_TESTS)
+endif
 check_PROGRAMS += $(INTEGRATION_TESTS)
 librunner_la_SOURCES = \
   runner.c runner.h \
@@ -102,7 +103,7 @@ EXTRA_DIST = \
   openssh_server/ssh_host_ecdsa_key \
   openssh_server/ssh_host_ed25519_key \
   openssh_server/ssh_host_rsa_key \
-  test_read.test \
+  test_read_crypt_mac.test \
   test_read_crypt \
   test_read_mac \
   test_simple.c \
