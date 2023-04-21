@@ -1360,7 +1360,7 @@ libssh2_agent_sign(LIBSSH2_AGENT *agent,
                    unsigned char *data,
                    size_t d_len,
                    const char *method,
-                   u_int method_len);
+                   unsigned int method_len);
 
 /*
  * libssh2_agent_disconnect()
