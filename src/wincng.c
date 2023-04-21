@@ -2666,9 +2666,11 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
         status = BCryptDeriveKey(agreement, BCRYPT_KDF_RAW_SECRET, NULL, NULL,
                                  0, &secret_len_bytes, 0);
         if(!BCRYPT_SUCCESS(status)) {
+            #if 0
             if(status == STATUS_NOT_SUPPORTED) {
                 _libssh2_wincng.hasAlgDHwithKDF = -1;
             }
+            #endif
             goto out;
         }
 
@@ -2684,9 +2686,11 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                                  secret->bignum, secret_len_bytes,
                                  &secret_len_bytes, 0);
         if(!BCRYPT_SUCCESS(status)) {
+            #if 0
             if(status == STATUS_NOT_SUPPORTED) {
                 _libssh2_wincng.hasAlgDHwithKDF = -1;
             }
+            #endif
             goto out;
         }
 
