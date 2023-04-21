@@ -16,17 +16,24 @@
 #include <arpa/inet.h>
 #endif
 
-#include <sys/types.h>
-#include <fcntl.h>
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 
-static const char *pubkey = "etc/user.pub";
-static const char *privkey = "etc/user";
+static const char *hostname = "127.0.0.1";
+static const unsigned short port_number = 4711;
+static const char *pubkey = "key_rsa.pub";
+static const char *privkey = "key_rsa";
 static const char *username = "username";
 static const char *password = "password";
+
+static void portable_sleep(unsigned int seconds)
+{
+#ifdef WIN32
+    Sleep(seconds);
+#else
+    sleep(seconds);
+#endif
+}
 
 int main(int argc, char *argv[])
 {
@@ -39,6 +46,7 @@ int main(int argc, char *argv[])
     int rc;
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
+    int counter;
 
 #ifdef WIN32
     WSADATA wsadata;
@@ -62,7 +70,11 @@ int main(int argc, char *argv[])
     if(getenv("PUBKEY"))
         pubkey = getenv("PUBKEY");
 
-    hostaddr = htonl(0x7F000001);
+    hostaddr = inet_addr(hostname);
+    if(hostaddr == (uint32_t)(-1)) {
+        fprintf(stderr, "Failed to convert %s host address\n", hostname);
+        return 1;
+    }
 
     rc = libssh2_init(0);
     if(rc) {
@@ -78,14 +90,25 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-#ifndef WIN32
-    fcntl(sock, F_SETFL, 0);
-#endif
     sin.sin_family = AF_INET;
-    sin.sin_port = htons(4711);
+    sin.sin_port = htons(port_number);
     sin.sin_addr.s_addr = hostaddr;
-    if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
-        fprintf(stderr, "failed to connect!\n");
+
+    for(counter = 0; counter < 3; ++counter) {
+        if(connect(sock, (struct sockaddr*)(&sin),
+                   sizeof(struct sockaddr_in))) {
+            fprintf(stderr,
+                    "Connection to %s:%d attempt #%d failed: retrying...\n",
+                    hostname, port_number, counter);
+            portable_sleep(1 + 2*counter);
+        }
+        else {
+            break;
+        }
+    }
+    if(sock == LIBSSH2_INVALID_SOCKET) {
+        fprintf(stderr, "Failed to connect to %s:%d\n",
+                hostname, port_number);
         goto shutdown;
     }
 
@@ -97,6 +120,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Could not initialize SSH session!\n");
         goto shutdown;
     }
+
+    libssh2_session_set_blocking(session, 1);
 
     rc = libssh2_session_handshake(session, sock);
     if(rc) {

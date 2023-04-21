@@ -392,9 +392,9 @@ int test_auth_password(LIBSSH2_SESSION *session, int flags,
 
 static int read_file(const char *path, char **out_buffer, size_t *out_len)
 {
-    FILE *fp = NULL;
-    char *buffer = NULL;
-    size_t len = 0;
+    FILE *fp;
+    char *buffer;
+    size_t len;
 
     if(!out_buffer || !out_len || !path) {
         fprintf(stderr, "invalid params.\n");
@@ -444,10 +444,14 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
                      const char *fn_priv)
 {
     int rc;
+    const char *userauth_list;
 
-    const char *userauth_list =
-        libssh2_userauth_list(session, username,
-                              (unsigned int)strlen(username));
+    /* Ignore our hard-wired Dockerfile user when not running under Docker */
+    if(!openssh_fixture_have_docker() && strcmp(username, "libssh2") == 0)
+        username = getenv("USER");
+
+    userauth_list = libssh2_userauth_list(session, username,
+                                          (unsigned int)strlen(username));
     if(!userauth_list) {
         print_last_session_error("libssh2_userauth_list");
         return 1;

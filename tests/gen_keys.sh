@@ -44,17 +44,10 @@ cat \
   'key_rsa.pub' \
   'key_rsa_encrypted.pub' \
   'key_rsa_openssh.pub' \
-  'key_ecdsa.pub' \
   'key_ed25519.pub' \
   'key_ed25519_encrypted.pub' \
+  'key_ecdsa.pub' \
   > openssh_server/authorized_keys
-
-# tests/etc
-
-rm etc/host* etc/user* || true
-
-ssh-keygen -t rsa     -b 2048 -N ''           -m PEM -C 'etc_host_rsa'           -f 'etc/host'
-ssh-keygen -t rsa     -b 2048 -N ''           -m PEM -C 'etc_user_rsa'           -f 'etc/user'
 
 # tests/test_*.c
 

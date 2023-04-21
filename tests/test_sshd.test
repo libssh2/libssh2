@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# https://testanything.org/tap-specification.html
+
+d="$(dirname "$0")"
+uname="$(uname)"
+
+# Load list of SSHD tests from Makefile.am
+tests=''
+load=0
+while read -r l; do
+  if [[ "${l}" = 'SSHD_TESTS ='* ]]; then
+    load=1
+  elif [ "${load}" = '1' ]; then
+    tests="${tests} ${l/\\}"
+    [[ ! "${l}" = *"\\" ]] && break
+    # On Windows, subsequent tests may be flaky
+    [[ "${uname}" = *'_NT'* ]] && break
+  fi
+done <<< "$(tr -d $"\r" < "${d}/Makefile.am")"
+
+count=1
+total="$(echo "${tests}" | wc -w | tr -d ' ')"
+
+echo "${count}..${total}"
+
+for test in ${tests}; do
+  if "${d}/sshd_fixture.sh" "./${test}${EXEEXT}"; then
+    res='ok'
+  else
+    res='not ok'
+  fi
+  echo "${res} ${count} - sshd-${test}"
+  ((count++))
+done
