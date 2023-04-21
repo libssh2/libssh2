@@ -120,7 +120,7 @@ The prototype of the callback:
 .nf
 void sign(LIBSSH2_SESSION* session,
           unsigned char *blob, unsigned int blen,
-          unsigned char *data, const unsigned int dlen,
+          const unsigned char *data, unsigned int dlen,
           unsigned char **sig, unsigned int *sig_len,
           const char *agent_path,
           void **abstract);
