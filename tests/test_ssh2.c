@@ -98,6 +98,11 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
+#ifdef LIBSSH2_LIBGCRYPT
+    libssh2_trace(session, ~0);
+    fprintf(stderr, "Tracing enabled!\n");
+#endif
+
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
