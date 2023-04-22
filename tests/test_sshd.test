@@ -18,6 +18,6 @@ while read -r test; do
   else
     res='not ok'
   fi
-  echo "${res} ${count} - sshd_wrap-${test}"
+  echo "${res} ${count} - sshd-${test}"
   ((count++))
 done <<< "${algos}"
