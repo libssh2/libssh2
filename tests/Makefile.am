@@ -2,8 +2,13 @@ SUBDIRS = ossfuzz
 
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 
+# TAP init
+TEST_EXTENSIONS = .test
+# 'TEST' in 'TEST_LOG_DRIVER' is the test extension in uppercase.
+TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
+
 # Tests to run
-TESTS =
+TESTS = mansyntax.sh
 # Tests to build
 check_PROGRAMS =
 
@@ -44,19 +49,14 @@ ctests = \
 TESTS += $(ctests)
 check_PROGRAMS += $(ctests)
 
-# TAP scripts
-TEST_EXTENSIONS = .test
-# 'TEST' in 'TEST_LOG_DRIVER' is the test extension in uppercase.
-TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
-TESTS += test_read_algos.test
-
 # Individual scripts
 if SSHD
 TESTS += sshd_wrap.sh
 endif
 check_PROGRAMS += test_ssh2
 
-TESTS += mansyntax.sh
+# TAP scripts
+TESTS += test_read_algos.test
 
 # Internal library used by tests
 librunner_la_SOURCES = \
@@ -76,7 +76,9 @@ test_simple_LDFLAGS = -static
 LDADD += ../src/libssh2.la
 
 TESTS_ENVIRONMENT = SSHD=$(SSHD) cmd=./test_ssh2$(EXEEXT)
-TESTS_ENVIRONMENT += srcdir=$(top_srcdir)/tests builddir=$(top_builddir)/tests
+TESTS_ENVIRONMENT += srcdir=$(top_srcdir)/tests
+# for mansyntax.sh
+TESTS_ENVIRONMENT += builddir=$(top_builddir)/tests
 
 EXTRA_DIST = \
   CMakeLists.txt \

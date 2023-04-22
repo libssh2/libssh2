@@ -47,6 +47,17 @@ if(CMAKE_COMPILER_IS_GNUCC)
   endif()
 endif()
 
+find_program(SH_EXECUTABLE sh)
+mark_as_advanced(SH_EXECUTABLE)
+if(SH_EXECUTABLE)
+  find_program(SSHD_EXECUTABLE sshd)
+  mark_as_advanced(SSHD_EXECUTABLE)
+
+  add_test(NAME mansyntax COMMAND ${SH_EXECUTABLE} -c
+    "${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
+  set_property(TEST mansyntax APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
+endif()
+
 set(TESTS
   test_aa_warmup  # keep this first
   test_agent_forward_ok
@@ -103,7 +114,13 @@ foreach(test ${TESTS})
 
   list(APPEND TEST_TARGETS ${test})
 
-  if(NOT test STREQUAL "test_ssh2")  # skip test that needs sshd_wrap.sh to run
+  if(SSHD_EXECUTABLE AND test STREQUAL "test_ssh2")  # tests that need sshd_wrap.sh to run
+    add_test(
+      NAME ${test} COMMAND ${SH_EXECUTABLE} -c
+      "${CMAKE_CURRENT_SOURCE_DIR}/sshd_wrap.sh $<TARGET_FILE:${test}>")
+    set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
+    set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
+  else()
     add_test(
       NAME ${test} COMMAND $<TARGET_FILE:${test}>
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -135,21 +152,3 @@ add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
   DEPENDENCIES ${RUNTIME_DEPENDENCIES}
   BEFORE_TARGETS ${TEST_TARGETS})
-
-find_program(SH_EXECUTABLE sh)
-mark_as_advanced(SH_EXECUTABLE)
-if(SH_EXECUTABLE)
-
-  find_program(SSHD_EXECUTABLE sshd)
-  mark_as_advanced(SSHD_EXECUTABLE)
-  if(SSHD_EXECUTABLE)
-    add_test(NAME ssh2 COMMAND ${SH_EXECUTABLE} -c
-      "${CMAKE_CURRENT_SOURCE_DIR}/sshd_wrap.sh $<TARGET_FILE:test_ssh2>")
-    set_property(TEST ssh2 APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
-    set_property(TEST ssh2 APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
-  endif()
-
-  add_test(NAME mansyntax COMMAND ${SH_EXECUTABLE} -c
-    "${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
-  set_property(TEST mansyntax APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
-endif()
