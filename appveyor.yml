@@ -26,6 +26,7 @@
 
 environment:
   CONFIGURATION: "Release"
+  FIXTURE_XFER_COUNT: 35020
   matrix:
     - job_name: "VS2022, OpenSSL3, x64, Server 2019"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
