@@ -536,6 +536,21 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
         oldcb = session->recv;
         session->recv = callback;
         return oldcb;
+
+    case LIBSSH2_CALLBACK_AUTHAGENT:
+        oldcb = session->authagent;
+        session->authagent = callback;
+        return oldcb;
+
+    case LIBSSH2_CALLBACK_AUTHAGENT_IDENTITIES:
+        oldcb = session->addLocalIdentities;
+        session->addLocalIdentities = callback;
+        return oldcb;
+
+    case LIBSSH2_CALLBACK_AUTHAGENT_SIGN:
+        oldcb = session->agentSignCallback;
+        session->agentSignCallback = callback;
+        return oldcb;
     }
     _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Setting Callback %d",
                    cbtype));
