@@ -42,20 +42,19 @@ TESTS += $(INTEGRATION_TESTS)
 endif
 check_PROGRAMS += $(INTEGRATION_TESTS)
 
-# Raw tests
+# Standalone tests
 ctests = \
   test_simple
 
 TESTS += $(ctests)
 check_PROGRAMS += $(ctests)
 
-# Individual scripts
+# TAP scripts
 if SSHD
-TESTS += sshd_wrap.sh
+TESTS += test_sshd.test
 endif
 check_PROGRAMS += test_ssh2
 
-# TAP scripts
 TESTS += test_read_algos.test
 
 # Internal library used by tests
@@ -75,7 +74,7 @@ test_simple_LDFLAGS = -static
 # This must be last in the list so it resolves symbols in previous libraries
 LDADD += ../src/libssh2.la
 
-TESTS_ENVIRONMENT = SSHD=$(SSHD) cmd=./test_ssh2$(EXEEXT)
+TESTS_ENVIRONMENT = SSHD=$(SSHD) EXEEXT=$(EXEEXT)
 TESTS_ENVIRONMENT += srcdir=$(top_srcdir)/tests
 # for mansyntax.sh
 TESTS_ENVIRONMENT += builddir=$(top_builddir)/tests
@@ -118,4 +117,5 @@ EXTRA_DIST = \
   test_read_algos.txt \
   test_simple.c \
   test_ssh2.c \
+  test_sshd.test \
   sshd_wrap.sh

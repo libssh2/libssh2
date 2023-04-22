@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# https://testanything.org/tap-specification.html
+
+testbin='./sshd_wrap.sh'
+
+d="$(dirname "$0")"
+algos='test_ssh2'
+
+count=1
+total="$(echo "${algos}" | wc -l | tr -d ' ')"
+
+echo "${count}..${total}"
+
+while read -r test; do
+  if "${testbin}" "./${test}${EXEEXT}"; then
+    res='ok'
+  else
+    res='not ok'
+  fi
+  echo "${res} ${count} - sshd_wrap-${test}"
+  ((count++))
+done <<< "${algos}"
