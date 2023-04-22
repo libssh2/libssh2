@@ -8,9 +8,16 @@ TEST_EXTENSIONS = .test
 TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
 
 # Tests to run
-TESTS = mansyntax.sh
+TESTS =
 # Tests to build
 check_PROGRAMS =
+
+# environment for scripts
+TESTS_ENVIRONMENT = srcdir=$(top_srcdir)/tests
+
+#
+TESTS += mansyntax.sh
+TESTS_ENVIRONMENT += builddir=$(top_builddir)/tests
 
 # Tests using Docker
 INTEGRATION_TESTS = \
@@ -52,6 +59,7 @@ check_PROGRAMS += $(ctests)
 # TAP scripts
 if SSHD
 TESTS += test_sshd.test
+TESTS_ENVIRONMENT += SSHD=$(SSHD) EXEEXT=$(EXEEXT)
 endif
 check_PROGRAMS += test_ssh2
 
@@ -73,11 +81,6 @@ test_simple_LDFLAGS = -static
 
 # This must be last in the list so it resolves symbols in previous libraries
 LDADD += ../src/libssh2.la
-
-TESTS_ENVIRONMENT = SSHD=$(SSHD) EXEEXT=$(EXEEXT)
-TESTS_ENVIRONMENT += srcdir=$(top_srcdir)/tests
-# for mansyntax.sh
-TESTS_ENVIRONMENT += builddir=$(top_builddir)/tests
 
 EXTRA_DIST = \
   CMakeLists.txt \
