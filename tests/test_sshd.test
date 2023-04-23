@@ -4,16 +4,25 @@
 
 testbin='./sshd_fixture.sh'
 
+# Load list of SSHD tests from Makefile.am
 d="$(dirname "$0")"
-# Must be kept in sync with `SSHD_TESTS` in Makefile.am
-algos='test_ssh2'
+algos=''
+load=0
+while read -r l; do
+  if [[ "${l}" = 'SSHD_TESTS ='* ]]; then
+    load=1
+  elif [ "${load}" = '1' ]; then
+    algos="${algos} ${l/\\}"
+    [[ ! "${l}" = *"\\" ]] && break
+  fi
+done < "${d}/Makefile.am"
 
 count=1
-total="$(echo "${algos}" | wc -l | tr -d ' ')"
+total="$(echo "${algos}" | wc -w | tr -d ' ')"
 
 echo "${count}..${total}"
 
-while read -r test; do
+for test in ${algos}; do
   if "${testbin}" "./${test}${EXEEXT}"; then
     res='ok'
   else
@@ -21,4 +30,4 @@ while read -r test; do
   fi
   echo "${res} ${count} - sshd-${test}"
   ((count++))
-done <<< "${algos}"
+done
