@@ -40,10 +40,10 @@ export OPENSSH_NO_DOCKER=1
 # shellcheck disable=SC2086
 "$SSHD" \
   -f "$srcdir/openssh_server/sshd_config" \
+  -o 'Port 4711' \
   -h "$srcdir/openssh_server/ssh_host_rsa_key" \
   -h "$srcdir/openssh_server/ssh_host_ecdsa_key" \
   -h "$srcdir/openssh_server/ssh_host_ed25519_key" \
-  -o 'Port 4711' \
   -o "AuthorizedKeysFile ${PUBKEY} $srcdir/key_dsa.pub $srcdir/key_rsa.pub $srcdir/key_rsa_encrypted.pub $srcdir/key_rsa_openssh.pub $srcdir/key_ed25519.pub $srcdir/key_ed25519_encrypted.pub $srcdir/key_ecdsa.pub" \
   -o "TrustedUserCAKeys $cakeys" \
   -D \
