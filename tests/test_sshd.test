@@ -6,23 +6,23 @@ testbin='./sshd_fixture.sh'
 
 # Load list of SSHD tests from Makefile.am
 d="$(dirname "$0")"
-algos=''
+tests=''
 load=0
 while read -r l; do
   if [[ "${l}" = 'SSHD_TESTS ='* ]]; then
     load=1
   elif [ "${load}" = '1' ]; then
-    algos="${algos} ${l/\\}"
+    tests="${tests} ${l/\\}"
     [[ ! "${l}" = *"\\" ]] && break
   fi
 done < "${d}/Makefile.am"
 
 count=1
-total="$(echo "${algos}" | wc -w | tr -d ' ')"
+total="$(echo "${tests}" | wc -w | tr -d ' ')"
 
 echo "${count}..${total}"
 
-for test in ${algos}; do
+for test in ${tests}; do
   if "${testbin}" "./${test}${EXEEXT}"; then
     res='ok'
   else
