@@ -26,8 +26,6 @@ if [ -n "$DEBUG" ]; then
   libssh2_sshd_params="-d -d"
 fi
 
-"$SSHD" -V
-
 cat \
   "$srcdir/openssh_server/ca_ecdsa.pub" \
   "$srcdir/openssh_server/ca_rsa.pub" \
