@@ -44,7 +44,6 @@ chmod go-rwx \
   -o 'Port 4711' \
   -o 'Protocol 2' \
   -o "AuthorizedKeysFile ${PUBKEY}" \
-  -o 'UsePrivilegeSeparation no' \
   -o "TrustedUserCAKeys $cakeys" \
   -o 'HostKeyAlgorithms +ssh-rsa' \
   -o 'PubkeyAcceptedKeyTypes +ssh-rsa,ssh-dss' \
