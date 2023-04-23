@@ -113,10 +113,10 @@ EXTRA_DIST = \
   mansyntax.sh \
   openssh_server/Dockerfile \
   openssh_server/authorized_keys \
-  openssh_server/ca_rsa \
-  openssh_server/ca_rsa.pub \
   openssh_server/ca_ecdsa \
   openssh_server/ca_ecdsa.pub \
+  openssh_server/ca_rsa \
+  openssh_server/ca_rsa.pub \
   openssh_server/ssh_host_ecdsa_key \
   openssh_server/ssh_host_ed25519_key \
   openssh_server/ssh_host_rsa_key \
