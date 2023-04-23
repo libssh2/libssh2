@@ -27,9 +27,14 @@ fi
 
 "$SSHD" -V
 
-chmod go-rwx "$srcdir"/openssh_server/ssh_host*
+chmod go-rwx "$srcdir"/openssh_server/ssh_host_*
+
 # shellcheck disable=SC2086
-"$SSHD" -f /dev/null -h "$srcdir/openssh_server/ssh_host_rsa_key" \
+"$SSHD" \
+  -f /dev/null \
+  -h "$srcdir/openssh_server/ssh_host_rsa_key" \
+  -h "$srcdir/openssh_server/ssh_host_ecdsa_key" \
+  -h "$srcdir/openssh_server/ssh_host_ed25519_key" \
   -o 'Port 4711' \
   -o 'Protocol 2' \
   -o "AuthorizedKeysFile ${PUBKEY}" \
