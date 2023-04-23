@@ -35,6 +35,8 @@ chmod go-rwx \
   "$srcdir"/openssh_server/ssh_host_* \
   "$cakeys"
 
+export OPENSSH_NO_DOCKER=1
+
 # shellcheck disable=SC2086
 "$SSHD" \
   -f "$srcdir/openssh_server/sshd_config" \
