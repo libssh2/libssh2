@@ -99,6 +99,13 @@ foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
   endif()
 endforeach()
 
+# TEMP
+foreach(test "test_auth_pubkey_ok_rsa" "test_auth_pubkey_ok_ed25519")
+  set(testname sshd-${test})
+  add_test(NAME ${testname} COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/sshd_fixture.sh $<TARGET_FILE:${test}>")
+  set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
+endforeach()
+
 # CRYPT/MAC algo tests
 file(READ "test_read_algos.txt" ALGO_TESTS)
 string(REGEX REPLACE "\\\n" ";" ALGO_TESTS ${ALGO_TESTS})
