@@ -20,6 +20,7 @@ srcdir="$(cd "$srcdir" || exit; pwd)"
 # for our test clients:
 export PRIVKEY="$srcdir/key_rsa"
 export PUBKEY="$srcdir/key_rsa.pub"
+cakeys="$srcdir/ca_main.pub"
 
 if [ -n "$DEBUG" ]; then
   libssh2_sshd_params="-d -d"
@@ -27,7 +28,14 @@ fi
 
 "$SSHD" -V
 
-chmod go-rwx "$srcdir"/openssh_server/ssh_host_*
+cat \
+  "$srcdir/openssh_server/ca_ecdsa.pub" \
+  "$srcdir/openssh_server/ca_rsa.pub" \
+  > "$cakeys"
+
+chmod go-rwx \
+  "$srcdir"/openssh_server/ssh_host_* \
+  "$cakeys"
 
 # shellcheck disable=SC2086
 "$SSHD" \
@@ -39,7 +47,7 @@ chmod go-rwx "$srcdir"/openssh_server/ssh_host_*
   -o 'Protocol 2' \
   -o "AuthorizedKeysFile ${PUBKEY}" \
   -o 'UsePrivilegeSeparation no' \
-  -o 'TrustedUserCAKeys /etc/ssh/ca_main.pub' \
+  -o "TrustedUserCAKeys $cakeys" \
   -o 'HostKeyAlgorithms +ssh-rsa' \
   -o 'PubkeyAcceptedKeyTypes +ssh-rsa,ssh-dss' \
   -o 'MACs +hmac-sha1,hmac-sha1-96,hmac-sha2-256,hmac-sha2-512,hmac-md5,hmac-md5-96,umac-64@openssh.com,umac-128@openssh.com,hmac-sha1-etm@openssh.com,hmac-sha1-96-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-md5-etm@openssh.com,hmac-md5-96-etm@openssh.com,umac-64-etm@openssh.com,umac-128-etm@openssh.com' \
@@ -58,6 +66,8 @@ sleep 3
 eval "$cmd"
 ec=$?
 : "Self-test exit code $ec"
+
+rm -f "$cakeys"
 
 : "killing sshd (${sshdpid})"
 kill "${sshdpid}" > /dev/null 2>&1
