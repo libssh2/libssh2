@@ -64,6 +64,11 @@
 
 static int have_docker = 0;
 
+int openssh_fixture_have_docker(void)
+{
+    return have_docker;
+}
+
 static int run_command_varg(char **output, const char *command, va_list args)
 {
     static const char redirect_stderr[] = "%s 2>&1";
