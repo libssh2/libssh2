@@ -19,7 +19,7 @@ TESTS_ENVIRONMENT = srcdir=$(top_srcdir)/tests
 TESTS += mansyntax.sh
 TESTS_ENVIRONMENT += builddir=$(top_builddir)/tests
 
-#
+# Keep this list sorted
 DOCKER_TESTS = \
   test_aa_warmup \
   test_agent_forward_ok \

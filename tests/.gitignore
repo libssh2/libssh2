@@ -4,3 +4,4 @@
 *.gcda
 Makefile
 Makefile.in
+Makefile.am.cmake

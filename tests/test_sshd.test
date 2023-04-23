@@ -5,7 +5,7 @@
 testbin='./sshd_fixture.sh'
 
 d="$(dirname "$0")"
-# Must be kept in sync with `SSHD_TESTS` in Makefile.am and CMakeLists.txt
+# Must be kept in sync with `SSHD_TESTS` in Makefile.am
 algos='test_ssh2'
 
 count=1

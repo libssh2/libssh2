@@ -37,6 +37,10 @@ include(CopyRuntimeDependencies)
 
 list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
+transform_makefile_inc("Makefile.am" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cmake")
+# Get 'DOCKER_TESTS', 'STANDALONE_TESTS', 'SSHD_TESTS' variables
+include(${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cmake)
+
 if(CMAKE_COMPILER_IS_GNUCC)
   find_program(GCOV_PATH gcov)
   if(GCOV_PATH)
@@ -57,39 +61,6 @@ if(SH_EXECUTABLE)
     "${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
   set_property(TEST mansyntax APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
-
-set(DOCKER_TESTS
-  test_aa_warmup  # keep this first
-  test_agent_forward_ok
-  test_auth_keyboard_fail
-  test_auth_keyboard_info_request
-  test_auth_keyboard_ok
-  test_auth_password_fail_password
-  test_auth_password_fail_username
-  test_auth_password_ok
-  test_auth_pubkey_fail
-  test_auth_pubkey_ok_dsa
-  test_auth_pubkey_ok_ecdsa
-  test_auth_pubkey_ok_ecdsa_signed
-  test_auth_pubkey_ok_ed25519
-  test_auth_pubkey_ok_ed25519_encrypted
-  test_auth_pubkey_ok_ed25519_mem
-  test_auth_pubkey_ok_rsa
-  test_auth_pubkey_ok_rsa_encrypted
-  test_auth_pubkey_ok_rsa_openssh
-  test_auth_pubkey_ok_rsa_signed
-  test_hostkey
-  test_hostkey_hash
-  test_read
-)
-
-set(STANDALONE_TESTS
-  test_simple
-)
-
-set(SSHD_TESTS
-  test_ssh2
-)
 
 add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
 target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
