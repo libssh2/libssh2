@@ -2,7 +2,7 @@
 
 # https://testanything.org/tap-specification.html
 
-testbin='./sshd_wrap.sh'
+testbin='./sshd_fixture.sh'
 
 d="$(dirname "$0")"
 algos='test_ssh2'

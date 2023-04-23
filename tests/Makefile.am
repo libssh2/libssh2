@@ -125,4 +125,4 @@ EXTRA_DIST = \
   test_simple.c \
   test_ssh2.c \
   test_sshd.test \
-  sshd_wrap.sh
+  sshd_fixture.sh

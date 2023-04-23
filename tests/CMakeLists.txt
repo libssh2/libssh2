@@ -123,7 +123,7 @@ foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
   if(SSHD_EXECUTABLE AND ";${test};" MATCHES ";${SSHD_TESTS};")
     set(testname sshd-${test})
     add_test(NAME ${testname} COMMAND ${SH_EXECUTABLE} -c
-      "${CMAKE_CURRENT_SOURCE_DIR}/sshd_wrap.sh $<TARGET_FILE:${test}>")
+      "${CMAKE_CURRENT_SOURCE_DIR}/sshd_fixture.sh $<TARGET_FILE:${test}>")
     set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
     set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
   else()
