@@ -39,7 +39,6 @@ chmod go-rwx "$srcdir"/openssh_server/ssh_host*
   -o 'PubkeyAcceptedKeyTypes +ssh-rsa,ssh-dss' \
   -o 'MACs +hmac-sha1,hmac-sha1-96,hmac-sha2-256,hmac-sha2-512,hmac-md5,hmac-md5-96,umac-64@openssh.com,umac-128@openssh.com,hmac-sha1-etm@openssh.com,hmac-sha1-96-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-md5-etm@openssh.com,hmac-md5-96-etm@openssh.com,umac-64-etm@openssh.com,umac-128-etm@openssh.com' \
   -o 'Ciphers +3des-cbc,aes128-cbc,aes192-cbc,aes256-cbc,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com' \
-  -o 'StrictModes no' \
   -D \
   $libssh2_sshd_params &
 sshdpid=$!
