@@ -11,40 +11,39 @@ else
   cmd="${cmd:-./test-ssh}"
 fi
 
+d="$(dirname "$0")"
+
 SSHD="${SSHD:-/usr/sbin/sshd}"
 [[ "$(uname)" = *'_NT'* ]] && SSHD="$(cygpath -u "${SSHD}")"
 
-cd "$(dirname "$0")" || exit 1
-pwd
-
 # for our test clients:
-[ -z "$PRIVKEY" ] && export PRIVKEY='key_rsa'
-[ -z "$PUBKEY" ]  && export PUBKEY='key_rsa.pub'
-cakeys='ca_main.pub'
+[ -z "$PRIVKEY" ] && export PRIVKEY="$d/key_rsa"
+[ -z "$PUBKEY" ]  && export PUBKEY="$d/key_rsa.pub"
+cakeys="$d/ca_main.pub"
 
 if [ -n "$DEBUG" ]; then
   libssh2_sshd_params="-d -d"
 fi
 
 cat \
-  'openssh_server/ca_ecdsa.pub' \
-  'openssh_server/ca_rsa.pub' \
+  "$d/openssh_server/ca_ecdsa.pub" \
+  "$d/openssh_server/ca_rsa.pub" \
   > "$cakeys"
 
 chmod go-rwx \
-  openssh_server/ssh_host_* \
+  "$d"/openssh_server/ssh_host_* \
   "$cakeys"
 
 export OPENSSH_NO_DOCKER=1
 
 # shellcheck disable=SC2086
 "$SSHD" \
-  -f 'openssh_server/sshd_config' \
+  -f "$d/openssh_server/sshd_config" \
   -o 'Port 4711' \
-  -h 'openssh_server/ssh_host_rsa_key' \
-  -h 'openssh_server/ssh_host_ecdsa_key' \
-  -h 'openssh_server/ssh_host_ed25519_key' \
-  -o "AuthorizedKeysFile ${PUBKEY} key_dsa.pub key_rsa.pub key_rsa_encrypted.pub key_rsa_openssh.pub key_ed25519.pub key_ed25519_encrypted.pub key_ecdsa.pub" \
+  -h "$d/openssh_server/ssh_host_rsa_key" \
+  -h "$d/openssh_server/ssh_host_ecdsa_key" \
+  -h "$d/openssh_server/ssh_host_ed25519_key" \
+  -o "AuthorizedKeysFile ${PUBKEY} $d/key_dsa.pub $d/key_rsa.pub $d/key_rsa_encrypted.pub $d/key_rsa_openssh.pub $d/key_ed25519.pub $d/key_ed25519_encrypted.pub $d/key_ecdsa.pub" \
   -o "TrustedUserCAKeys $cakeys" \
   -D \
   $libssh2_sshd_params &
