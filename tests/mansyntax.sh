@@ -10,9 +10,8 @@ set -e
 
 command -v gman >/dev/null 2>&1 && man() { gman "$@"; }
 
-srcdir="${srcdir:-$PWD}"
 dstdir="${builddir:-$PWD}"
-mandir="${srcdir}/../docs"
+mandir="$(dirname "$0")/../docs"
 
 ec=0
 

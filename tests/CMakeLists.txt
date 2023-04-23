@@ -59,7 +59,6 @@ if(SH_EXECUTABLE)
 
   add_test(NAME mansyntax COMMAND ${SH_EXECUTABLE} -c
     "${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
-  set_property(TEST mansyntax APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
 
 add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
@@ -109,9 +108,9 @@ foreach(test ${ALGO_TESTS})
   set(testname test_read-${test})
   add_test(NAME ${testname} COMMAND "$<TARGET_FILE:test_read>")
   if(test MATCHES "mac-")
-    set_tests_properties(${testname} PROPERTIES ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
+    set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
   else()
-    set_tests_properties(${testname} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
+    set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
   endif()
 endforeach()
 
