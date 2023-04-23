@@ -2,8 +2,6 @@
 
 # https://testanything.org/tap-specification.html
 
-testbin='./sshd_fixture.sh'
-
 # Load list of SSHD tests from Makefile.am
 d="$(dirname "$0")"
 tests=''
@@ -25,7 +23,7 @@ total="$(echo "${tests}" | wc -w | tr -d ' ')"
 echo "${count}..${total}"
 
 for test in ${tests}; do
-  if "${testbin}" "./${test}${EXEEXT}"; then
+  if "${d}/sshd_fixture.sh" "./${test}${EXEEXT}"; then
     res='ok'
   else
     res='not ok'
