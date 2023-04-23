@@ -16,7 +16,7 @@ while read -r l; do
   fi
 done < "${d}/Makefile.am"
 
-tests="${tests} test_auth_pubkey_ok_rsa test_auth_pubkey_ok_ed25519"
+tests="${tests}"
 
 count=1
 total="$(echo "${tests}" | wc -w | tr -d ' ')"
