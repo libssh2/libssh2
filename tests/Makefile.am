@@ -25,7 +25,6 @@ DOCKER_TESTS = \
   test_aa_warmup \
   test_agent_forward_ok \
   test_auth_keyboard_fail \
-  test_auth_keyboard_info_request \
   test_auth_keyboard_ok \
   test_auth_password_fail_password \
   test_auth_password_fail_username \
@@ -52,7 +51,8 @@ check_PROGRAMS += $(DOCKER_TESTS)
 
 #
 STANDALONE_TESTS = \
-  test_simple
+  test_simple \
+  test_auth_keyboard_info_request
 
 TESTS += $(STANDALONE_TESTS)
 check_PROGRAMS += $(STANDALONE_TESTS)
