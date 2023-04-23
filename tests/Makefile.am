@@ -12,15 +12,15 @@ TESTS =
 # Tests to build
 check_PROGRAMS =
 
-# environment for scripts
+# Environment for scripts
 TESTS_ENVIRONMENT = srcdir=$(top_srcdir)/tests
 
 #
 TESTS += mansyntax.sh
 TESTS_ENVIRONMENT += builddir=$(top_builddir)/tests
 
-# Tests using Docker
-INTEGRATION_TESTS = \
+#
+DOCKER_TESTS = \
   test_aa_warmup \
   test_agent_forward_ok \
   test_auth_keyboard_fail \
@@ -45,23 +45,27 @@ INTEGRATION_TESTS = \
   test_read
 
 if ! HOST_WINDOWS
-TESTS += $(INTEGRATION_TESTS)
+TESTS += $(DOCKER_TESTS)
 endif
-check_PROGRAMS += $(INTEGRATION_TESTS)
+check_PROGRAMS += $(DOCKER_TESTS)
 
-# Standalone tests
-ctests = \
+#
+STANDALONE_TESTS = \
   test_simple
 
-TESTS += $(ctests)
-check_PROGRAMS += $(ctests)
+TESTS += $(STANDALONE_TESTS)
+check_PROGRAMS += $(STANDALONE_TESTS)
+
+#
+SSHD_TESTS = \
+  test_ssh2
 
 # TAP scripts
 if SSHD
 TESTS += test_sshd.test
 TESTS_ENVIRONMENT += SSHD=$(SSHD) EXEEXT=$(EXEEXT)
 endif
-check_PROGRAMS += test_ssh2
+check_PROGRAMS += $(SSHD_TESTS)
 
 TESTS += test_read_algos.test
 

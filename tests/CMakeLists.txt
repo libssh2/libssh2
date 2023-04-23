@@ -58,7 +58,7 @@ if(SH_EXECUTABLE)
   set_property(TEST mansyntax APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
 
-set(TESTS
+set(DOCKER_TESTS
   test_aa_warmup  # keep this first
   test_agent_forward_ok
   test_auth_keyboard_fail
@@ -81,7 +81,13 @@ set(TESTS
   test_hostkey
   test_hostkey_hash
   test_read
+)
+
+set(STANDALONE_TESTS
   test_simple
+)
+
+set(SSHD_TESTS
   test_ssh2
 )
 
@@ -99,7 +105,7 @@ if(BUILD_SHARED_LIBS)
   endforeach()
 endif()
 
-foreach(test ${TESTS})
+foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
   add_executable(${test} ${test}.c)
   target_compile_definitions(${test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
   target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src "${CRYPTO_BACKEND_INCLUDE_DIR}")
@@ -114,7 +120,7 @@ foreach(test ${TESTS})
 
   list(APPEND TEST_TARGETS ${test})
 
-  if(SSHD_EXECUTABLE AND test STREQUAL "test_ssh2")  # tests that need sshd_wrap.sh to run
+  if(SSHD_EXECUTABLE AND ";${test};" MATCHES ";${SSHD_TESTS};")
     set(testname sshd-${test})
     add_test(NAME ${testname} COMMAND ${SH_EXECUTABLE} -c
       "${CMAKE_CURRENT_SOURCE_DIR}/sshd_wrap.sh $<TARGET_FILE:${test}>")
@@ -127,9 +133,9 @@ foreach(test ${TESTS})
 endforeach()
 
 # CRYPT/MAC algo tests
-file(READ "test_read_algos.txt" TESTS)
-string(REGEX REPLACE "\\\n" ";" TESTS ${TESTS})
-foreach(test ${TESTS})
+file(READ "test_read_algos.txt" ALGO_TESTS)
+string(REGEX REPLACE "\\\n" ";" ALGO_TESTS ${ALGO_TESTS})
+foreach(test ${ALGO_TESTS})
   set(testname test_read-${test})
   add_test(NAME ${testname} COMMAND "$<TARGET_FILE:test_read>")
   if(test MATCHES "mac-")
