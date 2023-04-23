@@ -78,7 +78,7 @@ RUN chmod 600 /etc/ssh/ca_rsa
 RUN adduser --disabled-password --gecos 'Test user for libssh2 integration tests' libssh2
 RUN echo 'libssh2:my test password' | chpasswd
 
-RUN sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config
+RUN sed -i 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/' /etc/ssh/sshd_config
 COPY sshd_config /tmp/etc/ssh/sshd_config
 RUN cat /tmp/etc/ssh/sshd_config >> /etc/ssh/sshd_config
 RUN echo "TrustedUserCAKeys /etc/ssh/ca_main.pub" >> /etc/ssh/sshd_config
