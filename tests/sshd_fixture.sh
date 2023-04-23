@@ -71,5 +71,5 @@ rm -f "$cakeys"
 
 : "killing sshd (${sshdpid})"
 kill "${sshdpid}" > /dev/null 2>&1
-trap "" EXIT
+trap '' EXIT
 exit "$ec"
