@@ -18,8 +18,8 @@ SSHD="${SSHD:-/usr/sbin/sshd}"
 srcdir="$(cd "$srcdir" || exit; pwd)"
 
 # for our test clients:
-export PRIVKEY="$srcdir/key_rsa"
-export PUBKEY="$srcdir/key_rsa.pub"
+[ -z "$PRIVKEY" ] && export PRIVKEY="$srcdir/key_rsa"
+[ -z "$PUBKEY" ]  && export PUBKEY="$srcdir/key_rsa.pub"
 cakeys="$srcdir/ca_main.pub"
 
 if [ -n "$DEBUG" ]; then
@@ -42,7 +42,7 @@ chmod go-rwx \
   -h "$srcdir/openssh_server/ssh_host_ecdsa_key" \
   -h "$srcdir/openssh_server/ssh_host_ed25519_key" \
   -o 'Port 4711' \
-  -o "AuthorizedKeysFile $srcdir/key_dsa.pub ${PUBKEY} $srcdir/key_rsa_encrypted.pub $srcdir/key_rsa_openssh.pub $srcdir/key_ed25519.pub $srcdir/key_ed25519_encrypted.pub $srcdir/key_ecdsa.pub" \
+  -o "AuthorizedKeysFile ${PUBKEY} $srcdir/key_dsa.pub $srcdir/key_rsa.pub $srcdir/key_rsa_encrypted.pub $srcdir/key_rsa_openssh.pub $srcdir/key_ed25519.pub $srcdir/key_ed25519_encrypted.pub $srcdir/key_ecdsa.pub" \
   -o "TrustedUserCAKeys $cakeys" \
   -D \
   $libssh2_sshd_params &
