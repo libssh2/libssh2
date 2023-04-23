@@ -43,7 +43,7 @@ chmod go-rwx \
   -h "$srcdir/openssh_server/ssh_host_ed25519_key" \
   -o 'Port 4711' \
   -o 'Protocol 2' \
-  -o "AuthorizedKeysFile ${PUBKEY}" \
+  -o "AuthorizedKeysFile $srcdir/key_dsa.pub ${PUBKEY} $srcdir/key_rsa_encrypted.pub $srcdir/key_rsa_openssh.pub $srcdir/key_ed25519.pub $srcdir/key_ed25519_encrypted.pub $srcdir/key_ecdsa.pub" \
   -o "TrustedUserCAKeys $cakeys" \
   -o 'HostKeyAlgorithms +ssh-rsa' \
   -o 'PubkeyAcceptedKeyTypes +ssh-rsa,ssh-dss' \
