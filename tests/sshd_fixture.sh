@@ -12,6 +12,7 @@ else
 fi
 
 d="$(dirname "$0")"
+d="$(cd "$d" || exit; pwd)"  # sshd needs absolute paths
 
 SSHD="${SSHD:-/usr/sbin/sshd}"
 [[ "$(uname)" = *'_NT'* ]] && SSHD="$(cygpath -u "${SSHD}")"
