@@ -25,6 +25,8 @@ if [ -n "$DEBUG" ]; then
   libssh2_sshd_params="-d -d"
 fi
 
+"$SSHD" -V
+
 chmod go-rwx "$srcdir"/openssh_server/ssh_host*
 # shellcheck disable=SC2086
 "$SSHD" -f /dev/null -h "$srcdir/openssh_server/ssh_host_rsa_key" \
