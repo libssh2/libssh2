@@ -2,8 +2,9 @@
 
 # https://testanything.org/tap-specification.html
 
-# Load list of SSHD tests from Makefile.am
 d="$(dirname "$0")"
+
+# Load list of SSHD tests from Makefile.am
 tests=''
 load=0
 while read -r l; do

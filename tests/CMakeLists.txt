@@ -57,8 +57,7 @@ if(SH_EXECUTABLE)
   find_program(SSHD_EXECUTABLE sshd)
   mark_as_advanced(SSHD_EXECUTABLE)
 
-  add_test(NAME mansyntax COMMAND ${SH_EXECUTABLE} -c
-    "${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
+  add_test(NAME mansyntax COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
 endif()
 
 add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
@@ -92,8 +91,7 @@ foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
 
   if(SSHD_EXECUTABLE AND ";${test};" MATCHES ";${SSHD_TESTS};")
     set(testname sshd-${test})
-    add_test(NAME ${testname} COMMAND ${SH_EXECUTABLE} -c
-      "${CMAKE_CURRENT_SOURCE_DIR}/sshd_fixture.sh $<TARGET_FILE:${test}>")
+    add_test(NAME ${testname} COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/sshd_fixture.sh $<TARGET_FILE:${test}>")
     set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
   else()
     add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
