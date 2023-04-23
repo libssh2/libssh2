@@ -37,18 +37,13 @@ chmod go-rwx \
 
 # shellcheck disable=SC2086
 "$SSHD" \
-  -f /dev/null \
+  -f "$srcdir/openssh_server/sshd_config" \
   -h "$srcdir/openssh_server/ssh_host_rsa_key" \
   -h "$srcdir/openssh_server/ssh_host_ecdsa_key" \
   -h "$srcdir/openssh_server/ssh_host_ed25519_key" \
   -o 'Port 4711' \
-  -o 'Protocol 2' \
   -o "AuthorizedKeysFile $srcdir/key_dsa.pub ${PUBKEY} $srcdir/key_rsa_encrypted.pub $srcdir/key_rsa_openssh.pub $srcdir/key_ed25519.pub $srcdir/key_ed25519_encrypted.pub $srcdir/key_ecdsa.pub" \
   -o "TrustedUserCAKeys $cakeys" \
-  -o 'HostKeyAlgorithms +ssh-rsa' \
-  -o 'PubkeyAcceptedKeyTypes +ssh-rsa,ssh-dss' \
-  -o 'MACs +hmac-sha1,hmac-sha1-96,hmac-sha2-256,hmac-sha2-512,hmac-md5,hmac-md5-96,umac-64@openssh.com,umac-128@openssh.com,hmac-sha1-etm@openssh.com,hmac-sha1-96-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-md5-etm@openssh.com,hmac-md5-96-etm@openssh.com,umac-64-etm@openssh.com,umac-128-etm@openssh.com' \
-  -o 'Ciphers +3des-cbc,aes128-cbc,aes192-cbc,aes256-cbc,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com' \
   -D \
   $libssh2_sshd_params &
 sshdpid=$!

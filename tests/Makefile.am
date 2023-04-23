@@ -120,6 +120,7 @@ EXTRA_DIST = \
   openssh_server/ssh_host_ecdsa_key \
   openssh_server/ssh_host_ed25519_key \
   openssh_server/ssh_host_rsa_key \
+  openssh_server/sshd_config \
   test_read_algos.test \
   test_read_algos.txt \
   test_simple.c \
