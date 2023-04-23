@@ -12,12 +12,9 @@ TESTS =
 # Tests to build
 check_PROGRAMS =
 
-# Environment for scripts
-TESTS_ENVIRONMENT = srcdir=$(top_srcdir)/tests
-
 #
 TESTS += mansyntax.sh
-TESTS_ENVIRONMENT += builddir=$(top_builddir)/tests
+TESTS_ENVIRONMENT = srcdir=$(top_srcdir)/tests builddir=$(top_builddir)/tests
 
 # Keep this list sorted
 DOCKER_TESTS = \
