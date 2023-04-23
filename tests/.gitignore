@@ -4,5 +4,3 @@
 *.gcda
 Makefile
 Makefile.in
-simple
-ssh2
