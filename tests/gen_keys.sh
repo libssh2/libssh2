@@ -44,9 +44,9 @@ cat \
   'key_rsa.pub' \
   'key_rsa_encrypted.pub' \
   'key_rsa_openssh.pub' \
-  'key_ecdsa.pub' \
   'key_ed25519.pub' \
   'key_ed25519_encrypted.pub' \
+  'key_ecdsa.pub' \
   > openssh_server/authorized_keys
 
 # tests/test_*.c
