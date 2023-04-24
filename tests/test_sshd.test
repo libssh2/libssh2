@@ -13,7 +13,7 @@ while read -r l; do
   elif [ "${load}" = '1' ]; then
     tests="${tests} ${l/\\}"
     [[ ! "${l}" = *"\\" ]] && break
-    # On AppVeyor / Windows there is an issue running sshd more than once, so keep just the first test.
+    # On Windows subsequent tests are flaky
     [ -n "${FIXTURE_WINDOWS_SSHD_ISSUES}" ] && break
   fi
 done <<< "$(tr -d $"\r" < "${d}/Makefile.am")"
