@@ -17,7 +17,6 @@
 #endif
 
 #include <sys/types.h>
-#include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -78,9 +77,6 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
-#ifndef WIN32
-    fcntl(sock, F_SETFL, 0);
-#endif
     sin.sin_family = AF_INET;
     sin.sin_port = htons(4711);
     sin.sin_addr.s_addr = hostaddr;
@@ -97,6 +93,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Could not initialize SSH session!\n");
         goto shutdown;
     }
+
+    libssh2_session_set_blocking(session, 1);
 
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
