@@ -2,24 +2,6 @@ SUBDIRS = ossfuzz
 
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 
-# TAP init
-TEST_EXTENSIONS = .test
-# 'TEST' in 'TEST_LOG_DRIVER' is the test extension in uppercase.
-TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
-
-# Tests to run
-TESTS =
-TESTS_ENVIRONMENT =
-# Tests to build
-check_PROGRAMS =
-
-# session_fixture.c uses it, but CI tests work without this.
-#TESTS_ENVIRONMENT += srcdir=$(top_srcdir)/tests
-
-#
-TESTS += mansyntax.sh
-TESTS_ENVIRONMENT += builddir=$(top_builddir)/tests
-
 # Keep this list sorted
 DOCKER_TESTS = \
   test_aa_warmup \
@@ -44,33 +26,41 @@ DOCKER_TESTS = \
   test_hostkey_hash \
   test_read
 
-if ! HOST_WINDOWS
-TESTS += $(DOCKER_TESTS)
-endif
-check_PROGRAMS += $(DOCKER_TESTS)
-
-#
 STANDALONE_TESTS = \
   test_simple \
   test_auth_keyboard_info_request
 
-TESTS += $(STANDALONE_TESTS)
-check_PROGRAMS += $(STANDALONE_TESTS)
-
-#
 SSHD_TESTS = \
   test_ssh2 \
   test_auth_pubkey_ok_rsa \
   test_auth_pubkey_ok_ed25519
 
-# TAP scripts
+# Tests to run
+TESTS = mansyntax.sh
+TESTS_ENVIRONMENT = builddir=$(top_builddir)/tests
+
+if ! HOST_WINDOWS
+TESTS += $(DOCKER_TESTS)
+endif
+
+TESTS += $(STANDALONE_TESTS)
+
+# TAP init
+TEST_EXTENSIONS = .test
+# 'TEST' in 'TEST_LOG_DRIVER' is the test extension in uppercase.
+TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
 if SSHD
 TESTS += test_sshd.test
 TESTS_ENVIRONMENT += SSHD=$(SSHD) EXEEXT=$(EXEEXT)
 endif
-check_PROGRAMS += $(SSHD_TESTS)
-
 TESTS += test_read_algos.test
+
+# session_fixture.c uses this envvar, but CI tests work without it.
+# FIXME: This seems to be exported by autotools by default.
+TESTS_ENVIRONMENT += srcdir=$(top_srcdir)/tests
+
+# Tests to build
+check_PROGRAMS = $(DOCKER_TESTS) $(STANDALONE_TESTS) $(SSHD_TESTS)
 
 # Internal library used by tests
 librunner_la_SOURCES = \
