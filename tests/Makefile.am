@@ -52,7 +52,7 @@ TESTS_ENVIRONMENT += EXEEXT=$(EXEEXT)
 TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
 if SSHD
 TESTS += test_sshd.test
-TESTS_ENVIRONMENT += SSHD=$(SSHD)
+TESTS_ENVIRONMENT += SSHD="$(SSHD)"
 endif
 TESTS += test_read_algos.test
 
