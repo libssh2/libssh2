@@ -33,7 +33,6 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <ctype.h>
 #include <time.h>
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";

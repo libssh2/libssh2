@@ -32,7 +32,6 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 static const char *hostname = "127.0.0.1";
 static const char *commandline = "cat";
