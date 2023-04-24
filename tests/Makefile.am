@@ -47,11 +47,12 @@ TESTS += $(STANDALONE_TESTS)
 
 # TAP init
 TEST_EXTENSIONS = .test
+TESTS_ENVIRONMENT += EXEEXT=$(EXEEXT)
 # 'TEST' in 'TEST_LOG_DRIVER' is the test extension in uppercase.
 TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
 if SSHD
 TESTS += test_sshd.test
-TESTS_ENVIRONMENT += SSHD=$(SSHD) EXEEXT=$(EXEEXT)
+TESTS_ENVIRONMENT += SSHD=$(SSHD)
 endif
 TESTS += test_read_algos.test
 
