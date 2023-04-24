@@ -45,11 +45,12 @@ endif
 
 TESTS += $(STANDALONE_TESTS)
 
-# TAP init
+# TAP tests
 TEST_EXTENSIONS = .test
-TESTS_ENVIRONMENT += EXEEXT=$(EXEEXT)
 # 'TEST' in 'TEST_LOG_DRIVER' is the test extension in uppercase.
 TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
+
+TESTS_ENVIRONMENT += EXEEXT=$(EXEEXT)
 if SSHD
 TESTS += test_sshd.test
 TESTS_ENVIRONMENT += SSHD="$(SSHD)"
