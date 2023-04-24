@@ -16,11 +16,8 @@
 #include <arpa/inet.h>
 #endif
 
-#include <sys/types.h>
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 static const char *pubkey = "key_rsa.pub";
 static const char *privkey = "key_rsa";
