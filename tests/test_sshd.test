@@ -15,7 +15,7 @@ while read -r l; do
     tests="${tests} ${l/\\}"
     [[ ! "${l}" = *"\\" ]] && break
     # On Windows there is an issue running sshd more than once, so keep just the first test.
-    [[ "${uname}" = *'_NT'* ]] && break
+    #[[ "${uname}" = *'_NT'* ]] && break
   fi
 done < "${d}/Makefile.am"
 
