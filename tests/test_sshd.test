@@ -3,6 +3,7 @@
 # https://testanything.org/tap-specification.html
 
 d="$(dirname "$0")"
+uname="$(uname)"
 
 # Load list of SSHD tests from Makefile.am
 tests=''
@@ -14,7 +15,7 @@ while read -r l; do
     tests="${tests} ${l/\\}"
     [[ ! "${l}" = *"\\" ]] && break
     # On Windows, subsequent tests may be flaky
-    [ -n "${FIXTURE_WINDOWS_SSHD_ISSUES}" ] && break
+    [[ "${uname}" = *'_NT'* ]] && break
   fi
 done <<< "$(tr -d $"\r" < "${d}/Makefile.am")"
 
