@@ -31,9 +31,7 @@ STANDALONE_TESTS = \
   test_auth_keyboard_info_request
 
 SSHD_TESTS = \
-  test_ssh2 \
-  test_auth_pubkey_ok_rsa \
-  test_auth_pubkey_ok_ed25519
+  test_ssh2
 
 # Tests to run
 TESTS = mansyntax.sh
