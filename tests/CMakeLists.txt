@@ -75,36 +75,37 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
-  add_executable(${test} ${test}.c)
-  target_compile_definitions(${test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
-  target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src "${CRYPTO_BACKEND_INCLUDE_DIR}")
+  # We support the same target as both Docker and SSHD test. Build those just once.
+  if(NOT TARGET ${test})
+    add_executable(${test} ${test}.c)
+    target_compile_definitions(${test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
+    target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src "${CRYPTO_BACKEND_INCLUDE_DIR}")
 
-  # build a single test with gcov
-  if(GCOV_PATH AND test STREQUAL test_auth_keyboard_info_request)
-    target_compile_options(${test} BEFORE PRIVATE ${GCOV_OPTIONS})
-    target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES} gcov)
-  else()
-    target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES})
+    # build a single test with gcov
+    if(GCOV_PATH AND test STREQUAL test_auth_keyboard_info_request)
+      target_compile_options(${test} BEFORE PRIVATE ${GCOV_OPTIONS})
+      target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES} gcov)
+    else()
+      target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES})
+    endif()
+
+    list(APPEND TEST_TARGETS ${test})
+
+    if(";${test};" MATCHES ";${DOCKER_TESTS};" OR
+       ";${test};" MATCHES ";${STANDALONE_TESTS};")
+      add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+    endif()
   endif()
+endforeach()
 
-  list(APPEND TEST_TARGETS ${test})
-
-  if(SSHD_EXECUTABLE AND ";${test};" MATCHES ";${SSHD_TESTS};")
+if(SSHD_EXECUTABLE)
+  foreach(test ${SSHD_TESTS})
     set(testname sshd-${test})
     add_test(NAME ${testname} COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/sshd_fixture.sh $<TARGET_FILE:${test}>")
     set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
-  else()
-    add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
-      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-  endif()
-endforeach()
-
-# TEMP
-foreach(test "test_auth_pubkey_ok_rsa" "test_auth_pubkey_ok_ed25519")
-  set(testname sshd-${test})
-  add_test(NAME ${testname} COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/sshd_fixture.sh $<TARGET_FILE:${test}>")
-  set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
-endforeach()
+  endforeach()
+endif()
 
 # CRYPT/MAC algo tests
 file(READ "test_read_algos.txt" ALGO_TESTS)
