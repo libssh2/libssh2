@@ -19,4 +19,5 @@ $extip = (New-Object Net.WebClient).DownloadString('https://www.appveyor.com/too
 New-NetFirewallRule -DisplayName "SSH via RDP port" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22,3389
 
 # launch remote docker daemon with reverse SSH tunnel
-& .\ci\appveyor\docker-bridge.bat $ip $extip $port
+$scriptPath = (split-path -parent $MyInvocation.MyCommand.Definition) -replace '\\', '/'
+& C:\msys64\usr\bin\sh -l -c "$scriptPath/docker-bridge.sh $ip $extip $port"
