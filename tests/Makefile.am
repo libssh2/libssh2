@@ -3,10 +3,15 @@ SUBDIRS = ossfuzz
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 
 # Keep this list sorted
+#
+# NOTE: test_auth_keyboard_info_request does not use the network, but when
+#       run as Windows standalone test, it intermittently fails on GHA:
+#         `Terminate batch job (Y/N)?`
 DOCKER_TESTS = \
   test_aa_warmup \
   test_agent_forward_ok \
   test_auth_keyboard_fail \
+  test_auth_keyboard_info_request \
   test_auth_keyboard_ok \
   test_auth_password_fail_password \
   test_auth_password_fail_username \
@@ -27,8 +32,7 @@ DOCKER_TESTS = \
   test_read
 
 STANDALONE_TESTS = \
-  test_simple \
-  test_auth_keyboard_info_request
+  test_simple
 
 SSHD_TESTS = \
   test_ssh2
