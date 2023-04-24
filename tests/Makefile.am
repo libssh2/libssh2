@@ -35,7 +35,8 @@ STANDALONE_TESTS = \
   test_simple
 
 SSHD_TESTS = \
-  test_ssh2
+  test_ssh2 \
+  test_auth_pubkey_ok_ed25519
 
 # Tests to run
 TESTS = mansyntax.sh
