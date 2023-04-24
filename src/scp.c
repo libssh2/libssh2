@@ -37,12 +37,11 @@
  */
 
 #include "libssh2_priv.h"
-#include <errno.h>
-#include <stdlib.h>
+
+#include <stdlib.h>  /* strtol(), strtoll(), _strtoi64() */
 
 #include "channel.h"
 #include "session.h"
-
 
 /* Max. length of a quoted string after libssh2_shell_quotearg() processing */
 #define _libssh2_shell_quotedsize(s)     (3 * strlen(s) + 2)

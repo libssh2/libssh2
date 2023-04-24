@@ -39,7 +39,6 @@
 
 #include "libssh2_priv.h"
 #include "agent.h"
-#include <errno.h>
 
 #if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
 
