@@ -106,6 +106,7 @@ jobs:
         shell: msys2 {0}
         run: |
           export SSHD='C:/Program Files/Git/usr/bin/sshd.exe'
+          export _FIXTURE_WINDOWS_SSHD_ISSUES=1
           autoreconf -fi
           ./configure --enable-debug --enable-static --disable-shared --with-crypto=openssl
           make -j3

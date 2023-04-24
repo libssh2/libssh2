@@ -54,7 +54,11 @@ trap 'kill "${sshdpid}"; echo signal killing sshd; exit 1;' EXIT
 
 : "started sshd (${sshdpid})"
 
-sleep 3
+if [[ "$(uname)" = *'_NT'* ]]; then
+  sleep 5
+else
+  sleep 3
+fi
 
 : "Invoking '$cmd'..."
 eval "$cmd"
