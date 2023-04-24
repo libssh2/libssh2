@@ -29,7 +29,6 @@
 #endif
 
 #include <sys/types.h>
-#include <fcntl.h>
 #include <stdio.h>
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
