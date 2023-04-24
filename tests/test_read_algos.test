@@ -10,7 +10,7 @@ fi
 testbin='./test_read'
 
 d="$(dirname "$0")"
-algos="$(cat "${d}/test_read_algos.txt")"
+algos="$(tr -d $"\r" < "${d}/test_read_algos.txt")"
 
 count=1
 total="$(echo "${algos}" | wc -l | tr -d ' ')"
