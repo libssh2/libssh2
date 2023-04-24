@@ -26,7 +26,6 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 static const char *username = "username";
 
