@@ -22,7 +22,6 @@
 #endif
 
 #include <sys/types.h>
-#include <fcntl.h>
 #include <stdio.h>
 #include <time.h>
 
