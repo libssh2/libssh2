@@ -5,7 +5,7 @@ AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 # Keep this list sorted
 #
 # NOTE: test_auth_keyboard_info_request does not use the network, but when
-#       run as Windows standalone test, it intermittently fails on GHA:
+#       run as Windows standalone test, it intermittently fails on GHA with:
 #         `Terminate batch job (Y/N)?`
 DOCKER_TESTS = \
   test_aa_warmup \
@@ -38,9 +38,11 @@ SSHD_TESTS = \
   test_ssh2 \
   test_auth_pubkey_ok_ed25519
 
+# FIXME: Exported by autotools with the same value by default anyway?
+TESTS_ENVIRONMENT = srcdir=$(top_srcdir)/tests builddir=$(top_builddir)/tests
+
 # Tests to run
 TESTS = mansyntax.sh
-TESTS_ENVIRONMENT = builddir=$(top_builddir)/tests
 
 if ! HOST_WINDOWS
 TESTS += $(DOCKER_TESTS)
@@ -59,10 +61,6 @@ TESTS += test_sshd.test
 TESTS_ENVIRONMENT += SSHD="$(SSHD)"
 endif
 TESTS += test_read_algos.test
-
-# session_fixture.c uses this envvar, but CI tests work without it.
-# FIXME: This seems to be exported by autotools by default.
-TESTS_ENVIRONMENT += srcdir=$(top_srcdir)/tests
 
 # Tests to build
 check_PROGRAMS = $(DOCKER_TESTS) $(STANDALONE_TESTS) $(SSHD_TESTS)
