@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export DEBUG=1
+
 # Written by Simon Josefsson
 
 # Start sshd, invoke parameters, saving exit code, kill sshd, and
