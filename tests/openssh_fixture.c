@@ -233,10 +233,10 @@ static int is_running_inside_a_container(void)
     return 0;
 #else
     const char *cgroup_filename = "/proc/self/cgroup";
-    FILE *f = NULL;
+    FILE *f;
     char *line = NULL;
     size_t len = 0;
-    ssize_t read = 0;
+    ssize_t read;
     int found = 0;
     f = fopen(cgroup_filename, "r");
     if(!f) {
@@ -335,7 +335,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
-    int counter = 0;
+    int counter;
     libssh2_socket_t ret = LIBSSH2_INVALID_SOCKET;
 
     if(have_docker) {
