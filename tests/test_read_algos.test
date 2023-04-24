@@ -2,10 +2,10 @@
 
 # https://testanything.org/tap-specification.html
 
-if [[ "$(uname)" = *'_NT'* ]]; then
-  echo "1..0 # skip test_read tests due to docker issues"
-  exit 0
-fi
+#if [[ "$(uname)" = *'_NT'* ]]; then
+#  echo "1..0 # skip test_read tests due to docker issues"
+#  exit 0
+#fi
 
 testbin='./test_read'
 
