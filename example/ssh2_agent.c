@@ -24,7 +24,6 @@
 
 #include <sys/types.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 static const char *username = "username";
 
