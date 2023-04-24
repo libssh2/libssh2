@@ -13,7 +13,7 @@ while read -r l; do
   elif [ "${load}" = '1' ]; then
     tests="${tests} ${l/\\}"
     [[ ! "${l}" = *"\\" ]] && break
-    # On Windows subsequent tests are flaky
+    # On Windows, subsequent tests may be flaky
     [ -n "${FIXTURE_WINDOWS_SSHD_ISSUES}" ] && break
   fi
 done <<< "$(tr -d $"\r" < "${d}/Makefile.am")"

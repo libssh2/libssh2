@@ -99,6 +99,8 @@ foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS})
 endforeach()
 
 if(SSHD_EXECUTABLE)
+  # On Windows / AppVeyor CI, subsequent tests are broken:
+  #   'libssh2_session_handshake failed (-43): Failed getting banner'
   if($ENV{FIXTURE_WINDOWS_SSHD_ISSUES})
     list(GET SSHD_TESTS 0 SSHD_TESTS)
   endif()
