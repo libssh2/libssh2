@@ -1,4 +1,3 @@
-Protocol 2
 HostKeyAlgorithms +ssh-rsa
 PubkeyAcceptedAlgorithms +ssh-rsa,ssh-dss,ssh-rsa-cert-v01@openssh.com
 PubkeyAcceptedKeyTypes +ssh-rsa,ssh-dss
