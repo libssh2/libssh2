@@ -90,13 +90,12 @@ foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
     endif()
 
     list(APPEND TEST_TARGETS ${test})
-
-    if(";${test};" MATCHES ";${DOCKER_TESTS};" OR
-       ";${test};" MATCHES ";${STANDALONE_TESTS};")
-      add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-    endif()
   endif()
+endforeach()
+
+foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS})
+  add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
 if(SSHD_EXECUTABLE)

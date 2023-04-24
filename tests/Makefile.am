@@ -59,7 +59,9 @@ check_PROGRAMS += $(STANDALONE_TESTS)
 
 #
 SSHD_TESTS = \
-  test_ssh2
+  test_ssh2 \
+  test_auth_pubkey_ok_rsa \
+  test_auth_pubkey_ok_ed25519
 
 # TAP scripts
 if SSHD
