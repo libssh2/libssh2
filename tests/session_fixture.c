@@ -392,9 +392,9 @@ int test_auth_password(LIBSSH2_SESSION *session, int flags,
 
 static int read_file(const char *path, char **out_buffer, size_t *out_len)
 {
-    FILE *fp = NULL;
-    char *buffer = NULL;
-    size_t len = 0;
+    FILE *fp;
+    char *buffer;
+    size_t len;
 
     if(!out_buffer || !out_len || !path) {
         fprintf(stderr, "invalid params.\n");
