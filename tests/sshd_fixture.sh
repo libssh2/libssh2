@@ -39,8 +39,8 @@ export OPENSSH_NO_DOCKER=1
 
 # shellcheck disable=SC2086
 "$SSHD" \
-  -f "$d/openssh_server/sshd_config" \
-  -o 'Port 4711' \
+  -f "${OPENSSH_SERVER_CONFIG:-$d/openssh_server/sshd_config}" \
+  -o "Port ${OPENSSH_SERVER_PORT:-4711}" \
   -h "$d/openssh_server/ssh_host_rsa_key" \
   -h "$d/openssh_server/ssh_host_ecdsa_key" \
   -h "$d/openssh_server/ssh_host_ed25519_key" \
