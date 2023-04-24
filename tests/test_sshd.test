@@ -3,6 +3,7 @@
 # https://testanything.org/tap-specification.html
 
 d="$(dirname "$0")"
+uname="$(uname)"
 
 # Load list of SSHD tests from Makefile.am
 tests=''
@@ -13,6 +14,8 @@ while read -r l; do
   elif [ "${load}" = '1' ]; then
     tests="${tests} ${l/\\}"
     [[ ! "${l}" = *"\\" ]] && break
+    # On Windows there is an issue running sshd more than once, so keep just the first test.
+    [[ "${uname}" = *'_NT'* ]] && break
   fi
 done < "${d}/Makefile.am"
 
