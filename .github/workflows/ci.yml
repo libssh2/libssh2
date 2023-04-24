@@ -105,7 +105,6 @@ jobs:
       - name: Building libssh2
         shell: msys2 {0}
         run: |
-          export SSHD='C:/Program Files/Git/usr/bin/sshd.exe'
           autoreconf -fi
           ./configure --enable-debug --enable-static --disable-shared --with-crypto=openssl
           make -j3
