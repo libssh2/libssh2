@@ -28,7 +28,6 @@
 
 #include <sys/types.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
