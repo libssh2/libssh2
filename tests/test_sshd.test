@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+export DEBUG=1
 # https://testanything.org/tap-specification.html
 
 d="$(dirname "$0")"
