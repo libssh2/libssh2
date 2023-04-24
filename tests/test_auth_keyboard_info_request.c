@@ -248,7 +248,7 @@ int test_case(int num,
     int rc;
     char *message;
     int error_code;
-    LIBSSH2_SESSION *session = NULL;
+    LIBSSH2_SESSION *session;
 
     alloc_count = 0;
     free_count = 0;
