@@ -20,10 +20,6 @@
 #ifndef HAVE_BCRYPT_PBKDF
 
 #include <stdlib.h>
-#include <sys/types.h>
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
 
 #define LIBSSH2_BCRYPT_PBKDF_C
 #include "blowfish.c"

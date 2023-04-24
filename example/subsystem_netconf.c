@@ -14,11 +14,7 @@
 #include <arpa/inet.h>
 #endif
 
-#include <sys/types.h>
-#include <fcntl.h>
-#include <errno.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #ifndef INADDR_NONE

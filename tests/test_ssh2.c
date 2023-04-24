@@ -17,7 +17,7 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h>  /* for getenv() */
 
 static const char *hostname = "127.0.0.1";
 static const unsigned short port_number = 4711;

@@ -40,20 +40,17 @@
 #include "libssh2_priv.h"
 #include "misc.h"
 
-#include <stdlib.h>
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+
+#include <errno.h>
 
 #ifdef WIN32
 /* Force parameter type. */
 #define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
 #define send(s, b, l, f)  send((s), (b), (int)(l), (f))
 #endif
-
-#include <stdio.h>
-#include <errno.h>
 
 /* snprintf not in Visual Studio CRT and _snprintf dangerously incompatible.
    We provide a safe wrapper if snprintf not found */

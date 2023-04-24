@@ -39,7 +39,10 @@
 
 #include "libssh2_priv.h"
 #include "agent.h"
+
 #include <errno.h>
+#include <stdlib.h>  /* for getenv() */
+
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
 #else
@@ -48,6 +51,7 @@
    support them. */
 #undef PF_UNIX
 #endif
+
 #include "userauth.h"
 #include "session.h"
 

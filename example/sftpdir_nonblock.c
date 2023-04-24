@@ -24,11 +24,7 @@
 #include <arpa/inet.h>
 #endif
 
-#include <sys/types.h>
-#include <fcntl.h>
-#include <errno.h>
 #include <stdio.h>
-#include <ctype.h>
 
 #if defined(_MSC_VER)
 #define __FILESIZE "I64u"

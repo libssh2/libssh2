@@ -28,12 +28,9 @@
 #include <arpa/inet.h>
 #endif
 
-#include <sys/types.h>
-#include <fcntl.h>
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
+#include <string.h>
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf

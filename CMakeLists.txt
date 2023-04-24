@@ -141,7 +141,7 @@ check_include_files(inttypes.h HAVE_INTTYPES_H)
 if(NOT MSVC)
   check_include_files(unistd.h HAVE_UNISTD_H)
   check_include_files(sys/time.h HAVE_SYS_TIME_H)
-  check_include_files(sys/param.h HAVE_SYS_PARAM_H)
+  check_include_files(sys/param.h HAVE_SYS_PARAM_H)  # tests
 endif()
 if(NOT WIN32)
   check_include_files(sys/select.h HAVE_SYS_SELECT_H)

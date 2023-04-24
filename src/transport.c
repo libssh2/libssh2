@@ -39,13 +39,9 @@
  */
 
 #include "libssh2_priv.h"
-#include <errno.h>
-#include <fcntl.h>
-#include <ctype.h>
-#ifdef LIBSSH2DEBUG
-#include <stdio.h>
-#endif
 
+#include <errno.h>
+#include <ctype.h>
 #include <assert.h>
 
 #include "transport.h"

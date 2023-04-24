@@ -22,11 +22,7 @@
 #include <arpa/inet.h>
 #endif
 
-#include <sys/types.h>
-#include <fcntl.h>
-#include <errno.h>
 #include <stdio.h>
-#include <ctype.h>
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";

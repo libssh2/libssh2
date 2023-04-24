@@ -185,8 +185,6 @@ typedef int libssh2_socket_t;
 
 #ifdef LIBSSH2_USE_WIN32_LARGE_FILES
 #  include <io.h>
-#  include <sys/types.h>
-#  include <sys/stat.h>
 #  define LIBSSH2_STRUCT_STAT_SIZE_FORMAT    "%I64d"
 typedef struct _stati64 libssh2_struct_stat;
 typedef __int64 libssh2_struct_stat_size;
@@ -197,8 +195,6 @@ typedef __int64 libssh2_struct_stat_size;
  */
 
 #ifdef LIBSSH2_USE_WIN32_SMALL_FILES
-#  include <sys/types.h>
-#  include <sys/stat.h>
 #  ifndef _WIN32_WCE
 #    define LIBSSH2_STRUCT_STAT_SIZE_FORMAT    "%d"
 typedef struct _stat libssh2_struct_stat;

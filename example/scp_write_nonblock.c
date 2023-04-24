@@ -8,9 +8,6 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -21,12 +18,8 @@
 #include <arpa/inet.h>
 #endif
 
-#include <sys/types.h>
-#include <fcntl.h>
-#include <errno.h>
 #include <stdio.h>
-#include <ctype.h>
-#include <time.h>
+#include <time.h>  /* for time() */
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";

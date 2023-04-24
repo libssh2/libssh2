@@ -39,9 +39,6 @@
 
 #define LIBSSH2_CRYPTO_ENGINE libssh2_mbedtls
 
-#include <stdlib.h>
-#include <string.h>
-
 #include <mbedtls/platform.h>
 #include <mbedtls/md.h>
 #include <mbedtls/rsa.h>
@@ -161,6 +158,7 @@
     _libssh2_mbedtls_hash_final(&ctx, hash)
 #define libssh2_sha1(data, datalen, hash) \
     _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA1, hash)
+
 
 /*******************************************************************/
 /*

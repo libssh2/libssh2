@@ -47,6 +47,7 @@
 #include "libssh2_setup.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 #include <limits.h>
 
@@ -59,14 +60,8 @@
 */
 #ifdef HAVE_POLL
 # include <poll.h>
-#else
-# if defined(HAVE_SELECT) && !defined(WIN32)
-# ifdef HAVE_SYS_SELECT_H
-#  include <sys/select.h>
-# else
-#  include <sys/types.h>
-# endif
-# endif
+#elif defined(HAVE_SELECT) && defined(HAVE_SYS_SELECT_H)
+# include <sys/select.h>
 #endif
 
 /* Needed for struct iovec on some platforms */
@@ -913,14 +908,6 @@ struct _LIBSSH2_SESSION
     /* Configurable timeout for packets. Replaces LIBSSH2_READ_TIMEOUT */
     long packet_read_timeout;
 };
-
-#if defined(HAVE_STRTOLL)
-#define scpsize_strtol strtoll
-#elif defined(HAVE_STRTOI64)
-#define scpsize_strtol _strtoi64
-#else
-#define scpsize_strtol strtol
-#endif
 
 /* session.state bits */
 #define LIBSSH2_STATE_EXCHANGING_KEYS   0x00000001

@@ -22,12 +22,8 @@
 #include <arpa/inet.h>
 #endif
 
-#include <sys/types.h>
-#include <fcntl.h>
-#include <errno.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
+#include <string.h>
 
 static const char *username = "username";
 
