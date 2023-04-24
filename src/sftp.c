@@ -37,13 +37,14 @@
  * OF SUCH DAMAGE.
  */
 
-#include <assert.h>
-
 #include "libssh2_priv.h"
 #include "libssh2_sftp.h"
+
 #include "channel.h"
 #include "session.h"
 #include "sftp.h"
+
+#include <assert.h>
 
 /* This release of libssh2 implements Version 5 with automatic downgrade
  * based on server's declaration

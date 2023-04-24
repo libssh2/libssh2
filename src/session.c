@@ -42,20 +42,19 @@
 #ifdef WIN32
 #include <ws2tcpip.h>  /* for socklen_t */
 #endif
-
-#include <errno.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <stdlib.h>
-#include <fcntl.h>
-
 #ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
 #endif
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
 #endif
+
+#include <errno.h>
+#include <stdlib.h>
+#include <fcntl.h>
 
 #include "transport.h"
 #include "session.h"

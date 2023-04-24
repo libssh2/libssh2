@@ -39,13 +39,14 @@
  */
 
 #include "libssh2_priv.h"
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <fcntl.h>
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
+
 #include <assert.h>
 
 #include "channel.h"

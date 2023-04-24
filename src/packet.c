@@ -39,21 +39,16 @@
  */
 
 #include "libssh2_priv.h"
-#include <errno.h>
-#include <fcntl.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
-
 #ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
-
 /* Needed for struct iovec on some platforms */
 #ifdef HAVE_SYS_UIO_H
 #include <sys/uio.h>
