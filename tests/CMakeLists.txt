@@ -126,7 +126,7 @@ endforeach()
 
 add_custom_target(coverage
   COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/*
-  COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/coverage/"
+  COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/coverage/"
   COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/* --html-details --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
 
 add_custom_target(clean-coverage
