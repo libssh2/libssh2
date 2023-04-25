@@ -30,7 +30,6 @@
 #include <sys/un.h>
 #endif
 
-#include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
 

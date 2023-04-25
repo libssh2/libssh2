@@ -25,7 +25,6 @@
 #include <netinet/in.h>
 #endif
 
-#include <sys/types.h>
 #include <stdio.h>
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";

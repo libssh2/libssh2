@@ -24,7 +24,6 @@
 #include <arpa/inet.h>
 #endif
 
-#include <sys/types.h>
 #include <stdio.h>
 
 #if defined(_MSC_VER)
