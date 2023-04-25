@@ -681,7 +681,7 @@ struct _LIBSSH2_SESSION
 #if LIBSSH2_MD5
     unsigned char server_hostkey_md5[MD5_DIGEST_LENGTH];
     int server_hostkey_md5_valid;
-#endif                          /* ! LIBSSH2_MD5 */
+#endif /* ! LIBSSH2_MD5 */
     unsigned char server_hostkey_sha1[SHA_DIGEST_LENGTH];
     int server_hostkey_sha1_valid;
 
@@ -996,7 +996,7 @@ struct _LIBSSH2_CRYPT_METHOD
                   size_t blocksize, void **abstract, int firstlast);
     int (*dtor) (LIBSSH2_SESSION * session, void **abstract);
 
-      _libssh2_cipher_type(algo);
+    _libssh2_cipher_type(algo);
 };
 
 /* Bit flags for _LIBSSH2_CRYPT_METHOD */
@@ -1203,19 +1203,19 @@ size_t plain_method(char *method, size_t method_len);
 #endif
 
 /* In Windows the default file mode is text but an application can override it.
-Therefore we specify it explicitly. https://github.com/curl/curl/pull/258
-*/
+   Therefore we specify it explicitly. https://github.com/curl/curl/pull/258
+ */
 #if defined(WIN32) || defined(MSDOS)
 #define FOPEN_READTEXT "rt"
 #define FOPEN_WRITETEXT "wt"
 #define FOPEN_APPENDTEXT "at"
 #elif defined(__CYGWIN__)
 /* Cygwin has specific behavior we need to address when WIN32 is not defined.
-https://cygwin.com/cygwin-ug-net/using-textbinary.html
-For write we want our output to have line endings of LF and be compatible with
-other Cygwin utilities. For read we want to handle input that may have line
-endings either CRLF or LF so 't' is appropriate.
-*/
+     https://cygwin.com/cygwin-ug-net/using-textbinary.html
+   For write we want our output to have line endings of LF and be compatible with
+   other Cygwin utilities. For read we want to handle input that may have line
+   endings either CRLF or LF so 't' is appropriate.
+ */
 #define FOPEN_READTEXT "rt"
 #define FOPEN_WRITETEXT "w"
 #define FOPEN_APPENDTEXT "a"
