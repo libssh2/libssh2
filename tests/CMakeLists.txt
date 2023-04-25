@@ -38,7 +38,7 @@ include(CopyRuntimeDependencies)
 list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 transform_makefile_inc("Makefile.am" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cmake")
-# Get 'DOCKER_TESTS', 'STANDALONE_TESTS', 'SSHD_TESTS' variables
+# Get 'DOCKER_TESTS', 'STANDALONE_TESTS', 'SSHD_TESTS', 'librunner_la_SOURCES' variables
 include(${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cmake)
 
 if(CMAKE_COMPILER_IS_GNUCC)
@@ -60,7 +60,7 @@ if(SH_EXECUTABLE)
   add_test(NAME mansyntax COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
 endif()
 
-add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
+add_library(runner STATIC ${librunner_la_SOURCES})
 target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include "${CRYPTO_BACKEND_INCLUDE_DIR}")
 target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
