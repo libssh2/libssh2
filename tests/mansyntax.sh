@@ -1,4 +1,5 @@
 #!/bin/sh
+
 set -e
 
 # Written by Mikhail Gusarov

@@ -1355,7 +1355,7 @@ libssh2_session_set_last_error(LIBSSH2_SESSION* session,
                                 LIBSSH2_ERR_FLAG_DUP);
 }
 
-/* Libssh2_session_flag
+/* libssh2_session_flag
  *
  * Set/Get session flags
  *
