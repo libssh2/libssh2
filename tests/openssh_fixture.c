@@ -50,10 +50,11 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include <ctype.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <ctype.h>
 
 #if defined(WIN32) && defined(_WIN64)
 #define LIBSSH2_SOCKET_MASK "%lld"
