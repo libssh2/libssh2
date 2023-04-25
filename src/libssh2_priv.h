@@ -891,16 +891,10 @@ struct _LIBSSH2_SESSION
     unsigned char scpRecv_response[LIBSSH2_SCP_RESPONSE_BUFLEN];
     size_t scpRecv_response_len;
     long scpRecv_mode;
-#if defined(HAVE_LONGLONG) && defined(HAVE_STRTOLL)
-    /* we have the type and we can parse such numbers */
-    long long scpRecv_size;
-#define scpsize_strtol strtoll
-#elif defined(HAVE_STRTOI64)
-    __int64 scpRecv_size;
-#define scpsize_strtol _strtoi64
+#if defined(HAVE_LONGLONG)
+    libssh2_int64_t scpRecv_size;
 #else
     long scpRecv_size;
-#define scpsize_strtol strtol
 #endif
     long scpRecv_mtime;
     long scpRecv_atime;
@@ -922,6 +916,14 @@ struct _LIBSSH2_SESSION
     /* Configurable timeout for packets. Replaces LIBSSH2_READ_TIMEOUT */
     long packet_read_timeout;
 };
+
+#if !defined(HAVE_LONGLONG)
+#define scpsize_strtol strtol
+#elif defined(HAVE_STRTOLL)
+#define scpsize_strtol strtoll
+#elif defined(HAVE_STRTOI64)
+#define scpsize_strtol _strtoi64
+#endif
 
 /* session.state bits */
 #define LIBSSH2_STATE_EXCHANGING_KEYS   0x00000001
