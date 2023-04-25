@@ -707,10 +707,12 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp)
         GetSystemTimeAsFileTime(&_now.ft);
         tp->tv_usec = (long)((_now.ns100 / 10) % 1000000);
         tp->tv_sec = (long)((_now.ns100 - _WIN32_FT_OFFSET) / 10000000);
+        #error "gettimeofday win32 fallback"
 #else
         /* Platforms without a native implementation or local replacement */
         tp->tv_usec = 0;
         tp->tv_sec = 0;
+        #error "gettimeofday no-op fallback"
 #endif
     }
     /* Always return 0 as per Open Group Base Specifications Issue 6.
