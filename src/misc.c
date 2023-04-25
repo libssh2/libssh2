@@ -46,10 +46,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
 #ifdef WIN32
 /* Force parameter type. */
 #define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
@@ -533,7 +529,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
         }
     }
 
-    _libssh2_gettimeofday(&now, NULL);
+    gettimeofday(&now, NULL);
     if(!firstsec) {
         firstsec = now.tv_sec;
     }
@@ -672,8 +668,8 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
 
 #endif
 
-/* this define is defined in misc.h for the correct platforms */
-#ifdef LIBSSH2_GETTIMEOFDAY_WIN32
+/* Defined in libssh2_priv.h for the correct platforms */
+#ifdef LIBSSH2_GETTIMEOFDAY
 /*
  * _libssh2_gettimeofday
  * Implementation according to:
@@ -696,27 +692,31 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
  *  Danny Smith <dannysmith@users.sourceforge.net>
  */
 
-/* Offset between 1/1/1601 and 1/1/1970 in 100 nanosec units */
-#define _W32_FT_OFFSET (116444736000000000)
-
-int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp)
+int _libssh2_gettimeofday(struct timeval *tp, void *tzp)
 {
-    union {
-        unsigned __int64 ns100; /* time since 1 Jan 1601 in 100ns units */
-        FILETIME ft;
-    } _now;
     (void)tzp;
     if(tp) {
+#ifdef WIN32
+        /* Offset between 1601-01-01 and 1970-01-01 in 100 nanosec units */
+        #define _WIN32_FT_OFFSET (116444736000000000)
+
+        union {
+            libssh2_uint64_t ns100; /* time since 1 Jan 1601 in 100ns units */
+            FILETIME ft;
+        } _now;
         GetSystemTimeAsFileTime(&_now.ft);
         tp->tv_usec = (long)((_now.ns100 / 10) % 1000000);
-        tp->tv_sec = (long)((_now.ns100 - _W32_FT_OFFSET) / 10000000);
+        tp->tv_sec = (long)((_now.ns100 - _WIN32_FT_OFFSET) / 10000000);
+#else
+        /* Platforms without a native implementation or local replacement */
+        tp->tv_usec = 0;
+        tp->tv_sec = 0;
+#endif
     }
     /* Always return 0 as per Open Group Base Specifications Issue 6.
        Do not set errno on error.  */
     return 0;
 }
-
-
 #endif
 
 void *_libssh2_calloc(LIBSSH2_SESSION* session, size_t size)

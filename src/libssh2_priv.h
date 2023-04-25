@@ -64,7 +64,6 @@
 # ifdef HAVE_SYS_SELECT_H
 #  include <sys/select.h>
 # else
-#  include <sys/time.h>
 #  include <sys/types.h>
 # endif
 # endif
@@ -112,10 +111,20 @@
 
 /* Use local implementation when not available */
 #if !defined(HAVE_SNPRINTF)
-#define LIBSSH2_SNPRINTF
 #undef snprintf
 #define snprintf _libssh2_snprintf
+#define LIBSSH2_SNPRINTF
 int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...);
+#endif
+
+#if !defined(HAVE_GETTIMEOFDAY)
+#define HAVE_GETTIMEOFDAY
+#undef gettimeofday
+#define gettimeofday _libssh2_gettimeofday
+#define LIBSSH2_GETTIMEOFDAY
+int _libssh2_gettimeofday(struct timeval *tp, void *tzp);
+#elif defined(HAVE_SYS_TIME_H)
+#include <sys/time.h>
 #endif
 
 /* "inline" keyword is valid only with C++ engine! */

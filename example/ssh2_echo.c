@@ -24,9 +24,6 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
 
 #include <sys/types.h>
 #include <fcntl.h>
