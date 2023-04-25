@@ -489,7 +489,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         if(_libssh2_get_string(&buf, &(exchange_state->f_value),
                                &(exchange_state->f_value_len))) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
-                                 "Unable to get f value");
+                                 "Unable to get DH-SHA f value");
             goto clean_exit;
         }
 
@@ -499,7 +499,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         if(_libssh2_get_string(&buf, &(exchange_state->h_sig),
                                &(exchange_state->h_sig_len))) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
-                                 "Unable to get h sig");
+                                 "Unable to get DH-SHA h sig");
             goto clean_exit;
         }
 
@@ -515,7 +515,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             LIBSSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                 "Unable to allocate buffer for K");
+                                 "Unable to allocate buffer for DH-SHA K");
             goto clean_exit;
         }
         _libssh2_htonu32(exchange_state->k_value,
@@ -1750,7 +1750,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                                 &server_public_key_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate memory for a copy "
-                                 "of the host key");
+                                 "of the host ECDH key");
             goto clean_exit;
         }
 
@@ -1886,7 +1886,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         LIBSSH2_ALLOC(session, exchange_state->k_value_len);
         if(!exchange_state->k_value) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                 "Unable to allocate buffer for K");
+                                 "Unable to allocate buffer for ECDH K");
             goto clean_exit;
         }
         _libssh2_htonu32(exchange_state->k_value,
@@ -2381,7 +2381,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         if(!session->server_hostkey) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Unable to allocate memory for a copy "
-                                 "of the host key");
+                                 "of the host curve25519 key");
             goto clean_exit;
         }
 
