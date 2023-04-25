@@ -74,9 +74,6 @@
 /* Define if you have the gcrypt library. */
 #undef HAVE_LIBGCRYPT
 
-/* Define to 1 if the compiler supports the 'long long' data type. */
-#define HAVE_LONGLONG 1
-
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #define HAVE_NETINET_IN_H 1
 

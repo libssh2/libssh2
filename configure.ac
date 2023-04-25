@@ -47,12 +47,6 @@ case "$host" in
     ;;
 esac
 
-AC_CHECK_TYPE(long long,
-   [AC_DEFINE(HAVE_LONGLONG, 1,
-      [Define to 1 if the compiler supports the 'long long' data type.])]
-   longlong="yes"
-)
-
 dnl Our configure and build reentrant settings
 CURL_CONFIGURE_REENTRANT
 

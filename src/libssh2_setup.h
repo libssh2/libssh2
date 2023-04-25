@@ -31,14 +31,12 @@
 # define HAVE_SYS_TIME_H
 # define HAVE_SYS_PARAM_H
 # define HAVE_GETTIMEOFDAY
-# define HAVE_LONGLONG
 # define HAVE_STRTOLL
 #elif defined(_MSC_VER)
-# if _MSC_VER >= 1310
-#  define HAVE_LONGLONG
-# endif
 # if _MSC_VER >= 1800
 #  define HAVE_STRTOLL
+# else
+#  define HAVE_STRTOI64
 # endif
 # if _MSC_VER < 1900
 #  undef HAVE_SNPRINTF
