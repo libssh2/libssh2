@@ -701,7 +701,7 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp)
         #define _WIN32_FT_OFFSET (116444736000000000)
 
         union {
-            unsigned __int64 ns100; /* time since 1 Jan 1601 in 100ns units */
+            libssh2_uint64_t ns100; /* time since 1 Jan 1601 in 100ns units */
             FILETIME ft;
         } _now;
         GetSystemTimeAsFileTime(&_now.ft);
