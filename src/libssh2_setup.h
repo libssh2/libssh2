@@ -29,7 +29,6 @@
 # define HAVE_UNISTD_H
 # define HAVE_INTTYPES_H
 # define HAVE_SYS_TIME_H
-# define HAVE_SYS_PARAM_H
 # define HAVE_GETTIMEOFDAY
 # define HAVE_LONGLONG
 # define HAVE_STRTOLL
