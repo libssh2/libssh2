@@ -51,8 +51,6 @@
 #include <sys/uio.h>
 #endif
 
-#include <sys/types.h>
-
 #include "transport.h"
 #include "channel.h"
 #include "packet.h"
