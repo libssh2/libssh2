@@ -38,25 +38,25 @@
 #include "session_fixture.h"
 #include "openssh_fixture.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef HAVE_SYS_PARAM_H
+#include <sys/param.h>
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 #ifdef _MSC_VER
 #include <direct.h>
 #define getcwd _getcwd
 #define chdir _chdir
 #endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-#include <assert.h>
 
 static LIBSSH2_SESSION *connected_session = NULL;
 static libssh2_socket_t connected_socket = LIBSSH2_INVALID_SOCKET;
