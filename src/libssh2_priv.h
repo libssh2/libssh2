@@ -1212,9 +1212,9 @@ size_t plain_method(char *method, size_t method_len);
 #elif defined(__CYGWIN__)
 /* Cygwin has specific behavior we need to address when WIN32 is not defined.
      https://cygwin.com/cygwin-ug-net/using-textbinary.html
-   For write we want our output to have line endings of LF and be compatible with
-   other Cygwin utilities. For read we want to handle input that may have line
-   endings either CRLF or LF so 't' is appropriate.
+   For write we want our output to have line endings of LF and be compatible
+   with other Cygwin utilities. For read we want to handle input that may have
+   line endings either CRLF or LF so 't' is appropriate.
  */
 #define FOPEN_READTEXT "rt"
 #define FOPEN_WRITETEXT "w"
