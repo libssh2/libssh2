@@ -725,6 +725,27 @@ sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs, const unsigned char *p,
         attrs->mtime = mtime;
     }
 
+    /* Parse extended data, if present, to avoid stream parsing errors */
+    if(attrs->flags & LIBSSH2_SFTP_ATTR_EXTENDED) {
+        uint32_t extended_count;
+        uint32_t i;
+        size_t etype_len;
+        unsigned char *etype;
+        size_t edata_len;
+        unsigned char *edata;
+
+        if(_libssh2_get_u32(&buf, &extended_count) != 0) {
+            return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+        }
+
+        for(i = 0; i < extended_count; ++i) {
+            if(_libssh2_get_string(&buf, &etype, &etype_len) != 0 ||
+               _libssh2_get_string(&buf, &edata, &edata_len) != 0) {
+                    return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+            }
+        }
+    }
+
     return (buf.dataptr - buf.data);
 }
 
