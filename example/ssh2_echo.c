@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static const char *hostname = "127.0.0.1";
 static const char *commandline = "cat";

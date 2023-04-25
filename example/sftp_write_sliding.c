@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <time.h>  /* for time() */
+#include <string.h>
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";

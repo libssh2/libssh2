@@ -26,6 +26,7 @@
 
 #include <sys/types.h>
 #include <stdio.h>
+#include <string.h>
 
 #if defined(_MSC_VER)
 #define __FILESIZE "I64u"
