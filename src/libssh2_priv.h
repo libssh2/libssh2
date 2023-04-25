@@ -60,14 +60,8 @@
 */
 #ifdef HAVE_POLL
 # include <poll.h>
-#else
-# if defined(HAVE_SELECT) && !defined(WIN32)
-# ifdef HAVE_SYS_SELECT_H
-#  include <sys/select.h>
-# else
-#  include <sys/types.h>
-# endif
-# endif
+#elif defined(HAVE_SELECT) && defined(HAVE_SYS_SELECT_H)
+# include <sys/select.h>
 #endif
 
 /* Needed for struct iovec on some platforms */
