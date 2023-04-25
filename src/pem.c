@@ -764,7 +764,8 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
 
         if(off >= filedata_len)
             return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                  "Error parsing PEM: offset out of bounds");
+                                  "Error parsing PEM: "
+                                  "OpenSSH header not found");
 
         if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             return -1;
