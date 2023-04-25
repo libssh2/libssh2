@@ -50,9 +50,6 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
-#ifdef HAVE_GETTIMEOFDAY
-#include <sys/time.h>
-#endif
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
 #endif
@@ -1721,23 +1718,15 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         }
 #ifdef HAVE_POLL
 
-#ifdef HAVE_LIBSSH2_GETTIMEOFDAY
         {
             struct timeval tv_begin, tv_end;
 
-            _libssh2_gettimeofday((struct timeval *) &tv_begin, NULL);
+            gettimeofday(&tv_begin, NULL);
             sysret = poll(sockets, nfds, (int)timeout_remaining);
-            _libssh2_gettimeofday((struct timeval *) &tv_end, NULL);
+            gettimeofday(&tv_end, NULL);
             timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
             timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
         }
-#else
-        /* If the platform doesn't support gettimeofday,
-         * then just make the call non-blocking and walk away
-         */
-        sysret = poll(sockets, nfds, (int)timeout_remaining);
-        timeout_remaining = 0;
-#endif /* HAVE_LIBSSH2_GETTIMEOFDAY */
 
         if(sysret > 0) {
             for(i = 0; i < nfds; i++) {
@@ -1784,24 +1773,17 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
 #elif defined(HAVE_SELECT)
         tv.tv_sec = timeout_remaining / 1000;
         tv.tv_usec = (timeout_remaining % 1000) * 1000;
-#ifdef HAVE_LIBSSH2_GETTIMEOFDAY
+
         {
             struct timeval tv_begin, tv_end;
 
-            _libssh2_gettimeofday((struct timeval *) &tv_begin, NULL);
+            gettimeofday(&tv_begin, NULL);
             sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
-            _libssh2_gettimeofday((struct timeval *) &tv_end, NULL);
+            gettimeofday(&tv_end, NULL);
 
             timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
             timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
         }
-#else
-        /* If the platform doesn't support gettimeofday,
-         * then just make the call non-blocking and walk away
-         */
-        sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
-        timeout_remaining = 0;
-#endif
 
         if(sysret > 0) {
             for(i = 0; i < nfds; i++) {

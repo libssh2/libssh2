@@ -131,19 +131,6 @@ int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
 int _libssh2_check_length(struct string_buf *buf, size_t requested_len);
 int _libssh2_eob(struct string_buf *buf);
 
-#if defined(WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
-/* provide a private one */
-#undef HAVE_GETTIMEOFDAY
-int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp);
-#define HAVE_LIBSSH2_GETTIMEOFDAY
-#define LIBSSH2_GETTIMEOFDAY_WIN32 /* enable the win32 implementation */
-#else
-#ifdef HAVE_GETTIMEOFDAY
-#define _libssh2_gettimeofday(x,y) gettimeofday(x,y)
-#define HAVE_LIBSSH2_GETTIMEOFDAY
-#endif
-#endif
-
 void _libssh2_xor_data(unsigned char *output,
                        const unsigned char *input1,
                        const unsigned char *input2,
