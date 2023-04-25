@@ -38,8 +38,6 @@
 
 #ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
 
-#include <string.h>
-
 #if LIBSSH2_RSA
 int
 _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
