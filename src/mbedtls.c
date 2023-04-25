@@ -37,6 +37,8 @@
 
 #ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
 
+#include <stdlib.h>
+
 #if MBEDTLS_VERSION_NUMBER < 0x03000000
 #define mbedtls_cipher_info_get_key_bitlen(c) (c->key_bitlen)
 #define mbedtls_cipher_info_get_iv_size(c)    (c->iv_size)
