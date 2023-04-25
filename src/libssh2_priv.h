@@ -96,7 +96,7 @@
 # if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
   defined(WINAPI_FAMILY)
 #  include <winapifamily.h>
-#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) &&  \
+#  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && \
      !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #    define LIBSSH2_WINDOWS_APP
 #  endif
@@ -170,32 +170,32 @@ struct iovec {
 #define MAX_SHA_DIGEST_LEN SHA512_DIGEST_LENGTH
 
 #define LIBSSH2_ALLOC(session, count) \
-  session->alloc((count), &(session)->abstract)
+    session->alloc((count), &(session)->abstract)
 #define LIBSSH2_CALLOC(session, count) _libssh2_calloc(session, count)
 #define LIBSSH2_REALLOC(session, ptr, count) \
- ((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : \
- session->alloc((count), &(session)->abstract))
+    ((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : \
+             session->alloc((count), &(session)->abstract))
 #define LIBSSH2_FREE(session, ptr) \
- session->free((ptr), &(session)->abstract)
+    session->free((ptr), &(session)->abstract)
 #define LIBSSH2_IGNORE(session, data, datalen) \
- session->ssh_msg_ignore((session), (data), (int)(datalen), \
-                         &(session)->abstract)
+    session->ssh_msg_ignore((session), (data), (int)(datalen), \
+                            &(session)->abstract)
 #define LIBSSH2_DEBUG(session, always_display, message, message_len, \
-                      language, language_len)    \
+                      language, language_len) \
     session->ssh_msg_debug((session), (always_display), \
                            (message), (int)(message_len), \
                            (language), (int)(language_len), \
                            &(session)->abstract)
 #define LIBSSH2_DISCONNECT(session, reason, message, message_len, \
-                           language, language_len)                \
+                           language, language_len) \
     session->ssh_msg_disconnect((session), (reason), \
                                 (message), (int)(message_len), \
                                 (language), (int)(language_len), \
                                 &(session)->abstract)
 
-#define LIBSSH2_MACERROR(session, data, datalen)         \
+#define LIBSSH2_MACERROR(session, data, datalen) \
     session->macerror((session), (data), (int)(datalen), &(session)->abstract)
-#define LIBSSH2_X11_OPEN(channel, shost, sport)          \
+#define LIBSSH2_X11_OPEN(channel, shost, sport) \
     channel->session->x11(((channel)->session), (channel), \
                           (shost), (sport), (&(channel)->session->abstract))
 
@@ -214,7 +214,7 @@ struct iovec {
                                (data), (dlen), (sig), (sigLen), \
                                (agentPath), (&(session->abstract)))
 
-#define LIBSSH2_CHANNEL_CLOSE(session, channel)          \
+#define LIBSSH2_CHANNEL_CLOSE(session, channel) \
     channel->close_cb((session), &(session)->abstract, \
                       (channel), &(channel)->abstract)
 
@@ -223,9 +223,9 @@ struct iovec {
 #define LIBSSH2_RECV_FD(session, fd, buffer, length, flags) \
     (session->recv)(fd, buffer, length, flags, &session->abstract)
 
-#define LIBSSH2_SEND(session, buffer, length, flags)  \
+#define LIBSSH2_SEND(session, buffer, length, flags) \
     LIBSSH2_SEND_FD(session, session->socket_fd, buffer, length, flags)
-#define LIBSSH2_RECV(session, buffer, length, flags)                    \
+#define LIBSSH2_RECV(session, buffer, length, flags) \
     LIBSSH2_RECV_FD(session, session->socket_fd, buffer, length, flags)
 
 typedef struct _LIBSSH2_KEX_METHOD LIBSSH2_KEX_METHOD;
@@ -630,21 +630,22 @@ struct _LIBSSH2_SESSION
 {
     /* Memory management callbacks */
     void *abstract;
-      LIBSSH2_ALLOC_FUNC((*alloc));
-      LIBSSH2_REALLOC_FUNC((*realloc));
-      LIBSSH2_FREE_FUNC((*free));
+
+    LIBSSH2_ALLOC_FUNC((*alloc));
+    LIBSSH2_REALLOC_FUNC((*realloc));
+    LIBSSH2_FREE_FUNC((*free));
 
     /* Other callbacks */
-      LIBSSH2_IGNORE_FUNC((*ssh_msg_ignore));
-      LIBSSH2_DEBUG_FUNC((*ssh_msg_debug));
-      LIBSSH2_DISCONNECT_FUNC((*ssh_msg_disconnect));
-      LIBSSH2_MACERROR_FUNC((*macerror));
-      LIBSSH2_X11_OPEN_FUNC((*x11));
-      LIBSSH2_AUTHAGENT_FUNC((*authagent));
-      LIBSSH2_ADD_IDENTITIES_FUNC((*addLocalIdentities));
-      LIBSSH2_AUTHAGENT_SIGN_FUNC((*agentSignCallback));
-      LIBSSH2_SEND_FUNC((*send));
-      LIBSSH2_RECV_FUNC((*recv));
+    LIBSSH2_IGNORE_FUNC((*ssh_msg_ignore));
+    LIBSSH2_DEBUG_FUNC((*ssh_msg_debug));
+    LIBSSH2_DISCONNECT_FUNC((*ssh_msg_disconnect));
+    LIBSSH2_MACERROR_FUNC((*macerror));
+    LIBSSH2_X11_OPEN_FUNC((*x11));
+    LIBSSH2_AUTHAGENT_FUNC((*authagent));
+    LIBSSH2_ADD_IDENTITIES_FUNC((*addLocalIdentities));
+    LIBSSH2_AUTHAGENT_SIGN_FUNC((*agentSignCallback));
+    LIBSSH2_SEND_FUNC((*send));
+    LIBSSH2_RECV_FUNC((*recv));
 
     /* Method preferences -- NULL yields "load order" */
     char *kex_prefs;
@@ -921,9 +922,9 @@ struct _LIBSSH2_SESSION
 
 /* session.flag helpers */
 #ifdef MSG_NOSIGNAL
-#define LIBSSH2_SOCKET_SEND_FLAGS(session)              \
+#define LIBSSH2_SOCKET_SEND_FLAGS(session) \
     (((session)->flag.sigpipe) ? 0 : MSG_NOSIGNAL)
-#define LIBSSH2_SOCKET_RECV_FLAGS(session)              \
+#define LIBSSH2_SOCKET_RECV_FLAGS(session) \
     (((session)->flag.sigpipe) ? 0 : MSG_NOSIGNAL)
 #else
 /* If MSG_NOSIGNAL isn't defined we're SOL on blocking SIGPIPE */
