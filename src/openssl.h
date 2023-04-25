@@ -89,6 +89,7 @@
 #ifndef OPENSSL_NO_MD5
 #include <openssl/md5.h>
 #endif
+#include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <openssl/bn.h>
