@@ -380,7 +380,7 @@ function(transform_makefile_inc INPUT_FILE OUTPUT_FILE)
   unset(MAKEFILE_INC_CMAKE)
   foreach(LINE IN LISTS LINES)
     if(NOT LINE MATCHES " \\+= " AND
-       NOT LINE MATCHES "^(if|endif)")
+       NOT LINE MATCHES "^(if|else|endif|include)")
       set(MAKEFILE_INC_CMAKE "${MAKEFILE_INC_CMAKE}\n${LINE}")
     endif()
   endforeach()
