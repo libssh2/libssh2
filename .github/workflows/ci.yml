@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - { arch: x64  , plat: windows, logging: OFF, shared: OFF, crypto: WinCNG, zlib: ON }
+          - { arch: x64  , plat: windows, logging: OFF, shared: OFF, crypto: OpenSSL, zlib: OFF }
           - { arch: x64  , plat: windows, logging: ON , shared: ON , crypto: WinCNG, zlib: OFF }
           - { arch: x64  , plat: windows, logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
           - { arch: x64  , plat: uwp    , logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
