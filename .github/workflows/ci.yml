@@ -122,10 +122,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - { arch: ARM64, logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
-          - { arch: x64  , logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
-          - { arch: x64  , logging: ON , shared: ON , crypto: WinCNG, zlib: OFF }
           - { arch: x64  , logging: OFF, shared: OFF, crypto: WinCNG, zlib: OFF }
+          - { arch: x64  , logging: ON , shared: ON , crypto: WinCNG, zlib: OFF }
+          - { arch: x64  , logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
+          - { arch: ARM64, logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
           - { arch: x86  , logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
       fail-fast: false
     steps:
@@ -144,4 +144,5 @@ jobs:
             -DCRYPTO_BACKEND=${{matrix.crypto}} \
             -DENABLE_ZLIB_COMPRESSION=${{matrix.zlib}}
           cmake --build bin --target package
-          cd bin; ctest -VV --output-on-failure
+          export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
+          cd bin; ctest -VV -C Release --output-on-failure
