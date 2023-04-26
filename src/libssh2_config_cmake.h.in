@@ -50,9 +50,6 @@
 #cmakedefine HAVE_ARPA_INET_H
 #cmakedefine HAVE_NETINET_IN_H
 
-/* Types */
-#cmakedefine HAVE_LONGLONG
-
 /* Functions */
 #cmakedefine HAVE_GETTIMEOFDAY
 #cmakedefine HAVE_STRTOLL

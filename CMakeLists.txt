@@ -36,7 +36,6 @@
 include(CheckFunctionExists)
 include(CheckSymbolExists)
 include(CheckIncludeFiles)
-include(CheckTypeSize)
 include(CheckSymbolExists)
 include(CMakePushCheckState)
 
@@ -153,8 +152,6 @@ if(NOT WIN32)
   check_include_files(arpa/inet.h HAVE_ARPA_INET_H)  # example and tests
   check_include_files(netinet/in.h HAVE_NETINET_IN_H)  # example and tests
 endif()
-
-check_type_size("long long" LONGLONG)
 
 # CMake uses C syntax in check_symbol_exists() that generates a warning with
 # MSVC. To not break detection with ENABLE_WERRROR, we disable it for the
