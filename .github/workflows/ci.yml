@@ -131,7 +131,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: microsoft/setup-msbuild@v1
-      - name: Build with CMake
+      - name: Configure with CMake
         shell: bash
         run: |
           platform=${{matrix.arch}}; [ "${platform}" = 'x86' ] && platform=Win32
@@ -143,6 +143,12 @@ jobs:
             -DBUILD_SHARED_LIBS=${{matrix.shared}} \
             -DCRYPTO_BACKEND=${{matrix.crypto}} \
             -DENABLE_ZLIB_COMPRESSION=${{matrix.zlib}}
+      - name: Build with CMake
+        shell: bash
+        run: |
           cmake --build bin --target package
+      - name: Test with CMake
+        shell: bash
+        run: |
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
           cd bin; ctest -VV -C Release --output-on-failure
