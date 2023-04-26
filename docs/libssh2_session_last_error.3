@@ -1,4 +1,4 @@
-.TH libssh2_session_last_error 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
+.TH libssh2_session_last_error 3 "1 Jun 2007" "libssh2 0.15" "libssh2"
 .SH NAME
 libssh2_session_last_error - get the most recent error
 .SH SYNOPSIS
@@ -25,10 +25,8 @@ buffer will be given to the calling scope. If necessary, the errmsg buffer
 will be duplicated.
 
 Determine the most recent error condition and its cause.
-
 .SH RETURN VALUE
 Numeric error code corresponding to the the Error Code constants.
-
 .SH SEE ALSO
 .BR libssh2_session_last_errno(3)
 .BR libssh2_session_set_last_error(3)

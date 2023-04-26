@@ -1,4 +1,4 @@
-.TH libssh2_sftp_rename_ex 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
+.TH libssh2_sftp_rename_ex 3 "1 Jun 2007" "libssh2 0.15" "libssh2"
 .SH NAME
 libssh2_sftp_rename_ex - rename an SFTP file
 .SH SYNOPSIS
@@ -43,12 +43,10 @@ flag is not set and the destfile entry already exists, the operation
 will fail. Use of the other two flags indicate a preference (but not a
 requirement) for the remote end to perform an atomic rename operation
 and/or using native system calls when possible.
-
 .SH RETURN VALUE
 Return 0 on success or negative on failure.  It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
 LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
-
 .SH ERRORS
 \fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
 
@@ -59,6 +57,5 @@ LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
 \fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response was
 received on the socket, or an SFTP operation caused an errorcode to
 be returned by the server.
-
 .SH SEE ALSO
 .BR libssh2_sftp_init(3)

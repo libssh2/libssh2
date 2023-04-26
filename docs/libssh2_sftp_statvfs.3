@@ -1,4 +1,4 @@
-.TH libssh2_sftp_statvfs 3 "22 May 2010" "libssh2 1.2.6" "libssh2 manual"
+.TH libssh2_sftp_statvfs 3 "22 May 2010" "libssh2" "libssh2"
 .SH NAME
 libssh2_sftp_statvfs, libssh2_sftp_fstatvfs - get file system statistics
 .SH SYNOPSIS
@@ -30,7 +30,6 @@ statvfs@openssh.com and fstatvfs@openssh.com extension support on the server.
 
 \fIst\fP - Pointer to a LIBSSH2_SFTP_STATVFS structure to place file system
 statistics into.
-
 .SH DATA TYPES
 LIBSSH2_SFTP_STATVFS is a typedefed struct that is defined as below
 
@@ -58,7 +57,6 @@ The field \fIf_flag\fP is a bit mask. Bits are defined as follows:
 Read-only file system.
 .IP LIBSSH2_SFTP_ST_NOSUID
 Set-user-ID/set-group-ID bits are ignored by \fBexec\fP(3).
-
 .SH RETURN VALUE
 Returns 0 on success or negative on failure. If used in non-blocking mode, it
 returns LIBSSH2_ERROR_EAGAIN when it would otherwise block. While

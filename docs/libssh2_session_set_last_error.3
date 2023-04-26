@@ -1,4 +1,4 @@
-.TH libssh2_session_set_last_error 3 "26 Oct 2015" "libssh2 1.6.1" "libssh2 manual"
+.TH libssh2_session_set_last_error 3 "26 Oct 2015" "libssh2" "libssh2"
 .SH NAME
 libssh2_session_set_last_error - sets the internal error state
 .SH SYNOPSIS
@@ -23,13 +23,10 @@ This function is provided for high level language wrappers
 (i.e. Python or Perl) and other libraries that may extend libssh2 with
 additional features while still relying on its error reporting
 mechanism.
-
 .SH RETURN VALUE
 Numeric error code corresponding to the the Error Code constants.
-
 .SH AVAILABILITY
 Added in 1.6.1
-
 .SH SEE ALSO
 .BR libssh2_session_last_error(3)
 .BR libssh2_session_last_errno(3)

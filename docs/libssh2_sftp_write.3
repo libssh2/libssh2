@@ -1,4 +1,4 @@
-.TH libssh2_sftp_write 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
+.TH libssh2_sftp_write 3 "1 Jun 2007" "libssh2 0.15" "libssh2"
 .SH NAME
 libssh2_sftp_write - write SFTP data
 .SH SYNOPSIS
@@ -27,7 +27,6 @@ possible to write all bytes as requested.
 put it into a single SFTP protocol packet. This means that to get maximum
 performance when sending larger files, you should try to always pass in at
 least 32K of data to this function.
-
 .SH WRITE AHEAD
 Starting in libssh2 version 1.2.8, the default behavior of libssh2 is to
 create several smaller outgoing packets for all data you pass to this function

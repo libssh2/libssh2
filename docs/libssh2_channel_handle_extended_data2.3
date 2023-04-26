@@ -1,4 +1,4 @@
-.TH libssh2_channel_handle_extended_data2 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
+.TH libssh2_channel_handle_extended_data2 3 "1 Jun 2007" "libssh2 0.15" "libssh2"
 .SH NAME
 libssh2_channel_handle_extended_data2 - set extended data handling mode
 .SH SYNOPSIS
@@ -28,10 +28,8 @@ arrives.
 Change how a channel deals with extended data packets. By default all
 extended data is queued until read by
 .BR libssh2_channel_read_ex(3)
-
 .SH RETURN VALUE
 Return 0 on success or LIBSSH2_ERROR_EAGAIN when it would otherwise block.
-
 .SH SEE ALSO
 .BR libssh2_channel_handle_extended_data(3)
 .BR libssh2_channel_read_ex(3)

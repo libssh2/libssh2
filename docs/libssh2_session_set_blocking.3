@@ -1,4 +1,4 @@
-.TH libssh2_session_set_blocking 3 "1 Jun 2007" "libssh2 0.15" "libssh2 manual"
+.TH libssh2_session_set_blocking 3 "1 Jun 2007" "libssh2 0.15" "libssh2"
 .SH NAME
 libssh2_session_set_blocking - set or clear blocking mode on session
 .SH SYNOPSIS
@@ -23,9 +23,7 @@ session will return immediately with an empty buffer.  If a write is performed
 on a session with no room for more data, a blocking session will wait for
 room.  A non-blocking session will return immediately without writing
 anything.
-
 .SH RETURN VALUE
 None
-
 .SH SEE ALSO
 .BR libssh2_session_init_ex(3)
