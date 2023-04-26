@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - { arch: x64  , plat: windows, logging: OFF, shared: OFF, crypto: WinCNG, zlib: OFF }
+          - { arch: x64  , plat: windows, logging: OFF, shared: OFF, crypto: WinCNG, zlib: ON }
           - { arch: x64  , plat: windows, logging: ON , shared: ON , crypto: WinCNG, zlib: OFF }
           - { arch: x64  , plat: windows, logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
           - { arch: x64  , plat: uwp    , logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
@@ -25,10 +25,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: microsoft/setup-msbuild@v1
-      - name: Install dependencies
-        shell: bash
-        run: |
-          vcpkg --triplet=${{ matrix.arch }}-${{matrix.plat}} install openssl zlib
       - name: Configure with CMake
         shell: bash
         run: |
