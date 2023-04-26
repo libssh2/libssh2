@@ -28,10 +28,7 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          pkgs='boringssl libressl openssl mbedtls wolfssl zlib'
-          [ "${{matrix.plat}}" != 'uwp' ] && pkgs+='wolfssl'
-          [ "${{matrix.plat}}" != 'uwp' ] && [ "${{matrix.arch}}" != 'ARM64' ] && pkgs+='libressl'
-          vcpkg --triplet=${{ matrix.arch }}-${{matrix.plat}} install $pkgs
+          vcpkg --triplet=${{ matrix.arch }}-${{matrix.plat}} install openssl zlib
       - name: Configure with CMake
         shell: bash
         run: |
