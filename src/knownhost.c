@@ -141,7 +141,7 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     size_t hostlen = strlen(host);
     int rc;
     char *ptr;
-    unsigned int ptrlen;
+    size_t ptrlen;
 
     /* make sure we have a key type set */
     if(!(typemask & LIBSSH2_KNOWNHOST_KEY_MASK))
@@ -169,15 +169,15 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         entry->name_len = hostlen;
         break;
     case LIBSSH2_KNOWNHOST_TYPE_SHA1:
-        rc = libssh2_base64_decode(hosts->session, &ptr, &ptrlen,
-                                   host, (unsigned int)hostlen);
+        rc = _libssh2_base64_decode(hosts->session, &ptr, &ptrlen,
+                                    host, hostlen);
         if(rc)
             goto error;
         entry->name = ptr;
         entry->name_len = ptrlen;
 
-        rc = libssh2_base64_decode(hosts->session, &ptr, &ptrlen,
-                                   salt, (unsigned int)strlen(salt));
+        rc = _libssh2_base64_decode(hosts->session, &ptr, &ptrlen,
+                                    salt, strlen(salt));
         if(rc)
             goto error;
         entry->salt = ptr;

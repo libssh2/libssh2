@@ -50,9 +50,6 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
-#ifdef HAVE_GETTIMEOFDAY
-#include <sys/time.h>
-#endif
 #ifdef HAVE_ALLOCA_H
 #include <alloca.h>
 #endif
@@ -217,9 +214,6 @@ banner_send(LIBSSH2_SESSION * session)
     char *banner = (char *) LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
     size_t banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
     ssize_t ret;
-#ifdef LIBSSH2DEBUG
-    char banner_dup[256];
-#endif
 
     if(session->banner_TxRx_state == libssh2_NB_state_idle) {
         if(session->local.banner) {
@@ -228,18 +222,22 @@ banner_send(LIBSSH2_SESSION * session)
             banner = (char *) session->local.banner;
         }
 #ifdef LIBSSH2DEBUG
-        /* Hack and slash to avoid sending CRLF in debug output */
-        if(banner_len < 256) {
-            memcpy(banner_dup, banner, banner_len - 2);
-            banner_dup[banner_len - 2] = '\0';
-        }
-        else {
-            memcpy(banner_dup, banner, 255);
-            banner_dup[255] = '\0';
-        }
+        {
+            char banner_dup[256];
 
-        _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Sending Banner: %s",
-                       banner_dup));
+            /* Hack and slash to avoid sending CRLF in debug output */
+            if(banner_len < 256) {
+                memcpy(banner_dup, banner, banner_len - 2);
+                banner_dup[banner_len - 2] = '\0';
+            }
+            else {
+                memcpy(banner_dup, banner, 255);
+                banner_dup[255] = '\0';
+            }
+
+            _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
+                           "Sending Banner: %s", banner_dup));
+        }
 #endif
 
         session->banner_TxRx_state = libssh2_NB_state_created;
@@ -292,8 +290,6 @@ static int
 session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
                  int nonblock /* TRUE or FALSE */ )
 {
-#undef SETBLOCK
-#define SETBLOCK 0
 #ifdef HAVE_O_NONBLOCK
     /* most recent unix versions */
     int flags;
@@ -303,55 +299,28 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
         return fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
     else
         return fcntl(sockfd, F_SETFL, flags & (~O_NONBLOCK));
-#undef SETBLOCK
-#define SETBLOCK 1
-#endif
-
-#if defined(HAVE_FIONBIO) && (SETBLOCK == 0)
+#elif defined(HAVE_FIONBIO)
     /* older unix versions and VMS */
     int flags;
 
     flags = nonblock;
     return ioctl(sockfd, FIONBIO, &flags);
-#undef SETBLOCK
-#define SETBLOCK 2
-#endif
-
-#if defined(HAVE_IOCTLSOCKET) && (SETBLOCK == 0)
-    /* Windows? */
-    unsigned long flags;
-    flags = nonblock;
-
-    return ioctlsocket(sockfd, FIONBIO, &flags);
-#undef SETBLOCK
-#define SETBLOCK 3
-#endif
-
-#if defined(HAVE_IOCTLSOCKET_CASE) && (SETBLOCK == 0)
+#elif defined(HAVE_IOCTLSOCKET_CASE)
     /* presumably for Amiga */
     return IoctlSocket(sockfd, FIONBIO, (long) nonblock);
-#undef SETBLOCK
-#define SETBLOCK 4
-#endif
-
-#if defined(HAVE_SO_NONBLOCK) && (SETBLOCK == 0)
+#elif defined(HAVE_SO_NONBLOCK)
     /* BeOS */
     long b = nonblock ? 1 : 0;
     return setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
-#undef SETBLOCK
-#define SETBLOCK 5
-#endif
+#elif defined(WIN32)
+    unsigned long flags;
 
-#ifdef HAVE_DISABLED_NONBLOCKING
+    flags = nonblock;
+    return ioctlsocket(sockfd, FIONBIO, &flags);
+#else
     (void)sockfd;
     (void)nonblock;
     return 0;                   /* returns success */
-#undef SETBLOCK
-#define SETBLOCK 6
-#endif
-
-#if(SETBLOCK == 0)
-#error "no non-blocking method was found/used/set"
 #endif
 }
 
@@ -363,8 +332,6 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
 static int
 get_socket_nonblocking(libssh2_socket_t sockfd)
 {                               /* operate on this */
-#undef GETBLOCK
-#define GETBLOCK 0
 #ifdef HAVE_O_NONBLOCK
     /* most recent unix versions */
     int flags = fcntl(sockfd, F_GETFL, 0);
@@ -374,26 +341,7 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
         return 1;
     }
     return (flags & O_NONBLOCK);
-#undef GETBLOCK
-#define GETBLOCK 1
-#endif
-
-#if defined(WSAEWOULDBLOCK) && (GETBLOCK == 0)
-    /* Windows? */
-    unsigned int option_value;
-    socklen_t option_len = sizeof(option_value);
-
-    if(getsockopt
-        (sockfd, SOL_SOCKET, SO_ERROR, (void *) &option_value, &option_len)) {
-        /* Assume blocking on error */
-        return 1;
-    }
-    return (int) option_value;
-#undef GETBLOCK
-#define GETBLOCK 2
-#endif
-
-#if defined(HAVE_SO_NONBLOCK) && (GETBLOCK == 0)
+#elif defined(HAVE_SO_NONBLOCK)
     /* BeOS */
     long b;
     if(getsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b))) {
@@ -401,12 +349,7 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
         return 1;
     }
     return (int) b;
-#undef GETBLOCK
-#define GETBLOCK 5
-#endif
-
-#if defined(SO_STATE) && defined(__VMS) && (GETBLOCK == 0)
-
+#elif defined(SO_STATE) && defined(__VMS)
     /* VMS TCP/IP Services */
 
     size_t sockstat = 0;
@@ -422,20 +365,19 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
         return 1;
     }
     return 0;
+#elif defined(WIN32)
+    unsigned int option_value;
+    socklen_t option_len = sizeof(option_value);
 
-#undef GETBLOCK
-#define GETBLOCK 6
-#endif
-
-#ifdef HAVE_DISABLED_NONBLOCKING
+    if(getsockopt(sockfd, SOL_SOCKET, SO_ERROR,
+                  (void *) &option_value, &option_len)) {
+        /* Assume blocking on error */
+        return 1;
+    }
+    return (int) option_value;
+#else
     (void)sockfd;
     return 1;                   /* returns blocking */
-#undef GETBLOCK
-#define GETBLOCK 7
-#endif
-
-#if(GETBLOCK == 0)
-#error "no non-blocking method was found/used/get"
 #endif
 }
 
@@ -590,6 +532,21 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
     case LIBSSH2_CALLBACK_RECV:
         oldcb = session->recv;
         session->recv = callback;
+        return oldcb;
+
+    case LIBSSH2_CALLBACK_AUTHAGENT:
+        oldcb = session->authagent;
+        session->authagent = callback;
+        return oldcb;
+
+    case LIBSSH2_CALLBACK_AUTHAGENT_IDENTITIES:
+        oldcb = session->addLocalIdentities;
+        session->addLocalIdentities = callback;
+        return oldcb;
+
+    case LIBSSH2_CALLBACK_AUTHAGENT_SIGN:
+        oldcb = session->agentSignCallback;
+        session->agentSignCallback = callback;
         return oldcb;
     }
     _libssh2_debug((session, LIBSSH2_TRACE_TRANS, "Setting Callback %d",
@@ -867,7 +824,7 @@ libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 {
     int rc;
 
-    BLOCK_ADJUST(rc, session, session_startup(session, sock) );
+    BLOCK_ADJUST(rc, session, session_startup(session, sock));
 
     return rc;
 }
@@ -1162,7 +1119,7 @@ libssh2_session_free(LIBSSH2_SESSION * session)
 {
     int rc;
 
-    BLOCK_ADJUST(rc, session, session_free(session) );
+    BLOCK_ADJUST(rc, session, session_free(session));
 
     return rc;
 }
@@ -1395,7 +1352,7 @@ libssh2_session_set_last_error(LIBSSH2_SESSION* session,
                                 LIBSSH2_ERR_FLAG_DUP);
 }
 
-/* Libssh2_session_flag
+/* libssh2_session_flag
  *
  * Set/Get session flags
  *
@@ -1761,23 +1718,15 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         }
 #ifdef HAVE_POLL
 
-#ifdef HAVE_LIBSSH2_GETTIMEOFDAY
         {
             struct timeval tv_begin, tv_end;
 
-            _libssh2_gettimeofday((struct timeval *) &tv_begin, NULL);
+            gettimeofday(&tv_begin, NULL);
             sysret = poll(sockets, nfds, (int)timeout_remaining);
-            _libssh2_gettimeofday((struct timeval *) &tv_end, NULL);
+            gettimeofday(&tv_end, NULL);
             timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
             timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
         }
-#else
-        /* If the platform doesn't support gettimeofday,
-         * then just make the call non-blocking and walk away
-         */
-        sysret = poll(sockets, nfds, (int)timeout_remaining);
-        timeout_remaining = 0;
-#endif /* HAVE_LIBSSH2_GETTIMEOFDAY */
 
         if(sysret > 0) {
             for(i = 0; i < nfds; i++) {
@@ -1824,24 +1773,17 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
 #elif defined(HAVE_SELECT)
         tv.tv_sec = timeout_remaining / 1000;
         tv.tv_usec = (timeout_remaining % 1000) * 1000;
-#ifdef HAVE_LIBSSH2_GETTIMEOFDAY
+
         {
             struct timeval tv_begin, tv_end;
 
-            _libssh2_gettimeofday((struct timeval *) &tv_begin, NULL);
+            gettimeofday(&tv_begin, NULL);
             sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
-            _libssh2_gettimeofday((struct timeval *) &tv_end, NULL);
+            gettimeofday(&tv_end, NULL);
 
             timeout_remaining -= (tv_end.tv_sec - tv_begin.tv_sec) * 1000;
             timeout_remaining -= (tv_end.tv_usec - tv_begin.tv_usec) / 1000;
         }
-#else
-        /* If the platform doesn't support gettimeofday,
-         * then just make the call non-blocking and walk away
-         */
-        sysret = select((int)(maxfd + 1), &rfds, &wfds, NULL, &tv);
-        timeout_remaining = 0;
-#endif
 
         if(sysret > 0) {
             for(i = 0; i < nfds; i++) {

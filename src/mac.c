@@ -71,7 +71,8 @@ static LIBSSH2_MAC_METHOD mac_method_none = {
     0,
     NULL,
     mac_none_MAC,
-    NULL
+    NULL,
+    0
 };
 #endif /* defined(LIBSSH2DEBUG) && defined(LIBSSH2_MAC_NONE_INSECURE) */
 
@@ -138,8 +139,6 @@ mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION * session,
     return 0;
 }
 
-
-
 static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512 = {
     "hmac-sha2-512",
     64,
@@ -147,7 +146,19 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512 = {
     mac_method_common_init,
     mac_method_hmac_sha2_512_hash,
     mac_method_common_dtor,
+    0
 };
+
+static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512_etm = {
+    "hmac-sha2-512-etm@openssh.com",
+    64,
+    64,
+    mac_method_common_init,
+    mac_method_hmac_sha2_512_hash,
+    mac_method_common_dtor,
+    1
+};
+
 #endif
 
 
@@ -192,7 +203,19 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_256 = {
     mac_method_common_init,
     mac_method_hmac_sha2_256_hash,
     mac_method_common_dtor,
+    0
 };
+
+static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_256_etm = {
+    "hmac-sha2-256-etm@openssh.com",
+    32,
+    32,
+    mac_method_common_init,
+    mac_method_hmac_sha2_256_hash,
+    mac_method_common_dtor,
+    1
+};
+
 #endif
 
 
@@ -237,6 +260,17 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1 = {
     mac_method_common_init,
     mac_method_hmac_sha1_hash,
     mac_method_common_dtor,
+    0
+};
+
+static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1_etm = {
+    "hmac-sha1-etm@openssh.com",
+    20,
+    20,
+    mac_method_common_init,
+    mac_method_hmac_sha1_hash,
+    mac_method_common_dtor,
+    1
 };
 
 /* mac_method_hmac_sha1_96_hash
@@ -268,6 +302,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_sha1_96 = {
     mac_method_common_init,
     mac_method_hmac_sha1_96_hash,
     mac_method_common_dtor,
+    0
 };
 
 #if LIBSSH2_MD5
@@ -310,6 +345,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_md5 = {
     mac_method_common_init,
     mac_method_hmac_md5_hash,
     mac_method_common_dtor,
+    0
 };
 
 /* mac_method_hmac_md5_96_hash
@@ -339,6 +375,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_md5_96 = {
     mac_method_common_init,
     mac_method_hmac_md5_96_hash,
     mac_method_common_dtor,
+    0
 };
 #endif /* LIBSSH2_MD5 */
 
@@ -383,6 +420,7 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_ripemd160 = {
     mac_method_common_init,
     mac_method_hmac_ripemd160_hash,
     mac_method_common_dtor,
+    0
 };
 
 static const LIBSSH2_MAC_METHOD mac_method_hmac_ripemd160_openssh_com = {
@@ -392,17 +430,21 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_ripemd160_openssh_com = {
     mac_method_common_init,
     mac_method_hmac_ripemd160_hash,
     mac_method_common_dtor,
+    0
 };
 #endif /* LIBSSH2_HMAC_RIPEMD */
 
 static const LIBSSH2_MAC_METHOD *mac_methods[] = {
 #if LIBSSH2_HMAC_SHA256
     &mac_method_hmac_sha2_256,
+    &mac_method_hmac_sha2_256_etm,
 #endif
 #if LIBSSH2_HMAC_SHA512
     &mac_method_hmac_sha2_512,
+    &mac_method_hmac_sha2_512_etm,
 #endif
     &mac_method_hmac_sha1,
+    &mac_method_hmac_sha1_etm,
     &mac_method_hmac_sha1_96,
 #if LIBSSH2_MD5
     &mac_method_hmac_md5,
@@ -422,4 +464,34 @@ const LIBSSH2_MAC_METHOD **
 _libssh2_mac_methods(void)
 {
     return mac_methods;
+}
+
+#if LIBSSH2_AES_GCM
+/* Stub for aes256-gcm@openssh.com crypto type, which has an integrated
+   HMAC method. This must not be added to mac_methods[] since it cannot be
+   negotiated separately. */
+static const LIBSSH2_MAC_METHOD mac_method_hmac_aesgcm = {
+    "INTEGRATED-AES-GCM",  /* made up name for display only */
+    16,
+    16,
+    NULL,
+    NULL,
+    NULL,
+    0
+};
+#endif /* LIBSSH2_AES_GCM */
+
+/* See if the negotiated crypto method has its own authentication scheme that
+ * obviates the need for a separate negotiated hmac method */
+const LIBSSH2_MAC_METHOD *
+_libssh2_mac_override(const LIBSSH2_CRYPT_METHOD *crypt)
+{
+#if LIBSSH2_AES_GCM
+    if(!strcmp(crypt->name, "aes256-gcm@openssh.com") ||
+       !strcmp(crypt->name, "aes128-gcm@openssh.com"))
+        return &mac_method_hmac_aesgcm;
+#else
+    (void) crypt;
+#endif /* LIBSSH2_AES_GCM */
+    return NULL;
 }

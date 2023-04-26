@@ -33,7 +33,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
-FROM debian:bullseye
+FROM debian:testing-slim
 
 RUN apt-get update \
  && apt-get install -y openssh-server \
@@ -46,6 +46,8 @@ RUN mkdir /var/run/sshd
 #
 # Copying to a temp location, then moving because chmodding the copied file has
 # no effect (Docker AUFS-related bug maybe?)
+
+# Host keys
 COPY ssh_host_rsa_key /tmp/etc/ssh/ssh_host_rsa_key
 RUN mv /tmp/etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
 RUN chmod 600 /etc/ssh/ssh_host_rsa_key
@@ -58,31 +60,28 @@ COPY ssh_host_ed25519_key /tmp/etc/ssh/ssh_host_ed25519_key
 RUN mv /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key
 RUN chmod 600 /etc/ssh/ssh_host_ed25519_key
 
-COPY ca_ecdsa.pub /tmp/etc/ssh/ca_ecdsa.pub
-RUN mv /tmp/etc/ssh/ca_ecdsa.pub /etc/ssh/ca_ecdsa.pub
-RUN cp /etc/ssh/ca_ecdsa.pub /etc/ssh/ca_main.pub
-RUN chmod 600 /etc/ssh/ca_main.pub
-
+# Trusted CA keys
 COPY ca_ecdsa /tmp/etc/ssh/ca_ecdsa
 RUN mv /tmp/etc/ssh/ca_ecdsa /etc/ssh/ca_ecdsa
 RUN chmod 600 /etc/ssh/ca_ecdsa
-
-COPY ca_rsa.pub /tmp/etc/ssh/ca_rsa.pub
-RUN mv /tmp/etc/ssh/ca_rsa.pub /etc/ssh/ca_rsa.pub
-RUN cat /etc/ssh/ca_rsa.pub >> /etc/ssh/ca_main.pub
 
 COPY ca_rsa /tmp/etc/ssh/ca_rsa
 RUN mv /tmp/etc/ssh/ca_rsa /etc/ssh/ca_rsa
 RUN chmod 600 /etc/ssh/ca_rsa
 
+COPY ca_user_keys.pub /tmp/etc/ssh/ca_user_keys.pub
+RUN cp /tmp/etc/ssh/ca_user_keys.pub /etc/ssh/ca_user_keys.pub
+RUN chmod 600 /etc/ssh/ca_user_keys.pub
+
+# User
 RUN adduser --disabled-password --gecos 'Test user for libssh2 integration tests' libssh2
 RUN echo 'libssh2:my test password' | chpasswd
 
-RUN sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config
-RUN echo "TrustedUserCAKeys /etc/ssh/ca_main.pub" >> /etc/ssh/sshd_config
-RUN echo "PubkeyAcceptedKeyTypes=+ssh-dss" >> /etc/ssh/sshd_config
-RUN echo "MACs +hmac-sha1,hmac-sha1-96,hmac-sha2-256,hmac-sha2-512,hmac-md5,hmac-md5-96,umac-64@openssh.com,umac-128@openssh.com,hmac-sha1-etm@openssh.com,hmac-sha1-96-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-md5-etm@openssh.com,hmac-md5-96-etm@openssh.com,umac-64-etm@openssh.com,umac-128-etm@openssh.com" >> /etc/ssh/sshd_config
-RUN echo "Ciphers +3des-cbc,aes128-cbc,aes192-cbc,aes256-cbc,rijndael-cbc@lysator.liu.se,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com" >> /etc/ssh/sshd_config
+# Config
+RUN sed -i 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/' /etc/ssh/sshd_config
+COPY sshd_config /tmp/etc/ssh/sshd_config
+RUN cat /tmp/etc/ssh/sshd_config >> /etc/ssh/sshd_config
+RUN echo "TrustedUserCAKeys /etc/ssh/ca_user_keys.pub" >> /etc/ssh/sshd_config
 
 
 # SSH login fix. Otherwise user is kicked off after login

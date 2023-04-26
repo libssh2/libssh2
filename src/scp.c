@@ -305,7 +305,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 
             path_len = strlen(path);
 
-            /* no NUL-termination neeed, so memcpy will do */
+            /* no NUL-termination needed, so memcpy will do */
             memcpy(&session->scpRecv_command[cmd_len], path, path_len);
             cmd_len += path_len;
         }
@@ -693,7 +693,6 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 
                 *(p++) = '\0';
                 /* Make sure we don't get fooled by leftover values */
-
                 session->scpRecv_mode = strtol(s, &e, 8);
                 if(e && *e) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -878,7 +877,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
             path_len = strlen(path);
 
-            /* no NUL-termination neeed, so memcpy will do */
+            /* no NUL-termination needed, so memcpy will do */
             memcpy(&session->scpSend_command[cmd_len], path, path_len);
             cmd_len += path_len;
 

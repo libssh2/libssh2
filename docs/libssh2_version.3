@@ -24,15 +24,17 @@ string or NULL if the \fIrequired_version\fP isn't fulfilled.
 To make sure you run with the correct libssh2 version:
 
 .nf
-if (!libssh2_version(LIBSSH2_VERSION_NUM)) {
-  fprintf (stderr, \&"Runtime libssh2 version too old!\&");
+if(!libssh2_version(LIBSSH2_VERSION_NUM)) {
+  fprintf(stderr, \&"Runtime libssh2 version too old!\&");
   exit(1);
 }
 .fi
 
 Unconditionally get the version number:
 
-printf(\&"libssh2 version: %s\&", libssh2_version(0) );
+.nf
+printf(\&"libssh2 version: %s\&", libssh2_version(0));
+.fi
 .SH AVAILABILITY
 This function was added in libssh2 1.1, in previous versions there way no way
 to extract this info in run-time.

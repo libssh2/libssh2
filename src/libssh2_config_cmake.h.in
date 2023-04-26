@@ -50,9 +50,6 @@
 #cmakedefine HAVE_ARPA_INET_H
 #cmakedefine HAVE_NETINET_IN_H
 
-/* Types */
-#cmakedefine HAVE_LONGLONG
-
 /* Functions */
 #cmakedefine HAVE_GETTIMEOFDAY
 #cmakedefine HAVE_STRTOLL
@@ -68,10 +65,8 @@
 /* Socket non-blocking support */
 #cmakedefine HAVE_O_NONBLOCK
 #cmakedefine HAVE_FIONBIO
-#cmakedefine HAVE_IOCTLSOCKET
 #cmakedefine HAVE_IOCTLSOCKET_CASE
 #cmakedefine HAVE_SO_NONBLOCK
-#cmakedefine HAVE_DISABLED_NONBLOCKING
 
 /* attribute to export symbol */
 #if defined(LIBSSH2_EXPORTS) && defined(LIBSSH2_LIBRARY)

@@ -22,7 +22,6 @@
 /* Hand-crafted configuration for platforms which lack config tool. */
 #elif defined(WIN32)
 
-#define HAVE_IOCTLSOCKET
 #define HAVE_SELECT
 #define HAVE_SNPRINTF
 
@@ -32,14 +31,12 @@
 # define HAVE_SYS_TIME_H
 # define HAVE_SYS_PARAM_H
 # define HAVE_GETTIMEOFDAY
-# define HAVE_LONGLONG
 # define HAVE_STRTOLL
 #elif defined(_MSC_VER)
-# if _MSC_VER >= 1310
-#  define HAVE_LONGLONG
-# endif
 # if _MSC_VER >= 1800
 #  define HAVE_STRTOLL
+# else
+#  define HAVE_STRTOI64
 # endif
 # if _MSC_VER < 1900
 #  undef HAVE_SNPRINTF
@@ -73,7 +70,8 @@
 # ifndef _CRT_SECURE_NO_WARNINGS
 # define _CRT_SECURE_NO_WARNINGS  /* for fopen(), getenv() */
 # endif
-# ifndef LIBSSH2_LIBRARY  /* apply to examples and tests only */
+# if !defined(LIBSSH2_LIBRARY) || defined(LIBSSH2_TESTS)
+   /* apply to examples and tests only */
 #  ifndef _CRT_NONSTDC_NO_DEPRECATE
 #  define _CRT_NONSTDC_NO_DEPRECATE  /* for strdup(), write() */
 #  endif

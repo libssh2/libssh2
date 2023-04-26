@@ -46,10 +46,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
 #ifdef WIN32
 /* Force parameter type. */
 #define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
@@ -204,10 +200,10 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 #else
     if(rc < 0) {
 #ifdef EWOULDBLOCK /* For VMS and other special unixes */
-      if(errno == EWOULDBLOCK)
-        return -EAGAIN;
+        if(errno == EWOULDBLOCK)
+            return -EAGAIN;
 #endif
-      return -errno;
+        return -errno;
     }
 #endif
     return rc;
@@ -317,27 +313,46 @@ static const short base64_reverse_table[256] = {
 
 /* libssh2_base64_decode
  *
- * Decode a base64 chunk and store it into a newly alloc'd buffer
+ * Legacy public function. DEPRECATED.
  */
-/* FIXME: datalen, src_len -> size_t */
 LIBSSH2_API int
 libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
                       unsigned int *datalen, const char *src,
                       unsigned int src_len)
 {
-    unsigned char *s, *d;
-    short v;
-    int i = 0, len = 0;
+    int rc;
+    size_t dlen;
 
-    *data = LIBSSH2_ALLOC(session, (3 * src_len / 4) + 1);
+    rc = _libssh2_base64_decode(session, data, &dlen, src, src_len);
+
+    if(datalen)
+        *datalen = (unsigned int)dlen;
+
+    return rc;
+}
+
+/* _libssh2_base64_decode
+ *
+ * Decode a base64 chunk and store it into a newly alloc'd buffer
+ */
+int _libssh2_base64_decode(LIBSSH2_SESSION *session,
+                           char **data, size_t *datalen,
+                           const char *src, size_t src_len)
+{
+    unsigned char *d;
+    const char *s;
+    short v;
+    ssize_t i = 0, len = 0;
+
+    *data = LIBSSH2_ALLOC(session, ((src_len / 4) * 3) + 1);
     d = (unsigned char *) *data;
     if(!d) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory for base64 decoding");
     }
 
-    for(s = (unsigned char *) src; ((char *) s) < (src + src_len); s++) {
-        v = base64_reverse_table[*s];
+    for(s = src; s < (src + src_len); s++) {
+        v = base64_reverse_table[(unsigned char)*s];
         if(v < 0)
             continue;
         switch(i % 4) {
@@ -424,22 +439,22 @@ size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
 
         switch(inputparts) {
         case 1: /* only one byte read */
-            snprintf(output, 5, "%c%c==",
-                     table64[obuf[0]],
-                     table64[obuf[1]]);
+            output[0] = table64[obuf[0]];
+            output[1] = table64[obuf[1]];
+            output[2] = '=';
+            output[3] = '=';
             break;
         case 2: /* two bytes read */
-            snprintf(output, 5, "%c%c%c=",
-                     table64[obuf[0]],
-                     table64[obuf[1]],
-                     table64[obuf[2]]);
+            output[0] = table64[obuf[0]];
+            output[1] = table64[obuf[1]];
+            output[2] = table64[obuf[2]];
+            output[3] = '=';
             break;
         default:
-            snprintf(output, 5, "%c%c%c%c",
-                     table64[obuf[0]],
-                     table64[obuf[1]],
-                     table64[obuf[2]],
-                     table64[obuf[3]]);
+            output[0] = table64[obuf[0]];
+            output[1] = table64[obuf[1]];
+            output[2] = table64[obuf[2]];
+            output[3] = table64[obuf[3]];
             break;
         }
         output += 4;
@@ -514,7 +529,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
         }
     }
 
-    _libssh2_gettimeofday(&now, NULL);
+    gettimeofday(&now, NULL);
     if(!firstsec) {
         firstsec = now.tv_sec;
     }
@@ -653,8 +668,8 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
 
 #endif
 
-/* this define is defined in misc.h for the correct platforms */
-#ifdef LIBSSH2_GETTIMEOFDAY_WIN32
+/* Defined in libssh2_priv.h for the correct platforms */
+#ifdef LIBSSH2_GETTIMEOFDAY
 /*
  * _libssh2_gettimeofday
  * Implementation according to:
@@ -677,27 +692,31 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
  *  Danny Smith <dannysmith@users.sourceforge.net>
  */
 
-/* Offset between 1/1/1601 and 1/1/1970 in 100 nanosec units */
-#define _W32_FT_OFFSET (116444736000000000)
-
-int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp)
+int _libssh2_gettimeofday(struct timeval *tp, void *tzp)
 {
-    union {
-        unsigned __int64 ns100; /* time since 1 Jan 1601 in 100ns units */
-        FILETIME ft;
-    } _now;
     (void)tzp;
     if(tp) {
+#ifdef WIN32
+        /* Offset between 1601-01-01 and 1970-01-01 in 100 nanosec units */
+        #define _WIN32_FT_OFFSET (116444736000000000)
+
+        union {
+            libssh2_uint64_t ns100; /* time since 1 Jan 1601 in 100ns units */
+            FILETIME ft;
+        } _now;
         GetSystemTimeAsFileTime(&_now.ft);
         tp->tv_usec = (long)((_now.ns100 / 10) % 1000000);
-        tp->tv_sec = (long)((_now.ns100 - _W32_FT_OFFSET) / 10000000);
+        tp->tv_sec = (long)((_now.ns100 - _WIN32_FT_OFFSET) / 10000000);
+#else
+        /* Platforms without a native implementation or local replacement */
+        tp->tv_usec = 0;
+        tp->tv_sec = 0;
+#endif
     }
     /* Always return 0 as per Open Group Base Specifications Issue 6.
        Do not set errno on error.  */
     return 0;
 }
-
-
 #endif
 
 void *_libssh2_calloc(LIBSSH2_SESSION* session, size_t size)

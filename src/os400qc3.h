@@ -169,14 +169,16 @@
 #define LIBSSH2_HMAC_SHA256     1
 #define LIBSSH2_HMAC_SHA512     1
 
-#define LIBSSH2_AES             1
+#define LIBSSH2_AES_CBC         1
 #define LIBSSH2_AES_CTR         1
+#define LIBSSH2_AES_GCM         0
 #define LIBSSH2_BLOWFISH        0
 #define LIBSSH2_RC4             1
 #define LIBSSH2_CAST            0
 #define LIBSSH2_3DES            1
 
 #define LIBSSH2_RSA             1
+#define LIBSSH2_RSA_SHA1        1
 #define LIBSSH2_RSA_SHA2        1
 #define LIBSSH2_DSA             0
 #define LIBSSH2_ECDSA           0

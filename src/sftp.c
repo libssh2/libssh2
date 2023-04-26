@@ -1414,7 +1414,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
            return that now as we can't risk being interrupted later with data
            partially written to the buffer. */
         if(filep->data_left) {
-            size_t copy = MIN(buffer_size, filep->data_left);
+            size_t copy = LIBSSH2_MIN(buffer_size, filep->data_left);
 
             memcpy(buffer, &filep->data[ filep->data_len - filep->data_left],
                    copy);
@@ -1528,8 +1528,9 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
 
             /* add this new entry LAST in the list */
             _libssh2_list_add(&handle->packet_list, &chunk->node);
-            count -= MIN(size, count); /* deduct the size we used, as we might
-                                        * have to create more packets */
+            /* deduct the size we used, as we might have to create
+               more packets */
+            count -= LIBSSH2_MIN(size, count);
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
                            "read request id %d sent (offset: %d, size: %d)",
                            request_id, (int)chunk->offset, (int)chunk->len));
@@ -1662,7 +1663,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                        requested, which shouldn't happen for normal files. See:
                        https://tools.ietf.org/html/draft-ietf-secsh-filexfer-02
                        #section-6.4
-                    */
+                     */
                     return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                           "Read Packet At Unexpected Offset");
                 }
@@ -2085,7 +2086,8 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
         while(count) {
             /* TODO: Possibly this should have some logic to prevent a very
                very small fraction to be left but lets ignore that for now */
-            uint32_t size = (uint32_t)(MIN(MAX_SFTP_OUTGOING_SIZE, count));
+            uint32_t size =
+                (uint32_t)(LIBSSH2_MIN(MAX_SFTP_OUTGOING_SIZE, count));
             uint32_t request_id;
 
             /* 25 = packet_len(4) + packet_type(1) + request_id(4) +
@@ -2235,7 +2237,7 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
     acked += handle->u.file.acked;
 
     if(acked) {
-        ssize_t ret = MIN(acked, org_count);
+        ssize_t ret = LIBSSH2_MIN(acked, org_count);
         /* we got data acked so return that amount, but no more than what
            was asked to get sent! */
 

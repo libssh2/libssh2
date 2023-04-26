@@ -40,9 +40,14 @@
 int main(void)
 {
     int exit_code = 1;
-    LIBSSH2_SESSION *session = start_session_fixture();
+    int skipped;
+    LIBSSH2_SESSION *session = start_session_fixture(&skipped);
     if(session) {
         exit_code = (test(session) == 0) ? 0 : 1;
+    }
+    else if(skipped) {
+        fprintf(stderr, "Test skipped.\n");
+        exit_code = 0;
     }
     stop_session_fixture();
     return exit_code;

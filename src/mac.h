@@ -57,10 +57,14 @@ struct _LIBSSH2_MAC_METHOD
                  size_t packet_len, const unsigned char *addtl,
                  size_t addtl_len, void **abstract);
     int (*dtor) (LIBSSH2_SESSION * session, void **abstract);
+
+    int etm; /* encrypt-then-mac */
 };
 
 typedef struct _LIBSSH2_MAC_METHOD LIBSSH2_MAC_METHOD;
 
 const LIBSSH2_MAC_METHOD **_libssh2_mac_methods(void);
+const LIBSSH2_MAC_METHOD *_libssh2_mac_override(
+        const LIBSSH2_CRYPT_METHOD *crypt);
 
 #endif /* __LIBSSH2_MAC_H */

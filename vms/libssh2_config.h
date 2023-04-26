@@ -19,7 +19,7 @@ typedef unsigned int socklen_t; /* missing in headers on VMS */
 #define HAVE_SELECT
 #define HAVE_UIO
 
-#define HAVE_SYS_SOCKET.H
+#define HAVE_SYS_SOCKET_H
 #define HAVE_NETINET_IN_H
 #define HAVE_ARPA_INET_H
 

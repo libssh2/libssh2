@@ -89,6 +89,7 @@
 #ifndef OPENSSL_NO_MD5
 #include <openssl/md5.h>
 #endif
+#include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <openssl/bn.h>
@@ -105,9 +106,11 @@
 
 #ifdef OPENSSL_NO_RSA
 # define LIBSSH2_RSA 0
+# define LIBSSH2_RSA_SHA1 0
 # define LIBSSH2_RSA_SHA2 0
 #else
 # define LIBSSH2_RSA 1
+# define LIBSSH2_RSA_SHA1 1
 # define LIBSSH2_RSA_SHA2 1
 #endif
 
@@ -151,10 +154,16 @@
 #if (OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES)) || \
     (defined(LIBSSH2_WOLFSSL) && defined(WOLFSSL_AES_COUNTER))
 # define LIBSSH2_AES_CTR 1
-# define LIBSSH2_AES 1
+# define LIBSSH2_AES_CBC 1
 #else
 # define LIBSSH2_AES_CTR 0
-# define LIBSSH2_AES 0
+# define LIBSSH2_AES_CBC 0
+#endif
+
+#if (OPENSSL_VERSION_NUMBER >= 0x01010100fL && !defined(OPENSSL_NO_AES))
+# define LIBSSH2_AES_GCM 1
+#else
+# define LIBSSH2_AES_GCM 0
 #endif
 
 #ifdef OPENSSL_NO_BF
@@ -353,13 +362,17 @@ extern void _libssh2_openssl_crypto_exit(void);
 #define libssh2_crypto_init() _libssh2_openssl_crypto_init()
 #define libssh2_crypto_exit() _libssh2_openssl_crypto_exit()
 
+#if LIBSSH2_RSA
 #define libssh2_rsa_ctx RSA
 
 #define _libssh2_rsa_free(rsactx) RSA_free(rsactx)
+#endif
 
+#if LIBSSH2_DSA
 #define libssh2_dsa_ctx DSA
 
 #define _libssh2_dsa_free(dsactx) DSA_free(dsactx)
+#endif
 
 #if LIBSSH2_ECDSA
 #define libssh2_ecdsa_ctx EC_KEY
@@ -388,6 +401,9 @@ libssh2_curve_type;
 #else
 #define _libssh2_cipher_ctx EVP_CIPHER_CTX
 #endif
+
+#define _libssh2_cipher_aes256gcm EVP_aes_256_gcm
+#define _libssh2_cipher_aes128gcm EVP_aes_128_gcm
 
 #define _libssh2_cipher_aes256 EVP_aes_256_cbc
 #define _libssh2_cipher_aes192 EVP_aes_192_cbc

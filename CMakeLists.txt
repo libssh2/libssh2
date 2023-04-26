@@ -36,7 +36,6 @@
 include(CheckFunctionExists)
 include(CheckSymbolExists)
 include(CheckIncludeFiles)
-include(CheckTypeSize)
 include(CheckSymbolExists)
 include(CMakePushCheckState)
 
@@ -117,6 +116,24 @@ endif()
 set(LIB_STATIC "libssh2_static")
 set(LIB_SHARED "libssh2_shared")  # Must match libssh2_shared_EXPORTS macro in include/libssh2.h
 
+# Symbol hiding
+
+option(HIDE_SYMBOLS "Set to ON to hide all libssh2 symbols that aren't officially external" ON)
+mark_as_advanced(HIDE_SYMBOLS)
+if(HIDE_SYMBOLS)
+  set(LIB_SHARED_DEFINITIONS LIBSSH2_EXPORTS)
+  if(WIN32)
+  elseif((CMAKE_C_COMPILER_ID MATCHES "Clang") OR
+         (CMAKE_COMPILER_IS_GNUCC AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.0) OR
+         (CMAKE_C_COMPILER_ID MATCHES "Intel" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1))
+    set(LIB_SHARED_C_FLAGS -fvisibility=hidden)
+    set(LIBSSH2_API "__attribute__ ((__visibility__ (\"default\")))")
+  elseif(CMAKE_C_COMPILER_ID MATCHES "SunPro" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 8.0)
+    set(LIB_SHARED_C_FLAGS -xldscope=hidden)
+    set(LIBSSH2_API "__global")
+  endif()
+endif()
+
 # Auto-detection
 
 ## Platform checks
@@ -135,8 +152,6 @@ if(NOT WIN32)
   check_include_files(arpa/inet.h HAVE_ARPA_INET_H)  # example and tests
   check_include_files(netinet/in.h HAVE_NETINET_IN_H)  # example and tests
 endif()
-
-check_type_size("long long" LONGLONG)
 
 # CMake uses C syntax in check_symbol_exists() that generates a warning with
 # MSVC. To not break detection with ENABLE_WERRROR, we disable it for the
@@ -188,10 +203,19 @@ endif()
 # Non-blocking socket support tests. Use a separate, yet unset variable
 # for the socket libraries to not link against the other configured
 # dependencies which might not have been built yet.
-cmake_push_check_state()
-set(CMAKE_REQUIRED_LIBRARIES ${SOCKET_LIBRARIES})
-check_nonblocking_socket_support()
-cmake_pop_check_state()
+if(NOT WIN32)
+  cmake_push_check_state()
+  set(CMAKE_REQUIRED_LIBRARIES ${SOCKET_LIBRARIES})
+  check_nonblocking_socket_support()
+  cmake_pop_check_state()
+endif()
+
+# Config file
+
+add_definitions(-DHAVE_CONFIG_H)
+
+configure_file(src/libssh2_config_cmake.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/src/libssh2_config.h)
 
 ## Cryptography backend choice
 
@@ -348,7 +372,15 @@ endif()
 
 # Convert GNU Make assignments into CMake ones.
 function(transform_makefile_inc INPUT_FILE OUTPUT_FILE)
-  file(READ ${INPUT_FILE} MAKEFILE_INC_CMAKE)
+  file(STRINGS ${INPUT_FILE} LINES)
+
+  unset(MAKEFILE_INC_CMAKE)
+  foreach(LINE IN LISTS LINES)
+    if(NOT LINE MATCHES " \\+= " AND
+       NOT LINE MATCHES "^(if|endif)")
+      set(MAKEFILE_INC_CMAKE "${MAKEFILE_INC_CMAKE}\n${LINE}")
+    endif()
+  endforeach()
 
   string(REGEX REPLACE "\\\\\n" "" MAKEFILE_INC_CMAKE ${MAKEFILE_INC_CMAKE})
   string(REGEX REPLACE "([A-Za-z_]+) *= *([^\n]*)" "set(\\1 \\2)" MAKEFILE_INC_CMAKE ${MAKEFILE_INC_CMAKE})

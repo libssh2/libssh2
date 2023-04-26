@@ -37,61 +37,9 @@ include(CopyRuntimeDependencies)
 
 list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
-add_definitions(-DHAVE_CONFIG_H)
-
-set(TESTS
-  simple
-  ssh2
-  test_warmup    # keep this the first test
-  test_hostkey
-  test_hostkey_hash
-  test_password_auth_succeeds_with_correct_credentials
-  test_password_auth_fails_with_wrong_password
-  test_password_auth_fails_with_wrong_username
-  test_public_key_auth_fails_with_wrong_key
-  test_public_key_auth_succeeds_with_correct_rsa_key
-  test_public_key_auth_succeeds_with_correct_encrypted_rsa_key
-  test_keyboard_interactive_auth_fails_with_wrong_response
-  test_keyboard_interactive_auth_succeeds_with_correct_response
-  test_keyboard_interactive_auth_info_request
-  test_agent_forward_succeeds
-  test_read
-)
-
-if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
-  list(APPEND TESTS
-    test_public_key_auth_succeeds_with_correct_rsa_openssh_key
-  )
-  if(OPENSSL_VERSION VERSION_GREATER "1.1.0" OR CRYPTO_BACKEND STREQUAL "wolfSSL")
-    list(APPEND TESTS
-      test_public_key_auth_succeeds_with_correct_ed25519_key
-      test_public_key_auth_succeeds_with_correct_encrypted_ed25519_key
-      test_public_key_auth_succeeds_with_correct_ed25519_key_from_mem
-      test_public_key_auth_succeeds_with_correct_ecdsa_key
-      test_public_key_auth_succeeds_with_correct_signed_ecdsa_key
-      test_public_key_auth_succeeds_with_correct_signed_rsa_key
-    )
-  endif()
-endif()
-
-if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
-  list(APPEND TESTS
-    test_public_key_auth_succeeds_with_correct_dsa_key
-  )
-endif()
-
-add_library(runner STATIC runner.h runner.c openssh_fixture.h openssh_fixture.c session_fixture.h session_fixture.c)
-target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include)
-target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
-
-# test building against shared libssh2 lib
-if(BUILD_SHARED_LIBS)
-  foreach(test ssh2)
-    add_executable(${test}_shared ${test}.c)
-    target_include_directories(${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src)
-    target_link_libraries(${test}_shared ${LIB_SHARED} ${LIBRARIES})
-  endforeach()
-endif()
+transform_makefile_inc("Makefile.am" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cmake")
+# Get 'DOCKER_TESTS', 'STANDALONE_TESTS', 'SSHD_TESTS', 'librunner_la_SOURCES' variables
+include(${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cmake)
 
 if(CMAKE_COMPILER_IS_GNUCC)
   find_program(GCOV_PATH gcov)
@@ -103,66 +51,82 @@ if(CMAKE_COMPILER_IS_GNUCC)
   endif()
 endif()
 
-foreach(test ${TESTS})
-  add_executable(${test} ${test}.c)
-  target_compile_definitions(${test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
-  target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src "${CRYPTO_BACKEND_INCLUDE_DIR}")
+find_program(SH_EXECUTABLE sh)
+mark_as_advanced(SH_EXECUTABLE)
+if(SH_EXECUTABLE)
+  find_program(SSHD_EXECUTABLE sshd)
+  mark_as_advanced(SSHD_EXECUTABLE)
 
-  # build a single test with gcov
-  if(GCOV_PATH AND test STREQUAL test_keyboard_interactive_auth_info_request)
-    target_compile_options(${test} BEFORE PRIVATE ${GCOV_OPTIONS})
-    target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES} gcov)
-  else()
-    target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES})
-  endif()
-
-  if(test MATCHES "^test_")
-    list(APPEND TEST_TARGETS ${test})
-    add_test(
-      NAME ${test} COMMAND $<TARGET_FILE:${test}>
-      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-  endif()
-endforeach()
-
-# MAC tests
-foreach(test
-  hmac-md5
-  hmac-md5-96
-  hmac-sha1
-  hmac-sha1-96
-  hmac-sha2-256
-  hmac-sha2-512
-)
-  add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
-  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
-endforeach()
-
-# CRYPT tests
-set(TESTS
-  aes128-ctr
-  aes192-ctr
-  aes256-ctr
-)
-# Due to a bug with mbedTLS support, these crypt methods fail. Until that bug
-# is fixed, don't run them there to avoid this known issue causing red tests.
-# See https://github.com/libssh2/libssh2/issues/793
-if(NOT CRYPTO_BACKEND STREQUAL "mbedTLS")
-  list(APPEND TESTS
-    3des-cbc
-    aes128-cbc
-    aes192-cbc
-    aes256-cbc
-    rijndael-cbc@lysator.liu.se
-  )
+  add_test(NAME mansyntax COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
 endif()
-foreach(test ${TESTS})
-  add_test(NAME test_${test} COMMAND "$<TARGET_FILE:test_read>")
-  set_tests_properties(test_${test} PROPERTIES ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
+
+add_library(runner STATIC ${librunner_la_SOURCES})
+target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
+target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include "${CRYPTO_BACKEND_INCLUDE_DIR}")
+target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+
+# test building against shared libssh2 lib
+if(BUILD_SHARED_LIBS)
+  foreach(test test_ssh2)
+    add_executable(${test}_shared ${test}.c)
+    target_include_directories(${test}_shared PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src)
+    target_link_libraries(${test}_shared ${LIB_SHARED} ${LIBRARIES})
+  endforeach()
+endif()
+
+foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
+  # We support the same target as both Docker and SSHD test. Build those just once.
+  if(NOT TARGET ${test})
+    add_executable(${test} ${test}.c)
+    target_compile_definitions(${test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
+    target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src "${CRYPTO_BACKEND_INCLUDE_DIR}")
+
+    # build a single test with gcov
+    if(GCOV_PATH AND test STREQUAL test_auth_keyboard_info_request)
+      target_compile_options(${test} BEFORE PRIVATE ${GCOV_OPTIONS})
+      target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES} gcov)
+    else()
+      target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES})
+    endif()
+
+    list(APPEND TEST_TARGETS ${test})
+  endif()
+endforeach()
+
+foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS})
+  add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+endforeach()
+
+if(SSHD_EXECUTABLE)
+  # On Windows / AppVeyor CI, subsequent tests are broken:
+  #   'libssh2_session_handshake failed (-43): Failed getting banner'
+  if(WIN32)
+    list(GET SSHD_TESTS 0 SSHD_TESTS)
+  endif()
+  foreach(test ${SSHD_TESTS})
+    set(testname sshd-${test})
+    add_test(NAME ${testname} COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/sshd_fixture.sh $<TARGET_FILE:${test}>")
+    set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
+  endforeach()
+endif()
+
+# CRYPT/MAC algo tests
+file(READ "test_read_algos.txt" ALGO_TESTS)
+string(REGEX REPLACE "\\\n" ";" ALGO_TESTS ${ALGO_TESTS})
+foreach(test ${ALGO_TESTS})
+  set(testname test_read-${test})
+  add_test(NAME ${testname} COMMAND "$<TARGET_FILE:test_read>")
+  if(test MATCHES "mac-")
+    set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
+  else()
+    set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
+  endif()
 endforeach()
 
 add_custom_target(coverage
   COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/*
-  COMMAND mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/coverage/"
+  COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/coverage/"
   COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/* --html-details --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
 
 add_custom_target(clean-coverage
@@ -172,17 +136,3 @@ add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
   DEPENDENCIES ${RUNTIME_DEPENDENCIES}
   BEFORE_TARGETS ${TEST_TARGETS})
-
-
-# TODO convert mansyntax.sh into CMake script.
-# XXX Just because we can find all three programs, doesn't mean sh can
-# find man and grep
-find_program(SH_EXECUTABLE sh)
-find_program(MAN_EXECUTABLE man)
-find_program(GREP_EXECUTABLE grep)
-mark_as_advanced(SH_EXECUTABLE MAN_EXECUTABLE GREP_EXECUTABLE)
-if(SH_EXECUTABLE AND MAN_EXECUTABLE AND GREP_EXECUTABLE)
-  set(cmd "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
-  set(cmd "${cmd} ${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
-  add_test(mansyntax ${SH_EXECUTABLE} -c "${cmd}")
-endif()

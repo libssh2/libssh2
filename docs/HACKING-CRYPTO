@@ -323,7 +323,8 @@ int _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
                           _libssh2_cipher_type(algo),
                           int encrypt,
                           unsigned char *block,
-                          size_t blocksize);
+                          size_t blocksize,
+                          int firstlast);
 Encrypt or decrypt in-place data at (block, blocksize) using the given
 context and/or algorithm.
 Return 0 if OK, else -1.
@@ -416,7 +417,7 @@ The preferred Diffie-Hellman group length in bits. Usually defined as 4096.
 LIBSSH2_DH_GEX_MAXGROUP
 The maximum Diffie-Hellman group length in bits supported by the backend.
 Usually defined as 8192.
- 
+
 LIBSSH2_DH_MAX_MODULUS_BITS
 The maximum Diffie-Hellman modulus bit count accepted from the server. This
 value must be supported by the backend.  Usually 16384.

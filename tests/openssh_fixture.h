@@ -41,5 +41,6 @@
 int start_openssh_fixture(void);
 void stop_openssh_fixture(void);
 libssh2_socket_t open_socket_to_openssh_server(void);
+int openssh_fixture_have_docker(void);
 
 #endif

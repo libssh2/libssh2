@@ -10,6 +10,7 @@ dist_man_MANS = \
   libssh2_agent_init.3 \
   libssh2_agent_list_identities.3 \
   libssh2_agent_set_identity_path.3 \
+  libssh2_agent_sign.3 \
   libssh2_agent_userauth.3 \
   libssh2_banner_set.3 \
   libssh2_base64_decode.3 \
@@ -50,6 +51,7 @@ dist_man_MANS = \
   libssh2_channel_setenv.3 \
   libssh2_channel_setenv_ex.3 \
   libssh2_channel_shell.3 \
+  libssh2_channel_signal_ex.3 \
   libssh2_channel_subsystem.3 \
   libssh2_channel_wait_closed.3 \
   libssh2_channel_wait_eof.3 \

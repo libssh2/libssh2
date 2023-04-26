@@ -59,9 +59,6 @@
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #define HAVE_ARPA_INET_H 1
 
-/* disabled non-blocking sockets */
-#undef HAVE_DISABLED_NONBLOCKING
-
 /* use FIONBIO for non-blocking sockets */
 #undef HAVE_FIONBIO
 
@@ -71,17 +68,11 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
 
-/* use ioctlsocket() for non-blocking sockets */
-#undef HAVE_IOCTLSOCKET
-
 /* use Ioctlsocket() for non-blocking sockets */
 #undef HAVE_IOCTLSOCKET_CASE
 
 /* Define if you have the gcrypt library. */
 #undef HAVE_LIBGCRYPT
-
-/* Define to 1 if the compiler supports the 'long long' data type. */
-#define HAVE_LONGLONG 1
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #define HAVE_NETINET_IN_H 1
@@ -195,11 +186,6 @@
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #define WORDS_BIGENDIAN 1
-
-/* Enable large inode numbers on Mac OS X 10.5.  */
-#ifndef _DARWIN_USE_64_BIT_INODE
-# define _DARWIN_USE_64_BIT_INODE 1
-#endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
 #undef _FILE_OFFSET_BITS

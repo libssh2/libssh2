@@ -57,14 +57,16 @@
 #define LIBSSH2_HMAC_SHA256 1
 #define LIBSSH2_HMAC_SHA512 1
 
-#define LIBSSH2_AES 1
+#define LIBSSH2_AES_CBC 1
 #define LIBSSH2_AES_CTR 1
+#define LIBSSH2_AES_GCM 0
 #define LIBSSH2_BLOWFISH 0
 #define LIBSSH2_RC4 1
 #define LIBSSH2_CAST 0
 #define LIBSSH2_3DES 1
 
 #define LIBSSH2_RSA 1
+#define LIBSSH2_RSA_SHA1 1
 #define LIBSSH2_RSA_SHA2 1
 #define LIBSSH2_DSA 1
 #define LIBSSH2_ECDSA 0
@@ -376,8 +378,8 @@ struct _libssh2_wincng_cipher_type {
 
 #define _libssh2_cipher_init(ctx, type, iv, secret, encrypt) \
     _libssh2_wincng_cipher_init(ctx, type, iv, secret, encrypt)
-#define _libssh2_cipher_crypt(ctx, type, encrypt, block, blocklen) \
-    _libssh2_wincng_cipher_crypt(ctx, type, encrypt, block, blocklen)
+#define _libssh2_cipher_crypt(ctx, type, encrypt, block, blocklen, fl) \
+    _libssh2_wincng_cipher_crypt(ctx, type, encrypt, block, blocklen, fl)
 #define _libssh2_cipher_dtor(ctx) \
     _libssh2_wincng_cipher_dtor(ctx)
 
@@ -474,7 +476,7 @@ int
 _libssh2_wincng_hash_final(_libssh2_wincng_hash_ctx *ctx,
                            unsigned char *hash);
 int
-_libssh2_wincng_hash(unsigned char *data, unsigned long datalen,
+_libssh2_wincng_hash(const unsigned char *data, unsigned long datalen,
                      BCRYPT_ALG_HANDLE hAlg,
                      unsigned char *hash, unsigned long hashlen);
 
@@ -605,7 +607,7 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              _libssh2_cipher_type(type),
                              int encrypt,
                              unsigned char *block,
-                             size_t blocklen);
+                             size_t blocklen, int firstlast);
 void
 _libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx);
 

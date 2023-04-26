@@ -98,6 +98,9 @@ void *_libssh2_list_prev(struct list_node *node);
 /* remove this node from the list */
 void _libssh2_list_remove(struct list_node *entry);
 
+int _libssh2_base64_decode(LIBSSH2_SESSION *session,
+                           char **data, size_t *datalen,
+                           const char *src, size_t src_len);
 size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
                               const char *inp, size_t insize, char **outptr);
 
@@ -127,19 +130,6 @@ int _libssh2_get_bignum_bytes(struct string_buf *buf, unsigned char **outbuf,
                               size_t *outlen);
 int _libssh2_check_length(struct string_buf *buf, size_t requested_len);
 int _libssh2_eob(struct string_buf *buf);
-
-#if defined(WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN__)
-/* provide a private one */
-#undef HAVE_GETTIMEOFDAY
-int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp);
-#define HAVE_LIBSSH2_GETTIMEOFDAY
-#define LIBSSH2_GETTIMEOFDAY_WIN32 /* enable the win32 implementation */
-#else
-#ifdef HAVE_GETTIMEOFDAY
-#define _libssh2_gettimeofday(x,y) gettimeofday(x,y)
-#define HAVE_LIBSSH2_GETTIMEOFDAY
-#endif
-#endif
 
 void _libssh2_xor_data(unsigned char *output,
                        const unsigned char *input1,

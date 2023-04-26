@@ -437,7 +437,6 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         {
             char fingerprint[64], *fprint = fingerprint;
             int i;
-
             for(i = 0; i < 20; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
             }
@@ -620,9 +619,9 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                     exchange_state->h_sig_comp);
 
         if(session->hostkey->
-           sig_verify(session, exchange_state->h_sig,
-                      exchange_state->h_sig_len, exchange_state->h_sig_comp,
-                      digest_len, &session->server_hostkey_abstract)) {
+            sig_verify(session, exchange_state->h_sig,
+                       exchange_state->h_sig_len, exchange_state->h_sig_comp,
+                       digest_len, &session->server_hostkey_abstract)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
                                  "Unable to verify hostkey signature");
             goto clean_exit;
@@ -1718,7 +1717,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
 
     if(data_len < 5) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
-                            "Host key data is too short");
+                             "Host key data is too short");
         return ret;
     }
 
@@ -1745,9 +1744,9 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
 
         if(_libssh2_copy_string(session, &buf, &(session->server_hostkey),
                                 &server_public_key_len)) {
-             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                  "Unable to allocate memory for a copy "
-                                  "of the host key");
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Unable to allocate memory for a copy "
+                                 "of the host key");
             goto clean_exit;
         }
 
@@ -1800,7 +1799,6 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         {
             char fingerprint[64], *fprint = fingerprint;
             int i;
-
             for(i = 0; i < 20; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
             }
@@ -1853,7 +1851,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         if(_libssh2_get_string(&buf, &server_public_key,
                                &server_public_key_len)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
-                                     "Unexpected key length");
+                                 "Unexpected key length");
             goto clean_exit;
         }
 
@@ -1949,13 +1947,13 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         }
 
         /* The first key exchange has been performed,
-         switch to active crypt/comp/mac mode */
+           switch to active crypt/comp/mac mode */
         session->state |= LIBSSH2_STATE_NEWKEYS;
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                        "Received NEWKEYS message"));
 
         /* This will actually end up being just packet_type(1)
-         for this packet type anyway */
+           for this packet type anyway */
         LIBSSH2_FREE(session, exchange_state->tmp);
 
         if(!session->session_id) {
@@ -2430,7 +2428,6 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         {
             char fingerprint[64], *fprint = fingerprint;
             int i;
-
             for(i = 0; i < 20; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
             }
@@ -2573,15 +2570,14 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
             goto clean_exit;
         }
 
-        /* The first key exchange has been performed, switch to active
-           crypt/comp/mac mode */
-
+        /* The first key exchange has been performed,
+           switch to active crypt/comp/mac mode */
         session->state |= LIBSSH2_STATE_NEWKEYS;
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                        "Received NEWKEYS message"));
 
-        /* This will actually end up being just packet_type(1) for this packet
-           type anyway */
+        /* This will actually end up being just packet_type(1)
+           for this packet type anyway */
         LIBSSH2_FREE(session, exchange_state->tmp);
 
         if(!session->session_id) {
@@ -3586,8 +3582,17 @@ static int kex_agree_mac(LIBSSH2_SESSION * session,
                          size_t mac_len)
 {
     const LIBSSH2_MAC_METHOD **macp = _libssh2_mac_methods();
+    const LIBSSH2_MAC_METHOD *override;
     unsigned char *s;
     (void)session;
+
+    override = _libssh2_mac_override(endpoint->crypt);
+    if(override) {
+        /* This crypto method has its own hmac method built-in, so a separate
+         * negotiation (and use) of a separate hmac method is unnecessary */
+        endpoint->mac = override;
+        return 0;
+    }
 
     if(endpoint->mac_prefs) {
         s = (unsigned char *) endpoint->mac_prefs;
@@ -3746,25 +3751,26 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
     }
 
     if(kex_agree_crypt(session, &session->local, crypt_cs, crypt_cs_len)
-       || kex_agree_crypt(session, &session->remote, crypt_sc,
-                          crypt_sc_len)) {
+       || kex_agree_crypt(session, &session->remote, crypt_sc, crypt_sc_len)) {
         return -1;
     }
 
-    if(kex_agree_mac(session, &session->local, mac_cs, mac_cs_len) ||
-        kex_agree_mac(session, &session->remote, mac_sc, mac_sc_len)) {
+    /* This must happen after kex_agree_crypt since some MACs depend on the
+       negotiated crypto method */
+    if(kex_agree_mac(session, &session->local, mac_cs, mac_cs_len)
+       || kex_agree_mac(session, &session->remote, mac_sc, mac_sc_len)) {
         return -1;
     }
 
-    if(kex_agree_comp(session, &session->local, comp_cs, comp_cs_len) ||
-        kex_agree_comp(session, &session->remote, comp_sc, comp_sc_len)) {
+    if(kex_agree_comp(session, &session->local, comp_cs, comp_cs_len)
+       || kex_agree_comp(session, &session->remote, comp_sc, comp_sc_len)) {
         return -1;
     }
 
 #if 0
     if(libssh2_kex_agree_lang(session, &session->local, lang_cs, lang_cs_len)
-        || libssh2_kex_agree_lang(session, &session->remote, lang_sc,
-                                  lang_sc_len)) {
+       || libssh2_kex_agree_lang(session, &session->remote, lang_sc,
+                                 lang_sc_len)) {
         return -1;
     }
 #endif
@@ -4021,7 +4027,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
         if(!kex_get_method_by_name(s, method_len, mlist)) {
             /* Strip out unsupported method */
             if(p) {
-                memcpy(s, p + 1, strlen(s) - method_len);
+                memmove(s, p + 1, strlen(s) - method_len);
             }
             else {
                 if(s > newprefs) {

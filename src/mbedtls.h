@@ -65,8 +65,9 @@
 #define LIBSSH2_HMAC_SHA256     1
 #define LIBSSH2_HMAC_SHA512     1
 
-#define LIBSSH2_AES             1
+#define LIBSSH2_AES_CBC         1
 #define LIBSSH2_AES_CTR         1
+#define LIBSSH2_AES_GCM         0
 #ifdef MBEDTLS_CIPHER_BLOWFISH_CBC
 # define LIBSSH2_BLOWFISH       1
 #else
@@ -81,6 +82,7 @@
 #define LIBSSH2_3DES            1
 
 #define LIBSSH2_RSA             1
+#define LIBSSH2_RSA_SHA1        1
 #define LIBSSH2_RSA_SHA2        1
 #define LIBSSH2_DSA             0
 #ifdef MBEDTLS_ECDSA_C
@@ -389,8 +391,8 @@ typedef enum {
 
 #define _libssh2_cipher_init(ctx, type, iv, secret, encrypt) \
     _libssh2_mbedtls_cipher_init(ctx, type, iv, secret, encrypt)
-#define _libssh2_cipher_crypt(ctx, type, encrypt, block, blocklen) \
-    _libssh2_mbedtls_cipher_crypt(ctx, type, encrypt, block, blocklen)
+#define _libssh2_cipher_crypt(ctx, type, encrypt, block, blocklen, fl) \
+    _libssh2_mbedtls_cipher_crypt(ctx, type, encrypt, block, blocklen, fl)
 #define _libssh2_cipher_dtor(ctx) \
     _libssh2_mbedtls_cipher_dtor(ctx)
 
@@ -471,7 +473,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
                               _libssh2_cipher_type(type),
                               int encrypt,
                               unsigned char *block,
-                              size_t blocklen);
+                              size_t blocklen, int firstlast);
 void
 _libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx);
 

@@ -71,8 +71,67 @@ to the abstract pointer set in the \fIlibssh2_session_init_ex(3)\fP call.
 The callback returns the number of bytes read, or -1 for error. The special
 return code \fB-EAGAIN\fP can be returned to signal that the read was aborted
 to prevent getting blocked and it needs to be called again.
+.IP LIBSSH2_CALLBACK_AUTHAGENT
+Called during authentication process to allow the client to connect to the
+ssh-agent and perform any setup, such as configuring the agent or adding keys.
+
+The prototype of the callback:
+
+.nf
+void authagent(LIBSSH2_SESSION* session, LIBSSH2_CHANNEL *channel,
+               void **abstract);
+.fi
+.IP LIBSSH2_CALLBACK_AUTHAGENT_IDENTITIES
+Not called by libssh2. The client is responsible for calling this method when
+a SSH2_AGENTC_REQUEST_IDENTITIES message has been received.
+
+The prototype of the callback:
+
+.nf
+void identities(LIBSSH2_SESSION* session, void *buffer,
+                const char *agent_path,
+                void **abstract)
+.fi
+
+\fBbuffer\fP must be filled in by the callback. Different clients may implement
+this differently. For example, one client may pass in an unsigned char ** for
+this parameter, while another may pass in a pointer to a struct.
+
+Regardless of the type of buffer used, the client will need to send back a list
+of identities in the following format.
+
+uint32 buffer length
+uint32 number of entries
+entries
+
+Where each entry in the entries list is of the format:
+
+string data
+cstring comment
+
+\fBagent_path\fP The path to a running ssh-agent on the client machine, from
+which identities can be listed.
+.IP LIBSSH2_CALLBACK_AUTHAGENT_SIGN
+Not called by libssh2. The client is responsible for calling this method when
+a SSH2_AGENTC_SIGN_REQUEST message has been received.
+
+The prototype of the callback:
+
+.nf
+void sign(LIBSSH2_SESSION* session,
+          unsigned char *blob, unsigned int blen,
+          const unsigned char *data, unsigned int dlen,
+          unsigned char **sig, unsigned int *sig_len,
+          const char *agent_path,
+          void **abstract);
+.fi
+
+When interfacing with an ssh-agent installed on the client system, this method
+can call libssh2_agent_sign(3) to perform signing.
+
 .SH RETURN VALUE
 Pointer to previous callback handler. Returns NULL if no prior callback
 handler was set or the callback type was unknown.
 .SH SEE ALSO
 .BR libssh2_session_init_ex(3)
+.BR libssh2_agent_sign(3)

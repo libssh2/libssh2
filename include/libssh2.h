@@ -333,6 +333,22 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
     void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
               const char *shost, int sport, void **abstract)
 
+#define LIBSSH2_AUTHAGENT_FUNC(name) \
+    void name(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel, \
+              void **abstract)
+
+#define LIBSSH2_ADD_IDENTITIES_FUNC(name) \
+    void name(LIBSSH2_SESSION *session, void *buffer, \
+              const char *agent_path, void **abstract)
+
+#define LIBSSH2_AUTHAGENT_SIGN_FUNC(name) \
+    int name(LIBSSH2_SESSION* session, \
+             unsigned char *blob, unsigned int blen, \
+             const unsigned char *data, unsigned int dlen, \
+             unsigned char **signature, unsigned int *sigLen, \
+             const char *agentPath, \
+             void **abstract)
+
 #define LIBSSH2_CHANNEL_CLOSE_FUNC(name) \
     void name(LIBSSH2_SESSION *session, void **session_abstract, \
               LIBSSH2_CHANNEL *channel, void **channel_abstract)
@@ -348,13 +364,16 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
                  int flags, void **abstract)
 
 /* libssh2_session_callback_set() constants */
-#define LIBSSH2_CALLBACK_IGNORE             0
-#define LIBSSH2_CALLBACK_DEBUG              1
-#define LIBSSH2_CALLBACK_DISCONNECT         2
-#define LIBSSH2_CALLBACK_MACERROR           3
-#define LIBSSH2_CALLBACK_X11                4
-#define LIBSSH2_CALLBACK_SEND               5
-#define LIBSSH2_CALLBACK_RECV               6
+#define LIBSSH2_CALLBACK_IGNORE               0
+#define LIBSSH2_CALLBACK_DEBUG                1
+#define LIBSSH2_CALLBACK_DISCONNECT           2
+#define LIBSSH2_CALLBACK_MACERROR             3
+#define LIBSSH2_CALLBACK_X11                  4
+#define LIBSSH2_CALLBACK_SEND                 5
+#define LIBSSH2_CALLBACK_RECV                 6
+#define LIBSSH2_CALLBACK_AUTHAGENT            7
+#define LIBSSH2_CALLBACK_AUTHAGENT_IDENTITIES 8
+#define LIBSSH2_CALLBACK_AUTHAGENT_SIGN       9
 
 /* libssh2_session_method_pref() constants */
 #define LIBSSH2_METHOD_KEX          0
@@ -747,6 +766,8 @@ LIBSSH2_API int
 libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                               const char *username,
                               size_t username_len,
+                              const unsigned char *pubkeydata,
+                              size_t pubkeydata_len,
                               const char *privatekeydata,
                               size_t privatekeydata_len,
                               const char *passphrase,
@@ -849,6 +870,12 @@ LIBSSH2_API int libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel,
                                            int screen_number);
 #define libssh2_channel_x11_req(channel, screen_number) \
     libssh2_channel_x11_req_ex((channel), 0, NULL, NULL, (screen_number))
+
+LIBSSH2_API int libssh2_channel_signal_ex(LIBSSH2_CHANNEL *channel,
+                                          const char *signame,
+                                          size_t signame_len);
+#define libssh2_channel_signal(channel, signame) \
+    libssh2_channel_signal_ex((channel), signame, strlen(signame))
 
 LIBSSH2_API int libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
                                                 const char *request,
@@ -991,6 +1018,7 @@ libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
 #define libssh2_scp_send(session, path, mode, size) \
     libssh2_scp_send_ex((session), (path), (mode), (size), 0, 0)
 
+/* DEPRECATED */
 LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
                                       unsigned int *dest_len,
                                       const char *src, unsigned int src_len);
@@ -1323,6 +1351,23 @@ LIBSSH2_API int
 libssh2_agent_userauth(LIBSSH2_AGENT *agent,
                        const char *username,
                        struct libssh2_agent_publickey *identity);
+
+/*
+ * libssh2_agent_sign()
+ *
+ * Sign a payload using a system-installed ssh-agent.
+ *
+ * Returns 0 if succeeded, or a negative value for error.
+ */
+LIBSSH2_API int
+libssh2_agent_sign(LIBSSH2_AGENT *agent,
+                   struct libssh2_agent_publickey *identity,
+                   unsigned char **sig,
+                   size_t *s_len,
+                   const unsigned char *data,
+                   size_t d_len,
+                   const char *method,
+                   unsigned int method_len);
 
 /*
  * libssh2_agent_disconnect()

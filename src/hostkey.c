@@ -87,18 +87,22 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
     }
 
     /* we accept one of 3 header types */
+#if LIBSSH2_RSA_SHA1
     if(type_len == 7 && strncmp("ssh-rsa", (char *)type, 7) == 0) {
         /* ssh-rsa */
     }
+    else
+#endif
 #if LIBSSH2_RSA_SHA2
-    else if(type_len == 12 && strncmp("rsa-sha2-256", (char *)type, 12) == 0) {
+    if(type_len == 12 && strncmp("rsa-sha2-256", (char *)type, 12) == 0) {
         /* rsa-sha2-256 */
     }
     else if(type_len == 12 && strncmp("rsa-sha2-512", (char *)type, 12) == 0) {
         /* rsa-sha2-512 */
     }
+    else
 #endif
-    else {
+    {
         _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
                        "unexpected rsa type: %.*s", type_len, type));
         return -1;
@@ -187,6 +191,7 @@ hostkey_method_ssh_rsa_initPEMFromMemory(LIBSSH2_SESSION * session,
     return 0;
 }
 
+#if LIBSSH2_RSA_SHA1
 /*
  * hostkey_method_ssh_rsa_sign
  *
@@ -250,6 +255,7 @@ hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION * session,
     return 0;
 #endif
 }
+#endif
 
 /*
  * hostkey_method_ssh_rsa_sha2_256_sig_verify
@@ -269,7 +275,7 @@ hostkey_method_ssh_rsa_sha2_256_sig_verify(LIBSSH2_SESSION * session,
     (void)session;
 
     /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-256"} +
-    signature_len(4) */
+       signature_len(4) */
     if(sig_len < 20)
         return -1;
 
@@ -339,7 +345,7 @@ hostkey_method_ssh_rsa_sha2_512_sig_verify(LIBSSH2_SESSION * session,
     (void)session;
 
     /* Skip past keyname_len(4) + keyname(12){"rsa-sha2-512"} +
-    signature_len(4) */
+       signature_len(4) */
     if(sig_len < 20)
         return -1;
 
@@ -413,6 +419,8 @@ hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION * session, void **abstract)
     return 0;
 }
 
+#if LIBSSH2_RSA_SHA1
+
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa = {
     "ssh-rsa",
     SHA_DIGEST_LENGTH,
@@ -424,6 +432,8 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa = {
     NULL,                       /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
+
+#endif /* LIBSSH2_RSA_SHA1 */
 
 #if LIBSSH2_RSA_SHA2
 
@@ -453,6 +463,8 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_sha2_512 = {
 
 #endif /* LIBSSH2_RSA_SHA2 */
 
+#if LIBSSH2_RSA_SHA1
+
 static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_cert = {
     "ssh-rsa-cert-v01@openssh.com",
     SHA_DIGEST_LENGTH,
@@ -464,6 +476,8 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_rsa_cert = {
     NULL,                       /* encrypt */
     hostkey_method_ssh_rsa_dtor,
 };
+
+#endif /* LIBSSH2_RSA_SHA1 */
 
 #endif /* LIBSSH2_RSA */
 
@@ -510,7 +524,7 @@ hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
         return -1;
 
     if(_libssh2_get_string(&buf, &p, &p_len))
-       return -1;
+        return -1;
 
     if(_libssh2_get_string(&buf, &q, &q_len))
         return -1;
@@ -877,14 +891,14 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
     buf.dataptr = buf.data;
     buf.len = sig_len;
 
-   if(_libssh2_get_string(&buf, &name, &name_len) || name_len != 19)
+    if(_libssh2_get_string(&buf, &name, &name_len) || name_len != 19)
         return -1;
 
     if(_libssh2_get_u32(&buf, &len) != 0 || len < 8)
         return -1;
 
     if(_libssh2_get_string(&buf, &r, &r_len))
-       return -1;
+        return -1;
 
     if(_libssh2_get_string(&buf, &s, &s_len))
         return -1;
@@ -1243,6 +1257,18 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_ed25519 = {
     hostkey_method_ssh_ed25519_dtor,
 };
 
+static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_ed25519_cert = {
+    "ssh-ed25519-cert-v01@openssh.com",
+    SHA256_DIGEST_LENGTH,
+    hostkey_method_ssh_ed25519_init,
+    hostkey_method_ssh_ed25519_initPEM,
+    hostkey_method_ssh_ed25519_initPEMFromMemory,
+    hostkey_method_ssh_ed25519_sig_verify,
+    hostkey_method_ssh_ed25519_signv,
+    NULL,                       /* encrypt */
+    hostkey_method_ssh_ed25519_dtor,
+};
+
 #endif /* LIBSSH2_ED25519 */
 
 
@@ -1257,14 +1283,17 @@ static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
 #endif
 #if LIBSSH2_ED25519
     &hostkey_method_ssh_ed25519,
+    &hostkey_method_ssh_ed25519_cert,
 #endif
 #if LIBSSH2_RSA
 #if LIBSSH2_RSA_SHA2
     &hostkey_method_ssh_rsa_sha2_512,
     &hostkey_method_ssh_rsa_sha2_256,
 #endif /* LIBSSH2_RSA_SHA2 */
+#if LIBSSH2_RSA_SHA1
     &hostkey_method_ssh_rsa,
     &hostkey_method_ssh_rsa_cert,
+#endif /* LIBSSH2_RSA_SHA1 */
 #endif /* LIBSSH2_RSA */
 #if LIBSSH2_DSA
     &hostkey_method_ssh_dss,

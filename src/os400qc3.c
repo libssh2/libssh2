@@ -1097,7 +1097,8 @@ _libssh2_cipher_init(_libssh2_cipher_ctx *h, _libssh2_cipher_type(algo),
 int
 _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
                       _libssh2_cipher_type(algo),
-                      int encrypt, unsigned char *block, size_t blocksize)
+                      int encrypt, unsigned char *block, size_t blocksize,
+                      int firstlast)
 {
     Qus_EC_t errcode;
     int outlen;
@@ -1995,7 +1996,7 @@ try_pem_load(LIBSSH2_SESSION *session, FILE *fp,
              loadkeyproc proc, void *loadkeydata)
 {
     unsigned char *data = NULL;
-    unsigned int datalen = 0;
+    size_t datalen = 0;
     int c;
     int ret;
 
@@ -2159,7 +2160,7 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
 {
     libssh2_rsa_ctx *ctx = libssh2_init_crypto_ctx(NULL);
     unsigned char *data = NULL;
-    unsigned int datalen = 0;
+    size_t datalen = 0;
     int ret;
 
     if(!ctx)
@@ -2232,7 +2233,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 {
     loadpubkeydata p;
     unsigned char *data = NULL;
-    unsigned int datalen = 0;
+    size_t datalen = 0;
     const char *meth;
     int ret;
 

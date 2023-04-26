@@ -64,19 +64,20 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     # Assume these options always exist with both clang and gcc.
     # Require clang 3.0 / gcc 2.95 or later.
     list(APPEND WPICKY_ENABLE
+      -Wbad-function-cast                  # clang  3.0  gcc  2.95
       -Wconversion                         # clang  3.0  gcc  2.95
       -Winline                             # clang  1.0  gcc  1.0
       -Wmissing-declarations               # clang  1.0  gcc  2.7
       -Wmissing-prototypes                 # clang  1.0  gcc  1.0
-      -Wnested-externs                     # clang  1.0  gcc  1.0
+      -Wnested-externs                     # clang  1.0  gcc  2.7
       -Wno-long-long                       # clang  1.0  gcc  2.95
       -Wno-multichar                       # clang  1.0  gcc  2.95
-      -Wpointer-arith                      # clang  1.0  gcc  1.0
+      -Wpointer-arith                      # clang  1.0  gcc  1.4
       -Wshadow                             # clang  1.0  gcc  2.95
       -Wsign-compare                       # clang  1.0  gcc  2.95
       -Wundef                              # clang  1.0  gcc  2.95
       -Wunused                             # clang  1.1  gcc  2.95
-      -Wwrite-strings                      # clang  1.0  gcc  1.0
+      -Wwrite-strings                      # clang  1.0  gcc  1.4
     )
 
     # Always enable with clang, version dependent with gcc

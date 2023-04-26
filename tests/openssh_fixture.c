@@ -53,7 +53,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdarg.h>
 
 #if defined(WIN32) && defined(_WIN64)
@@ -63,6 +62,11 @@
 #endif
 
 static int have_docker = 0;
+
+int openssh_fixture_have_docker(void)
+{
+    return have_docker;
+}
 
 static int run_command_varg(char **output, const char *command, va_list args)
 {
@@ -160,7 +164,7 @@ static int build_openssh_server_docker_image(void)
         char buildcmd[1024];
         const char *container_image_name = openssh_server_image();
         if(container_image_name) {
-            int ret = run_command(NULL, "docker pull --quiet %s",
+            int ret = run_command(NULL, "docker pull %s",
                                   container_image_name);
             if(ret == 0) {
                 ret = run_command(NULL, "docker tag %s libssh2/openssh_server",
@@ -229,10 +233,10 @@ static int is_running_inside_a_container(void)
     return 0;
 #else
     const char *cgroup_filename = "/proc/self/cgroup";
-    FILE *f = NULL;
+    FILE *f;
     char *line = NULL;
     size_t len = 0;
-    ssize_t read = 0;
+    ssize_t read;
     int found = 0;
     f = fopen(cgroup_filename, "r");
     if(!f) {
@@ -331,7 +335,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
-    int counter = 0;
+    int counter;
     libssh2_socket_t ret = LIBSSH2_INVALID_SOCKET;
 
     if(have_docker) {
