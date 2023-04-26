@@ -61,6 +61,14 @@
 #define LIBSSH2_SOCKET_MASK "%d"
 #endif
 
+#ifdef LIBSSH2_WINDOWS_UWP
+#define popen(x, y) (NULL)
+#define pclose(x) (-1)
+#elif defined(WIN32)
+#define popen _popen
+#define pclose _pclose
+#endif
+
 static int have_docker = 0;
 
 int openssh_fixture_have_docker(void)
@@ -102,11 +110,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
     }
 
     fprintf(stdout, "Command: %s\n", command_buf);
-#ifdef WIN32
-    pipe = _popen(buf, "r");
-#else
     pipe = popen(buf, "r");
-#endif
     if(!pipe) {
         fprintf(stderr, "Unable to execute command '%s'\n", command);
         return -1;
@@ -118,11 +122,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
         buf_len = strlen(buf);
     }
 
-#ifdef WIN32
-    ret = _pclose(pipe);
-#else
     ret = pclose(pipe);
-#endif
     if(ret) {
         fprintf(stderr, "Error running command '%s' (exit %d): %s\n",
                 command, ret, buf);

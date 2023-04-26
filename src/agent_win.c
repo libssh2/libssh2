@@ -41,7 +41,7 @@
 #include "agent.h"
 #include <errno.h>
 
-#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP)
+#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
 
 #include <stdlib.h>  /* for getenv() */
 
@@ -347,4 +347,4 @@ struct agent_ops agent_ops_openssh = {
     agent_transact_openssh,
     agent_disconnect_openssh
 };
-#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP) */
+#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP) */

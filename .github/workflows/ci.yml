@@ -26,18 +26,18 @@ jobs:
         compiler: [gcc, clang]
         address_size: [64]
         crypto_backend: [OpenSSL, Libgcrypt, mbedTLS]
-        enable_zlib_compression: [OFF, ON]
+        enable_zlib_compression: ['OFF', 'ON']
         b: [cmake]
         include:
           - compiler: gcc
             address_size: 64
             crypto_backend: OpenSSL
-            enable_zlib_compression: OFF
+            enable_zlib_compression: 'OFF'
             b: configure
           - compiler: clang
             address_size: 64
             crypto_backend: OpenSSL
-            enable_zlib_compression: OFF
+            enable_zlib_compression: 'OFF'
             b: configure
     env:
       CC: ${{ matrix.compiler }}
@@ -57,7 +57,9 @@ jobs:
           MBEDTLSVER=mbedtls-3.4.0
           curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
           cd mbedtls-$MBEDTLSVER
-          cmake $TOOLCHAIN_OPTION -DUSE_SHARED_MBEDTLS_LIBRARY=ON -DCMAKE_INSTALL_PREFIX:PATH=../usr .
+          cmake $TOOLCHAIN_OPTION \
+            -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
+            -DCMAKE_INSTALL_PREFIX:PATH=../usr .
           make -j3 install
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
@@ -75,7 +77,11 @@ jobs:
         run: |
           mkdir bin
           cd bin
-          cmake $TOOLCHAIN_OPTION -DENABLE_WERROR=ON -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
+          cmake $TOOLCHAIN_OPTION \
+            -DENABLE_WERROR=ON \
+            -DBUILD_SHARED_LIBS=ON \
+            -DCRYPTO_BACKEND=$CRYPTO_BACKEND \
+            -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
           cmake --build .
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
           ctest -VV --output-on-failure
@@ -109,3 +115,44 @@ jobs:
           ./configure --enable-debug --enable-static --disable-shared --with-crypto=openssl
           make -j3
           make check VERBOSE=1
+
+  build_msvc:
+    name: msvc
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        include:
+          - { arch: x64  , plat: windows, crypto: WinCNG , log: 'OFF', shared: 'OFF', zlib: 'OFF' }
+          - { arch: x64  , plat: windows, crypto: WinCNG , log: 'ON' , shared: 'ON' , zlib: 'OFF' }
+          - { arch: x64  , plat: windows, crypto: OpenSSL, log: 'OFF', shared: 'ON' , zlib: 'OFF' }
+          - { arch: x64  , plat: uwp    , crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF' }
+          - { arch: arm64, plat: windows, crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF' }
+          - { arch: arm64, plat: uwp    , crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF' }
+          - { arch: x86  , plat: windows, crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF' }
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure with CMake
+        shell: bash
+        run: |
+          archgen=${{matrix.arch}}; [ "${archgen}" = 'x86' ] && archgen='Win32'
+          if [ "${{matrix.plat}}" = 'uwp' ]; then
+            system='WindowsStore'
+            options='-DCMAKE_SYSTEM_VERSION=10.0'
+          else
+            system='Windows'
+          fi
+          cmake . -B bld ${options} \
+            -DCMAKE_SYSTEM_NAME=${system} \
+            -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DCMAKE_GENERATOR_PLATFORM=${archgen} \
+            -DVCPKG_TARGET_TRIPLET=${{matrix.arch}}-${{matrix.plat}} \
+            -DENABLE_WERROR=ON \
+            -DENABLE_DEBUG_LOGGING=${{matrix.log}} \
+            -DBUILD_SHARED_LIBS=${{matrix.shared}} \
+            -DCRYPTO_BACKEND=${{matrix.crypto}} \
+            -DENABLE_ZLIB_COMPRESSION=${{matrix.zlib}}
+      - name: Build with CMake
+        run: |
+          cmake --build bld --config Release --target package
