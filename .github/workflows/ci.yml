@@ -146,7 +146,7 @@ jobs:
       - name: Build with CMake
         shell: bash
         run: |
-          cmake --build bin --target package
+          cmake --build bin --config Release --target package
       - name: Test with CMake
         shell: bash
         run: |
