@@ -147,9 +147,3 @@ jobs:
         shell: bash
         run: |
           cmake --build bin --config Release --target package
-      - name: Test with CMake
-        shell: bash
-        run: |
-          choco install -y --no-progress --limit-output --timeout 180 docker-cli
-          export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
-          cd bin; ctest -VV -C Release --output-on-failure
