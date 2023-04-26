@@ -25,8 +25,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: microsoft/setup-msbuild@v1
-      - run: |
-          vcpkg --triplet=${{ matrix.arch }}-${{matrix.plat}} install boringssl libressl openssl mbedtls wolfssl zlib
+      - name: Install dependencies
+        shell: bash
+        run: |
+          pkgs='boringssl libressl openssl mbedtls wolfssl zlib'
+          [ "${{matrix.plat}}" != 'uwp' ] && pkgs+='wolfssl'
+          [ "${{matrix.plat}}" != 'uwp' ] && [ "${{arch}}" != 'ARM64' ] && pkgs+='libressl'
+          vcpkg --triplet=${{ matrix.arch }}-${{matrix.plat}} install $pkgs
       - name: Configure with CMake
         shell: bash
         run: |
