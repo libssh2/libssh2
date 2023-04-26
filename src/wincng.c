@@ -1258,7 +1258,7 @@ _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
 
 #if LIBSSH2_RSA_SHA2
 int
-_libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx* rsa,
+_libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx *rsa,
                                 size_t hash_len,
                                 const unsigned char *sig,
                                 size_t sig_len,

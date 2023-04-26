@@ -6,13 +6,13 @@ libssh2_trace_sethandler - set a trace output handler
 #include <libssh2.h>
 
 typedef void (*libssh2_trace_handler_func)(LIBSSH2_SESSION *session,
-                                           void* context,
+                                           void *context,
                                            const char *data,
                                            size_t length);
 
 int
 libssh2_trace_sethandler(LIBSSH2_SESSION *session,
-                         void* context,
+                         void *context,
                          libssh2_trace_handler_func callback);
 .fi
 .SH DESCRIPTION
