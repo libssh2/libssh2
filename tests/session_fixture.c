@@ -46,7 +46,6 @@
 
 #ifdef _MSC_VER
 #include <direct.h>
-#define getcwd _getcwd
 #define chdir _chdir
 #endif
 
@@ -80,23 +79,15 @@ static int connect_to_server(void)
 
 static void setup_fixture_workdir(void)
 {
-#ifdef WIN32
-    char wd_buf[_MAX_PATH];
-#else
-    char wd_buf[MAXPATHLEN];
-#endif
     const char *wd = getenv("FIXTURE_WORKDIR");
 #ifdef FIXTURE_WORKDIR
     if(!wd) {
         wd = FIXTURE_WORKDIR;
     }
 #endif
-    if(!wd) {
-        getcwd(wd_buf, sizeof(wd_buf));
-        wd = wd_buf;
+    if(wd) {
+        chdir(wd);
     }
-
-    chdir(wd);
 }
 
 /* List of crypto protocols for which tests are skipped */
