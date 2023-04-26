@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # Written by Simon Josefsson
 
@@ -11,11 +11,13 @@ else
   cmd="${cmd:-./test_ssh2}"
 fi
 
+uname="$(uname)"
+
 d="$(dirname "$0")"
 d="$(cd "${d}" || exit; pwd)"  # sshd needs absolute paths
 
 SSHD="${SSHD:-/usr/sbin/sshd}"
-[[ "$(uname)" = *'_NT'* ]] && SSHD="$(cygpath -u "${SSHD}")"
+[ "${uname#*_NT*}" != "${uname}" ] && SSHD="$(cygpath -u "${SSHD}")"
 
 # for our test clients:
 [ -z "${PRIVKEY}" ] && export PRIVKEY="${d}/key_rsa"
@@ -49,7 +51,7 @@ trap 'kill "${sshdpid}"; echo signal killing sshd; exit 1;' EXIT
 
 : "started sshd (${sshdpid})"
 
-if [[ "$(uname)" = *'_NT'* ]]; then
+if [ "${uname#*_NT*}" != "${uname}" ]; then
   sleep 5
 else
   sleep 3
