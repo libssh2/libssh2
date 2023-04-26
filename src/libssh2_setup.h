@@ -39,6 +39,8 @@
 # endif
 # if _MSC_VER >= 1800
 #  define HAVE_STRTOLL
+# elif _MSC_VER >= 1310
+#  define HAVE_STRTOI64
 # endif
 # if _MSC_VER < 1900
 #  undef HAVE_SNPRINTF
