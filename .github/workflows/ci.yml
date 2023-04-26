@@ -29,7 +29,9 @@ jobs:
         shell: bash
         run: |
           archgen=${{matrix.arch}}; [ "${archgen}" = 'x86' ] && archgen=Win32
+          system=Windows; [ "${{matrix.plat}}" = 'uwp' ] && system=WindowsStore
           cmake . -B bin \
+            -DCMAKE_SYSTEM_NAME=${system} \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DCMAKE_GENERATOR_PLATFORM=$archgen \
             -DVCPKG_TARGET_TRIPLET=${{matrix.arch}}-${{matrix.plat}} \
