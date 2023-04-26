@@ -75,7 +75,12 @@ jobs:
         run: |
           mkdir bin
           cd bin
-          cmake $TOOLCHAIN_OPTION -DENABLE_WERROR=ON -DCRYPTO_BACKEND=$CRYPTO_BACKEND -DBUILD_SHARED_LIBS=ON -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
+          cmake $TOOLCHAIN_OPTION \
+            -DENABLE_WERROR=ON \
+            -DCRYPTO_BACKEND=$CRYPTO_BACKEND \
+            -DBUILD_SHARED_LIBS=ON \
+            -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION \
+            ..
           cmake --build .
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
           ctest -VV --output-on-failure
@@ -130,5 +135,13 @@ jobs:
         shell: bash
         run: |
           platform=${{matrix.arch}}; [ "${platform}" = 'x86' ] && platform=Win32
-          cmake . -B _bld -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_GENERATOR_PLATFORM=$platform -DVCPKG_TARGET_TRIPLET=${{matrix.arch}}-windows -DENABLE_WERROR=ON -DCRYPTO_BACKEND=${{matrix.crypto}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DENABLE_ZLIB_COMPRESSION=${{matrix.zlib}}
-          cmake --build _bld --target package
+          cmake . -B bin \
+            -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DCMAKE_GENERATOR_PLATFORM=$platform \
+            -DVCPKG_TARGET_TRIPLET=${{matrix.arch}}-windows \
+            -DENABLE_WERROR=ON \
+            -DBUILD_SHARED_LIBS=${{matrix.shared}} \
+            -DCRYPTO_BACKEND=${{matrix.crypto}} \
+            -DENABLE_ZLIB_COMPRESSION=${{matrix.zlib}}
+          cmake --build bin --target package
+          cd bin; ctest -VV --output-on-failure
