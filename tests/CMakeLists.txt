@@ -93,9 +93,16 @@ foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
   endif()
 endforeach()
 
-foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS})
-  add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+find_program(DOCKER_EXECUTABLE docker)
+mark_as_advanced(DOCKER_EXECUTABLE)
+if(DOCKER_EXECUTABLE)
+  foreach(test ${DOCKER_TESTS})
+    add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}> WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  endforeach()
+endif()
+
+foreach(test ${STANDALONE_TESTS})
+  add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}> WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
 if(SSHD_EXECUTABLE)
