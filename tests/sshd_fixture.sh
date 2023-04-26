@@ -20,16 +20,11 @@ SSHD="${SSHD:-/usr/sbin/sshd}"
 # for our test clients:
 [ -z "${PRIVKEY}" ] && export PRIVKEY="${d}/key_rsa"
 [ -z "${PUBKEY}" ]  && export PUBKEY="${d}/key_rsa.pub"
-cakeys="${d}/ca_main.pub"
+cakeys="${d}/openssh_server/ca_user_keys.pub"
 
 if [ -n "${DEBUG}" ]; then
   libssh2_sshd_params="-d -d"
 fi
-
-cat \
-  "${d}/openssh_server/ca_ecdsa.pub" \
-  "${d}/openssh_server/ca_rsa.pub" \
-  > "${cakeys}"
 
 chmod go-rwx \
   "${d}"/openssh_server/ssh_host_* \
@@ -44,7 +39,7 @@ export OPENSSH_NO_DOCKER=1
   -h "${d}/openssh_server/ssh_host_rsa_key" \
   -h "${d}/openssh_server/ssh_host_ecdsa_key" \
   -h "${d}/openssh_server/ssh_host_ed25519_key" \
-  -o "AuthorizedKeysFile ${PUBKEY} ${d}/key_dsa.pub ${d}/key_rsa.pub ${d}/key_rsa_encrypted.pub ${d}/key_rsa_openssh.pub ${d}/key_ed25519.pub ${d}/key_ed25519_encrypted.pub ${d}/key_ecdsa.pub" \
+  -o "AuthorizedKeysFile ${PUBKEY} ${d}/openssh_server/authorized_keys" \
   -o "TrustedUserCAKeys ${cakeys}" \
   -D \
   ${libssh2_sshd_params} &
@@ -64,8 +59,6 @@ fi
 eval "${cmd}"
 ec=$?
 : "Self-test exit code ${ec}"
-
-rm -f "${cakeys}"
 
 : "killing sshd (${sshdpid})"
 kill "${sshdpid}" > /dev/null 2>&1

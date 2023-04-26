@@ -113,6 +113,7 @@ EXTRA_DIST = \
   openssh_server/ca_ecdsa.pub \
   openssh_server/ca_rsa \
   openssh_server/ca_rsa.pub \
+  openssh_server/ca_user_keys.pub \
   openssh_server/ssh_host_ecdsa_key \
   openssh_server/ssh_host_ed25519_key \
   openssh_server/ssh_host_rsa_key \

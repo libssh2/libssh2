@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign nostdinc
 
-# Get the CSOURCES and HHEADERS defines
+# Get the CSOURCES, HHEADERS and EXTRA_DIST_SOURCES defines
 include Makefile.inc
 
 libssh2_la_SOURCES = $(CSOURCES) $(HHEADERS)
@@ -8,7 +8,8 @@ if HAVE_WINDRES
 libssh2_la_SOURCES += libssh2.rc
 endif
 
-EXTRA_DIST = libssh2_config.h.in libssh2_config_cmake.h.in CMakeLists.txt
+EXTRA_DIST = $(EXTRA_DIST_SOURCES) \
+  libssh2_config.h.in libssh2_config_cmake.h.in CMakeLists.txt
 
 lib_LTLIBRARIES = libssh2.la
 

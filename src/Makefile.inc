@@ -44,3 +44,11 @@ HHEADERS =              \
   userauth.h            \
   userauth_kbd_packet.h \
   wincng.h
+
+EXTRA_DIST_SOURCES =    \
+  blowfish.c            \
+  libgcrypt.c           \
+  mbedtls.c             \
+  openssl.c             \
+  os400qc3.c            \
+  wincng.c

@@ -1,4 +1,6 @@
-#!/bin/sh -e
+#!/bin/sh
+
+set -e
 
 # Generate test keys
 
@@ -47,7 +49,12 @@ cat \
   'key_ed25519.pub' \
   'key_ed25519_encrypted.pub' \
   'key_ecdsa.pub' \
-  > openssh_server/authorized_keys
+  > 'openssh_server/authorized_keys'
+
+cat \
+  'openssh_server/ca_ecdsa.pub' \
+  'openssh_server/ca_rsa.pub' \
+  > 'openssh_server/ca_user_keys.pub'
 
 # tests/test_*.c
 
