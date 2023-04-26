@@ -1165,7 +1165,7 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, rc,
                            "Would block sending auth-agent request");
-	    return rc;
+            return rc;
         }
         else if(rc) {
             channel->req_auth_agent_state = libssh2_NB_state_idle;
