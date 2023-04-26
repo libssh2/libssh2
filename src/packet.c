@@ -1212,6 +1212,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                        sizeof(session->packAdd_authagent_state));
 
               libssh2_packet_add_jump_authagent:
+                session->packAdd_state = libssh2_NB_state_jumpauthagent;
                 rc = packet_authagent_open(session, data, datalen,
                                            &session->packAdd_authagent_state);
             }
