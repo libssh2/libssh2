@@ -117,16 +117,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - { arch: ARM64, platform: ARM64, logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
-          - { arch: x64  , platform: x64  , logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
-          - { arch: x64  , platform: x64  , logging: ON , shared: ON , crypto: WinCNG, zlib: OFF }
-          - { arch: x64  , platform: x64  , logging: OFF, shared: OFF, crypto: WinCNG, zlib: OFF }
-          - { arch: x86  , platform: Win32, logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
+          - { arch: ARM64, logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
+          - { arch: x64  , logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
+          - { arch: x64  , logging: ON , shared: ON , crypto: WinCNG, zlib: OFF }
+          - { arch: x64  , logging: OFF, shared: OFF, crypto: WinCNG, zlib: OFF }
+          - { arch: x86  , logging: OFF, shared: ON , crypto: WinCNG, zlib: OFF }
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
       - uses: microsoft/setup-msbuild@v1
       - name: Build with CMake
         run: |
-          cmake . -B _bld -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_GENERATOR_PLATFORM=${{matrix.platform}} -DVCPKG_TARGET_TRIPLET=${{matrix.arch}}-windows -DENABLE_WERROR=ON -DCRYPTO_BACKEND=${{matrix.crypto}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DENABLE_ZLIB_COMPRESSION=${{matrix.zlib}}
+          platform=${{matrix.arch}}; [ "${platform}" = 'x86' ] && platform=Win32
+          cmake . -B _bld -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_GENERATOR_PLATFORM=$platform -DVCPKG_TARGET_TRIPLET=${{matrix.arch}}-windows -DENABLE_WERROR=ON -DCRYPTO_BACKEND=${{matrix.crypto}} -DBUILD_SHARED_LIBS=${{matrix.shared}} -DENABLE_ZLIB_COMPRESSION=${{matrix.zlib}}
           cmake --build _bld --target package
