@@ -61,15 +61,12 @@
 #define LIBSSH2_SOCKET_MASK "%d"
 #endif
 
-#ifdef WIN32
-#define sleep(x) Sleep(x)
-#ifdef LIBSSH2_WINDOWS_UWP
+#if defined(LIBSSH2_WINDOWS_UWP)
 #define popen(x, y) (NULL)
 #define pclose(x) (-1)
-#else
+#elif defined(WIN32)
 #define popen _popen
 #define pclose _pclose
-#endif
 #endif
 
 static int have_docker = 0;
@@ -258,6 +255,15 @@ static int is_running_inside_a_container(void)
 #endif
 }
 
+static void portable_sleep(unsigned int seconds)
+{
+#ifdef WIN32
+    Sleep(seconds);
+#else
+    sleep(seconds);
+#endif
+}
+
 static int ip_address_from_container(char *container_id, char **ip_address_out)
 {
     const char *active_docker_machine = docker_machine_name();
@@ -282,7 +288,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                 return -1;
             }
             else {
-                sleep(wait_time);
+                portable_sleep(wait_time);
                 ++attempt_no;
                 wait_time *= 2;
             }
@@ -393,7 +399,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
             fprintf(stderr,
                     "Connection to %s:%s attempt #%d failed: retrying...\n",
                     ip_address, port_string, counter);
-            sleep(1 + 2*counter);
+            portable_sleep(1 + 2*counter);
         }
         else {
             ret = sock;

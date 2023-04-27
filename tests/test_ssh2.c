@@ -19,16 +19,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef WIN32
-#define sleep Sleep
-#endif
-
 static const char *hostname = "127.0.0.1";
 static const unsigned short port_number = 4711;
 static const char *pubkey = "key_rsa.pub";
 static const char *privkey = "key_rsa";
 static const char *username = "username";
 static const char *password = "password";
+
+static void portable_sleep(unsigned int seconds)
+{
+#ifdef WIN32
+    Sleep(seconds);
+#else
+    sleep(seconds);
+#endif
+}
 
 int main(int argc, char *argv[])
 {
@@ -95,7 +100,7 @@ int main(int argc, char *argv[])
             fprintf(stderr,
                     "Connection to %s:%d attempt #%d failed: retrying...\n",
                     hostname, port_number, counter);
-            sleep(1 + 2*counter);
+            portable_sleep(1 + 2*counter);
         }
         else {
             break;
