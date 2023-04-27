@@ -40,6 +40,7 @@
 
 #ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
 
+#include <stdlib.h>
 #include <assert.h>
 
 #ifndef EVP_MAX_BLOCK_LENGTH

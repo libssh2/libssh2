@@ -41,6 +41,7 @@
 #include "agent.h"
 
 #include <errno.h>
+#include <stdlib.h>  /* for getenv() */
 
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
