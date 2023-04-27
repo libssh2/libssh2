@@ -61,6 +61,17 @@
 #define LIBSSH2_SOCKET_MASK "%d"
 #endif
 
+#ifdef WIN32
+#define sleep Sleep
+#ifdef LIBSSH2_WINDOWS_APP
+#define popen(x, y) (NULL)
+#define pclose(x) (-1)
+#else
+#define popen _popen
+#define pclose _pclose
+#endif
+#endif
+
 static int have_docker = 0;
 
 int openssh_fixture_have_docker(void)
@@ -102,11 +113,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
     }
 
     fprintf(stdout, "Command: %s\n", command_buf);
-#ifdef WIN32
-    pipe = _popen(buf, "r");
-#else
     pipe = popen(buf, "r");
-#endif
     if(!pipe) {
         fprintf(stderr, "Unable to execute command '%s'\n", command);
         return -1;
@@ -118,11 +125,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
         buf_len = strlen(buf);
     }
 
-#ifdef WIN32
-    ret = _pclose(pipe);
-#else
     ret = pclose(pipe);
-#endif
     if(ret) {
         fprintf(stderr, "Error running command '%s' (exit %d): %s\n",
                 command, ret, buf);
@@ -255,15 +258,6 @@ static int is_running_inside_a_container(void)
 #endif
 }
 
-static void portable_sleep(unsigned int seconds)
-{
-#ifdef WIN32
-    Sleep(seconds);
-#else
-    sleep(seconds);
-#endif
-}
-
 static int ip_address_from_container(char *container_id, char **ip_address_out)
 {
     const char *active_docker_machine = docker_machine_name();
@@ -288,7 +282,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
                 return -1;
             }
             else {
-                portable_sleep(wait_time);
+                sleep(wait_time);
                 ++attempt_no;
                 wait_time *= 2;
             }
@@ -399,7 +393,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
             fprintf(stderr,
                     "Connection to %s:%s attempt #%d failed: retrying...\n",
                     ip_address, port_string, counter);
-            portable_sleep(1 + 2*counter);
+            sleep(1 + 2*counter);
         }
         else {
             ret = sock;
