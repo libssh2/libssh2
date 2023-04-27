@@ -156,3 +156,68 @@ jobs:
       - name: Build with CMake
         run: |
           cmake --build bld --config Release --target package
+
+  build_macos:
+    name: macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})
+    runs-on: macos-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [autotools, cmake]
+        crypto:
+          - name: OpenSSL 3
+            install: openssl
+            configure: --with-crypto=openssl --with-libssl-prefix=/usr/local/opt/openssl
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl
+          - name: OpenSSL 1.1
+            install: openssl@1.1
+            configure: --with-crypto=openssl --with-libssl-prefix=/usr/local/opt/openssl@1.1
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1
+          - name: LibreSSL
+            install: libressl
+            configure: --with-crypto=openssl --with-libssl-prefix=/usr/local/opt/libressl
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/usr/local/opt/libressl
+          - name: wolfSSL
+            install: wolfssl
+            configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/usr/local/opt/wolfssl
+            cmake: -DCRYPTO_BACKEND=wolfSSL
+          - name: libgcrypt
+            install: libgcrypt
+            configure: --with-crypto=libgcrypt --with-libgcrypt-prefix=/usr/local/opt/libgcrypt
+            cmake: -DCRYPTO_BACKEND=Libgcrypt
+          - name: mbedTLS
+            install: mbedtls
+            configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/usr/local/opt/mbedtls
+            cmake: -DCRYPTO_BACKEND=mbedTLS -DMBEDCRYPTO_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedcrypto.a -DMBEDTLS_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedtls.a -DMBEDX509_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedx509.a -DMBEDTLS_INCLUDE_DIR=/usr/local/opt/mbedtls/include
+    steps:
+      - name: 'brew install'
+        run: |
+          brew install automake ${{ matrix.crypto.install }}
+
+      - uses: actions/checkout@v3
+
+      - name: 'autotools autoreconf'
+        if: ${{ matrix.build == 'autotools' }}
+        run: autoreconf -fi
+      - name: 'autotools configure'
+        if: ${{ matrix.build == 'autotools' }}
+        run: |
+          ./configure ${{ matrix.crypto.configure }} \
+          --enable-werror \
+          --enable-debug \
+          --with-libz
+      - name: 'autotools make'
+        if: ${{ matrix.build == 'autotools' }}
+        run: make
+
+      - name: 'cmake generate'
+        if: ${{ matrix.build == 'cmake' }}
+        run: |
+          cmake . -B bld ${{ matrix.crypto.cmake }} \
+            -DENABLE_WERROR=ON \
+            -DENABLE_DEBUG_LOGGING=ON \
+            -DENABLE_ZLIB_COMPRESSION=ON
+      - name: 'cmake build'
+        if: ${{ matrix.build == 'cmake' }}
+        run: cmake --build bld
