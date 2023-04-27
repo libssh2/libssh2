@@ -104,6 +104,12 @@ static unsigned char hex_decode(char digit)
         ((digit >= 'A') ? (0xA + (digit - 'A')) : (digit - '0'));
 }
 
+/* Hack to fix builds with crypto backends with MD5 support disabled.
+   FIXME: Honor our LIBSSH2_MD5 macro for MD5-dependent logic. */
+#ifdef OPENSSL_NO_MD5
+#define MD5_DIGEST_LENGTH 16
+#endif
+
 int
 _libssh2_pem_parse(LIBSSH2_SESSION * session,
                    const char *headerbegin,
