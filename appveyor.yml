@@ -1,0 +1,202 @@
+# Copyright (c) 2014, Ruslan Baratov
+# Copyright (c) 2014, 2016 Alexander Lamaison
+# Copyright (c) 2020, 2021 Marc Hoersken
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+environment:
+  CONFIGURATION: "Release"
+  FIXTURE_XFER_COUNT: 35020
+  matrix:
+    - job_name: "VS2022, OpenSSL3, x64, Server 2019"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
+      GENERATOR: "Visual Studio 17 2022"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "OpenSSL"
+
+    - job_name: "VS2015, OpenSSL, x86, Server 2016"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
+      GENERATOR: "Visual Studio 14 2015"
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "OpenSSL"
+
+    - job_name: "VS2015, OpenSSL, x64, Server 2012 R2, Logging"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 14 2015"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "OpenSSL"
+      ENABLE_DEBUG_LOGGING: "ON"
+
+    - job_name: "VS2013, OpenSSL, x64, Server 2012 R2"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 12 2013"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "OpenSSL"
+
+    - job_name: "VS2013, OpenSSL, x86, Server 2012 R2"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 12 2013"
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "OpenSSL"
+
+    - job_name: "VS2013, OpenSSL, x64, Build-only, Static-only"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 12 2013"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "OFF"
+      CRYPTO_BACKEND: "OpenSSL"
+      SKIP_CTEST: "yes"
+
+    - job_name: "VS2010, WinCNG, x64, Build-only"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 10 2010"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      SKIP_CTEST: "yes"
+
+    - job_name: "VS2008, WinCNG, x86, Build-only"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 9 2008"
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      SKIP_CTEST: "yes"
+
+    - job_name: "VS2022, WinCNG, x64, Server 2019, Logging"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
+      GENERATOR: "Visual Studio 17 2022"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      ENABLE_DEBUG_LOGGING: "ON"
+
+    - job_name: "VS2022, WinCNG, ARM64, Build-only"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
+      GENERATOR: "Visual Studio 17 2022"
+      PLATFORM: "ARM64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+
+    - job_name: "VS2015, WinCNG, x86, Server 2016"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
+      GENERATOR: "Visual Studio 14 2015"
+      PLATFORM: "x86"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+
+    - job_name: "VS2015, WinCNG, x64, Server 2012 R2"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 14 2015"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+
+matrix:
+  fast_finish: true
+
+install:
+  # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
+  - ps: |
+      $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
+      [System.Environment]::SetEnvironmentVariable("OPENSSH_SERVER_PORT", $env:OPENSSH_SERVER_PORT)
+  - ps: .\ci\appveyor\docker-bridge.ps1
+
+build_script:
+  - ps: |
+      if($env:GENERATOR -eq "Visual Studio 17 2022") {
+        if($env:PLATFORM -eq "x86") {
+          $env:CMAKE_ARG = "-A Win32"
+        } else {
+          $env:CMAKE_ARG = "-A $env:PLATFORM"
+        }
+      } elseif($env:PLATFORM -eq "x64") {
+        $env:GENERATOR += " Win64"
+      }
+      if($env:SKIP_CTEST -ne "yes" -and $env:CRYPTO_BACKEND -eq "OpenSSL") {
+        if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2022") {
+          if($env:PLATFORM -eq "x64") {
+            $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64"
+          }
+        } else {
+          if($env:PLATFORM -eq "x64") {
+            $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
+          } elseif($env:PLATFORM -eq "x86") {
+            $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
+          }
+        }
+      }
+      if($env:ENABLE_DEBUG_LOGGING -eq "ON") {
+        $env:CMAKE_ARG += " -DENABLE_DEBUG_LOGGING=ON"
+      }
+  - echo cmake         "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
+  - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
+  - cmake --build _builds --config "%CONFIGURATION%"
+
+before_test:
+  - appveyor-retry choco install -y --no-progress --limit-output --timeout 180 docker-cli
+  - ps: |
+      Write-Host "Waiting for SSH connection from GitHub Actions" -NoNewline
+      $endDate = (Get-Date).AddMinutes(2)
+      while((Get-Process -Name "sshd" -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
+        Write-Host "." -NoNewline
+        Start-Sleep -Seconds 1
+      }
+      if((Get-Process -Name "sshd" -ErrorAction SilentlyContinue).Count -gt 1) {
+        $env:DOCKER_HOST = "tcp://127.0.0.1:2375"
+        [System.Environment]::SetEnvironmentVariable("DOCKER_HOST", $env:DOCKER_HOST)
+        Write-Host "... ready!"
+      } else {
+        Write-Host "... failed!"
+      }
+
+test_script:
+  - ps: |
+      if($env:SKIP_CTEST -ne "yes" -and $env:PLATFORM -ne "ARM64") {
+        if($env:CRYPTO_BACKEND -eq "WinCNG") {
+          $env:FIXTURE_TRACE_ALL_CONNECT = "1"
+        }
+        $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
+        cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
+      }
+
+on_failure:
+  - ps: if(Test-Path _builds/CMakeFiles/CMakeConfigureLog.yaml) { cat _builds/CMakeFiles/CMakeConfigureLog.yaml }
+  - ps: if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
+  - ps: if(Test-Path _builds/CMakeFiles/CMakeError.log) { cat _builds/CMakeFiles/CMakeError.log }
+
+on_finish:
+  - ps: |
+      Get-Process -Name "sleep" -ErrorAction SilentlyContinue | Stop-Process
+      Start-Sleep -Seconds 3
+      Get-Process -Name "sshd" -ErrorAction SilentlyContinue | Stop-Process
+
+# Limit branches to avoid testing feature branches twice (as branch and as pull request)
+branches:
+  only:
+    - master
