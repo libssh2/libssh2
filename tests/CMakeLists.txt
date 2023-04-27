@@ -79,7 +79,7 @@ foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
   if(NOT TARGET ${test})
     add_executable(${test} ${test}.c)
     target_compile_definitions(${test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
-    target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src "${CRYPTO_BACKEND_INCLUDE_DIR}")
+    target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include "${CRYPTO_BACKEND_INCLUDE_DIR}")
 
     # build a single test with gcov
     if(GCOV_PATH AND test STREQUAL test_auth_keyboard_info_request)
