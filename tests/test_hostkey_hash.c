@@ -1,5 +1,16 @@
 #include "runner.h"
 
+static const char *EXPECTED_DSA_HOSTKEY =
+    "AAAAB3NzaC1kc3MAAACBALG8m0lOYn6246tYwPo37NpE1vWBIzP5RxBw9f++WYZePySE"
+    "4vfN4DilJAht6U5NI2Pewv2ooCsEHl5J0xHevghQVOorf/GKqkvvfBtksPLX4ZRftr0T"
+    "O8u16vFFIDCfGFkoOZ0tDJyMJsI5zPleaqTm0zcKdN6RTznGiYvS5+nHAAAAFQCdY5Ne"
+    "tscpJuJTUmSLdq643CAy1QAAAIEAnq7m6eypXoyh/Ra3MF73KW6wbCbc9ptwGRhVZy/H"
+    "njXkWOPBgaL8tqfvmi0BRtZvxXcMIdQrWty+iooATv4izMFzeGCQLZogRw93CR+sxp+u"
+    "MF0OOVCz/1ykRmc42pTf1m/LCtLx7rGkNGQkhxdzo/k2hv5dQlR2S05Gfwsn+w4AAACA"
+    "C/aTbUv3cTjTb1UV45OQ9z/6ygnohiGacx9QepLd3Vxq1RqlXFkOFs6aCfp25tLBc/Q+"
+    "Q8GGuHA92TC4vTReTMVsYvmF1Q9XiApC+fN9eAMD0aZzp2eahmEsWLC0v2x6e/UvBVDu"
+    "z/slGrDtfJuydzOBT9929wXd6lCyYSpxZGw=";
+
 static const char *EXPECTED_RSA_HOSTKEY =
     "AAAAB3NzaC1yc2EAAAABIwAAAQEArrr/JuJmaZligyfS8vcNur+mWR2ddDQtVdhHzdKU"
     "UoR6/Om6cvxpe61H1YZO1xCpLUBXmkki4HoNtYOpPB2W4V+8U4BDeVBD5crypEOE1+7B"
@@ -14,6 +25,9 @@ static const char *EXPECTED_ECDSA_HOSTKEY =
 
 static const char *EXPECTED_ED25519_HOSTKEY =
     "AAAAC3NzaC1lZDI1NTE5AAAAIIxtdyg2ZRXE70UwyPVUH3UyfDBV8GX5cPF636P6hjom";
+
+static const char *EXPECTED_DSA_SHA256_HASH_DIGEST =
+    "A4E61906D72EE7D3335F276EB9837DBC50E819D4154FC43807AE3FCA125CE32C";
 
 static const char *EXPECTED_RSA_MD5_HASH_DIGEST =
     "0C0ED1A5BB10275F76924CE187CE5C5E";
@@ -64,6 +78,7 @@ int test(LIBSSH2_SESSION *session)
     size_t len;
 
     /* these are the host keys under test, they are currently unused */
+    (void)EXPECTED_DSA_HOSTKEY;
     (void)EXPECTED_RSA_HOSTKEY;
     (void)EXPECTED_ECDSA_HOSTKEY;
     (void)EXPECTED_ED25519_HOSTKEY;
@@ -192,6 +207,25 @@ int test(LIBSSH2_SESSION *session)
             fprintf(stderr,
                     "SHA256 hash not as expected - digest %s != %s\n",
                     buf, EXPECTED_RSA_SHA256_HASH_DIGEST);
+            return 1;
+        }
+    }
+    else if(type == LIBSSH2_HOSTKEY_TYPE_DSS) {
+
+        sha256_hash = libssh2_hostkey_hash(session,
+                                           LIBSSH2_HOSTKEY_HASH_SHA256);
+        if(!sha256_hash) {
+            print_last_session_error(
+                "libssh2_hostkey_hash(LIBSSH2_HOSTKEY_HASH_SHA256)");
+            return 1;
+        }
+
+        calculate_digest(sha256_hash, SHA256_HASH_SIZE, buf, BUFSIZ);
+
+        if(strcmp(buf, EXPECTED_DSA_SHA256_HASH_DIGEST) != 0) {
+            fprintf(stderr,
+                    "SHA256 hash not as expected - digest %s != %s\n",
+                    buf, EXPECTED_DSA_SHA256_HASH_DIGEST);
             return 1;
         }
     }

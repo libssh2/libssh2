@@ -8,6 +8,7 @@ set -e
 
 rm ./openssh_server/*_key || true
 
+ssh-keygen -t dsa             -N ''          -m PEM -C ''                        -f 'openssh_server/ssh_host_dsa_key'
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -C ''                        -f 'openssh_server/ssh_host_rsa_key'
 ssh-keygen -t ecdsa   -b  256 -N ''          -m PEM -C ''                        -f 'openssh_server/ssh_host_ecdsa_key'
 ssh-keygen -t ed25519         -N ''                 -C ''                        -f 'openssh_server/ssh_host_ed25519_key'

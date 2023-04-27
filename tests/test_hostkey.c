@@ -1,5 +1,16 @@
 #include "runner.h"
 
+static const char *EXPECTED_DSA_HOSTKEY =
+    "AAAAB3NzaC1kc3MAAACBALG8m0lOYn6246tYwPo37NpE1vWBIzP5RxBw9f++WYZePySE"
+    "4vfN4DilJAht6U5NI2Pewv2ooCsEHl5J0xHevghQVOorf/GKqkvvfBtksPLX4ZRftr0T"
+    "O8u16vFFIDCfGFkoOZ0tDJyMJsI5zPleaqTm0zcKdN6RTznGiYvS5+nHAAAAFQCdY5Ne"
+    "tscpJuJTUmSLdq643CAy1QAAAIEAnq7m6eypXoyh/Ra3MF73KW6wbCbc9ptwGRhVZy/H"
+    "njXkWOPBgaL8tqfvmi0BRtZvxXcMIdQrWty+iooATv4izMFzeGCQLZogRw93CR+sxp+u"
+    "MF0OOVCz/1ykRmc42pTf1m/LCtLx7rGkNGQkhxdzo/k2hv5dQlR2S05Gfwsn+w4AAACA"
+    "C/aTbUv3cTjTb1UV45OQ9z/6ygnohiGacx9QepLd3Vxq1RqlXFkOFs6aCfp25tLBc/Q+"
+    "Q8GGuHA92TC4vTReTMVsYvmF1Q9XiApC+fN9eAMD0aZzp2eahmEsWLC0v2x6e/UvBVDu"
+    "z/slGrDtfJuydzOBT9929wXd6lCyYSpxZGw=";
+
 static const char *EXPECTED_RSA_HOSTKEY =
     "AAAAB3NzaC1yc2EAAAABIwAAAQEArrr/JuJmaZligyfS8vcNur+mWR2ddDQtVdhHzdKU"
     "UoR6/Om6cvxpe61H1YZO1xCpLUBXmkki4HoNtYOpPB2W4V+8U4BDeVBD5crypEOE1+7B"
@@ -43,6 +54,11 @@ int test(LIBSSH2_SESSION *session)
         rc = _libssh2_base64_decode(session, &expected_hostkey, &expected_len,
                                     EXPECTED_RSA_HOSTKEY,
                                     strlen(EXPECTED_RSA_HOSTKEY));
+    }
+    else if(type == LIBSSH2_HOSTKEY_TYPE_DSS) {
+        rc = _libssh2_base64_decode(session, &expected_hostkey, &expected_len,
+                                    EXPECTED_DSA_HOSTKEY,
+                                    strlen(EXPECTED_DSA_HOSTKEY));
     }
     else {
         fprintf(stderr, "Unexpected type of hostkey: %i\n", type);
