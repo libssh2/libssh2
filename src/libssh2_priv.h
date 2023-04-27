@@ -98,14 +98,8 @@
 #  if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP) && \
      !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #    define LIBSSH2_WINDOWS_APP
-     #error UWP correctly detected 1!
 #  endif
 # endif
-
-#if defined(WINAPI_FAMILY) && (WINAPI_FAMILY != WINAPI_FAMILY_DESKTOP_APP)
-  #error UWP correctly detected 2!
-#endif
-
 #endif
 
 #ifndef FALSE
