@@ -138,17 +138,22 @@ build_script:
       } elseif($env:PLATFORM -eq "x64") {
         $env:GENERATOR += " Win64"
       }
-      if($env:SKIP_CTEST -ne "yes" -and $env:CRYPTO_BACKEND -eq "OpenSSL") {
-        if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2022") {
-          if($env:PLATFORM -eq "x64") {
-            $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64"
+      if($env:SKIP_CTEST -ne "yes") {
+        if($env:CRYPTO_BACKEND -eq "OpenSSL") {
+          if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2022") {
+            if($env:PLATFORM -eq "x64") {
+              $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64"
+            }
+          } else {
+            if($env:PLATFORM -eq "x64") {
+              $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
+            } elseif($env:PLATFORM -eq "x86") {
+              $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
+            }
           }
-        } else {
-          if($env:PLATFORM -eq "x64") {
-            $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
-          } elseif($env:PLATFORM -eq "x86") {
-            $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
-          }
+        } elseif($env:CRYPTO_BACKEND -eq "WinCNG") {
+          # FIXME: Intermittent WinCNG KEX failures when using RSA
+          $env:CMAKE_ARG += " -DCMAKE_C_FLAGS=-DLIBSSH2_NO_RSA"
         }
       }
       if($env:ENABLE_DEBUG_LOGGING -eq "ON") {
