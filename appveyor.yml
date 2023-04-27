@@ -156,7 +156,7 @@ build_script:
       }
   - echo cmake         "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
   - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
-  - cmake --build _builds --config "%CONFIGURATION%" --target package
+  - cmake --build _builds --config "%CONFIGURATION%"
 
 before_test:
   - appveyor-retry choco install -y --no-progress --limit-output --timeout 180 docker-cli
