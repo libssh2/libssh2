@@ -3835,6 +3835,10 @@ read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
                                                    passphrase);
 }
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#define HAVE_SSLERROR_BAD_DECRYPT
+#endif
+
 int
 _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 unsigned char **method,
@@ -3849,7 +3853,9 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     BIO*      bp;
     EVP_PKEY* pk;
     int       pktype;
+#ifdef HAVE_SSLERROR_BAD_DECRYPT
     unsigned long sslError;
+#endif
 
     _libssh2_debug((session,
                    LIBSSH2_TRACE_AUTH,
@@ -3866,7 +3872,9 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                               "computing public key");
     BIO_reset(bp);
     pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void *)passphrase);
+#ifdef HAVE_SSLERROR_BAD_DECRYPT
     sslError = ERR_get_error();
+#endif
     BIO_free(bp);
 
     if(!pk) {
@@ -3882,7 +3890,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
         if(st == 0)
             return 0;
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L /* OpenSSL 3.0.0 */
+#ifdef HAVE_SSLERROR_BAD_DECRYPT
         if((ERR_GET_LIB(sslError) == ERR_LIB_PEM &&
             ERR_GET_REASON(sslError) == PEM_R_BAD_DECRYPT) ||
            (ERR_GET_LIB(sslError) == ERR_LIB_PROV &&

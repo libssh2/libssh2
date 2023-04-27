@@ -41,7 +41,6 @@
 #define LIBSSH2_TESTS
 
 #include "libssh2_priv.h"
-#include <libssh2.h>
 
 LIBSSH2_SESSION *start_session_fixture(int *skipped);
 void stop_session_fixture(void);

@@ -117,18 +117,6 @@ else
   test "$found_crypto_str" = "" && found_crypto_str="$found_crypto"
 fi
 
-if   test "$found_crypto" = "openssl"; then
-  LIBS="${LIBS} ${LTLIBSSL}"
-elif test "$found_crypto" = "wolfssl"; then
-  LIBS="${LIBS} ${LTLIBWOLFSSL}"
-elif test "$found_crypto" = "libgcrypt"; then
-  LIBS="${LIBS} ${LTLIBGCRYPT}"
-elif test "$found_crypto" = "wincng"; then
-  LIBS="${LIBS} ${LTLIBBCRYPT}"
-elif test "$found_crypto" = "mbedtls"; then
-  LIBS="${LIBS} ${LTLIBMBEDCRYPTO}"
-fi
-
 # libz
 
 AC_ARG_WITH([libz],
@@ -376,6 +364,19 @@ AM_CONDITIONAL([HOST_WINDOWS], [test "x$host_windows" = "xyes"])
 
 # Configure parameters
 LIBSSH2_CHECK_OPTION_WERROR
+
+# Append crypto lib
+if   test "$found_crypto" = "openssl"; then
+  LIBS="${LIBS} ${LTLIBSSL}"
+elif test "$found_crypto" = "wolfssl"; then
+  LIBS="${LIBS} ${LTLIBWOLFSSL}"
+elif test "$found_crypto" = "libgcrypt"; then
+  LIBS="${LIBS} ${LTLIBGCRYPT}"
+elif test "$found_crypto" = "wincng"; then
+  LIBS="${LIBS} ${LTLIBBCRYPT}"
+elif test "$found_crypto" = "mbedtls"; then
+  LIBS="${LIBS} ${LTLIBMBEDCRYPTO}"
+fi
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile

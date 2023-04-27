@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   check_style:
@@ -68,7 +68,7 @@ jobs:
         if: ${{ matrix.b == 'configure' }}
         run: |
           autoreconf -fi
-          ./configure --enable-debug --enable-werror
+          ./configure --enable-werror --enable-debug
           make -j3
           make check VERBOSE=1
       - name: Build with CMake
@@ -103,16 +103,16 @@ jobs:
       - uses: actions/checkout@v3
       - uses: msys2/setup-msys2@v2
         with:
-          msystem: ${{matrix.sys}}
+          msystem: ${{ matrix.sys }}
           install: >-
-            mingw-w64-${{matrix.env}}-cc
-            mingw-w64-${{matrix.env}}-autotools
-            mingw-w64-${{matrix.env}}-openssl
+            mingw-w64-${{ matrix.env }}-cc
+            mingw-w64-${{ matrix.env }}-autotools
+            mingw-w64-${{ matrix.env }}-openssl
       - name: Building libssh2
         shell: msys2 {0}
         run: |
           autoreconf -fi
-          ./configure --enable-debug --enable-static --disable-shared --with-crypto=openssl
+          ./configure --enable-werror --enable-debug --enable-static --disable-shared --with-crypto=openssl
           make -j3
           make check VERBOSE=1
 
@@ -133,11 +133,11 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
-      - name: Configure with CMake
+      - name: 'cmake generate'
         shell: bash
         run: |
-          archgen=${{matrix.arch}}; [ "${archgen}" = 'x86' ] && archgen='Win32'
-          if [ "${{matrix.plat}}" = 'uwp' ]; then
+          archgen=${{ matrix.arch }}; [ "${archgen}" = 'x86' ] && archgen='Win32'
+          if [ "${{ matrix.plat }}" = 'uwp' ]; then
             system='WindowsStore'
             options='-DCMAKE_SYSTEM_VERSION=10.0'
           else
@@ -147,12 +147,77 @@ jobs:
             -DCMAKE_SYSTEM_NAME=${system} \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DCMAKE_GENERATOR_PLATFORM=${archgen} \
-            -DVCPKG_TARGET_TRIPLET=${{matrix.arch}}-${{matrix.plat}} \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-${{ matrix.plat }} \
             -DENABLE_WERROR=ON \
-            -DENABLE_DEBUG_LOGGING=${{matrix.log}} \
-            -DBUILD_SHARED_LIBS=${{matrix.shared}} \
-            -DCRYPTO_BACKEND=${{matrix.crypto}} \
-            -DENABLE_ZLIB_COMPRESSION=${{matrix.zlib}}
-      - name: Build with CMake
+            -DENABLE_DEBUG_LOGGING=${{ matrix.log }} \
+            -DBUILD_SHARED_LIBS=${{ matrix.shared }} \
+            -DCRYPTO_BACKEND=${{ matrix.crypto }} \
+            -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
+      - name: 'cmake build'
         run: |
           cmake --build bld --config Release --target package
+
+  build_macos:
+    name: macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})
+    runs-on: macos-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [autotools, cmake]
+        crypto:
+          - name: OpenSSL 3
+            install: openssl
+            configure: --with-crypto=openssl --with-libssl-prefix=/usr/local/opt/openssl
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl
+          - name: OpenSSL 1.1
+            install: openssl@1.1
+            configure: --with-crypto=openssl --with-libssl-prefix=/usr/local/opt/openssl@1.1
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1
+          - name: LibreSSL
+            install: libressl
+            configure: --with-crypto=openssl --with-libssl-prefix=/usr/local/opt/libressl
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/usr/local/opt/libressl
+          - name: wolfSSL
+            install: wolfssl
+            configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/usr/local/opt/wolfssl
+            cmake: -DCRYPTO_BACKEND=wolfSSL
+          - name: libgcrypt
+            install: libgcrypt
+            configure: --with-crypto=libgcrypt --with-libgcrypt-prefix=/usr/local/opt/libgcrypt
+            cmake: -DCRYPTO_BACKEND=Libgcrypt
+          - name: mbedTLS
+            install: mbedtls
+            configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/usr/local/opt/mbedtls
+            cmake: -DCRYPTO_BACKEND=mbedTLS -DMBEDCRYPTO_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedcrypto.a -DMBEDTLS_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedtls.a -DMBEDX509_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedx509.a -DMBEDTLS_INCLUDE_DIR=/usr/local/opt/mbedtls/include
+    steps:
+      - name: 'brew install'
+        run: |
+          brew install automake ${{ matrix.crypto.install }}
+
+      - uses: actions/checkout@v3
+
+      - name: 'autotools autoreconf'
+        if: ${{ matrix.build == 'autotools' }}
+        run: autoreconf -fi
+      - name: 'autotools configure'
+        if: ${{ matrix.build == 'autotools' }}
+        run: |
+          ./configure ${{ matrix.crypto.configure }} \
+          --enable-werror \
+          --enable-debug \
+          --with-libz
+      - name: 'autotools make'
+        if: ${{ matrix.build == 'autotools' }}
+        run: make
+
+      - name: 'cmake generate'
+        if: ${{ matrix.build == 'cmake' }}
+        run: |
+          cmake . -B bld ${{ matrix.crypto.cmake }} \
+            -DENABLE_WERROR=ON \
+            -DENABLE_DEBUG_LOGGING=ON \
+            -DENABLE_ZLIB_COMPRESSION=ON
+      - name: 'cmake build'
+        if: ${{ matrix.build == 'cmake' }}
+        run: cmake --build bld
