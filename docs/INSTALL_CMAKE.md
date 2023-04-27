@@ -107,7 +107,7 @@ or
   cmake --build . --target RUN_TESTS
 ```
 
-How do I use libssh2 in my project if my project doesn't use CMake?
+How do I use libssh2 in my project if my project does not use CMake?
 -------------------------------------------------------------------
 
 If you are not using CMake for your own project, install libssh2
@@ -122,14 +122,14 @@ or
 ```
 
 and then specify the install location to your project in the normal
-way for your build environment.  If you don't like the default install
+way for your build environment.  If you do not like the default install
 location, add `-DCMAKE_INSTALL_PREFIX=<chosen prefix>` when initially
 configuring the project.
 
 How can I use libssh2 in my project if it also uses CMake?
 ----------------------------------------------------------
 
-If your own project also uses CMake, you don't need to worry about
+If your own project also uses CMake, you do not need to worry about
 setting it up with libssh2's location.  Just add just the following
 lines and CMake will find libssh2 on your system, set up the necessary
 paths and link the library with your binary.
@@ -139,7 +139,7 @@ paths and link the library with your binary.
 
 Of course, you still have to make libssh2 available on your system
 first.  You can install it in the traditional way shown above, but you
-don't have to.  Instead you can just build it, which will export its
+do not have to.  Instead you can just build it, which will export its
 location to the user package registry [3] where `find_package` will
 find it.
 

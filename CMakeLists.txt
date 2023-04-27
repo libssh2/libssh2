@@ -118,7 +118,7 @@ set(LIB_SHARED "libssh2_shared")  # Must match libssh2_shared_EXPORTS macro in i
 
 # Symbol hiding
 
-option(HIDE_SYMBOLS "Set to ON to hide all libssh2 symbols that aren't officially external" ON)
+option(HIDE_SYMBOLS "Set to ON to hide all libssh2 symbols that are not officially external" ON)
 mark_as_advanced(HIDE_SYMBOLS)
 if(HIDE_SYMBOLS)
   set(LIB_SHARED_DEFINITIONS LIBSSH2_EXPORTS)
@@ -168,7 +168,7 @@ else()
 endif()
 check_symbol_exists(strtoll stdlib.h HAVE_STRTOLL)
 if(NOT HAVE_STRTOLL)
-  # Try _strtoi64 if strtoll isn't available
+  # Try _strtoi64() if strtoll() is not available
   check_symbol_exists(_strtoi64 stdlib.h HAVE_STRTOI64)
 endif()
 check_symbol_exists(snprintf stdio.h HAVE_SNPRINTF)
@@ -190,7 +190,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR
   # have been in a bad mood, because poll() only works on the /proc
   # filesystem here"
   #
-  # Mac OS X's poll has funny behaviors, like:
+  # macOS poll() has funny behaviors, like:
   # not being able to do poll on no filedescriptors (10.3?)
   # not being able to poll on some files (like anything in /dev)
   # not having reliable timeout support

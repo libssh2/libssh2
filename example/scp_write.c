@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 
     local = fopen(loclfile, "rb");
     if(!local) {
-        fprintf(stderr, "Can't open local file %s\n", loclfile);
+        fprintf(stderr, "Cannot open local file %s\n", loclfile);
         return 1;
     }
 

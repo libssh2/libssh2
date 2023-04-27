@@ -303,7 +303,7 @@ case $host in
     dnl Interix: "does provide poll(), but the implementing developer must
     dnl have been in a bad mood, because poll() only works on the /proc
     dnl filesystem here"
-    dnl Mac OS X's poll has funny behaviors, like:
+    dnl macOS poll() has funny behaviors, like:
     dnl not being able to do poll on no fildescriptors (10.3?)
     dnl not being able to poll on some files (like anything in /dev)
     dnl not having reliable timeout support

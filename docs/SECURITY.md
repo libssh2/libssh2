@@ -28,8 +28,8 @@ reference to the security nature of the commit if done prior to the public
 announcement.
 
 - The person discovering the issue, the reporter, reports the vulnerability
-  privately to `libssh2-security@haxx.se`. That's an email alias that reaches a
-  handful of selected and trusted people.
+  privately to `libssh2-security@haxx.se`. That is an email alias that reaches
+  a handful of selected and trusted people.
 
 - Messages that do not relate to the reporting or managing of an undisclosed
   security vulnerability in libssh2 are ignored and no further action is
@@ -64,7 +64,7 @@ announcement.
   [distros@openwall](https://oss-security.openwall.org/wiki/mailing-lists/distros)
   when also informing and preparing them for the upcoming public security
   vulnerability announcement - attach the advisory draft for information. Note
-  that 'distros' won't accept an embargo longer than 14 days.
+  that 'distros' will not accept an embargo longer than 14 days.
 
 - Update the "security advisory" with the CVE number.
 
@@ -90,10 +90,10 @@ LIBSSH2-SECURITY (at haxx dot se)
 --------------------------------
 
 Who is on this list? There are a couple of criteria you must meet, and then we
-might ask you to join the list or you can ask to join it. It really isn't very
+might ask you to join the list or you can ask to join it. It really is not very
 formal. We basically only require that you have a long-term presence in the
 libssh2 project and you have shown an understanding for the project and its way
-of working. You must've been around for a good while and you should have no
+of working. You must have been around for a good while and you should have no
 plans in vanishing in the near future.
 
 We do not make the list of participants public mostly because it tends to vary

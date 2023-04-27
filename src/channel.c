@@ -2361,7 +2361,7 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         if(channel->local.close)
             return _libssh2_error(channel->session,
                                   LIBSSH2_ERROR_CHANNEL_CLOSED,
-                                  "We've already closed this channel");
+                                  "We have already closed this channel");
         else if(channel->local.eof)
             return _libssh2_error(channel->session,
                                   LIBSSH2_ERROR_CHANNEL_EOF_SENT,

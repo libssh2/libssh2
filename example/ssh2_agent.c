@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
             prev_identity = identity;
         }
         if(rc) {
-            fprintf(stderr, "Couldn't continue authentication\n");
+            fprintf(stderr, "Could not continue authentication\n");
             goto shutdown;
         }
     }

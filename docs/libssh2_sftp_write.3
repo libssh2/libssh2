@@ -33,15 +33,15 @@ create several smaller outgoing packets for all data you pass to this function
 and it will return a positive number as soon as the first packet is
 acknowledged from the server.
 
-This has the effect that sometimes more data has been sent off but isn't acked
+This has the effect that sometimes more data has been sent off but is not acked
 yet when this function returns, and when this function is subsequently called
 again to write more data, libssh2 will immediately figure out that the data is
 already received remotely.
 
 In most normal situation this should not cause any problems, but it should be
-noted that if you've once called libssh2_sftp_write() with data and it returns
-short, you MUST still assume that the rest of the data might've been cached so
-you need to make sure you don't alter that data and think that the version you
+noted that if you have once called libssh2_sftp_write() with data and it returns
+short, you MUST still assume that the rest of the data might have been cached so
+you need to make sure you do not alter that data and think that the version you
 have in your next function invoke will be detected or used.
 
 The reason for this funny behavior is that SFTP can only send 32K data in each
@@ -52,7 +52,7 @@ latency connections. And we want that.
 Actual number of bytes written or negative on failure.
 
 If used in non-blocking mode, it returns LIBSSH2_ERROR_EAGAIN when it would
-otherwise block. While LIBSSH2_ERROR_EAGAIN is a negative number, it isn't
+otherwise block. While LIBSSH2_ERROR_EAGAIN is a negative number, it is not
 really a failure per se.
 
 If this function returns 0 (zero) it should not be considered an error, but

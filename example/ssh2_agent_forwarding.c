@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
         prev_identity = identity;
     }
     if(rc) {
-        fprintf(stderr, "Couldn't continue authentication\n");
+        fprintf(stderr, "Could not continue authentication\n");
         goto shutdown;
     }
 
@@ -214,8 +214,8 @@ int main(int argc, char *argv[])
         waitsocket(sock, session);
     }
     if(rc) {
-        fprintf(stderr, "Error, couldn't request auth agent, error code %d.\n",
-                rc);
+        fprintf(stderr, "Error, could not request auth agent, "
+                "error code %d.\n", rc);
         exit(1);
     }
     else {

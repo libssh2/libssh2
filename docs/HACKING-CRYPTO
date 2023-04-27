@@ -58,7 +58,7 @@ Terminates the crypto library use. May be an empty macro if not needed.
 1.1) Crypto runtime detection
 
 The libssh2_crypto_engine_t enum must include the new engine, and
-libssh2_crypto_engine() must return it when it's built in.
+libssh2_crypto_engine() must return it when it is built in.
 
 2) HMAC
 

@@ -46,7 +46,7 @@ cache files.)
 to figure out how `configure' could check whether to do them, and mail
 diffs or instructions to the address given in the `README' so they can
 be considered for the next release.  If you are using the cache, and at
-some point `config.cache' contains results you don't want to keep, you
+some point `config.cache' contains results you do not want to keep, you
 may remove or edit it.
 
    The file `configure.ac' (or `configure.in') is used to create
@@ -57,7 +57,7 @@ a newer version of `autoconf'.
 The simplest way to compile this package is:
 
   1. `cd' to the directory containing the package's source code and type
-     `./configure' to configure the package for your system.  If you're
+     `./configure' to configure the package for your system.  If you are
      using `csh' on an old version of System V, you might need to type
      `sh ./configure' instead to prevent `csh' from trying to execute
      `configure' itself.
@@ -148,7 +148,7 @@ is something like `gnu-as' or `x' (for the X Window System).  The
 package recognizes.
 
    For packages that use the X Window System, `configure' can usually
-find the X include and library files automatically, but if it doesn't,
+find the X include and library files automatically, but if it does not,
 you can use the `configure' options `--x-includes=DIR' and
 `--x-libraries=DIR' to specify their locations.
 
@@ -170,7 +170,7 @@ where SYSTEM can have one of these forms:
      OS KERNEL-OS
 
    See the file `config.sub' for the possible values of each field.  If
-`config.sub' isn't included in this package, then this package doesn't
+`config.sub' is not included in this package, then this package does not
 need to know the machine type.
 
    If you are _building_ compiler tools for cross-compiling, you should

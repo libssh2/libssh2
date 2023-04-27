@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 
     tempstorage = fopen(storage, "wb");
     if(!tempstorage) {
-        fprintf(stderr, "Can't open temp storage file %s\n", storage);
+        fprintf(stderr, "Cannot open temp storage file %s\n", storage);
         goto shutdown;
     }
 
@@ -271,8 +271,8 @@ int main(int argc, char *argv[])
 
     tempstorage = fopen(storage, "rb");
     if(!tempstorage) {
-        /* weird, we can't read the file we just wrote to... */
-        fprintf(stderr, "can't open %s for reading\n", storage);
+        /* weird, we cannot read the file we just wrote to... */
+        fprintf(stderr, "Cannot open %s for reading\n", storage);
         goto shutdown;
     }
 
