@@ -126,7 +126,7 @@ jobs:
           - { arch: x64  , plat: windows, logging: ON , shared: ON , crypto: WinCNG , zlib: OFF }
           - { arch: x64  , plat: windows, logging: OFF, shared: ON , crypto: OpenSSL, zlib: OFF }
           - { arch: x64  , plat: uwp    , logging: OFF, shared: ON , crypto: WinCNG , zlib: OFF }
-          - { arch: arm64, plat: windows, logging: OFF, shared: ON , crypto: WinCNG , zlib: OFF }
+          - { arch: arm64, plat: windows, logging: OFF, shared: ON , crypto: WinCNG , zlib: OFF }  # Same as in AppVeyor
           - { arch: arm64, plat: uwp    , logging: OFF, shared: ON , crypto: WinCNG , zlib: OFF }
           - { arch: x86  , plat: windows, logging: OFF, shared: ON , crypto: WinCNG , zlib: OFF }
       fail-fast: false
