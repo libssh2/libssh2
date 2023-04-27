@@ -137,15 +137,16 @@ jobs:
         shell: bash
         run: |
           archgen=${{matrix.arch}}; [ "${archgen}" = 'x86' ] && archgen='Win32'
-          system='Windows'
           if [ "${{matrix.plat}}" = 'uwp' ]; then
             system='WindowsStore'
             options='-DCMAKE_SYSTEM_VERSION=10.0'
+          else
+            system='Windows'
           fi
           cmake . -B bld ${options} \
             -DCMAKE_SYSTEM_NAME=${system} \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
-            -DCMAKE_GENERATOR_PLATFORM=$archgen \
+            -DCMAKE_GENERATOR_PLATFORM=${archgen} \
             -DVCPKG_TARGET_TRIPLET=${{matrix.arch}}-${{matrix.plat}} \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=${{matrix.log}} \
