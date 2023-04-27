@@ -251,7 +251,7 @@ static struct agent_ops agent_ops_unix = {
 };
 #endif  /* PF_UNIX */
 
-#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP)
+#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
 /* Code to talk to Pageant was taken from PuTTY.
  *
  * Portions copyright Robert de Bath, Joris van Rantwijk, Delian
@@ -354,16 +354,16 @@ static struct agent_ops agent_ops_pageant = {
     agent_transact_pageant,
     agent_disconnect_pageant
 };
-#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP) */
+#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP) */
 
 static struct {
     const char *name;
     struct agent_ops *ops;
 } supported_backends[] = {
-#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_APP)
+#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
     {"Pageant", &agent_ops_pageant},
     {"OpenSSH", &agent_ops_openssh},
-#endif
+#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP) */
 #ifdef PF_UNIX
     {"Unix", &agent_ops_unix},
 #endif  /* PF_UNIX */

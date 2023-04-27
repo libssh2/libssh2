@@ -63,7 +63,7 @@
 
 #ifdef WIN32
 #define sleep Sleep
-#ifdef LIBSSH2_WINDOWS_APP
+#ifdef LIBSSH2_WINDOWS_UWP
 #define popen(x, y) (NULL)
 #define pclose(x) (-1)
 #else
