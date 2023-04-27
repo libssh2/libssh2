@@ -909,14 +909,6 @@ struct _LIBSSH2_SESSION
     long packet_read_timeout;
 };
 
-#if defined(HAVE_STRTOLL)
-#define scpsize_strtol strtoll
-#elif defined(HAVE_STRTOI64)
-#define scpsize_strtol _strtoi64
-#else
-#define scpsize_strtol strtol
-#endif
-
 /* session.state bits */
 #define LIBSSH2_STATE_EXCHANGING_KEYS   0x00000001
 #define LIBSSH2_STATE_NEWKEYS           0x00000002

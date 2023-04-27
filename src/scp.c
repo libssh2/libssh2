@@ -38,10 +38,18 @@
 
 #include "libssh2_priv.h"
 
-#include <stdlib.h>  /* strtol(), strtoll(), _strtoi64() */
-
 #include "channel.h"
 #include "session.h"
+
+#include <stdlib.h>  /* strtoll(), _strtoi64(), strtol() */
+
+#if defined(HAVE_STRTOLL)
+#define scpsize_strtol strtoll
+#elif defined(HAVE_STRTOI64)
+#define scpsize_strtol _strtoi64
+#else
+#define scpsize_strtol strtol
+#endif
 
 /* Max. length of a quoted string after libssh2_shell_quotearg() processing */
 #define _libssh2_shell_quotedsize(s)     (3 * strlen(s) + 2)
