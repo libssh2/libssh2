@@ -7,6 +7,114 @@ on:
     branches: [ master ]
 
 jobs:
+  check_style:
+    name: style-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check Style
+        run: ./ci/checksrc.sh
+
+  build_linux:
+    name: linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+        address_size: [64]
+        crypto_backend: [OpenSSL, Libgcrypt, mbedTLS]
+        enable_zlib_compression: [OFF, ON]
+        b: [cmake]
+        include:
+          - compiler: gcc
+            address_size: 64
+            crypto_backend: OpenSSL
+            enable_zlib_compression: OFF
+            b: configure
+          - compiler: clang
+            address_size: 64
+            crypto_backend: OpenSSL
+            enable_zlib_compression: OFF
+            b: configure
+    env:
+      CC: ${{ matrix.compiler }}
+      CC_FOR_BUILD: ${{ matrix.compiler }}
+      CRYPTO_BACKEND: ${{ matrix.crypto_backend }}
+      ENABLE_ZLIB_COMPRESSION: ${{ matrix.enable_zlib_compression }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install 64 Bit Dependencies
+        if: ${{ matrix.address_size == 64 }}
+        run: |
+          sudo apt-get install -y libssl-dev
+          sudo apt-get install -y libgcrypt-dev
+      - name: Install mbedTLS Dependencies
+        if: ${{ matrix.crypto_backend == 'mbedTLS' }}
+        run: |
+          MBEDTLSVER=mbedtls-3.4.0
+          curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
+          cd mbedtls-$MBEDTLSVER
+          cmake $TOOLCHAIN_OPTION -DUSE_SHARED_MBEDTLS_LIBRARY=ON -DCMAKE_INSTALL_PREFIX:PATH=../usr .
+          make -j3 install
+          cd ..
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+      - name: Build with Configure
+        if: ${{ matrix.b == 'configure' }}
+        run: |
+          autoreconf -fi
+          ./configure --enable-debug --enable-werror
+          make -j3
+          make check VERBOSE=1
+      - name: Build with CMake
+        timeout-minutes: 10
+        if: ${{ matrix.b == 'cmake' }}
+        run: |
+          mkdir bin
+          cd bin
+          cmake $TOOLCHAIN_OPTION \
+            -DENABLE_WERROR=ON \
+            -DCRYPTO_BACKEND=$CRYPTO_BACKEND \
+            -DBUILD_SHARED_LIBS=ON \
+            -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION \
+            ..
+          cmake --build .
+          export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
+          ctest -VV --output-on-failure
+          cmake --build . --target package
+
+  build_msys2:
+    name: msys2
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        include:
+          - { sys: mingw64, env: x86_64 }
+          - { sys: mingw32, env: i686 }
+          - { sys: ucrt64,  env: ucrt-x86_64 }
+          - { sys: clang64, env: clang-x86_64 }
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{matrix.sys}}
+          install: >-
+            mingw-w64-${{matrix.env}}-cc
+            mingw-w64-${{matrix.env}}-autotools
+            mingw-w64-${{matrix.env}}-openssl
+      - name: Building libssh2
+        shell: msys2 {0}
+        run: |
+          autoreconf -fi
+          ./configure --enable-debug --enable-static --disable-shared --with-crypto=openssl
+          make -j3
+          make check VERBOSE=1
+
   build_msvc:
     name: msvc
     runs-on: windows-latest
