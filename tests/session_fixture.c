@@ -65,16 +65,16 @@ static int connect_to_server(void)
     int rc;
     connected_socket = open_socket_to_openssh_server();
     if(connected_socket == LIBSSH2_INVALID_SOCKET) {
-        return -1;
+        return LIBSSH2_ERROR_SOCKET_NONE;
     }
 
     rc = libssh2_session_handshake(connected_session, connected_socket);
     if(rc) {
         print_last_session_error("libssh2_session_handshake");
-        return -1;
+        return libssh2_session_last_errno(connected_session);
     }
 
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 static void setup_fixture_workdir(void)
@@ -117,7 +117,7 @@ static char const *skip_crypt[] = {
     NULL
 };
 
-LIBSSH2_SESSION *start_session_fixture(int *skipped)
+LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
 {
     int rc;
 
@@ -125,6 +125,7 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped)
     const char *mac = getenv("FIXTURE_TEST_MAC");
 
     *skipped = 0;
+    *err = LIBSSH2_ERROR_NONE;
 
     if(crypt) {
         char const * const *cr;
@@ -192,7 +193,8 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped)
     libssh2_session_set_blocking(connected_session, 1);
 
     rc = connect_to_server();
-    if(rc) {
+    if(rc != LIBSSH2_ERROR_NONE) {
+        *err = rc;
         return NULL;
     }
 
@@ -221,12 +223,16 @@ void stop_session_fixture(void)
     if(connected_session) {
         libssh2_session_disconnect(connected_session, "test ended");
         libssh2_session_free(connected_session);
-        shutdown(connected_socket, 2);
         connected_session = NULL;
     }
     else {
         fprintf(stderr, "Cannot stop session - none started\n");
     }
+
+    close_socket_to_openssh_server(connected_socket);
+    connected_socket = LIBSSH2_INVALID_SOCKET;
+
+    libssh2_exit();
 
     stop_openssh_fixture();
 }
@@ -236,7 +242,7 @@ void stop_session_fixture(void)
  * variable, if found. It does so in a way that avoids leaking memory by using
  * a fixed number of static buffers.
  */
-#define NUMPATHS 3
+#define NUMPATHS 32
 const char *srcdir_path(const char *file)
 {
 #ifdef WIN32
@@ -246,6 +252,9 @@ const char *srcdir_path(const char *file)
 #endif
     static int curpath;
     char *p = getenv("srcdir");
+    if(curpath >= NUMPATHS) {
+        fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
+    }
     assert(curpath < NUMPATHS);
     if(p) {
         /* Ensure the final string is nul-terminated on Windows */
@@ -314,6 +323,8 @@ int test_auth_keyboard(LIBSSH2_SESSION *session, int flags,
     rc = libssh2_userauth_keyboard_interactive_ex(session, username,
                                                 (unsigned int)strlen(username),
                                                   kbd_callback);
+
+    kbd_password = NULL;
 
     if((flags & TEST_AUTH_SHOULDFAIL) != 0) {
         if(rc == 0) {

@@ -420,6 +420,18 @@ cleanup:
     return ret;
 }
 
+static void close_socket_to_container(libssh2_socket_t sock)
+{
+    if(sock != LIBSSH2_INVALID_SOCKET) {
+        shutdown(sock, 2 /* SHUT_RDWR */);
+#ifdef WIN32
+        closesocket(sock);
+#else
+        close(sock);
+#endif
+    }
+}
+
 static char *running_container_id = NULL;
 
 int start_openssh_fixture(void)
@@ -462,4 +474,9 @@ void stop_openssh_fixture(void)
 libssh2_socket_t open_socket_to_openssh_server(void)
 {
     return open_socket_to_container(running_container_id);
+}
+
+void close_socket_to_openssh_server(libssh2_socket_t sock)
+{
+    close_socket_to_container(sock);
 }
