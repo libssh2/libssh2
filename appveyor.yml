@@ -24,25 +24,27 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# https://www.appveyor.com/docs/windows-images-software/
+
 environment:
   CONFIGURATION: "Release"
   FIXTURE_XFER_COUNT: 35020
   matrix:
-    - job_name: "VS2022, OpenSSL3, x64, Server 2019"
+    - job_name: "VS2022, OpenSSL 3, x64, Server 2019"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
       PLATFORM: "x64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
-    - job_name: "VS2015, OpenSSL, x86, Server 2016"
+    - job_name: "VS2015, OpenSSL 1.1, x86, Server 2016"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
       GENERATOR: "Visual Studio 14 2015"
       PLATFORM: "x86"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
-    - job_name: "VS2015, OpenSSL, x64, Server 2012 R2, Logging"
+    - job_name: "VS2015, OpenSSL 1.1, x64, Server 2012 R2, Logging"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 14 2015"
       PLATFORM: "x64"
@@ -50,21 +52,21 @@ environment:
       CRYPTO_BACKEND: "OpenSSL"
       ENABLE_DEBUG_LOGGING: "ON"
 
-    - job_name: "VS2013, OpenSSL, x64, Server 2012 R2"
+    - job_name: "VS2013, OpenSSL 1.1, x64, Server 2012 R2"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 12 2013"
       PLATFORM: "x64"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
-    - job_name: "VS2013, OpenSSL, x86, Server 2012 R2"
+    - job_name: "VS2013, OpenSSL 1.1, x86, Server 2012 R2"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 12 2013"
       PLATFORM: "x86"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
-    - job_name: "VS2013, OpenSSL, x64, Build-only, Static-only"
+    - job_name: "VS2013, OpenSSL 1.0.2, x64, Build-only, Static-only"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 12 2013"
       PLATFORM: "x64"
