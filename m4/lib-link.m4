@@ -74,7 +74,7 @@ AC_DEFUN([AC_LIB_HAVE_LINKFLAGS],
   AC_CACHE_CHECK([for lib[]$1], [ac_cv_lib[]Name], [
     ac_save_LIBS="$LIBS"
     LIBS="$LIBS $LIB[]NAME"
-    AC_TRY_LINK([$3], [$4], [ac_cv_lib[]Name=yes], [ac_cv_lib[]Name=no])
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[$3]], [[$4]])],[ac_cv_lib[]Name=yes],[ac_cv_lib[]Name=no])
     LIBS="$ac_save_LIBS"
   ])
   if test "$ac_cv_lib[]Name" = yes; then
