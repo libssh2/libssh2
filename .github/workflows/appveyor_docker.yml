@@ -40,6 +40,8 @@ on:
       ssh_privkey:
         required: true
 
+permissions: {}
+
 jobs:
   daemon:
     runs-on: ubuntu-latest
