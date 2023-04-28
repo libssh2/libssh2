@@ -6,7 +6,7 @@ dnl with or without modifications, as long as this notice is preserved.
 
 dnl From Bruno Haible.
 
-AC_PREREQ(2.54)
+AC_PREREQ([2.54])
 
 dnl AC_LIB_LINKFLAGS(name [, dependencies]) searches for libname and
 dnl the libraries corresponding to explicit and implicit dependencies.
