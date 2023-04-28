@@ -133,11 +133,11 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
-      - name: Configure with CMake
+      - name: 'cmake generate'
         shell: bash
         run: |
-          archgen=${{matrix.arch}}; [ "${archgen}" = 'x86' ] && archgen='Win32'
-          if [ "${{matrix.plat}}" = 'uwp' ]; then
+          archgen=${{ matrix.arch }}; [ "${archgen}" = 'x86' ] && archgen='Win32'
+          if [ "${{ matrix.plat }}" = 'uwp' ]; then
             system='WindowsStore'
             options='-DCMAKE_SYSTEM_VERSION=10.0'
           else
@@ -147,13 +147,13 @@ jobs:
             -DCMAKE_SYSTEM_NAME=${system} \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DCMAKE_GENERATOR_PLATFORM=${archgen} \
-            -DVCPKG_TARGET_TRIPLET=${{matrix.arch}}-${{matrix.plat}} \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-${{ matrix.plat }} \
             -DENABLE_WERROR=ON \
-            -DENABLE_DEBUG_LOGGING=${{matrix.log}} \
-            -DBUILD_SHARED_LIBS=${{matrix.shared}} \
-            -DCRYPTO_BACKEND=${{matrix.crypto}} \
-            -DENABLE_ZLIB_COMPRESSION=${{matrix.zlib}}
-      - name: Build with CMake
+            -DENABLE_DEBUG_LOGGING=${{ matrix.log }} \
+            -DBUILD_SHARED_LIBS=${{ matrix.shared }} \
+            -DCRYPTO_BACKEND=${{ matrix.crypto }} \
+            -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
+      - name: 'cmake build'
         run: |
           cmake --build bld --config Release --target package
 
