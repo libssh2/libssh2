@@ -39,16 +39,39 @@
 
 int main(void)
 {
-    int exit_code = 1;
-    int skipped;
-    LIBSSH2_SESSION *session = start_session_fixture(&skipped);
-    if(session) {
-        exit_code = (test(session) == 0) ? 0 : 1;
-    }
-    else if(skipped) {
-        fprintf(stderr, "Test skipped.\n");
-        exit_code = 0;
-    }
-    stop_session_fixture();
+    int exit_code;
+    int retries = 0, retry = 0;
+
+#ifdef LIBSSH2_WINCNG
+    /* FIXME: Retry tests with WinCNG due to flakiness in hostkey
+       verification: https://github.com/libssh2/libssh2/issues/804 */
+    retries += 2;
+#endif
+
+    do {
+        int skipped, rc;
+        LIBSSH2_SESSION *session = start_session_fixture(&skipped, &rc);
+        if(session) {
+            exit_code = (test(session) == 0) ? 0 : 1;
+        }
+        else if(skipped) {
+            fprintf(stderr, "Test skipped.\n");
+            exit_code = 0;
+        }
+        else {
+            exit_code = 1;
+        }
+        stop_session_fixture();
+        if(exit_code == 0 ||
+#ifdef LIBSSH2_WINCNG
+           rc != LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE ||
+#endif
+           ++retry > retries) {
+            break;
+        }
+        fprintf(stderr, "Test failed (%d)! Retrying... %d / %d\n",
+                        rc, retry, retries);
+    } while(1);
+
     return exit_code;
 }

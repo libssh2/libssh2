@@ -65,16 +65,16 @@ static int connect_to_server(void)
     int rc;
     connected_socket = open_socket_to_openssh_server();
     if(connected_socket == LIBSSH2_INVALID_SOCKET) {
-        return -1;
+        return LIBSSH2_ERROR_SOCKET_NONE;
     }
 
     rc = libssh2_session_handshake(connected_session, connected_socket);
     if(rc) {
         print_last_session_error("libssh2_session_handshake");
-        return -1;
+        return libssh2_session_last_errno(connected_session);
     }
 
-    return 0;
+    return LIBSSH2_ERROR_NONE;
 }
 
 static void setup_fixture_workdir(void)
@@ -117,7 +117,7 @@ static char const *skip_crypt[] = {
     NULL
 };
 
-LIBSSH2_SESSION *start_session_fixture(int *skipped)
+LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
 {
     int rc;
 
@@ -125,6 +125,7 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped)
     const char *mac = getenv("FIXTURE_TEST_MAC");
 
     *skipped = 0;
+    *err = LIBSSH2_ERROR_NONE;
 
     if(crypt) {
         char const * const *cr;
@@ -192,7 +193,8 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped)
     libssh2_session_set_blocking(connected_session, 1);
 
     rc = connect_to_server();
-    if(rc) {
+    if(rc != LIBSSH2_ERROR_NONE) {
+        *err = rc;
         return NULL;
     }
 
