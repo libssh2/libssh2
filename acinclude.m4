@@ -844,8 +844,8 @@ AC_DEFUN([LIBSSH2_CHECK_OPTION_WERROR], [
   AC_MSG_CHECKING([whether to enable compiler warnings as errors])
   OPT_COMPILER_WERROR="default"
   AC_ARG_ENABLE(werror,
-AC_HELP_STRING([--enable-werror],[Enable compiler warnings as errors])
-AC_HELP_STRING([--disable-werror],[Disable compiler warnings as errors]),
+AS_HELP_STRING([--enable-werror],[Enable compiler warnings as errors])
+AS_HELP_STRING([--disable-werror],[Disable compiler warnings as errors]),
   OPT_COMPILER_WERROR=$enableval)
   case "$OPT_COMPILER_WERROR" in
     no)

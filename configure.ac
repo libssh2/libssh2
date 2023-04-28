@@ -1,4 +1,4 @@
-# AC_PREREQ(2.57)
+# AC_PREREQ(2.59)
 AC_INIT(libssh2, [-], libssh2-devel@lists.haxx.se)
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src])
@@ -89,7 +89,7 @@ m4_set_add([crypto_backends], [wincng])
 m4_set_add([crypto_backends], [wolfssl])
 
 AC_ARG_WITH([crypto],
-  AC_HELP_STRING([--with-crypto=auto|]m4_set_contents([crypto_backends], [|]),
+  AS_HELP_STRING([--with-crypto=auto|]m4_set_contents([crypto_backends], [|]),
     [Select crypto backend (default: auto)]),
   use_crypto=$withval,
   use_crypto=auto
@@ -120,7 +120,7 @@ fi
 # libz
 
 AC_ARG_WITH([libz],
-  AC_HELP_STRING([--with-libz],[Use libz for compression]),
+  AS_HELP_STRING([--with-libz],[Use libz for compression]),
   use_libz=$withval,
   use_libz=auto)
 
@@ -151,7 +151,7 @@ AC_SUBST(LIBSREQUIRED)
 # Optional Settings
 #
 AC_ARG_ENABLE(clear-memory,
-  AC_HELP_STRING([--disable-clear-memory],[Disable clearing of memory before being freed]),
+  AS_HELP_STRING([--disable-clear-memory],[Disable clearing of memory before being freed]),
   [CLEAR_MEMORY=$enableval])
 if test "$CLEAR_MEMORY" = "no"; then
   AC_DEFINE(LIBSSH2_NO_CLEAR_MEMORY, 1, [Disable clearing of memory before being freed])
@@ -165,8 +165,8 @@ dnl option to switch on compiler debug options
 dnl
 AC_MSG_CHECKING([whether to enable pedantic and debug compiler options])
 AC_ARG_ENABLE(debug,
-AC_HELP_STRING([--enable-debug],[Enable pedantic and debug options])
-AC_HELP_STRING([--disable-debug],[Disable debug options]),
+AS_HELP_STRING([--enable-debug],[Enable pedantic and debug options])
+AS_HELP_STRING([--disable-debug],[Disable debug options]),
 [ case "$enable_debug" in
   no)
        AC_MSG_RESULT(no)
@@ -194,8 +194,8 @@ dnl on gcc >= 4.0 and SunPro C.
 dnl
 AC_MSG_CHECKING([whether to enable hidden symbols in the library])
 AC_ARG_ENABLE(hidden-symbols,
-AC_HELP_STRING([--enable-hidden-symbols],[Hide internal symbols in library])
-AC_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibility in library]),
+AS_HELP_STRING([--enable-hidden-symbols],[Hide internal symbols in library])
+AS_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibility in library]),
 [ case "$enableval" in
   no)
        AC_MSG_RESULT(no)
@@ -241,8 +241,8 @@ AM_CONDITIONAL([ENABLE_TESTS], [test "x$enable_tests" = xyes])
 # Build example applications?
 AC_MSG_CHECKING([whether to build example applications])
 AC_ARG_ENABLE([examples-build],
-AC_HELP_STRING([--enable-examples-build], [Build example applications (this is the default)])
-AC_HELP_STRING([--disable-examples-build], [Do not build example applications]),
+AS_HELP_STRING([--enable-examples-build], [Build example applications (this is the default)])
+AS_HELP_STRING([--disable-examples-build], [Do not build example applications]),
 [case "$enableval" in
   no | false)
     build_examples='no'
