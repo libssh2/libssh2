@@ -782,7 +782,7 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
     *line = '\0';
 
     do {
-        if (*line) {
+        if(*line) {
             char *tmp;
             size_t linelen;
 
