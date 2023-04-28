@@ -112,7 +112,7 @@ jobs:
         shell: msys2 {0}
         run: |
           autoreconf -fi
-          ./configure --enable-debug --enable-static --disable-shared --with-crypto=openssl
+          ./configure --enable-werror --enable-debug --enable-static --disable-shared --with-crypto=openssl
           make -j3
           make check VERBOSE=1
 
