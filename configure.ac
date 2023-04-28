@@ -307,16 +307,16 @@ AC_CHECK_FUNCS(gettimeofday select strtoll explicit_bzero explicit_memset memset
 dnl Check for select() into ws2_32 for Msys/Mingw
 if test "$ac_cv_func_select" != "yes"; then
   AC_MSG_CHECKING([for select in ws2_32])
-  AC_TRY_LINK([
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #ifdef HAVE_WINDOWS_H
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <winsock2.h>
 #endif
-    ],[
+    ]], [[
       select(0,(fd_set *)NULL,(fd_set *)NULL,(fd_set *)NULL,(struct timeval *)NULL);
-    ],[
+    ]])],[
       AC_MSG_RESULT([yes])
       HAVE_SELECT="1"
       AC_DEFINE_UNQUOTED(HAVE_SELECT, 1,
