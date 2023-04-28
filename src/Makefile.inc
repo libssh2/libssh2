@@ -45,7 +45,7 @@ HHEADERS =              \
   userauth_kbd_packet.h \
   wincng.h
 
-EXTRA_DIST_SOURCES =    \
+EXTRA_DIST =            \
   blowfish.c            \
   libgcrypt.c           \
   mbedtls.c             \
