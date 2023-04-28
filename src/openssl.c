@@ -3574,7 +3574,7 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
             session, method, method_len, pubkeydata, pubkeydata_len, 0, pk);
     break;
 #endif /* LIBSSH2_ECDSA */
-    default :
+    default:
         st = _libssh2_error(session,
                             LIBSSH2_ERROR_FILE,
                             "Unable to extract public key "

@@ -521,7 +521,7 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Got %d",
                        (int) packet_type));
 
-        if (*data_len < required_size) {
+        if(*data_len < required_size) {
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
         }
 
@@ -539,7 +539,7 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Got %d",
                            (int) packet_type));
 
-            if (*data_len < required_size) {
+            if(*data_len < required_size) {
                 return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
             }
 
@@ -581,7 +581,7 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
                  */
                 sftp->requirev_start = 0;
 
-                if (*data_len < required_size) {
+                if(*data_len < required_size) {
                     return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
                 }
 
