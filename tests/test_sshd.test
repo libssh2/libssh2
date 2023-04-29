@@ -39,6 +39,11 @@ d="$(cd "${d}" || exit; pwd)"  # sshd needs absolute paths
 SSHD="${SSHD:-/usr/sbin/sshd}"
 [[ "${uname}" = *'_NT'* ]] && SSHD="$(cygpath -u "${SSHD}")"
 
+sshdver="$("${SSHD}" -V 2>&1 || true)"
+if [[ "${sshdver}" =~ OpenSSH_[a-zA-Z0-9_\ .,]+ ]]; then
+  echo "# sshd version: '${BASH_REMATCH[0]}'"
+fi
+
 # for our test clients:
 [ -z "${PRIVKEY}" ] && export PRIVKEY="${d}/key_rsa"
 [ -z "${PUBKEY}" ]  && export PUBKEY="${d}/key_rsa.pub"
