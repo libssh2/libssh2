@@ -24,7 +24,7 @@ else
     if [[ "${l}" = 'SSHD_TESTS ='* ]]; then
       load=1
     elif [ "${load}" = '1' ]; then
-      tests="${tests} ${l/\\}"
+      [[ "${l}" =~ [a-z0-9_]+ ]] && tests+=" ./${BASH_REMATCH[0]}${EXEEXT}"
       [[ ! "${l}" = *"\\" ]] && break
       # On Windows, subsequent tests may be flaky
     # [[ "${uname}" = *'_NT'* ]] && break
@@ -86,7 +86,7 @@ echo "${count}..${total}"
 export OPENSSH_NO_DOCKER=1
 
 for test in ${tests}; do
-  if "./${test}${EXEEXT}"; then
+  if "${test}"; then
     res='ok'
   else
     [ "${manual}" = '1' ] && [ "${total}" = '1' ] && ec=$?
