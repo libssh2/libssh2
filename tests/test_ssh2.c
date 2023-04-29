@@ -129,6 +129,8 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
+    rc = 1;
+
     /* At this point we have not yet authenticated.  The first thing to do
      * is check the hostkey's fingerprint against our known hosts Your app
      * may have it hard coded, may go to a file, may present it to the
