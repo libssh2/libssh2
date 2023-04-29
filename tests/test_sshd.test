@@ -27,7 +27,7 @@ else
       tests="${tests} ${l/\\}"
       [[ ! "${l}" = *"\\" ]] && break
       # On Windows, subsequent tests may be flaky
-      [[ "${uname}" = *'_NT'* ]] && break
+    # [[ "${uname}" = *'_NT'* ]] && break
     fi
   done <<< "$(tr -d $"\r" < "${d}/Makefile.am")"
 fi
