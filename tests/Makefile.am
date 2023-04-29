@@ -120,5 +120,4 @@ EXTRA_DIST = \
   openssh_server/sshd_config \
   test_read_algos.test \
   test_read_algos.txt \
-  test_sshd.test \
-  sshd_fixture.sh
+  test_sshd.test
