@@ -177,8 +177,8 @@ static int build_openssh_server_docker_image(void)
         }
         buildcmd[sizeof(buildcmd)-1] = 0;
         snprintf(buildcmd, sizeof(buildcmd)-1,
-                "docker build --quiet -t libssh2/openssh_server %s",
-                srcdir_path("openssh_server"));
+                 "docker build --quiet -t libssh2/openssh_server %s",
+                 srcdir_path("openssh_server"));
 
         return run_command(NULL, buildcmd);
     }
@@ -455,7 +455,7 @@ void stop_openssh_fixture(void)
         running_container_id = NULL;
     }
     else if(have_docker) {
-        fprintf(stderr, "Cannot stop container - none started");
+        fprintf(stderr, "Cannot stop container - none started\n");
     }
 }
 
