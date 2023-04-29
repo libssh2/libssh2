@@ -35,12 +35,12 @@ jobs:
             address_size: 64
             crypto_backend: OpenSSL
             enable_zlib_compression: 'OFF'
-            b: configure
+            b: autotools
           - compiler: clang
             address_size: 64
             crypto_backend: OpenSSL
             enable_zlib_compression: 'OFF'
-            b: configure
+            b: autotools
     env:
       CC: ${{ matrix.compiler }}
       CC_FOR_BUILD: ${{ matrix.compiler }}
@@ -67,7 +67,7 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
       - name: Build with Configure
-        if: ${{ matrix.b == 'configure' }}
+        if: ${{ matrix.b == 'autotools' }}
         run: |
           autoreconf -fi
           ./configure --enable-werror --enable-debug
