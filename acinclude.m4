@@ -554,12 +554,12 @@ AC_DEFUN([CURL_CHECK_NONBLOCKING_SOCKET],
 [
   AC_MSG_CHECKING([non-blocking sockets style])
 
-  AC_TRY_COMPILE([
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 /* headers for O_NONBLOCK test */
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
-],[
+]], [[
 /* try to compile O_NONBLOCK */
 
 #if defined(sun) || defined(__sun__) || defined(__SUNPRO_C) || defined(__SUNPRO_CC)
@@ -578,22 +578,22 @@ AC_DEFUN([CURL_CHECK_NONBLOCKING_SOCKET],
 #endif
   int socket;
   int flags = fcntl(socket, F_SETFL, flags | O_NONBLOCK);
-],[
+]])],[
 dnl the O_NONBLOCK test was fine
 nonblock="O_NONBLOCK"
 AC_DEFINE(HAVE_O_NONBLOCK, 1, [use O_NONBLOCK for non-blocking sockets])
 ],[
 dnl the code was bad, try a different program now, test 2
 
-  AC_TRY_COMPILE([
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 /* headers for FIONBIO test */
 #include <unistd.h>
 #include <stropts.h>
-],[
+]], [[
 /* FIONBIO source test (old-style unix) */
  int socket;
  int flags = ioctl(socket, FIONBIO, &flags);
-],[
+]])],[
 dnl FIONBIO test was good
 nonblock="FIONBIO"
 AC_DEFINE(HAVE_FIONBIO, 1, [use FIONBIO for non-blocking sockets])
@@ -601,28 +601,28 @@ AC_DEFINE(HAVE_FIONBIO, 1, [use FIONBIO for non-blocking sockets])
 dnl FIONBIO test was also bad
 dnl the code was bad, try a different program now, test 3
 
-  AC_TRY_LINK([
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 /* headers for IoctlSocket test (Amiga?) */
 #include <sys/ioctl.h>
-],[
+]], [[
 /* IoctlSocket source code */
  int socket;
  int flags = IoctlSocket(socket, FIONBIO, (long)1);
-],[
+]])],[
 dnl ioctlsocket test was good
 nonblock="IoctlSocket"
 AC_DEFINE(HAVE_IOCTLSOCKET_CASE, 1, [use Ioctlsocket() for non-blocking sockets])
 ],[
 dnl Ioctlsocket did not compile, do test 4!
-  AC_TRY_COMPILE([
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 /* headers for SO_NONBLOCK test (BeOS) */
 #include <socket.h>
-],[
+]], [[
 /* SO_NONBLOCK source code */
  long b = 1;
  int socket;
  int flags = setsockopt(socket, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
-],[
+]])],[
 dnl the SO_NONBLOCK test was good
 nonblock="SO_NONBLOCK"
 AC_DEFINE(HAVE_SO_NONBLOCK, 1, [use SO_NONBLOCK for non-blocking sockets])
