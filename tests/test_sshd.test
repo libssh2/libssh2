@@ -94,7 +94,7 @@ for test in ${tests}; do
     [ "${manual}" = '1' ] && [ "${total}" = '1' ] && ec=$?
     res='not ok'
   fi
-  echo "${res} ${count} - sshd-${test}"
+  echo "${res} ${count} - sshd-$(basename "${test}")"
   ((count++))
 done
 
