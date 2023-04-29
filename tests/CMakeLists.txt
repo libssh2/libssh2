@@ -104,11 +104,13 @@ if(SSHD_EXECUTABLE)
   if(WIN32)
     list(GET SSHD_TESTS 0 SSHD_TESTS)
   endif()
+  unset(sshd_test_targets)
   foreach(test ${SSHD_TESTS})
-    set(testname sshd-${test})
-    add_test(NAME ${testname} COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/sshd_fixture.sh $<TARGET_FILE:${test}>")
-    set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
+    set(sshd_test_targets "${sshd_test_targets} $<TARGET_FILE:${test}>")
   endforeach()
+
+  add_test(NAME test_sshd COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/test_sshd.test ${sshd_test_targets}")
+  set_property(TEST test_sshd APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
 endif()
 
 # CRYPT/MAC algo tests
