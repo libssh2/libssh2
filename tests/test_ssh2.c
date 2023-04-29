@@ -121,6 +121,12 @@ int main(int argc, char *argv[])
         goto shutdown;
     }
 
+    if(getenv("FIXTURE_TRACE_ALL_CONNECT") ||
+       getenv("FIXTURE_TRACE_ALL")) {
+        libssh2_trace(session, ~0);
+        fprintf(stdout, "Trace all enabled.\n");
+    }
+
     libssh2_session_set_blocking(session, 1);
 
     rc = libssh2_session_handshake(session, sock);
