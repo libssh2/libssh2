@@ -80,6 +80,7 @@ fi
 ec=0
 count=1
 total="$(echo "${tests}" | wc -w | tr -d ' ')"
+anyerror=0
 
 echo "${count}..${total}"
 
@@ -89,6 +90,7 @@ for test in ${tests}; do
   if "${test}"; then
     res='ok'
   else
+    anyerror=1
     [ "${manual}" = '1' ] && [ "${total}" = '1' ] && ec=$?
     res='not ok'
   fi
@@ -101,4 +103,7 @@ done
 : "killing sshd (${sshdpid})"
 kill "${sshdpid}" > /dev/null 2>&1
 trap '' EXIT
+
+[ "${manual}" = '1' ] && [ "${total}" != '1' ] && ec="${anyerror}"
+
 exit "${ec}"
