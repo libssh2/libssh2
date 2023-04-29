@@ -67,8 +67,13 @@ AC_PATH_PROGS(SSHD, [sshd], [],
      [$PATH$PATH_SEPARATOR/usr/libexec$PATH_SEPARATOR]dnl
      [/usr/sbin$PATH_SEPARATOR/usr/etc$PATH_SEPARATOR/etc])
 AM_CONDITIONAL(SSHD, test -n "$SSHD")
+m4_ifdef([LT_INIT],
+[dnl
+LT_INIT([win32-dll])
+],[dnl
 AC_LIBTOOL_WIN32_DLL
 AC_PROG_LIBTOOL
+])
 AC_C_BIGENDIAN
 
 LT_LANG([Windows Resource])
