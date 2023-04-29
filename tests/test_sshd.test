@@ -1,35 +1,104 @@
 #!/usr/bin/env bash
 
+# Written by Simon Josefsson
+
+# Start sshd, invoke test, saving exit code, kill sshd, and
+# return exit code.
+
 # https://testanything.org/tap-specification.html
 
 d="$(dirname "$0")"
 uname="$(uname)"
 
-# Load list of SSHD tests from Makefile.am
-tests=''
-load=0
-while read -r l; do
-  if [[ "${l}" = 'SSHD_TESTS ='* ]]; then
-    load=1
-  elif [ "${load}" = '1' ]; then
-    tests="${tests} ${l/\\}"
-    [[ ! "${l}" = *"\\" ]] && break
-    # On Windows, subsequent tests may be flaky
-    [[ "${uname}" = *'_NT'* ]] && break
-  fi
-done <<< "$(tr -d $"\r" < "${d}/Makefile.am")"
+# Load list of tests
 
+if [ -n "$1" ]; then
+  tests="$*"
+  manual=1
+else
+  manual=0
+  # Load list of SSHD tests from Makefile.am
+  tests=''
+  load=0
+  while read -r l; do
+    if [[ "${l}" = 'SSHD_TESTS ='* ]]; then
+      load=1
+    elif [ "${load}" = '1' ]; then
+      tests="${tests} ${l/\\}"
+      [[ ! "${l}" = *"\\" ]] && break
+      # On Windows, subsequent tests may be flaky
+      [[ "${uname}" = *'_NT'* ]] && break
+    fi
+  done <<< "$(tr -d $"\r" < "${d}/Makefile.am")"
+fi
+
+# Init and start sshd
+
+d="$(cd "${d}" || exit; pwd)"  # sshd needs absolute paths
+
+SSHD="${SSHD:-/usr/sbin/sshd}"
+[[ "${uname}" = *'_NT'* ]] && SSHD="$(cygpath -u "${SSHD}")"
+
+# for our test clients:
+[ -z "${PRIVKEY}" ] && export PRIVKEY="${d}/key_rsa"
+[ -z "${PUBKEY}" ]  && export PUBKEY="${d}/key_rsa.pub"
+cakeys="${d}/openssh_server/ca_user_keys.pub"
+
+if [ -n "${DEBUG}" ]; then
+  libssh2_sshd_params="-d -d"
+fi
+
+chmod go-rwx \
+  "${d}"/openssh_server/ssh_host_* \
+  "${cakeys}"
+
+# shellcheck disable=SC2086
+"${SSHD}" \
+  -f "${SSHD_FIXTURE_CONFIG:-${d}/openssh_server/sshd_config}" \
+  -o 'Port 4711' \
+  -h "${d}/openssh_server/ssh_host_rsa_key" \
+  -h "${d}/openssh_server/ssh_host_ecdsa_key" \
+  -h "${d}/openssh_server/ssh_host_ed25519_key" \
+  -o "AuthorizedKeysFile ${PUBKEY} ${d}/openssh_server/authorized_keys" \
+  -o "TrustedUserCAKeys ${cakeys}" \
+  -D \
+  ${libssh2_sshd_params} &
+sshdpid=$!
+
+trap 'kill "${sshdpid}"; echo signal killing sshd; exit 1;' EXIT
+
+: "started sshd (${sshdpid})"
+
+if [[ "${uname}" = *'_NT'* ]]; then
+  sleep 5
+else
+  sleep 3
+fi
+
+# Run tests
+
+ec=0
 count=1
 total="$(echo "${tests}" | wc -w | tr -d ' ')"
 
 echo "${count}..${total}"
 
+export OPENSSH_NO_DOCKER=1
+
 for test in ${tests}; do
-  if "${d}/sshd_fixture.sh" "./${test}${EXEEXT}"; then
+  if "./${test}${EXEEXT}"; then
     res='ok'
   else
+    [ "${manual}" = '1' ] && [ "${total}" = '1' ] && ec=$?
     res='not ok'
   fi
   echo "${res} ${count} - sshd-${test}"
   ((count++))
 done
+
+# Stop sshd
+
+: "killing sshd (${sshdpid})"
+kill "${sshdpid}" > /dev/null 2>&1
+trap '' EXIT
+exit "${ec}"
