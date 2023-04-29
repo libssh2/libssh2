@@ -85,6 +85,7 @@ anyerror=0
 echo "${count}..${total}"
 
 export OPENSSH_NO_DOCKER=1
+[[ "${uname}" = *'_NT'* ]] && export FIXTURE_TRACE_ALL_CONNECT=1
 
 for test in ${tests}; do
   if "${test}"; then
