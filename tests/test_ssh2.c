@@ -63,6 +63,10 @@ int main(int argc, char *argv[])
 
     if(getenv("USER"))
         username = getenv("USER");
+#ifdef WIN32
+    else if(getenv("USERNAME"))
+        username = getenv("USERNAME");
+#endif
 
     if(getenv("PRIVKEY"))
         privkey = getenv("PRIVKEY");
