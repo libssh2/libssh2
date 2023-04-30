@@ -45,6 +45,7 @@ d="$(cd "${d}" || exit; pwd)"  # sshd needs absolute paths
 
 SSHD="${SSHD:-/usr/sbin/sshd}"
 [[ "${uname}" = *'_NT'* ]] && SSHD="$(cygpath -u "${SSHD}")"
+echo "# sshd executable: '${SSHD}'"
 
 sshdver="$("${SSHD}" -V 2>&1 || true)"
 if [[ "${sshdver}" =~ OpenSSH_[a-zA-Z0-9_\ .,]+ ]]; then
