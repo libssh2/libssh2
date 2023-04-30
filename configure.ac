@@ -242,6 +242,12 @@ AC_ARG_ENABLE([tests],
   [enable_tests="yes"])
 AM_CONDITIONAL([ENABLE_TESTS], [test "x$enable_tests" = xyes])
 
+# Run Docker tests?
+AC_ARG_ENABLE([docker-tests],
+  [AS_HELP_STRING([--disable-docker-tests],
+    [Do not run tests requiring Docker])],
+  [run_docker_tests=no], [run_docker_tests=yes])
+AM_CONDITIONAL([RUN_DOCKER_TESTS], [test "x$run_docker_tests" != "xno"])
 
 # Build example applications?
 AC_MSG_CHECKING([whether to build example applications])
@@ -357,17 +363,6 @@ fi
 
 AM_CONDITIONAL([HAVE_WINDRES],
   [test "x$have_windows_h" = "xyes" && test "x${enable_shared}" = "xyes" && test -n "${RC}"])
-
-host_windows=no
-host_macos=no
-case "`uname`" in
-  *_NT*)   host_windows=yes
-           ;;
-  Darwin*) host_macos=yes
-           ;;
-esac
-AM_CONDITIONAL([HOST_WINDOWS], [test "x$host_windows" = "xyes"])
-AM_CONDITIONAL([HOST_MACOS], [test "x$host_macos" = "xyes"])
 
 # Configure parameters
 LIBSSH2_CHECK_OPTION_WERROR

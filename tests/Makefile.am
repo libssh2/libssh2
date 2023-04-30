@@ -44,10 +44,8 @@ TESTS_ENVIRONMENT = srcdir=$(top_srcdir)/tests builddir=$(top_builddir)/tests
 # Tests to run
 TESTS = mansyntax.sh
 
-if ! HOST_WINDOWS
-if ! HOST_MACOS
+if RUN_DOCKER_TESTS
 TESTS += $(DOCKER_TESTS)
-endif
 endif
 
 TESTS += $(STANDALONE_TESTS)
@@ -62,10 +60,8 @@ if SSHD
 TESTS += test_sshd.test
 TESTS_ENVIRONMENT += SSHD="$(SSHD)"
 endif
-if ! HOST_WINDOWS
-if ! HOST_MACOS
+if RUN_DOCKER_TESTS
 TESTS += test_read_algos.test
-endif
 endif
 
 # Tests to build
