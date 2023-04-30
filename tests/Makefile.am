@@ -62,7 +62,11 @@ if SSHD
 TESTS += test_sshd.test
 TESTS_ENVIRONMENT += SSHD="$(SSHD)"
 endif
+if ! HOST_WINDOWS
+if ! HOST_MACOS
 TESTS += test_read_algos.test
+endif
+endif
 
 # Tests to build
 check_PROGRAMS = $(DOCKER_TESTS) $(STANDALONE_TESTS) $(SSHD_TESTS)
