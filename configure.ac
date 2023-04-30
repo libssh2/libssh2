@@ -249,6 +249,13 @@ AC_ARG_ENABLE([docker-tests],
   [run_docker_tests=no], [run_docker_tests=yes])
 AM_CONDITIONAL([RUN_DOCKER_TESTS], [test "x$run_docker_tests" != "xno"])
 
+# Run sshd tests?
+AC_ARG_ENABLE([sshd-tests],
+  [AS_HELP_STRING([--disable-sshd-tests],
+    [Do not run tests requiring sshd])],
+  [run_sshd_tests=no], [run_sshd_tests=yes])
+AM_CONDITIONAL([RUN_SSHD_TESTS], [test "x$run_sshd_tests" != "xno"])
+
 # Build example applications?
 AC_MSG_CHECKING([whether to build example applications])
 AC_ARG_ENABLE([examples-build],
