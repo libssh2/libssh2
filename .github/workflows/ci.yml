@@ -115,7 +115,7 @@ jobs:
         run: |
           export SSHD='C:/Program Files/Git/usr/bin/sshd.exe'
           autoreconf -fi
-          ./configure --enable-werror --enable-debug --enable-static --disable-shared --with-crypto=openssl
+          ./configure --enable-werror --enable-debug --enable-static --disable-shared --with-crypto=openssl --disable-docker-tests
           make -j3
           make check VERBOSE=1
 
@@ -214,7 +214,8 @@ jobs:
           ./configure ${{ matrix.crypto.configure }} \
             --enable-werror \
             --enable-debug \
-            --with-libz
+            --with-libz \
+            --disable-docker-tests
       - name: 'autotools make'
         if: ${{ matrix.build == 'autotools' }}
         run: make
