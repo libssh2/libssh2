@@ -21,8 +21,8 @@ Deprecated function. Use \fIlibssh2_sftp_seek64(3)\fP instead!
 Move the file handle's internal pointer to an arbitrary location.
 Note that libssh2 implements file pointers as a localized concept to make
 file access appear more POSIX like. No packets are exchanged with the server
-during a seek operation. The localized file pointer is simply used as a
-convenience offset during read/write operations.
+during a seek operation. The localized file pointer is used as a convenience
+offset during read/write operations.
 .SH SEE ALSO
 .BR libssh2_sftp_open_ex(3),
 .BR libssh2_sftp_seek64(3)

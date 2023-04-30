@@ -37,7 +37,7 @@ file `config.log' containing compiler output (useful mainly for
 debugging `configure').
 
    It can also use an optional file (typically called `config.cache'
-and enabled with `--cache-file=config.cache' or simply `-C') that saves
+and enabled with `--cache-file=config.cache' or shortly `-C') that saves
 the results of its tests to speed up reconfiguring.  (Caching is
 disabled by default to prevent problems with accidental use of stale
 cache files.)
