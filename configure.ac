@@ -405,9 +405,11 @@ AC_MSG_NOTICE([summary of build options:
   Compiler flags:   ${CFLAGS}
   Library types:    Shared=${enable_shared}, Static=${enable_static}
   Crypto library:   ${found_crypto_str}
+  zlib compression: ${found_libz}
   Clear memory:     $enable_clear_memory
   Debug build:      $enable_debug
   Build examples:   $build_examples
+  Run Docker tests: $run_docker_tests
+  Run sshd tests:   $run_sshd_tests
   Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
-  zlib compression: ${found_libz}
 ])
