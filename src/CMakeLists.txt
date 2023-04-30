@@ -47,12 +47,6 @@ if(NOT CLEAR_MEMORY)
   list(APPEND libssh2_DEFINITIONS LIBSSH2_NO_CLEAR_MEMORY)
 endif()
 
-add_feature_info("Static library" BUILD_STATIC_LIBS
-  "creating libssh2 static library")
-
-add_feature_info("Shared library" BUILD_SHARED_LIBS
-  "creating libssh2 shared library (.so/.dll)")
-
 option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression")
 add_feature_info(Compression ENABLE_ZLIB_COMPRESSION
   "using zlib for compression")

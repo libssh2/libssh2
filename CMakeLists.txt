@@ -38,6 +38,7 @@ include(CheckSymbolExists)
 include(CheckIncludeFiles)
 include(CheckSymbolExists)
 include(CMakePushCheckState)
+include(FeatureSummary)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 include(CheckFunctionExistsMayNeedLibrary)
@@ -50,7 +51,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 project(libssh2 C)
 
 option(BUILD_STATIC_LIBS "Build Static Libraries" ON)
+add_feature_info("Static library" BUILD_STATIC_LIBS
+  "creating libssh2 static library")
+
 option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
+add_feature_info("Shared library" BUILD_SHARED_LIBS
+  "creating libssh2 shared library (.so/.dll)")
 
 # Parse version
 
@@ -90,7 +96,6 @@ if(MSVC)
 endif()
 
 include(max_warnings)
-include(FeatureSummary)
 
 # Add socket libraries
 if(WIN32)
