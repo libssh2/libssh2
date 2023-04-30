@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "***" >&2
-echo "*** Do not use buildconf. Instead, just use: autoreconf -fi" >&2
+echo "*** Do not use buildconf. Instead, use: autoreconf -fi" >&2
 echo "*** Doing it for you now, but buildconf may disappear in the future." >&2
 echo "***" >&2
 

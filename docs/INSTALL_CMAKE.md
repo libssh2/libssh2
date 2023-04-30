@@ -89,8 +89,8 @@ The previous examples used CMake to start the build using:
 
   cmake --build .
 
-Alternatively, once CMake has configured your project, you can just
-use your own build tool, e.g GNU make, Visual Studio, etc., from that
+Alternatively, once CMake has configured your project, you can use
+your own build tool, e.g GNU make, Visual Studio, etc., from that
 point onwards.
 
 Tests
@@ -130,16 +130,16 @@ How can I use libssh2 in my project if it also uses CMake?
 ----------------------------------------------------------
 
 If your own project also uses CMake, you do not need to worry about
-setting it up with libssh2's location.  Just add just the following
-lines and CMake will find libssh2 on your system, set up the necessary
-paths and link the library with your binary.
+setting it up with libssh2's location. Add the following lines and
+CMake will find libssh2 on your system, set up the necessary paths and
+link the library with your binary.
 
     find_package(Libssh2 REQUIRED CONFIG)
     target_link_libraries(my_project_target Libssh2::libssh2)
 
 Of course, you still have to make libssh2 available on your system
 first.  You can install it in the traditional way shown above, but you
-do not have to.  Instead you can just build it, which will export its
+do not have to.  Instead you can build it, which will export its
 location to the user package registry [3] where `find_package` will
 find it.
 
