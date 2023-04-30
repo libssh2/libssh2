@@ -161,6 +161,7 @@ jobs:
         run: |
           cmake --build bld --config Release --target package
       - name: 'cmake test'
+        # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
         if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
         run: |
           cd bld
