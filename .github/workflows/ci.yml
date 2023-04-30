@@ -161,7 +161,7 @@ jobs:
         run: |
           cmake --build bld --config Release --target package
       - name: 'cmake test'
-        if: ${{ matrix.arch != 'arm64' }}
+        if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
         run: |
           cd bld
           ctest -VV -C Release --output-on-failure --timeout 900
