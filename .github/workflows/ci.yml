@@ -217,6 +217,9 @@ jobs:
       - name: 'autotools make'
         if: ${{ matrix.build == 'autotools' }}
         run: make
+      - name: 'autotools tests'
+        if: ${{ matrix.build == 'autotools' }}
+        run: make check VERBOSE=1
 
       - name: 'cmake generate'
         if: ${{ matrix.build == 'cmake' }}
@@ -228,3 +231,8 @@ jobs:
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld
+      - name: 'cmake tests'
+        if: ${{ matrix.build == 'cmake' }}
+        run: |
+          cd bld
+          ctest -VV --output-on-failure --timeout 900
