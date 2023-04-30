@@ -212,9 +212,9 @@ jobs:
         if: ${{ matrix.build == 'autotools' }}
         run: |
           ./configure ${{ matrix.crypto.configure }} \
-          --enable-werror \
-          --enable-debug \
-          --with-libz
+            --enable-werror \
+            --enable-debug \
+            --with-libz
       - name: 'autotools make'
         if: ${{ matrix.build == 'autotools' }}
         run: make
