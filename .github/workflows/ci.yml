@@ -155,7 +155,8 @@ jobs:
             -DENABLE_DEBUG_LOGGING=${{ matrix.log }} \
             -DBUILD_SHARED_LIBS=${{ matrix.shared }} \
             -DCRYPTO_BACKEND=${{ matrix.crypto }} \
-            -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
+            -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
+            -DRUN_DOCKER_TESTS=OFF
       - name: 'cmake build'
         run: |
           cmake --build bld --config Release --target package
@@ -227,7 +228,8 @@ jobs:
           cmake . -B bld ${{ matrix.crypto.cmake }} \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
-            -DENABLE_ZLIB_COMPRESSION=ON
+            -DENABLE_ZLIB_COMPRESSION=ON \
+            -DRUN_DOCKER_TESTS=OFF
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld
