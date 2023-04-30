@@ -358,13 +358,16 @@ fi
 AM_CONDITIONAL([HAVE_WINDRES],
   [test "x$have_windows_h" = "xyes" && test "x${enable_shared}" = "xyes" && test -n "${RC}"])
 
+host_windows=no
+host_macos=no
 case "`uname`" in
-  *_NT*) host_windows=yes
-         ;;
-  *) host_windows=no
-     ;;
+  *_NT*)   host_windows=yes
+           ;;
+  Darwin*) host_macos=yes
+           ;;
 esac
 AM_CONDITIONAL([HOST_WINDOWS], [test "x$host_windows" = "xyes"])
+AM_CONDITIONAL([HOST_MACOS], [test "x$host_macos" = "xyes"])
 
 # Configure parameters
 LIBSSH2_CHECK_OPTION_WERROR

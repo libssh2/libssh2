@@ -45,7 +45,9 @@ TESTS_ENVIRONMENT = srcdir=$(top_srcdir)/tests builddir=$(top_builddir)/tests
 TESTS = mansyntax.sh
 
 if ! HOST_WINDOWS
+if ! HOST_MACOS
 TESTS += $(DOCKER_TESTS)
+endif
 endif
 
 TESTS += $(STANDALONE_TESTS)
