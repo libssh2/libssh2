@@ -159,6 +159,10 @@ jobs:
       - name: 'cmake build'
         run: |
           cmake --build bld --config Release --target package
+      - name: 'cmake test'
+        run: |
+          cd bld
+          ctest -VV -C Release --output-on-failure --timeout 900
 
   build_macos:
     name: macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})
