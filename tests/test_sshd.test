@@ -24,7 +24,7 @@ else
     if [[ "${l}" = 'SSHD_TESTS ='* ]]; then
       load=1
     elif [ "${load}" = '1' ]; then
-      [[ "${l}" =~ [a-z0-9_]+ ]] && tests+=" ./${BASH_REMATCH[0]}${EXEEXT}"
+      [[ "${l}" =~ [a-z0-9_]+ ]] && tests+="${tests:+ }./${BASH_REMATCH[0]}${EXEEXT}"
       [[ ! "${l}" = *"\\" ]] && break
       # On Windows, subsequent tests may be flaky
     # [[ "${uname}" = *'_NT'* ]] && break
