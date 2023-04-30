@@ -101,9 +101,9 @@ endforeach()
 if(SSHD_EXECUTABLE)
   # On Windows / AppVeyor CI, subsequent tests are broken:
   #   'libssh2_session_handshake failed (-43): Failed getting banner'
-# if(WIN32)
-#   list(GET SSHD_TESTS 0 SSHD_TESTS)
-# endif()
+  if(WIN32)
+    list(GET SSHD_TESTS 0 SSHD_TESTS)
+  endif()
   unset(sshd_test_targets)
   foreach(test ${SSHD_TESTS})
     set(sshd_test_targets "${sshd_test_targets} $<TARGET_FILE:${test}>")
