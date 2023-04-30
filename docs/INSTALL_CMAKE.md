@@ -36,8 +36,8 @@ cryptography library available.  The library binary will be put in
 Customising the build
 ---------------------
 
-Of course, you might want to customise the build options.  You can
-pass the options to CMake on the command line:
+You might want to customise the build options.  You can pass the options
+to CMake on the command line:
 
   cmake -D<option>=<value> ..
 
@@ -137,11 +137,10 @@ link the library with your binary.
     find_package(Libssh2 REQUIRED CONFIG)
     target_link_libraries(my_project_target Libssh2::libssh2)
 
-Of course, you still have to make libssh2 available on your system
-first.  You can install it in the traditional way shown above, but you
-do not have to.  Instead you can build it, which will export its
-location to the user package registry [3] where `find_package` will
-find it.
+You still have to make libssh2 available on your system first.  You can
+install it in the traditional way shown above, but you do not have to.
+Instead you can build it, which will export its location to the user
+package registry [3] where `find_package` will find it.
 
 You can even combine the two steps using a so-called 'superbuild'
 project [4] that downloads, builds and exports libssh2, and then

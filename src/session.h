@@ -45,10 +45,9 @@
 
    int rc = BLOCK_ADJUST_ERRNO(ptr, session, session_startup(session, sock));
 
-   The point of course being to make sure that while in non-blocking mode
-   these always return no matter what the return code is, but in blocking mode
-   it blocks if EAGAIN is the reason for the return from the underlying
-   function.
+   The point being to make sure that while in non-blocking mode these always
+   return no matter what the return code is, but in blocking mode it blocks
+   if EAGAIN is the reason for the return from the underlying function.
 
 */
 #define BLOCK_ADJUST(rc, sess, x) \
