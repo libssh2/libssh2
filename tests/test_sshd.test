@@ -35,7 +35,6 @@ fi
 # On macOS, subsequent tests may hang.
 only_first=0
 [ -n "${APPVEYOR}" ] && only_first=1
-#[[ "${uname}" = *'_NT'* ]] && only_first=1
 #[[ "${uname}" = 'Darwin'* ]] && only_first=1
 if [ "${only_first}" = '1' ]; then
   tests="$(echo "${tests}" | cut -d ' ' -f 1)"

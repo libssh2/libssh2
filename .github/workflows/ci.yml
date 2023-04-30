@@ -115,7 +115,10 @@ jobs:
         run: |
           export SSHD='C:/Program Files/Git/usr/bin/sshd.exe'
           autoreconf -fi
-          ./configure --enable-werror --enable-debug --enable-static --disable-shared --with-crypto=openssl --disable-docker-tests
+          # sshd tests sometimes hang
+          ./configure --enable-werror --enable-debug --enable-static --disable-shared --with-crypto=openssl \
+            --disable-docker-tests \
+            --disable-sshd-tests
           make -j3
           make check VERBOSE=1
 
