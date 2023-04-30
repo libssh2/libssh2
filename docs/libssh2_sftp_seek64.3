@@ -19,8 +19,8 @@ libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle,
 Move the file handle's internal pointer to an arbitrary location. libssh2
 implements file pointers as a localized concept to make file access appear
 more POSIX like. No packets are exchanged with the server during a seek
-operation. The localized file pointer is simply used as a convenience offset
-during read/write operations.
+operation. The localized file pointer is used as a convenience offset during
+read/write operations.
 
 You MUST NOT seek during writing or reading a file with SFTP, as the internals
 use outstanding packets and changing the "file position" during transit will

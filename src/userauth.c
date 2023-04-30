@@ -1475,9 +1475,8 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
             session->userauth_pblc_method_len = _libssh2_ntohu32(pubkeydata);
 
             if(session->userauth_pblc_method_len > pubkeydata_len - 4)
-                /* the method length simply cannot be longer than the entire
-                   passed in data, so we use this to detect crazy input
-                   data */
+                /* the method length cannot be longer than the entire passed
+                   in data, so we use this to detect crazy input data */
                 return _libssh2_error(session,
                                       LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                                       "Invalid public key");

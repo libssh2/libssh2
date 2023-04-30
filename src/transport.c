@@ -696,7 +696,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             numbytes -= numdecrypt;
         }
 
-        /* if there are bytes to copy that aren't decrypted, simply
+        /* if there are bytes to copy that aren't decrypted,
            copy them as-is to the target buffer */
         if(numbytes > 0) {
 
