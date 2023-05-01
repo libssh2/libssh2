@@ -50,9 +50,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install 64 Bit Dependencies
         if: ${{ matrix.address_size == 64 }}
-        run: |
-          sudo apt-get install -y libssl-dev
-          sudo apt-get install -y libgcrypt-dev
+        run: sudo apt-get install -y libssl-dev libgcrypt-dev
       - name: Install mbedTLS Dependencies
         if: ${{ matrix.crypto_backend == 'mbedTLS' }}
         run: |
@@ -96,8 +94,7 @@ jobs:
         if: ${{ matrix.b == 'cmake' }}
         run: |
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
-          cd bld
-          ctest -VV --output-on-failure --timeout 900
+          cd bld && ctest -VV --output-on-failure --timeout 900
 
   build_msys2:
     name: msys2
@@ -177,14 +174,11 @@ jobs:
             -DRUN_SSHD_TESTS=OFF
 
       - name: 'cmake build'
-        run: |
-          cmake --build bld --config Release --target package
+        run: cmake --build bld --config Release --target package
       - name: 'cmake test'
         # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
         if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
-        run: |
-          cd bld
-          ctest -VV -C Release --output-on-failure --timeout 900
+        run: cd bld && ctest -VV -C Release --output-on-failure --timeout 900
 
   build_macos:
     name: macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})
@@ -226,8 +220,7 @@ jobs:
             cmake: -DCRYPTO_BACKEND=mbedTLS -DMBEDCRYPTO_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedcrypto.a -DMBEDTLS_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedtls.a -DMBEDX509_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedx509.a -DMBEDTLS_INCLUDE_DIR=/usr/local/opt/mbedtls/include
     steps:
       - name: 'brew install'
-        run: |
-          brew install automake ${{ matrix.crypto.install }}
+        run: brew install automake ${{ matrix.crypto.install }}
       - uses: actions/checkout@v3
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
@@ -263,6 +256,4 @@ jobs:
         run: cmake --build bld
       - name: 'cmake tests'
         if: ${{ matrix.build == 'cmake' }}
-        run: |
-          cd bld
-          ctest -VV --output-on-failure --timeout 900
+        run: cd bld && ctest -VV --output-on-failure --timeout 900
