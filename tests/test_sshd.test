@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -e
+set -u
+
 # Written by Simon Josefsson
 
 # Start sshd, invoke test, saving exit code, kill sshd, and
@@ -12,7 +15,7 @@ uname="$(uname)"
 
 # Load list of tests
 
-if [ -n "$1" ]; then
+if [ -n "${1:-}" ]; then
   tests="$*"
   manual=1
 else
@@ -24,7 +27,7 @@ else
     if [[ "${l}" = 'SSHD_TESTS ='* ]]; then
       load=1
     elif [ "${load}" = '1' ]; then
-      [[ "${l}" =~ [a-z0-9_]+ ]] && tests+="${tests:+ }./${BASH_REMATCH[0]}${EXEEXT}"
+      [[ "${l}" =~ [a-z0-9_]+ ]] && tests+="${tests:+ }./${BASH_REMATCH[0]}${EXEEXT:-}"
       [[ ! "${l}" = *"\\" ]] && break
     fi
   done <<< "$(tr -d $"\r" < "${d}/Makefile.am")"
@@ -34,7 +37,7 @@ fi
 #   'libssh2_session_handshake failed (-43): Failed getting banner'
 # On macOS, subsequent tests may hang.
 only_first=0
-[ -n "${APPVEYOR}" ] && only_first=1
+[ -n "${APPVEYOR:-}" ] && only_first=1
 #[[ "${uname}" = 'Darwin'* ]] && only_first=1
 if [ "${only_first}" = '1' ]; then
   tests="$(echo "${tests}" | cut -d ' ' -f 1)"
@@ -55,12 +58,12 @@ if [[ "${sshdver}" =~ OpenSSH_[a-zA-Z0-9_\ .,]+ ]]; then
 fi
 
 # for our test clients:
-[ -z "${PRIVKEY}" ] && export PRIVKEY="${d}/key_rsa"
-[ -z "${PUBKEY}" ]  && export PUBKEY="${d}/key_rsa.pub"
+[ -z "${PRIVKEY:-}" ] && export PRIVKEY="${d}/key_rsa"
+[ -z "${PUBKEY:-}" ]  && export PUBKEY="${d}/key_rsa.pub"
 cakeys="${d}/openssh_server/ca_user_keys.pub"
 
 SSHD_FLAGS="${SSHD_FLAGS:-}"
-if [ -n "${DEBUG}" ]; then
+if [ -n "${DEBUG:-}" ]; then
   SSHD_FLAGS+=' -d -d'
 fi
 
