@@ -66,28 +66,38 @@ jobs:
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
-      - name: Build with Configure
+
+      - name: autotools autoreconf
         if: ${{ matrix.b == 'autotools' }}
-        run: |
-          autoreconf -fi
-          ./configure --enable-werror --enable-debug
-          make -j3
-          make check VERBOSE=1
-      - name: Build with CMake
-        timeout-minutes: 10
+        run: autoreconf -fi
+      - name: autotools configure
+        if: ${{ matrix.b == 'autotools' }}
+        run: ./configure --enable-werror --enable-debug
+      - name: autotools build
+        if: ${{ matrix.b == 'autotools' }}
+        run: make -j3
+      - name: autotools tests
+        if: ${{ matrix.b == 'autotools' }}
+        run: make check VERBOSE=1
+      - name: cmake configure
         if: ${{ matrix.b == 'cmake' }}
         run: |
-          mkdir bin
-          cd bin
-          cmake $TOOLCHAIN_OPTION \
+          cmake . -B bld $TOOLCHAIN_OPTION \
             -DENABLE_WERROR=ON \
             -DBUILD_SHARED_LIBS=ON \
             -DCRYPTO_BACKEND=$CRYPTO_BACKEND \
-            -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION ..
-          cmake --build .
-          export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:../tests/openssh_server)
-          ctest -VV --output-on-failure
-          cmake --build . --target package
+            -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION
+
+      - name: cmake build
+        if: ${{ matrix.b == 'cmake' }}
+        run: cmake --build bld --target package
+      - name: cmake tests
+        timeout-minutes: 10
+        if: ${{ matrix.b == 'cmake' }}
+        run: |
+          export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
+          cd bld
+          ctest -VV --output-on-failure --timeout 900
 
   build_msys2:
     name: msys2
@@ -110,17 +120,21 @@ jobs:
             mingw-w64-${{ matrix.env }}-cc
             mingw-w64-${{ matrix.env }}-autotools
             mingw-w64-${{ matrix.env }}-openssl
-      - name: Building libssh2
+      - name: autotools autoreconf
+        run: autoreconf -fi
+      - name: autotools configure
         shell: msys2 {0}
         run: |
           export SSHD='C:/Program Files/Git/usr/bin/sshd.exe'
-          autoreconf -fi
           # sshd tests sometimes hang
           ./configure --enable-werror --enable-debug --enable-static --disable-shared --with-crypto=openssl \
             --disable-docker-tests \
             --disable-sshd-tests
-          make -j3
-          make check VERBOSE=1
+
+      - name: autotools build
+        run: make -j3
+      - name: autotools tests
+        run: make check VERBOSE=1
 
   build_msvc:
     name: msvc
@@ -161,6 +175,7 @@ jobs:
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF
+
       - name: 'cmake build'
         run: |
           cmake --build bld --config Release --target package
@@ -213,9 +228,7 @@ jobs:
       - name: 'brew install'
         run: |
           brew install automake ${{ matrix.crypto.install }}
-
       - uses: actions/checkout@v3
-
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
@@ -228,13 +241,13 @@ jobs:
             --with-libz \
             --disable-docker-tests \
             --disable-sshd-tests
+
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
-        run: make
+        run: make -j3
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' }}
         run: make check VERBOSE=1
-
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
@@ -244,6 +257,7 @@ jobs:
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF
+
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld
