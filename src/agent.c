@@ -960,3 +960,7 @@ LIBSSH2_API const char *libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent)
 {
     return agent->identity_agent_path;
 }
+
+#define LIBSSH2_AGENT_C
+
+#include "agent_win.c"
