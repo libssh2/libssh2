@@ -143,6 +143,23 @@ jobs:
         shell: msys2 {0}
         run: make -C bld check VERBOSE=1
 
+  build_msys2_gnu_make:
+    name: 'msys2 (mingw64, x86_64, Makefile.mk)'
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: mingw64
+          install: mingw-w64-x86_64-cc make
+      - name: 'Makefile.mk build'
+        env:
+          CPPFLAGS: -DLIBSSH2_NO_MD5 -DLIBSSH2_NO_HMAC_RIPEMD -DLIBSSH2_NO_DSA -DLIBSSH2_NO_AES_CTR -DLIBSSH2_NO_BLOWFISH -DLIBSSH2_NO_RC4 -DLIBSSH2_NO_CAST -DLIBSSH2_NO_3DES
+          LIBSSH2_CPPFLAGS_LIB: -DLIBSSH2_EXPORTS
+        shell: msys2 {0}
+        run: mkdir bld && cd bld && BLD_DIR=bld make -C .. -j3 -f Makefile.mk dyn example test
+
   build_msvc:
     name: 'msvc'
     runs-on: windows-latest
