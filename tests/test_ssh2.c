@@ -133,10 +133,28 @@ int main(int argc, char *argv[])
 
     libssh2_session_set_blocking(session, 1);
 
-    rc = libssh2_session_handshake(session, sock);
-    if(rc) {
-        fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
-        goto shutdown;
+    {
+        int retries = 0, retry = 0;
+#ifdef LIBSSH2_WINCNG
+        /* FIXME: Retry tests with WinCNG due to flakiness in hostkey
+           verification: https://github.com/libssh2/libssh2/issues/804 */
+        retries += 2;
+#endif
+        do {
+            rc = libssh2_session_handshake(session, sock);
+            if(rc == 0) {
+                break;
+            }
+            fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
+            if(
+#ifdef LIBSSH2_WINCNG
+               rc != LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE ||
+#endif
+               ++retry > retries) {
+                break;
+            }
+            fprintf(stderr, "Retrying... %d / %d\n", retry, retries);
+        } while(1);
     }
 
     /* At this point we have not yet authenticated.  The first thing to do
