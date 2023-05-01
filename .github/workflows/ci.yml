@@ -115,6 +115,7 @@ jobs:
             mingw-w64-${{ matrix.env }}-openssl
 
       - name: 'autotools autoreconf'
+        shell: msys2 {0}
         run: autoreconf -fi
       - name: 'autotools configure'
         shell: msys2 {0}
