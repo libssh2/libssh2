@@ -10,34 +10,31 @@ permissions: {}
 
 jobs:
   check_style:
-    name: style-check
+    name: 'style-check'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v3
-      - name: Check Style
+      - name: 'checksrc'
         run: ./ci/checksrc.sh
 
   build_linux:
-    name: linux
+    name: 'linux'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         compiler: [gcc, clang]
-        address_size: [64]
         crypto_backend: [OpenSSL, Libgcrypt, mbedTLS]
         enable_zlib_compression: ['OFF', 'ON']
         b: [cmake]
         include:
           - compiler: gcc
-            address_size: 64
             crypto_backend: OpenSSL
             enable_zlib_compression: 'OFF'
             b: autotools
           - compiler: clang
-            address_size: 64
             crypto_backend: OpenSSL
             enable_zlib_compression: 'OFF'
             b: autotools
@@ -48,10 +45,9 @@ jobs:
       ENABLE_ZLIB_COMPRESSION: ${{ matrix.enable_zlib_compression }}
     steps:
       - uses: actions/checkout@v3
-      - name: Install 64 Bit Dependencies
-        if: ${{ matrix.address_size == 64 }}
+      - name: 'install packages'
         run: sudo apt-get install -y libssl-dev libgcrypt-dev
-      - name: Install mbedTLS Dependencies
+      - name: 'install mbedTLS from source'
         if: ${{ matrix.crypto_backend == 'mbedTLS' }}
         run: |
           MBEDTLSVER=mbedtls-3.4.0
@@ -65,19 +61,19 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
-      - name: autotools autoreconf
+      - name: 'autotools autoreconf'
         if: ${{ matrix.b == 'autotools' }}
         run: autoreconf -fi
-      - name: autotools configure
+      - name: 'autotools configure'
         if: ${{ matrix.b == 'autotools' }}
         run: ./configure --enable-werror --enable-debug
-      - name: autotools build
+      - name: 'autotools build'
         if: ${{ matrix.b == 'autotools' }}
         run: make -j3
-      - name: autotools tests
+      - name: 'autotools tests'
         if: ${{ matrix.b == 'autotools' }}
         run: make check VERBOSE=1
-      - name: cmake configure
+      - name: 'cmake configure'
         if: ${{ matrix.b == 'cmake' }}
         run: |
           cmake . -B bld $TOOLCHAIN_OPTION \
@@ -86,10 +82,10 @@ jobs:
             -DCRYPTO_BACKEND=$CRYPTO_BACKEND \
             -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION
 
-      - name: cmake build
+      - name: 'cmake build'
         if: ${{ matrix.b == 'cmake' }}
         run: cmake --build bld --target package
-      - name: cmake tests
+      - name: 'cmake tests'
         timeout-minutes: 10
         if: ${{ matrix.b == 'cmake' }}
         run: |
@@ -97,7 +93,7 @@ jobs:
           cd bld && ctest -VV --output-on-failure --timeout 900
 
   build_msys2:
-    name: msys2
+    name: 'msys2'
     runs-on: windows-latest
     timeout-minutes: 30
     strategy:
@@ -117,9 +113,10 @@ jobs:
             mingw-w64-${{ matrix.env }}-cc
             mingw-w64-${{ matrix.env }}-autotools
             mingw-w64-${{ matrix.env }}-openssl
-      - name: autotools autoreconf
+
+      - name: 'autotools autoreconf'
         run: autoreconf -fi
-      - name: autotools configure
+      - name: 'autotools configure'
         shell: msys2 {0}
         run: |
           export SSHD='C:/Program Files/Git/usr/bin/sshd.exe'
@@ -128,13 +125,13 @@ jobs:
             --disable-docker-tests \
             --disable-sshd-tests
 
-      - name: autotools build
+      - name: 'autotools build'
         run: make -j3
-      - name: autotools tests
+      - name: 'autotools tests'
         run: make check VERBOSE=1
 
   build_msvc:
-    name: msvc
+    name: 'msvc'
     runs-on: windows-latest
     timeout-minutes: 30
     strategy:
@@ -181,7 +178,7 @@ jobs:
         run: cd bld && ctest -VV -C Release --output-on-failure --timeout 900
 
   build_macos:
-    name: macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})
+    name: 'macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})'
     runs-on: macos-latest
     timeout-minutes: 30
     strategy:
@@ -189,15 +186,15 @@ jobs:
       matrix:
         build: [autotools, cmake]
         crypto:
-          - name: OpenSSL 3
+          - name: 'OpenSSL 3'
             install: openssl
             configure: --with-crypto=openssl --with-libssl-prefix=/usr/local/opt/openssl
             cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl
-          - name: OpenSSL 1.1
+          - name: 'OpenSSL 1.1'
             install: openssl@1.1
             configure: --with-crypto=openssl --with-libssl-prefix=/usr/local/opt/openssl@1.1
             cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1
-          - name: LibreSSL
+          - name: 'LibreSSL'
             install: libressl
             configure: --with-crypto=openssl --with-libssl-prefix=/usr/local/opt/libressl
             cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/usr/local/opt/libressl
@@ -206,20 +203,20 @@ jobs:
           #          https://github.com/libssh2/libssh2/actions/runs/4851558817/jobs/8645524071#step:7:1087
           #        - libssh2_session_handshake failed (-44) LIBSSH2_ERROR_ENCRYPT: Unable to ask for ssh-userauth service
           #          https://github.com/libssh2/libssh2/actions/runs/4847366472/jobs/8637553577#step:7:1052
-          - name: wolfSSL
+          - name: 'wolfSSL'
             install: wolfssl
             configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/usr/local/opt/wolfssl
             cmake: -DCRYPTO_BACKEND=wolfSSL
-          - name: libgcrypt
+          - name: 'libgcrypt'
             install: libgcrypt
             configure: --with-crypto=libgcrypt --with-libgcrypt-prefix=/usr/local/opt/libgcrypt
             cmake: -DCRYPTO_BACKEND=Libgcrypt
-          - name: mbedTLS
+          - name: 'mbedTLS'
             install: mbedtls
             configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/usr/local/opt/mbedtls
             cmake: -DCRYPTO_BACKEND=mbedTLS -DMBEDCRYPTO_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedcrypto.a -DMBEDTLS_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedtls.a -DMBEDX509_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedx509.a -DMBEDTLS_INCLUDE_DIR=/usr/local/opt/mbedtls/include
     steps:
-      - name: 'brew install'
+      - name: 'install packages'
         run: brew install automake ${{ matrix.crypto.install }}
       - uses: actions/checkout@v3
       - name: 'autotools autoreconf'
