@@ -160,7 +160,8 @@
 # define LIBSSH2_AES_CBC 0
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x01010100fL && !defined(OPENSSL_NO_AES))
+#if (OPENSSL_VERSION_NUMBER >= 0x01010100fL && !defined(OPENSSL_NO_AES)) || \
+    (defined(LIBSSH2_WOLFSSL) && defined(HAVE_AESGCM))
 # define LIBSSH2_AES_GCM 1
 #else
 # define LIBSSH2_AES_GCM 0
