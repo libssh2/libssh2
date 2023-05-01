@@ -59,8 +59,9 @@ fi
 [ -z "${PUBKEY}" ]  && export PUBKEY="${d}/key_rsa.pub"
 cakeys="${d}/openssh_server/ca_user_keys.pub"
 
+SSHD_FLAGS="${SSHD_FLAGS:-}"
 if [ -n "${DEBUG}" ]; then
-  libssh2_sshd_params="-d -d"
+  SSHD_FLAGS+=' -d -d'
 fi
 
 chmod go-rwx \
@@ -78,7 +79,7 @@ chmod go-rwx \
   -o "TrustedUserCAKeys ${cakeys}" \
   -o 'PermitRootLogin yes' \
   -D \
-  ${libssh2_sshd_params} &
+  ${SSHD_FLAGS} &
 sshdpid=$!
 
 trap 'kill "${sshdpid}"; echo "# signal killing sshd"; exit 1;' EXIT
