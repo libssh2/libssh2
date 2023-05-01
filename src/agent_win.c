@@ -37,8 +37,7 @@
  * OF SUCH DAMAGE.
  */
 
-#include "libssh2_priv.h"
-#include "agent.h"
+#ifdef LIBSSH2_AGENT_C /* Compile this via agent.c */
 
 #if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
 
@@ -346,4 +345,6 @@ struct agent_ops agent_ops_openssh = {
     agent_transact_openssh,
     agent_disconnect_openssh
 };
+
 #endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP) */
+#endif /* LIBSSH2_AGENT_C */

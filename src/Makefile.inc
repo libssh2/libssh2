@@ -1,6 +1,5 @@
 CSOURCES =              \
   agent.c               \
-  agent_win.c           \
   bcrypt_pbkdf.c        \
   channel.c             \
   comp.c                \
@@ -46,6 +45,7 @@ HHEADERS =              \
   wincng.h
 
 EXTRA_DIST =            \
+  agent_win.c           \
   blowfish.c            \
   libgcrypt.c           \
   mbedtls.c             \
