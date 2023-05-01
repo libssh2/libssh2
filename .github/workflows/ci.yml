@@ -139,7 +139,7 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
-      - name: 'cmake generate'
+      - name: 'cmake configure'
         shell: bash
         run: |
           archgen=${{ matrix.arch }}; [ "${archgen}" = 'x86' ] && archgen='Win32'
@@ -222,14 +222,14 @@ jobs:
             --enable-debug \
             --with-libz \
             --disable-docker-tests
-      - name: 'autotools make'
+      - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
         run: make
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' }}
         run: make check VERBOSE=1
 
-      - name: 'cmake generate'
+      - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
           cmake . -B bld ${{ matrix.crypto.cmake }} \
