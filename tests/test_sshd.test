@@ -74,11 +74,30 @@ trap 'kill "${sshdpid}"; echo "# signal killing sshd"; exit 1;' EXIT
 
 : "started sshd (${sshdpid})"
 
+SSH="$(command -v "${SSH:-ssh}")"
+echo "# ssh executable: '${SSH}' ($("${SSH}" -V 2>&1 || true))"
+chmod go-rwx "${PRIVKEY}"
 if [[ "${uname}" = *'_NT'* ]]; then
-  sleep 6
-else
-  sleep 3
+  export MSYS2_ARG_CONV_EXCL='/reset'
+  icacls "${PRIVKEY}" /reset
+  icacls "${PRIVKEY}" /grant:r "${USERNAME}:(R)"
+  icacls "${PRIVKEY}" /inheritance:r
 fi
+count=1
+# shellcheck disable=SC2086
+while ! "${SSH:-ssh}" -q -a -k \
+    -F /dev/null \
+    -o 'BatchMode yes' \
+    -o 'StrictHostKeyChecking no' \
+    -o 'UserKnownHostsFile /dev/null' \
+    -o 'ConnectTimeout 3' \
+    -i "${PRIVKEY}" \
+    -p 4711 ${SSH_FLAGS:-} localhost exit 2>/dev/null; do
+  echo '# waiting for sshd...'
+  ((count++))
+  [[ "${count}" -gt 8 ]] && break
+  sleep 1
+done
 
 # Run tests
 
