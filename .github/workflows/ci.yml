@@ -28,16 +28,16 @@ jobs:
         compiler: [gcc, clang]
         crypto_backend: [OpenSSL, Libgcrypt, mbedTLS]
         enable_zlib_compression: ['OFF', 'ON']
-        b: [cmake]
+        build: [cmake]
         include:
           - compiler: gcc
             crypto_backend: OpenSSL
             enable_zlib_compression: 'OFF'
-            b: autotools
+            build: autotools
           - compiler: clang
             crypto_backend: OpenSSL
             enable_zlib_compression: 'OFF'
-            b: autotools
+            build: autotools
     env:
       CC: ${{ matrix.compiler }}
       CC_FOR_BUILD: ${{ matrix.compiler }}
@@ -62,19 +62,19 @@ jobs:
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
       - name: 'autotools autoreconf'
-        if: ${{ matrix.b == 'autotools' }}
+        if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
       - name: 'autotools configure'
-        if: ${{ matrix.b == 'autotools' }}
+        if: ${{ matrix.build == 'autotools' }}
         run: ./configure --enable-werror --enable-debug
       - name: 'autotools build'
-        if: ${{ matrix.b == 'autotools' }}
+        if: ${{ matrix.build == 'autotools' }}
         run: make -j3
       - name: 'autotools tests'
-        if: ${{ matrix.b == 'autotools' }}
+        if: ${{ matrix.build == 'autotools' }}
         run: make check VERBOSE=1
       - name: 'cmake configure'
-        if: ${{ matrix.b == 'cmake' }}
+        if: ${{ matrix.build == 'cmake' }}
         run: |
           cmake . -B bld $TOOLCHAIN_OPTION \
             -DENABLE_WERROR=ON \
@@ -83,11 +83,11 @@ jobs:
             -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION
 
       - name: 'cmake build'
-        if: ${{ matrix.b == 'cmake' }}
+        if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld --target package
       - name: 'cmake tests'
         timeout-minutes: 10
-        if: ${{ matrix.b == 'cmake' }}
+        if: ${{ matrix.build == 'cmake' }}
         run: |
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
           cd bld && ctest -VV --output-on-failure --timeout 900
