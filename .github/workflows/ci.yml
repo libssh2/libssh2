@@ -66,13 +66,13 @@ jobs:
         run: autoreconf -fi
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' }}
-        run: ./configure --enable-werror --enable-debug
+        run: mkdir bld && cd bld && ../configure --enable-werror --enable-debug
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
-        run: make -j3
+        run: make -C bld -j3
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' }}
-        run: make check VERBOSE=1
+        run: make -C bld check VERBOSE=1
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
@@ -123,15 +123,15 @@ jobs:
           SSHD: 'C:/Program Files/Git/usr/bin/sshd.exe'
         run: |
           # sshd tests sometimes hang
-          ./configure --enable-werror --enable-debug --enable-static --disable-shared \
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug --enable-static --disable-shared \
             --with-crypto=openssl \
             --disable-docker-tests \
             --disable-sshd-tests
 
       - name: 'autotools build'
-        run: make -j3
+        run: make -C bld -j3
       - name: 'autotools tests'
-        run: make check VERBOSE=1
+        run: make -C bld check VERBOSE=1
 
   build_msvc:
     name: 'msvc'
@@ -228,17 +228,17 @@ jobs:
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' }}
         run: |
-          ./configure --enable-werror --enable-debug \
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-libz ${{ matrix.crypto.configure }} \
             --disable-docker-tests \
             --disable-sshd-tests
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
-        run: make -j3
+        run: make -C bld -j3
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' }}
-        run: make check VERBOSE=1
+        run: make -C bld check VERBOSE=1
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
