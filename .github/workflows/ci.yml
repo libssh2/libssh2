@@ -159,7 +159,8 @@ jobs:
             -DBUILD_SHARED_LIBS=${{ matrix.shared }} \
             -DCRYPTO_BACKEND=${{ matrix.crypto }} \
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
-            -DRUN_DOCKER_TESTS=OFF
+            -DRUN_DOCKER_TESTS=OFF \
+            -DRUN_SSHD_TESTS=OFF
       - name: 'cmake build'
         run: |
           cmake --build bld --config Release --target package
