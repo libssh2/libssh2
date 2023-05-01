@@ -123,7 +123,8 @@ jobs:
           SSHD: 'C:/Program Files/Git/usr/bin/sshd.exe'
         run: |
           # sshd tests sometimes hang
-          ./configure --enable-werror --enable-debug --enable-static --disable-shared --with-crypto=openssl \
+          ./configure --enable-werror --enable-debug --enable-static --disable-shared \
+            --with-crypto=openssl \
             --disable-docker-tests \
             --disable-sshd-tests
 
@@ -227,10 +228,8 @@ jobs:
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' }}
         run: |
-          ./configure ${{ matrix.crypto.configure }} \
-            --enable-werror \
-            --enable-debug \
-            --with-libz \
+          ./configure --enable-werror --enable-debug \
+            --with-libz ${{ matrix.crypto.configure }} \
             --disable-docker-tests \
             --disable-sshd-tests
 
