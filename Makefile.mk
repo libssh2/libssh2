@@ -222,7 +222,7 @@ $(TARGETS_RUNNER): $(TARGETS_RUNNER_OBJS)
 	@$(call DEL, $@)
 	$(AR) rcs $@ $^
 
-test_%$(BIN_EXT): $(libssh2_DEPENDENCIES)
+test_%$(BIN_EXT): $(libssh2_DEPENDENCIES) $(TARGETS_RUNNER)
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBSSH2_LDFLAGS_BIN) \
 	  $(patsubst %$(BIN_EXT),%.c,$@) -o $@ $(TARGETS_RUNNER) $(LIBS) $(LIBS_BIN)
 
