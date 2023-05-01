@@ -35,10 +35,8 @@ fi
 
 # On Windows (AppVeyor CI), subsequent tests are broken:
 #   'libssh2_session_handshake failed (-43): Failed getting banner'
-# On macOS, subsequent tests may hang.
 only_first=0
 [ -n "${APPVEYOR:-}" ] && only_first=1
-#[[ "${uname}" = 'Darwin'* ]] && only_first=1
 if [ "${only_first}" = '1' ]; then
   tests="$(echo "${tests}" | cut -d ' ' -f 1)"
   echo '# limiting tests to the first one.'

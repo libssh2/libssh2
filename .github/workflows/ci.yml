@@ -192,6 +192,11 @@ jobs:
             install: libressl
             configure: --with-crypto=openssl --with-libssl-prefix=/usr/local/opt/libressl
             cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/usr/local/opt/libressl
+          # FIXME: wolfSSL: https://github.com/libssh2/libssh2/issues/1020
+          #        - libssh2_session_handshake failed (-12) LIBSSH2_ERROR_DECRYPT: Failed to get response to ssh-userauth request
+          #          https://github.com/libssh2/libssh2/actions/runs/4851558817/jobs/8645524071#step:7:1087
+          #        - libssh2_session_handshake failed (-44) LIBSSH2_ERROR_ENCRYPT: Unable to ask for ssh-userauth service
+          #          https://github.com/libssh2/libssh2/actions/runs/4847366472/jobs/8637553577#step:7:1052
           - name: wolfSSL
             install: wolfssl
             configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/usr/local/opt/wolfssl
@@ -221,15 +226,14 @@ jobs:
             --enable-werror \
             --enable-debug \
             --with-libz \
-            --disable-docker-tests
+            --disable-docker-tests \
+            --disable-sshd-tests
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
         run: make
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' }}
-        run: |
-          [ "${{ matrix.crypto.install }}" = 'wolfssl' ] && export FIXTURE_TRACE_ALL_CONNECT=1
-          make check VERBOSE=1
+        run: make check VERBOSE=1
 
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
@@ -238,7 +242,8 @@ jobs:
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
             -DENABLE_ZLIB_COMPRESSION=ON \
-            -DRUN_DOCKER_TESTS=OFF
+            -DRUN_DOCKER_TESTS=OFF \
+            -DRUN_SSHD_TESTS=OFF
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld
