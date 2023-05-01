@@ -37,6 +37,14 @@ environment:
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
+    - job_name: "VS2022, OpenSSL 3, x64, UWP, Build-only"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
+      GENERATOR: "Visual Studio 17 2022"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "OpenSSL"
+      UWP: "ON"
+
     - job_name: "VS2015, OpenSSL 1.1, x86, Server 2016"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
       GENERATOR: "Visual Studio 14 2015"
@@ -156,13 +164,16 @@ build_script:
       if($env:ENABLE_DEBUG_LOGGING -eq "ON") {
         $env:CMAKE_ARG += " -DENABLE_DEBUG_LOGGING=ON"
       }
+      if($env:UWP -eq "ON") {
+        $env:CMAKE_ARG += " -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0"
+      }
   - echo cmake         "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
   - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
   - cmake --build _builds --config "%CONFIGURATION%"
 
 test_script:
   - ps: |
-      if($env:SKIP_CTEST -ne "yes" -and $env:PLATFORM -ne "ARM64") {
+      if($env:SKIP_CTEST -ne "yes" -and $env:PLATFORM -ne "ARM64" -and $env:UWP -ne "ON") {
         appveyor-retry choco install -y --no-progress --limit-output --timeout 180 docker-cli
         Write-Host "Waiting for SSH connection from GitHub Actions" -NoNewline
         $endDate = (Get-Date).AddMinutes(3)
