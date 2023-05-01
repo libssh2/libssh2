@@ -8,7 +8,7 @@ set -u
 d="$(dirname "$0")"
 uname="$(uname)"
 
-# Load list of SSHD tests from Makefile.am
+# Load list of SSHD tests from Makefile.inc
 tests=''
 load=0
 while read -r l; do
@@ -20,7 +20,7 @@ while read -r l; do
     # On Windows, subsequent tests may be flaky
     [[ "${uname}" = *'_NT'* ]] && break
   fi
-done <<< "$(tr -d $"\r" < "${d}/Makefile.am")"
+done <<< "$(tr -d $"\r" < "${d}/Makefile.inc")"
 
 count=1
 total="$(echo "${tests}" | wc -w | tr -d ' ')"
