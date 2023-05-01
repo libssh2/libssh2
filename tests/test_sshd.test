@@ -20,7 +20,7 @@ if [ -n "${1:-}" ]; then
   manual=1
 else
   manual=0
-  # Load list of SSHD tests from Makefile.am
+  # Load list of SSHD tests from Makefile.inc
   tests=''
   load=0
   while read -r l; do
@@ -30,7 +30,7 @@ else
       [[ "${l}" =~ [a-z0-9_]+ ]] && tests+="${tests:+ }./${BASH_REMATCH[0]}${EXEEXT:-}"
       [[ ! "${l}" = *"\\" ]] && break
     fi
-  done <<< "$(tr -d $"\r" < "${d}/Makefile.am")"
+  done <<< "$(tr -d $"\r" < "${d}/Makefile.inc")"
 fi
 
 # On Windows (AppVeyor CI), subsequent tests are broken:

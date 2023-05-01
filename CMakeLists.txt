@@ -377,15 +377,7 @@ endif()
 
 # Convert GNU Make assignments into CMake ones.
 function(transform_makefile_inc INPUT_FILE OUTPUT_FILE)
-  file(STRINGS ${INPUT_FILE} LINES)
-
-  unset(MAKEFILE_INC_CMAKE)
-  foreach(LINE IN LISTS LINES)
-    if(NOT LINE MATCHES " \\+= " AND
-       NOT LINE MATCHES "^(if|endif)")
-      set(MAKEFILE_INC_CMAKE "${MAKEFILE_INC_CMAKE}\n${LINE}")
-    endif()
-  endforeach()
+  file(READ ${INPUT_FILE} MAKEFILE_INC_CMAKE)
 
   string(REGEX REPLACE "\\\\\n" "" MAKEFILE_INC_CMAKE ${MAKEFILE_INC_CMAKE})
   string(REGEX REPLACE "([A-Za-z_]+) *= *([^\n]*)" "set(\\1 \\2)" MAKEFILE_INC_CMAKE ${MAKEFILE_INC_CMAKE})

@@ -194,6 +194,8 @@ ifdef WIN32
   LIBSSH2_LDFLAGS_DYN += -Wl,--output-def,$(libssh2_def_LIBRARY),--out-implib,$(libssh2_dyn_a_LIBRARY)
 endif
 
+# Get noinst_PROGRAMS define
+include example/Makefile.am
 TARGETS_EXAMPLES := $(patsubst %.c,%$(BIN_EXT),$(strip $(wildcard example/*.c)))
 
 all: lib dyn
@@ -209,9 +211,11 @@ prebuild: $(OBJ_DIR) $(OBJ_DIR)/version.inc
 
 example: $(TARGETS_EXAMPLES)
 
+# Get DOCKER_TESTS, STANDALONE_TESTS, SSHD_TESTS, librunner_la_SOURCES defines
+include tests/Makefile.inc
 TARGETS_RUNNER := $(TARGET)-runner.a
-TARGETS_RUNNER_OBJS := $(addprefix $(OBJ_DIR)/,$(patsubst %.c,%.o,runner.c session_fixture.c openssh_fixture.c))
-TARGETS_TESTS := $(patsubst %.c,%$(BIN_EXT),$(strip $(wildcard tests/test_*.c)))
+TARGETS_RUNNER_OBJS := $(addprefix $(OBJ_DIR)/,$(patsubst %.c,%.o,$(filter %.c,$(librunner_la_SOURCES))))
+TARGETS_TESTS := $(patsubst %.c,%$(BIN_EXT),$(addprefix tests/,$(addsuffix .c,$(DOCKER_TESTS) $(STANDALONE_TESTS) $(SSHD_TESTS))))
 
 test: $(TARGETS_RUNNER) $(TARGETS_TESTS)
 
