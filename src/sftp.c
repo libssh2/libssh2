@@ -287,6 +287,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
     ssize_t rc;
     unsigned long recv_window;
     int packet_type;
+    uint32_t request_id;
 
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "recv packet"));
 
@@ -315,35 +316,44 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
 
             /* each packet starts with a 32 bit length field */
             rc = _libssh2_channel_read(channel, 0,
-                                       (char *)&sftp->partial_size[
-                                           sftp->partial_size_len],
-                                       4 - sftp->partial_size_len);
+                                       (char *)&sftp->packet_header[
+                                           sftp->packet_header_len],
+                                       sizeof(sftp->packet_header) -
+                                       sftp->packet_header_len);
             if(rc == LIBSSH2_ERROR_EAGAIN)
                 return (int)rc;
             else if(rc < 0)
                 return _libssh2_error(session, (int)rc, "channel read");
 
-            sftp->partial_size_len += rc;
+            sftp->packet_header_len += rc;
 
-            if(4 != sftp->partial_size_len)
-                /* we got a short read for the length part */
+            if(sftp->packet_header_len != sizeof(sftp->packet_header))
+                /* we got a short read for the header part */
                 return LIBSSH2_ERROR_EAGAIN;
 
-            sftp->partial_len = _libssh2_ntohu32(sftp->partial_size);
+            /* parse SFTP packet header */
+            sftp->partial_len = _libssh2_ntohu32(sftp->packet_header);
+            packet_type = sftp->packet_header[4];
+            request_id = _libssh2_ntohu32(sftp->packet_header + 5);
+
             /* make sure we don't proceed if the packet size is unreasonably
                large */
-            if(sftp->partial_len > LIBSSH2_SFTP_PACKET_MAXLEN) {
+            if(sftp->partial_len > LIBSSH2_SFTP_PACKET_MAXLEN &&
+               /* exception: response to SSH_FXP_READDIR request */
+               !(sftp->readdir_state != libssh2_NB_state_idle &&
+                 sftp->readdir_request_id == request_id &&
+                 packet_type == SSH_FXP_NAME)) {
                 libssh2_channel_flush(channel);
-                sftp->partial_size_len = 0;
+                sftp->packet_header_len = 0;
                 return _libssh2_error(session,
                                       LIBSSH2_ERROR_CHANNEL_PACKET_EXCEEDED,
                                       "SFTP packet too large");
             }
 
-            if(sftp->partial_len == 0)
+            if(sftp->partial_len < 5)
                 return _libssh2_error(session,
                                       LIBSSH2_ERROR_ALLOC,
-                                      "Unable to allocate empty SFTP packet");
+                                      "Invalid SFTP packet size");
 
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
                            "Data begin - Packet Length: %lu",
@@ -352,10 +362,11 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
             if(!packet)
                 return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                       "Unable to allocate SFTP packet");
-            sftp->partial_size_len = 0;
-            sftp->partial_received = 0; /* how much of the packet already
-                                           received */
+            sftp->packet_header_len = 0;
             sftp->partial_packet = packet;
+            /* copy over packet type(4) and request id(1) */
+            sftp->partial_received = 5;
+            memcpy(packet, sftp->packet_header + 4, 5);
 
           window_adjust:
             recv_window = libssh2_channel_window_read_ex(channel, NULL, NULL);
