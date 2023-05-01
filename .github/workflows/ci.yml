@@ -126,9 +126,9 @@ jobs:
         shell: msys2 {0}
         run: autoreconf -fi
       - name: 'autotools configure'
-        shell: msys2 {0}
         env:
           SSHD: 'C:/Program Files/Git/usr/bin/sshd.exe'
+        shell: msys2 {0}
         run: |
           # sshd tests sometimes hang
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug --enable-static --disable-shared \
@@ -137,8 +137,10 @@ jobs:
             --disable-sshd-tests
 
       - name: 'autotools build'
+        shell: msys2 {0}
         run: make -C bld -j3
       - name: 'autotools tests'
+        shell: msys2 {0}
         run: make -C bld check VERBOSE=1
 
   build_msvc:
