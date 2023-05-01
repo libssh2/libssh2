@@ -92,7 +92,7 @@ jobs:
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
-        run: cmake --build bld --target package
+        run: cmake --build bld --parallel 3 --target package
       - name: 'cmake tests'
         timeout-minutes: 10
         if: ${{ matrix.build == 'cmake' }}
@@ -184,7 +184,7 @@ jobs:
             -DRUN_SSHD_TESTS=OFF
 
       - name: 'cmake build'
-        run: cmake --build bld --config Release --target package
+        run: cmake --build bld --parallel 3 --target package --config Release
       - name: 'cmake test'
         # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
         if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
@@ -261,7 +261,7 @@ jobs:
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
-        run: cmake --build bld
+        run: cmake --build bld --parallel 3
       - name: 'cmake tests'
         if: ${{ matrix.build == 'cmake' }}
         run: cd bld && ctest -VV --output-on-failure --timeout 900
