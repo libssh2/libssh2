@@ -223,12 +223,14 @@ void stop_session_fixture(void)
     if(connected_session) {
         libssh2_session_disconnect(connected_session, "test ended");
         libssh2_session_free(connected_session);
-        shutdown(connected_socket, 2);
         connected_session = NULL;
     }
     else {
         fprintf(stderr, "Cannot stop session - none started\n");
     }
+
+    close_socket_to_openssh_server(connected_socket);
+    connected_socket = LIBSSH2_INVALID_SOCKET;
 
     stop_openssh_fixture();
 }
