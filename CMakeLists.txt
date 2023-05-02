@@ -119,7 +119,7 @@ if(NOT BUILD_STATIC_LIBS AND (NOT BUILD_SHARED_LIBS OR BUILD_EXAMPLES OR BUILD_T
 endif()
 
 set(LIB_STATIC "libssh2_static")
-set(LIB_SHARED "libssh2_shared")  # Must match libssh2_shared_EXPORTS macro in include/libssh2.h
+set(LIB_SHARED "libssh2_shared")
 
 # Symbol hiding
 
