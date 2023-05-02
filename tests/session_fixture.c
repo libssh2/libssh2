@@ -238,7 +238,7 @@ void stop_session_fixture(void)
  * variable, if found. It does so in a way that avoids leaking memory by using
  * a fixed number of static buffers.
  */
-#define NUMPATHS 3
+#define NUMPATHS 32
 const char *srcdir_path(const char *file)
 {
 #ifdef WIN32
@@ -248,6 +248,9 @@ const char *srcdir_path(const char *file)
 #endif
     static int curpath;
     char *p = getenv("srcdir");
+    if(curpath >= NUMPATHS) {
+        fprintf(stderr, "Run out of filepath slots.\n");
+    }
     assert(curpath < NUMPATHS);
     if(p) {
         /* Ensure the final string is nul-terminated on Windows */
