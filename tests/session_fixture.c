@@ -232,6 +232,8 @@ void stop_session_fixture(void)
     close_socket_to_openssh_server(connected_socket);
     connected_socket = LIBSSH2_INVALID_SOCKET;
 
+    libssh2_exit();
+
     stop_openssh_fixture();
 }
 
