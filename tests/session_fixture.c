@@ -320,6 +320,8 @@ int test_auth_keyboard(LIBSSH2_SESSION *session, int flags,
                                                 (unsigned int)strlen(username),
                                                   kbd_callback);
 
+    kbd_password = NULL;
+
     if((flags & TEST_AUTH_SHOULDFAIL) != 0) {
         if(rc == 0) {
             fprintf(stderr, "Keyboard-interactive auth succeeded "
