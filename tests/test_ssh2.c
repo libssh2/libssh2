@@ -228,6 +228,7 @@ shutdown:
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
+        shutdown(sock, 2 /* SHUT_RDWR */);
 #ifdef WIN32
         closesocket(sock);
 #else

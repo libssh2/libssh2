@@ -305,6 +305,7 @@ int main(int argc, char *argv[])
 shutdown:
 
     if(forwardsock != LIBSSH2_INVALID_SOCKET) {
+        shutdown(forwardsock, 2);
 #ifdef WIN32
         closesocket(forwardsock);
 #else
@@ -313,6 +314,7 @@ shutdown:
     }
 
     if(listensock != LIBSSH2_INVALID_SOCKET) {
+        shutdown(listensock, 2);
 #ifdef WIN32
         closesocket(listensock);
 #else
@@ -329,6 +331,7 @@ shutdown:
     }
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
+        shutdown(sock, 2);
 #ifdef WIN32
         closesocket(sock);
 #else

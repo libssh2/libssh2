@@ -180,8 +180,10 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
                     chan_iter->next = new;
                 }
             }
-            else
+            else {
+                shutdown(sock, SHUT_RDWR);
                 close(sock);
+            }
         }
     }
     return;
@@ -345,6 +347,7 @@ int main(int argc, char *argv[])
     if(rc) {
         fprintf(stderr, "Failed to authenticate\n");
         session_shutdown(session);
+        shutdown(sock, SHUT_RDWR);
         close(sock);
         return -1;
     }
@@ -354,6 +357,7 @@ int main(int argc, char *argv[])
     if(!channel) {
         fprintf(stderr, "Failed to open a new channel\n");
         session_shutdown(session);
+        shutdown(sock, SHUT_RDWR);
         close(sock);
         return -1;
     }
@@ -363,6 +367,7 @@ int main(int argc, char *argv[])
     if(rc) {
         fprintf(stderr, "Failed to request a pty\n");
         session_shutdown(session);
+        shutdown(sock, SHUT_RDWR);
         close(sock);
         return -1;
     }
@@ -372,6 +377,7 @@ int main(int argc, char *argv[])
     if(rc) {
         fprintf(stderr, "Failed to request X11 forwarding\n");
         session_shutdown(session);
+        shutdown(sock, SHUT_RDWR);
         close(sock);
         return -1;
     }
@@ -381,6 +387,7 @@ int main(int argc, char *argv[])
     if(rc) {
         fprintf(stderr, "Failed to open a shell\n");
         session_shutdown(session);
+        shutdown(sock, SHUT_RDWR);
         close(sock);
         return -1;
     }
@@ -389,6 +396,7 @@ int main(int argc, char *argv[])
     if(rc) {
         fprintf(stderr, "Failed to entered in raw mode\n");
         session_shutdown(session);
+        shutdown(sock, SHUT_RDWR);
         close(sock);
         return -1;
     }
