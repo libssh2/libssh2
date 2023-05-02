@@ -167,8 +167,10 @@ build_script:
       if($env:UWP -eq "ON") {
         $env:CMAKE_ARG += " -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0"
       }
-  - echo cmake         "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
-  - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND%
+  # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
+  #        'libssh2_session_handshake failed (-43): Failed getting banner'
+  - echo cmake         "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
+  - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
   - cmake --build _builds --config "%CONFIGURATION%"
 
 test_script:
