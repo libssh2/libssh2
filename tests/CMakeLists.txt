@@ -65,6 +65,14 @@ target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include "${CRYPTO_BACKEND_INCLUDE_DIR}")
 target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
+# These programs use internal libssh2 functions so they need to be statically
+# linked against libssh2
+set(TESTS_WITH_LIB_STATIC
+  test_auth_keyboard_info_request
+  test_hostkey
+  test_simple
+)
+
 foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
   # We support the same target as both Docker and SSHD test. Build those just once.
   if(NOT TARGET ${test})
@@ -76,8 +84,7 @@ foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
     if(GCOV_PATH AND test STREQUAL test_auth_keyboard_info_request)
       target_compile_options(${test} BEFORE PRIVATE ${GCOV_OPTIONS})
       target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES} gcov)
-    # always build these against the static lib
-    elseif(test MATCHES "^(test_auth_keyboard_info_request|test_hostkey|test_simple)$")
+    elseif(";${TESTS_WITH_LIB_STATIC};" MATCHES ";${test};")
       target_link_libraries(${test} runner ${LIB_STATIC} ${LIBRARIES})
     else()
       target_link_libraries(${test} runner ${LIB_SELECTED} ${LIBRARIES})
