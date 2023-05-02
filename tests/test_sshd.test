@@ -16,10 +16,12 @@ uname="$(uname)"
 # Load list of tests
 
 if [ -n "${1:-}" ]; then
+  # for CMake or manual
   tests="$*"
-  manual=1
+  via_args=1
 else
-  manual=0
+  # for autotools
+  via_args=0
   # Load list of SSHD tests from Makefile.inc
   tests=''
   load=0
@@ -129,7 +131,7 @@ for test in ${tests}; do
     res='ok'
   else
     anyerror=1
-    [ "${manual}" = '1' ] && [ "${total}" = '1' ] && ec=$?
+    [ "${via_args}" = '1' ] && [ "${total}" = '1' ] && ec=$?
     res='not ok'
   fi
   echo "${res} ${count} - sshd-$(basename "${test}")"
@@ -142,6 +144,6 @@ done
 kill "${sshdpid}" > /dev/null 2>&1
 trap '' EXIT
 
-[ "${manual}" = '1' ] && [ "${total}" != '1' ] && ec="${anyerror}"
+[ "${via_args}" = '1' ] && [ "${total}" != '1' ] && ec="${anyerror}"
 
 exit "${ec}"
