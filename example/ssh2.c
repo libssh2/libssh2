@@ -32,10 +32,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#define snprintf _snprintf
-#endif
-
 static const char *pubkey = ".ssh/id_rsa.pub";
 static const char *privkey = ".ssh/id_rsa";
 static const char *username = "username";

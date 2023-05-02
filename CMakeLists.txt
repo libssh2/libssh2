@@ -114,12 +114,19 @@ endif()
 option(BUILD_EXAMPLES "Build libssh2 examples" ON)
 option(BUILD_TESTING "Build libssh2 test suite" ON)
 
-if(NOT BUILD_STATIC_LIBS AND (NOT BUILD_SHARED_LIBS OR BUILD_EXAMPLES OR BUILD_TESTING))
+if(NOT BUILD_STATIC_LIBS AND (NOT BUILD_SHARED_LIBS OR BUILD_TESTING))
   set(BUILD_STATIC_LIBS ON)
 endif()
 
 set(LIB_STATIC "libssh2_static")
 set(LIB_SHARED "libssh2_shared")
+
+# lib flavour selected for example and test programs.
+if(BUILD_SHARED_LIBS)
+  set(LIB_SELECTED ${LIB_SHARED})
+else()
+  set(LIB_SELECTED ${LIB_STATIC})
+endif()
 
 # Symbol hiding
 

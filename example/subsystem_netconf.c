@@ -21,10 +21,6 @@
 #define INADDR_NONE (in_addr_t)~0
 #endif
 
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#define snprintf _snprintf
-#endif
-
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";
 static const char *username = "username";
