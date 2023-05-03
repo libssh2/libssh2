@@ -259,7 +259,7 @@ void _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
     uint32_t len_stored = (uint32_t)len;
 
     _libssh2_store_u32(buf, len_stored);
-    if(len) {
+    if(len_stored) {
         memcpy(*buf, str, len_stored);
         *buf += len_stored;
     }
@@ -288,7 +288,7 @@ void _libssh2_store_bignum2_bytes(unsigned char **buf,
         *buf += 1;
     }
 
-    if(len > 0) {
+    if(len_stored) {
         memcpy(*buf, p, len_stored);
         *buf += len_stored;
     }
