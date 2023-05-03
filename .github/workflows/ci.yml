@@ -38,6 +38,11 @@ jobs:
             crypto_backend: OpenSSL
             enable_zlib_compression: 'OFF'
             build: autotools
+          - compiler: clang
+            crypto_backend: OpenSSL
+            enable_zlib_compression: 'ON'
+            build: autotools
+            target: 'distcheck'
     env:
       CC: ${{ matrix.compiler }}
       CC_FOR_BUILD: ${{ matrix.compiler }}
@@ -69,11 +74,14 @@ jobs:
         if: ${{ matrix.build == 'autotools' }}
         run: mkdir bld && cd bld && ../configure --enable-werror --enable-debug
       - name: 'autotools build'
-        if: ${{ matrix.build == 'autotools' }}
+        if: ${{ matrix.build == 'autotools' && !matrix.target }}
         run: make -C bld -j3
       - name: 'autotools tests'
-        if: ${{ matrix.build == 'autotools' }}
+        if: ${{ matrix.build == 'autotools' && !matrix.target }}
         run: make -C bld check VERBOSE=1
+      - name: 'autotools distcheck'
+        if: ${{ matrix.target == 'distcheck' }}
+        run: make -C bld -j3 distcheck
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
