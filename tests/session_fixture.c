@@ -126,8 +126,8 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
         }
     }
 
-    if(getenv("FIXTURE_WORKDIR")) {
-        chdir(getenv("FIXTURE_WORKDIR"));
+    if(getenv("srcdir")) {
+        chdir(getenv("srcdir"));
     }
 
     rc = start_openssh_fixture();
