@@ -197,10 +197,17 @@ jobs:
             -DENABLE_DEBUG_LOGGING=${{ matrix.log }} \
             -DBUILD_SHARED_LIBS=${{ matrix.shared }} \
             -DCRYPTO_BACKEND=${{ matrix.crypto }} \
-            -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
+            -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
+            -DRUN_DOCKER_TESTS=OFF \
+            -DRUN_SSHD_TESTS=OFF
 
       - name: 'cmake build'
         run: cmake --build bld --parallel 3 --target package --config Release
+      - name: 'cmake tests'
+        # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
+        if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
+        timeout-minutes: 10
+        run: cd bld && ctest -VV -C Release --output-on-failure
 
   build_macos:
     name: 'macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})'
@@ -246,19 +253,30 @@ jobs:
         if: ${{ matrix.build == 'autotools' }}
         run: |
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-            --with-libz ${{ matrix.crypto.configure }}
+            --with-libz ${{ matrix.crypto.configure }} \
+            --disable-docker-tests \
+            --disable-sshd-tests
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
         run: make -C bld -j3
+      - name: 'autotools tests'
+        if: ${{ matrix.build == 'autotools' }}
+        run: make -C bld check VERBOSE=1
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
           cmake . -B bld ${{ matrix.crypto.cmake }} \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
-            -DENABLE_ZLIB_COMPRESSION=ON
+            -DENABLE_ZLIB_COMPRESSION=ON \
+            -DRUN_DOCKER_TESTS=OFF \
+            -DRUN_SSHD_TESTS=OFF
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld --parallel 3
+      - name: 'cmake tests'
+        if: ${{ matrix.build == 'cmake' }}
+        timeout-minutes: 10
+        run: cd bld && ctest -VV --output-on-failure
