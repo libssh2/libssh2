@@ -45,6 +45,7 @@
 #endif
 
 #include <errno.h>
+#include <assert.h>
 
 #ifdef WIN32
 /* Force parameter type. */
@@ -254,37 +255,50 @@ void _libssh2_store_u32(unsigned char **buf, uint32_t value)
 
 /* _libssh2_store_str
  */
-void _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
+int _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
 {
-    _libssh2_store_u32(buf, (uint32_t)len);
-    if(len) {
-        memcpy(*buf, str, len);
-        *buf += len;
+    uint32_t len_stored = (uint32_t)len;
+
+    _libssh2_store_u32(buf, len_stored);
+    if(len_stored) {
+        memcpy(*buf, str, len_stored);
+        *buf += len_stored;
     }
+
+    assert(len_stored == len);
+    return len_stored == len;
 }
 
 /* _libssh2_store_bignum2_bytes
  */
-void _libssh2_store_bignum2_bytes(unsigned char **buf,
-                                  const unsigned char *bytes,
-                                  size_t len)
+int _libssh2_store_bignum2_bytes(unsigned char **buf,
+                                 const unsigned char *bytes,
+                                 size_t len)
 {
-    int extraByte = 0;
+    uint32_t len_stored;
+    uint32_t extraByte;
     const unsigned char *p;
+
     for(p = bytes; len > 0 && *p == 0; --len, ++p) {}
 
     extraByte = (len > 0 && (p[0] & 0x80) != 0);
-    _libssh2_store_u32(buf, (uint32_t)(len + extraByte));
+    len_stored = (uint32_t)len;
+    if(extraByte && len_stored == 0xffffffff)
+        len_stored--;
+    _libssh2_store_u32(buf, len_stored + extraByte);
 
     if(extraByte) {
         *buf[0] = 0;
         *buf += 1;
     }
 
-    if(len > 0) {
-        memcpy(*buf, p, len);
-        *buf += len;
+    if(len_stored) {
+        memcpy(*buf, p, len_stored);
+        *buf += len_stored;
     }
+
+    assert(len_stored == len);
+    return len_stored == len;
 }
 
 /* Base64 Conversion */
