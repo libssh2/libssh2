@@ -67,13 +67,13 @@ jobs:
         run: autoreconf -fi
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' }}
-        run: ./configure --enable-werror --enable-debug
+        run: mkdir bld && cd bld && ../configure --enable-werror --enable-debug
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
-        run: make -j3
+        run: make -C bld -j3
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' }}
-        run: make check VERBOSE=1
+        run: make -C bld check VERBOSE=1
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
@@ -121,15 +121,15 @@ jobs:
       - name: 'autotools configure'
         shell: msys2 {0}
         run: |
-          ./configure --enable-werror --enable-debug --enable-static --disable-shared \
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug --enable-static --disable-shared \
             --with-crypto=openssl
 
       - name: 'autotools build'
         shell: msys2 {0}
-        run: make -j3
+        run: make -C bld -j3
       - name: 'autotools tests'
         shell: msys2 {0}
-        run: make check VERBOSE=1
+        run: make -C bld check VERBOSE=1
 
   build_msys2_gnu_make:
     name: 'msys2 (mingw64, x86_64, Makefile.mk)'
@@ -232,12 +232,12 @@ jobs:
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' }}
         run: |
-          ./configure --enable-werror --enable-debug \
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-libz ${{ matrix.crypto.configure }}
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
-        run: make -j3
+        run: make -C bld -j3
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
