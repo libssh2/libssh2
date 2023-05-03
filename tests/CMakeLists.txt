@@ -67,7 +67,6 @@ endif()
 add_library(runner STATIC ${librunner_la_SOURCES})
 target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include "${CRYPTO_BACKEND_INCLUDE_DIR}")
-target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # These programs use internal libssh2 functions so they need to be statically
 # linked against libssh2
@@ -102,14 +101,14 @@ option(RUN_DOCKER_TESTS "Run tests requiring Docker" ON)
 
 if(RUN_DOCKER_TESTS)
   foreach(test ${DOCKER_TESTS})
-    add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
-      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+    add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>)
+    set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
   endforeach()
 endif()
 
 foreach(test ${STANDALONE_TESTS})
-  add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>)
+  set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
 if(RUN_SSHD_TESTS AND SSHD_EXECUTABLE)
@@ -119,6 +118,7 @@ if(RUN_SSHD_TESTS AND SSHD_EXECUTABLE)
   endforeach()
 
   add_test(NAME test_sshd COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/test_sshd.test ${sshd_test_targets}")
+  set_property(TEST test_sshd APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
   set_property(TEST test_sshd APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
 endif()
 
@@ -129,6 +129,7 @@ if(RUN_DOCKER_TESTS)
   foreach(test ${ALGO_TESTS})
     set(testname test_read-${test})
     add_test(NAME ${testname} COMMAND "$<TARGET_FILE:test_read>")
+    set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
     if(test MATCHES "mac-")
       set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
     else()
