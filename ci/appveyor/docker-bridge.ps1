@@ -1,3 +1,5 @@
+#!/usr/bin/env pwsh
+
 # Partially copied from https://github.com/appveyor/ci/blob/master/scripts/enable-rdp.ps1
 
 # get current IP
