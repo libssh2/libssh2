@@ -78,6 +78,13 @@
 #  ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
 #  define _WINSOCK_DEPRECATED_NO_WARNINGS  /* for inet_addr() */
 #  endif
+   /* we cannot access our internal snprintf() implementation in examples and
+      tests when linking to a shared libssh2. */
+#  if _MSC_VER < 1900
+#   undef HAVE_SNPRINTF
+#   define HAVE_SNPRINTF
+#   define snprintf _snprintf
+#  endif
 # endif
 # if _MSC_VER < 1500
 #  define vsnprintf _vsnprintf
