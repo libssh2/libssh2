@@ -85,7 +85,7 @@ jobs:
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
-        run: cmake --build bld --target package
+        run: cmake --build bld --parallel 3 --target package
       - name: 'cmake tests'
         if: ${{ matrix.build == 'cmake' }}
         timeout-minutes: 10
@@ -187,7 +187,7 @@ jobs:
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
 
       - name: 'cmake build'
-        run: cmake --build bld --target package --config Release
+        run: cmake --build bld --parallel 3 --target package --config Release
 
   build_macos:
     name: 'macOS (${{ matrix.build }}, ${{ matrix.crypto.name }})'
@@ -237,7 +237,7 @@ jobs:
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
-        run: make
+        run: make -j3
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
@@ -248,4 +248,4 @@ jobs:
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
-        run: cmake --build bld
+        run: cmake --build bld --parallel 3
