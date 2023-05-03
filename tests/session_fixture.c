@@ -77,19 +77,6 @@ static int connect_to_server(void)
     return LIBSSH2_ERROR_NONE;
 }
 
-static void setup_fixture_workdir(void)
-{
-    const char *wd = getenv("FIXTURE_WORKDIR");
-#ifdef FIXTURE_WORKDIR
-    if(!wd) {
-        wd = FIXTURE_WORKDIR;
-    }
-#endif
-    if(wd) {
-        chdir(wd);
-    }
-}
-
 /* List of crypto protocols for which tests are skipped */
 static char const *skip_crypt[] = {
 #ifdef LIBSSH2_MBEDTLS
@@ -139,7 +126,9 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
         }
     }
 
-    setup_fixture_workdir();
+    if(getenv("FIXTURE_WORKDIR")) {
+        chdir(getenv("FIXTURE_WORKDIR"));
+    }
 
     rc = start_openssh_fixture();
     if(rc) {

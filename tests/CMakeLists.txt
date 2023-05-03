@@ -67,7 +67,6 @@ endif()
 add_library(runner STATIC ${librunner_la_SOURCES})
 target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include "${CRYPTO_BACKEND_INCLUDE_DIR}")
-target_compile_definitions(runner PRIVATE FIXTURE_WORKDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # These programs use internal libssh2 functions so they need to be statically
 # linked against libssh2
@@ -104,12 +103,14 @@ if(RUN_DOCKER_TESTS)
   foreach(test ${DOCKER_TESTS})
     add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+    set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT "FIXTURE_WORKDIR=${CMAKE_CURRENT_SOURCE_DIR}")
   endforeach()
 endif()
 
 foreach(test ${STANDALONE_TESTS})
   add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT "FIXTURE_WORKDIR=${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
 if(RUN_SSHD_TESTS AND SSHD_EXECUTABLE)
