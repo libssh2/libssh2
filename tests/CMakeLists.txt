@@ -113,11 +113,6 @@ foreach(test ${STANDALONE_TESTS})
 endforeach()
 
 if(RUN_SSHD_TESTS AND SSHD_EXECUTABLE)
-  # On Windows / AppVeyor CI, subsequent tests are broken:
-  #   'libssh2_session_handshake failed (-43): Failed getting banner'
-  if(WIN32)
-    list(GET SSHD_TESTS 0 SSHD_TESTS)
-  endif()
   foreach(test ${SSHD_TESTS})
     set(testname sshd-${test})
     add_test(NAME ${testname} COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/sshd_fixture.sh $<TARGET_FILE:${test}>")

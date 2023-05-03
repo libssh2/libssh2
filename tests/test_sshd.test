@@ -17,8 +17,6 @@ while read -r l; do
   elif [ "${load}" = '1' ]; then
     tests="${tests} ${l/\\}"
     [[ ! "${l}" = *"\\" ]] && break
-    # On Windows, subsequent tests may be flaky
-    [[ "${uname}" = *'_NT'* ]] && break
   fi
 done <<< "$(tr -d $"\r" < "${d}/Makefile.inc")"
 
