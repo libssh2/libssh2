@@ -52,11 +52,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#ifdef _MSC_VER
-#include <direct.h>
-#define chdir _chdir
-#endif
-
 static LIBSSH2_SESSION *connected_session = NULL;
 static libssh2_socket_t connected_socket = LIBSSH2_INVALID_SOCKET;
 
@@ -124,10 +119,6 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
                 return NULL;
             }
         }
-    }
-
-    if(getenv("srcdir")) {
-        chdir(getenv("srcdir"));
     }
 
     rc = start_openssh_fixture();
