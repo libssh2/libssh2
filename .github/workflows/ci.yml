@@ -130,7 +130,8 @@ jobs:
         shell: msys2 {0}
         run: |
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug --enable-static --disable-shared \
-            --with-crypto=openssl
+            --with-crypto=openssl \
+            --disable-docker-tests
 
       - name: 'autotools build'
         shell: msys2 {0}

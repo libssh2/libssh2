@@ -51,11 +51,15 @@ if(CMAKE_COMPILER_IS_GNUCC)
   endif()
 endif()
 
+option(RUN_SSHD_TESTS "Run tests requiring sshd" ON)
+
 find_program(SH_EXECUTABLE sh)
 mark_as_advanced(SH_EXECUTABLE)
 if(SH_EXECUTABLE)
-  find_program(SSHD_EXECUTABLE sshd)
-  mark_as_advanced(SSHD_EXECUTABLE)
+  if(RUN_SSHD_TESTS)
+    find_program(SSHD_EXECUTABLE sshd)
+    mark_as_advanced(SSHD_EXECUTABLE)
+  endif()
 
   add_test(NAME mansyntax COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
 endif()
@@ -94,12 +98,21 @@ foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
   endif()
 endforeach()
 
-foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS})
+option(RUN_DOCKER_TESTS "Run tests requiring Docker" ON)
+
+if(RUN_DOCKER_TESTS)
+  foreach(test ${DOCKER_TESTS})
+    add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+  endforeach()
+endif()
+
+foreach(test ${STANDALONE_TESTS})
   add_test(NAME ${test} COMMAND $<TARGET_FILE:${test}>
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 endforeach()
 
-if(SSHD_EXECUTABLE)
+if(RUN_SSHD_TESTS AND SSHD_EXECUTABLE)
   # On Windows / AppVeyor CI, subsequent tests are broken:
   #   'libssh2_session_handshake failed (-43): Failed getting banner'
   if(WIN32)
@@ -112,18 +125,20 @@ if(SSHD_EXECUTABLE)
   endforeach()
 endif()
 
-# CRYPT/MAC algo tests
-file(READ "test_read_algos.txt" ALGO_TESTS)
-string(REGEX REPLACE "\\\n" ";" ALGO_TESTS ${ALGO_TESTS})
-foreach(test ${ALGO_TESTS})
-  set(testname test_read-${test})
-  add_test(NAME ${testname} COMMAND "$<TARGET_FILE:test_read>")
-  if(test MATCHES "mac-")
-    set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
-  else()
-    set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
-  endif()
-endforeach()
+if(RUN_DOCKER_TESTS)
+  # CRYPT/MAC algo tests
+  file(READ "test_read_algos.txt" ALGO_TESTS)
+  string(REGEX REPLACE "\\\n" ";" ALGO_TESTS ${ALGO_TESTS})
+  foreach(test ${ALGO_TESTS})
+    set(testname test_read-${test})
+    add_test(NAME ${testname} COMMAND "$<TARGET_FILE:test_read>")
+    if(test MATCHES "mac-")
+      set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
+    else()
+      set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
+    endif()
+  endforeach()
+endif()
 
 add_custom_target(coverage
   COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/*

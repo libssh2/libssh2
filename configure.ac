@@ -242,6 +242,19 @@ AC_ARG_ENABLE([tests],
   [enable_tests="yes"])
 AM_CONDITIONAL([ENABLE_TESTS], [test "x$enable_tests" = xyes])
 
+# Run Docker tests?
+AC_ARG_ENABLE([docker-tests],
+  [AS_HELP_STRING([--disable-docker-tests],
+    [Do not run tests requiring Docker])],
+  [run_docker_tests=no], [run_docker_tests=yes])
+AM_CONDITIONAL([RUN_DOCKER_TESTS], [test "x$run_docker_tests" != "xno"])
+
+# Run sshd tests?
+AC_ARG_ENABLE([sshd-tests],
+  [AS_HELP_STRING([--disable-sshd-tests],
+    [Do not run tests requiring sshd])],
+  [run_sshd_tests=no], [run_sshd_tests=yes])
+AM_CONDITIONAL([RUN_SSHD_TESTS], [test "x$run_sshd_tests" != "xno"])
 
 # Build example applications?
 AC_MSG_CHECKING([whether to build example applications])
@@ -358,14 +371,6 @@ fi
 AM_CONDITIONAL([HAVE_WINDRES],
   [test "x$have_windows_h" = "xyes" && test "x${enable_shared}" = "xyes" && test -n "${RC}"])
 
-case "`uname`" in
-  *_NT*) host_windows=yes
-         ;;
-  *) host_windows=no
-     ;;
-esac
-AM_CONDITIONAL([HOST_WINDOWS], [test "x$host_windows" = "xyes"])
-
 # Configure parameters
 LIBSSH2_CHECK_OPTION_WERROR
 
@@ -400,9 +405,11 @@ AC_MSG_NOTICE([summary of build options:
   Compiler flags:   ${CFLAGS}
   Library types:    Shared=${enable_shared}, Static=${enable_static}
   Crypto library:   ${found_crypto_str}
+  zlib compression: ${found_libz}
   Clear memory:     $enable_clear_memory
   Debug build:      $enable_debug
   Build examples:   $build_examples
+  Run Docker tests: $run_docker_tests
+  Run sshd tests:   $run_sshd_tests
   Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
-  zlib compression: ${found_libz}
 ])

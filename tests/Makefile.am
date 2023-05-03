@@ -11,7 +11,7 @@ TESTS_ENVIRONMENT = srcdir=$(top_srcdir)/tests builddir=$(top_builddir)/tests
 # Tests to run
 TESTS = mansyntax.sh
 
-if ! HOST_WINDOWS
+if RUN_DOCKER_TESTS
 TESTS += $(DOCKER_TESTS)
 endif
 
@@ -23,11 +23,15 @@ TEST_EXTENSIONS = .test
 TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
 
 TESTS_ENVIRONMENT += EXEEXT=$(EXEEXT)
+if RUN_SSHD_TESTS
 if SSHD
 TESTS += test_sshd.test
 TESTS_ENVIRONMENT += SSHD="$(SSHD)"
 endif
+endif
+if RUN_DOCKER_TESTS
 TESTS += test_read_algos.test
+endif
 
 # Tests to build
 check_PROGRAMS = $(DOCKER_TESTS) $(STANDALONE_TESTS) $(SSHD_TESTS)
