@@ -1,6 +1,7 @@
 #!/bin/sh
 
 set -e
+set -u
 
 # Written by Mikhail Gusarov
 #

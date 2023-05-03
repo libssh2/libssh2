@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -e
+set -u
+
 # https://testanything.org/tap-specification.html
 
 if [[ "$(uname)" = *'_NT'* ]]; then
@@ -8,7 +11,7 @@ if [[ "$(uname)" = *'_NT'* ]]; then
   exit 0
 fi
 
-testbin="./test_read${EXEEXT}"
+testbin="./test_read${EXEEXT:-}"
 
 d="$(dirname "$0")"
 algos="$(tr -d $"\r" < "${d}/test_read_algos.txt")"

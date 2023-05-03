@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -e
+set -u
+
 # https://testanything.org/tap-specification.html
 
 d="$(dirname "$0")"
@@ -25,7 +28,7 @@ total="$(echo "${tests}" | wc -w | tr -d ' ')"
 echo "${count}..${total}"
 
 for test in ${tests}; do
-  if "${d}/sshd_fixture.sh" "./${test}${EXEEXT}"; then
+  if "${d}/sshd_fixture.sh" "./${test}${EXEEXT:-}"; then
     res='ok'
   else
     res='not ok'
