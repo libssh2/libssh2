@@ -35,6 +35,11 @@ else
   done <<< "$(tr -d $"\r" < "${d}/Makefile.inc")"
 fi
 
+if [ -n "${SSHD_TESTS_LIMIT_TO:-}" ]; then
+  tests="$(echo "${tests}" | cut -d ' ' -f -"${SSHD_TESTS_LIMIT_TO}")"
+  echo "# limiting tests to the first ${SSHD_TESTS_LIMIT_TO}."
+fi
+
 # Init and start sshd
 
 d="$(cd "${d}" || exit; pwd)"  # sshd needs absolute paths
