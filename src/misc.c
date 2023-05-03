@@ -254,7 +254,7 @@ void _libssh2_store_u32(unsigned char **buf, uint32_t value)
 
 /* _libssh2_store_str
  */
-void _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
+int _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
 {
     uint32_t len_stored = (uint32_t)len;
 
@@ -263,13 +263,15 @@ void _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
         memcpy(*buf, str, len_stored);
         *buf += len_stored;
     }
+
+    return len_stored == len;
 }
 
 /* _libssh2_store_bignum2_bytes
  */
-void _libssh2_store_bignum2_bytes(unsigned char **buf,
-                                  const unsigned char *bytes,
-                                  size_t len)
+int _libssh2_store_bignum2_bytes(unsigned char **buf,
+                                 const unsigned char *bytes,
+                                 size_t len)
 {
     uint32_t len_stored;
     uint32_t extraByte;
@@ -292,6 +294,8 @@ void _libssh2_store_bignum2_bytes(unsigned char **buf,
         memcpy(*buf, p, len_stored);
         *buf += len_stored;
     }
+
+    return len_stored == len;
 }
 
 /* Base64 Conversion */

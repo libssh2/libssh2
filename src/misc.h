@@ -108,10 +108,10 @@ uint32_t _libssh2_ntohu32(const unsigned char *buf);
 libssh2_uint64_t _libssh2_ntohu64(const unsigned char *buf);
 void _libssh2_htonu32(unsigned char *buf, uint32_t val);
 void _libssh2_store_u32(unsigned char **buf, uint32_t value);
-void _libssh2_store_str(unsigned char **buf, const char *str, size_t len);
-void _libssh2_store_bignum2_bytes(unsigned char **buf,
-                                  const unsigned char *bytes,
-                                  size_t len);
+int _libssh2_store_str(unsigned char **buf, const char *str, size_t len);
+int _libssh2_store_bignum2_bytes(unsigned char **buf,
+                                 const unsigned char *bytes,
+                                 size_t len);
 void *_libssh2_calloc(LIBSSH2_SESSION *session, size_t size);
 
 struct string_buf *_libssh2_string_buf_new(LIBSSH2_SESSION *session);
