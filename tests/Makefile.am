@@ -6,7 +6,7 @@ AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 include Makefile.inc
 
 # Some tests rely on the 'srcdir' env. Set by autotools automatically.
-TESTS_ENVIRONMENT = builddir=$(top_builddir)/tests
+TESTS_ENVIRONMENT =
 
 # Tests to run
 TESTS = mansyntax.sh
