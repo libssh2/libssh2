@@ -3280,7 +3280,7 @@ clean_exit:
     if(md_ctx)
         EVP_MD_CTX_free(md_ctx);
 
-    return (rc == 1 ? 0 : -1);
+    return (rc == 1) ? 0 : -1;
 }
 
 int

@@ -2314,7 +2314,7 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
              && (channel->local.id == read_local_id)
              && (channel->remote.extended_data_ignore_mode
                  == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
-            return (read_packet->data_len - read_packet->data_head);
+            return read_packet->data_len - read_packet->data_head;
         }
 
         read_packet = next_packet;
