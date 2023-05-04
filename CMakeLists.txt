@@ -363,21 +363,12 @@ endif()
 # Detect platform-specific crypto-backends last:
 
 if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
+  set(CRYPTO_BACKEND "WinCNG")
+  set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WINCNG")
+  set(CRYPTO_BACKEND_INCLUDE_DIR "")
 
-  # The check actually compiles the header.  This requires windows.h.
-  # Check necessary for old-MinGW
-  check_include_files("windows.h;bcrypt.h" HAVE_BCRYPT_H)
-
-  if(HAVE_BCRYPT_H)
-    set(CRYPTO_BACKEND "WinCNG")
-    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WINCNG")
-    set(CRYPTO_BACKEND_INCLUDE_DIR "")
-
-    list(APPEND LIBRARIES crypt32 bcrypt)
-    list(APPEND PC_LIBS -lcrypt32 -lbcrypt)
-  elseif(${SPECIFIC_CRYPTO_REQUIREMENT} STREQUAL ${REQUIRED})
-    message(FATAL_ERROR "WinCNG not available")
-  endif()
+  list(APPEND LIBRARIES crypt32 bcrypt)
+  list(APPEND PC_LIBS -lcrypt32 -lbcrypt)
 endif()
 
 # Global functions
