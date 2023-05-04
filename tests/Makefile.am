@@ -5,8 +5,8 @@ AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 # Get DOCKER_TESTS, STANDALONE_TESTS, SSHD_TESTS, librunner_la_SOURCES defines
 include Makefile.inc
 
-# FIXME: Exported by autotools with the same value by default anyway?
-TESTS_ENVIRONMENT = srcdir=$(top_srcdir)/tests builddir=$(top_builddir)/tests
+# Some tests rely on the 'srcdir' env. Set by autotools automatically.
+TESTS_ENVIRONMENT = builddir=$(top_builddir)/tests
 
 # Tests to run
 TESTS = mansyntax.sh
