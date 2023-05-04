@@ -208,7 +208,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR
   # not having reliable timeout support
   # inconsistent return of POLLHUP where other implementations give POLLIN
   message("poll use is disabled on this platform")
-else()
+elseif(NOT WIN32)
   check_function_exists(poll HAVE_POLL)
 endif()
 
