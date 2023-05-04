@@ -98,6 +98,9 @@
 #define SSH_AGENT_RSA_SHA2_256 2
 #define SSH_AGENT_RSA_SHA2_512 4
 
+#define LIBSSH2_AGENT_C
+#include "agent_win.c"
+
 #ifdef PF_UNIX
 static int
 agent_connect_unix(LIBSSH2_AGENT *agent)
@@ -960,7 +963,3 @@ LIBSSH2_API const char *libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent)
 {
     return agent->identity_agent_path;
 }
-
-#define LIBSSH2_AGENT_C
-
-#include "agent_win.c"

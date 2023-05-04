@@ -101,8 +101,4 @@ struct _LIBSSH2_AGENT
 #endif
 };
 
-#ifdef WIN32
-extern struct agent_ops agent_ops_openssh;
-#endif
-
 #endif /* __LIBSSH2_AGENT_H */
