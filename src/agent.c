@@ -51,6 +51,10 @@
 #undef PF_UNIX
 #endif
 
+#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
+#define HAVE_WIN32_AGENTS
+#endif
+
 #include "userauth.h"
 #include "session.h"
 
@@ -149,14 +153,13 @@ struct _LIBSSH2_AGENT
 
     char *identity_agent_path; /* Path to a custom identity agent socket */
 
-#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
+#ifdef HAVE_WIN32_AGENTS
     OVERLAPPED overlapped;
     HANDLE pipe;
     BOOL pending_io;
 #endif
 };
 
-#define LIBSSH2_AGENT_C
 #include "agent_win.c"
 
 #ifdef PF_UNIX
@@ -316,7 +319,7 @@ static struct agent_ops agent_ops_unix = {
 };
 #endif  /* PF_UNIX */
 
-#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
+#ifdef HAVE_WIN32_AGENTS
 /* Code to talk to Pageant was taken from PuTTY.
  *
  * Portions copyright Robert de Bath, Joris van Rantwijk, Delian
@@ -419,16 +422,16 @@ static struct agent_ops agent_ops_pageant = {
     agent_transact_pageant,
     agent_disconnect_pageant
 };
-#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP) */
+#endif /* HAVE_WIN32_AGENTS */
 
 static struct {
     const char *name;
     struct agent_ops *ops;
 } supported_backends[] = {
-#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
+#ifdef HAVE_WIN32_AGENTS
     {"Pageant", &agent_ops_pageant},
     {"OpenSSH", &agent_ops_openssh},
-#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP) */
+#endif /* HAVE_WIN32_AGENTS */
 #ifdef PF_UNIX
     {"Unix", &agent_ops_unix},
 #endif  /* PF_UNIX */
@@ -787,7 +790,7 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
     agent->identity_agent_path = NULL;
     _libssh2_list_init(&agent->head);
 
-#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
+#ifdef HAVE_WIN32_AGENTS
     agent->pipe = INVALID_HANDLE_VALUE;
     memset(&agent->overlapped, 0, sizeof(OVERLAPPED));
     agent->pending_io = FALSE;
