@@ -185,6 +185,8 @@ jobs:
         env:
           CPPFLAGS: -DLIBSSH2_NO_MD5 -DLIBSSH2_NO_HMAC_RIPEMD -DLIBSSH2_NO_DSA -DLIBSSH2_NO_AES_CTR -DLIBSSH2_NO_BLOWFISH -DLIBSSH2_NO_RC4 -DLIBSSH2_NO_CAST -DLIBSSH2_NO_3DES
           LIBSSH2_CPPFLAGS_LIB: -DLIBSSH2_EXPORTS
+          ZLIB_PATH: /${{ matrix.sys }}
+          OPENSSL_PATH: /${{ matrix.sys }}
         shell: msys2 {0}
         run: mkdir bld && cd bld && BLD_DIR=bld make -C .. -j3 -f Makefile.mk dyn example test
 
