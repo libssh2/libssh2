@@ -211,6 +211,11 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR
 elseif(NOT WIN32)
   check_function_exists(poll HAVE_POLL)
 endif()
+if(WIN32)
+  set(HAVE_SELECT 1)
+else()
+  check_function_exists(select HAVE_SELECT)
+endif()
 
 # Non-blocking socket support tests. Use a separate, yet unset variable
 # for the socket libraries to not link against the other configured

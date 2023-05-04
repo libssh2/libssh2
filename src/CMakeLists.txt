@@ -78,7 +78,6 @@ endif()
 list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 if(WIN32)
-  set(HAVE_SELECT 1)
   list(APPEND PC_LIBS -lws2_32)
 endif()
 
