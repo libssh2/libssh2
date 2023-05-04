@@ -340,7 +340,7 @@ agent_disconnect_openssh(LIBSSH2_AGENT *agent)
     return LIBSSH2_ERROR_NONE;
 }
 
-struct agent_ops agent_ops_openssh = {
+static struct agent_ops agent_ops_openssh = {
     agent_connect_openssh,
     agent_transact_openssh,
     agent_disconnect_openssh
