@@ -78,6 +78,7 @@ jobs:
         run: make -C bld -j3
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' && !matrix.target }}
+        timeout-minutes: 10
         run: make -C bld check VERBOSE=1
       - name: 'autotools distcheck'
         if: ${{ matrix.target == 'distcheck' }}
@@ -147,6 +148,7 @@ jobs:
         run: make -C bld -j3
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' }}
+        timeout-minutes: 10
         shell: msys2 {0}
         run: make -C bld check VERBOSE=1
       - name: 'cmake configure'
@@ -296,6 +298,7 @@ jobs:
         run: make -C bld -j3
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' }}
+        timeout-minutes: 10
         run: make -C bld check VERBOSE=1
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
