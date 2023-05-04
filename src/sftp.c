@@ -632,11 +632,11 @@ sftp_packet_requirev(LIBSSH2_SFTP *sftp, int num_valid_responses,
  */
 static int sftp_attrsize(unsigned long flags)
 {
-    return (4 +                                 /* flags(4) */
-            ((flags & LIBSSH2_SFTP_ATTR_SIZE) ? 8 : 0) +
-            ((flags & LIBSSH2_SFTP_ATTR_UIDGID) ? 8 : 0) +
-            ((flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) ? 4 : 0) +
-            ((flags & LIBSSH2_SFTP_ATTR_ACMODTIME) ? 8 : 0));
+    return 4 +                                 /* flags(4) */
+           ((flags & LIBSSH2_SFTP_ATTR_SIZE) ? 8 : 0) +
+           ((flags & LIBSSH2_SFTP_ATTR_UIDGID) ? 8 : 0) +
+           ((flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) ? 4 : 0) +
+           ((flags & LIBSSH2_SFTP_ATTR_ACMODTIME) ? 8 : 0);
     /* atime + mtime as u32 */
 }
 
@@ -681,7 +681,7 @@ sftp_attr2bin(unsigned char *p, const LIBSSH2_SFTP_ATTRIBUTES * attrs)
         _libssh2_store_u32(&s, (uint32_t)attrs->mtime);
     }
 
-    return (s - p);
+    return s - p;
 }
 
 /* sftp_bin2attr
@@ -758,7 +758,7 @@ sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs, const unsigned char *p,
         }
     }
 
-    return (buf.dataptr - buf.data);
+    return buf.dataptr - buf.data;
 }
 
 /* ************
@@ -1875,7 +1875,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
                 goto end;
             }
 
-            if(longentry && (longentry_maxlen>1)) {
+            if(longentry && (longentry_maxlen > 1)) {
                 longentry_len = real_longentry_len;
 
                 if(longentry_len >= longentry_maxlen ||

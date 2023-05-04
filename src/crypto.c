@@ -1,5 +1,4 @@
 #define LIBSSH2_CRYPTO_C
-
 #include "libssh2_priv.h"
 
 #if defined(LIBSSH2_OPENSSL) || defined(LIBSSH2_WOLFSSL)

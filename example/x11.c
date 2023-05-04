@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
         fds[0].revents = LIBSSH2_POLLFD_POLLIN;
 
         rc = libssh2_poll(fds, nfds, 0);
-        if(rc >0) {
+        if(rc > 0) {
             libssh2_channel_read(channel, buf, sizeof(buf));
             fprintf(stdout, "%s", buf);
             fflush(stdout);

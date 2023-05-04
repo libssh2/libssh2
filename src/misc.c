@@ -935,7 +935,7 @@ int _libssh2_check_length(struct string_buf *buf, size_t len)
 {
     unsigned char *endp = &buf->data[buf->len];
     size_t left = endp - buf->dataptr;
-    return ((len <= left) && (left <= buf->len));
+    return (len <= left) && (left <= buf->len);
 }
 
 int _libssh2_eob(struct string_buf *buf)
