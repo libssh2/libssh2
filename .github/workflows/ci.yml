@@ -108,10 +108,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - { sys: mingw64, env: x86_64 }
-          - { sys: mingw32, env: i686 }
-          - { sys: ucrt64,  env: ucrt-x86_64 }
-          - { sys: clang64, env: clang-x86_64 }
+          - { build: 'autotools', sys: mingw64, env: x86_64 }
+          - { build: 'autotools', sys: mingw32, env: i686 }
+          - { build: 'autotools', sys: ucrt64,  env: ucrt-x86_64 }
+          - { build: 'autotools', sys: clang64, env: clang-x86_64 }
+          - { build: 'cmake'    , sys: ucrt64,  env: ucrt-x86_64 }
+          - { build: 'cmake'    , sys: clang64, env: clang-x86_64 }
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
@@ -120,13 +122,15 @@ jobs:
           msystem: ${{ matrix.sys }}
           install: >-
             mingw-w64-${{ matrix.env }}-cc
-            mingw-w64-${{ matrix.env }}-autotools
+            mingw-w64-${{ matrix.env }}-${{ matrix.build }} make
             mingw-w64-${{ matrix.env }}-openssl
 
       - name: 'autotools autoreconf'
+        if: ${{ matrix.build == 'autotools' }}
         shell: msys2 {0}
         run: autoreconf -fi
       - name: 'autotools configure'
+        if: ${{ matrix.build == 'autotools' }}
         env:
           SSHD: 'C:/Program Files/Git/usr/bin/sshd.exe'
         shell: msys2 {0}
@@ -138,11 +142,41 @@ jobs:
             --disable-sshd-tests
 
       - name: 'autotools build'
+        if: ${{ matrix.build == 'autotools' }}
         shell: msys2 {0}
         run: make -C bld -j3
       - name: 'autotools tests'
+        if: ${{ matrix.build == 'autotools' }}
         shell: msys2 {0}
         run: make -C bld check VERBOSE=1
+      - name: 'cmake configure'
+        if: ${{ matrix.build == 'cmake' }}
+        env:
+          CMAKE_GENERATOR: 'MSYS Makefiles'
+        shell: msys2 {0}
+        run: |
+          if [[ "${{ matrix.env }}" = 'clang'* ]]; then
+            options='-DCMAKE_C_COMPILER=clang'
+          else
+            options='-DCMAKE_C_COMPILER=gcc'
+          fi
+          cmake . -B bld ${options} \
+            -DENABLE_WERROR=ON \
+            -DENABLE_DEBUG_LOGGING=ON \
+            -DCRYPTO_BACKEND=OpenSSL \
+            -DENABLE_ZLIB_COMPRESSION=ON \
+            -DRUN_DOCKER_TESTS=OFF \
+            -DRUN_SSHD_TESTS=OFF
+
+      - name: 'cmake build'
+        if: ${{ matrix.build == 'cmake' }}
+        shell: msys2 {0}
+        run: cmake --build bld
+      - name: 'cmake tests'
+        if: ${{ matrix.build == 'cmake' }}
+        timeout-minutes: 10
+        shell: msys2 {0}
+        run: cd bld && ctest -VV --output-on-failure
 
   build_msys2_gnu_make:
     name: 'msys2 (mingw64, x86_64, Makefile.mk)'
