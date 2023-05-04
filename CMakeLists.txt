@@ -148,6 +148,32 @@ endif()
 
 # Auto-detection
 
+# Prefill values with known detection results
+# Keep this synced with src/libssh2_setup.h
+if(WIN32)
+  if(MINGW)
+    set(HAVE_SNPRINTF 1)
+    set(HAVE_UNISTD_H 1)
+    set(HAVE_INTTYPES_H 1)
+    set(HAVE_SYS_TIME_H 1)
+    set(HAVE_SYS_PARAM_H 1)
+    set(HAVE_GETTIMEOFDAY 1)
+    set(HAVE_STRTOLL 1)
+  elseif(MSVC)
+    set(HAVE_GETTIMEOFDAY 0)
+    if(NOT MSVC_VERSION LESS 1800)
+      set(HAVE_INTTYPES_H 1)
+      set(HAVE_STRTOLL 1)
+    else()
+      set(HAVE_INTTYPES_H 0)
+      set(HAVE_STRTOI64 1)
+    endif()
+    if(NOT MSVC_VERSION LESS 1900)
+      set(HAVE_SNPRINTF 1)
+    endif()
+  endif()
+endif()
+
 ## Platform checks
 check_include_files(inttypes.h HAVE_INTTYPES_H)
 if(NOT MSVC)
