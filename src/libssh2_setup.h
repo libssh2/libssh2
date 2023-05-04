@@ -19,7 +19,8 @@
 
 #include "libssh2_config.h"
 
-/* Hand-crafted configuration for platforms which lack config tool. */
+/* Hand-crafted configuration for platforms which lack config tool.
+   Keep this synced with root CMakeLists.txt */
 #elif defined(WIN32)
 
 #define HAVE_SELECT
