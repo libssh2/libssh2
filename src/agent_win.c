@@ -37,9 +37,7 @@
  * OF SUCH DAMAGE.
  */
 
-#ifdef LIBSSH2_AGENT_C /* Compile this via agent.c */
-
-#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
+#ifdef HAVE_WIN32_AGENTS /* Compile this via agent.c */
 
 #include <stdlib.h>  /* for getenv() */
 
@@ -340,11 +338,10 @@ agent_disconnect_openssh(LIBSSH2_AGENT *agent)
     return LIBSSH2_ERROR_NONE;
 }
 
-struct agent_ops agent_ops_openssh = {
+static struct agent_ops agent_ops_openssh = {
     agent_connect_openssh,
     agent_transact_openssh,
     agent_disconnect_openssh
 };
 
-#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP) */
-#endif /* LIBSSH2_AGENT_C */
+#endif /* HAVE_WIN32_AGENTS */

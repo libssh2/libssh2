@@ -38,7 +38,6 @@
  */
 
 #include "libssh2_priv.h"
-#include "agent.h"
 
 #include <errno.h>
 #include <stdlib.h>  /* for getenv() */
@@ -50,6 +49,10 @@
    supported.  winsock*.h define PF_UNIX/AF_UNIX but do not actually
    support them. */
 #undef PF_UNIX
+#endif
+
+#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
+#define HAVE_WIN32_AGENTS
 #endif
 
 #include "userauth.h"
@@ -97,6 +100,67 @@
 /* Signature request methods */
 #define SSH_AGENT_RSA_SHA2_256 2
 #define SSH_AGENT_RSA_SHA2_512 4
+
+/* non-blocking mode on agent connection is not yet implemented, but
+   for future use. */
+typedef enum {
+    agent_NB_state_init = 0,
+    agent_NB_state_request_created,
+    agent_NB_state_request_length_sent,
+    agent_NB_state_request_sent,
+    agent_NB_state_response_length_received,
+    agent_NB_state_response_received
+} agent_nonblocking_states;
+
+typedef struct agent_transaction_ctx {
+    unsigned char *request;
+    size_t request_len;
+    unsigned char *response;
+    size_t response_len;
+    agent_nonblocking_states state;
+    size_t send_recv_total;
+} *agent_transaction_ctx_t;
+
+typedef int (*agent_connect_func)(LIBSSH2_AGENT *agent);
+typedef int (*agent_transact_func)(LIBSSH2_AGENT *agent,
+                                   agent_transaction_ctx_t transctx);
+typedef int (*agent_disconnect_func)(LIBSSH2_AGENT *agent);
+
+struct agent_publickey {
+    struct list_node node;
+
+    /* this is the struct we expose externally */
+    struct libssh2_agent_publickey external;
+};
+
+struct agent_ops {
+    const agent_connect_func connect;
+    const agent_transact_func transact;
+    const agent_disconnect_func disconnect;
+};
+
+struct _LIBSSH2_AGENT
+{
+    LIBSSH2_SESSION *session;  /* the session this "belongs to" */
+
+    libssh2_socket_t fd;
+
+    struct agent_ops *ops;
+
+    struct agent_transaction_ctx transctx;
+    struct agent_publickey *identity;
+    struct list_head head;              /* list of public keys */
+
+    char *identity_agent_path; /* Path to a custom identity agent socket */
+
+#ifdef HAVE_WIN32_AGENTS
+    OVERLAPPED overlapped;
+    HANDLE pipe;
+    BOOL pending_io;
+#endif
+};
+
+#include "agent_win.c"
 
 #ifdef PF_UNIX
 static int
@@ -255,7 +319,7 @@ static struct agent_ops agent_ops_unix = {
 };
 #endif  /* PF_UNIX */
 
-#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
+#ifdef HAVE_WIN32_AGENTS
 /* Code to talk to Pageant was taken from PuTTY.
  *
  * Portions copyright Robert de Bath, Joris van Rantwijk, Delian
@@ -358,16 +422,16 @@ static struct agent_ops agent_ops_pageant = {
     agent_transact_pageant,
     agent_disconnect_pageant
 };
-#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP) */
+#endif /* HAVE_WIN32_AGENTS */
 
 static struct {
     const char *name;
     struct agent_ops *ops;
 } supported_backends[] = {
-#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
+#ifdef HAVE_WIN32_AGENTS
     {"Pageant", &agent_ops_pageant},
     {"OpenSSH", &agent_ops_openssh},
-#endif /* defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP) */
+#endif /* HAVE_WIN32_AGENTS */
 #ifdef PF_UNIX
     {"Unix", &agent_ops_unix},
 #endif  /* PF_UNIX */
@@ -726,7 +790,7 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
     agent->identity_agent_path = NULL;
     _libssh2_list_init(&agent->head);
 
-#ifdef WIN32
+#ifdef HAVE_WIN32_AGENTS
     agent->pipe = INVALID_HANDLE_VALUE;
     memset(&agent->overlapped, 0, sizeof(OVERLAPPED));
     agent->pending_io = FALSE;
@@ -960,7 +1024,3 @@ LIBSSH2_API const char *libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent)
 {
     return agent->identity_agent_path;
 }
-
-#define LIBSSH2_AGENT_C
-
-#include "agent_win.c"
