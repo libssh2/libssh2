@@ -91,10 +91,6 @@ install(
     docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
   DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
-if(MSVC)
-  set(CMAKE_VS_GLOBALS "TrackFileAccess=false")  # faster builds
-endif()
-
 include(max_warnings)
 
 # Add socket libraries
