@@ -45,6 +45,7 @@
 #endif
 
 #include <errno.h>
+#include <assert.h>
 
 #ifdef WIN32
 /* Force parameter type. */
@@ -264,6 +265,7 @@ int _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
         *buf += len_stored;
     }
 
+    assert(len_stored == len);
     return len_stored == len;
 }
 
@@ -295,6 +297,7 @@ int _libssh2_store_bignum2_bytes(unsigned char **buf,
         *buf += len_stored;
     }
 
+    assert(len_stored == len);
     return len_stored == len;
 }
 
