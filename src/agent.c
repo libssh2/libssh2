@@ -729,7 +729,7 @@ libssh2_agent_init(LIBSSH2_SESSION *session)
     agent->identity_agent_path = NULL;
     _libssh2_list_init(&agent->head);
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
     agent->pipe = INVALID_HANDLE_VALUE;
     memset(&agent->overlapped, 0, sizeof(OVERLAPPED));
     agent->pending_io = FALSE;

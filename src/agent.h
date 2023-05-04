@@ -94,7 +94,7 @@ struct _LIBSSH2_AGENT
 
     char *identity_agent_path; /* Path to a custom identity agent socket */
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
     OVERLAPPED overlapped;
     HANDLE pipe;
     BOOL pending_io;
