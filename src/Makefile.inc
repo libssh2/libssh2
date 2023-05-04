@@ -24,7 +24,6 @@ CSOURCES =              \
   version.c
 
 HHEADERS =              \
-  agent.h               \
   channel.h             \
   comp.h                \
   crypto.h              \
