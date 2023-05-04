@@ -68,14 +68,14 @@ pf->dnam.naml$l_long_defname = NULL; //inputfile;
 pf->dnam.naml$l_long_defname_size = 0;//strlen( inputfile );
 
 pf->dnam.naml$l_long_filename = inputfile;
-pf->dnam.naml$l_long_filename_size = strlen( inputfile);
+pf->dnam.naml$l_long_filename_size = strlen( inputfile );
 
 pf->dnam.naml$l_long_expand = pf->expanded_filename;
 pf->dnam.naml$l_long_expand_alloc = NAM$C_MAXRSS ;
 
 pf->dnam.naml$b_nop |= NAML$M_SYNCHK | NAML$M_PWD;
 
-status = sys$parse( &pf->dfab, 0,0);
+status = sys$parse( &pf->dfab, 0, 0 );
 if ( !(status&1) ){
     free( pf );
     return( status );
@@ -137,7 +137,7 @@ manPtr addman( manPtr *manroot,char *filename )
 {
 manPtr m,f;
 
-m = calloc( 1, sizeof( man) );
+m = calloc( 1, sizeof( man ) );
 if ( !m ) return( NULL );
 
 m->filename = strdup( filename );
@@ -159,7 +159,7 @@ manPtr m,n;
 for( m = *manroot; m ; m = n ){
      free( m->filename );
      n = m->next;
-     free ( m );
+     free( m );
 }
 *manroot = NULL;
 }
@@ -180,11 +180,11 @@ while(1){
         r = addman( manroot, gevonden );
         if ( r == NULL ) return(2);
     }else{
-        if ( !( status&1)) break;
+        if ( !( status&1 ) ) break;
     }
 }
 
-lib$find_file_end( &ffindex);
+lib$find_file_end( &ffindex );
 if ( status == RMS$_NMF) status = 1;
 
 
@@ -207,14 +207,14 @@ uit = calloc( 1, maxlen + 1 );
 
 if ( in == NULL || uit == NULL ) return(2);
 
-man = fopen( filespec, "r");
+man = fopen( filespec, "r" );
 if ( man == NULL ) return(vaxc$errno);
 
 for( len = 0; !feof( man ) && len < maxlen ; len += thislen ){
     thislen = fread( in + len, 1, maxlen - len, man );
 }
 
-fclose (man);
+fclose(man);
 
 m = in;
 h = uit;
