@@ -140,8 +140,7 @@ jobs:
           # sshd tests sometimes hang
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug --enable-static --disable-shared \
             --with-crypto=openssl \
-            --disable-docker-tests \
-            --disable-sshd-tests
+            --disable-docker-tests
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
@@ -168,8 +167,7 @@ jobs:
             -DENABLE_DEBUG_LOGGING=ON \
             -DCRYPTO_BACKEND=OpenSSL \
             -DENABLE_ZLIB_COMPRESSION=ON \
-            -DRUN_DOCKER_TESTS=OFF \
-            -DRUN_SSHD_TESTS=OFF
+            -DRUN_DOCKER_TESTS=OFF
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
@@ -228,8 +226,7 @@ jobs:
             -DBUILD_SHARED_LIBS=${{ matrix.shared }} \
             -DCRYPTO_BACKEND=${{ matrix.crypto }} \
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
-            -DRUN_DOCKER_TESTS=OFF \
-            -DRUN_SSHD_TESTS=OFF
+            -DRUN_DOCKER_TESTS=OFF
 
       - name: 'cmake build'
         run: cmake --build bld --parallel 3 --target package --config Release
@@ -284,8 +281,7 @@ jobs:
         run: |
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-libz ${{ matrix.crypto.configure }} \
-            --disable-docker-tests \
-            --disable-sshd-tests
+            --disable-docker-tests
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
@@ -301,8 +297,7 @@ jobs:
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
             -DENABLE_ZLIB_COMPRESSION=ON \
-            -DRUN_DOCKER_TESTS=OFF \
-            -DRUN_SSHD_TESTS=OFF
+            -DRUN_DOCKER_TESTS=OFF
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
