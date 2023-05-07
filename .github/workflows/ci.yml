@@ -166,6 +166,7 @@ jobs:
           cmake . -B bld ${options} \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
+            -DBUILD_SHARED_LIBS=ON \
             -DCRYPTO_BACKEND=OpenSSL \
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
@@ -302,6 +303,7 @@ jobs:
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
+            -DBUILD_SHARED_LIBS=ON \
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF
