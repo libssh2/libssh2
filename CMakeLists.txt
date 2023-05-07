@@ -56,7 +56,7 @@ option(BUILD_STATIC_LIBS "Build Static Libraries" ON)
 add_feature_info("Static library" BUILD_STATIC_LIBS
   "creating libssh2 static library")
 
-option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
+option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 add_feature_info("Shared library" BUILD_SHARED_LIBS
   "creating libssh2 shared library (.so/.dll)")
 
