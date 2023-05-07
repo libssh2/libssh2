@@ -50,6 +50,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 project(libssh2 C)
 
+set(CMAKE_UNITY_BUILD_BATCH_SIZE 32)
+
 option(BUILD_STATIC_LIBS "Build Static Libraries" ON)
 add_feature_info("Static library" BUILD_STATIC_LIBS
   "creating libssh2 static library")

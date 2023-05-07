@@ -159,7 +159,7 @@ jobs:
         shell: msys2 {0}
         run: |
           if [[ "${{ matrix.env }}" = 'clang'* ]]; then
-            options='-DCMAKE_C_COMPILER=clang'
+            options='-DCMAKE_C_COMPILER=clang -DCMAKE_UNITY_BUILD=ON'
           else
             options='-DCMAKE_C_COMPILER=gcc'
           fi
@@ -197,13 +197,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - { arch: x64  , plat: windows, crypto: WinCNG , log: 'OFF', shared: 'OFF', zlib: 'OFF' }
-          - { arch: x64  , plat: windows, crypto: WinCNG , log: 'ON' , shared: 'ON' , zlib: 'OFF' }
-          - { arch: x64  , plat: windows, crypto: OpenSSL, log: 'OFF', shared: 'ON' , zlib: 'OFF' }
-          - { arch: x64  , plat: uwp    , crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF' }
-          - { arch: arm64, plat: windows, crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF' }
-          - { arch: arm64, plat: uwp    , crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF' }
-          - { arch: x86  , plat: windows, crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF' }
+          - { arch: x64  , plat: windows, crypto: WinCNG , log: 'OFF', shared: 'OFF', zlib: 'OFF', unity: 'OFF' }
+          - { arch: x64  , plat: windows, crypto: WinCNG , log: 'ON' , shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
+          - { arch: x64  , plat: windows, crypto: OpenSSL, log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
+          - { arch: x64  , plat: uwp    , crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
+          - { arch: arm64, plat: windows, crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
+          - { arch: arm64, plat: uwp    , crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { arch: x86  , plat: windows, crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
@@ -217,6 +217,7 @@ jobs:
           else
             system='Windows'
           fi
+          [ "${{ matrix.unity }}" = 'ON' ] && options="${options} -DCMAKE_UNITY_BUILD=ON"
           cmake . -B bld ${options} \
             -DCMAKE_SYSTEM_NAME=${system} \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
@@ -298,6 +299,7 @@ jobs:
         if: ${{ matrix.build == 'cmake' }}
         run: |
           cmake . -B bld ${{ matrix.crypto.cmake }} \
+            -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
             -DENABLE_ZLIB_COMPRESSION=ON \
