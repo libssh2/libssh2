@@ -174,7 +174,7 @@ jobs:
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
         shell: msys2 {0}
-        run: cmake --build bld
+        run: cmake --build bld --parallel 3
       - name: 'cmake tests'
         if: ${{ matrix.build == 'cmake' }}
         timeout-minutes: 10
