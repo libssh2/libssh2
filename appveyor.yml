@@ -82,20 +82,21 @@ environment:
       CRYPTO_BACKEND: "OpenSSL"
       SKIP_CTEST: "yes"
 
-    - job_name: "VS2010, WinCNG, x64, Build-only"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-      GENERATOR: "Visual Studio 10 2010"
-      PLATFORM: "x64"
-      BUILD_SHARED_LIBS: "ON"
-      CRYPTO_BACKEND: "WinCNG"
-      SKIP_CTEST: "yes"
-
     - job_name: "VS2008, WinCNG, x86, Build-only"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 9 2008"
       PLATFORM: "x86"
       BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
+      SKIP_CTEST: "yes"
+
+    - job_name: "VS2010, WinCNG, x64, Build-only"
+      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
+      GENERATOR: "Visual Studio 10 2010"
+      PLATFORM: "x64"
+      BUILD_SHARED_LIBS: "ON"
+      CRYPTO_BACKEND: "WinCNG"
+      UNITY: "ON"
       SKIP_CTEST: "yes"
 
     - job_name: "VS2022, WinCNG, x64, Server 2019, Logging"
@@ -166,6 +167,9 @@ build_script:
       }
       if($env:UWP -eq "ON") {
         $env:CMAKE_ARG += " -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0"
+      }
+      if($env:UNITY -eq "ON") {
+        $env:CMAKE_ARG += " -DCMAKE_UNITY_BUILD=ON"
       }
       $env:CMAKE_ARG += " -DCMAKE_VS_GLOBALS=TrackFileAccess=false"
   # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
