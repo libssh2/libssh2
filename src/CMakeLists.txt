@@ -85,13 +85,24 @@ set(SOURCES ${CSOURCES} ${HHEADERS})
 
 ## Library definition
 
+# Ensure that the static library and import library filenames are different,
+# when building both static and shared library. On Windows, with certain
+# toolchains (e.g. MSVC) these libraries get the same by default, overwriting
+# each other. MinGW is not affected.
+if(WIN32 AND BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS AND
+   NOT STATIC_LIB_SUFFIX AND NOT IMPORT_LIB_SUFFIX AND
+   CMAKE_STATIC_LIBRARY_SUFFIX STREQUAL CMAKE_IMPORT_LIBRARY_SUFFIX)
+  set(IMPORT_LIB_SUFFIX "_imp")
+endif()
+
 # we want it to be called libssh2 on all platforms
 if(BUILD_STATIC_LIBS)
   list(APPEND libssh2_export ${LIB_STATIC})
   add_library(${LIB_STATIC} STATIC ${SOURCES})
   target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
   target_link_libraries(${LIB_STATIC} PRIVATE ${LIBRARIES})
-  set_target_properties(${LIB_STATIC} PROPERTIES PREFIX "" OUTPUT_NAME "libssh2${STATIC_LIB_SUFFIX}")
+  set_target_properties(${LIB_STATIC} PROPERTIES PREFIX "" OUTPUT_NAME "libssh2")
+  set_target_properties(${LIB_STATIC} PROPERTIES SUFFIX "${STATIC_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
   target_include_directories(${LIB_STATIC}
     PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${libssh2_INCLUDE_DIRS} ${PRIVATE_INCLUDE_DIRECTORIES}
@@ -109,12 +120,7 @@ if(BUILD_SHARED_LIBS)
   target_compile_options(${LIB_SHARED} PRIVATE ${LIB_SHARED_C_FLAGS})
   target_link_libraries(${LIB_SHARED} PRIVATE ${LIBRARIES})
   set_target_properties(${LIB_SHARED} PROPERTIES PREFIX "" IMPORT_PREFIX "" OUTPUT_NAME "libssh2")
-  if(WIN32 AND BUILD_STATIC_LIBS AND NOT STATIC_LIB_SUFFIX AND
-     CMAKE_IMPORT_LIBRARY_SUFFIX STREQUAL CMAKE_STATIC_LIBRARY_SUFFIX)
-    # Extra suffix to avoid filename conflict with the static lib.
-    set_target_properties(${LIB_SHARED} PROPERTIES IMPORT_SUFFIX "_imp${CMAKE_IMPORT_LIBRARY_SUFFIX}")
-  endif()
-
+  set_target_properties(${LIB_SHARED} PROPERTIES IMPORT_SUFFIX "${IMPORT_LIB_SUFFIX}${CMAKE_IMPORT_LIBRARY_SUFFIX}")
   set_target_properties(${LIB_SHARED} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
   target_include_directories(${LIB_SHARED}
