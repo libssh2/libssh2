@@ -61,12 +61,12 @@ static const struct test_case
     {
         NULL, 0,
         {FAIL, -38,
-        "userauth keyboard data buffer too small to get length"}},
+            "userauth keyboard data buffer too small to get length"}},
     /* too small */
     {
         "1234", 4,
         {FAIL, -38,
-        "userauth keyboard data buffer too small to get length"}},
+            "userauth keyboard data buffer too small to get length"}},
     /* smallest valid packet possible */
     {
         "<"
@@ -82,7 +82,7 @@ static const struct test_case
         "\0\0\0\0"
         "\0\0\0\0"
         "\0\0\0\0", 17,
-            {FAIL, -6,
+        {FAIL, -6,
             "Unable to decode keyboard-interactive 'name' request field"}},
     /* overrun instruction */
     {
@@ -92,8 +92,8 @@ static const struct test_case
         "\0\0\0\0"
         "\0\0\0\0", 17,
         {FAIL, -6,
-        "Unable to decode keyboard-interactive 'instruction' "
-        "request field"}},
+            "Unable to decode keyboard-interactive 'instruction' "
+            "request field"}},
     /* overrun language */
     {
         "<"
@@ -101,8 +101,9 @@ static const struct test_case
         "\0\0\0\0"
         "\0\0\0\x7f"
         "\0\0\0\0", 17,
-        {FAIL, -6, "Unable to decode keyboard-interactive 'language tag' "
-        "request field"}},
+        {FAIL, -6,
+            "Unable to decode keyboard-interactive 'language tag' "
+            "request field"}},
     /* underrun prompt number */
     {
         "<"
@@ -111,8 +112,8 @@ static const struct test_case
         "\0\0\0\0"
         "\0\0\0\0", 17,
         {FAIL, -38,
-        "Unable to decode keyboard-interactive number of "
-        "keyboard prompts"}},
+            "Unable to decode keyboard-interactive number of "
+            "keyboard prompts"}},
     /* too many prompts */
     {
         "<"
@@ -129,19 +130,22 @@ static const struct test_case
         "\0\0\0\0"
         "\0\0\0\x01"
         "\0\0\0\0"
-        "\0", 22, {PASS, 0, ""}},
+        "\0", 22,
+        {PASS, 0, ""}},
     /* copied from OpenSSH */
     {
         "<"
         "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01"
-        "\0\0\0\x0aPassword: \0", 32, {PASS, 0, ""}},
+        "\0\0\0\x0aPassword: \0", 32,
+        {PASS, 0, ""}},
     /* overrun in prompt text */
     {
         "<"
         "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01"
         "\0\0\0\x7bPassword: \0", 32,
-        {FAIL, -6, "Unable to decode keyboard-interactive "
-        "prompt message"}},
+        {FAIL, -6,
+            "Unable to decode keyboard-interactive "
+            "prompt message"}},
     /* no echo prompt boolean */
     {
         "<"
@@ -164,15 +168,15 @@ static const struct test_case
         "\0\0\0\x01"
         "\0\0\0\x0aResponse: "
         "\x01"
-        , 89, {PASS, 0, ""}},
+        , 89,
+        {PASS, 0, ""}},
     /* three prompts, 3rd missing */
     {
         "<"
         "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x03"
         "\0\0\0\x0aPassword: \0"
         "\0\0\0\x07Token: \1", 44,
-        {FAIL, -6,
-            "Unable to decode keyboard-interactive prompt message"}},
+        {FAIL, -6, "Unable to decode keyboard-interactive prompt message"}},
     /* overflow language on 32 bit platform */
     {
         "<"
