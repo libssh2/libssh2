@@ -144,6 +144,23 @@ if(HIDE_SYMBOLS)
   endif()
 endif()
 
+# Options
+
+# Enable debugging logging by default if the user configured a debug build
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(DEBUG_LOGGING_DEFAULT ON)
+else()
+  set(DEBUG_LOGGING_DEFAULT OFF)
+endif()
+option(ENABLE_DEBUG_LOGGING "log execution with debug trace"
+  ${DEBUG_LOGGING_DEFAULT})
+add_feature_info(Logging ENABLE_DEBUG_LOGGING
+   "Logging of execution with debug trace")
+if(ENABLE_DEBUG_LOGGING)
+  # Must be visible to the library and tests using internals
+  add_definitions(-DLIBSSH2DEBUG)
+endif()
+
 # Auto-detection
 
 # Prefill values with known detection results

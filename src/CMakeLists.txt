@@ -61,20 +61,6 @@ if(ENABLE_ZLIB_COMPRESSION)
   endif()
 endif()
 
-# Enable debugging logging by default if the user configured a debug build
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(DEBUG_LOGGING_DEFAULT ON)
-else()
-  set(DEBUG_LOGGING_DEFAULT OFF)
-endif()
-option(ENABLE_DEBUG_LOGGING "log execution with debug trace"
-  ${DEBUG_LOGGING_DEFAULT})
-add_feature_info(Logging ENABLE_DEBUG_LOGGING
-   "Logging of execution with debug trace")
-if(ENABLE_DEBUG_LOGGING)
-  list(APPEND libssh2_DEFINITIONS LIBSSH2DEBUG)
-endif()
-
 list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 if(WIN32)
