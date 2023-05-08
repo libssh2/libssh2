@@ -34,6 +34,19 @@ SSHD_TESTS = \
   test_ssh2 \
   test_auth_pubkey_ok_ed25519
 
+# Programs of the above that use internal libssh2 functions so they need
+# to be statically linked against libssh2
+TESTS_WITH_LIB_STATIC = \
+  test_auth_keyboard_info_request \
+  test_hostkey \
+  test_simple
+
+# Copy of the above for Makefile.am.
+# Is there a way to reuse the list above?
+test_auth_keyboard_info_request_LDFLAGS = -static
+test_hostkey_LDFLAGS = -static
+test_simple_LDFLAGS = -static
+
 librunner_la_SOURCES = \
   runner.c runner.h \
   session_fixture.c session_fixture.h \
