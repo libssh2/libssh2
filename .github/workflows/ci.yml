@@ -138,7 +138,7 @@ jobs:
         shell: msys2 {0}
         run: |
           # sshd tests sometimes hang
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug --enable-static --disable-shared \
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug --enable-static \
             --with-crypto=openssl \
             --disable-docker-tests \
             --disable-sshd-tests
