@@ -302,25 +302,28 @@ int test_case(int num,
 
 int main(void)
 {
+    int ret = 0;
     int i;
 
     for(i = 0; i < TEST_CASES_LEN; i++) {
-        test_case(i + 1,
-                  test_cases[i].data,
-                  test_cases[i].data_len,
-                  NULL,
-                  test_cases[i].expected);
+        if(test_case(i + 1,
+                     test_cases[i].data,
+                     test_cases[i].data_len,
+                     NULL,
+                     test_cases[i].expected))
+            ret = 1;
     }
 
     for(i = 0; i < FAILED_MALLOC_TEST_CASES_LEN; i++) {
         int tc =  i + TEST_CASES_LEN + 1;
         int malloc_call_num = 3 + i;
-        test_case(tc,
-                  failed_malloc_test_cases[i].data,
-                  failed_malloc_test_cases[i].data_len,
-                  &malloc_call_num,
-                  failed_malloc_test_cases[i].expected);
+        if(test_case(tc,
+                     failed_malloc_test_cases[i].data,
+                     failed_malloc_test_cases[i].data_len,
+                     &malloc_call_num,
+                     failed_malloc_test_cases[i].expected))
+            ret = 1;
     }
 
-    return 0;
+    return ret;
 }
