@@ -34,7 +34,9 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
- *
+ */
+
+/*
  * This file handles reading and writing to the SECSH transport layer. RFC4253.
  */
 
