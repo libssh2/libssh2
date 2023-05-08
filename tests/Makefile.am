@@ -2,7 +2,8 @@ SUBDIRS = ossfuzz
 
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 
-# Get DOCKER_TESTS, STANDALONE_TESTS, SSHD_TESTS, librunner_la_SOURCES defines
+# Get DOCKER_TESTS, STANDALONE_TESTS, SSHD_TESTS, TESTS_WITH_LIB_STATIC,
+# librunner_la_SOURCES defines
 include Makefile.inc
 
 # Some tests rely on the 'srcdir' env. Set by autotools automatically.
@@ -39,12 +40,6 @@ check_PROGRAMS = $(DOCKER_TESTS) $(STANDALONE_TESTS) $(SSHD_TESTS)
 # Internal library used by tests
 LDADD = librunner.la
 check_LTLIBRARIES = librunner.la
-
-# These programs use internal libssh2 functions so they need to be statically
-# linked against libssh2
-test_auth_keyboard_info_request_LDFLAGS = -static
-test_hostkey_LDFLAGS = -static
-test_simple_LDFLAGS = -static
 
 # This must be last in the list so it resolves symbols in previous libraries
 LDADD += ../src/libssh2.la
