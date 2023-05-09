@@ -38,7 +38,8 @@ include(CopyRuntimeDependencies)
 list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
-# Get 'DOCKER_TESTS', 'STANDALONE_TESTS', 'SSHD_TESTS', 'librunner_la_SOURCES' variables
+# Get 'DOCKER_TESTS', 'STANDALONE_TESTS', 'SSHD_TESTS', 'TESTS_WITH_LIB_STATIC',
+# 'librunner_la_SOURCES' variables
 include(${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake)
 
 if(CMAKE_COMPILER_IS_GNUCC)
@@ -67,14 +68,6 @@ endif()
 add_library(runner STATIC ${librunner_la_SOURCES})
 target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include "${CRYPTO_BACKEND_INCLUDE_DIR}")
-
-# These programs use internal libssh2 functions so they need to be statically
-# linked against libssh2
-set(TESTS_WITH_LIB_STATIC
-  test_auth_keyboard_info_request
-  test_hostkey
-  test_simple
-)
 
 foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
   if(NOT ";${TESTS_WITH_LIB_STATIC};" MATCHES ";${test};")

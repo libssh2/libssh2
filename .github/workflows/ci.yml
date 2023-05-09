@@ -88,7 +88,6 @@ jobs:
         run: |
           cmake . -B bld $TOOLCHAIN_OPTION \
             -DENABLE_WERROR=ON \
-            -DBUILD_SHARED_LIBS=ON \
             -DCRYPTO_BACKEND=$CRYPTO_BACKEND \
             -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION
 
@@ -138,7 +137,7 @@ jobs:
         shell: msys2 {0}
         run: |
           # sshd tests sometimes hang
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug --enable-static --disable-shared \
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-crypto=openssl \
             --disable-docker-tests \
             --disable-sshd-tests
@@ -166,7 +165,6 @@ jobs:
           cmake . -B bld ${options} \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
-            -DBUILD_SHARED_LIBS=ON \
             -DCRYPTO_BACKEND=OpenSSL \
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
@@ -303,7 +301,6 @@ jobs:
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
-            -DBUILD_SHARED_LIBS=ON \
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF

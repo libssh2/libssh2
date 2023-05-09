@@ -34,14 +34,12 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
       PLATFORM: "x64"
-      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
     - job_name: "VS2022, OpenSSL 3, x64, UWP, Build-only"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
       PLATFORM: "x64"
-      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
       UWP: "ON"
 
@@ -49,14 +47,12 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
       GENERATOR: "Visual Studio 14 2015"
       PLATFORM: "x86"
-      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
     - job_name: "VS2015, OpenSSL 1.1, x64, Server 2012 R2, Logging"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 14 2015"
       PLATFORM: "x64"
-      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
       ENABLE_DEBUG_LOGGING: "ON"
 
@@ -64,7 +60,6 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 12 2013"
       PLATFORM: "x64"
-      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
     - job_name: "VS2013, OpenSSL 1.1, x86, Server 2012 R2, Shared-only"
@@ -72,7 +67,6 @@ environment:
       GENERATOR: "Visual Studio 12 2013"
       PLATFORM: "x86"
       BUILD_STATIC_LIBS: "OFF"
-      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "OpenSSL"
 
     - job_name: "VS2013, OpenSSL 1.0.2, x64, Build-only, Static-only"
@@ -87,7 +81,6 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 9 2008"
       PLATFORM: "x86"
-      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
       SKIP_CTEST: "yes"
 
@@ -95,7 +88,6 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 10 2010"
       PLATFORM: "x64"
-      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
       UNITY: "ON"
       SKIP_CTEST: "yes"
@@ -104,7 +96,6 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
       PLATFORM: "x64"
-      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
       ENABLE_DEBUG_LOGGING: "ON"
 
@@ -112,21 +103,18 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
       GENERATOR: "Visual Studio 17 2022"
       PLATFORM: "ARM64"
-      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
 
     - job_name: "VS2015, WinCNG, x86, Server 2016"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
       GENERATOR: "Visual Studio 14 2015"
       PLATFORM: "x86"
-      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
 
     - job_name: "VS2015, WinCNG, x64, Server 2012 R2"
       APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
       GENERATOR: "Visual Studio 14 2015"
       PLATFORM: "x64"
-      BUILD_SHARED_LIBS: "ON"
       CRYPTO_BACKEND: "WinCNG"
 
 matrix:
@@ -175,11 +163,14 @@ build_script:
       if($env:BUILD_STATIC_LIBS -eq "OFF") {
         $env:CMAKE_ARG += " -DBUILD_STATIC_LIBS=OFF"
       }
+      if($env:BUILD_SHARED_LIBS -eq "OFF") {
+        $env:CMAKE_ARG += " -DBUILD_SHARED_LIBS=OFF"
+      }
       $env:CMAKE_ARG += " -DCMAKE_VS_GLOBALS=TrackFileAccess=false"
   # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
   #        'libssh2_session_handshake failed (-43): Failed getting banner'
-  - echo cmake         "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
-  - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS% -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
+  - echo cmake         "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
+  - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
   - cmake --build _builds --config "%CONFIGURATION%"
 
 test_script:
