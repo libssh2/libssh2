@@ -19,7 +19,9 @@ noinst_PROGRAMS = \
   sftp_write_nonblock \
   sftp_write_sliding \
   sftpdir \
+  sftpdir_download \
   sftpdir_nonblock \
+  sftpdir_upload \
   ssh2 \
   ssh2_agent \
   ssh2_agent_forwarding \
