@@ -3,7 +3,7 @@ SUBDIRS = ossfuzz
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 
 # Get DOCKER_TESTS, STANDALONE_TESTS, SSHD_TESTS, TESTS_WITH_LIB_STATIC,
-# librunner_la_SOURCES defines
+# librunner_la_SOURCES defines and *_LDFLAGS for statically linked tests.
 include Makefile.inc
 
 # Some tests rely on the 'srcdir' env. Set by autotools automatically.
