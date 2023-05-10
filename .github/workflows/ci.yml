@@ -216,13 +216,13 @@ jobs:
           else
             system='Windows'
           fi
-          [ "${{ matrix.unity }}" = 'ON' ] && options="${options} -DCMAKE_UNITY_BUILD=ON"
           cmake . -B bld ${options} \
             -DCMAKE_SYSTEM_NAME=${system} \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DCMAKE_GENERATOR_PLATFORM=${archgen} \
             -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-${{ matrix.plat }} \
             -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
+            -DCMAKE_UNITY_BUILD=${{ matrix.unity }} \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=${{ matrix.log }} \
             -DBUILD_SHARED_LIBS=${{ matrix.shared }} \
