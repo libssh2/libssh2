@@ -889,7 +889,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
     }
 
-  clean_exit:
+clean_exit:
     libssh2_dh_dtor(&exchange_state->x);
     _libssh2_bn_free(exchange_state->e);
     exchange_state->e = NULL;
@@ -1437,7 +1437,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         LIBSSH2_FREE(session, key_state->data);
     }
 
-  dh_gex_clean_exit:
+dh_gex_clean_exit:
     key_state->state = libssh2_NB_state_idle;
     _libssh2_bn_free(key_state->g);
     key_state->g = NULL;
@@ -1556,7 +1556,7 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         LIBSSH2_FREE(session, key_state->data);
     }
 
-  dh_gex_clean_exit:
+dh_gex_clean_exit:
     key_state->state = libssh2_NB_state_idle;
     _libssh2_bn_free(key_state->g);
     key_state->g = NULL;

@@ -293,7 +293,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
     }
 
     ret = 0;
-  out:
+out:
     if(b64data) {
         _libssh2_explicit_zero(b64data, b64datalen);
         LIBSSH2_FREE(session, b64data);
@@ -362,7 +362,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
     }
 
     ret = 0;
-  out:
+out:
     if(b64data) {
         _libssh2_explicit_zero(b64data, b64datalen);
         LIBSSH2_FREE(session, b64data);

@@ -368,7 +368,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
             sftp->partial_received = 5;
             memcpy(packet, sftp->packet_header + 4, 5);
 
-          window_adjust:
+window_adjust:
             recv_window = libssh2_channel_window_read_ex(channel, NULL, NULL);
 
             if(sftp->partial_len > recv_window) {
@@ -1018,7 +1018,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
     return sftp_handle;
 
-  sftp_init_error:
+sftp_init_error:
     session->sftpInit_state = libssh2_NB_state_error_closing;
     return NULL;
 }
@@ -1918,7 +1918,7 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
             if((--handle->u.dir.names_left) == 0)
                 LIBSSH2_FREE(session, handle->u.dir.names_packet);
 
-          end:
+end:
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
                            "libssh2_sftp_readdir_ex() return %d",
                            filename_len));

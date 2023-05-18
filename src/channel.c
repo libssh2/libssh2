@@ -309,7 +309,7 @@ _libssh2_channel_open(LIBSSH2_SESSION * session, const char *channel_type,
         }
     }
 
-  channel_error:
+channel_error:
 
     if(session->open_data) {
         LIBSSH2_FREE(session, session->open_data);

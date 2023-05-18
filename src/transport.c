@@ -725,7 +725,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
 
         if(!remainpack) {
             /* we have a full packet */
-          libssh2_transport_read_point1:
+libssh2_transport_read_point1:
             rc = fullpacket(session, encrypted);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
 

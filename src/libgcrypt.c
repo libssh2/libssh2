@@ -266,7 +266,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
 
     ret = 0;
 
-  fail:
+fail:
     LIBSSH2_FREE(session, save_data);
     return ret;
 }
@@ -372,7 +372,7 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
 
     ret = 0;
 
-  fail:
+fail:
     LIBSSH2_FREE(session, save_data);
     return ret;
 }
@@ -520,10 +520,10 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
     memcpy(sig + 20 + (20 - size), tmp, size);
     goto out;
 
-  err:
+err:
     ret = -1;
 
-  out:
+out:
     if(sig_sexp) {
         gcry_sexp_release(sig_sexp);
     }
