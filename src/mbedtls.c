@@ -1430,6 +1430,7 @@ _libssh2_mbedtls_ecdsa_free(libssh2_ecdsa_ctx *ctx)
     mbedtls_ecdsa_free(ctx);
     mbedtls_free(ctx);
 }
+#endif /* LIBSSH2_ECDSA */
 
 
 /* _libssh2_supported_key_sign_algorithms
@@ -1455,5 +1456,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     return NULL;
 }
 
-#endif /* LIBSSH2_ECDSA */
 #endif /* LIBSSH2_CRYPTO_C */

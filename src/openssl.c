@@ -643,6 +643,7 @@ void _libssh2_openssl_crypto_exit(void)
 {
 }
 
+#if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA || LIBSSH2_ED25519
 /* TODO: Optionally call a passphrase callback specified by the
  * calling program
  */
@@ -684,13 +685,14 @@ read_private_key_from_memory(void **key_ctx,
     if(!bp) {
         return -1;
     }
+
     *key_ctx = read_private_key(bp, NULL, (pem_password_cb *) passphrase_cb,
                                 (void *) passphrase);
 
     BIO_free(bp);
     return (*key_ctx) ? 0 : -1;
 }
-
+#endif
 
 #if LIBSSH2_RSA || LIBSSH2_DSA || LIBSSH2_ECDSA
 static int
@@ -3437,6 +3439,12 @@ _libssh2_pub_priv_openssh_keyfile(LIBSSH2_SESSION *session,
 
     rc = -1;
 
+    /* Avoid unused variable warnings when all branches below are disabled */
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+
 #if LIBSSH2_ED25519
     if(strcmp("ssh-ed25519", (const char *)buf) == 0) {
         rc = gen_publickey_from_ed25519_openssh_priv_data(session, decrypted,
@@ -3633,6 +3641,12 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
 
     rc = LIBSSH2_ERROR_FILE;
 
+    /* Avoid unused variable warnings when all branches below are disabled */
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+
 #if LIBSSH2_ED25519
     if(strcmp("ssh-ed25519", (const char *)buf) == 0) {
         if(!key_type || strcmp("ssh-ed25519", key_type) == 0) {
@@ -3775,6 +3789,17 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
 
     rc = LIBSSH2_ERROR_FILE;
 
+    /* Avoid unused variable warnings when all branches below are disabled */
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)algorithm;
+    (void)flags;
+    (void)application;
+    (void)key_handle;
+    (void)handle_len;
+
 #if LIBSSH2_ED25519
     if(strcmp("sk-ssh-ed25519@openssh.com", (const char *)buf) == 0) {
         *algorithm = LIBSSH2_HOSTKEY_TYPE_ED25519;
@@ -3795,7 +3820,6 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
     }
 #endif
 #if LIBSSH2_ECDSA
-{
     if(strcmp("sk-ecdsa-sha2-nistp256@openssh.com", (const char *)buf) == 0) {
         *algorithm = LIBSSH2_HOSTKEY_TYPE_ECDSA_256;
         rc = gen_publickey_from_sk_ecdsa_openssh_priv_data(session, decrypted,
@@ -3808,7 +3832,6 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                            handle_len,
                                                  (libssh2_ecdsa_ctx**)key_ctx);
     }
-}
 #endif
 
     if(rc == LIBSSH2_ERROR_FILE)
