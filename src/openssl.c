@@ -3712,7 +3712,8 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
     }
 }
 #endif
-#if !LIBSSH2_ED25519 && !LIBSSH2_ECDSA && !LIBSSH2_RSA && !LIBSSH2_DSA
+
+    /* Avoid unused variable warnings when all branches above are disabled */
     (void)method;
     (void)method_len;
     (void)pubkeydata;
@@ -3722,7 +3723,6 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
     (void)application;
     (void)key_handle;
     (void)handle_len;
-#endif
 
     if(rc == LIBSSH2_ERROR_FILE)
         rc = _libssh2_error(session, LIBSSH2_ERROR_FILE,
@@ -3819,7 +3819,8 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                  (libssh2_ecdsa_ctx**)key_ctx);
     }
 #endif
-#if !LIBSSH2_ED25519 && !LIBSSH2_ECDSA
+
+    /* Avoid unused variable warnings when all branches above are disabled */
     (void)method;
     (void)method_len;
     (void)pubkeydata;
@@ -3829,7 +3830,6 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
     (void)application;
     (void)key_handle;
     (void)handle_len;
-#endif
 
     if(rc == LIBSSH2_ERROR_FILE)
         rc = _libssh2_error(session, LIBSSH2_ERROR_FILE,
