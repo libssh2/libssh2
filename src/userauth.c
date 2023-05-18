@@ -354,7 +354,7 @@ userauth_password(LIBSSH2_SESSION *session,
         session->userauth_pswd_state = libssh2_NB_state_sent;
     }
 
-  password_response:
+password_response:
 
     if((session->userauth_pswd_state == libssh2_NB_state_sent)
         || (session->userauth_pswd_state == libssh2_NB_state_sent1)
@@ -1448,7 +1448,7 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
     unsigned char *s;
     int auth_attempts = 0;
 
-    retry_auth:
+retry_auth:
     auth_attempts++;
 
     if(session->userauth_pblc_state == libssh2_NB_state_idle) {
@@ -2232,7 +2232,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
             session->userauth_kybd_auth_failure = 0;
         }
 
-      cleanup:
+cleanup:
         /*
          * It's safe to clean all the data here, because unallocated pointers
          * are filled by zeroes

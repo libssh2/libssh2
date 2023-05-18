@@ -769,7 +769,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
     session->scpRecv_state = libssh2_NB_state_idle;
     return session->scpRecv_channel;
 
-  scp_recv_empty_channel:
+scp_recv_empty_channel:
     /* the code only jumps here as a result of a zero read from channel_read()
        so we check EOF status to avoid getting stuck in a loop */
     if(libssh2_channel_eof(session->scpRecv_channel))
@@ -778,7 +778,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
     else
         return session->scpRecv_channel;
     /* fall-through */
-  scp_recv_error:
+scp_recv_error:
     tmp_err_code = session->err_code;
     tmp_err_msg = session->err_msg;
     while(libssh2_channel_free(session->scpRecv_channel) ==
@@ -1127,7 +1127,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
     session->scpSend_state = libssh2_NB_state_idle;
     return session->scpSend_channel;
 
-  scp_send_empty_channel:
+scp_send_empty_channel:
     /* the code only jumps here as a result of a zero read from channel_read()
        so we check EOF status to avoid getting stuck in a loop */
     if(libssh2_channel_eof(session->scpSend_channel)) {
@@ -1137,7 +1137,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
     else
         return session->scpSend_channel;
     /* fall-through */
-  scp_send_error:
+scp_send_error:
     tmp_err_code = session->err_code;
     tmp_err_msg = session->err_msg;
     while(libssh2_channel_free(session->scpSend_channel) ==

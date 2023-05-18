@@ -584,7 +584,7 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     }
     memcpy(*sig, s, *sig_len);
 
-  error:
+error:
 
     if(method_name)
         LIBSSH2_FREE(session, method_name);
@@ -727,7 +727,7 @@ agent_list_identities(LIBSSH2_AGENT *agent)
 
         _libssh2_list_add(&agent->head, &identity->node);
     }
- error:
+error:
     LIBSSH2_FREE(agent->session, transctx->response);
     transctx->response = NULL;
 

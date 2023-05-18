@@ -251,7 +251,7 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         *store = knownhost_to_external(entry);
 
     return LIBSSH2_ERROR_NONE;
-  error:
+error:
     free_host(hosts->session, entry);
     return rc;
 }

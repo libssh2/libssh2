@@ -824,7 +824,7 @@ gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
     *pubkeydata_len = key_len;
     return 0;
 
-  __alloc_error:
+__alloc_error:
     if(rsa) {
         RSA_free(rsa);
     }
@@ -1223,7 +1223,7 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
     *pubkeydata_len = key_len;
     return 0;
 
-  __alloc_error:
+__alloc_error:
     if(dsa) {
         DSA_free(dsa);
     }
@@ -1486,18 +1486,18 @@ _libssh2_curve25519_new(LIBSSH2_SESSION *session,
 
     if(EVP_PKEY_keygen_init(pctx) != 1 ||
        EVP_PKEY_keygen(pctx, &key) != 1) {
-        goto cleanExit;
+        goto clean_exit;
     }
 
     if(out_private_key) {
         privLen = LIBSSH2_ED25519_KEY_LEN;
         priv = LIBSSH2_ALLOC(session, privLen);
         if(!priv)
-            goto cleanExit;
+            goto clean_exit;
 
         if(EVP_PKEY_get_raw_private_key(key, priv, &privLen) != 1 ||
            privLen != LIBSSH2_ED25519_KEY_LEN) {
-            goto cleanExit;
+            goto clean_exit;
         }
 
         *out_private_key = priv;
@@ -1508,11 +1508,11 @@ _libssh2_curve25519_new(LIBSSH2_SESSION *session,
         pubLen = LIBSSH2_ED25519_KEY_LEN;
         pub = LIBSSH2_ALLOC(session, pubLen);
         if(!pub)
-            goto cleanExit;
+            goto clean_exit;
 
         if(EVP_PKEY_get_raw_public_key(key, pub, &pubLen) != 1 ||
            pubLen != LIBSSH2_ED25519_KEY_LEN) {
-            goto cleanExit;
+            goto clean_exit;
         }
 
         *out_public_key = pub;
@@ -1522,7 +1522,7 @@ _libssh2_curve25519_new(LIBSSH2_SESSION *session,
     /* success */
     rc = 0;
 
-cleanExit:
+clean_exit:
 
     if(pctx)
         EVP_PKEY_CTX_free(pctx);
@@ -2640,7 +2640,7 @@ gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
     key = LIBSSH2_ALLOC(session, key_len);
     if(!key) {
         rc = -1;
-        goto  clean_exit;
+        goto clean_exit;
     }
 
     /* Process key encoding. */
@@ -3311,32 +3311,32 @@ _libssh2_curve25519_gen_k(_libssh2_bn **k,
                                               LIBSSH2_ED25519_KEY_LEN);
 
     if(!peer_key || !server_key) {
-        goto cleanExit;
+        goto clean_exit;
     }
 
     server_key_ctx = EVP_PKEY_CTX_new(server_key, NULL);
     if(!server_key_ctx) {
-        goto cleanExit;
+        goto clean_exit;
     }
 
     rc = EVP_PKEY_derive_init(server_key_ctx);
     if(rc <= 0) {
-        goto cleanExit;
+        goto clean_exit;
     }
 
     rc = EVP_PKEY_derive_set_peer(server_key_ctx, peer_key);
     if(rc <= 0) {
-        goto cleanExit;
+        goto clean_exit;
     }
 
     rc = EVP_PKEY_derive(server_key_ctx, NULL, &out_len);
     if(rc <= 0) {
-        goto cleanExit;
+        goto clean_exit;
     }
 
     if(out_len != LIBSSH2_ED25519_KEY_LEN) {
         rc = -1;
-        goto cleanExit;
+        goto clean_exit;
     }
 
     rc = EVP_PKEY_derive(server_key_ctx, out_shared_key, &out_len);
@@ -3348,7 +3348,7 @@ _libssh2_curve25519_gen_k(_libssh2_bn **k,
         rc = -1;
     }
 
-cleanExit:
+clean_exit:
 
     if(server_key_ctx)
         EVP_PKEY_CTX_free(server_key_ctx);
@@ -3379,7 +3379,7 @@ _libssh2_ed25519_verify(libssh2_ed25519_ctx *ctx, const uint8_t *s,
 
     ret = EVP_DigestVerify(md_ctx, s, s_len, m, m_len);
 
-    clean_exit:
+clean_exit:
 
     EVP_MD_CTX_free(md_ctx);
 

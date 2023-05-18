@@ -287,7 +287,7 @@ publickey_response_success(LIBSSH2_PUBLICKEY * pkey)
             data = NULL;
         }
     }
-  err_exit:
+err_exit:
     return -1;
 }
 
@@ -539,7 +539,7 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
     }
 
     /* Never reached except by direct goto */
-  err_exit:
+err_exit:
     session->pkeyInit_state = libssh2_NB_state_sent4;
     if(session->pkeyInit_channel) {
         rc = _libssh2_channel_close(session->pkeyInit_channel);
@@ -1201,7 +1201,7 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
     }
 
     /* Only reached via explicit goto */
-  err_exit:
+err_exit:
     if(pkey->listFetch_data) {
         LIBSSH2_FREE(session, pkey->listFetch_data);
         pkey->listFetch_data = NULL;
