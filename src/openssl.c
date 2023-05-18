@@ -3712,6 +3712,17 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
     }
 }
 #endif
+#if !LIBSSH2_ED25519 && !LIBSSH2_ECDSA && !LIBSSH2_RSA && !LIBSSH2_DSA
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)algorithm;
+    (void)flags;
+    (void)application;
+    (void)key_handle;
+    (void)handle_len;
+#endif
 
     if(rc == LIBSSH2_ERROR_FILE)
         rc = _libssh2_error(session, LIBSSH2_ERROR_FILE,
@@ -3795,7 +3806,6 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
     }
 #endif
 #if LIBSSH2_ECDSA
-{
     if(strcmp("sk-ecdsa-sha2-nistp256@openssh.com", (const char *)buf) == 0) {
         *algorithm = LIBSSH2_HOSTKEY_TYPE_ECDSA_256;
         rc = gen_publickey_from_sk_ecdsa_openssh_priv_data(session, decrypted,
@@ -3808,7 +3818,17 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
                                                            handle_len,
                                                  (libssh2_ecdsa_ctx**)key_ctx);
     }
-}
+#endif
+#if !LIBSSH2_ED25519 && !LIBSSH2_ECDSA
+    (void)method;
+    (void)method_len;
+    (void)pubkeydata;
+    (void)pubkeydata_len;
+    (void)algorithm;
+    (void)flags;
+    (void)application;
+    (void)key_handle;
+    (void)handle_len;
 #endif
 
     if(rc == LIBSSH2_ERROR_FILE)
