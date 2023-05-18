@@ -371,9 +371,8 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
     find_package(ZLIB)
 
     if(ZLIB_FOUND)
-      list(PREPEND CRYPTO_BACKEND_INCLUDE_DIR ${ZLIB_INCLUDE_DIR})
-
-      list(APPEND LIBRARIES ${ZLIB_LIBRARIES})  # Public wolfSSL headers require zlib headers
+      list(APPEND CRYPTO_BACKEND_INCLUDE_DIR ${ZLIB_INCLUDE_DIR})  # Public wolfSSL headers require zlib headers
+      list(APPEND LIBRARIES ${ZLIB_LIBRARIES})
       list(APPEND PC_REQUIRES_PRIVATE zlib)
     endif()
   endif()
