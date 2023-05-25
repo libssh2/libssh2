@@ -59,9 +59,9 @@ jobs:
           MBEDTLSVER=mbedtls-3.4.0
           curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
           cd mbedtls-$MBEDTLSVER
-          cmake $TOOLCHAIN_OPTION \
+          cmake . \
             -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
-            -DCMAKE_INSTALL_PREFIX:PATH=../usr .
+            -DCMAKE_INSTALL_PREFIX:PATH=../usr
           make -j3 install
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
