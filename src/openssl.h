@@ -161,7 +161,8 @@
 #endif
 
 #if (OPENSSL_VERSION_NUMBER >= 0x01010100fL && !defined(OPENSSL_NO_AES)) || \
-    (defined(LIBSSH2_WOLFSSL) && defined(HAVE_AESGCM))
+    (defined(LIBSSH2_WOLFSSL) && \
+    defined(HAVE_AESGCM) && defined(WOLFSSL_AESGCM_STREAM))
 # define LIBSSH2_AES_GCM 1
 #else
 # define LIBSSH2_AES_GCM 0
