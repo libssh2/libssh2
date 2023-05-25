@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         compiler: [gcc, clang]
-        crypto_backend: [OpenSSL, Libgcrypt, mbedTLS]
+        crypto_backend: [OpenSSL, wolfSSL, Libgcrypt, mbedTLS]
         enable_zlib_compression: ['OFF', 'ON']
         build: [cmake]
         include:
@@ -52,7 +52,12 @@ jobs:
       - uses: actions/checkout@v3
       - name: 'install packages'
         if: ${{ matrix.crypto_backend != 'mbedTLS' }}
-        run: sudo apt-get install -y libssl-dev libgcrypt-dev
+        run: |
+          [ "${{ matrix.crypto_backend }}" == 'OpenSSL' ] && pkg='libssl-dev'
+          [ "${{ matrix.crypto_backend }}" == 'wolfSSL' ] && pkg='libwolfssl-dev'
+          [ "${{ matrix.crypto_backend }}" == 'Libgcrypt' ] && pkg='libgcrypt-dev'
+          sudo apt-get install -y "${pkg}"
+
       - name: 'install mbedTLS from source'
         if: ${{ matrix.crypto_backend == 'mbedTLS' }}
         run: |
@@ -95,7 +100,7 @@ jobs:
         if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld --parallel 3 --target package
       - name: 'cmake tests'
-        if: ${{ matrix.build == 'cmake' }}
+        if: ${{ matrix.build == 'cmake' && matrix.crypto_backend != 'wolfSSL' }}
         timeout-minutes: 10
         run: |
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
