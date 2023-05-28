@@ -1,4 +1,5 @@
 # Copyright (c) 2014, 2015 Alexander Lamaison <alexander.lamaison@gmail.com>
+# Copyright (c) 2023 Viktor Szakats
 #
 # Redistribution and use in source and binary forms,
 # with or without modification, are permitted provided

@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Viktor Szakats
+
 include(CheckCCompilerFlag)
 
 option(ENABLE_WERROR "Turn compiler warnings into errors" OFF)

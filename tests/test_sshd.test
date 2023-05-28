@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-set -e
-set -u
-
-# Written by Simon Josefsson
+# Written by Simon Josefsson and Viktor Szakats
 
 # Start sshd, invoke test(s), saving exit code, kill sshd, and
 # return exit code.
+
+set -e
+set -u
 
 # https://testanything.org/tap-specification.html
 

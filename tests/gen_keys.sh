@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Copyright (c) Viktor Szakats
+
 set -e
 set -u
 
