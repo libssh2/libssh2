@@ -3,7 +3,7 @@
 # Makefile for building libssh2 with GCC-like toolchains.
 # Use: make -f Makefile.mk [help|all|clean|dist|distclean|dyn|objclean|example|exampleclean|test|testclean]
 #
-# Hacked by: Guenter Knauf
+# Written by Guenter Knauf and Viktor Szakats
 #
 # Look for ' ?=' to find accepted customization variables.
 #
