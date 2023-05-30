@@ -27,36 +27,33 @@ jobs:
       matrix:
         compiler: [gcc, clang]
         arch: [amd64]
-        crypto_backend: [OpenSSL, wolfSSL, Libgcrypt, mbedTLS]
+        crypto: [OpenSSL, wolfSSL, Libgcrypt, mbedTLS]
         build: [cmake]
-        enable_zlib_compression: ['OFF', 'ON']
+        zlib: ['OFF', 'ON']
         include:
           - compiler: gcc
             arch: amd64
-            crypto_backend: OpenSSL
+            crypto: OpenSSL
             build: autotools
-            enable_zlib_compression: 'OFF'
+            zlib: 'OFF'
           - compiler: clang
             arch: amd64
-            crypto_backend: OpenSSL
+            crypto: OpenSSL
             build: autotools
-            enable_zlib_compression: 'OFF'
+            zlib: 'OFF'
           - compiler: clang
             arch: amd64
-            crypto_backend: OpenSSL
+            crypto: OpenSSL
             build: autotools
-            enable_zlib_compression: 'ON'
+            zlib: 'ON'
             target: 'distcheck'
           - compiler: gcc
             arch: i386
-            crypto_backend: mbedTLS
+            crypto: mbedTLS
             build: cmake
-            enable_zlib_compression: 'ON'
+            zlib: 'ON'
     env:
       CC: ${{ matrix.compiler }}
-      CC_FOR_BUILD: ${{ matrix.compiler }}
-      CRYPTO_BACKEND: ${{ matrix.crypto_backend }}
-      ENABLE_ZLIB_COMPRESSION: ${{ matrix.enable_zlib_compression }}
     steps:
       - uses: actions/checkout@v3
       - name: 'install architecture'
@@ -69,15 +66,15 @@ jobs:
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
 
       - name: 'install packages'
-        if: ${{ matrix.crypto_backend != 'mbedTLS' }}
+        if: ${{ matrix.crypto != 'mbedTLS' }}
         run: |
-          [ "${{ matrix.crypto_backend }}" == 'OpenSSL' ] && pkg='libssl-dev'
-          [ "${{ matrix.crypto_backend }}" == 'wolfSSL' ] && pkg='libwolfssl-dev'
-          [ "${{ matrix.crypto_backend }}" == 'Libgcrypt' ] && pkg='libgcrypt-dev'
+          [ '${{ matrix.crypto }}' == 'OpenSSL' ] && pkg='libssl-dev'
+          [ '${{ matrix.crypto }}' == 'wolfSSL' ] && pkg='libwolfssl-dev'
+          [ '${{ matrix.crypto }}' == 'Libgcrypt' ] && pkg='libgcrypt-dev'
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install "${pkg}:${{ matrix.arch }}"
 
       - name: 'install mbedTLS from source'
-        if: ${{ matrix.crypto_backend == 'mbedTLS' }}
+        if: ${{ matrix.crypto == 'mbedTLS' }}
         run: |
           MBEDTLSVER=mbedtls-3.4.0
           curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
@@ -113,14 +110,14 @@ jobs:
           [ '${{ matrix.arch }}' == 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
           cmake . -B bld ${crossoptions} $TOOLCHAIN_OPTION \
             -DENABLE_WERROR=ON \
-            -DCRYPTO_BACKEND=$CRYPTO_BACKEND \
-            -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION
+            -DCRYPTO_BACKEND=${{ matrix.crypto }} \
+            -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld --parallel 3 --target package
       - name: 'cmake tests'
-        if: ${{ matrix.build == 'cmake' && matrix.crypto_backend != 'wolfSSL' }}
+        if: ${{ matrix.build == 'cmake' && matrix.crypto != 'wolfSSL' }}
         timeout-minutes: 10
         run: |
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
@@ -182,7 +179,7 @@ jobs:
           CMAKE_GENERATOR: 'MSYS Makefiles'
         shell: msys2 {0}
         run: |
-          if [[ "${{ matrix.env }}" = 'clang'* ]]; then
+          if [[ '${{ matrix.env }}' = 'clang'* ]]; then
             options='-DCMAKE_C_COMPILER=clang -DCMAKE_UNITY_BUILD=ON'
           else
             options='-DCMAKE_C_COMPILER=gcc'
@@ -235,7 +232,7 @@ jobs:
         shell: bash
         run: |
           archgen=${{ matrix.arch }}; [ "${archgen}" = 'x86' ] && archgen='Win32'
-          if [ "${{ matrix.plat }}" = 'uwp' ]; then
+          if [ '${{ matrix.plat }}' = 'uwp' ]; then
             system='WindowsStore'
             options='-DCMAKE_SYSTEM_VERSION=10.0'
           else
