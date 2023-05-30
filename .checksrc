@@ -1,0 +1,4 @@
+disable COPYRIGHT
+disable FOPENMODE
+disable SNPRINTF
+disable TYPEDEFSTRUCT
