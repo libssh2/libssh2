@@ -2196,7 +2196,7 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
 int
 _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
                        const unsigned char *hash,
-                       unsigned long hash_len, unsigned char *signature)
+                       size_t hash_len, unsigned char *signature)
 {
     DSA_SIG *sig;
     const BIGNUM * r;
@@ -2242,7 +2242,7 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
 
 int
 _libssh2_ecdsa_sign(LIBSSH2_SESSION * session, libssh2_ecdsa_ctx * ec_ctx,
-                    const unsigned char *hash, unsigned long hash_len,
+                    const unsigned char *hash, size_t hash_len,
                     unsigned char **signature, size_t *signature_len)
 {
     int r_len, s_len;

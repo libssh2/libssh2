@@ -607,7 +607,7 @@ int
 _libssh2_mbedtls_ecdsa_sign(LIBSSH2_SESSION *session,
                             libssh2_ecdsa_ctx *ctx,
                             const unsigned char *hash,
-                            unsigned long hash_len,
+                            size_t hash_len,
                             unsigned char **signature,
                             size_t *signature_len);
 libssh2_curve_type
