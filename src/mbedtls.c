@@ -186,7 +186,7 @@ _libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx)
 int
 _libssh2_mbedtls_hash_init(mbedtls_md_context_t *ctx,
                            mbedtls_md_type_t mdtype,
-                           const unsigned char *key, unsigned long keylen)
+                           const unsigned char *key, size_t keylen)
 {
     const mbedtls_md_info_t *md_info;
     int ret, hmac;
@@ -221,7 +221,7 @@ _libssh2_mbedtls_hash_final(mbedtls_md_context_t *ctx, unsigned char *hash)
 }
 
 int
-_libssh2_mbedtls_hash(const unsigned char *data, unsigned long datalen,
+_libssh2_mbedtls_hash(const unsigned char *data, size_t datalen,
                       mbedtls_md_type_t mdtype, unsigned char *hash)
 {
     const mbedtls_md_info_t *md_info;
@@ -497,8 +497,9 @@ int
 _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
                                  size_t hash_len,
                                  const unsigned char *sig,
-                                 unsigned long sig_len,
-                                 const unsigned char *m, unsigned long m_len)
+                                 size_t sig_len,
+                                 const unsigned char *m,
+                                 size_t m_len)
 {
     int ret;
     int md_type;
@@ -548,8 +549,9 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 int
 _libssh2_mbedtls_rsa_sha1_verify(libssh2_rsa_ctx * rsactx,
                                  const unsigned char *sig,
-                                 unsigned long sig_len,
-                                 const unsigned char *m, unsigned long m_len)
+                                 size_t sig_len,
+                                 const unsigned char *m,
+                                 size_t m_len)
 {
     return _libssh2_mbedtls_rsa_sha2_verify(rsactx, SHA_DIGEST_LENGTH,
                                             sig, sig_len, m, m_len);
