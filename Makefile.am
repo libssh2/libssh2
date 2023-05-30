@@ -81,9 +81,5 @@ coverage: init-coverage build-coverage gen-coverage
 
 checksrc:
 	perl ci/checksrc.pl -i4 -m79 \
-	  -ASNPRINTF \
-	  -ACOPYRIGHT \
-	  -AFOPENMODE \
-	  -ATYPEDEFSTRUCT \
-	  -Wsrc/libssh2_config.h src/*.[ch] include/*.h example/*.c \
-	  tests/*.[ch]
+	  -Wsrc/libssh2_config.h \
+	  src/*.[ch] include/*.h example/*.c tests/*.[ch]
