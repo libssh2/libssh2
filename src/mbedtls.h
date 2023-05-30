@@ -527,7 +527,8 @@ int
 _libssh2_mbedtls_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                  const unsigned char *sig,
                                  size_t sig_len,
-                                 const unsigned char *m, size_t m_len);
+                                 const unsigned char *m,
+                                 size_t m_len);
 int
 _libssh2_mbedtls_rsa_sha1_sign(LIBSSH2_SESSION *session,
                                libssh2_rsa_ctx *rsa,
@@ -540,7 +541,8 @@ _libssh2_mbedtls_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
                                  size_t hash_len,
                                  const unsigned char *sig,
                                  size_t sig_len,
-                                 const unsigned char *m, size_t m_len);
+                                 const unsigned char *m,
+                                 size_t m_len);
 int
 _libssh2_mbedtls_rsa_sha2_sign(LIBSSH2_SESSION *session,
                                libssh2_rsa_ctx *rsa,
