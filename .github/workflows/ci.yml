@@ -28,30 +28,30 @@ jobs:
         compiler: [gcc, clang]
         arch: [amd64]
         crypto_backend: [OpenSSL, wolfSSL, Libgcrypt, mbedTLS]
-        enable_zlib_compression: ['OFF', 'ON']
         build: [cmake]
+        enable_zlib_compression: ['OFF', 'ON']
         include:
           - compiler: gcc
             arch: amd64
             crypto_backend: OpenSSL
-            enable_zlib_compression: 'OFF'
             build: autotools
+            enable_zlib_compression: 'OFF'
           - compiler: clang
             arch: amd64
             crypto_backend: OpenSSL
-            enable_zlib_compression: 'OFF'
             build: autotools
+            enable_zlib_compression: 'OFF'
           - compiler: clang
             arch: amd64
             crypto_backend: OpenSSL
+            build: autotools
             enable_zlib_compression: 'ON'
-            build: autotools
             target: 'distcheck'
           - compiler: gcc
             arch: i386
             crypto_backend: mbedTLS
-            enable_zlib_compression: 'ON'
             build: cmake
+            enable_zlib_compression: 'ON'
     env:
       CC: ${{ matrix.compiler }}
       CC_FOR_BUILD: ${{ matrix.compiler }}
