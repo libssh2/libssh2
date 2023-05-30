@@ -245,7 +245,7 @@ _libssh2_ecdh_gen_k(_libssh2_bn **k, _libssh2_ec_key *private_key,
 
 int
 _libssh2_ecdsa_sign(LIBSSH2_SESSION *session, libssh2_ecdsa_ctx *ec_ctx,
-                    const unsigned char *hash, unsigned long hash_len,
+                    const unsigned char *hash, size_t hash_len,
                     unsigned char **signature, size_t *signature_len);
 
 int _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
