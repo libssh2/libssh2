@@ -762,7 +762,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 
         sb->st_mtime = session->scpRecv_mtime;
         sb->st_atime = session->scpRecv_atime;
-        sb->st_size = session->scpRecv_size;
+        sb->st_size = (libssh2_struct_stat_size)session->scpRecv_size;
         sb->st_mode = (unsigned short)session->scpRecv_mode;
     }
 
