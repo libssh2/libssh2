@@ -1585,14 +1585,14 @@ _libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
 int
 _libssh2_wincng_dsa_sha1_sign(libssh2_dsa_ctx *dsa,
                               const unsigned char *hash,
-                              unsigned long hash_len,
+                              size_t hash_len,
                               unsigned char *sig_fixed)
 {
     unsigned char *data, *sig;
     unsigned long cbData, datalen, siglen;
     int ret;
 
-    datalen = hash_len;
+    datalen = (unsigned long)hash_len;
     data = malloc(datalen);
     if(!data) {
         return -1;

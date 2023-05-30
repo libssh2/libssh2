@@ -446,7 +446,7 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
 int
 _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
                        const unsigned char *hash,
-                       unsigned long hash_len, unsigned char *sig)
+                       size_t hash_len, unsigned char *sig)
 {
     unsigned char zhash[SHA_DIGEST_LENGTH + 1];
     gcry_sexp_t sig_sexp;
@@ -463,7 +463,7 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
     zhash[0] = 0;
 
     if(gcry_sexp_build(&data, NULL, "(data (value %b))",
-                       hash_len + 1, zhash)) {
+                       (int)(hash_len + 1), zhash)) {
         return -1;
     }
 

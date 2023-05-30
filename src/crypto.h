@@ -194,7 +194,7 @@ int _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
                              const unsigned char *m, size_t m_len);
 int _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
                            const unsigned char *hash,
-                           unsigned long hash_len, unsigned char *sig);
+                           size_t hash_len, unsigned char *sig);
 int _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
                                         LIBSSH2_SESSION * session,
                                         const char *filedata,

@@ -572,7 +572,7 @@ _libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
 int
 _libssh2_wincng_dsa_sha1_sign(libssh2_dsa_ctx *dsa,
                               const unsigned char *hash,
-                              unsigned long hash_len,
+                              size_t hash_len,
                               unsigned char *sig_fixed);
 void
 _libssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa);
