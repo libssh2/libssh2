@@ -26,23 +26,32 @@ jobs:
       fail-fast: false
       matrix:
         compiler: [gcc, clang]
+        arch: [amd64]
         crypto_backend: [OpenSSL, wolfSSL, Libgcrypt, mbedTLS]
-        enable_zlib_compression: ['OFF', 'ON']
         build: [cmake]
+        enable_zlib_compression: ['OFF', 'ON']
         include:
           - compiler: gcc
+            arch: amd64
             crypto_backend: OpenSSL
-            enable_zlib_compression: 'OFF'
             build: autotools
-          - compiler: clang
-            crypto_backend: OpenSSL
             enable_zlib_compression: 'OFF'
-            build: autotools
           - compiler: clang
+            arch: amd64
             crypto_backend: OpenSSL
+            build: autotools
+            enable_zlib_compression: 'OFF'
+          - compiler: clang
+            arch: amd64
+            crypto_backend: OpenSSL
+            build: autotools
             enable_zlib_compression: 'ON'
-            build: autotools
             target: 'distcheck'
+          - compiler: gcc
+            arch: i386
+            crypto_backend: mbedTLS
+            build: cmake
+            enable_zlib_compression: 'ON'
     env:
       CC: ${{ matrix.compiler }}
       CC_FOR_BUILD: ${{ matrix.compiler }}
@@ -50,13 +59,22 @@ jobs:
       ENABLE_ZLIB_COMPRESSION: ${{ matrix.enable_zlib_compression }}
     steps:
       - uses: actions/checkout@v3
+      - name: 'install architecture'
+        if: ${{ matrix.arch != 'amd64' }}
+        run: |
+          sudo dpkg --add-architecture '${{ matrix.arch }}'
+          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 update
+          # Workaround for https://github.com/actions/runner-images/issues/7589
+          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install libgcc-s1:${{ matrix.arch }}
+          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
+
       - name: 'install packages'
         if: ${{ matrix.crypto_backend != 'mbedTLS' }}
         run: |
           [ "${{ matrix.crypto_backend }}" == 'OpenSSL' ] && pkg='libssl-dev'
           [ "${{ matrix.crypto_backend }}" == 'wolfSSL' ] && pkg='libwolfssl-dev'
           [ "${{ matrix.crypto_backend }}" == 'Libgcrypt' ] && pkg='libgcrypt-dev'
-          sudo apt-get install -y "${pkg}"
+          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install "${pkg}:${{ matrix.arch }}"
 
       - name: 'install mbedTLS from source'
         if: ${{ matrix.crypto_backend == 'mbedTLS' }}
@@ -64,7 +82,8 @@ jobs:
           MBEDTLSVER=mbedtls-3.4.0
           curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
           cd mbedtls-$MBEDTLSVER
-          cmake . \
+          [ '${{ matrix.arch }}' == 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
+          cmake . ${crossoptions} \
             -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
             -DCMAKE_INSTALL_PREFIX:PATH=../usr
           make -j3 install
@@ -91,7 +110,8 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
-          cmake . -B bld $TOOLCHAIN_OPTION \
+          [ '${{ matrix.arch }}' == 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
+          cmake . -B bld ${crossoptions} $TOOLCHAIN_OPTION \
             -DENABLE_WERROR=ON \
             -DCRYPTO_BACKEND=$CRYPTO_BACKEND \
             -DENABLE_ZLIB_COMPRESSION=$ENABLE_ZLIB_COMPRESSION
