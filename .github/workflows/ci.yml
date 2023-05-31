@@ -49,6 +49,16 @@ jobs:
             target: 'distcheck'
           - compiler: gcc
             arch: i386
+            crypto: OpenSSL
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: i386
+            crypto: Libgcrypt
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: i386
             crypto: mbedTLS
             build: cmake
             zlib: 'ON'
