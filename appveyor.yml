@@ -209,6 +209,10 @@ on_finish:
       Start-Sleep -Seconds 3
       Get-Process -Name "sshd" -ErrorAction SilentlyContinue | Stop-Process
 
+skip_commits:
+  files:
+    - '.github/**/*'
+
 # Limit branches to avoid testing feature branches twice (as branch and as pull request)
 branches:
   only:
