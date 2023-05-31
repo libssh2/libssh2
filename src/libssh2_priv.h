@@ -947,7 +947,7 @@ struct _LIBSSH2_KEX_METHOD
 struct _LIBSSH2_HOSTKEY_METHOD
 {
     const char *name;
-    unsigned long hash_len;
+    size_t hash_len;
 
     int (*init) (LIBSSH2_SESSION * session, const unsigned char *hostkey_data,
                  size_t hostkey_data_len, void **abstract);
