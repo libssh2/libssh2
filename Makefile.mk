@@ -211,15 +211,16 @@ prebuild: $(OBJ_DIR) $(OBJ_DIR)/version.inc
 
 example: $(TARGETS_EXAMPLES)
 
-# Get DOCKER_TESTS, STANDALONE_TESTS, SSHD_TESTS, TESTS_WITH_LIB_STATIC,
+# Get DOCKER_TESTS, DOCKER_TESTS_STATIC, STANDALONE_TESTS, STANDALONE_TESTS_STATIC, SSHD_TESTS,
 # librunner_la_SOURCES defines
 include tests/Makefile.inc
+ifndef DYN
+DOCKER_TESTS += $(DOCKER_TESTS_STATIC)
+STANDALONE_TESTS += $(STANDALONE_TESTS_STATIC)
+endif
 TARGETS_RUNNER := $(TARGET)-runner.a
 TARGETS_RUNNER_OBJS := $(addprefix $(OBJ_DIR)/,$(patsubst %.c,%.o,$(filter %.c,$(librunner_la_SOURCES))))
 TARGETS_TESTS := $(patsubst %.c,%$(BIN_EXT),$(addprefix tests/,$(addsuffix .c,$(DOCKER_TESTS) $(STANDALONE_TESTS) $(SSHD_TESTS))))
-ifdef DYN
-TARGETS_TESTS := $(filter-out $(patsubst %.c,%$(BIN_EXT),$(addprefix tests/,$(addsuffix .c,$(TESTS_WITH_LIB_STATIC)))),$(TARGETS_TESTS))
-endif
 
 test: $(TARGETS_RUNNER) $(TARGETS_TESTS)
 

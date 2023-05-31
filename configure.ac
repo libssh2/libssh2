@@ -371,6 +371,8 @@ fi
 AM_CONDITIONAL([HAVE_WINDRES],
   [test "x$have_windows_h" = "xyes" && test "x${enable_shared}" = "xyes" && test -n "${RC}"])
 
+AM_CONDITIONAL([HAVE_LIB_STATIC], [test "x$enable_static" != "xno"])
+
 # Configure parameters
 LIBSSH2_CHECK_OPTION_WERROR
 
