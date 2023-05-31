@@ -70,7 +70,7 @@ add_library(runner STATIC ${librunner_la_SOURCES})
 target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include "${CRYPTO_BACKEND_INCLUDE_DIR}")
 
-foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
+foreach(test ${DOCKER_TESTS} ${DOCKER_TESTS_WITH_LIB_STATIC} ${STANDALONE_TESTS} ${STANDALONE_TESTS_WITH_LIB_STATIC} ${SSHD_TESTS})
   if(NOT ";${TESTS_WITH_LIB_STATIC};" MATCHES ";${test};")
     set(LIB_FOR_TESTS ${LIB_SELECTED})
   elseif(TARGET ${LIB_STATIC})
