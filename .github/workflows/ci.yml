@@ -68,9 +68,9 @@ jobs:
       - name: 'install packages'
         if: ${{ matrix.crypto != 'mbedTLS' }}
         run: |
-          [ '${{ matrix.crypto }}' == 'OpenSSL' ] && pkg='libssl-dev'
-          [ '${{ matrix.crypto }}' == 'wolfSSL' ] && pkg='libwolfssl-dev'
-          [ '${{ matrix.crypto }}' == 'Libgcrypt' ] && pkg='libgcrypt-dev'
+          [ '${{ matrix.crypto }}' = 'OpenSSL' ] && pkg='libssl-dev'
+          [ '${{ matrix.crypto }}' = 'wolfSSL' ] && pkg='libwolfssl-dev'
+          [ '${{ matrix.crypto }}' = 'Libgcrypt' ] && pkg='libgcrypt-dev'
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install "${pkg}:${{ matrix.arch }}"
 
       - name: 'install mbedTLS from source'
@@ -79,7 +79,7 @@ jobs:
           MBEDTLSVER=mbedtls-3.4.0
           curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
           cd mbedtls-$MBEDTLSVER
-          [ '${{ matrix.arch }}' == 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
+          [ '${{ matrix.arch }}' = 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
           cmake . ${crossoptions} \
             -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
             -DCMAKE_INSTALL_PREFIX:PATH=../usr
@@ -107,7 +107,7 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
-          [ '${{ matrix.arch }}' == 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
+          [ '${{ matrix.arch }}' = 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
           cmake . -B bld ${crossoptions} $TOOLCHAIN_OPTION \
             -DENABLE_WERROR=ON \
             -DCRYPTO_BACKEND=${{ matrix.crypto }} \
