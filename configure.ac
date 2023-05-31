@@ -256,8 +256,6 @@ AC_ARG_ENABLE([sshd-tests],
   [run_sshd_tests=no], [run_sshd_tests=yes])
 AM_CONDITIONAL([RUN_SSHD_TESTS], [test "x$run_sshd_tests" != "xno"])
 
-AM_CONDITIONAL([RUN_TESTS_WITH_LIB_STATIC], [test "x$enable_static" != "xno"])
-
 # Build example applications?
 AC_MSG_CHECKING([whether to build example applications])
 AC_ARG_ENABLE([examples-build],
@@ -372,6 +370,8 @@ fi
 
 AM_CONDITIONAL([HAVE_WINDRES],
   [test "x$have_windows_h" = "xyes" && test "x${enable_shared}" = "xyes" && test -n "${RC}"])
+
+AM_CONDITIONAL([HAVE_LIB_STATIC], [test "x$enable_static" != "xno"])
 
 # Configure parameters
 LIBSSH2_CHECK_OPTION_WERROR

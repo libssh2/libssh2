@@ -33,18 +33,15 @@ SSHD_TESTS = \
 
 # Programs of the above that use internal libssh2 functions so they need
 # to be statically linked against libssh2
-DOCKER_TESTS_WITH_LIB_STATIC = \
+DOCKER_TESTS_STATIC = \
   test_auth_keyboard_info_request \
   test_hostkey
 
-STANDALONE_TESTS_WITH_LIB_STATIC = \
+STANDALONE_TESTS_STATIC = \
   test_simple
 
-TESTS_WITH_LIB_STATIC = \
-  test_auth_keyboard_info_request \
-  test_hostkey \
-  test_simple
-
+# Copy of the above for Makefile.am.
+# Is there a way to reuse the lists above?
 test_auth_keyboard_info_request_LDFLAGS = -static
 test_hostkey_LDFLAGS = -static
 test_simple_LDFLAGS = -static

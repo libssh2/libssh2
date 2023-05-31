@@ -2,20 +2,20 @@ SUBDIRS = ossfuzz
 
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 
-# Get DOCKER_TESTS, STANDALONE_TESTS, SSHD_TESTS, TESTS_WITH_LIB_STATIC,
+# Get DOCKER_TESTS, DOCKER_TESTS_STATIC, STANDALONE_TESTS, STANDALONE_TESTS_STATOC, SSHD_TESTS,
 # librunner_la_SOURCES defines and *_LDFLAGS for statically linked tests.
 include Makefile.inc
+
+if HAVE_LIB_STATIC
+DOCKER_TESTS += $(DOCKER_TESTS_STATIC)
+STANDALONE_TESTS += $(STANDALONE_TESTS_STATIC)
+endif
 
 # Some tests rely on the 'srcdir' env. Set by autotools automatically.
 TESTS_ENVIRONMENT =
 
 # Tests to run
 TESTS = mansyntax.sh
-
-if RUN_TESTS_WITH_LIB_STATIC
-DOCKER_TESTS += $(DOCKER_TESTS_WITH_LIB_STATIC)
-STANDALONE_TESTS += $(STANDALONE_TESTS_WITH_LIB_STATIC)
-endif
 
 if RUN_DOCKER_TESTS
 TESTS += $(DOCKER_TESTS)
