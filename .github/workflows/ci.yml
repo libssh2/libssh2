@@ -74,6 +74,7 @@ jobs:
           # Workaround for https://github.com/actions/runner-images/issues/7589
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install libgcc-s1:${{ matrix.arch }}
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
+          [ '${{ matrix.crypto }}' == 'OpenSSL' ] && sudo dpkg --purge --force-depends libssl-dev
 
       - name: 'install packages'
         if: ${{ matrix.crypto != 'mbedTLS' }}
