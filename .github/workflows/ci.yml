@@ -52,6 +52,12 @@ jobs:
             crypto: mbedTLS
             build: cmake
             zlib: 'ON'
+          - compiler: clang
+            arch: i386
+            crypto: Libgcrypt
+            build: autotools
+            zlib: 'ON'
+            options: --disable-static
     env:
       CC: ${{ matrix.compiler }}
     steps:
@@ -93,7 +99,14 @@ jobs:
         run: autoreconf -fi
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' }}
-        run: mkdir bld && cd bld && ../configure --enable-werror --enable-debug
+        run: |
+          if [ '${{ matrix.arch }}' = 'i386' ]; then
+            crossoptions='--host=i686-pc-linux-gnu'
+            export CFLAGS=-m32
+          fi
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+            ${crossoptions} ${{ matrix.options }}
+
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' && !matrix.target }}
         run: make -C bld -j3
