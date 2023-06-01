@@ -73,7 +73,7 @@ static ssize_t netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
         /* read more data until we see a rpc-reply closing tag followed by
          * the special sequence ]]>]]> */
 
-        /* really, this MUST be replaced with proper XML parsing! */
+        /* really, this MUST be replaced with proper XML parsing. */
 
         endreply = strstr(buf, endtag);
         if(endreply)
@@ -82,8 +82,8 @@ static ssize_t netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
     } while(!specialsequence && rd < buflen);
 
     if(!specialsequence) {
-        fprintf(stderr, "netconf_read_until(): ]]>]]> not found!"
-                        " read buffer too small?\n");
+        fprintf(stderr, "netconf_read_until(): ]]>]]> not found."
+                        " Read buffer too small?\n");
         return -1;
     }
 
@@ -133,26 +133,26 @@ int main(int argc, char *argv[])
     /* Connect to SSH server */
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(sock == LIBSSH2_INVALID_SOCKET) {
-        fprintf(stderr, "failed to open socket!\n");
+        fprintf(stderr, "failed to open socket.\n");
         goto shutdown;
     }
 
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = inet_addr(server_ip);
     if(INADDR_NONE == sin.sin_addr.s_addr) {
-        fprintf(stderr, "inet_addr: Invalid IP address \"%s\"\n", server_ip);
+        fprintf(stderr, "inet_addr: Invalid IP address '%s'\n", server_ip);
         goto shutdown;
     }
     sin.sin_port = htons(830);
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
-        fprintf(stderr, "Failed to connect to %s!\n", inet_ntoa(sin.sin_addr));
+        fprintf(stderr, "Failed to connect to %s.\n", inet_ntoa(sin.sin_addr));
         goto shutdown;
     }
 
     /* Create a session instance */
     session = libssh2_session_init();
     if(!session) {
-        fprintf(stderr, "Could not initialize SSH session!\n");
+        fprintf(stderr, "Could not initialize SSH session.\n");
         goto shutdown;
     }
 
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
 
         if(auth & AUTH_PASSWORD) {
             if(libssh2_userauth_password(session, username, password)) {
-                fprintf(stderr, "Authentication by password failed!\n");
+                fprintf(stderr, "Authentication by password failed.\n");
                 goto shutdown;
             }
         }
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
             if(libssh2_userauth_publickey_fromfile(session, username,
                                                    pubkey, privkey,
                                                    password)) {
-                fprintf(stderr, "Authentication by public key failed!\n");
+                fprintf(stderr, "Authentication by public key failed.\n");
                 goto shutdown;
             }
             else {
@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
             }
         }
         else {
-            fprintf(stderr, "No supported authentication methods found!\n");
+            fprintf(stderr, "No supported authentication methods found.\n");
             goto shutdown;
         }
     }
@@ -220,16 +220,16 @@ int main(int argc, char *argv[])
     /* open a channel */
     channel = libssh2_channel_open_session(session);
     if(!channel) {
-        fprintf(stderr, "Could not open the channel!\n"
-                        "(Note that this can be a problem at the server!"
-                       " Please review the server logs.)\n");
+        fprintf(stderr, "Could not open the channel.\n"
+                        "(Note that this can be a problem at the server."
+                        " Please review the server logs.)\n");
         goto shutdown;
     }
 
     /* execute the subsystem on our channel */
     if(libssh2_channel_subsystem(channel, "netconf")) {
-        fprintf(stderr, "Could not execute the \"netconf\" subsystem!\n"
-                        "(Note that this can be a problem at the server!"
+        fprintf(stderr, "Could not execute the 'netconf' subsystem.\n"
+                        "(Note that this can be a problem at the server."
                         " Please review the server logs.)\n");
         goto shutdown;
     }

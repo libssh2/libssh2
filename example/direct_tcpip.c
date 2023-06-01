@@ -104,26 +104,26 @@ int main(int argc, char *argv[])
     /* Connect to SSH server */
     sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(sock == LIBSSH2_INVALID_SOCKET) {
-        fprintf(stderr, "failed to open socket!\n");
+        fprintf(stderr, "failed to open socket.\n");
         goto shutdown;
     }
 
     sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = inet_addr(server_ip);
     if(INADDR_NONE == sin.sin_addr.s_addr) {
-        fprintf(stderr, "inet_addr: Invalid IP address \"%s\"\n", server_ip);
+        fprintf(stderr, "inet_addr: Invalid IP address '%s'\n", server_ip);
         goto shutdown;
     }
     sin.sin_port = htons(22);
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
-        fprintf(stderr, "Failed to connect to %s!\n", inet_ntoa(sin.sin_addr));
+        fprintf(stderr, "Failed to connect to %s.\n", inet_ntoa(sin.sin_addr));
         goto shutdown;
     }
 
     /* Create a session instance */
     session = libssh2_session_init();
     if(!session) {
-        fprintf(stderr, "Could not initialize SSH session!\n");
+        fprintf(stderr, "Could not initialize SSH session.\n");
         goto shutdown;
     }
 
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 
         if(auth & AUTH_PASSWORD) {
             if(libssh2_userauth_password(session, username, password)) {
-                fprintf(stderr, "Authentication by password failed!\n");
+                fprintf(stderr, "Authentication by password failed.\n");
                 goto shutdown;
             }
         }
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
             if(libssh2_userauth_publickey_fromfile(session, username,
                                                    pubkey, privkey,
                                                    password)) {
-                fprintf(stderr, "Authentication by public key failed!\n");
+                fprintf(stderr, "Authentication by public key failed.\n");
                 goto shutdown;
             }
             else {
@@ -183,14 +183,14 @@ int main(int argc, char *argv[])
             }
         }
         else {
-            fprintf(stderr, "No supported authentication methods found!\n");
+            fprintf(stderr, "No supported authentication methods found.\n");
             goto shutdown;
         }
     }
 
     listensock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(listensock == LIBSSH2_INVALID_SOCKET) {
-        fprintf(stderr, "failed to open listen socket!\n");
+        fprintf(stderr, "failed to open listen socket.\n");
         goto shutdown;
     }
 
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
     sin.sin_port = htons((unsigned short)local_listenport);
     sin.sin_addr.s_addr = inet_addr(local_listenip);
     if(INADDR_NONE == sin.sin_addr.s_addr) {
-        fprintf(stderr, "failed in inet_addr()!\n");
+        fprintf(stderr, "failed in inet_addr().\n");
         goto shutdown;
     }
     sockopt = 1;
@@ -206,11 +206,11 @@ int main(int argc, char *argv[])
                sizeof(sockopt));
     sinlen = sizeof(sin);
     if(-1 == bind(listensock, (struct sockaddr *)&sin, sinlen)) {
-        fprintf(stderr, "failed to bind()!\n");
+        fprintf(stderr, "failed to bind().\n");
         goto shutdown;
     }
     if(-1 == listen(listensock, 2)) {
-        fprintf(stderr, "failed to listen()!\n");
+        fprintf(stderr, "failed to listen().\n");
         goto shutdown;
     }
 
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
 
     forwardsock = accept(listensock, (struct sockaddr *)&sin, &sinlen);
     if(forwardsock == LIBSSH2_INVALID_SOCKET) {
-        fprintf(stderr, "failed to accept forward socket!\n");
+        fprintf(stderr, "failed to accept forward socket.\n");
         goto shutdown;
     }
 
@@ -232,8 +232,8 @@ int main(int argc, char *argv[])
     channel = libssh2_channel_direct_tcpip_ex(session, remote_desthost,
         remote_destport, shost, sport);
     if(!channel) {
-        fprintf(stderr, "Could not open the direct-tcpip channel!\n"
-                        "(Note that this can be a problem at the server!"
+        fprintf(stderr, "Could not open the direct-tcpip channel.\n"
+                        "(Note that this can be a problem at the server."
                         " Please review the server logs.)\n");
         goto shutdown;
     }
@@ -248,17 +248,17 @@ int main(int argc, char *argv[])
         tv.tv_usec = 100000;
         rc = select((int)(forwardsock + 1), &fds, NULL, NULL, &tv);
         if(-1 == rc) {
-            fprintf(stderr, "failed to select()!\n");
+            fprintf(stderr, "failed to select().\n");
             goto shutdown;
         }
         if(rc && FD_ISSET(forwardsock, &fds)) {
             len = recv(forwardsock, buf, sizeof(buf), 0);
             if(len < 0) {
-                fprintf(stderr, "failed to recv()!\n");
+                fprintf(stderr, "failed to recv().\n");
                 goto shutdown;
             }
             else if(len == 0) {
-                fprintf(stderr, "The client at %s:%d disconnected!\n", shost,
+                fprintf(stderr, "The client at %s:%d disconnected.\n", shost,
                     sport);
                 goto shutdown;
             }
@@ -289,13 +289,13 @@ int main(int argc, char *argv[])
             while(wr < len) {
                 ssize_t nsent = send(forwardsock, buf + wr, len - wr, 0);
                 if(nsent <= 0) {
-                    fprintf(stderr, "failed to send()!\n");
+                    fprintf(stderr, "failed to send().\n");
                     goto shutdown;
                 }
                 wr += nsent;
             }
             if(libssh2_channel_eof(channel)) {
-                fprintf(stderr, "The server at %s:%d disconnected!\n",
+                fprintf(stderr, "The server at %s:%d disconnected.\n",
                     remote_desthost, remote_destport);
                 goto shutdown;
             }

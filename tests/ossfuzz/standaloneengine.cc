@@ -45,7 +45,7 @@ int main(int argc, char **argv)
         /* Call the fuzzer with the data. */
         LLVMFuzzerTestOneInput(buffer, buffer_len);
 
-        printf("complete !!");
+        printf("complete.");
 
         /* Free the buffer as it's no longer needed. */
         free(buffer);
