@@ -389,6 +389,8 @@ elif test "$found_crypto" = "mbedtls"; then
   LIBS="${LIBS} ${LTLIBMBEDCRYPTO}"
 fi
 
+LIBS="${LIBS} ${LTLIBZ}"
+
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  tests/Makefile
