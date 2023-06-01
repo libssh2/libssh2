@@ -887,7 +887,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
         debugdump(session, "libssh2_transport_write plain2", data2, data2_len);
 
     /* FIRST, check if we have a pending write to complete. send_existing
-       only sanity-check data and data_len and not data2 and data2_len!! */
+       only sanity-check data and data_len and not data2 and data2_len! */
     rc = send_existing(session, data, data_len, &ret);
     if(rc)
         return rc;

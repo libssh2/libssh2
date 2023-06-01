@@ -187,9 +187,9 @@ test_script:
         if((Get-Process -Name "sshd" -ErrorAction SilentlyContinue).Count -gt 1) {
           $env:DOCKER_HOST = "tcp://127.0.0.1:2375"
           [System.Environment]::SetEnvironmentVariable("DOCKER_HOST", $env:DOCKER_HOST)
-          Write-Host "... ready!"
+          Write-Host "... ready."
         } else {
-          Write-Host "... failed!"
+          Write-Host "... failed."
         }
         if($env:CRYPTO_BACKEND -eq "WinCNG") {
           $env:FIXTURE_TRACE_ALL_CONNECT = "1"

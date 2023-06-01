@@ -141,7 +141,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             ptr = strrchr(display, ':');
             temp_buff = (char *)calloc(strlen(ptr + 1) + 1, sizeof(char));
             if(!temp_buff) {
-                fprintf(stderr, "failed to calloc()!\n");
+                fprintf(stderr, "failed to calloc().\n");
                 return;
             }
             memcpy(temp_buff, ptr + 1, strlen(ptr + 1));
@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == LIBSSH2_INVALID_SOCKET) {
-        fprintf(stderr, "failed to open socket!\n");
+        fprintf(stderr, "failed to open socket.\n");
         return -1;
     }
 
@@ -320,7 +320,7 @@ int main(int argc, char *argv[])
     sin.sin_addr.s_addr = hostaddr;
 
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
-        fprintf(stderr, "Failed to established connection!\n");
+        fprintf(stderr, "Failed to established connection.\n");
         return -1;
     }
     /* Open a session */

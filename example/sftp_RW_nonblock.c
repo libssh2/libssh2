@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == LIBSSH2_INVALID_SOCKET) {
-        fprintf(stderr, "failed to create socket!\n");
+        fprintf(stderr, "failed to create socket.\n");
         goto shutdown;
     }
 
@@ -124,14 +124,14 @@ int main(int argc, char *argv[])
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = htonl(0x7F000001);
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
-        fprintf(stderr, "failed to connect!\n");
+        fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
 
     /* Create a session instance */
     session = libssh2_session_init();
     if(!session) {
-        fprintf(stderr, "Could not initialize SSH session!\n");
+        fprintf(stderr, "Could not initialize SSH session.\n");
         goto shutdown;
     }
 
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_password(session, username, password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by password failed!\n");
+            fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
         }
     }
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
                                                   password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by public key failed!\n");
+            fprintf(stderr, "Authentication by public key failed.\n");
             goto shutdown;
         }
     }
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
         }
     } while(!sftp_handle);
 
-    fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
+    fprintf(stderr, "libssh2_sftp_open() is done, now receive data.\n");
     do {
         ssize_t nread;
         do {
@@ -321,7 +321,7 @@ int main(int argc, char *argv[])
                 break;
             }
         } while(1);
-        fprintf(stderr, "SFTP upload done!\n");
+        fprintf(stderr, "SFTP upload done.\n");
     }
     else {
         fprintf(stderr, "SFTP failed to open destination path: %s\n",

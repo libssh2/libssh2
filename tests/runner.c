@@ -69,7 +69,7 @@ int main(void)
            ++retry > retries) {
             break;
         }
-        fprintf(stderr, "Test failed (%d)! Retrying... %d / %d\n",
+        fprintf(stderr, "Test failed (%d). Retrying... %d / %d\n",
                         rc, retry, retries);
     } while(1);
 

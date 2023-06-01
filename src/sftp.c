@@ -1271,7 +1271,7 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
 
             if(LIBSSH2_FX_OK == sftp->last_errno) {
                 _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                               "got HANDLE FXOK!"));
+                               "got HANDLE FXOK"));
 
                 LIBSSH2_FREE(session, data);
 
@@ -3379,7 +3379,7 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
     LIBSSH2_FREE(session, data);
 
     if(retcode == LIBSSH2_FX_OK) {
-        _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "OK!"));
+        _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "OK"));
         return 0;
     }
     else {

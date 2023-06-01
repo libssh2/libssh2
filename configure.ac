@@ -105,10 +105,10 @@ case "${use_crypto}" in
     m4_set_map([crypto_backends], [LIBSSH2_CHECK_CRYPTO])
     ;;
   yes|"")
-    crypto_errors="No crypto backend specified!"
+    crypto_errors="No crypto backend specified."
     ;;
   *)
-    crypto_errors="Unknown crypto backend '${use_crypto}' specified!"
+    crypto_errors="Unknown crypto backend '${use_crypto}' specified."
     ;;
 esac
 
@@ -139,7 +139,7 @@ if test "$use_libz" != no; then
       AC_MSG_NOTICE([Cannot find libz, disabling compression])
       found_libz="disabled; no libz found"
     else
-      libz_errors="No libz found!
+      libz_errors="No libz found.
 Try --with-libz-prefix=PATH if you know that you have it."
       AS_MESSAGE([ERROR: $libz_errors])
     fi
@@ -365,7 +365,7 @@ if test "$found_crypto" = "none"; then
 fi
 
 if test $missing_required_deps = 1; then
-  AC_MSG_ERROR([Required dependencies are missing!])
+  AC_MSG_ERROR([Required dependencies are missing.])
 fi
 
 AM_CONDITIONAL([HAVE_WINDRES],

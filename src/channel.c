@@ -2617,7 +2617,7 @@ static int channel_wait_eof(LIBSSH2_CHANNEL *channel)
         else if(rc < 0) {
             channel->wait_eof_state = libssh2_NB_state_idle;
             return _libssh2_error(session, rc,
-                                  "_libssh2_transport_read() bailed out!");
+                                  "_libssh2_transport_read() bailed out");
         }
     } while(1);
 

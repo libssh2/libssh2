@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == LIBSSH2_INVALID_SOCKET) {
-        fprintf(stderr, "failed to create socket!\n");
+        fprintf(stderr, "failed to create socket.\n");
         goto shutdown;
     }
 
@@ -143,14 +143,14 @@ int main(int argc, char *argv[])
     sin.sin_port = htons(22);
     sin.sin_addr.s_addr = hostaddr;
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
-        fprintf(stderr, "failed to connect!\n");
+        fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
 
     /* Create a session instance */
     session = libssh2_session_init();
     if(!session) {
-        fprintf(stderr, "Could not initialize SSH session!\n");
+        fprintf(stderr, "Could not initialize SSH session.\n");
         goto shutdown;
     }
 
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
         while((rc = libssh2_userauth_password(session, username, password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by password failed!\n");
+            fprintf(stderr, "Authentication by password failed.\n");
             goto shutdown;
         }
     }
@@ -200,14 +200,14 @@ int main(int argc, char *argv[])
                                                   password)) ==
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
-            fprintf(stderr, "Authentication by public key failed!\n");
+            fprintf(stderr, "Authentication by public key failed.\n");
             goto shutdown;
         }
     }
 #if 0
     libssh2_trace(session, LIBSSH2_TRACE_CONN);
 #endif
-    fprintf(stderr, "libssh2_sftp_init()!\n");
+    fprintf(stderr, "libssh2_sftp_init().\n");
     do {
         sftp_session = libssh2_sftp_init(session);
 
@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
         }
     } while(!sftp_session);
 
-    fprintf(stderr, "libssh2_sftp_open()!\n");
+    fprintf(stderr, "libssh2_sftp_open().\n");
     /* Request a file via SFTP */
     do {
         sftp_handle = libssh2_sftp_open(sftp_session, sftppath,
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
         }
     } while(!sftp_handle);
 
-    fprintf(stderr, "libssh2_sftp_open() is done, now receive data!\n");
+    fprintf(stderr, "libssh2_sftp_open() is done, now receive data.\n");
     do {
         char mem[1024 * 24];
         ssize_t nread;

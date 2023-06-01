@@ -4165,7 +4165,7 @@ LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Memory allocation failed");
     }
-    /* Past this point *algs must be deallocated in case of an error!! */
+    /* Past this point *algs must be deallocated in case of an error! */
 
     /* copy non-NULL pointers only */
     for(i = 0, j = 0; mlist[i] && j < ialg; i++) {

@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
      */
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock == LIBSSH2_INVALID_SOCKET) {
-        fprintf(stderr, "failed to create socket!\n");
+        fprintf(stderr, "failed to create socket.\n");
         rc = 1;
         goto shutdown;
     }
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
             inet_ntoa(sin.sin_addr), ntohs(sin.sin_port), username);
 
     if(connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in))) {
-        fprintf(stderr, "failed to connect!\n");
+        fprintf(stderr, "failed to connect.\n");
         goto shutdown;
     }
 
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
      */
     session = libssh2_session_init();
     if(!session) {
-        fprintf(stderr, "Could not initialize SSH session!\n");
+        fprintf(stderr, "Could not initialize SSH session.\n");
         goto shutdown;
     }
 
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
         if(auth_pw & 1) {
             /* We could authenticate via password */
             if(libssh2_userauth_password(session, username, password)) {
-                fprintf(stderr, "Authentication by password failed!\n");
+                fprintf(stderr, "Authentication by password failed.\n");
                 goto shutdown;
             }
             else {
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
             if(libssh2_userauth_keyboard_interactive(session, username,
                                                      &kbd_callback) ) {
                 fprintf(stderr,
-                        "Authentication by keyboard-interactive failed!\n");
+                        "Authentication by keyboard-interactive failed.\n");
                 goto shutdown;
             }
             else {
@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
             if(libssh2_userauth_publickey_fromfile(session, username,
                                                    fn1, fn2,
                                                    password)) {
-                fprintf(stderr, "Authentication by public key failed!\n");
+                fprintf(stderr, "Authentication by public key failed.\n");
                 free(fn2);
                 free(fn1);
                 goto shutdown;
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
             free(fn1);
         }
         else {
-            fprintf(stderr, "No supported authentication methods found!\n");
+            fprintf(stderr, "No supported authentication methods found.\n");
             goto shutdown;
         }
     }
