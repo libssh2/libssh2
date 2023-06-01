@@ -48,8 +48,7 @@ VERSION=-version-info 1:1:0
 #
 
 libssh2_la_LDFLAGS = $(VERSION) -no-undefined \
-  -export-symbols-regex '^libssh2_.*' \
-  $(LTLIBZ)
+  -export-symbols-regex '^libssh2_.*'
 
 if HAVE_WINDRES
 .rc.lo:
