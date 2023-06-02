@@ -79,6 +79,11 @@ int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
                          const char *errmsg, int errflags);
 int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char *errmsg);
 
+#ifdef _WIN32
+/* Convert Win32 WSAGetLastError to errno equivalent */
+int _libssh2_wsa2errno(void);
+#endif
+
 void _libssh2_list_init(struct list_head *head);
 
 /* add a node last in the list */
