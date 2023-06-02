@@ -673,6 +673,18 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
                               "Timed out waiting on socket");
     }
     if(rc < 0) {
+        int err;
+#ifdef WIN32
+        err = _libssh2_wsa2errno();
+#else
+        err = errno;
+#endif
+        /* Profiling tools that use SIGPROF can cause EINTR responses.
+           poll() / select() do not set any descriptor states on EINTR,
+           but some fds may be ready, so the caller should try again */
+        if(err == EINTR)
+            return 0;
+
         return _libssh2_error(session, LIBSSH2_ERROR_TIMEOUT,
                               "Error waiting on socket");
     }

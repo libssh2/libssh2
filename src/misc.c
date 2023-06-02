@@ -133,7 +133,7 @@ int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char *errmsg)
 }
 
 #ifdef _WIN32
-static int wsa2errno(void)
+int _libssh2_wsa2errno(void)
 {
     switch(WSAGetLastError()) {
     case WSAEWOULDBLOCK:
@@ -167,23 +167,29 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length,
     (void)abstract;
 
     rc = recv(sock, buffer, length, flags);
-#ifdef _WIN32
-    if(rc < 0)
-        return -wsa2errno();
-#else
     if(rc < 0) {
+        int err;
+#ifdef _WIN32
+        err = _libssh2_wsa2errno();
+#else
+        err = errno;
+#endif
+        /* Profiling tools that use SIGPROF can cause EINTR responses.
+           recv() does not modify its arguments when it returns EINTR,
+           but there may be data waiting, so the caller should try again */
+        if(err == EINTR)
+            return -EAGAIN;
         /* Sometimes the first recv() function call sets errno to ENOENT on
            Solaris and HP-UX */
-        if(errno == ENOENT)
+        if(err == ENOENT)
             return -EAGAIN;
 #ifdef EWOULDBLOCK /* For VMS and other special unixes */
-        else if(errno == EWOULDBLOCK)
-          return -EAGAIN;
+        else if(err == EWOULDBLOCK)
+            return -EAGAIN;
 #endif
         else
-            return -errno;
+            return -err;
     }
-#endif
     return rc;
 }
 
@@ -200,18 +206,24 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
     (void)abstract;
 
     rc = send(sock, buffer, length, flags);
-#ifdef _WIN32
-    if(rc < 0)
-        return -wsa2errno();
-#else
     if(rc < 0) {
+        int err;
+#ifdef _WIN32
+        err = _libssh2_wsa2errno();
+#else
+        err = errno;
+#endif
+        /* Profiling tools that use SIGPROF can cause EINTR responses.
+           send() is defined as not yet sending any data when it returns EINTR,
+           so the caller should try again */
+        if(err == EINTR)
+            return -EAGAIN;
 #ifdef EWOULDBLOCK /* For VMS and other special unixes */
-        if(errno == EWOULDBLOCK)
+        if(err == EWOULDBLOCK)
             return -EAGAIN;
 #endif
-        return -errno;
+        return -err;
     }
-#endif
     return rc;
 }
 

@@ -24,6 +24,11 @@
 #include <stdio.h>
 #include <stdlib.h>  /* for getenv() */
 
+#if defined(HAVE_PTHREAD_H) && defined(HAVE_SIGNAL_H)
+#include <pthread.h>
+#include <signal.h>
+#endif
+
 static const char *hostname = "127.0.0.1";
 static const int port_number = 4711;
 static const char *pubkey = "key_rsa.pub";
@@ -39,6 +44,30 @@ static void portable_sleep(unsigned int seconds)
     sleep(seconds);
 #endif
 }
+
+#if defined(HAVE_PTHREAD_H) && defined(HAVE_SIGNAL_H)
+static pthread_t main_thread;
+
+static void *background_thread(void *unused)
+{
+    (void)unused;
+    fprintf(stderr, "Profiling thread sending SIGPROF every 1ms!\n");
+
+    do {
+        pthread_kill(main_thread, SIGPROF);
+        usleep(1000);
+    } while(1);
+
+    return NULL;
+}
+
+static void signal_handler_function(int a, siginfo_t *b, void *c)
+{
+    (void)a;
+    (void)b;
+    (void)c;
+}
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -61,6 +90,24 @@ int main(int argc, char *argv[])
         fprintf(stderr, "WSAStartup failed with error: %d\n", rc);
         return 1;
     }
+#endif
+
+#if defined(HAVE_PTHREAD_H) && defined(HAVE_SIGNAL_H)
+    pthread_t thread;
+
+    struct sigaction signal_handler_config = {
+        .sa_flags = SA_RESTART | SA_SIGINFO,
+        .sa_sigaction = signal_handler_function
+    };
+    sigemptyset(&signal_handler_config.sa_mask);
+
+    if(sigaction(SIGPROF, &signal_handler_config, NULL) != 0) {
+        fprintf(stderr, "Could not install signal handler\n");
+    }
+
+    main_thread = pthread_self();
+
+    pthread_create(&thread, NULL, background_thread, NULL);
 #endif
 
     (void)argc;
@@ -160,7 +207,7 @@ int main(int argc, char *argv[])
                rc != LIBSSH2_ERROR_KEY_EXCHANGE_FAILURE ||
 #endif
                ++retry > retries) {
-                break;
+                goto shutdown;
             }
             fprintf(stderr, "Retrying... %d / %d\n", retry, retries);
         } while(1);
