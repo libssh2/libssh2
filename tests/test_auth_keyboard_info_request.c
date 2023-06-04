@@ -1,4 +1,4 @@
-/* Copyright (C) 2022 Xaver Loppenstedt
+/* Copyright (C) Xaver Loppenstedt
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,

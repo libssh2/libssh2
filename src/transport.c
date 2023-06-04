@@ -1,6 +1,6 @@
-/* Copyright (C) 2007 The Written Word, Inc.  All rights reserved.
- * Copyright (C) 2009-2010 by Daniel Stenberg
- * Author: Daniel Stenberg <daniel@haxx.se>
+/* Copyright (C) The Written Word, Inc.
+ * Copyright (C) Daniel Stenberg
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided

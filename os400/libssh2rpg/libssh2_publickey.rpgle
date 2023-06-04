@@ -1,4 +1,4 @@
-      * Copyright (c) 2015, Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+      * Copyright (C) Patrick Monnerat, D+H <patrick.monnerat@dh.com>
       * All rights reserved.
       *
       * Redistribution and use in source and binary forms,

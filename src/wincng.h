@@ -1,7 +1,7 @@
 #ifndef __LIBSSH2_WINCNG_H
 #define __LIBSSH2_WINCNG_H
 /*
- * Copyright (C) 2013-2020 Marc Hoersken <info@marc-hoersken.de>
+ * Copyright (C) Marc Hoersken <info@marc-hoersken.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,

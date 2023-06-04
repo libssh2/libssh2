@@ -1,4 +1,4 @@
-# Copyright (c) 2016 Alexander Lamaison <alexander.lamaison@gmail.com>
+# Copyright (C) Alexander Lamaison <alexander.lamaison@gmail.com>
 #
 # Redistribution and use in source and binary forms,
 # with or without modification, are permitted provided

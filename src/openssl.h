@@ -1,9 +1,8 @@
 #ifndef __LIBSSH2_OPENSSL_H
 #define __LIBSSH2_OPENSSL_H
-/* Copyright (C) 2009, 2010 Simon Josefsson
- * Copyright (C) 2006, 2007 The Written Word, Inc.  All rights reserved.
- *
- * Author: Simon Josefsson
+/* Copyright (C) Simon Josefsson
+ * Copyright (C) The Written Word, Inc.
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided

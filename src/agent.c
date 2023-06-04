@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009 by Daiki Ueno
- * Copyright (C) 2010-2021 by Daniel Stenberg
+ * Copyright (C) Daiki Ueno
+ * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,

@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Viktor Szakats
+# Copyright (C) Viktor Szakats
 
 include(CheckCCompilerFlag)
 

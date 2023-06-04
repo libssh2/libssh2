@@ -2,7 +2,7 @@
 /*
  * Blowfish for OpenBSD - a fast block cipher designed by Bruce Schneier
  *
- * Copyright 1997 Niels Provos <provos@physnet.uni-hamburg.de>
+ * Copyright (C) Niels Provos <provos@physnet.uni-hamburg.de>
  * All rights reserved.
  *
  * Implementation advice by David Mazieres <dm@lcs.mit.edu>.

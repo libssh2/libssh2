@@ -1,7 +1,6 @@
-/* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2005 Mikhail Gusarov <dottedmag@dottedmag.net>
- * Copyright (c) 2008-2019 by Daniel Stenberg
- *
+/* Copyright (C) Sara Golemon <sarag@libssh2.org>
+ * Copyright (C) Mikhail Gusarov <dottedmag@dottedmag.net>
+ * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,

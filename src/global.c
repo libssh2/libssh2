@@ -1,5 +1,5 @@
-/* Copyright (c) 2010 Lars Nordin <Lars.Nordin@SDlabs.se>
- * Copyright (C) 2010 Simon Josefsson <simon@josefsson.org>
+/* Copyright (C) Lars Nordin <Lars.Nordin@SDlabs.se>
+ * Copyright (C) Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,

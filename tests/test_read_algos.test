@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (c) Viktor Szakats
+# Copyright (C) Viktor Szakats
 
 set -e
 set -u

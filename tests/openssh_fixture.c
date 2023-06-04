@@ -1,4 +1,4 @@
-/* Copyright (C) 2016 Alexander Lamaison
+/* Copyright (C) Alexander Lamaison
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,

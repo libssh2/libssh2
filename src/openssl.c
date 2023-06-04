@@ -1,8 +1,7 @@
-/* Copyright (C) 2009, 2010 Simon Josefsson
- * Copyright (C) 2006, 2007 The Written Word, Inc.  All rights reserved.
- * Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
- *
- * Author: Simon Josefsson
+/* Copyright (C) Simon Josefsson
+ * Copyright (C) The Written Word, Inc.
+ * Copyright (C) Sara Golemon <sarag@libssh2.org>
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided

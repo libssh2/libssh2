@@ -1,6 +1,6 @@
-/* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2007 Eli Fant <elifantu@mail.ru>
- * Copyright (c) 2009-2019 by Daniel Stenberg
+/* Copyright (C) Sara Golemon <sarag@libssh2.org>
+ * Copyright (C) Eli Fant <elifantu@mail.ru>
+ * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,

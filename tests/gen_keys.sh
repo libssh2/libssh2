@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) Viktor Szakats
+# Copyright (C) Viktor Szakats
 
 set -e
 set -u

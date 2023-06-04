@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Art <https://github.com/wildart>
+/* Copyright (C) Art <https://github.com/wildart>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,

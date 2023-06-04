@@ -1,4 +1,4 @@
-/* Copyright (c) 2023 Viktor Szakats */
+/* Copyright (C) Viktor Szakats */
 
 #ifndef LIBSSH2_SETUP_H
 #define LIBSSH2_SETUP_H
