@@ -1,4 +1,5 @@
-/*
+/* Copyright (C) The libssh2 project and its contributors.
+ *
  * Sample showing how to use libssh2 to request agent forwarding
  * on the remote host. The command executed will run with agent forwarded
  * so you should be able to do things like clone out protected git

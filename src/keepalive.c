@@ -1,5 +1,5 @@
-/* Copyright (C) 2010  Simon Josefsson
- * Author: Simon Josefsson
+/* Copyright (C) Simon Josefsson
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided

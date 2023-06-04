@@ -1,6 +1,6 @@
 /* $OpenBSD: bcrypt_pbkdf.c,v 1.4 2013/07/29 00:55:53 tedu Exp $ */
 /*
- * Copyright (c) 2013 Ted Unangst <tedu@openbsd.org>
+ * Copyright (C) Ted Unangst <tedu@openbsd.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above

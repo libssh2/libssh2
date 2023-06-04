@@ -1,8 +1,8 @@
 #ifndef __LIBSSH2_SFTP_H
 #define __LIBSSH2_SFTP_H
 /*
- * Copyright (C) 2010 - 2012 by Daniel Stenberg
- * Author: Daniel Stenberg <daniel@haxx.se>
+ * Copyright (C) Daniel Stenberg
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided

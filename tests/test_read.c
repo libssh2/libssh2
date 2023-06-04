@@ -1,4 +1,7 @@
-/* libssh2 test receiving large amounts of data through a channel */
+/* Copyright (C) The libssh2 project and its contributors.
+ *
+ * libssh2 test receiving large amounts of data through a channel
+ */
 
 #include "runner.h"
 

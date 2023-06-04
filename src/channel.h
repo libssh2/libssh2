@@ -1,6 +1,6 @@
 #ifndef __LIBSSH2_CHANNEL_H
 #define __LIBSSH2_CHANNEL_H
-/* Copyright (c) 2008-2010 by Daniel Stenberg
+/* Copyright (C) Daniel Stenberg
  *
  * All rights reserved.
  *

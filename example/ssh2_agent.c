@@ -1,4 +1,5 @@
-/*
+/* Copyright (C) The libssh2 project and its contributors.
+ *
  * Sample showing how to do SSH2 connect using ssh-agent.
  *
  * The sample code has default values for host name, user name:

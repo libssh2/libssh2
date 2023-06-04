@@ -1,3 +1,5 @@
+/* Copyright (C) The libssh2 project and its contributors. */
+
 /* Self test, based on example/ssh2.c. */
 
 #include "libssh2_setup.h"

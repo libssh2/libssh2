@@ -1,4 +1,5 @@
-/*
+/* Copyright (C) The libssh2 project and its contributors.
+ *
  * Sample showing how to do SFTP write transfers.
  *
  * The sample code has default values for host name, user name, password

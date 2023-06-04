@@ -1,8 +1,8 @@
 #ifndef __LIBSSH2_OS400QC3_H
 #define __LIBSSH2_OS400QC3_H
 /*
- * Copyright (C) 2015-2016 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
- * Copyright (C) 2020-2023 Patrick Monnerat <patrick@monnerat.net>.
+ * Copyright (C) Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+ * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,

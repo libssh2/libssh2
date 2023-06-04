@@ -1,3 +1,5 @@
+/* Copyright (C) The libssh2 project and its contributors. */
+
 #include "runner.h"
 
 static const char *EXPECTED_RSA_HOSTKEY =

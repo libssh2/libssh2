@@ -1,8 +1,8 @@
 #ifndef __LIBSSH2_PRIV_H
 #define __LIBSSH2_PRIV_H
-/* Copyright (c) 2004-2008, 2010, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2014 by Daniel Stenberg
- * Copyright (c) 2010 Simon Josefsson
+/* Copyright (C) Sara Golemon <sarag@libssh2.org>
+ * Copyright (C) Daniel Stenberg
+ * Copyright (C) Simon Josefsson
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,

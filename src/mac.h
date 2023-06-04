@@ -1,6 +1,7 @@
 #ifndef __LIBSSH2_MAC_H
 #define __LIBSSH2_MAC_H
-/* Copyright (C) 2009-2010 by Daniel Stenberg
+/* Copyright (C) Daniel Stenberg
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided

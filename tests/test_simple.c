@@ -1,5 +1,5 @@
-/* Copyright (C) 2007 The Written Word, Inc.
- * Copyright (C) 2008, 2010 Simon Josefsson
+/* Copyright (C) The Written Word, Inc.
+ * Copyright (C) Simon Josefsson
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,

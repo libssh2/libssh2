@@ -1,7 +1,6 @@
 #ifndef __LIBSSH2_MISC_H
 #define __LIBSSH2_MISC_H
-/* Copyright (c) 2009-2019 by Daniel Stenberg
- *
+/* Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,

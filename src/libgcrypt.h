@@ -1,8 +1,8 @@
 #ifndef __LIBSSH2_LIBGCRYPT_H
 #define __LIBSSH2_LIBGCRYPT_H
 /*
- * Copyright (C) 2008, 2009, 2010 Simon Josefsson
- * Copyright (C) 2006, 2007, The Written Word, Inc.
+ * Copyright (C) Simon Josefsson
+ * Copyright (C) The Written Word, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
