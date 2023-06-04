@@ -1,4 +1,5 @@
-/*
+/* Copyright (C) The libssh2 project and its contributors.
+ *
  * Sample showing how to do SFTP transfers in a non-blocking manner.
  *
  * It will first download a given source file, store it locally and then

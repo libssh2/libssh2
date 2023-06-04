@@ -1,4 +1,5 @@
-/*
+/* Copyright (C) The libssh2 project and its contributors.
+ *
  * Sample doing an SFTP directory listing.
  *
  * The sample code has default values for host name, user name, password and

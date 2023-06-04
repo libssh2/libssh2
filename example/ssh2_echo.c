@@ -1,4 +1,5 @@
-/*
+/* Copyright (C) The libssh2 project and its contributors.
+ *
  * The code sends a 'cat' command, and then writes a lot of data to it only to
  * check that reading the returned data sums up to the same amount.
  *

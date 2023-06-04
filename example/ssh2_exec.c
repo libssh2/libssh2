@@ -1,4 +1,5 @@
-/*
+/* Copyright (C) The libssh2 project and its contributors.
+ *
  * Sample showing how to use libssh2 to execute a command remotely.
  *
  * The sample code has fixed values for host name, user name, password

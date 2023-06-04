@@ -1,3 +1,5 @@
+/* Copyright (C) Viktor Szakats */
+
 /* Warm-up test. Always return success.
    Workaround for CI/docker/etc flakiness on the first run. */
 

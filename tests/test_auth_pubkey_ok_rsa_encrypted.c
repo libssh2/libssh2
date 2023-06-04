@@ -1,3 +1,5 @@
+/* Copyright (C) The libssh2 project and its contributors. */
+
 #include "runner.h"
 
 int test(LIBSSH2_SESSION *session)

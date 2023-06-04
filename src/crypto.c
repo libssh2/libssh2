@@ -1,3 +1,5 @@
+/* Copyright (C) Viktor Szakats */
+
 #define LIBSSH2_CRYPTO_C
 #include "libssh2_priv.h"
 
