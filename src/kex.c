@@ -1685,7 +1685,6 @@ do {                                                                         \
 static int
 kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
 {
-    int ret = 0;
     libssh2_curve_type type;
 
     if(!name)
@@ -1698,19 +1697,14 @@ kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
     else if(strcmp(name, "ecdh-sha2-nistp521") == 0)
         type = LIBSSH2_EC_CURVE_NISTP521;
     else {
-/* silence:
-   warning C4701: potentially uninitialized local variable 'type' used */
-#if defined(_MSC_VER)
-        type = (libssh2_curve_type)0;
-#endif
-        ret = -1;
+        return -1;
     }
 
-    if(ret == 0 && out_type) {
+    if(out_type) {
         *out_type = type;
     }
 
-    return ret;
+    return 0;
 }
 
 
