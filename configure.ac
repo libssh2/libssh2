@@ -24,10 +24,6 @@ AC_MSG_RESULT($LIBSSH2VER)
 
 AC_SUBST(LIBSSH2VER)
 
-AB_VERSION=$LIBSSH2VER
-
-AB_INIT
-
 # Check for the OS.
 # Daniel's note: this should not be necessary and we need to work to
 # get this removed.
