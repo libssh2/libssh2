@@ -1,5 +1,8 @@
 /***************************************************************************
-* libssh2 Windows resource file                                            *
+* libssh2 Windows resource file
+* Copyright (C) The libssh2 project and its contributors.
+*                                      
+* SPDX-License-Identifier: BSD-3-Clause
 ***************************************************************************/
 #include <winver.h>
 #include "libssh2.h"

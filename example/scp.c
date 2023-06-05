@@ -1,6 +1,8 @@
 /* Copyright (C) The libssh2 project and its contributors.
  *
  * Sample showing how to do a simple SCP transfer.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_setup.h"

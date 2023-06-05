@@ -1,3 +1,5 @@
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
 dnl CURL_CPP_P
 dnl
 dnl Check if $cpp -P should be used for extract define values due to gcc 5

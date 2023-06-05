@@ -40,6 +40,8 @@
       *
       * For more information on the publickey subsystem,
       * refer to IETF draft: secsh-publickey
+      *
+      * SPDX-License-Identifier: BSD-3-Clause
 
       /if not defined(LIBSSH2_PUBLICKEY_H_)
       /define LIBSSH2_PUBLICKEY_H_

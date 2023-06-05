@@ -1,4 +1,7 @@
-/* Copyright (C) Viktor Szakats */
+/* Copyright (C) Viktor Szakats
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 /* Warm-up test. Always return success.
    Workaround for CI/docker/etc flakiness on the first run. */

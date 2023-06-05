@@ -38,6 +38,8 @@
  * OF SUCH DAMAGE.
  *
  * This file handles reading and writing to the SECSH transport layer. RFC4253.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"

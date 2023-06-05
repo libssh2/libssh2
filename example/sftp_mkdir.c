@@ -6,6 +6,8 @@
  * and path to copy, but you can specify them on the command line like:
  *
  * $ ./sftp_mkdir 192.168.0.1 user password /tmp/sftp_mkdir
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_setup.h"

@@ -10,6 +10,7 @@
  *
  * $ ./ssh2_agent_forwarding 127.0.0.1 user "uptime"
  *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_setup.h"

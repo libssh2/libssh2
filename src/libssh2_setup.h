@@ -1,4 +1,7 @@
-/* Copyright (C) Viktor Szakats */
+/* Copyright (C) Viktor Szakats
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #ifndef LIBSSH2_SETUP_H
 #define LIBSSH2_SETUP_H
