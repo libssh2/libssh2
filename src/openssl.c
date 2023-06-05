@@ -355,7 +355,6 @@ int
 _libssh2_ecdsa_curve_type_from_name(const char *name,
                                     libssh2_curve_type *out_type)
 {
-    int ret = 0;
     libssh2_curve_type type;
 
     if(!name || strlen(name) != 19)
@@ -368,19 +367,14 @@ _libssh2_ecdsa_curve_type_from_name(const char *name,
     else if(strcmp(name, "ecdsa-sha2-nistp521") == 0)
         type = LIBSSH2_EC_CURVE_NISTP521;
     else {
-/* silence:
-   warning C4701: potentially uninitialized local variable 'type' used */
-#if defined(_MSC_VER)
-        type = (libssh2_curve_type)0;
-#endif
-        ret = -1;
+        return -1;
     }
 
-    if(ret == 0 && out_type) {
+    if(out_type) {
         *out_type = type;
     }
 
-    return ret;
+    return 0;
 }
 
 /* _libssh2_ecdsa_curve_name_with_octal_new
