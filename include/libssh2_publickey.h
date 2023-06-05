@@ -41,6 +41,8 @@
  *
  * For more information on the publickey subsystem,
  * refer to IETF draft: secsh-publickey
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef LIBSSH2_PUBLICKEY_H

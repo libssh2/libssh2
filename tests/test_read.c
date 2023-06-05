@@ -1,6 +1,8 @@
 /* Copyright (C) The libssh2 project and its contributors.
  *
  * libssh2 test receiving large amounts of data through a channel
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "runner.h"

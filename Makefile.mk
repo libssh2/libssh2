@@ -3,10 +3,12 @@
 # Makefile for building libssh2 with GCC-like toolchains.
 # Use: make -f Makefile.mk [help|all|clean|dist|distclean|dyn|objclean|example|exampleclean|test|testclean]
 #
-# Written by Guenter Knauf and Viktor Szakats
+# Copyright (C) Guenter Knauf
+# Copyright (C) Viktor Szakats
 #
 # Look for ' ?=' to find accepted customization variables.
 #
+# SPDX-License-Identifier: BSD-3-Clause
 #########################################################################
 
 ### Common

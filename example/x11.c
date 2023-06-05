@@ -3,6 +3,8 @@
  * Sample showing how to makes SSH2 with X11 Forwarding works.
  *
  * $ ./x11 host user password [DEBUG]
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_setup.h"

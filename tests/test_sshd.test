@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-
-# Written by Simon Josefsson and Viktor Szakats
-
+# Copyright (C) Simon Josefsson
+# Copyright (C) Viktor Szakats
+# SPDX-License-Identifier: BSD-3-Clause
+#
 # Start sshd, invoke test(s), saving exit code, kill sshd, and
 # return exit code.
 

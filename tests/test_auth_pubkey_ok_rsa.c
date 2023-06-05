@@ -1,4 +1,7 @@
-/* Copyright (C) The libssh2 project and its contributors. */
+/* Copyright (C) The libssh2 project and its contributors.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #include "runner.h"
 

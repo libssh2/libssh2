@@ -5,6 +5,8 @@
  * The sample code has default values for host name, user name:
  *
  * $ ./ssh2_agent host user
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_setup.h"

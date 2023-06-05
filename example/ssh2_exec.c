@@ -7,6 +7,7 @@
  *
  * $ ./ssh2_exec 127.0.0.1 user password "uptime"
  *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_setup.h"

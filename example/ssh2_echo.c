@@ -5,6 +5,7 @@
  *
  * $ ./ssh2_echo 127.0.0.1 user password
  *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_setup.h"

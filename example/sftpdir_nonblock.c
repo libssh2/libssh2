@@ -6,6 +6,8 @@
  * path, but you can specify them on the command line like:
  *
  * $ ./sftpdir_nonblock 192.168.0.1 user password /tmp/secretdir
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_setup.h"

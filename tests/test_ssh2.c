@@ -1,6 +1,9 @@
-/* Copyright (C) The libssh2 project and its contributors. */
-
-/* Self test, based on example/ssh2.c. */
+/* Copyright (C) The libssh2 project and its contributors.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Self test, based on example/ssh2.c.
+ */
 
 #include "libssh2_setup.h"
 #include <libssh2.h>

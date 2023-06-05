@@ -6,6 +6,8 @@
  * upload the file again to a given destination file.
  *
  * Using the SFTP server running on 127.0.0.1
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_setup.h"

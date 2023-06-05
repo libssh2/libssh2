@@ -1,4 +1,7 @@
 #!/bin/sh
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
+#
 # Script to build release-archives with. Note that this requires a checkout
 # from git and you should first run 'autoreconf -fi' and './configure'.
 #

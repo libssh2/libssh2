@@ -1,3 +1,8 @@
+# Copyright (C) The libssh2 project and its contributors.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+
 # AC_PREREQ(2.59)
 AC_INIT([libssh2],[-],[libssh2-devel@lists.haxx.se])
 AC_CONFIG_MACRO_DIR([m4])

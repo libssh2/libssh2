@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
 #
 #       Installation of the header files in the OS/400 library.
 #

@@ -1,4 +1,6 @@
 #!/usr/bin/env pwsh
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
 
 # Partially copied from https://github.com/appveyor/ci/blob/master/scripts/enable-rdp.ps1
 
