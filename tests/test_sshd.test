@@ -107,13 +107,16 @@ if [ -n "${SSH}" ]; then
       -o 'ConnectTimeout 3' \
       -i "${PRIVKEY}" \
       -p 4711 ${SSH_FLAGS:-} localhost exit 2>/dev/null; do
-    echo '# waiting for sshd...'
     ((count++))
-    [[ "${count}" -gt 8 ]] && break
+    if [[ "${count}" -gt 8 ]]; then
+      echo '# giving up waiting for sshd. Tests are expected to fail.'
+      break
+    fi
+    echo '# waiting for sshd...'
     sleep 1
   done
 else
-  echo '# waiting for sshd...'
+  echo '# giving time for sshd to launch...'
   sleep 5
 fi
 
