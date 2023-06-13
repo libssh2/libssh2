@@ -1195,6 +1195,8 @@ size_t plain_method(char *method, size_t method_len);
 /* define to output the libssh2_int64_t type in a *printf() */
 #if defined(__BORLANDC__) || defined(_MSC_VER)
 #define LIBSSH2_INT64_T_FORMAT "I64d"
+#elif defined(__MINGW32__)
+#define LIBSSH2_INT64_T_FORMAT PRId64
 #else
 #define LIBSSH2_INT64_T_FORMAT "lld"
 #endif
