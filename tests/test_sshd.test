@@ -76,6 +76,7 @@ chmod go-rwx \
   -h "${d}/openssh_server/ssh_host_rsa_key" \
   -h "${d}/openssh_server/ssh_host_ecdsa_key" \
   -h "${d}/openssh_server/ssh_host_ed25519_key" \
+  -o 'PidFile sshd.pid' \
   -o "AuthorizedKeysFile ${PUBKEY} ${d}/openssh_server/authorized_keys" \
   -o "TrustedUserCAKeys ${cakeys}" \
   -o 'PermitRootLogin yes' \
