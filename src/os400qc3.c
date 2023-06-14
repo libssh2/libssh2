@@ -2431,7 +2431,11 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
 
     if(key_method_len == 7 &&
        memcmp(key_method, "ssh-rsa", key_method_len) == 0) {
-        return "rsa-sha2-512,rsa-sha2-256,ssh-rsa";
+        return "rsa-sha2-512,rsa-sha2-256"
+#if LIBSSH2_RSA_SHA1
+            ",ssh-rsa"
+#endif
+            ;
     }
 
     return NULL;
