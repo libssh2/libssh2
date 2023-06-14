@@ -263,7 +263,7 @@ int _libssh2_sha384_init(libssh2_sha384_ctx *ctx);
                                             EVP_MD_CTX_free(ctx); \
                                        } while(0)
 #else
-#define libssh2_sha384_update(ctx, data, len)   \
+#define libssh2_sha384_update(ctx, data, len) \
     EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha384_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
@@ -287,7 +287,7 @@ int _libssh2_sha512_init(libssh2_sha512_ctx *ctx);
                                             EVP_MD_CTX_free(ctx); \
                                        } while(0)
 #else
-#define libssh2_sha512_update(ctx, data, len)   \
+#define libssh2_sha512_update(ctx, data, len) \
     EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha512_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
 #endif
