@@ -1059,7 +1059,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                 }
             _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                            "crypting bytes %d-%d", i,
-                           i + session->local.crypt->blocksize - 1));
+                           i + bsize - 1));
             if(session->local.crypt->crypt(session, ptr,
                                            bsize,
                                            &session->local.crypt_abstract,
