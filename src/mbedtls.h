@@ -41,6 +41,7 @@
 
 #define LIBSSH2_CRYPTO_ENGINE libssh2_mbedtls
 
+#include <mbedtls/version.h>
 #include <mbedtls/platform.h>
 #include <mbedtls/md.h>
 #include <mbedtls/rsa.h>
