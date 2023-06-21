@@ -25,7 +25,7 @@ ec=0
 if command -v grep >/dev/null 2>&1 && \
    man --help 2>/dev/null | grep -q warnings; then
 
-  trap 'rm -f "$dstdir/man3"' EXIT
+  trap 'rm -f "$dstdir/man3"' EXIT HUP INT TERM
 
   ln -sf "$mandir" "$dstdir/man3"
 

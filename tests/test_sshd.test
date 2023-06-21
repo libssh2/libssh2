@@ -91,7 +91,7 @@ chmod go-rwx \
   ${SSHD_FLAGS} &
 sshdpid=$!
 
-trap 'kill "${sshdpid}"; echo "# signal killing sshd"; exit 1;' EXIT
+trap 'kill "${sshdpid}"; echo "# signal killing sshd"; exit 1;' EXIT HUP INT TERM
 
 : "started sshd (${sshdpid})"
 
@@ -160,7 +160,7 @@ done
 
 : "killing sshd (${sshdpid})"
 kill "${sshdpid}" > /dev/null 2>&1
-trap '' EXIT
+trap '' EXIT HUP INT TERM
 
 [ "${via_args}" = '1' ] && [ "${total}" != '1' ] && ec="${anyerror}"
 
