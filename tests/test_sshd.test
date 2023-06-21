@@ -60,10 +60,10 @@ echo "# sshd executable: '${SSHD}' (${ver})"
 [ -z "${PUBKEY:-}" ]  && export PUBKEY="${d}/key_rsa.pub"
 cakeys="${d}/openssh_server/ca_user_keys.pub"
 
-readonly logfsrv="${d}/sshd.log"
-readonly logfcli="${d}/ssh.log"
+readonly logfsrv="$(mktemp)"
+readonly logfcli="$(mktemp)"
 
-rm -f "${logfsrv}" "${logfcli}"
+echo "# sshd log: '${logfsrv}'"
 
 SSHD_FLAGS="${SSHD_FLAGS:-}"
 if [ -n "${DEBUG:-}" ]; then
@@ -98,6 +98,7 @@ trap 'kill "${sshdpid}"; echo "# signal killing sshd"; exit 1;' EXIT
 SSH="$(command -v "${SSH:-ssh}" || true)"
 if [ -n "${SSH}" ]; then
   echo "# ssh executable: '${SSH}' ($("${SSH}" -V 2>&1 || true))"
+  echo "# ssh log: '${logfcli}'"
   chmod go-rwx "${PRIVKEY}"
   if [[ "${uname}" = *'_NT'* ]]; then
     export MSYS2_ARG_CONV_EXCL='/reset'
