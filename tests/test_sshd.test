@@ -60,9 +60,16 @@ echo "# sshd executable: '${SSHD}' (${ver})"
 [ -z "${PUBKEY:-}" ]  && export PUBKEY="${d}/key_rsa.pub"
 cakeys="${d}/openssh_server/ca_user_keys.pub"
 
+readonly logfsrv="${d}/sshd.log"
+readonly logfcli="${d}/ssh.log"
+
+rm -f "${logfsrv}" "${logfcli}"
+
 SSHD_FLAGS="${SSHD_FLAGS:-}"
 if [ -n "${DEBUG:-}" ]; then
   SSHD_FLAGS+=' -d -d'
+else
+  SSHD_FLAGS+=" -E ${logfsrv}"
 fi
 
 chmod go-rwx \
@@ -107,10 +114,14 @@ if [ -n "${SSH}" ]; then
       -o 'UserKnownHostsFile /dev/null' \
       -o 'ConnectTimeout 3' \
       -i "${PRIVKEY}" \
-      -p 4711 ${SSH_FLAGS:-} localhost exit 2>/dev/null; do
+      -p 4711 ${SSH_FLAGS:-} localhost exit 2>>"${logfcli}"; do
     ((count++))
     if [[ "${count}" -gt 8 ]]; then
       echo '# giving up waiting for sshd. Tests are expected to fail.'
+      echo '# sshd log:'
+      sed 's/^/#  /' < "${logfsrv}"
+      echo '# ssh test connect log:'
+      sed 's/^/#  /' < "${logfcli}"
       break
     fi
     echo '# waiting for sshd...'
