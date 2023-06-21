@@ -27,8 +27,3 @@ License: BSD-3-Clause
 Files: .checksrc .editorconfig .github/ISSUE_TEMPLATE/bug_report.md .github/SECURITY.md .github/stale.yml .gitignore example/.gitignore m4/.gitignore src/.gitignore tests/.gitignore
 Copyright: The libssh2 project and its contributors.
 License: BSD-3-Clause
-
-# autotools INSTALL
-Files: docs/INSTALL_AUTOTOOLS
-Copyright: Free Software Foundation, Inc.
-License: FSFULLR
