@@ -143,14 +143,14 @@ install(FILES
 
 if(BUILD_STATIC_LIBS)
   install(TARGETS ${LIB_STATIC}
-    EXPORT Libssh2Config
+    EXPORT libssh2-targets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 if(BUILD_SHARED_LIBS)
   install(TARGETS ${LIB_SHARED}
-    EXPORT Libssh2Config
+    EXPORT libssh2-targets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
@@ -163,15 +163,21 @@ set(RUNTIME_DEPENDENCIES ${_RUNTIME_DEPENDENCIES} CACHE INTERNAL
 
 # Package config
 
-## During package installation, install Libssh2Config.cmake
-install(EXPORT Libssh2Config
-  NAMESPACE Libssh2::
+## During package installation, install libssh2-targets.cmake
+install(EXPORT libssh2-targets
+  NAMESPACE libssh2::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)
 
 ## During build, register directly from build tree
-# create Libssh2Config.cmake
-export(TARGETS ${libssh2_export} NAMESPACE Libssh2:: FILE Libssh2Config.cmake)
-export(PACKAGE Libssh2) # register it
+# create libssh2-targets.cmake
+export(TARGETS ${libssh2_export} NAMESPACE libssh2:: FILE libssh2-targets.cmake)
+export(PACKAGE libssh2)  # register it
+
+# Generate libssh2-config.cmake into build tree and install it
+configure_file(${CMAKE_SOURCE_DIR}/cmake/libssh2-config.cmake.in libssh2-config.cmake @ONLY)
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/libssh2-config.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)
 
 ## Export a .pc file for client projects not using CMaek
 if(PC_REQUIRES_PRIVATE)
@@ -209,9 +215,9 @@ endif()
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/Libssh2ConfigVersion.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/libssh2-config-version.cmake
   VERSION "${LIBSSH2_VERSION_MAJOR}.${LIBSSH2_VERSION_MINOR}.${LIBSSH2_VERSION_PATCH}"
   COMPATIBILITY SameMajorVersion)
 install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/Libssh2ConfigVersion.cmake
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/libssh2-config-version.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)
