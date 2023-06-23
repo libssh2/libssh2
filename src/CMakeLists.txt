@@ -100,7 +100,7 @@ endif()
 
 # we want it to be called libssh2 on all platforms
 if(BUILD_STATIC_LIBS)
-  list(APPEND libssh2_export libssh2:${LIB_STATIC})
+  list(APPEND libssh2_export ${LIB_STATIC})
   add_library(${LIB_STATIC} STATIC ${SOURCES})
   target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
   target_link_libraries(${LIB_STATIC} PRIVATE ${LIBRARIES})
@@ -114,7 +114,7 @@ if(BUILD_STATIC_LIBS)
       $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 endif()
 if(BUILD_SHARED_LIBS)
-  list(APPEND libssh2_export libssh2:${LIB_SHARED})
+  list(APPEND libssh2_export ${LIB_SHARED})
   add_library(${LIB_SHARED} SHARED ${SOURCES})
   if(WIN32)
     set_property(TARGET ${LIB_SHARED} APPEND PROPERTY SOURCES libssh2.rc)
@@ -177,7 +177,7 @@ list(APPEND libssh2_export Libssh2::libssh2)
 
 ## During build, register directly from build tree
 # create Libssh2Config.cmake
-export(TARGETS ${libssh2_export} FILE Libssh2Config.cmake)
+export(TARGETS ${libssh2_export} NAMESPACE libssh2:: FILE Libssh2Config.cmake)
 export(PACKAGE libssh2)  # register it
 
 ## Export a .pc file for client projects not using CMaek
