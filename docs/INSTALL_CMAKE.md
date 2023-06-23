@@ -134,8 +134,8 @@ setting it up with libssh2's location. Add the following lines and
 CMake will find libssh2 on your system, set up the necessary paths and
 link the library with your binary.
 
-    find_package(Libssh2 REQUIRED CONFIG)
-    target_link_libraries(my_project_target Libssh2::libssh2)
+    find_package(libssh2 REQUIRED CONFIG)
+    target_link_libraries(my_project_target libssh2::libssh2)
 
 You still have to make libssh2 available on your system first.  You can
 install it in the traditional way shown above, but you do not have to.
@@ -149,13 +149,13 @@ builds your project:
     include(ExternalProject)
 
     ExternalProject_Add(
-        Libssh2
+        libssh2
         URL <libssh2 download location>
         URL_HASH SHA256=<libssh2 archive SHA256>
         INSTALL_COMMAND "")
 
     ExternalProject_Add(
-        MyProject DEPENDS Libssh2
+        MyProject DEPENDS libssh2
         SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src
         INSTALL_COMMAND "")
 
