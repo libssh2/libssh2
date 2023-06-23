@@ -151,7 +151,7 @@ builds your project:
     ExternalProject_Add(
         Libssh2
         URL <libssh2 download location>
-        URL_HASH SHA1=<libssh2 archive SHA1>
+        URL_HASH SHA256=<libssh2 archive SHA256>
         INSTALL_COMMAND "")
 
     ExternalProject_Add(
