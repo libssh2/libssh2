@@ -143,14 +143,14 @@ install(FILES
 
 if(BUILD_STATIC_LIBS)
   install(TARGETS ${LIB_STATIC}
-    EXPORT Libssh2Config
+    EXPORT libssh2-targets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 if(BUILD_SHARED_LIBS)
   install(TARGETS ${LIB_SHARED}
-    EXPORT Libssh2Config
+    EXPORT libssh2-targets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
@@ -163,21 +163,20 @@ set(RUNTIME_DEPENDENCIES ${_RUNTIME_DEPENDENCIES} CACHE INTERNAL
 
 # Package config
 
-## During package installation, install Libssh2Config.cmake
-install(EXPORT Libssh2Config
+## During package installation, install libssh2-targets.cmake
+install(EXPORT libssh2-targets
   NAMESPACE libssh2::
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)
 
-# select default lib flavour for dependents
-add_library(libssh2::libssh2 ALIAS ${LIB_SELECTED})
-list(APPEND libssh2_export libssh2::libssh2)
-# for compatibility with v1.10.0 and earlier:
-add_library(Libssh2::libssh2 ALIAS ${LIB_SELECTED})
-list(APPEND libssh2_export Libssh2::libssh2)
+# Generate libssh2-config.cmake into build tree and install it
+configure_file(${CMAKE_SOURCE_DIR}/libssh2-config.cmake.in libssh2-config.cmake @ONLY)
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/libssh2-config.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)
 
 ## During build, register directly from build tree
-# create Libssh2Config.cmake
-export(TARGETS ${libssh2_export} NAMESPACE libssh2:: FILE Libssh2Config.cmake)
+# create libssh2-targets.cmake
+export(TARGETS ${libssh2_export} NAMESPACE libssh2:: FILE libssh2-targets.cmake)
 export(PACKAGE libssh2)  # register it
 
 ## Export a .pc file for client projects not using CMaek
@@ -216,9 +215,9 @@ endif()
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/Libssh2ConfigVersion.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/libssh2-targets-version.cmake
   VERSION "${LIBSSH2_VERSION_MAJOR}.${LIBSSH2_VERSION_MINOR}.${LIBSSH2_VERSION_PATCH}"
   COMPATIBILITY SameMajorVersion)
 install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/Libssh2ConfigVersion.cmake
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/libssh2-targets-version.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)

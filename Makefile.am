@@ -37,8 +37,8 @@ OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   os400/libssh2rpg/libssh2_publickey.rpgle \
   os400/libssh2rpg/libssh2_sftp.rpgle
 
-EXTRA_DIST = $(WIN32FILES) get_ver.awk \
-  maketgz RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
+EXTRA_DIST = $(WIN32FILES) get_ver.awk maketgz RELEASE-NOTES \
+  libssh2-config.cmake.in libssh2.pc.in $(VMSFILES) config.rpath \
   CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES) \
   buildconf Makefile.mk
 
