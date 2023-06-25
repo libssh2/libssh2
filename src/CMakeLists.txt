@@ -215,9 +215,9 @@ endif()
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/libssh2-targets-version.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/libssh2-config-version.cmake
   VERSION "${LIBSSH2_VERSION_MAJOR}.${LIBSSH2_VERSION_MINOR}.${LIBSSH2_VERSION_PATCH}"
   COMPATIBILITY SameMajorVersion)
 install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/libssh2-targets-version.cmake
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/libssh2-config-version.cmake
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)
