@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
 
         /* this is due to blocking that would occur otherwise so we loop on
            this condition */
-        if(rc == LIBSSH2_ERROR_EAGAIN) {
+        if(nread == LIBSSH2_ERROR_EAGAIN) {
             waitsocket(sock, session);
         }
         else
