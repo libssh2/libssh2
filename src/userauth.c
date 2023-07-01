@@ -1410,7 +1410,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
             LIBSSH2_FREE(session, *key_method);
 
         *key_method = LIBSSH2_ALLOC(session, match_len);
-        if(key_method) {
+        if(*key_method) {
             memcpy(*key_method, match, match_len);
             *key_method_len = match_len;
         }
