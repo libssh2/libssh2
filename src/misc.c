@@ -901,8 +901,6 @@ int _libssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
         }
     }
     else {
-        if(outlen)
-            *outlen = 0;
         *outbuf = NULL;
     }
 
