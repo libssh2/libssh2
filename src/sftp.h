@@ -99,6 +99,7 @@ struct _LIBSSH2_SFTP_HANDLE
         struct _libssh2_sftp_handle_file_data
         {
             libssh2_uint64_t offset;
+            libssh2_uint64_t offset_remote;
             libssh2_uint64_t offset_sent;
             size_t acked; /* container for acked data that hasn't been
                              returned to caller yet, used for sftp_write */

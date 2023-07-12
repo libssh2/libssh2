@@ -101,6 +101,9 @@ static int sftp_packet_ask(LIBSSH2_SFTP *sftp, unsigned char packet_type,
                            uint32_t request_id, unsigned char **data,
                            size_t *data_len);
 static void sftp_packet_flush(LIBSSH2_SFTP *sftp);
+static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
+                     unsigned int path_len, int stat_type,
+                     LIBSSH2_SFTP_ATTRIBUTES * attrs);
 
 /* _libssh2_store_u64
  */
@@ -1348,6 +1351,22 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
         fp->u.file.offset = 0;
         fp->u.file.offset_sent = 0;
 
+        if(mode & LIBSSH2_FXF_APPEND) {
+            int ret = sftp_stat(fp->sftp, filename, (uint32_t)filename_len,
+                                    LIBSSH2_SFTP_STAT, &attrs);
+
+            if(ret) {
+                LIBSSH2_FREE(session, fp);
+                _libssh2_error(session, ret, "Unable to get remote filesize");
+
+                return NULL;
+            }
+
+            fp->u.file.offset_remote = attrs.filesize;
+        }
+        else
+            fp->u.file.offset_remote = 0;
+
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
                        "Open command successful"));
         return fp;
@@ -2147,7 +2166,8 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
             chunk->request_id = request_id;
             _libssh2_store_u32(&s, request_id);
             _libssh2_store_str(&s, handle->handle, handle->handle_len);
-            _libssh2_store_u64(&s, handle->u.file.offset_sent);
+            _libssh2_store_u64(&s, handle->u.file.offset_remote +
+                                   handle->u.file.offset_sent);
             handle->u.file.offset_sent += size; /* advance offset at once */
             _libssh2_store_str(&s, buffer, size);
 
