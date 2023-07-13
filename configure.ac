@@ -392,6 +392,14 @@ fi
 
 LIBS="${LIBS} ${LTLIBZ}"
 
+dnl merge the pkg-config Libs.private field into Libs when static-only
+if test "x$enable_shared" = "xno"; then
+  LIBSSH2_PKGCONFIG_LIBS_NO_SHARED=$LIBS
+else
+  LIBSSH2_PKGCONFIG_LIBS_NO_SHARED=
+fi
+AC_SUBST(LIBSSH2_PKGCONFIG_LIBS_NO_SHARED)
+
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  tests/Makefile
