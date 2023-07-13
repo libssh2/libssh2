@@ -392,6 +392,17 @@ fi
 
 LIBS="${LIBS} ${LTLIBZ}"
 
+dnl merge the pkg-config private fields into public ones when static-only
+if test "x$enable_shared" = "xyes"; then
+  LIBSSH2_PC_REQUIRES=
+  LIBSSH2_PC_LIBS=
+else
+  LIBSSH2_PC_REQUIRES=$LIBSREQUIRED
+  LIBSSH2_PC_LIBS=$LIBS
+fi
+AC_SUBST(LIBSSH2_PC_REQUIRES)
+AC_SUBST(LIBSSH2_PC_LIBS)
+
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  tests/Makefile

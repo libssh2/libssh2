@@ -14,7 +14,8 @@ Name: libssh2
 URL: https://www.libssh2.org/
 Description: Library for SSH-based communication
 Version: @LIBSSH2VER@
+Requires: @LIBSSH2_PC_REQUIRES@
 Requires.private: @LIBSREQUIRED@
-Libs: -L${libdir} -lssh2
+Libs: -L${libdir} -lssh2 @LIBSSH2_PC_LIBS@
 Libs.private: @LIBS@
 Cflags: -I${includedir}
