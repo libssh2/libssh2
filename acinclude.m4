@@ -778,7 +778,7 @@ m4_case([$1],
 [openssl], [
   LIBSSH2_LIB_HAVE_LINKFLAGS([ssl], [crypto], [#include <openssl/ssl.h>], [
     AC_DEFINE(LIBSSH2_OPENSSL, 1, [Use $1])
-    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }libssl libcrypto"
+    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+,}libssl,libcrypto"
     found_crypto="$1"
     found_crypto_str="OpenSSL"
   ])
@@ -792,7 +792,7 @@ m4_case([$1],
   fi
   LIBSSH2_LIB_HAVE_LINKFLAGS([wolfssl], [], [#include <wolfssl/options.h>], [
     AC_DEFINE(LIBSSH2_WOLFSSL, 1, [Use $1])
-    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }wolfssl"
+    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+,}wolfssl"
     found_crypto="$1"
   ])
 ],
@@ -800,7 +800,7 @@ m4_case([$1],
 [libgcrypt], [
   LIBSSH2_LIB_HAVE_LINKFLAGS([gcrypt], [], [#include <gcrypt.h>], [
     AC_DEFINE(LIBSSH2_LIBGCRYPT, 1, [Use $1])
-    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }libgcrypt"
+    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+,}libgcrypt"
     found_crypto="$1"
   ])
 ],
