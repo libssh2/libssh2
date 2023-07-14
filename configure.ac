@@ -146,7 +146,7 @@ Try --with-libz-prefix=PATH if you know that you have it."
     fi
   else
     AC_DEFINE(LIBSSH2_HAVE_ZLIB, 1, [Compile in zlib support])
-    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }zlib"
+    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+,}zlib"
     found_libz="yes"
   fi
 fi
