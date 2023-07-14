@@ -800,6 +800,7 @@ m4_case([$1],
 [libgcrypt], [
   LIBSSH2_LIB_HAVE_LINKFLAGS([gcrypt], [], [#include <gcrypt.h>], [
     AC_DEFINE(LIBSSH2_LIBGCRYPT, 1, [Use $1])
+    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }libgcrypt"
     found_crypto="$1"
   ])
 ],
