@@ -50,9 +50,9 @@ list(APPEND STANDALONE_TESTS ${STANDALONE_TESTS_STATIC})
 if(CMAKE_COMPILER_IS_GNUCC)
   find_program(GCOV_PATH gcov)
   if(GCOV_PATH)
-    set(GCOV_OPTIONS -g --coverage)
+    set(GCOV_CFLAGS -g --coverage)
     if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
-      set(GCOV_OPTIONS "${GCOV_OPTIONS} -fprofile-abs-path")
+      set(GCOV_CFLAGS "${GCOV_CFLAGS} -fprofile-abs-path")
     endif()
   endif()
 endif()
@@ -94,7 +94,7 @@ foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
 
     # build a single test with gcov
     if(GCOV_PATH AND test STREQUAL test_auth_keyboard_info_request AND TARGET ${LIB_STATIC})
-      target_compile_options(${test} BEFORE PRIVATE ${GCOV_OPTIONS})
+      target_compile_options(${test} BEFORE PRIVATE ${GCOV_CFLAGS})
       target_link_libraries(${test} runner ${LIB_FOR_TESTS} ${LIBRARIES} gcov)
     else()
       target_link_libraries(${test} runner ${LIB_FOR_TESTS} ${LIBRARIES})
@@ -154,9 +154,9 @@ if(RUN_DOCKER_TESTS)
 endif()
 
 add_custom_target(coverage
-  COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/*
+  COMMAND gcovr --root "${CMAKE_SOURCE_DIR}" --exclude tests/*
   COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/coverage/"
-  COMMAND gcovr -r "${CMAKE_SOURCE_DIR}" --exclude tests/* --html-details --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
+  COMMAND gcovr --root "${CMAKE_SOURCE_DIR}" --exclude tests/* --html-details --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
 
 add_custom_target(clean-coverage
   COMMAND rm -rf "${CMAKE_CURRENT_BINARY_DIR}/coverage/")

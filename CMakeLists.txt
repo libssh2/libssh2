@@ -36,6 +36,10 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+cmake_minimum_required(VERSION 3.1)
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
+
 include(CheckFunctionExists)
 include(CheckSymbolExists)
 include(CheckIncludeFiles)
@@ -43,13 +47,8 @@ include(CheckSymbolExists)
 include(CMakePushCheckState)
 include(FeatureSummary)
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 include(CheckFunctionExistsMayNeedLibrary)
 include(CheckNonblockingSocketSupport)
-
-cmake_minimum_required(VERSION 3.1)
-
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 project(libssh2 C)
 
@@ -65,7 +64,7 @@ add_feature_info("Shared library" BUILD_SHARED_LIBS
 
 # Parse version
 
-file(READ ${CMAKE_CURRENT_SOURCE_DIR}/include/libssh2.h _HEADER_CONTENTS)
+file(READ ${PROJECT_SOURCE_DIR}/include/libssh2.h _HEADER_CONTENTS)
 string(
   REGEX REPLACE ".*#define LIBSSH2_VERSION[ \t]+\"([^\"]+)\".*" "\\1"
   LIBSSH2_VERSION "${_HEADER_CONTENTS}")
@@ -86,7 +85,7 @@ if(NOT LIBSSH2_VERSION OR
   message(
     FATAL_ERROR
     "Unable to parse version from"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/libssh2.h")
+    "${PROJECT_SOURCE_DIR}/include/libssh2.h")
 endif()
 
 include(GNUInstallDirs)

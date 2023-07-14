@@ -181,6 +181,7 @@ install(
 
 ## Export a .pc file for client projects not using CMaek
 if(PC_REQUIRES_PRIVATE)
+  list(REMOVE_DUPLICATES PC_REQUIRES_PRIVATE)
   string(REPLACE ";" "," PC_REQUIRES_PRIVATE "${PC_REQUIRES_PRIVATE}")
 endif()
 if(PC_LIBS)
