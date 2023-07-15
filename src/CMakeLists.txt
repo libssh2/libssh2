@@ -189,7 +189,7 @@ endif()
 set(LIBSSH2VER ${LIBSSH2_VERSION})
 set(LIBSREQUIRED ${PC_REQUIRES_PRIVATE})
 set(LIBS ${PC_LIBS})
-# merge the pkg-config Libs.private field into Libs when static-only
+# merge the pkg-config private fields into public ones when static-only
 if(BUILD_SHARED_LIBS)
   set(LIBSSH2_PKGCONFIG_REQUIRES_NO_SHARED "")
   set(LIBSSH2_PKGCONFIG_LIBS_NO_SHARED "")

@@ -392,7 +392,7 @@ fi
 
 LIBS="${LIBS} ${LTLIBZ}"
 
-dnl merge the pkg-config Libs.private field into Libs when static-only
+dnl merge the pkg-config private fields into public ones when static-only
 if test "x$enable_shared" = "xyes"; then
   LIBSSH2_PKGCONFIG_REQUIRES_NO_SHARED=
   LIBSSH2_PKGCONFIG_LIBS_NO_SHARED=
