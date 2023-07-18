@@ -22,12 +22,12 @@ if test "x$SED" = "xsed-was-not-found-by-configure"; then
 fi
 
 dnl figure out the libssh2 version
-LIBSSH2VER=`$SED -ne 's/^#define LIBSSH2_VERSION *"\(.*\)"/\1/p' ${srcdir}/include/libssh2.h`
+LIBSSH2_VERSION=`$SED -ne 's/^#define LIBSSH2_VERSION *"\(.*\)"/\1/p' ${srcdir}/include/libssh2.h`
 AM_INIT_AUTOMAKE
 AC_MSG_CHECKING([libssh2 version])
-AC_MSG_RESULT($LIBSSH2VER)
+AC_MSG_RESULT($LIBSSH2_VERSION)
 
-AC_SUBST(LIBSSH2VER)
+AC_SUBST(LIBSSH2_VERSION)
 
 # Check for the OS.
 # Daniel's note: this should not be necessary and we need to work to
@@ -146,12 +146,12 @@ Try --with-libz-prefix=PATH if you know that you have it."
     fi
   else
     AC_DEFINE(LIBSSH2_HAVE_ZLIB, 1, [Compile in zlib support])
-    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+,}zlib"
+    LIBSSH2_PC_REQUIRES_PRIVATE="$LIBSSH2_PC_REQUIRES_PRIVATE${LIBSSH2_PC_REQUIRES_PRIVATE:+,}zlib"
     found_libz="yes"
   fi
 fi
 
-AC_SUBST(LIBSREQUIRED)
+AC_SUBST(LIBSSH2_PC_REQUIRES_PRIVATE)
 
 #
 # Optional Settings
@@ -392,13 +392,16 @@ fi
 
 LIBS="${LIBS} ${LTLIBZ}"
 
+LIBSSH2_PC_LIBS_PRIVATE=$LIBS
+AC_SUBST(LIBSSH2_PC_LIBS_PRIVATE)
+
 dnl merge the pkg-config private fields into public ones when static-only
 if test "x$enable_shared" = "xyes"; then
   LIBSSH2_PC_REQUIRES=
   LIBSSH2_PC_LIBS=
 else
-  LIBSSH2_PC_REQUIRES=$LIBSREQUIRED
-  LIBSSH2_PC_LIBS=$LIBS
+  LIBSSH2_PC_REQUIRES=$LIBSSH2_PC_REQUIRES_PRIVATE
+  LIBSSH2_PC_LIBS=$LIBSSH2_PC_LIBS_PRIVATE
 fi
 AC_SUBST(LIBSSH2_PC_REQUIRES)
 AC_SUBST(LIBSSH2_PC_LIBS)
@@ -414,7 +417,7 @@ AC_OUTPUT
 
 AC_MSG_NOTICE([summary of build options:
 
-  version:          ${LIBSSH2VER}
+  version:          ${LIBSSH2_VERSION}
   Host type:        ${host}
   Install prefix:   ${prefix}
   Compiler:         ${CC}
