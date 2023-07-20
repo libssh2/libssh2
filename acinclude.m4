@@ -778,7 +778,7 @@ m4_case([$1],
 [openssl], [
   LIBSSH2_LIB_HAVE_LINKFLAGS([ssl], [crypto], [#include <openssl/ssl.h>], [
     AC_DEFINE(LIBSSH2_OPENSSL, 1, [Use $1])
-    LIBSSH2_PC_REQUIRES_PRIVATE="$LIBSSH2_PC_REQUIRES_PRIVATE${LIBSSH2_PC_REQUIRES_PRIVATE:+,}libssl,libcrypto"
+    LIBSSH2_PC_REQUIRES_PRIVATE="$LIBSSH2_PC_REQUIRES_PRIVATE${LIBSSH2_PC_REQUIRES_PRIVATE:+,}libcrypto"
     found_crypto="$1"
     found_crypto_str="OpenSSL"
   ])

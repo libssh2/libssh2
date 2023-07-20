@@ -302,8 +302,8 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
     set(CRYPTO_BACKEND_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR})
     list(APPEND LIBRARIES ${OPENSSL_LIBRARIES})
-    list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE libssl libcrypto)
-    list(APPEND LIBSSH2_PC_LIBS_PRIVATE -lssl -lcrypto)
+    list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE libcrypto)
+    list(APPEND LIBSSH2_PC_LIBS_PRIVATE -lcrypto)
 
     if(WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
@@ -320,30 +320,14 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES bin NO_DEFAULT_PATH)
       if(DLL_LIBCRYPTO)
+        list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO})
         message(STATUS "Found libcrypto DLL: ${DLL_LIBCRYPTO}")
       else()
         message(WARNING
           "Unable to find OpenSSL libcrypto DLL, executables may not run")
       endif()
 
-      find_file(DLL_LIBSSL
-        NAMES ssl.dll
-          libssl-1_1.dll libssl-1_1-x64.dll
-          libssl-3.dll libssl-3-x64.dll
-        HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
-        PATH_SUFFIXES bin NO_DEFAULT_PATH)
-      if(DLL_LIBSSL)
-        message(STATUS "Found libssl DLL: ${DLL_LIBSSL}")
-      else()
-        message(WARNING
-          "Unable to find OpenSSL libssl DLL, executables may not run")
-      endif()
-
       #set(CMAKE_FIND_DEBUG_MODE FALSE)
-
-      if(DLL_LIBCRYPTO AND DLL_LIBSSL)
-        list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO} ${DLL_LIBSSL})
-      endif()
     endif()
 
     find_package(ZLIB)
