@@ -303,6 +303,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR})
     list(APPEND LIBRARIES ${OPENSSL_LIBRARIES})
     list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE libssl libcrypto)
+    list(APPEND LIBSSH2_PC_LIBS_PRIVATE -lssl -lcrypto)
 
     if(WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
