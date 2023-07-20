@@ -122,7 +122,7 @@ else ifdef MBEDTLS_PATH
   CPPFLAGS += -DLIBSSH2_MBEDTLS
   CPPFLAGS += -I"$(MBEDTLS_PATH)/include"
   _LDFLAGS += -L"$(MBEDTLS_PATH)/lib"
-  _LIBS += -lmbedtls -lmbedx509 -lmbedcrypto
+  _LIBS += -lmbedcrypto
 else ifdef WIN32
   CPPFLAGS += -DLIBSSH2_WINCNG
 else
