@@ -18,7 +18,7 @@ CFLAGS=/nologo /GL /Zi /EHsc $(CFLAGS) /Iinclude
 
 !if "$(OPENSSL_PATH)" != ""
 CFLAGS=$(CFLAGS) /DLIBSSH2_OPENSSL /I$(OPENSSL_PATH)\include
-LIBS=$(LIBS) $(OPENSSL_PATH)\lib\crypto.lib $(OPENSSL_PATH)\lib\ssl.lib
+LIBS=$(LIBS) $(OPENSSL_PATH)\lib\crypto.lib
 !else
 CFLAGS=$(CFLAGS) /DLIBSSH2_WINCNG
 LIBS=crypt32.lib bcrypt.lib
