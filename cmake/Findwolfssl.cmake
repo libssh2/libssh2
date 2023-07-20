@@ -11,7 +11,7 @@ find_package(PkgConfig QUIET)
 pkg_check_modules(PC_WOLFSSL QUIET wolfssl)
 
 find_path(WOLFSSL_INCLUDE_DIR
-  NAMES wolfssl/ssl.h
+  NAMES wolfssl/options.h
   HINTS ${PC_WOLFSSL_INCLUDE_DIRS}
 )
 find_library(WOLFSSL_LIBRARY
