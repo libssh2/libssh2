@@ -185,6 +185,7 @@ if(LIBSSH2_PC_REQUIRES_PRIVATE)
   string(REPLACE ";" "," LIBSSH2_PC_REQUIRES_PRIVATE "${LIBSSH2_PC_REQUIRES_PRIVATE}")
 endif()
 if(LIBSSH2_PC_LIBS_PRIVATE)
+  list(REMOVE_DUPLICATES LIBSSH2_PC_LIBS_PRIVATE)
   string(REPLACE ";" " " LIBSSH2_PC_LIBS_PRIVATE "${LIBSSH2_PC_LIBS_PRIVATE}")
 endif()
 # merge the pkg-config private fields into public ones when static-only
