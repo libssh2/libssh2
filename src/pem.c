@@ -624,6 +624,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 			if (!_libssh2_check_length(&decoded, 16)) {
 				ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
 									 "GCM auth tag missing");
+				method->dtor(session, &abstract);
 				goto out;
 			}
 			if(method->crypt(session, decoded.dataptr, 16, &abstract, LAST_BLOCK)) {
