@@ -21,6 +21,7 @@ DOCKER_TESTS = \
   test_auth_pubkey_ok_ed25519_encrypted \
   test_auth_pubkey_ok_ed25519_mem \
   test_auth_pubkey_ok_rsa \
+  test_auth_pubkey_ok_rsa_aes256gcm \
   test_auth_pubkey_ok_rsa_encrypted \
   test_auth_pubkey_ok_rsa_openssh \
   test_auth_pubkey_ok_rsa_signed \
@@ -70,6 +71,8 @@ EXTRA_DIST = \
   key_ed25519_encrypted.pub \
   key_rsa \
   key_rsa.pub \
+  key_rsa_aes256gcm \
+  key_rsa_aes256gcm.pub \
   key_rsa_encrypted \
   key_rsa_encrypted.pub \
   key_rsa_openssh \
