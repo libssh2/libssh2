@@ -51,7 +51,7 @@ foreach(example ${EXAMPLES})
   # to find generated header
   target_include_directories(${example} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../src ../src)
   target_link_libraries(${example} ${LIB_SELECTED} ${LIBRARIES})
-  set_target_properties(${example} PROPERTIES UNITY_BUILD false)
+  set_target_properties(${example} PROPERTIES UNITY_BUILD FALSE)
 endforeach()
 
 add_target_to_copy_dependencies(
