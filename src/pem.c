@@ -628,7 +628,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
 			}
 			if(method->crypt(session, decoded.dataptr, 16, &abstract, LAST_BLOCK)) {
 				ret = _libssh2_error(session, LIBSSH2_ERROR_DECRYPT,
-									 "GCM auth tag invalid");;
+									 "GCM auth tag invalid");
 				method->dtor(session, &abstract);
 				goto out;
 			}
