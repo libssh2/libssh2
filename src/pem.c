@@ -624,7 +624,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         /* for the AES GCM methods, the 16 byte authentication tag is
          * appended to the encrypted key */
         if(strcmp(method->name, "aes256-gcm@openssh.com") == 0 ||
-        strcmp(method->name, "aes128-gcm@openssh.com") == 0) {
+           strcmp(method->name, "aes128-gcm@openssh.com") == 0) {
             if(!_libssh2_check_length(&decoded, 16)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                      "GCM auth tag missing");
@@ -632,8 +632,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
                 goto out;
             }
             if(method->crypt(session, decoded.dataptr, 16, &abstract,
-                             LAST_BLOCK
-                             )) {
+                             LAST_BLOCK)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_DECRYPT,
                                      "GCM auth tag invalid");
                 method->dtor(session, &abstract);
