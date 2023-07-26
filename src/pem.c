@@ -599,13 +599,17 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         }
 
         while((size_t)len_decrypted <= decrypted.len - blocksize) {
+            /* We always pass MIDDLE_BLOCK here because OpenSSH Key Files
+             * do not use AAD to authenticate the length.
+             * Furthermore, the authentication tag is appended after the
+             * encrypted key, and the length of the authentication tag is
+             * not included in the key length, so we check it after the
+             * loop.
+             */
             if(method->crypt(session, decrypted.data + len_decrypted,
                              blocksize,
                              &abstract,
-                             len_decrypted == 0 ? FIRST_BLOCK : (
-                         ((size_t)len_decrypted == decrypted.len - blocksize) ?
-                               LAST_BLOCK : MIDDLE_BLOCK)
-                             )) {
+                             MIDDLE_BLOCK)) {
                 ret = LIBSSH2_ERROR_DECRYPT;
                 method->dtor(session, &abstract);
                 goto out;
@@ -615,6 +619,26 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         }
 
         /* No padding */
+
+        /* for the AES GCM methods, the 16 byte authentication tag is
+         * appended to the encrypted key */
+        if(strcmp(method->name, "aes256-gcm@openssh.com") == 0 ||
+           strcmp(method->name, "aes128-gcm@openssh.com") == 0) {
+            if(!_libssh2_check_length(&decoded, 16)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                     "GCM auth tag missing");
+                method->dtor(session, &abstract);
+                goto out;
+            }
+            if(method->crypt(session, decoded.dataptr, 16, &abstract,
+                             LAST_BLOCK)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_DECRYPT,
+                                     "GCM auth tag invalid");
+                method->dtor(session, &abstract);
+                goto out;
+            }
+            decoded.dataptr += 16;
+        }
 
         method->dtor(session, &abstract);
     }
