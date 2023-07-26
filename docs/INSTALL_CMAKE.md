@@ -22,8 +22,14 @@ If you are happy with the default options, make a new build directory,
 change to it, configure the build environment and build the project:
 
 ```
-  mkdir bin
-  cd bin
+  cmake -B bld
+  cmake --build bld
+```
+
+Use this with CMake 3.12.x or older:
+```
+  mkdir bld
+  cd bld
   cmake ..
   cmake --build .
 ```

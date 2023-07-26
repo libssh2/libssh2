@@ -90,7 +90,7 @@ jobs:
           curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
           cd mbedtls-$MBEDTLSVER
           [ '${{ matrix.arch }}' = 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
-          cmake . ${crossoptions} \
+          cmake ${crossoptions} \
             -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
             -DCMAKE_INSTALL_PREFIX:PATH=../usr
           make -j3 install
@@ -126,7 +126,7 @@ jobs:
         if: ${{ matrix.build == 'cmake' }}
         run: |
           [ '${{ matrix.arch }}' = 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
-          cmake . -B bld ${crossoptions} $TOOLCHAIN_OPTION \
+          cmake -B bld ${crossoptions} $TOOLCHAIN_OPTION \
             -DENABLE_WERROR=ON \
             -DCRYPTO_BACKEND=${{ matrix.crypto }} \
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
@@ -202,7 +202,7 @@ jobs:
           else
             options='-DCMAKE_C_COMPILER=gcc'
           fi
-          cmake . -B bld ${options} \
+          cmake -B bld ${options} \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
             -DCRYPTO_BACKEND=OpenSSL \
@@ -256,7 +256,7 @@ jobs:
           else
             system='Windows'
           fi
-          cmake . -B bld ${options} \
+          cmake -B bld ${options} \
             -DCMAKE_SYSTEM_NAME=${system} \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DCMAKE_GENERATOR_PLATFORM=${archgen} \
@@ -337,7 +337,7 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
-          cmake . -B bld ${{ matrix.crypto.cmake }} \
+          cmake -B bld ${{ matrix.crypto.cmake }} \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
