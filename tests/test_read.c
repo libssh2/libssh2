@@ -6,6 +6,7 @@
  */
 
 #include "runner.h"
+#include "openssh_fixture.h"
 
 #include <stdlib.h>  /* for getenv() */
 
@@ -32,10 +33,19 @@ int test(LIBSSH2_SESSION *session)
 
     char remote_command[256];
     const char *env;
+    const char *userauth_list;
 
-    const char *userauth_list =
-        libssh2_userauth_list(session, username,
-                              (unsigned int)strlen(username));
+    /* Ignore our hard-wired Dockerfile user when not running under Docker */
+    if(!openssh_fixture_have_docker()) {
+        username = getenv("USER");
+#ifdef WIN32
+        if(!username)
+            username = getenv("USERNAME");
+#endif
+    }
+
+    userauth_list = libssh2_userauth_list(session, username,
+                                          (unsigned int)strlen(username));
     if(!userauth_list) {
         print_last_session_error("libssh2_userauth_list");
         return 1;
