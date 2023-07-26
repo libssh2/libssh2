@@ -609,8 +609,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
             if(method->crypt(session, decrypted.data + len_decrypted,
                              blocksize,
                              &abstract,
-                             MIDDLE_BLOCK
-                             )) {
+                             MIDDLE_BLOCK)) {
                 ret = LIBSSH2_ERROR_DECRYPT;
                 method->dtor(session, &abstract);
                 goto out;
