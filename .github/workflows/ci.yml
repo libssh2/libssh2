@@ -120,6 +120,7 @@ jobs:
         run: make -C bld check VERBOSE=1
       - name: 'autotools distcheck'
         if: ${{ matrix.target == 'distcheck' }}
+        timeout-minutes: 10
         run: make -C bld -j3 distcheck
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
