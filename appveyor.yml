@@ -172,8 +172,8 @@ build_script:
       $env:CMAKE_ARG += " -DCMAKE_VS_GLOBALS=TrackFileAccess=false"
   # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
   #        'libssh2_session_handshake failed (-43): Failed getting banner'
-  - echo cmake         "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
-  - cmake . -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
+  - echo cmake       "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
+  - cmake -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
   - cmake --build _builds --config "%CONFIGURATION%"
 
 test_script:
