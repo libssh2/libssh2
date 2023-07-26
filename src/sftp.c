@@ -1352,8 +1352,8 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
         fp->u.file.offset_sent = 0;
 
         if(mode & LIBSSH2_FXF_APPEND) {
-            int ret = sftp_stat(fp->sftp, filename, (uint32_t)filename_len,
-                                    LIBSSH2_SFTP_STAT, &attrs);
+            int ret = sftp_stat(fp->sftp, filename, (unsigned int)filename_len,
+                                LIBSSH2_SFTP_STAT, &attrs);
 
             if(ret) {
                 LIBSSH2_FREE(session, fp);
