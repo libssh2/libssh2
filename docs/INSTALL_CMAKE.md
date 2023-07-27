@@ -28,8 +28,8 @@ change to it, configure the build environment and build the project:
 
 Use this with CMake 3.12.x or older:
 ```
-  mkdir bin
-  cd bin
+  mkdir bld
+  cd bld
   cmake ..
   cmake --build .
 ```
