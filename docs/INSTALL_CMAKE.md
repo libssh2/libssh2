@@ -26,6 +26,14 @@ change to it, configure the build environment and build the project:
   cmake --build bld
 ```
 
+Use this with CMake 3.12.x or older:
+```
+  mkdir bin
+  cd bin
+  cmake ..
+  cmake --build .
+```
+
 libssh2 will be built as a static library and will use any
 cryptography library available.  The library binary will be put in
 `bin/src`, with the examples in `bin/example` and the tests in
