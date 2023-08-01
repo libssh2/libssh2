@@ -818,11 +818,17 @@ struct privkey_file {
     const char *passphrase;
 };
 
+struct privkey_mem {
+    const char *passphrase;
+    const char *data;
+    size_t data_len;
+};
+
 static int
 sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                 const unsigned char *data, size_t data_len, void **abstract)
 {
-    struct privkey_file *pk_file = (struct privkey_file *) (*abstract);
+    struct privkey_mem *pk_mem = (struct privkey_mem *) (*abstract);
     const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
     void *hostkey_abstract;
     struct iovec datavec;
@@ -831,9 +837,9 @@ sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     rc = memory_read_privatekey(session, &privkeyobj, &hostkey_abstract,
                                 session->userauth_pblc_method,
                                 session->userauth_pblc_method_len,
-                                pk_file->filename,
-                                strlen(pk_file->filename),
-                                pk_file->passphrase);
+                                pk_mem->data,
+                                pk_mem->data_len,
+                                pk_mem->passphrase);
     if(rc)
         return rc;
 
@@ -1835,12 +1841,13 @@ userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 {
     unsigned char *pubkeydata = NULL;
     size_t pubkeydata_len = 0;
-    struct privkey_file privkey_file;
-    void *abstract = &privkey_file;
+    struct privkey_mem privkey_mem;
+    void *abstract = &privkey_mem;
     int rc;
 
-    privkey_file.filename = privatekeydata;
-    privkey_file.passphrase = passphrase;
+    privkey_mem.data = privatekeydata;
+    privkey_mem.data_len = privatekeydata_len;
+    privkey_mem.passphrase = passphrase;
 
     if(session->userauth_pblc_state == libssh2_NB_state_idle) {
         if(publickeydata_len && publickeydata) {
