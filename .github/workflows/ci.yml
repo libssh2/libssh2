@@ -86,7 +86,7 @@ jobs:
       - name: 'install mbedTLS from source'
         if: matrix.crypto == 'mbedTLS'
         run: |
-          MBEDTLSVER=mbedtls-3.4.0
+          MBEDTLSVER=mbedtls-3.4.1
           curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
           cd mbedtls-$MBEDTLSVER
           [ '${{ matrix.arch }}' = 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
