@@ -30,7 +30,7 @@ id='identity'
 pr='libssh2'
 
 ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa'                 -f 'key_dsa'
-ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa_wrong'           -f 'key_dsa_wrong'  # FIXME?
+ssh-keygen -t dsa             -N ''          -m PEM -C 'key_dsa_wrong'           -f 'key_dsa_wrong'         # not to add to 'authorized_keys'
 
 ssh-keygen -t rsa     -b 2048 -N ''          -m PEM -C 'key_rsa'                 -f 'key_rsa'
 ssh-keygen -t rsa     -b 2048 -N "${pw}"     -m PEM -C 'key_rsa_encrypted'       -f 'key_rsa_encrypted'
