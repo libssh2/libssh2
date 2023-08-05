@@ -67,7 +67,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: 'install architecture'
-        if: matrix.arch != 'amd64'
+        if: ${{ matrix.arch != 'amd64' }}
         run: |
           sudo dpkg --add-architecture '${{ matrix.arch }}'
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 update
@@ -76,7 +76,7 @@ jobs:
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
 
       - name: 'install packages'
-        if: matrix.crypto != 'mbedTLS'
+        if: ${{ matrix.crypto != 'mbedTLS' }}
         run: |
           [ '${{ matrix.crypto }}' = 'OpenSSL' ] && pkg='libssl-dev'
           [ '${{ matrix.crypto }}' = 'wolfSSL' ] && pkg='libwolfssl-dev'
@@ -84,7 +84,7 @@ jobs:
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install "${pkg}:${{ matrix.arch }}"
 
       - name: 'install mbedTLS from source'
-        if: matrix.crypto == 'mbedTLS'
+        if: ${{ matrix.crypto == 'mbedTLS' }}
         run: |
           MBEDTLSVER=mbedtls-3.4.1
           curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
@@ -99,10 +99,10 @@ jobs:
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
       - name: 'autotools autoreconf'
-        if: matrix.build == 'autotools'
+        if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
       - name: 'autotools configure'
-        if: matrix.build == 'autotools'
+        if: ${{ matrix.build == 'autotools' }}
         run: |
           if [ '${{ matrix.arch }}' = 'i386' ]; then
             crossoptions='--host=i686-pc-linux-gnu'
@@ -112,18 +112,18 @@ jobs:
             ${crossoptions} ${{ matrix.options }}
 
       - name: 'autotools build'
-        if: matrix.build == 'autotools' && !matrix.target
+        if: ${{ matrix.build == 'autotools' && !matrix.target }}
         run: make -C bld -j3
       - name: 'autotools tests'
-        if: matrix.build == 'autotools' && !matrix.target
+        if: ${{ matrix.build == 'autotools' && !matrix.target }}
         timeout-minutes: 10
         run: make -C bld check VERBOSE=1
       - name: 'autotools distcheck'
-        if: matrix.target == 'distcheck'
+        if: ${{ matrix.target == 'distcheck' }}
         timeout-minutes: 10
         run: make -C bld -j3 distcheck
       - name: 'cmake configure'
-        if: matrix.build == 'cmake'
+        if: ${{ matrix.build == 'cmake' }}
         run: |
           [ '${{ matrix.arch }}' = 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
           cmake -B bld ${crossoptions} $TOOLCHAIN_OPTION \
@@ -132,10 +132,10 @@ jobs:
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
 
       - name: 'cmake build'
-        if: matrix.build == 'cmake'
+        if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld --parallel 3 --target package
       - name: 'cmake tests'
-        if: matrix.build == 'cmake' && matrix.crypto != 'wolfSSL'
+        if: ${{ matrix.build == 'cmake' && matrix.crypto != 'wolfSSL' }}
         timeout-minutes: 10
         run: |
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
@@ -167,11 +167,11 @@ jobs:
             mingw-w64-${{ matrix.env }}-openssl
 
       - name: 'autotools autoreconf'
-        if: matrix.build == 'autotools'
+        if: ${{ matrix.build == 'autotools' }}
         shell: msys2 {0}
         run: autoreconf -fi
       - name: 'autotools configure'
-        if: matrix.build == 'autotools'
+        if: ${{ matrix.build == 'autotools' }}
         env:
           SSHD: 'C:/Program Files/Git/usr/bin/sshd.exe'
         shell: msys2 {0}
@@ -183,16 +183,16 @@ jobs:
             --disable-sshd-tests
 
       - name: 'autotools build'
-        if: matrix.build == 'autotools'
+        if: ${{ matrix.build == 'autotools' }}
         shell: msys2 {0}
         run: make -C bld -j3
       - name: 'autotools tests'
-        if: matrix.build == 'autotools'
+        if: ${{ matrix.build == 'autotools' }}
         timeout-minutes: 10
         shell: msys2 {0}
         run: make -C bld check VERBOSE=1
       - name: 'cmake configure'
-        if: matrix.build == 'cmake'
+        if: ${{ matrix.build == 'cmake' }}
         env:
           CMAKE_GENERATOR: 'MSYS Makefiles'
         shell: msys2 {0}
@@ -211,16 +211,16 @@ jobs:
             -DRUN_SSHD_TESTS=OFF
 
       - name: 'cmake build'
-        if: matrix.build == 'cmake'
+        if: ${{ matrix.build == 'cmake' }}
         shell: msys2 {0}
         run: cmake --build bld --parallel 3
       - name: 'cmake tests'
-        if: matrix.build == 'cmake'
+        if: ${{ matrix.build == 'cmake' }}
         timeout-minutes: 10
         shell: msys2 {0}
         run: cd bld && ctest -VV --output-on-failure
       - name: 'make build'
-        if: matrix.build == 'make'
+        if: ${{ matrix.build == 'make' }}
         env:
           CPPFLAGS: -DLIBSSH2_NO_MD5 -DLIBSSH2_NO_HMAC_RIPEMD -DLIBSSH2_NO_DSA -DLIBSSH2_NO_AES_CBC -DLIBSSH2_NO_AES_CTR -DLIBSSH2_NO_BLOWFISH -DLIBSSH2_NO_RC4 -DLIBSSH2_NO_CAST -DLIBSSH2_NO_3DES
           LIBSSH2_CPPFLAGS_LIB: -DLIBSSH2_EXPORTS
@@ -275,7 +275,7 @@ jobs:
         run: cmake --build bld --parallel 3 --target package --config Release
       - name: 'cmake tests'
         # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
-        if: matrix.arch != 'arm64' && matrix.plat != 'uwp'
+        if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
         timeout-minutes: 10
         run: cd bld && ctest -VV -C Release --output-on-failure
 
@@ -317,10 +317,10 @@ jobs:
         run: brew install automake ${{ matrix.crypto.install }}
       - uses: actions/checkout@v3
       - name: 'autotools autoreconf'
-        if: matrix.build == 'autotools'
+        if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
       - name: 'autotools configure'
-        if: matrix.build == 'autotools'
+        if: ${{ matrix.build == 'autotools' }}
         run: |
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-libz ${{ matrix.crypto.configure }} \
@@ -328,14 +328,14 @@ jobs:
             --disable-sshd-tests
 
       - name: 'autotools build'
-        if: matrix.build == 'autotools'
+        if: ${{ matrix.build == 'autotools' }}
         run: make -C bld -j3
       - name: 'autotools tests'
-        if: matrix.build == 'autotools'
+        if: ${{ matrix.build == 'autotools' }}
         timeout-minutes: 10
         run: make -C bld check VERBOSE=1
       - name: 'cmake configure'
-        if: matrix.build == 'cmake'
+        if: ${{ matrix.build == 'cmake' }}
         run: |
           cmake -B bld ${{ matrix.crypto.cmake }} \
             -DCMAKE_UNITY_BUILD=ON \
@@ -346,9 +346,9 @@ jobs:
             -DRUN_SSHD_TESTS=OFF
 
       - name: 'cmake build'
-        if: matrix.build == 'cmake'
+        if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld --parallel 3
       - name: 'cmake tests'
-        if: matrix.build == 'cmake'
+        if: ${{ matrix.build == 'cmake' }}
         timeout-minutes: 10
         run: cd bld && ctest -VV --output-on-failure
