@@ -57,7 +57,7 @@ jobs:
           images: ghcr.io/${{ github.repository_owner }}/ci_tests_openssh_server
           tags: |
             type=raw,value=${{ steps.hash.outputs.hash }}
-        if: steps.poll.outcome == 'failure'
+        if: ${{ steps.poll.outcome == 'failure' }}
 
       - uses: docker/build-push-action@v3
         with:
@@ -65,4 +65,4 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-        if: steps.poll.outcome == 'failure'
+        if: ${{ steps.poll.outcome == 'failure' }}
