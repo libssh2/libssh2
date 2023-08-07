@@ -618,7 +618,7 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
 void _libssh2_openssl_crypto_init(void)
 {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || \
-    defined(LIBRESSL_VERSION_NUMBER)
+    (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x2070000fL)
     OpenSSL_add_all_algorithms();
     OpenSSL_add_all_ciphers();
     OpenSSL_add_all_digests();
