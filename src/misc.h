@@ -45,7 +45,8 @@
                                               (void)(size); \
                                           } while(0)
 #else
-#ifdef WIN32
+/* SecureZeroMemory is not supported on UWP */
+#ifdef WIN32 && !defined(LIBSSH2_WINDOWS_UWP)
 #define _libssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
 #elif defined(HAVE_EXPLICIT_BZERO)
 #define _libssh2_explicit_zero(buf, size) explicit_bzero(buf, size)
