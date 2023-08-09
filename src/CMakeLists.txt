@@ -171,19 +171,19 @@ set(RUNTIME_DEPENDENCIES ${_RUNTIME_DEPENDENCIES} CACHE INTERNAL
 
 ## During package installation, install libssh2-targets.cmake
 install(EXPORT libssh2-targets
-  NAMESPACE libssh2::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 
 ## During build, register directly from build tree
 # create libssh2-targets.cmake
-export(TARGETS ${libssh2_export} NAMESPACE libssh2:: FILE libssh2-targets.cmake)
-export(PACKAGE libssh2)  # register it
+export(TARGETS ${libssh2_export} NAMESPACE ${PROJECT_NAME}:: FILE libssh2-targets.cmake)
+export(PACKAGE ${PROJECT_NAME})  # register it
 
 # Generate libssh2-config.cmake into build tree and install it
 configure_file(${PROJECT_SOURCE_DIR}/cmake/libssh2-config.cmake.in libssh2-config.cmake @ONLY)
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/libssh2-config.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 
 ## Export a .pc file for client projects not using CMaek
 if(LIBSSH2_PC_REQUIRES_PRIVATE)
@@ -219,4 +219,4 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion)
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/libssh2-config-version.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libssh2)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
