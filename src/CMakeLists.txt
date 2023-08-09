@@ -139,6 +139,9 @@ if(BUILD_SHARED_LIBS)
       $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 endif()
 
+# export libcurl alias as target name
+set_property(TARGET ${LIB_SELECTED} PROPERTY EXPORT_NAME libssh2)
+
 ## Installation
 
 install(FILES
