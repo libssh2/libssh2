@@ -140,7 +140,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 # export libcurl alias as target name
-set_property(TARGET ${LIB_SELECTED} PROPERTY EXPORT_NAME libssh2)
+set_property(TARGET ${LIB_SELECTED} PROPERTY EXPORT_NAME "libssh2")
 
 ## Installation
 
