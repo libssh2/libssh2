@@ -44,8 +44,7 @@
                                               (void)(buf); \
                                               (void)(size); \
                                           } while(0)
-#else
-#ifdef WIN32
+#elif defined(WIN32)
 #define _libssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
 #elif defined(HAVE_EXPLICIT_BZERO)
 #define _libssh2_explicit_zero(buf, size) explicit_bzero(buf, size)
@@ -57,7 +56,6 @@
 #define LIBSSH2_MEMZERO
 void _libssh2_memzero(void *buf, size_t size);
 #define _libssh2_explicit_zero(buf, size) _libssh2_memzero(buf, size)
-#endif
 #endif
 
 struct list_head {
