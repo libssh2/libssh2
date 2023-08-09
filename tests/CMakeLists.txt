@@ -93,7 +93,7 @@ foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
     set_target_properties(${test} PROPERTIES UNITY_BUILD FALSE)
 
     # build a single test with gcov
-    if(GCOV_PATH AND test STREQUAL test_auth_keyboard_info_request AND TARGET ${LIB_STATIC})
+    if(GCOV_PATH AND test STREQUAL "test_auth_keyboard_info_request" AND TARGET ${LIB_STATIC})
       target_compile_options(${test} BEFORE PRIVATE ${GCOV_CFLAGS})
       target_link_libraries(${test} runner ${LIB_FOR_TESTS} ${LIBRARIES} gcov)
     else()

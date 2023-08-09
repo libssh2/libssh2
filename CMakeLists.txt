@@ -240,8 +240,8 @@ if(MSVC AND ENABLE_WERROR)
   cmake_pop_check_state()
 endif()
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR
-   ${CMAKE_SYSTEM_NAME} STREQUAL "Interix")
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR
+   CMAKE_SYSTEM_NAME STREQUAL "Interix")
   # poll() does not work on these platforms
   #
   # Interix: "does provide poll(), but the implementing developer must
@@ -293,7 +293,7 @@ WinCNG, mbedTLS, or empty to try any available")
 # we are able to find, the find_package commands must abort configuration
 # and report to the user.
 if(CRYPTO_BACKEND)
-  set(SPECIFIC_CRYPTO_REQUIREMENT REQUIRED)
+  set(SPECIFIC_CRYPTO_REQUIREMENT "REQUIRED")
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
@@ -407,7 +407,7 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
 
     list(APPEND LIBRARIES crypt32 bcrypt)
     list(APPEND LIBSSH2_PC_LIBS_PRIVATE -lcrypt32 -lbcrypt)
-  elseif(${SPECIFIC_CRYPTO_REQUIREMENT} STREQUAL ${REQUIRED})
+  elseif(SPECIFIC_CRYPTO_REQUIREMENT STREQUAL "REQUIRED")
     message(FATAL_ERROR "WinCNG not available")
   endif()
 endif()
