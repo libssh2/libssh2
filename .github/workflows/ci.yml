@@ -220,16 +220,16 @@ jobs:
             -DRUN_SSHD_TESTS=OFF
 
       - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' && matrix.env == 'uwp' }}
+        if: ${{ matrix.build == 'cmake' && matrix.mode == 'uwp' }}
         shell: msys2 {0}
         run: cd bld; make V=1
 
       - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' && matrix.env != 'uwp' }}
+        if: ${{ matrix.build == 'cmake' && matrix.mode != 'uwp' }}
         shell: msys2 {0}
         run: cmake --build bld --parallel 3
       - name: 'cmake tests'
-        if: ${{ matrix.build == 'cmake' && matrix.env != 'uwp___' }}
+        if: ${{ matrix.build == 'cmake' && matrix.mode != 'uwp___' }}
         timeout-minutes: 10
         shell: msys2 {0}
         run: cd bld && ctest -VV --output-on-failure
