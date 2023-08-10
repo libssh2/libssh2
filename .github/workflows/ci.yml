@@ -154,6 +154,7 @@ jobs:
           - { build: 'autotools', sys: clang64, env: clang-x86_64 }
           - { build: 'cmake'    , sys: ucrt64,  env: ucrt-x86_64 }
           - { build: 'cmake'    , sys: clang64, env: clang-x86_64 }
+          - { build: 'cmake'    , sys: mingw64, env: x86_64 }
           - { build: 'cmake'    , sys: mingw64, env: x86_64, mode: uwp }
           - { build: 'make'     , sys: mingw64, env: x86_64 }
       fail-fast: false
@@ -220,7 +221,7 @@ jobs:
             -DRUN_SSHD_TESTS=OFF
 
       - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' && matrix.mode == 'uwp' }}
+        if: ${{ matrix.build == 'cmake' && matrix.env == 'x86_64' }}
         shell: msys2 {0}
         run: cd bld; make VERBOSE=1
 
