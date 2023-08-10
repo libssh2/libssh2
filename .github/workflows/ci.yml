@@ -222,7 +222,7 @@ jobs:
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' && matrix.mode == 'uwp' }}
         shell: msys2 {0}
-        run: cd bld; make V=1
+        run: cd bld; make VERBOSE=1
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' && matrix.mode != 'uwp' }}
