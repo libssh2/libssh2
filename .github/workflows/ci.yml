@@ -149,7 +149,6 @@ jobs:
       matrix:
         include:
           - { build: 'cmake'    , sys: mingw64, env: x86_64, mode: uwp }
-          - { build: 'cmake'    , sys: ucrt64,  env: ucrt-x86_64, mode: uwp }
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
@@ -198,6 +197,7 @@ jobs:
           if [[ '${{ matrix.env }}' = 'clang'* ]]; then
             options='-DCMAKE_C_COMPILER=clang -DCMAKE_UNITY_BUILD=ON'
           elif [[ '${{ matrix.mode }}' = 'uwp' ]]; then
+            pacman --noconfirm --ask 20 --noprogressbar --sync --needed mingw-w64-x86_64-winstorecompat-git
             options='-DCMAKE_C_COMPILER=gcc -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0'
             specs="$(realpath gcc-specs-uwp)"
             find D:/a/_temp/msys64
