@@ -210,7 +210,7 @@ jobs:
             gcc -dumpspecs | sed -e 's/-lmingwex/-lwindowsapp -lmingwex -lwindowsapp -lwindowsappcompat/' -e 's/-lmsvcrt/-lmsvcr120_app/' > "${specs}"
             cflags="-specs=${specs} -DWINSTORECOMPAT -DWINAPI_FAMILY=WINAPI_FAMILY_APP -DHAVE_WINRT"
             # Hack to fix CMake (as of v3.26.4) misjudging the situation and
-            # applying the MSVC rc.exe command-line template for windres.
+            # applying the MSVC rc.exe command-line template to windres.
             rcopts='<CMAKE_RC_COMPILER> -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>'
           else
             cflags=''
