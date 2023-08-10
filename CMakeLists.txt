@@ -155,13 +155,12 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 else()
   set(DEBUG_LOGGING_DEFAULT OFF)
 endif()
-option(ENABLE_DEBUG_LOGGING "log execution with debug trace"
-  ${DEBUG_LOGGING_DEFAULT})
+option(ENABLE_DEBUG_LOGGING "log execution with debug trace" ${DEBUG_LOGGING_DEFAULT})
 add_feature_info(Logging ENABLE_DEBUG_LOGGING
    "Logging of execution with debug trace")
 if(ENABLE_DEBUG_LOGGING)
   # Must be visible to the library and tests using internals
-  add_definitions(-DLIBSSH2DEBUG)
+  add_definitions("-DLIBSSH2DEBUG")
 endif()
 
 # Auto-detection
@@ -196,20 +195,20 @@ if(WIN32)
 endif()
 
 ## Platform checks
-check_include_files(inttypes.h HAVE_INTTYPES_H)
+check_include_files("inttypes.h" HAVE_INTTYPES_H)
 if(NOT MSVC)
-  check_include_files(unistd.h HAVE_UNISTD_H)
-  check_include_files(sys/time.h HAVE_SYS_TIME_H)
-  check_include_files(sys/param.h HAVE_SYS_PARAM_H)  # tests
+  check_include_files("unistd.h" HAVE_UNISTD_H)
+  check_include_files("sys/time.h" HAVE_SYS_TIME_H)
+  check_include_files("sys/param.h" HAVE_SYS_PARAM_H)  # tests
 endif()
 if(NOT WIN32)
-  check_include_files(sys/select.h HAVE_SYS_SELECT_H)
-  check_include_files(sys/uio.h HAVE_SYS_UIO_H)
-  check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
-  check_include_files(sys/ioctl.h HAVE_SYS_IOCTL_H)
-  check_include_files(sys/un.h HAVE_SYS_UN_H)
-  check_include_files(arpa/inet.h HAVE_ARPA_INET_H)  # example and tests
-  check_include_files(netinet/in.h HAVE_NETINET_IN_H)  # example and tests
+  check_include_files("sys/select.h" HAVE_SYS_SELECT_H)
+  check_include_files("sys/uio.h" HAVE_SYS_UIO_H)
+  check_include_files("sys/socket.h" HAVE_SYS_SOCKET_H)
+  check_include_files("sys/ioctl.h" HAVE_SYS_IOCTL_H)
+  check_include_files("sys/un.h" HAVE_SYS_UN_H)
+  check_include_files("arpa/inet.h" HAVE_ARPA_INET_H)  # example and tests
+  check_include_files("netinet/in.h" HAVE_NETINET_IN_H)  # example and tests
 endif()
 
 # CMake uses C syntax in check_symbol_exists() that generates a warning with
@@ -221,20 +220,20 @@ if(MSVC AND ENABLE_WERROR)
 endif()
 
 if(HAVE_SYS_TIME_H)
-  check_symbol_exists(gettimeofday sys/time.h HAVE_GETTIMEOFDAY)
+  check_symbol_exists("gettimeofday" "sys/time.h" HAVE_GETTIMEOFDAY)
 else()
-  check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
+  check_function_exists("gettimeofday" HAVE_GETTIMEOFDAY)
 endif()
-check_symbol_exists(strtoll stdlib.h HAVE_STRTOLL)
+check_symbol_exists("strtoll" "stdlib.h" HAVE_STRTOLL)
 if(NOT HAVE_STRTOLL)
   # Try _strtoi64() if strtoll() is not available
-  check_symbol_exists(_strtoi64 stdlib.h HAVE_STRTOI64)
+  check_symbol_exists("_strtoi64" "stdlib.h" HAVE_STRTOI64)
 endif()
-check_symbol_exists(snprintf stdio.h HAVE_SNPRINTF)
+check_symbol_exists("snprintf" "stdio.h" HAVE_SNPRINTF)
 if(NOT WIN32)
-  check_symbol_exists(explicit_bzero string.h HAVE_EXPLICIT_BZERO)
-  check_symbol_exists(explicit_memset string.h HAVE_EXPLICIT_MEMSET)
-  check_symbol_exists(memset_s string.h HAVE_MEMSET_S)
+  check_symbol_exists("explicit_bzero" "string.h" HAVE_EXPLICIT_BZERO)
+  check_symbol_exists("explicit_memset" "string.h" HAVE_EXPLICIT_MEMSET)
+  check_symbol_exists("memset_s" "string.h" HAVE_MEMSET_S)
 endif()
 
 if(MSVC AND ENABLE_WERROR)
@@ -256,12 +255,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR
   # inconsistent return of POLLHUP where other implementations give POLLIN
   message("poll use is disabled on this platform")
 elseif(NOT WIN32)
-  check_function_exists(poll HAVE_POLL)
+  check_function_exists("poll" HAVE_POLL)
 endif()
 if(WIN32)
   set(HAVE_SELECT 1)
 else()
-  check_function_exists(select HAVE_SELECT)
+  check_function_exists("select" HAVE_SELECT)
 endif()
 
 # Non-blocking socket support tests. Use a separate, yet unset variable
@@ -276,17 +275,14 @@ endif()
 
 # Config file
 
-add_definitions(-DHAVE_CONFIG_H)
+add_definitions("-DHAVE_CONFIG_H")
 
 configure_file(src/libssh2_config_cmake.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/src/libssh2_config.h)
 
 ## Cryptography backend choice
 
-set(CRYPTO_BACKEND
-  ""
-  CACHE
-  STRING
+set(CRYPTO_BACKEND "" CACHE STRING
   "The backend to use for cryptography: OpenSSL, wolfSSL, Libgcrypt,
 WinCNG, mbedTLS, or empty to try any available")
 
@@ -318,9 +314,9 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
       #set(CMAKE_FIND_DEBUG_MODE ON)
 
       find_file(DLL_LIBCRYPTO
-        NAMES crypto.dll
-          libcrypto-1_1.dll libcrypto-1_1-x64.dll
-          libcrypto-3.dll libcrypto-3-x64.dll
+        NAMES "crypto.dll"
+          "libcrypto-1_1.dll" "libcrypto-1_1-x64.dll"
+          "libcrypto-3.dll" "libcrypto-3-x64.dll"
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES bin NO_DEFAULT_PATH)
       if(DLL_LIBCRYPTO)
@@ -441,8 +437,7 @@ endif()
 
 option(LINT "Check style while building" OFF)
 if(LINT)
-  add_custom_target(lint ALL
-    ./ci/checksrc.sh
+  add_custom_target(lint ALL "./ci/checksrc.sh"
     WORKING_DIRECTORY ${libssh2_SOURCE_DIR})
   if(BUILD_STATIC_LIBS)
     add_dependencies(${LIB_STATIC} lint)

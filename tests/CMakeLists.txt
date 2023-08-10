@@ -72,7 +72,7 @@ endif()
 
 add_library(runner STATIC ${librunner_la_SOURCES})
 target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
-target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include "${CRYPTO_BACKEND_INCLUDE_DIR}")
+target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" "../src" "../include" "${CRYPTO_BACKEND_INCLUDE_DIR}")
 
 foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
   if(NOT ";${DOCKER_TESTS_STATIC};${STANDALONE_TESTS_STATIC};" MATCHES ";${test};")
@@ -87,15 +87,15 @@ foreach(test ${DOCKER_TESTS} ${STANDALONE_TESTS} ${SSHD_TESTS})
   # We support the same target as both Docker and SSHD test. Build those just once.
   # Skip building tests that require the static lib when the static lib is disabled.
   if(NOT TARGET ${test} AND LIB_FOR_TESTS)
-    add_executable(${test} ${test}.c)
+    add_executable(${test} "${test}.c")
     target_compile_definitions(${test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
-    target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" ../src ../include "${CRYPTO_BACKEND_INCLUDE_DIR}")
+    target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" "../src" "../include" "${CRYPTO_BACKEND_INCLUDE_DIR}")
     set_target_properties(${test} PROPERTIES UNITY_BUILD OFF)
 
     # build a single test with gcov
     if(GCOV_PATH AND test STREQUAL "test_auth_keyboard_info_request" AND TARGET ${LIB_STATIC})
       target_compile_options(${test} BEFORE PRIVATE ${GCOV_CFLAGS})
-      target_link_libraries(${test} runner ${LIB_FOR_TESTS} ${LIBRARIES} gcov)
+      target_link_libraries(${test} runner ${LIB_FOR_TESTS} ${LIBRARIES} "gcov")
     else()
       target_link_libraries(${test} runner ${LIB_FOR_TESTS} ${LIBRARIES})
     endif()

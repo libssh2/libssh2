@@ -46,10 +46,10 @@ include(${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cmake)
 set(EXAMPLES ${noinst_PROGRAMS})
 
 foreach(example ${EXAMPLES})
-  add_executable(${example} ${example}.c)
+  add_executable(${example} "${example}.c")
   list(APPEND EXAMPLE_TARGETS ${example})
   # to find generated header
-  target_include_directories(${example} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../src ../src)
+  target_include_directories(${example} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" "../src")
   target_link_libraries(${example} ${LIB_SELECTED} ${LIBRARIES})
   set_target_properties(${example} PROPERTIES UNITY_BUILD OFF)
 endforeach()
