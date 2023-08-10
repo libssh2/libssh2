@@ -149,6 +149,7 @@ jobs:
       matrix:
         include:
           - { build: 'cmake'    , sys: mingw64, env: x86_64, mode: uwp }
+          - { build: 'cmake'    , sys: ucrt64,  env: ucrt-x86_64, mode: uwp }
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
@@ -199,6 +200,8 @@ jobs:
           elif [[ '${{ matrix.mode }}' = 'uwp' ]]; then
             options='-DCMAKE_C_COMPILER=gcc -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0'
             specs="$(realpath gcc-specs-uwp)"
+            find D:/a/_temp/msys64
+            gcc -dumpspecs
             gcc -dumpspecs | sed -e 's/-lmingwex/-lwindowsapp -lmingwex -lwindowsapp -lwinstorecompat -lole32 -lruntimeobject/' -e 's/-lmsvcrt/-lmsvcr120_app/' > "${specs}"
             c_flags="-specs=${specs} -DWINSTORECOMPAT -DWINAPI_FAMILY=WINAPI_FAMILY_APP -DHAVE_WINRT -D_UNICODE -DUNICODE"
           else
@@ -214,7 +217,7 @@ jobs:
             -DRUN_SSHD_TESTS=OFF
 
       - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' && matrix.env == 'x86_64' }}
+        if: ${{ matrix.build == 'cmake' }}
         shell: msys2 {0}
         run: cd bld; make VERBOSE=1
 
