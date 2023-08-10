@@ -202,7 +202,7 @@ jobs:
           c_flags=''
           crypto='OpenSSL'
           zlib='ON'
-          rc_flags='m
+          rc_flags=''
           if [[ '${{ matrix.env }}' = 'clang'* ]]; then
             options='-DCMAKE_C_COMPILER=clang -DCMAKE_UNITY_BUILD=ON'
           elif [[ '${{ matrix.mode }}' = 'uwp' ]]; then
