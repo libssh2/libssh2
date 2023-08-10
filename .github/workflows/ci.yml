@@ -154,6 +154,7 @@ jobs:
           - { build: 'autotools', sys: clang64, env: clang-x86_64 }
           - { build: 'cmake'    , sys: ucrt64,  env: ucrt-x86_64 }
           - { build: 'cmake'    , sys: clang64, env: clang-x86_64 }
+          - { build: 'cmake'    , sys: mingw64, env: x86_64, api: uwp }
           - { build: 'make'     , sys: mingw64, env: x86_64 }
       fail-fast: false
     steps:
@@ -202,7 +203,22 @@ jobs:
           else
             options='-DCMAKE_C_COMPILER=gcc'
           fi
+          if [[ '${{ matrix.api }}' = 'uwp' ]]; then
+            options="${options} -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0"
+            pacman --noconfirm --ask 20 --noprogressbar --sync --needed 'mingw-w64-${{ matrix.env }}-winstorecompat-git'
+            specs="$(realpath gcc-specs-uwp)"
+            gcc -dumpspecs | sed -e 's/-lmingwex/-lwindowsapp -lmingwex -lwindowsapp -lwindowsappcompat/' -e 's/-lmsvcrt/-lmsvcr120_app/' > "${specs}"
+            cflags="-specs=${specs} -DWINSTORECOMPAT -DWINAPI_FAMILY=WINAPI_FAMILY_APP"
+            # CMake (as of v3.26.4) gets confused and applies the MSVC rc.exe command-line
+            # template to windres. Reset it to the windres template manually:
+            rcopts='<CMAKE_RC_COMPILER> -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>'
+          else
+            cflags=''
+            rcopts=''
+          fi
           cmake -B bld ${options} \
+            "-DCMAKE_C_FLAGS=${cflags}" \
+            "-DCMAKE_RC_COMPILE_OBJECT=${rcopts}" \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
             -DCRYPTO_BACKEND=OpenSSL \
@@ -215,7 +231,8 @@ jobs:
         shell: msys2 {0}
         run: cmake --build bld --parallel 3
       - name: 'cmake tests'
-        if: ${{ matrix.build == 'cmake' }}
+        # UWP missing 'msvcr120_app.dll', fails with exit code 0xc0000135
+        if: ${{ matrix.build == 'cmake' && matrix.api != 'uwp' }}
         timeout-minutes: 10
         shell: msys2 {0}
         run: cd bld && ctest -VV --output-on-failure
