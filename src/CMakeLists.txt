@@ -50,7 +50,7 @@ endif()
 
 option(CLEAR_MEMORY "Enable clearing of memory before being freed" ON)
 if(NOT CLEAR_MEMORY)
-  list(APPEND libssh2_DEFINITIONS LIBSSH2_NO_CLEAR_MEMORY)
+  list(APPEND libssh2_DEFINITIONS "LIBSSH2_NO_CLEAR_MEMORY")
 endif()
 
 option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression")
@@ -61,17 +61,17 @@ if(ENABLE_ZLIB_COMPRESSION)
 
   list(APPEND libssh2_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS})
   list(APPEND LIBRARIES ${ZLIB_LIBRARIES})
-  list(APPEND LIBSSH2_PC_LIBS_PRIVATE -lz)
-  list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE zlib)
+  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lz")
+  list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "zlib")
   if(ZLIB_FOUND)
-    list(APPEND libssh2_DEFINITIONS LIBSSH2_HAVE_ZLIB)
+    list(APPEND libssh2_DEFINITIONS "LIBSSH2_HAVE_ZLIB")
   endif()
 endif()
 
 list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 if(WIN32)
-  list(APPEND LIBSSH2_PC_LIBS_PRIVATE -lws2_32)
+  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lws2_32")
 endif()
 
 # to find generated header
