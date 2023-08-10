@@ -202,7 +202,6 @@ jobs:
           c_flags=''
           crypto='OpenSSL'
           zlib='ON'
-          rc_flags=''
           if [[ '${{ matrix.env }}' = 'clang'* ]]; then
             options='-DCMAKE_C_COMPILER=clang -DCMAKE_UNITY_BUILD=ON'
           elif [[ '${{ matrix.mode }}' = 'uwp' ]]; then
@@ -210,12 +209,11 @@ jobs:
             specs="$(realpath gcc-specs-uwp)"
             gcc -dumpspecs | sed -e 's/-lmingwex/-lwindowsapp -lmingwex -lwindowsapp -lole32 -lruntimeobject/' -e 's/-lmsvcrt/-lmsvcr120_app/' > "${specs}"
             c_flags="-specs=${specs} -DWINSTORECOMPAT -DWINAPI_FAMILY=WINAPI_FAMILY_APP -DHAVE_WINRT -D_UNICODE -DUNICODE"
-            rc_flags='-O coff'
+            options="${options} -DCMAKE_RC_COMPILE_OBJECT=<CMAKE_RC_COMPILER> -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>"
           else
             options='-DCMAKE_C_COMPILER=gcc'
           fi
           cmake -B bld ${options} "-DCMAKE_C_FLAGS=${c_flags}" \
-            "-DCMAKE_RC_FLAGS=${rc_flags}" \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
             "-DCRYPTO_BACKEND=${crypto}" \
