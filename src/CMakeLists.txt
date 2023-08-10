@@ -50,10 +50,10 @@ endif()
 
 option(CLEAR_MEMORY "Enable clearing of memory before being freed" ON)
 if(NOT CLEAR_MEMORY)
-  list(APPEND libssh2_DEFINITIONS LIBSSH2_NO_CLEAR_MEMORY)
+  list(APPEND libssh2_DEFINITIONS "LIBSSH2_NO_CLEAR_MEMORY")
 endif()
 
-option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression")
+option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression" OFF)
 add_feature_info(Compression ENABLE_ZLIB_COMPRESSION
   "using zlib for compression")
 if(ENABLE_ZLIB_COMPRESSION)
@@ -61,17 +61,17 @@ if(ENABLE_ZLIB_COMPRESSION)
 
   list(APPEND libssh2_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS})
   list(APPEND LIBRARIES ${ZLIB_LIBRARIES})
-  list(APPEND LIBSSH2_PC_LIBS_PRIVATE -lz)
-  list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE zlib)
+  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lz")
+  list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "zlib")
   if(ZLIB_FOUND)
-    list(APPEND libssh2_DEFINITIONS LIBSSH2_HAVE_ZLIB)
+    list(APPEND libssh2_DEFINITIONS "LIBSSH2_HAVE_ZLIB")
   endif()
 endif()
 
 list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 
 if(WIN32)
-  list(APPEND LIBSSH2_PC_LIBS_PRIVATE -lws2_32)
+  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lws2_32")
 endif()
 
 # to find generated header
@@ -87,7 +87,7 @@ endif()
 include(GNUInstallDirs)
 transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'CSOURCES' and 'HHEADERS' variables
-include(${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake)
+include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 set(SOURCES ${CSOURCES} ${HHEADERS})
 
 ## Library definition
@@ -109,7 +109,7 @@ if(BUILD_STATIC_LIBS)
   target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
   target_link_libraries(${LIB_STATIC} PRIVATE ${LIBRARIES})
   set_target_properties(${LIB_STATIC} PROPERTIES
-    PREFIX "" OUTPUT_NAME "libssh2" SOVERSION ${LIBSSH2_SOVERSION} VERSION ${LIBSSH2_LIBVERSION}
+    PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${LIBSSH2_SOVERSION}" VERSION "${LIBSSH2_LIBVERSION}"
     SUFFIX "${STATIC_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
   target_include_directories(${LIB_STATIC}
@@ -122,13 +122,13 @@ if(BUILD_SHARED_LIBS)
   list(APPEND libssh2_export ${LIB_SHARED})
   add_library(${LIB_SHARED} SHARED ${SOURCES})
   if(WIN32)
-    set_property(TARGET ${LIB_SHARED} APPEND PROPERTY SOURCES libssh2.rc)
+    set_property(TARGET ${LIB_SHARED} APPEND PROPERTY SOURCES "libssh2.rc")
   endif()
   target_compile_definitions(${LIB_SHARED} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS} ${LIB_SHARED_DEFINITIONS})
   target_compile_options(${LIB_SHARED} PRIVATE ${LIB_SHARED_C_FLAGS})
   target_link_libraries(${LIB_SHARED} PRIVATE ${LIBRARIES})
   set_target_properties(${LIB_SHARED} PROPERTIES
-    PREFIX "" OUTPUT_NAME "libssh2" SOVERSION ${LIBSSH2_SOVERSION} VERSION ${LIBSSH2_LIBVERSION}
+    PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${LIBSSH2_SOVERSION}" VERSION "${LIBSSH2_LIBVERSION}"
     IMPORT_PREFIX "" IMPORT_SUFFIX "${IMPORT_LIB_SUFFIX}${CMAKE_IMPORT_LIBRARY_SUFFIX}"
     POSITION_INDEPENDENT_CODE ON)
 
@@ -142,21 +142,21 @@ endif()
 ## Installation
 
 install(FILES
-  ${PROJECT_SOURCE_DIR}/include/libssh2.h
-  ${PROJECT_SOURCE_DIR}/include/libssh2_publickey.h
-  ${PROJECT_SOURCE_DIR}/include/libssh2_sftp.h
+  "${PROJECT_SOURCE_DIR}/include/libssh2.h"
+  "${PROJECT_SOURCE_DIR}/include/libssh2_publickey.h"
+  "${PROJECT_SOURCE_DIR}/include/libssh2_sftp.h"
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(BUILD_STATIC_LIBS)
   install(TARGETS ${LIB_STATIC}
-    EXPORT ${PROJECT_NAME}-targets
+    EXPORT "${PROJECT_NAME}-targets"
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 if(BUILD_SHARED_LIBS)
   install(TARGETS ${LIB_SHARED}
-    EXPORT ${PROJECT_NAME}-targets
+    EXPORT "${PROJECT_NAME}-targets"
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
@@ -170,20 +170,20 @@ set(RUNTIME_DEPENDENCIES ${_RUNTIME_DEPENDENCIES} CACHE INTERNAL
 # Package config
 
 ## During package installation, install libssh2-targets.cmake
-install(EXPORT ${PROJECT_NAME}-targets
-  NAMESPACE ${PROJECT_NAME}::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+install(EXPORT "${PROJECT_NAME}-targets"
+  NAMESPACE "${PROJECT_NAME}::"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
 ## During build, register directly from build tree
 # create libssh2-targets.cmake
-export(TARGETS ${libssh2_export} NAMESPACE ${PROJECT_NAME}:: FILE ${PROJECT_NAME}-targets.cmake)
+export(TARGETS ${libssh2_export} NAMESPACE "${PROJECT_NAME}::" FILE "${PROJECT_NAME}-targets.cmake")
 export(PACKAGE ${PROJECT_NAME})  # register it
 
 # Generate libssh2-config.cmake into build tree and install it
-configure_file(${PROJECT_SOURCE_DIR}/cmake/libssh2-config.cmake.in ${PROJECT_NAME}-config.cmake @ONLY)
+configure_file("${PROJECT_SOURCE_DIR}/cmake/libssh2-config.cmake.in" "${PROJECT_NAME}-config.cmake" @ONLY)
 install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
 ## Export a .pc file for client projects not using CMaek
 if(LIBSSH2_PC_REQUIRES_PRIVATE)
@@ -205,18 +205,18 @@ set(prefix ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix "\${prefix}")
 set(libdir "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
 set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
-configure_file(${PROJECT_SOURCE_DIR}/libssh2.pc.in libssh2.pc @ONLY)
+configure_file("${PROJECT_SOURCE_DIR}/libssh2.pc.in" "libssh2.pc" @ONLY)
 install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/libssh2.pc
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/libssh2.pc"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
 #
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
   VERSION "${LIBSSH2_VERSION_MAJOR}.${LIBSSH2_VERSION_MINOR}.${LIBSSH2_VERSION_PATCH}"
   COMPATIBILITY SameMajorVersion)
 install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")

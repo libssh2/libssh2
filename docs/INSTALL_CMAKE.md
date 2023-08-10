@@ -51,19 +51,18 @@ The following options are available:
 
  * `LINT=ON`
 
-    Enables running the source code linter when building. Can be `ON` or `OFF`.
+    Enables running the source code linter when building.
+    Can be `ON` or `OFF`. Default: `OFF`
 
- * `BUILD_STATIC_LIBS=ON`
+ * `BUILD_STATIC_LIBS=OFF`
 
     Determines whether to build a libssh2 static library.
-    Can be `ON` or `OFF`.
+    Can be `ON` or `OFF`. Default: `ON`
 
  * `BUILD_SHARED_LIBS=OFF`
 
     Determines whether to build a libssh2 shared library (.dll/.so).
-    Can be `ON` or `OFF`.
-
-    If enabled, the optional static lib is also built with PIC enabled.
+    Can be `ON` or `OFF`. Default: `ON`
 
  * `CRYPTO_BACKEND=`
 
@@ -75,18 +74,20 @@ The following options are available:
     CMake will attempt to locate the libraries automatically.  See [2]
     for more information.
 
- * `ENABLE_ZLIB_COMPRESSION=OFF`
+ * `ENABLE_ZLIB_COMPRESSION=ON`
 
-    Will use zlib (https://zlib.net/) for payload compression.  Can
-    be `ON` or `OFF`.
+    Use zlib (https://zlib.net/) for payload compression.
+    Can be `ON` or `OFF`. Default: `OFF`
 
- * `ENABLE_DEBUG_LOGGING=ON` in Debug, `=OFF` in Release
+ * `ENABLE_DEBUG_LOGGING=ON`
 
-    Will enable the libssh2_trace() function for showing debug traces.
+    Enable the libssh2_trace() function for showing debug traces.
+    Can be `ON` or `OFF`. Default: `OFF` in Release, `ON` in `Debug`
 
- * `CLEAR_MEMORY=ON`
+ * `CLEAR_MEMORY=OFF`
 
-    Securely zero memory before freeing it (if the backend supports this).
+    Disable secure zero memory before freeing it (not recommended).
+    Can be `ON` or `OFF`. Default: `ON`
 
 Build tools
 -----------
