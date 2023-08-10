@@ -148,7 +148,14 @@ jobs:
     strategy:
       matrix:
         include:
+          - { build: 'autotools', sys: mingw64, env: x86_64 }
+          - { build: 'autotools', sys: mingw32, env: i686 }
+          - { build: 'autotools', sys: ucrt64,  env: ucrt-x86_64 }
+          - { build: 'autotools', sys: clang64, env: clang-x86_64 }
+          - { build: 'cmake'    , sys: ucrt64,  env: ucrt-x86_64 }
+          - { build: 'cmake'    , sys: clang64, env: clang-x86_64 }
           - { build: 'cmake'    , sys: mingw64, env: x86_64, mode: uwp }
+          - { build: 'make'     , sys: mingw64, env: x86_64 }
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
@@ -197,12 +204,13 @@ jobs:
             options='-DCMAKE_C_COMPILER=gcc'
           fi
           if [[ '${{ matrix.mode }}' = 'uwp' ]]; then
-            cmake --version
             options="${options} -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0"
             pacman --noconfirm --ask 20 --noprogressbar --sync --needed 'mingw-w64-${{ matrix.env }}-winstorecompat-git'
             specs="$(realpath gcc-specs-uwp)"
             gcc -dumpspecs | sed -e 's/-lmingwex/-lwindowsapp -lmingwex -lwindowsapp -lwindowsappcompat/' -e 's/-lmsvcrt/-lmsvcr120_app/' > "${specs}"
-            cflags="-specs=${specs} -DWINSTORECOMPAT -DWINAPI_FAMILY=WINAPI_FAMILY_APP -DHAVE_WINRT -D_UNICODE -DUNICODE -D__MSVCRT_VERSION__=0xE00"
+            cflags="-specs=${specs} -DWINSTORECOMPAT -DWINAPI_FAMILY=WINAPI_FAMILY_APP -DHAVE_WINRT"
+            # Hack to fix CMake (as of v3.26.4) misjudging the situation and
+            # applying the MSVC rc.exe command-line template for windres.
             rcopts='<CMAKE_RC_COMPILER> -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>'
           else
             cflags=''
@@ -210,9 +218,9 @@ jobs:
           fi
           cmake -B bld ${options} \
             "-DCMAKE_C_FLAGS=${cflags}" \
+            "-DCMAKE_RC_COMPILE_OBJECT=${rcopts}" \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
-            "-DCMAKE_RC_COMPILE_OBJECT=${rcopts}" \
             -DCRYPTO_BACKEND=OpenSSL \
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
@@ -223,6 +231,7 @@ jobs:
         shell: msys2 {0}
         run: cmake --build bld --parallel 3
       - name: 'cmake tests'
+        # UWP missing 'msvcr120_app.dll', fails with exit code 0xc0000135
         if: ${{ matrix.build == 'cmake' && matrix.mode != 'uwp' }}
         timeout-minutes: 10
         shell: msys2 {0}
@@ -236,12 +245,6 @@ jobs:
           OPENSSL_PATH: /${{ matrix.sys }}
         shell: msys2 {0}
         run: mkdir bld && cd bld && BLD_DIR=bld make -C .. -j3 -f Makefile.mk dyn example test
-      # https://github.com/actions/upload-artifact
-      - uses: actions/upload-artifact@v3
-        with:
-          name: 'results'
-          retention-days: 2
-          path: .
 
   build_msvc:
     name: 'msvc'
