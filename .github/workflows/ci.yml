@@ -210,7 +210,7 @@ jobs:
             specs="$(realpath gcc-specs-uwp)"
             gcc -dumpspecs | sed -e 's/-lmingwex/-lwindowsapp -lmingwex -lwindowsapp -lole32 -lruntimeobject/' -e 's/-lmsvcrt/-lmsvcr120_app/' > "${specs}"
             c_flags="-specs=${specs} -DWINSTORECOMPAT -DWINAPI_FAMILY=WINAPI_FAMILY_APP -DHAVE_WINRT -D_UNICODE -DUNICODE"
-            rc_flags='--target=pe-x86-64'
+            rc_flags='-O coff'
           else
             options='-DCMAKE_C_COMPILER=gcc'
           fi
