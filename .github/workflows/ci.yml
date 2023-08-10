@@ -199,6 +199,8 @@ jobs:
         shell: msys2 {0}
         run: |
           c_flags=''
+          crypto='OpenSSL'
+          zlib='ON'
           if [[ '${{ matrix.env }}' = 'clang'* ]]; then
             options='-DCMAKE_C_COMPILER=clang -DCMAKE_UNITY_BUILD=ON'
           elif [[ '${{ matrix.mode }}' = 'uwp' ]]; then
@@ -212,17 +214,22 @@ jobs:
           cmake -B bld ${options} "-DCMAKE_C_FLAGS=${c_flags}" \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
-            -DCRYPTO_BACKEND=OpenSSL \
-            -DENABLE_ZLIB_COMPRESSION=ON \
+            "-DCRYPTO_BACKEND=${crypto}" \
+            "-DENABLE_ZLIB_COMPRESSION=${zlib}" \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF
 
       - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' }}
+        if: ${{ matrix.build == 'cmake' && matrix.env == 'uwp' }}
+        shell: msys2 {0}
+        run: cd bld; make V=1
+
+      - name: 'cmake build'
+        if: ${{ matrix.build == 'cmake' && matrix.env != 'uwp' }}
         shell: msys2 {0}
         run: cmake --build bld --parallel 3
       - name: 'cmake tests'
-        if: ${{ matrix.build == 'cmake' }}
+        if: ${{ matrix.build == 'cmake' && matrix.env != 'uwp___' }}
         timeout-minutes: 10
         shell: msys2 {0}
         run: cd bld && ctest -VV --output-on-failure
