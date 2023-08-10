@@ -199,7 +199,7 @@ jobs:
           elif [[ '${{ matrix.mode }}' = 'uwp' ]]; then
             options='-DCMAKE_C_COMPILER=gcc -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0'
             specs="$(realpath gcc-specs-uwp)"
-            gcc -dumpspecs | sed -e 's/-lmingwex/-lwindowsapp -lmingwex -lwindowsapp -lwindowsappcompat -lole32 -lruntimeobject/' -e 's/-lmsvcrt/-lmsvcr120_app/' > "${specs}"
+            gcc -dumpspecs | sed -e 's/-lmingwex/-lwindowsapp -lmingwex -lwindowsapp -lwinstorecompat -lole32 -lruntimeobject/' -e 's/-lmsvcrt/-lmsvcr120_app/' > "${specs}"
             c_flags="-specs=${specs} -DWINSTORECOMPAT -DWINAPI_FAMILY=WINAPI_FAMILY_APP -DHAVE_WINRT -D_UNICODE -DUNICODE"
           else
             options='-DCMAKE_C_COMPILER=gcc'
