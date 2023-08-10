@@ -192,41 +192,33 @@ jobs:
         shell: msys2 {0}
         run: |
           c_flags=''
-          crypto='OpenSSL'
-          zlib='ON'
           if [[ '${{ matrix.env }}' = 'clang'* ]]; then
             options='-DCMAKE_C_COMPILER=clang -DCMAKE_UNITY_BUILD=ON'
           elif [[ '${{ matrix.mode }}' = 'uwp' ]]; then
             pacman --noconfirm --ask 20 --noprogressbar --sync --needed mingw-w64-x86_64-winstorecompat-git
             options='-DCMAKE_C_COMPILER=gcc -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0'
             specs="$(realpath gcc-specs-uwp)"
-            find D:/a/_temp/msys64
-            gcc -dumpspecs
             gcc -dumpspecs | sed -e 's/-lmingwex/-lwindowsapp -lmingwex -lwindowsapp -lwinstorecompat -lole32 -lruntimeobject/' -e 's/-lmsvcrt/-lmsvcr120_app/' > "${specs}"
             c_flags="-specs=${specs} -DWINSTORECOMPAT -DWINAPI_FAMILY=WINAPI_FAMILY_APP -DHAVE_WINRT -D_UNICODE -DUNICODE"
           else
             options='-DCMAKE_C_COMPILER=gcc'
           fi
-          cmake -B bld ${options} "-DCMAKE_C_FLAGS=${c_flags}" \
+          cmake -B bld ${options} \
+            "-DCMAKE_C_FLAGS=${c_flags}" \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
             '-DCMAKE_RC_COMPILE_OBJECT=<CMAKE_RC_COMPILER> -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>' \
-            "-DCRYPTO_BACKEND=${crypto}" \
-            "-DENABLE_ZLIB_COMPRESSION=${zlib}" \
+            -DCRYPTO_BACKEND=OpenSSL \
+            -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF
 
       - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' }}
-        shell: msys2 {0}
-        run: cd bld; make VERBOSE=1
-
-      - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' && matrix.mode != 'uwp' }}
+        if: ${{ matrix.build == 'cmake' && matrix.mode == 'uwp' }}
         shell: msys2 {0}
         run: cmake --build bld --parallel 3
       - name: 'cmake tests'
-        if: ${{ matrix.build == 'cmake' && matrix.mode != 'uwp___' }}
+        if: ${{ matrix.build == 'cmake' && matrix.mode != 'uwp' }}
         timeout-minutes: 10
         shell: msys2 {0}
         run: cd bld && ctest -VV --output-on-failure
@@ -239,6 +231,12 @@ jobs:
           OPENSSL_PATH: /${{ matrix.sys }}
         shell: msys2 {0}
         run: mkdir bld && cd bld && BLD_DIR=bld make -C .. -j3 -f Makefile.mk dyn example test
+      # https://github.com/actions/upload-artifact
+      - uses: actions/upload-artifact@v3
+        with:
+          name: 'results'
+          retention-days: 2
+          path: .
 
   build_msvc:
     name: 'msvc'
