@@ -154,7 +154,7 @@ jobs:
           - { build: 'autotools', sys: clang64, env: clang-x86_64 }
           - { build: 'cmake'    , sys: ucrt64,  env: ucrt-x86_64 }
           - { build: 'cmake'    , sys: clang64, env: clang-x86_64 }
-          - { build: 'cmake'    , sys: mingw64, env: x86_64, mode: uwp }
+          - { build: 'cmake'    , sys: mingw64, env: x86_64, api: uwp }
           - { build: 'make'     , sys: mingw64, env: x86_64 }
       fail-fast: false
     steps:
@@ -203,7 +203,7 @@ jobs:
           else
             options='-DCMAKE_C_COMPILER=gcc'
           fi
-          if [[ '${{ matrix.mode }}' = 'uwp' ]]; then
+          if [[ '${{ matrix.api }}' = 'uwp' ]]; then
             options="${options} -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0"
             pacman --noconfirm --ask 20 --noprogressbar --sync --needed 'mingw-w64-${{ matrix.env }}-winstorecompat-git'
             specs="$(realpath gcc-specs-uwp)"
@@ -232,7 +232,7 @@ jobs:
         run: cmake --build bld --parallel 3
       - name: 'cmake tests'
         # UWP missing 'msvcr120_app.dll', fails with exit code 0xc0000135
-        if: ${{ matrix.build == 'cmake' && matrix.mode != 'uwp' }}
+        if: ${{ matrix.build == 'cmake' && matrix.api != 'uwp' }}
         timeout-minutes: 10
         shell: msys2 {0}
         run: cd bld && ctest -VV --output-on-failure
