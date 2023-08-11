@@ -64,7 +64,7 @@ add_feature_info("Shared library" BUILD_SHARED_LIBS
 
 # Parse version
 
-file(READ ${PROJECT_SOURCE_DIR}/include/libssh2.h _HEADER_CONTENTS)
+file(READ "${PROJECT_SOURCE_DIR}/include/libssh2.h" _HEADER_CONTENTS)
 string(
   REGEX REPLACE ".*#define LIBSSH2_VERSION[ \t]+\"([^\"]+)\".*" "\\1"
   LIBSSH2_VERSION "${_HEADER_CONTENTS}")
@@ -277,8 +277,8 @@ endif()
 
 add_definitions("-DHAVE_CONFIG_H")
 
-configure_file(src/libssh2_config_cmake.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/src/libssh2_config.h)
+configure_file("src/libssh2_config_cmake.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/src/libssh2_config.h")
 
 ## Cryptography backend choice
 
@@ -346,7 +346,7 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
   if(WOLFSSL_FOUND)
     set(CRYPTO_BACKEND "wolfSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WOLFSSL")
-    set(CRYPTO_BACKEND_INCLUDE_DIR ${WOLFSSL_INCLUDE_DIR} ${WOLFSSL_INCLUDE_DIR}/wolfssl)
+    set(CRYPTO_BACKEND_INCLUDE_DIR ${WOLFSSL_INCLUDE_DIR} "${WOLFSSL_INCLUDE_DIR}/wolfssl")
     list(APPEND LIBRARIES ${WOLFSSL_LIBRARIES})
     list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lwolfssl")
     list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "wolfssl")
