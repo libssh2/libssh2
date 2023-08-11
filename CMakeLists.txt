@@ -433,7 +433,7 @@ endif()
 
 option(LINT "Check style while building" OFF)
 if(LINT)
-  add_custom_target(lint ALL "./ci/checksrc.sh" WORKING_DIRECTORY ${libssh2_SOURCE_DIR})
+  add_custom_target(lint ALL "./ci/checksrc.sh" WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
   if(BUILD_STATIC_LIBS)
     add_dependencies(${LIB_STATIC} lint)
   else()
