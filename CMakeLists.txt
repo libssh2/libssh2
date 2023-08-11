@@ -82,10 +82,7 @@ if(NOT LIBSSH2_VERSION OR
    NOT LIBSSH2_VERSION_MAJOR MATCHES "^[0-9]+$" OR
    NOT LIBSSH2_VERSION_MINOR MATCHES "^[0-9]+$" OR
    NOT LIBSSH2_VERSION_PATCH MATCHES "^[0-9]+$")
-  message(
-    FATAL_ERROR
-    "Unable to parse version from"
-    "${PROJECT_SOURCE_DIR}/include/libssh2.h")
+  message(FATAL_ERROR "Unable to parse version from ${PROJECT_SOURCE_DIR}/include/libssh2.h")
 endif()
 
 include(GNUInstallDirs)
@@ -253,7 +250,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR
   # not being able to poll on some files (like anything in /dev)
   # not having reliable timeout support
   # inconsistent return of POLLHUP where other implementations give POLLIN
-  message("poll use is disabled on this platform")
+  message(STATUS "poll use is disabled on this platform")
 elseif(NOT WIN32)
   check_function_exists("poll" HAVE_POLL)
 endif()
@@ -323,8 +320,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
         list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO})
         message(STATUS "Found libcrypto DLL: ${DLL_LIBCRYPTO}")
       else()
-        message(WARNING
-          "Unable to find OpenSSL libcrypto DLL, executables may not run")
+        message(WARNING "Unable to find OpenSSL libcrypto DLL, executables may not run")
       endif()
 
       #set(CMAKE_FIND_DEBUG_MODE OFF)
@@ -437,8 +433,7 @@ endif()
 
 option(LINT "Check style while building" OFF)
 if(LINT)
-  add_custom_target(lint ALL "./ci/checksrc.sh"
-    WORKING_DIRECTORY ${libssh2_SOURCE_DIR})
+  add_custom_target(lint ALL "./ci/checksrc.sh" WORKING_DIRECTORY ${libssh2_SOURCE_DIR})
   if(BUILD_STATIC_LIBS)
     add_dependencies(${LIB_STATIC} lint)
   else()
