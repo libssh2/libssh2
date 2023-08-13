@@ -46,6 +46,7 @@ jobs:
             --with-crypto=openssl \
             --disable-docker-tests \
             --disable-sshd-tests
+          cat config.log
           make -C bld -j3
 
       - name: 'cmake'
@@ -60,6 +61,7 @@ jobs:
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
             -DCRYPTO_BACKEND=OpenSSL \
+            -DOPENSSL_ROOT_DIR=/usr/lib \
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF
