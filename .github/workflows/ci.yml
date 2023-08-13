@@ -261,7 +261,7 @@ jobs:
       - uses: cygwin/cygwin-install-action@master
         with:
           platform: ${{ matrix.platform }}
-          packages: cc make openssl
+          packages: autoreconf cc make openssl
 
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
