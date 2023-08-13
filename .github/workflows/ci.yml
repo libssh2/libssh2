@@ -246,6 +246,66 @@ jobs:
         shell: msys2 {0}
         run: mkdir bld && cd bld && BLD_DIR=bld make -C .. -j3 -f Makefile.mk dyn example test
 
+  build_cygwin:
+    name: 'cygwin'
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        include:
+          - { build: 'autotools', platform: 'x86_64' }
+          - { build: 'cmake'    , platform: 'x86_64' }
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cygwin/cygwin-install-action@master
+        with:
+          platform: ${{ matrix.platform }}
+          packages: cc make openssl
+
+      - name: 'autotools autoreconf'
+        if: ${{ matrix.build == 'autotools' }}
+        shell: C:\cygwin\bin\bash.exe '{0}'
+        run: autoreconf -fi
+      - name: 'autotools configure'
+        if: ${{ matrix.build == 'autotools' }}
+        shell: C:\cygwin\bin\bash.exe '{0}'
+        run: |
+          # sshd tests sometimes hang
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+            --with-crypto=openssl \
+            --disable-docker-tests \
+            --disable-sshd-tests
+
+      - name: 'autotools build'
+        if: ${{ matrix.build == 'autotools' }}
+        shell: C:\cygwin\bin\bash.exe '{0}'
+        run: make -C bld -j3
+      - name: 'cmake configure'
+        if: ${{ matrix.build == 'cmake' }}
+        env:
+          CMAKE_GENERATOR: 'Unix Makefiles'
+        shell: C:\cygwin\bin\bash.exe '{0}'
+        run: |
+          cmake -B bld \
+            -DCMAKE_C_COMPILER=gcc \
+            -DENABLE_WERROR=ON \
+            -DENABLE_DEBUG_LOGGING=ON \
+            -DCRYPTO_BACKEND=OpenSSL \
+            -DENABLE_ZLIB_COMPRESSION=ON \
+            -DRUN_DOCKER_TESTS=OFF \
+            -DRUN_SSHD_TESTS=OFF
+
+      - name: 'cmake build'
+        if: ${{ matrix.build == 'cmake' }}
+        shell: C:\cygwin\bin\bash.exe '{0}'
+        run: cmake --build bld --parallel 3
+      - name: 'cmake tests'
+        if: ${{ matrix.build == 'cmake' }}
+        timeout-minutes: 10
+        shell: C:\cygwin\bin\bash.exe '{0}'
+        run: cd bld && ctest -VV --output-on-failure
+
   build_msvc:
     name: 'msvc'
     runs-on: windows-latest
