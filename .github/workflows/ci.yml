@@ -17,6 +17,8 @@ jobs:
     name: 'cygwin'
     runs-on: windows-latest
     timeout-minutes: 30
+    env:
+      SHELLOPTS: igncr
     strategy:
       matrix:
         include:
