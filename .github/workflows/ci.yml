@@ -19,7 +19,6 @@ jobs:
     timeout-minutes: 30
     env:
       SHELLOPTS: 'igncr'
-      CYGWIN_NOWINPATH: '1'
     strategy:
       matrix:
         include:
@@ -35,31 +34,27 @@ jobs:
           packages: autoconf automake libtool cc make libssl-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
 
-      - name: 'autotools autoreconf'
+      - name: 'autotools'
         if: ${{ matrix.build == 'autotools' }}
-        shell: C:\cygwin\bin\bash.exe '{0}'
-        run: autoreconf -fi
-      - name: 'autotools configure'
-        if: ${{ matrix.build == 'autotools' }}
+        timeout-minutes: 10
         shell: C:\cygwin\bin\bash.exe '{0}'
         run: |
+          export PATH
+          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
+          autoreconf -fi
           # sshd tests sometimes hang
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-crypto=openssl \
             --disable-docker-tests \
             --disable-sshd-tests
+          make -C bld -j3
 
-      - name: 'autotools build'
-        if: ${{ matrix.build == 'autotools' }}
-        shell: C:\cygwin\bin\bash.exe '{0}'
-        run: make -C bld -j3
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
-        env:
-          CMAKE_GENERATOR: 'Unix Makefiles'
+        timeout-minutes: 10
         shell: C:\cygwin\bin\bash.exe '{0}'
         run: |
-          cmake -B bld \
+          cmake -B bld -G 'Unix Makefiles' \
             -DCMAKE_C_COMPILER=gcc \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
@@ -67,13 +62,5 @@ jobs:
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF
-
-      - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' }}
-        shell: C:\cygwin\bin\bash.exe '{0}'
-        run: cmake --build bld --parallel 3
-      - name: 'cmake tests'
-        if: ${{ matrix.build == 'cmake' }}
-        timeout-minutes: 10
-        shell: C:\cygwin\bin\bash.exe '{0}'
-        run: cd bld && ctest -VV --output-on-failure
+          cmake --build bld --parallel 3
+          cd bld && ctest -VV --output-on-failure
