@@ -31,7 +31,7 @@ jobs:
       - uses: cygwin/cygwin-install-action@v4
         with:
           platform: ${{ matrix.platform }}
-          packages: autoconf automake libtool gcc binutils make libssl-devel
+          packages: autoconf automake libtool gcc binutils make libssl3-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
 
       - name: 'autotools'
@@ -54,6 +54,8 @@ jobs:
         timeout-minutes: 10
         shell: C:\cygwin\bin\bash.exe '{0}'
         run: |
+          export PATH
+          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
           cmake -B bld -G 'Unix Makefiles' \
             -DCMAKE_C_COMPILER=gcc \
             -DENABLE_WERROR=ON \
