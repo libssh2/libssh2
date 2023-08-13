@@ -24,11 +24,13 @@ jobs:
           - { build: 'cmake'    , platform: 'x86_64' }
       fail-fast: false
     steps:
+      - run: git config --global core.autocrlf input
       - uses: actions/checkout@v3
-      - uses: cygwin/cygwin-install-action@master
+      - uses: cygwin/cygwin-install-action@v4
         with:
           platform: ${{ matrix.platform }}
           packages: autoconf automake libtool cc make openssl
+          site: https://mirrors.kernel.org/sourceware/cygwin/
 
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
