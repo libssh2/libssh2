@@ -118,8 +118,9 @@ if(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
   set(BUILD_STATIC_LIBS ON)
 endif()
 
-set(LIB_STATIC "libssh2_static")
-set(LIB_SHARED "libssh2_shared")
+set(LIB_NAME "libssh2")
+set(LIB_STATIC "${LIB_NAME}_static")
+set(LIB_SHARED "${LIB_NAME}_shared")
 
 # lib flavour selected for example and test programs.
 if(BUILD_SHARED_LIBS)
