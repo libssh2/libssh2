@@ -31,7 +31,7 @@ jobs:
       - uses: cygwin/cygwin-install-action@v4
         with:
           platform: ${{ matrix.platform }}
-          packages: autoconf automake libtool cc make libssl-devel
+          packages: autoconf automake libtool gcc binutils make libssl-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
 
       - name: 'autotools'
