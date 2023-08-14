@@ -413,19 +413,6 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
   endif()
 endif()
 
-message(STATUS "MSYS: ${MSYS}")
-message(STATUS "UNIX: ${UNIX}")
-message(STATUS "WIN32: ${WIN32}")
-check_include_files("windows.h" HAVE_WINDOWS_H)
-check_include_files("winsock2.h" MY_HAVE_WINSOCK2_H)
-check_include_files("ws2tcpip.h" MY_HAVE_WS2TCPIP_H)
-check_include_files("windows.h;wincrypt.h" MY_HAVE_WINCRYPT_H)
-message(STATUS "HAVE_WINDOWS_H: ${HAVE_WINDOWS_H}")
-message(STATUS "MY_HAVE_WINSOCK2_H: ${MY_HAVE_WINSOCK2_H}")
-message(STATUS "MY_HAVE_WS2TCPIP_H: ${MY_HAVE_WS2TCPIP_H}")
-message(STATUS "MY_HAVE_WINCRYPT_H: ${MY_HAVE_WINCRYPT_H}")
-message(STATUS "CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
-
 # Global functions
 
 # Convert GNU Make assignments into CMake ones.
