@@ -9,13 +9,25 @@
 /* Header for platform/compiler-specific initialization.
    Used by 'src', 'example', 'tests' */
 
+#ifdef WIN32
+#pragma message "defined-10: WIN32"
+#endif
+
 #if defined(_WIN32) && !defined(WIN32)
 #define WIN32
+#endif
+
+#ifdef WIN32
+#pragma message "defined-11: WIN32"
 #endif
 
 /* Define mingw-w64 version macros, eg __MINGW{32,64}_{MINOR,MAJOR}_VERSION */
 #ifdef __MINGW32__
 #include <_mingw.h>
+#endif
+
+#ifdef WIN32
+#pragma message "defined-12: WIN32"
 #endif
 
 /* Configuration provided by build tools (autotools and CMake),

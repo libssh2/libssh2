@@ -45,8 +45,16 @@
 
 #define LIBSSH2_LIBRARY
 
+#ifdef WIN32
+#pragma message "defined-01: WIN32"
+#endif
+
 /* platform/compiler-specific setup */
 #include "libssh2_setup.h"
+
+#ifdef WIN32
+#pragma message "defined-02: WIN32"
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -81,10 +89,18 @@
 #include <inttypes.h>
 #endif
 
+#ifdef WIN32
+#pragma message "defined-03: WIN32"
+#endif
+
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
 #include "misc.h"
+
+#ifdef WIN32
+#pragma message "defined-04: WIN32"
+#endif
 
 #ifdef WIN32
 /* Detect Windows App environment which has a restricted access

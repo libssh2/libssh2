@@ -219,7 +219,6 @@ void stop_session_fixture(void)
     stop_openssh_fixture();
 }
 
- 
 #ifdef __MSYS__
 #pragma message "defined: __MSYS__"
 #endif
