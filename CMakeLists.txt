@@ -416,6 +416,15 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
   endif()
 endif()
 
+message(INFO "MSYS: ${MSYS}")
+message(INFO "WIN32: ${WIN32}")
+check_include_files("windows.h" MY_HAVE_WINDOWS_H)
+check_include_files("ws2_32.h" MY_HAVE_WS2_32_H)
+check_include_files("windows.h;wincrypt.h" MY_HAVE_WINCRYPT_H)
+message(INFO "MY_HAVE_WINDOWS_H: ${MY_HAVE_WINDOWS_H}")
+message(INFO "MY_HAVE_WS2_32_H: ${MY_HAVE_WS2_32_H}")
+message(INFO "MY_HAVE_WINCRYPT_H: ${MY_HAVE_WINCRYPT_H}")
+
 # Global functions
 
 # Convert GNU Make assignments into CMake ones.
