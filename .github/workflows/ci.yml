@@ -76,12 +76,31 @@ jobs:
     strategy:
       matrix:
         include:
-          - { build: 'autotools', sys: msys, env: x86_64 }
-          - { build: 'cmake'    , sys: msys, env: x86_64 }
+          - { build: 'autotools', sys: mingw64, env: x86_64 }
+          - { build: 'autotools', sys: mingw32, env: i686 }
+          - { build: 'autotools', sys: ucrt64,  env: ucrt-x86_64 }
+          - { build: 'autotools', sys: clang64, env: clang-x86_64 }
+          - { build: 'cmake'    , sys: ucrt64,  env: ucrt-x86_64 }
+          - { build: 'cmake'    , sys: clang64, env: clang-x86_64 }
+          - { build: 'cmake'    , sys: mingw64, env: x86_64, api: uwp }
+          - { build: 'make'     , sys: mingw64, env: x86_64 }
+          - { build: 'autotools', sys: msys   , env: x86_64 }
+          - { build: 'cmake'    , sys: msys   , env: x86_64 }
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
+
       - uses: msys2/setup-msys2@v2
+        if: ${{ matrix.sys != 'msys' }}
+        with:
+          msystem: ${{ matrix.sys }}
+          install: >-
+            mingw-w64-${{ matrix.env }}-cc
+            mingw-w64-${{ matrix.env }}-${{ matrix.build }} make
+            mingw-w64-${{ matrix.env }}-openssl
+
+      - uses: msys2/setup-msys2@v2
+        if: ${{ matrix.sys == 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
           install: gcc ${{ matrix.build }} make openssl-devel zlib-devel
@@ -113,14 +132,15 @@ jobs:
         run: make -C bld check VERBOSE=1
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
-        #env:
-        #  CMAKE_GENERATOR: 'MSYS Makefiles'
         shell: msys2 {0}
         run: |
           if [[ '${{ matrix.env }}' = 'clang'* ]]; then
             options='-DCMAKE_C_COMPILER=clang -DCMAKE_UNITY_BUILD=ON'
           else
             options='-DCMAKE_C_COMPILER=gcc'
+          fi
+          if [[ '${{ matrix.sys }}' != 'msys' ]]; then
+            export CMAKE_GENERATOR='MSYS Makefiles'
           fi
           if [[ '${{ matrix.api }}' = 'uwp' ]]; then
             options="${options} -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0"
