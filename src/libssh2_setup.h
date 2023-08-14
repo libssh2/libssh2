@@ -15,6 +15,7 @@
 
 #if defined(_WIN32) && !defined(WIN32)
 #define WIN32
+#pragma message "defining WIN32"
 #endif
 
 #ifdef WIN32

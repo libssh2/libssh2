@@ -247,6 +247,9 @@ void stop_session_fixture(void)
     stop_openssh_fixture();
 }
 
+#define _STR(x) #x
+#define STR(x) _STR(x)
+
 #ifdef __MSYS__
 #pragma message "defined: __MSYS__"
 #endif
@@ -258,6 +261,7 @@ void stop_session_fixture(void)
 #endif
 #ifdef WIN32
 #pragma message "defined-a00: WIN32"
+#pragma message "defined-a00: " STR(WIN32)
 #endif
 #ifdef _MAX_PATH
 #pragma message "defined: _MAX_PATH"
