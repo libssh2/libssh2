@@ -59,7 +59,7 @@ jobs:
         run: |
           export PATH
           PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
-          cmake -B bld -G 'Unix Makefiles' \
+          cmake -B bld \
             -DCMAKE_C_COMPILER=gcc \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
