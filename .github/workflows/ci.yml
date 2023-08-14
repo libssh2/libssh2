@@ -75,9 +75,9 @@ jobs:
         with:
           msystem: ${{ matrix.sys }}
           install: >-
-            mingw-w64-cc
-            mingw-w64-${{ matrix.build }} make
-            mingw-w64-openssl
+            cc
+            ${{ matrix.build }} make
+            openssl
 
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
