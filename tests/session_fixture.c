@@ -227,7 +227,7 @@ void stop_session_fixture(void)
 #define NUMPATHS 32
 const char *srcdir_path(const char *file)
 {
-#ifdef WIN32
+#if defined(WIN32) && defined(_MAX_PATH)
     static char filepath[NUMPATHS][_MAX_PATH];
 #else
     static char filepath[NUMPATHS][MAXPATHLEN];
