@@ -42,13 +42,9 @@ jobs:
           export PATH
           PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
           autoreconf -fi
-          # sshd tests sometimes hang
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-crypto=openssl \
-            --disable-examples-build \
-            --disable-tests \
-            --disable-docker-tests \
-            --disable-sshd-tests
+            --disable-tests
           make -j3
           make check VERBOSE=1
 
@@ -141,9 +137,9 @@ jobs:
           else
             options='-DCMAKE_C_COMPILER=gcc'
           fi
-          if [[ '${{ matrix.sys }}' != 'msys' ]]; then
-            export CMAKE_GENERATOR='MSYS Makefiles'
-          fi
+          #if [[ '${{ matrix.sys }}' != 'msys' ]]; then
+          #  export CMAKE_GENERATOR='MSYS Makefiles'
+          #fi
           if [[ '${{ matrix.api }}' = 'uwp' ]]; then
             options="${options} -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0"
             pacman --noconfirm --ask 20 --noprogressbar --sync --needed 'mingw-w64-${{ matrix.env }}-winstorecompat-git'
