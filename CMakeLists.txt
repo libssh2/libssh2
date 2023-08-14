@@ -169,6 +169,7 @@ endif()
 # Prefill values with known detection results
 # Keep this synced with src/libssh2_setup.h
 if(WIN32)
+  set(HAVE_WINCRYPT_H 1)
   if(MINGW)
     set(HAVE_SNPRINTF 1)
     set(HAVE_UNISTD_H 1)
@@ -203,6 +204,7 @@ if(NOT MSVC)
   check_include_files(sys/param.h HAVE_SYS_PARAM_H)  # tests
 endif()
 if(NOT WIN32)
+  check_include_files("windows.h;wincrypt.h" HAVE_WINCRYPT_H)
   check_include_files(sys/select.h HAVE_SYS_SELECT_H)
   check_include_files(sys/uio.h HAVE_SYS_UIO_H)
   check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
@@ -401,7 +403,8 @@ endif()
 # Detect platform-specific crypto-backends last:
 
 if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
-  if(WIN32)
+  # MSYS2 builds are NOT WIN32, but HAVE_WINCRYPT_H
+  if(HAVE_WINCRYPT_H)
     set(CRYPTO_BACKEND "WinCNG")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WINCNG")
     set(CRYPTO_BACKEND_INCLUDE_DIR "")
