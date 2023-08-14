@@ -477,8 +477,8 @@ memcpy_with_be_padding(unsigned char *dest, unsigned long dest_len,
 
 int
 _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
-                          BCRYPT_ALG_HANDLE hAlg, unsigned long hashlen,
-                          unsigned char *key, unsigned long keylen)
+                          BCRYPT_ALG_HANDLE hAlg, ULONG hashlen,
+                          unsigned char *key, ULONG keylen)
 {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
@@ -507,10 +507,9 @@ _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
     }
 
 
-    /* FIXME: fail if keylen > max ULONG */
     ret = BCryptCreateHash(hAlg, &hHash,
                            pbHashObject, dwHashObject,
-                           key, (ULONG)keylen, 0);
+                           key, keylen, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         _libssh2_wincng_safe_free(pbHashObject, dwHashObject);
         return -1;
@@ -527,12 +526,11 @@ _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
 
 int
 _libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
-                            const unsigned char *data, unsigned long datalen)
+                            const unsigned char *data, ULONG datalen)
 {
     int ret;
 
-    /* FIXME: fail if datalen > max ULONG */
-    ret = BCryptHashData(ctx->hHash, (unsigned char *)data, (ULONG)datalen, 0);
+    ret = BCryptHashData(ctx->hHash, (unsigned char *)data, datalen, 0);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -556,9 +554,9 @@ _libssh2_wincng_hash_final(_libssh2_wincng_hash_ctx *ctx,
 }
 
 int
-_libssh2_wincng_hash(const unsigned char *data, unsigned long datalen,
+_libssh2_wincng_hash(const unsigned char *data, ULONG datalen,
                      BCRYPT_ALG_HANDLE hAlg,
-                     unsigned char *hash, unsigned long hashlen)
+                     unsigned char *hash, ULONG hashlen)
 {
     _libssh2_wincng_hash_ctx ctx;
     int ret;
