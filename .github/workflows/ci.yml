@@ -46,8 +46,8 @@ jobs:
             --with-crypto=openssl \
             --disable-docker-tests \
             --disable-sshd-tests
-          cat config.log
-          make -C bld -j3
+          make -j3
+          make check VERBOSE=1
 
       - name: 'cmake'
         if: ${{ matrix.build == 'cmake' }}
