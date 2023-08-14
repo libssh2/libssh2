@@ -384,7 +384,7 @@ elif test "$found_crypto" = "wolfssl"; then
   LIBS="${LIBS} ${LTLIBWOLFSSL}"
 elif test "$found_crypto" = "libgcrypt"; then
   LIBS="${LIBS} ${LTLIBGCRYPT}"
-elif test "$found_crypto" = "wincng"; then
+elif test "$found_crypto" = "wincng" && test "x$have_windows_h" = "xyes"; then
   LIBS="${LIBS} ${LTLIBBCRYPT}"
 elif test "$found_crypto" = "mbedtls"; then
   LIBS="${LIBS} ${LTLIBMBEDCRYPTO}"
