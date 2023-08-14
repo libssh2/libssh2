@@ -608,16 +608,16 @@ static int
 _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
                                ULONG hashlen,
                                const unsigned char *sig,
-                               unsigned long sig_len,
+                               ULONG sig_len,
                                const unsigned char *m,
-                               unsigned long m_len,
+                               ULONG m_len,
                                ULONG flags)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfoPKCS1;
     BCRYPT_ALG_HANDLE hAlgHash;
     void *pPaddingInfo;
     unsigned char *data, *hash;
-    unsigned long datalen;
+    ULONG datalen;
     int ret;
 
     if(hashlen == SHA_DIGEST_LENGTH) {
@@ -678,9 +678,8 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
 
     memcpy(data, sig, datalen);
 
-    /* FIXME: fail if datalen > max ULONG */
     ret = BCryptVerifySignature(ctx->hKey, pPaddingInfo,
-                                hash, hashlen, data, (ULONG)datalen, flags);
+                                hash, hashlen, data, datalen, flags);
 
     _libssh2_wincng_safe_free(hash, hashlen);
     _libssh2_wincng_safe_free(data, datalen);
@@ -1254,8 +1253,8 @@ _libssh2_wincng_rsa_sha1_verify(libssh2_rsa_ctx *rsa,
                                 size_t m_len)
 {
     return _libssh2_wincng_key_sha_verify(rsa, SHA_DIGEST_LENGTH,
-                                          sig, (unsigned long)sig_len,
-                                          m, (unsigned long)m_len,
+                                          sig, (ULONG)sig_len,
+                                          m, (ULONG)m_len,
                                           BCRYPT_PAD_PKCS1);
 }
 #endif
@@ -1270,8 +1269,8 @@ _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx *rsa,
                                 size_t m_len)
 {
     return _libssh2_wincng_key_sha_verify(rsa, (ULONG)hash_len,
-                                          sig, (unsigned long)sig_len,
-                                          m, (unsigned long)m_len,
+                                          sig, (ULONG)sig_len,
+                                          m, (ULONG)m_len,
                                           BCRYPT_PAD_PKCS1);
 }
 #endif
@@ -1584,7 +1583,7 @@ _libssh2_wincng_dsa_sha1_verify(libssh2_dsa_ctx *dsa,
                                 size_t m_len)
 {
     return _libssh2_wincng_key_sha_verify(dsa, SHA_DIGEST_LENGTH, sig_fixed,
-                                          40, m, (unsigned long)m_len, 0);
+                                          40, m, (ULONG)m_len, 0);
 }
 
 int
