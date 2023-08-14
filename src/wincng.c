@@ -1531,7 +1531,7 @@ _libssh2_wincng_dsa_new_private(libssh2_dsa_ctx **dsa,
     }
 
     return _libssh2_wincng_dsa_new_private_parse(dsa, session,
-                                                 pbEncoded, cbEncoded);
+                                                 pbEncoded, (DWORD)cbEncoded);
 #else
     (void)dsa;
     (void)filename;
@@ -1563,7 +1563,7 @@ _libssh2_wincng_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
     }
 
     return _libssh2_wincng_dsa_new_private_parse(dsa, session,
-                                                 pbEncoded, cbEncoded);
+                                                 pbEncoded, (DWORD)cbEncoded);
 #else
     (void)dsa;
     (void)filedata;
