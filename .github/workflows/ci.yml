@@ -167,8 +167,7 @@ jobs:
         timeout-minutes: 10
         shell: C:\cygwin\bin\bash.exe '{0}'
         run: |
-          export PATH
-          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
+          export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
           autoreconf -fi
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-crypto=openssl \
@@ -181,10 +180,8 @@ jobs:
         timeout-minutes: 10
         shell: C:\cygwin\bin\bash.exe '{0}'
         run: |
-          export PATH
-          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
+          export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
           cmake -B bld \
-            -DCMAKE_C_COMPILER=gcc \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
             -DCRYPTO_BACKEND=OpenSSL \
