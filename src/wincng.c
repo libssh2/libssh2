@@ -461,8 +461,8 @@ _libssh2_wincng_safe_free(void *buf, size_t len)
  * if the size of src is smaller than dest then pad the "left" (MSB)
  * end with zeroes and copy the bits into the "right" (LSB) end. */
 static void
-memcpy_with_be_padding(unsigned char *dest, unsigned long dest_len,
-                       unsigned char *src, unsigned long src_len)
+memcpy_with_be_padding(unsigned char *dest, ULONG dest_len,
+                       unsigned char *src, ULONG src_len)
 {
     if(dest_len > src_len) {
         memset(dest, 0, dest_len - src_len);
@@ -2409,13 +2409,13 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
 
     while(_libssh2_wincng.hAlgDH && hasAlgDHwithKDF != -1) {
         BCRYPT_DH_PARAMETER_HEADER *dh_params;
-        unsigned long dh_params_len;
+        ULONG dh_params_len;
         int status;
         /* Note that the DH provider requires that keys be multiples of 64 bits
          * in length. At the time of writing a practical observed group_order
          * value is 257, so we need to round down to 8 bytes of length (64/8)
          * in order for kex to succeed */
-        DWORD key_length_bytes = max((unsigned long)round_down(group_order, 8),
+        ULONG key_length_bytes = max((ULONG)round_down(group_order, 8),
                                      max(g->length, p->length));
         BCRYPT_DH_KEY_BLOB *dh_key_blob;
         LPCWSTR key_type;
@@ -2429,7 +2429,7 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
             return -1;
         }
 
-        dh_params_len = (unsigned long)sizeof(*dh_params) +
+        dh_params_len = (ULONG)sizeof(*dh_params) +
                         2 * key_length_bytes;
         dh_params = (BCRYPT_DH_PARAMETER_HEADER *)malloc(dh_params_len);
         if(!dh_params) {
@@ -2600,8 +2600,8 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
         int status;
         unsigned char *start, *end;
         BCRYPT_DH_KEY_BLOB *public_blob;
-        DWORD key_length_bytes = max(f->length, dhctx->dh_params->cbKeyLength);
-        DWORD public_blob_len = (DWORD)(sizeof(*public_blob) +
+        ULONG key_length_bytes = max(f->length, dhctx->dh_params->cbKeyLength);
+        ULONG public_blob_len = (ULONG)(sizeof(*public_blob) +
                                         3 * key_length_bytes);
 
         {
