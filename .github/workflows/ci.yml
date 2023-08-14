@@ -45,6 +45,8 @@ jobs:
           # sshd tests sometimes hang
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-crypto=openssl \
+            --disable-examples-build \
+            --disable-tests \
             --disable-docker-tests \
             --disable-sshd-tests
           make -j3
