@@ -1,3 +1,8 @@
+
+#ifdef WIN32
+#pragma message "defined-b00: WIN32"
+#endif
+
 #ifndef __LIBSSH2_PRIV_H
 #define __LIBSSH2_PRIV_H
 /* Copyright (C) Sara Golemon <sarag@libssh2.org>
@@ -1241,3 +1246,7 @@ size_t plain_method(char *method, size_t method_len);
 #endif
 
 #endif /* __LIBSSH2_PRIV_H */
+
+#ifdef WIN32
+#pragma message "defined-b99: WIN32"
+#endif
