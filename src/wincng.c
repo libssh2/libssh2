@@ -1302,7 +1302,7 @@ _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
         return -1;
     }
 
-    datalen = (unsigned long)hash_len;
+    datalen = (ULONG)hash_len;
     data = malloc(datalen);
     if(!data) {
         return -1;
@@ -1596,7 +1596,7 @@ _libssh2_wincng_dsa_sha1_sign(libssh2_dsa_ctx *dsa,
     ULONG cbData, datalen, siglen;
     int ret;
 
-    datalen = (unsigned long)hash_len;
+    datalen = (ULONG)hash_len;
     data = malloc(datalen);
     if(!data) {
         return -1;
@@ -1946,7 +1946,7 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
     }
 
 
-    keylen = (unsigned long)sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) +
+    keylen = (ULONG)sizeof(BCRYPT_KEY_DATA_BLOB_HEADER) +
              type.dwKeyLength;
     header = (BCRYPT_KEY_DATA_BLOB_HEADER *)malloc(keylen);
     if(!header) {
