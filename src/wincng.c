@@ -864,7 +864,7 @@ _libssh2_wincng_bn_ltob(unsigned char *pbInput,
 
 static int
 _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
-                              size_t cbEncoded,
+                              unsigned long cbEncoded,
                               unsigned char **ppbDecoded,
                               unsigned long *pcbDecoded)
 {
@@ -873,7 +873,7 @@ _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
     unsigned long cbDecoded = 0, cbInteger;
     int ret;
 
-    ret = _libssh2_wincng_asn_decode(pbEncoded, (unsigned long)cbEncoded,
+    ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
                                      X509_MULTI_BYTE_UINT,
                                      (void *)&pbInteger, &cbInteger);
     if(!ret) {
@@ -892,7 +892,7 @@ _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
 
 static int
 _libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
-                               size_t cbEncoded,
+                               unsigned long cbEncoded,
                                unsigned char ***prpbDecoded,
                                unsigned long **prcbDecoded,
                                unsigned long *pcbCount)
@@ -903,7 +903,7 @@ _libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
     unsigned long cbDecoded, *rcbDecoded, index, length;
     int ret;
 
-    ret = _libssh2_wincng_asn_decode(pbEncoded, (unsigned long)cbEncoded,
+    ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
                                      X509_SEQUENCE_OF_ANY,
                                      (void *)&pbDecoded, &cbDecoded);
     if(!ret) {
@@ -1476,7 +1476,7 @@ _libssh2_wincng_dsa_new_private_parse(libssh2_dsa_ctx **dsa,
 
     (void)session;
 
-    ret = _libssh2_wincng_asn_decode_bns(pbEncoded, cbEncoded,
+    ret = _libssh2_wincng_asn_decode_bns(pbEncoded, (unsigned long)cbEncoded,
                                          &rpbDecoded, &rcbDecoded, &length);
 
     _libssh2_wincng_safe_free(pbEncoded, cbEncoded);
@@ -1681,7 +1681,7 @@ _libssh2_wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
     unsigned long index, offset, length = 0;
     int ret;
 
-    ret = _libssh2_wincng_asn_decode_bns(pbEncoded, cbEncoded,
+    ret = _libssh2_wincng_asn_decode_bns(pbEncoded, (unsigned long)cbEncoded,
                                          &rpbDecoded, &rcbDecoded, &length);
 
     _libssh2_wincng_safe_free(pbEncoded, cbEncoded);
