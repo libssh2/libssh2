@@ -958,11 +958,11 @@ _libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
 #endif /* HAVE_LIBCRYPT32 */
 
 #if LIBSSH2_RSA || LIBSSH2_DSA
-static unsigned long
+static ULONG
 _libssh2_wincng_bn_size(const unsigned char *bignum,
-                        unsigned long length)
+                        ULONG length)
 {
-    unsigned long offset;
+    ULONG offset;
 
     if(!bignum)
         return 0;
