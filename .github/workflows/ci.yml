@@ -199,6 +199,8 @@ jobs:
     strategy:
       matrix:
         include:
+          - { build: 'autotools', sys: msys   , env: x86_64 }
+          - { build: 'cmake'    , sys: msys   , env: x86_64 }
           - { build: 'autotools', sys: mingw64, env: x86_64 }
           - { build: 'autotools', sys: mingw32, env: i686 }
           - { build: 'autotools', sys: ucrt64,  env: ucrt-x86_64 }
@@ -211,6 +213,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: msys2/setup-msys2@v2
+        if: ${{ matrix.sys == 'msys' }}
+        with:
+          msystem: ${{ matrix.sys }}
+          install: gcc ${{ matrix.build }} make openssl-devel zlib-devel
+      - uses: msys2/setup-msys2@v2
+        if: ${{ matrix.sys != 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
           install: >-
@@ -245,8 +253,6 @@ jobs:
         run: make -C bld check VERBOSE=1
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
-        env:
-          CMAKE_GENERATOR: 'MSYS Makefiles'
         shell: msys2 {0}
         run: |
           if [[ '${{ matrix.env }}' = 'clang'* ]]; then
