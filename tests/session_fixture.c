@@ -219,6 +219,25 @@ void stop_session_fixture(void)
     stop_openssh_fixture();
 }
 
+ 
+#ifdef __MSYS__
+#pragma message "defined: __MSYS__"
+#endif
+#ifdef __CYGWIN__
+#pragma message "defined: __CYGWIN__"
+#endif
+#ifdef _WIN32
+#pragma message "defined: _WIN32"
+#endif
+#ifdef WIN32
+#pragma message "defined: WIN32"
+#endif
+#ifdef _MAX_PATH
+#pragma message "defined: _MAX_PATH"
+#endif
+#ifdef MAXPATHLEN
+#pragma message "defined: MAXPATHLEN"
+#endif
 
 /* Return a static string that contains a file path relative to the srcdir
  * variable, if found. It does so in a way that avoids leaking memory by using
