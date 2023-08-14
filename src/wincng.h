@@ -402,7 +402,7 @@ struct _libssh2_wincng_cipher_type {
 
 struct _libssh2_wincng_bignum {
     unsigned char *bignum;
-    unsigned long length;
+    ULONG length;
 };
 
 #define _libssh2_bn struct _libssh2_wincng_bignum
@@ -418,9 +418,9 @@ _libssh2_bn *_libssh2_wincng_bignum_init(void);
 #define _libssh2_bn_init_from_bin() \
     _libssh2_bn_init()
 #define _libssh2_bn_set_word(bn, word) \
-    _libssh2_wincng_bignum_set_word(bn, word)
+    _libssh2_wincng_bignum_set_word(bn, (ULONG) word)
 #define _libssh2_bn_from_bin(bn, len, bin) \
-    _libssh2_wincng_bignum_from_bin(bn, (unsigned long) len, bin)
+    _libssh2_wincng_bignum_from_bin(bn, (ULONG) len, bin)
 #define _libssh2_bn_to_bin(bn, bin) \
     _libssh2_wincng_bignum_to_bin(bn, bin)
 #define _libssh2_bn_bytes(bn) bn->length
@@ -607,11 +607,11 @@ _libssh2_wincng_cipher_dtor(_libssh2_cipher_ctx *ctx);
 _libssh2_bn *
 _libssh2_wincng_bignum_init(void);
 int
-_libssh2_wincng_bignum_set_word(_libssh2_bn *bn, unsigned long word);
-unsigned long
+_libssh2_wincng_bignum_set_word(_libssh2_bn *bn, ULONG word);
+ULONG
 _libssh2_wincng_bignum_bits(const _libssh2_bn *bn);
 void
-_libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, unsigned long len,
+_libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
                                 const unsigned char *bin);
 void
 _libssh2_wincng_bignum_to_bin(const _libssh2_bn *bn, unsigned char *bin);

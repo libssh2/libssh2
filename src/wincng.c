@@ -2008,6 +2008,7 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
 
     return 0;
 }
+
 int
 _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              _libssh2_cipher_type(type),
@@ -2111,7 +2112,7 @@ _libssh2_wincng_bignum_init(void)
 }
 
 static int
-_libssh2_wincng_bignum_resize(_libssh2_bn *bn, unsigned long length)
+_libssh2_wincng_bignum_resize(_libssh2_bn *bn, ULONG length)
 {
     unsigned char *bignum;
 
@@ -2139,13 +2140,13 @@ static int
 _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
 {
     unsigned char *bignum;
-    unsigned long length;
+    ULONG length;
 
     if(!rnd)
         return -1;
 
-    length = (unsigned long) (ceil(((double)bits) / 8.0) *
-                              sizeof(unsigned char));
+    length = (ULONG) (ceil(((double)bits) / 8.0) *
+                      sizeof(unsigned char));
     if(_libssh2_wincng_bignum_resize(rnd, length))
         return -1;
 
@@ -2184,7 +2185,7 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
     unsigned char *bignum;
-    unsigned long keylen, offset, length;
+    ULONG keylen, offset, length;
     int ret;
 
     if(!r || !a || !p || !m)
@@ -2252,9 +2253,9 @@ _libssh2_wincng_bignum_mod_exp(_libssh2_bn *r,
 }
 
 int
-_libssh2_wincng_bignum_set_word(_libssh2_bn *bn, unsigned long word)
+_libssh2_wincng_bignum_set_word(_libssh2_bn *bn, ULONG word)
 {
-    unsigned long offset, number, bits, length;
+    ULONG offset, number, bits, length;
 
     if(!bn)
         return -1;
@@ -2265,8 +2266,8 @@ _libssh2_wincng_bignum_set_word(_libssh2_bn *bn, unsigned long word)
         bits++;
     bits++;
 
-    length = (unsigned long) (ceil(((double)bits) / 8.0) *
-                              sizeof(unsigned char));
+    length = (ULONG) (ceil(((double)bits) / 8.0) *
+                      sizeof(unsigned char));
     if(_libssh2_wincng_bignum_resize(bn, length))
         return -1;
 
@@ -2276,11 +2277,11 @@ _libssh2_wincng_bignum_set_word(_libssh2_bn *bn, unsigned long word)
     return 0;
 }
 
-unsigned long
+ULONG
 _libssh2_wincng_bignum_bits(const _libssh2_bn *bn)
 {
     unsigned char number;
-    unsigned long offset, length, bits;
+    ULONG offset, length, bits;
 
     if(!bn || !bn->bignum || !bn->length)
         return 0;
@@ -2300,11 +2301,11 @@ _libssh2_wincng_bignum_bits(const _libssh2_bn *bn)
 }
 
 void
-_libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, unsigned long len,
+_libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
                                 const unsigned char *bin)
 {
     unsigned char *bignum;
-    unsigned long offset, length, bits;
+    ULONG offset, length, bits;
 
     if(!bn || !bin || !len)
         return;
@@ -2315,8 +2316,8 @@ _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, unsigned long len,
     memcpy(bn->bignum, bin, len);
 
     bits = _libssh2_wincng_bignum_bits(bn);
-    length = (unsigned long) (ceil(((double)bits) / 8.0) *
-                              sizeof(unsigned char));
+    length = (ULONG) (ceil(((double)bits) / 8.0) *
+                      sizeof(unsigned char));
 
     offset = bn->length - length;
     if(offset > 0) {
