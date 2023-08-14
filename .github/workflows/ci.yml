@@ -33,6 +33,7 @@ jobs:
           platform: ${{ matrix.platform }}
           packages: autoconf libtool ${{ matrix.build }} gcc-core gcc-g++ binutils make libssl-devel zlib-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
+
       - name: 'autotools'
         if: ${{ matrix.build == 'automake' }}
         timeout-minutes: 10
@@ -83,10 +84,7 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ matrix.sys }}
-          install: >-
-            cc
-            ${{ matrix.build }} make
-            openssl
+          install: gcc ${{ matrix.build }} make openssl-devel
 
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
