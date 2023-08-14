@@ -84,7 +84,7 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ matrix.sys }}
-          install: gcc ${{ matrix.build }} make openssl-devel zlib-devel
+          install: gcc ${{ matrix.build }} make zlib-devel
 
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
@@ -98,7 +98,7 @@ jobs:
         run: |
           # sshd tests sometimes hang
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-            --with-crypto=openssl \
+            --with-crypto=wincng \
             --disable-docker-tests \
             --disable-sshd-tests
 
@@ -113,8 +113,8 @@ jobs:
         run: make -C bld check VERBOSE=1
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
-        env:
-          CMAKE_GENERATOR: 'MSYS Makefiles'
+        #env:
+        #  CMAKE_GENERATOR: 'MSYS Makefiles'
         shell: msys2 {0}
         run: |
           if [[ '${{ matrix.env }}' = 'clang'* ]]; then
@@ -140,7 +140,7 @@ jobs:
             "-DCMAKE_RC_COMPILE_OBJECT=${rcopts}" \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
-            -DCRYPTO_BACKEND=OpenSSL \
+            -DCRYPTO_BACKEND=WinCNG \
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF
