@@ -424,9 +424,10 @@ check_include_files("winsock2.h" MY_HAVE_WINSOCK2_H)
 check_include_files("ws2tcpip.h" MY_HAVE_WS2TCPIP_H)
 check_include_files("windows.h;wincrypt.h" MY_HAVE_WINCRYPT_H)
 message(STATUS "HAVE_WINDOWS_H: ${HAVE_WINDOWS_H}")
-message(STATUS "MY_HAVE_WINSOCK_H: ${MY_HAVE_WINSOCK_H}")
+message(STATUS "MY_HAVE_WINSOCK2_H: ${MY_HAVE_WINSOCK2_H}")
 message(STATUS "MY_HAVE_WS2TCPIP_H: ${MY_HAVE_WS2TCPIP_H}")
 message(STATUS "MY_HAVE_WINCRYPT_H: ${MY_HAVE_WINCRYPT_H}")
+message(STATUS "CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
 
 # Global functions
 
