@@ -37,50 +37,22 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifdef WIN32
-#pragma message "defined-a01: WIN32"
-#endif
-
 #include "session_fixture.h"
-
-#ifdef WIN32
-#pragma message "defined-a02: WIN32"
-#endif
 #include "openssh_fixture.h"
-
-#ifdef WIN32
-#pragma message "defined-a03: WIN32"
-#endif
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-
-#ifdef WIN32
-#pragma message "defined-a04: WIN32"
-#endif
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-
-#ifdef WIN32
-#pragma message "defined-a05: WIN32"
 #endif
 #ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
 
-#ifdef WIN32
-#pragma message "defined-a06: WIN32"
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-
-#ifdef WIN32
-#pragma message "defined-a07: WIN32"
-#endif
 
 static LIBSSH2_SESSION *connected_session = NULL;
 static libssh2_socket_t connected_socket = LIBSSH2_INVALID_SOCKET;
@@ -247,28 +219,6 @@ void stop_session_fixture(void)
     stop_openssh_fixture();
 }
 
-#define _STR(x) #x
-#define STR(x) _STR(x)
-
-#ifdef __MSYS__
-#pragma message "defined: __MSYS__"
-#endif
-#ifdef __CYGWIN__
-#pragma message "defined: __CYGWIN__"
-#endif
-#ifdef _WIN32
-#pragma message "defined: _WIN32"
-#endif
-#ifdef WIN32
-#pragma message "defined-a00: WIN32"
-#pragma message "defined-a00: " STR(WIN32)
-#endif
-#ifdef _MAX_PATH
-#pragma message "defined: _MAX_PATH"
-#endif
-#ifdef MAXPATHLEN
-#pragma message "defined: MAXPATHLEN"
-#endif
 
 /* Return a static string that contains a file path relative to the srcdir
  * variable, if found. It does so in a way that avoids leaking memory by using
@@ -277,7 +227,7 @@ void stop_session_fixture(void)
 #define NUMPATHS 32
 const char *srcdir_path(const char *file)
 {
-#if defined(WIN32) && defined(_MAX_PATH)
+#ifdef WIN32
     static char filepath[NUMPATHS][_MAX_PATH];
 #else
     static char filepath[NUMPATHS][MAXPATHLEN];

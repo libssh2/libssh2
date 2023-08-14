@@ -1,8 +1,3 @@
-
-#ifdef WIN32
-#pragma message "defined-b00: WIN32"
-#endif
-
 #ifndef __LIBSSH2_PRIV_H
 #define __LIBSSH2_PRIV_H
 /* Copyright (C) Sara Golemon <sarag@libssh2.org>
@@ -50,16 +45,8 @@
 
 #define LIBSSH2_LIBRARY
 
-#ifdef WIN32
-#pragma message "defined-01: WIN32"
-#endif
-
 /* platform/compiler-specific setup */
 #include "libssh2_setup.h"
-
-#ifdef WIN32
-#pragma message "defined-02: WIN32"
-#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -94,18 +81,10 @@
 #include <inttypes.h>
 #endif
 
-#ifdef WIN32
-#pragma message "defined-03: WIN32"
-#endif
-
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
 #include "misc.h"
-
-#ifdef WIN32
-#pragma message "defined-04: WIN32"
-#endif
 
 #ifdef WIN32
 /* Detect Windows App environment which has a restricted access
@@ -1246,7 +1225,3 @@ size_t plain_method(char *method, size_t method_len);
 #endif
 
 #endif /* __LIBSSH2_PRIV_H */
-
-#ifdef WIN32
-#pragma message "defined-b99: WIN32"
-#endif

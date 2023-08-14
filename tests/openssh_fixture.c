@@ -67,7 +67,7 @@
 #ifdef LIBSSH2_WINDOWS_UWP
 #define popen(x, y) (NULL)
 #define pclose(x) (-1)
-#elif defined(WIN32) && !defined(__MSYS__)
+#elif defined(WIN32)
 #define popen _popen
 #define pclose _pclose
 #endif
