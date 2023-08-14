@@ -604,7 +604,7 @@ _libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx)
  * Windows CNG backend: Key functions
  */
 
-int
+static int
 _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
                                unsigned long hashlen,
                                const unsigned char *sig,
@@ -864,7 +864,7 @@ _libssh2_wincng_bn_ltob(unsigned char *pbInput,
 
 static int
 _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
-                              size_t cbEncoded,
+                              unsigned long cbEncoded,
                               unsigned char **ppbDecoded,
                               unsigned long *pcbDecoded)
 {
@@ -873,7 +873,7 @@ _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
     unsigned long cbDecoded = 0, cbInteger;
     int ret;
 
-    ret = _libssh2_wincng_asn_decode(pbEncoded, (unsigned long)cbEncoded,
+    ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
                                      X509_MULTI_BYTE_UINT,
                                      (void *)&pbInteger, &cbInteger);
     if(!ret) {
@@ -892,7 +892,7 @@ _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
 
 static int
 _libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
-                               size_t cbEncoded,
+                               unsigned long cbEncoded,
                                unsigned char ***prpbDecoded,
                                unsigned long **prcbDecoded,
                                unsigned long *pcbCount)
@@ -903,7 +903,7 @@ _libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
     unsigned long cbDecoded, *rcbDecoded, index, length;
     int ret;
 
-    ret = _libssh2_wincng_asn_decode(pbEncoded, (unsigned long)cbEncoded,
+    ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
                                      X509_SEQUENCE_OF_ANY,
                                      (void *)&pbDecoded, &cbDecoded);
     if(!ret) {
@@ -1476,7 +1476,7 @@ _libssh2_wincng_dsa_new_private_parse(libssh2_dsa_ctx **dsa,
 
     (void)session;
 
-    ret = _libssh2_wincng_asn_decode_bns(pbEncoded, cbEncoded,
+    ret = _libssh2_wincng_asn_decode_bns(pbEncoded, (unsigned long)cbEncoded,
                                          &rpbDecoded, &rcbDecoded, &length);
 
     _libssh2_wincng_safe_free(pbEncoded, cbEncoded);
@@ -1681,7 +1681,7 @@ _libssh2_wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
     unsigned long index, offset, length = 0;
     int ret;
 
-    ret = _libssh2_wincng_asn_decode_bns(pbEncoded, cbEncoded,
+    ret = _libssh2_wincng_asn_decode_bns(pbEncoded, (unsigned long)cbEncoded,
                                          &rpbDecoded, &rcbDecoded, &length);
 
     _libssh2_wincng_safe_free(pbEncoded, cbEncoded);
@@ -2007,6 +2007,7 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
 
     return 0;
 }
+
 int
 _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              _libssh2_cipher_type(type),
@@ -2414,7 +2415,7 @@ _libssh2_dh_key_pair(_libssh2_dh_ctx *dhctx, _libssh2_bn *public,
          * in length. At the time of writing a practical observed group_order
          * value is 257, so we need to round down to 8 bytes of length (64/8)
          * in order for kex to succeed */
-        DWORD key_length_bytes = max((unsigned long)round_down(group_order, 8),
+        ULONG key_length_bytes = max((unsigned long)round_down(group_order, 8),
                                      max(g->length, p->length));
         BCRYPT_DH_KEY_BLOB *dh_key_blob;
         LPCWSTR key_type;
@@ -2599,8 +2600,8 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
         int status;
         unsigned char *start, *end;
         BCRYPT_DH_KEY_BLOB *public_blob;
-        DWORD key_length_bytes = max(f->length, dhctx->dh_params->cbKeyLength);
-        DWORD public_blob_len = (DWORD)(sizeof(*public_blob) +
+        ULONG key_length_bytes = max(f->length, dhctx->dh_params->cbKeyLength);
+        ULONG public_blob_len = (ULONG)(sizeof(*public_blob) +
                                         3 * key_length_bytes);
 
         {

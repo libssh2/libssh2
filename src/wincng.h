@@ -489,15 +489,6 @@ void
 _libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx);
 
 int
-_libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
-                               unsigned long hashlen,
-                               const unsigned char *sig,
-                               unsigned long sig_len,
-                               const unsigned char *m,
-                               unsigned long m_len,
-                               unsigned long flags);
-
-int
 _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
                         const unsigned char *edata,
                         unsigned long elen,
