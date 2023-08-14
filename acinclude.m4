@@ -814,19 +814,21 @@ m4_case([$1],
 ],
 
 [wincng], [
-  # Look for Windows Cryptography API: Next Generation
+  if test "x$have_windows_h" = "xyes"; then
+    # Look for Windows Cryptography API: Next Generation
 
-  LIBS="$LIBS -lcrypt32"
+    LIBS="$LIBS -lcrypt32"
 
-  # Check necessary for old-MinGW
-  LIBSSH2_LIB_HAVE_LINKFLAGS([bcrypt], [], [
-    #include <windows.h>
-    #include <bcrypt.h>
-  ], [
-    AC_DEFINE(LIBSSH2_WINCNG, 1, [Use $1])
-    found_crypto="$1"
-    found_crypto_str="Windows Cryptography API: Next Generation"
-  ])
+    # Check necessary for old-MinGW
+    LIBSSH2_LIB_HAVE_LINKFLAGS([bcrypt], [], [
+      #include <windows.h>
+      #include <bcrypt.h>
+    ], [
+      AC_DEFINE(LIBSSH2_WINCNG, 1, [Use $1])
+      found_crypto="$1"
+      found_crypto_str="Windows Cryptography API: Next Generation"
+    ])
+  fi
 ],
 )
   test "$found_crypto" = "none" &&
