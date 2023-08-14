@@ -2600,8 +2600,8 @@ _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
         int status;
         unsigned char *start, *end;
         BCRYPT_DH_KEY_BLOB *public_blob;
-        DWORD key_length_bytes = max(f->length, dhctx->dh_params->cbKeyLength);
-        DWORD public_blob_len = (DWORD)(sizeof(*public_blob) +
+        ULONG key_length_bytes = max(f->length, dhctx->dh_params->cbKeyLength);
+        ULONG public_blob_len = (ULONG)(sizeof(*public_blob) +
                                         3 * key_length_bytes);
 
         {
