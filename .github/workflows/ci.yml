@@ -137,9 +137,6 @@ jobs:
           else
             options='-DCMAKE_C_COMPILER=gcc'
           fi
-          #if [[ '${{ matrix.sys }}' != 'msys' ]]; then
-          #  export CMAKE_GENERATOR='MSYS Makefiles'
-          #fi
           if [[ '${{ matrix.api }}' = 'uwp' ]]; then
             options="${options} -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0"
             pacman --noconfirm --ask 20 --noprogressbar --sync --needed 'mingw-w64-${{ matrix.env }}-winstorecompat-git'
