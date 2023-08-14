@@ -604,7 +604,7 @@ _libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx)
  * Windows CNG backend: Key functions
  */
 
-int
+static int
 _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
                                unsigned long hashlen,
                                const unsigned char *sig,
@@ -2007,6 +2007,7 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
 
     return 0;
 }
+
 int
 _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              _libssh2_cipher_type(type),
