@@ -825,12 +825,12 @@ _libssh2_wincng_asn_decode(unsigned char *pbEncoded,
 
 static int
 _libssh2_wincng_bn_ltob(unsigned char *pbInput,
-                        unsigned long cbInput,
+                        DWORD cbInput,
                         unsigned char **ppbOutput,
-                        unsigned long *pcbOutput)
+                        DWORD *pcbOutput)
 {
     unsigned char *pbOutput;
-    unsigned long cbOutput, index, offset, length;
+    DWORD cbOutput, index, offset, length;
 
     if(cbInput < 1) {
         return 0;
