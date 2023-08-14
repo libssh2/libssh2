@@ -1011,15 +1011,15 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
     ULONG keylen, offset, mlen, p1len = 0, p2len = 0;
     int ret;
 
-    mlen = max(_libssh2_wincng_bn_size(ndata, nlen),
-               _libssh2_wincng_bn_size(ddata, dlen));
+    mlen = max(_libssh2_wincng_bn_size(ndata, (ULONG)nlen),
+               _libssh2_wincng_bn_size(ddata, (ULONG)dlen));
     offset = sizeof(BCRYPT_RSAKEY_BLOB);
-    keylen = offset + elen + mlen;
+    keylen = offset + (ULONG)elen + (ULONG)mlen;
     if(ddata && dlen > 0) {
-        p1len = max(_libssh2_wincng_bn_size(pdata, plen),
-                    _libssh2_wincng_bn_size(e1data, e1len));
-        p2len = max(_libssh2_wincng_bn_size(qdata, qlen),
-                    _libssh2_wincng_bn_size(e2data, e2len));
+        p1len = max(_libssh2_wincng_bn_size(pdata, (ULONG)plen),
+                    _libssh2_wincng_bn_size(e1data, (ULONG)e1len));
+        p2len = max(_libssh2_wincng_bn_size(qdata, (ULONG)qlen),
+                    _libssh2_wincng_bn_size(e2data, (ULONG)e2len));
         keylen += p1len * 3 + p2len * 2 + mlen;
     }
 
@@ -1037,7 +1037,7 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
     rsakey->cbModulus = mlen;
 
     memcpy((unsigned char *)rsakey + offset, edata, elen);
-    offset += elen;
+    offset += (ULONG)elen;
 
     if(nlen < mlen)
         memcpy((unsigned char *)rsakey + offset + mlen - nlen, ndata, nlen);
@@ -1375,9 +1375,9 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
     ULONG keylen, offset, length;
     int ret;
 
-    length = max(max(_libssh2_wincng_bn_size(pdata, plen),
-                     _libssh2_wincng_bn_size(gdata, glen)),
-                 _libssh2_wincng_bn_size(ydata, ylen));
+    length = max(max(_libssh2_wincng_bn_size(pdata, (ULONG)plen),
+                     _libssh2_wincng_bn_size(gdata, (ULONG)glen)),
+                 _libssh2_wincng_bn_size(ydata, (ULONG)ylen));
     offset = sizeof(BCRYPT_DSA_KEY_BLOB);
     keylen = offset + length * 3;
     if(xdata && xlen > 0)
