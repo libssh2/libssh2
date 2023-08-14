@@ -90,6 +90,19 @@
 extern "C" {
 #endif
 
+#ifdef __MSYS__
+#pragma message "defined: __MSYS__"
+#endif
+#ifdef __CYGWIN__
+#pragma message "defined: __CYGWIN__"
+#endif
+#ifdef _WIN32
+#pragma message "defined: _WIN32"
+#endif
+#ifdef WIN32
+#pragma message "defined: WIN32"
+#endif
+
 #if defined(_WIN32) || defined(WIN32)
 #define LIBSSH2_WIN32
 #endif
