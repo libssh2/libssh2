@@ -606,14 +606,14 @@ _libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx)
  * Windows CNG backend: Key functions
  */
 
-int
+static int
 _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
-                               unsigned long hashlen,
+                               ULONG hashlen,
                                const unsigned char *sig,
                                unsigned long sig_len,
                                const unsigned char *m,
                                unsigned long m_len,
-                               unsigned long flags)
+                               ULONG flags)
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfoPKCS1;
     BCRYPT_ALG_HANDLE hAlgHash;
@@ -1269,7 +1269,7 @@ _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx *rsa,
                                 const unsigned char *m,
                                 size_t m_len)
 {
-    return _libssh2_wincng_key_sha_verify(rsa, (unsigned long)hash_len,
+    return _libssh2_wincng_key_sha_verify(rsa, (ULONG)hash_len,
                                           sig, (unsigned long)sig_len,
                                           m, (unsigned long)m_len,
                                           BCRYPT_PAD_PKCS1);
