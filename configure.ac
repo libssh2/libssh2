@@ -295,7 +295,7 @@ AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
 AC_CHECK_HEADERS([sys/un.h])
 
 case $host in
-  *-*-cygwin* | *-*-cegcc*)
+  *-*-msys | *-*-cygwin* | *-*-cegcc*)
     # These are POSIX-like systems using BSD-like sockets API.
     ;;
   *)
