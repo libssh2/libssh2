@@ -141,6 +141,60 @@ jobs:
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
           cd bld && ctest -VV --output-on-failure
 
+  build_cygwin:
+    name: 'cygwin'
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      SHELLOPTS: 'igncr'
+    strategy:
+      matrix:
+        include:
+          - { build: 'automake', platform: 'x86_64' }
+          - { build: 'cmake'   , platform: 'x86_64' }
+      fail-fast: false
+    steps:
+      - run: git config --global core.autocrlf input
+      - uses: actions/checkout@v3
+      - uses: cygwin/cygwin-install-action@v4
+        with:
+          platform: ${{ matrix.platform }}
+          packages: autoconf libtool ${{ matrix.build }} gcc-core gcc-g++ binutils make libssl-devel zlib-devel
+          site: https://mirrors.kernel.org/sourceware/cygwin/
+
+      - name: 'autotools'
+        if: ${{ matrix.build == 'automake' }}
+        timeout-minutes: 10
+        shell: C:\cygwin\bin\bash.exe '{0}'
+        run: |
+          export PATH
+          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
+          autoreconf -fi
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+            --with-crypto=openssl \
+            --disable-tests
+          make -j3
+          make check VERBOSE=1
+
+      - name: 'cmake'
+        if: ${{ matrix.build == 'cmake' }}
+        timeout-minutes: 10
+        shell: C:\cygwin\bin\bash.exe '{0}'
+        run: |
+          export PATH
+          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
+          cmake -B bld \
+            -DCMAKE_C_COMPILER=gcc \
+            -DENABLE_WERROR=ON \
+            -DENABLE_DEBUG_LOGGING=ON \
+            -DCRYPTO_BACKEND=OpenSSL \
+            -DOPENSSL_ROOT_DIR=/usr/lib \
+            -DENABLE_ZLIB_COMPRESSION=ON \
+            -DRUN_DOCKER_TESTS=OFF \
+            -DRUN_SSHD_TESTS=OFF
+          cmake --build bld --parallel 3
+          cd bld && ctest -VV --output-on-failure
+
   build_msys2:
     name: 'msys2'
     runs-on: windows-latest
