@@ -867,16 +867,16 @@ _libssh2_wincng_bn_ltob(unsigned char *pbInput,
 
 static int
 _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
-                              size_t cbEncoded,
+                              DWORD cbEncoded,
                               unsigned char **ppbDecoded,
-                              unsigned long *pcbDecoded)
+                              DWORD *pcbDecoded)
 {
     unsigned char *pbDecoded = NULL;
     PCRYPT_DATA_BLOB pbInteger;
-    unsigned long cbDecoded = 0, cbInteger;
+    DWORD cbDecoded = 0, cbInteger;
     int ret;
 
-    ret = _libssh2_wincng_asn_decode(pbEncoded, (unsigned long)cbEncoded,
+    ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
                                      X509_MULTI_BYTE_UINT,
                                      (void *)&pbInteger, &cbInteger);
     if(!ret) {
@@ -895,21 +895,23 @@ _libssh2_wincng_asn_decode_bn(unsigned char *pbEncoded,
 
 static int
 _libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
-                               size_t cbEncoded,
+                               DWORD cbEncoded,
                                unsigned char ***prpbDecoded,
-                               unsigned long **prcbDecoded,
-                               unsigned long *pcbCount)
+                               DWORD **prcbDecoded,
+                               DWORD *pcbCount)
 {
     PCRYPT_DER_BLOB pBlob;
     unsigned char **rpbDecoded;
     PCRYPT_SEQUENCE_OF_ANY pbDecoded;
-    unsigned long cbDecoded, *rcbDecoded, index, length;
+    DWORD cbDecoded, *rcbDecoded;
     int ret;
 
-    ret = _libssh2_wincng_asn_decode(pbEncoded, (unsigned long)cbEncoded,
+    ret = _libssh2_wincng_asn_decode(pbEncoded, cbEncoded,
                                      X509_SEQUENCE_OF_ANY,
                                      (void *)&pbDecoded, &cbDecoded);
     if(!ret) {
+        DWORD index, length;
+
         length = pbDecoded->cValue;
 
         rpbDecoded = malloc(sizeof(PBYTE) * length);
@@ -1143,7 +1145,7 @@ _libssh2_wincng_rsa_new_private_parse(libssh2_rsa_ctx **rsa,
 
     (void)session;
 
-    ret = _libssh2_wincng_asn_decode(pbEncoded, (unsigned long)cbEncoded,
+    ret = _libssh2_wincng_asn_decode(pbEncoded, (DWORD)cbEncoded,
                                      PKCS_RSA_PRIVATE_KEY,
                                      &pbStructInfo, &cbStructInfo);
 
@@ -1470,10 +1472,11 @@ static int
 _libssh2_wincng_dsa_new_private_parse(libssh2_dsa_ctx **dsa,
                                       LIBSSH2_SESSION *session,
                                       unsigned char *pbEncoded,
-                                      size_t cbEncoded)
+                                      DWORD cbEncoded)
 {
     unsigned char **rpbDecoded;
-    unsigned long *rcbDecoded, index, length;
+    DWORD *rcbDecoded;
+    DWORD index, length;
     int ret;
 
     (void)session;
@@ -1652,19 +1655,17 @@ _libssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa)
  */
 
 #ifdef HAVE_LIBCRYPT32
-static unsigned long
+static DWORD
 _libssh2_wincng_pub_priv_write(unsigned char *key,
-                               unsigned long offset,
+                               DWORD offset,
                                const unsigned char *bignum,
-                               const unsigned long length)
+                               const DWORD length)
 {
-    uint32_t len = (uint32_t)length;
-
-    _libssh2_htonu32(key + offset, len);
+    _libssh2_htonu32(key + offset, length);
     offset += 4;
 
-    memcpy(key + offset, bignum, len);
-    offset += len;
+    memcpy(key + offset, bignum, length);
+    offset += length;
 
     return offset;
 }
@@ -1679,13 +1680,13 @@ _libssh2_wincng_pub_priv_keyfile_parse(LIBSSH2_SESSION *session,
                                        size_t cbEncoded)
 {
     unsigned char **rpbDecoded = NULL;
-    unsigned long *rcbDecoded = NULL;
+    DWORD *rcbDecoded = NULL;
     unsigned char *key = NULL, *mth = NULL;
-    unsigned long keylen = 0, mthlen = 0;
-    unsigned long index, offset, length = 0;
+    DWORD keylen = 0, mthlen = 0;
+    DWORD index, offset, length = 0;
     int ret;
 
-    ret = _libssh2_wincng_asn_decode_bns(pbEncoded, cbEncoded,
+    ret = _libssh2_wincng_asn_decode_bns(pbEncoded, (DWORD)cbEncoded,
                                          &rpbDecoded, &rcbDecoded, &length);
 
     _libssh2_wincng_safe_free(pbEncoded, cbEncoded);
