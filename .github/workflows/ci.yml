@@ -212,7 +212,11 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
-
+      - uses: msys2/setup-msys2@v2
+        if: ${{ matrix.sys == 'msys' }}
+        with:
+          msystem: ${{ matrix.sys }}
+          install: gcc ${{ matrix.build }} make openssl-devel zlib-devel
       - uses: msys2/setup-msys2@v2
         if: ${{ matrix.sys != 'msys' }}
         with:
@@ -221,12 +225,6 @@ jobs:
             mingw-w64-${{ matrix.env }}-cc
             mingw-w64-${{ matrix.env }}-${{ matrix.build }} make
             mingw-w64-${{ matrix.env }}-openssl
-
-      - uses: msys2/setup-msys2@v2
-        if: ${{ matrix.sys == 'msys' }}
-        with:
-          msystem: ${{ matrix.sys }}
-          install: gcc ${{ matrix.build }} make openssl-devel zlib-devel
 
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
