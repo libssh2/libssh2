@@ -171,7 +171,8 @@ jobs:
           autoreconf -fi
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-crypto=openssl \
-            --disable-tests
+            --disable-docker-tests \
+            --disable-sshd-tests
           make -j3
           make check VERBOSE=1
 
