@@ -482,7 +482,7 @@ _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
 {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
-    unsigned long dwHashObject, dwHash, cbData;
+    ULONG dwHashObject, dwHash, cbData;
     int ret;
 
     ret = BCryptGetProperty(hAlg, BCRYPT_HASH_LENGTH,
@@ -507,9 +507,10 @@ _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
     }
 
 
+    /* FIXME: fail if keylen > max ULONG */
     ret = BCryptCreateHash(hAlg, &hHash,
                            pbHashObject, dwHashObject,
-                           key, keylen, 0);
+                           key, (ULONG)keylen, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         _libssh2_wincng_safe_free(pbHashObject, dwHashObject);
         return -1;
@@ -530,7 +531,8 @@ _libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
 {
     int ret;
 
-    ret = BCryptHashData(ctx->hHash, (unsigned char *)data, datalen, 0);
+    /* FIXME: fail if datalen > max ULONG */
+    ret = BCryptHashData(ctx->hHash, (unsigned char *)data, (ULONG)datalen, 0);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -678,8 +680,9 @@ _libssh2_wincng_key_sha_verify(_libssh2_wincng_key_ctx *ctx,
 
     memcpy(data, sig, datalen);
 
+    /* FIXME: fail if datalen > max ULONG */
     ret = BCryptVerifySignature(ctx->hKey, pPaddingInfo,
-                                hash, hashlen, data, datalen, flags);
+                                hash, hashlen, data, (ULONG)datalen, flags);
 
     _libssh2_wincng_safe_free(hash, hashlen);
     _libssh2_wincng_safe_free(data, datalen);
@@ -785,13 +788,13 @@ _libssh2_wincng_load_private_memory(LIBSSH2_SESSION *session,
 
 static int
 _libssh2_wincng_asn_decode(unsigned char *pbEncoded,
-                           unsigned long cbEncoded,
+                           DWORD cbEncoded,
                            LPCSTR lpszStructType,
                            unsigned char **ppbDecoded,
-                           unsigned long *pcbDecoded)
+                           DWORD *pcbDecoded)
 {
     unsigned char *pbDecoded = NULL;
-    unsigned long cbDecoded = 0;
+    DWORD cbDecoded = 0;
     int ret;
 
     ret = CryptDecodeObjectEx(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
@@ -1006,7 +1009,7 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_RSAKEY_BLOB *rsakey;
     LPCWSTR lpszBlobType;
-    unsigned long keylen, offset, mlen, p1len = 0, p2len = 0;
+    ULONG keylen, offset, mlen, p1len = 0, p2len = 0;
     int ret;
 
     mlen = max(_libssh2_wincng_bn_size(ndata, nlen),
@@ -1031,7 +1034,7 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
 
     /* https://msdn.microsoft.com/library/windows/desktop/aa375531.aspx */
     rsakey->BitLength = mlen * 8;
-    rsakey->cbPublicExp = elen;
+    rsakey->cbPublicExp = (ULONG)elen;
     rsakey->cbModulus = mlen;
 
     memcpy((unsigned char *)rsakey + offset, edata, elen);
@@ -1104,7 +1107,6 @@ _libssh2_wincng_rsa_new(libssh2_rsa_ctx **rsa,
         rsakey->cbPrime2 = 0;
     }
 
-
     ret = BCryptImportKeyPair(_libssh2_wincng.hAlgRSA, NULL, lpszBlobType,
                               &hKey, (PUCHAR)rsakey, keylen, 0);
     if(!BCRYPT_SUCCESS(ret)) {
@@ -1136,7 +1138,7 @@ _libssh2_wincng_rsa_new_private_parse(libssh2_rsa_ctx **rsa,
 {
     BCRYPT_KEY_HANDLE hKey;
     unsigned char *pbStructInfo;
-    unsigned long cbStructInfo;
+    DWORD cbStructInfo;
     int ret;
 
     (void)session;
@@ -1284,7 +1286,7 @@ _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
 {
     BCRYPT_PKCS1_PADDING_INFO paddingInfo;
     unsigned char *data, *sig;
-    unsigned long cbData, datalen, siglen;
+    ULONG cbData, datalen, siglen;
     int ret;
 
     if(hash_len == SHA_DIGEST_LENGTH)
@@ -1371,7 +1373,7 @@ _libssh2_wincng_dsa_new(libssh2_dsa_ctx **dsa,
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_DSA_KEY_BLOB *dsakey;
     LPCWSTR lpszBlobType;
-    unsigned long keylen, offset, length;
+    ULONG keylen, offset, length;
     int ret;
 
     length = max(max(_libssh2_wincng_bn_size(pdata, plen),
@@ -1591,7 +1593,7 @@ _libssh2_wincng_dsa_sha1_sign(libssh2_dsa_ctx *dsa,
                               unsigned char *sig_fixed)
 {
     unsigned char *data, *sig;
-    unsigned long cbData, datalen, siglen;
+    ULONG cbData, datalen, siglen;
     int ret;
 
     datalen = (unsigned long)hash_len;
@@ -1656,11 +1658,13 @@ _libssh2_wincng_pub_priv_write(unsigned char *key,
                                const unsigned char *bignum,
                                const unsigned long length)
 {
-    _libssh2_htonu32(key + offset, length);
+    uint32_t len = (uint32_t)length;
+
+    _libssh2_htonu32(key + offset, len);
     offset += 4;
 
-    memcpy(key + offset, bignum, length);
-    offset += length;
+    memcpy(key + offset, bignum, len);
+    offset += len;
 
     return offset;
 }
@@ -1917,8 +1921,7 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
     BCRYPT_KEY_HANDLE hKey;
     BCRYPT_KEY_DATA_BLOB_HEADER *header;
     unsigned char *pbKeyObject, *pbIV, *pbCtr, *pbIVCopy;
-    unsigned long dwKeyObject, dwIV, dwCtrLength, dwBlockLength,
-                  cbData, keylen;
+    ULONG dwKeyObject, dwIV, dwCtrLength, dwBlockLength, cbData, keylen;
     int ret;
 
     (void)encrypt;
@@ -2015,13 +2018,13 @@ _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              size_t blocklen, int firstlast)
 {
     unsigned char *pbOutput, *pbInput;
-    unsigned long cbOutput, cbInput;
+    ULONG cbOutput, cbInput;
     int ret;
 
     (void)type;
     (void)firstlast;
 
-    cbInput = (unsigned long)blocklen;
+    cbInput = (ULONG)blocklen;
 
     if(type.ctrMode) {
         pbInput = ctx->pbCtr;

@@ -144,8 +144,8 @@ void _libssh2_wincng_free(void);
 typedef struct __libssh2_wincng_hash_ctx {
     BCRYPT_HASH_HANDLE hHash;
     unsigned char *pbHashObject;
-    unsigned long dwHashObject;
-    unsigned long cbHash;
+    ULONG dwHashObject;
+    ULONG cbHash;
 } _libssh2_wincng_hash_ctx;
 
 /*
@@ -264,7 +264,7 @@ typedef struct __libssh2_wincng_hash_ctx {
 typedef struct __libssh2_wincng_key_ctx {
     BCRYPT_KEY_HANDLE hKey;
     void *pbKeyObject;
-    unsigned long cbKeyObject;
+    DWORD cbKeyObject;
 } _libssh2_wincng_key_ctx;
 
 
@@ -343,10 +343,10 @@ struct _libssh2_wincng_cipher_ctx {
     unsigned char *pbKeyObject;
     unsigned char *pbIV;
     unsigned char *pbCtr;
-    unsigned long dwKeyObject;
-    unsigned long dwIV;
-    unsigned long dwBlockLength;
-    unsigned long dwCtrLength;
+    ULONG dwKeyObject;
+    ULONG dwIV;
+    ULONG dwBlockLength;
+    ULONG dwCtrLength;
 };
 
 #define _libssh2_cipher_ctx struct _libssh2_wincng_cipher_ctx
@@ -357,7 +357,7 @@ struct _libssh2_wincng_cipher_ctx {
 
 struct _libssh2_wincng_cipher_type {
     BCRYPT_ALG_HANDLE *phAlg;
-    unsigned long dwKeyLength;
+    ULONG dwKeyLength;
     int useIV;      /* TODO: Convert to bool when a C89 compatible bool type
                        is defined */
     int ctrMode;
