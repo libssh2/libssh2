@@ -957,8 +957,7 @@ _libssh2_wincng_asn_decode_bns(unsigned char *pbEncoded,
 
 #if LIBSSH2_RSA || LIBSSH2_DSA
 static ULONG
-_libssh2_wincng_bn_size(const unsigned char *bignum,
-                        ULONG length)
+_libssh2_wincng_bn_size(const unsigned char *bignum, ULONG length)
 {
     ULONG offset;
 
@@ -2143,8 +2142,7 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
     if(!rnd)
         return -1;
 
-    length = (ULONG) (ceil(((double)bits) / 8.0) *
-                      sizeof(unsigned char));
+    length = (ULONG) (ceil(((double)bits) / 8.0) * sizeof(unsigned char));
     if(_libssh2_wincng_bignum_resize(rnd, length))
         return -1;
 
@@ -2264,8 +2262,7 @@ _libssh2_wincng_bignum_set_word(_libssh2_bn *bn, ULONG word)
         bits++;
     bits++;
 
-    length = (ULONG) (ceil(((double)bits) / 8.0) *
-                      sizeof(unsigned char));
+    length = (ULONG) (ceil(((double)bits) / 8.0) * sizeof(unsigned char));
     if(_libssh2_wincng_bignum_resize(bn, length))
         return -1;
 
@@ -2314,8 +2311,7 @@ _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
     memcpy(bn->bignum, bin, len);
 
     bits = _libssh2_wincng_bignum_bits(bn);
-    length = (ULONG) (ceil(((double)bits) / 8.0) *
-                      sizeof(unsigned char));
+    length = (ULONG) (ceil(((double)bits) / 8.0) * sizeof(unsigned char));
 
     offset = bn->length - length;
     if(offset > 0) {
