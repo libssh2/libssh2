@@ -63,8 +63,6 @@ The following options are available:
     Determines whether to build a libssh2 shared library (.dll/.so).
     Can be `ON` or `OFF`.
 
-    If enabled, the optional static lib is also built with PIC enabled.
-
  * `CRYPTO_BACKEND=`
 
     Chooses a specific cryptography library to use for cryptographic
