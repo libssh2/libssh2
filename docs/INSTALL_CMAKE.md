@@ -6,7 +6,7 @@ Web site source code: https://github.com/libssh2/www
 
 Installation instructions are in docs/INSTALL
 =======
-To build libssh2 you will need CMake v3.1 or later [1] and one of the
+To build libssh2 you will need CMake v3.7 or later [1] and one of the
 following cryptography libraries:
 
 * OpenSSL
