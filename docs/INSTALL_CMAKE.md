@@ -82,9 +82,9 @@ The following options are available:
 
     Will enable the libssh2_trace() function for showing debug traces.
 
- * `CLEAR_MEMORY=ON`
+ * `CLEAR_MEMORY=OFF`
 
-    Securely zero memory before freeing it (if the backend supports this).
+    Disable secure zero memory before freeing it (not recommended).
 
 Build tools
 -----------
