@@ -315,7 +315,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
           "libcrypto-1_1.dll" "libcrypto-1_1-x64.dll"
           "libcrypto-3.dll" "libcrypto-3-x64.dll"
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
-        PATH_SUFFIXES bin NO_DEFAULT_PATH)
+        PATH_SUFFIXES "bin" NO_DEFAULT_PATH)
       if(DLL_LIBCRYPTO)
         list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO})
         message(STATUS "Found libcrypto DLL: ${DLL_LIBCRYPTO}")
