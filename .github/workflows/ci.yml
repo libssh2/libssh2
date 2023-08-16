@@ -141,6 +141,19 @@ jobs:
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
           cd bld && ctest -VV --output-on-failure
 
+  build_integration:
+    name: 'integration'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CC: clang
+    steps:
+      - uses: actions/checkout@v3
+      - name: 'cmake'
+        run: |
+          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install libssl-dev
+          ./tests/cmake/test.sh
+
   build_cygwin:
     name: 'cygwin'
     runs-on: windows-latest
