@@ -12,7 +12,6 @@ endif()
 message(STATUS "TEST_INTEGRATION_MODE: ${TEST_INTEGRATION_MODE}")
 
 if(TEST_INTEGRATION_MODE STREQUAL "find_package")
-  set(CMAKE_FIND_DEBUG_MODE TRUE)
   find_package(libssh2 REQUIRED CONFIG)
   message(STATUS "|${LIBSSH2_FOUND}|")  # Empty even if found. Why?
 elseif(TEST_INTEGRATION_MODE STREQUAL "add_subdirectory")
