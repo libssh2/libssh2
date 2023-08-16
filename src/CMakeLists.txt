@@ -106,6 +106,7 @@ endif()
 if(BUILD_STATIC_LIBS)
   list(APPEND libssh2_export ${LIB_STATIC})
   add_library(${LIB_STATIC} STATIC ${SOURCES})
+  add_library(${PROJECT_NAME}::${LIB_STATIC} ALIAS ${LIB_STATIC})
   target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
   target_link_libraries(${LIB_STATIC} PRIVATE ${LIBRARIES})
   set_target_properties(${LIB_STATIC} PROPERTIES
@@ -121,6 +122,7 @@ endif()
 if(BUILD_SHARED_LIBS)
   list(APPEND libssh2_export ${LIB_SHARED})
   add_library(${LIB_SHARED} SHARED ${SOURCES})
+  add_library(${PROJECT_NAME}::${LIB_SHARED} ALIAS ${LIB_SHARED})
   if(WIN32)
     set_property(TARGET ${LIB_SHARED} APPEND PROPERTY SOURCES "libssh2.rc")
   endif()
@@ -138,6 +140,9 @@ if(BUILD_SHARED_LIBS)
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
 endif()
+
+add_library(${PROJECT_NAME}::${LIB_NAME} ALIAS ${LIB_SELECTED})
+add_library(${LIB_NAME} ALIAS ${LIB_SELECTED})
 
 ## Installation
 
