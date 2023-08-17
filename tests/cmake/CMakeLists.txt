@@ -9,7 +9,16 @@ option(TEST_INTEGRATION_MODE "Integration mode" "find_package")
 
 message(STATUS "TEST_INTEGRATION_MODE: ${TEST_INTEGRATION_MODE}")
 
-if(TEST_INTEGRATION_MODE STREQUAL "find_package")
+if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
+   TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
+  if(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
+    include(ExternalProject)
+    ExternalProject_Add(libssh2
+      URL "${FROM_ARCHIVE}"
+      URL_HASH "SHA256=${FROM_HASH}"
+      INSTALL_COMMAND ""
+      DOWNLOAD_EXTRACT_TIMESTAMP ON)
+  endif()
   find_package(libssh2 REQUIRED CONFIG)
   message(STATUS "libssh2_FOUND: |${libssh2_FOUND}|")
 elseif(TEST_INTEGRATION_MODE STREQUAL "add_subdirectory")
@@ -34,7 +43,8 @@ target_link_libraries(test-dependent-shared-ns PRIVATE "libssh2::libssh2_shared"
 add_executable(test-dependent-selected-ns "test.c")
 target_link_libraries(test-dependent-selected-ns PRIVATE "libssh2::libssh2")
 
-if(TEST_INTEGRATION_MODE STREQUAL "find_package")
+if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
+   TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
 
   # Compatibility alias
   add_executable(test-dependent-compat "test.c")

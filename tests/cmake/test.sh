@@ -22,3 +22,9 @@ make -C bld-libssh2 -j3 DESTDIR=pkg install
 rm -rf bld-find_package; cmake -B bld-find_package -DTEST_INTEGRATION_MODE=find_package \
   -DCMAKE_PREFIX_PATH="${PWD}/bld-libssh2/pkg/usr/local/lib/cmake/libssh2"
 make -C bld-find_package -j3
+
+(cd ../..; git archive --format=tar HEAD) | gzip > source.tar.gz
+rm -rf bld-externalproject; cmake -B bld-externalproject -DTEST_INTEGRATION_MODE=ExternalProject \
+  -DFROM_ARCHIVE="${PWD}/source.tar.gz" \
+  -DFROM_HASH="$(openssl dgst -sha256 source.tar.gz | grep -a -i -o -E '[0-9a-f]{64}$')"
+make -C bld-externalproject -j3
