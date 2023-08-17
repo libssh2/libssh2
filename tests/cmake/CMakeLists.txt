@@ -5,20 +5,31 @@ cmake_minimum_required(VERSION 3.7)
 
 project(test-dependent)
 
-if(NOT DEFINED TEST_INTEGRATION_MODE)
-  set(TEST_INTEGRATION_MODE "find_package")
-endif()
+option(TEST_INTEGRATION_MODE "Integration mode" "find_package")
 
 message(STATUS "TEST_INTEGRATION_MODE: ${TEST_INTEGRATION_MODE}")
 
-if(TEST_INTEGRATION_MODE STREQUAL "find_package")
+if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
+   TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
+  if(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
+    include(ExternalProject)
+    ExternalProject_Add(libssh2
+      URL "${FROM_ARCHIVE}"
+      URL_HASH "SHA256=${FROM_HASH}"
+      INSTALL_COMMAND ""
+      DOWNLOAD_EXTRACT_TIMESTAMP ON)
+  endif()
   find_package(libssh2 REQUIRED CONFIG)
   message(STATUS "libssh2_FOUND: |${libssh2_FOUND}|")
 elseif(TEST_INTEGRATION_MODE STREQUAL "add_subdirectory")
   add_subdirectory(libssh2)
 elseif(TEST_INTEGRATION_MODE STREQUAL "FetchContent")
   include(FetchContent)
-  FetchContent_Declare(libssh2 GIT_REPOSITORY "https://github.com/libssh2/libssh2.git" GIT_TAG "master")
+  option(FROM_GIT_REPO "Git URL" "https://github.com/libssh2/libssh2.git")
+  option(FROM_GIT_TAG "Git tag" "master")
+  FetchContent_Declare(libssh2
+    GIT_REPOSITORY "${FROM_GIT_REPO}"
+    GIT_TAG "${FROM_GIT_TAG}")
   FetchContent_MakeAvailable(libssh2)
 endif()
 
@@ -32,7 +43,8 @@ target_link_libraries(test-dependent-shared-ns PRIVATE "libssh2::libssh2_shared"
 add_executable(test-dependent-selected-ns "test.c")
 target_link_libraries(test-dependent-selected-ns PRIVATE "libssh2::libssh2")
 
-if(TEST_INTEGRATION_MODE STREQUAL "find_package")
+if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
+   TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
 
   # Compatibility alias
   add_executable(test-dependent-compat "test.c")
