@@ -13,7 +13,7 @@ message(STATUS "TEST_INTEGRATION_MODE: ${TEST_INTEGRATION_MODE}")
 
 if(TEST_INTEGRATION_MODE STREQUAL "find_package")
   find_package(libssh2 REQUIRED CONFIG)
-  message(STATUS "LIBSSH2_FOUND: |${LIBSSH2_FOUND}|")  # Empty even if found. Why?
+  message(STATUS "libssh2_FOUND: |${libssh2_FOUND}|")
 elseif(TEST_INTEGRATION_MODE STREQUAL "add_subdirectory")
   add_subdirectory(libssh2)
 elseif(TEST_INTEGRATION_MODE STREQUAL "FetchContent")
