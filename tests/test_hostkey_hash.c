@@ -1,9 +1,4 @@
-#include "session_fixture.h"
-#include "libssh2_config.h"
-
-#include <libssh2.h>
-
-#include <stdio.h>
+#include "runner.h"
 
 static const char *EXPECTED_RSA_HOSTKEY =
     "AAAAB3NzaC1yc2EAAAABIwAAAQEArrr/JuJmaZligyfS8vcNur+mWR2ddDQtVdhHzdKU"
@@ -16,6 +11,9 @@ static const char *EXPECTED_RSA_HOSTKEY =
 static const char *EXPECTED_ECDSA_HOSTKEY =
     "AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBC+/syyeKJD9dC2ZH"
     "9Q7iJGReR4YM3rUCMsSynkyXojdfSClGCMY7JvWlt30ESjYvxoTfSRGx6WvaqYK/vPoYQ4=";
+
+static const char *EXPECTED_ED25519_HOSTKEY =
+    "AAAAC3NzaC1lZDI1NTE5AAAAIIxtdyg2ZRXE70UwyPVUH3UyfDBV8GX5cPF636P6hjom";
 
 static const char *EXPECTED_RSA_MD5_HASH_DIGEST =
     "0C0ED1A5BB10275F76924CE187CE5C5E";
@@ -34,6 +32,9 @@ static const char *EXPECTED_ECDSA_SHA1_HASH_DIGEST =
 
 static const char *EXPECTED_ECDSA_SHA256_HASH_DIGEST =
     "56FCD975B166C3F0342D0036E44C311A86C0EAE40713B53FC776369BAE7F5264";
+
+static const char *EXPECTED_ED25519_SHA256_HASH_DIGEST =
+    "2638B020F6121FA750A7F4754B718419F621814C6E779D68ADF26AA68814ADDF";
 
 static const int MD5_HASH_SIZE = 16;
 static const int SHA1_HASH_SIZE = 20;
@@ -65,17 +66,37 @@ int test(LIBSSH2_SESSION *session)
     /* these are the host keys under test, they are currently unused */
     (void)EXPECTED_RSA_HOSTKEY;
     (void)EXPECTED_ECDSA_HOSTKEY;
+    (void)EXPECTED_ED25519_HOSTKEY;
 
     hostkey = libssh2_session_hostkey(session, &len, &type);
-    if(hostkey == NULL) {
+    if(!hostkey) {
         print_last_session_error("libssh2_session_hostkey");
         return 1;
     }
 
-    if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
+    if(type == LIBSSH2_HOSTKEY_TYPE_ED25519) {
+
+        sha256_hash = libssh2_hostkey_hash(session,
+                                           LIBSSH2_HOSTKEY_HASH_SHA256);
+        if(!sha256_hash) {
+            print_last_session_error(
+                "libssh2_hostkey_hash(LIBSSH2_HOSTKEY_HASH_SHA256)");
+            return 1;
+        }
+
+        calculate_digest(sha256_hash, SHA256_HASH_SIZE, buf, BUFSIZ);
+
+        if(strcmp(buf, EXPECTED_ED25519_SHA256_HASH_DIGEST) != 0) {
+            fprintf(stderr,
+                    "ED25519 SHA256 hash not as expected - digest %s != %s\n",
+                    buf, EXPECTED_ED25519_SHA256_HASH_DIGEST);
+            return 1;
+        }
+    }
+    else if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
 
         md5_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
-        if(md5_hash == NULL) {
+        if(!md5_hash) {
             print_last_session_error(
                 "libssh2_hostkey_hash(LIBSSH2_HOSTKEY_HASH_MD5)");
             return 1;
@@ -91,7 +112,7 @@ int test(LIBSSH2_SESSION *session)
         }
 
         sha1_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
-        if(sha1_hash == NULL) {
+        if(!sha1_hash) {
             print_last_session_error(
                 "libssh2_hostkey_hash(LIBSSH2_HOSTKEY_HASH_SHA1)");
             return 1;
@@ -108,7 +129,7 @@ int test(LIBSSH2_SESSION *session)
 
         sha256_hash = libssh2_hostkey_hash(session,
                                            LIBSSH2_HOSTKEY_HASH_SHA256);
-        if(sha256_hash == NULL) {
+        if(!sha256_hash) {
             print_last_session_error(
                 "libssh2_hostkey_hash(LIBSSH2_HOSTKEY_HASH_SHA256)");
             return 1;
@@ -122,12 +143,11 @@ int test(LIBSSH2_SESSION *session)
                     buf, EXPECTED_ECDSA_SHA256_HASH_DIGEST);
             return 1;
         }
-
     }
     else if(type == LIBSSH2_HOSTKEY_TYPE_RSA) {
 
         md5_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
-        if(md5_hash == NULL) {
+        if(!md5_hash) {
             print_last_session_error(
                 "libssh2_hostkey_hash(LIBSSH2_HOSTKEY_HASH_MD5)");
             return 1;
@@ -143,7 +163,7 @@ int test(LIBSSH2_SESSION *session)
         }
 
         sha1_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
-        if(sha1_hash == NULL) {
+        if(!sha1_hash) {
             print_last_session_error(
                 "libssh2_hostkey_hash(LIBSSH2_HOSTKEY_HASH_SHA1)");
             return 1;
@@ -160,7 +180,7 @@ int test(LIBSSH2_SESSION *session)
 
         sha256_hash = libssh2_hostkey_hash(session,
                                            LIBSSH2_HOSTKEY_HASH_SHA256);
-        if(sha256_hash == NULL) {
+        if(!sha256_hash) {
             print_last_session_error(
                 "libssh2_hostkey_hash(LIBSSH2_HOSTKEY_HASH_SHA256)");
             return 1;

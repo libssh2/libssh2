@@ -5,18 +5,18 @@ Things TODO
   Improvements" below for details
 
 * make sure the windowing code adapts better to slow situations so that it
-  doesn't then use as much memory as today. Possibly by an app-controllable
+  does not then use as much memory as today. Possibly by an app-controllable
   "Window mode"?
 
 * Decrease the number of mallocs. Everywhere. Will get easier once the
   buffering improvements have been done.
 
-* Use SO_NOSIGPIPE for Mac OS/BSD systems where MSG_NOSIGNAL doesn't
+* Use SO_NOSIGPIPE for Mac OS/BSD systems where MSG_NOSIGNAL does not
   exist/work
 
 * Extend the test suite to actually test lots of aspects of libssh2
 
-* Fix all compiler warnings (some can't be done without API changes)
+* Update public API to drop casts added to fix compiler warnings
 
 * Expose error messages sent by the server
 
@@ -41,7 +41,7 @@ At next SONAME bump
   libssh2_poll()
   libssh2_poll_channel_read()
   libssh2_session_startup() (libssh2_session_handshake() is the replacement)
-  libssh2_banner_set() (libssh2_session_banner_set() is the repacement)
+  libssh2_banner_set() (libssh2_session_banner_set() is the replacement)
 
 * Rename a few function:
 
@@ -60,7 +60,7 @@ At next SONAME bump
 * remove the existing libssh2_scp_send_ex() function and rename
   libssh2_scp_send64 to become the new libssh2_scp_send instead.
 
-* remove the existing libssh2_knownhost_check() functin and rename
+* remove the existing libssh2_knownhost_check() function and rename
   libssh2_knownhost_checkp() to become the new libssh2_knownhost_check instead
 
 Buffering Improvements
@@ -119,7 +119,7 @@ I suggest we introduce two new helper functions:
    short return, nothing more should be attempted to get sent until select()
    (or equivalent) has been used on the master socket again.
 
-I haven't yet figured out a sensible API for how these functions should return
+I have not yet figured out a sensible API for how these functions should return
 that info, but if we agree on the general principles I guess we can work that
 out.
 

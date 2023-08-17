@@ -1,21 +1,23 @@
-.TH libssh2_userauth_publickey_frommemory 3 "1 Sep 2014" "libssh2 1.5" "libssh2 manual"
+.TH libssh2_userauth_publickey_frommemory 3 "1 Sep 2014" "libssh2" "libssh2"
 .SH NAME
 libssh2_userauth_publickey_frommemory - authenticate a session with a public key, read from memory
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
-.nf
-int libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
-                                           const char *username,
-                                           size_t username_len,
-                                           const char *publickeydata,
-                                           size_t publickeydata_len,
-                                           const char *privatekeydata,
-                                           size_t privatekeydata_len,
-                                           const char *passphrase);
+int
+libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
+                                      const char *username,
+                                      size_t username_len,
+                                      const char *publickeydata,
+                                      size_t publickeydata_len,
+                                      const char *privatekeydata,
+                                      size_t privatekeydata_len,
+                                      const char *passphrase);
+.fi
 .SH DESCRIPTION
 This function allows to authenticate a session with a public key read from memory.
-It's only supported when libssh2 is backed by OpenSSL.
+It is only supported when libssh2 is backed by OpenSSL.
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
 
@@ -37,13 +39,13 @@ Attempt public key authentication using a PEM encoded private key file stored in
 .SH RETURN VALUE
 Return 0 on success or negative on failure.  It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
-LIBSSH2_ERROR_EAGAIN is a negative number, it isn't really a failure per se.
+LIBSSH2_ERROR_EAGAIN is a negative number, it is not really a failure per se.
 .SH ERRORS
 \fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
-\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP - 
+\fILIBSSH2_ERROR_SOCKET_TIMEOUT\fP -
 
 \fILIBSSH2_ERROR_PUBLICKEY_UNVERIFIED\fP - The username/public key
 combination was invalid.

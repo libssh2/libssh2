@@ -33,7 +33,7 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
 
-FROM debian:jessie
+FROM debian:testing-slim
 
 RUN apt-get update \
  && apt-get install -y openssh-server \
@@ -46,6 +46,8 @@ RUN mkdir /var/run/sshd
 #
 # Copying to a temp location, then moving because chmodding the copied file has
 # no effect (Docker AUFS-related bug maybe?)
+
+# Host keys
 COPY ssh_host_rsa_key /tmp/etc/ssh/ssh_host_rsa_key
 RUN mv /tmp/etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
 RUN chmod 600 /etc/ssh/ssh_host_rsa_key
@@ -58,19 +60,29 @@ COPY ssh_host_ed25519_key /tmp/etc/ssh/ssh_host_ed25519_key
 RUN mv /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key
 RUN chmod 600 /etc/ssh/ssh_host_ed25519_key
 
-COPY ca_ecdsa.pub /tmp/etc/ssh/ca_ecdsa.pub
-RUN mv /tmp/etc/ssh/ca_ecdsa.pub /etc/ssh/ca_ecdsa.pub
-RUN chmod 600 /etc/ssh/ca_ecdsa.pub
-
+# Trusted CA keys
 COPY ca_ecdsa /tmp/etc/ssh/ca_ecdsa
 RUN mv /tmp/etc/ssh/ca_ecdsa /etc/ssh/ca_ecdsa
 RUN chmod 600 /etc/ssh/ca_ecdsa
 
+COPY ca_rsa /tmp/etc/ssh/ca_rsa
+RUN mv /tmp/etc/ssh/ca_rsa /etc/ssh/ca_rsa
+RUN chmod 600 /etc/ssh/ca_rsa
+
+COPY ca_user_keys.pub /tmp/etc/ssh/ca_user_keys.pub
+RUN cp /tmp/etc/ssh/ca_user_keys.pub /etc/ssh/ca_user_keys.pub
+RUN chmod 600 /etc/ssh/ca_user_keys.pub
+
+# User
 RUN adduser --disabled-password --gecos 'Test user for libssh2 integration tests' libssh2
 RUN echo 'libssh2:my test password' | chpasswd
 
-RUN sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config
-RUN echo "TrustedUserCAKeys /etc/ssh/ca_ecdsa.pub" >> /etc/ssh/sshd_config
+# Config
+RUN sed -i 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/' /etc/ssh/sshd_config
+COPY sshd_config /tmp/etc/ssh/sshd_config
+RUN cat /tmp/etc/ssh/sshd_config >> /etc/ssh/sshd_config
+RUN echo "TrustedUserCAKeys /etc/ssh/ca_user_keys.pub" >> /etc/ssh/sshd_config
+
 
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd

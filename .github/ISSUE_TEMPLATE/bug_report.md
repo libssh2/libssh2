@@ -19,8 +19,9 @@ A recipe or example code that reproduces the problem? A stack trace from a crash
 A clear and concise description of what you expected to happen.
 
 **Version (please complete the following information):**
- - OS: [e.g. iOS]
- - libssh2 version [e.g. 1.8.0]
+ - OS and version: [e.g. iOS, macOS, Windows, Linux (distro)]
+ - libssh2 version: [e.g. 1.10.0]
+ - crypto backend and version: [OpenSSL, mbedTLS, Libgcrypt, LibreSSL, WinCNG, OS400, wolfSSL, None]
 
 **Additional context**
 Add any other context about the problem here.

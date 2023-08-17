@@ -1,18 +1,20 @@
-
+.\"
 .\" Copyright (c) 2009, 2010 by Daniel Stenberg
 .\"
-.TH libssh2_knownhost_add 3 "28 May 2009" "libssh2 1.2" "libssh2 manual"
+.TH libssh2_knownhost_add 3 "28 May 2009" "libssh2" "libssh2"
 .SH NAME
 libssh2_knownhost_add - add a known host
 .SH SYNOPSIS
 .nf
 #include <libssh2.h>
 
-int libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
-                          char *host, char *salt,
-                          char *key, size_t keylen,
-                          int typemask,
-                          struct libssh2_knownhost **store);
+int
+libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
+                      char *host, char *salt,
+                      char *key, size_t keylen,
+                      int typemask,
+                      struct libssh2_knownhost **store);
+.fi
 .SH DESCRIPTION
 We discourage use of this function as of libssh2 1.2.5. Instead we strongly
 urge users to use \fIlibssh2_knownhost_addc(3)\fP instead, which as a more
@@ -51,7 +53,7 @@ LIBSSH2_KNOWNHOST_KEY_RSA1, LIBSSH2_KNOWNHOST_KEY_SSHRSA or
 LIBSSH2_KNOWNHOST_KEY_SSHDSS.
 
 \fIstore\fP should point to a pointer that gets filled in to point to the
-known host data after the addition. NULL can be passed if you don't care about
+known host data after the addition. NULL can be passed if you do not care about
 this pointer.
 .SH RETURN VALUE
 Returns a regular libssh2 error code, where negative values are error codes

@@ -1,78 +1,45 @@
 SUBDIRS = ossfuzz
 
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/include -I$(top_builddir)/src
-LDADD = ../src/libssh2.la
+AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 
-if SSHD
-noinst_PROGRAMS = ssh2
-ssh2_SOURCES = ssh2.c
+# Get DOCKER_TESTS, STANDALONE_TESTS, SSHD_TESTS, TESTS_WITH_LIB_STATIC,
+# librunner_la_SOURCES defines and *_LDFLAGS for statically linked tests.
+include Makefile.inc
+
+# Some tests rely on the 'srcdir' env. Set by autotools automatically.
+TESTS_ENVIRONMENT =
+
+# Tests to run
+TESTS = mansyntax.sh
+
+if RUN_DOCKER_TESTS
+TESTS += $(DOCKER_TESTS)
 endif
 
-ctests = simple$(EXEEXT)
-TESTS = $(ctests) mansyntax.sh
+TESTS += $(STANDALONE_TESTS)
+
+# TAP tests
+TEST_EXTENSIONS = .test
+# 'TEST' in 'TEST_LOG_DRIVER' is the test extension in uppercase.
+TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/tap-driver.sh
+
+TESTS_ENVIRONMENT += EXEEXT=$(EXEEXT)
+if RUN_SSHD_TESTS
 if SSHD
-TESTS += ssh2.sh
+TESTS += test_sshd.test
+TESTS_ENVIRONMENT += SSHD="$(SSHD)"
 endif
-check_PROGRAMS = $(ctests)
+endif
+if RUN_DOCKER_TESTS
+TESTS += test_read_algos.test
+endif
 
-TESTS_ENVIRONMENT = SSHD=$(SSHD) EXEEXT=$(EXEEXT)
-TESTS_ENVIRONMENT += srcdir=$(top_srcdir)/tests builddir=$(top_builddir)/tests
+# Tests to build
+check_PROGRAMS = $(DOCKER_TESTS) $(STANDALONE_TESTS) $(SSHD_TESTS)
 
-EXTRA_DIST =                                                           \
- CMakeLists.txt                                                        \
- etc/host                                                              \
- etc/host.pub                                                          \
- etc/user                                                              \
- etc/user.pub                                                          \
- key_dsa                                                               \
- key_dsa.pub                                                           \
- key_dsa_wrong                                                         \
- key_dsa_wrong.pub                                                     \
- key_ecdsa                                                             \
- key_ecdsa.pub                                                         \
- key_ed25519                                                           \
- key_ed25519.pub                                                       \
- key_ed25519_encrypted                                                 \
- key_ed25519_encrypted.pub                                             \
- key_rsa                                                               \
- key_rsa.pub                                                           \
- key_rsa_encrypted                                                     \
- key_rsa_encrypted.pub                                                 \
- key_rsa_openssh                                                       \
- key_rsa_openssh.pub                                                   \
- libssh2_config_cmake.h.in                                             \
- mansyntax.sh                                                          \
- openssh_fixture.c                                                     \
- openssh_fixture.h                                                     \
- openssh_server/Dockerfile                                             \
- openssh_server/authorized_keys                                        \
- openssh_server/ca_ecdsa                                               \
- openssh_server/ca_ecdsa.pub                                           \
- openssh_server/ssh_host_ecdsa_key                                     \
- openssh_server/ssh_host_ed25519_key                                   \
- openssh_server/ssh_host_rsa_key                                       \
- runner.c                                                              \
- session_fixture.c                                                     \
- session_fixture.h                                                     \
- simple.c                                                              \
- ssh2.c                                                                \
- ssh2.sh                                                               \
- sshd_fixture.sh.in                                                    \
- test_agent_forward_succeeds.c                                         \
- test_hostkey.c                                                        \
- test_hostkey_hash.c                                                   \
- test_keyboard_interactive_auth_fails_with_wrong_response.c            \
- test_keyboard_interactive_auth_succeeds_with_correct_response.c       \
- test_password_auth_fails_with_wrong_password.c                        \
- test_password_auth_fails_with_wrong_username.c                        \
- test_password_auth_succeeds_with_correct_credentials.c                \
- test_public_key_auth_fails_with_wrong_key.c                           \
- test_public_key_auth_succeeds_with_correct_dsa_key.c                  \
- test_public_key_auth_succeeds_with_correct_ed25519_key.c              \
- test_public_key_auth_succeeds_with_correct_ed25519_key_from_mem.c     \
- test_public_key_auth_succeeds_with_correct_ecdsa_key.c                \
- test_public_key_auth_succeeds_with_correct_signed_ecdsa_key.c         \
- test_public_key_auth_succeeds_with_correct_encrypted_ed25519_key.c    \
- test_public_key_auth_succeeds_with_correct_encrypted_rsa_key.c        \
- test_public_key_auth_succeeds_with_correct_rsa_key.c                  \
- test_public_key_auth_succeeds_with_correct_rsa_openssh_key.c
+# Internal library used by tests
+LDADD = librunner.la
+check_LTLIBRARIES = librunner.la
+
+# This must be last in the list so it resolves symbols in previous libraries
+LDADD += ../src/libssh2.la

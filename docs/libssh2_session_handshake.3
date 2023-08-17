@@ -1,11 +1,13 @@
-.TH libssh2_session_handshake 3 "7 Oct 2010" "libssh2 1.2.8" "libssh2 manual"
+.TH libssh2_session_handshake 3 "7 Oct 2010" "libssh2" "libssh2"
 .SH NAME
 libssh2_session_handshake - perform the SSH handshake
 .SH SYNOPSIS
+.nf
 #include <libssh2.h>
 
 int
 libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t socket);
+.fi
 .SH DESCRIPTION
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
@@ -22,7 +24,7 @@ Returns 0 on success, negative on failure.
 
 \fILIBSSH2_ERROR_BANNER_SEND\fP - Unable to send banner to remote host.
 
-\fILIBSSH2_ERROR_KEX_FAILURE\fP - >Encryption key exchange with the remote
+\fILIBSSH2_ERROR_KEX_FAILURE\fP - Encryption key exchange with the remote
 host failed.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
