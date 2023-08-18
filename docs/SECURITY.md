@@ -8,7 +8,7 @@ Publishing Information
 ----------------------
 
 All known and public libssh2 vulnerabilities will be listed on [the libssh2
-web site](https://www.libssh2.org/).
+web site](https://libssh2.org/).
 
 Security vulnerabilities should not be entered in the project's public bug
 tracker unless the necessary configuration is in place to limit access to the
