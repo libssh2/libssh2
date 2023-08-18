@@ -202,7 +202,6 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
     else if(hash_len == SHA256_DIGEST_LENGTH) {
         nid_type = NID_sha256;
         ret = _libssh2_sha256(m, m_len, hash);
-
     }
     else if(hash_len == SHA512_DIGEST_LENGTH) {
         nid_type = NID_sha512;
@@ -390,7 +389,6 @@ _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
      const unsigned char *k,
      size_t k_len, libssh2_curve_type curve)
 {
-
     int ret = 0;
     const EC_GROUP *ec_group = NULL;
     EC_KEY *ec_key = EC_KEY_new_by_curve_name(curve);
@@ -438,7 +436,6 @@ _libssh2_ecdsa_verify(libssh2_ecdsa_ctx * ctx,
     BN_bin2bn(r, (int) r_len, pr);
     BN_bin2bn(s, (int) s_len, ps);
     ECDSA_SIG_set0(ecdsa_sig, pr, ps);
-
 #else
     ECDSA_SIG ecdsa_sig_;
     ECDSA_SIG *ecdsa_sig = &ecdsa_sig_;
@@ -1890,7 +1887,6 @@ clean_exit:
 
     return -1;
 }
-
 
 int
 _libssh2_ed25519_new_private(libssh2_ed25519_ctx ** ed_ctx,
@@ -3691,7 +3687,7 @@ _libssh2_pub_priv_openssh_keyfilememory(LIBSSH2_SESSION *session,
 #endif
 #if LIBSSH2_ECDSA
 {
-   libssh2_curve_type type;
+    libssh2_curve_type type;
 
     if(strcmp("sk-ecdsa-sha2-nistp256@openssh.com", (const char *)buf) == 0) {
         rc = gen_publickey_from_sk_ecdsa_openssh_priv_data(session, decrypted,
@@ -3927,8 +3923,8 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
     switch(pktype) {
 #if LIBSSH2_ED25519
     case EVP_PKEY_ED25519:
-        st = gen_publickey_from_ed_evp(
-            session, method, method_len, pubkeydata, pubkeydata_len, pk);
+        st = gen_publickey_from_ed_evp(session, method, method_len,
+                                       pubkeydata, pubkeydata_len, pk);
         break;
 #endif /* LIBSSH2_ED25519 */
 #if LIBSSH2_RSA
@@ -3946,8 +3942,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
 #if LIBSSH2_ECDSA
     case EVP_PKEY_EC:
         st = gen_publickey_from_ec_evp(session, method, method_len,
-                                       pubkeydata, pubkeydata_len,
-                                       0, pk);
+                                       pubkeydata, pubkeydata_len, 0, pk);
         break;
 #endif /* LIBSSH2_ECDSA */
     default:
