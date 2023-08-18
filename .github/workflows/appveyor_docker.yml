@@ -52,18 +52,17 @@ jobs:
       - name: Setup SSH client configuration
         run: |
           cd ~
-          mkdir .ssh
-          chmod 0700 .ssh
-          echo "ServerAliveInterval 45" > .ssh/config
-          echo "Host ${{ github.event.inputs.ssh_host }}" >> .ssh/config
-          echo "${{ github.event.inputs.ssh_forward }}" | sed 's/,/\n/g' | sed 's/^/\tRemoteForward /g' >> .ssh/config
-          chmod 0600 .ssh/config
-          cat .ssh/config
-          echo "${{ github.event.inputs.ssh_host }} ${{ github.event.inputs.ssh_hostkey }}" | sed 's/,/\n${{ github.event.inputs.ssh_host }} /g' > .ssh/known_hosts
-          chmod 0600 .ssh/known_hosts
-          cat .ssh/known_hosts
-          echo "${{ github.event.inputs.ssh_privkey }}" | sed 's/,/\n/g' > .ssh/id_rsa
-          chmod 0600 .ssh/id_rsa
+          mkdir -m 0700 .ssh
+          install -m 0600 /dev/null .ssh/config
+          {
+            echo 'ServerAliveInterval 45'
+            echo 'Host ${{ github.event.inputs.ssh_host }}'
+            echo '${{ github.event.inputs.ssh_forward }}' | sed 's/,/\n/g' | sed 's/^/  RemoteForward /g'
+          } | tee -a .ssh/config
+          install -m 0600 /dev/null .ssh/known_hosts
+          echo '${{ github.event.inputs.ssh_host }} ${{ github.event.inputs.ssh_hostkey }}' | sed 's/,/\n${{ github.event.inputs.ssh_host }} /g' | tee -a .ssh/known_hosts
+          install -m 0600 /dev/null .ssh/id_rsa
+          echo '${{ github.event.inputs.ssh_privkey }}' | sed 's/,/\n/g' >> .ssh/id_rsa
 
       # we sleep explicitly to allow the remote system to kill the sleep process
       - name: Connect to AppVeyor and sleep
