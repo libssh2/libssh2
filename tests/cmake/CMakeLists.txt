@@ -3,7 +3,7 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(test-dependent)
+project(test-dependent C)
 
 option(TEST_INTEGRATION_MODE "Integration mode" "find_package")
 

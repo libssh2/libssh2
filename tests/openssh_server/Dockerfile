@@ -48,11 +48,11 @@ RUN echo 'libssh2:my test password' | chpasswd
 RUN sed -i 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/' /etc/ssh/sshd_config
 COPY sshd_config /tmp/etc/ssh/sshd_config
 RUN cat /tmp/etc/ssh/sshd_config >> /etc/ssh/sshd_config
-RUN echo "TrustedUserCAKeys /etc/ssh/ca_user_keys.pub" >> /etc/ssh/sshd_config
+RUN echo 'TrustedUserCAKeys /etc/ssh/ca_user_keys.pub' >> /etc/ssh/sshd_config
 
 
 # SSH login fix. Otherwise user is kicked off after login
-RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+RUN sed 's/session\s*required\s*pam_loginuid.so/session optional pam_loginuid.so/g' -i /etc/pam.d/sshd
 
 USER libssh2
 
