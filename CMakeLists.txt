@@ -404,6 +404,12 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
   endif()
 endif()
 
+message(STATUS "MINGW: |${MINGW}|")
+message(STATUS "MSYS: |${MSYS}|")
+message(STATUS "CYGWIN: |${CYGWIN}|")
+message(STATUS "UNIX: |${UNIX}|")
+message(STATUS "WIN32: |${WIN32}|")
+
 # Global functions
 
 # Convert GNU Make assignments into CMake ones.
