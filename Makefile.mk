@@ -304,7 +304,7 @@ $(DISTDIR)/readme.txt: Makefile.mk
 	@echo $(DL)libssh2 version $(LIBSSH2_VERSION_STR)$(DL) >> $@
 	@echo $(DL)Please download the complete libssh2 package for$(DL) >> $@
 	@echo $(DL)any further documentation:$(DL) >> $@
-	@echo $(DL)https://www.libssh2.org/$(DL) >> $@
+	@echo $(DL)https://libssh2.org/$(DL) >> $@
 
 help: $(OBJ_DIR)/version.inc
 	@echo $(DL)===========================================================$(DL)
