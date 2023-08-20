@@ -635,11 +635,11 @@ static asn1Element *
 asn1_new_from_bytes(const unsigned char *data, unsigned int length)
 {
     asn1Element *e;
-    asn1Element te;
+    asn1Element et;
 
-    getASN1Element(&te,
+    getASN1Element(&et,
                    (unsigned char *) data, (unsigned char *) data + length);
-    e = asn1_new(te.tag, te.end - te.beg);
+    e = asn1_new(et.tag, et.end - et.beg);
 
     if(e)
         memcpy(e->header, data, e->end - e->header);
