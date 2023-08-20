@@ -22,6 +22,15 @@ jobs:
       - name: 'checksrc'
         run: ./ci/checksrc.sh
 
+  spellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: 'install tools'
+        run: pip install -U codespell
+      - name: 'spellcheck'
+        run: ./ci/spellcheck.sh
+
   build_integration:
     name: 'integration'
     runs-on: ubuntu-latest
