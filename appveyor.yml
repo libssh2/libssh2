@@ -170,6 +170,7 @@ build_script:
         $env:CMAKE_ARG += " -DBUILD_SHARED_LIBS=OFF"
       }
       $env:CMAKE_ARG += " -DCMAKE_VS_GLOBALS=TrackFileAccess=false"
+  - cmake --version
   # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
   #        'libssh2_session_handshake failed (-43): Failed getting banner'
   - echo cmake       "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
