@@ -179,7 +179,7 @@ build_script:
 test_script:
   - ps: |
       if($env:SKIP_CTEST -ne "yes" -and $env:PLATFORM -ne "ARM64" -and $env:UWP -ne "ON") {
-        appveyor-retry choco install -y --no-progress --limit-output --timeout 180 docker-cli
+        appveyor-retry choco install --yes --no-progress --limit-output --timeout 180 docker-cli
         Write-Host "Waiting for SSH connection from GitHub Actions" -NoNewline
         $endDate = (Get-Date).AddMinutes(3)
         while((Get-Process -Name "sshd" -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
