@@ -1,6 +1,6 @@
 {
   "u" : true,
-  "nxxm/boringssl" : { "@" : ":358175c062c3a3964d4734df4b122e6af851def0",
+  "google/boringssl" : { "@" : ":f896fbd7a94daf801446ae997d288e7f03a5d9a2",
     "u": true
     , "packages" : ["OpenSSL"]
     , "targets" : ["OpenSSL::SSL", "OpenSSL::Crypto"]

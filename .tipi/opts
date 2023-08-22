@@ -6,3 +6,5 @@ set(BUILD_EXAMPLES OFF CACHE BOOL "no example" FORCE)
 
 # Tests
 set(BUILD_TESTING OFF CACHE BOOL "no test" FORCE)
+
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "no shared lib" FORCE)
