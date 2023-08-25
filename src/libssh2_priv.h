@@ -415,7 +415,7 @@ struct _LIBSSH2_CHANNEL
     struct list_node node;
 
     unsigned char *channel_type;
-    unsigned channel_type_len;
+    size_t channel_type_len;
 
     /* channel's program exit status */
     int exit_status;
