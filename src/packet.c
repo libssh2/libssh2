@@ -469,7 +469,7 @@ packet_authagent_open(LIBSSH2_SESSION * session,
     LIBSSH2_CHANNEL *channel = authagent_state->channel;
     int rc;
     struct string_buf buf;
-    unsigned long offset = (strlen("auth-agent@openssh.org")) + 5;
+    size_t offset = strlen("auth-agent@openssh.org") + 5;
 
     buf.data = data;
     buf.dataptr = buf.data;
