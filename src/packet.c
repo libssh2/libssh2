@@ -468,16 +468,33 @@ packet_authagent_open(LIBSSH2_SESSION * session,
     unsigned char *p;
     LIBSSH2_CHANNEL *channel = authagent_state->channel;
     int rc;
+    struct string_buf buf;
+    unsigned long offset = (strlen("auth-agent@openssh.org")) + 5;
 
-    (void)datalen;
+    buf.data = data;
+    buf.dataptr = buf.data;
+    buf.len = datalen;
+
+    buf.dataptr += offset;
+
+    if(datalen < offset) {
+        return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                              "Unexpected packet size");
+    }
 
     if(authagent_state->state == libssh2_NB_state_idle) {
-        unsigned char *s = data + (sizeof("auth-agent@openssh.org") - 1) + 5;
-        authagent_state->sender_channel = _libssh2_ntohu32(s);
-        s += 4;
-        authagent_state->initial_window_size = _libssh2_ntohu32(s);
-        s += 4;
-        authagent_state->packet_size = _libssh2_ntohu32(s);
+        if(_libssh2_get_u32(&buf, &(authagent_state->sender_channel))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting channel");
+        }
+        if(_libssh2_get_u32(&buf, &(authagent_state->initial_window_size))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting window size");
+        }
+        if(_libssh2_get_u32(&buf, &(authagent_state->packet_size))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting packet");
+        }
 
         _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                        "Auth Agent Connection Received on channel %lu",
