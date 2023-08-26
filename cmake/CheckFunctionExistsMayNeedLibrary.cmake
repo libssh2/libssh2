@@ -65,7 +65,7 @@ function(check_function_exists_may_need_library function variable)
   check_function_exists(${function} ${variable})
 
   if(NOT ${variable})
-    foreach(lib ${ARGN})
+    foreach(lib IN LISTS ARGN)
       string(TOUPPER ${lib} UP_LIB)
       # Use new variable to prevent cache from previous step shortcircuiting
       # new test

@@ -52,12 +52,11 @@ function(ADD_TARGET_TO_COPY_DEPENDENCIES)
   # parallel builds trying to kick off the commands at the same time
   add_custom_target(${COPY_TARGET})
 
-  foreach(target ${COPY_BEFORE_TARGETS})
+  foreach(target IN LISTS COPY_BEFORE_TARGETS)
     add_dependencies(${target} ${COPY_TARGET})
   endforeach()
 
-  foreach(dependency ${COPY_DEPENDENCIES})
-
+  foreach(dependency IN LISTS COPY_DEPENDENCIES)
     add_custom_command(
       TARGET ${COPY_TARGET}
       DEPENDS ${dependency}
@@ -68,7 +67,5 @@ function(ADD_TARGET_TO_COPY_DEPENDENCIES)
       COMMAND ${CMAKE_COMMAND}
       ARGS -E copy ${dependency} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
       VERBATIM)
-
   endforeach()
-
 endfunction()

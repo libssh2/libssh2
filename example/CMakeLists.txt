@@ -45,7 +45,7 @@ transform_makefile_inc("Makefile.am" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cm
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.am.cmake")
 set(EXAMPLES ${noinst_PROGRAMS})
 
-foreach(example ${EXAMPLES})
+foreach(example IN LISTS EXAMPLES)
   add_executable(${example} "${example}.c")
   list(APPEND EXAMPLE_TARGETS ${example})
   # to find generated header
