@@ -92,7 +92,11 @@
 #endif
 #define LIBSSH2_ED25519         0
 
+#include "crypto_config.h"
+
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define MD5_DIGEST_LENGTH      16
+#endif
 #define SHA_DIGEST_LENGTH      20
 #define SHA256_DIGEST_LENGTH   32
 #define SHA384_DIGEST_LENGTH   48
@@ -134,8 +138,10 @@
 
 #define libssh2_hmac_sha1_init(pctx, key, keylen) \
     _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA1, key, keylen)
+#if LIBSSH2_MD5
 #define libssh2_hmac_md5_init(pctx, key, keylen) \
     _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_MD5, key, keylen)
+#endif
 #define libssh2_hmac_ripemd160_init(pctx, key, keylen) \
     _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_RIPEMD160, key, keylen)
 #define libssh2_hmac_sha256_init(pctx, key, keylen) \
@@ -219,6 +225,7 @@
  * mbedTLS backend: MD5 functions
  */
 
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define libssh2_md5_ctx      mbedtls_md_context_t
 
 #define libssh2_md5_init(pctx) \
@@ -229,7 +236,7 @@
     _libssh2_mbedtls_hash_final(&ctx, hash)
 #define libssh2_md5(data, datalen, hash) \
     _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_MD5, hash)
-
+#endif
 
 /*******************************************************************/
 /*

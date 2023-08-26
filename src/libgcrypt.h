@@ -66,7 +66,11 @@
 #define LIBSSH2_ECDSA 0
 #define LIBSSH2_ED25519 0
 
+#include "crypto_config.h"
+
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define MD5_DIGEST_LENGTH 16
+#endif
 #define SHA_DIGEST_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
 #define SHA384_DIGEST_LENGTH 48
@@ -124,6 +128,7 @@
 #define libssh2_sha512(message, len, out) \
     gcry_md_hash_buffer(GCRY_MD_SHA512, out, message, len)
 
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define libssh2_md5_ctx gcry_md_hd_t
 
 /* returns 0 in case of failure */
@@ -136,15 +141,18 @@
     memcpy(out, gcry_md_read(ctx, 0), MD5_DIGEST_LENGTH), gcry_md_close(ctx)
 #define libssh2_md5(message, len, out) \
     gcry_md_hash_buffer(GCRY_MD_MD5, out, message, len)
+#endif
 
 #define libssh2_hmac_ctx gcry_md_hd_t
 #define libssh2_hmac_ctx_init(ctx)
 #define libssh2_hmac_sha1_init(ctx, key, keylen) \
     gcry_md_open(ctx, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC), \
     gcry_md_setkey(*ctx, key, keylen)
+#if LIBSSH2_MD5
 #define libssh2_hmac_md5_init(ctx, key, keylen) \
     gcry_md_open(ctx, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC), \
     gcry_md_setkey(*ctx, key, keylen)
+#endif
 #define libssh2_hmac_ripemd160_init(ctx, key, keylen) \
     gcry_md_open(ctx, GCRY_MD_RMD160, GCRY_MD_FLAG_HMAC), \
     gcry_md_setkey(*ctx, key, keylen)

@@ -194,6 +194,8 @@
 # define LIBSSH2_3DES 1
 #endif
 
+#include "crypto_config.h"
+
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
 #define _libssh2_random(buf, len) \
@@ -296,6 +298,7 @@ int _libssh2_sha512(const unsigned char *message, size_t len,
                     unsigned char *out);
 #define libssh2_sha512(x,y,z) _libssh2_sha512(x,y,z)
 
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_md5_ctx EVP_MD_CTX *
 #else
@@ -314,6 +317,7 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #else
 #define libssh2_md5_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_md5_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
+#endif
 #endif
 
 #ifdef HAVE_OPAQUE_STRUCTS

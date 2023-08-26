@@ -94,8 +94,10 @@
 #define BCRYPT_RNG_ALGORITHM L"RNG"
 #endif
 
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #ifndef BCRYPT_MD5_ALGORITHM
 #define BCRYPT_MD5_ALGORITHM L"MD5"
+#endif
 #endif
 
 #ifndef BCRYPT_SHA1_ALGORITHM
@@ -254,11 +256,13 @@ _libssh2_wincng_init(void)
         _libssh2_wincng.hAlgRNG = NULL;
     }
 
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
     ret = BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHashMD5,
                                       BCRYPT_MD5_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         _libssh2_wincng.hAlgHashMD5 = NULL;
     }
+#endif
     ret = BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHashSHA1,
                                       BCRYPT_SHA1_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
@@ -280,12 +284,14 @@ _libssh2_wincng_init(void)
         _libssh2_wincng.hAlgHashSHA512 = NULL;
     }
 
+#if LIBSSH2_MD5
     ret = BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHmacMD5,
                                       BCRYPT_MD5_ALGORITHM, NULL,
                                       BCRYPT_ALG_HANDLE_HMAC_FLAG);
     if(!BCRYPT_SUCCESS(ret)) {
         _libssh2_wincng.hAlgHmacMD5 = NULL;
     }
+#endif
     ret = BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgHmacSHA1,
                                       BCRYPT_SHA1_ALGORITHM, NULL,
                                       BCRYPT_ALG_HANDLE_HMAC_FLAG);
@@ -395,8 +401,10 @@ _libssh2_wincng_free(void)
 {
     if(_libssh2_wincng.hAlgRNG)
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgRNG, 0);
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
     if(_libssh2_wincng.hAlgHashMD5)
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgHashMD5, 0);
+#endif
     if(_libssh2_wincng.hAlgHashSHA1)
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgHashSHA1, 0);
     if(_libssh2_wincng.hAlgHashSHA256)
@@ -405,8 +413,10 @@ _libssh2_wincng_free(void)
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgHashSHA384, 0);
     if(_libssh2_wincng.hAlgHashSHA512)
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgHashSHA512, 0);
+#if LIBSSH2_MD5
     if(_libssh2_wincng.hAlgHmacMD5)
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgHmacMD5, 0);
+#endif
     if(_libssh2_wincng.hAlgHmacSHA1)
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgHmacSHA1, 0);
     if(_libssh2_wincng.hAlgHmacSHA256)

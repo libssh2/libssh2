@@ -74,7 +74,11 @@
 #define LIBSSH2_ECDSA 0
 #define LIBSSH2_ED25519 0
 
+#include "crypto_config.h"
+
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define MD5_DIGEST_LENGTH 16
+#endif
 #define SHA_DIGEST_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
 #define SHA384_DIGEST_LENGTH 48
@@ -204,6 +208,7 @@ typedef struct __libssh2_wincng_hash_ctx {
     _libssh2_wincng_hash(data, datalen, _libssh2_wincng.hAlgHashSHA512, \
                          hash, SHA512_DIGEST_LENGTH)
 
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define libssh2_md5_ctx _libssh2_wincng_hash_ctx
 #define libssh2_md5_init(ctx) \
     (_libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHashMD5, \
@@ -216,6 +221,7 @@ typedef struct __libssh2_wincng_hash_ctx {
 #define libssh2_md5(data, datalen, hash) \
     _libssh2_wincng_hash(data, datalen, _libssh2_wincng.hAlgHashMD5, \
                          hash, MD5_DIGEST_LENGTH)
+#endif
 
 /*
  * Windows CNG backend: HMAC functions
@@ -226,9 +232,11 @@ typedef struct __libssh2_wincng_hash_ctx {
 #define libssh2_hmac_sha1_init(ctx, key, keylen) \
     _libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHmacSHA1, \
                               SHA_DIGEST_LENGTH, key, (ULONG) keylen)
+#if LIBSSH2_MD5
 #define libssh2_hmac_md5_init(ctx, key, keylen) \
     _libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHmacMD5, \
                               MD5_DIGEST_LENGTH, key, (ULONG) keylen)
+#endif
 #define libssh2_hmac_ripemd160_init(ctx, key, keylen)
     /* not implemented */
 #define libssh2_hmac_sha256_init(ctx, key, keylen) \

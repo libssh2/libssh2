@@ -2495,6 +2495,7 @@ _libssh2_sha512(const unsigned char *message, size_t len,
     return 1; /* error */
 }
 
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 int
 _libssh2_md5_init(libssh2_md5_ctx *ctx)
 {
@@ -2530,6 +2531,7 @@ _libssh2_md5_init(libssh2_md5_ctx *ctx)
     return EVP_DigestInit(ctx, EVP_get_digestbyname("md5"));
 #endif
 }
+#endif
 
 #if LIBSSH2_ECDSA
 

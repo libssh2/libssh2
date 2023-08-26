@@ -29,6 +29,7 @@ HHEADERS =              \
   channel.h             \
   comp.h                \
   crypto.h              \
+  crypto_config.h       \
   libgcrypt.h           \
   libssh2_priv.h        \
   libssh2_setup.h       \
