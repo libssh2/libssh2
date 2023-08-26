@@ -55,9 +55,13 @@
 #error "no cryptography backend selected"
 #endif
 
+#define LIBSSH2_MD5_PEM LIBSSH2_MD5
+
 #ifdef LIBSSH2_NO_MD5
 #undef LIBSSH2_MD5
 #define LIBSSH2_MD5 0
+#undef LIBSSH2_MD5_PEM
+#define LIBSSH2_MD5_PEM 0
 #endif
 
 #ifdef LIBSSH2_NO_HMAC_RIPEMD

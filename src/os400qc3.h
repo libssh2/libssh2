@@ -164,6 +164,8 @@
 #undef Qc3_MK_Pending
 #define Qc3_MK_Pending      '\xF3'      /* '3' */
 
+/* FIXME: Disable MD5 macros/constants and functions when
+          LIBSSH2_MD5 and LIBSSH_MD5_PEM have the value 0. */
 
 /* Define which features are supported. */
 #define LIBSSH2_MD5             1
