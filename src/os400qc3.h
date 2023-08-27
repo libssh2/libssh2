@@ -188,6 +188,8 @@
 #define LIBSSH2_ECDSA           0
 #define LIBSSH2_ED25519         0
 
+#include "crypto_config.h"
+
 #define MD5_DIGEST_LENGTH       16
 #define SHA_DIGEST_LENGTH       20
 #define SHA256_DIGEST_LENGTH    32

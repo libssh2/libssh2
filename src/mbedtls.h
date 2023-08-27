@@ -92,6 +92,8 @@
 #endif
 #define LIBSSH2_ED25519         0
 
+#include "crypto_config.h"
+
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define MD5_DIGEST_LENGTH      16
 #endif

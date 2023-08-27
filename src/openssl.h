@@ -194,6 +194,8 @@
 # define LIBSSH2_3DES 1
 #endif
 
+#include "crypto_config.h"
+
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
 #define _libssh2_random(buf, len) \
