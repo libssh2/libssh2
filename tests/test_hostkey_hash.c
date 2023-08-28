@@ -20,8 +20,10 @@ static const char *EXPECTED_ECDSA_HOSTKEY =
 static const char *EXPECTED_ED25519_HOSTKEY =
     "AAAAC3NzaC1lZDI1NTE5AAAAIIxtdyg2ZRXE70UwyPVUH3UyfDBV8GX5cPF636P6hjom";
 
+#if LIBSSH2_MD5
 static const char *EXPECTED_RSA_MD5_HASH_DIGEST =
     "0C0ED1A5BB10275F76924CE187CE5C5E";
+#endif
 
 static const char *EXPECTED_RSA_SHA1_HASH_DIGEST =
     "F3CD59E2913F4422B80F7B0A82B2B89EAE449387";
@@ -29,8 +31,10 @@ static const char *EXPECTED_RSA_SHA1_HASH_DIGEST =
 static const char *EXPECTED_RSA_SHA256_HASH_DIGEST =
     "92E3DA49DF3C7F99A828F505ED8239397A5D1F62914459760F878F7510F563A3";
 
+#if LIBSSH2_MD5
 static const char *EXPECTED_ECDSA_MD5_HASH_DIGEST =
     "0402E4D897580BBC911379CBD88BCD3D";
+#endif
 
 static const char *EXPECTED_ECDSA_SHA1_HASH_DIGEST =
     "12FDAD1E3B31B10BABB00F2A8D1B9A62C326BD2F";
@@ -41,7 +45,9 @@ static const char *EXPECTED_ECDSA_SHA256_HASH_DIGEST =
 static const char *EXPECTED_ED25519_SHA256_HASH_DIGEST =
     "2638B020F6121FA750A7F4754B718419F621814C6E779D68ADF26AA68814ADDF";
 
+#if LIBSSH2_MD5
 static const int MD5_HASH_SIZE = 16;
+#endif
 static const int SHA1_HASH_SIZE = 20;
 static const int SHA256_HASH_SIZE = 32;
 
@@ -62,7 +68,9 @@ int test(LIBSSH2_SESSION *session)
     char buf[BUFSIZ];
 
     const char *hostkey;
+#if LIBSSH2_MD5
     const char *md5_hash;
+#endif
     const char *sha1_hash;
     const char *sha256_hash;
     int type;
@@ -100,6 +108,7 @@ int test(LIBSSH2_SESSION *session)
     }
     else if(type == LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
 
+#if LIBSSH2_MD5
         md5_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
         if(!md5_hash) {
             print_last_session_error(
@@ -115,6 +124,7 @@ int test(LIBSSH2_SESSION *session)
                     buf, EXPECTED_ECDSA_MD5_HASH_DIGEST);
             return 1;
         }
+#endif
 
         sha1_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
         if(!sha1_hash) {
@@ -151,6 +161,7 @@ int test(LIBSSH2_SESSION *session)
     }
     else if(type == LIBSSH2_HOSTKEY_TYPE_RSA) {
 
+#if LIBSSH2_MD5
         md5_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_MD5);
         if(!md5_hash) {
             print_last_session_error(
@@ -166,6 +177,7 @@ int test(LIBSSH2_SESSION *session)
                     buf, EXPECTED_RSA_MD5_HASH_DIGEST);
             return 1;
         }
+#endif
 
         sha1_hash = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA1);
         if(!sha1_hash) {

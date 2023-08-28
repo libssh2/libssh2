@@ -91,6 +91,10 @@ static char const *skip_crypt[] = {
     "rijndael-cbc@lysator.liu.se",
 #endif
 
+#if !LIBSSH2_3DES
+    "3des-cbc",
+#endif
+
 #if defined(LIBSSH2_LIBGCRYPT) || defined(LIBSSH2_OS400QC3) || \
     defined(LIBSSH2_WINCNG)
     /* Support for AES-GCM hasn't been added to these back-ends yet */
@@ -98,6 +102,15 @@ static char const *skip_crypt[] = {
     "aes256-gcm@openssh.com",
 #endif
 
+    NULL
+};
+
+/* List of MAC protocols for which tests are skipped */
+static char const *skip_mac[] = {
+#if !LIBSSH2_MD5
+    "hmac-md5",
+    "hmac-md5-96",
+#endif
     NULL
 };
 
@@ -112,11 +125,23 @@ LIBSSH2_SESSION *start_session_fixture(int *skipped, int *err)
     *err = LIBSSH2_ERROR_NONE;
 
     if(crypt) {
-        char const * const *cr;
-        for(cr = skip_crypt; *cr; ++cr) {
-            if(strcmp(*cr, crypt) == 0) {
-                fprintf(stderr, "crypt algorithm (%s) skipped "
-                                "for this crypto backend.\n", crypt);
+        char const * const *sk;
+        for(sk = skip_crypt; *sk; ++sk) {
+            if(strcmp(*sk, crypt) == 0) {
+                fprintf(stderr, "unsupported crypt algorithm (%s) skipped.\n",
+                                crypt);
+                *skipped = 1;
+                return NULL;
+            }
+        }
+    }
+
+    if(mac) {
+        char const * const *sk;
+        for(sk = skip_mac; *sk; ++sk) {
+            if(strcmp(*sk, mac) == 0) {
+                fprintf(stderr, "unsupported MAC algorithm (%s) skipped.\n",
+                                mac);
                 *skipped = 1;
                 return NULL;
             }
