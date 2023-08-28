@@ -71,14 +71,14 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
      * Look for a matching listener
      */
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
-    size_t packet_len = 17 + (sizeof(FwdNotReq) - 1);
+    size_t packet_len = 17 + strlen(FwdNotReq);
     unsigned char *p;
     LIBSSH2_LISTENER *listn = _libssh2_list_first(&session->listeners);
     char failure_code = SSH_OPEN_ADMINISTRATIVELY_PROHIBITED;
     int rc;
 
     if(listen_state->state == libssh2_NB_state_idle) {
-        size_t offset = (sizeof("forwarded-tcpip") - 1) + 5;
+        size_t offset = strlen("forwarded-tcpip") + 5;
         size_t temp_len = 0;
         struct string_buf buf;
         buf.data = data;
@@ -166,7 +166,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
                     listen_state->channel = channel;
 
                     channel->session = session;
-                    channel->channel_type_len = sizeof("forwarded-tcpip") - 1;
+                    channel->channel_type_len = strlen("forwarded-tcpip");
                     channel->channel_type = LIBSSH2_ALLOC(session,
                                                           channel->
                                                           channel_type_len +
@@ -253,7 +253,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     *(p++) = SSH_MSG_CHANNEL_OPEN_FAILURE;
     _libssh2_store_u32(&p, listen_state->sender_channel);
     _libssh2_store_u32(&p, failure_code);
-    _libssh2_store_str(&p, FwdNotReq, sizeof(FwdNotReq) - 1);
+    _libssh2_store_str(&p, FwdNotReq, strlen(FwdNotReq));
     _libssh2_htonu32(p, 0);
 
     rc = _libssh2_transport_send(session, listen_state->packet,
@@ -282,14 +282,14 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
 {
     int failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
-    size_t packet_len = 17 + (sizeof(X11FwdUnAvil) - 1);
+    size_t packet_len = 17 + strlen(X11FwdUnAvil);
     unsigned char *p;
     LIBSSH2_CHANNEL *channel = x11open_state->channel;
     int rc;
 
     if(x11open_state->state == libssh2_NB_state_idle) {
 
-        size_t offset = (sizeof("x11") - 1) + 5;
+        size_t offset = strlen("x11") + 5;
         size_t temp_len = 0;
         struct string_buf buf;
         buf.data = data;
@@ -357,7 +357,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
             }
 
             channel->session = session;
-            channel->channel_type_len = sizeof("x11") - 1;
+            channel->channel_type_len = strlen("x11");
             channel->channel_type = LIBSSH2_ALLOC(session,
                                                   channel->channel_type_len +
                                                   1);
@@ -436,7 +436,7 @@ x11_exit:
     *(p++) = SSH_MSG_CHANNEL_OPEN_FAILURE;
     _libssh2_store_u32(&p, x11open_state->sender_channel);
     _libssh2_store_u32(&p, failure_code);
-    _libssh2_store_str(&p, X11FwdUnAvil, sizeof(X11FwdUnAvil) - 1);
+    _libssh2_store_str(&p, X11FwdUnAvil, strlen(X11FwdUnAvil));
     _libssh2_htonu32(p, 0);
 
     rc = _libssh2_transport_send(session, x11open_state->packet, packet_len,
@@ -464,20 +464,37 @@ packet_authagent_open(LIBSSH2_SESSION * session,
 {
     int failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
-    size_t packet_len = 17 + (sizeof(X11FwdUnAvil) - 1);
+    size_t packet_len = 17 + strlen(X11FwdUnAvil);
     unsigned char *p;
     LIBSSH2_CHANNEL *channel = authagent_state->channel;
     int rc;
+    struct string_buf buf;
+    size_t offset = strlen("auth-agent@openssh.org") + 5;
 
-    (void)datalen;
+    buf.data = data;
+    buf.dataptr = buf.data;
+    buf.len = datalen;
+
+    buf.dataptr += offset;
+
+    if(datalen < offset) {
+        return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                              "Unexpected packet size");
+    }
 
     if(authagent_state->state == libssh2_NB_state_idle) {
-        unsigned char *s = data + (sizeof("auth-agent@openssh.org") - 1) + 5;
-        authagent_state->sender_channel = _libssh2_ntohu32(s);
-        s += 4;
-        authagent_state->initial_window_size = _libssh2_ntohu32(s);
-        s += 4;
-        authagent_state->packet_size = _libssh2_ntohu32(s);
+        if(_libssh2_get_u32(&buf, &(authagent_state->sender_channel))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting channel");
+        }
+        if(_libssh2_get_u32(&buf, &(authagent_state->initial_window_size))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting window size");
+        }
+        if(_libssh2_get_u32(&buf, &(authagent_state->packet_size))) {
+            return _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                                  "Data too short extracting packet");
+        }
 
         _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                        "Auth Agent Connection Received on channel %lu",
@@ -500,7 +517,7 @@ packet_authagent_open(LIBSSH2_SESSION * session,
             memset(channel, 0, sizeof(LIBSSH2_CHANNEL));
 
             channel->session = session;
-            channel->channel_type_len = sizeof("auth agent") - 1;
+            channel->channel_type_len = strlen("auth agent");
             channel->channel_type = LIBSSH2_ALLOC(session,
                                                   channel->channel_type_len +
                                                   1);
@@ -584,7 +601,7 @@ authagent_exit:
     *(p++) = SSH_MSG_CHANNEL_OPEN_FAILURE;
     _libssh2_store_u32(&p, authagent_state->sender_channel);
     _libssh2_store_u32(&p, failure_code);
-    _libssh2_store_str(&p, AuthAgentUnavail, sizeof(AuthAgentUnavail) - 1);
+    _libssh2_store_str(&p, AuthAgentUnavail, strlen(AuthAgentUnavail));
     _libssh2_htonu32(p, 0);
 
     rc = _libssh2_transport_send(session, authagent_state->packet, packet_len,
@@ -1047,19 +1064,20 @@ libssh2_packet_add_jump_point1:
                                "Channel %d received request type %.*s (wr %X)",
                                channel, len, data + 9, want_reply));
 
-                if(len == sizeof("exit-status") - 1
-                    && (sizeof("exit-status") - 1 + 9) <= datalen
+                if(len == strlen("exit-status")
+                    && (strlen("exit-status") + 9) <= datalen
                     && !memcmp("exit-status", data + 9,
-                               sizeof("exit-status") - 1)) {
+                               strlen("exit-status"))) {
 
                     /* we've got "exit-status" packet. Set the session value */
                     if(datalen >= 20)
                         channelp =
                             _libssh2_channel_locate(session, channel);
 
-                    if(channelp && (sizeof("exit-status") + 13) <= datalen) {
+                    if(channelp && (strlen("exit-status") + 14) <= datalen) {
                         channelp->exit_status =
-                            _libssh2_ntohu32(data + 9 + sizeof("exit-status"));
+                            _libssh2_ntohu32(data + 10 +
+                                             strlen("exit-status"));
                         _libssh2_debug((session, LIBSSH2_TRACE_CONN,
                                        "Exit status %lu received for "
                                        "channel %lu/%lu",
@@ -1069,18 +1087,19 @@ libssh2_packet_add_jump_point1:
                     }
 
                 }
-                else if(len == sizeof("exit-signal") - 1
-                         && (sizeof("exit-signal") - 1 + 9) <= datalen
+                else if(len == strlen("exit-signal")
+                         && (strlen("exit-signal") + 9) <= datalen
                          && !memcmp("exit-signal", data + 9,
-                                    sizeof("exit-signal") - 1)) {
+                                    strlen("exit-signal"))) {
                     /* command terminated due to signal */
                     if(datalen >= 20)
                         channelp = _libssh2_channel_locate(session, channel);
 
-                    if(channelp && (sizeof("exit-signal") + 13) <= datalen) {
+                    if(channelp && (strlen("exit-signal") + 14) <= datalen) {
                         /* set signal name (without SIG prefix) */
                         uint32_t namelen =
-                            _libssh2_ntohu32(data + 9 + sizeof("exit-signal"));
+                            _libssh2_ntohu32(data + 10 +
+                                             strlen("exit-signal"));
 
                         if(namelen <= UINT_MAX - 1) {
                             channelp->exit_signal =
@@ -1093,10 +1112,10 @@ libssh2_packet_add_jump_point1:
                         if(!channelp->exit_signal)
                             rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                                 "memory for signal name");
-                        else if((sizeof("exit-signal") + 13 + namelen <=
+                        else if((strlen("exit-signal") + 14 + namelen <=
                                  datalen)) {
                             memcpy(channelp->exit_signal,
-                                   data + 13 + sizeof("exit-signal"), namelen);
+                                   data + 14 + strlen("exit-signal"), namelen);
                             channelp->exit_signal[namelen] = '\0';
                             /* TODO: save error message and language tag */
                             _libssh2_debug((session, LIBSSH2_TRACE_CONN,
@@ -1164,12 +1183,12 @@ libssh2_packet_add_jump_point4:
         case SSH_MSG_CHANNEL_OPEN:
             if(datalen < 17)
                 ;
-            else if((datalen >= (sizeof("forwarded-tcpip") + 4)) &&
-                     ((sizeof("forwarded-tcpip") - 1) ==
+            else if((datalen >= (strlen("forwarded-tcpip") + 5)) &&
+                     (strlen("forwarded-tcpip") ==
                       _libssh2_ntohu32(data + 1))
                      &&
                      (memcmp(data + 5, "forwarded-tcpip",
-                             sizeof("forwarded-tcpip") - 1) == 0)) {
+                             strlen("forwarded-tcpip")) == 0)) {
 
                 /* init the state struct */
                 memset(&session->packAdd_Qlstn_state, 0,
@@ -1180,9 +1199,9 @@ libssh2_packet_add_jump_point2:
                 rc = packet_queue_listener(session, data, datalen,
                                            &session->packAdd_Qlstn_state);
             }
-            else if((datalen >= (sizeof("x11") + 4)) &&
-                     ((sizeof("x11") - 1) == _libssh2_ntohu32(data + 1)) &&
-                     (memcmp(data + 5, "x11", sizeof("x11") - 1) == 0)) {
+            else if((datalen >= (strlen("x11") + 5)) &&
+                     ((strlen("x11")) == _libssh2_ntohu32(data + 1)) &&
+                     (memcmp(data + 5, "x11", strlen("x11")) == 0)) {
 
                 /* init the state struct */
                 memset(&session->packAdd_x11open_state, 0,
@@ -1193,11 +1212,11 @@ libssh2_packet_add_jump_point3:
                 rc = packet_x11_open(session, data, datalen,
                                      &session->packAdd_x11open_state);
             }
-            else if((datalen >= (sizeof("auth-agent@openssh.com") + 4)) &&
-                    ((sizeof("auth-agent@openssh.com") - 1) ==
+            else if((datalen >= (strlen("auth-agent@openssh.com") + 5)) &&
+                    (strlen("auth-agent@openssh.com") ==
                       _libssh2_ntohu32(data + 1)) &&
                     (memcmp(data + 5, "auth-agent@openssh.com",
-                            sizeof("auth-agent@openssh.com") - 1) == 0)) {
+                            strlen("auth-agent@openssh.com")) == 0)) {
 
                 /* init the state struct */
                 memset(&session->packAdd_authagent_state, 0,
