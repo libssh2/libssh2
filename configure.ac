@@ -79,6 +79,16 @@ AC_C_BIGENDIAN
 
 LT_LANG([Windows Resource])
 
+dnl check for windows.h
+case $host in
+  *-*-msys | *-*-cygwin* | *-*-cegcc*)
+    # These are POSIX-like systems using BSD-like sockets API.
+    ;;
+  *)
+    AC_CHECK_HEADERS([windows.h], [have_windows_h=yes], [have_windows_h=no])
+    ;;
+esac
+
 dnl check for how to do large files
 AC_SYS_LARGEFILE
 
@@ -293,15 +303,6 @@ AC_CHECK_HEADERS([errno.h fcntl.h stdio.h unistd.h sys/param.h sys/uio.h])
 AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
 AC_CHECK_HEADERS([sys/un.h])
-
-case $host in
-  *-*-msys | *-*-cygwin* | *-*-cegcc*)
-    # These are POSIX-like systems using BSD-like sockets API.
-    ;;
-  *)
-    AC_CHECK_HEADERS([windows.h], [have_windows_h=yes], [have_windows_h=no])
-    ;;
-esac
 
 case $host in
   *darwin*|*interix*)
