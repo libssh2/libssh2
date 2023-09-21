@@ -298,7 +298,8 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
 
        dnl figure out gcc version!
        AC_MSG_CHECKING([gcc version])
-       gccver=`$CC -dumpversion`
+       # strip '-suffix' parts, e.g. Ubuntu Windows cross-gcc returns '10-win32'
+       gccver=`$CC -dumpversion | sed -E 's/-.+$//'`
        num1=`echo $gccver | cut -d . -f1`
        num2=`echo $gccver | cut -d . -f2`
        compiler_num=`(expr $num1 "*" 100 + $num2) 2>/dev/null`
