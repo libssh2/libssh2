@@ -449,7 +449,7 @@ jobs:
           - name: 'mbedTLS'
             install: mbedtls
             configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/usr/local/opt/mbedtls
-            cmake: -DCRYPTO_BACKEND=mbedTLS -DMBEDCRYPTO_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedcrypto.a -DMBEDTLS_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedtls.a -DMBEDX509_LIBRARY=/usr/local/opt/mbedtls/lib/libmbedx509.a -DMBEDTLS_INCLUDE_DIR=/usr/local/opt/mbedtls/include
+            cmake: -DCRYPTO_BACKEND=mbedTLS -DMBEDTLS_LIBRARY_DIR=/usr/local/opt/mbedtls/lib -DMBEDTLS_INCLUDE_DIR=/usr/local/opt/mbedtls/include
     steps:
       - name: 'install packages'
         run: brew install automake ${{ matrix.crypto.install }}
