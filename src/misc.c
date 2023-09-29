@@ -48,7 +48,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 /* Force parameter type. */
 #define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
 #define send(s, b, l, f)  send((s), (b), (int)(l), (f))
@@ -125,7 +125,7 @@ int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char *errmsg)
     return _libssh2_error_flags(session, errcode, errmsg, 0);
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 static int wsa2errno(void)
 {
     switch(WSAGetLastError()) {
@@ -160,7 +160,7 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length,
     (void)abstract;
 
     rc = recv(sock, buffer, length, flags);
-#ifdef WIN32
+#ifdef _WIN32
     if(rc < 0)
         return -wsa2errno();
 #else
@@ -193,7 +193,7 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
     (void)abstract;
 
     rc = send(sock, buffer, length, flags);
-#ifdef WIN32
+#ifdef _WIN32
     if(rc < 0)
         return -wsa2errno();
 #else
@@ -708,7 +708,7 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp)
 {
     (void)tzp;
     if(tp) {
-#ifdef WIN32
+#ifdef _WIN32
         /* Offset between 1601-01-01 and 1970-01-01 in 100 nanosec units */
         #define _WIN32_FT_OFFSET (116444736000000000)
 

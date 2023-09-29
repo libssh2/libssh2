@@ -252,7 +252,7 @@ void stop_session_fixture(void)
 #define NUMPATHS 32
 const char *srcdir_path(const char *file)
 {
-#ifdef WIN32
+#ifdef _WIN32
     static char filepath[NUMPATHS][_MAX_PATH];
 #else
     static char filepath[NUMPATHS][MAXPATHLEN];
@@ -458,7 +458,7 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
     /* Ignore our hard-wired Dockerfile user when not running under Docker */
     if(!openssh_fixture_have_docker() && strcmp(username, "libssh2") == 0) {
         username = getenv("USER");
-#ifdef WIN32
+#ifdef _WIN32
         if(!username)
             username = getenv("USERNAME");
 #endif

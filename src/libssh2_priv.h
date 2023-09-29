@@ -86,7 +86,7 @@
 #include "libssh2_sftp.h"
 #include "misc.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 /* Detect Windows App environment which has a restricted access
    to the Win32 APIs. */
 # if (defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0602)) || \
@@ -134,7 +134,7 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp);
 #endif
 
 /* 3DS doesn't seem to have iovec */
-#if defined(WIN32) || defined(_3DS)
+#if defined(_WIN32) || defined(_3DS)
 
 struct iovec {
     size_t iov_len;
@@ -1204,12 +1204,12 @@ size_t plain_method(char *method, size_t method_len);
 /* In Windows the default file mode is text but an application can override it.
    Therefore we specify it explicitly. https://github.com/curl/curl/pull/258
  */
-#if defined(WIN32) || defined(MSDOS)
+#if defined(_WIN32) || defined(MSDOS)
 #define FOPEN_READTEXT "rt"
 #define FOPEN_WRITETEXT "wt"
 #define FOPEN_APPENDTEXT "at"
 #elif defined(__CYGWIN__)
-/* Cygwin has specific behavior we need to address when WIN32 is not defined.
+/* Cygwin has specific behavior we need to address when _WIN32 is not defined.
      https://cygwin.com/cygwin-ug-net/using-textbinary.html
    For write we want our output to have line endings of LF and be compatible
    with other Cygwin utilities. For read we want to handle input that may have

@@ -41,7 +41,7 @@
 
 #include "libssh2_priv.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <ws2tcpip.h>  /* for socklen_t */
 #endif
 #ifdef HAVE_UNISTD_H
@@ -60,7 +60,7 @@
 #include "channel.h"
 #include "mac.h"
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #define libssh2_usec_t long
 #elif defined(__APPLE__)
 #define libssh2_usec_t suseconds_t
@@ -313,7 +313,7 @@ session_nonblock(libssh2_socket_t sockfd,   /* operate on this */
     /* BeOS */
     long b = nonblock ? 1 : 0;
     return setsockopt(sockfd, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
-#elif defined(WIN32)
+#elif defined(_WIN32)
     unsigned long flags;
 
     flags = nonblock;
@@ -366,7 +366,7 @@ get_socket_nonblocking(libssh2_socket_t sockfd)
         return 1;
     }
     return 0;
-#elif defined(WIN32)
+#elif defined(_WIN32)
     unsigned int option_value;
     socklen_t option_len = sizeof(option_value);
 

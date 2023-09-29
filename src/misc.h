@@ -44,7 +44,7 @@
                                               (void)(buf); \
                                               (void)(size); \
                                           } while(0)
-#elif defined(WIN32)
+#elif defined(_WIN32)
 #define _libssh2_explicit_zero(buf, size) SecureZeroMemory(buf, size)
 #elif defined(HAVE_EXPLICIT_BZERO)
 #define _libssh2_explicit_zero(buf, size) explicit_bzero(buf, size)

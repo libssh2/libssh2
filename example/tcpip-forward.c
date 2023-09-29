@@ -6,7 +6,7 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <ws2tcpip.h>  /* for socklen_t */
 #define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
 #define send(s, b, l, f)  send((s), (b), (int)(l), (f))
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     libssh2_socket_t sock;
     libssh2_socket_t forwardsock = LIBSSH2_INVALID_SOCKET;
 
-#ifdef WIN32
+#ifdef _WIN32
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
@@ -306,7 +306,7 @@ shutdown:
 
     if(forwardsock != LIBSSH2_INVALID_SOCKET) {
         shutdown(forwardsock, 2);
-#ifdef WIN32
+#ifdef _WIN32
         closesocket(forwardsock);
 #else
         close(forwardsock);
@@ -326,7 +326,7 @@ shutdown:
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
         shutdown(sock, 2);
-#ifdef WIN32
+#ifdef _WIN32
         closesocket(sock);
 #else
         close(sock);

@@ -13,7 +13,7 @@
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
 
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
     libssh2_struct_stat_size got = 0;
     libssh2_struct_stat_size total = 0;
 
-#ifdef WIN32
+#ifdef _WIN32
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
@@ -285,7 +285,7 @@ shutdown:
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
         shutdown(sock, 2);
-#ifdef WIN32
+#ifdef _WIN32
         closesocket(sock);
 #else
         close(sock);

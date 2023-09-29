@@ -33,7 +33,7 @@ static const char *password = "password";
 
 static void portable_sleep(unsigned int seconds)
 {
-#ifdef WIN32
+#ifdef _WIN32
     Sleep(seconds);
 #else
     sleep(seconds);
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     LIBSSH2_CHANNEL *channel;
     int counter;
 
-#ifdef WIN32
+#ifdef _WIN32
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
     if(getenv("USER"))
         username = getenv("USER");
-#ifdef WIN32
+#ifdef _WIN32
     else if(getenv("USERNAME"))
         username = getenv("USERNAME");
 #endif
@@ -254,7 +254,7 @@ shutdown:
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
         shutdown(sock, 2 /* SHUT_RDWR */);
-#ifdef WIN32
+#ifdef _WIN32
         closesocket(sock);
 #else
         close(sock);
