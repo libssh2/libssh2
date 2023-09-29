@@ -15,8 +15,7 @@ find_path(MBEDTLS_INCLUDE_DIR mbedtls/version.h)
 find_library(MBEDCRYPTO_LIBRARY mbedcrypto libmbedcrypto)
 
 if(MBEDTLS_INCLUDE_DIR AND MBEDTLS_LIBRARIES)
-  # Already in cache, be silent
-  set(MBEDTLS_FIND_QUIETLY TRUE)
+  set(MBEDTLS_FIND_QUIETLY TRUE)  # Already in cache, be silent
 endif()
 
 set(MBEDTLS_LIBRARIES "${MBEDCRYPTO_LIBRARY}")
