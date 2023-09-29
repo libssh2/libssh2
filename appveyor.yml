@@ -128,54 +128,63 @@ install:
   - ps: |
       $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
       [System.Environment]::SetEnvironmentVariable("OPENSSH_SERVER_PORT", $env:OPENSSH_SERVER_PORT)
-  - ps: .\ci\appveyor\docker-bridge.ps1
+      .\ci\appveyor\docker-bridge.ps1
 
 build_script:
   - ps: |
+      $cmake_flags = @("-DENABLE_WERROR=ON")
+
       if($env:GENERATOR -eq "Visual Studio 17 2022") {
         if($env:PLATFORM -eq "x86") {
-          $env:CMAKE_ARG = "-A Win32"
+          $cmake_flags += "-A Win32"
         } else {
-          $env:CMAKE_ARG = "-A $env:PLATFORM"
+          $cmake_flags += "-A $env:PLATFORM"
         }
       } elseif($env:PLATFORM -eq "x64") {
         $env:GENERATOR += " Win64"
       }
+      $cmake_flags += "-G$env:GENERATOR"
+
+      $cmake_flags += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
       if($env:SKIP_CTEST -ne "yes" -and $env:CRYPTO_BACKEND -eq "OpenSSL") {
         if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2022") {
           if($env:PLATFORM -eq "x64") {
-            $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64"
+            $cmake_flags += "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64"
           }
         } else {
           if($env:PLATFORM -eq "x64") {
-            $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
+            $cmake_flags += "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
           } elseif($env:PLATFORM -eq "x86") {
-            $env:CMAKE_ARG += " -DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
+            $cmake_flags += "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
           }
         }
       }
+
       if($env:ENABLE_DEBUG_LOGGING -eq "ON") {
-        $env:CMAKE_ARG += " -DENABLE_DEBUG_LOGGING=ON"
+        $cmake_flags += "-DENABLE_DEBUG_LOGGING=ON"
       }
       if($env:UWP -eq "ON") {
-        $env:CMAKE_ARG += " -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0"
+        $cmake_flags += "-DCMAKE_SYSTEM_NAME=WindowsStore"
+        $cmake_flags += "-DCMAKE_SYSTEM_VERSION=10.0"
       }
       if($env:UNITY -eq "ON") {
-        $env:CMAKE_ARG += " -DCMAKE_UNITY_BUILD=ON"
+        $cmake_flags += "-DCMAKE_UNITY_BUILD=ON"
       }
       if($env:BUILD_STATIC_LIBS -eq "OFF") {
-        $env:CMAKE_ARG += " -DBUILD_STATIC_LIBS=OFF"
+        $cmake_flags += "-DBUILD_STATIC_LIBS=OFF"
       }
       if($env:BUILD_SHARED_LIBS -eq "OFF") {
-        $env:CMAKE_ARG += " -DBUILD_SHARED_LIBS=OFF"
+        $cmake_flags += "-DBUILD_SHARED_LIBS=OFF"
       }
-      $env:CMAKE_ARG += " -DCMAKE_VS_GLOBALS=TrackFileAccess=false"
-  - cmake --version
-  # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
-  #        'libssh2_session_handshake failed (-43): Failed getting banner'
-  - echo cmake       "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
-  - cmake -B _builds "-G%GENERATOR%" %CMAKE_ARG% -DENABLE_WERROR=ON -DCRYPTO_BACKEND=%CRYPTO_BACKEND% -DRUN_SSHD_TESTS=OFF
-  - cmake --build _builds --config "%CONFIGURATION%"
+      $cmake_flags += "-DCMAKE_VS_GLOBALS=TrackFileAccess=false"
+      # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
+      #        'libssh2_session_handshake failed (-43): Failed getting banner'
+      $cmake_flags += "-DRUN_SSHD_TESTS=OFF"
+
+      cmake --version
+      Write-Host "CMake options:" $cmake_flags
+      cmake -B _builds $cmake_flags
+      cmake --build _builds --config "$env:CONFIGURATION"
 
 test_script:
   - ps: |
@@ -202,9 +211,10 @@ test_script:
       }
 
 on_failure:
-  - ps: if(Test-Path _builds/CMakeFiles/CMakeConfigureLog.yaml) { cat _builds/CMakeFiles/CMakeConfigureLog.yaml }
-  - ps: if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
-  - ps: if(Test-Path _builds/CMakeFiles/CMakeError.log) { cat _builds/CMakeFiles/CMakeError.log }
+  - ps: |
+      if(Test-Path _builds/CMakeFiles/CMakeConfigureLog.yaml) { cat _builds/CMakeFiles/CMakeConfigureLog.yaml }
+      if(Test-Path _builds/CMakeFiles/CMakeOutput.log) { cat _builds/CMakeFiles/CMakeOutput.log }
+      if(Test-Path _builds/CMakeFiles/CMakeError.log) { cat _builds/CMakeFiles/CMakeError.log }
 
 on_finish:
   - ps: |
