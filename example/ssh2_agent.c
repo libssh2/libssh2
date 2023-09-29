@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     LIBSSH2_AGENT *agent = NULL;
     struct libssh2_agent_publickey *identity, *prev_identity = NULL;
 
-#ifdef WIN32
+#ifdef _WIN32
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
@@ -238,7 +238,7 @@ shutdown:
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
         shutdown(sock, 2);
-#ifdef WIN32
+#ifdef _WIN32
         closesocket(sock);
 #else
         close(sock);

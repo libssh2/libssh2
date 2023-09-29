@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     libssh2_struct_stat_size total = 0;
     int duration;
 
-#ifdef WIN32
+#ifdef _WIN32
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
@@ -284,7 +284,7 @@ shutdown:
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
         shutdown(sock, 2);
-#ifdef WIN32
+#ifdef _WIN32
         closesocket(sock);
 #else
         close(sock);

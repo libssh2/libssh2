@@ -53,7 +53,7 @@
 #undef PF_UNIX
 #endif
 
-#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
+#if defined(_WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
 #define HAVE_WIN32_AGENTS
 #endif
 

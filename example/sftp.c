@@ -14,7 +14,7 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #define write(f, b, c)  write((f), (b), (unsigned int)(c))
 #endif
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
     LIBSSH2_SFTP *sftp_session;
     LIBSSH2_SFTP_HANDLE *sftp_handle;
 
-#ifdef WIN32
+#ifdef _WIN32
     WSADATA wsadata;
 
     rc = WSAStartup(MAKEWORD(2, 0), &wsadata);
@@ -294,7 +294,7 @@ shutdown:
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
         shutdown(sock, 2);
-#ifdef WIN32
+#ifdef _WIN32
         closesocket(sock);
 #else
         close(sock);

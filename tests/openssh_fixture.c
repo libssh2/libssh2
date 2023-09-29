@@ -58,7 +58,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 
-#if defined(WIN32) && defined(_WIN64)
+#if defined(_WIN32) && defined(_WIN64)
 #define LIBSSH2_SOCKET_MASK "%lld"
 #else
 #define LIBSSH2_SOCKET_MASK "%d"
@@ -67,7 +67,7 @@
 #ifdef LIBSSH2_WINDOWS_UWP
 #define popen(x, y) (NULL)
 #define pclose(x) (-1)
-#elif defined(WIN32)
+#elif defined(_WIN32)
 #define popen _popen
 #define pclose _pclose
 #endif
@@ -232,7 +232,7 @@ static const char *docker_machine_name(void)
 
 static int is_running_inside_a_container(void)
 {
-#ifdef WIN32
+#ifdef _WIN32
     return 0;
 #else
     const char *cgroup_filename = "/proc/self/cgroup";
@@ -260,7 +260,7 @@ static int is_running_inside_a_container(void)
 
 static void portable_sleep(unsigned int seconds)
 {
-#ifdef WIN32
+#ifdef _WIN32
     Sleep(seconds);
 #else
     sleep(seconds);
@@ -426,7 +426,7 @@ static void close_socket_to_container(libssh2_socket_t sock)
 {
     if(sock != LIBSSH2_INVALID_SOCKET) {
         shutdown(sock, 2 /* SHUT_RDWR */);
-#ifdef WIN32
+#ifdef _WIN32
         closesocket(sock);
 #else
         close(sock);
@@ -439,7 +439,7 @@ static char *running_container_id = NULL;
 int start_openssh_fixture(void)
 {
     int ret;
-#ifdef WIN32
+#ifdef _WIN32
     WSADATA wsadata;
 
     ret = WSAStartup(MAKEWORD(2, 0), &wsadata);
