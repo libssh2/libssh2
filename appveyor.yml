@@ -30,95 +30,95 @@
 # https://www.appveyor.com/docs/windows-images-software/
 
 environment:
-  CONFIGURATION: "Release"
+  CONFIGURATION: 'Release'
   FIXTURE_XFER_COUNT: 35020
   matrix:
-    - job_name: "VS2022, OpenSSL 3, x64, Server 2019"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
-      GENERATOR: "Visual Studio 17 2022"
-      PLATFORM: "x64"
-      CRYPTO_BACKEND: "OpenSSL"
+    - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
+      GENERATOR: 'Visual Studio 17 2022'
+      PLATFORM: 'x64'
+      CRYPTO_BACKEND: 'OpenSSL'
 
-    - job_name: "VS2022, OpenSSL 3, x64, UWP, Build-only"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
-      GENERATOR: "Visual Studio 17 2022"
-      PLATFORM: "x64"
-      CRYPTO_BACKEND: "OpenSSL"
-      UWP: "ON"
+    - job_name: 'VS2022, OpenSSL 3, x64, UWP, Build-only'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
+      GENERATOR: 'Visual Studio 17 2022'
+      PLATFORM: 'x64'
+      CRYPTO_BACKEND: 'OpenSSL'
+      UWP: 'ON'
 
-    - job_name: "VS2015, OpenSSL 1.1, x86, Server 2016"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
-      GENERATOR: "Visual Studio 14 2015"
-      PLATFORM: "x86"
-      CRYPTO_BACKEND: "OpenSSL"
+    - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
+      GENERATOR: 'Visual Studio 14 2015'
+      PLATFORM: 'x86'
+      CRYPTO_BACKEND: 'OpenSSL'
 
-    - job_name: "VS2015, OpenSSL 1.1, x64, Server 2012 R2, Logging"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-      GENERATOR: "Visual Studio 14 2015"
-      PLATFORM: "x64"
-      CRYPTO_BACKEND: "OpenSSL"
-      ENABLE_DEBUG_LOGGING: "ON"
+    - job_name: 'VS2015, OpenSSL 1.1, x64, Server 2012 R2, Logging'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      GENERATOR: 'Visual Studio 14 2015'
+      PLATFORM: 'x64'
+      CRYPTO_BACKEND: 'OpenSSL'
+      ENABLE_DEBUG_LOGGING: 'ON'
 
-    - job_name: "VS2013, OpenSSL 1.1, x64, Server 2012 R2"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-      GENERATOR: "Visual Studio 12 2013"
-      PLATFORM: "x64"
-      CRYPTO_BACKEND: "OpenSSL"
+    - job_name: 'VS2013, OpenSSL 1.1, x64, Server 2012 R2'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      GENERATOR: 'Visual Studio 12 2013'
+      PLATFORM: 'x64'
+      CRYPTO_BACKEND: 'OpenSSL'
 
-    - job_name: "VS2013, OpenSSL 1.1, x86, Server 2012 R2, Shared-only"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-      GENERATOR: "Visual Studio 12 2013"
-      PLATFORM: "x86"
-      BUILD_STATIC_LIBS: "OFF"
-      CRYPTO_BACKEND: "OpenSSL"
+    - job_name: 'VS2013, OpenSSL 1.1, x86, Server 2012 R2, Shared-only'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      GENERATOR: 'Visual Studio 12 2013'
+      PLATFORM: 'x86'
+      BUILD_STATIC_LIBS: 'OFF'
+      CRYPTO_BACKEND: 'OpenSSL'
 
-    - job_name: "VS2013, OpenSSL 1.0.2, x64, Build-only, Static-only"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-      GENERATOR: "Visual Studio 12 2013"
-      PLATFORM: "x64"
-      BUILD_SHARED_LIBS: "OFF"
-      CRYPTO_BACKEND: "OpenSSL"
-      SKIP_CTEST: "yes"
+    - job_name: 'VS2013, OpenSSL 1.0.2, x64, Build-only, Static-only'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      GENERATOR: 'Visual Studio 12 2013'
+      PLATFORM: 'x64'
+      BUILD_SHARED_LIBS: 'OFF'
+      CRYPTO_BACKEND: 'OpenSSL'
+      SKIP_CTEST: 'yes'
 
-    - job_name: "VS2008, WinCNG, x86, Build-only"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-      GENERATOR: "Visual Studio 9 2008"
-      PLATFORM: "x86"
-      CRYPTO_BACKEND: "WinCNG"
-      SKIP_CTEST: "yes"
+    - job_name: 'VS2008, WinCNG, x86, Build-only'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      GENERATOR: 'Visual Studio 9 2008'
+      PLATFORM: 'x86'
+      CRYPTO_BACKEND: 'WinCNG'
+      SKIP_CTEST: 'yes'
 
-    - job_name: "VS2010, WinCNG, x64, Build-only"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-      GENERATOR: "Visual Studio 10 2010"
-      PLATFORM: "x64"
-      CRYPTO_BACKEND: "WinCNG"
-      UNITY: "ON"
-      SKIP_CTEST: "yes"
+    - job_name: 'VS2010, WinCNG, x64, Build-only'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      GENERATOR: 'Visual Studio 10 2010'
+      PLATFORM: 'x64'
+      CRYPTO_BACKEND: 'WinCNG'
+      UNITY: 'ON'
+      SKIP_CTEST: 'yes'
 
-    - job_name: "VS2022, WinCNG, x64, Server 2019, Logging"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
-      GENERATOR: "Visual Studio 17 2022"
-      PLATFORM: "x64"
-      CRYPTO_BACKEND: "WinCNG"
-      ENABLE_DEBUG_LOGGING: "ON"
+    - job_name: 'VS2022, WinCNG, x64, Server 2019, Logging'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
+      GENERATOR: 'Visual Studio 17 2022'
+      PLATFORM: 'x64'
+      CRYPTO_BACKEND: 'WinCNG'
+      ENABLE_DEBUG_LOGGING: 'ON'
 
-    - job_name: "VS2022, WinCNG, ARM64, Build-only"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2022"
-      GENERATOR: "Visual Studio 17 2022"
-      PLATFORM: "ARM64"
-      CRYPTO_BACKEND: "WinCNG"
+    - job_name: 'VS2022, WinCNG, ARM64, Build-only'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
+      GENERATOR: 'Visual Studio 17 2022'
+      PLATFORM: 'ARM64'
+      CRYPTO_BACKEND: 'WinCNG'
 
-    - job_name: "VS2015, WinCNG, x86, Server 2016"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2017"
-      GENERATOR: "Visual Studio 14 2015"
-      PLATFORM: "x86"
-      CRYPTO_BACKEND: "WinCNG"
+    - job_name: 'VS2015, WinCNG, x86, Server 2016'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
+      GENERATOR: 'Visual Studio 14 2015'
+      PLATFORM: 'x86'
+      CRYPTO_BACKEND: 'WinCNG'
 
-    - job_name: "VS2015, WinCNG, x64, Server 2012 R2"
-      APPVEYOR_BUILD_WORKER_IMAGE: "Visual Studio 2015"
-      GENERATOR: "Visual Studio 14 2015"
-      PLATFORM: "x64"
-      CRYPTO_BACKEND: "WinCNG"
+    - job_name: 'VS2015, WinCNG, x64, Server 2012 R2'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      GENERATOR: 'Visual Studio 14 2015'
+      PLATFORM: 'x64'
+      CRYPTO_BACKEND: 'WinCNG'
 
 matrix:
   fast_finish: true
@@ -127,84 +127,89 @@ install:
   # prepare local SSH server for reverse tunneling from GitHub Actions hosting our docker container
   - ps: |
       $env:OPENSSH_SERVER_PORT = Get-Random -Minimum 2000 -Maximum 2300
-      [System.Environment]::SetEnvironmentVariable("OPENSSH_SERVER_PORT", $env:OPENSSH_SERVER_PORT)
+      [System.Environment]::SetEnvironmentVariable('OPENSSH_SERVER_PORT', $env:OPENSSH_SERVER_PORT)
       .\ci\appveyor\docker-bridge.ps1
 
 build_script:
   - ps: |
-      $cmake_flags = @("-DENABLE_WERROR=ON")
+      $options = @('-DENABLE_WERROR=ON')
 
-      if($env:GENERATOR -eq "Visual Studio 17 2022") {
-        if($env:PLATFORM -eq "x86") {
-          $cmake_flags += "-A Win32"
-        } else {
-          $cmake_flags += "-A $env:PLATFORM"
+      if($env:GENERATOR -eq 'Visual Studio 17 2022') {
+        if($env:PLATFORM -eq 'x86') {
+          $options += '-A Win32'
         }
-      } elseif($env:PLATFORM -eq "x64") {
-        $env:GENERATOR += " Win64"
-      }
-      $cmake_flags += "-G$env:GENERATOR"
-
-      $cmake_flags += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
-      if($env:SKIP_CTEST -ne "yes" -and $env:CRYPTO_BACKEND -eq "OpenSSL") {
-        if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2022") {
-          if($env:PLATFORM -eq "x64") {
-            $cmake_flags += "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64"
-          }
-        } else {
-          if($env:PLATFORM -eq "x64") {
-            $cmake_flags += "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
-          } elseif($env:PLATFORM -eq "x86") {
-            $cmake_flags += "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
-          }
+        else {
+          $options += "-A $env:PLATFORM"
         }
       }
+      elseif($env:PLATFORM -eq 'x64') {
+        $env:GENERATOR += ' Win64'
+      }
+      $options += "-G$env:GENERATOR"
 
-      if($env:ENABLE_DEBUG_LOGGING -eq "ON") {
-        $cmake_flags += "-DENABLE_DEBUG_LOGGING=ON"
+      $options += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
+      if($env:SKIP_CTEST -ne 'yes' -and $env:CRYPTO_BACKEND -eq 'OpenSSL') {
+        if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq 'Visual Studio 2022') {
+          if($env:PLATFORM -eq 'x64') {
+            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64'
+          }
+        }
+        else {
+          if($env:PLATFORM -eq 'x64') {
+            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64'
+          }
+          elseif($env:PLATFORM -eq 'x86') {
+            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32'
+          }
+        }
       }
-      if($env:UWP -eq "ON") {
-        $cmake_flags += "-DCMAKE_SYSTEM_NAME=WindowsStore"
-        $cmake_flags += "-DCMAKE_SYSTEM_VERSION=10.0"
+
+      if($env:ENABLE_DEBUG_LOGGING -eq 'ON') {
+        $options += '-DENABLE_DEBUG_LOGGING=ON'
       }
-      if($env:UNITY -eq "ON") {
-        $cmake_flags += "-DCMAKE_UNITY_BUILD=ON"
+      if($env:UWP -eq 'ON') {
+        $options += '-DCMAKE_SYSTEM_NAME=WindowsStore'
+        $options += '-DCMAKE_SYSTEM_VERSION=10.0'
       }
-      if($env:BUILD_STATIC_LIBS -eq "OFF") {
-        $cmake_flags += "-DBUILD_STATIC_LIBS=OFF"
+      if($env:UNITY -eq 'ON') {
+        $options += '-DCMAKE_UNITY_BUILD=ON'
       }
-      if($env:BUILD_SHARED_LIBS -eq "OFF") {
-        $cmake_flags += "-DBUILD_SHARED_LIBS=OFF"
+      if($env:BUILD_STATIC_LIBS -eq 'OFF') {
+        $options += '-DBUILD_STATIC_LIBS=OFF'
       }
-      $cmake_flags += "-DCMAKE_VS_GLOBALS=TrackFileAccess=false"
+      if($env:BUILD_SHARED_LIBS -eq 'OFF') {
+        $options += '-DBUILD_SHARED_LIBS=OFF'
+      }
+      $options += '-DCMAKE_VS_GLOBALS=TrackFileAccess=false'
       # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
       #        'libssh2_session_handshake failed (-43): Failed getting banner'
-      $cmake_flags += "-DRUN_SSHD_TESTS=OFF"
+      $options += '-DRUN_SSHD_TESTS=OFF'
 
       cmake --version
-      Write-Host "CMake options:" $cmake_flags
-      cmake -B _builds $cmake_flags
+      Write-Host 'CMake options:' $options
+      cmake -B _builds $options
       cmake --build _builds --config "$env:CONFIGURATION"
 
 test_script:
   - ps: |
-      if($env:SKIP_CTEST -ne "yes" -and $env:PLATFORM -ne "ARM64" -and $env:UWP -ne "ON") {
+      if($env:SKIP_CTEST -ne 'yes' -and $env:PLATFORM -ne 'ARM64' -and $env:UWP -ne 'ON') {
         appveyor-retry choco install --yes --no-progress --limit-output --timeout 180 docker-cli
-        Write-Host "Waiting for SSH connection from GitHub Actions" -NoNewline
+        Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
         $endDate = (Get-Date).AddMinutes(3)
-        while((Get-Process -Name "sshd" -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
-          Write-Host "." -NoNewline
+        while((Get-Process -Name 'sshd' -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
+          Write-Host '.' -NoNewline
           Start-Sleep -Seconds 1
         }
-        if((Get-Process -Name "sshd" -ErrorAction SilentlyContinue).Count -gt 1) {
-          $env:DOCKER_HOST = "tcp://127.0.0.1:2375"
-          [System.Environment]::SetEnvironmentVariable("DOCKER_HOST", $env:DOCKER_HOST)
-          Write-Host "... ready."
-        } else {
-          Write-Host "... failed."
+        if((Get-Process -Name 'sshd' -ErrorAction SilentlyContinue).Count -gt 1) {
+          $env:DOCKER_HOST = 'tcp://127.0.0.1:2375'
+          [System.Environment]::SetEnvironmentVariable('DOCKER_HOST', $env:DOCKER_HOST)
+          Write-Host '... ready.'
         }
-        if($env:CRYPTO_BACKEND -eq "WinCNG") {
-          $env:FIXTURE_TRACE_ALL_CONNECT = "1"
+        else {
+          Write-Host '... failed.'
+        }
+        if($env:CRYPTO_BACKEND -eq 'WinCNG') {
+          $env:FIXTURE_TRACE_ALL_CONNECT = '1'
         }
         $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
         cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
@@ -218,9 +223,9 @@ on_failure:
 
 on_finish:
   - ps: |
-      Get-Process -Name "sleep" -ErrorAction SilentlyContinue | Stop-Process
+      Get-Process -Name 'sleep' -ErrorAction SilentlyContinue | Stop-Process
       Start-Sleep -Seconds 3
-      Get-Process -Name "sshd" -ErrorAction SilentlyContinue | Stop-Process
+      Get-Process -Name 'sshd' -ErrorAction SilentlyContinue | Stop-Process
 
 skip_commits:
   files:
