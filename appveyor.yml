@@ -132,58 +132,58 @@ install:
 
 build_script:
   - ps: |
-      $cmake_flags = @("-DENABLE_WERROR=ON")
+      $options = @("-DENABLE_WERROR=ON")
 
       if($env:GENERATOR -eq "Visual Studio 17 2022") {
         if($env:PLATFORM -eq "x86") {
-          $cmake_flags += "-A Win32"
+          $options += "-A Win32"
         } else {
-          $cmake_flags += "-A $env:PLATFORM"
+          $options += "-A $env:PLATFORM"
         }
       } elseif($env:PLATFORM -eq "x64") {
         $env:GENERATOR += " Win64"
       }
-      $cmake_flags += "-G$env:GENERATOR"
+      $options += "-G$env:GENERATOR"
 
-      $cmake_flags += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
+      $options += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
       if($env:SKIP_CTEST -ne "yes" -and $env:CRYPTO_BACKEND -eq "OpenSSL") {
         if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2022") {
           if($env:PLATFORM -eq "x64") {
-            $cmake_flags += "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64"
+            $options += "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64"
           }
         } else {
           if($env:PLATFORM -eq "x64") {
-            $cmake_flags += "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
+            $options += "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64"
           } elseif($env:PLATFORM -eq "x86") {
-            $cmake_flags += "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
+            $options += "-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32"
           }
         }
       }
 
       if($env:ENABLE_DEBUG_LOGGING -eq "ON") {
-        $cmake_flags += "-DENABLE_DEBUG_LOGGING=ON"
+        $options += "-DENABLE_DEBUG_LOGGING=ON"
       }
       if($env:UWP -eq "ON") {
-        $cmake_flags += "-DCMAKE_SYSTEM_NAME=WindowsStore"
-        $cmake_flags += "-DCMAKE_SYSTEM_VERSION=10.0"
+        $options += "-DCMAKE_SYSTEM_NAME=WindowsStore"
+        $options += "-DCMAKE_SYSTEM_VERSION=10.0"
       }
       if($env:UNITY -eq "ON") {
-        $cmake_flags += "-DCMAKE_UNITY_BUILD=ON"
+        $options += "-DCMAKE_UNITY_BUILD=ON"
       }
       if($env:BUILD_STATIC_LIBS -eq "OFF") {
-        $cmake_flags += "-DBUILD_STATIC_LIBS=OFF"
+        $options += "-DBUILD_STATIC_LIBS=OFF"
       }
       if($env:BUILD_SHARED_LIBS -eq "OFF") {
-        $cmake_flags += "-DBUILD_SHARED_LIBS=OFF"
+        $options += "-DBUILD_SHARED_LIBS=OFF"
       }
-      $cmake_flags += "-DCMAKE_VS_GLOBALS=TrackFileAccess=false"
+      $options += "-DCMAKE_VS_GLOBALS=TrackFileAccess=false"
       # FIXME: First sshd test sometimes timeouts, subsequent ones almost always fail:
       #        'libssh2_session_handshake failed (-43): Failed getting banner'
-      $cmake_flags += "-DRUN_SSHD_TESTS=OFF"
+      $options += "-DRUN_SSHD_TESTS=OFF"
 
       cmake --version
-      Write-Host "CMake options:" $cmake_flags
-      cmake -B _builds $cmake_flags
+      Write-Host "CMake options:" $options
+      cmake -B _builds $options
       cmake --build _builds --config "$env:CONFIGURATION"
 
 test_script:
