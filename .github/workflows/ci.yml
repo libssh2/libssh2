@@ -18,14 +18,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: 'checksrc'
         run: ./ci/checksrc.sh
 
   spellcheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: 'install tools'
         run: pip install -U codespell
       - name: 'spellcheck'
@@ -38,7 +38,7 @@ jobs:
     env:
       CC: clang
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: 'cmake'
         run: |
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install libssl-dev
@@ -87,7 +87,7 @@ jobs:
     env:
       CC: ${{ matrix.compiler }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: 'install architecture'
         if: ${{ matrix.arch != 'amd64' }}
         run: |
@@ -176,7 +176,7 @@ jobs:
     env:
       TRIPLET: 'x86_64-w64-mingw32'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: 'install packages'
         run: sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install mingw-w64
       - name: 'autotools autoreconf'
@@ -216,7 +216,7 @@ jobs:
       fail-fast: false
     steps:
       - run: git config --global core.autocrlf input
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: cygwin/cygwin-install-action@v4
         with:
           platform: ${{ matrix.platform }}
@@ -273,7 +273,7 @@ jobs:
           - { build: 'make'     , sys: mingw64, env: x86_64 }
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: msys2/setup-msys2@v2
         if: ${{ matrix.sys == 'msys' }}
         with:
@@ -382,7 +382,7 @@ jobs:
           - { arch: x86  , plat: windows, crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: 'cmake configure'
         shell: bash
         run: |
@@ -453,7 +453,7 @@ jobs:
     steps:
       - name: 'install packages'
         run: brew install automake ${{ matrix.crypto.install }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
