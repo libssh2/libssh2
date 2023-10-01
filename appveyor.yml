@@ -137,10 +137,12 @@ build_script:
       if($env:GENERATOR -eq 'Visual Studio 17 2022') {
         if($env:PLATFORM -eq 'x86') {
           $options += '-A Win32'
-        } else {
+        }
+        else {
           $options += "-A $env:PLATFORM"
         }
-      } elseif($env:PLATFORM -eq 'x64') {
+      }
+      elseif($env:PLATFORM -eq 'x64') {
         $env:GENERATOR += ' Win64'
       }
       $options += "-G$env:GENERATOR"
@@ -151,10 +153,12 @@ build_script:
           if($env:PLATFORM -eq 'x64') {
             $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64'
           }
-        } else {
+        }
+        else {
           if($env:PLATFORM -eq 'x64') {
             $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64'
-          } elseif($env:PLATFORM -eq 'x86') {
+          }
+          elseif($env:PLATFORM -eq 'x86') {
             $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32'
           }
         }
@@ -200,7 +204,8 @@ test_script:
           $env:DOCKER_HOST = 'tcp://127.0.0.1:2375'
           [System.Environment]::SetEnvironmentVariable('DOCKER_HOST', $env:DOCKER_HOST)
           Write-Host '... ready.'
-        } else {
+        }
+        else {
           Write-Host '... failed.'
         }
         if($env:CRYPTO_BACKEND -eq 'WinCNG') {
