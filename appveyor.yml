@@ -185,7 +185,6 @@ build_script:
       #        'libssh2_session_handshake failed (-43): Failed getting banner'
       $options += '-DRUN_SSHD_TESTS=OFF'
 
-      cmake --version
       Write-Host 'CMake options:' $options
       cmake -B _builds $options
       cmake --build _builds --config "$env:CONFIGURATION"

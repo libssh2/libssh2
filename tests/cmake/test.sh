@@ -8,8 +8,6 @@ set -u
 
 cd "$(dirname "$0")"
 
-cmake --version
-
 rm -rf bld-fetchcontent; cmake -B bld-fetchcontent -DTEST_INTEGRATION_MODE=FetchContent \
   -DFROM_GIT_REPO="${PWD}/../.." \
   -DFROM_GIT_TAG="$(git rev-parse HEAD)"

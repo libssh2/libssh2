@@ -115,7 +115,6 @@ jobs:
             crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }}'
             cflags='-m32 -mpclmul -msse2 -maes'
           fi
-          cmake --version
           cmake ${crossoptions} \
             "-DCMAKE_C_FLAGS=${cflags}" \
             -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
@@ -153,7 +152,6 @@ jobs:
         if: ${{ matrix.build == 'cmake' }}
         run: |
           [ '${{ matrix.arch }}' = 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
-          cmake --version
           cmake -B bld ${crossoptions} $TOOLCHAIN_OPTION \
             -DENABLE_WERROR=ON \
             -DCRYPTO_BACKEND=${{ matrix.crypto }} \
@@ -195,7 +193,6 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
-          cmake --version
           cmake -B bld \
             -DCMAKE_SYSTEM_NAME=Windows \
             -DCMAKE_C_COMPILER_TARGET=${TRIPLET} \
@@ -246,7 +243,6 @@ jobs:
         shell: C:\cygwin\bin\bash.exe '{0}'
         run: |
           export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
-          cmake --version
           cmake -B bld \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
@@ -339,7 +335,6 @@ jobs:
             cflags=''
             rcopts=''
           fi
-          cmake --version
           cmake -B bld ${options} \
             "-DCMAKE_C_FLAGS=${cflags}" \
             "-DCMAKE_RC_COMPILE_OBJECT=${rcopts}" \
@@ -397,7 +392,6 @@ jobs:
           else
             system='Windows'
           fi
-          cmake --version
           cmake -B bld ${options} \
             -DCMAKE_SYSTEM_NAME=${system} \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
@@ -479,7 +473,6 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
-          cmake --version
           cmake -B bld ${{ matrix.crypto.cmake }} \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
