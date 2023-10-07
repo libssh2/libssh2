@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 cmake_minimum_required(VERSION 3.7)
+message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
 project(test-dependent C)
 
