@@ -97,6 +97,11 @@
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#define USE_OPENSSL_3 1
+#include <openssl/core_names.h>
+#endif
+
 #if (OPENSSL_VERSION_NUMBER >= 0x10100000L && \
     !defined(LIBRESSL_VERSION_NUMBER)) || defined(LIBSSH2_WOLFSSL) || \
     (defined(LIBRESSL_VERSION_NUMBER) && \
@@ -371,21 +376,42 @@ extern void _libssh2_openssl_crypto_exit(void);
 #define libssh2_crypto_exit() _libssh2_openssl_crypto_exit()
 
 #if LIBSSH2_RSA
+
+#ifdef USE_OPENSSL_3
+#define libssh2_rsa_ctx EVP_PKEY
+#define _libssh2_rsa_free(rsactx) EVP_PKEY_free(rsactx)
+#else
 #define libssh2_rsa_ctx RSA
 
 #define _libssh2_rsa_free(rsactx) RSA_free(rsactx)
 #endif
 
+#endif /* LIBSSH2_RSA */
+
 #if LIBSSH2_DSA
+
+#ifdef USE_OPENSSL_3
+#define libssh2_dsa_ctx EVP_PKEY
+#define _libssh2_dsa_free(rsactx) EVP_PKEY_free(rsactx)
+#else
 #define libssh2_dsa_ctx DSA
 
 #define _libssh2_dsa_free(dsactx) DSA_free(dsactx)
 #endif
 
+#endif /* LIBSSH2_DSA */
+
 #if LIBSSH2_ECDSA
+
+#ifdef USE_OPENSSL_3
+#define libssh2_ecdsa_ctx EVP_PKEY
+#define _libssh2_ecdsa_free(ecdsactx) EVP_PKEY_free(ecdsactx)
+#define _libssh2_ec_key EVP_PKEY
+#else
 #define libssh2_ecdsa_ctx EC_KEY
 #define _libssh2_ecdsa_free(ecdsactx) EC_KEY_free(ecdsactx)
 #define _libssh2_ec_key EC_KEY
+#endif
 
 typedef enum {
     LIBSSH2_EC_CURVE_NISTP256 = NID_X9_62_prime256v1,
