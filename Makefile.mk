@@ -16,7 +16,6 @@
 CFLAGS ?=
 CPPFLAGS ?=
 LIBSSH2_CPPFLAGS_LIB ?=
-RCFLAGS ?=
 LDFLAGS ?=
 LIBSSH2_LDFLAGS_BIN ?=
 LIBSSH2_LDFLAGS_DYN ?=
@@ -29,51 +28,20 @@ ifeq ($(CC),cc)
 endif
 CC := $(CROSSPREFIX)$(CC)
 AR := $(CROSSPREFIX)$(AR)
-RC ?= $(CROSSPREFIX)windres
 
-# For compatibility
-ARCH ?=
-ifeq ($(ARCH),w64)
-  TRIPLET := x86_64-w64-mingw32
-  CFLAGS  += -m64
-  LDFLAGS += -m64
-  RCFLAGS += --target=pe-x86-64
-else ifdef ARCH
-  TRIPLET := i686-w64-mingw32
-  CFLAGS  += -m32
-  LDFLAGS += -m32
-  RCFLAGS += --target=pe-i386
-else
-  TRIPLET ?= $(shell $(CC) -dumpmachine)
-endif
+TRIPLET ?= $(shell $(CC) -dumpmachine)
 
 BLD_DIR ?= $(TRIPLET)
 
-ifneq ($(findstring -w,$(TRIPLET)),)
-  WIN32 := 1
-  BIN_EXT := .exe
-  DYN_EXT := .dll
-else
-  CPPFLAGS += -I$(BLD_DIR) -DHAVE_CONFIG_H
-endif
-
-CPPFLAGS += -Isrc -Iinclude
-RCFLAGS  += -Iinclude
+CPPFLAGS += -I$(BLD_DIR) -Isrc -Iinclude -DHAVE_CONFIG_H
 
 # examples, tests
 
 LIBSSH2_LDFLAGS_BIN += -L$(BLD_DIR)
 LIBS_BIN := -lssh2
-ifdef WIN32
-  LIBS_BIN += -lws2_32
-endif
 
 ifdef DYN
-  ifdef WIN32
-    libssh2_DEPENDENCIES := $(BLD_DIR)/libssh2.dll.a
-  else
-    libssh2_DEPENDENCIES := $(BLD_DIR)/libssh2$(DYN_EXT)
-  endif
+  libssh2_DEPENDENCIES := $(BLD_DIR)/libssh2$(DYN_EXT)
   LIBSSH2_LDFLAGS_BIN += -shared
 else
   libssh2_DEPENDENCIES := $(BLD_DIR)/libssh2.a
@@ -123,8 +91,6 @@ else ifdef MBEDTLS_PATH
   CPPFLAGS += -I"$(MBEDTLS_PATH)/include"
   _LDFLAGS += -L"$(MBEDTLS_PATH)/lib"
   _LIBS += -lmbedcrypto
-else ifdef WIN32
-  CPPFLAGS += -DLIBSSH2_WINCNG
 else
   $(error No suitable cryptography backend found)
 endif
@@ -134,10 +100,6 @@ ifdef ZLIB_PATH
   CPPFLAGS += -I"$(ZLIB_PATH)/include"
   _LDFLAGS += -L"$(ZLIB_PATH)/lib"
   _LIBS += -lz
-endif
-
-ifdef WIN32
-  _LIBS += -lws2_32 -lcrypt32 -lbcrypt
 endif
 
 LIBSSH2_LDFLAGS_DYN += $(_LDFLAGS)
@@ -170,9 +132,6 @@ ZIP := zip -qzr9
 -include $(OBJ_DIR)/version.inc
 
 vpath %.c src
-ifdef WIN32
-vpath %.rc src
-endif
 
 # Get CSOURCES define
 include src/Makefile.inc
@@ -189,12 +148,6 @@ DISTARC := $(DISTDIR).zip
 LIBSSH2_DYN_SUFFIX ?=
 libssh2_dyn_LIBRARY := $(TARGET)$(LIBSSH2_DYN_SUFFIX)$(DYN_EXT)
 OBJS_dyn := $(OBJS)
-ifdef WIN32
-  libssh2_def_LIBRARY := $(libssh2_dyn_LIBRARY:$(DYN_EXT)=.def)
-  libssh2_dyn_a_LIBRARY := $(TARGET).dll.a
-  OBJS_dyn += $(OBJ_DIR)/libssh2.res
-  LIBSSH2_LDFLAGS_DYN += -Wl,--output-def,$(libssh2_def_LIBRARY),--out-implib,$(libssh2_dyn_a_LIBRARY)
-endif
 
 # Get noinst_PROGRAMS define
 include example/Makefile.am
@@ -247,11 +200,6 @@ $(libssh2_dyn_LIBRARY) $(libssh2_dyn_a_LIBRARY): $(OBJS_dyn)
 	@$(call DEL, $@)
 	$(CC) $(LDFLAGS) -shared $(LIBSSH2_LDFLAGS_DYN) $^ -o $@ $(LIBS) $(LIBS_DYN)
 
-ifdef WIN32
-$(OBJ_DIR)/%.res: %.rc
-	$(RC) -O coff $(RCFLAGS) -i $< -o $@
-endif
-
 $(TARGET).a: $(OBJS)
 	@$(call DEL, $@)
 	$(AR) rcs $@ $^
@@ -268,13 +216,7 @@ dist: all $(DISTDIR) $(DISTDIR)/readme.txt
 	@$(call COPY, RELEASE-NOTES, $(DISTDIR))
 	@$(call COPY, include/*.h, $(DISTDIR)/include)
 	@$(call COPY, $(TARGET).a, $(DISTDIR)/lib)
-ifdef WIN32
-	@$(call COPY, $(libssh2_def_LIBRARY), $(DISTDIR)/bin)
-	@$(call COPY, $(libssh2_dyn_LIBRARY), $(DISTDIR)/bin)
-	@$(call COPY, $(libssh2_dyn_a_LIBRARY), $(DISTDIR)/lib)
-else
 	@$(call COPY, $(libssh2_dyn_LIBRARY), $(DISTDIR)/lib)
-endif
 	@echo Creating... $(DISTARC)
 	(cd $(DISTDIR)/.. && $(ZIP) $(abspath $(DISTARC)) $(DISTNAM)/* < $(abspath $(DISTDIR)/readme.txt))
 
