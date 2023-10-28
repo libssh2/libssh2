@@ -44,9 +44,6 @@ elif test "$found_crypto" = "newname"; then
 
 0.6) Add CMake detection logic to CMakeLists.txt
 
-0.7) Add manual config logic to Makefile.mk
-
-
 1) Crypto library initialization/termination.
 
 void libssh2_crypto_init(void);
