@@ -322,7 +322,7 @@ jobs:
           else
             options='-DCMAKE_C_COMPILER=gcc'
           fi
-          if [[ '${{ matrix.test }}' = 'uwp' ]]; then
+          if [ '${{ matrix.test }}' = 'uwp' ]; then
             options="${options} -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0"
             pacman --noconfirm --ask 20 --noprogressbar --sync --needed 'mingw-w64-${{ matrix.env }}-winstorecompat-git'
             specs="$(realpath gcc-specs-uwp)"
@@ -331,7 +331,7 @@ jobs:
             # CMake (as of v3.26.4) gets confused and applies the MSVC rc.exe command-line
             # template to windres. Reset it to the windres template manually:
             rcopts='<CMAKE_RC_COMPILER> -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>'
-          elif [[ '${{ matrix.test }}' = 'no-options' ]]; then
+          elif [ '${{ matrix.test }}' = 'no-options' ]; then
             cflags='-DLIBSSH2_NO_MD5 -DLIBSSH2_NO_MD5_PEM -DLIBSSH2_NO_HMAC_RIPEMD -DLIBSSH2_NO_DSA -DLIBSSH2_NO_AES_CBC -DLIBSSH2_NO_AES_CTR -DLIBSSH2_NO_BLOWFISH -DLIBSSH2_NO_RC4 -DLIBSSH2_NO_CAST -DLIBSSH2_NO_3DES'
           else
             cflags=''
