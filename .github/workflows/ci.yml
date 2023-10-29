@@ -345,7 +345,8 @@ jobs:
             -DCRYPTO_BACKEND=OpenSSL \
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
-            -DRUN_SSHD_TESTS=OFF
+            -DRUN_SSHD_TESTS=OFF \
+            -DCMAKE_VERBOSE_MAKEFILE=ON
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
