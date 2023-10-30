@@ -3515,7 +3515,7 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                               "file: Unable to open private key file");
     }
 
-    BIO_reset(bp);
+    (void)BIO_reset(bp);
     pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void *)passphrase);
     BIO_free(bp);
 
@@ -3881,7 +3881,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory when"
                               "computing public key");
-    BIO_reset(bp);
+    (void)BIO_reset(bp);
     pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void *)passphrase);
 #ifdef HAVE_SSLERROR_BAD_DECRYPT
     sslError = ERR_get_error();
@@ -3992,7 +3992,7 @@ _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory when"
                               "computing public key");
-    BIO_reset(bp);
+    (void)BIO_reset(bp);
     pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void *)passphrase);
     BIO_free(bp);
 
