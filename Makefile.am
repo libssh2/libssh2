@@ -55,7 +55,7 @@ dist-hook:
 	(distit=`find $(srcdir) -name "*.dist"`; \
 	for file in $$distit; do \
 	  strip=`echo $$file | sed -e s/^$(srcdir)// -e s/\.dist//`; \
-	  cp $$file $(distdir)$$strip; \
+	  cp -p $$file $(distdir)$$strip; \
 	done)
 
 # Code Coverage
