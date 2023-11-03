@@ -20,7 +20,7 @@ its own close message in response. To wait for the remote end to close its
 connection as well, follow this command with
 .BR libssh2_channel_wait_closed(3)
 .SH RETURN VALUE
-Return 0 on success or negative on failure.  It returns
+Return 0 on success or negative on failure. It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
 LIBSSH2_ERROR_EAGAIN is a negative number, it is not really a failure per se.
 .SH ERRORS

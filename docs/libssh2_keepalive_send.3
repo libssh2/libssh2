@@ -12,7 +12,7 @@ libssh2_keepalive_send(LIBSSH2_SESSION *session,
                        int *seconds_to_next);
 .fi
 .SH DESCRIPTION
-Send a keepalive message if needed.  \fBseconds_to_next\fP indicates how many
+Send a keepalive message if needed. \fBseconds_to_next\fP indicates how many
 seconds you can sleep after this call before you need to call it again.
 .SH RETURN VALUE
 Returns 0 on success, or LIBSSH2_ERROR_SOCKET_SEND on I/O errors.

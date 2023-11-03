@@ -13,8 +13,8 @@ int
 libssh2_init(int flags);
 .fi
 .SH DESCRIPTION
-Initialize the libssh2 functions.  This typically initialize the
-crypto library.  It uses a global state, and is not thread safe -- you
+Initialize the libssh2 functions. This typically initialize the
+crypto library. It uses a global state, and is not thread safe -- you
 must make sure this function is not called concurrently.
 .SH RETURN VALUE
 Returns 0 if succeeded, or a negative value for error.
