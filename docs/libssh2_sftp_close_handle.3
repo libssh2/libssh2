@@ -26,11 +26,11 @@ same underlying storage mechanism these methods may be used
 interchangeably. \fBlibssh2_sftp_close(3)\fP and \fBlibssh2_sftp_closedir(3)\fP
 are macros for \fBlibssh2_sftp_close_handle(3)\fP.
 .SH RETURN VALUE
-Return 0 on success or negative on failure.  It returns
+Return 0 on success or negative on failure. It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
 LIBSSH2_ERROR_EAGAIN is a negative number, it is not really a failure per se.
 .SH ERRORS
-\fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
+\fILIBSSH2_ERROR_ALLOC\fP - An internal memory allocation call failed.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 

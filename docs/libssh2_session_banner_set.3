@@ -21,11 +21,11 @@ Set the banner that will be sent to the remote host when the SSH session is
 started with \fIlibssh2_session_handshake(3)\fP This is optional; a banner
 corresponding to the protocol and libssh2 version will be sent by default.
 .SH RETURN VALUE
-Returns 0 on success or negative on failure.  It returns LIBSSH2_ERROR_EAGAIN
+Returns 0 on success or negative on failure. It returns LIBSSH2_ERROR_EAGAIN
 when it would otherwise block. While LIBSSH2_ERROR_EAGAIN is a negative
 number, it is not really a failure per se.
 .SH ERRORS
-\fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
+\fILIBSSH2_ERROR_ALLOC\fP - An internal memory allocation call failed.
 .SH AVAILABILITY
 Added in 1.4.0.
 

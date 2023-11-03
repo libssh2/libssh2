@@ -27,7 +27,7 @@ libssh2_sftp_open_ex(LIBSSH2_SFTP *sftp, const char *filename,
 .IP LIBSSH2_FXF_READ
 Open the file for reading.
 .IP LIBSSH2_FXF_WRITE
-Open the file for writing.  If both this and LIBSSH2_FXF_READ are specified,
+Open the file for writing. If both this and LIBSSH2_FXF_READ are specified,
 the file is opened for both reading and writing.
 .IP LIBSSH2_FXF_APPEND
 Force all writes to append data at the end of the file.
@@ -53,7 +53,7 @@ LIBSSH2_SFTP_OPENDIR (to open a directory).
 A pointer to the newly created LIBSSH2_SFTP_HANDLE instance or NULL on
 failure.
 .SH ERRORS
-\fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
+\fILIBSSH2_ERROR_ALLOC\fP - An internal memory allocation call failed.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 

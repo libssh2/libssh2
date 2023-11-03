@@ -24,13 +24,13 @@ Returns 0 on success or negative on failure. If used in non-blocking mode, it
 returns LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
 LIBSSH2_ERROR_EAGAIN is a negative number, it is not really a failure per se.
 .SH ERRORS
-\fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
+\fILIBSSH2_ERROR_ALLOC\fP - An internal memory allocation call failed.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
 \fILIBSSH2_ERROR_SFTP_PROTOCOL\fP - An invalid SFTP protocol response
 was received on the socket, or an SFTP operation caused an errorcode
-to be returned by the server.  In particular, this can be returned if
+to be returned by the server. In particular, this can be returned if
 the SSH server does not support the fsync operation: the SFTP subcode
 \fILIBSSH2_FX_OP_UNSUPPORTED\fP will be returned in this case.
 .SH AVAILABILITY

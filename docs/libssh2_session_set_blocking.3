@@ -17,13 +17,13 @@ libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);
 \fIblocking\fP - Set to a non-zero value to make the channel block, or zero to
 make it non-blocking.
 
-Set or clear blocking mode on the selected on the session.  This will
+Set or clear blocking mode on the selected on the session. This will
 instantly affect any channels associated with this session. If a read is
 performed on a session with no data currently available, a blocking session
-will wait for data to arrive and return what it receives.  A non-blocking
-session will return immediately with an empty buffer.  If a write is performed
+will wait for data to arrive and return what it receives. A non-blocking
+session will return immediately with an empty buffer. If a write is performed
 on a session with no room for more data, a blocking session will wait for
-room.  A non-blocking session will return immediately without writing
+room. A non-blocking session will return immediately without writing
 anything.
 .SH RETURN VALUE
 None

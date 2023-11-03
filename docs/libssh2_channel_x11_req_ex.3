@@ -33,11 +33,11 @@ Request an X11 forwarding on \fIchannel\fP. To use X11 forwarding,
 must first be called to set \fBLIBSSH2_CALLBACK_X11\fP. This callback will be
 invoked when the remote host accepts the X11 forwarding.
 .SH RETURN VALUE
-Return 0 on success or negative on failure.  It returns
+Return 0 on success or negative on failure. It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
 LIBSSH2_ERROR_EAGAIN is a negative number, it is not really a failure per se.
 .SH ERRORS
-\fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
+\fILIBSSH2_ERROR_ALLOC\fP - An internal memory allocation call failed.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 

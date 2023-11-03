@@ -42,7 +42,7 @@ the full directory entry is longer than the space provided by
 statbuf style data into.
 .SH RETURN VALUE
 Number of bytes actually populated into buffer (not counting the terminating
-zero), or negative on failure.  It returns LIBSSH2_ERROR_EAGAIN when it would
+zero), or negative on failure. It returns LIBSSH2_ERROR_EAGAIN when it would
 otherwise block. While LIBSSH2_ERROR_EAGAIN is a negative number, it is not
 really a failure per se.
 .SH BUG
@@ -50,7 +50,7 @@ Passing in a too small buffer for 'buffer' or 'longentry' when receiving data
 only results in libssh2 1.2.7 or earlier to not copy the entire data amount,
 and it is not possible for the application to tell when it happens!
 .SH ERRORS
-\fILIBSSH2_ERROR_ALLOC\fP -  An internal memory allocation call failed.
+\fILIBSSH2_ERROR_ALLOC\fP - An internal memory allocation call failed.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
 
