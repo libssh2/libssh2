@@ -51,7 +51,7 @@ send, \fBlength\fP is the size of the data, \fBflags\fP is the flags that
 would have been used to a \fIsend()\fP call and \fBabstract\fP is a pointer
 to the abstract pointer set in the \fIlibssh2_session_init_ex(3)\fP call.
 
-The callback returns the number of bytes sent, or -1 for error. The special
+The callback returns the number of bytes sent, or \-1 for error. The special
 return code \fB-EAGAIN\fP can be returned to signal that the send was aborted
 to prevent getting blocked and it needs to be called again.
 .IP LIBSSH2_CALLBACK_RECV
@@ -70,7 +70,7 @@ data into, \fBlength\fP is the size of the buffer, \fBflags\fP is the flags
 that would have been used to a \fIrecv()\fP call and \fBabstract\fP is a pointer
 to the abstract pointer set in the \fIlibssh2_session_init_ex(3)\fP call.
 
-The callback returns the number of bytes read, or -1 for error. The special
+The callback returns the number of bytes read, or \-1 for error. The special
 return code \fB-EAGAIN\fP can be returned to signal that the read was aborted
 to prevent getting blocked and it needs to be called again.
 .IP LIBSSH2_CALLBACK_AUTHAGENT
