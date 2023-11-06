@@ -91,9 +91,6 @@
 /* use SO_NONBLOCK for non-blocking sockets */
 #undef HAVE_SO_NONBLOCK
 
-/* Define to 1 if you have the <stdint.h> header file. */
-#define HAVE_STDINT_H 1
-
 /* Define to 1 if you have the <stdio.h> header file. */
 #define HAVE_STDIO_H 1
 
