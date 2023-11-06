@@ -145,7 +145,7 @@ API
  New functions:
 
     LIBSSH2_SFTP_HANDLE *libssh2_sftp_send(SFTP_SESSION *sftp,
-                                           uint64_t filesize,
+                                           libssh2_uint64_t filesize,
                                            char *remote_path,
                                            size_t remote_path_len,
                                            long mode);
