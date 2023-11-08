@@ -565,8 +565,7 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
 #endif
     }
 
-#if (defined(OPENSSL_VERSION_MAJOR) && OPENSSL_VERSION_MAJOR >= 3) || \
-     defined(LIBSSH2_WOLFSSL)
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L || defined(LIBSSH2_WOLFSSL)
     if(ret != -1)
 #else
     if(ret >= 1)
@@ -2505,8 +2504,7 @@ _libssh2_md5_init(libssh2_md5_ctx *ctx)
      * So, just return 0 in FIPS mode
      */
 #if OPENSSL_VERSION_NUMBER >= 0x000907000L && \
-    defined(OPENSSL_VERSION_MAJOR) && \
-    OPENSSL_VERSION_MAJOR < 3 && \
+    OPENSSL_VERSION_NUMBER < 0x30000000L && \
     !defined(LIBRESSL_VERSION_NUMBER)
 
     if(FIPS_mode())
