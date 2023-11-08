@@ -483,30 +483,6 @@ jobs:
         timeout-minutes: 10
         run: cd bld && ctest -VV --output-on-failure
 
-#  build_solaris:
-#    strategy:
-#      matrix:
-#        osver: [11.4]
-#    name: 'Solaris ${{ matrix.osver }}'
-#    runs-on: macos-12
-#    timeout-minutes: 30
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: 'install packages'
-#        run: brew install automake autoconf libtool
-#      - name: 'autotools'
-#        uses: vmactions/solaris-vm@v0
-#        with:
-#          prepare: pkg install gcc make openssl
-#          run: |
-#            export MAKE=gmake
-#            autoreconf -fi
-#            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-#              --with-crypto=openssl \
-#              --disable-tests
-#            "${MAKE}" -j3
-#            "${MAKE}" check VERBOSE=1
-
   build_freebsd:
     strategy:
       matrix:
@@ -526,5 +502,5 @@ jobs:
             mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
               --with-crypto=openssl \
               --disable-tests
-            make -j3
+            make -j2
             make check VERBOSE=1
