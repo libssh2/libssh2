@@ -1,4 +1,5 @@
 # Copyright (C) Alexander Lamaison <alexander.lamaison@gmail.com>
+# SPDX-License-Identifier: BSD-3-Clause
 
 FROM debian:testing-slim
 
