@@ -502,5 +502,4 @@ jobs:
             mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
               --with-crypto=openssl \
               --disable-tests
-            make -j2
             make check VERBOSE=1
