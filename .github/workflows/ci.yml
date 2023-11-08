@@ -519,7 +519,7 @@ jobs:
       - name: 'autotools'
         uses: vmactions/freebsd-vm@v1
         with:
-          prepare: pkg install -y gcc make openssl
+          prepare: pkg install -y autoconf automake libtool gcc openssl-quictls
           usesh: true
           run: |
             autoreconf -fi
