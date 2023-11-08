@@ -4,7 +4,12 @@ Upstream-Contact: The libssh2 team <libssh2-devel@lists.haxx.se>
 Source: https://libssh2.org/
 
 # Test data
-Files: tests/openssh_server/* tests/ossfuzz/* tests/key_* tests/test_read_algos.txt ci/spellcheck-words.txt
+Files: tests/ossfuzz/* tests/key_* tests/test_read_algos.txt ci/spellcheck-words.txt
+Copyright: The libssh2 project and its contributors.
+License: BSD-3-Clause
+
+# Test server
+Files: tests/openssh_server/.gitattributes tests/openssh_server/authorized_keys tests/openssh_server/ca_* tests/openssh_server/ssh_* tests/openssh_server/sshd_config
 Copyright: The libssh2 project and its contributors.
 License: BSD-3-Clause
 
