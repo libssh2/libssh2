@@ -497,7 +497,6 @@ jobs:
         with:
           # https://ports.freebsd.org/
           prepare: pkg install -y autoconf automake libtool gcc openssl-quictls
-          usesh: true
           run: |
             autoreconf -fi
             mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
