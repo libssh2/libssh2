@@ -21,6 +21,7 @@ if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
       DOWNLOAD_EXTRACT_TIMESTAMP ON)
   endif()
   find_package(libssh2 REQUIRED CONFIG)
+  find_package(libssh2 REQUIRED CONFIG)  # test for double-inclusion
   foreach(result_var IN ITEMS libssh2_FOUND libssh2_VERSION)
     if(${result_var})
       message(STATUS "${result_var}: |${${result_var}}|")
