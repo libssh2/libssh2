@@ -108,7 +108,7 @@ jobs:
       - name: 'install mbedTLS from source'
         if: ${{ matrix.crypto == 'mbedTLS' }}
         run: |
-          MBEDTLSVER=mbedtls-3.5.0
+          MBEDTLSVER=mbedtls-3.5.1
           curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
           cd mbedtls-$MBEDTLSVER
           if [ '${{ matrix.arch }}' = 'i386' ]; then
@@ -484,10 +484,7 @@ jobs:
         run: cd bld && ctest -VV --output-on-failure
 
   build_freebsd:
-    strategy:
-      matrix:
-        osver: [13.2]
-    name: 'FreeBSD ${{ matrix.osver }}'
+    name: 'FreeBSD (autotools, quictls, gcc, amd64)'
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     steps:
