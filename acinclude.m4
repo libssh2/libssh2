@@ -215,10 +215,10 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
       CURL_ADD_COMPILER_WARNINGS([WARN], [inline nested-externs])
       CURL_ADD_COMPILER_WARNINGS([WARN], [missing-declarations])
       CURL_ADD_COMPILER_WARNINGS([WARN], [missing-prototypes])
-      CURL_ADD_COMPILER_WARNINGS([WARN], [old-style-definition])
       WARN="$WARN -Wno-long-long"
       CURL_ADD_COMPILER_WARNINGS([WARN], [float-equal])
-      CURL_ADD_COMPILER_WARNINGS([WARN], [no-multichar sign-compare])
+      CURL_ADD_COMPILER_WARNINGS([WARN], [sign-compare])
+      WARN="$WARN -Wno-multichar"
       CURL_ADD_COMPILER_WARNINGS([WARN], [undef])
       WARN="$WARN -Wno-format-nonliteral"
       CURL_ADD_COMPILER_WARNINGS([WARN], [endif-labels strict-prototypes])
@@ -232,24 +232,30 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
         CURL_ADD_COMPILER_WARNINGS([WARN], [unused])
       fi
       #
+      dnl Only clang 2.7 or later
+      if test "$compiler_num" -ge "207"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [bad-function-cast])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [conversion])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [empty-body])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [old-style-definition])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [type-limits])
+      fi
+      #
       dnl Only clang 2.8 or later
       if test "$compiler_num" -ge "208"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [ignored-qualifiers])
         CURL_ADD_COMPILER_WARNINGS([WARN], [vla])
       fi
       #
       dnl Only clang 2.9 or later
       if test "$compiler_num" -ge "209"; then
+        WARN="$WARN -Wno-sign-conversion"
         CURL_ADD_COMPILER_WARNINGS([WARN], [shift-sign-overflow])
       fi
       #
       dnl Only clang 3.0 or later (possibly earlier)
       if test "$compiler_num" -ge "300"; then
-        CURL_ADD_COMPILER_WARNINGS([WARN], [bad-function-cast])
-        CURL_ADD_COMPILER_WARNINGS([WARN], [conversion])
-        CURL_ADD_COMPILER_WARNINGS([WARN], [empty-body])
-        CURL_ADD_COMPILER_WARNINGS([WARN], [ignored-qualifiers])
-        CURL_ADD_COMPILER_WARNINGS([WARN], [type-limits])
-        CURL_ADD_COMPILER_WARNINGS([WARN], [no-sign-conversion])
+        WARN="$WARN"
       fi
       #
       dnl Only clang 3.2 or later
@@ -330,19 +336,23 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
 
          if test "$compiler_num" -ge "207"; then
            dnl gcc 2.7 or later
-           WARN="$WARN -Wmissing-declarations"
+           CURL_ADD_COMPILER_WARNINGS([WARN], [missing-declarations])
          fi
 
          if test "$compiler_num" -gt "295"; then
            dnl only if the compiler is newer than 2.95 since we got lots of
            dnl "`_POSIX_C_SOURCE' is not defined" in system headers with
            dnl gcc 2.95.4 on FreeBSD 4.9!
-           WARN="$WARN -Wbad-function-cast -Wundef -Wno-long-long -Wno-multichar -Wshadow -Wsign-compare -Wunused"
+           WARN="$WARN -Wno-long-long -Wno-multichar"
+           CURL_ADD_COMPILER_WARNINGS([WARN], [bad-function-cast])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [unused shadow])
          fi
 
          if test "$compiler_num" -ge "296"; then
            dnl gcc 2.96 or later
-           WARN="$WARN -Wfloat-equal"
+           CURL_ADD_COMPILER_WARNINGS([WARN], [float-equal])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [sign-compare])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [undef])
          fi
 
          if test "$compiler_num" -gt "296"; then
@@ -357,13 +367,13 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
 
          if test "$compiler_num" -ge "303"; then
            dnl gcc 3.3 and later
-           WARN="$WARN -Wendif-labels -Wstrict-prototypes"
+           CURL_ADD_COMPILER_WARNINGS([WARN], [endif-labels strict-prototypes])
          fi
 
          if test "$compiler_num" -ge "304"; then
            # try these on gcc 3.4
-           WARN="$WARN -Wdeclaration-after-statement"
-           WARN="$WARN -Wold-style-definition"
+           CURL_ADD_COMPILER_WARNINGS([WARN], [declaration-after-statement])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [old-style-definition])
          fi
 
          dnl Only gcc 4.0 or later
@@ -373,7 +383,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          #
          dnl Only gcc 4.1 or later (possibly earlier)
          if test "$compiler_num" -ge "401"; then
-           CURL_ADD_COMPILER_WARNINGS([WARN], [no-system-headers])
+           WARN="$WARN -Wno-system-headers"
          fi
          #
          dnl Only gcc 4.2 or later
