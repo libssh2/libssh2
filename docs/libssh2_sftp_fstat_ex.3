@@ -52,7 +52,7 @@ struct _LIBSSH2_SFTP_ATTRIBUTES {
     unsigned long permissions;
 
     /* access time and modified time of file */
-    unsigned long atime, mtime;
+    time_t atime, mtime;
 };
 .fi
 
