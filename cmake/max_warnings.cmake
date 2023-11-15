@@ -94,6 +94,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wno-format-nonliteral               # clang  1.0  gcc  2.96 (3.0)
       -Wno-sign-conversion                 # clang  3.0  gcc  4.3
       -Wno-system-headers                  # clang  1.0  gcc  3.0
+      -Wold-style-definition               # clang  2.7  gcc  3.4
       -Wstrict-prototypes                  # clang  1.0  gcc  3.3
       -Wtype-limits                        # clang  3.0  gcc  4.3
       -Wvla                                # clang  2.8  gcc  4.3
@@ -143,7 +144,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
           -Wclobbered                      #             gcc  4.3
           -Wmissing-parameter-type         #             gcc  4.3
           -Wold-style-declaration          #             gcc  4.3
-          -Wold-style-definition           #             gcc  3.4
           -Wstrict-aliasing=3              #             gcc  4.0
         )
       endif()

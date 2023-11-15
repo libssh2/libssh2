@@ -215,6 +215,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
       CURL_ADD_COMPILER_WARNINGS([WARN], [inline nested-externs])
       CURL_ADD_COMPILER_WARNINGS([WARN], [missing-declarations])
       CURL_ADD_COMPILER_WARNINGS([WARN], [missing-prototypes])
+      CURL_ADD_COMPILER_WARNINGS([WARN], [old-style-definition])
       WARN="$WARN -Wno-long-long"
       CURL_ADD_COMPILER_WARNINGS([WARN], [float-equal])
       CURL_ADD_COMPILER_WARNINGS([WARN], [no-multichar sign-compare])
