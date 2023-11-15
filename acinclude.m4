@@ -255,7 +255,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
       #
       dnl Only clang 3.0 or later (possibly earlier)
       if test "$compiler_num" -ge "300"; then
-        :
+        WARN="$WARN"
       fi
       #
       dnl Only clang 3.2 or later
