@@ -215,6 +215,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
       CURL_ADD_COMPILER_WARNINGS([WARN], [inline nested-externs])
       CURL_ADD_COMPILER_WARNINGS([WARN], [missing-declarations])
       CURL_ADD_COMPILER_WARNINGS([WARN], [missing-prototypes])
+      CURL_ADD_COMPILER_WARNINGS([WARN], [old-style-definition])
       WARN="$WARN -Wno-long-long"
       CURL_ADD_COMPILER_WARNINGS([WARN], [float-equal])
       CURL_ADD_COMPILER_WARNINGS([WARN], [no-multichar sign-compare])
@@ -362,6 +363,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          if test "$compiler_num" -ge "304"; then
            # try these on gcc 3.4
            WARN="$WARN -Wdeclaration-after-statement"
+           WARN="$WARN -Wold-style-definition"
          fi
 
          dnl Only gcc 4.0 or later
@@ -383,7 +385,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
          if test "$compiler_num" -ge "403"; then
            CURL_ADD_COMPILER_WARNINGS([WARN], [type-limits old-style-declaration])
            CURL_ADD_COMPILER_WARNINGS([WARN], [missing-parameter-type empty-body])
-           CURL_ADD_COMPILER_WARNINGS([WARN], [ignored-qualifiers])
+           CURL_ADD_COMPILER_WARNINGS([WARN], [clobbered ignored-qualifiers])
            CURL_ADD_COMPILER_WARNINGS([WARN], [conversion])
            WARN="$WARN -Wno-sign-conversion"
            CURL_ADD_COMPILER_WARNINGS([WARN], [vla])
@@ -432,7 +434,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
            CURL_ADD_COMPILER_WARNINGS([WARN], [restrict])
            CURL_ADD_COMPILER_WARNINGS([WARN], [alloc-zero])
            WARN="$WARN -Wformat-overflow=2"
-           WARN="$WARN -Wformat-truncation=1"
+           WARN="$WARN -Wformat-truncation=1"  # =2 causes false positives
          fi
          #
          dnl Only gcc 10 or later
