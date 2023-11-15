@@ -336,50 +336,61 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           fi
         else dnl $ICC = yes
           dnl this is a set of options we believe *ALL* gcc versions support:
-          tmp_CFLAGS="-W -Wall -Wwrite-strings -pedantic -Wpointer-arith -Wnested-externs -Winline -Wmissing-prototypes"
-
+          tmp_CFLAGS="-pedantic"
+          CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [all])
+          tmp_CFLAGS="-W"
+          CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [pointer-arith write-strings])
+          #
+          dnl Only gcc 2.7 or later
           if test "$compiler_num" -ge "207"; then
-            dnl gcc 2.7 or later
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [inline nested-externs])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-declarations])
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-prototypes])
           fi
-
-          if test "$compiler_num" -gt "295"; then
-            dnl only if the compiler is newer than 2.95 since we got lots of
-            dnl "`_POSIX_C_SOURCE' is not defined" in system headers with
-            dnl gcc 2.95.4 on FreeBSD 4.9!
-            tmp_CFLAGS="$tmp_CFLAGS -Wno-long-long -Wno-multichar"
+          #
+          dnl Only gcc 2.95 or later
+          if test "$compiler_num" -ge "295"; then
+            tmp_CFLAGS="$tmp_CFLAGS -Wno-long-long"
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [bad-function-cast])
-            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unused shadow])
           fi
-
+          #
+          dnl Only gcc 2.96 or later
           if test "$compiler_num" -ge "296"; then
-            dnl gcc 2.96 or later
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [float-equal])
+            tmp_CFLAGS="$tmp_CFLAGS -Wno-multichar"
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [sign-compare])
+            dnl -Wundef used only if gcc is 2.96 or later since we get
+            dnl lots of "`_POSIX_C_SOURCE' is not defined" in system
+            dnl headers with gcc 2.95.4 on FreeBSD 4.9
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [undef])
           fi
-
-          if test "$compiler_num" -gt "296"; then
-            dnl this option does not exist in 2.96
+          #
+          dnl Only gcc 2.97 or later
+          if test "$compiler_num" -ge "297"; then
             tmp_CFLAGS="$tmp_CFLAGS -Wno-format-nonliteral"
           fi
-
-          dnl -Wunreachable-code seems totally unreliable on my gcc 3.3.2 on
-          dnl on i686-Linux as it gives us heaps with false positives.
-          dnl Also, on gcc 4.0.X it is totally unbearable and complains all
-          dnl over making it unusable for generic purposes. Let's not use it.
-
+          #
+          dnl Only gcc 3.0 or later
+          if test "$compiler_num" -ge "300"; then
+            tmp_CFLAGS="$tmp_CFLAGS -Wno-system-headers"
+            dnl -Wunreachable-code seems totally unreliable on my gcc 3.3.2 on
+            dnl on i686-Linux as it gives us heaps with false positives.
+            dnl Also, on gcc 4.0.X it is totally unbearable and complains all
+            dnl over making it unusable for generic purposes. Let's not use it.
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unused shadow])
+          fi
+          #
+          dnl Only gcc 3.3 or later
           if test "$compiler_num" -ge "303"; then
-            dnl gcc 3.3 and later
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [endif-labels strict-prototypes])
           fi
-
+          #
+          dnl Only gcc 3.4 or later
           if test "$compiler_num" -ge "304"; then
-            # try these on gcc 3.4
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [declaration-after-statement])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [old-style-definition])
           fi
-
+          #
           dnl Only gcc 4.0 or later
           if test "$compiler_num" -ge "400"; then
             tmp_CFLAGS="$tmp_CFLAGS -Wstrict-aliasing=3"
@@ -387,7 +398,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           #
           dnl Only gcc 4.1 or later (possibly earlier)
           if test "$compiler_num" -ge "401"; then
-            tmp_CFLAGS="$tmp_CFLAGS -Wno-system-headers"
+            tmp_CFLAGS="$tmp_CFLAGS"
           fi
           #
           dnl Only gcc 4.2 or later
