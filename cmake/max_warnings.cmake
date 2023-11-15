@@ -176,7 +176,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
           -Walloc-zero                     #             gcc  7.0
           -Wduplicated-branches            #             gcc  7.0
           -Wformat-overflow=2              #             gcc  7.0
-          -Wformat-truncation=2            #             gcc  7.0
+          -Wformat-truncation=1            #             gcc  7.0 (=2 causes false positives)
           -Wrestrict                       #             gcc  7.0
         )
       endif()
