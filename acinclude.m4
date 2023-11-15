@@ -215,7 +215,6 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
       CURL_ADD_COMPILER_WARNINGS([WARN], [inline nested-externs])
       CURL_ADD_COMPILER_WARNINGS([WARN], [missing-declarations])
       CURL_ADD_COMPILER_WARNINGS([WARN], [missing-prototypes])
-      CURL_ADD_COMPILER_WARNINGS([WARN], [old-style-definition])
       WARN="$WARN -Wno-long-long"
       CURL_ADD_COMPILER_WARNINGS([WARN], [float-equal])
       CURL_ADD_COMPILER_WARNINGS([WARN], [no-multichar sign-compare])
@@ -232,24 +231,30 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
         CURL_ADD_COMPILER_WARNINGS([WARN], [unused])
       fi
       #
+      dnl Only clang 2.7 or later
+      if test "$compiler_num" -ge "207"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [bad-function-cast])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [conversion])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [empty-body])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [old-style-definition])
+        CURL_ADD_COMPILER_WARNINGS([WARN], [type-limits])
+      fi
+      #
       dnl Only clang 2.8 or later
       if test "$compiler_num" -ge "208"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [ignored-qualifiers])
         CURL_ADD_COMPILER_WARNINGS([WARN], [vla])
       fi
       #
       dnl Only clang 2.9 or later
       if test "$compiler_num" -ge "209"; then
+        CURL_ADD_COMPILER_WARNINGS([WARN], [no-sign-conversion])
         CURL_ADD_COMPILER_WARNINGS([WARN], [shift-sign-overflow])
       fi
       #
       dnl Only clang 3.0 or later (possibly earlier)
       if test "$compiler_num" -ge "300"; then
-        CURL_ADD_COMPILER_WARNINGS([WARN], [bad-function-cast])
-        CURL_ADD_COMPILER_WARNINGS([WARN], [conversion])
-        CURL_ADD_COMPILER_WARNINGS([WARN], [empty-body])
-        CURL_ADD_COMPILER_WARNINGS([WARN], [ignored-qualifiers])
-        CURL_ADD_COMPILER_WARNINGS([WARN], [type-limits])
-        CURL_ADD_COMPILER_WARNINGS([WARN], [no-sign-conversion])
+        :
       fi
       #
       dnl Only clang 3.2 or later
