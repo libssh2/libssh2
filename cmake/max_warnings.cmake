@@ -102,6 +102,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wno-system-headers                  # clang  1.0  gcc  3.0
     # -Wpadded                             # clang  2.9  gcc  4.1               # Not used because we cannot change public structs
       -Wold-style-definition               # clang  2.7  gcc  3.4
+      -Wredundant-decls                    # clang  2.7  gcc  4.1
       -Wstrict-prototypes                  # clang  1.0  gcc  3.3
     # -Wswitch-enum                        # clang  2.7  gcc  4.1               # Not used because this basically disallows default case
       -Wtype-limits                        # clang  2.7  gcc  4.3
@@ -110,12 +111,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wunused-parameter                   # clang  2.7  gcc  4.1
       -Wvla                                # clang  2.8  gcc  4.3
     )
-
-    if(NOT CMAKE_UNITY_BUILD)
-      list(APPEND WPICKY_COMMON_OLD
-        -Wredundant-decls                  # clang  2.7  gcc  4.1
-      )
-    endif()
 
     set(WPICKY_COMMON
       -Wdouble-promotion                   # clang  3.6  gcc  4.6  appleclang  6.3
