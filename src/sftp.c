@@ -1690,7 +1690,6 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                     return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                           "SFTP READ error");
                 }
-                break;
 
             case SSH_FXP_DATA:
                 if(chunk->offset != filep->offset) {
