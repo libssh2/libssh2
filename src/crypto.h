@@ -81,16 +81,16 @@ int _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
                              const char *filename,
                              unsigned const char *passphrase);
 #if LIBSSH2_RSA_SHA1
-int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
-                             const unsigned char *sig,
-                             size_t sig_len,
-                             const unsigned char *m, size_t m_len);
 int _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
                            libssh2_rsa_ctx * rsactx,
                            const unsigned char *hash,
                            size_t hash_len,
                            unsigned char **signature,
                            size_t *signature_len);
+int _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
+                             const unsigned char *sig,
+                             size_t sig_len,
+                             const unsigned char *m, size_t m_len);
 #endif
 #if LIBSSH2_RSA_SHA2
 int _libssh2_rsa_sha2_sign(LIBSSH2_SESSION * session,
