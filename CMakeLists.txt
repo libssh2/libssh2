@@ -92,7 +92,7 @@ install(
     docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
   DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
-include(max_warnings)
+include(PickyWarnings)
 
 # Add socket libraries
 if(WIN32)
