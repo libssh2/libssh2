@@ -55,6 +55,7 @@
 /* Helper macro called from
    kex_method_diffie_hellman_group1_sha1_key_exchange */
 
+#if LIBSSH2_ECDSA
 #define LIBSSH2_KEX_METHOD_EC_SHA_VALUE_HASH(value, reqlen, version)        \
     do {                                                                    \
         if(type == LIBSSH2_EC_CURVE_NISTP256) {                             \
@@ -67,6 +68,7 @@
             LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(512, value, reqlen, version); \
         }                                                                   \
     } while(0)
+#endif
 
 #define LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(digest_type, value,               \
                                           reqlen, version)                  \
@@ -1568,6 +1570,7 @@ dh_gex_clean_exit:
     return ret;
 }
 
+#if LIBSSH2_ECDSA
 
 /* LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY
  *
@@ -1585,7 +1588,6 @@ dh_gex_clean_exit:
  * mpint    K,   shared secret
  *
  */
-
 #define LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(digest_type)            \
 do {                                                                         \
     libssh2_sha##digest_type##_ctx ctx;                                      \
@@ -1676,9 +1678,6 @@ do {                                                                         \
         rc = -1;                                                             \
     }                                                                        \
 } while(0)
-
-
-#if LIBSSH2_ECDSA
 
 /* kex_session_ecdh_curve_type
  * returns the EC curve type by name used in key exchange
