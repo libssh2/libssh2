@@ -60,6 +60,7 @@
 #include "userauth.h"
 #include "session.h"
 
+#if 0
 /* Requests from client to agent for protocol 1 key operations */
 #define SSH_AGENTC_REQUEST_RSA_IDENTITIES 1
 #define SSH_AGENTC_RSA_CHALLENGE 3
@@ -67,10 +68,12 @@
 #define SSH_AGENTC_REMOVE_RSA_IDENTITY 8
 #define SSH_AGENTC_REMOVE_ALL_RSA_IDENTITIES 9
 #define SSH_AGENTC_ADD_RSA_ID_CONSTRAINED 24
+#endif
 
 /* Requests from client to agent for protocol 2 key operations */
 #define SSH2_AGENTC_REQUEST_IDENTITIES 11
 #define SSH2_AGENTC_SIGN_REQUEST 13
+#if 0
 #define SSH2_AGENTC_ADD_IDENTITY 17
 #define SSH2_AGENTC_REMOVE_IDENTITY 18
 #define SSH2_AGENTC_REMOVE_ALL_IDENTITIES 19
@@ -91,13 +94,14 @@
 #define SSH_AGENT_RSA_IDENTITIES_ANSWER 2
 #define SSH_AGENT_RSA_RESPONSE 4
 
-/* Replies from agent to client for protocol 2 key operations */
-#define SSH2_AGENT_IDENTITIES_ANSWER 12
-#define SSH2_AGENT_SIGN_RESPONSE 14
-
 /* Key constraint identifiers */
 #define SSH_AGENT_CONSTRAIN_LIFETIME 1
 #define SSH_AGENT_CONSTRAIN_CONFIRM 2
+#endif
+
+/* Replies from agent to client for protocol 2 key operations */
+#define SSH2_AGENT_IDENTITIES_ANSWER 12
+#define SSH2_AGENT_SIGN_RESPONSE 14
 
 /* Signature request methods */
 #define SSH_AGENT_RSA_SHA2_256 2
