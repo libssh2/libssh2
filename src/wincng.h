@@ -281,9 +281,9 @@ typedef struct __libssh2_wincng_key_ctx {
     _libssh2_wincng_rsa_new_private_frommemory(rsactx, s, filedata, \
                                                filedata_len, passphrase)
 #define _libssh2_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len) \
-    _libssh2_wincng_rsa_sha_sign(s, rsactx, hash, hash_len, sig, sig_len)
+    _libssh2_wincng_rsa_sha1_sign(s, rsactx, hash, hash_len, sig, sig_len)
 #define _libssh2_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len) \
-    _libssh2_wincng_rsa_sha_sign(s, rsactx, hash, hash_len, sig, sig_len)
+    _libssh2_wincng_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len)
 #define _libssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len) \
     _libssh2_wincng_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len)
 #define _libssh2_rsa_sha2_verify(rsactx, hash_len, sig, sig_len, m, m_len) \

@@ -1283,7 +1283,7 @@ _libssh2_wincng_rsa_sha2_verify(libssh2_rsa_ctx *rsa,
 }
 #endif
 
-int
+static int
 _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
                              libssh2_rsa_ctx *rsa,
                              const unsigned char *hash,
@@ -1342,6 +1342,32 @@ _libssh2_wincng_rsa_sha_sign(LIBSSH2_SESSION *session,
     _libssh2_wincng_safe_free(data, datalen);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
+}
+
+int
+_libssh2_wincng_rsa_sha1_sign(LIBSSH2_SESSION *session,
+                              libssh2_rsa_ctx *rsa,
+                              const unsigned char *hash,
+                              size_t hash_len,
+                              unsigned char **signature,
+                              size_t *signature_len)
+{
+    return _libssh2_wincng_rsa_sha_sign(session, rsa,
+                                        hash, hash_len,
+                                        signature, signature_len);
+}
+
+int
+_libssh2_wincng_rsa_sha2_sign(LIBSSH2_SESSION *session,
+                              libssh2_rsa_ctx *rsa,
+                              const unsigned char *hash,
+                              size_t hash_len,
+                              unsigned char **signature,
+                              size_t *signature_len)
+{
+    return _libssh2_wincng_rsa_sha_sign(session, rsa,
+                                        hash, hash_len,
+                                        signature, signature_len);
 }
 
 void
