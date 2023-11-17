@@ -387,10 +387,6 @@ if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
     list(APPEND LIBRARIES ${MBEDTLS_LIBRARIES})
     list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lmbedcrypto")
     link_directories(${MBEDTLS_LIBRARY_DIR})
-
-    # mbedTLS (as of v3.5.1) has a duplicate function declaration
-    # in its own public headers. Disable the warning that detects it.
-    string(REGEX REPLACE "-Wredundant-decls" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
   endif()
 endif()
 
