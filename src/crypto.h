@@ -46,7 +46,16 @@
 #elif defined(LIBSSH2_LIBGCRYPT)
 #include "libgcrypt.h"
 #elif defined(LIBSSH2_MBEDTLS)
+/* mbedTLS (as of v3.5.1) has a duplicate function declaration
+   in its own public headers. Disable the warning that detects it. */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif
 #include "mbedtls.h"
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 #elif defined(LIBSSH2_OS400QC3)
 #include "os400qc3.h"
 #elif defined(LIBSSH2_WINCNG)
