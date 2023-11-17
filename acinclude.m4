@@ -247,7 +247,9 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [redundant-decls])
           # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [switch-enum])       # Not used because this basically disallows default case
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [type-limits])
-            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unused-macros])
+            if test "x$have_windows_h" != "xyes"; then
+              CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unused-macros])  # Seen to clash with libtool-generated stub code
+            fi
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unreachable-code unused-parameter])
           fi
           #
