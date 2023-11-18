@@ -337,7 +337,7 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
         EVP_PKEY_CTX_free(ctx);
     }
 
-    #else
+#else
 
     ret = RSA_verify(nid_type, hash, (unsigned int) hash_len,
                      (unsigned char *) sig,
