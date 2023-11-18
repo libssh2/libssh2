@@ -1041,8 +1041,13 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
 {
     int rc;
 
+#if defined(USE_OPENSSL_3)
     pem_read_bio_func read_rsa =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+#else
+    pem_read_bio_func read_rsa =
+        (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
+#endif
 
     _libssh2_init_if_needed();
 
@@ -1427,8 +1432,13 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
 {
     int rc;
 
+#if defined(USE_OPENSSL_3)
     pem_read_bio_func read_rsa =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+#else
+    pem_read_bio_func read_rsa =
+        (pem_read_bio_func) &PEM_read_bio_RSAPrivateKey;
+#endif
 
     _libssh2_init_if_needed();
 
@@ -1453,8 +1463,13 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
 {
     int rc;
 
+#if defined(USE_OPENSSL_3)
     pem_read_bio_func read_dsa =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+#else
+    pem_read_bio_func read_dsa =
+        (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
+#endif
 
     _libssh2_init_if_needed();
 
@@ -1741,8 +1756,13 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
 {
     int rc;
 
+#if defined(USE_OPENSSL_3)
     pem_read_bio_func read_dsa =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+#else
+    pem_read_bio_func read_dsa =
+        (pem_read_bio_func) &PEM_read_bio_DSAPrivateKey;
+#endif
 
     _libssh2_init_if_needed();
 
@@ -1769,8 +1789,13 @@ _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
 {
     int rc;
 
+#if defined(USE_OPENSSL_3)
     pem_read_bio_func read_ec =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+#else
+    pem_read_bio_func read_ec =
+        (pem_read_bio_func) &PEM_read_bio_ECPrivateKey;
+#endif
 
     _libssh2_init_if_needed();
 
@@ -3592,7 +3617,11 @@ _libssh2_ecdsa_new_private(libssh2_ecdsa_ctx ** ec_ctx,
 {
     int rc;
 
+#if defined(USE_OPENSSL_3)
     pem_read_bio_func read_ec = (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+#else
+    pem_read_bio_func read_ec = (pem_read_bio_func) &PEM_read_bio_ECPrivateKey;
+#endif
 
     _libssh2_init_if_needed();
 
@@ -3619,7 +3648,11 @@ _libssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx ** ec_ctx,
 {
     int rc;
 
+#if defined(USE_OPENSSL_3)
     pem_read_bio_func read_ec = (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+#else
+    pem_read_bio_func read_ec = (pem_read_bio_func) &PEM_read_bio_ECPrivateKey;
+#endif
 
     _libssh2_init_if_needed();
 
