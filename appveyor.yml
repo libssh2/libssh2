@@ -33,6 +33,12 @@ environment:
   CONFIGURATION: 'Release'
   FIXTURE_XFER_COUNT: 35020
   matrix:
+    - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
+      GENERATOR: 'Visual Studio 14 2015'
+      PLATFORM: 'x86'
+      CRYPTO_BACKEND: 'OpenSSL'
+
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       GENERATOR: 'Visual Studio 17 2022'
@@ -45,12 +51,6 @@ environment:
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'OpenSSL'
       UWP: 'ON'
-
-    - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
-      GENERATOR: 'Visual Studio 14 2015'
-      PLATFORM: 'x86'
-      CRYPTO_BACKEND: 'OpenSSL'
 
     - job_name: 'VS2015, OpenSSL 1.1, x64, Server 2012 R2, Logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
