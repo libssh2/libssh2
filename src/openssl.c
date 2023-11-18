@@ -2499,14 +2499,15 @@ _libssh2_rsa_sha2_sign(LIBSSH2_SESSION * session,
     if(EVP_PKEY_get_bn_param(rsactx, OSSL_PKEY_PARAM_RSA_N, &n) > 0) {
         sig_len = BN_num_bytes(n);
     }
+
+    if(sig_len > 0)
+        sig = LIBSSH2_ALLOC(session, sig_len);
 #else
     unsigned int sig_len = 0;
 
     sig_len = RSA_size(rsactx);
+    sig = LIBSSH2_ALLOC(session, sig_len);
 #endif
-
-    if(sig_len > 0)
-        sig = LIBSSH2_ALLOC(session, sig_len);
 
     if(!sig) {
         return -1;
