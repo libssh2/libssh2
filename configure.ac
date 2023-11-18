@@ -191,7 +191,7 @@ AS_HELP_STRING([--disable-debug],[Disable debug options]),
   *)   AC_MSG_RESULT(yes)
     enable_debug=yes
     CPPFLAGS="$CPPFLAGS -DLIBSSH2DEBUG"
-    CFLAGS="$CFLAGS -g"
+  # CFLAGS="$CFLAGS -g"
 
     dnl set compiler "debug" options to become more picky, and remove
     dnl optimize options from CFLAGS
