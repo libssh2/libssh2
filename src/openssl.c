@@ -92,6 +92,7 @@ write_bn(unsigned char *buf, const BIGNUM *bn, int bn_bytes)
 }
 #endif
 
+#ifdef USE_OPENSSL_3
 static inline void
 _libssh2_swap_bytes(unsigned char *buf, unsigned long len)
 {
@@ -105,6 +106,7 @@ _libssh2_swap_bytes(unsigned char *buf, unsigned long len)
     }
 #endif
 }
+#endif
 
 int
 _libssh2_openssl_random(void *buf, size_t len)
