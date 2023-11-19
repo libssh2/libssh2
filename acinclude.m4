@@ -121,19 +121,6 @@ AC_DEFUN([CURL_CHECK_COMPILER_CLANG], [
       AC_MSG_RESULT([no])
       compiler_id="CLANG"
     fi
-    fullclangver=`$CC -v 2>&1 | grep version`
-    clangver=`echo $fullclangver | grep "based on LLVM " | "$SED" 's/.*(based on LLVM \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*)/\1/'`
-    if test -z "$clangver"; then
-      if echo $fullclangver | grep "Apple LLVM version " >/dev/null; then
-        dnl Starting with Xcode 7 / clang 3.7, Apple clang won't tell its upstream version
-        clangver="3.7"
-      else
-        clangver=`echo $fullclangver | "$SED" 's/.*version \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*/\1/'`
-      fi
-    fi
-    clangvhi=`echo $clangver | cut -d . -f1`
-    clangvlo=`echo $clangver | cut -d . -f2`
-    compiler_num=`(expr $clangvhi "*" 100 + $clangvlo) 2>/dev/null`
     flags_dbg_yes="-g"
     flags_opt_all="-O -O0 -O1 -O2 -Os -O3 -O4"
     flags_opt_yes="-O2"
@@ -194,8 +181,13 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           # indentation to match curl's m4/curl-compilers.m4
 
           dnl figure out clang version!
-          AC_MSG_CHECKING([clang version])
+          AC_MSG_CHECKING([compiler version])
           fullclangver=`$CC -v 2>&1 | grep version`
+          if echo $fullclangver | grep 'Apple' >/dev/null; then
+            clangname='Apple clang'
+          else
+            clangname='clang'
+          fi
           clangver=`echo $fullclangver | grep "based on LLVM " | "$SED" 's/.*(based on LLVM \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*)/\1/'`
           if test -z "$clangver"; then
             if echo $fullclangver | grep "Apple LLVM version " >/dev/null; then
@@ -208,7 +200,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           clangvhi=`echo $clangver | cut -d . -f1`
           clangvlo=`echo $clangver | cut -d . -f2`
           compiler_num=`(expr $clangvhi "*" 100 + $clangvlo) 2>/dev/null`
-          AC_MSG_RESULT($compiler_num)
+          AC_MSG_RESULT([$clangname '$compiler_num' (raw: '$fullclangver' / '$clangver')])
 
           tmp_CFLAGS="-pedantic"
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [all extra])
@@ -328,13 +320,13 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
         # indentation to match curl's m4/curl-compilers.m4
 
         dnl figure out gcc version!
-        AC_MSG_CHECKING([gcc version])
+        AC_MSG_CHECKING([compiler version])
         # strip '-suffix' parts, e.g. Ubuntu Windows cross-gcc returns '10-win32'
         gccver=`$CC -dumpversion | sed -E 's/-.+$//'`
         num1=`echo $gccver | cut -d . -f1`
         num2=`echo $gccver | cut -d . -f2`
         compiler_num=`(expr $num1 "*" 100 + $num2) 2>/dev/null`
-        AC_MSG_RESULT($gccver)
+        AC_MSG_RESULT([gcc '$compiler_num' (raw: '$gccver')])
 
         if test "$ICC" = "yes"; then
           dnl this is icc, not gcc.
