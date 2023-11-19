@@ -183,6 +183,11 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           dnl figure out clang version!
           AC_MSG_CHECKING([compiler version])
           fullclangver=`$CC -v 2>&1 | grep version`
+          if echo $fullclangver | grep 'Apple' >/dev/null; then
+            clangname='Apple clang'
+          else
+            clangname='clang'
+          fi
           clangver=`echo $fullclangver | grep "based on LLVM " | "$SED" 's/.*(based on LLVM \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*)/\1/'`
           if test -z "$clangver"; then
             if echo $fullclangver | grep "Apple LLVM version " >/dev/null; then
@@ -195,7 +200,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           clangvhi=`echo $clangver | cut -d . -f1`
           clangvlo=`echo $clangver | cut -d . -f2`
           compiler_num=`(expr $clangvhi "*" 100 + $clangvlo) 2>/dev/null`
-          AC_MSG_RESULT([clang '$compiler_num' (raw: '$fullclangver' / '$clangver')])
+          AC_MSG_RESULT([$clangname '$compiler_num' (raw: '$fullclangver' / '$clangver')])
 
           tmp_CFLAGS="-pedantic"
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [all extra])
