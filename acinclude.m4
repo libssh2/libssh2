@@ -337,13 +337,13 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
         AC_MSG_CHECKING([compiler version])
         # strip '-suffix' parts, e.g. Ubuntu Windows cross-gcc returns '10-win32'
         gccver=`$CC -dumpversion | sed -E 's/-.+$//'`
-        num1=`echo $gccver | cut -d . -f1`
+        gccvhi=`echo $gccver | cut -d . -f1`
         if echo $gccver | grep -F "." >/dev/null; then
-          num2=`echo $gccver | cut -d . -f2`
+          gccvlo=`echo $gccver | cut -d . -f2`
         else
-          num2="0"
+          gccvlo="0"
         fi
-        compiler_num=`(expr $num1 "*" 100 + $num2) 2>/dev/null`
+        compiler_num=`(expr $gccvhi "*" 100 + $gccvlo) 2>/dev/null`
         AC_MSG_RESULT([gcc '$compiler_num' (raw: '$gccver')])
 
         if test "$ICC" = "yes"; then
