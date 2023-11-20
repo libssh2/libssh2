@@ -184,9 +184,9 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           AC_MSG_CHECKING([compiler version])
           fullclangver=`$CC -v 2>&1 | grep version`
           if echo $fullclangver | grep 'Apple' >/dev/null; then
-            clangname='Apple clang'
+            appleclang=1
           else
-            clangname='clang'
+            appleclang=0
           fi
           clangver=`echo $fullclangver | grep "based on LLVM " | "$SED" 's/.*(based on LLVM \(@<:@0-9@:>@*\.@<:@0-9@:>@*\).*)/\1/'`
           if test -z "$clangver"; then
@@ -198,7 +198,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           clangvhi=`echo $clangver | cut -d . -f1`
           clangvlo=`echo $clangver | cut -d . -f2`
           compiler_num=`(expr $clangvhi "*" 100 + $clangvlo) 2>/dev/null`
-          if test "$clangname" = 'Apple clang' && test "$oldapple" = '0'; then
+          if test "$appleclang" = '1' && test "$oldapple" = '0'; then
             dnl Starting with Xcode 7 / clang 3.7, Apple clang won't tell its upstream version
             if   test "$compiler_num" -ge '1300'; then compiler_num='1200'
             elif test "$compiler_num" -ge '1205'; then compiler_num='1101'
@@ -214,7 +214,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             else                                       compiler_num='307'
             fi
           fi
-          AC_MSG_RESULT([$clangname '$compiler_num' (raw: '$fullclangver' / '$clangver')])
+          AC_MSG_RESULT([clang '$compiler_num' (raw: '$fullclangver' / '$clangver')])
 
           tmp_CFLAGS="-pedantic"
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [all extra])
