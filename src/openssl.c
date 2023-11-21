@@ -647,51 +647,52 @@ _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
      size_t k_len, libssh2_curve_type curve)
 {
     int ret = 0;
+
+#ifdef USE_OPENSSL_3
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
+    const char *n = EC_curve_nid2nist(curve);
+    char *group_name = NULL;
+    unsigned char *data = NULL;
+
+    if(n) {
+        group_name = OPENSSL_zalloc(strlen(n) + 1);
+    }
+
+    if(k_len > 0) {
+        data = OPENSSL_malloc(k_len);
+    }
+
+    if(group_name && data) {
+        OSSL_PARAM params[3] = { 0 };
+
+        memcpy(group_name, n, strlen(n));
+        memcpy(data, k, k_len);
+
+        params[0] =
+        OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME,
+                                         group_name, 0);
+
+        params[1] =
+        OSSL_PARAM_construct_octet_string(OSSL_PKEY_PARAM_PUB_KEY,
+                                          data, k_len);
+
+        params[2] = OSSL_PARAM_construct_end();
+
+        if(EVP_PKEY_fromdata_init(ctx) > 0) {
+            ret = EVP_PKEY_fromdata(ctx, ec_ctx, EVP_PKEY_PUBLIC_KEY,
+                                    params);
+        }
+
+        if(group_name)
+            OPENSSL_clear_free(group_name, strlen(n));
+
+        if(data)
+            OPENSSL_clear_free(data, k_len);
+    }
+#else
     EC_KEY *ec_key = EC_KEY_new_by_curve_name(curve);
 
     if(ec_key) {
-#ifdef USE_OPENSSL_3
-        EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
-        const char *n = EC_curve_nid2nist(curve);
-        char *group_name = NULL;
-        unsigned char *data = NULL;
-
-        if(n) {
-            group_name = OPENSSL_zalloc(strlen(n) + 1);
-        }
-
-        if(k_len > 0) {
-            data = OPENSSL_malloc(k_len);
-        }
-
-        if(group_name && data) {
-            OSSL_PARAM params[3] = { 0 };
-
-            memcpy(group_name, n, strlen(n));
-            memcpy(data, k, k_len);
-
-            params[0] =
-            OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME,
-                                             group_name, 0);
-
-            params[1] =
-            OSSL_PARAM_construct_octet_string(OSSL_PKEY_PARAM_PUB_KEY,
-                                              data, k_len);
-
-            params[2] = OSSL_PARAM_construct_end();
-
-            if(EVP_PKEY_fromdata_init(ctx) > 0) {
-                ret = EVP_PKEY_fromdata(ctx, ec_ctx, EVP_PKEY_PUBLIC_KEY,
-                                        params);
-            }
-
-            if(group_name)
-                OPENSSL_clear_free(group_name, strlen(n));
-
-            if(data)
-                OPENSSL_clear_free(data, k_len);
-        }
-#else
         const EC_GROUP *ec_group = NULL;
         EC_POINT *point = NULL;
 
@@ -705,8 +706,8 @@ _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
 
         if(ec_ctx)
             *ec_ctx = ec_key;
-#endif
     }
+#endif
 
     return (ret == 1) ? 0 : -1;
 }
