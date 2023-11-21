@@ -1075,14 +1075,18 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session, libssh2_rsa_ctx *rsa,
 
     EVP_PKEY_get_bn_param(rsa, OSSL_PKEY_PARAM_RSA_E, &e);
     EVP_PKEY_get_bn_param(rsa, OSSL_PKEY_PARAM_RSA_N, &n);
-#elif defined(HAVE_OPAQUE_STRUCTS)
-    const BIGNUM * e = NULL;
-    const BIGNUM * n = NULL;
+#else
+    const BIGNUM * e;
+    const BIGNUM * n;
+#if defined(HAVE_OPAQUE_STRUCTS)
+    e = NULL;
+    n = NULL;
 
     RSA_get0_key(rsa, &n, &e, NULL);
 #else
     e = rsa->e;
     n = rsa->n;
+#endif
 #endif
     if(!e || !n) {
         return NULL;
@@ -1179,16 +1183,16 @@ __alloc_error:
 #ifndef USE_OPENSSL_3
 static int _libssh2_rsa_new_additional_parameters(libssh2_rsa_ctx *rsa)
 {
-    int rc = 0;
     BN_CTX *ctx = NULL;
     BIGNUM *aux = NULL;
     BIGNUM *dmp1 = NULL;
     BIGNUM *dmq1 = NULL;
-#ifdef HAVE_OPAQUE_STRUCTS
     const BIGNUM *p = NULL;
     const BIGNUM *q = NULL;
     const BIGNUM *d = NULL;
+    int rc = 0;
 
+#ifdef HAVE_OPAQUE_STRUCTS
     RSA_get0_key(rsa, NULL, NULL, &d);
     RSA_get0_factors(rsa, &p, &q);
 #else
