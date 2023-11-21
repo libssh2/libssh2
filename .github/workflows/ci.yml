@@ -78,6 +78,11 @@ jobs:
             crypto: mbedTLS
             build: cmake
             zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: BoringSSL
+            build: cmake
+            zlib: 'ON'
           - compiler: clang
             arch: i386
             crypto: Libgcrypt
@@ -98,7 +103,7 @@ jobs:
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
 
       - name: 'install packages'
-        if: ${{ matrix.crypto != 'mbedTLS' }}
+        if: ${{ matrix.crypto != 'mbedTLS' && matrix.crypto != 'BoringSSL' }}
         run: |
           [ '${{ matrix.crypto }}' = 'OpenSSL' ] && pkg='libssl-dev'
           [ '${{ matrix.crypto }}' = 'wolfSSL' ] && pkg='libwolfssl-dev'
@@ -118,6 +123,22 @@ jobs:
           cmake ${crossoptions} \
             "-DCMAKE_C_FLAGS=${cflags}" \
             -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
+            -DCMAKE_INSTALL_PREFIX:PATH=../usr
+          make -j3 install
+          cd ..
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+
+      - name: 'install BoringSSL from source'
+        if: ${{ matrix.crypto == 'BoringSSL' }}
+        run: |
+          BORINGSSLVER=1b7fdbd9101dedc3e0aa3fcf4ff74eacddb34ecc
+          mkdir boringssl
+          cd boringssl
+          curl "https://boringssl.googlesource.com/boringssl/+archive/$BORINGSSLVER.tar.gz" | tar -xzf -
+          cmake \
+            -DOPENSSL_SMALL=ON \
+            -DCMAKE_C_FLAGS=-fPIC \
             -DCMAKE_INSTALL_PREFIX:PATH=../usr
           make -j3 install
           cd ..
@@ -151,10 +172,15 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
+          if [ '${{ matrix.crypto }}' = 'BoringSSL' ]; then
+            crypto='OpenSSL'
+          else
+            crypto='${{ matrix.crypto }}'
+          fi
           [ '${{ matrix.arch }}' = 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
           cmake -B bld ${crossoptions} $TOOLCHAIN_OPTION \
             -DENABLE_WERROR=ON \
-            -DCRYPTO_BACKEND=${{ matrix.crypto }} \
+            -DCRYPTO_BACKEND=${crypto} \
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
 
       - name: 'cmake build'
