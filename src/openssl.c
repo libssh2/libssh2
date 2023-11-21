@@ -1792,11 +1792,9 @@ _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
     int rc;
 
 #if defined(USE_OPENSSL_3)
-    pem_read_bio_func read_ec =
-        (pem_read_bio_func) &PEM_read_bio_PrivateKey;
+    pem_read_bio_func read_ec = (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
-    pem_read_bio_func read_ec =
-        (pem_read_bio_func) &PEM_read_bio_ECPrivateKey;
+    pem_read_bio_func read_ec = (pem_read_bio_func) &PEM_read_bio_ECPrivateKey;
 #endif
 
     _libssh2_init_if_needed();
