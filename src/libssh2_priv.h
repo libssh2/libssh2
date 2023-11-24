@@ -165,6 +165,9 @@ struct iovec {
 #define LIBSSH2_MAX(x, y)  ((x) > (y) ? (x) : (y))
 #define LIBSSH2_MIN(x, y)  ((x) < (y) ? (x) : (y))
 
+#define MAX_BLOCKSIZE 32    /* MUST fit biggest crypto block size we use/get */
+#define MAX_MACSIZE 64      /* MUST fit biggest MAC length we support */
+
 /* RFC4253 section 6.1 Maximum Packet Length says:
  *
  * "All implementations MUST be able to process packets with

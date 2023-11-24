@@ -325,6 +325,31 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #endif /* HAVE_OPAQUE_STRUCTS */
 #endif /* LIBSSH2_MD5 || LIBSSH2_MD5_PEM */
 
+#ifdef USE_OPENSSL_3
+
+#define libssh2_hmac_ctx EVP_MAC_CTX *
+#define libssh2_hmac_ctx_init(ctx)
+#define libssh2_hmac_sha1_init(ctx, key, keylen) \
+    _libssh2_hmac_init(ctx, (void *)key, keylen, OSSL_DIGEST_NAME_SHA1)
+#define libssh2_hmac_md5_init(ctx, key, keylen) \
+    _libssh2_hmac_init(ctx, (void *)key, keylen, OSSL_DIGEST_NAME_MD5)
+#define libssh2_hmac_ripemd160_init(ctx, key, keylen) \
+    _libssh2_hmac_init(ctx, (void *)key, keylen, OSSL_DIGEST_NAME_RIPEMD160)
+#define libssh2_hmac_sha256_init(ctx, key, keylen) \
+    _libssh2_hmac_init(ctx, (void *)key, keylen, OSSL_DIGEST_NAME_SHA2_256)
+#define libssh2_hmac_sha512_init(ctx, key, keylen) \
+    _libssh2_hmac_init(ctx, (void *)key, keylen, OSSL_DIGEST_NAME_SHA2_512)
+#define libssh2_hmac_update(ctx, data, datalen) \
+    EVP_MAC_update(ctx, data, datalen)
+#define libssh2_hmac_final(ctx, data) EVP_MAC_final(ctx, data, NULL, \
+                                                    MAX_MACSIZE)
+#define libssh2_hmac_cleanup(ctx) EVP_MAC_CTX_free(*(ctx))
+
+int _libssh2_hmac_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen,
+                       const char *digest_name);
+
+#else /* USE_OPENSSL_3 */
+
 #ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_hmac_ctx HMAC_CTX *
 #define libssh2_hmac_ctx_init(ctx) ctx = HMAC_CTX_new()
@@ -369,6 +394,7 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 #define libssh2_hmac_final(ctx, data) HMAC_Final(&(ctx), data, NULL)
 #define libssh2_hmac_cleanup(ctx) HMAC_cleanup(ctx)
 #endif /* HAVE_OPAQUE_STRUCTS */
+#endif /* USE_OPENSSL_3 */
 
 extern void _libssh2_openssl_crypto_init(void);
 extern void _libssh2_openssl_crypto_exit(void);

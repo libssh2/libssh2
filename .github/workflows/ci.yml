@@ -83,6 +83,11 @@ jobs:
             crypto: BoringSSL
             build: cmake
             zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: OpenSSL-3-no-deprecated
+            build: cmake
+            zlib: 'ON'
           - compiler: clang
             arch: i386
             crypto: Libgcrypt
@@ -103,12 +108,13 @@ jobs:
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
 
       - name: 'install packages'
-        if: ${{ matrix.crypto != 'mbedTLS' && matrix.crypto != 'BoringSSL' }}
         run: |
           [ '${{ matrix.crypto }}' = 'OpenSSL' ] && pkg='libssl-dev'
           [ '${{ matrix.crypto }}' = 'wolfSSL' ] && pkg='libwolfssl-dev'
           [ '${{ matrix.crypto }}' = 'Libgcrypt' ] && pkg='libgcrypt-dev'
-          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install "${pkg}:${{ matrix.arch }}"
+          if [ -n "${pkg}" ]; then
+            sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install "${pkg}:${{ matrix.arch }}"
+          fi
 
       - name: 'install mbedTLS from source'
         if: ${{ matrix.crypto == 'mbedTLS' }}
@@ -148,6 +154,20 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
+      - name: 'install OpenSSL from source'
+        if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
+        run: |
+          OPENSSLVER=openssl-3.2.0
+          curl -L https://www.openssl.org/source/$OPENSSLVER.tar.gz | tar -xzf -
+          cd $OPENSSLVER
+          ./Configure no-deprecated \
+            no-apps no-docs no-tests no-makedepend \
+            no-comp no-quic no-legacy --prefix=/usr
+          make -j3 install DESTDIR=$PWD/..
+          cd ..
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
@@ -175,7 +195,8 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
-          if [ '${{ matrix.crypto }}' = 'BoringSSL' ]; then
+          if [ '${{ matrix.crypto }}' = 'BoringSSL' ] || \
+             [[ '${{ matrix.crypto }}' = 'OpenSSL-'* ]]; then
             crypto='OpenSSL'
           else
             crypto='${{ matrix.crypto }}'
