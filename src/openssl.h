@@ -382,7 +382,6 @@ extern void _libssh2_openssl_crypto_exit(void);
 #define _libssh2_rsa_free(rsactx) EVP_PKEY_free(rsactx)
 #else
 #define libssh2_rsa_ctx RSA
-
 #define _libssh2_rsa_free(rsactx) RSA_free(rsactx)
 #endif
 
@@ -395,7 +394,6 @@ extern void _libssh2_openssl_crypto_exit(void);
 #define _libssh2_dsa_free(rsactx) EVP_PKEY_free(rsactx)
 #else
 #define libssh2_dsa_ctx DSA
-
 #define _libssh2_dsa_free(dsactx) DSA_free(dsactx)
 #endif
 

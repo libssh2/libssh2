@@ -562,7 +562,6 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
     if(!_libssh2_sha1(m, m_len, hash))
         /* _libssh2_sha1() succeeded */
         ret = DSA_do_verify(hash, SHA_DIGEST_LENGTH, dsasig, dsactx);
-
 #endif
 
     DSA_SIG_free(dsasig);
