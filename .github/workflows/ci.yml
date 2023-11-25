@@ -122,6 +122,9 @@ jobs:
           fi
           cmake ${crossoptions} \
             "-DCMAKE_C_FLAGS=${cflags}" \
+            -DENABLE_PROGRAMS=OFF \
+            -DENABLE_TESTING=OFF \
+            -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
             -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
             -DCMAKE_INSTALL_PREFIX:PATH=../usr
           make -j3 install
