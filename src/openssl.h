@@ -223,10 +223,10 @@ int _libssh2_sha1_init(libssh2_sha1_ctx *ctx);
                                          EVP_DigestFinal(ctx, out, NULL); \
                                          EVP_MD_CTX_free(ctx); \
                                      } while(0)
-#else
+#else /* !HAVE_OPAQUE_STRUCTS */
 #define libssh2_sha1_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha1_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
-#endif
+#endif /* HAVE_OPAQUE_STRUCTS */
 int _libssh2_sha1(const unsigned char *message, size_t len,
                   unsigned char *out);
 #define libssh2_sha1(x,y,z) _libssh2_sha1(x,y,z)
@@ -246,11 +246,11 @@ int _libssh2_sha256_init(libssh2_sha256_ctx *ctx);
                                            EVP_DigestFinal(ctx, out, NULL); \
                                            EVP_MD_CTX_free(ctx); \
                                        } while(0)
-#else
+#else /* !HAVE_OPAQUE_STRUCTS */
 #define libssh2_sha256_update(ctx, data, len) \
     EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha256_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
-#endif
+#endif /* HAVE_OPAQUE_STRUCTS */
 int _libssh2_sha256(const unsigned char *message, size_t len,
                     unsigned char *out);
 #define libssh2_sha256(x,y,z) _libssh2_sha256(x,y,z)
@@ -270,11 +270,11 @@ int _libssh2_sha384_init(libssh2_sha384_ctx *ctx);
                                             EVP_DigestFinal(ctx, out, NULL); \
                                             EVP_MD_CTX_free(ctx); \
                                        } while(0)
-#else
+#else /* !HAVE_OPAQUE_STRUCTS */
 #define libssh2_sha384_update(ctx, data, len) \
     EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha384_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
-#endif
+#endif /* HAVE_OPAQUE_STRUCTS */
 int _libssh2_sha384(const unsigned char *message, size_t len,
                     unsigned char *out);
 #define libssh2_sha384(x,y,z) _libssh2_sha384(x,y,z)
@@ -294,11 +294,11 @@ int _libssh2_sha512_init(libssh2_sha512_ctx *ctx);
                                             EVP_DigestFinal(ctx, out, NULL); \
                                             EVP_MD_CTX_free(ctx); \
                                        } while(0)
-#else
+#else /* !HAVE_OPAQUE_STRUCTS */
 #define libssh2_sha512_update(ctx, data, len) \
     EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_sha512_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
-#endif
+#endif /* HAVE_OPAQUE_STRUCTS */
 int _libssh2_sha512(const unsigned char *message, size_t len,
                     unsigned char *out);
 #define libssh2_sha512(x,y,z) _libssh2_sha512(x,y,z)
@@ -319,11 +319,11 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
                                         EVP_DigestFinal(ctx, out, NULL); \
                                         EVP_MD_CTX_free(ctx); \
                                     } while(0)
-#else
+#else /* !HAVE_OPAQUE_STRUCTS */
 #define libssh2_md5_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
 #define libssh2_md5_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
-#endif
-#endif
+#endif /* HAVE_OPAQUE_STRUCTS */
+#endif /* LIBSSH2_MD5 || LIBSSH2_MD5_PEM */
 
 #ifdef HAVE_OPAQUE_STRUCTS
 #define libssh2_hmac_ctx HMAC_CTX *
@@ -417,15 +417,14 @@ typedef enum {
     LIBSSH2_EC_CURVE_NISTP521 = NID_secp521r1
 }
 libssh2_curve_type;
-#else
+#else /* !LIBSSH2_ECDSA */
 #define _libssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
 #define libssh2_ed25519_ctx EVP_PKEY
-
 #define _libssh2_ed25519_free(ctx) EVP_PKEY_free(ctx)
-#endif /* ED25519 */
+#endif /* LIBSSH2_ED25519 */
 
 #define _libssh2_cipher_type(name) const EVP_CIPHER *(*name)(void)
 #ifdef HAVE_OPAQUE_STRUCTS
