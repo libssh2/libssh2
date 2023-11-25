@@ -343,13 +343,13 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 /* FIXME: upstream bug as of v5.6.0: datalen is int instead of size_t */
 #define libssh2_hmac_update(ctx, data, datalen) \
     HMAC_Update(ctx, data, (int)datalen)
-#else
+#else /* !LIBSSH2_WOLFSSL */
 #define libssh2_hmac_update(ctx, data, datalen) \
     HMAC_Update(ctx, data, datalen)
 #endif /* LIBSSH2_WOLFSSL */
 #define libssh2_hmac_final(ctx, data) HMAC_Final(ctx, data, NULL)
 #define libssh2_hmac_cleanup(ctx) HMAC_CTX_free(*(ctx))
-#else
+#else /* !HAVE_OPAQUE_STRUCTS */
 #define libssh2_hmac_ctx HMAC_CTX
 #define libssh2_hmac_ctx_init(ctx) \
     HMAC_CTX_init(&ctx)
@@ -368,7 +368,7 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
     HMAC_Update(&(ctx), data, datalen)
 #define libssh2_hmac_final(ctx, data) HMAC_Final(&(ctx), data, NULL)
 #define libssh2_hmac_cleanup(ctx) HMAC_cleanup(ctx)
-#endif
+#endif /* HAVE_OPAQUE_STRUCTS */
 
 extern void _libssh2_openssl_crypto_init(void);
 extern void _libssh2_openssl_crypto_exit(void);
