@@ -1,5 +1,5 @@
-#ifndef __LIBSSH2_PRIV_H
-#define __LIBSSH2_PRIV_H
+#ifndef LIBSSH2_PRIV_H
+#define LIBSSH2_PRIV_H
 /* Copyright (C) Sara Golemon <sarag@libssh2.org>
  * Copyright (C) Daniel Stenberg
  * Copyright (C) Simon Josefsson
@@ -1224,4 +1224,4 @@ size_t plain_method(char *method, size_t method_len);
 #define FOPEN_APPENDTEXT "a"
 #endif
 
-#endif /* __LIBSSH2_PRIV_H */
+#endif /* LIBSSH2_PRIV_H */

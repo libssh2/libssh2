@@ -1,5 +1,5 @@
-#ifndef __LIBSSH2_USERAUTH_H
-#define __LIBSSH2_USERAUTH_H
+#ifndef LIBSSH2_USERAUTH_H
+#define LIBSSH2_USERAUTH_H
 /* Copyright (C) Sara Golemon <sarag@libssh2.org>
  * Copyright (C) Daniel Stenberg
  * All rights reserved.
@@ -50,4 +50,4 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                                 ((*sign_callback)),
                             void *abstract);
 
-#endif /* __LIBSSH2_USERAUTH_H */
+#endif /* LIBSSH2_USERAUTH_H */

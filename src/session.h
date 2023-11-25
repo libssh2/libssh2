@@ -1,5 +1,5 @@
-#ifndef __LIBSSH2_SESSION_H
-#define __LIBSSH2_SESSION_H
+#ifndef LIBSSH2_SESSION_H
+#define LIBSSH2_SESSION_H
 /* Copyright (C) Sara Golemon <sarag@libssh2.org>
  * Copyright (C) Daniel Stenberg
  * Copyright (C) Simon Josefsson <simon@josefsson.org>
@@ -91,4 +91,4 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t entry_time);
 /* this is the lib-internal set blocking function */
 int _libssh2_session_set_blocking(LIBSSH2_SESSION * session, int blocking);
 
-#endif /* __LIBSSH2_SESSION_H */
+#endif /* LIBSSH2_SESSION_H */

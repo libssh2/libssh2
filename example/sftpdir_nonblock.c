@@ -30,9 +30,9 @@
 #include <stdio.h>
 
 #if defined(_MSC_VER)
-#define __FILESIZE "I64u"
+#define LIBSSH2_FILESIZE_MASK "I64u"
 #else
-#define __FILESIZE "llu"
+#define LIBSSH2_FILESIZE_MASK "llu"
 #endif
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
             }
 
             if(attrs.flags & LIBSSH2_SFTP_ATTR_SIZE) {
-                printf("%8" __FILESIZE " ", attrs.filesize);
+                printf("%8" LIBSSH2_FILESIZE_MASK " ", attrs.filesize);
             }
 
             printf("%s\n", mem);

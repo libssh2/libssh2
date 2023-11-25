@@ -1,5 +1,5 @@
-#ifndef __LIBSSH2_MISC_H
-#define __LIBSSH2_MISC_H
+#ifndef LIBSSH2_MISC_H
+#define LIBSSH2_MISC_H
 /* Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
@@ -137,4 +137,4 @@ void _libssh2_xor_data(unsigned char *output,
 
 void _libssh2_aes_ctr_increment(unsigned char *ctr, size_t length);
 
-#endif /* _LIBSSH2_MISC_H */
+#endif /* LIBSSH2_MISC_H */

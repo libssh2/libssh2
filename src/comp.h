@@ -1,5 +1,5 @@
-#ifndef __LIBSSH2_COMP_H
-#define __LIBSSH2_COMP_H
+#ifndef LIBSSH2_COMP_H
+#define LIBSSH2_COMP_H
 /* Copyright (C) Daniel Stenberg
  *
  * Redistribution and use in source and binary forms,
@@ -42,4 +42,4 @@
 
 const LIBSSH2_COMP_METHOD **_libssh2_comp_methods(LIBSSH2_SESSION *session);
 
-#endif /* __LIBSSH2_COMP_H */
+#endif /* LIBSSH2_COMP_H */

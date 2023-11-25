@@ -1,5 +1,5 @@
-#ifndef __LIBSSH2_CRYPTO_H
-#define __LIBSSH2_CRYPTO_H
+#ifndef LIBSSH2_CRYPTO_H
+#define LIBSSH2_CRYPTO_H
 /* Copyright (C) Simon Josefsson
  * Copyright (C) The Written Word, Inc.
  * Copyright (C) Daniel Stenberg
@@ -342,4 +342,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        unsigned char *key_method,
                                        size_t key_method_len);
 
-#endif /* __LIBSSH2_CRYPTO_H */
+#endif /* LIBSSH2_CRYPTO_H */

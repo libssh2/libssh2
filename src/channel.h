@@ -1,5 +1,5 @@
-#ifndef __LIBSSH2_CHANNEL_H
-#define __LIBSSH2_CHANNEL_H
+#ifndef LIBSSH2_CHANNEL_H
+#define LIBSSH2_CHANNEL_H
 /* Copyright (C) Daniel Stenberg
  *
  * All rights reserved.
@@ -139,4 +139,4 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel);
  */
 int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener);
 
-#endif /* __LIBSSH2_CHANNEL_H */
+#endif /* LIBSSH2_CHANNEL_H */

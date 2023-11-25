@@ -1,5 +1,5 @@
-#ifndef __LIBSSH2_TRANSPORT_H
-#define __LIBSSH2_TRANSPORT_H
+#ifndef LIBSSH2_TRANSPORT_H
+#define LIBSSH2_TRANSPORT_H
 /* Copyright (C) The Written Word, Inc.
  * Copyright (C) Daniel Stenberg
  * All rights reserved.
@@ -84,4 +84,4 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
  */
 int _libssh2_transport_read(LIBSSH2_SESSION * session);
 
-#endif /* __LIBSSH2_TRANSPORT_H */
+#endif /* LIBSSH2_TRANSPORT_H */
