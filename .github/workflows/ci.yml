@@ -532,3 +532,27 @@ jobs:
               --with-crypto=openssl \
               --disable-tests
             make check VERBOSE=1
+
+  build_netbsd:
+    name: 'NetBSD (cmake, openssl, clang, amd64)'
+    runs-on: macos-12
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'cmake'
+        uses: cross-platform-actions/action@v0.21.1
+        with:
+          operating_system: "netbsd"
+          version: "9.3"
+          architecture: "x86_64"
+          run: |
+            # https://pkgsrc.se/
+            sudo pkgin -y install cmake
+            cmake -B bld \
+              -DENABLE_WERROR=ON \
+              -DENABLE_DEBUG_LOGGING=ON \
+              -DCRYPTO_BACKEND=OpenSSL \
+              -DBUILD_STATIC_LIBS=OFF \
+              -DRUN_DOCKER_TESTS=OFF \
+              -DRUN_SSHD_TESTS=OFF
+            cmake --build bld --parallel 3
