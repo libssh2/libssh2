@@ -1490,7 +1490,7 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
 }
 
 static unsigned char *
-gen_publickey_from_dsa(LIBSSH2_SESSION* session, DSA *dsa,
+gen_publickey_from_dsa(LIBSSH2_SESSION* session, libssh2_dsa_ctx *dsa,
                        size_t *key_len)
 {
     int            p_bytes, q_bytes, g_bytes, k_bytes;
@@ -1553,7 +1553,7 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
                            size_t *pubkeydata_len,
                            EVP_PKEY *pk)
 {
-    DSA*           dsa = NULL;
+    libssh2_dsa_ctx *dsa = NULL;
     unsigned char *key;
     unsigned char *method_buf = NULL;
     size_t  key_len;
