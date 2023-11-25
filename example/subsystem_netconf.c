@@ -242,14 +242,14 @@ int main(int argc, char *argv[])
     /* NETCONF: https://tools.ietf.org/html/draft-ietf-netconf-ssh-06 */
 
     fprintf(stderr, "Sending NETCONF client <hello>\n");
-    snprintf(buf, sizeof(buf),
+    len = snprintf(buf, sizeof(buf),
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       "<hello>"
       "<capabilities>"
       "<capability>urn:ietf:params:xml:ns:netconf:base:1.0</capability>"
       "</capabilities>"
       "</hello>\n"
-      "]]>]]>\n%n", (int *)&len);
+      "]]>]]>\n");
     if(-1 == netconf_write(channel, buf, len))
         goto shutdown;
 
@@ -262,12 +262,12 @@ int main(int argc, char *argv[])
             (int)len, buf);
 
     fprintf(stderr, "Sending NETCONF <rpc>\n");
-    snprintf(buf, sizeof(buf),
+    len = snprintf(buf, sizeof(buf),
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
       "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">"
       "<get-interface-information><terse/></get-interface-information>"
       "</rpc>\n"
-      "]]>]]>\n%n", (int *)&len);
+      "]]>]]>\n");
     if(-1 == netconf_write(channel, buf, len))
         goto shutdown;
 
