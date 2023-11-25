@@ -1498,6 +1498,17 @@ gen_publickey_from_dsa(LIBSSH2_SESSION* session, libssh2_dsa_ctx *dsa,
     unsigned char *key;
     unsigned char *p;
 
+#ifdef USE_OPENSSL_3
+    BIGNUM * p_bn;
+    BIGNUM * q;
+    BIGNUM * g;
+    BIGNUM * pub_key;
+
+    EVP_PKEY_get_bn_param(dsa, OSSL_PKEY_PARAM_FFC_P, &p_bn);
+    EVP_PKEY_get_bn_param(dsa, OSSL_PKEY_PARAM_FFC_G, &q);
+    EVP_PKEY_get_bn_param(dsa, OSSL_PKEY_PARAM_FFC_Q, &g);
+    EVP_PKEY_get_bn_param(dsa, OSSL_PKEY_PARAM_PUB_KEY, &pub_key);
+#else
     const BIGNUM * p_bn;
     const BIGNUM * q;
     const BIGNUM * g;
@@ -1514,6 +1525,7 @@ gen_publickey_from_dsa(LIBSSH2_SESSION* session, libssh2_dsa_ctx *dsa,
     DSA_get0_key(dsa, &pub_key, NULL);
 #else
     pub_key = dsa->pub_key;
+#endif
 #endif
     p_bytes = BN_num_bytes(p_bn) + 1;
     q_bytes = BN_num_bytes(q) + 1;
@@ -1562,7 +1574,11 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing public key from DSA private key envelope"));
 
+#ifdef USE_OPENSSL_3
+    dsa = pk;
+#else
     dsa = EVP_PKEY_get1_DSA(pk);
+#endif
     if(!dsa) {
         /* Assume memory allocation error... what else could it be ? */
         goto __alloc_error;
@@ -1577,7 +1593,9 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
     if(!key) {
         goto __alloc_error;
     }
+#ifndef USE_OPENSSL_3
     DSA_free(dsa);
+#endif
 
     memcpy(method_buf, "ssh-dss", 7);
     *method         = method_buf;
@@ -1587,9 +1605,11 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
     return 0;
 
 __alloc_error:
+#ifndef USE_OPENSSL_3
     if(dsa) {
         DSA_free(dsa);
     }
+#endif
     if(method_buf) {
         LIBSSH2_FREE(session, method_buf);
     }
