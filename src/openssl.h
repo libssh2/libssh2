@@ -1,5 +1,5 @@
-#ifndef __LIBSSH2_OPENSSL_H
-#define __LIBSSH2_OPENSSL_H
+#ifndef LIBSSH2_OPENSSL_H
+#define LIBSSH2_OPENSSL_H
 /* Copyright (C) Simon Josefsson
  * Copyright (C) The Written Word, Inc.
  * All rights reserved.
@@ -497,4 +497,4 @@ const EVP_CIPHER *_libssh2_EVP_aes_128_ctr(void);
 const EVP_CIPHER *_libssh2_EVP_aes_192_ctr(void);
 const EVP_CIPHER *_libssh2_EVP_aes_256_ctr(void);
 
-#endif /* __LIBSSH2_OPENSSL_H */
+#endif /* LIBSSH2_OPENSSL_H */
