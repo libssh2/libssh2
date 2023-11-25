@@ -48,7 +48,7 @@
 #define EVP_MAX_BLOCK_LENGTH 32
 #endif
 
-int
+static int
 read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
                                      const char *key_type,
                                      const char *filedata,
@@ -4611,7 +4611,7 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
     return rc;
 }
 
-int
+static int
 read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
                                      const char *key_type,
                                      const char *filedata,
