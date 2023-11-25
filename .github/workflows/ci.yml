@@ -513,17 +513,20 @@ jobs:
         run: cd bld && ctest -VV --output-on-failure
 
   build_freebsd:
-    name: 'FreeBSD (autotools, quictls, gcc, amd64)'
-    runs-on: ubuntu-22.04
+    name: 'FreeBSD (autotools, openssl, clang, amd64)'
+    runs-on: macos-12
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: 'autotools'
-        uses: vmactions/freebsd-vm@v1
+        uses: cross-platform-actions/action@v0.21.1
         with:
-          # https://ports.freebsd.org/
-          prepare: pkg install -y autoconf automake libtool gcc openssl-quictls
+          operating_system: "freebsd"
+          version: "13.2"
+          architecture: "x86_64"
           run: |
+            sudo pkg install -y autoconf automake libtool
+            setenv CC clang
             autoreconf -fi
             mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
               --with-crypto=openssl \
