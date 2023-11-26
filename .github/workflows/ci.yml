@@ -541,7 +541,7 @@ jobs:
         uses: vmactions/netbsd-vm@v1
         with:
           # https://pkgsrc.se/
-          prepare: pkgin -y install cmake
+          prepare: pkg_add cmake
           run: |
             cmake -B bld \
               -DENABLE_WERROR=ON \
