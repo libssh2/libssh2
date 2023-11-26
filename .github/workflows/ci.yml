@@ -548,7 +548,7 @@ jobs:
           architecture: "x86_64"
           run: |
             # https://pkgsrc.se/
-            sudo pkgin -y install cmake
+            sudo pkg_add cmake
             cmake -B bld \
               -DENABLE_WERROR=ON \
               -DENABLE_DEBUG_LOGGING=ON \
