@@ -514,19 +514,16 @@ jobs:
 
   build_freebsd:
     name: 'FreeBSD (autotools, openssl, clang, amd64)'
-    runs-on: macos-12
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: 'autotools'
-        uses: cross-platform-actions/action@v0.21.1
+        uses: vmactions/freebsd-vm@v1
         with:
-          operating_system: "freebsd"
-          version: "13.2"
-          architecture: "x86_64"
+          # https://ports.freebsd.org/
+          prepare: pkg install -y autoconf automake libtool
           run: |
-            # https://ports.freebsd.org/
-            sudo pkg install -y autoconf automake libtool
             setenv CC clang
             autoreconf -fi
             mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
@@ -536,19 +533,16 @@ jobs:
 
   build_netbsd:
     name: 'NetBSD (cmake, openssl, clang, amd64)'
-    runs-on: macos-12
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: 'cmake'
-        uses: cross-platform-actions/action@v0.21.1
+        uses: vmactions/netbsd-vm@v1
         with:
-          operating_system: "netbsd"
-          version: "9.3"
-          architecture: "x86_64"
+          # https://pkgsrc.se/
+          prepare: pkgin -y install cmake
           run: |
-            # https://pkgsrc.se/
-            sudo pkgin -y install cmake
             cmake -B bld \
               -DENABLE_WERROR=ON \
               -DENABLE_DEBUG_LOGGING=ON \
@@ -560,19 +554,16 @@ jobs:
 
   build_openbsd:
     name: 'OpenBSD (cmake, libressl, clang, amd64)'
-    runs-on: macos-12
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: 'cmake'
-        uses: cross-platform-actions/action@v0.21.1
+        uses: vmactions/openbsd-vm@v1
         with:
-          operating_system: "openbsd"
-          version: "7.4"
-          architecture: "x86_64"
+          # https://openbsd.app/
+          prepare: pkg_add cmake
           run: |
-            # https://openbsd.app/
-            sudo pkg_add cmake
             cmake -B bld \
               -DENABLE_WERROR=ON \
               -DENABLE_DEBUG_LOGGING=ON \
