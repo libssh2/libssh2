@@ -525,6 +525,7 @@ jobs:
           version: "13.2"
           architecture: "x86_64"
           run: |
+            # https://ports.freebsd.org/
             sudo pkg install -y autoconf automake libtool
             setenv CC clang
             autoreconf -fi
