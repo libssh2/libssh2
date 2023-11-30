@@ -41,6 +41,13 @@
 
 #define LIBSSH2_CRYPTO_ENGINE libssh2_mbedtls
 
+/* mbedTLS (as of v3.5.1) has a duplicate function declaration
+   in its own public headers. Disable the warning that detects it. */
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif
+
 #include <mbedtls/version.h>
 #include <mbedtls/platform.h>
 #include <mbedtls/md.h>
@@ -57,6 +64,10 @@
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/pk.h>
 #include <mbedtls/error.h>
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 /* Define which features are supported. */
 #define LIBSSH2_MD5             1
