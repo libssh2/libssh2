@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     int rc;
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
-    int counter;
+    unsigned int counter;
 
 #ifdef _WIN32
     WSADATA wsadata;

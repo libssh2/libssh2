@@ -276,7 +276,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
            https://github.com/docker/machine/issues/2612), so we retry a few
            times with exponential backoff if it fails */
         int attempt_no = 0;
-        int wait_time = 500;
+        unsigned int wait_time = 500;
         for(;;) {
             int ret = run_command(ip_address_out, "docker-machine ip %s",
                                   active_docker_machine);
@@ -338,7 +338,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
-    int counter;
+    unsigned int counter;
     libssh2_socket_t ret = LIBSSH2_INVALID_SOCKET;
 
     if(have_docker) {
@@ -393,7 +393,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     }
 
     sin.sin_family = AF_INET;
-    sin.sin_port = htons((short)strtol(port_string, NULL, 0));
+    sin.sin_port = htons((unsigned short)strtol(port_string, NULL, 0));
     sin.sin_addr.s_addr = hostaddr;
 
     for(counter = 0; counter < 3; ++counter) {
