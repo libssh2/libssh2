@@ -94,7 +94,14 @@ static int run_command_varg(char **output, const char *command, va_list args)
     }
 
     /* Format the command string */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
     ret = vsnprintf(command_buf, sizeof(command_buf), command, args);
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
     if(ret < 0 || ret >= BUFSIZ) {
         fprintf(stderr, "Unable to format command (%s)\n", command);
         return -1;
@@ -145,6 +152,9 @@ static int run_command_varg(char **output, const char *command, va_list args)
 }
 
 static int run_command(char **output, const char *command, ...)
+    LIBSSH2_PRINTF(2, 3);
+
+static int run_command(char **output, const char *command, ...)
 {
     va_list args;
     int ret;
@@ -164,7 +174,6 @@ static const char *openssh_server_image(void)
 static int build_openssh_server_docker_image(void)
 {
     if(have_docker) {
-        char buildcmd[1024];
         const char *container_image_name = openssh_server_image();
         if(container_image_name) {
             int ret = run_command(NULL, "docker pull %s",
@@ -177,12 +186,9 @@ static int build_openssh_server_docker_image(void)
                 }
             }
         }
-        buildcmd[sizeof(buildcmd)-1] = 0;
-        snprintf(buildcmd, sizeof(buildcmd)-1,
-                 "docker build --quiet -t libssh2/openssh_server %s",
-                 srcdir_path("openssh_server"));
-
-        return run_command(NULL, buildcmd);
+        return run_command(NULL,
+                           "docker build --quiet -t libssh2/openssh_server %s",
+                           srcdir_path("openssh_server"));
     }
     else {
         return 0;
@@ -276,7 +282,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
            https://github.com/docker/machine/issues/2612), so we retry a few
            times with exponential backoff if it fails */
         int attempt_no = 0;
-        int wait_time = 500;
+        unsigned int wait_time = 500;
         for(;;) {
             int ret = run_command(ip_address_out, "docker-machine ip %s",
                                   active_docker_machine);
@@ -338,7 +344,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     uint32_t hostaddr;
     libssh2_socket_t sock;
     struct sockaddr_in sin;
-    int counter;
+    unsigned int counter;
     libssh2_socket_t ret = LIBSSH2_INVALID_SOCKET;
 
     if(have_docker) {
@@ -393,7 +399,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
     }
 
     sin.sin_family = AF_INET;
-    sin.sin_port = htons((short)strtol(port_string, NULL, 0));
+    sin.sin_port = htons((unsigned short)strtol(port_string, NULL, 0));
     sin.sin_addr.s_addr = hostaddr;
 
     for(counter = 0; counter < 3; ++counter) {

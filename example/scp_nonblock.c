@@ -243,9 +243,9 @@ int main(int argc, char *argv[])
             }
 
             /* loop until we block */
-            nread = libssh2_channel_read(channel, mem, amount);
+            nread = libssh2_channel_read(channel, mem, (size_t)amount);
             if(nread > 0) {
-                write(1, mem, nread);
+                write(1, mem, (size_t)nread);
                 got += nread;
                 total += nread;
             }

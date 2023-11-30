@@ -1,6 +1,8 @@
 Things TODO
 ===========
 
+* Fix -Wsign-conversion warnings in src
+
 * Fix the numerous malloc+copy operations for sending data, see "Buffering
   Improvements" below for details
 

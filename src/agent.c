@@ -563,7 +563,7 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
         _libssh2_debug((session,
                        LIBSSH2_TRACE_KEX,
                        "Agent sign method %.*s",
-                       method_len, method_name));
+                       (int)method_len, method_name));
 
         rc = LIBSSH2_ERROR_ALGO_UNSUPPORTED;
         goto error;

@@ -208,7 +208,7 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
     }
 
     _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
-                   "unhandled zlib compression error %d, avail_out",
+                   "unhandled zlib compression error %d, avail_out %u",
                    status, strm->avail_out));
     return _libssh2_error(session, LIBSSH2_ERROR_ZLIB, "compression failure");
 }
