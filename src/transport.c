@@ -186,6 +186,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
     struct transportpacket *p = &session->packet;
     int rc;
     int compressed;
+    uint32_t seq = session->remote.seqno;
 
     if(session->fullpacket_state == libssh2_NB_state_idle) {
         session->fullpacket_macstate = LIBSSH2_MAC_CONFIRMED;
@@ -317,7 +318,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
     if(session->fullpacket_state == libssh2_NB_state_created) {
         rc = _libssh2_packet_add(session, p->payload,
                                  session->fullpacket_payload_len,
-                                 session->fullpacket_macstate);
+                                 session->fullpacket_macstate, seq);
         if(rc == LIBSSH2_ERROR_EAGAIN)
             return rc;
         if(rc) {
@@ -327,6 +328,11 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
     }
 
     session->fullpacket_state = libssh2_NB_state_idle;
+
+    if(session->kex_strict &&
+        session->fullpacket_packet_type == SSH_MSG_NEWKEYS) {
+        session->remote.seqno = 0;
+    }
 
     return session->fullpacket_packet_type;
 }
@@ -1092,6 +1098,10 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
     }
 
     session->local.seqno++;
+
+    if(session->kex_strict && data[0] == SSH_MSG_NEWKEYS) {
+        session->local.seqno = 0;
+    }
 
     ret = LIBSSH2_SEND(session, p->outbuf, total_length,
                        LIBSSH2_SOCKET_SEND_FLAGS(session));

@@ -72,6 +72,6 @@ int _libssh2_packet_burn(LIBSSH2_SESSION * session,
 int _libssh2_packet_write(LIBSSH2_SESSION * session, unsigned char *data,
                           unsigned long data_len);
 int _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
-                        size_t datalen, int macstate);
+                        size_t datalen, int macstate, uint32_t seq);
 
 #endif /* LIBSSH2_PACKET_H */
