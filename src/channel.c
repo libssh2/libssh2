@@ -2081,9 +2081,9 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
     LIBSSH2_PACKET *read_next;
 
     _libssh2_debug((session, LIBSSH2_TRACE_CONN,
-                   "channel_read() wants %d bytes from channel %u/%u "
+                   "channel_read() wants %ld bytes from channel %u/%u "
                    "stream #%d",
-                   (int) buflen, channel->local.id, channel->remote.id,
+                   (long)buflen, channel->local.id, channel->remote.id,
                    stream_id));
 
     /* expand the receiving window first if it has become too narrow */
@@ -2356,8 +2356,8 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         unsigned char *s = channel->write_packet;
 
         _libssh2_debug((channel->session, LIBSSH2_TRACE_CONN,
-                       "Writing %d bytes on channel %u/%u, stream #%d",
-                       (int) buflen, channel->local.id, channel->remote.id,
+                       "Writing %ld bytes on channel %u/%u, stream #%d",
+                       (long)buflen, channel->local.id, channel->remote.id,
                        stream_id));
 
         if(channel->local.close)
@@ -2425,8 +2425,8 @@ _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
         channel->write_packet_len = s - channel->write_packet;
 
         _libssh2_debug((session, LIBSSH2_TRACE_CONN,
-                       "Sending %d bytes on channel %u/%u, stream_id=%d",
-                       (int) channel->write_bufwrite, channel->local.id,
+                       "Sending %ld bytes on channel %u/%u, stream_id=%d",
+                       (long)channel->write_bufwrite, channel->local.id,
                        channel->remote.id, stream_id));
 
         channel->write_state = libssh2_NB_state_created;

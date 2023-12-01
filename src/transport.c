@@ -69,8 +69,8 @@ debugdump(LIBSSH2_SESSION * session,
         return;
     }
 
-    used = snprintf(buffer, sizeof(buffer), "=> %s (%d bytes)\n",
-                    desc, (int) size);
+    used = snprintf(buffer, sizeof(buffer), "=> %s (%lu bytes)\n",
+                    desc, (unsigned long) size);
     if(session->tracehandler)
         (session->tracehandler)(session, session->tracehandler_context,
                                 buffer, used);

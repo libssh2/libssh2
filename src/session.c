@@ -132,11 +132,11 @@ banner_receive(LIBSSH2_SESSION * session)
             if(session->api_block_mode || (ret != -EAGAIN))
                 /* ignore EAGAIN when non-blocking */
                 _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                               "Error recving %d bytes: %d", 1, (int)-ret));
+                               "Error recving %d bytes: %ld", 1, (long)-ret));
         }
         else
             _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                           "Recved %d bytes banner", (int)ret));
+                           "Recved %ld bytes banner", (long)ret));
 
         if(ret < 0) {
             if(ret == -EAGAIN) {

@@ -645,8 +645,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
     switch(session->packAdd_state) {
     case libssh2_NB_state_idle:
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
-                       "Packet type %u received, length=%d",
-                       (unsigned int) msg, (int) datalen));
+                       "Packet type %u received, length=%ld",
+                       (unsigned int) msg, (long) datalen));
 
         if((macstate == LIBSSH2_MAC_INVALID) &&
             (!session->macerror ||
@@ -921,8 +921,8 @@ libssh2_packet_add_jump_point5:
                     stream_id = _libssh2_ntohu32(data + 5);
 
                 _libssh2_debug((session, LIBSSH2_TRACE_CONN,
-                               "%d bytes packet_add() for %u/%u/%u",
-                               (int) (datalen - data_head),
+                               "%ld bytes packet_add() for %u/%u/%u",
+                               (long) (datalen - data_head),
                                channelp->local.id,
                                channelp->remote.id,
                                stream_id));
@@ -935,8 +935,8 @@ libssh2_packet_add_jump_point5:
                 LIBSSH2_FREE(session, data);
 
                 _libssh2_debug((session, LIBSSH2_TRACE_CONN,
-                               "Ignoring extended data and refunding %d bytes",
-                               (int) (datalen - 13)));
+                              "Ignoring extended data and refunding %ld bytes",
+                               (long) (datalen - 13)));
                 if(channelp->read_avail + datalen - data_head >=
                     channelp->remote.window_size)
                     datalen = channelp->remote.window_size -
