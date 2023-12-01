@@ -163,8 +163,8 @@ int main(int argc, char *argv[])
             write(1, mem, (size_t)nread);
         }
         else if(nread < 0) {
-            fprintf(stderr, "libssh2_channel_read() failed: %d\n",
-                    (int)nread);
+            fprintf(stderr, "libssh2_channel_read() failed: %ld\n",
+                    (long)nread);
             break;
         }
         got += nread;

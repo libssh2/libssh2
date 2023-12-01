@@ -227,8 +227,8 @@ int main(int argc, char *argv[])
         do {
             /* read in a loop until we block */
             nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
-            fprintf(stderr, "libssh2_sftp_read returned %d\n",
-                    (int)nread);
+            fprintf(stderr, "libssh2_sftp_read returned %ld\n",
+                    (long)nread);
 
             if(nread > 0) {
                 /* write to stderr */
@@ -321,8 +321,7 @@ int main(int argc, char *argv[])
             if(rc <= 0) {
                 /* negative is error
                    0 is timeout */
-                fprintf(stderr, "SFTP upload timed out: %d\n",
-                        rc);
+                fprintf(stderr, "SFTP upload timed out: %d\n", rc);
                 break;
             }
         } while(1);
