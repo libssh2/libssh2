@@ -368,7 +368,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           dnl this is a set of options we believe *ALL* gcc versions support:
           tmp_CFLAGS="-pedantic"
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [all])
-          tmp_CFLAGS="-W"
+          tmp_CFLAGS="$tmp_CFLAGS -W"
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [pointer-arith write-strings])
           #
           dnl Only gcc 2.7 or later
