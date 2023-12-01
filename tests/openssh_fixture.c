@@ -94,7 +94,14 @@ static int run_command_varg(char **output, const char *command, va_list args)
     }
 
     /* Format the command string */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
     ret = vsnprintf(command_buf, sizeof(command_buf), command, args);
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
     if(ret < 0 || ret >= BUFSIZ) {
         fprintf(stderr, "Unable to format command (%s)\n", command);
         return -1;
