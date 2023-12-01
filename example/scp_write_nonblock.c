@@ -230,8 +230,9 @@ int main(int argc, char *argv[])
                 prev = 0;
             }
             if(nwritten < 0) {
-                fprintf(stderr, "ERROR %d total %ld / %d prev %d\n",
-                        (int)nwritten, (long)total, (int)nread, (int)prev);
+                fprintf(stderr, "ERROR %ld total %ld / %lu prev %lu\n",
+                        (long)nwritten, (long)total,
+                        (unsigned long)nread, (unsigned long)prev);
                 break;
             }
             else {

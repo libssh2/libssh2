@@ -1567,8 +1567,9 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                more packets */
             count -= LIBSSH2_MIN(size, count);
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                           "read request id %d sent (offset: %d, size: %d)",
-                           request_id, (int)chunk->offset, (int)chunk->len));
+                           "read request id %d sent (offset: %lu, size: %lu)",
+                           request_id, (unsigned long)chunk->offset,
+                           (unsigned long)chunk->len));
         }
         LIBSSH2_FALLTHROUGH();
     case libssh2_NB_state_sent:

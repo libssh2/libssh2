@@ -270,8 +270,8 @@ int main(int argc, char *argv[])
             do {
                 nwritten = libssh2_channel_write(channel, buf, (size_t)len);
                 if(nwritten < 0) {
-                    fprintf(stderr, "libssh2_channel_write: %d\n",
-                            (int)nwritten);
+                    fprintf(stderr, "libssh2_channel_write: %ld\n",
+                            (long)nwritten);
                     goto shutdown;
                 }
                 wr += nwritten;
@@ -283,8 +283,8 @@ int main(int argc, char *argv[])
             if(LIBSSH2_ERROR_EAGAIN == len)
                 break;
             else if(len < 0) {
-                fprintf(stderr, "libssh2_channel_read: %d",
-                        (int)len);
+                fprintf(stderr, "libssh2_channel_read: %ld",
+                        (long)len);
                 goto shutdown;
             }
             wr = 0;

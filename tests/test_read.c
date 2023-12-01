@@ -96,7 +96,7 @@ int test(LIBSSH2_SESSION *session)
         char buf[1024];
         ssize_t err = libssh2_channel_read(channel, buf, sizeof(buf));
         if(err < 0)
-            fprintf(stderr, "Unable to read response: %d\n", (int)err);
+            fprintf(stderr, "Unable to read response: %ld\n", (long)err);
         else {
             unsigned int i;
             for(i = 0; i < (unsigned long)err; ++i) {

@@ -241,8 +241,8 @@ int main(int argc, char *argv[])
             else {
                 if(nread != LIBSSH2_ERROR_EAGAIN)
                     /* no need to output this for the EAGAIN case */
-                    fprintf(stderr, "libssh2_channel_read returned %d\n",
-                            (int)nread);
+                    fprintf(stderr, "libssh2_channel_read returned %ld\n",
+                            (long)nread);
             }
         }
         while(nread > 0);
@@ -269,8 +269,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "\nGot signal: %s\n", exitsignal);
     }
     else {
-        fprintf(stderr, "\nEXIT: %d bytecount: %d\n",
-                exitcode, (int)bytecount);
+        fprintf(stderr, "\nEXIT: %d bytecount: %ld\n",
+                exitcode, (long)bytecount);
     }
 
     libssh2_channel_free(channel);

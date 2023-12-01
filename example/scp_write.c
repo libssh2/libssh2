@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
             /* write the same data over and over, until error or completion */
             nwritten = libssh2_channel_write(channel, ptr, nread);
             if(nwritten < 0) {
-                fprintf(stderr, "ERROR %d\n", (int)nwritten);
+                fprintf(stderr, "ERROR %ld\n", (long)nwritten);
                 break;
             }
             else {
