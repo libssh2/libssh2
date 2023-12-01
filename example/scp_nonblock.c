@@ -224,12 +224,12 @@ int main(int argc, char *argv[])
                 goto shutdown;
             }
             else {
-                fprintf(stderr, "libssh2_scp_recv() spin\n");
+                fprintf(stderr, "libssh2_scp_recv2() spin\n");
                 waitsocket(sock, session);
             }
         }
     } while(!channel);
-    fprintf(stderr, "libssh2_scp_recv() is done, now receive data.\n");
+    fprintf(stderr, "libssh2_scp_recv2() is done, now receive data.\n");
 
     while(got < fileinfo.st_size) {
         char mem[1024 * 24];
