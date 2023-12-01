@@ -44,3 +44,6 @@ TAGS
 *~
 .DS_Store
 build
+
+.vs
+dev
