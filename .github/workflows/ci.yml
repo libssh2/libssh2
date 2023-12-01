@@ -225,6 +225,7 @@ jobs:
       fail-fast: false
       matrix:
         build: [autotools, cmake]
+        compiler: [gcc]
     env:
       TRIPLET: 'x86_64-w64-mingw32'
     steps:
@@ -262,8 +263,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - { build: 'automake', platform: 'x86_64' }
-          - { build: 'cmake'   , platform: 'x86_64' }
+          - { build: 'automake', platform: 'x86_64', compiler: 'gcc' }
+          - { build: 'cmake'   , platform: 'x86_64', compiler: 'gcc' }
       fail-fast: false
     steps:
       - run: git config --global core.autocrlf input
