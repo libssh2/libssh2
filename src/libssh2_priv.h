@@ -124,6 +124,15 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp);
 #include <sys/time.h>
 #endif
 
+#if !defined(LIBSSH2_FALLTHROUGH)
+#if (defined(__GNUC__) && __GNUC__ >= 7) || \
+    (defined(__clang__) && __clang_major__ >= 10)
+#  define LIBSSH2_FALLTHROUGH()  __attribute__((fallthrough))
+#else
+#  define LIBSSH2_FALLTHROUGH()  do {} while (0)
+#endif
+#endif
+
 /* "inline" keyword is valid only with C++ engine! */
 #ifdef __GNUC__
 #undef inline

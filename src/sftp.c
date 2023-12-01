@@ -310,7 +310,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
                        "partial read cont, already recvd: %lu",
                        sftp->partial_received));
-        /* fall-through */
+        LIBSSH2_FALLTHROUGH();
     default:
         if(!packet) {
             /* only do this if there's not already a packet buffer allocated
@@ -1570,7 +1570,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
                            "read request id %d sent (offset: %d, size: %d)",
                            request_id, (int)chunk->offset, (int)chunk->len));
         }
-        /* FALL-THROUGH */
+        LIBSSH2_FALLTHROUGH();
     case libssh2_NB_state_sent:
 
         sftp->read_state = libssh2_NB_state_idle;
@@ -1610,7 +1610,7 @@ static ssize_t sftp_read(LIBSSH2_SFTP_HANDLE * handle, char *buffer,
             /* move on to the next chunk with data to send */
             chunk = _libssh2_list_next(&chunk->node);
         }
-        /* FALL-THROUGH */
+        LIBSSH2_FALLTHROUGH();
 
     case libssh2_NB_state_sent2:
 
@@ -2184,7 +2184,8 @@ static ssize_t sftp_write(LIBSSH2_SFTP_HANDLE *handle, const char *buffer,
             chunk = _libssh2_list_next(&chunk->node);
         }
 
-        /* fall-through */
+        LIBSSH2_FALLTHROUGH();
+
     case libssh2_NB_state_sent:
 
         sftp->write_state = libssh2_NB_state_idle;
