@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
             shost, sport, remote_desthost, remote_destport);
 
     channel = libssh2_channel_direct_tcpip_ex(session, remote_desthost,
-        remote_destport, shost, sport);
+                                              remote_destport, shost, sport);
     if(!channel) {
         fprintf(stderr, "Could not open the direct-tcpip channel.\n"
                         "(Note that this can be a problem at the server."
