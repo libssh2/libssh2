@@ -152,7 +152,7 @@ remove_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
                                                               request_id);
     if(zombie) {
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Removing request ID %ld from the list of "
+                       "Removing request ID %u from the list of "
                        "zombie requests",
                        request_id));
 
@@ -169,13 +169,13 @@ add_zombie_request(LIBSSH2_SFTP *sftp, uint32_t request_id)
     struct sftp_zombie_requests *zombie;
 
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                   "Marking request ID %ld as a zombie request", request_id));
+                   "Marking request ID %u as a zombie request", request_id));
 
     zombie = LIBSSH2_ALLOC(sftp->channel->session,
                            sizeof(struct sftp_zombie_requests));
     if(!zombie)
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                              "malloc fail for zombie request  ID");
+                              "malloc fail for zombie request ID");
     else {
         zombie->request_id = request_id;
         _libssh2_list_add(&sftp->zombie_requests, &zombie->node);
@@ -199,8 +199,8 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
     }
 
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                   "Received packet type %d (len %d)",
-                   (int) data[0], data_len));
+                   "Received packet type %u (len %lu)",
+                   (unsigned int)data[0], (unsigned long)data_len));
 
     /*
      * Experience shows that if we mess up EAGAIN handling somewhere or
@@ -306,10 +306,10 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
         packet = sftp->partial_packet;
 
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "partial read cont, len: %lu", sftp->partial_len));
+                       "partial read cont, len: %u", sftp->partial_len));
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
                        "partial read cont, already recvd: %lu",
-                       sftp->partial_received));
+                       (unsigned long)sftp->partial_received));
         LIBSSH2_FALLTHROUGH();
     default:
         if(!packet) {
@@ -359,7 +359,7 @@ sftp_packet_read(LIBSSH2_SFTP *sftp)
 
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
                            "Data begin - Packet Length: %lu",
-                           sftp->partial_len));
+                           (unsigned long)sftp->partial_len));
             packet = LIBSSH2_ALLOC(session, sftp->partial_len);
             if(!packet)
                 return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -526,13 +526,13 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
         return LIBSSH2_ERROR_BAD_USE;
     }
 
-    _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Requiring packet %d id %ld",
-                   (int) packet_type, request_id));
+    _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Requiring packet %u id %u",
+                   (unsigned int) packet_type, request_id));
 
     if(sftp_packet_ask(sftp, packet_type, request_id, data, data_len) == 0) {
         /* The right packet was available in the packet brigade */
-        _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Got %d",
-                       (int) packet_type));
+        _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Got %u",
+                       (unsigned int) packet_type));
 
         if(*data_len < required_size) {
             return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
@@ -550,7 +550,7 @@ sftp_packet_require(LIBSSH2_SFTP *sftp, unsigned char packet_type,
         if(!sftp_packet_ask(sftp, packet_type, request_id, data, data_len)) {
             /* The right packet was available in the packet brigade */
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "Got %d",
-                           (int) packet_type));
+                           (unsigned int) packet_type));
 
             if(*data_len < required_size) {
                 return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
@@ -979,12 +979,12 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
     if(sftp_handle->version > LIBSSH2_SFTP_VERSION) {
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                       "Truncating remote SFTP version from %lu",
+                       "Truncating remote SFTP version from %u",
                        sftp_handle->version));
         sftp_handle->version = LIBSSH2_SFTP_VERSION;
     }
     _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                   "Enabling SFTP version %lu compatibility",
+                   "Enabling SFTP version %u compatibility",
                    sftp_handle->version));
     while(buf.dataptr < endp) {
         unsigned char *extname, *extdata;
@@ -1921,8 +1921,8 @@ static ssize_t sftp_readdir(LIBSSH2_SFTP_HANDLE *handle, char *buffer,
 
 end:
             _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
-                           "libssh2_sftp_readdir_ex() return %d",
-                           filename_len));
+                           "libssh2_sftp_readdir_ex() return %lu",
+                           (unsigned long)filename_len));
             return (ssize_t)filename_len;
         }
 
@@ -2002,7 +2002,7 @@ end:
     sftp->readdir_state = libssh2_NB_state_idle;
 
     num_names = _libssh2_ntohu32(data + 5);
-    _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "%lu entries returned",
+    _libssh2_debug((session, LIBSSH2_TRACE_SFTP, "%u entries returned",
                    num_names));
     if(!num_names) {
         LIBSSH2_FREE(session, data);

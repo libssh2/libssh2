@@ -253,13 +253,14 @@ banner_send(LIBSSH2_SESSION * session)
                        LIBSSH2_SOCKET_SEND_FLAGS(session));
     if(ret < 0)
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                       "Error sending %d bytes: %d",
-                       banner_len - session->banner_TxRx_total_send, -ret));
+                       "Error sending %ld bytes: %ld",
+                       (long)(banner_len - session->banner_TxRx_total_send),
+                       (long)-ret));
     else
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                       "Sent %d/%d bytes at %p+%d", ret,
-                       banner_len - session->banner_TxRx_total_send,
-                       banner, session->banner_TxRx_total_send));
+                       "Sent %ld/%ld bytes at %p+%ld", (long)ret,
+                       (long)(banner_len - session->banner_TxRx_total_send),
+                       (void *)banner, (long)session->banner_TxRx_total_send));
 
     if(ret != (ssize_t)(banner_len - session->banner_TxRx_total_send)) {
         if(ret >= 0 || ret == -EAGAIN) {
@@ -864,8 +865,8 @@ session_free(LIBSSH2_SESSION *session)
 
     if(session->free_state == libssh2_NB_state_idle) {
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
-                       "Freeing session resource",
-                       session->remote.banner));
+                       "Freeing session resource %p",
+                       (void *)session->remote.banner));
 
         session->free_state = libssh2_NB_state_created;
     }

@@ -748,7 +748,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                 }
                 _libssh2_debug((session, LIBSSH2_TRACE_SCP,
                                "mode = 0%lo size = %ld", session->scpRecv_mode,
-                               session->scpRecv_size));
+                               (long)session->scpRecv_size));
 
                 /* We *should* check that basename is valid, but why let that
                    stop us? */

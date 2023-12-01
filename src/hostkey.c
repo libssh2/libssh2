@@ -106,7 +106,7 @@ hostkey_method_ssh_rsa_init(LIBSSH2_SESSION * session,
 #endif
     {
         _libssh2_debug((session, LIBSSH2_TRACE_ERROR,
-                       "unexpected rsa type: %.*s", type_len, type));
+                       "unexpected rsa type: %.*s", (int)type_len, type));
         return -1;
     }
 

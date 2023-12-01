@@ -302,8 +302,8 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                exchange_state->e_packet + 6);
         }
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Sending KEX packet %d",
-                       (int) packet_type_init));
+        _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Sending KEX packet %u",
+                       (unsigned int) packet_type_init));
         exchange_state->state = libssh2_NB_state_created;
     }
 
