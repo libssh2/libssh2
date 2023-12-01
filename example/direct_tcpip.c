@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
     }
 
     fprintf(stderr, "Waiting for TCP connection on %s:%d...\n",
-        inet_ntoa(sin.sin_addr), ntohs(sin.sin_port));
+            inet_ntoa(sin.sin_addr), ntohs(sin.sin_port));
 
     forwardsock = accept(listensock, (struct sockaddr *)&sin, &sinlen);
     if(forwardsock == LIBSSH2_INVALID_SOCKET) {
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
     sport = ntohs(sin.sin_port);
 
     fprintf(stderr, "Forwarding connection from %s:%d here to remote %s:%d\n",
-        shost, sport, remote_desthost, remote_destport);
+            shost, sport, remote_desthost, remote_destport);
 
     channel = libssh2_channel_direct_tcpip_ex(session, remote_desthost,
         remote_destport, shost, sport);
@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
             }
             else if(len == 0) {
                 fprintf(stderr, "The client at %s:%d disconnected.\n", shost,
-                    sport);
+                        sport);
                 goto shutdown;
             }
             wr = 0;
@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
             }
             if(libssh2_channel_eof(channel)) {
                 fprintf(stderr, "The server at %s:%d disconnected.\n",
-                    remote_desthost, remote_destport);
+                        remote_desthost, remote_destport);
                 goto shutdown;
             }
         }
