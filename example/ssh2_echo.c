@@ -219,11 +219,11 @@ int main(int argc, char *argv[])
     else {
         LIBSSH2_POLLFD *fds = NULL;
         int running = 1;
-        ssize_t bufsize = BUFSIZE;
+        size_t bufsize = BUFSIZE;
         char buffer[BUFSIZE];
-        ssize_t totsize = 1500000;
-        ssize_t totwritten = 0;
-        ssize_t totread = 0;
+        size_t totsize = 1500000;
+        size_t totwritten = 0;
+        size_t totread = 0;
         int rereads = 0;
         int rewrites = 0;
         int i;
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
                     exit(1);
                 }
                 else {
-                    totread += n;
+                    totread += (size_t)n;
                     fprintf(stderr, "read %d bytes (%d in total)\n",
                             (int)n, (int)totread);
                 }
@@ -273,8 +273,8 @@ int main(int argc, char *argv[])
 
                 if(totwritten < totsize) {
                     /* we have not written all data yet */
-                    ssize_t left = totsize - totwritten;
-                    ssize_t size = (left < bufsize) ? left : bufsize;
+                    size_t left = totsize - totwritten;
+                    size_t size = (left < bufsize) ? left : bufsize;
                     ssize_t n = libssh2_channel_write_ex(channel, 0,
                                                          buffer, size);
 
@@ -287,10 +287,10 @@ int main(int argc, char *argv[])
                         exit(1);
                     }
                     else {
-                        totwritten += n;
+                        totwritten += (size_t)n;
                         fprintf(stderr, "wrote %d bytes (%d in total)",
                                 (int)n, (int)totwritten);
-                        if(left >= bufsize && n != bufsize) {
+                        if(left >= bufsize && (size_t)n != bufsize) {
                             fprintf(stderr, " PARTIAL");
                         }
                         fprintf(stderr, "\n");
@@ -310,7 +310,8 @@ int main(int argc, char *argv[])
                     else {
                         fprintf(stderr, "sent eof\n");
                         /* we're done writing, stop listening for OUT events */
-                        fds[0].events &= ~LIBSSH2_POLLFD_POLLOUT;
+                        fds[0].events &=
+                            ~(unsigned long)LIBSSH2_POLLFD_POLLOUT;
                     }
                 }
             }

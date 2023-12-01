@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
             }
             wr = 0;
             do {
-                nwritten = libssh2_channel_write(channel, buf, len);
+                nwritten = libssh2_channel_write(channel, buf, (size_t)len);
                 if(nwritten < 0) {
                     fprintf(stderr, "libssh2_channel_write: %d\n",
                             (int)nwritten);
@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
             }
             wr = 0;
             while(wr < len) {
-                nsent = send(forwardsock, buf + wr, len - wr, 0);
+                nsent = send(forwardsock, buf + wr, (size_t)(len - wr), 0);
                 if(nsent <= 0) {
                     fprintf(stderr, "failed to send().\n");
                     goto shutdown;

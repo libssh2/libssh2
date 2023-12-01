@@ -41,10 +41,10 @@ static const char *password = "";
 static const char *server_ip = "127.0.0.1";
 
 static const char *local_listenip = "127.0.0.1";
-static unsigned int local_listenport = 2222;
+static int local_listenport = 2222;
 
 static const char *remote_desthost = "localhost"; /* resolved by the server */
-static unsigned int remote_destport = 22;
+static int remote_destport = 22;
 
 enum {
     AUTH_NONE = 0,
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel = NULL;
     const char *shost;
-    unsigned int sport;
+    int sport;
     fd_set fds;
     struct timeval tv;
     ssize_t len, wr;
@@ -270,7 +270,8 @@ int main(int argc, char *argv[])
             wr = 0;
             while(wr < len) {
                 ssize_t nwritten = libssh2_channel_write(channel,
-                                                         buf + wr, len - wr);
+                                                         buf + wr,
+                                                         (size_t)(len - wr));
                 if(nwritten == LIBSSH2_ERROR_EAGAIN) {
                     continue;
                 }
@@ -292,7 +293,8 @@ int main(int argc, char *argv[])
             }
             wr = 0;
             while(wr < len) {
-                ssize_t nsent = send(forwardsock, buf + wr, len - wr, 0);
+                ssize_t nsent = send(forwardsock, buf + wr,
+                                     (size_t)(len - wr), 0);
                 if(nsent <= 0) {
                     fprintf(stderr, "failed to send().\n");
                     goto shutdown;

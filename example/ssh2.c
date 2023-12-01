@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
             if(err < 0)
                 fprintf(stderr, "Unable to read response: %d\n", (int)err);
             else {
-                fwrite(buf, 1, err, stdout);
+                fwrite(buf, 1, (size_t)err, stdout);
             }
         }
     }

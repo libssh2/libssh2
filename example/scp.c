@@ -158,9 +158,9 @@ int main(int argc, char *argv[])
             amount = (int)(fileinfo.st_size - got);
         }
 
-        nread = libssh2_channel_read(channel, mem, amount);
+        nread = libssh2_channel_read(channel, mem, (size_t)amount);
         if(nread > 0) {
-            write(1, mem, nread);
+            write(1, mem, (size_t)nread);
         }
         else if(nread < 0) {
             fprintf(stderr, "libssh2_channel_read() failed: %d\n",

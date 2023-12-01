@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
         }
         ptr = mem;
 
-        total += nread;
+        total += (libssh2_struct_stat_size)nread;
 
         prev = 0;
         do {
@@ -238,8 +238,8 @@ int main(int argc, char *argv[])
                 prev = nread;
 
                 /* nwritten indicates how many bytes were written this time */
-                nread -= nwritten;
                 ptr += nwritten;
+                nread -= (size_t)nwritten;
             }
         } while(nread);
     } while(!nread); /* only continue if nread was drained */

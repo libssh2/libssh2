@@ -232,9 +232,9 @@ int main(int argc, char *argv[])
 
             if(nread > 0) {
                 /* write to stderr */
-                write(2, mem, nread);
+                write(2, mem, (size_t)nread);
                 /* write to temporary storage area */
-                fwrite(mem, nread, 1, tempstorage);
+                fwrite(mem, (size_t)nread, 1, tempstorage);
             }
         } while(nread > 0);
 
@@ -297,8 +297,10 @@ int main(int argc, char *argv[])
                 /* write data in a loop until we block */
                 nwritten = libssh2_sftp_write(sftp_handle, ptr,
                                               nread);
+                if(nwritten < 0)
+                    break;
                 ptr += nwritten;
-                nread -= nwritten;
+                nread -= (size_t)nwritten;
             } while(nwritten >= 0);
 
             if(nwritten != LIBSSH2_ERROR_EAGAIN) {
