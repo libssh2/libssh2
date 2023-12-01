@@ -1416,7 +1416,7 @@ libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent);
  */
 LIBSSH2_API void libssh2_keepalive_config(LIBSSH2_SESSION *session,
                                           int want_reply,
-                                          unsigned interval);
+                                          unsigned int interval);
 
 /*
  * libssh2_keepalive_send()

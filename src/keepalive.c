@@ -45,7 +45,7 @@
 LIBSSH2_API void
 libssh2_keepalive_config(LIBSSH2_SESSION *session,
                          int want_reply,
-                         unsigned interval)
+                         unsigned int interval)
 {
     if(interval == 1)
         session->keepalive_interval = 2;
