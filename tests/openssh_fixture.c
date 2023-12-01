@@ -152,6 +152,9 @@ static int run_command_varg(char **output, const char *command, va_list args)
 }
 
 static int run_command(char **output, const char *command, ...)
+    LIBSSH2_PRINTF(2, 3);
+
+static int run_command(char **output, const char *command, ...)
 {
     va_list args;
     int ret;
@@ -171,7 +174,6 @@ static const char *openssh_server_image(void)
 static int build_openssh_server_docker_image(void)
 {
     if(have_docker) {
-        char buildcmd[1024];
         const char *container_image_name = openssh_server_image();
         if(container_image_name) {
             int ret = run_command(NULL, "docker pull %s",
@@ -184,12 +186,9 @@ static int build_openssh_server_docker_image(void)
                 }
             }
         }
-        buildcmd[sizeof(buildcmd)-1] = 0;
-        snprintf(buildcmd, sizeof(buildcmd)-1,
-                 "docker build --quiet -t libssh2/openssh_server %s",
-                 srcdir_path("openssh_server"));
-
-        return run_command(NULL, buildcmd);
+        return run_command(NULL,
+                           "docker build --quiet -t libssh2/openssh_server %s",
+                           srcdir_path("openssh_server"));
     }
     else {
         return 0;
