@@ -106,12 +106,21 @@
 #define TRUE 1
 #endif
 
+#if (defined(__GNUC__) || defined(__clang__)) && \
+    defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && \
+    !defined(__MINGW32__) && !defined(LIBSSH2_NO_FMT_CHECKS)
+#define LIBSSH2_PRINTF(fmt, arg)  __attribute__((format(printf, fmt, arg)))
+#else
+#define LIBSSH2_PRINTF(fmt, arg)
+#endif
+
 /* Use local implementation when not available */
 #if !defined(HAVE_SNPRINTF)
 #undef snprintf
 #define snprintf _libssh2_snprintf
 #define LIBSSH2_SNPRINTF
-int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...);
+int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
+    LIBSSH2_PRINTF(3, 4);
 #endif
 
 #if !defined(HAVE_GETTIMEOFDAY)
@@ -1057,7 +1066,7 @@ struct _LIBSSH2_COMP_METHOD
 #ifdef LIBSSH2DEBUG
 void
 _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
-                   ...);
+                   ...) LIBSSH2_PRINTF(3, 4);
 #define _libssh2_debug(x) _libssh2_debug_low x
 #else
 #define _libssh2_debug(x) do {} while(0)
