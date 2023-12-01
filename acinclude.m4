@@ -499,7 +499,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [restrict])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [alloc-zero])
             tmp_CFLAGS="$tmp_CFLAGS -Wformat-overflow=2"
-            tmp_CFLAGS="$tmp_CFLAGS -Wformat-truncation=1"  # =2 causes false positives
+            tmp_CFLAGS="$tmp_CFLAGS -Wformat-truncation=2"
           fi
           #
           dnl Only gcc 10 or later

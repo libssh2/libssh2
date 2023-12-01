@@ -85,7 +85,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
 
     FILE *pipe;
     char command_buf[BUFSIZ];
-    char buf[BUFSIZ];
+    char buf[BUFSIZ + sizeof(redirect_stderr)];
     int ret;
     size_t buf_len;
 
