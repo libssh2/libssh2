@@ -137,8 +137,8 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
         while(listn) {
             if((listn->port == (int) listen_state->port) &&
                 (strlen(listn->host) == listen_state->host_len) &&
-                (memcmp (listn->host, listen_state->host,
-                         listen_state->host_len) == 0)) {
+                (memcmp(listn->host, listen_state->host,
+                        listen_state->host_len) == 0)) {
                 /* This is our listener */
                 LIBSSH2_CHANNEL *channel = NULL;
                 listen_state->channel = NULL;
