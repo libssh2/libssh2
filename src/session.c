@@ -418,6 +418,7 @@ libssh2_session_banner_set(LIBSSH2_SESSION * session, const char *banner)
     return 0;
 }
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /* libssh2_banner_set
  * Set the local banner. DEPRECATED VERSION
  */
@@ -426,6 +427,7 @@ libssh2_banner_set(LIBSSH2_SESSION * session, const char *banner)
 {
     return libssh2_session_banner_set(session, banner);
 }
+#endif
 
 /*
  * libssh2_session_init_ex
@@ -831,6 +833,7 @@ libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t sock)
     return rc;
 }
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /*
  * libssh2_session_startup
  *
@@ -847,6 +850,7 @@ libssh2_session_startup(LIBSSH2_SESSION *session, int sock)
 {
     return libssh2_session_handshake(session, (libssh2_socket_t) sock);
 }
+#endif
 
 /*
  * session_free

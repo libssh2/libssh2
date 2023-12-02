@@ -1930,6 +1930,7 @@ _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
     return 0;
 }
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /*
  * libssh2_channel_receive_window_adjust
  *
@@ -1963,6 +1964,7 @@ libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
        kept for backwards compatibility */
     return rc ? (unsigned long)rc : window;
 }
+#endif
 
 /*
  * libssh2_channel_receive_window_adjust2
@@ -2038,6 +2040,7 @@ libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
     return rc;
 }
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /*
  * libssh2_channel_handle_extended_data
  *
@@ -2054,7 +2057,7 @@ libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
 {
     (void)libssh2_channel_handle_extended_data2(channel, ignore_mode);
 }
-
+#endif
 
 
 /*
