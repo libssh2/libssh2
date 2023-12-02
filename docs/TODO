@@ -23,6 +23,9 @@ Things TODO
 * select() is troublesome with libssh2 when using multiple channels over
   the same session. See "New Transport API" below for more details.
 
+* for obsolete/weak/insecure algorithms: either stop enabling them by default
+  at build-time, or delete support for them completely.
+
 At next SONAME bump
 ===================
 
