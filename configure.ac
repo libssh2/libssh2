@@ -242,6 +242,19 @@ AS_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibi
        AC_MSG_RESULT(no)
 )
 
+# Build without deprecated APIs?
+AC_ARG_ENABLE([deprecated-apis],
+  [AS_HELP_STRING([--disable-deprecated-apis], [Build without deprecated APIs @<:@default=no@:>@])],
+  [case "$enableval" in
+   *)
+     disable_deprecated_apis=yes
+     CFLAGS="$CFLAGS -DLIBSSH2_NO_DEPRECATED"
+     ;;
+esac],
+  [disable_deprecated_apis="no"])
+AC_MSG_RESULT($disable_deprecated_apis)
+AM_CONDITIONAL([NO_DEPRECATED_APIS], [test "x$disable_deprecated_apis" = xyes])
+
 # Build tests?
 AC_ARG_ENABLE([tests],
   [AS_HELP_STRING([--disable-tests], [Disable tests @<:@default=enabled@:>@])],

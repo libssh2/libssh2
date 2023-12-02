@@ -617,10 +617,12 @@ LIBSSH2_API void *libssh2_session_callback_set(LIBSSH2_SESSION *session,
                                                int cbtype, void *callback);
 LIBSSH2_API int libssh2_session_banner_set(LIBSSH2_SESSION *session,
                                            const char *banner);
+#ifndef LIBSSH2_NO_DEPRECATED
 LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION *session,
                                    const char *banner);
 
 LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int sock);
+#endif
 LIBSSH2_API int libssh2_session_handshake(LIBSSH2_SESSION *session,
                                           libssh2_socket_t sock);
 LIBSSH2_API int libssh2_session_disconnect_ex(LIBSSH2_SESSION *session,
@@ -907,12 +909,13 @@ libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
 #define libssh2_channel_window_read(channel) \
     libssh2_channel_window_read_ex((channel), NULL, NULL)
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /* libssh2_channel_receive_window_adjust() is DEPRECATED, do not use! */
 LIBSSH2_API unsigned long
 libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
                                       unsigned long adjustment,
                                       unsigned char force);
-
+#endif
 LIBSSH2_API int
 libssh2_channel_receive_window_adjust2(LIBSSH2_CHANNEL *channel,
                                        unsigned long adjustment,
@@ -951,12 +954,15 @@ LIBSSH2_API void libssh2_session_set_read_timeout(LIBSSH2_SESSION* session,
                                                   long timeout);
 LIBSSH2_API long libssh2_session_get_read_timeout(LIBSSH2_SESSION* session);
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /* libssh2_channel_handle_extended_data() is DEPRECATED, do not use! */
 LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
                                                       int ignore_mode);
+#endif
 LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
                                                       int ignore_mode);
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /* libssh2_channel_ignore_extended_data() is defined below for BC with version
  * 0.1
  *
@@ -969,6 +975,7 @@ LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
     libssh2_channel_handle_extended_data((channel), (ignore) ?                \
                                        LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE : \
                                        LIBSSH2_CHANNEL_EXTENDED_DATA_NORMAL)
+#endif
 
 #define LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA     -1
 #define LIBSSH2_CHANNEL_FLUSH_ALL               -2
@@ -993,10 +1000,12 @@ LIBSSH2_API int libssh2_channel_close(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_wait_closed(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL *channel);
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /* libssh2_scp_recv is DEPRECATED, do not use! */
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session,
                                               const char *path,
                                               struct stat *sb);
+#endif
 /* Use libssh2_scp_recv2() for large (> 2GB) file support on windows */
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv2(LIBSSH2_SESSION *session,
                                                const char *path,
