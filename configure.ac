@@ -211,7 +211,7 @@ dnl
 AC_MSG_CHECKING([whether to enable hidden symbols in the library])
 AC_ARG_ENABLE(hidden-symbols,
 AS_HELP_STRING([--enable-hidden-symbols],[Hide internal symbols in library])
-AS_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibility in library]),
+AS_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibility in library (default)]),
 [ case "$enableval" in
   no)
        AC_MSG_RESULT(no)
