@@ -1517,7 +1517,7 @@ retry_auth:
             _libssh2_debug((session,
                            LIBSSH2_TRACE_KEX,
                            "Signing using %.*s",
-                           session->userauth_pblc_method_len,
+                           (int)session->userauth_pblc_method_len,
                            session->userauth_pblc_method));
         }
 

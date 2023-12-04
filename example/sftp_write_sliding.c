@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
                 break;
         }
         memuse += nread;
-        total += nread;
+        total += (libssh2_struct_stat_size)nread;
 
         /* write data in a loop until we block */
         while((nwritten = libssh2_sftp_write(sftp_handle, mem, memuse)) ==
@@ -254,10 +254,10 @@ int main(int argc, char *argv[])
         if(nwritten < 0)
             break;
 
-        if(memuse - nwritten) {
+        if(memuse - (size_t)nwritten) {
             /* make room for more data at the end of the buffer */
-            memmove(&mem[0], &mem[nwritten], memuse - nwritten);
-            memuse -= nwritten;
+            memmove(&mem[0], &mem[nwritten], memuse - (size_t)nwritten);
+            memuse -= (size_t)nwritten;
         }
         else
             /* 'mem' was consumed fully */

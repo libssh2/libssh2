@@ -98,11 +98,12 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wmissing-field-initializers         # clang  2.7  gcc  4.1
       -Wmissing-noreturn                   # clang  2.7  gcc  4.1
       -Wno-format-nonliteral               # clang  1.0  gcc  2.96 (3.0)
-      -Wno-sign-conversion                 # clang  2.9  gcc  4.3
       -Wno-system-headers                  # clang  1.0  gcc  3.0
     # -Wpadded                             # clang  2.9  gcc  4.1               # Not used because we cannot change public structs
       -Wold-style-definition               # clang  2.7  gcc  3.4
       -Wredundant-decls                    # clang  2.7  gcc  4.1
+      -Wsign-conversion                    # clang  2.9  gcc  4.3
+        -Wno-error=sign-conversion
       -Wstrict-prototypes                  # clang  1.0  gcc  3.3
     # -Wswitch-enum                        # clang  2.7  gcc  4.1               # Not used because this basically disallows default case
       -Wtype-limits                        # clang  2.7  gcc  4.3
@@ -125,6 +126,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         -Wshift-sign-overflow              # clang  2.9
         -Wshorten-64-to-32                 # clang  1.0
         -Wlanguage-extension-token         # clang  3.0
+        -Wformat=2                         # clang  3.0  gcc  4.8
       )
       # Enable based on compiler version
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 3.6) OR
@@ -150,6 +152,12 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
           -Wextra-semi-stmt                # clang  7.0            appleclang 10.3
         )
       endif()
+      if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 10.0) OR
+         (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 12.4))
+        list(APPEND WPICKY_ENABLE
+          -Wimplicit-fallthrough           # clang  4.0  gcc  7.0  appleclang 12.4  # we have silencing markup for clang 10.0 and above only
+        )
+      endif()
     else()  # gcc
       list(APPEND WPICKY_DETECT
         ${WPICKY_COMMON}
@@ -162,6 +170,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
           -Wmissing-parameter-type         #             gcc  4.3
           -Wold-style-declaration          #             gcc  4.3
           -Wstrict-aliasing=3              #             gcc  4.0
+          -Wtrampolines                    #             gcc  4.3
         )
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.5 AND MINGW)
@@ -171,7 +180,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.8)
         list(APPEND WPICKY_ENABLE
-          -Wformat=2                       # clang  3.0  gcc  4.8 (clang part-default, enabling it fully causes -Wformat-nonliteral warnings)
+          -Wformat=2                       # clang  3.0  gcc  4.8
         )
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 5.0)
@@ -193,7 +202,8 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
           -Walloc-zero                     #             gcc  7.0
           -Wduplicated-branches            #             gcc  7.0
           -Wformat-overflow=2              #             gcc  7.0
-          -Wformat-truncation=1            #             gcc  7.0 (=2 causes false positives)
+          -Wformat-truncation=2            #             gcc  7.0
+          -Wimplicit-fallthrough           # clang  4.0  gcc  7.0
           -Wrestrict                       #             gcc  7.0
         )
       endif()

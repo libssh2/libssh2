@@ -46,10 +46,10 @@ static const char *EXPECTED_ED25519_SHA256_HASH_DIGEST =
     "2638B020F6121FA750A7F4754B718419F621814C6E779D68ADF26AA68814ADDF";
 
 #if LIBSSH2_MD5
-static const int MD5_HASH_SIZE = 16;
+static const size_t MD5_HASH_SIZE = 16;
 #endif
-static const int SHA1_HASH_SIZE = 20;
-static const int SHA256_HASH_SIZE = 32;
+static const size_t SHA1_HASH_SIZE = 20;
+static const size_t SHA256_HASH_SIZE = 32;
 
 static void calculate_digest(const char *hash, size_t hash_len, char *buffer,
                              size_t buffer_len)
@@ -59,7 +59,7 @@ static void calculate_digest(const char *hash, size_t hash_len, char *buffer,
     char *end = buffer + buffer_len;
 
     for(i = 0; i < hash_len && p < end; ++i) {
-        p += snprintf(p, end - p, "%02X", (unsigned char)hash[i]);
+        p += snprintf(p, (size_t)(end - p), "%02X", (unsigned char)hash[i]);
     }
 }
 

@@ -94,10 +94,11 @@ static int _raw_mode(void)
     if(rc != -1) {
         _saved_tio = tio;
         /* do the equivalent of cfmakeraw() manually, to build on Solaris */
-        tio.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL|IXON);
-        tio.c_oflag &= ~OPOST;
-        tio.c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
-        tio.c_cflag &= ~(CSIZE|PARENB);
+        tio.c_iflag &= ~(tcflag_t)(IGNBRK|BRKINT|PARMRK|ISTRIP|
+                                   INLCR|IGNCR|ICRNL|IXON);
+        tio.c_oflag &= ~(tcflag_t)OPOST;
+        tio.c_lflag &= ~(tcflag_t)(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
+        tio.c_cflag &= ~(tcflag_t)(CSIZE|PARENB);
         tio.c_cflag |= CS8;
         rc = tcsetattr(fileno(stdin), TCSADRAIN, &tio);
     }
@@ -199,9 +200,9 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
 static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
 {
     char *buf;
-    int bufsize = 8192;
+    unsigned int bufsize = 8192;
     int rc;
-    int nfds = 1;
+    unsigned int nfds = 1;
     LIBSSH2_POLLFD *fds = NULL;
     fd_set set;
     struct timeval timeval_out;
@@ -230,7 +231,8 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
     if(rc > 0) {
         ssize_t nread;
         nread = libssh2_channel_read(channel, buf, bufsize);
-        write(sock, buf, nread);
+        if(nread > 0)
+            write(sock, buf, (size_t)nread);
     }
 
     rc = select((int)(sock + 1), &set, NULL, NULL, &timeval_out);
@@ -242,7 +244,7 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
         /* Data in sock */
         nread = read(sock, buf, bufsize);
         if(nread > 0) {
-            libssh2_channel_write(channel, buf, nread);
+            libssh2_channel_write(channel, buf, (size_t)nread);
         }
         else {
             free(buf);
@@ -274,7 +276,7 @@ int main(int argc, char *argv[])
     size_t bufsiz = 8193;
     char *buf = NULL;
     int set_debug_on = 0;
-    int nfds = 1;
+    unsigned int nfds = 1;
     LIBSSH2_POLLFD *fds = NULL;
 
     /* Chan List struct */

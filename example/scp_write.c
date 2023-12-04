@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
             else {
                 /* nwritten indicates how many bytes were written this time */
                 ptr += nwritten;
-                nread -= nwritten;
+                nread -= (size_t)nwritten;
             }
         } while(nread);
 

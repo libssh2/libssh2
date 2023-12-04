@@ -25,7 +25,7 @@
 #include <stdlib.h>  /* for getenv() */
 
 static const char *hostname = "127.0.0.1";
-static const unsigned short port_number = 4711;
+static const int port_number = 4711;
 static const char *pubkey = "key_rsa.pub";
 static const char *privkey = "key_rsa";
 static const char *username = "username";
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     int rc;
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
-    int counter;
+    unsigned int counter;
 
 #ifdef _WIN32
     WSADATA wsadata;
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     }
 
     sin.sin_family = AF_INET;
-    sin.sin_port = htons(port_number);
+    sin.sin_port = htons((unsigned short)port_number);
     sin.sin_addr.s_addr = hostaddr;
 
     for(counter = 0; counter < 3; ++counter) {

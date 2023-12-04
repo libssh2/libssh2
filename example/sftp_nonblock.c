@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
         }
         if(nread > 0) {
             total += nread;
-            write(1, mem, nread);
+            write(1, mem, (size_t)nread);
         }
         else {
             break;

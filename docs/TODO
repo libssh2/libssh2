@@ -1,6 +1,8 @@
 Things TODO
 ===========
 
+* Fix -Wsign-conversion warnings in src
+
 * Fix the numerous malloc+copy operations for sending data, see "Buffering
   Improvements" below for details
 
@@ -22,6 +24,9 @@ Things TODO
 
 * select() is troublesome with libssh2 when using multiple channels over
   the same session. See "New Transport API" below for more details.
+
+* for obsolete/weak/insecure algorithms: either stop enabling them by default
+  at build-time, or delete support for them completely.
 
 At next SONAME bump
 ===================

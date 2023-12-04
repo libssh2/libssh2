@@ -279,6 +279,7 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
              const unsigned char *data, size_t data_len, void **abstract)
 
 /* 'keyboard-interactive' authentication callback */
+/* FIXME: name_len, instruction_len -> size_t, num_prompts -> unsigned int? */
 #define LIBSSH2_USERAUTH_KBDINT_RESPONSE_FUNC(name_) \
     void name_(const char *name, int name_len, const char *instruction, \
                int instruction_len, int num_prompts, \
@@ -1425,7 +1426,7 @@ libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent);
  */
 LIBSSH2_API void libssh2_keepalive_config(LIBSSH2_SESSION *session,
                                           int want_reply,
-                                          unsigned interval);
+                                          unsigned int interval);
 
 /*
  * libssh2_keepalive_send()

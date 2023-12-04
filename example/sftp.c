@@ -55,11 +55,11 @@ static void kbd_callback(const char *name, int name_len,
     fprintf(stderr, "Performing keyboard-interactive authentication.\n");
 
     fprintf(stderr, "Authentication name: '");
-    fwrite(name, 1, name_len, stderr);
+    fwrite(name, 1, (size_t)name_len, stderr);
     fprintf(stderr, "'\n");
 
     fprintf(stderr, "Authentication instruction: '");
-    fwrite(instruction, 1, instruction_len, stderr);
+    fwrite(instruction, 1, (size_t)instruction_len, stderr);
     fprintf(stderr, "'\n");
 
     fprintf(stderr, "Number of prompts: %d\n\n", num_prompts);
@@ -275,7 +275,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "libssh2_sftp_read().\n");
         nread = libssh2_sftp_read(sftp_handle, mem, sizeof(mem));
         if(nread > 0) {
-            write(1, mem, nread);
+            write(1, mem, (size_t)nread);
         }
         else {
             break;

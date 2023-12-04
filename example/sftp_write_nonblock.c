@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
         }
         ptr = mem;
 
-        total += nread;
+        total += (libssh2_struct_stat_size)nread;
 
         do {
             /* write data in a loop until we block */
@@ -250,7 +250,7 @@ int main(int argc, char *argv[])
             if(nwritten < 0)
                 break;
             ptr += nwritten;
-            nread -= nwritten;
+            nread -= (size_t)nwritten;
         } while(nread);
     } while(nwritten > 0);
 

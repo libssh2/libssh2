@@ -73,7 +73,7 @@ static ssize_t netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
             fprintf(stderr, "libssh2_channel_read: %d\n", (int)len);
             return -1;
         }
-        rd += len;
+        rd += (size_t)len;
 
         /* read more data until we see a rpc-reply closing tag followed by
          * the special sequence ]]>]]> */
@@ -93,10 +93,10 @@ static ssize_t netconf_read_until(LIBSSH2_CHANNEL *channel, const char *endtag,
     }
 
     /* discard the special sequence so that only XML is returned */
-    rd = specialsequence - buf;
+    rd = (size_t)(specialsequence - buf);
     buf[rd] = 0;
 
-    return rd;
+    return (ssize_t)rd;
 }
 
 int main(int argc, char *argv[])
@@ -243,14 +243,16 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "Sending NETCONF client <hello>\n");
     len = snprintf(buf, sizeof(buf),
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      "<hello>"
-      "<capabilities>"
-      "<capability>urn:ietf:params:xml:ns:netconf:base:1.0</capability>"
-      "</capabilities>"
-      "</hello>\n"
-      "]]>]]>\n");
-    if(-1 == netconf_write(channel, buf, len))
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        "<hello>"
+        "<capabilities>"
+        "<capability>urn:ietf:params:xml:ns:netconf:base:1.0</capability>"
+        "</capabilities>"
+        "</hello>\n"
+        "]]>]]>\n");
+    if(len < 0)
+        goto shutdown;
+    if(-1 == netconf_write(channel, buf, (size_t)len))
         goto shutdown;
 
     fprintf(stderr, "Reading NETCONF server <hello>\n");
@@ -263,12 +265,14 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "Sending NETCONF <rpc>\n");
     len = snprintf(buf, sizeof(buf),
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-      "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">"
-      "<get-interface-information><terse/></get-interface-information>"
-      "</rpc>\n"
-      "]]>]]>\n");
-    if(-1 == netconf_write(channel, buf, len))
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        "<rpc xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\">"
+        "<get-interface-information><terse/></get-interface-information>"
+        "</rpc>\n"
+        "]]>]]>\n");
+    if(len < 0)
+        goto shutdown;
+    if(-1 == netconf_write(channel, buf, (size_t)len))
         goto shutdown;
 
     fprintf(stderr, "Reading NETCONF <rpc-reply>\n");

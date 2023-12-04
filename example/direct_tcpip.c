@@ -41,10 +41,10 @@ static const char *password = "";
 static const char *server_ip = "127.0.0.1";
 
 static const char *local_listenip = "127.0.0.1";
-static unsigned int local_listenport = 2222;
+static int local_listenport = 2222;
 
 static const char *remote_desthost = "localhost"; /* resolved by the server */
-static unsigned int remote_destport = 22;
+static int remote_destport = 22;
 
 enum {
     AUTH_NONE = 0,
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel = NULL;
     const char *shost;
-    unsigned int sport;
+    int sport;
     fd_set fds;
     struct timeval tv;
     ssize_t len, wr;
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
     }
 
     fprintf(stderr, "Waiting for TCP connection on %s:%d...\n",
-        inet_ntoa(sin.sin_addr), ntohs(sin.sin_port));
+            inet_ntoa(sin.sin_addr), ntohs(sin.sin_port));
 
     forwardsock = accept(listensock, (struct sockaddr *)&sin, &sinlen);
     if(forwardsock == LIBSSH2_INVALID_SOCKET) {
@@ -232,10 +232,10 @@ int main(int argc, char *argv[])
     sport = ntohs(sin.sin_port);
 
     fprintf(stderr, "Forwarding connection from %s:%d here to remote %s:%d\n",
-        shost, sport, remote_desthost, remote_destport);
+            shost, sport, remote_desthost, remote_destport);
 
     channel = libssh2_channel_direct_tcpip_ex(session, remote_desthost,
-        remote_destport, shost, sport);
+                                              remote_destport, shost, sport);
     if(!channel) {
         fprintf(stderr, "Could not open the direct-tcpip channel.\n"
                         "(Note that this can be a problem at the server."
@@ -264,13 +264,14 @@ int main(int argc, char *argv[])
             }
             else if(len == 0) {
                 fprintf(stderr, "The client at %s:%d disconnected.\n", shost,
-                    sport);
+                        sport);
                 goto shutdown;
             }
             wr = 0;
             while(wr < len) {
                 ssize_t nwritten = libssh2_channel_write(channel,
-                                                         buf + wr, len - wr);
+                                                         buf + wr,
+                                                         (size_t)(len - wr));
                 if(nwritten == LIBSSH2_ERROR_EAGAIN) {
                     continue;
                 }
@@ -292,7 +293,8 @@ int main(int argc, char *argv[])
             }
             wr = 0;
             while(wr < len) {
-                ssize_t nsent = send(forwardsock, buf + wr, len - wr, 0);
+                ssize_t nsent = send(forwardsock, buf + wr,
+                                     (size_t)(len - wr), 0);
                 if(nsent <= 0) {
                     fprintf(stderr, "failed to send().\n");
                     goto shutdown;
@@ -301,7 +303,7 @@ int main(int argc, char *argv[])
             }
             if(libssh2_channel_eof(channel)) {
                 fprintf(stderr, "The server at %s:%d disconnected.\n",
-                    remote_desthost, remote_destport);
+                        remote_desthost, remote_destport);
                 goto shutdown;
             }
         }

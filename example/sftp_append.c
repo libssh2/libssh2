@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
             if(nwritten < 0)
                 break;
             ptr += nwritten;
-            nread -= nwritten;
+            nread -= (size_t)nwritten;
         } while(nread);
 
     } while(nwritten > 0);
