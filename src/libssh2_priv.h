@@ -489,7 +489,7 @@ struct _LIBSSH2_CHANNEL
     size_t flush_refund_bytes;
     size_t flush_flush_bytes;
 
-    /* State variables used in libssh2_channel_receive_window_adjust() */
+    /* State variables used in libssh2_channel_receive_window_adjust2() */
     libssh2_nonblocking_states adjust_state;
     unsigned char adjust_adjust[9];     /* packet_type(1) + channel(4) +
                                            adjustment(4) */
@@ -744,7 +744,8 @@ struct _LIBSSH2_SESSION
     int socket_state;
     int socket_block_directions;
     int socket_prev_blockstate; /* stores the state of the socket blockiness
-                                   when libssh2_session_startup() is called */
+                                   when libssh2_session_handshake()
+                                   is called */
 
     /* Error tracking */
     const char *err_msg;
@@ -770,7 +771,7 @@ struct _LIBSSH2_SESSION
     unsigned char *kexinit_data;
     size_t kexinit_data_len;
 
-    /* State variables used in libssh2_session_startup() */
+    /* State variables used in libssh2_session_handshake() */
     libssh2_nonblocking_states startup_state;
     unsigned char *startup_data;
     size_t startup_data_len;
@@ -903,7 +904,7 @@ struct _LIBSSH2_SESSION
     size_t sftpInit_sent; /* number of bytes from the buffer that have been
                              sent */
 
-    /* State variables used in libssh2_scp_recv() / libssh_scp_recv2() */
+    /* State variables used in libssh2_scp_recv2() */
     libssh2_nonblocking_states scpRecv_state;
     unsigned char *scpRecv_command;
     size_t scpRecv_command_len;

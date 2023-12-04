@@ -160,6 +160,11 @@ if(ENABLE_DEBUG_LOGGING)
   add_definitions("-DLIBSSH2DEBUG")
 endif()
 
+# Build without deprecated APIs
+if(WITHOUT_DEPRECATED_APIS)
+  add_definitions("-DLIBSSH2_NO_DEPRECATED")
+endif()
+
 # Auto-detection
 
 # Prefill values with known detection results
