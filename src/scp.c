@@ -792,6 +792,7 @@ scp_recv_error:
     return NULL;
 }
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /*
  * libssh2_scp_recv
  *
@@ -828,6 +829,7 @@ libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb)
 
     return ptr;
 }
+#endif
 
 /*
  * libssh2_scp_recv2
