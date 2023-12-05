@@ -160,8 +160,9 @@ if(ENABLE_DEBUG_LOGGING)
   add_definitions("-DLIBSSH2DEBUG")
 endif()
 
-# Build without deprecated APIs
-if(WITHOUT_DEPRECATED_APIS)
+option(LIBSSH2_NO_DEPRECATED "Build without deprecated APIs" OFF)
+add_feature_info("Without deprecated APIs" LIBSSH2_NO_DEPRECATED "")
+if(LIBSSH2_NO_DEPRECATED)
   add_definitions("-DLIBSSH2_NO_DEPRECATED")
 endif()
 

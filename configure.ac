@@ -242,17 +242,16 @@ AS_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibi
        AC_MSG_RESULT(no)
 )
 
-# Build without deprecated APIs?
-AC_ARG_ENABLE([deprecated-apis],
-  [AS_HELP_STRING([--disable-deprecated-apis], [Build without deprecated APIs @<:@default=no@:>@])],
+dnl Build without deprecated APIs?
+AC_ARG_ENABLE([deprecated],
+  [AS_HELP_STRING([--disable-deprecated], [Build without deprecated APIs @<:@default=no@:>@])],
   [case "$enableval" in
     *)
-      disable_deprecated_apis=yes
+      with_deprecated="no"
       CPPFLAGS="$CPPFLAGS -DLIBSSH2_NO_DEPRECATED"
       ;;
   esac],
-  [disable_deprecated_apis="no"])
-AC_MSG_RESULT($disable_deprecated_apis)
+  [with_deprecated="yes"])
 
 # Build tests?
 AC_ARG_ENABLE([tests],
@@ -439,6 +438,7 @@ AC_MSG_NOTICE([summary of build options:
   Crypto library:   ${found_crypto_str}
   zlib compression: ${found_libz}
   Clear memory:     $enable_clear_memory
+  Deprecated APIs:  $with_deprecated
   Debug build:      $enable_debug
   Build examples:   $build_examples
   Run Docker tests: $run_docker_tests
