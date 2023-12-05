@@ -283,8 +283,7 @@ jobs:
           export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
           autoreconf -fi
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-            --with-crypto=openssl \
-            --disable-tests
+            --with-crypto=openssl
           make -j3
           make check VERBOSE=1
 
@@ -553,8 +552,7 @@ jobs:
             setenv CC clang
             autoreconf -fi
             mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-              --with-crypto=openssl \
-              --disable-tests
+              --with-crypto=openssl
             make check VERBOSE=1
 
   build_netbsd:
