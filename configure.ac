@@ -253,17 +253,6 @@ AC_ARG_ENABLE([deprecated],
   esac],
   [with_deprecated="yes"])
 
-# Build tests?
-AC_ARG_ENABLE([tests],
-  [AS_HELP_STRING([--disable-tests], [Disable tests @<:@default=enabled@:>@])],
-  [
-    if ! test "x${enable_tests}" = "xyes"; then
-      enable_tests="no"
-    fi
-  ],
-  [enable_tests="yes"])
-AM_CONDITIONAL([ENABLE_TESTS], [test "x$enable_tests" = xyes])
-
 # Run Docker tests?
 AC_ARG_ENABLE([docker-tests],
   [AS_HELP_STRING([--disable-docker-tests],

@@ -3,9 +3,7 @@
 AUTOMAKE_OPTIONS = foreign nostdinc
 
 SUBDIRS = src docs
-if ENABLE_TESTS
 SUBDIRS += tests
-endif
 if BUILD_EXAMPLES
 SUBDIRS += example
 endif
