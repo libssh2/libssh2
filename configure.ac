@@ -429,6 +429,7 @@ AC_MSG_NOTICE([summary of build options:
   Clear memory:     $enable_clear_memory
   Debug build:      $enable_debug
   Build examples:   $build_examples
+  Build tests:      $enable_tests
   Run Docker tests: $run_docker_tests
   Run sshd tests:   $run_sshd_tests
   Path to sshd:     $ac_cv_path_SSHD (only for self-tests)
