@@ -39,13 +39,6 @@ environment:
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'OpenSSL'
 
-    - job_name: 'VS2022, OpenSSL 3, x64, UWP, Build-only'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
-      GENERATOR: 'Visual Studio 17 2022'
-      PLATFORM: 'x64'
-      CRYPTO_BACKEND: 'OpenSSL'
-      UWP: 'ON'
-
     - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
       GENERATOR: 'Visual Studio 14 2015'
@@ -167,10 +160,6 @@ build_script:
       if($env:ENABLE_DEBUG_LOGGING -eq 'ON') {
         $options += '-DENABLE_DEBUG_LOGGING=ON'
       }
-      if($env:UWP -eq 'ON') {
-        $options += '-DCMAKE_SYSTEM_NAME=WindowsStore'
-        $options += '-DCMAKE_SYSTEM_VERSION=10.0'
-      }
       if($env:UNITY -eq 'ON') {
         $options += '-DCMAKE_UNITY_BUILD=ON'
       }
@@ -191,7 +180,7 @@ build_script:
 
 test_script:
   - ps: |
-      if($env:SKIP_CTEST -ne 'yes' -and $env:PLATFORM -ne 'ARM64' -and $env:UWP -ne 'ON') {
+      if($env:SKIP_CTEST -ne 'yes' -and $env:PLATFORM -ne 'ARM64') {
         appveyor-retry choco install --yes --no-progress --limit-output --timeout 180 docker-cli
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
         $endDate = (Get-Date).AddMinutes(3)
