@@ -50,6 +50,7 @@ my @ignore_line;
 my %warnings_extended = (
     'COPYRIGHTYEAR'    => 'copyright year incorrect',
     'STRERROR',        => 'strerror() detected',
+    'STDERR',          => 'stderr detected',
     );
 
 my %warnings = (
@@ -58,6 +59,7 @@ my %warnings = (
     'ASTERISKSPACE'    => 'pointer declared with space after asterisk',
     'BADCOMMAND'       => 'bad !checksrc! instruction',
     'BANNEDFUNC'       => 'a banned function was used',
+    'BANNEDPREPROC'    => 'a banned symbol was used on a preprocessor line',
     'BRACEELSE'        => '} else on the same line',
     'BRACEPOS'         => 'wrong position for an open brace',
     'BRACEWHILE'       => 'A single space between open brace and while',
@@ -729,6 +731,18 @@ sub scanfile {
                 }
             }
         }
+        if($warnings{"STDERR"}) {
+            # scan for use of banned stderr. This is not a BANNEDFUNC to
+            # allow for individual enable/disable of this warning.
+            if($l =~ /^([^\"-]*\W)(stderr)[^\"_]/x) {
+                if($1 !~ /^ *\#/) {
+                    # skip preprocessor lines
+                    checkwarn("STDERR",
+                              $line, length($1), $file, $ol,
+                              "use of $2 is banned (use tool_stderr instead)");
+                }
+            }
+        }
         # scan for use of snprintf for curl-internals reasons
         if($l =~ /^(.*\W)(v?snprintf)\s*\(/x) {
             checkwarn("SNPRINTF",
@@ -879,6 +893,18 @@ sub scanfile {
                       "multiple spaces");
         }
       preproc:
+        if($prep) {
+          # scan for use of banned symbols on a preprocessor line
+          if($l =~ /^(^|.*\W)
+                     (WIN32)
+                     (\W|$)
+                   /x) {
+              checkwarn("BANNEDPREPROC",
+                        $line, length($1), $file, $ol,
+                        "use of $2 is banned from preprocessor lines" .
+                        (($2 eq "WIN32") ? ", use _WIN32 instead" : ""));
+          }
+        }
         $line++;
         $prevp = $prep;
         $prevl = $ol if(!$prep);
@@ -912,12 +938,12 @@ sub scanfile {
         @copyright = sort {$$b{year} cmp $$a{year}} @copyright;
 
         # if the file is modified, assume commit year this year
-        if(`git status -s -- $file` =~ /^ [MARCU]/) {
+        if(`git status -s -- "$file"` =~ /^ [MARCU]/) {
             $commityear = (localtime(time))[5] + 1900;
         }
         else {
             # min-parents=1 to ignore wrong initial commit in truncated repos
-            my $grl = `git rev-list --max-count=1 --min-parents=1 --timestamp HEAD -- $file`;
+            my $grl = `git rev-list --max-count=1 --min-parents=1 --timestamp HEAD -- "$file"`;
             if($grl) {
                 chomp $grl;
                 $commityear = (localtime((split(/ /, $grl))[0]))[5] + 1900;
