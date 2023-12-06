@@ -79,7 +79,7 @@ int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
                          const char *errmsg, int errflags);
 int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char *errmsg);
 
-#ifdef WIN32
+#ifdef _WIN32
 /* Convert Win32 WSAGetLastError to errno equivalent */
 int _libssh2_wsa2errno(void);
 #endif

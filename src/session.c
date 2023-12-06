@@ -674,7 +674,7 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
     }
     if(rc < 0) {
         int err;
-#ifdef WIN32
+#ifdef _WIN32
         err = _libssh2_wsa2errno();
 #else
         err = errno;

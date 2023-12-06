@@ -24,9 +24,11 @@
 #include <stdio.h>
 #include <stdlib.h>  /* for getenv() */
 
-#if defined(HAVE_PTHREAD_H) && defined(HAVE_SIGNAL_H)
+#if defined(HAVE_PTHREAD_H)
 #include <pthread.h>
 #include <signal.h>
+
+static pthread_t main_thread;
 #endif
 
 static const char *hostname = "127.0.0.1";
@@ -45,13 +47,11 @@ static void portable_sleep(unsigned int seconds)
 #endif
 }
 
-#if defined(HAVE_PTHREAD_H) && defined(HAVE_SIGNAL_H)
-static pthread_t main_thread;
-
+#if defined(HAVE_PTHREAD_H)
 static void *background_thread(void *unused)
 {
     (void)unused;
-    fprintf(stderr, "Profiling thread sending SIGPROF every 1ms!\n");
+    fprintf(stderr, "Profiling thread sending SIGPROF every 1ms.\n");
 
     do {
         pthread_kill(main_thread, SIGPROF);
@@ -92,22 +92,24 @@ int main(int argc, char *argv[])
     }
 #endif
 
-#if defined(HAVE_PTHREAD_H) && defined(HAVE_SIGNAL_H)
-    pthread_t thread;
+#if defined(HAVE_PTHREAD_H)
+    {
+        pthread_t thread;
 
-    struct sigaction signal_handler_config = {
-        .sa_flags = SA_RESTART | SA_SIGINFO,
-        .sa_sigaction = signal_handler_function
-    };
-    sigemptyset(&signal_handler_config.sa_mask);
+        struct sigaction signal_handler_config = {
+            .sa_flags = SA_RESTART | SA_SIGINFO,
+            .sa_sigaction = signal_handler_function
+        };
+        sigemptyset(&signal_handler_config.sa_mask);
 
-    if(sigaction(SIGPROF, &signal_handler_config, NULL) != 0) {
-        fprintf(stderr, "Could not install signal handler\n");
+        if(sigaction(SIGPROF, &signal_handler_config, NULL) != 0) {
+            fprintf(stderr, "Could not install signal handler.\n");
+        }
+
+        main_thread = pthread_self();
+
+        pthread_create(&thread, NULL, background_thread, NULL);
     }
-
-    main_thread = pthread_self();
-
-    pthread_create(&thread, NULL, background_thread, NULL);
 #endif
 
     (void)argc;
