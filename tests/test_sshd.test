@@ -80,6 +80,7 @@ chmod go-rwx \
 "${SSHD}" \
   -f "${SSHD_FIXTURE_CONFIG:-${d}/openssh_server/sshd_config}" \
   -o 'Port 4711' \
+  -o 'StrictModes no' \
   -h "${d}/openssh_server/ssh_host_rsa_key" \
   -h "${d}/openssh_server/ssh_host_ecdsa_key" \
   -h "${d}/openssh_server/ssh_host_ed25519_key" \

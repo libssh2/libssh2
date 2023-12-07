@@ -558,6 +558,26 @@ jobs:
             make -j3
             make check VERBOSE=1
 
+  build_freebsd_new:
+    name: 'FreeBSD 14 (autotools, openssl, clang, amd64)'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'autotools'
+        uses: vmactions/freebsd-vm@v1
+        with:
+          # https://ports.freebsd.org/
+          prepare: pkg install -y autoconf automake libtool bash
+          run: |
+            setenv CC clang
+            autoreconf -fi
+            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+              --with-crypto=openssl \
+              --disable-docker-tests
+            make -j3
+            make check VERBOSE=1
+
   build_netbsd:
     name: 'NetBSD (cmake, openssl, clang, amd64)'
     runs-on: macos-12
