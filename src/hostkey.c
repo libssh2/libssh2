@@ -1224,7 +1224,8 @@ hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION * session,
     }
 
     return _libssh2_ed25519_sign(ctx, session, signature, signature_len,
-                                 datavec[0].iov_base, datavec[0].iov_len);
+                                 (const uint8_t *)datavec[0].iov_base,
+                                 datavec[0].iov_len);
 }
 
 

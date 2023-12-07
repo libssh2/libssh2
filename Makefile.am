@@ -62,8 +62,8 @@ init-coverage:
 	make clean
 	lcov --directory . --zerocounters
 
-COVERAGE_CCOPTS ?= "-g --coverage"
-COVERAGE_OUT ?= docs/coverage
+COVERAGE_CCOPTS := "-g --coverage"
+COVERAGE_OUT := docs/coverage
 
 build-coverage:
 	make CFLAGS=$(COVERAGE_CCOPTS) check
