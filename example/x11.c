@@ -46,7 +46,7 @@
  */
 struct chan_X11_list {
     LIBSSH2_CHANNEL  *chan;
-    int               sock;
+    libssh2_socket_t  sock;
     struct chan_X11_list *next;
 };
 
@@ -197,7 +197,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
  * Send and receive Data for the X11 channel.
  * If the connection is closed, returns -1, 0 either.
  */
-static int x11_send_receive(LIBSSH2_CHANNEL *channel, int sock)
+static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
 {
     char *buf;
     unsigned int bufsize = 8192;
