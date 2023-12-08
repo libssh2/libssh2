@@ -313,20 +313,12 @@ shutdown:
 
     if(forwardsock != LIBSSH2_INVALID_SOCKET) {
         shutdown(forwardsock, 2);
-#ifdef _WIN32
-        closesocket(forwardsock);
-#else
-        close(forwardsock);
-#endif
+        LIBSSH2_SOCKET_CLOSE(forwardsock);
     }
 
     if(listensock != LIBSSH2_INVALID_SOCKET) {
         shutdown(listensock, 2);
-#ifdef _WIN32
-        closesocket(listensock);
-#else
-        close(listensock);
-#endif
+        LIBSSH2_SOCKET_CLOSE(listensock);
     }
 
     if(channel)
@@ -339,11 +331,7 @@ shutdown:
 
     if(sock != LIBSSH2_INVALID_SOCKET) {
         shutdown(sock, 2);
-#ifdef _WIN32
-        closesocket(sock);
-#else
-        close(sock);
-#endif
+        LIBSSH2_SOCKET_CLOSE(sock);
     }
 
     libssh2_exit();

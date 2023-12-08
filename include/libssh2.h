@@ -143,9 +143,11 @@ typedef long long libssh2_int64_t;
 #ifdef _WIN32
 typedef SOCKET libssh2_socket_t;
 #define LIBSSH2_INVALID_SOCKET INVALID_SOCKET
+#define LIBSSH2_SOCKET_CLOSE(s) closesocket(s)
 #else /* !_WIN32 */
 typedef int libssh2_socket_t;
 #define LIBSSH2_INVALID_SOCKET -1
+#define LIBSSH2_SOCKET_CLOSE(s) close(s)
 #endif /* _WIN32 */
 
 /*

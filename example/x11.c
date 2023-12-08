@@ -186,7 +186,7 @@ static void x11_callback(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
             }
             else {
                 shutdown(sock, SHUT_RDWR);
-                close(sock);
+                LIBSSH2_SOCKET_CLOSE(sock);
             }
         }
     }
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Failed to authenticate\n");
         session_shutdown(session);
         shutdown(sock, SHUT_RDWR);
-        close(sock);
+        LIBSSH2_SOCKET_CLOSE(sock);
         return -1;
     }
 
@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Failed to open a new channel\n");
         session_shutdown(session);
         shutdown(sock, SHUT_RDWR);
-        close(sock);
+        LIBSSH2_SOCKET_CLOSE(sock);
         return -1;
     }
 
@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Failed to request a pty\n");
         session_shutdown(session);
         shutdown(sock, SHUT_RDWR);
-        close(sock);
+        LIBSSH2_SOCKET_CLOSE(sock);
         return -1;
     }
 
@@ -383,7 +383,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Failed to request X11 forwarding\n");
         session_shutdown(session);
         shutdown(sock, SHUT_RDWR);
-        close(sock);
+        LIBSSH2_SOCKET_CLOSE(sock);
         return -1;
     }
 
@@ -393,7 +393,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Failed to open a shell\n");
         session_shutdown(session);
         shutdown(sock, SHUT_RDWR);
-        close(sock);
+        LIBSSH2_SOCKET_CLOSE(sock);
         return -1;
     }
 
@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Failed to entered in raw mode\n");
         session_shutdown(session);
         shutdown(sock, SHUT_RDWR);
-        close(sock);
+        LIBSSH2_SOCKET_CLOSE(sock);
         return -1;
     }
 
@@ -460,7 +460,7 @@ int main(int argc, char *argv[])
             next_node = current_node->next;
             if(rc == -1) {
                 shutdown(current_node->sock, SHUT_RDWR);
-                close(current_node->sock);
+                LIBSSH2_SOCKET_CLOSE(current_node->sock);
                 remove_node(current_node);
             }
 
