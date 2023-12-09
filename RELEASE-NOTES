@@ -1,75 +1,167 @@
-libssh2 1.11
+libssh2 1.11.1_DEV
 
 This release includes the following enhancements and bugfixes:
 
- o Adds support for encrypt-then-mac (ETM) MACs
- o Adds support for AES-GCM crypto protocols
- o Adds support for sk-ecdsa-sha2-nistp256 and sk-ssh-ed25519 keys
- o Adds support for RSA certificate authentication
- o Adds FIDO support with *_sk() functions
- o Adds RSA-SHA2 key upgrading to OpenSSL, WinCNG, mbedTLS, OS400 backends
- o Adds Agent Forwarding and libssh2_agent_sign()
- o Adds support for Channel Signal message libssh2_channel_signal_ex()
- o Adds support to get the user auth banner message libssh2_userauth_banner()
- o Adds LIBSSH2_NO_{MD5, HMAC_RIPEMD, DSA, RSA, RSA_SHA1, ECDSA, ED25519,
-   AES_CBC, AES_CTR, BLOWFISH, RC4, CAST, 3DES} options
- o Adds direct stream UNIX sockets with libssh2_channel_direct_streamlocal_ex()
- o Adds wolfSSL support to CMake file
- o Adds mbedTLS 3.x support
- o Adds LibreSSL 3.5 support
- o Adds support for CMake "unity" builds
- o Adds CMake support for building shared and static libs in a single pass
- o Adds symbol hiding support to CMake
- o Adds support for libssh2.rc for all build tools
- o Adds .zip, .tar.xz and .tar.bz2 release tarballs
- o Enables ed25519 key support for LibreSSL 3.7.0 or higher
- o Improves OpenSSL 1.1 and 3 compatibility
- o Now requires OpenSSL 1.0.2 or newer
- o Now requires CMake 3.1 or newer
- o SFTP: Adds libssh2_sftp_open_ex_r() and libssh2_sftp_open_r() extended APIs
- o SFTP: No longer has a packet limit when reading a directory
- o SFTP: now parses attribute extensions if they exist
- o SFTP: no longer will busy loop if SFTP fails to initialize
- o SFTP: now clear various errors as expected
- o SFTP: no longer skips files if the line buffer is too small
- o SCP: add option to not quote paths
- o SCP: Enables 64-bit offset support unconditionally
- o Now skips leading \r and \n characters in banner_receive()
- o Enables secure memory zeroing with all build tools on all platforms
- o No longer logs SSH_MSG_REQUEST_FAILURE packets from keepalive
- o Speed up base64 encoding by 7x
- o Assert if there is an attempt to write a value that is too large
- o WinCNG: fix memory leak in _libssh2_dh_secret()
- o Added protection against possible null pointer dereferences
- o Agent now handles overly large comment lengths
- o Now ensure KEX replies don't include extra bytes
- o Fixed possible buffer overflow when receiving SSH_MSG_USERAUTH_BANNER
- o Fixed possible buffer overflow in keyboard interactive code path
- o Fixed overlapping memcpy()
- o Fixed Windows UWP builds
- o Fixed DLL import name
- o Renamed local RANDOM_PADDING macro to avoid unexpected define on Windows
- o Support for building with gcc versions older than 8
- o Improvements to CMake, Makefile, NMakefile, GNUmakefile, autoreconf files
- o Restores ANSI C89 compliance
- o Enabled new compiler warnings and fixed/silenced them
- o Improved error messages
- o Now uses CIFuzz
- o Numerous minor code improvements
- o Improvements to CI builds
- o Improvements to unit tests
- o Improvements to doc files
- o Improvements to example files
- o Removed "old gex" build option
- o Removed no-encryption/no-mac builds
- o Removed support for NetWare and Watcom wmake build files
+- appveyor: delete UWP job broken since Visual Studio upgrade (d0a7f1da #1275)
+- appveyor: YAML/PowerShell formatting, shorten variable name (06fd721f #1200)
+- appveyor: move to pure PowerShell (8a081fd9 #1197)
+- autotools: delete `--disable-tests` option, fix CI tests (e051ae34 #1271)
+- autotools: show the default for `hidden-symbols` option (a3f5594a #1269)
+- autotools: enable `-Wunused-macros` with gcc (ecdf5199 #1262 #1227 #1224)
+- autotools: fix dotless gcc and Apple clang version detections (89ccc83c #1232 #1187)
+- autotools: show more clang/gcc version details (fb580161 #1230)
+- autotools: avoid warnings in libtool stub code (96682bd5 #1227 #1224)
+- autotools: sync warning enabler code with curl (5996fefe #1223)
+- autotools: rename variable (ce5f208a #1222)
+- autotools: picky warning options tidy-up (cdca8cff #1221)
+- autotools: fix selecting WinCNG in cross-builds (and more) (00a3b88c #1187 #1186)
+- autotools: use comma separator in `Requires.private` of `libssh2.pc` (7f83de14 #1124)
+- autotools: improve libz position (c89174a7 #1077 #1075 #1013 regr: 4f0f4bff)
+- autotools: skip tests requiring static lib if `--disable-static` (572c57c9 #1072 #1056 regr: 83853f8a)
+- build: add `LIBSSH2_NO_DEPRECATED` option (b1414503 #1267 #1266 #1260 #1259)
+- build: enable missing OpenSSF-recommended warnings, with fixes (afa6b865 #1257)
+- build: enable more compiler warnings and fix them (7ecc309c #1224)
+- build: picky warning updates (328a96b3 #1219)
+- build: stop requiring libssl from openssl (c84745e3 #1128)
+- build: tidy-up `libssh2.pc.in` variable names (5720dd9f #1125)
+- build: add/fix `Requires.private` packages in `libssh2.pc` (ef538069 #1123)
+- checksrc: sync with curl (8cd473c9 #1272)
+- checksrc: fix spelling in comment (a95d401f)
+- checksrc: modernise perl file open (3d309f9b)
+- checksrc: switch to dot file (d67a91aa #1052)
+- ci: add FreeBSD 14 job, fix issues (46333adf #1277)
+- ci: add OmniOS job, fix issues (5e0ec991)
+- ci: show compiler in cross/cygwin job names (c9124088)
+- ci: add OpenBSD (v7.4) job + fix build error in example (0c9a8e35 #1250)
+- ci: add NetBSD (v9.3) job (65c7a7a5)
+- ci: update and speed up FreeBSD job (eee4e805)
+- ci: use absolute path in `CMAKE_INSTALL_PREFIX` (74948816 #1247)
+- ci: boost mbedTLS build speed (236e79a1 #1245)
+- ci: add BoringSSL job (cmake, gcc, amd64) (c9dd3566 #1233)
+- ci: fixup FreeBSD version, bump mbedTLS (fea6664e #1217)
+- ci: add FreeBSD 13.2 job (a7d2a573 #1215)
+- ci: mbedTLS 3.5.0 (5e190442 #1202)
+- ci: update actions, use shallow clones with appveyor (d468a33f #1199)
+- ci: replace `mv` + `chmod` with `install` in `Dockerfile` (5754fed6 #1175)
+- ci: set file mode early in `appveyor_docker.yml` (633db55f)
+- ci: add spellcheck (codespell) (a79218d3)
+- ci: add MSYS builds (autotools and cmake) (d43b8d9b #1162)
+- ci: add Cygwin builds (autotools and cmake) (f1e96e73 #1161)
+- ci: add mingw-w64 UWP build (1215aa5f #1155 #1147)
+- ci: bump mbedTLS (82b0c89e)
+- ci: add missing timeout to 'autotools distcheck' step (6265ffdb)
+- ci: add non-static autotools i386 build, ignore GHA updates on AppVeyor (c6e137f7 #1074 #1072)
+- ci: prefer `=` operator in shell snippets (e5c03043 #1073)
+- ci: drop redundant/unused vars, sync var names (ab8e95bc #1059)
+- ci: add i386 Linux build (with mbedTLS) (abdf40c7 #1057 #1053)
+- ci/GHA: restore curly braces in `if` (36748270 #1145)
+- ci/GHA: simplify `if` strings (cab3db58 #1140)
+- cmake: rename picky warnings script (64d6789f #1225)
+- cmake: fix multiple include of libssh2 package (932d6a32 #1216)
+- cmake: show crypto backend in feature summary (20387285 #1211)
+- cmake: simplify showing CMake version (fc00bdd7 #1203)
+- cmake: cleanup mbedTLS version detection more (4c241d5c #1196 #1192)
+- cmake: delete duplicate `include()` (30eef0a6)
+- cmake: improve/fix mbedTLS detection (41594675 #1192 #1191)
+- cmake: tidy-up `foreach()` syntax (4a64ca14 #1180)
+- cmake: also test for `libssh2_VERSION` (a20572e9)
+- cmake: show cmake versions in ci (87f5769b)
+- cmake: quote more strings (e9c7d3af #1173)
+- cmake: add `ExternalProject` integration test (aeaefaf6 #1171)
+- cmake: add integration tests (8715c3d5 #1170)
+- cmake: (re-)add aliases for `add_subdirectory()` builds (4ff64ae3 #1169)
+- cmake: style tidy-up (3fa5282d #1166)
+- cmake: add `LIB_NAME` variable (5453fc80 #1159)
+- cmake: tidy-up concatenation in `CMAKE_MODULE_PATH` (ae7d5108 #1157)
+- cmake: replace `libssh2` literals with `PROJECT_NAME` variable (72fd2595 #1152)
+- cmake: fix `STREQUAL` check in error branch (42d3bf13 #1151)
+- cmake: cache more config values on Windows (11a03690 #1142)
+- cmake: streamline invocation (f58f77b5 #1138)
+- cmake: merge `set_target_properties()` calls (a9091007 #1132)
+- cmake: (re-)add zlib to `Libs.private` in `libssh2.pc` (64643018 #1131)
+- cmake: use `wolfssl/options.h` for detection, like autotools (c5ec6c49 #1130)
+- cmake: add openssl libs to `Libs.private` in `libssh2.pc` (5cfa59d3 #1127)
+- cmake: bump minimum CMake version to v3.7.0 (9cd18f45 #1126)
+- cmake: CMAKE_SOURCE_DIR -> PROJECT_SOURCE_DIR (0f396aa9 #1121)
+- cmake: tidy-ups (2fc36790 #1122)
+- cmake: re-add `Libssh2:libssh2` for compatibiliy + lowercase namespace (2da13c13 #1104 #1103)
+- configure.ac: remove AB_INIT (f4f52ccc)
+- copyright: remove years from copyright headers (187d89bb #1082)
+- docs: replace SHA1 with SHA256 in CMake example (766bde9f)
+- drop `www.` from `www.libssh2.org` (6e3e8839 #1172)
+- example: use `libssh2_socket_t` in X11 example (3f60ccb7)
+- example: replace remaining libssh2_scp_recv with libssh2_scp_recv2 in output messages (8d69e63d #1258 cont: 6c84a426)
+- example: fix regression in `ssh2_exec.c` (279a2e57 #1106 #1105 regr: b13936bd)
+- example, tests: fix/silence `-Wformat-truncation=2` gcc warnings (744e059f)
+- hostkey: do not advertise ssh-rsa when SHA1 is disabled (82d1b8ff #1093 #1092)
+- libssh2.h: add portable `LIBSSH2_SOCKET_CLOSE()` macro (28dbf016 #1278)
+- libssh2.h: use `_WIN32` for Windows detection instead of rolling our own (631e7734 #1238)
+- libssh2.pc: re-add & extend support for static-only libssh2 builds (624abe27 #1119 #1114)
+- libssh2.pc: don't put `@LIBS@` in pc file (1209c16d)
+- Makefile.am: fix `cp` to preserve attributes and timestamp (f64e6318)
+- Makefile.mk: delete Windows-focused raw GNU Make build (43485579 #1204)
+- man: fix double spaces and dash escaping (a3ffc422 #1210)
+- man: add description to `libssh2_session_get_blocking.3` (67e39091 #1185)
+- mbedtls: improve disabling `-Wredundant-decls` (ecec68a2 #1226 #1224)
+- mbedtls: include `version.h` for `MBEDTLS_VERSION_NUMBER` (9d7bc253 #1095 #1094)
+- mbedtls: use more `size_t` to sync up with `crypto.h` (1153ebde #1054 #1053)
+- md5: allow disabling old-style encrypted private keys at build-time (eb9f9de2 #1181)
+- mingw: fix printf mask for 64-bit integers (36c1e1d1 #1091 #1090)
+- misc: flatten `_libssh2_explicit_zero` if tree (74e74288 #1149)
+- NMakefile: delete (c515eed3 #1134 #1129)
+- openssl: use OpenSSL 3 HMAC API, add `no-deprecated` CI job (363dcbf4 #1243 #1235 #1207)
+- openssl: make a function static, add `#ifdef` comments (efee9133 #1246 cont: 03092292)
+- openssl: fix DSA code to use OpenSSL 3 API (82581941 #1244 #1207)
+- openssl: fix `EC_KEY` reference with OpenSSL 3 `no-deprecated` build (487152f4 #1236 #1235 #1207)
+- openssl: use non-deprecated APIs with OpenSSL 3.x (b0ab005f #1207)
+- openssl: silence `-Wunused-value` warnings (bf285500 #1205)
+- openssl: use automatic initialization with LibreSSL 2.7.0+ (d79047c9 #1146)
+- openssl: add missing check for `LIBRESSL_VERSION_NUMBER` before use (4a42f42e #1117 #1115)
+- packet: properly bounds check packet_authagent_open() (88a960a8 #1179)
+- pem: fix private keys encrypted with AES-GCM methods (e87bdefa #1133)
+- reuse: fix duplicate copyright warning (b9a4ed83)
+- reuse: comply with 3.1 spec and 2.0.0 checker (fe6239a1 #1102 #1101 #1098)
+- reuse: provide SPDX identifiers (f6aa31f4 #1084)
+- revert: build: respect autotools `DLL_EXPORT` in `libssh2.h` (481be044 #1141)
+- scp: fix missing cast for targets without large file support (c317e06f #1060 #1057 #1002 regr: 5db836b2)
+- session: handle EINTR from send/recv/poll/select to try again as the error is not fatal (798ed4a7 #1058)
+- src: fix gcc 13 `-Wconversion` warning on Darwin (8cca7b77 #1209 cont: 08354e0a)
+- src: drop a redundant `#include` (1f0174d0 #1153)
+- src: improve MSVC C4701 warning fix (8b924999 #1086 #1083)
+- src: bump `hash_len` to `size_t` in `LIBSSH2_HOSTKEY_METHOD` (8b917d76 #1076)
+- src: bump DSA and ECDSA sign `hash_len` to `size_t` (7b8e0225 #1055)
+- stop using leading underscores in macro names (c6589b88 #1248)
+- tests: sync port number type with the rest of codebase (eb996af8)
+- tests: fall back to `$LOGNAME` for username (5326a5ce #1241 #1240)
+- tests: show cmake version used in integration tests (2cd2f40e #1201)
+- tests: formatting and tidy-ups (e61987a3)
+- tests: replace FIXME with comments (1a99a86a)
+- tests: add aes256-gcm encrypted key test (802336cf #1135 #1133)
+- tests: trap signals in scripts (b2916b28 #1098)
+- tests: cast to avoid `-Wchar-subscripts` with Cygwin (43df6a46 #1081 #1080)
+- test_read: make it run without Docker (57e9d18e #1139)
+- test_sshd.test: show sshd and test connect logs on harness failure (299c2040 #1097)
+- test_sshd.test: set a safe PID directory (e8cabdcf #1089)
+- test_sshd.test: minor cleanups (d29eea1d)
+- tidy-up: bump casts from int to long for large C99 types in printfs (2e5a8719 #1264 #1257)
+- tidy-up: `unsigned` -> `unsigned int` (b136c379)
+- tidy-up: around `stdint.h` (bfa00f1b #1212)
+- tidy-up: fix typo in `readme.vms` (a9a79e7a)
+- tidy-up: delete duplicate word from comment (76307435)
+- tidy-up: avoid exclamations, prefer single quotes, in outputs (003fb454 #1079)
+- TODO: disable or drop weak algos (0b4bdc85 #1261)
+- transport: fix incorrect byte offset in debug message (2388a3aa #1096)
+- userauth: add a new structure to separate memory read and file read (63b4c20e)
+- userauth: check whether `*key_method` is a NULL pointer instead of `key_method` (bec57c40)
+- wincng: prefer `ULONG`/`DWORD` over `unsigned long` (186c1d63 #1165)
+- wincng: tidy-ups (7bb669b5 #1164)
+- windows: use built-in `_WIN32` macro to detect Windows (6fbc9505 #1195)
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
-  Viktor Szakats, Dan Fandrich, Will Cosgrove, Daniel Stenberg, Michael Buckley,
-  Zenju, Miguel de Icaza, Nick Woodruff, Keith Dart, Anders Borum,
-  Jörgen Sigvardsson, vajdaakos, Gustavo Junior Alves, Marc Hörsken, iruis,
-  Nishit Majithia, Stefan Eissing, metab0t, Y. Yang, skundu07, Mike Harris,
-  Gabriel Smith, Leo Liu, Miguel de Icaza, Sandeep Bansal, Harry Sintonen,
-  xalopp, tihmstar, Sunil Nimmagadda
+  Viktor Szakats, Ren Mingshuai, Daniel Stenberg, Michael Buckley, Aaron Stone,
+  Brian Inglis, concussious on Github, Dan Fandrich, Haowei Hsu, Harmen
+  Stoppels, Harry Mallon, Jack L, Jakob Egger, João M. S. Silva, Joel Depooter,
+  Kai Pastor, Kenneth Davidson, mike-jumper, naddy, Nicolas Mora, Nursan
+  Valeyev, PewPewPew, Radek Brich, rahmanih on Github, Xi Ruoyao
