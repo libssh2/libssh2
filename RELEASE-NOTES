@@ -2,9 +2,6 @@ libssh2 1.11.1_DEV
 
 This release includes the following enhancements and bugfixes:
 
-- appveyor: delete UWP job broken since Visual Studio upgrade (d0a7f1da #1275)
-- appveyor: YAML/PowerShell formatting, shorten variable name (06fd721f #1200)
-- appveyor: move to pure PowerShell (8a081fd9 #1197)
 - autotools: delete `--disable-tests` option, fix CI tests (e051ae34 #1271)
 - autotools: show the default for `hidden-symbols` option (a3f5594a #1269)
 - autotools: enable `-Wunused-macros` with gcc (ecdf5199 #1262 #1227 #1224)
@@ -48,12 +45,14 @@ This release includes the following enhancements and bugfixes:
 - ci: add MSYS builds (autotools and cmake) (d43b8d9b #1162)
 - ci: add Cygwin builds (autotools and cmake) (f1e96e73 #1161)
 - ci: add mingw-w64 UWP build (1215aa5f #1155 #1147)
-- ci: bump mbedTLS (82b0c89e)
 - ci: add missing timeout to 'autotools distcheck' step (6265ffdb)
 - ci: add non-static autotools i386 build, ignore GHA updates on AppVeyor (c6e137f7 #1074 #1072)
 - ci: prefer `=` operator in shell snippets (e5c03043 #1073)
 - ci: drop redundant/unused vars, sync var names (ab8e95bc #1059)
 - ci: add i386 Linux build (with mbedTLS) (abdf40c7 #1057 #1053)
+- ci/appveyor: delete UWP job broken since Visual Studio upgrade (d0a7f1da #1275)
+- ci/appveyor: YAML/PowerShell formatting, shorten variable name (06fd721f #1200)
+- ci/appveyor: move to pure PowerShell (8a081fd9 #1197)
 - ci/GHA: restore curly braces in `if` (36748270 #1145)
 - ci/GHA: simplify `if` strings (cab3db58 #1140)
 - cmake: rename picky warnings script (64d6789f #1225)
@@ -84,7 +83,7 @@ This release includes the following enhancements and bugfixes:
 - cmake: bump minimum CMake version to v3.7.0 (9cd18f45 #1126)
 - cmake: CMAKE_SOURCE_DIR -> PROJECT_SOURCE_DIR (0f396aa9 #1121)
 - cmake: tidy-ups (2fc36790 #1122)
-- cmake: re-add `Libssh2:libssh2` for compatibiliy + lowercase namespace (2da13c13 #1104 #1103)
+- cmake: re-add `Libssh2:libssh2` for compatibility + lowercase namespace (2da13c13 #1104 #1103)
 - configure.ac: remove AB_INIT (f4f52ccc)
 - copyright: remove years from copyright headers (187d89bb #1082)
 - docs: replace SHA1 with SHA256 in CMake example (766bde9f)
@@ -161,7 +160,8 @@ This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
   Viktor Szakats, Ren Mingshuai, Daniel Stenberg, Michael Buckley, Aaron Stone,
-  Brian Inglis, concussious on Github, Dan Fandrich, Haowei Hsu, Harmen
-  Stoppels, Harry Mallon, Jack L, Jakob Egger, João M. S. Silva, Joel Depooter,
-  Kai Pastor, Kenneth Davidson, mike-jumper, naddy, Nicolas Mora, Nursan
-  Valeyev, PewPewPew, Radek Brich, rahmanih on Github, Xi Ruoyao
+  Brian Inglis, concussious on Github, Dan Fandrich, Haowei Hsu,
+  Harmen Stoppels, Harry Mallon, Jack L, Jakob Egger, João M. S. Silva,
+  Joel Depooter, Kai Pastor, Kenneth Davidson, mike-jumper, naddy,
+  Nicolas Mora, Nursan Valeyev, PewPewPew, Radek Brich, rahmanih on Github,
+  Xi Ruoyao
