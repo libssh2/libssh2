@@ -64,7 +64,7 @@ This release includes the following enhancements and bugfixes:
 - cmake: delete duplicate `include()` (30eef0a6)
 - cmake: improve/fix mbedTLS detection (41594675 #1192 #1191)
 - cmake: tidy-up `foreach()` syntax (4a64ca14 #1180)
-- cmake: also test for `libssh2_VERSION` (a20572e9)
+- cmake: verify `libssh2_VERSION` in integration tests (a20572e9)
 - cmake: show cmake versions in ci (87f5769b)
 - cmake: quote more strings (e9c7d3af #1173)
 - cmake: add `ExternalProject` integration test (aeaefaf6 #1171)
