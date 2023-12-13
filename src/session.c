@@ -562,10 +562,10 @@ libssh2_session_callback_set_ex(LIBSSH2_SESSION *session, int cbtype,
 #ifdef _MSC_VER
 #pragma warning(push)
 /* nonstandard extension, function/data pointer conversion in expression */
-/*#pragma warning(disable:4152)*/
+#pragma warning(disable:4152)
 #else
 #pragma GCC diagnostic push
-/*#pragma GCC diagnostic ignored "-Wpedantic"*/
+#pragma GCC diagnostic ignored "-Wpedantic"
 #endif
 LIBSSH2_API void *
 libssh2_session_callback_set(LIBSSH2_SESSION * session,
