@@ -479,6 +479,12 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
     return session;
 }
 
+/*
+ * libssh2_session_callback_set_ex
+ *
+ * Set (or reset) a callback function
+ * Returns the prior address
+ */
 LIBSSH2_API libssh2_generic_callback_func *
 libssh2_session_callback_set_ex(LIBSSH2_SESSION *session,
                                 int cbtype,
