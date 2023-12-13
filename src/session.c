@@ -485,62 +485,61 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
  * Set (or reset) a callback function
  * Returns the prior address
  */
-LIBSSH2_API libssh2_generic_callback_func *
-libssh2_session_callback_set_ex(LIBSSH2_SESSION *session,
-                                int cbtype,
-                                libssh2_generic_callback_func *callback)
+LIBSSH2_API libssh2_cb_generic *
+libssh2_session_callback_set_ex(LIBSSH2_SESSION *session, int cbtype,
+                                libssh2_cb_generic *callback)
 {
     void (*oldcb)(void);
 
     switch(cbtype) {
     case LIBSSH2_CALLBACK_IGNORE:
-        oldcb = (libssh2_generic_callback_func *)session->ssh_msg_ignore;
+        oldcb = (libssh2_cb_generic *)session->ssh_msg_ignore;
         session->ssh_msg_ignore = (LIBSSH2_IGNORE_FUNC((*)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_DEBUG:
-        oldcb = (libssh2_generic_callback_func *)session->ssh_msg_debug;
+        oldcb = (libssh2_cb_generic *)session->ssh_msg_debug;
         session->ssh_msg_debug = (LIBSSH2_DEBUG_FUNC((*)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_DISCONNECT:
-        oldcb = (libssh2_generic_callback_func *)session->ssh_msg_disconnect;
+        oldcb = (libssh2_cb_generic *)session->ssh_msg_disconnect;
         session->ssh_msg_disconnect = (LIBSSH2_DISCONNECT_FUNC((*)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_MACERROR:
-        oldcb = (libssh2_generic_callback_func *)session->macerror;
+        oldcb = (libssh2_cb_generic *)session->macerror;
         session->macerror = (LIBSSH2_MACERROR_FUNC((*)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_X11:
-        oldcb = (libssh2_generic_callback_func *)session->x11;
+        oldcb = (libssh2_cb_generic *)session->x11;
         session->x11 = (LIBSSH2_X11_OPEN_FUNC((*)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_SEND:
-        oldcb = (libssh2_generic_callback_func *)session->send;
+        oldcb = (libssh2_cb_generic *)session->send;
         session->send = (LIBSSH2_SEND_FUNC((*)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_RECV:
-        oldcb = (libssh2_generic_callback_func *)session->recv;
+        oldcb = (libssh2_cb_generic *)session->recv;
         session->recv = (LIBSSH2_RECV_FUNC((*)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_AUTHAGENT:
-        oldcb = (libssh2_generic_callback_func *)session->authagent;
+        oldcb = (libssh2_cb_generic *)session->authagent;
         session->authagent = (LIBSSH2_AUTHAGENT_FUNC((*)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_AUTHAGENT_IDENTITIES:
-        oldcb = (libssh2_generic_callback_func *)session->addLocalIdentities;
+        oldcb = (libssh2_cb_generic *)session->addLocalIdentities;
         session->addLocalIdentities =
             (LIBSSH2_ADD_IDENTITIES_FUNC((*)))callback;
         return oldcb;
 
     case LIBSSH2_CALLBACK_AUTHAGENT_SIGN:
-        oldcb = (libssh2_generic_callback_func *)session->agentSignCallback;
+        oldcb = (libssh2_cb_generic *)session->agentSignCallback;
         session->agentSignCallback =
             (LIBSSH2_AUTHAGENT_SIGN_FUNC((*)))callback;
         return oldcb;
@@ -573,7 +572,7 @@ libssh2_session_callback_set(LIBSSH2_SESSION * session,
                              int cbtype, void *callback)
 {
     return (void *)libssh2_session_callback_set_ex(session, cbtype,
-                                    (libssh2_generic_callback_func *)callback);
+                                               (libssh2_cb_generic *)callback);
 }
 #ifdef _MSC_VER
 #pragma warning(pop)

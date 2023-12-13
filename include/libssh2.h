@@ -647,12 +647,11 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
 
 LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session);
 
-typedef void (libssh2_generic_callback_func)(void);
+typedef void (libssh2_cb_generic)(void);
 
-LIBSSH2_API libssh2_generic_callback_func *
-libssh2_session_callback_set_ex(LIBSSH2_SESSION *session,
-                                int cbtype,
-                                libssh2_generic_callback_func *callback);
+LIBSSH2_API libssh2_cb_generic *
+libssh2_session_callback_set_ex(LIBSSH2_SESSION *session, int cbtype,
+                                libssh2_cb_generic *callback);
 
 /* deprecated */
 LIBSSH2_API void *libssh2_session_callback_set(LIBSSH2_SESSION *session,

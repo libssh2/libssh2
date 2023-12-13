@@ -7,10 +7,9 @@ libssh2_session_callback_set_ex - set a callback function
 .nf
 #include <libssh2.h>
 
-libssh2_generic_callback_func *
-libssh2_session_callback_set_ex(LIBSSH2_SESSION *session,
-                                int cbtype,
-                                libssh2_generic_callback_func *callback);
+libssh2_cb_generic *
+libssh2_session_callback_set_ex(LIBSSH2_SESSION *session, int cbtype,
+                                libssh2_cb_generic *callback);
 .fi
 .SH DESCRIPTION
 Sets a custom callback handler for a previously initialized session
