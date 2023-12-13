@@ -41,7 +41,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/* Header used by 'src' */
+/* Header used by 'src' and 'tests' */
+
+/* FIXME: Disable warnings for 'src' */
+#if !defined(LIBSSH2_TESTS) && !defined(LIBSSH2_WARN_SIGN_CONVERSION)
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+#endif
 
 #define LIBSSH2_LIBRARY
 
