@@ -565,8 +565,6 @@ libssh2_session_callback_set_ex(LIBSSH2_SESSION *session, int cbtype,
 #pragma warning(disable:4054)
 /* 'type cast': from function pointer to data pointer */
 #pragma warning(disable:4055)
-/* nonstandard extension, function/data pointer conversion in expression */
-/* #pragma warning(disable:4152) */
 #else
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
