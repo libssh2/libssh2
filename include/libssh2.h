@@ -649,9 +649,10 @@ LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session);
 
 typedef void (libssh2_generic_callback_func)(void);
 
-LIBSSH2_API void (*libssh2_session_callback_set_ex(LIBSSH2_SESSION * session,
-                                                   int cbtype,
-                                                void (*callback)(void)))(void);
+LIBSSH2_API libssh2_generic_callback_func *
+libssh2_session_callback_set_ex(LIBSSH2_SESSION *session,
+                                int cbtype,
+                                libssh2_generic_callback_func *callback);
 
 /* deprecated */
 LIBSSH2_API void *libssh2_session_callback_set(LIBSSH2_SESSION *session,
