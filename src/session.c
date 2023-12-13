@@ -489,7 +489,7 @@ LIBSSH2_API libssh2_cb_generic *
 libssh2_session_callback_set_ex(LIBSSH2_SESSION *session, int cbtype,
                                 libssh2_cb_generic *callback)
 {
-    libssh2_cb_generic * oldcb;
+    libssh2_cb_generic *oldcb;
 
     switch(cbtype) {
     case LIBSSH2_CALLBACK_IGNORE:
