@@ -339,13 +339,9 @@ int main(int argc, char *argv[])
     if(set_debug_on == 1)
         libssh2_trace(session, LIBSSH2_TRACE_CONN);
 
-    /* ignore pedantic warnings by gcc on the callback argument */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
     /* Set X11 Callback */
-    libssh2_session_callback_set(session, LIBSSH2_CALLBACK_X11,
-                                 (void *)x11_callback);
-#pragma GCC diagnostic pop
+    libssh2_session_callback_set_ex(session, LIBSSH2_CALLBACK_X11,
+                                    x11_callback);
 
     /* Authenticate via password */
     rc = libssh2_userauth_password(session, username, password);
