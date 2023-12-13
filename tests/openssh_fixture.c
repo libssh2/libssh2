@@ -477,6 +477,10 @@ void stop_openssh_fixture(void)
     else if(have_docker) {
         fprintf(stderr, "Cannot stop container - none started\n");
     }
+
+#ifdef _WIN32
+    WSACleanup();
+#endif
 }
 
 libssh2_socket_t open_socket_to_openssh_server(void)
