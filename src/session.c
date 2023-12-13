@@ -551,7 +551,7 @@ libssh2_session_callback_set_ex(LIBSSH2_SESSION *session, int cbtype,
 }
 
 /*
- * libssh2_session_callback_set
+ * libssh2_session_callback_set (DEPRECATED, DO NOT USE!)
  *
  * Set (or reset) a callback function
  * Returns the prior address

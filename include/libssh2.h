@@ -653,7 +653,7 @@ LIBSSH2_API libssh2_cb_generic *
 libssh2_session_callback_set_ex(LIBSSH2_SESSION *session, int cbtype,
                                 libssh2_cb_generic *callback);
 
-/* deprecated */
+/* libssh2_session_callback_set() is DEPRECATED, DO NOT USE! */
 LIBSSH2_API void *libssh2_session_callback_set(LIBSSH2_SESSION *session,
                                                int cbtype, void *callback);
 LIBSSH2_API int libssh2_session_banner_set(LIBSSH2_SESSION *session,
