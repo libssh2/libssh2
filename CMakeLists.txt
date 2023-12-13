@@ -153,8 +153,7 @@ else()
   set(DEBUG_LOGGING_DEFAULT OFF)
 endif()
 option(ENABLE_DEBUG_LOGGING "log execution with debug trace" ${DEBUG_LOGGING_DEFAULT})
-add_feature_info(Logging ENABLE_DEBUG_LOGGING
-   "Logging of execution with debug trace")
+add_feature_info(Logging ENABLE_DEBUG_LOGGING "Logging of execution with debug trace")
 if(ENABLE_DEBUG_LOGGING)
   # Must be visible to the library and tests using internals
   add_definitions("-DLIBSSH2DEBUG")
