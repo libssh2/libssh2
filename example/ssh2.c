@@ -356,5 +356,9 @@ shutdown:
 
     libssh2_exit();
 
+#ifdef _WIN32
+    WSACleanup();
+#endif
+
     return rc;
 }
