@@ -12,13 +12,12 @@ libssh2_session_callback_set(LIBSSH2_SESSION *session,
                              int cbtype, void *callback);
 .fi
 .SH DESCRIPTION
-Deprecated version of this functionality which is expecting and
-returning a data pointer.
+Deprecated implementation of this functionality which is expecting and
+returning a data pointer for callback functions.
 
-See
+For the details about the replacement function, see
 .BR libssh2_session_callback_set_ex(3)
-for details of the replacement function that is expecting and
-returning a function pointer.
+which is expecting and returning a function pointer.
 
 .SH RETURN VALUE
 Pointer to previous callback handler. Returns NULL if no prior callback
