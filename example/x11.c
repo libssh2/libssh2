@@ -341,7 +341,7 @@ int main(int argc, char *argv[])
 
     /* Set X11 Callback */
     libssh2_session_callback_set_ex(session, LIBSSH2_CALLBACK_X11,
-                                    x11_callback);
+                                    (libssh2_cb_generic *)x11_callback);
 
     /* Authenticate via password */
     rc = libssh2_userauth_password(session, username, password);
