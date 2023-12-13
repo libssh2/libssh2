@@ -1188,9 +1188,9 @@ int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                           key_exchange_state_t * state);
 
 unsigned char *_libssh2_kex_agree_instr(unsigned char *haystack,
-                                        unsigned long haystack_len,
+                                        size_t haystack_len,
                                         const unsigned char *needle,
-                                        unsigned long needle_len);
+                                        size_t needle_len);
 
 /* Let crypt.c/hostkey.c expose their method structs */
 const LIBSSH2_CRYPT_METHOD **libssh2_crypt_methods(void);
