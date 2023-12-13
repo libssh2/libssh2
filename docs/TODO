@@ -34,8 +34,9 @@ At next SONAME bump
 * stop using #defined macros as part of the official API. The macros should
   either be turned into real functions or discarded from the API.
 
-* fix the parts of the API where object pointers and function pointers are
-  mixed like libssh2_session_callback_set()
+* delete or deprecate libssh2_session_callback_set()
+
+* bump length arguments in callback functions to size_t/ssize_t
 
 * remove the following functions from the API/ABI
 

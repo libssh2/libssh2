@@ -1932,9 +1932,7 @@ _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
 
 #ifndef LIBSSH2_NO_DEPRECATED
 /*
- * libssh2_channel_receive_window_adjust
- *
- * DEPRECATED
+ * libssh2_channel_receive_window_adjust (DEPRECATED, DO NOT USE!)
  *
  * Adjust the receive window for a channel by adjustment bytes. If the amount
  * to be adjusted is less than LIBSSH2_CHANNEL_MINADJUST and force is 0 the
@@ -2042,9 +2040,7 @@ libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
 
 #ifndef LIBSSH2_NO_DEPRECATED
 /*
- * libssh2_channel_handle_extended_data
- *
- * DEPRECATED DO NOTE USE!
+ * libssh2_channel_handle_extended_data (DEPRECATED, DO NOT USE!)
  *
  * How should extended data look to the calling app?  Keep it in separate
  * channels[_read() _read_stdder()]? (NORMAL) Merge the extended data to the

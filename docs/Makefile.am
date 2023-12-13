@@ -103,6 +103,7 @@ dist_man_MANS = \
   libssh2_session_banner_set.3 \
   libssh2_session_block_directions.3 \
   libssh2_session_callback_set.3 \
+  libssh2_session_callback_set2.3 \
   libssh2_session_disconnect.3 \
   libssh2_session_disconnect_ex.3 \
   libssh2_session_flag.3 \

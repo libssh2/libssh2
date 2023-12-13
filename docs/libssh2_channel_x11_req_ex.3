@@ -29,7 +29,7 @@ libssh2_channel_x11_req(LIBSSH2_CHANNEL *channel,
 \fIscreen_number\fP - the XLL screen to forward
 
 Request an X11 forwarding on \fIchannel\fP. To use X11 forwarding,
-.BR libssh2_session_callback_set(3)
+.BR libssh2_session_callback_set2(3)
 must first be called to set \fBLIBSSH2_CALLBACK_X11\fP. This callback will be
 invoked when the remote host accepts the X11 forwarding.
 .SH RETURN VALUE
@@ -44,4 +44,4 @@ LIBSSH2_ERROR_EAGAIN is a negative number, it is not really a failure per se.
 \fILIBSSH2_ERROR_CHANNEL_REQUEST_DENIED\fP -
 .SH SEE ALSO
 .BR libssh2_channel_open_ex(3)
-.BR libssh2_session_callback_set(3)
+.BR libssh2_session_callback_set2(3)

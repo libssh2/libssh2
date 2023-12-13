@@ -330,6 +330,8 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 #define LIBSSH2_SK_PRESENCE_REQUIRED     0x01
 #define LIBSSH2_SK_VERIFICATION_REQUIRED 0x04
 
+/* FIXME: update lengths to size_t (or ssize_t): */
+
 /* Callbacks for special SSH packets */
 #define LIBSSH2_IGNORE_FUNC(name) \
     void name(LIBSSH2_SESSION *session, const char *message, int message_len, \
@@ -645,6 +647,13 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
 
 LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session);
 
+typedef void (libssh2_cb_generic)(void);
+
+LIBSSH2_API libssh2_cb_generic *
+libssh2_session_callback_set2(LIBSSH2_SESSION *session, int cbtype,
+                              libssh2_cb_generic *callback);
+
+LIBSSH2_DEPRECATED(1.11.1, "Use libssh2_session_callback_set2()")
 LIBSSH2_API void *libssh2_session_callback_set(LIBSSH2_SESSION *session,
                                                int cbtype, void *callback);
 LIBSSH2_API int libssh2_session_banner_set(LIBSSH2_SESSION *session,

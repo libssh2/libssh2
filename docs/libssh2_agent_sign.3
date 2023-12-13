@@ -39,7 +39,7 @@ string at the start of identity->blob.
 \fImethod_len\fP - The length of the method parameter.
 
 Sign data using an ssh-agent. This function can be used in a callback
-registered with libssh2_session_callback_set(3) using
+registered with libssh2_session_callback_set2(3) using
 LIBSSH2_CALLBACK_AUTHAGENT_SIGN to sign an authentication challenge from a
 server. However, the client is responsible for implementing the code that calls
 this callback in response to a SSH2_AGENTC_SIGN_REQUEST message.
@@ -51,4 +51,4 @@ Added in libssh2 1.11.0
 .BR libssh2_agent_init(3)
 .BR libssh2_agent_get_identity(3)
 .BR libssh2_agent_userauth(3)
-.BR libssh2_session_callback_set(3)
+.BR libssh2_session_callback_set2(3)
