@@ -1,5 +1,6 @@
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
+
 # Keep this list sorted
 #
 # NOTE: test_auth_keyboard_info_request does not use the network, but when
