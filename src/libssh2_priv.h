@@ -115,9 +115,16 @@
 
 #if (defined(__GNUC__) || defined(__clang__)) && \
     defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && \
-    !defined(__MINGW32__) && !defined(LIBSSH2_NO_FMT_CHECKS)
-#define LIBSSH2_PRINTF(fmt, arg)  __attribute__((format(printf, fmt, arg)))
-#else
+    !defined(LIBSSH2_NO_FMT_CHECKS)
+#ifdef __MINGW_PRINTF_FORMAT
+#define LIBSSH2_PRINTF(fmt, arg) \
+    __attribute__((format(__MINGW_PRINTF_FORMAT, fmt, arg)))
+#elif !defined(__MINGW32__)
+#define LIBSSH2_PRINTF(fmt, arg) \
+    __attribute__((format(printf, fmt, arg)))
+#endif
+#endif
+#ifndef LIBSSH2_PRINTF
 #define LIBSSH2_PRINTF(fmt, arg)
 #endif
 
