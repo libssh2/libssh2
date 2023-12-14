@@ -7,6 +7,6 @@ set -e
 cd "$(dirname "$0")/.."
 
 # shellcheck disable=SC2046
-codespell --skip='docs/AUTHORS' --check-hidden \
+codespell --skip='docs/AUTHORS' \
   --ignore-words='ci/spellcheck-words.txt' \
   $(git ls-files)
