@@ -58,6 +58,12 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -pedantic
     )
 
+    if(ENABLE_WERROR)
+      list(APPEND WPICKY_ENABLE
+        -pedantic-errors
+      )
+    endif()
+
     # ----------------------------------
     # Add new options here, if in doubt:
     # ----------------------------------

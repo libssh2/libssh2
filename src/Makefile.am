@@ -19,6 +19,9 @@ lib_LTLIBRARIES = libssh2.la
 # tree
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/include
 
+# This might hold -Werror
+CFLAGS += @LIBSSH2_CFLAG_EXTRAS@
+
 VERSION=-version-info 1:1:0
 
 # This flag accepts an argument of the form current[:revision[:age]]. So,
