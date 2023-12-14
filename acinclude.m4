@@ -217,6 +217,9 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           AC_MSG_RESULT([clang '$compiler_num' (raw: '$fullclangver' / '$clangver')])
 
           tmp_CFLAGS="-pedantic"
+          if test "$want_werror" = "yes"; then
+            LIBSSH2_CFLAG_EXTRAS="$LIBSSH2_CFLAG_EXTRAS -pedantic-errors"
+          fi
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [all extra])
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [pointer-arith write-strings])
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [shadow])
@@ -373,6 +376,9 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
         else dnl $ICC = yes
           dnl this is a set of options we believe *ALL* gcc versions support:
           tmp_CFLAGS="-pedantic"
+          if test "$want_werror" = "yes"; then
+            LIBSSH2_CFLAG_EXTRAS="$LIBSSH2_CFLAG_EXTRAS -pedantic-errors"
+          fi
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [all])
           tmp_CFLAGS="$tmp_CFLAGS -W"
           CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [pointer-arith write-strings])
@@ -945,6 +951,6 @@ AS_HELP_STRING([--disable-werror],[Disable compiler warnings as errors]),
   AC_MSG_RESULT([$want_werror])
 
   if test X"$want_werror" = Xyes; then
-    CFLAGS="$CFLAGS -Werror"
+    LIBSSH2_CFLAG_EXTRAS="$LIBSSH2_CFLAG_EXTRAS -Werror"
   fi
 ])

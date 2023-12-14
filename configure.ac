@@ -176,6 +176,10 @@ else
   enable_clear_memory=yes
 fi
 
+LIBSSH2_CFLAG_EXTRAS=""
+
+LIBSSH2_CHECK_OPTION_WERROR
+
 dnl ************************************************************
 dnl option to switch on compiler debug options
 dnl
@@ -202,6 +206,8 @@ AS_HELP_STRING([--disable-debug],[Disable debug options]),
        enable_debug=no
        AC_MSG_RESULT(no)
 )
+
+AC_SUBST(LIBSSH2_CFLAG_EXTRAS)
 
 dnl ************************************************************
 dnl Enable hiding of internal symbols in library to reduce its size and
@@ -376,7 +382,6 @@ AM_CONDITIONAL([HAVE_WINDRES],
 AM_CONDITIONAL([HAVE_LIB_STATIC], [test "x$enable_static" != "xno"])
 
 # Configure parameters
-LIBSSH2_CHECK_OPTION_WERROR
 
 # Append crypto lib
 if   test "$found_crypto" = "openssl"; then

@@ -4,6 +4,9 @@ SUBDIRS = ossfuzz
 
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 
+# This might hold -Werror
+CFLAGS += @LIBSSH2_CFLAG_EXTRAS@
+
 # Get DOCKER_TESTS, DOCKER_TESTS_STATIC, STANDALONE_TESTS, STANDALONE_TESTS_STATOC, SSHD_TESTS,
 # librunner_la_SOURCES defines and *_LDFLAGS for statically linked tests.
 include Makefile.inc

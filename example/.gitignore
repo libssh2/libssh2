@@ -2,7 +2,7 @@
 .libs
 Makefile
 Makefile.in
-Makefile.am.cmake
+Makefile.inc.cmake
 *.gcno
 *.gcda
 stamp-h2
