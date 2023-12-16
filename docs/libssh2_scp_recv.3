@@ -11,8 +11,8 @@ LIBSSH2_CHANNEL *
 libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb);
 .fi
 .SH DESCRIPTION
-This function is \fBDEPRECATED\fP. Use \fIlibssh2_scp_recv2(3)\fP
-instead!
+This function is \fBDEPRECATED\fP in 1.7.0. Use the
+\fIlibssh2_scp_recv2(3)\fP function instead!
 
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
