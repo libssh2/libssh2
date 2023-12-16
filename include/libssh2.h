@@ -150,6 +150,35 @@ typedef int libssh2_socket_t;
 #define LIBSSH2_SOCKET_CLOSE(s) close(s)
 #endif /* _WIN32 */
 
+/* Compile-time deprecation macros */
+#if !defined(LIBSSH2_DISABLE_DEPRECATION) && !defined(LIBSSH2_LIBRARY)
+#  if defined(_MSC_VER)
+#    if _MSC_VER >= 1400
+#      define LIBSSH2_DEPRECATED(version, message) \
+         __declspec(deprecated("since libssh2 " # version ". " message))
+#    elif _MSC_VER >= 1310
+#      define LIBSSH2_DEPRECATED(version, message) \
+         __declspec(deprecated)
+#   endif
+#  elif defined(__GNUC__) && !defined(__INTEL_COMPILER)
+#    if (defined(__clang__) && __clang_major__ >= 3) || \
+        (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5))
+#      define LIBSSH2_DEPRECATED(version, message) \
+         __attribute__((deprecated("since libssh2 " # version ". " message)))
+#    elif __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 0)
+#      define LIBSSH2_DEPRECATED(version, message) \
+         __attribute__((deprecated))
+#    endif
+#  elif defined(__SUNPRO_C) && __SUNPRO_C >= 0x5130
+#    define LIBSSH2_DEPRECATED(version, message) \
+       __attribute__((deprecated))
+#  endif
+#endif
+
+#ifndef LIBSSH2_DEPRECATED
+#define LIBSSH2_DEPRECATED(version, message)
+#endif
+
 /*
  * Determine whether there is small or large file support on windows.
  */
@@ -621,9 +650,11 @@ LIBSSH2_API void *libssh2_session_callback_set(LIBSSH2_SESSION *session,
 LIBSSH2_API int libssh2_session_banner_set(LIBSSH2_SESSION *session,
                                            const char *banner);
 #ifndef LIBSSH2_NO_DEPRECATED
+LIBSSH2_DEPRECATED(1.4.0, "Use libssh2_session_banner_set()")
 LIBSSH2_API int libssh2_banner_set(LIBSSH2_SESSION *session,
                                    const char *banner);
 
+LIBSSH2_DEPRECATED(1.2.8, "Use libssh2_session_handshake()")
 LIBSSH2_API int libssh2_session_startup(LIBSSH2_SESSION *session, int sock);
 #endif
 LIBSSH2_API int libssh2_session_handshake(LIBSSH2_SESSION *session,
@@ -913,7 +944,7 @@ libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
     libssh2_channel_window_read_ex((channel), NULL, NULL)
 
 #ifndef LIBSSH2_NO_DEPRECATED
-/* libssh2_channel_receive_window_adjust() is DEPRECATED, do not use! */
+LIBSSH2_DEPRECATED(1.1.0, "Use libssh2_channel_receive_window_adjust2()")
 LIBSSH2_API unsigned long
 libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL *channel,
                                       unsigned long adjustment,
@@ -958,7 +989,7 @@ LIBSSH2_API void libssh2_session_set_read_timeout(LIBSSH2_SESSION* session,
 LIBSSH2_API long libssh2_session_get_read_timeout(LIBSSH2_SESSION* session);
 
 #ifndef LIBSSH2_NO_DEPRECATED
-/* libssh2_channel_handle_extended_data() is DEPRECATED, do not use! */
+LIBSSH2_DEPRECATED(1.1.0, "libssh2_channel_handle_extended_data2()")
 LIBSSH2_API void libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
                                                       int ignore_mode);
 #endif
@@ -973,7 +1004,7 @@ LIBSSH2_API int libssh2_channel_handle_extended_data2(LIBSSH2_CHANNEL *channel,
  * LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE is passed, extended data will be read
  * (FIFO) from the standard data channel
  */
-/* DEPRECATED */
+/* DEPRECATED since 0.3.0. Use libssh2_channel_handle_extended_data2(). */
 #define libssh2_channel_ignore_extended_data(channel, ignore)                 \
     libssh2_channel_handle_extended_data((channel), (ignore) ?                \
                                        LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE : \
@@ -1004,7 +1035,7 @@ LIBSSH2_API int libssh2_channel_wait_closed(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_free(LIBSSH2_CHANNEL *channel);
 
 #ifndef LIBSSH2_NO_DEPRECATED
-/* libssh2_scp_recv is DEPRECATED, do not use! */
+LIBSSH2_DEPRECATED(1.7.0, "Use libssh2_scp_recv2()")
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session,
                                               const char *path,
                                               struct stat *sb);
