@@ -1,15 +1,15 @@
 .\" Copyright (C) The libssh2 project and its contributors.
 .\" SPDX-License-Identifier: BSD-3-Clause
-.TH libssh2_session_callback_set_ex 3 "13 Dec 2023" "libssh2 1.11.1" "libssh2"
+.TH libssh2_session_callback_set2 3 "13 Dec 2023" "libssh2 1.11.1" "libssh2"
 .SH NAME
-libssh2_session_callback_set_ex - set a callback function
+libssh2_session_callback_set2 - set a callback function
 .SH SYNOPSIS
 .nf
 #include <libssh2.h>
 
 libssh2_cb_generic *
-libssh2_session_callback_set_ex(LIBSSH2_SESSION *session, int cbtype,
-                                libssh2_cb_generic *callback);
+libssh2_session_callback_set2(LIBSSH2_SESSION *session, int cbtype,
+                              libssh2_cb_generic *callback);
 .fi
 .SH DESCRIPTION
 Sets a custom callback handler for a previously initialized session

@@ -340,8 +340,8 @@ int main(int argc, char *argv[])
         libssh2_trace(session, LIBSSH2_TRACE_CONN);
 
     /* Set X11 Callback */
-    libssh2_session_callback_set_ex(session, LIBSSH2_CALLBACK_X11,
-                                    (libssh2_cb_generic *)x11_callback);
+    libssh2_session_callback_set2(session, LIBSSH2_CALLBACK_X11,
+                                  (libssh2_cb_generic *)x11_callback);
 
     /* Authenticate via password */
     rc = libssh2_userauth_password(session, username, password);

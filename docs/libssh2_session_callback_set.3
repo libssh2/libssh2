@@ -13,19 +13,19 @@ libssh2_session_callback_set(LIBSSH2_SESSION *session,
 .fi
 .SH DESCRIPTION
 This function is \fBDEPRECATED\fP in 1.11.1. Use the
-\fIlibssh2_session_callback_set_ex(3)\fP function instead!
+\fIlibssh2_session_callback_set2(3)\fP function instead!
 
 This implementation is expecting and returning a data pointer for callback
 functions.
 
 For the details about the replacement function, see
-.BR libssh2_session_callback_set_ex(3)
+.BR libssh2_session_callback_set2(3)
 which is expecting and returning a function pointer.
 
 .SH RETURN VALUE
 Pointer to previous callback handler. Returns NULL if no prior callback
 handler was set or the callback type was unknown.
 .SH SEE ALSO
-.BR libssh2_session_callback_set_ex(3)
+.BR libssh2_session_callback_set2(3)
 .BR libssh2_session_init_ex(3)
 .BR libssh2_agent_sign(3)
