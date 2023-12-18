@@ -127,6 +127,7 @@ This release includes the following enhancements and bugfixes:
 - reuse: comply with 3.1 spec and 2.0.0 checker (fe6239a1 #1102 #1101 #1098)
 - reuse: provide SPDX identifiers (f6aa31f4 #1084)
 - scp: fix missing cast for targets without large file support (c317e06f #1060 #1057 #1002 regr: 5db836b2)
+- session: add `libssh2_session_callback_set2()` (c0f69548 #1285)
 - session: handle EINTR from send/recv/poll/select to try again as the error is not fatal (798ed4a7 #1058)
 - src: disable `-Wsign-conversion` warnings, add option to re-enable (6e451669 #1284 #1257)
 - src: fix gcc 13 `-Wconversion` warning on Darwin (8cca7b77 #1209 follow: 08354e0a)
