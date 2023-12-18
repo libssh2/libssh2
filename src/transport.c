@@ -323,6 +323,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
             return rc;
         if(rc) {
             session->fullpacket_state = libssh2_NB_state_idle;
+            LIBSSH2_FREE(session, p->payload);
             return rc;
         }
     }
