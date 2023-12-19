@@ -624,8 +624,7 @@ authagent_exit:
  * layer when it has received a packet.
  *
  * The input pointer 'data' is pointing to allocated data that this function
- * is asked to deal with so on failure OR success, it must be freed fine.
- * The only exception is when the return code is LIBSSH2_ERROR_EAGAIN.
+ * will be freed unless return the code is LIBSSH2_ERROR_EAGAIN.
  *
  * This function will always be called with 'datalen' greater than zero.
  */
@@ -680,6 +679,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         if(msg == SSH_MSG_KEXINIT) {
             if(!session->kex_strict) {
                 if(datalen < 17) {
+                    LIBSSH2_FREE(session, data);
+                    session->packAdd_state = libssh2_NB_state_idle;
                     return _libssh2_error(session,
                                           LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                           "Data too short extracting kex");
@@ -697,6 +698,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                     buf.dataptr += 17; /* advance past type and cookie */
 
                     if(_libssh2_get_string(&buf, &algs, &algs_len)) {
+                        LIBSSH2_FREE(session, data);
+                        session->packAdd_state = libssh2_NB_state_idle;
                         return _libssh2_error(session,
                                               LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                                               "Algs too short");
@@ -710,6 +713,9 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             }
 
             if(session->kex_strict && seq) {
+                LIBSSH2_FREE(session, data);
+                session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
+                session->packAdd_state = libssh2_NB_state_idle;
                 libssh2_session_disconnect(session, "strict KEX violation: "
                                            "KEXINIT was not the first packet");
 
@@ -721,6 +727,9 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
         if(session->kex_strict && session->fullpacket_required_type &&
             session->fullpacket_required_type != msg) {
+            LIBSSH2_FREE(session, data);
+            session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
+            session->packAdd_state = libssh2_NB_state_idle;
             libssh2_session_disconnect(session, "strict KEX violation: "
                                        "unexpected packet type");
 
@@ -1380,6 +1389,7 @@ libssh2_packet_add_jump_authagent:
             return rc;
     }
 
+    LIBSSH2_FREE(session, data);
     session->packAdd_state = libssh2_NB_state_idle;
     return 0;
 }
