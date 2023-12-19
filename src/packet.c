@@ -1389,7 +1389,6 @@ libssh2_packet_add_jump_authagent:
             return rc;
     }
 
-    LIBSSH2_FREE(session, data);
     session->packAdd_state = libssh2_NB_state_idle;
     return 0;
 }
