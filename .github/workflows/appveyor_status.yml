@@ -30,7 +30,7 @@ on:
   status
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.sha }}-${{ github.event.target_url }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 permissions:
