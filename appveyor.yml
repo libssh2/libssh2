@@ -176,7 +176,7 @@ build_script:
 
       Write-Host 'CMake options:' $options
       cmake -B _builds $options
-      cmake --build _builds --config "$env:CONFIGURATION"
+      cmake --build _builds --config "$env:CONFIGURATION" --parallel 2
 
 test_script:
   - ps: |
