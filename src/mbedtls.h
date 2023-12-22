@@ -147,29 +147,6 @@
 
 #define libssh2_hmac_ctx    mbedtls_md_context_t
 
-#define libssh2_hmac_ctx_init(ctx)
-#define libssh2_hmac_cleanup(pctx) \
-    mbedtls_md_free(pctx)
-#define libssh2_hmac_update(ctx, data, datalen) \
-    mbedtls_md_hmac_update(&ctx, (const unsigned char *) data, datalen)
-#define libssh2_hmac_final(ctx, hash) \
-    mbedtls_md_hmac_finish(&ctx, hash)
-
-#define libssh2_hmac_sha1_init(pctx, key, keylen) \
-    _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA1, key, keylen)
-#if LIBSSH2_MD5
-#define libssh2_hmac_md5_init(pctx, key, keylen) \
-    _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_MD5, key, keylen)
-#endif
-#define libssh2_hmac_ripemd160_init(pctx, key, keylen) \
-    _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_RIPEMD160, key, keylen)
-#define libssh2_hmac_sha256_init(pctx, key, keylen) \
-    _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA256, key, keylen)
-#define libssh2_hmac_sha384_init(pctx, key, keylen) \
-    _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA384, key, keylen)
-#define libssh2_hmac_sha512_init(pctx, key, keylen) \
-    _libssh2_mbedtls_hash_init(pctx, MBEDTLS_MD_SHA512, key, keylen)
-
 
 /*******************************************************************/
 /*
