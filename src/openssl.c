@@ -44,7 +44,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-int libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
+int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 {
 #ifdef USE_OPENSSL_3
     (void)ctx;
@@ -82,8 +82,8 @@ static int _libssh2_hmac_init(libssh2_hmac_ctx *ctx,
 }
 #endif
 
-int libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
-                           void *key, size_t keylen)
+int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
+                            void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
     return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA1);
@@ -93,8 +93,8 @@ int libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
 }
 
 #if LIBSSH2_MD5
-int libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
-                          void *key, size_t keylen)
+int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
+                           void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
     return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_MD5);
@@ -105,8 +105,8 @@ int libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
 #endif
 
 #if LIBSSH2_HMAC_RIPEMD
-int libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
-                                void *key, size_t keylen)
+int _libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
+                                 void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
     return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_RIPEMD160);
@@ -116,8 +116,8 @@ int libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
 }
 #endif
 
-int libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
-                             void *key, size_t keylen)
+int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
     return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_256);
@@ -126,8 +126,8 @@ int libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
 #endif
 }
 
-int libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
-                             void *key, size_t keylen)
+int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
 {
 #ifdef USE_OPENSSL_3
     return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_512);
@@ -136,8 +136,8 @@ int libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
 #endif
 }
 
-int libssh2_hmac_update(libssh2_hmac_ctx ctx,
-                        const void *data, size_t datalen)
+int _libssh2_hmac_update(libssh2_hmac_ctx ctx,
+                         const void *data, size_t datalen)
 {
 #ifdef USE_OPENSSL_3
     return EVP_MAC_update(ctx, data, datalen);
@@ -149,7 +149,7 @@ int libssh2_hmac_update(libssh2_hmac_ctx ctx,
 #endif
 }
 
-int libssh2_hmac_final(libssh2_hmac_ctx ctx, void *data)
+int _libssh2_hmac_final(libssh2_hmac_ctx ctx, void *data)
 {
 #ifdef USE_OPENSSL_3
     return EVP_MAC_final(ctx, data, NULL, MAX_MACSIZE);
@@ -158,7 +158,7 @@ int libssh2_hmac_final(libssh2_hmac_ctx ctx, void *data)
 #endif
 }
 
-void libssh2_hmac_cleanup(libssh2_hmac_ctx ctx)
+void _libssh2_hmac_cleanup(libssh2_hmac_ctx ctx)
 {
 #ifdef USE_OPENSSL_3
     EVP_MAC_CTX_free(ctx);
