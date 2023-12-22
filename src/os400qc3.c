@@ -1003,7 +1003,7 @@ libssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
     return 0;
 }
 
-static void
+static int
 libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
                            int algo, size_t minkeylen, void *key, int keylen)
 {
@@ -1012,19 +1012,23 @@ libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
 
         /* Pad key with zeroes if too short. */
         if(!lkey)
-            return;
+            return 0;
         memcpy(lkey, (char *) key, keylen);
         memset(lkey + keylen, 0, minkeylen - keylen);
         key = (void *) lkey;
         keylen = minkeylen;
     }
-    libssh2_os400qc3_hash_init(&ctx->hash, algo);
+    else
+        return 0;
+    if(!libssh2_os400qc3_hash_init(&ctx->hash, algo))
+        return 0;
     Qc3CreateKeyContext((char *) key, &keylen, binstring, &algo, qc3clear,
                         NULL, NULL, ctx->key.Key_Context_Token,
                         (char *) &ecnull);
+    return 1;  /* FIXME: add error check */
 }
 
-static void
+static int
 libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
                              unsigned char *data, int len)
 {
@@ -1034,9 +1038,10 @@ libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
     Qc3CalculateHMAC((char *) data, &len, Qc3_Data, (char *) &ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
                      anycsp, NULL, dummy, (char *) &ecnull);
+    return 1;  /* FIXME: add error check */
 }
 
-static void
+static int
 libssh2_os400qc3_hmac_final(_libssh2_os400qc3_crypto_ctx *ctx,
                             unsigned char *out)
 {
@@ -1046,6 +1051,7 @@ libssh2_os400qc3_hmac_final(_libssh2_os400qc3_crypto_ctx *ctx,
     Qc3CalculateHMAC((char *) data, &zero, Qc3_Data, (char *) &ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
                      anycsp, NULL, (char *) out, (char *) &ecnull);
+    return 1;  /* FIXME: add error check */
 }
 
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
@@ -1054,56 +1060,51 @@ int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
     return 1;
 }
 
-int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
-                            void *key, size_t keylen)
-{
-    libssh2_os400qc3_hmac_init(ctx, Qc3_SHA1,                           \
-                               SHA_DIGEST_LENGTH,                       \
-                               key, keylen)
-    return 1;
-}
-
 #if LIBSSH2_MD5
 int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
                            void *key, size_t keylen)
 {
-    libssh2_os400qc3_hmac_init(ctx, Qc3_MD5,                            \
-                               MD5_DIGEST_LENGTH,                       \
-                               key, keylen)
-    return 1;
+    return libssh2_os400qc3_hmac_init(ctx, Qc3_MD5,                     \
+                                      MD5_DIGEST_LENGTH,                \
+                                      key, keylen);
 }
 #endif
+
+int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
+                            void *key, size_t keylen)
+{
+    return libssh2_os400qc3_hmac_init(ctx, Qc3_SHA1,                    \
+                                      SHA_DIGEST_LENGTH,                \
+                                      key, keylen);
+}
 
 int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
                               void *key, size_t keylen)
 {
-    libssh2_os400qc3_hmac_init(ctx, Qc3_SHA256,                         \
-                               SHA256_DIGEST_LENGTH,                    \
-                               key, keylen)
-    return 1;
+    return libssh2_os400qc3_hmac_init(ctx, Qc3_SHA256,                  \
+                                      SHA256_DIGEST_LENGTH,             \
+                                      key, keylen);
 }
 
 int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
                               void *key, size_t keylen)
 {
-    libssh2_os400qc3_hmac_init(ctx, Qc3_SHA512,                         \
-                               SHA512_DIGEST_LENGTH,                    \
-                               key, keylen)
-    return 1;
+    return libssh2_os400qc3_hmac_init(ctx, Qc3_SHA512,                  \
+                                      SHA512_DIGEST_LENGTH,             \
+                                      key, keylen);
 }
 
 int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
                          const void *data, size_t datalen)
 {
-    libssh2_os400qc3_hmac_update(ctx,                                   \
-                                 data, datalen)
-    return 1;
+    return libssh2_os400qc3_hmac_update(ctx,                            \
+                                        data, datalen);
+
 }
 
 int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *data)
 {
-    libssh2_os400qc3_hmac_final(ctx, data);
-    return 1;
+    return libssh2_os400qc3_hmac_final(ctx, data);
 }
 
 void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
@@ -1495,14 +1496,18 @@ pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
     *dk = buf;
 
     /* Create an HMAC context for our computations. */
+    /* FIXME: add error check */
     libssh2_os400qc3_hmac_init(&hctx, pkcs5->hash, pkcs5->hashlen,
                                (void *) passphrase, strlen(passphrase));
 
     /* Process each hLen-size blocks. */
     for(i = 1; i <= l; i++) {
         ni = htonl(i);
+        /* FIXME: add error check */
         libssh2_os400qc3_hmac_update(&hctx, pkcs5->salt, pkcs5->saltlen);
+        /* FIXME: add error check */
         libssh2_os400qc3_hmac_update(&hctx, (char *) &ni, sizeof(ni));
+        /* FIXME: add error check */
         libssh2_os400qc3_hmac_final(&hctx, mac);
         memcpy(buf, mac, pkcs5->hashlen);
         for(j = 1; j < pkcs5->itercount; j++) {
