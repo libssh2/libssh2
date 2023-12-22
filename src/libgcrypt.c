@@ -40,14 +40,14 @@
 
 #ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
 
-int libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
+int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 {
     (void)ctx;
     return 1;
 }
 
-int libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
-                           void *key, size_t keylen)
+int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
+                            void *key, size_t keylen)
 {
     gcry_error_t err;
     err = gcry_md_open(ctx, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC);
@@ -60,8 +60,8 @@ int libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
 }
 
 #if LIBSSH2_MD5
-int libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
-                          void *key, size_t keylen)
+int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
+                           void *key, size_t keylen)
 {
     gcry_error_t err;
     err = gcry_md_open(ctx, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC);
@@ -75,8 +75,8 @@ int libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
 #endif
 
 #if LIBSSH2_HMAC_RIPEMD
-int libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
-                                void *key, size_t keylen)
+int _libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
+                                 void *key, size_t keylen)
 {
     gcry_error_t err;
     err = gcry_md_open(ctx, GCRY_MD_RMD160, GCRY_MD_FLAG_HMAC);
@@ -89,8 +89,8 @@ int libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
 }
 #endif
 
-int libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
-                             void *key, size_t keylen)
+int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
 {
     gcry_error_t err;
     err = gcry_md_open(ctx, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC);
@@ -102,8 +102,8 @@ int libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
     return 1;
 }
 
-int libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
-                             void *key, size_t keylen)
+int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
 {
     gcry_error_t err;
     err = gcry_md_open(ctx, GCRY_MD_SHA512, GCRY_MD_FLAG_HMAC);
@@ -115,21 +115,21 @@ int libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
     return 1;
 }
 
-int libssh2_hmac_update(libssh2_hmac_ctx ctx,
-                        const void *data, size_t datalen)
+int _libssh2_hmac_update(libssh2_hmac_ctx ctx,
+                         const void *data, size_t datalen)
 {
     gcry_md_write(ctx, data, datalen);
     return 1;
 }
 
-int libssh2_hmac_final(libssh2_hmac_ctx ctx, void *data)
+int _libssh2_hmac_final(libssh2_hmac_ctx ctx, void *data)
 {
     memcpy(data, gcry_md_read(ctx, 0),
            gcry_md_get_algo_dlen(gcry_md_get_algo(ctx)));
     return 1;
 }
 
-void libssh2_hmac_cleanup(libssh2_hmac_ctx ctx)
+void _libssh2_hmac_cleanup(libssh2_hmac_ctx ctx)
 {
     gcry_md_close(*ctx);
 }
