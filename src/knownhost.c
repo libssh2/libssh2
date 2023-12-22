@@ -421,7 +421,7 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                     */
                     unsigned char hash[SHA_DIGEST_LENGTH];
                     libssh2_hmac_ctx ctx;
-                    libssh2_hmac_ctx_init(ctx);
+                    libssh2_hmac_ctx_init(&ctx);
 
                     if(SHA_DIGEST_LENGTH != node->name_len) {
                         /* the name hash length must be the sha1 size or
@@ -433,7 +433,7 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                     libssh2_hmac_update(ctx, (unsigned char *)host,
                                         strlen(host));
                     libssh2_hmac_final(ctx, hash);
-                    libssh2_hmac_cleanup(&ctx);
+                    libssh2_hmac_cleanup(ctx);
 
                     if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
                         /* this is a node we're interested in */

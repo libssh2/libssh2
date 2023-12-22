@@ -56,21 +56,21 @@
 #endif
 
 /* return: success = 1, error = 0 */
-int libssh2_hmac_ctx_init(libssh2_hmac_ctx ctx);
-int libssh2_hmac_sha1_init(libssh2_hmac_ctx ctx,
+int libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx);
+int libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
                            void *key, size_t keylen);
-int libssh2_hmac_md5_init(libssh2_hmac_ctx ctx,
+int libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
                           void *key, size_t keylen);
-int libssh2_hmac_ripemd160_init(libssh2_hmac_ctx ctx,
+int libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
                                 void *key, size_t keylen);
-int libssh2_hmac_sha256_init(libssh2_hmac_ctx ctx,
+int libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
                              void *key, size_t keylen);
-int libssh2_hmac_sha512_init(libssh2_hmac_ctx ctx,
+int libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
                              void *key, size_t keylen);
 int libssh2_hmac_update(libssh2_hmac_ctx ctx,
-                        void *data, size_t datalen);
+                        const void *data, size_t datalen);
 int libssh2_hmac_final(libssh2_hmac_ctx ctx, void *data);
-int libssh2_hmac_cleanup(libssh2_hmac_ctx ctx);
+void libssh2_hmac_cleanup(libssh2_hmac_ctx ctx);
 
 #define LIBSSH2_ED25519_KEY_LEN 32
 #define LIBSSH2_ED25519_PRIVATE_KEY_LEN 64
