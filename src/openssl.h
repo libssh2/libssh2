@@ -327,8 +327,6 @@ int _libssh2_md5_init(libssh2_md5_ctx *ctx);
 
 #ifdef USE_OPENSSL_3
 #define libssh2_hmac_ctx EVP_MAC_CTX *
-int _libssh2_hmac_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen,
-                       const char *digest_name);
 #elif defined(HAVE_OPAQUE_STRUCTS)
 #define libssh2_hmac_ctx HMAC_CTX *
 #else /* !HAVE_OPAQUE_STRUCTS */
