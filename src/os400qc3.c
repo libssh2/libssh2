@@ -1007,6 +1007,8 @@ static int
 libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
                            int algo, size_t minkeylen, void *key, int keylen)
 {
+    Qus_EC_t errcode;
+
     if(keylen < minkeylen) {
         char *lkey = alloca(minkeylen);
 
@@ -1022,10 +1024,11 @@ libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
         return 0;
     if(!libssh2_os400qc3_hash_init(&ctx->hash, algo))
         return 0;
+    set_EC_length(errcode, sizeof(errcode));
     Qc3CreateKeyContext((char *) key, &keylen, binstring, &algo, qc3clear,
                         NULL, NULL, ctx->key.Key_Context_Token,
-                        (char *) &ecnull);
-    return 1;  /* FIXME: add error check */
+                        (char *) &errcode);
+    return errcode.Bytes_Available? 0: 1;
 }
 
 static int
@@ -1033,12 +1036,14 @@ libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
                              unsigned char *data, int len)
 {
     char dummy[64];
+    Qus_EC_t errcode;
 
     ctx->hash.Final_Op_Flag = Qc3_Continue;
+    set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHMAC((char *) data, &len, Qc3_Data, (char *) &ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
-                     anycsp, NULL, dummy, (char *) &ecnull);
-    return 1;  /* FIXME: add error check */
+                     anycsp, NULL, dummy, (char *) &errcode);
+    return errcode.Bytes_Available? 0: 1;
 }
 
 static int
@@ -1046,12 +1051,14 @@ libssh2_os400qc3_hmac_final(_libssh2_os400qc3_crypto_ctx *ctx,
                             unsigned char *out)
 {
     char data;
+    Qus_EC_t errcode;
 
     ctx->hash.Final_Op_Flag = Qc3_Final;
+    set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHMAC((char *) data, &zero, Qc3_Data, (char *) &ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
-                     anycsp, NULL, (char *) out, (char *) &ecnull);
-    return 1;  /* FIXME: add error check */
+                     anycsp, NULL, (char *) out, (char *) &errcode);
+    return errcode.Bytes_Available? 0: 1;
 }
 
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
