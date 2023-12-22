@@ -428,10 +428,8 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                            we can't match it */
                         break;
                     }
-                    _libssh2_hmac_sha1_init(&ctx, (unsigned char *)node->salt,
-                                            node->salt_len);
-                    _libssh2_hmac_update(&ctx, (unsigned char *)host,
-                                         strlen(host));
+                    _libssh2_hmac_sha1_init(&ctx, node->salt, node->salt_len);
+                    _libssh2_hmac_update(&ctx, host, strlen(host));
                     _libssh2_hmac_final(&ctx, hash);
                     _libssh2_hmac_cleanup(&ctx);
 
