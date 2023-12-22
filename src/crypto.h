@@ -59,10 +59,14 @@
 int libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx);
 int libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
                            void *key, size_t keylen);
+#if LIBSSH2_MD5
 int libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
                           void *key, size_t keylen);
+#endif
+#if LIBSSH2_HMAC_RIPEMD
 int libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
                                 void *key, size_t keylen);
+#endif
 int libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
                              void *key, size_t keylen);
 int libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
