@@ -128,15 +128,15 @@ mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION * session,
 
     _libssh2_htonu32(seqno_buf, seqno);
 
-    libssh2_hmac_ctx_init(&ctx);
-    libssh2_hmac_sha512_init(&ctx, *abstract, 64);
-    libssh2_hmac_update(ctx, seqno_buf, 4);
-    libssh2_hmac_update(ctx, packet, packet_len);
+    _libssh2_hmac_ctx_init(&ctx);
+    _libssh2_hmac_sha512_init(&ctx, *abstract, 64);
+    _libssh2_hmac_update(ctx, seqno_buf, 4);
+    _libssh2_hmac_update(ctx, packet, packet_len);
     if(addtl && addtl_len) {
-        libssh2_hmac_update(ctx, addtl, addtl_len);
+        _libssh2_hmac_update(ctx, addtl, addtl_len);
     }
-    libssh2_hmac_final(ctx, buf);
-    libssh2_hmac_cleanup(ctx);
+    _libssh2_hmac_final(ctx, buf);
+    _libssh2_hmac_cleanup(ctx);
 
     return 0;
 }
@@ -183,15 +183,15 @@ mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION * session,
 
     _libssh2_htonu32(seqno_buf, seqno);
 
-    libssh2_hmac_ctx_init(&ctx);
-    libssh2_hmac_sha256_init(&ctx, *abstract, 32);
-    libssh2_hmac_update(ctx, seqno_buf, 4);
-    libssh2_hmac_update(ctx, packet, packet_len);
+    _libssh2_hmac_ctx_init(&ctx);
+    _libssh2_hmac_sha256_init(&ctx, *abstract, 32);
+    _libssh2_hmac_update(ctx, seqno_buf, 4);
+    _libssh2_hmac_update(ctx, packet, packet_len);
     if(addtl && addtl_len) {
-        libssh2_hmac_update(ctx, addtl, addtl_len);
+        _libssh2_hmac_update(ctx, addtl, addtl_len);
     }
-    libssh2_hmac_final(ctx, buf);
-    libssh2_hmac_cleanup(ctx);
+    _libssh2_hmac_final(ctx, buf);
+    _libssh2_hmac_cleanup(ctx);
 
     return 0;
 }
@@ -240,15 +240,15 @@ mac_method_hmac_sha1_hash(LIBSSH2_SESSION * session,
 
     _libssh2_htonu32(seqno_buf, seqno);
 
-    libssh2_hmac_ctx_init(&ctx);
-    libssh2_hmac_sha1_init(&ctx, *abstract, 20);
-    libssh2_hmac_update(ctx, seqno_buf, 4);
-    libssh2_hmac_update(ctx, packet, packet_len);
+    _libssh2_hmac_ctx_init(&ctx);
+    _libssh2_hmac_sha1_init(&ctx, *abstract, 20);
+    _libssh2_hmac_update(ctx, seqno_buf, 4);
+    _libssh2_hmac_update(ctx, packet, packet_len);
     if(addtl && addtl_len) {
-        libssh2_hmac_update(ctx, addtl, addtl_len);
+        _libssh2_hmac_update(ctx, addtl, addtl_len);
     }
-    libssh2_hmac_final(ctx, buf);
-    libssh2_hmac_cleanup(ctx);
+    _libssh2_hmac_final(ctx, buf);
+    _libssh2_hmac_cleanup(ctx);
 
     return 0;
 }
@@ -325,15 +325,15 @@ mac_method_hmac_md5_hash(LIBSSH2_SESSION * session, unsigned char *buf,
 
     _libssh2_htonu32(seqno_buf, seqno);
 
-    libssh2_hmac_ctx_init(&ctx);
-    libssh2_hmac_md5_init(&ctx, *abstract, 16);
-    libssh2_hmac_update(ctx, seqno_buf, 4);
-    libssh2_hmac_update(ctx, packet, packet_len);
+    _libssh2_hmac_ctx_init(&ctx);
+    _libssh2_hmac_md5_init(&ctx, *abstract, 16);
+    _libssh2_hmac_update(ctx, seqno_buf, 4);
+    _libssh2_hmac_update(ctx, packet, packet_len);
     if(addtl && addtl_len) {
-        libssh2_hmac_update(ctx, addtl, addtl_len);
+        _libssh2_hmac_update(ctx, addtl, addtl_len);
     }
-    libssh2_hmac_final(ctx, buf);
-    libssh2_hmac_cleanup(ctx);
+    _libssh2_hmac_final(ctx, buf);
+    _libssh2_hmac_cleanup(ctx);
 
     return 0;
 }
@@ -400,15 +400,15 @@ mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION * session,
 
     _libssh2_htonu32(seqno_buf, seqno);
 
-    libssh2_hmac_ctx_init(&ctx);
-    libssh2_hmac_ripemd160_init(&ctx, *abstract, 20);
-    libssh2_hmac_update(ctx, seqno_buf, 4);
-    libssh2_hmac_update(ctx, packet, packet_len);
+    _libssh2_hmac_ctx_init(&ctx);
+    _libssh2_hmac_ripemd160_init(&ctx, *abstract, 20);
+    _libssh2_hmac_update(ctx, seqno_buf, 4);
+    _libssh2_hmac_update(ctx, packet, packet_len);
     if(addtl && addtl_len) {
-        libssh2_hmac_update(ctx, addtl, addtl_len);
+        _libssh2_hmac_update(ctx, addtl, addtl_len);
     }
-    libssh2_hmac_final(ctx, buf);
-    libssh2_hmac_cleanup(ctx);
+    _libssh2_hmac_final(ctx, buf);
+    _libssh2_hmac_cleanup(ctx);
 
     return 0;
 }
