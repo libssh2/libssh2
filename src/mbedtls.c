@@ -283,14 +283,14 @@ int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
 {
     int ret = mbedtls_md_hmac_update(ctx, data, datalen);
 
-    return ret == 0 ? 0 : -1;
+    return ret == 0 ? 1 : 0;
 }
 
 int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *data)
 {
     int ret = mbedtls_md_hmac_finish(ctx, data);
 
-    return ret == 0 ? 0 : -1;
+    return ret == 0 ? 1 : 0;
 }
 
 void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
