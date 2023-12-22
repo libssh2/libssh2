@@ -1028,10 +1028,12 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
            INTEGRATED_MAC case, where the crypto algorithm also does its
            own hash. */
         if(!etm && !CRYPT_FLAG_R(session, INTEGRATED_MAC)) {
-            session->local.mac->hash(session, p->outbuf + packet_length,
-                                     session->local.seqno, p->outbuf,
-                                     packet_length, NULL, 0,
-                                     &session->local.mac_abstract);
+            if(session->local.mac->hash(session, p->outbuf + packet_length,
+                                        session->local.seqno, p->outbuf,
+                                        packet_length, NULL, 0,
+                                        &session->local.mac_abstract))
+                return _libssh2_error(session, LIBSSH2_ERROR_MAC_FAILURE,
+                                      "Failed to calculate MAC");
         }
 
         /* Encrypt the whole packet data, one block size at a time.
@@ -1090,10 +1092,12 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                calculated on the entire packet (length plain the rest
                encrypted), including all fields except the MAC field
                itself. */
-            session->local.mac->hash(session, p->outbuf + packet_length,
-                                     session->local.seqno, p->outbuf,
-                                     packet_length, NULL, 0,
-                                     &session->local.mac_abstract);
+            if(session->local.mac->hash(session, p->outbuf + packet_length,
+                                        session->local.seqno, p->outbuf,
+                                        packet_length, NULL, 0,
+                                        &session->local.mac_abstract))
+                return _libssh2_error(session, LIBSSH2_ERROR_MAC_FAILURE,
+                                      "Failed to calculate MAC");
         }
     }
 

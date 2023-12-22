@@ -144,30 +144,6 @@
 #endif
 
 #define libssh2_hmac_ctx gcry_md_hd_t
-#define libssh2_hmac_ctx_init(ctx)
-#define libssh2_hmac_sha1_init(ctx, key, keylen) \
-    gcry_md_open(ctx, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC), \
-    gcry_md_setkey(*ctx, key, keylen)
-#if LIBSSH2_MD5
-#define libssh2_hmac_md5_init(ctx, key, keylen) \
-    gcry_md_open(ctx, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC), \
-    gcry_md_setkey(*ctx, key, keylen)
-#endif
-#define libssh2_hmac_ripemd160_init(ctx, key, keylen) \
-    gcry_md_open(ctx, GCRY_MD_RMD160, GCRY_MD_FLAG_HMAC), \
-    gcry_md_setkey(*ctx, key, keylen)
-#define libssh2_hmac_sha256_init(ctx, key, keylen) \
-    gcry_md_open(ctx, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC), \
-    gcry_md_setkey(*ctx, key, keylen)
-#define libssh2_hmac_sha512_init(ctx, key, keylen) \
-    gcry_md_open(ctx, GCRY_MD_SHA512, GCRY_MD_FLAG_HMAC), \
-    gcry_md_setkey(*ctx, key, keylen)
-#define libssh2_hmac_update(ctx, data, datalen) \
-    gcry_md_write(ctx, (unsigned char *) data, datalen)
-#define libssh2_hmac_final(ctx, data) \
-    memcpy(data, gcry_md_read(ctx, 0), \
-           gcry_md_get_algo_dlen(gcry_md_get_algo(ctx)))
-#define libssh2_hmac_cleanup(ctx) gcry_md_close(*ctx)
 
 #define libssh2_crypto_init() gcry_control(GCRYCTL_DISABLE_SECMEM)
 #define libssh2_crypto_exit()

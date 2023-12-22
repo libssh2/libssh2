@@ -1003,51 +1003,104 @@ libssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
     return 0;
 }
 
-void
+static int
 libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
                            int algo, size_t minkeylen, void *key, int keylen)
 {
+    Qus_EC_t errcode;
+
     if(keylen < minkeylen) {
         char *lkey = alloca(minkeylen);
 
         /* Pad key with zeroes if too short. */
         if(!lkey)
-            return;
+            return 0;
         memcpy(lkey, (char *) key, keylen);
         memset(lkey + keylen, 0, minkeylen - keylen);
         key = (void *) lkey;
         keylen = minkeylen;
     }
-    libssh2_os400qc3_hash_init(&ctx->hash, algo);
+    if(!libssh2_os400qc3_hash_init(&ctx->hash, algo))
+        return 0;
+    set_EC_length(errcode, sizeof(errcode));
     Qc3CreateKeyContext((char *) key, &keylen, binstring, &algo, qc3clear,
                         NULL, NULL, ctx->key.Key_Context_Token,
-                        (char *) &ecnull);
+                        (char *) &errcode);
+    return errcode.Bytes_Available? 0: 1;
 }
 
-void
-libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
-                             unsigned char *data, int len)
+int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
+{
+    memset((char *) ctx, 0, sizeof(libssh2_hmac_ctx));
+    return 1;
+}
+
+#if LIBSSH2_MD5
+int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
+                           void *key, size_t keylen)
+{
+    return libssh2_os400qc3_hmac_init(ctx, Qc3_MD5,                     \
+                                      MD5_DIGEST_LENGTH,                \
+                                      key, keylen);
+}
+#endif
+
+int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
+                            void *key, size_t keylen)
+{
+    return libssh2_os400qc3_hmac_init(ctx, Qc3_SHA1,                    \
+                                      SHA_DIGEST_LENGTH,                \
+                                      key, keylen);
+}
+
+int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
+{
+    return libssh2_os400qc3_hmac_init(ctx, Qc3_SHA256,                  \
+                                      SHA256_DIGEST_LENGTH,             \
+                                      key, keylen);
+}
+
+int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
+{
+    return libssh2_os400qc3_hmac_init(ctx, Qc3_SHA512,                  \
+                                      SHA512_DIGEST_LENGTH,             \
+                                      key, keylen);
+}
+
+int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
+                         const void *data, size_t datalen)
 {
     char dummy[64];
+    int len = (int) datalen;
+    Qus_EC_t errcode;
 
     ctx->hash.Final_Op_Flag = Qc3_Continue;
+    set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHMAC((char *) data, &len, Qc3_Data, (char *) &ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
-                     anycsp, NULL, dummy, (char *) &ecnull);
+                     anycsp, NULL, dummy, (char *) &errcode);
+    return errcode.Bytes_Available? 0: 1;
 }
 
-void
-libssh2_os400qc3_hmac_final(_libssh2_os400qc3_crypto_ctx *ctx,
-                            unsigned char *out)
+int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *out)
 {
     char data;
+    Qus_EC_t errcode;
 
     ctx->hash.Final_Op_Flag = Qc3_Final;
+    set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHMAC((char *) data, &zero, Qc3_Data, (char *) &ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
-                     anycsp, NULL, (char *) out, (char *) &ecnull);
+                     anycsp, NULL, (char *) out, (char *) &errcode);
+    return errcode.Bytes_Available? 0: 1;
 }
 
+void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
+{
+    _libssh2_os400qc3_crypto_dtor(ctx);
+}
 
 /*******************************************************************
  *
@@ -1425,6 +1478,11 @@ pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
     if(!mac)
         return -1;
 
+    /* Create an HMAC context for our computations. */
+    if(!libssh2_os400qc3_hmac_init(&hctx, pkcs5->hash, pkcs5->hashlen,
+                                   (void *) passphrase, strlen(passphrase)))
+        return -1;
+
     /* Allocate the derived key buffer. */
     l = t;
     buf = LIBSSH2_ALLOC(session, l * pkcs5->hashlen);
@@ -1432,20 +1490,26 @@ pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
         return -1;
     *dk = buf;
 
-    /* Create an HMAC context for our computations. */
-    libssh2_os400qc3_hmac_init(&hctx, pkcs5->hash, pkcs5->hashlen,
-                               (void *) passphrase, strlen(passphrase));
-
     /* Process each hLen-size blocks. */
     for(i = 1; i <= l; i++) {
         ni = htonl(i);
-        libssh2_os400qc3_hmac_update(&hctx, pkcs5->salt, pkcs5->saltlen);
-        libssh2_os400qc3_hmac_update(&hctx, (char *) &ni, sizeof(ni));
-        libssh2_os400qc3_hmac_final(&hctx, mac);
+        if(!_libssh2_hmac_update(&hctx, pkcs5->salt, pkcs5->saltlen) ||
+           !_libssh2_hmac_update(&hctx, &ni, sizeof(ni)) ||
+           !_libssh2_hmac_final(&hctx, mac)) {
+            LIBSSH2_FREE(session, buf);
+            *dk = NULL;
+            _libssh2_os400qc3_crypto_dtor(&hctx);
+            return -1;
+        }
         memcpy(buf, mac, pkcs5->hashlen);
         for(j = 1; j < pkcs5->itercount; j++) {
-            libssh2_os400qc3_hmac_update(&hctx, mac, pkcs5->hashlen);
-            libssh2_os400qc3_hmac_final(&hctx, mac);
+            if(!_libssh2_hmac_update(&hctx, mac, pkcs5->hashlen) ||
+               !_libssh2_hmac_final(&hctx, mac)) {
+                LIBSSH2_FREE(session, buf);
+                *dk = NULL;
+                _libssh2_os400qc3_crypto_dtor(&hctx);
+                return -1;
+            }
             for(k = 0; k < pkcs5->hashlen; k++)
                 buf[k] ^= mac[k];
         }

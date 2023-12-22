@@ -124,22 +124,26 @@ mac_method_hmac_sha2_512_hash(LIBSSH2_SESSION * session,
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
+    int res;
     (void)session;
 
     _libssh2_htonu32(seqno_buf, seqno);
 
-    libssh2_hmac_ctx_init(ctx);
-    libssh2_hmac_sha512_init(&ctx, *abstract, 64);
-    libssh2_hmac_update(ctx, seqno_buf, 4);
-    libssh2_hmac_update(ctx, packet, packet_len);
-    if(addtl && addtl_len) {
-        libssh2_hmac_update(ctx, addtl, addtl_len);
-    }
-    libssh2_hmac_final(ctx, buf);
-    libssh2_hmac_cleanup(&ctx);
+    if(!_libssh2_hmac_ctx_init(&ctx))
+        return 1;
+    res = _libssh2_hmac_sha512_init(&ctx, *abstract, 64) &&
+          _libssh2_hmac_update(&ctx, seqno_buf, 4) &&
+          _libssh2_hmac_update(&ctx, packet, packet_len);
+    if(res && addtl && addtl_len)
+        res = _libssh2_hmac_update(&ctx, addtl, addtl_len);
+    if(res)
+        res = _libssh2_hmac_final(&ctx, buf);
+    _libssh2_hmac_cleanup(&ctx);
 
-    return 0;
+    return !res;
 }
+
+
 
 static const LIBSSH2_MAC_METHOD mac_method_hmac_sha2_512 = {
     "hmac-sha2-512",
@@ -179,21 +183,23 @@ mac_method_hmac_sha2_256_hash(LIBSSH2_SESSION * session,
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
+    int res;
     (void)session;
 
     _libssh2_htonu32(seqno_buf, seqno);
 
-    libssh2_hmac_ctx_init(ctx);
-    libssh2_hmac_sha256_init(&ctx, *abstract, 32);
-    libssh2_hmac_update(ctx, seqno_buf, 4);
-    libssh2_hmac_update(ctx, packet, packet_len);
-    if(addtl && addtl_len) {
-        libssh2_hmac_update(ctx, addtl, addtl_len);
-    }
-    libssh2_hmac_final(ctx, buf);
-    libssh2_hmac_cleanup(&ctx);
+    if(!_libssh2_hmac_ctx_init(&ctx))
+        return 1;
+    res = _libssh2_hmac_sha256_init(&ctx, *abstract, 32) &&
+          _libssh2_hmac_update(&ctx, seqno_buf, 4) &&
+          _libssh2_hmac_update(&ctx, packet, packet_len);
+    if(res && addtl && addtl_len)
+        res = _libssh2_hmac_update(&ctx, addtl, addtl_len);
+    if(res)
+        res = _libssh2_hmac_final(&ctx, buf);
+    _libssh2_hmac_cleanup(&ctx);
 
-    return 0;
+    return !res;
 }
 
 
@@ -236,21 +242,23 @@ mac_method_hmac_sha1_hash(LIBSSH2_SESSION * session,
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
+    int res;
     (void)session;
 
     _libssh2_htonu32(seqno_buf, seqno);
 
-    libssh2_hmac_ctx_init(ctx);
-    libssh2_hmac_sha1_init(&ctx, *abstract, 20);
-    libssh2_hmac_update(ctx, seqno_buf, 4);
-    libssh2_hmac_update(ctx, packet, packet_len);
-    if(addtl && addtl_len) {
-        libssh2_hmac_update(ctx, addtl, addtl_len);
-    }
-    libssh2_hmac_final(ctx, buf);
-    libssh2_hmac_cleanup(&ctx);
+    if(!_libssh2_hmac_ctx_init(&ctx))
+        return 1;
+    res = _libssh2_hmac_sha1_init(&ctx, *abstract, 20) &&
+          _libssh2_hmac_update(&ctx, seqno_buf, 4) &&
+          _libssh2_hmac_update(&ctx, packet, packet_len);
+    if(res && addtl && addtl_len)
+        res = _libssh2_hmac_update(&ctx, addtl, addtl_len);
+    if(res)
+        res = _libssh2_hmac_final(&ctx, buf);
+    _libssh2_hmac_cleanup(&ctx);
 
-    return 0;
+    return !res;
 }
 
 
@@ -288,10 +296,11 @@ mac_method_hmac_sha1_96_hash(LIBSSH2_SESSION * session,
 {
     unsigned char temp[SHA_DIGEST_LENGTH];
 
-    mac_method_hmac_sha1_hash(session, temp, seqno, packet, packet_len,
-                              addtl, addtl_len, abstract);
-    memcpy(buf, (char *) temp, 96 / 8);
+    if(mac_method_hmac_sha1_hash(session, temp, seqno, packet, packet_len,
+                                 addtl, addtl_len, abstract))
+        return 1;
 
+    memcpy(buf, (char *) temp, 96 / 8);
     return 0;
 }
 
@@ -321,21 +330,23 @@ mac_method_hmac_md5_hash(LIBSSH2_SESSION * session, unsigned char *buf,
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
+    int res;
     (void)session;
 
     _libssh2_htonu32(seqno_buf, seqno);
 
-    libssh2_hmac_ctx_init(ctx);
-    libssh2_hmac_md5_init(&ctx, *abstract, 16);
-    libssh2_hmac_update(ctx, seqno_buf, 4);
-    libssh2_hmac_update(ctx, packet, packet_len);
-    if(addtl && addtl_len) {
-        libssh2_hmac_update(ctx, addtl, addtl_len);
-    }
-    libssh2_hmac_final(ctx, buf);
-    libssh2_hmac_cleanup(&ctx);
+    if(!_libssh2_hmac_ctx_init(&ctx))
+        return 1;
+    res = _libssh2_hmac_md5_init(&ctx, *abstract, 16) &&
+          _libssh2_hmac_update(&ctx, seqno_buf, 4) &&
+          _libssh2_hmac_update(&ctx, packet, packet_len);
+    if(res && addtl && addtl_len)
+        res = _libssh2_hmac_update(&ctx, addtl, addtl_len);
+    if(res)
+        res = _libssh2_hmac_final(&ctx, buf);
+    _libssh2_hmac_cleanup(&ctx);
 
-    return 0;
+    return !res;
 }
 
 
@@ -362,8 +373,11 @@ mac_method_hmac_md5_96_hash(LIBSSH2_SESSION * session,
                             size_t addtl_len, void **abstract)
 {
     unsigned char temp[MD5_DIGEST_LENGTH];
-    mac_method_hmac_md5_hash(session, temp, seqno, packet, packet_len,
-                             addtl, addtl_len, abstract);
+
+    if(mac_method_hmac_md5_hash(session, temp, seqno, packet, packet_len,
+                                addtl, addtl_len, abstract))
+        return 1;
+
     memcpy(buf, (char *) temp, 96 / 8);
     return 0;
 }
@@ -396,21 +410,23 @@ mac_method_hmac_ripemd160_hash(LIBSSH2_SESSION * session,
 {
     libssh2_hmac_ctx ctx;
     unsigned char seqno_buf[4];
+    int res;
     (void)session;
 
     _libssh2_htonu32(seqno_buf, seqno);
 
-    libssh2_hmac_ctx_init(ctx);
-    libssh2_hmac_ripemd160_init(&ctx, *abstract, 20);
-    libssh2_hmac_update(ctx, seqno_buf, 4);
-    libssh2_hmac_update(ctx, packet, packet_len);
-    if(addtl && addtl_len) {
-        libssh2_hmac_update(ctx, addtl, addtl_len);
-    }
-    libssh2_hmac_final(ctx, buf);
-    libssh2_hmac_cleanup(&ctx);
+    if(!_libssh2_hmac_ctx_init(&ctx))
+        return 1;
+    res = _libssh2_hmac_ripemd160_init(&ctx, *abstract, 20) &&
+          _libssh2_hmac_update(&ctx, seqno_buf, 4) &&
+          _libssh2_hmac_update(&ctx, packet, packet_len);
+    if(res && addtl && addtl_len)
+        res = _libssh2_hmac_update(&ctx, addtl, addtl_len);
+    if(res)
+        res = _libssh2_hmac_final(&ctx, buf);
+    _libssh2_hmac_cleanup(&ctx);
 
-    return 0;
+    return !res;
 }
 
 

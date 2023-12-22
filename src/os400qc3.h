@@ -285,33 +285,6 @@ typedef struct {        /* Diffie-Hellman context. */
                                 libssh2_os400qc3_hash_update(&(ctx), data, len)
 #define libssh2_md5_final(ctx, out)                                         \
                                 libssh2_os400qc3_hash_final(&(ctx), out)
-#define libssh2_hmac_ctx_init(ctx)                                          \
-                                memset((char *) &(ctx), 0,                  \
-                                       sizeof(libssh2_hmac_ctx))
-#define libssh2_hmac_md5_init(ctx, key, keylen)                         \
-    libssh2_os400qc3_hmac_init(ctx, Qc3_MD5,                            \
-                               MD5_DIGEST_LENGTH,                       \
-                               key, keylen)
-#define libssh2_hmac_sha1_init(ctx, key, keylen)                        \
-    libssh2_os400qc3_hmac_init(ctx, Qc3_SHA1,                           \
-                               SHA_DIGEST_LENGTH,                       \
-                               key, keylen)
-#define libssh2_hmac_sha256_init(ctx, key, keylen)                      \
-    libssh2_os400qc3_hmac_init(ctx, Qc3_SHA256,                         \
-                               SHA256_DIGEST_LENGTH,                    \
-                               key, keylen)
-#define libssh2_hmac_sha512_init(ctx, key, keylen)                      \
-    libssh2_os400qc3_hmac_init(ctx, Qc3_SHA512,                         \
-                               SHA512_DIGEST_LENGTH,                    \
-                               key, keylen)
-#define libssh2_hmac_update(ctx, data, datalen)                         \
-    libssh2_os400qc3_hmac_update(&(ctx),                                \
-                                 data, datalen)
-#define libssh2_hmac_final(ctx, data)           \
-    libssh2_os400qc3_hmac_final(&(ctx), data)
-#define libssh2_hmac_cleanup(ctx)               \
-    _libssh2_os400qc3_crypto_dtor(ctx)
-
 
 #define _libssh2_bn_ctx         int                 /* Not used. */
 
@@ -397,14 +370,6 @@ extern void     libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
 extern int      libssh2_os400qc3_hash(const unsigned char *message,
                                       unsigned long len, unsigned char *out,
                                       unsigned int algo);
-extern void     libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *x,
-                                           int algo, size_t minkeylen,
-                                           void *key, int keylen);
-extern void     libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
-                                             const unsigned char *data,
-                                             int len);
-extern void     libssh2_os400qc3_hmac_final(_libssh2_os400qc3_crypto_ctx *ctx,
-                                            unsigned char *out);
 extern int      _libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
                                             unsigned char **signature,
                                             size_t *signature_len,

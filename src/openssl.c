@@ -44,9 +44,149 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#ifndef EVP_MAX_BLOCK_LENGTH
-#define EVP_MAX_BLOCK_LENGTH 32
+int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
+{
+#ifdef USE_OPENSSL_3
+    *ctx = NULL;
+    return 1;
+#elif defined(HAVE_OPAQUE_STRUCTS)
+    *ctx = HMAC_CTX_new();
+    return *ctx ? 1 : 0;
+#else
+    HMAC_CTX_init(ctx);
+    return 1;
 #endif
+}
+
+#ifdef USE_OPENSSL_3
+static int _libssh2_hmac_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen,
+                              const char *digest_name)
+{
+    EVP_MAC* mac;
+    OSSL_PARAM params[3];
+
+    mac = EVP_MAC_fetch(NULL, OSSL_MAC_NAME_HMAC, NULL);
+    if(!mac)
+        return 0;
+
+    *ctx = EVP_MAC_CTX_new(mac);
+    EVP_MAC_free(mac);
+    if(!*ctx)
+        return 0;
+
+    params[0] = OSSL_PARAM_construct_octet_string(
+        OSSL_MAC_PARAM_KEY, (void *)key, keylen);
+    params[1] = OSSL_PARAM_construct_utf8_string(
+        OSSL_MAC_PARAM_DIGEST, (char *)digest_name, 0);
+    params[2] = OSSL_PARAM_construct_end();
+
+    return EVP_MAC_init(*ctx, NULL, 0, params);
+}
+#endif
+
+#if LIBSSH2_MD5
+int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
+                           void *key, size_t keylen)
+{
+#ifdef USE_OPENSSL_3
+    return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_MD5);
+#elif defined(HAVE_OPAQUE_STRUCTS)
+    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_md5(), NULL);
+#else
+    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_md5(), NULL);
+#endif
+}
+#endif
+
+#if LIBSSH2_HMAC_RIPEMD
+int _libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
+                                 void *key, size_t keylen)
+{
+#ifdef USE_OPENSSL_3
+    return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_RIPEMD160);
+#elif defined(HAVE_OPAQUE_STRUCTS)
+    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_ripemd160(), NULL);
+#else
+    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_ripemd160(), NULL);
+#endif
+}
+#endif
+
+int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
+                            void *key, size_t keylen)
+{
+#ifdef USE_OPENSSL_3
+    return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA1);
+#elif defined(HAVE_OPAQUE_STRUCTS)
+    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha1(), NULL);
+#else
+    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha1(), NULL);
+#endif
+}
+
+int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
+{
+#ifdef USE_OPENSSL_3
+    return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_256);
+#elif defined(HAVE_OPAQUE_STRUCTS)
+    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha256(), NULL);
+#else
+    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha256(), NULL);
+#endif
+}
+
+int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
+{
+#ifdef USE_OPENSSL_3
+    return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_512);
+#elif defined(HAVE_OPAQUE_STRUCTS)
+    return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha512(), NULL);
+#else
+    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha512(), NULL);
+#endif
+}
+
+int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
+                         const void *data, size_t datalen)
+{
+#ifdef USE_OPENSSL_3
+    return EVP_MAC_update(*ctx, data, datalen);
+#elif defined(HAVE_OPAQUE_STRUCTS)
+/* FIXME: upstream bug as of v5.6.0: datalen is int instead of size_t */
+#if defined(LIBSSH2_WOLFSSL)
+    return HMAC_Update(*ctx, data, (int)datalen);
+#else /* !LIBSSH2_WOLFSSL */
+    return HMAC_Update(*ctx, data, datalen);
+#endif /* LIBSSH2_WOLFSSL */
+#else
+    return HMAC_Update(ctx, data, datalen);
+#endif
+}
+
+int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *data)
+{
+#ifdef USE_OPENSSL_3
+    return EVP_MAC_final(*ctx, data, NULL, MAX_MACSIZE);
+#elif defined(HAVE_OPAQUE_STRUCTS)
+    return HMAC_Final(*ctx, data, NULL);
+#else
+    return HMAC_Final(ctx, data, NULL);
+#endif
+}
+
+void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
+{
+#ifdef USE_OPENSSL_3
+    EVP_MAC_CTX_free(*ctx);
+#elif defined(HAVE_OPAQUE_STRUCTS)
+    HMAC_CTX_free(*ctx);
+#else
+    HMAC_cleanup(ctx);
+#endif
+}
 
 static int
 read_openssh_private_key_from_memory(void **key_ctx, LIBSSH2_SESSION *session,
@@ -89,32 +229,6 @@ write_bn(unsigned char *buf, const BIGNUM *bn, int bn_bytes)
     _libssh2_htonu32(p - 4, bn_bytes);  /* Post write bn size. */
 
     return p + bn_bytes;
-}
-#endif
-
-#ifdef USE_OPENSSL_3
-int _libssh2_hmac_init(libssh2_hmac_ctx *ctx, void *key, size_t keylen,
-                       const char *digest_name)
-{
-    EVP_MAC* mac;
-    OSSL_PARAM params[3];
-
-    mac = EVP_MAC_fetch(NULL, OSSL_MAC_NAME_HMAC, NULL);
-    if(!mac)
-        return 0;
-
-    *ctx = EVP_MAC_CTX_new(mac);
-    EVP_MAC_free(mac);
-    if(!*ctx)
-        return 0;
-
-    params[0] = OSSL_PARAM_construct_octet_string(
-        OSSL_MAC_PARAM_KEY, (void *)key, keylen);
-    params[1] = OSSL_PARAM_construct_utf8_string(
-        OSSL_MAC_PARAM_DIGEST, (char *)digest_name, 0);
-    params[2] = OSSL_PARAM_construct_end();
-
-    return EVP_MAC_init(*ctx, NULL, 0, params);
 }
 #endif
 
@@ -850,6 +964,10 @@ _libssh2_cipher_init(_libssh2_cipher_ctx * h,
     return !EVP_CipherInit(h, algo(), secret, iv, encrypt);
 #endif
 }
+
+#ifndef EVP_MAX_BLOCK_LENGTH
+#define EVP_MAX_BLOCK_LENGTH 32
+#endif
 
 int
 _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,

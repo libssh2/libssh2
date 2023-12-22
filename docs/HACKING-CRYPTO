@@ -63,27 +63,21 @@ libssh2_hmac_ctx
 Type of an HMAC computation context. Generally a struct.
 Used for all hash algorithms.
 
-void libssh2_hmac_ctx_init(libssh2_hmac_ctx ctx);
+int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx);
 Initializes the HMAC computation context ctx.
 Called before setting-up the hash algorithm.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
+Must return 1 for success and 0 for failure.
 
-void libssh2_hmac_update(libssh2_hmac_ctx ctx,
-                         const unsigned char *data,
-                         int datalen);
+int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
+                         const void *data, int datalen);
 Continue computation of an HMAC on datalen bytes at data using context ctx.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
 
-void libssh2_hmac_final(libssh2_hmac_ctx ctx,
-                        unsigned char output[]);
+int _libssh2_hmac_final(libssh2_hmac_ctx *ctx,
+                        void output[]);
 Get the computed HMAC from context ctx into the output buffer. The
 minimum data buffer size depends on the HMAC hash algorithm.
-Note: if the ctx parameter is modified by the underlying code,
-this procedure must be implemented as a macro to map ctx --> &ctx.
 
-void libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx);
+void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx);
 Releases the HMAC computation context at ctx.
 
 

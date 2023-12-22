@@ -536,11 +536,11 @@ _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
 
 int
 _libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
-                            const unsigned char *data, ULONG datalen)
+                            const void *data, ULONG datalen)
 {
     int ret;
 
-    ret = BCryptHashData(ctx->hHash, (unsigned char *)data, datalen, 0);
+    ret = BCryptHashData(ctx->hHash, (PUCHAR)data, datalen, 0);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -586,19 +586,70 @@ _libssh2_wincng_hash(const unsigned char *data, ULONG datalen,
  * Windows CNG backend: HMAC functions
  */
 
-int
-_libssh2_wincng_hmac_final(_libssh2_wincng_hash_ctx *ctx,
-                           unsigned char *hash)
+int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 {
-    int ret;
-
-    ret = BCryptFinishHash(ctx->hHash, hash, ctx->cbHash, 0);
-
-    return BCRYPT_SUCCESS(ret) ? 0 : -1;
+    memset(ctx, 0, sizeof(*ctx));
+    return 1;
 }
 
-void
-_libssh2_wincng_hmac_cleanup(_libssh2_wincng_hash_ctx *ctx)
+#if LIBSSH2_MD5
+int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
+                           void *key, size_t keylen)
+{
+    int ret = _libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHmacMD5,
+                                        MD5_DIGEST_LENGTH,
+                                        key, (ULONG) keylen);
+
+    return ret == 0 ? 1 : 0;
+}
+#endif
+
+int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
+                            void *key, size_t keylen)
+{
+    int ret = _libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHmacSHA1,
+                                        SHA_DIGEST_LENGTH,
+                                        key, (ULONG) keylen);
+
+    return ret == 0 ? 1 : 0;
+}
+
+int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
+{
+    int ret = _libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHmacSHA256,
+                                        SHA256_DIGEST_LENGTH,
+                                        key, (ULONG) keylen);
+
+    return ret == 0 ? 1 : 0;
+}
+
+int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
+{
+    int ret = _libssh2_wincng_hash_init(ctx, _libssh2_wincng.hAlgHmacSHA512,
+                                        SHA512_DIGEST_LENGTH,
+                                        key, (ULONG) keylen);
+
+    return ret == 0 ? 1 : 0;
+}
+
+int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
+                         const void *data, size_t datalen)
+{
+    int ret = _libssh2_wincng_hash_update(ctx, data, (ULONG) datalen);
+
+    return ret == 0 ? 1 : 0;
+}
+
+int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *data)
+{
+    int ret = BCryptFinishHash(ctx->hHash, data, ctx->cbHash, 0);
+
+    return BCRYPT_SUCCESS(ret) ? 1 : 0;
+}
+
+void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
 {
     BCryptDestroyHash(ctx->hHash);
     ctx->hHash = NULL;
