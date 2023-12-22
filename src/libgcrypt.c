@@ -42,7 +42,7 @@
 
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 {
-    (void)ctx;
+    *ctx = NULL;
     return 1;
 }
 

@@ -588,7 +588,7 @@ _libssh2_wincng_hash(const unsigned char *data, ULONG datalen,
 
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 {
-    (void)ctx;
+    memset(ctx, 0, sizeof(*ctx));
     return 1;
 }
 

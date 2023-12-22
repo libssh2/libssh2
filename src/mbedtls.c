@@ -240,7 +240,7 @@ _libssh2_mbedtls_hash(const unsigned char *data, size_t datalen,
 
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 {
-    (void)ctx;
+    memset(ctx, 0, sizeof(*ctx));
     return 1;
 }
 
