@@ -1003,7 +1003,7 @@ libssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
     return 0;
 }
 
-void
+static void
 libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
                            int algo, size_t minkeylen, void *key, int keylen)
 {
@@ -1024,7 +1024,7 @@ libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
                         (char *) &ecnull);
 }
 
-void
+static void
 libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
                              unsigned char *data, int len)
 {
@@ -1036,7 +1036,7 @@ libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
                      anycsp, NULL, dummy, (char *) &ecnull);
 }
 
-void
+static void
 libssh2_os400qc3_hmac_final(_libssh2_os400qc3_crypto_ctx *ctx,
                             unsigned char *out)
 {
@@ -1048,6 +1048,68 @@ libssh2_os400qc3_hmac_final(_libssh2_os400qc3_crypto_ctx *ctx,
                      anycsp, NULL, (char *) out, (char *) &ecnull);
 }
 
+int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
+{
+    memset((char *) ctx, 0, sizeof(libssh2_hmac_ctx));
+    return 1;
+}
+
+int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
+                            void *key, size_t keylen)
+{
+    libssh2_os400qc3_hmac_init(ctx, Qc3_SHA1,                           \
+                               SHA_DIGEST_LENGTH,                       \
+                               key, keylen)
+    return 1;
+}
+
+#if LIBSSH2_MD5
+int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
+                           void *key, size_t keylen)
+{
+    libssh2_os400qc3_hmac_init(ctx, Qc3_MD5,                            \
+                               MD5_DIGEST_LENGTH,                       \
+                               key, keylen)
+    return 1;
+}
+#endif
+
+int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
+{
+    libssh2_os400qc3_hmac_init(ctx, Qc3_SHA256,                         \
+                               SHA256_DIGEST_LENGTH,                    \
+                               key, keylen)
+    return 1;
+}
+
+int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
+{
+    libssh2_os400qc3_hmac_init(ctx, Qc3_SHA512,                         \
+                               SHA512_DIGEST_LENGTH,                    \
+                               key, keylen)
+    return 1;
+}
+
+int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
+                         const void *data, size_t datalen)
+{
+    libssh2_os400qc3_hmac_update(ctx,                                   \
+                                 data, datalen)
+    return 1;
+}
+
+int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *data)
+{
+    libssh2_os400qc3_hmac_final(ctx, data);
+    return 1;
+}
+
+void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
+{
+    _libssh2_os400qc3_crypto_dtor(ctx);
+}
 
 /*******************************************************************
  *
