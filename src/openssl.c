@@ -49,9 +49,12 @@ int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 #ifdef USE_OPENSSL_3
     (void)ctx;
     return 1;
-#else
+#elif defined(HAVE_OPAQUE_STRUCTS)
     *ctx = HMAC_CTX_new();
     return *ctx ? 1 : 0;
+#else
+    HMAC_CTX_init(ctx);
+    return 1;
 #endif
 }
 
@@ -87,8 +90,10 @@ int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
 {
 #ifdef USE_OPENSSL_3
     return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA1);
-#else
+#elif defined(HAVE_OPAQUE_STRUCTS)
     return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha1(), NULL);
+#else
+    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha1(), NULL);
 #endif
 }
 
@@ -98,8 +103,10 @@ int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
 {
 #ifdef USE_OPENSSL_3
     return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_MD5);
-#else
+#elif defined(HAVE_OPAQUE_STRUCTS)
     return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_md5(), NULL);
+#else
+    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_md5(), NULL);
 #endif
 }
 #endif
@@ -110,8 +117,10 @@ int _libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
 {
 #ifdef USE_OPENSSL_3
     return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_RIPEMD160);
-#else
+#elif defined(HAVE_OPAQUE_STRUCTS)
     return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_ripemd160(), NULL);
+#else
+    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_ripemd160(), NULL);
 #endif
 }
 #endif
@@ -121,8 +130,10 @@ int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
 {
 #ifdef USE_OPENSSL_3
     return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_256);
-#else
+#elif defined(HAVE_OPAQUE_STRUCTS)
     return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha256(), NULL);
+#else
+    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha256(), NULL);
 #endif
 }
 
@@ -131,8 +142,10 @@ int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
 {
 #ifdef USE_OPENSSL_3
     return _libssh2_hmac_init(ctx, key, keylen, OSSL_DIGEST_NAME_SHA2_512);
-#else
+#elif defined(HAVE_OPAQUE_STRUCTS)
     return HMAC_Init_ex(*ctx, key, (int)keylen, EVP_sha512(), NULL);
+#else
+    return HMAC_Init_ex(ctx, key, (int)keylen, EVP_sha512(), NULL);
 #endif
 }
 
@@ -141,11 +154,15 @@ int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
 {
 #ifdef USE_OPENSSL_3
     return EVP_MAC_update(*ctx, data, datalen);
+#elif defined(HAVE_OPAQUE_STRUCTS)
 /* FIXME: upstream bug as of v5.6.0: datalen is int instead of size_t */
-#elif defined(LIBSSH2_WOLFSSL)
+#if defined(LIBSSH2_WOLFSSL)
     return HMAC_Update(*ctx, data, (int)datalen);
-#else
+#else /* !LIBSSH2_WOLFSSL */
     return HMAC_Update(*ctx, data, datalen);
+#endif /* LIBSSH2_WOLFSSL */
+#else
+    return HMAC_Update(ctx, data, datalen);
 #endif
 }
 
@@ -153,8 +170,10 @@ int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *data)
 {
 #ifdef USE_OPENSSL_3
     return EVP_MAC_final(*ctx, data, NULL, MAX_MACSIZE);
-#else
+#elif defined(HAVE_OPAQUE_STRUCTS)
     return HMAC_Final(*ctx, data, NULL);
+#else
+    return HMAC_Final(ctx, data, NULL);
 #endif
 }
 
@@ -162,8 +181,10 @@ void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
 {
 #ifdef USE_OPENSSL_3
     EVP_MAC_CTX_free(*ctx);
-#else
+#elif defined(HAVE_OPAQUE_STRUCTS)
     HMAC_CTX_free(*ctx);
+#else
+    HMAC_cleanup(ctx);
 #endif
 }
 
