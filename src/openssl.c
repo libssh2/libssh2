@@ -136,34 +136,34 @@ int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
 #endif
 }
 
-int _libssh2_hmac_update(libssh2_hmac_ctx ctx,
+int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
                          const void *data, size_t datalen)
 {
 #ifdef USE_OPENSSL_3
-    return EVP_MAC_update(ctx, data, datalen);
+    return EVP_MAC_update(*ctx, data, datalen);
 /* FIXME: upstream bug as of v5.6.0: datalen is int instead of size_t */
 #elif defined(LIBSSH2_WOLFSSL)
-    return HMAC_Update(ctx, data, (int)datalen);
+    return HMAC_Update(*ctx, data, (int)datalen);
 #else
-    return HMAC_Update(ctx, data, datalen);
+    return HMAC_Update(*ctx, data, datalen);
 #endif
 }
 
-int _libssh2_hmac_final(libssh2_hmac_ctx ctx, void *data)
+int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *data)
 {
 #ifdef USE_OPENSSL_3
-    return EVP_MAC_final(ctx, data, NULL, MAX_MACSIZE);
+    return EVP_MAC_final(*ctx, data, NULL, MAX_MACSIZE);
 #else
-    return HMAC_Final(ctx, data, NULL);
+    return HMAC_Final(*ctx, data, NULL);
 #endif
 }
 
-void _libssh2_hmac_cleanup(libssh2_hmac_ctx ctx)
+void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
 {
 #ifdef USE_OPENSSL_3
-    EVP_MAC_CTX_free(ctx);
+    EVP_MAC_CTX_free(*ctx);
 #else
-    HMAC_CTX_free(ctx);
+    HMAC_CTX_free(*ctx);
 #endif
 }
 

@@ -115,21 +115,21 @@ int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
     return 1;
 }
 
-int _libssh2_hmac_update(libssh2_hmac_ctx ctx,
+int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
                          const void *data, size_t datalen)
 {
-    gcry_md_write(ctx, data, datalen);
+    gcry_md_write(*ctx, data, datalen);
     return 1;
 }
 
-int _libssh2_hmac_final(libssh2_hmac_ctx ctx, void *data)
+int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *data)
 {
-    memcpy(data, gcry_md_read(ctx, 0),
-           gcry_md_get_algo_dlen(gcry_md_get_algo(ctx)));
+    memcpy(data, gcry_md_read(*ctx, 0),
+           gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx)));
     return 1;
 }
 
-void _libssh2_hmac_cleanup(libssh2_hmac_ctx ctx)
+void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
 {
     gcry_md_close(*ctx);
 }

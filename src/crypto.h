@@ -71,10 +71,10 @@ int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
                               void *key, size_t keylen);
 int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
                               void *key, size_t keylen);
-int _libssh2_hmac_update(libssh2_hmac_ctx ctx,
+int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
                          const void *data, size_t datalen);
-int _libssh2_hmac_final(libssh2_hmac_ctx ctx, void *data);
-void _libssh2_hmac_cleanup(libssh2_hmac_ctx ctx);
+int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *data);
+void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx);
 
 #define LIBSSH2_ED25519_KEY_LEN 32
 #define LIBSSH2_ED25519_PRIVATE_KEY_LEN 64
