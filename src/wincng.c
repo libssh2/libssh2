@@ -610,15 +610,6 @@ int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
 }
 #endif
 
-#if LIBSSH2_HMAC_RIPEMD
-/* not implemented */
-int _libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
-                                 void *key, size_t keylen)
-{
-    return 0;
-}
-#endif
-
 int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
                               void *key, size_t keylen)
 {
