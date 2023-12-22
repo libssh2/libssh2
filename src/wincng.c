@@ -536,11 +536,11 @@ _libssh2_wincng_hash_init(_libssh2_wincng_hash_ctx *ctx,
 
 int
 _libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
-                            const unsigned char *data, ULONG datalen)
+                            const void *data, ULONG datalen)
 {
     int ret;
 
-    ret = BCryptHashData(ctx->hHash, (unsigned char *)data, datalen, 0);
+    ret = BCryptHashData(ctx->hHash, (PUCHAR)data, datalen, 0);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -638,9 +638,7 @@ int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
 int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
                          const void *data, size_t datalen)
 {
-    return !_libssh2_wincng_hash_update(ctx,
-                                        (const unsigned char *) data,
-                                        (ULONG) datalen);
+    return !_libssh2_wincng_hash_update(ctx, data, (ULONG) datalen);
 }
 
 int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *data)
