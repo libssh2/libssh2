@@ -428,9 +428,14 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                            we can't match it */
                         break;
                     }
-                    _libssh2_hmac_sha1_init(&ctx, node->salt, node->salt_len);
-                    _libssh2_hmac_update(&ctx, host, strlen(host));
-                    _libssh2_hmac_final(&ctx, hash);
+                    if(!_libssh2_hmac_sha1_init(&ctx,
+                                                node->salt, node->salt_len))
+                        break;
+                    if(!_libssh2_hmac_update(&ctx, host, strlen(host)) ||
+                       !_libssh2_hmac_final(&ctx, hash)) {
+                        _libssh2_hmac_cleanup(&ctx);
+                        break;
+                    }
                     _libssh2_hmac_cleanup(&ctx);
 
                     if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
