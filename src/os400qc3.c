@@ -1491,7 +1491,6 @@ pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
         pkcs5->hashlen;
     if(t > 0xFFFFFFFF)
         return -1;
-    /* FIXME: mac never freed? */
     mac = alloca(pkcs5->hashlen);
     if(!mac)
         return -1;
