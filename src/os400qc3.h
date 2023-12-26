@@ -248,6 +248,7 @@ typedef struct {        /* Diffie-Hellman context. */
 #define libssh2_sha384_ctx      Qc3_Format_ALGD0100_T
 #define libssh2_sha512_ctx      Qc3_Format_ALGD0100_T
 #define libssh2_md5_ctx         Qc3_Format_ALGD0100_T
+#define libssh2_hmac_ctx        _libssh2_os400qc3_crypto_ctx
 #define _libssh2_cipher_ctx     _libssh2_os400qc3_crypto_ctx
 
 #define libssh2_sha1_init(x)    libssh2_os400qc3_hash_init(x, Qc3_SHA1)
@@ -284,8 +285,6 @@ typedef struct {        /* Diffie-Hellman context. */
                                 libssh2_os400qc3_hash_update(&(ctx), data, len)
 #define libssh2_md5_final(ctx, out)                                         \
                                 libssh2_os400qc3_hash_final(&(ctx), out)
-
-#define libssh2_hmac_ctx        _libssh2_os400qc3_crypto_ctx
 
 #define _libssh2_bn_ctx         int                 /* Not used. */
 
