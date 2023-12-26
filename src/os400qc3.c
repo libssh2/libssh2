@@ -1031,36 +1031,6 @@ libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
     return errcode.Bytes_Available? 0: 1;
 }
 
-static int
-libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
-                             const void *data, int len)
-{
-    char dummy[64];
-    Qus_EC_t errcode;
-
-    ctx->hash.Final_Op_Flag = Qc3_Continue;
-    set_EC_length(errcode, sizeof(errcode));
-    Qc3CalculateHMAC((char *) data, &len, Qc3_Data, (char *) &ctx->hash,
-                     Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
-                     anycsp, NULL, dummy, (char *) &errcode);
-    return errcode.Bytes_Available? 0: 1;
-}
-
-static int
-libssh2_os400qc3_hmac_final(_libssh2_os400qc3_crypto_ctx *ctx,
-                            unsigned char *out)
-{
-    char data;
-    Qus_EC_t errcode;
-
-    ctx->hash.Final_Op_Flag = Qc3_Final;
-    set_EC_length(errcode, sizeof(errcode));
-    Qc3CalculateHMAC((char *) data, &zero, Qc3_Data, (char *) &ctx->hash,
-                     Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
-                     anycsp, NULL, (char *) out, (char *) &errcode);
-    return errcode.Bytes_Available? 0: 1;
-}
-
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 {
     memset((char *) ctx, 0, sizeof(libssh2_hmac_ctx));
@@ -1104,14 +1074,28 @@ int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
 int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
                          const void *data, size_t datalen)
 {
-    return libssh2_os400qc3_hmac_update(ctx,                            \
-                                        data, datalen);
+    char dummy[64];
+    Qus_EC_t errcode;
 
+    ctx->hash.Final_Op_Flag = Qc3_Continue;
+    set_EC_length(errcode, sizeof(errcode));
+    Qc3CalculateHMAC((char *) data, &len, Qc3_Data, (char *) &ctx->hash,
+                     Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
+                     anycsp, NULL, dummy, (char *) &errcode);
+    return errcode.Bytes_Available? 0: 1;
 }
 
-int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *data)
+int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *out)
 {
-    return libssh2_os400qc3_hmac_final(ctx, data);
+    char data;
+    Qus_EC_t errcode;
+
+    ctx->hash.Final_Op_Flag = Qc3_Final;
+    set_EC_length(errcode, sizeof(errcode));
+    Qc3CalculateHMAC((char *) data, &zero, Qc3_Data, (char *) &ctx->hash,
+                     Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
+                     anycsp, NULL, (char *) out, (char *) &errcode);
+    return errcode.Bytes_Available? 0: 1;
 }
 
 void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
@@ -1511,15 +1495,15 @@ pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
     for(i = 1; i <= l; i++) {
         ni = htonl(i);
         /* FIXME: add error check */
-        libssh2_os400qc3_hmac_update(&hctx, pkcs5->salt, pkcs5->saltlen);
+        _libssh2_hmac_update(&hctx, pkcs5->salt, pkcs5->saltlen);
         /* FIXME: add error check */
-        libssh2_os400qc3_hmac_update(&hctx, (char *) &ni, sizeof(ni));
+        _libssh2_hmac_update(&hctx, &ni, sizeof(ni));
         /* FIXME: add error check */
-        libssh2_os400qc3_hmac_final(&hctx, mac);
+        _libssh2_hmac_final(&hctx, mac);
         memcpy(buf, mac, pkcs5->hashlen);
         for(j = 1; j < pkcs5->itercount; j++) {
-            libssh2_os400qc3_hmac_update(&hctx, mac, pkcs5->hashlen);
-            libssh2_os400qc3_hmac_final(&hctx, mac);
+            _libssh2_hmac_update(&hctx, mac, pkcs5->hashlen);
+            _libssh2_hmac_final(&hctx, mac);
             for(k = 0; k < pkcs5->hashlen; k++)
                 buf[k] ^= mac[k];
         }
