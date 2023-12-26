@@ -1020,8 +1020,6 @@ libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
         key = (void *) lkey;
         keylen = minkeylen;
     }
-    else
-        return 0;
     if(!libssh2_os400qc3_hash_init(&ctx->hash, algo))
         return 0;
     set_EC_length(errcode, sizeof(errcode));
@@ -1079,7 +1077,7 @@ int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
 
     ctx->hash.Final_Op_Flag = Qc3_Continue;
     set_EC_length(errcode, sizeof(errcode));
-    Qc3CalculateHMAC((char *) data, &len, Qc3_Data, (char *) &ctx->hash,
+    Qc3CalculateHMAC((char *) data, &datalen, Qc3_Data, (char *) &ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
                      anycsp, NULL, dummy, (char *) &errcode);
     return errcode.Bytes_Available? 0: 1;
