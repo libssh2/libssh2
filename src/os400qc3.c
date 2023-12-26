@@ -1479,6 +1479,11 @@ pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
     if(!mac)
         return -1;
 
+    /* Create an HMAC context for our computations. */
+    if(!libssh2_os400qc3_hmac_init(&hctx, pkcs5->hash, pkcs5->hashlen,
+                                   (void *) passphrase, strlen(passphrase)))
+        return -1;
+
     /* Allocate the derived key buffer. */
     l = t;
     buf = LIBSSH2_ALLOC(session, l * pkcs5->hashlen);
@@ -1486,24 +1491,26 @@ pbkdf2(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
         return -1;
     *dk = buf;
 
-    /* Create an HMAC context for our computations. */
-    /* FIXME: add error check */
-    libssh2_os400qc3_hmac_init(&hctx, pkcs5->hash, pkcs5->hashlen,
-                               (void *) passphrase, strlen(passphrase));
-
     /* Process each hLen-size blocks. */
     for(i = 1; i <= l; i++) {
         ni = htonl(i);
-        /* FIXME: add error check */
-        _libssh2_hmac_update(&hctx, pkcs5->salt, pkcs5->saltlen);
-        /* FIXME: add error check */
-        _libssh2_hmac_update(&hctx, &ni, sizeof(ni));
-        /* FIXME: add error check */
-        _libssh2_hmac_final(&hctx, mac);
+        if(!_libssh2_hmac_update(&hctx, pkcs5->salt, pkcs5->saltlen) ||
+           !_libssh2_hmac_update(&hctx, &ni, sizeof(ni)) ||
+           !_libssh2_hmac_final(&hctx, mac)) {
+            LIBSSH2_FREE(session, buf);
+            *dk = NULL;
+            _libssh2_os400qc3_crypto_dtor(&hctx);
+            return -1;
+        }
         memcpy(buf, mac, pkcs5->hashlen);
         for(j = 1; j < pkcs5->itercount; j++) {
-            _libssh2_hmac_update(&hctx, mac, pkcs5->hashlen);
-            _libssh2_hmac_final(&hctx, mac);
+            if(!_libssh2_hmac_update(&hctx, mac, pkcs5->hashlen) ||
+               !_libssh2_hmac_final(&hctx, mac)) {
+                LIBSSH2_FREE(session, buf);
+                *dk = NULL;
+                _libssh2_os400qc3_crypto_dtor(&hctx);
+                return -1;
+            }
             for(k = 0; k < pkcs5->hashlen; k++)
                 buf[k] ^= mac[k];
         }
