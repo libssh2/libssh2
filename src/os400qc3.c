@@ -1033,7 +1033,7 @@ libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
 
 static int
 libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
-                             unsigned char *data, int len)
+                             const void *data, int len)
 {
     char dummy[64];
     Qus_EC_t errcode;
