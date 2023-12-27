@@ -542,7 +542,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
         exchange_state->exchange_hash = (void *)&exchange_hash_ctx;
         if(!_libssh2_sha_algo_ctx_init(sha_algo_value, exchange_hash_ctx)) {
-            ret = _libssh2_error(session, LIBSSH2_ERROR_HASH,
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_INIT,
                                  "Unable to initialize hash context");
             goto clean_exit;
         }
