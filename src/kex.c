@@ -67,6 +67,9 @@
         else if(type == LIBSSH2_EC_CURVE_NISTP521) {                        \
             LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(512, value, reqlen, version); \
         }                                                                   \
+        else {                                                              \
+            value = NULL;                                                   \
+        }                                                                   \
     } while(0)
 #endif
 
@@ -79,9 +82,13 @@ do {                                                                        \
         value = LIBSSH2_ALLOC(session,                                      \
                               reqlen + SHA##digest_type##_DIGEST_LENGTH);   \
     }                                                                       \
-    if(value)                                                               \
+    if(value) {                                                             \
+        int err = 0;                                                        \
         while(len < (size_t)reqlen) {                                       \
-            (void)libssh2_sha##digest_type##_init(&hash);                   \
+            if(!libssh2_sha##digest_type##_init(&hash)) {                   \
+                err = 1;                                                    \
+                break;                                                      \
+            }                                                               \
             libssh2_sha##digest_type##_update(hash,                         \
                                               exchange_state->k_value,      \
                                               exchange_state->k_value_len); \
@@ -99,6 +106,11 @@ do {                                                                        \
             libssh2_sha##digest_type##_final(hash, (value) + len);          \
             len += SHA##digest_type##_DIGEST_LENGTH;                        \
         }                                                                   \
+        if(err) {                                                           \
+            LIBSSH2_FREE(session, value);                                   \
+            value = NULL;                                                   \
+        }                                                                   \
+    }                                                                       \
 } while(0)
 
 /*!
@@ -188,6 +200,8 @@ static void _libssh2_sha_algo_value_hash(int sha_algo,
                                          unsigned char **data, size_t data_len,
                                          const unsigned char *version)
 {
+    *data = NULL;
+
     if(sha_algo == 512) {
         LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(512, *data, data_len, version);
     }
@@ -1597,8 +1611,11 @@ dh_gex_clean_exit:
 #define LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(digest_type)            \
 do {                                                                         \
     libssh2_sha##digest_type##_ctx ctx;                                      \
+    if(!libssh2_sha##digest_type##_init(&ctx)) {                             \
+        rc = -1;                                                             \
+        break;                                                               \
+    }                                                                        \
     exchange_state->exchange_hash = (void *)&ctx;                            \
-    (void)libssh2_sha##digest_type##_init(&ctx);                             \
     if(session->local.banner) {                                              \
         _libssh2_htonu32(exchange_state->h_sig_comp,                         \
             (uint32_t)(strlen((char *) session->local.banner) - 2));         \
