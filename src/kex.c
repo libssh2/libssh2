@@ -67,9 +67,6 @@
         else if(type == LIBSSH2_EC_CURVE_NISTP521) {                        \
             LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(512, value, reqlen, version); \
         }                                                                   \
-        else {                                                              \
-            value = NULL;                                                   \
-        }                                                                   \
     } while(0)
 #endif
 
@@ -82,11 +79,11 @@ do {                                                                        \
         value = LIBSSH2_ALLOC(session,                                      \
                               reqlen + SHA##digest_type##_DIGEST_LENGTH);   \
     }                                                                       \
-    if(value) {                                                             \
-        int err = 0;                                                        \
+    if(value)                                                               \
         while(len < (size_t)reqlen) {                                       \
             if(!libssh2_sha##digest_type##_init(&hash)) {                   \
-                err = 1;                                                    \
+                LIBSSH2_FREE(session, value);                               \
+                value = NULL;                                               \
                 break;                                                      \
             }                                                               \
             libssh2_sha##digest_type##_update(hash,                         \
@@ -106,11 +103,6 @@ do {                                                                        \
             libssh2_sha##digest_type##_final(hash, (value) + len);          \
             len += SHA##digest_type##_DIGEST_LENGTH;                        \
         }                                                                   \
-        if(err) {                                                           \
-            LIBSSH2_FREE(session, value);                                   \
-            value = NULL;                                                   \
-        }                                                                   \
-    }                                                                       \
 } while(0)
 
 /*!
@@ -200,8 +192,6 @@ static void _libssh2_sha_algo_value_hash(int sha_algo,
                                          unsigned char **data, size_t data_len,
                                          const unsigned char *version)
 {
-    *data = NULL;
-
     if(sha_algo == 512) {
         LIBSSH2_KEX_METHOD_SHA_VALUE_HASH(512, *data, data_len, version);
     }
