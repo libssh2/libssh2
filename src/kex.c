@@ -1677,10 +1677,10 @@ do {                                                                         \
     libssh2_sha##digest_type##_final(ctx, exchange_state->h_sig_comp);       \
                                                                              \
     if(session->hostkey->                                                    \
-       sig_verify(session, exchange_state->h_sig,                            \
-                  exchange_state->h_sig_len, exchange_state->h_sig_comp,     \
-                  SHA##digest_type##_DIGEST_LENGTH,                          \
-                  &session->server_hostkey_abstract)) {                      \
+        sig_verify(session, exchange_state->h_sig,                           \
+                   exchange_state->h_sig_len, exchange_state->h_sig_comp,    \
+                   SHA##digest_type##_DIGEST_LENGTH,                         \
+                   &session->server_hostkey_abstract)) {                     \
         rc = -1;                                                             \
     }                                                                        \
 } while(0)
@@ -1914,7 +1914,6 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
             case LIBSSH2_EC_CURVE_NISTP256:
                 LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(256);
                 break;
-
             case LIBSSH2_EC_CURVE_NISTP384:
                 LIBSSH2_KEX_METHOD_EC_SHA_HASH_CREATE_VERIFY(384);
                 break;
