@@ -588,6 +588,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_MISSING_USERAUTH_BANNER   -50
 #define LIBSSH2_ERROR_ALGO_UNSUPPORTED          -51
 #define LIBSSH2_ERROR_MAC_FAILURE               -52
+#define LIBSSH2_ERROR_HASH_INIT                 -53
 
 /* this is a define to provide the old (<= 1.2.7) name */
 #define LIBSSH2_ERROR_BANNER_NONE LIBSSH2_ERROR_BANNER_RECV

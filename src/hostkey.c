@@ -242,7 +242,9 @@ hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION * session,
     unsigned char hash[SHA_DIGEST_LENGTH];
     libssh2_sha1_ctx ctx;
 
-    (void)libssh2_sha1_init(&ctx);
+    if(!libssh2_sha1_init(&ctx))
+        return -1;
+
     for(i = 0; i < veccount; i++) {
         libssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
     }
@@ -659,6 +661,12 @@ hostkey_method_ssh_dss_signv(LIBSSH2_SESSION * session,
     libssh2_sha1_ctx ctx;
     int i;
 
+    if(!libssh2_sha1_init(&ctx)) {
+        *signature = NULL;
+        *signature_len = 0;
+        return -1;
+    }
+
     *signature = LIBSSH2_CALLOC(session, 2 * SHA_DIGEST_LENGTH);
     if(!*signature) {
         return -1;
@@ -666,7 +674,6 @@ hostkey_method_ssh_dss_signv(LIBSSH2_SESSION * session,
 
     *signature_len = 2 * SHA_DIGEST_LENGTH;
 
-    (void)libssh2_sha1_init(&ctx);
     for(i = 0; i < veccount; i++) {
         libssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
     }
@@ -914,7 +921,10 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
         unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];           \
         libssh2_sha##digest_type##_ctx ctx;                             \
         int i;                                                          \
-        (void)libssh2_sha##digest_type##_init(&ctx);                    \
+        if(!libssh2_sha##digest_type##_init(&ctx)) {                    \
+            ret = -1;                                                   \
+            break;                                                      \
+        }                                                               \
         for(i = 0; i < veccount; i++) {                                 \
             libssh2_sha##digest_type##_update(ctx, datavec[i].iov_base, \
                                               datavec[i].iov_len);      \
