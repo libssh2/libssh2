@@ -108,23 +108,26 @@ do {                                                                        \
  * don't allow it so we have to wrap them up in helper functions
  */
 
-static void _libssh2_sha_algo_ctx_init(int sha_algo, void *ctx)
+static int _libssh2_sha_algo_ctx_init(int sha_algo, void *ctx)
 {
     if(sha_algo == 512) {
-        (void)libssh2_sha512_init((libssh2_sha512_ctx*)ctx);
+        return libssh2_sha512_init((libssh2_sha512_ctx*)ctx);
     }
     else if(sha_algo == 384) {
-        (void)libssh2_sha384_init((libssh2_sha384_ctx*)ctx);
+        return libssh2_sha384_init((libssh2_sha384_ctx*)ctx);
     }
     else if(sha_algo == 256) {
-        (void)libssh2_sha256_init((libssh2_sha256_ctx*)ctx);
+        return libssh2_sha256_init((libssh2_sha256_ctx*)ctx);
     }
     else if(sha_algo == 1) {
-        (void)libssh2_sha1_init((libssh2_sha1_ctx*)ctx);
+        return libssh2_sha1_init((libssh2_sha1_ctx*)ctx);
     }
     else {
+#ifdef LIBSSH2DEBUG
         assert(0);
+#endif
     }
+    return 0;
 }
 
 static void _libssh2_sha_algo_ctx_update(int sha_algo, void *ctx,
@@ -534,8 +537,11 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         }
 
         exchange_state->exchange_hash = (void *)&exchange_hash_ctx;
-        _libssh2_sha_algo_ctx_init(sha_algo_value, exchange_hash_ctx);
-
+        if(!_libssh2_sha_algo_ctx_init(sha_algo_value, exchange_hash_ctx)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HASH,
+                                 "Unable to initialize hash context");
+            goto clean_exit;
+        }
         if(session->local.banner) {
             _libssh2_htonu32(exchange_state->h_sig_comp,
                 (uint32_t)(strlen((char *) session->local.banner) - 2));

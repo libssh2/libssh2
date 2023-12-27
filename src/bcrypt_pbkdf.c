@@ -127,7 +127,10 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
     memcpy(countsalt, salt, saltlen);
 
     /* collapse password */
-    (void)libssh2_sha512_init(&ctx);
+    if(!libssh2_sha512_init(&ctx)) {
+        free(countsalt);
+        return -1;
+    }
     libssh2_sha512_update(ctx, pass, passlen);
     libssh2_sha512_final(ctx, sha2pass);
 
