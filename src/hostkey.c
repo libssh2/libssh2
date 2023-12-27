@@ -921,7 +921,10 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
         unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];           \
         libssh2_sha##digest_type##_ctx ctx;                             \
         int i;                                                          \
-        (void)libssh2_sha##digest_type##_init(&ctx);                    \
+        if(!libssh2_sha##digest_type##_init(&ctx)) {                    \
+            ret = -1;                                                   \
+            break;                                                      \
+        }                                                               \
         for(i = 0; i < veccount; i++) {                                 \
             libssh2_sha##digest_type##_update(ctx, datavec[i].iov_base, \
                                               datavec[i].iov_len);      \
