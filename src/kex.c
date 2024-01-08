@@ -3349,6 +3349,7 @@ _libssh2_kex_agree_instr(unsigned char *haystack, size_t haystack_len,
         left = end_haystack - s;
         if((left >= 1) && (left <= haystack_len) && (left > needle_len)) {
             s++;
+            left--;
         }
         else {
             return NULL;
