@@ -936,23 +936,33 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
 }
 
 
-#define LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(digest_type)               \
-    do {                                                                \
-        unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];           \
-        libssh2_sha##digest_type##_ctx ctx;                             \
-        int i;                                                          \
-        if(!libssh2_sha##digest_type##_init(&ctx)) {                    \
-            ret = -1;                                                   \
-            break;                                                      \
-        }                                                               \
-        for(i = 0; i < veccount; i++) {                                 \
-            libssh2_sha##digest_type##_update(ctx, datavec[i].iov_base, \
-                                              datavec[i].iov_len);      \
-        }                                                               \
-        libssh2_sha##digest_type##_final(ctx, hash);                    \
-        ret = _libssh2_ecdsa_sign(session, ec_ctx, hash,                \
-                                  SHA##digest_type##_DIGEST_LENGTH,     \
-                                  signature, signature_len);            \
+#define LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(digest_type)                \
+    do {                                                                 \
+        unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];            \
+        libssh2_sha##digest_type##_ctx ctx;                              \
+        int i;                                                           \
+        if(!libssh2_sha##digest_type##_init(&ctx)) {                     \
+            ret = -1;                                                    \
+            break;                                                       \
+        }                                                                \
+        for(i = 0; i < veccount; i++) {                                  \
+            if(!libssh2_sha##digest_type##_update(ctx,                   \
+                                                  datavec[i].iov_base,   \
+                                                  datavec[i].iov_len)) { \
+                ret = -1;                                                \
+                break;                                                   \
+            }                                                            \
+        }                                                                \
+        if(ret == -1) {                                                  \
+            break;                                                       \
+        }                                                                \
+        if(!libssh2_sha##digest_type##_final(ctx, hash)) {               \
+            ret = -1;                                                    \
+            break;                                                       \
+        }                                                                \
+        ret = _libssh2_ecdsa_sign(session, ec_ctx, hash,                 \
+                                  SHA##digest_type##_DIGEST_LENGTH,      \
+                                  signature, signature_len);             \
     } while(0)
 
 
