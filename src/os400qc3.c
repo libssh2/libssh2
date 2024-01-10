@@ -1001,11 +1001,11 @@ libssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
 {
     Qc3_Format_ALGD0100_T ctx;
 
-    if(!libssh2_os400qc3_hash_init(&ctx, algo))
+    if(!libssh2_os400qc3_hash_init(&ctx, algo) ||
+       !libssh2_os400qc3_hash_update(&ctx, message, len) ||
+       !libssh2_os400qc3_hash_final(&ctx, out))
         return 1;
 
-    libssh2_os400qc3_hash_update(&ctx, message, len);
-    libssh2_os400qc3_hash_final(&ctx, out);
     return 0;
 }
 
