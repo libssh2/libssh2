@@ -860,20 +860,23 @@ _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
 #define LIBSSH2_ECDSA_VERIFY(digest_type)                               \
     do {                                                                \
         unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];           \
-        libssh2_sha##digest_type(m, m_len, hash);                       \
-        ret = EVP_PKEY_verify_init(ctx);                                \
-        if(ret > 0) {                                                   \
-            ret = EVP_PKEY_verify(ctx, der, der_len, hash,              \
-                                  SHA##digest_type##_DIGEST_LENGTH);    \
+        if(libssh2_sha##digest_type(m, m_len, hash) == 0) {             \
+            ret = EVP_PKEY_verify_init(ctx);                            \
+            if(ret > 0) {                                               \
+                ret = EVP_PKEY_verify(ctx, der, der_len, hash,          \
+                                     SHA##digest_type##_DIGEST_LENGTH); \
+            }                                                           \
         }                                                               \
     } while(0)
 #else
 #define LIBSSH2_ECDSA_VERIFY(digest_type)                               \
     do {                                                                \
         unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];           \
-        libssh2_sha##digest_type(m, m_len, hash);                       \
-        ret = ECDSA_do_verify(hash, SHA##digest_type##_DIGEST_LENGTH,   \
-                              ecdsa_sig, ec_key);                       \
+        if(libssh2_sha##digest_type(m, m_len, hash) == 0) {             \
+            ret = ECDSA_do_verify(hash,                                 \
+                                  SHA##digest_type##_DIGEST_LENGTH,     \
+                                  ecdsa_sig, ec_key);                   \
+        }                                                               \
     } while(0)
 #endif
 
