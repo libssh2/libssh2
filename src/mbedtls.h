@@ -230,8 +230,6 @@
     (mbedtls_md_update(&ctx, (const unsigned char *) data, datalen) == 0)
 #define libssh2_md5_final(ctx, hash) \
     _libssh2_mbedtls_hash_final(&ctx, hash)
-#define libssh2_md5(data, datalen, hash) \
-    _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_MD5, hash)
 #endif
 
 /*******************************************************************/

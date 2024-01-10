@@ -210,9 +210,6 @@ typedef struct __libssh2_wincng_hash_ctx {
     (_libssh2_wincng_hash_update(&ctx, data, (ULONG) datalen) == 0)
 #define libssh2_md5_final(ctx, hash) \
     (_libssh2_wincng_hash_final(&ctx, hash) == 0)
-#define libssh2_md5(data, datalen, hash) \
-    _libssh2_wincng_hash(data, datalen, _libssh2_wincng.hAlgHashMD5, \
-                         hash, MD5_DIGEST_LENGTH)
 #endif
 
 /*

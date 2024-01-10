@@ -135,8 +135,6 @@ int _libssh2_hash(int algo, void *out, const void *data, size_t len);
     _libssh2_hash_update(&(ctx), data, len)
 #define libssh2_md5_final(ctx, out) \
     _libssh2_hash_final(&(ctx), out, MD5_DIGEST_LENGTH)
-#define libssh2_md5(message, len, out) \
-    _libssh2_hash(GCRY_MD_MD5, out, message, len)
 #endif
 
 #define libssh2_hmac_ctx gcry_md_hd_t
