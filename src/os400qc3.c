@@ -949,7 +949,7 @@ _libssh2_os400qc3_crypto_dtor(_libssh2_os400qc3_crypto_ctx *x)
  *******************************************************************/
 
 int
-libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algorithm)
+_libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algorithm)
 {
     Qc3_Format_ALGD0500_T algd;
     Qus_EC_t errcode;
@@ -967,8 +967,8 @@ libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algorithm)
 }
 
 int
-libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
-                             const unsigned char *data, int len)
+_libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
+                              const unsigned char *data, int len)
 {
     char dummy[64];
     Qus_EC_t errcode;
@@ -981,7 +981,7 @@ libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
 }
 
 int
-libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out)
+_libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out)
 {
     char data;
     Qus_EC_t errcode;
@@ -996,14 +996,14 @@ libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out)
 }
 
 int
-libssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
-                      unsigned char *out, unsigned int algo)
+_libssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
+                       unsigned char *out, unsigned int algo)
 {
     Qc3_Format_ALGD0100_T ctx;
 
-    if(!libssh2_os400qc3_hash_init(&ctx, algo) ||
-       !libssh2_os400qc3_hash_update(&ctx, message, len) ||
-       !libssh2_os400qc3_hash_final(&ctx, out))
+    if(!_libssh2_os400qc3_hash_init(&ctx, algo) ||
+       !_libssh2_os400qc3_hash_update(&ctx, message, len) ||
+       !_libssh2_os400qc3_hash_final(&ctx, out))
         return 1;
 
     return 0;
@@ -1026,7 +1026,7 @@ libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
         key = (void *) lkey;
         keylen = minkeylen;
     }
-    if(!libssh2_os400qc3_hash_init(&ctx->hash, algo))
+    if(!_libssh2_os400qc3_hash_init(&ctx->hash, algo))
         return 0;
     set_EC_length(errcode, sizeof(errcode));
     Qc3CreateKeyContext((char *) key, &keylen, binstring, &algo, qc3clear,
@@ -1439,9 +1439,9 @@ pbkdf1(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
 
     /* Initial hash. */
     /* FIXME: check result */
-    libssh2_os400qc3_hash_init(&hctx, pkcs5->hash);
+    _libssh2_os400qc3_hash_init(&hctx, pkcs5->hash);
     /* FIXME: check result */
-    libssh2_os400qc3_hash_update(&hctx, passphrase, strlen(passphrase));
+    _libssh2_os400qc3_hash_update(&hctx, passphrase, strlen(passphrase));
     hctx.Final_Op_Flag = Qc3_Final;
     /* FIXME: check result */
     Qc3CalculateHash((char *) pkcs5->salt, &len, Qc3_Data, (char *) &hctx,
