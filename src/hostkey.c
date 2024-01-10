@@ -242,13 +242,18 @@ hostkey_method_ssh_rsa_signv(LIBSSH2_SESSION * session,
     unsigned char hash[SHA_DIGEST_LENGTH];
     libssh2_sha1_ctx ctx;
 
-    if(!libssh2_sha1_init(&ctx))
+    if(!libssh2_sha1_init(&ctx)) {
         return -1;
-
-    for(i = 0; i < veccount; i++) {
-        libssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
     }
-    libssh2_sha1_final(ctx, hash);
+    for(i = 0; i < veccount; i++) {
+        if(!libssh2_sha1_update(ctx,
+                                datavec[i].iov_base, datavec[i].iov_len)) {
+            return -1;
+        }
+    }
+    if(!libssh2_sha1_final(ctx, hash)) {
+        return -1;
+    }
 
     ret = _libssh2_rsa_sha1_sign(session, rsactx, hash, SHA_DIGEST_LENGTH,
                                  signature, signature_len);
@@ -318,9 +323,14 @@ hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION * session,
         return -1;
     }
     for(i = 0; i < veccount; i++) {
-        libssh2_sha256_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
+        if(!libssh2_sha256_update(ctx,
+                                  datavec[i].iov_base, datavec[i].iov_len)) {
+            return -1;
+        }
     }
-    libssh2_sha256_final(ctx, hash);
+    if(!libssh2_sha256_final(ctx, hash)) {
+        return -1;
+    }
 
     ret = _libssh2_rsa_sha2_sign(session, rsactx, hash, SHA256_DIGEST_LENGTH,
                                  signature, signature_len);
@@ -393,8 +403,9 @@ hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION * session,
             return -1;
         }
     }
-    if(!libssh2_sha512_final(ctx, hash))
+    if(!libssh2_sha512_final(ctx, hash)) {
         return -1;
+    }
 
     ret = _libssh2_rsa_sha2_sign(session, rsactx, hash, SHA512_DIGEST_LENGTH,
                                  signature, signature_len);
@@ -679,9 +690,14 @@ hostkey_method_ssh_dss_signv(LIBSSH2_SESSION * session,
     *signature_len = 2 * SHA_DIGEST_LENGTH;
 
     for(i = 0; i < veccount; i++) {
-        libssh2_sha1_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
+        if(!libssh2_sha1_update(ctx,
+                                datavec[i].iov_base, datavec[i].iov_len)) {
+            return -1;
+        }
     }
-    libssh2_sha1_final(ctx, hash);
+    if(!libssh2_sha1_final(ctx, hash)) {
+        return -1;
+    }
 
     if(_libssh2_dsa_sha1_sign(dsactx, hash, SHA_DIGEST_LENGTH, *signature)) {
         LIBSSH2_FREE(session, *signature);
