@@ -134,56 +134,58 @@ static int _libssh2_sha_algo_ctx_init(int sha_algo, void *ctx)
     return 0;
 }
 
-static void _libssh2_sha_algo_ctx_update(int sha_algo, void *ctx,
-                                         void *data, size_t len)
+static int _libssh2_sha_algo_ctx_update(int sha_algo, void *ctx,
+                                        void *data, size_t len)
 {
     if(sha_algo == 512) {
         libssh2_sha512_ctx *_ctx = (libssh2_sha512_ctx*)ctx;
-        libssh2_sha512_update(*_ctx, data, len);
+        return libssh2_sha512_update(*_ctx, data, len);
     }
     else if(sha_algo == 384) {
         libssh2_sha384_ctx *_ctx = (libssh2_sha384_ctx*)ctx;
-        libssh2_sha384_update(*_ctx, data, len);
+        return libssh2_sha384_update(*_ctx, data, len);
     }
     else if(sha_algo == 256) {
         libssh2_sha256_ctx *_ctx = (libssh2_sha256_ctx*)ctx;
-        libssh2_sha256_update(*_ctx, data, len);
+        return libssh2_sha256_update(*_ctx, data, len);
     }
     else if(sha_algo == 1) {
         libssh2_sha1_ctx *_ctx = (libssh2_sha1_ctx*)ctx;
-        libssh2_sha1_update(*_ctx, data, len);
+        return libssh2_sha1_update(*_ctx, data, len);
     }
     else {
 #ifdef LIBSSH2DEBUG
         assert(0);
 #endif
     }
+    return 0;
 }
 
-static void _libssh2_sha_algo_ctx_final(int sha_algo, void *ctx,
-                                        void *hash)
+static int _libssh2_sha_algo_ctx_final(int sha_algo, void *ctx,
+                                       void *hash)
 {
     if(sha_algo == 512) {
         libssh2_sha512_ctx *_ctx = (libssh2_sha512_ctx*)ctx;
-        libssh2_sha512_final(*_ctx, hash);
+        return libssh2_sha512_final(*_ctx, hash);
     }
     else if(sha_algo == 384) {
         libssh2_sha384_ctx *_ctx = (libssh2_sha384_ctx*)ctx;
-        libssh2_sha384_final(*_ctx, hash);
+        return libssh2_sha384_final(*_ctx, hash);
     }
     else if(sha_algo == 256) {
         libssh2_sha256_ctx *_ctx = (libssh2_sha256_ctx*)ctx;
-        libssh2_sha256_final(*_ctx, hash);
+        return libssh2_sha256_final(*_ctx, hash);
     }
     else if(sha_algo == 1) {
         libssh2_sha1_ctx *_ctx = (libssh2_sha1_ctx*)ctx;
-        libssh2_sha1_final(*_ctx, hash);
+        return libssh2_sha1_final(*_ctx, hash);
     }
     else {
 #ifdef LIBSSH2DEBUG
         assert(0);
 #endif
     }
+    return 0;
 }
 
 static void _libssh2_sha_algo_value_hash(int sha_algo,
@@ -406,11 +408,11 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         {
             libssh2_md5_ctx fingerprint_ctx;
 
-            if(libssh2_md5_init(&fingerprint_ctx)) {
-                libssh2_md5_update(fingerprint_ctx, session->server_hostkey,
-                                   session->server_hostkey_len);
-                libssh2_md5_final(fingerprint_ctx,
-                                  session->server_hostkey_md5);
+            if(libssh2_md5_init(&fingerprint_ctx) &&
+               libssh2_md5_update(fingerprint_ctx, session->server_hostkey,
+                                  session->server_hostkey_len) &&
+               libssh2_md5_final(fingerprint_ctx,
+                                 session->server_hostkey_md5)) {
                 session->server_hostkey_md5_valid = TRUE;
             }
             else {
@@ -434,11 +436,11 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         {
             libssh2_sha1_ctx fingerprint_ctx;
 
-            if(libssh2_sha1_init(&fingerprint_ctx)) {
-                libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
-                                    session->server_hostkey_len);
-                libssh2_sha1_final(fingerprint_ctx,
-                                   session->server_hostkey_sha1);
+            if(libssh2_sha1_init(&fingerprint_ctx) &&
+               libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
+                                   session->server_hostkey_len) &&
+               libssh2_sha1_final(fingerprint_ctx,
+                                  session->server_hostkey_sha1)) {
                 session->server_hostkey_sha1_valid = TRUE;
             }
             else {
@@ -461,11 +463,11 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         {
             libssh2_sha256_ctx fingerprint_ctx;
 
-            if(libssh2_sha256_init(&fingerprint_ctx)) {
-                libssh2_sha256_update(fingerprint_ctx, session->server_hostkey,
-                                      session->server_hostkey_len);
-                libssh2_sha256_final(fingerprint_ctx,
-                                     session->server_hostkey_sha256);
+            if(libssh2_sha256_init(&fingerprint_ctx) &&
+               libssh2_sha256_update(fingerprint_ctx, session->server_hostkey,
+                                     session->server_hostkey_len) &&
+               libssh2_sha256_final(fingerprint_ctx,
+                                    session->server_hostkey_sha256)) {
                 session->server_hostkey_sha256_valid = TRUE;
             }
             else {
@@ -1776,11 +1778,11 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         {
             libssh2_md5_ctx fingerprint_ctx;
 
-            if(libssh2_md5_init(&fingerprint_ctx)) {
-                libssh2_md5_update(fingerprint_ctx, session->server_hostkey,
-                                   session->server_hostkey_len);
-                libssh2_md5_final(fingerprint_ctx,
-                                  session->server_hostkey_md5);
+            if(libssh2_md5_init(&fingerprint_ctx) &&
+               libssh2_md5_update(fingerprint_ctx, session->server_hostkey,
+                                  session->server_hostkey_len) &&
+               libssh2_md5_final(fingerprint_ctx,
+                                 session->server_hostkey_md5)) {
                 session->server_hostkey_md5_valid = TRUE;
             }
             else {
@@ -1804,11 +1806,11 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         {
             libssh2_sha1_ctx fingerprint_ctx;
 
-            if(libssh2_sha1_init(&fingerprint_ctx)) {
-                libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
-                                    session->server_hostkey_len);
-                libssh2_sha1_final(fingerprint_ctx,
-                                   session->server_hostkey_sha1);
+            if(libssh2_sha1_init(&fingerprint_ctx) &&
+               libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
+                                   session->server_hostkey_len) &&
+               libssh2_sha1_final(fingerprint_ctx,
+                                  session->server_hostkey_sha1)) {
                 session->server_hostkey_sha1_valid = TRUE;
             }
             else {
@@ -1832,11 +1834,11 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         {
             libssh2_sha256_ctx fingerprint_ctx;
 
-            if(libssh2_sha256_init(&fingerprint_ctx)) {
-                libssh2_sha256_update(fingerprint_ctx, session->server_hostkey,
-                                      session->server_hostkey_len);
-                libssh2_sha256_final(fingerprint_ctx,
-                                     session->server_hostkey_sha256);
+            if(libssh2_sha256_init(&fingerprint_ctx) &&
+               libssh2_sha256_update(fingerprint_ctx, session->server_hostkey,
+                                     session->server_hostkey_len) &&
+               libssh2_sha256_final(fingerprint_ctx,
+                                    session->server_hostkey_sha256)) {
                 session->server_hostkey_sha256_valid = TRUE;
             }
             else {
@@ -2407,11 +2409,11 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         {
             libssh2_md5_ctx fingerprint_ctx;
 
-            if(libssh2_md5_init(&fingerprint_ctx)) {
-                libssh2_md5_update(fingerprint_ctx, session->server_hostkey,
-                                   session->server_hostkey_len);
-                libssh2_md5_final(fingerprint_ctx,
-                                  session->server_hostkey_md5);
+            if(libssh2_md5_init(&fingerprint_ctx) &&
+               libssh2_md5_update(fingerprint_ctx, session->server_hostkey,
+                                  session->server_hostkey_len) &&
+               libssh2_md5_final(fingerprint_ctx,
+                                 session->server_hostkey_md5)) {
                 session->server_hostkey_md5_valid = TRUE;
             }
             else {
@@ -2435,11 +2437,11 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         {
             libssh2_sha1_ctx fingerprint_ctx;
 
-            if(libssh2_sha1_init(&fingerprint_ctx)) {
-                libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
-                                    session->server_hostkey_len);
-                libssh2_sha1_final(fingerprint_ctx,
-                                   session->server_hostkey_sha1);
+            if(libssh2_sha1_init(&fingerprint_ctx) &&
+               libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
+                                   session->server_hostkey_len) &&
+               libssh2_sha1_final(fingerprint_ctx,
+                                  session->server_hostkey_sha1)) {
                 session->server_hostkey_sha1_valid = TRUE;
             }
             else {
@@ -2463,11 +2465,11 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         {
             libssh2_sha256_ctx fingerprint_ctx;
 
-            if(libssh2_sha256_init(&fingerprint_ctx)) {
-                libssh2_sha256_update(fingerprint_ctx, session->server_hostkey,
-                                      session->server_hostkey_len);
-                libssh2_sha256_final(fingerprint_ctx,
-                                     session->server_hostkey_sha256);
+            if(libssh2_sha256_init(&fingerprint_ctx) &&
+               libssh2_sha256_update(fingerprint_ctx, session->server_hostkey,
+                                     session->server_hostkey_len) &&
+               libssh2_sha256_final(fingerprint_ctx,
+                                    session->server_hostkey_sha256)) {
                 session->server_hostkey_sha256_valid = TRUE;
             }
             else {

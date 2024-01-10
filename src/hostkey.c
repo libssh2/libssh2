@@ -388,9 +388,13 @@ hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION * session,
         return -1;
     }
     for(i = 0; i < veccount; i++) {
-        libssh2_sha512_update(ctx, datavec[i].iov_base, datavec[i].iov_len);
+        if(!libssh2_sha512_update(ctx,
+                                  datavec[i].iov_base, datavec[i].iov_len)) {
+            return -1;
+        }
     }
-    libssh2_sha512_final(ctx, hash);
+    if(!libssh2_sha512_final(ctx, hash))
+        return -1;
 
     ret = _libssh2_rsa_sha2_sign(session, rsactx, hash, SHA512_DIGEST_LENGTH,
                                  signature, signature_len);
