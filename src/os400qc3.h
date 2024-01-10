@@ -362,10 +362,10 @@ extern int      _libssh2_random(unsigned char *buf, size_t len);
 extern void     _libssh2_os400qc3_crypto_dtor(_libssh2_os400qc3_crypto_ctx *x);
 extern int      libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x,
                                            unsigned int algo);
-extern void     libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
+extern int      libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
                                              const unsigned char *data,
                                              int len);
-extern void     libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
+extern int      libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
                                             unsigned char *out);
 extern int      libssh2_os400qc3_hash(const unsigned char *message,
                                       unsigned long len, unsigned char *out,

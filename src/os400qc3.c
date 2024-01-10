@@ -966,27 +966,33 @@ libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algorithm)
     return errcode.Bytes_Available? 0: 1;
 }
 
-void
+int
 libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
                              const unsigned char *data, int len)
 {
     char dummy[64];
+    Qus_EC_t errcode;
 
     ctx->Final_Op_Flag = Qc3_Continue;
+    set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHash((char *) data, &len, Qc3_Data, (char *) ctx,
-                     Qc3_Alg_Token, anycsp, NULL, dummy, (char *) &ecnull);
+                     Qc3_Alg_Token, anycsp, NULL, dummy, &errcode);
+    return errcode.Bytes_Available? 0: 1;
 }
 
-void
+int
 libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out)
 {
     char data;
+    Qus_EC_t errcode;
 
     ctx->Final_Op_Flag = Qc3_Final;
+    set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHash(&data, &zero, Qc3_Data, (char *) ctx, Qc3_Alg_Token,
-                     anycsp, NULL, (char *) out, (char *) &ecnull);
+                     anycsp, NULL, (char *) out, &errcode);
     Qc3DestroyAlgorithmContext(ctx->Alg_Context_Token, (char *) &ecnull);
     memset(ctx->Alg_Context_Token, 0, sizeof(ctx->Alg_Context_Token));
+    return errcode.Bytes_Available? 0: 1;
 }
 
 int
