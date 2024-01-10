@@ -216,19 +216,15 @@
 
 /* returns 0 in case of failure */
 int _libssh2_sha1_init(libssh2_sha1_ctx *ctx);
-#define libssh2_sha1_init(x) _libssh2_sha1_init(x)
-#ifdef HAVE_OPAQUE_STRUCTS
-#define libssh2_sha1_update(ctx, data, len) EVP_DigestUpdate(ctx, data, len)
-#define libssh2_sha1_final(ctx, out) do { \
-                                         EVP_DigestFinal(ctx, out, NULL); \
-                                         EVP_MD_CTX_free(ctx); \
-                                     } while(0)
-#else /* !HAVE_OPAQUE_STRUCTS */
-#define libssh2_sha1_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
-#define libssh2_sha1_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
-#endif /* HAVE_OPAQUE_STRUCTS */
+int _libssh2_sha1_update(libssh2_sha1_ctx *ctx,
+                         const void *data, size_t len);
+int _libssh2_sha1_final(libssh2_sha1_ctx *ctx, unsigned char *out);
 int _libssh2_sha1(const unsigned char *message, size_t len,
                   unsigned char *out);
+#define libssh2_sha1_init(x) _libssh2_sha1_init(x)
+#define libssh2_sha1_update(ctx, data, len) \
+    _libssh2_sha1_update(&(ctx), data, len)
+#define libssh2_sha1_final(ctx, out) _libssh2_sha1_final(&(ctx), out)
 #define libssh2_sha1(x,y,z) _libssh2_sha1(x,y,z)
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -239,20 +235,15 @@ int _libssh2_sha1(const unsigned char *message, size_t len,
 
 /* returns 0 in case of failure */
 int _libssh2_sha256_init(libssh2_sha256_ctx *ctx);
-#define libssh2_sha256_init(x) _libssh2_sha256_init(x)
-#ifdef HAVE_OPAQUE_STRUCTS
-#define libssh2_sha256_update(ctx, data, len) EVP_DigestUpdate(ctx, data, len)
-#define libssh2_sha256_final(ctx, out) do { \
-                                           EVP_DigestFinal(ctx, out, NULL); \
-                                           EVP_MD_CTX_free(ctx); \
-                                       } while(0)
-#else /* !HAVE_OPAQUE_STRUCTS */
-#define libssh2_sha256_update(ctx, data, len) \
-    EVP_DigestUpdate(&(ctx), data, len)
-#define libssh2_sha256_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
-#endif /* HAVE_OPAQUE_STRUCTS */
+int _libssh2_sha256_update(libssh2_sha256_ctx *ctx,
+                           const void *data, size_t len);
+int _libssh2_sha256_final(libssh2_sha256_ctx *ctx, unsigned char *out);
 int _libssh2_sha256(const unsigned char *message, size_t len,
                     unsigned char *out);
+#define libssh2_sha256_init(x) _libssh2_sha256_init(x)
+#define libssh2_sha256_update(ctx, data, len) \
+    _libssh2_sha256_update(&(ctx), data, len)
+#define libssh2_sha256_final(ctx, out) _libssh2_sha256_final(&(ctx), out)
 #define libssh2_sha256(x,y,z) _libssh2_sha256(x,y,z)
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -263,20 +254,15 @@ int _libssh2_sha256(const unsigned char *message, size_t len,
 
 /* returns 0 in case of failure */
 int _libssh2_sha384_init(libssh2_sha384_ctx *ctx);
-#define libssh2_sha384_init(x) _libssh2_sha384_init(x)
-#ifdef HAVE_OPAQUE_STRUCTS
-#define libssh2_sha384_update(ctx, data, len) EVP_DigestUpdate(ctx, data, len)
-#define libssh2_sha384_final(ctx, out) do { \
-                                            EVP_DigestFinal(ctx, out, NULL); \
-                                            EVP_MD_CTX_free(ctx); \
-                                       } while(0)
-#else /* !HAVE_OPAQUE_STRUCTS */
-#define libssh2_sha384_update(ctx, data, len) \
-    EVP_DigestUpdate(&(ctx), data, len)
-#define libssh2_sha384_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
-#endif /* HAVE_OPAQUE_STRUCTS */
+int _libssh2_sha384_update(libssh2_sha384_ctx *ctx,
+                           const void *data, size_t len);
+int _libssh2_sha384_final(libssh2_sha384_ctx *ctx, unsigned char *out);
 int _libssh2_sha384(const unsigned char *message, size_t len,
                     unsigned char *out);
+#define libssh2_sha384_init(x) _libssh2_sha384_init(x)
+#define libssh2_sha384_update(ctx, data, len) \
+    _libssh2_sha384_update(&(ctx), data, len)
+#define libssh2_sha384_final(ctx, out) _libssh2_sha384_final(&(ctx), out)
 #define libssh2_sha384(x,y,z) _libssh2_sha384(x,y,z)
 
 #ifdef HAVE_OPAQUE_STRUCTS
@@ -287,20 +273,15 @@ int _libssh2_sha384(const unsigned char *message, size_t len,
 
 /* returns 0 in case of failure */
 int _libssh2_sha512_init(libssh2_sha512_ctx *ctx);
-#define libssh2_sha512_init(x) _libssh2_sha512_init(x)
-#ifdef HAVE_OPAQUE_STRUCTS
-#define libssh2_sha512_update(ctx, data, len) EVP_DigestUpdate(ctx, data, len)
-#define libssh2_sha512_final(ctx, out) do { \
-                                            EVP_DigestFinal(ctx, out, NULL); \
-                                            EVP_MD_CTX_free(ctx); \
-                                       } while(0)
-#else /* !HAVE_OPAQUE_STRUCTS */
-#define libssh2_sha512_update(ctx, data, len) \
-    EVP_DigestUpdate(&(ctx), data, len)
-#define libssh2_sha512_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
-#endif /* HAVE_OPAQUE_STRUCTS */
+int _libssh2_sha512_update(libssh2_sha512_ctx *ctx,
+                           const void *data, size_t len);
+int _libssh2_sha512_final(libssh2_sha512_ctx *ctx, unsigned char *out);
 int _libssh2_sha512(const unsigned char *message, size_t len,
                     unsigned char *out);
+#define libssh2_sha512_init(x) _libssh2_sha512_init(x)
+#define libssh2_sha512_update(ctx, data, len) \
+    _libssh2_sha512_update(&(ctx), data, len)
+#define libssh2_sha512_final(ctx, out) _libssh2_sha512_final(&(ctx), out)
 #define libssh2_sha512(x,y,z) _libssh2_sha512(x,y,z)
 
 #if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
@@ -312,17 +293,13 @@ int _libssh2_sha512(const unsigned char *message, size_t len,
 
 /* returns 0 in case of failure */
 int _libssh2_md5_init(libssh2_md5_ctx *ctx);
+int _libssh2_md5_update(libssh2_md5_ctx *ctx,
+                        const void *data, size_t len);
+int _libssh2_md5_final(libssh2_md5_ctx *ctx, unsigned char *out);
 #define libssh2_md5_init(x) _libssh2_md5_init(x)
-#ifdef HAVE_OPAQUE_STRUCTS
-#define libssh2_md5_update(ctx, data, len) EVP_DigestUpdate(ctx, data, len)
-#define libssh2_md5_final(ctx, out) do { \
-                                        EVP_DigestFinal(ctx, out, NULL); \
-                                        EVP_MD_CTX_free(ctx); \
-                                    } while(0)
-#else /* !HAVE_OPAQUE_STRUCTS */
-#define libssh2_md5_update(ctx, data, len) EVP_DigestUpdate(&(ctx), data, len)
-#define libssh2_md5_final(ctx, out) EVP_DigestFinal(&(ctx), out, NULL)
-#endif /* HAVE_OPAQUE_STRUCTS */
+#define libssh2_md5_update(ctx, data, len) \
+    _libssh2_md5_update(&(ctx), data, len)
+#define libssh2_md5_final(ctx, out) _libssh2_md5_final(&(ctx), out)
 #endif /* LIBSSH2_MD5 || LIBSSH2_MD5_PEM */
 
 #ifdef USE_OPENSSL_3

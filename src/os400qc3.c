@@ -949,7 +949,7 @@ _libssh2_os400qc3_crypto_dtor(_libssh2_os400qc3_crypto_ctx *x)
  *******************************************************************/
 
 int
-libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algorithm)
+_libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algorithm)
 {
     Qc3_Format_ALGD0500_T algd;
     Qus_EC_t errcode;
@@ -966,40 +966,46 @@ libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algorithm)
     return errcode.Bytes_Available? 0: 1;
 }
 
-void
-libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
-                             const unsigned char *data, int len)
+int
+_libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
+                              const unsigned char *data, int len)
 {
     char dummy[64];
+    Qus_EC_t errcode;
 
     ctx->Final_Op_Flag = Qc3_Continue;
+    set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHash((char *) data, &len, Qc3_Data, (char *) ctx,
-                     Qc3_Alg_Token, anycsp, NULL, dummy, (char *) &ecnull);
-}
-
-void
-libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out)
-{
-    char data;
-
-    ctx->Final_Op_Flag = Qc3_Final;
-    Qc3CalculateHash(&data, &zero, Qc3_Data, (char *) ctx, Qc3_Alg_Token,
-                     anycsp, NULL, (char *) out, (char *) &ecnull);
-    Qc3DestroyAlgorithmContext(ctx->Alg_Context_Token, (char *) &ecnull);
-    memset(ctx->Alg_Context_Token, 0, sizeof(ctx->Alg_Context_Token));
+                     Qc3_Alg_Token, anycsp, NULL, dummy, &errcode);
+    return errcode.Bytes_Available? 0: 1;
 }
 
 int
-libssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
-                      unsigned char *out, unsigned int algo)
+_libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out)
+{
+    char data;
+    Qus_EC_t errcode;
+
+    ctx->Final_Op_Flag = Qc3_Final;
+    set_EC_length(errcode, sizeof(errcode));
+    Qc3CalculateHash(&data, &zero, Qc3_Data, (char *) ctx, Qc3_Alg_Token,
+                     anycsp, NULL, (char *) out, &errcode);
+    Qc3DestroyAlgorithmContext(ctx->Alg_Context_Token, (char *) &ecnull);
+    memset(ctx->Alg_Context_Token, 0, sizeof(ctx->Alg_Context_Token));
+    return errcode.Bytes_Available? 0: 1;
+}
+
+int
+_libssh2_os400qc3_hash(const unsigned char *message, unsigned long len,
+                       unsigned char *out, unsigned int algo)
 {
     Qc3_Format_ALGD0100_T ctx;
 
-    if(!libssh2_os400qc3_hash_init(&ctx, algo))
+    if(!_libssh2_os400qc3_hash_init(&ctx, algo) ||
+       !_libssh2_os400qc3_hash_update(&ctx, message, len) ||
+       !_libssh2_os400qc3_hash_final(&ctx, out))
         return 1;
 
-    libssh2_os400qc3_hash_update(&ctx, message, len);
-    libssh2_os400qc3_hash_final(&ctx, out);
     return 0;
 }
 
@@ -1020,7 +1026,7 @@ libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
         key = (void *) lkey;
         keylen = minkeylen;
     }
-    if(!libssh2_os400qc3_hash_init(&ctx->hash, algo))
+    if(!_libssh2_os400qc3_hash_init(&ctx->hash, algo))
         return 0;
     set_EC_length(errcode, sizeof(errcode));
     Qc3CreateKeyContext((char *) key, &keylen, binstring, &algo, qc3clear,
@@ -1432,15 +1438,19 @@ pbkdf1(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
         return -1;
 
     /* Initial hash. */
-    libssh2_os400qc3_hash_init(&hctx, pkcs5->hash);
-    libssh2_os400qc3_hash_update(&hctx, passphrase, strlen(passphrase));
+    /* FIXME: check result */
+    _libssh2_os400qc3_hash_init(&hctx, pkcs5->hash);
+    /* FIXME: check result */
+    _libssh2_os400qc3_hash_update(&hctx, passphrase, strlen(passphrase));
     hctx.Final_Op_Flag = Qc3_Final;
+    /* FIXME: check result */
     Qc3CalculateHash((char *) pkcs5->salt, &len, Qc3_Data, (char *) &hctx,
                      Qc3_Alg_Token, anycsp, NULL, *dk, (char *) &ecnull);
 
     /* Iterate. */
     len = pkcs5->hashlen;
     for(i = 1; i < pkcs5->itercount; i++)
+        /* FIXME: check result */
         Qc3CalculateHash((char *) *dk, &len, Qc3_Data, (char *) &hctx,
                          Qc3_Alg_Token, anycsp, NULL, *dk, (char *) &ecnull);
 

@@ -194,7 +194,9 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
     gcry_sexp_t s_sig, s_hash;
     int rc = -1;
 
-    libssh2_sha1(m, m_len, hash);
+    if(libssh2_sha1(m, m_len, hash)) {
+        return -1;
+    }
 
     rc = gcry_sexp_build(&s_hash, NULL,
                          "(data (flags pkcs1) (hash sha1 %b))",
@@ -643,7 +645,9 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
     gcry_sexp_t s_sig, s_hash;
     int rc = -1;
 
-    libssh2_sha1(m, m_len, hash + 1);
+    if(libssh2_sha1(m, m_len, hash + 1)) {
+        return -1;
+    }
     hash[0] = 0;
 
     if(gcry_sexp_build(&s_hash, NULL, "(data(flags raw)(value %b))",
