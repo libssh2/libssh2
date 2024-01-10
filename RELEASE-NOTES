@@ -104,6 +104,7 @@ This release includes the following enhancements and bugfixes:
 - libssh2.h: use `_WIN32` for Windows detection instead of rolling our own (631e7734 #1238)
 - libssh2.pc: re-add & extend support for static-only libssh2 builds (624abe27 #1119 #1114)
 - libssh2.pc: don't put `@LIBS@` in pc file (1209c16d)
+- mac: handle low-level errors (f64885b6 #1297)
 - Makefile.am: fix `cp` to preserve attributes and timestamp (f64e6318)
 - Makefile.mk: delete Windows-focused raw GNU Make build (43485579 #1204)
 - man: fix double spaces and dash escaping (a3ffc422 #1210)
@@ -131,6 +132,7 @@ This release includes the following enhancements and bugfixes:
 - scp: fix missing cast for targets without large file support (c317e06f #1060 #1057 #1002 regr: 5db836b2)
 - session: add `libssh2_session_callback_set2()` (c0f69548 #1285)
 - session: handle EINTR from send/recv/poll/select to try again as the error is not fatal (798ed4a7 #1058)
+- src: check hash init success (2ed9eb92 #1301)
 - src: add 'strict KEX' to fix CVE-2023-48795 "Terrapin Attack" (d34d9258 #1291 #1290)
 - src: disable `-Wsign-conversion` warnings, add option to re-enable (6e451669 #1284 #1257)
 - src: fix gcc 13 `-Wconversion` warning on Darwin (8cca7b77 #1209 follow: 08354e0a)
@@ -168,9 +170,9 @@ This release includes the following enhancements and bugfixes:
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
-  Viktor Szakats, Ren Mingshuai, Michael Buckley, Daniel Stenberg, Aaron Stone,
+  Viktor Szakats, Michael Buckley, Ren Mingshuai, Daniel Stenberg, Aaron Stone,
   Brian Inglis, concussious on GitHub, Dan Fandrich, Haowei Hsu,
   Harmen Stoppels, Harry Mallon, Jack L, Jakob Egger, João M. S. Silva,
   Joel Depooter, Kai Pastor, Kenneth Davidson, mike-jumper, naddy,
-  Nicolas Mora, Nursan Valeyev, PewPewPew, Radek Brich, rahmanih on GitHub,
-  Steve McIntyre, Will Cosgrove, Xi Ruoyao
+  Nicolas Mora, Nursan Valeyev, Patrick Monnerat, Paul Howarth, PewPewPew,
+  Radek Brich, rahmanih on GitHub, Steve McIntyre, Will Cosgrove, Xi Ruoyao
