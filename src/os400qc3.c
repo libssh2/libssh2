@@ -1438,15 +1438,19 @@ pbkdf1(LIBSSH2_SESSION *session, char **dk, const unsigned char *passphrase,
         return -1;
 
     /* Initial hash. */
+    /* FIXME: check result */
     libssh2_os400qc3_hash_init(&hctx, pkcs5->hash);
+    /* FIXME: check result */
     libssh2_os400qc3_hash_update(&hctx, passphrase, strlen(passphrase));
     hctx.Final_Op_Flag = Qc3_Final;
+    /* FIXME: check result */
     Qc3CalculateHash((char *) pkcs5->salt, &len, Qc3_Data, (char *) &hctx,
                      Qc3_Alg_Token, anycsp, NULL, *dk, (char *) &ecnull);
 
     /* Iterate. */
     len = pkcs5->hashlen;
     for(i = 1; i < pkcs5->itercount; i++)
+        /* FIXME: check result */
         Qc3CalculateHash((char *) *dk, &len, Qc3_Data, (char *) &hctx,
                          Qc3_Alg_Token, anycsp, NULL, *dk, (char *) &ecnull);
 
