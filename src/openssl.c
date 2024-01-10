@@ -2982,6 +2982,30 @@ _libssh2_sha1_init(libssh2_sha1_ctx *ctx)
 }
 
 int
+_libssh2_sha1_update(libssh2_sha1_ctx *ctx,
+                     const void *data, size_t len)
+{
+#ifdef HAVE_OPAQUE_STRUCTS
+    return EVP_DigestUpdate(*ctx, data, len);
+#else
+    return EVP_DigestUpdate(ctx, data, len);
+#endif
+}
+
+int
+_libssh2_sha1_final(libssh2_sha1_ctx *ctx,
+                    unsigned char *out)
+{
+#ifdef HAVE_OPAQUE_STRUCTS
+    int ret = EVP_DigestFinal(*ctx, out, NULL);
+    EVP_MD_CTX_free(*ctx);
+    return ret;
+#else
+    return EVP_DigestFinal(ctx, out, NULL);
+#endif
+}
+
+int
 _libssh2_sha1(const unsigned char *message, size_t len,
               unsigned char *out)
 {
@@ -3030,6 +3054,30 @@ _libssh2_sha256_init(libssh2_sha256_ctx *ctx)
 #else
     EVP_MD_CTX_init(ctx);
     return EVP_DigestInit(ctx, EVP_get_digestbyname("sha256"));
+#endif
+}
+
+int
+_libssh2_sha256_update(libssh2_sha256_ctx *ctx,
+                       const void *data, size_t len)
+{
+#ifdef HAVE_OPAQUE_STRUCTS
+    return EVP_DigestUpdate(*ctx, data, len);
+#else
+    return EVP_DigestUpdate(ctx, data, len);
+#endif
+}
+
+int
+_libssh2_sha256_final(libssh2_sha256_ctx *ctx,
+                      unsigned char *out)
+{
+#ifdef HAVE_OPAQUE_STRUCTS
+    int ret = EVP_DigestFinal(*ctx, out, NULL);
+    EVP_MD_CTX_free(*ctx);
+    return ret;
+#else
+    return EVP_DigestFinal(ctx, out, NULL);
 #endif
 }
 
@@ -3086,6 +3134,30 @@ _libssh2_sha384_init(libssh2_sha384_ctx *ctx)
 }
 
 int
+_libssh2_sha384_update(libssh2_sha384_ctx *ctx,
+                       const void *data, size_t len)
+{
+#ifdef HAVE_OPAQUE_STRUCTS
+    return EVP_DigestUpdate(*ctx, data, len);
+#else
+    return EVP_DigestUpdate(ctx, data, len);
+#endif
+}
+
+int
+_libssh2_sha384_final(libssh2_sha384_ctx *ctx,
+                      unsigned char *out)
+{
+#ifdef HAVE_OPAQUE_STRUCTS
+    int ret = EVP_DigestFinal(*ctx, out, NULL);
+    EVP_MD_CTX_free(*ctx);
+    return ret;
+#else
+    return EVP_DigestFinal(ctx, out, NULL);
+#endif
+}
+
+int
 _libssh2_sha384(const unsigned char *message, size_t len,
                 unsigned char *out)
 {
@@ -3134,6 +3206,30 @@ _libssh2_sha512_init(libssh2_sha512_ctx *ctx)
 #else
     EVP_MD_CTX_init(ctx);
     return EVP_DigestInit(ctx, EVP_get_digestbyname("sha512"));
+#endif
+}
+
+int
+_libssh2_sha512_update(libssh2_sha512_ctx *ctx,
+                       const void *data, size_t len)
+{
+#ifdef HAVE_OPAQUE_STRUCTS
+    return EVP_DigestUpdate(*ctx, data, len);
+#else
+    return EVP_DigestUpdate(ctx, data, len);
+#endif
+}
+
+int
+_libssh2_sha512_final(libssh2_sha512_ctx *ctx,
+                      unsigned char *out)
+{
+#ifdef HAVE_OPAQUE_STRUCTS
+    int ret = EVP_DigestFinal(*ctx, out, NULL);
+    EVP_MD_CTX_free(*ctx);
+    return ret;
+#else
+    return EVP_DigestFinal(ctx, out, NULL);
 #endif
 }
 
@@ -3200,6 +3296,30 @@ _libssh2_md5_init(libssh2_md5_ctx *ctx)
 #else
     EVP_MD_CTX_init(ctx);
     return EVP_DigestInit(ctx, EVP_get_digestbyname("md5"));
+#endif
+}
+
+int
+_libssh2_md5_update(libssh2_md5_ctx *ctx,
+                    const void *data, size_t len)
+{
+#ifdef HAVE_OPAQUE_STRUCTS
+    return EVP_DigestUpdate(*ctx, data, len);
+#else
+    return EVP_DigestUpdate(ctx, data, len);
+#endif
+}
+
+int
+_libssh2_md5_final(libssh2_md5_ctx *ctx,
+                   unsigned char *out)
+{
+#ifdef HAVE_OPAQUE_STRUCTS
+    int ret = EVP_DigestFinal(*ctx, out, NULL);
+    EVP_MD_CTX_free(*ctx);
+    return ret;
+#else
+    return EVP_DigestFinal(ctx, out, NULL);
 #endif
 }
 #endif
