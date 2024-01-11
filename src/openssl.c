@@ -1305,11 +1305,11 @@ gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
     memcpy(method_buf, "ssh-rsa", 7);
     *method         = method_buf;
     if(method_len) {
-	*method_len = 7;
+        *method_len = 7;
     }
     *pubkeydata     = key;
     if(pubkeydata_len) {
-	*pubkeydata_len = key_len;
+        *pubkeydata_len = key_len;
     }
     return 0;
 
@@ -1748,11 +1748,11 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
     memcpy(method_buf, "ssh-dss", 7);
     *method         = method_buf;
     if(method_len) {
-	*method_len = 7;
+        *method_len = 7;
     }
     *pubkeydata     = key;
     if(pubkeydata_len) {
-	*pubkeydata_len = key_len;
+        *pubkeydata_len = key_len;
     }
     return 0;
 
