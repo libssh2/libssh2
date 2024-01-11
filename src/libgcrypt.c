@@ -40,33 +40,6 @@
 
 #ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
 
-/* returns 0 in case of failure */
-int _libssh2_hash_init(gcry_md_hd_t *ctx, int algo)
-{
-    return gcry_md_open(ctx, algo, 0) == GPG_ERR_NO_ERROR;
-}
-
-int _libssh2_hash_update(gcry_md_hd_t *ctx,
-                         const void *data, size_t len)
-{
-    gcry_md_write(*ctx, (unsigned char *) data, len);
-    return 1;
-}
-
-int _libssh2_hash_final(gcry_md_hd_t *ctx,
-                        void *out, size_t digest_len)
-{
-    memcpy(out, gcry_md_read(*ctx, 0), digest_len);
-    gcry_md_close(*ctx);
-    return 1;
-}
-
-int _libssh2_hash(int algo, void *out, const void *data, size_t len)
-{
-    gcry_md_hash_buffer(algo, out, data, len);
-    return 0;  /* returns 0 on success */
-}
-
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 {
     *ctx = NULL;
