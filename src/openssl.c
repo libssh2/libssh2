@@ -1751,7 +1751,7 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
 	*method_len = 7;
     }
     *pubkeydata     = key;
-    if(pubkeydata_len) { 
+    if(pubkeydata_len) {
 	*pubkeydata_len = key_len;
     }
     return 0;
