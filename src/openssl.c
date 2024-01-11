@@ -1304,9 +1304,9 @@ gen_publickey_from_rsa_evp(LIBSSH2_SESSION *session,
 
     memcpy(method_buf, "ssh-rsa", 7);
     *method         = method_buf;
-    *method_len     = 7;
+    if(NULL != method_len) { *method_len = 7; }
     *pubkeydata     = key;
-    *pubkeydata_len = key_len;
+    if(NULL != pubkeydata_len) { *pubkeydata_len = key_len; }
     return 0;
 
 __alloc_error:
@@ -1743,9 +1743,9 @@ gen_publickey_from_dsa_evp(LIBSSH2_SESSION *session,
 
     memcpy(method_buf, "ssh-dss", 7);
     *method         = method_buf;
-    *method_len     = 7;
+    if(NULL != method_len) { *method_len = 7; }
     *pubkeydata     = key;
-    *pubkeydata_len = key_len;
+    if(NULL != pubkeydata_len) { *pubkeydata_len = key_len; }
     return 0;
 
 __alloc_error:
