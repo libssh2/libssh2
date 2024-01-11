@@ -970,17 +970,21 @@ int libssh2_sign_sk(LIBSSH2_SESSION *session,
 
                 _libssh2_store_u32(&p, 0);
 
-                _libssh2_store_bignum2_bytes(&p,
-                                             sig_info.sig_r,
-                                             sig_info.sig_r_len);
+                if(_libssh2_store_bignum2_bytes(&p,
+                                                sig_info.sig_r,
+                                                sig_info.sig_r_len) &&
+                   _libssh2_store_bignum2_bytes(&p,
+                                                sig_info.sig_s,
+                                                sig_info.sig_s_len)) {
+                    *sig_len = p - *sig;
 
-                _libssh2_store_bignum2_bytes(&p,
-                                             sig_info.sig_s,
-                                             sig_info.sig_s_len);
-
-                *sig_len = p - *sig;
-
-                _libssh2_store_u32(&x, (uint32_t)(*sig_len - 4));
+                    _libssh2_store_u32(&x, (uint32_t)(*sig_len - 4));
+                }
+                else {
+                    _libssh2_debug((session, LIBSSH2_ERROR_STORE_OVERFLOW,
+                                    "Too large write."));
+                    rc = LIBSSH2_ERROR_STORE_OVERFLOW;
+                }
             }
             else {
                 _libssh2_debug((session, LIBSSH2_ERROR_ALLOC,
