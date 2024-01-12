@@ -71,11 +71,13 @@ Must return 1 for success and 0 for failure.
 int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
                          const void *data, int datalen);
 Continue computation of an HMAC on datalen bytes at data using context ctx.
+Must return 1 for success and 0 for failure.
 
 int _libssh2_hmac_final(libssh2_hmac_ctx *ctx,
                         void output[]);
 Get the computed HMAC from context ctx into the output buffer. The
 minimum data buffer size depends on the HMAC hash algorithm.
+Must return 1 for success and 0 for failure.
 
 void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx);
 Releases the HMAC computation context at ctx.
