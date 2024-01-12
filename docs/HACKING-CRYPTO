@@ -111,11 +111,12 @@ Release the context.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 
-void libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
-                            const void *key,
-                            int keylen);
+int libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
+                           const void *key,
+                           int keylen);
 Setup the HMAC computation context ctx for an HMAC-SHA-1 computation using the
 keylen-byte key. Is invoked just after libssh2_hmac_ctx_init().
+Returns 1 for success and 0 for failure.
 
 3.2) SHA-256
 Must always be implemented.
@@ -156,11 +157,12 @@ LIBSSH2_HMAC_SHA256
 #define as 1 if the crypto library supports HMAC-SHA-256, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-void libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
-                              const void *key,
-                              int keylen);
+int libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
+                             const void *key,
+                             int keylen);
 Setup the HMAC computation context ctx for an HMAC-256 computation using the
 keylen-byte key. Is invoked just after libssh2_hmac_ctx_init().
+Returns 1 for success and 0 for failure.
 
 3.3) SHA-384
 Mandatory if ECDSA is implemented. Can be omitted otherwise.
@@ -235,11 +237,12 @@ LIBSSH2_HMAC_SHA512
 #define as 1 if the crypto library supports HMAC-SHA-512, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-void libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
-                              const void *key,
-                              int keylen);
+int libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
+                             const void *key,
+                             int keylen);
 Setup the HMAC computation context ctx for an HMAC-512 computation using the
 keylen-byte key. Is invoked just after libssh2_hmac_ctx_init().
+Returns 1 for success and 0 for failure.
 
 3.5) MD5
 LIBSSH2_MD5
@@ -271,20 +274,21 @@ Release the context.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
 
-void libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
-                           const void *key,
-                           int keylen);
+int libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
+                          const void *key,
+                          int keylen);
 Setup the HMAC computation context ctx for an HMAC-MD5 computation using the
 keylen-byte key. Is invoked just after libssh2_hmac_ctx_init().
+Returns 1 for success and 0 for failure.
 
 3.6) RIPEMD-160
 LIBSSH2_HMAC_RIPEMD
 #define as 1 if the crypto library supports HMAC-RIPEMD-160, else 0.
 If defined as 0, the rest of this section can be omitted.
 
-void libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
-                                 const void *key,
-                                 int keylen);
+int libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
+                                const void *key,
+                                int keylen);
 Setup the HMAC computation context ctx for an HMAC-RIPEMD-160 computation using
 the keylen-byte key. Is invoked just after libssh2_hmac_ctx_init().
 Returns 1 for success and 0 for failure.
