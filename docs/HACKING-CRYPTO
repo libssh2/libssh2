@@ -98,20 +98,22 @@ int libssh2_sha1_init(libssh2_sha1_ctx *x);
 Initializes the SHA-1 computation context at x.
 Returns 1 for success and 0 for failure
 
-void libssh2_sha1_update(libssh2_sha1_ctx ctx,
-                         const unsigned char *data,
-                         size_t len);
+int libssh2_sha1_update(libssh2_sha1_ctx ctx,
+                        const unsigned char *data,
+                        size_t len);
 Continue computation of SHA-1 on len bytes at data using context ctx.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
+Must return 1 for success and 0 for failure.
 
-void libssh2_sha1_final(libssh2_sha1_ctx ctx,
-                        unsigned char output[SHA_DIGEST_LEN]);
+int libssh2_sha1_final(libssh2_sha1_ctx ctx,
+                       unsigned char output[SHA_DIGEST_LEN]);
 Get the computed SHA-1 signature from context ctx and store it into the
 output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
+Must return 1 for success and 0 for failure.
 
 int libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
                            const void *key,
@@ -133,19 +135,21 @@ int libssh2_sha256_init(libssh2_sha256_ctx *x);
 Initializes the SHA-256 computation context at x.
 Returns 1 for success and 0 for failure
 
-void libssh2_sha256_update(libssh2_sha256_ctx ctx,
-                           const unsigned char *data,
-                           size_t len);
+int libssh2_sha256_update(libssh2_sha256_ctx ctx,
+                          const unsigned char *data,
+                          size_t len);
 Continue computation of SHA-256 on len bytes at data using context ctx.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
+Must return 1 for success and 0 for failure.
 
-void libssh2_sha256_final(libssh2_sha256_ctx ctx,
-                          unsigned char output[SHA256_DIGEST_LENGTH]);
+int libssh2_sha256_final(libssh2_sha256_ctx ctx,
+                         unsigned char output[SHA256_DIGEST_LENGTH]);
 Gets the computed SHA-256 signature from context ctx into the output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
+Must return 1 for success and 0 for failure.
 
 int libssh2_sha256(const unsigned char *message,
                    size_t len,
@@ -179,19 +183,21 @@ int libssh2_sha384_init(libssh2_sha384_ctx *x);
 Initializes the SHA-384 computation context at x.
 Returns 1 for success and 0 for failure
 
-void libssh2_sha384_update(libssh2_sha384_ctx ctx,
-                           const unsigned char *data,
-                           size_t len);
+int libssh2_sha384_update(libssh2_sha384_ctx ctx,
+                          const unsigned char *data,
+                          size_t len);
 Continue computation of SHA-384 on len bytes at data using context ctx.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
+Must return 1 for success and 0 for failure.
 
-void libssh2_sha384_final(libssh2_sha384_ctx ctx,
-                          unsigned char output[SHA384_DIGEST_LENGTH]);
+int libssh2_sha384_final(libssh2_sha384_ctx ctx,
+                         unsigned char output[SHA384_DIGEST_LENGTH]);
 Gets the computed SHA-384 signature from context ctx into the output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
+Must return 1 for success and 0 for failure.
 
 int libssh2_sha384(const unsigned char *message,
                    size_t len,
@@ -213,19 +219,21 @@ int libssh2_sha512_init(libssh2_sha512_ctx *x);
 Initializes the SHA-512 computation context at x.
 Returns 1 for success and 0 for failure
 
-void libssh2_sha512_update(libssh2_sha512_ctx ctx,
-                           const unsigned char *data,
-                           size_t len);
+int libssh2_sha512_update(libssh2_sha512_ctx ctx,
+                          const unsigned char *data,
+                          size_t len);
 Continue computation of SHA-512 on len bytes at data using context ctx.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
+Must return 1 for success and 0 for failure.
 
-void libssh2_sha512_final(libssh2_sha512_ctx ctx,
-                          unsigned char output[SHA512_DIGEST_LENGTH]);
+int libssh2_sha512_final(libssh2_sha512_ctx ctx,
+                         unsigned char output[SHA512_DIGEST_LENGTH]);
 Gets the computed SHA-512 signature from context ctx into the output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
+Must return 1 for success and 0 for failure.
 
 int libssh2_sha512(const unsigned char *message,
                    size_t len,
@@ -261,20 +269,22 @@ int libssh2_md5_init(libssh2_md5_ctx *x);
 Initializes the MD5 computation context at x.
 Returns 1 for success and 0 for failure
 
-void libssh2_md5_update(libssh2_md5_ctx ctx,
-                        const unsigned char *data,
-                        size_t len);
+int libssh2_md5_update(libssh2_md5_ctx ctx,
+                       const unsigned char *data,
+                       size_t len);
 Continues computation of MD5 on len bytes at data using context ctx.
 Returns 1 for success and 0 for failure.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
+Must return 1 for success and 0 for failure.
 
-void libssh2_md5_final(libssh2_md5_ctx ctx,
-                       unsigned char output[MD5_DIGEST_LENGTH]);
+int libssh2_md5_final(libssh2_md5_ctx ctx,
+                      unsigned char output[MD5_DIGEST_LENGTH]);
 Gets the computed MD5 signature from context ctx into the output buffer.
 Release the context.
 Note: if the ctx parameter is modified by the underlying code,
 this procedure must be implemented as a macro to map ctx --> &ctx.
+Must return 1 for success and 0 for failure.
 
 int libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
                           const void *key,
