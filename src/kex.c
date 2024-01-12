@@ -380,6 +380,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         struct string_buf buf;
         size_t host_key_len;
         int err;
+        int hok;
 
         rc = _libssh2_packet_require(session, packet_type_reply,
                                      &exchange_state->s_packet,
@@ -562,14 +563,14 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                  "Unable to initialize hash context");
             goto clean_exit;
         }
-        ret = 1;
+        hok = 1;
         if(session->local.banner) {
             _libssh2_htonu32(exchange_state->h_sig_comp,
                 (uint32_t)(strlen((char *) session->local.banner) - 2));
-            ret &= _libssh2_sha_algo_ctx_update(sha_algo_value,
+            hok &= _libssh2_sha_algo_ctx_update(sha_algo_value,
                                                 exchange_hash_ctx,
                                                 exchange_state->h_sig_comp, 4);
-            ret &= _libssh2_sha_algo_ctx_update(sha_algo_value,
+            hok &= _libssh2_sha_algo_ctx_update(sha_algo_value,
                                                 exchange_hash_ctx,
                                                 session->local.banner,
                                    strlen((char *) session->local.banner) - 2);
@@ -577,10 +578,10 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         else {
             _libssh2_htonu32(exchange_state->h_sig_comp,
                              sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
-            ret &= _libssh2_sha_algo_ctx_update(sha_algo_value,
+            hok &= _libssh2_sha_algo_ctx_update(sha_algo_value,
                                                 exchange_hash_ctx,
                                                 exchange_state->h_sig_comp, 4);
-            ret &= _libssh2_sha_algo_ctx_update(sha_algo_value,
+            hok &= _libssh2_sha_algo_ctx_update(sha_algo_value,
                                                 exchange_hash_ctx,
                                    (unsigned char *)LIBSSH2_SSH_DEFAULT_BANNER,
                                        sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
@@ -588,33 +589,33 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          (uint32_t)strlen((char *) session->remote.banner));
-        ret &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        hok &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                             exchange_state->h_sig_comp, 4);
-        ret &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        hok &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                             session->remote.banner,
                                        strlen((char *)session->remote.banner));
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          (uint32_t)session->local.kexinit_len);
-        ret &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        hok &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                             exchange_state->h_sig_comp, 4);
-        ret &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        hok &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                             session->local.kexinit,
                                             session->local.kexinit_len);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          (uint32_t)session->remote.kexinit_len);
-        ret &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        hok &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                             exchange_state->h_sig_comp, 4);
-        ret &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        hok &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                             session->remote.kexinit,
                                             session->remote.kexinit_len);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          session->server_hostkey_len);
-        ret &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        hok &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                             exchange_state->h_sig_comp, 4);
-        ret &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        hok &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                             session->server_hostkey,
                                             session->server_hostkey_len);
 
@@ -626,35 +627,35 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                              LIBSSH2_DH_GEX_OPTGROUP);
             _libssh2_htonu32(exchange_state->h_sig_comp + 8,
                              LIBSSH2_DH_GEX_MAXGROUP);
-            ret &= _libssh2_sha_algo_ctx_update(sha_algo_value,
+            hok &= _libssh2_sha_algo_ctx_update(sha_algo_value,
                                                 exchange_hash_ctx,
                                                 exchange_state->h_sig_comp,
                                                 12);
         }
 
         if(midhash) {
-            ret &= _libssh2_sha_algo_ctx_update(sha_algo_value,
+            hok &= _libssh2_sha_algo_ctx_update(sha_algo_value,
                                                 exchange_hash_ctx,
                                                 midhash, midhash_len);
         }
 
-        ret &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        hok &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                             exchange_state->e_packet + 1,
                                             exchange_state->e_packet_len - 1);
 
         _libssh2_htonu32(exchange_state->h_sig_comp,
                          (uint32_t)exchange_state->f_value_len);
-        ret &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        hok &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                             exchange_state->h_sig_comp, 4);
-        ret &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        hok &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                             exchange_state->f_value,
                                             exchange_state->f_value_len);
 
-        ret &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
+        hok &= _libssh2_sha_algo_ctx_update(sha_algo_value, exchange_hash_ctx,
                                             exchange_state->k_value,
                                             exchange_state->k_value_len);
 
-        if(!ret ||
+        if(!hok ||
            !_libssh2_sha_algo_ctx_final(sha_algo_value, exchange_hash_ctx,
                                         exchange_state->h_sig_comp)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_CALC,
