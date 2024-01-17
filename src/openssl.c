@@ -3269,14 +3269,19 @@ gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
                               "out of memory");
     }
 
-    if(is_sk)
-        memcpy(method_buf, "sk-ecdsa-sha2-nistp256@openssh.com", method_buf_len);
-    else if(type == LIBSSH2_EC_CURVE_NISTP256)
+    if(is_sk) {
+        memcpy(method_buf, "sk-ecdsa-sha2-nistp256@openssh.com",
+               method_buf_len);
+    }
+    else if(type == LIBSSH2_EC_CURVE_NISTP256) {
         memcpy(method_buf, "ecdsa-sha2-nistp256", method_buf_len);
-    else if(type == LIBSSH2_EC_CURVE_NISTP384)
+    }
+    else if(type == LIBSSH2_EC_CURVE_NISTP384) {
         memcpy(method_buf, "ecdsa-sha2-nistp384", method_buf_len);
-    else if(type == LIBSSH2_EC_CURVE_NISTP521)
+    }
+    else if(type == LIBSSH2_EC_CURVE_NISTP521) {
         memcpy(method_buf, "ecdsa-sha2-nistp521", method_buf_len);
+    }
     else {
         _libssh2_debug((session,
                        LIBSSH2_TRACE_ERROR,
@@ -3314,8 +3319,8 @@ gen_publickey_from_ec_evp(LIBSSH2_SESSION *session,
     }
 #endif
 
-    /* Key form is: type_len(4) + type(method_buf_len) + domain_len(4) + domain(8)
-       + pub_key_len(4) + pub_key(~65). */
+    /* Key form is: type_len(4) + type(method_buf_len) + domain_len(4)
+       + domain(8) + pub_key_len(4) + pub_key(~65). */
     key_len = 4 + method_buf_len + 4 + 8 + 4 + octal_len;
     key = LIBSSH2_ALLOC(session, key_len);
     if(!key) {
