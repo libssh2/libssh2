@@ -116,6 +116,8 @@ This release includes the following enhancements and bugfixes:
 - mingw: fix printf mask for 64-bit integers (36c1e1d1 #1091 #1090)
 - misc: flatten `_libssh2_explicit_zero` if tree (74e74288 #1149)
 - NMakefile: delete (c515eed3 #1134 #1129)
+- openssl: fix cppcheck found NULL dereferences (f2945905 #1304)
+- openssl: delete internal `read_openssh_private_key_from_memory()` (34aff5ff #1306)
 - openssl: use OpenSSL 3 HMAC API, add `no-deprecated` CI job (363dcbf4 #1243 #1235 #1207)
 - openssl: make a function static, add `#ifdef` comments (efee9133 #1246 follow: 03092292)
 - openssl: fix DSA code to use OpenSSL 3 API (82581941 #1244 #1207)
@@ -175,4 +177,5 @@ advice from friends like these:
   Harmen Stoppels, Harry Mallon, Jack L, Jakob Egger, João M. S. Silva,
   Joel Depooter, Kai Pastor, Kenneth Davidson, mike-jumper, naddy,
   Nicolas Mora, Nursan Valeyev, Patrick Monnerat, Paul Howarth, PewPewPew,
-  Radek Brich, rahmanih on GitHub, Steve McIntyre, Will Cosgrove, Xi Ruoyao
+  Radek Brich, rahmanih on GitHub, Ryan Kelley, Steve McIntyre, Will Cosgrove,
+  Xi Ruoyao
