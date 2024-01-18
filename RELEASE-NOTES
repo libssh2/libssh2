@@ -134,6 +134,7 @@ This release includes the following enhancements and bugfixes:
 - scp: fix missing cast for targets without large file support (c317e06f #1060 #1057 #1002 regr: 5db836b2)
 - session: add `libssh2_session_callback_set2()` (c0f69548 #1285)
 - session: handle EINTR from send/recv/poll/select to try again as the error is not fatal (798ed4a7 #1058)
+- src: check hash update/final success (4718ede4 #1303 #1301)
 - src: check hash init success (2ed9eb92 #1301)
 - src: add 'strict KEX' to fix CVE-2023-48795 "Terrapin Attack" (d34d9258 #1291 #1290)
 - src: disable `-Wsign-conversion` warnings, add option to re-enable (6e451669 #1284 #1257)
@@ -172,10 +173,9 @@ This release includes the following enhancements and bugfixes:
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
-  Viktor Szakats, Michael Buckley, Ren Mingshuai, Daniel Stenberg, Aaron Stone,
-  Brian Inglis, concussious on GitHub, Dan Fandrich, Haowei Hsu,
-  Harmen Stoppels, Harry Mallon, Jack L, Jakob Egger, João M. S. Silva,
-  Joel Depooter, Kai Pastor, Kenneth Davidson, mike-jumper, naddy,
-  Nicolas Mora, Nursan Valeyev, Patrick Monnerat, Paul Howarth, PewPewPew,
-  Radek Brich, rahmanih on GitHub, Ryan Kelley, Steve McIntyre, Will Cosgrove,
-  Xi Ruoyao
+  Viktor Szakats, Michael Buckley, Ren Mingshuai, Daniel Stenberg,
+  Patrick Monnerat, Aaron Stone, Brian Inglis, concussious on GitHub,
+  Dan Fandrich, Haowei Hsu, Harmen Stoppels, Harry Mallon, Jack L, Jakob Egger,
+  João M. S. Silva, Joel Depooter, Kai Pastor, Kenneth Davidson, mike-jumper,
+  naddy, Nicolas Mora, Nursan Valeyev, Paul Howarth, PewPewPew, Radek Brich,
+  rahmanih on GitHub, Ryan Kelley, Steve McIntyre, Will Cosgrove, Xi Ruoyao
