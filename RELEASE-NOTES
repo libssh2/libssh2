@@ -1,5 +1,40 @@
 libssh2 1.11.1_DEV
 
+Deprecation notices:
+
+- Starting June 2024, the following algos go deprecated and will be
+  disabled in default builds (with an option to enable them):
+
+  - DSA: `ssh-dss` hostkeys.
+      You can disable it now with `-DLIBSSH2_NO_DSA`.
+      Disabled by default in OpenSSH 7.0 (2015-08-11).
+  - MD5-based MACs and hashes: `hmac-md5`, `hmac-md5-96`,
+    `LIBSSH2_HOSTKEY_HASH_MD5`
+      You can disable it now with `-DLIBSSH2_NO_MD5`.
+      Disabled by default since OpenSSH 7.2 (2016-02-29).
+  - 3DES cipher: `3des-cbc`
+      You can disable it now with `-DLIBSSH2_NO_3DES`.
+      Disabled by default since OpenSSH 7.4 (2016-12-19).
+  - RIPEMD-160 MACs: `hmac-ripemd160`, `hmac-ripemd160@openssh.com`
+      You can disable it now with `-DLIBSSH2_NO_HMAC_RIPEMD`.
+      Removed in OpenSSH 7.6 (2017-10-03).
+  - Blowfish cipher: `blowfish-cbc`
+      You can disable it now with `-DLIBSSH2_NO_BLOWFISH`.
+      Removed in OpenSSH 7.6 (2017-10-03).
+  - RC4 ciphers: `arcfour`, `arcfour128`
+      You can disable it now with `-DLIBSSH2_NO_RC4`.
+      Removed in OpenSSH 7.6 (2017-10-03).
+  - CAST cipher: `cast128-cbc`
+      You can disable it now with `-DLIBSSH2_NO_CAST`.
+      Removed in OpenSSH 7.6 (2017-10-03).
+
+- Starting January 2025, above options will be deleted from the
+  libssh2 codebase.
+
+  - Default builds will also disable support for old-style, MD5-based
+    encrypted private keys.
+    You can disable it now with `-DLIBSSH2_NO_MD5_PEM`.
+
 This release includes the following enhancements and bugfixes:
 
 - autotools: delete `--disable-tests` option, fix CI tests (e051ae34 #1271 revert: 7483edfa)
