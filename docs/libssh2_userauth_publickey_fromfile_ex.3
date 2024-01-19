@@ -2,7 +2,7 @@
 .\" SPDX-License-Identifier: BSD-3-Clause
 .TH libssh2_userauth_publickey_fromfile_ex 3 "1 Jun 2007" "libssh2 0.15" "libssh2"
 .SH NAME
-libssh2_userauth_publickey_fromfile_ex - authenticate a session based on local public key authentication
+libssh2_userauth_publickey_fromfile_ex - authenticate a session based on local public key cryptography
 .SH SYNOPSIS
 .nf
 #include <libssh2.h>
@@ -31,8 +31,8 @@ can be set to NULL.
 
 \fIpassphrase\fP - Passphrase to use when decoding \fIprivatekey\fP.
 
-Attempts public key authentication based on a either local public and private
-key pair stored on disk or use a PEM encoded private key file stored on disk
+Attempts to authenticate using public key cryptography using either local public and 
+private key pair stored on disk or use a PEM encoded private key file stored on disk.
 .SH RETURN VALUE
 Return 0 on success or negative on failure. It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
