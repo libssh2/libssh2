@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+ * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -92,6 +92,8 @@ libssh2_channel_request_pty_size(LIBSSH2_CHANNEL *channel,
 LIBSSH2_API int
 libssh2_channel_x11_req(LIBSSH2_CHANNEL *channel, int screen_number);
 LIBSSH2_API int
+libssh2_channel_signal(LIBSSH2_CHANNEL *channel, const char *signame);
+LIBSSH2_API int
 libssh2_channel_shell(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int
 libssh2_channel_exec(LIBSSH2_CHANNEL *channel, const char *command);
@@ -110,6 +112,8 @@ libssh2_channel_write_stderr(LIBSSH2_CHANNEL *channel,
                              const char *buf, size_t buflen);
 LIBSSH2_API unsigned long
 libssh2_channel_window_write(LIBSSH2_CHANNEL *channel);
+LIBSSH2_API void
+libssh2_channel_ignore_extended_data(LIBSSH2_CHANNEL *channel, int ignore);
 LIBSSH2_API int libssh2_channel_flush(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API int libssh2_channel_flush_stderr(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API LIBSSH2_CHANNEL *
@@ -137,6 +141,10 @@ libssh2_sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
                   unsigned long flags, long mode);
 LIBSSH2_API LIBSSH2_SFTP_HANDLE *
 libssh2_sftp_opendir(LIBSSH2_SFTP *sftp, const char *path);
+LIBSSH2_API LIBSSH2_SFTP_HANDLE *
+libssh2_sftp_open_r(LIBSSH2_SFTP *sftp, const char *filename,
+                    unsigned long flags, long mode,
+                    LIBSSH2_SFTP_ATTRIBUTES *attrs);
 LIBSSH2_API int libssh2_sftp_readdir(LIBSSH2_SFTP_HANDLE *handle,
                                      char *buffer, size_t buffer_maxlen,
                                      LIBSSH2_SFTP_ATTRIBUTES *attrs);

@@ -35,34 +35,12 @@ SONAME=`sed -e '/^VERSION=/!d' -e 's/^.* \([0-9]*\):.*$/\1/' -e 'q'     \
                                                 < "${TOPDIR}/src/Makefile.am"`
 export SONAME
 
+#       Get OS/400 configuration parameters.
 
-################################################################################
-#
-#                       Tunable configuration parameters.
-#
-################################################################################
-
-setenv TARGETLIB        'LIBSSH2'               # Target OS/400 program library.
-setenv STATBNDDIR       'LIBSSH2_A'             # Static binding directory.
-setenv DYNBNDDIR        'LIBSSH2'               # Dynamic binding directory.
-setenv SRVPGM           "LIBSSH2.${SONAME}"     # Service program.
-setenv TGTCCSID         '500'                   # Target CCSID of objects.
-setenv DEBUG            '*ALL'                  # Debug level.
-setenv OPTIMIZE         '10'                    # Optimisation level
-setenv OUTPUT           '*NONE'                 # Compilation output option.
-setenv TGTRLS           'V7R3M0'                # Target OS release.
-setenv IFSDIR           '/libssh2'              # Installation IFS directory.
-setenv QADRTDIR         '/QIBM/ProdData/qadrt'  # QADRT IFS directory.
-
-#       Define ZLIB availability and locations.
-
-setenv WITH_ZLIB        0                       # Define to 1 to enable.
-setenv ZLIB_INCLUDE     '/zlib/include'         # ZLIB include IFS directory.
-setenv ZLIB_LIB         'ZLIB'                  # ZLIB library.
-setenv ZLIB_BNDDIR      'ZLIB_A'                # ZLIB binding directory.
-
-
-################################################################################
+. "${SCRIPTDIR}/config400.default"
+if [ -f "${SCRIPTDIR}/config400.override" ]
+then    . "${SCRIPTDIR}/config400.override"
+fi
 
 #       Need to get the version definitions.
 
@@ -201,6 +179,10 @@ make_module()
 
         if [ "${WITH_ZLIB}" != "0" ]
         then    DEFINES="${DEFINES} LIBSSH2_HAVE_ZLIB"
+        fi
+
+        if [ "${WITH_MD5}" != 'yes' ]
+        then    DEFINES="${DEFINES} LIBSSH2_NO_MD5"
         fi
 
         if [ "${DEFINES}" ]
