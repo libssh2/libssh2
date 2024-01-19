@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+ * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -48,6 +48,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 
 
@@ -57,6 +58,11 @@
 #define MAX_CHAR_SIZE   4
 
 #define OFFSET_OF(t, f) ((size_t) ((char *) &((t *) 0)->f - (char *) 0))
+
+#define ALLOC(s, sz)        ((s)? LIBSSH2_ALLOC((s), (sz)): malloc(sz))
+#define REALLOC(s, p, sz)   ((s)? LIBSSH2_REALLOC((s), (p), (sz)):      \
+                                  realloc((p), (sz)))
+#define FREE(s, p)          ((s)? LIBSSH2_FREE((s), (p)): free(p))
 
 
 struct _libssh2_string_cache {
@@ -133,7 +139,7 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
     }
     if (outlen)
         *outlen = -1;
-    if (!session || !cache)
+    if (!cache)
         return NULL;
 
     /* Get terminator size. */
@@ -157,12 +163,12 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
     }
 
     /* Allocate output string buffer and open conversion descriptor. */
-    dst = LIBSSH2_ALLOC(session, buflen + termsize);
+    dst = ALLOC(session, buflen + termsize);
     if (!dst)
         return NULL;
     cd = QtqIconvOpen(&outcode, &incode);
     if (cd.return_value == -1) {
-        LIBSSH2_FREE(session, (char *) dst);
+        FREE(session, dst);
         return NULL;
     }
 
@@ -184,7 +190,7 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
             break;
         /* Must expand buffer. */
         buflen += STRING_GRANULE;
-        outp = LIBSSH2_REALLOC(session, dst, buflen + termsize);
+        outp = REALLOC(session, dst, buflen + termsize);
         if (!outp)
             break;
         dst = outp;
@@ -194,7 +200,7 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
 
     /* Check for error. */
     if (i < 0 || !outp) {
-        LIBSSH2_FREE(session, dst);
+        FREE(session, dst);
         return NULL;
     }
 
@@ -206,7 +212,7 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
 
     /* Shorten buffer if possible. */
     if (curlen < buflen)
-        dst = LIBSSH2_REALLOC(session, dst, curlen + termsize);
+        dst = REALLOC(session, dst, curlen + termsize);
 
     /* Link to cache. */
     outstring = (libssh2_string_cache *) dst;
@@ -244,10 +250,10 @@ libssh2_release_string_cache(LIBSSH2_SESSION *session,
 {
     libssh2_string_cache *p;
 
-    if (session && cache)
+    if (cache)
         while ((p = *cache)) {
             *cache = p->next;
-            LIBSSH2_FREE(session, (char *) p);
+            FREE(session, (char *) p);
         }
 }
 

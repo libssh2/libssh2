@@ -1,7 +1,6 @@
 #ifndef LIBSSH2_OS400QC3_H
 #define LIBSSH2_OS400QC3_H
 /*
- * Copyright (C) Patrick Monnerat, D+H <patrick.monnerat@dh.com>
  * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
  * All rights reserved.
  *
@@ -165,7 +164,12 @@
 #define Qc3_MK_Pending      '\xF3'      /* '3' */
 
 /* Define which features are supported. */
-#define LIBSSH2_MD5             1
+#ifdef OPENSSL_NO_MD5
+# define LIBSSH2_MD5            0
+#else
+# define LIBSSH2_MD5            1
+#endif
+
 #define LIBSSH2_HMAC_RIPEMD     0
 #define LIBSSH2_HMAC_SHA256     1
 #define LIBSSH2_HMAC_SHA512     1
@@ -187,10 +191,6 @@
 
 #include "crypto_config.h"
 
-/* FIXME: Disable MD5 macros, constants and functions when
-          LIBSSH2_MD5 and LIBSSH_MD5_PEM have the value 0. */
-
-#define MD5_DIGEST_LENGTH       16
 #define SHA_DIGEST_LENGTH       20
 #define SHA256_DIGEST_LENGTH    32
 #define SHA384_DIGEST_LENGTH    48
@@ -247,7 +247,6 @@ typedef struct {        /* Diffie-Hellman context. */
 #define libssh2_sha256_ctx      Qc3_Format_ALGD0100_T
 #define libssh2_sha384_ctx      Qc3_Format_ALGD0100_T
 #define libssh2_sha512_ctx      Qc3_Format_ALGD0100_T
-#define libssh2_md5_ctx         Qc3_Format_ALGD0100_T
 #define libssh2_hmac_ctx        _libssh2_os400qc3_crypto_ctx
 #define _libssh2_cipher_ctx     _libssh2_os400qc3_crypto_ctx
 
@@ -280,11 +279,16 @@ typedef struct {        /* Diffie-Hellman context. */
 #define libssh2_sha512(message, len, out)                                   \
                                 _libssh2_os400qc3_hash(message, len, out,   \
                                                        Qc3_SHA512)
+
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
+#define MD5_DIGEST_LENGTH       16
+#define libssh2_md5_ctx         Qc3_Format_ALGD0100_T
 #define libssh2_md5_init(x)     _libssh2_os400qc3_hash_init(x, Qc3_MD5)
 #define libssh2_md5_update(ctx, data, len)                                  \
                                _libssh2_os400qc3_hash_update(&(ctx), data, len)
 #define libssh2_md5_final(ctx, out)                                         \
                                 _libssh2_os400qc3_hash_final(&(ctx), out)
+#endif
 
 #define _libssh2_bn_ctx         int                 /* Not used. */
 
