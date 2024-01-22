@@ -1101,6 +1101,9 @@ void _libssh2_openssl_crypto_init(void)
     ENGINE_register_all_complete();
 #endif
 #endif
+#if defined(LIBSSH2_WOLFSSL) && defined(DEBUG_WOLFSSL)
+    wolfSSL_Debugging_ON();
+#endif
 }
 
 void _libssh2_openssl_crypto_exit(void)
