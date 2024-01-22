@@ -126,6 +126,7 @@ This release includes the following enhancements and bugfixes:
 - openssl: silence `-Wunused-value` warnings (bf285500 #1205)
 - openssl: use automatic initialization with LibreSSL 2.7.0+ (d79047c9 #1146)
 - openssl: add missing check for `LIBRESSL_VERSION_NUMBER` before use (4a42f42e #1117 #1115)
+- os400: maintain up to date (8457c37a #1309)
 - packet: properly bounds check packet_authagent_open() (88a960a8 #1179)
 - pem: fix private keys encrypted with AES-GCM methods (e87bdefa #1133)
 - reuse: fix duplicate copyright warning (b9a4ed83)
@@ -169,6 +170,7 @@ This release includes the following enhancements and bugfixes:
 - wincng: prefer `ULONG`/`DWORD` over `unsigned long` (186c1d63 #1165)
 - wincng: tidy-ups (7bb669b5 #1164)
 - windows: use built-in `_WIN32` macro to detect Windows (6fbc9505 #1195)
+- wolfssl: enable debug logging in wolfSSL when compiled in (76e7a68a #1310)
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
@@ -176,6 +178,7 @@ advice from friends like these:
   Viktor Szakats, Michael Buckley, Ren Mingshuai, Daniel Stenberg,
   Patrick Monnerat, Aaron Stone, Brian Inglis, concussious on GitHub,
   Dan Fandrich, Haowei Hsu, Harmen Stoppels, Harry Mallon, Jack L, Jakob Egger,
-  João M. S. Silva, Joel Depooter, Kai Pastor, Kenneth Davidson, mike-jumper,
-  naddy, Nicolas Mora, Nursan Valeyev, Paul Howarth, PewPewPew, Radek Brich,
-  rahmanih on GitHub, Ryan Kelley, Steve McIntyre, Will Cosgrove, Xi Ruoyao
+  João M. S. Silva, Joel Depooter, Juliusz Sosinowicz, Kai Pastor,
+  Kenneth Davidson, mike-jumper, monnerat, naddy, Nicolas Mora, Nursan Valeyev,
+  Paul Howarth, PewPewPew, Radek Brich, rahmanih on GitHub, Ryan Kelley,
+  Steve McIntyre, Will Cosgrove, Xi Ruoyao
