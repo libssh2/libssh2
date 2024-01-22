@@ -2,7 +2,7 @@ libssh2 1.11.1_DEV
 
 Deprecation notices:
 
-- Starting June 2025, the following algos go deprecated and will be
+- Starting June 2024, the following algos go deprecated and will be
   disabled in default builds (with an option to enable them):
 
   - DSA: `ssh-dss` hostkeys.
@@ -28,7 +28,7 @@ Deprecation notices:
       You can disable it now with `-DLIBSSH2_NO_CAST`.
       Removed in OpenSSH 7.6 (2017-10-03).
 
-- Starting January 2026, above options will be deleted from the
+- Starting January 2025, above options will be deleted from the
   libssh2 codebase.
 
   - Default builds will also disable support for old-style, MD5-based
