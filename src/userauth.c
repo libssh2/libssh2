@@ -1262,6 +1262,15 @@ size_t plain_method(char *method, size_t method_len)
         return 7;
     }
 
+    if(!strncmp("rsa-sha2-256-cert-v01@openssh.com",
+                method,
+                method_len) ||
+       !strncmp("rsa-sha2-512-cert-v01@openssh.com",
+                method,
+                method_len)) {
+       return 12;
+    }
+
     if(!strncmp("ecdsa-sha2-nistp256-cert-v01@openssh.com",
                 method,
                 method_len) ||
