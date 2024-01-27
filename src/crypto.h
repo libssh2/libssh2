@@ -230,6 +230,9 @@ int
 _libssh2_ecdsa_curve_type_from_name(const char *name,
                                     libssh2_curve_type *out_type);
 
+void
+_libssh2_ecdsa_free(libssh2_ecdsa_ctx* ctx);
+
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
