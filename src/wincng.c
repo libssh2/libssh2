@@ -65,7 +65,6 @@
 #include <math.h>
 
 #include <stdlib.h>
-#include <assert.h>
 
 #ifdef HAVE_LIBCRYPT32
 #include <wincrypt.h>  /* for CryptDecodeObjectEx() */
@@ -1968,9 +1967,11 @@ _libssh2_wincng_publickey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
         return LIBSSH2_ERROR_INVAL;
     }
 
-    *key = NULL;
+    if(point->x_len != point->y_len) {
+        return LIBSSH2_ERROR_INVAL;
+    }
 
-    assert(point->x_len == point->y_len);
+    *key = NULL;
 
     /* Initialize a blob to import */
     ecc_blob_len = sizeof(BCRYPT_ECCKEY_BLOB) + point->x_len + point->y_len;
@@ -2035,9 +2036,11 @@ _libssh2_wincng_privatekey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
         return LIBSSH2_ERROR_INVAL;
     }
 
-    *key = NULL;
+    if (q->x_len != q->y_len) {
+        return LIBSSH2_ERROR_INVAL;
+    }
 
-    assert(q->x_len == q->y_len);
+    *key = NULL;
 
     /* Initialize a blob to import */
     ecc_blob_len = sizeof(BCRYPT_ECCPRIVATE_BLOB) + q->x_len + q->y_len + d_len;
