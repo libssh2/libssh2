@@ -304,6 +304,9 @@ typedef struct __libssh2_wincng_ecdsa_ctx {
 #define libssh2_ecdsa_ctx _libssh2_wincng_ecdsa_key
 #define _libssh2_ec_key _libssh2_wincng_ecdsa_key
 
+void
+_libssh2_wincng_ecdsa_free(libssh2_ecdsa_ctx* ctx);
+
 #define _libssh2_ecdsa_create_key(session, privkey, pubkey_octal, \
                                   pubkey_octal_len, curve) \
     _libssh2_wincng_ecdh_create_key(session, privkey, pubkey_octal, \
