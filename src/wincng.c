@@ -268,8 +268,9 @@ typedef struct __libssh2_wincng_ecdsa_algorithm {
     /* Length of each point, in bytes */
     ULONG point_length;
 
-    /* Name of CNG algorithm provider, indexed by _libssh2_wincng_ecc_keytype */
-    LPCWSTR provider_name[2];
+    /* Name of CNG algorithm provider, */
+    /* indexed by _libssh2_wincng_ecc_keytype */
+    LPCWSTR provider[2];
 
     /* Magic for public key import, indexed by _libssh2_wincng_ecc_keytype */
     ULONG public_import_magic[2];
@@ -279,7 +280,7 @@ typedef struct __libssh2_wincng_ecdsa_algorithm {
 } _libssh2_wincng_ecdsa_algorithm;
 
 /* Supported algorithms, indexed by libssh2_curve_type */
-static _libssh2_wincng_ecdsa_algorithm _libssh2_wincng_ecdsa_algorithms[] = {
+static _libssh2_wincng_ecdsa_algorithm _wincng_ecdsa_algorithms[] = {
     {
         "ecdsa-sha2-nistp256",
         256,
@@ -477,19 +478,20 @@ _libssh2_wincng_init(void)
     }
 
     ret = BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgDH,
-                                      BCRYPT_DH_ALGORITHM, NULL, 0);
+                                      BCRYPT_DH_ALGORITHM, NULL,
+                                      0);
     if(!BCRYPT_SUCCESS(ret)) {
         _libssh2_wincng.hAlgDH = NULL;
     }
 
 #if LIBSSH2_ECDSA
-    for(curve = 0; curve < _countof(_libssh2_wincng_ecdsa_algorithms); curve++) {
+    for(curve = 0; curve < _countof(_wincng_ecdsa_algorithms); curve++) {
         BCRYPT_ALG_HANDLE alg_handle_ecdsa;
         BCRYPT_ALG_HANDLE alg_handle_ecdh;
 
         ret = BCryptOpenAlgorithmProvider(
             &alg_handle_ecdsa,
-            _libssh2_wincng_ecdsa_algorithms[curve].provider_name[WINCNG_ECC_KEYTYPE_ECDSA],
+            _wincng_ecdsa_algorithms[curve].provider[WINCNG_ECC_KEYTYPE_ECDSA],
             NULL,
             0);
         if(BCRYPT_SUCCESS(ret)) {
@@ -498,7 +500,7 @@ _libssh2_wincng_init(void)
 
         ret = BCryptOpenAlgorithmProvider(
             &alg_handle_ecdh,
-            _libssh2_wincng_ecdsa_algorithms[curve].provider_name[WINCNG_ECC_KEYTYPE_ECDH],
+            _wincng_ecdsa_algorithms[curve].provider[WINCNG_ECC_KEYTYPE_ECDH],
             NULL,
             0);
         if(BCRYPT_SUCCESS(ret)) {
@@ -555,7 +557,7 @@ _libssh2_wincng_free(void)
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgDH, 0);
 
 #if LIBSSH2_ECDSA
-    for(curve = 0; curve < _countof(_libssh2_wincng_ecdsa_algorithms); curve++) {
+    for(curve = 0; curve < _countof(_wincng_ecdsa_algorithms); curve++) {
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgECDSA[curve], 0);
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgECDH[curve], 0);
     }
@@ -1879,15 +1881,15 @@ _libssh2_wincng_ecdsa_decode_uncompressed_point(IN const unsigned char *encoded_
         return LIBSSH2_ERROR_INVAL;
     }
 
-    for(curve = 0; curve < _countof(_libssh2_wincng_ecdsa_algorithms); curve++) {
-        if(_libssh2_wincng_ecdsa_algorithms[curve].point_length == (encoded_point_len - 1) / 2) {
+    for(curve = 0; curve < _countof(_wincng_ecdsa_algorithms); curve++) {
+        if(_wincng_ecdsa_algorithms[curve].point_length == (encoded_point_len - 1) / 2) {
             point->curve = curve;
 
             point->x = encoded_point + 1;
-            point->x_len = _libssh2_wincng_ecdsa_algorithms[curve].point_length;
+            point->x_len = _wincng_ecdsa_algorithms[curve].point_length;
 
             point->y = point->x + point->x_len;
-            point->y_len = _libssh2_wincng_ecdsa_algorithms[curve].point_length;
+            point->y_len = _wincng_ecdsa_algorithms[curve].point_length;
 
             return LIBSSH2_ERROR_NONE;
         }
@@ -1917,12 +1919,12 @@ _libssh2_wincng_p1363signature_from_point(IN const unsigned char *r,
     size_t s_trimmed_len;
 
     /* Validate parameters */
-    if(curve >= _countof(_libssh2_wincng_ecdsa_algorithms)) {
+    if(curve >= _countof(_wincng_ecdsa_algorithms)) {
         return LIBSSH2_ERROR_INVAL;
     }
 
     *signature = NULL;
-    *signature_length = (size_t)_libssh2_wincng_ecdsa_algorithms[curve].point_length * 2;
+    *signature_length = (size_t)_wincng_ecdsa_algorithms[curve].point_length * 2;
 
     /* Trim leading zero, if any */
     r_trimmed = r;
@@ -1990,7 +1992,7 @@ _libssh2_wincng_publickey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
         return LIBSSH2_ERROR_ALLOC;
     }
 
-    ecc_blob->dwMagic = _libssh2_wincng_ecdsa_algorithms[point->curve].public_import_magic[keytype];
+    ecc_blob->dwMagic = _wincng_ecdsa_algorithms[point->curve].public_import_magic[keytype];
     ecc_blob->cbKey = point->x_len;
 
     /** Copy x, y */
@@ -2046,7 +2048,7 @@ _libssh2_wincng_privatekey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
         return LIBSSH2_ERROR_INVAL;
     }
 
-    if (q->x_len != q->y_len) {
+    if(q->x_len != q->y_len) {
         return LIBSSH2_ERROR_INVAL;
     }
 
@@ -2059,7 +2061,7 @@ _libssh2_wincng_privatekey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
         return LIBSSH2_ERROR_ALLOC;
     }
 
-    ecc_blob->dwMagic = _libssh2_wincng_ecdsa_algorithms[q->curve].private_import_magic[keytype];
+    ecc_blob->dwMagic = _wincng_ecdsa_algorithms[q->curve].private_import_magic[keytype];
     ecc_blob->cbKey = q->x_len;
 
     /* Copy x, y, d */
@@ -2117,7 +2119,7 @@ _libssh2_wincng_uncompressed_point_from_publickey(IN LIBSSH2_SESSION *session,
     PUCHAR point_y;
 
     /* Validate parameters */
-    if(curve >= _countof(_libssh2_wincng_ecdsa_algorithms)) {
+    if(curve >= _countof(_wincng_ecdsa_algorithms)) {
         return LIBSSH2_ERROR_INVAL;
     }
 
@@ -2199,7 +2201,7 @@ _libssh_wincng_reverse_bytes(IN PUCHAR buffer,
 {
     PUCHAR start = buffer;
     PUCHAR end = buffer + buffer_len - 1;
-    while (start < end) {
+    while(start < end) {
         unsigned char tmp = *end;
         *end = *start;
         *start = tmp;
@@ -2245,7 +2247,7 @@ _libssh2_wincng_ecdh_create_key(IN LIBSSH2_SESSION *session,
     BCRYPT_KEY_HANDLE key_handle = NULL;
 
     /* Validate parameters */
-    if(curve >= _countof(_libssh2_wincng_ecdsa_algorithms)) {
+    if(curve >= _countof(_wincng_ecdsa_algorithms)) {
         return LIBSSH2_ERROR_INVAL;
     }
 
@@ -2264,7 +2266,7 @@ _libssh2_wincng_ecdh_create_key(IN LIBSSH2_SESSION *session,
     status = BCryptGenerateKeyPair(
         _libssh2_wincng.hAlgECDH[curve],
         &key_handle,
-        _libssh2_wincng_ecdsa_algorithms[curve].key_length,
+        _wincng_ecdsa_algorithms[curve].key_length,
         0);
     if(!BCRYPT_SUCCESS(status)) {
         result = _libssh2_error(
@@ -2335,7 +2337,7 @@ _libssh2_wincng_ecdsa_curve_name_with_octal_new(OUT _libssh2_wincng_ecdsa_key **
     _libssh2_ecdsa_point publickey;
 
     /* Validate parameters */
-    if(curve >= _countof(_libssh2_wincng_ecdsa_algorithms)) {
+    if(curve >= _countof(_wincng_ecdsa_algorithms)) {
         return LIBSSH2_ERROR_INVAL;
     }
 
@@ -2506,8 +2508,8 @@ _libssh2_wincng_ecdsa_curve_type_from_name(IN const char *name,
         return LIBSSH2_ERROR_INVAL;
     }
 
-    for(curve = 0; curve < _countof(_libssh2_wincng_ecdsa_algorithms); curve++) {
-        if(strcmp(name, _libssh2_wincng_ecdsa_algorithms[curve].name) == 0) {
+    for(curve = 0; curve < _countof(_wincng_ecdsa_algorithms); curve++) {
+        if(strcmp(name, _wincng_ecdsa_algorithms[curve].name) == 0) {
             *out_curve = curve;
             return LIBSSH2_ERROR_NONE;
         }
@@ -2635,7 +2637,7 @@ _libssh2_wincng_ecdsa_new_private(OUT _libssh2_wincng_ecdsa_key **key,
 {
     int result;
 
-    FILE* file_handle = NULL;
+    FILE *file_handle = NULL;
     unsigned char *data = NULL;
     size_t datalen = 0;
 
@@ -2644,7 +2646,7 @@ _libssh2_wincng_ecdsa_new_private(OUT _libssh2_wincng_ecdsa_key **key,
         return LIBSSH2_ERROR_INVAL;
     }
 
-    if(passphrase != NULL && strlen((const char*)passphrase) > 0) {
+    if(passphrase && strlen((const char *)passphrase) > 0) {
         return _libssh2_error(
             session,
             LIBSSH2_ERROR_INVAL,
@@ -2674,7 +2676,7 @@ _libssh2_wincng_ecdsa_new_private(OUT _libssh2_wincng_ecdsa_key **key,
     result = _libssh2_wincng_ecdsa_new_private_frommemory(
         key,
         session,
-        (const char*)data,
+        (const char *)data,
         datalen,
         passphrase);
     if(result != LIBSSH2_ERROR_NONE) {
@@ -2740,10 +2742,11 @@ _libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key **key,
         goto cleanup;
     }
 
-    /* What follows is a key as defined in draft-miller-ssh-agent, section-3.2.2 */
+    /* What follows is a key as defined in */
+    /* draft-miller-ssh-agent, section-3.2.2 */
 
     /* Read the key type */
-    result = _libssh2_get_string(&data_buffer, (unsigned char**)&keytype, &keytype_len);
+    result = _libssh2_get_string(&data_buffer, (unsigned char **)&keytype, &keytype_len);
     if(result != LIBSSH2_ERROR_NONE) {
         goto cleanup;
     }
@@ -2837,7 +2840,7 @@ _libssh2_wincng_ecdsa_new_private_frommemory(OUT _libssh2_wincng_ecdsa_key **key
         return LIBSSH2_ERROR_INVAL;
     }
 
-    if(passphrase && strlen((const char*)passphrase) > 0) {
+    if(passphrase && strlen((const char *)passphrase) > 0) {
         return _libssh2_error(
             session,
             LIBSSH2_ERROR_INVAL,
@@ -2850,17 +2853,17 @@ _libssh2_wincng_ecdsa_new_private_frommemory(OUT _libssh2_wincng_ecdsa_key **key
         goto cleanup;
     }
 
-    data_buffer.data = (unsigned char*)data;
-    data_buffer.dataptr = (unsigned char*)data + strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
+    data_buffer.data = (unsigned char *)data;
+    data_buffer.dataptr = (unsigned char *)data + strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
     data_buffer.len = data_len;
 
-    /* Read ciphername, should be 'none' because we don't support passphrases */
+    /* Read ciphername, should be 'none' as we don't support passphrases */
     result = _libssh2_match_string(&data_buffer, "none");
     if(result != LIBSSH2_ERROR_NONE) {
         goto cleanup;
     }
 
-    /* Read kdfname, should be 'none' because we don't support passphrases */
+    /* Read kdfname, should be 'none' as we don't support passphrases */
     result = _libssh2_match_string(&data_buffer, "none");
     if(result != LIBSSH2_ERROR_NONE) {
         goto cleanup;
@@ -2906,8 +2909,7 @@ _libssh2_wincng_ecdsa_new_private_frommemory(OUT _libssh2_wincng_ecdsa_key **key
         privatekey_len);
 
 cleanup:
-    if(result != LIBSSH2_ERROR_NONE)
-    {
+    if(result != LIBSSH2_ERROR_NONE) {
         return _libssh2_error(
             session,
             result,

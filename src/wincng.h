@@ -302,12 +302,12 @@ typedef struct __libssh2_wincng_ecdsa_ctx {
 } _libssh2_wincng_ecdsa_key;
 
 #define libssh2_ecdsa_ctx _libssh2_wincng_ecdsa_key
-#define _libssh2_ec_key _libssh2_wincng_ecdsa_key 
+#define _libssh2_ec_key _libssh2_wincng_ecdsa_key
 
 #define _libssh2_ecdsa_create_key(session, privkey, pubkey_octal, \
                                   pubkey_octal_len, curve) \
     _libssh2_wincng_ecdh_create_key(session, privkey, pubkey_octal, \
-                                      pubkey_octal_len, curve)
+                                    pubkey_octal_len, curve)
 
 #define _libssh2_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve) \
     _libssh2_wincng_ecdsa_curve_name_with_octal_new(ctx, k, k_len, curve)
@@ -324,7 +324,7 @@ typedef struct __libssh2_wincng_ecdsa_ctx {
 #define _libssh2_ecdsa_new_private_frommemory(ctx, session, filedata, \
                                               filedata_len, passphrase) \
     _libssh2_wincng_ecdsa_new_private_frommemory(ctx, session, filedata, \
-                                                  filedata_len, passphrase)
+                                                 filedata_len, passphrase)
 
 #define _libssh2_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len) \
     _libssh2_wincng_ecdsa_sign(session, ctx, hash, hash_len, sign, sign_len)
