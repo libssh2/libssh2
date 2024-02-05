@@ -5141,6 +5141,15 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
             ",ssh-rsa"
 #endif
             ;
+    } else if((key_method_len == 28 &&
+        memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", key_method_len) == 0)
+        || (key_method_len == 33 &&
+        (memcmp(key_method, "rsa-sha2-256-cert-v01@openssh.com", key_method_len) == 0 || memcmp(key_method, "rsa-sha2-512-cert-v01@openssh.com", key_method_len) == 0))) {
+         return "rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com"
+#if LIBSSH2_RSA_SHA1
+            ",ssh-rsa-cert-v01@openssh.com"
+#endif
+            ;
     }
 #endif
 
