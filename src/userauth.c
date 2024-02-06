@@ -1409,7 +1409,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
                 /* found a match, upgrade key method */
-                match = s;
+                match = p;
                 match_len = p_len;
             }
             else {
@@ -1424,15 +1424,25 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         if(*key_method)
             LIBSSH2_FREE(session, *key_method);
 
-        *key_method = LIBSSH2_ALLOC(session, match_len);
-        if(*key_method) {
-            memcpy(*key_method, match, match_len);
-            *key_method_len = match_len;
+        if(memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", key_method_len)) {
+             match_len = match_len + 21;
+             *key_method = LIBSSH2_ALLOC(session, match_len);
+             if (key_method) {
+                  memcpy(*key_method, match, match_len - 21);  // Copy original match
+                  strcat(*key_method, "-cert-v01@openssh.com");  // Concatenate the suffix
+                  *key_method_len = match_len;
+             }
+        } else {
+            *key_method = LIBSSH2_ALLOC(session, match_len);
+            if(key_method) {
+                memcpy(*key_method, match, match_len);
+                *key_method_len = match_len;
+            }
         }
-        else {
+        if (!key_method) {
             *key_method_len = 0;
             rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                "Unable to allocate key method upgrade");
+                                    "Unable to allocate key method upgrade");
         }
     }
     else {
