@@ -1423,7 +1423,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     }
 
     if(match) {
-        if(memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", key_method_len)) {
+        if(memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
             if(*key_method)
                LIBSSH2_FREE(session, *key_method);
             match_len = match_len + 21;
