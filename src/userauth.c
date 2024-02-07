@@ -1451,14 +1451,6 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     }
     else {
         /* no match was found */
-        if(memcmp(key_method, "rsa-sha2-256-cert-v01@openssh.com", key_method_len)
-          || memcmp(key_method, "rsa-sha2-512-cert-v01@openssh.com", key_method_len)
-          || memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", key_method_len)) {
-                /* While most servers support rsa certificates, not all SSH servers are providing an enumerated list of
-                supported RSA certificate-based public key algorithms in the 'server-sig-algs' extension
-                so falling back to default if no match found for RSA cert based algorithms*/
-                return LIBSSH2_ERROR_NONE;
-        }
         rc = _libssh2_error(session, LIBSSH2_ERROR_METHOD_NONE,
                             "No signing signature matched");
     }
