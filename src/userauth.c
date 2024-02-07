@@ -1428,10 +1428,10 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
                LIBSSH2_FREE(session, *key_method);
             match_len = match_len + 21;
             const char *certSuffix = "-cert-v01@openssh.com";
-            *key_method = LIBSSH2_ALLOC(session, match_len + 1);
+            *key_method = LIBSSH2_ALLOC(session, match_len);
             if (key_method) {
-                strcpy(*key_method, match);  // Copy original match
-                strcat(*key_method, certSuffix);  // Concatenate the suffix
+                strcpy((char *)key_method, match);  // Copy original match
+                strcat((char *)key_method, certSuffix);  // Concatenate the suffix
                 *key_method_len = match_len;
             }
         } else {
