@@ -1425,7 +1425,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
             if(*key_method)
                 LIBSSH2_FREE(session, *key_method);
             const char *certSuffix = "-cert-v01@openssh.com";
-            size_t suffix_len = strlen(certSuffix);
+            size_t suffix_len = 21;
             *key_method = LIBSSH2_ALLOC(session, match_len + suffix_len);
             if(*key_method) {
                 memcpy(*key_method, match, match_len);
