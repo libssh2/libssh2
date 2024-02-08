@@ -1409,9 +1409,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
             if(f_len == p_len && memcmp(a, s, p_len) == 0) {
                 /* found a match, upgrade key method */
-                char *m = (char *)malloc(p_len + 1);  // +1 for the null terminator
-                memcpy(m, s, p_len);
-                match = m;
+                match = s;
                 match_len = p_len;
             }
             else {
@@ -1425,20 +1423,20 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     if(match) {
         if(memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
             if(*key_method)
-               LIBSSH2_FREE(session, *key_method);
-            match_len = match_len + 21;
+                LIBSSH2_FREE(session, *key_method);
             const char *certSuffix = "-cert-v01@openssh.com";
-            *key_method = LIBSSH2_ALLOC(session, match_len);
-            if (key_method) {
-                strcpy((char *)key_method, match);  // Copy original match
-                strcat((char *)key_method, certSuffix);  // Concatenate the suffix
-                *key_method_len = match_len;
+            int suffix_len = strlen(certSuffix);
+            *key_method = LIBSSH2_ALLOC(session, match_len + suffix_len);
+            if(*key_method) {
+                memcpy(*key_method, match, match_len);
+                memcpy(*key_method + match_len, certSuffix, suffix_len);
+                *key_method_len = match_len + suffix_len;
             }
         } else {
             if(*key_method)
                LIBSSH2_FREE(session, *key_method);
             *key_method = LIBSSH2_ALLOC(session, match_len);
-            if (key_method) {
+            if (*key_method) {
                 memcpy(*key_method, match, match_len);
                 *key_method_len = match_len;
             }
@@ -1446,7 +1444,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         if (!key_method) {
             *key_method_len = 0;
             rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                    "Unable to allocate key method upgrade");
+                                "Unable to allocate key method upgrade");
         }
     }
     else {
