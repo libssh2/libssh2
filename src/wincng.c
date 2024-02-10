@@ -1975,7 +1975,7 @@ _libssh2_wincng_publickey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
         result = LIBSSH2_ERROR_PUBLICKEY_PROTOCOL;
         goto cleanup;
     }
-    
+
     result = LIBSSH2_ERROR_NONE;
 
 cleanup:
@@ -2011,7 +2011,8 @@ _libssh2_wincng_privatekey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
     *key = NULL;
 
     /* Initialize a blob to import */
-    ecc_blob_len = sizeof(BCRYPT_ECCPRIVATE_BLOB) + q->x_len + q->y_len + d_len;
+    ecc_blob_len =
+        sizeof(BCRYPT_ECCPRIVATE_BLOB) + q->x_len + q->y_len + d_len;
     ecc_blob = malloc(ecc_blob_len);
     if(!ecc_blob) {
         return LIBSSH2_ERROR_ALLOC;
@@ -2703,7 +2704,9 @@ _libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key **key,
     /* draft-miller-ssh-agent, section-3.2.2 */
 
     /* Read the key type */
-    result = _libssh2_get_string(&data_buffer, (unsigned char **)&keytype, &keytype_len);
+    result = _libssh2_get_string(&data_buffer,
+                                 (unsigned char **)&keytype,
+                                 &keytype_len);
     if(result != LIBSSH2_ERROR_NONE) {
         goto cleanup;
     }
@@ -2767,7 +2770,7 @@ cleanup:
     if(result != LIBSSH2_ERROR_NONE && key_handle) {
         (void)BCryptDestroyKey(key_handle);
     }
-    
+
     return result;
 }
 
