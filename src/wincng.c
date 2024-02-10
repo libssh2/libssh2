@@ -558,8 +558,10 @@ _libssh2_wincng_free(void)
 
 #if LIBSSH2_ECDSA
     for(curve = 0; curve < _countof(_wincng_ecdsa_algorithms); curve++) {
-        (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgECDSA[curve], 0);
-        (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgECDH[curve], 0);
+        (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgECDSA[curve],
+                                           0);
+        (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgECDH[curve],
+                                           0);
     }
 #endif
 
@@ -1815,9 +1817,10 @@ _libssh2_wincng_dsa_free(libssh2_dsa_ctx *dsa)
  * Decode an uncompressed point.
  */
 static int
-_libssh2_wincng_ecdsa_decode_uncompressed_point(IN const unsigned char *encoded_point,
-                                                IN size_t encoded_point_len,
-                                                OUT _libssh2_ecdsa_point *point)
+_libssh2_wincng_ecdsa_decode_uncompressed_point(
+    IN const unsigned char *encoded_point,
+    IN size_t encoded_point_len,
+    OUT _libssh2_ecdsa_point *point)
 {
     unsigned int curve;
 
@@ -1831,7 +1834,9 @@ _libssh2_wincng_ecdsa_decode_uncompressed_point(IN const unsigned char *encoded_
     }
 
     for(curve = 0; curve < _countof(_wincng_ecdsa_algorithms); curve++) {
-        if(_wincng_ecdsa_algorithms[curve].point_length == (encoded_point_len - 1) / 2) {
+        if(_wincng_ecdsa_algorithms[curve].point_length ==
+            (encoded_point_len - 1) / 2) {
+
             point->curve = curve;
 
             point->x = encoded_point + 1;
@@ -1873,7 +1878,8 @@ _libssh2_wincng_p1363signature_from_point(IN const unsigned char *r,
     }
 
     *signature = NULL;
-    *signature_length = (size_t)_wincng_ecdsa_algorithms[curve].point_length * 2;
+    *signature_length = (size_t)
+        _wincng_ecdsa_algorithms[curve].point_length * 2;
 
     /* Trim leading zero, if any */
     r_trimmed = r;
@@ -1941,8 +1947,9 @@ _libssh2_wincng_publickey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
         return LIBSSH2_ERROR_ALLOC;
     }
 
-    ecc_blob->dwMagic = _wincng_ecdsa_algorithms[point->curve].public_import_magic[keytype];
     ecc_blob->cbKey = point->x_len;
+    ecc_blob->dwMagic =
+        _wincng_ecdsa_algorithms[point->curve].public_import_magic[keytype];
 
     /** Copy x, y */
     memcpy(
@@ -2010,8 +2017,9 @@ _libssh2_wincng_privatekey_from_point(IN _libssh2_wincng_ecc_keytype keytype,
         return LIBSSH2_ERROR_ALLOC;
     }
 
-    ecc_blob->dwMagic = _wincng_ecdsa_algorithms[q->curve].private_import_magic[keytype];
     ecc_blob->cbKey = q->x_len;
+    ecc_blob->dwMagic =
+        _wincng_ecdsa_algorithms[q->curve].private_import_magic[keytype];
 
     /* Copy x, y, d */
     memcpy(
@@ -2053,11 +2061,12 @@ cleanup:
  * Get the uncompressed point encoding for a CNG key.
  */
 static int
-_libssh2_wincng_uncompressed_point_from_publickey(IN LIBSSH2_SESSION *session,
-                                                  IN libssh2_curve_type curve,
-                                                  IN BCRYPT_KEY_HANDLE key,
-                                                  OUT PUCHAR *encoded_point,
-                                                  OUT size_t *encoded_point_len)
+_libssh2_wincng_uncompressed_point_from_publickey(
+    IN LIBSSH2_SESSION *session,
+    IN libssh2_curve_type curve,
+    IN BCRYPT_KEY_HANDLE key,
+    OUT PUCHAR *encoded_point,
+    OUT size_t *encoded_point_len)
 {
     int result = LIBSSH2_ERROR_NONE;
     NTSTATUS status;
@@ -2275,10 +2284,11 @@ cleanup:
  */
 
 int
-_libssh2_wincng_ecdsa_curve_name_with_octal_new(OUT _libssh2_wincng_ecdsa_key **key,
-                                                IN const unsigned char *publickey_encoded,
-                                                IN size_t publickey_encoded_len,
-                                                IN libssh2_curve_type curve)
+_libssh2_wincng_ecdsa_curve_name_with_octal_new(
+    OUT _libssh2_wincng_ecdsa_key **key,
+    IN const unsigned char *publickey_encoded,
+    IN size_t publickey_encoded_len,
+    IN libssh2_curve_type curve)
 {
     int result = LIBSSH2_ERROR_NONE;
 
@@ -2313,8 +2323,7 @@ _libssh2_wincng_ecdsa_curve_name_with_octal_new(OUT _libssh2_wincng_ecdsa_key **
     }
 
     *key = malloc(sizeof(_libssh2_wincng_ecdsa_key));
-    if(!*key)
-    {
+    if(!*key) {
         result = LIBSSH2_ERROR_ALLOC;
         goto cleanup;
     }
@@ -2422,8 +2431,8 @@ _libssh2_wincng_ecdh_gen_k(OUT _libssh2_bn **secret,
         goto cleanup;
     }
 
-    /* BCRYPT_KDF_RAW_SECRET returns the little-endian representation of the raw
-     * secret, so we need to swap it to big endian order.
+    /* BCRYPT_KDF_RAW_SECRET returns the little-endian representation of the
+     * raw secret, so we need to swap it to big endian order.
      */
 
     _libssh_wincng_reverse_bytes((*secret)->bignum, secret_len);
@@ -2506,8 +2515,7 @@ _libssh2_wincng_ecdsa_verify(IN _libssh2_wincng_ecdsa_key *key,
     }
 
     /* Create hash over m */
-    switch (_libssh2_wincng_ecdsa_get_curve_type(key))
-    {
+    switch(_libssh2_wincng_ecdsa_get_curve_type(key)) {
     case LIBSSH2_EC_CURVE_NISTP256:
         hash_len = 256/8;
         hash_alg = _libssh2_wincng.hAlgHashSHA256;
@@ -2613,7 +2621,7 @@ _libssh2_wincng_ecdsa_new_private(OUT _libssh2_wincng_ecdsa_key **key,
 
     result = _libssh2_pem_parse(session,
         PEM_ECDSA_HEADER,
-        PEM_ECDSA_FOOTER, 
+        PEM_ECDSA_FOOTER,
         passphrase,
         file_handle,
         &data,
@@ -2771,11 +2779,12 @@ cleanup:
  * in the OpenSSL source tree.
  */
 int
-_libssh2_wincng_ecdsa_new_private_frommemory(OUT _libssh2_wincng_ecdsa_key **key,
-                                             IN LIBSSH2_SESSION *session,
-                                             IN const char *data,
-                                             IN size_t data_len,
-                                             IN const unsigned char *passphrase)
+_libssh2_wincng_ecdsa_new_private_frommemory(
+    OUT _libssh2_wincng_ecdsa_key **key,
+    IN LIBSSH2_SESSION *session,
+    IN const char *data,
+    IN size_t data_len,
+    IN const unsigned char *passphrase)
 {
     int result;
 
@@ -2802,9 +2811,10 @@ _libssh2_wincng_ecdsa_new_private_frommemory(OUT _libssh2_wincng_ecdsa_key **key
         goto cleanup;
     }
 
-    data_buffer.data = (unsigned char *)data;
-    data_buffer.dataptr = (unsigned char *)data + strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
     data_buffer.len = data_len;
+    data_buffer.data = (unsigned char *)data;
+    data_buffer.dataptr =
+        (unsigned char *)data + strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
 
     /* Read ciphername, should be 'none' as we don't support passphrases */
     result = _libssh2_match_string(&data_buffer, "none");
