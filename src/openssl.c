@@ -1665,10 +1665,10 @@ gen_publickey_from_dsa(LIBSSH2_SESSION* session, libssh2_dsa_ctx *dsa,
     unsigned char *p;
 
 #ifdef USE_OPENSSL_3
-    BIGNUM * p_bn;
-    BIGNUM * q;
-    BIGNUM * g;
-    BIGNUM * pub_key;
+    BIGNUM * p_bn = NULL;
+    BIGNUM * q = NULL;
+    BIGNUM * g = NULL;
+    BIGNUM * pub_key = NULL;
 
     EVP_PKEY_get_bn_param(dsa, OSSL_PKEY_PARAM_FFC_P, &p_bn);
     EVP_PKEY_get_bn_param(dsa, OSSL_PKEY_PARAM_FFC_G, &q);
