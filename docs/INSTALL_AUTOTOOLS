@@ -286,7 +286,7 @@ Some ./configure options deserve additional comments:
 
  * --with-mbedtls
  * --without-mbedtls
- * --with-libmbedtls-prefix=[DIR]
+ * --with-libmbedcrypto-prefix=[DIR]
 
         libssh2 can use the mbedTLS library
         (https://tls.mbed.org) for cryptographic operations.
@@ -296,7 +296,7 @@ Some ./configure options deserve additional comments:
         default location.
 
         If your installation of mbedTLS is in another
-        location, specify it using --with-libmbedtls-prefix.
+        location, specify it using --with-libmbedcrypto-prefix.
 
  * --with-libz
  * --without-libz
