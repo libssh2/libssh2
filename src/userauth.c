@@ -1308,6 +1308,36 @@ size_t plain_method(char *method, size_t method_len)
     return method_len;
 }
 
+/* Function to check if the given version is less than pattern (OpenSSH 7.8)
+ * Returns 1 if the version is less than OpenSSH_7.8, 0 otherwise
+ */
+static int version_is_less_than_78(const char *version, const char *pattern) {
+    /* Iterate through the characters of version and pattern. */
+    for (;;) {
+
+		if (*pattern == '*') {
+			/* If version matched with pattern until here, version should be 7.8 so return 0. */
+			return 0;
+		}
+
+        // If the characters are not equal, compare them
+        if (*version != *pattern) {
+            return *version < *pattern;
+        }
+
+        // Move to the next character in both s and pattern
+        version++;
+        pattern++;
+    }
+	/* NOTREACHED */
+}
+
+static int compat_banner(const char *version)
+{
+    const char *pattern = "OpenSSH_7.8*";
+    return (version_is_less_than_78(version, pattern) == 1) ? 1 : 0;
+}
+
 /**
  * @function _libssh2_key_sign_algorithm
  * @abstract Upgrades the algorithm used for public key signing RFC 8332
@@ -1335,7 +1365,12 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     size_t f_len = 0;
     int rc = 0;
     size_t match_len = 0;
+    size_t suffix_len = 0;
     char *filtered_algs = NULL;
+    const char *certSuffix = NULL;
+    const char *remote_banner = NULL;
+    const char *remote_version_prefix = NULL;
+    const char *remote_version_start = NULL;
 
     const char *supported_algs =
     _libssh2_supported_key_sign_algorithms(session,
@@ -1352,6 +1387,21 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate filtered algs");
         return rc;
+    }
+
+    /* Set "SSH_BUG_SIGTYPE" flag when the remote server version is OpenSSH 7.7 or lower and
+      when the RSA key in question is a certificate to ignore "server-sig-algs" and
+      only offer ssh-rsa signature algorithm for RSA certs */
+    remote_banner = libssh2_session_banner_get(session);
+    /* Extract version information from the banner */
+    remote_version_prefix = "OpenSSH_";
+    remote_version_start = strstr(remote_banner, remote_version_prefix);
+
+    if (remote_version_start) {
+        const int SSH_BUG_SIGTYPE = compat_banner(remote_version_start);
+        if (SSH_BUG_SIGTYPE && *key_method_len == 28 && memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
+            return LIBSSH2_ERROR_NONE;
+        }
     }
 
     s = session->server_sign_algorithms;
@@ -1424,8 +1474,8 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         if(*key_method_len == 28 && memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
             if(*key_method)
                 LIBSSH2_FREE(session, *key_method);
-            const char *certSuffix = "-cert-v01@openssh.com";
-            size_t suffix_len = 21;
+            certSuffix = "-cert-v01@openssh.com";
+            suffix_len = 21;
             *key_method = LIBSSH2_ALLOC(session, match_len + suffix_len);
             if(*key_method) {
                 memcpy(*key_method, match, match_len);
