@@ -104,7 +104,7 @@ struct _LIBSSH2_SFTP_ATTRIBUTES {
     libssh2_uint64_t filesize;
     unsigned long uid, gid;
     unsigned long permissions;
-    unsigned long atime, mtime;
+    time_t atime, mtime;
 };
 
 struct _LIBSSH2_SFTP_STATVFS {
