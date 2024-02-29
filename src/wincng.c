@@ -246,6 +246,14 @@
 static int
 _libssh2_wincng_bignum_resize(_libssh2_bn* bn, ULONG length);
 
+int
+_libssh2_wincng_ecdsa_curve_type_from_name(IN const char* name,
+                                           OUT libssh2_curve_type* out_curve);
+
+int
+_libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key** key,
+                                       IN unsigned char* privatekey,
+                                       IN size_t privatekey_len);
 
 /*******************************************************************/
 /*
