@@ -1315,7 +1315,7 @@ static int version_is_less_than_78(const char *version, const char *pattern) {
     /* Iterate through the characters of version and pattern. */
     for (;;) {
 
-	    if (*pattern == '*') {
+        if (*pattern == '*') {
             /* If version matched with pattern until here, version should be 7.8 so return 0. */
             return 0;
         }
