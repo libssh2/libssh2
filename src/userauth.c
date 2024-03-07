@@ -1317,8 +1317,8 @@ static int version_is_less_than_78(const char *version, const char *pattern)
     for(;;) {
 
         if(*pattern == '*') {
-            /* If version matched with pattern until here, version should be 7.8
-             so return 0. */
+            /* If version matched with pattern until here, version should
+               be 7.8 so return 0. */
             return 0;
         }
 
@@ -1490,9 +1490,9 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         }
         else {
             if(*key_method)
-               LIBSSH2_FREE(session, *key_method);
+                LIBSSH2_FREE(session, *key_method);
             *key_method = LIBSSH2_ALLOC(session, match_len);
-            if (*key_method) {
+            if(*key_method) {
                 memcpy(*key_method, match, match_len);
                 *key_method_len = match_len;
             }
