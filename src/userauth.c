@@ -1311,21 +1311,23 @@ size_t plain_method(char *method, size_t method_len)
 /* Function to check if the given version is less than pattern (OpenSSH 7.8)
  * Returns 1 if the version is less than OpenSSH_7.8, 0 otherwise
  */
-static int version_is_less_than_78(const char *version, const char *pattern) {
+static int version_is_less_than_78(const char *version, const char *pattern)
+{
     /* Iterate through the characters of version and pattern. */
-    for (;;) {
+    for(;;) {
 
-        if (*pattern == '*') {
-            /* If version matched with pattern until here, version should be 7.8 so return 0. */
+        if(*pattern == '*') {
+            /* If version matched with pattern until here, version should be 7.8
+             so return 0. */
             return 0;
         }
 
-        // If the characters are not equal, compare them
-        if (*version != *pattern) {
+        /* If the characters are not equal, compare them */
+        if(*version != *pattern) {
             return *version < *pattern;
         }
 
-        // Move to the next character in both s and pattern
+        /* Move to the next character in both s and pattern */
         version++;
         pattern++;
     }
@@ -1389,17 +1391,19 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         return rc;
     }
 
-    /* Set "SSH_BUG_SIGTYPE" flag when the remote server version is OpenSSH 7.7 or lower and
-      when the RSA key in question is a certificate to ignore "server-sig-algs" and
-      only offer ssh-rsa signature algorithm for RSA certs */
+    /* Set "SSH_BUG_SIGTYPE" flag when the remote server version is OpenSSH 7.7
+       or lower and when the RSA key in question is a certificate to ignore
+       "server-sig-algs" and only offer ssh-rsa signature algorithm for
+       RSA certs */
     remote_banner = libssh2_session_banner_get(session);
     /* Extract version information from the banner */
     remote_version_prefix = "OpenSSH_";
     remote_version_start = strstr(remote_banner, remote_version_prefix);
 
-    if (remote_version_start) {
+    if(remote_version_start) {
         const int SSH_BUG_SIGTYPE = compat_banner(remote_version_start);
-        if (SSH_BUG_SIGTYPE && *key_method_len == 28 && memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
+        if(SSH_BUG_SIGTYPE && *key_method_len == 28 &&
+        memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
             return LIBSSH2_ERROR_NONE;
         }
     }
@@ -1471,7 +1475,8 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     }
 
     if(match) {
-        if(*key_method_len == 28 && memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
+        if(*key_method_len == 28 &&
+        memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
             if(*key_method)
                 LIBSSH2_FREE(session, *key_method);
             certSuffix = "-cert-v01@openssh.com";
@@ -1482,7 +1487,8 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
                 memcpy(*key_method + match_len, certSuffix, suffix_len);
                 *key_method_len = match_len + suffix_len;
             }
-        } else {
+        }
+        else {
             if(*key_method)
                LIBSSH2_FREE(session, *key_method);
             *key_method = LIBSSH2_ALLOC(session, match_len);
@@ -1491,7 +1497,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
                 *key_method_len = match_len;
             }
         }
-        if (!key_method) {
+        if(!key_method) {
             *key_method_len = 0;
             rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate key method upgrade");
