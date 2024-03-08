@@ -1311,33 +1311,16 @@ size_t plain_method(char *method, size_t method_len)
 /* Function to check if the given version is less than pattern (OpenSSH 7.8)
  * Returns 1 if the version is less than OpenSSH_7.8, 0 otherwise
  */
-static int version_is_less_than_78(const char *version, const char *pattern)
+static int is_version_less_than_78(const char *version)
 {
-    /* Iterate through the characters of version and pattern. */
-    for(;;) {
-
-        if(*pattern == '*') {
-            /* If version matched with pattern until here, version should
-               be 7.8 so return 0. */
-            return 0;
+    int major, minor;
+    if(sscanf(version, "OpenSSH_%d.%d", &major, &minor) == 2) {
+        if((major >= 1 && major <= 6)
+        || (major == 7 && minor >= 0 && minor <= 7)) {
+            return 1; /* Version is in the specified range */
         }
-
-        /* If the characters are not equal, compare them */
-        if(*version != *pattern) {
-            return *version < *pattern;
-        }
-
-        /* Move to the next character in both s and pattern */
-        version++;
-        pattern++;
     }
-    /* NOTREACHED */
-}
-
-static int compat_banner(const char *version)
-{
-    const char *pattern = "OpenSSH_7.8*";
-    return (version_is_less_than_78(version, pattern) == 1) ? 1 : 0;
+    return 0;
 }
 
 /**
@@ -1401,7 +1384,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     remote_version_start = strstr(remote_banner, remote_version_prefix);
 
     if(remote_version_start) {
-        const int SSH_BUG_SIGTYPE = compat_banner(remote_version_start);
+        const int SSH_BUG_SIGTYPE = is_version_less_than_78(remote_version_start);
         if(SSH_BUG_SIGTYPE && *key_method_len == 28 &&
         memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
             return LIBSSH2_ERROR_NONE;
