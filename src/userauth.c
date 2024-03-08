@@ -1380,15 +1380,16 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
        RSA certs */
     remote_banner = libssh2_session_banner_get(session);
     /* Extract version information from the banner */
-    remote_version_prefix = "OpenSSH_";
-    remote_version_start = strstr(remote_banner, remote_version_prefix);
-
-    if(remote_version_start) {
-        SSH_BUG_SIGTYPE = is_version_less_than_78(remote_version_start);
-        if(SSH_BUG_SIGTYPE && *key_method_len == 28 &&
-           memcmp(key_method, "ssh-rsa-cert-v01@openssh.com",
-                  *key_method_len)) {
-            return LIBSSH2_ERROR_NONE;
+    if(remote_banner){
+        remote_version_prefix = "OpenSSH_";
+        remote_version_start = strstr(remote_banner, remote_version_prefix);
+        if(remote_version_start) {
+            SSH_BUG_SIGTYPE = is_version_less_than_78(remote_version_start+strlen(remote_version_prefix));
+            if(SSH_BUG_SIGTYPE && *key_method_len == 28 &&
+               memcmp(key_method, "ssh-rsa-cert-v01@openssh.com",
+                      *key_method_len)) {
+                return LIBSSH2_ERROR_NONE;
+            }
         }
     }
 
