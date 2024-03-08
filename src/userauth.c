@@ -1315,8 +1315,8 @@ static int is_version_less_than_78(const char *version)
 {
     int major, minor;
     if(sscanf(version, "OpenSSH_%d.%d", &major, &minor) == 2) {
-        if((major >= 1 && major <= 6)
-        || (major == 7 && minor >= 0 && minor <= 7)) {
+        if((major >= 1 && major <= 6) ||
+           (major == 7 && minor >= 0 && minor <= 7)) {
             return 1; /* Version is in the specified range */
         }
     }
