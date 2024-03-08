@@ -1356,6 +1356,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     const char *remote_banner = NULL;
     const char *remote_version_prefix = NULL;
     const char *remote_version_start = NULL;
+    const int SSH_BUG_SIGTYPE = 0;
 
     const char *supported_algs =
     _libssh2_supported_key_sign_algorithms(session,
@@ -1384,7 +1385,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     remote_version_start = strstr(remote_banner, remote_version_prefix);
 
     if(remote_version_start) {
-        const int SSH_BUG_SIGTYPE = is_version_less_than_78(remote_version_start);
+        SSH_BUG_SIGTYPE = is_version_less_than_78(remote_version_start);
         if(SSH_BUG_SIGTYPE && *key_method_len == 28 &&
         memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
             return LIBSSH2_ERROR_NONE;
