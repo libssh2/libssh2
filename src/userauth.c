@@ -1356,7 +1356,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     const char *remote_banner = NULL;
     const char *remote_version_prefix = NULL;
     const char *remote_version_start = NULL;
-    const int SSH_BUG_SIGTYPE = 0;
+    int SSH_BUG_SIGTYPE = 0;
 
     const char *supported_algs =
     _libssh2_supported_key_sign_algorithms(session,
