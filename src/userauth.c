@@ -1313,12 +1313,11 @@ size_t plain_method(char *method, size_t method_len)
  */
 static int is_version_less_than_78(const char *version)
 {
-    int major, minor;
-    if(sscanf(version, "OpenSSH_%d.%d", &major, &minor) == 2) {
-        if((major >= 1 && major <= 6) ||
-           (major == 7 && minor >= 0 && minor <= 7)) {
-            return 1; /* Version is in the specified range */
-        }
+    int major = version[0] - '0';
+    int minor = version[2] - '0';
+    if((major >= 1 && major <= 6) ||
+       (major == 7 && minor >= 0 && minor <= 7)) {
+        return 1; /* Version is in the specified range */
     }
     return 0;
 }
@@ -1461,8 +1460,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
     if(match) {
         if(*key_method_len == 28 &&
-           memcmp(key_method, "ssh-rsa-cert-v01@openssh.com",
-                  *key_method_len)) {
+        memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
             if(*key_method)
                 LIBSSH2_FREE(session, *key_method);
             certSuffix = "-cert-v01@openssh.com";
