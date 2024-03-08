@@ -1,6 +1,16 @@
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
 
+set(CRYPTO_BACKEND_LIST OpenSSL wolfSSL Libgcrypt mbedTLS)
+
+if("@CRYPTO_BACKEND@" IN_LIST CRYPTO_BACKEND_LIST)
+    find_package(@CRYPTO_BACKEND@)
+endif()
+
+if(@ZLIB_FOUND@)
+    find_package(ZLIB)
+endif()
+
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake")
 
 # Alias for either shared or static library
