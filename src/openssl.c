@@ -5137,7 +5137,8 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     if((key_method_len == 7 &&
         memcmp(key_method, "ssh-rsa", key_method_len) == 0) ||
        (key_method_len == 28 &&
-       memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", key_method_len) == 0)
+        memcmp(key_method, "ssh-rsa-cert-v01@openssh.com",
+               key_method_len) == 0)
        ) {
         return "rsa-sha2-512,rsa-sha2-256"
 #if LIBSSH2_RSA_SHA1
