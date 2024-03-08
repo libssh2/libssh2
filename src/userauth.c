@@ -1387,7 +1387,8 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     if(remote_version_start) {
         SSH_BUG_SIGTYPE = is_version_less_than_78(remote_version_start);
         if(SSH_BUG_SIGTYPE && *key_method_len == 28 &&
-        memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
+           memcmp(key_method, "ssh-rsa-cert-v01@openssh.com",
+                  *key_method_len)) {
             return LIBSSH2_ERROR_NONE;
         }
     }
