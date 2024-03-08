@@ -2,21 +2,22 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 include(CMakeFindDependencyMacro)
+list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 if("@CRYPTO_BACKEND@" STREQUAL "OpenSSL")
   find_dependency(OpenSSL)
 endif()
 
 if("@CRYPTO_BACKEND@" STREQUAL "wolfSSL")
-  find_dependency(wolfssl)
+  find_package(wolfssl)
 endif()
 
 if("@CRYPTO_BACKEND@" STREQUAL "Libgcrypt")
-  find_dependency(Libgcrypt)
+  find_package(Libgcrypt)
 endif()
 
 if("@CRYPTO_BACKEND@" STREQUAL "mbedTLS")
-  find_dependency(mbedTLS)
+  find_package(mbedTLS)
 endif()
 
 if(@ZLIB_FOUND@)
