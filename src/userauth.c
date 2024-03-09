@@ -1313,8 +1313,14 @@ size_t plain_method(char *method, size_t method_len)
  */
 static int is_version_less_than_78(const char *version)
 {
-    int major = version[0] - '0';
-    int minor = version[2] - '0';
+    char *endptr;
+    long major = 0;
+    int minor = 0;
+
+    major = strtol(version, &endptr, 10);
+    if (*endptr != '.')
+        return 0; // Not a valid number
+    minor = (endptr+1)[0] - '0';
     if((major >= 1 && major <= 6) ||
        (major == 7 && minor >= 0 && minor <= 7)) {
         return 1; /* Version is in the specified range */
@@ -1353,8 +1359,9 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     char *filtered_algs = NULL;
     const char *certSuffix = NULL;
     const char *remote_banner = NULL;
-    const char *remote_version_prefix = NULL;
-    const char *remote_version_start = NULL;
+    const char *remote_ver_pre = NULL;
+    const char *remote_ver_start = NULL;
+    const char *remote_ver = NULL;
     int SSH_BUG_SIGTYPE = 0;
 
     const char *supported_algs =
@@ -1380,11 +1387,12 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
        RSA certs */
     remote_banner = libssh2_session_banner_get(session);
     /* Extract version information from the banner */
-    if(remote_banner){
-        remote_version_prefix = "OpenSSH_";
-        remote_version_start = strstr(remote_banner, remote_version_prefix);
-        if(remote_version_start) {
-            SSH_BUG_SIGTYPE = is_version_less_than_78(remote_version_start+strlen(remote_version_prefix));
+    if(remote_banner) {
+        remote_ver_pre = "OpenSSH_";
+        remote_ver_start = strstr(remote_banner, remote_ver_pre);
+        if(remote_ver_start) {
+            remote_ver = remote_ver_start + strlen(remote_ver_pre);
+            SSH_BUG_SIGTYPE = is_version_less_than_78(remote_ver);
             if(SSH_BUG_SIGTYPE && *key_method_len == 28 &&
                memcmp(key_method, "ssh-rsa-cert-v01@openssh.com",
                       *key_method_len)) {
