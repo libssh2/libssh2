@@ -1318,9 +1318,9 @@ static int is_version_less_than_78(const char *version)
     int minor = 0;
 
     major = strtol(version, &endptr, 10);
-    if (*endptr != '.')
-        return 0; // Not a valid number
-    minor = (endptr+1)[0] - '0';
+    if(*endptr != '.')
+        return 0; /* Not a valid number */
+    minor = (endptr + 1)[0] - '0';
     if((major >= 1 && major <= 6) ||
        (major == 7 && minor >= 0 && minor <= 7)) {
         return 1; /* Version is in the specified range */
