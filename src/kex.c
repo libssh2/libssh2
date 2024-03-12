@@ -4040,7 +4040,8 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
         tmpprefs = LIBSSH2_ALLOC(session, kex_extensions_len + prefs_len + 1);
         if(!tmpprefs) {
             return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                  "Error allocated space for kex method preferences");
+                                  "Error allocated space for kex method"
+                                  " preferences");
         }
         memcpy(tmpprefs, kex_extensions, kex_extensions_len);
         memcpy(tmpprefs + kex_extensions_len, prefs, prefs_len + 1);
@@ -4105,7 +4106,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
 
     s = newprefs = LIBSSH2_ALLOC(session, prefs_len + 1);
     if(!newprefs) {
-        if (tmpprefs) {
+        if(tmpprefs) {
             LIBSSH2_FREE(session, tmpprefs);
         }
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
@@ -4136,7 +4137,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
         }
     }
 
-    if (tmpprefs) {
+    if(tmpprefs) {
         LIBSSH2_FREE(session, tmpprefs);
     }
 
