@@ -1323,7 +1323,7 @@ static int is_version_less_than_78(const char *version)
         return 0;
 
     major = strtol(version, &endptr, 10);
-    if(endptr == NULL || *endptr != '.')
+    if(!endptr || *endptr != '.')
         return 0; /* Not a valid number */
     minor = (endptr + 1)[0] - '0';
     if((major >= 1 && major <= 6) ||
