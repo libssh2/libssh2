@@ -1309,16 +1309,21 @@ size_t plain_method(char *method, size_t method_len)
 }
 
 /* Function to check if the given version is less than pattern (OpenSSH 7.8)
+ * This function expects the input version in x.y* format
+ * (x being openssh major and y being openssh minor version)
  * Returns 1 if the version is less than OpenSSH_7.8, 0 otherwise
  */
 static int is_version_less_than_78(const char *version)
 {
-    char *endptr;
+    char *endptr = NULL;
     long major = 0;
     int minor = 0;
 
+    if(!version)
+        return 0;
+
     major = strtol(version, &endptr, 10);
-    if(*endptr != '.')
+    if(endptr == NULL || *endptr != '.')
         return 0; /* Not a valid number */
     minor = (endptr + 1)[0] - '0';
     if((major >= 1 && major <= 6) ||
@@ -1355,11 +1360,11 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     size_t f_len = 0;
     int rc = 0;
     size_t match_len = 0;
-    size_t suffix_len = 0;
+    const size_t suffix_len = 0;
     char *filtered_algs = NULL;
-    const char *certSuffix = NULL;
+    const char * const certSuffix = "-cert-v01@openssh.com";
     const char *remote_banner = NULL;
-    const char *remote_ver_pre = NULL;
+    const char * const remote_ver_pre = "OpenSSH_";
     const char *remote_ver_start = NULL;
     const char *remote_ver = NULL;
     int SSH_BUG_SIGTYPE = 0;
@@ -1388,7 +1393,6 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     remote_banner = libssh2_session_banner_get(session);
     /* Extract version information from the banner */
     if(remote_banner) {
-        remote_ver_pre = "OpenSSH_";
         remote_ver_start = strstr(remote_banner, remote_ver_pre);
         if(remote_ver_start) {
             remote_ver = remote_ver_start + strlen(remote_ver_pre);
@@ -1472,8 +1476,6 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
             if(*key_method)
                 LIBSSH2_FREE(session, *key_method);
-            certSuffix = "-cert-v01@openssh.com";
-            suffix_len = 21;
             *key_method = LIBSSH2_ALLOC(session, match_len + suffix_len);
             if(*key_method) {
                 memcpy(*key_method, match, match_len);
