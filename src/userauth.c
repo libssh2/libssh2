@@ -53,6 +53,8 @@
 #include "userauth.h"
 #include "userauth_kbd_packet.h"
 
+#include <stdlib.h>  /* strtol() */
+
 /* userauth_list
  *
  * List authentication methods
