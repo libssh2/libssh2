@@ -1362,7 +1362,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     size_t f_len = 0;
     int rc = 0;
     size_t match_len = 0;
-    const size_t suffix_len = 0;
+    const size_t suffix_len = 21;
     char *filtered_algs = NULL;
     const char * const certSuffix = "-cert-v01@openssh.com";
     const char *remote_banner = NULL;
