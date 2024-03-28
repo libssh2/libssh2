@@ -185,10 +185,14 @@ install(EXPORT "${PROJECT_NAME}-targets"
 export(TARGETS ${libssh2_export} NAMESPACE "${PROJECT_NAME}::" FILE "${PROJECT_NAME}-targets.cmake")
 export(PACKAGE ${PROJECT_NAME})  # register it
 
-# Generate libssh2-config.cmake into build tree and install it
+# Generate libssh2-config.cmake into build tree and install it with dependencies
 configure_file("${PROJECT_SOURCE_DIR}/cmake/libssh2-config.cmake.in" "${PROJECT_NAME}-config.cmake" @ONLY)
 install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
+    "${PROJECT_SOURCE_DIR}/cmake/FindLibgcrypt.cmake"
+    "${PROJECT_SOURCE_DIR}/cmake/FindmbedTLS.cmake"
+    "${PROJECT_SOURCE_DIR}/cmake/Findwolfssl.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
 ## Export a .pc file for client projects not using CMaek
