@@ -18,12 +18,15 @@ RUN mkdir /var/run/sshd
 # Host keys
 COPY ssh_host_rsa_key /tmp/etc/ssh/ssh_host_rsa_key
 RUN install -m 0600 /tmp/etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
+RUN ssh-keygen -f /etc/ssh/ssh_host_rsa_key -y > /etc/ssh/ssh_host_rsa_key.pub
 
 COPY ssh_host_ecdsa_key /tmp/etc/ssh/ssh_host_ecdsa_key
 RUN install -m 0600 /tmp/etc/ssh/ssh_host_ecdsa_key /etc/ssh/ssh_host_ecdsa_key
+RUN ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key -y > /etc/ssh/ssh_host_ecdsa_key.pub
 
 COPY ssh_host_ed25519_key /tmp/etc/ssh/ssh_host_ed25519_key
 RUN install -m 0600 /tmp/etc/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key
+RUN ssh-keygen -f /etc/ssh/ssh_host_ed25519_key -y > /etc/ssh/ssh_host_ed25519_key.pub
 
 # Trusted CA keys
 COPY ca_ecdsa /tmp/etc/ssh/ca_ecdsa
