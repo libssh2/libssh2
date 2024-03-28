@@ -28,6 +28,9 @@
 #endif
 
 #include <stdio.h>
+#ifdef _AIX
+#include <sys/time.h>
+#endif
 #include <time.h>  /* for time() */
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
