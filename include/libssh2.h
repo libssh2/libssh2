@@ -292,7 +292,7 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_PROMPT
 typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
 {
     char *text;
-    unsigned int length;
+    unsigned int length;  /* FIXME: change type to size_t */
 } LIBSSH2_USERAUTH_KBDINT_RESPONSE;
 
 typedef struct _LIBSSH2_SK_SIG_INFO {

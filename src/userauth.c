@@ -2188,7 +2188,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                 if(session->userauth_kybd_responses[i].length <=
                    (SIZE_MAX - 4 - session->userauth_kybd_packet_len)) {
                     session->userauth_kybd_packet_len +=
-                        4 + session->userauth_kybd_responses[i].length;
+                        4 + (size_t)session->userauth_kybd_responses[i].length;
                 }
                 else {
                     _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
