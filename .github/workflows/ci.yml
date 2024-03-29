@@ -541,29 +541,6 @@ jobs:
 
   build_freebsd:
     name: 'FreeBSD (autotools, openssl, clang, amd64)'
-    runs-on: macos-12
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-      - name: 'autotools'
-        uses: cross-platform-actions/action@v0.21.1
-        with:
-          operating_system: "freebsd"
-          version: "13.2"
-          architecture: "x86_64"
-          run: |
-            # https://ports.freebsd.org/
-            sudo pkg install -y autoconf automake libtool
-            setenv CC clang
-            autoreconf -fi
-            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-              --with-crypto=openssl \
-              --disable-docker-tests
-            make -j3
-            make check VERBOSE=1
-
-  build_freebsd_new:
-    name: 'FreeBSD 14 (autotools, openssl, clang, amd64)'
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     steps:
