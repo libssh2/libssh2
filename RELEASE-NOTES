@@ -64,6 +64,7 @@ This release includes the following enhancements and bugfixes:
 - checksrc: fix spelling in comment (a95d401f)
 - checksrc: modernise perl file open (3d309f9b)
 - checksrc: switch to dot file (d67a91aa #1052)
+- ci: do not parallelize `distcheck` job (5e65dd87 #1339)
 - ci: add FreeBSD 14 job, fix issues (46333adf #1277)
 - ci: add OmniOS job, fix issues (5e0ec991)
 - ci: show compiler in cross/cygwin job names (c9124088)
@@ -95,6 +96,7 @@ This release includes the following enhancements and bugfixes:
 - ci/GHA: review/fixup auto-cancel settings (b08cfbc9 #1292)
 - ci/GHA: restore curly braces in `if` (36748270 #1145)
 - ci/GHA: simplify `if` strings (cab3db58 #1140)
+- cmake: use the imported target of FindOpenSSL module (82b09f9b #1322)
 - cmake: rename picky warnings script (64d6789f #1225)
 - cmake: fix multiple include of libssh2 package (932d6a32 #1216)
 - cmake: show crypto backend in feature summary (20387285 #1211)
@@ -126,19 +128,25 @@ This release includes the following enhancements and bugfixes:
 - cmake: re-add `Libssh2:libssh2` for compatibility + lowercase namespace (2da13c13 #1104 #1103)
 - configure.ac: remove AB_INIT (f4f52ccc)
 - copyright: remove years from copyright headers (187d89bb #1082)
+- Dockerfile: switch to Debian stable (from testing) (97aa8388 #1338 #1329 #1328)
+- docs: update `INSTALL_AUTOTOOLS` (2f0efde3 #1316)
 - docs: replace SHA1 with SHA256 in CMake example (766bde9f)
 - drop `www.` from `www.libssh2.org` (6e3e8839 #1172)
+- example: restore `sys/time.h` for AIX (24503cb9 #1340 #1335 #1334 #1001 regr: e53aae0e)
 - example: use `libssh2_socket_t` in X11 example (3f60ccb7)
 - example: replace remaining libssh2_scp_recv with libssh2_scp_recv2 in output messages (8d69e63d #1258 follow: 6c84a426)
 - example: fix regression in `ssh2_exec.c` (279a2e57 #1106 #1105 regr: b13936bd)
 - example, tests: call `WSACleanup()` for each `WSAStartup()` (94b6bad3 #1283)
 - example, tests: fix/silence `-Wformat-truncation=2` gcc warnings (744e059f)
+- gen_publickey_from_dsa: Initialize BIGNUMs to NULL for OpenSSL 3 (f1133c75 #1320)
 - hostkey: do not advertise ssh-rsa when SHA1 is disabled (82d1b8ff #1093 #1092)
+- kex: always add extension indicators to kex_algorithms (00e2a07e #1327 #1326)
 - libssh2.h: add deprecated function warnings (9839ebe5 #1289 #1260)
 - libssh2.h: add portable `LIBSSH2_SOCKET_CLOSE()` macro (28dbf016 #1278)
 - libssh2.h: use `_WIN32` for Windows detection instead of rolling our own (631e7734 #1238)
 - libssh2.pc: re-add & extend support for static-only libssh2 builds (624abe27 #1119 #1114)
 - libssh2.pc: don't put `@LIBS@` in pc file (1209c16d)
+- mac: add empty hash functions for `mac_method_hmac_aesgcm` to not crash when e.g. setting `LIBSSH2_METHOD_CRYPT_CS` (b2738391 #1321)
 - mac: handle low-level errors (f64885b6 #1297)
 - Makefile.am: fix `cp` to preserve attributes and timestamp (f64e6318)
 - Makefile.mk: delete Windows-focused raw GNU Make build (43485579 #1204)
@@ -199,7 +207,9 @@ This release includes the following enhancements and bugfixes:
 - tidy-up: delete duplicate word from comment (76307435)
 - tidy-up: avoid exclamations, prefer single quotes, in outputs (003fb454 #1079)
 - TODO: disable or drop weak algos (0b4bdc85 #1261)
+- transport: check ETM on remote end when receiving (bde10825 #1332 #1331)
 - transport: fix incorrect byte offset in debug message (2388a3aa #1096)
+- userauth: avoid oob with huge interactive kbd response (f3a85cad #1337)
 - userauth: add a new structure to separate memory read and file read (63b4c20e)
 - userauth: check whether `*key_method` is a NULL pointer instead of `key_method` (bec57c40)
 - wincng: prefer `ULONG`/`DWORD` over `unsigned long` (186c1d63 #1165)
@@ -210,10 +220,11 @@ This release includes the following enhancements and bugfixes:
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
-  Viktor Szakats, Michael Buckley, Ren Mingshuai, Daniel Stenberg,
-  Patrick Monnerat, Aaron Stone, Brian Inglis, concussious on GitHub,
-  Dan Fandrich, Haowei Hsu, Harmen Stoppels, Harry Mallon, Jack L, Jakob Egger,
-  João M. S. Silva, Joel Depooter, Juliusz Sosinowicz, Kai Pastor,
-  Kenneth Davidson, mike-jumper, monnerat, naddy, Nicolas Mora, Nursan Valeyev,
-  Paul Howarth, PewPewPew, Radek Brich, rahmanih on GitHub, Ryan Kelley,
-  Steve McIntyre, Will Cosgrove, Xi Ruoyao
+  Viktor Szakats, Michael Buckley, Ren Mingshuai, Daniel Stenberg, Josef Cejka,
+  Patrick Monnerat, Aaron Stone, András Fekete, Andrei Augustin, Brian Inglis,
+  concussious on GitHub, Dan Fandrich, Haowei Hsu, Harmen Stoppels,
+  Harry Mallon, Jack L, Jakob Egger, Jiwoo Park, João M. S. Silva,
+  Joel Depooter, Juliusz Sosinowicz, Kai Pastor, Kenneth Davidson, mike-jumper,
+  monnerat, naddy, Nicolas Mora, Nursan Valeyev, Paul Howarth, PewPewPew,
+  Radek Brich, rahmanih on GitHub, Ryan Kelley, shubhamhii on GitHub,
+  Steve McIntyre, Tobias Stoeckmann, Will Cosgrove, Xi Ruoyao
