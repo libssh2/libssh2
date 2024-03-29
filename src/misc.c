@@ -72,14 +72,7 @@ int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
     if(cp_max_len < 2)
         return 0;
     va_start(args, fmt);
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
     n = vsnprintf(cp, cp_max_len, fmt, args);
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
     va_end(args);
     return (n < (int)cp_max_len) ? n : (int)(cp_max_len - 1);
 }
@@ -575,14 +568,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
         buflen -= len;
         msglen = len;
         va_start(vargs, format);
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
         len = vsnprintf(buffer + msglen, buflen, format, vargs);
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
         va_end(vargs);
         msglen += len < buflen ? len : buflen - 1;
     }
