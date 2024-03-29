@@ -123,7 +123,7 @@ jobs:
       - name: 'install mbedTLS from source'
         if: ${{ matrix.crypto == 'mbedTLS' }}
         run: |
-          MBEDTLSVER=mbedtls-3.5.1
+          MBEDTLSVER=mbedtls-3.6.0
           curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
           cd mbedtls-$MBEDTLSVER
           if [ '${{ matrix.arch }}' = 'i386' ]; then
