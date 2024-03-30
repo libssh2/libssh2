@@ -548,9 +548,9 @@ jobs:
       - name: 'cmake'
         uses: cross-platform-actions/action@v0.21.1
         with:
-          operating_system: "netbsd"
-          version: "9.3"
-          architecture: "x86_64"
+          operating_system: 'netbsd'
+          version: '9.3'
+          architecture: 'x86_64'
           run: |
             # https://pkgsrc.se/
             sudo pkgin -y install cmake
@@ -572,9 +572,9 @@ jobs:
       - name: 'cmake'
         uses: cross-platform-actions/action@v0.21.1
         with:
-          operating_system: "openbsd"
-          version: "7.4"
-          architecture: "x86_64"
+          operating_system: 'openbsd'
+          version: '7.4'
+          architecture: 'x86_64'
           run: |
             # https://openbsd.app/
             sudo pkg_add cmake
