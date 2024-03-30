@@ -589,17 +589,22 @@ jobs:
 
   build_freebsd:
     name: 'FreeBSD (autotools, openssl, clang, amd64)'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      CC: clang
     steps:
       - uses: actions/checkout@v4
       - name: 'autotools'
-        uses: vmactions/freebsd-vm@v1
+        uses: cross-platform-actions/action@v0.23.0
         with:
-          # https://ports.freebsd.org/
-          prepare: pkg install -y autoconf automake libtool bash
+          operating_system: 'freebsd'
+          version: '14.0'
+          architecture: 'x86_64'
+          environment_variables: 'CC'
           run: |
-            setenv CC clang
+            # https://ports.freebsd.org/
+            sudo pkg install -y autoconf automake libtool
             autoreconf -fi
             mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
               --with-crypto=openssl \
