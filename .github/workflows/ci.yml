@@ -588,11 +588,14 @@ jobs:
             cmake --build bld --parallel 3
 
   build_freebsd:
-    name: 'FreeBSD (autotools, openssl, clang, amd64)'
+    name: 'FreeBSD (autotools, openssl, clang)'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       CC: clang
+    strategy:
+      matrix:
+        arch: [x86-64, arm64]
     steps:
       - uses: actions/checkout@v4
       - name: 'autotools'
@@ -600,7 +603,7 @@ jobs:
         with:
           operating_system: 'freebsd'
           version: '14.0'
-          architecture: 'x86_64'
+          architecture: ${{ matrix.arch }}
           environment_variables: 'CC'
           run: |
             # https://ports.freebsd.org/
