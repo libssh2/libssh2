@@ -532,9 +532,6 @@ struct _LIBSSH2_CHANNEL
     /* State variables used in libssh2_channel_free() */
     libssh2_nonblocking_states free_state;
 
-    /* State variables used in libssh2_channel_handle_extended_data2() */
-    libssh2_nonblocking_states extData2_state;
-
     /* State variables used in libssh2_channel_request_auth_agent() */
     libssh2_nonblocking_states req_auth_agent_try_state;
     libssh2_nonblocking_states req_auth_agent_state;
