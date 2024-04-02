@@ -485,6 +485,44 @@ _libssh2_mac_methods(void)
 }
 
 #if LIBSSH2_AES_GCM
+static int
+mac_method_none_init(LIBSSH2_SESSION * session, unsigned char *key,
+                     int *free_key, void **abstract)
+{
+    (void)session;
+    (void)key;
+    (void)free_key;
+    (void)abstract;
+    return 0;
+}
+
+static int
+mac_method_hmac_none_hash(LIBSSH2_SESSION * session,
+                          unsigned char *buf, uint32_t seqno,
+                          const unsigned char *packet,
+                          size_t packet_len,
+                          const unsigned char *addtl,
+                          size_t addtl_len, void **abstract)
+{
+    (void)session;
+    (void)buf;
+    (void)seqno;
+    (void)packet;
+    (void)packet_len;
+    (void)addtl;
+    (void)addtl_len;
+    (void)abstract;
+    return 0;
+}
+
+static int
+mac_method_none_dtor(LIBSSH2_SESSION * session, void **abstract)
+{
+    (void)session;
+    (void)abstract;
+    return 0;
+}
+
 /* Stub for aes256-gcm@openssh.com crypto type, which has an integrated
    HMAC method. This must not be added to mac_methods[] since it cannot be
    negotiated separately. */
@@ -492,9 +530,9 @@ static const LIBSSH2_MAC_METHOD mac_method_hmac_aesgcm = {
     "INTEGRATED-AES-GCM",  /* made up name for display only */
     16,
     16,
-    NULL,
-    NULL,
-    NULL,
+    mac_method_none_init,
+    mac_method_hmac_none_hash,
+    mac_method_none_dtor,
     0
 };
 #endif /* LIBSSH2_AES_GCM */

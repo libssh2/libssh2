@@ -425,7 +425,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                                    make the checks below work fine still */
         }
 
-        etm = encrypted && session->local.mac ? session->local.mac->etm : 0;
+        etm = encrypted && session->remote.mac ? session->remote.mac->etm : 0;
 
         /* read/use a whole big chunk into a temporary area stored in
            the LIBSSH2_SESSION struct. We will decrypt data from that

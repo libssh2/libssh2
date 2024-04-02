@@ -195,7 +195,7 @@ jobs:
       - name: 'autotools distcheck'
         if: ${{ matrix.target == 'distcheck' }}
         timeout-minutes: 10
-        run: make -C bld -j3 distcheck
+        run: make -C bld distcheck
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
@@ -539,61 +539,18 @@ jobs:
         timeout-minutes: 10
         run: cd bld && ctest -VV --output-on-failure
 
-  build_freebsd:
-    name: 'FreeBSD (autotools, openssl, clang, amd64)'
-    runs-on: macos-12
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-      - name: 'autotools'
-        uses: cross-platform-actions/action@v0.21.1
-        with:
-          operating_system: "freebsd"
-          version: "13.2"
-          architecture: "x86_64"
-          run: |
-            # https://ports.freebsd.org/
-            sudo pkg install -y autoconf automake libtool
-            setenv CC clang
-            autoreconf -fi
-            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-              --with-crypto=openssl \
-              --disable-docker-tests
-            make -j3
-            make check VERBOSE=1
-
-  build_freebsd_new:
-    name: 'FreeBSD 14 (autotools, openssl, clang, amd64)'
-    runs-on: ubuntu-22.04
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-      - name: 'autotools'
-        uses: vmactions/freebsd-vm@v1
-        with:
-          # https://ports.freebsd.org/
-          prepare: pkg install -y autoconf automake libtool bash
-          run: |
-            setenv CC clang
-            autoreconf -fi
-            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-              --with-crypto=openssl \
-              --disable-docker-tests
-            make -j3
-            make check VERBOSE=1
-
   build_netbsd:
     name: 'NetBSD (cmake, openssl, clang, amd64)'
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: 'cmake'
-        uses: cross-platform-actions/action@v0.21.1
+        uses: cross-platform-actions/action@v0.23.0
         with:
-          operating_system: "netbsd"
-          version: "9.3"
-          architecture: "x86_64"
+          operating_system: 'netbsd'
+          version: '9.3'
+          architecture: 'x86_64'
           run: |
             # https://pkgsrc.se/
             sudo pkgin -y install cmake
@@ -608,16 +565,16 @@ jobs:
 
   build_openbsd:
     name: 'OpenBSD (cmake, libressl, clang, amd64)'
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: 'cmake'
-        uses: cross-platform-actions/action@v0.21.1
+        uses: cross-platform-actions/action@v0.23.0
         with:
-          operating_system: "openbsd"
-          version: "7.4"
-          architecture: "x86_64"
+          operating_system: 'openbsd'
+          version: '7.4'
+          architecture: 'x86_64'
           run: |
             # https://openbsd.app/
             sudo pkg_add cmake
@@ -629,6 +586,34 @@ jobs:
               -DRUN_DOCKER_TESTS=OFF \
               -DRUN_SSHD_TESTS=OFF
             cmake --build bld --parallel 3
+
+  build_freebsd:
+    name: 'FreeBSD (autotools, openssl, clang)'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CC: clang
+    strategy:
+      matrix:
+        arch: [x86-64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'autotools'
+        uses: cross-platform-actions/action@v0.23.0
+        with:
+          operating_system: 'freebsd'
+          version: '14.0'
+          architecture: ${{ matrix.arch }}
+          environment_variables: 'CC'
+          run: |
+            # https://ports.freebsd.org/
+            sudo pkg install -y autoconf automake libtool
+            autoreconf -fi
+            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+              --with-crypto=openssl \
+              --disable-docker-tests
+            make -j3
+            make check VERBOSE=1
 
   build_omnios:
     name: 'OmniOS (autotools, openssl, gcc, amd64)'
