@@ -319,14 +319,14 @@ typedef struct __libssh2_ecdsa_point {
 
 /* Lookup libssh2_curve_type by name */
 static int
-_libssh2_wincng_ecdsa_curve_type_from_name(IN const char* name,
-    OUT libssh2_curve_type *out_curve);
+_libssh2_wincng_ecdsa_curve_type_from_name(IN const char *name,
+                                           OUT libssh2_curve_type *out_curve);
 
 /* Parse an OpenSSL-formatted ECDSA private key */
 static int
-_libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key** key,
-    IN unsigned char *privatekey,
-    IN size_t privatekey_len);
+_libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key **key,
+                                       IN unsigned char *privatekey,
+                                       IN size_t privatekey_len);
 
 #endif
 
