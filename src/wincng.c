@@ -493,7 +493,7 @@ _libssh2_wincng_init(void)
     }
 
 #if LIBSSH2_ECDSA
-    for(curve = 0; curve < _countof(_wincng_ecdsa_algorithms); curve++) {
+    for(curve = 0; curve < ARRAY_SIZE(_wincng_ecdsa_algorithms); curve++) {
         BCRYPT_ALG_HANDLE alg_handle_ecdsa;
         BCRYPT_ALG_HANDLE alg_handle_ecdh;
 
@@ -565,7 +565,7 @@ _libssh2_wincng_free(void)
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgDH, 0);
 
 #if LIBSSH2_ECDSA
-    for(curve = 0; curve < _countof(_wincng_ecdsa_algorithms); curve++) {
+    for(curve = 0; curve < ARRAY_SIZE(_wincng_ecdsa_algorithms); curve++) {
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgECDSA[curve],
                                            0);
         (void)BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgECDH[curve],
@@ -1892,7 +1892,7 @@ _libssh2_wincng_ecdsa_decode_uncompressed_point(
         return LIBSSH2_ERROR_INVAL;
     }
 
-    for(curve = 0; curve < _countof(_wincng_ecdsa_algorithms); curve++) {
+    for(curve = 0; curve < ARRAY_SIZE(_wincng_ecdsa_algorithms); curve++) {
         if(_wincng_ecdsa_algorithms[curve].point_length ==
             (encoded_point_len - 1) / 2) {
 
@@ -1932,7 +1932,7 @@ _libssh2_wincng_p1363signature_from_point(IN const unsigned char *r,
     size_t s_trimmed_len;
 
     /* Validate parameters */
-    if(curve >= _countof(_wincng_ecdsa_algorithms)) {
+    if(curve >= ARRAY_SIZE(_wincng_ecdsa_algorithms)) {
         return LIBSSH2_ERROR_INVAL;
     }
 
@@ -2137,7 +2137,7 @@ _libssh2_wincng_uncompressed_point_from_publickey(
     PUCHAR point_y;
 
     /* Validate parameters */
-    if(curve >= _countof(_wincng_ecdsa_algorithms)) {
+    if(curve >= ARRAY_SIZE(_wincng_ecdsa_algorithms)) {
         return LIBSSH2_ERROR_INVAL;
     }
 
@@ -2265,7 +2265,7 @@ _libssh2_wincng_ecdh_create_key(IN LIBSSH2_SESSION *session,
     BCRYPT_KEY_HANDLE key_handle = NULL;
 
     /* Validate parameters */
-    if(curve >= _countof(_wincng_ecdsa_algorithms)) {
+    if(curve >= ARRAY_SIZE(_wincng_ecdsa_algorithms)) {
         return LIBSSH2_ERROR_INVAL;
     }
 
@@ -2356,7 +2356,7 @@ _libssh2_wincng_ecdsa_curve_name_with_octal_new(
     _libssh2_ecdsa_point publickey;
 
     /* Validate parameters */
-    if(curve >= _countof(_wincng_ecdsa_algorithms)) {
+    if(curve >= ARRAY_SIZE(_wincng_ecdsa_algorithms)) {
         return LIBSSH2_ERROR_INVAL;
     }
 
@@ -2526,7 +2526,7 @@ _libssh2_wincng_ecdsa_curve_type_from_name(IN const char *name,
         return LIBSSH2_ERROR_INVAL;
     }
 
-    for(curve = 0; curve < _countof(_wincng_ecdsa_algorithms); curve++) {
+    for(curve = 0; curve < ARRAY_SIZE(_wincng_ecdsa_algorithms); curve++) {
         if(strcmp(name, _wincng_ecdsa_algorithms[curve].name) == 0) {
             *out_curve = curve;
             return LIBSSH2_ERROR_NONE;
