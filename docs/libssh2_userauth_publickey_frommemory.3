@@ -18,8 +18,6 @@ libssh2_userauth_publickey_frommemory(LIBSSH2_SESSION *session,
                                       const char *passphrase);
 .fi
 .SH DESCRIPTION
-This function allows to authenticate a session with a public key read from memory.
-It is only supported when libssh2 is backed by OpenSSL.
 \fIsession\fP - Session instance as returned by
 .BR libssh2_session_init_ex(3)
 
@@ -37,7 +35,10 @@ It is only supported when libssh2 is backed by OpenSSL.
 
 \fIpassphrase\fP - Passphrase to use when decoding private key file.
 
-Attempt public key authentication using a PEM encoded private key file stored in memory.
+Attempt public key authentication using either a public key file or a PEM
+encoded private key file stored in memory. When providing a private key, the
+public key is automatically extracted from it. When providing both, the
+passed public key takes precedence.
 .SH RETURN VALUE
 Return 0 on success or negative on failure. It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
@@ -56,5 +57,6 @@ combination was invalid.
 public key was not accepted.
 .SH AVAILABILITY
 libssh2_userauth_publickey_frommemory was added in libssh2 1.6.0
+Supported with OpenSSL, WinCNG, mbedTLS, OS/400 crypto backends.
 .SH SEE ALSO
 .BR libssh2_session_init_ex(3)

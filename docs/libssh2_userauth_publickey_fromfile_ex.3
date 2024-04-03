@@ -31,13 +31,17 @@ can be set to NULL.
 
 \fIpassphrase\fP - Passphrase to use when decoding \fIprivatekey\fP.
 
-Attempt public key authentication using a PEM encoded private key file stored
-on disk
+Attempt public key authentication using either a public key file or a PEM
+encoded private key file stored on disk. When providing a private key, the
+public key is automatically extracted from it. When providing both, the
+passed public key takes precedence.
 .SH RETURN VALUE
 Return 0 on success or negative on failure. It returns
 LIBSSH2_ERROR_EAGAIN when it would otherwise block. While
 LIBSSH2_ERROR_EAGAIN is a negative number, it is not really a failure per se.
 .SH ERRORS
+\fILIBSSH2_ERROR_FILE\fP - An issue opening, reading or parsing the disk file.
+
 \fILIBSSH2_ERROR_ALLOC\fP - An internal memory allocation call failed.
 
 \fILIBSSH2_ERROR_SOCKET_SEND\fP - Unable to send data on socket.
