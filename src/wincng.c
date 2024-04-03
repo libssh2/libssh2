@@ -246,15 +246,6 @@
 static int
 _libssh2_wincng_bignum_resize(_libssh2_bn* bn, ULONG length);
 
-int
-_libssh2_wincng_ecdsa_curve_type_from_name(IN const char *name,
-                                           OUT libssh2_curve_type *out_curve);
-
-int
-_libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key **key,
-                                       IN unsigned char *privatekey,
-                                       IN size_t privatekey_len);
-
 /*******************************************************************/
 /*
  * Windows CNG backend: ECDSA-specific declarations.
@@ -325,6 +316,17 @@ typedef struct __libssh2_ecdsa_point {
     const unsigned char *y;
     ULONG y_len;
 } _libssh2_ecdsa_point;
+
+/* Lookup libssh2_curve_type by name */
+static int
+_libssh2_wincng_ecdsa_curve_type_from_name(IN const char* name,
+    OUT libssh2_curve_type* out_curve);
+
+/* Parse an OpenSSL-formatted ECDSA private key */
+static int
+_libssh2_wincng_parse_ecdsa_privatekey(OUT _libssh2_wincng_ecdsa_key** key,
+    IN unsigned char* privatekey,
+    IN size_t privatekey_len);
 
 #endif
 
