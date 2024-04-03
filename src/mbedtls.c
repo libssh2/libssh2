@@ -1292,6 +1292,14 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ctx,
     unsigned char *data;
     size_t data_len;
 
+#if MBEDTLS_VERSION_NUMBER >= 0x03060000
+    /* FIXME: implement this functionality via a public API */
+    (void)session;
+    (void)filename;
+    (void)pwd;
+    data = NULL;
+    data_len = 0;
+#else
     if(mbedtls_pk_load_file(filename, &data, &data_len))
         goto cleanup;
 
@@ -1304,6 +1312,7 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ctx,
     _libssh2_mbedtls_parse_openssh_key(ctx, session, data, data_len, pwd);
 
 cleanup:
+#endif
 
     mbedtls_pk_free(&pkey);
 
