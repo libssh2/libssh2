@@ -33,7 +33,7 @@ environment:
   CONFIGURATION: 'Release'
   FIXTURE_XFER_COUNT: 35020
   matrix:
-    - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
+    - job_name: 'VS2022, OpenSSL 1.1, x64, Server 2019'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       GENERATOR: 'Visual Studio 17 2022'
       PLATFORM: 'x64'
@@ -142,18 +142,11 @@ build_script:
 
       $options += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
       if($env:SKIP_CTEST -ne 'yes' -and $env:CRYPTO_BACKEND -eq 'OpenSSL') {
-        if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq 'Visual Studio 2022') {
-          if($env:PLATFORM -eq 'x64') {
-            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64'
-          }
+        if($env:PLATFORM -eq 'x64') {
+          $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64'
         }
-        else {
-          if($env:PLATFORM -eq 'x64') {
-            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64'
-          }
-          elseif($env:PLATFORM -eq 'x86') {
-            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32'
-          }
+        elseif($env:PLATFORM -eq 'x86') {
+          $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32'
         }
       }
 
