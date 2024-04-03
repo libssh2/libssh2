@@ -37,7 +37,7 @@ Deprecation notices:
 
 This release includes the following enhancements and bugfixes:
 
-- autotools: delete `--disable-tests` option, fix CI tests (e051ae34 #1271 revert: 7483edfa)
+- autotools: delete `--disable-tests` option, fix CI tests (e051ae34 #1271 #715 revert: 7483edfa)
 - autotools: show the default for `hidden-symbols` option (a3f5594a #1269)
 - autotools: enable `-Wunused-macros` with gcc (ecdf5199 #1262 #1227 #1224)
 - autotools: fix dotless gcc and Apple clang version detections (89ccc83c #1232 #1187)
@@ -48,8 +48,8 @@ This release includes the following enhancements and bugfixes:
 - autotools: picky warning options tidy-up (cdca8cff #1221)
 - autotools: fix selecting WinCNG in cross-builds (and more) (00a3b88c #1187 #1186)
 - autotools: use comma separator in `Requires.private` of `libssh2.pc` (7f83de14 #1124)
-- autotools: improve libz position (c89174a7 #1077 #1075 #1013 regr: 4f0f4bff)
-- autotools: skip tests requiring static lib if `--disable-static` (572c57c9 #1072 #1056 regr: 83853f8a)
+- autotools: improve libz position (c89174a7 #1077 #941 #1075 #1013 regr: 4f0f4bff)
+- autotools: skip tests requiring static lib if `--disable-static` (572c57c9 #1072 #663 #1056 regr: 83853f8a)
 - build: drop `-Wformat-nonliteral` warning suppressions (c452c5cc #1342)
 - build: enable `-pedantic-errors` (3ec53f3e #1286)
 - build: add mingw-w64 support to `LIBSSH2_PRINTF()` attribute (f8c45794 #1287)
@@ -57,7 +57,7 @@ This release includes the following enhancements and bugfixes:
 - build: enable missing OpenSSF-recommended warnings, with fixes (afa6b865 #1257)
 - build: enable more compiler warnings and fix them (7ecc309c #1224)
 - build: picky warning updates (328a96b3 #1219)
-- build: revert: respect autotools `DLL_EXPORT` in `libssh2.h` (481be044 #1141 revert: fb1195cf)
+- build: revert: respect autotools `DLL_EXPORT` in `libssh2.h` (481be044 #1141 #917 revert: fb1195cf)
 - build: stop requiring libssl from openssl (c84745e3 #1128)
 - build: tidy-up `libssh2.pc.in` variable names (5720dd9f #1125)
 - build: add/fix `Requires.private` packages in `libssh2.pc` (ef538069 #1123)
@@ -91,7 +91,8 @@ This release includes the following enhancements and bugfixes:
 - ci: prefer `=` operator in shell snippets (e5c03043 #1073)
 - ci: drop redundant/unused vars, sync var names (ab8e95bc #1059)
 - ci: add i386 Linux build (with mbedTLS) (abdf40c7 #1057 #1053)
-- ci/appveyor: re-enable parallel mode (e190e5b2 #1294)
+- ci/appveyor: OpenSSL 3 no longer found by CMake, revert to 1.1.1 (104744f4 #1348)
+- ci/appveyor: re-enable parallel mode (e190e5b2 #1294 #884 #867)
 - ci/appveyor: delete UWP job broken since Visual Studio upgrade (d0a7f1da #1275)
 - ci/appveyor: YAML/PowerShell formatting, shorten variable name (06fd721f #1200)
 - ci/appveyor: move to pure PowerShell (8a081fd9 #1197)
@@ -127,16 +128,17 @@ This release includes the following enhancements and bugfixes:
 - cmake: bump minimum CMake version to v3.7.0 (9cd18f45 #1126)
 - cmake: CMAKE_SOURCE_DIR -> PROJECT_SOURCE_DIR (0f396aa9 #1121)
 - cmake: tidy-ups (2fc36790 #1122)
-- cmake: re-add `Libssh2:libssh2` for compatibility + lowercase namespace (2da13c13 #1104 #1103)
+- cmake: re-add `Libssh2:libssh2` for compatibility + lowercase namespace (2da13c13 #1104 #731 #1103)
 - configure.ac: remove AB_INIT (f4f52ccc)
 - copyright: remove years from copyright headers (187d89bb #1082)
+- docs: improve `libssh2_userauth_publickey_from*` manpages (581b72aa #1347 #1308 #652)
 - docs: update `INSTALL_AUTOTOOLS` (2f0efde3 #1316)
 - docs: replace SHA1 with SHA256 in CMake example (766bde9f)
 - drop `www.` from `www.libssh2.org` (6e3e8839 #1172)
 - example: restore `sys/time.h` for AIX (24503cb9 #1340 #1335 #1334 #1001 regr: e53aae0e)
 - example: use `libssh2_socket_t` in X11 example (3f60ccb7)
 - example: replace remaining libssh2_scp_recv with libssh2_scp_recv2 in output messages (8d69e63d #1258 follow: 6c84a426)
-- example: fix regression in `ssh2_exec.c` (279a2e57 #1106 #1105 regr: b13936bd)
+- example: fix regression in `ssh2_exec.c` (279a2e57 #1106 #861 #846 #1105 regr: b13936bd)
 - example, tests: call `WSACleanup()` for each `WSAStartup()` (94b6bad3 #1283)
 - example, tests: fix/silence `-Wformat-truncation=2` gcc warnings (744e059f)
 - gen_publickey_from_dsa: Initialize BIGNUMs to NULL for OpenSSL 3 (f1133c75 #1320)
@@ -153,22 +155,23 @@ This release includes the following enhancements and bugfixes:
 - Makefile.mk: delete Windows-focused raw GNU Make build (43485579 #1204)
 - man: fix double spaces and dash escaping (a3ffc422 #1210)
 - man: add description to `libssh2_session_get_blocking.3` (67e39091 #1185)
+- mbedtls: add workaround + FIXME to build with 3.6.0 (2e4c5ec4 #1349)
 - mbedtls: improve disabling `-Wredundant-decls` (ecec68a2 #1226 #1224)
 - mbedtls: include `version.h` for `MBEDTLS_VERSION_NUMBER` (9d7bc253 #1095 #1094)
-- mbedtls: use more `size_t` to sync up with `crypto.h` (1153ebde #1054 #1053)
+- mbedtls: use more `size_t` to sync up with `crypto.h` (1153ebde #1054 #879 #846 #1053)
 - md5: allow disabling old-style encrypted private keys at build-time (eb9f9de2 #1181)
-- mingw: fix printf mask for 64-bit integers (36c1e1d1 #1091 #1090)
+- mingw: fix printf mask for 64-bit integers (36c1e1d1 #1091 #876 #846 #1090)
 - misc: flatten `_libssh2_explicit_zero` if tree (74e74288 #1149)
 - NMakefile: delete (c515eed3 #1134 #1129)
 - openssl: fix cppcheck found NULL dereferences (f2945905 #1304)
 - openssl: delete internal `read_openssh_private_key_from_memory()` (34aff5ff #1306)
 - openssl: use OpenSSL 3 HMAC API, add `no-deprecated` CI job (363dcbf4 #1243 #1235 #1207)
-- openssl: make a function static, add `#ifdef` comments (efee9133 #1246 follow: 03092292)
+- openssl: make a function static, add `#ifdef` comments (efee9133 #1246 #248 follow: 03092292)
 - openssl: fix DSA code to use OpenSSL 3 API (82581941 #1244 #1207)
 - openssl: fix `EC_KEY` reference with OpenSSL 3 `no-deprecated` build (487152f4 #1236 #1235 #1207)
 - openssl: use non-deprecated APIs with OpenSSL 3.x (b0ab005f #1207)
 - openssl: silence `-Wunused-value` warnings (bf285500 #1205)
-- openssl: use automatic initialization with LibreSSL 2.7.0+ (d79047c9 #1146)
+- openssl: use automatic initialization with LibreSSL 2.7.0+ (d79047c9 #1146 #302)
 - openssl: add missing check for `LIBRESSL_VERSION_NUMBER` before use (4a42f42e #1117 #1115)
 - os400: maintain up to date (8457c37a #1309)
 - packet: properly bounds check packet_authagent_open() (88a960a8 #1179)
@@ -178,14 +181,14 @@ This release includes the following enhancements and bugfixes:
 - reuse: provide SPDX identifiers (f6aa31f4 #1084)
 - scp: fix missing cast for targets without large file support (c317e06f #1060 #1057 #1002 regr: 5db836b2)
 - session: add `libssh2_session_callback_set2()` (c0f69548 #1285)
-- session: handle EINTR from send/recv/poll/select to try again as the error is not fatal (798ed4a7 #1058)
+- session: handle EINTR from send/recv/poll/select to try again as the error is not fatal (798ed4a7 #1058 #955)
 - src: check hash update/final success (4718ede4 #1303 #1301)
 - src: check hash init success (2ed9eb92 #1301)
 - src: add 'strict KEX' to fix CVE-2023-48795 "Terrapin Attack" (d34d9258 #1291 #1290)
 - src: disable `-Wsign-conversion` warnings, add option to re-enable (6e451669 #1284 #1257)
 - src: fix gcc 13 `-Wconversion` warning on Darwin (8cca7b77 #1209 follow: 08354e0a)
 - src: drop a redundant `#include` (1f0174d0 #1153)
-- src: improve MSVC C4701 warning fix (8b924999 #1086 #1083)
+- src: improve MSVC C4701 warning fix (8b924999 #1086 #876 #1083)
 - src: bump `hash_len` to `size_t` in `LIBSSH2_HOSTKEY_METHOD` (8b917d76 #1076)
 - src: bump DSA and ECDSA sign `hash_len` to `size_t` (7b8e0225 #1055)
 - stop using leading underscores in macro names (c6589b88 #1248)
@@ -211,7 +214,7 @@ This release includes the following enhancements and bugfixes:
 - transport: check ETM on remote end when receiving (bde10825 #1332 #1331)
 - transport: fix incorrect byte offset in debug message (2388a3aa #1096)
 - userauth: avoid oob with huge interactive kbd response (f3a85cad #1337)
-- userauth: add a new structure to separate memory read and file read (63b4c20e)
+- userauth: add a new structure to separate memory read and file read (63b4c20e #773)
 - userauth: check whether `*key_method` is a NULL pointer instead of `key_method` (bec57c40)
 - wincng: prefer `ULONG`/`DWORD` over `unsigned long` (186c1d63 #1165)
 - wincng: tidy-ups (7bb669b5 #1164)
@@ -222,10 +225,11 @@ This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
   Viktor Szakats, Michael Buckley, Ren Mingshuai, Daniel Stenberg, Josef Cejka,
-  Patrick Monnerat, Aaron Stone, András Fekete, Andrei Augustin, Brian Inglis,
-  concussious on GitHub, Dan Fandrich, Haowei Hsu, Harmen Stoppels,
-  Harry Mallon, Jack L, Jakob Egger, Jiwoo Park, João M. S. Silva,
-  Joel Depooter, Juliusz Sosinowicz, Kai Pastor, Kenneth Davidson, mike-jumper,
-  monnerat, naddy, Nicolas Mora, Nursan Valeyev, Paul Howarth, PewPewPew,
-  Radek Brich, rahmanih on GitHub, Ryan Kelley, shubhamhii on GitHub,
-  Steve McIntyre, Tobias Stoeckmann, Will Cosgrove, Xi Ruoyao
+  Patrick Monnerat, Ryan Kelley, Aaron Stone, András Fekete, Andrei Augustin,
+  Brian Inglis, concussious on GitHub, Dan Fandrich, Haowei Hsu,
+  Harmen Stoppels, Harry Mallon, Jack L, Jakob Egger, Jiwoo Park,
+  João M. S. Silva, Joel Depooter, Juliusz Sosinowicz, Kai Pastor,
+  Kenneth Davidson, Lyndon Brown, mike-jumper, monnerat, naddy, Nicolas Mora,
+  Nursan Valeyev, Paul Howarth, PewPewPew, Radek Brich, rahmanih on GitHub,
+  shubhamhii on GitHub, Steve McIntyre, Tobias Stoeckmann, Will Cosgrove,
+  Xi Ruoyao
