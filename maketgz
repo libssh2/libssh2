@@ -6,17 +6,24 @@
 # from git and you should first run 'autoreconf -fi' and './configure'.
 #
 
-version="$1"
+set -eu
+
+version="${1:-}"
 
 if [ -z "$version" ]; then
   echo "Specify a version number!"
   exit
 fi
 
-if [ "only" = "$2" ]; then
+if [ "only" = "${2:-}" ]; then
   echo "Setup version number only!"
   only=1
+else
+  only=
 fi
+
+export LC_ALL=C
+export TZ=UTC
 
 libversion="$version"
 
@@ -37,8 +44,7 @@ if test -z "$only"; then
   HEADER="$HEADER$ext"
 fi
 
-# requires a date command that knows -u for UTC time zone
-datestamp="$(LC_TIME=C date -u)"
+datestamp="$(date)"
 
 # Replace in-place version number in header file:
 sed -i.bak \
@@ -135,11 +141,11 @@ gzip -dc "$targz" | xz -6e - > "$xz"
 makezip() {
   rm -rf "$tempdir"
   mkdir "$tempdir"
-  cd "$tempdir" || exit 1
+  cd "$tempdir"
   gzip -dc "../$targz" | tar -xf -
-  find . | zip "$zip" -@ >/dev/null
+  find . | sort | zip -9 -X "$zip" -@ >/dev/null
   mv "$zip" ../
-  cd .. || exit 1
+  cd ..
   rm -rf "$tempdir"
 }
 
@@ -152,3 +158,6 @@ echo "------------------"
 echo "maketgz report:"
 echo ""
 ls -l "$targz" "$bzip2" "$zip" "$xz"
+
+echo "Run this:"
+echo "gpg -b -a '$targz' && gpg -b -a '$bzip2' && gpg -b -a '$zip' && gpg -b -a '$xz'"

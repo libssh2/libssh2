@@ -77,6 +77,12 @@ jobs:
             build: autotools
             zlib: 'ON'
             target: 'distcheck'
+          - compiler: clang
+            arch: amd64
+            crypto: OpenSSL
+            build: autotools
+            zlib: 'ON'
+            target: 'maketgz'
           - compiler: gcc
             arch: i386
             crypto: mbedTLS
@@ -176,7 +182,7 @@ jobs:
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
       - name: 'autotools configure'
-        if: ${{ matrix.build == 'autotools' }}
+        if: ${{ matrix.build == 'autotools' && matrix.target != 'maketgz' }}
         run: |
           if [ '${{ matrix.arch }}' = 'i386' ]; then
             crossoptions='--host=i686-pc-linux-gnu'
@@ -196,6 +202,13 @@ jobs:
         if: ${{ matrix.target == 'distcheck' }}
         timeout-minutes: 10
         run: make -C bld distcheck
+      - name: 'maketgz'
+        if: ${{ matrix.target == 'maketgz' }}
+        timeout-minutes: 10
+        run: |
+          ./configure --enable-werror --disable-debug ${{ matrix.options }}
+          ./maketgz 9.99.9
+
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
