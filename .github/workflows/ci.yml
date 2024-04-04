@@ -208,7 +208,8 @@ jobs:
         run: |
           ./configure --enable-werror --enable-debug \
             ${crossoptions} ${{ matrix.options }}
-          ./maketgz 9.99.9; ls -l
+          ./maketgz 9.99.9
+          ls -l libssh2*
 
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
