@@ -18,6 +18,8 @@ fi
 if [ "only" = "${2:-}" ]; then
   echo "Setup version number only!"
   only=1
+else
+  only=
 fi
 
 libversion="$version"
