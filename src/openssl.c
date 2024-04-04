@@ -5123,7 +5123,7 @@ _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
 int
 _libssh2_bn_from_bin(_libssh2_bn *bn, size_t len, const unsigned char *val)
 {
-    if(BN_bin2bn(val, (int)len, bn) == NULL) {
+    if(!BN_bin2bn(val, (int)len, bn)) {
         return -1;
     }
 

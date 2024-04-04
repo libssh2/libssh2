@@ -522,9 +522,9 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        if (_libssh2_bn_from_bin(exchange_state->f,
-                                 exchange_state->f_value_len,
-                                 exchange_state->f_value)) {
+        if(_libssh2_bn_from_bin(exchange_state->f,
+                                exchange_state->f_value_len,
+                                exchange_state->f_value)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
                                  "Invalid DH-SHA f value");
             goto clean_exit;
@@ -1473,7 +1473,7 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        if (_libssh2_bn_from_bin(key_state->g, g_len, g)) {
+        if(_libssh2_bn_from_bin(key_state->g, g_len, g)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Invalid DH-SHA1 g");
             goto dh_gex_clean_exit;
@@ -1595,13 +1595,13 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        if (_libssh2_bn_from_bin(key_state->p, p_len, p)) {
+        if(_libssh2_bn_from_bin(key_state->p, p_len, p)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Invalid DH-SHA256 p");
             goto dh_gex_clean_exit;
         }
 
-        if (_libssh2_bn_from_bin(key_state->g, g_len, g)) {
+        if(_libssh2_bn_from_bin(key_state->g, g_len, g)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                  "Invalid DH-SHA256 g");
             goto dh_gex_clean_exit;
