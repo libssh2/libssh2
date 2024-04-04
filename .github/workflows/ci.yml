@@ -206,7 +206,7 @@ jobs:
         if: ${{ matrix.target == 'maketgz' }}
         timeout-minutes: 10
         run: |
-          ./configure --enable-werror --enable-debug ${{ matrix.options }}
+          ./configure --enable-werror --disable-debug ${{ matrix.options }}
           ./maketgz 9.99.9
 
       - name: 'cmake configure'
