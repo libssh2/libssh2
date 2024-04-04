@@ -2853,6 +2853,7 @@ _libssh2_wincng_ecdsa_new_private_frommemory(
     int result;
 
     struct string_buf data_buffer;
+    uint32_t index;
     uint32_t key_count;
     unsigned char *privatekey;
     size_t privatekey_len;
@@ -2910,7 +2911,7 @@ _libssh2_wincng_ecdsa_new_private_frommemory(
     }
 
     /* Skip all public keys */
-    for(uint32_t i = 0; i < key_count; i++) {
+    for(index = 0; index < key_count; index++) {
         unsigned char *publickey;
         size_t publickey_len;
 
