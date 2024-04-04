@@ -2279,6 +2279,7 @@ _libssh2_wincng_ecdh_create_key(IN LIBSSH2_SESSION *session,
         return LIBSSH2_ERROR_INVAL;
     }
 
+    *privatekey = NULL;
     *encoded_publickey = NULL;
     *encoded_publickey_len = 0;
 
@@ -2423,6 +2424,8 @@ _libssh2_wincng_ecdh_gen_k(OUT _libssh2_bn **secret,
     if(!secret) {
         return LIBSSH2_ERROR_INVAL;
     }
+
+    *secret = NULL;
 
     /* Decode the public key */
     result = _libssh2_wincng_ecdsa_decode_uncompressed_point(
@@ -2665,6 +2668,8 @@ _libssh2_wincng_ecdsa_new_private(OUT _libssh2_wincng_ecdsa_key **key,
         return LIBSSH2_ERROR_INVAL;
     }
 
+    *key = NULL;
+
     if(passphrase && strlen((const char *)passphrase) > 0) {
         return _libssh2_error(
             session,
@@ -2862,6 +2867,8 @@ _libssh2_wincng_ecdsa_new_private_frommemory(
     if(!key || !session || !data) {
         return LIBSSH2_ERROR_INVAL;
     }
+
+    *key = NULL;
 
     if(passphrase && strlen((const char *)passphrase) > 0) {
         return _libssh2_error(
