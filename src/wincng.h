@@ -460,7 +460,7 @@ int
 _libssh2_wincng_bignum_set_word(_libssh2_bn *bn, ULONG word);
 ULONG
 _libssh2_wincng_bignum_bits(const _libssh2_bn *bn);
-void
+int
 _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
                                 const unsigned char *bin);
 void
