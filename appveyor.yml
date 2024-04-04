@@ -33,6 +33,46 @@ environment:
   CONFIGURATION: 'Release'
   FIXTURE_XFER_COUNT: 35020
   matrix:
+    - job_name: 'VS2015, WinCNG, x64, Server 2012 R2'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      GENERATOR: 'Visual Studio 14 2015'
+      PLATFORM: 'x64'
+      CRYPTO_BACKEND: 'WinCNG'
+
+    - job_name: 'VS2008, WinCNG, x86, Build-only'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      GENERATOR: 'Visual Studio 9 2008'
+      PLATFORM: 'x86'
+      CRYPTO_BACKEND: 'WinCNG'
+      SKIP_CTEST: 'yes'
+
+    - job_name: 'VS2010, WinCNG, x64, Build-only'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      GENERATOR: 'Visual Studio 10 2010'
+      PLATFORM: 'x64'
+      CRYPTO_BACKEND: 'WinCNG'
+      UNITY: 'ON'
+      SKIP_CTEST: 'yes'
+
+    - job_name: 'VS2022, WinCNG, x64, Server 2019, Logging'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
+      GENERATOR: 'Visual Studio 17 2022'
+      PLATFORM: 'x64'
+      CRYPTO_BACKEND: 'WinCNG'
+      ENABLE_DEBUG_LOGGING: 'ON'
+
+    - job_name: 'VS2022, WinCNG, ARM64, Build-only'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
+      GENERATOR: 'Visual Studio 17 2022'
+      PLATFORM: 'ARM64'
+      CRYPTO_BACKEND: 'WinCNG'
+
+    - job_name: 'VS2015, WinCNG, x86, Server 2016'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
+      GENERATOR: 'Visual Studio 14 2015'
+      PLATFORM: 'x86'
+      CRYPTO_BACKEND: 'WinCNG'
+
     - job_name: 'VS2022, OpenSSL 1.1, x64, Server 2019'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       GENERATOR: 'Visual Studio 17 2022'
@@ -72,46 +112,6 @@ environment:
       BUILD_SHARED_LIBS: 'OFF'
       CRYPTO_BACKEND: 'OpenSSL'
       SKIP_CTEST: 'yes'
-
-    - job_name: 'VS2008, WinCNG, x86, Build-only'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      GENERATOR: 'Visual Studio 9 2008'
-      PLATFORM: 'x86'
-      CRYPTO_BACKEND: 'WinCNG'
-      SKIP_CTEST: 'yes'
-
-    - job_name: 'VS2010, WinCNG, x64, Build-only'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      GENERATOR: 'Visual Studio 10 2010'
-      PLATFORM: 'x64'
-      CRYPTO_BACKEND: 'WinCNG'
-      UNITY: 'ON'
-      SKIP_CTEST: 'yes'
-
-    - job_name: 'VS2022, WinCNG, x64, Server 2019, Logging'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
-      GENERATOR: 'Visual Studio 17 2022'
-      PLATFORM: 'x64'
-      CRYPTO_BACKEND: 'WinCNG'
-      ENABLE_DEBUG_LOGGING: 'ON'
-
-    - job_name: 'VS2022, WinCNG, ARM64, Build-only'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
-      GENERATOR: 'Visual Studio 17 2022'
-      PLATFORM: 'ARM64'
-      CRYPTO_BACKEND: 'WinCNG'
-
-    - job_name: 'VS2015, WinCNG, x86, Server 2016'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
-      GENERATOR: 'Visual Studio 14 2015'
-      PLATFORM: 'x86'
-      CRYPTO_BACKEND: 'WinCNG'
-
-    - job_name: 'VS2015, WinCNG, x64, Server 2012 R2'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      GENERATOR: 'Visual Studio 14 2015'
-      PLATFORM: 'x64'
-      CRYPTO_BACKEND: 'WinCNG'
 
 matrix:
   fast_finish: true
