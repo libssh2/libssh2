@@ -143,7 +143,7 @@ makezip() {
   mkdir "$tempdir"
   cd "$tempdir"
   gzip -dc "../$targz" | tar -xf -
-  find . | sort | zip --no-extra "$zip" -@ >/dev/null
+  find . | sort | zip -9 --no-extra "$zip" -@ >/dev/null
   mv "$zip" ../
   cd ..
   rm -rf "$tempdir"
