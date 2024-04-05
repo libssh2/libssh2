@@ -2410,11 +2410,10 @@ _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
         if(bignum) {
             bn->bignum = bignum;
             bn->length = length;
-            return 0;
         }
     }
 
-    return -1;
+    return 0;
 }
 
 void
