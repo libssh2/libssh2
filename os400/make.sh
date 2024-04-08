@@ -7,9 +7,9 @@
 #
 #       This is a shell script since make is not a standard component of OS/400.
 
-SCRIPTDIR=`dirname "${0}"`
+SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/initscript.sh"
-cd "${TOPDIR}"
+cd "${TOPDIR}" || exit 1
 
 
 #       Create the OS/400 library if it does not exist.
@@ -34,7 +34,7 @@ fi
 for TEXT in "${TOPDIR}/COPYING" "${SCRIPTDIR}/README400"                \
     "${TOPDIR}/NEWS" "${TOPDIR}/README" "${TOPDIR}/docs/AUTHORS"        \
     "${TOPDIR}/docs/BINDINGS.md"
-do      MEMBER="${LIBIFSNAME}/DOCS.FILE/`db2_name \"${TEXT}\"`.MBR"
+do      MEMBER="${LIBIFSNAME}/DOCS.FILE/$(db2_name "${TEXT}").MBR"
 
         if action_needed "${MEMBER}" "${TEXT}"
         then    CMD="CPY OBJ('${TEXT}') TOOBJ('${MEMBER}') TOCCSID(${TGTCCSID})"
@@ -56,8 +56,8 @@ fi
 #       Copy RPG examples if needed.
 
 for EXAMPLE in "${SCRIPTDIR}/rpg-examples"/*
-do      MEMBER="`basename \"${EXAMPLE}\"`"
-        IFSMEMBER="${LIBIFSNAME}/RPGXAMPLES.FILE/`db2_name \"${MEMBER}\"`.MBR"
+do      MEMBER="$(basename "${EXAMPLE}")"
+        IFSMEMBER="${LIBIFSNAME}/RPGXAMPLES.FILE/$(db2_name "${MEMBER}").MBR"
 
         [ -e "${EXAMPLE}" ] || continue
 
@@ -65,8 +65,8 @@ do      MEMBER="`basename \"${EXAMPLE}\"`"
         then    CMD="CPY OBJ('${EXAMPLE}') TOOBJ('${IFSMEMBER}')"
                 CMD="${CMD} TOCCSID(${TGTCCSID}) DTAFMT(*TEXT) REPLACE(*YES)"
                 system "${CMD}"
-                MBRTEXT=`sed -e '1!d;/^      \*/!d;s/^ *\* *//'         \
-                             -e 's/ *$//;s/'"'"'/&&/g' < "${EXAMPLE}"`
+                MBRTEXT=$(sed -e '1!d;/^      \*/!d;s/^ *\* *//'        \
+                              -e 's/ *$//;s/'"'"'/&&/g' < "${EXAMPLE}")
                 CMD="CHGPFM FILE(${TARGETLIB}/RPGXAMPLES) MBR(${MEMBER})"
                 CMD="${CMD} SRCTYPE(RPGLE) TEXT('${MBRTEXT}')"
                 system "${CMD}"
