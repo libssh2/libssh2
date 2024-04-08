@@ -2419,12 +2419,15 @@ _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
     return 0;
 }
 
-void
+int
 _libssh2_wincng_bignum_to_bin(const _libssh2_bn *bn, unsigned char *bin)
 {
     if(bin && bn && bn->bignum && bn->length > 0) {
         memcpy(bin, bn->bignum, bn->length);
+        return 0;
     }
+
+    return -1;
 }
 
 void

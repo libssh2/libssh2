@@ -316,13 +316,21 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         _libssh2_htonu32(exchange_state->e_packet + 1,
                          (uint32_t)(exchange_state->e_packet_len - 5));
         if(_libssh2_bn_bits(exchange_state->e) % 8) {
-            _libssh2_bn_to_bin(exchange_state->e,
-                               exchange_state->e_packet + 5);
+            if(_libssh2_bn_to_bin(exchange_state->e,
+                                  exchange_state->e_packet + 5)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->e");
+                goto clean_exit;
+            }
         }
         else {
             exchange_state->e_packet[5] = 0;
-            _libssh2_bn_to_bin(exchange_state->e,
-                               exchange_state->e_packet + 6);
+            if(_libssh2_bn_to_bin(exchange_state->e,
+                                  exchange_state->e_packet + 6)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->e");
+                goto clean_exit;
+            }
         }
 
         _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Sending KEX packet %u",
@@ -559,7 +567,12 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         }
         else {
             exchange_state->k_value[4] = 0;
-            _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
+           if(_libssh2_bn_to_bin(exchange_state->k,
+                                 exchange_state->k_value + 5)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->k");
+                goto clean_exit;
+            }
         }
 
         exchange_state->exchange_hash = (void *)&exchange_hash_ctx;
@@ -1964,11 +1977,21 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         _libssh2_htonu32(exchange_state->k_value,
                          (uint32_t)(exchange_state->k_value_len - 4));
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
-            _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 4);
+            if(_libssh2_bn_to_bin(exchange_state->k,
+                                  exchange_state->k_value + 4)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->k");
+                goto clean_exit;
+            }
         }
         else {
             exchange_state->k_value[4] = 0;
-            _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
+            if(_libssh2_bn_to_bin(exchange_state->k,
+                                  exchange_state->k_value + 5)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->e");
+                goto clean_exit;
+            }
         }
 
         /* verify hash */
@@ -2602,11 +2625,21 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         _libssh2_htonu32(exchange_state->k_value,
                          (uint32_t)(exchange_state->k_value_len - 4));
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
-            _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 4);
+            if(_libssh2_bn_to_bin(exchange_state->k,
+                                  exchange_state->k_value + 4)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->e");
+                goto clean_exit;
+            }
         }
         else {
             exchange_state->k_value[4] = 0;
-            _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
+            if(_libssh2_bn_to_bin(exchange_state->k,
+                                  exchange_state->k_value + 5)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->e");
+                goto clean_exit;
+            }
         }
 
         /*/ verify hash */
