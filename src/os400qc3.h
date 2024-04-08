@@ -358,7 +358,7 @@ typedef struct {        /* Diffie-Hellman context. */
 extern _libssh2_bn *    _libssh2_bn_init(void);
 extern void     _libssh2_bn_free(_libssh2_bn *bn);
 extern unsigned long    _libssh2_bn_bits(_libssh2_bn *bn);
-extern int      _libssh2_bn_from_bin(_libssh2_bn *bn, int len,
+extern int      _libssh2_bn_from_bin(_libssh2_bn *bn, size_t len,
                                      const unsigned char *v);
 extern int      _libssh2_bn_set_word(_libssh2_bn *bn, unsigned long val);
 extern int      _libssh2_bn_to_bin(_libssh2_bn *bn, unsigned char *val);

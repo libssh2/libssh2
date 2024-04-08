@@ -399,9 +399,10 @@ libssh2_curve_type;
 #define _libssh2_bn_ctx_free(bnctx) BN_CTX_free(bnctx)
 #define _libssh2_bn_init() BN_new()
 #define _libssh2_bn_init_from_bin() _libssh2_bn_init()
-#define _libssh2_bn_set_word(bn, val) BN_set_word(bn, val)
-#define _libssh2_bn_from_bin(bn, len, val) BN_bin2bn(val, (int)len, bn)
-#define _libssh2_bn_to_bin(bn, val) BN_bn2bin(bn, val)
+#define _libssh2_bn_set_word(bn, val) !BN_set_word(bn, val)
+extern int _libssh2_bn_from_bin(_libssh2_bn *bn, size_t len,
+                                const unsigned char *v);
+#define _libssh2_bn_to_bin(bn, val) (BN_bn2bin(bn, val) <= 0)
 #define _libssh2_bn_bytes(bn) BN_num_bytes(bn)
 #define _libssh2_bn_bits(bn) BN_num_bits(bn)
 #define _libssh2_bn_free(bn) BN_clear_free(bn)

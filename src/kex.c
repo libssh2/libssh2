@@ -316,13 +316,21 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         _libssh2_htonu32(exchange_state->e_packet + 1,
                          (uint32_t)(exchange_state->e_packet_len - 5));
         if(_libssh2_bn_bits(exchange_state->e) % 8) {
-            _libssh2_bn_to_bin(exchange_state->e,
-                               exchange_state->e_packet + 5);
+            if(_libssh2_bn_to_bin(exchange_state->e,
+                                  exchange_state->e_packet + 5)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->e");
+                goto clean_exit;
+            }
         }
         else {
             exchange_state->e_packet[5] = 0;
-            _libssh2_bn_to_bin(exchange_state->e,
-                               exchange_state->e_packet + 6);
+            if(_libssh2_bn_to_bin(exchange_state->e,
+                                  exchange_state->e_packet + 6)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->e");
+                goto clean_exit;
+            }
         }
 
         _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Sending KEX packet %u",
@@ -522,8 +530,13 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             goto clean_exit;
         }
 
-        _libssh2_bn_from_bin(exchange_state->f, exchange_state->f_value_len,
-                             exchange_state->f_value);
+        if(_libssh2_bn_from_bin(exchange_state->f,
+                                exchange_state->f_value_len,
+                                exchange_state->f_value)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                                 "Invalid DH-SHA f value");
+            goto clean_exit;
+        }
 
         if(_libssh2_get_string(&buf, &(exchange_state->h_sig),
                                &(exchange_state->h_sig_len))) {
@@ -550,11 +563,21 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         _libssh2_htonu32(exchange_state->k_value,
                          (uint32_t)(exchange_state->k_value_len - 4));
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
-            _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 4);
+            if(_libssh2_bn_to_bin(exchange_state->k,
+                                  exchange_state->k_value + 4)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->k");
+                goto clean_exit;
+            }
         }
         else {
             exchange_state->k_value[4] = 0;
-            _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
+            if(_libssh2_bn_to_bin(exchange_state->k,
+                                  exchange_state->k_value + 5)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->k");
+                goto clean_exit;
+            }
         }
 
         exchange_state->exchange_hash = (void *)&exchange_hash_ctx;
@@ -1002,8 +1025,16 @@ kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION *session,
         key_state->g = _libssh2_bn_init();      /* SSH2 defined value (2) */
 
         /* Initialize P and G */
-        _libssh2_bn_set_word(key_state->g, 2);
-        _libssh2_bn_from_bin(key_state->p, 128, p_value);
+        if(_libssh2_bn_set_word(key_state->g, 2)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state g.");
+            goto clean_exit;
+        }
+        if(_libssh2_bn_from_bin(key_state->p, 128, p_value)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state p.");
+            goto clean_exit;
+        }
 
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                        "Initiating Diffie-Hellman Group1 Key Exchange"));
@@ -1019,6 +1050,7 @@ kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION *session,
         return ret;
     }
 
+clean_exit:
     _libssh2_bn_free(key_state->p);
     key_state->p = NULL;
     _libssh2_bn_free(key_state->g);
@@ -1095,8 +1127,16 @@ kex_method_diffie_hellman_group14_key_exchange(LIBSSH2_SESSION *session,
 
         /* g == 2 */
         /* Initialize P and G */
-        _libssh2_bn_set_word(key_state->g, 2);
-        _libssh2_bn_from_bin(key_state->p, 256, p_value);
+        if(_libssh2_bn_set_word(key_state->g, 2)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state g.");
+            goto clean_exit;
+        }
+        else if(_libssh2_bn_from_bin(key_state->p, 256, p_value)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state p.");
+            goto clean_exit;
+        }
 
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                        "Initiating Diffie-Hellman Group14 Key Exchange"));
@@ -1110,6 +1150,7 @@ kex_method_diffie_hellman_group14_key_exchange(LIBSSH2_SESSION *session,
         return ret;
     }
 
+clean_exit:
     key_state->state = libssh2_NB_state_idle;
     _libssh2_bn_free(key_state->p);
     key_state->p = NULL;
@@ -1216,8 +1257,16 @@ kex_method_diffie_hellman_group16_sha512_key_exchange(LIBSSH2_SESSION *session,
 
         /* g == 2 */
         /* Initialize P and G */
-        _libssh2_bn_set_word(key_state->g, 2);
-        _libssh2_bn_from_bin(key_state->p, 512, p_value);
+        if(_libssh2_bn_set_word(key_state->g, 2)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state g.");
+            goto clean_exit;
+        }
+        if(_libssh2_bn_from_bin(key_state->p, 512, p_value)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state p.");
+            goto clean_exit;
+        }
 
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                        "Initiating Diffie-Hellman Group16 Key Exchange"));
@@ -1233,6 +1282,7 @@ kex_method_diffie_hellman_group16_sha512_key_exchange(LIBSSH2_SESSION *session,
         return ret;
     }
 
+clean_exit:
     key_state->state = libssh2_NB_state_idle;
     _libssh2_bn_free(key_state->p);
     key_state->p = NULL;
@@ -1348,8 +1398,16 @@ kex_method_diffie_hellman_group18_sha512_key_exchange(LIBSSH2_SESSION *session,
 
         /* g == 2 */
         /* Initialize P and G */
-        _libssh2_bn_set_word(key_state->g, 2);
-        _libssh2_bn_from_bin(key_state->p, 1024, p_value);
+        if(_libssh2_bn_set_word(key_state->g, 2)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state g.");
+            goto clean_exit;
+        }
+        else if(_libssh2_bn_from_bin(key_state->p, 1024, p_value)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state p.");
+            goto clean_exit;
+        }
 
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                        "Initiating Diffie-Hellman Group18 Key Exchange"));
@@ -1365,6 +1423,7 @@ kex_method_diffie_hellman_group18_sha512_key_exchange(LIBSSH2_SESSION *session,
         return ret;
     }
 
+clean_exit:
     key_state->state = libssh2_NB_state_idle;
     _libssh2_bn_free(key_state->p);
     key_state->p = NULL;
@@ -1462,8 +1521,17 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        _libssh2_bn_from_bin(key_state->p, p_len, p);
-        _libssh2_bn_from_bin(key_state->g, g_len, g);
+        if(_libssh2_bn_from_bin(key_state->p, p_len, p)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Invalid DH-SHA1 p");
+            goto dh_gex_clean_exit;
+        }
+
+        if(_libssh2_bn_from_bin(key_state->g, g_len, g)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Invalid DH-SHA1 g");
+            goto dh_gex_clean_exit;
+        }
 
         ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p,
                                       (int)p_len, 1,
@@ -1581,8 +1649,17 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
             goto dh_gex_clean_exit;
         }
 
-        _libssh2_bn_from_bin(key_state->p, p_len, p);
-        _libssh2_bn_from_bin(key_state->g, g_len, g);
+        if(_libssh2_bn_from_bin(key_state->p, p_len, p)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Invalid DH-SHA256 p");
+            goto dh_gex_clean_exit;
+        }
+
+        if(_libssh2_bn_from_bin(key_state->g, g_len, g)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "Invalid DH-SHA256 g");
+            goto dh_gex_clean_exit;
+        }
 
         ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p,
                                       (int)p_len, 256,
@@ -1941,11 +2018,21 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         _libssh2_htonu32(exchange_state->k_value,
                          (uint32_t)(exchange_state->k_value_len - 4));
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
-            _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 4);
+            if(_libssh2_bn_to_bin(exchange_state->k,
+                                  exchange_state->k_value + 4)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->k");
+                goto clean_exit;
+            }
         }
         else {
             exchange_state->k_value[4] = 0;
-            _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
+            if(_libssh2_bn_to_bin(exchange_state->k,
+                                  exchange_state->k_value + 5)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->e");
+                goto clean_exit;
+            }
         }
 
         /* verify hash */
@@ -2579,11 +2666,21 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         _libssh2_htonu32(exchange_state->k_value,
                          (uint32_t)(exchange_state->k_value_len - 4));
         if(_libssh2_bn_bits(exchange_state->k) % 8) {
-            _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 4);
+            if(_libssh2_bn_to_bin(exchange_state->k,
+                                  exchange_state->k_value + 4)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->e");
+                goto clean_exit;
+            }
         }
         else {
             exchange_state->k_value[4] = 0;
-            _libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 5);
+            if(_libssh2_bn_to_bin(exchange_state->k,
+                                  exchange_state->k_value + 5)) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                     "Can't write exchange_state->e");
+                goto clean_exit;
+            }
         }
 
         /*/ verify hash */

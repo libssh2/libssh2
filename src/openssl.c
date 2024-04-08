@@ -5120,6 +5120,16 @@ _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx)
     *dhctx = NULL;
 }
 
+int
+_libssh2_bn_from_bin(_libssh2_bn *bn, size_t len, const unsigned char *val)
+{
+    if(!BN_bin2bn(val, (int)len, bn)) {
+        return -1;
+    }
+
+    return 0;
+}
+
 /* _libssh2_supported_key_sign_algorithms
  *
  * Return supported key hash algo upgrades, see crypto.h

@@ -2382,7 +2382,7 @@ _libssh2_wincng_bignum_bits(const _libssh2_bn *bn)
     return bits;
 }
 
-void
+int
 _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
                                 const unsigned char *bin)
 {
@@ -2390,10 +2390,10 @@ _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
     ULONG offset, length, bits;
 
     if(!bn || !bin || !len)
-        return;
+        return -1;
 
     if(_libssh2_wincng_bignum_resize(bn, len))
-        return;
+        return -1;
 
     memcpy(bn->bignum, bin, len);
 
@@ -2411,15 +2411,23 @@ _libssh2_wincng_bignum_from_bin(_libssh2_bn *bn, ULONG len,
             bn->bignum = bignum;
             bn->length = length;
         }
+        else {
+            return -1;
+        }
     }
+
+    return 0;
 }
 
-void
+int
 _libssh2_wincng_bignum_to_bin(const _libssh2_bn *bn, unsigned char *bin)
 {
     if(bin && bn && bn->bignum && bn->length > 0) {
         memcpy(bin, bn->bignum, bn->length);
+        return 0;
     }
+
+    return -1;
 }
 
 void

@@ -458,9 +458,9 @@ _libssh2_bn_bits(_libssh2_bn *bn)
 }
 
 int
-_libssh2_bn_from_bin(_libssh2_bn *bn, int len, const unsigned char *val)
+_libssh2_bn_from_bin(_libssh2_bn *bn, size_t len, const unsigned char *val)
 {
-    int i;
+    size_t i;
 
     if(!bn || (len && !val))
         return -1;
