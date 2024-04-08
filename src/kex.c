@@ -1010,7 +1010,7 @@ kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION *session,
         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
     };
 
-    int ret;
+    int ret = LIBSSH2_ERROR_NONE;
     libssh2_sha1_ctx exchange_hash_ctx;
 
     if(key_state->state == libssh2_NB_state_idle) {
@@ -1020,19 +1020,27 @@ kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION *session,
         key_state->g = _libssh2_bn_init();      /* SSH2 defined value (2) */
 
         /* Initialize P and G */
-        _libssh2_bn_set_word(key_state->g, 2);
-        _libssh2_bn_from_bin(key_state->p, 128, p_value);
+        if(_libssh2_bn_set_word(key_state->g, 2)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state g.");
+        }
+        else if(_libssh2_bn_from_bin(key_state->p, 128, p_value)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state p.");
+        }
+        else {
+            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+                           "Initiating Diffie-Hellman Group1 Key Exchange"));
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                       "Initiating Diffie-Hellman Group1 Key Exchange"));
-
-        key_state->state = libssh2_NB_state_created;
+            key_state->state = libssh2_NB_state_created;
+        }
     }
 
-    ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p, 128, 1,
-                                  (void *)&exchange_hash_ctx,
-                                  SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
-                                  NULL, 0, &key_state->exchange_state);
+    ret = ret || diffie_hellman_sha_algo(session, key_state->g, key_state->p,
+                                         128, 1, (void *)&exchange_hash_ctx,
+                                         SSH_MSG_KEXDH_INIT,
+                                         SSH_MSG_KEXDH_REPLY, NULL, 0,
+                                         &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN) {
         return ret;
     }
@@ -1104,7 +1112,7 @@ kex_method_diffie_hellman_group14_key_exchange(LIBSSH2_SESSION *session,
         0x15, 0x72, 0x8E, 0x5A, 0x8A, 0xAC, 0xAA, 0x68,
         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
     };
-    int ret;
+    int ret = LIBSSH2_ERROR_NONE;
 
     if(key_state->state == libssh2_NB_state_idle) {
         key_state->p = _libssh2_bn_init_from_bin(); /* SSH2 defined value
@@ -1113,17 +1121,25 @@ kex_method_diffie_hellman_group14_key_exchange(LIBSSH2_SESSION *session,
 
         /* g == 2 */
         /* Initialize P and G */
-        _libssh2_bn_set_word(key_state->g, 2);
-        _libssh2_bn_from_bin(key_state->p, 256, p_value);
+        if(_libssh2_bn_set_word(key_state->g, 2)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state g.");
+        }
+        else if(_libssh2_bn_from_bin(key_state->p, 256, p_value)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state p.");
+        }
+        else {
+            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+                           "Initiating Diffie-Hellman Group14 Key Exchange"));
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                       "Initiating Diffie-Hellman Group14 Key Exchange"));
-
-        key_state->state = libssh2_NB_state_created;
+            key_state->state = libssh2_NB_state_created;
+        }
     }
-    ret = hashfunc(session, key_state->g, key_state->p,
-                   256, sha_algo_value, exchange_hash_ctx, SSH_MSG_KEXDH_INIT,
-                   SSH_MSG_KEXDH_REPLY, NULL, 0, &key_state->exchange_state);
+    ret = ret || hashfunc(session, key_state->g, key_state->p,
+                          256, sha_algo_value, exchange_hash_ctx,
+                          SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY, NULL, 0,
+                          &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN) {
         return ret;
     }
@@ -1224,7 +1240,7 @@ kex_method_diffie_hellman_group16_sha512_key_exchange(LIBSSH2_SESSION *session,
     0x90, 0xA6, 0xC0, 0x8F, 0x4D, 0xF4, 0x35, 0xC9, 0x34, 0x06, 0x31, 0x99,
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
     };
-    int ret;
+    int ret = LIBSSH2_ERROR_NONE;
     libssh2_sha512_ctx exchange_hash_ctx;
 
     if(key_state->state == libssh2_NB_state_idle) {
@@ -1234,19 +1250,27 @@ kex_method_diffie_hellman_group16_sha512_key_exchange(LIBSSH2_SESSION *session,
 
         /* g == 2 */
         /* Initialize P and G */
-        _libssh2_bn_set_word(key_state->g, 2);
-        _libssh2_bn_from_bin(key_state->p, 512, p_value);
+        if(_libssh2_bn_set_word(key_state->g, 2)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state g.");
+        }
+        else if(_libssh2_bn_from_bin(key_state->p, 512, p_value)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state p.");
+        }
+        else {
+            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+                           "Initiating Diffie-Hellman Group16 Key Exchange"));
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                       "Initiating Diffie-Hellman Group16 Key Exchange"));
-
-        key_state->state = libssh2_NB_state_created;
+            key_state->state = libssh2_NB_state_created;
+        }
     }
 
-    ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p, 512,
-                                  512, (void *)&exchange_hash_ctx,
-                                  SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
-                                  NULL, 0, &key_state->exchange_state);
+    ret = ret || diffie_hellman_sha_algo(session, key_state->g, key_state->p,
+                                         512, 512, (void *)&exchange_hash_ctx,
+                                         SSH_MSG_KEXDH_INIT,
+                                         SSH_MSG_KEXDH_REPLY, NULL, 0,
+                                         &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN) {
         return ret;
     }
@@ -1356,7 +1380,7 @@ kex_method_diffie_hellman_group18_sha512_key_exchange(LIBSSH2_SESSION *session,
     0x60, 0xC9, 0x80, 0xDD, 0x98, 0xED, 0xD3, 0xDF, 0xFF, 0xFF, 0xFF, 0xFF,
     0xFF, 0xFF, 0xFF, 0xFF
     };
-    int ret;
+    int ret = LIBSSH2_ERROR_NONE;
     libssh2_sha512_ctx exchange_hash_ctx;
 
     if(key_state->state == libssh2_NB_state_idle) {
@@ -1366,19 +1390,27 @@ kex_method_diffie_hellman_group18_sha512_key_exchange(LIBSSH2_SESSION *session,
 
         /* g == 2 */
         /* Initialize P and G */
-        _libssh2_bn_set_word(key_state->g, 2);
-        _libssh2_bn_from_bin(key_state->p, 1024, p_value);
+        if(_libssh2_bn_set_word(key_state->g, 2)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state g.");
+        }
+        else if(_libssh2_bn_from_bin(key_state->p, 1024, p_value)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                 "Failed to allocate key state p.");
+        }
+        else {
+            _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+                           "Initiating Diffie-Hellman Group18 Key Exchange"));
 
-        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                       "Initiating Diffie-Hellman Group18 Key Exchange"));
-
-        key_state->state = libssh2_NB_state_created;
+            key_state->state = libssh2_NB_state_created;
+        }
     }
 
-    ret = diffie_hellman_sha_algo(session, key_state->g, key_state->p, 1024,
-                                  512, (void *)&exchange_hash_ctx,
-                                  SSH_MSG_KEXDH_INIT, SSH_MSG_KEXDH_REPLY,
-                                  NULL, 0, &key_state->exchange_state);
+    ret = ret || diffie_hellman_sha_algo(session, key_state->g, key_state->p,
+                                         1024, 512, (void *)&exchange_hash_ctx,
+                                         SSH_MSG_KEXDH_INIT,
+                                         SSH_MSG_KEXDH_REPLY, NULL, 0,
+                                         &key_state->exchange_state);
     if(ret == LIBSSH2_ERROR_EAGAIN) {
         return ret;
     }
