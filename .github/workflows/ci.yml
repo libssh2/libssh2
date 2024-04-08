@@ -26,6 +26,14 @@ jobs:
       - name: 'checksrc'
         run: ./ci/checksrc.sh
 
+  shellcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'shellcheck'
+        run: ./ci/shellcheck.sh
+
   spellcheck:
     runs-on: ubuntu-latest
     steps:
