@@ -60,8 +60,8 @@ echo "# sshd executable: '${SSHD}' (${ver})"
 [ -z "${PUBKEY:-}" ]  && export PUBKEY="${d}/key_rsa.pub"
 cakeys="${d}/openssh_server/ca_user_keys.pub"
 
-readonly logfsrv="$(mktemp)"
-readonly logfcli="$(mktemp)"
+logfsrv="$(mktemp)"; readonly logfsrv
+logfcli="$(mktemp)"; readonly logfcli
 
 echo "# sshd log: '${logfsrv}'"
 
@@ -149,8 +149,9 @@ for test in ${tests}; do
   if "${test}"; then
     res='ok'
   else
+    testerr=$?
     anyerror=1
-    [ "${via_args}" = '1' ] && [ "${total}" = '1' ] && ec=$?
+    [ "${via_args}" = '1' ] && [ "${total}" = '1' ] && ec="${testerr}"
     res='not ok'
   fi
   echo "${res} ${count} - sshd-$(basename "${test}")"
