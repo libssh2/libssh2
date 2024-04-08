@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -7,14 +7,14 @@ setenv()
 {
         #       Define and export.
 
-        eval ${1}="${2}"
-        export ${1}
+        eval "${1}=${2}"
+        export "${1?}"
 }
 
 
 case "${SCRIPTDIR}" in
 /*)     ;;
-*)      SCRIPTDIR="`pwd`/${SCRIPTDIR}"
+*)      SCRIPTDIR="$(pwd)/${SCRIPTDIR}"
 esac
 
 while true
@@ -26,13 +26,14 @@ done
 
 #  The script directory is supposed to be in $TOPDIR/os400.
 
-TOPDIR=`dirname "${SCRIPTDIR}"`
+TOPDIR=$(dirname "${SCRIPTDIR}")
 export SCRIPTDIR TOPDIR
 
 #  Extract the SONAME from the library makefile.
 
-SONAME=`sed -e '/^VERSION=/!d' -e 's/^.* \([0-9]*\):.*$/\1/' -e 'q'     \
-                                                < "${TOPDIR}/src/Makefile.am"`
+SONAME=$(sed -e '/^VERSION=/!d'                                         \
+             -e 's/^.* \([0-9]*\):.*$/\1/' -e 'q'                       \
+                                                < "${TOPDIR}/src/Makefile.am")
 export SONAME
 
 #       Get OS/400 configuration parameters.
@@ -44,24 +45,24 @@ fi
 
 #       Need to get the version definitions.
 
-LIBSSH2_VERSION=`grep '^#define  *LIBSSH2_VERSION '                     \
+LIBSSH2_VERSION=$(grep '^#define  *LIBSSH2_VERSION '                    \
                         "${TOPDIR}/include/libssh2.h"                   |
-                sed 's/.*"\(.*\)".*/\1/'`
-LIBSSH2_VERSION_MAJOR=`grep '^#define  *LIBSSH2_VERSION_MAJOR '         \
+                sed 's/.*"\(.*\)".*/\1/')
+LIBSSH2_VERSION_MAJOR=$(grep '^#define  *LIBSSH2_VERSION_MAJOR '        \
                         "${TOPDIR}/include/libssh2.h"                   |
-                sed 's/^#define  *LIBSSH2_VERSION_MAJOR  *\([^ ]*\).*/\1/'`
-LIBSSH2_VERSION_MINOR=`grep '^#define  *LIBSSH2_VERSION_MINOR '         \
+                sed 's/^#define  *LIBSSH2_VERSION_MAJOR  *\([^ ]*\).*/\1/')
+LIBSSH2_VERSION_MINOR=$(grep '^#define  *LIBSSH2_VERSION_MINOR '        \
                         "${TOPDIR}/include/libssh2.h"                   |
-                sed 's/^#define  *LIBSSH2_VERSION_MINOR  *\([^ ]*\).*/\1/'`
-LIBSSH2_VERSION_PATCH=`grep '^#define  *LIBSSH2_VERSION_PATCH '         \
+                sed 's/^#define  *LIBSSH2_VERSION_MINOR  *\([^ ]*\).*/\1/')
+LIBSSH2_VERSION_PATCH=$(grep '^#define  *LIBSSH2_VERSION_PATCH '        \
                         "${TOPDIR}/include/libssh2.h"                   |
-                sed 's/^#define  *LIBSSH2_VERSION_PATCH  *\([^ ]*\).*/\1/'`
-LIBSSH2_VERSION_NUM=`grep '^#define  *LIBSSH2_VERSION_NUM '             \
+                sed 's/^#define  *LIBSSH2_VERSION_PATCH  *\([^ ]*\).*/\1/')
+LIBSSH2_VERSION_NUM=$(grep '^#define  *LIBSSH2_VERSION_NUM '            \
                         "${TOPDIR}/include/libssh2.h"                   |
-                sed 's/^#define  *LIBSSH2_VERSION_NUM  *0x\([^ ]*\).*/\1/'`
-LIBSSH2_TIMESTAMP=`grep '^#define  *LIBSSH2_TIMESTAMP '                 \
+                sed 's/^#define  *LIBSSH2_VERSION_NUM  *0x\([^ ]*\).*/\1/')
+LIBSSH2_TIMESTAMP=$(grep '^#define  *LIBSSH2_TIMESTAMP '                \
                         "${TOPDIR}/include/libssh2.h"                   |
-                sed 's/.*"\(.*\)".*/\1/'`
+                sed 's/.*"\(.*\)".*/\1/')
 export LIBSSH2_VERSION
 export LIBSSH2_VERSION_MAJOR LIBSSH2_VERSION_MINOR LIBSSH2_VERSION_PATCH
 export LIBSSH2_VERSION_NUM LIBSSH2_TIMESTAMP
@@ -92,7 +93,7 @@ action_needed()
 
 {
         [ ! -e "${1}" ] && return 0
-        [ "${2}" ] || return 1
+        [ -n "${2}" ] || return 1
         [ "${1}" -ot "${2}" ] && return 0
         return 1
 }
@@ -109,7 +110,7 @@ canonicalize_path()
 {
         if expr "${1}" : '^/' > /dev/null
         then    P="${1}"
-        else    P="`pwd`/${1}"
+        else    P="$(pwd)/${1}"
         fi
 
         R=
@@ -120,7 +121,8 @@ canonicalize_path()
         do      IFS="${IFSSAVE}"
                 case "${C}" in
                 .)      ;;
-                ..)     R=`expr "${R}" : '^\(.*/\)..*'`
+                ..)     R=$(expr \
+                                 "${R}" : '^\(.*/\)..*')
                         ;;
                 ?*)     R="${R}${C}/"
                         ;;
@@ -129,7 +131,7 @@ canonicalize_path()
         done
 
         IFS="${IFSSAVE}"
-        echo "/`expr "${R}" : '^\(.*\)/'`"
+        echo "/$(expr "${R}" : '^\(.*\)/')"
 }
 
 
@@ -145,7 +147,8 @@ make_module()
         MODULES="${MODULES} ${1}"
         MODIFSNAME="${LIBIFSNAME}/${1}.MODULE"
         action_needed "${MODIFSNAME}" "${2}" || return 0;
-        SRCDIR=`dirname \`canonicalize_path "${2}"\``
+        SRCDIR="$(dirname \
+                          "$(canonicalize_path "${2}")")"
 
         #       #pragma convert has to be in the source file itself, i.e.
         #               putting it in an include file makes it only active
@@ -153,10 +156,12 @@ make_module()
         #       Thus we build a temporary file with the pragma prepended to
         #               the source file and we compile that temporary file.
 
-        echo "#line 1 \"${2}\"" > __tmpsrcf.c
-        echo "#pragma convert(819)" >> __tmpsrcf.c
-        echo "#line 1" >> __tmpsrcf.c
-        cat "${2}" >> __tmpsrcf.c
+        {
+                echo "#line 1 \"${2}\""
+                echo "#pragma convert(819)"
+                echo "#line 1"
+                cat "${2}"
+        } > __tmpsrcf.c
         CMD="CRTCMOD MODULE(${TARGETLIB}/${1}) SRCSTMF('__tmpsrcf.c')"
 #       CMD="${CMD} SYSIFCOPT(*IFS64IO) OPTION(*INCDIRFIRST *SHOWINC *SHOWSYS)"
         CMD="${CMD} SYSIFCOPT(*IFS64IO) OPTION(*INCDIRFIRST)"
@@ -185,12 +190,13 @@ make_module()
         then    DEFINES="${DEFINES} LIBSSH2_NO_MD5"
         fi
 
-        if [ "${DEFINES}" ]
+        if [ -n "${DEFINES}" ]
         then    CMD="${CMD} DEFINE(${DEFINES})"
         fi
 
         system "${CMD}"
         rm -f __tmpsrcf.c
+        # shellcheck disable=SC2034
         LINK=YES
 }
 
