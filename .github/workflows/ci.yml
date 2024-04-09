@@ -209,11 +209,23 @@ jobs:
           export SOURCE_DATE_EPOCH=1707087580
           ./configure --enable-werror --disable-debug ${{ matrix.options }}
           ./maketgz 99.98.97
+          # Test reproducibility
           mkdir run1; mv ./libssh2-99.98.97.* run1/
           make clean
           ./maketgz 99.98.97
-          mkdir run2; mv ./libssh2-99.98.97.* run2/
+          mkdir run2; cp -p ./libssh2-99.98.97.* run2/
           diff run1 run2
+          # Test build from tarball
+          tar -xvf libssh2-99.98.97.tar.gz
+          cd libssh2-99.98.97
+          ./configure "--prefix=${HOME}/temp" --enable-werror --enable-debug \
+            ${{ matrix.options }}
+          make -j3 install
+          cd ..
+          # Verify install
+          diff -u <(find docs    -name '*.3' -printf '%f\n' | grep -v template | sort) <(find "${HOME}/temp/share/man/man3" -name '*.3' -printf '%f\n' | sort)
+          diff -u <(find include -name '*.h' -printf '%f\n'                    | sort) <(find "${HOME}/temp/include"        -name '*.h' -printf '%f\n' | sort)
+          rm -rf libssh2-99.98.97
 
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
