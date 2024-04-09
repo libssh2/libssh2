@@ -209,11 +209,11 @@ jobs:
           export SOURCE_DATE_EPOCH=1707087580
           ./configure --enable-werror --disable-debug ${{ matrix.options }}
           ./maketgz 99.98.97
-          mkdir pass1; mv ./libssh2-99.98.97.* pass1
+          mkdir run1; mv ./libssh2-99.98.97.* run1/
           make clean
           ./maketgz 99.98.97
-          mkdir pass2; mv ./libssh2-99.98.97.* pass2
-          diff pass1 pass2
+          mkdir run2; mv ./libssh2-99.98.97.* run2/
+          diff run1 run2
 
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
