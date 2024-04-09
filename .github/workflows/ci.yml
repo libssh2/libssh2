@@ -206,8 +206,14 @@ jobs:
         if: ${{ matrix.target == 'maketgz' }}
         timeout-minutes: 10
         run: |
+          export SOURCE_DATE_EPOCH=1707087580
           ./configure --enable-werror --disable-debug ${{ matrix.options }}
           ./maketgz 99.98.97
+          mkdir pass1; mv ./libssh2-99.98.97.* pass1
+          make clean
+          ./maketgz 99.98.97
+          mkdir pass2; mv ./libssh2-99.98.97.* pass2
+          diff pass1 pass2
 
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
