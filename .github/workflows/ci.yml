@@ -207,7 +207,7 @@ jobs:
         timeout-minutes: 10
         run: |
           ./configure --enable-werror --disable-debug ${{ matrix.options }}
-          ./maketgz 9.99.9
+          ./maketgz 99.98.97
 
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
