@@ -213,6 +213,7 @@ jobs:
           make clean
           ./maketgz 99.98.97
           mkdir pass2; mv ./libssh2-99.98.97.* pass2
+          echo upd >> pass2/libssh2-99.98.97.zip
           diff pass1 pass2
 
       - name: 'cmake configure'
