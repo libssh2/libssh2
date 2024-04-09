@@ -37,7 +37,7 @@
 
 include(CMakeParseArguments)
 
-function(ADD_TARGET_TO_COPY_DEPENDENCIES)
+function(add_target_to_copy_dependencies)
   set(options)
   set(oneValueArgs TARGET)
   set(multiValueArgs DEPENDENCIES BEFORE_TARGETS)
