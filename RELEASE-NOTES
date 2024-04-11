@@ -178,6 +178,7 @@ This release includes the following enhancements and bugfixes:
 - openssl: silence `-Wunused-value` warnings (bf285500 #1205)
 - openssl: use automatic initialization with LibreSSL 2.7.0+ (d79047c9 #1146 #302)
 - openssl: add missing check for `LIBRESSL_VERSION_NUMBER` before use (4a42f42e #1117 #1115)
+- os400: fix shellcheck warnings in scripts (c6625707 #1358)
 - os400: maintain up to date (8457c37a #1309)
 - packet: properly bounds check packet_authagent_open() (88a960a8 #1179)
 - pem: fix private keys encrypted with AES-GCM methods (e87bdefa #1133)
