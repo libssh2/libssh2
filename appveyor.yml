@@ -80,12 +80,12 @@ environment:
       CRYPTO_BACKEND: 'WinCNG'
       SKIP_CTEST: 'yes'
 
-    - job_name: 'VS2010, WinCNG, x64, Build-only'
+    - job_name: 'VS2010, WinCNG, x64, Build-only, non-unity'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       GENERATOR: 'Visual Studio 10 2010'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'WinCNG'
-      UNITY: 'ON'
+      UNITY: 'OFF'
       SKIP_CTEST: 'yes'
 
     - job_name: 'VS2022, WinCNG, x64, Server 2019, Logging'
@@ -160,7 +160,7 @@ build_script:
       if($env:ENABLE_DEBUG_LOGGING -eq 'ON') {
         $options += '-DENABLE_DEBUG_LOGGING=ON'
       }
-      if($env:UNITY -eq 'ON') {
+      if($env:UNITY -ne 'OFF') {
         $options += '-DCMAKE_UNITY_BUILD=ON'
       }
       if($env:BUILD_STATIC_LIBS -eq 'OFF') {
