@@ -71,8 +71,25 @@
 #define LIBSSH2_RSA_SHA1 1
 #define LIBSSH2_RSA_SHA2 1
 #define LIBSSH2_DSA 1
-#define LIBSSH2_ECDSA 1
 #define LIBSSH2_ED25519 0
+
+/* 
+ * Conditionally enable ECDSA support.
+ *
+ * ECDSA support requires the use of 
+ * 
+ *   BCryptDeriveKey(..., BCRYPT_KDF_RAW_SECRET, ... )
+ * 
+ * This functionality is only available as of Windows 10. To maintain
+ * backward compatibility, ECDSA support is therefore disabled
+ * by default and needs to be explicitly enabled using a build
+ * flag.
+ */
+#ifdef LIBSSH_ECDSA_WINCNG 
+#define LIBSSH2_ECDSA 1
+#else
+#define LIBSSH2_ECDSA 0
+#endif
 
 #include "crypto_config.h"
 
@@ -302,7 +319,10 @@ typedef struct __libssh2_wincng_ecdsa_ctx {
 } _libssh2_wincng_ecdsa_key;
 
 #define libssh2_ecdsa_ctx _libssh2_wincng_ecdsa_key
+
+#if LIBSSH2_ECDSA
 #define _libssh2_ec_key _libssh2_wincng_ecdsa_key
+#endif
 
 void
 _libssh2_wincng_ecdsa_free(libssh2_ecdsa_ctx* ctx);

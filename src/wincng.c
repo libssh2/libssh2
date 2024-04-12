@@ -2455,7 +2455,11 @@ _libssh2_wincng_ecdh_gen_k(OUT _libssh2_bn **secret,
     }
 
     /* Compute the size of the buffer that is needed to hold the derived
-     * shared secret. */
+     * shared secret.
+     *
+     * NB. The use of BCRYPT_KDF_RAW_SECRET requires Windows 10 or newer.
+     * On older versions, the BCryptDeriveKey returns STATUS_NOT_SUPPORTED.
+     */
     status = BCryptDeriveKey(
         agreed_secret_handle,
         BCRYPT_KDF_RAW_SECRET,
