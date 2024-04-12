@@ -488,8 +488,7 @@ _libssh2_wincng_init(void)
     }
 
     ret = BCryptOpenAlgorithmProvider(&_libssh2_wincng.hAlgDH,
-                                      BCRYPT_DH_ALGORITHM, NULL,
-                                      0);
+                                      BCRYPT_DH_ALGORITHM, NULL, 0);
     if(!BCRYPT_SUCCESS(ret)) {
         _libssh2_wincng.hAlgDH = NULL;
     }
