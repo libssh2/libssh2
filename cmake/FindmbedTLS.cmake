@@ -10,8 +10,8 @@
 #  MBEDTLS_FOUND - system has mbedTLS
 #  MBEDTLS_LIBRARIES - link these to use mbedTLS
 
-find_path(MBEDTLS_INCLUDE_DIR NAMES mbedtls/version.h)
-find_library(MBEDCRYPTO_LIBRARY NAMES mbedcrypto libmbedcrypto)
+find_path(MBEDTLS_INCLUDE_DIR NAMES "mbedtls/version.h")
+find_library(MBEDCRYPTO_LIBRARY NAMES "mbedcrypto" "libmbedcrypto")
 
 if(MBEDTLS_INCLUDE_DIR)
   file(READ "${MBEDTLS_INCLUDE_DIR}/mbedtls/build_info.h" _mbedtls_header_1)

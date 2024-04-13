@@ -41,9 +41,9 @@
 #  LIBGCRYPT_INCLUDE_DIRS - The Libgcrypt include directories
 #  LIBGCRYPT_LIBRARIES - The libraries needed to use Libgcrypt
 
-find_path(LIBGCRYPT_INCLUDE_DIR gcrypt.h)
+find_path(LIBGCRYPT_INCLUDE_DIR "gcrypt.h")
 
-find_library(LIBGCRYPT_LIBRARY NAMES gcrypt libgcrypt)
+find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt")
 
 set(LIBGCRYPT_LIBRARIES ${LIBGCRYPT_LIBRARY})
 set(LIBGCRYPT_INCLUDE_DIRS ${LIBGCRYPT_INCLUDE_DIR})

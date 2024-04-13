@@ -8,14 +8,14 @@
 #  WOLFSSL_LIBRARIES       - The libraries needed to use wolfssl
 
 find_package(PkgConfig QUIET)
-pkg_check_modules(PC_WOLFSSL QUIET wolfssl)
+pkg_check_modules(PC_WOLFSSL QUIET "wolfssl")
 
 find_path(WOLFSSL_INCLUDE_DIR
-  NAMES wolfssl/options.h
+  NAMES "wolfssl/options.h"
   HINTS ${PC_WOLFSSL_INCLUDE_DIRS}
 )
 find_library(WOLFSSL_LIBRARY
-  NAMES wolfssl
+  NAMES "wolfssl"
   HINTS ${PC_WOLFSSL_LIBRARY_DIRS}
 )
 
@@ -37,8 +37,8 @@ find_package_handle_standard_args(wolfssl REQUIRED_VARS
                                   VERSION_VAR WOLFSSL_VERSION)
 
 if(WOLFSSL_FOUND)
-  set(WOLFSSL_LIBRARIES     ${WOLFSSL_LIBRARY})
-  set(WOLFSSL_INCLUDE_DIRS  ${WOLFSSL_INCLUDE_DIR})
+  set(WOLFSSL_LIBRARIES    ${WOLFSSL_LIBRARY})
+  set(WOLFSSL_INCLUDE_DIRS ${WOLFSSL_INCLUDE_DIR})
 endif()
 
 mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
