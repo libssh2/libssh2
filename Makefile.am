@@ -26,6 +26,7 @@ WIN32FILES = src/libssh2.rc
 
 OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   os400/make-src.sh os400/make-rpg.sh os400/make-include.sh \
+  os400/config400.default \
   os400/os400sys.c os400/ccsid.c \
   os400/libssh2_config.h os400/macros.h os400/libssh2_ccsid.h \
   os400/include/alloca.h os400/include/sys/socket.h os400/include/stdio.h \
@@ -33,7 +34,8 @@ OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   os400/libssh2rpg/libssh2.rpgle.in \
   os400/libssh2rpg/libssh2_ccsid.rpgle.in \
   os400/libssh2rpg/libssh2_publickey.rpgle \
-  os400/libssh2rpg/libssh2_sftp.rpgle
+  os400/libssh2rpg/libssh2_sftp.rpgle \
+  os400/rpg-examples/SFTPXMPLE
 
 EXTRA_DIST = $(WIN32FILES) get_ver.awk \
   maketgz RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
