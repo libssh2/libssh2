@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -94,6 +94,7 @@ action_needed()
 {
         [ ! -e "${1}" ] && return 0
         [ -n "${2}" ] || return 1
+        # shellcheck disable=SC3013
         [ "${1}" -ot "${2}" ] && return 0
         return 1
 }
