@@ -95,8 +95,8 @@ environment:
       GENERATOR: 'Visual Studio 17 2022'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'WinCNG'
-      ENABLE_DEBUG_LOGGING: 'ON'
       ENABLE_ECDSA_WINCNG: 'ON'
+      ENABLE_DEBUG_LOGGING: 'ON'
 
     - job_name: 'VS2022, WinCNG, ARM64, Build-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
