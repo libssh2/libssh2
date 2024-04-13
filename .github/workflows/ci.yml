@@ -465,13 +465,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - { arch: x64  , plat: windows, crypto: WinCNG , log: 'OFF', shared: 'OFF', zlib: 'OFF', unity: 'ON' }
-          - { arch: x64  , plat: windows, crypto: WinCNG , log: 'ON' , shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { arch: x64  , plat: windows, crypto: OpenSSL, log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { arch: x64  , plat: uwp    , crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { arch: arm64, plat: windows, crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { arch: arm64, plat: uwp    , crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
-          - { arch: x86  , plat: windows, crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'OFF', zlib: 'OFF', unity: 'ON' }
+          - { arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { arch: x64  , plat: windows, crypto: OpenSSL, wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { arch: x64  , plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { arch: arm64, plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { arch: arm64, plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
+          - { arch: x86  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
@@ -496,6 +496,7 @@ jobs:
             -DENABLE_DEBUG_LOGGING=${{ matrix.log }} \
             -DBUILD_SHARED_LIBS=${{ matrix.shared }} \
             -DCRYPTO_BACKEND=${{ matrix.crypto }} \
+            -DENABLE_ECDSA_WINCNG=${{ matrix.wincng_ecdsa }} \
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF
