@@ -358,16 +358,18 @@ jobs:
     strategy:
       matrix:
         include:
-          - { build: 'autotools', sys: msys   , env: x86_64 }
-          - { build: 'cmake'    , sys: msys   , env: x86_64 }
-          - { build: 'autotools', sys: mingw64, env: x86_64 }
-          - { build: 'autotools', sys: mingw32, env: i686 }
-          - { build: 'autotools', sys: ucrt64,  env: ucrt-x86_64 }
-          - { build: 'autotools', sys: clang64, env: clang-x86_64 }
-          - { build: 'cmake'    , sys: ucrt64,  env: ucrt-x86_64 }
-          - { build: 'cmake'    , sys: clang64, env: clang-x86_64 }
-          - { build: 'cmake'    , sys: mingw64, env: x86_64, test: 'uwp' }
-          - { build: 'cmake'    , sys: mingw64, env: x86_64, test: 'no-options' }
+          - { build: 'autotools', sys: msys   , crypto: openssl, env: x86_64 }
+          - { build: 'cmake'    , sys: msys   , crypto: OpenSSL, env: x86_64 }
+          - { build: 'autotools', sys: mingw64, crypto: wincng , env: x86_64 }
+          - { build: 'autotools', sys: mingw64, crypto: openssl, env: x86_64 }
+          - { build: 'autotools', sys: mingw32, crypto: openssl, env: i686 }
+          - { build: 'autotools', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
+          - { build: 'autotools', sys: clang64, crypto: openssl, env: clang-x86_64 }
+          - { build: 'autotools', sys: clang64, crypto: wincng , env: clang-x86_64 }
+          - { build: 'cmake'    , sys: ucrt64 , crypto: OpenSSL, env: ucrt-x86_64 }
+          - { build: 'cmake'    , sys: clang64, crypto: OpenSSL, env: clang-x86_64 }
+          - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'uwp' }
+          - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'no-options' }
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
@@ -395,11 +397,15 @@ jobs:
           SSHD: 'C:/Program Files/Git/usr/bin/sshd.exe'
         shell: msys2 {0}
         run: |
+          if [ '${{ matrix.crypto }}' = 'wincng' ] && [[ '${{ matrix.env }}' = 'clang'* ]]; then
+            options='--enable-ecdsa-wincng'
+          fi
           # sshd tests sometimes hang
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-            --with-crypto=openssl \
+            --with-crypto=${{ matrix.crypto }} \
             --disable-docker-tests \
-            --disable-sshd-tests
+            --disable-sshd-tests \
+            ${options}
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
@@ -441,7 +447,7 @@ jobs:
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
-            -DCRYPTO_BACKEND=OpenSSL \
+            -DCRYPTO_BACKEND=${{ matrix.crypto }} \
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF \
@@ -465,13 +471,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - { arch: x64  , plat: windows, crypto: WinCNG , log: 'OFF', shared: 'OFF', zlib: 'OFF', unity: 'ON' }
-          - { arch: x64  , plat: windows, crypto: WinCNG , log: 'ON' , shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { arch: x64  , plat: windows, crypto: OpenSSL, log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { arch: x64  , plat: uwp    , crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { arch: arm64, plat: windows, crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-          - { arch: arm64, plat: uwp    , crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
-          - { arch: x86  , plat: windows, crypto: WinCNG , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'OFF', zlib: 'OFF', unity: 'ON' }
+          - { arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'ON' , shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { arch: x64  , plat: windows, crypto: OpenSSL, wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { arch: x64  , plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { arch: arm64, plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
+          - { arch: arm64, plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
+          - { arch: x86  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
@@ -496,6 +502,7 @@ jobs:
             -DENABLE_DEBUG_LOGGING=${{ matrix.log }} \
             -DBUILD_SHARED_LIBS=${{ matrix.shared }} \
             -DCRYPTO_BACKEND=${{ matrix.crypto }} \
+            -DENABLE_ECDSA_WINCNG=${{ matrix.wincng_ecdsa }} \
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF
