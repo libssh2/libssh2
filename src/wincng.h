@@ -73,19 +73,19 @@
 #define LIBSSH2_DSA 1
 #define LIBSSH2_ED25519 0
 
-/* 
+/*
  * Conditionally enable ECDSA support.
  *
- * ECDSA support requires the use of 
- * 
+ * ECDSA support requires the use of
+ *
  *   BCryptDeriveKey(..., BCRYPT_KDF_RAW_SECRET, ... )
- * 
+ *
  * This functionality is only available as of Windows 10. To maintain
  * backward compatibility, ECDSA support is therefore disabled
  * by default and needs to be explicitly enabled using a build
  * flag.
  */
-#ifdef LIBSSH_ECDSA_WINCNG 
+#ifdef LIBSSH_ECDSA_WINCNG
 #define LIBSSH2_ECDSA 1
 #else
 #define LIBSSH2_ECDSA 0
