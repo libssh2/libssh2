@@ -85,7 +85,7 @@
  * by default and needs to be explicitly enabled using a build
  * flag.
  */
-#ifdef LIBSSH_ECDSA_WINCNG
+#ifdef LIBSSH2_ECDSA_WINCNG
 #define LIBSSH2_ECDSA 1
 #else
 #define LIBSSH2_ECDSA 0
