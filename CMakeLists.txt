@@ -404,7 +404,7 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND_INCLUDE_DIR "")
     list(APPEND LIBRARIES "crypt32" "bcrypt")
     list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lcrypt32" "-lbcrypt")
-    
+
     option(ENABLE_ECDSA_WINCNG "WinCNG ECDSA support (requires Windows 10 or later)" OFF)
     add_feature_info(Logging ENABLE_ECDSA_WINCNG "WinCNG ECDSA support")
     if(ENABLE_ECDSA_WINCNG)
