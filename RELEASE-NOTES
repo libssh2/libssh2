@@ -67,6 +67,7 @@ This release includes the following enhancements and bugfixes:
 - checksrc: fix spelling in comment (a95d401f)
 - checksrc: modernise Perl file open (3d309f9b)
 - checksrc: switch to dot file (d67a91aa #1052)
+- ci: enable Unity mode for most CMake builds (1bfae57b #1367 #1034)
 - ci: add shellcheck job and script (d88b9bcd)
 - ci: verify build and install from tarball (a86e27e8 #1362)
 - ci: add reproducibility test for `maketgz` (2d765e45 #1360)
@@ -178,6 +179,8 @@ This release includes the following enhancements and bugfixes:
 - openssl: silence `-Wunused-value` warnings (bf285500 #1205)
 - openssl: use automatic initialization with LibreSSL 2.7.0+ (d79047c9 #1146 #302)
 - openssl: add missing check for `LIBRESSL_VERSION_NUMBER` before use (4a42f42e #1117 #1115)
+- os400: Add two recent files to the distribution (e4c65e5b #1364)
+- os400: fix shellcheck warnings in scripts (fixups) (81341e1e #1366 #1364 #1358)
 - os400: fix shellcheck warnings in scripts (c6625707 #1358)
 - os400: maintain up to date (8457c37a #1309)
 - packet: properly bounds check packet_authagent_open() (88a960a8 #1179)
@@ -227,6 +230,8 @@ This release includes the following enhancements and bugfixes:
 - userauth: avoid oob with huge interactive kbd response (f3a85cad #1337)
 - userauth: add a new structure to separate memory read and file read (63b4c20e #773)
 - userauth: check whether `*key_method` is a NULL pointer instead of `key_method` (bec57c40)
+- wincng: add to ci/GHA, add `./configure` option `--enable-ecdsa-wincng` (3f98bfb0 #1368 #1315)
+- wincng: add ECDSA support for host and user authentication (3e723437 #1315)
 - wincng: prefer `ULONG`/`DWORD` over `unsigned long` (186c1d63 #1165)
 - wincng: tidy-ups (7bb669b5 #1164)
 - wolfssl: enable debug logging in wolfSSL when compiled in (76e7a68a #1310)
@@ -234,12 +239,12 @@ This release includes the following enhancements and bugfixes:
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
-  Viktor Szakats, Michael Buckley, Ren Mingshuai, Patrick Monnerat,
+  Viktor Szakats, Michael Buckley, Patrick Monnerat, Ren Mingshuai,
   Daniel Stenberg, Josef Cejka, Ryan Kelley, Will Cosgrove, Aaron Stone,
   András Fekete, Andrei Augustin, Brian Inglis, concussious on github,
   Dan Fandrich, Haowei Hsu, Harmen Stoppels, Harry Mallon, Jack L, Jakob Egger,
-  Jiwoo Park, João M. S. Silva, Joel Depooter, Juliusz Sosinowicz, Kai Pastor,
-  Kenneth Davidson, Lyndon Brown, mike-jumper, naddy, Nicolas Mora,
-  Nursan Valeyev, Paul Howarth, PewPewPew, Radek Brich, rahmanih on github,
-  shubhamhii on github, Steve McIntyre, Tejaswi Kandula, Tobias Stoeckmann,
-  Xi Ruoyao
+  Jiwoo Park, João M. S. Silva, Joel Depooter, Johannes Passing,
+  Juliusz Sosinowicz, Kai Pastor, Kenneth Davidson, Lyndon Brown, mike-jumper,
+  naddy, Nicolas Mora, Nursan Valeyev, Paul Howarth, PewPewPew, Radek Brich,
+  rahmanih on github, shubhamhii on github, Steve McIntyre, Tejaswi Kandula,
+  Tobias Stoeckmann, Xi Ruoyao
