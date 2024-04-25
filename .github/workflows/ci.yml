@@ -561,7 +561,8 @@ jobs:
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-libz ${{ matrix.crypto.configure }} \
             --disable-docker-tests \
-            --disable-sshd-tests
+            --disable-sshd-tests \
+            || { tail -n 1000 config.log; false; }
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
