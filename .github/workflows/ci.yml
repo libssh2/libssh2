@@ -542,7 +542,7 @@ jobs:
             cmake: -DCRYPTO_BACKEND=wolfSSL
           - name: 'libgcrypt'
             install: libgcrypt
-            configure: --with-crypto=libgcrypt "--with-libgcrypt-prefix=$(brew --prefix)/opt/libgcrypt"
+            configure: --with-crypto=libgcrypt "--with-libgcrypt-prefix=$(brew --prefix)"
             cmake: -DCRYPTO_BACKEND=Libgcrypt
           - name: 'mbedTLS'
             install: mbedtls
