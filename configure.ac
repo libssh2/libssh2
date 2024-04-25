@@ -136,7 +136,7 @@ fi
 # ECDSA support with WinCNG
 AC_ARG_ENABLE(ecdsa-wincng,
   AS_HELP_STRING([--enable-ecdsa-wincng],
-    WinCNG ECDSA support (requires Windows 10 or later)]),
+    WinCNG ECDSA support (requires Windows 10 or later)),
   [wincng_ecdsa=$enableval])
 if test "$wincng_ecdsa" = yes; then
   AC_DEFINE(LIBSSH2_ECDSA_WINCNG, 1, [Enable WinCNG ECDSA support])
