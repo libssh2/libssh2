@@ -550,7 +550,7 @@ jobs:
             cmake: -DCRYPTO_BACKEND=mbedTLS "-DMBEDTLS_INCLUDE_DIR=$(brew --prefix)/opt/mbedtls/include" "-DMBEDCRYPTO_LIBRARY=$(brew --prefix)/opt/mbedtls/lib/libmbedcrypto.a"
     steps:
       - name: 'install packages'
-        run: brew install automake ${{ matrix.crypto.install }}
+        run: brew install automake libtool ${{ matrix.crypto.install }}
       - uses: actions/checkout@v4
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
