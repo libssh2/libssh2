@@ -205,7 +205,7 @@ jobs:
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' && !matrix.target }}
         timeout-minutes: 10
-        run: make -C bld check VERBOSE=1
+        run: make -C bld check V=1
       - name: 'autotools distcheck'
         if: ${{ matrix.target == 'distcheck' }}
         timeout-minutes: 10
@@ -331,7 +331,7 @@ jobs:
             --with-crypto=openssl \
             --disable-docker-tests
           make -j3
-          make check VERBOSE=1
+          make check V=1
 
       - name: 'cmake'
         if: ${{ matrix.build == 'cmake' }}
@@ -415,7 +415,7 @@ jobs:
         if: ${{ matrix.build == 'autotools' }}
         timeout-minutes: 10
         shell: msys2 {0}
-        run: make -C bld check VERBOSE=1
+        run: make -C bld check V=1
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         shell: msys2 {0}
@@ -566,11 +566,11 @@ jobs:
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
-        run: make -C bld -j3
+        run: make -C bld -j3 V=1
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' }}
         timeout-minutes: 10
-        run: make -C bld check VERBOSE=1
+        run: make -C bld check V=1
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
@@ -666,7 +666,7 @@ jobs:
               --with-crypto=openssl \
               --disable-docker-tests
             make -j3
-            make check VERBOSE=1
+            make check V=1
 
   build_omnios:
     name: 'OmniOS (autotools, openssl, gcc, amd64)'
@@ -686,4 +686,4 @@ jobs:
               --with-crypto=openssl \
               --disable-docker-tests
             gmake -j3
-            gmake check VERBOSE=1
+            gmake check V=1
