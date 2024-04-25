@@ -476,7 +476,7 @@ struct _libssh2_wincng_bignum {
    diffie-hellman-group-exchange-sha1 */
 #define LIBSSH2_DH_GEX_MINGROUP     2048
 #define LIBSSH2_DH_GEX_OPTGROUP     4096
-#define LIBSSH2_DH_GEX_MAXGROUP     8192
+#define LIBSSH2_DH_GEX_MAXGROUP     4096
 
 #define LIBSSH2_DH_MAX_MODULUS_BITS 16384
 
