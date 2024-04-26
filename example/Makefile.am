@@ -11,4 +11,4 @@ AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include
 LDADD = $(top_builddir)/src/libssh2.la
 
 # This might hold -Werror
-CFLAGS += @LIBSSH2_CFLAG_EXTRAS@
+AM_CFLAGS = @LIBSSH2_CFLAG_EXTRAS@
