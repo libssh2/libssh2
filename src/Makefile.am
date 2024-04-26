@@ -20,7 +20,7 @@ lib_LTLIBRARIES = libssh2.la
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/include
 
 # This might hold -Werror
-CFLAGS += @LIBSSH2_CFLAG_EXTRAS@
+AM_CFLAGS = @LIBSSH2_CFLAG_EXTRAS@
 
 VERSION=-version-info 1:1:0
 
