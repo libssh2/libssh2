@@ -52,6 +52,7 @@ This release includes the following enhancements and bugfixes:
 - autotools: remove `AB_INIT` from `configure.ac` (f4f52ccc)
 - autotools: improve libz position (c89174a7 #1077 #941 #1075 #1013 regr: 4f0f4bff)
 - autotools: skip tests requiring static lib if `--disable-static` (572c57c9 #1072 #663 #1056 regr: 83853f8a)
+- build: silence warnings inside `FD_SET()`/`FD_ISSET()` macros (323a14b2 #1379)
 - build: drop `-Wformat-nonliteral` warning suppressions (c452c5cc #1342)
 - build: enable `-pedantic-errors` (3ec53f3e #1286)
 - build: add mingw-w64 support to `LIBSSH2_PRINTF()` attribute (f8c45794 #1287)
@@ -102,6 +103,11 @@ This release includes the following enhancements and bugfixes:
 - ci/appveyor: delete UWP job broken since Visual Studio upgrade (d0a7f1da #1275)
 - ci/appveyor: YAML/PowerShell formatting, shorten variable name (06fd721f #1200)
 - ci/appveyor: move to pure PowerShell (8a081fd9 #1197)
+- ci/GHA: fix gcrypt with autotools/macOS/Homebrew/ARM64 (ae2770de #1377)
+- ci/GHA: fix verbose option for autotools jobs (499b27ae #1376)
+- ci/GHA: dump `config.log` on failure for macOS autotools jobs (4fa69214 #1375)
+- ci/GHA: fix `autoreconf` failure on macOS/Homebrew (0b64b30b #1374)
+- ci/GHA: fixup Homebrew location (for ARM runners) (6128aee0 #1373)
 - ci/GHA: review/fixup auto-cancel settings (b08cfbc9 #1292)
 - ci/GHA: restore curly braces in `if` (36748270 #1145)
 - ci/GHA: simplify `if` strings (cab3db58 #1140)
@@ -230,6 +236,7 @@ This release includes the following enhancements and bugfixes:
 - userauth: avoid oob with huge interactive kbd response (f3a85cad #1337)
 - userauth: add a new structure to separate memory read and file read (63b4c20e #773)
 - userauth: check whether `*key_method` is a NULL pointer instead of `key_method` (bec57c40)
+- wincng: fix `DH_GEX_MAXGROUP` set higher than supported (48584671 #1372 #493)
 - wincng: add to ci/GHA, add `./configure` option `--enable-ecdsa-wincng` (3f98bfb0 #1368 #1315)
 - wincng: add ECDSA support for host and user authentication (3e723437 #1315)
 - wincng: prefer `ULONG`/`DWORD` over `unsigned long` (186c1d63 #1165)
@@ -241,10 +248,11 @@ advice from friends like these:
 
   Viktor Szakats, Michael Buckley, Patrick Monnerat, Ren Mingshuai,
   Daniel Stenberg, Josef Cejka, Ryan Kelley, Will Cosgrove, Aaron Stone,
-  András Fekete, Andrei Augustin, Brian Inglis, concussious on github,
-  Dan Fandrich, Haowei Hsu, Harmen Stoppels, Harry Mallon, Jack L, Jakob Egger,
-  Jiwoo Park, João M. S. Silva, Joel Depooter, Johannes Passing,
-  Juliusz Sosinowicz, Kai Pastor, Kenneth Davidson, Lyndon Brown, mike-jumper,
-  naddy, Nicolas Mora, Nursan Valeyev, Paul Howarth, PewPewPew, Radek Brich,
-  rahmanih on github, shubhamhii on github, Steve McIntyre, Tejaswi Kandula,
-  Tobias Stoeckmann, Xi Ruoyao
+  András Fekete, Andrei Augustin, binary1248, Brian Inglis,
+  concussious on github, Dan Fandrich, Haowei Hsu, Harmen Stoppels,
+  Harry Mallon, Jack L, Jakob Egger, Jiwoo Park, João M. S. Silva,
+  Joel Depooter, Johannes Passing, Juliusz Sosinowicz, Kai Pastor,
+  Kenneth Davidson, Lyndon Brown, mike-jumper, naddy, Nicolas Mora,
+  Nursan Valeyev, Paul Howarth, PewPewPew, Radek Brich, rahmanih on github,
+  shubhamhii on github, Steve McIntyre, Tejaswi Kandula, Tobias Stoeckmann,
+  Xi Ruoyao
