@@ -1671,8 +1671,8 @@ gen_publickey_from_dsa(LIBSSH2_SESSION* session, libssh2_dsa_ctx *dsa,
     BIGNUM * pub_key = NULL;
 
     EVP_PKEY_get_bn_param(dsa, OSSL_PKEY_PARAM_FFC_P, &p_bn);
-    EVP_PKEY_get_bn_param(dsa, OSSL_PKEY_PARAM_FFC_G, &q);
-    EVP_PKEY_get_bn_param(dsa, OSSL_PKEY_PARAM_FFC_Q, &g);
+    EVP_PKEY_get_bn_param(dsa, OSSL_PKEY_PARAM_FFC_Q, &q);
+    EVP_PKEY_get_bn_param(dsa, OSSL_PKEY_PARAM_FFC_G, &g);
     EVP_PKEY_get_bn_param(dsa, OSSL_PKEY_PARAM_PUB_KEY, &pub_key);
 #else
     const BIGNUM * p_bn;
