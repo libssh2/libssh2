@@ -546,7 +546,7 @@ jobs:
             cmake: -DCRYPTO_BACKEND=Libgcrypt
           - name: 'mbedTLS'
             install: mbedtls
-            configure: --with-crypto=mbedtls "--with-libmbedcrypto-prefix=$(brew --prefix)/opt/mbedtls"
+            configure: --with-crypto=mbedtls "--with-libmbedcrypto-prefix=$(brew --prefix)"
             cmake: -DCRYPTO_BACKEND=mbedTLS "-DMBEDTLS_INCLUDE_DIR=$(brew --prefix)/opt/mbedtls/include" "-DMBEDCRYPTO_LIBRARY=$(brew --prefix)/opt/mbedtls/lib/libmbedcrypto.a"
     steps:
       - name: 'install packages'
@@ -556,9 +556,18 @@ jobs:
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
       - name: 'autotools configure'
-        if: ${{ matrix.build == 'autotools' }}
+        if: ${{ matrix.build == 'autotools' && matrix.crypto.name != 'mbedTLS' }}
         run: |
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+            --with-libz ${{ matrix.crypto.configure }} \
+            --disable-docker-tests \
+            --disable-sshd-tests \
+            || { tail -n 1000 config.log; false; }
+      - name: 'autoconf configure mbedTLS'
+        if: ${{ matrix.build == 'autotools' && matrix.crypto.name == 'mbedTLS' }}
+        run: |
+          mkdir bld && cd bld && LDFLAGS="-L/opt/homebrew/lib" \
+            ../configure --enable-werror --enable-debug \
             --with-libz ${{ matrix.crypto.configure }} \
             --disable-docker-tests \
             --disable-sshd-tests \
