@@ -556,18 +556,11 @@ jobs:
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
       - name: 'autotools configure'
-        if: ${{ matrix.build == 'autotools' && matrix.crypto.name != 'mbedTLS' }}
+        if: ${{ matrix.build == 'autotools' }}
         run: |
+          # Workaround for GHA ARM runner issue
+          [ '${{ matrix.crypto.name }}' = 'mbedTLS' ] && export LDFLAGS="-L$(brew --prefix)/lib"
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-            --with-libz ${{ matrix.crypto.configure }} \
-            --disable-docker-tests \
-            --disable-sshd-tests \
-            || { tail -n 1000 config.log; false; }
-      - name: 'autoconf configure mbedTLS'
-        if: ${{ matrix.build == 'autotools' && matrix.crypto.name == 'mbedTLS' }}
-        run: |
-          mkdir bld && cd bld && LDFLAGS="-L/opt/homebrew/lib" \
-            ../configure --enable-werror --enable-debug \
             --with-libz ${{ matrix.crypto.configure }} \
             --disable-docker-tests \
             --disable-sshd-tests \
