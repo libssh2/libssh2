@@ -845,12 +845,11 @@ AC_DEFUN([LIBSSH2_LIB_HAVE_LINKFLAGS], [
 
   AC_LIB_HAVE_LINKFLAGS([$1], [$2], [$3])
 
-  LDFLAGS="$libssh2_save_LDFLAGS"
-
   if test "$ac_cv_lib$1" = "yes"; then :
     $4
   else
     CPPFLAGS="$libssh2_save_CPPFLAGS"
+    LDFLAGS="$libssh2_save_LDFLAGS"
   fi
 ])
 
