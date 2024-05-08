@@ -558,8 +558,6 @@ jobs:
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' }}
         run: |
-          # Workaround for GHA ARM runner issue
-          [ '${{ matrix.crypto.name }}' = 'mbedTLS' ] && export LDFLAGS="-L$(brew --prefix)/lib"
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-libz ${{ matrix.crypto.configure }} \
             --disable-docker-tests \
