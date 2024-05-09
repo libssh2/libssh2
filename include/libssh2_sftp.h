@@ -303,6 +303,15 @@ LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,
                            LIBSSH2_SFTP_RENAME_ATOMIC | \
                            LIBSSH2_SFTP_RENAME_NATIVE)
 
+LIBSSH2_API int libssh2_sftp_posix_rename_ex(LIBSSH2_SFTP *sftp,
+                                             const char *source_filename,
+                                             size_t srouce_filename_len,
+                                             const char *dest_filename,
+                                             size_t dest_filename_len);
+#define libssh2_sftp_posix_rename(sftp, sourcefile, destfile) \
+    libssh2_sftp_posix_rename_ex((sftp), (sourcefile), strlen(sourcefile), \
+                                 (destfile), strlen(destfile))
+
 LIBSSH2_API int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp,
                                        const char *filename,
                                        unsigned int filename_len);
