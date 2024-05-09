@@ -3015,6 +3015,126 @@ libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp, const char *source_filename,
     return rc;
 }
 
+static int
+sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
+                  unsigned int source_filename_len,
+                  const char *dest_filename,
+                  unsigned int dest_filename_len)
+{
+    LIBSSH2_CHANNEL *channel = sftp->channel;
+    LIBSSH2_SESSION *session = channel->session;
+    uint32_t packet_len = 45 + source_filename_len + dest_filename_len;
+    size_t data_len = 0;
+    unsigned char *packet, *s, *data = NULL;
+    ssize_t rc;
+    uint32_t retcode;
+
+    if(sftp->posix_rename_version != 1) {
+        return _libssh2_error(session, LIBSSH2_FX_OP_UNSUPPORTED,
+                              "Server does not support"
+                              "posix-rename@openssh.com");
+    }
+
+    /* 45 = packet_len(4) + packet_type(1) + request_id(4) +
+       string_len(4) + strlen("posix-rename@openssh.com")(24) +
+       oldpath_len(4) + source_filename_len +
+       newpath_len(4) + dest_filename_len */
+
+    if(sftp->posix_rename_state == libssh2_NB_state_idle) {
+        _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
+                       "Issuing posix_rename command"));
+        s = packet = LIBSSH2_ALLOC(session, packet_len);
+        if(!packet) {
+            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for FXP_EXTENDED "
+                                  "packet");
+        }
+
+        _libssh2_store_u32(&s, packet_len - 4);
+        *(s++) = SSH_FXP_EXTENDED;
+        sftp->posix_rename_request_id = sftp->request_id++;
+        _libssh2_store_u32(&s, sftp->posix_rename_request_id);
+        _libssh2_store_str(&s, "posix-rename@openssh.com", 24);
+        _libssh2_store_str(&s, source_filename, source_filename_len);
+        _libssh2_store_str(&s, dest_filename, dest_filename_len);
+
+        sftp->posix_rename_state = libssh2_NB_state_created;
+    }
+    else {
+        packet = sftp->posix_rename_packet;
+    }
+
+    if(sftp->posix_rename_state == libssh2_NB_state_created) {
+        rc = _libssh2_channel_write(channel, 0, packet, packet_len);
+        if(rc == LIBSSH2_ERROR_EAGAIN ||
+            (0 <= rc && rc < (ssize_t)packet_len)) {
+            sftp->posix_rename_packet = packet;
+            return LIBSSH2_ERROR_EAGAIN;
+        }
+
+        LIBSSH2_FREE(session, packet);
+        sftp->posix_rename_packet = NULL;
+
+        if(rc < 0) {
+            sftp->posix_rename_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                                  "_libssh2_channel_write() failed");
+        }
+        sftp->posix_rename_state = libssh2_NB_state_sent;
+    }
+
+    rc = sftp_packet_require(sftp, SSH_FXP_STATUS,
+                             sftp->posix_rename_request_id,
+                             &data, &data_len, 9);
+    if(rc == LIBSSH2_ERROR_EAGAIN) {
+        return (int)rc;
+    }
+    else if(rc == LIBSSH2_ERROR_BUFFER_TOO_SMALL) {
+        if(data_len > 0) {
+            LIBSSH2_FREE(session, data);
+        }
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                              "SFTP posix_rename packet too short");
+    }
+    else if(rc) {
+        sftp->posix_rename_state = libssh2_NB_state_idle;
+        return (int)_libssh2_error(session, (int)rc,
+                                   "Error waiting for FXP EXTENDED REPLY");
+    }
+
+    sftp->posix_rename_state = libssh2_NB_state_idle;
+
+    retcode = _libssh2_ntohu32(data + 5);
+    LIBSSH2_FREE(session, data);
+
+    if(retcode != LIBSSH2_FX_OK) {
+        sftp->last_errno = retcode;
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                              "posix_rename failed");
+    }
+
+    return 0;
+}
+
+/* libssh2_sftp_posix_rename_ex
+ * Rename a file on the remote server using the posix-rename@openssh.com
+ * extension.
+ */
+LIBSSH2_API int
+libssh2_sftp_posix_rename_ex(LIBSSH2_SFTP *sftp, const char *source_filename,
+                             unsigned int source_filename_len,
+                             const char *dest_filename,
+                             unsigned int dest_filename_len)
+{
+    int rc;
+    if(!sftp)
+        return LIBSSH2_ERROR_BAD_USE;
+    BLOCK_ADJUST(rc, sftp->channel->session,
+                 sftp_posix_rename(sftp, source_filename, source_filename_len,
+                                   dest_filename, dest_filename_len));
+    return rc;
+}
+
 /* sftp_fstatvfs
  * Get file system statistics
  */
