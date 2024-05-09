@@ -121,6 +121,7 @@ The prototype of the callback:
 
 .nf
 void sign(LIBSSH2_SESSION* session,
+          unsigned int flags,
           unsigned char *blob, unsigned int blen,
           const unsigned char *data, unsigned int dlen,
           unsigned char **sig, unsigned int *sig_len,
@@ -129,7 +130,33 @@ void sign(LIBSSH2_SESSION* session,
 .fi
 
 When interfacing with an ssh-agent installed on the client system, this method
-can call libssh2_agent_sign(3) to perform signing.
+can call \fIlibssh2_agent_sign(3)\fP to perform signing.
+
+\fBflags\fP Flags to pass to the agent during the signing request, if any.
+Currently, the only flags SSH_AGENT_RSA_SHA2_256 (2) and SSH_AGENT_RSA_SHA2_512
+(4). You are responsible for defining constants for these flags if you need
+them.
+
+\fBblob\fP The key requested to perform the signature.
+
+\fBblen\fP The length of the key blob.
+
+\fBdata\fP The data to sign.
+
+\fBdlen\fP The length of the data.
+
+\fBsig\fP On a successful return, this should point to a buffer allocated by
+the callback using LIBSSH2_ALLOC. The function that calls the callback is
+responsible for zeroing out the buffer and freeing it using LIBSSH2_FREE.
+
+\fBsig_len\fP On a successful return, this should be set to the length of the
+signature.
+
+\fBagent_path\fP The path to a running ssh-agent on the client machine, from
+which identities were listed.
+
+\fBabstract\fP A pointer to the abstract pointer set in the
+\fIlibssh2_session_init_ex(3)\fP call.
 
 .SH RETURN VALUE
 Pointer to previous callback handler. Returns NULL if no prior callback
