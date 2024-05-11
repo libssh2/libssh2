@@ -37,6 +37,7 @@ Deprecation notices:
 
 This release includes the following enhancements and bugfixes:
 
+- autotools: fix to update `LDFLAGS` for each detected dependency (d19b6190 #1384 #1381 #1377)
 - autotools: delete `--disable-tests` option, fix CI tests (e051ae34 #1271 #715 revert: 7483edfa)
 - autotools: show the default for `hidden-symbols` option (a3f5594a #1269)
 - autotools: enable `-Wunused-macros` with gcc (ecdf5199 #1262 #1227 #1224)
@@ -68,6 +69,7 @@ This release includes the following enhancements and bugfixes:
 - checksrc: fix spelling in comment (a95d401f)
 - checksrc: modernise Perl file open (3d309f9b)
 - checksrc: switch to dot file (d67a91aa #1052)
+- ci: fix mbedtls runners on macOS (84411539 #1381)
 - ci: enable Unity mode for most CMake builds (1bfae57b #1367 #1034)
 - ci: add shellcheck job and script (d88b9bcd)
 - ci: verify build and install from tarball (a86e27e8 #1362)
@@ -103,6 +105,9 @@ This release includes the following enhancements and bugfixes:
 - ci/appveyor: delete UWP job broken since Visual Studio upgrade (d0a7f1da #1275)
 - ci/appveyor: YAML/PowerShell formatting, shorten variable name (06fd721f #1200)
 - ci/appveyor: move to pure PowerShell (8a081fd9 #1197)
+- ci/GHA: bump NetBSD/OpenBSD, add NetBSD arm64 job (e980af72 #1388)
+- ci/GHA: tidy-up wolfSSL autotools config on macOS (5953c1f1 #1383)
+- ci/GHA: shorter mbedTLS autotools workaround (736e3d7d #1382 #1381)
 - ci/GHA: fix gcrypt with autotools/macOS/Homebrew/ARM64 (ae2770de #1377)
 - ci/GHA: fix verbose option for autotools jobs (499b27ae #1376)
 - ci/GHA: dump `config.log` on failure for macOS autotools jobs (4fa69214 #1375)
@@ -174,6 +179,7 @@ This release includes the following enhancements and bugfixes:
 - mingw: fix printf mask for 64-bit integers (36c1e1d1 #1091 #876 #846 #1090)
 - misc: flatten `_libssh2_explicit_zero` if tree (74e74288 #1149)
 - NMakefile: delete (c515eed3 #1134 #1129)
+- openssl: fix calculating DSA public key with OpenSSL 3 (8b3c6e9d #1380)
 - openssl: initialize BIGNUMs to NULL in `gen_publickey_from_dsa` for OpenSSL 3 (f1133c75 #1320)
 - openssl: fix cppcheck found NULL dereferences (f2945905 #1304)
 - openssl: delete internal `read_openssh_private_key_from_memory()` (34aff5ff #1306)
