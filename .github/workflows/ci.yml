@@ -323,7 +323,6 @@ jobs:
       - name: 'autotools'
         if: ${{ matrix.build == 'automake' }}
         timeout-minutes: 10
-        shell: C:\cygwin\bin\bash.exe '{0}'
         run: |
           export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
           autoreconf -fi
@@ -336,7 +335,6 @@ jobs:
       - name: 'cmake'
         if: ${{ matrix.build == 'cmake' }}
         timeout-minutes: 10
-        shell: C:\cygwin\bin\bash.exe '{0}'
         run: |
           export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
           cmake -B bld \
