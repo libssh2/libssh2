@@ -187,7 +187,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.8)
         list(APPEND WPICKY_ENABLE
           -Wformat=2                       # clang  3.0  gcc  4.8
-          -Wjump-misses-init               #             gcc  4.5
           -Wlogical-op                     #             gcc  4.4
         )
       endif()
