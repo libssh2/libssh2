@@ -916,9 +916,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
         case SSH_MSG_GLOBAL_REQUEST:
             if(datalen >= 5) {
-                uint32_t len;
+                uint32_t len = _libssh2_ntohu32(data + 1);
                 unsigned char want_reply;
-                len = _libssh2_ntohu32(data + 1);
                 if((len <= (UINT_MAX - 6)) && (datalen >= (6 + len))) {
                     want_reply = data[5 + len];
                     _libssh2_debug((session,
