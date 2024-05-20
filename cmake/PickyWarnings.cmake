@@ -179,6 +179,7 @@ if(PICKY_COMPILER)
         list(APPEND _picky_enable
           -Wdouble-promotion               # clang  3.6  gcc  4.6  appleclang  6.1
           -Wformat=2                       # clang  3.0  gcc  4.8
+          -Wlogical-op                     #             gcc  4.4
           -Wtrampolines                    #             gcc  4.6
         )
       endif()
