@@ -916,8 +916,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
         case SSH_MSG_GLOBAL_REQUEST:
             if(datalen >= 5) {
-                uint32_t len = 0;
-                unsigned char want_reply = 0;
+                uint32_t len;
+                unsigned char want_reply;
                 len = _libssh2_ntohu32(data + 1);
                 if((len <= (UINT_MAX - 6)) && (datalen >= (6 + len))) {
                     want_reply = data[5 + len];
@@ -926,6 +926,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                    "Received global request type %.*s (wr %X)",
                                    (int)len, data + 5, want_reply));
                 }
+                else
+                    want_reply = 0;
 
 
                 if(want_reply) {
@@ -1118,10 +1120,12 @@ libssh2_packet_add_jump_point1:
             if(datalen >= 9) {
                 uint32_t channel = _libssh2_ntohu32(data + 1);
                 uint32_t len = _libssh2_ntohu32(data + 5);
-                unsigned char want_reply = 1;
+                unsigned char want_reply;
 
                 if((len + 9) < datalen)
                     want_reply = data[len + 9];
+                else
+                    want_reply = 1;
 
                 _libssh2_debug((session,
                                LIBSSH2_TRACE_CONN,
