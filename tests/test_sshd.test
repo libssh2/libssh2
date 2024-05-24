@@ -46,7 +46,7 @@ fi
 d="$(cd "${d}" || exit; pwd)"  # sshd needs absolute paths
 
 SSHD="${SSHD:-/usr/sbin/sshd}"
-[[ "${uname}" = *'_NT'* ]] && SSHD="$(cygpath -u "${SSHD}")"
+[[ "${uname}" = *'_NT'* ]] && SSHD="$(cygpath "${SSHD}")"
 ver="$("${SSHD}" -V 2>&1 || true)"
 if [[ "${ver}" =~ OpenSSH_[a-zA-Z0-9_\ .,]+ ]]; then
   ver="${BASH_REMATCH[0]}"
