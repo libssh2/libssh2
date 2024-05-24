@@ -547,7 +547,7 @@ jobs:
           - name: 'mbedTLS'
             install: mbedtls
             configure: --with-crypto=mbedtls "--with-libmbedcrypto-prefix=$(brew --prefix)"
-            cmake: -DCRYPTO_BACKEND=mbedTLS "-DMBEDTLS_INCLUDE_DIR=$(brew --prefix)/opt/mbedtls/include" "-DMBEDCRYPTO_LIBRARY=$(brew --prefix)/opt/mbedtls/lib/libmbedcrypto.a"
+            cmake: -DCRYPTO_BACKEND=mbedTLS "-DMBEDTLS_INCLUDE_DIR=$(brew --prefix)/opt/mbedtls/include" "-DMBEDCRYPTO_LIBRARY=$(brew --prefix)/opt/mbedtls/lib/libmbedcrypto.a" -DCMAKE_C_FLAGS=-D_LIBSSH2_DISABLE_MBEDTLS36_PK_LOAD_FILE
     steps:
       - name: 'install packages'
         run: brew install automake libtool ${{ matrix.crypto.install }}
@@ -558,6 +558,7 @@ jobs:
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' }}
         run: |
+          [ '${{ matrix.crypto.name }}' = 'mbedTLS' ] && export CPPFLAGS=-D_LIBSSH2_DISABLE_MBEDTLS36_PK_LOAD_FILE
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-libz ${{ matrix.crypto.configure }} \
             --disable-docker-tests \
