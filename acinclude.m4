@@ -832,7 +832,7 @@ dnl autoconf only checks $prefix/lib64 if gcc -print-search-dirs output
 dnl includes a directory named lib64. So, to find libraries in $prefix/lib
 dnl we append -L$prefix/lib to LDFLAGS before checking.
 dnl
-dnl For conveniece, $4 is expanded if [lib]$1 is found.
+dnl For convenience, $4 is expanded if [lib]$1 is found.
 
 AC_DEFUN([LIBSSH2_LIB_HAVE_LINKFLAGS], [
   libssh2_save_CPPFLAGS="$CPPFLAGS"
