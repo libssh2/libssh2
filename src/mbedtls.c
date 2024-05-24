@@ -1292,7 +1292,9 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ctx,
     unsigned char *data;
     size_t data_len;
 
-#if MBEDTLS_VERSION_NUMBER >= 0x03060000
+#if MBEDTLS_VERSION_NUMBER >= 0x03060000 && \
+    defined(_LIBSSH2_DISABLE_MBEDTLS36_PK_LOAD_FILE)
+
     /* FIXME: implement this functionality via a public API */
     (void)session;
     (void)filename;
