@@ -984,6 +984,7 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
                       int firstlast)
 {
     unsigned char buf[EVP_MAX_BLOCK_LENGTH];
+    int final_length = 0;
     int ret = 1;
     int rc = 1;
 
@@ -1056,10 +1057,11 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
                decrypt: verify tag, if applicable
                in!=NULL is equivalent to EVP_CipherUpdate
                in==NULL is equivalent to EVP_CipherFinal */
+
 #ifdef HAVE_OPAQUE_STRUCTS
-            ret = EVP_Cipher(*ctx, NULL, NULL, 0); /* final */
+            ret = EVP_CipherFinal(*ctx, buf + aadlen, &final_length);
 #else
-            ret = EVP_Cipher(ctx, NULL, NULL, 0); /* final */
+            ret = EVP_CipherFinal(ctx, buf + aadlen, &final_length);
 #endif
             if(ret < 0) {
                 ret = 0;
