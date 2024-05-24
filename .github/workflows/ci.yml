@@ -133,6 +133,9 @@ jobs:
           if [ -n "${pkg}" ]; then
             sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install "${pkg}:${{ matrix.arch }}"
           fi
+          if [ "${{ matrix.crypto_backend }}" == 'wolfSSL' ]; then
+            echo 'TOOLCHAIN_OPTION=-DENABLE_DEBUG_LOGGING=ON' >> $GITHUB_ENV
+          fi
 
       - name: 'install mbedTLS from source'
         if: ${{ matrix.crypto == 'mbedTLS' }}
@@ -255,9 +258,10 @@ jobs:
         if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld --parallel 3 --target package
       - name: 'cmake tests'
-        if: ${{ matrix.build == 'cmake' && matrix.crypto != 'wolfSSL' }}
+        if: ${{ matrix.build == 'cmake' }}
         timeout-minutes: 10
         run: |
+          export FIXTURE_TRACE_ALL_CONNECT=1
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
           cd bld && ctest -VV --output-on-failure
 
