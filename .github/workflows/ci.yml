@@ -196,7 +196,7 @@ jobs:
             crossoptions='--host=i686-pc-linux-gnu'
             export CFLAGS=-m32
           fi
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+          mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
             ${crossoptions} ${{ matrix.options }}
 
       - name: 'autotools build'
@@ -215,7 +215,7 @@ jobs:
         timeout-minutes: 10
         run: |
           export SOURCE_DATE_EPOCH=1711526400
-          ./configure --enable-werror --disable-debug ${{ matrix.options }}
+          ./configure --disable-dependency-tracking --enable-werror --disable-debug ${{ matrix.options }}
           ./maketgz 99.98.97
           # Test reproducibility
           mkdir run1; mv ./libssh2-99.98.97.* run1/
@@ -226,7 +226,7 @@ jobs:
           # Test build from tarball
           tar -xvf libssh2-99.98.97.tar.gz
           cd libssh2-99.98.97
-          ./configure "--prefix=${HOME}/temp" --enable-werror --enable-debug \
+          ./configure --disable-dependency-tracking "--prefix=${HOME}/temp" --enable-werror --enable-debug \
             ${{ matrix.options }}
           make -j3 install
           cd ..
@@ -281,7 +281,7 @@ jobs:
         run: autoreconf -fi
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' }}
-        run: mkdir bld && cd bld && ../configure --enable-werror --enable-debug --host=${TRIPLET}
+        run: mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug --host=${TRIPLET}
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
         run: make -C bld -j3
@@ -327,7 +327,7 @@ jobs:
         run: |
           export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
           autoreconf -fi
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+          mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
             --with-crypto=openssl \
             --disable-docker-tests
           make -j3
@@ -401,7 +401,7 @@ jobs:
             options='--enable-ecdsa-wincng'
           fi
           # sshd tests sometimes hang
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+          mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
             --with-crypto=${{ matrix.crypto }} \
             --disable-docker-tests \
             --disable-sshd-tests \
@@ -559,7 +559,7 @@ jobs:
         if: ${{ matrix.build == 'autotools' }}
         run: |
           [ '${{ matrix.crypto.name }}' = 'mbedTLS' ] && export CPPFLAGS=-D_LIBSSH2_DISABLE_MBEDTLS36_PK_LOAD_FILE
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+          mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
             --with-libz ${{ matrix.crypto.configure }} \
             --disable-docker-tests \
             --disable-sshd-tests \
@@ -669,7 +669,7 @@ jobs:
             # https://ports.freebsd.org/
             sudo pkg install -y autoconf automake libtool
             autoreconf -fi
-            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+            mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
               --with-crypto=openssl \
               --disable-docker-tests
             make -j3
@@ -689,7 +689,7 @@ jobs:
           prepare: pkg install build-essential libtool
           run: |
             autoreconf -fi
-            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+            mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
               --with-crypto=openssl \
               --disable-docker-tests
             gmake -j3
