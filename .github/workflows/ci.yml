@@ -677,7 +677,7 @@ jobs:
 
   build_omnios:
     name: 'OmniOS (autotools, openssl, gcc, amd64)'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -685,7 +685,7 @@ jobs:
         uses: vmactions/omnios-vm@v1
         with:
           usesh: true
-          # https://pkg.omnios.org/r151048/core/en/index.shtml
+          # https://pkg.omnios.org/r151050/core/en/index.shtml
           prepare: pkg install build-essential libtool
           run: |
             autoreconf -fi
