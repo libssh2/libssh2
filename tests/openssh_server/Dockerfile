@@ -7,7 +7,7 @@ RUN apt-get update \
  && apt-get install -y openssh-server \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
-RUN mkdir /var/run/sshd
+RUN [ -d /var/run/sshd ] || mkdir /var/run/sshd
 
 # Chmodding because, when building on Windows, files are copied in with
 # -rwxr-xr-x permissions.
