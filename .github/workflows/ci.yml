@@ -151,7 +151,7 @@ jobs:
             -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
             -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
             -DCMAKE_INSTALL_PREFIX:PATH=$PWD/../usr
-          make -j3 install
+          make -j5 install
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
@@ -167,7 +167,7 @@ jobs:
             -DOPENSSL_SMALL=ON \
             -DCMAKE_C_FLAGS=-fPIC \
             -DCMAKE_INSTALL_PREFIX:PATH=$PWD/../usr
-          make -j3 install
+          make -j5 install
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
@@ -181,7 +181,7 @@ jobs:
           ./Configure no-deprecated \
             no-apps no-docs no-tests no-makedepend \
             no-comp no-quic no-legacy --prefix=/usr
-          make -j3 install DESTDIR=$PWD/..
+          make -j5 install DESTDIR=$PWD/..
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
@@ -201,7 +201,7 @@ jobs:
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' && !matrix.target }}
-        run: make -C bld -j3
+        run: make -C bld -j5
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' && !matrix.target }}
         timeout-minutes: 10
@@ -228,7 +228,7 @@ jobs:
           cd libssh2-99.98.97
           ./configure --disable-dependency-tracking "--prefix=${HOME}/temp" --enable-werror --enable-debug \
             ${{ matrix.options }}
-          make -j3 install
+          make -j5 install
           cd ..
           # Verify install
           diff -u <(find docs    -name '*.3' -printf '%f\n' | grep -v template | sort) <(find "${HOME}/temp/share/man/man3" -name '*.3' -printf '%f\n' | sort)
@@ -253,7 +253,7 @@ jobs:
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
-        run: cmake --build bld --parallel 3 --target package
+        run: cmake --build bld --parallel 5 --target package
       - name: 'cmake tests'
         if: ${{ matrix.build == 'cmake' && matrix.crypto != 'wolfSSL' }}
         timeout-minutes: 10
@@ -284,7 +284,7 @@ jobs:
         run: mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug --host=${TRIPLET}
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
-        run: make -C bld -j3
+        run: make -C bld -j5
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
@@ -297,7 +297,7 @@ jobs:
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
-        run: cmake --build bld --parallel 3
+        run: cmake --build bld --parallel 5
 
   build_cygwin:
     name: 'cygwin'
@@ -330,7 +330,7 @@ jobs:
           mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
             --with-crypto=openssl \
             --disable-docker-tests
-          make -j3
+          make -j5
           make check V=1 || { cat tests/*.log; false; }
 
       - name: 'cmake'
@@ -348,7 +348,7 @@ jobs:
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF
-          cmake --build bld --parallel 3
+          cmake --build bld --parallel 5
           cd bld && ctest -VV --output-on-failure
 
   build_msys2:
@@ -410,7 +410,7 @@ jobs:
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
         shell: msys2 {0}
-        run: make -C bld -j3
+        run: make -C bld -j5
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' }}
         timeout-minutes: 10
@@ -456,7 +456,7 @@ jobs:
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
         shell: msys2 {0}
-        run: cmake --build bld --parallel 3
+        run: cmake --build bld --parallel 5
       - name: 'cmake tests'
         # UWP missing 'msvcr120_app.dll', fails with exit code 0xc0000135
         if: ${{ matrix.build == 'cmake' && matrix.test != 'uwp' }}
@@ -508,7 +508,7 @@ jobs:
             -DRUN_SSHD_TESTS=OFF
 
       - name: 'cmake build'
-        run: cmake --build bld --parallel 3 --target package --config Release
+        run: cmake --build bld --parallel 5 --target package --config Release
       - name: 'cmake tests'
         # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
         if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
@@ -567,7 +567,7 @@ jobs:
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
-        run: make -C bld -j3 V=1
+        run: make -C bld -j4 V=1
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' }}
         timeout-minutes: 10
@@ -585,7 +585,7 @@ jobs:
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
-        run: cmake --build bld --parallel 3
+        run: cmake --build bld --parallel 4
       - name: 'cmake tests'
         if: ${{ matrix.build == 'cmake' }}
         timeout-minutes: 10
