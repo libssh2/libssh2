@@ -196,8 +196,9 @@ jobs:
             crossoptions='--host=i686-pc-linux-gnu'
             export CFLAGS=-m32
           fi
-          mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
-            ${crossoptions} ${{ matrix.options }}
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+            ${crossoptions} ${{ matrix.options }} \
+            --disable-dependency-tracking || { tail -n 1000 config.log; false; }
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' && !matrix.target }}
@@ -215,7 +216,8 @@ jobs:
         timeout-minutes: 10
         run: |
           export SOURCE_DATE_EPOCH=1711526400
-          ./configure --disable-dependency-tracking --enable-werror --disable-debug ${{ matrix.options }}
+          ./configure --enable-werror --disable-debug \
+            ${{ matrix.options }} --disable-dependency-tracking
           ./maketgz 99.98.97
           # Test reproducibility
           mkdir run1; mv ./libssh2-99.98.97.* run1/
@@ -226,8 +228,8 @@ jobs:
           # Test build from tarball
           tar -xvf libssh2-99.98.97.tar.gz
           cd libssh2-99.98.97
-          ./configure --disable-dependency-tracking "--prefix=${HOME}/temp" --enable-werror --enable-debug \
-            ${{ matrix.options }}
+          ./configure --enable-werror --enable-debug "--prefix=${HOME}/temp" \
+            ${{ matrix.options }} --disable-dependency-tracking
           make -j5 install
           cd ..
           # Verify install
@@ -249,7 +251,8 @@ jobs:
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DCRYPTO_BACKEND=${crypto} \
-            -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }}
+            -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
+            || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
@@ -281,7 +284,7 @@ jobs:
         run: autoreconf -fi
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' }}
-        run: mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug --host=${TRIPLET}
+        run: mkdir bld && cd bld && ../configure --enable-werror --enable-debug "--host=${TRIPLET}" --disable-dependency-tracking || { tail -n 1000 config.log; false; }
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
         run: make -C bld -j5
@@ -293,7 +296,8 @@ jobs:
             -DCMAKE_C_COMPILER_TARGET=${TRIPLET} \
             -DCMAKE_C_COMPILER=${TRIPLET}-gcc \
             -DCMAKE_UNITY_BUILD=ON \
-            -DENABLE_WERROR=ON
+            -DENABLE_WERROR=ON \
+            || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
@@ -327,9 +331,10 @@ jobs:
         run: |
           export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/system32"
           autoreconf -fi
-          mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-crypto=openssl \
-            --disable-docker-tests
+            --disable-docker-tests \
+            --disable-dependency-tracking || { tail -n 1000 config.log; false; }
           make -j5
           make check V=1 || { cat tests/*.log; false; }
 
@@ -347,7 +352,8 @@ jobs:
             -DOPENSSL_ROOT_DIR=/usr/lib \
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
-            -DRUN_SSHD_TESTS=OFF
+            -DRUN_SSHD_TESTS=OFF \
+            || { cat bld/CMakeFiles/CMake*.yaml; false; }
           cmake --build bld --parallel 5
           cd bld && ctest -VV --output-on-failure
 
@@ -401,11 +407,12 @@ jobs:
             options='--enable-ecdsa-wincng'
           fi
           # sshd tests sometimes hang
-          mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-crypto=${{ matrix.crypto }} \
             --disable-docker-tests \
             --disable-sshd-tests \
-            ${options}
+            ${options} \
+            --disable-dependency-tracking || { tail -n 1000 config.log; false; }
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
@@ -451,7 +458,8 @@ jobs:
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF \
-            -DCMAKE_VERBOSE_MAKEFILE=ON
+            -DCMAKE_VERBOSE_MAKEFILE=ON \
+            || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
@@ -505,7 +513,8 @@ jobs:
             -DENABLE_ECDSA_WINCNG=${{ matrix.wincng_ecdsa }} \
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
             -DRUN_DOCKER_TESTS=OFF \
-            -DRUN_SSHD_TESTS=OFF
+            -DRUN_SSHD_TESTS=OFF \
+            || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
       - name: 'cmake build'
         run: cmake --build bld --parallel 5 --target package --config Release
@@ -559,11 +568,11 @@ jobs:
         if: ${{ matrix.build == 'autotools' }}
         run: |
           [ '${{ matrix.crypto.name }}' = 'mbedTLS' ] && export CPPFLAGS=-D_LIBSSH2_DISABLE_MBEDTLS36_PK_LOAD_FILE
-          mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
+          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-libz ${{ matrix.crypto.configure }} \
             --disable-docker-tests \
             --disable-sshd-tests \
-            || { tail -n 1000 config.log; false; }
+            --disable-dependency-tracking || { tail -n 1000 config.log; false; }
 
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
@@ -581,7 +590,8 @@ jobs:
             -DENABLE_DEBUG_LOGGING=ON \
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
-            -DRUN_SSHD_TESTS=OFF
+            -DRUN_SSHD_TESTS=OFF \
+            || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
       - name: 'cmake build'
         if: ${{ matrix.build == 'cmake' }}
@@ -616,7 +626,8 @@ jobs:
               -DCRYPTO_BACKEND=OpenSSL \
               -DBUILD_STATIC_LIBS=OFF \
               -DRUN_DOCKER_TESTS=OFF \
-              -DRUN_SSHD_TESTS=OFF
+              -DRUN_SSHD_TESTS=OFF \
+              || { cat bld/CMakeFiles/CMake*.yaml; false; }
             cmake --build bld --parallel 3
 
   build_openbsd:
@@ -644,7 +655,8 @@ jobs:
               -DCRYPTO_BACKEND=OpenSSL \
               -DBUILD_STATIC_LIBS=OFF \
               -DRUN_DOCKER_TESTS=OFF \
-              -DRUN_SSHD_TESTS=OFF
+              -DRUN_SSHD_TESTS=OFF \
+              || { cat bld/CMakeFiles/CMake*.yaml; false; }
             cmake --build bld --parallel 3
 
   build_freebsd:
@@ -669,9 +681,10 @@ jobs:
             # https://ports.freebsd.org/
             sudo pkg install -y autoconf automake libtool
             autoreconf -fi
-            mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
+            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
               --with-crypto=openssl \
-              --disable-docker-tests
+              --disable-docker-tests \
+              --disable-dependency-tracking || { tail -n 1000 config.log; false; }
             make -j3
             make check V=1 || { cat tests/*.log; false; }
 
@@ -689,8 +702,9 @@ jobs:
           prepare: pkg install build-essential libtool
           run: |
             autoreconf -fi
-            mkdir bld && cd bld && ../configure --disable-dependency-tracking --enable-werror --enable-debug \
+            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
               --with-crypto=openssl \
-              --disable-docker-tests
+              --disable-docker-tests \
+              --disable-dependency-tracking || { tail -n 1000 config.log; false; }
             gmake -j3
             gmake check V=1 || { cat tests/*.log; false; }
