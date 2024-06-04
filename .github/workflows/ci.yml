@@ -150,7 +150,7 @@ jobs:
             -DENABLE_TESTING=OFF \
             -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
             -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
-            -DCMAKE_INSTALL_PREFIX:PATH=$PWD/../usr
+            "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
           make -j5 install
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
@@ -166,7 +166,7 @@ jobs:
           cmake \
             -DOPENSSL_SMALL=ON \
             -DCMAKE_C_FLAGS=-fPIC \
-            -DCMAKE_INSTALL_PREFIX:PATH=$PWD/../usr
+            "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
           make -j5 install
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
@@ -181,7 +181,7 @@ jobs:
           ./Configure no-deprecated \
             no-apps no-docs no-tests no-makedepend \
             no-comp no-quic no-legacy --prefix=/usr
-          make -j5 install DESTDIR=$PWD/..
+          make -j5 install "DESTDIR=$PWD/.."
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
