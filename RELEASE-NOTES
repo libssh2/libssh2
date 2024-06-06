@@ -2,7 +2,7 @@ libssh2 1.11.1_DEV
 
 Deprecation notices:
 
-- Starting June 2024, the following algos go deprecated and will be
+- Starting September 2024, the following algos go deprecated and will be
   disabled in default builds (with an option to enable them):
 
   - DSA: `ssh-dss` hostkeys.
@@ -28,7 +28,7 @@ Deprecation notices:
       You can disable it now with `-DLIBSSH2_NO_CAST`.
       Removed in OpenSSH 7.6 (2017-10-03).
 
-- Starting January 2025, above options will be deleted from the
+- Starting April 2025, above options will be deleted from the
   libssh2 codebase.
 
   - Default builds will also disable support for old-style, MD5-based
@@ -69,6 +69,7 @@ This release includes the following enhancements and bugfixes:
 - checksrc: fix spelling in comment (a95d401f)
 - checksrc: modernise Perl file open (3d309f9b)
 - checksrc: switch to dot file (d67a91aa #1052)
+- ci: disable dependency tracking in autotools builds (e44f0418 #1396)
 - ci: fix mbedtls runners on macOS (84411539 #1381)
 - ci: enable Unity mode for most CMake builds (1bfae57b #1367 #1034)
 - ci: add shellcheck job and script (d88b9bcd)
@@ -105,8 +106,14 @@ This release includes the following enhancements and bugfixes:
 - ci/appveyor: delete UWP job broken since Visual Studio upgrade (d0a7f1da #1275)
 - ci/appveyor: YAML/PowerShell formatting, shorten variable name (06fd721f #1200)
 - ci/appveyor: move to pure PowerShell (8a081fd9 #1197)
+- ci/GHA: show configure logs on failure and other tidy-ups (dab48398 #1403)
+- ci/GHA: bump parallel jobs to nproc+1 (6f3d3bc8 #1402)
+- ci/GHA: show test logs on failure (b8ffa7a5 #1401)
+- ci/GHA: fix `Dockerfile` failing after Ubuntu package update (839bb84e #1400)
+- ci/GHA: use ubuntu-latest with OmniOS job (50143d58)
+- ci/GHA: shell syntax tidy-up (3b23e039 #1390)
 - ci/GHA: bump NetBSD/OpenBSD, add NetBSD arm64 job (e980af72 #1388)
-- ci/GHA: tidy-up wolfSSL autotools config on macOS (5953c1f1 #1383)
+- ci/GHA: tidy up wolfSSL autotools config on macOS (5953c1f1 #1383)
 - ci/GHA: shorter mbedTLS autotools workaround (736e3d7d #1382 #1381)
 - ci/GHA: fix gcrypt with autotools/macOS/Homebrew/ARM64 (ae2770de #1377)
 - ci/GHA: fix verbose option for autotools jobs (499b27ae #1376)
@@ -214,6 +221,7 @@ This release includes the following enhancements and bugfixes:
 - src: improve MSVC C4701 warning fix (8b924999 #1086 #876 #1083)
 - src: bump `hash_len` to `size_t` in `LIBSSH2_HOSTKEY_METHOD` (8b917d76 #1076)
 - src: bump DSA and ECDSA sign `hash_len` to `size_t` (7b8e0225 #1055)
+- tests: drop default cygpath option `-u` (38e50aa0)
 - tests: fix shellcheck issues in `test_sshd.test` (a2ac8c55)
 - tests: sync port number type with the rest of codebase (eb996af8)
 - tests: fall back to `$LOGNAME` for username (5326a5ce #1241 #1240)
@@ -227,6 +235,7 @@ This release includes the following enhancements and bugfixes:
 - test_sshd.test: show sshd and test connect logs on harness failure (299c2040 #1097)
 - test_sshd.test: set a safe PID directory (e8cabdcf #1089)
 - test_sshd.test: minor cleanups (d29eea1d)
+- tidy-up: fix typo found by codespell (706ec36d)
 - tidy-up: bump casts from int to long for large C99 types in printfs (2e5a8719 #1264 #1257)
 - tidy-up: `unsigned` -> `unsigned int` (b136c379)
 - tidy-up: stop using leading underscores in macro names (c6589b88 #1248)
