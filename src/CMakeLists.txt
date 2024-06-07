@@ -195,7 +195,7 @@ install(
     "${PROJECT_SOURCE_DIR}/cmake/Findwolfssl.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
-## Export a .pc file for client projects not using CMaek
+## Export a .pc file for client projects not using CMake
 if(LIBSSH2_PC_REQUIRES_PRIVATE)
   string(REPLACE ";" "," LIBSSH2_PC_REQUIRES_PRIVATE "${LIBSSH2_PC_REQUIRES_PRIVATE}")
 endif()
