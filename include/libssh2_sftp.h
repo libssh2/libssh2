@@ -307,7 +307,7 @@ LIBSSH2_API int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp,
                                        const char *filename,
                                        unsigned int filename_len);
 #define libssh2_sftp_unlink(sftp, filename) \
-    libssh2_sftp_unlink_ex((sftp), (filename), strlen(filename))
+    libssh2_sftp_unlink_ex((sftp), (filename), (unsigned int)strlen(filename))
 
 LIBSSH2_API int libssh2_sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle,
                                       LIBSSH2_SFTP_STATVFS *st);
