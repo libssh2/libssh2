@@ -1056,7 +1056,13 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
                decrypt: verify tag, if applicable
                in!=NULL is equivalent to EVP_CipherUpdate
                in==NULL is equivalent to EVP_CipherFinal */
-#ifdef HAVE_OPAQUE_STRUCTS
+#if defined(LIBSSH2_WOLFSSL) && LIBWOLFSSL_VERSION_HEX < 0x05007000
+            /* Workaround for wolfSSL bug fixed in v5.7.0:
+               https://github.com/wolfSSL/wolfssl/pull/7143 */
+            unsigned char buf2[EVP_MAX_BLOCK_LENGTH];
+            int outb;
+            ret = EVP_CipherFinal(*ctx, buf2, &outb);
+#elif defined(HAVE_OPAQUE_STRUCTS)
             ret = EVP_Cipher(*ctx, NULL, NULL, 0); /* final */
 #else
             ret = EVP_Cipher(ctx, NULL, NULL, 0); /* final */
