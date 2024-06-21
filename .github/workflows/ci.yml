@@ -284,7 +284,7 @@ jobs:
         if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld --parallel 5 --target package
       - name: 'cmake tests'
-        if: ${{ matrix.build == 'cmake' && matrix.crypto != 'wolfSSL' }}
+        if: ${{ matrix.build == 'cmake' }}
         timeout-minutes: 10
         run: |
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
