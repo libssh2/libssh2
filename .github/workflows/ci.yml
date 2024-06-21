@@ -138,13 +138,13 @@ jobs:
         if: ${{ matrix.crypto == 'mbedTLS' }}
         run: |
           MBEDTLSVER=mbedtls-3.5.1
-          curl -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
+          curl -fsS -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
           cd mbedtls-$MBEDTLSVER
           if [ '${{ matrix.arch }}' = 'i386' ]; then
             crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }}'
             cflags='-m32 -mpclmul -msse2 -maes'
           fi
-          cmake ${crossoptions} \
+          cmake . ${crossoptions} \
             "-DCMAKE_C_FLAGS=${cflags}" \
             -DENABLE_PROGRAMS=OFF \
             -DENABLE_TESTING=OFF \
@@ -162,8 +162,8 @@ jobs:
           BORINGSSLVER=1b7fdbd9101dedc3e0aa3fcf4ff74eacddb34ecc
           mkdir boringssl
           cd boringssl
-          curl "https://boringssl.googlesource.com/boringssl/+archive/$BORINGSSLVER.tar.gz" | tar -xzf -
-          cmake \
+          curl -fsS https://boringssl.googlesource.com/boringssl/+archive/$BORINGSSLVER.tar.gz | tar -xzf -
+          cmake . \
             -DOPENSSL_SMALL=ON \
             -DCMAKE_C_FLAGS=-fPIC \
             "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
@@ -176,7 +176,7 @@ jobs:
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
         run: |
           OPENSSLVER=openssl-3.2.0
-          curl -L https://www.openssl.org/source/$OPENSSLVER.tar.gz | tar -xzf -
+          curl -fsS -L https://www.openssl.org/source/$OPENSSLVER.tar.gz | tar -xzf -
           cd $OPENSSLVER
           ./Configure no-deprecated \
             no-apps no-docs no-tests no-makedepend \
