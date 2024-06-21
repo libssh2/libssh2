@@ -101,6 +101,11 @@ jobs:
             crypto: BoringSSL
             build: cmake
             zlib: 'ON'
+          - compiler: clang
+            arch: amd64
+            crypto: wolfSSL-from-source
+            build: cmake
+            zlib: 'ON'
           - compiler: gcc
             arch: amd64
             crypto: OpenSSL-3-no-deprecated
@@ -152,6 +157,25 @@ jobs:
             -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
             "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
           make -j5 install
+          cd ..
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+
+      - name: 'install wolfSSL from source'
+        if: ${{ matrix.crypto == 'wolfSSL-from-source' }}
+        run: |
+          WOLFSSLVER=5.7.0
+          curl -fsS -L https://github.com/wolfSSL/wolfssl/archive/refs/tags/v$WOLFSSLVER-stable.tar.gz | tar -xzf -
+          cd wolfssl-$WOLFSSLVER-stable
+          cmake -B bld \
+            -DWOLFSSL_LIBSSH2=ON \
+            -DBUILD_SELFTEST=OFF \
+            -DWOLFSSL_OPENSSLALL=ON \
+            -DWOLFSSL_EXAMPLES=OFF \
+            -DWOLFSSL_CRYPT_TESTS=OFF \
+            -DCMAKE_C_FLAGS=-fPIC \
+            "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
+          make -j5 -C bld install
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
@@ -243,6 +267,8 @@ jobs:
           if [ '${{ matrix.crypto }}' = 'BoringSSL' ] || \
              [[ '${{ matrix.crypto }}' = 'OpenSSL-'* ]]; then
             crypto='OpenSSL'
+          elif [[ '${{ matrix.crypto }}' = 'wolfSSL-'* ]]; then
+            crypto='wolfSSL'
           else
             crypto='${{ matrix.crypto }}'
           fi
@@ -258,7 +284,7 @@ jobs:
         if: ${{ matrix.build == 'cmake' }}
         run: cmake --build bld --parallel 5 --target package
       - name: 'cmake tests'
-        if: ${{ matrix.build == 'cmake' && matrix.crypto != 'wolfSSL' }}
+        if: ${{ matrix.build == 'cmake' && matrix.crypto != 'wolfSSL' && matrix.crypto != 'wolfSSL-from-source' }}
         timeout-minutes: 10
         run: |
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
