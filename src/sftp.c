@@ -988,20 +988,42 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
                    sftp_handle->version));
     while(buf.dataptr < endp) {
         unsigned char *extname, *extdata;
+        size_t extname_len, extdata_len;
+        uint32_t extversion;
 
-        if(_libssh2_get_string(&buf, &extname, NULL)) {
+        if(_libssh2_get_string(&buf, &extname, &extname_len)) {
             LIBSSH2_FREE(session, data);
             _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                            "Data too short when extracting extname");
             goto sftp_init_error;
         }
 
-        if(_libssh2_get_string(&buf, &extdata, NULL)) {
+        if(_libssh2_get_string(&buf, &extdata, &extdata_len)) {
             LIBSSH2_FREE(session, data);
             _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
                            "Data too short when extracting extdata");
             goto sftp_init_error;
         }
+
+        if(extdata_len > 0) {
+            char *extversion_str;
+            extversion_str = (char *)LIBSSH2_ALLOC(session, extdata_len + 1);
+            if(!extversion_str) {
+                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                               "Unable to allocate memory for SSH_FXP_VERSION "
+                               "packet");
+                goto sftp_init_error;
+            }
+            memcpy(extversion_str, extdata, extdata_len);
+            extversion_str[extdata_len] = '\0';
+            extversion = (uint32_t)strtol(extversion_str, NULL, 10);
+            LIBSSH2_FREE(session, extversion_str);
+        }
+        if(extname_len == 24
+           && strncmp("posix-rename@openssh.com", (char *)extname, 24) == 0) {
+            sftp_handle->posix_rename_version = extversion;
+        }
+
     }
     LIBSSH2_FREE(session, data);
 
