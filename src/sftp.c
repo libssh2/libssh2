@@ -47,6 +47,7 @@
 #include "sftp.h"
 
 #include <assert.h>
+#include <stdlib.h>  /* strtol() */
 
 /* This release of libssh2 implements Version 5 with automatic downgrade
  * based on server's declaration
