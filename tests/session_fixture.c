@@ -95,8 +95,7 @@ static char const *skip_crypt[] = {
     "3des-cbc",
 #endif
 
-#if defined(LIBSSH2_LIBGCRYPT) || defined(LIBSSH2_OS400QC3) || \
-    defined(LIBSSH2_WINCNG)
+#if !LIBSSH2_AES_GCM
     /* Support for AES-GCM hasn't been added to these back-ends yet */
     "aes128-gcm@openssh.com",
     "aes256-gcm@openssh.com",
