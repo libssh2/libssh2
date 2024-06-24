@@ -155,7 +155,7 @@ int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
 #ifdef USE_OPENSSL_3
     return EVP_MAC_update(*ctx, data, datalen);
 #elif defined(HAVE_OPAQUE_STRUCTS)
-/* FIXME: upstream bug as of v5.6.0: datalen is int instead of size_t */
+/* FIXME: upstream bug as of v5.7.0: datalen is int instead of size_t */
 #if defined(LIBSSH2_WOLFSSL)
     return HMAC_Update(*ctx, data, (int)datalen);
 #else /* !LIBSSH2_WOLFSSL */
