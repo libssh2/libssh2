@@ -474,6 +474,7 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
         session->packet_read_timeout = LIBSSH2_DEFAULT_READ_TIMEOUT;
         session->flag.quote_paths = 1; /* default behavior is to quote paths
                                           for the scp subsystem */
+        session->kex = NULL;
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                        "New session resource allocated"));
         _libssh2_init_if_needed();
@@ -941,6 +942,11 @@ session_free(LIBSSH2_SESSION *session)
         }
 
         session->free_state = libssh2_NB_state_sent1;
+    }
+
+    if(session->kex && session->kex->cleanup) {
+        session->kex->cleanup(session,
+                              &session->startup_key_state.key_state_low);
     }
 
     if(session->state & LIBSSH2_STATE_NEWKEYS) {

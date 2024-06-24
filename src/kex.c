@@ -228,6 +228,60 @@ static void _libssh2_sha_algo_value_hash(int sha_algo,
 }
 
 
+static void
+diffie_hellman_state_cleanup(LIBSSH2_SESSION * session,
+                             kmdhgGPshakex_state_t *exchange_state)
+{
+    libssh2_dh_dtor(&exchange_state->x);
+    _libssh2_bn_free(exchange_state->e);
+    exchange_state->e = NULL;
+    _libssh2_bn_free(exchange_state->f);
+    exchange_state->f = NULL;
+    _libssh2_bn_free(exchange_state->k);
+    exchange_state->k = NULL;
+    _libssh2_bn_ctx_free(exchange_state->ctx);
+    exchange_state->ctx = NULL;
+
+    if(exchange_state->e_packet) {
+        LIBSSH2_FREE(session, exchange_state->e_packet);
+        exchange_state->e_packet = NULL;
+    }
+
+    if(exchange_state->s_packet) {
+        LIBSSH2_FREE(session, exchange_state->s_packet);
+        exchange_state->s_packet = NULL;
+    }
+
+    if(exchange_state->k_value) {
+        LIBSSH2_FREE(session, exchange_state->k_value);
+        exchange_state->k_value = NULL;
+    }
+
+    exchange_state->state = libssh2_NB_state_idle;
+}
+
+static void
+kex_diffie_hellman_cleanup(LIBSSH2_SESSION * session,
+                           key_exchange_state_low_t * key_state) {
+    if(key_state->state != libssh2_NB_state_idle) {
+        _libssh2_bn_free(key_state->p);
+        key_state->p = NULL;
+        _libssh2_bn_free(key_state->g);
+        key_state->g = NULL;
+
+        if(key_state->data) {
+            LIBSSH2_FREE(session, key_state->data);
+            key_state->data = NULL;
+        }
+        key_state->state = libssh2_NB_state_idle;
+    }
+
+    if(key_state->exchange_state.state != libssh2_NB_state_idle) {
+        diffie_hellman_state_cleanup(session, &key_state->exchange_state);
+    }
+}
+
+
 /*!
  * @function diffie_hellman_sha_algo
  * @abstract Diffie Hellman Key Exchange, Group Agnostic,
@@ -956,32 +1010,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
     }
 
 clean_exit:
-    libssh2_dh_dtor(&exchange_state->x);
-    _libssh2_bn_free(exchange_state->e);
-    exchange_state->e = NULL;
-    _libssh2_bn_free(exchange_state->f);
-    exchange_state->f = NULL;
-    _libssh2_bn_free(exchange_state->k);
-    exchange_state->k = NULL;
-    _libssh2_bn_ctx_free(exchange_state->ctx);
-    exchange_state->ctx = NULL;
-
-    if(exchange_state->e_packet) {
-        LIBSSH2_FREE(session, exchange_state->e_packet);
-        exchange_state->e_packet = NULL;
-    }
-
-    if(exchange_state->s_packet) {
-        LIBSSH2_FREE(session, exchange_state->s_packet);
-        exchange_state->s_packet = NULL;
-    }
-
-    if(exchange_state->k_value) {
-        LIBSSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
-
-    exchange_state->state = libssh2_NB_state_idle;
+    diffie_hellman_state_cleanup(session, exchange_state);
 
     return ret;
 }
@@ -1051,11 +1080,7 @@ kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION *session,
     }
 
 clean_exit:
-    _libssh2_bn_free(key_state->p);
-    key_state->p = NULL;
-    _libssh2_bn_free(key_state->g);
-    key_state->g = NULL;
-    key_state->state = libssh2_NB_state_idle;
+    kex_diffie_hellman_cleanup(session, key_state);
 
     return ret;
 }
@@ -1151,11 +1176,7 @@ kex_method_diffie_hellman_group14_key_exchange(LIBSSH2_SESSION *session,
     }
 
 clean_exit:
-    key_state->state = libssh2_NB_state_idle;
-    _libssh2_bn_free(key_state->p);
-    key_state->p = NULL;
-    _libssh2_bn_free(key_state->g);
-    key_state->g = NULL;
+    kex_diffie_hellman_cleanup(session, key_state);
 
     return ret;
 }
@@ -1283,11 +1304,7 @@ kex_method_diffie_hellman_group16_sha512_key_exchange(LIBSSH2_SESSION *session,
     }
 
 clean_exit:
-    key_state->state = libssh2_NB_state_idle;
-    _libssh2_bn_free(key_state->p);
-    key_state->p = NULL;
-    _libssh2_bn_free(key_state->g);
-    key_state->g = NULL;
+    kex_diffie_hellman_cleanup(session, key_state);
 
     return ret;
 }
@@ -1424,11 +1441,7 @@ kex_method_diffie_hellman_group18_sha512_key_exchange(LIBSSH2_SESSION *session,
     }
 
 clean_exit:
-    key_state->state = libssh2_NB_state_idle;
-    _libssh2_bn_free(key_state->p);
-    key_state->p = NULL;
-    _libssh2_bn_free(key_state->g);
-    key_state->g = NULL;
+    kex_diffie_hellman_cleanup(session, key_state);
 
     return ret;
 }
@@ -1544,16 +1557,10 @@ kex_method_diffie_hellman_group_exchange_sha1_key_exchange(
         if(ret == LIBSSH2_ERROR_EAGAIN) {
             return ret;
         }
-
-        LIBSSH2_FREE(session, key_state->data);
     }
 
 dh_gex_clean_exit:
-    key_state->state = libssh2_NB_state_idle;
-    _libssh2_bn_free(key_state->g);
-    key_state->g = NULL;
-    _libssh2_bn_free(key_state->p);
-    key_state->p = NULL;
+    kex_diffie_hellman_cleanup(session, key_state);
 
     return ret;
 }
@@ -1672,16 +1679,10 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
         if(ret == LIBSSH2_ERROR_EAGAIN) {
             return ret;
         }
-
-        LIBSSH2_FREE(session, key_state->data);
     }
 
 dh_gex_clean_exit:
-    key_state->state = libssh2_NB_state_idle;
-    _libssh2_bn_free(key_state->g);
-    key_state->g = NULL;
-    _libssh2_bn_free(key_state->p);
-    key_state->p = NULL;
+    kex_diffie_hellman_cleanup(session, key_state);
 
     return ret;
 }
@@ -1829,6 +1830,49 @@ kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
     }
 
     return 0;
+}
+
+
+static void
+ecdh_exchange_state_cleanup(LIBSSH2_SESSION * session,
+                            kmdhgGPshakex_state_t *exchange_state)
+{
+    _libssh2_bn_free(exchange_state->k);
+    exchange_state->k = NULL;
+
+    if(exchange_state->k_value) {
+        LIBSSH2_FREE(session, exchange_state->k_value);
+        exchange_state->k_value = NULL;
+    }
+
+    exchange_state->state = libssh2_NB_state_idle;
+}
+
+
+static void
+kex_method_ecdh_cleanup
+(LIBSSH2_SESSION * session, key_exchange_state_low_t * key_state)
+{
+    if(key_state->public_key_oct) {
+        LIBSSH2_FREE(session, key_state->public_key_oct);
+        key_state->public_key_oct = NULL;
+    }
+
+    if(key_state->private_key) {
+        _libssh2_ecdsa_free(key_state->private_key);
+        key_state->private_key = NULL;
+    }
+
+    if(key_state->data) {
+        LIBSSH2_FREE(session, key_state->data);
+        key_state->data = NULL;
+    }
+
+    key_state->state = libssh2_NB_state_idle;
+
+    if(key_state->exchange_state.state != libssh2_NB_state_idle) {
+        ecdh_exchange_state_cleanup(session, &key_state->exchange_state);
+    }
 }
 
 
@@ -2318,15 +2362,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
     }
 
 clean_exit:
-    _libssh2_bn_free(exchange_state->k);
-    exchange_state->k = NULL;
-
-    if(exchange_state->k_value) {
-        LIBSSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
-
-    exchange_state->state = libssh2_NB_state_idle;
+    ecdh_exchange_state_cleanup(session, exchange_state);
 
     return ret;
 }
@@ -2434,23 +2470,11 @@ kex_method_ecdh_key_exchange
         if(ret == LIBSSH2_ERROR_EAGAIN) {
             return ret;
         }
-
-        LIBSSH2_FREE(session, key_state->data);
     }
 
 ecdh_clean_exit:
 
-    if(key_state->public_key_oct) {
-        LIBSSH2_FREE(session, key_state->public_key_oct);
-        key_state->public_key_oct = NULL;
-    }
-
-    if(key_state->private_key) {
-        _libssh2_ecdsa_free(key_state->private_key);
-        key_state->private_key = NULL;
-    }
-
-    key_state->state = libssh2_NB_state_idle;
+    kex_method_ecdh_cleanup(session, key_state);
 
     return ret;
 }
@@ -2459,6 +2483,51 @@ ecdh_clean_exit:
 
 
 #if LIBSSH2_ED25519
+
+static void
+curve25519_exchange_state_cleanup(LIBSSH2_SESSION * session,
+                                  kmdhgGPshakex_state_t *exchange_state)
+{
+    _libssh2_bn_free(exchange_state->k);
+    exchange_state->k = NULL;
+
+    if(exchange_state->k_value) {
+        LIBSSH2_FREE(session, exchange_state->k_value);
+        exchange_state->k_value = NULL;
+    }
+
+    exchange_state->state = libssh2_NB_state_idle;
+}
+
+static void
+kex_method_curve25519_cleanup
+(LIBSSH2_SESSION * session, key_exchange_state_low_t * key_state)
+{
+    if(key_state->curve25519_public_key) {
+        _libssh2_explicit_zero(key_state->curve25519_public_key,
+                               LIBSSH2_ED25519_KEY_LEN);
+        LIBSSH2_FREE(session, key_state->curve25519_public_key);
+        key_state->curve25519_public_key = NULL;
+    }
+
+    if(key_state->curve25519_private_key) {
+        _libssh2_explicit_zero(key_state->curve25519_private_key,
+                               LIBSSH2_ED25519_KEY_LEN);
+        LIBSSH2_FREE(session, key_state->curve25519_private_key);
+        key_state->curve25519_private_key = NULL;
+    }
+
+    if(key_state->data) {
+        LIBSSH2_FREE(session, key_state->data);
+        key_state->data = NULL;
+    }
+
+    key_state->state = libssh2_NB_state_idle;
+
+    if(key_state->exchange_state.state != libssh2_NB_state_idle) {
+        curve25519_exchange_state_cleanup(session, &key_state->exchange_state);
+    }
+}
 
 /* curve25519_sha256
  * Elliptic Curve Key Exchange
@@ -2942,15 +3011,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
     }
 
 clean_exit:
-    _libssh2_bn_free(exchange_state->k);
-    exchange_state->k = NULL;
-
-    if(exchange_state->k_value) {
-        LIBSSH2_FREE(session, exchange_state->k_value);
-        exchange_state->k_value = NULL;
-    }
-
-    exchange_state->state = libssh2_NB_state_idle;
+    curve25519_exchange_state_cleanup(session, exchange_state);
 
     return ret;
 }
@@ -3049,27 +3110,11 @@ kex_method_curve25519_key_exchange
         if(ret == LIBSSH2_ERROR_EAGAIN) {
             return ret;
         }
-
-        LIBSSH2_FREE(session, key_state->data);
     }
 
 clean_exit:
 
-    if(key_state->curve25519_public_key) {
-        _libssh2_explicit_zero(key_state->curve25519_public_key,
-                               LIBSSH2_ED25519_KEY_LEN);
-        LIBSSH2_FREE(session, key_state->curve25519_public_key);
-        key_state->curve25519_public_key = NULL;
-    }
-
-    if(key_state->curve25519_private_key) {
-        _libssh2_explicit_zero(key_state->curve25519_private_key,
-                               LIBSSH2_ED25519_KEY_LEN);
-        LIBSSH2_FREE(session, key_state->curve25519_private_key);
-        key_state->curve25519_private_key = NULL;
-    }
-
-    key_state->state = libssh2_NB_state_idle;
+    kex_method_curve25519_cleanup(session, key_state);
 
     return ret;
 }
@@ -3084,30 +3129,35 @@ clean_exit:
 static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group1_sha1 = {
     "diffie-hellman-group1-sha1",
     kex_method_diffie_hellman_group1_sha1_key_exchange,
+    kex_diffie_hellman_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group14_sha1 = {
     "diffie-hellman-group14-sha1",
     kex_method_diffie_hellman_group14_sha1_key_exchange,
+    kex_diffie_hellman_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group14_sha256 = {
     "diffie-hellman-group14-sha256",
     kex_method_diffie_hellman_group14_sha256_key_exchange,
+    kex_diffie_hellman_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group16_sha512 = {
     "diffie-hellman-group16-sha512",
     kex_method_diffie_hellman_group16_sha512_key_exchange,
+    kex_diffie_hellman_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
 static const LIBSSH2_KEX_METHOD kex_method_diffie_helman_group18_sha512 = {
     "diffie-hellman-group18-sha512",
     kex_method_diffie_hellman_group18_sha512_key_exchange,
+    kex_diffie_hellman_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
@@ -3115,6 +3165,7 @@ static const LIBSSH2_KEX_METHOD
 kex_method_diffie_helman_group_exchange_sha1 = {
     "diffie-hellman-group-exchange-sha1",
     kex_method_diffie_hellman_group_exchange_sha1_key_exchange,
+    kex_diffie_hellman_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
@@ -3122,6 +3173,7 @@ static const LIBSSH2_KEX_METHOD
 kex_method_diffie_helman_group_exchange_sha256 = {
     "diffie-hellman-group-exchange-sha256",
     kex_method_diffie_hellman_group_exchange_sha256_key_exchange,
+    kex_diffie_hellman_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
@@ -3130,6 +3182,7 @@ static const LIBSSH2_KEX_METHOD
 kex_method_ecdh_sha2_nistp256 = {
     "ecdh-sha2-nistp256",
     kex_method_ecdh_key_exchange,
+    kex_method_ecdh_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
@@ -3137,6 +3190,7 @@ static const LIBSSH2_KEX_METHOD
 kex_method_ecdh_sha2_nistp384 = {
     "ecdh-sha2-nistp384",
     kex_method_ecdh_key_exchange,
+    kex_method_ecdh_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 
@@ -3144,6 +3198,7 @@ static const LIBSSH2_KEX_METHOD
 kex_method_ecdh_sha2_nistp521 = {
     "ecdh-sha2-nistp521",
     kex_method_ecdh_key_exchange,
+    kex_method_ecdh_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 #endif
@@ -3153,12 +3208,14 @@ static const LIBSSH2_KEX_METHOD
 kex_method_ssh_curve25519_sha256_libssh = {
     "curve25519-sha256@libssh.org",
     kex_method_curve25519_key_exchange,
+    kex_method_curve25519_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 static const LIBSSH2_KEX_METHOD
 kex_method_ssh_curve25519_sha256 = {
     "curve25519-sha256",
     kex_method_curve25519_key_exchange,
+    kex_method_curve25519_cleanup,
     LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
 };
 #endif
@@ -3171,12 +3228,14 @@ static const LIBSSH2_KEX_METHOD
 kex_method_extension_negotiation = {
     "ext-info-c",
     NULL,
+    NULL,
     0,
 };
 
 static const LIBSSH2_KEX_METHOD
 kex_method_strict_client_extension = {
     "kex-strict-c-v00@openssh.com",
+    NULL,
     NULL,
     0,
 };
@@ -3997,6 +4056,10 @@ _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
         session->state |= LIBSSH2_STATE_EXCHANGING_KEYS;
 
         if(reexchange) {
+            if(session->kex && session->kex->cleanup) {
+                session->kex->cleanup(session, &key_state->key_state_low);
+            }
+
             session->kex = NULL;
 
             if(session->hostkey && session->hostkey->dtor) {
@@ -4067,9 +4130,10 @@ _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
             }
             session->remote.kexinit = key_state->data;
             session->remote.kexinit_len = key_state->data_len;
+            key_state->data = NULL;
 
-            if(kex_agree_methods(session, key_state->data,
-                                 key_state->data_len))
+            if(kex_agree_methods(session, session->remote.kexinit,
+                                 session->remote.kexinit_len))
                 rc = LIBSSH2_ERROR_KEX_FAILURE;
 
             key_state->state = libssh2_NB_state_sent2;
