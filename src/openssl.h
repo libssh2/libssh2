@@ -167,8 +167,11 @@
 # define LIBSSH2_AES_CBC 0
 #endif
 
+/* wolfSSL v5.4.0 is required due to possibly this bug:
+   https://github.com/wolfSSL/wolfssl/pull/5205
+   Before this release, all libssh2 tests crash with AES-GCM enabled */
 #if (OPENSSL_VERSION_NUMBER >= 0x01010100fL && !defined(OPENSSL_NO_AES)) || \
-    (defined(LIBSSH2_WOLFSSL) && \
+    (defined(LIBSSH2_WOLFSSL) && LIBWOLFSSL_VERSION_HEX >= 0x05004000 && \
     defined(HAVE_AESGCM) && defined(WOLFSSL_AESGCM_STREAM))
 # define LIBSSH2_AES_GCM 1
 #else
