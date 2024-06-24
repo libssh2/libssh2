@@ -989,7 +989,7 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
     while(buf.dataptr < endp) {
         unsigned char *extname, *extdata;
         size_t extname_len, extdata_len;
-        uint32_t extversion;
+        uint32_t extversion = 0;
 
         if(_libssh2_get_string(&buf, &extname, &extname_len)) {
             LIBSSH2_FREE(session, data);
