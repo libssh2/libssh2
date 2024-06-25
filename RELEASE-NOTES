@@ -106,6 +106,9 @@ This release includes the following enhancements and bugfixes:
 - ci/appveyor: delete UWP job broken since Visual Studio upgrade (d0a7f1da #1275)
 - ci/appveyor: YAML/PowerShell formatting, shorten variable name (06fd721f #1200)
 - ci/appveyor: move to pure PowerShell (8a081fd9 #1197)
+- ci/GHA: fix wolfSSL-from-source AES-GCM tests (1c0b07a7 #1409 #1408)
+- ci/GHA: add Linux job with latest wolfSSL built from source (d4cea53f #1408 #1299 #1020)
+- ci/GHA: tidy up build-from-source steps (2c633033)
 - ci/GHA: show configure logs on failure and other tidy-ups (dab48398 #1403)
 - ci/GHA: bump parallel jobs to nproc+1 (6f3d3bc8 #1402)
 - ci/GHA: show test logs on failure (b8ffa7a5 #1401)
@@ -168,6 +171,7 @@ This release includes the following enhancements and bugfixes:
 - libssh2.h: add deprecated function warnings (9839ebe5 #1289 #1260)
 - libssh2.h: add portable `LIBSSH2_SOCKET_CLOSE()` macro (28dbf016 #1278)
 - libssh2.h: use `_WIN32` for Windows detection instead of rolling our own (631e7734 #1238)
+- libssh2.pc: reference mbedcrypto pkgconfig (c149a127 #1405)
 - libssh2.pc: re-add & extend support for static-only libssh2 builds (624abe27 #1119 #1114)
 - libssh2.pc: don't put `@LIBS@` in pc file (1209c16d)
 - mac: add empty hash functions for `mac_method_hmac_aesgcm` to not crash when e.g. setting `LIBSSH2_METHOD_CRYPT_CS` (b2738391 #1321)
@@ -210,6 +214,7 @@ This release includes the following enhancements and bugfixes:
 - scp: fix missing cast for targets without large file support (c317e06f #1060 #1057 #1002 regr: 5db836b2)
 - session: add `libssh2_session_callback_set2()` (c0f69548 #1285)
 - session: handle EINTR from send/recv/poll/select to try again as the error is not fatal (798ed4a7 #1058 #955)
+- src: fix type warning in `libssh2_sftp_unlink` macro (ac2e8c73 #1406)
 - src: check the return value from `_libssh2_bn_*()` functions (95c824d5 #1354)
 - src: support RSA-SHA2 cert-based authentication (rsa-sha2-512_cert and rsa-sha2-256_cert) (3a6ab70d #1314)
 - src: check hash update/final success (4718ede4 #1303 #1301)
@@ -221,6 +226,7 @@ This release includes the following enhancements and bugfixes:
 - src: improve MSVC C4701 warning fix (8b924999 #1086 #876 #1083)
 - src: bump `hash_len` to `size_t` in `LIBSSH2_HOSTKEY_METHOD` (8b917d76 #1076)
 - src: bump DSA and ECDSA sign `hash_len` to `size_t` (7b8e0225 #1055)
+- tests: fix excluding AES-GCM tests (fbd9d192 #1410)
 - tests: drop default cygpath option `-u` (38e50aa0)
 - tests: fix shellcheck issues in `test_sshd.test` (a2ac8c55)
 - tests: sync port number type with the rest of codebase (eb996af8)
@@ -235,6 +241,7 @@ This release includes the following enhancements and bugfixes:
 - test_sshd.test: show sshd and test connect logs on harness failure (299c2040 #1097)
 - test_sshd.test: set a safe PID directory (e8cabdcf #1089)
 - test_sshd.test: minor cleanups (d29eea1d)
+- tidy-up: typo in comment (792e1b6f)
 - tidy-up: fix typo found by codespell (706ec36d)
 - tidy-up: bump casts from int to long for large C99 types in printfs (2e5a8719 #1264 #1257)
 - tidy-up: `unsigned` -> `unsigned int` (b136c379)
@@ -256,14 +263,17 @@ This release includes the following enhancements and bugfixes:
 - wincng: add ECDSA support for host and user authentication (3e723437 #1315)
 - wincng: prefer `ULONG`/`DWORD` over `unsigned long` (186c1d63 #1165)
 - wincng: tidy-ups (7bb669b5 #1164)
+- wolfssl: fix `EVP_Cipher()` use with v5.6.0 and older (a5b0fac2 #1407 #1394 #797 #1299 #1020)
+- wolfssl: bump version in upstream issue comment (5cab802c)
+- wolfssl: require v5.4.0 for AES-GCM (260a721c #1411 #1299 #1020)
 - wolfssl: enable debug logging in wolfSSL when compiled in (76e7a68a #1310)
 
 This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
   Viktor Szakats, Michael Buckley, Patrick Monnerat, Ren Mingshuai,
-  Daniel Stenberg, Josef Cejka, Ryan Kelley, Will Cosgrove, Aaron Stone,
-  András Fekete, Andrei Augustin, binary1248, Brian Inglis,
+  Daniel Stenberg, Josef Cejka, Ryan Kelley, Will Cosgrove, Aaron Stone, Adam,
+  András Fekete, Andrei Augustin, binary1248, Brian Inglis, brucsc on GitHub,
   concussious on github, Dan Fandrich, Haowei Hsu, Harmen Stoppels,
   Harry Mallon, Jack L, Jakob Egger, Jiwoo Park, João M. S. Silva,
   Joel Depooter, Johannes Passing, Juliusz Sosinowicz, Kai Pastor,
