@@ -984,6 +984,9 @@ struct _LIBSSH2_KEX_METHOD
     int (*exchange_keys) (LIBSSH2_SESSION * session,
                           key_exchange_state_low_t * key_state);
 
+    void (*cleanup) (LIBSSH2_SESSION * session,
+                     key_exchange_state_low_t * key_state);
+
     long flags;
 };
 
