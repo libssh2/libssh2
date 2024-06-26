@@ -250,7 +250,7 @@ void stop_session_fixture(void)
 #define NUMPATHS 32
 char *srcdir_path(const char *file)
 {
-    static char* filepath[NUMPATHS];
+    static char *filepath[NUMPATHS];
     static int curpath;
     char *p = getenv("srcdir");
     if(curpath >= NUMPATHS) {
@@ -497,7 +497,8 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
         free(buffer);
     }
     else {
-        char *path_fn_pub = srcdir_path(fn_pub), *path_fn_priv = srcdir_path(fn_priv);
+        char *path_fn_pub = srcdir_path(fn_pub),
+             *path_fn_priv = srcdir_path(fn_priv);
         rc = libssh2_userauth_publickey_fromfile_ex(session, username,
                                                 (unsigned int)strlen(username),
                                                     path_fn_pub,
