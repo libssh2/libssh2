@@ -296,7 +296,7 @@ int _libssh2_store_bignum2_bytes(unsigned char **buf,
 
     extraByte = (len > 0 && (p[0] & 0x80) != 0);
     len_stored = (uint32_t)len;
-    if(extraByte && len_stored == 0xffffffff)
+    if(extraByte && len_stored == UINT32_MAX)
         len_stored--;
     _libssh2_store_u32(buf, len_stored + extraByte);
 

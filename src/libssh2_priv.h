@@ -113,6 +113,10 @@
 #define TRUE 1
 #endif
 
+#ifndef UINT32_MAX
+#define UINT32_MAX 0xffffffffU
+#endif
+
 #if (defined(__GNUC__) || defined(__clang__)) && \
     defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && \
     !defined(LIBSSH2_NO_FMT_CHECKS)
