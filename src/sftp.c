@@ -3040,13 +3040,13 @@ libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp, const char *source_filename,
 
 static int
 sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
-                  unsigned int source_filename_len,
+                  size_t source_filename_len,
                   const char *dest_filename,
-                  unsigned int dest_filename_len)
+                  size_t dest_filename_len)
 {
     LIBSSH2_CHANNEL *channel = sftp->channel;
     LIBSSH2_SESSION *session = channel->session;
-    uint32_t packet_len = 45 + source_filename_len + dest_filename_len;
+    uint32_t packet_len;
     size_t data_len = 0;
     unsigned char *packet, *s, *data = NULL;
     ssize_t rc;
@@ -3057,6 +3057,16 @@ sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
                               "Server does not support"
                               "posix-rename@openssh.com");
     }
+
+    if(source_filename_len > UINT32_MAX ||
+       dest_filename_len > UINT32_MAX ||
+       45 + source_filename_len + dest_filename_len > UINT32_MAX) {
+        return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                              "Input too large"
+                              "posix-rename@openssh.com");
+    }
+
+    packet_len = (uint32_t)(45 + source_filename_len + dest_filename_len);
 
     /* 45 = packet_len(4) + packet_type(1) + request_id(4) +
        string_len(4) + strlen("posix-rename@openssh.com")(24) +
@@ -3145,9 +3155,9 @@ sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
  */
 LIBSSH2_API int
 libssh2_sftp_posix_rename_ex(LIBSSH2_SFTP *sftp, const char *source_filename,
-                             unsigned int source_filename_len,
+                             size_t source_filename_len,
                              const char *dest_filename,
-                             unsigned int dest_filename_len)
+                             size_t dest_filename_len)
 {
     int rc;
     if(!sftp)
