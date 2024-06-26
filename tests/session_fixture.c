@@ -245,17 +245,12 @@ void stop_session_fixture(void)
 
 
 /* Return a static string that contains a file path relative to the srcdir
- * variable, if found. It does so in a way that avoids leaking memory by using
- * a fixed number of static buffers.
+ * variable, if found.
  */
 #define NUMPATHS 32
-const char *srcdir_path(const char *file)
+char *srcdir_path(const char *file)
 {
-#ifdef _WIN32
-    static char filepath[NUMPATHS][_MAX_PATH];
-#else
-    static char filepath[NUMPATHS][MAXPATHLEN];
-#endif
+    static char* filepath[NUMPATHS];
     static int curpath;
     char *p = getenv("srcdir");
     if(curpath >= NUMPATHS) {
@@ -263,16 +258,14 @@ const char *srcdir_path(const char *file)
     }
     assert(curpath < NUMPATHS);
     if(p) {
-        /* Ensure the final string is nul-terminated on Windows */
-        filepath[curpath][sizeof(filepath[0]) - 1] = 0;
-        snprintf(filepath[curpath], sizeof(filepath[0]) - 1, "%s/%s",
-                 p, file);
+        int len = snprintf(NULL, 0, "%s/%s", p, file);
+        filepath[curpath] = malloc(len + 1);
+        snprintf(filepath[curpath], len + 1, "%s/%s", p, file);
     }
     else {
-        /* Ensure the final string is nul-terminated on Windows */
-        filepath[curpath][sizeof(filepath[0]) - 1] = 0;
-        snprintf(filepath[curpath], sizeof(filepath[0]) - 1, "%s",
-                 file);
+        int len = snprintf(NULL, 0, "%s", file);
+        filepath[curpath] = malloc(len + 1);
+        snprintf(filepath[curpath], len + 1, "%s", file);
     }
 
     return filepath[curpath++];
@@ -485,11 +478,12 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
     }
 
     if((flags & TEST_AUTH_FROMMEM) != 0) {
-        char *buffer = NULL;
+        char *buffer = NULL, *path_fn_priv = srcdir_path(fn_priv);
         size_t len = 0;
 
-        if(read_file(srcdir_path(fn_priv), &buffer, &len)) {
+        if(read_file(path_fn_priv, &buffer, &len)) {
             fprintf(stderr, "Reading key file failed.\n");
+            free(path_fn_priv);
             return 1;
         }
 
@@ -499,14 +493,18 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
                                                    buffer, len,
                                                    NULL);
 
+        free(path_fn_priv);
         free(buffer);
     }
     else {
+        char *path_fn_pub = srcdir_path(fn_pub), *path_fn_priv = srcdir_path(fn_priv);
         rc = libssh2_userauth_publickey_fromfile_ex(session, username,
                                                 (unsigned int)strlen(username),
-                                                    srcdir_path(fn_pub),
-                                                    srcdir_path(fn_priv),
+                                                    path_fn_pub,
+                                                    path_fn_priv,
                                                     password);
+        free(path_fn_pub);
+        free(path_fn_priv);
     }
 
     if((flags & TEST_AUTH_SHOULDFAIL) != 0) {
