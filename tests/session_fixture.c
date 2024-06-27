@@ -238,6 +238,8 @@ void stop_session_fixture(void)
     close_socket_to_openssh_server(connected_socket);
     connected_socket = LIBSSH2_INVALID_SOCKET;
 
+    srcdir_path(NULL);
+
     libssh2_exit();
 
     stop_openssh_fixture();
@@ -250,25 +252,35 @@ void stop_session_fixture(void)
 #define NUMPATHS 32
 char *srcdir_path(const char *file)
 {
-    static char *filepath[NUMPATHS];
+    static char* filepath[NUMPATHS];
     static int curpath;
     char *p = getenv("srcdir");
-    if(curpath >= NUMPATHS) {
-        fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
-    }
-    assert(curpath < NUMPATHS);
-    if(p) {
-        int len = snprintf(NULL, 0, "%s/%s", p, file);
-        filepath[curpath] = malloc(len + 1);
-        snprintf(filepath[curpath], len + 1, "%s/%s", p, file);
-    }
-    else {
-        int len = snprintf(NULL, 0, "%s", file);
-        filepath[curpath] = malloc(len + 1);
-        snprintf(filepath[curpath], len + 1, "%s", file);
-    }
+    if (NULL != file) {
+      if(curpath >= NUMPATHS) {
+          fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
+      }
+      assert(curpath < NUMPATHS);
+      if(p) {
+          int len = snprintf(NULL, 0, "%s/%s", p, file);
+          filepath[curpath] = malloc(len + 1);
+          snprintf(filepath[curpath], len + 1, "%s/%s", p, file);
+      }
+      else {
+          int len = snprintf(NULL, 0, "%s", file);
+          filepath[curpath] = malloc(len + 1);
+          snprintf(filepath[curpath], len + 1, "%s", file);
+      }
 
-    return filepath[curpath++];
+      return filepath[curpath++];
+    } else {
+      /* cleanup allocated filepath */
+      int i;
+      for (i=0; i<curpath; i++) {
+        free(filepath[curpath]);
+      }
+      curpath = 0;
+      return NULL;
+    }
 }
 
 static const char *kbd_password;
@@ -478,12 +490,11 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
     }
 
     if((flags & TEST_AUTH_FROMMEM) != 0) {
-        char *buffer = NULL, *path_fn_priv = srcdir_path(fn_priv);
+        char *buffer = NULL;
         size_t len = 0;
 
-        if(read_file(path_fn_priv, &buffer, &len)) {
+        if(read_file(srcdir_path(fn_priv), &buffer, &len)) {
             fprintf(stderr, "Reading key file failed.\n");
-            free(path_fn_priv);
             return 1;
         }
 
@@ -493,19 +504,14 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
                                                    buffer, len,
                                                    NULL);
 
-        free(path_fn_priv);
         free(buffer);
     }
     else {
-        char *path_fn_pub = srcdir_path(fn_pub),
-             *path_fn_priv = srcdir_path(fn_priv);
         rc = libssh2_userauth_publickey_fromfile_ex(session, username,
                                                 (unsigned int)strlen(username),
-                                                    path_fn_pub,
-                                                    path_fn_priv,
+                                                    srcdir_path(fn_pub),
+                                                    srcdir_path(fn_priv),
                                                     password);
-        free(path_fn_pub);
-        free(path_fn_priv);
     }
 
     if((flags & TEST_AUTH_SHOULDFAIL) != 0) {
