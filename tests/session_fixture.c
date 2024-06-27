@@ -277,7 +277,7 @@ char *srcdir_path(const char *file)
         /* cleanup allocated filepath */
         int i;
         for(i = 0; i<curpath; i++) {
-          free(filepath[curpath]);
+            free(filepath[curpath]);
         }
         curpath = 0;
         return NULL;
