@@ -252,10 +252,10 @@ void stop_session_fixture(void)
 #define NUMPATHS 32
 char *srcdir_path(const char *file)
 {
-    static char* filepath[NUMPATHS];
+    static char *filepath[NUMPATHS];
     static int curpath;
     char *p = getenv("srcdir");
-    if (NULL != file) {
+    if(NULL != file) {
       if(curpath >= NUMPATHS) {
           fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
       }
@@ -272,10 +272,11 @@ char *srcdir_path(const char *file)
       }
 
       return filepath[curpath++];
-    } else {
+    }
+    else {
       /* cleanup allocated filepath */
       int i;
-      for (i=0; i<curpath; i++) {
+      for(i = 0; i<curpath; i++) {
         free(filepath[curpath]);
       }
       curpath = 0;
