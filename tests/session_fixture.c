@@ -255,7 +255,7 @@ char *srcdir_path(const char *file)
     static char *filepath[NUMPATHS];
     static int curpath;
     char *p = getenv("srcdir");
-    if(!file) {
+    if(file) {
         if(curpath >= NUMPATHS) {
             fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
         }
