@@ -255,32 +255,32 @@ char *srcdir_path(const char *file)
     static char *filepath[NUMPATHS];
     static int curpath;
     char *p = getenv("srcdir");
-    if(NULL != file) {
-      if(curpath >= NUMPATHS) {
-          fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
-      }
-      assert(curpath < NUMPATHS);
-      if(p) {
-          int len = snprintf(NULL, 0, "%s/%s", p, file);
-          filepath[curpath] = malloc(len + 1);
-          snprintf(filepath[curpath], len + 1, "%s/%s", p, file);
-      }
-      else {
-          int len = snprintf(NULL, 0, "%s", file);
-          filepath[curpath] = malloc(len + 1);
-          snprintf(filepath[curpath], len + 1, "%s", file);
-      }
+    if(!file) {
+        if(curpath >= NUMPATHS) {
+            fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
+        }
+        assert(curpath < NUMPATHS);
+        if(p) {
+            int len = snprintf(NULL, 0, "%s/%s", p, file);
+            filepath[curpath] = malloc(len + 1);
+            snprintf(filepath[curpath], len + 1, "%s/%s", p, file);
+        }
+        else {
+            int len = snprintf(NULL, 0, "%s", file);
+            filepath[curpath] = malloc(len + 1);
+            snprintf(filepath[curpath], len + 1, "%s", file);
+        }
 
-      return filepath[curpath++];
+        return filepath[curpath++];
     }
     else {
-      /* cleanup allocated filepath */
-      int i;
-      for(i = 0; i<curpath; i++) {
-        free(filepath[curpath]);
-      }
-      curpath = 0;
-      return NULL;
+        /* cleanup allocated filepath */
+        int i;
+        for(i = 0; i<curpath; i++) {
+          free(filepath[curpath]);
+        }
+        curpath = 0;
+        return NULL;
     }
 }
 
