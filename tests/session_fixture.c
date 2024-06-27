@@ -48,6 +48,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 static LIBSSH2_SESSION *connected_session = NULL;
