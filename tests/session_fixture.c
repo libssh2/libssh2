@@ -46,9 +46,6 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -238,6 +235,8 @@ void stop_session_fixture(void)
     close_socket_to_openssh_server(connected_socket);
     connected_socket = LIBSSH2_INVALID_SOCKET;
 
+    srcdir_path(NULL);
+
     libssh2_exit();
 
     stop_openssh_fixture();
@@ -245,37 +244,41 @@ void stop_session_fixture(void)
 
 
 /* Return a static string that contains a file path relative to the srcdir
- * variable, if found. It does so in a way that avoids leaking memory by using
- * a fixed number of static buffers.
+ * variable, if found.
  */
 #define NUMPATHS 32
-const char *srcdir_path(const char *file)
+char *srcdir_path(const char *file)
 {
-#ifdef _WIN32
-    static char filepath[NUMPATHS][_MAX_PATH];
-#else
-    static char filepath[NUMPATHS][MAXPATHLEN];
-#endif
+    static char *filepath[NUMPATHS];
     static int curpath;
     char *p = getenv("srcdir");
-    if(curpath >= NUMPATHS) {
-        fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
-    }
-    assert(curpath < NUMPATHS);
-    if(p) {
-        /* Ensure the final string is nul-terminated on Windows */
-        filepath[curpath][sizeof(filepath[0]) - 1] = 0;
-        snprintf(filepath[curpath], sizeof(filepath[0]) - 1, "%s/%s",
-                 p, file);
+    if(file) {
+        if(curpath >= NUMPATHS) {
+            fprintf(stderr, "srcdir_path ran out of filepath slots.\n");
+        }
+        assert(curpath < NUMPATHS);
+        if(p) {
+            int len = snprintf(NULL, 0, "%s/%s", p, file);
+            filepath[curpath] = malloc(len + 1);
+            snprintf(filepath[curpath], len + 1, "%s/%s", p, file);
+        }
+        else {
+            int len = snprintf(NULL, 0, "%s", file);
+            filepath[curpath] = malloc(len + 1);
+            snprintf(filepath[curpath], len + 1, "%s", file);
+        }
+
+        return filepath[curpath++];
     }
     else {
-        /* Ensure the final string is nul-terminated on Windows */
-        filepath[curpath][sizeof(filepath[0]) - 1] = 0;
-        snprintf(filepath[curpath], sizeof(filepath[0]) - 1, "%s",
-                 file);
+        /* cleanup allocated filepath */
+        int i;
+        for(i = 0; i<curpath; i++) {
+            free(filepath[curpath]);
+        }
+        curpath = 0;
+        return NULL;
     }
-
-    return filepath[curpath++];
 }
 
 static const char *kbd_password;
