@@ -263,7 +263,7 @@ char *srcdir_path(const char *file)
             len = snprintf(NULL, 0, "%s/%s", p, file);
             if(len >= 0) {
                 filepath[curpath] = calloc(1, (size_t)len + 1);
-                snprintf(filepath[curpath], len + 1, "%s/%s", p, file);
+                snprintf(filepath[curpath], (size_t)len + 1, "%s/%s", p, file);
             }
             else {
                return NULL;
@@ -273,7 +273,7 @@ char *srcdir_path(const char *file)
             len = snprintf(NULL, 0, "%s", file);
             if(len >= 0) {
                 filepath[curpath] = calloc(1, (size_t)len + 1);
-                snprintf(filepath[curpath], len + 1, "%s", file);
+                snprintf(filepath[curpath], (size_t)len + 1, "%s", file);
             }
             else {
                return NULL;
