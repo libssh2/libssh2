@@ -32,13 +32,13 @@ include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set WOLFSSL_FOUND
 # to TRUE if all listed variables are TRUE and the requested version
 # matches.
-find_package_handle_standard_args(wolfssl REQUIRED_VARS
-                                  WOLFSSL_LIBRARY WOLFSSL_INCLUDE_DIR
-                                  VERSION_VAR WOLFSSL_VERSION)
+find_package_handle_standard_args(wolfssl
+  REQUIRED_VARS WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY
+  VERSION_VAR WOLFSSL_VERSION)
 
 if(WOLFSSL_FOUND)
-  set(WOLFSSL_LIBRARIES    ${WOLFSSL_LIBRARY})
   set(WOLFSSL_INCLUDE_DIRS ${WOLFSSL_INCLUDE_DIR})
+  set(WOLFSSL_LIBRARIES    ${WOLFSSL_LIBRARY})
 endif()
 
 mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
