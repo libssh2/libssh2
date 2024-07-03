@@ -235,6 +235,7 @@ void stop_session_fixture(void)
     close_socket_to_openssh_server(connected_socket);
     connected_socket = LIBSSH2_INVALID_SOCKET;
 
+    /* cleanup allocated filepath */
     srcdir_path(NULL);
 
     libssh2_exit();
@@ -271,7 +272,6 @@ char *srcdir_path(const char *file)
         return filepath[curpath++];
     }
     else {
-        /* cleanup allocated filepath */
         int i;
         for(i = 0; i<curpath; i++) {
             free(filepath[curpath]);
