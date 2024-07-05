@@ -44,7 +44,6 @@ SPDX-License-Identifier = "BSD-3-Clause"
 # Docs
 [[annotations]]
 path = [
-  "docs/.gitignore",
   "docs/AUTHORS",
   "docs/BINDINGS.md",
   "docs/HACKING-CRYPTO",
@@ -59,7 +58,7 @@ path = [
 SPDX-FileCopyrightText = "The libssh2 project and its contributors."
 SPDX-License-Identifier = "BSD-3-Clause"
 
-# vms files
+# VMS
 [[annotations]]
 path = [
   "vms/libssh2_config.h",
@@ -73,15 +72,15 @@ path = [
 SPDX-FileCopyrightText = "The libssh2 project and its contributors."
 SPDX-License-Identifier = "BSD-3-Clause"
 
-# dot files
+# Dotfiles
 [[annotations]]
 path = [
   ".checksrc",
   ".editorconfig",
   ".github/ISSUE_TEMPLATE/bug_report.md",
   ".github/SECURITY.md",
-  ".github/stale.yml",
   ".gitignore",
+  "docs/.gitignore",
   "example/.gitignore",
   "m4/.gitignore",
   "src/.gitignore",
