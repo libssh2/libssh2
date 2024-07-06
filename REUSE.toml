@@ -55,5 +55,5 @@ path = [
 ]
 SPDX-FileCopyrightText = "The libssh2 project and its contributors."
 SPDX-License-Identifier = "BSD-3-Clause"
-# If there is licensing/copyright information in or next to these files, perfer that
+# If there is licensing/copyright information in or next to these files, prefer that
 precedence = "closest"
