@@ -1,14 +1,14 @@
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
-#
+
 # - Try to find mbedTLS
-#
 # Input variables:
-#  MBEDTLS_INCLUDE_DIR - the mbedTLS include directory
-#  MBEDCRYPTO_LIBRARY - path to mbedTLS Crypto library
-# Output variables:
-#  MBEDTLS_FOUND - system has mbedTLS
-#  MBEDTLS_LIBRARIES - link these to use mbedTLS
+#  MBEDTLS_INCLUDE_DIR     - The mbedTLS include directory
+#  MBEDCRYPTO_LIBRARY      - Path to mbedTLS Crypto library
+# This will define all or none of:
+#  MBEDTLS_FOUND           - If mbedTLS headers and library were found
+#  MBEDTLS_INCLUDE_DIRS    - The mbedTLS include directories
+#  MBEDTLS_LIBRARIES       - The libraries needed to use mbedTLS
 
 find_package(PkgConfig QUIET)
 pkg_check_modules(PC_MBEDTLS QUIET "mbedtls")

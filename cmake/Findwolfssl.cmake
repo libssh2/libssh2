@@ -1,11 +1,11 @@
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
-#
-# - Try to find wolfssl
-# Once done this will define
-#  WOLFSSL_FOUND           - System has wolfssl
-#  WOLFSSL_INCLUDE_DIR     - The wolfssl include directories
-#  WOLFSSL_LIBRARIES       - The libraries needed to use wolfssl
+
+# - Try to find wolfSSL
+# Output variables:
+#  WOLFSSL_FOUND           - If wolfSSL headers and library were found
+#  WOLFSSL_INCLUDE_DIR     - The wolfSSL include directories
+#  WOLFSSL_LIBRARIES       - The libraries needed to use wolfSSL
 
 find_package(PkgConfig QUIET)
 pkg_check_modules(PC_WOLFSSL QUIET "wolfssl")

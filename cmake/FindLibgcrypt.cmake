@@ -37,9 +37,9 @@
 
 # - Try to find Libgcrypt
 # This will define all or none of:
-#  LIBGCRYPT_FOUND - if Libgcrypt headers and library was found
+#  LIBGCRYPT_FOUND        - If Libgcrypt headers and library were found
 #  LIBGCRYPT_INCLUDE_DIRS - The Libgcrypt include directories
-#  LIBGCRYPT_LIBRARIES - The libraries needed to use Libgcrypt
+#  LIBGCRYPT_LIBRARIES    - The libraries needed to use Libgcrypt
 
 find_package(PkgConfig QUIET)
 pkg_check_modules(PC_LIBGCRYPT QUIET "libgcrypt")
