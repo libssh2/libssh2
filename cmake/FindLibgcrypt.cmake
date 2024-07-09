@@ -41,14 +41,17 @@
 #  LIBGCRYPT_INCLUDE_DIRS - The Libgcrypt include directories
 #  LIBGCRYPT_LIBRARIES    - The libraries needed to use Libgcrypt
 
-include(FindPackageHandleStandardArgs)
-
 find_package(PkgConfig QUIET)
-pkg_check_modules(LIBGCRYPT QUIET "libgcrypt")
+pkg_check_modules(LIBGCRYPT "libgcrypt")
 
 if(NOT LIBGCRYPT_FOUND)
   find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h" )
   find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt")
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args("Libgcrypt"
+    DEFAULT_MSG
+    LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
 
   mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
 
@@ -57,7 +60,3 @@ if(NOT LIBGCRYPT_FOUND)
     set(LIBGCRYPT_LIBRARIES    ${LIBGCRYPT_LIBRARY})
   endif()
 endif()
-
-find_package_handle_standard_args("Libgcrypt"
-  DEFAULT_MSG
-  LIBGCRYPT_INCLUDE_DIRS LIBGCRYPT_LIBRARIES)
