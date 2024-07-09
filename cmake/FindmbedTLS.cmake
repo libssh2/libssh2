@@ -10,8 +10,16 @@
 #  MBEDTLS_FOUND - system has mbedTLS
 #  MBEDTLS_LIBRARIES - link these to use mbedTLS
 
-find_path(MBEDTLS_INCLUDE_DIR NAMES "mbedtls/version.h")
-find_library(MBEDCRYPTO_LIBRARY NAMES "mbedcrypto" "libmbedcrypto")
+find_package(PkgConfig QUIET)
+pkg_check_modules(PC_MBEDTLS QUIET "mbedtls")
+
+find_path(MBEDTLS_INCLUDE_DIR
+  NAMES "mbedtls/version.h"
+  HINTS ${PC_MBEDTLS_INCLUDE_DIRS})
+
+find_library(MBEDCRYPTO_LIBRARY
+  NAMES "mbedcrypto" "libmbedcrypto"
+  HINTS ${PC_MBEDTLS_LIBRARY_DIRS})
 
 if(MBEDTLS_INCLUDE_DIR)
   file(READ "${MBEDTLS_INCLUDE_DIR}/mbedtls/build_info.h" _mbedtls_header_1)
@@ -26,9 +34,10 @@ find_package_handle_standard_args(mbedTLS
   REQUIRED_VARS MBEDTLS_INCLUDE_DIR MBEDCRYPTO_LIBRARY
   VERSION_VAR MBEDTLS_VERSION)
 
+mark_as_advanced(MBEDTLS_INCLUDE_DIR MBEDCRYPTO_LIBRARY)
+
 if(MBEDTLS_FOUND)
-  set(MBEDTLS_LIBRARIES "${MBEDCRYPTO_LIBRARY}")
+  set(MBEDTLS_INCLUDE_DIRS "${MBEDCRYPTO_INCLUDE_DIR}")
+  set(MBEDTLS_LIBRARIES    "${MBEDCRYPTO_LIBRARY}")
   message(STATUS "Found mbedTLS libraries: ${MBEDTLS_LIBRARIES}")
 endif()
-
-mark_as_advanced(MBEDTLS_INCLUDE_DIR MBEDCRYPTO_LIBRARY MBEDTLS_LIBRARIES)

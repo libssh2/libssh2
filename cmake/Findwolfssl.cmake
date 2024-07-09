@@ -12,12 +12,11 @@ pkg_check_modules(PC_WOLFSSL QUIET "wolfssl")
 
 find_path(WOLFSSL_INCLUDE_DIR
   NAMES "wolfssl/options.h"
-  HINTS ${PC_WOLFSSL_INCLUDE_DIRS}
-)
+  HINTS ${PC_WOLFSSL_INCLUDE_DIRS})
+
 find_library(WOLFSSL_LIBRARY
   NAMES "wolfssl"
-  HINTS ${PC_WOLFSSL_LIBRARY_DIRS}
-)
+  HINTS ${PC_WOLFSSL_LIBRARY_DIRS})
 
 if(WOLFSSL_INCLUDE_DIR)
   set(_version_regex "^#define[ \t]+LIBWOLFSSL_VERSION_STRING[ \t]+\"([^\"]+)\".*")
@@ -36,9 +35,9 @@ find_package_handle_standard_args(wolfssl
   REQUIRED_VARS WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY
   VERSION_VAR WOLFSSL_VERSION)
 
+mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
+
 if(WOLFSSL_FOUND)
   set(WOLFSSL_INCLUDE_DIRS ${WOLFSSL_INCLUDE_DIR})
   set(WOLFSSL_LIBRARIES    ${WOLFSSL_LIBRARY})
 endif()
-
-mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
