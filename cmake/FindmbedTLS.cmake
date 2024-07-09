@@ -30,7 +30,7 @@ if(MBEDTLS_INCLUDE_DIR)
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(mbedTLS
+find_package_handle_standard_args("mbedTLS"
   REQUIRED_VARS MBEDTLS_INCLUDE_DIR MBEDCRYPTO_LIBRARY
   VERSION_VAR MBEDTLS_VERSION)
 

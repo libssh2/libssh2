@@ -53,7 +53,7 @@ find_library(LIBGCRYPT_LIBRARY
   HINTS ${PC_LIBGCRYPT_LIBRARY_DIRS})
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Libgcrypt
+find_package_handle_standard_args("Libgcrypt"
   DEFAULT_MSG
   LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
 
