@@ -44,7 +44,9 @@
 find_package(PkgConfig QUIET)
 pkg_check_modules(LIBGCRYPT "libgcrypt")
 
-if(NOT LIBGCRYPT_FOUND)
+if(LIBGCRYPT_FOUND)
+  set(LIBGCRYPT_LIBRARIES ${LIBGCRYPT_LINK_LIBRARIES})
+else()
   find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h" )
   find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt")
 
