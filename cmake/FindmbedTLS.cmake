@@ -11,7 +11,7 @@
 #  MBEDTLS_LIBRARIES       - The libraries needed to use mbedTLS
 
 find_package(PkgConfig QUIET)
-pkg_check_modules(PC_MBEDTLS QUIET "mbedtls")
+pkg_check_modules(PC_MBEDTLS "mbedtls")
 
 find_path(MBEDTLS_INCLUDE_DIR
   NAMES "mbedtls/version.h"

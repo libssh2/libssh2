@@ -45,6 +45,10 @@ find_package(PkgConfig QUIET)
 pkg_check_modules(LIBGCRYPT "libgcrypt")
 
 if(LIBGCRYPT_FOUND)
+  # Use LIBGCRYPT_INCLUDE_DIRS as-is instead of forwarding it as a hint
+  # to find_path(). The list includes the header path of a Libgcrypt
+  # dependency, with its headers referenced by Libgcrypt's public headers.
+  # We must keep this header path there for a successful build.
   set(LIBGCRYPT_LIBRARIES ${LIBGCRYPT_LINK_LIBRARIES})
 else()
   find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h")
