@@ -278,6 +278,12 @@
 
 #if LIBSSH2_ECDSA
 
+/* force expose internal mbedtls function for linking,
+   I expect this won't change internally until mbedtls 4.0 */
+#if MBEDTLS_VERSION_MAJOR == 3 && MBEDTLS_VERSION_MINOR == 6
+int mbedtls_pk_load_file(const char *path, unsigned char **buf, size_t *n);
+#endif
+
 typedef enum {
 #ifdef MBEDTLS_ECP_DP_SECP256R1_ENABLED
     LIBSSH2_EC_CURVE_NISTP256 = MBEDTLS_ECP_DP_SECP256R1,
