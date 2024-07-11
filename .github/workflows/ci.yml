@@ -593,8 +593,8 @@ jobs:
             cmake: -DCRYPTO_BACKEND=Libgcrypt
           - name: 'mbedTLS'
             install: mbedtls
-            configure: --with-crypto=mbedtls "--with-libmbedcrypto-prefix=$(brew --prefix)" CPPFLAGS=-D_LIBSSH2_DISABLE_MBEDTLS36_PK_LOAD_FILE
-            cmake: -DCRYPTO_BACKEND=mbedTLS "-DMBEDTLS_INCLUDE_DIR=$(brew --prefix)/opt/mbedtls/include" "-DMBEDCRYPTO_LIBRARY=$(brew --prefix)/opt/mbedtls/lib/libmbedcrypto.a" -DCMAKE_C_FLAGS=-D_LIBSSH2_DISABLE_MBEDTLS36_PK_LOAD_FILE
+            configure: --with-crypto=mbedtls "--with-libmbedcrypto-prefix=$(brew --prefix)"
+            cmake: -DCRYPTO_BACKEND=mbedTLS "-DMBEDTLS_INCLUDE_DIR=$(brew --prefix)/opt/mbedtls/include" "-DMBEDCRYPTO_LIBRARY=$(brew --prefix)/opt/mbedtls/lib/libmbedcrypto.a"
     steps:
       - name: 'install packages'
         run: brew install automake libtool ${{ matrix.crypto.install }}
