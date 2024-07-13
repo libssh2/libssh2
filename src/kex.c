@@ -1054,12 +1054,12 @@ kex_method_diffie_hellman_group1_sha1_key_exchange(LIBSSH2_SESSION *session,
         key_state->g = _libssh2_bn_init();      /* SSH2 defined value (2) */
 
         /* Initialize P and G */
-        if(_libssh2_bn_set_word(key_state->g, 2)) {
+        if(!key_state->g || _libssh2_bn_set_word(key_state->g, 2)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state g.");
             goto clean_exit;
         }
-        if(_libssh2_bn_from_bin(key_state->p, 128, p_value)) {
+        if(!key_state->p || _libssh2_bn_from_bin(key_state->p, 128, p_value)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state p.");
             goto clean_exit;
@@ -1152,12 +1152,13 @@ kex_method_diffie_hellman_group14_key_exchange(LIBSSH2_SESSION *session,
 
         /* g == 2 */
         /* Initialize P and G */
-        if(_libssh2_bn_set_word(key_state->g, 2)) {
+        if(!key_state->g || _libssh2_bn_set_word(key_state->g, 2)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state g.");
             goto clean_exit;
         }
-        else if(_libssh2_bn_from_bin(key_state->p, 256, p_value)) {
+        else if(!key_state->p ||
+                _libssh2_bn_from_bin(key_state->p, 256, p_value)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state p.");
             goto clean_exit;
@@ -1278,12 +1279,12 @@ kex_method_diffie_hellman_group16_sha512_key_exchange(LIBSSH2_SESSION *session,
 
         /* g == 2 */
         /* Initialize P and G */
-        if(_libssh2_bn_set_word(key_state->g, 2)) {
+        if(!key_state->g || _libssh2_bn_set_word(key_state->g, 2)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state g.");
             goto clean_exit;
         }
-        if(_libssh2_bn_from_bin(key_state->p, 512, p_value)) {
+        if(!key_state->p || _libssh2_bn_from_bin(key_state->p, 512, p_value)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state p.");
             goto clean_exit;
@@ -1415,12 +1416,13 @@ kex_method_diffie_hellman_group18_sha512_key_exchange(LIBSSH2_SESSION *session,
 
         /* g == 2 */
         /* Initialize P and G */
-        if(_libssh2_bn_set_word(key_state->g, 2)) {
+        if(!key_state->g || _libssh2_bn_set_word(key_state->g, 2)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state g.");
             goto clean_exit;
         }
-        else if(_libssh2_bn_from_bin(key_state->p, 1024, p_value)) {
+        else if(!key_state->p ||
+                _libssh2_bn_from_bin(key_state->p, 1024, p_value)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Failed to allocate key state p.");
             goto clean_exit;
