@@ -280,7 +280,7 @@
 
 /* force expose internal mbedtls function for linking,
    I expect this won't change internally until mbedtls 4.0 */
-#if MBEDTLS_VERSION_MAJOR == 3 && MBEDTLS_VERSION_MINOR == 6
+#if MBEDTLS_VERSION_MAJOR == 3 && MBEDTLS_VERSION_MINOR >= 6
 int mbedtls_pk_load_file(const char *path, unsigned char **buf, size_t *n);
 #endif
 
