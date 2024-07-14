@@ -5,6 +5,8 @@ CSOURCES =              \
   bcrypt_pbkdf.c        \
   channel.c             \
   comp.c                \
+  chacha.c              \
+  cipher-chachapoly.c   \
   crypt.c               \
   crypto.c              \
   global.c              \
@@ -16,6 +18,7 @@ CSOURCES =              \
   misc.c                \
   packet.c              \
   pem.c                 \
+  poly1305.c            \
   publickey.c           \
   scp.c                 \
   session.c             \
