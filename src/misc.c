@@ -266,6 +266,24 @@ void _libssh2_store_u32(unsigned char **buf, uint32_t value)
     *buf += sizeof(uint32_t);
 }
 
+/* _libssh2_store_u64
+ */
+void _libssh2_store_u64(unsigned char **buf, libssh2_uint64_t value)
+{
+    unsigned char *ptr = *buf;
+
+    ptr[0] = (unsigned char)((value >> 56) & 0xFF);
+    ptr[1] = (unsigned char)((value >> 48) & 0xFF);
+    ptr[2] = (unsigned char)((value >> 40) & 0xFF);
+    ptr[3] = (unsigned char)((value >> 32) & 0xFF);
+    ptr[4] = (unsigned char)((value >> 24) & 0xFF);
+    ptr[5] = (unsigned char)((value >> 16) & 0xFF);
+    ptr[6] = (unsigned char)((value >> 8) & 0xFF);
+    ptr[7] = (unsigned char)(value & 0xFF);
+
+    *buf += sizeof(libssh2_uint64_t);
+}
+
 /* _libssh2_store_str
  */
 int _libssh2_store_str(unsigned char **buf, const char *str, size_t len)

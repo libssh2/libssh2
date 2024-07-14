@@ -313,6 +313,8 @@ typedef struct {        /* Diffie-Hellman context. */
                                    Qc3_CTR, 32}
 #define _libssh2_cipher_3des {Qc3_Alg_Block_Cipher, Qc3_TDES, 8,            \
                               Qc3_CBC, 24}
+/* Nonsense values for chacha20-poly1305 */
+#define _libssh2_cipher_chacha20 {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
 #define _libssh2_cipher_arcfour {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
 
 #define _libssh2_cipher_dtor(ctx) _libssh2_os400qc3_crypto_dtor(ctx)

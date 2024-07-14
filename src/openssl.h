@@ -407,6 +407,7 @@ libssh2_curve_type;
 #define _libssh2_cipher_arcfour EVP_rc4
 #define _libssh2_cipher_cast5 EVP_cast5_cbc
 #define _libssh2_cipher_3des EVP_des_ede3_cbc
+#define _libssh2_cipher_chacha20 NULL
 
 #ifdef HAVE_OPAQUE_STRUCTS
 #define _libssh2_cipher_dtor(ctx) EVP_CIPHER_CTX_free(*(ctx))

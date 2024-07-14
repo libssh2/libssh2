@@ -132,6 +132,7 @@ struct _libssh2_wincng_ctx {
     BCRYPT_ALG_HANDLE hAlgRC4_NA;
     BCRYPT_ALG_HANDLE hAlg3DES_CBC;
     BCRYPT_ALG_HANDLE hAlgDH;
+    BCRYPT_ALG_HANDLE hAlgChacha20;
 #if LIBSSH2_ECDSA
     BCRYPT_ALG_HANDLE hAlgECDH[3];  /* indexed by libssh2_curve_type */
     BCRYPT_ALG_HANDLE hAlgECDSA[3]; /* indexed by libssh2_curve_type */
@@ -414,6 +415,7 @@ struct _libssh2_wincng_cipher_type {
 #define _libssh2_cipher_aes128    { &_libssh2_wincng.hAlgAES_CBC, 16, 1, 0 }
 #define _libssh2_cipher_arcfour   { &_libssh2_wincng.hAlgRC4_NA, 16, 0, 0 }
 #define _libssh2_cipher_3des      { &_libssh2_wincng.hAlg3DES_CBC, 24, 1, 0 }
+#define _libssh2_cipher_chacha20  { &_libssh2_wincng.hAlgChacha20, 24, 1, 0 }
 
 /*
  * Windows CNG backend: Cipher functions
