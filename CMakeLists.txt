@@ -54,6 +54,9 @@ project(libssh2 C)
 
 set(CMAKE_UNITY_BUILD_BATCH_SIZE 32)
 
+message(STATUS "${CMAKE_PREFIX_PATH}")
+message(STATUS "${CMAKE_SYSTEM_PREFIX_PATH}")
+
 option(BUILD_STATIC_LIBS "Build Static Libraries" ON)
 add_feature_info("Static library" BUILD_STATIC_LIBS
   "creating libssh2 static library")
