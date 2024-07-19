@@ -3,6 +3,8 @@
  * D. J. Bernstein
  * Public domain.
  * Copyright not intended 2024.
+ *
+ * SPDX-License-Identifier: SAX-PD-2.0
  */
 
 #include "libssh2.h"

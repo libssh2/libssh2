@@ -4,6 +4,8 @@
  * Public Domain poly1305 from Andrew Moon
  * poly1305-donna-unrolled.c from https://github.com/floodyberry/poly1305-donna
  * Copyright not intended 2024.
+ *
+ * SPDX-License-Identifier: SAX-PD-2.0
  */
 
 #ifndef POLY1305_H

@@ -2,6 +2,8 @@
  * Public Domain poly1305 from Andrew Moon
  * poly1305-donna-unrolled.c from https://github.com/floodyberry/poly1305-donna
  * Copyright not intended 2024.
+ *
+ * SPDX-License-Identifier: SAX-PD-2.0
  */
 
 /* $OpenBSD: poly1305.c,v 1.3 2013/12/19 22:57:13 djm Exp $ */
@@ -39,7 +41,7 @@ poly1305_auth(unsigned char out[POLY1305_TAGLEN], const unsigned char *m,
     uint32_t h0;
     uint32_t h1;
     uint32_t h2;
-    uint32_t h3
+    uint32_t h3;
     uint32_t h4;
     uint32_t r0;
     uint32_t r1;
@@ -58,7 +60,7 @@ poly1305_auth(unsigned char out[POLY1305_TAGLEN], const unsigned char *m,
     uint32_t f1;
     uint32_t f2;
     uint32_t f3;
-    uint32_t g0
+    uint32_t g0;
     uint32_t g1;
     uint32_t g2;
     uint32_t g3;
