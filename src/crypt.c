@@ -500,7 +500,7 @@ static const LIBSSH2_CRYPT_METHOD
     &crypt_get_length_chacha20_poly,
     &crypt_encrypt_chacha20_poly_buffer,
     &crypt_dtor_chacha20_poly,
-    NULL
+    _libssh2_cipher_chacha20                    /* not actually used */
 };
 
 /* These are the crypt methods that are available to be negotiated. Methods

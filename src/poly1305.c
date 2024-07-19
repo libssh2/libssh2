@@ -57,9 +57,9 @@ poly1305_auth(unsigned char out[POLY1305_TAGLEN], const unsigned char *m,
     size_t j;
     uint64_t t[5];
     uint64_t f0;
-    uint32_t f1;
-    uint32_t f2;
-    uint32_t f3;
+    uint64_t f1;
+    uint64_t f2;
+    uint64_t f3;
     uint32_t g0;
     uint32_t g1;
     uint32_t g2;
