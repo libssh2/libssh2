@@ -16,14 +16,7 @@
 #define POLY1305_KEYLEN 32
 #define POLY1305_TAGLEN 16
 
-#if !defined(__bounded__)
-#define __bounded__(x, y, z)
-#endif
-
 void poly1305_auth(u_char out[POLY1305_TAGLEN], const u_char *m, size_t inlen,
-                   const u_char key[POLY1305_KEYLEN])
-    __attribute__((__bounded__(__minbytes__, 1, POLY1305_TAGLEN)))
-    __attribute__((__bounded__(__buffer__, 2, 3)))
-    __attribute__((__bounded__(__minbytes__, 4, POLY1305_KEYLEN)));
+                   const u_char key[POLY1305_KEYLEN]);
 
 #endif /* POLY1305_H */
