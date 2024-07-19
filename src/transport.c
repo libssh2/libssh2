@@ -540,7 +540,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             }
 
             if(etm) {
-                /* etm size field is not encypted */
+                /* etm size field is not encrypted */
                 memcpy(block, &p->buf[p->readidx], 4);
                 memcpy(p->init, &p->buf[p->readidx], 4);
             }
@@ -634,7 +634,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                  length is not required for decryption */
 
                 /* add size field to be included in total packet size
-                 * calculation so it doesn't get dropped off on subsiquent
+                 * calculation so it doesn't get dropped off on subsequent
                  * partial reads
                  */
                 total_num = 4;

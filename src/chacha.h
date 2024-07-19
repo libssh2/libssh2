@@ -13,6 +13,10 @@
 #include <sys/types.h>
 #include <stdlib.h>
 
+#if !defined(__bounded__)
+#define __bounded__(x, y, z)
+#endif
+
 struct chacha_ctx {
     u_int input[16];
 };

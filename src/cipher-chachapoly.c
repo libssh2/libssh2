@@ -100,9 +100,9 @@ chachapoly_crypt(struct chachapoly_ctx *ctx, u_int seqnr, u_char *dest,
     }
     r = 0;
 out:
-    bzero(expected_tag, sizeof(expected_tag));
-    bzero(seqbuf, sizeof(seqbuf));
-    bzero(poly_key, sizeof(poly_key));
+    memset(expected_tag, 0, sizeof(expected_tag));
+    memset(seqbuf, 0, sizeof(seqbuf));
+    memset(poly_key, 0, sizeof(poly_key));
     return r;
 }
 

@@ -32,15 +32,37 @@
 void
 poly1305_auth(unsigned char out[POLY1305_TAGLEN], const unsigned char *m,
               size_t inlen, const unsigned char key[POLY1305_KEYLEN]) {
-    uint32_t t0, t1, t2, t3;
-    uint32_t h0, h1, h2, h3, h4;
-    uint32_t r0, r1, r2, r3, r4;
-    uint32_t s1, s2, s3, s4;
-    uint32_t b, nb;
+    uint32_t t0;
+    uint32_t t1;
+    uint32_t t2;
+    uint32_t t3;
+    uint32_t h0;
+    uint32_t h1;
+    uint32_t h2;
+    uint32_t h3
+    uint32_t h4;
+    uint32_t r0;
+    uint32_t r1;
+    uint32_t r2;
+    uint32_t r3;
+    uint32_t r4;
+    uint32_t s1;
+    uint32_t s2;
+    uint32_t s3;
+    uint32_t s4;
+    uint32_t b;
+    uint32_t nb;
     size_t j;
     uint64_t t[5];
-    uint64_t f0, f1, f2, f3;
-    uint32_t g0, g1, g2, g3, g4;
+    uint64_t f0;
+    uint32_t f1;
+    uint32_t f2;
+    uint32_t f3;
+    uint32_t g0
+    uint32_t g1;
+    uint32_t g2;
+    uint32_t g3;
+    uint32_t g4;
     uint64_t c;
     unsigned char mp[16];
 
@@ -83,9 +105,9 @@ poly1305_donna_16bytes:
     t3 = U8TO32_LE(m-4);
 
     h0 += t0 & 0x3ffffff;
-    h1 += ((((uint64_t)t1 << 32) | t0) >> 26) & 0x3ffffff;
-    h2 += ((((uint64_t)t2 << 32) | t1) >> 20) & 0x3ffffff;
-    h3 += ((((uint64_t)t3 << 32) | t2) >> 14) & 0x3ffffff;
+    h1 += ((uint32_t)((((uint64_t)t1 << 32) | t0) >> 26) & 0x3ffffff);
+    h2 += ((uint32_t)((((uint64_t)t2 << 32) | t1) >> 20) & 0x3ffffff);
+    h3 += ((uint32_t)((((uint64_t)t3 << 32) | t2) >> 14) & 0x3ffffff);
     h4 += (t3 >> 8) | (1 << 24);
 
 
@@ -143,9 +165,9 @@ poly1305_donna_atmost15bytes:
     t3 = U8TO32_LE(mp + 12);
 
     h0 += t0 & 0x3ffffff;
-    h1 += ((((uint64_t)t1 << 32) | t0) >> 26) & 0x3ffffff;
-    h2 += ((((uint64_t)t2 << 32) | t1) >> 20) & 0x3ffffff;
-    h3 += ((((uint64_t)t3 << 32) | t2) >> 14) & 0x3ffffff;
+    h1 += ((uint32_t)((((uint64_t)t1 << 32) | t0) >> 26) & 0x3ffffff);
+    h2 += ((uint32_t)((((uint64_t)t2 << 32) | t1) >> 20) & 0x3ffffff);
+    h3 += ((uint32_t)((((uint64_t)t3 << 32) | t2) >> 14) & 0x3ffffff);
     h4 += (t3 >> 8);
 
     goto poly1305_donna_mul;
