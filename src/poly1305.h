@@ -12,6 +12,7 @@
 #define POLY1305_H
 
 #include <sys/types.h>
+#include "libssh2.h"
 
 #define POLY1305_KEYLEN 32
 #define POLY1305_TAGLEN 16

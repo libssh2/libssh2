@@ -9,7 +9,7 @@
 /* $OpenBSD: poly1305.c,v 1.3 2013/12/19 22:57:13 djm Exp $ */
 
 #include <sys/types.h>
-# include <stdint.h>
+#include "libssh2.h"
 
 #include "poly1305.h"
 
