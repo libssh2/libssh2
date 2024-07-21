@@ -405,6 +405,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
             rc = _libssh2_transport_send(session, x11open_state->packet, 17,
                                          NULL, 0);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
+                LIBSSH2_FREE(session, channel);
                 return rc;
             }
             else if(rc) {
