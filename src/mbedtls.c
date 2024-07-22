@@ -1296,9 +1296,6 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ctx,
     mbedtls_pk_context pkey;
     unsigned char *data = NULL;
     size_t data_len = 0;
-    (void)session;
-    (void)filename;
-    (void)pwd;
 
     /* FIXME: Reimplement this functionality via a public API. */
     if(mbedtls_pk_load_file(filename, &data, &data_len))
