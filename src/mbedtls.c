@@ -1293,6 +1293,9 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ctx,
                                    const char *filename,
                                    const unsigned char *pwd)
 {
+    (void)session;
+    (void)filename;
+    (void)pwd;
     mbedtls_pk_context pkey;
     unsigned char *data = NULL;
     size_t data_len = 0;
