@@ -1299,7 +1299,7 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ctx,
     (void)session;
     (void)filename;
     (void)pwd;
-   
+
     /* FIXME: Reimplement this functionality via a public API. */
     if(mbedtls_pk_load_file(filename, &data, &data_len))
         goto cleanup;
