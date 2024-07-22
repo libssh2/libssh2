@@ -329,7 +329,6 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
-          export PKG_CONFIG_DIR=/dev/null
           export PKG_CONFIG_LIBDIR=
           export PKG_CONFIG_SYSROOT_DIR=
           cmake -B bld \
