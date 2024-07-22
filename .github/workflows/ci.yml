@@ -329,11 +329,12 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
+          export PKG_CONFIG_DIR=
+          export PKG_CONFIG_ALLOW_CROSS=0
           cmake -B bld \
             -DCMAKE_SYSTEM_NAME=Windows \
             -DCMAKE_C_COMPILER_TARGET=${TRIPLET} \
             -DCMAKE_C_COMPILER=${TRIPLET}-gcc \
-            -DCMAKE_SYSTEM_PREFIX_PATH=/dev/null \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             || { cat bld/CMakeFiles/CMake*.yaml; false; }
