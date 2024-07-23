@@ -1297,11 +1297,11 @@ _libssh2_mbedtls_ecdsa_new_private(libssh2_ecdsa_ctx **ctx,
     unsigned char *data = NULL;
     size_t data_len = 0;
 
+    mbedtls_pk_init(&pkey);
+
     /* FIXME: Reimplement this functionality via a public API. */
     if(mbedtls_pk_load_file(filename, &data, &data_len))
         goto cleanup;
-
-    mbedtls_pk_init(&pkey);
 
     if(_libssh2_mbedtls_parse_eckey(ctx, &pkey, session,
                                     data, data_len, pwd) == 0)
