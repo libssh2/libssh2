@@ -41,10 +41,8 @@
 #  LIBGCRYPT_INCLUDE_DIRS - The Libgcrypt include directories
 #  LIBGCRYPT_LIBRARIES    - The libraries needed to use Libgcrypt
 
-if(NOT(CMAKE_CROSSCOMPILING AND "$ENV{PKG_CONFIG_LIBDIR}" STREQUAL ""))
-  find_package(PkgConfig QUIET)
-  pkg_check_modules(LIBGCRYPT "libgcrypt")
-endif()
+find_package(PkgConfig QUIET)
+pkg_check_modules(LIBGCRYPT "libgcrypt")
 
 if(LIBGCRYPT_FOUND)
   # Use LIBGCRYPT_INCLUDE_DIRS as-is instead of forwarding it as a hint
