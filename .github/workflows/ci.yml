@@ -329,8 +329,7 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
-          #export PKG_CONFIG_LIBDIR=
-          export PKG_CONFIG_PATH=
+          export PKG_CONFIG_LIBDIR=
           cmake -B bld \
             -DCMAKE_SYSTEM_NAME=Windows \
             -DCMAKE_C_COMPILER_TARGET=${TRIPLET} \
