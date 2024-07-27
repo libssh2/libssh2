@@ -59,7 +59,9 @@ else()
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args("Libgcrypt"
     DEFAULT_MSG
-    LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
+    REQUIRED_VARS
+      LIBGCRYPT_INCLUDE_DIR
+      LIBGCRYPT_LIBRARY)
 
   mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
 

@@ -34,7 +34,9 @@ include(FindPackageHandleStandardArgs)
 # to TRUE if all listed variables are TRUE and the requested version
 # matches.
 find_package_handle_standard_args("wolfssl"
-  REQUIRED_VARS WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY
+  REQUIRED_VARS
+    WOLFSSL_INCLUDE_DIR
+    WOLFSSL_LIBRARY
   VERSION_VAR WOLFSSL_VERSION)
 
 mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
