@@ -42,9 +42,7 @@
 #  LIBGCRYPT_LIBRARIES    - The libraries needed to use Libgcrypt
 
 find_package(PkgConfig QUIET)
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(LIBGCRYPT "libgcrypt")
-endif()
+pkg_check_modules(LIBGCRYPT "libgcrypt")
 
 if(LIBGCRYPT_FOUND)
   # Use LIBGCRYPT_INCLUDE_DIRS as-is instead of forwarding it as a hint

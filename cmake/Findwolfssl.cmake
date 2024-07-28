@@ -8,9 +8,7 @@
 #  WOLFSSL_LIBRARIES       - The libraries needed to use wolfSSL
 
 find_package(PkgConfig QUIET)
-if(PKG_CONFIG_FOUND)
-  pkg_check_modules(PC_WOLFSSL "wolfssl")
-endif()
+pkg_check_modules(PC_WOLFSSL "wolfssl")
 
 find_path(WOLFSSL_INCLUDE_DIR
   NAMES "wolfssl/options.h"
