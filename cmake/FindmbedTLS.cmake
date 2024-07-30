@@ -23,7 +23,7 @@ if(MBEDTLS_INCLUDE_DIR)
   string(REGEX REPLACE "${_mbedtls_regex}" "\\1" MBEDTLS_VERSION "${_mbedtls_match}")
 
   include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args("mbedTLS" DEFAULT_MSG VERSION_VAR MBEDTLS_VERSION)
+  find_package_handle_standard_args("mbedTLS" VERSION_VAR MBEDTLS_VERSION DEFAULT_MSG)
 endif()
 
 if(MBEDTLS_FOUND)
