@@ -275,7 +275,7 @@ Some ./configure options deserve additional comments:
  * --with-libssl-prefix=[DIR]
 
         libssh2 can use the OpenSSL library
-        (https://www.openssl.org) for cryptographic operations.
+        (https://www.openssl-library.org/) for cryptographic operations.
         One of the cryptographic libraries is required.
 
         Configure will attempt to locate OpenSSL in the
