@@ -12,7 +12,6 @@
 #ifndef CHACHA_H
 #define CHACHA_H
 
-#include <sys/types.h>
 #include <stdlib.h>
 
 struct chacha_ctx {
