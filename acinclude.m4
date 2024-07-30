@@ -866,11 +866,6 @@ m4_case([$1],
 ],
 
 [wolfssl], [
-  if test "${with_libwolfssl_prefix+set}" = set; then
-    CPPFLAGS="$CPPFLAGS${CPPFLAGS:+ }-I${with_libwolfssl_prefix}/include/wolfssl"
-  else
-    AC_MSG_ERROR([When using wolfSSL, must specify prefix with --with-libwolfssl-prefix in order to find OpenSSL compatibility headers.])
-  fi
   LIBSSH2_LIB_HAVE_LINKFLAGS([wolfssl], [], [#include <wolfssl/options.h>], [
     AC_DEFINE(LIBSSH2_WOLFSSL, 1, [Use $1])
     LIBSSH2_PC_REQUIRES_PRIVATE="$LIBSSH2_PC_REQUIRES_PRIVATE${LIBSSH2_PC_REQUIRES_PRIVATE:+,}wolfssl"
