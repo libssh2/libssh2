@@ -444,7 +444,6 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             else {
                 remote_mac = session->remote.mac;
             }
-
         }
 
         etm = encrypted && remote_mac ? remote_mac->etm : 0;
