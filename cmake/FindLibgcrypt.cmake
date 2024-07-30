@@ -41,30 +41,30 @@
 #  LIBGCRYPT_INCLUDE_DIRS - The Libgcrypt include directories
 #  LIBGCRYPT_LIBRARIES    - The libraries needed to use Libgcrypt
 
-find_package(PkgConfig QUIET)
-pkg_check_modules(LIBGCRYPT "libgcrypt")
+find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h")
+find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt")
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args("Libgcrypt"
+  DEFAULT_MSG
+  REQUIRED_VARS
+    LIBGCRYPT_INCLUDE_DIR
+    LIBGCRYPT_LIBRARY)
+
+mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
 
 if(LIBGCRYPT_FOUND)
-  # Use LIBGCRYPT_INCLUDE_DIRS as-is instead of forwarding it as a hint
-  # to find_path(). The list includes the header path of a Libgcrypt
-  # dependency, with its headers referenced by Libgcrypt's public headers.
-  # We must keep this header path there for a successful build.
-  set(LIBGCRYPT_LIBRARIES ${LIBGCRYPT_LINK_LIBRARIES})
+  set(LIBGCRYPT_INCLUDE_DIRS ${LIBGCRYPT_INCLUDE_DIR})
+  set(LIBGCRYPT_LIBRARIES    ${LIBGCRYPT_LIBRARY})
 else()
-  find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h")
-  find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt")
-
-  include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args("Libgcrypt"
-    DEFAULT_MSG
-    REQUIRED_VARS
-      LIBGCRYPT_INCLUDE_DIR
-      LIBGCRYPT_LIBRARY)
-
-  mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
+  find_package(PkgConfig QUIET)
+  pkg_check_modules(LIBGCRYPT "libgcrypt")
 
   if(LIBGCRYPT_FOUND)
-    set(LIBGCRYPT_INCLUDE_DIRS ${LIBGCRYPT_INCLUDE_DIR})
-    set(LIBGCRYPT_LIBRARIES    ${LIBGCRYPT_LIBRARY})
+    # Use LIBGCRYPT_INCLUDE_DIRS as-is instead of forwarding it as a hint
+    # to find_path(). The list includes the header path of a Libgcrypt
+    # dependency, with its headers referenced by Libgcrypt's public headers.
+    # We must keep this header path there for a successful build.
+    set(LIBGCRYPT_LIBRARIES ${LIBGCRYPT_LINK_LIBRARIES})
   endif()
 endif()
