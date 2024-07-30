@@ -36,5 +36,5 @@ else()
 
   if(MBEDTLS_FOUND)
     set(MBEDTLS_LIBRARIES ${MBEDTLS_LINK_LIBRARIES})
-  else()
+  endif()
 endif()

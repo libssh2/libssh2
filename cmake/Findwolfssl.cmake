@@ -36,5 +36,5 @@ else()
 
   if(WOLFSSL_FOUND)
     set(WOLFSSL_LIBRARIES ${WOLFSSL_LINK_LIBRARIES})
-  else()
+  endif()
 endif()
