@@ -502,7 +502,7 @@ typedef struct _LIBSSH2_POLLFD {
 /* Hostkey Types */
 #define LIBSSH2_HOSTKEY_TYPE_UNKNOWN            0
 #define LIBSSH2_HOSTKEY_TYPE_RSA                1
-#define LIBSSH2_HOSTKEY_TYPE_DSS                2
+#define LIBSSH2_HOSTKEY_TYPE_DSS                2  /* deprecated */
 #define LIBSSH2_HOSTKEY_TYPE_ECDSA_256          3
 #define LIBSSH2_HOSTKEY_TYPE_ECDSA_384          4
 #define LIBSSH2_HOSTKEY_TYPE_ECDSA_521          5
@@ -1147,7 +1147,7 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
 #define LIBSSH2_KNOWNHOST_KEY_SHIFT        18
 #define LIBSSH2_KNOWNHOST_KEY_RSA1         (1<<18)
 #define LIBSSH2_KNOWNHOST_KEY_SSHRSA       (2<<18)
-#define LIBSSH2_KNOWNHOST_KEY_SSHDSS       (3<<18)
+#define LIBSSH2_KNOWNHOST_KEY_SSHDSS       (3<<18)  /* deprecated */
 #define LIBSSH2_KNOWNHOST_KEY_ECDSA_256    (4<<18)
 #define LIBSSH2_KNOWNHOST_KEY_ECDSA_384    (5<<18)
 #define LIBSSH2_KNOWNHOST_KEY_ECDSA_521    (6<<18)
