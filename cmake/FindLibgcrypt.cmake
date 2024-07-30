@@ -44,10 +44,10 @@
 find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h")
 find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt")
 
+mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args("Libgcrypt" DEFAULT_MSG)
-
-mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
 
 if(LIBGCRYPT_FOUND)
   set(LIBGCRYPT_INCLUDE_DIRS ${LIBGCRYPT_INCLUDE_DIR})

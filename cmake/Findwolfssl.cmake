@@ -10,6 +10,8 @@
 find_path(WOLFSSL_INCLUDE_DIR NAMES "wolfssl/options.h")
 find_library(WOLFSSL_LIBRARY NAMES "wolfssl")
 
+mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
+
 if(WOLFSSL_INCLUDE_DIR)
   set(_version_regex "^#define[ \t]+LIBWOLFSSL_VERSION_STRING[ \t]+\"([^\"]+)\".*")
   file(STRINGS "${WOLFSSL_INCLUDE_DIR}/wolfssl/version.h"
@@ -17,15 +19,13 @@ if(WOLFSSL_INCLUDE_DIR)
   string(REGEX REPLACE "${_version_regex}" "\\1"
     WOLFSSL_VERSION "${WOLFSSL_VERSION}")
   unset(_version_regex)
+
+  include(FindPackageHandleStandardArgs)
+  # handle the QUIETLY and REQUIRED arguments and set WOLFSSL_FOUND
+  # to TRUE if all listed variables are TRUE and the requested version
+  # matches.
+  find_package_handle_standard_args("wolfssl" DEFAULT_MSG VERSION_VAR WOLFSSL_VERSION)
 endif()
-
-include(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set WOLFSSL_FOUND
-# to TRUE if all listed variables are TRUE and the requested version
-# matches.
-find_package_handle_standard_args("wolfssl" DEFAULT_MSG VERSION_VAR WOLFSSL_VERSION)
-
-mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
 
 if(WOLFSSL_FOUND)
   set(WOLFSSL_INCLUDE_DIRS ${WOLFSSL_INCLUDE_DIR})

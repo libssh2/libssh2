@@ -13,18 +13,18 @@
 find_path(MBEDTLS_INCLUDE_DIR NAMES "mbedtls/version.h")
 find_library(MBEDCRYPTO_LIBRARY NAMES "mbedcrypto" "libmbedcrypto")
 
+mark_as_advanced(MBEDTLS_INCLUDE_DIR MBEDCRYPTO_LIBRARY)
+
 if(MBEDTLS_INCLUDE_DIR)
   file(READ "${MBEDTLS_INCLUDE_DIR}/mbedtls/build_info.h" _mbedtls_header_1)
   file(READ "${MBEDTLS_INCLUDE_DIR}/mbedtls/version.h" _mbedtls_header_2)
   set(_mbedtls_regex "MBEDTLS_VERSION_STRING +\"([0-9|.]+)\"")
   string(REGEX MATCH "${_mbedtls_regex}" _mbedtls_match "${_mbedtls_header_1} ${_mbedtls_header_2}")
   string(REGEX REPLACE "${_mbedtls_regex}" "\\1" MBEDTLS_VERSION "${_mbedtls_match}")
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args("mbedTLS" DEFAULT_MSG VERSION_VAR MBEDTLS_VERSION)
 endif()
-
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args("mbedTLS" DEFAULT_MSG VERSION_VAR MBEDTLS_VERSION)
-
-mark_as_advanced(MBEDTLS_INCLUDE_DIR MBEDCRYPTO_LIBRARY)
 
 if(MBEDTLS_FOUND)
   set(MBEDTLS_INCLUDE_DIRS "${MBEDCRYPTO_INCLUDE_DIR}")
