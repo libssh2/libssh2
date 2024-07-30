@@ -212,7 +212,7 @@ jobs:
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
         run: |
           OPENSSLVER=openssl-3.2.0
-          curl -fsS -L https://www.openssl.org/source/$OPENSSLVER.tar.gz | tar -xzf -
+          curl -fsS -L https://github.com/openssl/openssl/releases/download/$OPENSSLVER/$OPENSSLVER.tar.gz | tar -xzf -
           cd $OPENSSLVER
           ./Configure no-deprecated \
             no-apps no-docs no-tests no-makedepend \
