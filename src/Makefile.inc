@@ -29,7 +29,9 @@ CSOURCES =              \
   version.c
 
 HHEADERS =              \
+  chacha.h              \
   channel.h             \
+  cipher-chachapoly.h   \
   comp.h                \
   crypto.h              \
   crypto_config.h       \
@@ -42,6 +44,7 @@ HHEADERS =              \
   openssl.h             \
   os400qc3.h            \
   packet.h              \
+  poly1305.h            \
   session.h             \
   sftp.h                \
   transport.h           \
