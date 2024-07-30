@@ -11,7 +11,7 @@
 #  MBEDTLS_LIBRARIES      - The libraries needed to use mbedTLS
 
 find_package(PkgConfig QUIET)
-pkg_check_modules(MBEDTLS "mbedtls")
+pkg_check_modules(MBEDTLS "mbedcrypto")
 
 if(MBEDTLS_FOUND)
   set(MBEDTLS_LIBRARIES ${MBEDTLS_LINK_LIBRARIES})
