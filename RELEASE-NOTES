@@ -6,7 +6,7 @@ Deprecation notices:
   disabled in default builds (with an option to enable them):
 
   - DSA: `ssh-dss` hostkeys.
-      You can disable it now with `-DLIBSSH2_NO_DSA`.
+      You can enable it now with `-DLIBSSH2_DSA_ENABLE`.
       Disabled by default in OpenSSH 7.0 (2015-08-11).
       Support to be removed by early 2025 from OpenSSH.
   - MD5-based MACs and hashes: `hmac-md5`, `hmac-md5-96`,
