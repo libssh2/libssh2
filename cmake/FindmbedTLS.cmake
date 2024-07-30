@@ -22,7 +22,7 @@ if(MBEDTLS_INCLUDE_DIR)
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args("mbedTLS" VERSION_VAR MBEDTLS_VERSION)
+find_package_handle_standard_args("mbedTLS" DEFAULT_MSG VERSION_VAR MBEDTLS_VERSION)
 
 mark_as_advanced(MBEDTLS_INCLUDE_DIR MBEDCRYPTO_LIBRARY)
 
