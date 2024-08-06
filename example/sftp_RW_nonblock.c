@@ -276,7 +276,6 @@ int main(int argc, char *argv[])
             fprintf(stderr, "SFTP download timed out: %d\n", rc);
             break;
         }
-
     } while(1);
 
     libssh2_sftp_close(sftp_handle);

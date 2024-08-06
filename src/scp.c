@@ -784,7 +784,7 @@ scp_recv_error:
     tmp_err_code = session->err_code;
     tmp_err_msg = session->err_msg;
     while(libssh2_channel_free(session->scpRecv_channel) ==
-           LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN);
     session->err_code = tmp_err_code;
     session->err_msg = tmp_err_msg;
     session->scpRecv_channel = NULL;
