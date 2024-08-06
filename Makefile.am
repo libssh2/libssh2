@@ -39,8 +39,7 @@ OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
 
 EXTRA_DIST = $(WIN32FILES) get_ver.awk \
   maketgz RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
-  CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES) \
-  buildconf
+  CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES)
 
 ACLOCAL_AMFLAGS = -I m4
 
