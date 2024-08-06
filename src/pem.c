@@ -126,8 +126,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         if(readline(line, LINE_SIZE, fp)) {
             return -1;
         }
-    }
-    while(strcmp(line, headerbegin) != 0);
+    } while(strcmp(line, headerbegin) != 0);
 
     if(readline(line, LINE_SIZE, fp)) {
         return -1;
@@ -323,8 +322,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
         if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             return -1;
         }
-    }
-    while(strcmp(line, headerbegin) != 0);
+    } while(strcmp(line, headerbegin) != 0);
 
     *line = '\0';
 
@@ -722,8 +720,7 @@ _libssh2_openssh_pem_parse(LIBSSH2_SESSION * session,
         if(readline(line, LINE_SIZE, fp)) {
             return -1;
         }
-    }
-    while(strcmp(line, OPENSSH_HEADER_BEGIN) != 0);
+    } while(strcmp(line, OPENSSH_HEADER_BEGIN) != 0);
 
     if(readline(line, LINE_SIZE, fp)) {
         return -1;
@@ -803,8 +800,7 @@ _libssh2_openssh_pem_parse_memory(LIBSSH2_SESSION * session,
         if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             return -1;
         }
-    }
-    while(strcmp(line, OPENSSH_HEADER_BEGIN) != 0);
+    } while(strcmp(line, OPENSSH_HEADER_BEGIN) != 0);
 
     *line = '\0';
 

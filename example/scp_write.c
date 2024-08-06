@@ -187,7 +187,6 @@ int main(int argc, char *argv[])
                 nread -= (size_t)nwritten;
             }
         } while(nread);
-
     } while(1);
 
     fprintf(stderr, "Sending EOF\n");
