@@ -22,7 +22,7 @@ export MAKEFLAGS
 apt-get -y install automake libtool libssl-dev zlib1g-dev
 
 # Compile the fuzzer.
-./buildconf
+autoreconf -fi
 ./configure --disable-shared \
             --enable-ossfuzzers \
             --disable-examples-build \
