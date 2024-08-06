@@ -262,8 +262,7 @@ int main(int argc, char *argv[])
                     fprintf(stderr, "libssh2_channel_read returned %ld\n",
                             (long)nread);
             }
-        }
-        while(nread > 0 || nread == LIBSSH2_ERROR_EAGAIN);
+        } while(nread > 0 || nread == LIBSSH2_ERROR_EAGAIN);
 
         /* this is due to blocking that would occur otherwise so we loop on
            this condition */

@@ -216,7 +216,6 @@ int main(int argc, char *argv[])
             ptr += nwritten;
             nread -= (size_t)nwritten;
         } while(nread);
-
     } while(nwritten > 0);
 
     libssh2_sftp_close(sftp_handle);

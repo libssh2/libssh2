@@ -48,7 +48,7 @@ list(APPEND DOCKER_TESTS ${DOCKER_TESTS_STATIC})
 list(APPEND STANDALONE_TESTS ${STANDALONE_TESTS_STATIC})
 
 if(CMAKE_COMPILER_IS_GNUCC)
-  find_program(GCOV_PATH gcov)
+  find_program(GCOV_PATH "gcov")
   if(GCOV_PATH)
     set(GCOV_CFLAGS "-g" "--coverage")
     if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
@@ -59,11 +59,11 @@ endif()
 
 option(RUN_SSHD_TESTS "Run tests requiring sshd" ON)
 
-find_program(SH_EXECUTABLE sh)
+find_program(SH_EXECUTABLE "sh")
 mark_as_advanced(SH_EXECUTABLE)
 if(SH_EXECUTABLE)
   if(RUN_SSHD_TESTS)
-    find_program(SSHD_EXECUTABLE sshd)
+    find_program(SSHD_EXECUTABLE "sshd")
     mark_as_advanced(SSHD_EXECUTABLE)
   endif()
 
@@ -158,11 +158,11 @@ endif()
 
 add_custom_target(coverage
   COMMAND gcovr --root "${PROJECT_SOURCE_DIR}" --exclude tests/*
-  COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/coverage/"
+  COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/coverage"
   COMMAND gcovr --root "${PROJECT_SOURCE_DIR}" --exclude tests/* --html-details --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
 
 add_custom_target(clean-coverage
-  COMMAND rm -rf "${CMAKE_CURRENT_BINARY_DIR}/coverage/")
+  COMMAND rm -rf "${CMAKE_CURRENT_BINARY_DIR}/coverage")
 
 add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
