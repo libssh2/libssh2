@@ -67,6 +67,7 @@ This release includes the following enhancements and bugfixes:
 - build: stop requiring libssl from openssl (c84745e3 #1128)
 - build: tidy-up `libssh2.pc.in` variable names (5720dd9f #1125)
 - build: add/fix `Requires.private` packages in `libssh2.pc` (ef538069 #1123)
+- buildconf: drop (814a850c #1441 follow: fc5d7788)
 - checksrc: sync with curl (8cd473c9 #1272)
 - checksrc: fix spelling in comment (a95d401f)
 - checksrc: modernise Perl file open (3d309f9b)
@@ -103,11 +104,13 @@ This release includes the following enhancements and bugfixes:
 - ci: prefer `=` operator in shell snippets (e5c03043 #1073)
 - ci: drop redundant/unused vars, sync var names (ab8e95bc #1059)
 - ci: add i386 Linux build (with mbedTLS) (abdf40c7 #1057 #1053)
+- CI/appveyor: increase wait for SSH server on GHA (bf3af90b)
 - ci/appveyor: bump to OpenSSL 3.2.1 (53d9c1a6 #1363 #1348)
 - ci/appveyor: re-enable parallel mode (e190e5b2 #1294 #884 #867)
 - ci/appveyor: delete UWP job broken since Visual Studio upgrade (d0a7f1da #1275)
 - ci/appveyor: YAML/PowerShell formatting, shorten variable name (06fd721f #1200)
 - ci/appveyor: move to pure PowerShell (8a081fd9 #1197)
+- ci/GHA: revert concurrency and improve permissions (e4c042f6)
 - ci/GHA: FreeBSD 14.1, actions bump (ae04b1b9 #1424)
 - ci/GHA: fix wolfSSL-from-source AES-GCM tests (1c0b07a7 #1409 #1408)
 - ci/GHA: add Linux job with latest wolfSSL built from source (d4cea53f #1408 #1299 #1020)
@@ -129,6 +132,9 @@ This release includes the following enhancements and bugfixes:
 - ci/GHA: review/fixup auto-cancel settings (b08cfbc9 #1292)
 - ci/GHA: restore curly braces in `if` (36748270 #1145)
 - ci/GHA: simplify `if` strings (cab3db58 #1140)
+- cmake: fixup version detection in mbedTLS Find module (8e3c40b2 #1444)
+- cmake: mbedTLS detection tidy-ups (6d1d13c2 #1438)
+- cmake: add quotes, delete ending dirseps (2bb46d44 #1437 #1166)
 - cmake: sync formatting in `cmake/Find*` modules (a0310699)
 - cmake: tidy up function name casing in `CopyRuntimeDependencies.cmake` (03547cb8)
 - cmake: use the imported target of FindOpenSSL module (82b09f9b #1322)
@@ -162,6 +168,7 @@ This release includes the following enhancements and bugfixes:
 - cmake: tidy-ups (2fc36790 #1122)
 - cmake: re-add `Libssh2:libssh2` for compatibility + lowercase namespace (2da13c13 #1104 #731 #1103)
 - copyright: remove years from copyright headers (187d89bb #1082)
+- disable DSA by default (b7ab0faa #1435 #1433)
 - docs: update `INSTALL_AUTOTOOLS` (2f0efde3 #1316)
 - docs: replace SHA1 with SHA256 in CMake example (766bde9f)
 - example: restore `sys/time.h` for AIX (24503cb9 #1340 #1335 #1334 #1001 regr: e53aae0e)
@@ -188,6 +195,8 @@ This release includes the following enhancements and bugfixes:
 - man: improve `libssh2_userauth_publickey_from*` manpages (581b72aa #1347 #1308 #652)
 - man: fix double spaces and dash escaping (a3ffc422 #1210)
 - man: add description to `libssh2_session_get_blocking.3` (67e39091 #1185)
+- mbedtls: always init ECDSA mbedtls_pk_context (a50d7deb #1430)
+- mbedtls: correctly initialize values (ECDSA) (1701d5c0 #1428 #1421)
 - mbedtls: expose `mbedtls_pk_load_file()` for our use (1628f6ca #1421 #1393 #1349 follow: e973493f)
 - mbedtls: add workaround + FIXME to build with 3.6.0 (2e4c5ec4 #1349)
 - mbedtls: improve disabling `-Wredundant-decls` (ecec68a2 #1226 #1224)
@@ -224,6 +233,7 @@ This release includes the following enhancements and bugfixes:
 - session: handle EINTR from send/recv/poll/select to try again as the error is not fatal (798ed4a7 #1058 #955)
 - sftp: increase SFTP_HANDLE_MAXLEN back to 4092 (75de6a37 #1422)
 - sftp: implement posix-rename@openssh.com (fb652746 #1386)
+- src: implement chacha20-poly1305@openssh.com (492bc543 #1426 #584)
 - src: use `UINT32_MAX` (dc206408 #1413)
 - src: fix type warning in `libssh2_sftp_unlink` macro (ac2e8c73 #1406)
 - src: check the return value from `_libssh2_bn_*()` functions (95c824d5 #1354)
@@ -253,6 +263,7 @@ This release includes the following enhancements and bugfixes:
 - test_sshd.test: show sshd and test connect logs on harness failure (299c2040 #1097)
 - test_sshd.test: set a safe PID directory (e8cabdcf #1089)
 - test_sshd.test: minor cleanups (d29eea1d)
+- tidy-up: link updates (c905bfd2 #1434)
 - tidy-up: typo in comment (792e1b6f)
 - tidy-up: fix typo found by codespell (706ec36d)
 - tidy-up: bump casts from int to long for large C99 types in printfs (2e5a8719 #1264 #1257)
@@ -275,6 +286,7 @@ This release includes the following enhancements and bugfixes:
 - wincng: add ECDSA support for host and user authentication (3e723437 #1315)
 - wincng: prefer `ULONG`/`DWORD` over `unsigned long` (186c1d63 #1165)
 - wincng: tidy-ups (7bb669b5 #1164)
+- wolfssl: drop header path hack (8ae1b2d7 #1439)
 - wolfssl: fix `EVP_Cipher()` use with v5.6.0 and older (a5b0fac2 #1407 #1394 #797 #1299 #1020)
 - wolfssl: bump version in upstream issue comment (5cab802c)
 - wolfssl: require v5.4.0 for AES-GCM (260a721c #1411 #1299 #1020)
@@ -284,12 +296,12 @@ This release would not have looked like this without help, code, reports and
 advice from friends like these:
 
   Viktor Szakats, Michael Buckley, Patrick Monnerat, Ren Mingshuai,
-  Daniel Stenberg, Josef Cejka, Nicolas Mora, Ryan Kelley, Will Cosgrove,
+  Will Cosgrove, Daniel Stenberg, Josef Cejka, Nicolas Mora, Ryan Kelley,
   Aaron Stone, Adam, András Fekete, Andrei Augustin, binary1248, Brian Inglis,
   brucsc on GitHub, concussious on github, Dan Fandrich, Haowei Hsu,
   Harmen Stoppels, Harry Mallon, Jack L, Jakob Egger, Jiwoo Park,
-  João M. S. Silva, Joel Depooter, Johannes Passing, Juliusz Sosinowicz,
-  Kai Pastor, Kenneth Davidson, Lyndon Brown, mike-jumper, naddy,
-  Nursan Valeyev, Paul Howarth, PewPewPew, Radek Brich, rahmanih on github,
-  Seo Suchan, shubhamhii on github, Steve McIntyre, Tejaswi Kandula,
-  Tobias Stoeckmann, Trzik, Xi Ruoyao
+  João M. S. Silva, Joel Depooter, Johannes Passing, Jose Quaresma,
+  Juliusz Sosinowicz, Kai Pastor, Kenneth Davidson, Lyndon Brown,
+  Marc Hoersken, mike-jumper, naddy, Nursan Valeyev, Paul Howarth, PewPewPew,
+  Radek Brich, rahmanih on github, Seo Suchan, shubhamhii on github,
+  Steve McIntyre, Tejaswi Kandula, Tobias Stoeckmann, Trzik, Xi Ruoyao
