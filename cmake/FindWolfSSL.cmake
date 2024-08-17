@@ -17,7 +17,7 @@
 # WOLFSSL_VERSION       Version of wolfssl
 
 find_package(PkgConfig QUIET)
-pkg_check_modules(PC_WOLFSSL QUIET "wolfssl")
+pkg_check_modules(PC_WOLFSSL "wolfssl")
 
 find_path(WOLFSSL_INCLUDE_DIR NAMES "wolfssl/options.h"
   HINTS
