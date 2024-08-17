@@ -34,22 +34,35 @@
 # OF SUCH DAMAGE.
 #
 # SPDX-License-Identifier: BSD-3-Clause
+#
+###########################################################################
+# Find the libgcrypt library
+#
+# Input variables:
+#
+# LIBGCRYPT_INCLUDE_DIR   The libgcrypt include directory
+# LIBGCRYPT_LIBRARY       Path to libgcrypt library
+#
+# Result variables:
+#
+# LIBGCRYPT_FOUND         System has libgcrypt
+# LIBGCRYPT_INCLUDE_DIRS  The libgcrypt include directories
+# LIBGCRYPT_LIBRARIES     The libgcrypt library names
+# LIBGCRYPT_VERSION       Version of libgcrypt
 
-# - Try to find Libgcrypt
-# This will define all or none of:
-#  LIBGCRYPT_FOUND - if Libgcrypt headers and library was found
-#  LIBGCRYPT_INCLUDE_DIRS - The Libgcrypt include directories
-#  LIBGCRYPT_LIBRARIES - The libraries needed to use Libgcrypt
-
-find_path(LIBGCRYPT_INCLUDE_DIR "gcrypt.h")
+find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h")
 find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt")
-
-set(LIBGCRYPT_INCLUDE_DIRS ${LIBGCRYPT_INCLUDE_DIR})
-set(LIBGCRYPT_LIBRARIES    ${LIBGCRYPT_LIBRARY})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(Libgcrypt
-  DEFAULT_MSG
-  LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
+  REQUIRED_VARS
+    LIBGCRYPT_INCLUDE_DIR
+    LIBGCRYPT_LIBRARY
+)
+
+if(LIBGCRYPT_FOUND)
+  set(LIBGCRYPT_INCLUDE_DIRS ${LIBGCRYPT_INCLUDE_DIR})
+  set(LIBGCRYPT_LIBRARIES    ${LIBGCRYPT_LIBRARY})
+endif()
 
 mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
