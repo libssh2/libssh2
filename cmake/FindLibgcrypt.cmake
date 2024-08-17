@@ -51,7 +51,7 @@
 # LIBGCRYPT_VERSION       Version of libgcrypt
 
 find_package(PkgConfig QUIET)
-pkg_check_modules(PC_LIBGCRYPT QUIET "libgcrypt")
+pkg_check_modules(PC_LIBGCRYPT "libgcrypt")
 
 find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h"
   HINTS
