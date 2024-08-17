@@ -50,8 +50,20 @@
 # LIBGCRYPT_LIBRARIES     The libgcrypt library names
 # LIBGCRYPT_VERSION       Version of libgcrypt
 
-find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h")
-find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt")
+find_package(PkgConfig QUIET)
+pkg_check_modules(PC_LIBGCRYPT QUIET "libgcrypt")
+
+find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h"
+  HINTS
+    ${PC_LIBGCRYPT_INCLUDEDIR}
+    ${PC_LIBGCRYPT_INCLUDE_DIRS}
+)
+
+find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt"
+  HINTS
+    ${PC_LIBGCRYPT_LIBDIR}
+    ${PC_LIBGCRYPT_LIBRARY_DIRS}
+)
 
 if(LIBGCRYPT_INCLUDE_DIR AND EXISTS "${LIBGCRYPT_INCLUDE_DIR}/gcrypt.h")
   set(_version_regex "#[\t ]*define[\t ]+GCRYPT_VERSION[\t ]+\"([^\"]*)\"")
