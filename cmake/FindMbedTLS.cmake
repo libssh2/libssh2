@@ -17,7 +17,7 @@
 # MBEDTLS_VERSION       Version of mbedtls
 
 find_package(PkgConfig QUIET)
-pkg_check_modules(PC_MBEDTLS QUIET "mbedtls")
+pkg_check_modules(PC_MBEDTLS "mbedtls")
 
 find_path(MBEDTLS_INCLUDE_DIR NAMES "mbedtls/version.h"
   HINTS
