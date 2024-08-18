@@ -50,30 +50,32 @@
 # LIBGCRYPT_LIBRARIES     The libgcrypt library names
 # LIBGCRYPT_VERSION       Version of libgcrypt
 
-if(UNIX OR (MSVC AND VCPKG_TOOLCHAIN))
+if((UNIX OR (MSVC AND VCPKG_TOOLCHAIN)) AND
+   NOT DEFINED LIBGCRYPT_INCLUDE_DIR AND
+   NOT DEFINED LIBGCRYPT_LIBRARY)
   find_package(PkgConfig QUIET)
-  pkg_check_modules(PC_LIBGCRYPT "libgcrypt")
+  pkg_check_modules(LIBGCRYPT "libgcrypt")
 endif()
 
-find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h"
-  HINTS
-    ${PC_LIBGCRYPT_INCLUDEDIR}
-    ${PC_LIBGCRYPT_INCLUDE_DIRS}
-)
+if(LIBGCRYPT_FOUND)
+  set(LIBGCRYPT_LIBRARIES ${LIBGCRYPT_LINK_LIBRARIES})
+else()
+  find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h")
+  find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt")
 
-find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt"
-  HINTS
-    ${PC_LIBGCRYPT_LIBDIR}
-    ${PC_LIBGCRYPT_LIBRARY_DIRS}
-)
+  if(LIBGCRYPT_INCLUDE_DIR AND EXISTS "${LIBGCRYPT_INCLUDE_DIR}/gcrypt.h")
+    set(_version_regex "#[\t ]*define[\t ]+GCRYPT_VERSION[\t ]+\"([^\"]*)\"")
+    file(STRINGS "${LIBGCRYPT_INCLUDE_DIR}/gcrypt.h" _version_str REGEX "${_version_regex}")
+    string(REGEX REPLACE "${_version_regex}" "\\1" _version_str "${_version_str}")
+    set(LIBGCRYPT_VERSION "${_version_str}")
+    unset(_version_regex)
+    unset(_version_str)
+  endif()
 
-if(LIBGCRYPT_INCLUDE_DIR AND EXISTS "${LIBGCRYPT_INCLUDE_DIR}/gcrypt.h")
-  set(_version_regex "#[\t ]*define[\t ]+GCRYPT_VERSION[\t ]+\"([^\"]*)\"")
-  file(STRINGS "${LIBGCRYPT_INCLUDE_DIR}/gcrypt.h" _version_str REGEX "${_version_regex}")
-  string(REGEX REPLACE "${_version_regex}" "\\1" _version_str "${_version_str}")
-  set(LIBGCRYPT_VERSION "${_version_str}")
-  unset(_version_regex)
-  unset(_version_str)
+  set(LIBGCRYPT_INCLUDE_DIRS ${LIBGCRYPT_INCLUDE_DIR})
+  set(LIBGCRYPT_LIBRARIES    ${LIBGCRYPT_LIBRARY})
+
+  mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
 endif()
 
 include(FindPackageHandleStandardArgs)
@@ -84,10 +86,3 @@ find_package_handle_standard_args(Libgcrypt
   VERSION_VAR
     LIBGCRYPT_VERSION
 )
-
-if(LIBGCRYPT_FOUND)
-  set(LIBGCRYPT_INCLUDE_DIRS ${LIBGCRYPT_INCLUDE_DIR})
-  set(LIBGCRYPT_LIBRARIES    ${LIBGCRYPT_LIBRARY})
-endif()
-
-mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
