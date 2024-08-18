@@ -594,7 +594,7 @@ jobs:
           - name: 'mbedTLS'
             install: mbedtls
             configure: --with-crypto=mbedtls "--with-libmbedcrypto-prefix=$(brew --prefix)"
-            cmake: -DCRYPTO_BACKEND=mbedTLS "-DMBEDTLS_INCLUDE_DIR=$(brew --prefix)/opt/mbedtls/include" "-DMBEDCRYPTO_LIBRARY=$(brew --prefix)/opt/mbedtls/lib/libmbedcrypto.a"
+            cmake: -DCRYPTO_BACKEND=mbedTLS
     steps:
       - name: 'install packages'
         run: brew install ${{ matrix.build == 'autotools' && 'automake libtool' || 'ninja' }} ${{ matrix.crypto.install }}
