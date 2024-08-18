@@ -191,8 +191,8 @@ install(
   FILES
     "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
     "${PROJECT_SOURCE_DIR}/cmake/FindLibgcrypt.cmake"
-    "${PROJECT_SOURCE_DIR}/cmake/FindmbedTLS.cmake"
-    "${PROJECT_SOURCE_DIR}/cmake/Findwolfssl.cmake"
+    "${PROJECT_SOURCE_DIR}/cmake/FindMbedTLS.cmake"
+    "${PROJECT_SOURCE_DIR}/cmake/FindWolfSSL.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
 ## Export a .pc file for client projects not using CMake
