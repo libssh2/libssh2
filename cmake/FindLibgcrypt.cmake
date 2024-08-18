@@ -50,8 +50,10 @@
 # LIBGCRYPT_LIBRARIES     The libgcrypt library names
 # LIBGCRYPT_VERSION       Version of libgcrypt
 
-find_package(PkgConfig QUIET)
-pkg_check_modules(PC_LIBGCRYPT "libgcrypt")
+if(UNIX OR (MSVC AND VCPKG_TOOLCHAIN))
+  find_package(PkgConfig QUIET)
+  pkg_check_modules(PC_LIBGCRYPT "libgcrypt")
+endif()
 
 find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h"
   HINTS
