@@ -59,6 +59,7 @@ endif()
 
 if(LIBGCRYPT_FOUND)
   set(LIBGCRYPT_LIBRARIES ${LIBGCRYPT_LINK_LIBRARIES})
+  message(STATUS "Found Libgcrypt (via pkg-config): ${LIBGCRYPT_INCLUDE_DIRS} (found version \"${LIBGCRYPT_VERSION}\")")
 else()
   find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h")
   find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt")
@@ -72,17 +73,19 @@ else()
     unset(_version_str)
   endif()
 
-  set(LIBGCRYPT_INCLUDE_DIRS ${LIBGCRYPT_INCLUDE_DIR})
-  set(LIBGCRYPT_LIBRARIES    ${LIBGCRYPT_LIBRARY})
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(Libgcrypt
+    REQUIRED_VARS
+      LIBGCRYPT_INCLUDE_DIR
+      LIBGCRYPT_LIBRARY
+    VERSION_VAR
+      LIBGCRYPT_VERSION
+  )
+
+  if(LIBGCRYPT_FOUND)
+    set(LIBGCRYPT_INCLUDE_DIRS ${LIBGCRYPT_INCLUDE_DIR})
+    set(LIBGCRYPT_LIBRARIES    ${LIBGCRYPT_LIBRARY})
+  endif()
 
   mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
 endif()
-
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Libgcrypt
-  REQUIRED_VARS
-    LIBGCRYPT_INCLUDE_DIR
-    LIBGCRYPT_LIBRARY
-  VERSION_VAR
-    LIBGCRYPT_VERSION
-)
