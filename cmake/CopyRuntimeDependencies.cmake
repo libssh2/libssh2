@@ -41,8 +41,7 @@ function(add_target_to_copy_dependencies)
   set(options)
   set(oneValueArgs TARGET)
   set(multiValueArgs DEPENDENCIES BEFORE_TARGETS)
-  cmake_parse_arguments(COPY
-    "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(COPY "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if(NOT COPY_DEPENDENCIES)
     return()
@@ -62,10 +61,8 @@ function(add_target_to_copy_dependencies)
       DEPENDS ${dependency}
       # Make directory first otherwise file is copied in place of
       # directory instead of into it
-      COMMAND ${CMAKE_COMMAND}
-      ARGS -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-      COMMAND ${CMAKE_COMMAND}
-      ARGS -E copy ${dependency} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+      COMMAND ${CMAKE_COMMAND} ARGS -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
+      COMMAND ${CMAKE_COMMAND} ARGS -E copy ${dependency} "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
       VERBATIM)
   endforeach()
 endfunction()
