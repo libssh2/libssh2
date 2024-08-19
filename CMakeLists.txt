@@ -64,19 +64,19 @@ add_feature_info("Shared library" BUILD_SHARED_LIBS
 
 # Parse version
 
-file(READ "${PROJECT_SOURCE_DIR}/include/libssh2.h" _HEADER_CONTENTS)
+file(READ "${PROJECT_SOURCE_DIR}/include/libssh2.h" _header_contents)
 string(
   REGEX REPLACE ".*#define LIBSSH2_VERSION[ \t]+\"([^\"]+)\".*" "\\1"
-  LIBSSH2_VERSION "${_HEADER_CONTENTS}")
+  LIBSSH2_VERSION "${_header_contents}")
 string(
   REGEX REPLACE ".*#define LIBSSH2_VERSION_MAJOR[ \t]+([0-9]+).*" "\\1"
-  LIBSSH2_VERSION_MAJOR "${_HEADER_CONTENTS}")
+  LIBSSH2_VERSION_MAJOR "${_header_contents}")
 string(
   REGEX REPLACE ".*#define LIBSSH2_VERSION_MINOR[ \t]+([0-9]+).*" "\\1"
-  LIBSSH2_VERSION_MINOR "${_HEADER_CONTENTS}")
+  LIBSSH2_VERSION_MINOR "${_header_contents}")
 string(
   REGEX REPLACE ".*#define LIBSSH2_VERSION_PATCH[ \t]+([0-9]+).*" "\\1"
-  LIBSSH2_VERSION_PATCH "${_HEADER_CONTENTS}")
+  LIBSSH2_VERSION_PATCH "${_header_contents}")
 
 if(NOT LIBSSH2_VERSION OR
    NOT LIBSSH2_VERSION_MAJOR MATCHES "^[0-9]+$" OR
@@ -290,12 +290,12 @@ WinCNG, mbedTLS, or empty to try any available")
 # we are able to find, the find_package commands must abort configuration
 # and report to the user.
 if(CRYPTO_BACKEND)
-  set(SPECIFIC_CRYPTO_REQUIREMENT "REQUIRED")
+  set(_specific_crypto_requirement "REQUIRED")
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
 
-  find_package(OpenSSL ${SPECIFIC_CRYPTO_REQUIREMENT})
+  find_package(OpenSSL ${_specific_crypto_requirement})
 
   if(OPENSSL_FOUND)
     set(CRYPTO_BACKEND "OpenSSL")
@@ -313,15 +313,15 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
 
       #set(CMAKE_FIND_DEBUG_MODE ON)
 
-      find_file(DLL_LIBCRYPTO
+      find_file(_dll_libcrypto
         NAMES "crypto.dll"
           "libcrypto-1_1.dll" "libcrypto-1_1-x64.dll"
           "libcrypto-3.dll" "libcrypto-3-x64.dll"
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES "bin" NO_DEFAULT_PATH)
-      if(DLL_LIBCRYPTO)
-        list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO})
-        message(STATUS "Found libcrypto DLL: ${DLL_LIBCRYPTO}")
+      if(_dll_libcrypto)
+        list(APPEND _RUNTIME_DEPENDENCIES ${_dll_libcrypto})
+        message(STATUS "Found libcrypto DLL: ${_dll_libcrypto}")
       else()
         message(WARNING "Unable to find OpenSSL libcrypto DLL, executables may not run")
       endif()
@@ -340,7 +340,7 @@ endif()
 
 if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
 
-  find_package(WolfSSL ${SPECIFIC_CRYPTO_REQUIREMENT})
+  find_package(WolfSSL ${_specific_crypto_requirement})
 
   if(WOLFSSL_FOUND)
     set(CRYPTO_BACKEND "wolfSSL")
@@ -367,7 +367,7 @@ endif()
 
 if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
 
-  find_package(Libgcrypt ${SPECIFIC_CRYPTO_REQUIREMENT})
+  find_package(Libgcrypt ${_specific_crypto_requirement})
 
   if(LIBGCRYPT_FOUND)
     set(CRYPTO_BACKEND "Libgcrypt")
@@ -381,7 +381,7 @@ endif()
 
 if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
 
-  find_package(MbedTLS ${SPECIFIC_CRYPTO_REQUIREMENT})
+  find_package(MbedTLS ${_specific_crypto_requirement})
 
   if(MBEDTLS_FOUND)
     set(CRYPTO_BACKEND "mbedTLS")
@@ -414,7 +414,7 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
         set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--subsystem,windows:10")
       endif()
     endif()
-  elseif(SPECIFIC_CRYPTO_REQUIREMENT STREQUAL "REQUIRED")
+  elseif(_specific_crypto_requirement STREQUAL "REQUIRED")
     message(FATAL_ERROR "WinCNG not available")
   endif()
 endif()
@@ -422,14 +422,14 @@ endif()
 # Global functions
 
 # Convert GNU Make assignments into CMake ones.
-function(transform_makefile_inc INPUT_FILE OUTPUT_FILE)
-  file(READ ${INPUT_FILE} MAKEFILE_INC_CMAKE)
+function(transform_makefile_inc _input_file _output_file)
+  file(READ ${_input_file} _makefile_inc_cmake)
 
-  string(REGEX REPLACE "\\\\\n" "" MAKEFILE_INC_CMAKE ${MAKEFILE_INC_CMAKE})
-  string(REGEX REPLACE "([A-Za-z_]+) *= *([^\n]*)" "set(\\1 \\2)" MAKEFILE_INC_CMAKE ${MAKEFILE_INC_CMAKE})
+  string(REGEX REPLACE "\\\\\n" "" _makefile_inc_cmake ${_makefile_inc_cmake})
+  string(REGEX REPLACE "([A-Za-z_]+) *= *([^\n]*)" "set(\\1 \\2)" _makefile_inc_cmake ${_makefile_inc_cmake})
 
-  file(WRITE ${OUTPUT_FILE} ${MAKEFILE_INC_CMAKE})
-  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${INPUT_FILE}")
+  file(WRITE ${_output_file} ${_makefile_inc_cmake})
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_input_file}")
 endfunction()
 
 #
