@@ -105,6 +105,8 @@ if(WIN32 AND BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS AND
   set(STATIC_LIB_SUFFIX "_static")
 endif()
 
+unset(_libssh2_export)
+
 # we want it to be called libssh2 on all platforms
 if(BUILD_STATIC_LIBS)
   list(APPEND _libssh2_export ${LIB_STATIC})
