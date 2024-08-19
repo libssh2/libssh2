@@ -48,7 +48,9 @@ foreach(_example IN LISTS noinst_PROGRAMS)
   add_executable(${_example} "${_example}.c")
   list(APPEND _example_targets ${_example})
   # to find generated header
-  target_include_directories(${_example} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" "../src")
+  target_include_directories(${_example} PRIVATE
+    "${CMAKE_CURRENT_BINARY_DIR}/../src"
+    "../src")
   target_link_libraries(${_example} ${LIB_SELECTED} ${LIBRARIES})
   set_target_properties(${_example} PROPERTIES UNITY_BUILD OFF)
 endforeach()
