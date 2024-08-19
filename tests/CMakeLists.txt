@@ -77,17 +77,17 @@ target_link_libraries(runner PRIVATE libssh2)
 
 foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
   if(NOT ";${DOCKER_TESTS_STATIC};${STANDALONE_TESTS_STATIC};" MATCHES ";${_test};")
-    set(LIB_FOR_TESTS ${LIB_SELECTED})
+    set(_lib_for_tests ${LIB_SELECTED})
   elseif(TARGET ${LIB_STATIC})
-    set(LIB_FOR_TESTS ${LIB_STATIC})
+    set(_lib_for_tests ${LIB_STATIC})
   else()
-    unset(LIB_FOR_TESTS)
+    unset(_lib_for_tests)
     message(STATUS "Skip test requiring static libssh2 lib: ${_test}")
   endif()
 
   # We support the same target as both Docker and SSHD test. Build those just once.
   # Skip building tests that require the static lib when the static lib is disabled.
-  if(NOT TARGET ${_test} AND LIB_FOR_TESTS)
+  if(NOT TARGET ${_test} AND _lib_for_tests)
     add_executable(${_test} "${_test}.c")
     target_compile_definitions(${_test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
     target_include_directories(${_test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" "../src" "../include" "${CRYPTO_BACKEND_INCLUDE_DIR}")
@@ -96,9 +96,9 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
     # build a single test with gcov
     if(GCOV_PATH AND _test STREQUAL "test_auth_keyboard_info_request" AND TARGET ${LIB_STATIC})
       target_compile_options(${_test} BEFORE PRIVATE ${_gcov_cflags})
-      target_link_libraries(${_test} runner ${LIB_FOR_TESTS} ${LIBRARIES} "gcov")
+      target_link_libraries(${_test} runner ${_lib_for_tests} ${LIBRARIES} "gcov")
     else()
-      target_link_libraries(${_test} runner ${LIB_FOR_TESTS} ${LIBRARIES})
+      target_link_libraries(${_test} runner ${_lib_for_tests} ${LIBRARIES})
     endif()
 
     list(APPEND TEST_TARGETS ${_test})
