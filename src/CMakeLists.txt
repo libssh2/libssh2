@@ -49,6 +49,8 @@ endif()
 
 ## Options
 
+unset(_libssh2_definitions)
+
 option(CLEAR_MEMORY "Enable clearing of memory before being freed" ON)
 if(NOT CLEAR_MEMORY)
   list(APPEND _libssh2_definitions "LIBSSH2_NO_CLEAR_MEMORY")
