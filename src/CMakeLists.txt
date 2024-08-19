@@ -171,7 +171,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 set(RUNTIME_DEPENDENCIES ${_RUNTIME_DEPENDENCIES} CACHE INTERNAL
-    "Files that must be in the same directory as the executables at runtime.")
+  "Files that must be in the same directory as the executables at runtime.")
 
 # Package config
 
