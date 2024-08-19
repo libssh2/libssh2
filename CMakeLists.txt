@@ -52,31 +52,33 @@ include(CheckNonblockingSocketSupport)
 
 project(libssh2 C)
 
-set(CMAKE_UNITY_BUILD_BATCH_SIZE 32)
+function(libssh2_dumpvars)  # Dump all defined variables with their values
+  message("::group::CMake Variable Dump")
+  get_cmake_property(_vars VARIABLES)
+  foreach(_var ${_vars})
+    message("${_var} = ${${_var}}")
+  endforeach()
+  message("::endgroup::")
+endfunction()
 
-option(BUILD_STATIC_LIBS "Build Static Libraries" ON)
-add_feature_info("Static library" BUILD_STATIC_LIBS
-  "creating libssh2 static library")
+if(NOT DEFINED CMAKE_UNITY_BUILD_BATCH_SIZE)
+  set(CMAKE_UNITY_BUILD_BATCH_SIZE 0)
+endif()
 
-option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
-add_feature_info("Shared library" BUILD_SHARED_LIBS
-  "creating libssh2 shared library (.so/.dll)")
+option(BUILD_STATIC_LIBS "Build static libraries" ON)
+add_feature_info("Static library" BUILD_STATIC_LIBS "creating libssh2 static library")
+
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+add_feature_info("Shared library" BUILD_SHARED_LIBS "creating libssh2 shared library (.so/.dll)")
 
 # Parse version
 
-file(READ "${PROJECT_SOURCE_DIR}/include/libssh2.h" _HEADER_CONTENTS)
-string(
-  REGEX REPLACE ".*#define LIBSSH2_VERSION[ \t]+\"([^\"]+)\".*" "\\1"
-  LIBSSH2_VERSION "${_HEADER_CONTENTS}")
-string(
-  REGEX REPLACE ".*#define LIBSSH2_VERSION_MAJOR[ \t]+([0-9]+).*" "\\1"
-  LIBSSH2_VERSION_MAJOR "${_HEADER_CONTENTS}")
-string(
-  REGEX REPLACE ".*#define LIBSSH2_VERSION_MINOR[ \t]+([0-9]+).*" "\\1"
-  LIBSSH2_VERSION_MINOR "${_HEADER_CONTENTS}")
-string(
-  REGEX REPLACE ".*#define LIBSSH2_VERSION_PATCH[ \t]+([0-9]+).*" "\\1"
-  LIBSSH2_VERSION_PATCH "${_HEADER_CONTENTS}")
+file(READ "${PROJECT_SOURCE_DIR}/include/libssh2.h" _header_contents)
+string(REGEX REPLACE ".*#define LIBSSH2_VERSION[ \t]+\"([^\"]+)\".*" "\\1" LIBSSH2_VERSION "${_header_contents}")
+string(REGEX REPLACE ".*#define LIBSSH2_VERSION_MAJOR[ \t]+([0-9]+).*" "\\1" LIBSSH2_VERSION_MAJOR "${_header_contents}")
+string(REGEX REPLACE ".*#define LIBSSH2_VERSION_MINOR[ \t]+([0-9]+).*" "\\1" LIBSSH2_VERSION_MINOR "${_header_contents}")
+string(REGEX REPLACE ".*#define LIBSSH2_VERSION_PATCH[ \t]+([0-9]+).*" "\\1" LIBSSH2_VERSION_PATCH "${_header_contents}")
+unset(_header_contents)
 
 if(NOT LIBSSH2_VERSION OR
    NOT LIBSSH2_VERSION_MAJOR MATCHES "^[0-9]+$" OR
@@ -128,7 +130,7 @@ endif()
 
 # Symbol hiding
 
-option(HIDE_SYMBOLS "Set to ON to hide all libssh2 symbols that are not officially external" ON)
+option(HIDE_SYMBOLS "Hide all libssh2 symbols that are not officially external" ON)
 mark_as_advanced(HIDE_SYMBOLS)
 if(HIDE_SYMBOLS)
   set(LIB_SHARED_DEFINITIONS "LIBSSH2_EXPORTS")
@@ -152,7 +154,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 else()
   set(DEBUG_LOGGING_DEFAULT OFF)
 endif()
-option(ENABLE_DEBUG_LOGGING "log execution with debug trace" ${DEBUG_LOGGING_DEFAULT})
+option(ENABLE_DEBUG_LOGGING "Log execution with debug trace" ${DEBUG_LOGGING_DEFAULT})
 add_feature_info(Logging ENABLE_DEBUG_LOGGING "Logging of execution with debug trace")
 if(ENABLE_DEBUG_LOGGING)
   # Must be visible to the library and tests using internals
@@ -282,20 +284,19 @@ configure_file("src/libssh2_config_cmake.h.in"
 
 ## Cryptography backend choice
 
-set(CRYPTO_BACKEND "" CACHE STRING
-  "The backend to use for cryptography: OpenSSL, wolfSSL, Libgcrypt,
-WinCNG, mbedTLS, or empty to try any available")
+set(CRYPTO_BACKEND "" CACHE
+  STRING "The backend to use for cryptography: OpenSSL, wolfSSL, Libgcrypt, WinCNG, mbedTLS, or empty to try any available")
 
 # If the crypto backend was given, rather than searching for the first
 # we are able to find, the find_package commands must abort configuration
 # and report to the user.
 if(CRYPTO_BACKEND)
-  set(SPECIFIC_CRYPTO_REQUIREMENT "REQUIRED")
+  set(_specific_crypto_requirement "REQUIRED")
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
 
-  find_package(OpenSSL ${SPECIFIC_CRYPTO_REQUIREMENT})
+  find_package(OpenSSL ${_specific_crypto_requirement})
 
   if(OPENSSL_FOUND)
     set(CRYPTO_BACKEND "OpenSSL")
@@ -340,7 +341,7 @@ endif()
 
 if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
 
-  find_package(WolfSSL ${SPECIFIC_CRYPTO_REQUIREMENT})
+  find_package(WolfSSL ${_specific_crypto_requirement})
 
   if(WOLFSSL_FOUND)
     set(CRYPTO_BACKEND "wolfSSL")
@@ -367,7 +368,7 @@ endif()
 
 if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
 
-  find_package(Libgcrypt ${SPECIFIC_CRYPTO_REQUIREMENT})
+  find_package(Libgcrypt ${_specific_crypto_requirement})
 
   if(LIBGCRYPT_FOUND)
     set(CRYPTO_BACKEND "Libgcrypt")
@@ -381,7 +382,7 @@ endif()
 
 if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
 
-  find_package(MbedTLS ${SPECIFIC_CRYPTO_REQUIREMENT})
+  find_package(MbedTLS ${_specific_crypto_requirement})
 
   if(MBEDTLS_FOUND)
     set(CRYPTO_BACKEND "mbedTLS")
@@ -404,7 +405,7 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
     list(APPEND LIBRARIES "crypt32" "bcrypt")
     list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lcrypt32" "-lbcrypt")
 
-    option(ENABLE_ECDSA_WINCNG "WinCNG ECDSA support (requires Windows 10 or later)" OFF)
+    option(ENABLE_ECDSA_WINCNG "Enable WinCNG ECDSA support (requires Windows 10 or later)" OFF)
     add_feature_info(WinCNG ENABLE_ECDSA_WINCNG "WinCNG ECDSA support")
     if(ENABLE_ECDSA_WINCNG)
       add_definitions("-DLIBSSH2_ECDSA_WINCNG")
@@ -414,7 +415,7 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
         set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--subsystem,windows:10")
       endif()
     endif()
-  elseif(SPECIFIC_CRYPTO_REQUIREMENT STREQUAL "REQUIRED")
+  elseif(_specific_crypto_requirement STREQUAL "REQUIRED")
     message(FATAL_ERROR "WinCNG not available")
   endif()
 endif()
@@ -422,14 +423,14 @@ endif()
 # Global functions
 
 # Convert GNU Make assignments into CMake ones.
-function(transform_makefile_inc INPUT_FILE OUTPUT_FILE)
-  file(READ ${INPUT_FILE} MAKEFILE_INC_CMAKE)
+function(transform_makefile_inc _input_file _output_file)
+  file(READ ${_input_file} _makefile_inc_cmake)
 
-  string(REGEX REPLACE "\\\\\n" "" MAKEFILE_INC_CMAKE ${MAKEFILE_INC_CMAKE})
-  string(REGEX REPLACE "([A-Za-z_]+) *= *([^\n]*)" "set(\\1 \\2)" MAKEFILE_INC_CMAKE ${MAKEFILE_INC_CMAKE})
+  string(REGEX REPLACE "\\\\\n" "" _makefile_inc_cmake ${_makefile_inc_cmake})
+  string(REGEX REPLACE "([A-Za-z_]+) *= *([^\n]*)" "set(\\1 \\2)" _makefile_inc_cmake ${_makefile_inc_cmake})
 
-  file(WRITE ${OUTPUT_FILE} ${MAKEFILE_INC_CMAKE})
-  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${INPUT_FILE}")
+  file(WRITE ${_output_file} ${_makefile_inc_cmake})
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_input_file}")
 endfunction()
 
 #

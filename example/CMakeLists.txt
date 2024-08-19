@@ -43,18 +43,19 @@ list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'noinst_PROGRAMS' variable
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
-set(EXAMPLES ${noinst_PROGRAMS})
 
-foreach(example IN LISTS EXAMPLES)
-  add_executable(${example} "${example}.c")
-  list(APPEND EXAMPLE_TARGETS ${example})
+foreach(_example IN LISTS noinst_PROGRAMS)
+  add_executable(${_example} "${_example}.c")
+  list(APPEND _example_targets ${_example})
   # to find generated header
-  target_include_directories(${example} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" "../src")
-  target_link_libraries(${example} ${LIB_SELECTED} ${LIBRARIES})
-  set_target_properties(${example} PROPERTIES UNITY_BUILD OFF)
+  target_include_directories(${_example} PRIVATE
+    "${CMAKE_CURRENT_BINARY_DIR}/../src"
+    "../src")
+  target_link_libraries(${_example} ${LIB_SELECTED} ${LIBRARIES})
+  set_target_properties(${_example} PROPERTIES UNITY_BUILD OFF)
 endforeach()
 
 add_target_to_copy_dependencies(
   TARGET copy_example_dependencies
   DEPENDENCIES ${RUNTIME_DEPENDENCIES}
-  BEFORE_TARGETS ${EXAMPLE_TARGETS})
+  BEFORE_TARGETS ${_example_targets})
