@@ -36,8 +36,8 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-set(LIBSSH2_SOVERSION 1)
-set(LIBSSH2_LIBVERSION 1.0.1)
+set(_libssh2_soversion 1)
+set(_libssh2_libversion 1.0.1)
 
 if(CRYPTO_BACKEND)
   list(APPEND PRIVATE_COMPILE_DEFINITIONS ${CRYPTO_BACKEND_DEFINE})
@@ -89,7 +89,7 @@ include(GNUInstallDirs)
 transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'CSOURCES' and 'HHEADERS' variables
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
-set(SOURCES ${CSOURCES} ${HHEADERS})
+set(_sources ${CSOURCES} ${HHEADERS})
 
 ## Library definition
 
@@ -106,12 +106,12 @@ endif()
 # we want it to be called libssh2 on all platforms
 if(BUILD_STATIC_LIBS)
   list(APPEND libssh2_export ${LIB_STATIC})
-  add_library(${LIB_STATIC} STATIC ${SOURCES})
+  add_library(${LIB_STATIC} STATIC ${_sources})
   add_library(${PROJECT_NAME}::${LIB_STATIC} ALIAS ${LIB_STATIC})
   target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS})
   target_link_libraries(${LIB_STATIC} PRIVATE ${LIBRARIES})
   set_target_properties(${LIB_STATIC} PROPERTIES
-    PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${LIBSSH2_SOVERSION}" VERSION "${LIBSSH2_LIBVERSION}"
+    PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
     SUFFIX "${STATIC_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
   target_include_directories(${LIB_STATIC}
@@ -122,7 +122,7 @@ if(BUILD_STATIC_LIBS)
 endif()
 if(BUILD_SHARED_LIBS)
   list(APPEND libssh2_export ${LIB_SHARED})
-  add_library(${LIB_SHARED} SHARED ${SOURCES})
+  add_library(${LIB_SHARED} SHARED ${_sources})
   add_library(${PROJECT_NAME}::${LIB_SHARED} ALIAS ${LIB_SHARED})
   if(WIN32)
     set_property(TARGET ${LIB_SHARED} APPEND PROPERTY SOURCES "libssh2.rc")
@@ -131,7 +131,7 @@ if(BUILD_SHARED_LIBS)
   target_compile_options(${LIB_SHARED} PRIVATE ${LIB_SHARED_C_FLAGS})
   target_link_libraries(${LIB_SHARED} PRIVATE ${LIBRARIES})
   set_target_properties(${LIB_SHARED} PROPERTIES
-    PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${LIBSSH2_SOVERSION}" VERSION "${LIBSSH2_LIBVERSION}"
+    PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
     IMPORT_PREFIX "" IMPORT_SUFFIX "${IMPORT_LIB_SUFFIX}${CMAKE_IMPORT_LIBRARY_SUFFIX}"
     POSITION_INDEPENDENT_CODE ON)
 
