@@ -43,9 +43,8 @@ list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
 transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'noinst_PROGRAMS' variable
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
-set(EXAMPLES ${noinst_PROGRAMS})
 
-foreach(example IN LISTS EXAMPLES)
+foreach(example IN LISTS noinst_PROGRAMS)
   add_executable(${example} "${example}.c")
   list(APPEND EXAMPLE_TARGETS ${example})
   # to find generated header
