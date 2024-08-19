@@ -148,9 +148,9 @@ endif()
 
 if(RUN_DOCKER_TESTS)
   # CRYPT/MAC algo tests
-  file(READ "test_read_algos.txt" ALGO_TESTS)
-  string(REGEX REPLACE "\\\n" ";" ALGO_TESTS ${ALGO_TESTS})
-  foreach(_test IN LISTS ALGO_TESTS)
+  file(READ "test_read_algos.txt" _algo_tests)
+  string(REGEX REPLACE "\\\n" ";" _algo_tests ${_algo_tests})
+  foreach(_test IN LISTS _algo_tests)
     if(_test)
       set(_testname "test_read-${_test}")
       add_test(NAME ${_testname} COMMAND "$<TARGET_FILE:test_read>")
