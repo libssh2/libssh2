@@ -107,7 +107,7 @@ endif()
 
 # we want it to be called libssh2 on all platforms
 if(BUILD_STATIC_LIBS)
-  list(APPEND libssh2_export ${LIB_STATIC})
+  list(APPEND _libssh2_export ${LIB_STATIC})
   add_library(${LIB_STATIC} STATIC ${_sources})
   add_library(${PROJECT_NAME}::${LIB_STATIC} ALIAS ${LIB_STATIC})
   target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${_libssh2_definitions})
@@ -126,7 +126,7 @@ if(BUILD_STATIC_LIBS)
       "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
 endif()
 if(BUILD_SHARED_LIBS)
-  list(APPEND libssh2_export ${LIB_SHARED})
+  list(APPEND _libssh2_export ${LIB_SHARED})
   add_library(${LIB_SHARED} SHARED ${_sources})
   add_library(${PROJECT_NAME}::${LIB_SHARED} ALIAS ${LIB_SHARED})
   if(WIN32)
@@ -190,7 +190,7 @@ install(EXPORT "${PROJECT_NAME}-targets"
 
 ## During build, register directly from build tree
 # create libssh2-targets.cmake
-export(TARGETS ${libssh2_export} NAMESPACE "${PROJECT_NAME}::" FILE "${PROJECT_NAME}-targets.cmake")
+export(TARGETS ${_libssh2_export} NAMESPACE "${PROJECT_NAME}::" FILE "${PROJECT_NAME}-targets.cmake")
 export(PACKAGE ${PROJECT_NAME})  # register it
 
 # Generate libssh2-config.cmake into build tree and install it with dependencies
