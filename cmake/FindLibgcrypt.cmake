@@ -14,6 +14,8 @@
 # LIBGCRYPT_FOUND         System has libgcrypt
 # LIBGCRYPT_INCLUDE_DIRS  The libgcrypt include directories
 # LIBGCRYPT_LIBRARIES     The libgcrypt library names
+# LIBGCRYPT_LIBRARY_DIRS  The libgcrypt library directories
+# LIBGCRYPT_CFLAGS        Required compiler flags
 # LIBGCRYPT_VERSION       Version of libgcrypt
 
 if((UNIX OR (MSVC AND VCPKG_TOOLCHAIN)) AND
@@ -24,7 +26,7 @@ if((UNIX OR (MSVC AND VCPKG_TOOLCHAIN)) AND
 endif()
 
 if(LIBGCRYPT_FOUND)
-  set(LIBGCRYPT_LIBRARIES ${LIBGCRYPT_LINK_LIBRARIES})
+  string(REPLACE ";" " " LIBGCRYPT_CFLAGS "${LIBGCRYPT_CFLAGS}")
   message(STATUS "Found Libgcrypt (via pkg-config): ${LIBGCRYPT_INCLUDE_DIRS} (found version \"${LIBGCRYPT_VERSION}\")")
 else()
   find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h")
