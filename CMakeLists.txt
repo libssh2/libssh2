@@ -52,6 +52,15 @@ include(CheckNonblockingSocketSupport)
 
 project(libssh2 C)
 
+function(libssh2_dumpvars)  # Dump all defined variables with their values
+  message("::group::CMake Variable Dump")
+  get_cmake_property(_vars VARIABLES)
+  foreach(_var ${_vars})
+    message("${_var} = ${${_var}}")
+  endforeach()
+  message("::endgroup::")
+endfunction()
+
 set(CMAKE_UNITY_BUILD_BATCH_SIZE 32)
 
 option(BUILD_STATIC_LIBS "Build Static Libraries" ON)
