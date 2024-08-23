@@ -230,8 +230,11 @@ foreach(_libdir IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
   endif()
 endforeach()
 
-foreach(_lib IN LISTS LIBSSH2_LIBDIRS)
-  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-L${_lib}")
+foreach(_libdir IN LISTS LIBSSH2_LIBDIRS)
+  list(FIND _libssh2_libs_dirs "${_libdir}" _libdir_index)
+  if(_libdir_index LESS 0)
+    list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-L${_libdir}")
+  endif()
 endforeach()
 
 foreach(_lib IN LISTS CMAKE_C_IMPLICIT_LINK_LIBRARIES LIBSSH2_LIBS)
