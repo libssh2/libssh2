@@ -205,6 +205,74 @@ install(
     "${PROJECT_SOURCE_DIR}/cmake/FindWolfSSL.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
+
+set(LIBSSH2_PC_LIBS_PRIVATE "")
+
+# For processing full path libraries into -L and -l ld options,
+# the directories that go with the -L option are cached, so they
+# only get added once per such directory.
+set(_libssh2_libs_dirs)
+# To avoid getting unnecessary -L options for known system directories,
+# _libssh2_libs_dirs is seeded with them.
+foreach(_libdir IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
+  if(_libdir MATCHES "/$")
+    set(_libdir "${_libdir}lib")
+  else()
+    set(_libdir "${_libdir}/lib")
+  endif()
+  if(IS_DIRECTORY "${_libdir}")
+    list(APPEND _libssh2_libs_dirs "${_libdir}")
+  endif()
+  if(DEFINED CMAKE_LIBRARY_ARCHITECTURE)
+    set(_libdir "${_libdir}/${CMAKE_LIBRARY_ARCHITECTURE}")
+    if(IS_DIRECTORY "${_libdir}")
+      list(APPEND _libssh2_libs_dirs "${_libdir}")
+    endif()
+  endif()
+endforeach()
+
+foreach(_lib IN LISTS LIBSSH2_LIBDIRS)
+  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-L${_lib}")
+endforeach()
+
+foreach(_lib IN LISTS CMAKE_C_IMPLICIT_LINK_LIBRARIES LIBSSH2_LIBS)
+  if(TARGET "${_lib}")
+    set(_libname "${_lib}")
+    get_target_property(_imported "${_libname}" IMPORTED)
+    if(NOT _imported)
+      # Reading the LOCATION property on non-imported target will error out.
+      # Assume the user will not need this information in the .pc file.
+      continue()
+    endif()
+    get_target_property(_lib "${_libname}" LOCATION)
+    if(NOT _lib)
+      message(WARNING "Bad lib in library list: ${_libname}")
+      continue()
+    endif()
+  endif()
+  if(_lib MATCHES "^-")
+    list(APPEND LIBSSH2_PC_LIBS_PRIVATE "${_lib}")
+  elseif(_lib MATCHES ".*/.*")
+    # This gets a bit more complex, because we want to specify the
+    # directory separately, and only once per directory
+    get_filename_component(_libdir ${_lib} DIRECTORY)
+    get_filename_component(_libname ${_lib} NAME_WE)
+    if(_libname MATCHES "^lib")
+      list(FIND _libssh2_libs_dirs "${_libdir}" _libdir_index)
+      if(_libdir_index LESS 0)
+        list(APPEND _libssh2_libs_dirs "${_libdir}")
+        list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-L${_libdir}")
+      endif()
+      string(REGEX REPLACE "^lib" "" _libname "${_libname}")
+      list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_libname}")
+    else()
+      list(APPEND LIBSSH2_PC_LIBS_PRIVATE "${_lib}")
+    endif()
+  else()
+    list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_lib}")
+  endif()
+endforeach()
+
 ## Export a .pc file for client projects not using CMake
 if(LIBSSH2_PC_REQUIRES_PRIVATE)
   string(REPLACE ";" "," LIBSSH2_PC_REQUIRES_PRIVATE "${LIBSSH2_PC_REQUIRES_PRIVATE}")
