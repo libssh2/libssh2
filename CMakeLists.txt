@@ -61,7 +61,9 @@ function(libssh2_dumpvars)  # Dump all defined variables with their values
   message("::endgroup::")
 endfunction()
 
-set(CMAKE_UNITY_BUILD_BATCH_SIZE 32)
+if(NOT DEFINED CMAKE_UNITY_BUILD_BATCH_SIZE)
+  set(CMAKE_UNITY_BUILD_BATCH_SIZE 32)
+endif()
 
 option(BUILD_STATIC_LIBS "Build Static Libraries" ON)
 add_feature_info("Static library" BUILD_STATIC_LIBS "creating libssh2 static library")
