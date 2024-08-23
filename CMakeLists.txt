@@ -130,7 +130,7 @@ endif()
 
 # Symbol hiding
 
-option(HIDE_SYMBOLS "Set to ON to hide all libssh2 symbols that are not officially external" ON)
+option(HIDE_SYMBOLS "Hide all libssh2 symbols that are not officially external" ON)
 mark_as_advanced(HIDE_SYMBOLS)
 if(HIDE_SYMBOLS)
   set(LIB_SHARED_DEFINITIONS "LIBSSH2_EXPORTS")
@@ -154,7 +154,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 else()
   set(DEBUG_LOGGING_DEFAULT OFF)
 endif()
-option(ENABLE_DEBUG_LOGGING "log execution with debug trace" ${DEBUG_LOGGING_DEFAULT})
+option(ENABLE_DEBUG_LOGGING "Log execution with debug trace" ${DEBUG_LOGGING_DEFAULT})
 add_feature_info(Logging ENABLE_DEBUG_LOGGING "Logging of execution with debug trace")
 if(ENABLE_DEBUG_LOGGING)
   # Must be visible to the library and tests using internals
@@ -406,7 +406,7 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
     list(APPEND LIBRARIES "crypt32" "bcrypt")
     list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lcrypt32" "-lbcrypt")
 
-    option(ENABLE_ECDSA_WINCNG "WinCNG ECDSA support (requires Windows 10 or later)" OFF)
+    option(ENABLE_ECDSA_WINCNG "Enable WinCNG ECDSA support (requires Windows 10 or later)" OFF)
     add_feature_info(WinCNG ENABLE_ECDSA_WINCNG "WinCNG ECDSA support")
     if(ENABLE_ECDSA_WINCNG)
       add_definitions("-DLIBSSH2_ECDSA_WINCNG")
