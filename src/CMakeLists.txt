@@ -64,7 +64,6 @@ if(ENABLE_ZLIB_COMPRESSION)
 
   list(APPEND libssh2_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS})
   list(APPEND LIBSSH2_LIBS ${ZLIB_LIBRARIES})
-  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lz")
   list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "zlib")
   if(ZLIB_FOUND)
     list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
@@ -72,10 +71,6 @@ if(ENABLE_ZLIB_COMPRESSION)
 endif()
 
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
-
-if(WIN32)
-  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lws2_32")
-endif()
 
 # to find generated header
 list(APPEND libssh2_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR})
@@ -205,7 +200,83 @@ install(
     "${PROJECT_SOURCE_DIR}/cmake/FindWolfSSL.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
-## Export a .pc file for client projects not using CMake
+# Calculate variables for pkg-config
+set(LIBSSH2_PC_LIBS_PRIVATE "")
+
+if(WIN32)
+  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lws2_32")
+endif()
+
+set(_ldflags "")
+
+# Avoid getting unnecessary -L options for known system directories.
+unset(_sys_libdirs)
+foreach(_libdir IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
+  if(_libdir MATCHES "/$")
+    set(_libdir "${_libdir}lib")
+  else()
+    set(_libdir "${_libdir}/lib")
+  endif()
+  if(IS_DIRECTORY "${_libdir}")
+    list(APPEND _sys_libdirs "${_libdir}")
+  endif()
+  if(DEFINED CMAKE_LIBRARY_ARCHITECTURE)
+    set(_libdir "${_libdir}/${CMAKE_LIBRARY_ARCHITECTURE}")
+    if(IS_DIRECTORY "${_libdir}")
+      list(APPEND _sys_libdirs "${_libdir}")
+    endif()
+  endif()
+endforeach()
+
+foreach(_libdir IN LISTS LIBSSH2_LIBDIRS)
+  list(FIND _sys_libdirs "${_libdir}" _libdir_index)
+  if(_libdir_index LESS 0)
+    list(APPEND _ldflags "-L${_libdir}")
+  endif()
+endforeach()
+
+unset(_implicit_libs)
+if(NOT MINGW AND NOT UNIX)
+  set(_implicit_libs ${CMAKE_C_IMPLICIT_LINK_LIBRARIES})
+endif()
+
+foreach(_lib IN LISTS _implicit_libs LIBSSH2_LIBS)
+  if(TARGET "${_lib}")
+    set(_libname "${_lib}")
+    get_target_property(_imported "${_libname}" IMPORTED)
+    if(NOT _imported)
+      # Reading the LOCATION property on non-imported target will error out.
+      # Assume the user will not need this information in the .pc file.
+      continue()
+    endif()
+    get_target_property(_lib "${_libname}" LOCATION)
+    if(NOT _lib)
+      message(WARNING "Bad lib in library list: ${_libname}")
+      continue()
+    endif()
+  endif()
+  if(_lib MATCHES "^-")
+    list(APPEND _ldflags "${_lib}")
+  elseif(_lib MATCHES ".*/.*")
+    # This gets a bit more complex, because we want to specify the
+    # directory separately, and only once per directory
+    get_filename_component(_libdir ${_lib} DIRECTORY)
+    get_filename_component(_libname ${_lib} NAME_WE)
+    if(_libname MATCHES "^lib")
+      list(FIND _sys_libdirs "${_libdir}" _libdir_index)
+      if(_libdir_index LESS 0)
+        list(APPEND _ldflags "-L${_libdir}")
+      endif()
+      string(REGEX REPLACE "^lib" "" _libname "${_libname}")
+      list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_libname}")
+    else()
+      list(APPEND LIBSSH2_PC_LIBS_PRIVATE "${_lib}")
+    endif()
+  else()
+    list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_lib}")
+  endif()
+endforeach()
+
 if(LIBSSH2_PC_REQUIRES_PRIVATE)
   string(REPLACE ";" "," LIBSSH2_PC_REQUIRES_PRIVATE "${LIBSSH2_PC_REQUIRES_PRIVATE}")
 endif()
@@ -213,7 +284,14 @@ if(LIBSSH2_PC_LIBS_PRIVATE)
   list(REMOVE_DUPLICATES LIBSSH2_PC_LIBS_PRIVATE)
   string(REPLACE ";" " " LIBSSH2_PC_LIBS_PRIVATE "${LIBSSH2_PC_LIBS_PRIVATE}")
 endif()
-# merge the pkg-config private fields into public ones when static-only
+if(_ldflags)
+  list(REMOVE_DUPLICATES _ldflags)
+  string(REPLACE ";" " " _ldflags "${_ldflags}")
+  set(LIBSSH2_PC_LIBS_PRIVATE "${_ldflags} ${LIBSSH2_PC_LIBS_PRIVATE}")
+  string(STRIP "${LIBSSH2_PC_LIBS_PRIVATE}" LIBSSH2_PC_LIBS_PRIVATE)
+endif()
+
+# Merge pkg-config private fields into public ones when static-only
 if(BUILD_SHARED_LIBS)
   set(LIBSSH2_PC_REQUIRES "")
   set(LIBSSH2_PC_LIBS "")
