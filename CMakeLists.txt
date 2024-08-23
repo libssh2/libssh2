@@ -65,10 +65,10 @@ if(NOT DEFINED CMAKE_UNITY_BUILD_BATCH_SIZE)
   set(CMAKE_UNITY_BUILD_BATCH_SIZE 0)
 endif()
 
-option(BUILD_STATIC_LIBS "Build Static Libraries" ON)
+option(BUILD_STATIC_LIBS "Build static libraries" ON)
 add_feature_info("Static library" BUILD_STATIC_LIBS "creating libssh2 static library")
 
-option(BUILD_SHARED_LIBS "Build Shared Libraries" ON)
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 add_feature_info("Shared library" BUILD_SHARED_LIBS "creating libssh2 shared library (.so/.dll)")
 
 # Parse version
