@@ -18,7 +18,7 @@
 # WOLFSSL_CFLAGS        Required compiler flags
 # WOLFSSL_VERSION       Version of wolfssl
 
-if((UNIX OR (MSVC AND VCPKG_TOOLCHAIN)) AND
+if((UNIX OR VCPKG_TOOLCHAIN) AND
    NOT DEFINED WOLFSSL_INCLUDE_DIR AND
    NOT DEFINED WOLFSSL_LIBRARY)
   find_package(PkgConfig QUIET)
