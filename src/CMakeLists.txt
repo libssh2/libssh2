@@ -103,8 +103,10 @@ endif()
 unset(_libssh2_export)
 
 # we want it to be called libssh2 on all platforms
-if(BUILD_STATIC_LIBS)
-  list(APPEND _libssh2_export ${LIB_STATIC})
+if(BUILD_STATIC_LIBS OR BUILD_TESTING)
+  if(BUILD_STATIC_LIBS)
+    list(APPEND _libssh2_export ${LIB_STATIC})
+  endif()
   add_library(${LIB_STATIC} STATIC ${_sources})
   add_library(${PROJECT_NAME}::${LIB_STATIC} ALIAS ${LIB_STATIC})
   target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${_libssh2_definitions})
