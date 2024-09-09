@@ -469,8 +469,10 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         buf.dataptr = buf.data;
         buf.dataptr++; /* advance past type */
 
-        if(session->server_hostkey)
+        if(session->server_hostkey) {
             LIBSSH2_FREE(session, session->server_hostkey);
+            session->server_hostkey = NULL;
+        }
 
         if(_libssh2_copy_string(session, &buf, &(session->server_hostkey),
                                 &host_key_len)) {
