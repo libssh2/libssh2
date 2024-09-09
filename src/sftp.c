@@ -413,62 +413,68 @@ window_adjust:
     /* WON'T REACH */
 }
 
-// process_sftp_chunk - Handle packet retrievement and data freeing
-static int process_sftp_chunk(LIBSSH2_SFTP *sftp, struct sftp_pipeline_chunk *chunk) {
+/* process_sftp_chunk - Handle packet retrieval and data freeing */
+static int process_sftp_chunk(LIBSSH2_SFTP *sftp, 
+                              struct sftp_pipeline_chunk *chunk)
+{
     unsigned char *data = NULL;
     size_t data_len = 0;
     int rc;
 
-    // Try to get a status packet first
+    /* Try to get a status packet first */
     rc = sftp_packet_ask(sftp, SSH_FXP_STATUS, chunk->request_id, &data, &data_len);
-    if(rc) {
-        // If no status packet, try to get a data packet
+    if (rc) {
+        /* If no status packet, try to get a data packet */
         rc = sftp_packet_ask(sftp, SSH_FXP_DATA, chunk->request_id, &data, &data_len);
     }
 
-    // If packet was found, free the data
-    if(!rc && data) {
+    /* If packet was found, free the data */
+    if (!rc && data) {
         LIBSSH2_FREE(sftp->channel->session, data);
     }
     return rc;
 }
 
-// handle_zombie_chunk - Handle zombie requests
-static void handle_zombie_chunk(LIBSSH2_SFTP *sftp, struct sftp_pipeline_chunk *chunk) {
-    // Mark the request as zombie if if was received but no response
-    if(chunk->sent) {
+/* handle_zombie_chunk - Handle zombie requests */
+static void handle_zombie_chunk(LIBSSH2_SFTP *sftp, 
+                                struct sftp_pipeline_chunk *chunk)
+{
+    /* Mark the request as zombie if it was sent but no response was found */
+    if (chunk->sent) {
         add_zombie_request(sftp, chunk->request_id);
     }
 }
 
-// free_sftp_chunk - Remove the referred chunk from the list by freeing it
-static void free_sftp_chunk(LIBSSH2_SESSION *session, struct sftp_pipeline_chunk *chunk) {
+/* free_sftp_chunk - Remove the chunk from the list and free it */
+static void free_sftp_chunk(LIBSSH2_SESSION *session, 
+                            struct sftp_pipeline_chunk *chunk)
+{
     _libssh2_list_remove(&chunk->node);
     LIBSSH2_FREE(session, chunk);
 }
 
-static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle) {
+/* sftp_packetlist_flush - Flush the packet list and free resources */
+static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
+{
     LIBSSH2_SFTP *sftp = handle->sftp;
     LIBSSH2_SESSION *session = sftp->channel->session;
     struct sftp_pipeline_chunk *chunk = _libssh2_list_first(&handle->packet_list);
 
-    while(chunk) {
+    while (chunk) {
         struct sftp_pipeline_chunk *next = _libssh2_list_next(&chunk->node);
 
-        // Process each chunk and check for errors
+        /* Process each chunk and check for errors */
         int rc = process_sftp_chunk(sftp, chunk);
-        if(rc) {
-            // Handle zombie request if no packet was found
+        if (rc) {
+            /* Handle zombie request if no packet was found */
             handle_zombie_chunk(sftp, chunk);
         }
 
-        // Free the processed chunk
+        /* Free the processed chunk */
         free_sftp_chunk(session, chunk);
         chunk = next;
     }
 }
-
-
 
 /*
  * sftp_packet_ask
