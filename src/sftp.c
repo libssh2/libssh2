@@ -413,9 +413,7 @@ window_adjust:
     /* WON'T REACH */
 }
 
-/*
-    process_sftp_chunk - Handle packet retrievement and data freeing
-*/
+// process_sftp_chunk - Handle packet retrievement and data freeing
 static int process_sftp_chunk(LIBSSH2_SFTP *sftp, struct sftp_pipeline_chunk *chunk) {
     unsigned char *data = NULL;
     size_t data_len = 0;
@@ -435,9 +433,7 @@ static int process_sftp_chunk(LIBSSH2_SFTP *sftp, struct sftp_pipeline_chunk *ch
     return rc;
 }
 
-/*
-    handle_zombie_chunk - Handle zombie requests
-*/
+// handle_zombie_chunk - Handle zombie requests
 static void handle_zombie_chunk(LIBSSH2_SFTP *sftp, struct sftp_pipeline_chunk *chunk) {
     // Mark the request as zombie if if was received but no response
     if(chunk->sent) {
@@ -445,9 +441,7 @@ static void handle_zombie_chunk(LIBSSH2_SFTP *sftp, struct sftp_pipeline_chunk *
     }
 }
 
-/*
-    free_sftp_chunk - Remove the referred chunk from the list by freeing it
-*/
+// free_sftp_chunk - Remove the referred chunk from the list by freeing it
 static void free_sftp_chunk(LIBSSH2_SESSION *session, struct sftp_pipeline_chunk *chunk) {
     _libssh2_list_remove(&chunk->node);
     LIBSSH2_FREE(session, chunk);
