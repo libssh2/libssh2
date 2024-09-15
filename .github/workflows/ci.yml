@@ -316,7 +316,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: 'install packages'
-        run: sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install mingw-w64
+        run: sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install mingw-w64 ${{ matrix.build == 'cmake' && 'ninja-build' || '' }}
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
@@ -329,7 +329,7 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
-          cmake -B bld \
+          cmake -B bld -G Ninja \
             -DCMAKE_SYSTEM_NAME=Windows \
             -DCMAKE_C_COMPILER_TARGET=${TRIPLET} \
             -DCMAKE_C_COMPILER=${TRIPLET}-gcc \
@@ -359,7 +359,7 @@ jobs:
       - uses: cygwin/cygwin-install-action@v4
         with:
           platform: ${{ matrix.platform }}
-          packages: autoconf libtool ${{ matrix.build }} gcc-core gcc-g++ binutils make libssl-devel zlib-devel
+          packages: ${{ matrix.build == 'automake' && 'autoconf libtool make' || 'ninja' }} ${{ matrix.build }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
 
       - name: 'autotools'
@@ -382,7 +382,7 @@ jobs:
         shell: C:\cygwin\bin\bash.exe '{0}'
         run: |
           export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
-          cmake -B bld \
+          cmake -B bld -G Ninja \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
@@ -421,14 +421,14 @@ jobs:
         if: ${{ matrix.sys == 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
-          install: gcc ${{ matrix.build }} make openssl-devel zlib-devel
+          install: gcc ${{ matrix.build }} ${{ matrix.build == 'autotools' && 'make' || 'ninja' }} openssl-devel zlib-devel
       - uses: msys2/setup-msys2@v2
         if: ${{ matrix.sys != 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
           install: >-
             mingw-w64-${{ matrix.env }}-cc
-            mingw-w64-${{ matrix.env }}-${{ matrix.build }} make
+            mingw-w64-${{ matrix.env }}-${{ matrix.build }} ${{ matrix.build == 'autotools' && 'make' || '' }}
             mingw-w64-${{ matrix.env }}-openssl
 
       - name: 'autotools autoreconf'
@@ -486,7 +486,7 @@ jobs:
             cflags=''
             rcopts=''
           fi
-          cmake -B bld ${options} \
+          cmake -B bld -G Ninja ${options} \
             "-DCMAKE_C_FLAGS=${cflags}" \
             "-DCMAKE_RC_COMPILE_OBJECT=${rcopts}" \
             -DCMAKE_UNITY_BUILD=ON \
@@ -597,7 +597,7 @@ jobs:
             cmake: -DCRYPTO_BACKEND=mbedTLS "-DMBEDTLS_INCLUDE_DIR=$(brew --prefix)/opt/mbedtls/include" "-DMBEDCRYPTO_LIBRARY=$(brew --prefix)/opt/mbedtls/lib/libmbedcrypto.a"
     steps:
       - name: 'install packages'
-        run: brew install automake libtool ${{ matrix.crypto.install }}
+        run: brew install ${{ matrix.build == 'autotools' && 'automake libtool' || 'ninja' }} ${{ matrix.crypto.install }}
       - uses: actions/checkout@v4
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
@@ -621,7 +621,7 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         run: |
-          cmake -B bld ${{ matrix.crypto.cmake }} \
+          cmake -B bld -G Ninja ${{ matrix.crypto.cmake }} \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
@@ -655,8 +655,8 @@ jobs:
           architecture: ${{ matrix.arch }}
           run: |
             # https://pkgsrc.se/
-            sudo pkgin -y install cmake
-            cmake -B bld \
+            sudo pkgin -y install cmake ninja-build
+            cmake -B bld -G Ninja \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
               -DENABLE_DEBUG_LOGGING=ON \
@@ -684,8 +684,8 @@ jobs:
           architecture: ${{ matrix.arch }}
           run: |
             # https://openbsd.app/
-            sudo pkg_add cmake
-            cmake -B bld \
+            sudo pkg_add cmake ninja
+            cmake -B bld -G Ninja \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
               -DENABLE_DEBUG_LOGGING=ON \
