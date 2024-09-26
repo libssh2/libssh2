@@ -50,54 +50,58 @@ my @ignore_line;
 my %warnings_extended = (
     'COPYRIGHTYEAR'    => 'copyright year incorrect',
     'STRERROR',        => 'strerror() detected',
+    'STRNCPY',         => 'strncpy() detected',
     'STDERR',          => 'stderr detected',
     );
 
 my %warnings = (
     'ASSIGNWITHINCONDITION' => 'assignment within conditional expression',
-    'ASTERISKNOSPACE'  => 'pointer declared without space before asterisk',
-    'ASTERISKSPACE'    => 'pointer declared with space after asterisk',
-    'BADCOMMAND'       => 'bad !checksrc! instruction',
-    'BANNEDFUNC'       => 'a banned function was used',
-    'BANNEDPREPROC'    => 'a banned symbol was used on a preprocessor line',
-    'BRACEELSE'        => '} else on the same line',
-    'BRACEPOS'         => 'wrong position for an open brace',
-    'BRACEWHILE'       => 'A single space between open brace and while',
-    'COMMANOSPACE'     => 'comma without following space',
-    'COMMENTNOSPACEEND' => 'no space before */',
-    'COMMENTNOSPACESTART' => 'no space following /*',
-    'COPYRIGHT'        => 'file missing a copyright statement',
-    'CPPCOMMENTS'      => '// comment detected',
-    'DOBRACE'          => 'A single space between do and open brace',
-    'EMPTYLINEBRACE'   => 'Empty line before the open brace',
-    'EQUALSNOSPACE'    => 'equals sign without following space',
-    'EQUALSNULL'       => 'if/while comparison with == NULL',
-    'EXCLAMATIONSPACE' => 'Whitespace after exclamation mark in expression',
-    'FOPENMODE'        => 'fopen needs a macro for the mode string',
-    'INCLUDEDUP',      => 'same file is included again',
-    'INDENTATION'      => 'wrong start column for code',
-    'LONGLINE'         => "Line longer than $max_column",
-    'SPACEBEFORELABEL' => 'labels not at the start of the line',
-    'MULTISPACE'       => 'multiple spaces used when not suitable',
-    'NOSPACEEQUALS'    => 'equals sign without preceding space',
-    'NOTEQUALSZERO',   => 'if/while comparison with != 0',
-    'ONELINECONDITION' => 'conditional block on the same line as the if()',
-    'OPENCOMMENT'      => 'file ended with a /* comment still "open"',
-    'PARENBRACE'       => '){ without sufficient space',
-    'RETURNNOSPACE'    => 'return without space',
-    'SEMINOSPACE'      => 'semicolon without following space',
-    'SIZEOFNOPAREN'    => 'use of sizeof without parentheses',
-    'SNPRINTF'         => 'use of snprintf',
-    'SPACEAFTERPAREN'  => 'space after open parenthesis',
-    'SPACEBEFORECLOSE' => 'space before a close parenthesis',
-    'SPACEBEFORECOMMA' => 'space before a comma',
-    'SPACEBEFOREPAREN' => 'space before an open parenthesis',
-    'SPACESEMICOLON'   => 'space before semicolon',
-    'SPACESWITCHCOLON' => 'space before colon of switch label',
-    'TABS'             => 'TAB characters not allowed',
-    'TRAILINGSPACE'    => 'Trailing whitespace on the line',
-    'TYPEDEFSTRUCT'    => 'typedefed struct',
-    'UNUSEDIGNORE'     => 'a warning ignore was not used',
+    'ASTERISKNOSPACE'       => 'pointer declared without space before asterisk',
+    'ASTERISKSPACE'         => 'pointer declared with space after asterisk',
+    'BADCOMMAND'            => 'bad !checksrc! instruction',
+    'BANNEDFUNC'            => 'a banned function was used',
+    'BANNEDPREPROC'         => 'a banned symbol was used on a preprocessor line',
+    'BRACEELSE'             => '} else on the same line',
+    'BRACEPOS'              => 'wrong position for an open brace',
+    'BRACEWHILE'            => 'A single space between open brace and while',
+    'COMMANOSPACE'          => 'comma without following space',
+    'COMMENTNOSPACEEND'     => 'no space before */',
+    'COMMENTNOSPACESTART'   => 'no space following /*',
+    'COPYRIGHT'             => 'file missing a copyright statement',
+    'CPPCOMMENTS'           => '// comment detected',
+    'DOBRACE'               => 'A single space between do and open brace',
+    'EMPTYLINEBRACE'        => 'Empty line before the open brace',
+    'EQUALSNOSPACE'         => 'equals sign without following space',
+    'EQUALSNULL'            => 'if/while comparison with == NULL',
+    'EXCLAMATIONSPACE'      => 'Whitespace after exclamation mark in expression',
+    'FOPENMODE'             => 'fopen needs a macro for the mode string',
+    'INCLUDEDUP',           => 'same file is included again',
+    'INDENTATION'           => 'wrong start column for code',
+    'LONGLINE'              => "Line longer than $max_column",
+    'SPACEBEFORELABEL'      => 'labels not at the start of the line',
+    'MULTISPACE'            => 'multiple spaces used when not suitable',
+    'NOSPACEC'              => 'missing space around ternary colon operator',
+    'NOSPACEEQUALS'         => 'equals sign without preceding space',
+    'NOSPACEQ'              => 'missing space around ternary question mark operator',
+    'NOSPACETHAN'           => 'missing space around less or greater than',
+    'NOTEQUALSZERO',        => 'if/while comparison with != 0',
+    'ONELINECONDITION'      => 'conditional block on the same line as the if()',
+    'OPENCOMMENT'           => 'file ended with a /* comment still "open"',
+    'PARENBRACE'            => '){ without sufficient space',
+    'RETURNNOSPACE'         => 'return without space',
+    'SEMINOSPACE'           => 'semicolon without following space',
+    'SIZEOFNOPAREN'         => 'use of sizeof without parentheses',
+    'SNPRINTF'              => 'use of snprintf',
+    'SPACEAFTERPAREN'       => 'space after open parenthesis',
+    'SPACEBEFORECLOSE'      => 'space before a close parenthesis',
+    'SPACEBEFORECOMMA'      => 'space before a comma',
+    'SPACEBEFOREPAREN'      => 'space before an open parenthesis',
+    'SPACESEMICOLON'        => 'space before semicolon',
+    'SPACESWITCHCOLON'      => 'space before colon of switch label',
+    'TABS'                  => 'TAB characters not allowed',
+    'TRAILINGSPACE'         => 'Trailing whitespace on the line',
+    'TYPEDEFSTRUCT'         => 'typedefed struct',
+    'UNUSEDIGNORE'          => 'a warning ignore was not used',
     );
 
 sub readskiplist {
@@ -115,11 +119,23 @@ sub readskiplist {
 # and since that's already handled via !checksrc! commands there is probably
 # little use to add it.
 sub readlocalfile {
+    my ($file) = @_;
     my $i = 0;
+    my $rcfile;
 
-    open(my $rcfile, "<", "$dir/.checksrc") or return;
+    if(($dir eq ".") && $file =~ /\//) {
+        my $ldir;
+        if($file =~ /(.*)\//) {
+            $ldir = $1;
+            open($rcfile, "<", "$dir/$ldir/.checksrc") or return;
+        }
+    }
+    else {
+        open($rcfile, "<", "$dir/.checksrc") or return;
+    }
 
     while(<$rcfile>) {
+        $windows_os ? $_ =~ s/\r?\n$// : chomp;
         $i++;
 
         # Lines starting with '#' are considered comments
@@ -263,7 +279,7 @@ if(!$file) {
 }
 
 readskiplist();
-readlocalfile();
+readlocalfile($file);
 
 do {
     if("$wlist" !~ / $file /) {
@@ -401,6 +417,13 @@ sub scanfile {
         if($l =~ /\!checksrc\! (.*)/) {
             my $cmd = $1;
             checksrc($cmd, $line, $file, $l)
+        }
+
+        if($l =~ /^#line (\d+) \"([^\"]*)\"/) {
+            # a #line instruction
+            $file = $2;
+            $line = $1;
+            next;
         }
 
         # check for a copyright statement and save the years
@@ -603,6 +626,62 @@ sub scanfile {
                       "space after open parenthesis");
         }
 
+        # check spaces before colon
+        if($nostr =~ /^(.*[^']\?[^'].*)(\w|\)|\]|')\:/i) {
+            my $m = $1;
+            my $e = $nostr;
+            $e =~ s/'(.)':'(.)'/$1:$2/g; # eliminate chars quotes that surround colon
+            $e =~ s/':'//g;              # ignore these
+            if($e =~ /^(.*[^']\?[^'].*)(\w|\)|\]|')\:/i) {
+                checkwarn("NOSPACEC",
+                          $line, length($m)+1, $file, $l,
+                          "missing space before colon");
+            }
+        }
+        # check spaces after colon
+        if($nostr =~ /^(.*[^'"]\?[^'"].*)\:(\w|\)|\]|')/i) {
+            my $m = $1;
+            my $e = $nostr;
+            $e =~ s/'(.)':'(.)'/$1:$2/g; # eliminate chars quotes that surround colon
+            $e =~ s/':'//g;              # ignore these
+            if($e =~ /^(.*[^'"]\?[^'"].*)\:(\w|\)|\]|')/i) {
+                checkwarn("NOSPACEC",
+                          $line, length($m)+1, $file, $l,
+                          "missing space after colon");
+            }
+        }
+
+        # check spaces before question mark
+        if($nostr =~ /^(.*)(\w|\)|\]|')\?/i) {
+            my $m = $1;
+            my $e = $nostr;
+            $e =~ s/'?'//g; # ignore these
+            if($e =~ /^(.*)(\w|\)|\]|')\?/i) {
+                checkwarn("NOSPACEQ",
+                          $line, length($m)+1, $file, $l,
+                          "missing space before question mark");
+            }
+        }
+        # check spaces after question mark
+        if($nostr =~ /^(.*)\?\w/i) {
+            checkwarn("NOSPACEQ",
+                      $line, length($1)+1, $file, $l,
+                      "missing space after question mark");
+        }
+
+        # check spaces before less or greater than
+        if($nostr =~ /^(.*)(\w|\)|\])[<>]/) {
+            checkwarn("NOSPACETHAN",
+                      $line, length($1)+1, $file, $l,
+                      "missing space before less or greater than");
+        }
+        # check spaces after less or greater than
+        if($nostr =~ /^(.*)[^-][<>](\w|\(|\[)/) {
+            checkwarn("NOSPACETHAN",
+                      $line, length($1)+1, $file, $l,
+                      "missing space after less or greater than");
+        }
+
         # check spaces before close parentheses, unless it was a space or a
         # close parenthesis!
         if($l =~ /(.*[^\) ]) \)/) {
@@ -712,7 +791,8 @@ sub scanfile {
                     strtok|
                     v?sprintf|
                     (str|_mbs|_tcs|_wcs)n?cat|
-                    LoadLibrary(Ex)?(A|W)?)
+                    LoadLibrary(Ex)?(A|W)?|
+                    _?w?access)
                    \s*\(
                  /x) {
             checkwarn("BANNEDFUNC",
@@ -726,6 +806,18 @@ sub scanfile {
                 if($1 !~ /^ *\#/) {
                     # skip preprocessor lines
                     checkwarn("STRERROR",
+                              $line, length($1), $file, $ol,
+                              "use of $2 is banned");
+                }
+            }
+        }
+        if($warnings{"STRNCPY"}) {
+            # scan for use of banned strncpy. This is not a BANNEDFUNC to
+            # allow for individual enable/disable of this warning.
+            if($l =~ /^(.*\W)(strncpy)\s*\(/x) {
+                if($1 !~ /^ *\#/) {
+                    # skip preprocessor lines
+                    checkwarn("STRNCPY",
                               $line, length($1), $file, $ol,
                               "use of $2 is banned");
                 }
@@ -915,7 +1007,7 @@ sub scanfile {
         checkwarn("COPYRIGHT", 1, 0, $file, "", "Missing copyright statement", 1);
     }
 
-    # COPYRIGHTYEAR is a extended warning so we must first see if it has been
+    # COPYRIGHTYEAR is an extended warning so we must first see if it has been
     # enabled in .checksrc
     if(defined($warnings{"COPYRIGHTYEAR"})) {
         # The check for updated copyrightyear is overly complicated in order to

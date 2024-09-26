@@ -4071,7 +4071,7 @@ _libssh2_ecdsa_create_key(LIBSSH2_SESSION *session,
     EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
 
     if(ctx &&
-       EVP_PKEY_keygen_init(ctx) >0 &&
+       EVP_PKEY_keygen_init(ctx) > 0 &&
        EVP_PKEY_CTX_set_ec_paramgen_curve_nid(ctx, curve_type) > 0) {
         ret = EVP_PKEY_keygen(ctx, &private_key);
     }

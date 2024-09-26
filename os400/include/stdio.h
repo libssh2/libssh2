@@ -42,8 +42,8 @@
 #define LIBSSH2_STDIO_H
 
 /*
- *  <stdio.h> wrapper.
- *  Its goal is to redefine snprintf/vsnprintf which are not supported by QADRT.
+ * <stdio.h> wrapper.
+ * Its goal is to redefine snprintf/vsnprintf which are not supported by QADRT.
  */
 
 #include <qadrt.h>
