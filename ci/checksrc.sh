@@ -7,4 +7,4 @@ set -e
 cd "$(dirname "$0")/.."
 
 git ls-files "*.[ch]" | xargs -n1 \
-./ci/checksrc.pl -i4 -m79 -A FOPENMODE -A SNPRINTF -A TYPEDEFSTRUCT
+./ci/checksrc.pl -i4 -m79 -AFOPENMODE -ASNPRINTF -ATYPEDEFSTRUCT
