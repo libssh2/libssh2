@@ -367,7 +367,7 @@ _libssh2_random(unsigned char *buf, size_t len)
     set_EC_length(errcode, sizeof(errcode));
     Qc3GenPRNs(buf, len,
         Qc3PRN_TYPE_NORMAL, Qc3PRN_NO_PARITY, (char *) &errcode);
-    return errcode.Bytes_Available? -1: 0;
+    return errcode.Bytes_Available ? -1 : 0;
 }
 
 _libssh2_bn *
@@ -967,7 +967,7 @@ _libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x, unsigned int algorithm)
     set_EC_length(errcode, sizeof(errcode));
     Qc3CreateAlgorithmContext((char *) &algd, Qc3_Alg_Hash,
                               x->Alg_Context_Token, &errcode);
-    return errcode.Bytes_Available? 0: 1;
+    return errcode.Bytes_Available ? 0 : 1;
 }
 
 int
@@ -981,7 +981,7 @@ _libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
     set_EC_length(errcode, sizeof(errcode));
     Qc3CalculateHash((char *) data, &len, Qc3_Data, (char *) ctx,
                      Qc3_Alg_Token, anycsp, NULL, dummy, &errcode);
-    return errcode.Bytes_Available? 0: 1;
+    return errcode.Bytes_Available ? 0 : 1;
 }
 
 int
@@ -996,7 +996,7 @@ _libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx, unsigned char *out)
                      anycsp, NULL, (char *) out, &errcode);
     Qc3DestroyAlgorithmContext(ctx->Alg_Context_Token, (char *) &ecnull);
     memset(ctx->Alg_Context_Token, 0, sizeof(ctx->Alg_Context_Token));
-    return errcode.Bytes_Available? 0: 1;
+    return errcode.Bytes_Available ? 0 : 1;
 }
 
 int
@@ -1036,7 +1036,7 @@ libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *ctx,
     Qc3CreateKeyContext((char *) key, &keylen, binstring, &algo, qc3clear,
                         NULL, NULL, ctx->key.Key_Context_Token,
                         (char *) &errcode);
-    return errcode.Bytes_Available? 0: 1;
+    return errcode.Bytes_Available ? 0 : 1;
 }
 
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
@@ -1091,7 +1091,7 @@ int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
     Qc3CalculateHMAC((char *) data, &len, Qc3_Data, (char *) &ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
                      anycsp, NULL, dummy, (char *) &errcode);
-    return errcode.Bytes_Available? 0: 1;
+    return errcode.Bytes_Available ? 0 : 1;
 }
 
 int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *out)
@@ -1104,7 +1104,7 @@ int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *out)
     Qc3CalculateHMAC((char *) data, &zero, Qc3_Data, (char *) &ctx->hash,
                      Qc3_Alg_Token, ctx->key.Key_Context_Token, Qc3_Key_Token,
                      anycsp, NULL, (char *) out, (char *) &errcode);
-    return errcode.Bytes_Available? 0: 1;
+    return errcode.Bytes_Available ? 0 : 1;
 }
 
 void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
@@ -1182,7 +1182,7 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
                        ctx->key.Key_Context_Token, Qc3_Key_Token, anycsp, NULL,
                        (char *) block, &blksize, &outlen, (char *) &errcode);
 
-    return errcode.Bytes_Available? -1: 0;
+    return errcode.Bytes_Available ? -1 : 0;
 }
 
 
@@ -1565,7 +1565,7 @@ parse_pkcs5_algorithm(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
     for(; *algotable; algotable++)
         if(!oidcmp(&oid, (*algotable)->oid))
             return (*(*algotable)->parse)(session, pkcs5, *algotable,
-                                          param.header? &param: NULL);
+                                          param.header ? &param : NULL);
     return -1;
 }
 
@@ -2456,7 +2456,7 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx *rsa, size_t hash_len,
                        (char *) &algd, Qc3_Alg_Public_Key,
                        (char *) &rsa->key, Qc3_Key_Token, anycsp,
                        NULL, (char *) &errcode);
-    return errcode.Bytes_Available? -1: 0;
+    return errcode.Bytes_Available ? -1 : 0;
 }
 
 int

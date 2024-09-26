@@ -116,7 +116,7 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
     if(rounds < 1)
         return -1;
     if(passlen == 0 || saltlen == 0 || keylen == 0 ||
-       keylen > sizeof(out) * sizeof(out) || saltlen > 1<<20)
+       keylen > sizeof(out) * sizeof(out) || saltlen > 1 << 20)
         return -1;
     countsalt = calloc(1, saltlen + 4);
     if(!countsalt)
