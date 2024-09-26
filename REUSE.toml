@@ -44,7 +44,6 @@ path = [
   "vms/man2help.c",
   "vms/readme.vms",
   # dotfiles
-  ".checksrc",
   ".editorconfig",
   ".gitignore",
   "docs/.gitignore",

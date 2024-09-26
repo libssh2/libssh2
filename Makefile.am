@@ -81,6 +81,4 @@ gen-coverage:
 coverage: init-coverage build-coverage gen-coverage
 
 checksrc:
-	perl ci/checksrc.pl -i4 -m79 \
-	  -Wsrc/libssh2_config.h \
-	  src/*.[ch] include/*.h example/*.c tests/*.[ch]
+	ci/checksrc.sh
