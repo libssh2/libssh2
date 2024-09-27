@@ -348,6 +348,8 @@ _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
     if(dbuf)
         OPENSSL_clear_free(dbuf, dlen);
 
+    EVP_PKEY_CTX_free(ctx);
+
     return (ret == 1) ? 0 : -1;
 #else
     BIGNUM * e;
@@ -1272,7 +1274,7 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session, libssh2_rsa_ctx *rsa,
 {
     int            e_bytes, n_bytes;
     unsigned long  len;
-    unsigned char *key;
+    unsigned char *key = NULL;
     unsigned char *p;
 
 #ifdef USE_OPENSSL_3
@@ -1295,7 +1297,7 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session, libssh2_rsa_ctx *rsa,
 #endif
 #endif
     if(!e || !n) {
-        return NULL;
+        goto fail;
     }
 
     e_bytes = BN_num_bytes(e) + 1;
@@ -1306,7 +1308,7 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session, libssh2_rsa_ctx *rsa,
 
     key = LIBSSH2_ALLOC(session, len);
     if(!key) {
-        return NULL;
+        goto fail;
     }
 
     /* Process key encoding. */
@@ -1321,6 +1323,11 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session, libssh2_rsa_ctx *rsa,
     p = write_bn(p, n, n_bytes);
 
     *key_len = (size_t)(p - key);
+fail:
+#ifdef USE_OPENSSL_3
+    BN_clear_free(e);
+    BN_clear_free(n);
+#endif
     return key;
 }
 
@@ -1707,7 +1714,7 @@ gen_publickey_from_dsa(LIBSSH2_SESSION* session, libssh2_dsa_ctx *dsa,
 {
     int            p_bytes, q_bytes, g_bytes, k_bytes;
     unsigned long  len;
-    unsigned char *key;
+    unsigned char *key = NULL;
     unsigned char *p;
 
 #ifdef USE_OPENSSL_3
@@ -1749,7 +1756,7 @@ gen_publickey_from_dsa(LIBSSH2_SESSION* session, libssh2_dsa_ctx *dsa,
 
     key = LIBSSH2_ALLOC(session, len);
     if(!key) {
-        return NULL;
+        goto fail;
     }
 
     /* Process key encoding. */
@@ -1766,6 +1773,13 @@ gen_publickey_from_dsa(LIBSSH2_SESSION* session, libssh2_dsa_ctx *dsa,
     p = write_bn(p, pub_key, k_bytes);
 
     *key_len = (size_t)(p - key);
+fail:
+#ifdef USE_OPENSSL_3
+    BN_clear_free(p_bn);
+    BN_clear_free(q);
+    BN_clear_free(g);
+    BN_clear_free(pub_key);
+#endif
     return key;
 }
 
@@ -2763,6 +2777,7 @@ _libssh2_rsa_sha2_sign(LIBSSH2_SESSION * session,
 
     if(EVP_PKEY_get_bn_param(rsactx, OSSL_PKEY_PARAM_RSA_N, &n) > 0) {
         sig_len = BN_num_bytes(n);
+        BN_clear_free(n);
     }
 
     if(sig_len > 0)
