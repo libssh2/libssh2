@@ -32,6 +32,8 @@
 environment:
   CONFIGURATION: 'Release'
   FIXTURE_XFER_COUNT: 35020
+  SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
+
   matrix:
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
@@ -118,6 +120,7 @@ environment:
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'OFF'
+      SKIP_CTEST: 'no'
 
 matrix:
   fast_finish: true
@@ -209,7 +212,8 @@ test_script:
           $env:FIXTURE_TRACE_ALL_CONNECT = '1'
         }
         $env:OPENSSH_SERVER_IMAGE=[string] (& bash -c "echo ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)")
-        cd _builds; ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
+        cd _builds
+        ctest -VV -C $($env:CONFIGURATION) --output-on-failure --timeout 900
       }
 
 on_failure:
