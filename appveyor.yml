@@ -32,7 +32,7 @@
 environment:
   CONFIGURATION: 'Release'
   FIXTURE_XFER_COUNT: 35020
-  SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
+  #SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
 
   matrix:
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
@@ -120,7 +120,7 @@ environment:
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'OFF'
-      SKIP_CTEST: 'no'
+      #SKIP_CTEST: 'no'
 
 matrix:
   fast_finish: true
@@ -195,7 +195,7 @@ test_script:
       if($env:SKIP_CTEST -ne 'yes' -and $env:PLATFORM -ne 'ARM64') {
         appveyor-retry choco install --yes --no-progress --limit-output --timeout 180 docker-cli
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
-        $endDate = (Get-Date).AddMinutes(5)
+        $endDate = (Get-Date).AddMinutes(10)
         while((Get-Process -Name 'sshd' -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
           Write-Host '.' -NoNewline
           Start-Sleep -Seconds 1
