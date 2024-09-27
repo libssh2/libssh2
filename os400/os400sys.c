@@ -77,55 +77,54 @@
 
 
 static int
-convert_sockaddr(struct sockaddr_storage * dstaddr,
-                                const struct sockaddr * srcaddr, int srclen)
-
+convert_sockaddr(struct sockaddr_storage *dstaddr,
+                 const struct sockaddr *srcaddr, int srclen)
 {
-  const struct sockaddr_un * srcu;
-  struct sockaddr_un * dstu;
-  unsigned int i;
-  unsigned int dstsize;
+    const struct sockaddr_un *srcu;
+    struct sockaddr_un *dstu;
+    unsigned int i;
+    unsigned int dstsize;
 
-  /* Convert a socket address into job CCSID, if needed. */
+    /* Convert a socket address into job CCSID, if needed. */
 
-  if(!srcaddr || srclen < offsetof(struct sockaddr, sa_family) +
-     sizeof srcaddr->sa_family || srclen > sizeof *dstaddr) {
-    errno = EINVAL;
-    return -1;
+    if(!srcaddr || srclen < offsetof(struct sockaddr, sa_family) +
+       sizeof(srcaddr->sa_family) || srclen > sizeof(*dstaddr)) {
+        errno = EINVAL;
+        return -1;
     }
 
-  memcpy((char *) dstaddr, (char *) srcaddr, srclen);
+    memcpy((char *) dstaddr, (char *) srcaddr, srclen);
 
-  switch (srcaddr->sa_family) {
+    switch(srcaddr->sa_family) {
 
-  case AF_UNIX:
-    srcu = (const struct sockaddr_un *) srcaddr;
-    dstu = (struct sockaddr_un *) dstaddr;
-    dstsize = sizeof *dstaddr - offsetof(struct sockaddr_un, sun_path);
-    srclen -= offsetof(struct sockaddr_un, sun_path);
-    i = QadrtConvertA2E(dstu->sun_path, srcu->sun_path, dstsize - 1, srclen);
-    dstu->sun_path[i] = '\0';
-    i += offsetof(struct sockaddr_un, sun_path);
-    srclen = i;
+    case AF_UNIX:
+        srcu = (const struct sockaddr_un *) srcaddr;
+        dstu = (struct sockaddr_un *) dstaddr;
+        dstsize = sizeof(*dstaddr) - offsetof(struct sockaddr_un, sun_path);
+        srclen -= offsetof(struct sockaddr_un, sun_path);
+        i = QadrtConvertA2E(dstu->sun_path, srcu->sun_path,
+                            dstsize - 1, srclen);
+        dstu->sun_path[i] = '\0';
+        i += offsetof(struct sockaddr_un, sun_path);
+        srclen = i;
     }
 
-  return srclen;
+    return srclen;
 }
 
 
 int
-_libssh2_os400_connect(int sd, struct sockaddr * destaddr, int addrlen)
-
+_libssh2_os400_connect(int sd, struct sockaddr *destaddr, int addrlen)
 {
-  int i;
-  struct sockaddr_storage laddr;
+    int i;
+    struct sockaddr_storage laddr;
 
-  i = convert_sockaddr(&laddr, destaddr, addrlen);
+    i = convert_sockaddr(&laddr, destaddr, addrlen);
 
-  if(i < 0)
-    return -1;
+    if(i < 0)
+        return -1;
 
-  return connect(sd, (struct sockaddr *) &laddr, i);
+    return connect(sd, (struct sockaddr *) &laddr, i);
 }
 
 
@@ -136,30 +135,31 @@ _libssh2_os400_vsnprintf(char *dst, size_t len, const char *fmt, va_list args)
     int i;
     char *buf;
 
-    if (!dst || !len) {
+    if(!dst || !len) {
         errno = EINVAL;
         return -1;
     }
 
-    if (l < len)
+    if(l < len)
         l = len;
 
     buf = alloca(l);
 
-    if (!buf) {
+    if(!buf) {
         errno = ENOMEM;
         return -1;
     }
 
+    /* !checksrc! disable BANNEDFUNC 1 */ /* FIXME */
     i = vsprintf(buf, fmt, args);
 
-    if (i < 0)
+    if(i < 0)
         return i;
 
-    if (--len > i)
+    if(--len > i)
         len = i;
 
-    if (len)
+    if(len)
         memcpy(dst, buf, len);
 
     dst[len] = '\0';
@@ -188,11 +188,11 @@ _libssh2_os400_inflateInit_(z_streamp strm,
     char *ebcversion;
     int i;
 
-    if (!version)
+    if(!version)
         return Z_VERSION_ERROR;
     i = strlen(version);
     ebcversion = alloca(i + 1);
-    if (!ebcversion)
+    if(!ebcversion)
         return Z_VERSION_ERROR;
     i = QadrtConvertA2E(ebcversion, version, i, i - 1);
     ebcversion[i] = '\0';
@@ -206,11 +206,11 @@ _libssh2_os400_deflateInit_(z_streamp strm, int level,
     char *ebcversion;
     int i;
 
-    if (!version)
+    if(!version)
         return Z_VERSION_ERROR;
     i = strlen(version);
     ebcversion = alloca(i + 1);
-    if (!ebcversion)
+    if(!ebcversion)
         return Z_VERSION_ERROR;
     i = QadrtConvertA2E(ebcversion, version, i, i - 1);
     ebcversion[i] = '\0';
