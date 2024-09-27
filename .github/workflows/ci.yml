@@ -132,7 +132,7 @@ jobs:
           sudo dpkg --add-architecture '${{ matrix.arch }}'
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 update
           # Workaround for https://github.com/actions/runner-images/issues/7589
-          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install libgcc-s1:${{ matrix.arch }} ninja-build
+          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install libgcc-s1:${{ matrix.arch }}
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
 
       - name: 'install packages'
@@ -154,14 +154,14 @@ jobs:
             crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }}'
             cflags='-m32 -mpclmul -msse2 -maes'
           fi
-          cmake . -G Ninja ${crossoptions} \
+          cmake . ${crossoptions} \
             "-DCMAKE_C_FLAGS=${cflags}" \
             -DENABLE_PROGRAMS=OFF \
             -DENABLE_TESTING=OFF \
             -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
             -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
             "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
-          ninja -j 5 install
+          make -j 5 install
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
@@ -179,7 +179,7 @@ jobs:
           fi
           curl -fsS -L https://github.com/wolfSSL/wolfssl/archive/refs/tags/v$WOLFSSLVER-stable.tar.gz | tar -xzf -
           cd wolfssl-$WOLFSSLVER-stable
-          cmake -B bld -G Ninja ${options} \
+          cmake -B bld ${options} \
             -DWOLFSSL_LIBSSH2=ON \
             -DBUILD_SELFTEST=OFF \
             -DWOLFSSL_OPENSSLALL=ON \
@@ -187,7 +187,7 @@ jobs:
             -DWOLFSSL_CRYPT_TESTS=OFF \
             "-DCMAKE_C_FLAGS=-fPIC -DWOLFSSL_AESGCM_STREAM ${cppflags}" \
             "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
-          ninja -j 5 install
+          make -j 5 install
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
@@ -199,11 +199,11 @@ jobs:
           mkdir boringssl
           cd boringssl
           curl -fsS https://boringssl.googlesource.com/boringssl/+archive/$BORINGSSLVER.tar.gz | tar -xzf -
-          cmake . -G Ninja \
+          cmake . \
             -DOPENSSL_SMALL=ON \
             -DCMAKE_C_FLAGS=-fPIC \
             "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
-          ninja -j 5 install
+          make -j 5 install
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
@@ -285,7 +285,7 @@ jobs:
             crypto='${{ matrix.crypto }}'
           fi
           [ '${{ matrix.arch }}' = 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
-          cmake -B bld -G Ninja ${crossoptions} $TOOLCHAIN_OPTION \
+          cmake -B bld ${crossoptions} $TOOLCHAIN_OPTION \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DCRYPTO_BACKEND=${crypto} \
@@ -655,8 +655,8 @@ jobs:
           architecture: ${{ matrix.arch }}
           run: |
             # https://pkgsrc.se/
-            sudo pkgin -y install cmake
-            cmake -B bld \
+            sudo pkgin -y install cmake ninja-build
+            cmake -B bld -G Ninja \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
               -DENABLE_DEBUG_LOGGING=ON \
@@ -684,8 +684,8 @@ jobs:
           architecture: ${{ matrix.arch }}
           run: |
             # https://openbsd.app/
-            sudo pkg_add cmake
-            cmake -B bld \
+            sudo pkg_add cmake ninja
+            cmake -B bld -G Ninja \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
               -DENABLE_DEBUG_LOGGING=ON \
