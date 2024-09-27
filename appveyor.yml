@@ -32,6 +32,8 @@
 environment:
   CONFIGURATION: 'Release'
   FIXTURE_XFER_COUNT: 35020
+  SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
+
   matrix:
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
@@ -64,6 +66,7 @@ environment:
       PLATFORM: 'x86'
       BUILD_STATIC_LIBS: 'OFF'
       CRYPTO_BACKEND: 'OpenSSL'
+      SKIP_CTEST: 'no'
 
     - job_name: 'VS2013, OpenSSL 1.0.2, x64, Build-only, Static-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -118,6 +121,7 @@ environment:
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'OFF'
+      SKIP_CTEST: 'no'
 
 matrix:
   fast_finish: true
