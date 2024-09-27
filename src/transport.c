@@ -919,7 +919,8 @@ send_existing(LIBSSH2_SESSION *session, const unsigned char *data,
            make the caller really notice his/hers flaw, we return error for
            this case */
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
-                       "Address is different, but will resume nonetheless"));
+                       "Address is different, returning EAGAIN"));
+        return LIBSSH2_ERROR_EAGAIN;
     }
 
     *ret = 1;                   /* set to make our parent return */
