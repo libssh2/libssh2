@@ -128,58 +128,6 @@ _libssh2_os400_connect(int sd, struct sockaddr *destaddr, int addrlen)
 }
 
 
-int
-_libssh2_os400_vsnprintf(char *dst, size_t len, const char *fmt, va_list args)
-{
-    size_t l = 4096;
-    int i;
-    char *buf;
-
-    if(!dst || !len) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    if(l < len)
-        l = len;
-
-    buf = alloca(l);
-
-    if(!buf) {
-        errno = ENOMEM;
-        return -1;
-    }
-
-    /* !checksrc! disable BANNEDFUNC 1 */ /* FIXME */
-    i = vsprintf(buf, fmt, args);
-
-    if(i < 0)
-        return i;
-
-    if(--len > i)
-        len = i;
-
-    if(len)
-        memcpy(dst, buf, len);
-
-    dst[len] = '\0';
-    return len;
-}
-
-/* VARARGS3 */
-int
-_libssh2_os400_snprintf(char *dst, size_t len, const char *fmt, ...)
-{
-    va_list args;
-    int ret;
-
-    va_start(args, fmt);
-    ret = _libssh2_os400_vsnprintf(dst, len, fmt, args);
-    va_end(args);
-    return ret;
-}
-
-
 #ifdef LIBSSH2_HAVE_ZLIB
 int
 _libssh2_os400_inflateInit_(z_streamp strm,
