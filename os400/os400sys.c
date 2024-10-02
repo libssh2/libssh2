@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+ * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -125,58 +125,6 @@ _libssh2_os400_connect(int sd, struct sockaddr *destaddr, int addrlen)
         return -1;
 
     return connect(sd, (struct sockaddr *) &laddr, i);
-}
-
-
-int
-_libssh2_os400_vsnprintf(char *dst, size_t len, const char *fmt, va_list args)
-{
-    size_t l = 4096;
-    int i;
-    char *buf;
-
-    if(!dst || !len) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    if(l < len)
-        l = len;
-
-    buf = alloca(l);
-
-    if(!buf) {
-        errno = ENOMEM;
-        return -1;
-    }
-
-    /* !checksrc! disable BANNEDFUNC 1 */ /* FIXME */
-    i = vsprintf(buf, fmt, args);
-
-    if(i < 0)
-        return i;
-
-    if(--len > i)
-        len = i;
-
-    if(len)
-        memcpy(dst, buf, len);
-
-    dst[len] = '\0';
-    return len;
-}
-
-/* VARARGS3 */
-int
-_libssh2_os400_snprintf(char *dst, size_t len, const char *fmt, ...)
-{
-    va_list args;
-    int ret;
-
-    va_start(args, fmt);
-    ret = _libssh2_os400_vsnprintf(dst, len, fmt, args);
-    va_end(args);
-    return ret;
 }
 
 
