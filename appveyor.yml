@@ -100,7 +100,6 @@ environment:
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'ON'
       ENABLE_DEBUG_LOGGING: 'ON'
-      SKIP_CTEST: 'no'
 
     - job_name: 'VS2022, WinCNG, ARM64, Build-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
@@ -108,7 +107,6 @@ environment:
       PLATFORM: 'ARM64'
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'ON'
-      SKIP_CTEST: 'no'
 
     - job_name: 'VS2015, WinCNG, x86, Server 2016'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
@@ -116,7 +114,6 @@ environment:
       PLATFORM: 'x86'
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'ON'
-      SKIP_CTEST: 'no'
 
     - job_name: 'VS2015, WinCNG, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
