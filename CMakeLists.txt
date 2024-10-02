@@ -110,12 +110,6 @@ else()
   endif()
 endif()
 
-# Detect if testing was explicitly enabled and make sure to build the
-# static libssh2 lib in this case, to also build those tests that require it.
-if(BUILD_TESTING)
-  set(BUILD_TESTING_EXPLICIT ON)
-endif()
-
 option(BUILD_EXAMPLES "Build libssh2 examples" ON)
 option(BUILD_TESTING "Build libssh2 test suite" ON)
 
