@@ -63,7 +63,7 @@ if(ENABLE_ZLIB_COMPRESSION)
   find_package(ZLIB REQUIRED)
 
   list(APPEND libssh2_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS})
-  list(APPEND LIBRARIES ${ZLIB_LIBRARIES})
+  list(APPEND LIBSSH2_LIBS ${ZLIB_LIBRARIES})
   list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lz")
   list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "zlib")
   if(ZLIB_FOUND)
@@ -71,7 +71,7 @@ if(ENABLE_ZLIB_COMPRESSION)
   endif()
 endif()
 
-list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
+list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 if(WIN32)
   list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lws2_32")
@@ -113,7 +113,7 @@ if(BUILD_STATIC_LIBS)
   add_library(${LIB_STATIC} STATIC ${_sources})
   add_library(${PROJECT_NAME}::${LIB_STATIC} ALIAS ${LIB_STATIC})
   target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${_libssh2_definitions})
-  target_link_libraries(${LIB_STATIC} PRIVATE ${LIBRARIES})
+  target_link_libraries(${LIB_STATIC} PRIVATE ${LIBSSH2_LIBS})
   set_target_properties(${LIB_STATIC} PROPERTIES
     PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
     SUFFIX "${STATIC_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
@@ -136,7 +136,7 @@ if(BUILD_SHARED_LIBS)
   endif()
   target_compile_definitions(${LIB_SHARED} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${_libssh2_definitions} ${LIB_SHARED_DEFINITIONS})
   target_compile_options(${LIB_SHARED} PRIVATE ${LIB_SHARED_C_FLAGS})
-  target_link_libraries(${LIB_SHARED} PRIVATE ${LIBRARIES})
+  target_link_libraries(${LIB_SHARED} PRIVATE ${LIBSSH2_LIBS})
   set_target_properties(${LIB_SHARED} PROPERTIES
     PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
     IMPORT_PREFIX "" IMPORT_SUFFIX "${IMPORT_LIB_SUFFIX}${CMAKE_IMPORT_LIBRARY_SUFFIX}"

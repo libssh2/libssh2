@@ -38,7 +38,7 @@
 
 include(CopyRuntimeDependencies)
 
-list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
+list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'noinst_PROGRAMS' variable
@@ -51,7 +51,7 @@ foreach(_example IN LISTS noinst_PROGRAMS)
   target_include_directories(${_example} PRIVATE
     "${CMAKE_CURRENT_BINARY_DIR}/../src"
     "../src")
-  target_link_libraries(${_example} ${LIB_SELECTED} ${LIBRARIES})
+  target_link_libraries(${_example} ${LIB_SELECTED} ${LIBSSH2_LIBS})
   set_target_properties(${_example} PROPERTIES UNITY_BUILD OFF)
 endforeach()
 

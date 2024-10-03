@@ -38,7 +38,7 @@
 
 include(CopyRuntimeDependencies)
 
-list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
+list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'DOCKER_TESTS', 'DOCKER_TESTS_STATIC', 'STANDALONE_TESTS', 'STANDALONE_TESTS_STATIC', 'SSHD_TESTS',
@@ -104,9 +104,9 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
     # build a single test with gcov
     if(GCOV_PATH AND _test STREQUAL "test_auth_keyboard_info_request" AND TARGET ${LIB_STATIC})
       target_compile_options(${_test} BEFORE PRIVATE ${_gcov_cflags})
-      target_link_libraries(${_test} runner ${_lib_for_tests} ${LIBRARIES} "gcov")
+      target_link_libraries(${_test} runner ${_lib_for_tests} ${LIBSSH2_LIBS} "gcov")
     else()
-      target_link_libraries(${_test} runner ${_lib_for_tests} ${LIBRARIES})
+      target_link_libraries(${_test} runner ${_lib_for_tests} ${LIBSSH2_LIBS})
     endif()
 
     list(APPEND TEST_TARGETS ${_test})
