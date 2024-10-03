@@ -96,6 +96,9 @@ install(
 
 include(PickyWarnings)
 
+set(LIBSSH2_LIBS_SOCKET "")
+set(LIBSSH2_LIBS "")
+
 # Add socket libraries
 if(WIN32)
   list(APPEND LIBSSH2_LIBS_SOCKET "ws2_32")
