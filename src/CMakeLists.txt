@@ -72,10 +72,6 @@ endif()
 
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
-if(WIN32)
-  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lws2_32")
-endif()
-
 # to find generated header
 list(APPEND libssh2_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -206,6 +202,10 @@ install(
 
 
 set(LIBSSH2_PC_LIBS_PRIVATE "")
+
+if(WIN32)
+  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lws2_32")
+endif()
 
 # For processing full path libraries into -L and -l ld options,
 # the directories that go with the -L option are cached, so they
