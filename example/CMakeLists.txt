@@ -38,7 +38,7 @@
 
 include(CopyRuntimeDependencies)
 
-list(APPEND LIBSSH2_LIBS ${SOCKET_LIBRARIES})
+list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'noinst_PROGRAMS' variable
