@@ -98,6 +98,7 @@ include(PickyWarnings)
 
 set(LIBSSH2_LIBS_SOCKET "")
 set(LIBSSH2_LIBS "")
+set(LIBSSH2_LIBDIRS "")
 set(LIBSSH2_PC_REQUIRES_PRIVATE "")
 
 # Add socket libraries
