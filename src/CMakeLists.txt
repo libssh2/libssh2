@@ -200,7 +200,7 @@ install(
     "${PROJECT_SOURCE_DIR}/cmake/FindWolfSSL.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
-
+# Calculate variables for pkg-config
 set(LIBSSH2_PC_LIBS_PRIVATE "")
 
 if(WIN32)
