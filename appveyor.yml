@@ -144,7 +144,7 @@ build_script:
 
       $options += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
       $openssl_dir = ''
-      if($env:SKIP_CTEST -ne 'yes' -and $env:CRYPTO_BACKEND -eq 'OpenSSL') {
+      if($env:CRYPTO_BACKEND -eq 'OpenSSL') {
         if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq 'Visual Studio 2022') {
           if($env:PLATFORM -eq 'x64') {
             $openssl_dir = 'C:/OpenSSL-v32-Win64'
