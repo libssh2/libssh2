@@ -68,6 +68,14 @@ environment:
       CRYPTO_BACKEND: 'OpenSSL'
       SKIP_CTEST: 'no'
 
+    - job_name: 'VS2013, OpenSSL 1.0.2, x64, Build-only, Static-only'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      GENERATOR: 'Visual Studio 12 2013'
+      PLATFORM: 'x64'
+      BUILD_SHARED_LIBS: 'OFF'
+      CRYPTO_BACKEND: 'OpenSSL'
+      SKIP_CTEST: 'yes'
+
     - job_name: 'VS2008, WinCNG, x86, Build-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       GENERATOR: 'Visual Studio 9 2008'
