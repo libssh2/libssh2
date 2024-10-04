@@ -235,6 +235,17 @@ else()
   set(libdir     "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
 endif()
 
+# Generate a pkg-config file for client projects not using CMake.
+# Consumed variables:
+#   exec_prefix
+#   includedir
+#   LIBSSH2_PC_LIBS
+#   LIBSSH2_PC_LIBS_PRIVATE
+#   LIBSSH2_PC_REQUIRES
+#   LIBSSH2_PC_REQUIRES_PRIVATE
+#   LIBSSH2_VERSION
+#   libdir
+#   prefix
 configure_file("${PROJECT_SOURCE_DIR}/libssh2.pc.in" "libssh2.pc" @ONLY)
 install(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/libssh2.pc"
