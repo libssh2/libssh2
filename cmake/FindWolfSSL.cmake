@@ -57,7 +57,3 @@ else()
 
   mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
 endif()
-
-if(WOLFSSL_FOUND)
-  message(STATUS "Found wolfSSL libraries: ${WOLFSSL_LIBRARIES}")
-endif()

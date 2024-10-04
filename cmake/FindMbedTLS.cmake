@@ -67,7 +67,3 @@ else()
 
   mark_as_advanced(MBEDTLS_INCLUDE_DIR MBEDCRYPTO_LIBRARY)
 endif()
-
-if(MBEDTLS_FOUND)
-  message(STATUS "Found mbedTLS libraries: ${MBEDTLS_LIBRARIES}")
-endif()
