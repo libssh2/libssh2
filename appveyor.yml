@@ -151,6 +151,7 @@ build_script:
       $options += "-G$env:GENERATOR"
 
       $options += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
+      $openssl_dir = ''
       if($env:SKIP_CTEST -ne 'yes' -and $env:CRYPTO_BACKEND -eq 'OpenSSL') {
         if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq 'Visual Studio 2022') {
           if($env:PLATFORM -eq 'x64') {
@@ -166,7 +167,7 @@ build_script:
           }
         }
       }
-      if($openssl_dir) {
+      if($openssl_dir -ne '') {
         if(Test-Path $openssl_dir) {
           $options += "-DOPENSSL_ROOT_DIR=$openssl_dir"
         }
