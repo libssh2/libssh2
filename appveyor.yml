@@ -154,7 +154,7 @@ build_script:
       if($env:SKIP_CTEST -ne 'yes' -and $env:CRYPTO_BACKEND -eq 'OpenSSL') {
         if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq 'Visual Studio 2022') {
           if($env:PLATFORM -eq 'x64') {
-            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v32-Win64'
+            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v33-Win64'
           }
         }
         else {
