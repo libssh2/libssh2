@@ -168,6 +168,7 @@ build_script:
         }
       }
       if($openssl_dir -ne '') {
+        Write-Host "Using OpenSSL: '$openssl_dir'"
         if(Test-Path $openssl_dir) {
           $options += "-DOPENSSL_ROOT_DIR=$openssl_dir"
         }
