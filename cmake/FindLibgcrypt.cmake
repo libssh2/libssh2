@@ -57,3 +57,7 @@ else()
 
   mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
 endif()
+
+if(LIBGCRYPT_FOUND)
+  message(STATUS "Found Libgcrypt libraries: ${LIBGCRYPT_LIBRARIES}")
+endif()
