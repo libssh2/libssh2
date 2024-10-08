@@ -778,7 +778,7 @@ struct _LIBSSH2_SESSION
 
     /* State variables used in libssh2_banner_send() */
     libssh2_nonblocking_states banner_TxRx_state;
-    char banner_TxRx_banner[256];
+    char banner_TxRx_banner[8192];
     ssize_t banner_TxRx_total_send;
 
     /* State variables used in libssh2_kexinit() */
