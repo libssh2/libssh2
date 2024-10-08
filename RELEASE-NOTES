@@ -244,6 +244,7 @@ This release includes the following enhancements and bugfixes:
 - reuse: comply with 3.1 spec and 2.0.0 checker (fe6239a1 #1102 #1101 #1098)
 - reuse: provide SPDX identifiers (f6aa31f4 #1084)
 - scp: fix missing cast for targets without large file support (c317e06f #1060 #1057 #1002 regr: 5db836b2)
+- session: support server banners up to 8192 bytes (was: 256) (1a9e8811 #1443 #1442)
 - session: add `libssh2_session_callback_set2()` (c0f69548 #1285)
 - session: handle EINTR from send/recv/poll/select to try again as the error is not fatal (798ed4a7 #1058 #955)
 - sftp: increase SFTP_HANDLE_MAXLEN back to 4092 (75de6a37 #1422)
@@ -313,12 +314,12 @@ advice from friends like these:
 
   Viktor Szakats, Michael Buckley, Patrick Monnerat, Ren Mingshuai,
   Will Cosgrove, Daniel Stenberg, Josef Cejka, Nicolas Mora, Ryan Kelley,
-  Aaron Stone, Adam, András Fekete, Andrei Augustin, binary1248, Brian Inglis,
-  brucsc on GitHub, concussious on github, Dan Fandrich, dksslq on github,
-  Haowei Hsu, Harmen Stoppels, Harry Mallon, Jack L, Jakob Egger, Jiwoo Park,
-  João M. S. Silva, Joel Depooter, Johannes Passing, Jose Quaresma,
-  Juliusz Sosinowicz, Kai Pastor, Kenneth Davidson, klux21 on github,
-  Lyndon Brown, Marc Hoersken, mike-jumper, naddy, Nursan Valeyev,
-  Paul Howarth, PewPewPew, Radek Brich, rahmanih on github, rolag on github,
-  Seo Suchan, shubhamhii on github, Steve McIntyre, Tejaswi Kandula,
-  Tobias Stoeckmann, Trzik, Xi Ruoyao
+  Aaron Stone, Adam, Anders Borum, András Fekete, Andrei Augustin, binary1248,
+  Brian Inglis, brucsc on GitHub, concussious on github, Dan Fandrich,
+  dksslq on github, Haowei Hsu, Harmen Stoppels, Harry Mallon, Jack L,
+  Jakob Egger, Jiwoo Park, João M. S. Silva, Joel Depooter, Johannes Passing,
+  Jose Quaresma, Juliusz Sosinowicz, Kai Pastor, Kenneth Davidson,
+  klux21 on github, Lyndon Brown, Marc Hoersken, mike-jumper, naddy,
+  Nursan Valeyev, Paul Howarth, PewPewPew, Radek Brich, rahmanih on github,
+  rolag on github, Seo Suchan, shubhamhii on github, Steve McIntyre,
+  Tejaswi Kandula, Tobias Stoeckmann, Trzik, Xi Ruoyao
