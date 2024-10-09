@@ -252,10 +252,10 @@ struct iovec {
     session->addLocalIdentities((session), (buffer), \
                                 (agentPath), (&(session->abstract)))
 
-#define LIBSSH2_AUTHAGENT_SIGN(session, blob, blen, \
+#define LIBSSH2_AUTHAGENT_SIGN(session, flags, blob, blen, \
                                data, dlen, sig, sigLen, \
                                agentPath) \
-    session->agentSignCallback((session), (blob), (blen), \
+    session->agentSignCallback((session), (flags), (blob), (blen), \
                                (data), (dlen), (sig), (sigLen), \
                                (agentPath), (&(session->abstract)))
 
