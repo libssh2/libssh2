@@ -103,7 +103,7 @@ endif()
 unset(_libssh2_export)
 
 # we want it to be called libssh2 on all platforms
-if(BUILD_STATIC_LIBS OR BUILD_TESTING)
+if(BUILD_STATIC_LIBS OR BUILD_TESTING_EXPLICIT)
   if(BUILD_STATIC_LIBS)
     list(APPEND _libssh2_export ${LIB_STATIC})
   endif()

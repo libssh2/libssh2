@@ -115,6 +115,11 @@ else()
   endif()
 endif()
 
+# Some tests are only built if BUILD_TESTING is deliberately passed on the command line.
+if(BUILD_TESTING)
+  set(BUILD_TESTING_EXPLICIT ON)
+endif()
+
 option(BUILD_EXAMPLES "Build libssh2 examples" ON)
 option(BUILD_TESTING "Build libssh2 test suite" ON)
 
