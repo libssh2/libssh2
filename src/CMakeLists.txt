@@ -94,7 +94,7 @@ set(_sources ${CSOURCES} ${HHEADERS})
 # when building both static and shared library. On Windows, with certain
 # toolchains (e.g. MSVC) these libraries get the same by default, overwriting
 # each other. MinGW is not affected.
-if(WIN32 AND BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS AND
+if(WIN32 AND BUILD_SHARED_LIBS AND
    NOT STATIC_LIB_SUFFIX AND NOT IMPORT_LIB_SUFFIX AND
    CMAKE_STATIC_LIBRARY_SUFFIX STREQUAL CMAKE_IMPORT_LIBRARY_SUFFIX)
   set(STATIC_LIB_SUFFIX "_static")
