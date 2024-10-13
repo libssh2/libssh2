@@ -90,7 +90,7 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
   endif()
 
   # We support the same target as both Docker and SSHD test. Build those just once.
-  # Skip building tests that require the static lib when the static lib is disabled.
+  # Skip building tests that require the static lib when the static lib is not built.
   if(NOT TARGET ${_test} AND _lib_for_tests)
     add_executable(${_test} "${_test}.c")
     target_compile_definitions(${_test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
