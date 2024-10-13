@@ -115,6 +115,10 @@ else()
   endif()
 endif()
 
+if(BUILD_TESTING)
+  set(BUILD_TESTING_EXPLICIT ON)
+endif()
+
 option(BUILD_EXAMPLES "Build libssh2 examples" ON)
 option(BUILD_TESTING "Build libssh2 test suite" ON)
 
