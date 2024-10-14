@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: 'install tools'
-        run: pip install -U codespell
+        run: pip install --break-system-packages -U codespell
       - name: 'spellcheck'
         run: ./ci/spellcheck.sh
 
