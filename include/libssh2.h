@@ -52,7 +52,7 @@
    maketgz script.*/
 #define LIBSSH2_VERSION                             "1.11.2_DEV"
    have dashes either. */
-#define LIBSSH2_VERSION                             "1.11.1"
+#define LIBSSH2_VERSION                             "1.11.2_DEV"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
