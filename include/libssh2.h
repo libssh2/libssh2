@@ -47,7 +47,9 @@
 /* We use underscore instead of dash when appending DEV in dev versions just
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
-   have dashes either. */
+   have dashes either. The release version (without "_DEV") is not stored in
+   the source code repo, as the version is properly set in the tarballs by the
+   maketgz script.*/
 #define LIBSSH2_VERSION                             "1.11.2_DEV"
 
 /* The numeric version number is also available "in parts" by using these
