@@ -53,7 +53,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: 'cmake'
         run: |
-          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install libssl-dev
+          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install --no-install-suggests --no-install-recommends \
+            libssl-dev
           ./tests/cmake/test.sh
 
   build_linux:
@@ -131,9 +132,8 @@ jobs:
         run: |
           sudo dpkg --add-architecture '${{ matrix.arch }}'
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 update
-          # Workaround for https://github.com/actions/runner-images/issues/7589
-          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install libgcc-s1:${{ matrix.arch }}
-          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
+          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install --no-install-suggests --no-install-recommends \
+            gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
 
       - name: 'install packages'
         run: |
@@ -141,7 +141,8 @@ jobs:
           [ '${{ matrix.crypto }}' = 'wolfSSL' ] && pkg='libwolfssl-dev'
           [ '${{ matrix.crypto }}' = 'Libgcrypt' ] && pkg='libgcrypt-dev'
           if [ -n "${pkg}" ]; then
-            sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install "${pkg}:${{ matrix.arch }}"
+            sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install --no-install-suggests --no-install-recommends \
+              "${pkg}:${{ matrix.arch }}"
           fi
 
       - name: 'install mbedTLS from source'
@@ -316,7 +317,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: 'install packages'
-        run: sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install mingw-w64 ${{ matrix.build == 'cmake' && 'ninja-build' || '' }}
+        run: |
+          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install --no-install-suggests --no-install-recommends \
+            mingw-w64 ${{ matrix.build == 'cmake' && 'ninja-build' || '' }}
+
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
