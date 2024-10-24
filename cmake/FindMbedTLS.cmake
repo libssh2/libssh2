@@ -2,21 +2,21 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 ###########################################################################
-# Find the mbedtls library
+# Find the mbedTLS library
 #
 # Input variables:
 #
-# MBEDTLS_INCLUDE_DIR   The mbedtls include directory
-# MBEDCRYPTO_LIBRARY    Path to mbedcrypto library
+# - `MBEDTLS_INCLUDE_DIR`:   The mbedTLS include directory.
+# - `MBEDCRYPTO_LIBRARY`:    Path to `mbedcrypto` library.
 #
 # Result variables:
 #
-# MBEDTLS_FOUND         System has mbedtls
-# MBEDTLS_INCLUDE_DIRS  The mbedtls include directories
-# MBEDTLS_LIBRARIES     The mbedtls library names
-# MBEDTLS_LIBRARY_DIRS  The mbedtls library directories
-# MBEDTLS_CFLAGS        Required compiler flags
-# MBEDTLS_VERSION       Version of mbedtls
+# - `MBEDTLS_FOUND`:         System has mbedTLS.
+# - `MBEDTLS_INCLUDE_DIRS`:  The mbedTLS include directories.
+# - `MBEDTLS_LIBRARIES`:     The mbedTLS library names.
+# - `MBEDTLS_LIBRARY_DIRS`:  The mbedTLS library directories.
+# - `MBEDTLS_CFLAGS`:        Required compiler flags.
+# - `MBEDTLS_VERSION`:       Version of mbedTLS.
 
 if((UNIX OR VCPKG_TOOLCHAIN OR (MINGW AND NOT CMAKE_CROSSCOMPILING)) AND
    NOT DEFINED MBEDTLS_INCLUDE_DIR AND
