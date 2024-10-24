@@ -115,6 +115,11 @@ else()
   endif()
 endif()
 
+if(BUILD_TESTING AND NOT BUILD_STATIC_LIBS)
+  # Build static for tests only, but do not install it.
+  set(BUILD_STATIC_FOR_TESTS ON)
+endif()
+
 option(BUILD_EXAMPLES "Build libssh2 examples" ON)
 option(BUILD_TESTING "Build libssh2 test suite" ON)
 
