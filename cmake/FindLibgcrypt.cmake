@@ -2,21 +2,21 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 ###########################################################################
-# Find the libgcrypt library
+# Find the Libgcrypt library
 #
 # Input variables:
 #
-# LIBGCRYPT_INCLUDE_DIR   The libgcrypt include directory
-# LIBGCRYPT_LIBRARY       Path to libgcrypt library
+# - `LIBGCRYPT_INCLUDE_DIR`:   The Libgcrypt include directory.
+# - `LIBGCRYPT_LIBRARY`:       Path to `libgcrypt` library.
 #
 # Result variables:
 #
-# LIBGCRYPT_FOUND         System has libgcrypt
-# LIBGCRYPT_INCLUDE_DIRS  The libgcrypt include directories
-# LIBGCRYPT_LIBRARIES     The libgcrypt library names
-# LIBGCRYPT_LIBRARY_DIRS  The libgcrypt library directories
-# LIBGCRYPT_CFLAGS        Required compiler flags
-# LIBGCRYPT_VERSION       Version of libgcrypt
+# - `LIBGCRYPT_FOUND`:         System has Libgcrypt.
+# - `LIBGCRYPT_INCLUDE_DIRS`:  The Libgcrypt include directories.
+# - `LIBGCRYPT_LIBRARIES`:     The Libgcrypt library names.
+# - `LIBGCRYPT_LIBRARY_DIRS`:  The Libgcrypt library directories.
+# - `LIBGCRYPT_CFLAGS`:        Required compiler flags.
+# - `LIBGCRYPT_VERSION`:       Version of Libgcrypt.
 
 if((UNIX OR VCPKG_TOOLCHAIN OR (MINGW AND NOT CMAKE_CROSSCOMPILING)) AND
    NOT DEFINED LIBGCRYPT_INCLUDE_DIR AND
