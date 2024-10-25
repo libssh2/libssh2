@@ -32,6 +32,7 @@ else()
   find_path(MBEDTLS_INCLUDE_DIR NAMES "mbedtls/version.h")
   find_library(MBEDCRYPTO_LIBRARY NAMES "mbedcrypto" "libmbedcrypto")
 
+  unset(MBEDTLS_VERSION CACHE)
   if(MBEDTLS_INCLUDE_DIR)
     if(EXISTS "${MBEDTLS_INCLUDE_DIR}/mbedtls/build_info.h")  # 3.x
       set(_version_header "${MBEDTLS_INCLUDE_DIR}/mbedtls/build_info.h")
