@@ -32,6 +32,7 @@ else()
   find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h")
   find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt")
 
+  unset(LIBGCRYPT_VERSION CACHE)
   if(LIBGCRYPT_INCLUDE_DIR AND EXISTS "${LIBGCRYPT_INCLUDE_DIR}/gcrypt.h")
     set(_version_regex "#[\t ]*define[\t ]+GCRYPT_VERSION[\t ]+\"([^\"]*)\"")
     file(STRINGS "${LIBGCRYPT_INCLUDE_DIR}/gcrypt.h" _version_str REGEX "${_version_regex}")
