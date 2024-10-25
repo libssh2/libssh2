@@ -139,7 +139,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
          (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 6.3))
         list(APPEND _picky_enable
           ${_picky_common}
-          -Wunreachable-code-break         # clang  3.5            appleclang  6.0
+        # -Wunreachable-code-break         # clang  3.5            appleclang  6.0  # Not used: Silent in "unity" builds
           -Wheader-guard                   # clang  3.4            appleclang  5.1
           -Wsometimes-uninitialized        # clang  3.2            appleclang  4.6
         )
