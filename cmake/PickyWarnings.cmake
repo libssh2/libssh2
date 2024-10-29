@@ -3,46 +3,47 @@
 
 include(CheckCCompilerFlag)
 
+set(_picky "")
+
 option(ENABLE_WERROR "Turn compiler warnings into errors" OFF)
 option(PICKY_COMPILER "Enable picky compiler options" ON)
 
 if(ENABLE_WERROR)
   if(MSVC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -WX")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -WX")
   else()  # llvm/clang and gcc style options
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+  endif()
+
+  if(((CMAKE_COMPILER_IS_GNUCC AND
+       NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 5.0 AND
+       NOT CMAKE_VERSION VERSION_LESS 3.23.0) OR  # to avoid check_symbol_exists() conflicting with GCC -pedantic-errors
+     CMAKE_C_COMPILER_ID MATCHES "Clang"))
+    list(APPEND _picky "-pedantic-errors")
   endif()
 endif()
 
 if(MSVC)
   # Use the highest warning level for Visual Studio.
-  if(PICKY_COMPILER)
-    if(CMAKE_CXX_FLAGS MATCHES "[/-]W[0-4]")
-      string(REGEX REPLACE "[/-]W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    else()
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-    endif()
-    if(CMAKE_C_FLAGS MATCHES "[/-]W[0-4]")
-      string(REGEX REPLACE "[/-]W[0-4]" "/W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-    else()
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
-    endif()
+  if(CMAKE_C_FLAGS MATCHES "[/-]W[0-4]")
+    string(REGEX REPLACE "[/-]W[0-4]" "-W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+  else()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W4")
   endif()
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-
-  # https://clang.llvm.org/docs/DiagnosticsReference.html
-  # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
-
-  if(NOT CMAKE_CXX_FLAGS MATCHES "-Wall")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+  if(CMAKE_CXX_FLAGS MATCHES "[/-]W[0-4]")
+    string(REGEX REPLACE "[/-]W[0-4]" "-W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W4")
   endif()
-  if(NOT CMAKE_C_FLAGS MATCHES "-Wall")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-  endif()
+endif()
 
-  if(PICKY_COMPILER)
+if(PICKY_COMPILER)
+  if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+
+    # https://clang.llvm.org/docs/DiagnosticsReference.html
+    # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 
     # _picky_enable = Options we want to enable as-is.
     # _picky_detect = Options we want to test first and enable if available.
@@ -55,14 +56,8 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     endif()
 
     list(APPEND _picky_enable
-      -pedantic
+      -Wall -pedantic
     )
-
-    if(ENABLE_WERROR)
-      list(APPEND _picky_enable
-        -pedantic-errors
-      )
-    endif()
 
     # ----------------------------------
     # Add new options here, if in doubt:
@@ -94,6 +89,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Waddress                            # clang  2.7  gcc  4.3
       -Wattributes                         # clang  2.7  gcc  4.1
       -Wcast-align                         # clang  1.0  gcc  4.2
+      -Wcast-qual                          # clang  3.0  gcc  3.4.6
       -Wdeclaration-after-statement        # clang  1.0  gcc  3.4
       -Wdiv-by-zero                        # clang  2.7  gcc  4.1
       -Wempty-body                         # clang  2.7  gcc  4.3
@@ -131,9 +127,13 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         ${_picky_common_old}
         -Wshift-sign-overflow              # clang  2.9
         -Wshorten-64-to-32                 # clang  1.0
-        -Wlanguage-extension-token         # clang  3.0
         -Wformat=2                         # clang  3.0  gcc  4.8
       )
+      if(NOT MSVC)
+        list(APPEND _picky_enable
+          -Wlanguage-extension-token       # clang  3.0
+        )
+      endif()
       # Enable based on compiler version
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 3.6) OR
          (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 6.3))
@@ -222,8 +222,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
 
     #
 
-    unset(_picky)
-
     foreach(_ccopt IN LISTS _picky_enable)
       list(APPEND _picky "${_ccopt}")
     endforeach()
@@ -239,24 +237,28 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         list(APPEND _picky "${_ccopt}")
       endif()
     endforeach()
-
-    # clang-cl
-    if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND MSVC)
-      if(CMAKE_VERSION VERSION_LESS 3.12)
-        set(_picky_tmp "")
-        foreach(_ccopt IN LISTS _picky)
-          list(APPEND _picky_tmp "/clang:${_ccopt}")
-        endforeach()
-        set(_picky ${_picky_tmp})
-      else()
-        list(TRANSFORM _picky PREPEND "/clang:")
-      endif()
-    endif()
-
-    if(_picky)
-      string(REPLACE ";" " " _picky "${_picky}")
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_picky}")
-      message(STATUS "Picky compiler options: ${_picky}")
-    endif()
   endif()
+endif()
+
+# clang-cl
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND MSVC)
+  list(APPEND _picky "-Wno-language-extension-token")  # Allow __int64
+
+  set(_picky_tmp "")
+  foreach(_ccopt IN LISTS _picky)
+    # Prefix -Wall, otherwise clang-cl interprets it as an MSVC option and translates it to -Weverything
+    if(_ccopt MATCHES "^-W" AND NOT _ccopt STREQUAL "-Wall")
+      list(APPEND _picky_tmp ${_ccopt})
+    else()
+      list(APPEND _picky_tmp "-clang:${_ccopt}")
+    endif()
+  endforeach()
+  set(_picky ${_picky_tmp})
+endif()
+
+if(_picky)
+  string(REPLACE ";" " " _picky "${_picky}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_picky}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${_picky}")
+  message(STATUS "Picky compiler options: ${_picky}")
 endif()

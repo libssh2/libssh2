@@ -49,7 +49,7 @@ endif()
 
 ## Options
 
-unset(_libssh2_definitions)
+set(_libssh2_definitions "")
 
 option(CLEAR_MEMORY "Enable clearing of memory before being freed" ON)
 if(NOT CLEAR_MEMORY)
@@ -76,8 +76,8 @@ list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 list(APPEND libssh2_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR})
 
 if(MSVC)
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi /Od")
-  set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /DEBUG")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Zi -Od")
+  set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -DEBUG")
 endif()
 
 ## Sources
@@ -100,7 +100,7 @@ if(WIN32 AND (BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS) AND BUILD_SHARED_LIBS
   set(STATIC_LIB_SUFFIX "_static")
 endif()
 
-unset(_libssh2_export)
+set(_libssh2_export "")
 
 # we want it to be called libssh2 on all platforms
 if(BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS)
@@ -212,7 +212,7 @@ endif()
 set(_ldflags "")
 
 # Avoid getting unnecessary -L options for known system directories.
-unset(_sys_libdirs)
+set(_sys_libdirs "")
 foreach(_libdir IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
   if(_libdir MATCHES "/$")
     set(_libdir "${_libdir}lib")
@@ -237,7 +237,7 @@ foreach(_libdir IN LISTS LIBSSH2_LIBDIRS)
   endif()
 endforeach()
 
-unset(_implicit_libs)
+set(_implicit_libs "")
 if(NOT MINGW AND NOT UNIX)
   set(_implicit_libs ${CMAKE_C_IMPLICIT_LINK_LIBRARIES})
 endif()
@@ -259,7 +259,7 @@ foreach(_lib IN LISTS _implicit_libs LIBSSH2_LIBS)
   endif()
   if(_lib MATCHES "^-")
     list(APPEND _ldflags "${_lib}")
-  elseif(_lib MATCHES ".*/.*")
+  elseif(_lib MATCHES "/")
     # This gets a bit more complex, because we want to specify the
     # directory separately, and only once per directory
     get_filename_component(_libdir ${_lib} DIRECTORY)
