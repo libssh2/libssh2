@@ -54,12 +54,12 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 
     FD_ZERO(&fd);
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
     FD_SET(socket_fd, &fd);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 

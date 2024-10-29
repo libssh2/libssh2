@@ -122,8 +122,9 @@ endif()
 
 option(BUILD_EXAMPLES "Build libssh2 examples" ON)
 option(BUILD_TESTING "Build libssh2 test suite" ON)
+option(BUILD_OSSFUZZ "Build libssh2 OSS-Fuzz" OFF)
 
-if(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
+if((NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS) OR BUILD_OSSFUZZ)
   set(BUILD_STATIC_LIBS ON)
 endif()
 
@@ -149,7 +150,7 @@ if(HIDE_SYMBOLS)
          (CMAKE_COMPILER_IS_GNUCC AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.0) OR
          (CMAKE_C_COMPILER_ID MATCHES "Intel" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 9.1))
     set(LIB_SHARED_C_FLAGS "-fvisibility=hidden")
-    set(LIBSSH2_API "__attribute__ ((__visibility__ (\"default\")))")
+    set(LIBSSH2_API "__attribute__((__visibility__(\"default\")))")
   elseif(CMAKE_C_COMPILER_ID MATCHES "SunPro" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 8.0)
     set(LIB_SHARED_C_FLAGS "-xldscope=hidden")
     set(LIBSSH2_API "__global")
@@ -228,7 +229,7 @@ endif()
 # duration of these tests.
 if(MSVC AND ENABLE_WERROR)
   cmake_push_check_state()
-  set(CMAKE_REQUIRED_FLAGS "/WX-")
+  set(CMAKE_REQUIRED_FLAGS "-WX-")
 endif()
 
 if(HAVE_SYS_TIME_H)

@@ -210,12 +210,12 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
     timeval_out.tv_usec = 0;
 
     FD_ZERO(&set);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
     FD_SET(sock, &set);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
@@ -415,12 +415,12 @@ int main(int argc, char *argv[])
     for(;;) {
 
         FD_ZERO(&set);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
         FD_SET(fileno(stdin), &set);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 

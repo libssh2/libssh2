@@ -675,12 +675,12 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 
         if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
             FD_ZERO(&rfd);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
             FD_SET(session->socket_fd, &rfd);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
             readfd = &rfd;
@@ -688,12 +688,12 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 
         if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND) {
             FD_ZERO(&wfd);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
             FD_SET(session->socket_fd, &wfd);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
             writefd = &wfd;
@@ -1655,24 +1655,24 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         switch(fds[i].type) {
         case LIBSSH2_POLLFD_SOCKET:
             if(fds[i].events & LIBSSH2_POLLFD_POLLIN) {
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
                 FD_SET(fds[i].fd.socket, &rfds);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
                 if(fds[i].fd.socket > maxfd)
                     maxfd = fds[i].fd.socket;
             }
             if(fds[i].events & LIBSSH2_POLLFD_POLLOUT) {
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
                 FD_SET(fds[i].fd.socket, &wfds);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
                 if(fds[i].fd.socket > maxfd)
@@ -1681,12 +1681,12 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
             break;
 
         case LIBSSH2_POLLFD_CHANNEL:
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
             FD_SET(fds[i].fd.channel->session->socket_fd, &rfds);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
             if(fds[i].fd.channel->session->socket_fd > maxfd)
@@ -1696,12 +1696,12 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
             break;
 
         case LIBSSH2_POLLFD_LISTENER:
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
             FD_SET(fds[i].fd.listener->session->socket_fd, &rfds);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
             if(fds[i].fd.listener->session->socket_fd > maxfd)
@@ -1880,7 +1880,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
             for(i = 0; i < nfds; i++) {
                 switch(fds[i].type) {
                 case LIBSSH2_POLLFD_SOCKET:
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
@@ -1893,7 +1893,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
                     if(fds[i].revents) {
                         active_fds++;
                     }
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
                     break;
