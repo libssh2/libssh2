@@ -35,6 +35,14 @@ environment:
   SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
 
   matrix:
+    - job_name: 'VS2022, OpenSSL 3, x64, Server 2019, clang-cl'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
+      GENERATOR: 'Visual Studio 17 2022'
+      PLATFORM: 'x64'
+      CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v33-Win64'
+      TOOLSET: 'ClangCl'
+
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       GENERATOR: 'Visual Studio 17 2022'
@@ -80,7 +88,6 @@ environment:
       BUILD_SHARED_LIBS: 'OFF'
       CRYPTO_BACKEND: 'OpenSSL'
       OPENSSL_ROOT_DIR: 'C:/OpenSSL-Win64'
-      SKIP_CTEST: 'yes'
 
     - job_name: 'VS2008, WinCNG, x86, Build-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -88,7 +95,6 @@ environment:
       PLATFORM: 'x86'
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'ON'
-      SKIP_CTEST: 'yes'
 
     - job_name: 'VS2010, WinCNG, x64, Build-only, non-unity'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -97,7 +103,6 @@ environment:
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'ON'
       UNITY: 'OFF'
-      SKIP_CTEST: 'yes'
 
     - job_name: 'VS2022, WinCNG, x64, Server 2019, Logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
@@ -146,6 +151,10 @@ build_script:
       $options += "-G$env:GENERATOR"
       if($env:PLATFORM -ne 'x86') {
         $options += "-A$env:PLATFORM"
+      }
+
+      if($env:TOOLSET) {
+        $options += "-T $env:TOOLSET"
       }
 
       $options += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
