@@ -30,7 +30,9 @@ if(MSVC)
       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
     endif()
   endif()
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 
   # https://clang.llvm.org/docs/DiagnosticsReference.html
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
