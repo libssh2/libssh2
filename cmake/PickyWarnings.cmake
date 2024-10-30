@@ -133,9 +133,13 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MA
         ${_picky_common_old}
         -Wshift-sign-overflow              # clang  2.9
         -Wshorten-64-to-32                 # clang  1.0
-        -Wlanguage-extension-token         # clang  3.0
         -Wformat=2                         # clang  3.0  gcc  4.8
       )
+      if(NOT MSVC)
+        list(APPEND _picky_enable
+          -Wlanguage-extension-token         # clang  3.0  # Avoid for clang-cl to allow __int64
+        )
+      endif()
       # Enable based on compiler version
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 3.6) OR
          (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 6.3))
