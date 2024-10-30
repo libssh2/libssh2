@@ -67,6 +67,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MA
       if(MSVC)  # clang-cl
         list(APPEND _picky_enable
           -Wno-language-extension-token  # Override default error to make __int64 size detection pass
+          -Wno-nonportable-system-include-path  # Bogus: non-portable path to file '<WinSock2.h>'; specified path differs in case from file name on disk (seen with MSVC)
           -Wno-reserved-identifier  # FIXME: Underscored symbols are used in the public header
         )
       endif()
