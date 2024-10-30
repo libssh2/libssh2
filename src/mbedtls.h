@@ -41,7 +41,7 @@
 
 #define LIBSSH2_CRYPTO_ENGINE libssh2_mbedtls
 
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 /* mbedTLS (as of v3.5.1) has a `[-Werror=arith-conversion]`
    warning in its public headers. */
@@ -73,7 +73,7 @@
 #include <mbedtls/pk.h>
 #include <mbedtls/error.h>
 
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
