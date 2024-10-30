@@ -90,8 +90,9 @@ comp_method_none_decomp(LIBSSH2_SESSION * session,
     (void)session;
     (void)payload_limit;
     (void)abstract;
-    *dest = (const unsigned char *) src;
-    *dest_len = src_len;
+    (void)dest;
+    (void)dest_len;
+
     return 0;
 }
 
