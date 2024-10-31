@@ -117,6 +117,12 @@
 #define UINT32_MAX 0xffffffffU
 #endif
 
+#if _WIN64
+#define LIBSSH2_UNCONST(p)  ((void *)(libssh2_uint64_t)(const void *)(p))
+#else
+#define LIBSSH2_UNCONST(p)  ((void *)(unsigned long)(const void *)(p))
+#endif
+
 #if (defined(__GNUC__) || defined(__clang__)) && \
     defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) && \
     !defined(LIBSSH2_NO_FMT_CHECKS)
