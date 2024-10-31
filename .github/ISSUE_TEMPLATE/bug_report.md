@@ -21,7 +21,7 @@ A clear and concise description of what you expected to happen.
 **Version (please complete the following information):**
  - OS and version: [e.g. iOS, macOS, Windows, Linux (distro)]
  - libssh2 version: [e.g. 1.10.0]
- - crypto backend and version: [OpenSSL, mbedTLS, Libgcrypt, LibreSSL, WinCNG, OS400, wolfSSL, None]
+ - crypto backend and version: [OpenSSL, mbedTLS, Libgcrypt, LibreSSL, WinCNG, OS/400, wolfSSL, None]
 
 **Additional context**
 Add any other context about the problem here.
