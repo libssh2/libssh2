@@ -117,7 +117,7 @@
 #define UINT32_MAX 0xffffffffU
 #endif
 
-#if _WIN64
+#ifdef _WIN64
 #define LIBSSH2_UNCONST(p)  ((void *)(libssh2_uint64_t)(const void *)(p))
 #else
 #define LIBSSH2_UNCONST(p)  ((void *)(unsigned long)(const void *)(p))
