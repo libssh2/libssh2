@@ -279,7 +279,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           #
           dnl Only clang 3.0 or later
           if test "$compiler_num" -ge "300"; then
-            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [cast-function-type-strict cast-qual])
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [cast-function-type cast-qual])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [language-extension-token])
             tmp_CFLAGS="$tmp_CFLAGS -Wformat=2"
           fi
@@ -430,7 +430,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           #
           dnl Only gcc 3.4 or later
           if test "$compiler_num" -ge "304"; then
-            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [cast-function-type-strict cast-qual])
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [cast-function-type cast-qual])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [declaration-after-statement])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [old-style-definition])
           fi
