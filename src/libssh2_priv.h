@@ -117,10 +117,14 @@
 #define UINT32_MAX 0xffffffffU
 #endif
 
+#ifdef _MSC_VER
 #ifdef _WIN64
 #define LIBSSH2_UNCONST(p)  ((void *)(libssh2_uint64_t)(const void *)(p))
 #else
-#define LIBSSH2_UNCONST(p)  ((void *)(unsigned long)(const void *)(p))
+#define LIBSSH2_UNCONST(p)  ((void *)(unsigned int)(const void *)(p))
+#endif
+#else
+#define LIBSSH2_UNCONST(p)  ((void *)(uintptr_t)(const void *)(p))
 #endif
 
 #if (defined(__GNUC__) || defined(__clang__)) && \
