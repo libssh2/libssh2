@@ -2461,7 +2461,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                 LIBSSH2_FREE(session, tmp_method);
             }
 
-            if(!strncmp((char *)publickeydata, ecdsa, strlen(ecdsa))) {
+            if(!strncmp((const char *)publickeydata, ecdsa, strlen(ecdsa))) {
                 session->userauth_pblc_method_len = strlen(ecdsa);
                 session->userauth_pblc_method =
                     LIBSSH2_ALLOC(session, session->userauth_pblc_method_len);
@@ -2469,7 +2469,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                 memcpy(session->userauth_pblc_method, ecdsa,
                        session->userauth_pblc_method_len);
             }
-            else if(!strncmp((char *)publickeydata, ed25519,
+            else if(!strncmp((const char *)publickeydata, ed25519,
                              strlen(ed25519))) {
                 session->userauth_pblc_method_len = strlen(ed25519);
                 session->userauth_pblc_method =
@@ -2483,7 +2483,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
                                        &session->userauth_pblc_method,
                                        &session->userauth_pblc_method_len,
                                        &pubkeydata, &pubkeydata_len,
-                                       (char *)publickeydata,
+                                       (const char *)publickeydata,
                                        publickeydata_len);
         }
     }
