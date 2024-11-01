@@ -996,11 +996,11 @@ struct _LIBSSH2_HOSTKEY_METHOD
     int (*init) (LIBSSH2_SESSION * session, const unsigned char *hostkey_data,
                  size_t hostkey_data_len, void **abstract);
     int (*initPEM) (LIBSSH2_SESSION * session, const char *privkeyfile,
-                    unsigned const char *passphrase, void **abstract);
+                    const unsigned char *passphrase, void **abstract);
     int (*initPEMFromMemory) (LIBSSH2_SESSION * session,
                               const char *privkeyfiledata,
                               size_t privkeyfiledata_len,
-                              unsigned const char *passphrase,
+                              const unsigned char *passphrase,
                               void **abstract);
     int (*sig_verify) (LIBSSH2_SESSION * session, const unsigned char *sig,
                        size_t sig_len, const unsigned char *m,

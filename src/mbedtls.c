@@ -502,7 +502,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
                                             LIBSSH2_SESSION *session,
                                             const char *filedata,
                                             size_t filedata_len,
-                                            unsigned const char *passphrase)
+                                            const unsigned char *passphrase)
 {
     int ret;
     mbedtls_pk_context pkey;
