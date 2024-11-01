@@ -1202,7 +1202,7 @@ read_private_key_from_memory(void **key_ctx,
     }
 
     *key_ctx = read_private_key(bp, NULL, (pem_password_cb *) passphrase_cb,
-                                (void *) passphrase);
+                                (void *) LIBSSH2_UNCONST(passphrase));
 
     BIO_free(bp);
     return (*key_ctx) ? 0 : -1;
@@ -1226,7 +1226,7 @@ read_private_key_from_file(void **key_ctx,
     }
 
     *key_ctx = read_private_key(bp, NULL, (pem_password_cb *) passphrase_cb,
-                                (void *) passphrase);
+                                (void *) LIBSSH2_UNCONST(passphrase));
 
     BIO_free(bp);
     return (*key_ctx) ? 0 : -1;
@@ -4663,7 +4663,8 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
     }
 
     (void)BIO_reset(bp);
-    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void *)passphrase);
+    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL,
+                                 (void *)LIBSSH2_UNCONST(passphrase));
     BIO_free(bp);
 
     if(!pk) {
@@ -5013,7 +5014,8 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                               "Unable to allocate memory when"
                               "computing public key");
     (void)BIO_reset(bp);
-    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void *)passphrase);
+    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL,
+                                 (void *)LIBSSH2_UNCONST(passphrase));
 #ifdef HAVE_SSLERROR_BAD_DECRYPT
     sslError = ERR_get_error();
 #endif
@@ -5124,7 +5126,8 @@ _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                               "Unable to allocate memory when"
                               "computing public key");
     (void)BIO_reset(bp);
-    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL, (void *)passphrase);
+    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL,
+                                 (void *)LIBSSH2_UNCONST(passphrase));
     BIO_free(bp);
 
     if(!pk) {
