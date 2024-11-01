@@ -3542,7 +3542,7 @@ _libssh2_kex_agree_instr(unsigned char *haystack, size_t haystack_len,
     left = end_haystack - s;
 
     /* Needle at start of haystack */
-    if((strncmp((char *) haystack, (char *) needle, needle_len) == 0) &&
+    if((strncmp((char *) haystack, (const char *) needle, needle_len) == 0) &&
         (needle_len == haystack_len || haystack[needle_len] == ',')) {
         return haystack;
     }
@@ -3562,7 +3562,7 @@ _libssh2_kex_agree_instr(unsigned char *haystack, size_t haystack_len,
         }
 
         /* Needle at X position */
-        if((strncmp((char *) s, (char *) needle, needle_len) == 0) &&
+        if((strncmp((char *) s, (const char *) needle, needle_len) == 0) &&
             (((s - haystack) + needle_len) == haystack_len
              || s[needle_len] == ',')) {
             return s;
