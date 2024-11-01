@@ -615,7 +615,7 @@ support the private key and the other parameters here.
 int _libssh2_rsa_new_private(libssh2_rsa_ctx **rsa,
                              LIBSSH2_SESSION *session,
                              const char *filename,
-                             unsigned const char *passphrase);
+                             const unsigned char *passphrase);
 Reads an RSA private key from file filename into a new RSA context.
 Must call _libssh2_init_if_needed().
 Return 0 if OK, else -1.
@@ -625,7 +625,7 @@ int _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
                                         LIBSSH2_SESSION *session,
                                         const char *data,
                                         size_t data_len,
-                                        unsigned const char *passphrase);
+                                        const unsigned char *passphrase);
 Gets an RSA private key from data into a new RSA context.
 Must call _libssh2_init_if_needed().
 Return 0 if OK, else -1.
@@ -745,7 +745,7 @@ This procedure is already prototyped in crypto.h.
 int _libssh2_dsa_new_private(libssh2_dsa_ctx **dsa,
                              LIBSSH2_SESSION *session,
                              const char *filename,
-                             unsigned const char *passphrase);
+                             const unsigned char *passphrase);
 Gets a DSA private key from file filename into a new DSA context.
 Must call _libssh2_init_if_needed().
 Return 0 if OK, else -1.
@@ -755,7 +755,7 @@ int _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx **dsa,
                                         LIBSSH2_SESSION *session,
                                         const char *data,
                                         size_t data_len,
-                                        unsigned const char *passphrase);
+                                        const unsigned char *passphrase);
 Gets a DSA private key from the data_len-bytes data into a new DSA context.
 Must call _libssh2_init_if_needed().
 Returns 0 if OK, else -1.
@@ -815,7 +815,7 @@ This procedure is already prototyped in crypto.h.
 int _libssh2_ecdsa_new_private(libssh2_ecdsa_ctx **ec_ctx,
                                LIBSSH2_SESSION * session,
                                const char *filename,
-                               unsigned const char *passphrase);
+                               const unsigned char *passphrase);
 Reads an ECDSA private key from PEM file filename into a new ECDSA context.
 Must call _libssh2_init_if_needed().
 Return 0 if OK, else -1.
@@ -825,7 +825,7 @@ int _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
                                           LIBSSH2_SESSION * session,
                                           const char *filedata,
                                           size_t filedata_len,
-                                          unsigned const char *passphrase);
+                                          const unsigned char *passphrase);
 Builds an ECDSA private key from PEM data at filedata of length filedata_len
 into a new ECDSA context stored at ec_ctx.
 Must call _libssh2_init_if_needed().
@@ -844,7 +844,7 @@ This procedure is already prototyped in crypto.h.
 int _libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx **ec_ctx,
                                        LIBSSH2_SESSION * session,
                                        const char *filename,
-                                       unsigned const char *passphrase);
+                                       const unsigned char *passphrase);
 Reads a PEM-encoded ECDSA private key from file filename encrypted with
 passphrase and stores at ec_ctx a new ECDSA context for it.
 Return 0 if OK, else -1.
@@ -930,7 +930,7 @@ int _libssh2_ed25519_new_private_frommemory(libssh2_ed25519_ctx **ed_ctx,
                                             LIBSSH2_SESSION *session,
                                             const char *filedata,
                                             size_t filedata_len,
-                                            unsigned const char *passphrase);
+                                            const unsigned char *passphrase);
 Builds an ED25519 private key from PEM data at filedata of length filedata_len
 into a new ED25519 context stored at ed_ctx.
 Must call _libssh2_init_if_needed().
