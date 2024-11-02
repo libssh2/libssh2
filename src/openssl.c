@@ -1163,7 +1163,7 @@ void _libssh2_openssl_crypto_exit(void)
  * calling program
  */
 static int
-passphrase_cb(char *buf, int size, int rwflag, char *passphrase)
+passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
 {
     int passphrase_len = (int) strlen(passphrase);
 
