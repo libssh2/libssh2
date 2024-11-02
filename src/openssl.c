@@ -487,7 +487,7 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
 #else
 
     ret = RSA_verify(nid_type, hash, (unsigned int) hash_len,
-                     (unsigned char *) sig,
+                     (const unsigned char *) sig,
                      (unsigned int) sig_len, rsactx);
 #endif
 
