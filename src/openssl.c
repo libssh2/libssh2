@@ -4982,7 +4982,7 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
     return rc;
 }
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#ifdef USE_OPENSSL_3
 #define HAVE_SSLERROR_BAD_DECRYPT
 #endif
 
