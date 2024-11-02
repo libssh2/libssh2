@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     LIBSSH2_AGENT *agent = NULL;
     struct libssh2_agent_publickey *identity, *prev_identity = NULL;
     int exitcode;
-    char *exitsignal = (char *)"none";
+    char *exitsignal = NULL;
     ssize_t bytecount = 0;
 
 #ifdef _WIN32
@@ -272,7 +272,8 @@ int main(int argc, char *argv[])
     }
 
     if(exitsignal) {
-        fprintf(stderr, "\nGot signal: %s\n", exitsignal);
+        fprintf(stderr, "\nGot signal: %s\n",
+                exitsignal ? exitsignal : "none");
     }
     else {
         fprintf(stderr, "\nEXIT: %d bytecount: %ld\n",
