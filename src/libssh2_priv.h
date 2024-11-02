@@ -1257,9 +1257,9 @@ size_t plain_method(char *method, size_t method_len);
 #define ARRAY_SIZE(a) (sizeof ((a)) / sizeof ((a)[0]))
 
 /* define to output the libssh2_int64_t type in a *printf() */
-#if defined(__MINGW32__) || _MSC_VER >= 1800
+#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER >= 1800))
 #define LIBSSH2_INT64_T_FORMAT PRId64
-#elif defined(__BORLANDC__) || defined(_MSC_VER)
+#elif defined(_WIN32)
 #define LIBSSH2_INT64_T_FORMAT "I64d"
 #else
 #define LIBSSH2_INT64_T_FORMAT "lld"
