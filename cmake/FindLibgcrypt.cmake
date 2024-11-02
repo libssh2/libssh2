@@ -15,14 +15,17 @@
 # - `LIBGCRYPT_INCLUDE_DIRS`:  The Libgcrypt include directories.
 # - `LIBGCRYPT_LIBRARIES`:     The Libgcrypt library names.
 # - `LIBGCRYPT_LIBRARY_DIRS`:  The Libgcrypt library directories.
+# - `LIBGCRYPT_PC_REQUIRES`:   The Libgcrypt pkg-config packages.
 # - `LIBGCRYPT_CFLAGS`:        Required compiler flags.
 # - `LIBGCRYPT_VERSION`:       Version of Libgcrypt.
 
-if((UNIX OR VCPKG_TOOLCHAIN OR (MINGW AND NOT CMAKE_CROSSCOMPILING)) AND
+set(LIBGCRYPT_PC_REQUIRES "libgcrypt")
+
+if(LIBSSH2_USE_PKGCONFIG AND
    NOT DEFINED LIBGCRYPT_INCLUDE_DIR AND
    NOT DEFINED LIBGCRYPT_LIBRARY)
   find_package(PkgConfig QUIET)
-  pkg_check_modules(LIBGCRYPT "libgcrypt")
+  pkg_check_modules(LIBGCRYPT ${LIBGCRYPT_PC_REQUIRES})
 endif()
 
 if(LIBGCRYPT_FOUND)

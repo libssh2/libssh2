@@ -40,8 +40,6 @@ set(_libssh2_soversion 1)
 set(_libssh2_libversion 1.0.1)
 
 if(CRYPTO_BACKEND)
-  list(APPEND PRIVATE_COMPILE_DEFINITIONS ${CRYPTO_BACKEND_DEFINE})
-  list(APPEND PRIVATE_INCLUDE_DIRECTORIES ${CRYPTO_BACKEND_INCLUDE_DIR})
   add_feature_info("Crypto backend" ON "${CRYPTO_BACKEND}")
 else()
   message(FATAL_ERROR "No suitable cryptography backend found.")
@@ -62,18 +60,17 @@ add_feature_info(Compression ENABLE_ZLIB_COMPRESSION
 if(ENABLE_ZLIB_COMPRESSION)
   find_package(ZLIB REQUIRED)
 
-  list(APPEND libssh2_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS})
   list(APPEND LIBSSH2_LIBS ${ZLIB_LIBRARIES})
   list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "zlib")
+  include_directories(SYSTEM ${ZLIB_INCLUDE_DIRS})
   if(ZLIB_FOUND)
     list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
   endif()
 endif()
 
-list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
+include_directories(SYSTEM ${CRYPTO_BACKEND_INCLUDE_DIR})
 
-# to find generated header
-list(APPEND libssh2_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR})
+list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 if(MSVC)
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Zi -Od")
@@ -109,7 +106,7 @@ if(BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS)
   endif()
   add_library(${LIB_STATIC} STATIC ${_sources})
   add_library(${PROJECT_NAME}::${LIB_STATIC} ALIAS ${LIB_STATIC})
-  target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${_libssh2_definitions})
+  target_compile_definitions(${LIB_STATIC} PRIVATE ${CRYPTO_BACKEND_DEFINE} ${_libssh2_definitions})
   target_link_libraries(${LIB_STATIC} PRIVATE ${LIBSSH2_LIBS})
   set_target_properties(${LIB_STATIC} PROPERTIES
     PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
@@ -117,9 +114,8 @@ if(BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS)
 
   target_include_directories(${LIB_STATIC}
     PRIVATE
+      "${CMAKE_CURRENT_BINARY_DIR}"    # to find generated header
       "${PROJECT_SOURCE_DIR}/include"
-      ${libssh2_INCLUDE_DIRS}
-      ${PRIVATE_INCLUDE_DIRECTORIES}
     PUBLIC
       "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
       "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
@@ -131,7 +127,7 @@ if(BUILD_SHARED_LIBS)
   if(WIN32)
     set_property(TARGET ${LIB_SHARED} APPEND PROPERTY SOURCES "libssh2.rc")
   endif()
-  target_compile_definitions(${LIB_SHARED} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${_libssh2_definitions} ${LIB_SHARED_DEFINITIONS})
+  target_compile_definitions(${LIB_SHARED} PRIVATE ${CRYPTO_BACKEND_DEFINE} ${_libssh2_definitions} ${LIB_SHARED_DEFINITIONS})
   target_compile_options(${LIB_SHARED} PRIVATE ${LIB_SHARED_C_FLAGS})
   target_link_libraries(${LIB_SHARED} PRIVATE ${LIBSSH2_LIBS})
   set_target_properties(${LIB_SHARED} PROPERTIES
@@ -141,9 +137,8 @@ if(BUILD_SHARED_LIBS)
 
   target_include_directories(${LIB_SHARED}
     PRIVATE
+      "${CMAKE_CURRENT_BINARY_DIR}"    # to find generated header
       "${PROJECT_SOURCE_DIR}/include"
-      ${libssh2_INCLUDE_DIRS}
-      ${PRIVATE_INCLUDE_DIRECTORIES}
     PUBLIC
       "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
       "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
