@@ -3679,7 +3679,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, unsigned char *kex,
     const LIBSSH2_KEX_METHOD **kexp = libssh2_kex_methods;
     unsigned char *s;
     const unsigned char *strict =
-        (unsigned char *)"kex-strict-s-v00@openssh.com";
+        (const unsigned char *)"kex-strict-s-v00@openssh.com";
 
     if(_libssh2_kex_agree_instr(kex, kex_len, strict, 28)) {
         session->kex_strict = 1;
