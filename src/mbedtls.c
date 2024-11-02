@@ -476,11 +476,11 @@ _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
     mbedtls_pk_init(&pkey);
 
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
-    ret = mbedtls_pk_parse_keyfile(&pkey, filename, (char *)passphrase,
+    ret = mbedtls_pk_parse_keyfile(&pkey, filename, (const char *)passphrase,
                                    mbedtls_ctr_drbg_random,
                                    &_libssh2_mbedtls_ctr_drbg);
 #else
-    ret = mbedtls_pk_parse_keyfile(&pkey, filename, (char *)passphrase);
+    ret = mbedtls_pk_parse_keyfile(&pkey, filename, (const char *)passphrase);
 #endif
     if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(&pkey);
