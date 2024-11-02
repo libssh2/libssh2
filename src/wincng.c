@@ -2888,9 +2888,9 @@ _libssh2_wincng_ecdsa_new_private_frommemory(
     }
 
     data_buffer.len = data_len;
-    data_buffer.data = (unsigned char *)data;
-    data_buffer.dataptr =
-        (unsigned char *)data + strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
+    data_buffer.data = (unsigned char *)LIBSSH2_UNCONST(data);
+    data_buffer.dataptr = data_buffer.data +
+                          strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
 
     /* Read ciphername, should be 'none' as we don't support passphrases */
     result = _libssh2_match_string(&data_buffer, "none");
