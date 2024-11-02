@@ -50,8 +50,11 @@
 
 #ifdef _WIN32
 /* Force parameter type. */
-#define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
-#define send(s, b, l, f)  send((s), (b), (int)(l), (f))
+#define libssh2_recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
+#define libssh2_send(s, b, l, f)  send((s), (b), (int)(l), (f))
+#else
+#define libssh2_recv  recv
+#define libssh2_send  send
 #endif
 
 /* snprintf not in Visual Studio CRT and _snprintf dangerously incompatible.
@@ -159,7 +162,7 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length,
 
     (void)abstract;
 
-    rc = recv(sock, buffer, length, flags);
+    rc = libssh2_recv(sock, buffer, length, flags);
     if(rc < 0) {
         int err;
 #ifdef _WIN32
@@ -198,7 +201,7 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 
     (void)abstract;
 
-    rc = send(sock, buffer, length, flags);
+    rc = libssh2_send(sock, buffer, length, flags);
     if(rc < 0) {
         int err;
 #ifdef _WIN32
