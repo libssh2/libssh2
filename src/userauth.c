@@ -101,7 +101,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
     if(session->userauth_list_state == libssh2_NB_state_created) {
         rc = _libssh2_transport_send(session, session->userauth_list_data,
                                      session->userauth_list_data_len,
-                                     (unsigned char *)"none", 4);
+                                     (const unsigned char *)"none", 4);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block requesting userauth list");
@@ -489,7 +489,7 @@ password_response:
                         rc = _libssh2_transport_send(session,
                                             session->userauth_pswd_data,
                                             session->userauth_pswd_data_len,
-                                            (unsigned char *)
+                                            (const unsigned char *)
                                             session->userauth_pswd_newpw,
                                             session->userauth_pswd_newpw_len);
                         if(rc == LIBSSH2_ERROR_EAGAIN) {
