@@ -212,7 +212,7 @@ banner_receive(LIBSSH2_SESSION * session)
 static int
 banner_send(LIBSSH2_SESSION * session)
 {
-    char *banner = (char *) LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
+    const char *banner = LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
     size_t banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
     ssize_t ret;
 
@@ -260,7 +260,8 @@ banner_send(LIBSSH2_SESSION * session)
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                        "Sent %ld/%ld bytes at %p+%ld", (long)ret,
                        (long)(banner_len - session->banner_TxRx_total_send),
-                       (void *)banner, (long)session->banner_TxRx_total_send));
+                       (const void *)banner,
+                       (long)session->banner_TxRx_total_send));
 
     if(ret != (ssize_t)(banner_len - session->banner_TxRx_total_send)) {
         if(ret >= 0 || ret == -EAGAIN) {
