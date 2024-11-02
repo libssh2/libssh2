@@ -259,7 +259,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MA
     if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND MSVC)
       set(_picky_tmp "")
       foreach(_ccopt IN LISTS _picky)
-        if(_ccopt MATCHES "-W")
+        if(_ccopt MATCHES "^-W")
           list(APPEND _picky_tmp ${_ccopt})
         else()
           list(APPEND _picky_tmp "/clang:${_ccopt}")
