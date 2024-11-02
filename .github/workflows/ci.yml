@@ -353,11 +353,11 @@ jobs:
     env:
       SHELLOPTS: 'igncr'
     strategy:
+      fail-fast: false
       matrix:
         include:
           - { build: 'automake', platform: 'x86_64', compiler: 'gcc' }
           - { build: 'cmake'   , platform: 'x86_64', compiler: 'gcc' }
-      fail-fast: false
     steps:
       - run: git config --global core.autocrlf input
       - uses: actions/checkout@v4
@@ -405,6 +405,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         include:
           - { build: 'autotools', sys: msys   , crypto: openssl, env: x86_64 }
@@ -419,7 +420,6 @@ jobs:
           - { build: 'cmake'    , sys: clang64, crypto: OpenSSL, env: clang-x86_64 }
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'uwp' }
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'no-options' }
-      fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - uses: msys2/setup-msys2@v2
@@ -520,6 +520,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         include:
           - { arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'OFF', zlib: 'OFF', unity: 'ON' }
@@ -529,7 +530,6 @@ jobs:
           - { arch: arm64, plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
           - { arch: arm64, plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
           - { arch: x86  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-      fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - name: 'cmake configure'
@@ -648,6 +648,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         arch: ['x86_64', 'arm64']
     steps:
@@ -677,6 +678,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         arch: ['x86_64']
     steps:
@@ -708,6 +710,7 @@ jobs:
     env:
       CC: clang
     strategy:
+      fail-fast: false
       matrix:
         arch: ['x86_64', 'arm64']
     steps:
