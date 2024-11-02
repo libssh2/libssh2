@@ -3643,7 +3643,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION * session,
 
     while(hostkeyp && (*hostkeyp) && (*hostkeyp)->name) {
         s = _libssh2_kex_agree_instr(hostkey, hostkey_len,
-                                     (unsigned char *) (*hostkeyp)->name,
+                                     (const unsigned char *) (*hostkeyp)->name,
                                      strlen((*hostkeyp)->name));
         if(s) {
             /* So far so good, but does it suit our purposes? (Encrypting vs
@@ -3726,7 +3726,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, unsigned char *kex,
 
     while(*kexp && (*kexp)->name) {
         s = _libssh2_kex_agree_instr(kex, kex_len,
-                                     (unsigned char *) (*kexp)->name,
+                                     (const unsigned char *) (*kexp)->name,
                                      strlen((*kexp)->name));
         if(s) {
             /* We've agreed on a key exchange method,
@@ -3794,7 +3794,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION * session,
 
     while(*cryptp && (*cryptp)->name) {
         s = _libssh2_kex_agree_instr(crypt, crypt_len,
-                                     (unsigned char *) (*cryptp)->name,
+                                     (const unsigned char *) (*cryptp)->name,
                                      strlen((*cryptp)->name));
         if(s) {
             endpoint->crypt = *cryptp;
@@ -3857,7 +3857,7 @@ static int kex_agree_mac(LIBSSH2_SESSION * session,
 
     while(*macp && (*macp)->name) {
         s = _libssh2_kex_agree_instr(mac, mac_len,
-                                     (unsigned char *) (*macp)->name,
+                                     (const unsigned char *) (*macp)->name,
                                      strlen((*macp)->name));
         if(s) {
             endpoint->mac = *macp;
@@ -3912,7 +3912,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
 
     while(*compp && (*compp)->name) {
         s = _libssh2_kex_agree_instr(comp, comp_len,
-                                     (unsigned char *) (*compp)->name,
+                                     (const unsigned char *) (*compp)->name,
                                      strlen((*compp)->name));
         if(s) {
             endpoint->comp = *compp;
