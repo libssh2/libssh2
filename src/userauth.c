@@ -476,7 +476,8 @@ password_response:
                         _libssh2_store_str(&s, "password",
                                            sizeof("password") - 1);
                         *s++ = 0x01;
-                        _libssh2_store_str(&s, (char *)password, password_len);
+                        _libssh2_store_str(&s, (const char *)password,
+                                           password_len);
                         _libssh2_store_u32(&s,
                                            session->userauth_pswd_newpw_len);
                         /* send session->userauth_pswd_newpw separately */
@@ -846,7 +847,7 @@ sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
         return rc;
 
     libssh2_prepare_iovec(&datavec, 1);
-    datavec.iov_base = (void *)data;
+    datavec.iov_base = (void *)LIBSSH2_UNCONST(data);
     datavec.iov_len  = data_len;
 
     if(privkeyobj->signv(session, sig, sig_len, 1, &datavec,
@@ -882,7 +883,7 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
         return rc;
 
     libssh2_prepare_iovec(&datavec, 1);
-    datavec.iov_base = (void *)data;
+    datavec.iov_base = (void *)LIBSSH2_UNCONST(data);
     datavec.iov_len  = data_len;
 
     if(privkeyobj->signv(session, sig, sig_len, 1, &datavec,
@@ -2499,7 +2500,7 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
         LIBSSH2_FREE(session, tmp_publickeydata);
 
     if(sk_info.application) {
-        LIBSSH2_FREE(session, (void *)sk_info.application);
+        LIBSSH2_FREE(session, (void *)LIBSSH2_UNCONST(sk_info.application));
     }
 
     return rc;
