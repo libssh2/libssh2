@@ -489,6 +489,10 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
  * Set (or reset) a callback function
  * Returns the prior address
  */
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-function-type"
+#endif
 LIBSSH2_API libssh2_cb_generic *
 libssh2_session_callback_set2(LIBSSH2_SESSION *session, int cbtype,
                               libssh2_cb_generic *callback)
@@ -553,6 +557,9 @@ libssh2_session_callback_set2(LIBSSH2_SESSION *session, int cbtype,
 
     return NULL;
 }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 /*
  * libssh2_session_callback_set (DEPRECATED, DO NOT USE!)
