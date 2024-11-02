@@ -123,7 +123,7 @@ extern "C" {
 # include <sys/uio.h>
 #endif
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && (_MSC_VER < 1600)
 typedef unsigned char uint8_t;
 typedef unsigned short int uint16_t;
 typedef unsigned int uint32_t;
@@ -132,14 +132,15 @@ typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 typedef unsigned __int64 libssh2_uint64_t;
 typedef __int64 libssh2_int64_t;
-#if (!defined(HAVE_SSIZE_T) && !defined(ssize_t))
-typedef SSIZE_T ssize_t;
-#define HAVE_SSIZE_T
-#endif
 #else
 #include <stdint.h>
 typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
+#endif
+
+#if defined(_MSC_VER) && !defined(HAVE_SSIZE_T) && !defined(ssize_t)
+typedef SSIZE_T ssize_t;
+#define HAVE_SSIZE_T
 #endif
 
 #ifdef _WIN32
