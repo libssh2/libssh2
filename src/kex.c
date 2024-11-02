@@ -3280,7 +3280,7 @@ typedef struct _LIBSSH2_COMMON_METHOD
  * Another sign of bad coding practices gone mad.  Pretend you don't see this.
  */
 static size_t
-kex_method_strlen(LIBSSH2_COMMON_METHOD ** method)
+kex_method_strlen(const LIBSSH2_COMMON_METHOD ** method)
 {
     size_t len = 0;
 
@@ -3303,7 +3303,7 @@ kex_method_strlen(LIBSSH2_COMMON_METHOD ** method)
  */
 static uint32_t
 kex_method_list(unsigned char *buf, uint32_t list_strlen,
-                LIBSSH2_COMMON_METHOD ** method)
+                const LIBSSH2_COMMON_METHOD ** method)
 {
     _libssh2_htonu32(buf, list_strlen);
     buf += 4;
@@ -3327,20 +3327,20 @@ kex_method_list(unsigned char *buf, uint32_t list_strlen,
 
 #define LIBSSH2_METHOD_PREFS_LEN(prefvar, defaultvar)           \
     (uint32_t)((prefvar) ? strlen(prefvar) :                    \
-        kex_method_strlen((LIBSSH2_COMMON_METHOD**)(defaultvar)))
+        kex_method_strlen((const LIBSSH2_COMMON_METHOD**)(defaultvar)))
 
-#define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)     \
-    do {                                                                   \
-        if(prefvar) {                                                      \
-            _libssh2_htonu32((buf), (prefvarlen));                         \
-            buf += 4;                                                      \
-            memcpy((buf), (prefvar), (prefvarlen));                        \
-            buf += (prefvarlen);                                           \
-        }                                                                  \
-        else {                                                             \
-            buf += kex_method_list((buf), (prefvarlen),                    \
-                                   (LIBSSH2_COMMON_METHOD**)(defaultvar)); \
-        }                                                                  \
+#define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)        \
+    do {                                                                      \
+        if(prefvar) {                                                         \
+            _libssh2_htonu32((buf), (prefvarlen));                            \
+            buf += 4;                                                         \
+            memcpy((buf), (prefvar), (prefvarlen));                           \
+            buf += (prefvarlen);                                              \
+        }                                                                     \
+        else {                                                                \
+            buf += kex_method_list((buf), (prefvarlen),                       \
+                                (const LIBSSH2_COMMON_METHOD**)(defaultvar)); \
+        }                                                                     \
     } while(0)
 
 /* kexinit
