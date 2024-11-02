@@ -671,8 +671,19 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
         goto libssh2_packet_add_jump_point5;
     case libssh2_NB_state_jumpauthagent:
         goto libssh2_packet_add_jump_authagent;
-    default: /* nothing to do */
-        break;
+    case libssh2_NB_state_allocated:
+    case libssh2_NB_state_created:
+    case libssh2_NB_state_sent:
+    case libssh2_NB_state_sent1:
+    case libssh2_NB_state_sent2:
+    case libssh2_NB_state_sent3:
+    case libssh2_NB_state_sent4:
+    case libssh2_NB_state_sent5:
+    case libssh2_NB_state_sent6:
+    case libssh2_NB_state_sent7:
+    case libssh2_NB_state_error_closing:
+    case libssh2_NB_state_end:
+        break;  /* nothing to do */
     }
 
     if(session->state & LIBSSH2_STATE_INITIAL_KEX) {
