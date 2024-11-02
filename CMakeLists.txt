@@ -61,6 +61,13 @@ function(libssh2_dumpvars)  # Dump all defined variables with their values
   message("::endgroup::")
 endfunction()
 
+# CMake does not recognize some targets accurately. Touch up configuration manually as a workaround.
+if(WINDOWS_STORE AND MINGW)  # mingw UWP build
+  # CMake (as of v3.31.2) gets confused and applies the MSVC rc.exe command-line
+  # template to windres. Reset it to the windres template via 'Modules/Platform/Windows-windres.cmake':
+  set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>")
+endif()
+
 set(_target_flags "")
 if(APPLE)
   set(_target_flags "${_target_flags} APPLE")
