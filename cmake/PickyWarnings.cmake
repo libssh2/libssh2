@@ -255,19 +255,6 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MA
       endif()
     endforeach()
 
-    # clang-cl
-    if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND MSVC)
-      if(CMAKE_VERSION VERSION_LESS 3.12)
-        set(_picky_tmp "")
-        foreach(_ccopt IN LISTS _picky)
-          list(APPEND _picky_tmp "/clang:${_ccopt}")
-        endforeach()
-        set(_picky ${_picky_tmp})
-      else()
-        list(TRANSFORM _picky PREPEND "/clang:")
-      endif()
-    endif()
-
     if(_picky)
       string(REPLACE ";" " " _picky "${_picky}")
       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_picky}")
