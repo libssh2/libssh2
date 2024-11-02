@@ -555,7 +555,8 @@ libssh2_userauth_password_ex(LIBSSH2_SESSION *session, const char *username,
     int rc;
     BLOCK_ADJUST(rc, session,
                  userauth_password(session, username, username_len,
-                                   (unsigned char *)password, password_len,
+                                   (const unsigned char *)password,
+                                   password_len,
                                    passwd_change_cb));
     return rc;
 }
@@ -766,7 +767,7 @@ memory_read_privatekey(LIBSSH2_SESSION * session,
 
     if((*hostkey_method)->
         initPEMFromMemory(session, privkeyfiledata, privkeyfiledata_len,
-                          (unsigned char *) passphrase,
+                          (const unsigned char *) passphrase,
                           hostkey_abstract)) {
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Unable to initialize private key from memory");
@@ -807,7 +808,7 @@ file_read_privatekey(LIBSSH2_SESSION * session,
     }
 
     if((*hostkey_method)->
-        initPEM(session, privkeyfile, (unsigned char *) passphrase,
+        initPEM(session, privkeyfile, (const unsigned char *) passphrase,
                 hostkey_abstract)) {
         return _libssh2_error(session, LIBSSH2_ERROR_FILE,
                               "Unable to initialize private key from file");
