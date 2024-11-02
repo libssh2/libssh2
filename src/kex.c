@@ -149,7 +149,7 @@ static int _libssh2_sha_algo_ctx_init(int sha_algo, void *ctx)
 }
 
 static int _libssh2_sha_algo_ctx_update(int sha_algo, void *ctx,
-                                        void *data, size_t len)
+                                        const void *data, size_t len)
 {
     if(sha_algo == 512) {
         libssh2_sha512_ctx *_ctx = (libssh2_sha512_ctx*)ctx;
@@ -663,7 +663,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                                 exchange_state->h_sig_comp, 4);
             hok &= _libssh2_sha_algo_ctx_update(sha_algo_value,
                                                 exchange_hash_ctx,
-                                   (unsigned char *)LIBSSH2_SSH_DEFAULT_BANNER,
+                                      (const void *)LIBSSH2_SSH_DEFAULT_BANNER,
                                        sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
         }
 
