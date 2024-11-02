@@ -651,6 +651,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         arch: ['x86_64', 'arm64']
     steps:
@@ -680,6 +681,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         arch: ['x86_64']
     steps:
@@ -711,6 +713,7 @@ jobs:
     env:
       CC: clang
     strategy:
+      fail-fast: false
       matrix:
         arch: ['x86_64', 'arm64']
     steps:
