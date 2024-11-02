@@ -1273,31 +1273,31 @@ libssh2_session_methods(LIBSSH2_SESSION * session, int method_type)
         break;
 
     case LIBSSH2_METHOD_HOSTKEY:
-        method = (LIBSSH2_KEX_METHOD *) session->hostkey;
+        method = (const LIBSSH2_KEX_METHOD *) session->hostkey;
         break;
 
     case LIBSSH2_METHOD_CRYPT_CS:
-        method = (LIBSSH2_KEX_METHOD *) session->local.crypt;
+        method = (const LIBSSH2_KEX_METHOD *) session->local.crypt;
         break;
 
     case LIBSSH2_METHOD_CRYPT_SC:
-        method = (LIBSSH2_KEX_METHOD *) session->remote.crypt;
+        method = (const LIBSSH2_KEX_METHOD *) session->remote.crypt;
         break;
 
     case LIBSSH2_METHOD_MAC_CS:
-        method = (LIBSSH2_KEX_METHOD *) session->local.mac;
+        method = (const LIBSSH2_KEX_METHOD *) session->local.mac;
         break;
 
     case LIBSSH2_METHOD_MAC_SC:
-        method = (LIBSSH2_KEX_METHOD *) session->remote.mac;
+        method = (const LIBSSH2_KEX_METHOD *) session->remote.mac;
         break;
 
     case LIBSSH2_METHOD_COMP_CS:
-        method = (LIBSSH2_KEX_METHOD *) session->local.comp;
+        method = (const LIBSSH2_KEX_METHOD *) session->local.comp;
         break;
 
     case LIBSSH2_METHOD_COMP_SC:
-        method = (LIBSSH2_KEX_METHOD *) session->remote.comp;
+        method = (const LIBSSH2_KEX_METHOD *) session->remote.comp;
         break;
 
     case LIBSSH2_METHOD_LANG_CS:
