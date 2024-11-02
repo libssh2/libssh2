@@ -1352,7 +1352,7 @@ libssh2_session_last_error(LIBSSH2_SESSION * session, char **errmsg,
                 }
             }
             else {
-                *errmsg = (char *) "";
+                *errmsg = (char *)LIBSSH2_UNCONST("");
             }
         }
         if(errmsg_len) {
@@ -1375,7 +1375,7 @@ libssh2_session_last_error(LIBSSH2_SESSION * session, char **errmsg,
             }
         }
         else
-            *errmsg = (char *)error;
+            *errmsg = (char *)LIBSSH2_UNCONST(error);
     }
 
     if(errmsg_len) {
