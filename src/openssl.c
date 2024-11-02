@@ -44,6 +44,10 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#ifdef USE_OPENSSL_3
+#define USE_PEM_READ_BIO_PRIVATEKEY
+#endif
+
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 {
 #ifdef USE_OPENSSL_3
@@ -1161,7 +1165,7 @@ void _libssh2_openssl_crypto_exit(void)
  * calling program
  */
 static int
-passphrase_cb(char *buf, int size, int rwflag, char *passphrase)
+passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
 {
     int passphrase_len = (int) strlen(passphrase);
 
@@ -1176,8 +1180,13 @@ passphrase_cb(char *buf, int size, int rwflag, char *passphrase)
     return passphrase_len;
 }
 
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
+typedef EVP_PKEY * (*pem_read_bio_func)(BIO *, EVP_PKEY **, pem_password_cb *,
+                                        void *u);
+#else
 typedef void * (*pem_read_bio_func)(BIO *, void **, pem_password_cb *,
                                     void *u);
+#endif
 
 static int
 read_private_key_from_memory(void **key_ctx,
@@ -1241,7 +1250,7 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
 {
     int rc;
 
-#if defined(USE_OPENSSL_3)
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_rsa =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -1649,7 +1658,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
 {
     int rc;
 
-#if defined(USE_OPENSSL_3)
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_rsa =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -1681,7 +1690,7 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
 {
     int rc;
 
-#if defined(USE_OPENSSL_3)
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_dsa =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -2006,7 +2015,7 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
 {
     int rc;
 
-#if defined(USE_OPENSSL_3)
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_dsa =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -2038,7 +2047,7 @@ _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
 {
     int rc;
 
-#if defined(USE_OPENSSL_3)
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_ec =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -4004,7 +4013,7 @@ _libssh2_ecdsa_new_private(libssh2_ecdsa_ctx ** ec_ctx,
 {
     int rc;
 
-#if defined(USE_OPENSSL_3)
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_ec =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -4037,7 +4046,7 @@ _libssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx ** ec_ctx,
 {
     int rc;
 
-#if defined(USE_OPENSSL_3)
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_ec =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -4981,7 +4990,7 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
     return rc;
 }
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#ifdef USE_OPENSSL_3
 #define HAVE_SSLERROR_BAD_DECRYPT
 #endif
 
