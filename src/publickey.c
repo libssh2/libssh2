@@ -597,7 +597,7 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name,
     /*  19 = packet_len(4) + add_len(4) + "add"(3) + name_len(4) + {name}
         blob_len(4) + {blob} */
     unsigned long i, packet_len = 19 + name_len + blob_len;
-    unsigned char *comment = NULL;
+    const unsigned char *comment = NULL;
     unsigned long comment_len = 0;
     int rc;
 
@@ -619,7 +619,7 @@ libssh2_publickey_add_ex(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name,
                 if(attrs[i].name_len == (sizeof("comment") - 1) &&
                     strncmp(attrs[i].name, "comment",
                             sizeof("comment") - 1) == 0) {
-                    comment = (unsigned char *) attrs[i].value;
+                    comment = (const unsigned char *) attrs[i].value;
                     comment_len = attrs[i].value_len;
                     break;
                 }
