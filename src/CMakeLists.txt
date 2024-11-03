@@ -118,7 +118,6 @@ if(BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS)
     PRIVATE
       "${PROJECT_SOURCE_DIR}/include"
       ${libssh2_INCLUDE_DIRS}
-      ${_private_include_directories}
     PUBLIC
       "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
       "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
@@ -142,7 +141,6 @@ if(BUILD_SHARED_LIBS)
     PRIVATE
       "${PROJECT_SOURCE_DIR}/include"
       ${libssh2_INCLUDE_DIRS}
-      ${_private_include_directories}
     PUBLIC
       "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
       "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
