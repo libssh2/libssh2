@@ -118,6 +118,21 @@ jobs:
             crypto: OpenSSL-3-no-deprecated
             build: cmake
             zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: OpenSSL-111-from-source
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: OpenSSL-110-from-source
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: OpenSSL-102-from-source
+            build: cmake
+            zlib: 'ON'
           - compiler: clang
             arch: i386
             crypto: Libgcrypt
@@ -221,6 +236,42 @@ jobs:
             no-apps no-docs no-tests no-makedepend \
             no-comp no-quic no-legacy --prefix=/usr
           make -j5 install "DESTDIR=$PWD/.."
+          cd ..
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+
+      - name: 'install OpenSSL 1.1.1 from source'
+        if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
+        run: |
+          curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-1.1.1w.tar.gz | tar -xzf -
+          cd openssl-1.1.1w
+          ./config no-unit-test no-makedepend --prefix=/usr no-tests
+          make -j1
+          make -j5 install "DESTDIR=$PWD/../"
+          cd ..
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+
+      - name: 'install OpenSSL 1.1.0 from source'
+        if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
+        run: |
+          curl -fsS -L https://openssl.org/source/old/1.1.0/openssl-1.1.0l.tar.gz | tar -xzf -
+          cd openssl-1.1.0l
+          ./config no-unit-test no-makedepend --prefix=/usr
+          make -j1
+          make -j5 install "DESTDIR=$PWD/../"
+          cd ..
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+
+      - name: 'install OpenSSL 1.0.2 from source'
+        if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
+        run: |
+          curl -fsS -L https://openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz | tar -xzf -
+          cd openssl-1.0.2u
+          ./config no-unit-test no-makedepend --prefix=$PWD/../usr -fPIC
+          make -j1
+          make -j5 install
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
