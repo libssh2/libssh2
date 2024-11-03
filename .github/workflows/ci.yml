@@ -245,7 +245,8 @@ jobs:
           curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-1.1.1w.tar.gz | tar -xzf -
           cd openssl-1.1.1w
           ./config no-unit-test no-tests no-makedepend --prefix=/usr
-          make -j5 install "DESTDIR=$PWD/.."
+          make -j5
+          make install "DESTDIR=$PWD/.."
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
@@ -256,7 +257,8 @@ jobs:
           curl -fsS -L https://openssl.org/source/old/1.1.0/openssl-1.1.0l.tar.gz | tar -xzf -
           cd openssl-1.1.0l
           ./config no-unit-test no-makedepend --prefix=/usr
-          make -j5 install "DESTDIR=$PWD/.."
+          make -j5
+          make install "DESTDIR=$PWD/.."
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
@@ -267,7 +269,8 @@ jobs:
           curl -fsS -L https://openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz | tar -xzf -
           cd openssl-1.0.2u
           ./config no-unit-test no-makedepend --prefix=/usr
-          make -j5 install "DESTDIR=$PWD/.."
+          make -j5
+          make install "DESTDIR=$PWD/.."
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
