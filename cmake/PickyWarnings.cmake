@@ -41,8 +41,18 @@ if(PICKY_COMPILER)
     endif()
 
     list(APPEND _picky_enable
-      -Wall -pedantic
+      -pedantic
     )
+
+    if(MSVC)  # clang-cl
+      list(APPEND _picky_enable
+        /clang:-Wall
+      )
+    else()
+      list(APPEND _picky_enable
+        -Wall
+      )
+    endif()
 
     if(ENABLE_WERROR)
       list(APPEND _picky_enable
