@@ -256,7 +256,7 @@ jobs:
         run: |
           curl -fsS -L https://openssl.org/source/old/1.1.0/openssl-1.1.0l.tar.gz | tar -xzf -
           cd openssl-1.1.0l
-          ./Configure no-unit-test no-tests \
+          ./Configure no-unit-test \
             no-makedepend --prefix=/usr
           make -j5 install "DESTDIR=$PWD/.."
           cd ..
@@ -264,11 +264,11 @@ jobs:
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
       - name: 'install OpenSSL 1.0.2 from source'
-        if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
+        if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
         run: |
           curl -fsS -L https://openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz | tar -xzf -
           cd openssl-1.0.2u
-          ./Configure no-unit-test no-tests \
+          ./Configure no-unit-test \
             no-makedepend --prefix=/usr
           make -j5 install "DESTDIR=$PWD/.."
           cd ..
