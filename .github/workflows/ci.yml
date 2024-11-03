@@ -244,8 +244,7 @@ jobs:
         run: |
           curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-1.1.1w.tar.gz | tar -xzf -
           cd openssl-1.1.1w
-          ./Configure no-unit-test no-tests \
-            no-makedepend --prefix=/usr
+          ./config no-unit-test no-tests no-makedepend --prefix=/usr
           make -j5 install "DESTDIR=$PWD/.."
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
@@ -256,8 +255,7 @@ jobs:
         run: |
           curl -fsS -L https://openssl.org/source/old/1.1.0/openssl-1.1.0l.tar.gz | tar -xzf -
           cd openssl-1.1.0l
-          ./Configure no-unit-test \
-            no-makedepend --prefix=/usr
+          ./config no-unit-test no-makedepend --prefix=/usr
           make -j5 install "DESTDIR=$PWD/.."
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
@@ -268,8 +266,7 @@ jobs:
         run: |
           curl -fsS -L https://openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz | tar -xzf -
           cd openssl-1.0.2u
-          ./Configure no-unit-test \
-            no-makedepend --prefix=/usr
+          ./config no-unit-test no-makedepend --prefix=/usr
           make -j5 install "DESTDIR=$PWD/.."
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
