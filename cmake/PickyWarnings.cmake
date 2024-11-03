@@ -30,10 +30,6 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
   # https://clang.llvm.org/docs/DiagnosticsReference.html
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 
-  if(NOT CMAKE_C_FLAGS MATCHES "-Wall")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-  endif()
-
   if(PICKY_COMPILER)
 
     # _picky_enable = Options we want to enable as-is.
@@ -47,7 +43,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     endif()
 
     list(APPEND _picky_enable
-      -pedantic
+      -Wall -pedantic
     )
 
     if(ENABLE_WERROR)
