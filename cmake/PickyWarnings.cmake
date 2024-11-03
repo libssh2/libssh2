@@ -41,18 +41,18 @@ if(PICKY_COMPILER)
     endif()
 
     list(APPEND _picky_enable
-      -pedantic
+      -Wall -pedantic
     )
 
-    if(MSVC)  # clang-cl
-      list(APPEND _picky_enable
-        /clang:-Wall
-      )
-    else()
-      list(APPEND _picky_enable
-        -Wall
-      )
-    endif()
+#    if(MSVC)  # clang-cl
+#      list(APPEND _picky_enable
+#        /clang:-Wall
+#      )
+#    else()
+#      list(APPEND _picky_enable
+#        -Wall
+#      )
+#    endif()
 
     if(ENABLE_WERROR)
       list(APPEND _picky_enable
@@ -254,7 +254,7 @@ if(PICKY_COMPILER)
     if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND MSVC)
       set(_picky_tmp "")
       foreach(_ccopt IN LISTS _picky)
-        if(_ccopt MATCHES "^-W")
+        if(_ccopt MATCHES "^-W" AND NOT _ccopt STREQUAL "-Wall")
           list(APPEND _picky_tmp ${_ccopt})
         else()
           list(APPEND _picky_tmp "/clang:${_ccopt}")
