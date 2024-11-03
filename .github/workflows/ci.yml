@@ -229,6 +229,7 @@ jobs:
           ./Configure no-deprecated \
             no-apps no-docs no-tests no-makedepend \
             no-comp no-quic no-legacy --prefix=/usr
+          make -j5
           make -j5 install "DESTDIR=$PWD/.."
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
@@ -240,6 +241,7 @@ jobs:
           curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-1.1.1w.tar.gz | tar -xzf -
           cd openssl-1.1.1w
           ./config no-unit-test no-makedepend --prefix=/usr no-tests
+          make -j5
           make -j5 install "DESTDIR=$PWD/../"
           cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
