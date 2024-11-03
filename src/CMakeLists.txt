@@ -40,7 +40,6 @@ set(_libssh2_soversion 1)
 set(_libssh2_libversion 1.0.1)
 
 if(CRYPTO_BACKEND)
-  include_directories(SYSTEM ${CRYPTO_BACKEND_INCLUDE_DIR})
   add_feature_info("Crypto backend" ON "${CRYPTO_BACKEND}")
 else()
   message(FATAL_ERROR "No suitable cryptography backend found.")
@@ -68,6 +67,8 @@ if(ENABLE_ZLIB_COMPRESSION)
     list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
   endif()
 endif()
+
+include_directories(SYSTEM ${CRYPTO_BACKEND_INCLUDE_DIR})
 
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
