@@ -72,9 +72,6 @@ include_directories(SYSTEM ${CRYPTO_BACKEND_INCLUDE_DIR})
 
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
-# to find generated header
-list(APPEND libssh2_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR})
-
 if(MSVC)
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Zi -Od")
   set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -DEBUG")
@@ -117,6 +114,7 @@ if(BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS)
 
   target_include_directories(${LIB_STATIC}
     PRIVATE
+      "${CMAKE_CURRENT_BINARY_DIR}"    # to find generated header
       "${PROJECT_SOURCE_DIR}/include"
       ${libssh2_INCLUDE_DIRS}
     PUBLIC
@@ -140,6 +138,7 @@ if(BUILD_SHARED_LIBS)
 
   target_include_directories(${LIB_SHARED}
     PRIVATE
+      "${CMAKE_CURRENT_BINARY_DIR}"    # to find generated header
       "${PROJECT_SOURCE_DIR}/include"
       ${libssh2_INCLUDE_DIRS}
     PUBLIC
