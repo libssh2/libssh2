@@ -14,23 +14,21 @@ if(ENABLE_WERROR)
   endif()
 endif()
 
-if(MSVC)
-  # Use the highest warning level for Visual Studio.
-  if(PICKY_COMPILER)
+if(PICKY_COMPILER)
+
+  if(MSVC)
+    # Use the highest warning level for Visual Studio.
     if(CMAKE_C_FLAGS MATCHES "[/-]W[0-4]")
       string(REGEX REPLACE "[/-]W[0-4]" "/W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
     else()
       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
     endif()
   endif()
-endif()
 
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+  if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 
-  # https://clang.llvm.org/docs/DiagnosticsReference.html
-  # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
-
-  if(PICKY_COMPILER)
+    # https://clang.llvm.org/docs/DiagnosticsReference.html
+    # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 
     # _picky_enable = Options we want to enable as-is.
     # _picky_detect = Options we want to test first and enable if available.
