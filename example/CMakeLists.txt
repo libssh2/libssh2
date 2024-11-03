@@ -49,8 +49,8 @@ foreach(_example IN LISTS noinst_PROGRAMS)
   list(APPEND _example_targets ${_example})
   # to find generated header
   target_include_directories(${_example} PRIVATE
-    "${CMAKE_CURRENT_BINARY_DIR}/../src"
-    "../src")
+    "${PROJECT_BINARY_DIR}/src"
+    "${PROJECT_SOURCE_DIR}/src")
   target_link_libraries(${_example} ${LIB_SELECTED} ${LIBSSH2_LIBS})
   set_target_properties(${_example} PROPERTIES UNITY_BUILD OFF)
 endforeach()
