@@ -38,6 +38,8 @@
 
 include(CopyRuntimeDependencies)
 
+include_directories(SYSTEM ${CRYPTO_BACKEND_INCLUDE_DIR})
+
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
@@ -75,8 +77,7 @@ target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(runner PRIVATE
   "${CMAKE_CURRENT_BINARY_DIR}/../src"
   "../src"
-  "../include"
-  "${CRYPTO_BACKEND_INCLUDE_DIR}")
+  "../include")
 target_link_libraries(runner PRIVATE libssh2)
 
 foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
@@ -97,8 +98,7 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
     target_include_directories(${_test} PRIVATE
       "${CMAKE_CURRENT_BINARY_DIR}/../src"
       "../src"
-      "../include"
-      "${CRYPTO_BACKEND_INCLUDE_DIR}")
+      "../include")
     set_target_properties(${_test} PROPERTIES UNITY_BUILD OFF)
 
     # build a single test with gcov
