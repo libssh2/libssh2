@@ -161,7 +161,7 @@ build_script:
       }
       $options += "-G$env:GENERATOR"
 
-      if($env:TOOLSET -ne '') {
+      if($env:TOOLSET) {
         $options += "-T $env:TOOLSET"
       }
 
