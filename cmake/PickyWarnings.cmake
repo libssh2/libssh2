@@ -9,21 +9,14 @@ option(PICKY_COMPILER "Enable picky compiler options" ON)
 if(ENABLE_WERROR)
   if(MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
   else()  # llvm/clang and gcc style options
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
   endif()
 endif()
 
 if(MSVC)
   # Use the highest warning level for Visual Studio.
   if(PICKY_COMPILER)
-    if(CMAKE_CXX_FLAGS MATCHES "[/-]W[0-4]")
-      string(REGEX REPLACE "[/-]W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    else()
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-    endif()
     if(CMAKE_C_FLAGS MATCHES "[/-]W[0-4]")
       string(REGEX REPLACE "[/-]W[0-4]" "/W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
     else()
@@ -32,14 +25,11 @@ if(MSVC)
   endif()
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 
   # https://clang.llvm.org/docs/DiagnosticsReference.html
   # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 
-  if(NOT CMAKE_CXX_FLAGS MATCHES "-Wall")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-  endif()
   if(NOT CMAKE_C_FLAGS MATCHES "-Wall")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
   endif()
