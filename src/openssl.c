@@ -44,6 +44,13 @@
 #include <stdlib.h>
 #include <assert.h>
 
+//#if (defined(USE_OPENSSL_3) &&
+//    !defined(LIBRESSL_VERSION_NUMBER)) || \
+//    (defined(LIBRESSL_VERSION_NUMBER) && \
+//    LIBRESSL_VERSION_NUMBER >= 0x3070000fL)
+#define USE_PEM_READ_BIO_PRIVATEKEY
+//#endif
+
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 {
 #ifdef USE_OPENSSL_3
@@ -1243,7 +1250,7 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx ** rsa,
 {
     int rc;
 
-#ifdef USE_OPENSSL_3
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_rsa =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -1651,7 +1658,7 @@ _libssh2_rsa_new_private(libssh2_rsa_ctx ** rsa,
 {
     int rc;
 
-#ifdef USE_OPENSSL_3
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_rsa =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -1683,7 +1690,7 @@ _libssh2_dsa_new_private_frommemory(libssh2_dsa_ctx ** dsa,
 {
     int rc;
 
-#ifdef USE_OPENSSL_3
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_dsa =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -2008,7 +2015,7 @@ _libssh2_dsa_new_private(libssh2_dsa_ctx ** dsa,
 {
     int rc;
 
-#ifdef USE_OPENSSL_3
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_dsa =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -2040,7 +2047,7 @@ _libssh2_ecdsa_new_private_frommemory(libssh2_ecdsa_ctx ** ec_ctx,
 {
     int rc;
 
-#ifdef USE_OPENSSL_3
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_ec =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -4005,7 +4012,7 @@ _libssh2_ecdsa_new_private(libssh2_ecdsa_ctx ** ec_ctx,
 {
     int rc;
 
-#ifdef USE_OPENSSL_3
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_ec =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
@@ -4038,7 +4045,7 @@ _libssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx ** ec_ctx,
 {
     int rc;
 
-#ifdef USE_OPENSSL_3
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
     pem_read_bio_func read_ec =
         (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 #else
