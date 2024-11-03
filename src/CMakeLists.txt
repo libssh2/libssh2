@@ -60,9 +60,9 @@ add_feature_info(Compression ENABLE_ZLIB_COMPRESSION
 if(ENABLE_ZLIB_COMPRESSION)
   find_package(ZLIB REQUIRED)
 
-  list(APPEND libssh2_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS})
   list(APPEND LIBSSH2_LIBS ${ZLIB_LIBRARIES})
   list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "zlib")
+  include_directories(SYSTEM ${ZLIB_INCLUDE_DIRS})
   if(ZLIB_FOUND)
     list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
   endif()
@@ -116,7 +116,6 @@ if(BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS)
     PRIVATE
       "${CMAKE_CURRENT_BINARY_DIR}"    # to find generated header
       "${PROJECT_SOURCE_DIR}/include"
-      ${libssh2_INCLUDE_DIRS}
     PUBLIC
       "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
       "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
@@ -140,7 +139,6 @@ if(BUILD_SHARED_LIBS)
     PRIVATE
       "${CMAKE_CURRENT_BINARY_DIR}"    # to find generated header
       "${PROJECT_SOURCE_DIR}/include"
-      ${libssh2_INCLUDE_DIRS}
     PUBLIC
       "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
       "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
