@@ -23,7 +23,6 @@ if(ENABLE_WERROR)
     if(MSVC)  # clang-cl
       list(APPEND _picky
         -Wno-language-extension-token  # Override default error to make __int64 size detection pass
-        -Wno-reserved-identifier  # FIXME: Underscored symbols are used in the public header
       )
     endif()
   endif()
