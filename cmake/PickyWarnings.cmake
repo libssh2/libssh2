@@ -3,6 +3,8 @@
 
 include(CheckCCompilerFlag)
 
+unset(_picky)
+
 option(ENABLE_WERROR "Turn compiler warnings into errors" OFF)
 option(PICKY_COMPILER "Enable picky compiler options" ON)
 
@@ -11,6 +13,20 @@ if(ENABLE_WERROR)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
   else()  # llvm/clang and gcc style options
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+  endif()
+
+  if(((CMAKE_COMPILER_IS_GNUCC AND
+       NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 5.0 AND
+       NOT CMAKE_VERSION VERSION_LESS 3.23.0) OR  # to avoid check_symbol_exists() conflicting with GCC -pedantic-errors
+     CMAKE_C_COMPILER_ID MATCHES "Clang"))
+    list(APPEND _picky "-pedantic-errors")
+    if(MSVC)  # clang-cl
+      list(APPEND _picky
+        -Wno-language-extension-token  # Override default error to make __int64 size detection pass
+        -Wno-nonportable-system-include-path  # Bogus: non-portable path to file '<WinSock2.h>'; specified path differs in case from file name on disk (seen with MSVC)
+        -Wno-reserved-identifier  # FIXME: Underscored symbols are used in the public header
+      )
+    endif()
   endif()
 endif()
 
@@ -42,19 +58,6 @@ if(PICKY_COMPILER)
     list(APPEND _picky_enable
       -Wall -pedantic
     )
-
-    if(ENABLE_WERROR)
-      list(APPEND _picky_enable
-        -pedantic-errors
-      )
-      if(MSVC)  # clang-cl
-        list(APPEND _picky_enable
-          -Wno-language-extension-token  # Override default error to make __int64 size detection pass
-          -Wno-nonportable-system-include-path  # Bogus: non-portable path to file '<WinSock2.h>'; specified path differs in case from file name on disk (seen with MSVC)
-          -Wno-reserved-identifier  # FIXME: Underscored symbols are used in the public header
-        )
-      endif()
-    endif()
 
     # ----------------------------------
     # Add new options here, if in doubt:
@@ -220,8 +223,6 @@ if(PICKY_COMPILER)
 
     #
 
-    unset(_picky)
-
     foreach(_ccopt IN LISTS _picky_enable)
       list(APPEND _picky "${_ccopt}")
     endforeach()
@@ -237,25 +238,25 @@ if(PICKY_COMPILER)
         list(APPEND _picky "${_ccopt}")
       endif()
     endforeach()
-
-    # clang-cl
-    if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND MSVC)
-      set(_picky_tmp "")
-      foreach(_ccopt IN LISTS _picky)
-        # Prefix -Wall, otherwise clang-cl takes it as an MSVC option and translates it to -Weverything
-        if(_ccopt MATCHES "^-W" AND NOT _ccopt STREQUAL "-Wall")
-          list(APPEND _picky_tmp ${_ccopt})
-        else()
-          list(APPEND _picky_tmp "/clang:${_ccopt}")
-        endif()
-      endforeach()
-      set(_picky ${_picky_tmp})
-    endif()
-
-    if(_picky)
-      string(REPLACE ";" " " _picky "${_picky}")
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_picky}")
-      message(STATUS "Picky compiler options: ${_picky}")
-    endif()
   endif()
+endif()
+
+# clang-cl
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND MSVC)
+  set(_picky_tmp "")
+  foreach(_ccopt IN LISTS _picky)
+    # Prefix -Wall, otherwise clang-cl takes it as an MSVC option and translates it to -Weverything
+    if(_ccopt MATCHES "^-W" AND NOT _ccopt STREQUAL "-Wall")
+      list(APPEND _picky_tmp ${_ccopt})
+    else()
+      list(APPEND _picky_tmp "/clang:${_ccopt}")
+    endif()
+  endforeach()
+  set(_picky ${_picky_tmp})
+endif()
+
+if(_picky)
+  string(REPLACE ";" " " _picky "${_picky}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_picky}")
+  message(STATUS "Picky compiler options: ${_picky}")
 endif()
