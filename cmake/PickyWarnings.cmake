@@ -105,7 +105,7 @@ if(PICKY_COMPILER)
       -Wsign-conversion                    # clang  2.9  gcc  4.3
         -Wno-error=sign-conversion                                              # FIXME
       -Wstrict-prototypes                  # clang  1.0  gcc  3.3
-      -Wno-switch-enum                     # clang  2.7  gcc  4.1               # Not used: It basically disallows default case
+    # -Wswitch-enum                        # clang  2.7  gcc  4.1               # Not used: It basically disallows default case
       -Wtype-limits                        # clang  2.7  gcc  4.3
       -Wunreachable-code                   # clang  2.7  gcc  4.1
     # -Wunsafe-buffer-usage
