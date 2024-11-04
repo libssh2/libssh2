@@ -1180,8 +1180,13 @@ passphrase_cb(char *buf, int size, int rwflag, void *passphrase)
     return passphrase_len;
 }
 
+#ifdef USE_PEM_READ_BIO_PRIVATEKEY
 typedef EVP_PKEY * (*pem_read_bio_func)(BIO *, EVP_PKEY **, pem_password_cb *,
                                         void *u);
+#else
+typedef void * (*pem_read_bio_func)(BIO *, void **, pem_password_cb *,
+                                    void *u);
+#endif
 
 static int
 read_private_key_from_memory(void **key_ctx,
