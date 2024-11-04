@@ -235,9 +235,8 @@ jobs:
         if: ${{ matrix.crypto == 'LibreSSL' }}
         run: |
           LIBRESSLVER=4.0.0
-          mkdir libressl
-          cd libressl
           curl -fsS https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-$LIBRESSLVER.tar.gz | tar -xzf -
+          cd libressl-$LIBRESSLVER
           cmake . \
             -DLIBRESSL_APPS=OFF \
             -DLIBRESSL_TESTS=OFF \
