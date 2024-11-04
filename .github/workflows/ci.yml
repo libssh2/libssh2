@@ -289,7 +289,7 @@ jobs:
         run: |
           curl -fsS -L https://openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz | tar -xzf -
           cd openssl-1.0.2u
-          ./config no-unit-test no-makedepend --prefix=$PWD/../usr
+          ./config no-unit-test no-makedepend --prefix=$PWD/../usr CFLAGS=-fPIC
           make -j1
           make -j1 install
           cd ..
