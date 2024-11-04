@@ -175,25 +175,37 @@ jobs:
               "${pkg}:${{ matrix.arch }}"
           fi
 
+      - name: 'cache mbedTLS'
+        if: ${{ matrix.crypto == 'mbedTLS' }}
+        uses: actions/cache@v4
+        id: cache-mbedtls
+        env:
+          cache-name: cache-mbedtls
+        with:
+          path: /home/runner/usr
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ env.mbedtls-version }}
+
       - name: 'install mbedTLS from source'
         if: ${{ matrix.crypto == 'mbedTLS' }}
         run: |
-          curl -fsS -L https://github.com/Mbed-TLS/mbedtls/archive/mbedtls-${{ env.mbedtls-version }}.tar.gz | tar -xzf -
-          cd mbedtls-mbedtls-${{ env.mbedtls-version }}
-          if [ '${{ matrix.arch }}' = 'i386' ]; then
-            crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }}'
-            cflags='-m32 -mpclmul -msse2 -maes'
+          if [ '${{ steps.cache-mbedtls.outputs.cache-hit }}' != 'true' ]; then
+            curl -fsS -L https://github.com/Mbed-TLS/mbedtls/archive/mbedtls-${{ env.mbedtls-version }}.tar.gz | tar -xzf -
+            cd mbedtls-mbedtls-${{ env.mbedtls-version }}
+            if [ '${{ matrix.arch }}' = 'i386' ]; then
+              crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }}'
+              cflags='-m32 -mpclmul -msse2 -maes'
+            fi
+            cmake -B . ${crossoptions} \
+              "-DCMAKE_C_FLAGS=${cflags}" \
+              -DENABLE_PROGRAMS=OFF \
+              -DENABLE_TESTING=OFF \
+              -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
+              -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
+              "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
+            cmake --build . --parallel 5
+            cmake --install .
+            cd ..
           fi
-          cmake -B . ${crossoptions} \
-            "-DCMAKE_C_FLAGS=${cflags}" \
-            -DENABLE_PROGRAMS=OFF \
-            -DENABLE_TESTING=OFF \
-            -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
-            -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
-            "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
-          cmake --build . --parallel 5
-          cmake --install .
-          cd ..
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
