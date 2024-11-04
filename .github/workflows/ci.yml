@@ -254,18 +254,30 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
+      - name: 'cache LibreSSL'
+        if: ${{ matrix.crypto == 'LibreSSL' }}
+        uses: actions/cache@v4
+        id: cache-libressl
+        env:
+          cache-name: cache-libressl
+        with:
+          path: /home/runner/usr
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ env.libressl-version }}
+
       - name: 'install LibreSSL from source'
         if: ${{ matrix.crypto == 'LibreSSL' }}
         run: |
-          curl -fsS https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${{ env.libressl-version }}.tar.gz | tar -xzf -
-          cd libressl-${{ env.libressl-version }}
-          cmake -B . \
-            -DLIBRESSL_APPS=OFF \
-            -DLIBRESSL_TESTS=OFF \
-            "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
-          cmake --build . --parallel 5
-          cmake --install .
-          cd ..
+          if [ '${{ steps.cache-libressl.outputs.cache-hit }}' != 'true' ]; then
+            curl -fsS https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${{ env.libressl-version }}.tar.gz | tar -xzf -
+            cd libressl-${{ env.libressl-version }}
+            cmake -B . \
+              -DLIBRESSL_APPS=OFF \
+              -DLIBRESSL_TESTS=OFF \
+              "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
+            cmake --build . --parallel 5
+            cmake --install .
+            cd ..
+          fi
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
