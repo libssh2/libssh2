@@ -306,15 +306,27 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
+      - name: 'cache OpenSSL 1.0.2'
+        if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
+        uses: actions/cache@v4
+        id: cache-openssl102
+        env:
+          cache-name: cache-openssl102
+        with:
+          path: /home/runner/usr
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ env.openssl102-version }}
+
       - name: 'install OpenSSL 1.0.2 from source'
         if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
         run: |
-          curl -fsS -L https://openssl.org/source/old/1.0.2/openssl-${{ env.openssl102-version }}.tar.gz | tar -xzf -
-          cd openssl-${{ env.openssl102-version }}
-          ./config no-unit-test no-makedepend --prefix=$PWD/../usr -fPIC
-          make -j1
-          make -j5 install
-          cd ..
+          if [ '${{ steps.cache-openssl102.outputs.cache-hit }}' != 'true' ]; then
+            curl -fsS -L https://openssl.org/source/old/1.0.2/openssl-${{ env.openssl102-version }}.tar.gz | tar -xzf -
+            cd openssl-${{ env.openssl102-version }}
+            ./config no-unit-test no-makedepend --prefix=$PWD/../usr -fPIC
+            make -j1
+            make -j5 install
+            cd ..
+          fi
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
