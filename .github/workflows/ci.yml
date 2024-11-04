@@ -146,6 +146,15 @@ jobs:
             options: --disable-static
     env:
       CC: ${{ matrix.compiler }}
+      mbedtls-version: 3.5.1
+      wolfssl-version: 5.7.0
+      wolfssl-version-prev: 5.5.4
+      boringssl-version: ddc0647304a8ed854b2d84117f095a5f73571d37
+      libressl-version: 4.0.0
+      openssl-version: 3.2.0
+      openssl111-version: 1.1.1w
+      openssl110-version: 1.1.0l
+      openssl102-version: 1.0.2u
     steps:
       - uses: actions/checkout@v4
       - name: 'install architecture'
@@ -169,9 +178,8 @@ jobs:
       - name: 'install mbedTLS from source'
         if: ${{ matrix.crypto == 'mbedTLS' }}
         run: |
-          MBEDTLSVER=mbedtls-3.5.1
-          curl -fsS -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
-          cd mbedtls-$MBEDTLSVER
+          curl -fsS -L https://github.com/Mbed-TLS/mbedtls/archive/mbedtls-${{ env.mbedtls-version }}.tar.gz | tar -xzf -
+          cd mbedtls-mbedtls-${{ env.mbedtls-version }}
           if [ '${{ matrix.arch }}' = 'i386' ]; then
             crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }}'
             cflags='-m32 -mpclmul -msse2 -maes'
@@ -192,9 +200,9 @@ jobs:
         if: ${{ startsWith(matrix.crypto, 'wolfSSL-from-source') }}
         run: |
           if [ '${{ matrix.crypto }}' = 'wolfSSL-from-source' ]; then
-            WOLFSSLVER=5.7.0
+            WOLFSSLVER=${{ env.wolfssl-version }}
           else
-            WOLFSSLVER=5.5.4
+            WOLFSSLVER=${{ env.wolfssl-version-prev }}
             # Required to include `FIPS_mode()` API:
             options='-DWOLFSSL_OPENSSLEXTRA=ON'
             cppflags='-DOPENSSL_ALL'
@@ -217,10 +225,9 @@ jobs:
       - name: 'install BoringSSL from source'
         if: ${{ matrix.crypto == 'BoringSSL' }}
         run: |
-          BORINGSSLVER=ddc0647304a8ed854b2d84117f095a5f73571d37
           mkdir boringssl
           cd boringssl
-          curl -fsS https://boringssl.googlesource.com/boringssl/+archive/$BORINGSSLVER.tar.gz | tar -xzf -
+          curl -fsS https://boringssl.googlesource.com/boringssl/+archive/${{ env.boringssl-version }}.tar.gz | tar -xzf -
           # Skip tests to make the build finish faster
           echo 'set_target_properties(decrepit bssl_shim test_fips boringssl_gtest test_support_lib urandom_test crypto_test ssl_test decrepit_test all_tests pki pki_test run_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)' >> ./CMakeLists.txt
           cmake . \
@@ -235,9 +242,8 @@ jobs:
       - name: 'install LibreSSL from source'
         if: ${{ matrix.crypto == 'LibreSSL' }}
         run: |
-          LIBRESSLVER=4.0.0
-          curl -fsS https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-$LIBRESSLVER.tar.gz | tar -xzf -
-          cd libressl-$LIBRESSLVER
+          curl -fsS https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${{ env.libressl-version }}.tar.gz | tar -xzf -
+          cd libressl-${{ env.libressl-version }}
           cmake . \
             -DLIBRESSL_APPS=OFF \
             -DLIBRESSL_TESTS=OFF \
@@ -250,9 +256,8 @@ jobs:
       - name: 'install OpenSSL from source'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
         run: |
-          OPENSSLVER=openssl-3.2.0
-          curl -fsS -L https://github.com/openssl/openssl/releases/download/$OPENSSLVER/$OPENSSLVER.tar.gz | tar -xzf -
-          cd $OPENSSLVER
+          curl -fsS -L https://github.com/openssl/openssl/releases/download/openssl-${{ env.openssl-version }}/openssl-${{ env.openssl-version }}.tar.gz | tar -xzf -
+          cd openssl-${{ env.openssl-version }}
           ./Configure no-deprecated \
             no-apps no-docs no-tests no-makedepend \
             no-comp no-quic no-legacy --prefix=/usr
@@ -264,8 +269,8 @@ jobs:
       - name: 'install OpenSSL 1.1.1 from source'
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
         run: |
-          curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-1.1.1w.tar.gz | tar -xzf -
-          cd openssl-1.1.1w
+          curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl111-version }}.tar.gz | tar -xzf -
+          cd openssl-${{ env.openssl111-version }}
           ./config no-unit-test no-makedepend --prefix=/usr no-tests
           make -j1
           make -j5 install "DESTDIR=$PWD/../"
@@ -276,8 +281,8 @@ jobs:
       - name: 'install OpenSSL 1.1.0 from source'
         if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
         run: |
-          curl -fsS -L https://openssl.org/source/old/1.1.0/openssl-1.1.0l.tar.gz | tar -xzf -
-          cd openssl-1.1.0l
+          curl -fsS -L https://openssl.org/source/old/1.1.0/openssl-${{ env.openssl110-version }}.tar.gz | tar -xzf -
+          cd openssl-${{ env.openssl110-version }}
           ./config no-unit-test no-makedepend --prefix=/usr
           make -j1
           make -j5 install "DESTDIR=$PWD/../"
@@ -288,8 +293,8 @@ jobs:
       - name: 'install OpenSSL 1.0.2 from source'
         if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
         run: |
-          curl -fsS -L https://openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz | tar -xzf -
-          cd openssl-1.0.2u
+          curl -fsS -L https://openssl.org/source/old/1.0.2/openssl-${{ env.openssl102-version }}.tar.gz | tar -xzf -
+          cd openssl-${{ env.openssl102-version }}
           ./config no-unit-test no-makedepend --prefix=$PWD/../usr -fPIC
           make -j1
           make -j5 install
