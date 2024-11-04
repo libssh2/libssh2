@@ -103,6 +103,11 @@ jobs:
             crypto: BoringSSL
             build: cmake
             zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: LibreSSL
+            build: cmake
+            zlib: 'ON'
           - compiler: clang
             arch: amd64
             crypto: wolfSSL-from-source
@@ -227,6 +232,21 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
+      - name: 'install LibreSSL from source'
+        if: ${{ matrix.crypto == 'LibreSSL' }}
+        run: |
+          LIBRESSLVER=4.0.0
+          curl -fsS https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-$LIBRESSLVER.tar.gz | tar -xzf -
+          cd libressl-$LIBRESSLVER
+          cmake . \
+            -DLIBRESSL_APPS=OFF \
+            -DLIBRESSL_TESTS=OFF \
+            "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
+          make -j5 install
+          cd ..
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+
       - name: 'install OpenSSL from source'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
         run: |
@@ -332,6 +352,7 @@ jobs:
         if: ${{ matrix.build == 'cmake' }}
         run: |
           if [ '${{ matrix.crypto }}' = 'BoringSSL' ] || \
+             [ '${{ matrix.crypto }}' = 'LibreSSL' ] || \
              [[ '${{ matrix.crypto }}' = 'OpenSSL-'* ]]; then
             crypto='OpenSSL'
           elif [[ '${{ matrix.crypto }}' = 'wolfSSL-'* ]]; then
