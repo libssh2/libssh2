@@ -44,7 +44,9 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#ifdef USE_OPENSSL_3
 #define USE_PEM_READ_BIO_PRIVATEKEY
+#endif
 
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 {
