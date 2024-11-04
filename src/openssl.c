@@ -44,12 +44,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-//#if (defined(USE_OPENSSL_3) &&
-//    !defined(LIBRESSL_VERSION_NUMBER)) || \
-//    (defined(LIBRESSL_VERSION_NUMBER) && \
-//    LIBRESSL_VERSION_NUMBER >= 0x3070000fL)
 #define USE_PEM_READ_BIO_PRIVATEKEY
-//#endif
 
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
 {
