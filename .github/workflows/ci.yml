@@ -766,6 +766,8 @@ jobs:
           run: |
             # https://openbsd.app/
             sudo pkg_add cmake ninja
+            pkg_info || true
+            pkg_info libressl | true
             cmake -B bld -G Ninja \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
