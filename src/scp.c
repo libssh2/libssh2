@@ -174,6 +174,8 @@ shell_quotearg(const char *path, unsigned char *buf,
                 *dst++ = '\'';
                 *dst++ = '"';
                 break;
+            default:
+                break;
             }
             state = QSTRING;
             break;
@@ -204,6 +206,8 @@ shell_quotearg(const char *path, unsigned char *buf,
                 *dst++ = '\'';
                 *dst++ = '\\';
                 break;
+            default:
+                break;
             }
             state = UQSTRING;
             break;
@@ -227,6 +231,8 @@ shell_quotearg(const char *path, unsigned char *buf,
                 break;
             case SQSTRING:      /* Continue single quoted string */
                 break;
+            default:
+                break;
             }
             state = SQSTRING;   /* Start single-quoted string */
             break;
@@ -249,6 +255,8 @@ shell_quotearg(const char *path, unsigned char *buf,
         if(dst + 1 >= endp)
             return 0;
         *dst++ = '\'';
+        break;
+    default:
         break;
     }
 
