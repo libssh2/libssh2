@@ -282,15 +282,27 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
+      - name: 'cache OpenSSL 1.1.1'
+        if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
+        uses: actions/cache@v4
+        id: cache-openssl111
+        env:
+          cache-name: cache-openssl111
+        with:
+          path: /home/runner/usr
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ env.openssl111-version }}
+
       - name: 'install OpenSSL 1.1.1 from source'
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
         run: |
-          curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl111-version }}.tar.gz | tar -xzf -
-          cd openssl-${{ env.openssl111-version }}
-          ./config no-unit-test no-makedepend --prefix=/usr no-tests
-          make -j1
-          make -j5 install "DESTDIR=$PWD/../"
-          cd ..
+          if [ '${{ steps.cache-openssl111.outputs.cache-hit }}' != 'true' ]; then
+            curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl111-version }}.tar.gz | tar -xzf -
+            cd openssl-${{ env.openssl111-version }}
+            ./config no-unit-test no-makedepend --prefix=/usr no-tests
+            make -j1
+            make -j5 install "DESTDIR=$PWD/../"
+            cd ..
+          fi
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
