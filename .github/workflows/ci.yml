@@ -351,6 +351,7 @@ jobs:
         if: ${{ matrix.build == 'cmake' }}
         run: |
           if [ '${{ matrix.crypto }}' = 'BoringSSL' ] || \
+             [ '${{ matrix.crypto }}' = 'LibreSSL' ] || \
              [[ '${{ matrix.crypto }}' = 'OpenSSL-'* ]]; then
             crypto='OpenSSL'
           elif [[ '${{ matrix.crypto }}' = 'wolfSSL-'* ]]; then
