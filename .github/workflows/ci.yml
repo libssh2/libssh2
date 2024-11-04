@@ -201,13 +201,13 @@ jobs:
               -DENABLE_TESTING=OFF \
               -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
               -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
-              "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
+              "-DCMAKE_INSTALL_PREFIX=$HOME/usr"
             cmake --build . --parallel 5
             cmake --install .
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'install wolfSSL from source'
         if: ${{ startsWith(matrix.crypto, 'wolfSSL-from-source') }}
@@ -229,12 +229,12 @@ jobs:
             -DWOLFSSL_EXAMPLES=OFF \
             -DWOLFSSL_CRYPT_TESTS=OFF \
             "-DCMAKE_C_FLAGS=-fPIC -DWOLFSSL_AESGCM_STREAM ${cppflags}" \
-            "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
+            "-DCMAKE_INSTALL_PREFIX=$HOME/usr"
           cmake --build bld --parallel 5
           cmake --install bld
           cd ..
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache BoringSSL'
         if: ${{ matrix.crypto == 'BoringSSL' }}
@@ -258,13 +258,13 @@ jobs:
             cmake -B . \
               -DOPENSSL_SMALL=ON \
               -DCMAKE_C_FLAGS=-fPIC \
-              "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
+              "-DCMAKE_INSTALL_PREFIX=$HOME/usr"
             cmake --build . --parallel 5
             cmake --install .
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache LibreSSL'
         if: ${{ matrix.crypto == 'LibreSSL' }}
@@ -285,13 +285,13 @@ jobs:
             cmake -B . \
               -DLIBRESSL_APPS=OFF \
               -DLIBRESSL_TESTS=OFF \
-              "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
+              "-DCMAKE_INSTALL_PREFIX=$HOME/usr"
             cmake --build . --parallel 5
             cmake --install .
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache OpenSSL'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
@@ -311,12 +311,12 @@ jobs:
             cd openssl-${{ env.openssl-version }}
             ./Configure no-deprecated \
               no-apps no-docs no-tests no-makedepend \
-              no-comp no-quic no-legacy --prefix=/usr
-            make -j5 install "DESTDIR=$PWD/.."
+              no-comp no-quic no-legacy --prefix=$HOME/usr
+            make -j5 install
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache OpenSSL 1.1.1'
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
@@ -334,13 +334,13 @@ jobs:
           if [ '${{ steps.cache-openssl111.outputs.cache-hit }}' != 'true' ]; then
             curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl111-version }}.tar.gz | tar -xzf -
             cd openssl-${{ env.openssl111-version }}
-            ./config no-unit-test no-makedepend --prefix=/usr no-tests
+            ./config no-unit-test no-makedepend --prefix=$HOME/usr no-tests
             make -j1
-            make -j5 install "DESTDIR=$PWD/../"
+            make -j5 install
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache OpenSSL 1.1.0'
         if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
@@ -358,13 +358,13 @@ jobs:
           if [ '${{ steps.cache-openssl110.outputs.cache-hit }}' != 'true' ]; then
             curl -fsS -L https://openssl.org/source/old/1.1.0/openssl-${{ env.openssl110-version }}.tar.gz | tar -xzf -
             cd openssl-${{ env.openssl110-version }}
-            ./config no-unit-test no-makedepend --prefix=/usr
+            ./config no-unit-test no-makedepend --prefix=$HOME/usr
             make -j1
-            make -j5 install "DESTDIR=$PWD/../"
+            make -j5 install
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache OpenSSL 1.0.2'
         if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
@@ -382,13 +382,13 @@ jobs:
           if [ '${{ steps.cache-openssl102.outputs.cache-hit }}' != 'true' ]; then
             curl -fsS -L https://openssl.org/source/old/1.0.2/openssl-${{ env.openssl102-version }}.tar.gz | tar -xzf -
             cd openssl-${{ env.openssl102-version }}
-            ./config no-unit-test no-makedepend --prefix=$PWD/../usr -fPIC
+            ./config no-unit-test no-makedepend --prefix=$HOME/usr -fPIC
             make -j1
             make -j5 install
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
