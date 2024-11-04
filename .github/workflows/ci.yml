@@ -323,7 +323,7 @@ jobs:
         uses: actions/cache@v4
         id: cache-openssl111
         env:
-          cache-name: cache-openssl111
+          cache-name: cache-openssl
         with:
           path: /home/runner/usr
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ env.openssl111-version }}-${{ matrix.arch }}
@@ -347,7 +347,7 @@ jobs:
         uses: actions/cache@v4
         id: cache-openssl110
         env:
-          cache-name: cache-openssl110
+          cache-name: cache-openssl
         with:
           path: /home/runner/usr
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ env.openssl110-version }}-${{ matrix.arch }}
@@ -371,7 +371,7 @@ jobs:
         uses: actions/cache@v4
         id: cache-openssl102
         env:
-          cache-name: cache-openssl102
+          cache-name: cache-openssl
         with:
           path: /home/runner/usr
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ env.openssl102-version }}-${{ matrix.arch }}
