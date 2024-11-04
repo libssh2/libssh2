@@ -269,16 +269,28 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
+      - name: 'cache OpenSSL'
+        if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
+        uses: actions/cache@v4
+        id: cache-openssl
+        env:
+          cache-name: cache-openssl
+        with:
+          path: /home/runner/usr
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ env.openssl-version }}
+
       - name: 'install OpenSSL from source'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
         run: |
-          curl -fsS -L https://github.com/openssl/openssl/releases/download/openssl-${{ env.openssl-version }}/openssl-${{ env.openssl-version }}.tar.gz | tar -xzf -
-          cd openssl-${{ env.openssl-version }}
-          ./Configure no-deprecated \
-            no-apps no-docs no-tests no-makedepend \
-            no-comp no-quic no-legacy --prefix=/usr
-          make -j5 install "DESTDIR=$PWD/.."
-          cd ..
+          if [ '${{ steps.cache-openssl.outputs.cache-hit }}' != 'true' ]; then
+            curl -fsS -L https://github.com/openssl/openssl/releases/download/openssl-${{ env.openssl-version }}/openssl-${{ env.openssl-version }}.tar.gz | tar -xzf -
+            cd openssl-${{ env.openssl-version }}
+            ./Configure no-deprecated \
+              no-apps no-docs no-tests no-makedepend \
+              no-comp no-quic no-legacy --prefix=/usr
+            make -j5 install "DESTDIR=$PWD/.."
+            cd ..
+          fi
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
 
