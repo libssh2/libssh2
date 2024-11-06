@@ -3,7 +3,7 @@
 
 include(CheckCCompilerFlag)
 
-unset(_picky)
+set(_picky "")
 
 option(ENABLE_WERROR "Turn compiler warnings into errors" OFF)
 option(PICKY_COMPILER "Enable picky compiler options" ON)
