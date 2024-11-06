@@ -47,7 +47,7 @@ endif()
 
 ## Options
 
-unset(_libssh2_definitions)
+set(_libssh2_definitions "")
 
 option(CLEAR_MEMORY "Enable clearing of memory before being freed" ON)
 if(NOT CLEAR_MEMORY)
@@ -97,7 +97,7 @@ if(WIN32 AND (BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS) AND BUILD_SHARED_LIBS
   set(STATIC_LIB_SUFFIX "_static")
 endif()
 
-unset(_libssh2_export)
+set(_libssh2_export "")
 
 # we want it to be called libssh2 on all platforms
 if(BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS)
@@ -207,7 +207,7 @@ endif()
 set(_ldflags "")
 
 # Avoid getting unnecessary -L options for known system directories.
-unset(_sys_libdirs)
+set(_sys_libdirs "")
 foreach(_libdir IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
   if(_libdir MATCHES "/$")
     set(_libdir "${_libdir}lib")
@@ -232,7 +232,7 @@ foreach(_libdir IN LISTS LIBSSH2_LIBDIRS)
   endif()
 endforeach()
 
-unset(_implicit_libs)
+set(_implicit_libs "")
 if(NOT MINGW AND NOT UNIX)
   set(_implicit_libs ${CMAKE_C_IMPLICIT_LINK_LIBRARIES})
 endif()
