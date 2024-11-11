@@ -104,14 +104,13 @@ debugdump(LIBSSH2_SESSION * session,
             buffer[used++] = isprint(ptr[i + c]) ?
                 ptr[i + c] : UNPRINTABLE_CHAR;
         }
-        buffer[used++] = '\n';
         buffer[used] = 0;
 
         if(session->tracehandler)
             (session->tracehandler)(session, session->tracehandler_context,
                                     buffer, used);
         else
-            fprintf(stderr, "%s", buffer);
+            fprintf(stderr, "%s\n", buffer);
     }
 }
 #else
