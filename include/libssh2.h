@@ -270,7 +270,7 @@ typedef off_t libssh2_struct_stat_size;
    short of spec limits */
 #define LIBSSH2_PACKET_MAXCOMP      32000
 
-/* Maximum size to allow a payload to deccompress to, plays it safe by
+/* Maximum size to allow a payload to decompress to, plays it safe by
    allowing more than spec requires */
 #define LIBSSH2_PACKET_MAXDECOMP    40000
 
@@ -602,7 +602,7 @@ typedef struct _LIBSSH2_POLLFD {
 /*
  * libssh2_init()
  *
- * Initialize the libssh2 functions.  This typically initialize the
+ * Initialize the libssh2 functions.  This typically initializes the
  * crypto library.  It uses a global state, and is not thread safe --
  * you must make sure this function is not called concurrently.
  *
@@ -632,7 +632,7 @@ LIBSSH2_API void libssh2_free(LIBSSH2_SESSION *session, void *ptr);
 /*
  * libssh2_session_supported_algs()
  *
- * Fills algs with a list of supported acryptographic algorithms. Returns a
+ * Fills algs with a list of supported cryptographic algorithms. Returns a
  * non-negative number (number of supported algorithms) on success or a
  * negative number (an error code) on failure.
  *
@@ -1228,7 +1228,7 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                         int typemask,
                         struct libssh2_knownhost **knownhost);
 
-/* this function is identital to the above one, but also takes a port
+/* this function is identical to the above one, but also takes a port
    argument that allows libssh2 to do a better check */
 LIBSSH2_API int
 libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
