@@ -372,12 +372,11 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
               const char *agent_path, void **abstract)
 
 #define LIBSSH2_AUTHAGENT_SIGN_FUNC(name) \
-    int name(LIBSSH2_SESSION* session, \
+    int name(LIBSSH2_SESSION* session, unsigned int flags, \
              unsigned char *blob, unsigned int blen, \
-             const unsigned char *data, unsigned int dlen, \
+             unsigned char *data, unsigned int dlen, \
              unsigned char **signature, unsigned int *sigLen, \
-             const char *agentPath, \
-             void **abstract)
+             const char *agentPath, void** abstract)
 
 #define LIBSSH2_CHANNEL_CLOSE_FUNC(name) \
     void name(LIBSSH2_SESSION *session, void **session_abstract, \
