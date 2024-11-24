@@ -381,6 +381,7 @@ jobs:
             curl -fsS -L https://openssl.org/source/old/1.0.2/openssl-${{ env.openssl102-version }}.tar.gz | tar -xzf -
             cd openssl-${{ env.openssl102-version }}
             ./config no-unit-test no-makedepend --prefix=$HOME/usr -fPIC
+            make -j5
             make -j1 install_sw
             cd ..
           fi
