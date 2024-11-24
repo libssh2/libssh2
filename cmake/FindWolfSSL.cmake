@@ -15,14 +15,17 @@
 # - `WOLFSSL_INCLUDE_DIRS`:  The wolfSSL include directories.
 # - `WOLFSSL_LIBRARIES`:     The wolfSSL library names.
 # - `WOLFSSL_LIBRARY_DIRS`:  The wolfSSL library directories.
+# - `WOLFSSL_PC_REQUIRES`:   The wolfSSL pkg-config packages.
 # - `WOLFSSL_CFLAGS`:        Required compiler flags.
 # - `WOLFSSL_VERSION`:       Version of wolfSSL.
+
+set(WOLFSSL_PC_REQUIRES "wolfssl")
 
 if((UNIX OR VCPKG_TOOLCHAIN OR (MINGW AND NOT CMAKE_CROSSCOMPILING)) AND
    NOT DEFINED WOLFSSL_INCLUDE_DIR AND
    NOT DEFINED WOLFSSL_LIBRARY)
   find_package(PkgConfig QUIET)
-  pkg_check_modules(WOLFSSL "wolfssl")
+  pkg_check_modules(WOLFSSL ${WOLFSSL_PC_REQUIRES})
 endif()
 
 if(WOLFSSL_FOUND)
