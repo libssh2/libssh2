@@ -785,24 +785,6 @@ void _libssh2_xor_data(unsigned char *output,
         *output++ = *input1++ ^ *input2++;
 }
 
-/* Increments an AES CTR buffer to prepare it for use with the
-   next AES block. */
-void _libssh2_aes_ctr_increment(unsigned char *ctr,
-                                size_t length)
-{
-    unsigned char *pc;
-    unsigned int val, carry;
-
-    pc = ctr + length - 1;
-    carry = 1;
-
-    while(pc >= ctr) {
-        val = (unsigned int)*pc + carry;
-        *pc-- = val & 0xFF;
-        carry = val >> 8;
-    }
-}
-
 #ifdef LIBSSH2_MEMZERO
 static void * (* const volatile memset_libssh)(void *, int, size_t) = memset;
 
