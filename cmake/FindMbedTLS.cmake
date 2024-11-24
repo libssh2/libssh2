@@ -19,18 +19,21 @@
 # - `MBEDTLS_CFLAGS`:        Required compiler flags.
 # - `MBEDTLS_VERSION`:       Version of mbedTLS.
 
+set(MBEDTLS_PC_REQUIRES "mbedcrypto")
+
 if((UNIX OR VCPKG_TOOLCHAIN OR (MINGW AND NOT CMAKE_CROSSCOMPILING)) AND
    NOT DEFINED MBEDTLS_INCLUDE_DIR AND
    NOT DEFINED MBEDCRYPTO_LIBRARY)
   find_package(PkgConfig QUIET)
-  pkg_check_modules(MBEDTLS "mbedcrypto")
+  pkg_check_modules(MBEDTLS ${MBEDTLS_PC_REQUIRES})
 endif()
 
 if(MBEDTLS_FOUND)
-  set(MBEDTLS_PC_REQUIRES "mbedcrypto")
   string(REPLACE ";" " " MBEDTLS_CFLAGS "${MBEDTLS_CFLAGS}")
   message(STATUS "Found MbedTLS (via pkg-config): ${MBEDTLS_INCLUDE_DIRS} (found version \"${MBEDTLS_VERSION}\")")
 else()
+  set(MBEDTLS_PC_REQUIRES "")
+
   find_path(MBEDTLS_INCLUDE_DIR NAMES "mbedtls/version.h")
   find_library(MBEDCRYPTO_LIBRARY NAMES "mbedcrypto" "libmbedcrypto")
 
