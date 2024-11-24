@@ -335,6 +335,7 @@ jobs:
             curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl111-version }}.tar.gz | tar -xzf -
             cd openssl-${{ env.openssl111-version }}
             ./config no-unit-test no-makedepend --prefix=$HOME/usr no-tests
+            make -j5
             make -j1 install_sw
             cd ..
           fi
@@ -358,6 +359,7 @@ jobs:
             curl -fsS -L https://openssl.org/source/old/1.1.0/openssl-${{ env.openssl110-version }}.tar.gz | tar -xzf -
             cd openssl-${{ env.openssl110-version }}
             ./config no-unit-test no-makedepend --prefix=$HOME/usr
+            make -j5
             make -j1 install_sw
             cd ..
           fi
