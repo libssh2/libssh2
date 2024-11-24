@@ -1,3 +1,6 @@
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
+
 AM_CPPFLAGS = -I$(top_builddir)/include
 LDADD = $(top_builddir)/src/libssh2.la
 
