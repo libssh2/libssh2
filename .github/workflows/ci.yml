@@ -249,7 +249,7 @@ jobs:
             mkdir boringssl
             cd boringssl
             curl -fsS https://boringssl.googlesource.com/boringssl/+archive/${{ env.boringssl-version }}.tar.gz | tar -xzf -
-            # Skip tests to make the build finish faster
+            # Skip tests to finish the build faster
             echo 'set_target_properties(decrepit bssl_shim test_fips boringssl_gtest test_support_lib urandom_test crypto_test ssl_test decrepit_test all_tests pki pki_test run_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)' >> ./CMakeLists.txt
             cmake -B . \
               -DOPENSSL_SMALL=ON \
