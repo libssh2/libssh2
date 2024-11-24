@@ -214,9 +214,7 @@ jobs:
             WOLFSSLVER=${{ env.wolfssl-version }}
           else
             WOLFSSLVER=${{ env.wolfssl-version-prev }}
-            # Required to include `FIPS_mode()` API:
             options='-DWOLFSSL_OPENSSLEXTRA=ON'
-            cppflags='-DOPENSSL_ALL'
           fi
           curl -fsS -L https://github.com/wolfSSL/wolfssl/archive/refs/tags/v$WOLFSSLVER-stable.tar.gz | tar -xzf -
           cd wolfssl-$WOLFSSLVER-stable
@@ -226,7 +224,7 @@ jobs:
             -DWOLFSSL_OPENSSLALL=ON \
             -DWOLFSSL_EXAMPLES=OFF \
             -DWOLFSSL_CRYPT_TESTS=OFF \
-            "-DCMAKE_C_FLAGS=-fPIC -DWOLFSSL_AESGCM_STREAM ${cppflags}" \
+            '-DCMAKE_C_FLAGS=-fPIC -DWOLFSSL_AESGCM_STREAM' \
             "-DCMAKE_INSTALL_PREFIX=$HOME/usr"
           cmake --build bld --parallel 5
           cmake --install bld
