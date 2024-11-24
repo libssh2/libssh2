@@ -146,12 +146,12 @@ jobs:
             options: --disable-static
     env:
       CC: ${{ matrix.compiler }}
-      mbedtls-version: 3.5.1
-      wolfssl-version: 5.7.0
+      mbedtls-version: 3.6.2
+      wolfssl-version: 5.7.4
       wolfssl-version-prev: 5.5.4
       boringssl-version: 0.20241024.0
       libressl-version: 4.0.0
-      openssl-version: 3.2.0
+      openssl-version: 3.4.0
       openssl111-version: 1.1.1w
       openssl110-version: 1.1.0l
       openssl102-version: 1.0.2u
@@ -187,8 +187,8 @@ jobs:
         if: ${{ matrix.crypto == 'mbedTLS' }}
         run: |
           if [ '${{ steps.cache-mbedtls.outputs.cache-hit }}' != 'true' ]; then
-            curl -fsS -L https://github.com/Mbed-TLS/mbedtls/archive/mbedtls-${{ env.mbedtls-version }}.tar.gz | tar -xzf -
-            cd mbedtls-mbedtls-${{ env.mbedtls-version }}
+            curl -fsS -L https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-${{ env.mbedtls-version }}/mbedtls-${{ env.mbedtls-version }}.tar.bz2 | tar -xjf -
+            cd mbedtls-${{ env.mbedtls-version }}
             if [ '${{ matrix.arch }}' = 'i386' ]; then
               crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }}'
               cflags='-m32 -mpclmul -msse2 -maes'
