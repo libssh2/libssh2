@@ -8,12 +8,12 @@ set -eu
 # Save off the current folder as the build root.
 export BUILD_ROOT="$PWD"
 
-echo "CC: $CC"
-echo "CXX: $CXX"
-echo "LIB_FUZZING_ENGINE: $LIB_FUZZING_ENGINE"
-echo "CFLAGS: $CFLAGS"
-echo "CXXFLAGS: $CXXFLAGS"
-echo "OUT: $OUT"
+echo "CC: ${CC:-}"
+echo "CXX: ${CXX:-}"
+echo "LIB_FUZZING_ENGINE: ${LIB_FUZZING_ENGINE:-}"
+echo "CFLAGS: ${CFLAGS:-}"
+echo "CXXFLAGS: ${CXXFLAGS:-}"
+echo "OUT: ${OUT:-}"
 
 MAKEFLAGS+="-j$(nproc)"
 export MAKEFLAGS
