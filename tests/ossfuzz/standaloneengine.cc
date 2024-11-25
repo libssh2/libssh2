@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 
       /* Get the length of the file. */
       fseek(infile, 0L, SEEK_END);
-      buffer_len = ftell(infile);
+      buffer_len = (size_t)ftell(infile);
 
       /* Reset the file indicator to the beginning of the file. */
       fseek(infile, 0L, SEEK_SET);
