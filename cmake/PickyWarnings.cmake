@@ -11,8 +11,10 @@ option(PICKY_COMPILER "Enable picky compiler options" ON)
 if(ENABLE_WERROR)
   if(MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
   else()  # llvm/clang and gcc style options
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
   endif()
 
   if(((CMAKE_COMPILER_IS_GNUCC AND
@@ -30,10 +32,15 @@ if(MSVC)
   else()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
   endif()
+  if(CMAKE_CXX_FLAGS MATCHES "[/-]W[0-4]")
+    string(REGEX REPLACE "[/-]W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+  endif()
 endif()
 
 if(PICKY_COMPILER)
-  if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+  if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 
     # https://clang.llvm.org/docs/DiagnosticsReference.html
     # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -252,5 +259,6 @@ endif()
 if(_picky)
   string(REPLACE ";" " " _picky "${_picky}")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_picky}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${_picky}")
   message(STATUS "Picky compiler options: ${_picky}")
 endif()
