@@ -14,12 +14,14 @@
 #include "testinput.h"
 
 #define FUZZ_ASSERT(COND)                                                     \
-    if(!(COND))                                                               \
-    {                                                                         \
-      fprintf(stderr, "Assertion failed: " #COND "\n%s",                      \
-              strerror(errno));                                               \
-      assert((COND));                                                         \
-    }
+    do {                                                                      \
+        if(!(COND))                                                           \
+        {                                                                     \
+            fprintf(stderr, "Assertion failed: " #COND "\n%s",                \
+                    strerror(errno));                                         \
+            assert((COND));                                                   \
+        }                                                                     \
+    } while(0)
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
@@ -42,7 +44,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
   written = send(socket_fds[1], data, size, 0);
 
-  if(written != size)
+  if(written != (ssize_t)size)
   {
     // Handle whatever error case we're in.
     fprintf(stderr, "send() of %zu bytes returned %zu (%d)\n",
