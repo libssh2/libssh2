@@ -1058,16 +1058,18 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session,
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv2(LIBSSH2_SESSION *session,
                                                const char *path,
                                                libssh2_struct_stat *sb);
+#ifndef LIBSSH2_NO_DEPRECATED
+LIBSSH2_DEPRECATED(1.2.6, "Use libssh2_scp_send64()")
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session,
                                                  const char *path, int mode,
                                                  size_t size, long mtime,
                                                  long atime);
+#define libssh2_scp_send(session, path, mode, size) \
+    libssh2_scp_send_ex((session), (path), (mode), (size), 0, 0)
+#endif
 LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
                    libssh2_int64_t size, time_t mtime, time_t atime);
-
-#define libssh2_scp_send(session, path, mode, size) \
-    libssh2_scp_send_ex((session), (path), (mode), (size), 0, 0)
 
 /* DEPRECATED */
 LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
