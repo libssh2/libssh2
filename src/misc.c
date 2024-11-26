@@ -353,9 +353,10 @@ static const short base64_reverse_table[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
 
-/* libssh2_base64_decode
+#ifndef LIBSSH2_NO_DEPRECATED
+/* libssh2_base64_decode (DEPRECATED, DO NOT USE!)
  *
- * Legacy public function. DEPRECATED.
+ * Legacy public function.
  */
 LIBSSH2_API int
 libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
@@ -372,6 +373,7 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
 
     return rc;
 }
+#endif
 
 /* _libssh2_base64_decode
  *
