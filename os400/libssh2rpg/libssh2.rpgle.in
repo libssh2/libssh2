@@ -1401,6 +1401,7 @@
      d  path                           *   value options(*string)               const char *
      d  sb                                 likeds(libssh2_struct_stat)
 
+      /if not defined(LIBSSH2_NO_DEPRECATED)
      d libssh2_scp_send_ex...
      d                 pr              *   extproc('libssh2_scp_send_ex')       LIBSSH2_CHANNEL *
      d  session                        *   value                                LIBSSH2_SESSION *
@@ -1409,6 +1410,7 @@
      d  size                               value like(libssh2_Csize_t)
      d  mtime                              value like(libssh2_Clong)
      d  atime                              value like(libssh2_Clong)
+      /endif
 
      d libssh2_scp_send64...
      d                 pr              *   extproc('libssh2_scp_send64')        LIBSSH2_CHANNEL *
