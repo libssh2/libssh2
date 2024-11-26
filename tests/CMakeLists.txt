@@ -38,6 +38,8 @@
 
 include(CopyRuntimeDependencies)
 
+include_directories(SYSTEM ${CRYPTO_BACKEND_INCLUDE_DIR})
+
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
@@ -73,10 +75,9 @@ endif()
 add_library(runner STATIC ${librunner_la_SOURCES})
 target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(runner PRIVATE
-  "${CMAKE_CURRENT_BINARY_DIR}/../src"
-  "../src"
-  "../include"
-  "${CRYPTO_BACKEND_INCLUDE_DIR}")
+  "${PROJECT_BINARY_DIR}/src"
+  "${PROJECT_SOURCE_DIR}/src"
+  "${PROJECT_SOURCE_DIR}/include")
 target_link_libraries(runner PRIVATE libssh2)
 
 foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
@@ -85,7 +86,7 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
   elseif(TARGET ${LIB_STATIC})
     set(_lib_for_tests ${LIB_STATIC})
   else()
-    unset(_lib_for_tests)
+    set(_lib_for_tests "")
     message(STATUS "Skip test requiring static libssh2 lib: ${_test}")
   endif()
 
@@ -95,10 +96,9 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
     add_executable(${_test} "${_test}.c")
     target_compile_definitions(${_test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
     target_include_directories(${_test} PRIVATE
-      "${CMAKE_CURRENT_BINARY_DIR}/../src"
-      "../src"
-      "../include"
-      "${CRYPTO_BACKEND_INCLUDE_DIR}")
+      "${PROJECT_BINARY_DIR}/src"
+      "${PROJECT_SOURCE_DIR}/src"
+      "${PROJECT_SOURCE_DIR}/include")
     set_target_properties(${_test} PROPERTIES UNITY_BUILD OFF)
 
     # build a single test with gcov
@@ -132,7 +132,7 @@ foreach(_test IN LISTS STANDALONE_TESTS)
 endforeach()
 
 if(RUN_SSHD_TESTS AND SSHD_EXECUTABLE)
-  unset(_sshd_test_targets)
+  set(_sshd_test_targets "")
   foreach(_test IN LISTS SSHD_TESTS)
     if(TARGET ${_test})
       set(_sshd_test_targets "${_sshd_test_targets} $<TARGET_FILE:${_test}>")
@@ -176,3 +176,7 @@ add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
   DEPENDENCIES ${RUNTIME_DEPENDENCIES}
   BEFORE_TARGETS ${TEST_TARGETS})
+
+if(BUILD_OSSFUZZ)
+  add_subdirectory(ossfuzz)
+endif()

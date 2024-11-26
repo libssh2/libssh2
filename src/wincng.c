@@ -431,7 +431,7 @@ _libssh2_wincng_init(void)
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(_libssh2_wincng.hAlgAES_CBC,
                                 BCRYPT_CHAINING_MODE,
-                                (PBYTE)BCRYPT_CHAIN_MODE_CBC,
+                                (PBYTE)LIBSSH2_UNCONST(BCRYPT_CHAIN_MODE_CBC),
                                 sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
         if(!BCRYPT_SUCCESS(ret)) {
             ret = BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgAES_CBC, 0);
@@ -446,7 +446,7 @@ _libssh2_wincng_init(void)
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(_libssh2_wincng.hAlgAES_ECB,
                                 BCRYPT_CHAINING_MODE,
-                                (PBYTE)BCRYPT_CHAIN_MODE_ECB,
+                                (PBYTE)LIBSSH2_UNCONST(BCRYPT_CHAIN_MODE_ECB),
                                 sizeof(BCRYPT_CHAIN_MODE_ECB), 0);
         if(!BCRYPT_SUCCESS(ret)) {
             ret = BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgAES_ECB, 0);
@@ -461,7 +461,7 @@ _libssh2_wincng_init(void)
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(_libssh2_wincng.hAlgRC4_NA,
                                 BCRYPT_CHAINING_MODE,
-                                (PBYTE)BCRYPT_CHAIN_MODE_NA,
+                                (PBYTE)LIBSSH2_UNCONST(BCRYPT_CHAIN_MODE_NA),
                                 sizeof(BCRYPT_CHAIN_MODE_NA), 0);
         if(!BCRYPT_SUCCESS(ret)) {
             ret = BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgRC4_NA, 0);
@@ -476,7 +476,7 @@ _libssh2_wincng_init(void)
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(_libssh2_wincng.hAlg3DES_CBC,
                                 BCRYPT_CHAINING_MODE,
-                                (PBYTE)BCRYPT_CHAIN_MODE_CBC,
+                                (PBYTE)LIBSSH2_UNCONST(BCRYPT_CHAIN_MODE_CBC),
                                 sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
         if(!BCRYPT_SUCCESS(ret)) {
             ret = BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlg3DES_CBC,
@@ -676,7 +676,8 @@ _libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
 {
     int ret;
 
-    ret = BCryptHashData(ctx->hHash, (PUCHAR)data, datalen, 0);
+    ret = BCryptHashData(ctx->hHash,
+                         (PUCHAR)LIBSSH2_UNCONST(data), datalen, 0);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -2887,9 +2888,9 @@ _libssh2_wincng_ecdsa_new_private_frommemory(
     }
 
     data_buffer.len = data_len;
-    data_buffer.data = (unsigned char *)data;
-    data_buffer.dataptr =
-        (unsigned char *)data + strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
+    data_buffer.data = (unsigned char *)LIBSSH2_UNCONST(data);
+    data_buffer.dataptr = data_buffer.data +
+                          strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
 
     /* Read ciphername, should be 'none' as we don't support passphrases */
     result = _libssh2_match_string(&data_buffer, "none");
@@ -3437,6 +3438,24 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
     ctx->dwCtrLength = dwCtrLength;
 
     return 0;
+}
+
+/* Increments an AES CTR buffer to prepare it for use with the
+   next AES block. */
+static void _libssh2_aes_ctr_increment(unsigned char *ctr,
+                                       size_t length)
+{
+    unsigned char *pc;
+    unsigned int val, carry;
+
+    pc = ctr + length - 1;
+    carry = 1;
+
+    while(pc >= ctr) {
+        val = (unsigned int)*pc + carry;
+        *pc-- = val & 0xFF;
+        carry = val >> 8;
+    }
 }
 
 int

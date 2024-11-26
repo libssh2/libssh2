@@ -88,10 +88,13 @@ comp_method_none_decomp(LIBSSH2_SESSION * session,
                         size_t src_len, void **abstract)
 {
     (void)session;
+    (void)dest;
+    (void)dest_len;
     (void)payload_limit;
+    (void)src;
+    (void)src_len;
     (void)abstract;
-    *dest = (unsigned char *) src;
-    *dest_len = src_len;
+
     return 0;
 }
 
@@ -195,7 +198,7 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
     uInt out_maxlen = (uInt)*dest_len;
     int status;
 
-    strm->next_in = (unsigned char *) src;
+    strm->next_in = (unsigned char *) LIBSSH2_UNCONST(src);
     strm->avail_in = (uInt)src_len;
     strm->next_out = dest;
     strm->avail_out = out_maxlen;
@@ -249,7 +252,7 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
     if(out_maxlen > payload_limit)
         out_maxlen = payload_limit;
 
-    strm->next_in = (unsigned char *) src;
+    strm->next_in = (unsigned char *) LIBSSH2_UNCONST(src);
     strm->avail_in = (uInt)src_len;
     strm->next_out = (unsigned char *) LIBSSH2_ALLOC(session,
                                                      (uInt)out_maxlen);
