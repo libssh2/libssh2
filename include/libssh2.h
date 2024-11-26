@@ -1343,6 +1343,7 @@ struct libssh2_agent_publickey {
     unsigned char *blob;           /* public key blob */
     size_t blob_len;               /* length of the public key blob */
     char *comment;                 /* comment in printable format */
+    char *method;                  /* method (from blob) */
 };
 
 /*
