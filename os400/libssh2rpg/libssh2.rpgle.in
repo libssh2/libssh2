@@ -1429,7 +1429,7 @@
      d  mode                               value like(libssh2_Cint)
      d  size                               value like(libssh2_int64_t)
 
-      * DEPRECATED
+      /if not defined(LIBSSH2_NO_DEPRECATED)
      d libssh2_base64_decode...
      d                 pr                  extproc('libssh2_base64_decode')
      d                                     like(libssh2_Cint)
@@ -1438,6 +1438,7 @@
      d  dest_len                       *   value                                unsigned int *
      d  src                            *   value options(*string)               const char *
      d  src_len                            value like(libssh2_Cuint)
+      /endif
 
       * Procedure libssh2_version renamed to avoid upper/lower case name clash.
      d libssh2_get_version...
