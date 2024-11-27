@@ -634,6 +634,11 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 {
     int rc = 0;
     unsigned char *message = NULL;
+
+    if (!data || datalen == 0) {
+        return LIBSSH2_ERROR_INVAL;
+    }
+
     unsigned char *language = NULL;
     size_t message_len = 0;
     size_t language_len = 0;
