@@ -23,6 +23,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: 'checksrc'
         run: ./ci/checksrc.sh
 
@@ -31,6 +33,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: 'shellcheck'
         run: ./ci/shellcheck.sh
 
@@ -38,6 +42,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: 'install tools'
         run: pip install --break-system-packages -U codespell
       - name: 'spellcheck'
@@ -52,6 +58,8 @@ jobs:
       MAKEFLAGS: -j5
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: 'cmake'
         run: |
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install --no-install-suggests --no-install-recommends \
@@ -157,6 +165,8 @@ jobs:
       openssl102-version: 1.0.2u
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: 'install architecture'
         if: ${{ matrix.arch != 'amd64' }}
         run: |
@@ -468,6 +478,8 @@ jobs:
       TRIPLET: 'x86_64-w64-mingw32'
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: 'install packages'
         run: |
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install --no-install-suggests --no-install-recommends \
@@ -512,6 +524,8 @@ jobs:
     steps:
       - run: git config --global core.autocrlf input
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: cygwin/cygwin-install-action@v5
         with:
           platform: ${{ matrix.platform }}
@@ -573,6 +587,8 @@ jobs:
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'no-options' }
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: msys2/setup-msys2@v2
         if: ${{ matrix.sys == 'msys' }}
         with:
@@ -683,6 +699,8 @@ jobs:
           - { arch: x86  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: 'cmake configure'
         shell: bash
         run: |
@@ -755,6 +773,8 @@ jobs:
       - name: 'install packages'
         run: brew install ${{ matrix.build == 'autotools' && 'automake libtool' || 'ninja' }} ${{ matrix.crypto.install }}
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
@@ -804,6 +824,8 @@ jobs:
         arch: ['x86_64', 'arm64']
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: 'cmake'
         uses: cross-platform-actions/action@v0.25.0
         with:
@@ -834,6 +856,8 @@ jobs:
         arch: ['x86_64']
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: 'cmake'
         uses: cross-platform-actions/action@v0.25.0
         with:
@@ -868,6 +892,8 @@ jobs:
         arch: ['x86_64', 'arm64']
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: 'autotools'
         uses: cross-platform-actions/action@v0.25.0
         with:
@@ -892,6 +918,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: 'autotools'
         uses: vmactions/omnios-vm@v1
         with:

@@ -41,6 +41,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - shell: bash
         id: hash
