@@ -45,7 +45,7 @@
 
 /* FIXME: Disable warnings for 'src' */
 #if !defined(LIBSSH2_TESTS) && !defined(LIBSSH2_WARN_SIGN_CONVERSION)
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 #endif
@@ -115,6 +115,14 @@
 
 #ifndef UINT32_MAX
 #define UINT32_MAX 0xffffffffU
+#endif
+
+#ifdef _WIN64
+#define LIBSSH2_UNCONST(p)  ((void *)(libssh2_uint64_t)(const void *)(p))
+#elif defined(_MSC_VER)
+#define LIBSSH2_UNCONST(p)  ((void *)(unsigned int)(const void *)(p))
+#else
+#define LIBSSH2_UNCONST(p)  ((void *)(uintptr_t)(const void *)(p))
 #endif
 
 #if (defined(__GNUC__) || defined(__clang__)) && \
@@ -1249,10 +1257,10 @@ size_t plain_method(char *method, size_t method_len);
 #define ARRAY_SIZE(a) (sizeof ((a)) / sizeof ((a)[0]))
 
 /* define to output the libssh2_int64_t type in a *printf() */
-#if defined(__BORLANDC__) || defined(_MSC_VER)
-#define LIBSSH2_INT64_T_FORMAT "I64d"
-#elif defined(__MINGW32__)
+#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER >= 1800))
 #define LIBSSH2_INT64_T_FORMAT PRId64
+#elif defined(_WIN32)
+#define LIBSSH2_INT64_T_FORMAT "I64d"
 #else
 #define LIBSSH2_INT64_T_FORMAT "lld"
 #endif
