@@ -588,12 +588,12 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - uses: msys2/setup-msys2@v2
+      - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
         if: ${{ matrix.sys == 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
           install: gcc ${{ matrix.build }} ${{ matrix.build == 'autotools' && 'make' || 'ninja' }} openssl-devel zlib-devel
-      - uses: msys2/setup-msys2@v2
+      - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
         if: ${{ matrix.sys != 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
