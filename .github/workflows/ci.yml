@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'checksrc'
@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'shellcheck'
@@ -41,7 +41,7 @@ jobs:
   spellcheck:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'install tools'
@@ -57,7 +57,7 @@ jobs:
       CC: clang
       MAKEFLAGS: -j5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'cmake'
@@ -164,7 +164,7 @@ jobs:
       openssl110-version: 1.1.0l
       openssl102-version: 1.0.2u
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'install architecture'
@@ -187,7 +187,7 @@ jobs:
 
       - name: 'cache mbedTLS'
         if: ${{ matrix.crypto == 'mbedTLS' }}
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-mbedtls
         with:
           path: /home/runner/usr
@@ -244,7 +244,7 @@ jobs:
 
       - name: 'cache BoringSSL'
         if: ${{ matrix.crypto == 'BoringSSL' }}
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-boringssl
         with:
           path: /home/runner/usr
@@ -272,7 +272,7 @@ jobs:
 
       - name: 'cache LibreSSL'
         if: ${{ matrix.crypto == 'LibreSSL' }}
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-libressl
         with:
           path: /home/runner/usr
@@ -297,7 +297,7 @@ jobs:
 
       - name: 'cache OpenSSL'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-openssl
         with:
           path: /home/runner/usr
@@ -320,7 +320,7 @@ jobs:
 
       - name: 'cache OpenSSL 1.1.1'
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-openssl111
         with:
           path: /home/runner/usr
@@ -342,7 +342,7 @@ jobs:
 
       - name: 'cache OpenSSL 1.1.0'
         if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-openssl110
         with:
           path: /home/runner/usr
@@ -364,7 +364,7 @@ jobs:
 
       - name: 'cache OpenSSL 1.0.2'
         if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-openssl102
         with:
           path: /home/runner/usr
@@ -477,7 +477,7 @@ jobs:
     env:
       TRIPLET: 'x86_64-w64-mingw32'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'install packages'
@@ -523,10 +523,10 @@ jobs:
           - { build: 'cmake'   , platform: 'x86_64', compiler: 'gcc' }
     steps:
       - run: git config --global core.autocrlf input
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - uses: cygwin/cygwin-install-action@v5
+      - uses: cygwin/cygwin-install-action@f61179d72284ceddc397ed07ddb444d82bf9e559 # v5
         with:
           platform: ${{ matrix.platform }}
           packages: ${{ matrix.build == 'automake' && 'autoconf libtool make' || 'ninja' }} ${{ matrix.build }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
@@ -586,15 +586,15 @@ jobs:
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'uwp' }
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'no-options' }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - uses: msys2/setup-msys2@v2
+      - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
         if: ${{ matrix.sys == 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
           install: gcc ${{ matrix.build }} ${{ matrix.build == 'autotools' && 'make' || 'ninja' }} openssl-devel zlib-devel
-      - uses: msys2/setup-msys2@v2
+      - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
         if: ${{ matrix.sys != 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
@@ -698,7 +698,7 @@ jobs:
           - { arch: arm64, plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
           - { arch: x86  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'cmake configure'
@@ -772,7 +772,7 @@ jobs:
     steps:
       - name: 'install packages'
         run: brew install ${{ matrix.build == 'autotools' && 'automake libtool' || 'ninja' }} ${{ matrix.crypto.install }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'autotools autoreconf'
@@ -823,11 +823,11 @@ jobs:
       matrix:
         arch: ['x86_64', 'arm64']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'cmake'
-        uses: cross-platform-actions/action@v0.25.0
+        uses: cross-platform-actions/action@a0672d7f6de3a78e7784bbaf491c7303f68d94b3 # v0.26.0
         with:
           operating_system: 'netbsd'
           version: '10.0'
@@ -855,11 +855,11 @@ jobs:
       matrix:
         arch: ['x86_64']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'cmake'
-        uses: cross-platform-actions/action@v0.25.0
+        uses: cross-platform-actions/action@a0672d7f6de3a78e7784bbaf491c7303f68d94b3 # v0.26.0
         with:
           operating_system: 'openbsd'
           version: '7.5'
@@ -891,11 +891,11 @@ jobs:
       matrix:
         arch: ['x86_64', 'arm64']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'autotools'
-        uses: cross-platform-actions/action@v0.25.0
+        uses: cross-platform-actions/action@a0672d7f6de3a78e7784bbaf491c7303f68d94b3 # v0.26.0
         with:
           operating_system: 'freebsd'
           version: '14.1'
@@ -917,11 +917,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'autotools'
-        uses: vmactions/omnios-vm@v1
+        uses: vmactions/omnios-vm@16b5996777bc675acd3d537f13df536a526cd16d # v1
         with:
           usesh: true
           # https://pkg.omnios.org/r151050/core/en/index.shtml
