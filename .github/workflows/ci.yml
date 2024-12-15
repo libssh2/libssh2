@@ -920,7 +920,7 @@ jobs:
         with:
           persist-credentials: false
       - name: 'autotools'
-        uses: vmactions/omnios-vm@v1
+        uses: vmactions/omnios-vm@16b5996777bc675acd3d537f13df536a526cd16d # v1
         with:
           usesh: true
           # https://pkg.omnios.org/r151050/core/en/index.shtml
