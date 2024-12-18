@@ -47,8 +47,10 @@
 /* We use underscore instead of dash when appending DEV in dev versions just
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
-   have dashes either. */
-#define LIBSSH2_VERSION                             "1.11.1_DEV"
+   have dashes either. The release version (without "_DEV") is not stored in
+   the source code repo, as the version is properly set in the tarballs by the
+   maketgz script.*/
+#define LIBSSH2_VERSION                             "1.11.2_DEV"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
@@ -268,7 +270,7 @@ typedef off_t libssh2_struct_stat_size;
    short of spec limits */
 #define LIBSSH2_PACKET_MAXCOMP      32000
 
-/* Maximum size to allow a payload to deccompress to, plays it safe by
+/* Maximum size to allow a payload to decompress to, plays it safe by
    allowing more than spec requires */
 #define LIBSSH2_PACKET_MAXDECOMP    40000
 
@@ -292,7 +294,7 @@ typedef struct _LIBSSH2_USERAUTH_KBDINT_PROMPT
 typedef struct _LIBSSH2_USERAUTH_KBDINT_RESPONSE
 {
     char *text;
-    unsigned int length;
+    unsigned int length;  /* FIXME: change type to size_t */
 } LIBSSH2_USERAUTH_KBDINT_RESPONSE;
 
 typedef struct _LIBSSH2_SK_SIG_INFO {
@@ -502,7 +504,7 @@ typedef struct _LIBSSH2_POLLFD {
 /* Hostkey Types */
 #define LIBSSH2_HOSTKEY_TYPE_UNKNOWN            0
 #define LIBSSH2_HOSTKEY_TYPE_RSA                1
-#define LIBSSH2_HOSTKEY_TYPE_DSS                2
+#define LIBSSH2_HOSTKEY_TYPE_DSS                2  /* deprecated */
 #define LIBSSH2_HOSTKEY_TYPE_ECDSA_256          3
 #define LIBSSH2_HOSTKEY_TYPE_ECDSA_384          4
 #define LIBSSH2_HOSTKEY_TYPE_ECDSA_521          5
@@ -587,6 +589,9 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_ERROR_RANDGEN                   -49
 #define LIBSSH2_ERROR_MISSING_USERAUTH_BANNER   -50
 #define LIBSSH2_ERROR_ALGO_UNSUPPORTED          -51
+#define LIBSSH2_ERROR_MAC_FAILURE               -52
+#define LIBSSH2_ERROR_HASH_INIT                 -53
+#define LIBSSH2_ERROR_HASH_CALC                 -54
 
 /* this is a define to provide the old (<= 1.2.7) name */
 #define LIBSSH2_ERROR_BANNER_NONE LIBSSH2_ERROR_BANNER_RECV
@@ -597,7 +602,7 @@ typedef struct _LIBSSH2_POLLFD {
 /*
  * libssh2_init()
  *
- * Initialize the libssh2 functions.  This typically initialize the
+ * Initialize the libssh2 functions.  This typically initializes the
  * crypto library.  It uses a global state, and is not thread safe --
  * you must make sure this function is not called concurrently.
  *
@@ -627,7 +632,7 @@ LIBSSH2_API void libssh2_free(LIBSSH2_SESSION *session, void *ptr);
 /*
  * libssh2_session_supported_algs()
  *
- * Fills algs with a list of supported acryptographic algorithms. Returns a
+ * Fills algs with a list of supported cryptographic algorithms. Returns a
  * non-negative number (number of supported algorithms) on success or a
  * negative number (an error code) on failure.
  *
@@ -1144,7 +1149,7 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session);
 #define LIBSSH2_KNOWNHOST_KEY_SHIFT        18
 #define LIBSSH2_KNOWNHOST_KEY_RSA1         (1<<18)
 #define LIBSSH2_KNOWNHOST_KEY_SSHRSA       (2<<18)
-#define LIBSSH2_KNOWNHOST_KEY_SSHDSS       (3<<18)
+#define LIBSSH2_KNOWNHOST_KEY_SSHDSS       (3<<18)  /* deprecated */
 #define LIBSSH2_KNOWNHOST_KEY_ECDSA_256    (4<<18)
 #define LIBSSH2_KNOWNHOST_KEY_ECDSA_384    (5<<18)
 #define LIBSSH2_KNOWNHOST_KEY_ECDSA_521    (6<<18)
@@ -1223,7 +1228,7 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                         int typemask,
                         struct libssh2_knownhost **knownhost);
 
-/* this function is identital to the above one, but also takes a port
+/* this function is identical to the above one, but also takes a port
    argument that allows libssh2 to do a better check */
 LIBSSH2_API int
 libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,

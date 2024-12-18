@@ -44,22 +44,22 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
 
   if(PICKY_COMPILER)
 
-    # WPICKY_ENABLE = Options we want to enable as-is.
-    # WPICKY_DETECT = Options we want to test first and enable if available.
+    # _picky_enable = Options we want to enable as-is.
+    # _picky_detect = Options we want to test first and enable if available.
 
     # Prefer the -Wextra alias with clang.
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-      set(WPICKY_ENABLE "-Wextra")
+      set(_picky_enable "-Wextra")
     else()
-      set(WPICKY_ENABLE "-W")
+      set(_picky_enable "-W")
     endif()
 
-    list(APPEND WPICKY_ENABLE
+    list(APPEND _picky_enable
       -pedantic
     )
 
     if(ENABLE_WERROR)
-      list(APPEND WPICKY_ENABLE
+      list(APPEND _picky_enable
         -pedantic-errors
       )
     endif()
@@ -67,12 +67,12 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     # ----------------------------------
     # Add new options here, if in doubt:
     # ----------------------------------
-    set(WPICKY_DETECT
+    set(_picky_detect
     )
 
     # Assume these options always exist with both clang and gcc.
     # Require clang 3.0 / gcc 2.95 or later.
-    list(APPEND WPICKY_ENABLE
+    list(APPEND _picky_enable
       -Wbad-function-cast                  # clang  2.7  gcc  2.95
       -Wconversion                         # clang  2.7  gcc  2.95
       -Winline                             # clang  1.0  gcc  1.0
@@ -90,7 +90,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     )
 
     # Always enable with clang, version dependent with gcc
-    set(WPICKY_COMMON_OLD
+    set(_picky_common_old
       -Waddress                            # clang  2.7  gcc  4.3
       -Wattributes                         # clang  2.7  gcc  4.1
       -Wcast-align                         # clang  1.0  gcc  4.2
@@ -105,13 +105,13 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wmissing-noreturn                   # clang  2.7  gcc  4.1
       -Wno-format-nonliteral               # clang  1.0  gcc  2.96 (3.0)
       -Wno-system-headers                  # clang  1.0  gcc  3.0
-    # -Wpadded                             # clang  2.9  gcc  4.1               # Not used because we cannot change public structs
+    # -Wpadded                             # clang  2.9  gcc  4.1               # Not used: We cannot change public structs
       -Wold-style-definition               # clang  2.7  gcc  3.4
       -Wredundant-decls                    # clang  2.7  gcc  4.1
       -Wsign-conversion                    # clang  2.9  gcc  4.3
         -Wno-error=sign-conversion                                              # FIXME
       -Wstrict-prototypes                  # clang  1.0  gcc  3.3
-    # -Wswitch-enum                        # clang  2.7  gcc  4.1               # Not used because this basically disallows default case
+    # -Wswitch-enum                        # clang  2.7  gcc  4.1               # Not used: It basically disallows default case
       -Wtype-limits                        # clang  2.7  gcc  4.3
       -Wunreachable-code                   # clang  2.7  gcc  4.1
       -Wunused-macros                      # clang  2.7  gcc  4.1
@@ -119,7 +119,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       -Wvla                                # clang  2.8  gcc  4.3
     )
 
-    set(WPICKY_COMMON
+    set(_picky_common
       -Wdouble-promotion                   # clang  3.6  gcc  4.6  appleclang  6.3
       -Wenum-conversion                    # clang  3.2  gcc 10.0  appleclang  4.6  g++ 11.0
       -Wpragmas                            # clang  3.5  gcc  4.1  appleclang  6.0
@@ -127,8 +127,8 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
     )
 
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-      list(APPEND WPICKY_ENABLE
-        ${WPICKY_COMMON_OLD}
+      list(APPEND _picky_enable
+        ${_picky_common_old}
         -Wshift-sign-overflow              # clang  2.9
         -Wshorten-64-to-32                 # clang  1.0
         -Wlanguage-extension-token         # clang  3.0
@@ -137,41 +137,41 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
       # Enable based on compiler version
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 3.6) OR
          (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 6.3))
-        list(APPEND WPICKY_ENABLE
-          ${WPICKY_COMMON}
-          -Wunreachable-code-break         # clang  3.5            appleclang  6.0
+        list(APPEND _picky_enable
+          ${_picky_common}
+        # -Wunreachable-code-break         # clang  3.5            appleclang  6.0  # Not used: Silent in "unity" builds
           -Wheader-guard                   # clang  3.4            appleclang  5.1
           -Wsometimes-uninitialized        # clang  3.2            appleclang  4.6
         )
       endif()
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 3.9) OR
          (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 8.3))
-        list(APPEND WPICKY_ENABLE
+        list(APPEND _picky_enable
           -Wcomma                          # clang  3.9            appleclang  8.3
           -Wmissing-variable-declarations  # clang  3.2            appleclang  4.6
         )
       endif()
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0) OR
          (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 10.3))
-        list(APPEND WPICKY_ENABLE
+        list(APPEND _picky_enable
           -Wassign-enum                    # clang  7.0            appleclang 10.3
           -Wextra-semi-stmt                # clang  7.0            appleclang 10.3
         )
       endif()
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 10.0) OR
          (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 12.4))
-        list(APPEND WPICKY_ENABLE
-          -Wimplicit-fallthrough           # clang  4.0  gcc  7.0  appleclang 12.4  # we have silencing markup for clang 10.0 and above only
+        list(APPEND _picky_enable
+          -Wimplicit-fallthrough           # clang  4.0  gcc  7.0  appleclang 12.4  # We do silencing for clang 10.0 and above only
         )
       endif()
     else()  # gcc
-      list(APPEND WPICKY_DETECT
-        ${WPICKY_COMMON}
+      list(APPEND _picky_detect
+        ${_picky_common}
       )
       # Enable based on compiler version
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.3)
-        list(APPEND WPICKY_ENABLE
-          ${WPICKY_COMMON_OLD}
+        list(APPEND _picky_enable
+          ${_picky_common_old}
           -Wclobbered                      #             gcc  4.3
           -Wmissing-parameter-type         #             gcc  4.3
           -Wold-style-declaration          #             gcc  4.3
@@ -180,22 +180,22 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         )
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.5 AND MINGW)
-        list(APPEND WPICKY_ENABLE
-          -Wno-pedantic-ms-format          #             gcc  4.5 (mingw-only)
+        list(APPEND _picky_enable
+          -Wno-pedantic-ms-format          #             gcc  4.5 (MinGW-only)
         )
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 4.8)
-        list(APPEND WPICKY_ENABLE
+        list(APPEND _picky_enable
           -Wformat=2                       # clang  3.0  gcc  4.8
         )
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 5.0)
-        list(APPEND WPICKY_ENABLE
+        list(APPEND _picky_enable
           -Warray-bounds=2 -ftree-vrp      # clang  3.0  gcc  5.0 (clang default: -Warray-bounds)
         )
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 6.0)
-        list(APPEND WPICKY_ENABLE
+        list(APPEND _picky_enable
           -Wduplicated-cond                #             gcc  6.0
           -Wnull-dereference               # clang  3.0  gcc  6.0 (clang default)
             -fdelete-null-pointer-checks
@@ -204,7 +204,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         )
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 7.0)
-        list(APPEND WPICKY_ENABLE
+        list(APPEND _picky_enable
           -Walloc-zero                     #             gcc  7.0
           -Wduplicated-branches            #             gcc  7.0
           -Wformat-overflow=2              #             gcc  7.0
@@ -214,7 +214,7 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
         )
       endif()
       if(NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 10.0)
-        list(APPEND WPICKY_ENABLE
+        list(APPEND _picky_enable
           -Warith-conversion               #             gcc 10.0
         )
       endif()
@@ -222,26 +222,41 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_I
 
     #
 
-    unset(WPICKY)
+    unset(_picky)
 
-    foreach(_CCOPT IN LISTS WPICKY_ENABLE)
-      set(WPICKY "${WPICKY} ${_CCOPT}")
+    foreach(_ccopt IN LISTS _picky_enable)
+      list(APPEND _picky "${_ccopt}")
     endforeach()
 
-    foreach(_CCOPT IN LISTS WPICKY_DETECT)
-      # surprisingly, CHECK_C_COMPILER_FLAG needs a new variable to store each new
-      # test result in.
-      string(MAKE_C_IDENTIFIER "OPT${_CCOPT}" _optvarname)
+    foreach(_ccopt IN LISTS _picky_detect)
+      # Use a unique variable name 1. for meaningful log output 2. to have a fresh, undefined variable for each detection
+      string(MAKE_C_IDENTIFIER "OPT${_ccopt}" _optvarname)
       # GCC only warns about unknown -Wno- options if there are also other diagnostic messages,
       # so test for the positive form instead
-      string(REPLACE "-Wno-" "-W" _CCOPT_ON "${_CCOPT}")
-      check_c_compiler_flag(${_CCOPT_ON} ${_optvarname})
+      string(REPLACE "-Wno-" "-W" _ccopt_on "${_ccopt}")
+      check_c_compiler_flag(${_ccopt_on} ${_optvarname})
       if(${_optvarname})
-        set(WPICKY "${WPICKY} ${_CCOPT}")
+        list(APPEND _picky "${_ccopt}")
       endif()
     endforeach()
 
-    message(STATUS "Picky compiler options:${WPICKY}")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WPICKY}")
+    # clang-cl
+    if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND MSVC)
+      if(CMAKE_VERSION VERSION_LESS 3.12)
+        set(_picky_tmp "")
+        foreach(_ccopt IN LISTS _picky)
+          list(APPEND _picky_tmp "/clang:${_ccopt}")
+        endforeach()
+        set(_picky ${_picky_tmp})
+      else()
+        list(TRANSFORM _picky PREPEND "/clang:")
+      endif()
+    endif()
+
+    if(_picky)
+      string(REPLACE ";" " " _picky "${_picky}")
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_picky}")
+      message(STATUS "Picky compiler options: ${_picky}")
+    endif()
   endif()
 endif()

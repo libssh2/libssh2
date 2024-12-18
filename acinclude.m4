@@ -307,7 +307,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           dnl Only clang 3.5 or later
           if test "$compiler_num" -ge "305"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [pragmas])
-            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unreachable-code-break])
+          # CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [unreachable-code-break])  # Not used: Silent in "unity" builds
           fi
           #
           dnl Only clang 3.6 or later
@@ -832,7 +832,7 @@ dnl autoconf only checks $prefix/lib64 if gcc -print-search-dirs output
 dnl includes a directory named lib64. So, to find libraries in $prefix/lib
 dnl we append -L$prefix/lib to LDFLAGS before checking.
 dnl
-dnl For conveniece, $4 is expanded if [lib]$1 is found.
+dnl For convenience, $4 is expanded if [lib]$1 is found.
 
 AC_DEFUN([LIBSSH2_LIB_HAVE_LINKFLAGS], [
   libssh2_save_CPPFLAGS="$CPPFLAGS"
@@ -845,12 +845,11 @@ AC_DEFUN([LIBSSH2_LIB_HAVE_LINKFLAGS], [
 
   AC_LIB_HAVE_LINKFLAGS([$1], [$2], [$3])
 
-  LDFLAGS="$libssh2_save_LDFLAGS"
-
   if test "$ac_cv_lib$1" = "yes"; then :
     $4
   else
     CPPFLAGS="$libssh2_save_CPPFLAGS"
+    LDFLAGS="$libssh2_save_LDFLAGS"
   fi
 ])
 
@@ -867,11 +866,6 @@ m4_case([$1],
 ],
 
 [wolfssl], [
-  if test "${with_libwolfssl_prefix+set}" = set; then
-    CPPFLAGS="$CPPFLAGS${CPPFLAGS:+ }-I${with_libwolfssl_prefix}/include/wolfssl"
-  else
-    AC_MSG_ERROR([When using wolfSSL, must specify prefix with --with-libwolfssl-prefix in order to find OpenSSL compatibility headers.])
-  fi
   LIBSSH2_LIB_HAVE_LINKFLAGS([wolfssl], [], [#include <wolfssl/options.h>], [
     AC_DEFINE(LIBSSH2_WOLFSSL, 1, [Use $1])
     LIBSSH2_PC_REQUIRES_PRIVATE="$LIBSSH2_PC_REQUIRES_PRIVATE${LIBSSH2_PC_REQUIRES_PRIVATE:+,}wolfssl"

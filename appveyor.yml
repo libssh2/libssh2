@@ -32,24 +32,29 @@
 environment:
   CONFIGURATION: 'Release'
   FIXTURE_XFER_COUNT: 35020
+  SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
+
   matrix:
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       GENERATOR: 'Visual Studio 17 2022'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v33-Win64'
 
     - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
       GENERATOR: 'Visual Studio 14 2015'
       PLATFORM: 'x86'
       CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win32'
 
     - job_name: 'VS2015, OpenSSL 1.1, x64, Server 2012 R2, Logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       GENERATOR: 'Visual Studio 14 2015'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win64'
       ENABLE_DEBUG_LOGGING: 'ON'
 
     - job_name: 'VS2013, OpenSSL 1.1, x64, Server 2012 R2'
@@ -57,6 +62,7 @@ environment:
       GENERATOR: 'Visual Studio 12 2013'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win64'
 
     - job_name: 'VS2013, OpenSSL 1.1, x86, Server 2012 R2, Shared-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -64,6 +70,8 @@ environment:
       PLATFORM: 'x86'
       BUILD_STATIC_LIBS: 'OFF'
       CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win32'
+      SKIP_CTEST: 'no'
 
     - job_name: 'VS2013, OpenSSL 1.0.2, x64, Build-only, Static-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -71,6 +79,7 @@ environment:
       PLATFORM: 'x64'
       BUILD_SHARED_LIBS: 'OFF'
       CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-Win64'
       SKIP_CTEST: 'yes'
 
     - job_name: 'VS2008, WinCNG, x86, Build-only'
@@ -78,14 +87,16 @@ environment:
       GENERATOR: 'Visual Studio 9 2008'
       PLATFORM: 'x86'
       CRYPTO_BACKEND: 'WinCNG'
+      ENABLE_ECDSA_WINCNG: 'ON'
       SKIP_CTEST: 'yes'
 
-    - job_name: 'VS2010, WinCNG, x64, Build-only'
+    - job_name: 'VS2010, WinCNG, x64, Build-only, non-unity'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       GENERATOR: 'Visual Studio 10 2010'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'WinCNG'
-      UNITY: 'ON'
+      ENABLE_ECDSA_WINCNG: 'ON'
+      UNITY: 'OFF'
       SKIP_CTEST: 'yes'
 
     - job_name: 'VS2022, WinCNG, x64, Server 2019, Logging'
@@ -93,6 +104,7 @@ environment:
       GENERATOR: 'Visual Studio 17 2022'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'WinCNG'
+      ENABLE_ECDSA_WINCNG: 'ON'
       ENABLE_DEBUG_LOGGING: 'ON'
 
     - job_name: 'VS2022, WinCNG, ARM64, Build-only'
@@ -100,18 +112,22 @@ environment:
       GENERATOR: 'Visual Studio 17 2022'
       PLATFORM: 'ARM64'
       CRYPTO_BACKEND: 'WinCNG'
+      ENABLE_ECDSA_WINCNG: 'ON'
 
     - job_name: 'VS2015, WinCNG, x86, Server 2016'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
       GENERATOR: 'Visual Studio 14 2015'
       PLATFORM: 'x86'
       CRYPTO_BACKEND: 'WinCNG'
+      ENABLE_ECDSA_WINCNG: 'ON'
 
     - job_name: 'VS2015, WinCNG, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       GENERATOR: 'Visual Studio 14 2015'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'WinCNG'
+      ENABLE_ECDSA_WINCNG: 'OFF'
+      SKIP_CTEST: 'no'
 
 matrix:
   fast_finish: true
@@ -141,27 +157,24 @@ build_script:
       $options += "-G$env:GENERATOR"
 
       $options += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
-      if($env:SKIP_CTEST -ne 'yes' -and $env:CRYPTO_BACKEND -eq 'OpenSSL') {
-        if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq 'Visual Studio 2022') {
-          if($env:PLATFORM -eq 'x64') {
-            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v30-Win64'
-          }
+      if($env:OPENSSL_ROOT_DIR -ne '') {
+        if(Test-Path $env:OPENSSL_ROOT_DIR) {
+          $options += "-DOPENSSL_ROOT_DIR=$env:OPENSSL_ROOT_DIR"
         }
         else {
-          if($env:PLATFORM -eq 'x64') {
-            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64'
-          }
-          elseif($env:PLATFORM -eq 'x86') {
-            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32'
-          }
+          Write-Error "Directory '$env:OPENSSL_ROOT_DIR' expected, but not found."
+          exit 1
         }
       }
 
       if($env:ENABLE_DEBUG_LOGGING -eq 'ON') {
         $options += '-DENABLE_DEBUG_LOGGING=ON'
       }
-      if($env:UNITY -eq 'ON') {
+      if($env:UNITY -ne 'OFF') {
         $options += '-DCMAKE_UNITY_BUILD=ON'
+      }
+      if($env:ENABLE_ECDSA_WINCNG -eq 'ON') {
+        $options += '-DENABLE_ECDSA_WINCNG=ON'
       }
       if($env:BUILD_STATIC_LIBS -eq 'OFF') {
         $options += '-DBUILD_STATIC_LIBS=OFF'
@@ -176,14 +189,14 @@ build_script:
 
       Write-Host 'CMake options:' $options
       cmake -B _builds $options
-      cmake --build _builds --config "$env:CONFIGURATION"
+      cmake --build _builds --config "$env:CONFIGURATION" --parallel 2
 
 test_script:
   - ps: |
       if($env:SKIP_CTEST -ne 'yes' -and $env:PLATFORM -ne 'ARM64') {
         appveyor-retry choco install --yes --no-progress --limit-output --timeout 180 docker-cli
         Write-Host 'Waiting for SSH connection from GitHub Actions' -NoNewline
-        $endDate = (Get-Date).AddMinutes(3)
+        $endDate = (Get-Date).AddMinutes(5)
         while((Get-Process -Name 'sshd' -ErrorAction SilentlyContinue).Count -eq 1 -and (Get-Date) -lt $endDate) {
           Write-Host '.' -NoNewline
           Start-Sleep -Seconds 1

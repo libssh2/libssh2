@@ -133,6 +133,17 @@ else
   test "$found_crypto_str" = "" && found_crypto_str="$found_crypto"
 fi
 
+# ECDSA support with WinCNG
+AC_ARG_ENABLE(ecdsa-wincng,
+  AS_HELP_STRING([--enable-ecdsa-wincng],
+    WinCNG ECDSA support (requires Windows 10 or later)),
+  [wincng_ecdsa=$enableval])
+if test "$wincng_ecdsa" = yes; then
+  AC_DEFINE(LIBSSH2_ECDSA_WINCNG, 1, [Enable WinCNG ECDSA support])
+else
+  wincng_ecdsa=no
+fi
+
 # libz
 
 AC_ARG_WITH([libz],
@@ -305,7 +316,7 @@ AM_CONDITIONAL([USE_OSSFUZZ_STATIC], [test -f "$LIB_FUZZING_ENGINE"])
 
 
 # Checks for header files.
-AC_CHECK_HEADERS([errno.h fcntl.h stdio.h unistd.h sys/param.h sys/uio.h])
+AC_CHECK_HEADERS([errno.h fcntl.h stdio.h unistd.h sys/uio.h])
 AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
 AC_CHECK_HEADERS([sys/un.h])
@@ -430,6 +441,7 @@ AC_MSG_NOTICE([summary of build options:
   Compiler flags:   ${CFLAGS}
   Library types:    Shared=${enable_shared}, Static=${enable_static}
   Crypto library:   ${found_crypto_str}
+  WinCNG ECDSA:     $wincng_ecdsa
   zlib compression: ${found_libz}
   Clear memory:     $enable_clear_memory
   Deprecated APIs:  $with_deprecated

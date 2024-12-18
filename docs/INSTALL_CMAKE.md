@@ -67,9 +67,10 @@ The following options are available:
  * `CRYPTO_BACKEND=`
 
     Chooses a specific cryptography library to use for cryptographic
-    operations.  Can be `OpenSSL` (https://www.openssl.org),
+    operations.  Can be `OpenSSL` (https://www.openssl-library.org/),
     `Libgcrypt` (https://www.gnupg.org/), `WinCNG` (Windows Vista+),
-    `mbedTLS` (https://tls.mbed.org/) or blank to use any library available.
+    `mbedTLS` (https://www.trustedfirmware.org/projects/mbed-tls/) or
+    blank to use any library available.
 
     CMake will attempt to locate the libraries automatically.  See [2]
     for more information.

@@ -66,7 +66,6 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_LISTENER *listener = NULL;
     LIBSSH2_CHANNEL *channel = NULL;
-    fd_set fds;
     struct timeval tv;
     ssize_t len, wr;
     char buf[16384];
@@ -245,8 +244,16 @@ int main(int argc, char *argv[])
     libssh2_session_set_blocking(session, 0);
 
     for(;;) {
+        fd_set fds;
         FD_ZERO(&fds);
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
         FD_SET(forwardsock, &fds);
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
         tv.tv_sec = 0;
         tv.tv_usec = 100000;
         rc = select((int)(forwardsock + 1), &fds, NULL, NULL, &tv);
@@ -254,7 +261,14 @@ int main(int argc, char *argv[])
             fprintf(stderr, "failed to select().\n");
             goto shutdown;
         }
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
         if(rc && FD_ISSET(forwardsock, &fds)) {
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
             ssize_t nwritten;
             len = recv(forwardsock, buf, sizeof(buf), 0);
             if(len < 0) {

@@ -2180,7 +2180,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
                            "channel_read() got %ld of data from %u/%u/%d%s",
                            (long)bytes_want, channel->local.id,
                            channel->remote.id, stream_id,
-                           unlink_packet?" [ul]":""));
+                           unlink_packet ? " [ul]" : ""));
 
             /* copy data from this struct to the target buffer */
             memcpy(&buf[bytes_read],

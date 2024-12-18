@@ -53,6 +53,8 @@
 #include "userauth.h"
 #include "userauth_kbd_packet.h"
 
+#include <stdlib.h>  /* strtol() */
+
 /* userauth_list
  *
  * List authentication methods
@@ -1262,6 +1264,15 @@ size_t plain_method(char *method, size_t method_len)
         return 7;
     }
 
+    if(!strncmp("rsa-sha2-256-cert-v01@openssh.com",
+                method,
+                method_len) ||
+       !strncmp("rsa-sha2-512-cert-v01@openssh.com",
+                method,
+                method_len)) {
+       return 12;
+    }
+
     if(!strncmp("ecdsa-sha2-nistp256-cert-v01@openssh.com",
                 method,
                 method_len) ||
@@ -1299,6 +1310,31 @@ size_t plain_method(char *method, size_t method_len)
     return method_len;
 }
 
+/* Function to check if the given version is less than pattern (OpenSSH 7.8)
+ * This function expects the input version in x.y* format
+ * (x being openssh major and y being openssh minor version)
+ * Returns 1 if the version is less than OpenSSH_7.8, 0 otherwise
+ */
+static int is_version_less_than_78(const char *version)
+{
+    char *endptr = NULL;
+    long major = 0;
+    int minor = 0;
+
+    if(!version)
+        return 0;
+
+    major = strtol(version, &endptr, 10);
+    if(!endptr || *endptr != '.')
+        return 0; /* Not a valid number */
+    minor = (endptr + 1)[0] - '0';
+    if((major >= 1 && major <= 6) ||
+       (major == 7 && minor >= 0 && minor <= 7)) {
+        return 1; /* Version is in the specified range */
+    }
+    return 0;
+}
+
 /**
  * @function _libssh2_key_sign_algorithm
  * @abstract Upgrades the algorithm used for public key signing RFC 8332
@@ -1326,7 +1362,14 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     size_t f_len = 0;
     int rc = 0;
     size_t match_len = 0;
+    const size_t suffix_len = 21;
     char *filtered_algs = NULL;
+    const char * const certSuffix = "-cert-v01@openssh.com";
+    const char *remote_banner = NULL;
+    const char * const remote_ver_pre = "OpenSSH_";
+    const char *remote_ver_start = NULL;
+    const char *remote_ver = NULL;
+    int SSH_BUG_SIGTYPE = 0;
 
     const char *supported_algs =
     _libssh2_supported_key_sign_algorithms(session,
@@ -1343,6 +1386,25 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate filtered algs");
         return rc;
+    }
+
+    /* Set "SSH_BUG_SIGTYPE" flag when the remote server version is OpenSSH 7.7
+       or lower and when the RSA key in question is a certificate to ignore
+       "server-sig-algs" and only offer ssh-rsa signature algorithm for
+       RSA certs */
+    remote_banner = libssh2_session_banner_get(session);
+    /* Extract version information from the banner */
+    if(remote_banner) {
+        remote_ver_start = strstr(remote_banner, remote_ver_pre);
+        if(remote_ver_start) {
+            remote_ver = remote_ver_start + strlen(remote_ver_pre);
+            SSH_BUG_SIGTYPE = is_version_less_than_78(remote_ver);
+            if(SSH_BUG_SIGTYPE && *key_method_len == 28 &&
+               memcmp(key_method, "ssh-rsa-cert-v01@openssh.com",
+                      *key_method_len)) {
+                return LIBSSH2_ERROR_NONE;
+            }
+        }
     }
 
     s = session->server_sign_algorithms;
@@ -1412,15 +1474,27 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     }
 
     if(match) {
-        if(*key_method)
-            LIBSSH2_FREE(session, *key_method);
-
-        *key_method = LIBSSH2_ALLOC(session, match_len);
-        if(*key_method) {
-            memcpy(*key_method, match, match_len);
-            *key_method_len = match_len;
+        if(*key_method_len == 28 &&
+        memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
+            if(*key_method)
+                LIBSSH2_FREE(session, *key_method);
+            *key_method = LIBSSH2_ALLOC(session, match_len + suffix_len);
+            if(*key_method) {
+                memcpy(*key_method, match, match_len);
+                memcpy(*key_method + match_len, certSuffix, suffix_len);
+                *key_method_len = match_len + suffix_len;
+            }
         }
         else {
+            if(*key_method)
+                LIBSSH2_FREE(session, *key_method);
+            *key_method = LIBSSH2_ALLOC(session, match_len);
+            if(*key_method) {
+                memcpy(*key_method, match, match_len);
+                *key_method_len = match_len;
+            }
+        }
+        if(!key_method) {
             *key_method_len = 0;
             rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate key method upgrade");
@@ -2188,7 +2262,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                 if(session->userauth_kybd_responses[i].length <=
                    (SIZE_MAX - 4 - session->userauth_kybd_packet_len)) {
                     session->userauth_kybd_packet_len +=
-                        4 + session->userauth_kybd_responses[i].length;
+                        4 + (size_t)session->userauth_kybd_responses[i].length;
                 }
                 else {
                     _libssh2_error(session, LIBSSH2_ERROR_ALLOC,

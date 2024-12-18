@@ -144,6 +144,8 @@ dist_man_MANS = \
   libssh2_sftp_open_ex_r.3 \
   libssh2_sftp_open_r.3 \
   libssh2_sftp_opendir.3 \
+  libssh2_sftp_posix_rename.3 \
+  libssh2_sftp_posix_rename_ex.3 \
   libssh2_sftp_read.3 \
   libssh2_sftp_readdir.3 \
   libssh2_sftp_readdir_ex.3 \

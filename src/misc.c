@@ -72,14 +72,7 @@ int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
     if(cp_max_len < 2)
         return 0;
     va_start(args, fmt);
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
     n = vsnprintf(cp, cp_max_len, fmt, args);
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
     va_end(args);
     return (n < (int)cp_max_len) ? n : (int)(cp_max_len - 1);
 }
@@ -273,6 +266,24 @@ void _libssh2_store_u32(unsigned char **buf, uint32_t value)
     *buf += sizeof(uint32_t);
 }
 
+/* _libssh2_store_u64
+ */
+void _libssh2_store_u64(unsigned char **buf, libssh2_uint64_t value)
+{
+    unsigned char *ptr = *buf;
+
+    ptr[0] = (unsigned char)((value >> 56) & 0xFF);
+    ptr[1] = (unsigned char)((value >> 48) & 0xFF);
+    ptr[2] = (unsigned char)((value >> 40) & 0xFF);
+    ptr[3] = (unsigned char)((value >> 32) & 0xFF);
+    ptr[4] = (unsigned char)((value >> 24) & 0xFF);
+    ptr[5] = (unsigned char)((value >> 16) & 0xFF);
+    ptr[6] = (unsigned char)((value >> 8) & 0xFF);
+    ptr[7] = (unsigned char)(value & 0xFF);
+
+    *buf += sizeof(libssh2_uint64_t);
+}
+
 /* _libssh2_store_str
  */
 int _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
@@ -303,7 +314,7 @@ int _libssh2_store_bignum2_bytes(unsigned char **buf,
 
     extraByte = (len > 0 && (p[0] & 0x80) != 0);
     len_stored = (uint32_t)len;
-    if(extraByte && len_stored == 0xffffffff)
+    if(extraByte && len_stored == UINT32_MAX)
         len_stored--;
     _libssh2_store_u32(buf, len_stored + extraByte);
 
@@ -575,14 +586,7 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
         buflen -= len;
         msglen = len;
         va_start(vargs, format);
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#endif
         len = vsnprintf(buffer + msglen, buflen, format, vargs);
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
         va_end(vargs);
         msglen += len < buflen ? len : buflen - 1;
     }

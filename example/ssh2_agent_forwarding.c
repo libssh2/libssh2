@@ -50,7 +50,14 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 
     FD_ZERO(&fd);
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
     FD_SET(socket_fd, &fd);
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
     /* now make sure we wait in the correct direction */
     dir = libssh2_session_block_directions(session);
@@ -244,8 +251,7 @@ int main(int argc, char *argv[])
                     fprintf(stderr, "libssh2_channel_read returned %ld\n",
                             (long)nread);
             }
-        }
-        while(nread > 0);
+        } while(nread > 0);
 
         /* this is due to blocking that would occur otherwise so we loop on
            this condition */

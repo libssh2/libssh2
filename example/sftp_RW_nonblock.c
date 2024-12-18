@@ -27,6 +27,9 @@
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
 
 #include <stdio.h>
 
@@ -53,7 +56,14 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 
     FD_ZERO(&fd);
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
     FD_SET(socket_fd, &fd);
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
     /* now make sure we wait in the correct direction */
     dir = libssh2_session_block_directions(session);
@@ -248,8 +258,15 @@ int main(int argc, char *argv[])
 
         FD_ZERO(&fd);
         FD_ZERO(&fd2);
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
         FD_SET(sock, &fd);
         FD_SET(sock, &fd2);
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
         /* wait for readable or writeable */
         rc = select((int)(sock + 1), &fd, &fd2, NULL, &timeout);
@@ -259,7 +276,6 @@ int main(int argc, char *argv[])
             fprintf(stderr, "SFTP download timed out: %d\n", rc);
             break;
         }
-
     } while(1);
 
     libssh2_sftp_close(sftp_handle);
@@ -313,8 +329,15 @@ int main(int argc, char *argv[])
 
             FD_ZERO(&fd);
             FD_ZERO(&fd2);
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
             FD_SET(sock, &fd);
             FD_SET(sock, &fd2);
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
             /* wait for readable or writeable */
             rc = select((int)(sock + 1), &fd, &fd2, NULL, &timeout);

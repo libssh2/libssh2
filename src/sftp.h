@@ -78,7 +78,8 @@ struct _LIBSSH2_SFTP_PACKET
 
 typedef struct _LIBSSH2_SFTP_PACKET LIBSSH2_SFTP_PACKET;
 
-#define SFTP_HANDLE_MAXLEN 256 /* according to spec! */
+/* Increasing from 256 to 4092 since OpenSSH doesn't honor it. */
+#define SFTP_HANDLE_MAXLEN 4092 /* according to spec, this should be 256! */
 
 struct _LIBSSH2_SFTP_HANDLE
 {
@@ -137,7 +138,7 @@ struct _LIBSSH2_SFTP
 {
     LIBSSH2_CHANNEL *channel;
 
-    uint32_t request_id, version;
+    uint32_t request_id, version, posix_rename_version;
 
     struct list_head packets;
 
@@ -201,6 +202,11 @@ struct _LIBSSH2_SFTP
     unsigned char *rename_packet;
     unsigned char *rename_s;
     uint32_t rename_request_id;
+
+    /* State variables used in libssh2_sftp_posix_rename_ex() */
+    libssh2_nonblocking_states posix_rename_state;
+    unsigned char *posix_rename_packet;
+    uint32_t posix_rename_request_id;
 
     /* State variables used in libssh2_sftp_fstatvfs() */
     libssh2_nonblocking_states fstatvfs_state;
