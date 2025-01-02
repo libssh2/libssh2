@@ -835,21 +835,21 @@ dnl
 dnl For convenience, $4 is expanded if [lib]$1 is found.
 
 AC_DEFUN([LIBSSH2_LIB_HAVE_LINKFLAGS], [
-  libssh2_save_CPPFLAGS="$CPPFLAGS"
-  libssh2_save_LDFLAGS="$LDFLAGS"
 
   if test "${with_lib$1_prefix+set}" = set; then
+    libssh2_save_CPPFLAGS="$CPPFLAGS"
+    libssh2_save_LDFLAGS="$LDFLAGS"
     CPPFLAGS="$CPPFLAGS${CPPFLAGS:+ }-I${with_lib$1_prefix}/include"
     LDFLAGS="$LDFLAGS${LDFLAGS:+ }-L${with_lib$1_prefix}/lib"
+    AC_LIB_HAVE_LINKFLAGS([$1], [$2], [$3])
+    CPPFLAGS="$libssh2_save_CPPFLAGS"
+    LDFLAGS="$libssh2_save_LDFLAGS"
+  else
+    AC_LIB_HAVE_LINKFLAGS([$1], [$2], [$3])
   fi
-
-  AC_LIB_HAVE_LINKFLAGS([$1], [$2], [$3])
 
   if test "$ac_cv_lib$1" = "yes"; then :
     $4
-  else
-    CPPFLAGS="$libssh2_save_CPPFLAGS"
-    LDFLAGS="$libssh2_save_LDFLAGS"
   fi
 ])
 
