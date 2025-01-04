@@ -1,7 +1,7 @@
 # Copyright (C) Viktor Szakats
 # SPDX-License-Identifier: BSD-3-Clause
 
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.7...3.16 FATAL_ERROR)
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
 project(test-dependent C)
