@@ -49,6 +49,7 @@ jobs:
     timeout-minutes: 60
     env:
       CC: clang
+      MAKEFLAGS: -j5
     steps:
       - uses: actions/checkout@v4
       - name: 'cmake'
