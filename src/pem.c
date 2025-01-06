@@ -219,7 +219,7 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         /* Perform key derivation (PBKDF1/MD5) */
         if(!libssh2_md5_init(&fingerprint_ctx) ||
            !libssh2_md5_update(fingerprint_ctx, passphrase,
-                               strlen((char *)passphrase)) ||
+                               strlen((const char *)passphrase)) ||
            !libssh2_md5_update(fingerprint_ctx, iv, 8) ||
            !libssh2_md5_final(fingerprint_ctx, secret)) {
             ret = -1;
@@ -230,7 +230,8 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
                !libssh2_md5_update(fingerprint_ctx,
                                    secret, MD5_DIGEST_LENGTH) ||
                !libssh2_md5_update(fingerprint_ctx,
-                                   passphrase, strlen((char *)passphrase)) ||
+                                   passphrase,
+                                   strlen((const char *)passphrase)) ||
                !libssh2_md5_update(fingerprint_ctx, iv, 8) ||
                !libssh2_md5_final(fingerprint_ctx,
                                   secret + MD5_DIGEST_LENGTH)) {
@@ -431,7 +432,7 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
         goto out;
     }
 
-    if(strncmp((char *) decoded.dataptr, AUTH_MAGIC,
+    if(strncmp((const char *) decoded.dataptr, AUTH_MAGIC,
                strlen(AUTH_MAGIC)) != 0) {
         ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                              "key auth magic mismatch");

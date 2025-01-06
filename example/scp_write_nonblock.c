@@ -48,12 +48,12 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 
     FD_ZERO(&fd);
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
     FD_SET(socket_fd, &fd);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
@@ -206,8 +206,8 @@ int main(int argc, char *argv[])
 
     /* Send a file via scp. The mode parameter must only have permissions! */
     do {
-        channel = libssh2_scp_send(session, scppath, fileinfo.st_mode & 0777,
-                                   (size_t)fileinfo.st_size);
+        channel = libssh2_scp_send64(session, scppath, fileinfo.st_mode & 0777,
+                                     fileinfo.st_size, 0, 0);
 
         if(!channel &&
            libssh2_session_last_errno(session) != LIBSSH2_ERROR_EAGAIN) {

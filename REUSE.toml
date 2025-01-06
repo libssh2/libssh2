@@ -37,7 +37,6 @@ path = [
   "tests/openssh_server/ca_*",
   "tests/openssh_server/ssh_*",
   "tests/openssh_server/sshd_config",
-  "tests/ossfuzz/*",
   "tests/test_read_algos.txt",
   "vms/libssh2_config.h",
   "vms/libssh2_*.dcl",
@@ -51,6 +50,7 @@ path = [
   "m4/.gitignore",
   "src/.gitignore",
   "tests/.gitignore",
+  "tests/ossfuzz/.gitignore",
 ]
 SPDX-FileCopyrightText = "The libssh2 project and its contributors."
 SPDX-License-Identifier = "BSD-3-Clause"

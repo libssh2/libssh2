@@ -47,12 +47,12 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 
     FD_ZERO(&fd);
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
     FD_SET(socket_fd, &fd);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     int exitcode = 0;
-    char *exitsignal = (char *)"none";
+    char *exitsignal = NULL;
     size_t len;
     LIBSSH2_KNOWNHOSTS *nh;
     int type;
@@ -340,7 +340,8 @@ int main(int argc, char *argv[])
         }
 
         if(exitsignal)
-            fprintf(stderr, "\nGot signal: %s\n", exitsignal);
+            fprintf(stderr, "\nGot signal: %s\n",
+                    exitsignal ? exitsignal : "none");
 
         libssh2_channel_free(channel);
         channel = NULL;

@@ -149,7 +149,7 @@ static int _libssh2_sha_algo_ctx_init(int sha_algo, void *ctx)
 }
 
 static int _libssh2_sha_algo_ctx_update(int sha_algo, void *ctx,
-                                        void *data, size_t len)
+                                        const void *data, size_t len)
 {
     if(sha_algo == 512) {
         libssh2_sha512_ctx *_ctx = (libssh2_sha512_ctx*)ctx;
@@ -663,7 +663,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                                                 exchange_state->h_sig_comp, 4);
             hok &= _libssh2_sha_algo_ctx_update(sha_algo_value,
                                                 exchange_hash_ctx,
-                                   (unsigned char *)LIBSSH2_SSH_DEFAULT_BANNER,
+                                      (const void *)LIBSSH2_SSH_DEFAULT_BANNER,
                                        sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
         }
 
@@ -3280,7 +3280,7 @@ typedef struct _LIBSSH2_COMMON_METHOD
  * Another sign of bad coding practices gone mad.  Pretend you don't see this.
  */
 static size_t
-kex_method_strlen(LIBSSH2_COMMON_METHOD ** method)
+kex_method_strlen(const LIBSSH2_COMMON_METHOD ** method)
 {
     size_t len = 0;
 
@@ -3303,7 +3303,7 @@ kex_method_strlen(LIBSSH2_COMMON_METHOD ** method)
  */
 static uint32_t
 kex_method_list(unsigned char *buf, uint32_t list_strlen,
-                LIBSSH2_COMMON_METHOD ** method)
+                const LIBSSH2_COMMON_METHOD ** method)
 {
     _libssh2_htonu32(buf, list_strlen);
     buf += 4;
@@ -3327,20 +3327,20 @@ kex_method_list(unsigned char *buf, uint32_t list_strlen,
 
 #define LIBSSH2_METHOD_PREFS_LEN(prefvar, defaultvar)           \
     (uint32_t)((prefvar) ? strlen(prefvar) :                    \
-        kex_method_strlen((LIBSSH2_COMMON_METHOD**)(defaultvar)))
+        kex_method_strlen((const LIBSSH2_COMMON_METHOD**)(defaultvar)))
 
-#define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)     \
-    do {                                                                   \
-        if(prefvar) {                                                      \
-            _libssh2_htonu32((buf), (prefvarlen));                         \
-            buf += 4;                                                      \
-            memcpy((buf), (prefvar), (prefvarlen));                        \
-            buf += (prefvarlen);                                           \
-        }                                                                  \
-        else {                                                             \
-            buf += kex_method_list((buf), (prefvarlen),                    \
-                                   (LIBSSH2_COMMON_METHOD**)(defaultvar)); \
-        }                                                                  \
+#define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)        \
+    do {                                                                      \
+        if(prefvar) {                                                         \
+            _libssh2_htonu32((buf), (prefvarlen));                            \
+            buf += 4;                                                         \
+            memcpy((buf), (prefvar), (prefvarlen));                           \
+            buf += (prefvarlen);                                              \
+        }                                                                     \
+        else {                                                                \
+            buf += kex_method_list((buf), (prefvarlen),                       \
+                                (const LIBSSH2_COMMON_METHOD**)(defaultvar)); \
+        }                                                                     \
     } while(0)
 
 /* kexinit
@@ -3542,7 +3542,7 @@ _libssh2_kex_agree_instr(unsigned char *haystack, size_t haystack_len,
     left = end_haystack - s;
 
     /* Needle at start of haystack */
-    if((strncmp((char *) haystack, (char *) needle, needle_len) == 0) &&
+    if((strncmp((char *) haystack, (const char *) needle, needle_len) == 0) &&
         (needle_len == haystack_len || haystack[needle_len] == ',')) {
         return haystack;
     }
@@ -3562,7 +3562,7 @@ _libssh2_kex_agree_instr(unsigned char *haystack, size_t haystack_len,
         }
 
         /* Needle at X position */
-        if((strncmp((char *) s, (char *) needle, needle_len) == 0) &&
+        if((strncmp((char *) s, (const char *) needle, needle_len) == 0) &&
             (((s - haystack) + needle_len) == haystack_len
              || s[needle_len] == ',')) {
             return s;
@@ -3643,7 +3643,7 @@ static int kex_agree_hostkey(LIBSSH2_SESSION * session,
 
     while(hostkeyp && (*hostkeyp) && (*hostkeyp)->name) {
         s = _libssh2_kex_agree_instr(hostkey, hostkey_len,
-                                     (unsigned char *) (*hostkeyp)->name,
+                                     (const unsigned char *) (*hostkeyp)->name,
                                      strlen((*hostkeyp)->name));
         if(s) {
             /* So far so good, but does it suit our purposes? (Encrypting vs
@@ -3679,7 +3679,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, unsigned char *kex,
     const LIBSSH2_KEX_METHOD **kexp = libssh2_kex_methods;
     unsigned char *s;
     const unsigned char *strict =
-        (unsigned char *)"kex-strict-s-v00@openssh.com";
+        (const unsigned char *)"kex-strict-s-v00@openssh.com";
 
     if(_libssh2_kex_agree_instr(kex, kex_len, strict, 28)) {
         session->kex_strict = 1;
@@ -3726,7 +3726,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, unsigned char *kex,
 
     while(*kexp && (*kexp)->name) {
         s = _libssh2_kex_agree_instr(kex, kex_len,
-                                     (unsigned char *) (*kexp)->name,
+                                     (const unsigned char *) (*kexp)->name,
                                      strlen((*kexp)->name));
         if(s) {
             /* We've agreed on a key exchange method,
@@ -3794,7 +3794,7 @@ static int kex_agree_crypt(LIBSSH2_SESSION * session,
 
     while(*cryptp && (*cryptp)->name) {
         s = _libssh2_kex_agree_instr(crypt, crypt_len,
-                                     (unsigned char *) (*cryptp)->name,
+                                     (const unsigned char *) (*cryptp)->name,
                                      strlen((*cryptp)->name));
         if(s) {
             endpoint->crypt = *cryptp;
@@ -3857,7 +3857,7 @@ static int kex_agree_mac(LIBSSH2_SESSION * session,
 
     while(*macp && (*macp)->name) {
         s = _libssh2_kex_agree_instr(mac, mac_len,
-                                     (unsigned char *) (*macp)->name,
+                                     (const unsigned char *) (*macp)->name,
                                      strlen((*macp)->name));
         if(s) {
             endpoint->mac = *macp;
@@ -3912,7 +3912,7 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
 
     while(*compp && (*compp)->name) {
         s = _libssh2_kex_agree_instr(comp, comp_len,
-                                     (unsigned char *) (*compp)->name,
+                                     (const unsigned char *) (*compp)->name,
                                      strlen((*compp)->name));
         if(s) {
             endpoint->comp = *compp;
