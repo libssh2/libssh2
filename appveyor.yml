@@ -149,7 +149,7 @@ build_script:
       }
 
       $options += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
-      if($env:OPENSSL_ROOT_DIR -ne '') {
+      if($env:OPENSSL_ROOT_DIR) {
         if(Test-Path $env:OPENSSL_ROOT_DIR) {
           $options += "-DOPENSSL_ROOT_DIR=$env:OPENSSL_ROOT_DIR"
         }
