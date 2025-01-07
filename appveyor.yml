@@ -143,16 +143,11 @@ build_script:
   - ps: |
       $options = @('-DENABLE_WERROR=ON')
 
-      if($env:GENERATOR -eq 'Visual Studio 17 2022') {
-        if($env:PLATFORM -eq 'x86') {
-          $options += '-A Win32'
-        }
-        else {
-          $options += "-A $env:PLATFORM"
-        }
+      if($env:PLATFORM -eq 'x86') {
+        $options += '-A Win32'
       }
-      elseif($env:PLATFORM -eq 'x64') {
-        $env:GENERATOR += ' Win64'
+      else {
+        $options += "-A $env:PLATFORM"
       }
       $options += "-G$env:GENERATOR"
 
