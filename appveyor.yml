@@ -143,13 +143,13 @@ build_script:
   - ps: |
       $options = @('-DENABLE_WERROR=ON')
 
+      $options += "-G$env:GENERATOR"
       if($env:PLATFORM -eq 'x86') {
         $options += '-A Win32'
       }
       else {
         $options += "-A $env:PLATFORM"
       }
-      $options += "-G$env:GENERATOR"
 
       $options += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
       if($env:OPENSSL_ROOT_DIR -ne '') {
