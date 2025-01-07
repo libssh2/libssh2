@@ -144,10 +144,7 @@ build_script:
       $options = @('-DENABLE_WERROR=ON')
 
       $options += "-G$env:GENERATOR"
-      if($env:PLATFORM -eq 'x86') {
-        $options += '-A Win32'
-      }
-      else {
+      if($env:PLATFORM -ne 'x86') {
         $options += "-A $env:PLATFORM"
       }
 
