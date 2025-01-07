@@ -145,7 +145,7 @@ build_script:
 
       $env:CMAKE_GENERATOR = "$env:GENERATOR"
       if($env:PLATFORM -ne 'x86') {
-        $options += "-A $env:PLATFORM"
+        $options += "-A$env:PLATFORM"
       }
 
       $options += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
