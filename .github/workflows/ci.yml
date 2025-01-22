@@ -204,12 +204,12 @@ jobs:
               cflags='-m32 -mpclmul -msse2 -maes'
             fi
             cmake -B . ${crossoptions} \
-              "-DCMAKE_C_FLAGS=${cflags}" \
+              -DCMAKE_C_FLAGS="${cflags}" \
               -DENABLE_PROGRAMS=OFF \
               -DENABLE_TESTING=OFF \
               -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
               -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
-              "-DCMAKE_INSTALL_PREFIX=$HOME/usr"
+              -DCMAKE_INSTALL_PREFIX="$HOME/usr"
             cmake --build . --parallel 5
             cmake --install .
             cd ..
@@ -234,8 +234,8 @@ jobs:
             -DWOLFSSL_OPENSSLALL=ON \
             -DWOLFSSL_EXAMPLES=OFF \
             -DWOLFSSL_CRYPT_TESTS=OFF \
-            '-DCMAKE_C_FLAGS=-fPIC -DWOLFSSL_AESGCM_STREAM' \
-            "-DCMAKE_INSTALL_PREFIX=$HOME/usr"
+            -DCMAKE_C_FLAGS='-fPIC -DWOLFSSL_AESGCM_STREAM' \
+            -DCMAKE_INSTALL_PREFIX="$HOME/usr"
           cmake --build bld --parallel 5
           cmake --install bld
           cd ..
@@ -262,7 +262,7 @@ jobs:
             cmake -B . \
               -DOPENSSL_SMALL=ON \
               -DCMAKE_C_FLAGS=-fPIC \
-              "-DCMAKE_INSTALL_PREFIX=$HOME/usr"
+              -DCMAKE_INSTALL_PREFIX="$HOME/usr"
             cmake --build . --parallel 5
             cmake --install .
             cd ..
@@ -287,7 +287,7 @@ jobs:
             cmake -B . \
               -DLIBRESSL_APPS=OFF \
               -DLIBRESSL_TESTS=OFF \
-              "-DCMAKE_INSTALL_PREFIX=$HOME/usr"
+              -DCMAKE_INSTALL_PREFIX="$HOME/usr"
             cmake --build . --parallel 5
             cmake --install .
             cd ..
@@ -655,7 +655,7 @@ jobs:
             cflags=''
           fi
           cmake -B bld -G Ninja ${options} \
-            "-DCMAKE_C_FLAGS=${cflags}" \
+            -DCMAKE_C_FLAGS="${cflags}" \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
