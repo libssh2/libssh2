@@ -82,7 +82,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
 
         session->userauth_list_data_len = username_len + 27;
 
-        if(!session->userauth_list_data) {
+        if(session->userauth_list_data) {
             LIBSSH2_FREE(session, session->userauth_list_data);
         }
 
@@ -159,7 +159,7 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                 return NULL;
             }
 
-            if(!session->userauth_banner) {
+            if(session->userauth_banner) {
                 LIBSSH2_FREE(session, session->userauth_banner);
             }
 
