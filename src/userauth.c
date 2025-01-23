@@ -1621,7 +1621,7 @@ retry_auth:
          *
          * Note that the 'pubkeydata_len' extra bytes allocated here will not
          * be used in this first send, but will be used in the later one where
-         * this same allocation is re-used.
+         * this same allocation is reused.
          */
         s = session->userauth_pblc_packet =
             LIBSSH2_ALLOC(session,
