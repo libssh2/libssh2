@@ -7,7 +7,7 @@ libssh2_trace - enable debug info from inside libssh2
 .nf
 #include <libssh2.h>
 
-void
+int
 libssh2_trace(LIBSSH2_SESSION *session, int bitmask);
 .fi
 .SH DESCRIPTION
@@ -37,3 +37,5 @@ Error debugging
 .IP LIBSSH2_TRACE_PUBLICKEY
 Public Key debugging
 .RE
+.SH RETURN VALUE
+Currently always 0, no error.
