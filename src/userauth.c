@@ -82,6 +82,10 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
 
         session->userauth_list_data_len = username_len + 27;
 
+        if(!session->userauth_list_data) {
+            LIBSSH2_FREE(session, session->userauth_list_data);
+        }
+
         s = session->userauth_list_data =
             LIBSSH2_ALLOC(session, session->userauth_list_data_len);
         if(!session->userauth_list_data) {
@@ -154,6 +158,11 @@ static char *userauth_list(LIBSSH2_SESSION *session, const char *username,
                                "Unexpected userauth banner size");
                 return NULL;
             }
+
+            if(!session->userauth_banner) {
+                LIBSSH2_FREE(session, session->userauth_banner);
+            }
+
             session->userauth_banner = LIBSSH2_ALLOC(session, banner_len + 1);
             if(!session->userauth_banner) {
                 LIBSSH2_FREE(session, session->userauth_list_data);
@@ -1612,7 +1621,7 @@ retry_auth:
          *
          * Note that the 'pubkeydata_len' extra bytes allocated here will not
          * be used in this first send, but will be used in the later one where
-         * this same allocation is re-used.
+         * this same allocation is reused.
          */
         s = session->userauth_pblc_packet =
             LIBSSH2_ALLOC(session,
