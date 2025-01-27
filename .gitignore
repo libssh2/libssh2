@@ -7,6 +7,8 @@
 *.def
 *.exe
 *.obj
+*.gcno
+*.gcda
 .*.swp
 *-*-*
 Debug
@@ -14,6 +16,8 @@ Release
 *.exp
 Makefile
 Makefile.in
+Makefile.inc.cmake
+stamp-h*
 aclocal.m4
 autom4te.cache
 compile
