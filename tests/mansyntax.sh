@@ -27,6 +27,10 @@ if command -v grep >/dev/null 2>&1 && \
 
   trap 'rm -f "$dstdir/man3"' EXIT HUP INT TERM
 
+  # Tell 'man' to not pipe the output through 'col'.
+  # 'col' is missing from Cygwin since util-linux 2.40.2-1 (2024-12-24).
+  export MAN_KEEP_FORMATTING=1
+
   ln -sf "$mandir" "$dstdir/man3"
 
   for manpage in "$mandir"/libssh2_*.*; do
