@@ -373,6 +373,9 @@ jobs:
         shell: C:\cygwin\bin\bash.exe '{0}'
         run: |
           export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
+          echo '----------------------------'
+          ls -1 /usr/bin
+          echo '----------------------------'
           autoreconf -fi
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-crypto=openssl \
