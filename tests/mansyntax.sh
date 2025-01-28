@@ -19,6 +19,9 @@ mandir="$(dirname "$0")/../docs"
 
 ec=0
 
+command -v man || true
+command -v col || true
+
 #
 # Only test if suitable man is available
 #
