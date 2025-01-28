@@ -364,7 +364,7 @@ jobs:
       - uses: cygwin/cygwin-install-action@v5
         with:
           platform: ${{ matrix.platform }}
-          packages: ${{ matrix.build == 'automake' && 'autoconf libtool make' || 'ninja' }} ${{ matrix.build }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
+          packages: ${{ matrix.build == 'automake' && 'autoconf libtool make' || 'ninja' }} ${{ matrix.build }} gcc-core gcc-g++ binutils libssl-devel zlib-devel util-linux
           site: https://mirrors.kernel.org/sourceware/cygwin/
 
       - name: 'autotools'
