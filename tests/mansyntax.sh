@@ -32,7 +32,7 @@ if command -v grep >/dev/null 2>&1 && \
   for manpage in "$mandir"/libssh2_*.*; do
     echo "$manpage"
     warnings=$(LANG=en_US.UTF-8 MANWIDTH=80 man -M "$dstdir" --warnings \
-      -E UTF-8 -l "$manpage" >/dev/null 2>&1)
+      -E UTF-8 -l "$manpage")
     if [ -n "$warnings" ]; then
       echo "$warnings"
       ec=1
