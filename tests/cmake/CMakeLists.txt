@@ -28,7 +28,8 @@ elseif(TEST_INTEGRATION_MODE STREQUAL "FetchContent")
   option(FROM_GIT_TAG "Git tag" "master")
   FetchContent_Declare(libssh2
     GIT_REPOSITORY "${FROM_GIT_REPO}"
-    GIT_TAG "${FROM_GIT_TAG}")
+    GIT_TAG "${FROM_GIT_TAG}"
+    GIT_SHALLOW)
   FetchContent_MakeAvailable(libssh2)
 endif()
 
