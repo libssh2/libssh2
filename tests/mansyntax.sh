@@ -19,18 +19,6 @@ mandir="$(dirname "$0")/../docs"
 
 ec=0
 
-echo '----------------------'
-command -v man || true
-file "$(command -v man)" || true
-echo '----------------------'
-command -v col || true
-file "$(command -v col)" || true
-echo '----------------------'
-echo "${MANPAGER:-}"
-echo '----------------------'
-echo "${PAGER:-}"
-echo '----------------------'
-
 #
 # Only test if suitable man is available
 #
