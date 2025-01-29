@@ -26,9 +26,9 @@ echo '----------------------'
 command -v col || true
 file "$(command -v col)" || true
 echo '----------------------'
-echo "$MANPAGER"
+echo "${MANPAGER:-}"
 echo '----------------------'
-echo "$PAGER"
+echo "${PAGER:-}"
 echo '----------------------'
 
 #
