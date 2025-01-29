@@ -41,11 +41,11 @@ jobs:
   spellcheck:
     runs-on: ubuntu-24.04
     steps:
+      - name: 'install tools'
+        run: pip install --break-system-packages -U codespell
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'install tools'
-        run: pip install --break-system-packages -U codespell
       - name: 'spellcheck'
         run: ./ci/spellcheck.sh
 
@@ -164,9 +164,6 @@ jobs:
       openssl110-version: 1.1.0l
       openssl102-version: 1.0.2u
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          persist-credentials: false
       - name: 'install architecture'
         if: ${{ matrix.arch != 'amd64' }}
         run: |
@@ -384,6 +381,9 @@ jobs:
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
           echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
@@ -477,14 +477,14 @@ jobs:
     env:
       TRIPLET: 'x86_64-w64-mingw32'
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          persist-credentials: false
       - name: 'install packages'
         run: |
           sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install --no-install-suggests --no-install-recommends \
             mingw-w64 ${{ matrix.build == 'cmake' && 'ninja-build' || '' }}
 
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
@@ -523,15 +523,16 @@ jobs:
           - { build: 'cmake'   , platform: 'x86_64', compiler: 'gcc' }
     steps:
       - run: git config --global core.autocrlf input
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          persist-credentials: false
+
       - uses: cygwin/cygwin-install-action@f61179d72284ceddc397ed07ddb444d82bf9e559 # v5
         with:
           platform: ${{ matrix.platform }}
           packages: ${{ matrix.build == 'automake' && 'autoconf libtool make' || 'ninja' }} ${{ matrix.build }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
 
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'autotools'
         if: ${{ matrix.build == 'automake' }}
         timeout-minutes: 10
@@ -586,9 +587,6 @@ jobs:
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'uwp' }
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'no-options' }
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          persist-credentials: false
       - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
         if: ${{ matrix.sys == 'msys' }}
         with:
@@ -603,6 +601,9 @@ jobs:
             mingw-w64-${{ matrix.env }}-${{ matrix.build }} ${{ matrix.build == 'autotools' && 'make' || '' }}
             mingw-w64-${{ matrix.env }}-openssl
 
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         shell: msys2 {0}
