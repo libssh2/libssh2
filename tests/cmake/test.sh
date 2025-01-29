@@ -8,8 +8,6 @@ set -u
 
 cd "$(dirname "$0")"
 
-export CMAKE_GENERATOR=Ninja
-
 rm -rf bld-fetchcontent; cmake -B bld-fetchcontent \
   -DTEST_INTEGRATION_MODE=FetchContent \
   -DFROM_GIT_REPO="${PWD}/../.." \
