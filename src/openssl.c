@@ -817,13 +817,11 @@ _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
         memcpy(group_name, n, strlen(n));
         memcpy(data, k, k_len);
 
-        params[0] =
-        OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME,
-                                         group_name, 0);
+        params[0] = OSSL_PARAM_construct_utf8_string(
+            OSSL_PKEY_PARAM_GROUP_NAME, group_name, 0);
 
-        params[1] =
-        OSSL_PARAM_construct_octet_string(OSSL_PKEY_PARAM_PUB_KEY,
-                                          data, k_len);
+        params[1] = OSSL_PARAM_construct_octet_string(
+            OSSL_PKEY_PARAM_PUB_KEY, data, k_len);
 
         params[2] = OSSL_PARAM_construct_end();
 
