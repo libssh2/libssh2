@@ -17,6 +17,8 @@ command -v gman >/dev/null 2>&1 && man() { gman "$@"; }
 dstdir="${builddir:-$PWD}"
 mandir="$(dirname "$0")/../docs"
 
+export MAN_KEEP_FORMATTING=1
+
 ec=0
 
 #
