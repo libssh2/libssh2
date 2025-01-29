@@ -20,8 +20,9 @@ rm -rf bld-add_subdirectory; cmake -B bld-add_subdirectory \
 cmake --build bld-add_subdirectory
 
 rm -rf bld-libssh2; cmake ../.. -B bld-libssh2
-make -C bld-libssh2 DESTDIR=_pkg install
+cmake --build bld-libssh2
+cmake --install bld-libssh2 --prefix bld-libssh2/_pkg
 rm -rf bld-find_package; cmake -B bld-find_package \
   -DTEST_INTEGRATION_MODE=find_package \
-  -DCMAKE_PREFIX_PATH="${PWD}/bld-libssh2/_pkg/usr/local/lib/cmake/libssh2"
+  -DCMAKE_PREFIX_PATH="${PWD}/bld-libssh2/_pkg/lib/cmake/libssh2"
 cmake --build bld-find_package
