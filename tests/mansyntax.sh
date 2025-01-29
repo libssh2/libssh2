@@ -17,8 +17,6 @@ command -v gman >/dev/null 2>&1 && man() { gman "$@"; }
 dstdir="${builddir:-$PWD}"
 mandir="$(dirname "$0")/../docs"
 
-export MAN_KEEP_FORMATTING=1
-
 ec=0
 
 #
@@ -28,6 +26,10 @@ if command -v grep >/dev/null 2>&1 && \
    man --help 2>/dev/null | grep -q warnings; then
 
   trap 'rm -f "$dstdir/man3"' EXIT HUP INT TERM
+
+  # Tell 'man' to not pipe the output through 'col'.
+  # 'col' is missing from Cygwin since util-linux 2.40.2-1 (2024-12-24).
+  export MAN_KEEP_FORMATTING=1
 
   ln -sf "$mandir" "$dstdir/man3"
 
