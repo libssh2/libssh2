@@ -423,7 +423,7 @@ jobs:
           # Test build from tarball
           tar -xvf libssh2-99.98.97.tar.gz
           cd libssh2-99.98.97
-          ./configure --enable-werror --enable-debug "--prefix=${HOME}/temp" \
+          ./configure --enable-werror --enable-debug --prefix="${HOME}/temp" \
             ${{ matrix.options }} --disable-dependency-tracking
           make -j5 install
           cd ..
@@ -485,7 +485,7 @@ jobs:
         run: autoreconf -fi
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' }}
-        run: mkdir bld && cd bld && ../configure --enable-werror --enable-debug "--host=${TRIPLET}" --disable-dependency-tracking || { tail -n 1000 config.log; false; }
+        run: mkdir bld && cd bld && ../configure --enable-werror --enable-debug --host="${TRIPLET}" --disable-dependency-tracking || { tail -n 1000 config.log; false; }
       - name: 'autotools build'
         if: ${{ matrix.build == 'autotools' }}
         run: make -C bld -j5
@@ -738,27 +738,27 @@ jobs:
         crypto:
           - name: 'OpenSSL 3'
             install: openssl
-            configure: --with-crypto=openssl "--with-libssl-prefix=$(brew --prefix)/opt/openssl"
-            cmake: -DCRYPTO_BACKEND=OpenSSL "-DOPENSSL_ROOT_DIR=$(brew --prefix)/opt/openssl"
+            configure: --with-crypto=openssl --with-libssl-prefix="$(brew --prefix)/opt/openssl"
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR="$(brew --prefix)/opt/openssl"
           - name: 'OpenSSL 1.1'
             install: openssl@1.1
-            configure: --with-crypto=openssl "--with-libssl-prefix=$(brew --prefix)/opt/openssl@1.1"
-            cmake: -DCRYPTO_BACKEND=OpenSSL "-DOPENSSL_ROOT_DIR=$(brew --prefix)/opt/openssl@1.1"
+            configure: --with-crypto=openssl --with-libssl-prefix="$(brew --prefix)/opt/openssl@1.1"
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR="$(brew --prefix)/opt/openssl@1.1"
           - name: 'LibreSSL'
             install: libressl
-            configure: --with-crypto=openssl "--with-libssl-prefix=$(brew --prefix)/opt/libressl"
-            cmake: -DCRYPTO_BACKEND=OpenSSL "-DOPENSSL_ROOT_DIR=$(brew --prefix)/opt/libressl"
+            configure: --with-crypto=openssl --with-libssl-prefix="$(brew --prefix)/opt/libressl"
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR="$(brew --prefix)/opt/libressl"
           - name: 'wolfSSL'
             install: wolfssl
-            configure: --with-crypto=wolfssl "--with-libwolfssl-prefix=$(brew --prefix)"
+            configure: --with-crypto=wolfssl --with-libwolfssl-prefix="$(brew --prefix)"
             cmake: -DCRYPTO_BACKEND=wolfSSL
           - name: 'Libgcrypt'
             install: libgcrypt
-            configure: --with-crypto=libgcrypt "--with-libgcrypt-prefix=$(brew --prefix)"
+            configure: --with-crypto=libgcrypt --with-libgcrypt-prefix="$(brew --prefix)"
             cmake: -DCRYPTO_BACKEND=Libgcrypt
           - name: 'mbedTLS'
             install: mbedtls
-            configure: --with-crypto=mbedtls "--with-libmbedcrypto-prefix=$(brew --prefix)"
+            configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix="$(brew --prefix)"
             cmake: -DCRYPTO_BACKEND=mbedTLS
     steps:
       - name: 'install packages'
