@@ -62,8 +62,7 @@ jobs:
           persist-credentials: false
       - name: 'cmake'
         run: |
-          sudo apt-get --option Dpkg::Use-Pty=0 install \
-            libssl-dev
+          sudo apt-get --option Dpkg::Use-Pty=0 install libssl-dev
           ./tests/cmake/test.sh
 
   build_linux:
@@ -169,8 +168,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture '${{ matrix.arch }}'
           sudo apt-get --option Dpkg::Use-Pty=0 update
-          sudo apt-get --option Dpkg::Use-Pty=0 install \
-            gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
+          sudo apt-get --option Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
 
       - name: 'install packages'
         run: |
@@ -178,8 +176,7 @@ jobs:
           [ '${{ matrix.crypto }}' = 'wolfSSL' ] && pkg='libwolfssl-dev'
           [ '${{ matrix.crypto }}' = 'Libgcrypt' ] && pkg='libgcrypt-dev'
           if [ -n "${pkg}" ]; then
-            sudo apt-get --option Dpkg::Use-Pty=0 install \
-              "${pkg}:${{ matrix.arch }}"
+            sudo apt-get --option Dpkg::Use-Pty=0 install "${pkg}:${{ matrix.arch }}"
           fi
 
       - name: 'cache mbedTLS'
@@ -478,9 +475,7 @@ jobs:
       TRIPLET: 'x86_64-w64-mingw32'
     steps:
       - name: 'install packages'
-        run: |
-          sudo apt-get --option Dpkg::Use-Pty=0 install \
-            mingw-w64 ${{ matrix.build == 'cmake' && 'ninja-build' || '' }}
+        run: sudo apt-get --option Dpkg::Use-Pty=0 install mingw-w64 ${{ matrix.build == 'cmake' && 'ninja-build' || '' }}
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
