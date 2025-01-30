@@ -212,7 +212,7 @@ banner_receive(LIBSSH2_SESSION * session)
 static int
 banner_send(LIBSSH2_SESSION * session)
 {
-    char *banner = (char *) LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
+    const char *banner = LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
     size_t banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
     ssize_t ret;
 
@@ -260,7 +260,8 @@ banner_send(LIBSSH2_SESSION * session)
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                        "Sent %ld/%ld bytes at %p+%ld", (long)ret,
                        (long)(banner_len - session->banner_TxRx_total_send),
-                       (void *)banner, (long)session->banner_TxRx_total_send));
+                       (const void *)banner,
+                       (long)session->banner_TxRx_total_send));
 
     if(ret != (ssize_t)(banner_len - session->banner_TxRx_total_send)) {
         if(ret >= 0 || ret == -EAGAIN) {
@@ -1158,7 +1159,7 @@ session_free(LIBSSH2_SESSION *session)
     /* error string */
     if(session->err_msg &&
        ((session->err_flags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
-        LIBSSH2_FREE(session, (char *)session->err_msg);
+        LIBSSH2_FREE(session, (char *)LIBSSH2_UNCONST(session->err_msg));
     }
 
     LIBSSH2_FREE(session, session);
@@ -1272,31 +1273,31 @@ libssh2_session_methods(LIBSSH2_SESSION * session, int method_type)
         break;
 
     case LIBSSH2_METHOD_HOSTKEY:
-        method = (LIBSSH2_KEX_METHOD *) session->hostkey;
+        method = (const LIBSSH2_KEX_METHOD *) session->hostkey;
         break;
 
     case LIBSSH2_METHOD_CRYPT_CS:
-        method = (LIBSSH2_KEX_METHOD *) session->local.crypt;
+        method = (const LIBSSH2_KEX_METHOD *) session->local.crypt;
         break;
 
     case LIBSSH2_METHOD_CRYPT_SC:
-        method = (LIBSSH2_KEX_METHOD *) session->remote.crypt;
+        method = (const LIBSSH2_KEX_METHOD *) session->remote.crypt;
         break;
 
     case LIBSSH2_METHOD_MAC_CS:
-        method = (LIBSSH2_KEX_METHOD *) session->local.mac;
+        method = (const LIBSSH2_KEX_METHOD *) session->local.mac;
         break;
 
     case LIBSSH2_METHOD_MAC_SC:
-        method = (LIBSSH2_KEX_METHOD *) session->remote.mac;
+        method = (const LIBSSH2_KEX_METHOD *) session->remote.mac;
         break;
 
     case LIBSSH2_METHOD_COMP_CS:
-        method = (LIBSSH2_KEX_METHOD *) session->local.comp;
+        method = (const LIBSSH2_KEX_METHOD *) session->local.comp;
         break;
 
     case LIBSSH2_METHOD_COMP_SC:
-        method = (LIBSSH2_KEX_METHOD *) session->remote.comp;
+        method = (const LIBSSH2_KEX_METHOD *) session->remote.comp;
         break;
 
     case LIBSSH2_METHOD_LANG_CS:
@@ -1351,7 +1352,7 @@ libssh2_session_last_error(LIBSSH2_SESSION * session, char **errmsg,
                 }
             }
             else {
-                *errmsg = (char *) "";
+                *errmsg = (char *)LIBSSH2_UNCONST("");
             }
         }
         if(errmsg_len) {
@@ -1374,7 +1375,7 @@ libssh2_session_last_error(LIBSSH2_SESSION * session, char **errmsg,
             }
         }
         else
-            *errmsg = (char *)error;
+            *errmsg = (char *)LIBSSH2_UNCONST(error);
     }
 
     if(errmsg_len) {

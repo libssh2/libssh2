@@ -687,7 +687,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 }
                 else {
                     const unsigned char *strict =
-                    (unsigned char *)"kex-strict-s-v00@openssh.com";
+                        (const unsigned char *)"kex-strict-s-v00@openssh.com";
                     struct string_buf buf;
                     unsigned char *algs = NULL;
                     size_t algs_len = 0;
@@ -1642,7 +1642,7 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
             }
         }
 
-        if(strchr((char *) packet_types, ret)) {
+        if(strchr((const char *) packet_types, ret)) {
             /* Be lazy, let packet_ask pull it out of the brigade */
             ret = _libssh2_packet_askv(session, packet_types, data,
                                        data_len, match_ofs, match_buf,

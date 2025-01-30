@@ -675,7 +675,7 @@ sftp_bin2attr(LIBSSH2_SFTP_ATTRIBUTES *attrs, const unsigned char *p,
 {
     struct string_buf buf;
     uint32_t flags = 0;
-    buf.data = (unsigned char *)p;
+    buf.data = (unsigned char *)LIBSSH2_UNCONST(p);
     buf.dataptr = buf.data;
     buf.len = data_len;
 
