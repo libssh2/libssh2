@@ -175,6 +175,16 @@ else()
   set(LIB_SELECTED ${LIB_STATIC})
 endif()
 
+# Override to force-disable or force-enable the use of pkg-config.
+if((UNIX AND NOT ANDROID AND (NOT APPLE OR CMAKE_SYSTEM_NAME MATCHES "Darwin")) OR
+   VCPKG_TOOLCHAIN OR
+   (MINGW AND NOT CMAKE_CROSSCOMPILING))
+  set(_libssh2_use_pkgconfig_default ON)
+else()
+  set(_libssh2_use_pkgconfig_default OFF)
+endif()
+option(LIBSSH2_USE_PKGCONFIG "Enable pkg-config to detect dependencies" ${_libssh2_use_pkgconfig_default})
+
 # Symbol hiding
 
 option(HIDE_SYMBOLS "Hide all libssh2 symbols that are not officially external" ON)
