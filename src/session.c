@@ -60,7 +60,7 @@
 #include "channel.h"
 #include "mac.h"
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #define libssh2_usec_t long
 #elif defined(__APPLE__)
 #define libssh2_usec_t suseconds_t
@@ -489,7 +489,7 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
  * Set (or reset) a callback function
  * Returns the prior address
  */
-#if defined(__clang__)
+#ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-function-type"
 #endif
@@ -557,7 +557,7 @@ libssh2_session_callback_set2(LIBSSH2_SESSION *session, int cbtype,
 
     return NULL;
 }
-#if defined(__clang__)
+#ifdef __clang__
 #pragma clang diagnostic pop
 #endif
 

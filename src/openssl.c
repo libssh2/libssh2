@@ -160,7 +160,7 @@ int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
     return EVP_MAC_update(*ctx, data, datalen);
 #elif defined(HAVE_OPAQUE_STRUCTS)
 /* FIXME: upstream bug as of v5.7.0: datalen is int instead of size_t */
-#if defined(LIBSSH2_WOLFSSL)
+#ifdef LIBSSH2_WOLFSSL
     return HMAC_Update(*ctx, data, (int)datalen);
 #else /* !LIBSSH2_WOLFSSL */
     return HMAC_Update(*ctx, data, datalen);
@@ -452,7 +452,7 @@ _libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsactx,
     else {
 /* silence:
    warning C4701: potentially uninitialized local variable 'nid_type' used */
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
         nid_type = 0;
 #endif
         ret = -1; /* unsupported digest */
@@ -1293,7 +1293,7 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session, libssh2_rsa_ctx *rsa,
 #else
     const BIGNUM * e;
     const BIGNUM * n;
-#if defined(HAVE_OPAQUE_STRUCTS)
+#ifdef HAVE_OPAQUE_STRUCTS
     e = NULL;
     n = NULL;
 
