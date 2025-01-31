@@ -48,7 +48,7 @@
 #if !defined(__clang__) && __GNUC__ >= 10
 #pragma GCC diagnostic ignored "-Warith-conversion"
 #endif
-#if defined(__clang__)
+#ifdef __clang__
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 /* mbedTLS (as of v3.5.1) has a duplicate function declaration

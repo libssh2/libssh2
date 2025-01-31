@@ -45,7 +45,7 @@
 
 #include <stdlib.h>  /* strtoll(), _strtoi64(), strtol() */
 
-#if defined(HAVE_STRTOLL)
+#ifdef HAVE_STRTOLL
 #define scpsize_strtol strtoll
 #elif defined(HAVE_STRTOI64)
 #define scpsize_strtol _strtoi64

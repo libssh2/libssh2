@@ -141,7 +141,7 @@
 #endif
 
 /* Use local implementation when not available */
-#if !defined(HAVE_SNPRINTF)
+#ifndef HAVE_SNPRINTF
 #undef snprintf
 #define snprintf _libssh2_snprintf
 #define LIBSSH2_SNPRINTF
@@ -149,7 +149,7 @@ int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
     LIBSSH2_PRINTF(3, 4);
 #endif
 
-#if !defined(HAVE_GETTIMEOFDAY)
+#ifndef HAVE_GETTIMEOFDAY
 #define HAVE_GETTIMEOFDAY
 #undef gettimeofday
 #define gettimeofday _libssh2_gettimeofday
@@ -159,7 +159,7 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp);
 #include <sys/time.h>
 #endif
 
-#if !defined(LIBSSH2_FALLTHROUGH)
+#ifndef LIBSSH2_FALLTHROUGH
 #if (defined(__GNUC__) && __GNUC__ >= 7) || \
     (defined(__clang__) && __clang_major__ >= 10)
 #  define LIBSSH2_FALLTHROUGH()  __attribute__((fallthrough))
