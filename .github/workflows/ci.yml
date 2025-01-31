@@ -184,7 +184,7 @@ jobs:
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-mbedtls
         with:
-          path: /home/runner/usr
+          path: ~/usr
           key: ${{ runner.os }}-mbedtls-${{ env.mbedtls-version }}-${{ matrix.arch }}
 
       - name: 'install mbedTLS from source'
@@ -241,7 +241,7 @@ jobs:
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-boringssl
         with:
-          path: /home/runner/usr
+          path: ~/usr
           key: ${{ runner.os }}-boringssl-${{ env.boringssl-version }}-${{ matrix.arch }}
 
       - name: 'install BoringSSL from source'
@@ -269,7 +269,7 @@ jobs:
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-libressl
         with:
-          path: /home/runner/usr
+          path: ~/usr
           key: ${{ runner.os }}-libressl-${{ env.libressl-version }}-${{ matrix.arch }}
 
       - name: 'install LibreSSL from source'
@@ -294,7 +294,7 @@ jobs:
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-openssl
         with:
-          path: /home/runner/usr
+          path: ~/usr
           key: ${{ runner.os }}-openssl-${{ env.openssl-version }}-${{ matrix.arch }}
 
       - name: 'install OpenSSL from source'
@@ -317,7 +317,7 @@ jobs:
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-openssl111
         with:
-          path: /home/runner/usr
+          path: ~/usr
           key: ${{ runner.os }}-openssl-${{ env.openssl111-version }}-${{ matrix.arch }}
 
       - name: 'install OpenSSL 1.1.1 from source'
@@ -339,7 +339,7 @@ jobs:
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-openssl110
         with:
-          path: /home/runner/usr
+          path: ~/usr
           key: ${{ runner.os }}-openssl-${{ env.openssl110-version }}-${{ matrix.arch }}
 
       - name: 'install OpenSSL 1.1.0 from source'
@@ -361,7 +361,7 @@ jobs:
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-openssl102
         with:
-          path: /home/runner/usr
+          path: ~/usr
           key: ${{ runner.os }}-openssl-${{ env.openssl102-version }}-${{ matrix.arch }}
 
       - name: 'install OpenSSL 1.0.2 from source'
