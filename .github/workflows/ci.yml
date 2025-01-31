@@ -160,7 +160,7 @@ jobs:
       mbedtls-version: 3.6.2
       wolfssl-version: 5.7.4
       wolfssl-version-prev: 5.5.4
-      boringssl-version: 0.20241024.0
+      boringssl-version: 0.20250114.0
       libressl-version: 4.0.0
       openssl-version: 3.4.0
       openssl111-version: 1.1.1w
@@ -232,7 +232,8 @@ jobs:
             -DWOLFSSL_OPENSSLALL=ON \
             -DWOLFSSL_EXAMPLES=OFF \
             -DWOLFSSL_CRYPT_TESTS=OFF \
-            -DCMAKE_C_FLAGS='-fPIC -DWOLFSSL_AESGCM_STREAM' \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            -DCMAKE_C_FLAGS='-DWOLFSSL_AESGCM_STREAM' \
             -DCMAKE_INSTALL_PREFIX="$HOME/usr"
           cmake --build bld --parallel 5
           cmake --install bld
@@ -259,7 +260,7 @@ jobs:
             echo 'set_target_properties(decrepit bssl_shim test_fips boringssl_gtest test_support_lib urandom_test crypto_test ssl_test decrepit_test all_tests pki pki_test run_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)' >> ./CMakeLists.txt
             cmake -B . \
               -DOPENSSL_SMALL=ON \
-              -DCMAKE_C_FLAGS=-fPIC \
+              -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
               -DCMAKE_INSTALL_PREFIX="$HOME/usr"
             cmake --build . --parallel 5
             cmake --install .
