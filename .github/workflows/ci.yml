@@ -39,7 +39,7 @@ jobs:
         run: ./ci/shellcheck.sh
 
   spellcheck:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: 'install tools'
         run: pip install --break-system-packages -U codespell
