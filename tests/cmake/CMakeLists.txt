@@ -10,10 +10,17 @@ option(TEST_INTEGRATION_MODE "Integration mode" "find_package")
 
 message(STATUS "TEST_INTEGRATION_MODE: ${TEST_INTEGRATION_MODE}")
 
+if(TEST_INTEGRATION_MODE STREQUAL "FetchContent" AND CMAKE_VERSION VERSION_LESS 3.14)
+  message(FATAL_ERROR "This test requires CMake 3.14 or upper")
+endif()
+
 if(TEST_INTEGRATION_MODE STREQUAL "find_package")
   find_package(libssh2 REQUIRED CONFIG)
-  find_package(libssh2 REQUIRED CONFIG)  # test for double-inclusion
-  foreach(result_var IN ITEMS libssh2_FOUND libssh2_VERSION)
+  find_package(libssh2 REQUIRED CONFIG)  # Double-inclusion test
+  foreach(result_var IN ITEMS
+      libssh2_FOUND
+      libssh2_VERSION
+    )
     if(${result_var})
       message(STATUS "${result_var}: |${${result_var}}|")
     else()
