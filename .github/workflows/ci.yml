@@ -305,7 +305,7 @@ jobs:
             cd openssl-${{ env.openssl-version }}
             ./Configure no-deprecated \
               no-apps no-docs no-tests no-makedepend \
-              no-comp no-quic no-legacy --prefix=$HOME/usr
+              no-comp no-quic no-legacy --prefix="$HOME/usr"
             make -j5 install_sw
             cd ..
           fi
@@ -326,7 +326,7 @@ jobs:
           if [ '${{ steps.cache-openssl111.outputs.cache-hit }}' != 'true' ]; then
             curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl111-version }}.tar.gz | tar -xzf -
             cd openssl-${{ env.openssl111-version }}
-            ./config no-unit-test no-makedepend --prefix=$HOME/usr no-tests
+            ./config no-unit-test no-makedepend --prefix="$HOME/usr" no-tests
             make -j5
             make -j1 install_sw
             cd ..
@@ -348,7 +348,7 @@ jobs:
           if [ '${{ steps.cache-openssl110.outputs.cache-hit }}' != 'true' ]; then
             curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_0l/openssl-${{ env.openssl110-version }}.tar.gz | tar -xzf -
             cd openssl-${{ env.openssl110-version }}
-            ./config no-unit-test no-makedepend --prefix=$HOME/usr
+            ./config no-unit-test no-makedepend --prefix="$HOME/usr"
             make -j5
             make -j1 install_sw
             cd ..
@@ -370,7 +370,7 @@ jobs:
           if [ '${{ steps.cache-openssl102.outputs.cache-hit }}' != 'true' ]; then
             curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_0_2u/openssl-${{ env.openssl102-version }}.tar.gz | tar -xzf -
             cd openssl-${{ env.openssl102-version }}
-            ./config no-unit-test no-makedepend --prefix=$HOME/usr -fPIC
+            ./config no-unit-test no-makedepend --prefix="$HOME/usr" -fPIC
             make -j5
             make -j1 install_sw
             cd ..
