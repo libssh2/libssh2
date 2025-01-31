@@ -148,9 +148,9 @@ build_script:
   - ps: |
       $options = @('-DENABLE_WERROR=ON')
 
-      $options += "-G$env:GENERATOR"
+      $options += "-G $env:GENERATOR"
       if($env:PLATFORM -ne 'x86') {
-        $options += "-A$env:PLATFORM"
+        $options += "-A $env:PLATFORM"
       }
 
       if($env:TOOLSET) {
