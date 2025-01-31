@@ -52,18 +52,22 @@ jobs:
   build_integration:
     name: 'integration'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 5
     env:
       CC: clang
       MAKEFLAGS: -j5
     steps:
+      - name: 'install prereqs'
+        run: sudo apt-get -o Dpkg::Use-Pty=0 install libssl-dev
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'cmake'
-        run: |
-          sudo apt-get -o Dpkg::Use-Pty=0 install libssl-dev
-          ./tests/cmake/test.sh
+      - name: 'via FetchContent'
+        run: ./tests/cmake/test.sh FetchContent
+      - name: 'via add_subdirectory'
+        run: ./tests/cmake/test.sh add_subdirectory
+      - name: 'via find_package'
+        run: ./tests/cmake/test.sh find_package
 
   build_linux:
     name: 'linux'
