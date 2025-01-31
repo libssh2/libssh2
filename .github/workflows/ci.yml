@@ -256,6 +256,7 @@ jobs:
             cmake -B . \
               -DOPENSSL_SMALL=ON \
               -DCMAKE_C_FLAGS=-fPIC \
+              -DCMAKE_CXX_FLAGS=-fPIC \
               -DCMAKE_INSTALL_PREFIX="$HOME/usr"
             cmake --build . --parallel 5
             cmake --install .
