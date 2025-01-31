@@ -156,7 +156,7 @@ jobs:
       mbedtls-version: 3.6.2
       wolfssl-version: 5.7.4
       wolfssl-version-prev: 5.5.4
-      boringssl-version: 0.20241024.0
+      boringssl-version: 0.20250114.0
       libressl-version: 4.0.0
       openssl-version: 3.4.0
       openssl111-version: 1.1.1w
