@@ -3353,7 +3353,8 @@ _libssh2_md5_init(libssh2_md5_ctx *ctx)
      */
 #if OPENSSL_VERSION_NUMBER >= 0x000907000L && \
     !defined(USE_OPENSSL_3) && \
-    !defined(LIBRESSL_VERSION_NUMBER)
+    !defined(LIBRESSL_VERSION_NUMBER) && \
+    !defined(LIBSSH2_WOLFSSL)
 
     if(FIPS_mode())
         return 0;
