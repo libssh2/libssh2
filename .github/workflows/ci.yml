@@ -136,7 +136,7 @@ jobs:
             zlib: 'ON'
           - compiler: gcc
             arch: i386
-            crypto: mbedTLS
+            crypto: mbedTLS-from-source
             build: cmake
             zlib: 'ON'
           - compiler: clang
@@ -177,14 +177,15 @@ jobs:
       - name: 'install packages'
         run: |
           [ '${{ matrix.crypto }}' = 'OpenSSL' ] && pkg='libssl-dev'
-          [ '${{ matrix.crypto }}' = 'wolfSSL' ] && pkg='libwolfssl-dev'
           [ '${{ matrix.crypto }}' = 'Libgcrypt' ] && pkg='libgcrypt-dev'
+          [ '${{ matrix.crypto }}' = 'mbedTLS' ] && pkg='libmbedtls-dev'
+          [ '${{ matrix.crypto }}' = 'wolfSSL' ] && pkg='libwolfssl-dev'
           if [ -n "${pkg}" ]; then
             sudo apt-get -o Dpkg::Use-Pty=0 install "${pkg}:${{ matrix.arch }}"
           fi
 
       - name: 'cache mbedTLS'
-        if: ${{ matrix.crypto == 'mbedTLS' }}
+        if: ${{ matrix.crypto == 'mbedTLS-from-source' }}
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-mbedtls
         with:
@@ -192,7 +193,7 @@ jobs:
           key: ${{ runner.os }}-mbedtls-${{ env.mbedtls-version }}-${{ matrix.arch }}
 
       - name: 'install mbedTLS from source'
-        if: ${{ matrix.crypto == 'mbedTLS' }}
+        if: ${{ matrix.crypto == 'mbedTLS-from-source' }}
         run: |
           if [ '${{ steps.cache-mbedtls.outputs.cache-hit }}' != 'true' ]; then
             curl -fsS -L https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-${{ env.mbedtls-version }}/mbedtls-${{ env.mbedtls-version }}.tar.bz2 | tar -xjf -
@@ -444,6 +445,8 @@ jobs:
              [ '${{ matrix.crypto }}' = 'LibreSSL' ] || \
              [[ '${{ matrix.crypto }}' = 'OpenSSL-'* ]]; then
             crypto='OpenSSL'
+          elif [[ '${{ matrix.crypto }}' = 'mbedTLS-'* ]]; then
+            crypto='mbedTLS'
           elif [[ '${{ matrix.crypto }}' = 'wolfSSL-'* ]]; then
             crypto='wolfSSL'
           else
