@@ -55,7 +55,7 @@ project(libssh2 C)
 function(libssh2_dumpvars)  # Dump all defined variables with their values
   message("::group::CMake Variable Dump")
   get_cmake_property(_vars VARIABLES)
-  foreach(_var ${_vars})
+  foreach(_var IN ITEMS ${_vars})
     message("${_var} = ${${_var}}")
   endforeach()
   message("::endgroup::")
