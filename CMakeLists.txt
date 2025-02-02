@@ -404,9 +404,8 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     endif()
 
     find_package(ZLIB)
-
     if(ZLIB_FOUND)
-      list(APPEND LIBSSH2_LIBS ${ZLIB_LIBRARIES})
+      list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)
     endif()
   endif()
 endif()
@@ -432,10 +431,8 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
     endif()
 
     find_package(ZLIB)
-
     if(ZLIB_FOUND)
-      list(APPEND CRYPTO_BACKEND_INCLUDE_DIR ${ZLIB_INCLUDE_DIR})  # Public wolfSSL headers require zlib headers
-      list(APPEND LIBSSH2_LIBS ${ZLIB_LIBRARIES})
+      list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)  # Public wolfSSL headers require zlib headers
     endif()
   endif()
 endif()
