@@ -78,7 +78,7 @@ jobs:
       matrix:
         compiler: [gcc, clang]
         arch: [amd64]
-        crypto: [OpenSSL, wolfSSL, Libgcrypt, mbedTLS]
+        crypto: [OpenSSL, Libgcrypt, mbedTLS, wolfSSL]
         build: [cmake]
         zlib: ['OFF', 'ON']
         include:
