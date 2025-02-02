@@ -753,10 +753,6 @@ jobs:
             install: libressl
             configure: --with-crypto=openssl --with-libssl-prefix="$(brew --prefix)/opt/libressl"
             cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR="$(brew --prefix)/opt/libressl"
-          - name: 'wolfSSL'
-            install: wolfssl
-            configure: --with-crypto=wolfssl --with-libwolfssl-prefix="$(brew --prefix)"
-            cmake: -DCRYPTO_BACKEND=wolfSSL
           - name: 'Libgcrypt'
             install: libgcrypt
             configure: --with-crypto=libgcrypt --with-libgcrypt-prefix="$(brew --prefix)"
@@ -765,6 +761,10 @@ jobs:
             install: mbedtls
             configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix="$(brew --prefix)"
             cmake: -DCRYPTO_BACKEND=mbedTLS
+          - name: 'wolfSSL'
+            install: wolfssl
+            configure: --with-crypto=wolfssl --with-libwolfssl-prefix="$(brew --prefix)"
+            cmake: -DCRYPTO_BACKEND=wolfSSL
     steps:
       - name: 'install packages'
         run: brew install ${{ matrix.build == 'autotools' && 'automake libtool' || 'ninja' }} ${{ matrix.crypto.install }}
