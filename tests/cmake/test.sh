@@ -28,7 +28,7 @@ fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   rm -rf bld-libssh2
-  cmake ../.. -B bld-libssh2
+  cmake ../.. -B bld-libssh2 -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF
   cmake --build bld-libssh2
   cmake --install bld-libssh2 --prefix bld-libssh2/_pkg
   rm -rf bld-find_package
