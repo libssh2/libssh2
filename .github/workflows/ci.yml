@@ -58,7 +58,7 @@ jobs:
       MAKEFLAGS: -j5
     steps:
       - name: 'install prereqs'
-        run: sudo apt-get -o Dpkg::Use-Pty=0 install libssl-dev
+        run: sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
@@ -66,8 +66,14 @@ jobs:
         run: ./tests/cmake/test.sh FetchContent
       - name: 'via add_subdirectory'
         run: ./tests/cmake/test.sh add_subdirectory
-      - name: 'via find_package'
-        run: ./tests/cmake/test.sh find_package
+      - name: 'via find_package OpenSSL'
+        run: ./tests/cmake/test.sh find_package OpenSSL
+      - name: 'via find_package Libgcrypt'
+        run: ./tests/cmake/test.sh find_package Libgcrypt
+      - name: 'via find_package mbedTLS'
+        run: ./tests/cmake/test.sh find_package mbedTLS
+      - name: 'via find_package wolfSSL'
+        run: ./tests/cmake/test.sh find_package wolfSSL
 
   build_linux:
     name: 'linux'

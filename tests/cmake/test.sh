@@ -27,13 +27,15 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
 fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
-  rm -rf bld-libssh2
-  cmake ../.. -B bld-libssh2 -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF
-  cmake --build bld-libssh2
-  cmake --install bld-libssh2 --prefix bld-libssh2/_pkg
+  crypto="${2:-OpenSSL}"
+  bld="bld-libssh2-${crypto}"
+  rm -rf "${bld}"
+  cmake ../.. -B "${bld}" -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DCRYPTO_BACKEND="${crypto}"
+  cmake --build "${bld}"
+  cmake --install "${bld}" --prefix "${bld}/_pkg"
   rm -rf bld-find_package
   cmake -B bld-find_package \
     -DTEST_INTEGRATION_MODE=find_package \
-    -DCMAKE_PREFIX_PATH="${PWD}/bld-libssh2/_pkg/lib/cmake/libssh2"
+    -DCMAKE_PREFIX_PATH="${PWD}/${bld}/_pkg/lib/cmake/libssh2"
   cmake --build bld-find_package
 fi
