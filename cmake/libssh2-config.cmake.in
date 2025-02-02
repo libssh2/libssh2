@@ -55,7 +55,7 @@ foreach(_target IN ITEMS
   if(TARGET "${_target}")
     if(_libdirs)
       if(CMAKE_VERSION VERSION_LESS 3.13)
-        link_directories(${_libdirs})
+        set_target_properties("${_target}" PROPERTIES INTERFACE_LINK_DIRECTORIES "${_libdirs}")
       else()
         target_link_directories("${_target}" INTERFACE ${_libdirs})
       endif()
