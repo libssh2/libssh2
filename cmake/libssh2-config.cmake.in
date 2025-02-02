@@ -1,15 +1,7 @@
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
 
-# Keep condition in sync with root CMakeLists.txt
-if((UNIX AND NOT ANDROID AND (NOT APPLE OR CMAKE_SYSTEM_NAME MATCHES "Darwin")) OR
-   VCPKG_TOOLCHAIN OR
-   (MINGW AND NOT CMAKE_CROSSCOMPILING))
-  set(_libssh2_use_pkgconfig_default ON)
-else()
-  set(_libssh2_use_pkgconfig_default OFF)
-endif()
-option(LIBSSH2_USE_PKGCONFIG "Enable pkg-config to detect @PROJECT_NAME@ dependencies" ${_libssh2_use_pkgconfig_default})
+option(LIBSSH2_USE_PKGCONFIG "Enable pkg-config to detect @PROJECT_NAME@ dependencies. Default: @LIBSSH2_USE_PKGCONFIG@" "@LIBSSH2_USE_PKGCONFIG@")
 
 include(CMakeFindDependencyMacro)
 list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
