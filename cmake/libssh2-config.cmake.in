@@ -47,10 +47,7 @@ if(NOT TARGET Libssh2::@LIB_NAME@)
   add_library(Libssh2::@LIB_NAME@ ALIAS @PROJECT_NAME@::@LIB_SELECTED@)
 endif()
 
-foreach(_target IN ITEMS
-    @PROJECT_NAME@::@LIB_SHARED@
-    @PROJECT_NAME@::@LIB_STATIC@
-  )
+foreach(_target IN ITEMS @PROJECT_NAME@::@LIB_SHARED@ @PROJECT_NAME@::@LIB_STATIC@)
   if(TARGET "${_target}")
     if(_libdirs)
       if(CMAKE_VERSION VERSION_LESS 3.13)
