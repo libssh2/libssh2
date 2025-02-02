@@ -48,7 +48,6 @@ if(NOT TARGET Libssh2::@LIB_NAME@)
 endif()
 
 foreach(_target IN ITEMS
-    @PROJECT_NAME@::@LIB_SELECTED@
     @PROJECT_NAME@::@LIB_SHARED@
     @PROJECT_NAME@::@LIB_STATIC@
   )
