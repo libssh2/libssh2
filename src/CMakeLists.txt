@@ -284,7 +284,7 @@ endif()
 if(_ldflags)
   list(REMOVE_DUPLICATES _ldflags)
   string(REPLACE ";" " " _ldflags "${_ldflags}")
-  string(APPEND LIBSSH2_PC_LIBS_PRIVATE " ${LIBSSH2_PC_LIBS_PRIVATE}")
+  set(LIBSSH2_PC_LIBS_PRIVATE "${_ldflags} ${LIBSSH2_PC_LIBS_PRIVATE}")
   string(STRIP "${LIBSSH2_PC_LIBS_PRIVATE}" LIBSSH2_PC_LIBS_PRIVATE)
 endif()
 
