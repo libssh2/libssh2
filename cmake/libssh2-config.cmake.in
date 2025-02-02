@@ -47,9 +47,21 @@ if(NOT TARGET Libssh2::@LIB_NAME@)
   add_library(Libssh2::@LIB_NAME@ ALIAS @PROJECT_NAME@::@LIB_SELECTED@)
 endif()
 
-if(_libdirs)
-  link_directories(${_libdirs})
-endif()
-if(_libs)
-  target_link_libraries(@PROJECT_NAME@::@LIB_SELECTED@ INTERFACE ${_libs})
-endif()
+foreach(_target IN ITEMS
+    @PROJECT_NAME@::@LIB_SELECTED@
+    @PROJECT_NAME@::@LIB_SHARED@
+    @PROJECT_NAME@::@LIB_STATIC@
+  )
+  if(TARGET "${_target}")
+    if(_libdirs)
+      if(CMAKE_VERSION VERSION_LESS 3.13)
+        link_directories(${_libdirs})
+      else()
+        target_link_directories("${_target}" INTERFACE ${_libdirs})
+      endif()
+    endif()
+    if(_libs)
+      target_link_libraries("${_target}" INTERFACE ${_libs})
+    endif()
+  endif()
+endforeach()

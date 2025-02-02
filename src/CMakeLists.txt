@@ -330,6 +330,8 @@ install(
 #   CRYPTO_BACKEND
 #   LIB_NAME
 #   LIB_SELECTED
+#   LIB_SHARED
+#   LIB_STATIC
 #   LIBSSH2_USE_PKGCONFIG
 #   ZLIB_FOUND
 include(CMakePackageConfigHelpers)
