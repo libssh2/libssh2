@@ -29,6 +29,7 @@ if(LIBSSH2_USE_PKGCONFIG AND
 endif()
 
 if(LIBGCRYPT_FOUND)
+  set(Libgcrypt_FOUND TRUE)
   string(REPLACE ";" " " LIBGCRYPT_CFLAGS "${LIBGCRYPT_CFLAGS}")
   message(STATUS "Found Libgcrypt (via pkg-config): ${LIBGCRYPT_INCLUDE_DIRS} (found version \"${LIBGCRYPT_VERSION}\")")
 else()

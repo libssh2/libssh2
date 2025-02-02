@@ -55,8 +55,8 @@ project(libssh2 C)
 function(libssh2_dumpvars)  # Dump all defined variables with their values
   message("::group::CMake Variable Dump")
   get_cmake_property(_vars VARIABLES)
-  foreach(_var ${_vars})
-    message("${_var} = ${${_var}}")
+  foreach(_var IN ITEMS ${_vars})
+    message("${_var} = '${${_var}}'")
   endforeach()
   message("::endgroup::")
 endfunction()
@@ -405,9 +405,8 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     endif()
 
     find_package(ZLIB)
-
     if(ZLIB_FOUND)
-      list(APPEND LIBSSH2_LIBS ${ZLIB_LIBRARIES})
+      list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)
     endif()
   endif()
 endif()
@@ -433,10 +432,8 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
     endif()
 
     find_package(ZLIB)
-
     if(ZLIB_FOUND)
-      list(APPEND CRYPTO_BACKEND_INCLUDE_DIR ${ZLIB_INCLUDE_DIR})  # Public wolfSSL headers require zlib headers
-      list(APPEND LIBSSH2_LIBS ${ZLIB_LIBRARIES})
+      list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)  # Public wolfSSL headers require zlib headers
     endif()
   endif()
 endif()

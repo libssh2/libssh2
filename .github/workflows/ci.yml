@@ -58,7 +58,7 @@ jobs:
       MAKEFLAGS: -j5
     steps:
       - name: 'install prereqs'
-        run: sudo apt-get -o Dpkg::Use-Pty=0 install libssl-dev
+        run: sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
@@ -66,8 +66,14 @@ jobs:
         run: ./tests/cmake/test.sh FetchContent
       - name: 'via add_subdirectory'
         run: ./tests/cmake/test.sh add_subdirectory
-      - name: 'via find_package'
-        run: ./tests/cmake/test.sh find_package
+      - name: 'via find_package OpenSSL'
+        run: ./tests/cmake/test.sh find_package OpenSSL
+      - name: 'via find_package Libgcrypt'
+        run: ./tests/cmake/test.sh find_package Libgcrypt
+      - name: 'via find_package mbedTLS'
+        run: ./tests/cmake/test.sh find_package mbedTLS
+      - name: 'via find_package wolfSSL'
+        run: ./tests/cmake/test.sh find_package wolfSSL
 
   build_linux:
     name: 'linux'
@@ -78,7 +84,7 @@ jobs:
       matrix:
         compiler: [gcc, clang]
         arch: [amd64]
-        crypto: [OpenSSL, wolfSSL, Libgcrypt, mbedTLS]
+        crypto: [OpenSSL, Libgcrypt, mbedTLS, wolfSSL]
         build: [cmake]
         zlib: ['OFF', 'ON']
         include:
@@ -136,7 +142,7 @@ jobs:
             zlib: 'ON'
           - compiler: gcc
             arch: i386
-            crypto: mbedTLS
+            crypto: mbedTLS-from-source
             build: cmake
             zlib: 'ON'
           - compiler: clang
@@ -177,14 +183,15 @@ jobs:
       - name: 'install packages'
         run: |
           [ '${{ matrix.crypto }}' = 'OpenSSL' ] && pkg='libssl-dev'
-          [ '${{ matrix.crypto }}' = 'wolfSSL' ] && pkg='libwolfssl-dev'
           [ '${{ matrix.crypto }}' = 'Libgcrypt' ] && pkg='libgcrypt-dev'
+          [ '${{ matrix.crypto }}' = 'mbedTLS' ] && pkg='libmbedtls-dev'
+          [ '${{ matrix.crypto }}' = 'wolfSSL' ] && pkg='libwolfssl-dev'
           if [ -n "${pkg}" ]; then
             sudo apt-get -o Dpkg::Use-Pty=0 install "${pkg}:${{ matrix.arch }}"
           fi
 
       - name: 'cache mbedTLS'
-        if: ${{ matrix.crypto == 'mbedTLS' }}
+        if: ${{ matrix.crypto == 'mbedTLS-from-source' }}
         uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
         id: cache-mbedtls
         with:
@@ -192,7 +199,7 @@ jobs:
           key: ${{ runner.os }}-mbedtls-${{ env.mbedtls-version }}-${{ matrix.arch }}
 
       - name: 'install mbedTLS from source'
-        if: ${{ matrix.crypto == 'mbedTLS' }}
+        if: ${{ matrix.crypto == 'mbedTLS-from-source' }}
         run: |
           if [ '${{ steps.cache-mbedtls.outputs.cache-hit }}' != 'true' ]; then
             curl -fsS -L https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-${{ env.mbedtls-version }}/mbedtls-${{ env.mbedtls-version }}.tar.bz2 | tar -xjf -
@@ -444,6 +451,8 @@ jobs:
              [ '${{ matrix.crypto }}' = 'LibreSSL' ] || \
              [[ '${{ matrix.crypto }}' = 'OpenSSL-'* ]]; then
             crypto='OpenSSL'
+          elif [[ '${{ matrix.crypto }}' = 'mbedTLS-'* ]]; then
+            crypto='mbedTLS'
           elif [[ '${{ matrix.crypto }}' = 'wolfSSL-'* ]]; then
             crypto='wolfSSL'
           else
@@ -753,10 +762,6 @@ jobs:
             install: libressl
             configure: --with-crypto=openssl --with-libssl-prefix="$(brew --prefix)/opt/libressl"
             cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR="$(brew --prefix)/opt/libressl"
-          - name: 'wolfSSL'
-            install: wolfssl
-            configure: --with-crypto=wolfssl --with-libwolfssl-prefix="$(brew --prefix)"
-            cmake: -DCRYPTO_BACKEND=wolfSSL
           - name: 'Libgcrypt'
             install: libgcrypt
             configure: --with-crypto=libgcrypt --with-libgcrypt-prefix="$(brew --prefix)"
@@ -765,6 +770,10 @@ jobs:
             install: mbedtls
             configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix="$(brew --prefix)"
             cmake: -DCRYPTO_BACKEND=mbedTLS
+          - name: 'wolfSSL'
+            install: wolfssl
+            configure: --with-crypto=wolfssl --with-libwolfssl-prefix="$(brew --prefix)"
+            cmake: -DCRYPTO_BACKEND=wolfSSL
     steps:
       - name: 'install packages'
         run: brew install ${{ matrix.build == 'autotools' && 'automake libtool' || 'ninja' }} ${{ matrix.crypto.install }}

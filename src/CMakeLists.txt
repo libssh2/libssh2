@@ -326,8 +326,14 @@ install(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/libssh2.pc"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
-#
-
+# Consumed variables:
+#   CRYPTO_BACKEND
+#   LIB_NAME
+#   LIB_SELECTED
+#   LIB_SHARED
+#   LIB_STATIC
+#   LIBSSH2_USE_PKGCONFIG
+#   ZLIB_FOUND
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
