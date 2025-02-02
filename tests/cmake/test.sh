@@ -37,5 +37,5 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   cmake -B bld-find_package \
     -DTEST_INTEGRATION_MODE=find_package \
     -DCMAKE_PREFIX_PATH="${PWD}/${bld}/_pkg/lib/cmake/libssh2"
-  cmake --build bld-find_package
+  cmake --build bld-find_package --verbose
 fi
