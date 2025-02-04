@@ -61,12 +61,12 @@ else()
   mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
 endif()
 
-if(WOLFSSL_FOUND AND CMAKE_VERSION VERSION_LESS 3.13)
-  link_directories(${_wolfssl_library_dirs})
-endif()
-
 if(WOLFSSL_FOUND AND WIN32)
   list(APPEND _wolfssl_libraries "crypt32")
+endif()
+
+if(WOLFSSL_FOUND AND CMAKE_VERSION VERSION_LESS 3.13)
+  link_directories(${_wolfssl_library_dirs})
 endif()
 
 if(WOLFSSL_FOUND AND NOT TARGET libssh2::wolfssl)
