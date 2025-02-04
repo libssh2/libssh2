@@ -19,6 +19,42 @@
 # - `WOLFSSL_CFLAGS`:        Required compiler flags.
 # - `WOLFSSL_VERSION`:       Version of wolfSSL.
 
+function(libssh2_dumpprops _target)  # Dump all target properties
+  if(TARGET "${_target}")
+    execute_process(COMMAND "${CMAKE_COMMAND}" "--help-property-list" OUTPUT_VARIABLE _cmake_property_list)
+    string(REPLACE "\n" ";" _cmake_property_list "${_cmake_property_list}")
+    list(REMOVE_DUPLICATES _cmake_property_list)
+    list(REMOVE_ITEM _cmake_property_list "")
+    foreach(_prop IN LISTS _cmake_property_list)
+      if(_prop MATCHES "<CONFIG>")
+        foreach(_config IN ITEMS "DEBUG" "RELEASE" "MINSIZEREL" "RELWITHDEBINFO")
+          string(REPLACE "<CONFIG>" "${_config}" _propconfig "${_prop}")
+          get_property(_is_set TARGET "${_target}" PROPERTY "${_propconfig}" SET)
+          if(_is_set)
+            get_target_property(_val "${_target}" "${_propconfig}")
+            message("${_target}.${_propconfig} = '${_val}'")
+          endif()
+        endforeach()
+      else()
+        get_property(_is_set TARGET "${_target}" PROPERTY "${_prop}" SET)
+        if(_is_set)
+          get_target_property(_val "${_target}" "${_prop}")
+          message("${_target}.${_prop} = '${_val}'")
+        endif()
+      endif()
+    endforeach()
+  endif()
+endfunction()
+
+function(libssh2_dumpvars)  # Dump all defined variables with their values
+  message("::group::CMake Variable Dump")
+  get_cmake_property(_vars VARIABLES)
+  foreach(_var IN ITEMS ${_vars})
+    message("${_var} = '${${_var}}'")
+  endforeach()
+  message("::endgroup::")
+endfunction()
+
 set(WOLFSSL_PC_REQUIRES "wolfssl")
 
 if(LIBSSH2_USE_PKGCONFIG AND
