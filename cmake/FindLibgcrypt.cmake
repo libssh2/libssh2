@@ -9,10 +9,11 @@
 # - `LIBGCRYPT_INCLUDE_DIR`:   The Libgcrypt include directory.
 # - `LIBGCRYPT_LIBRARY`:       Path to `libgcrypt` library.
 #
-# Result variables:
+# Defines:
 #
 # - `LIBGCRYPT_FOUND`:         System has Libgcrypt.
 # - `LIBGCRYPT_VERSION`:       Version of Libgcrypt.
+# - `libssh2::Libgcrypt`:      Libgcrypt library target.
 
 set(_libgcrypt_pc_requires "libgcrypt")
 

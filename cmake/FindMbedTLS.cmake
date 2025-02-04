@@ -9,10 +9,11 @@
 # - `MBEDTLS_INCLUDE_DIR`:   The mbedTLS include directory.
 # - `MBEDCRYPTO_LIBRARY`:    Path to `mbedcrypto` library.
 #
-# Result variables:
+# Defines:
 #
 # - `MBEDTLS_FOUND`:         System has mbedTLS.
 # - `MBEDTLS_VERSION`:       Version of mbedTLS.
+# - `libssh2::MbedCrypto`:   mbedcrypto library target.
 
 set(_mbedtls_pc_requires "mbedcrypto")
 

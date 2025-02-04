@@ -9,10 +9,11 @@
 # - `WOLFSSL_INCLUDE_DIR`:   The wolfSSL include directory.
 # - `WOLFSSL_LIBRARY`:       Path to `wolfssl` library.
 #
-# Result variables:
+# Defines:
 #
 # - `WOLFSSL_FOUND`:         System has wolfSSL.
 # - `WOLFSSL_VERSION`:       Version of wolfSSL.
+# - `libssh2::WolfSSL`:      wolfSSL library target.
 
 set(_wolfssl_pc_requires "wolfssl")
 
