@@ -49,7 +49,7 @@ jobs:
       - name: 'spellcheck'
         run: ./ci/spellcheck.sh
 
-  build_integration_linux:
+  build_integration:
     name: 'integration on ${{ matrix.image }}'
     runs-on: ${{ matrix.image }}
     timeout-minutes: 5
