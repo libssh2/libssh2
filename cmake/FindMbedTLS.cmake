@@ -13,7 +13,7 @@
 #
 # - `MBEDTLS_FOUND`:         System has mbedTLS.
 # - `MBEDTLS_VERSION`:       Version of mbedTLS.
-# - `libssh2::MbedCrypto`:   mbedcrypto library target.
+# - `libssh2::mbedcrypto`:   mbedcrypto library target.
 
 set(_mbedtls_pc_requires "mbedcrypto")
 
@@ -77,9 +77,9 @@ if(MBEDTLS_FOUND AND CMAKE_VERSION VERSION_LESS 3.13)
   link_directories(${_mbedtls_library_dirs})
 endif()
 
-if(MBEDTLS_FOUND AND NOT TARGET libssh2::MbedCrypto)
-  add_library(libssh2::MbedCrypto INTERFACE IMPORTED)
-  set_target_properties(libssh2::MbedCrypto PROPERTIES
+if(MBEDTLS_FOUND AND NOT TARGET libssh2::mbedcrypto)
+  add_library(libssh2::mbedcrypto INTERFACE IMPORTED)
+  set_target_properties(libssh2::mbedcrypto PROPERTIES
     VERSION "${MBEDTLS_VERSION}"
     LIBSSH2_PC_MODULES "${_mbedtls_pc_requires}"
     INTERFACE_COMPILE_OPTIONS "${_mbedtls_cflags}"

@@ -13,7 +13,7 @@
 #
 # - `WOLFSSL_FOUND`:         System has wolfSSL.
 # - `WOLFSSL_VERSION`:       Version of wolfSSL.
-# - `libssh2::WolfSSL`:      wolfSSL library target.
+# - `libssh2::wolfssl`:      wolfssl library target.
 
 set(_wolfssl_pc_requires "wolfssl")
 
@@ -69,9 +69,9 @@ if(WOLFSSL_FOUND AND WIN32)
   list(APPEND _wolfssl_libraries "crypt32")
 endif()
 
-if(WOLFSSL_FOUND AND NOT TARGET libssh2::WolfSSL)
-  add_library(libssh2::WolfSSL INTERFACE IMPORTED)
-  set_target_properties(libssh2::WolfSSL PROPERTIES
+if(WOLFSSL_FOUND AND NOT TARGET libssh2::wolfssl)
+  add_library(libssh2::wolfssl INTERFACE IMPORTED)
+  set_target_properties(libssh2::wolfssl PROPERTIES
     VERSION "${WOLFSSL_VERSION}"
     LIBSSH2_PC_MODULES "${_wolfssl_pc_requires}"
     INTERFACE_COMPILE_OPTIONS "${_wolfssl_cflags}"

@@ -13,7 +13,7 @@
 #
 # - `LIBGCRYPT_FOUND`:         System has Libgcrypt.
 # - `LIBGCRYPT_VERSION`:       Version of Libgcrypt.
-# - `libssh2::Libgcrypt`:      Libgcrypt library target.
+# - `libssh2::libgcrypt`:      libgcrypt library target.
 
 set(_libgcrypt_pc_requires "libgcrypt")
 
@@ -65,9 +65,9 @@ if(LIBGCRYPT_FOUND AND CMAKE_VERSION VERSION_LESS 3.13)
   link_directories(${_libgcrypt_library_dirs})
 endif()
 
-if(LIBGCRYPT_FOUND AND NOT TARGET libssh2::Libgcrypt)
-  add_library(libssh2::Libgcrypt INTERFACE IMPORTED)
-  set_target_properties(libssh2::Libgcrypt PROPERTIES
+if(LIBGCRYPT_FOUND AND NOT TARGET libssh2::libgcrypt)
+  add_library(libssh2::libgcrypt INTERFACE IMPORTED)
+  set_target_properties(libssh2::libgcrypt PROPERTIES
     VERSION "${LIBGRCYPT_VERSION}"
     LIBSSH2_PC_MODULES "${_libgcrypt_pc_requires}"
     INTERFACE_COMPILE_OPTIONS "${_libgcrypt_cflags}"
