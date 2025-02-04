@@ -65,8 +65,6 @@ if(ENABLE_ZLIB_COMPRESSION)
   list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
 endif()
 
-include_directories(SYSTEM ${CRYPTO_BACKEND_INCLUDE_DIR})
-
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 if(MSVC)

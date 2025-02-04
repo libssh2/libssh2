@@ -38,8 +38,6 @@
 
 include(CopyRuntimeDependencies)
 
-include_directories(SYSTEM ${CRYPTO_BACKEND_INCLUDE_DIR})
-
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
