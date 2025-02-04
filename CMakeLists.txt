@@ -447,10 +447,6 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WOLFSSL")
     list(APPEND LIBSSH2_LIBS libssh2::WolfSSL)
 
-    if(WIN32)
-      list(APPEND LIBSSH2_LIBS "crypt32")
-    endif()
-
     find_package(ZLIB)
     if(ZLIB_FOUND)
       list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)  # Public wolfSSL headers require zlib headers

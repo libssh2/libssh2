@@ -100,6 +100,10 @@ else()
   mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
 endif()
 
+if(WOLFSSL_FOUND AND WIN32)
+  list(APPEND WOLFSSL_LIBRARIES "crypt32")
+endif()
+
 if(WOLFSSL_FOUND AND NOT TARGET libssh2::WolfSSL)
   add_library(libssh2::WolfSSL INTERFACE IMPORTED)
   set_target_properties(libssh2::WolfSSL PROPERTIES
