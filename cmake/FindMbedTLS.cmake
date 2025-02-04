@@ -77,7 +77,9 @@ endif()
 
 if(MBEDTLS_FOUND AND NOT TARGET libssh2::MbedCrypto)
   add_library(libssh2::MbedCrypto INTERFACE IMPORTED)
-  set_target_properties(libssh2::MbedCrypto PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${MBEDTLS_INCLUDE_DIRS}")
+  set_target_properties(libssh2::MbedCrypto PROPERTIES
+    VERSION "${MBEDTLS_VERSION}"
+    INTERFACE_INCLUDE_DIRECTORIES "${MBEDTLS_INCLUDE_DIRS}")
   if(CMAKE_VERSION VERSION_LESS 3.13)
     set_target_properties(libssh2::MbedCrypto PROPERTIES INTERFACE_LINK_DIRECTORIES "${MBEDTLS_LIBRARY_DIRS}")
   else()

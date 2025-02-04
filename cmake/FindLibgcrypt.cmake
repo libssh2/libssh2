@@ -65,7 +65,9 @@ endif()
 
 if(LIBGCRYPT_FOUND AND NOT TARGET libssh2::Libgcrypt)
   add_library(libssh2::Libgcrypt INTERFACE IMPORTED)
-  set_target_properties(libssh2::Libgcrypt PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${LIBGCRYPT_INCLUDE_DIRS}")
+  set_target_properties(libssh2::Libgcrypt PROPERTIES
+    VERSION "${LIBGRCYPT_VERSION}"
+    INTERFACE_INCLUDE_DIRECTORIES "${LIBGCRYPT_INCLUDE_DIRS}")
   if(CMAKE_VERSION VERSION_LESS 3.13)
     set_target_properties(libssh2::Libgcrypt PROPERTIES INTERFACE_LINK_DIRECTORIES "${LIBGCRYPT_LIBRARY_DIRS}")
   else()
