@@ -70,6 +70,10 @@ else()
   mark_as_advanced(MBEDTLS_INCLUDE_DIR MBEDCRYPTO_LIBRARY)
 endif()
 
+if(MBEDTLS_FOUND AND CMAKE_VERSION VERSION_LESS 3.13)
+  link_directories(${MBEDTLS_LIBRARY_DIRS})
+endif()
+
 if(MBEDTLS_FOUND AND NOT TARGET libssh2::MbedCrypto)
   add_library(libssh2::MbedCrypto INTERFACE IMPORTED)
   set_target_properties(libssh2::MbedCrypto PROPERTIES

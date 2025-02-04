@@ -58,6 +58,10 @@ else()
   mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
 endif()
 
+if(LIBGCRYPT_FOUND AND CMAKE_VERSION VERSION_LESS 3.13)
+  link_directories(${LIBGCRYPT_LIBRARY_DIRS})
+endif()
+
 if(LIBGCRYPT_FOUND AND NOT TARGET libssh2::Libgcrypt)
   add_library(libssh2::Libgcrypt INTERFACE IMPORTED)
   set_target_properties(libssh2::Libgcrypt PROPERTIES

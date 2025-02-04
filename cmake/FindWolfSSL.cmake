@@ -58,6 +58,10 @@ else()
   mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
 endif()
 
+if(WOLFSSL_FOUND AND CMAKE_VERSION VERSION_LESS 3.13)
+  link_directories(${WOLFSSL_LIBRARY_DIRS})
+endif()
+
 if(WOLFSSL_FOUND AND WIN32)
   list(APPEND WOLFSSL_LIBRARIES "crypt32")
 endif()
