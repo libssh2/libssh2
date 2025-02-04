@@ -62,6 +62,7 @@ if(ENABLE_ZLIB_COMPRESSION)
 
   list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)
   list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "zlib")
+  set_target_properties(ZLIB::ZLIB PROPERTIES LIBSSH2_PC_MODULES "zlib")
   list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
 endif()
 
