@@ -407,6 +407,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
     list(APPEND LIBSSH2_LIBS OpenSSL::Crypto)
     list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "libcrypto")
+    libssh2_dumptargetprops(OpenSSL::Crypto)
 
     if(WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
