@@ -61,21 +61,23 @@ else()
   mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
 endif()
 
-if(WOLFSSL_FOUND AND WIN32)
-  list(APPEND _wolfssl_libraries "crypt32")
-endif()
+if(WOLFSSL_FOUND)
+  if(WIN32)
+    list(APPEND _wolfssl_libraries "crypt32")
+  endif()
 
-if(WOLFSSL_FOUND AND CMAKE_VERSION VERSION_LESS 3.13)
-  link_directories(${_wolfssl_library_dirs})
-endif()
+  if(CMAKE_VERSION VERSION_LESS 3.13)
+    link_directories(${_wolfssl_library_dirs})
+  endif()
 
-if(WOLFSSL_FOUND AND NOT TARGET libssh2::wolfssl)
-  add_library(libssh2::wolfssl INTERFACE IMPORTED)
-  set_target_properties(libssh2::wolfssl PROPERTIES
-    VERSION "${WOLFSSL_VERSION}"
-    LIBSSH2_PC_MODULES "${_wolfssl_pc_requires}"
-    INTERFACE_COMPILE_OPTIONS "${_wolfssl_cflags}"
-    INTERFACE_INCLUDE_DIRECTORIES "${_wolfssl_include_dirs}"
-    INTERFACE_LINK_DIRECTORIES "${_wolfssl_library_dirs}"
-    INTERFACE_LINK_LIBRARIES "${_wolfssl_libraries}")
+  if(NOT TARGET libssh2::wolfssl)
+    add_library(libssh2::wolfssl INTERFACE IMPORTED)
+    set_target_properties(libssh2::wolfssl PROPERTIES
+      VERSION "${WOLFSSL_VERSION}"
+      LIBSSH2_PC_MODULES "${_wolfssl_pc_requires}"
+      INTERFACE_COMPILE_OPTIONS "${_wolfssl_cflags}"
+      INTERFACE_INCLUDE_DIRECTORIES "${_wolfssl_include_dirs}"
+      INTERFACE_LINK_DIRECTORIES "${_wolfssl_library_dirs}"
+      INTERFACE_LINK_LIBRARIES "${_wolfssl_libraries}")
+  endif()
 endif()

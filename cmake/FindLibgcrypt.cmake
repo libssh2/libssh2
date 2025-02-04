@@ -61,17 +61,19 @@ else()
   mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
 endif()
 
-if(LIBGCRYPT_FOUND AND CMAKE_VERSION VERSION_LESS 3.13)
-  link_directories(${_libgcrypt_library_dirs})
-endif()
+if(LIBGCRYPT_FOUND)
+  if(CMAKE_VERSION VERSION_LESS 3.13)
+    link_directories(${_libgcrypt_library_dirs})
+  endif()
 
-if(LIBGCRYPT_FOUND AND NOT TARGET libssh2::libgcrypt)
-  add_library(libssh2::libgcrypt INTERFACE IMPORTED)
-  set_target_properties(libssh2::libgcrypt PROPERTIES
-    VERSION "${LIBGRCYPT_VERSION}"
-    LIBSSH2_PC_MODULES "${_libgcrypt_pc_requires}"
-    INTERFACE_COMPILE_OPTIONS "${_libgcrypt_cflags}"
-    INTERFACE_INCLUDE_DIRECTORIES "${_libgcrypt_include_dirs}"
-    INTERFACE_LINK_DIRECTORIES "${_libgcrypt_library_dirs}"
-    INTERFACE_LINK_LIBRARIES "${_libgcrypt_libraries}")
+  if(NOT TARGET libssh2::libgcrypt)
+    add_library(libssh2::libgcrypt INTERFACE IMPORTED)
+    set_target_properties(libssh2::libgcrypt PROPERTIES
+      VERSION "${LIBGRCYPT_VERSION}"
+      LIBSSH2_PC_MODULES "${_libgcrypt_pc_requires}"
+      INTERFACE_COMPILE_OPTIONS "${_libgcrypt_cflags}"
+      INTERFACE_INCLUDE_DIRECTORIES "${_libgcrypt_include_dirs}"
+      INTERFACE_LINK_DIRECTORIES "${_libgcrypt_library_dirs}"
+      INTERFACE_LINK_LIBRARIES "${_libgcrypt_libraries}")
+  endif()
 endif()
