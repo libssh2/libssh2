@@ -60,12 +60,9 @@ add_feature_info(Compression ENABLE_ZLIB_COMPRESSION
 if(ENABLE_ZLIB_COMPRESSION)
   find_package(ZLIB REQUIRED)
 
-  list(APPEND LIBSSH2_LIBS ${ZLIB_LIBRARIES})
+  list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)
   list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "zlib")
-  include_directories(SYSTEM ${ZLIB_INCLUDE_DIRS})
-  if(ZLIB_FOUND)
-    list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
-  endif()
+  list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
 endif()
 
 include_directories(SYSTEM ${CRYPTO_BACKEND_INCLUDE_DIR})
