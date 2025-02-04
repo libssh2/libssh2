@@ -709,13 +709,15 @@ jobs:
       - name: 'cmake configure'
         shell: bash
         run: |
+          options=''
           archgen=${{ matrix.arch }}; [ "${archgen}" = 'x86' ] && archgen='Win32'
           if [ '${{ matrix.plat }}' = 'uwp' ]; then
             system='WindowsStore'
-            options='-DCMAKE_SYSTEM_VERSION=10.0'
+            options+=' -DCMAKE_SYSTEM_VERSION=10.0'
           else
             system='Windows'
           fi
+          [ '${{ matrix.crypto }}' = 'WinCNG' ] && options+=' -DENABLE_ECDSA_WINCNG=${{ matrix.wincng_ecdsa }}'
           cmake -B bld ${options} \
             -DCMAKE_SYSTEM_NAME=${system} \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
@@ -727,7 +729,6 @@ jobs:
             -DENABLE_DEBUG_LOGGING=${{ matrix.log }} \
             -DBUILD_SHARED_LIBS=${{ matrix.shared }} \
             -DCRYPTO_BACKEND=${{ matrix.crypto }} \
-            -DENABLE_ECDSA_WINCNG=${{ matrix.wincng_ecdsa }} \
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF \
