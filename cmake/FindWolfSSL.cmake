@@ -25,6 +25,7 @@ function(libssh2_dumpprops _target)  # Dump all target properties
     string(REPLACE "\n" ";" _cmake_property_list "${_cmake_property_list}")
     list(REMOVE_DUPLICATES _cmake_property_list)
     list(REMOVE_ITEM _cmake_property_list "")
+    list(APPEND _cmake_property_list "LIBSSH2_PC_MODULES")
     foreach(_prop IN LISTS _cmake_property_list)
       if(_prop MATCHES "<CONFIG>")
         foreach(_config IN ITEMS "DEBUG" "RELEASE" "MINSIZEREL" "RELWITHDEBINFO")
@@ -103,6 +104,7 @@ if(WOLFSSL_FOUND AND NOT TARGET libssh2::WolfSSL)
   add_library(libssh2::WolfSSL INTERFACE IMPORTED)
   set_target_properties(libssh2::WolfSSL PROPERTIES
     VERSION "${WOLFSSL_VERSION}"
+    LIBSSH2_PC_MODULES "${WOLFSSL_PC_REQUIRES}"
     INTERFACE_COMPILE_OPTIONS "${WOLFSSL_CFLAGS}"
     INTERFACE_INCLUDE_DIRECTORIES "${WOLFSSL_INCLUDE_DIRS}")
   if(CMAKE_VERSION VERSION_LESS 3.13)
