@@ -181,7 +181,6 @@ include(PickyWarnings)
 
 set(LIBSSH2_LIBS_SOCKET "")
 set(LIBSSH2_LIBS "")
-set(LIBSSH2_LIBDIRS "")
 
 # Add socket libraries
 if(WIN32)

@@ -228,7 +228,7 @@ foreach(_libdir IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
 endforeach()
 
 set(_explicit_libs "")
-set(_explicit_libdirs ${LIBSSH2_LIBDIRS})
+set(_explicit_libdirs "")
 set(LIBSSH2_PC_REQUIRES_PRIVATE "")
 foreach(_lib IN LISTS LIBSSH2_LIBS)
   if(TARGET "${_lib}")
