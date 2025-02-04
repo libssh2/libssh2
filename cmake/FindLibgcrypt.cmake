@@ -20,15 +20,15 @@ if(LIBSSH2_USE_PKGCONFIG AND
    NOT DEFINED LIBGCRYPT_INCLUDE_DIR AND
    NOT DEFINED LIBGCRYPT_LIBRARY)
   find_package(PkgConfig QUIET)
-  pkg_check_modules(_LIBGCRYPT ${_libgcrypt_pc_requires})
+  pkg_check_modules(_libgcrypt ${_libgcrypt_pc_requires})
 endif()
 
-if(_LIBGCRYPT_FOUND)
+if(_libgcrypt_found)
   set(Libgcrypt_FOUND TRUE)
   set(LIBGCRYPT_FOUND TRUE)
-  set(LIBGCRYPT_VERSION ${_LIBGCRYPT_VERSION})
-  string(REPLACE ";" " " _LIBGCRYPT_CFLAGS "${_LIBGCRYPT_CFLAGS}")
-  message(STATUS "Found Libgcrypt (via pkg-config): ${_LIBGCRYPT_INCLUDE_DIRS} (found version \"${LIBGCRYPT_VERSION}\")")
+  set(LIBGCRYPT_VERSION ${_libgcrypt_version})
+  string(REPLACE ";" " " _libgcrypt_cflags "${_libgcrypt_cflags}")
+  message(STATUS "Found Libgcrypt (via pkg-config): ${_libgcrypt_include_dirs} (found version \"${LIBGCRYPT_VERSION}\")")
 else()
   find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h")
   find_library(LIBGCRYPT_LIBRARY NAMES "gcrypt" "libgcrypt")
@@ -53,15 +53,15 @@ else()
   )
 
   if(LIBGCRYPT_FOUND)
-    set(_LIBGCRYPT_INCLUDE_DIRS ${LIBGCRYPT_INCLUDE_DIR})
-    set(_LIBGCRYPT_LIBRARIES    ${LIBGCRYPT_LIBRARY})
+    set(_libgcrypt_include_dirs ${LIBGCRYPT_INCLUDE_DIR})
+    set(_libgcrypt_libraries    ${LIBGCRYPT_LIBRARY})
   endif()
 
   mark_as_advanced(LIBGCRYPT_INCLUDE_DIR LIBGCRYPT_LIBRARY)
 endif()
 
 if(LIBGCRYPT_FOUND AND CMAKE_VERSION VERSION_LESS 3.13)
-  link_directories(${_LIBGCRYPT_LIBRARY_DIRS})
+  link_directories(${_libgcrypt_library_dirs})
 endif()
 
 if(LIBGCRYPT_FOUND AND NOT TARGET libssh2::Libgcrypt)
@@ -69,8 +69,8 @@ if(LIBGCRYPT_FOUND AND NOT TARGET libssh2::Libgcrypt)
   set_target_properties(libssh2::Libgcrypt PROPERTIES
     VERSION "${LIBGRCYPT_VERSION}"
     LIBSSH2_PC_MODULES "${_libgcrypt_pc_requires}"
-    INTERFACE_COMPILE_OPTIONS "${_LIBGCRYPT_CFLAGS}"
-    INTERFACE_INCLUDE_DIRECTORIES "${_LIBGCRYPT_INCLUDE_DIRS}"
-    INTERFACE_LINK_DIRECTORIES "${_LIBGCRYPT_LIBRARY_DIRS}"
-    INTERFACE_LINK_LIBRARIES "${_LIBGCRYPT_LIBRARIES}")
+    INTERFACE_COMPILE_OPTIONS "${_libgcrypt_cflags}"
+    INTERFACE_INCLUDE_DIRECTORIES "${_libgcrypt_include_dirs}"
+    INTERFACE_LINK_DIRECTORIES "${_libgcrypt_library_dirs}"
+    INTERFACE_LINK_LIBRARIES "${_libgcrypt_libraries}")
 endif()

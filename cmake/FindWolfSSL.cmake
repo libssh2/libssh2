@@ -20,15 +20,15 @@ if(LIBSSH2_USE_PKGCONFIG AND
    NOT DEFINED WOLFSSL_INCLUDE_DIR AND
    NOT DEFINED WOLFSSL_LIBRARY)
   find_package(PkgConfig QUIET)
-  pkg_check_modules(_WOLFSSL ${_wolfssl_pc_requires})
+  pkg_check_modules(_wolfssl ${_wolfssl_pc_requires})
 endif()
 
-if(_WOLFSSL_FOUND)
+if(_wolfssl_found)
   set(WolfSSL_FOUND TRUE)
   set(WOLFSSL_FOUND TRUE)
-  set(WOLFSSL_VERSION ${_WOLFSSL_VERSION})
-  string(REPLACE ";" " " _WOLFSSL_CFLAGS "${_WOLFSSL_CFLAGS}")
-  message(STATUS "Found WolfSSL (via pkg-config): ${_WOLFSSL_INCLUDE_DIRS} (found version \"${WOLFSSL_VERSION}\")")
+  set(WOLFSSL_VERSION ${_wolfssl_version})
+  string(REPLACE ";" " " _wolfssl_cflags "${_wolfssl_cflags}")
+  message(STATUS "Found WolfSSL (via pkg-config): ${_wolfssl_include_dirs} (found version \"${WOLFSSL_VERSION}\")")
 else()
   find_path(WOLFSSL_INCLUDE_DIR NAMES "wolfssl/options.h")
   find_library(WOLFSSL_LIBRARY NAMES "wolfssl")
@@ -53,19 +53,19 @@ else()
   )
 
   if(WOLFSSL_FOUND)
-    set(_WOLFSSL_INCLUDE_DIRS ${WOLFSSL_INCLUDE_DIR})
-    set(_WOLFSSL_LIBRARIES    ${WOLFSSL_LIBRARY})
+    set(_wolfssl_include_dirs ${WOLFSSL_INCLUDE_DIR})
+    set(_wolfssl_libraries    ${WOLFSSL_LIBRARY})
   endif()
 
   mark_as_advanced(WOLFSSL_INCLUDE_DIR WOLFSSL_LIBRARY)
 endif()
 
 if(WOLFSSL_FOUND AND CMAKE_VERSION VERSION_LESS 3.13)
-  link_directories(${_WOLFSSL_LIBRARY_DIRS})
+  link_directories(${_wolfssl_library_dirs})
 endif()
 
 if(WOLFSSL_FOUND AND WIN32)
-  list(APPEND _WOLFSSL_LIBRARIES "crypt32")
+  list(APPEND _wolfssl_libraries "crypt32")
 endif()
 
 if(WOLFSSL_FOUND AND NOT TARGET libssh2::WolfSSL)
@@ -73,8 +73,8 @@ if(WOLFSSL_FOUND AND NOT TARGET libssh2::WolfSSL)
   set_target_properties(libssh2::WolfSSL PROPERTIES
     VERSION "${WOLFSSL_VERSION}"
     LIBSSH2_PC_MODULES "${_wolfssl_pc_requires}"
-    INTERFACE_COMPILE_OPTIONS "${_WOLFSSL_CFLAGS}"
-    INTERFACE_INCLUDE_DIRECTORIES "${_WOLFSSL_INCLUDE_DIRS}"
-    INTERFACE_LINK_DIRECTORIES "${_WOLFSSL_LIBRARY_DIRS}"
-    INTERFACE_LINK_LIBRARIES "${_WOLFSSL_LIBRARIES}")
+    INTERFACE_COMPILE_OPTIONS "${_wolfssl_cflags}"
+    INTERFACE_INCLUDE_DIRECTORIES "${_wolfssl_include_dirs}"
+    INTERFACE_LINK_DIRECTORIES "${_wolfssl_library_dirs}"
+    INTERFACE_LINK_LIBRARIES "${_wolfssl_libraries}")
 endif()

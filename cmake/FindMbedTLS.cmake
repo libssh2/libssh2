@@ -20,15 +20,15 @@ if(LIBSSH2_USE_PKGCONFIG AND
    NOT DEFINED MBEDTLS_INCLUDE_DIR AND
    NOT DEFINED MBEDCRYPTO_LIBRARY)
   find_package(PkgConfig QUIET)
-  pkg_check_modules(_MBEDTLS ${_mbedtls_pc_requires})
+  pkg_check_modules(_mbedtls ${_mbedtls_pc_requires})
 endif()
 
-if(_MBEDTLS_FOUND)
+if(_mbedtls_found)
   set(MbedTLS_FOUND TRUE)
   set(MBEDTLS_FOUND TRUE)
-  set(MBEDTLS_VERSION ${_MBEDTLS_VERSION})
-  string(REPLACE ";" " " _MBEDTLS_CFLAGS "${_MBEDTLS_CFLAGS}")
-  message(STATUS "Found MbedTLS (via pkg-config): ${_MBEDTLS_INCLUDE_DIRS} (found version \"${MBEDTLS_VERSION}\")")
+  set(MBEDTLS_VERSION ${_mbedtls_version})
+  string(REPLACE ";" " " _mbedtls_cflags "${_mbedtls_cflags}")
+  message(STATUS "Found MbedTLS (via pkg-config): ${_mbedtls_include_dirs} (found version \"${MBEDTLS_VERSION}\")")
 else()
   set(_mbedtls_pc_requires "")
 
@@ -65,15 +65,15 @@ else()
   )
 
   if(MBEDTLS_FOUND)
-    set(_MBEDTLS_INCLUDE_DIRS ${MBEDTLS_INCLUDE_DIR})
-    set(_MBEDTLS_LIBRARIES    ${MBEDCRYPTO_LIBRARY})
+    set(_mbedtls_include_dirs ${MBEDTLS_INCLUDE_DIR})
+    set(_mbedtls_libraries    ${MBEDCRYPTO_LIBRARY})
   endif()
 
   mark_as_advanced(MBEDTLS_INCLUDE_DIR MBEDCRYPTO_LIBRARY)
 endif()
 
 if(MBEDTLS_FOUND AND CMAKE_VERSION VERSION_LESS 3.13)
-  link_directories(${_MBEDTLS_LIBRARY_DIRS})
+  link_directories(${_mbedtls_library_dirs})
 endif()
 
 if(MBEDTLS_FOUND AND NOT TARGET libssh2::MbedCrypto)
@@ -81,8 +81,8 @@ if(MBEDTLS_FOUND AND NOT TARGET libssh2::MbedCrypto)
   set_target_properties(libssh2::MbedCrypto PROPERTIES
     VERSION "${MBEDTLS_VERSION}"
     LIBSSH2_PC_MODULES "${_mbedtls_pc_requires}"
-    INTERFACE_COMPILE_OPTIONS "${_MBEDTLS_CFLAGS}"
-    INTERFACE_INCLUDE_DIRECTORIES "${_MBEDTLS_INCLUDE_DIRS}"
-    INTERFACE_LINK_DIRECTORIES "${_MBEDTLS_LIBRARY_DIRS}"
-    INTERFACE_LINK_LIBRARIES "${_MBEDTLS_LIBRARIES}")
+    INTERFACE_COMPILE_OPTIONS "${_mbedtls_cflags}"
+    INTERFACE_INCLUDE_DIRECTORIES "${_mbedtls_include_dirs}"
+    INTERFACE_LINK_DIRECTORIES "${_mbedtls_library_dirs}"
+    INTERFACE_LINK_LIBRARIES "${_mbedtls_libraries}")
 endif()
