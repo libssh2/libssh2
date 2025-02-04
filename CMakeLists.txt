@@ -397,9 +397,7 @@ if(CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
-
   find_package(OpenSSL ${_specific_crypto_requirement})
-
   if(OPENSSL_FOUND)
     set(CRYPTO_BACKEND "OpenSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
@@ -438,9 +436,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
-
   find_package(WolfSSL ${_specific_crypto_requirement})
-
   if(WOLFSSL_FOUND)
     set(CRYPTO_BACKEND "wolfSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WOLFSSL")
@@ -454,9 +450,7 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
-
   find_package(Libgcrypt ${_specific_crypto_requirement})
-
   if(LIBGCRYPT_FOUND)
     set(CRYPTO_BACKEND "Libgcrypt")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_LIBGCRYPT")
@@ -465,9 +459,7 @@ if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
-
   find_package(MbedTLS ${_specific_crypto_requirement})
-
   if(MBEDTLS_FOUND)
     set(CRYPTO_BACKEND "mbedTLS")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")
