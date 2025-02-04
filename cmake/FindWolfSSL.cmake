@@ -12,11 +12,6 @@
 # Result variables:
 #
 # - `WOLFSSL_FOUND`:         System has wolfSSL.
-# - `WOLFSSL_INCLUDE_DIRS`:  The wolfSSL include directories.
-# - `WOLFSSL_LIBRARIES`:     The wolfSSL library names.
-# - `WOLFSSL_LIBRARY_DIRS`:  The wolfSSL library directories.
-# - `WOLFSSL_PC_REQUIRES`:   The wolfSSL pkg-config packages.
-# - `WOLFSSL_CFLAGS`:        Required compiler flags.
 # - `WOLFSSL_VERSION`:       Version of wolfSSL.
 
 function(libssh2_dumpprops _target)  # Dump all target properties

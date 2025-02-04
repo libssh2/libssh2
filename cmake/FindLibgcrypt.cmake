@@ -12,11 +12,6 @@
 # Result variables:
 #
 # - `LIBGCRYPT_FOUND`:         System has Libgcrypt.
-# - `LIBGCRYPT_INCLUDE_DIRS`:  The Libgcrypt include directories.
-# - `LIBGCRYPT_LIBRARIES`:     The Libgcrypt library names.
-# - `LIBGCRYPT_LIBRARY_DIRS`:  The Libgcrypt library directories.
-# - `LIBGCRYPT_PC_REQUIRES`:   The Libgcrypt pkg-config packages.
-# - `LIBGCRYPT_CFLAGS`:        Required compiler flags.
 # - `LIBGCRYPT_VERSION`:       Version of Libgcrypt.
 
 set(LIBGCRYPT_PC_REQUIRES "libgcrypt")
