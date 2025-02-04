@@ -14,13 +14,13 @@
 # - `LIBGCRYPT_FOUND`:         System has Libgcrypt.
 # - `LIBGCRYPT_VERSION`:       Version of Libgcrypt.
 
-set(LIBGCRYPT_PC_REQUIRES "libgcrypt")
+set(_libgcrypt_pc_requires "libgcrypt")
 
 if(LIBSSH2_USE_PKGCONFIG AND
    NOT DEFINED LIBGCRYPT_INCLUDE_DIR AND
    NOT DEFINED LIBGCRYPT_LIBRARY)
   find_package(PkgConfig QUIET)
-  pkg_check_modules(LIBGCRYPT ${LIBGCRYPT_PC_REQUIRES})
+  pkg_check_modules(LIBGCRYPT ${_libgcrypt_pc_requires})
 endif()
 
 if(LIBGCRYPT_FOUND)
@@ -62,7 +62,7 @@ if(LIBGCRYPT_FOUND AND NOT TARGET libssh2::Libgcrypt)
   add_library(libssh2::Libgcrypt INTERFACE IMPORTED)
   set_target_properties(libssh2::Libgcrypt PROPERTIES
     VERSION "${LIBGRCYPT_VERSION}"
-    LIBSSH2_PC_MODULES "${LIBGCRYPT_PC_REQUIRES}"
+    LIBSSH2_PC_MODULES "${_libgcrypt_pc_requires}"
     INTERFACE_COMPILE_OPTIONS "${LIBGCRYPT_CFLAGS}"
     INTERFACE_INCLUDE_DIRECTORIES "${LIBGCRYPT_INCLUDE_DIRS}"
     INTERFACE_LINK_DIRECTORIES "${LIBGCRYPT_LIBRARY_DIRS}"

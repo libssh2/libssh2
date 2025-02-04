@@ -51,13 +51,13 @@ function(libssh2_dumpvars)  # Dump all defined variables with their values
   message("::endgroup::")
 endfunction()
 
-set(WOLFSSL_PC_REQUIRES "wolfssl")
+set(_wolfssl_pc_requires "wolfssl")
 
 if(LIBSSH2_USE_PKGCONFIG AND
    NOT DEFINED WOLFSSL_INCLUDE_DIR AND
    NOT DEFINED WOLFSSL_LIBRARY)
   find_package(PkgConfig QUIET)
-  pkg_check_modules(WOLFSSL ${WOLFSSL_PC_REQUIRES})
+  pkg_check_modules(WOLFSSL ${_wolfssl_pc_requires})
 endif()
 
 if(WOLFSSL_FOUND)
@@ -103,7 +103,7 @@ if(WOLFSSL_FOUND AND NOT TARGET libssh2::WolfSSL)
   add_library(libssh2::WolfSSL INTERFACE IMPORTED)
   set_target_properties(libssh2::WolfSSL PROPERTIES
     VERSION "${WOLFSSL_VERSION}"
-    LIBSSH2_PC_MODULES "${WOLFSSL_PC_REQUIRES}"
+    LIBSSH2_PC_MODULES "${_wolfssl_pc_requires}"
     INTERFACE_COMPILE_OPTIONS "${WOLFSSL_CFLAGS}"
     INTERFACE_INCLUDE_DIRECTORIES "${WOLFSSL_INCLUDE_DIRS}"
     INTERFACE_LINK_DIRECTORIES "${WOLFSSL_LIBRARY_DIRS}"

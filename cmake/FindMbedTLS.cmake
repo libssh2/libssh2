@@ -14,13 +14,13 @@
 # - `MBEDTLS_FOUND`:         System has mbedTLS.
 # - `MBEDTLS_VERSION`:       Version of mbedTLS.
 
-set(MBEDTLS_PC_REQUIRES "mbedcrypto")
+set(_mbedtls_pc_requires "mbedcrypto")
 
 if(LIBSSH2_USE_PKGCONFIG AND
    NOT DEFINED MBEDTLS_INCLUDE_DIR AND
    NOT DEFINED MBEDCRYPTO_LIBRARY)
   find_package(PkgConfig QUIET)
-  pkg_check_modules(MBEDTLS ${MBEDTLS_PC_REQUIRES})
+  pkg_check_modules(MBEDTLS ${_mbedtls_pc_requires})
 endif()
 
 if(MBEDTLS_FOUND)
@@ -28,7 +28,7 @@ if(MBEDTLS_FOUND)
   string(REPLACE ";" " " MBEDTLS_CFLAGS "${MBEDTLS_CFLAGS}")
   message(STATUS "Found MbedTLS (via pkg-config): ${MBEDTLS_INCLUDE_DIRS} (found version \"${MBEDTLS_VERSION}\")")
 else()
-  set(MBEDTLS_PC_REQUIRES "")
+  set(_mbedtls_pc_requires "")
 
   find_path(MBEDTLS_INCLUDE_DIR NAMES "mbedtls/version.h")
   find_library(MBEDCRYPTO_LIBRARY NAMES "mbedcrypto" "libmbedcrypto")
@@ -74,7 +74,7 @@ if(MBEDTLS_FOUND AND NOT TARGET libssh2::MbedCrypto)
   add_library(libssh2::MbedCrypto INTERFACE IMPORTED)
   set_target_properties(libssh2::MbedCrypto PROPERTIES
     VERSION "${MBEDTLS_VERSION}"
-    LIBSSH2_PC_MODULES "${MBEDTLS_PC_REQUIRES}"
+    LIBSSH2_PC_MODULES "${_mbedtls_pc_requires}"
     INTERFACE_COMPILE_OPTIONS "${MBEDTLS_CFLAGS}"
     INTERFACE_INCLUDE_DIRECTORIES "${MBEDTLS_INCLUDE_DIRS}"
     INTERFACE_LINK_DIRECTORIES "${MBEDTLS_LIBRARY_DIRS}"
