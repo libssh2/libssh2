@@ -294,7 +294,7 @@ endif()
 # duration of these tests.
 if(MSVC AND ENABLE_WERROR)
   cmake_push_check_state()
-  set(CMAKE_REQUIRED_FLAGS "-WX-")
+  string(APPEND CMAKE_REQUIRED_FLAGS " -WX-")
 endif()
 
 if(HAVE_SYS_TIME_H)
@@ -346,7 +346,7 @@ endif()
 # dependencies which might not have been built yet.
 if(NOT WIN32)
   cmake_push_check_state()
-  set(CMAKE_REQUIRED_LIBRARIES ${LIBSSH2_LIBS_SOCKET})
+  list(APPEND CMAKE_REQUIRED_LIBRARIES ${LIBSSH2_LIBS_SOCKET})
   check_nonblocking_socket_support()
   cmake_pop_check_state()
 endif()
