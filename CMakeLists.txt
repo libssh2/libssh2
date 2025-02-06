@@ -397,7 +397,7 @@ if(CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
-  find_package(OpenSSL ${_specific_crypto_requirement})
+  find_package(OpenSSL ${_specific_crypto_requirement} COMPONENTS Crypto)
   if(OPENSSL_FOUND)
     set(CRYPTO_BACKEND "OpenSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
