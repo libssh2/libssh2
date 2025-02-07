@@ -234,13 +234,13 @@ option(ENABLE_DEBUG_LOGGING "Log execution with debug trace" ${DEBUG_LOGGING_DEF
 add_feature_info(Logging ENABLE_DEBUG_LOGGING "Logging of execution with debug trace")
 if(ENABLE_DEBUG_LOGGING)
   # Must be visible to the library and tests using internals
-  add_definitions("-DLIBSSH2DEBUG")
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2DEBUG")
 endif()
 
 option(LIBSSH2_NO_DEPRECATED "Build without deprecated APIs" OFF)
 add_feature_info("Without deprecated APIs" LIBSSH2_NO_DEPRECATED "")
 if(LIBSSH2_NO_DEPRECATED)
-  add_definitions("-DLIBSSH2_NO_DEPRECATED")
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2_NO_DEPRECATED")
 endif()
 
 # Auto-detection
@@ -353,7 +353,7 @@ endif()
 
 # Config file
 
-add_definitions("-DHAVE_CONFIG_H")
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "HAVE_CONFIG_H")
 
 configure_file("src/libssh2_config_cmake.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/src/libssh2_config.h")
@@ -486,7 +486,7 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
     option(ENABLE_ECDSA_WINCNG "Enable WinCNG ECDSA support (requires Windows 10 or later)" OFF)
     add_feature_info(WinCNG ENABLE_ECDSA_WINCNG "WinCNG ECDSA support")
     if(ENABLE_ECDSA_WINCNG)
-      add_definitions("-DLIBSSH2_ECDSA_WINCNG")
+      set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2_ECDSA_WINCNG")
       if(MSVC)
         string(APPEND CMAKE_SHARED_LINKER_FLAGS " -SUBSYSTEM:WINDOWS,10")
       elseif(MINGW)
