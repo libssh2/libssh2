@@ -211,7 +211,7 @@ endif()
 set(_ldflags "")
 
 # Avoid getting unnecessary -L options for known system directories.
-set(_sys_libdirs ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
+set(_sys_libdirs "${CMAKE_C_IMPLICIT_LINK_DIRECTORIES}")
 foreach(_libdir IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
   if(_libdir MATCHES "/$")
     string(APPEND _libdir "lib")
@@ -241,7 +241,7 @@ endforeach()
 
 set(_implicit_libs "")
 if(NOT MINGW AND NOT UNIX)
-  set(_implicit_libs ${CMAKE_C_IMPLICIT_LINK_LIBRARIES})
+  set(_implicit_libs "${CMAKE_C_IMPLICIT_LINK_LIBRARIES}")
 endif()
 
 foreach(_lib IN LISTS _implicit_libs LIBSSH2_LIBS)
