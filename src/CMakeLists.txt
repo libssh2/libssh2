@@ -211,7 +211,7 @@ endif()
 set(_ldflags "")
 
 # Avoid getting unnecessary -L options for known system directories.
-set(_sys_libdirs "")
+set(_sys_libdirs ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES})
 foreach(_libdir IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
   if(_libdir MATCHES "/$")
     string(APPEND _libdir "lib")
