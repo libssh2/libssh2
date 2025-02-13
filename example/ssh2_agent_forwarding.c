@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
     } while(1);
     if(!channel) {
         fprintf(stderr, "Error\n");
-        exit(1);
+        return 1;
     }
     while((rc = libssh2_channel_request_auth_agent(channel)) ==
           LIBSSH2_ERROR_EAGAIN) {
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
     if(rc) {
         fprintf(stderr, "Error, could not request auth agent, "
                 "error code %d.\n", rc);
-        exit(1);
+        return 1;
     }
     else {
         fprintf(stdout, "Agent forwarding request succeeded.\n");
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
     }
     if(rc) {
         fprintf(stderr, "Error\n");
-        exit(1);
+        return 1;
     }
     for(;;) {
         ssize_t nread;

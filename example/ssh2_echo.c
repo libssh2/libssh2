@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
               LIBSSH2_ERROR_EAGAIN);
         if(rc) {
             fprintf(stderr, "Authentication by password failed.\n");
-            exit(1);
+            return 1;
         }
     }
 
@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
     } while(1);
     if(!channel) {
         fprintf(stderr, "Error\n");
-        exit(1);
+        return 1;
     }
     while((rc = libssh2_channel_exec(channel, commandline)) ==
           LIBSSH2_ERROR_EAGAIN) {
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
     }
     if(rc) {
         fprintf(stderr, "exec error\n");
-        exit(1);
+        return 1;
     }
     else {
         LIBSSH2_POLLFD *fds = NULL;
@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
         fds = malloc(sizeof(LIBSSH2_POLLFD));
         if(!fds) {
             fprintf(stderr, "malloc failed\n");
-            exit(1);
+            return 1;
         }
 
         fds[0].type = LIBSSH2_POLLFD_CHANNEL;
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
                 }
                 else if(n < 0) {
                     fprintf(stderr, "read failed\n");
-                    exit(1);
+                    return 1;
                 }
                 else {
                     totread += (size_t)n;
@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
                     }
                     else if(n < 0) {
                         fprintf(stderr, "write failed\n");
-                        exit(1);
+                        return 1;
                     }
                     else {
                         totwritten += (size_t)n;
@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
                     }
                     else if(rc < 0) {
                         fprintf(stderr, "send eof failed\n");
-                        exit(1);
+                        return 1;
                     }
                     else {
                         fprintf(stderr, "sent eof\n");
@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "\n*** FAIL bytes written: "
                     "%lu bytes read: %lu ***\n",
                     (unsigned long)totwritten, (unsigned long)totread);
-            exit(1);
+            return 1;
         }
     }
 

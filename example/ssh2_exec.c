@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
     } while(1);
     if(!channel) {
         fprintf(stderr, "Error\n");
-        exit(1);
+        return 1;
     }
     while((rc = libssh2_channel_exec(channel, commandline)) ==
           LIBSSH2_ERROR_EAGAIN) {
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
     }
     if(rc) {
         fprintf(stderr, "exec error\n");
-        exit(1);
+        return 1;
     }
     for(;;) {
         ssize_t nread;
