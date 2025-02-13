@@ -28,7 +28,7 @@ To make sure you run with the correct libssh2 version:
 .nf
 if(!libssh2_version(LIBSSH2_VERSION_NUM)) {
   fprintf(stderr, \&"Runtime libssh2 version too old.\&");
-  exit(1);
+  return -1;  /* return error */
 }
 .fi
 
