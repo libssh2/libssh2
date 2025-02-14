@@ -30,9 +30,12 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   crypto="${2:-OpenSSL}"
   bld="bld-libssh2-${crypto}"
   rm -rf "${bld}"
-  cmake ../.. -B "${bld}" -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DENABLE_ZLIB_COMPRESSION=ON -DCRYPTO_BACKEND="${crypto}"
+  cmake ../.. -B "${bld}" -DCMAKE_INSTALL_PREFIX="${PWD}/${bld}/_pkg" \
+    -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF \
+    -DENABLE_ZLIB_COMPRESSION=ON \
+    -DCRYPTO_BACKEND="${crypto}"
   cmake --build "${bld}"
-  cmake --install "${bld}" --prefix "${bld}/_pkg"
+  cmake --install "${bld}"
   rm -rf bld-find_package
   cmake -B bld-find_package \
     -DTEST_INTEGRATION_MODE=find_package \
