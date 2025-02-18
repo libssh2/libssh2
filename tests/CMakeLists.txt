@@ -38,8 +38,6 @@
 
 include(CopyRuntimeDependencies)
 
-include_directories(SYSTEM ${CRYPTO_BACKEND_INCLUDE_DIR})
-
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
@@ -78,7 +76,7 @@ target_include_directories(runner PRIVATE
   "${PROJECT_BINARY_DIR}/src"
   "${PROJECT_SOURCE_DIR}/src"
   "${PROJECT_SOURCE_DIR}/include")
-target_link_libraries(runner PRIVATE libssh2)
+target_link_libraries(runner PRIVATE libssh2 ${LIBSSH2_LIBS})
 
 foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
   if(NOT ";${DOCKER_TESTS_STATIC};${STANDALONE_TESTS_STATIC};" MATCHES ";${_test};")
@@ -100,12 +98,12 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
       "${PROJECT_SOURCE_DIR}/src"
       "${PROJECT_SOURCE_DIR}/include")
     set_target_properties(${_test} PROPERTIES UNITY_BUILD OFF)
-    target_link_libraries(${_test} runner ${_lib_for_tests} ${LIBSSH2_LIBS})
+    target_link_libraries(${_test} PRIVATE runner ${_lib_for_tests} ${LIBSSH2_LIBS})
 
     # build a single test with gcov
     if(GCOV_PATH AND _test STREQUAL "test_auth_keyboard_info_request" AND TARGET ${LIB_STATIC})
       target_compile_options(${_test} BEFORE PRIVATE ${_gcov_cflags})
-      target_link_libraries(${_test} "gcov")
+      target_link_libraries(${_test} PRIVATE "gcov")
     endif()
 
     list(APPEND TEST_TARGETS ${_test})
