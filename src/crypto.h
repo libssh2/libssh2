@@ -80,6 +80,15 @@ void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx);
 #define LIBSSH2_ED25519_PRIVATE_KEY_LEN 64
 #define LIBSSH2_ED25519_SIG_LEN 64
 
+/*GM SM2 SM3 SM4*/
+#define LIBSSH2_SM2_PRIVATE_KEY_LEN 32
+#define LIBSSH2_SM2_PUBLIC_KEY_LEN 64
+#define LIBSSH2_SM2_K_LEN 32
+#define LIBSSH2_SM3_DIGEST_LEN 32
+#define LIBSSH2_RANDOM_LEN 8
+#define LIBSSH2_CATRANDOM_LEN 16
+#define LIBSSH2_SM4_KEY_LEN 16
+
 #if LIBSSH2_RSA
 int _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
                      const unsigned char *edata,
@@ -292,6 +301,35 @@ _libssh2_ed25519_new_private_frommemory_sk(libssh2_ed25519_ctx **ed_ctx,
                                            const unsigned char *passphrase);
 
 #endif /* LIBSSH2_ED25519 */
+
+ /* LIBSSH2_SM2 */
+int _libssh2_sm2_new_public(libssh2_sm2_ctx **sm2_ctx,
+                            const unsigned char *key,
+                            const size_t key_len);
+int _libssh2_sm2_sign(libssh2_sm2_ctx *pkey,
+                        LIBSSH2_SESSION *session,
+                        uint8_t **out_sig,
+                        size_t *out_sig_len,
+                        const uint8_t *message,
+                        size_t message_len);
+int _libssh2_sm2_verify(libssh2_sm2_ctx *pkey,
+                        const unsigned char *sig,
+                        size_t sig_len,
+                        const unsigned char *m,
+                        size_t m_len);
+int _libssh2_sm2_new_private(libssh2_sm2_ctx ** ed_ctx,
+                            LIBSSH2_SESSION * session,
+                            const char *filename, 
+                            const uint8_t *passphrase);
+int _libssh2_sm2_new_private_frommemory(libssh2_sm2_ctx ** ec_ctx,
+                                      LIBSSH2_SESSION * session,
+                                      const char *filedata,
+                                      size_t filedata_len,
+                                      const unsigned char *passphrase);
+int _libssh2_sm4_encrypt(unsigned char *key,
+                        unsigned char *data,
+                        int d_len,
+                        unsigned char *cipher);
 
 
 int _libssh2_cipher_init(_libssh2_cipher_ctx * h,

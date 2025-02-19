@@ -291,6 +291,85 @@ libssh2_userauth_authenticated(LIBSSH2_SESSION * session)
 
 
 
+/*
+* input_userauth_challenge_pw
+*
+*/
+static int input_userauth_challenge_pw(LIBSSH2_SESSION *session,
+                                        const char *username,
+                                        unsigned int username_len,
+                                        const unsigned char *password) {
+    size_t dlen;
+    size_t hashlen = LIBSSH2_SM3_DIGEST_LEN;
+    size_t packetlen;
+    int rc = 0;
+    unsigned char *challenge = NULL;
+    unsigned char password_hash[LIBSSH2_SM3_DIGEST_LEN] = {0};
+    unsigned char hash[LIBSSH2_SM3_DIGEST_LEN] = {0};
+    struct string_buf buf;
+    libssh2_sm3_ctx ctx_sm3;
+    unsigned char *s;
+
+    buf.data = session->userauth_pswd_data;
+    buf.len = session->userauth_pswd_data_len;
+    buf.dataptr = buf.data;
+    buf.dataptr++; /* advance past packet type */
+
+    if (_libssh2_get_string(&buf, &challenge, &dlen)) {
+        return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                "Unable to allocate memory for "
+                                "userauth-password challenge");
+    }
+
+    /*GM_SM3 hash*/
+    libssh2_sm3_init(&ctx_sm3);
+    libssh2_sm3_update(ctx_sm3, password, strlen((const char *)password));
+    libssh2_sm3_final(ctx_sm3, password_hash);
+
+    libssh2_sm3_init(&ctx_sm3);
+    libssh2_sm3_update(ctx_sm3, challenge, dlen);
+    libssh2_sm3_update(ctx_sm3, password_hash, LIBSSH2_SM3_DIGEST_LEN);
+    libssh2_sm3_final(ctx_sm3, hash);
+
+    LIBSSH2_FREE(session, session->userauth_pswd_data);
+    session->userauth_list_data = NULL;
+
+    /*46 = packet_type(1) + username_len(4) + service_len(4) +
+        service(14)"ssh-connection" + passwordlen(4) + passwd(8)"password" +
+        hashlen(4) + method_len(4) + method(3)"sm3"*/
+
+    packetlen = 46 + username_len + hashlen;
+    s = session->userauth_pswd_data = LIBSSH2_ALLOC(session, packetlen);
+    if (!session->userauth_pswd_data) {
+        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                "Unable to allocate memory for "
+                                "userauth-password challenge");
+    }
+    *(s++) = SSH_MSG_USERAUTH_RESPOND;
+    _libssh2_store_str(&s, username, username_len);
+    _libssh2_store_str(&s, "ssh-connection", strlen("ssh-connection"));
+    _libssh2_store_str(&s, "password", strlen("password"));
+    _libssh2_store_str(&s, (const char *)hash, hashlen);
+    _libssh2_store_str(&s, "sm3", strlen("sm3"));
+
+    rc = _libssh2_transport_send(session, session->userauth_pswd_data, packetlen,
+                                NULL, 0);
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
+        return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block waiting");
+    }
+    /* now free the sent packet */
+    LIBSSH2_FREE(session, session->userauth_pswd_data);
+    session->userauth_pswd_data = NULL;
+
+    if (rc) {
+        session->userauth_pswd_state = libssh2_NB_state_idle;
+        return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                                "Unable to send userauth-password challenge");
+    }
+
+    return rc;
+}
+ 
 /* userauth_password
  * Plain ol' login
  */
@@ -373,6 +452,31 @@ password_response:
         || (session->userauth_pswd_state == libssh2_NB_state_sent1)
         || (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
         if(session->userauth_pswd_state == libssh2_NB_state_sent) {
+            if (strcmp(session->kex->name, "SM2-SM3") == 0) {
+                packet_require_state_t challenge = {0};
+
+                rc = _libssh2_packet_require(session, SSH_MSG_USERAUTH_CHALLENGE,
+                                             &session->userauth_pswd_data,
+                                             &session->userauth_pswd_data_len,
+                                             0, NULL, 0, &challenge);
+                if (rc) {
+                    if (rc != LIBSSH2_ERROR_EAGAIN)
+                        session->userauth_pswd_state = libssh2_NB_state_idle;
+
+                    return _libssh2_error(session, rc, "Waiting for password response");
+                }
+
+                rc = input_userauth_challenge_pw(session, username, username_len,
+                                                password);
+                if (rc) {
+                    if (rc != LIBSSH2_ERROR_EAGAIN)
+                        session->userauth_pswd_state = libssh2_NB_state_idle;
+
+                    return _libssh2_error(session, rc,
+                                        "Unable to send password responsed");
+                }
+            }
+            sleep(1); /*server need work with data*/
             rc = _libssh2_packet_requirev(session, reply_codes,
                                           &session->userauth_pswd_data,
                                           &session->userauth_pswd_data_len,

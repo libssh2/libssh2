@@ -501,6 +501,7 @@ typedef struct _LIBSSH2_POLLFD {
 #define LIBSSH2_HOSTKEY_HASH_MD5                            1
 #define LIBSSH2_HOSTKEY_HASH_SHA1                           2
 #define LIBSSH2_HOSTKEY_HASH_SHA256                         3
+#define LIBSSH2_HOSTKEY_HASH_SM3                            4
 
 /* Hostkey Types */
 #define LIBSSH2_HOSTKEY_TYPE_UNKNOWN            0

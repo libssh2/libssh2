@@ -1342,8 +1342,181 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_ed25519_cert = {
 
 #endif /* LIBSSH2_ED25519 */
 
+/* ***********
+ * GM SM2 *
+ *********** */
+static int hostkey_method_ssh_sm2_dtor(LIBSSH2_SESSION * session,
+                                        void **abstract);
+
+static int
+hostkey_method_ssh_sm2_init(LIBSSH2_SESSION * session,
+                            const unsigned char *hostkey_data,
+                            size_t hostkey_data_len,
+                            void **abstract)
+{
+    libssh2_sm2_ctx *sm2_ctx = NULL;
+
+    if(*abstract) {
+        hostkey_method_ssh_sm2_dtor(session, abstract);
+        *abstract = NULL;
+    }
+
+    if(_libssh2_sm2_new_public(&sm2_ctx, hostkey_data, hostkey_data_len) != 0)
+    {
+        return -1;
+    }
+    if(abstract)
+        *abstract = sm2_ctx;
+
+    return 0;
+}
+
+ /*
+ * hostkey_method_ssh_sm2_initPEM
+ * Load a Private Key from a PEM file
+ */
+static int
+hostkey_method_ssh_sm2_initPEM(LIBSSH2_SESSION * session,
+                                const char *privkeyfile,
+                                unsigned const char *passphrase,
+                                void **abstract)
+{
+    int ret = 0;
+    libssh2_sm2_ctx *sm2_ctx = NULL;
+
+    if(*abstract) {
+        hostkey_method_ssh_sm2_dtor(session, abstract);
+        *abstract = NULL;
+    }
+
+    ret = _libssh2_sm2_new_private(&sm2_ctx, session,
+                                    privkeyfile, passphrase);
+    if(ret) {
+        return -1;
+    }
+
+    if(abstract)
+        *abstract = sm2_ctx;
+
+    return ret;
+}
+
+/*
+ * hostkey_method_ssh_sm2_initPEMFromMemory
+ * Load a Private Key from memory
+ */
+static int
+hostkey_method_ssh_sm2_initPEMFromMemory(LIBSSH2_SESSION * session,
+                                            const char *privkeyfiledata,
+                                            size_t privkeyfiledata_len,
+                                            unsigned const char *passphrase,
+                                            void **abstract)
+{
+    int ret = 0;
+    libssh2_sm2_ctx *sm2_ctx = NULL;
+
+    if(abstract && *abstract) {
+        hostkey_method_ssh_sm2_dtor(session, abstract);
+        *abstract = NULL;
+    }
+
+    ret = _libssh2_sm2_new_private_frommemory(&sm2_ctx, session,
+                                              privkeyfiledata,
+                                              privkeyfiledata_len,
+                                              passphrase);
+    if(ret) {
+        return -1;
+    }
+
+    if(abstract)
+        *abstract = sm2_ctx;
+    return ret;
+}
+
+/*
+ * hostkey_method_ssh_sm2_sig_verify
+ * Verify signature created by remote
+ */
+static int
+hostkey_method_ssh_sm2_sig_verify(LIBSSH2_SESSION * session,
+                                    const unsigned char *sig,
+                                    size_t sig_len,
+                                    const unsigned char *m,
+                                    size_t m_len, void **abstract)
+{
+    libssh2_sm2_ctx *ctx = (libssh2_sm2_ctx *) (*abstract);
+
+    /* Skip past = keyname_len(4) + keyname(7){"ssh-sm2"} +
+       signature_len(4) = 15*/
+    if(sig_len != 79) {
+        return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                              "Invalid SM2 signature length");
+    }
+
+    sig += 15;
+    sig_len -= 15;
+
+    return _libssh2_sm2_verify(ctx, sig, sig_len, m, m_len);
+}
+
+/*
+ * hostkey_method_ssh_sm2_signv
+ * Construct a signature from an array of vectors
+ */
+static int
+hostkey_method_ssh_sm2_signv(LIBSSH2_SESSION * session,
+                            unsigned char **signature,
+                            size_t *signature_len,
+                            int veccount,
+                            const struct iovec datavec[],
+                            void **abstract)
+{
+    libssh2_sm2_ctx *ctx = (libssh2_sm2_ctx *) (*abstract);
+
+    if(veccount != 1) {
+        return -1;
+    }
+
+    return _libssh2_sm2_sign(ctx, session, signature, signature_len,
+                                 (const uint8_t *)datavec[0].iov_base,
+                                 datavec[0].iov_len);
+    if(veccount != 1) {
+        return -1;
+    }
+
+   return 0;
+}
+
+/*
+ * hostkey_method_ssh_sm2_dtor
+ * Shutdown the hostkey by freeing key context
+ */
+static int
+hostkey_method_ssh_sm2_dtor(LIBSSH2_SESSION * session, void **abstract)
+{
+    libssh2_sm2_ctx *keyctx = (libssh2_sm2_ctx*) (*abstract);
+    (void)session;
+
+    _libssh2_sm2_free(keyctx);
+    *abstract = NULL;
+
+    return 0;
+}
+
+static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_sm2 = {
+    "ssh-sm2",
+    LIBSSH2_SM3_DIGEST_LEN,
+    hostkey_method_ssh_sm2_init,
+    hostkey_method_ssh_sm2_initPEM,
+    hostkey_method_ssh_sm2_initPEMFromMemory,
+    hostkey_method_ssh_sm2_sig_verify,
+    hostkey_method_ssh_sm2_signv,
+    NULL,                       /* encrypt */
+    hostkey_method_ssh_sm2_dtor,
+};
 
 static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
+    &hostkey_method_ssh_sm2,
 #if LIBSSH2_ECDSA
     &hostkey_method_ecdsa_ssh_nistp256,
     &hostkey_method_ecdsa_ssh_nistp384,
@@ -1405,6 +1578,10 @@ libssh2_hostkey_hash(LIBSSH2_SESSION * session, int hash_type)
     case LIBSSH2_HOSTKEY_HASH_SHA256:
         return (session->server_hostkey_sha256_valid)
           ? (char *) session->server_hostkey_sha256
+          : NULL;
+    case LIBSSH2_HOSTKEY_HASH_SM3:
+        return (session->server_hostkey_sm3_valid)
+          ? (char *) session->server_hostkey_sm3
           : NULL;
     default:
         return NULL;

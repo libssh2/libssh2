@@ -461,4 +461,18 @@ const EVP_CIPHER *_libssh2_EVP_aes_128_ctr(void);
 const EVP_CIPHER *_libssh2_EVP_aes_192_ctr(void);
 const EVP_CIPHER *_libssh2_EVP_aes_256_ctr(void);
 
+/*GM SM3*/
+#define libssh2_sm3_ctx EVP_MD_CTX *
+/* returns 0 in case of failure */
+int _libssh2_sm3_init(libssh2_sm3_ctx *ctx);
+#define libssh2_sm3_init(x) _libssh2_sm3_init(x)
+#define libssh2_sm3_update(ctx, data, len) EVP_DigestUpdate(ctx, data, len)
+#define libssh2_sm3_final(ctx, out) do {                                  \
+                                         EVP_DigestFinal_ex(ctx, out, NULL); \
+                                         EVP_MD_CTX_free(ctx);            \
+                                     } while(0)
+
+/*GM SM2*/
+#define libssh2_sm2_ctx EVP_PKEY
+#define _libssh2_sm2_free(ctx) EVP_PKEY_free(ctx)
 #endif /* LIBSSH2_OPENSSL_H */

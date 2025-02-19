@@ -119,6 +119,22 @@ do {                                                                        \
         }                                                                   \
 } while(0)
 
+#define LIBSSH2_KEX_METHOD_SM3_VALUE_HASH(value, version)                         \
+  do {                                                                            \
+    libssh2_sm3_ctx ctx_sm3;                                                      \
+    if (!(value)) {                                                               \
+      value = LIBSSH2_ALLOC(session, LIBSSH2_SM3_DIGEST_LEN);                     \
+    }                                                                             \
+    if (value) {                                                                  \
+      libssh2_sm3_init(&ctx_sm3);                                                 \
+      libssh2_sm3_update(ctx_sm3, exchange_state->K, LIBSSH2_SM2_K_LEN);                       \
+      libssh2_sm3_update(ctx_sm3, hash, LIBSSH2_SM3_DIGEST_LEN);                  \
+      libssh2_sm3_update(ctx_sm3, (version), 1);                                  \
+      libssh2_sm3_update(ctx_sm3, session->session_id, session->session_id_len);  \
+      libssh2_sm3_final(ctx_sm3, value);                                          \
+    }                                                                             \
+  } while (0)
+
 /*!
  * @note The following are wrapper functions used by diffie_hellman_sha_algo().
  * TODO: Switch backend SHA macros to functions to allow function pointers
@@ -3225,6 +3241,478 @@ kex_method_ssh_curve25519_sha256 = {
 };
 #endif
 
+/*
+**************
+**GM SM2-SM3**
+**************
+*/
+static void kex_method_sm2_cleanup(LIBSSH2_SESSION *session,
+                                   key_exchange_state_low_t *key_state) {
+    if (key_state->data) {
+        LIBSSH2_FREE(session, key_state->data);
+        key_state->data = NULL;
+    }
+
+    key_state->state = libssh2_NB_state_idle;
+    if(key_state->exchange_state.state != libssh2_NB_state_idle){
+        key_state->exchange_state.state = libssh2_NB_state_idle;
+    }
+}
+
+static int sm2_sm3(LIBSSH2_SESSION *session, unsigned char *data,
+                   size_t data_len, kmdhgGPshakex_state_t *exchange_state) {
+    int ret = 0;
+    int rc;
+    unsigned char random[LIBSSH2_CATRANDOM_LEN] = {0};
+    unsigned char *server_public_key, *server_host_key;
+    size_t server_public_key_len, hostkey_len;
+
+    if (data_len < 5) {
+        return _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                            "Data is too short");
+    }
+
+    if (exchange_state->state == libssh2_NB_state_idle) {
+        /* Setup initial values */
+        memset(exchange_state->K, 0, LIBSSH2_SM2_K_LEN);
+        exchange_state->state = libssh2_NB_state_created;
+    }
+
+    if (exchange_state->state == libssh2_NB_state_created) {
+        /* parse INIT reply data */
+        struct string_buf buf;
+        unsigned char *randoms = NULL;
+
+        if (data_len < 5) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                "Unexpected sm2 key length 1");
+            goto clean_exit;
+        }
+
+        buf.data = data;
+        buf.len = data_len;
+        buf.dataptr = buf.data;
+        buf.dataptr++; /* advance past packet type */
+
+        if (_libssh2_get_string(&buf, &server_host_key, &hostkey_len)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                "Unexpected sm2 key length 2");
+            goto clean_exit;
+        }
+
+        session->server_hostkey_len = (uint32_t)hostkey_len;
+        session->server_hostkey =
+            LIBSSH2_ALLOC(session, session->server_hostkey_len);
+        if (!session->server_hostkey) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                "Unable to allocate memory for a copy "
+                                "of the host sm2 key");
+            goto clean_exit;
+        }
+
+        memcpy(session->server_hostkey, server_host_key,
+                session->server_hostkey_len);
+
+        {
+            libssh2_sm3_ctx fingerprint_ctx;
+
+            if(!libssh2_sm3_init(&fingerprint_ctx)) {
+                libssh2_sm3_update(fingerprint_ctx, session->server_hostkey,
+                                    session->server_hostkey_len);
+                libssh2_sm3_final(fingerprint_ctx,
+                                    session->server_hostkey_sm3);
+                session->server_hostkey_sm3_valid = TRUE;
+            }
+            else {
+                session->server_hostkey_sm3_valid = FALSE;
+            }
+        }
+
+        if (session->hostkey->init(session, session->server_hostkey,
+                                    session->server_hostkey_len,
+                                    &session->server_hostkey_abstract) != 0) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                                "Unable to initialize hostkey importer sm2");
+            goto clean_exit;
+        }
+
+        /* server public key Q_S */
+        if (_libssh2_get_string(&buf, &server_public_key, &server_public_key_len)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                "Unexpected sm2 key length");
+            goto clean_exit;
+        }
+
+        memcpy(session->sm4_key, server_public_key, server_public_key_len);
+        if (server_public_key_len != LIBSSH2_SM4_KEY_LEN) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                                "Unexpected sm2 server "
+                                "public key length");
+            goto clean_exit;
+        }
+
+        /* Compute the shared secret K */
+        rc = _libssh2_random(&exchange_state->K, LIBSSH2_SM2_K_LEN);
+        if (rc) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_KEX_FAILURE,
+                                "Unable to create sm2 shared secret");
+            goto clean_exit;
+        }
+
+        if (_libssh2_get_string(&buf, &randoms, NULL)) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                "Unexpected randoms length");
+            goto clean_exit;
+        }
+        memcpy(session->randoms, randoms, LIBSSH2_RANDOM_LEN);
+
+        /* server signature */
+        if (_libssh2_get_string(&buf, &exchange_state->h_sig,
+                                &(exchange_state->h_sig_len))) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_INIT,
+                                "Unexpected sm2 server sig length");
+            goto clean_exit;
+        }
+
+        memcpy(random, session->randomc, LIBSSH2_RANDOM_LEN);
+        memcpy(random + LIBSSH2_RANDOM_LEN, session->randoms, LIBSSH2_RANDOM_LEN);
+
+        rc = session->hostkey->sig_verify(
+            session, exchange_state->h_sig, exchange_state->h_sig_len, random,
+            LIBSSH2_CATRANDOM_LEN, &session->server_hostkey_abstract);
+        if (rc) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_HOSTKEY_SIGN,
+                                "Unable to verify hostkey signature "
+                                "sm2");
+            goto clean_exit;
+        }
+        exchange_state->state = libssh2_NB_state_sent;
+    }
+
+    if (exchange_state->state == libssh2_NB_state_sent) {
+        unsigned char hash[LIBSSH2_SM3_DIGEST_LEN] = {0};
+        libssh2_sm3_ctx sm3_ctx;
+        libssh2_sm3_init(&sm3_ctx);
+        libssh2_sm3_update(sm3_ctx, session->randomc, LIBSSH2_RANDOM_LEN);
+        libssh2_sm3_update(sm3_ctx, session->randoms, LIBSSH2_RANDOM_LEN);
+        libssh2_sm3_update(sm3_ctx, server_public_key, server_public_key_len);
+        libssh2_sm3_update(sm3_ctx, exchange_state->K, LIBSSH2_SM2_K_LEN);
+        libssh2_sm3_final(sm3_ctx, hash);
+
+        if (!session->session_id) {
+            size_t digest_length = LIBSSH2_SM3_DIGEST_LEN;
+            session->session_id = LIBSSH2_ALLOC(session, digest_length);
+            if (!session->session_id) {
+                ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                        "Unable to allocate buffer for "
+                                        "sm2 digest");
+                goto clean_exit;
+            }
+            memcpy(session->session_id, hash, digest_length);
+            session->session_id_len = (uint32_t)digest_length;
+            _libssh2_debug((session, LIBSSH2_TRACE_KEX, "session_id calculated"));
+        }
+
+        /* Cleanup any existing cipher */
+        if (session->local.crypt->dtor) {
+            session->local.crypt->dtor(session, &session->local.crypt_abstract);
+        }
+        /* Calculate IV/Secret/Key for each direction */
+        if (session->local.crypt->init) {
+            unsigned char *iv = NULL, *secret = NULL;
+            int free_iv = 0, free_secret = 0;
+
+            LIBSSH2_KEX_METHOD_SM3_VALUE_HASH(iv, "A");
+            if (!iv) {
+                ret = -1;
+                goto clean_exit;
+            }
+
+            LIBSSH2_KEX_METHOD_SM3_VALUE_HASH(secret, "C");
+            if (!secret) {
+                LIBSSH2_FREE(session, iv);
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
+            if (session->local.crypt->init(session, session->local.crypt, iv,
+                                            &free_iv, secret, &free_secret, 1,
+                                            &session->local.crypt_abstract)) {
+                LIBSSH2_FREE(session, iv);
+                LIBSSH2_FREE(session, secret);
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
+
+            if (free_iv) {
+                _libssh2_explicit_zero(iv, session->local.crypt->iv_len);
+                LIBSSH2_FREE(session, iv);
+            }
+
+            if (free_secret) {
+                _libssh2_explicit_zero(secret, session->local.crypt->secret_len);
+                LIBSSH2_FREE(session, secret);
+            }
+        }
+
+        _libssh2_debug(
+            (session, LIBSSH2_TRACE_KEX, "Client to Server IV and Key calculated"));
+
+        if (session->remote.crypt->dtor) {
+            /* Cleanup any existing cipher */
+            session->remote.crypt->dtor(session, &session->remote.crypt_abstract);
+        }
+
+        if (session->remote.crypt->init) {
+            unsigned char *iv = NULL, *secret = NULL;
+            int free_iv = 0, free_secret = 0;
+
+            LIBSSH2_KEX_METHOD_SM3_VALUE_HASH(iv, "B");
+            if (!iv) {
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
+            LIBSSH2_KEX_METHOD_SM3_VALUE_HASH(secret, "D");
+            if (!secret) {
+                LIBSSH2_FREE(session, iv);
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
+            if (session->remote.crypt->init(session, session->remote.crypt, iv,
+                                            &free_iv, secret, &free_secret, 0,
+                                            &session->remote.crypt_abstract)) {
+                LIBSSH2_FREE(session, iv);
+                LIBSSH2_FREE(session, secret);
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
+
+            if (free_iv) {
+                _libssh2_explicit_zero(iv, session->remote.crypt->iv_len);
+                LIBSSH2_FREE(session, iv);
+            }
+            if (free_secret) {
+                _libssh2_explicit_zero(secret, session->remote.crypt->secret_len);
+                LIBSSH2_FREE(session, secret);
+            }
+        }
+        _libssh2_debug(
+            (session, LIBSSH2_TRACE_KEX, "Server to Client IV and Key calculated"));
+
+        if (session->local.mac->dtor) {
+            session->local.mac->dtor(session, &session->local.mac_abstract);
+        }
+        if (session->local.mac->init) {
+            unsigned char *key = NULL;
+            int free_key = 0;
+
+            LIBSSH2_KEX_METHOD_SM3_VALUE_HASH(key, "E");
+            if (!key) {
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
+            session->local.mac->init(session, key, &free_key,
+                                    &session->local.mac_abstract);
+            if (free_key) {
+                _libssh2_explicit_zero(key, session->local.mac->key_len);
+                LIBSSH2_FREE(session, key);
+            }
+        }
+        _libssh2_debug(
+            (session, LIBSSH2_TRACE_KEX, "Client to Server HMAC Key calculated"));
+        if (session->remote.mac->dtor) {
+            session->remote.mac->dtor(session, &session->remote.mac_abstract);
+        }
+
+        if (session->remote.mac->init) {
+            unsigned char *key = NULL;
+            int free_key = 0;
+            LIBSSH2_KEX_METHOD_SM3_VALUE_HASH(key, "F");
+            if (!key) {
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
+            session->remote.mac->init(session, key, &free_key,
+                                    &session->remote.mac_abstract);
+
+            if (free_key) {
+                _libssh2_explicit_zero(key, session->remote.mac->key_len);
+                LIBSSH2_FREE(session, key);
+            }
+        }
+        _libssh2_debug(
+            (session, LIBSSH2_TRACE_KEX, "Server to Client HMAC Key calculated"));
+
+        /* Cleanup any existing compression */
+        if (session->local.comp && session->local.comp->dtor) {
+            session->local.comp->dtor(session, 1, &session->local.comp_abstract);
+        }
+
+        if (session->local.comp && session->local.comp->init) {
+            if (session->local.comp->init(session, 1,
+                                        &session->local.comp_abstract)) {
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
+        }
+        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+                        "Client to Server compression initialized"));
+
+        if (session->remote.comp && session->remote.comp->dtor) {
+            session->remote.comp->dtor(session, 0, &session->remote.comp_abstract);
+        }
+
+        if (session->remote.comp && session->remote.comp->init) {
+            if (session->remote.comp->init(session, 0,
+                                            &session->remote.comp_abstract)) {
+                ret = LIBSSH2_ERROR_KEX_FAILURE;
+                goto clean_exit;
+            }
+        }
+        _libssh2_debug((session, LIBSSH2_TRACE_KEX,
+                        "Server to Client compression initialized"));
+        exchange_state->state = libssh2_NB_state_sent2;
+    }
+
+clean_exit:
+    exchange_state->state = libssh2_NB_state_idle;
+    return ret;
+}
+
+static int kex_method_sm2_key_exchange(LIBSSH2_SESSION *session,
+                                       key_exchange_state_low_t *key_state) {
+  int ret = 0;
+  int rc = 0;
+
+  if (key_state->state == libssh2_NB_state_idle) {
+    key_state->public_key_oct = NULL;
+    key_state->state = libssh2_NB_state_created;
+  }
+
+  if (key_state->state == libssh2_NB_state_created) {
+    unsigned char *kex_r = NULL;
+    rc = strcmp(session->kex->name, "SM2-SM3");
+    if (rc) {
+      ret = _libssh2_error(session, -1, "Unknown KEX sm2 type");
+      goto clean_exit;
+    }
+
+    _libssh2_random(session->randomc, LIBSSH2_RANDOM_LEN);
+
+    key_state->request[0] = SSH_MSG_KEX_REQUEST;
+    kex_r = key_state->request + 1;
+    _libssh2_store_str(&kex_r, (const char *)session->randomc, LIBSSH2_RANDOM_LEN);
+    key_state->request_len = LIBSSH2_RANDOM_LEN + 5;
+
+    _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Initiating SM2 SM3"));
+
+    key_state->state = libssh2_NB_state_sent;
+  }
+
+  if (key_state->state == libssh2_NB_state_sent) {
+    rc = _libssh2_transport_send(session, key_state->request,
+                                 key_state->request_len, NULL, 0);
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
+      return rc;
+    } else if (rc) {
+      ret = _libssh2_error(session, rc, "Unable to send SSH_MSG_KEX_REQUEST");
+      goto clean_exit;
+    }
+
+    key_state->state = libssh2_NB_state_sent1;
+  }
+
+  if (key_state->state == libssh2_NB_state_sent1) {
+    rc = _libssh2_packet_require(session, SSH_MSG_KEX_REPLY, &key_state->data,
+                                 &key_state->data_len, 0, NULL, 0,
+                                 &key_state->req_state);
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
+      return rc;
+    } else if (rc) {
+      ret = _libssh2_error(session, rc,
+                           "Timeout waiting for SSH_MSG_KEX_REPLY reply");
+      goto clean_exit;
+    }
+
+    key_state->state = libssh2_NB_state_sent2;
+  }
+
+  if (key_state->state == libssh2_NB_state_sent2) {
+    unsigned char cipher[LIBSSH2_SM2_K_LEN] = {0};
+    unsigned char *kex_c = NULL;
+
+    ret = sm2_sm3(session, key_state->data, key_state->data_len,
+                  &key_state->exchange_state);
+    if (ret == LIBSSH2_ERROR_EAGAIN) {
+        return ret;
+    }
+    rc = _libssh2_sm4_encrypt(session->sm4_key,
+                            key_state->exchange_state.K,
+                            LIBSSH2_SM2_K_LEN, cipher);
+    if(rc){
+        ret = _libssh2_error(session, rc, "Unable to sm4_encrypt data");
+        goto clean_exit;
+    }
+
+    key_state->request[0] = SSH_MSG_KEX;
+    kex_c = key_state->request + 1;
+    _libssh2_store_str(&kex_c, (const char*)cipher, LIBSSH2_SM2_K_LEN);
+    key_state->request_len = LIBSSH2_SM2_K_LEN + 5;
+
+    _libssh2_debug((session, LIBSSH2_TRACE_KEX, "Initiating SM2 SM3"));
+
+    rc = _libssh2_transport_send(session, key_state->request,
+                                 key_state->request_len, NULL, 0);
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
+      return rc;
+    } else if (rc) {
+      ret = _libssh2_error(session, rc, "Unable to send SSH_MSG_KEX_REQUEST");
+      goto clean_exit;
+    }
+
+    key_state->exchange_state.c = SSH_MSG_NEWKEYS;
+    rc = _libssh2_transport_send(session, &key_state->exchange_state.c, 1, NULL,
+                                 0);
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
+      return rc;
+    } else if (rc) {
+      ret = _libssh2_error(session, rc, "Unable to send NEWKEYS message sm2");
+      goto clean_exit;
+    }
+    sleep(1);/*server needs to work with data*/
+    rc = _libssh2_packet_require(session, SSH_MSG_NEWKEYS,
+                                 &key_state->exchange_state.tmp,
+                                 &key_state->exchange_state.tmp_len, 0, NULL, 0,
+                                 &key_state->exchange_state.req_state);
+    if (rc == LIBSSH2_ERROR_EAGAIN) {
+      return rc;
+    } else if (rc) {
+      ret = _libssh2_error(session, rc, "Timed out waiting for NEWKEYS sm2");
+      goto clean_exit;
+    }
+
+    /* The first key exchange has been performed,
+       switch to active crypt/comp/mac mode */
+    session->state |= LIBSSH2_STATE_NEWKEYS;
+    _libssh2_debug(
+        (session, LIBSSH2_TRACE_KEX, "Received NEWKEYS message sm2"));
+
+    /* This will actually end up being just packet_type(1)
+       for this packet type anyway */
+    LIBSSH2_FREE(session, key_state->exchange_state.tmp);
+  }
+
+clean_exit:
+  kex_method_sm2_cleanup(session, key_state);
+  return ret;
+}
+
+static const LIBSSH2_KEX_METHOD kex_method_ssh_sm2_sm3 = {
+    "SM2-SM3",
+    kex_method_sm2_key_exchange,
+    kex_method_sm2_cleanup,
+    LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY,
+};
+
 /* this kex method signals that client can receive extensions
  * as described in https://datatracker.ietf.org/doc/html/rfc8308
 */
@@ -3246,6 +3734,7 @@ kex_method_strict_client_extension = {
 };
 
 static const LIBSSH2_KEX_METHOD *libssh2_kex_methods[] = {
+    &kex_method_ssh_sm2_sm3,
 #if LIBSSH2_ED25519
     &kex_method_ssh_curve25519_sha256,
     &kex_method_ssh_curve25519_sha256_libssh,
