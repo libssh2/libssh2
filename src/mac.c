@@ -489,7 +489,8 @@ mac_method_hmac_sm4_hash(LIBSSH2_SESSION * session,
                              const unsigned char *addtl,
                              size_t addtl_len, void **abstract)
 {
-    size_t dlen = 0, len = 0, cipherlen = 0, rem = 0;
+    size_t dlen = 0, rem = 0;
+    int len = 0, cipherlen = 0;
     int ret = 0;
     unsigned char seqno_buf[4] = {0};
     unsigned char *cipher = NULL;
@@ -528,7 +529,7 @@ mac_method_hmac_sm4_hash(LIBSSH2_SESSION * session,
     }
     cipher = malloc(dlen + rem + 16);
 
-    if(EVP_EncryptUpdate(ctx, cipher, &len, data, dlen + rem) != 1){
+    if(EVP_EncryptUpdate(ctx, cipher, &len, data, (int)(dlen + rem)) != 1){
         ret = 1;
         goto out;
     }
