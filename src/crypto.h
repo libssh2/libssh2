@@ -65,6 +65,8 @@ int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
 int _libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
                                  void *key, size_t keylen);
 #endif
+int _libssh2_hmac_sm3_init(libssh2_hmac_ctx *ctx,
+                           void *key, size_t keylen);
 int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
                             void *key, size_t keylen);
 int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
