@@ -137,6 +137,11 @@ jobs:
             zlib: 'ON'
           - compiler: gcc
             arch: amd64
+            crypto: AWS-LC
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
             crypto: LibreSSL
             build: cmake
             zlib: 'ON'
@@ -167,6 +172,7 @@ jobs:
       wolfssl-version: 5.7.4
       wolfssl-version-prev: 5.5.4
       boringssl-version: 0.20250114.0
+      awslc-version: 1.46.1
       libressl-version: 4.0.0
       openssl-version: 3.4.0
       openssl111-version: 1.1.1w
@@ -269,6 +275,29 @@ jobs:
               -DOPENSSL_SMALL=ON \
               -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
               -DCMAKE_INSTALL_PREFIX="$HOME/usr"
+            cmake --build . --parallel 5
+            cmake --install .
+            cd ..
+          fi
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
+          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
+
+      - name: 'cache AWS-LC'
+        if: ${{ matrix.crypto == 'AWS-LC' }}
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        id: cache-aws-lc
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-aws-lc-${{ env.awslc-version }}-${{ matrix.arch }}
+
+      - name: 'install AWS-LC from source'
+        if: ${{ matrix.crypto == 'AWS-LC' }}
+        run: |
+          if [ '${{ steps.cache-aws-lc.outputs.cache-hit }}' != 'true' ]; then
+            mkdir aws-lc
+            cd aws-lc
+            curl -fsS -L https://github.com/aws/aws-lc/archive/refs/tags/v${{ env.awslc-version }}.tar.gz | tar -xzf -
+            cmake aws-lc-${{ env.awslc-version }} -B . -DCMAKE_INSTALL_PREFIX="$HOME/usr"
             cmake --build . --parallel 5
             cmake --install .
             cd ..
@@ -448,6 +477,7 @@ jobs:
         if: ${{ matrix.build == 'cmake' }}
         run: |
           if [ '${{ matrix.crypto }}' = 'BoringSSL' ] || \
+             [ '${{ matrix.crypto }}' = 'AWS-LC' ] || \
              [ '${{ matrix.crypto }}' = 'LibreSSL' ] || \
              [[ '${{ matrix.crypto }}' = 'OpenSSL-'* ]]; then
             crypto='OpenSSL'
