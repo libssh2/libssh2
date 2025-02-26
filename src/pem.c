@@ -555,7 +555,6 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
                 (_libssh2_get_u32(&kdf_buf, &rounds) != 0)) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                      "kdf contains unexpected values");
-                LIBSSH2_FREE(session, key);
                 goto out;
             }
 
@@ -565,14 +564,12 @@ _libssh2_openssh_pem_parse_data(LIBSSH2_SESSION * session,
                                      keylen + ivlen, rounds) < 0) {
                 ret = _libssh2_error(session, LIBSSH2_ERROR_DECRYPT,
                                      "invalid format");
-                LIBSSH2_FREE(session, key);
                 goto out;
             }
         }
         else {
             ret = _libssh2_error(session, LIBSSH2_ERROR_KEYFILE_AUTH_FAILED,
                                  "bcrypted without passphrase");
-            LIBSSH2_FREE(session, key);
             goto out;
         }
 
