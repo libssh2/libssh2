@@ -4196,23 +4196,11 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
     char *tmpprefs = NULL;
     size_t prefs_len = strlen(prefs);
     const LIBSSH2_COMMON_METHOD **mlist;
-    const char *kex_extensions = "ext-info-c,kex-strict-c-v00@openssh.com,";
-    size_t kex_extensions_len = strlen(kex_extensions);
 
     switch(method_type) {
     case LIBSSH2_METHOD_KEX:
         prefvar = &session->kex_prefs;
         mlist = (const LIBSSH2_COMMON_METHOD **)libssh2_kex_methods;
-        tmpprefs = LIBSSH2_ALLOC(session, kex_extensions_len + prefs_len + 1);
-        if(!tmpprefs) {
-            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                  "Error allocated space for kex method"
-                                  " preferences");
-        }
-        memcpy(tmpprefs, kex_extensions, kex_extensions_len);
-        memcpy(tmpprefs + kex_extensions_len, prefs, prefs_len + 1);
-        prefs = tmpprefs;
-        prefs_len = strlen(prefs);
         break;
 
     case LIBSSH2_METHOD_HOSTKEY:
@@ -4312,6 +4300,27 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
         return _libssh2_error(session, LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
                               "The requested method(s) are not currently "
                               "supported");
+    }
+
+    /* add method kex extension to the start of the user list */
+    if(method_type == LIBSSH2_METHOD_KEX) {
+        const char *kex_extensions =
+                    "ext-info-c,kex-strict-c-v00@openssh.com,";
+        size_t kex_extensions_len = strlen(kex_extensions);
+        size_t tmp_len = kex_extensions_len + strlen(newprefs);
+        tmpprefs = LIBSSH2_ALLOC(session, tmp_len + 1);
+        if(!tmpprefs) {
+            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                  "Error allocated space for kex method"
+                                  " preferences");
+        }
+
+        memcpy(tmpprefs, kex_extensions, kex_extensions_len);
+        memcpy(tmpprefs + kex_extensions_len, newprefs, strlen(newprefs));
+        tmpprefs[tmp_len] = '\0';
+
+        LIBSSH2_FREE(session, newprefs);
+        newprefs = tmpprefs;
     }
 
     if(*prefvar) {
