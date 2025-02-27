@@ -4310,9 +4310,9 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
         size_t tmp_len = kex_extensions_len + strlen(newprefs);
         tmpprefs = LIBSSH2_ALLOC(session, tmp_len + 1);
         if(!tmpprefs) {
-           return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                 "Error allocated space for kex method"
-                                 " preferences");
+            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                  "Error allocated space for kex method"
+                                  " preferences");
         }
 
         memcpy(tmpprefs, kex_extensions, kex_extensions_len);
