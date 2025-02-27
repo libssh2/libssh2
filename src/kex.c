@@ -4307,8 +4307,8 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
         const char *kex_extensions =
                     "ext-info-c,kex-strict-c-v00@openssh.com,";
         size_t kex_extensions_len = strlen(kex_extensions);
-        size_t tmp_len = kex_extensions_len + strlen(newprefs) + 1;
-        tmpprefs = LIBSSH2_ALLOC(session, tmp_len);
+        size_t tmp_len = kex_extensions_len + strlen(newprefs);
+        tmpprefs = LIBSSH2_ALLOC(session, tmp_len + 1);
         if(!tmpprefs) {
            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                  "Error allocated space for kex method"
@@ -4317,7 +4317,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, int method_type,
 
         memcpy(tmpprefs, kex_extensions, kex_extensions_len);
         memcpy(tmpprefs + kex_extensions_len, newprefs, strlen(newprefs));
-        tmpprefs[tmp_len - 1] = '\0';
+        tmpprefs[tmp_len] = '\0';
 
         LIBSSH2_FREE(session, newprefs);
         newprefs = tmpprefs;
