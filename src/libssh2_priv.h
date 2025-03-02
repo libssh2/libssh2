@@ -88,6 +88,12 @@
 #include <inttypes.h>
 #endif
 
+#ifdef LIBSSH2_HAVE_ZLIB
+#ifndef ZLIB_CONST
+#define ZLIB_CONST  /* Use z_const. Supported by v1.2.5.2 and upper. */
+#endif
+#endif
+
 #include "libssh2.h"
 #include "libssh2_publickey.h"
 #include "libssh2_sftp.h"
