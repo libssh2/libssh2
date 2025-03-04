@@ -90,7 +90,7 @@
 
 #ifdef LIBSSH2_HAVE_ZLIB
 #ifndef ZLIB_CONST
-#define ZLIB_CONST  /* use z_const. supported by v1.2.5.2 and upper. */
+#define ZLIB_CONST  /* Use z_const. Supported by v1.2.5.2 and upper. */
 #endif
 #endif
 
