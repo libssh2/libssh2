@@ -740,6 +740,12 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 {
     int rc;
 
+    if(!session) {
+        fprintf(stderr, "Session is NULL, error: %i\n",
+                LIBSSH2_ERROR_PROTO);
+        return LIBSSH2_ERROR_PROTO;
+    }
+
     if(session->startup_state == libssh2_NB_state_idle) {
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
                        "session_startup for socket %ld", (long)sock));
