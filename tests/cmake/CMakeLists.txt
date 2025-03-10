@@ -47,7 +47,7 @@ elseif(TEST_INTEGRATION_MODE STREQUAL "FetchContent")
     GIT_REPOSITORY "${FROM_GIT_REPO}"
     GIT_TAG "${FROM_GIT_TAG}"
     GIT_SHALLOW)
-  FetchContent_MakeAvailable(libssh2)
+  FetchContent_MakeAvailable(libssh2)  # Requires CMake 3.14
 endif()
 
 add_executable(test-dependent-static-ns "test.c")

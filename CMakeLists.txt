@@ -52,6 +52,34 @@ include(CheckNonblockingSocketSupport)
 
 project(libssh2 C)
 
+function(libssh2_dumptargetprops _target)  # Dump all target properties
+  if(TARGET "${_target}")
+    execute_process(COMMAND "${CMAKE_COMMAND}" "--help-property-list" OUTPUT_VARIABLE _cmake_property_list)
+    string(REPLACE "\n" ";" _cmake_property_list "${_cmake_property_list}")
+    list(REMOVE_DUPLICATES _cmake_property_list)
+    list(REMOVE_ITEM _cmake_property_list "")
+    list(APPEND _cmake_property_list "LIBSSH2_PC_MODULES")
+    foreach(_prop IN LISTS _cmake_property_list)
+      if(_prop MATCHES "<CONFIG>")
+        foreach(_config IN ITEMS "DEBUG" "RELEASE" "MINSIZEREL" "RELWITHDEBINFO")
+          string(REPLACE "<CONFIG>" "${_config}" _propconfig "${_prop}")
+          get_property(_is_set TARGET "${_target}" PROPERTY "${_propconfig}" SET)
+          if(_is_set)
+            get_target_property(_val "${_target}" "${_propconfig}")
+            message("${_target}.${_propconfig} = '${_val}'")
+          endif()
+        endforeach()
+      else()
+        get_property(_is_set TARGET "${_target}" PROPERTY "${_prop}" SET)
+        if(_is_set)
+          get_target_property(_val "${_target}" "${_prop}")
+          message("${_target}.${_prop} = '${_val}'")
+        endif()
+      endif()
+    endforeach()
+  endif()
+endfunction()
+
 function(libssh2_dumpvars)  # Dump all defined variables with their values
   message("::group::CMake Variable Dump")
   get_cmake_property(_vars VARIABLES)
@@ -153,8 +181,6 @@ include(PickyWarnings)
 
 set(LIBSSH2_LIBS_SOCKET "")
 set(LIBSSH2_LIBS "")
-set(LIBSSH2_LIBDIRS "")
-set(LIBSSH2_PC_REQUIRES_PRIVATE "")
 
 # Add socket libraries
 if(WIN32)
@@ -234,13 +260,13 @@ option(ENABLE_DEBUG_LOGGING "Log execution with debug trace" ${DEBUG_LOGGING_DEF
 add_feature_info(Logging ENABLE_DEBUG_LOGGING "Logging of execution with debug trace")
 if(ENABLE_DEBUG_LOGGING)
   # Must be visible to the library and tests using internals
-  add_definitions("-DLIBSSH2DEBUG")
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2DEBUG")
 endif()
 
 option(LIBSSH2_NO_DEPRECATED "Build without deprecated APIs" OFF)
 add_feature_info("Without deprecated APIs" LIBSSH2_NO_DEPRECATED "")
 if(LIBSSH2_NO_DEPRECATED)
-  add_definitions("-DLIBSSH2_NO_DEPRECATED")
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2_NO_DEPRECATED")
 endif()
 
 # Auto-detection
@@ -353,7 +379,7 @@ endif()
 
 # Config file
 
-add_definitions("-DHAVE_CONFIG_H")
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "HAVE_CONFIG_H")
 
 configure_file("src/libssh2_config_cmake.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/src/libssh2_config.h")
@@ -371,15 +397,12 @@ if(CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
-
-  find_package(OpenSSL ${_specific_crypto_requirement})
-
+  find_package(OpenSSL ${_specific_crypto_requirement} COMPONENTS Crypto)
   if(OPENSSL_FOUND)
     set(CRYPTO_BACKEND "OpenSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
-    set(CRYPTO_BACKEND_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR})
     list(APPEND LIBSSH2_LIBS OpenSSL::Crypto)
-    list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "libcrypto")
+    set_target_properties(OpenSSL::Crypto PROPERTIES LIBSSH2_PC_MODULES "libcrypto")
 
     if(WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
@@ -412,24 +435,11 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
-
   find_package(WolfSSL ${_specific_crypto_requirement})
-
   if(WOLFSSL_FOUND)
     set(CRYPTO_BACKEND "wolfSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WOLFSSL")
-    set(CRYPTO_BACKEND_INCLUDE_DIR ${WOLFSSL_INCLUDE_DIRS})
-    list(APPEND LIBSSH2_LIBS ${WOLFSSL_LIBRARIES})
-    list(APPEND LIBSSH2_LIBDIRS ${WOLFSSL_LIBRARY_DIRS})
-    list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE ${WOLFSSL_PC_REQUIRES})
-    link_directories(${WOLFSSL_LIBRARY_DIRS})
-    if(WOLFSSL_CFLAGS)
-      string(APPEND CMAKE_C_FLAGS " ${WOLFSSL_CFLAGS}")
-    endif()
-
-    if(WIN32)
-      list(APPEND LIBSSH2_LIBS "crypt32")
-    endif()
+    list(APPEND LIBSSH2_LIBS libssh2::wolfssl)
 
     find_package(ZLIB)
     if(ZLIB_FOUND)
@@ -439,38 +449,20 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
-
   find_package(Libgcrypt ${_specific_crypto_requirement})
-
   if(LIBGCRYPT_FOUND)
     set(CRYPTO_BACKEND "Libgcrypt")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_LIBGCRYPT")
-    set(CRYPTO_BACKEND_INCLUDE_DIR ${LIBGCRYPT_INCLUDE_DIRS})
-    list(APPEND LIBSSH2_LIBS ${LIBGCRYPT_LIBRARIES})
-    list(APPEND LIBSSH2_LIBDIRS ${LIBGCRYPT_LIBRARY_DIRS})
-    list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE ${LIBGCRYPT_PC_REQUIRES})
-    link_directories(${LIBGCRYPT_LIBRARY_DIRS})
-    if(LIBGCRYPT_CFLAGS)
-      string(APPEND CMAKE_C_FLAGS " ${LIBGCRYPT_CFLAGS}")
-    endif()
+    list(APPEND LIBSSH2_LIBS libssh2::libgcrypt)
   endif()
 endif()
 
 if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
-
   find_package(MbedTLS ${_specific_crypto_requirement})
-
   if(MBEDTLS_FOUND)
     set(CRYPTO_BACKEND "mbedTLS")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")
-    set(CRYPTO_BACKEND_INCLUDE_DIR ${MBEDTLS_INCLUDE_DIRS})
-    list(APPEND LIBSSH2_LIBS ${MBEDTLS_LIBRARIES})
-    list(APPEND LIBSSH2_LIBDIRS ${MBEDTLS_LIBRARY_DIRS})
-    list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE ${MBEDTLS_PC_REQUIRES})
-    link_directories(${MBEDTLS_LIBRARY_DIRS})
-    if(MBEDTLS_CFLAGS)
-      string(APPEND CMAKE_C_FLAGS " ${MBEDTLS_CFLAGS}")
-    endif()
+    list(APPEND LIBSSH2_LIBS libssh2::mbedcrypto)
   endif()
 endif()
 
@@ -480,13 +472,12 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
   if(WIN32)
     set(CRYPTO_BACKEND "WinCNG")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WINCNG")
-    set(CRYPTO_BACKEND_INCLUDE_DIR "")
     list(APPEND LIBSSH2_LIBS "crypt32" "bcrypt")
 
     option(ENABLE_ECDSA_WINCNG "Enable WinCNG ECDSA support (requires Windows 10 or later)" OFF)
     add_feature_info(WinCNG ENABLE_ECDSA_WINCNG "WinCNG ECDSA support")
     if(ENABLE_ECDSA_WINCNG)
-      add_definitions("-DLIBSSH2_ECDSA_WINCNG")
+      set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2_ECDSA_WINCNG")
       if(MSVC)
         string(APPEND CMAKE_SHARED_LINKER_FLAGS " -SUBSYSTEM:WINDOWS,10")
       elseif(MINGW)

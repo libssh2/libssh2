@@ -50,15 +50,25 @@ jobs:
         run: ./ci/spellcheck.sh
 
   build_integration:
-    name: 'integration'
-    runs-on: ubuntu-latest
+    name: 'integration on ${{ matrix.image }}'
+    runs-on: ${{ matrix.image }}
     timeout-minutes: 5
     env:
       CC: clang
-      MAKEFLAGS: -j5
+      CMAKE_GENERATOR: Ninja
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [ubuntu-latest, macos-latest]
     steps:
-      - name: 'install prereqs'
-        run: sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
+      - name: 'install packages'
+        run: |
+          if [[ '${{ matrix.image }}' = *'ubuntu'* ]]; then
+            sudo apt-get -o Dpkg::Use-Pty=0 install ninja-build libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
+          else
+            brew install ninja libgcrypt openssl mbedtls wolfssl
+          fi
+
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
