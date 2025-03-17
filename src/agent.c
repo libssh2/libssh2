@@ -668,6 +668,7 @@ agent_list_identities(LIBSSH2_AGENT *agent)
     while(num_identities--) {
         struct agent_publickey *identity;
         size_t comment_len;
+        size_t method_len;
 
         /* Read the length of the blob */
         len -= 4;
@@ -701,11 +702,39 @@ agent_list_identities(LIBSSH2_AGENT *agent)
         memcpy(identity->external.blob, s, identity->external.blob_len);
         s += identity->external.blob_len;
 
+        if(identity->external.blob_len < sizeof(uint32_t)) {
+            rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
+            LIBSSH2_FREE(agent->session, identity);
+            LIBSSH2_FREE(agent->session, identity->external.blob);
+            goto error;
+        }
+
+        method_len = _libssh2_ntohu32(identity->external.blob);
+        if(method_len > identity->external.blob_len - 4) {
+            rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
+            LIBSSH2_FREE(agent->session, identity);
+            LIBSSH2_FREE(agent->session, identity->external.blob);
+            goto error;
+        }
+
+        identity->external.method = LIBSSH2_ALLOC(agent->session,
+                                                  method_len + 1);
+        if(!identity->external.method) {
+            rc = LIBSSH2_ERROR_ALLOC;
+            LIBSSH2_FREE(agent->session, identity);
+            LIBSSH2_FREE(agent->session, identity->external.blob);
+            goto error;
+        }
+        memcpy(identity->external.method, identity->external.blob + 4,
+               method_len);
+        identity->external.method[method_len] = '\0';
+
         /* Read the length of the comment */
         len -= 4;
         if(len < 0) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
             LIBSSH2_FREE(agent->session, identity->external.blob);
+            LIBSSH2_FREE(agent->session, identity->external.method);
             LIBSSH2_FREE(agent->session, identity);
             goto error;
         }
@@ -715,6 +744,7 @@ agent_list_identities(LIBSSH2_AGENT *agent)
         if(comment_len > (size_t)len) {
             rc = LIBSSH2_ERROR_AGENT_PROTOCOL;
             LIBSSH2_FREE(agent->session, identity->external.blob);
+            LIBSSH2_FREE(agent->session, identity->external.method);
             LIBSSH2_FREE(agent->session, identity);
             goto error;
         }
@@ -726,6 +756,7 @@ agent_list_identities(LIBSSH2_AGENT *agent)
         if(!identity->external.comment) {
             rc = LIBSSH2_ERROR_ALLOC;
             LIBSSH2_FREE(agent->session, identity->external.blob);
+            LIBSSH2_FREE(agent->session, identity->external.method);
             LIBSSH2_FREE(agent->session, identity);
             goto error;
         }
@@ -753,6 +784,7 @@ agent_free_identities(LIBSSH2_AGENT *agent)
         next = _libssh2_list_next(&node->node);
         LIBSSH2_FREE(agent->session, node->external.blob);
         LIBSSH2_FREE(agent->session, node->external.comment);
+        LIBSSH2_FREE(agent->session, node->external.method);
         LIBSSH2_FREE(agent->session, node);
     }
     _libssh2_list_init(&agent->head);
@@ -929,28 +961,24 @@ libssh2_agent_sign(LIBSSH2_AGENT *agent,
 {
     void *abstract = agent;
     int rc;
-    uint32_t methodLen;
 
     if(agent->session->userauth_pblc_state == libssh2_NB_state_idle) {
         memset(&agent->transctx, 0, sizeof(agent->transctx));
         agent->identity = identity->node;
     }
 
-    if(identity->blob_len < sizeof(uint32_t)) {
-        return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-    }
+    if(!method)
+        method = identity->method;
 
-    methodLen = _libssh2_ntohu32(identity->blob);
-
-    if(identity->blob_len < sizeof(uint32_t) + methodLen) {
-        return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
-    }
+    if(!method_len)
+        method_len = (unsigned int)strlen(method);
 
     agent->session->userauth_pblc_method_len = method_len;
     agent->session->userauth_pblc_method = LIBSSH2_ALLOC(agent->session,
-                                                         method_len);
+                                                         method_len + 1);
 
-    memcpy(agent->session->userauth_pblc_method, method, methodLen);
+    memcpy(agent->session->userauth_pblc_method, method, method_len);
+    agent->session->userauth_pblc_method[method_len] = '\0';
 
     rc = agent_sign(agent->session, sig, s_len, data, d_len, &abstract);
 
