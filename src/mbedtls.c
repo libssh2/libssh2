@@ -727,10 +727,13 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     _libssh2_htonu32(p, e_bytes);
     p += 4;
     mbedtls_mpi_write_binary(&rsa->MBEDTLS_PRIVATE(E), p, e_bytes);
+    p += e_bytes;   /* Increment write index after writing to buffer */
+    n_bytes++;      /* Add 1 to bignum size */
 
     _libssh2_htonu32(p, n_bytes);
     p += 4;
     mbedtls_mpi_write_binary(&rsa->MBEDTLS_PRIVATE(N), p, n_bytes);
+    p += n_bytes;   /* Increment write index after writing to buffer*/
 
     *keylen = (size_t)(p - key);
     return key;
