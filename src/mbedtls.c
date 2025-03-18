@@ -706,7 +706,7 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     unsigned char *p;
 
     e_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(E));
-    n_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N));
+    n_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N)) + 1;
 
     /* Key form is "ssh-rsa" + e + n. */
     len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
@@ -728,7 +728,6 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     p += 4;
     mbedtls_mpi_write_binary(&rsa->MBEDTLS_PRIVATE(E), p, e_bytes);
     p += e_bytes;   /* Increment write index after writing to buffer */
-    n_bytes++;      /* Add 1 to bignum size */
 
     _libssh2_htonu32(p, n_bytes);
     p += 4;
