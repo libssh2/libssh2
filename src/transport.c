@@ -384,6 +384,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
     unsigned int auth_len = 0; /* length of the authentication tag */
     const LIBSSH2_MAC_METHOD *remote_mac = NULL; /* The remote MAC, if used */
 
+    block[4] = 0;
+
     /* default clear the bit */
     session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
 
