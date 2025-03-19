@@ -79,9 +79,9 @@
 #if LIBSSH2_ECDSA
 #define PEM_ECDSA_HEADER "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define PEM_ECDSA_FOOTER "-----END OPENSSH PRIVATE KEY-----"
-#endif
 
 #define OPENSSL_PRIVATEKEY_AUTH_MAGIC "openssh-key-v1"
+#endif
 
 /* Define these manually to avoid including <ntstatus.h> and thus
    clashing with <windows.h> symbols. */
