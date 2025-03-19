@@ -243,6 +243,7 @@ write_bn(unsigned char *buf, const BIGNUM *bn, int bn_bytes)
 }
 #endif
 
+#ifdef USE_OPENSSL_3
 static inline void
 _libssh2_swap_bytes(unsigned char *buf, unsigned long len)
 {
@@ -256,6 +257,7 @@ _libssh2_swap_bytes(unsigned char *buf, unsigned long len)
     }
 #endif
 }
+#endif
 
 int
 _libssh2_openssl_random(void *buf, size_t len)
@@ -1095,7 +1097,6 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
     if(ret >= 1)
 #endif
     {
-        rc = 0;
         if(IS_LAST(firstlast)) {
             /* This is the last block.
                encrypt: compute tag, if applicable
@@ -2276,7 +2277,6 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
        tmp_len != LIBSSH2_ED25519_PRIVATE_KEY_LEN) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Wrong private key length");
-        ret = -1;
         goto clean_exit;
     }
 
@@ -2290,7 +2290,6 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
     if(_libssh2_get_string(decrypted, &buf, &tmp_len)) {
         _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                        "Unable to read comment");
-        ret = -1;
         goto clean_exit;
     }
 
@@ -2313,7 +2312,6 @@ gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
         if(*decrypted->dataptr != i) {
             _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                            "Wrong padding");
-            ret = -1;
             goto clean_exit;
         }
         i++;

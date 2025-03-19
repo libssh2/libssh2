@@ -280,11 +280,12 @@ int main(int argc, char *argv[])
     fprintf(stderr, "%ld bytes in %d seconds makes %.1f bytes/sec\n",
             (long)total, duration, (double)total / duration);
 
-    fclose(local);
     libssh2_sftp_close(sftp_handle);
     libssh2_sftp_shutdown(sftp_session);
 
 shutdown:
+
+    fclose(local);
 
     if(session) {
         while(libssh2_session_disconnect(session, "Normal Shutdown") ==

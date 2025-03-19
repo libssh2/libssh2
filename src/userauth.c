@@ -677,7 +677,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     while(!feof(fd) && 1 == fread(&c, 1, 1, fd) && c != '\r' && c != '\n') {
         pubkey_len++;
     }
-    rewind(fd);
+    fseek(fd, 0L, SEEK_SET);
 
     if(pubkey_len <= 1) {
         fclose(fd);
@@ -856,6 +856,9 @@ sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     if(rc)
         return rc;
 
+    if(!privkeyobj)
+        return -1;
+
     libssh2_prepare_iovec(&datavec, 1);
     datavec.iov_base = (void *)LIBSSH2_UNCONST(data);
     datavec.iov_len  = data_len;
@@ -891,6 +894,9 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                               privkey_file->passphrase);
     if(rc)
         return rc;
+
+    if(!privkeyobj)
+        return -1;
 
     libssh2_prepare_iovec(&datavec, 1);
     datavec.iov_base = (void *)LIBSSH2_UNCONST(data);
@@ -1738,7 +1744,7 @@ retry_auth:
 
     if(session->userauth_pblc_state == libssh2_NB_state_sent1) {
         unsigned char *buf;
-        unsigned char *sig;
+        unsigned char *sig = NULL;
         size_t sig_len;
 
         s = buf = LIBSSH2_ALLOC(session, 4 + session->session_id_len
@@ -1770,7 +1776,6 @@ retry_auth:
             session->userauth_pblc_packet = NULL;
             session->userauth_pblc_state = libssh2_NB_state_idle;
 
-            rc = LIBSSH2_ERROR_NONE;
             goto retry_auth;
         }
         else if(rc) {
@@ -1781,6 +1786,11 @@ retry_auth:
             session->userauth_pblc_state = libssh2_NB_state_idle;
             return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                                   "Callback returned error");
+        }
+
+        if(!sig) {
+            return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                                  "Callback did not return signature");
         }
 
         /*
