@@ -9,31 +9,29 @@
 # - `MBEDTLS_INCLUDE_DIR`:   The mbedTLS include directory.
 # - `MBEDCRYPTO_LIBRARY`:    Path to `mbedcrypto` library.
 #
-# Result variables:
+# Defines:
 #
 # - `MBEDTLS_FOUND`:         System has mbedTLS.
-# - `MBEDTLS_INCLUDE_DIRS`:  The mbedTLS include directories.
-# - `MBEDTLS_LIBRARIES`:     The mbedTLS library names.
-# - `MBEDTLS_LIBRARY_DIRS`:  The mbedTLS library directories.
-# - `MBEDTLS_PC_REQUIRES`:   The mbedTLS pkg-config packages.
-# - `MBEDTLS_CFLAGS`:        Required compiler flags.
 # - `MBEDTLS_VERSION`:       Version of mbedTLS.
+# - `libssh2::mbedcrypto`:   mbedcrypto library target.
 
-set(MBEDTLS_PC_REQUIRES "mbedcrypto")
+set(_mbedtls_pc_requires "mbedcrypto")
 
 if(LIBSSH2_USE_PKGCONFIG AND
    NOT DEFINED MBEDTLS_INCLUDE_DIR AND
    NOT DEFINED MBEDCRYPTO_LIBRARY)
   find_package(PkgConfig QUIET)
-  pkg_check_modules(MBEDTLS ${MBEDTLS_PC_REQUIRES})
+  pkg_check_modules(_mbedtls ${_mbedtls_pc_requires})
 endif()
 
-if(MBEDTLS_FOUND)
+if(_mbedtls_FOUND)
   set(MbedTLS_FOUND TRUE)
-  string(REPLACE ";" " " MBEDTLS_CFLAGS "${MBEDTLS_CFLAGS}")
-  message(STATUS "Found MbedTLS (via pkg-config): ${MBEDTLS_INCLUDE_DIRS} (found version \"${MBEDTLS_VERSION}\")")
+  set(MBEDTLS_FOUND TRUE)
+  set(MBEDTLS_VERSION ${_mbedtls_VERSION})
+  string(REPLACE ";" " " _mbedtls_CFLAGS "${_mbedtls_CFLAGS}")
+  message(STATUS "Found MbedTLS (via pkg-config): ${_mbedtls_INCLUDE_DIRS} (found version \"${MBEDTLS_VERSION}\")")
 else()
-  set(MBEDTLS_PC_REQUIRES "")
+  set(_mbedtls_pc_requires "")
 
   find_path(MBEDTLS_INCLUDE_DIR NAMES "mbedtls/version.h")
   find_library(MBEDCRYPTO_LIBRARY NAMES "mbedcrypto" "libmbedcrypto")
@@ -68,9 +66,26 @@ else()
   )
 
   if(MBEDTLS_FOUND)
-    set(MBEDTLS_INCLUDE_DIRS ${MBEDTLS_INCLUDE_DIR})
-    set(MBEDTLS_LIBRARIES    ${MBEDCRYPTO_LIBRARY})
+    set(_mbedtls_INCLUDE_DIRS ${MBEDTLS_INCLUDE_DIR})
+    set(_mbedtls_LIBRARIES    ${MBEDCRYPTO_LIBRARY})
   endif()
 
   mark_as_advanced(MBEDTLS_INCLUDE_DIR MBEDCRYPTO_LIBRARY)
+endif()
+
+if(MBEDTLS_FOUND)
+  if(CMAKE_VERSION VERSION_LESS 3.13)
+    link_directories(${_mbedtls_LIBRARY_DIRS})
+  endif()
+
+  if(NOT TARGET libssh2::mbedcrypto)
+    add_library(libssh2::mbedcrypto INTERFACE IMPORTED)
+    set_target_properties(libssh2::mbedcrypto PROPERTIES
+      VERSION "${MBEDTLS_VERSION}"
+      LIBSSH2_PC_MODULES "${_mbedtls_pc_requires}"
+      INTERFACE_COMPILE_OPTIONS "${_mbedtls_CFLAGS}"
+      INTERFACE_INCLUDE_DIRECTORIES "${_mbedtls_INCLUDE_DIRS}"
+      INTERFACE_LINK_DIRECTORIES "${_mbedtls_LIBRARY_DIRS}"
+      INTERFACE_LINK_LIBRARIES "${_mbedtls_LIBRARIES}")
+  endif()
 endif()
