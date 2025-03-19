@@ -895,6 +895,9 @@ sign_fromfile(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     if(rc)
         return rc;
 
+    if(!privkeyobj)
+        return -1;
+
     libssh2_prepare_iovec(&datavec, 1);
     datavec.iov_base = (void *)LIBSSH2_UNCONST(data);
     datavec.iov_len  = data_len;
