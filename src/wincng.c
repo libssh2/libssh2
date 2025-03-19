@@ -81,16 +81,16 @@
 #define PEM_ECDSA_FOOTER "-----END OPENSSH PRIVATE KEY-----"
 
 #define OPENSSL_PRIVATEKEY_AUTH_MAGIC "openssh-key-v1"
-#endif
 
 /* Define these manually to avoid including <ntstatus.h> and thus
    clashing with <windows.h> symbols. */
-#ifndef STATUS_NOT_SUPPORTED
-#define STATUS_NOT_SUPPORTED ((NTSTATUS)0xC00000BB)
-#endif
-
 #ifndef STATUS_INVALID_SIGNATURE
 #define STATUS_INVALID_SIGNATURE ((NTSTATUS)0xC000A000)
+#endif
+#endif
+
+#ifndef STATUS_NOT_SUPPORTED
+#define STATUS_NOT_SUPPORTED ((NTSTATUS)0xC00000BB)
 #endif
 
 /*******************************************************************/
@@ -3603,6 +3603,9 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
         return -1;
 
     bignum = rnd->bignum;
+
+    if(!bignum)
+        return -1;
 
     if(_libssh2_wincng_random(bignum, length))
         return -1;
