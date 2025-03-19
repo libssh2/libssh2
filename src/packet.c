@@ -890,7 +890,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                                 LIBSSH2_ALLOC(session,
                                                               value_len + 1);
 
-                        if(session->server_sign_algorithms) {
+                        if(value && session->server_sign_algorithms) {
                             memcpy(session->server_sign_algorithms,
                                    value, value_len);
                             session->server_sign_algorithms[value_len] = '\0';
