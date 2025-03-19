@@ -483,6 +483,11 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
         }
     }
 
+    if(!username) {
+        fprintf(stderr, "username not set\n");
+        return 1;
+    }
+
     userauth_list = libssh2_userauth_list(session, username,
                                           (unsigned int)strlen(username));
     if(!userauth_list) {
