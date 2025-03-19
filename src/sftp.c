@@ -954,7 +954,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
 
     if(_libssh2_get_u32(&buf, &(sftp_handle->version))) {
         LIBSSH2_FREE(session, data);
-        rc = LIBSSH2_ERROR_BUFFER_TOO_SMALL;
+        _libssh2_error(session, LIBSSH2_ERROR_BUFFER_TOO_SMALL,
+                       "Data too short when extracting version");
         goto sftp_init_error;
     }
 
