@@ -33,16 +33,14 @@ LTLIBNEWNAME variable on success.
 
 0.3) Add new header to src/Makefile.inc
 
-0.4) Include new source in src/crypto.c
-
-0.5) Add a new block in configure.ac
+0.4) Add a new block in configure.ac
 
 ```
 elif test "$found_crypto" = "newname"; then
   LIBS="${LIBS} ${LTLIBNEWNAME}"
 ```
 
-0.6) Add CMake detection logic to CMakeLists.txt
+0.5) Add CMake detection logic to CMakeLists.txt
 
 1) Crypto library initialization/termination.
 

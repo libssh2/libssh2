@@ -37,7 +37,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
+#include "libssh2_priv.h"
+
+#ifdef LIBSSH2_MBEDTLS
 
 #include <stdlib.h>
 
@@ -1532,4 +1534,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     return NULL;
 }
 
-#endif /* LIBSSH2_CRYPTO_C */
+#endif /* LIBSSH2_MBEDTLS */
