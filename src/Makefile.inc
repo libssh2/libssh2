@@ -53,7 +53,6 @@ HHEADERS =              \
   wincng.h
 
 EXTRA_DIST =            \
-  agent_win.c           \
   blowfish.c            \
   libgcrypt.c           \
   mbedtls.c             \
