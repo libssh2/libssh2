@@ -879,7 +879,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                        (int)value_len, value));
                     }
 
-                    if(name_len == 15 &&
+                    if(name && name_len == 15 &&
                         memcmp(name, "server-sig-algs", 15) == 0) {
                         if(session->server_sign_algorithms) {
                             LIBSSH2_FREE(session,
