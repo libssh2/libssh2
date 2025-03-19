@@ -1744,7 +1744,7 @@ retry_auth:
 
     if(session->userauth_pblc_state == libssh2_NB_state_sent1) {
         unsigned char *buf;
-        unsigned char *sig;
+        unsigned char *sig = NULL;
         size_t sig_len;
 
         s = buf = LIBSSH2_ALLOC(session, 4 + session->session_id_len
@@ -1786,6 +1786,11 @@ retry_auth:
             session->userauth_pblc_state = libssh2_NB_state_idle;
             return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                                   "Callback returned error");
+        }
+
+        if(!sig) {
+            return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                                  "Callback did not return signature");
         }
 
         /*
