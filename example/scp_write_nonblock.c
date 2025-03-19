@@ -274,6 +274,8 @@ int main(int argc, char *argv[])
 
 shutdown:
 
+    fclose(local);
+
     if(session) {
         while(libssh2_session_disconnect(session, "Normal Shutdown") ==
               LIBSSH2_ERROR_EAGAIN);
