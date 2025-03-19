@@ -677,7 +677,7 @@ file_read_publickey(LIBSSH2_SESSION * session, unsigned char **method,
     while(!feof(fd) && 1 == fread(&c, 1, 1, fd) && c != '\r' && c != '\n') {
         pubkey_len++;
     }
-    rewind(fd);
+    fseek(fd, 0L, SEEK_SET);
 
     if(pubkey_len <= 1) {
         fclose(fd);
