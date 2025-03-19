@@ -241,6 +241,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                 unsigned char *decrypt_buffer;
                 int blocksize = session->remote.crypt->blocksize;
 
+                first_block[0] = 0;
+
                 rc = decrypt(session, p->payload + 4,
                              first_block, blocksize, FIRST_BLOCK);
                 if(rc) {
