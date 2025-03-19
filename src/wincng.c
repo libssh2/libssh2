@@ -70,14 +70,16 @@
 
 #ifdef HAVE_LIBCRYPT32
 #include <wincrypt.h>  /* for CryptDecodeObjectEx() */
-#endif
 
 #define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
 #define PEM_RSA_FOOTER "-----END RSA PRIVATE KEY-----"
 #define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
 #define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
+#endif
+#if LIBSSH2_ECDSA
 #define PEM_ECDSA_HEADER "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define PEM_ECDSA_FOOTER "-----END OPENSSH PRIVATE KEY-----"
+#endif
 
 #define OPENSSL_PRIVATEKEY_AUTH_MAGIC "openssh-key-v1"
 
