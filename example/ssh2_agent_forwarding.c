@@ -271,6 +271,8 @@ int main(int argc, char *argv[])
                                         NULL, NULL, NULL, NULL, NULL);
     }
 
+    rc = 0;
+
     if(exitsignal) {
         fprintf(stderr, "\nGot signal: %s\n",
                 exitsignal ? exitsignal : "none");
@@ -303,5 +305,5 @@ shutdown:
     WSACleanup();
 #endif
 
-    return 0;
+    return rc;
 }
