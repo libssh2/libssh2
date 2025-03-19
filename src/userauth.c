@@ -1770,7 +1770,6 @@ retry_auth:
             session->userauth_pblc_packet = NULL;
             session->userauth_pblc_state = libssh2_NB_state_idle;
 
-            rc = LIBSSH2_ERROR_NONE;
             goto retry_auth;
         }
         else if(rc) {
