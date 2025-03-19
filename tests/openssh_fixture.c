@@ -241,14 +241,13 @@ static int is_running_inside_a_container(void)
     FILE *f;
     char *line = NULL;
     size_t len = 0;
-    ssize_t read;
     int found = 0;
     f = fopen(cgroup_filename, "r");
     if(!f) {
         /* Don't go further, we are not in a container */
         return 0;
     }
-    while((read = getline(&line, &len, f)) != -1) {
+    while(getline(&line, &len, f) != -1) {
         if(strstr(line, "docker")) {
             found = 1;
             break;
