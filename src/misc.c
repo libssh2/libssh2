@@ -391,6 +391,7 @@ int _libssh2_base64_decode(LIBSSH2_SESSION *session,
     short v;
     size_t i = 0, len = 0;
 
+    *datalen = 0;
     *data = LIBSSH2_ALLOC(session, src_len);
     d = (unsigned char *) *data;
     if(!d) {
