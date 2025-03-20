@@ -517,15 +517,17 @@ jobs:
           cd bld && ctest -VV --output-on-failure
 
   build_linux_cross_mingw64:
-    name: 'linux -> mingw-w64'
+    name: "linux -> mingw-w64, ${{ matrix.build == 'cmake' && 'CM' || 'AM' }} ${{ matrix.compiler }}"
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        build: [autotools, cmake]
-        compiler: [gcc]
+        include:
+          - { build: 'autotools', compiler: 'gcc' }
+          - { build: 'cmake'    , compiler: 'gcc' }
     env:
+      MAKEFLAGS: -j 5
       TRIPLET: 'x86_64-w64-mingw32'
     steps:
       - name: 'install packages'
@@ -534,29 +536,35 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'autotools autoreconf'
+
+      - name: 'autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
-      - name: 'autotools configure'
-        if: ${{ matrix.build == 'autotools' }}
-        run: mkdir bld && cd bld && ../configure --enable-werror --enable-debug --host="${TRIPLET}" --disable-dependency-tracking || { tail -n 1000 config.log; false; }
-      - name: 'autotools build'
-        if: ${{ matrix.build == 'autotools' }}
-        run: make -C bld -j5
-      - name: 'cmake configure'
-        if: ${{ matrix.build == 'cmake' }}
-        run: |
-          cmake -B bld -G Ninja \
-            -DCMAKE_SYSTEM_NAME=Windows \
-            -DCMAKE_C_COMPILER_TARGET=${TRIPLET} \
-            -DCMAKE_C_COMPILER=${TRIPLET}-gcc \
-            -DCMAKE_UNITY_BUILD=ON \
-            -DENABLE_WERROR=ON \
-            || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
-      - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' }}
-        run: cmake --build bld --parallel 5
+      - name: 'configure'
+        run: |
+          if [ '${{ matrix.build }}' = 'cmake' ]; then
+            cmake -B bld -G Ninja \
+              -DCMAKE_SYSTEM_NAME=Windows \
+              -DCMAKE_C_COMPILER_TARGET=${TRIPLET} \
+              -DCMAKE_C_COMPILER=${TRIPLET}-gcc \
+              -DCMAKE_UNITY_BUILD=ON \
+              -DENABLE_WERROR=ON \
+              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+          else
+            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+              --host="${TRIPLET}" \
+              --disable-dependency-tracking \
+              || { tail -n 1000 config.log; false; }
+          fi
+
+      - name: 'build'
+        run: |
+          if [ '${{ matrix.build }}' = 'cmake' ]; then
+            cmake --build bld
+          else
+            make -C bld
+          fi
 
   build_cygwin:
     name: 'cygwin'
