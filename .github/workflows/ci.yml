@@ -526,12 +526,16 @@ jobs:
         include:
           - { build: 'autotools', compiler: 'gcc' }
           - { build: 'cmake'    , compiler: 'gcc' }
+          - { build: 'cmake'    , compiler: 'clang-tidy' }
     env:
       MAKEFLAGS: -j 5
       TRIPLET: 'x86_64-w64-mingw32'
     steps:
       - name: 'install packages'
-        run: sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 ${{ matrix.build == 'cmake' && 'ninja-build' || '' }}
+        run: |
+          sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 \
+            ${{ matrix.build == 'cmake' && 'ninja-build' || '' }} \
+            ${{ matrix.compiler == 'clang-tidy' && 'clang' || '' }}
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
@@ -544,12 +548,19 @@ jobs:
       - name: 'configure'
         run: |
           if [ '${{ matrix.build }}' = 'cmake' ]; then
+            if [ '${{ matrix.compiler }}' = 'clang-tidy' ]; then
+              options+=' -DLIBSSH2_CLANG_TIDY=ON'
+              options+=' -DCMAKE_C_COMPILER=clang'
+              options+=" -DCMAKE_RC_COMPILER=llvm-windres-$(clang -dumpversion | cut -d '.' -f 1)"
+            else
+              options+=" -DCMAKE_C_COMPILER=${TRIPLET}-gcc"
+            fi
             cmake -B bld -G Ninja \
               -DCMAKE_SYSTEM_NAME=Windows \
               -DCMAKE_C_COMPILER_TARGET=${TRIPLET} \
-              -DCMAKE_C_COMPILER=${TRIPLET}-gcc \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
+              ${options} \
               || { cat bld/CMakeFiles/CMake*.yaml; false; }
           else
             mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
