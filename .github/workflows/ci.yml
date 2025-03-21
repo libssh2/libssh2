@@ -92,11 +92,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [gcc, clang]
+        compiler: [gcc, clang, clang-tidy]
         arch: [amd64]
         crypto: [OpenSSL, Libgcrypt, mbedTLS, wolfSSL]
         build: [cmake]
         zlib: ['OFF', 'ON']
+        exclude:
+          - { compiler: clang-tidy, zlib: 'OFF' }
         include:
           - compiler: gcc
             arch: amd64
@@ -177,7 +179,7 @@ jobs:
             zlib: 'ON'
             options: --disable-static
     env:
-      CC: ${{ matrix.compiler }}
+      CC: ${{ matrix.compiler == 'clang-tidy' && 'clang' || matrix.compiler }}
       mbedtls-version: 3.6.2
       wolfssl-version: 5.7.4
       wolfssl-version-prev: 5.5.4
@@ -504,6 +506,7 @@ jobs:
             -DENABLE_WERROR=ON \
             -DCRYPTO_BACKEND=${crypto} \
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
+            ${{ matrix.compiler == 'clang-tidy' && '-DLIBSSH2_CLANG_TIDY=ON' || '' }} \
             || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
       - name: 'cmake build'
