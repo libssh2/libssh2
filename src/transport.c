@@ -609,7 +609,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                        packet length field that we run MAC over */
                     p->packet_length = _libssh2_ntohu32(block);
                     total_num = 4 + p->packet_length +
-                    remote_mac->mac_len;
+                        remote_mac->mac_len;
                 }
                 else {
                     /* padding_length has not been authenticated yet, but it
@@ -624,7 +624,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                     /* total_num is the number of bytes following the initial
                        (5 bytes) packet length and padding length fields */
                     total_num = p->packet_length - 1 +
-                    (encrypted ? remote_mac->mac_len : 0);
+                        (encrypted ? remote_mac->mac_len : 0);
                 }
             }
             else {
