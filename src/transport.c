@@ -1242,7 +1242,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
             /* Call crypt() one last time so it can be filled in with the
                MAC */
             if(CRYPT_FLAG_L(session, INTEGRATED_MAC)) {
-                int authlen = local_mac->mac_len;
+                int authlen = local_mac ? local_mac->mac_len : 0;
                 assert((size_t)total_length <=
                        packet_length + session->local.crypt->blocksize);
                 if(session->local.crypt->crypt(session,
