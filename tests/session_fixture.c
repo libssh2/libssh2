@@ -438,7 +438,7 @@ static int read_file(const char *path, char **out_buffer, size_t *out_len)
         fprintf(stderr, "Could not determine input size of: %s\n", path);
         return 1;
     }
-    rewind(fp);
+    fseek(fp, 0L, SEEK_SET);
 
     buffer = calloc(1, (size_t)len + 1);
     if(!buffer) {
@@ -481,6 +481,11 @@ int test_auth_pubkey(LIBSSH2_SESSION *session, int flags,
             username = getenv("LOGNAME");
 #endif
         }
+    }
+
+    if(!username) {
+        fprintf(stderr, "username not set\n");
+        return 1;
     }
 
     userauth_list = libssh2_userauth_list(session, username,

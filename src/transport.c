@@ -241,6 +241,8 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                 unsigned char *decrypt_buffer;
                 int blocksize = session->remote.crypt->blocksize;
 
+                first_block[0] = 0;
+
                 rc = decrypt(session, p->payload + 4,
                              first_block, blocksize, FIRST_BLOCK);
                 if(rc) {
@@ -381,6 +383,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
     int firstlast = FIRST_BLOCK; /* if the first or last block to decrypt */
     unsigned int auth_len = 0; /* length of the authentication tag */
     const LIBSSH2_MAC_METHOD *remote_mac = NULL; /* The remote MAC, if used */
+
+    block[4] = 0;
 
     /* default clear the bit */
     session->socket_block_directions &= ~LIBSSH2_SESSION_BLOCK_INBOUND;
@@ -609,7 +613,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                        packet length field that we run MAC over */
                     p->packet_length = _libssh2_ntohu32(block);
                     total_num = 4 + p->packet_length +
-                    remote_mac->mac_len;
+                        remote_mac->mac_len;
                 }
                 else {
                     /* padding_length has not been authenticated yet, but it
@@ -624,7 +628,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                     /* total_num is the number of bytes following the initial
                        (5 bytes) packet length and padding length fields */
                     total_num = p->packet_length - 1 +
-                    (encrypted ? remote_mac->mac_len : 0);
+                        (encrypted && remote_mac ? remote_mac->mac_len : 0);
                 }
             }
             else {
@@ -1238,7 +1242,7 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
             /* Call crypt() one last time so it can be filled in with the
                MAC */
             if(CRYPT_FLAG_L(session, INTEGRATED_MAC)) {
-                int authlen = local_mac->mac_len;
+                int authlen = local_mac ? local_mac->mac_len : 0;
                 assert((size_t)total_length <=
                        packet_length + session->local.crypt->blocksize);
                 if(session->local.crypt->crypt(session,

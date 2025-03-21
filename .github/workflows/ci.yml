@@ -92,32 +92,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [gcc, clang]
+        compiler: [gcc, clang, clang-tidy]
         arch: [amd64]
         crypto: [OpenSSL, Libgcrypt, mbedTLS, wolfSSL]
-        build: [cmake]
+        build: ['CM']
         zlib: ['OFF', 'ON']
+        exclude:
+          - { compiler: clang-tidy, zlib: 'OFF' }
         include:
           - compiler: gcc
             arch: amd64
             crypto: OpenSSL
-            build: autotools
+            build: AM
             zlib: 'OFF'
           - compiler: clang
             arch: amd64
             crypto: OpenSSL
-            build: autotools
+            build: AM
             zlib: 'OFF'
           - compiler: clang
             arch: amd64
             crypto: OpenSSL
-            build: autotools
+            build: AM
             zlib: 'ON'
             target: 'distcheck'
           - compiler: clang
             arch: amd64
             crypto: OpenSSL
-            build: autotools
+            build: AM
             zlib: 'ON'
             target: 'maketgz'
           - compiler: gcc
@@ -173,11 +175,11 @@ jobs:
           - compiler: clang
             arch: i386
             crypto: Libgcrypt
-            build: autotools
+            build: AM
             zlib: 'ON'
             options: --disable-static
     env:
-      CC: ${{ matrix.compiler }}
+      CC: ${{ matrix.compiler == 'clang-tidy' && 'clang' || matrix.compiler }}
       mbedtls-version: 3.6.2
       wolfssl-version: 5.7.4
       wolfssl-version-prev: 5.5.4
@@ -432,11 +434,11 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'autotools autoreconf'
-        if: ${{ matrix.build == 'autotools' }}
+      - name: 'AM autoreconf'
+        if: ${{ matrix.build == 'AM' }}
         run: autoreconf -fi
-      - name: 'autotools configure'
-        if: ${{ matrix.build == 'autotools' && matrix.target != 'maketgz' }}
+      - name: 'AM configure'
+        if: ${{ matrix.build == 'AM' && matrix.target != 'maketgz' }}
         run: |
           if [ '${{ matrix.arch }}' = 'i386' ]; then
             crossoptions='--host=i686-pc-linux-gnu'
@@ -446,14 +448,14 @@ jobs:
             ${crossoptions} ${{ matrix.options }} \
             --disable-dependency-tracking || { tail -n 1000 config.log; false; }
 
-      - name: 'autotools build'
-        if: ${{ matrix.build == 'autotools' && !matrix.target }}
+      - name: 'AM build'
+        if: ${{ matrix.build == 'AM' && !matrix.target }}
         run: make -C bld -j5
-      - name: 'autotools tests'
-        if: ${{ matrix.build == 'autotools' && !matrix.target }}
+      - name: 'AM tests'
+        if: ${{ matrix.build == 'AM' && !matrix.target }}
         timeout-minutes: 10
         run: make -C bld check V=1 || { cat bld/tests/*.log; false; }
-      - name: 'autotools distcheck'
+      - name: 'AM distcheck'
         if: ${{ matrix.target == 'distcheck' }}
         timeout-minutes: 10
         run: make -C bld distcheck
@@ -483,8 +485,8 @@ jobs:
           diff -u <(find include -name '*.h' -printf '%f\n'                    | sort) <(find "${HOME}/temp/include"        -name '*.h' -printf '%f\n' | sort)
           rm -rf libssh2-99.98.97
 
-      - name: 'cmake configure'
-        if: ${{ matrix.build == 'cmake' }}
+      - name: 'CM configure'
+        if: ${{ matrix.build == 'CM' }}
         run: |
           if [ '${{ matrix.crypto }}' = 'BoringSSL' ] || \
              [ '${{ matrix.crypto }}' = 'AWS-LC' ] || \
@@ -504,59 +506,79 @@ jobs:
             -DENABLE_WERROR=ON \
             -DCRYPTO_BACKEND=${crypto} \
             -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
+            ${{ matrix.compiler == 'clang-tidy' && '-DLIBSSH2_CLANG_TIDY=ON' || '' }} \
             || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
-      - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' }}
+      - name: 'CM build'
+        if: ${{ matrix.build == 'CM' }}
         run: cmake --build bld --parallel 5 --target package
-      - name: 'cmake tests'
-        if: ${{ matrix.build == 'cmake' }}
+      - name: 'CM tests'
+        if: ${{ matrix.build == 'CM' }}
         timeout-minutes: 10
         run: |
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
           cd bld && ctest -VV --output-on-failure
 
   build_linux_cross_mingw64:
-    name: 'linux -> mingw-w64'
+    name: "linux -> mingw-w64, ${{ matrix.build }} ${{ matrix.compiler }}"
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        build: [autotools, cmake]
-        compiler: [gcc]
+        include:
+          - { build: 'AM', compiler: 'gcc' }
+          - { build: 'CM', compiler: 'gcc' }
+          - { build: 'CM', compiler: 'clang-tidy' }
     env:
+      MAKEFLAGS: -j 5
       TRIPLET: 'x86_64-w64-mingw32'
     steps:
       - name: 'install packages'
-        run: sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 ${{ matrix.build == 'cmake' && 'ninja-build' || '' }}
+        run: |
+          sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 \
+            ${{ matrix.build == 'CM' && 'ninja-build' || '' }} \
+            ${{ matrix.compiler == 'clang-tidy' && 'clang' || '' }}
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'autotools autoreconf'
-        if: ${{ matrix.build == 'autotools' }}
-        run: autoreconf -fi
-      - name: 'autotools configure'
-        if: ${{ matrix.build == 'autotools' }}
-        run: mkdir bld && cd bld && ../configure --enable-werror --enable-debug --host="${TRIPLET}" --disable-dependency-tracking || { tail -n 1000 config.log; false; }
-      - name: 'autotools build'
-        if: ${{ matrix.build == 'autotools' }}
-        run: make -C bld -j5
-      - name: 'cmake configure'
-        if: ${{ matrix.build == 'cmake' }}
-        run: |
-          cmake -B bld -G Ninja \
-            -DCMAKE_SYSTEM_NAME=Windows \
-            -DCMAKE_C_COMPILER_TARGET=${TRIPLET} \
-            -DCMAKE_C_COMPILER=${TRIPLET}-gcc \
-            -DCMAKE_UNITY_BUILD=ON \
-            -DENABLE_WERROR=ON \
-            || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
-      - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' }}
-        run: cmake --build bld --parallel 5
+      - name: 'autoreconf'
+        if: ${{ matrix.build == 'AM' }}
+        run: autoreconf -fi
+
+      - name: 'configure'
+        run: |
+          if [ '${{ matrix.build }}' = 'CM' ]; then
+            if [ '${{ matrix.compiler }}' = 'clang-tidy' ]; then
+              options+=' -DLIBSSH2_CLANG_TIDY=ON'
+              options+=' -DCMAKE_C_COMPILER=clang'
+              options+=" -DCMAKE_RC_COMPILER=llvm-windres-$(clang -dumpversion | cut -d '.' -f 1)"
+            else
+              options+=" -DCMAKE_C_COMPILER=${TRIPLET}-gcc"
+            fi
+            cmake -B bld -G Ninja \
+              -DCMAKE_SYSTEM_NAME=Windows \
+              -DCMAKE_C_COMPILER_TARGET=${TRIPLET} \
+              -DCMAKE_UNITY_BUILD=ON \
+              -DENABLE_WERROR=ON \
+              ${options} \
+              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+          else
+            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+              --host="${TRIPLET}" \
+              --disable-dependency-tracking \
+              || { tail -n 1000 config.log; false; }
+          fi
+
+      - name: 'build'
+        run: |
+          if [ '${{ matrix.build }}' = 'CM' ]; then
+            cmake --build bld
+          else
+            make -C bld
+          fi
 
   build_cygwin:
     name: 'cygwin'
@@ -568,22 +590,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { build: 'automake', platform: 'x86_64', compiler: 'gcc' }
-          - { build: 'cmake'   , platform: 'x86_64', compiler: 'gcc' }
+          - { build: 'AM', platform: 'x86_64', compiler: 'gcc' }
+          - { build: 'CM', platform: 'x86_64', compiler: 'gcc' }
     steps:
       - run: git config --global core.autocrlf input
 
       - uses: cygwin/cygwin-install-action@f61179d72284ceddc397ed07ddb444d82bf9e559 # v5
         with:
           platform: ${{ matrix.platform }}
-          packages: ${{ matrix.build == 'automake' && 'autoconf libtool make' || 'ninja' }} ${{ matrix.build }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
+          packages: ${{ matrix.build == 'AM' && 'automake autoconf libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'autotools'
-        if: ${{ matrix.build == 'automake' }}
+      - name: 'AM'
+        if: ${{ matrix.build == 'AM' }}
         timeout-minutes: 10
         shell: C:\cygwin\bin\bash.exe '{0}'
         run: |
@@ -596,8 +618,8 @@ jobs:
           make -j5
           make check V=1 || { cat tests/*.log; false; }
 
-      - name: 'cmake'
-        if: ${{ matrix.build == 'cmake' }}
+      - name: 'CM'
+        if: ${{ matrix.build == 'CM' }}
         timeout-minutes: 10
         shell: C:\cygwin\bin\bash.exe '{0}'
         run: |
@@ -623,42 +645,42 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { build: 'autotools', sys: msys   , crypto: openssl, env: x86_64 }
-          - { build: 'cmake'    , sys: msys   , crypto: OpenSSL, env: x86_64 }
-          - { build: 'autotools', sys: mingw64, crypto: wincng , env: x86_64 }
-          - { build: 'autotools', sys: mingw64, crypto: openssl, env: x86_64 }
-          - { build: 'autotools', sys: mingw32, crypto: openssl, env: i686 }
-          - { build: 'autotools', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
-          - { build: 'autotools', sys: clang64, crypto: openssl, env: clang-x86_64 }
-          - { build: 'autotools', sys: clang64, crypto: wincng , env: clang-x86_64 }
-          - { build: 'cmake'    , sys: ucrt64 , crypto: OpenSSL, env: ucrt-x86_64 }
-          - { build: 'cmake'    , sys: clang64, crypto: OpenSSL, env: clang-x86_64 }
-          - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'uwp' }
-          - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'no-options' }
+          - { build: 'AM', sys: msys   , crypto: openssl, env: x86_64 }
+          - { build: 'CM', sys: msys   , crypto: OpenSSL, env: x86_64 }
+          - { build: 'AM', sys: mingw64, crypto: wincng , env: x86_64 }
+          - { build: 'AM', sys: mingw64, crypto: openssl, env: x86_64 }
+          - { build: 'AM', sys: mingw32, crypto: openssl, env: i686 }
+          - { build: 'AM', sys: ucrt64 , crypto: openssl, env: ucrt-x86_64 }
+          - { build: 'AM', sys: clang64, crypto: openssl, env: clang-x86_64 }
+          - { build: 'AM', sys: clang64, crypto: wincng , env: clang-x86_64 }
+          - { build: 'CM', sys: ucrt64 , crypto: OpenSSL, env: ucrt-x86_64 }
+          - { build: 'CM', sys: clang64, crypto: OpenSSL, env: clang-x86_64 }
+          - { build: 'CM', sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'uwp' }
+          - { build: 'CM', sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'no-options' }
     steps:
       - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
         if: ${{ matrix.sys == 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
-          install: gcc ${{ matrix.build }} ${{ matrix.build == 'autotools' && 'make' || 'ninja' }} openssl-devel zlib-devel
+          install: gcc ${{ matrix.build == 'AM' && 'autotools make' || 'cmake ninja' }} openssl-devel zlib-devel
       - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
         if: ${{ matrix.sys != 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
           install: >-
             mingw-w64-${{ matrix.env }}-cc
-            mingw-w64-${{ matrix.env }}-${{ matrix.build }} ${{ matrix.build == 'autotools' && 'make' || '' }}
+            mingw-w64-${{ matrix.env }}-${{ matrix.build == 'AM' && 'autotools' || 'cmake' }} ${{ matrix.build == 'AM' && 'make' || '' }}
             mingw-w64-${{ matrix.env }}-openssl
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'autotools autoreconf'
-        if: ${{ matrix.build == 'autotools' }}
+      - name: 'AM autoreconf'
+        if: ${{ matrix.build == 'AM' }}
         shell: msys2 {0}
         run: autoreconf -fi
-      - name: 'autotools configure'
-        if: ${{ matrix.build == 'autotools' }}
+      - name: 'AM configure'
+        if: ${{ matrix.build == 'AM' }}
         env:
           SSHD: 'C:/Program Files/Git/usr/bin/sshd.exe'
         shell: msys2 {0}
@@ -674,17 +696,17 @@ jobs:
             ${options} \
             --disable-dependency-tracking || { tail -n 1000 config.log; false; }
 
-      - name: 'autotools build'
-        if: ${{ matrix.build == 'autotools' }}
+      - name: 'AM build'
+        if: ${{ matrix.build == 'AM' }}
         shell: msys2 {0}
         run: make -C bld -j5
-      - name: 'autotools tests'
-        if: ${{ matrix.build == 'autotools' }}
+      - name: 'AM tests'
+        if: ${{ matrix.build == 'AM' }}
         timeout-minutes: 10
         shell: msys2 {0}
         run: make -C bld check V=1 || { cat bld/tests/*.log; false; }
-      - name: 'cmake configure'
-        if: ${{ matrix.build == 'cmake' }}
+      - name: 'CM configure'
+        if: ${{ matrix.build == 'CM' }}
         shell: msys2 {0}
         run: |
           if [[ '${{ matrix.env }}' = 'clang'* ]]; then
@@ -716,13 +738,13 @@ jobs:
             -DCMAKE_VERBOSE_MAKEFILE=ON \
             || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
-      - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' }}
+      - name: 'CM build'
+        if: ${{ matrix.build == 'CM' }}
         shell: msys2 {0}
         run: cmake --build bld --parallel 5
-      - name: 'cmake tests'
+      - name: 'CM tests'
         # UWP missing 'msvcr120_app.dll', fails with exit code 0xc0000135
-        if: ${{ matrix.build == 'cmake' && matrix.test != 'uwp' }}
+        if: ${{ matrix.build == 'CM' && matrix.test != 'uwp' }}
         timeout-minutes: 10
         shell: msys2 {0}
         run: cd bld && ctest -VV --output-on-failure
@@ -746,7 +768,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'cmake configure'
+      - name: 'CM configure'
         shell: bash
         run: |
           options=''
@@ -774,9 +796,9 @@ jobs:
             -DRUN_SSHD_TESTS=OFF \
             || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
-      - name: 'cmake build'
+      - name: 'CM build'
         run: cmake --build bld --parallel 5 --target package --config Release
-      - name: 'cmake tests'
+      - name: 'CM tests'
         # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
         if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
         timeout-minutes: 10
@@ -789,7 +811,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [autotools, cmake]
+        build: [AM, CM]
         crypto:
           - name: 'OpenSSL 3'
             install: openssl
@@ -817,15 +839,15 @@ jobs:
             cmake: -DCRYPTO_BACKEND=wolfSSL
     steps:
       - name: 'install packages'
-        run: brew install ${{ matrix.build == 'autotools' && 'automake libtool' || 'ninja' }} ${{ matrix.crypto.install }}
+        run: brew install ${{ matrix.build == 'AM' && 'automake libtool' || 'ninja' }} ${{ matrix.crypto.install }}
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'autotools autoreconf'
-        if: ${{ matrix.build == 'autotools' }}
+      - name: 'AM autoreconf'
+        if: ${{ matrix.build == 'AM' }}
         run: autoreconf -fi
-      - name: 'autotools configure'
-        if: ${{ matrix.build == 'autotools' }}
+      - name: 'AM configure'
+        if: ${{ matrix.build == 'AM' }}
         run: |
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-libz ${{ matrix.crypto.configure }} \
@@ -833,15 +855,15 @@ jobs:
             --disable-sshd-tests \
             --disable-dependency-tracking || { tail -n 1000 config.log; false; }
 
-      - name: 'autotools build'
-        if: ${{ matrix.build == 'autotools' }}
+      - name: 'AM build'
+        if: ${{ matrix.build == 'AM' }}
         run: make -C bld -j4 V=1
-      - name: 'autotools tests'
-        if: ${{ matrix.build == 'autotools' }}
+      - name: 'AM tests'
+        if: ${{ matrix.build == 'AM' }}
         timeout-minutes: 10
         run: make -C bld check V=1 || { cat bld/tests/*.log; false; }
-      - name: 'cmake configure'
-        if: ${{ matrix.build == 'cmake' }}
+      - name: 'CM configure'
+        if: ${{ matrix.build == 'CM' }}
         run: |
           cmake -B bld -G Ninja ${{ matrix.crypto.cmake }} \
             -DCMAKE_UNITY_BUILD=ON \
@@ -852,16 +874,16 @@ jobs:
             -DRUN_SSHD_TESTS=OFF \
             || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
-      - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' }}
+      - name: 'CM build'
+        if: ${{ matrix.build == 'CM' }}
         run: cmake --build bld --parallel 4
-      - name: 'cmake tests'
-        if: ${{ matrix.build == 'cmake' }}
+      - name: 'CM tests'
+        if: ${{ matrix.build == 'CM' }}
         timeout-minutes: 10
         run: cd bld && ctest -VV --output-on-failure
 
   build_netbsd:
-    name: 'NetBSD (cmake, openssl, clang)'
+    name: 'NetBSD (CM, openssl, clang)'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -872,7 +894,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'cmake'
+      - name: 'CM'
         uses: cross-platform-actions/action@fe0167d8082ac584754ef3ffb567fded22642c7d # v0.27.0
         with:
           operating_system: 'netbsd'
@@ -893,7 +915,7 @@ jobs:
             cmake --build bld --parallel 3
 
   build_openbsd:
-    name: 'OpenBSD (cmake, libressl, clang)'
+    name: 'OpenBSD (CM, libressl, clang)'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -904,7 +926,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'cmake'
+      - name: 'CM'
         uses: cross-platform-actions/action@fe0167d8082ac584754ef3ffb567fded22642c7d # v0.27.0
         with:
           operating_system: 'openbsd'
@@ -926,7 +948,7 @@ jobs:
             cmake --build bld --parallel 3
 
   build_freebsd:
-    name: 'FreeBSD (autotools, openssl, clang)'
+    name: 'FreeBSD (AM, openssl, clang)'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -939,7 +961,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'autotools'
+      - name: 'AM'
         uses: cross-platform-actions/action@fe0167d8082ac584754ef3ffb567fded22642c7d # v0.27.0
         with:
           operating_system: 'freebsd'
@@ -958,14 +980,14 @@ jobs:
             make check V=1 || { cat tests/*.log; false; }
 
   build_omnios:
-    name: 'OmniOS (autotools, openssl, gcc, amd64)'
+    name: 'OmniOS (AM, openssl, gcc, amd64)'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-      - name: 'autotools'
+      - name: 'AM'
         uses: vmactions/omnios-vm@16b5996777bc675acd3d537f13df536a526cd16d # v1
         with:
           usesh: true

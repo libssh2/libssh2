@@ -175,6 +175,13 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                                     host, hostlen);
         if(rc)
             goto error;
+
+        if(!salt) {
+            rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_INVAL,
+                                "Salt is NULL");
+            goto error;
+        }
+
         entry->name = ptr;
         entry->name_len = ptrlen;
 

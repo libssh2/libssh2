@@ -269,6 +269,23 @@ if(LIBSSH2_NO_DEPRECATED)
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2_NO_DEPRECATED")
 endif()
 
+option(LIBSSH2_CLANG_TIDY "Run the build through clang-tidy" OFF)
+if(LIBSSH2_CLANG_TIDY)
+  set(CMAKE_UNITY_BUILD OFF)
+  set(_tidy_checks "")
+  list(APPEND _tidy_checks "-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling")
+  string(REPLACE ";" "," _tidy_checks "${_tidy_checks}")
+  find_program(CLANG_TIDY NAMES "clang-tidy" REQUIRED)
+  set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY}" "-checks=${_tidy_checks}" "-quiet")
+  unset(_tidy_checks)
+  if(ENABLE_WERROR)
+    list(APPEND CMAKE_C_CLANG_TIDY "--warnings-as-errors=*")
+  endif()
+  if(LIBSSH2_CLANG_TIDYFLAGS)
+    list(APPEND CMAKE_C_CLANG_TIDY ${LIBSSH2_CLANG_TIDYFLAGS})
+  endif()
+endif()
+
 # Auto-detection
 
 # Prefill values with known detection results

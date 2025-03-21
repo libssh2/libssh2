@@ -52,18 +52,19 @@
 
 typedef struct _LIBSSH2_PUBLICKEY_CODE_LIST
 {
-    int code;
     const char *name;
     int name_len;
+    int code;
 } LIBSSH2_PUBLICKEY_CODE_LIST;
+
+#define STRLEN(s) s, sizeof(s) - 1
 
 static const LIBSSH2_PUBLICKEY_CODE_LIST publickey_response_codes[] =
 {
-    {LIBSSH2_PUBLICKEY_RESPONSE_STATUS, "status", sizeof("status") - 1},
-    {LIBSSH2_PUBLICKEY_RESPONSE_VERSION, "version", sizeof("version") - 1},
-    {LIBSSH2_PUBLICKEY_RESPONSE_PUBLICKEY, "publickey",
-     sizeof("publickey") - 1},
-    {0, NULL, 0}
+    {STRLEN("status"), LIBSSH2_PUBLICKEY_RESPONSE_STATUS},
+    {STRLEN("version"), LIBSSH2_PUBLICKEY_RESPONSE_VERSION},
+    {STRLEN("publickey"), LIBSSH2_PUBLICKEY_RESPONSE_PUBLICKEY},
+    {NULL, 0, 0}
 };
 
 /* PUBLICKEY status codes -- IETF defined */
@@ -80,25 +81,19 @@ static const LIBSSH2_PUBLICKEY_CODE_LIST publickey_response_codes[] =
 #define LIBSSH2_PUBLICKEY_STATUS_CODE_MAX       8
 
 static const LIBSSH2_PUBLICKEY_CODE_LIST publickey_status_codes[] = {
-    {LIBSSH2_PUBLICKEY_SUCCESS, "success", sizeof("success") - 1},
-    {LIBSSH2_PUBLICKEY_ACCESS_DENIED, "access denied",
-     sizeof("access denied") - 1},
-    {LIBSSH2_PUBLICKEY_STORAGE_EXCEEDED, "storage exceeded",
-     sizeof("storage exceeded") - 1},
-    {LIBSSH2_PUBLICKEY_VERSION_NOT_SUPPORTED, "version not supported",
-     sizeof("version not supported") - 1},
-    {LIBSSH2_PUBLICKEY_KEY_NOT_FOUND, "key not found",
-     sizeof("key not found") - 1},
-    {LIBSSH2_PUBLICKEY_KEY_NOT_SUPPORTED, "key not supported",
-     sizeof("key not supported") - 1},
-    {LIBSSH2_PUBLICKEY_KEY_ALREADY_PRESENT, "key already present",
-     sizeof("key already present") - 1},
-    {LIBSSH2_PUBLICKEY_GENERAL_FAILURE, "general failure",
-     sizeof("general failure") - 1},
-    {LIBSSH2_PUBLICKEY_REQUEST_NOT_SUPPORTED, "request not supported",
-     sizeof("request not supported") - 1},
-    {0, NULL, 0}
+    {STRLEN("success"), LIBSSH2_PUBLICKEY_SUCCESS},
+    {STRLEN("access denied"), LIBSSH2_PUBLICKEY_ACCESS_DENIED},
+    {STRLEN("storage exceeded"), LIBSSH2_PUBLICKEY_STORAGE_EXCEEDED},
+    {STRLEN("version not supported"), LIBSSH2_PUBLICKEY_VERSION_NOT_SUPPORTED},
+    {STRLEN("key not found"), LIBSSH2_PUBLICKEY_KEY_NOT_FOUND},
+    {STRLEN("key not supported"), LIBSSH2_PUBLICKEY_KEY_NOT_SUPPORTED},
+    {STRLEN("key already present"), LIBSSH2_PUBLICKEY_KEY_ALREADY_PRESENT},
+    {STRLEN("general failure"), LIBSSH2_PUBLICKEY_GENERAL_FAILURE},
+    {STRLEN("request not supported"), LIBSSH2_PUBLICKEY_REQUEST_NOT_SUPPORTED},
+    {NULL, 0, 0}
 };
+
+#undef STRLEN
 
 /*
  * publickey_status_error

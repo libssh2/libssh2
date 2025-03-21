@@ -38,7 +38,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
+#include "libssh2_priv.h"
+
+#ifdef LIBSSH2_WINCNG
 
 /* required for cross-compilation against the w64 mingw-runtime package */
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
@@ -68,12 +70,13 @@
 
 #ifdef HAVE_LIBCRYPT32
 #include <wincrypt.h>  /* for CryptDecodeObjectEx() */
-#endif
 
 #define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
 #define PEM_RSA_FOOTER "-----END RSA PRIVATE KEY-----"
 #define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
 #define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
+#endif
+#if LIBSSH2_ECDSA
 #define PEM_ECDSA_HEADER "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define PEM_ECDSA_FOOTER "-----END OPENSSH PRIVATE KEY-----"
 
@@ -81,12 +84,13 @@
 
 /* Define these manually to avoid including <ntstatus.h> and thus
    clashing with <windows.h> symbols. */
-#ifndef STATUS_NOT_SUPPORTED
-#define STATUS_NOT_SUPPORTED ((NTSTATUS)0xC00000BB)
-#endif
-
 #ifndef STATUS_INVALID_SIGNATURE
 #define STATUS_INVALID_SIGNATURE ((NTSTATUS)0xC000A000)
+#endif
+#endif
+
+#ifndef STATUS_NOT_SUPPORTED
+#define STATUS_NOT_SUPPORTED ((NTSTATUS)0xC00000BB)
 #endif
 
 /*******************************************************************/
@@ -3600,6 +3604,9 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
 
     bignum = rnd->bignum;
 
+    if(!bignum)
+        return -1;
+
     if(_libssh2_wincng_random(bignum, length))
         return -1;
 
@@ -4201,4 +4208,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     return NULL;
 }
 
-#endif /* LIBSSH2_CRYPTO_C */
+#endif /* LIBSSH2_WINCNG */
