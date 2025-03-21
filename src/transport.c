@@ -628,7 +628,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                     /* total_num is the number of bytes following the initial
                        (5 bytes) packet length and padding length fields */
                     total_num = p->packet_length - 1 +
-                        (encrypted ? remote_mac->mac_len : 0);
+                        (encrypted && remote_mac ? remote_mac->mac_len : 0);
                 }
             }
             else {
