@@ -146,7 +146,7 @@ echo "${count}..${total}"
 export OPENSSH_NO_DOCKER=1
 
 for test in ${tests}; do
-  if "${test}"; then
+  if ${LIBSSH2_TEST_EXE_RUNNER:-} "${test}"; then
     res='ok'
   else
     testerr=$?
