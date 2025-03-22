@@ -17,7 +17,7 @@ if(ENABLE_WERROR)
     string(APPEND CMAKE_CXX_FLAGS " -Werror")
   endif()
 
-  if(((CMAKE_COMPILER_IS_GNUCC AND
+  if(((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
        NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 5.0 AND
        NOT CMAKE_VERSION VERSION_LESS 3.23.0) OR  # to avoid check_symbol_exists() conflicting with GCC -pedantic-errors
      CMAKE_C_COMPILER_ID MATCHES "Clang"))
@@ -40,7 +40,7 @@ if(MSVC)
 endif()
 
 if(PICKY_COMPILER)
-  if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+  if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 
     # https://clang.llvm.org/docs/DiagnosticsReference.html
     # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
