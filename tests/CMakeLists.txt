@@ -47,7 +47,7 @@ include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 list(APPEND DOCKER_TESTS ${DOCKER_TESTS_STATIC})
 list(APPEND STANDALONE_TESTS ${STANDALONE_TESTS_STATIC})
 
-if(CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   find_program(GCOV_PATH "gcov")
   if(GCOV_PATH)
     set(_gcov_cflags "-g" "--coverage")
