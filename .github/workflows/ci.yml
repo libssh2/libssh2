@@ -600,6 +600,7 @@ jobs:
           platform: ${{ matrix.platform }}
           packages: ${{ matrix.build == 'automake' && 'autoconf libtool make' || 'ninja' }} ${{ matrix.build }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
+          install-dir: D:\cygwin
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
@@ -607,7 +608,7 @@ jobs:
       - name: 'autotools'
         if: ${{ matrix.build == 'automake' }}
         timeout-minutes: 10
-        shell: C:\cygwin\bin\bash.exe '{0}'
+        shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
           export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           autoreconf -fi
@@ -621,7 +622,7 @@ jobs:
       - name: 'cmake'
         if: ${{ matrix.build == 'cmake' }}
         timeout-minutes: 10
-        shell: C:\cygwin\bin\bash.exe '{0}'
+        shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
           export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           cmake -B bld -G Ninja \
