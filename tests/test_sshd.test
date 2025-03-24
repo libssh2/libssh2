@@ -102,10 +102,14 @@ if [ -n "${SSH}" ]; then
   echo "# ssh log: '${logfcli}'"
   chmod go-rwx "${PRIVKEY}"
   if [[ "${uname}" = *'_NT'* ]]; then
-    export MSYS2_ARG_CONV_EXCL='/reset'
-    icacls "${PRIVKEY}" /reset
-    icacls "${PRIVKEY}" /grant:r "${USERNAME}:(R)"
-    icacls "${PRIVKEY}" /inheritance:r
+    if [ -x /bin/setfacl ]; then
+      /bin/setfacl --remove-all "${PRIVKEY}"
+    else
+      export MSYS2_ARG_CONV_EXCL='/reset'
+      icacls "${PRIVKEY}" /reset
+      icacls "${PRIVKEY}" /grant:r "${USERNAME}:(R)"
+      icacls "${PRIVKEY}" /inheritance:r
+    fi
   fi
   count=1
   # shellcheck disable=SC2086
