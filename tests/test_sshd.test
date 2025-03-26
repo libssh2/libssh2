@@ -45,7 +45,7 @@ fi
 
 d="$(cd "${d}" || exit; pwd)"  # sshd needs absolute paths
 
-SSHD="$(command -v "${SSH:-sshd}" || true)"
+SSHD="$(command -v "${SSHD:-sshd}" || true)"
 [[ "${uname}" = *'_NT'* ]] && SSHD="$(cygpath "${SSHD}")"
 ver="$("${SSHD}" -V 2>&1 || true)"
 if [[ "${ver}" =~ OpenSSH_[a-zA-Z0-9_\ .,]+ ]]; then
