@@ -56,8 +56,8 @@ struct LIBSSH2_SFTP_ATTRIBUTES {
     unsigned long uid;
     unsigned long gid;
     unsigned long permissions;
-    unsigned long atime;
-    unsigned long mtime;
+    time_t atime;
+    time_t mtime;
 };
 .fi
 .SH RETURN VALUE
