@@ -258,6 +258,10 @@ foreach(_lib IN LISTS LIBSSH2_LIBS)
     if(_modules)
       list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "${_modules}")
     endif()
+  elseif(_lib MATCHES "^-")  # '-framework <name>'
+    list(APPEND _ldflags "${_lib}")
+  else()
+    list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_lib}")
   endif()
 endforeach()
 
