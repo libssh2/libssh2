@@ -72,7 +72,7 @@ if(WOLFSSL_FOUND)
   if(NOT TARGET libssh2::wolfssl)
     add_library(libssh2::wolfssl INTERFACE IMPORTED)
     set_target_properties(libssh2::wolfssl PROPERTIES
-      LIBSSH2_PC_MODULES "${_wolfssl_pc_requires}"
+      INTERFACE_LIBSSH2_PC_MODULES "${_wolfssl_pc_requires}"
       INTERFACE_COMPILE_OPTIONS "${_wolfssl_CFLAGS}"
       INTERFACE_INCLUDE_DIRECTORIES "${_wolfssl_INCLUDE_DIRS}"
       INTERFACE_LINK_DIRECTORIES "${_wolfssl_LIBRARY_DIRS}"

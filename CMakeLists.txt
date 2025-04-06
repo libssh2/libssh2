@@ -58,7 +58,7 @@ function(libssh2_dumptargetprops _target)  # Dump all target properties
     string(REPLACE "\n" ";" _cmake_property_list "${_cmake_property_list}")
     list(REMOVE_DUPLICATES _cmake_property_list)
     list(REMOVE_ITEM _cmake_property_list "")
-    list(APPEND _cmake_property_list "LIBSSH2_PC_MODULES")
+    list(APPEND _cmake_property_list "INTERFACE_LIBSSH2_PC_MODULES")
     foreach(_prop IN LISTS _cmake_property_list)
       if(_prop MATCHES "<CONFIG>")
         foreach(_config IN ITEMS "DEBUG" "RELEASE" "MINSIZEREL" "RELWITHDEBINFO")
@@ -419,7 +419,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
     set(CRYPTO_BACKEND "OpenSSL")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
     list(APPEND LIBSSH2_LIBS OpenSSL::Crypto)
-    set_target_properties(OpenSSL::Crypto PROPERTIES LIBSSH2_PC_MODULES "libcrypto")
+    set_target_properties(OpenSSL::Crypto PROPERTIES INTERFACE_LIBSSH2_PC_MODULES "libcrypto")
 
     if(WIN32)
       # Statically linking to OpenSSL requires crypt32 for some Windows APIs.

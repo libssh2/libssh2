@@ -68,7 +68,7 @@ if(LIBGCRYPT_FOUND)
   if(NOT TARGET libssh2::libgcrypt)
     add_library(libssh2::libgcrypt INTERFACE IMPORTED)
     set_target_properties(libssh2::libgcrypt PROPERTIES
-      LIBSSH2_PC_MODULES "${_libgcrypt_pc_requires}"
+      INTERFACE_LIBSSH2_PC_MODULES "${_libgcrypt_pc_requires}"
       INTERFACE_COMPILE_OPTIONS "${_libgcrypt_CFLAGS}"
       INTERFACE_INCLUDE_DIRECTORIES "${_libgcrypt_INCLUDE_DIRS}"
       INTERFACE_LINK_DIRECTORIES "${_libgcrypt_LIBRARY_DIRS}"
