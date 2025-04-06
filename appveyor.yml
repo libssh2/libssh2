@@ -90,7 +90,7 @@ environment:
       OPENSSL_ROOT_DIR: 'C:/OpenSSL-Win64'
 
     - job_name: 'VS2008, WinCNG, x86, Build-only'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2013'
       GENERATOR: 'Visual Studio 9 2008'
       PLATFORM: 'x86'
       CRYPTO_BACKEND: 'WinCNG'
