@@ -53,7 +53,7 @@ include(CheckNonblockingSocketSupport)
 project(libssh2 C)
 
 function(libssh2_dumptargetprops _target)  # Dump all target properties
-  if(TARGET "${_target}")
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.19 AND TARGET "${_target}")
     execute_process(COMMAND "${CMAKE_COMMAND}" "--help-property-list" OUTPUT_VARIABLE _cmake_property_list)
     string(REPLACE "\n" ";" _cmake_property_list "${_cmake_property_list}")
     list(REMOVE_DUPLICATES _cmake_property_list)
