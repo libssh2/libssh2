@@ -28,7 +28,6 @@ if(_libgcrypt_FOUND)
   set(Libgcrypt_FOUND TRUE)
   set(LIBGCRYPT_FOUND TRUE)
   set(LIBGCRYPT_VERSION ${_libgcrypt_VERSION})
-  string(REPLACE ";" " " _libgcrypt_CFLAGS "${_libgcrypt_CFLAGS}")
   message(STATUS "Found Libgcrypt (via pkg-config): ${_libgcrypt_INCLUDE_DIRS} (found version \"${LIBGCRYPT_VERSION}\")")
 else()
   find_path(LIBGCRYPT_INCLUDE_DIR NAMES "gcrypt.h")
@@ -69,8 +68,7 @@ if(LIBGCRYPT_FOUND)
   if(NOT TARGET libssh2::libgcrypt)
     add_library(libssh2::libgcrypt INTERFACE IMPORTED)
     set_target_properties(libssh2::libgcrypt PROPERTIES
-      VERSION "${LIBGRCYPT_VERSION}"
-      LIBSSH2_PC_MODULES "${_libgcrypt_pc_requires}"
+      INTERFACE_LIBSSH2_PC_MODULES "${_libgcrypt_pc_requires}"
       INTERFACE_COMPILE_OPTIONS "${_libgcrypt_CFLAGS}"
       INTERFACE_INCLUDE_DIRECTORIES "${_libgcrypt_INCLUDE_DIRS}"
       INTERFACE_LINK_DIRECTORIES "${_libgcrypt_LIBRARY_DIRS}"
