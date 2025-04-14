@@ -10,16 +10,13 @@ option(PICKY_COMPILER "Enable picky compiler options" ON)
 
 if(ENABLE_WERROR)
   if(MSVC)
-    string(APPEND CMAKE_C_FLAGS " -WX")
-    string(APPEND CMAKE_CXX_FLAGS " -WX")
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "-WX")
   else()  # llvm/clang and gcc style options
-    string(APPEND CMAKE_C_FLAGS " -Werror")
-    string(APPEND CMAKE_CXX_FLAGS " -Werror")
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "-Werror")
   endif()
 
   if(((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
-       CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 5.0 AND
-       CMAKE_VERSION VERSION_GREATER_EQUAL 3.23.0) OR  # to avoid check_symbol_exists() conflicting with GCC -pedantic-errors
+       CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 5.0) OR
      CMAKE_C_COMPILER_ID MATCHES "Clang"))
     list(APPEND _picky "-pedantic-errors")
   endif()
@@ -27,16 +24,9 @@ endif()
 
 if(MSVC)
   # Use the highest warning level for Visual Studio.
-  if(CMAKE_C_FLAGS MATCHES "[/-]W[0-4]")
-    string(REGEX REPLACE "[/-]W[0-4]" "-W4" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-  else()
-    string(APPEND CMAKE_C_FLAGS " -W4")
-  endif()
-  if(CMAKE_CXX_FLAGS MATCHES "[/-]W[0-4]")
-    string(REGEX REPLACE "[/-]W[0-4]" "-W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  else()
-    string(APPEND CMAKE_CXX_FLAGS " -W4")
-  endif()
+  string(REGEX REPLACE "[/-]W[0-4]" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+  string(REGEX REPLACE "[/-]W[0-4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  list(APPEND _picky "-W4")
 endif()
 
 if(PICKY_COMPILER)
@@ -254,8 +244,15 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND MSVC)
 endif()
 
 if(_picky)
-  string(REPLACE ";" " " _picky "${_picky}")
-  string(APPEND CMAKE_C_FLAGS " ${_picky}")
-  string(APPEND CMAKE_CXX_FLAGS " ${_picky}")
-  message(STATUS "Picky compiler options: ${_picky}")
+  string(REPLACE ";" " " _picky_tmp "${_picky}")
+  message(STATUS "Picky compiler options: ${_picky_tmp}")
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "${_picky}")
+
+  # Apply to all feature checks
+  list(REMOVE_ITEM _picky "-pedantic-errors")  # Must not pass to feature checks
+  string(REPLACE ";" " " _picky_tmp "${_picky}")
+  string(APPEND CMAKE_REQUIRED_FLAGS " ${_picky_tmp}")
+
+  unset(_picky)
+  unset(_picky_tmp)
 endif()
