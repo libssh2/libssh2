@@ -10,11 +10,9 @@ option(PICKY_COMPILER "Enable picky compiler options" ON)
 
 if(ENABLE_WERROR)
   if(MSVC)
-    string(APPEND CMAKE_C_FLAGS " -WX")
-    string(APPEND CMAKE_CXX_FLAGS " -WX")
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "-WX")
   else()  # llvm/clang and gcc style options
-    string(APPEND CMAKE_C_FLAGS " -Werror")
-    string(APPEND CMAKE_CXX_FLAGS " -Werror")
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "-Werror")
   endif()
 
   if(((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
