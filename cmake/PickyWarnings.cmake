@@ -4,21 +4,22 @@
 include(CheckCCompilerFlag)
 
 set(_picky "")
+set(_picky_nocheck "")  # not to pass to feature checks
 
 option(ENABLE_WERROR "Turn compiler warnings into errors" OFF)
 option(PICKY_COMPILER "Enable picky compiler options" ON)
 
 if(ENABLE_WERROR)
   if(MSVC)
-    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "-WX")
+    list(APPEND _picky_nocheck "-WX")
   else()  # llvm/clang and gcc style options
-    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "-Werror")
+    list(APPEND _picky_nocheck "-Werror")
   endif()
 
-  if(((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
-       CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 5.0) OR
-     CMAKE_C_COMPILER_ID MATCHES "Clang"))
-    list(APPEND _picky "-pedantic-errors")
+  if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
+      CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 5.0) OR
+     CMAKE_C_COMPILER_ID MATCHES "Clang")
+    list(APPEND _picky_nocheck "-pedantic-errors")
   endif()
 endif()
 
@@ -30,7 +31,7 @@ if(MSVC)
 endif()
 
 if(PICKY_COMPILER)
-  if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_COMPILER_IS_GNUCXX OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+  if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 
     # https://clang.llvm.org/docs/DiagnosticsReference.html
     # https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
@@ -231,25 +232,28 @@ endif()
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND MSVC)
   list(APPEND _picky "-Wno-language-extension-token")  # Allow __int64
 
-  set(_picky_tmp "")
-  foreach(_ccopt IN LISTS _picky)
-    # Prefix -Wall, otherwise clang-cl interprets it as an MSVC option and translates it to -Weverything
-    if(_ccopt MATCHES "^-W" AND NOT _ccopt STREQUAL "-Wall")
-      list(APPEND _picky_tmp ${_ccopt})
-    else()
-      list(APPEND _picky_tmp "-clang:${_ccopt}")
-    endif()
+  foreach(_wlist IN ITEMS _picky_nocheck _picky)
+    set(_picky_tmp "")
+    foreach(_ccopt IN LISTS "${_wlist}")
+      # Prefix -Wall, otherwise clang-cl interprets it as an MSVC option and translates it to -Weverything
+      if(_ccopt MATCHES "^-W" AND NOT _ccopt STREQUAL "-Wall")
+        list(APPEND _picky_tmp ${_ccopt})
+      else()
+        list(APPEND _picky_tmp "-clang:${_ccopt}")
+      endif()
+    endforeach()
+    set("${_wlist}" ${_picky_tmp})
   endforeach()
-  set(_picky ${_picky_tmp})
 endif()
 
-if(_picky)
-  string(REPLACE ";" " " _picky_tmp "${_picky}")
+if(_picky_nocheck OR _picky)
+  set(_picky_tmp "${_picky_nocheck}" "${_picky}")
+  string(REPLACE ";" " " _picky_tmp "${_picky_tmp}")
+  string(STRIP "${_picky_tmp}" _picky_tmp)
   message(STATUS "Picky compiler options: ${_picky_tmp}")
-  set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "${_picky}")
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "${_picky_nocheck}" "${_picky}")
 
   # Apply to all feature checks
-  list(REMOVE_ITEM _picky "-pedantic-errors")  # Must not pass to feature checks
   string(REPLACE ";" " " _picky_tmp "${_picky}")
   string(APPEND CMAKE_REQUIRED_FLAGS " ${_picky_tmp}")
 
