@@ -127,6 +127,27 @@ if(BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS)
     PUBLIC
       "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
       "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+
+  # CMake before CMP0099 (CMake 3.17 2020-03-20) did not propagate libdirs to
+  # targets. It expected libs to have an absolute filename. As a workaround,
+  # manually apply dependency libdirs, for CMake consumers without this policy.
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.17)
+    cmake_policy(GET CMP0099 _has_CMP0099)  # https://cmake.org/cmake/help/latest/policy/CMP0099.html
+  endif()
+  if(NOT _has_CMP0099 AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.13 AND LIBSSH2_LIBS)
+    set(_libdirs "")
+    foreach(_lib IN LISTS LIBSSH2_LIBS)
+      if(TARGET "${_lib}")
+        get_target_property(_libdir "${_lib}" INTERFACE_LINK_DIRECTORIES)
+        if(_libdir)
+          list(APPEND _libdirs "${_libdir}")
+        endif()
+      endif()
+    endforeach()
+    if(_libdirs)
+      target_link_directories(${LIB_STATIC} INTERFACE ${_libdirs})
+    endif()
+  endif()
 endif()
 if(BUILD_SHARED_LIBS)
   list(APPEND _libssh2_export ${LIB_SHARED})

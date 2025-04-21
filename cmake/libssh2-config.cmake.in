@@ -6,18 +6,18 @@ option(LIBSSH2_USE_PKGCONFIG "Enable pkg-config to detect @PROJECT_NAME@ depende
 include(CMakeFindDependencyMacro)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_MODULE_PATH})
 
-set(_lib "")
+set(_libs "")
 if("@CRYPTO_BACKEND@" STREQUAL "OpenSSL")
   find_dependency(OpenSSL)
 elseif("@CRYPTO_BACKEND@" STREQUAL "wolfSSL")
   find_dependency(WolfSSL)
-  set(_lib libssh2::wolfssl)
+  list(APPEND _libs libssh2::wolfssl)
 elseif("@CRYPTO_BACKEND@" STREQUAL "Libgcrypt")
   find_dependency(Libgcrypt)
-  set(_lib libssh2::libgcrypt)
+  list(APPEND _libs libssh2::libgcrypt)
 elseif("@CRYPTO_BACKEND@" STREQUAL "mbedTLS")
   find_dependency(MbedTLS)
-  set(_lib libssh2::mbedcrypto)
+  list(APPEND _libs libssh2::mbedcrypto)
 endif()
 
 if(@ZLIB_FOUND@)
@@ -40,18 +40,23 @@ if(NOT TARGET Libssh2::@LIB_NAME@)
   add_library(Libssh2::@LIB_NAME@ ALIAS @PROJECT_NAME@::@LIB_SELECTED@)
 endif()
 
-cmake_policy(GET CMP0099 _has_CMP0099)  # https://cmake.org/cmake/help/latest/policy/CMP0099.html
-if(NOT _has_CMP0099 AND _lib)
-  message(STATUS "libssh2: CMP0099 not detected, resorting to workaround.")
-  # CMake before CMP0099 (CMake 3.17 2020-03-20) did not endorse the concept of libdirs and lib names.
-  # It expected libs to have an absolute filename. As a workaround, manually apply dependency libdirs
-  # to the libssh2 target, for CMake consumers without this policy set.
-  get_target_property(_libdirs "${_lib}" INTERFACE_LINK_DIRECTORIES)
-  if(_libdirs)
-    foreach(_target IN ITEMS @PROJECT_NAME@::@LIB_SHARED@ @PROJECT_NAME@::@LIB_STATIC@)
-      if(TARGET "${_target}")
-        target_link_directories("${_target}" INTERFACE ${_libdirs})
+if(TARGET @PROJECT_NAME@::@LIB_STATIC@)
+  # CMake before CMP0099 (CMake 3.17 2020-03-20) did not propagate libdirs to
+  # targets. It expected libs to have an absolute filename. As a workaround,
+  # manually apply dependency libdirs, for CMake consumers without this policy.
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.17)
+    cmake_policy(GET CMP0099 _has_CMP0099)  # https://cmake.org/cmake/help/latest/policy/CMP0099.html
+  endif()
+  if(NOT _has_CMP0099 AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.13 AND _libs)
+    set(_libdirs "")
+    foreach(_lib IN LISTS _libs)
+      get_target_property(_libdir "${_lib}" INTERFACE_LINK_DIRECTORIES)
+      if(_libdir)
+        list(APPEND _libdirs "${_libdir}")
       endif()
     endforeach()
+    if(_libdirs)
+      target_link_directories(@PROJECT_NAME@::@LIB_STATIC@ INTERFACE ${_libdirs})
+    endif()
   endif()
 endif()
