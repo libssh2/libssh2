@@ -48,7 +48,7 @@ if(NOT _has_CMP0099 AND _lib)
   # to the libssh2 target, for CMake consumers without this policy set.
   get_target_property(_libdirs "${_lib}" INTERFACE_LINK_DIRECTORIES)
   if(_libdirs)
-    foreach(_target IN ITEMS @PROJECT_NAME@::@LIB_SHARED@ @PROJECT_NAME@::@LIB_STATIC@)
+    foreach(_target IN ITEMS @PROJECT_NAME@::@LIB_STATIC@)
       if(TARGET "${_target}")
         target_link_directories("${_target}" INTERFACE ${_libdirs})
       endif()
