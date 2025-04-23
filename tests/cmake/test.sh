@@ -21,20 +21,22 @@ cmake_provider="${CMAKE_PROVIDER:-${cmake_consumer}}"
 src='../..'
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'FetchContent' ]; then
-  rm -rf bld-fetchcontent
-  "${cmake_consumer}" -B bld-fetchcontent \
+  bld='bld-fetchcontent'
+  rm -rf "${bld}"
+  "${cmake_consumer}" -B "${bld}" \
     -DTEST_INTEGRATION_MODE=FetchContent \
     -DFROM_GIT_REPO="${PWD}/${src}" \
     -DFROM_GIT_TAG="$(git rev-parse HEAD)"
-  "${cmake_consumer}" --build bld-fetchcontent
+  "${cmake_consumer}" --build "${bld}"
 fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
   rm -rf libssh2; ln -s "${src}" libssh2
-  rm -rf bld-add_subdirectory
-  "${cmake_consumer}" -B bld-add_subdirectory \
+  bld='bld-add_subdirectory'
+  rm -rf "${bld}"
+  "${cmake_consumer}" -B "${bld}" \
     -DTEST_INTEGRATION_MODE=add_subdirectory
-  "${cmake_consumer}" --build bld-add_subdirectory
+  "${cmake_consumer}" --build "${bld}"
 fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
@@ -48,9 +50,10 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
     -DCRYPTO_BACKEND="${crypto}"
   "${cmake_provider}" --build "${bldp}"
   "${cmake_provider}" --install "${bldp}"
-  rm -rf bld-find_package
-  "${cmake_consumer}" -B bld-find_package \
+  bld='bld-find_package'
+  rm -rf "${bld}"
+  "${cmake_consumer}" -B "${bld}" \
     -DTEST_INTEGRATION_MODE=find_package \
     -DCMAKE_PREFIX_PATH="${prefix}/lib/cmake/libssh2"
-  "${cmake_consumer}" --build bld-find_package --verbose
+  "${cmake_consumer}" --build "${bld}" --verbose
 fi
