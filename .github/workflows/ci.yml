@@ -74,7 +74,9 @@ jobs:
           persist-credentials: false
       - name: 'via FetchContent'
         run: ./tests/cmake/test.sh FetchContent
-      - name: 'via add_subdirectory'
+      - name: 'via add_subdirectory OpenSSL'
+        run: ./tests/cmake/test.sh add_subdirectory
+      - name: 'via add_subdirectory Libgcrypt'
         run: ./tests/cmake/test.sh add_subdirectory
       - name: 'via find_package OpenSSL'
         run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL
