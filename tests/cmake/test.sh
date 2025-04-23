@@ -77,15 +77,13 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
 fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
-  crypto="${2:-OpenSSL}"; shift
   src="${PWD}/${src}"
-  bldp="bld-libssh2-${crypto}"
+  bldp='bld-libssh2'
   prefix="${PWD}/${bldp}/_pkg"
   rm -rf "${bldp}"
   if [ -n "${cmake_provider_modern:-}" ]; then  # 3.15+
     "${cmake_provider}" -B "${bldp}" -S "${src}" -DENABLE_ZLIB_COMPRESSION=ON "$@" \
       -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF \
-      -DCRYPTO_BACKEND="${crypto}" \
       -DCMAKE_INSTALL_PREFIX="${prefix}"
     "${cmake_provider}" --build "${bldp}"
     "${cmake_provider}" --install "${bldp}"
@@ -93,7 +91,6 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
     mkdir "${bldp}"; cd "${bldp}"
     "${cmake_provider}" "${src}" -DENABLE_ZLIB_COMPRESSION=ON "$@" \
       -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF \
-      -DCRYPTO_BACKEND="${crypto}" \
       -DCMAKE_INSTALL_PREFIX="${prefix}"
     "${cmake_provider}" --build .
     make install

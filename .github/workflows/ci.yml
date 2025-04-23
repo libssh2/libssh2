@@ -77,13 +77,13 @@ jobs:
       - name: 'via add_subdirectory'
         run: ./tests/cmake/test.sh add_subdirectory
       - name: 'via find_package OpenSSL'
-        run: ./tests/cmake/test.sh find_package OpenSSL
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL
       - name: 'via find_package Libgcrypt'
-        run: ./tests/cmake/test.sh find_package Libgcrypt
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=Libgcrypt
       - name: 'via find_package mbedTLS'
-        run: ./tests/cmake/test.sh find_package mbedTLS
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
       - name: 'via find_package wolfSSL'
-        run: ./tests/cmake/test.sh find_package wolfSSL
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=wolfSSL
 
   build_linux:
     name: 'linux'
