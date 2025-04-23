@@ -76,18 +76,18 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   prefix="${PWD}/${bldp}/_pkg"
   rm -rf "${bldp}"
   if [ -n "${cmake_provider_modern:-}" ]; then  # 3.15+
-    "${cmake_provider}" -B "${bldp}" -S "${src}" -DCMAKE_INSTALL_PREFIX="${prefix}" "$@" \
+    "${cmake_provider}" -B "${bldp}" -S "${src}" -DENABLE_ZLIB_COMPRESSION=ON "$@" \
       -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF \
-      -DENABLE_ZLIB_COMPRESSION=ON \
-      -DCRYPTO_BACKEND="${crypto}"
+      -DCRYPTO_BACKEND="${crypto}" \
+      -DCMAKE_INSTALL_PREFIX="${prefix}"
     "${cmake_provider}" --build "${bldp}"
     "${cmake_provider}" --install "${bldp}"
   else
     mkdir "${bldp}"; cd "${bldp}"
-    "${cmake_provider}" "${src}" -DCMAKE_INSTALL_PREFIX="${prefix}" "$@" \
+    "${cmake_provider}" "${src}" -DENABLE_ZLIB_COMPRESSION=ON "$@" \
       -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF \
-      -DENABLE_ZLIB_COMPRESSION=ON \
-      -DCRYPTO_BACKEND="${crypto}"
+      -DCRYPTO_BACKEND="${crypto}" \
+      -DCMAKE_INSTALL_PREFIX="${prefix}"
     "${cmake_provider}" --build .
     make install
     cd ..
