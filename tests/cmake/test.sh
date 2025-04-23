@@ -73,7 +73,10 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'FetchContent' ]; then  # 3.14+
 fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
-  rm -rf libssh2; ln -s "${src}" libssh2
+  rm -rf libssh2
+  if ! ln -s "${src}" libssh2; then  # for MSYS2/Cygwin
+    rm -rf libssh2; mkdir libssh2; (cd "${src}"; git archive --format=tar HEAD) | tar -x --directory=libssh2
+  fi
   bldc='bld-add_subdirectory'
   rm -rf "${bldc}"
   if [ -n "${cmake_consumer_modern:-}" ]; then  # 3.15+
