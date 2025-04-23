@@ -7,7 +7,18 @@ set -eu
 
 cd "$(dirname "$0")"
 
-mode="${1:-all}"
+command -v ninja >/dev/null && export CMAKE_GENERATOR=Ninja  # 3.17+
+
+mode="${1:-all}"; shift
+
+cmake_consumer="${CMAKE_CONSUMER:-cmake}"
+cmake_provider="${CMAKE_PROVIDER:-${cmake_consumer}}"
+
+# 'modern': supports -S/-B (3.13+), --install (3.15+)
+"${cmake_consumer}" --help | grep -q -- '--install' && cmake_consumer_modern=1
+"${cmake_provider}" --help | grep -q -- '--install' && cmake_provider_modern=1
+
+src='../..'
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'FetchContent' ]; then
   rm -rf bld-fetchcontent
@@ -28,17 +39,17 @@ fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   crypto="${2:-OpenSSL}"
-  bld="bld-libssh2-${crypto}"
-  rm -rf "${bld}"
-  cmake ../.. -B "${bld}" -DCMAKE_INSTALL_PREFIX="${PWD}/${bld}/_pkg" \
+  bldp="bld-libssh2-${crypto}"
+  rm -rf "${bldp}"
+  cmake ../.. -B "${bldp}" -DCMAKE_INSTALL_PREFIX="${PWD}/${bldp}/_pkg" \
     -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF \
     -DENABLE_ZLIB_COMPRESSION=ON \
     -DCRYPTO_BACKEND="${crypto}"
-  cmake --build "${bld}"
-  cmake --install "${bld}"
+  cmake --build "${bldp}"
+  cmake --install "${bldp}"
   rm -rf bld-find_package
   cmake -B bld-find_package \
     -DTEST_INTEGRATION_MODE=find_package \
-    -DCMAKE_PREFIX_PATH="${PWD}/${bld}/_pkg/lib/cmake/libssh2"
+    -DCMAKE_PREFIX_PATH="${PWD}/${bldp}/_pkg/lib/cmake/libssh2"
   cmake --build bld-find_package --verbose
 fi
