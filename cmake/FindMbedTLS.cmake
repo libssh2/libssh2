@@ -6,14 +6,14 @@
 #
 # Input variables:
 #
-# - `MBEDTLS_INCLUDE_DIR`:   The mbedTLS include directory.
-# - `MBEDCRYPTO_LIBRARY`:    Path to `mbedcrypto` library.
+# - `MBEDTLS_INCLUDE_DIR`:  The mbedTLS include directory.
+# - `MBEDCRYPTO_LIBRARY`:   Path to `mbedcrypto` library.
 #
 # Defines:
 #
-# - `MBEDTLS_FOUND`:         System has mbedTLS.
-# - `MBEDTLS_VERSION`:       Version of mbedTLS.
-# - `libssh2::mbedcrypto`:   mbedcrypto library target.
+# - `MBEDTLS_FOUND`:        System has mbedTLS.
+# - `MBEDTLS_VERSION`:      Version of mbedTLS.
+# - `libssh2::mbedcrypto`:  mbedcrypto library target.
 
 set(_mbedtls_pc_requires "mbedcrypto")
 

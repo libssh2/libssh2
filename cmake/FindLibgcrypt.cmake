@@ -6,14 +6,14 @@
 #
 # Input variables:
 #
-# - `LIBGCRYPT_INCLUDE_DIR`:   The Libgcrypt include directory.
-# - `LIBGCRYPT_LIBRARY`:       Path to `libgcrypt` library.
+# - `LIBGCRYPT_INCLUDE_DIR`:  The Libgcrypt include directory.
+# - `LIBGCRYPT_LIBRARY`:      Path to `libgcrypt` library.
 #
 # Defines:
 #
-# - `LIBGCRYPT_FOUND`:         System has Libgcrypt.
-# - `LIBGCRYPT_VERSION`:       Version of Libgcrypt.
-# - `libssh2::libgcrypt`:      libgcrypt library target.
+# - `LIBGCRYPT_FOUND`:        System has Libgcrypt.
+# - `LIBGCRYPT_VERSION`:      Version of Libgcrypt.
+# - `libssh2::libgcrypt`:     libgcrypt library target.
 
 set(_libgcrypt_pc_requires "libgcrypt")
 
