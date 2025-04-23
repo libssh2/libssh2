@@ -14,7 +14,18 @@ if(TEST_INTEGRATION_MODE STREQUAL "FetchContent" AND CMAKE_VERSION VERSION_LESS 
   message(FATAL_ERROR "This test requires CMake 3.14 or upper")
 endif()
 
-if(TEST_INTEGRATION_MODE STREQUAL "find_package")
+# Note: this does not work
+if(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
+  include(ExternalProject)
+  ExternalProject_Add(libssh2
+    URL "${FROM_ARCHIVE}"
+    URL_HASH "SHA256=${FROM_HASH}"
+    INSTALL_COMMAND ""
+    DOWNLOAD_EXTRACT_TIMESTAMP ON)
+endif()
+
+if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
+   TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
   find_package(libssh2 REQUIRED CONFIG)
   find_package(libssh2 REQUIRED CONFIG)  # Double-inclusion test
   foreach(result_var IN ITEMS
@@ -60,7 +71,8 @@ target_link_libraries(test-dependent-shared-ns PRIVATE "libssh2::libssh2_shared"
 add_executable(test-dependent-selected-ns "test.c")
 target_link_libraries(test-dependent-selected-ns PRIVATE "libssh2::libssh2")
 
-if(TEST_INTEGRATION_MODE STREQUAL "find_package")
+if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
+   TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
 
   # Compatibility alias
   add_executable(test-dependent-compat "test.c")
