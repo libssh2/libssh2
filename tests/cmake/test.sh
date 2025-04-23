@@ -28,7 +28,7 @@ cmake_provider="${CMAKE_PROVIDER:-${cmake_consumer}}"
 src='../..'
 
 runres() {
-  for bin in "$1"/test-dependent*; do
+  for bin in "$1"/test-consumer*; do
     echo "Running '${bin}'...:"
     "${bin}" || true
   done
