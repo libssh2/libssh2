@@ -8,7 +8,7 @@
 # -DCMAKE_UNITY_BUILD=ON
 # -DLIBSSH2_USE_PKGCONFIG=OFF: for cmake <=3.12 with 'add_subdirectory' tests.
 #                              These old versions can't propagate library
-#                              directories back to the consumer project.
+#                              directories to the consumer project.
 
 set -eu
 
