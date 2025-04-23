@@ -65,9 +65,9 @@ jobs:
         run: |
           if [[ '${{ matrix.image }}' = *'ubuntu'* ]]; then
             sudo rm -f /var/lib/man-db/auto-update
-            sudo apt-get -o Dpkg::Use-Pty=0 install ninja-build libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
+            sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
           else
-            brew install ninja libgcrypt openssl mbedtls wolfssl
+            brew install libgcrypt openssl mbedtls wolfssl
           fi
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -541,7 +541,6 @@ jobs:
         run: |
           sudo rm -f /var/lib/man-db/auto-update
           sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 \
-            ${{ matrix.build == 'cmake' && 'ninja-build' || '' }} \
             ${{ matrix.compiler == 'clang-tidy' && 'clang' || '' }}
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -844,7 +843,7 @@ jobs:
             cmake: -DCRYPTO_BACKEND=wolfSSL
     steps:
       - name: 'install packages'
-        run: brew install ${{ matrix.build == 'autotools' && 'automake libtool' || 'ninja' }} ${{ matrix.crypto.install }}
+        run: brew install ${{ matrix.build == 'autotools' && 'automake libtool' || '' }} ${{ matrix.crypto.install }}
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
