@@ -30,9 +30,13 @@ cmake_opts='-DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DENABLE_ZLIB_COMPRESSION=O
 src='../..'
 
 runresults() {
+  set +x
   for bin in "$1"/test-consumer*; do
+    echo "---- ${bin} ----"
+    file "${bin}" || true
     "${bin}" || true
   done
+  set -x
 }
 
 if [ "${mode}" = 'ExternalProject' ]; then  # Broken
