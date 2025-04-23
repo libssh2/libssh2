@@ -8,6 +8,28 @@
 
 int main(void)
 {
-    printf("libssh2_version(0): |%s|\n", libssh2_version(0));
+    const char *crypto_str;
+
+    switch(libssh2_crypto_engine()) {
+    case libssh2_gcrypt:
+        crypto_str = "libgcrypt";
+        break;
+    case libssh2_mbedtls:
+        crypto_str = "mbedTLS";
+        break;
+    case libssh2_openssl:
+        crypto_str = "openssl compatible";
+        break;
+    case libssh2_os400qc3:
+        crypto_str = "OS400QC3";
+        break;
+    case libssh2_wincng:
+        crypto_str = "WinCNG";
+        break;
+    default:
+        crypto_str = "(unrecognized)";
+    }
+
+    printf("libssh2_version(0): |%s|%s|\n", libssh2_version(0), crypto_str);
     return 0;
 }
