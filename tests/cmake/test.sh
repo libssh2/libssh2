@@ -21,11 +21,12 @@ cmake_provider="${CMAKE_PROVIDER:-${cmake_consumer}}"
 src='../..'
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'FetchContent' ]; then
+  src="${PWD}/${src}"
   bld='bld-fetchcontent'
   rm -rf "${bld}"
   "${cmake_consumer}" -B "${bld}" \
     -DTEST_INTEGRATION_MODE=FetchContent \
-    -DFROM_GIT_REPO="${PWD}/${src}" \
+    -DFROM_GIT_REPO="${src}" \
     -DFROM_GIT_TAG="$(git rev-parse HEAD)"
   "${cmake_consumer}" --build "${bld}"
 fi
