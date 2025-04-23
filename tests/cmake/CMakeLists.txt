@@ -14,12 +14,10 @@ if(TEST_INTEGRATION_MODE STREQUAL "FetchContent" AND CMAKE_VERSION VERSION_LESS 
   message(FATAL_ERROR "This test requires CMake 3.14 or upper")
 endif()
 
-# Note: this does not work
-if(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
+if(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")  # Broken
   include(ExternalProject)
   ExternalProject_Add(libssh2
-    URL "${FROM_ARCHIVE}"
-    URL_HASH "SHA256=${FROM_HASH}"
+    URL "${FROM_ARCHIVE}" URL_HASH "SHA256=${FROM_HASH}"
     INSTALL_COMMAND ""
     DOWNLOAD_EXTRACT_TIMESTAMP ON)
 endif()
