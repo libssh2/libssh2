@@ -6,9 +6,11 @@
 #include "libssh2.h"
 #include <stdio.h>
 
-int main(void)
+int main(int argc, char **argv)
 {
     const char *crypto_str;
+
+    (void)argc;
 
     switch(libssh2_crypto_engine()) {
     case libssh2_gcrypt:
@@ -30,6 +32,8 @@ int main(void)
         crypto_str = "(unrecognized)";
     }
 
-    printf("libssh2_version(0): |%s|%s|\n", libssh2_version(0), crypto_str);
+    printf("libssh2 test: |%s|%s|%s|\n", argv[0],
+                                         libssh2_version(0), crypto_str);
+
     return 0;
 }
