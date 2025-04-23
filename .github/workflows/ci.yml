@@ -53,15 +53,29 @@ jobs:
     name: 'integration on ${{ matrix.image }}'
     runs-on: ${{ matrix.image }}
     timeout-minutes: 5
+    defaults:
+      run:
+        shell: ${{ contains(matrix.image, 'windows') && 'msys2 {0}' || 'bash' }}
     env:
-      CC: clang
-      CMAKE_GENERATOR: Ninja
+      CC: ${{ !contains(matrix.image, 'windows') && 'clang' || '' }}
     strategy:
       fail-fast: false
       matrix:
-        image: [ubuntu-latest, macos-latest]
+        image: [ubuntu-latest, macos-latest, windows-latest]
     steps:
+      - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
+        if: ${{ contains(matrix.image, 'windows') }}
+        with:
+          msystem: mingw64
+          release: false
+          update: false
+          cache: false
+          path-type: inherit
+          install: >-
+            mingw-w64-x86_64-zlib mingw-w64-x86_64-libgcrypt mingw-w64-x86_64-openssl mingw-w64-x86_64-mbedtls
+
       - name: 'install packages'
+        if: ${{ !contains(matrix.image, 'windows') }}
         run: |
           if [[ '${{ matrix.image }}' = *'ubuntu'* ]]; then
             sudo rm -f /var/lib/man-db/auto-update
@@ -75,16 +89,19 @@ jobs:
           persist-credentials: false
       - name: 'via FetchContent'
         run: ./tests/cmake/test.sh FetchContent
-      - name: 'via add_subdirectory'
-        run: ./tests/cmake/test.sh add_subdirectory
+      - name: 'via add_subdirectory OpenSSL'
+        run: ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL
+      - name: 'via add_subdirectory Libgcrypt'
+        run: ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=Libgcrypt
       - name: 'via find_package OpenSSL'
-        run: ./tests/cmake/test.sh find_package OpenSSL
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL
       - name: 'via find_package Libgcrypt'
-        run: ./tests/cmake/test.sh find_package Libgcrypt
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=Libgcrypt
       - name: 'via find_package mbedTLS'
-        run: ./tests/cmake/test.sh find_package mbedTLS
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
       - name: 'via find_package wolfSSL'
-        run: ./tests/cmake/test.sh find_package wolfSSL
+        if: ${{ !contains(matrix.image, 'windows') }}  # MSYS2 wolfSSL package not built with the OpenSSL compatibility option
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=wolfSSL
 
   build_linux:
     name: 'linux'
