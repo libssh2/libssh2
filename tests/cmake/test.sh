@@ -40,8 +40,9 @@ fi
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   crypto="${2:-OpenSSL}"
   bldp="bld-libssh2-${crypto}"
+  prefix="${PWD}/${bldp}/_pkg"
   rm -rf "${bldp}"
-  cmake "${src}" -B "${bldp}" -DCMAKE_INSTALL_PREFIX="${PWD}/${bldp}/_pkg" \
+  cmake "${src}" -B "${bldp}" -DCMAKE_INSTALL_PREFIX="${prefix}" \
     -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF \
     -DENABLE_ZLIB_COMPRESSION=ON \
     -DCRYPTO_BACKEND="${crypto}"
@@ -50,6 +51,6 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   rm -rf bld-find_package
   cmake -B bld-find_package \
     -DTEST_INTEGRATION_MODE=find_package \
-    -DCMAKE_PREFIX_PATH="${PWD}/${bldp}/_pkg/lib/cmake/libssh2"
+    -DCMAKE_PREFIX_PATH="${prefix}/lib/cmake/libssh2"
   cmake --build bld-find_package --verbose
 fi
