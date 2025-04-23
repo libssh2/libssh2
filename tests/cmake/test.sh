@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 #
 # Copyright (C) Viktor Szakats
 # SPDX-License-Identifier: BSD-3-Clause
@@ -60,21 +60,37 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
     "${cmake_consumer}" -B "${bldc}" "$@" \
       -DTEST_INTEGRATION_MODE=add_subdirectory
     "${cmake_consumer}" --build "${bldc}" --verbose
+  else
+    mkdir "${bldc}"; cd "${bldc}"
+    "${cmake_consumer}" .. "$@" \
+      -DTEST_INTEGRATION_MODE=add_subdirectory
+    "${cmake_consumer}" --verbose --build .
+    cd ..
   fi
 fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   crypto="${2:-OpenSSL}"; shift
+  src="${PWD}/${src}"
   bldp="bld-libssh2-${crypto}"
   prefix="${PWD}/${bldp}/_pkg"
   rm -rf "${bldp}"
   if [ -n "${cmake_provider_modern:-}" ]; then  # 3.15+
-    "${cmake_provider}" "${src}" -B "${bldp}" -DCMAKE_INSTALL_PREFIX="${prefix}" \
+    "${cmake_provider}" -B "${bldp}" -S "${src}" -DCMAKE_INSTALL_PREFIX="${prefix}" "$@" \
       -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF \
       -DENABLE_ZLIB_COMPRESSION=ON \
       -DCRYPTO_BACKEND="${crypto}"
     "${cmake_provider}" --build "${bldp}"
     "${cmake_provider}" --install "${bldp}"
+  else
+    mkdir "${bldp}"; cd "${bldp}"
+    "${cmake_provider}" "${src}" -DCMAKE_INSTALL_PREFIX="${prefix}" "$@" \
+      -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF \
+      -DENABLE_ZLIB_COMPRESSION=ON \
+      -DCRYPTO_BACKEND="${crypto}"
+    "${cmake_provider}" --build .
+    make install
+    cd ..
   fi
   bldc='bld-find_package'
   rm -rf "${bldc}"
@@ -83,5 +99,12 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
       -DTEST_INTEGRATION_MODE=find_package \
       -DCMAKE_PREFIX_PATH="${prefix}/lib/cmake/libssh2"
     "${cmake_consumer}" --build "${bldc}" --verbose
+  else
+    mkdir "${bldc}"; cd "${bldc}"
+    "${cmake_consumer}" .. "$@" \
+      -DTEST_INTEGRATION_MODE=find_package \
+      -DCMAKE_PREFIX_PATH="${prefix}/lib/cmake/libssh2"
+    "${cmake_consumer}" --verbose --build .
+    cd ..
   fi
 fi
