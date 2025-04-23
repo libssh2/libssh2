@@ -75,9 +75,9 @@ jobs:
       - name: 'via FetchContent'
         run: ./tests/cmake/test.sh FetchContent
       - name: 'via add_subdirectory OpenSSL'
-        run: ./tests/cmake/test.sh add_subdirectory
+        run: ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL
       - name: 'via add_subdirectory Libgcrypt'
-        run: ./tests/cmake/test.sh add_subdirectory
+        run: ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=Libgcrypt
       - name: 'via find_package OpenSSL'
         run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL
       - name: 'via find_package Libgcrypt'
