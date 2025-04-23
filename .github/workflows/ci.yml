@@ -229,7 +229,7 @@ jobs:
               crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }}'
               cflags='-m32 -mpclmul -msse2 -maes'
             fi
-            cmake -B . ${crossoptions} \
+            cmake -B . -G Ninja ${crossoptions} \
               -DCMAKE_C_FLAGS="${cflags}" \
               -DENABLE_PROGRAMS=OFF \
               -DENABLE_TESTING=OFF \
@@ -254,7 +254,7 @@ jobs:
           fi
           curl -fsS -L https://github.com/wolfSSL/wolfssl/archive/refs/tags/v$WOLFSSLVER-stable.tar.gz | tar -xzf -
           cd wolfssl-$WOLFSSLVER-stable
-          cmake -B bld ${options} \
+          cmake -B bld -G Ninja ${options} \
             -DWOLFSSL_LIBSSH2=ON \
             -DBUILD_SELFTEST=OFF \
             -DWOLFSSL_OPENSSLALL=ON \
@@ -286,7 +286,7 @@ jobs:
             curl -fsS https://boringssl.googlesource.com/boringssl/+archive/${{ env.boringssl-version }}.tar.gz | tar -xzf -
             # Skip tests to finish the build faster
             echo 'set_target_properties(decrepit bssl_shim test_fips boringssl_gtest test_support_lib urandom_test crypto_test ssl_test decrepit_test all_tests pki pki_test run_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)' >> ./CMakeLists.txt
-            cmake -B . \
+            cmake -B . -G Ninja \
               -DOPENSSL_SMALL=ON \
               -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
               -DCMAKE_INSTALL_PREFIX="$HOME/usr"
@@ -334,7 +334,7 @@ jobs:
           if [ '${{ steps.cache-libressl.outputs.cache-hit }}' != 'true' ]; then
             curl -fsS -L https://github.com/libressl/portable/releases/download/v${{ env.libressl-version }}/libressl-${{ env.libressl-version }}.tar.gz | tar -xzf -
             cd libressl-${{ env.libressl-version }}
-            cmake -B . \
+            cmake -B . -G Ninja \
               -DLIBRESSL_APPS=OFF \
               -DLIBRESSL_TESTS=OFF \
               -DCMAKE_INSTALL_PREFIX="$HOME/usr"
@@ -504,7 +504,7 @@ jobs:
             crypto='${{ matrix.crypto }}'
           fi
           [ '${{ matrix.arch }}' = 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
-          cmake -B bld ${crossoptions} $TOOLCHAIN_OPTION \
+          cmake -B bld -G Ninja ${crossoptions} $TOOLCHAIN_OPTION \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DCRYPTO_BACKEND=${crypto} \
