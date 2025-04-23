@@ -24,13 +24,13 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'FetchContent' ]; then
   rm -rf bld-fetchcontent
   cmake -B bld-fetchcontent \
     -DTEST_INTEGRATION_MODE=FetchContent \
-    -DFROM_GIT_REPO="${PWD}/../.." \
+    -DFROM_GIT_REPO="${PWD}/${src}" \
     -DFROM_GIT_TAG="$(git rev-parse HEAD)"
   cmake --build bld-fetchcontent
 fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
-  rm -rf libssh2; ln -s ../.. libssh2
+  rm -rf libssh2; ln -s "${src}" libssh2
   rm -rf bld-add_subdirectory
   cmake -B bld-add_subdirectory \
     -DTEST_INTEGRATION_MODE=add_subdirectory
@@ -41,7 +41,7 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   crypto="${2:-OpenSSL}"
   bldp="bld-libssh2-${crypto}"
   rm -rf "${bldp}"
-  cmake ../.. -B "${bldp}" -DCMAKE_INSTALL_PREFIX="${PWD}/${bldp}/_pkg" \
+  cmake "${src}" -B "${bldp}" -DCMAKE_INSTALL_PREFIX="${PWD}/${bldp}/_pkg" \
     -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF \
     -DENABLE_ZLIB_COMPRESSION=ON \
     -DCRYPTO_BACKEND="${crypto}"
