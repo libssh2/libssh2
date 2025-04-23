@@ -56,9 +56,11 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
   rm -rf libssh2; ln -s "${src}" libssh2
   bldc='bld-add_subdirectory'
   rm -rf "${bldc}"
-  "${cmake_consumer}" -B "${bldc}" "$@" \
-    -DTEST_INTEGRATION_MODE=add_subdirectory
-  "${cmake_consumer}" --build "${bldc}" --verbose
+  if [ -n "${cmake_consumer_modern:-}" ]; then  # 3.15+
+    "${cmake_consumer}" -B "${bldc}" "$@" \
+      -DTEST_INTEGRATION_MODE=add_subdirectory
+    "${cmake_consumer}" --build "${bldc}" --verbose
+  fi
 fi
 
 if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
@@ -66,16 +68,20 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   bldp="bld-libssh2-${crypto}"
   prefix="${PWD}/${bldp}/_pkg"
   rm -rf "${bldp}"
-  "${cmake_provider}" "${src}" -B "${bldp}" -DCMAKE_INSTALL_PREFIX="${prefix}" \
-    -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF \
-    -DENABLE_ZLIB_COMPRESSION=ON \
-    -DCRYPTO_BACKEND="${crypto}"
-  "${cmake_provider}" --build "${bldp}"
-  "${cmake_provider}" --install "${bldp}"
+  if [ -n "${cmake_provider_modern:-}" ]; then  # 3.15+
+    "${cmake_provider}" "${src}" -B "${bldp}" -DCMAKE_INSTALL_PREFIX="${prefix}" \
+      -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF \
+      -DENABLE_ZLIB_COMPRESSION=ON \
+      -DCRYPTO_BACKEND="${crypto}"
+    "${cmake_provider}" --build "${bldp}"
+    "${cmake_provider}" --install "${bldp}"
+  fi
   bldc='bld-find_package'
   rm -rf "${bldc}"
-  "${cmake_consumer}" -B "${bldc}" "$@" \
-    -DTEST_INTEGRATION_MODE=find_package \
-    -DCMAKE_PREFIX_PATH="${prefix}/lib/cmake/libssh2"
-  "${cmake_consumer}" --build "${bldc}" --verbose
+  if [ -n "${cmake_consumer_modern:-}" ]; then  # 3.15+
+    "${cmake_consumer}" -B "${bldc}" "$@" \
+      -DTEST_INTEGRATION_MODE=find_package \
+      -DCMAKE_PREFIX_PATH="${prefix}/lib/cmake/libssh2"
+    "${cmake_consumer}" --build "${bldc}" --verbose
+  fi
 fi
