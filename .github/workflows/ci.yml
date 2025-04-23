@@ -55,7 +55,6 @@ jobs:
     timeout-minutes: 5
     env:
       CC: clang
-      CMAKE_GENERATOR: Ninja
     strategy:
       fail-fast: false
       matrix:
