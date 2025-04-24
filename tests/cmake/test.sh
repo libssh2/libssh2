@@ -69,6 +69,7 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'FetchContent' ]; then  # 3.14+
     -DFROM_GIT_REPO="${src}" \
     -DFROM_GIT_TAG="$(git rev-parse HEAD)"
   "${cmake_consumer}" --build "${bldc}" --verbose
+  PATH="${bldc}/_deps/libssh2-build/lib:${PATH}"
   runresults "${bldc}"
 fi
 
@@ -90,6 +91,7 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
     "${cmake_consumer}" --verbose --build .
     cd ..
   fi
+  PATH="${bldc}/libssh2/src:${PATH}"
   runresults "${bldc}"
 fi
 
@@ -126,5 +128,6 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
     "${cmake_consumer}" --verbose --build .
     cd ..
   fi
+  PATH="${prefix}/bin:${PATH}"
   runresults "${bldc}"
 fi
