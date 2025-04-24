@@ -54,7 +54,7 @@ if [ "${mode}" = 'ExternalProject' ]; then  # Broken
     "${cmake_consumer}" .. ${cmake_opts} "$@" \
       -DTEST_INTEGRATION_MODE=ExternalProject \
       -DFROM_ARCHIVE="${src}" -DFROM_HASH="${sha}"
-    "${cmake_consumer}" --verbose --build .
+    VERBOSE=1 "${cmake_consumer}" --build .
     cd ..
   fi
   runresults "${bldc}"
@@ -88,7 +88,7 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
     mkdir "${bldc}"; cd "${bldc}"
     "${cmake_consumer}" .. ${cmake_opts} "$@" \
       -DTEST_INTEGRATION_MODE=add_subdirectory
-    "${cmake_consumer}" --verbose --build .
+    VERBOSE=1 "${cmake_consumer}" --build .
     cd ..
   fi
   PATH="${bldc}/libssh2/src:${PATH}"
@@ -125,7 +125,7 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
     "${cmake_consumer}" .. \
       -DTEST_INTEGRATION_MODE=find_package \
       -DCMAKE_PREFIX_PATH="${prefix}/lib/cmake/libssh2"
-    "${cmake_consumer}" --verbose --build .
+    VERBOSE=1 "${cmake_consumer}" --build .
     cd ..
   fi
   PATH="${prefix}/bin:${PATH}"
