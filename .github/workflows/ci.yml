@@ -64,6 +64,7 @@ jobs:
       - name: 'install packages'
         run: |
           if [[ '${{ matrix.image }}' = *'ubuntu'* ]]; then
+            sudo rm -f /var/lib/man-db/auto-update
             sudo apt-get -o Dpkg::Use-Pty=0 install ninja-build libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
           else
             brew install ninja libgcrypt openssl mbedtls wolfssl
@@ -195,7 +196,9 @@ jobs:
         if: ${{ matrix.arch != 'amd64' }}
         run: |
           sudo dpkg --add-architecture '${{ matrix.arch }}'
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo apt-get -o Dpkg::Use-Pty=0 update
+          sudo rm -f /var/lib/man-db/auto-update
           sudo apt-get -o Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
 
       - name: 'install packages'
@@ -536,6 +539,7 @@ jobs:
     steps:
       - name: 'install packages'
         run: |
+          sudo rm -f /var/lib/man-db/auto-update
           sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 \
             ${{ matrix.build == 'cmake' && 'ninja-build' || '' }} \
             ${{ matrix.compiler == 'clang-tidy' && 'clang' || '' }}
