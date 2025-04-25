@@ -10,10 +10,14 @@ option(ENABLE_WERROR "Turn compiler warnings into errors" OFF)
 option(PICKY_COMPILER "Enable picky compiler options" ON)
 
 if(ENABLE_WERROR)
-  if(MSVC)
-    list(APPEND _picky_nocheck "-WX")
-  else()  # llvm/clang and gcc style options
-    list(APPEND _picky_nocheck "-Werror")
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
+    set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
+  else()
+    if(MSVC)
+      list(APPEND _picky_nocheck "-WX")
+    else()  # llvm/clang and gcc style options
+      list(APPEND _picky_nocheck "-Werror")
+    endif()
   endif()
 
   if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
