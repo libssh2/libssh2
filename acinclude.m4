@@ -289,13 +289,13 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [enum-conversion])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [sometimes-uninitialized])
             case $host_os in
-            cygwin* | mingw*)
-              dnl skip missing-variable-declarations warnings for cygwin and
-              dnl mingw because the libtool wrapper executable causes them
-              ;;
-            *)
-              CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-variable-declarations])
-              ;;
+              cygwin* | mingw*)
+                dnl skip missing-variable-declarations warnings for Cygwin and
+                dnl MinGW because the libtool wrapper executable causes them
+                ;;
+              *)
+                CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-variable-declarations])
+                ;;
             esac
           fi
           #
@@ -333,6 +333,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           dnl clang 10 or later
           if test "$compiler_num" -ge "1000"; then
             tmp_CFLAGS="$tmp_CFLAGS -Wimplicit-fallthrough"  # we have silencing markup for clang 10.0 and above only
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [xor-used-as-pow])
           fi
 
           CFLAGS="$CFLAGS $tmp_CFLAGS"
@@ -465,7 +466,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [type-limits old-style-declaration])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-parameter-type empty-body])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [clobbered ignored-qualifiers])
-            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [conversion trampolines])
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [conversion])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [sign-conversion])
             tmp_CFLAGS="$tmp_CFLAGS -Wno-error=sign-conversion"          # FIXME
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [vla])
@@ -475,17 +476,19 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           #
           dnl Only gcc 4.5 or later
           if test "$compiler_num" -ge "405"; then
-            dnl Only windows targets
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [jump-misses-init])
+            dnl Only Windows targets
             case $host_os in
-            mingw*)
-              tmp_CFLAGS="$tmp_CFLAGS -Wno-pedantic-ms-format"
-              ;;
+              mingw*)
+                tmp_CFLAGS="$tmp_CFLAGS -Wno-pedantic-ms-format"
+                ;;
             esac
           fi
           #
           dnl Only gcc 4.6 or later
           if test "$compiler_num" -ge "406"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [double-promotion])
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [trampolines])
           fi
           #
           dnl only gcc 4.8 or later
@@ -523,6 +526,18 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [arith-conversion])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [enum-conversion])
           fi
+          #
+          dnl Only gcc 12 or later
+          if test "$compiler_num" -ge "1200"; then
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [array-compare])
+          fi
+          #
+          dnl Only gcc 13 or later
+          if test "$compiler_num" -ge "1300"; then
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [enum-int-mismatch])
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [xor-used-as-pow])
+          fi
+          #
 
           for flag in $CPPFLAGS; do
             case "$flag" in

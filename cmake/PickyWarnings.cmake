@@ -28,10 +28,7 @@ if(ENABLE_WERROR)
 endif()
 
 if(MSVC)
-  # Use the highest warning level for Visual Studio.
-  string(REGEX REPLACE "[/-]W[0-4]" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-  string(REGEX REPLACE "[/-]W[0-4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  list(APPEND _picky "-W4")
+  list(APPEND _picky "-W4")  # Use the highest warning level for Visual Studio.
 endif()
 
 if(PICKY_COMPILER)
@@ -153,6 +150,7 @@ if(PICKY_COMPILER)
          (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 12.4))
         list(APPEND _picky_enable
           -Wimplicit-fallthrough           # clang  4.0  gcc  7.0  appleclang 12.4  # We do silencing for clang 10.0 and above only
+          -Wxor-used-as-pow                # clang 10.0  gcc 13.0
         )
       endif()
     else()  # gcc
@@ -165,12 +163,18 @@ if(PICKY_COMPILER)
           -Wold-style-declaration          #             gcc  4.3
           -Wpragmas                        # clang  3.5  gcc  4.1  appleclang  6.0
           -Wstrict-aliasing=3              #             gcc  4.0
+          -ftree-vrp                       #             gcc  4.3 (required for -Warray-bounds, included in -Wall)
         )
       endif()
-      if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 4.5 AND MINGW)
+      if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 4.5)
         list(APPEND _picky_enable
-          -Wno-pedantic-ms-format          #             gcc  4.5 (MinGW-only)
+          -Wjump-misses-init               #             gcc  4.5
         )
+        if(MINGW)
+          list(APPEND _picky_enable
+            -Wno-pedantic-ms-format        #             gcc  4.5 (MinGW-only)
+          )
+        endif()
       endif()
       if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 4.8)
         list(APPEND _picky_enable
@@ -181,7 +185,7 @@ if(PICKY_COMPILER)
       endif()
       if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 5.0)
         list(APPEND _picky_enable
-          -Warray-bounds=2 -ftree-vrp      # clang  3.0  gcc  5.0 (clang default: -Warray-bounds)
+          -Warray-bounds=2                 # clang  3.0  gcc  5.0 (clang default: -Warray-bounds)
         )
       endif()
       if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 6.0)
@@ -208,6 +212,13 @@ if(PICKY_COMPILER)
         list(APPEND _picky_enable
           -Warith-conversion               #             gcc 10.0
           -Wenum-conversion                # clang  3.2  gcc 10.0  appleclang  4.6  g++ 11.0
+        )
+      endif()
+      if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 13.0)
+        list(APPEND _picky_enable
+          -Warray-compare                  # clang 20.0  gcc 12.0
+          -Wenum-int-mismatch              #             gcc 13.0
+          -Wxor-used-as-pow                # clang 10.0  gcc 13.0
         )
       endif()
     endif()
@@ -238,6 +249,24 @@ if(PICKY_COMPILER)
         list(APPEND _picky "${_ccopt}")
       endif()
     endforeach()
+  elseif(MSVC AND MSVC_VERSION LESS_EQUAL 1943)  # Skip for untested/unreleased newer versions
+    list(APPEND _picky "-Wall")
+    list(APPEND _picky "-wd4061")  # enumerator 'A' in switch of enum 'B' is not explicitly handled by a case label
+    list(APPEND _picky "-wd4191")  # 'type cast': unsafe conversion from 'FARPROC' to 'void (__cdecl *)(void)'
+    list(APPEND _picky "-wd4255")  # no function prototype given: converting '()' to '(void)' (in winuser.h)
+    list(APPEND _picky "-wd4464")  # relative include path contains '..'
+    list(APPEND _picky "-wd4548")  # expression before comma has no effect; expected expression with side-effect (in FD_SET())
+    list(APPEND _picky "-wd4574")  # 'M' is defined to be '0': did you mean to use '#if M'? (in ws2tcpip.h)
+    list(APPEND _picky "-wd4668")  # 'M' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif' (in winbase.h)
+    list(APPEND _picky "-wd4710")  # 'snprintf': function not inlined
+    list(APPEND _picky "-wd4711")  # function 'A' selected for automatic inline expansion
+    list(APPEND _picky "-wd4746")  # volatile access of '<expression>' is subject to /volatile:<iso|ms> setting;
+                                   #   consider using __iso_volatile_load/store intrinsic functions (ARM64)
+    list(APPEND _picky "-wd4774")  # 'snprintf': format string expected in argument 3 is not a string literal
+    list(APPEND _picky "-wd4820")  # 'A': 'N' bytes padding added after data member 'B'
+    if(MSVC_VERSION GREATER_EQUAL 1900)
+      list(APPEND _picky "-wd5045")  # Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+    endif()
   endif()
 endif()
 
