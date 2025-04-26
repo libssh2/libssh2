@@ -289,13 +289,13 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [enum-conversion])
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [sometimes-uninitialized])
             case $host_os in
-            cygwin* | mingw*)
-              dnl skip missing-variable-declarations warnings for cygwin and
-              dnl mingw because the libtool wrapper executable causes them
-              ;;
-            *)
-              CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-variable-declarations])
-              ;;
+              cygwin* | mingw*)
+                dnl skip missing-variable-declarations warnings for Cygwin and
+                dnl MinGW because the libtool wrapper executable causes them
+                ;;
+              *)
+                CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [missing-variable-declarations])
+                ;;
             esac
           fi
           #
@@ -477,11 +477,11 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           dnl Only gcc 4.5 or later
           if test "$compiler_num" -ge "405"; then
             CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [jump-misses-init])
-            dnl Only windows targets
+            dnl Only Windows targets
             case $host_os in
-            mingw*)
-              tmp_CFLAGS="$tmp_CFLAGS -Wno-pedantic-ms-format"
-              ;;
+              mingw*)
+                tmp_CFLAGS="$tmp_CFLAGS -Wno-pedantic-ms-format"
+                ;;
             esac
           fi
           #
