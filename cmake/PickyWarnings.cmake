@@ -165,6 +165,7 @@ if(PICKY_COMPILER)
           -Wold-style-declaration          #             gcc  4.3
           -Wpragmas                        # clang  3.5  gcc  4.1  appleclang  6.0
           -Wstrict-aliasing=3              #             gcc  4.0
+          -ftree-vrp                       #             gcc  4.3 (required for -Warray-bounds, included in -Wall)
         )
       endif()
       if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 4.5 AND MINGW)
@@ -181,7 +182,7 @@ if(PICKY_COMPILER)
       endif()
       if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 5.0)
         list(APPEND _picky_enable
-          -Warray-bounds=2 -ftree-vrp      # clang  3.0  gcc  5.0 (clang default: -Warray-bounds)
+          -Warray-bounds=2                 # clang  3.0  gcc  5.0 (clang default: -Warray-bounds)
         )
       endif()
       if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 6.0)
