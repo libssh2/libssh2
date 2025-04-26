@@ -3,11 +3,6 @@
 # Copyright (C) Viktor Szakats
 # SPDX-License-Identifier: BSD-3-Clause
 
-# Recommended option:
-# -DLIBSSH2_USE_PKGCONFIG=OFF: for cmake <=3.12 with 'add_subdirectory' tests.
-#                              These old versions can't propagate library
-#                              directories to the consumer project.
-
 # shellcheck disable=SC2086
 
 set -eu
@@ -86,7 +81,9 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
     "${cmake_consumer}" --build "${bldc}" --verbose
   else
     mkdir "${bldc}"; cd "${bldc}"
-    "${cmake_consumer}" .. ${cmake_opts} "$@" \
+    # Disable `pkg-config` for CMake <= 3.12. These versions cannot propagate
+    # library directories to the consumer project.
+    "${cmake_consumer}" .. ${cmake_opts} -DCURL_USE_PKGCONFIG=OFF "$@" \
       -DTEST_INTEGRATION_MODE=add_subdirectory
     VERBOSE=1 "${cmake_consumer}" --build .
     cd ..
