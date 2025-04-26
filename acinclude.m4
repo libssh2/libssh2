@@ -475,6 +475,7 @@ AC_DEFUN([CURL_CC_DEBUG_OPTS],
           #
           dnl Only gcc 4.5 or later
           if test "$compiler_num" -ge "405"; then
+            CURL_ADD_COMPILER_WARNINGS([tmp_CFLAGS], [jump-misses-init])
             dnl Only windows targets
             case $host_os in
             mingw*)
