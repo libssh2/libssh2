@@ -77,7 +77,12 @@ jobs:
       - name: 'install packages'
         if: ${{ !contains(matrix.image, 'windows') }}
         run: |
-          if [[ '${{ matrix.image }}' = *'ubuntu'* ]]; then
+          if [[ '${{ matrix.image }}' = *'windows'* ]]; then
+            curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 \
+              --location 'https://github.com/Kitware/CMake/releases/download/v3.7.2/cmake-3.7.2-win64-x64.zip' --output bin.zip
+            unzip bin.zip
+            rm -f bin.zip
+          elif [[ '${{ matrix.image }}' = *'ubuntu'* ]]; then
             sudo rm -f /var/lib/man-db/auto-update
             sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
           else
@@ -102,6 +107,18 @@ jobs:
       - name: 'via find_package wolfSSL'
         if: ${{ !contains(matrix.image, 'windows') }}  # MSYS2 wolfSSL package not built with the OpenSSL compatibility option
         run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=wolfSSL
+
+      - name: 'via add_subdirectory OpenSSL (old cmake)'
+        if: ${{ contains(matrix.image, 'windows') }}
+        run: |
+          export CMAKE_CONSUMER=$PWD/cmake-3.7.2-win64-x64/bin/cmake
+          ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL
+
+      - name: 'via find_package OpenSSL (old cmake)'
+        if: ${{ contains(matrix.image, 'windows') }}
+        run: |
+          export CMAKE_CONSUMER=$PWD/cmake-3.7.2-win64-x64/bin/cmake
+          ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL
 
   build_linux:
     name: 'linux'
