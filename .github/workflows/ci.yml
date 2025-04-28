@@ -121,12 +121,14 @@ jobs:
       - name: 'via add_subdirectory OpenSSL (old cmake)'
         run: |
           export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
-          ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL
+          [[ '${{ matrix.image }}' = *'windows'* ]] && options+=' -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc'
+          ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL ${options}
 
       - name: 'via find_package OpenSSL (old cmake)'
         run: |
           export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
-          ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL
+          [[ '${{ matrix.image }}' = *'windows'* ]] && options+=' -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc'
+          ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL ${options}
 
   build_linux:
     name: 'linux'
