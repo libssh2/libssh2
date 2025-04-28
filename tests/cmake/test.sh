@@ -83,7 +83,7 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
     mkdir "${bldc}"; cd "${bldc}"
     # Disable `pkg-config` for CMake <= 3.12. These versions cannot propagate
     # library directories to the consumer project.
-    "${cmake_consumer}" .. ${cmake_opts} -DCURL_USE_PKGCONFIG=OFF "$@" \
+    "${cmake_consumer}" .. ${cmake_opts} -DLIBSSH2_USE_PKGCONFIG=OFF "$@" \
       -DTEST_INTEGRATION_MODE=add_subdirectory
     VERBOSE=1 "${cmake_consumer}" --build .
     cd ..
