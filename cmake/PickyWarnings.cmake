@@ -28,10 +28,7 @@ if(ENABLE_WERROR)
 endif()
 
 if(MSVC)
-  # Use the highest warning level for Visual Studio.
-  string(REGEX REPLACE "[/-]W[0-4]" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-  string(REGEX REPLACE "[/-]W[0-4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  list(APPEND _picky "-W4")
+  list(APPEND _picky "-W4")  # Use the highest warning level for Visual Studio.
 endif()
 
 if(PICKY_COMPILER)
