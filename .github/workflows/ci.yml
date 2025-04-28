@@ -75,18 +75,27 @@ jobs:
             mingw-w64-x86_64-zlib mingw-w64-x86_64-libgcrypt mingw-w64-x86_64-openssl mingw-w64-x86_64-mbedtls
 
       - name: 'install packages'
-        if: ${{ !contains(matrix.image, 'windows') }}
         run: |
           if [[ '${{ matrix.image }}' = *'windows'* ]]; then
-            curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 \
+            cd "${HOME}" || exit 1
+            curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
               --location 'https://github.com/Kitware/CMake/releases/download/v3.7.2/cmake-3.7.2-win64-x64.zip' --output bin.zip
             unzip bin.zip
             rm -f bin.zip
+            printf '%s' "${HOME}/cmake-3.7.2-win64-x64/bin/cmake.exe" > "${HOME}/old-cmake-path.txt"
           elif [[ '${{ matrix.image }}' = *'ubuntu'* ]]; then
             sudo rm -f /var/lib/man-db/auto-update
             sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
+            cd "${HOME}" || exit 1
+            curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
+              --location https://github.com/Kitware/CMake/releases/download/v3.7.2/cmake-3.7.2-Linux-x86_64.tar.gz | tar -xzf -
+            printf '%s' "$PWD/cmake-3.7.2-Linux-x86_64/bin/cmake" > "${HOME}/old-cmake-path.txt"
           else
             brew install libgcrypt openssl mbedtls wolfssl
+            cd "${HOME}" || exit 1
+            curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
+              --location https://github.com/Kitware/CMake/releases/download/v3.7.2/cmake-3.7.2-Darwin-x86_64.tar.gz | tar -xzf -
+            printf '%s' "$PWD/cmake-3.7.2-Darwin-x86_64/CMake.app/Contents/bin/cmake" > "${HOME}/old-cmake-path.txt"
           fi
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -109,15 +118,13 @@ jobs:
         run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=wolfSSL
 
       - name: 'via add_subdirectory OpenSSL (old cmake)'
-        if: ${{ contains(matrix.image, 'windows') }}
         run: |
-          export CMAKE_CONSUMER=$PWD/cmake-3.7.2-win64-x64/bin/cmake
+          export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
           ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL
 
       - name: 'via find_package OpenSSL (old cmake)'
-        if: ${{ contains(matrix.image, 'windows') }}
         run: |
-          export CMAKE_CONSUMER=$PWD/cmake-3.7.2-win64-x64/bin/cmake
+          export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
           ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL
 
   build_linux:
