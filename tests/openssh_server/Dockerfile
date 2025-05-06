@@ -1,7 +1,7 @@
 # Copyright (C) Alexander Lamaison <alexander.lamaison@gmail.com>
 # SPDX-License-Identifier: BSD-3-Clause
 
-FROM debian:testing-slim
+FROM debian:stable-slim
 
 RUN apt-get update \
  && apt-get install -y openssh-server \
