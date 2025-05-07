@@ -97,6 +97,5 @@ EXIT_LABEL:
         close(socket_fds[1]);
     }
 
-
     return 0;
 }
