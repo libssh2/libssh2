@@ -90,8 +90,13 @@ EXIT_LABEL:
 
     libssh2_exit();
 
-    if(socket_fds[0] != -1) close(socket_fds[0]);
-    if(socket_fds[1] != -1) close(socket_fds[1]);
+    if (socket_fds[0] != -1) {
+        close(socket_fds[0]);
+    }
+    if (socket_fds[1] != -1) {
+        close(socket_fds[1]);
+    }
+
 
     return 0;
 }
