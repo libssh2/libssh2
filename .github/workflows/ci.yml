@@ -74,6 +74,7 @@ jobs:
           path-type: inherit
           install: >-
             mingw-w64-x86_64-zlib mingw-w64-x86_64-libgcrypt mingw-w64-x86_64-openssl mingw-w64-x86_64-mbedtls
+            mingw-w64-x86_64-make
 
       - name: 'install packages'
         run: |
