@@ -103,6 +103,32 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
+
+      - name: 'via add_subdirectory OpenSSL (old cmake)'
+        run: |
+          if [[ '${{ matrix.image }}' = *'windows'* ]]; then
+            echo '--------------------'
+            env
+            echo '--------------------'
+            ls -l /c || true
+            ls -l C:/mingw64 || true
+            ls -l /c/mingw64 || true
+            PATH=/usr/bin find /c/mingw64 || true
+          fi
+          export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
+          [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
+          [[ '${{ matrix.image }}' = *'windows'* ]] && options+=' -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc'
+          ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL ${options} \
+            ${{ contains(matrix.image, 'windows') && '-G "MSYS Makefiles" -DOPENSSL_ROOT_DIR="C:/mingw64"' || '' }}
+
+      - name: 'via find_package OpenSSL (old cmake)'
+        run: |
+          export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
+          [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
+          [[ '${{ matrix.image }}' = *'windows'* ]] && options+=' -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc'
+          ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL ${options} \
+            ${{ contains(matrix.image, 'windows') && '-G "MSYS Makefiles" -DOPENSSL_ROOT_DIR="C:/mingw64"' || '' }}
+
       - name: 'via FetchContent'
         run: ./tests/cmake/test.sh FetchContent
       - name: 'via add_subdirectory OpenSSL'
@@ -118,22 +144,6 @@ jobs:
       - name: 'via find_package wolfSSL'
         if: ${{ !contains(matrix.image, 'windows') }}  # MSYS2 wolfSSL package not built with the OpenSSL compatibility option
         run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=wolfSSL
-
-      - name: 'via add_subdirectory OpenSSL (old cmake)'
-        run: |
-          export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
-          [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
-          [[ '${{ matrix.image }}' = *'windows'* ]] && options+=' -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc'
-          ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL ${options} \
-            ${{ contains(matrix.image, 'windows') && '-G "MSYS Makefiles" -DOPENSSL_ROOT_DIR="C:/mingw64"' || '' }}
-
-      - name: 'via find_package OpenSSL (old cmake)'
-        run: |
-          export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
-          [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
-          [[ '${{ matrix.image }}' = *'windows'* ]] && options+=' -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc'
-          ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL ${options} \
-            ${{ contains(matrix.image, 'windows') && '-G "MSYS Makefiles" -DOPENSSL_ROOT_DIR="C:/mingw64"' || '' }}
 
   build_linux:
     name: 'linux'
