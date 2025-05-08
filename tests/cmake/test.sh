@@ -36,7 +36,7 @@ runresults() {
   set +x
   for bin in "$1"/test-consumer*; do
     file "${bin}" || true
-    ${LIBSSH2_TEST_EXE_RUNNER:-} "${bin}" || true
+    ${TEST_CMAKE_EXE_RUNNER:-} "${bin}" || true
   done
   set -x
 }
