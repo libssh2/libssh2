@@ -104,6 +104,22 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: 'via FetchContent'
+        run: ./tests/cmake/test.sh FetchContent
+      - name: 'via add_subdirectory OpenSSL'
+        run: ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL
+      - name: 'via add_subdirectory Libgcrypt'
+        run: ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=Libgcrypt
+      - name: 'via find_package OpenSSL'
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL
+      - name: 'via find_package Libgcrypt'
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=Libgcrypt
+      - name: 'via find_package mbedTLS'
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
+      - name: 'via find_package wolfSSL'
+        if: ${{ !contains(matrix.image, 'windows') }}  # MSYS2 wolfSSL package not built with the OpenSSL compatibility option
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=wolfSSL
+
       - name: 'via add_subdirectory OpenSSL (old cmake)'
         run: |
           export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
@@ -123,22 +139,6 @@ jobs:
             export LIBSSH2_CMAKE_GENERATOR='MSYS Makefiles'
           fi
           ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL ${options}
-
-      - name: 'via FetchContent'
-        run: ./tests/cmake/test.sh FetchContent
-      - name: 'via add_subdirectory OpenSSL'
-        run: ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL
-      - name: 'via add_subdirectory Libgcrypt'
-        run: ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=Libgcrypt
-      - name: 'via find_package OpenSSL'
-        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL
-      - name: 'via find_package Libgcrypt'
-        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=Libgcrypt
-      - name: 'via find_package mbedTLS'
-        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
-      - name: 'via find_package wolfSSL'
-        if: ${{ !contains(matrix.image, 'windows') }}  # MSYS2 wolfSSL package not built with the OpenSSL compatibility option
-        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=wolfSSL
 
   build_linux:
     name: 'linux'
