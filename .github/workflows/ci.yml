@@ -122,16 +122,16 @@ jobs:
         run: |
           export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
           [[ '${{ matrix.image }}' = *'windows'* ]] && options+=' -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc'
-          [[ '${{ matrix.image }}' = *'windows'* ]] && export CMAKE_GENERATOR='MSYS Makefiles'
           ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL ${options} \
+            ${{ contains(matrix.image, 'windows') && '-G "MSYS Makefiles"' || '' }} \
             ${{ contains(matrix.image, 'macos') && '-DCMAKE_C_FLAGS="-arch arm64"' || '' }}
 
       - name: 'via find_package OpenSSL (old cmake)'
         run: |
           export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
           [[ '${{ matrix.image }}' = *'windows'* ]] && options+=' -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc'
-          [[ '${{ matrix.image }}' = *'windows'* ]] && export CMAKE_GENERATOR='MSYS Makefiles'
           ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL ${options} \
+            ${{ contains(matrix.image, 'windows') && '-G "MSYS Makefiles"' || '' }} \
             ${{ contains(matrix.image, 'macos') && '-DCMAKE_C_FLAGS="-arch arm64"' || '' }}
 
   build_linux:
