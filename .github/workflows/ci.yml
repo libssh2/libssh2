@@ -293,8 +293,6 @@ jobs:
             cmake --install .
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'install wolfSSL from source'
         if: ${{ startsWith(matrix.crypto, 'wolfSSL-from-source') }}
@@ -319,8 +317,6 @@ jobs:
           cmake --build bld --parallel 5
           cmake --install bld
           cd ..
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache BoringSSL'
         if: ${{ matrix.crypto == 'BoringSSL' }}
@@ -347,8 +343,6 @@ jobs:
             cmake --install .
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache AWS-LC'
         if: ${{ matrix.crypto == 'AWS-LC' }}
@@ -370,8 +364,6 @@ jobs:
             cmake --install .
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache LibreSSL'
         if: ${{ matrix.crypto == 'LibreSSL' }}
@@ -395,8 +387,6 @@ jobs:
             cmake --install .
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache OpenSSL'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
@@ -418,8 +408,6 @@ jobs:
             make -j5 install_sw
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache OpenSSL 1.1.1'
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
@@ -440,8 +428,6 @@ jobs:
             make -j1 install_sw
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache OpenSSL 1.1.0'
         if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
@@ -462,8 +448,6 @@ jobs:
             make -j1 install_sw
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - name: 'cache OpenSSL 1.0.2'
         if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
@@ -484,8 +468,6 @@ jobs:
             make -j1 install_sw
             cd ..
           fi
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$HOME/usr" >> $GITHUB_ENV
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
@@ -556,8 +538,9 @@ jobs:
           else
             crypto='${{ matrix.crypto }}'
           fi
-          [ '${{ matrix.arch }}' = 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
-          cmake -B bld -G Ninja ${crossoptions} $TOOLCHAIN_OPTION \
+          [ -d "$HOME/usr" ] && options+=" -DCMAKE_PREFIX_PATH=$HOME/usr"
+          [ '${{ matrix.arch }}' = 'i386' ] && options+=' -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
+          cmake -B bld -G Ninja ${options} $TOOLCHAIN_OPTION \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DCRYPTO_BACKEND=${crypto} \
@@ -573,6 +556,7 @@ jobs:
         timeout-minutes: 10
         run: |
           export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
+          [ -d "$HOME/usr" ] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/usr/lib"
           cd bld && ctest -VV --output-on-failure
 
   build_linux_cross_mingw64:
