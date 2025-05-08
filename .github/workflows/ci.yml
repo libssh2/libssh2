@@ -505,10 +505,7 @@ jobs:
       - name: 'autotools tests'
         if: ${{ matrix.build == 'autotools' && !matrix.target }}
         timeout-minutes: 10
-        run: |
-          export FIXTURE_TRACE_ALL_CONNECT=1
-          make -C bld check V=1 || { cat bld/tests/*.log; false; }
-
+        run: make -C bld check V=1 || { cat bld/tests/*.log; false; }
       - name: 'autotools distcheck'
         if: ${{ matrix.target == 'distcheck' }}
         timeout-minutes: 10
