@@ -108,14 +108,14 @@ jobs:
         run: |
           export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
           [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
-          [[ '${{ matrix.image }}' = *'windows'* ]] && export LIBSSH2_CMAKE_FLAGS='-G "MSYS Makefiles" -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR="C:/mingw64/opt"'
+          [[ '${{ matrix.image }}' = *'windows'* ]] && export LIBSSH2_CMAKE_FLAGS='-G "MSYS Makefiles" -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR=C:/mingw64/opt'
           ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL ${options}
 
       - name: 'via find_package OpenSSL (old cmake)'
         run: |
           export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
           [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
-          [[ '${{ matrix.image }}' = *'windows'* ]] && export LIBSSH2_CMAKE_FLAGS='-G "MSYS Makefiles" -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR="C:/mingw64/opt"'
+          [[ '${{ matrix.image }}' = *'windows'* ]] && export LIBSSH2_CMAKE_FLAGS='-G "MSYS Makefiles" -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR=C:/mingw64/opt'
           ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL ${options}
 
       - name: 'via FetchContent'
