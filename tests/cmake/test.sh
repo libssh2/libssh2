@@ -18,7 +18,7 @@ cmake_provider="${CMAKE_PROVIDER:-${cmake_consumer}}"
 "${cmake_consumer}" --help | grep -q -- '--install' && cmake_consumer_modern=1
 "${cmake_provider}" --help | grep -q -- '--install' && cmake_provider_modern=1
 
-if [ -n "${LIBSSH2_CMAKE_GENERATOR}" ]; then
+if [ -n "${LIBSSH2_CMAKE_GENERATOR:-}" ]; then
   gen="${LIBSSH2_CMAKE_GENERATOR}"
 elif [ -n "${cmake_consumer_modern:-}" ] && \
      [ -n "${cmake_provider_modern:-}" ] && \
