@@ -123,7 +123,7 @@ jobs:
           export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
           [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
           [[ '${{ matrix.image }}' = *'windows'* ]] && options+=' -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc'
-          [[ '${{ matrix.image }}' = *'windows'* ]] && PATH='/usr/bin;/c/Program Files/Git/bin'
+          [[ '${{ matrix.image }}' = *'windows'* ]] && PATH='/usr/bin:/c/Program Files/Git/bin'
           ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL ${options} \
             ${{ contains(matrix.image, 'windows') && '-G "MSYS Makefiles"' || '' }}
 
@@ -132,7 +132,7 @@ jobs:
           export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
           [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
           [[ '${{ matrix.image }}' = *'windows'* ]] && options+=' -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc'
-          [[ '${{ matrix.image }}' = *'windows'* ]] && PATH='/usr/bin;/c/Program Files/Git/bin'
+          [[ '${{ matrix.image }}' = *'windows'* ]] && PATH='/usr/bin:/c/Program Files/Git/bin'
           ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL ${options} \
             ${{ contains(matrix.image, 'windows') && '-G "MSYS Makefiles"' || '' }}
 
