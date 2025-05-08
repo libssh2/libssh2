@@ -106,6 +106,7 @@ jobs:
 
       - name: 'via add_subdirectory OpenSSL (old cmake)'
         run: |
+          PATH=/usr/bin find /c/msys64 || true
           export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
           [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
           [[ '${{ matrix.image }}' = *'windows'* ]] && export LIBSSH2_CMAKE_FLAGS='-G "MSYS Makefiles" -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR=C:/mingw64/opt'
