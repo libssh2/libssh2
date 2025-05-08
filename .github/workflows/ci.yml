@@ -121,7 +121,7 @@ jobs:
 
       - name: 'via add_subdirectory OpenSSL (old cmake)'
         run: |
-          export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
+          export TEST_CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
           [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
           if [[ '${{ matrix.image }}' = *'windows'* ]]; then
             export TEST_CMAKE_GENERATOR='MSYS Makefiles'
@@ -131,7 +131,7 @@ jobs:
 
       - name: 'via find_package OpenSSL (old cmake)'
         run: |
-          export CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
+          export TEST_CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
           [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
           if [[ '${{ matrix.image }}' = *'windows'* ]]; then
             export TEST_CMAKE_GENERATOR='MSYS Makefiles'
