@@ -100,13 +100,13 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   if [ -n "${cmake_provider_modern:-}" ]; then  # 3.15+
     "${cmake_provider}" -B "${bldp}" -S "${src}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON "$@" \
       -DCMAKE_INSTALL_PREFIX="${prefix}"
-    "${cmake_provider}" --build "${bldp}"
+    "${cmake_provider}" --build "${bldp}" --verbose
     "${cmake_provider}" --install "${bldp}"
   else
     mkdir "${bldp}"; cd "${bldp}"
     "${cmake_provider}" "${src}" ${cmake_opts} "$@" \
       -DCMAKE_INSTALL_PREFIX="${prefix}"
-    "${cmake_provider}" --build .
+    VERBOSE=1 "${cmake_provider}" --build .
     make install
     cd ..
   fi
