@@ -40,13 +40,13 @@ if [ "${mode}" = 'ExternalProject' ]; then  # Broken
   bldc='bld-externalproject'
   rm -rf "${bldc}"
   if [ -n "${cmake_consumer_modern:-}" ]; then  # 3.15+
-    "${cmake_consumer}" -B "${bldc}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON ${LIBSSH2_CMAKE_FLAGS} "$@" \
+    "${cmake_consumer}" -B "${bldc}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON ${LIBSSH2_CMAKE_FLAGS:-} "$@" \
       -DTEST_INTEGRATION_MODE=ExternalProject \
       -DFROM_ARCHIVE="${src}" -DFROM_HASH="${sha}"
     "${cmake_consumer}" --build "${bldc}" --verbose
   else
     mkdir "${bldc}"; cd "${bldc}"
-    "${cmake_consumer}" .. ${cmake_opts} ${LIBSSH2_CMAKE_FLAGS} "$@" \
+    "${cmake_consumer}" .. ${cmake_opts} ${LIBSSH2_CMAKE_FLAGS:-} "$@" \
       -DTEST_INTEGRATION_MODE=ExternalProject \
       -DFROM_ARCHIVE="${src}" -DFROM_HASH="${sha}"
     VERBOSE=1 "${cmake_consumer}" --build .
@@ -59,7 +59,7 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'FetchContent' ]; then  # 3.14+
   src="${PWD}/${src}"
   bldc='bld-fetchcontent'
   rm -rf "${bldc}"
-  "${cmake_consumer}" -B "${bldc}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON ${LIBSSH2_CMAKE_FLAGS} "$@" \
+  "${cmake_consumer}" -B "${bldc}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON ${LIBSSH2_CMAKE_FLAGS:-} "$@" \
     -DTEST_INTEGRATION_MODE=FetchContent \
     -DFROM_GIT_REPO="${src}" \
     -DFROM_GIT_TAG="$(git rev-parse HEAD)"
@@ -76,14 +76,14 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'add_subdirectory' ]; then
   bldc='bld-add_subdirectory'
   rm -rf "${bldc}"
   if [ -n "${cmake_consumer_modern:-}" ]; then  # 3.15+
-    "${cmake_consumer}" -B "${bldc}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON ${LIBSSH2_CMAKE_FLAGS} "$@" \
+    "${cmake_consumer}" -B "${bldc}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON ${LIBSSH2_CMAKE_FLAGS:-} "$@" \
       -DTEST_INTEGRATION_MODE=add_subdirectory
     "${cmake_consumer}" --build "${bldc}" --verbose
   else
     mkdir "${bldc}"; cd "${bldc}"
     # Disable `pkg-config` for CMake <= 3.12. These versions cannot propagate
     # library directories to the consumer project.
-    "${cmake_consumer}" .. ${cmake_opts} -DLIBSSH2_USE_PKGCONFIG=OFF ${LIBSSH2_CMAKE_FLAGS} "$@" \
+    "${cmake_consumer}" .. ${cmake_opts} -DLIBSSH2_USE_PKGCONFIG=OFF ${LIBSSH2_CMAKE_FLAGS:-} "$@" \
       -DTEST_INTEGRATION_MODE=add_subdirectory
     VERBOSE=1 "${cmake_consumer}" --build .
     cd ..
@@ -98,13 +98,13 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   prefix="${PWD}/${bldp}/_pkg"
   rm -rf "${bldp}"
   if [ -n "${cmake_provider_modern:-}" ]; then  # 3.15+
-    "${cmake_provider}" -B "${bldp}" -S "${src}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON ${LIBSSH2_CMAKE_FLAGS} "$@" \
+    "${cmake_provider}" -B "${bldp}" -S "${src}" ${cmake_opts} -DCMAKE_UNITY_BUILD=ON ${LIBSSH2_CMAKE_FLAGS:-} "$@" \
       -DCMAKE_INSTALL_PREFIX="${prefix}"
     "${cmake_provider}" --build "${bldp}" --verbose
     "${cmake_provider}" --install "${bldp}"
   else
     mkdir "${bldp}"; cd "${bldp}"
-    "${cmake_provider}" "${src}" ${cmake_opts} ${LIBSSH2_CMAKE_FLAGS} "$@" \
+    "${cmake_provider}" "${src}" ${cmake_opts} ${LIBSSH2_CMAKE_FLAGS:-} "$@" \
       -DCMAKE_INSTALL_PREFIX="${prefix}"
     VERBOSE=1 "${cmake_provider}" --build .
     make install
@@ -113,13 +113,13 @@ if [ "${mode}" = 'all' ] || [ "${mode}" = 'find_package' ]; then
   bldc='bld-find_package'
   rm -rf "${bldc}"
   if [ -n "${cmake_consumer_modern:-}" ]; then  # 3.15+
-    "${cmake_consumer}" -B "${bldc}" ${LIBSSH2_CMAKE_FLAGS} \
+    "${cmake_consumer}" -B "${bldc}" ${LIBSSH2_CMAKE_FLAGS:-} \
       -DTEST_INTEGRATION_MODE=find_package \
       -DCMAKE_PREFIX_PATH="${prefix}/lib/cmake/libssh2"
     "${cmake_consumer}" --build "${bldc}" --verbose
   else
     mkdir "${bldc}"; cd "${bldc}"
-    "${cmake_consumer}" .. ${LIBSSH2_CMAKE_FLAGS} \
+    "${cmake_consumer}" .. ${LIBSSH2_CMAKE_FLAGS:-} \
       -DTEST_INTEGRATION_MODE=find_package \
       -DCMAKE_PREFIX_PATH="${prefix}/lib/cmake/libssh2"
     VERBOSE=1 "${cmake_consumer}" --build .
