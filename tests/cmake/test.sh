@@ -25,7 +25,7 @@ elif [ -n "${cmake_consumer_modern:-}" ] && \
      command -v ninja >/dev/null; then
   gen='Ninja'  # 3.17+
 else
-  gen='UNIX Makefiles'
+  gen='Unix Makefiles'
 fi
 
 cmake_opts='-DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF -DENABLE_ZLIB_COMPRESSION=ON'
