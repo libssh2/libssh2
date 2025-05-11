@@ -185,6 +185,69 @@ _libssh2_rsa_new(libssh2_rsa_ctx ** rsa,
     return 0;
 }
 
+int
+_libssh2_rsa_sha2_verify(libssh2_rsa_ctx * rsa,
+                         size_t hash_len,
+                         const unsigned char *sig,
+                         size_t sig_len,
+                         const unsigned char *m, size_t m_len)
+{
+    unsigned char *hash;
+    int ret;
+    const char *algo;
+    gcry_sexp_t s_hash = NULL;
+    gcry_sexp_t s_sig = NULL;
+
+    hash = malloc(hash_len);
+    if(!hash)
+        return -1;
+
+    if(hash_len == SHA_DIGEST_LENGTH) {
+        algo = "sha1";
+        ret = libssh2_sha1(m, m_len, hash);
+    }
+    else if(hash_len == SHA256_DIGEST_LENGTH) {
+        algo = "sha256";
+        ret = libssh2_sha256(m, m_len, hash);
+    }
+    else if(hash_len == SHA512_DIGEST_LENGTH) {
+        algo = "sha512";
+        ret = libssh2_sha512(m, m_len, hash);
+    }
+    else {
+        ret = 1;
+    }
+
+    if(ret) {
+        ret = -1;
+        goto out;
+    }
+
+    if(gcry_sexp_build(&s_hash, NULL,
+                       "(data (flags pkcs1) (hash %s %b))",
+                       algo, hash_len, hash)) {
+        ret = -1;
+        goto out;
+    }
+
+    if(gcry_sexp_build(&s_sig, NULL, "(sig-val(rsa(s %b)))", sig_len, sig)) {
+        ret = -1;
+        goto out;
+    }
+
+    ret = (gcry_pk_verify(s_sig, s_hash, rsa) == 0) ? 0 : -1;
+
+out:
+    if(s_sig)
+        gcry_sexp_release(s_sig);
+    if(s_hash)
+        gcry_sexp_release(s_hash);
+    if(hash)
+        free(hash);
+
+    return ret;
+}
+
 #if LIBSSH2_RSA_SHA1
 int
 _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
@@ -192,32 +255,8 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
                          size_t sig_len,
                          const unsigned char *m, size_t m_len)
 {
-    unsigned char hash[SHA_DIGEST_LENGTH];
-    gcry_sexp_t s_sig, s_hash;
-    int rc = -1;
-
-    if(libssh2_sha1(m, m_len, hash)) {
-        return -1;
-    }
-
-    rc = gcry_sexp_build(&s_hash, NULL,
-                         "(data (flags pkcs1) (hash sha1 %b))",
-                         SHA_DIGEST_LENGTH, hash);
-    if(rc) {
-        return -1;
-    }
-
-    rc = gcry_sexp_build(&s_sig, NULL, "(sig-val(rsa(s %b)))", sig_len, sig);
-    if(rc) {
-        gcry_sexp_release(s_hash);
-        return -1;
-    }
-
-    rc = gcry_pk_verify(s_sig, s_hash, rsa);
-    gcry_sexp_release(s_sig);
-    gcry_sexp_release(s_hash);
-
-    return (rc == 0) ? 0 : -1;
+    return _libssh2_rsa_sha2_verify(rsa, SHA_DIGEST_LENGTH, sig, sig_len, m,
+                                    m_len);
 }
 #endif
 #endif
@@ -484,65 +523,87 @@ fail:
 #endif
 
 #if LIBSSH2_RSA
+int
+_libssh2_rsa_sha2_sign(LIBSSH2_SESSION * session,
+                       libssh2_rsa_ctx * rsactx,
+                       const unsigned char *hash,
+                       size_t hash_len,
+                       unsigned char **signature,
+                       size_t *signature_len)
+{
+    const char *algo;
+    gcry_sexp_t s_tmp = NULL;
+    gcry_sexp_t s_sig = NULL;
+    gcry_error_t err;
+    const char *s;
+    size_t size;
+    unsigned char *out_sig;
+    int ret = -1;
+
+    if(hash_len == SHA_DIGEST_LENGTH)
+        algo = "sha1";
+    else if(hash_len == SHA256_DIGEST_LENGTH)
+        algo = "sha256";
+    else if(hash_len == SHA512_DIGEST_LENGTH)
+        algo = "sha512";
+    else {
+        _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                       "Unsupported hash digest length");
+        return -1;
+    }
+
+    if(gcry_sexp_build(&s_tmp, NULL,
+                       "(data (flags pkcs1) (hash %s %b))",
+                       algo, hash_len, hash))
+        return -1;
+
+    err = gcry_pk_sign(&s_sig, s_tmp, rsactx);
+    gcry_sexp_release(s_tmp);
+    if(err)
+        return -1;
+
+    s_tmp = gcry_sexp_find_token(s_sig, "s", 0);
+    if(!s_tmp)
+        goto out;
+
+    s = gcry_sexp_nth_data(s_tmp, 1, &size);
+    if(!s)
+        goto out;
+
+    if(size && s[0] == '\0') {
+        ++s;
+        --size;
+    }
+
+    out_sig = LIBSSH2_ALLOC(session, size);
+    if(!out_sig)
+        goto out;
+    memcpy(out_sig, s, size);
+
+    *signature = out_sig;
+    *signature_len = size;
+    ret = 0;
+
+out:
+    if(s_tmp)
+        gcry_sexp_release(s_tmp);
+    if(s_sig)
+        gcry_sexp_release(s_sig);
+
+    return ret;
+}
+
 #if LIBSSH2_RSA_SHA1
 int
 _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
                        libssh2_rsa_ctx * rsactx,
                        const unsigned char *hash,
                        size_t hash_len,
-                       unsigned char **signature, size_t *signature_len)
+                       unsigned char **signature,
+                       size_t *signature_len)
 {
-    gcry_sexp_t sig_sexp;
-    gcry_sexp_t data;
-    int rc;
-    const char *tmp;
-    size_t size;
-
-    if(hash_len != SHA_DIGEST_LENGTH) {
-        return -1;
-    }
-
-    if(gcry_sexp_build(&data, NULL,
-                       "(data (flags pkcs1) (hash sha1 %b))",
-                       hash_len, hash)) {
-        return -1;
-    }
-
-    rc = gcry_pk_sign(&sig_sexp, data, rsactx);
-
-    gcry_sexp_release(data);
-
-    if(rc) {
-        return -1;
-    }
-
-    data = gcry_sexp_find_token(sig_sexp, "s", 0);
-    if(!data) {
-        return -1;
-    }
-
-    tmp = gcry_sexp_nth_data(data, 1, &size);
-    if(!tmp) {
-        gcry_sexp_release(data);
-        return -1;
-    }
-
-    if(tmp[0] == '\0') {
-        tmp++;
-        size--;
-    }
-
-    *signature = LIBSSH2_ALLOC(session, size);
-    if(!*signature) {
-        gcry_sexp_release(data);
-        return -1;
-    }
-    memcpy(*signature, tmp, size);
-    *signature_len = size;
-
-    gcry_sexp_release(data);
-
-    return rc;
+    return _libssh2_rsa_sha2_sign(session, rsactx, hash, hash_len,
+                                  signature, signature_len);
 }
 #endif
 #endif
@@ -856,8 +917,20 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        size_t key_method_len)
 {
     (void)session;
+
+#if LIBSSH2_RSA_SHA2
+    if(key_method_len == 7 &&
+       memcmp(key_method, "ssh-rsa", key_method_len) == 0) {
+        return "rsa-sha2-512,rsa-sha2-256"
+#if LIBSSH2_RSA_SHA1
+            ",ssh-rsa"
+#endif
+            ;
+    }
+#else
     (void)key_method;
     (void)key_method_len;
+#endif
 
     return NULL;
 }
