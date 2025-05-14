@@ -1255,7 +1255,7 @@ libssh2_agent_sign(LIBSSH2_AGENT *agent,
     agent->session->userauth_pblc_method = LIBSSH2_ALLOC(agent->session,
                                                          method_len);
 
-    memcpy(agent->session->userauth_pblc_method, method, methodLen);
+    memcpy(agent->session->userauth_pblc_method, method, method_len);
 
     rc = agent_sign(agent->session, sig, s_len, data, d_len, &abstract);
 
