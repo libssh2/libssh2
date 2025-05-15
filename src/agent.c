@@ -1234,7 +1234,7 @@ libssh2_agent_sign(LIBSSH2_AGENT *agent,
 {
     void *abstract = agent;
     int rc;
-    uint32_t methodLen;
+    uint32_t key_kind_len;
 
     if(agent->session->userauth_pblc_state == libssh2_NB_state_idle) {
         memset(&agent->transctx, 0, sizeof(agent->transctx));
@@ -1245,9 +1245,9 @@ libssh2_agent_sign(LIBSSH2_AGENT *agent,
         return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
     }
 
-    methodLen = _libssh2_ntohu32(identity->blob);
+    key_kind_len = _libssh2_ntohu32(identity->blob);
 
-    if(identity->blob_len < sizeof(uint32_t) + methodLen) {
+    if(identity->blob_len < sizeof(uint32_t) + key_kind_len) {
         return LIBSSH2_ERROR_BUFFER_TOO_SMALL;
     }
 
