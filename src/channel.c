@@ -2337,6 +2337,13 @@ ssize_t
 _libssh2_channel_write(LIBSSH2_CHANNEL *channel, int stream_id,
                        const unsigned char *buf, size_t buflen)
 {
+    if (buflen > strlen((const char *)buf)) {
+        /* Length mismatch */
+        return _libssh2_error(channel->session,
+                                  LIBSSH2_ERROR_INVAL,
+                                  "Malicious buffer passed.");
+    }
+    
     int rc = 0;
     LIBSSH2_SESSION *session = channel->session;
     ssize_t wrote = 0; /* counter for this specific this call */
