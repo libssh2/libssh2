@@ -51,6 +51,7 @@
 /* for example and tests */
 #cmakedefine HAVE_ARPA_INET_H
 #cmakedefine HAVE_NETINET_IN_H
+#cmakedefine HAVE_TERMIOS_H
 
 /* Functions */
 #cmakedefine HAVE_GETTIMEOFDAY

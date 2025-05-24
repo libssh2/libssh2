@@ -39,7 +39,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef HAVE_TERMIOS_H
 #include <termios.h>
+
+static struct termios _saved_tio;
+#endif
 
 struct agent_chan_list {
     LIBSSH2_CHANNEL *chan;
@@ -50,7 +54,6 @@ struct agent_chan_list {
 static struct agent_chan_list *aclist_head = NULL;
 static struct agent_chan_list *aclist_tail = NULL;
 
-static struct termios _saved_tio;
 
 /*
  * Callback to start a new agent connection from the remote host.
@@ -83,7 +86,8 @@ static void authagent(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
     }
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    strlcpy(addr.sun_path, sockpath, sizeof(addr.sun_path));
+    strncpy(addr.sun_path, sockpath, sizeof(addr.sun_path));
+    addr.sun_path[sizeof(addr.sun_path) - 1] = 0;
     rc = connect(lsock, (struct sockaddr *) &addr, sizeof(addr));
     if(rc == -1) {
         fprintf(stderr, "Failed to connect to local agent\n");
@@ -204,6 +208,7 @@ static void remove_node(struct agent_chan_list *elem)
     }
 }
 
+#ifdef HAVE_TERMIOS_H
 static int _raw_mode(void)
 {
     int rc;
@@ -230,6 +235,7 @@ static int _normal_mode(void)
     rc = tcsetattr(fileno(stdin), TCSADRAIN, &_saved_tio);
     return rc;
 }
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -251,9 +257,11 @@ int main(int argc, char *argv[])
     unsigned int nfds = 1;
     LIBSSH2_POLLFD fds[1];
 
+#ifdef HAVE_TERMIOS_H
     /* Struct winsize for term size */
     struct winsize w_size;
     struct winsize w_size_bck;
+#endif
 
     /* For select on stdin */
     fd_set set;
@@ -426,6 +434,7 @@ int main(int argc, char *argv[])
         goto skip_shell;
     }
 
+#ifdef HAVE_TERMIOS_H
     rc = _raw_mode();
     if(rc) {
         fprintf(stderr, "Failed to enter into raw mode\n");
@@ -434,6 +443,7 @@ int main(int argc, char *argv[])
 
     memset(&w_size, 0, sizeof(struct winsize));
     memset(&w_size_bck, 0, sizeof(struct winsize));
+#endif
 
     for(;;) {
 
@@ -447,6 +457,7 @@ int main(int argc, char *argv[])
 #pragma GCC diagnostic pop
 #endif
 
+#ifdef HAVE_TERMIOS
         /* See if a resize pty has to be sent */
         ioctl(fileno(stdin), TIOCGWINSZ, &w_size);
         if((w_size.ws_row != w_size_bck.ws_row) ||
@@ -457,6 +468,7 @@ int main(int argc, char *argv[])
                                              w_size.ws_col,
                                              w_size.ws_row);
         }
+#endif
 
         buf = calloc(bufsiz, sizeof(char));
         if(!buf)
@@ -474,7 +486,7 @@ int main(int argc, char *argv[])
             fflush(stdout);
         }
 
-        /* Looping on X clients */
+        /* Looping on agent connections */
         if(aclist_head) {
             current_node = aclist_head;
         }
@@ -510,7 +522,9 @@ int main(int argc, char *argv[])
             break;
         }
     }
+#ifdef HAVE_TERMIOS_H
     _normal_mode();
+#endif
 
 skip_shell:
 
