@@ -17,8 +17,6 @@
 
 #include <stdio.h>
 
-#ifdef HAVE_SYS_UN_H
-
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
@@ -562,13 +560,3 @@ shutdown:
 
     return rc;
 }
-
-#else
-
-int main(void)
-{
-    fprintf(stderr, "Sorry, this platform is not supported.");
-    return 1;
-}
-
-#endif /* HAVE_SYS_UN_H */
