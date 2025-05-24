@@ -36,6 +36,12 @@
 #include <sys/un.h>
 #endif
 
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <afunix.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -92,7 +98,13 @@ static void authagent(LIBSSH2_SESSION *session, LIBSSH2_CHANNEL *channel,
     if(rc == -1) {
         fprintf(stderr, "Failed to connect to local agent\n");
         libssh2_channel_free(channel);
-        shutdown(lsock, SHUT_RDWR);
+        shutdown(lsock,
+#ifdef _WIN32
+            SD_BOTH
+#else
+            SHUT_RDWR
+#endif
+        );
         LIBSSH2_SOCKET_CLOSE(lsock);
         return;
     }
@@ -281,6 +293,9 @@ int main(int argc, char *argv[])
 
     if(argc < 3) {
         fprintf(stderr, "Usage: %s <host> <user>\n", argv[0]);
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return 1;
     }
     hostaddr = inet_addr(argv[1]);
@@ -289,7 +304,8 @@ int main(int argc, char *argv[])
     rc = libssh2_init(0);
     if(rc) {
         fprintf(stderr, "libssh2 initialization failed (%d)\n", rc);
-        return 1;
+        rc = 1;
+        goto shutdown;
     }
 
     /* Ultra basic "connect to port 22 on localhost".  Your code is
@@ -307,6 +323,7 @@ int main(int argc, char *argv[])
     sin.sin_addr.s_addr = hostaddr;
     if(connect(sock, (struct sockaddr *)(&sin), sizeof(struct sockaddr_in))) {
         fprintf(stderr, "failed to connect.\n");
+        rc = 1;
         goto shutdown;
     }
 
@@ -314,12 +331,14 @@ int main(int argc, char *argv[])
     session = libssh2_session_init();
     if(!session) {
         fprintf(stderr, "Could not initialize SSH session.\n");
+        rc = 1;
         goto shutdown;
     }
 
     rc = libssh2_session_handshake(session, sock);
     if(rc) {
         fprintf(stderr, "Failure establishing SSH session: %d\n", rc);
+        rc = 1;
         goto shutdown;
     }
 
@@ -346,6 +365,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Authentication methods: %s\n", userauthlist);
         if(!strstr(userauthlist, "publickey")) {
             fprintf(stderr, "'publickey' authentication is not supported\n");
+            rc = 1;
             goto shutdown;
         }
 
@@ -391,6 +411,7 @@ int main(int argc, char *argv[])
         }
         if(rc) {
             fprintf(stderr, "Could not continue authentication\n");
+            rc = 1;
             goto shutdown;
         }
     }
@@ -401,6 +422,7 @@ int main(int argc, char *argv[])
     channel = libssh2_channel_open_session(session);
     if(!channel) {
         fprintf(stderr, "Unable to open a session\n");
+        rc = 1;
         goto shutdown;
     }
 
