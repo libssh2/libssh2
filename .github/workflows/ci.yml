@@ -89,13 +89,13 @@ jobs:
             sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
             cd "${HOME}" || exit 1
             curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
-              --location https://github.com/Kitware/CMake/releases/download/v${{ env.old-cmake-version }}/cmake-${{ env.old-cmake-version }}-Linux-x86_64.tar.gz | tar -xzf -
+              --location https://github.com/Kitware/CMake/releases/download/v${{ env.old-cmake-version }}/cmake-${{ env.old-cmake-version }}-Linux-x86_64.tar.gz | tar -xz
             printf '%s' "$PWD/cmake-${{ env.old-cmake-version }}-Linux-x86_64/bin/cmake" > "${HOME}/old-cmake-path.txt"
           else
             brew install libgcrypt openssl mbedtls wolfssl
             cd "${HOME}" || exit 1
             curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
-              --location https://github.com/Kitware/CMake/releases/download/v${{ env.old-cmake-version }}/cmake-${{ env.old-cmake-version }}-Darwin-x86_64.tar.gz | tar -xzf -
+              --location https://github.com/Kitware/CMake/releases/download/v${{ env.old-cmake-version }}/cmake-${{ env.old-cmake-version }}-Darwin-x86_64.tar.gz | tar -xz
             printf '%s' "$PWD/cmake-${{ env.old-cmake-version }}-Darwin-x86_64/CMake.app/Contents/bin/cmake" > "${HOME}/old-cmake-path.txt"
           fi
 
@@ -276,7 +276,7 @@ jobs:
         if: ${{ matrix.crypto == 'mbedTLS-from-source' }}
         run: |
           if [ '${{ steps.cache-mbedtls.outputs.cache-hit }}' != 'true' ]; then
-            curl -fsS -L https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-${{ env.mbedtls-version }}/mbedtls-${{ env.mbedtls-version }}.tar.bz2 | tar -xjf -
+            curl -fsS -L https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-${{ env.mbedtls-version }}/mbedtls-${{ env.mbedtls-version }}.tar.bz2 | tar -xj
             cd mbedtls-${{ env.mbedtls-version }}
             if [ '${{ matrix.arch }}' = 'i386' ]; then
               crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }}'
@@ -303,7 +303,7 @@ jobs:
             WOLFSSLVER=${{ env.wolfssl-version-prev }}
             options='-DWOLFSSL_OPENSSLEXTRA=ON'
           fi
-          curl -fsS -L https://github.com/wolfSSL/wolfssl/archive/refs/tags/v$WOLFSSLVER-stable.tar.gz | tar -xzf -
+          curl -fsS -L https://github.com/wolfSSL/wolfssl/archive/refs/tags/v$WOLFSSLVER-stable.tar.gz | tar -xz
           cd wolfssl-$WOLFSSLVER-stable
           cmake -B bld -G Ninja ${options} \
             -DWOLFSSL_LIBSSH2=ON \
@@ -332,7 +332,7 @@ jobs:
           if [ '${{ steps.cache-boringssl.outputs.cache-hit }}' != 'true' ]; then
             mkdir boringssl
             cd boringssl
-            curl -fsS https://boringssl.googlesource.com/boringssl/+archive/${{ env.boringssl-version }}.tar.gz | tar -xzf -
+            curl -fsS https://boringssl.googlesource.com/boringssl/+archive/${{ env.boringssl-version }}.tar.gz | tar -xz
             # Skip tests to finish the build faster
             echo 'set_target_properties(decrepit bssl_shim test_fips boringssl_gtest test_support_lib urandom_test crypto_test ssl_test decrepit_test all_tests pki pki_test run_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)' >> ./CMakeLists.txt
             cmake -B . -G Ninja \
@@ -358,7 +358,7 @@ jobs:
           if [ '${{ steps.cache-aws-lc.outputs.cache-hit }}' != 'true' ]; then
             mkdir aws-lc
             cd aws-lc
-            curl -fsS -L https://github.com/aws/aws-lc/archive/refs/tags/v${{ env.awslc-version }}.tar.gz | tar -xzf -
+            curl -fsS -L https://github.com/aws/aws-lc/archive/refs/tags/v${{ env.awslc-version }}.tar.gz | tar -xz
             cmake aws-lc-${{ env.awslc-version }} -B . -DCMAKE_INSTALL_PREFIX="$HOME/usr"
             cmake --build . --parallel 5
             cmake --install .
@@ -377,7 +377,7 @@ jobs:
         if: ${{ matrix.crypto == 'LibreSSL' }}
         run: |
           if [ '${{ steps.cache-libressl.outputs.cache-hit }}' != 'true' ]; then
-            curl -fsS -L https://github.com/libressl/portable/releases/download/v${{ env.libressl-version }}/libressl-${{ env.libressl-version }}.tar.gz | tar -xzf -
+            curl -fsS -L https://github.com/libressl/portable/releases/download/v${{ env.libressl-version }}/libressl-${{ env.libressl-version }}.tar.gz | tar -xz
             cd libressl-${{ env.libressl-version }}
             cmake -B . -G Ninja \
               -DLIBRESSL_APPS=OFF \
@@ -400,7 +400,7 @@ jobs:
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
         run: |
           if [ '${{ steps.cache-openssl.outputs.cache-hit }}' != 'true' ]; then
-            curl -fsS -L https://github.com/openssl/openssl/releases/download/openssl-${{ env.openssl-version }}/openssl-${{ env.openssl-version }}.tar.gz | tar -xzf -
+            curl -fsS -L https://github.com/openssl/openssl/releases/download/openssl-${{ env.openssl-version }}/openssl-${{ env.openssl-version }}.tar.gz | tar -xz
             cd openssl-${{ env.openssl-version }}
             ./Configure no-deprecated \
               no-apps no-docs no-tests no-makedepend \
@@ -421,7 +421,7 @@ jobs:
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
         run: |
           if [ '${{ steps.cache-openssl111.outputs.cache-hit }}' != 'true' ]; then
-            curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl111-version }}.tar.gz | tar -xzf -
+            curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${{ env.openssl111-version }}.tar.gz | tar -xz
             cd openssl-${{ env.openssl111-version }}
             ./config no-unit-test no-makedepend --prefix="$HOME/usr" no-tests
             make -j5
@@ -441,7 +441,7 @@ jobs:
         if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
         run: |
           if [ '${{ steps.cache-openssl110.outputs.cache-hit }}' != 'true' ]; then
-            curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_0l/openssl-${{ env.openssl110-version }}.tar.gz | tar -xzf -
+            curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_0l/openssl-${{ env.openssl110-version }}.tar.gz | tar -xz
             cd openssl-${{ env.openssl110-version }}
             ./config no-unit-test no-makedepend --prefix="$HOME/usr"
             make -j5
@@ -461,7 +461,7 @@ jobs:
         if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
         run: |
           if [ '${{ steps.cache-openssl102.outputs.cache-hit }}' != 'true' ]; then
-            curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_0_2u/openssl-${{ env.openssl102-version }}.tar.gz | tar -xzf -
+            curl -fsS -L https://github.com/openssl/openssl/releases/download/OpenSSL_1_0_2u/openssl-${{ env.openssl102-version }}.tar.gz | tar -xz
             cd openssl-${{ env.openssl102-version }}
             ./config no-unit-test no-makedepend --prefix="$HOME/usr" -fPIC
             make -j5
