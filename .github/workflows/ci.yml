@@ -58,6 +58,7 @@ jobs:
         shell: ${{ contains(matrix.image, 'windows') && 'msys2 {0}' || 'bash' }}
     env:
       CC: ${{ !contains(matrix.image, 'windows') && 'clang' || '' }}
+      MATRIX_IMAGE: '${{ matrix.image }}'
       old-cmake-version: 3.11.4
     strategy:
       fail-fast: false
@@ -77,14 +78,14 @@ jobs:
 
       - name: 'install packages'
         run: |
-          if [[ '${{ matrix.image }}' = *'windows'* ]]; then
+          if [[ "${MATRIX_IMAGE}" = *'windows'* ]]; then
             cd "${HOME}" || exit 1
             curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
               --location 'https://github.com/Kitware/CMake/releases/download/v${{ env.old-cmake-version }}/cmake-${{ env.old-cmake-version }}-win64-x64.zip' --output bin.zip
             unzip -q bin.zip
             rm -f bin.zip
             printf '%s' "$PWD/cmake-${{ env.old-cmake-version }}-win64-x64/bin/cmake.exe" > "${HOME}/old-cmake-path.txt"
-          elif [[ '${{ matrix.image }}' = *'ubuntu'* ]]; then
+          elif [[ "${MATRIX_IMAGE}" = *'ubuntu'* ]]; then
             sudo rm -f /var/lib/man-db/auto-update
             sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
             cd "${HOME}" || exit 1
@@ -122,8 +123,8 @@ jobs:
       - name: 'via add_subdirectory OpenSSL (old cmake)'
         run: |
           export TEST_CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
-          [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
-          if [[ '${{ matrix.image }}' = *'windows'* ]]; then
+          [[ "${MATRIX_IMAGE}" = *'macos'* ]] && export CFLAGS='-arch arm64'
+          if [[ "${MATRIX_IMAGE}" = *'windows'* ]]; then
             export TEST_CMAKE_GENERATOR='MSYS Makefiles'
             export TEST_CMAKE_FLAGS='-DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR=C:/msys64/mingw64'
           fi
@@ -132,8 +133,8 @@ jobs:
       - name: 'via find_package OpenSSL (old cmake)'
         run: |
           export TEST_CMAKE_CONSUMER="$(cat "${HOME}/old-cmake-path.txt")"
-          [[ '${{ matrix.image }}' = *'macos'* ]] && export CFLAGS='-arch arm64'
-          if [[ '${{ matrix.image }}' = *'windows'* ]]; then
+          [[ "${MATRIX_IMAGE}" = *'macos'* ]] && export CFLAGS='-arch arm64'
+          if [[ "${MATRIX_IMAGE}" = *'windows'* ]]; then
             export TEST_CMAKE_GENERATOR='MSYS Makefiles'
             export TEST_CMAKE_FLAGS='-DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR=C:/msys64/mingw64'
           fi
