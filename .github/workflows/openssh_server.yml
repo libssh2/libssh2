@@ -50,21 +50,21 @@ jobs:
 
       - shell: bash
         id: poll
-        run: docker manifest inspect ghcr.io/${{ github.repository_owner }}/ci_tests_openssh_server:${{ steps.hash.outputs.hash }}
         continue-on-error: true
+        run: docker manifest inspect ghcr.io/${{ github.repository_owner }}/ci_tests_openssh_server:${{ steps.hash.outputs.hash }}
 
       - uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # v5
+        if: ${{ steps.poll.outcome == 'failure' }}
         id: meta
         with:
           images: ghcr.io/${{ github.repository_owner }}/ci_tests_openssh_server
           tags: |
             type=raw,value=${{ steps.hash.outputs.hash }}
-        if: ${{ steps.poll.outcome == 'failure' }}
 
       - uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355 # v6
+        if: ${{ steps.poll.outcome == 'failure' }}
         with:
           context: ./tests/openssh_server
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-        if: ${{ steps.poll.outcome == 'failure' }}
