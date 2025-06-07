@@ -51,7 +51,9 @@ jobs:
       - shell: bash
         id: poll
         continue-on-error: true
-        run: docker manifest inspect ghcr.io/${{ github.repository_owner }}/ci_tests_openssh_server:${{ steps.hash.outputs.hash }}
+        env:
+          HASH: '${{ steps.hash.outputs.hash }}'
+        run: docker manifest inspect "ghcr.io/${GITHUB_REPOSITORY_OWNER}/ci_tests_openssh_server:${HASH}"
 
       - uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # v5
         if: ${{ steps.poll.outcome == 'failure' }}
