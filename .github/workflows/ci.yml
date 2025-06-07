@@ -328,22 +328,19 @@ jobs:
           key: ${{ runner.os }}-boringssl-${{ env.BORINGSSL_VERSION }}-${{ matrix.arch }}
 
       - name: 'install BoringSSL from source'
-        if: ${{ matrix.crypto == 'BoringSSL' }}
+        if: ${{ matrix.crypto == 'BoringSSL' && !steps.cache-boringssl.outputs.cache-hit }}
         run: |
-          if [ '${{ steps.cache-boringssl.outputs.cache-hit }}' != 'true' ]; then
-            mkdir boringssl
-            cd boringssl
-            curl -fsS "https://boringssl.googlesource.com/boringssl/+archive/${BORINGSSL_VERSION}.tar.gz" | tar -xz
-            # Skip tests to finish the build faster
-            echo 'set_target_properties(decrepit bssl_shim test_fips boringssl_gtest test_support_lib urandom_test crypto_test ssl_test decrepit_test all_tests pki pki_test run_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)' >> ./CMakeLists.txt
-            cmake -B . -G Ninja \
-              -DOPENSSL_SMALL=ON \
-              -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-              -DCMAKE_INSTALL_PREFIX="$HOME/usr"
-            cmake --build . --parallel 5
-            cmake --install .
-            cd ..
-          fi
+          mkdir boringssl
+          cd boringssl
+          curl -fsS "https://boringssl.googlesource.com/boringssl/+archive/${BORINGSSL_VERSION}.tar.gz" | tar -xz
+          # Skip tests to finish the build faster
+          echo 'set_target_properties(decrepit bssl_shim test_fips boringssl_gtest test_support_lib urandom_test crypto_test ssl_test decrepit_test all_tests pki pki_test run_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)' >> ./CMakeLists.txt
+          cmake -B . -G Ninja \
+            -DOPENSSL_SMALL=ON \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            -DCMAKE_INSTALL_PREFIX="$HOME/usr"
+          cmake --build . --parallel 5
+          cmake --install .
 
       - name: 'cache AWS-LC'
         if: ${{ matrix.crypto == 'AWS-LC' }}
@@ -354,17 +351,14 @@ jobs:
           key: ${{ runner.os }}-aws-lc-${{ env.AWSLC_VERSION }}-${{ matrix.arch }}
 
       - name: 'install AWS-LC from source'
-        if: ${{ matrix.crypto == 'AWS-LC' }}
+        if: ${{ matrix.crypto == 'AWS-LC' && !steps.cache-aws-lc.outputs.cache-hit }}
         run: |
-          if [ '${{ steps.cache-aws-lc.outputs.cache-hit }}' != 'true' ]; then
-            mkdir aws-lc
-            cd aws-lc
-            curl -fsS -L "https://github.com/aws/aws-lc/archive/refs/tags/v${AWSLC_VERSION}.tar.gz" | tar -xz
-            cmake "aws-lc-${AWSLC_VERSION}" -B . -DCMAKE_INSTALL_PREFIX="$HOME"/usr
-            cmake --build . --parallel 5
-            cmake --install .
-            cd ..
-          fi
+          mkdir aws-lc
+          cd aws-lc
+          curl -fsS -L "https://github.com/aws/aws-lc/archive/refs/tags/v${AWSLC_VERSION}.tar.gz" | tar -xz
+          cmake "aws-lc-${AWSLC_VERSION}" -B . -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake --build . --parallel 5
+          cmake --install .
 
       - name: 'cache LibreSSL'
         if: ${{ matrix.crypto == 'LibreSSL' }}
@@ -375,19 +369,16 @@ jobs:
           key: ${{ runner.os }}-libressl-${{ env.LIBRESSL_VERSION }}-${{ matrix.arch }}
 
       - name: 'install LibreSSL from source'
-        if: ${{ matrix.crypto == 'LibreSSL' }}
+        if: ${{ matrix.crypto == 'LibreSSL' && !steps.cache-libressl.outputs.cache-hit }}
         run: |
-          if [ '${{ steps.cache-libressl.outputs.cache-hit }}' != 'true' ]; then
-            curl -fsS -L "https://github.com/libressl/portable/releases/download/v${LIBRESSL_VERSION}/libressl-${LIBRESSL_VERSION}.tar.gz" | tar -xz
-            cd "libressl-${LIBRESSL_VERSION}"
-            cmake -B . -G Ninja \
-              -DLIBRESSL_APPS=OFF \
-              -DLIBRESSL_TESTS=OFF \
-              -DCMAKE_INSTALL_PREFIX="$HOME/usr"
-            cmake --build . --parallel 5
-            cmake --install .
-            cd ..
-          fi
+          curl -fsS -L "https://github.com/libressl/portable/releases/download/v${LIBRESSL_VERSION}/libressl-${LIBRESSL_VERSION}.tar.gz" | tar -xz
+          cd "libressl-${LIBRESSL_VERSION}"
+          cmake -B . -G Ninja \
+            -DLIBRESSL_APPS=OFF \
+            -DLIBRESSL_TESTS=OFF \
+            -DCMAKE_INSTALL_PREFIX="$HOME/usr"
+          cmake --build . --parallel 5
+          cmake --install .
 
       - name: 'cache OpenSSL'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
@@ -398,17 +389,14 @@ jobs:
           key: ${{ runner.os }}-openssl-${{ env.OPENSSL_VERSION }}-${{ matrix.arch }}
 
       - name: 'install OpenSSL from source'
-        if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
+        if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' && !steps.cache-openssl.outputs.cache-hit }}
         run: |
-          if [ '${{ steps.cache-openssl.outputs.cache-hit }}' != 'true' ]; then
-            curl -fsS -L "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz" | tar -xz
-            cd "openssl-${OPENSSL_VERSION}"
-            ./Configure no-deprecated \
-              no-apps no-docs no-tests no-makedepend \
-              no-comp no-quic no-legacy --prefix="$HOME/usr"
-            make -j5 install_sw
-            cd ..
-          fi
+          curl -fsS -L "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz" | tar -xz
+          cd "openssl-${OPENSSL_VERSION}"
+          ./Configure no-deprecated \
+            no-apps no-docs no-tests no-makedepend \
+            no-comp no-quic no-legacy --prefix="$HOME/usr"
+          make -j5 install_sw
 
       - name: 'cache OpenSSL 1.1.1'
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
@@ -419,16 +407,13 @@ jobs:
           key: ${{ runner.os }}-openssl-${{ env.OPENSSL111_VERSION }}-${{ matrix.arch }}
 
       - name: 'install OpenSSL 1.1.1 from source'
-        if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
+        if: ${{ matrix.crypto == 'OpenSSL-111-from-source' && !steps.cache-openssl111.outputs.cache-hit }}
         run: |
-          if [ '${{ steps.cache-openssl111.outputs.cache-hit }}' != 'true' ]; then
-            curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${OPENSSL111_VERSION}.tar.gz" | tar -xz
-            cd "openssl-${OPENSSL111_VERSION}"
-            ./config no-unit-test no-makedepend --prefix="$HOME/usr" no-tests
-            make -j5
-            make -j1 install_sw
-            cd ..
-          fi
+          curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${OPENSSL111_VERSION}.tar.gz" | tar -xz
+          cd "openssl-${OPENSSL111_VERSION}"
+          ./config no-unit-test no-makedepend --prefix="$HOME/usr" no-tests
+          make -j5
+          make -j1 install_sw
 
       - name: 'cache OpenSSL 1.1.0'
         if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
@@ -439,16 +424,13 @@ jobs:
           key: ${{ runner.os }}-openssl-${{ env.OPENSSL110_VERSION }}-${{ matrix.arch }}
 
       - name: 'install OpenSSL 1.1.0 from source'
-        if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
+        if: ${{ matrix.crypto == 'OpenSSL-110-from-source' && !steps.cache-openssl110.outputs.cache-hit }}
         run: |
-          if [ '${{ steps.cache-openssl110.outputs.cache-hit }}' != 'true' ]; then
-            curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_0l/openssl-${OPENSSL110_VERSION}.tar.gz" | tar -xz
-            cd "openssl-${OPENSSL110_VERSION}"
-            ./config no-unit-test no-makedepend --prefix="$HOME/usr"
-            make -j5
-            make -j1 install_sw
-            cd ..
-          fi
+          curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_0l/openssl-${OPENSSL110_VERSION}.tar.gz" | tar -xz
+          cd "openssl-${OPENSSL110_VERSION}"
+          ./config no-unit-test no-makedepend --prefix="$HOME/usr"
+          make -j5
+          make -j1 install_sw
 
       - name: 'cache OpenSSL 1.0.2'
         if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
@@ -459,16 +441,13 @@ jobs:
           key: ${{ runner.os }}-openssl-${{ env.OPENSSL102_VERSION }}-${{ matrix.arch }}
 
       - name: 'install OpenSSL 1.0.2 from source'
-        if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
+        if: ${{ matrix.crypto == 'OpenSSL-102-from-source' && !steps.cache-openssl102.outputs.cache-hit }}
         run: |
-          if [ '${{ steps.cache-openssl102.outputs.cache-hit }}' != 'true' ]; then
-            curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_0_2u/openssl-${OPENSSL102_VERSION}.tar.gz" | tar -xz
-            cd "openssl-${OPENSSL102_VERSION}"
-            ./config no-unit-test no-makedepend --prefix="$HOME/usr" -fPIC
-            make -j5
-            make -j1 install_sw
-            cd ..
-          fi
+          curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_0_2u/openssl-${OPENSSL102_VERSION}.tar.gz" | tar -xz
+          cd "openssl-${OPENSSL102_VERSION}"
+          ./config no-unit-test no-makedepend --prefix="$HOME/usr" -fPIC
+          make -j5
+          make -j1 install_sw
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
