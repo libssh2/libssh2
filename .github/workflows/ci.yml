@@ -508,13 +508,13 @@ jobs:
           # Test build from tarball
           tar -xvf libssh2-99.98.97.tar.gz
           cd libssh2-99.98.97
-          ./configure --enable-werror --enable-debug --prefix="${HOME}/temp" \
+          ./configure --enable-werror --enable-debug --prefix="$HOME/temp" \
             ${MATRIX_OPTIONS} --disable-dependency-tracking
           make -j5 install
           cd ..
           # Verify install
-          diff -u <(find docs    -name '*.3' -printf '%f\n' | grep -v template | sort) <(find "${HOME}/temp/share/man/man3" -name '*.3' -printf '%f\n' | sort)
-          diff -u <(find include -name '*.h' -printf '%f\n'                    | sort) <(find "${HOME}/temp/include"        -name '*.h' -printf '%f\n' | sort)
+          diff -u <(find docs    -name '*.3' -printf '%f\n' | grep -v template | sort) <(find "$HOME/temp/share/man/man3" -name '*.3' -printf '%f\n' | sort)
+          diff -u <(find include -name '*.h' -printf '%f\n'                    | sort) <(find "$HOME/temp/include"        -name '*.h' -printf '%f\n' | sort)
           rm -rf libssh2-99.98.97
 
       - name: 'cmake configure'
