@@ -835,7 +835,7 @@ jobs:
           else
             system='Windows'
           fi
-          [ "${MATRIX_CRYPTO}" = 'WinCNG' ] && options+=' -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}'
+          [ "${MATRIX_CRYPTO}" = 'WinCNG' ] && options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
           cmake -B bld ${options} \
             -DCMAKE_SYSTEM_NAME=${system} \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
