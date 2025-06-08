@@ -551,7 +551,7 @@ jobs:
         if: ${{ matrix.build == 'cmake' }}
         timeout-minutes: 10
         run: |
-          export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
+          export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
           [ -d "$HOME/usr" ] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/usr/lib"
           cd bld && ctest -VV --output-on-failure
 
