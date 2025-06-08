@@ -68,6 +68,7 @@ jobs:
           {
             echo 'ServerAliveInterval 45'
             echo "Host ${SSH_HOST}"
+            # shellcheck disable=SC2001
             echo "${SSH_FORWARD//,/\n}" | sed 's/^/  RemoteForward /g'
           } | tee -a .ssh/config
           install -m 0600 /dev/null .ssh/known_hosts
