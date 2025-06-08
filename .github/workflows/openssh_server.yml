@@ -24,15 +24,22 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+# https://docs.github.com/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
+
 name: OpenSSH Server Docker Image
 
 on:
   push:
     branches: [ master ]
 
+permissions: {}
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
     steps:
       - uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3
         with:
