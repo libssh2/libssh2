@@ -49,6 +49,19 @@ jobs:
       - name: 'spellcheck'
         run: ./ci/spellcheck.sh
 
+  cicheck:
+    runs-on: macos-latest
+    timeout-minutes: 1
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+
+      - name: zizmor GHA
+        run: |
+          brew install zizmor
+          zizmor --pedantic .github/workflows/*.yml
+
   build_integration:
     name: 'integration on ${{ matrix.image }}'
     runs-on: ${{ matrix.image }}
