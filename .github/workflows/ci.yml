@@ -651,7 +651,7 @@ jobs:
         timeout-minutes: 10
         shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
-          export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
+          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           autoreconf -fi
           mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
             --with-crypto=openssl \
@@ -665,7 +665,7 @@ jobs:
         timeout-minutes: 10
         shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
-          export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
+          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           cmake -B bld -G Ninja \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
