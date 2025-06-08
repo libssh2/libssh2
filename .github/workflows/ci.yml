@@ -56,11 +56,22 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-
-      - name: zizmor GHA
+      - name: 'install prereqs'
+        run: brew install shellcheck yq zizmor
+      - name: 'zizmor GHA'
+        run: zizmor --pedantic .github/workflows/*.yml
+      - name: 'shellcheck'
         run: |
-          brew install zizmor
-          zizmor --pedantic .github/workflows/*.yml
+          shellcheck --version
+          export SHELLCHECK_OPTS='--exclude=1090,1091,2086,2153 --enable=avoid-nullary-conditions,deprecate-which'
+          git ls-files '.github/workflows/*.yml' | while read -r f; do
+            echo "Verifying ${f}..."
+            {
+              echo '#!/usr/bin/env bash'
+              echo 'set -eu'
+              yq eval '.. | select(has("run") and (.run | type == "!!str")) | .run + "\ntrue\n"' "${f}"
+            } | sed -E 's|\$\{\{ .+ \}\}|GHA_EXPRESSION|g' | shellcheck -
+          done
 
   build_integration:
     name: 'integration on ${{ matrix.image }}'
