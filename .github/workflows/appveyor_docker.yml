@@ -68,12 +68,12 @@ jobs:
           {
             echo 'ServerAliveInterval 45'
             echo "Host ${SSH_HOST}"
-            echo "${SSH_FORWARD}" | sed 's/,/\n/g' | sed 's/^/  RemoteForward /g'
+            echo "${SSH_FORWARD//,/\n}" | sed 's/^/  RemoteForward /g'
           } | tee -a .ssh/config
           install -m 0600 /dev/null .ssh/known_hosts
           echo "${SSH_HOST} ${SSH_HOSTKEY}" | sed "s/,/\n${SSH_HOST} /g" | tee -a .ssh/known_hosts
           install -m 0600 /dev/null .ssh/id_rsa
-          echo "${SSH_PRIVKEY}" | sed 's/,/\n/g' >> .ssh/id_rsa
+          echo "${SSH_PRIVKEY//,/\n}" >> .ssh/id_rsa
 
       # we sleep explicitly to allow the remote system to kill the sleep process
       - name: Connect to AppVeyor and sleep
