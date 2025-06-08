@@ -476,7 +476,8 @@ jobs:
             crossoptions='--host=i686-pc-linux-gnu'
             export CFLAGS=-m32
           fi
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+          mkdir bld && cd bld
+          ../configure --enable-werror --enable-debug \
             ${crossoptions} ${MATRIX_OPTIONS} \
             --disable-dependency-tracking || { tail -n 1000 config.log; false; }
 
@@ -607,7 +608,8 @@ jobs:
               ${options} \
               || { cat bld/CMakeFiles/CMake*.yaml; false; }
           else
-            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+            mkdir bld && cd bld
+            ../configure --enable-werror --enable-debug \
               --host="${TRIPLET}" \
               --disable-dependency-tracking \
               || { tail -n 1000 config.log; false; }
@@ -653,7 +655,8 @@ jobs:
         run: |
           PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           autoreconf -fi
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+          mkdir bld && cd bld
+          ../configure --enable-werror --enable-debug \
             --with-crypto=openssl \
             --disable-docker-tests \
             --disable-dependency-tracking || { tail -n 1000 config.log; false; }
@@ -734,7 +737,8 @@ jobs:
             options='--enable-ecdsa-wincng'
           fi
           # sshd tests sometimes hang
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+          mkdir bld && cd bld
+          ../configure --enable-werror --enable-debug \
             --with-crypto="${MATRIX_CRYPTO}" \
             --disable-docker-tests \
             --disable-sshd-tests \
@@ -910,7 +914,8 @@ jobs:
         env:
           MATRIX_CONFIGURE: '${{ matrix.crypto.configure }}'
         run: |
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+          mkdir bld && cd bld
+          ../configure --enable-werror --enable-debug \
             --with-libz ${MATRIX_CONFIGURE} \
             --disable-docker-tests \
             --disable-sshd-tests \
@@ -1035,7 +1040,8 @@ jobs:
             # https://ports.freebsd.org/
             sudo pkg install -y autoconf automake libtool
             autoreconf -fi
-            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+            mkdir bld && cd bld
+            ../configure --enable-werror --enable-debug \
               --with-crypto=openssl \
               --disable-docker-tests \
               --disable-dependency-tracking || { tail -n 1000 config.log; false; }
@@ -1058,7 +1064,8 @@ jobs:
           prepare: pkg install build-essential libtool
           run: |
             autoreconf -fi
-            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+            mkdir bld && cd bld
+            ../configure --enable-werror --enable-debug \
               --with-crypto=openssl \
               --disable-docker-tests \
               --disable-dependency-tracking || { tail -n 1000 config.log; false; }
