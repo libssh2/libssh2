@@ -28,16 +28,6 @@ jobs:
       - name: 'checksrc'
         run: ./ci/checksrc.sh
 
-  shellcheck:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          persist-credentials: false
-      - name: 'shellcheck'
-        run: ./ci/shellcheck.sh
-
   spellcheck:
     runs-on: ubuntu-latest
     steps:
@@ -48,6 +38,16 @@ jobs:
           persist-credentials: false
       - name: 'spellcheck'
         run: ./ci/spellcheck.sh
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - name: 'shellcheck'
+        run: ./ci/shellcheck.sh
 
   cicheck:
     runs-on: macos-latest
