@@ -40,7 +40,7 @@ include(CopyRuntimeDependencies)
 
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
-transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
+libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'DOCKER_TESTS', 'DOCKER_TESTS_STATIC', 'STANDALONE_TESTS', 'STANDALONE_TESTS_STATIC', 'SSHD_TESTS',
 # 'librunner_la_SOURCES' variables
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")

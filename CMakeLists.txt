@@ -509,7 +509,7 @@ endif()
 # Global functions
 
 # Convert GNU Make assignments into CMake ones.
-function(transform_makefile_inc _input_file _output_file)
+function(libssh2_transform_makefile_inc _input_file _output_file)
   file(READ ${_input_file} _makefile_inc_cmake)
 
   string(REGEX REPLACE "\\\\\n" "" _makefile_inc_cmake ${_makefile_inc_cmake})
