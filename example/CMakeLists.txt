@@ -40,7 +40,7 @@ include(CopyRuntimeDependencies)
 
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
-transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
+libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'noinst_PROGRAMS' variable
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 
@@ -55,7 +55,7 @@ foreach(_example IN LISTS noinst_PROGRAMS)
   set_target_properties(${_example} PROPERTIES UNITY_BUILD OFF)
 endforeach()
 
-add_target_to_copy_dependencies(
+libssh2_add_target_to_copy_dependencies(
   TARGET copy_example_dependencies
-  DEPENDENCIES ${RUNTIME_DEPENDENCIES}
+  DEPENDENCIES ${_runtime_dependencies}
   BEFORE_TARGETS ${_example_targets})

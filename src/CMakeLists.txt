@@ -80,7 +80,7 @@ endif()
 ## Sources
 
 include(GNUInstallDirs)
-transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
+libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'CSOURCES' and 'HHEADERS' variables
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 set(_sources ${CSOURCES} ${HHEADERS})
@@ -198,10 +198,10 @@ if(BUILD_SHARED_LIBS)
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-  list(APPEND _RUNTIME_DEPENDENCIES $<TARGET_FILE:${LIB_SHARED}>)
+  list(APPEND __runtime_dependencies $<TARGET_FILE:${LIB_SHARED}>)
 endif()
 
-set(RUNTIME_DEPENDENCIES ${_RUNTIME_DEPENDENCIES} CACHE INTERNAL
+set(_runtime_dependencies ${__runtime_dependencies} CACHE INTERNAL
   "Files that must be in the same directory as the executables at runtime.")
 
 # Package config

@@ -52,7 +52,8 @@ include(CheckNonblockingSocketSupport)
 
 project(libssh2 C)
 
-function(libssh2_dumptargetprops _target)  # Dump all target properties
+# Dump all target properties
+function(libssh2_dumptargetprops _target)
   if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.19 AND TARGET "${_target}")
     execute_process(COMMAND "${CMAKE_COMMAND}" "--help-property-list" OUTPUT_VARIABLE _cmake_property_list)
     string(REPLACE "\n" ";" _cmake_property_list "${_cmake_property_list}")
@@ -80,7 +81,8 @@ function(libssh2_dumptargetprops _target)  # Dump all target properties
   endif()
 endfunction()
 
-function(libssh2_dumpvars)  # Dump all defined variables with their values
+# Dump all defined variables with their values
+function(libssh2_dumpvars)
   message("::group::CMake Variable Dump")
   get_cmake_property(_vars VARIABLES)
   foreach(_var IN ITEMS ${_vars})
@@ -186,11 +188,11 @@ set(LIBSSH2_LIBS "")
 if(WIN32)
   list(APPEND LIBSSH2_LIBS_SOCKET "ws2_32")
 else()
-  check_function_exists_may_need_library("socket" HAVE_SOCKET "socket")
+  libssh2_check_function_exists_may_need_library("socket" HAVE_SOCKET "socket")
   if(NEED_LIB_SOCKET)
     list(APPEND LIBSSH2_LIBS_SOCKET "socket")
   endif()
-  check_function_exists_may_need_library("inet_addr" HAVE_INET_ADDR "nsl")
+  libssh2_check_function_exists_may_need_library("inet_addr" HAVE_INET_ADDR "nsl")
   if(NEED_LIB_NSL)
     list(APPEND LIBSSH2_LIBS_SOCKET "nsl")
   endif()
@@ -390,7 +392,7 @@ endif()
 if(NOT WIN32)
   cmake_push_check_state()
   list(APPEND CMAKE_REQUIRED_LIBRARIES ${LIBSSH2_LIBS_SOCKET})
-  check_nonblocking_socket_support()
+  libssh2_check_nonblocking_socket_support()
   cmake_pop_check_state()
 endif()
 
@@ -435,7 +437,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES "bin" NO_DEFAULT_PATH)
       if(DLL_LIBCRYPTO)
-        list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO})
+        list(APPEND __runtime_dependencies ${DLL_LIBCRYPTO})
         message(STATUS "Found libcrypto DLL: ${DLL_LIBCRYPTO}")
       else()
         message(WARNING "Unable to find OpenSSL libcrypto DLL, executables may not run")
@@ -509,7 +511,7 @@ endif()
 # Global functions
 
 # Convert GNU Make assignments into CMake ones.
-function(transform_makefile_inc _input_file _output_file)
+function(libssh2_transform_makefile_inc _input_file _output_file)
   file(READ ${_input_file} _makefile_inc_cmake)
 
   string(REGEX REPLACE "\\\\\n" "" _makefile_inc_cmake ${_makefile_inc_cmake})

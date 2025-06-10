@@ -40,7 +40,7 @@ include(CopyRuntimeDependencies)
 
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
-transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
+libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'DOCKER_TESTS', 'DOCKER_TESTS_STATIC', 'STANDALONE_TESTS', 'STANDALONE_TESTS_STATIC', 'SSHD_TESTS',
 # 'librunner_la_SOURCES' variables
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
@@ -106,7 +106,7 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
       target_link_libraries(${_test} PRIVATE "gcov")
     endif()
 
-    list(APPEND TEST_TARGETS ${_test})
+    list(APPEND _test_targets ${_test})
   endif()
 endforeach()
 
@@ -164,15 +164,16 @@ endif()
 add_custom_target(coverage
   COMMAND gcovr --root "${PROJECT_SOURCE_DIR}" --exclude tests/*
   COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/coverage"
-  COMMAND gcovr --root "${PROJECT_SOURCE_DIR}" --exclude tests/* --html-details --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
+  COMMAND gcovr --root "${PROJECT_SOURCE_DIR}" --exclude tests/* --html-details
+    --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
 
 add_custom_target(clean-coverage
   COMMAND rm -rf "${CMAKE_CURRENT_BINARY_DIR}/coverage")
 
-add_target_to_copy_dependencies(
+libssh2_add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
-  DEPENDENCIES ${RUNTIME_DEPENDENCIES}
-  BEFORE_TARGETS ${TEST_TARGETS})
+  DEPENDENCIES ${_runtime_dependencies}
+  BEFORE_TARGETS ${_test_targets})
 
 if(BUILD_OSSFUZZ)
   add_subdirectory(ossfuzz)
