@@ -437,7 +437,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
         HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
         PATH_SUFFIXES "bin" NO_DEFAULT_PATH)
       if(DLL_LIBCRYPTO)
-        list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBCRYPTO})
+        list(APPEND __runtime_dependencies ${DLL_LIBCRYPTO})
         message(STATUS "Found libcrypto DLL: ${DLL_LIBCRYPTO}")
       else()
         message(WARNING "Unable to find OpenSSL libcrypto DLL, executables may not run")
