@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) Dan Fandrich, <dan@coneharvesters.com>, et al.
+# Copyright (C) Dan Fandrich, <dan@coneharvesters.com>, Viktor Szakats, et al.
 #
 # SPDX-License-Identifier: curl
 
