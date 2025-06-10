@@ -52,7 +52,8 @@ include(CheckNonblockingSocketSupport)
 
 project(libssh2 C)
 
-function(libssh2_dumptargetprops _target)  # Dump all target properties
+# Dump all target properties
+function(libssh2_dumptargetprops _target)
   if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.19 AND TARGET "${_target}")
     execute_process(COMMAND "${CMAKE_COMMAND}" "--help-property-list" OUTPUT_VARIABLE _cmake_property_list)
     string(REPLACE "\n" ";" _cmake_property_list "${_cmake_property_list}")
@@ -80,7 +81,8 @@ function(libssh2_dumptargetprops _target)  # Dump all target properties
   endif()
 endfunction()
 
-function(libssh2_dumpvars)  # Dump all defined variables with their values
+# Dump all defined variables with their values
+function(libssh2_dumpvars)
   message("::group::CMake Variable Dump")
   get_cmake_property(_vars VARIABLES)
   foreach(_var IN ITEMS ${_vars})
