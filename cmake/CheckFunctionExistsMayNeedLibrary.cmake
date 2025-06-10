@@ -70,7 +70,7 @@ function(libssh2_check_function_exists_may_need_library _function _variable)
       check_library_exists(${_lib} ${_function} "" HAVE_${_function}_IN_${_lib})
       if(HAVE_${_function}_IN_${_lib})
         set(${_variable} 1 CACHE INTERNAL "Function ${_function} found in library ${_lib}")
-        set(NEED_LIB_${_up_lib} 1 CACHE INTERNAL "Need to link ${_lib}")
+        set(NEED_LIB_${_up_lib} 1 CACHE INTERNAL "Need to link ${_lib}")  # cmake-lint: disable=C0103
         break()
       endif()
     endforeach()
