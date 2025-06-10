@@ -106,7 +106,7 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
       target_link_libraries(${_test} PRIVATE "gcov")
     endif()
 
-    list(APPEND TEST_TARGETS ${_test})
+    list(APPEND _test_targets ${_test})
   endif()
 endforeach()
 
@@ -173,7 +173,7 @@ add_custom_target(clean-coverage
 libssh2_add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
   DEPENDENCIES ${_runtime_dependencies}
-  BEFORE_TARGETS ${TEST_TARGETS})
+  BEFORE_TARGETS ${_test_targets})
 
 if(BUILD_OSSFUZZ)
   add_subdirectory(ossfuzz)
