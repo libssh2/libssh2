@@ -38,10 +38,10 @@
 include(CMakeParseArguments)
 
 function(add_target_to_copy_dependencies)
-  set(options)
-  set(oneValueArgs TARGET)
-  set(multiValueArgs DEPENDENCIES BEFORE_TARGETS)
-  cmake_parse_arguments(COPY "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  set(_options)
+  set(_one_value_args TARGET)
+  set(_multi_value_args DEPENDENCIES BEFORE_TARGETS)
+  cmake_parse_arguments(COPY "${_options}" "${_one_value_args}" "${_multi_value_args}" ${ARGN})
 
   if(NOT COPY_DEPENDENCIES)
     return()
