@@ -29,7 +29,7 @@ if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
   foreach(result_var IN ITEMS
       libssh2_FOUND
       libssh2_VERSION
-    )
+  )
     if(NOT ${result_var})
       message(FATAL_ERROR "'${result_var}' variable expected, but not set by the libssh2 package.")
     endif()
