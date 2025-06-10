@@ -55,7 +55,7 @@ foreach(_example IN LISTS noinst_PROGRAMS)
   set_target_properties(${_example} PROPERTIES UNITY_BUILD OFF)
 endforeach()
 
-add_target_to_copy_dependencies(
+libssh2_add_target_to_copy_dependencies(
   TARGET copy_example_dependencies
   DEPENDENCIES ${RUNTIME_DEPENDENCIES}
   BEFORE_TARGETS ${_example_targets})

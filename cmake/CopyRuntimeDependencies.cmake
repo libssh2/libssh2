@@ -38,7 +38,7 @@
 include(CMakeParseArguments)
 
 # Add target to copy dependencies
-function(add_target_to_copy_dependencies)
+function(libssh2_add_target_to_copy_dependencies)
   set(_options)
   set(_one_value_args TARGET)
   set(_multi_value_args DEPENDENCIES BEFORE_TARGETS)

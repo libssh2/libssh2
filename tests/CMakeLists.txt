@@ -170,7 +170,7 @@ add_custom_target(coverage
 add_custom_target(clean-coverage
   COMMAND rm -rf "${CMAKE_CURRENT_BINARY_DIR}/coverage")
 
-add_target_to_copy_dependencies(
+libssh2_add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
   DEPENDENCIES ${RUNTIME_DEPENDENCIES}
   BEFORE_TARGETS ${TEST_TARGETS})
