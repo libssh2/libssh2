@@ -164,7 +164,8 @@ endif()
 add_custom_target(coverage
   COMMAND gcovr --root "${PROJECT_SOURCE_DIR}" --exclude tests/*
   COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/coverage"
-  COMMAND gcovr --root "${PROJECT_SOURCE_DIR}" --exclude tests/* --html-details --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
+  COMMAND gcovr --root "${PROJECT_SOURCE_DIR}" --exclude tests/* --html-details
+    --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
 
 add_custom_target(clean-coverage
   COMMAND rm -rf "${CMAKE_CURRENT_BINARY_DIR}/coverage")
