@@ -172,7 +172,7 @@ add_custom_target(clean-coverage
 
 libssh2_add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
-  DEPENDENCIES ${RUNTIME_DEPENDENCIES}
+  DEPENDENCIES ${_runtime_dependencies}
   BEFORE_TARGETS ${TEST_TARGETS})
 
 if(BUILD_OSSFUZZ)
