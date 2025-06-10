@@ -390,7 +390,7 @@ endif()
 if(NOT WIN32)
   cmake_push_check_state()
   list(APPEND CMAKE_REQUIRED_LIBRARIES ${LIBSSH2_LIBS_SOCKET})
-  check_nonblocking_socket_support()
+  libssh2_check_nonblocking_socket_support()
   cmake_pop_check_state()
 endif()
 
