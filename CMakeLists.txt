@@ -478,10 +478,10 @@ endif()
 
 if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
   find_package(MbedTLS ${_specific_crypto_requirement})
-  if(MBEDTLS_FOUND)
+  if(MbedTLS_FOUND)
     set(CRYPTO_BACKEND "mbedTLS")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_MBEDTLS")
-    list(APPEND LIBSSH2_LIBS libssh2::mbedcrypto)
+    list(APPEND LIBSSH2_LIBS MbedTLS::mbedcrypto)
   endif()
 endif()
 

@@ -1,89 +1,131 @@
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
-#
-###########################################################################
-# Find the mbedTLS library
-#
-# Input variables:
-#
-# - `MBEDTLS_INCLUDE_DIR`:  The mbedTLS include directory.
-# - `MBEDCRYPTO_LIBRARY`:   Path to `mbedcrypto` library.
-#
-# Defines:
-#
-# - `MBEDTLS_FOUND`:        System has mbedTLS.
-# - `MBEDTLS_VERSION`:      Version of mbedTLS.
-# - `libssh2::mbedcrypto`:  mbedcrypto library target.
 
-set(_mbedtls_pc_requires "mbedcrypto")
+#[=======================================================================[.rst:
+FindMbedTLS v1.0
+--------
 
-if(LIBSSH2_USE_PKGCONFIG AND
-   NOT DEFINED MBEDTLS_INCLUDE_DIR AND
-   NOT DEFINED MBEDCRYPTO_LIBRARY)
-  find_package(PkgConfig QUIET)
-  pkg_check_modules(_mbedtls ${_mbedtls_pc_requires})
-endif()
+Find MbedTLS library and include files.
 
-if(_mbedtls_FOUND)
-  set(MbedTLS_FOUND TRUE)
-  set(MBEDTLS_FOUND TRUE)
-  set(MBEDTLS_VERSION ${_mbedtls_VERSION})
-  message(STATUS "Found MbedTLS (via pkg-config): ${_mbedtls_INCLUDE_DIRS} (found version \"${MBEDTLS_VERSION}\")")
+This module is a compatibility layer for the library version below 3.6.0,
+where full support of cmake configuration modules appeared. It is recommended
+to use the library 3.6 and higher, for which this module is redundant.
+
+The module provides the same targets as the MbedTLS 3.6 modules, due to which
+the migration process to 3.6 will be very simple - just delete the local copy
+of this file and reinitialize the project.
+
+IMPORTED Targets
+^^^^^^^^^^^^^^^^
+
+This module defines the :prop_tgt:`IMPORTED` targets:
+
+``MbedTLS::mbedtls``
+
+``MbedTLS::mbedcrypto``
+
+``MbedTLS::mbedx509``
+
+Result Variables
+^^^^^^^^^^^^^^^^
+
+This module defines the following variables:
+
+``MbedTLS_FOUND``
+  True if ``MbedTLS`` was found.
+
+``MbedTLS_INCLUDE_DIRS``
+
+  Where to find mbedtls/version.h, etc.
+
+``MbedTLS_LIBRARIES``
+  List of libraries for using ``mbedtls``.
+
+Cache Variables
+^^^^^^^^^^^^^^^
+
+This module may set the following variables depending on platform.
+These variables may optionally be set to help this module find the
+correct files, but clients should not use these as results:
+
+``MbedTLS_INCLUDE_DIR``
+  The full path to the directory containing ``mbedtls/version.h``.
+
+``MbedTLS_mbedtls_LIBRARY``
+  The full path to the mbedtls library.
+
+``MbedTLS_mbedcrypto_LIBRARY``
+  The full path to the mbedcrypto library.
+
+``MbedTLS_mbedx509_LIBRARY``
+  The full path to the mbedx509 library.
+
+#]=======================================================================]
+
+include(FindPackageHandleStandardArgs)
+
+list(APPEND _MBEDTLS_COMPONENTS mbedtls mbedcrypto mbedx509)
+
+find_path(MbedTLS_INCLUDE_DIR mbedtls/version.h
+  HINTS /usr/pkg/include /usr/local/include /usr/include
+  PATH_SUFFIXES "mbedtls3"
+)
+
+mark_as_advanced(MbedTLS_INCLUDE_DIR)
+
+if(MbedTLS_INCLUDE_DIR AND EXISTS "${MbedTLS_INCLUDE_DIR}/mbedtls/build_info.h")
+  file(STRINGS "${MbedTLS_INCLUDE_DIR}/mbedtls/build_info.h" MBEDTLS_VERSION_STR
+    REGEX "^#[\t ]*define[\t ]+MBEDTLS_VERSION_STRING[\t ]+\"[\.0-9]+\"")
+  string(REGEX REPLACE "^.*MBEDTLS_VERSION_STRING[\t ]+\"([0-9]+\\.[0-9]+\\.[0-9]+)\".*$"
+    "\\1" MBEDTLS_VERSION_STR "${MBEDTLS_VERSION_STR}")
+  set(MbedTLS_VERSION "${MBEDTLS_VERSION_STR}")
+
+  # ZLIB support was removed in 3.0.0
+  if(MbedTLS_VERSION VERSION_LESS "3.0.0")
+    include(CheckSymbolExists)
+    check_symbol_exists(MBEDTLS_ZLIB_SUPPORT "${MbedTLS_INCLUDE_DIR}/mbedtls/version.h" HAVE_ZLIB_SUPPORT)
+    if(HAVE_ZLIB_SUPPORT)
+      find_package(ZLIB REQUIRED)
+    endif(HAVE_ZLIB_SUPPORT)
+  endif()
 else()
-  set(_mbedtls_pc_requires "")
+  message(WARNING "No Mbed TLS version information could be parsed from the source headers")
+endif()
 
-  find_path(MBEDTLS_INCLUDE_DIR NAMES "mbedtls/version.h")
-  find_library(MBEDCRYPTO_LIBRARY NAMES "mbedcrypto" "libmbedcrypto")
-
-  unset(MBEDTLS_VERSION CACHE)
-  if(MBEDTLS_INCLUDE_DIR)
-    if(EXISTS "${MBEDTLS_INCLUDE_DIR}/mbedtls/build_info.h")  # 3.x
-      set(_version_header "${MBEDTLS_INCLUDE_DIR}/mbedtls/build_info.h")
-    elseif(EXISTS "${MBEDTLS_INCLUDE_DIR}/mbedtls/version.h")  # 2.x
-      set(_version_header "${MBEDTLS_INCLUDE_DIR}/mbedtls/version.h")
-    else()
-      unset(_version_header)
-    endif()
-    if(_version_header)
-      set(_version_regex "#[\t ]*define[\t ]+MBEDTLS_VERSION_STRING[\t ]+\"([0-9.]+)\"")
-      file(STRINGS "${_version_header}" _version_str REGEX "${_version_regex}")
-      string(REGEX REPLACE "${_version_regex}" "\\1" _version_str "${_version_str}")
-      set(MBEDTLS_VERSION "${_version_str}")
-      unset(_version_regex)
-      unset(_version_str)
-      unset(_version_header)
-    endif()
-  endif()
-
-  include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(MbedTLS
-    REQUIRED_VARS
-      MBEDTLS_INCLUDE_DIR
-      MBEDCRYPTO_LIBRARY
-    VERSION_VAR
-      MBEDTLS_VERSION
+foreach(v ${_MBEDTLS_COMPONENTS})
+  find_library(MbedTLS_${v}_LIBRARY
+    NAMES ${v}-3 ${v}   # Some Linux distributions offers mbedtls-2 and mbedtls-3 simultaneously, prefer mbedtls-3
+    PATHS /usr/pkg /usr/local /usr
   )
+  mark_as_advanced(MbedTLS_mbedtls_LIBRARY)
+endforeach()
 
-  if(MBEDTLS_FOUND)
-    set(_mbedtls_INCLUDE_DIRS ${MBEDTLS_INCLUDE_DIR})
-    set(_mbedtls_LIBRARIES    ${MBEDCRYPTO_LIBRARY})
+find_package_handle_standard_args(MbedTLS REQUIRED_VARS MbedTLS_mbedtls_LIBRARY MbedTLS_INCLUDE_DIR)
+
+foreach(v ${_MBEDTLS_COMPONENTS})
+  if(MbedTLS_${v}_LIBRARY AND NOT TARGET MbedTLS::${v})
+    add_library(MbedTLS::${v} UNKNOWN IMPORTED)
+    set_target_properties(MbedTLS::${v} PROPERTIES
+      IMPORTED_LOCATION "${MbedTLS_${v}_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES ${MbedTLS_INCLUDE_DIR}
+    )
+    if(HAVE_ZLIB_SUPPORT)
+      set_target_properties(MbedTLS::${v} PROPERTIES
+        LINK_INTERFACE_LIBRARIES ZLIB::ZLIB
+      )
+    endif()
   endif()
+endforeach()
 
-  mark_as_advanced(MBEDTLS_INCLUDE_DIR MBEDCRYPTO_LIBRARY)
+if(MbedTLS_FOUND)
+  set(MbedTLS_INCLUDE_DIRS
+    ${MbedTLS_INCLUDE_DIR}
+  )
+  set(MbedTLS_LIBRARIES
+    ${MbedTLS_mbedtls_LIBRARY}
+    ${MbedTLS_mbedcrypto_LIBRARY}
+    ${MbedTLS_mbedx509_LIBRARY}
+  )
 endif()
 
-if(MBEDTLS_FOUND)
-  if(CMAKE_VERSION VERSION_LESS 3.13)
-    link_directories(${_mbedtls_LIBRARY_DIRS})
-  endif()
-
-  if(NOT TARGET libssh2::mbedcrypto)
-    add_library(libssh2::mbedcrypto INTERFACE IMPORTED)
-    set_target_properties(libssh2::mbedcrypto PROPERTIES
-      INTERFACE_LIBSSH2_PC_MODULES "${_mbedtls_pc_requires}"
-      INTERFACE_COMPILE_OPTIONS "${_mbedtls_CFLAGS}"
-      INTERFACE_INCLUDE_DIRECTORIES "${_mbedtls_INCLUDE_DIRS}"
-      INTERFACE_LINK_DIRECTORIES "${_mbedtls_LIBRARY_DIRS}"
-      INTERFACE_LINK_LIBRARIES "${_mbedtls_LIBRARIES}")
-  endif()
-endif()
+unset(_MBEDTLS_COMPONENTS)

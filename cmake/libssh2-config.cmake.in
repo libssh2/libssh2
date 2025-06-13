@@ -17,7 +17,7 @@ elseif("@CRYPTO_BACKEND@" STREQUAL "Libgcrypt")
   list(APPEND _libs libssh2::libgcrypt)
 elseif("@CRYPTO_BACKEND@" STREQUAL "mbedTLS")
   find_dependency(MbedTLS)
-  list(APPEND _libs libssh2::mbedcrypto)
+  list(APPEND _libs MbedTLS::mbedcrypto)
 endif()
 
 if(@ZLIB_FOUND@)
