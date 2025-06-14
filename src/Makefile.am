@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 AUTOMAKE_OPTIONS = foreign nostdinc
 
-# Get the CSOURCES, HHEADERS and EXTRA_DIST defines
+# Get CSOURCES, HHEADERS, EXTRA_DIST variables
 include Makefile.inc
 
 libssh2_la_SOURCES = $(CSOURCES) $(HHEADERS)
