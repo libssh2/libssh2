@@ -219,7 +219,7 @@ skip_shell:
     }
 
     /* Other channel types are supported via:
-     * libssh2_scp_send()
+     * libssh2_scp_send64()
      * libssh2_scp_recv2()
      * libssh2_channel_direct_tcpip()
      */

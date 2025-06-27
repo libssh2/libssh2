@@ -60,7 +60,7 @@
 #include "channel.h"
 #include "mac.h"
 
-#if defined(_WIN32)
+#ifdef _WIN32
 #define libssh2_usec_t long
 #elif defined(__APPLE__)
 #define libssh2_usec_t suseconds_t
@@ -212,7 +212,7 @@ banner_receive(LIBSSH2_SESSION * session)
 static int
 banner_send(LIBSSH2_SESSION * session)
 {
-    char *banner = (char *) LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
+    const char *banner = LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF;
     size_t banner_len = sizeof(LIBSSH2_SSH_DEFAULT_BANNER_WITH_CRLF) - 1;
     ssize_t ret;
 
@@ -260,7 +260,8 @@ banner_send(LIBSSH2_SESSION * session)
         _libssh2_debug((session, LIBSSH2_TRACE_SOCKET,
                        "Sent %ld/%ld bytes at %p+%ld", (long)ret,
                        (long)(banner_len - session->banner_TxRx_total_send),
-                       (void *)banner, (long)session->banner_TxRx_total_send));
+                       (const void *)banner,
+                       (long)session->banner_TxRx_total_send));
 
     if(ret != (ssize_t)(banner_len - session->banner_TxRx_total_send)) {
         if(ret >= 0 || ret == -EAGAIN) {
@@ -488,6 +489,10 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
  * Set (or reset) a callback function
  * Returns the prior address
  */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-function-type"
+#endif
 LIBSSH2_API libssh2_cb_generic *
 libssh2_session_callback_set2(LIBSSH2_SESSION *session, enum LIBSSH2_SESSION_CALLBACKS cbtype,
                               libssh2_cb_generic *callback)
@@ -552,6 +557,9 @@ libssh2_session_callback_set2(LIBSSH2_SESSION *session, enum LIBSSH2_SESSION_CAL
 
     return NULL;
 }
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 /*
  * libssh2_session_callback_set (DEPRECATED, DO NOT USE!)
@@ -675,12 +683,12 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 
         if(dir & LIBSSH2_SESSION_BLOCK_INBOUND) {
             FD_ZERO(&rfd);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
             FD_SET(session->socket_fd, &rfd);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
             readfd = &rfd;
@@ -688,12 +696,12 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t start_time)
 
         if(dir & LIBSSH2_SESSION_BLOCK_OUTBOUND) {
             FD_ZERO(&wfd);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
             FD_SET(session->socket_fd, &wfd);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
             writefd = &wfd;
@@ -731,6 +739,12 @@ static int
 session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
 {
     int rc;
+
+    if(!session) {
+        fprintf(stderr, "Session is NULL, error: %i\n",
+                LIBSSH2_ERROR_PROTO);
+        return LIBSSH2_ERROR_PROTO;
+    }
 
     if(session->startup_state == libssh2_NB_state_idle) {
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
@@ -1158,7 +1172,7 @@ session_free(LIBSSH2_SESSION *session)
     /* error string */
     if(session->err_msg &&
        ((session->err_flags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
-        LIBSSH2_FREE(session, (char *)session->err_msg);
+        LIBSSH2_FREE(session, (char *)LIBSSH2_UNCONST(session->err_msg));
     }
 
     LIBSSH2_FREE(session, session);
@@ -1272,31 +1286,31 @@ libssh2_session_methods(LIBSSH2_SESSION * session, int method_type)
         break;
 
     case LIBSSH2_METHOD_HOSTKEY:
-        method = (LIBSSH2_KEX_METHOD *) session->hostkey;
+        method = (const LIBSSH2_KEX_METHOD *) session->hostkey;
         break;
 
     case LIBSSH2_METHOD_CRYPT_CS:
-        method = (LIBSSH2_KEX_METHOD *) session->local.crypt;
+        method = (const LIBSSH2_KEX_METHOD *) session->local.crypt;
         break;
 
     case LIBSSH2_METHOD_CRYPT_SC:
-        method = (LIBSSH2_KEX_METHOD *) session->remote.crypt;
+        method = (const LIBSSH2_KEX_METHOD *) session->remote.crypt;
         break;
 
     case LIBSSH2_METHOD_MAC_CS:
-        method = (LIBSSH2_KEX_METHOD *) session->local.mac;
+        method = (const LIBSSH2_KEX_METHOD *) session->local.mac;
         break;
 
     case LIBSSH2_METHOD_MAC_SC:
-        method = (LIBSSH2_KEX_METHOD *) session->remote.mac;
+        method = (const LIBSSH2_KEX_METHOD *) session->remote.mac;
         break;
 
     case LIBSSH2_METHOD_COMP_CS:
-        method = (LIBSSH2_KEX_METHOD *) session->local.comp;
+        method = (const LIBSSH2_KEX_METHOD *) session->local.comp;
         break;
 
     case LIBSSH2_METHOD_COMP_SC:
-        method = (LIBSSH2_KEX_METHOD *) session->remote.comp;
+        method = (const LIBSSH2_KEX_METHOD *) session->remote.comp;
         break;
 
     case LIBSSH2_METHOD_LANG_CS:
@@ -1351,7 +1365,7 @@ libssh2_session_last_error(LIBSSH2_SESSION * session, char **errmsg,
                 }
             }
             else {
-                *errmsg = (char *) "";
+                *errmsg = (char *)LIBSSH2_UNCONST("");
             }
         }
         if(errmsg_len) {
@@ -1374,7 +1388,7 @@ libssh2_session_last_error(LIBSSH2_SESSION * session, char **errmsg,
             }
         }
         else
-            *errmsg = (char *)error;
+            *errmsg = (char *)LIBSSH2_UNCONST(error);
     }
 
     if(errmsg_len) {
@@ -1655,24 +1669,24 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
         switch(fds[i].type) {
         case LIBSSH2_POLLFD_SOCKET:
             if(fds[i].events & LIBSSH2_POLLFD_POLLIN) {
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
                 FD_SET(fds[i].fd.socket, &rfds);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
                 if(fds[i].fd.socket > maxfd)
                     maxfd = fds[i].fd.socket;
             }
             if(fds[i].events & LIBSSH2_POLLFD_POLLOUT) {
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
                 FD_SET(fds[i].fd.socket, &wfds);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
                 if(fds[i].fd.socket > maxfd)
@@ -1681,12 +1695,12 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
             break;
 
         case LIBSSH2_POLLFD_CHANNEL:
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
             FD_SET(fds[i].fd.channel->session->socket_fd, &rfds);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
             if(fds[i].fd.channel->session->socket_fd > maxfd)
@@ -1696,12 +1710,12 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
             break;
 
         case LIBSSH2_POLLFD_LISTENER:
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
             FD_SET(fds[i].fd.listener->session->socket_fd, &rfds);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
             if(fds[i].fd.listener->session->socket_fd > maxfd)
@@ -1880,7 +1894,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
             for(i = 0; i < nfds; i++) {
                 switch(fds[i].type) {
                 case LIBSSH2_POLLFD_SOCKET:
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
@@ -1893,7 +1907,7 @@ libssh2_poll(LIBSSH2_POLLFD * fds, unsigned int nfds, long timeout)
                     if(fds[i].revents) {
                         active_fds++;
                     }
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
                     break;

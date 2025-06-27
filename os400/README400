@@ -18,7 +18,8 @@ additional procedures are provided for string transcoding (see below). No
 wrappers to standard procedures are provided: however, nested calls to
 transcoding procedures may be used.
 
-Crypto API is provided by the IBM QC3 API library. It supports RSA, but not DSA.
+Crypto API is provided by the IBM QC3 API library. It supports RSA and EC,
+but not DSA.
 
 
   Standard compilation environment does support neither autotools nor make;
@@ -36,7 +37,8 @@ Compiling on OS/400:
 archive extraction. Do not ask questions about these subjects if you're not
 familiar with.
 
-_ As a prerequisite, QADRT development environment must be installed.
+_ As a prerequisite, QADRT development environment >= 20211112 must be
+  installed.
   For more information on downloading and installing the QADRT development kit,
   please see https://www.ibm.com/support/pages/node/6258183
 _ If data compression has to be supported, ZLIB development environment must

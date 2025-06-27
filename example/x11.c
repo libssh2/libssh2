@@ -210,12 +210,12 @@ static int x11_send_receive(LIBSSH2_CHANNEL *channel, libssh2_socket_t sock)
     timeval_out.tv_usec = 0;
 
     FD_ZERO(&set);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
     FD_SET(sock, &set);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
@@ -347,8 +347,15 @@ int main(int argc, char *argv[])
         libssh2_trace(session, LIBSSH2_TRACE_CONN);
 
     /* Set X11 Callback */
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-function-type"
+#endif
     libssh2_session_callback_set2(session, LIBSSH2_CALLBACK_X11,
                                   (libssh2_cb_generic *)x11_callback);
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
     /* Authenticate via password */
     rc = libssh2_userauth_password(session, username, password);
@@ -415,12 +422,12 @@ int main(int argc, char *argv[])
     for(;;) {
 
         FD_ZERO(&set);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
         FD_SET(fileno(stdin), &set);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 

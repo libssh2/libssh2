@@ -88,7 +88,7 @@ terminator_size(unsigned short ccsid)
     /* Return the null-terminator size for the given CCSID. */
 
     /* Fast check usual CCSIDs. */
-    switch (ccsid) {
+    switch(ccsid) {
     case CCSID_UTF8:
     case 0:                                 /* Job CCSID is SBCS EBCDIC. */
         return 1;
@@ -98,19 +98,19 @@ terminator_size(unsigned short ccsid)
 
     /* Convert an UTF-8 NUL to the target CCSID: use the converted size as
        result. */
-    memset((void *) &outcode, 0, sizeof outcode);
+    memset((void *) &outcode, 0, sizeof(outcode));
     outcode.CCSID = ccsid;
     cd = QtqIconvOpen(&outcode, (QtqCode_T *) &utf8code);
-    if (cd.return_value == -1)
+    if(cd.return_value == -1)
         return -1;
     inp = "";
     ilen = 1;
     outp = buf;
-    olen = sizeof buf;
+    olen = sizeof(buf);
     iconv(cd, &inp, &ilen, &outp, &olen);
     iconv_close(cd);
-    olen = sizeof buf - olen;
-    return olen? olen: -1;
+    olen = sizeof(buf - olen);
+    return olen ? olen : -1;
 }
 
 static char *
@@ -132,31 +132,31 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
     QtqCode_T outcode;
     iconv_t cd;
 
-    if (!instring) {
-        if (outlen)
+    if(!instring) {
+        if(outlen)
             *outlen = 0;
         return NULL;
     }
-    if (outlen)
+    if(outlen)
         *outlen = -1;
-    if (!cache)
+    if(!cache)
         return NULL;
 
     /* Get terminator size. */
     termsize = terminator_size(outccsid);
-    if (termsize < 0)
+    if(termsize < 0)
         return NULL;
 
     /* Prepare conversion parameters. */
-    memset((void *) &incode, 0, sizeof incode);
-    memset((void *) &outcode, 0, sizeof outcode);
+    memset((void *) &incode, 0, sizeof(incode));
+    memset((void *) &outcode, 0, sizeof(outcode));
     incode.CCSID = inccsid;
     outcode.CCSID = outccsid;
     curlen = OFFSET_OF(libssh2_string_cache, string);
     inp = (char *) instring;
     ilen = inlen;
     buflen = inlen + curlen;
-    if (inlen < 0) {
+    if(inlen < 0) {
         incode.length_option = 1;
         buflen = STRING_GRANULE;
         ilen = 0;
@@ -164,34 +164,34 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
 
     /* Allocate output string buffer and open conversion descriptor. */
     dst = ALLOC(session, buflen + termsize);
-    if (!dst)
+    if(!dst)
         return NULL;
     cd = QtqIconvOpen(&outcode, &incode);
-    if (cd.return_value == -1) {
+    if(cd.return_value == -1) {
         FREE(session, dst);
         return NULL;
     }
 
     /* Convert string. */
-    for (;;) {
+    for(;;) {
         outp = dst + curlen;
         olen = buflen - curlen;
         i = iconv(cd, &inp, &ilen, &outp, &olen);
-        if (inlen < 0 && olen == buflen - curlen) {
+        if(inlen < 0 && olen == buflen - curlen) {
             /* Special case: converted 0-length (sub)strings do not store the
                terminator. */
-            if (termsize) {
+            if(termsize) {
                 memset(outp, 0, termsize);
                 olen -= termsize;
             }
         }
         curlen = buflen - olen;
-        if (i >= 0 || errno != E2BIG)
+        if(i >= 0 || errno != E2BIG)
             break;
         /* Must expand buffer. */
         buflen += STRING_GRANULE;
         outp = REALLOC(session, dst, buflen + termsize);
-        if (!outp)
+        if(!outp)
             break;
         dst = outp;
     }
@@ -199,19 +199,19 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
     iconv_close(cd);
 
     /* Check for error. */
-    if (i < 0 || !outp) {
+    if(i < 0 || !outp) {
         FREE(session, dst);
         return NULL;
     }
 
     /* Process terminator. */
-    if (inlen < 0)
+    if(inlen < 0)
         curlen -= termsize;
-    else if (termsize)
+    else if(termsize)
         memset(dst + curlen, 0, termsize);
 
     /* Shorten buffer if possible. */
-    if (curlen < buflen)
+    if(curlen < buflen)
         dst = REALLOC(session, dst, curlen + termsize);
 
     /* Link to cache. */
@@ -220,7 +220,7 @@ convert_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
     *cache = outstring;
 
     /* Return length if required. */
-    if (outlen)
+    if(outlen)
         *outlen = curlen - OFFSET_OF(libssh2_string_cache, string);
 
     return outstring->string;
@@ -250,8 +250,8 @@ libssh2_release_string_cache(LIBSSH2_SESSION *session,
 {
     libssh2_string_cache *p;
 
-    if (cache)
-        while ((p = *cache)) {
+    if(cache)
+        while((p = *cache)) {
             *cache = p->next;
             FREE(session, (char *) p);
         }

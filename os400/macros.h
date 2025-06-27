@@ -102,11 +102,13 @@ libssh2_channel_subsystem(LIBSSH2_CHANNEL *channel, const char *subsystem);
 LIBSSH2_API ssize_t
 libssh2_channel_read(LIBSSH2_CHANNEL *channel, char *buf, size_t buflen);
 LIBSSH2_API ssize_t
-libssh2_channel_read_stderr(LIBSSH2_CHANNEL *channel, char *buf, size_t buflen);
+libssh2_channel_read_stderr(LIBSSH2_CHANNEL *channel,
+                            char *buf, size_t buflen);
 LIBSSH2_API unsigned long
 libssh2_channel_window_read(LIBSSH2_CHANNEL *channel);
 LIBSSH2_API ssize_t
-libssh2_channel_write(LIBSSH2_CHANNEL *channel, const char *buf, size_t buflen);
+libssh2_channel_write(LIBSSH2_CHANNEL *channel,
+                      const char *buf, size_t buflen);
 LIBSSH2_API ssize_t
 libssh2_channel_write_stderr(LIBSSH2_CHANNEL *channel,
                              const char *buf, size_t buflen);

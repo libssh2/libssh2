@@ -47,8 +47,10 @@
 /* We use underscore instead of dash when appending DEV in dev versions just
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
-   have dashes either. */
-#define LIBSSH2_VERSION                             "1.11.1_DEV"
+   have dashes either. The release version (without "_DEV") is not stored in
+   the source code repo, as the version is properly set in the tarballs by the
+   maketgz script.*/
+#define LIBSSH2_VERSION                             "1.11.2_DEV"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
@@ -121,7 +123,7 @@ extern "C" {
 # include <sys/uio.h>
 #endif
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && (_MSC_VER < 1600)
 typedef unsigned char uint8_t;
 typedef unsigned short int uint16_t;
 typedef unsigned int uint32_t;
@@ -130,14 +132,15 @@ typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 typedef unsigned __int64 libssh2_uint64_t;
 typedef __int64 libssh2_int64_t;
-#if (!defined(HAVE_SSIZE_T) && !defined(ssize_t))
-typedef SSIZE_T ssize_t;
-#define HAVE_SSIZE_T
-#endif
 #else
 #include <stdint.h>
 typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
+#endif
+
+#if defined(_MSC_VER) && !defined(HAVE_SSIZE_T) && !defined(ssize_t)
+typedef SSIZE_T ssize_t;
+#define HAVE_SSIZE_T
 #endif
 
 #ifdef _WIN32
@@ -268,7 +271,7 @@ typedef off_t libssh2_struct_stat_size;
    short of spec limits */
 #define LIBSSH2_PACKET_MAXCOMP      32000
 
-/* Maximum size to allow a payload to deccompress to, plays it safe by
+/* Maximum size to allow a payload to decompress to, plays it safe by
    allowing more than spec requires */
 #define LIBSSH2_PACKET_MAXDECOMP    40000
 
@@ -625,7 +628,7 @@ typedef struct _LIBSSH2_POLLFD {
 /*
  * libssh2_init()
  *
- * Initialize the libssh2 functions.  This typically initialize the
+ * Initialize the libssh2 functions.  This typically initializes the
  * crypto library.  It uses a global state, and is not thread safe --
  * you must make sure this function is not called concurrently.
  *
@@ -655,7 +658,7 @@ LIBSSH2_API void libssh2_free(LIBSSH2_SESSION *session, void *ptr);
 /*
  * libssh2_session_supported_algs()
  *
- * Fills algs with a list of supported acryptographic algorithms. Returns a
+ * Fills algs with a list of supported cryptographic algorithms. Returns a
  * non-negative number (number of supported algorithms) on success or a
  * negative number (an error code) on failure.
  *
@@ -1097,21 +1100,25 @@ LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv(LIBSSH2_SESSION *session,
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_recv2(LIBSSH2_SESSION *session,
                                                const char *path,
                                                libssh2_struct_stat *sb);
+#ifndef LIBSSH2_NO_DEPRECATED
+LIBSSH2_DEPRECATED(1.2.6, "Use libssh2_scp_send64()")
 LIBSSH2_API LIBSSH2_CHANNEL *libssh2_scp_send_ex(LIBSSH2_SESSION *session,
                                                  const char *path, int mode,
                                                  size_t size, long mtime,
                                                  long atime);
+#define libssh2_scp_send(session, path, mode, size) \
+    libssh2_scp_send_ex((session), (path), (mode), (size), 0, 0)
+#endif
 LIBSSH2_API LIBSSH2_CHANNEL *
 libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
                    libssh2_int64_t size, time_t mtime, time_t atime);
 
-#define libssh2_scp_send(session, path, mode, size) \
-    libssh2_scp_send_ex((session), (path), (mode), (size), 0, 0)
-
-/* DEPRECATED */
+#ifndef LIBSSH2_NO_DEPRECATED
+LIBSSH2_DEPRECATED(1.0, "")
 LIBSSH2_API int libssh2_base64_decode(LIBSSH2_SESSION *session, char **dest,
                                       unsigned int *dest_len,
                                       const char *src, unsigned int src_len);
+#endif
 
 LIBSSH2_API
 const char *libssh2_version(int req_version_num);
@@ -1267,7 +1274,7 @@ libssh2_knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                         int typemask,
                         struct libssh2_knownhost **knownhost);
 
-/* this function is identital to the above one, but also takes a port
+/* this function is identical to the above one, but also takes a port
    argument that allows libssh2 to do a better check */
 LIBSSH2_API int
 libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,

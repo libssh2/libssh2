@@ -37,7 +37,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
+#include "libssh2_priv.h"
+
+#ifdef LIBSSH2_MBEDTLS
 
 #include <stdlib.h>
 
@@ -411,11 +413,11 @@ _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
     else
         return -1;
 
-    /* !checksrc! disable ASSIGNWITHINCONDITION 1 */
-    if((ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(E)),
-                                      edata, elen)) ||
-       (ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(N)),
-                                      ndata, nlen))) {
+    ret = 0;
+    if(mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(E)),
+                               edata, elen) ||
+       mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(N)),
+                               ndata, nlen)) {
         ret = -1;
     }
 
@@ -425,22 +427,23 @@ _libssh2_mbedtls_rsa_new(libssh2_rsa_ctx **rsa,
     }
 
     if(!ret && ddata) {
-        /* !checksrc! disable ASSIGNWITHINCONDITION 1 */
-        if((ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(D)),
-                                          ddata, dlen)) ||
-           (ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(P)),
-                                          pdata, plen)) ||
-           (ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(Q)),
-                                          qdata, qlen)) ||
-           (ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(DP)),
-                                          e1data, e1len)) ||
-           (ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(DQ)),
-                                          e2data, e2len)) ||
-           (ret = mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(QP)),
-                                          coeffdata, coefflen))) {
+        if(mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(D)),
+                                   ddata, dlen) ||
+           mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(P)),
+                                   pdata, plen) ||
+           mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(Q)),
+                                   qdata, qlen) ||
+           mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(DP)),
+                                   e1data, e1len) ||
+           mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(DQ)),
+                                   e2data, e2len) ||
+           mbedtls_mpi_read_binary(&(ctx->MBEDTLS_PRIVATE(QP)),
+                                   coeffdata, coefflen)) {
             ret = -1;
         }
-        ret = mbedtls_rsa_check_privkey(ctx);
+        else {
+            ret = mbedtls_rsa_check_privkey(ctx);
+        }
     }
     else if(!ret) {
         ret = mbedtls_rsa_check_pubkey(ctx);
@@ -476,11 +479,11 @@ _libssh2_mbedtls_rsa_new_private(libssh2_rsa_ctx **rsa,
     mbedtls_pk_init(&pkey);
 
 #if MBEDTLS_VERSION_NUMBER >= 0x03000000
-    ret = mbedtls_pk_parse_keyfile(&pkey, filename, (char *)passphrase,
+    ret = mbedtls_pk_parse_keyfile(&pkey, filename, (const char *)passphrase,
                                    mbedtls_ctr_drbg_random,
                                    &_libssh2_mbedtls_ctr_drbg);
 #else
-    ret = mbedtls_pk_parse_keyfile(&pkey, filename, (char *)passphrase);
+    ret = mbedtls_pk_parse_keyfile(&pkey, filename, (const char *)passphrase);
 #endif
     if(ret || mbedtls_pk_get_type(&pkey) != MBEDTLS_PK_RSA) {
         mbedtls_pk_free(&pkey);
@@ -502,7 +505,7 @@ _libssh2_mbedtls_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
                                             LIBSSH2_SESSION *session,
                                             const char *filedata,
                                             size_t filedata_len,
-                                            unsigned const char *passphrase)
+                                            const unsigned char *passphrase)
 {
     int ret;
     mbedtls_pk_context pkey;
@@ -706,7 +709,7 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     unsigned char *p;
 
     e_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(E));
-    n_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N));
+    n_bytes = (uint32_t)mbedtls_mpi_size(&rsa->MBEDTLS_PRIVATE(N)) + 1;
 
     /* Key form is "ssh-rsa" + e + n. */
     len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
@@ -727,10 +730,12 @@ gen_publickey_from_rsa(LIBSSH2_SESSION *session,
     _libssh2_htonu32(p, e_bytes);
     p += 4;
     mbedtls_mpi_write_binary(&rsa->MBEDTLS_PRIVATE(E), p, e_bytes);
+    p += e_bytes;   /* Increment write index after writing to buffer */
 
     _libssh2_htonu32(p, n_bytes);
     p += 4;
     mbedtls_mpi_write_binary(&rsa->MBEDTLS_PRIVATE(N), p, n_bytes);
+    p += n_bytes;   /* Increment write index after writing to buffer */
 
     *keylen = (size_t)(p - key);
     return key;
@@ -1530,4 +1535,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     return NULL;
 }
 
-#endif /* LIBSSH2_CRYPTO_C */
+#endif /* LIBSSH2_MBEDTLS */

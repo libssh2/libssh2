@@ -246,12 +246,12 @@ int main(int argc, char *argv[])
     for(;;) {
         fd_set fds;
         FD_ZERO(&fds);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
         FD_SET(forwardsock, &fds);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
         tv.tv_sec = 0;
@@ -261,12 +261,12 @@ int main(int argc, char *argv[])
             fprintf(stderr, "failed to select().\n");
             goto shutdown;
         }
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
         if(rc && FD_ISSET(forwardsock, &fds)) {
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
             ssize_t nwritten;

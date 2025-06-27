@@ -45,7 +45,7 @@ fi
 
 d="$(cd "${d}" || exit; pwd)"  # sshd needs absolute paths
 
-SSHD="${SSHD:-/usr/sbin/sshd}"
+SSHD="$(command -v "${SSHD:-sshd}" || true)"
 [[ "${uname}" = *'_NT'* ]] && SSHD="$(cygpath "${SSHD}")"
 ver="$("${SSHD}" -V 2>&1 || true)"
 if [[ "${ver}" =~ OpenSSH_[a-zA-Z0-9_\ .,]+ ]]; then
@@ -102,10 +102,14 @@ if [ -n "${SSH}" ]; then
   echo "# ssh log: '${logfcli}'"
   chmod go-rwx "${PRIVKEY}"
   if [[ "${uname}" = *'_NT'* ]]; then
-    export MSYS2_ARG_CONV_EXCL='/reset'
-    icacls "${PRIVKEY}" /reset
-    icacls "${PRIVKEY}" /grant:r "${USERNAME}:(R)"
-    icacls "${PRIVKEY}" /inheritance:r
+    if [ -x /bin/setfacl ]; then
+      /bin/setfacl --remove-all "${PRIVKEY}"
+    else
+      export MSYS2_ARG_CONV_EXCL='/reset'
+      icacls "${PRIVKEY}" /reset
+      icacls "${PRIVKEY}" /grant:r "${USERNAME}:(R)"
+      icacls "${PRIVKEY}" /inheritance:r
+    fi
   fi
   count=1
   # shellcheck disable=SC2086
@@ -146,7 +150,7 @@ echo "${count}..${total}"
 export OPENSSH_NO_DOCKER=1
 
 for test in ${tests}; do
-  if "${test}"; then
+  if ${LIBSSH2_TEST_EXE_RUNNER:-} "${test}"; then
     res='ok'
   else
     testerr=$?

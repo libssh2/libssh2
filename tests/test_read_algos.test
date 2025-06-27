@@ -19,13 +19,13 @@ echo "${count}..${total}"
 
 while read -r test; do
   if [[ "${test}" = *'mac-'* ]]; then
-    if FIXTURE_TEST_MAC="${test}" "${testbin}"; then
+    if FIXTURE_TEST_MAC="${test}" ${LIBSSH2_TEST_EXE_RUNNER:-} "${testbin}"; then
       res='ok'
     else
       res='not ok'
     fi
   else
-    if FIXTURE_TEST_CRYPT="${test}" "${testbin}"; then
+    if FIXTURE_TEST_CRYPT="${test}" ${LIBSSH2_TEST_EXE_RUNNER:-} "${testbin}"; then
       res='ok'
     else
       res='not ok'

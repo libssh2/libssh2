@@ -52,6 +52,13 @@ jobs:
   daemon:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      SSH_HOST: '${{ github.event.inputs.ssh_host }}'
+      SSH_PORT: '${{ github.event.inputs.ssh_port }}'
+      SSH_USER: '${{ github.event.inputs.ssh_user }}'
+      SSH_FORWARD: '${{ github.event.inputs.ssh_forward }}'
+      SSH_HOSTKEY: '${{ github.event.inputs.ssh_hostkey }}'
+      SSH_PRIVKEY: '${{ github.event.inputs.ssh_privkey }}'
     steps:
       - name: Setup SSH client configuration
         run: |
@@ -60,15 +67,17 @@ jobs:
           install -m 0600 /dev/null .ssh/config
           {
             echo 'ServerAliveInterval 45'
-            echo 'Host ${{ github.event.inputs.ssh_host }}'
-            echo '${{ github.event.inputs.ssh_forward }}' | sed 's/,/\n/g' | sed 's/^/  RemoteForward /g'
+            echo "Host ${SSH_HOST}"
+            # shellcheck disable=SC2001
+            echo "${SSH_FORWARD}" | sed 's/,/\n/g' | sed 's/^/  RemoteForward /g'
           } | tee -a .ssh/config
           install -m 0600 /dev/null .ssh/known_hosts
-          echo '${{ github.event.inputs.ssh_host }} ${{ github.event.inputs.ssh_hostkey }}' | sed 's/,/\n${{ github.event.inputs.ssh_host }} /g' | tee -a .ssh/known_hosts
+          echo "${SSH_HOST} ${SSH_HOSTKEY}" | sed "s/,/\n${SSH_HOST} /g" | tee -a .ssh/known_hosts
           install -m 0600 /dev/null .ssh/id_rsa
-          echo '${{ github.event.inputs.ssh_privkey }}' | sed 's/,/\n/g' >> .ssh/id_rsa
+          # shellcheck disable=SC2001
+          echo "${SSH_PRIVKEY}" | sed 's/,/\n/g' >> .ssh/id_rsa
 
       # we sleep explicitly to allow the remote system to kill the sleep process
       - name: Connect to AppVeyor and sleep
         run: |
-          ssh -v -p ${{ github.event.inputs.ssh_port }} ${{ github.event.inputs.ssh_user }}@${{ github.event.inputs.ssh_host }} sleep 1h
+          ssh -v -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" sleep 1h

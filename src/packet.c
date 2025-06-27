@@ -648,6 +648,10 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
     size_t data_head = 0;
     unsigned char msg = data[0];
 
+    uint32_t channel = 0;
+    uint32_t len = 0;
+    unsigned char want_reply = 0;
+
     switch(session->packAdd_state) {
     case libssh2_NB_state_idle:
         _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
@@ -694,7 +698,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 }
                 else {
                     const unsigned char *strict =
-                    (unsigned char *)"kex-strict-s-v00@openssh.com";
+                        (const unsigned char *)"kex-strict-s-v00@openssh.com";
                     struct string_buf buf;
                     unsigned char *algs = NULL;
                     size_t algs_len = 0;
@@ -886,7 +890,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                        (int)value_len, value));
                     }
 
-                    if(name_len == 15 &&
+                    if(name && name_len == 15 &&
                         memcmp(name, "server-sig-algs", 15) == 0) {
                         if(session->server_sign_algorithms) {
                             LIBSSH2_FREE(session,
@@ -897,7 +901,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                                 LIBSSH2_ALLOC(session,
                                                               value_len + 1);
 
-                        if(session->server_sign_algorithms) {
+                        if(value && session->server_sign_algorithms) {
                             memcpy(session->server_sign_algorithms,
                                    value, value_len);
                             session->server_sign_algorithms[value_len] = '\0';
@@ -923,8 +927,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
 
         case SSH_MSG_GLOBAL_REQUEST:
             if(datalen >= 5) {
-                uint32_t len = 0;
-                unsigned char want_reply = 0;
+                want_reply = 0;
                 len = _libssh2_ntohu32(data + 1);
                 if((len <= (UINT_MAX - 6)) && (datalen >= (6 + len))) {
                     want_reply = data[5 + len];
@@ -1125,9 +1128,9 @@ libssh2_packet_add_jump_point1:
 
         case SSH_MSG_CHANNEL_REQUEST:
             if(datalen >= 9) {
-                uint32_t channel = _libssh2_ntohu32(data + 1);
-                uint32_t len = _libssh2_ntohu32(data + 5);
-                unsigned char want_reply = 1;
+                channel = _libssh2_ntohu32(data + 1);
+                len = _libssh2_ntohu32(data + 5);
+                want_reply = 1;
 
                 if((len + 9) < datalen)
                     want_reply = data[len + 9];
@@ -1673,7 +1676,7 @@ _libssh2_packet_requirev(LIBSSH2_SESSION *session,
             }
         }
 
-        if(strchr((char *) packet_types, ret)) {
+        if(strchr((const char *) packet_types, ret)) {
             /* Be lazy, let packet_ask pull it out of the brigade */
             ret = _libssh2_packet_askv(session, packet_types, data,
                                        data_len, match_ofs, match_buf,

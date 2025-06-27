@@ -38,7 +38,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
+#include "libssh2_priv.h"
+
+#ifdef LIBSSH2_WINCNG
 
 /* required for cross-compilation against the w64 mingw-runtime package */
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
@@ -68,12 +70,13 @@
 
 #ifdef HAVE_LIBCRYPT32
 #include <wincrypt.h>  /* for CryptDecodeObjectEx() */
-#endif
 
 #define PEM_RSA_HEADER "-----BEGIN RSA PRIVATE KEY-----"
 #define PEM_RSA_FOOTER "-----END RSA PRIVATE KEY-----"
 #define PEM_DSA_HEADER "-----BEGIN DSA PRIVATE KEY-----"
 #define PEM_DSA_FOOTER "-----END DSA PRIVATE KEY-----"
+#endif
+#if LIBSSH2_ECDSA
 #define PEM_ECDSA_HEADER "-----BEGIN OPENSSH PRIVATE KEY-----"
 #define PEM_ECDSA_FOOTER "-----END OPENSSH PRIVATE KEY-----"
 
@@ -81,12 +84,13 @@
 
 /* Define these manually to avoid including <ntstatus.h> and thus
    clashing with <windows.h> symbols. */
-#ifndef STATUS_NOT_SUPPORTED
-#define STATUS_NOT_SUPPORTED ((NTSTATUS)0xC00000BB)
-#endif
-
 #ifndef STATUS_INVALID_SIGNATURE
 #define STATUS_INVALID_SIGNATURE ((NTSTATUS)0xC000A000)
+#endif
+#endif
+
+#ifndef STATUS_NOT_SUPPORTED
+#define STATUS_NOT_SUPPORTED ((NTSTATUS)0xC00000BB)
 #endif
 
 /*******************************************************************/
@@ -431,7 +435,7 @@ _libssh2_wincng_init(void)
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(_libssh2_wincng.hAlgAES_CBC,
                                 BCRYPT_CHAINING_MODE,
-                                (PBYTE)BCRYPT_CHAIN_MODE_CBC,
+                                (PBYTE)LIBSSH2_UNCONST(BCRYPT_CHAIN_MODE_CBC),
                                 sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
         if(!BCRYPT_SUCCESS(ret)) {
             ret = BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgAES_CBC, 0);
@@ -446,7 +450,7 @@ _libssh2_wincng_init(void)
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(_libssh2_wincng.hAlgAES_ECB,
                                 BCRYPT_CHAINING_MODE,
-                                (PBYTE)BCRYPT_CHAIN_MODE_ECB,
+                                (PBYTE)LIBSSH2_UNCONST(BCRYPT_CHAIN_MODE_ECB),
                                 sizeof(BCRYPT_CHAIN_MODE_ECB), 0);
         if(!BCRYPT_SUCCESS(ret)) {
             ret = BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgAES_ECB, 0);
@@ -461,7 +465,7 @@ _libssh2_wincng_init(void)
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(_libssh2_wincng.hAlgRC4_NA,
                                 BCRYPT_CHAINING_MODE,
-                                (PBYTE)BCRYPT_CHAIN_MODE_NA,
+                                (PBYTE)LIBSSH2_UNCONST(BCRYPT_CHAIN_MODE_NA),
                                 sizeof(BCRYPT_CHAIN_MODE_NA), 0);
         if(!BCRYPT_SUCCESS(ret)) {
             ret = BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlgRC4_NA, 0);
@@ -476,7 +480,7 @@ _libssh2_wincng_init(void)
     if(BCRYPT_SUCCESS(ret)) {
         ret = BCryptSetProperty(_libssh2_wincng.hAlg3DES_CBC,
                                 BCRYPT_CHAINING_MODE,
-                                (PBYTE)BCRYPT_CHAIN_MODE_CBC,
+                                (PBYTE)LIBSSH2_UNCONST(BCRYPT_CHAIN_MODE_CBC),
                                 sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
         if(!BCRYPT_SUCCESS(ret)) {
             ret = BCryptCloseAlgorithmProvider(_libssh2_wincng.hAlg3DES_CBC,
@@ -676,7 +680,8 @@ _libssh2_wincng_hash_update(_libssh2_wincng_hash_ctx *ctx,
 {
     int ret;
 
-    ret = BCryptHashData(ctx->hHash, (PUCHAR)data, datalen, 0);
+    ret = BCryptHashData(ctx->hHash,
+                         (PUCHAR)LIBSSH2_UNCONST(data), datalen, 0);
 
     return BCRYPT_SUCCESS(ret) ? 0 : -1;
 }
@@ -2887,9 +2892,9 @@ _libssh2_wincng_ecdsa_new_private_frommemory(
     }
 
     data_buffer.len = data_len;
-    data_buffer.data = (unsigned char *)data;
-    data_buffer.dataptr =
-        (unsigned char *)data + strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
+    data_buffer.data = (unsigned char *)LIBSSH2_UNCONST(data);
+    data_buffer.dataptr = data_buffer.data +
+                          strlen(OPENSSL_PRIVATEKEY_AUTH_MAGIC) + 1;
 
     /* Read ciphername, should be 'none' as we don't support passphrases */
     result = _libssh2_match_string(&data_buffer, "none");
@@ -3439,6 +3444,24 @@ _libssh2_wincng_cipher_init(_libssh2_cipher_ctx *ctx,
     return 0;
 }
 
+/* Increments an AES CTR buffer to prepare it for use with the
+   next AES block. */
+static void _libssh2_aes_ctr_increment(unsigned char *ctr,
+                                       size_t length)
+{
+    unsigned char *pc;
+    unsigned int val, carry;
+
+    pc = ctr + length - 1;
+    carry = 1;
+
+    while(pc >= ctr) {
+        val = (unsigned int)*pc + carry;
+        *pc-- = val & 0xFF;
+        carry = val >> 8;
+    }
+}
+
 int
 _libssh2_wincng_cipher_crypt(_libssh2_cipher_ctx *ctx,
                              _libssh2_cipher_type(type),
@@ -3580,6 +3603,9 @@ _libssh2_wincng_bignum_rand(_libssh2_bn *rnd, int bits, int top, int bottom)
         return -1;
 
     bignum = rnd->bignum;
+
+    if(!bignum)
+        return -1;
 
     if(_libssh2_wincng_random(bignum, length))
         return -1;
@@ -4182,4 +4208,4 @@ _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
     return NULL;
 }
 
-#endif /* LIBSSH2_CRYPTO_C */
+#endif /* LIBSSH2_WINCNG */

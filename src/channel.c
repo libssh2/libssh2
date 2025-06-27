@@ -368,7 +368,7 @@ libssh2_channel_open_ex(LIBSSH2_SESSION *session, const char *type,
     BLOCK_ADJUST_ERRNO(ptr, session,
                        _libssh2_channel_open(session, type, type_len,
                                              window_size, packet_size,
-                                             (unsigned char *)msg,
+                                             (const unsigned char *)msg,
                                              msg_len));
     return ptr;
 }
@@ -1058,7 +1058,7 @@ static int channel_request_pty(LIBSSH2_CHANNEL *channel,
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         _libssh2_store_u32(&s, channel->remote.id);
-        _libssh2_store_str(&s, (char *)"pty-req", sizeof("pty-req") - 1);
+        _libssh2_store_str(&s, (const char *)"pty-req", sizeof("pty-req") - 1);
 
         *(s++) = 0x01;
 
@@ -1166,7 +1166,7 @@ static int channel_request_auth_agent(LIBSSH2_CHANNEL *channel,
         s = channel->req_auth_agent_packet;
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         _libssh2_store_u32(&s, channel->remote.id);
-        _libssh2_store_str(&s, (char *)request_str, request_str_len);
+        _libssh2_store_str(&s, (const char *)request_str, request_str_len);
         *(s++) = 0x01;
 
         channel->req_auth_agent_state = libssh2_NB_state_created;
@@ -1326,7 +1326,7 @@ channel_request_pty_size(LIBSSH2_CHANNEL * channel, int width,
 
         *(s++) = SSH_MSG_CHANNEL_REQUEST;
         _libssh2_store_u32(&s, channel->remote.id);
-        _libssh2_store_str(&s, (char *)"window-change",
+        _libssh2_store_str(&s, (const char *)"window-change",
                            sizeof("window-change") - 1);
         *(s++) = 0x00; /* Don't reply */
         _libssh2_store_u32(&s, width);
@@ -1590,7 +1590,8 @@ _libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
         rc = _libssh2_transport_send(session,
                                      channel->process_packet,
                                      channel->process_packet_len,
-                                     (unsigned char *)message, message_len);
+                                     (const unsigned char *)message,
+                                     message_len);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, rc,
                            "Would block sending channel request");
@@ -2195,7 +2196,7 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
                            "channel_read() got %ld of data from %u/%u/%d%s",
                            (long)bytes_want, channel->local.id,
                            channel->remote.id, stream_id,
-                           unlink_packet?" [ul]":""));
+                           unlink_packet ? " [ul]" : ""));
 
             /* copy data from this struct to the target buffer */
             memcpy(&buf[bytes_read],
@@ -2498,7 +2499,7 @@ libssh2_channel_write_ex(LIBSSH2_CHANNEL *channel, int stream_id,
 
     BLOCK_ADJUST(rc, channel->session,
                  _libssh2_channel_write(channel, stream_id,
-                                        (unsigned char *)buf, buflen));
+                                        (const unsigned char *)buf, buflen));
     return rc;
 }
 

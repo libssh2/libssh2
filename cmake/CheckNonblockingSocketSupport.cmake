@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 include(CheckCSourceCompiles)
 
-# - check_nonblocking_socket_support()
+# libssh2_check_nonblocking_socket_support()
 #
 # Check for how to set a socket to non-blocking state. There seems to exist
 # four known different ways, with the one used almost everywhere being POSIX
@@ -24,7 +24,7 @@ include(CheckCSourceCompiles)
 #  CMAKE_REQUIRED_INCLUDES = list of include directories
 #  CMAKE_REQUIRED_LIBRARIES = list of libraries to link
 #
-macro(check_nonblocking_socket_support)
+macro(libssh2_check_nonblocking_socket_support)
   # There are two known platforms (AIX 3.x and SunOS 4.1.x) where the
   # O_NONBLOCK define is found but does not work.
   check_c_source_compiles("

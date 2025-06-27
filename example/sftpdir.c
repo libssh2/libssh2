@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #define LIBSSH2_FILESIZE_MASK "I64u"
 #else
 #define LIBSSH2_FILESIZE_MASK "llu"

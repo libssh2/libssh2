@@ -46,6 +46,8 @@ At next SONAME bump
   libssh2_channel_receive_window_adjust()
   libssh2_poll()
   libssh2_poll_channel_read()
+  libssh2_scp_send()
+  libssh2_scp_send_ex()
   libssh2_session_startup() (libssh2_session_handshake() is the replacement)
   libssh2_banner_set() (libssh2_session_banner_set() is the replacement)
 

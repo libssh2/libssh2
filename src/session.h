@@ -59,7 +59,8 @@
             rc = x; \
             /* the order of the check below is important to properly \
                deal with the case when the 'sess' is freed */ \
-            if((rc != LIBSSH2_ERROR_EAGAIN) || !sess->api_block_mode) \
+            if((rc != LIBSSH2_ERROR_EAGAIN) || !sess || \
+               !sess->api_block_mode) \
                 break; \
             rc = _libssh2_wait_socket(sess, entry_time);  \
         } while(!rc);   \
@@ -77,7 +78,7 @@
         int rc; \
         do { \
             ptr = x; \
-            if(!sess->api_block_mode || \
+            if(!sess || !sess->api_block_mode || \
                (ptr != NULL) || \
                (libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN)) \
                 break; \

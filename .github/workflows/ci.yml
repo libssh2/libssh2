@@ -22,39 +22,160 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'checksrc'
         run: ./ci/checksrc.sh
+
+  spellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'install tools'
+        run: pip install --break-system-packages -U codespell
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - name: 'spellcheck'
+        run: ./ci/spellcheck.sh
 
   shellcheck:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'shellcheck'
         run: ./ci/shellcheck.sh
 
-  spellcheck:
+  cmakelint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: 'install tools'
-        run: pip install -U codespell
-      - name: 'spellcheck'
-        run: ./ci/spellcheck.sh
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+        name: checkout
+
+      - name: cmakelint
+        run: |
+          python3 -m pip install --break-system-packages cmakelang==0.6.13
+          ci/cmakelint.sh
+
+  cicheck:
+    runs-on: macos-latest
+    timeout-minutes: 1
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - name: 'install prereqs'
+        run: brew install shellcheck zizmor
+      - name: 'zizmor GHA'
+        run: zizmor --pedantic .github/workflows/*.yml
+      - name: 'shellcheck'
+        run: |
+          shellcheck --version
+          export SHELLCHECK_OPTS='--exclude=1090,1091,2086,2153 --enable=avoid-nullary-conditions,deprecate-which'
+          git ls-files '.github/workflows/*.yml' | while read -r f; do
+            echo "Verifying ${f}..."
+            {
+              echo '#!/usr/bin/env bash'
+              echo 'set -eu'
+              yq eval '.. | select(has("run") and (.run | type == "!!str")) | .run + "\ntrue\n"' "${f}"
+            } | sed -E 's|\$\{\{ .+ \}\}|GHA_EXPRESSION|g' | shellcheck -
+          done
 
   build_integration:
-    name: 'integration'
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
+    name: 'integration on ${{ matrix.image }}'
+    runs-on: ${{ matrix.image }}
+    timeout-minutes: 5
+    defaults:
+      run:
+        shell: ${{ contains(matrix.image, 'windows') && 'msys2 {0}' || 'bash' }}
     env:
-      CC: clang
+      CC: ${{ !contains(matrix.image, 'windows') && 'clang' || '' }}
+      MATRIX_IMAGE: '${{ matrix.image }}'
+      OLD_CMAKE_VERSION: 3.11.4
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v4
-      - name: 'cmake'
+      - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
+        if: ${{ contains(matrix.image, 'windows') }}
+        with:
+          msystem: mingw64
+          release: false
+          update: false
+          cache: false
+          path-type: inherit
+          install: >-
+            mingw-w64-x86_64-zlib mingw-w64-x86_64-libgcrypt mingw-w64-x86_64-openssl mingw-w64-x86_64-mbedtls
+
+      - name: 'install packages'
         run: |
-          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install libssl-dev
-          ./tests/cmake/test.sh
+          if [[ "${MATRIX_IMAGE}" = *'windows'* ]]; then
+            cd ~
+            curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
+              --location "https://github.com/Kitware/CMake/releases/download/v${OLD_CMAKE_VERSION}/cmake-${OLD_CMAKE_VERSION}-win64-x64.zip" --output bin.zip
+            unzip -q bin.zip
+            rm -f bin.zip
+            printf '%s' ~/cmake-"${OLD_CMAKE_VERSION}"-win64-x64/bin/cmake.exe > ~/old-cmake-path.txt
+          elif [[ "${MATRIX_IMAGE}" = *'ubuntu'* ]]; then
+            sudo rm -f /var/lib/man-db/auto-update
+            sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
+            cd ~
+            curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
+              --location "https://github.com/Kitware/CMake/releases/download/v${OLD_CMAKE_VERSION}/cmake-${OLD_CMAKE_VERSION}-Linux-x86_64.tar.gz" | tar -xz
+            printf '%s' ~/cmake-"${OLD_CMAKE_VERSION}"-Linux-x86_64/bin/cmake > ~/old-cmake-path.txt
+          else
+            brew install libgcrypt openssl mbedtls wolfssl
+            cd ~
+            curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
+              --location "https://github.com/Kitware/CMake/releases/download/v${OLD_CMAKE_VERSION}/cmake-${OLD_CMAKE_VERSION}-Darwin-x86_64.tar.gz" | tar -xz
+            printf '%s' ~/cmake-"${OLD_CMAKE_VERSION}"-Darwin-x86_64/CMake.app/Contents/bin/cmake > ~/old-cmake-path.txt
+          fi
+
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+
+      - name: 'via FetchContent'
+        run: ./tests/cmake/test.sh FetchContent
+      - name: 'via add_subdirectory OpenSSL'
+        run: ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL
+      - name: 'via add_subdirectory Libgcrypt'
+        run: ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=Libgcrypt
+      - name: 'via find_package OpenSSL'
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL
+      - name: 'via find_package Libgcrypt'
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=Libgcrypt
+      - name: 'via find_package mbedTLS'
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
+      - name: 'via find_package wolfSSL'
+        if: ${{ !contains(matrix.image, 'windows') }}  # MSYS2 wolfSSL package not built with the OpenSSL compatibility option
+        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=wolfSSL
+
+      - name: 'via add_subdirectory OpenSSL (old cmake)'
+        run: |
+          export TEST_CMAKE_CONSUMER; TEST_CMAKE_CONSUMER="$(cat ~/old-cmake-path.txt)"
+          [[ "${MATRIX_IMAGE}" = *'macos'* ]] && export CFLAGS='-arch arm64'
+          if [[ "${MATRIX_IMAGE}" = *'windows'* ]]; then
+            export TEST_CMAKE_GENERATOR='MSYS Makefiles'
+            export TEST_CMAKE_FLAGS='-DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR=C:/msys64/mingw64'
+          fi
+          ./tests/cmake/test.sh add_subdirectory -DCRYPTO_BACKEND=OpenSSL
+
+      - name: 'via find_package OpenSSL (old cmake)'
+        run: |
+          export TEST_CMAKE_CONSUMER; TEST_CMAKE_CONSUMER="$(cat ~/old-cmake-path.txt)"
+          [[ "${MATRIX_IMAGE}" = *'macos'* ]] && export CFLAGS='-arch arm64'
+          if [[ "${MATRIX_IMAGE}" = *'windows'* ]]; then
+            export TEST_CMAKE_GENERATOR='MSYS Makefiles'
+            export TEST_CMAKE_FLAGS='-DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DOPENSSL_ROOT_DIR=C:/msys64/mingw64'
+          fi
+          ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=OpenSSL
 
   build_linux:
     name: 'linux'
@@ -63,11 +184,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [gcc, clang]
+        compiler: [gcc, clang, clang-tidy]
         arch: [amd64]
-        crypto: [OpenSSL, wolfSSL, Libgcrypt, mbedTLS]
+        crypto: [OpenSSL, Libgcrypt, mbedTLS, wolfSSL]
         build: [cmake]
         zlib: ['OFF', 'ON']
+        exclude:
+          - { compiler: clang-tidy, zlib: 'OFF' }
         include:
           - compiler: gcc
             arch: amd64
@@ -92,13 +215,43 @@ jobs:
             zlib: 'ON'
             target: 'maketgz'
           - compiler: gcc
-            arch: i386
-            crypto: mbedTLS
+            arch: amd64
+            crypto: OpenSSL-3-no-deprecated
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: OpenSSL-111-from-source
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: OpenSSL-110-from-source
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: OpenSSL-102-from-source
             build: cmake
             zlib: 'ON'
           - compiler: gcc
             arch: amd64
             crypto: BoringSSL
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: AWS-LC
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: amd64
+            crypto: LibreSSL
+            build: cmake
+            zlib: 'ON'
+          - compiler: gcc
+            arch: i386
+            crypto: mbedTLS-from-source
             build: cmake
             zlib: 'ON'
           - compiler: clang
@@ -111,11 +264,6 @@ jobs:
             crypto: wolfSSL-from-source-prev
             build: cmake
             zlib: 'ON'
-          - compiler: gcc
-            arch: amd64
-            crypto: OpenSSL-3-no-deprecated
-            build: cmake
-            zlib: 'ON'
           - compiler: clang
             arch: i386
             crypto: Libgcrypt
@@ -123,117 +271,238 @@ jobs:
             zlib: 'ON'
             options: --disable-static
     env:
-      CC: ${{ matrix.compiler }}
+      CC: ${{ matrix.compiler == 'clang-tidy' && 'clang' || matrix.compiler }}
+      MATRIX_ARCH: '${{ matrix.arch }}'
+      MATRIX_CRYPTO: '${{ matrix.crypto }}'
+      MATRIX_OPTIONS: '${{ matrix.options }}'
+      MATRIX_ZLIB: '${{ matrix.zlib }}'
+      MBEDTLS_VERSION: 3.6.2
+      WOLFSSL_VERSION: 5.7.4
+      WOLFSSL_VERSION_PREV: 5.5.4
+      BORINGSSL_VERSION: 0.20250114.0
+      AWSLC_VERSION: 1.46.1
+      LIBRESSL_VERSION: 4.0.0
+      OPENSSL_VERSION: 3.4.0
+      OPENSSL111_VERSION: 1.1.1w
+      OPENSSL110_VERSION: 1.1.0l
+      OPENSSL102_VERSION: 1.0.2u
     steps:
-      - uses: actions/checkout@v4
       - name: 'install architecture'
         if: ${{ matrix.arch != 'amd64' }}
         run: |
-          sudo dpkg --add-architecture '${{ matrix.arch }}'
-          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 update
-          # Workaround for https://github.com/actions/runner-images/issues/7589
-          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install libgcc-s1:${{ matrix.arch }}
-          sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:${{ matrix.arch }}
+          sudo dpkg --add-architecture "${MATRIX_ARCH}"
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt-get -o Dpkg::Use-Pty=0 update
+          sudo rm -f /var/lib/man-db/auto-update
+          sudo apt-get -o Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:"${MATRIX_ARCH}"
 
       - name: 'install packages'
         run: |
-          [ '${{ matrix.crypto }}' = 'OpenSSL' ] && pkg='libssl-dev'
-          [ '${{ matrix.crypto }}' = 'wolfSSL' ] && pkg='libwolfssl-dev'
-          [ '${{ matrix.crypto }}' = 'Libgcrypt' ] && pkg='libgcrypt-dev'
+          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkg='libssl-dev'
+          [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkg='libgcrypt-dev'
+          [ "${MATRIX_CRYPTO}" = 'mbedTLS' ] && pkg='libmbedtls-dev'
+          [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkg='libwolfssl-dev'
           if [ -n "${pkg}" ]; then
-            sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install "${pkg}:${{ matrix.arch }}"
+            sudo apt-get -o Dpkg::Use-Pty=0 install "${pkg}:${MATRIX_ARCH}"
           fi
 
+      - name: 'cache mbedTLS'
+        if: ${{ matrix.crypto == 'mbedTLS-from-source' }}
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        id: cache-mbedtls
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-mbedtls-${{ env.MBEDTLS_VERSION }}-${{ matrix.arch }}
+
       - name: 'install mbedTLS from source'
-        if: ${{ matrix.crypto == 'mbedTLS' }}
+        if: ${{ matrix.crypto == 'mbedTLS-from-source' && !steps.cache-mbedtls.outputs.cache-hit }}
         run: |
-          MBEDTLSVER=mbedtls-3.5.1
-          curl -fsS -L https://github.com/Mbed-TLS/mbedtls/archive/$MBEDTLSVER.tar.gz | tar -xzf -
-          cd mbedtls-$MBEDTLSVER
-          if [ '${{ matrix.arch }}' = 'i386' ]; then
-            crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }}'
+          curl -fsS -L "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-${MBEDTLS_VERSION}/mbedtls-${MBEDTLS_VERSION}.tar.bz2" | tar -xj
+          cd "mbedtls-${MBEDTLS_VERSION}"
+          if [ "${MATRIX_ARCH}" = 'i386' ]; then
+            crossoptions="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${MATRIX_ARCH}"
             cflags='-m32 -mpclmul -msse2 -maes'
           fi
-          cmake . ${crossoptions} \
-            "-DCMAKE_C_FLAGS=${cflags}" \
+          cmake -B . -G Ninja ${crossoptions} \
+            -DCMAKE_C_FLAGS="${cflags}" \
             -DENABLE_PROGRAMS=OFF \
             -DENABLE_TESTING=OFF \
             -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
             -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
-            "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
-          make -j5 install
-          cd ..
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake --build . --parallel 5
+          cmake --install .
 
       - name: 'install wolfSSL from source'
         if: ${{ startsWith(matrix.crypto, 'wolfSSL-from-source') }}
         run: |
-          if [ '${{ matrix.crypto }}' = 'wolfSSL-from-source' ]; then
-            WOLFSSLVER=5.7.0
+          if [ "${MATRIX_CRYPTO}" = 'wolfSSL-from-source' ]; then
+            WOLFSSLVER="${WOLFSSL_VERSION}"
           else
-            WOLFSSLVER=5.5.4
-            # Required to include `FIPS_mode()` API:
+            WOLFSSLVER="${WOLFSSL_VERSION_PREV}"
             options='-DWOLFSSL_OPENSSLEXTRA=ON'
-            cppflags='-DOPENSSL_ALL'
           fi
-          curl -fsS -L https://github.com/wolfSSL/wolfssl/archive/refs/tags/v$WOLFSSLVER-stable.tar.gz | tar -xzf -
+          curl -fsS -L https://github.com/wolfSSL/wolfssl/archive/refs/tags/v$WOLFSSLVER-stable.tar.gz | tar -xz
           cd wolfssl-$WOLFSSLVER-stable
-          cmake -B bld ${options} \
+          cmake -B bld -G Ninja ${options} \
             -DWOLFSSL_LIBSSH2=ON \
             -DBUILD_SELFTEST=OFF \
             -DWOLFSSL_OPENSSLALL=ON \
             -DWOLFSSL_EXAMPLES=OFF \
             -DWOLFSSL_CRYPT_TESTS=OFF \
-            "-DCMAKE_C_FLAGS=-fPIC -DWOLFSSL_AESGCM_STREAM ${cppflags}" \
-            "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
-          make -j5 -C bld install
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            -DCMAKE_C_FLAGS='-DWOLFSSL_AESGCM_STREAM' \
+            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake --build bld --parallel 5
+          cmake --install bld
           cd ..
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+
+      - name: 'cache BoringSSL'
+        if: ${{ matrix.crypto == 'BoringSSL' }}
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        id: cache-boringssl
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-boringssl-${{ env.BORINGSSL_VERSION }}-${{ matrix.arch }}
 
       - name: 'install BoringSSL from source'
-        if: ${{ matrix.crypto == 'BoringSSL' }}
+        if: ${{ matrix.crypto == 'BoringSSL' && !steps.cache-boringssl.outputs.cache-hit }}
         run: |
-          BORINGSSLVER=1b7fdbd9101dedc3e0aa3fcf4ff74eacddb34ecc
           mkdir boringssl
           cd boringssl
-          curl -fsS https://boringssl.googlesource.com/boringssl/+archive/$BORINGSSLVER.tar.gz | tar -xzf -
-          cmake . \
+          curl -fsS "https://boringssl.googlesource.com/boringssl/+archive/${BORINGSSL_VERSION}.tar.gz" | tar -xz
+          # Skip tests to finish the build faster
+          echo 'set_target_properties(decrepit bssl_shim test_fips boringssl_gtest test_support_lib urandom_test crypto_test ssl_test decrepit_test all_tests pki pki_test run_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)' >> ./CMakeLists.txt
+          cmake -B . -G Ninja \
             -DOPENSSL_SMALL=ON \
-            -DCMAKE_C_FLAGS=-fPIC \
-            "-DCMAKE_INSTALL_PREFIX=$PWD/../usr"
-          make -j5 install
-          cd ..
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake --build . --parallel 5
+          cmake --install .
+
+      - name: 'cache AWS-LC'
+        if: ${{ matrix.crypto == 'AWS-LC' }}
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        id: cache-aws-lc
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-aws-lc-${{ env.AWSLC_VERSION }}-${{ matrix.arch }}
+
+      - name: 'install AWS-LC from source'
+        if: ${{ matrix.crypto == 'AWS-LC' && !steps.cache-aws-lc.outputs.cache-hit }}
+        run: |
+          mkdir aws-lc
+          cd aws-lc
+          curl -fsS -L "https://github.com/aws/aws-lc/archive/refs/tags/v${AWSLC_VERSION}.tar.gz" | tar -xz
+          cmake "aws-lc-${AWSLC_VERSION}" -B . -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake --build . --parallel 5
+          cmake --install .
+
+      - name: 'cache LibreSSL'
+        if: ${{ matrix.crypto == 'LibreSSL' }}
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        id: cache-libressl
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-libressl-${{ env.LIBRESSL_VERSION }}-${{ matrix.arch }}
+
+      - name: 'install LibreSSL from source'
+        if: ${{ matrix.crypto == 'LibreSSL' && !steps.cache-libressl.outputs.cache-hit }}
+        run: |
+          curl -fsS -L "https://github.com/libressl/portable/releases/download/v${LIBRESSL_VERSION}/libressl-${LIBRESSL_VERSION}.tar.gz" | tar -xz
+          cd "libressl-${LIBRESSL_VERSION}"
+          cmake -B . -G Ninja \
+            -DLIBRESSL_APPS=OFF \
+            -DLIBRESSL_TESTS=OFF \
+            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake --build . --parallel 5
+          cmake --install .
+
+      - name: 'cache OpenSSL'
+        if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        id: cache-openssl
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-openssl-${{ env.OPENSSL_VERSION }}-${{ matrix.arch }}
 
       - name: 'install OpenSSL from source'
-        if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
+        if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' && !steps.cache-openssl.outputs.cache-hit }}
         run: |
-          OPENSSLVER=openssl-3.2.0
-          curl -fsS -L https://github.com/openssl/openssl/releases/download/$OPENSSLVER/$OPENSSLVER.tar.gz | tar -xzf -
-          cd $OPENSSLVER
+          curl -fsS -L "https://github.com/openssl/openssl/releases/download/openssl-${OPENSSL_VERSION}/openssl-${OPENSSL_VERSION}.tar.gz" | tar -xz
+          cd "openssl-${OPENSSL_VERSION}"
           ./Configure no-deprecated \
             no-apps no-docs no-tests no-makedepend \
-            no-comp no-quic no-legacy --prefix=/usr
-          make -j5 install "DESTDIR=$PWD/.."
-          cd ..
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/usr/lib" >> $GITHUB_ENV
-          echo "TOOLCHAIN_OPTION=$TOOLCHAIN_OPTION -DCMAKE_PREFIX_PATH=$PWD/usr" >> $GITHUB_ENV
+            no-comp no-quic no-legacy --prefix="$HOME"/usr
+          make -j5 install_sw
 
+      - name: 'cache OpenSSL 1.1.1'
+        if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        id: cache-openssl111
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-openssl-${{ env.OPENSSL111_VERSION }}-${{ matrix.arch }}
+
+      - name: 'install OpenSSL 1.1.1 from source'
+        if: ${{ matrix.crypto == 'OpenSSL-111-from-source' && !steps.cache-openssl111.outputs.cache-hit }}
+        run: |
+          curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${OPENSSL111_VERSION}.tar.gz" | tar -xz
+          cd "openssl-${OPENSSL111_VERSION}"
+          ./config no-unit-test no-makedepend --prefix="$HOME"/usr no-tests
+          make -j5
+          make -j1 install_sw
+
+      - name: 'cache OpenSSL 1.1.0'
+        if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        id: cache-openssl110
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-openssl-${{ env.OPENSSL110_VERSION }}-${{ matrix.arch }}
+
+      - name: 'install OpenSSL 1.1.0 from source'
+        if: ${{ matrix.crypto == 'OpenSSL-110-from-source' && !steps.cache-openssl110.outputs.cache-hit }}
+        run: |
+          curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_0l/openssl-${OPENSSL110_VERSION}.tar.gz" | tar -xz
+          cd "openssl-${OPENSSL110_VERSION}"
+          ./config no-unit-test no-makedepend --prefix="$HOME"/usr
+          make -j5
+          make -j1 install_sw
+
+      - name: 'cache OpenSSL 1.0.2'
+        if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        id: cache-openssl102
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-openssl-${{ env.OPENSSL102_VERSION }}-${{ matrix.arch }}
+
+      - name: 'install OpenSSL 1.0.2 from source'
+        if: ${{ matrix.crypto == 'OpenSSL-102-from-source' && !steps.cache-openssl102.outputs.cache-hit }}
+        run: |
+          curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_0_2u/openssl-${OPENSSL102_VERSION}.tar.gz" | tar -xz
+          cd "openssl-${OPENSSL102_VERSION}"
+          ./config no-unit-test no-makedepend --prefix="$HOME"/usr -fPIC
+          make -j5
+          make -j1 install_sw
+
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' && matrix.target != 'maketgz' }}
         run: |
-          if [ '${{ matrix.arch }}' = 'i386' ]; then
+          if [ "${MATRIX_ARCH}" = 'i386' ]; then
             crossoptions='--host=i686-pc-linux-gnu'
             export CFLAGS=-m32
           fi
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-            ${crossoptions} ${{ matrix.options }} \
+          mkdir bld && cd bld
+          ../configure --enable-werror --enable-debug \
+            ${crossoptions} ${MATRIX_OPTIONS} \
             --disable-dependency-tracking || { tail -n 1000 config.log; false; }
 
       - name: 'autotools build'
@@ -253,7 +522,7 @@ jobs:
         run: |
           export SOURCE_DATE_EPOCH=1711526400
           ./configure --enable-werror --disable-debug \
-            ${{ matrix.options }} --disable-dependency-tracking
+            ${MATRIX_OPTIONS} --disable-dependency-tracking
           ./maketgz 99.98.97
           # Test reproducibility
           mkdir run1; mv ./libssh2-99.98.97.* run1/
@@ -264,32 +533,40 @@ jobs:
           # Test build from tarball
           tar -xvf libssh2-99.98.97.tar.gz
           cd libssh2-99.98.97
-          ./configure --enable-werror --enable-debug "--prefix=${HOME}/temp" \
-            ${{ matrix.options }} --disable-dependency-tracking
+          ./configure --enable-werror --enable-debug --prefix="$HOME"/temp \
+            ${MATRIX_OPTIONS} --disable-dependency-tracking
           make -j5 install
           cd ..
           # Verify install
-          diff -u <(find docs    -name '*.3' -printf '%f\n' | grep -v template | sort) <(find "${HOME}/temp/share/man/man3" -name '*.3' -printf '%f\n' | sort)
-          diff -u <(find include -name '*.h' -printf '%f\n'                    | sort) <(find "${HOME}/temp/include"        -name '*.h' -printf '%f\n' | sort)
+          diff -u <(find docs    -name '*.3' -printf '%f\n' | grep -v template | sort) <(find "$HOME"/temp/share/man/man3 -name '*.3' -printf '%f\n' | sort)
+          diff -u <(find include -name '*.h' -printf '%f\n'                    | sort) <(find "$HOME"/temp/include        -name '*.h' -printf '%f\n' | sort)
           rm -rf libssh2-99.98.97
 
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
+        env:
+          MATRIX_COMPILER: '${{ matrix.compiler }}'
         run: |
-          if [ '${{ matrix.crypto }}' = 'BoringSSL' ] || \
-             [[ '${{ matrix.crypto }}' = 'OpenSSL-'* ]]; then
+          if [ "${MATRIX_CRYPTO}" = 'BoringSSL' ] || \
+             [ "${MATRIX_CRYPTO}" = 'AWS-LC' ] || \
+             [ "${MATRIX_CRYPTO}" = 'LibreSSL' ] || \
+             [[ "${MATRIX_CRYPTO}" = 'OpenSSL-'* ]]; then
             crypto='OpenSSL'
-          elif [[ '${{ matrix.crypto }}' = 'wolfSSL-'* ]]; then
+          elif [[ "${MATRIX_CRYPTO}" = 'mbedTLS-'* ]]; then
+            crypto='mbedTLS'
+          elif [[ "${MATRIX_CRYPTO}" = 'wolfSSL-'* ]]; then
             crypto='wolfSSL'
           else
-            crypto='${{ matrix.crypto }}'
+            crypto="${MATRIX_CRYPTO}"
           fi
-          [ '${{ matrix.arch }}' = 'i386' ] && crossoptions='-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${{ matrix.arch }} -DCMAKE_C_FLAGS=-m32'
-          cmake -B bld ${crossoptions} $TOOLCHAIN_OPTION \
+          [ -d "$HOME"/usr ] && options+=" -DCMAKE_PREFIX_PATH=$HOME/usr"
+          [ "${MATRIX_ARCH}" = 'i386' ] && options+=" -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${MATRIX_ARCH} -DCMAKE_C_FLAGS=-m32"
+          [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && options+=' -DLIBSSH2_CLANG_TIDY=ON'
+          cmake -B bld -G Ninja ${options} $TOOLCHAIN_OPTION \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DCRYPTO_BACKEND=${crypto} \
-            -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
+            -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}" \
             || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
       - name: 'cmake build'
@@ -299,47 +576,76 @@ jobs:
         if: ${{ matrix.build == 'cmake' }}
         timeout-minutes: 10
         run: |
-          export OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
+          export OPENSSH_SERVER_IMAGE; OPENSSH_SERVER_IMAGE=ghcr.io/libssh2/ci_tests_openssh_server:$(git rev-parse --short=20 HEAD:tests/openssh_server)
+          [ -d "$HOME"/usr ] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/usr/lib"
           cd bld && ctest -VV --output-on-failure
 
   build_linux_cross_mingw64:
-    name: 'linux -> mingw-w64'
+    name: "linux -> mingw-w64, ${{ matrix.build == 'cmake' && 'CM' || 'AM' }} ${{ matrix.compiler }}"
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        build: [autotools, cmake]
-        compiler: [gcc]
+        include:
+          - { build: 'autotools', compiler: 'gcc' }
+          - { build: 'cmake'    , compiler: 'gcc' }
+          - { build: 'cmake'    , compiler: 'clang-tidy' }
     env:
+      MAKEFLAGS: -j 5
       TRIPLET: 'x86_64-w64-mingw32'
+      MATRIX_BUILD: '${{ matrix.build }}'
     steps:
-      - uses: actions/checkout@v4
       - name: 'install packages'
-        run: sudo apt-get --quiet 2 --option Dpkg::Use-Pty=0 install mingw-w64
-      - name: 'autotools autoreconf'
+        env:
+          INSTALL_PACKAGES: ${{ matrix.compiler == 'clang-tidy' && 'clang' || '' }}
+        run: |
+          sudo rm -f /var/lib/man-db/auto-update
+          sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 \
+          ${INSTALL_PACKAGES}
+
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+
+      - name: 'autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
-      - name: 'autotools configure'
-        if: ${{ matrix.build == 'autotools' }}
-        run: mkdir bld && cd bld && ../configure --enable-werror --enable-debug "--host=${TRIPLET}" --disable-dependency-tracking || { tail -n 1000 config.log; false; }
-      - name: 'autotools build'
-        if: ${{ matrix.build == 'autotools' }}
-        run: make -C bld -j5
-      - name: 'cmake configure'
-        if: ${{ matrix.build == 'cmake' }}
-        run: |
-          cmake -B bld \
-            -DCMAKE_SYSTEM_NAME=Windows \
-            -DCMAKE_C_COMPILER_TARGET=${TRIPLET} \
-            -DCMAKE_C_COMPILER=${TRIPLET}-gcc \
-            -DCMAKE_UNITY_BUILD=ON \
-            -DENABLE_WERROR=ON \
-            || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
-      - name: 'cmake build'
-        if: ${{ matrix.build == 'cmake' }}
-        run: cmake --build bld --parallel 5
+      - name: 'configure'
+        env:
+          MATRIX_COMPILER: '${{ matrix.compiler }}'
+        run: |
+          if [ "${MATRIX_BUILD}" = 'cmake' ]; then
+            if [ "${MATRIX_COMPILER}" = 'clang-tidy' ]; then
+              options+=' -DLIBSSH2_CLANG_TIDY=ON'
+              options+=' -DCMAKE_C_COMPILER=clang'
+              options+=" -DCMAKE_RC_COMPILER=llvm-windres-$(clang -dumpversion | cut -d '.' -f 1)"
+            else
+              options+=" -DCMAKE_C_COMPILER=${TRIPLET}-gcc"
+            fi
+            cmake -B bld -G Ninja \
+              -DCMAKE_SYSTEM_NAME=Windows \
+              -DCMAKE_C_COMPILER_TARGET="${TRIPLET}" \
+              -DCMAKE_UNITY_BUILD=ON \
+              -DENABLE_WERROR=ON \
+              ${options} \
+              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+          else
+            mkdir bld && cd bld
+            ../configure --enable-werror --enable-debug \
+              --host="${TRIPLET}" \
+              --disable-dependency-tracking \
+              || { tail -n 1000 config.log; false; }
+          fi
+
+      - name: 'build'
+        run: |
+          if [ "${MATRIX_BUILD}" = 'cmake' ]; then
+            cmake --build bld
+          else
+            make -C bld
+          fi
 
   build_cygwin:
     name: 'cygwin'
@@ -348,28 +654,33 @@ jobs:
     env:
       SHELLOPTS: 'igncr'
     strategy:
+      fail-fast: false
       matrix:
         include:
           - { build: 'automake', platform: 'x86_64', compiler: 'gcc' }
           - { build: 'cmake'   , platform: 'x86_64', compiler: 'gcc' }
-      fail-fast: false
     steps:
       - run: git config --global core.autocrlf input
-      - uses: actions/checkout@v4
-      - uses: cygwin/cygwin-install-action@v4
+
+      - uses: cygwin/cygwin-install-action@f61179d72284ceddc397ed07ddb444d82bf9e559 # v5
         with:
           platform: ${{ matrix.platform }}
-          packages: autoconf libtool ${{ matrix.build }} gcc-core gcc-g++ binutils make libssl-devel zlib-devel
+          packages: ${{ matrix.build == 'automake' && 'autoconf libtool make' || 'ninja' }} ${{ matrix.build }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
+          install-dir: D:\cygwin
 
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'autotools'
         if: ${{ matrix.build == 'automake' }}
         timeout-minutes: 10
-        shell: C:\cygwin\bin\bash.exe '{0}'
+        shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
-          export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
+          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           autoreconf -fi
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+          mkdir bld && cd bld
+          ../configure --enable-werror --enable-debug \
             --with-crypto=openssl \
             --disable-docker-tests \
             --disable-dependency-tracking || { tail -n 1000 config.log; false; }
@@ -379,10 +690,10 @@ jobs:
       - name: 'cmake'
         if: ${{ matrix.build == 'cmake' }}
         timeout-minutes: 10
-        shell: C:\cygwin\bin\bash.exe '{0}'
+        shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
-          export PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
-          cmake -B bld \
+          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
+          cmake -B bld -G Ninja \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
@@ -400,6 +711,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         include:
           - { build: 'autotools', sys: msys   , crypto: openssl, env: x86_64 }
@@ -414,23 +726,27 @@ jobs:
           - { build: 'cmake'    , sys: clang64, crypto: OpenSSL, env: clang-x86_64 }
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'uwp' }
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'no-options' }
-      fail-fast: false
+    env:
+      MATRIX_CRYPTO: '${{ matrix.crypto }}'
+      MATRIX_ENV: '${{ matrix.env }}'
     steps:
-      - uses: actions/checkout@v4
-      - uses: msys2/setup-msys2@v2
+      - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
         if: ${{ matrix.sys == 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
-          install: gcc ${{ matrix.build }} make openssl-devel zlib-devel
-      - uses: msys2/setup-msys2@v2
+          install: gcc ${{ matrix.build }} ${{ matrix.build == 'autotools' && 'make' || 'ninja' }} openssl-devel zlib-devel
+      - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
         if: ${{ matrix.sys != 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
           install: >-
             mingw-w64-${{ matrix.env }}-cc
-            mingw-w64-${{ matrix.env }}-${{ matrix.build }} make
+            mingw-w64-${{ matrix.env }}-${{ matrix.build }} ${{ matrix.build == 'autotools' && 'make' || '' }}
             mingw-w64-${{ matrix.env }}-openssl
 
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         shell: msys2 {0}
@@ -441,12 +757,13 @@ jobs:
           SSHD: 'C:/Program Files/Git/usr/bin/sshd.exe'
         shell: msys2 {0}
         run: |
-          if [ '${{ matrix.crypto }}' = 'wincng' ] && [[ '${{ matrix.env }}' = 'clang'* ]]; then
+          if [ "${MATRIX_CRYPTO}" = 'wincng' ] && [[ "${MATRIX_ENV}" = 'clang'* ]]; then
             options='--enable-ecdsa-wincng'
           fi
           # sshd tests sometimes hang
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-            --with-crypto=${{ matrix.crypto }} \
+          mkdir bld && cd bld
+          ../configure --enable-werror --enable-debug \
+            --with-crypto="${MATRIX_CRYPTO}" \
             --disable-docker-tests \
             --disable-sshd-tests \
             ${options} \
@@ -464,35 +781,32 @@ jobs:
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
         shell: msys2 {0}
+        env:
+          MATRIX_TEST: '${{ matrix.test }}'
         run: |
-          if [[ '${{ matrix.env }}' = 'clang'* ]]; then
+          if [[ "${MATRIX_ENV}" = 'clang'* ]]; then
             options='-DCMAKE_C_COMPILER=clang'
           else
             options='-DCMAKE_C_COMPILER=gcc'
           fi
-          if [ '${{ matrix.test }}' = 'uwp' ]; then
+          if [ "${MATRIX_TEST}" = 'uwp' ]; then
             options+=' -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0'
-            pacman --noconfirm --ask 20 --noprogressbar --sync --needed 'mingw-w64-${{ matrix.env }}-winstorecompat-git'
+            pacman --noconfirm --ask 20 --noprogressbar --sync --needed "mingw-w64-${MATRIX_ENV}-winstorecompat-git"
             specs="$(realpath gcc-specs-uwp)"
             gcc -dumpspecs | sed -e 's/-lmingwex/-lwindowsapp -lmingwex -lwindowsapp -lwindowsappcompat/' -e 's/-lmsvcrt/-lmsvcr120_app/' > "${specs}"
             cflags="-specs=$(cygpath -w "${specs}") -DWINSTORECOMPAT -DWINAPI_FAMILY=WINAPI_FAMILY_APP"
-            # CMake (as of v3.26.4) gets confused and applies the MSVC rc.exe command-line
-            # template to windres. Reset it to the windres template manually:
-            rcopts='<CMAKE_RC_COMPILER> -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>'
-          elif [ '${{ matrix.test }}' = 'no-options' ]; then
+          elif [ "${MATRIX_TEST}" = 'no-options' ]; then
             options+=' -DLIBSSH2_NO_DEPRECATED=ON'
             cflags='-DLIBSSH2_NO_MD5 -DLIBSSH2_NO_MD5_PEM -DLIBSSH2_NO_HMAC_RIPEMD -DLIBSSH2_DSA_ENABLE -DLIBSSH2_NO_AES_CBC -DLIBSSH2_NO_AES_CTR -DLIBSSH2_NO_BLOWFISH -DLIBSSH2_NO_RC4 -DLIBSSH2_NO_CAST -DLIBSSH2_NO_3DES'
           else
             cflags=''
-            rcopts=''
           fi
-          cmake -B bld ${options} \
-            "-DCMAKE_C_FLAGS=${cflags}" \
-            "-DCMAKE_RC_COMPILE_OBJECT=${rcopts}" \
+          cmake -B bld -G Ninja ${options} \
+            -DCMAKE_C_FLAGS="${cflags}" \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
-            -DCRYPTO_BACKEND=${{ matrix.crypto }} \
+            -DCRYPTO_BACKEND="${MATRIX_CRYPTO}" \
             -DENABLE_ZLIB_COMPRESSION=ON \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF \
@@ -515,6 +829,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         include:
           - { arch: x64  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'OFF', zlib: 'OFF', unity: 'ON' }
@@ -524,32 +839,43 @@ jobs:
           - { arch: arm64, plat: windows, crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
           - { arch: arm64, plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
           - { arch: x86  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
-      fail-fast: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'cmake configure'
         shell: bash
+        env:
+          MATRIX_ARCH: '${{ matrix.arch }}'
+          MATRIX_CRYPTO: '${{ matrix.crypto }}'
+          MATRIX_PLAT: '${{ matrix.plat }}'
+          MATRIX_WINCND_ECDSA: '${{ matrix.wincng_ecdsa }}'
+          MATRIX_LOG: '${{ matrix.log }}'
+          MATRIX_SHARED: '${{ matrix.shared }}'
+          MATRIX_ZLIB: '${{ matrix.zlib }}'
+          MATRIX_UNITY: '${{ matrix.unity }}'
         run: |
-          archgen=${{ matrix.arch }}; [ "${archgen}" = 'x86' ] && archgen='Win32'
-          if [ '${{ matrix.plat }}' = 'uwp' ]; then
+          options=''
+          archgen="${MATRIX_ARCH}"; [ "${archgen}" = 'x86' ] && archgen='Win32'
+          if [ "${MATRIX_PLAT}" = 'uwp' ]; then
             system='WindowsStore'
-            options='-DCMAKE_SYSTEM_VERSION=10.0'
+            options+=' -DCMAKE_SYSTEM_VERSION=10.0'
           else
             system='Windows'
           fi
+          [ "${MATRIX_CRYPTO}" = 'WinCNG' ] && options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
           cmake -B bld ${options} \
             -DCMAKE_SYSTEM_NAME=${system} \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DCMAKE_GENERATOR_PLATFORM=${archgen} \
-            -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-${{ matrix.plat }} \
+            -DVCPKG_TARGET_TRIPLET="${MATRIX_ARCH}-${MATRIX_PLAT}" \
             -DCMAKE_VS_GLOBALS=TrackFileAccess=false \
-            -DCMAKE_UNITY_BUILD=${{ matrix.unity }} \
+            -DCMAKE_UNITY_BUILD="${MATRIX_UNITY}" \
             -DENABLE_WERROR=ON \
-            -DENABLE_DEBUG_LOGGING=${{ matrix.log }} \
-            -DBUILD_SHARED_LIBS=${{ matrix.shared }} \
-            -DCRYPTO_BACKEND=${{ matrix.crypto }} \
-            -DENABLE_ECDSA_WINCNG=${{ matrix.wincng_ecdsa }} \
-            -DENABLE_ZLIB_COMPRESSION=${{ matrix.zlib }} \
+            -DENABLE_DEBUG_LOGGING="${MATRIX_LOG}" \
+            -DBUILD_SHARED_LIBS="${MATRIX_SHARED}" \
+            -DCRYPTO_BACKEND="${MATRIX_CRYPTO}" \
+            -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}" \
             -DRUN_DOCKER_TESTS=OFF \
             -DRUN_SSHD_TESTS=OFF \
             || { cat bld/CMakeFiles/CMake*.yaml; false; }
@@ -573,40 +899,48 @@ jobs:
         crypto:
           - name: 'OpenSSL 3'
             install: openssl
-            configure: --with-crypto=openssl "--with-libssl-prefix=$(brew --prefix)/opt/openssl"
-            cmake: -DCRYPTO_BACKEND=OpenSSL "-DOPENSSL_ROOT_DIR=$(brew --prefix)/opt/openssl"
+            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl
           - name: 'OpenSSL 1.1'
             install: openssl@1.1
-            configure: --with-crypto=openssl "--with-libssl-prefix=$(brew --prefix)/opt/openssl@1.1"
-            cmake: -DCRYPTO_BACKEND=OpenSSL "-DOPENSSL_ROOT_DIR=$(brew --prefix)/opt/openssl@1.1"
+            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/openssl@1.1
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@1.1
           - name: 'LibreSSL'
             install: libressl
-            configure: --with-crypto=openssl "--with-libssl-prefix=$(brew --prefix)/opt/libressl"
-            cmake: -DCRYPTO_BACKEND=OpenSSL "-DOPENSSL_ROOT_DIR=$(brew --prefix)/opt/libressl"
-          - name: 'wolfSSL'
-            install: wolfssl
-            configure: --with-crypto=wolfssl "--with-libwolfssl-prefix=$(brew --prefix)"
-            cmake: -DCRYPTO_BACKEND=wolfSSL
+            configure: --with-crypto=openssl --with-libssl-prefix=/opt/homebrew/opt/libressl
+            cmake: -DCRYPTO_BACKEND=OpenSSL -DOPENSSL_ROOT_DIR=/opt/homebrew/opt/libressl
           - name: 'Libgcrypt'
             install: libgcrypt
-            configure: --with-crypto=libgcrypt "--with-libgcrypt-prefix=$(brew --prefix)"
+            configure: --with-crypto=libgcrypt --with-libgcrypt-prefix=/opt/homebrew
             cmake: -DCRYPTO_BACKEND=Libgcrypt
           - name: 'mbedTLS'
             install: mbedtls
-            configure: --with-crypto=mbedtls "--with-libmbedcrypto-prefix=$(brew --prefix)"
-            cmake: -DCRYPTO_BACKEND=mbedTLS "-DMBEDTLS_INCLUDE_DIR=$(brew --prefix)/opt/mbedtls/include" "-DMBEDCRYPTO_LIBRARY=$(brew --prefix)/opt/mbedtls/lib/libmbedcrypto.a"
+            configure: --with-crypto=mbedtls --with-libmbedcrypto-prefix=/opt/homebrew
+            cmake: -DCRYPTO_BACKEND=mbedTLS
+          - name: 'wolfSSL'
+            install: wolfssl
+            configure: --with-crypto=wolfssl --with-libwolfssl-prefix=/opt/homebrew
+            cmake: -DCRYPTO_BACKEND=wolfSSL
     steps:
       - name: 'install packages'
-        run: brew install automake libtool ${{ matrix.crypto.install }}
-      - uses: actions/checkout@v4
+        env:
+          INSTALL_PACKAGES: ${{ matrix.build == 'autotools' && 'automake libtool' || '' }}
+          MATRIX_INSTALL: '${{ matrix.crypto.install }}'
+        run: brew install ${INSTALL_PACKAGES} ${MATRIX_INSTALL}
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
         run: autoreconf -fi
       - name: 'autotools configure'
         if: ${{ matrix.build == 'autotools' }}
+        env:
+          MATRIX_CONFIGURE: '${{ matrix.crypto.configure }}'
         run: |
-          mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
-            --with-libz ${{ matrix.crypto.configure }} \
+          mkdir bld && cd bld
+          ../configure --enable-werror --enable-debug \
+            --with-libz ${MATRIX_CONFIGURE} \
             --disable-docker-tests \
             --disable-sshd-tests \
             --disable-dependency-tracking || { tail -n 1000 config.log; false; }
@@ -620,8 +954,10 @@ jobs:
         run: make -C bld check V=1 || { cat bld/tests/*.log; false; }
       - name: 'cmake configure'
         if: ${{ matrix.build == 'cmake' }}
+        env:
+          MATRIX_GENERATE: '${{ matrix.crypto.cmake }}'
         run: |
-          cmake -B bld ${{ matrix.crypto.cmake }} \
+          cmake -B bld -G Ninja ${MATRIX_GENERATE} \
             -DCMAKE_UNITY_BUILD=ON \
             -DENABLE_WERROR=ON \
             -DENABLE_DEBUG_LOGGING=ON \
@@ -643,20 +979,23 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         arch: ['x86_64', 'arm64']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'cmake'
-        uses: cross-platform-actions/action@v0.25.0
+        uses: cross-platform-actions/action@fe0167d8082ac584754ef3ffb567fded22642c7d # v0.27.0
         with:
           operating_system: 'netbsd'
-          version: '10.0'
+          version: '10.1'
           architecture: ${{ matrix.arch }}
           run: |
             # https://pkgsrc.se/
-            sudo pkgin -y install cmake
-            cmake -B bld \
+            sudo pkgin -y install cmake ninja-build
+            cmake -B bld -G Ninja \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
               -DENABLE_DEBUG_LOGGING=ON \
@@ -672,20 +1011,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         arch: ['x86_64']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'cmake'
-        uses: cross-platform-actions/action@v0.25.0
+        uses: cross-platform-actions/action@fe0167d8082ac584754ef3ffb567fded22642c7d # v0.27.0
         with:
           operating_system: 'openbsd'
           version: '7.5'
           architecture: ${{ matrix.arch }}
           run: |
             # https://openbsd.app/
-            sudo pkg_add cmake
-            cmake -B bld \
+            sudo pkg_add cmake ninja
+            pkg_info || true
+            cmake -B bld -G Ninja \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
               -DENABLE_DEBUG_LOGGING=ON \
@@ -703,12 +1046,15 @@ jobs:
     env:
       CC: clang
     strategy:
+      fail-fast: false
       matrix:
         arch: ['x86_64', 'arm64']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'autotools'
-        uses: cross-platform-actions/action@v0.25.0
+        uses: cross-platform-actions/action@fe0167d8082ac584754ef3ffb567fded22642c7d # v0.27.0
         with:
           operating_system: 'freebsd'
           version: '14.1'
@@ -718,7 +1064,8 @@ jobs:
             # https://ports.freebsd.org/
             sudo pkg install -y autoconf automake libtool
             autoreconf -fi
-            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+            mkdir bld && cd bld
+            ../configure --enable-werror --enable-debug \
               --with-crypto=openssl \
               --disable-docker-tests \
               --disable-dependency-tracking || { tail -n 1000 config.log; false; }
@@ -730,16 +1077,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
       - name: 'autotools'
-        uses: vmactions/omnios-vm@v1
+        uses: vmactions/omnios-vm@16b5996777bc675acd3d537f13df536a526cd16d # v1
         with:
           usesh: true
           # https://pkg.omnios.org/r151050/core/en/index.shtml
           prepare: pkg install build-essential libtool
           run: |
             autoreconf -fi
-            mkdir bld && cd bld && ../configure --enable-werror --enable-debug \
+            mkdir bld && cd bld
+            ../configure --enable-werror --enable-debug \
               --with-crypto=openssl \
               --disable-docker-tests \
               --disable-dependency-tracking || { tail -n 1000 config.log; false; }

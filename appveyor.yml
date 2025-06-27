@@ -32,24 +32,37 @@
 environment:
   CONFIGURATION: 'Release'
   FIXTURE_XFER_COUNT: 35020
+  SKIP_CTEST: 'yes'  # Connection to test server has been failing consistently since 2024-08-29
+
   matrix:
+    - job_name: 'VS2022, OpenSSL 3, x64, Server 2019, clang-cl'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
+      GENERATOR: 'Visual Studio 17 2022'
+      PLATFORM: 'x64'
+      CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v33-Win64'
+      TOOLSET: 'ClangCl'
+
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
       GENERATOR: 'Visual Studio 17 2022'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v33-Win64'
 
     - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
       GENERATOR: 'Visual Studio 14 2015'
       PLATFORM: 'x86'
       CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win32'
 
     - job_name: 'VS2015, OpenSSL 1.1, x64, Server 2012 R2, Logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       GENERATOR: 'Visual Studio 14 2015'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win64'
       ENABLE_DEBUG_LOGGING: 'ON'
 
     - job_name: 'VS2013, OpenSSL 1.1, x64, Server 2012 R2'
@@ -57,6 +70,7 @@ environment:
       GENERATOR: 'Visual Studio 12 2013'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win64'
 
     - job_name: 'VS2013, OpenSSL 1.1, x86, Server 2012 R2, Shared-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -64,6 +78,8 @@ environment:
       PLATFORM: 'x86'
       BUILD_STATIC_LIBS: 'OFF'
       CRYPTO_BACKEND: 'OpenSSL'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win32'
+      SKIP_CTEST: 'no'
 
     - job_name: 'VS2013, OpenSSL 1.0.2, x64, Build-only, Static-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -71,7 +87,7 @@ environment:
       PLATFORM: 'x64'
       BUILD_SHARED_LIBS: 'OFF'
       CRYPTO_BACKEND: 'OpenSSL'
-      SKIP_CTEST: 'yes'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-Win64'
 
     - job_name: 'VS2008, WinCNG, x86, Build-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -79,7 +95,6 @@ environment:
       PLATFORM: 'x86'
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'ON'
-      SKIP_CTEST: 'yes'
 
     - job_name: 'VS2010, WinCNG, x64, Build-only, non-unity'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -88,7 +103,6 @@ environment:
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'ON'
       UNITY: 'OFF'
-      SKIP_CTEST: 'yes'
 
     - job_name: 'VS2022, WinCNG, x64, Server 2019, Logging'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2022'
@@ -118,6 +132,7 @@ environment:
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'OFF'
+      SKIP_CTEST: 'no'
 
 matrix:
   fast_finish: true
@@ -133,33 +148,23 @@ build_script:
   - ps: |
       $options = @('-DENABLE_WERROR=ON')
 
-      if($env:GENERATOR -eq 'Visual Studio 17 2022') {
-        if($env:PLATFORM -eq 'x86') {
-          $options += '-A Win32'
-        }
-        else {
-          $options += "-A $env:PLATFORM"
-        }
-      }
-      elseif($env:PLATFORM -eq 'x64') {
-        $env:GENERATOR += ' Win64'
-      }
       $options += "-G$env:GENERATOR"
+      if($env:PLATFORM -ne 'x86') {
+        $options += "-A$env:PLATFORM"
+      }
+
+      if($env:TOOLSET) {
+        $options += "-T $env:TOOLSET"
+      }
 
       $options += "-DCRYPTO_BACKEND=$env:CRYPTO_BACKEND"
-      if($env:SKIP_CTEST -ne 'yes' -and $env:CRYPTO_BACKEND -eq 'OpenSSL') {
-        if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq 'Visual Studio 2022') {
-          if($env:PLATFORM -eq 'x64') {
-            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v32-Win64'
-          }
+      if($env:OPENSSL_ROOT_DIR -and $env:OPENSSL_ROOT_DIR -ne '') {
+        if(Test-Path $env:OPENSSL_ROOT_DIR) {
+          $options += "-DOPENSSL_ROOT_DIR=$env:OPENSSL_ROOT_DIR"
         }
         else {
-          if($env:PLATFORM -eq 'x64') {
-            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win64'
-          }
-          elseif($env:PLATFORM -eq 'x86') {
-            $options += '-DOPENSSL_ROOT_DIR=C:/OpenSSL-v111-Win32'
-          }
+          Write-Error "Directory '$env:OPENSSL_ROOT_DIR' expected, but not found."
+          exit 1
         }
       }
 

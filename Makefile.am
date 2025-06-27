@@ -29,7 +29,7 @@ OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   os400/config400.default \
   os400/os400sys.c os400/ccsid.c \
   os400/libssh2_config.h os400/macros.h os400/libssh2_ccsid.h \
-  os400/include/alloca.h os400/include/sys/socket.h os400/include/stdio.h \
+  os400/include/alloca.h os400/include/sys/socket.h \
   os400/include/assert.h \
   os400/libssh2rpg/libssh2.rpgle.in \
   os400/libssh2rpg/libssh2_ccsid.rpgle.in \
@@ -81,6 +81,4 @@ gen-coverage:
 coverage: init-coverage build-coverage gen-coverage
 
 checksrc:
-	perl ci/checksrc.pl -i4 -m79 \
-	  -Wsrc/libssh2_config.h \
-	  src/*.[ch] include/*.h example/*.c tests/*.[ch]
+	ci/checksrc.sh

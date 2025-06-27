@@ -37,12 +37,12 @@
 
 include(CMakeParseArguments)
 
-function(add_target_to_copy_dependencies)
-  set(options)
-  set(oneValueArgs TARGET)
-  set(multiValueArgs DEPENDENCIES BEFORE_TARGETS)
-  cmake_parse_arguments(COPY
-    "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+# Add target to copy dependencies
+function(libssh2_add_target_to_copy_dependencies)
+  set(_options)
+  set(_one_value_args TARGET)
+  set(_multi_value_args DEPENDENCIES BEFORE_TARGETS)
+  cmake_parse_arguments(COPY "${_options}" "${_one_value_args}" "${_multi_value_args}" ${ARGN})
 
   if(NOT COPY_DEPENDENCIES)
     return()
@@ -52,20 +52,17 @@ function(add_target_to_copy_dependencies)
   # parallel builds trying to kick off the commands at the same time
   add_custom_target(${COPY_TARGET})
 
-  foreach(target IN LISTS COPY_BEFORE_TARGETS)
-    add_dependencies(${target} ${COPY_TARGET})
+  foreach(_target IN LISTS COPY_BEFORE_TARGETS)
+    add_dependencies(${_target} ${COPY_TARGET})
   endforeach()
 
-  foreach(dependency IN LISTS COPY_DEPENDENCIES)
+  foreach(_dependency IN LISTS COPY_DEPENDENCIES)
     add_custom_command(
-      TARGET ${COPY_TARGET}
-      DEPENDS ${dependency}
+      TARGET ${COPY_TARGET} POST_BUILD
       # Make directory first otherwise file is copied in place of
       # directory instead of into it
-      COMMAND ${CMAKE_COMMAND}
-      ARGS -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-      COMMAND ${CMAKE_COMMAND}
-      ARGS -E copy ${dependency} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+      COMMAND ${CMAKE_COMMAND} ARGS -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
+      COMMAND ${CMAKE_COMMAND} ARGS -E copy ${_dependency} "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
       VERBATIM)
   endforeach()
 endfunction()

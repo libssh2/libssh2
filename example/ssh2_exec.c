@@ -51,12 +51,12 @@ static int waitsocket(libssh2_socket_t socket_fd, LIBSSH2_SESSION *session)
 
     FD_ZERO(&fd);
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
     FD_SET(socket_fd, &fd);
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     LIBSSH2_SESSION *session = NULL;
     LIBSSH2_CHANNEL *channel;
     int exitcode;
-    char *exitsignal = (char *)"none";
+    char *exitsignal = NULL;
     ssize_t bytecount = 0;
     size_t len;
     LIBSSH2_KNOWNHOSTS *nh;
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
     } while(1);
     if(!channel) {
         fprintf(stderr, "Error\n");
-        exit(1);
+        return 1;
     }
     while((rc = libssh2_channel_exec(channel, commandline)) ==
           LIBSSH2_ERROR_EAGAIN) {
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
     }
     if(rc) {
         fprintf(stderr, "exec error\n");
-        exit(1);
+        return 1;
     }
     for(;;) {
         ssize_t nread;
@@ -283,7 +283,8 @@ int main(int argc, char *argv[])
     }
 
     if(exitsignal)
-        fprintf(stderr, "\nGot signal: %s\n", exitsignal);
+        fprintf(stderr, "\nGot signal: %s\n",
+                exitsignal ? exitsignal : "none");
     else
         fprintf(stderr, "\nEXIT: %d bytecount: %ld\n",
                 exitcode, (long)bytecount);

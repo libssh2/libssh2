@@ -1,3 +1,6 @@
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
+
 AM_CPPFLAGS = -I$(top_builddir)/include
 LDADD = $(top_builddir)/src/libssh2.la
 
@@ -31,4 +34,4 @@ ssh2_client_fuzzer_LDFLAGS = $(AM_LDFLAGS) -static
 libstandaloneengine_a_SOURCES = standaloneengine.cc
 libstandaloneengine_a_CXXFLAGS = $(AM_CXXFLAGS)
 
-EXTRA_DIST = ossfuzz.sh
+EXTRA_DIST = CMakeLists.txt ossfuzz.sh

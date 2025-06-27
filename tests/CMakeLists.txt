@@ -38,21 +38,21 @@
 
 include(CopyRuntimeDependencies)
 
-list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
+list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
-transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
+libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 # Get 'DOCKER_TESTS', 'DOCKER_TESTS_STATIC', 'STANDALONE_TESTS', 'STANDALONE_TESTS_STATIC', 'SSHD_TESTS',
 # 'librunner_la_SOURCES' variables
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 list(APPEND DOCKER_TESTS ${DOCKER_TESTS_STATIC})
 list(APPEND STANDALONE_TESTS ${STANDALONE_TESTS_STATIC})
 
-if(CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   find_program(GCOV_PATH "gcov")
   if(GCOV_PATH)
-    set(GCOV_CFLAGS "-g" "--coverage")
-    if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
-      set(GCOV_CFLAGS "${GCOV_CFLAGS} -fprofile-abs-path")
+    set(_gcov_cflags "-g" "--coverage")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0)
+      string(APPEND _gcov_cflags " -fprofile-abs-path")
     endif()
   endif()
 endif()
@@ -72,67 +72,72 @@ endif()
 
 add_library(runner STATIC ${librunner_la_SOURCES})
 target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
-target_include_directories(runner PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" "../src" "../include" "${CRYPTO_BACKEND_INCLUDE_DIR}")
-target_link_libraries(runner PRIVATE libssh2)
+target_include_directories(runner PRIVATE
+  "${PROJECT_BINARY_DIR}/src"
+  "${PROJECT_SOURCE_DIR}/src"
+  "${PROJECT_SOURCE_DIR}/include")
+target_link_libraries(runner PRIVATE libssh2 ${LIBSSH2_LIBS})
 
-foreach(test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
-  if(NOT ";${DOCKER_TESTS_STATIC};${STANDALONE_TESTS_STATIC};" MATCHES ";${test};")
-    set(LIB_FOR_TESTS ${LIB_SELECTED})
+foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
+  if(NOT ";${DOCKER_TESTS_STATIC};${STANDALONE_TESTS_STATIC};" MATCHES ";${_test};")
+    set(_lib_for_tests ${LIB_SELECTED})
   elseif(TARGET ${LIB_STATIC})
-    set(LIB_FOR_TESTS ${LIB_STATIC})
+    set(_lib_for_tests ${LIB_STATIC})
   else()
-    unset(LIB_FOR_TESTS)
-    message(STATUS "Skip test requiring static libssh2 lib: ${test}")
+    set(_lib_for_tests "")
+    message(STATUS "Skip test requiring static libssh2 lib: ${_test}")
   endif()
 
   # We support the same target as both Docker and SSHD test. Build those just once.
-  # Skip building tests that require the static lib when the static lib is disabled.
-  if(NOT TARGET ${test} AND LIB_FOR_TESTS)
-    add_executable(${test} "${test}.c")
-    target_compile_definitions(${test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
-    target_include_directories(${test} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/../src" "../src" "../include" "${CRYPTO_BACKEND_INCLUDE_DIR}")
-    set_target_properties(${test} PROPERTIES UNITY_BUILD OFF)
+  # Skip building tests that require the static lib when the static lib is not built.
+  if(NOT TARGET ${_test} AND _lib_for_tests)
+    add_executable(${_test} "${_test}.c")
+    target_compile_definitions(${_test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
+    target_include_directories(${_test} PRIVATE
+      "${PROJECT_BINARY_DIR}/src"
+      "${PROJECT_SOURCE_DIR}/src"
+      "${PROJECT_SOURCE_DIR}/include")
+    set_target_properties(${_test} PROPERTIES UNITY_BUILD OFF)
+    target_link_libraries(${_test} PRIVATE runner ${_lib_for_tests} ${LIBSSH2_LIBS})
 
     # build a single test with gcov
-    if(GCOV_PATH AND test STREQUAL "test_auth_keyboard_info_request" AND TARGET ${LIB_STATIC})
-      target_compile_options(${test} BEFORE PRIVATE ${GCOV_CFLAGS})
-      target_link_libraries(${test} runner ${LIB_FOR_TESTS} ${LIBRARIES} "gcov")
-    else()
-      target_link_libraries(${test} runner ${LIB_FOR_TESTS} ${LIBRARIES})
+    if(GCOV_PATH AND _test STREQUAL "test_auth_keyboard_info_request" AND TARGET ${LIB_STATIC})
+      target_compile_options(${_test} BEFORE PRIVATE ${_gcov_cflags})
+      target_link_libraries(${_test} PRIVATE "gcov")
     endif()
 
-    list(APPEND TEST_TARGETS ${test})
+    list(APPEND _test_targets ${_test})
   endif()
 endforeach()
 
 option(RUN_DOCKER_TESTS "Run tests requiring Docker" ON)
 
 if(RUN_DOCKER_TESTS)
-  foreach(test IN LISTS DOCKER_TESTS)
-    if(TARGET ${test})
-      add_test(NAME ${test} COMMAND "$<TARGET_FILE:${test}>")
-      set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
+  foreach(_test IN LISTS DOCKER_TESTS)
+    if(TARGET ${_test})
+      add_test(NAME ${_test} COMMAND "$<TARGET_FILE:${_test}>")
+      set_property(TEST ${_test} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
     endif()
   endforeach()
 endif()
 
-foreach(test IN LISTS STANDALONE_TESTS)
-  if(TARGET ${test})
-    add_test(NAME ${test} COMMAND "$<TARGET_FILE:${test}>")
-    set_property(TEST ${test} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
+foreach(_test IN LISTS STANDALONE_TESTS)
+  if(TARGET ${_test})
+    add_test(NAME ${_test} COMMAND "$<TARGET_FILE:${_test}>")
+    set_property(TEST ${_test} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
   endif()
 endforeach()
 
 if(RUN_SSHD_TESTS AND SSHD_EXECUTABLE)
-  unset(sshd_test_targets)
-  foreach(test IN LISTS SSHD_TESTS)
-    if(TARGET ${test})
-      set(sshd_test_targets "${sshd_test_targets} $<TARGET_FILE:${test}>")
+  set(_sshd_test_targets "")
+  foreach(_test IN LISTS SSHD_TESTS)
+    if(TARGET ${_test})
+      string(APPEND _sshd_test_targets " $<TARGET_FILE:${_test}>")
     endif()
   endforeach()
 
-  if(sshd_test_targets)
-    add_test(NAME test_sshd COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/test_sshd.test ${sshd_test_targets}")
+  if(_sshd_test_targets)
+    add_test(NAME test_sshd COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/test_sshd.test ${_sshd_test_targets}")
     set_property(TEST test_sshd APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
     set_property(TEST test_sshd APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
   endif()
@@ -140,17 +145,17 @@ endif()
 
 if(RUN_DOCKER_TESTS)
   # CRYPT/MAC algo tests
-  file(READ "test_read_algos.txt" ALGO_TESTS)
-  string(REGEX REPLACE "\\\n" ";" ALGO_TESTS ${ALGO_TESTS})
-  foreach(test IN LISTS ALGO_TESTS)
-    if(test)
-      set(testname "test_read-${test}")
-      add_test(NAME ${testname} COMMAND "$<TARGET_FILE:test_read>")
-      set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
-      if(test MATCHES "mac-")
-        set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_MAC=${test}")
+  file(READ "test_read_algos.txt" _algo_tests)
+  string(REGEX REPLACE "\\\n" ";" _algo_tests ${_algo_tests})
+  foreach(_test IN LISTS _algo_tests)
+    if(_test)
+      set(_testname "test_read-${_test}")
+      add_test(NAME ${_testname} COMMAND "$<TARGET_FILE:test_read>")
+      set_property(TEST ${_testname} APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
+      if(_test MATCHES "mac-")
+        set_property(TEST ${_testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_MAC=${_test}")
       else()
-        set_property(TEST ${testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_CRYPT=${test}")
+        set_property(TEST ${_testname} APPEND PROPERTY ENVIRONMENT "FIXTURE_TEST_CRYPT=${_test}")
       endif()
     endif()
   endforeach()
@@ -159,12 +164,17 @@ endif()
 add_custom_target(coverage
   COMMAND gcovr --root "${PROJECT_SOURCE_DIR}" --exclude tests/*
   COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/coverage"
-  COMMAND gcovr --root "${PROJECT_SOURCE_DIR}" --exclude tests/* --html-details --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
+  COMMAND gcovr --root "${PROJECT_SOURCE_DIR}" --exclude tests/* --html-details
+    --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
 
 add_custom_target(clean-coverage
   COMMAND rm -rf "${CMAKE_CURRENT_BINARY_DIR}/coverage")
 
-add_target_to_copy_dependencies(
+libssh2_add_target_to_copy_dependencies(
   TARGET copy_test_dependencies
-  DEPENDENCIES ${RUNTIME_DEPENDENCIES}
-  BEFORE_TARGETS ${TEST_TARGETS})
+  DEPENDENCIES ${_runtime_dependencies}
+  BEFORE_TARGETS ${_test_targets})
+
+if(BUILD_OSSFUZZ)
+  add_subdirectory(ossfuzz)
+endif()

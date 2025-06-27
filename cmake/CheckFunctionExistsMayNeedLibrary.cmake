@@ -35,8 +35,10 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
+include(CheckFunctionExists)
+include(CheckLibraryExists)
 
-# - check_function_exists_maybe_need_library(<function> <var> [lib1 ... libn])
+# libssh2_check_function_exists_may_need_library(<function> <var> [lib1 ... libn])
 #
 # Check if function is available for linking, first without extra libraries, and
 # then, if not found that way, linking in each optional library as well.  This
@@ -56,25 +58,19 @@
 #  CMAKE_REQUIRED_INCLUDES = list of include directories
 #  CMAKE_REQUIRED_LIBRARIES = list of libraries to link
 #
+function(libssh2_check_function_exists_may_need_library _function _variable)
 
-include(CheckFunctionExists)
-include(CheckLibraryExists)
+  check_function_exists(${_function} ${_variable})
 
-function(check_function_exists_may_need_library function variable)
-
-  check_function_exists(${function} ${variable})
-
-  if(NOT ${variable})
-    foreach(lib IN LISTS ARGN)
-      string(TOUPPER ${lib} UP_LIB)
+  if(NOT ${_variable})
+    foreach(_lib IN LISTS ARGN)
+      string(TOUPPER ${_lib} _up_lib)
       # Use new variable to prevent cache from previous step shortcircuiting
       # new test
-      check_library_exists(${lib} ${function} "" HAVE_${function}_IN_${lib})
-      if(HAVE_${function}_IN_${lib})
-        set(${variable} 1 CACHE INTERNAL
-          "Function ${function} found in library ${lib}")
-        set(NEED_LIB_${UP_LIB} 1 CACHE INTERNAL
-          "Need to link ${lib}")
+      check_library_exists(${_lib} ${_function} "" HAVE_${_function}_IN_${_lib})
+      if(HAVE_${_function}_IN_${_lib})
+        set(${_variable} 1 CACHE INTERNAL "Function ${_function} found in library ${_lib}")
+        set(NEED_LIB_${_up_lib} 1 CACHE INTERNAL "Need to link ${_lib}")  # cmake-lint: disable=C0103
         break()
       endif()
     endforeach()
