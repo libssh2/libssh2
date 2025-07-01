@@ -5,7 +5,7 @@
 
 name: 'REUSE compliance'
 
-on:
+'on':
   push:
     branches:
       - master

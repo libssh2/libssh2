@@ -28,9 +28,9 @@
 
 name: 'OpenSSH Server Docker Image'
 
-on:
+'on':
   push:
-    branches: [ master ]
+    branches: [master]
 
 permissions: {}
 
