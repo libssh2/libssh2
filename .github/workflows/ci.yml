@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
-name: CI
+name: 'CI'
 
-on:
+'on':
   push:
     branches: [master]
   pull_request:
@@ -28,7 +28,18 @@ jobs:
       - name: 'checksrc'
         run: ./ci/checksrc.sh
 
+  reuse:
+    name: 'REUSE check'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - name: 'check'
+        uses: fsfe/reuse-action@bb774aa972c2a89ff34781233d275075cbddf542 # v5
+
   spellcheck:
+    name: 'spellcheck'
     runs-on: ubuntu-latest
     steps:
       - name: 'install tools'
@@ -40,6 +51,7 @@ jobs:
         run: ./ci/spellcheck.sh
 
   shellcheck:
+    name: 'shellcheck'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -50,19 +62,19 @@ jobs:
         run: ./ci/shellcheck.sh
 
   cmakelint:
+    name: 'cmakelint'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-        name: checkout
-
-      - name: cmakelint
+      - name: 'cmakelint'
         run: |
           python3 -m pip install --break-system-packages cmakelang==0.6.13
           ci/cmakelint.sh
 
   cicheck:
+    name: 'CI checks'
     runs-on: macos-latest
     timeout-minutes: 1
     steps:
@@ -87,7 +99,7 @@ jobs:
           done
 
   build_integration:
-    name: 'integration on ${{ matrix.image }}'
+    name: 'CM integration ${{ matrix.image }}'
     runs-on: ${{ matrix.image }}
     timeout-minutes: 5
     defaults:
