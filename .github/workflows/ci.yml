@@ -58,7 +58,6 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
-        name: checkout
       - name: 'cmakelint'
         run: |
           python3 -m pip install --break-system-packages cmakelang==0.6.13
