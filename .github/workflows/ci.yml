@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
-name: CI
+name: 'CI'
 
 on:
   push:

@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
-name: CIFuzz
+name: 'CIFuzz'
+
 on: [pull_request]
 
 concurrency:
@@ -13,6 +14,7 @@ permissions: {}
 
 jobs:
   Fuzzing:
+    name: 'Fuzzing'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

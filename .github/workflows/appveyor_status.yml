@@ -24,7 +24,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-name: AppVeyor Status Report
+name: 'AppVeyor Status Report'
 
 on:
   status

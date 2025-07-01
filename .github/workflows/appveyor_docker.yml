@@ -24,7 +24,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-name: AppVeyor Docker Bridge
+name: 'AppVeyor Docker Bridge'
 
 on:
   workflow_dispatch:
