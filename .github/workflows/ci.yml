@@ -28,6 +28,15 @@ jobs:
       - name: 'checksrc'
         run: ./ci/checksrc.sh
 
+  reuse:
+    name: 'REUSE compliance'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: fsfe/reuse-action@bb774aa972c2a89ff34781233d275075cbddf542 # v5
+
   spellcheck:
     name: 'spellcheck'
     runs-on: ubuntu-latest
