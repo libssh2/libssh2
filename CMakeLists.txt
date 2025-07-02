@@ -469,7 +469,7 @@ if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND AND NOT CRYPTO_NO_OPE
   endif()
 endif()
 
-if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
+if(CRYPTO_BACKEND STREQUAL "wolfSSL" )
   find_package(WolfSSL ${_specific_crypto_requirement})
   if(WOLFSSL_FOUND)
     set(CRYPTO_BACKEND "wolfSSL")
@@ -483,7 +483,7 @@ if(CRYPTO_BACKEND STREQUAL "wolfSSL" OR NOT CRYPTO_BACKEND)
   endif()
 endif()
 
-if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
+if(CRYPTO_BACKEND STREQUAL "Libgcrypt" )
   find_package(Libgcrypt ${_specific_crypto_requirement})
   if(LIBGCRYPT_FOUND)
     set(CRYPTO_BACKEND "Libgcrypt")
@@ -492,7 +492,7 @@ if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
   endif()
 endif()
 
-if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
+if(CRYPTO_BACKEND STREQUAL "mbedTLS" )
   find_package(MbedTLS ${_specific_crypto_requirement})
   if(MBEDTLS_FOUND)
     set(CRYPTO_BACKEND "mbedTLS")
@@ -503,15 +503,7 @@ endif()
 
 # Detect platform-specific crypto-backends last:
 
-if( NOT CRYPTO_BACKEND )
-    set(CRYPTO_BACKEND "LibreSSL")
-    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
-    set(CRYPTO_BACKEND_INCLUDE_DIR ../../libressl/3.9.2/include)
-    list(APPEND LIBRARIES ssl crypto tls )
-endif()
-
-
-if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
+if(CRYPTO_BACKEND STREQUAL "WinCNG" )
   if(WIN32)
     set(CRYPTO_BACKEND "WinCNG")
     set(CRYPTO_BACKEND_DEFINE "LIBSSH2_WINCNG")
@@ -531,6 +523,16 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
     message(FATAL_ERROR "WinCNG not available")
   endif()
 endif()
+
+# default fallback
+if( NOT CRYPTO_BACKEND )
+    set(CRYPTO_BACKEND "LibreSSL")
+    set(CRYPTO_BACKEND_DEFINE "LIBSSH2_OPENSSL")
+    set(CRYPTO_BACKEND_INCLUDE_DIR ../../libressl/4.1.0/include)
+    list(APPEND LIBRARIES ssl crypto tls )
+endif()
+
+
 
 # Global functions
 
