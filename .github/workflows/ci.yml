@@ -102,7 +102,7 @@ jobs:
   build_integration:
     name: 'CM integration ${{ matrix.image }}'
     runs-on: ${{ matrix.image }}
-    timeout-minutes: 5
+    timeout-minutes: 10
     defaults:
       run:
         shell: ${{ contains(matrix.image, 'windows') && 'msys2 {0}' || 'bash' }}
