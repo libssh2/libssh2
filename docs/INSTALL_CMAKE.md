@@ -36,8 +36,8 @@ Use this with CMake 3.12.x or older:
 
 libssh2 will be built as a static library and will use any
 cryptography library available.  The library binary will be put in
-`bin/src`, with the examples in `bin/example` and the tests in
-`bin/tests`.
+`bld/src`, with the examples in `bld/example` and the tests in
+`bld/tests`.
 
 Customising the build
 ---------------------

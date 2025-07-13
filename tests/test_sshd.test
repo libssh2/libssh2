@@ -6,8 +6,7 @@
 # Start sshd, invoke test(s), saving exit code, kill sshd, and
 # return exit code.
 
-set -e
-set -u
+set -eu
 
 # https://testanything.org/tap-specification.html
 

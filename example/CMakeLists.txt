@@ -41,7 +41,7 @@ include(CopyRuntimeDependencies)
 list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
-# Get 'noinst_PROGRAMS' variable
+# Get noinst_PROGRAMS variable
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 
 foreach(_example IN LISTS noinst_PROGRAMS)

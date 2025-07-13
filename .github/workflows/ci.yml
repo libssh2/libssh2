@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
-name: CI
+name: 'CI'
 
-on:
+'on':
   push:
     branches: [master]
   pull_request:
@@ -26,55 +26,50 @@ jobs:
         with:
           persist-credentials: false
       - name: 'checksrc'
-        run: ./ci/checksrc.sh
+        run: ci/checksrc.sh
 
-  spellcheck:
+  reuse:
+    name: 'REUSE check'
     runs-on: ubuntu-latest
     steps:
-      - name: 'install tools'
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - name: 'check'
+        uses: fsfe/reuse-action@bb774aa972c2a89ff34781233d275075cbddf542 # v5
+
+  spellcheck:
+    name: 'spellcheck'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'install prereqs'
         run: pip install --break-system-packages -U codespell
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'spellcheck'
-        run: ./ci/spellcheck.sh
+        run: ci/spellcheck.sh
 
-  shellcheck:
+  miscchecks:
+    name: 'misc checks'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          persist-credentials: false
-      - name: 'shellcheck'
-        run: ./ci/shellcheck.sh
-
-  cmakelint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          persist-credentials: false
-        name: checkout
-
-      - name: cmakelint
-        run: |
-          python3 -m pip install --break-system-packages cmakelang==0.6.13
-          ci/cmakelint.sh
-
-  cicheck:
-    runs-on: macos-latest
-    timeout-minutes: 1
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          persist-credentials: false
       - name: 'install prereqs'
-        run: brew install shellcheck zizmor
+        run: /home/linuxbrew/.linuxbrew/bin/brew install shellcheck zizmor
+
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+
       - name: 'zizmor GHA'
-        run: zizmor --pedantic .github/workflows/*.yml
-      - name: 'shellcheck'
         run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          zizmor --pedantic .github/workflows/*.yml
+
+      - name: 'shellcheck GHA'
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           shellcheck --version
           export SHELLCHECK_OPTS='--exclude=1090,1091,2086,2153 --enable=avoid-nullary-conditions,deprecate-which'
           git ls-files '.github/workflows/*.yml' | while read -r f; do
@@ -86,10 +81,28 @@ jobs:
             } | sed -E 's|\$\{\{ .+ \}\}|GHA_EXPRESSION|g' | shellcheck -
           done
 
+      - name: 'shellcheck'
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          shellcheck --version
+          ci/shellcheck.sh
+
+  cmakelint:
+    name: 'cmakelint'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - name: 'cmakelint'
+        run: |
+          python3 -m pip install --break-system-packages cmakelang==0.6.13
+          ci/cmakelint.sh
+
   build_integration:
-    name: 'integration on ${{ matrix.image }}'
+    name: 'CM integration ${{ matrix.image }}'
     runs-on: ${{ matrix.image }}
-    timeout-minutes: 5
+    timeout-minutes: 10
     defaults:
       run:
         shell: ${{ contains(matrix.image, 'windows') && 'msys2 {0}' || 'bash' }}

@@ -2,8 +2,9 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
-name: CIFuzz
-on: [pull_request]
+name: 'CIFuzz'
+
+'on': [pull_request]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
@@ -13,24 +14,25 @@ permissions: {}
 
 jobs:
   Fuzzing:
+    name: 'Fuzzing'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-    - name: Build Fuzzers
+    - name: 'Build Fuzzers'
       id: build
       uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master  # zizmor: ignore[unpinned-uses]
       with:
         oss-fuzz-project-name: 'libssh2'
         dry-run: false
         language: c
-    - name: Run Fuzzers
+    - name: 'Run Fuzzers'
       uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master  # zizmor: ignore[unpinned-uses]
       with:
         oss-fuzz-project-name: 'libssh2'
         fuzz-seconds: 600
         dry-run: false
         language: c
-    - name: Upload Crash
+    - name: 'Upload Crash'
       uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
       if: ${{ failure() && steps.build.outcome == 'success' }}
       with:

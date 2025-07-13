@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = foreign nostdinc
 
 EXTRA_DIST = CMakeLists.txt
 
-# Get noing_PROGRAMS
+# Get noinst_PROGRAMS variable
 include Makefile.inc
 
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/src -I$(top_srcdir)/include

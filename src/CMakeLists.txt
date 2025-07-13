@@ -104,7 +104,7 @@ endif()
 
 include(GNUInstallDirs)
 libssh2_transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
-# Get 'CSOURCES' and 'HHEADERS' variables
+# Get CSOURCES, HHEADERS, EXTRA_DIST variables
 include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 set(_sources ${CSOURCES} ${HHEADERS})
 
@@ -254,10 +254,6 @@ endif()
 
 # Calculate variables for pkg-config
 set(LIBSSH2_PC_LIBS_PRIVATE "")
-
-if(WIN32)
-  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lws2_32")
-endif()
 
 set(_ldflags "")
 

@@ -26,16 +26,17 @@
 
 # https://docs.github.com/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
 
-name: OpenSSH Server Docker Image
+name: 'OpenSSH Server Docker Image'
 
-on:
+'on':
   push:
-    branches: [ master ]
+    branches: [master]
 
 permissions: {}
 
 jobs:
   build-and-push:
+    name: 'Image build and push'
     runs-on: ubuntu-latest
     permissions:
       contents: read

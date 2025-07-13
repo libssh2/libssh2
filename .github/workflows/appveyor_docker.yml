@@ -24,9 +24,9 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-name: AppVeyor Docker Bridge
+name: 'AppVeyor Docker Bridge'
 
-on:
+'on':
   workflow_dispatch:
     inputs:
       ssh_host:
@@ -50,6 +50,7 @@ permissions: {}
 
 jobs:
   daemon:
+    name: 'Daemon'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
@@ -60,7 +61,7 @@ jobs:
       SSH_HOSTKEY: '${{ github.event.inputs.ssh_hostkey }}'
       SSH_PRIVKEY: '${{ github.event.inputs.ssh_privkey }}'
     steps:
-      - name: Setup SSH client configuration
+      - name: 'Setup SSH client configuration'
         run: |
           cd ~
           mkdir -m 0700 .ssh
@@ -78,6 +79,6 @@ jobs:
           echo "${SSH_PRIVKEY}" | sed 's/,/\n/g' >> .ssh/id_rsa
 
       # we sleep explicitly to allow the remote system to kill the sleep process
-      - name: Connect to AppVeyor and sleep
+      - name: 'Connect to AppVeyor and sleep'
         run: |
           ssh -v -p "${SSH_PORT}" "${SSH_USER}@${SSH_HOST}" sleep 1h

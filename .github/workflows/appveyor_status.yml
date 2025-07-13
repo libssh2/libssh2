@@ -24,9 +24,9 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-name: AppVeyor Status Report
+name: 'AppVeyor Status Report'
 
-on:
+'on':
   status
 
 concurrency:
@@ -37,12 +37,13 @@ permissions: {}
 
 jobs:
   split:
+    name: 'split'
     runs-on: ubuntu-latest
     if: ${{ github.event.sender.login == 'appveyor[bot]' }}
     permissions:
       statuses: write
     steps:
-      - name: Create individual AppVeyor build statuses
+      - name: 'Create individual AppVeyor build statuses'
         if: ${{ github.event.sha && github.event.target_url }}
         env:
           APPVEYOR_COMMIT_SHA: ${{ github.event.sha }}
@@ -50,7 +51,7 @@ jobs:
           APPVEYOR_REPOSITORY: ${{ github.event.repository.full_name }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo ${APPVEYOR_TARGET_URL} | sed 's/\/project\//\/api\/projects\//' | xargs -t -n1 curl -s | \
+          echo "${APPVEYOR_TARGET_URL}" | sed 's/\/project\//\/api\/projects\//' | xargs -t -n1 curl -s | \
             jq -c '.build.jobs[] | {target_url: ($target_url + "/job/" + .jobId),
                                     context: (.name | sub("^(Environment: )?"; "AppVeyor / ")),
                                     state: (.status | sub("queued"; "pending")
@@ -59,5 +60,5 @@ jobs:
                                                     | sub("failed"; "failure")
                                                     | sub("cancelled"; "error")),
                                     description: .status}' \
-                --arg target_url ${APPVEYOR_TARGET_URL} | tee /dev/stderr | parallel --pipe -j 1 -N 1 \
-              gh api --silent --input - repos/${APPVEYOR_REPOSITORY}/statuses/${APPVEYOR_COMMIT_SHA}
+                --arg target_url "${APPVEYOR_TARGET_URL}" | tee /dev/stderr | parallel --pipe -j 1 -N 1 \
+              gh api --silent --input - "repos/${APPVEYOR_REPOSITORY}/statuses/${APPVEYOR_COMMIT_SHA}"
