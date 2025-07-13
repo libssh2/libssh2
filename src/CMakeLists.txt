@@ -229,10 +229,6 @@ install(
 # Calculate variables for pkg-config
 set(LIBSSH2_PC_LIBS_PRIVATE "")
 
-if(WIN32)
-  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lws2_32")
-endif()
-
 set(_ldflags "")
 
 # Avoid getting unnecessary -L options for known system directories.
