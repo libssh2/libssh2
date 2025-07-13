@@ -256,7 +256,7 @@ endif()
 
 set(_explicit_libdirs "")
 set(LIBSSH2_PC_REQUIRES_PRIVATE "")
-foreach(_lib IN LISTS _implicit_libs LIBSSH2_LIBS)
+foreach(_lib IN LISTS LIBSSH2_LIBS _implicit_libs)
   if(TARGET "${_lib}")
     set(_explicit_lib "")
     get_target_property(_imported "${_lib}" IMPORTED)
