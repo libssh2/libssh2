@@ -26,7 +26,7 @@ jobs:
         with:
           persist-credentials: false
       - name: 'checksrc'
-        run: ./ci/checksrc.sh
+        run: ci/checksrc.sh
 
   reuse:
     name: 'REUSE check'
@@ -42,24 +42,49 @@ jobs:
     name: 'spellcheck'
     runs-on: ubuntu-latest
     steps:
-      - name: 'install tools'
+      - name: 'install prereqs'
         run: pip install --break-system-packages -U codespell
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
       - name: 'spellcheck'
-        run: ./ci/spellcheck.sh
+        run: ci/spellcheck.sh
 
-  shellcheck:
-    name: 'shellcheck'
+  miscchecks:
+    name: 'misc checks'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: 'install prereqs'
+        run: /home/linuxbrew/.linuxbrew/bin/brew install shellcheck zizmor
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
+
+      - name: 'zizmor GHA'
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          zizmor --pedantic .github/workflows/*.yml
+
+      - name: 'shellcheck GHA'
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          shellcheck --version
+          export SHELLCHECK_OPTS='--exclude=1090,1091,2086,2153 --enable=avoid-nullary-conditions,deprecate-which'
+          git ls-files '.github/workflows/*.yml' | while read -r f; do
+            echo "Verifying ${f}..."
+            {
+              echo '#!/usr/bin/env bash'
+              echo 'set -eu'
+              yq eval '.. | select(has("run") and (.run | type == "!!str")) | .run + "\ntrue\n"' "${f}"
+            } | sed -E 's|\$\{\{ .+ \}\}|GHA_EXPRESSION|g' | shellcheck -
+          done
+
       - name: 'shellcheck'
-        run: ./ci/shellcheck.sh
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          shellcheck --version
+          ci/shellcheck.sh
 
   cmakelint:
     name: 'cmakelint'
@@ -72,31 +97,6 @@ jobs:
         run: |
           python3 -m pip install --break-system-packages cmakelang==0.6.13
           ci/cmakelint.sh
-
-  cicheck:
-    name: 'CI checks'
-    runs-on: macos-latest
-    timeout-minutes: 1
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          persist-credentials: false
-      - name: 'install prereqs'
-        run: brew install shellcheck zizmor
-      - name: 'zizmor GHA'
-        run: zizmor --pedantic .github/workflows/*.yml
-      - name: 'shellcheck'
-        run: |
-          shellcheck --version
-          export SHELLCHECK_OPTS='--exclude=1090,1091,2086,2153 --enable=avoid-nullary-conditions,deprecate-which'
-          git ls-files '.github/workflows/*.yml' | while read -r f; do
-            echo "Verifying ${f}..."
-            {
-              echo '#!/usr/bin/env bash'
-              echo 'set -eu'
-              yq eval '.. | select(has("run") and (.run | type == "!!str")) | .run + "\ntrue\n"' "${f}"
-            } | sed -E 's|\$\{\{ .+ \}\}|GHA_EXPRESSION|g' | shellcheck -
-          done
 
   build_integration:
     name: 'CM integration ${{ matrix.image }}'

@@ -2,8 +2,7 @@
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
 
-set -e
-set -u
+set -eu
 
 # Written by Mikhail Gusarov
 #
