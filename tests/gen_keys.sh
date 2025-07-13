@@ -3,8 +3,7 @@
 # Copyright (C) Viktor Szakats
 # SPDX-License-Identifier: BSD-3-Clause
 
-set -e
-set -u
+set -eu
 
 # Generate test keys
 
