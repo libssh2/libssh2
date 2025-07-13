@@ -334,7 +334,7 @@ if(LIBSSH2_PC_REQUIRES_PRIVATE)
   string(REPLACE ";" "," LIBSSH2_PC_REQUIRES_PRIVATE "${LIBSSH2_PC_REQUIRES_PRIVATE}")
 endif()
 if(LIBSSH2_PC_LIBS_PRIVATE)
-  # Remove duplicates next to each other
+  # Remove duplicates listed next to each other
   set(_libs "")
   set(_prev "")
   foreach(_lib IN LISTS LIBSSH2_PC_LIBS_PRIVATE)
@@ -344,7 +344,7 @@ if(LIBSSH2_PC_LIBS_PRIVATE)
     endif()
   endforeach()
   set(LIBSSH2_PC_LIBS_PRIVATE "${_libs}")
-  #
+
   string(REPLACE ";" " " LIBSSH2_PC_LIBS_PRIVATE "${LIBSSH2_PC_LIBS_PRIVATE}")
 endif()
 if(_ldflags)
