@@ -55,8 +55,7 @@ if(NOT CLEAR_MEMORY)
 endif()
 
 option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression" OFF)
-add_feature_info(Compression ENABLE_ZLIB_COMPRESSION
-  "using zlib for compression")
+add_feature_info("Compression" ENABLE_ZLIB_COMPRESSION "using zlib for compression")
 if(ENABLE_ZLIB_COMPRESSION)
   find_package(ZLIB REQUIRED)
 
