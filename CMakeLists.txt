@@ -325,7 +325,7 @@ endif()
 ## Platform checks
 check_include_files("inttypes.h" HAVE_INTTYPES_H)
 check_include_files("unistd.h" HAVE_UNISTD_H)
-check_include_files("sys/time.h" HAVE_SYS_TIME_H)
+check_include_files("sys/time.h" HAVE_SYS_TIME_H)  # Available on all non-Windows and mingw-w64
 if(NOT WIN32)
   check_include_files("sys/select.h" HAVE_SYS_SELECT_H)
   check_include_files("sys/uio.h" HAVE_SYS_UIO_H)
