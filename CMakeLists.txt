@@ -316,6 +316,8 @@ if(WIN32)
       set(HAVE_SNPRINTF 0)
     endif()
   endif()
+  set(HAVE_POLL 0)
+  set(HAVE_SELECT 1)
 endif()
 
 ## Platform checks
@@ -377,14 +379,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR
   # not having reliable timeout support
   # inconsistent return of POLLHUP where other implementations give POLLIN
   message(STATUS "poll use is disabled on this platform")
-elseif(NOT WIN32)
+else()
   check_function_exists("poll" HAVE_POLL)
 endif()
-if(WIN32)
-  set(HAVE_SELECT 1)
-else()
-  check_function_exists("select" HAVE_SELECT)
-endif()
+check_function_exists("select" HAVE_SELECT)
 
 # Non-blocking socket support tests. Use a separate, yet unset variable
 # for the socket libraries to not link against the other configured
