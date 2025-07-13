@@ -302,6 +302,8 @@ if(WIN32)
     set(HAVE_STRTOLL 1)
   elseif(MSVC)
     set(HAVE_GETTIMEOFDAY 0)
+    set(HAVE_UNISTD_H 0)
+    set(HAVE_SYS_TIME_H 0)
     if(MSVC_VERSION GREATER_EQUAL 1800)
       set(HAVE_INTTYPES_H 1)
       set(HAVE_STRTOLL 1)
@@ -316,14 +318,14 @@ if(WIN32)
       set(HAVE_SNPRINTF 0)
     endif()
   endif()
+  set(HAVE_POLL 0)
+  set(HAVE_SELECT 1)
 endif()
 
 ## Platform checks
 check_include_files("inttypes.h" HAVE_INTTYPES_H)
-if(NOT MSVC)
-  check_include_files("unistd.h" HAVE_UNISTD_H)
-  check_include_files("sys/time.h" HAVE_SYS_TIME_H)
-endif()
+check_include_files("unistd.h" HAVE_UNISTD_H)
+check_include_files("sys/time.h" HAVE_SYS_TIME_H)  # Available on all non-Windows and mingw-w64
 if(NOT WIN32)
   check_include_files("sys/select.h" HAVE_SYS_SELECT_H)
   check_include_files("sys/uio.h" HAVE_SYS_UIO_H)
@@ -377,14 +379,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR
   # not having reliable timeout support
   # inconsistent return of POLLHUP where other implementations give POLLIN
   message(STATUS "poll use is disabled on this platform")
-elseif(NOT WIN32)
+else()
   check_function_exists("poll" HAVE_POLL)
 endif()
-if(WIN32)
-  set(HAVE_SELECT 1)
-else()
-  check_function_exists("select" HAVE_SELECT)
-endif()
+check_function_exists("select" HAVE_SELECT)
 
 # Non-blocking socket support tests. Use a separate, yet unset variable
 # for the socket libraries to not link against the other configured
