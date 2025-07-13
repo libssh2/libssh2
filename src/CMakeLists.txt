@@ -136,12 +136,13 @@ if(LIBSSH2_BUILD_STATIC_LIBS)
   list(APPEND libssh2_export ${LIB_STATIC})
   if( LIBSSH2_BUILD_OBJECT_LIBRARY )
      message( "MAKING OBJECT LIBRARY")
-    add_library(${LIB_STATIC} OBJECT ${SOURCES})
+    add_library(${LIB_STATIC} OBJECT ${_sources})
   else()
-    add_library(${LIB_STATIC} STATIC ${SOURCES})
+    add_library(${LIB_STATIC} STATIC ${_sources})
   endif()
   add_library(${PROJECT_NAME}::${LIB_STATIC} ALIAS ${LIB_STATIC})
   target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS} ${LIB_SHARED_DEFINITIONS})
+  target_compile_definitions(${LIB_SHARED} PRIVATE ${CRYPTO_BACKEND_DEFINE} ${_libssh2_definitions} ${LIB_SHARED_DEFINITIONS})
   target_compile_options(${LIB_STATIC} PRIVATE ${LIB_SHARED_C_FLAGS})
   target_link_libraries(${LIB_STATIC} PRIVATE ${LIBRARIES})
   set_target_properties(${LIB_STATIC} PROPERTIES
@@ -250,8 +251,6 @@ endif()
   # create libssh2-targets.cmake
   export(TARGETS ${_libssh2_export} NAMESPACE "${PROJECT_NAME}::" FILE "${PROJECT_NAME}-targets.cmake")
   export(PACKAGE ${PROJECT_NAME})  # register it
-
-if( NOT LIBSSH2_SKIP_INSTALL )
 
 # Calculate variables for pkg-config
 set(LIBSSH2_PC_LIBS_PRIVATE "")
@@ -409,6 +408,9 @@ endif()
 #   libdir
 #   prefix
 configure_file("${PROJECT_SOURCE_DIR}/libssh2.pc.in" "libssh2.pc" @ONLY)
+
+if( NOT LIBSSH2_SKIP_INSTALL )
+
 install(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/libssh2.pc"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
@@ -429,3 +431,5 @@ write_basic_package_version_file(
 install(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+
+endif( NOT LIBSSH2_SKIP_INSTALL )
