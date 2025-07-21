@@ -804,7 +804,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
             key_type = LIBSSH2_KNOWNHOST_KEY_UNKNOWN;
 
         /* skip whitespaces */
-        while((*key ==' ') || (*key == '\t')) {
+        while(keylen && ((*key ==' ') || (*key == '\t'))) {
             key++;
             keylen--;
         }
