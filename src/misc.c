@@ -48,6 +48,8 @@
 #include <errno.h>
 #include <assert.h>
 
+#define USER_MAX_STRING_LEN (16 * 1024)
+
 #ifdef _WIN32
 /* Force parameter type. */
 #define libssh2_recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
@@ -292,6 +294,9 @@ void _libssh2_store_u64(unsigned char **buf, libssh2_uint64_t value)
 int _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
 {
     uint32_t len_stored = (uint32_t)len;
+    if (len > USER_MAX_STRING_LEN) {
+        return 0;  
+    }
 
     _libssh2_store_u32(buf, len_stored);
     if(len_stored) {
