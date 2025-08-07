@@ -50,6 +50,8 @@ include(FeatureSummary)
 include(CheckFunctionExistsMayNeedLibrary)
 include(CheckNonblockingSocketSupport)
 
+cmake_policy(SET CMP0077 NEW)
+
 project(libssh2 C)
 
 # Dump all target properties
