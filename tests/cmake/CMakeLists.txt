@@ -87,8 +87,7 @@ if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
   target_link_libraries(test-consumer-selected-ns PRIVATE "libssh2::libssh2")
 endif()
 
-if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
-   TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
+if(TEST_INTEGRATION_MODE STREQUAL "find_package")
 
   # Compatibility alias
   add_executable(test-consumer-compat "test.c")
