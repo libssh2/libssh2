@@ -60,8 +60,7 @@ elseif(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
     ${_download_extract_timestamp}
     PREFIX "${CMAKE_BINARY_DIR}/libssh2-external"
     CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${_libssh2_install_dir}" -DBUILD_SHARED_LIBS=OFF -DLIBSSH2_USE_PKGCONFIG=OFF
-      -DENABLE_ZLIB_COMPRESSION=OFF
-      ${LIBSSH2_TEST_OPTS}
+      ${LIBSSH2_TEST_OPTS} -DENABLE_ZLIB_COMPRESSION=OFF
     BUILD_BYPRODUCTS "${_libssh2_static_lib}")
 
   add_executable(test-consumer-static-fetch "test.c")
