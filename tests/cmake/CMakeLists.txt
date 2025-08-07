@@ -55,6 +55,11 @@ elseif(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
   if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
     set(_download_extract_timestamp "DOWNLOAD_EXTRACT_TIMESTAMP" "ON")
   endif()
+  if(WIN32)
+    list(APPEND LIBSSH2_TEST_OPTS "-DCRYPTO_BACKEND=WinCNG")
+  else()
+    list(APPEND LIBSSH2_TEST_OPTS "-DCRYPTO_BACKEND=OpenSSL")
+  endif()
   ExternalProject_Add(libssh2-external
     URL "${FROM_ARCHIVE}" URL_HASH "SHA256=${FROM_HASH}"
     ${_download_extract_timestamp}
@@ -68,7 +73,8 @@ elseif(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
   if(WIN32)
     list(APPEND _libssh2_static_lib "ws2_32" "bcrypt")
   else()
-    list(APPEND _libssh2_static_lib "crypto")  # OpenSSL
+    find_package(OpenSSL REQUIRED COMPONENTS Crypto)
+    list(APPEND _libssh2_static_lib OpenSSL::Crypto)
   endif()
   target_include_directories(test-consumer-static-fetch PRIVATE "${_libssh2_install_dir}/include")
   target_link_libraries(test-consumer-static-fetch PRIVATE "${_libssh2_static_lib}")
