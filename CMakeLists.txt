@@ -172,12 +172,15 @@ if(NOT LIBSSH2_VERSION OR
   message(FATAL_ERROR "Unable to parse version from ${PROJECT_SOURCE_DIR}/include/libssh2.h")
 endif()
 
-include(GNUInstallDirs)
-install(
-  FILES
-    COPYING NEWS README RELEASE-NOTES
-    docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
-  DESTINATION ${CMAKE_INSTALL_DOCDIR})
+option(LIBSSH2_DISABLE_INSTALL "Disable installation targets" OFF)
+if(NOT LIBSSH2_DISABLE_INSTALL)
+  include(GNUInstallDirs)
+  install(
+    FILES
+      COPYING NEWS README RELEASE-NOTES
+      docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
+    DESTINATION ${CMAKE_INSTALL_DOCDIR})
+endif()
 
 include(PickyWarnings)
 
