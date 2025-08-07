@@ -176,7 +176,8 @@ add_library(${PROJECT_NAME}::${LIB_NAME} ALIAS ${LIB_SELECTED})
 add_library(${LIB_NAME} ALIAS ${LIB_SELECTED})
 
 ## Installation
-option(ENABLE_INSTALL "Enable system installation of headers, libraries, CMake modules, and pkg-config files" NO)
+option(ENABLE_INSTALL "Enable system installation of headers, libraries, CMake modules, and pkg-config files" ON)
+
 if(ENABLE_INSTALL)
   install(FILES
     "${PROJECT_SOURCE_DIR}/include/libssh2.h"
