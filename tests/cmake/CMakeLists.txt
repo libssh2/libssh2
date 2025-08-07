@@ -64,14 +64,14 @@ elseif(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
     URL "${FROM_ARCHIVE}" URL_HASH "SHA256=${FROM_HASH}"
     ${_download_extract_timestamp}
     PREFIX "${CMAKE_BINARY_DIR}/libssh2-external"
-    CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${_libssh2_install_dir}" -DBUILD_SHARED_LIBS=OFF -DLIBSSH2_USE_PKGCONFIG=OFF
+    CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${_libssh2_install_dir}" -DBUILD_SHARED_LIBS=OFF
       ${LIBSSH2_TEST_OPTS} -DENABLE_ZLIB_COMPRESSION=OFF
     BUILD_BYPRODUCTS "${_libssh2_static_lib}")
 
   add_executable(test-consumer-static-fetch "test.c")
   add_dependencies(test-consumer-static-fetch libssh2-external)
   if(WIN32)
-    list(APPEND _libssh2_static_lib "ws2_32" "bcrypt")
+    list(APPEND _libssh2_static_lib "ws2_32" "crypt32" "bcrypt")
   else()
     find_package(OpenSSL REQUIRED COMPONENTS Crypto)
     list(APPEND _libssh2_static_lib OpenSSL::Crypto)
