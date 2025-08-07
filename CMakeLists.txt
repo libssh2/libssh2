@@ -51,7 +51,7 @@ include(CheckFunctionExistsMayNeedLibrary)
 include(CheckNonblockingSocketSupport)
 
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.13)
-	cmake_policy(SET CMP0077 NEW)
+  cmake_policy(SET CMP0077 NEW)
 endif()
 
 project(libssh2 C)
