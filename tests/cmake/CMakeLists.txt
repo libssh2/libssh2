@@ -68,6 +68,8 @@ elseif(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
   add_dependencies(test-consumer-static-fetch libssh2-external)
   if(WIN32)
     list(APPEND _libssh2_static_lib "ws2_32" "bcrypt")
+  else()
+    list(APPEND _libssh2_static_lib "crypto")  # OpenSSL
   endif()
   target_include_directories(test-consumer-static-fetch PRIVATE "${_libssh2_install_dir}/include")
   target_link_libraries(test-consumer-static-fetch PRIVATE "${_libssh2_static_lib}")
