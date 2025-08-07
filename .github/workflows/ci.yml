@@ -154,6 +154,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: 'via ExternalProject'
+        if: ${{ !contains(matrix.image, 'ubuntu') }}
+        run: ./tests/cmake/test.sh ExternalProject
       - name: 'via FetchContent'
         run: ./tests/cmake/test.sh FetchContent
       - name: 'via add_subdirectory OpenSSL'
@@ -169,6 +172,19 @@ jobs:
       - name: 'via find_package wolfSSL'
         if: ${{ !contains(matrix.image, 'windows') }}  # MSYS2 wolfSSL package not built with the OpenSSL compatibility option
         run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=wolfSSL
+
+      - name: 'via ExternalProject (old cmake)'
+        if: ${{ contains(matrix.image, 'ubuntu') }}
+        run: |
+          export TEST_CMAKE_CONSUMER; TEST_CMAKE_CONSUMER="$(cat ~/old-cmake-path.txt)"
+          if [[ "${MATRIX_IMAGE}" = *'macos'* ]]; then
+            export CFLAGS='-arch arm64'
+          fi
+          if [[ "${MATRIX_IMAGE}" = *'windows'* ]]; then
+            export TEST_CMAKE_GENERATOR='MSYS Makefiles'
+            export TEST_CMAKE_FLAGS='-DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc'
+          fi
+          ./tests/cmake/test.sh ExternalProject
 
       - name: 'via add_subdirectory OpenSSL (old cmake)'
         run: |
