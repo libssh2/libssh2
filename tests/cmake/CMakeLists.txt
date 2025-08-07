@@ -60,6 +60,7 @@ elseif(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
     ${_download_extract_timestamp}
     PREFIX "${CMAKE_BINARY_DIR}/libssh2-external"
     CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${_libssh2_install_dir}" -DBUILD_SHARED_LIBS=OFF -DLIBSSH2_USE_PKGCONFIG=OFF
+      -DENABLE_ZLIB_COMPRESSION=OFF
       ${LIBSSH2_TEST_OPTS}
     BUILD_BYPRODUCTS "${_libssh2_static_lib}")
 
