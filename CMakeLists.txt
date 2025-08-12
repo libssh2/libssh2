@@ -50,10 +50,6 @@ include(FeatureSummary)
 include(CheckFunctionExistsMayNeedLibrary)
 include(CheckNonblockingSocketSupport)
 
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.13)
-  cmake_policy(SET CMP0077 NEW)
-endif()
-
 project(libssh2 C)
 
 # Dump all target properties
@@ -176,12 +172,15 @@ if(NOT LIBSSH2_VERSION OR
   message(FATAL_ERROR "Unable to parse version from ${PROJECT_SOURCE_DIR}/include/libssh2.h")
 endif()
 
-include(GNUInstallDirs)
-install(
-  FILES
-    COPYING NEWS README RELEASE-NOTES
-    docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
-  DESTINATION ${CMAKE_INSTALL_DOCDIR})
+option(LIBSSH2_DISABLE_INSTALL "Enable system installation of headers, libraries, CMake modules, and pkg-config files" OFF)
+if(NOT LIBSSH2_DISABLE_INSTALL)
+  include(GNUInstallDirs)
+  install(
+    FILES
+      COPYING NEWS README RELEASE-NOTES
+      docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
+    DESTINATION ${CMAKE_INSTALL_DOCDIR})
+endif()
 
 include(PickyWarnings)
 

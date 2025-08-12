@@ -176,9 +176,8 @@ add_library(${PROJECT_NAME}::${LIB_NAME} ALIAS ${LIB_SELECTED})
 add_library(${LIB_NAME} ALIAS ${LIB_SELECTED})
 
 ## Installation
-option(ENABLE_INSTALL "Enable system installation of headers, libraries, CMake modules, and pkg-config files" ON)
 
-if(ENABLE_INSTALL)
+if(NOT LIBSSH2_DISABLE_INSTALL)
   install(FILES
     "${PROJECT_SOURCE_DIR}/include/libssh2.h"
     "${PROJECT_SOURCE_DIR}/include/libssh2_publickey.h"
@@ -206,6 +205,7 @@ if(ENABLE_INSTALL)
     "Files that must be in the same directory as the executables at runtime.")
 
   # Package config
+
   ## During package installation, install libssh2-targets.cmake
   install(EXPORT "${PROJECT_NAME}-targets"
     NAMESPACE "${PROJECT_NAME}::"
