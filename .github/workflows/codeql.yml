@@ -62,7 +62,8 @@ jobs:
         run: |
           sudo rm -f /etc/apt/sources.list.d/{azure-cli.sources,microsoft-prod.list,ondrej-ubuntu-php-noble.sources}
           sudo apt-get -o Dpkg::Use-Pty=0 update
-          sudo apt-get -o Dpkg::Use-Pty=0 install zlib1g-dev libssl-dev libgcrypt-dev libmbedtls-dev libwolfssl-dev
+          sudo apt-get -o Dpkg::Use-Pty=0 install zlib1g-dev libssl-dev libgcrypt-dev libwolfssl-dev
+          /home/linuxbrew/.linuxbrew/bin/brew install mbedtls@3
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -83,6 +84,8 @@ jobs:
             cmake -B . -DCRYPTO_BACKEND=WinCNG -DCMAKE_VS_GLOBALS=TrackFileAccess=false
             cmake --build . --verbose
           else
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)/lib/pkgconfig"
             for crypto in OpenSSL Libgcrypt mbedTLS wolfSSL; do
               cmake -B _bld-"${crypto}" -G Ninja -DCRYPTO_BACKEND="${crypto}" -DENABLE_ZLIB_COMPRESSION=ON
               cmake --build _bld-"${crypto}" --verbose

@@ -139,7 +139,8 @@ jobs:
             sha256sum pkg.bin && sha256sum pkg.bin | grep -qwF -- "${OLD_CMAKE_SHA256_WIN_INTEL}" && unzip -q pkg.bin && rm -f pkg.bin
             printf '%s' ~/cmake-"${OLD_CMAKE_VERSION}"-win64-x64/bin/cmake.exe > ~/old-cmake-path.txt
           elif [[ "${MATRIX_IMAGE}" = *'ubuntu'* ]]; then
-            sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
+            sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libwolfssl-dev
+            /home/linuxbrew/.linuxbrew/bin/brew install mbedtls@3
             cd ~
             curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
               --location "https://github.com/Kitware/CMake/releases/download/v${OLD_CMAKE_VERSION}/cmake-${OLD_CMAKE_VERSION}-Linux-aarch64.tar.gz" --output pkg.bin
@@ -175,6 +176,10 @@ jobs:
         run: |
           if [[ "${MATRIX_IMAGE}" = *'macos'* ]]; then
             export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
+          elif [[ "${MATRIX_IMAGE}" = *'ubuntu'* ]]; then
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)/lib/pkgconfig"
+            export LDFLAGS; LDFLAGS="-Wl,-rpath,$(brew --prefix mbedtls@3)/lib"
           fi
           ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
 
@@ -224,7 +229,7 @@ jobs:
       matrix:
         compiler: [gcc, clang, clang-tidy]
         arch: [amd64]
-        crypto: [OpenSSL, Libgcrypt, mbedTLS, wolfSSL]
+        crypto: [OpenSSL, Libgcrypt, mbedTLS-prev, wolfSSL]
         build: [cmake]
         zlib: ['OFF', 'ON']
         exclude:
@@ -302,6 +307,8 @@ jobs:
       FIXTURE_TRACE_ALL_CONNECT: 0
       MBEDTLS_VERSION: 3.6.6
       MBEDTLS_SHA256: 8fb65fae8dcae5840f793c0a334860a411f884cc537ea290ce1c52bb64ca007a
+      MBEDTLS_VERSION_PREV: 3.1.0
+      MBEDTLS_SHA256_PREV: b02df6f68dd1537e115a8497d5c173dc71edc55ad084756e57a30f951b725acd
       WOLFSSL_VERSION: 5.9.0
       WOLFSSL_SHA256: 6efc62b86f145a5c52bfd62294ca66c20ce85b54e9033f5d7e0ee73eb30306c1
       WOLFSSL_VERSION_PREV: 5.5.4
@@ -329,7 +336,6 @@ jobs:
         run: |
           [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkg='libssl-dev'
           [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkg='libgcrypt-dev'
-          [ "${MATRIX_CRYPTO}" = 'mbedTLS' ] && pkg='libmbedtls-dev'
           [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkg='libwolfssl-dev'
           if [ -n "${pkg}" ]; then
             sudo apt-get -o Dpkg::Use-Pty=0 install "${pkg}:${MATRIX_ARCH}"
@@ -356,6 +362,31 @@ jobs:
           fi
           cmake -B . -G Ninja ${options} \
             -DCMAKE_C_FLAGS="${cflags}" \
+            -DENABLE_PROGRAMS=OFF \
+            -DENABLE_TESTING=OFF \
+            -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
+            -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
+            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake --build .
+          cmake --install .
+
+      - name: 'cache mbedTLS (prev)'
+        if: ${{ matrix.crypto == 'mbedTLS-prev' }}
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        id: cache-mbedtls-prev
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-mbedtls-${{ env.MBEDTLS_VERSION_PREV }}-${{ matrix.arch }}
+
+      - name: 'install mbedTLS (prev) from source'
+        if: ${{ matrix.crypto == 'mbedTLS-prev' && !steps.cache-mbedtls-prev.outputs.cache-hit }}
+        run: |
+          curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
+            --location "https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${MBEDTLS_VERSION_PREV}.tar.gz" --output pkg.bin
+          sha256sum pkg.bin | tee /dev/stderr | grep -qwF -- "${MBEDTLS_SHA256_PREV}" && tar -xzf pkg.bin && rm -f pkg.bin
+          cd "mbedtls-${MBEDTLS_VERSION_PREV}"
+          export CC=gcc  # compiler warning promoted to error when using clang (as tested with 3.0.0/3.1.0)
+          cmake -B . -G Ninja \
             -DENABLE_PROGRAMS=OFF \
             -DENABLE_TESTING=OFF \
             -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
