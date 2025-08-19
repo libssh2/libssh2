@@ -176,7 +176,7 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         if(rc)
             goto error;
 
-        if(ptr == NULL || ptrlen == 0) {
+        if(!ptr || ptrlen == 0) {
             rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_INVAL,
                                 "Base64 decoded value is invalid");
             goto error;
@@ -198,7 +198,7 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         if(rc)
             goto error;
 
-        if(ptr == NULL || ptrlen == 0) {
+        if(!ptr || ptrlen == 0) {
             rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_INVAL,
                                 "Base64 decoded value is invalid");
             goto error;
