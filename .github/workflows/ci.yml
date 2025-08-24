@@ -1116,6 +1116,7 @@ jobs:
           # https://pkg.omnios.org/r151050/core/en/index.shtml
           prepare: pkg install build-essential libtool
           run: |
+            export FIXTURE_TRACE_ALL_CONNECT=1
             autoreconf -fi
             mkdir bld && cd bld
             ../configure --enable-werror --enable-debug \
