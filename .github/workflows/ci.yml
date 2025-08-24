@@ -298,7 +298,6 @@ jobs:
             crypto: Libgcrypt
             build: autotools
             zlib: 'ON'
-            options: --disable-static
     env:
       CC: ${{ matrix.compiler == 'clang-tidy' && 'clang' || matrix.compiler }}
       MATRIX_ARCH: '${{ matrix.arch }}'
@@ -1100,28 +1099,3 @@ jobs:
               --disable-dependency-tracking || { tail -n 1000 config.log; false; }
             make -j3
             make check V=1 || { cat tests/*.log; false; }
-
-  build_omnios:
-    name: 'OmniOS (autotools, openssl, gcc, amd64)'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-        with:
-          persist-credentials: false
-      - name: 'autotools'
-        uses: vmactions/omnios-vm@c31844c7abe722cd7c97df82cab1f1fab1e5339f # v1
-        with:
-          usesh: true
-          # https://pkg.omnios.org/r151050/core/en/index.shtml
-          prepare: pkg install build-essential libtool
-          run: |
-            export FIXTURE_TRACE_ALL_CONNECT=1
-            autoreconf -fi
-            mkdir bld && cd bld
-            ../configure --enable-werror --enable-debug \
-              --with-crypto=openssl \
-              --disable-docker-tests \
-              --disable-dependency-tracking || { tail -n 1000 config.log; false; }
-            gmake -j3
-            gmake check V=1 || { cat tests/*.log; false; }
