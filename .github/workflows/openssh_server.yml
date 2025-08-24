@@ -42,13 +42,13 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3
+      - uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
 
@@ -63,7 +63,7 @@ jobs:
           HASH: '${{ steps.hash.outputs.hash }}'
         run: docker manifest inspect "ghcr.io/${GITHUB_REPOSITORY_OWNER}/ci_tests_openssh_server:${HASH}"
 
-      - uses: docker/metadata-action@369eb591f429131d6889c46b94e711f089e6ca96 # v5
+      - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5
         if: ${{ steps.poll.outcome == 'failure' }}
         id: meta
         with:
@@ -71,7 +71,7 @@ jobs:
           tags: |
             type=raw,value=${{ steps.hash.outputs.hash }}
 
-      - uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355 # v6
+      - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
         if: ${{ steps.poll.outcome == 'failure' }}
         with:
           context: ./tests/openssh_server
