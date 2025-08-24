@@ -293,11 +293,6 @@ jobs:
             crypto: wolfSSL-from-source-prev
             build: cmake
             zlib: 'ON'
-          - compiler: clang
-            arch: i386
-            crypto: Libgcrypt
-            build: autotools
-            zlib: 'ON'
     env:
       CC: ${{ matrix.compiler == 'clang-tidy' && 'clang' || matrix.compiler }}
       MATRIX_ARCH: '${{ matrix.arch }}'
