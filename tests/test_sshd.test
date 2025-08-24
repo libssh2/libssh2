@@ -161,9 +161,6 @@ for test in ${tests}; do
   ((count++))
 done
 
-echo '# sshd log:'
-sed 's/^/#  /' < "${logfsrv}"
-
 # Stop sshd
 
 : "killing sshd (${sshdpid})"
