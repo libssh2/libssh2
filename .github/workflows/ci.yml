@@ -299,6 +299,7 @@ jobs:
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_OPTIONS: '${{ matrix.options }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
+      FIXTURE_TRACE_ALL_CONNECT: 0
       MBEDTLS_VERSION: 3.6.4
       WOLFSSL_VERSION: 5.8.2
       WOLFSSL_VERSION_PREV: 5.5.4
@@ -309,7 +310,6 @@ jobs:
       OPENSSL111_VERSION: 1.1.1w
       OPENSSL110_VERSION: 1.1.0l
       OPENSSL102_VERSION: 1.0.2u
-      FIXTURE_TRACE_ALL_CONNECT: 1
     steps:
       - name: 'install architecture'
         if: ${{ matrix.arch != 'amd64' }}
