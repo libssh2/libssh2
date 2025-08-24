@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: 'checksrc'
@@ -32,7 +32,7 @@ jobs:
     name: 'REUSE check'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: 'check'
@@ -44,7 +44,7 @@ jobs:
     steps:
       - name: 'install prereqs'
         run: pip install --break-system-packages -U codespell
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: 'spellcheck'
@@ -58,7 +58,7 @@ jobs:
       - name: 'install prereqs'
         run: /home/linuxbrew/.linuxbrew/bin/brew install shellcheck zizmor
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
 
@@ -91,7 +91,7 @@ jobs:
     name: 'cmakelint'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: 'cmakelint'
@@ -150,7 +150,7 @@ jobs:
             printf '%s' ~/cmake-"${OLD_CMAKE_VERSION}"-Darwin-x86_64/CMake.app/Contents/bin/cmake > ~/old-cmake-path.txt
           fi
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
 
@@ -293,25 +293,20 @@ jobs:
             crypto: wolfSSL-from-source-prev
             build: cmake
             zlib: 'ON'
-          - compiler: clang
-            arch: i386
-            crypto: Libgcrypt
-            build: autotools
-            zlib: 'ON'
-            options: --disable-static
     env:
       CC: ${{ matrix.compiler == 'clang-tidy' && 'clang' || matrix.compiler }}
       MATRIX_ARCH: '${{ matrix.arch }}'
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_OPTIONS: '${{ matrix.options }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
-      MBEDTLS_VERSION: 3.6.2
-      WOLFSSL_VERSION: 5.7.4
+      FIXTURE_TRACE_ALL_CONNECT: 0
+      MBEDTLS_VERSION: 3.6.4
+      WOLFSSL_VERSION: 5.8.2
       WOLFSSL_VERSION_PREV: 5.5.4
-      BORINGSSL_VERSION: 0.20250114.0
-      AWSLC_VERSION: 1.46.1
-      LIBRESSL_VERSION: 4.0.0
-      OPENSSL_VERSION: 3.4.0
+      BORINGSSL_VERSION: 0.20250818.0
+      AWSLC_VERSION: 1.58.0
+      LIBRESSL_VERSION: 4.1.0
+      OPENSSL_VERSION: 3.5.2
       OPENSSL111_VERSION: 1.1.1w
       OPENSSL110_VERSION: 1.1.0l
       OPENSSL102_VERSION: 1.0.2u
@@ -337,7 +332,7 @@ jobs:
 
       - name: 'cache mbedTLS'
         if: ${{ matrix.crypto == 'mbedTLS-from-source' }}
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         id: cache-mbedtls
         with:
           path: ~/usr
@@ -388,7 +383,7 @@ jobs:
 
       - name: 'cache BoringSSL'
         if: ${{ matrix.crypto == 'BoringSSL' }}
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         id: cache-boringssl
         with:
           path: ~/usr
@@ -400,9 +395,8 @@ jobs:
           mkdir boringssl
           cd boringssl
           curl -fsS "https://boringssl.googlesource.com/boringssl/+archive/${BORINGSSL_VERSION}.tar.gz" | tar -xz
-          # Skip tests to finish the build faster
-          echo 'set_target_properties(decrepit bssl_shim test_fips boringssl_gtest test_support_lib urandom_test crypto_test ssl_test decrepit_test all_tests pki pki_test run_tests PROPERTIES EXCLUDE_FROM_ALL TRUE)' >> ./CMakeLists.txt
           cmake -B . -G Ninja \
+            -DBUILD_TESTING=OFF \
             -DOPENSSL_SMALL=ON \
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
             -DCMAKE_INSTALL_PREFIX="$HOME"/usr
@@ -411,7 +405,7 @@ jobs:
 
       - name: 'cache AWS-LC'
         if: ${{ matrix.crypto == 'AWS-LC' }}
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         id: cache-aws-lc
         with:
           path: ~/usr
@@ -429,7 +423,7 @@ jobs:
 
       - name: 'cache LibreSSL'
         if: ${{ matrix.crypto == 'LibreSSL' }}
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         id: cache-libressl
         with:
           path: ~/usr
@@ -449,7 +443,7 @@ jobs:
 
       - name: 'cache OpenSSL'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         id: cache-openssl
         with:
           path: ~/usr
@@ -467,7 +461,7 @@ jobs:
 
       - name: 'cache OpenSSL 1.1.1'
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         id: cache-openssl111
         with:
           path: ~/usr
@@ -484,7 +478,7 @@ jobs:
 
       - name: 'cache OpenSSL 1.1.0'
         if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         id: cache-openssl110
         with:
           path: ~/usr
@@ -501,7 +495,7 @@ jobs:
 
       - name: 'cache OpenSSL 1.0.2'
         if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
         id: cache-openssl102
         with:
           path: ~/usr
@@ -516,7 +510,7 @@ jobs:
           make -j5
           make -j1 install_sw
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: 'autotools autoreconf'
@@ -633,7 +627,7 @@ jobs:
           sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 \
           ${INSTALL_PACKAGES}
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
 
@@ -698,7 +692,7 @@ jobs:
           site: https://mirrors.kernel.org/sourceware/cygwin/
           install-dir: D:\cygwin
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: 'autotools'
@@ -773,7 +767,7 @@ jobs:
             mingw-w64-${{ matrix.env }}-${{ matrix.build }} ${{ matrix.build == 'autotools' && 'make' || '' }}
             mingw-w64-${{ matrix.env }}-openssl
 
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: 'autotools autoreconf'
@@ -869,7 +863,7 @@ jobs:
           - { arch: arm64, plat: uwp    , crypto: WinCNG , wincng_ecdsa: 'ON' , log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'OFF' }
           - { arch: x86  , plat: windows, crypto: WinCNG , wincng_ecdsa: 'OFF', log: 'OFF', shared: 'ON' , zlib: 'OFF', unity: 'ON' }
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: 'cmake configure'
@@ -956,7 +950,7 @@ jobs:
           INSTALL_PACKAGES: ${{ matrix.build == 'autotools' && 'automake libtool' || '' }}
           MATRIX_INSTALL: '${{ matrix.crypto.install }}'
         run: brew install ${INSTALL_PACKAGES} ${MATRIX_INSTALL}
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: 'autotools autoreconf'
@@ -1012,11 +1006,11 @@ jobs:
       matrix:
         arch: ['x86_64', 'arm64']
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: 'cmake'
-        uses: cross-platform-actions/action@fe0167d8082ac584754ef3ffb567fded22642c7d # v0.27.0
+        uses: cross-platform-actions/action@e8a7b572196ff79ded1979dc2bb9ee67d1ddb252 # v0.29.0
         with:
           operating_system: 'netbsd'
           version: '10.1'
@@ -1044,14 +1038,14 @@ jobs:
       matrix:
         arch: ['x86_64']
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: 'cmake'
-        uses: cross-platform-actions/action@fe0167d8082ac584754ef3ffb567fded22642c7d # v0.27.0
+        uses: cross-platform-actions/action@e8a7b572196ff79ded1979dc2bb9ee67d1ddb252 # v0.29.0
         with:
           operating_system: 'openbsd'
-          version: '7.5'
+          version: '7.7'
           architecture: ${{ matrix.arch }}
           run: |
             # https://openbsd.app/
@@ -1079,14 +1073,14 @@ jobs:
       matrix:
         arch: ['x86_64', 'arm64']
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
       - name: 'autotools'
-        uses: cross-platform-actions/action@fe0167d8082ac584754ef3ffb567fded22642c7d # v0.27.0
+        uses: cross-platform-actions/action@e8a7b572196ff79ded1979dc2bb9ee67d1ddb252 # v0.29.0
         with:
           operating_system: 'freebsd'
-          version: '14.1'
+          version: '14.3'
           architecture: ${{ matrix.arch }}
           environment_variables: 'CC'
           run: |
@@ -1100,27 +1094,3 @@ jobs:
               --disable-dependency-tracking || { tail -n 1000 config.log; false; }
             make -j3
             make check V=1 || { cat tests/*.log; false; }
-
-  build_omnios:
-    name: 'OmniOS (autotools, openssl, gcc, amd64)'
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          persist-credentials: false
-      - name: 'autotools'
-        uses: vmactions/omnios-vm@16b5996777bc675acd3d537f13df536a526cd16d # v1
-        with:
-          usesh: true
-          # https://pkg.omnios.org/r151050/core/en/index.shtml
-          prepare: pkg install build-essential libtool
-          run: |
-            autoreconf -fi
-            mkdir bld && cd bld
-            ../configure --enable-werror --enable-debug \
-              --with-crypto=openssl \
-              --disable-docker-tests \
-              --disable-dependency-tracking || { tail -n 1000 config.log; false; }
-            gmake -j3
-            gmake check V=1 || { cat tests/*.log; false; }
