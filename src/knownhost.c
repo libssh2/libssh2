@@ -142,8 +142,8 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     struct known_host *entry;
     size_t hostlen = strlen(host);
     int rc;
-    char *ptr;
-    size_t ptrlen;
+    char *ptr = NULL;
+    size_t ptrlen = 0;
 
     /* make sure we have a key type set */
     if(!(typemask & LIBSSH2_KNOWNHOST_KEY_MASK))
@@ -176,6 +176,12 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         if(rc)
             goto error;
 
+        if(!ptr || ptrlen == 0) {
+            rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_INVAL,
+                                "Base64 decoded value is invalid");
+            goto error;
+        }
+
         if(!salt) {
             rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_INVAL,
                                 "Salt is NULL");
@@ -185,10 +191,19 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         entry->name = ptr;
         entry->name_len = ptrlen;
 
+        ptr = NULL;
+        ptrlen = 0;
         rc = _libssh2_base64_decode(hosts->session, &ptr, &ptrlen,
                                     salt, strlen(salt));
         if(rc)
             goto error;
+
+        if(!ptr || ptrlen == 0) {
+            rc = _libssh2_error(hosts->session, LIBSSH2_ERROR_INVAL,
+                                "Base64 decoded value is invalid");
+            goto error;
+        }
+
         entry->salt = ptr;
         entry->salt_len = ptrlen;
         break;
