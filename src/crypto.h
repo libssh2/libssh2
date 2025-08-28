@@ -306,9 +306,9 @@ _libssh2_ed25519_new_private_frommemory_sk(libssh2_ed25519_ctx **ed_ctx,
 #if LIBSSH2_MLKEM
 int
 _libssh2_mlkem_new(LIBSSH2_SESSION *session,
-                        int ml_kem_type,
-                        unsigned char **out_public_key,
-                        unsigned char **out_private_key);
+                   int ml_kem_type,
+                   unsigned char **out_public_key,
+                   unsigned char **out_private_key);
 
 int
 _libssh2_mlkem_get_sk(unsigned char *out_shared_key,
