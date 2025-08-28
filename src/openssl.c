@@ -2809,7 +2809,7 @@ _libssh2_mlkem_new(LIBSSH2_SESSION *session,
     if(EVP_PKEY_keygen_init(pctx) != 1 ||
        EVP_PKEY_keygen(pctx, &key) != 1) {
         goto clean_exit;
-       }
+    }
 
     if(out_private_key) {
         priv = LIBSSH2_ALLOC(session, privLen);
