@@ -2771,7 +2771,7 @@ _libssh2_ed25519_new_public(libssh2_ed25519_ctx ** ed_ctx,
 
 int
 _libssh2_mlkem_new(LIBSSH2_SESSION *session,
-                   int ml_kem_type,
+                   int ml_kem_size,
                    unsigned char **out_public_key,
                    unsigned char **out_private_key)
 {
@@ -2782,21 +2782,21 @@ _libssh2_mlkem_new(LIBSSH2_SESSION *session,
     size_t privLen, actualPrivLen, pubLen, actualPubLen;
     int rc = -1;
 
-    switch(ml_kem_type) {
+    switch(ml_kem_size) {
         case 512:
             evp_name = "ML-KEM-512";
-            privLen = LIBSSH2_MLKEM_512_PKEY_LEN;
-            pubLen = LIBSSH2_MLKEM_512_KEY_LEN;
+            privLen = LIBSSH2_MLKEM_512_PRIVATE_KEY_LEN;
+            pubLen = LIBSSH2_MLKEM_512_PUBLIC_KEY_LEN;
             break;
         case 768:
             evp_name = "ML-KEM-768";
-            privLen = LIBSSH2_MLKEM_768_PKEY_LEN;
-            pubLen = LIBSSH2_MLKEM_768_KEY_LEN;
+            privLen = LIBSSH2_MLKEM_768_PRIVATE_KEY_LEN;
+            pubLen = LIBSSH2_MLKEM_768_PUBLIC_KEY_LEN;
             break;
         case 1024:
             evp_name = "ML-KEM-1024";
-            privLen = LIBSSH2_MLKEM_1024_PKEY_LEN;
-            pubLen = LIBSSH2_MLKEM_1024_KEY_LEN;
+            privLen = LIBSSH2_MLKEM_1024_PRIVATE_KEY_LEN;
+            pubLen = LIBSSH2_MLKEM_1024_PUBLIC_KEY_LEN;
             break;
         default:
             goto clean_exit;
@@ -2858,7 +2858,7 @@ clean_exit:
 
 int
 _libssh2_mlkem_get_sk(unsigned char *out_shared_key,
-                      int ml_kem_type,
+                      int ml_kem_size,
                       uint8_t *private_key,
                       uint8_t *server_ciphertext)
 {
@@ -2869,20 +2869,20 @@ _libssh2_mlkem_get_sk(unsigned char *out_shared_key,
     const char *evp_name;
     size_t privLen, ciphertextLen;
 
-    switch(ml_kem_type) {
+    switch(ml_kem_size) {
         case 512:
             evp_name = "ML-KEM-512";
-            privLen = LIBSSH2_MLKEM_512_PKEY_LEN;
+            privLen = LIBSSH2_MLKEM_512_PRIVATE_KEY_LEN;
             ciphertextLen = LIBSSH2_MLKEM_512_CIPHERTEXT;
             break;
         case 768:
             evp_name = "ML-KEM-768";
-            privLen = LIBSSH2_MLKEM_768_PKEY_LEN;
+            privLen = LIBSSH2_MLKEM_768_PRIVATE_KEY_LEN;
             ciphertextLen = LIBSSH2_MLKEM_768_CIPHERTEXT;
             break;
         case 1024:
             evp_name = "ML-KEM-1024";
-            privLen = LIBSSH2_MLKEM_1024_PKEY_LEN;
+            privLen = LIBSSH2_MLKEM_1024_PRIVATE_KEY_LEN;
             ciphertextLen = LIBSSH2_MLKEM_1024_CIPHERTEXT;
             break;
         default:
