@@ -264,7 +264,7 @@ process_host_key(LIBSSH2_SESSION *session,
         libssh2_md5_update(fingerprint_ctx, session->server_hostkey,
                            session->server_hostkey_len) &&
         libssh2_md5_final(fingerprint_ctx,
-                       session->server_hostkey_md5)) {
+                          session->server_hostkey_md5)) {
             session->server_hostkey_md5_valid = TRUE;
         }
         else {
