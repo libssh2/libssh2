@@ -289,7 +289,7 @@ process_host_key(LIBSSH2_SESSION *session,
         libssh2_sha1_ctx fingerprint_ctx;
 
         if(libssh2_sha1_init(&fingerprint_ctx) &&
-        libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
+           libssh2_sha1_update(fingerprint_ctx, session->server_hostkey,
                                session->server_hostkey_len) &&
            libssh2_sha1_final(fingerprint_ctx,
                               session->server_hostkey_sha1)) {
@@ -342,7 +342,6 @@ process_host_key(LIBSSH2_SESSION *session,
     }
 #endif /* LIBSSH2DEBUG */
 
-
     if(!session->hostkey) {
         return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                               "hostkey is NULL");
@@ -379,7 +378,7 @@ finish_kex(LIBSSH2_SESSION * session,
        switch to active crypt/comp/mac mode */
     session->state |= LIBSSH2_STATE_NEWKEYS;
     _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-             "Received NEWKEYS message"));
+                   "Received NEWKEYS message"));
 
     /* This will actually end up being just packet_type(1)
        for this packet type anyway */
@@ -2531,8 +2530,8 @@ mlkem_nistp(LIBSSH2_SESSION *session,
                     goto clean_exit;
                 }
                 LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(256);
-            }
                 break;
+            }
             case LIBSSH2_EC_CURVE_NISTP384: {
                 libssh2_sha384_ctx k_ctx;
                 if(!libssh2_sha384_init(&k_ctx)) {
@@ -2551,8 +2550,8 @@ mlkem_nistp(LIBSSH2_SESSION *session,
                     goto clean_exit;
                 }
                 LIBSSH2_KEX_METHOD_HYBRID_SHA_HASH_CREATE_VERIFY(384);
-            }
                 break;
+            }
             default:
                 ret = _libssh2_error(session, -1,
                                      "Unexpected KEX hybrid nistp curve type");
@@ -2613,7 +2612,6 @@ kex_method_mlkem_nistp_key_exchange
     size_t ml_kem_key_len;
 
     if(key_state->state == libssh2_NB_state_idle) {
-
         key_state->public_key_oct = NULL;
         key_state->state = libssh2_NB_state_created;
     }
@@ -2653,9 +2651,9 @@ kex_method_mlkem_nistp_key_exchange
         }
 
         rc = _libssh2_mlkem_new(session,
-                                     ml_kem_type,
-                                     &key_state->mlkem_public_key,
-                                     &key_state->mlkem_private_key);
+                                ml_kem_type,
+                                &key_state->mlkem_public_key,
+                                &key_state->mlkem_private_key);
 
         if(rc) {
             ret = _libssh2_error(session, rc,
@@ -2666,12 +2664,12 @@ kex_method_mlkem_nistp_key_exchange
         key_state->request[0] = SSH2_MSG_KEX_ECDH_INIT;
         s = key_state->request + 1;
         _libssh2_store_hybrid_str(&s,
-                            (const char *)key_state->mlkem_public_key,
-                            ml_kem_key_len,
-                            (const char *)key_state->public_key_oct,
-                            key_state->public_key_oct_len);
-        key_state->request_len = ml_kem_key_len
-                                 + key_state->public_key_oct_len + 5;
+                                  (const char *)key_state->mlkem_public_key,
+                                  ml_kem_key_len,
+                                  (const char *)key_state->public_key_oct,
+                                  key_state->public_key_oct_len);
+        key_state->request_len = ml_kem_key_len +
+                                 key_state->public_key_oct_len + 5;
 
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                        "Initiating mlkem-nistp hybrid SHA2"));
@@ -2711,7 +2709,6 @@ kex_method_mlkem_nistp_key_exchange
     }
 
     if(key_state->state == libssh2_NB_state_sent2) {
-
         ret = mlkem_nistp(session, key_state->data, key_state->data_len,
                                 (unsigned char *)key_state->public_key_oct,
                                 key_state->public_key_oct_len,
@@ -2727,7 +2724,7 @@ kex_method_mlkem_nistp_key_exchange
 
 clean_exit:
 
-        kex_method_mlkem_nistp_cleanup(session, key_state);
+    kex_method_mlkem_nistp_cleanup(session, key_state);
 
     return ret;
 }
@@ -3194,8 +3191,8 @@ mlkem768x25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
 
         if(!libssh2_sha256_update(k_ctx, shared_secret,
-                                   LIBSSH2_MLKEM_SHARED_SECRET_LEN
-                                   + LIBSSH2_ED25519_KEY_LEN)) {
+                                  LIBSSH2_MLKEM_SHARED_SECRET_LEN +
+                                  LIBSSH2_ED25519_KEY_LEN)) {
             rc = -1;
             goto clean_exit;
         }
@@ -3274,9 +3271,9 @@ kex_method_mlkem768x25519_key_exchange
         }
 
         rc = _libssh2_mlkem_new(session,
-                                     768,
-                                     &key_state->mlkem_public_key,
-                                     &key_state->mlkem_private_key);
+                                768,
+                                &key_state->mlkem_public_key,
+                                &key_state->mlkem_private_key);
 
         if(rc) {
             ret = _libssh2_error(session, rc,
@@ -3287,12 +3284,12 @@ kex_method_mlkem768x25519_key_exchange
         key_state->request[0] = SSH2_MSG_KEX_ECDH_INIT;
         s = key_state->request + 1;
         _libssh2_store_hybrid_str(&s,
-                            (const char *)key_state->mlkem_public_key,
-                            LIBSSH2_MLKEM_768_KEY_LEN,
-                            (const char *)key_state->curve25519_public_key,
-                            LIBSSH2_ED25519_KEY_LEN);
-        key_state->request_len = LIBSSH2_MLKEM_768_KEY_LEN
-                                 + LIBSSH2_ED25519_KEY_LEN + 5;
+                                  (const char *)key_state->mlkem_public_key,
+                                  LIBSSH2_MLKEM_768_KEY_LEN,
+                                (const char *)key_state->curve25519_public_key,
+                                  LIBSSH2_ED25519_KEY_LEN);
+        key_state->request_len = LIBSSH2_MLKEM_768_KEY_LEN +
+                                 LIBSSH2_ED25519_KEY_LEN + 5;
 
         _libssh2_debug((session, LIBSSH2_TRACE_KEX,
                        "Initiating mlkem768x25519 SHA2"));
@@ -3335,11 +3332,11 @@ kex_method_mlkem768x25519_key_exchange
 
         ret = mlkem768x25519_sha256(session, key_state->data,
                                     key_state->data_len,
-                                key_state->curve25519_public_key,
-                                key_state->curve25519_private_key,
-                                key_state->mlkem_public_key,
-                                key_state->mlkem_private_key,
-                                &key_state->exchange_state);
+                                    key_state->curve25519_public_key,
+                                    key_state->curve25519_private_key,
+                                    key_state->mlkem_public_key,
+                                    key_state->mlkem_private_key,
+                                    &key_state->exchange_state);
 
         if(ret == LIBSSH2_ERROR_EAGAIN) {
             return ret;
@@ -3348,7 +3345,7 @@ kex_method_mlkem768x25519_key_exchange
 
 clean_exit:
 
-        kex_method_mlkem768x25519_cleanup(session, key_state);
+    kex_method_mlkem768x25519_cleanup(session, key_state);
 
     return ret;
 }
