@@ -2798,7 +2798,8 @@ _libssh2_mlkem_new(LIBSSH2_SESSION *session,
             privLen = LIBSSH2_MLKEM_1024_PKEY_LEN;
             pubLen = LIBSSH2_MLKEM_1024_KEY_LEN;
             break;
-        default: goto clean_exit;
+        default:
+            goto clean_exit;
     }
 
     pctx = EVP_PKEY_CTX_new_from_name(NULL, evp_name, NULL);
