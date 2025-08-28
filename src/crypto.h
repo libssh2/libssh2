@@ -79,15 +79,17 @@ void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx);
 #define LIBSSH2_ED25519_KEY_LEN 32
 #define LIBSSH2_ED25519_PRIVATE_KEY_LEN 64
 #define LIBSSH2_ED25519_SIG_LEN 64
+#define LIBSSH2_EC_P256_PUBLIC_KEY_LEN 65
+#define LIBSSH2_EC_P384_PUBLIC_KEY_LEN 97
 #define LIBSSH2_MLKEM_SHARED_SECRET_LEN 32
-#define LIBSSH2_MLKEM_512_PKEY_LEN 1632
-#define LIBSSH2_MLKEM_512_KEY_LEN 800
+#define LIBSSH2_MLKEM_512_PRIVATE_KEY_LEN 1632
+#define LIBSSH2_MLKEM_512_PUBLIC_KEY_LEN 800
 #define LIBSSH2_MLKEM_512_CIPHERTEXT 768
-#define LIBSSH2_MLKEM_768_PKEY_LEN 2400
-#define LIBSSH2_MLKEM_768_KEY_LEN 1184
+#define LIBSSH2_MLKEM_768_PRIVATE_KEY_LEN 2400
+#define LIBSSH2_MLKEM_768_PUBLIC_KEY_LEN 1184
 #define LIBSSH2_MLKEM_768_CIPHERTEXT 1088
-#define LIBSSH2_MLKEM_1024_PKEY_LEN 3168
-#define LIBSSH2_MLKEM_1024_KEY_LEN 1568
+#define LIBSSH2_MLKEM_1024_PRIVATE_KEY_LEN 3168
+#define LIBSSH2_MLKEM_1024_PUBLIC_KEY_LEN 1568
 #define LIBSSH2_MLKEM_1024_CIPHERTEXT 1568
 
 #if LIBSSH2_RSA
@@ -306,13 +308,13 @@ _libssh2_ed25519_new_private_frommemory_sk(libssh2_ed25519_ctx **ed_ctx,
 #if LIBSSH2_MLKEM
 int
 _libssh2_mlkem_new(LIBSSH2_SESSION *session,
-                   int ml_kem_type,
+                   int ml_kem_size,
                    unsigned char **out_public_key,
                    unsigned char **out_private_key);
 
 int
 _libssh2_mlkem_get_sk(unsigned char *out_shared_key,
-                      int ml_kem_type,
+                      int ml_kem_size,
                       uint8_t *private_key,
                       uint8_t *server_ciphertext);
 

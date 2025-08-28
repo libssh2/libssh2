@@ -362,7 +362,9 @@ typedef struct key_exchange_state_low_t
     kmdhgGPshakex_state_t exchange_state;
     _libssh2_bn *p;             /* SSH2 defined value (p_value) */
     _libssh2_bn *g;             /* SSH2 defined value (2) */
-    unsigned char request[1666]; /* Must fit mlkem1024nistp384 */
+    /* Request must fit mlkem1024nistp384 keys + 5 bytes overhead */
+    unsigned char request[LIBSSH2_MLKEM_1024_PUBLIC_KEY_LEN +
+                          LIBSSH2_EC_P384_PUBLIC_KEY_LEN + 5];
     unsigned char *data;
     size_t request_len;
     size_t data_len;
