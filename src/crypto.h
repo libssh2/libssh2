@@ -316,7 +316,6 @@ _libssh2_mlkem_get_sk(unsigned char *out_shared_key,
                       uint8_t *private_key,
                       uint8_t *server_ciphertext);
 
-
 #endif /* LIBSSH2_MLKEM */
 
 int _libssh2_cipher_init(_libssh2_cipher_ctx * h,
