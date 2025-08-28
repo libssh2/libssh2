@@ -2885,7 +2885,8 @@ _libssh2_mlkem_get_sk(unsigned char *out_shared_key,
             privLen = LIBSSH2_MLKEM_1024_PKEY_LEN;
             ciphertextLen = LIBSSH2_MLKEM_1024_CIPHERTEXT;
             break;
-        default: goto clean_exit;
+        default:
+            goto clean_exit;
     }
 
     if(!out_shared_key)
