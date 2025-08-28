@@ -2771,9 +2771,9 @@ _libssh2_ed25519_new_public(libssh2_ed25519_ctx ** ed_ctx,
 
 int
 _libssh2_mlkem_new(LIBSSH2_SESSION *session,
-                        int ml_kem_type,
-                        unsigned char **out_public_key,
-                        unsigned char **out_private_key)
+                   int ml_kem_type,
+                   unsigned char **out_public_key,
+                   unsigned char **out_private_key)
 {
     EVP_PKEY *key = NULL;
     EVP_PKEY_CTX *pctx = NULL;
