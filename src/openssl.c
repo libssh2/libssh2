@@ -2767,6 +2767,171 @@ _libssh2_ed25519_new_public(libssh2_ed25519_ctx ** ed_ctx,
 }
 #endif /* LIBSSH2_ED25519 */
 
+#if LIBSSH2_MLKEM
+
+int
+_libssh2_mlkem_new(LIBSSH2_SESSION *session,
+                        int ml_kem_type,
+                        unsigned char **out_public_key,
+                        unsigned char **out_private_key)
+{
+    EVP_PKEY *key = NULL;
+    EVP_PKEY_CTX *pctx = NULL;
+    unsigned char *priv = NULL, *pub = NULL;
+    const char *evp_name;
+    size_t privLen, actualPrivLen, pubLen, actualPubLen;
+    int rc = -1;
+
+    switch(ml_kem_type) {
+        case 512:
+            evp_name = "ML-KEM-512";
+            privLen = LIBSSH2_MLKEM_512_PKEY_LEN;
+            pubLen = LIBSSH2_MLKEM_512_KEY_LEN;
+            break;
+        case 768:
+            evp_name = "ML-KEM-768";
+            privLen = LIBSSH2_MLKEM_768_PKEY_LEN;
+            pubLen = LIBSSH2_MLKEM_768_KEY_LEN;
+            break;
+        case 1024:
+            evp_name = "ML-KEM-1024";
+            privLen = LIBSSH2_MLKEM_1024_PKEY_LEN;
+            pubLen = LIBSSH2_MLKEM_1024_KEY_LEN;
+            break;
+        default: goto clean_exit;
+    }
+
+    pctx = EVP_PKEY_CTX_new_from_name(NULL, evp_name, NULL);
+    if(!pctx)
+        return -1;
+
+    if(EVP_PKEY_keygen_init(pctx) != 1 ||
+       EVP_PKEY_keygen(pctx, &key) != 1) {
+        goto clean_exit;
+       }
+
+    if(out_private_key) {
+        priv = LIBSSH2_ALLOC(session, privLen);
+        actualPrivLen = privLen;
+        if(!priv)
+            goto clean_exit;
+        if(EVP_PKEY_get_raw_private_key(key, priv, &actualPrivLen) != 1 ||
+           privLen != actualPrivLen) {
+            goto clean_exit;
+        }
+
+        *out_private_key = priv;
+        priv = NULL;
+    }
+
+    if(out_public_key) {
+        pub = LIBSSH2_ALLOC(session, pubLen);
+        if(!pub)
+            goto clean_exit;
+
+        if(EVP_PKEY_get_raw_public_key(key, pub, &actualPubLen) != 1 ||
+           pubLen != actualPubLen) {
+            goto clean_exit;
+           }
+
+        *out_public_key = pub;
+        pub = NULL;
+    }
+
+    /* success */
+    rc = 0;
+
+clean_exit:
+
+    if(pctx)
+        EVP_PKEY_CTX_free(pctx);
+    if(key)
+        EVP_PKEY_free(key);
+    if(priv)
+        LIBSSH2_FREE(session, priv);
+    if(pub)
+        LIBSSH2_FREE(session, pub);
+
+    return rc;
+}
+
+int
+_libssh2_mlkem_get_sk(unsigned char *out_shared_key,
+                      int ml_kem_type,
+                      uint8_t *private_key,
+                      uint8_t *server_ciphertext)
+{
+    int rc = -1;
+    EVP_PKEY *client_key = NULL;
+    EVP_PKEY_CTX *client_key_ctx = NULL;
+    size_t out_len = 0;
+    const char *evp_name;
+    size_t privLen, ciphertextLen;
+
+    switch(ml_kem_type) {
+        case 512:
+            evp_name = "ML-KEM-512";
+            privLen = LIBSSH2_MLKEM_512_PKEY_LEN;
+            ciphertextLen = LIBSSH2_MLKEM_512_CIPHERTEXT;
+            break;
+        case 768:
+            evp_name = "ML-KEM-768";
+            privLen = LIBSSH2_MLKEM_768_PKEY_LEN;
+            ciphertextLen = LIBSSH2_MLKEM_768_CIPHERTEXT;
+            break;
+        case 1024:
+            evp_name = "ML-KEM-1024";
+            privLen = LIBSSH2_MLKEM_1024_PKEY_LEN;
+            ciphertextLen = LIBSSH2_MLKEM_1024_CIPHERTEXT;
+            break;
+        default: goto clean_exit;
+    }
+
+    if(!out_shared_key)
+        return -1;
+
+    client_key = EVP_PKEY_new_raw_private_key_ex(NULL, evp_name,
+                                                 NULL, private_key, privLen);
+
+    if(!client_key) {
+        goto clean_exit;
+    }
+
+    client_key_ctx = EVP_PKEY_CTX_new(client_key, NULL);
+    if(!client_key_ctx) {
+        goto clean_exit;
+    }
+
+    rc = EVP_PKEY_decapsulate_init(client_key_ctx, NULL);
+    if(rc <= 0) {
+        goto clean_exit;
+    }
+
+    rc = EVP_PKEY_decapsulate(client_key_ctx, NULL, &out_len,
+                              server_ciphertext, ciphertextLen);
+    if(rc <= 0) {
+        goto clean_exit;
+    }
+
+    if(out_len != LIBSSH2_MLKEM_SHARED_SECRET_LEN) {
+        rc = -1;
+        goto clean_exit;
+    }
+
+    rc = EVP_PKEY_decapsulate(client_key_ctx, out_shared_key, &out_len,
+                              server_ciphertext, ciphertextLen);
+
+clean_exit:
+
+    if(client_key_ctx)
+        EVP_PKEY_CTX_free(client_key_ctx);
+    if(client_key)
+        EVP_PKEY_free(client_key);
+
+    return (rc == 1) ? 0 : -1;
+}
+
+#endif
 
 #if LIBSSH2_RSA
 int
