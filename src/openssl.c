@@ -2833,7 +2833,7 @@ _libssh2_mlkem_new(LIBSSH2_SESSION *session,
         if(EVP_PKEY_get_raw_public_key(key, pub, &actualPubLen) != 1 ||
            pubLen != actualPubLen) {
             goto clean_exit;
-           }
+        }
 
         *out_public_key = pub;
         pub = NULL;
