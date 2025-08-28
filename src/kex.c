@@ -251,7 +251,7 @@ process_host_key(LIBSSH2_SESSION *session,
     if(_libssh2_copy_string(session, buf, &(session->server_hostkey),
                             &host_key_len)) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                 "Could not copy host key");
+                              "Could not copy host key");
     }
 
     session->server_hostkey_len = (uint32_t)host_key_len;
