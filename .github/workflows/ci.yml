@@ -113,7 +113,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image: [ubuntu-latest, macos-latest, windows-latest]
+        image: [ubuntu-latest, macos-latest, windows-2022]
     steps:
       - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
         if: ${{ contains(matrix.image, 'windows') }}
@@ -672,7 +672,7 @@ jobs:
 
   build_cygwin:
     name: 'cygwin'
-    runs-on: windows-latest
+    runs-on: windows-2022
     timeout-minutes: 30
     env:
       SHELLOPTS: 'igncr'
@@ -731,7 +731,7 @@ jobs:
 
   build_msys2:
     name: 'msys2'
-    runs-on: windows-latest
+    runs-on: windows-2022
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -849,7 +849,7 @@ jobs:
 
   build_msvc:
     name: 'msvc'
-    runs-on: windows-latest
+    runs-on: windows-2022
     timeout-minutes: 30
     strategy:
       fail-fast: false
