@@ -48,6 +48,7 @@
 
 #ifdef USE_OPENSSL_3
 #define USE_PEM_READ_BIO_PRIVATEKEY
+#define HAVE_SSLERROR_BAD_DECRYPT
 #endif
 
 int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
@@ -1192,6 +1193,31 @@ typedef void * (*pem_read_bio_func)(BIO *, void **, pem_password_cb *,
 #endif
 
 static int
+read_private_key_from_bio(void **key_ctx,
+                          pem_read_bio_func read_private_key,
+                          BIO *bp, const unsigned char *passphrase)
+{
+#ifdef HAVE_SSLERROR_BAD_DECRYPT
+    unsigned long sslError;
+#endif
+    *key_ctx = read_private_key(bp, NULL, (pem_password_cb *) passphrase_cb,
+                                (void *) LIBSSH2_UNCONST(passphrase));
+#ifdef HAVE_SSLERROR_BAD_DECRYPT
+    /* ensure to read pending openssl error (#1652) */
+    sslError = ERR_get_error();
+    if((ERR_GET_LIB(sslError) == ERR_LIB_PEM &&
+        ERR_GET_REASON(sslError) == PEM_R_BAD_DECRYPT) ||
+       (ERR_GET_LIB(sslError) == ERR_LIB_PROV &&
+        ERR_GET_REASON(sslError) == EVP_R_BAD_DECRYPT))
+        /* only error for incorrect passphrase to let caller fallback to
+           openssh format */
+        return _libssh2_error(NULL, LIBSSH2_ERROR_KEYFILE_AUTH_FAILED,
+                              "Wrong passphrase for private key");
+#endif
+    return (*key_ctx) ? 0 : -1;
+}
+
+static int
 read_private_key_from_memory(void **key_ctx,
                              pem_read_bio_func read_private_key,
                              const char *filedata,
@@ -1199,6 +1225,7 @@ read_private_key_from_memory(void **key_ctx,
                              const unsigned char *passphrase)
 {
     BIO * bp;
+    int rc;
 
     *key_ctx = NULL;
 
@@ -1211,11 +1238,9 @@ read_private_key_from_memory(void **key_ctx,
         return -1;
     }
 
-    *key_ctx = read_private_key(bp, NULL, (pem_password_cb *) passphrase_cb,
-                                (void *) LIBSSH2_UNCONST(passphrase));
-
+    rc = read_private_key_from_bio(key_ctx, read_private_key, bp, passphrase);
     BIO_free(bp);
-    return (*key_ctx) ? 0 : -1;
+    return rc;
 }
 #endif
 
@@ -1227,6 +1252,7 @@ read_private_key_from_file(void **key_ctx,
                            const unsigned char *passphrase)
 {
     BIO * bp;
+    int rc;
 
     *key_ctx = NULL;
 
@@ -1235,11 +1261,9 @@ read_private_key_from_file(void **key_ctx,
         return -1;
     }
 
-    *key_ctx = read_private_key(bp, NULL, (pem_password_cb *) passphrase_cb,
-                                (void *) LIBSSH2_UNCONST(passphrase));
-
+    rc = read_private_key_from_bio(key_ctx, read_private_key, bp, passphrase);
     BIO_free(bp);
-    return (*key_ctx) ? 0 : -1;
+    return rc;
 }
 #endif
 
@@ -4652,38 +4676,26 @@ _libssh2_pub_priv_keyfile(LIBSSH2_SESSION *session,
                           const char *passphrase)
 {
     int       st;
-    BIO*      bp;
     EVP_PKEY* pk;
     int       pktype;
-    int       rc;
+    pem_read_bio_func read_pem = (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 
     _libssh2_debug((session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing public key from private key file: %s",
                    privatekey));
 
-    bp = BIO_new_file(privatekey, "r");
-    if(!bp) {
-        return _libssh2_error(session,
-                              LIBSSH2_ERROR_FILE,
-                              "Unable to extract public key from private key "
-                              "file: Unable to open private key file");
-    }
+    st = read_private_key_from_file((void **)&pk, read_pem,
+                                    privatekey,
+                                    (const unsigned char *)passphrase);
 
-    (void)BIO_reset(bp);
-    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL,
-                                 (void *)LIBSSH2_UNCONST(passphrase));
-    BIO_free(bp);
-
-    if(!pk) {
+    if(st) {
 
         /* Try OpenSSH format */
-        rc = _libssh2_pub_priv_openssh_keyfile(session,
-                                               method,
-                                               method_len,
+        st = _libssh2_pub_priv_openssh_keyfile(session, method, method_len,
                                                pubkeydata, pubkeydata_len,
                                                privatekey, passphrase);
-        if(rc) {
+        if(st) {
             return _libssh2_error(session,
                                   LIBSSH2_ERROR_FILE,
                                   "Unable to extract public key "
@@ -4986,10 +4998,6 @@ _libssh2_sk_pub_openssh_keyfilememory(LIBSSH2_SESSION *session,
     return rc;
 }
 
-#ifdef USE_OPENSSL_3
-#define HAVE_SSLERROR_BAD_DECRYPT
-#endif
-
 int
 _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 unsigned char **method,
@@ -5001,35 +5009,19 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                 const char *passphrase)
 {
     int       st;
-    BIO*      bp;
     EVP_PKEY* pk;
     int       pktype;
-#ifdef HAVE_SSLERROR_BAD_DECRYPT
-    unsigned long sslError;
-#endif
+    pem_read_bio_func read_pem = (pem_read_bio_func) &PEM_read_bio_PrivateKey;
 
     _libssh2_debug((session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing public key from private key."));
 
-#if OPENSSL_VERSION_NUMBER >= 0x1000200fL || defined(LIBSSH2_WOLFSSL)
-    bp = BIO_new_mem_buf(privatekeydata, (int)privatekeydata_len);
-#else
-    bp = BIO_new_mem_buf((char *)privatekeydata, (int)privatekeydata_len);
-#endif
-    if(!bp)
-        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                              "Unable to allocate memory when"
-                              "computing public key");
-    (void)BIO_reset(bp);
-    pk = PEM_read_bio_PrivateKey(bp, NULL, NULL,
-                                 (void *)LIBSSH2_UNCONST(passphrase));
-#ifdef HAVE_SSLERROR_BAD_DECRYPT
-    sslError = ERR_get_error();
-#endif
-    BIO_free(bp);
+    st = read_private_key_from_memory((void **)&pk, read_pem,
+                                      privatekeydata, privatekeydata_len,
+                                      (const unsigned char *)passphrase);
 
-    if(!pk) {
+    if(st) {
         /* Try OpenSSH format */
         st = _libssh2_pub_priv_openssh_keyfilememory(session, NULL, NULL,
                                                      method,
@@ -5041,20 +5033,12 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                             (const unsigned char *)passphrase);
         if(st == 0)
             return 0;
-
-#ifdef HAVE_SSLERROR_BAD_DECRYPT
-        if((ERR_GET_LIB(sslError) == ERR_LIB_PEM &&
-            ERR_GET_REASON(sslError) == PEM_R_BAD_DECRYPT) ||
-           (ERR_GET_LIB(sslError) == ERR_LIB_PROV &&
-            ERR_GET_REASON(sslError) == EVP_R_BAD_DECRYPT))
-            return _libssh2_error(session, LIBSSH2_ERROR_KEYFILE_AUTH_FAILED,
-                                  "Wrong passphrase for private key");
-#endif
         return _libssh2_error(session,
                               LIBSSH2_ERROR_FILE,
                               "Unable to extract public key "
                               "from private key file: "
-                              "Unsupported private key file format");
+                              "Wrong passphrase or invalid/unrecognized "
+                              "private key file format");
     }
 
 #ifdef HAVE_OPAQUE_STRUCTS
