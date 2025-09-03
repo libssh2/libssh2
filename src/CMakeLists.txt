@@ -227,9 +227,8 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
   # Calculate variables for pkg-config
-  set(LIBSSH2_PC_LIBS_PRIVATE "")
-
   set(_ldflags "")
+  set(LIBSSH2_PC_LIBS_PRIVATE "")
 
   # Avoid getting unnecessary -L options for known system directories.
   set(_sys_libdirs "${CMAKE_C_IMPLICIT_LINK_DIRECTORIES}")
