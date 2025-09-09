@@ -115,7 +115,7 @@ jobs:
       matrix:
         image: [ubuntu-latest, macos-latest, windows-2022]
     steps:
-      - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
+      - uses: msys2/setup-msys2@fb197b72ce45fb24f17bf3f807a388985654d1f2 # v2
         if: ${{ contains(matrix.image, 'windows') }}
         with:
           msystem: mingw64
@@ -753,12 +753,12 @@ jobs:
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
       MATRIX_ENV: '${{ matrix.env }}'
     steps:
-      - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
+      - uses: msys2/setup-msys2@fb197b72ce45fb24f17bf3f807a388985654d1f2 # v2
         if: ${{ matrix.sys == 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
           install: gcc ${{ matrix.build }} ${{ matrix.build == 'autotools' && 'make' || 'ninja' }} openssl-devel zlib-devel
-      - uses: msys2/setup-msys2@d44ca8e88d8b43d56cf5670f91747359d5537f97 # v2
+      - uses: msys2/setup-msys2@fb197b72ce45fb24f17bf3f807a388985654d1f2 # v2
         if: ${{ matrix.sys != 'msys' }}
         with:
           msystem: ${{ matrix.sys }}
