@@ -1512,7 +1512,7 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
                 *key_method_len = match_len;
             }
         }
-        if(!key_method) {
+        if(!*key_method) {
             *key_method_len = 0;
             rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate key method upgrade");
