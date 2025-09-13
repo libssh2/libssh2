@@ -1492,7 +1492,8 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
 
     if(match) {
         if(*key_method_len == 28 &&
-        memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
+           memcmp(key_method,
+                  "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
             if(*key_method)
                 LIBSSH2_FREE(session, *key_method);
             *key_method = LIBSSH2_ALLOC(session, match_len + suffix_len);
