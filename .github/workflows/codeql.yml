@@ -78,7 +78,7 @@ jobs:
       - name: 'build'
         timeout-minutes: 5
         run: |
-          cmake -B . -G Ninja -DCRYPTO_BACKEND=${MATRIX_CRYPTO}
+          cmake -B . -G Ninja -DCRYPTO_BACKEND=${MATRIX_CRYPTO} -DENABLE_ZLIB_COMPRESSION=ON
           cmake --build . --verbose
 
       - name: 'perform analysis'
