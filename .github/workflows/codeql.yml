@@ -46,7 +46,25 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       security-events: write  # To create/update security events
+    strategy:
+      fail-fast: false
+      matrix:
+        crypto: [OpenSSL, Libgcrypt, mbedTLS, wolfSSL]
+    env:
+      MATRIX_CRYPTO: '${{ matrix.crypto }}'
     steps:
+      - name: 'install prereqs'
+        timeout-minutes: 5
+        run: |
+          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkg='libssl-dev'
+          [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkg='libgcrypt-dev'
+          [ "${MATRIX_CRYPTO}" = 'mbedTLS' ] && pkg='libmbedtls-dev'
+          [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkg='libwolfssl-dev'
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt-get -o Dpkg::Use-Pty=0 update
+          sudo rm -f /var/lib/man-db/auto-update
+          sudo apt-get -o Dpkg::Use-Pty=0 install zlib1g-dev ${pkg}
+
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
@@ -60,7 +78,7 @@ jobs:
       - name: 'build'
         timeout-minutes: 5
         run: |
-          cmake -B . -G Ninja
+          cmake -B . -G Ninja -DCRYPTO_BACKEND=${MATRIX_CRYPTO}
           cmake --build . --verbose
 
       - name: 'perform analysis'
