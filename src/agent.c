@@ -328,7 +328,7 @@ cleanup:
 }
 
 #define RECV_SEND_ALL(func, agent, buffer, length, total)              \
-    DWORD bytes_transfered;                                            \
+    DWORD bytes_transferred;                                           \
     BOOL ret;                                                          \
     DWORD err;                                                         \
     int rc;                                                            \
@@ -336,13 +336,13 @@ cleanup:
     while(*total < length) {                                           \
         if(!agent->pending_io)                                         \
             ret = func(agent->pipe, (char *)buffer + *total,           \
-                       (DWORD)(length - *total), &bytes_transfered,    \
+                       (DWORD)(length - *total), &bytes_transferred,   \
                        &agent->overlapped);                            \
         else                                                           \
             ret = GetOverlappedResult(agent->pipe, &agent->overlapped, \
-                                      &bytes_transfered, FALSE);       \
+                                      &bytes_transferred, FALSE);      \
                                                                        \
-        *total += bytes_transfered;                                    \
+        *total += bytes_transferred;                                   \
         if(!ret) {                                                     \
             err = GetLastError();                                      \
             if((!agent->pending_io && ERROR_IO_PENDING == err)         \
