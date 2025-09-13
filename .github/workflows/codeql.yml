@@ -1,0 +1,67 @@
+# Copyright (C) The libssh2 project and its contributors.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+name: 'CodeQL'
+
+'on':
+  push:
+    branches:
+      - master
+      - '*/ci'
+  pull_request:
+    branches:
+      - master
+      - '*/ci'
+  schedule:
+    - cron: '0 0 * * 4'
+
+concurrency:
+  group: ${{ github.workflow }}
+
+permissions: {}
+
+jobs:
+  codeql:
+    name: 'GHA'
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write  # To create/update security events
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+
+      - name: 'initialize'
+        uses: github/codeql-action/init@192325c86100d080feab897ff886c34abd4c83a3 # v3
+        with:
+          languages: actions
+          queries: security-extended
+
+      - name: 'perform analysis'
+        uses: github/codeql-action/analyze@192325c86100d080feab897ff886c34abd4c83a3 # v3
+
+  c:
+    name: 'C'
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write  # To create/update security events
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+
+      - name: 'initialize'
+        uses: github/codeql-action/init@192325c86100d080feab897ff886c34abd4c83a3 # v3
+        with:
+          languages: cpp
+          build-mode: manual
+
+      - name: 'build'
+        timeout-minutes: 5
+        run: |
+          cmake -B . -G Ninja
+          cmake --build . --verbose
+
+      - name: 'perform analysis'
+        uses: github/codeql-action/analyze@192325c86100d080feab897ff886c34abd4c83a3 # v3
