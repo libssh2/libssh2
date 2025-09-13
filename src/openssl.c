@@ -3848,11 +3848,7 @@ gen_publickey_from_sk_ecdsa_openssh_priv_data(LIBSSH2_SESSION *session,
 
         LIBSSH2_FREE(session, *pubkeydata);
         *pubkeydata_len = key_len;
-
-        if(pubkeydata)
-            *pubkeydata = key;
-        else if(key)
-            LIBSSH2_FREE(session, key);
+        *pubkeydata = key;
     }
 
     if(ec_ctx)
