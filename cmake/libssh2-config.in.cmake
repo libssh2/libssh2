@@ -36,10 +36,6 @@ set(CMAKE_MODULE_PATH ${_libssh2_cmake_module_path_save})
 
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake")
 
-if(CMAKE_VERSION VERSION_LESS 3.18)
-  set_target_properties(@PROJECT_NAME@::@LIB_SELECTED@ PROPERTIES IMPORTED_GLOBAL TRUE)
-endif()
-
 # Alias for either shared or static library
 if(NOT TARGET @PROJECT_NAME@::@LIB_NAME@)
   add_library(@PROJECT_NAME@::@LIB_NAME@ ALIAS @PROJECT_NAME@::@LIB_SELECTED@)
