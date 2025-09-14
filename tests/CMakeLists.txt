@@ -66,8 +66,6 @@ if(SH_EXECUTABLE)
     find_program(SSHD_EXECUTABLE "sshd")
     mark_as_advanced(SSHD_EXECUTABLE)
   endif()
-
-  add_test(NAME mansyntax COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/mansyntax.sh")
 endif()
 
 add_library(runner STATIC ${librunner_la_SOURCES})

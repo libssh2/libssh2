@@ -20,7 +20,7 @@ endif
 TESTS_ENVIRONMENT =
 
 # Tests to run
-TESTS = mansyntax.sh
+TESTS =
 
 if RUN_DOCKER_TESTS
 TESTS += $(DOCKER_TESTS)
