@@ -553,8 +553,8 @@ jobs:
           make install
           cd ..
           # Verify install
-          diff -u <(find docs    -name '*.3' -printf '%f\n' | grep -v template | sort) <(find "$HOME"/temp/share/man/man3 -name '*.3' -printf '%f\n' | sort)
-          diff -u <(find include -name '*.h' -printf '%f\n'                    | sort) <(find "$HOME"/temp/include        -name '*.h' -printf '%f\n' | sort)
+          diff -u <(find libssh2-99.98.97/docs    -name '*.3' -printf '%f\n' | sort) <(find "$HOME"/temp/share/man/man3 -name '*.3' -printf '%f\n' | sort)
+          diff -u <(find libssh2-99.98.97/include -name '*.h' -printf '%f\n' | sort) <(find "$HOME"/temp/include        -name '*.h' -printf '%f\n' | sort)
           rm -rf libssh2-99.98.97
 
   build_linux_cross_mingw64:
