@@ -83,3 +83,30 @@ jobs:
 
       - name: 'perform analysis'
         uses: github/codeql-action/analyze@192325c86100d080feab897ff886c34abd4c83a3 # v3
+
+  cw:
+    name: 'C (WinCNG)'
+    runs-on: windows-2022
+    permissions:
+      security-events: write  # To create/update security events
+    env:
+      MATRIX_CRYPTO: '${{ matrix.crypto }}'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+
+      - name: 'initialize'
+        uses: github/codeql-action/init@192325c86100d080feab897ff886c34abd4c83a3 # v3
+        with:
+          languages: cpp
+          build-mode: manual
+
+      - name: 'build'
+        timeout-minutes: 10
+        run: |
+          cmake -B . -DCRYPTO_BACKEND=WinCNG
+          cmake --build . --verbose
+
+      - name: 'perform analysis'
+        uses: github/codeql-action/analyze@192325c86100d080feab897ff886c34abd4c83a3 # v3
