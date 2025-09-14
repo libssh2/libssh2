@@ -121,9 +121,9 @@ if(PICKY_COMPILER)
       endif()
       # Enable based on compiler version
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 3.6) OR
-         (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 6.3))
+         (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 6.1))
         list(APPEND _picky_enable
-          -Wdouble-promotion               # clang  3.6  gcc  4.6  appleclang  6.3
+          -Wdouble-promotion               # clang  3.6  gcc  4.6  appleclang  6.1
           -Wenum-conversion                # clang  3.2  gcc 10.0  appleclang  4.6  g++ 11.0
           -Wheader-guard                   # clang  3.4            appleclang  5.1
           -Wpragmas                        # clang  3.5  gcc  4.1  appleclang  6.0
@@ -133,24 +133,24 @@ if(PICKY_COMPILER)
         )
       endif()
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 3.9) OR
-         (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 8.3))
+         (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 8.1))
         list(APPEND _picky_enable
           -Wcomma                          # clang  3.9            appleclang  8.3
           -Wmissing-variable-declarations  # clang  3.2            appleclang  4.6
         )
       endif()
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 7.0) OR
-         (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 10.3))
+         (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 11))
         list(APPEND _picky_enable
-          -Wassign-enum                    # clang  7.0            appleclang 10.3
-          -Wextra-semi-stmt                # clang  7.0            appleclang 10.3
+          -Wassign-enum                    # clang  7.0            appleclang 11.0
+          -Wextra-semi-stmt                # clang  7.0            appleclang 11.0
         )
       endif()
       if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 10.0) OR
-         (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 12.4))
+         (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 12.0))
         list(APPEND _picky_enable
-          -Wimplicit-fallthrough           # clang  4.0  gcc  7.0  appleclang 12.4  # We do silencing for clang 10.0 and above only
-          -Wxor-used-as-pow                # clang 10.0  gcc 13.0
+          -Wimplicit-fallthrough           # clang  4.0  gcc  7.0  appleclang  9.0  # We do silencing for clang 10.0 and above only
+          -Wxor-used-as-pow                # clang 10.0  gcc 13.0  appleclang 12.0
         )
       endif()
     else()  # gcc
@@ -178,7 +178,7 @@ if(PICKY_COMPILER)
       endif()
       if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 4.8)
         list(APPEND _picky_enable
-          -Wdouble-promotion               # clang  3.6  gcc  4.6  appleclang  6.3
+          -Wdouble-promotion               # clang  3.6  gcc  4.6  appleclang  6.1
           -Wformat=2                       # clang  3.0  gcc  4.8
           -Wtrampolines                    #             gcc  4.6
         )
@@ -204,7 +204,7 @@ if(PICKY_COMPILER)
           -Wduplicated-branches            #             gcc  7.0
           -Wformat-overflow=2              #             gcc  7.0
           -Wformat-truncation=2            #             gcc  7.0
-          -Wimplicit-fallthrough           # clang  4.0  gcc  7.0
+          -Wimplicit-fallthrough           # clang  4.0  gcc  7.0  appleclang  9.0
           -Wrestrict                       #             gcc  7.0
         )
       endif()
@@ -218,7 +218,7 @@ if(PICKY_COMPILER)
         list(APPEND _picky_enable
           -Warray-compare                  # clang 20.0  gcc 12.0
           -Wenum-int-mismatch              #             gcc 13.0
-          -Wxor-used-as-pow                # clang 10.0  gcc 13.0
+          -Wxor-used-as-pow                # clang 10.0  gcc 13.0  appleclang 12.0
         )
       endif()
     endif()
