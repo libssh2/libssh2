@@ -43,17 +43,18 @@ jobs:
 
   c:
     name: 'C'
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.crypto == 'WinCNG' && 'windows-2022' || 'ubuntu-latest' }}
     permissions:
       security-events: write  # To create/update security events
     strategy:
       fail-fast: false
       matrix:
-        crypto: [OpenSSL, Libgcrypt, mbedTLS, wolfSSL]
+        crypto: [OpenSSL, Libgcrypt, mbedTLS, WinCNG, wolfSSL]
     env:
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
     steps:
       - name: 'install prereqs'
+        if: ${{ matrix.crypto != 'WinCNG' }}
         timeout-minutes: 5
         run: |
           [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkg='libssl-dev'
@@ -77,8 +78,13 @@ jobs:
 
       - name: 'build'
         timeout-minutes: 5
+        shell: bash
         run: |
-          cmake -B . -G Ninja -DCRYPTO_BACKEND=${MATRIX_CRYPTO} -DENABLE_ZLIB_COMPRESSION=ON
+          if [ "${MATRIX_CRYPTO}" = 'WinCNG' ]; then
+            cmake -B . -DCRYPTO_BACKEND=${MATRIX_CRYPTO} -DCMAKE_VS_GLOBALS=TrackFileAccess=false
+          else
+            cmake -B . -G Ninja -DCRYPTO_BACKEND=${MATRIX_CRYPTO} -DENABLE_ZLIB_COMPRESSION=ON
+          fi
           cmake --build . --verbose
 
       - name: 'perform analysis'
