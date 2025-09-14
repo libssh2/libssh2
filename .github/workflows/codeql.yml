@@ -43,17 +43,18 @@ jobs:
 
   c:
     name: 'C'
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.crypto == 'WinCNG' && 'windows-2022' || 'ubuntu-latest' }}
     permissions:
       security-events: write  # To create/update security events
     strategy:
       fail-fast: false
       matrix:
-        crypto: [OpenSSL, Libgcrypt, mbedTLS, wolfSSL]
+        crypto: [OpenSSL, Libgcrypt, mbedTLS, WinCNG, wolfSSL]
     env:
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
     steps:
       - name: 'install prereqs'
+        if: ${{ matrix.crypto != 'WinCNG' }}
         timeout-minutes: 5
         run: |
           [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkg='libssl-dev'
@@ -77,35 +78,13 @@ jobs:
 
       - name: 'build'
         timeout-minutes: 5
+        shell: bash
         run: |
-          cmake -B . -G Ninja -DCRYPTO_BACKEND=${MATRIX_CRYPTO} -DENABLE_ZLIB_COMPRESSION=ON
-          cmake --build . --verbose
-
-      - name: 'perform analysis'
-        uses: github/codeql-action/analyze@192325c86100d080feab897ff886c34abd4c83a3 # v3
-
-  cw:
-    name: 'C (WinCNG)'
-    runs-on: windows-2022
-    permissions:
-      security-events: write  # To create/update security events
-    env:
-      MATRIX_CRYPTO: '${{ matrix.crypto }}'
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          persist-credentials: false
-
-      - name: 'initialize'
-        uses: github/codeql-action/init@192325c86100d080feab897ff886c34abd4c83a3 # v3
-        with:
-          languages: cpp
-          build-mode: manual
-
-      - name: 'build'
-        timeout-minutes: 10
-        run: |
-          cmake -B . -DCRYPTO_BACKEND=WinCNG
+          if [ "${MATRIX_CRYPTO}" = 'WinCNG' ]; then
+            cmake -B . -DCRYPTO_BACKEND=${MATRIX_CRYPTO} -DCMAKE_VS_GLOBALS=TrackFileAccess=false
+          else
+            cmake -B . -G Ninja -DCRYPTO_BACKEND=${MATRIX_CRYPTO} -DENABLE_ZLIB_COMPRESSION=ON
+          fi
           cmake --build . --verbose
 
       - name: 'perform analysis'
