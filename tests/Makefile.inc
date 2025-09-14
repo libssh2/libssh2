@@ -87,7 +87,6 @@ EXTRA_DIST = \
   key_rsa_sha2_256_signed \
   key_rsa_sha2_256_signed-cert.pub \
   key_rsa_sha2_256_signed.pub \
-  mansyntax.sh \
   openssh_server/Dockerfile \
   openssh_server/authorized_keys \
   openssh_server/ca_ecdsa \
