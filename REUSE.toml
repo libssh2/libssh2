@@ -28,6 +28,7 @@ path = [
   "docs/INSTALL_CMAKE.md",
   "docs/SECURITY.md",
   "docs/TODO",
+  "docs/template.3",
   "os400/README400",
   "tests/key_*",
   "tests/openssh_server/.gitattributes",
