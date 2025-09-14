@@ -36,7 +36,7 @@ set(CMAKE_MODULE_PATH ${_libssh2_cmake_module_path_save})
 
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake")
 
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.11 AND CMAKE_VERSION VERSION_LESS 3.18)
+if(CMAKE_VERSION VERSION_LESS 3.18)
   set_target_properties(@PROJECT_NAME@::@LIB_SELECTED@ PROPERTIES IMPORTED_GLOBAL TRUE)
 endif()
 
@@ -57,7 +57,7 @@ if(TARGET @PROJECT_NAME@::@LIB_STATIC@)
   if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.17)
     cmake_policy(GET CMP0099 _has_CMP0099)  # https://cmake.org/cmake/help/latest/policy/CMP0099.html
   endif()
-  if(NOT _has_CMP0099 AND CMAKE_VERSION VERSION_GREATER_EQUAL 3.13 AND _libssh2_libs)
+  if(NOT _has_CMP0099 AND _libssh2_libs)
     set(_libssh2_libdirs "")
     foreach(_libssh2_lib IN LISTS _libssh2_libs)
       get_target_property(_libssh2_libdir "${_libssh2_lib}" INTERFACE_LINK_DIRECTORIES)
