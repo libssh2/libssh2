@@ -1,6 +1,8 @@
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
 
+# Shared between CMakeLists.txt and Makefile.am
+
 # Keep this list sorted
 #
 # NOTE: test_auth_keyboard_info_request does not use the network, but when
