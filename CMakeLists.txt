@@ -406,6 +406,8 @@ configure_file("src/libssh2_config_cmake.h.in"
 
 ## Cryptography backend choice
 
+set(__runtime_dependencies "")
+
 set(CRYPTO_BACKEND "" CACHE
   STRING "The backend to use for cryptography: OpenSSL, wolfSSL, Libgcrypt, WinCNG, mbedTLS, or empty to try any available")
 
