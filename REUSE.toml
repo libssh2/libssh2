@@ -26,7 +26,6 @@ path = [
   "docs/HACKING-CRYPTO",
   "docs/HACKING.md",
   "docs/INSTALL_CMAKE.md",
-  "docs/Makefile.am",
   "docs/SECURITY.md",
   "docs/TODO",
   "docs/template.3",
