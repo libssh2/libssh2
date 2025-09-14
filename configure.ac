@@ -92,7 +92,12 @@ esac
 dnl check for how to do large files
 AC_SYS_LARGEFILE
 
-# Crypto backends
+dnl Perl
+AC_PATH_PROG(PERL, perl,, $PATH:/usr/local/bin/perl:/usr/bin/:/usr/local/bin)
+AC_SUBST(PERL)
+AM_CONDITIONAL(PERL, test -n "$PERL")
+
+dnl Crypto backends
 
 found_crypto=none
 found_crypto_str=""
