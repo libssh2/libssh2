@@ -167,13 +167,8 @@ add_custom_target(coverage
   COMMAND gcovr --root "${PROJECT_SOURCE_DIR}" --exclude tests/* --html-details
     --output "${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html")
 
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.17)
-  add_custom_target(clean-coverage COMMAND ${CMAKE_COMMAND} -E rm -rf --
-    "${CMAKE_CURRENT_BINARY_DIR}/coverage")
-else()
-  add_custom_target(clean-coverage COMMAND ${CMAKE_COMMAND} -E remove_directory
-    "${CMAKE_CURRENT_BINARY_DIR}/coverage")
-endif()
+add_custom_target(clean-coverage COMMAND ${CMAKE_COMMAND} -E rm -rf --
+  "${CMAKE_CURRENT_BINARY_DIR}/coverage")
 
 libssh2_add_target_to_copy_dependencies(
   TARGET copy_test_dependencies

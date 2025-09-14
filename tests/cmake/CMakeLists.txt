@@ -1,7 +1,7 @@
 # Copyright (C) Viktor Szakats
 # SPDX-License-Identifier: BSD-3-Clause
 
-cmake_minimum_required(VERSION 3.13...3.16 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.18)
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
 project(test-consumer C)
@@ -36,9 +36,6 @@ if(TEST_INTEGRATION_MODE STREQUAL "find_package")
 elseif(TEST_INTEGRATION_MODE STREQUAL "add_subdirectory")
   add_subdirectory(libssh2)
 elseif(TEST_INTEGRATION_MODE STREQUAL "FetchContent")
-  if(CMAKE_VERSION VERSION_LESS 3.14)
-    message(FATAL_ERROR "This test requires CMake 3.14 or upper")
-  endif()
   include(FetchContent)
   option(FROM_GIT_REPO "Git URL" "https://github.com/libssh2/libssh2.git")
   option(FROM_GIT_TAG "Git tag" "master")
