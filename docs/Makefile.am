@@ -1,3 +1,6 @@
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
+
 EXTRA_DIST = template.3 AUTHORS BINDINGS.md HACKING.md HACKING-CRYPTO \
   INSTALL_AUTOTOOLS INSTALL_CMAKE.md SECURITY.md TODO CMakeLists.txt
 
