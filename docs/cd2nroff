@@ -311,10 +311,6 @@ sub single {
                 print STDERR "$f:$line:1:ERROR: no 'Added-in:' in $f\n";
                 return 2;
             }
-            if(!$seealso[0]) {
-                print STDERR "$f:$line:1:ERROR: no 'See-also:' present\n";
-                return 2;
-            }
             if(!$copyright) {
                 print STDERR "$f:$line:1:ERROR: no 'C:' field present\n";
                 return 2;
@@ -322,35 +318,6 @@ sub single {
             if(!$spdx) {
                 print STDERR "$f:$line:1:ERROR: no 'SPDX-License-Identifier:' field present\n";
                 return 2;
-            }
-            if($section == 3) {
-                if(!$proto[0]) {
-                    printf STDERR "$f:$line:1:ERROR: missing Protocol:\n";
-                    exit 2;
-                }
-                my $tls = 0;
-                for my $p (@proto) {
-                    if($p eq "TLS") {
-                        $tls = 1;
-                    }
-                    if(!$knownprotos{$p}) {
-                        printf STDERR "$f:$line:1:ERROR: invalid protocol used: $p:\n";
-                        exit 2;
-                    }
-                }
-                # This is for TLS, require TLS-backend:
-                if($tls) {
-                    if(!$tls[0]) {
-                        printf STDERR "$f:$line:1:ERROR: missing TLS-backend:\n";
-                        exit 2;
-                    }
-                    for my $t (@tls) {
-                        if(!$knowntls{$t}) {
-                            printf STDERR "$f:$line:1:ERROR: invalid TLS backend: $t:\n";
-                            exit 2;
-                        }
-                    }
-                }
             }
             last;
         }
@@ -458,32 +425,6 @@ sub single {
             my $word = $1;
             # if there are enclosing quotes, remove them first
             $word =~ s/[\"\'](.*)[\"\']\z/$1/;
-
-            if($word eq "PROTOCOLS") {
-                print STDERR "$f:$line:1:WARN: PROTOCOLS section in source file\n";
-            }
-            elsif($word eq "AVAILABILITY") {
-                print STDERR "$f:$line:1:WARN: AVAILABILITY section in source file\n";
-            }
-            elsif($word eq "%PROTOCOLS%") {
-                # insert the generated PROTOCOLS section
-                push @desc, outprotocols(@proto);
-
-                if($proto[0] eq "TLS") {
-                    push @desc, outtls(@tls);
-                }
-                $header = 1;
-                next;
-            }
-            elsif($word eq "%AVAILABILITY%") {
-                if($addedin ne "n/a") {
-                    # insert the generated AVAILABILITY section
-                    push @desc, ".SH AVAILABILITY\n";
-                    push @desc, "Added in curl $addedin\n";
-                }
-                $header = 1;
-                next;
-            }
             push @desc, ".SH $word\n";
             $header = 1;
         }

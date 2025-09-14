@@ -37,7 +37,7 @@ libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
 metadata from or into depending on the value of setstat.
 
 *setstat* - When non-zero, the file's metadata will be updated
-with the data found in attrs according to the values of attrs->flags
+with the data found in attrs according to the values of attrs-\>flags
 and other relevant member attributes.
 
 Get or Set statbuf type data for a given LIBSSH2_SFTP_HANDLE instance.
@@ -75,14 +75,14 @@ permissions on the **libssh2_sftp.h** header file, but some of the
 most common ones are:
 
 To check for specific user permissions, the set of defines are in the
-pattern LIBSSH2_SFTP_S_I<action><who> where <action> is R, W or X for
-read, write and executable and <who> is USR, GRP and OTH for user,
+pattern LIBSSH2_SFTP_S_I\<action\>\<who\> where \<action\> is R, W or X for
+read, write and executable and \<who\> is USR, GRP and OTH for user,
 group and other. So, you check for a user readable file, use the bit
 *LIBSSH2_SFTP_S_IRUSR* while you want to see if it is executable
 for other, you use *LIBSSH2_SFTP_S_IXOTH* and so on.
 
 To check for specific file types, you would previously (before libssh2
-1.2.5) use the standard posix S_IS***() macros, but since 1.2.5
+1.2.5) use the standard posix S_IS\*() macros, but since 1.2.5
 libssh2 offers its own set of macros for this functionality:
 
 ## LIBSSH2_SFTP_S_ISLNK
@@ -134,5 +134,5 @@ be returned by the server.
 # AVAILABILITY
 
 This function has been around since forever, but most of the
-LIBSSH2_SFTP_S_* defines were introduced in libssh2 0.14 and the
-LIBSSH2_SFTP_S_IS***() macros were introduced in libssh2 1.2.5.
+LIBSSH2_SFTP_S_\* defines were introduced in libssh2 0.14 and the
+LIBSSH2_SFTP_S_IS\*() macros were introduced in libssh2 1.2.5.

@@ -69,7 +69,7 @@ Causes the request to fail if the named file already exists.
 LIBSSH2_FXF_CREAT MUST also be specified if this flag is used.
 
 *mode* - POSIX file permissions to assign if the file is being newly
-created. See the LIBSSH2_SFTP_S_* convenience defines in <libssh2_sftp.h>
+created. See the LIBSSH2_SFTP_S_\* convenience defines in \<libssh2_sftp.h\>
 
 *open_type* - Either of LIBSSH2_SFTP_OPENFILE (to open a file) or
 LIBSSH2_SFTP_OPENDIR (to open a directory).

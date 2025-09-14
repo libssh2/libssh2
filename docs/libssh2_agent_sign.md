@@ -49,7 +49,7 @@ is responsible for freeing the signature with LIBSSH2_FREE.
 *d_len* - The length of the data parameter.
 
 *method* - A buffer indicating the signing method. This should match the
-string at the start of identity->blob.
+string at the start of identity-\>blob.
 
 *method_len* - The length of the method parameter.
 
