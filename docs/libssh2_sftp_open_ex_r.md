@@ -77,7 +77,6 @@ LIBSSH2_SFTP_OPENDIR (to open a directory).
 *attrs* - Pointer to LIBSSH2_SFTP_ATTRIBUTES struct. See
 libssh2_sftp_fstat_ex for detailed usage.
 
-
 # RETURN VALUE
 
 A pointer to the newly created LIBSSH2_SFTP_HANDLE instance or NULL on

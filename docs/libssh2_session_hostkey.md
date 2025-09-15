@@ -32,7 +32,6 @@ The value *type* points to the type of hostkey which is one of:
 LIBSSH2_HOSTKEY_TYPE_RSA, LIBSSH2_HOSTKEY_TYPE_DSS (deprecated), or
 LIBSSH2_HOSTKEY_TYPE_UNKNOWN.
 
-
 # RETURN VALUE
 
 A pointer, or NULL if something went wrong.

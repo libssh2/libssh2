@@ -26,7 +26,6 @@ libssh2_channel_wait_eof(LIBSSH2_CHANNEL *channel);
 
 Wait for the remote end to send EOF.
 
-
 # RETURN VALUE
 
 Return 0 on success or negative on failure. It returns

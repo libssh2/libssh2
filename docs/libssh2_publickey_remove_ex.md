@@ -18,12 +18,9 @@ libssh2_publickey_list_remove_ex - TODO
 
 # DESCRIPTION
 
-
 # RETURN VALUE
 
-
 # ERRORS
-
 
 # AVAILABILITY
 

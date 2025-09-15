@@ -84,7 +84,6 @@ sk-ecdsa-sha2-nistp256@openssh.com key exchange algorithms.
 
 This function is only supported when libssh2 is backed by OpenSSL.
 
-
 # CALLBACK DESCRIPTION
 
 *session* - Session instance as returned by
