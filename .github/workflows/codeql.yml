@@ -22,7 +22,7 @@ concurrency:
 permissions: {}
 
 jobs:
-  codeql:
+  gha:
     name: 'GHA'
     runs-on: ubuntu-latest
     permissions:
