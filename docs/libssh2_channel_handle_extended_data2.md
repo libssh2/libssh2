@@ -3,7 +3,7 @@ c: Copyright (C) The libssh2 project and its contributors.
 SPDX-License-Identifier: BSD-3-Clause
 Title: libssh2_channel_handle_extended_data2
 Section: 3
-Source: "libssh2
+Source: libssh2
 See-also:
   - libssh2_channel_handle_extended_data(3)
   - libssh2_channel_read(3)

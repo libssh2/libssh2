@@ -3,7 +3,7 @@ c: Copyright (C) The libssh2 project and its contributors.
 SPDX-License-Identifier: BSD-3-Clause
 Title: libssh2_channel_send_eof
 Section: 3
-Source: "libssh2
+Source: libssh2
 See-also:
   - libssh2_channel_eof(3)
   - libssh2_channel_wait_eof(3)

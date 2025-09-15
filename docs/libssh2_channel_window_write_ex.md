@@ -3,7 +3,7 @@ c: Copyright (C) The libssh2 project and its contributors.
 SPDX-License-Identifier: BSD-3-Clause
 Title: libssh2_channel_window_write_ex
 Section: 3
-Source: "libssh2
+Source: libssh2
 See-also:
   - libssh2_channel_receive_window_adjust(3)
   - libssh2_channel_window_read_ex(3)

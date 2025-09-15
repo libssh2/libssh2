@@ -3,7 +3,7 @@ c: Copyright (C) The libssh2 project and its contributors.
 SPDX-License-Identifier: BSD-3-Clause
 Title: libssh2_sftp_stat
 Section: 3
-Source: "libssh2
+Source: libssh2
 See-also:
   - libssh2_sftp_fstat_ex(3)
 ---

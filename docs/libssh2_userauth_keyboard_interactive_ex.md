@@ -3,7 +3,7 @@ c: Copyright (C) The libssh2 project and its contributors.
 SPDX-License-Identifier: BSD-3-Clause
 Title: libssh2_userauth_keyboard_interactive_ex
 Section: 3
-Source: "libssh2
+Source: libssh2
 See-also:
   - libssh2_session_init_ex(3)
 ---
