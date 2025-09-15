@@ -87,7 +87,7 @@ the PIN, or a function pointer to retrieve the PIN.
 
 *sign_callback* - Responsible for communicating with the hardware
 authenticator to generate a signature. On success, the signature information
-must be placed in the `*sig_info* sig_info parameter and the callback must
+must be placed in the *sig_info* sig_info parameter and the callback must
 return 0. On failure, it should return a negative number. See
  for more information.
 
