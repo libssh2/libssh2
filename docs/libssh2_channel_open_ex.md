@@ -53,8 +53,8 @@ in a single SSH_MSG_CHANNEL_DATA or SSG_MSG_CHANNEL_EXTENDED_DATA packet.
 
 Allocate a new channel for exchanging data with the server. This method is
 typically called through its macroized form:
-or via
-or
+*libssh2_channel_open_session(3)* or via *libssh2_channel_direct_tcpip(3)*
+or *libssh2_channel_forward_listen(3)*
 
 # RETURN VALUE
 
