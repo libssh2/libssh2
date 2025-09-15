@@ -3,7 +3,7 @@ c: Copyright (C) Daniel Stenberg
 SPDX-License-Identifier: BSD-3-Clause
 Title: libssh2_knownhost_addc
 Section: 3
-Source: "libssh2
+Source: libssh2
 See-also:
   - libssh2_knownhost_check(3)
   - libssh2_knownhost_free(3)

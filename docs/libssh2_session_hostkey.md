@@ -3,7 +3,7 @@ c: Copyright (C) The libssh2 project and its contributors.
 SPDX-License-Identifier: BSD-3-Clause
 Title: libssh2_session_hostkey
 Section: 3
-Source: "libssh2
+Source: libssh2
 See-also:
   - libssh2_knownhost_add(3)
   - libssh2_knownhost_check(3)

@@ -3,7 +3,7 @@ c: Copyright (C) The libssh2 project and its contributors.
 SPDX-License-Identifier: BSD-3-Clause
 Title: libssh2_session_startup
 Section: 3
-Source: "libssh2
+Source: libssh2
 See-also:
   - libssh2_session_free(3)
   - libssh2_session_init_ex(3)
