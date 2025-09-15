@@ -41,12 +41,12 @@ create a symlink from or resolve.
 
 *target* - a pointer to a buffer. The buffer has different uses depending
 what the *link_type* argument is set to.
-.br
+
 **LIBSSH2_SFTP_SYMLINK**: Remote filesystem object to link to.
-.br
+
 **LIBSSH2_SFTP_READLINK**: Pre-allocated buffer to resolve symlink target
 into.
-.br
+
 **LIBSSH2_SFTP_REALPATH**: Pre-allocated buffer to resolve realpath target
 into.
 
