@@ -40,7 +40,6 @@ mode it will return LIBSSH2_ERROR_EAGAIN when it would otherwise block.
 
 # ERRORS
 
-
 # AVAILABILITY
 
 Added in libssh2 1.1 since the previous API has deficiencies.

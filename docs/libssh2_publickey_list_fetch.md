@@ -18,12 +18,9 @@ libssh2_publickey_list_fetch - TODO
 
 # DESCRIPTION
 
-
 # RETURN VALUE
 
-
 # ERRORS
-
 
 # AVAILABILITY
 

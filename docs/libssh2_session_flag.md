@@ -27,7 +27,6 @@ Set options for the created session. *flag* is the option to set, while
 
 # FLAGS
 
-
 ## LIBSSH2_FLAG_SIGPIPE
 
 If set, libssh2 will not attempt to block SIGPIPEs but will let them trigger

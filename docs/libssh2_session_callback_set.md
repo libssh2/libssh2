@@ -36,7 +36,6 @@ functions.
 For the details about the replacement function, see
 which is expecting and returning a function pointer.
 
-
 # RETURN VALUE
 
 Pointer to previous callback handler. Returns NULL if no prior callback

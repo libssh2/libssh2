@@ -18,12 +18,9 @@ libssh2_publickey_list_free - TODO
 
 # DESCRIPTION
 
-
 # RETURN VALUE
 
-
 # ERRORS
-
 
 # AVAILABILITY
 

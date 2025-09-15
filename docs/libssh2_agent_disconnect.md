@@ -26,7 +26,6 @@ libssh2_agent_disconnect(LIBSSH2_AGENT *agent);
 
 Close a connection to an ssh-agent.
 
-
 # RETURN VALUE
 
 Returns 0 if succeeded, or a negative value for error.

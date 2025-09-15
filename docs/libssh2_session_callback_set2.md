@@ -39,7 +39,6 @@ this function must match the associated callback declaration macro.
 
 # CALLBACK TYPES
 
-
 ## LIBSSH2_CALLBACK_IGNORE
 
 Called when a SSH_MSG_IGNORE message is received
@@ -165,7 +164,6 @@ void sign(LIBSSH2_SESSION* session,
 
 When interfacing with an ssh-agent installed on the client system, this method
 can call libssh2_agent_sign(3) to perform signing.
-
 
 # RETURN VALUE
 

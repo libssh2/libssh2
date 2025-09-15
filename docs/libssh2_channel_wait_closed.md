@@ -29,7 +29,6 @@ Enter a temporary blocking state until the remote host closes the named
 channel. Typically sent after *libssh2_channel_close(3)* in order to
 examine the exit status.
 
-
 # RETURN VALUE
 
 Return 0 on success or negative on failure. It returns LIBSSH2_ERROR_EAGAIN

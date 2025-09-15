@@ -18,12 +18,9 @@ libssh2_publickey_shutdown - TODO
 
 # DESCRIPTION
 
-
 # RETURN VALUE
 
-
 # ERRORS
-
 
 # AVAILABILITY
 

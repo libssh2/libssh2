@@ -48,7 +48,6 @@ Send a file to the remote host via SCP.
 
 Pointer to a newly allocated LIBSSH2_CHANNEL instance, or NULL on errors.
 
-
 # ERRORS
 
 *LIBSSH2_ERROR_ALLOC* - An internal memory allocation call failed.
