@@ -8,7 +8,7 @@ See-also:
   - libssh2_session_init_ex(3)
   - libssh2_session_init_ex(3)
   - libssh2_userauth_list(3)
-  - libssh2_userauth_list(3) 
+  - libssh2_userauth_list(3)
 ---
 
 # NAME

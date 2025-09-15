@@ -18,9 +18,6 @@ libssh2_userauth_hostbased_fromfile_ex - TODO
 
 # DESCRIPTION
 
-
 # RETURN VALUE
 
-
 # ERRORS
-
