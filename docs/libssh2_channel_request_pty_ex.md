@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_channel_open_ex(3)
-  - libssh2_channel_open_ex(3)
 ---
 
 # NAME
@@ -32,6 +31,7 @@ libssh2_channel_request_pty(LIBSSH2_CHANNEL *channel, const char *term);
 # DESCRIPTION
 
 *channel* - Previously opened channel instance such as returned by
+libssh2_channel_open_ex(3)
 
 *term* - Terminal emulation (e.g. vt102, ansi, etc...)
 

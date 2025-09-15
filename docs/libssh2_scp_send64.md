@@ -25,7 +25,7 @@ libssh2_scp_send64(LIBSSH2_SESSION *session, const char *path, int mode,
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *path* - Full path and filename of file to transfer to. That is the remote
 file name.

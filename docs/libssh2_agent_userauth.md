@@ -6,8 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_agent_get_identity(3)
-  - libssh2_agent_get_identity(3)
-  - libssh2_agent_init(3)
   - libssh2_agent_init(3)
   - libssh2_agent_sign(3)
 ---
@@ -29,11 +27,12 @@ libssh2_agent_userauth(LIBSSH2_AGENT *agent,
 
 # DESCRIPTION
 
-*agent* - ssh-agent handle as returned by
+*agent* - ssh-agent handle as returned by libssh2_agent_init(3)
 
 *username* - Remote user name to authenticate as.
 
 *identity* - Public key to authenticate with, as returned by
+libssh2_agent_get_identity(3)
 
 Attempt public key authentication with the help of ssh-agent.
 

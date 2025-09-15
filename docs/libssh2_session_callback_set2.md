@@ -7,7 +7,6 @@ Source: libssh2
 See-also:
   - libssh2_agent_sign(3)
   - libssh2_session_init_ex(3)
-  - libssh2_session_init_ex(3)
 ---
 
 # NAME
@@ -30,7 +29,7 @@ Sets a custom callback handler for a previously initialized session
 object. Callbacks are triggered by the receipt of special packets at the
 Transport layer. To disable a callback, set it to NULL.
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *cbtype* - Callback type. One of the types listed in Callback Types.
 

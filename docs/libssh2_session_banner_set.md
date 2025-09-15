@@ -25,7 +25,7 @@ libssh2_session_banner_set(LIBSSH2_SESSION *session, const char *banner);
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *banner* - A pointer to a zero-terminated string holding the user defined
 banner

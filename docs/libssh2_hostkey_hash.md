@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_session_init_ex(3)
-  - libssh2_session_init_ex(3)
 ---
 
 # NAME
@@ -24,7 +23,7 @@ libssh2_hostkey_hash(LIBSSH2_SESSION *session, int hash_type);
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *hash_type* - One of: **LIBSSH2_HOSTKEY_HASH_MD5**,
 **LIBSSH2_HOSTKEY_HASH_SHA1** or **LIBSSH2_HOSTKEY_HASH_SHA256**.

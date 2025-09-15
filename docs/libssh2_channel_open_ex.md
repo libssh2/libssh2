@@ -33,7 +33,7 @@ libssh2_channel_open_session(session);
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *channel_type* - Channel type to open. Typically one of session,
 direct-tcpip, or tcpip-forward. The SSH2 protocol allowed for additional

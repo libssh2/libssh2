@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_sftp_init(3)
-  - libssh2_sftp_init(3)
 ---
 
 # NAME
@@ -25,7 +24,7 @@ libssh2_sftp_last_error(LIBSSH2_SFTP *sftp);
 
 # DESCRIPTION
 
-*sftp* - SFTP instance as returned by
+*sftp* - SFTP instance as returned by libssh2_sftp_init(3)
 
 Returns the last error code produced by the SFTP layer. Note that this only
 returns a sensible error code if libssh2 returned LIBSSH2_ERROR_SFTP_PROTOCOL

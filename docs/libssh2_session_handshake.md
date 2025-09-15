@@ -7,7 +7,6 @@ Source: libssh2
 See-also:
   - libssh2_session_free(3)
   - libssh2_session_init_ex(3)
-  - libssh2_session_init_ex(3)
 ---
 
 # NAME
@@ -25,7 +24,7 @@ libssh2_session_handshake(LIBSSH2_SESSION *session, libssh2_socket_t socket);
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *socket* - Connected socket descriptor. Typically a TCP connection
 though the protocol allows for any reliable transport and the library will

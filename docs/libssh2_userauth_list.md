@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_session_init_ex(3)
-  - libssh2_session_init_ex(3)
 ---
 
 # NAME
@@ -26,7 +25,7 @@ libssh2_userauth_list(LIBSSH2_SESSION *session,
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *username* - Username which will be used while authenticating. Note that
 most server implementations do not permit attempting authentication with

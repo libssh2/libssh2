@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_session_init_ex(3)
-  - libssh2_session_init_ex(3)
 ---
 
 # NAME
@@ -24,7 +23,7 @@ libssh2_session_set_blocking(LIBSSH2_SESSION *session, int blocking);
 
 # DESCRIPTION
 
-*session* - session instance as returned by
+*session* - session instance as returned by libssh2_session_init_ex(3)
 
 *blocking* - Set to a non-zero value to make the channel block, or zero to
 make it non-blocking.

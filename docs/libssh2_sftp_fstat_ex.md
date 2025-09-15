@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_sftp_open_ex(3)
-  - libssh2_sftp_open_ex(3)
 ---
 
 # NAME
@@ -31,7 +30,7 @@ libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
 
 # DESCRIPTION
 
-*handle* - SFTP File Handle as returned by
+*handle* - SFTP File Handle as returned by libssh2_sftp_open_ex(3)
 
 *attrs* - Pointer to an LIBSSH2_SFTP_ATTRIBUTES structure to set file
 metadata from or into depending on the value of setstat.

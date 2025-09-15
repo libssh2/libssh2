@@ -7,7 +7,6 @@ Source: libssh2
 See-also:
   - libssh2_channel_open_ex(3)
   - libssh2_session_init_ex(3)
-  - libssh2_session_init_ex(3)
 ---
 
 # NAME
@@ -25,7 +24,7 @@ libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path, struct_stat *sb);
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *path* - Full path and filename of file to transfer. That is the remote
 file name.

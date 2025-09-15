@@ -8,7 +8,6 @@ See-also:
   - libssh2_session_disconnect(3)
   - libssh2_session_disconnect_ex(3)
   - libssh2_session_init_ex(3)
-  - libssh2_session_init_ex(3)
 ---
 
 # NAME
@@ -32,7 +31,7 @@ libssh2_session_disconnect(LIBSSH2_SESSION *session,
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *reason* - One of the Disconnect Reason constants.
 
@@ -43,8 +42,8 @@ libssh2_session_disconnect(LIBSSH2_SESSION *session,
 Send a disconnect message to the remote host associated with *session*,
 along with a *reason* symbol and a verbose *description*.
 
-As a convenience, the macro
-is provided. It calls
+As a convenience, the macro libssh2_session_disconnect(3)
+is provided. It calls libssh2_session_disconnect_ex(3)
 with *reason* set to SSH_DISCONNECT_BY_APPLICATION
 and *lang* set to an empty string.
 

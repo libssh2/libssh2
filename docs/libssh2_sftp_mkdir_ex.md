@@ -32,7 +32,7 @@ libssh2_sftp_mkdir(LIBSSH2_SFTP *sftp,
 
 # DESCRIPTION
 
-*sftp* - SFTP instance as returned by
+*sftp* - SFTP instance as returned by libssh2_sftp_init(3)
 
 *path* - full path of the new directory to create. Note that the new
 directory's parents must all exist prior to making this call.

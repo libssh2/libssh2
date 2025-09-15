@@ -7,7 +7,6 @@ Source: libssh2
 See-also:
   - libssh2_sftp_init(3)
   - libssh2_sftp_open_ex(3)
-  - libssh2_sftp_open_ex(3)
 ---
 
 # NAME
@@ -34,9 +33,9 @@ libssh2_sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle,
 These functions provide statvfs(2)-like operations and require
 statvfs@openssh.com and fstatvfs@openssh.com extension support on the server.
 
-*sftp* - SFTP instance as returned by
+*sftp* - SFTP instance as returned by libssh2_sftp_init(3)
 
-*handle* - SFTP File Handle as returned by
+*handle* - SFTP File Handle as returned by libssh2_sftp_open_ex(3)
 
 *path* - full path of any file within the mounted file system.
 

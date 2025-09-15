@@ -26,6 +26,7 @@ libssh2_session_free(LIBSSH2_SESSION *session);
 # DESCRIPTION
 
 Frees all resources associated with a session instance. Typically called after
+libssh2_session_disconnect_ex(3).
 
 # RETURN VALUE
 

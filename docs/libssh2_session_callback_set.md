@@ -7,7 +7,6 @@ Source: libssh2
 See-also:
   - libssh2_agent_sign(3)
   - libssh2_session_callback_set2(3)
-  - libssh2_session_callback_set2(3)
   - libssh2_session_init_ex(3)
 ---
 
@@ -33,7 +32,7 @@ This function is **DEPRECATED** in 1.11.1. Use the
 This implementation is expecting and returning a data pointer for callback
 functions.
 
-For the details about the replacement function, see
+For the details about the replacement function, see libssh2_session_callback_set2(3)
 which is expecting and returning a function pointer.
 
 # RETURN VALUE

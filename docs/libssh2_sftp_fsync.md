@@ -30,7 +30,7 @@ data and metadata to disk (like fsync(2)).
 
 For this to work requires fsync@openssh.com support on the server.
 
-*handle* - SFTP File Handle as returned by
+*handle* - SFTP File Handle as returned by libssh2_sftp_open_ex(3)
 
 # RETURN VALUE
 

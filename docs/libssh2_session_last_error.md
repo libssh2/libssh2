@@ -26,7 +26,7 @@ libssh2_session_last_error(LIBSSH2_SESSION *session,
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *errmsg* - If not NULL, is populated by reference with the human
 readable form of the most recent error message.

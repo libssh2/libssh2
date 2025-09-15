@@ -6,8 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_agent_get_identity(3)
-  - libssh2_agent_get_identity(3)
-  - libssh2_agent_init(3)
   - libssh2_agent_init(3)
   - libssh2_agent_userauth(3)
   - libssh2_session_callback_set2(3)
@@ -35,9 +33,10 @@ libssh2_agent_sign(LIBSSH2_AGENT *agent,
 
 # DESCRIPTION
 
-*agent* - ssh-agent handle as returned by
+*agent* - ssh-agent handle as returned by libssh2_agent_init(3).
 
 *identity* - Public key to authenticate with, as returned by
+libssh2_agent_get_identity(3)
 
 *sig* - A pointer to a buffer in which to place the signature. The caller
 is responsible for freeing the signature with LIBSSH2_FREE.
