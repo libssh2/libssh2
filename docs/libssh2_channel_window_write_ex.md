@@ -35,4 +35,3 @@ the channel_open request
 Number of bytes which may be safely written on the channel without blocking.
 
 # ERRORS
-

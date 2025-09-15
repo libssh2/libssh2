@@ -18,9 +18,6 @@ libssh2_channel_request_pty_size_ex - TODO
 
 # DESCRIPTION
 
-
 # RETURN VALUE
 
-
 # ERRORS
-
