@@ -31,15 +31,15 @@ This function is **DEPRECATED** in 1.1.0. Use the
 *channel* - Active channel stream to change extended data handling on.
 
 *ignore_mode* - One of the three LIBSSH2_CHANNEL_EXTENDED_DATA_* Constants.
-.br
+
 **LIBSSH2_CHANNEL_EXTENDED_DATA_NORMAL**: Queue extended data for eventual
 reading
-.br
+
 **LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE**: Treat extended data and ordinary
 data the same. Merge all substreams such that calls to
 *libssh2_channel_read(3)* will pull from all substreams on a
 first-in/first-out basis.
-.br
+
 **LIBSSH2_CHANNEL_EXTENDED_DATA_IGNORE**: Discard all extended data as it
 arrives.
 

@@ -39,11 +39,10 @@ to stat/lstat/setstat.
 *stat_type* - One of the three constants specifying the type of
 stat operation to perform:
 
-.br
 **LIBSSH2_SFTP_STAT**: performs stat(2) operation
-.br
+
 **LIBSSH2_SFTP_LSTAT**: performs lstat(2) operation
-.br
+
 **LIBSSH2_SFTP_SETSTAT**: performs operation to set stat info on file
 
 *attrs* - Pointer to a **LIBSSH2_SFTP_ATTRIBUTES** structure to set file
