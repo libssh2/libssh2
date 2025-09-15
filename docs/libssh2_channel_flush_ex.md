@@ -32,9 +32,9 @@ libssh2_channel_flush_stderr(LIBSSH2_CHANNEL *channel);
 
 *streamid* - Specific substream number to flush. Groups of substreams may
 be flushed by passing on of the following Constants.
-.br
+
 **LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA**: Flush all extended data substreams
-.br
+
 **LIBSSH2_CHANNEL_FLUSH_ALL**: Flush all substreams
 
 Flush the read buffer for a given channel instance. Individual substreams may

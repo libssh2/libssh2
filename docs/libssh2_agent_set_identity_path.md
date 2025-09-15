@@ -26,7 +26,6 @@ libssh2_agent_set_identity_path(LIBSSH2_AGENT *agent, const char *path);
 
 Allows a custom agent identity socket path instead of the default SSH_AUTH_SOCK env value
 
-
 # RETURN VALUE
 
 Returns void
