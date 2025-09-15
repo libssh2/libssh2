@@ -6,8 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_channel_open_ex(3)
-  - libssh2_channel_open_ex(3)
-  - libssh2_session_callback_set2(3)
   - libssh2_session_callback_set2(3)
 ---
 
@@ -33,6 +31,7 @@ libssh2_channel_x11_req(LIBSSH2_CHANNEL *channel,
 # DESCRIPTION
 
 *channel* - Previously opened channel instance such as returned by
+libssh2_channel_open_ex(3).
 
 *single_connection* - non-zero to only forward a single connection.
 
@@ -43,6 +42,7 @@ libssh2_channel_x11_req(LIBSSH2_CHANNEL *channel,
 *screen_number* - the XLL screen to forward
 
 Request an X11 forwarding on *channel*. To use X11 forwarding,
+libssh2_session_callback_set2(3)
 must first be called to set **LIBSSH2_CALLBACK_X11**. This callback will be
 invoked when the remote host accepts the X11 forwarding.
 

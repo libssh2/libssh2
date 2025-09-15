@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_sftp_open_ex(3)
-  - libssh2_sftp_open_ex(3)
 ---
 
 # NAME
@@ -26,7 +25,7 @@ libssh2_sftp_seek64(LIBSSH2_SFTP_HANDLE *handle,
 
 # DESCRIPTION
 
-*handle* - SFTP File Handle as returned by
+*handle* - SFTP File Handle as returned by libssh2_sftp_open_ex(3)
 
 *offset* - Number of bytes from the beginning of file to seek to.
 

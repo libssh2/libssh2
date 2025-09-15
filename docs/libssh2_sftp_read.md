@@ -6,8 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_sftp_open_ex(3)
-  - libssh2_sftp_open_ex(3)
-  - libssh2_sftp_read(3)
   - libssh2_sftp_read(3)
   - read(2)
 ---
@@ -29,15 +27,15 @@ libssh2_sftp_read(LIBSSH2_SFTP_HANDLE *handle,
 
 # DESCRIPTION
 
-*handle* is the SFTP File Handle as returned by
+*handle* is the SFTP File Handle as returned by libssh2_sftp_open_ex(3)
 
 *buffer* is a pointer to a pre-allocated buffer of at least
 
 *buffer_maxlen* bytes to read data into.
 
 Reads a block of data from an LIBSSH2_SFTP_HANDLE. This method is modelled
-after the POSIX
-function and uses the same calling semantics.
+after the POSIX read(2)
+function and uses the same calling semantics. libssh2_sftp_read(3)
 will attempt to read as much as possible however it may not fill all of buffer
 if the file pointer reaches the end or if further reads would cause the socket
 to block.

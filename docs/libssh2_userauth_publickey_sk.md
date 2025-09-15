@@ -6,8 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_session_init_ex(3)
-  - libssh2_session_init_ex(3)
-  - libssh2_session_init_ex(3)
 ---
 
 # NAME
@@ -56,7 +54,7 @@ int name(LIBSSH2_SESSION *session, LIBSSH2_SK_SIG_INFO *sig_info,
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *username* - Name of user to attempt authentication for.
 
@@ -86,7 +84,7 @@ This function is only supported when libssh2 is backed by OpenSSL.
 
 # CALLBACK DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *sig_info* - Filled in by the callback with the signature and accompanying
 information from the authenticator.

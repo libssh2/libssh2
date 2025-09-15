@@ -7,7 +7,6 @@ Source: libssh2
 See-also:
   - libssh2_session_init_ex(3)
   - libssh2_userauth_publickey_sk(3)
-  - libssh2_userauth_publickey_sk(3)
 ---
 
 # NAME
@@ -40,7 +39,7 @@ typedef struct _LIBSSH2_PRIVKEY_SK {
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *sig* - A pointer to a buffer in which to place the signature. The caller
 is responsible for freeing the signature with LIBSSH2_FREE.
@@ -88,8 +87,8 @@ the PIN, or a function pointer to retrieve the PIN.
 *sign_callback* - Responsible for communicating with the hardware
 authenticator to generate a signature. On success, the signature information
 must be placed in the *sig_info* sig_info parameter and the callback must
-return 0. On failure, it should return a negative number. See
- for more information.
+return 0. On failure, it should return a negative number.
+See libssh2_userauth_publickey_sk(3) for more information.
 
 *orig_abstract* - User-defined data. When a PIN is required, use this to
 pass in the PIN, or a function pointer to retrieve the PIN.

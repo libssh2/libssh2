@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_sftp_init(3)
-  - libssh2_sftp_init(3)
 ---
 
 # NAME
@@ -28,7 +27,7 @@ libssh2_sftp_rmdir_ex(LIBSSH2_SFTP *sftp, const char *path,
 
 Remove a directory from the remote file system.
 
-*sftp* - SFTP instance as returned by
+*sftp* - SFTP instance as returned by libssh2_sftp_init(3)
 
 *sourcefile* - Full path of the existing directory to remove.
 

@@ -6,8 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_session_init_ex(3)
-  - libssh2_session_init_ex(3)
-  - libssh2_userauth_list(3)
   - libssh2_userauth_list(3)
 ---
 
@@ -26,20 +24,19 @@ libssh2_userauth_banner(LIBSSH2_SESSION *session, char **banner);
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *banner* - Should point to a pointer that gets filled with banner message.
 
 After an authentication has been attempted, such as a
-**SSH_USERAUTH_NONE** request sent by
+**SSH_USERAUTH_NONE** request sent by *libssh2_userauth_list(3)*
 this function can be called to retrieve the userauth banner sent by
 the server. If no such banner is sent, or if an authentication has not
-yet been attempted, returns LIBSSH2_ERROR_MISSING_USERAUTH_BANNER.
+yet been attempted, returns **LIBSSH2_ERROR_MISSING_USERAUTH_BANNER**.
 
 # RETURN VALUE
 
 On success returns 0 and an UTF-8 NUL-terminated string is stored in the
 *banner*. This string is internally managed by libssh2 and will be
 deallocated upon session termination.
-On failure returns
-LIBSSH2_ERROR_MISSING_USERAUTH_BANNER.
+On failure returns **LIBSSH2_ERROR_MISSING_USERAUTH_BANNER**.

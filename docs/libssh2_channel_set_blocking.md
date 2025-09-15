@@ -8,7 +8,6 @@ See-also:
   - libssh2_channel_read_ex(3)
   - libssh2_channel_write_ex(3)
   - libssh2_session_set_blocking(3)
-  - libssh2_session_set_blocking(3)
 ---
 
 # NAME
@@ -31,7 +30,7 @@ libssh2_channel_set_blocking(LIBSSH2_CHANNEL *channel, int blocking);
 *blocking* - Set to a non-zero value to make the channel block, or zero to
 make it non-blocking.
 
-Currently this is a short cut call to
+Currently this is a short cut call to libssh2_session_set_blocking(3)
 and therefore will affect the session and all channels.
 
 # RETURN VALUE

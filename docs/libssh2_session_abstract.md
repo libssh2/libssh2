@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_session_init_ex(3)
-  - libssh2_session_init_ex(3)
 ---
 
 # NAME
@@ -24,7 +23,7 @@ libssh2_session_abstract(LIBSSH2_SESSION *session);
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 Return a pointer to where the abstract pointer provided to
 **libssh2_session_init_ex(3)** is stored. By providing a doubly

@@ -26,7 +26,7 @@ libssh2_session_set_last_error(LIBSSH2_SESSION *session,
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *errcode* - One of the error codes as defined in the public
 libssh2 header file.

@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_session_handshake(3)
-  - libssh2_session_handshake(3)
   - libssh2_session_init_ex(3)
 ---
 
@@ -28,12 +27,12 @@ libssh2_banner_set(LIBSSH2_SESSION *session, const char *banner);
 This function is **DEPRECATED** in 1.4.0. Use the
 *libssh2_session_banner_set(3)* function instead!
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *banner* - A pointer to a user defined banner
 
 Set the banner that will be sent to the remote host when the SSH session is
-started with
+started with libssh2_session_handshake(3)
 This is optional; a banner corresponding to the protocol and libssh2 version
 will be sent by default.
 

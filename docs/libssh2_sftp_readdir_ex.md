@@ -7,7 +7,6 @@ Source: libssh2
 See-also:
   - libssh2_sftp_close_handle(3)
   - libssh2_sftp_open_ex(3)
-  - libssh2_sftp_open_ex(3)
 ---
 
 # NAME
@@ -32,7 +31,7 @@ libssh2_sftp_readdir_ex(LIBSSH2_SFTP_HANDLE *handle,
 Reads a block of data from a LIBSSH2_SFTP_HANDLE and returns file entry
 information for the next entry, if any.
 
-*handle* - is the SFTP File Handle as returned by
+*handle* - is the SFTP File Handle as returned by libssh2_sftp_open_ex(3)
 
 *buffer* - is a pointer to a pre-allocated buffer of at least
 *buffer_maxlen* bytes to read data into.

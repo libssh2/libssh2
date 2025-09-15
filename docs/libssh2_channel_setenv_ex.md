@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_channel_open_ex(3)
-  - libssh2_channel_open_ex(3)
 ---
 
 # NAME
@@ -31,6 +30,7 @@ libssh2_channel_setenv(LIBSSH2_CHANNEL *channel,
 # DESCRIPTION
 
 *channel* - Previously opened channel instance such as returned by
+libssh2_channel_open_ex(3)
 
 *varname* - Name of environment variable to set on the remote
 channel instance.

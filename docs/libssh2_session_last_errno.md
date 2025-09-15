@@ -25,7 +25,7 @@ libssh2_session_last_errno(LIBSSH2_SESSION *session);
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 Determine the most recent error condition.
 

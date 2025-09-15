@@ -30,7 +30,7 @@ A signal can be delivered to the remote process/service. Some servers or
 systems may not implement signals, in which case they will probably ignore this
 message.
 
-*channel* - Previously opened channel instance such as returned by
+*channel* - Previously opened channel instance such as returned by libssh2_channel_open_ex(3).
 
 *signame* - The signal name is the same as the signal name constant, without the leading "SIG".
 

@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_channel_forward_listen_ex(3)
-  - libssh2_channel_forward_listen_ex(3)
 ---
 
 # NAME
@@ -25,6 +24,7 @@ libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener);
 # DESCRIPTION
 
 *listener* - Forwarding listener instance as returned by
+libssh2_channel_forward_listen_ex(3)
 
 Instruct the remote host to stop listening for new connections on a previously
 requested host/port.

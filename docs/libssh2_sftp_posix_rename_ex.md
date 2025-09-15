@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_sftp_init(3)
-  - libssh2_sftp_init(3)
 ---
 
 # NAME
@@ -29,7 +28,7 @@ libssh2_sftp_posix_rename_ex(LIBSSH2_SFTP *sftp,
 
 # DESCRIPTION
 
-*sftp* - SFTP instance as returned by
+*sftp* - SFTP instance as returned by libssh2_sftp_init(3)
 
 *sourcefile* - Path and name of the existing filesystem entry
 

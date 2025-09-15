@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_sftp_init(3)
-  - libssh2_sftp_init(3)
 ---
 
 # NAME
@@ -25,7 +24,7 @@ libssh2_sftp_get_channel(LIBSSH2_SFTP *sftp);
 
 # DESCRIPTION
 
-*sftp* - SFTP instance as returned by
+*sftp* - SFTP instance as returned by libssh2_sftp_init(3)
 
 Return the channel of the given sftp handle.
 

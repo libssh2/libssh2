@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_sftp_init(3)
-  - libssh2_sftp_init(3)
   - libssh2_sftp_readlink(3)
   - libssh2_sftp_realpath(3)
   - libssh2_sftp_symlink(3)
@@ -32,7 +31,7 @@ libssh2_sftp_symlink_ex(LIBSSH2_SFTP *sftp, const char *path,
 
 Create a symlink or read out symlink information from the remote side.
 
-*sftp* - SFTP instance as returned by
+*sftp* - SFTP instance as returned by libssh2_sftp_init(3)
 
 *path* - Remote filesystem object to create a symlink from or resolve.
 
@@ -57,11 +56,11 @@ determines the resulting behavior of this function.
 
 These are convenience macros:
 
-: Create a symbolic link between two filesystem objects.
-.br
-: Resolve a symbolic link filesystem object to its next target.
-.br
-: Resolve a complex, relative, or symlinked filepath to its effective target.
+libssh2_sftp_symlink(3): Create a symbolic link between two filesystem objects.
+
+libssh2_sftp_readlink(3): Resolve a symbolic link filesystem object to its next target.
+
+libssh2_sftp_realpath(3): Resolve a complex, relative, or symlinked filepath to its effective target.
 
 # RETURN VALUE
 

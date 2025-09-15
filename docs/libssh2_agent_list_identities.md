@@ -25,9 +25,8 @@ libssh2_agent_list_identities(LIBSSH2_AGENT *agent);
 # DESCRIPTION
 
 Request an ssh-agent to list of public keys, and stores them in the
-internal collection of the handle. Call
-*libssh2_agent_get_identity(3)* to get a public key off the
-collection.
+internal collection of the handle. Call *libssh2_agent_get_identity(3)*
+to get a public key off the collection.
 
 # RETURN VALUE
 

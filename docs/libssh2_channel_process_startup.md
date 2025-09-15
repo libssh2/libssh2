@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_channel_open_ex(3)
-  - libssh2_channel_open_ex(3)
 ---
 
 # NAME
@@ -40,6 +39,7 @@ defines shell, exec, and subsystem as standard process services.
 *message_len* - Length of message parameter.
 
 Initiate a request on a session type channel such as returned by
+libssh2_channel_open_ex(3).
 
 # RETURN VALUE
 

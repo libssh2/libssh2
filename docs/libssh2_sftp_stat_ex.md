@@ -6,7 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_sftp_init(3)
-  - libssh2_sftp_init(3)
   - libssh2_sftp_lstat(3)
   - libssh2_sftp_stat(3)
 ---
@@ -29,7 +28,7 @@ libssh2_sftp_stat_ex(LIBSSH2_SFTP *sftp, const char *path,
 
 # DESCRIPTION
 
-*sftp* - SFTP instance as returned by
+*sftp* - SFTP instance as returned by libssh2_sftp_init(3)
 
 *path* - Remote filesystem object to stat/lstat/setstat.
 
@@ -49,8 +48,8 @@ stat operation to perform:
 metadata from or into depending on the value of stat_type.
 
 Get or Set statbuf type data on a remote filesystem object. When getting
-statbuf data,
-will follow all symlinks, while
+statbuf data, libssh2_sftp_stat(3)
+will follow all symlinks, while libssh2_sftp_lstat(3)
 will return data about the object encountered, even if that object
 happens to be a symlink.
 

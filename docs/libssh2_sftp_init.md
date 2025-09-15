@@ -8,7 +8,6 @@ See-also:
   - libssh2_session_init_ex(3)
   - libssh2_sftp_open_ex(3)
   - libssh2_sftp_shutdown(3)
-  - libssh2_sftp_shutdown(3)
 ---
 
 # NAME
@@ -27,13 +26,13 @@ libssh2_sftp_init(LIBSSH2_SESSION *session);
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 Open a channel and initialize the SFTP subsystem. Although the SFTP subsystem
 operates over the same type of channel as those exported by the Channel API,
 the protocol itself implements its own unique binary packet protocol which
 must be managed with the libssh2_sftp_*() family of functions. When an SFTP
-session is complete, it must be destroyed using the
+session is complete, it must be destroyed using the libssh2_sftp_shutdown(3)
 function.
 
 # RETURN VALUE

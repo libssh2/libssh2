@@ -6,8 +6,6 @@ Section: 3
 Source: libssh2
 See-also:
   - libssh2_session_handshake(3)
-  - libssh2_session_handshake(3)
-  - libssh2_session_init_ex(3)
   - libssh2_session_init_ex(3)
 ---
 
@@ -27,7 +25,7 @@ libssh2_session_method_pref(LIBSSH2_SESSION *session,
 
 # DESCRIPTION
 
-*session* - Session instance as returned by
+*session* - Session instance as returned by libssh2_session_init_ex(3)
 
 *method_type* - One of the Method Type constants.
 
@@ -37,7 +35,7 @@ If a method is listed which is not supported by libssh2 it will be
 ignored and not sent to the remote host during protocol negotiation.
 
 Set preferred methods to be negotiated. These
-preferences must be set prior to calling
+preferences must be set prior to calling libssh2_session_handshake(3)
 as they are used during the protocol initiation phase.
 
 # RETURN VALUE
