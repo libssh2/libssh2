@@ -117,7 +117,7 @@ the PIN, or a function pointer to retrieve the PIN.
 
 The *sign_callback* is responsible for communicating with the hardware
 authenticator to generate a signature. On success, the signature information
-must be placed in the `*sig_info* sig_info parameter and the callback must
+must be placed in the *sig_info* sig_info parameter and the callback must
 return 0. On failure, it should return a negative number.
 
 The fields of the LIBSSH2_SK_SIG_INFO are as follows.
