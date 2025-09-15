@@ -26,7 +26,6 @@ libssh2_agent_get_identity_path(LIBSSH2_AGENT *agent);
 
 Returns the custom agent identity socket path if set using libssh2_agent_set_identity_path()
 
-
 # RETURN VALUE
 
 Returns the socket path on disk.

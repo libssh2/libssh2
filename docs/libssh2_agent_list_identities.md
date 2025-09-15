@@ -29,7 +29,6 @@ internal collection of the handle. Call
 *libssh2_agent_get_identity(3)* to get a public key off the
 collection.
 
-
 # RETURN VALUE
 
 Returns 0 if succeeded, or a negative value for error.
