@@ -98,3 +98,9 @@ plans in vanishing in the near future.
 
 We do not make the list of participants public mostly because it tends to vary
 somewhat over time and a list somewhere will only risk getting outdated.
+
+GitHub Private Vulnerability Reporting
+--------------------------------------
+
+We also accept reports via:
+https://github.com/libssh2/libssh2/security
