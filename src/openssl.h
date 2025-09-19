@@ -150,8 +150,7 @@
 # define LIBSSH2_ECDSA 1
 #endif
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10101000L && \
-    !defined(LIBRESSL_VERSION_NUMBER)) || \
+#if !defined(LIBRESSL_VERSION_NUMBER) || \
     (defined(LIBRESSL_VERSION_NUMBER) && \
     LIBRESSL_VERSION_NUMBER >= 0x3070000fL)
 # define LIBSSH2_ED25519 1
@@ -187,7 +186,7 @@
 /* wolfSSL v5.4.0 is required due to possibly this bug:
    https://github.com/wolfSSL/wolfssl/pull/5205
    Before this release, all libssh2 tests crash with AES-GCM enabled */
-#if (OPENSSL_VERSION_NUMBER >= 0x01010100fL && !defined(OPENSSL_NO_AES)) || \
+#if !defined(OPENSSL_NO_AES) || \
     (defined(LIBSSH2_WOLFSSL) && LIBWOLFSSL_VERSION_HEX >= 0x05004000 && \
     defined(HAVE_AESGCM) && defined(WOLFSSL_AESGCM_STREAM))
 # define LIBSSH2_AES_GCM 1
