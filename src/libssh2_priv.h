@@ -350,7 +350,6 @@ typedef struct kmdhgGPshakex_state_t
     size_t f_value_len;
     size_t k_value_len;
     size_t h_sig_len;
-    void *exchange_hash;
     packet_require_state_t req_state;
     libssh2_nonblocking_states burn_state;
 } kmdhgGPshakex_state_t;
