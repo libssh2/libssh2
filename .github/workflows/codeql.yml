@@ -43,28 +43,24 @@ jobs:
 
   c:
     name: 'C'
-    runs-on: ${{ matrix.crypto == 'WinCNG' && 'windows-2022' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.platform == 'Linux' && 'ubuntu-latest' || 'windows-2022' }}
     permissions:
       security-events: write  # To create/update security events
     strategy:
       fail-fast: false
       matrix:
-        crypto: [OpenSSL, Libgcrypt, mbedTLS, WinCNG, wolfSSL]
+        platform: [Linux, Windows]
     env:
-      MATRIX_CRYPTO: '${{ matrix.crypto }}'
+      MATRIX_PLATFORM: '${{ matrix.platform }}'
     steps:
       - name: 'install prereqs'
-        if: ${{ matrix.crypto != 'WinCNG' }}
+        if: ${{ matrix.platform == 'Linux' }}
         timeout-minutes: 5
         run: |
-          [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkg='libssl-dev'
-          [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkg='libgcrypt-dev'
-          [ "${MATRIX_CRYPTO}" = 'mbedTLS' ] && pkg='libmbedtls-dev'
-          [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkg='libwolfssl-dev'
           sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo apt-get -o Dpkg::Use-Pty=0 update
           sudo rm -f /var/lib/man-db/auto-update
-          sudo apt-get -o Dpkg::Use-Pty=0 install zlib1g-dev ${pkg}
+          sudo apt-get -o Dpkg::Use-Pty=0 install zlib1g-dev libssl-dev libgcrypt-dev libmbedtls-dev libwolfssl-dev
 
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
@@ -81,12 +77,15 @@ jobs:
         timeout-minutes: 5
         shell: bash
         run: |
-          if [ "${MATRIX_CRYPTO}" = 'WinCNG' ]; then
-            cmake -B . -DCRYPTO_BACKEND=${MATRIX_CRYPTO} -DCMAKE_VS_GLOBALS=TrackFileAccess=false
+          if [ "${MATRIX_PLATFORM}" = 'Windows' ]; then
+            cmake -B . -DCRYPTO_BACKEND=WinCNG -DCMAKE_VS_GLOBALS=TrackFileAccess=false
+            cmake --build . --verbose
           else
-            cmake -B . -G Ninja -DCRYPTO_BACKEND=${MATRIX_CRYPTO} -DENABLE_ZLIB_COMPRESSION=ON
+            for crypto in OpenSSL Libgcrypt mbedTLS wolfSSL; do
+              cmake -B _bld-${crypto} -G Ninja -DCRYPTO_BACKEND=${crypto} -DENABLE_ZLIB_COMPRESSION=ON
+              cmake --build _bld-${crypto} --verbose
+            done
           fi
-          cmake --build . --verbose
 
       - name: 'perform analysis'
         uses: github/codeql-action/analyze@192325c86100d080feab897ff886c34abd4c83a3 # v3
