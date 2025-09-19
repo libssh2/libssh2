@@ -1144,16 +1144,6 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx * ctx,
 
 void _libssh2_openssl_crypto_init(void)
 {
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
-    (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x2070000fL)
-    OpenSSL_add_all_algorithms();
-    OpenSSL_add_all_ciphers();
-    OpenSSL_add_all_digests();
-#ifndef OPENSSL_NO_ENGINE
-    ENGINE_load_builtin_engines();
-    ENGINE_register_all_complete();
-#endif
-#endif
 #if defined(LIBSSH2_WOLFSSL) && defined(DEBUG_WOLFSSL)
     wolfSSL_Debugging_ON();
 #endif
@@ -1202,11 +1192,7 @@ read_private_key_from_memory(void **key_ctx,
 
     *key_ctx = NULL;
 
-#if OPENSSL_VERSION_NUMBER >= 0x1000200fL || defined(LIBSSH2_WOLFSSL)
     bp = BIO_new_mem_buf(filedata, (int)filedata_len);
-#else
-    bp = BIO_new_mem_buf((char *)filedata, (int)filedata_len);
-#endif
     if(!bp) {
         return -1;
     }
@@ -3360,8 +3346,7 @@ _libssh2_md5_init(libssh2_md5_ctx *ctx)
      * "digital envelope routines:FIPS_DIGESTINIT:disabled for fips"
      * So, just return 0 in FIPS mode
      */
-#if OPENSSL_VERSION_NUMBER >= 0x000907000L && \
-    !defined(USE_OPENSSL_3) && \
+#if !defined(USE_OPENSSL_3) && \
     !defined(LIBRESSL_VERSION_NUMBER) && \
     !defined(LIBSSH2_WOLFSSL)
 
@@ -5012,11 +4997,7 @@ _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing public key from private key."));
 
-#if OPENSSL_VERSION_NUMBER >= 0x1000200fL || defined(LIBSSH2_WOLFSSL)
     bp = BIO_new_mem_buf(privatekeydata, (int)privatekeydata_len);
-#else
-    bp = BIO_new_mem_buf((char *)privatekeydata, (int)privatekeydata_len);
-#endif
     if(!bp)
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory when"
@@ -5124,11 +5105,7 @@ _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                    LIBSSH2_TRACE_AUTH,
                    "Computing public key from private key."));
 
-#if OPENSSL_VERSION_NUMBER >= 0x1000200fL || defined(LIBSSH2_WOLFSSL)
     bp = BIO_new_mem_buf(privatekeydata, (int)privatekeydata_len);
-#else
-    bp = BIO_new_mem_buf((char *)privatekeydata, (int)privatekeydata_len);
-#endif
     if(!bp)
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory when"
