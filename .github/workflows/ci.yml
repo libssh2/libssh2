@@ -242,11 +242,6 @@ jobs:
             zlib: 'ON'
           - compiler: gcc
             arch: amd64
-            crypto: OpenSSL-110-from-source
-            build: cmake
-            zlib: 'ON'
-          - compiler: gcc
-            arch: amd64
             crypto: BoringSSL
             build: cmake
             zlib: 'ON'
@@ -291,7 +286,6 @@ jobs:
       LIBRESSL_VERSION: 4.1.0
       OPENSSL_VERSION: 3.5.2
       OPENSSL111_VERSION: 1.1.1w
-      OPENSSL110_VERSION: 1.1.0l
     steps:
       - name: 'install architecture'
         if: ${{ matrix.arch != 'amd64' }}
@@ -454,23 +448,6 @@ jobs:
           curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${OPENSSL111_VERSION}.tar.gz" | tar -xz
           cd "openssl-${OPENSSL111_VERSION}"
           ./config no-unit-test no-makedepend --prefix="$HOME"/usr no-tests
-          make
-          make -j1 install_sw
-
-      - name: 'cache OpenSSL 1.1.0'
-        if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        id: cache-openssl110
-        with:
-          path: ~/usr
-          key: ${{ runner.os }}-openssl-${{ env.OPENSSL110_VERSION }}-${{ matrix.arch }}
-
-      - name: 'install OpenSSL 1.1.0 from source'
-        if: ${{ matrix.crypto == 'OpenSSL-110-from-source' && !steps.cache-openssl110.outputs.cache-hit }}
-        run: |
-          curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_0l/openssl-${OPENSSL110_VERSION}.tar.gz" | tar -xz
-          cd "openssl-${OPENSSL110_VERSION}"
-          ./config no-unit-test no-makedepend --prefix="$HOME"/usr
           make
           make -j1 install_sw
 
