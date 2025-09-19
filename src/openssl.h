@@ -73,8 +73,6 @@
 /* wolfSSL doesn't support Blowfish or CAST. */
 #define OPENSSL_NO_BF
 #define OPENSSL_NO_CAST
-/* wolfSSL has no engine framework. */
-#define OPENSSL_NO_ENGINE
 
 #include <wolfssl/openssl/opensslconf.h>
 #include <wolfssl/openssl/sha.h>
