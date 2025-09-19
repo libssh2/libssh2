@@ -120,8 +120,7 @@
 
 #endif /* LIBSSH2_WOLFSSL */
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L && \
-    !defined(LIBRESSL_VERSION_NUMBER)) || defined(LIBSSH2_WOLFSSL) || \
+#if !defined(LIBRESSL_VERSION_NUMBER) || defined(LIBSSH2_WOLFSSL) || \
     (defined(LIBRESSL_VERSION_NUMBER) && \
     LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 /* For wolfSSL, whether the structs are truly opaque or not, it's best to not
@@ -176,8 +175,7 @@
 #define LIBSSH2_HMAC_SHA256 1
 #define LIBSSH2_HMAC_SHA512 1
 
-#if (OPENSSL_VERSION_NUMBER >= 0x00907000L && !defined(OPENSSL_NO_AES) && \
-     !defined(LIBSSH2_WOLFSSL)) || \
+#if (!defined(OPENSSL_NO_AES) && !defined(LIBSSH2_WOLFSSL)) || \
     (defined(LIBSSH2_WOLFSSL) && defined(WOLFSSL_AES_COUNTER))
 # define LIBSSH2_AES_CTR 1
 # define LIBSSH2_AES_CBC 1
