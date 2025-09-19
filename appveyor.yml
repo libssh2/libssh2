@@ -81,13 +81,13 @@ environment:
       OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win32'
       SKIP_CTEST: 'no'
 
-    - job_name: 'VS2013, OpenSSL 1.0.2, x64, Build-only, Static-only'
+    - job_name: 'VS2013, OpenSSL 1.1, x64, Build-only, Static-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       GENERATOR: 'Visual Studio 12 2013'
       PLATFORM: 'x64'
       BUILD_SHARED_LIBS: 'OFF'
       CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-Win64'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win64'
 
     - job_name: 'VS2008, WinCNG, x86, Build-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
