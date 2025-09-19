@@ -40,7 +40,7 @@ environment:
       GENERATOR: 'Visual Studio 17 2022'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v33-Win64'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v35-Win64'
       TOOLSET: 'ClangCl'
 
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
@@ -48,7 +48,7 @@ environment:
       GENERATOR: 'Visual Studio 17 2022'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v33-Win64'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v30-Win64'
 
     - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
