@@ -2919,16 +2919,14 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
        source_filename_len(4) + dest_filename_len(4) + flags(4){SFTP5+) */
     packet_len = 17 + (sftp->version >= 5 ? 4 : 0);
 
-    if(packet_len + source_filename_len < packet_len)
-    {
+    if(packet_len + source_filename_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large "
                               "sftp_rename");
     }
     packet_len += source_filename_len;
 
-    if(packet_len + dest_filename_len < packet_len)
-    {
+    if(packet_len + dest_filename_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large (2) "
                               "sftp_rename");
@@ -3902,7 +3900,8 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
             return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                                   "Input too large (2)"
                                   "sftp_symlink");
-        } else {
+        }
+        else {
             packet_len += (4 + target_len);
         }
     }
