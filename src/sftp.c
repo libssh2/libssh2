@@ -1170,7 +1170,7 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
         return NULL;
     }
 
-    packet_len += filename_len;
+    packet_len += (uint32_t)filename_len;
 
     if(sftp->open_state == libssh2_NB_state_idle) {
 
@@ -2808,7 +2808,7 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename,
                               "Input too large "
                               "sftp_unlink");
     }
-    packet_len += filename_len;
+    packet_len += (uint32_t)filename_len;
 
     if(sftp->unlink_state == libssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
@@ -2924,7 +2924,7 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
                               "Input too large "
                               "sftp_rename");
     }
-    packet_len += source_filename_len;
+    packet_len += (uint32_t)source_filename_len;
 
     if(packet_len + dest_filename_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
@@ -3087,14 +3087,14 @@ sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
                               "Input too large "
                               "posix-rename@openssh.com");
     }
-    packet_len += source_filename_len;
+    packet_len += (uint32_t)source_filename_len;
 
     if(packet_len + dest_filename_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large (2) "
                               "posix-rename@openssh.com");
     }
-    packet_len += dest_filename_len;
+    packet_len += (uint32_t)dest_filename_len;
 
     if(sftp->posix_rename_state == libssh2_NB_state_idle) {
         _libssh2_debug((session, LIBSSH2_TRACE_SFTP,
@@ -3217,7 +3217,7 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
                               "Input too large "
                               "sftp_fstatvfs");
     }
-    packet_len += handle->handle_len;
+    packet_len += (uint32_t)handle->handle_len;
 
     if(sftp->fstatvfs_state == libssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
