@@ -1,0 +1,4 @@
+# Copyright (C) Viktor Szakats. See LICENSE.md
+# SPDX-License-Identifier: MIT
+
+codespell == 2.4.1
