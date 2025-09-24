@@ -3481,7 +3481,7 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
     packet_len = path_len + 13 + sftp_attrsize(attrs.flags);
 
-    if (packet_len > UINT32_MAX || packet_len == 0) {
+    if(packet_len > UINT32_MAX || packet_len == 0) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large "
                               "sftp_mkdir");
