@@ -1,0 +1,4 @@
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
+
+codespell == 2.4.1
