@@ -316,7 +316,7 @@ jobs:
 
       - name: 'cache mbedTLS'
         if: ${{ matrix.crypto == 'mbedTLS-from-source' }}
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         id: cache-mbedtls
         with:
           path: ~/usr
@@ -367,7 +367,7 @@ jobs:
 
       - name: 'cache BoringSSL'
         if: ${{ matrix.crypto == 'BoringSSL' }}
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         id: cache-boringssl
         with:
           path: ~/usr
@@ -389,7 +389,7 @@ jobs:
 
       - name: 'cache AWS-LC'
         if: ${{ matrix.crypto == 'AWS-LC' }}
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         id: cache-aws-lc
         with:
           path: ~/usr
@@ -407,7 +407,7 @@ jobs:
 
       - name: 'cache LibreSSL'
         if: ${{ matrix.crypto == 'LibreSSL' }}
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         id: cache-libressl
         with:
           path: ~/usr
@@ -427,7 +427,7 @@ jobs:
 
       - name: 'cache OpenSSL'
         if: ${{ matrix.crypto == 'OpenSSL-3-no-deprecated' }}
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         id: cache-openssl
         with:
           path: ~/usr
@@ -445,7 +445,7 @@ jobs:
 
       - name: 'cache OpenSSL 1.1.1'
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         id: cache-openssl111
         with:
           path: ~/usr
@@ -462,7 +462,7 @@ jobs:
 
       - name: 'cache OpenSSL 1.1.0'
         if: ${{ matrix.crypto == 'OpenSSL-110-from-source' }}
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         id: cache-openssl110
         with:
           path: ~/usr
@@ -479,7 +479,7 @@ jobs:
 
       - name: 'cache OpenSSL 1.0.2'
         if: ${{ matrix.crypto == 'OpenSSL-102-from-source' }}
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         id: cache-openssl102
         with:
           path: ~/usr
