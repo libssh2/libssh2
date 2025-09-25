@@ -28,41 +28,25 @@ jobs:
       - name: 'checksrc'
         run: ci/checksrc.sh
 
-  reuse:
-    name: 'REUSE check'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-        with:
-          persist-credentials: false
-      - name: 'check'
-        uses: fsfe/reuse-action@bb774aa972c2a89ff34781233d275075cbddf542 # v5
-
-  spellcheck:
-    name: 'spellcheck'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-        with:
-          persist-credentials: false
-      - name: 'spellcheck'
-        run: |
-          python3 -m venv ~/venv
-          ~/venv/bin/pip --disable-pip-version-check --no-input --no-cache-dir install --progress-bar off --prefer-binary -r .github/workflows/requirements.txt
-          source ~/venv/bin/activate
-          ci/spellcheck.sh
-
-  miscchecks:
-    name: 'misc checks'
+  linters:
+    name: 'linters'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: 'install prereqs'
-        run: /home/linuxbrew/.linuxbrew/bin/brew install shellcheck zizmor
-
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
+
+      - name: 'install prereqs'
+        run: |
+          /home/linuxbrew/.linuxbrew/bin/brew install shellcheck zizmor
+          python3 -m venv ~/venv
+          ~/venv/bin/pip --disable-pip-version-check --no-input --no-cache-dir install --progress-bar off --prefer-binary -r .github/workflows/requirements.txt
+
+      - name: 'REUSE check'
+        run: |
+          source ~/venv/bin/activate
+          reuse lint
 
       - name: 'zizmor GHA'
         run: |
@@ -89,17 +73,15 @@ jobs:
           shellcheck --version
           ci/shellcheck.sh
 
-  cmakelint:
-    name: 'cmakelint'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-        with:
-          persist-credentials: false
       - name: 'cmakelint'
         run: |
-          python3 -m pip install --break-system-packages cmakelang==0.6.13
+          source ~/venv/bin/activate
           ci/cmakelint.sh
+
+      - name: 'spellcheck'
+        run: |
+          source ~/venv/bin/activate
+          ci/spellcheck.sh
 
   build_integration:
     name: 'CM integration ${{ matrix.image }}'
