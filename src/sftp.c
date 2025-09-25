@@ -3548,7 +3548,7 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
             sftp->mkdir_packet = packet;
             return (int)nwritten;
         }
-        if(ssize_t)packet_len != nwritten) {
+        if((ssize_t)packet_len != nwritten) {
             LIBSSH2_FREE(session, packet);
             sftp->mkdir_state = libssh2_NB_state_idle;
             return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
