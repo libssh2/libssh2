@@ -47,8 +47,9 @@ chachapoly_init(struct chachapoly_ctx *ctx, const u_char *key, u_int keylen)
  * tag. This tag is written on encryption and verified on decryption.
  */
 int
-chachapoly_crypt(struct chachapoly_ctx *ctx, u_int seqnr, u_char *dest,
-                 const u_char *src, u_int len, u_int aadlen, int do_encrypt)
+chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
+                 u_char *dest, const u_char *src, u_int len, u_int aadlen,
+                 int do_encrypt)
 {
     u_char seqbuf[8];
     const u_char one[8] = { 1, 0, 0, 0, 0, 0, 0, 0 }; /* NB little-endian */
@@ -106,7 +107,7 @@ out:
 /* Decrypt and extract the encrypted packet length */
 int
 chachapoly_get_length(struct chachapoly_ctx *ctx, unsigned int *plenp,
-                      unsigned int seqnr, const unsigned char *cp,
+                      libssh2_uint64_t seqnr, const unsigned char *cp,
                       unsigned int len)
 {
     u_char buf[4], seqbuf[8];
