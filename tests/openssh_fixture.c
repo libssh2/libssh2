@@ -37,6 +37,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#if defined(__linux__) && !defined(_DEFAULT_SOURCE)
+#define _DEFAULT_SOURCE /* for popen(), pclose(), getline() */
+#endif
+
 #include "session_fixture.h"
 #include "openssh_fixture.h"
 
