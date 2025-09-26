@@ -443,13 +443,14 @@ crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION * session,
                length
              */
             ret = chachapoly_crypt(&ctx->chachapoly_ctx, seqno, buf, buf,
-                                   ((u_int)buf_len) - 4, 4, ctx->encrypt);
+                                   ((unsigned int)buf_len) - 4, 4,
+                                   ctx->encrypt);
         }
         else {
             /* buf is full packet including size and auth tag but buf_len
                doesn't include size */
             ret = chachapoly_crypt(&ctx->chachapoly_ctx, seqno, buf, buf,
-                                   ((u_int)buf_len), 4, ctx->encrypt);
+                                   ((unsigned int)buf_len), 4, ctx->encrypt);
 
             /* the api expects the size field to already be removed
                from the decrypted packet so we'll help it out */
@@ -472,7 +473,7 @@ crypt_get_length_chacha20_poly(LIBSSH2_SESSION * session, unsigned int seqno,
     (void)session;
 
     return chachapoly_get_length(&ctx->chachapoly_ctx, len, seqno, data,
-                                 (u_int)data_size);
+                                 (unsigned int)data_size);
 }
 
 static int
