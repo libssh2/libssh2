@@ -5,6 +5,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#if defined(__linux__) && !defined(_DEFAULT_SOURCE)
+#define _DEFAULT_SOURCE /* for fileno() */
+#endif
+
 #include "libssh2_setup.h"
 #include <libssh2.h>
 
