@@ -36,8 +36,17 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-cmake_minimum_required(VERSION 3.7...3.16 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.7...3.17 FATAL_ERROR)
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
+
+# TODO: NEW behaviour causes link failures on macOS.
+if(POLICY CMP0099)
+  cmake_policy(SET CMP0098 OLD)
+  cmake_policy(SET CMP0099 OLD)
+  cmake_policy(SET CMP0100 OLD)
+  cmake_policy(SET CMP0101 OLD)
+  cmake_policy(SET CMP0102 OLD)
+endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
