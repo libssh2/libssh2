@@ -223,6 +223,7 @@ jobs:
         crypto: [OpenSSL, Libgcrypt, mbedTLS, wolfSSL]
         build: [cmake]
         zlib: ['OFF', 'ON']
+        extensions: ['gnu']
         exclude:
           - { compiler: clang-tidy, zlib: 'OFF' }
         include:
@@ -231,63 +232,75 @@ jobs:
             crypto: OpenSSL
             build: autotools
             zlib: 'OFF'
+            extensions: gnu
           - compiler: clang
             arch: amd64
             crypto: OpenSSL
             build: autotools
             zlib: 'OFF'
+            extensions: gnu
           - compiler: clang
             arch: amd64
             crypto: OpenSSL
             build: autotools
             zlib: 'ON'
             target: 'distcheck'
+            extensions: gnu
           - compiler: clang
             arch: amd64
             crypto: OpenSSL
             build: autotools
             zlib: 'ON'
             target: 'maketgz'
+            extensions: gnu
           - compiler: gcc
             arch: amd64
             crypto: OpenSSL-3-no-deprecated
             build: cmake
             zlib: 'ON'
+            extensions: iso_c
           - compiler: gcc
             arch: amd64
             crypto: OpenSSL-111-from-source
             build: cmake
             zlib: 'ON'
+            extensions: gnu
           - compiler: gcc
             arch: amd64
             crypto: BoringSSL
             build: cmake
             zlib: 'ON'
+            extensions: gnu
           - compiler: gcc
             arch: amd64
             crypto: AWS-LC
             build: cmake
             zlib: 'ON'
+            extensions: gnu
           - compiler: gcc
             arch: amd64
             crypto: LibreSSL
             build: cmake
             zlib: 'ON'
+            extensions: gnu
           - compiler: gcc
             arch: i386
             crypto: mbedTLS-from-source
             build: cmake
             zlib: 'ON'
+            extensions: gnu
           - compiler: clang
             arch: amd64
             crypto: wolfSSL-from-source
             build: cmake
             zlib: 'ON'
+            extensions: iso_c
           - compiler: clang
             arch: amd64
             crypto: wolfSSL-from-source-prev
             build: cmake
             zlib: 'ON'
+            extensions: gnu
     env:
       CC: ${{ matrix.compiler == 'clang-tidy' && 'clang' || matrix.compiler }}
       MATRIX_ARCH: '${{ matrix.arch }}'
@@ -479,6 +492,7 @@ jobs:
         if: ${{ matrix.target != 'maketgz' }}
         env:
           MATRIX_COMPILER: '${{ matrix.compiler }}'
+          MATRIX_EXTENSIONS: '${{ matrix.extensions }}'
         run: |
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             if [ "${MATRIX_CRYPTO}" = 'BoringSSL' ] || \
@@ -496,6 +510,7 @@ jobs:
             [ -d "$HOME"/usr ] && options+=" -DCMAKE_PREFIX_PATH=$HOME/usr"
             [ "${MATRIX_ARCH}" = 'i386' ] && options+=" -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${MATRIX_ARCH} -DCMAKE_C_FLAGS=-m32"
             [ "${MATRIX_COMPILER}" = 'clang-tidy' ] && options+=' -DLIBSSH2_CLANG_TIDY=ON'
+            [ "${MATRIX_EXTENSIONS}" = 'iso_c' ] && options+=' -DCMAKE_C_EXTENSIONS=OFF -DCMAKE_C_STANDARD_REQUIRED=ON'
             cmake -B bld -G Ninja ${options} $TOOLCHAIN_OPTION \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
