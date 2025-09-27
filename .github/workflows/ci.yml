@@ -673,21 +673,25 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { build: 'automake', platform: 'x86_64', compiler: 'gcc' }
-          - { build: 'cmake'   , platform: 'x86_64', compiler: 'gcc' }
+          - { build: 'autotools', platform: 'x86_64', compiler: 'gcc' }
+          - { build: 'cmake'    , platform: 'x86_64', compiler: 'gcc' }
     steps:
       - run: git config --global core.autocrlf input
 
       - uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6
         with:
           platform: ${{ matrix.platform }}
-          packages: ${{ matrix.build == 'automake' && 'autoconf libtool make' || 'ninja' }} ${{ matrix.build }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
+          packages: ${{ matrix.build == 'autotools' && 'autoconf automake libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
           install-dir: D:\cygwin
 
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
+
+      - name: 'autotools autoreconf'
+        if: ${{ matrix.build == 'autotools' }}
+        run: autoreconf -fi
 
       - name: 'configure'
         timeout-minutes: 2
@@ -706,7 +710,6 @@ jobs:
               -DRUN_SSHD_TESTS=OFF \
               || { cat bld/CMakeFiles/CMake*.yaml; false; }
           else
-            autoreconf -fi
             mkdir bld && cd bld
             ../configure --enable-werror --enable-debug \
               --with-crypto=openssl \
