@@ -691,6 +691,7 @@ jobs:
 
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
+        shell: D:\cygwin\bin\bash.exe '{0}'
         run: autoreconf -fi
 
       - name: 'configure'
