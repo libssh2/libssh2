@@ -541,7 +541,7 @@ jobs:
             if [ "${MATRIX_ZLIB}" = 'OFF' ]; then
               options+=' --with-libz=no'
             else
-              options+=' --with-libz'
+              options+=' --with-zlib'
             fi
             ../configure --enable-werror --enable-debug --enable-option-checking \
               ${options} ${MATRIX_OPTIONS} \
