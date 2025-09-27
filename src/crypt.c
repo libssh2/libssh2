@@ -472,7 +472,7 @@ crypt_get_length_chacha20_poly(LIBSSH2_SESSION * session, unsigned int seqno,
     (void)session;
 
     return chachapoly_get_length(&ctx->chachapoly_ctx, len, seqno, data,
-                                 (u_int)data_size);
+                                 data_size);
 }
 
 static int
