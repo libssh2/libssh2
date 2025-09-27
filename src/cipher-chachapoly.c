@@ -108,9 +108,9 @@ out:
 
 /* Decrypt and extract the encrypted packet length */
 int
-chachapoly_get_length(struct chachapoly_ctx *ctx, unsigned int *plenp,
+chachapoly_get_length(struct chachapoly_ctx *ctx, size_t *plenp,
                       libssh2_uint64_t seqnr, const unsigned char *cp,
-                      unsigned int len)
+                      size_t len)
 {
     unsigned char buf[4], seqbuf[8];
     unsigned char *ptr = NULL;
