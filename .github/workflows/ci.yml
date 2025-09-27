@@ -538,6 +538,11 @@ jobs:
               export CFLAGS=-m32
             fi
             mkdir bld && cd bld
+            if [ "${MATRIX_ZLIB}" = 'OFF' ]; then
+              options+=' --without-zlib'
+            else
+              options+=' --with-zlib'
+            fi
             ../configure --enable-werror --enable-debug \
               ${options} ${MATRIX_OPTIONS} \
               --disable-dependency-tracking \
