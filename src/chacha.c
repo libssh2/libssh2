@@ -13,9 +13,6 @@
 
 /* $OpenBSD: chacha.c,v 1.1 2013/11/21 00:45:44 djm Exp $ */
 
-typedef unsigned char u8;
-typedef unsigned int u32;
-
 typedef struct chacha_ctx chacha_ctx;
 
 #define U8C(v) (v##U)

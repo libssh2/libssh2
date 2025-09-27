@@ -28,7 +28,8 @@ int
 chachapoly_timingsafe_bcmp(const void *b1, const void *b2, size_t n);
 
 int
-chachapoly_init(struct chachapoly_ctx *ctx, const u_char *key, u_int keylen)
+chachapoly_init(struct chachapoly_ctx *ctx, const unsigned char *key,
+                size_t keylen)
 {
     if(keylen != (32 + 32)) /* 2 x 256 bit keys */
         return LIBSSH2_ERROR_INVAL;
@@ -47,12 +48,14 @@ chachapoly_init(struct chachapoly_ctx *ctx, const u_char *key, u_int keylen)
  * tag. This tag is written on encryption and verified on decryption.
  */
 int
-chachapoly_crypt(struct chachapoly_ctx *ctx, u_int seqnr, u_char *dest,
-                 const u_char *src, u_int len, u_int aadlen, int do_encrypt)
+chachapoly_crypt(struct chachapoly_ctx *ctx, libssh2_uint64_t seqnr,
+                 unsigned char *dest, const unsigned char *src, size_t len,
+                 size_t aadlen, int do_encrypt)
 {
-    u_char seqbuf[8];
-    const u_char one[8] = { 1, 0, 0, 0, 0, 0, 0, 0 }; /* NB little-endian */
-    u_char expected_tag[POLY1305_TAGLEN], poly_key[POLY1305_KEYLEN];
+    unsigned char seqbuf[8];
+    const unsigned char one[8] =
+        { 1, 0, 0, 0, 0, 0, 0, 0 }; /* NB little-endian */
+    unsigned char expected_tag[POLY1305_TAGLEN], poly_key[POLY1305_KEYLEN];
     int r = LIBSSH2_ERROR_INVAL;
     unsigned char *ptr = NULL;
 
@@ -69,7 +72,7 @@ chachapoly_crypt(struct chachapoly_ctx *ctx, u_int seqnr, u_char *dest,
 
     /* If decrypting, check tag before anything else */
     if(!do_encrypt) {
-        const u_char *tag = src + aadlen + len;
+        const unsigned char *tag = src + aadlen + len;
 
         poly1305_auth(expected_tag, src, aadlen + len, poly_key);
         if(chachapoly_timingsafe_bcmp(expected_tag, tag, POLY1305_TAGLEN)
@@ -106,10 +109,10 @@ out:
 /* Decrypt and extract the encrypted packet length */
 int
 chachapoly_get_length(struct chachapoly_ctx *ctx, unsigned int *plenp,
-                      unsigned int seqnr, const unsigned char *cp,
+                      libssh2_uint64_t seqnr, const unsigned char *cp,
                       unsigned int len)
 {
-    u_char buf[4], seqbuf[8];
+    unsigned char buf[4], seqbuf[8];
     unsigned char *ptr = NULL;
 
     if(len < 4)
