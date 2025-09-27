@@ -885,7 +885,7 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           persist-credentials: false
-      - name: 'cmake configure'
+      - name: 'configure'
         shell: bash
         env:
           MATRIX_ARCH: '${{ matrix.arch }}'
@@ -922,9 +922,9 @@ jobs:
             -DRUN_SSHD_TESTS=OFF \
             || { cat bld/CMakeFiles/CMake*.yaml; false; }
 
-      - name: 'cmake build'
+      - name: 'build'
         run: cmake --build bld --parallel 5 --target package --config Release
-      - name: 'cmake tests'
+      - name: 'tests'
         # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
         if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
         timeout-minutes: 10
