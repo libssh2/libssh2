@@ -88,7 +88,7 @@ chacha_ivsetup(chacha_ctx *x, const u8 *iv, const u8 *counter)
 }
 
 void
-chacha_encrypt_bytes(chacha_ctx *x, const u8 *m, u8 *c, u32 bytes)
+chacha_encrypt_bytes(chacha_ctx *x, const u8 *m, u8 *c, size_t bytes)
 {
     u32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
     u32 j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, j10, j11, j12, j13, j14, j15;
