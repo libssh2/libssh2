@@ -332,10 +332,10 @@ jobs:
           curl -fsS -L "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-${MBEDTLS_VERSION}/mbedtls-${MBEDTLS_VERSION}.tar.bz2" | tar -xj
           cd "mbedtls-${MBEDTLS_VERSION}"
           if [ "${MATRIX_ARCH}" = 'i386' ]; then
-            crossoptions="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${MATRIX_ARCH}"
+            options="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_SYSTEM_PROCESSOR=${MATRIX_ARCH}"
             cflags='-m32 -mpclmul -msse2 -maes'
           fi
-          cmake -B . -G Ninja ${crossoptions} \
+          cmake -B . -G Ninja ${options} \
             -DCMAKE_C_FLAGS="${cflags}" \
             -DENABLE_PROGRAMS=OFF \
             -DENABLE_TESTING=OFF \
@@ -534,12 +534,12 @@ jobs:
               || { cat bld/CMakeFiles/CMake*.yaml; false; }
           else
             if [ "${MATRIX_ARCH}" = 'i386' ]; then
-              crossoptions='--host=i686-pc-linux-gnu'
+              options='--host=i686-pc-linux-gnu'
               export CFLAGS=-m32
             fi
             mkdir bld && cd bld
             ../configure --enable-werror --enable-debug \
-              ${crossoptions} ${MATRIX_OPTIONS} \
+              ${options} ${MATRIX_OPTIONS} \
               --disable-dependency-tracking \
               || { tail -n 1000 config.log; false; }
           fi
