@@ -16,6 +16,9 @@ concurrency:
 
 permissions: {}
 
+env:
+  MAKEFLAGS: -j 5
+
 jobs:
   check_style:
     name: 'style-check'
@@ -441,7 +444,7 @@ jobs:
           ./Configure no-deprecated \
             no-apps no-docs no-tests no-makedepend \
             no-comp no-quic no-legacy --prefix="$HOME"/usr
-          make -j5 install_sw
+          make install_sw
 
       - name: 'cache OpenSSL 1.1.1'
         if: ${{ matrix.crypto == 'OpenSSL-111-from-source' }}
@@ -457,7 +460,7 @@ jobs:
           curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-${OPENSSL111_VERSION}.tar.gz" | tar -xz
           cd "openssl-${OPENSSL111_VERSION}"
           ./config no-unit-test no-makedepend --prefix="$HOME"/usr no-tests
-          make -j5
+          make
           make -j1 install_sw
 
       - name: 'cache OpenSSL 1.1.0'
@@ -474,7 +477,7 @@ jobs:
           curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_0l/openssl-${OPENSSL110_VERSION}.tar.gz" | tar -xz
           cd "openssl-${OPENSSL110_VERSION}"
           ./config no-unit-test no-makedepend --prefix="$HOME"/usr
-          make -j5
+          make
           make -j1 install_sw
 
       - name: 'cache OpenSSL 1.0.2'
@@ -491,7 +494,7 @@ jobs:
           curl -fsS -L "https://github.com/openssl/openssl/releases/download/OpenSSL_1_0_2u/openssl-${OPENSSL102_VERSION}.tar.gz" | tar -xz
           cd "openssl-${OPENSSL102_VERSION}"
           ./config no-unit-test no-makedepend --prefix="$HOME"/usr -fPIC
-          make -j5
+          make
           make -j1 install_sw
 
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
@@ -547,7 +550,7 @@ jobs:
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             cmake --build bld --target package
           else
-            make -C bld -j5
+            make -C bld
           fi
 
       - name: 'tests'
@@ -586,7 +589,7 @@ jobs:
           cd libssh2-99.98.97
           ./configure --enable-werror --enable-debug --prefix="$HOME"/temp \
             ${MATRIX_OPTIONS} --disable-dependency-tracking
-          make -j5 install
+          make install
           cd ..
           # Verify install
           diff -u <(find docs    -name '*.3' -printf '%f\n' | grep -v template | sort) <(find "$HOME"/temp/share/man/man3 -name '*.3' -printf '%f\n' | sort)
@@ -656,7 +659,7 @@ jobs:
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             cmake --build bld
           else
-            make -C bld -j5
+            make -C bld
           fi
 
   build_cygwin:
@@ -713,7 +716,7 @@ jobs:
               --disable-docker-tests \
               --disable-dependency-tracking \
               || { tail -n 1000 config.log; false; }
-            make -j5
+            make
             make check V=1 || { cat tests/*.log; false; }
           fi
 
@@ -821,7 +824,7 @@ jobs:
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             cmake --build bld
           else
-            make -C bld -j5
+            make -C bld
           fi
 
       - name: 'tests'
