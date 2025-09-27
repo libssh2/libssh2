@@ -681,7 +681,7 @@ jobs:
       - uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6
         with:
           platform: ${{ matrix.platform }}
-          packages: ${{ matrix.build == 'autotools' && 'autoconf automake libtool make' || 'cmake ninja' }} gcc-core binutils libssl-devel zlib-devel
+          packages: ${{ matrix.build == 'autotools' && 'autoconf automake libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
           install-dir: D:\cygwin
 
@@ -707,6 +707,7 @@ jobs:
               -DCRYPTO_BACKEND=OpenSSL \
               -DOPENSSL_ROOT_DIR=/usr/lib \
               -DENABLE_ZLIB_COMPRESSION=ON \
+              -DBUILD_OSSFUZZ=ON \
               -DRUN_DOCKER_TESTS=OFF \
               -DRUN_SSHD_TESTS=OFF \
               || { cat bld/CMakeFiles/CMake*.yaml; false; }
