@@ -459,7 +459,7 @@ crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION * session,
         }
     }
 
-    return (ret == 0 ? 0 : 1);
+    return (ret == 0) ? 0 : 1;
 }
 
 static int
