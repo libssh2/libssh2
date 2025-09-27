@@ -605,7 +605,6 @@ jobs:
           - { build: 'cmake'    , compiler: 'gcc' }
           - { build: 'cmake'    , compiler: 'clang-tidy' }
     env:
-      MAKEFLAGS: -j 5
       TRIPLET: 'x86_64-w64-mingw32'
       MATRIX_BUILD: '${{ matrix.build }}'
     steps:
@@ -657,7 +656,7 @@ jobs:
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             cmake --build bld
           else
-            make -C bld
+            make -C bld -j5
           fi
 
   build_cygwin:
