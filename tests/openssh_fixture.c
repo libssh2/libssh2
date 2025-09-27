@@ -237,24 +237,22 @@ static int is_running_inside_a_container(void)
 #ifdef _WIN32
     return 0;
 #else
-    const char *cgroup_filename = "/proc/self/cgroup";
+    static const char *cgroup_filename = "/proc/self/cgroup";
     FILE *f;
-    char *line = NULL;
-    size_t len = 0;
+    char line[256];
     int found = 0;
     f = fopen(cgroup_filename, "r");
     if(!f) {
         /* Don't go further, we are not in a container */
         return 0;
     }
-    while(getline(&line, &len, f) != -1) {
+    while(fgets(line, sizeof(line), f)) {
         if(strstr(line, "docker")) {
             found = 1;
             break;
         }
     }
     fclose(f);
-    free(line);
     return found;
 #endif
 }
