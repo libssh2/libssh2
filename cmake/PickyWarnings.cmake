@@ -91,7 +91,6 @@ if(PICKY_COMPILER)
       -Wignored-qualifiers                 # clang  2.8  gcc  4.3
       -Wmissing-field-initializers         # clang  2.7  gcc  4.1
       -Wmissing-noreturn                   # clang  2.7  gcc  4.1
-      -Wno-format-nonliteral               # clang  1.0  gcc  2.96 (3.0)
       -Wno-system-headers                  # clang  1.0  gcc  3.0
     # -Wpadded                             # clang  2.9  gcc  4.1               # Not used: We cannot change public structs
       -Wold-style-definition               # clang  2.7  gcc  3.4
@@ -287,6 +286,13 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND MSVC)
     endforeach()
     set("${_wlist}" ${_picky_tmp})  # cmake-lint: disable=C0103
   endforeach()
+endif()
+
+if(CMAKE_C_STANDARD STREQUAL 90)
+  if((CMAKE_C_COMPILER_ID STREQUAL "Clang"      AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 3.9) OR
+     (CMAKE_C_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 8.1))
+    list(APPEND _picky "-Wno-comma")  # Just silly
+  endif()
 endif()
 
 if(_picky_nocheck OR _picky)

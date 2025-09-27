@@ -610,7 +610,14 @@ _libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
         buflen -= len;
         msglen = len;
         va_start(vargs, format);
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#endif
         len = vsnprintf(buffer + msglen, buflen, format, vargs);
+#if defined(__GNUC__) || defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
         va_end(vargs);
         msglen += len < buflen ? len : buflen - 1;
     }
