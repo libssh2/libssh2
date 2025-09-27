@@ -309,7 +309,7 @@ static void kbd_callback(const char *name, int name_len,
     }
 
     if(num_prompts == 1) {
-        responses[0].text = strdup(kbd_password);
+        responses[0].text = libssh2_strdup(kbd_password);
         responses[0].length = (unsigned int)strlen(kbd_password);
     }
 }
