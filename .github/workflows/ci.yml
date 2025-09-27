@@ -608,8 +608,8 @@ jobs:
           - { build: 'cmake'    , compiler: 'gcc' }
           - { build: 'cmake'    , compiler: 'clang-tidy' }
     env:
-      TRIPLET: 'x86_64-w64-mingw32'
       MATRIX_BUILD: '${{ matrix.build }}'
+      TRIPLET: 'x86_64-w64-mingw32'
     steps:
       - name: 'install packages'
         env:
@@ -667,6 +667,7 @@ jobs:
     runs-on: windows-2022
     timeout-minutes: 30
     env:
+      MATRIX_BUILD: '${{ matrix.build }}'
       SHELLOPTS: 'igncr'
     strategy:
       fail-fast: false
@@ -688,11 +689,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: 'build'
-        timeout-minutes: 10
+      - name: 'configure'
+        timeout-minutes: 2
         shell: D:\cygwin\bin\bash.exe '{0}'
-        env:
-          MATRIX_BUILD: '${{ matrix.build }}'
         run: |
           PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
@@ -706,8 +705,6 @@ jobs:
               -DRUN_DOCKER_TESTS=OFF \
               -DRUN_SSHD_TESTS=OFF \
               || { cat bld/CMakeFiles/CMake*.yaml; false; }
-            cmake --build bld
-            cd bld && ctest -VV --output-on-failure
           else
             autoreconf -fi
             mkdir bld && cd bld
@@ -716,8 +713,28 @@ jobs:
               --disable-docker-tests \
               --disable-dependency-tracking \
               || { tail -n 1000 config.log; false; }
-            make
-            make check V=1 || { cat tests/*.log; false; }
+          fi
+
+      - name: 'build'
+        timeout-minutes: 5
+        shell: D:\cygwin\bin\bash.exe '{0}'
+        run: |
+          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
+          if [ "${MATRIX_BUILD}" = 'cmake' ]; then
+            cmake --build bld
+          else
+            make -C bld
+          fi
+
+      - name: 'tests'
+        timeout-minutes: 5
+        shell: D:\cygwin\bin\bash.exe '{0}'
+        run: |
+          PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
+          if [ "${MATRIX_BUILD}" = 'cmake' ]; then
+            cd bld && ctest -VV --output-on-failure
+          else
+            make -C bld check V=1 || { cat bld/tests/*.log; false; }
           fi
 
   build_msys2:
