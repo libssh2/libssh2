@@ -142,7 +142,7 @@ static int run_command_varg(char **output, const char *command, va_list args)
             buf[end - 1] = '\0';
         }
 
-        *output = strdup(buf);
+        *output = libssh2_strdup(buf);
     }
     return ret;
 }
@@ -212,7 +212,7 @@ static int start_openssh_server(char **container_id_out)
                            "libssh2/openssh_server");
     }
     else {
-        *container_id_out = strdup("");
+        *container_id_out = libssh2_strdup("");
         return 0;
     }
 }
@@ -320,7 +320,7 @@ static int ip_address_from_container(char *container_id, char **ip_address_out)
 static int port_from_container(char *container_id, char **port_out)
 {
     if(is_running_inside_a_container()) {
-        *port_out = strdup("22");
+        *port_out = libssh2_strdup("22");
         return 0;
     }
     else {
@@ -364,12 +364,12 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
         if(!env) {
             env = "127.0.0.1";
         }
-        ip_address = strdup(env);
+        ip_address = libssh2_strdup(env);
         env = openssh_server_port();
         if(!env) {
             env = "4711";
         }
-        port_string = strdup(env);
+        port_string = libssh2_strdup(env);
     }
 
     /* 0.0.0.0 is returned by Docker for Windows, because the container
@@ -377,7 +377,7 @@ static libssh2_socket_t open_socket_to_container(char *container_id)
        instead we assume localhost and try to connect to 127.0.0.1. */
     if(ip_address && strcmp(ip_address, "0.0.0.0") == 0) {
         free(ip_address);
-        ip_address = strdup("127.0.0.1");
+        ip_address = libssh2_strdup("127.0.0.1");
     }
 
     hostaddr = inet_addr(ip_address);
@@ -486,4 +486,22 @@ libssh2_socket_t open_socket_to_openssh_server(void)
 void close_socket_to_openssh_server(libssh2_socket_t sock)
 {
     close_socket_to_container(sock);
+}
+
+char *libssh2_strdup(const char *str)
+{
+    size_t len;
+    char *newstr;
+
+    if(!str)
+        return (char *)NULL;
+
+    len = strlen(str) + 1;
+
+    newstr = malloc(len);
+    if(!newstr)
+        return (char *)NULL;
+
+    memcpy(newstr, str, len);
+    return newstr;
 }
