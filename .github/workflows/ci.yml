@@ -543,7 +543,7 @@ jobs:
             else
               options+=' --with-zlib'
             fi
-            ../configure --enable-werror --enable-debug --enable-option-checking \
+            ../configure --enable-werror --enable-debug --enable-option-checking=fatal \
               ${options} ${MATRIX_OPTIONS} \
               --disable-dependency-tracking \
               || { tail -n 1000 config.log; false; }
@@ -592,7 +592,7 @@ jobs:
           # Test build from tarball
           tar -xvf libssh2-99.98.97.tar.gz
           cd libssh2-99.98.97
-          ./configure --enable-werror --enable-debug --enable-option-checking --prefix="$HOME"/temp \
+          ./configure --enable-werror --enable-debug --enable-option-checking=fatal --prefix="$HOME"/temp \
             ${MATRIX_OPTIONS} --disable-dependency-tracking
           make install
           cd ..
@@ -653,7 +653,7 @@ jobs:
               || { cat bld/CMakeFiles/CMake*.yaml; false; }
           else
             mkdir bld && cd bld
-            ../configure --enable-werror --enable-debug --enable-option-checking \
+            ../configure --enable-werror --enable-debug --enable-option-checking=fatal \
               --host="${TRIPLET}" \
               --disable-dependency-tracking \
               || { tail -n 1000 config.log; false; }
@@ -718,7 +718,7 @@ jobs:
               || { cat bld/CMakeFiles/CMake*.yaml; false; }
           else
             mkdir bld && cd bld
-            ../configure --enable-werror --enable-debug --enable-option-checking \
+            ../configure --enable-werror --enable-debug --enable-option-checking=fatal \
               --with-crypto=openssl \
               --disable-docker-tests \
               --disable-dependency-tracking \
@@ -836,7 +836,7 @@ jobs:
             fi
             # sshd tests sometimes hang
             mkdir bld && cd bld
-            ../configure --enable-werror --enable-debug --enable-option-checking \
+            ../configure --enable-werror --enable-debug --enable-option-checking=fatal \
               --with-crypto="${MATRIX_CRYPTO}" \
               --disable-docker-tests \
               --disable-sshd-tests \
@@ -995,7 +995,7 @@ jobs:
               || { cat bld/CMakeFiles/CMake*.yaml; false; }
           else
             mkdir bld && cd bld
-            ../configure --enable-werror --enable-debug --enable-option-checking \
+            ../configure --enable-werror --enable-debug --enable-option-checking=fatal \
               --with-libz ${MATRIX_CONFIGURE} \
               --disable-docker-tests \
               --disable-sshd-tests \
@@ -1111,7 +1111,7 @@ jobs:
             sudo pkg install -y autoconf automake libtool
             autoreconf -fi
             mkdir bld && cd bld
-            ../configure --enable-werror --enable-debug --enable-option-checking \
+            ../configure --enable-werror --enable-debug --enable-option-checking=fatal \
               --with-crypto=openssl \
               --disable-docker-tests \
               --disable-dependency-tracking \
