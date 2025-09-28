@@ -71,7 +71,11 @@ if(SH_EXECUTABLE)
 endif()
 
 add_library(runner STATIC ${librunner_la_SOURCES})
-target_compile_options(runner PRIVATE "${LIBSSH2_PICKY_C_FLAGS}")
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.11)
+  set_property(TARGET runner APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
+else()
+  target_compile_options(runner PRIVATE "${LIBSSH2_PICKY_C_FLAGS}")
+endif()
 target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(runner PRIVATE
   "${PROJECT_BINARY_DIR}/src"
@@ -93,7 +97,11 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
   # Skip building tests that require the static lib when the static lib is not built.
   if(NOT TARGET ${_test} AND _lib_for_tests)
     add_executable(${_test} "${_test}.c")
-    target_compile_options(${_test} PRIVATE "${LIBSSH2_PICKY_C_FLAGS}")
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.11)
+      set_property(TARGET ${_test} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
+    else()
+      target_compile_options(${_test} PRIVATE "${LIBSSH2_PICKY_C_FLAGS}")
+    endif()
     target_compile_definitions(${_test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
     target_include_directories(${_test} PRIVATE
       "${PROJECT_BINARY_DIR}/src"
