@@ -98,7 +98,8 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
       "${PROJECT_BINARY_DIR}/src"
       "${PROJECT_SOURCE_DIR}/src"
       "${PROJECT_SOURCE_DIR}/include")
-    set_target_properties(${_test} PROPERTIES COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}" UNITY_BUILD OFF)
+    set_target_properties(${_test} PROPERTIES COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
+    set_target_properties(${_test} PROPERTIES UNITY_BUILD OFF)
     target_link_libraries(${_test} PRIVATE runner ${_lib_for_tests} ${LIBSSH2_LIBS})
 
     # build a single test with gcov
