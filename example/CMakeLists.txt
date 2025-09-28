@@ -52,7 +52,8 @@ foreach(_example IN LISTS noinst_PROGRAMS)
     "${PROJECT_BINARY_DIR}/src"
     "${PROJECT_SOURCE_DIR}/src")
   target_link_libraries(${_example} ${LIB_SELECTED} ${LIBSSH2_LIBS})
-  set_target_properties(${_example} PROPERTIES COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}" UNITY_BUILD OFF)
+  set_property(TARGET ${_example} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
+  set_target_properties(${_example} PROPERTIES UNITY_BUILD OFF)
 endforeach()
 
 libssh2_add_target_to_copy_dependencies(
