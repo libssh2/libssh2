@@ -14,9 +14,9 @@ target_include_directories(ssh2_client_fuzzer PRIVATE
 if(LIB_FUZZING_ENGINE)
   if(LIB_FUZZING_ENGINE STREQUAL "-fsanitize=fuzzer")  # FIXME: compiler-specific
     if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
-      set_target_properties(ssh2_client_fuzzer PROPERTIES LINK_OPTIONS "${LIB_FUZZING_ENGINE}")
+      set_property(TARGET ssh2_client_fuzzer APPEND PROPERTY LINK_OPTIONS "${LIB_FUZZING_ENGINE}")
     else()
-      set_target_properties(ssh2_client_fuzzer PROPERTIES LINK_FLAGS "${LIB_FUZZING_ENGINE}")
+      set_property(TARGET ssh2_client_fuzzer APPEND PROPERTY LINK_FLAGS "${LIB_FUZZING_ENGINE}")
     endif()
   else()
     target_link_libraries(ssh2_client_fuzzer ${LIB_FUZZING_ENGINE})
