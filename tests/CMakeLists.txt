@@ -71,12 +71,12 @@ if(SH_EXECUTABLE)
 endif()
 
 add_library(runner STATIC ${librunner_la_SOURCES})
+target_compile_options(runner PRIVATE "${LIBSSH2_PICKY_C_FLAGS}")
 target_compile_definitions(runner PRIVATE "${CRYPTO_BACKEND_DEFINE}")
 target_include_directories(runner PRIVATE
   "${PROJECT_BINARY_DIR}/src"
   "${PROJECT_SOURCE_DIR}/src"
   "${PROJECT_SOURCE_DIR}/include")
-set_target_properties(runner PROPERTIES COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
 target_link_libraries(runner PRIVATE libssh2 ${LIBSSH2_LIBS})
 
 foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
@@ -93,12 +93,12 @@ foreach(_test IN LISTS DOCKER_TESTS STANDALONE_TESTS SSHD_TESTS)
   # Skip building tests that require the static lib when the static lib is not built.
   if(NOT TARGET ${_test} AND _lib_for_tests)
     add_executable(${_test} "${_test}.c")
+    target_compile_options(${_test} PRIVATE "${LIBSSH2_PICKY_C_FLAGS}")
     target_compile_definitions(${_test} PRIVATE "${CRYPTO_BACKEND_DEFINE}")
     target_include_directories(${_test} PRIVATE
       "${PROJECT_BINARY_DIR}/src"
       "${PROJECT_SOURCE_DIR}/src"
       "${PROJECT_SOURCE_DIR}/include")
-    set_target_properties(${_test} PROPERTIES COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
     set_target_properties(${_test} PROPERTIES UNITY_BUILD OFF)
     target_link_libraries(${_test} PRIVATE runner ${_lib_for_tests} ${LIBSSH2_LIBS})
 

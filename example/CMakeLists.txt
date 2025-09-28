@@ -47,12 +47,12 @@ include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
 foreach(_example IN LISTS noinst_PROGRAMS)
   add_executable(${_example} "${_example}.c")
   list(APPEND _example_targets ${_example})
+  target_compile_options(${_example} PRIVATE "${LIBSSH2_PICKY_C_FLAGS}")
   # to find generated header
   target_include_directories(${_example} PRIVATE
     "${PROJECT_BINARY_DIR}/src"
     "${PROJECT_SOURCE_DIR}/src")
   target_link_libraries(${_example} ${LIB_SELECTED} ${LIBSSH2_LIBS})
-  set_target_properties(${_example} PROPERTIES COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
   set_target_properties(${_example} PROPERTIES UNITY_BUILD OFF)
 endforeach()
 
