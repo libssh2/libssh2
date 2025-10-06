@@ -479,6 +479,7 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
 {
     const char *path;
     struct sockaddr_un s_un;
+    size_t plen;
 
     path = agent->identity_agent_path;
     if(!path) {
@@ -492,6 +493,13 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
     if(agent->fd < 0)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_SOCKET,
                               "failed creating socket");
+
+    plen = strlen(path);
+    if(plen >= sizeof(s_un.sun_path)) {
+        close(agent->fd);
+        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                              "SSH_AUTH_SOCK path too long");
+    }
 
     s_un.sun_family = AF_UNIX;
     strncpy(s_un.sun_path, path, sizeof(s_un.sun_path));
