@@ -113,6 +113,7 @@ if(BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS)
   add_library(${LIB_STATIC} STATIC ${_sources})
   add_library(${PROJECT_NAME}::${LIB_STATIC} ALIAS ${LIB_STATIC})
   target_compile_definitions(${LIB_STATIC} PRIVATE ${CRYPTO_BACKEND_DEFINE} ${_libssh2_definitions})
+  set_property(TARGET ${LIB_STATIC} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
   target_link_libraries(${LIB_STATIC} PRIVATE ${LIBSSH2_LIBS})
   set_target_properties(${LIB_STATIC} PROPERTIES
     PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
@@ -156,7 +157,7 @@ if(BUILD_SHARED_LIBS)
     set_property(TARGET ${LIB_SHARED} APPEND PROPERTY SOURCES "libssh2.rc")
   endif()
   target_compile_definitions(${LIB_SHARED} PRIVATE ${CRYPTO_BACKEND_DEFINE} ${_libssh2_definitions} ${LIB_SHARED_DEFINITIONS})
-  target_compile_options(${LIB_SHARED} PRIVATE ${LIB_SHARED_C_FLAGS})
+  set_property(TARGET ${LIB_SHARED} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}" "${LIB_SHARED_C_FLAGS}")
   target_link_libraries(${LIB_SHARED} PRIVATE ${LIBSSH2_LIBS})
   set_target_properties(${LIB_SHARED} PROPERTIES
     PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
@@ -291,8 +292,13 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
         if(_lib MATCHES "/")
           # This gets a bit more complex, because we want to specify the
           # directory separately, and only once per directory
-          get_filename_component(_libdir ${_lib} DIRECTORY)
-          get_filename_component(_libname ${_lib} NAME_WE)
+          if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.20)
+            cmake_path(GET _lib PARENT_PATH _libdir)
+            cmake_path(GET _lib STEM _libname)
+          else()
+            get_filename_component(_libdir "${_lib}" DIRECTORY)
+            get_filename_component(_libname "${_lib}" NAME_WE)
+          endif()
           if(_libname MATCHES "^lib")
             if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.20)
               cmake_path(SET _libdir NORMALIZE "${_libdir}")

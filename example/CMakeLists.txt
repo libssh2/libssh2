@@ -52,6 +52,7 @@ foreach(_example IN LISTS noinst_PROGRAMS)
     "${PROJECT_BINARY_DIR}/src"
     "${PROJECT_SOURCE_DIR}/src")
   target_link_libraries(${_example} ${LIB_SELECTED} ${LIBSSH2_LIBS})
+  set_property(TARGET ${_example} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
   set_target_properties(${_example} PROPERTIES UNITY_BUILD OFF)
 endforeach()
 

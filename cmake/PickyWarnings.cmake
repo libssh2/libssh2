@@ -3,6 +3,8 @@
 
 include(CheckCCompilerFlag)
 
+set(LIBSSH2_PICKY_C_FLAGS "")
+
 set(_picky "")
 set(_picky_nocheck "")  # not to pass to feature checks
 
@@ -249,7 +251,7 @@ if(PICKY_COMPILER)
         list(APPEND _picky "${_ccopt}")
       endif()
     endforeach()
-  elseif(MSVC AND MSVC_VERSION LESS_EQUAL 1943)  # Skip for untested/unreleased newer versions
+  elseif(MSVC AND MSVC_VERSION LESS_EQUAL 1944)  # Skip for untested/unreleased newer versions
     list(APPEND _picky "-Wall")
     list(APPEND _picky "-wd4061")  # enumerator 'A' in switch of enum 'B' is not explicitly handled by a case label
     list(APPEND _picky "-wd4191")  # 'type cast': unsafe conversion from 'FARPROC' to 'void (__cdecl *)(void)'
@@ -294,7 +296,7 @@ if(_picky_nocheck OR _picky)
   string(REPLACE ";" " " _picky_tmp "${_picky_tmp}")
   string(STRIP "${_picky_tmp}" _picky_tmp)
   message(STATUS "Picky compiler options: ${_picky_tmp}")
-  set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "${_picky_nocheck}" "${_picky}")
+  set(LIBSSH2_PICKY_C_FLAGS "${_picky_nocheck}" "${_picky}")
 
   # Apply to all feature checks
   string(REPLACE ";" " " _picky_tmp "${_picky}")
