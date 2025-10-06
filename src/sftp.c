@@ -2889,13 +2889,19 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
     LIBSSH2_SESSION *session = channel->session;
     size_t data_len = 0;
     int retcode;
-    uint32_t packet_len =
-        source_filename_len + dest_filename_len + 17 +
-        (sftp->version >= 5 ? 4 : 0);
+    uint32_t packet_len;
     /* packet_len(4) + packet_type(1) + request_id(4) +
        source_filename_len(4) + dest_filename_len(4) + flags(4){SFTP5+) */
     unsigned char *data = NULL;
     ssize_t rc;
+    size_t extra = 17 + (sftp->version >= 5 ? 4 : 0);
+    size_t need = (size_t)source_filename_len +
+                  (size_t)dest_filename_len + extra;
+
+    if(need > UINT32_MAX)
+        return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                              "FXP_RENAME packet too large");
+    packet_len = (uint32_t)need;
 
     if(sftp->rename_state == libssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
