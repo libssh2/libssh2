@@ -339,7 +339,8 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
         }
 
         _libssh2_debug((session, LIBSSH2_TRACE_CONN,
-                       "X11 Connection Received from %s:%u on channel %u",
+                       "X11 Connection Received from %.*s:%u on channel %u",
+                       (int)x11open_state->shost_len,
                        x11open_state->shost, x11open_state->sport,
                        x11open_state->sender_channel));
 
