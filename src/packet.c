@@ -774,8 +774,11 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 }
 
                 _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
-                               "Disconnect(%d): %s(%s)", reason,
-                               message, language));
+                               "Disconnect(%d): %.*s(%.*s)", reason,
+                               (int)message_len,
+                               (message ? (const char *)message : ""),
+                               (int)language_len,
+                               (language ? (const char *)language : ""));
             }
 
             LIBSSH2_FREE(session, data);
@@ -836,7 +839,9 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
              * that it's not an inordinate about of data
              */
             _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
-                           "Debug Packet: %s", message));
+                           "Debug Packet: %.*s",
+                           (int)message_len,
+                           (message ? (const char *)message : ""));
             LIBSSH2_FREE(session, data);
             session->packAdd_state = libssh2_NB_state_idle;
             return 0;
