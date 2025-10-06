@@ -176,6 +176,8 @@ publickey_packet_receive(LIBSSH2_PUBLICKEY * pkey,
 
         *data = pkey->receive_packet;
         *data_len = pkey->receive_packet_len;
+        pkey->receive_packet = NULL;
+        pkey->receive_packet_len = 0;
     }
 
     pkey->receive_state = libssh2_NB_state_idle;
