@@ -701,7 +701,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     id = SendMessage(hwnd, WM_COPYDATA, (WPARAM) NULL, (LPARAM) &cds);
     if(id > 0) {
         transctx->response_len = _libssh2_ntohu32(p);
-        if(transctx->response_len > PAGEANT_MAX_MSGLEN) {
+        if(transctx->response_len > PAGEANT_MAX_MSGLEN - 4) {
             UnmapViewOfFile(p);
             CloseHandle(filemap);
             return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
@@ -716,6 +716,11 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
                                   "agent malloc");
         }
         memcpy(transctx->response, p + 4, transctx->response_len);
+    } else {
+        UnmapViewOfFile(p);
+        CloseHandle(filemap);
+        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                              "no response from pageant");
     }
 
     UnmapViewOfFile(p);
