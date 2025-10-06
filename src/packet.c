@@ -778,7 +778,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                (int)message_len,
                                (message ? (const char *)message : ""),
                                (int)language_len,
-                               (language ? (const char *)language : ""));
+                               (language ? (const char *)language : "")));
             }
 
             LIBSSH2_FREE(session, data);
