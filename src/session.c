@@ -847,6 +847,8 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
                                   "ssh-userauth request");
 
         if(session->startup_data_len < 5) {
+            LIBSSH2_FREE(session, session->startup_data);
+            session->startup_data = NULL;
             return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                   "Unexpected packet length");
         }
