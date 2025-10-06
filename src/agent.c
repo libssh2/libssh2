@@ -603,7 +603,7 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
         if(rc < 0) {
             if(rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
+            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_RECV,
                                   "agent recv failed");
         }
         transctx->state = agent_NB_state_response_received;
