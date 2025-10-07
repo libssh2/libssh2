@@ -1163,7 +1163,7 @@ sftp_open(LIBSSH2_SFTP *sftp, const char *filename,
     packet_len = (13 +
                  (open_file ? (4 + sftp_attrsize(attrs.flags)) : 0));
 
-    if(packet_len + filename_len < packet_len) {
+    if(packet_len + (uint32_t)filename_len < packet_len) {
         _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                        "Input too large "
                        "sftp_open");
@@ -2803,7 +2803,7 @@ static int sftp_unlink(LIBSSH2_SFTP *sftp, const char *filename,
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + filename_len(4) */
     packet_len = 13;
 
-    if(packet_len + filename_len < packet_len) {
+    if(packet_len + (uint32_t)filename_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large "
                               "sftp_unlink");
@@ -2919,14 +2919,14 @@ static int sftp_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
        source_filename_len(4) + dest_filename_len(4) + flags(4){SFTP5+) */
     packet_len = 17 + (sftp->version >= 5 ? 4 : 0);
 
-    if(packet_len + source_filename_len < packet_len) {
+    if(packet_len + (uint32_t)source_filename_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large "
                               "sftp_rename");
     }
     packet_len += (uint32_t)source_filename_len;
 
-    if(packet_len + dest_filename_len < packet_len) {
+    if(packet_len + (uint32_t)dest_filename_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large (2) "
                               "sftp_rename");
@@ -3082,14 +3082,14 @@ sftp_posix_rename(LIBSSH2_SFTP *sftp, const char *source_filename,
 
     packet_len = 45;
 
-    if(packet_len + source_filename_len < packet_len) {
+    if(packet_len + (uint32_t)source_filename_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large "
                               "posix-rename@openssh.com");
     }
     packet_len += (uint32_t)source_filename_len;
 
-    if(packet_len + dest_filename_len < packet_len) {
+    if(packet_len + (uint32_t)dest_filename_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large (2) "
                               "posix-rename@openssh.com");
@@ -3212,7 +3212,7 @@ static int sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle, LIBSSH2_SFTP_STATVFS *st)
     /* 20 = strlen ("fstatvfs@openssh.com") */
     packet_len = 20 + 17;
 
-    if(packet_len + handle->handle_len < packet_len) {
+    if(packet_len + (uint32_t)handle->handle_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large "
                               "sftp_fstatvfs");
@@ -3357,12 +3357,12 @@ static int sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
     /* 19 = strlen ("statvfs@openssh.com") */
     packet_len = 19 + 17;
 
-    if(packet_len + path_len < packet_len) {
+    if(packet_len + (uint32_t)path_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large "
                               "sftp_statvfs");
     }
-    packet_len += path_len;
+    packet_len += (uint32_t)path_len;
 
     if(sftp->statvfs_state == libssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
@@ -3508,12 +3508,12 @@ static int sftp_mkdir(LIBSSH2_SFTP *sftp, const char *path,
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
     packet_len = 13 + sftp_attrsize(attrs.flags);
 
-    if(packet_len + path_len < packet_len) {
+    if(packet_len + (uint32_t)path_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large "
                               "sftp_mkdir");
     }
-    packet_len += path_len;
+    packet_len += (uint32_t)path_len;
 
     if(sftp->mkdir_state == libssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
@@ -3623,12 +3623,12 @@ static int sftp_rmdir(LIBSSH2_SFTP *sftp, const char *path,
     unsigned char *s, *data = NULL;
     int rc;
 
-    if(packet_len + path_len < packet_len) {
+    if(packet_len + (uint32_t)path_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large "
                               "sftp_rmdir");
     }
-    packet_len += path_len;
+    packet_len += (uint32_t)path_len;
 
     if(sftp->rmdir_state == libssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
@@ -3738,12 +3738,12 @@ static int sftp_stat(LIBSSH2_SFTP *sftp, const char *path,
         { SSH_FXP_ATTRS, SSH_FXP_STATUS };
     int rc;
 
-    if(packet_len + path_len < packet_len) {
+    if(packet_len + (uint32_t)path_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large "
                               "sftp_stat");
     }
-    packet_len += path_len;
+    packet_len += (uint32_t)path_len;
 
     if(sftp->stat_state == libssh2_NB_state_idle) {
         sftp->last_errno = LIBSSH2_FX_OK;
@@ -3886,12 +3886,12 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
     /* 13 = packet_len(4) + packet_type(1) + request_id(4) + path_len(4) */
     packet_len = 13;
 
-    if(packet_len + path_len < packet_len) {
+    if(packet_len + (uint32_t)path_len < packet_len) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Input too large "
                               "sftp_symlink");
     }
-    packet_len += path_len;
+    packet_len += (uint32_t)path_len;
 
     if(link_type == LIBSSH2_SFTP_SYMLINK) {
 
