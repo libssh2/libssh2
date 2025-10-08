@@ -10,6 +10,6 @@ updates:
       interval: 'monthly'
 
   - package-ecosystem: 'pip'
-    directory: '/'
+    directory: '/.github/workflows'
     schedule:
       interval: 'monthly'
