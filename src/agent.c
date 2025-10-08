@@ -716,7 +716,8 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
                                   "agent malloc");
         }
         memcpy(transctx->response, p + 4, transctx->response_len);
-    } else {
+    }
+    else {
         UnmapViewOfFile(p);
         CloseHandle(filemap);
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
