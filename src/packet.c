@@ -475,12 +475,12 @@ packet_authagent_open(LIBSSH2_SESSION * session,
     buf.dataptr = buf.data;
     buf.len = datalen;
 
-    buf.dataptr += offset;
-
     if(datalen < offset) {
         return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
                               "Unexpected packet size");
     }
+
+    buf.dataptr += offset;
 
     if(authagent_state->state == libssh2_NB_state_idle) {
         if(_libssh2_get_u32(&buf, &(authagent_state->sender_channel))) {
