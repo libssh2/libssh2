@@ -464,7 +464,7 @@ packet_authagent_open(LIBSSH2_SESSION * session,
 {
     uint32_t failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
-    size_t packet_len = 17 + strlen(X11FwdUnAvil);
+    size_t packet_len = 17 + strlen(AuthAgentUnavail);
     unsigned char *p;
     LIBSSH2_CHANNEL *channel = authagent_state->channel;
     int rc;
