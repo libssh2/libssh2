@@ -74,7 +74,7 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
     size_t packet_len = 17 + strlen(FwdNotReq);
     unsigned char *p;
     LIBSSH2_LISTENER *listn = _libssh2_list_first(&session->listeners);
-    char failure_code = SSH_OPEN_ADMINISTRATIVELY_PROHIBITED;
+    uint32_t failure_code = SSH_OPEN_ADMINISTRATIVELY_PROHIBITED;
     int rc;
 
     if(listen_state->state == libssh2_NB_state_idle) {
@@ -280,7 +280,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
                 size_t datalen,
                 packet_x11_open_state_t *x11open_state)
 {
-    int failure_code = SSH_OPEN_CONNECT_FAILED;
+    uint32_t failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
     size_t packet_len = 17 + strlen(X11FwdUnAvil);
     unsigned char *p;
@@ -462,7 +462,7 @@ packet_authagent_open(LIBSSH2_SESSION * session,
                       unsigned char *data, size_t datalen,
                       packet_authagent_state_t *authagent_state)
 {
-    int failure_code = SSH_OPEN_CONNECT_FAILED;
+    uint32_t failure_code = SSH_OPEN_CONNECT_FAILED;
     /* 17 = packet_type(1) + channel(4) + reason(4) + descr(4) + lang(4) */
     size_t packet_len = 17 + strlen(X11FwdUnAvil);
     unsigned char *p;
