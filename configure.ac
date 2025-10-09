@@ -103,7 +103,7 @@ dnl **********************************************************************
 
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(docs,
-AS_HELP_STRING([--enable-docs],[Enable documentation])
+AS_HELP_STRING([--enable-docs],[Enable documentation (default)])
 AS_HELP_STRING([--disable-docs],[Disable documentation]),
 [ case "$enableval" in
   no)
