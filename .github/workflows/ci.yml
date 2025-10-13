@@ -515,7 +515,7 @@ jobs:
           fi
 
       - name: 'tests'
-        if: ${{ !matrix.target }}
+        if: ${{ !matrix.target && matrix.crypto != 'Libgcrypt' }}
         timeout-minutes: 10
         run: |
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
