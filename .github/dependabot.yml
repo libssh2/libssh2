@@ -8,19 +8,8 @@ updates:
     directory: '/'
     schedule:
       interval: 'monthly'
-    commit-message:
-      prefix: 'GHA:'
 
   - package-ecosystem: 'pip'
     directory: '/.github/workflows'
     schedule:
       interval: 'monthly'
-    commit-message:
-      prefix: 'GHA:'
-
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    commit-message:
-      prefix: 'GHA:'
