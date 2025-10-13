@@ -139,10 +139,11 @@
 # define LIBSSH2_DSA 1
 #endif
 
-#if defined(OPENSSL_NO_ECDSA) || defined(OPENSSL_NO_EC)
-# define LIBSSH2_ECDSA 0
-#else
+#if (!defined(OPENSSL_NO_ECDSA) && !defined(OPENSSL_NO_EC)) || \
+    (defined(LIBSSH2_WOLFSSL) && defined(HAVE_ECC))
 # define LIBSSH2_ECDSA 1
+#else
+# define LIBSSH2_ECDSA 0
 #endif
 
 #if (!defined(LIBSSH2_WOLFSSL) && \
