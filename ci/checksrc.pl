@@ -39,7 +39,7 @@ my $dir=".";
 my $wlist="";
 my @alist;
 my $windows_os = $^O eq 'MSWin32' || $^O eq 'cygwin' || $^O eq 'msys';
-my $verbose;
+my $verbose = 0;
 my %skiplist;
 
 my %ignore;
@@ -47,10 +47,69 @@ my %ignore_set;
 my %ignore_used;
 my @ignore_line;
 
+my %banfunc = (
+    "gmtime" => 1,
+    "localtime" => 1,
+    "gets" => 1,
+    "strtok" => 1,
+    "sprintf" => 1,
+    "snprintf" => 1,
+    "vsprintf" => 1,
+    "vsnprintf" => 1,
+    "aprintf" => 1,
+    "fprintf" => 1,
+    "msnprintf" => 1,
+    "mvsnprintf" => 1,
+    "printf" => 1,
+    "vaprintf" => 1,
+    "vfprintf" => 1,
+    "vprintf" => 1,
+    "sscanf" => 1,
+    "strcat" => 1,
+    "strerror" => 1,
+    "strncat" => 1,
+    "strncpy" => 1,
+    "strtok_r" => 1,
+    "strtol" => 1,
+    "strtoul" => 1,
+    "_mbscat" => 1,
+    "_mbsncat" => 1,
+    "_tcscat" => 1,
+    "_tcsdup" => 1,
+    "_tcsncat" => 1,
+    "_wcscat" => 1,
+    "_wcsncat" => 1,
+    "_wcsdup" => 1,
+    "wcsdup" => 1,
+    "LoadLibrary" => 1,
+    "LoadLibraryA" => 1,
+    "LoadLibraryW" => 1,
+    "LoadLibraryEx" => 1,
+    "LoadLibraryExA" => 1,
+    "LoadLibraryExW" => 1,
+    "WSASocket" => 1,
+    "WSASocketA" => 1,
+    "WSASocketW" => 1,
+    "_waccess" => 1,
+    "_access" => 1,
+    "access" => 1,
+    "accept" => 1,
+    "accept4" => 1,
+    "freeaddrinfo" => 1,
+    "getaddrinfo" => 1,
+    "recv" => 1,
+    "send" => 1,
+    "socket" => 1,
+    "socketpair" => 1,
+    "fclose" => 1,
+    "fdopen" => 1,
+    "fopen" => 1,
+    "open" => 1,
+    "stat" => 1,
+    );
+
 my %warnings_extended = (
     'COPYRIGHTYEAR'    => 'copyright year incorrect',
-    'STRERROR',        => 'strerror() detected',
-    'STRNCPY',         => 'strncpy() detected',
     'STDERR',          => 'stderr detected',
     );
 
@@ -73,7 +132,9 @@ my %warnings = (
     'EMPTYLINEBRACE'        => 'Empty line before the open brace',
     'EQUALSNOSPACE'         => 'equals sign without following space',
     'EQUALSNULL'            => 'if/while comparison with == NULL',
+    'ERRNOVAR'              => 'use of bare errno define',
     'EXCLAMATIONSPACE'      => 'Whitespace after exclamation mark in expression',
+    'FIXME'                 => 'FIXME or TODO comment',
     'FOPENMODE'             => 'fopen needs a macro for the mode string',
     'INCLUDEDUP',           => 'same file is included again',
     'INDENTATION'           => 'wrong start column for code',
@@ -92,7 +153,6 @@ my %warnings = (
     'RETURNNOSPACE'         => 'return without space',
     'SEMINOSPACE'           => 'semicolon without following space',
     'SIZEOFNOPAREN'         => 'use of sizeof without parentheses',
-    'SNPRINTF'              => 'use of snprintf',
     'SPACEAFTERPAREN'       => 'space after open parenthesis',
     'SPACEBEFORECLOSE'      => 'space before a close parenthesis',
     'SPACEBEFORECOMMA'      => 'space before a comma',
@@ -140,17 +200,21 @@ sub readlocalfile {
         $i++;
 
         # Lines starting with '#' are considered comments
-        if (/^\s*(#.*)/) {
+        if(/^\s*(#.*)/) {
             next;
         }
-        elsif (/^\s*enable ([A-Z]+)$/) {
+        # Skip empty lines
+        elsif($_ eq '') {
+            next;
+        }
+        elsif(/^enable ([A-Z]+)$/) {
             if(!defined($warnings_extended{$1})) {
                 print STDERR "invalid warning specified in .checksrc: \"$1\"\n";
                 next;
             }
             $warnings{$1} = $warnings_extended{$1};
         }
-        elsif (/^\s*disable ([A-Z]+)$/) {
+        elsif(/^disable ([A-Z]+)$/) {
             if(!defined($warnings{$1})) {
                 print STDERR "invalid warning specified in .checksrc: \"$1\"\n";
                 next;
@@ -158,8 +222,14 @@ sub readlocalfile {
             # Accept-list
             push @alist, $1;
         }
+        elsif(/^banfunc ([^ ]*)/) {
+            $banfunc{$1} = $1;
+        }
+        elsif(/^allowfunc ([^ ]*)/) {
+            undef $banfunc{$1};
+        }
         else {
-            die "Invalid format in $dir/.checksrc on line $i\n";
+            die "Invalid format in $dir/.checksrc on line $i: $_\n";
         }
     }
     close($rcfile);
@@ -222,28 +292,44 @@ $file = shift @ARGV;
 
 while(defined $file) {
 
-    if($file =~ /-D(.*)/) {
+    if($file =~ /^-D(.*)/) {
         $dir = $1;
         $file = shift @ARGV;
         next;
     }
-    elsif($file =~ /-W(.*)/) {
+    elsif($file =~ /^-W(.*)/) {
         $wlist .= " $1 ";
         $file = shift @ARGV;
         next;
     }
-    elsif($file =~ /-A(.+)/) {
+    elsif($file =~ /^-b(.*)/) {
+        $banfunc{$1} = $1;
+        print STDERR "ban use of \"$1\"\n";
+        $file = shift @ARGV;
+        next;
+    }
+    elsif($file =~ /^-a(.*)/) {
+        undef $banfunc{$1};
+        $file = shift @ARGV;
+        next;
+    }
+    elsif($file =~ /^-A(.+)/) {
         push @alist, $1;
         $file = shift @ARGV;
         next;
     }
-    elsif($file =~ /-i([1-9])/) {
+    elsif($file =~ /^-i([1-9])/) {
         $indent = $1 + 0;
         $file = shift @ARGV;
         next;
     }
-    elsif($file =~ /-m([0-9]+)/) {
+    elsif($file =~ /^-m([0-9]+)/) {
         $max_column = $1 + 0;
+        $file = shift @ARGV;
+        next;
+    }
+    elsif($file =~ /^-v/) {
+        $verbose = 1;
         $file = shift @ARGV;
         next;
     }
@@ -259,11 +345,14 @@ if(!$file) {
     print "checksrc.pl [option] <file1> [file2] ...\n";
     print " Options:\n";
     print "  -A[rule]  Accept this violation, can be used multiple times\n";
+    print "  -a[func]  Allow use of this function\n";
+    print "  -b[func]  Ban use of this function\n";
     print "  -D[DIR]   Directory to prepend file names\n";
     print "  -h        Show help output\n";
     print "  -W[file]  Skip the given file - ignore all its flaws\n";
     print "  -i<n>     Indent spaces. Default: 2\n";
     print "  -m<n>     Maximum line length. Default: 79\n";
+    print "  -v        Verbose\n";
     print "\nDetects and warns for these problems:\n";
     my @allw = keys %warnings;
     push @allw, keys %warnings_extended;
@@ -276,6 +365,11 @@ if(!$file) {
         }
     }
     print " [*] = disabled by default\n";
+
+    print "\nDetects and bans use of these functions:\n";
+    for my $f (sort keys %banfunc) {
+        printf (" %-18s\n", $f);
+    }
     exit;
 }
 
@@ -285,7 +379,7 @@ readlocalfile($file);
 do {
     if("$wlist" !~ / $file /) {
         my $fullname = $file;
-        $fullname = "$dir/$file" if ($fullname !~ '^\.?\.?/');
+        $fullname = "$dir/$file" if($fullname !~ '^\.?\.?/');
         scanfile($fullname);
     }
     $file = shift @ARGV;
@@ -400,6 +494,11 @@ sub scanfile {
     my $l = "";
     my $prep = 0;
     my $prevp = 0;
+
+    if($verbose) {
+        printf "Checking file: $file\n";
+    }
+
     open(my $R, '<', $file) || die "failed to open $file";
 
     my $incomment=0;
@@ -432,10 +531,10 @@ sub scanfile {
             my $count = 0;
             while($l =~ /([\d]{4})/g) {
                 push @copyright, {
-                  year => $1,
-                  line => $line,
-                  col => index($l, $1),
-                  code => $l
+                    year => $1,
+                    line => $line,
+                    col => index($l, $1),
+                    code => $l
                 };
                 $count++;
             }
@@ -451,7 +550,7 @@ sub scanfile {
         }
 
         # detect long lines
-        if(length($l) > $max_column) {
+        if(length($l) > $max_column && $l !~ / https:\/\//) {
             checkwarn("LONGLINE", $line, length($l), $file, $l,
                       "Longer than $max_column columns");
         }
@@ -477,6 +576,12 @@ sub scanfile {
             checkwarn("COMMENTNOSPACEEND",
                       $line, length($1) + 1, $file, $l,
                       "Missing space end comment end");
+        }
+
+        if($l =~ /(.*)(FIXME|TODO)/) {
+            checkwarn("FIXME",
+                      $line, length($1), $file, $l,
+                      "Avoid $2 comments. Add to documentation instead");
         }
         # ------------------------------------------------------------
         # Above this marker, the checks were done on lines *including*
@@ -713,7 +818,7 @@ sub scanfile {
         }
 
         # check for "return(" without space
-        if($l =~ /^(.*)return\(/) {
+        if($l =~ /^(.*\W)return\(/) {
             if($1 =~ / *\#/) {
                 # this is a #if, treat it differently
             }
@@ -721,6 +826,12 @@ sub scanfile {
                 checkwarn("RETURNNOSPACE", $line, length($1)+6, $file, $l,
                           "return without space before paren");
             }
+        }
+
+        # check for "return" with parentheses around just a value/name
+        if($l =~ /^(.*\W)return \(\w*\);/) {
+            checkwarn("RETURNPAREN", $line, length($1)+7, $file, $l,
+                      "return with paren");
         }
 
         # check for "sizeof" without parenthesis
@@ -800,44 +911,23 @@ sub scanfile {
         }
 
         # scan for use of banned functions
-        if($l =~ /^(.*\W)
-                   (gmtime|localtime|
-                    gets|
-                    strtok|
-                    v?sprintf|
-                    (str|_mbs|_tcs|_wcs)n?cat|
-                    LoadLibrary(Ex)?(A|W)?|
-                    _?w?access)
-                   \s*\(
-                 /x) {
+        my $bl = $l;
+      again:
+        if((($l =~ /^(.*?\W)(\w+)(\s*\()/x) && $banfunc{$2}) ||
+           (($l =~ /^(.*?\()(\w+)(\s*\()/x) && $banfunc{$2})) {
+            my $bad = $2;
+            my $prefix = $1;
+            my $suff = $3;
             checkwarn("BANNEDFUNC",
-                      $line, length($1), $file, $ol,
-                      "use of $2 is banned");
+                      $line, length($prefix), $file, $ol,
+                      "use of $bad is banned");
+            my $search = quotemeta($prefix . $bad . $suff);
+            my $replace = $prefix . 'x' x (length($bad) + 1);
+            $l =~ s/$search/$replace/;
+            goto again;
         }
-        if($warnings{"STRERROR"}) {
-            # scan for use of banned strerror. This is not a BANNEDFUNC to
-            # allow for individual enable/disable of this warning.
-            if($l =~ /^(.*\W)(strerror)\s*\(/x) {
-                if($1 !~ /^ *\#/) {
-                    # skip preprocessor lines
-                    checkwarn("STRERROR",
-                              $line, length($1), $file, $ol,
-                              "use of $2 is banned");
-                }
-            }
-        }
-        if($warnings{"STRNCPY"}) {
-            # scan for use of banned strncpy. This is not a BANNEDFUNC to
-            # allow for individual enable/disable of this warning.
-            if($l =~ /^(.*\W)(strncpy)\s*\(/x) {
-                if($1 !~ /^ *\#/) {
-                    # skip preprocessor lines
-                    checkwarn("STRNCPY",
-                              $line, length($1), $file, $ol,
-                              "use of $2 is banned");
-                }
-            }
-        }
+        $l = $bl; # restore to pre-bannedfunc content
+
         if($warnings{"STDERR"}) {
             # scan for use of banned stderr. This is not a BANNEDFUNC to
             # allow for individual enable/disable of this warning.
@@ -850,16 +940,10 @@ sub scanfile {
                 }
             }
         }
-        # scan for use of snprintf for curl-internals reasons
-        if($l =~ /^(.*\W)(v?snprintf)\s*\(/x) {
-            checkwarn("SNPRINTF",
-                      $line, length($1), $file, $ol,
-                      "use of $2 is banned");
-        }
 
         # scan for use of non-binary fopen without the macro
-        if($l =~ /^(.*\W)fopen\s*\([^,]*, *\"([^"]*)/) {
-            my $mode = $2;
+        if($l =~ /^(.*\W)(curlx_fopen|CURLX_FOPEN_LOW)\s*\([^,]*, *\"([^"]*)/) {
+            my $mode = $3;
             if($mode !~ /b/) {
                 checkwarn("FOPENMODE",
                           $line, length($1), $file, $ol,
@@ -887,7 +971,6 @@ sub scanfile {
                     my $diff = $second - $first;
                     checkwarn("INDENTATION", $line, length($1), $file, $ol,
                               "not indented $indent steps (uses $diff)");
-
                 }
             }
         }
@@ -990,6 +1073,12 @@ sub scanfile {
                       "space after exclamation mark");
         }
 
+        if($nostr =~ /(.*)\b(EACCES|EADDRINUSE|EADDRNOTAVAIL|EAFNOSUPPORT|EBADF|ECONNREFUSED|ECONNRESET|EINPROGRESS|EINTR|EINVAL|EISCONN|EMSGSIZE|ENOMEM|ETIMEDOUT|EWOULDBLOCK)\b/) {
+            checkwarn("ERRNOVAR",
+                      $line, length($1), $file, $ol,
+                      "use of bare errno define $2, use SOCK$2");
+        }
+
         # check for more than one consecutive space before open brace or
         # question mark. Skip lines containing strings since they make it hard
         # due to artificially getting multiple spaces
@@ -1001,16 +1090,16 @@ sub scanfile {
         }
       preproc:
         if($prep) {
-          # scan for use of banned symbols on a preprocessor line
-          if($l =~ /^(^|.*\W)
-                     (WIN32)
-                     (\W|$)
-                   /x) {
-              checkwarn("BANNEDPREPROC",
-                        $line, length($1), $file, $ol,
-                        "use of $2 is banned from preprocessor lines" .
-                        (($2 eq "WIN32") ? ", use _WIN32 instead" : ""));
-          }
+            # scan for use of banned symbols on a preprocessor line
+            if($l =~ /^(^|.*\W)
+                       (WIN32)
+                       (\W|$)
+                     /x) {
+                checkwarn("BANNEDPREPROC",
+                          $line, length($1), $file, $ol,
+                          "use of $2 is banned from preprocessor lines" .
+                          (($2 eq "WIN32") ? ", use _WIN32 instead" : ""));
+            }
         }
         $line++;
         $prevp = $prep;
@@ -1084,5 +1173,7 @@ if($errors || $warnings || $verbose) {
         $serrors,
         $swarnings;
     }
-    exit 5; # return failure
+    if($errors || $warnings) {
+        exit 5; # return failure
+    }
 }

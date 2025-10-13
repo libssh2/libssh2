@@ -136,10 +136,11 @@ int find_file(char *filename, char *gevonden, int *findex)
 
     if((status & 1) == 1) {
         /* !checksrc! disable BANNEDFUNC 1 */ /* FIXME */
-        strcpy(gevonden, strtok(gevonden_file, " "));
+        strcpy(gevonden,
+               strtok(gevonden_file, " "));
     }
     else {
-         gevonden[0] = 0;
+        gevonden[0] = 0;
     }
 
     return status;

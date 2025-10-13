@@ -494,6 +494,7 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
                               "failed creating socket");
 
     s_un.sun_family = AF_UNIX;
+    /* !checksrc! disable BANNEDFUNC 1 */ /* FIXME */
     strncpy(s_un.sun_path, path, sizeof(s_un.sun_path));
     s_un.sun_path[sizeof(s_un.sun_path)-1] = 0; /* make sure there's a trailing
                                                    zero */
