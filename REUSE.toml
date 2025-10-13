@@ -20,7 +20,6 @@ path = [
   "README",
   "README.md",
   "RELEASE-NOTES",
-  "ci/spellcheck-words.txt",
   "docs/AUTHORS",
   "docs/BINDINGS.md",
   "docs/HACKING-CRYPTO",
