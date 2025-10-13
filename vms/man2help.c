@@ -139,7 +139,7 @@ int find_file(char *filename, char *gevonden, int *findex)
         strcpy(gevonden, strtok(gevonden_file, " "));
     }
     else {
-         gevonden[0] = 0;
+        gevonden[0] = 0;
     }
 
     return status;
