@@ -1,3 +1,9 @@
+<!--
+Copyright (C) The libssh2 project and its contributors.
+
+SPDX-License-Identifier: BSD-3-Clause
+-->
+
 # Security Policy
 
 See [SECURITY.md](https://github.com/libssh2/libssh2/blob/master/docs/SECURITY.md) for full details.
