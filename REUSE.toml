@@ -15,17 +15,11 @@ SPDX-PackageDownloadLocation = "https://libssh2.org/"
 [[annotations]]
 path = [
   ".github/ISSUE_TEMPLATE/bug_report.md",
-  ".github/SECURITY.md",
   "NEWS",
   "README",
-  "README.md",
   "RELEASE-NOTES",
   "docs/AUTHORS",
-  "docs/BINDINGS.md",
   "docs/HACKING-CRYPTO",
-  "docs/HACKING.md",
-  "docs/INSTALL_CMAKE.md",
-  "docs/SECURITY.md",
   "docs/TODO",
   "os400/README400",
   "tests/key_*",
