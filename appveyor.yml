@@ -124,14 +124,14 @@ environment:
       GENERATOR: 'Visual Studio 14 2015'
       PLATFORM: 'x86'
       CRYPTO_BACKEND: 'WinCNG'
-      ENABLE_ECDSA_WINCNG: 'ON'
+      ENABLE_ECDSA_WINCNG: 'OFF'
 
     - job_name: 'VS2015, WinCNG, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       GENERATOR: 'Visual Studio 14 2015'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'WinCNG'
-      ENABLE_ECDSA_WINCNG: 'OFF'
+      ENABLE_ECDSA_WINCNG: 'ON'
       SKIP_CTEST: 'no'
 
 matrix:
