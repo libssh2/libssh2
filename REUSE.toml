@@ -32,7 +32,6 @@ path = [
   "tests/openssh_server/authorized_keys",
   "tests/openssh_server/ca_*",
   "tests/openssh_server/ssh_*",
-  "tests/openssh_server/sshd_config",
   "tests/test_read_algos.txt",
   "vms/readme.vms",
 ]
