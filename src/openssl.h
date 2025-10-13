@@ -90,27 +90,6 @@
 #include <wolfssl/openssl/pem.h>
 #include <wolfssl/openssl/rand.h>
 
-#if defined(OPENSSL_NO_EC) && defined(HAVE_ECC)
-#undef OPENSSL_NO_EC
-#define EC_curve_nid2nist         wolfSSL_EC_curve_nid2nist
-#define EC_GROUP_get_curve_name   wolfSSL_EC_GROUP_get_curve_name
-#define EC_GROUP_get_degree       wolfSSL_EC_GROUP_get_degree
-#define EC_KEY_free               wolfSSL_EC_KEY_free
-#define EC_KEY_generate_key       wolfSSL_EC_KEY_generate_key
-#define EC_KEY_get0_group         wolfSSL_EC_KEY_get0_group
-#define EC_KEY_get0_public_key    wolfSSL_EC_KEY_get0_public_key
-#define EC_KEY_new_by_curve_name  wolfSSL_EC_KEY_new_by_curve_name
-#define EC_KEY_set_private_key    wolfSSL_EC_KEY_set_private_key
-#define EC_KEY_set_public_key     wolfSSL_EC_KEY_set_public_key
-#define EC_POINT_free             wolfSSL_EC_POINT_free
-#define EC_POINT_new              wolfSSL_EC_POINT_new
-#define EC_POINT_oct2point        wolfSSL_EC_POINT_oct2point
-#define EC_POINT_point2oct        wolfSSL_EC_POINT_point2oct
-#define EC_POINT                  WOLFSSL_EC_POINT
-#define EC_GROUP                  WOLFSSL_EC_GROUP
-#define EC_KEY                    WOLFSSL_EC_KEY
-#endif
-
 #else /* !LIBSSH2_WOLFSSL */
 
 #include <openssl/opensslconf.h>
@@ -160,10 +139,11 @@
 # define LIBSSH2_DSA 1
 #endif
 
-#if defined(OPENSSL_NO_ECDSA) || defined(OPENSSL_NO_EC)
-# define LIBSSH2_ECDSA 0
-#else
+#if (!defined(OPENSSL_NO_ECDSA) && !defined(OPENSSL_NO_EC)) || \
+    (defined(LIBSSH2_WOLFSSL) && defined(HAVE_ECC))
 # define LIBSSH2_ECDSA 1
+#else
+# define LIBSSH2_ECDSA 0
 #endif
 
 #if (!defined(LIBSSH2_WOLFSSL) && \
