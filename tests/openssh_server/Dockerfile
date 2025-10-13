@@ -1,7 +1,8 @@
 # Copyright (C) Alexander Lamaison <alexander.lamaison@gmail.com>
 # SPDX-License-Identifier: BSD-3-Clause
 
-FROM debian:stable-slim
+# To update, get the latest digest e.g. from https://hub.docker.com/_/debian/tags
+FROM debian:trixie-slim@sha256:c99c73388e005d98f2f131b15fa9389f2a8eec2888a35dc30455e5936467803b
 
 RUN apt-get update \
  && apt-get install -y openssh-server \
