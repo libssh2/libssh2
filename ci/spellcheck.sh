@@ -8,5 +8,5 @@ cd "$(dirname "$0")"/..
 
 # shellcheck disable=SC2046
 codespell --skip='docs/AUTHORS' \
-  --ignore-words='ci/spellcheck-words.txt' \
+  --ignore-words='ci/codespell-ignore.words' \
   $(git ls-files)

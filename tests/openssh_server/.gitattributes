@@ -1,3 +1,7 @@
+# Copyright (C) The libssh2 project and its contributors.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 # OpenSSH requires LF EOLs in key files, even on Windows, where
 # a git checkout may set CRLF EOLs by default.
 * text eol=lf
