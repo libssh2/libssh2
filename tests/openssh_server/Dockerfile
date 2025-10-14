@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 # To update, get the latest digest e.g. from https://hub.docker.com/_/debian/tags
-FROM debian:trixie-slim@sha256:c99c73388e005d98f2f131b15fa9389f2a8eec2888a35dc30455e5936467803b
+FROM debian:trixie-slim@sha256:1caf1c703c8f7e15dcf2e7769b35000c764e6f50e4d7401c355fb0248f3ddfdb
 
 RUN apt-get update \
  && apt-get install -y openssh-server \
