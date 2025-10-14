@@ -18,9 +18,9 @@ updates:
     commit-message:
       prefix: 'GHA:'
 
-  - package-ecosystem: "docker"
-    directory: "/tests/openssh_server"
+  - package-ecosystem: 'docker'
+    directory: '/tests/openssh_server'
     schedule:
-      interval: "weekly"
+      interval: 'monthly'
     commit-message:
       prefix: 'GHA:'
