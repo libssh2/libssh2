@@ -355,7 +355,7 @@ jobs:
         if: ${{ matrix.crypto == 'mbedTLS' && !steps.cache-mbedtls-prev.outputs.cache-hit }}
         run: |
           curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
-            --location "https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${MBEDTLS_VERSION}.tar.gz" | tar -xz
+            --location "https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${MBEDTLS_VERSION_PREV}.tar.gz" | tar -xz
           cd "mbedtls-${MBEDTLS_VERSION_PREV}"
           cmake -B . -G Ninja \
             -DENABLE_PROGRAMS=OFF \
