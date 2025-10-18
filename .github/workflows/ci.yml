@@ -354,10 +354,10 @@ jobs:
       - name: 'install mbedTLS (prev) from source'
         if: ${{ matrix.crypto == 'mbedTLS-prev-from-source' && !steps.cache-mbedtls-prev.outputs.cache-hit }}
         run: |
-          CC=gcc  # compiler warning promoted to error when using clang (as tested with 3.0.0/3.1.0)
           curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
             --location "https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${MBEDTLS_VERSION_PREV}.tar.gz" | tar -xz
           cd "mbedtls-${MBEDTLS_VERSION_PREV}"
+          export CC=gcc  # compiler warning promoted to error when using clang (as tested with 3.0.0/3.1.0)
           cmake -B . -G Ninja \
             -DENABLE_PROGRAMS=OFF \
             -DENABLE_TESTING=OFF \
