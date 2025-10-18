@@ -229,7 +229,7 @@ jobs:
       matrix:
         compiler: [gcc, clang, clang-tidy]
         arch: [amd64]
-        crypto: [OpenSSL, Libgcrypt, mbedTLS-prev-from-source, wolfSSL]
+        crypto: [OpenSSL, Libgcrypt, mbedTLS-prev, wolfSSL]
         build: [cmake]
         zlib: ['OFF', 'ON']
         exclude:
@@ -370,7 +370,7 @@ jobs:
           cmake --install .
 
       - name: 'cache mbedTLS (prev)'
-        if: ${{ matrix.crypto == 'mbedTLS-prev-from-source' }}
+        if: ${{ matrix.crypto == 'mbedTLS-prev' }}
         uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         id: cache-mbedtls-prev
         with:
@@ -378,7 +378,7 @@ jobs:
           key: ${{ runner.os }}-mbedtls-${{ env.MBEDTLS_VERSION_PREV }}-${{ matrix.arch }}
 
       - name: 'install mbedTLS (prev) from source'
-        if: ${{ matrix.crypto == 'mbedTLS-prev-from-source' && !steps.cache-mbedtls-prev.outputs.cache-hit }}
+        if: ${{ matrix.crypto == 'mbedTLS-prev' && !steps.cache-mbedtls-prev.outputs.cache-hit }}
         run: |
           curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
             --location https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${MBEDTLS_VERSION_PREV}.tar.gz --output pkg.bin
