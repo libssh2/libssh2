@@ -44,7 +44,7 @@
 #include <stdlib.h>
 
 #if MBEDTLS_VERSION_NUMBER < 0x03010000
-  #error "mbedTLS 3.1.0 or later required"
+  #error "mbedTLS 3.1.0 or upper required"
 #endif
 
 /*******************************************************************/
