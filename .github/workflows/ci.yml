@@ -349,11 +349,12 @@ jobs:
         id: cache-mbedtls-prev
         with:
           path: ~/usr
-          key: ${{ runner.os }}-mbedtls-${{ env.MBEDTLS_VERSION }}-${{ matrix.arch }}
+          key: ${{ runner.os }}-mbedtls-${{ env.MBEDTLS_VERSION_PREV }}-${{ matrix.arch }}
 
       - name: 'install mbedTLS (prev) from source'
         if: ${{ matrix.crypto == 'mbedTLS' && !steps.cache-mbedtls-prev.outputs.cache-hit }}
         run: |
+          CC=gcc  # compiler warning promoted to error when using clang (as tested with 3.0.0/3.1.0)
           curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 120 --retry 6 --retry-connrefused \
             --location "https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${MBEDTLS_VERSION_PREV}.tar.gz" | tar -xz
           cd "mbedtls-${MBEDTLS_VERSION_PREV}"
