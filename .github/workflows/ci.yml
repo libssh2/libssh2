@@ -280,13 +280,13 @@ jobs:
       MATRIX_OPTIONS: '${{ matrix.options }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
       FIXTURE_TRACE_ALL_CONNECT: 0
-      MBEDTLS_VERSION: 3.6.4
+      MBEDTLS_VERSION: 3.6.5
       WOLFSSL_VERSION: 5.8.2
       WOLFSSL_VERSION_PREV: 5.5.4
-      BORINGSSL_VERSION: 0.20250818.0
-      AWSLC_VERSION: 1.58.0
-      LIBRESSL_VERSION: 4.1.0
-      OPENSSL_VERSION: 3.5.2
+      BORINGSSL_VERSION: 0.20251002.0
+      AWSLC_VERSION: 1.61.4
+      LIBRESSL_VERSION: 4.2.0
+      OPENSSL_VERSION: 3.6.0
       OPENSSL111_VERSION: 1.1.1w
     steps:
       - name: 'install architecture'
