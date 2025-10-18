@@ -126,7 +126,8 @@ jobs:
             printf '%s' ~/cmake-"${OLD_CMAKE_VERSION}"-win64-x64/bin/cmake.exe > ~/old-cmake-path.txt
           elif [[ "${MATRIX_IMAGE}" = *'ubuntu'* ]]; then
             sudo rm -f /var/lib/man-db/auto-update
-            sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
+            sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libwolfssl-dev
+            HOMEBREW_NO_AUTO_UPDATE=1 /home/linuxbrew/.linuxbrew/bin/brew install mbedtls
             cd ~
             curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
               --location "https://github.com/Kitware/CMake/releases/download/v${OLD_CMAKE_VERSION}/cmake-${OLD_CMAKE_VERSION}-Linux-x86_64.tar.gz" | tar -xz
@@ -157,7 +158,13 @@ jobs:
       - name: 'via find_package Libgcrypt'
         run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=Libgcrypt
       - name: 'via find_package mbedTLS'
-        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
+        run: |
+          if [[ "${MATRIX_IMAGE}" = *'ubuntu'* ]]; then
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls)/lib/pkgconfig"
+          fi
+          ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
+
       - name: 'via find_package wolfSSL'
         if: ${{ !contains(matrix.image, 'windows') }}  # MSYS2 wolfSSL package not built with the OpenSSL compatibility option
         run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=wolfSSL
@@ -281,6 +288,7 @@ jobs:
       MATRIX_ZLIB: '${{ matrix.zlib }}'
       FIXTURE_TRACE_ALL_CONNECT: 0
       MBEDTLS_VERSION: 3.6.5
+      MBEDTLS_VERSION_PREV: 3.0.0
       WOLFSSL_VERSION: 5.8.2
       WOLFSSL_VERSION_PREV: 5.5.4
       BORINGSSL_VERSION: 0.20251002.0
@@ -302,7 +310,6 @@ jobs:
         run: |
           [ "${MATRIX_CRYPTO}" = 'OpenSSL' ] && pkg='libssl-dev'
           [ "${MATRIX_CRYPTO}" = 'Libgcrypt' ] && pkg='libgcrypt-dev'
-          [ "${MATRIX_CRYPTO}" = 'mbedTLS' ] && pkg='libmbedtls-dev'
           [ "${MATRIX_CRYPTO}" = 'wolfSSL' ] && pkg='libwolfssl-dev'
           if [ -n "${pkg}" ]; then
             sudo apt-get -o Dpkg::Use-Pty=0 install "${pkg}:${MATRIX_ARCH}"
@@ -327,6 +334,28 @@ jobs:
           fi
           cmake -B . -G Ninja ${options} \
             -DCMAKE_C_FLAGS="${cflags}" \
+            -DENABLE_PROGRAMS=OFF \
+            -DENABLE_TESTING=OFF \
+            -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
+            -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
+            -DCMAKE_INSTALL_PREFIX="$HOME"/usr
+          cmake --build .
+          cmake --install .
+
+      - name: 'cache mbedTLS (prev)'
+        if: ${{ matrix.crypto == 'mbedTLS' }}
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        id: cache-mbedtls-prev
+        with:
+          path: ~/usr
+          key: ${{ runner.os }}-mbedtls-${{ env.MBEDTLS_VERSION }}-${{ matrix.arch }}
+
+      - name: 'install mbedTLS (prev) from source'
+        if: ${{ matrix.crypto == 'mbedTLS' && !steps.cache-mbedtls-prev.outputs.cache-hit }}
+        run: |
+          curl -fsS -L "https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-${MBEDTLS_VERSION_PREV}/mbedtls-${MBEDTLS_VERSION_PREV}.tar.bz2" | tar -xj
+          cd "mbedtls-${MBEDTLS_VERSION_PREV}"
+          cmake -B . -G Ninja \
             -DENABLE_PROGRAMS=OFF \
             -DENABLE_TESTING=OFF \
             -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
