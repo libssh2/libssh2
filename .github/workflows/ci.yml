@@ -375,7 +375,7 @@ jobs:
             WOLFSSLVER="${WOLFSSL_VERSION_PREV}"
             options='-DWOLFSSL_OPENSSLEXTRA=ON'
           fi
-          curl -fsS -L https://github.com/wolfSSL/wolfssl/archive/refs/tags/v$WOLFSSLVER-stable.tar.gz | tar -xz
+          curl -fsS -L "https://github.com/wolfSSL/wolfssl/archive/refs/tags/v${WOLFSSLVER}-stable.tar.gz" | tar -xz
           cd wolfssl-$WOLFSSLVER-stable
           cmake -B bld -G Ninja ${options} \
             -DWOLFSSL_LIBSSH2=ON \
