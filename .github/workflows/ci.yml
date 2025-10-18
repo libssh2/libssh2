@@ -162,6 +162,7 @@ jobs:
           if [[ "${MATRIX_IMAGE}" = *'ubuntu'* ]]; then
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
             export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls)/lib/pkgconfig"
+            export LDFLAGS=-Wl,-rpath,"$(brew --prefix mbedtls)/lib"
           fi
           ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
 
