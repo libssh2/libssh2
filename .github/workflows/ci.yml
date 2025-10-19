@@ -637,8 +637,6 @@ jobs:
           - { build: 'autotools', platform: 'x86_64', compiler: 'gcc' }
           - { build: 'cmake'    , platform: 'x86_64', compiler: 'gcc' }
     steps:
-      - run: git config --global core.autocrlf input
-
       - uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6
         with:
           platform: ${{ matrix.platform }}
