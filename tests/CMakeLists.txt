@@ -137,7 +137,7 @@ if(RUN_SSHD_TESTS AND SSHD_EXECUTABLE)
   endforeach()
 
   if(_sshd_test_targets)
-    add_test(NAME test_sshd COMMAND ${SH_EXECUTABLE} -c "${CMAKE_CURRENT_SOURCE_DIR}/test_sshd.test ${_sshd_test_targets}")
+    add_test(NAME test_sshd COMMAND "${SH_EXECUTABLE}" -c "${CMAKE_CURRENT_SOURCE_DIR}/test_sshd.test ${_sshd_test_targets}")
     set_property(TEST test_sshd APPEND PROPERTY ENVIRONMENT "srcdir=${CMAKE_CURRENT_SOURCE_DIR}")
     set_property(TEST test_sshd APPEND PROPERTY ENVIRONMENT "SSHD=${SSHD_EXECUTABLE}")
   endif()
