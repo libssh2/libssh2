@@ -6,7 +6,7 @@
 #
 # Input variables:
 #
-# - `MBEDTLS_INCLUDE_DIR`:  The mbedTLS include directory.
+# - `MBEDTLS_INCLUDE_DIR`:  Absolute path to mbedTLS include directory.
 # - `MBEDCRYPTO_LIBRARY`:   Absolute path to `mbedcrypto` library.
 #
 # Defines:

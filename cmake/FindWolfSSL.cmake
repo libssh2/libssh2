@@ -6,7 +6,7 @@
 #
 # Input variables:
 #
-# - `WOLFSSL_INCLUDE_DIR`:  The wolfSSL include directory.
+# - `WOLFSSL_INCLUDE_DIR`:  Absolute path to wolfSSL include directory.
 # - `WOLFSSL_LIBRARY`:      Absolute path to `wolfssl` library.
 #
 # Defines:
