@@ -4006,6 +4006,13 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
                               "SFTP Protocol Error (type)");
     }
 
+    /* advance past id */
+    if(_libssh2_get_u32(&buf, &tmp_u32)) {
+        LIBSSH2_FREE(session, data);
+        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
+                              "SFTP Protocol Error (id)");
+    }
+ 
     if(packet_type == SSH_FXP_STATUS) {
         if(_libssh2_get_u32(&buf, &tmp_u32)) {
             LIBSSH2_FREE(session, data);
@@ -4023,13 +4030,6 @@ static int sftp_symlink(LIBSSH2_SFTP *sftp, const char *path,
             return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
                                   "SFTP Protocol Error");
         }
-    }
-
-    /* advance past id */
-    if(_libssh2_get_u32(&buf, &tmp_u32)) {
-        LIBSSH2_FREE(session, data);
-        return _libssh2_error(session, LIBSSH2_ERROR_SFTP_PROTOCOL,
-                              "SFTP Protocol Error (id)");
     }
 
     /* look for at least one link */
