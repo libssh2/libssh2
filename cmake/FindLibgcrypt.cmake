@@ -7,7 +7,7 @@
 # Input variables:
 #
 # - `LIBGCRYPT_INCLUDE_DIR`:  The Libgcrypt include directory.
-# - `LIBGCRYPT_LIBRARY`:      Path to `libgcrypt` library.
+# - `LIBGCRYPT_LIBRARY`:      Absolute path to `libgcrypt` library.
 #
 # Defines:
 #
