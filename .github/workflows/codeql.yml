@@ -60,7 +60,8 @@ jobs:
           sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
           sudo apt-get -o Dpkg::Use-Pty=0 update
           sudo rm -f /var/lib/man-db/auto-update
-          sudo apt-get -o Dpkg::Use-Pty=0 install zlib1g-dev libssl-dev libgcrypt-dev libmbedtls-dev libwolfssl-dev
+          sudo apt-get -o Dpkg::Use-Pty=0 install zlib1g-dev libssl-dev libgcrypt-dev libwolfssl-dev
+          HOMEBREW_NO_AUTO_UPDATE=1 /home/linuxbrew/.linuxbrew/bin/brew install mbedtls
 
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -81,6 +82,8 @@ jobs:
             cmake -B . -DCRYPTO_BACKEND=WinCNG -DCMAKE_VS_GLOBALS=TrackFileAccess=false
             cmake --build . --verbose
           else
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls)/lib/pkgconfig"
             for crypto in OpenSSL Libgcrypt mbedTLS wolfSSL; do
               cmake -B _bld-${crypto} -G Ninja -DCRYPTO_BACKEND=${crypto} -DENABLE_ZLIB_COMPRESSION=ON
               cmake --build _bld-${crypto} --verbose
