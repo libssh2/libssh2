@@ -28,7 +28,8 @@ name: 'OpenSSH Server Docker Image'
 
 'on':
   push:
-    branches: [master]
+    branches:
+      - master
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.sha }}
