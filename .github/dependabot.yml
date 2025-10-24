@@ -8,6 +8,8 @@ updates:
     directory: '/'
     schedule:
       interval: 'monthly'
+    cooldown:
+      default-days: 7
     commit-message:
       prefix: 'GHA:'
 
@@ -15,6 +17,11 @@ updates:
     directory: '/.github/workflows'
     schedule:
       interval: 'monthly'
+    cooldown:
+      default-days: 7
+      semver-major-days: 15
+      semver-minor-days: 7
+      semver-patch-days: 3
     commit-message:
       prefix: 'GHA:'
 
@@ -22,5 +29,7 @@ updates:
     directory: '/tests/openssh_server'
     schedule:
       interval: 'monthly'
+    cooldown:
+      default-days: 15
     commit-message:
       prefix: 'GHA:'
