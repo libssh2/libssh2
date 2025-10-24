@@ -56,7 +56,7 @@ jobs:
 
       - shell: bash
         id: hash
-        run: echo "::set-output name=hash::$(git rev-parse --short=20 HEAD:tests/openssh_server)"
+        run: echo "hash=$(git rev-parse --short=20 HEAD:tests/openssh_server)" >> "$GITHUB_OUTPUT"
 
       - shell: bash
         id: poll
