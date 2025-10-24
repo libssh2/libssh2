@@ -30,6 +30,10 @@ name: 'OpenSSH Server Docker Image'
   push:
     branches: [master]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
