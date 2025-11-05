@@ -83,8 +83,8 @@ jobs:
             cmake --build . --verbose
           else
             for crypto in OpenSSL Libgcrypt mbedTLS wolfSSL; do
-              cmake -B _bld-${crypto} -G Ninja -DCRYPTO_BACKEND=${crypto} -DENABLE_ZLIB_COMPRESSION=ON
-              cmake --build _bld-${crypto} --verbose
+              cmake -B _bld-"${crypto}" -G Ninja -DCRYPTO_BACKEND="${crypto}" -DENABLE_ZLIB_COMPRESSION=ON
+              cmake --build _bld-"${crypto}" --verbose
             done
           fi
 

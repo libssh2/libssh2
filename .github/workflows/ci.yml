@@ -279,7 +279,6 @@ jobs:
       MATRIX_ARCH: '${{ matrix.arch }}'
       MATRIX_BUILD: '${{ matrix.build }}'
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
-      MATRIX_OPTIONS: '${{ matrix.options }}'
       MATRIX_ZLIB: '${{ matrix.zlib }}'
       FIXTURE_TRACE_ALL_CONNECT: 0
       MBEDTLS_VERSION: 3.6.5
@@ -502,7 +501,7 @@ jobs:
               options+=' --with-libz'
             fi
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
-              ${options} ${MATRIX_OPTIONS} \
+              ${options} \
               --disable-dependency-tracking \
               || { tail -n 1000 config.log; false; }
           fi
@@ -539,7 +538,7 @@ jobs:
         run: |
           export SOURCE_DATE_EPOCH=1711526400
           ./configure --enable-werror --disable-debug \
-            ${MATRIX_OPTIONS} --disable-dependency-tracking
+            --disable-dependency-tracking
           ./maketgz 99.98.97
           # Test reproducibility
           mkdir run1; mv ./libssh2-99.98.97.* run1/
@@ -551,7 +550,7 @@ jobs:
           tar -xvf libssh2-99.98.97.tar.gz
           cd libssh2-99.98.97
           ./configure --enable-option-checking=fatal --enable-werror --enable-debug --prefix="$HOME"/temp \
-            ${MATRIX_OPTIONS} --disable-dependency-tracking
+            --disable-dependency-tracking
           make install
           cd ..
           # Verify install
@@ -863,7 +862,7 @@ jobs:
           fi
           [ "${MATRIX_CRYPTO}" = 'WinCNG' ] && options+=" -DENABLE_ECDSA_WINCNG=${MATRIX_WINCND_ECDSA}"
           cmake -B bld ${options} \
-            -DCMAKE_SYSTEM_NAME=${system} \
+            -DCMAKE_SYSTEM_NAME="${system}" \
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake \
             -DCMAKE_GENERATOR_PLATFORM=${archgen} \
             -DVCPKG_TARGET_TRIPLET="${MATRIX_ARCH}-${MATRIX_PLAT}" \
