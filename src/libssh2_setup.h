@@ -69,8 +69,8 @@
 #  endif
 # endif
 #elif defined(_MSC_VER)
-# ifndef _CRT_SECURE_NO_WARNINGS
-# define _CRT_SECURE_NO_WARNINGS  /* for fopen(), getenv() */
+# ifndef _CRT_SECURE_NO_DEPRECATE
+# define _CRT_SECURE_NO_DEPRECATE  /* for fopen(), getenv() */
 # endif
 # if !defined(LIBSSH2_LIBRARY) || defined(LIBSSH2_TESTS)
    /* apply to examples and tests only */
