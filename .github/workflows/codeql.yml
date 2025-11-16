@@ -24,6 +24,7 @@ permissions: {}
 
 jobs:
   gha:
+    if: ${{ github.repository_owner == 'libssh2' || github.event_name != 'schedule' }}
     name: 'GHA'
     runs-on: ubuntu-latest
     permissions:
@@ -43,6 +44,7 @@ jobs:
         uses: github/codeql-action/analyze@f443b600d91635bebf5b0d9ebc620189c0d6fba5 # v4.30.8
 
   c:
+    if: ${{ github.repository_owner == 'libssh2' || github.event_name != 'schedule' }}
     name: 'C'
     runs-on: ${{ matrix.platform == 'Linux' && 'ubuntu-latest' || 'windows-2022' }}
     permissions:
