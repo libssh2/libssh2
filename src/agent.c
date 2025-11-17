@@ -721,7 +721,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
         UnmapViewOfFile(p);
         CloseHandle(filemap);
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
-                              "pagent did not handle message");
+                              "pageant did not handle message");
     }
 
     UnmapViewOfFile(p);
