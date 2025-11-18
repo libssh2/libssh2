@@ -72,6 +72,7 @@
 #define LIBSSH2_RSA_SHA2 1
 #define LIBSSH2_DSA 1
 #define LIBSSH2_ED25519 0
+#define LIBSSH2_MLKEM 0
 
 /*
  * Conditionally enable ECDSA support.
