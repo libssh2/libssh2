@@ -414,6 +414,14 @@ password_response:
                                       "Authentication failed "
                                       "(username/password)");
             }
+            else if (session->userauth_pswd_data[0] ==
+                SSH_MSG_USERAUTH_BANNER) {
+                _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                    "Banner received, ignoring"));
+                LIBSSH2_FREE(session, session->userauth_pswd_data);
+                session->userauth_pswd_data = NULL;
+                goto password_response;
+            }
 
             session->userauth_pswd_newpw = NULL;
             session->userauth_pswd_newpw_len = 0;
