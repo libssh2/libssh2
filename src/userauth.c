@@ -301,12 +301,14 @@ userauth_password(LIBSSH2_SESSION *session,
                   LIBSSH2_PASSWD_CHANGEREQ_FUNC((*passwd_change_cb)))
 {
     unsigned char *s;
-    static const unsigned char reply_codes[4] =
+    static const unsigned char reply_codes[5] =
         { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
-          SSH_MSG_USERAUTH_PASSWD_CHANGEREQ, 0
+          SSH_MSG_USERAUTH_PASSWD_CHANGEREQ,
+          SSH_MSG_USERAUTH_BANNER, 0
         };
     int rc;
-
+    unsigned int banner_len;
+    
     if(session->userauth_pswd_state == libssh2_NB_state_idle) {
         /* Zero the whole thing out */
         memset(&session->userauth_pswd_packet_requirev_state, 0,
@@ -414,10 +416,33 @@ password_response:
                                       "Authentication failed "
                                       "(username/password)");
             }
-            else if (session->userauth_pswd_data[0] ==
+            else if(session->userauth_pswd_data[0] ==
                 SSH_MSG_USERAUTH_BANNER) {
+                                banner_len = _libssh2_ntohu32(session->userauth_pswd_data + 1);
+                if(banner_len > session->userauth_pswd_data_len - 5) {
+                    LIBSSH2_FREE(session, session->userauth_pswd_data);
+                    session->userauth_pswd_data = NULL;
+                    return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+                                           "Unexpected userauth banner size");
+                }
+
+                if(session->userauth_banner) {
+                    LIBSSH2_FREE(session, session->userauth_banner);
+                }
+
+                session->userauth_banner = LIBSSH2_ALLOC(session, banner_len + 1);
+                if(!session->userauth_banner) {
+                    LIBSSH2_FREE(session, session->userauth_pswd_data);
+                    session->userauth_pswd_data = NULL;
+                    return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                          "Unable to allocate memory for userauth_banner");
+                }
+                memcpy(session->userauth_banner, session->userauth_pswd_data + 5,
+                    banner_len);
+                session->userauth_banner[banner_len] = '\0';
                 _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
-                    "Banner received, ignoring"));
+                           "Banner: %s",
+                           session->userauth_banner));
                 LIBSSH2_FREE(session, session->userauth_pswd_data);
                 session->userauth_pswd_data = NULL;
                 goto password_response;
