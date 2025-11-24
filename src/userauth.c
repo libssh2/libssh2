@@ -308,7 +308,7 @@ userauth_password(LIBSSH2_SESSION *session,
         };
     int rc;
     unsigned int banner_len;
-    
+
     if(session->userauth_pswd_state == libssh2_NB_state_idle) {
         /* Zero the whole thing out */
         memset(&session->userauth_pswd_packet_requirev_state, 0,
@@ -418,24 +418,25 @@ password_response:
             }
             else if(session->userauth_pswd_data[0] ==
                 SSH_MSG_USERAUTH_BANNER) {
-                                banner_len = _libssh2_ntohu32(session->userauth_pswd_data + 1);
+                banner_len = _libssh2_ntohu32(session->userauth_pswd_data + 1);
                 if(banner_len > session->userauth_pswd_data_len - 5) {
                     LIBSSH2_FREE(session, session->userauth_pswd_data);
                     session->userauth_pswd_data = NULL;
                     return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
-                                           "Unexpected userauth banner size");
+                                          "Unexpected userauth banner size");
                 }
 
                 if(session->userauth_banner) {
                     LIBSSH2_FREE(session, session->userauth_banner);
                 }
 
-                session->userauth_banner = LIBSSH2_ALLOC(session, banner_len + 1);
+                session->userauth_banner = LIBSSH2_ALLOC(session, 
+                                                         banner_len + 1);
                 if(!session->userauth_banner) {
                     LIBSSH2_FREE(session, session->userauth_pswd_data);
                     session->userauth_pswd_data = NULL;
                     return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                                          "Unable to allocate memory for userauth_banner");
+                               "Unable to allocate memory for userauth_banner");
                 }
                 memcpy(session->userauth_banner, session->userauth_pswd_data + 5,
                     banner_len);
