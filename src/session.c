@@ -760,7 +760,7 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         }
         memset(&serv_addr, 0, sizeof(serv_addr));
         rc = getpeername(sock, (struct sockaddr*)&serv_addr, &len);
-        if(rc != 0 || serv_addr.sin_family != AF_INET || 
+        if(rc || serv_addr.sin_family != AF_INET ||
            serv_addr.sin_port == 0) {
             session->socket_state = LIBSSH2_SOCKET_DISCONNECTED;
             return _libssh2_error(session, LIBSSH2_ERROR_BAD_SOCKET,
