@@ -172,8 +172,8 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
         if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             return -1;
         }
-       
-        if (!*line)
+
+        if(!*line)
             break;
     } while(strcmp(line, headerbegin) != 0);
 
@@ -267,7 +267,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
         /* Set up decryption */
         int free_iv = 0, free_secret = 0, len_decrypted = 0, padding = 0;
         int blocksize = method->blocksize;
-        void* abstract;
+        void *abstract;
         unsigned char secret[2 * MD5_DIGEST_LENGTH];
         libssh2_md5_ctx fingerprint_ctx;
 
@@ -281,7 +281,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
             goto out;
         }
         if(method->secret_len > MD5_DIGEST_LENGTH) {
-            if (!libssh2_md5_init(&fingerprint_ctx) ||
+            if(!libssh2_md5_init(&fingerprint_ctx) ||
                 !libssh2_md5_update(fingerprint_ctx,
                     secret, MD5_DIGEST_LENGTH) ||
                 !libssh2_md5_update(fingerprint_ctx,
@@ -305,7 +305,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
         }
 
         if(free_secret) {
-            _libssh2_explicit_zero((char*)secret, sizeof(secret));
+            _libssh2_explicit_zero((char *)secret, sizeof(secret));
         }
 
         /* Do the actual decryption */
@@ -319,7 +319,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
         }
 
         if(method->flags & LIBSSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
-            if (method->crypt(session, 0, *data, *datalen, &abstract, 0)) {
+            if(method->crypt(session, 0, *data, *datalen, &abstract, 0)) {
                 ret = LIBSSH2_ERROR_DECRYPT;
                 _libssh2_explicit_zero((char *)secret, sizeof(secret));
                 method->dtor(session, &abstract);
@@ -329,7 +329,7 @@ _libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
             }
         }
         else {
-            while (len_decrypted <= (int)*datalen - blocksize) {
+            while(len_decrypted <= (int)*datalen - blocksize) {
                 if(method->crypt(session, 0, *data + len_decrypted, blocksize,
                     &abstract,
                     len_decrypted == 0 ? FIRST_BLOCK :
