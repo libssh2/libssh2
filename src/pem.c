@@ -39,6 +39,9 @@
  */
 
 #include "libssh2_priv.h"
+#ifdef LIBSSH2_WINCNG
+#include "wincng.h"     // get MD5 functions
+#endif
 
 static int
 readline(char *line, int line_size, FILE * fp)
@@ -120,24 +123,76 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
     int ret;
     const LIBSSH2_CRYPT_METHOD *method = NULL;
 
+    char *filedata = NULL;
+    int filedata_len;
+
+    fseek(fp, 0L, SEEK_END);
+    filedata_len = ftell(fp);
+    fseek(fp, 0L, 0);
+
+    filedata = LIBSSH2_ALLOC(session, filedata_len);
+    if(!filedata) {
+        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            "Unable to allocate memory for PEM parsing");
+        ret = -1;
+        goto out;
+    }
+    ret = fread(filedata, 1, filedata_len, fp);
+    if(ret != filedata_len) {
+        _libssh2_error(session, LIBSSH2_ERROR_FILE,
+            "Bad read in PEM parsing");
+        ret = -1;
+        goto out;
+    }
+
+    ret = _libssh2_pem_parse_memory(session, headerbegin, headerend,
+                                    passphrase, filedata, filedata_len,
+                                    data, datalen);
+
+out:
+    if(filedata) {
+        LIBSSH2_FREE(session, filedata);
+    }
+    return ret;
+}
+
+int
+_libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
+                          const char *headerbegin,
+                          const char *headerend,
+                          const unsigned char* passphrase,
+                          const char *filedata, size_t filedata_len,
+                          unsigned char **data, size_t *datalen)
+{
+    char line[LINE_SIZE];
+    unsigned char iv[LINE_SIZE];
+    char *b64data = NULL;
+    size_t b64datalen = 0;
+    size_t off = 0;
+    int ret;
+    const LIBSSH2_CRYPT_METHOD* method = NULL;
+
     do {
         *line = '\0';
 
-        if(readline(line, LINE_SIZE, fp)) {
+        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             return -1;
         }
+       
+        if (!*line)
+            break;
     } while(strcmp(line, headerbegin) != 0);
 
-    if(readline(line, LINE_SIZE, fp)) {
+    if (readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
         return -1;
     }
 
-    if(passphrase &&
-            memcmp(line, crypt_annotation, strlen(crypt_annotation)) == 0) {
-        const LIBSSH2_CRYPT_METHOD **all_methods, *cur_method;
+    if (passphrase &&
+        memcmp(line, crypt_annotation, strlen(crypt_annotation)) == 0) {
+        const LIBSSH2_CRYPT_METHOD** all_methods, * cur_method;
         int i;
 
-        if(readline(line, LINE_SIZE, fp)) {
+        if (readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             ret = -1;
             goto out;
         }
@@ -146,32 +201,38 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         /* !checksrc! disable EQUALSNULL 1 */
         while((cur_method = *all_methods++) != NULL) {
             if(*cur_method->pem_annotation &&
-                    memcmp(line, cur_method->pem_annotation,
-                           strlen(cur_method->pem_annotation)) == 0) {
+                memcmp(line, cur_method->pem_annotation,
+                    strlen(cur_method->pem_annotation)) == 0) {
                 method = cur_method;
                 memcpy(iv, line + strlen(method->pem_annotation) + 1,
-                       2*method->iv_len);
+                    2 * method->iv_len);
             }
         }
 
         /* None of the available crypt methods were able to decrypt the key */
-        if(!method)
-            return -1;
+        if(!method) {
+            _libssh2_error(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
+                "Unable to decrypt PEM, unsupported algoritm");
+            ret = -1;
+            goto out;
+        }
 
         /* Decode IV from hex */
         for(i = 0; i < method->iv_len; ++i) {
-            iv[i]  = (unsigned char)(hex_decode(iv[2*i]) << 4);
-            iv[i] |= hex_decode(iv[2*i + 1]);
+            iv[i] = (unsigned char)(hex_decode(iv[2 * i]) << 4);
+            iv[i] |= hex_decode(iv[2 * i + 1]);
         }
 
         /* skip to the next line */
-        if(readline(line, LINE_SIZE, fp)) {
+        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             ret = -1;
             goto out;
         }
     }
 
-    do {
+    *line = '\0';
+
+    do{
         if(*line) {
             char *tmp;
             size_t linelen;
@@ -191,11 +252,11 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
 
         *line = '\0';
 
-        if(readline(line, LINE_SIZE, fp)) {
+        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
             ret = -1;
             goto out;
         }
-    } while(strcmp(line, headerend) != 0);
+    }while(strcmp(line, headerend) != 0);
 
     if(!b64data) {
         return -1;
@@ -207,34 +268,34 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         goto out;
     }
 
-    if(method) {
+    if (method) {
 #if LIBSSH2_MD5_PEM
         /* Set up decryption */
         int free_iv = 0, free_secret = 0, len_decrypted = 0, padding = 0;
         int blocksize = method->blocksize;
-        void *abstract;
-        unsigned char secret[2*MD5_DIGEST_LENGTH];
+        void* abstract;
+        unsigned char secret[2 * MD5_DIGEST_LENGTH];
         libssh2_md5_ctx fingerprint_ctx;
 
         /* Perform key derivation (PBKDF1/MD5) */
         if(!libssh2_md5_init(&fingerprint_ctx) ||
-           !libssh2_md5_update(fingerprint_ctx, passphrase,
-                               strlen((const char *)passphrase)) ||
-           !libssh2_md5_update(fingerprint_ctx, iv, 8) ||
-           !libssh2_md5_final(fingerprint_ctx, secret)) {
+            !libssh2_md5_update(fingerprint_ctx, passphrase,
+                strlen((const char*)passphrase)) ||
+            !libssh2_md5_update(fingerprint_ctx, iv, 8) ||
+            !libssh2_md5_final(fingerprint_ctx, secret)) {
             ret = -1;
             goto out;
         }
         if(method->secret_len > MD5_DIGEST_LENGTH) {
-            if(!libssh2_md5_init(&fingerprint_ctx) ||
-               !libssh2_md5_update(fingerprint_ctx,
-                                   secret, MD5_DIGEST_LENGTH) ||
-               !libssh2_md5_update(fingerprint_ctx,
-                                   passphrase,
-                                   strlen((const char *)passphrase)) ||
-               !libssh2_md5_update(fingerprint_ctx, iv, 8) ||
-               !libssh2_md5_final(fingerprint_ctx,
-                                  secret + MD5_DIGEST_LENGTH)) {
+            if (!libssh2_md5_init(&fingerprint_ctx) ||
+                !libssh2_md5_update(fingerprint_ctx,
+                    secret, MD5_DIGEST_LENGTH) ||
+                !libssh2_md5_update(fingerprint_ctx,
+                    passphrase,
+                    strlen((const char*)passphrase)) ||
+                !libssh2_md5_update(fingerprint_ctx, iv, 8) ||
+                !libssh2_md5_final(fingerprint_ctx,
+                    secret + MD5_DIGEST_LENGTH)) {
                 ret = -1;
                 goto out;
             }
@@ -242,20 +303,20 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
 
         /* Initialize the decryption */
         if(method->init(session, method, iv, &free_iv, secret,
-                         &free_secret, 0, &abstract)) {
-            _libssh2_explicit_zero((char *)secret, sizeof(secret));
+            &free_secret, 0, &abstract)) {
+            _libssh2_explicit_zero((char*)secret, sizeof(secret));
             LIBSSH2_FREE(session, data);
             ret = -1;
             goto out;
         }
 
         if(free_secret) {
-            _libssh2_explicit_zero((char *)secret, sizeof(secret));
+            _libssh2_explicit_zero((char*)secret, sizeof(secret));
         }
 
         /* Do the actual decryption */
         if((*datalen % blocksize) != 0) {
-            _libssh2_explicit_zero((char *)secret, sizeof(secret));
+            _libssh2_explicit_zero((char*)secret, sizeof(secret));
             method->dtor(session, &abstract);
             _libssh2_explicit_zero(*data, *datalen);
             LIBSSH2_FREE(session, *data);
@@ -264,9 +325,9 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         }
 
         if(method->flags & LIBSSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET) {
-            if(method->crypt(session, 0, *data, *datalen, &abstract, 0)) {
+            if (method->crypt(session, 0, *data, *datalen, &abstract, 0)) {
                 ret = LIBSSH2_ERROR_DECRYPT;
-                _libssh2_explicit_zero((char *)secret, sizeof(secret));
+                _libssh2_explicit_zero((char*)secret, sizeof(secret));
                 method->dtor(session, &abstract);
                 _libssh2_explicit_zero(*data, *datalen);
                 LIBSSH2_FREE(session, *data);
@@ -276,13 +337,13 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         else {
             while(len_decrypted <= (int)*datalen - blocksize) {
                 if(method->crypt(session, 0, *data + len_decrypted, blocksize,
-                                &abstract,
-                                len_decrypted == 0 ? FIRST_BLOCK :
-                                ((len_decrypted == (int)*datalen - blocksize) ?
-                                 LAST_BLOCK : MIDDLE_BLOCK)
-                                )) {
+                    &abstract,
+                    len_decrypted == 0 ? FIRST_BLOCK :
+                    ((len_decrypted == (int)*datalen - blocksize) ?
+                        LAST_BLOCK : MIDDLE_BLOCK)
+                )) {
                     ret = LIBSSH2_ERROR_DECRYPT;
-                    _libssh2_explicit_zero((char *)secret, sizeof(secret));
+                    _libssh2_explicit_zero((char*)secret, sizeof(secret));
                     method->dtor(session, &abstract);
                     _libssh2_explicit_zero(*data, *datalen);
                     LIBSSH2_FREE(session, *data);
@@ -295,84 +356,18 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
 
         /* Account for padding */
         padding = (*data)[*datalen - 1];
-        memset(&(*data)[*datalen-padding], 0, padding);
+        memset(&(*data)[*datalen - padding], 0, padding);
         *datalen -= padding;
 
         /* Clean up */
-        _libssh2_explicit_zero((char *)secret, sizeof(secret));
+        _libssh2_explicit_zero((char*)secret, sizeof(secret));
         method->dtor(session, &abstract);
 #else
+        _libssh2_error(session, LIBSSH2_ERROR_ALGO_UNSUPPORTED,
+            "Unable to decrypt PEM, MD5 not enabled");
         ret = -1;
         goto out;
 #endif
-    }
-
-    ret = 0;
-out:
-    if(b64data) {
-        _libssh2_explicit_zero(b64data, b64datalen);
-        LIBSSH2_FREE(session, b64data);
-    }
-    return ret;
-}
-
-int
-_libssh2_pem_parse_memory(LIBSSH2_SESSION * session,
-                          const char *headerbegin,
-                          const char *headerend,
-                          const char *filedata, size_t filedata_len,
-                          unsigned char **data, size_t *datalen)
-{
-    char line[LINE_SIZE];
-    char *b64data = NULL;
-    size_t b64datalen = 0;
-    size_t off = 0;
-    int ret;
-
-    do {
-        *line = '\0';
-
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
-            return -1;
-        }
-    } while(strcmp(line, headerbegin) != 0);
-
-    *line = '\0';
-
-    do {
-        if(*line) {
-            char *tmp;
-            size_t linelen;
-
-            linelen = strlen(line);
-            tmp = LIBSSH2_REALLOC(session, b64data, b64datalen + linelen);
-            if(!tmp) {
-                _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
-                               "Unable to allocate memory for PEM parsing");
-                ret = -1;
-                goto out;
-            }
-            memcpy(tmp + b64datalen, line, linelen);
-            b64data = tmp;
-            b64datalen += linelen;
-        }
-
-        *line = '\0';
-
-        if(readline_memory(line, LINE_SIZE, filedata, filedata_len, &off)) {
-            ret = -1;
-            goto out;
-        }
-    } while(strcmp(line, headerend) != 0);
-
-    if(!b64data) {
-        return -1;
-    }
-
-    if(_libssh2_base64_decode(session, (char **) data, datalen,
-                              b64data, b64datalen)) {
-        ret = -1;
-        goto out;
     }
 
     ret = 0;
