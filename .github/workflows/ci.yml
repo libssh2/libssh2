@@ -961,7 +961,8 @@ jobs:
               -DENABLE_DEBUG_LOGGING=ON \
               -DENABLE_ZLIB_COMPRESSION=ON \
               -DRUN_DOCKER_TESTS=OFF \
-              -DRUN_SSHD_TESTS=OFF
+              -DRUN_SSHD_TESTS=OFF \
+              || { cat bld/CMakeFiles/CMake*.yaml; false; }
           else
             if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
               export CPPFLAGS; CPPFLAGS=-I"$(brew --prefix mbedtls@3)"/include
@@ -972,12 +973,9 @@ jobs:
               --with-libz ${MATRIX_CONFIGURE} \
               --disable-docker-tests \
               --disable-sshd-tests \
-              --disable-dependency-tracking
+              --disable-dependency-tracking \
+              || { tail -n 1000 config.log; false; }
           fi
-
-      - name: 'configure log'
-        if: ${{ !cancelled() }}
-        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         run: |
