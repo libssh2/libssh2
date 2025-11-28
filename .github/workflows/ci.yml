@@ -696,6 +696,7 @@ jobs:
 
       - name: 'configure log'
         if: ${{ !cancelled() }}
+        shell: D:\cygwin\bin\bash.exe '{0}'
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
@@ -818,6 +819,7 @@ jobs:
 
       - name: 'configure log'
         if: ${{ !cancelled() }}
+        shell: msys2 {0}
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
