@@ -644,6 +644,9 @@ jobs:
     name: 'cygwin'
     runs-on: windows-2022
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: D:\cygwin\bin\bash.exe '{0}'
     env:
       MATRIX_BUILD: '${{ matrix.build }}'
       SHELLOPTS: 'igncr'
@@ -659,7 +662,7 @@ jobs:
           platform: ${{ matrix.platform }}
           packages: ${{ matrix.build == 'autotools' && 'autoconf automake libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
-          install-dir: D:\cygwin
+          work-vol: 'D:'
 
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -667,12 +670,10 @@ jobs:
 
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
-        shell: D:\cygwin\bin\bash.exe '{0}'
         run: autoreconf -fi
 
       - name: 'configure'
         timeout-minutes: 2
-        shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
           PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
@@ -696,12 +697,10 @@ jobs:
 
       - name: 'configure log'
         if: ${{ !cancelled() }}
-        shell: D:\cygwin\bin\bash.exe '{0}'
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         timeout-minutes: 5
-        shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
           PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
@@ -712,7 +711,6 @@ jobs:
 
       - name: 'tests'
         timeout-minutes: 5
-        shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
           PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
@@ -725,6 +723,14 @@ jobs:
     name: 'msys2'
     runs-on: windows-2022
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: msys2 {0}
+    env:
+      MATRIX_BUILD: '${{ matrix.build }}'
+      MATRIX_CRYPTO: '${{ matrix.crypto }}'
+      MATRIX_ENV: '${{ matrix.env }}'
+      MATRIX_TEST: '${{ matrix.test }}'
     strategy:
       fail-fast: false
       matrix:
@@ -741,11 +747,6 @@ jobs:
           - { build: 'cmake'    , sys: clang64, crypto: OpenSSL, env: clang-x86_64 }
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'uwp' }
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'no-options' }
-    env:
-      MATRIX_BUILD: '${{ matrix.build }}'
-      MATRIX_CRYPTO: '${{ matrix.crypto }}'
-      MATRIX_ENV: '${{ matrix.env }}'
-      MATRIX_TEST: '${{ matrix.test }}'
     steps:
       - uses: msys2/setup-msys2@fb197b72ce45fb24f17bf3f807a388985654d1f2 # v2.29.0
         if: ${{ matrix.sys == 'msys' }}
@@ -767,13 +768,11 @@ jobs:
 
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
-        shell: msys2 {0}
         run: autoreconf -fi
 
       - name: 'configure'
         env:
           SSHD: 'C:/Program Files/Git/usr/bin/sshd.exe'
-        shell: msys2 {0}
         run: |
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             if [[ "${MATRIX_ENV}" = 'clang'* ]]; then
@@ -819,11 +818,9 @@ jobs:
 
       - name: 'configure log'
         if: ${{ !cancelled() }}
-        shell: msys2 {0}
         run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
-        shell: msys2 {0}
         run: |
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             cmake --build bld
@@ -833,7 +830,6 @@ jobs:
 
       - name: 'tests'
         timeout-minutes: 10
-        shell: msys2 {0}
         run: |
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             if [ "${MATRIX_TEST}" != 'uwp' ]; then  # UWP missing 'msvcr120_app.dll', fails with exit code 0xc0000135
