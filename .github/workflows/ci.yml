@@ -166,7 +166,12 @@ jobs:
       - name: 'via find_package Libgcrypt'
         run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=Libgcrypt
       - name: 'via find_package mbedTLS'
-        run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
+        run: |
+          if [[ "${MATRIX_IMAGE}" = *'macos'* ]]; then
+            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
+          fi
+          ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=mbedTLS
+
       - name: 'via find_package wolfSSL'
         if: ${{ !contains(matrix.image, 'windows') }}  # MSYS2 wolfSSL package not built with the OpenSSL compatibility option
         run: ./tests/cmake/test.sh find_package -DCRYPTO_BACKEND=wolfSSL
@@ -898,6 +903,7 @@ jobs:
     timeout-minutes: 30
     env:
       MATRIX_BUILD: '${{ matrix.build }}'
+      MATRIX_INSTALL: '${{ matrix.crypto.install }}'
     strategy:
       fail-fast: false
       matrix:
@@ -931,7 +937,6 @@ jobs:
       - name: 'install packages'
         env:
           INSTALL_PACKAGES: ${{ matrix.build == 'autotools' && 'automake libtool' || '' }}
-          MATRIX_INSTALL: '${{ matrix.crypto.install }}'
         run: brew install ${INSTALL_PACKAGES} ${MATRIX_INSTALL}
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -947,6 +952,9 @@ jobs:
           MATRIX_GENERATE: '${{ matrix.crypto.cmake }}'
         run: |
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
+            if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
+              export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
+            fi
             cmake -B bld -G Ninja ${MATRIX_GENERATE} \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
@@ -956,6 +964,10 @@ jobs:
               -DRUN_SSHD_TESTS=OFF \
               || { cat bld/CMakeFiles/CMake*.yaml; false; }
           else
+            if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
+              export CPPFLAGS; CPPFLAGS=-I"$(brew --prefix mbedtls@3)"/include
+              export LDFLAGS; LDFLAGS=-L"$(brew --prefix mbedtls@3)"/lib
+            fi
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               --with-libz ${MATRIX_CONFIGURE} \
