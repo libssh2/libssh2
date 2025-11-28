@@ -1893,7 +1893,8 @@ retry_auth:
                                &session->userauth_pblc_packet_requirev_state);
     if(rc == LIBSSH2_ERROR_EAGAIN) {
         return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                              "Would block requesting userauth list");
+                              "Would block waiting for publickey "
+                              "USERAUTH response");
     }
     else if(rc || session->userauth_pblc_data_len < 1) {
         session->userauth_pblc_state = libssh2_NB_state_idle;
