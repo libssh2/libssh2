@@ -499,8 +499,7 @@ jobs:
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
               -DCRYPTO_BACKEND=${crypto} \
-              -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}" \
-              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+              -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}"
           else
             if [ "${MATRIX_ARCH}" = 'i386' ]; then
               options='--host=i686-pc-linux-gnu'
@@ -514,9 +513,12 @@ jobs:
             fi
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               ${options} \
-              --disable-dependency-tracking \
-              || { tail -n 1000 config.log; false; }
+              --disable-dependency-tracking
           fi
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         if: ${{ !matrix.target }}
@@ -618,15 +620,17 @@ jobs:
               -DCMAKE_C_COMPILER_TARGET="${TRIPLET}" \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
-              ${options} \
-              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+              ${options}
           else
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               --host="${TRIPLET}" \
-              --disable-dependency-tracking \
-              || { tail -n 1000 config.log; false; }
+              --disable-dependency-tracking
           fi
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         run: |
@@ -681,16 +685,18 @@ jobs:
               -DENABLE_ZLIB_COMPRESSION=ON \
               -DBUILD_OSSFUZZ=ON \
               -DRUN_DOCKER_TESTS=OFF \
-              -DRUN_SSHD_TESTS=OFF \
-              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+              -DRUN_SSHD_TESTS=OFF
           else
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               --with-crypto=openssl \
               --disable-docker-tests \
-              --disable-dependency-tracking \
-              || { tail -n 1000 config.log; false; }
+              --disable-dependency-tracking
           fi
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         timeout-minutes: 5
@@ -795,8 +801,7 @@ jobs:
               -DENABLE_ZLIB_COMPRESSION=ON \
               -DRUN_DOCKER_TESTS=OFF \
               -DRUN_SSHD_TESTS=OFF \
-              -DCMAKE_VERBOSE_MAKEFILE=ON \
-              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+              -DCMAKE_VERBOSE_MAKEFILE=ON
           else
             if [ "${MATRIX_CRYPTO}" = 'wincng' ] && [[ "${MATRIX_ENV}" = 'clang'* ]]; then
               options='--enable-ecdsa-wincng'
@@ -808,9 +813,12 @@ jobs:
               --disable-docker-tests \
               --disable-sshd-tests \
               ${options} \
-              --disable-dependency-tracking \
-              || { tail -n 1000 config.log; false; }
+              --disable-dependency-tracking
           fi
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         shell: msys2 {0}
@@ -886,8 +894,11 @@ jobs:
             -DCRYPTO_BACKEND="${MATRIX_CRYPTO}" \
             -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}" \
             -DRUN_DOCKER_TESTS=OFF \
-            -DRUN_SSHD_TESTS=OFF \
-            || { cat bld/CMakeFiles/CMake*.yaml; false; }
+            -DRUN_SSHD_TESTS=OFF
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         run: cmake --build bld --parallel 5 --target package --config Release
@@ -961,8 +972,7 @@ jobs:
               -DENABLE_DEBUG_LOGGING=ON \
               -DENABLE_ZLIB_COMPRESSION=ON \
               -DRUN_DOCKER_TESTS=OFF \
-              -DRUN_SSHD_TESTS=OFF \
-              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+              -DRUN_SSHD_TESTS=OFF
           else
             if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
               export CPPFLAGS; CPPFLAGS=-I"$(brew --prefix mbedtls@3)"/include
@@ -973,9 +983,12 @@ jobs:
               --with-libz ${MATRIX_CONFIGURE} \
               --disable-docker-tests \
               --disable-sshd-tests \
-              --disable-dependency-tracking \
-              || { tail -n 1000 config.log; false; }
+              --disable-dependency-tracking
           fi
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         run: |
