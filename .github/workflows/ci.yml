@@ -499,8 +499,7 @@ jobs:
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
               -DCRYPTO_BACKEND=${crypto} \
-              -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}" \
-              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+              -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}"
           else
             if [ "${MATRIX_ARCH}" = 'i386' ]; then
               options='--host=i686-pc-linux-gnu'
@@ -514,9 +513,12 @@ jobs:
             fi
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               ${options} \
-              --disable-dependency-tracking \
-              || { tail -n 1000 config.log; false; }
+              --disable-dependency-tracking
           fi
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         if: ${{ !matrix.target }}
@@ -618,15 +620,17 @@ jobs:
               -DCMAKE_C_COMPILER_TARGET="${TRIPLET}" \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
-              ${options} \
-              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+              ${options}
           else
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               --host="${TRIPLET}" \
-              --disable-dependency-tracking \
-              || { tail -n 1000 config.log; false; }
+              --disable-dependency-tracking
           fi
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         run: |
@@ -640,6 +644,9 @@ jobs:
     name: 'cygwin'
     runs-on: windows-2022
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: D:\cygwin\bin\bash.exe '{0}'
     env:
       MATRIX_BUILD: '${{ matrix.build }}'
       SHELLOPTS: 'igncr'
@@ -655,7 +662,7 @@ jobs:
           platform: ${{ matrix.platform }}
           packages: ${{ matrix.build == 'autotools' && 'autoconf automake libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
           site: https://mirrors.kernel.org/sourceware/cygwin/
-          install-dir: D:\cygwin
+          work-vol: 'D:'
 
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -663,12 +670,10 @@ jobs:
 
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
-        shell: D:\cygwin\bin\bash.exe '{0}'
         run: autoreconf -fi
 
       - name: 'configure'
         timeout-minutes: 2
-        shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
           PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
@@ -681,20 +686,21 @@ jobs:
               -DENABLE_ZLIB_COMPRESSION=ON \
               -DBUILD_OSSFUZZ=ON \
               -DRUN_DOCKER_TESTS=OFF \
-              -DRUN_SSHD_TESTS=OFF \
-              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+              -DRUN_SSHD_TESTS=OFF
           else
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               --with-crypto=openssl \
               --disable-docker-tests \
-              --disable-dependency-tracking \
-              || { tail -n 1000 config.log; false; }
+              --disable-dependency-tracking
           fi
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         timeout-minutes: 5
-        shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
           PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
@@ -705,7 +711,6 @@ jobs:
 
       - name: 'tests'
         timeout-minutes: 5
-        shell: D:\cygwin\bin\bash.exe '{0}'
         run: |
           PATH="/usr/bin:$(cygpath ${SYSTEMROOT})/System32"
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
@@ -718,6 +723,14 @@ jobs:
     name: 'msys2'
     runs-on: windows-2022
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: msys2 {0}
+    env:
+      MATRIX_BUILD: '${{ matrix.build }}'
+      MATRIX_CRYPTO: '${{ matrix.crypto }}'
+      MATRIX_ENV: '${{ matrix.env }}'
+      MATRIX_TEST: '${{ matrix.test }}'
     strategy:
       fail-fast: false
       matrix:
@@ -734,11 +747,6 @@ jobs:
           - { build: 'cmake'    , sys: clang64, crypto: OpenSSL, env: clang-x86_64 }
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'uwp' }
           - { build: 'cmake'    , sys: mingw64, crypto: OpenSSL, env: x86_64, test: 'no-options' }
-    env:
-      MATRIX_BUILD: '${{ matrix.build }}'
-      MATRIX_CRYPTO: '${{ matrix.crypto }}'
-      MATRIX_ENV: '${{ matrix.env }}'
-      MATRIX_TEST: '${{ matrix.test }}'
     steps:
       - uses: msys2/setup-msys2@fb197b72ce45fb24f17bf3f807a388985654d1f2 # v2.29.0
         if: ${{ matrix.sys == 'msys' }}
@@ -760,13 +768,11 @@ jobs:
 
       - name: 'autotools autoreconf'
         if: ${{ matrix.build == 'autotools' }}
-        shell: msys2 {0}
         run: autoreconf -fi
 
       - name: 'configure'
         env:
           SSHD: 'C:/Program Files/Git/usr/bin/sshd.exe'
-        shell: msys2 {0}
         run: |
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             if [[ "${MATRIX_ENV}" = 'clang'* ]]; then
@@ -795,8 +801,7 @@ jobs:
               -DENABLE_ZLIB_COMPRESSION=ON \
               -DRUN_DOCKER_TESTS=OFF \
               -DRUN_SSHD_TESTS=OFF \
-              -DCMAKE_VERBOSE_MAKEFILE=ON \
-              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+              -DCMAKE_VERBOSE_MAKEFILE=ON
           else
             if [ "${MATRIX_CRYPTO}" = 'wincng' ] && [[ "${MATRIX_ENV}" = 'clang'* ]]; then
               options='--enable-ecdsa-wincng'
@@ -808,12 +813,14 @@ jobs:
               --disable-docker-tests \
               --disable-sshd-tests \
               ${options} \
-              --disable-dependency-tracking \
-              || { tail -n 1000 config.log; false; }
+              --disable-dependency-tracking
           fi
 
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
+
       - name: 'build'
-        shell: msys2 {0}
         run: |
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             cmake --build bld
@@ -823,7 +830,6 @@ jobs:
 
       - name: 'tests'
         timeout-minutes: 10
-        shell: msys2 {0}
         run: |
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             if [ "${MATRIX_TEST}" != 'uwp' ]; then  # UWP missing 'msvcr120_app.dll', fails with exit code 0xc0000135
@@ -837,6 +843,9 @@ jobs:
     name: 'msvc'
     runs-on: windows-2022
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -852,8 +861,8 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
+
       - name: 'configure'
-        shell: bash
         env:
           MATRIX_ARCH: '${{ matrix.arch }}'
           MATRIX_CRYPTO: '${{ matrix.crypto }}'
@@ -886,11 +895,15 @@ jobs:
             -DCRYPTO_BACKEND="${MATRIX_CRYPTO}" \
             -DENABLE_ZLIB_COMPRESSION="${MATRIX_ZLIB}" \
             -DRUN_DOCKER_TESTS=OFF \
-            -DRUN_SSHD_TESTS=OFF \
-            || { cat bld/CMakeFiles/CMake*.yaml; false; }
+            -DRUN_SSHD_TESTS=OFF
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         run: cmake --build bld --parallel 5 --target package --config Release
+
       - name: 'tests'
         # UWP binaries require a CRT DLL that is not found. Static CRT not supported.
         if: ${{ matrix.arch != 'arm64' && matrix.plat != 'uwp' }}
@@ -961,8 +974,7 @@ jobs:
               -DENABLE_DEBUG_LOGGING=ON \
               -DENABLE_ZLIB_COMPRESSION=ON \
               -DRUN_DOCKER_TESTS=OFF \
-              -DRUN_SSHD_TESTS=OFF \
-              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+              -DRUN_SSHD_TESTS=OFF
           else
             if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
               export CPPFLAGS; CPPFLAGS=-I"$(brew --prefix mbedtls@3)"/include
@@ -973,9 +985,12 @@ jobs:
               --with-libz ${MATRIX_CONFIGURE} \
               --disable-docker-tests \
               --disable-sshd-tests \
-              --disable-dependency-tracking \
-              || { tail -n 1000 config.log; false; }
+              --disable-dependency-tracking
           fi
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         run: |
