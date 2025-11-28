@@ -946,6 +946,7 @@ jobs:
           MATRIX_CONFIGURE: '${{ matrix.crypto.configure }}'
           MATRIX_GENERATE: '${{ matrix.crypto.cmake }}'
         run: |
+          [ "${MATRIX_INSTALL}" = 'mbedtls@3' ] && export PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             cmake -B bld -G Ninja ${MATRIX_GENERATE} \
               -DCMAKE_UNITY_BUILD=ON \
