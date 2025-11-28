@@ -946,7 +946,9 @@ jobs:
           MATRIX_CONFIGURE: '${{ matrix.crypto.configure }}'
           MATRIX_GENERATE: '${{ matrix.crypto.cmake }}'
         run: |
-          [ "${MATRIX_INSTALL}" = 'mbedtls@3' ] && export PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
+          if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
+            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
+          fi
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
             cmake -B bld -G Ninja ${MATRIX_GENERATE} \
               -DCMAKE_UNITY_BUILD=ON \
@@ -954,17 +956,19 @@ jobs:
               -DENABLE_DEBUG_LOGGING=ON \
               -DENABLE_ZLIB_COMPRESSION=ON \
               -DRUN_DOCKER_TESTS=OFF \
-              -DRUN_SSHD_TESTS=OFF \
-              || { cat bld/CMakeFiles/CMake*.yaml; false; }
+              -DRUN_SSHD_TESTS=OFF
           else
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               --with-libz ${MATRIX_CONFIGURE} \
               --disable-docker-tests \
               --disable-sshd-tests \
-              --disable-dependency-tracking \
-              || { tail -n 1000 config.log; false; }
+              --disable-dependency-tracking
           fi
+
+      - name: 'configure log'
+        if: ${{ !cancelled() }}
+        run: cat bld/config.log bld/CMakeFiles/CMakeConfigureLog.yaml 2>/dev/null || true
 
       - name: 'build'
         run: |
