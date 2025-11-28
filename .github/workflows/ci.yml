@@ -946,10 +946,10 @@ jobs:
           MATRIX_CONFIGURE: '${{ matrix.crypto.configure }}'
           MATRIX_GENERATE: '${{ matrix.crypto.cmake }}'
         run: |
-          if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
-            export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
-          fi
           if [ "${MATRIX_BUILD}" = 'cmake' ]; then
+            if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
+              export PKG_CONFIG_PATH; PKG_CONFIG_PATH="$(brew --prefix mbedtls@3)"/lib/pkgconfig
+            fi
             cmake -B bld -G Ninja ${MATRIX_GENERATE} \
               -DCMAKE_UNITY_BUILD=ON \
               -DENABLE_WERROR=ON \
@@ -958,6 +958,10 @@ jobs:
               -DRUN_DOCKER_TESTS=OFF \
               -DRUN_SSHD_TESTS=OFF
           else
+            if [ "${MATRIX_INSTALL}" = 'mbedtls@3' ]; then
+              export CPPFLAGS; CPPFLAGS=-I"$(brew --prefix mbedtls@3)"/include
+              export LDFLAGS; LDFLAGS=-L"$(brew --prefix mbedtls@3)"/lib
+            fi
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
               --with-libz ${MATRIX_CONFIGURE} \
