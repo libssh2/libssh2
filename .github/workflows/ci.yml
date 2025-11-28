@@ -898,6 +898,7 @@ jobs:
     timeout-minutes: 30
     env:
       MATRIX_BUILD: '${{ matrix.build }}'
+      MATRIX_INSTALL: '${{ matrix.crypto.install }}'
     strategy:
       fail-fast: false
       matrix:
@@ -931,7 +932,6 @@ jobs:
       - name: 'install packages'
         env:
           INSTALL_PACKAGES: ${{ matrix.build == 'autotools' && 'automake libtool' || '' }}
-          MATRIX_INSTALL: '${{ matrix.crypto.install }}'
         run: brew install ${INSTALL_PACKAGES} ${MATRIX_INSTALL}
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
