@@ -2887,7 +2887,7 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     }
 
     /* Free some entries in session-structure, if channel found */
-    if (session->open_channel == channel) {
+    if(session->open_channel == channel) {
         session->open_channel = NULL;
         session->open_state = libssh2_NB_state_idle;
         if (session->open_packet) {
@@ -2899,7 +2899,7 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
             session->open_data = NULL;
         }
     }
-    if (session->pkeyInit_channel == channel) {
+    if(session->pkeyInit_channel == channel) {
         session->pkeyInit_channel = NULL;
         session->pkeyInit_state = libssh2_NB_state_idle;
         if (session->pkeyInit_data) {
@@ -2907,11 +2907,11 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
             session->pkeyInit_data = NULL;
         }
     }
-    if (session->packAdd_channelp == channel) {
+    if(session->packAdd_channelp == channel) {
         session->packAdd_channelp = NULL;
         session->packAdd_state = libssh2_NB_state_idle;
     }
-    if (session->scpSend_channel == channel) {
+    if(session->scpSend_channel == channel) {
         session->scpSend_channel = NULL;
         session->scpSend_state = libssh2_NB_state_idle;
         if (session->scpSend_command) {
@@ -2919,7 +2919,7 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
             session->scpSend_command = NULL;
         }
     }
-    if (session->scpRecv_channel == channel) {
+    if(session->scpRecv_channel == channel) {
         session->scpRecv_channel = NULL;
         session->scpRecv_state = libssh2_NB_state_idle;
         if (session->scpRecv_command) {
