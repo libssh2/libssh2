@@ -4,6 +4,11 @@
 option(LIBSSH2_USE_PKGCONFIG "Enable pkg-config to detect @PROJECT_NAME@ dependencies. Default: @LIBSSH2_USE_PKGCONFIG@"
   "@LIBSSH2_USE_PKGCONFIG@")
 
+if(CMAKE_VERSION VERSION_LESS @CMAKE_MINIMUM_REQUIRED_VERSION@)
+  message(STATUS "@PROJECT_NAME@: @PROJECT_NAME@-specific Find modules require "
+    "CMake @CMAKE_MINIMUM_REQUIRED_VERSION@ or upper, found: ${CMAKE_VERSION}.")
+endif()
+
 include(CMakeFindDependencyMacro)
 
 set(_libssh2_cmake_module_path_save ${CMAKE_MODULE_PATH})
