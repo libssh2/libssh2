@@ -1936,53 +1936,63 @@ retry_auth:
         session->userauth_pblc_state = libssh2_NB_state_sent3;
     }
 
-    /* PK_OK is no longer valid */
-    reply_codes[2] = 0;
+    if(session->userauth_pblc_state == libssh2_NB_state_sent3) {
+        /* PK_OK is no longer valid */
+        reply_codes[2] = 0;
 
-    rc = _libssh2_packet_requirev(session, reply_codes,
-                               &session->userauth_pblc_data,
-                               &session->userauth_pblc_data_len, 0, NULL, 0,
-                               &session->userauth_pblc_packet_requirev_state);
-    if(rc == LIBSSH2_ERROR_EAGAIN) {
-        return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
-                              "Would block waiting for publickey "
-                              "USERAUTH response");
-    }
-    else if(rc || session->userauth_pblc_data_len < 1) {
-        session->userauth_pblc_state = libssh2_NB_state_idle;
-        return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
-                              "Waiting for publickey USERAUTH response");
-    }
-
-    if(session->userauth_pblc_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
-        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
-                       "Publickey authentication successful"));
-        /* We are us and we've proved it. */
-        LIBSSH2_FREE(session, session->userauth_pblc_data);
-        session->userauth_pblc_data = NULL;
-        session->state |= LIBSSH2_STATE_AUTHENTICATED;
-        session->userauth_pblc_state = libssh2_NB_state_idle;
-        return 0;
-    }
-
-    if(session->userauth_pblc_data[0] == SSH_MSG_USERAUTH_FAILURE) {
-        if(session->userauth_pblc_data_len >= (1 + 4 + 1)) {
-            int len = _libssh2_ntohu32(&session->userauth_pblc_data[1]);
-            partial_success = session->userauth_pblc_data[1 + 4 + len];
+        rc = _libssh2_packet_requirev(session, reply_codes,
+                                &session->userauth_pblc_data,
+                                &session->userauth_pblc_data_len, 0, NULL, 0,
+                                &session->userauth_pblc_packet_requirev_state);
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                                "Would block waiting for publickey "
+                                "USERAUTH response");
         }
-        /* This public key is not allowed for this user on this server */
-        LIBSSH2_FREE(session, session->userauth_pblc_data);
-        session->userauth_pblc_data = NULL;
-        session->userauth_pblc_state = libssh2_NB_state_idle;
-        if(partial_success) {
-            return _libssh2_error(session, LIBSSH2_ERROR_PARTIAL_SUCCESS,
-                                  "Username/PublicKey partial successful");
+        else if(rc || session->userauth_pblc_data_len < 1) {
+            session->userauth_pblc_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                                "Waiting for publickey USERAUTH response");
         }
-        else {
-            return
-                _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
-                               "Invalid signature for supplied public key, "
-                               "or bad username/public key combination");
+
+        if(session->userauth_pblc_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                        "Publickey authentication successful"));
+            /* We are us and we've proved it. */
+            LIBSSH2_FREE(session, session->userauth_pblc_data);
+            session->userauth_pblc_data = NULL;
+            session->state |= LIBSSH2_STATE_AUTHENTICATED;
+            session->userauth_pblc_state = libssh2_NB_state_idle;
+            return 0;
+        }
+
+        if(session->userauth_pblc_data[0] == SSH_MSG_USERAUTH_FAILURE) {
+            if(session->userauth_pblc_data_len >= (1 + 4 + 1)) {
+                int len = _libssh2_ntohu32(&session->userauth_pblc_data[1]);
+                partial_success = session->userauth_pblc_data[1 + 4 + len];
+            }
+            /* This public key is not allowed for this user on this server */
+            LIBSSH2_FREE(session, session->userauth_pblc_data);
+            session->userauth_pblc_data = NULL;
+            session->userauth_pblc_state = libssh2_NB_state_idle;
+            if(partial_success) {
+                return _libssh2_error(session, LIBSSH2_ERROR_PARTIAL_SUCCESS,
+                                    "Username/PublicKey partial successful");
+            }
+            else {
+                return
+                    _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                                "Invalid signature for supplied public key, "
+                                "or bad username/public key combination");
+            }
+
+            LIBSSH2_FREE(session, session->userauth_pblc_data);
+            session->userauth_pblc_data = NULL;
+            session->userauth_pblc_state = libssh2_NB_state_idle;
+
+            _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                                "Invalid signature for supplied public key, "
+                                "or bad username/public key combination");
         }
     }
 
