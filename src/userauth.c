@@ -1045,6 +1045,7 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
                             size_t local_username_len)
 {
     int rc;
+    int partial_success = 0;
 
     if(session->userauth_host_state == libssh2_NB_state_idle) {
         const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
@@ -1253,6 +1254,28 @@ userauth_hostbased_fromfile(LIBSSH2_SESSION *session,
             session->userauth_host_data = NULL;
             session->state |= LIBSSH2_STATE_AUTHENTICATED;
             return 0;
+        }
+
+        if(session->userauth_host_data[0] == SSH_MSG_USERAUTH_FAILURE) {
+            if(session->userauth_host_data_len >= (1 + 4 + 1)) {
+                int len =
+                         _libssh2_ntohu32(&session->userauth_host_data[1]);
+                partial_success =
+                        session->userauth_host_data[1 + 4 + len];
+            }
+            LIBSSH2_FREE(session, session->userauth_host_data);
+            session->userauth_host_data = NULL;
+            if(partial_success) {
+                return _libssh2_error(session, LIBSSH2_ERROR_PARTIAL_SUCCESS,
+                          "Partial success with hostbased public key "
+                          "authentication");
+            }
+            else {
+                return _libssh2_error(session,
+                                      LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                          "Invalid signature for supplied public key, or bad "
+                          "username/public key combination");
+            }
         }
     }
 
@@ -1962,6 +1985,14 @@ retry_auth:
                                "or bad username/public key combination");
         }
     }
+
+    LIBSSH2_FREE(session, session->userauth_pblc_data);
+        session->userauth_pblc_data = NULL;
+        session->userauth_pblc_state = libssh2_NB_state_idle;
+
+    _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+                   "Invalid signature for supplied public key, "
+                   "or bad username/public key combination");
 }
 
 /*
