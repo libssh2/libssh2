@@ -1997,10 +1997,10 @@ retry_auth:
     }
 
     LIBSSH2_FREE(session, session->userauth_pblc_data);
-        session->userauth_pblc_data = NULL;
-        session->userauth_pblc_state = libssh2_NB_state_idle;
+    session->userauth_pblc_data = NULL;
+    session->userauth_pblc_state = libssh2_NB_state_idle;
 
-    _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
+    return _libssh2_error(session, LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED,
                    "Invalid signature for supplied public key, "
                    "or bad username/public key combination");
 }
