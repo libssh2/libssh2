@@ -132,9 +132,10 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,
      * tell mbedTLS to expect no padding on the cipher layer. Only call
      * set_padding_mode for CBC ciphers since other modes (CTR, stream)
      * are not applicable and will cause an error. */
-    if (!ret) {
-        mbedtls_cipher_type_t ctype = mbedtls_cipher_info_get_type(cipher_info);
-        if (ctype == MBEDTLS_CIPHER_AES_128_CBC ||
+    if(!ret) {
+        mbedtls_cipher_type_t ctype =
+            mbedtls_cipher_info_get_type(cipher_info);
+        if( ctype == MBEDTLS_CIPHER_AES_128_CBC ||
             ctype == MBEDTLS_CIPHER_AES_192_CBC ||
             ctype == MBEDTLS_CIPHER_AES_256_CBC ||
             ctype == MBEDTLS_CIPHER_DES_EDE3_CBC) {
