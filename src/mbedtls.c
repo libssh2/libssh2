@@ -143,7 +143,7 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,
         }
     }
 
-    if (!ret)
+    if(!ret)
         ret = mbedtls_cipher_setkey(ctx,
                   secret,
                   (int)mbedtls_cipher_info_get_key_bitlen(cipher_info),
