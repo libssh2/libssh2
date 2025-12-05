@@ -127,12 +127,18 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,
 
     mbedtls_cipher_init(ctx);
     ret = mbedtls_cipher_setup(ctx, cipher_info);
-    /* libssh2 computes and adds SSH packet padding itself, so tell mbedTLS
-     * to expect no padding on the cipher layer. If this call fails, treat
-     * it as an init error so we don't end up with get_padding == NULL. */
-    if(!ret)
-        ret = mbedtls_cipher_set_padding_mode(ctx, MBEDTLS_PADDING_NONE);
-    if(!ret)
+
+    /* libssh2 computes and adds SSH packet padding itself, so for CBC
+     * tell mbedTLS to expect no padding on the cipher layer. Only call
+     * set_padding_mode for CBC ciphers since other modes (CTR, stream)
+     * are not applicable and will cause an error. */
+    if (!ret) {
+        if (mbedtls_cipher_info_get_mode(cipher_info) == MBEDTLS_MODE_CBC) {
+            ret = mbedtls_cipher_set_padding_mode(ctx, MBEDTLS_PADDING_NONE);
+        }
+    }
+
+    if (!ret)
         ret = mbedtls_cipher_setkey(ctx,
                   secret,
                   (int)mbedtls_cipher_info_get_key_bitlen(cipher_info),
