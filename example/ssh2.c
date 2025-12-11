@@ -10,6 +10,7 @@
  *  -p authenticate using password
  *  -i authenticate using keyboard-interactive
  *  -k authenticate using public key (password argument decrypts keyfile)
+ *  -K authenticate using gssapi-with-mic
  *  command executes on the remote machine
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -34,11 +35,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef LIBSSH2_GSSAPI
+#ifndef _WIN32
+#include "netdb.h"
+#endif
+#endif
 
 static const char *pubkey = ".ssh/id_rsa.pub";
 static const char *privkey = ".ssh/id_rsa";
 static const char *username = "username";
 static const char *password = "password";
+#ifdef LIBSSH2_GSSAPI
+static const char *hostname = "localhost";
+#endif
 
 static void kbd_callback(const char *name, int name_len,
                          const char *instruction, int instruction_len,
@@ -82,7 +91,22 @@ int main(int argc, char *argv[])
 #endif
 
     if(argc > 1) {
+#ifdef LIBSSH2_GSSAPI
+        {
+            struct hostent *hostent_p = NULL;
+            hostname = argv[1];
+            hostent_p = gethostbyname(hostname);
+            if(!hostent_p)
+                hostaddr = inet_addr(inet_ntoa(*(struct in_addr*)
+                                               (hostent_p->h_addr_list[0])));
+            else {
+                fprintf(stderr, "Unknown hostname\n");
+                exit(1);
+            }
+        }
+#else
         hostaddr = inet_addr(argv[1]);
+#endif
     }
     else {
         hostaddr = htonl(0x7F000001);
@@ -168,6 +192,11 @@ int main(int argc, char *argv[])
         if(strstr(userauthlist, "publickey")) {
             auth_pw |= 4;
         }
+#ifdef LIBSSH2_GSSAPI
+        if(strstr(userauthlist, "gssapi-with-mic")) {
+            auth_pw |= 8;
+        }
+#endif
 
         /* check for options */
         if(argc > 4) {
@@ -180,6 +209,11 @@ int main(int argc, char *argv[])
             if((auth_pw & 4) && !strcmp(argv[4], "-k")) {
                 auth_pw = 4;
             }
+#ifdef LIBSSH2_GSSAPI
+            if((auth_pw & 8) && !strcmp(argv[4], "-K")) {
+                auth_pw = 8;
+            }
+#endif
         }
 
         if(auth_pw & 1) {
@@ -249,6 +283,19 @@ int main(int argc, char *argv[])
             free(fn2);
             free(fn1);
         }
+#ifdef LIBSSH2_GSSAPI
+        else if(auth_pw & 8) {
+            /* We could authenticate via Kerberos (gssapi) */
+            if(libssh2_userauth_gssapi_with_mic(session, username, hostname)) {
+                fprintf(stderr, "Authentication by gssapi-with-mic failed.\n");
+                goto shutdown;
+            }
+            else {
+                fprintf(stderr,
+                        "Authentication by gssapi-with-mic succeeded.\n");
+            }
+        }
+#endif
         else {
             fprintf(stderr, "No supported authentication methods found.\n");
             goto shutdown;

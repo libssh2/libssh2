@@ -114,6 +114,12 @@ void _libssh2_htonu32(unsigned char *buf, uint32_t val);
 void _libssh2_store_u32(unsigned char **buf, uint32_t value);
 void _libssh2_store_u64(unsigned char **buf, libssh2_uint64_t value);
 int _libssh2_store_str(unsigned char **buf, const char *str, size_t len);
+#ifdef LIBSSH2_GSSAPI
+void _libssh2_store_u8(unsigned char **buf, uint8_t value);
+int _libssh2_store_bytes(unsigned char **buf,
+                         const unsigned char *mem,
+                         size_t len);
+#endif
 int _libssh2_store_bignum2_bytes(unsigned char **buf,
                                  const unsigned char *bytes,
                                  size_t len);
