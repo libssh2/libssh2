@@ -2526,3 +2526,1196 @@ libssh2_userauth_publickey_sk(LIBSSH2_SESSION *session,
 
     return rc;
 }
+
+#ifdef LIBSSH2_GSSAPI
+static int handle_userauth_banner(LIBSSH2_SESSION *session,
+                                  unsigned char **data,
+                                  size_t *data_len,
+                                  const unsigned char *reply_codes)
+{
+    size_t banner_len;
+
+    if(*data_len < 5) {
+        LIBSSH2_FREE(session, *data);
+        *data = NULL;
+        return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+            "Unexpected packet size");
+    }
+    banner_len = _libssh2_ntohu32(*data + 1);
+    if(banner_len > *data_len - 5) {
+        LIBSSH2_FREE(session, *data);
+        *data = NULL;
+        return _libssh2_error(session, LIBSSH2_ERROR_OUT_OF_BOUNDARY,
+            "Unexpected userauth banner size");
+    }
+
+    if(session->userauth_banner) {
+        LIBSSH2_FREE(session, session->userauth_banner);
+    }
+
+    session->userauth_banner = LIBSSH2_ALLOC(session, banner_len + 1);
+    if(!session->userauth_banner) {
+        LIBSSH2_FREE(session, *data);
+        *data = NULL;
+        return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+            "Unable to allocate memory for userauth_banner");
+    }
+    memcpy(session->userauth_banner, *data + 5, banner_len);
+    session->userauth_banner[banner_len] = '\0';
+    _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+        "Banner: %s",
+        session->userauth_banner));
+
+    return _libssh2_packet_requirev(session, reply_codes,
+               data,
+               data_len, 0,
+               NULL, 0,
+               &session->userauth_list_packet_requirev_state);
+}
+
+#ifdef _WIN32
+typedef struct gss_OID_desc_struct {
+    unsigned int length;
+    void *elements;
+} gss_OID_desc, *gss_OID;
+typedef const gss_OID_desc *gss_const_OID;
+#define GSS_S_COMPLETE SEC_E_OK
+#define GSS_S_CONTINUE_NEEDED SEC_I_CONTINUE_NEEDED
+#endif
+static gss_OID_desc gss_mech_krb5_desc =
+{ 9, "\x2a\x86\x48\x86\xf7\x12\x01\x02\x02" };
+/* iso(1) member-body(2) United States(840) mit(113554)
+   infosys(1) gssapi(2) krb5(2)*/
+const gss_OID GSS_MECH_KRB5 = &gss_mech_krb5_desc;
+
+
+/* libssh2_userauth_gssapi_with_mic
+ * Authenticate using GSSAPI/Kerberos
+ */
+static int userauth_gssapi_with_mic(LIBSSH2_SESSION *session,
+                                    const char *username,
+                                    size_t username_len,
+                                    const char *hostname,
+                                    size_t hostname_len,
+                                    int delegation_flag) {
+    int rc;
+    static const unsigned char reply_codes[8] =
+        { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
+          SSH_MSG_USERAUTH_BANNER,
+          SSH_MSG_USERAUTH_GSSAPI_RESPONSE, SSH_MSG_USERAUTH_GSSAPI_TOKEN,
+          SSH_MSG_USERAUTH_GSSAPI_ERROR, SSH_MSG_USERAUTH_GSSAPI_ERRTOK,
+          0
+        };
+    unsigned char *s = NULL;
+    int partial_success = 0;
+
+#ifdef _WIN32
+    SECURITY_STATUS local_maj_stat;
+    SecBuffer out_buf;
+    SecBufferDesc out_buf_desc;
+    SecBuffer in_buf;
+    SecBufferDesc in_buf_desc;
+    SecBuffer mic_buf[2];
+    SecBufferDesc mic_buf_desc;
+    SecPkgContext_Sizes ContextSizes;
+    ULONG input_flags;
+#else
+    gss_buffer_desc mic_buffer = GSS_C_EMPTY_BUFFER;
+    gss_buffer_desc mic_hash = GSS_C_EMPTY_BUFFER;
+    gss_buffer_desc output_tok, input_tok;
+    gss_buffer_desc namebuf;
+    OM_uint32 local_maj_stat, min_stat;
+    OM_uint32 input_flags;
+    char *service_name = NULL;
+#endif
+    unsigned char *mic_hash_data = NULL;
+    size_t mic_hash_data_len = 0;
+
+    if(!session ||
+       !username || username_len == 0 ||
+       !hostname || hostname_len == 0) {
+        return _libssh2_error(session, LIBSSH2_ERROR_BAD_USE,
+                              "Parameters not valid "
+                              "userauth_gssapi_with_mic");
+    }
+    if(session->userauth_gss_state == libssh2_NB_state_idle) {
+        /* Zero the whole thing out */
+        memset(&session->userauth_gss_packet_requirev_state, 0,
+               sizeof(session->userauth_gss_packet_requirev_state));
+#ifdef _WIN32
+        session->userauth_gss_target_name = NULL;
+#else
+        session->userauth_gss_target_name = GSS_C_NO_NAME;
+#endif
+
+        /*
+         * 52 + username + KRB5_OID_len = packet_type(1) + username_len(4) +
+         * service_len(4) +service(14)"ssh-connection" + method_len(4) +
+         * method(15)"gssapi-with-mic" + gss_mech_num(4) + OID_len(4) +
+         * OID_type(1) + mech_length(1)
+         */
+        session->userauth_gss_data_len =
+                 username_len + GSS_MECH_KRB5->length + 52;
+
+        s = session->userauth_gss_data =
+            LIBSSH2_ALLOC(session, session->userauth_gss_data_len);
+        if(!session->userauth_gss_data) {
+            return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for "
+                                  "userauth-gssapi-with-mic request");
+        }
+
+        *(s++) = SSH_MSG_USERAUTH_REQUEST;
+        _libssh2_store_str(&s, username, username_len);
+        _libssh2_store_str(&s, "ssh-connection",
+                           sizeof("ssh-connection") - 1);
+        _libssh2_store_str(&s, "gssapi-with-mic",
+                           sizeof("gssapi-with-mic") - 1);
+        _libssh2_store_u32(&s, 1); /* number of GSSAPI mechanisms */
+        _libssh2_store_u32(&s, GSS_MECH_KRB5->length + 2);
+        _libssh2_store_u8(&s, SSH2_GSS_OIDTYPE);
+        _libssh2_store_u8(&s, (uint8_t)GSS_MECH_KRB5->length);
+        _libssh2_store_bytes(&s, GSS_MECH_KRB5->elements,
+                             GSS_MECH_KRB5->length);
+
+        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                        "Attempting to login using"
+                        "gssapi-with-mic authentication"));
+
+        session->userauth_gss_state = libssh2_NB_state_created;
+    }
+
+    if(session->userauth_gss_state == libssh2_NB_state_created) {
+        rc = _libssh2_transport_send(session, session->userauth_gss_data,
+                                     session->userauth_gss_data_len,
+                                     NULL, 0);
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                                  "Would block writing "
+                                  "gssapi-with-mic request");
+        }
+
+        /* now free the sent packet */
+        LIBSSH2_FREE(session, session->userauth_gss_data);
+        session->userauth_gss_data = NULL;
+
+        if(rc) {
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
+                                  "Unable to send "
+                                  "userauth-gssapi_with-mic request");
+        }
+
+        session->userauth_gss_state = libssh2_NB_state_sent;
+    }
+
+    if(session->userauth_gss_state == libssh2_NB_state_sent) {
+        rc = _libssh2_packet_requirev(session, reply_codes,
+                                      &session->userauth_gss_data,
+                                      &session->userauth_gss_data_len,
+                                      0, NULL, 0,
+                                      &session->
+                                      userauth_gss_packet_requirev_state);
+
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
+                                  "Would block requesting gssapi respons");
+        }
+        else if(rc || session->userauth_gss_data_len < 1) {
+            LIBSSH2_FREE(session, session->userauth_gss_data);
+            session->userauth_gss_data = NULL;
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                  "Unexpected packet size");
+        }
+
+        if(session->userauth_gss_data[0] == SSH_MSG_USERAUTH_BANNER) {
+            rc = handle_userauth_banner(session, &session->userauth_gss_data,
+                                        &session->userauth_gss_data_len,
+                                        reply_codes);
+            if(rc)
+                return rc;
+        }
+
+        if(session->userauth_gss_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                            "gssapi authentication successful"));
+            LIBSSH2_FREE(session, session->userauth_gss_data);
+            session->userauth_gss_data = NULL;
+            session->state |= LIBSSH2_STATE_AUTHENTICATED;
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return 0;
+        }
+        else if(session->userauth_gss_data[0] ==
+                SSH_MSG_USERAUTH_FAILURE) {
+            if(session->userauth_pswd_data_len >= (1 + 4 + 1)) {
+                int len =
+                    _libssh2_ntohu32(&session->userauth_pswd_data[1]);
+                partial_success =
+                    session->userauth_pswd_data[1 + 4 + len];
+            }
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                            "gssapi-with-mic authentication failed"));
+            LIBSSH2_FREE(session, session->userauth_gss_data);
+            session->userauth_gss_data = NULL;
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            if(partial_success) {
+                return _libssh2_error(session,
+                    LIBSSH2_ERROR_PARTIAL_SUCCESS,
+                    "Authentication partial successful "
+                    "(gssapi-with-mic)");
+            }
+            else {
+                return _libssh2_error(session,
+                    LIBSSH2_ERROR_AUTHENTICATION_FAILED,
+                    "Authentication failed "
+                    "(gssapi-with-mic)");
+            }
+        }
+        else if(session->userauth_gss_data[0] ==
+                SSH_MSG_USERAUTH_GSSAPI_RESPONSE) {
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                            "gssapi authentication respons"));
+            /* 7 = 1 + 4 + 1 + 1 */
+            if(session->userauth_gss_data_len != (GSS_MECH_KRB5->length + 7)) {
+                _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                                "gssapi-with-mic authentication failed, "
+                                "wrong OID length"));
+                LIBSSH2_FREE(session, session->userauth_gss_data);
+                session->userauth_gss_data = NULL;
+                session->userauth_gss_state = libssh2_NB_state_idle;
+                return _libssh2_error(session,
+                                      LIBSSH2_ERROR_GSSAPI_FAILURE,
+                                      "Authentication failed, wrong OID "
+                                      "length (gssapi-with-mic)");
+            }
+            if(((session->userauth_gss_data_len - 7) !=
+                 GSS_MECH_KRB5->length) ||
+                 (memcmp(&session->userauth_gss_data[7],
+                         GSS_MECH_KRB5->elements,
+                         GSS_MECH_KRB5->length) != 0)) {
+                _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                                "gssapi-with-mic authentication failed, "
+                                "wrong OID returned"));
+                LIBSSH2_FREE(session, session->userauth_gss_data);
+                session->userauth_gss_data = NULL;
+                session->userauth_gss_state = libssh2_NB_state_idle;
+                return _libssh2_error(session,
+                                      LIBSSH2_ERROR_GSSAPI_FAILURE,
+                                      "Authentication failed, wrong OID "
+                                      "returned (gssapi-with-mic)");
+            }
+
+            /*
+             * initiate an exchange of one or more pairs of
+             * SSH_MSG_USERAUTH_GSSAPI_TOKEN packets
+             */
+            LIBSSH2_FREE(session, session->userauth_gss_data);
+            session->userauth_gss_data = NULL;
+
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                            "gssapi-with-mic authentication prepare TOKEN"));
+
+#ifdef _WIN32
+            /* 6 + hostname = hostprefix(5)"host/" + stringend(1)'\0' */
+            session->userauth_gss_target_name =
+                LIBSSH2_ALLOC(session, 1 + (5 + hostname_len));
+            if(!session->userauth_gss_target_name) {
+                session->userauth_gss_state = libssh2_NB_state_idle;
+                return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                      "Unable to allocate memory for "
+                                      "userauth-gssapi-with-mic target_name");
+            }
+            snprintf(session->userauth_gss_target_name,
+                     6 + hostname_len, "host/%s", hostname);
+#else
+            /* 6 + hostname = hostprefix(5)"host@" + stringend(1)'\0' */
+            service_name = LIBSSH2_ALLOC(session, 6 + hostname_len);
+            if(!service_name) {
+                session->userauth_gss_state = libssh2_NB_state_idle;
+                return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                      "Unable to allocate memory for "
+                                      "userauth-gssapi-with-mic service_name");
+            }
+            snprintf(service_name, 6 + hostname_len, "host@%s", hostname);
+            namebuf.value = service_name;
+            namebuf.length = strlen(service_name);
+            local_maj_stat =
+                gss_import_name(&min_stat, &namebuf,
+                                (gss_OID) GSS_C_NT_HOSTBASED_SERVICE,
+                                &session->userauth_gss_target_name);
+            if(local_maj_stat != GSS_S_COMPLETE) {
+                LIBSSH2_FREE(session, service_name);
+                service_name = NULL;
+                session->userauth_gss_state = libssh2_NB_state_idle;
+                return _libssh2_error(session,
+                                      LIBSSH2_ERROR_GSSAPI_FAILURE,
+                                      "Call to gss_import_name() failed "
+                                      "(gssapi-with-mic)");
+            }
+            LIBSSH2_FREE(session, service_name);
+            service_name = NULL;
+#endif
+            session->userauth_gss_input_data = NULL;
+            session->userauth_gss_input_data_len = 0;
+            session->userauth_gss_state = libssh2_NB_state_jump1;
+        }
+    }
+
+retry_send_token:
+    if(session->userauth_gss_state == libssh2_NB_state_jump1) {
+#ifdef _WIN32
+        out_buf.BufferType = SECBUFFER_TOKEN;
+        out_buf.cbBuffer = 0;
+        out_buf.pvBuffer = NULL;
+
+        out_buf_desc.ulVersion = SECBUFFER_VERSION;
+        out_buf_desc.cBuffers = 1;
+        out_buf_desc.pBuffers = &out_buf;
+
+        input_flags = ISC_REQ_MUTUAL_AUTH | ISC_REQ_REPLAY_DETECT |
+            ISC_REQ_CONFIDENTIALITY | ISC_REQ_ALLOCATE_MEMORY;
+        if(delegation_flag)
+            input_flags |= ISC_REQ_DELEGATE;
+
+        if(!session->userauth_gss_input_data) {
+            local_maj_stat =
+                AcquireCredentialsHandleA(
+                    NULL,     /* principal(NULL = current user) */
+                    "Kerberos",           /* security package */
+                    SECPKG_CRED_OUTBOUND, /* outbound credentials */
+                    NULL,                 /* logonID (optional) */
+                    NULL,                 /* authdata (optional) */
+                    NULL,                 /*  GetKey not used */
+                    NULL,                 /* GetKey not used  */
+                    &session->userauth_gss_cred,
+                    NULL);                /* Expire, not needed */
+
+            if(local_maj_stat != SEC_E_OK) {
+                LIBSSH2_FREE(session, session->userauth_gss_target_name);
+                session->userauth_gss_target_name = NULL;
+                session->userauth_gss_state = libssh2_NB_state_idle;
+                return _libssh2_error(session,
+                                      LIBSSH2_ERROR_GSSAPI_FAILURE,
+                                      "Call to AcquireCredentialsHandleW() "
+                                      "failed (gssapi-with-mic)");
+            }
+
+            session->userauth_gss_maj_stat =
+                InitializeSecurityContextA(
+                    &session->userauth_gss_cred,
+                    NULL,                    /* No context at this point */
+                    session->userauth_gss_target_name,
+                    input_flags,
+                    0,                       /* Reserved1, not used */
+                    SECURITY_NATIVE_DREP,
+                    NULL,                    /* No inputData at this point */
+                    0,                       /* Reserved2, not used */
+                    &session->userauth_gss_context,
+                    &out_buf_desc,
+                    &session->userauth_gss_flags,
+                    NULL);                   /*  Expire, not needed */
+        }
+        else {
+            in_buf.BufferType = SECBUFFER_TOKEN;
+            in_buf.cbBuffer = (unsigned long)
+                              session->userauth_gss_input_data_len;
+            in_buf.pvBuffer = session->userauth_gss_input_data;
+
+            in_buf_desc.ulVersion = SECBUFFER_VERSION;
+            in_buf_desc.cBuffers = 1;
+            in_buf_desc.pBuffers = &in_buf;
+
+            session->userauth_gss_maj_stat =
+                InitializeSecurityContextA(
+                     &session->userauth_gss_cred,
+                     session->userauth_gss_context_handle,
+                     session->userauth_gss_target_name,
+                     input_flags,
+                     0,                      /* Reserved1, not used */
+                     SECURITY_NATIVE_DREP,
+                     &in_buf_desc,
+                     0,                      /*  Reserved2, not used */
+                     &session->userauth_gss_context,
+                     &out_buf_desc,
+                     &session->userauth_gss_flags,
+                     NULL);                  /* Expire, not needed */
+        }
+
+        if(session->userauth_gss_maj_stat < 0) {
+            LIBSSH2_FREE(session, session->userauth_gss_target_name);
+            session->userauth_gss_target_name = NULL;
+            DeleteSecurityContext(&session->userauth_gss_context);
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_GSSAPI_FAILURE,
+                                  "Call to InitializeSecureityContextA() "
+                                  "failed (gssapi-with-mic)");
+        }
+
+        session->userauth_gss_context_handle = &session->userauth_gss_context;
+
+        if((session->userauth_gss_maj_stat == SEC_I_COMPLETE_NEEDED)
+            || (session->userauth_gss_maj_stat ==
+                SEC_I_COMPLETE_AND_CONTINUE)) {
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                            "gssapi-with-mic Calling CompleteAuthToken()"));
+            local_maj_stat =
+                CompleteAuthToken(session->userauth_gss_context_handle,
+                                  &out_buf_desc);
+            if(local_maj_stat < 0) {
+                LIBSSH2_FREE(session, session->userauth_gss_target_name);
+                session->userauth_gss_target_name = NULL;
+                DeleteSecurityContext(&session->userauth_gss_context);
+                FreeCredentialsHandle(&session->userauth_gss_cred);
+                session->userauth_gss_state = libssh2_NB_state_idle;
+                return _libssh2_error(session,
+                                      LIBSSH2_ERROR_GSSAPI_FAILURE,
+                                      "Call to CompleteAuthToken() failed "
+                                      "(gssapi-with-mic)");;
+            }
+        }
+
+        session->userauth_gss_output_data_len = out_buf.cbBuffer;
+        if(session->userauth_gss_output_data_len > 0) {
+            session->userauth_gss_output_data =
+                LIBSSH2_ALLOC(session,
+                              session->userauth_gss_output_data_len);
+            if(!session->userauth_gss_output_data) {
+                LIBSSH2_FREE(session, session->userauth_gss_target_name);
+                session->userauth_gss_target_name = NULL;
+                DeleteSecurityContext(&session->userauth_gss_context);
+                FreeCredentialsHandle(&session->userauth_gss_cred);
+                session->userauth_gss_state = libssh2_NB_state_idle;
+                return _libssh2_error(session,
+                                      LIBSSH2_ERROR_ALLOC,
+                                      "Unable to allocate memory for "
+                                      "userauth-gssapi-with-mic request");
+            }
+            memcpy(session->userauth_gss_output_data, out_buf.pvBuffer,
+                   session->userauth_gss_output_data_len);
+            FreeContextBuffer(out_buf.pvBuffer);
+        }
+#else
+        if(!session->userauth_gss_input_data) {
+            input_tok.length = 0;
+            input_tok.value = NULL;
+            session->userauth_gss_context = GSS_C_NO_CONTEXT;
+        }
+        else {
+            input_tok.length = session->userauth_gss_input_data_len;
+            input_tok.value = session->userauth_gss_input_data;
+        }
+
+        input_flags = GSS_C_MUTUAL_FLAG | GSS_C_INTEG_FLAG;
+        if(delegation_flag)
+            input_flags |= GSS_C_DELEG_FLAG;
+
+        session->userauth_gss_maj_stat =
+            gss_init_sec_context(
+                    &min_stat,
+                    GSS_C_NO_CREDENTIAL,
+                    &session->userauth_gss_context,
+                    session->userauth_gss_target_name,
+                    GSS_MECH_KRB5,
+                    input_flags,
+                    0,                               /* Default timereq (2h) */
+                    GSS_C_NO_CHANNEL_BINDINGS,       /* no channel bindings */
+                    &input_tok,
+                    NULL,                            /* ignore mech type */
+                    &output_tok,
+                    &session->userauth_gss_flags,
+                    NULL);                           /* ignore time_rec */
+
+        if(session->userauth_gss_maj_stat != GSS_S_CONTINUE_NEEDED &&
+           session->userauth_gss_maj_stat != GSS_S_COMPLETE) {
+            gss_release_name(&min_stat, &session->userauth_gss_target_name);
+            if(session->userauth_gss_context != GSS_C_NO_CONTEXT)
+                gss_delete_sec_context(&min_stat,
+                                       &session->userauth_gss_context,
+                                       GSS_C_NO_BUFFER);
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_GSSAPI_FAILURE,
+                                  "Call to gss_init_sec_context() failed "
+                                  "(gssapi-with-mic)");
+        }
+
+        session->userauth_gss_output_data_len = output_tok.length;
+        if(session->userauth_gss_output_data_len > 0) {
+            session->userauth_gss_output_data =
+                LIBSSH2_ALLOC(session,
+                              session->userauth_gss_output_data_len);
+            if(!session->userauth_gss_output_data) {
+                if(session->userauth_gss_context != GSS_C_NO_CONTEXT)
+                    gss_delete_sec_context(&min_stat,
+                                           &session->userauth_gss_context,
+                                           GSS_C_NO_BUFFER);
+                gss_release_name(&min_stat,
+                                 &session->userauth_gss_target_name);
+                gss_release_buffer(&min_stat, &output_tok);
+                session->userauth_gss_state = libssh2_NB_state_idle;
+                return _libssh2_error(session,
+                                      LIBSSH2_ERROR_ALLOC,
+                                      "Unable to allocate memory for "
+                                      "userauth-gssapi-with-mic request");
+            }
+            memcpy(session->userauth_gss_output_data,
+                   output_tok.value,
+                   session->userauth_gss_output_data_len);
+            gss_release_buffer(&min_stat, &output_tok);
+        }
+#endif
+        if(session->userauth_gss_input_data_len > 0) {
+            LIBSSH2_FREE(session, session->userauth_gss_input_data);
+            session->userauth_gss_input_data_len = 0;
+            session->userauth_gss_input_data = NULL;
+        }
+
+        if(!(session->userauth_gss_maj_stat == GSS_S_COMPLETE ||
+           session->userauth_gss_maj_stat == GSS_S_CONTINUE_NEEDED) &&
+           session->userauth_gss_output_data_len == 0) {
+#ifdef _WIN32
+            LIBSSH2_FREE(session, session->userauth_gss_target_name);
+            session->userauth_gss_target_name = NULL;
+            DeleteSecurityContext(&session->userauth_gss_context);
+            FreeCredentialsHandle(&session->userauth_gss_cred);
+#else
+            gss_release_name(&min_stat, &session->userauth_gss_target_name);
+            gss_delete_sec_context(&min_stat, &session->userauth_gss_context,
+                                   GSS_C_NO_BUFFER);
+#endif
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_GSSAPI_FAILURE,
+                                  "Error calling gss_init_sec_context() for "
+                                  "userauth-gssapi-with-mic ");
+        }
+
+        if(session->userauth_gss_output_data_len > 0) {
+            /* 5 + gsstoken = packet_typ(1) + gsstoken_len(4) */
+            session->userauth_gss_data_len =
+                5 + session->userauth_gss_output_data_len;
+            s = session->userauth_gss_data =
+                LIBSSH2_ALLOC(session, session->userauth_gss_data_len);
+            if(!session->userauth_gss_data) {
+#ifdef _WIN32
+                LIBSSH2_FREE(session, session->userauth_gss_target_name);
+                session->userauth_gss_target_name = NULL;
+                DeleteSecurityContext(&session->userauth_gss_context);
+                FreeCredentialsHandle(&session->userauth_gss_cred);
+#else
+                gss_release_name(&min_stat,
+                                 &session->userauth_gss_target_name);
+                gss_delete_sec_context(&min_stat,
+                                       &session->userauth_gss_context,
+                                       GSS_C_NO_BUFFER);
+#endif
+                session->userauth_gss_state = libssh2_NB_state_idle;
+                return _libssh2_error(session,
+                                      LIBSSH2_ERROR_ALLOC,
+                                      "Unable to allocate memory for "
+                                      "userauth-gssapi-with-mic request");
+            }
+
+            if(session->userauth_gss_maj_stat == GSS_S_COMPLETE ||
+               session->userauth_gss_maj_stat == GSS_S_CONTINUE_NEEDED) {
+                *(s++) = SSH_MSG_USERAUTH_GSSAPI_TOKEN;
+            }
+            else {
+                *(s++) = SSH_MSG_USERAUTH_GSSAPI_ERRTOK;
+            }
+            _libssh2_store_u32(&s,
+                          (uint32_t)session->userauth_gss_output_data_len);
+            _libssh2_store_bytes(&s, session->userauth_gss_output_data,
+                                 session->userauth_gss_output_data_len);
+            session->userauth_gss_state = libssh2_NB_state_jump2;
+        }
+        else {
+#ifdef _WIN32
+            if(!(session->userauth_gss_flags & ISC_REQ_INTEGRITY)) {
+#else
+            if(!(session->userauth_gss_flags & GSS_C_INTEG_FLAG)) {
+#endif
+                _libssh2_debug((session,
+                                LIBSSH2_TRACE_AUTH,
+                                "gssapi-with-mic No MIC exchange needed()"));
+
+                /* 1 = packet_type(1) */
+                session->userauth_gss_data_len = 1;
+                s = session->userauth_gss_data =
+                    LIBSSH2_ALLOC(session, session->userauth_gss_data_len);
+                if(!session->userauth_gss_data) {
+#ifdef _WIN32
+                    LIBSSH2_FREE(session, session->userauth_gss_target_name);
+                    session->userauth_gss_target_name = NULL;
+                    DeleteSecurityContext(&session->userauth_gss_context);
+                    FreeCredentialsHandle(&session->userauth_gss_cred);
+
+#else
+                    gss_release_name(&min_stat,
+                                     &session->userauth_gss_target_name);
+                    gss_delete_sec_context(&min_stat,
+                                           &session->userauth_gss_context,
+                                           GSS_C_NO_BUFFER);
+#endif
+                    session->userauth_gss_state = libssh2_NB_state_idle;
+                    return _libssh2_error(session,
+                                          LIBSSH2_ERROR_ALLOC,
+                                          "Unable to allocate memory for "
+                                          "userauth-gssapi-with-mic request");
+                }
+
+                *(s++) = SSH_MSG_USERAUTH_GSSAPI_EXCHANGE_COMPLETE;
+                session->userauth_gss_state = libssh2_NB_state_jump4;
+            }
+            else {
+                _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                                "gssapi-with-mic TOKEN exchange ready"));
+                session->userauth_gss_state = libssh2_NB_state_jump3;
+            }
+        }
+    }
+
+    if(session->userauth_gss_state == libssh2_NB_state_jump2) {
+        rc = _libssh2_transport_send(session, session->userauth_gss_data,
+                                     session->userauth_gss_data_len,
+                                     NULL, 0);
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_EAGAIN,
+                                  "Would block writing gssapi-with-mic token");
+        }
+
+        /* now free the sent packet */
+        LIBSSH2_FREE(session, session->userauth_gss_data);
+        session->userauth_gss_data = NULL;
+
+        if(rc) {
+#ifdef _WIN32
+            LIBSSH2_FREE(session, session->userauth_gss_target_name);
+            session->userauth_gss_target_name = NULL;
+            DeleteSecurityContext(&session->userauth_gss_context);
+            FreeCredentialsHandle(&session->userauth_gss_cred);
+#else
+            gss_release_name(&min_stat, &session->userauth_gss_target_name);
+            gss_delete_sec_context(&min_stat, &session->userauth_gss_context,
+                                   GSS_C_NO_BUFFER);
+#endif
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return
+                _libssh2_error(session,
+                               LIBSSH2_ERROR_SOCKET_SEND,
+                               "Unable to send gssapi token request");
+        }
+#ifdef _WIN32
+        Sleep(1000/5);
+#else
+        usleep(1000000/5); /* some timing problem in Kerberos GSSAPI */
+#endif
+        session->userauth_gss_state = libssh2_NB_state_sent2;
+    }
+
+    if(session->userauth_gss_state == libssh2_NB_state_sent2) {
+        rc = _libssh2_packet_requirev(session, reply_codes,
+                                      &session->userauth_gss_data,
+                                      &session->userauth_gss_data_len,
+                                      0, NULL, 0,
+                                      &session->
+                                      userauth_gss_packet_requirev_state);
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            return
+                _libssh2_error(session,
+                               LIBSSH2_ERROR_EAGAIN,
+                               "Would block waiting for gss token response");
+        }
+        else if((rc) || session->userauth_gss_data_len < 1) {
+#ifdef _WIN32
+            LIBSSH2_FREE(session, session->userauth_gss_target_name);
+            session->userauth_gss_target_name = NULL;
+            DeleteSecurityContext(&session->userauth_gss_context);
+            FreeCredentialsHandle(&session->userauth_gss_cred);
+#else
+            gss_release_name(&min_stat, &session->userauth_gss_target_name);
+            gss_delete_sec_context(&min_stat, &session->userauth_gss_context,
+                                   GSS_C_NO_BUFFER);
+#endif
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_PROTO,
+                                  "Unexpected packet size");
+        }
+        if(session->userauth_gss_data[0] == SSH_MSG_USERAUTH_BANNER) {
+            rc = handle_userauth_banner(session, &session->userauth_gss_data,
+                &session->userauth_gss_data_len, reply_codes);
+            if(rc)
+                return rc;
+        }
+
+        if(session->userauth_gss_data[0] == SSH_MSG_USERAUTH_GSSAPI_ERROR) {
+#ifdef _WIN32
+            LIBSSH2_FREE(session, session->userauth_gss_target_name);
+            session->userauth_gss_target_name = NULL;
+            DeleteSecurityContext(&session->userauth_gss_context);
+            FreeCredentialsHandle(&session->userauth_gss_cred);
+#else
+            gss_release_name(&min_stat, &session->userauth_gss_target_name);
+            gss_delete_sec_context(&min_stat, &session->userauth_gss_context,
+                                   GSS_C_NO_BUFFER);
+#endif
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                            "gssapi authentication error (ERROR), "
+                            "wait for USERAUTH_FAILURE"));
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_GSSAPI_FAILURE,
+                                  "GSSAPI Error received");
+        }
+        else if(session->userauth_gss_data[0] ==
+                SSH_MSG_USERAUTH_GSSAPI_ERRTOK) {
+#ifdef _WIN32
+            LIBSSH2_FREE(session, session->userauth_gss_target_name);
+            session->userauth_gss_target_name = NULL;
+            DeleteSecurityContext(&session->userauth_gss_context);
+            FreeCredentialsHandle(&session->userauth_gss_cred);
+#else
+            gss_release_name(&min_stat, &session->userauth_gss_target_name);
+            gss_delete_sec_context(&min_stat, &session->userauth_gss_context,
+                                   GSS_C_NO_BUFFER);
+#endif
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                            "gssapi authentication error (ERRTOK), "
+                            "wait for USERAUTH_FAILURE"));
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_GSSAPI_FAILURE,
+                                  "gssapi authentication error (ERRTOK), "
+                                  "wait for USERAUTH_FAILURE");
+        }
+        else if(session->userauth_gss_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
+           _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                           "gssapi authentication successful"));
+           LIBSSH2_FREE(session, session->userauth_gss_data);
+           session->userauth_gss_data = NULL;
+#ifdef _WIN32
+           LIBSSH2_FREE(session, session->userauth_gss_target_name);
+           session->userauth_gss_target_name = NULL;
+           DeleteSecurityContext(&session->userauth_gss_context);
+           FreeCredentialsHandle(&session->userauth_gss_cred);
+#else
+           gss_release_name(&min_stat, &session->userauth_gss_target_name);
+           gss_delete_sec_context(&min_stat, &session->userauth_gss_context,
+                                  GSS_C_NO_BUFFER);
+#endif
+           session->state |= LIBSSH2_STATE_AUTHENTICATED;
+           session->userauth_gss_state = libssh2_NB_state_idle;
+           return 0;
+        }
+        else if(session->userauth_gss_data[0] ==
+               SSH_MSG_USERAUTH_FAILURE) {
+            if(session->userauth_pswd_data_len >= (1 + 4 + 1)) {
+                int len =
+                    _libssh2_ntohu32(&session->userauth_pswd_data[1]);
+                partial_success =
+                    session->userauth_pswd_data[1 + 4 + len];
+            }
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                            "gssapi-with-mic authentication failed"));
+            LIBSSH2_FREE(session, session->userauth_gss_data);
+            session->userauth_gss_data = NULL;
+#ifdef _WIN32
+            LIBSSH2_FREE(session, session->userauth_gss_target_name);
+            session->userauth_gss_target_name = NULL;
+            DeleteSecurityContext(&session->userauth_gss_context);
+            FreeCredentialsHandle(&session->userauth_gss_cred);
+#else
+            gss_release_name(&min_stat, &session->userauth_gss_target_name);
+            gss_delete_sec_context(&min_stat, &session->userauth_gss_context,
+                                   GSS_C_NO_BUFFER);
+#endif
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            if(partial_success) {
+                return _libssh2_error(session,
+                    LIBSSH2_ERROR_PARTIAL_SUCCESS,
+                    "Authentication partial success "
+                    "(gssapi-with-mic)");
+            }
+            else {
+                return _libssh2_error(session,
+                    LIBSSH2_ERROR_AUTHENTICATION_FAILED,
+                    "Authentication failed "
+                    "(gssapi-with-mic)");
+            }
+        }
+        else if(session->userauth_gss_data[0] ==
+                SSH_MSG_USERAUTH_GSSAPI_TOKEN) {
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                            "gssapi-with-mic GSSAPI Token received"));
+
+            /* 5 = packet_type(1) + gsstoken_len(4) */
+            session->userauth_gss_input_data_len =
+                session->userauth_gss_data_len - 5;
+            session->userauth_gss_input_data =
+                LIBSSH2_ALLOC(session, session->userauth_gss_input_data_len);
+            if(!session->userauth_gss_input_data) {
+#ifdef _WIN32
+                LIBSSH2_FREE(session, session->userauth_gss_target_name);
+                session->userauth_gss_target_name = NULL;
+                FreeCredentialsHandle(&session->userauth_gss_cred);
+                DeleteSecurityContext(&session->userauth_gss_context);
+#else
+                gss_release_name(&min_stat,
+                                 &session->userauth_gss_target_name);
+                gss_delete_sec_context(&min_stat,
+                                       &session->userauth_gss_context,
+                                       GSS_C_NO_BUFFER);
+#endif
+                session->userauth_gss_state = libssh2_NB_state_idle;
+                return _libssh2_error(session,
+                                      LIBSSH2_ERROR_ALLOC,
+                                      "Unable to allocate memory for "
+                                      "userauth-gssapi-with-mic request");
+            }
+            memcpy(session->userauth_gss_input_data,
+                   &session->userauth_gss_data[5],
+                   session->userauth_gss_input_data_len);
+            session->userauth_gss_state = libssh2_NB_state_jump1;
+            goto retry_send_token;
+        }
+    }
+
+    if(session->userauth_gss_state == libssh2_NB_state_jump3) {
+        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                        "gssapi-with-mic Prepare MIC"));
+
+        /* Clean-up variables not needed anymore */
+#ifdef _WIN32
+        LIBSSH2_FREE(session, session->userauth_gss_target_name);
+        session->userauth_gss_target_name = NULL;
+        FreeCredentialsHandle(&session->userauth_gss_cred);
+#else
+        gss_release_name(&min_stat, &session->userauth_gss_target_name);
+#endif
+
+        /*
+         * 46 + username + session_id = session_id_len(4) + packet_type(1) +
+         * username_len(4) + service_len(4) +service(14)"ssh-connection" +
+         * method_len(4) + method(15)"gssapi-with-mic"
+         */
+        session->userauth_gss_mic_data_len =
+            username_len + session->session_id_len + 46;
+        s = session->userauth_gss_mic_data =
+            LIBSSH2_ALLOC(session, session->userauth_gss_mic_data_len);
+        if(!session->userauth_gss_mic_data) {
+#ifdef _WIN32
+            DeleteSecurityContext(&session->userauth_gss_context);
+#else
+            gss_delete_sec_context(&min_stat, &session->userauth_gss_context,
+                                   GSS_C_NO_BUFFER);
+#endif
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for "
+                                  "gssapi mic request");
+        }
+
+        _libssh2_store_u32(&s, session->session_id_len);
+        _libssh2_store_bytes(&s, (unsigned char *)session->session_id,
+                             session->session_id_len);
+        *(s++) = SSH_MSG_USERAUTH_REQUEST;
+        _libssh2_store_str(&s, username, username_len);
+        _libssh2_store_str(&s, "ssh-connection",
+                           sizeof("ssh-connection") - 1);
+        _libssh2_store_str(&s, "gssapi-with-mic",
+                           sizeof("gssapi-with-mic") - 1);
+
+        /* calll MIC */
+#ifdef _WIN32
+        memset(&ContextSizes, 0, sizeof(ContextSizes));
+        local_maj_stat =
+            QueryContextAttributesA(session->userauth_gss_context_handle,
+                                    SECPKG_ATTR_SIZES,
+                                    &ContextSizes);
+        if(local_maj_stat != SEC_E_OK) {
+            LIBSSH2_FREE(session, session->userauth_gss_mic_data);
+            DeleteSecurityContext(&session->userauth_gss_context);
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_GSSAPI_FAILURE,
+                                  "Unable to get size of MIC Hash buffer for "
+                                  "gssapi mic request");
+        }
+        mic_buf[0].BufferType = SECBUFFER_DATA;
+        mic_buf[0].pvBuffer = session->userauth_gss_mic_data;
+        mic_buf[0].cbBuffer =
+            (unsigned long)session->userauth_gss_mic_data_len;
+
+        mic_buf[1].BufferType = SECBUFFER_TOKEN;
+        mic_buf[1].pvBuffer =
+            LIBSSH2_ALLOC(session, ContextSizes.cbMaxSignature);
+        if(!mic_buf[1].pvBuffer) {
+            LIBSSH2_FREE(session, session->userauth_gss_mic_data);
+            DeleteSecurityContext(&session->userauth_gss_context);
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for "
+                                  "gssapi mic request");
+        }
+        mic_buf[1].cbBuffer = ContextSizes.cbMaxSignature;
+
+        mic_buf_desc.ulVersion = SECBUFFER_VERSION;
+        mic_buf_desc.cBuffers = 2;
+        mic_buf_desc.pBuffers = mic_buf;
+
+        local_maj_stat = MakeSignature(session->userauth_gss_context_handle,
+                                       0, &mic_buf_desc, 0);
+        if(local_maj_stat != SEC_E_OK) {
+            LIBSSH2_FREE(session, session->userauth_gss_mic_data);
+            LIBSSH2_FREE(session, mic_buf[1].pvBuffer);
+            DeleteSecurityContext(&session->userauth_gss_context);
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_GSSAPI_FAILURE,
+                                  "Unable to calculate MIC in MakeSignature()"
+                                  " for gssapi mic request");
+        }
+        mic_hash_data_len = mic_buf[1].cbBuffer;
+        mic_hash_data = LIBSSH2_ALLOC(session, mic_hash_data_len);
+        if(!mic_hash_data) {
+            LIBSSH2_FREE(session, session->userauth_gss_mic_data);
+            LIBSSH2_FREE(session, mic_buf[1].pvBuffer);
+            DeleteSecurityContext(&session->userauth_gss_context);
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for "
+                                  "userauth-gssapi-with-mic request");
+        }
+        memcpy(mic_hash_data, mic_buf[1].pvBuffer, mic_hash_data_len);
+        LIBSSH2_FREE(session, mic_buf[1].pvBuffer);
+#else
+        mic_buffer.length = session->userauth_gss_mic_data_len;
+        mic_buffer.value = session->userauth_gss_mic_data;
+        local_maj_stat = gss_get_mic(&min_stat, session->userauth_gss_context,
+                                     GSS_C_QOP_DEFAULT,
+                                     &mic_buffer, &mic_hash);
+
+        if(local_maj_stat != GSS_S_COMPLETE) {
+            LIBSSH2_FREE(session, session->userauth_gss_mic_data);
+            gss_delete_sec_context(&min_stat, &session->userauth_gss_context,
+                                   GSS_C_NO_BUFFER);
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_AUTHENTICATION_FAILED,
+                                  "Unable to calculate MIC for "
+                                  "gssapi mic request");
+        }
+        mic_hash_data_len = mic_hash.length;
+        mic_hash_data = LIBSSH2_ALLOC(session, mic_hash_data_len);
+        if(!mic_hash_data) {
+            LIBSSH2_FREE(session, session->userauth_gss_mic_data);
+            gss_delete_sec_context(&min_stat, &session->userauth_gss_context,
+                                   GSS_C_NO_BUFFER);
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for "
+                                  "userauth-gssapi-with-mic request");
+        }
+        memcpy(mic_hash_data, mic_hash.value, mic_hash_data_len);
+        gss_release_buffer(&min_stat, &mic_hash);
+#endif
+        _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                        "gssapi-with-mic MIC hash calculated"));
+
+        LIBSSH2_FREE(session, session->userauth_gss_mic_data);
+        session->userauth_gss_mic_data = NULL;
+
+        /* 5 + mic_hash = packet_type(1) + mic_hash_len(4) */
+        session->userauth_gss_data_len = mic_hash_data_len + 5;
+        s = session->userauth_gss_data =
+            LIBSSH2_ALLOC(session, session->userauth_gss_data_len);
+        if(!session->userauth_gss_data) {
+#ifdef _WIN32
+            DeleteSecurityContext(&session->userauth_gss_context);
+#else
+            gss_delete_sec_context(&min_stat, &session->userauth_gss_context,
+                                   GSS_C_NO_BUFFER);
+#endif
+            LIBSSH2_FREE(session, mic_hash_data);
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_ALLOC,
+                                  "Unable to allocate memory for "
+                                  "userauth-gssapi-with-mic request");
+        }
+
+        *(s++) = SSH_MSG_USERAUTH_GSSAPI_MIC;
+        _libssh2_store_u32(&s, (uint32_t)mic_hash_data_len);
+        _libssh2_store_bytes(&s, mic_hash_data, mic_hash_data_len);
+
+        LIBSSH2_FREE(session, mic_hash_data);
+        mic_hash_data = NULL;
+        session->userauth_gss_state = libssh2_NB_state_jump4;
+    }
+
+    if(session->userauth_gss_state == libssh2_NB_state_jump4) {
+        rc = _libssh2_transport_send(session, session->userauth_gss_data,
+                                      session->userauth_gss_data_len,
+                                      NULL, 0);
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            return
+                _libssh2_error(session,
+                               LIBSSH2_ERROR_EAGAIN,
+                               "Would block writing gss MIC data");
+        }
+
+        /* now free the sent packet */
+        LIBSSH2_FREE(session, session->userauth_gss_data);
+        session->userauth_gss_data = NULL;
+
+        session->userauth_gss_state = libssh2_NB_state_sent4;
+    }
+
+    if(session->userauth_gss_state == libssh2_NB_state_sent4) {
+        rc = _libssh2_packet_requirev(session, reply_codes,
+                                      &session->userauth_gss_data,
+                                      &session->userauth_gss_data_len,
+                                      0, NULL, 0,
+                                      &session->
+                                      userauth_gss_packet_requirev_state);
+
+        if(rc == LIBSSH2_ERROR_EAGAIN) {
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_EAGAIN,
+                                  "Would block reading gss MIC data respons");
+        }
+        else if((rc) || session->userauth_gss_data_len < 1) {
+#ifdef _WIN32
+            DeleteSecurityContext(&session->userauth_gss_context);
+#else
+            if(session->userauth_gss_context != GSS_C_NO_CONTEXT)
+                gss_delete_sec_context(&min_stat,
+                                       &session->userauth_gss_context,
+                                       GSS_C_NO_BUFFER);
+#endif
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_PROTO,
+                                  "Unexpected packet size");
+        }
+
+        if(session->userauth_gss_data[0] == SSH_MSG_USERAUTH_BANNER) {
+            rc = handle_userauth_banner(session, &session->userauth_gss_data,
+                &session->userauth_gss_data_len, reply_codes);
+            if(rc)
+                return rc;
+        }
+
+        if(session->userauth_gss_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                           "gssapi authentication successful"));
+            LIBSSH2_FREE(session, session->userauth_gss_data);
+            session->userauth_gss_data = NULL;
+#ifdef _WIN32
+            DeleteSecurityContext(&session->userauth_gss_context);
+#else
+            if(session->userauth_gss_context != GSS_C_NO_CONTEXT)
+                gss_delete_sec_context(&min_stat,
+                                       &session->userauth_gss_context,
+                                       GSS_C_NO_BUFFER);
+#endif
+            session->state |= LIBSSH2_STATE_AUTHENTICATED;
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return 0;
+        }
+        else if(session->userauth_gss_data[0] ==
+                SSH_MSG_USERAUTH_FAILURE) {
+            if(session->userauth_pswd_data_len >= (1 + 4 + 1)) {
+                int len =
+                    _libssh2_ntohu32(&session->userauth_pswd_data[1]);
+                partial_success =
+                    session->userauth_pswd_data[1 + 4 + len];
+            }
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                           "gssapi-with-mic authentication failed"));
+            LIBSSH2_FREE(session, session->userauth_gss_data);
+            session->userauth_gss_data = NULL;
+#ifdef _WIN32
+            DeleteSecurityContext(&session->userauth_gss_context);
+#else
+            if(session->userauth_gss_context != GSS_C_NO_CONTEXT)
+                gss_delete_sec_context(&min_stat,
+                                       &session->userauth_gss_context,
+                                       GSS_C_NO_BUFFER);
+#endif
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            if(partial_success) {
+                return _libssh2_error(session,
+                    LIBSSH2_ERROR_PARTIAL_SUCCESS,
+                    "Authentication partial successful "
+                    "(gssapi-with-mic)");
+            }
+            else {
+                return _libssh2_error(session,
+                    LIBSSH2_ERROR_AUTHENTICATION_FAILED,
+                    "Authentication failed "
+                    "(gssapi-with-mic)");
+            }
+        }
+        else {
+            _libssh2_debug((session, LIBSSH2_TRACE_AUTH,
+                           "gssapi-with-mic unknown MSG"));
+            LIBSSH2_FREE(session, session->userauth_gss_data);
+            session->userauth_gss_data = NULL;
+#ifdef _WIN32
+            DeleteSecurityContext(&session->userauth_gss_context);
+#else
+            if(session->userauth_gss_context != GSS_C_NO_CONTEXT)
+                gss_delete_sec_context(&min_stat,
+                                       &session->userauth_gss_context,
+                                       GSS_C_NO_BUFFER);
+#endif
+            session->userauth_gss_state = libssh2_NB_state_idle;
+            return _libssh2_error(session,
+                                  LIBSSH2_ERROR_AUTHENTICATION_FAILED,
+                                  "Authentication failed, Unknown MSG "
+                                  "(gssapi-with-mic)");
+        }
+    }
+
+    LIBSSH2_FREE(session, session->userauth_gss_data);
+    session->userauth_gss_data = NULL;
+
+#ifdef _WIN32
+    DeleteSecurityContext(&session->userauth_gss_context);
+#else
+    if(session->userauth_gss_context != GSS_C_NO_CONTEXT)
+        gss_delete_sec_context(&min_stat, &session->userauth_gss_context,
+                               GSS_C_NO_BUFFER);
+#endif
+    session->userauth_gss_state = libssh2_NB_state_idle;
+    return _libssh2_error(session,
+                          LIBSSH2_ERROR_AUTHENTICATION_FAILED,
+                          "Authentication failed, Unknown state "
+                          "(gssapi-with-mic)");
+
+}
+
+LIBSSH2_API int
+libssh2_userauth_gssapi_with_mic_ex(LIBSSH2_SESSION *session,
+                                    const char *username, size_t username_len,
+                                    const char *hostname, size_t hostname_len,
+                                    int delegation_flag)
+{
+    int rc;
+    BLOCK_ADJUST(rc, session,
+                 userauth_gssapi_with_mic(session,
+                                          username, username_len,
+                                          hostname, hostname_len,
+                                          delegation_flag));
+    return rc;
+}
+#endif

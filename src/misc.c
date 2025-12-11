@@ -302,6 +302,34 @@ int _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
     assert(len_stored == len);
     return len_stored == len;
 }
+#ifdef LIBSSH2_GSSAPI
+/* _libssh2_store_u8
+ */
+void _libssh2_store_u8(unsigned char **buf, uint8_t value)
+{
+    unsigned char *ptr = *buf;
+
+    ptr[0] = (unsigned char)value;
+    *buf += sizeof(uint8_t);
+}
+
+/* _libssh2_store_bytes
+ */
+int _libssh2_store_bytes(unsigned char **buf,
+                         const unsigned char *mem,
+                         size_t len)
+{
+    uint32_t len_stored = (uint32_t)len;
+
+    if(len_stored) {
+        memcpy(*buf, mem, len_stored);
+        *buf += len_stored;
+    }
+
+    assert(len_stored == len);
+    return len_stored == len;
+}
+#endif
 
 /* _libssh2_store_bignum2_bytes
  */
