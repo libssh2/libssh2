@@ -126,9 +126,11 @@ packet_queue_listener(LIBSSH2_SESSION * session, unsigned char *data,
         }
 
         _libssh2_debug((session, LIBSSH2_TRACE_CONN,
-                       "Remote received connection from %s:%u to %s:%u",
-                       listen_state->shost, listen_state->sport,
-                       listen_state->host, listen_state->port));
+                       "Remote received connection from %.*s:%u to %.*s:%u",
+                       listen_state->shost_len, listen_state->shost,
+                       listen_state->sport,
+                       listen_state->host_len, listen_state->host,
+                       listen_state->port));
 
         listen_state->state = libssh2_NB_state_allocated;
     }
@@ -291,6 +293,7 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
 
         size_t offset = strlen("x11") + 5;
         size_t temp_len = 0;
+        unsigned char *temp_buf = NULL;
         struct string_buf buf;
         buf.data = data;
         buf.dataptr = buf.data;
@@ -323,13 +326,24 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
         }
-        if(_libssh2_get_string(&buf, &(x11open_state->shost), &temp_len)) {
+
+        if(_libssh2_get_string(&buf, &(temp_buf), &temp_len)) {
             _libssh2_error(session, LIBSSH2_ERROR_INVAL,
                            "unexpected host size");
             failure_code = SSH_OPEN_CONNECT_FAILED;
             goto x11_exit;
         }
         x11open_state->shost_len = (uint32_t)temp_len;
+        x11open_state->shost = LIBSSH2_ALLOC(session,
+                                             x11open_state->shost_len + 1);
+        if(!x11open_state->shost) {
+            _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                           "Unable to allocate memory for shost");
+            failure_code = SSH_OPEN_CONNECT_FAILED;
+            goto x11_exit;
+        }
+        memcpy(x11open_state->shost, temp_buf, x11open_state->shost_len);
+        x11open_state->shost[x11open_state->shost_len] = '\0';
 
         if(_libssh2_get_u32(&buf, &(x11open_state->sport))) {
             _libssh2_error(session, LIBSSH2_ERROR_INVAL,
@@ -408,6 +422,8 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
                 return rc;
             }
             else if(rc) {
+                LIBSSH2_FREE(session, x11open_state->shost);
+                x11open_state->shost = NULL;
                 x11open_state->state = libssh2_NB_state_idle;
                 return _libssh2_error(session, LIBSSH2_ERROR_SOCKET_SEND,
                                       "Unable to send channel open "
@@ -424,6 +440,8 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
             LIBSSH2_X11_OPEN(channel, (char *)x11open_state->shost,
                              x11open_state->sport);
 
+            LIBSSH2_FREE(session, x11open_state->shost);
+            x11open_state->shost = NULL;
             x11open_state->state = libssh2_NB_state_idle;
             return 0;
         }
@@ -432,6 +450,9 @@ packet_x11_open(LIBSSH2_SESSION * session, unsigned char *data,
         failure_code = SSH_OPEN_RESOURCE_SHORTAGE;
     /* fall-trough */
 x11_exit:
+    LIBSSH2_FREE(session, x11open_state->shost);
+    x11open_state->shost = NULL;
+
     p = x11open_state->packet;
     *(p++) = SSH_MSG_CHANNEL_OPEN_FAILURE;
     _libssh2_store_u32(&p, x11open_state->sender_channel);
