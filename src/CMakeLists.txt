@@ -54,40 +54,19 @@ if(NOT CLEAR_MEMORY)
   list(APPEND _libssh2_definitions "LIBSSH2_NO_CLEAR_MEMORY")
 endif()
 
-if( LIBSSH2_BUILD_DEBUG )
-  list(APPEND libssh2_DEFINITIONS "LIBSSH2DEBUG" )
-endif( )
-
-option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression" ON)
+option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression" OFF)
 add_feature_info("Compression" ENABLE_ZLIB_COMPRESSION "using zlib for compression")
 if(ENABLE_ZLIB_COMPRESSION)
-
+  list(APPEND libssh2_INCLUDE_DIRS ../../zlib-1.3)
+  list(APPEND libssh2_DEFINITIONS "LIBSSH2_HAVE_ZLIB")
   #find_package(ZLIB REQUIRED)
 
-  list(APPEND libssh2_INCLUDE_DIRS ../../zlib-1.3)
-
-  #list(APPEND libssh2_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS})
-  #list(APPEND LIBRARIES ${ZLIB_LIBRARIES})
-  #list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lz")
-  #list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "zlib")
-  #if(ZLIB_FOUND)
-    list(APPEND libssh2_DEFINITIONS "LIBSSH2_HAVE_ZLIB")
-  #endif()
+  #list(APPEND LIBSSH2_LIBS ZLIB::ZLIB)
+  #set_target_properties(ZLIB::ZLIB PROPERTIES INTERFACE_LIBSSH2_PC_MODULES "zlib")
+  #list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
 endif()
 
-if( UNIX )
-  list(APPEND LIB_SHARED_C_FLAGS "-fPIC")
-endif()
-
-
-list(APPEND LIBRARIES ${SOCKET_LIBRARIES})
-
-if(WIN32)
-  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lws2_32")
-endif()
-
-# to find generated header
-list(APPEND libssh2_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR})
+list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
 if(MSVC)
   set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS "$<$<CONFIG:Debug>:-Zi>")
@@ -116,35 +95,30 @@ if(NOT DEFINED STATIC_LIB_SUFFIX)
   set(STATIC_LIB_SUFFIX "")
 endif()
 
+message( "----------- SUFF?" ${STATIC_LIB_SUFFIX} )
+
 # Ensure that the static library and import library filenames are different,
 # when building both static and shared library. On Windows, with certain
 # toolchains (e.g. MSVC) these libraries get the same by default, overwriting
 # each other. MinGW is not affected.
-if(WIN32 AND (LIBSSH2_BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS) AND LIBSSH2_BUILD_SHARED_LIBS AND
+if(WIN32 AND (BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS) AND BUILD_SHARED_LIBS AND
    NOT STATIC_LIB_SUFFIX AND NOT IMPORT_LIB_SUFFIX AND
    CMAKE_STATIC_LIBRARY_SUFFIX STREQUAL CMAKE_IMPORT_LIBRARY_SUFFIX)
   set(STATIC_LIB_SUFFIX "_static")
 endif()
 
-if( LIBSSH2_EXPORT_SYMBOLS AND WIN32 )
-  ADD_DEFINITIONS( -DLIBSSH2_EXPORTS )
-endif()
+set(_libssh2_export "")
 
 # we want it to be called libssh2 on all platforms
-if(LIBSSH2_BUILD_STATIC_LIBS)
-  list(APPEND libssh2_export ${LIB_STATIC})
-  if( LIBSSH2_BUILD_OBJECT_LIBRARY )
-     message( "MAKING OBJECT LIBRARY")
-    add_library(${LIB_STATIC} OBJECT ${_sources})
-  else()
-    add_library(${LIB_STATIC} STATIC ${_sources})
+if(BUILD_STATIC_LIBS OR BUILD_STATIC_FOR_TESTS)
+  if(NOT BUILD_STATIC_FOR_TESTS)
+    list(APPEND _libssh2_export ${LIB_STATIC})
   endif()
+  add_library(${LIB_STATIC} STATIC ${_sources})
   add_library(${PROJECT_NAME}::${LIB_STATIC} ALIAS ${LIB_STATIC})
-  target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS} ${LIB_SHARED_DEFINITIONS})
-  target_compile_definitions(${LIB_SHARED} PRIVATE ${CRYPTO_BACKEND_DEFINE} ${_libssh2_definitions} ${LIB_SHARED_DEFINITIONS})
+  target_compile_definitions(${LIB_STATIC} PRIVATE ${CRYPTO_BACKEND_DEFINE} ${_libssh2_definitions})
   set_property(TARGET ${LIB_STATIC} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
-  target_compile_options(${LIB_STATIC} PRIVATE ${LIB_SHARED_C_FLAGS})
-  target_link_libraries(${LIB_STATIC} PRIVATE ${LIBRARIES})
+  target_link_libraries(${LIB_STATIC} PRIVATE ${LIBSSH2_LIBS})
   set_target_properties(${LIB_STATIC} PROPERTIES
     PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
     SUFFIX "${STATIC_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}"
@@ -179,7 +153,7 @@ if(LIBSSH2_BUILD_STATIC_LIBS)
     endif()
   endif()
 endif()
-if(LIBSSH2_BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS)
   list(APPEND _libssh2_export ${LIB_SHARED})
   add_library(${LIB_SHARED} SHARED ${_sources})
   add_library(${PROJECT_NAME}::${LIB_SHARED} ALIAS ${LIB_SHARED})
@@ -204,11 +178,12 @@ if(LIBSSH2_BUILD_SHARED_LIBS)
 endif()
 
 add_library(${PROJECT_NAME}::${LIB_NAME} ALIAS ${LIB_SELECTED})
-if( NOT ${LIB_NAME} STREQUAL ${LIB_SELECTED} )
-    add_library(${LIB_NAME} ALIAS ${LIB_SELECTED})
+if(NOT ${LIB_NAME} STREQUAL ${LIB_SELECTED} )
+add_library(${LIB_NAME} ALIAS ${LIB_SELECTED})
 endif()
 
 ## Installation
+
 if(NOT LIBSSH2_DISABLE_INSTALL)
   install(FILES
     "${PROJECT_SOURCE_DIR}/include/libssh2.h"
