@@ -40,7 +40,7 @@ environment:
       GENERATOR: 'Visual Studio 17 2022'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v33-Win64'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v35-Win64'
       TOOLSET: 'ClangCl'
 
     - job_name: 'VS2022, OpenSSL 3, x64, Server 2019'
@@ -48,7 +48,7 @@ environment:
       GENERATOR: 'Visual Studio 17 2022'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v33-Win64'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v30-Win64'
 
     - job_name: 'VS2015, OpenSSL 1.1, x86, Server 2016'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
@@ -81,13 +81,13 @@ environment:
       OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win32'
       SKIP_CTEST: 'no'
 
-    - job_name: 'VS2013, OpenSSL 1.0.2, x64, Build-only, Static-only'
+    - job_name: 'VS2013, OpenSSL 1.1, x64, Build-only, Static-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       GENERATOR: 'Visual Studio 12 2013'
       PLATFORM: 'x64'
       BUILD_SHARED_LIBS: 'OFF'
       CRYPTO_BACKEND: 'OpenSSL'
-      OPENSSL_ROOT_DIR: 'C:/OpenSSL-Win64'
+      OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win64'
 
     - job_name: 'VS2008, WinCNG, x86, Build-only'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
@@ -119,19 +119,19 @@ environment:
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'ON'
 
-    - job_name: 'VS2015, WinCNG, x86, Server 2016'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
-      GENERATOR: 'Visual Studio 14 2015'
-      PLATFORM: 'x86'
-      CRYPTO_BACKEND: 'WinCNG'
-      ENABLE_ECDSA_WINCNG: 'ON'
-
     - job_name: 'VS2015, WinCNG, x64, Server 2012 R2'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       GENERATOR: 'Visual Studio 14 2015'
       PLATFORM: 'x64'
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'OFF'
+
+    - job_name: 'VS2015, WinCNG, x86, Server 2016'
+      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2017'
+      GENERATOR: 'Visual Studio 14 2015'
+      PLATFORM: 'x86'
+      CRYPTO_BACKEND: 'WinCNG'
+      ENABLE_ECDSA_WINCNG: 'ON'
       SKIP_CTEST: 'no'
 
 matrix:

@@ -59,8 +59,7 @@ if( LIBSSH2_BUILD_DEBUG )
 endif( )
 
 option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression" ON)
-add_feature_info(Compression ENABLE_ZLIB_COMPRESSION
-  "using zlib for compression")
+add_feature_info("Compression" ENABLE_ZLIB_COMPRESSION "using zlib for compression")
 if(ENABLE_ZLIB_COMPRESSION)
 
   #find_package(ZLIB REQUIRED)
@@ -143,6 +142,7 @@ if(LIBSSH2_BUILD_STATIC_LIBS)
   add_library(${PROJECT_NAME}::${LIB_STATIC} ALIAS ${LIB_STATIC})
   target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${libssh2_DEFINITIONS} ${LIB_SHARED_DEFINITIONS})
   target_compile_definitions(${LIB_SHARED} PRIVATE ${CRYPTO_BACKEND_DEFINE} ${_libssh2_definitions} ${LIB_SHARED_DEFINITIONS})
+  set_property(TARGET ${LIB_STATIC} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}")
   target_compile_options(${LIB_STATIC} PRIVATE ${LIB_SHARED_C_FLAGS})
   target_link_libraries(${LIB_STATIC} PRIVATE ${LIBRARIES})
   set_target_properties(${LIB_STATIC} PROPERTIES
@@ -187,7 +187,7 @@ if(LIBSSH2_BUILD_SHARED_LIBS)
     set_property(TARGET ${LIB_SHARED} APPEND PROPERTY SOURCES "libssh2.rc")
   endif()
   target_compile_definitions(${LIB_SHARED} PRIVATE ${CRYPTO_BACKEND_DEFINE} ${_libssh2_definitions} ${LIB_SHARED_DEFINITIONS})
-  target_compile_options(${LIB_SHARED} PRIVATE ${LIB_SHARED_C_FLAGS})
+  set_property(TARGET ${LIB_SHARED} APPEND PROPERTY COMPILE_OPTIONS "${LIBSSH2_PICKY_C_FLAGS}" "${LIB_SHARED_C_FLAGS}")
   target_link_libraries(${LIB_SHARED} PRIVATE ${LIBSSH2_LIBS})
   set_target_properties(${LIB_SHARED} PROPERTIES
     PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
@@ -209,223 +209,239 @@ if( NOT ${LIB_NAME} STREQUAL ${LIB_SELECTED} )
 endif()
 
 ## Installation
-if( NOT LIBSSH2_SKIP_INSTALL )
+if(NOT LIBSSH2_DISABLE_INSTALL)
   install(FILES
     "${PROJECT_SOURCE_DIR}/include/libssh2.h"
     "${PROJECT_SOURCE_DIR}/include/libssh2_publickey.h"
     "${PROJECT_SOURCE_DIR}/include/libssh2_sftp.h"
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-  if(LIBSSH2_BUILD_STATIC_LIBS)
+  if(BUILD_STATIC_LIBS)
     install(TARGETS ${LIB_STATIC}
       EXPORT "${PROJECT_NAME}-targets"
       RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
   endif()
-  if(LIBSSH2_BUILD_SHARED_LIBS)
+  if(BUILD_SHARED_LIBS)
     install(TARGETS ${LIB_SHARED}
       EXPORT "${PROJECT_NAME}-targets"
       RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-      list(APPEND _RUNTIME_DEPENDENCIES $<TARGET_FILE:${LIB_SHARED}>)
+    list(APPEND __runtime_dependencies $<TARGET_FILE:${LIB_SHARED}>)
   endif()
+
+  set(_runtime_dependencies ${__runtime_dependencies} CACHE INTERNAL
+    "Files that must be in the same directory as the executables at runtime.")
+
+  # Package config
 
   ## During package installation, install libssh2-targets.cmake
   install(EXPORT "${PROJECT_NAME}-targets"
     NAMESPACE "${PROJECT_NAME}::"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
-  list(APPEND __runtime_dependencies $<TARGET_FILE:${LIB_SHARED}>)
-endif()
-
-  set(_runtime_dependencies ${__runtime_dependencies} CACHE INTERNAL
-      "Files that must be in the same directory as the executables at runtime.")
-
-  # Package config
-
-
   ## During build, register directly from build tree
   # create libssh2-targets.cmake
   export(TARGETS ${_libssh2_export} NAMESPACE "${PROJECT_NAME}::" FILE "${PROJECT_NAME}-targets.cmake")
   export(PACKAGE ${PROJECT_NAME})  # register it
 
-# Calculate variables for pkg-config
-set(LIBSSH2_PC_LIBS_PRIVATE "")
+  # Generate libssh2-config.cmake into build tree and install it with dependencies
+  configure_file("${PROJECT_SOURCE_DIR}/cmake/libssh2-config.cmake.in" "${PROJECT_NAME}-config.cmake" @ONLY)
+  install(
+    FILES
+      "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
+      "${PROJECT_SOURCE_DIR}/cmake/FindLibgcrypt.cmake"
+      "${PROJECT_SOURCE_DIR}/cmake/FindMbedTLS.cmake"
+      "${PROJECT_SOURCE_DIR}/cmake/FindWolfSSL.cmake"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
-set(_ldflags "")
+  # Calculate variables for pkg-config
+  set(LIBSSH2_PC_LIBS_PRIVATE "")
 
-# Avoid getting unnecessary -L options for known system directories.
-set(_sys_libdirs "${CMAKE_C_IMPLICIT_LINK_DIRECTORIES}")
-foreach(_libdir IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
-  if(_libdir MATCHES "/$")
-    string(APPEND _libdir "lib")
-  else()
-    string(APPEND _libdir "/lib")
-  endif()
-  if(IS_DIRECTORY "${_libdir}")
-    list(APPEND _sys_libdirs "${_libdir}")
-  endif()
-  if(DEFINED CMAKE_LIBRARY_ARCHITECTURE)
-    string(APPEND _libdir "/${CMAKE_LIBRARY_ARCHITECTURE}")
+  set(_ldflags "")
+
+  # Avoid getting unnecessary -L options for known system directories.
+  set(_sys_libdirs "${CMAKE_C_IMPLICIT_LINK_DIRECTORIES}")
+  foreach(_libdir IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
+    if(_libdir MATCHES "/$")
+      string(APPEND _libdir "lib")
+    else()
+      string(APPEND _libdir "/lib")
+    endif()
     if(IS_DIRECTORY "${_libdir}")
       list(APPEND _sys_libdirs "${_libdir}")
     endif()
-  endif()
-endforeach()
-
-set(_explicit_libs "")
-set(_explicit_libdirs "")
-set(LIBSSH2_PC_REQUIRES_PRIVATE "")
-foreach(_lib IN LISTS LIBSSH2_LIBS)
-  if(TARGET "${_lib}")
-    get_target_property(_imported "${_lib}" IMPORTED)
-    if(NOT _imported)
-      # Reading the LOCATION property on non-imported target will error out.
-      # Assume the user will not need this information in the .pc file.
-      continue()
+    if(DEFINED CMAKE_LIBRARY_ARCHITECTURE)
+      string(APPEND _libdir "/${CMAKE_LIBRARY_ARCHITECTURE}")
+      if(IS_DIRECTORY "${_libdir}")
+        list(APPEND _sys_libdirs "${_libdir}")
+      endif()
     endif()
-    get_target_property(_libname "${_lib}" LOCATION)
-    if(_libname)
-      list(APPEND _explicit_libs "${_libname}")
+  endforeach()
+
+  set(_implicit_libs "")
+  if(NOT MINGW AND NOT UNIX)
+    set(_implicit_libs "${CMAKE_C_IMPLICIT_LINK_LIBRARIES}")
+  endif()
+
+  set(_explicit_libdirs "")
+  set(LIBSSH2_PC_REQUIRES_PRIVATE "")
+  foreach(_lib IN LISTS LIBSSH2_LIBS _implicit_libs)
+    if(TARGET "${_lib}")
+      set(_explicit_libs "")
+      get_target_property(_imported "${_lib}" IMPORTED)
+      if(NOT _imported)
+        # Reading the LOCATION property on non-imported target will error out.
+        # Assume the user will not need this information in the .pc file.
+        continue()
+      endif()
+      get_target_property(_libname "${_lib}" LOCATION)
+      if(_libname)
+        set(_explicit_libs "${_libname}")
+      else()
+        get_target_property(_libs "${_lib}" INTERFACE_LINK_LIBRARIES)
+        if(_libs)
+          set(_explicit_libs "${_libs}")
+        endif()
+        get_target_property(_libdirs "${_lib}" INTERFACE_LINK_DIRECTORIES)
+        if(_libdirs)
+          list(APPEND _explicit_libdirs "${_libdirs}")
+        endif()
+      endif()
+      if(NOT _libname AND NOT _libs AND NOT _libdirs)
+        message(WARNING "Bad lib in library list: ${_lib}")
+      endif()
+      get_target_property(_modules "${_lib}" INTERFACE_LIBSSH2_PC_MODULES)
+      if(_modules)
+        list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "${_modules}")
+      endif()
+
+      foreach(_lib IN LISTS _explicit_libs)
+        if(_lib MATCHES "/")
+          # This gets a bit more complex, because we want to specify the
+          # directory separately, and only once per directory
+          if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.20)
+            cmake_path(GET _lib PARENT_PATH _libdir)
+            cmake_path(GET _lib STEM _libname)
+          else()
+            get_filename_component(_libdir "${_lib}" DIRECTORY)
+            get_filename_component(_libname "${_lib}" NAME_WE)
+          endif()
+          if(_libname MATCHES "^lib")
+            if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.20)
+              cmake_path(SET _libdir NORMALIZE "${_libdir}")
+            endif()
+            list(FIND _sys_libdirs "${_libdir}" _libdir_index)
+            if(_libdir_index LESS 0)
+              list(APPEND _ldflags "-L${_libdir}")
+            endif()
+            string(REGEX REPLACE "^lib" "" _libname "${_libname}")
+            list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_libname}")
+          else()
+            list(APPEND LIBSSH2_PC_LIBS_PRIVATE "${_lib}")
+          endif()
+        else()
+          list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_lib}")
+        endif()
+      endforeach()
+    elseif(_lib MATCHES "^-")  # '-framework <name>'
+      list(APPEND _ldflags "${_lib}")
     else()
-      get_target_property(_libs "${_lib}" INTERFACE_LINK_LIBRARIES)
-      if(_libs)
-        list(APPEND _explicit_libs "${_libs}")
+      list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_lib}")
+    endif()
+  endforeach()
+
+  foreach(_libdir IN LISTS _explicit_libdirs)
+    if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.20)
+      cmake_path(SET _libdir NORMALIZE "${_libdir}")
+    endif()
+    list(FIND _sys_libdirs "${_libdir}" _libdir_index)
+    if(_libdir_index LESS 0)
+      list(APPEND _ldflags "-L${_libdir}")
+    endif()
+  endforeach()
+
+  if(LIBSSH2_PC_REQUIRES_PRIVATE)
+    list(REMOVE_DUPLICATES LIBSSH2_PC_REQUIRES_PRIVATE)
+    string(REPLACE ";" "," LIBSSH2_PC_REQUIRES_PRIVATE "${LIBSSH2_PC_REQUIRES_PRIVATE}")
+  endif()
+  if(LIBSSH2_PC_LIBS_PRIVATE)
+    # Remove duplicates listed next to each other
+    set(_libs "")
+    set(_prev "")
+    foreach(_lib IN LISTS LIBSSH2_PC_LIBS_PRIVATE)
+      if(NOT _prev STREQUAL _lib)
+        list(APPEND _libs "${_lib}")
+        set(_prev "${_lib}")
       endif()
-      get_target_property(_libdirs "${_lib}" INTERFACE_LINK_DIRECTORIES)
-      if(_libdirs)
-        list(APPEND _explicit_libdirs "${_libdirs}")
-      endif()
-    endif()
-    if(NOT _libname AND NOT _libs AND NOT _libdirs)
-      message(WARNING "Bad lib in library list: ${_lib}")
-    endif()
-    get_target_property(_modules "${_lib}" INTERFACE_LIBSSH2_PC_MODULES)
-    if(_modules)
-      list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "${_modules}")
-    endif()
-  elseif(_lib MATCHES "^-")  # '-framework <name>'
-    list(APPEND _ldflags "${_lib}")
+    endforeach()
+    set(LIBSSH2_PC_LIBS_PRIVATE "${_libs}")
+
+    string(REPLACE ";" " " LIBSSH2_PC_LIBS_PRIVATE "${LIBSSH2_PC_LIBS_PRIVATE}")
+  endif()
+  if(_ldflags)
+    list(REMOVE_DUPLICATES _ldflags)
+    string(REPLACE ";" " " _ldflags "${_ldflags}")
+    set(LIBSSH2_PC_LIBS_PRIVATE "${_ldflags} ${LIBSSH2_PC_LIBS_PRIVATE}")
+    string(STRIP "${LIBSSH2_PC_LIBS_PRIVATE}" LIBSSH2_PC_LIBS_PRIVATE)
+  endif()
+
+  # Merge pkg-config private fields into public ones when static-only
+  if(BUILD_SHARED_LIBS)
+    set(LIBSSH2_PC_REQUIRES "")
+    set(LIBSSH2_PC_LIBS "")
   else()
-    list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_lib}")
+    set(LIBSSH2_PC_REQUIRES "${LIBSSH2_PC_REQUIRES_PRIVATE}")
+    set(LIBSSH2_PC_LIBS "${LIBSSH2_PC_LIBS_PRIVATE}")
   endif()
-endforeach()
 
-foreach(_libdir IN LISTS _explicit_libdirs)
-  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.20)
-    cmake_path(SET _libdir NORMALIZE "${_libdir}")
-  endif()
-  list(FIND _sys_libdirs "${_libdir}" _libdir_index)
-  if(_libdir_index LESS 0)
-    list(APPEND _ldflags "-L${_libdir}")
-  endif()
-endforeach()
-
-set(_implicit_libs "")
-if(NOT MINGW AND NOT UNIX)
-  set(_implicit_libs "${CMAKE_C_IMPLICIT_LINK_LIBRARIES}")
-endif()
-
-foreach(_lib IN LISTS _implicit_libs _explicit_libs)
-  if(_lib MATCHES "^-")
-    list(APPEND _ldflags "${_lib}")
-  elseif(_lib MATCHES "/")
-    # This gets a bit more complex, because we want to specify the
-    # directory separately, and only once per directory
-    get_filename_component(_libdir ${_lib} DIRECTORY)
-    get_filename_component(_libname ${_lib} NAME_WE)
-    if(_libname MATCHES "^lib")
-      if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.20)
-        cmake_path(SET _libdir NORMALIZE "${_libdir}")
-      endif()
-      list(FIND _sys_libdirs "${_libdir}" _libdir_index)
-      if(_libdir_index LESS 0)
-        list(APPEND _ldflags "-L${_libdir}")
-      endif()
-      string(REGEX REPLACE "^lib" "" _libname "${_libname}")
-      list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_libname}")
-    else()
-      list(APPEND LIBSSH2_PC_LIBS_PRIVATE "${_lib}")
-    endif()
+  set(prefix       "${CMAKE_INSTALL_PREFIX}")
+  set(exec_prefix  "\${prefix}")
+  if(IS_ABSOLUTE ${CMAKE_INSTALL_INCLUDEDIR})
+    set(includedir "${CMAKE_INSTALL_INCLUDEDIR}")
   else()
-    list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_lib}")
+    set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
   endif()
-endforeach()
+  if(IS_ABSOLUTE ${CMAKE_INSTALL_LIBDIR})
+    set(libdir     "${CMAKE_INSTALL_LIBDIR}")
+  else()
+    set(libdir     "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+  endif()
 
-if(LIBSSH2_PC_REQUIRES_PRIVATE)
-  list(REMOVE_DUPLICATES LIBSSH2_PC_REQUIRES_PRIVATE)
-  string(REPLACE ";" "," LIBSSH2_PC_REQUIRES_PRIVATE "${LIBSSH2_PC_REQUIRES_PRIVATE}")
+  # Generate a pkg-config file for client projects not using CMake.
+  # Consumed variables:
+  #   exec_prefix
+  #   includedir
+  #   LIBSSH2_PC_LIBS
+  #   LIBSSH2_PC_LIBS_PRIVATE
+  #   LIBSSH2_PC_REQUIRES
+  #   LIBSSH2_PC_REQUIRES_PRIVATE
+  #   LIBSSH2_VERSION
+  #   libdir
+  #   prefix
+  configure_file("${PROJECT_SOURCE_DIR}/libssh2.pc.in" "libssh2.pc" @ONLY)
+  install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/libssh2.pc"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+
+  # Consumed variables:
+  #   CMAKE_MINIMUM_REQUIRED_VERSION
+  #   CRYPTO_BACKEND
+  #   LIB_NAME
+  #   LIB_SELECTED
+  #   LIB_SHARED
+  #   LIB_STATIC
+  #   LIBSSH2_USE_PKGCONFIG
+  #   ZLIB_FOUND
+  include(CMakePackageConfigHelpers)
+  write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+    VERSION "${LIBSSH2_VERSION_MAJOR}.${LIBSSH2_VERSION_MINOR}.${LIBSSH2_VERSION_PATCH}"
+    COMPATIBILITY SameMajorVersion)
+  install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 endif()
-if(LIBSSH2_PC_LIBS_PRIVATE)
-  list(REMOVE_DUPLICATES LIBSSH2_PC_LIBS_PRIVATE)
-  string(REPLACE ";" " " LIBSSH2_PC_LIBS_PRIVATE "${LIBSSH2_PC_LIBS_PRIVATE}")
-endif()
-if(_ldflags)
-  list(REMOVE_DUPLICATES _ldflags)
-  string(REPLACE ";" " " _ldflags "${_ldflags}")
-  set(LIBSSH2_PC_LIBS_PRIVATE "${_ldflags} ${LIBSSH2_PC_LIBS_PRIVATE}")
-  string(STRIP "${LIBSSH2_PC_LIBS_PRIVATE}" LIBSSH2_PC_LIBS_PRIVATE)
-endif()
-
-# Merge pkg-config private fields into public ones when static-only
-if(LIBSSH2_BUILD_SHARED_LIBS)
-  set(LIBSSH2_PC_REQUIRES "")
-  set(LIBSSH2_PC_LIBS "")
-else()
-  set(LIBSSH2_PC_REQUIRES "${LIBSSH2_PC_REQUIRES_PRIVATE}")
-  set(LIBSSH2_PC_LIBS "${LIBSSH2_PC_LIBS_PRIVATE}")
-endif()
-
-set(prefix       "${CMAKE_INSTALL_PREFIX}")
-set(exec_prefix  "\${prefix}")
-if(IS_ABSOLUTE ${CMAKE_INSTALL_INCLUDEDIR})
-  set(includedir "${CMAKE_INSTALL_INCLUDEDIR}")
-else()
-  set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
-endif()
-if(IS_ABSOLUTE ${CMAKE_INSTALL_LIBDIR})
-  set(libdir     "${CMAKE_INSTALL_LIBDIR}")
-else()
-  set(libdir     "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
-endif()
-
-# Generate a pkg-config file for client projects not using CMake.
-# Consumed variables:
-#   exec_prefix
-#   includedir
-#   LIBSSH2_PC_LIBS
-#   LIBSSH2_PC_LIBS_PRIVATE
-#   LIBSSH2_PC_REQUIRES
-#   LIBSSH2_PC_REQUIRES_PRIVATE
-#   LIBSSH2_VERSION
-#   libdir
-#   prefix
-configure_file("${PROJECT_SOURCE_DIR}/libssh2.pc.in" "libssh2.pc" @ONLY)
-
-if( NOT LIBSSH2_SKIP_INSTALL )
-
-install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/libssh2.pc"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-
-# Consumed variables:
-#   CRYPTO_BACKEND
-#   LIB_NAME
-#   LIB_SELECTED
-#   LIB_SHARED
-#   LIB_STATIC
-#   LIBSSH2_USE_PKGCONFIG
-#   ZLIB_FOUND
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
-  VERSION "${LIBSSH2_VERSION_MAJOR}.${LIBSSH2_VERSION_MINOR}.${LIBSSH2_VERSION_PATCH}"
-  COMPATIBILITY SameMajorVersion)
-install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
-
-endif( NOT LIBSSH2_SKIP_INSTALL )

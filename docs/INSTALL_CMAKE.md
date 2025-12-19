@@ -1,3 +1,9 @@
+<!--
+Copyright (C) The libssh2 project and its contributors.
+
+SPDX-License-Identifier: BSD-3-Clause
+-->
+
 License: see COPYING
 
 Source code: https://github.com/libssh2/libssh2

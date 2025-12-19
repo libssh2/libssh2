@@ -92,7 +92,41 @@ esac
 dnl check for how to do large files
 AC_SYS_LARGEFILE
 
-# Crypto backends
+dnl Perl
+AC_PATH_PROG(PERL, perl,, $PATH:/usr/local/bin/perl:/usr/bin/:/usr/local/bin)
+AC_SUBST(PERL)
+AM_CONDITIONAL(PERL, test -n "$PERL")
+
+dnl **********************************************************************
+dnl Check whether to build documentation
+dnl **********************************************************************
+
+AC_MSG_CHECKING([whether to build documentation])
+AC_ARG_ENABLE(docs,
+AS_HELP_STRING([--enable-docs],[Enable documentation (default)])
+AS_HELP_STRING([--disable-docs],[Disable documentation]),
+[ case "$enableval" in
+  no)
+    AC_MSG_RESULT(no)
+    BUILD_DOCS=0
+    ;;
+  *)
+    AC_MSG_RESULT(yes)
+    BUILD_DOCS=1
+    ;;
+  esac ],
+    AC_MSG_RESULT(yes)
+    BUILD_DOCS=1
+)
+if test -z "$PERL" -a "x$BUILD_DOCS" != "x0"; then
+  AC_MSG_WARN([perl was not found. Will not build documentation.])
+  BUILD_DOCS=0
+fi
+
+dnl set variable for use in automakefile(s)
+AM_CONDITIONAL(BUILD_DOCS, test x"$BUILD_DOCS" = x1)
+
+dnl Crypto backends
 
 found_crypto=none
 found_crypto_str=""

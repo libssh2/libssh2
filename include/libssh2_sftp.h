@@ -291,7 +291,7 @@ LIBSSH2_API int libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *handle,
 /* Miscellaneous Ops */
 LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,
                                        const char *source_filename,
-                                       unsigned int srouce_filename_len,
+                                       unsigned int source_filename_len,
                                        const char *dest_filename,
                                        unsigned int dest_filename_len,
                                        long flags);
@@ -305,7 +305,7 @@ LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,
 
 LIBSSH2_API int libssh2_sftp_posix_rename_ex(LIBSSH2_SFTP *sftp,
                                              const char *source_filename,
-                                             size_t srouce_filename_len,
+                                             size_t source_filename_len,
                                              const char *dest_filename,
                                              size_t dest_filename_len);
 #define libssh2_sftp_posix_rename(sftp, sourcefile, destfile) \

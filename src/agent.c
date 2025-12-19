@@ -328,7 +328,7 @@ cleanup:
 }
 
 #define RECV_SEND_ALL(func, agent, buffer, length, total)              \
-    DWORD bytes_transfered;                                            \
+    DWORD bytes_transferred;                                           \
     BOOL ret;                                                          \
     DWORD err;                                                         \
     int rc;                                                            \
@@ -336,13 +336,13 @@ cleanup:
     while(*total < length) {                                           \
         if(!agent->pending_io)                                         \
             ret = func(agent->pipe, (char *)buffer + *total,           \
-                       (DWORD)(length - *total), &bytes_transfered,    \
+                       (DWORD)(length - *total), &bytes_transferred,   \
                        &agent->overlapped);                            \
         else                                                           \
             ret = GetOverlappedResult(agent->pipe, &agent->overlapped, \
-                                      &bytes_transfered, FALSE);       \
+                                      &bytes_transferred, FALSE);      \
                                                                        \
-        *total += bytes_transfered;                                    \
+        *total += bytes_transferred;                                   \
         if(!ret) {                                                     \
             err = GetLastError();                                      \
             if((!agent->pending_io && ERROR_IO_PENDING == err)         \
@@ -479,6 +479,7 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
 {
     const char *path;
     struct sockaddr_un s_un;
+    size_t plen;
 
     path = agent->identity_agent_path;
     if(!path) {
@@ -493,7 +494,15 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
         return _libssh2_error(agent->session, LIBSSH2_ERROR_BAD_SOCKET,
                               "failed creating socket");
 
+    plen = strlen(path);
+    if(plen >= sizeof(s_un.sun_path)) {
+        close(agent->fd);
+        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                              "SSH_AUTH_SOCK path too long");
+    }
+
     s_un.sun_family = AF_UNIX;
+    /* !checksrc! disable BANNEDFUNC 1 */ /* FIXME */
     strncpy(s_un.sun_path, path, sizeof(s_un.sun_path));
     s_un.sun_path[sizeof(s_un.sun_path)-1] = 0; /* make sure there's a trailing
                                                    zero */
@@ -603,7 +612,7 @@ agent_transact_unix(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
         if(rc < 0) {
             if(rc == -EAGAIN)
                 return LIBSSH2_ERROR_EAGAIN;
-            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_SEND,
+            return _libssh2_error(agent->session, LIBSSH2_ERROR_SOCKET_RECV,
                                   "agent recv failed");
         }
         transctx->state = agent_NB_state_response_received;
@@ -701,7 +710,7 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
     id = SendMessage(hwnd, WM_COPYDATA, (WPARAM) NULL, (LPARAM) &cds);
     if(id > 0) {
         transctx->response_len = _libssh2_ntohu32(p);
-        if(transctx->response_len > PAGEANT_MAX_MSGLEN) {
+        if(transctx->response_len > PAGEANT_MAX_MSGLEN - 4) {
             UnmapViewOfFile(p);
             CloseHandle(filemap);
             return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
@@ -716,6 +725,12 @@ agent_transact_pageant(LIBSSH2_AGENT *agent, agent_transaction_ctx_t transctx)
                                   "agent malloc");
         }
         memcpy(transctx->response, p + 4, transctx->response_len);
+    }
+    else {
+        UnmapViewOfFile(p);
+        CloseHandle(filemap);
+        return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
+                              "pageant did not handle message");
     }
 
     UnmapViewOfFile(p);

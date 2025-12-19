@@ -1,0 +1,94 @@
+# Copyright (C) The libssh2 project and its contributors.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+name: 'CodeQL'
+
+'on':
+  push:
+    branches:
+      - master
+      - '*/ci'
+  pull_request:
+    branches:
+      - master
+      - '*/ci'
+  schedule:
+    - cron: '0 0 * * 4'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  gha:
+    if: ${{ github.repository_owner == 'libssh2' || github.event_name != 'schedule' }}
+    name: 'GHA'
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write  # To create/update security events
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+
+      - name: 'initialize'
+        uses: github/codeql-action/init@f443b600d91635bebf5b0d9ebc620189c0d6fba5 # v4.30.8
+        with:
+          languages: actions
+          queries: security-extended
+
+      - name: 'perform analysis'
+        uses: github/codeql-action/analyze@f443b600d91635bebf5b0d9ebc620189c0d6fba5 # v4.30.8
+
+  c:
+    if: ${{ github.repository_owner == 'libssh2' || github.event_name != 'schedule' }}
+    name: 'C'
+    runs-on: ${{ matrix.platform == 'Linux' && 'ubuntu-latest' || 'windows-2022' }}
+    permissions:
+      security-events: write  # To create/update security events
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [Linux, Windows]
+    env:
+      MATRIX_PLATFORM: '${{ matrix.platform }}'
+    steps:
+      - name: 'install prereqs'
+        if: ${{ matrix.platform == 'Linux' }}
+        timeout-minutes: 5
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo apt-get -o Dpkg::Use-Pty=0 update
+          sudo rm -f /var/lib/man-db/auto-update
+          sudo apt-get -o Dpkg::Use-Pty=0 install zlib1g-dev libssl-dev libgcrypt-dev libmbedtls-dev libwolfssl-dev
+
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+
+      - name: 'initialize'
+        uses: github/codeql-action/init@f443b600d91635bebf5b0d9ebc620189c0d6fba5 # v4.30.8
+        with:
+          languages: cpp
+          build-mode: manual
+          trap-caching: false
+
+      - name: 'build'
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          if [ "${MATRIX_PLATFORM}" = 'Windows' ]; then
+            cmake -B . -DCRYPTO_BACKEND=WinCNG -DCMAKE_VS_GLOBALS=TrackFileAccess=false
+            cmake --build . --verbose
+          else
+            for crypto in OpenSSL Libgcrypt mbedTLS wolfSSL; do
+              cmake -B _bld-"${crypto}" -G Ninja -DCRYPTO_BACKEND="${crypto}" -DENABLE_ZLIB_COMPRESSION=ON
+              cmake --build _bld-"${crypto}" --verbose
+            done
+          fi
+
+      - name: 'perform analysis'
+        uses: github/codeql-action/analyze@f443b600d91635bebf5b0d9ebc620189c0d6fba5 # v4.30.8

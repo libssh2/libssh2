@@ -10,20 +10,7 @@ option(TEST_INTEGRATION_MODE "Integration mode" "find_package")
 
 message(STATUS "TEST_INTEGRATION_MODE: ${TEST_INTEGRATION_MODE}")
 
-if(TEST_INTEGRATION_MODE STREQUAL "FetchContent" AND CMAKE_VERSION VERSION_LESS 3.14)
-  message(FATAL_ERROR "This test requires CMake 3.14 or upper")
-endif()
-
-if(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")  # Broken
-  include(ExternalProject)
-  ExternalProject_Add(libssh2
-    URL "${FROM_ARCHIVE}" URL_HASH "SHA256=${FROM_HASH}"
-    INSTALL_COMMAND ""
-    DOWNLOAD_EXTRACT_TIMESTAMP ON)
-endif()
-
-if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
-   TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
+if(TEST_INTEGRATION_MODE STREQUAL "find_package")
   find_package(libssh2 REQUIRED CONFIG)
   find_package(libssh2 REQUIRED CONFIG)  # Double-inclusion test
   foreach(_result_var IN ITEMS
@@ -49,6 +36,9 @@ if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
 elseif(TEST_INTEGRATION_MODE STREQUAL "add_subdirectory")
   add_subdirectory(libssh2)
 elseif(TEST_INTEGRATION_MODE STREQUAL "FetchContent")
+  if(CMAKE_VERSION VERSION_LESS 3.14)
+    message(FATAL_ERROR "This test requires CMake 3.14 or upper")
+  endif()
   include(FetchContent)
   option(FROM_GIT_REPO "Git URL" "https://github.com/libssh2/libssh2.git")
   option(FROM_GIT_TAG "Git tag" "master")
@@ -57,20 +47,55 @@ elseif(TEST_INTEGRATION_MODE STREQUAL "FetchContent")
     GIT_TAG "${FROM_GIT_TAG}"
     GIT_SHALLOW)
   FetchContent_MakeAvailable(libssh2)  # Requires CMake 3.14
+elseif(TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
+  include(ExternalProject)
+  set(_libssh2_install_dir "${CMAKE_BINARY_DIR}/libssh2-external-install")
+  set(_libssh2_static_lib "${_libssh2_install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}ssh2${CMAKE_STATIC_LIBRARY_SUFFIX}")
+  string(REPLACE " " ";" LIBSSH2_TEST_OPTS "${LIBSSH2_TEST_OPTS}")
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
+    set(_download_extract_timestamp "DOWNLOAD_EXTRACT_TIMESTAMP" "ON")
+  endif()
+  if(WIN32)
+    list(APPEND LIBSSH2_TEST_OPTS "-DCRYPTO_BACKEND=WinCNG")
+  else()
+    list(APPEND LIBSSH2_TEST_OPTS "-DCRYPTO_BACKEND=OpenSSL")
+  endif()
+  ExternalProject_Add(libssh2-external
+    URL "${FROM_ARCHIVE}" URL_HASH "SHA256=${FROM_HASH}"
+    ${_download_extract_timestamp}
+    PREFIX "${CMAKE_BINARY_DIR}/libssh2-external"
+    CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${_libssh2_install_dir}" -DBUILD_SHARED_LIBS=OFF
+      ${LIBSSH2_TEST_OPTS} -DENABLE_ZLIB_COMPRESSION=OFF
+    BUILD_BYPRODUCTS "${_libssh2_static_lib}")
+
+  add_executable(test-consumer-static-fetch "test.c")
+  add_dependencies(test-consumer-static-fetch libssh2-external)
+  if(WIN32)
+    list(APPEND _libssh2_static_lib "ws2_32" "crypt32" "bcrypt")
+  else()
+    find_package(OpenSSL REQUIRED COMPONENTS Crypto)
+    list(APPEND _libssh2_static_lib OpenSSL::Crypto)
+  endif()
+  target_include_directories(test-consumer-static-fetch PRIVATE "${_libssh2_install_dir}/include")
+  target_link_libraries(test-consumer-static-fetch PRIVATE "${_libssh2_static_lib}")
 endif()
 
-add_executable(test-consumer-static-ns "test.c")
-target_link_libraries(test-consumer-static-ns PRIVATE "libssh2::libssh2_static")
-
-add_executable(test-consumer-shared-ns "test.c")
-target_link_libraries(test-consumer-shared-ns PRIVATE "libssh2::libssh2_shared")
-
-# Alias for either shared or static library
-add_executable(test-consumer-selected-ns "test.c")
-target_link_libraries(test-consumer-selected-ns PRIVATE "libssh2::libssh2")
-
 if(TEST_INTEGRATION_MODE STREQUAL "find_package" OR
-   TEST_INTEGRATION_MODE STREQUAL "ExternalProject")
+   TEST_INTEGRATION_MODE STREQUAL "add_subdirectory" OR
+   TEST_INTEGRATION_MODE STREQUAL "FetchContent")
+
+  add_executable(test-consumer-static-ns "test.c")
+  target_link_libraries(test-consumer-static-ns PRIVATE "libssh2::libssh2_static")
+
+  add_executable(test-consumer-shared-ns "test.c")
+  target_link_libraries(test-consumer-shared-ns PRIVATE "libssh2::libssh2_shared")
+
+  # Alias for either shared or static library
+  add_executable(test-consumer-selected-ns "test.c")
+  target_link_libraries(test-consumer-selected-ns PRIVATE "libssh2::libssh2")
+endif()
+
+if(TEST_INTEGRATION_MODE STREQUAL "find_package")
 
   # Compatibility alias
   add_executable(test-consumer-compat "test.c")

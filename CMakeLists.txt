@@ -175,11 +175,10 @@ endif()
 option(LIBSSH2_BUILD_EXAMPLES "Build libssh2 examples" ON)
 option(LIBSSH2_BUILD_TESTING "Build libssh2 test suite" ON)
 option(LIBSSH2_BUILD_DOCS "Build libssh2 test suite" ON)
-option(LIBSSH2_SKIP_INSTALL "Skip installation" OFF)
 option(LIBSSH2_BUILD_STATIC_LIBS "Build libssh2 static libraries(default if not set)" ${BUILD_STATIC_LIBS})
 option(LIBSSH2_BUILD_SHARED_LIBS "Build libssh2 shared libraries" ${BUILD_SHARED_LIBS})
 option(LIBSSH2_BUILD_OBJECT_LIBRARY "Build static library as an object library instead of static library" OFF)
-option( CRYPTO_NO_OPENSSL "OpenSSL Should not be used, even if somewhat auto found" ON )
+option(CRYPTO_NO_OPENSSL "OpenSSL Should not be used, even if somewhat auto found" ON )
 
 if( NOT LIBSSH2_SKIP_INSTALL )
 include(GNUInstallDirs)
@@ -189,6 +188,15 @@ install(
     docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
   DESTINATION ${CMAKE_INSTALL_DOCDIR})
 endif() 
+option(LIBSSH2_DISABLE_INSTALL "Disable installation targets" OFF)
+if(NOT LIBSSH2_DISABLE_INSTALL)
+  include(GNUInstallDirs)
+  install(
+    FILES
+      COPYING NEWS README RELEASE-NOTES
+      docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
+    DESTINATION ${CMAKE_INSTALL_DOCDIR})
+endif()
 
 include(PickyWarnings)
 
@@ -275,7 +283,7 @@ else()
   set(DEBUG_LOGGING_DEFAULT OFF)
 endif()
 option(ENABLE_DEBUG_LOGGING "Log execution with debug trace" ${DEBUG_LOGGING_DEFAULT})
-add_feature_info(Logging ENABLE_DEBUG_LOGGING "Logging of execution with debug trace")
+add_feature_info("Logging" ENABLE_DEBUG_LOGGING "Logging of execution with debug trace")
 if(ENABLE_DEBUG_LOGGING)
   # Must be visible to the library and tests using internals
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2DEBUG")
@@ -419,6 +427,8 @@ configure_file("src/libssh2_config_cmake.h.in"
 
 ## Cryptography backend choice
 
+set(__runtime_dependencies "")
+
 set(CRYPTO_BACKEND "" CACHE
   STRING "The backend to use for cryptography: OpenSSL, wolfSSL, Libgcrypt, WinCNG, mbedTLS, or empty to try any available")
 
@@ -508,7 +518,7 @@ if(CRYPTO_BACKEND STREQUAL "WinCNG" )
     list(APPEND LIBSSH2_LIBS "crypt32" "bcrypt")
 
     option(ENABLE_ECDSA_WINCNG "Enable WinCNG ECDSA support (requires Windows 10 or later)" OFF)
-    add_feature_info(WinCNG ENABLE_ECDSA_WINCNG "WinCNG ECDSA support")
+    add_feature_info("WinCNG" ENABLE_ECDSA_WINCNG "WinCNG ECDSA support")
     if(ENABLE_ECDSA_WINCNG)
       set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "LIBSSH2_ECDSA_WINCNG")
       if(MSVC)
@@ -569,9 +579,18 @@ if(LINT)
   endif()
 endif()
 
-if( LIBSSH2_BUILD_DOCS )
-  add_subdirectory(docs)
+option(LIBSSH2_BUILD_DOCS "Build man pages" ON)
+set(_build_docs FALSE)
+if(LIBSSH2_BUILD_DOCS)
+  find_package(Perl)
+  if(PERL_FOUND)
+    set(_build_docs TRUE)
+    add_subdirectory(docs)
+  else()
+    message(WARNING "Perl not found. Will not build manuals.")
+  endif()
 endif()
+add_feature_info("Docs" _build_docs "build docs")
 
 feature_summary(WHAT ALL)
 

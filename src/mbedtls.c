@@ -760,6 +760,8 @@ _libssh2_mbedtls_pub_priv_key(LIBSSH2_SESSION *session,
                               "Key type not supported");
     }
 
+    ret = 0;
+
     /* write method */
     mthlen = 7;
     mth = LIBSSH2_ALLOC(session, mthlen);

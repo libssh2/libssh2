@@ -284,6 +284,12 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
     int tmp_err_code;
     const char *tmp_err_msg;
 
+    if(!path) {
+        _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                       "Path argument can not be null");
+        return NULL;
+    }
+
     if(session->scpRecv_state == libssh2_NB_state_idle) {
         session->scpRecv_mode = 0;
         session->scpRecv_size = 0;
@@ -859,6 +865,12 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
     int rc;
     int tmp_err_code;
     const char *tmp_err_msg;
+
+    if(!path) {
+        _libssh2_error(session, LIBSSH2_ERROR_INVAL,
+                       "Path argument can not be null");
+        return NULL;
+    }
 
     if(session->scpSend_state == libssh2_NB_state_idle) {
         session->scpSend_command_len =

@@ -1,6 +1,8 @@
 # Copyright (C) The libssh2 project and its contributors.
 # SPDX-License-Identifier: BSD-3-Clause
 
+# Shared between CMakeLists.txt and Makefile.am
+
 noinst_PROGRAMS = \
   direct_tcpip \
   scp \

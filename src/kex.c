@@ -642,7 +642,6 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             }
         }
 
-        exchange_state->exchange_hash = (void *)&exchange_hash_ctx;
         if(!_libssh2_sha_algo_ctx_init(sha_algo_value, exchange_hash_ctx)) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_HASH_INIT,
                                  "Unable to initialize hash context");
@@ -1590,8 +1589,8 @@ kex_method_diffie_hellman_group_exchange_sha256_key_exchange(
     int rc;
 
     if(key_state->state == libssh2_NB_state_idle) {
-        key_state->p = _libssh2_bn_init();
-        key_state->g = _libssh2_bn_init();
+        key_state->p = _libssh2_bn_init_from_bin();
+        key_state->g = _libssh2_bn_init_from_bin();
         /* Ask for a P and G pair */
         key_state->request[0] = SSH_MSG_KEX_DH_GEX_REQUEST;
         _libssh2_htonu32(key_state->request + 1, LIBSSH2_DH_GEX_MINGROUP);
@@ -1723,7 +1722,6 @@ do {                                                                         \
         rc = -1;                                                             \
         break;                                                               \
     }                                                                        \
-    exchange_state->exchange_hash = (void *)&ctx;                            \
     hok = 1;                                                                 \
     if(session->local.banner) {                                              \
         _libssh2_htonu32(exchange_state->h_sig_comp,                         \

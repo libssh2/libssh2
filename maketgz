@@ -124,7 +124,7 @@ retar() {
   mkdir "$tempdir"
   cd "$tempdir"
   gzip -dc "../$targz" | tar -xf -
-  find libssh2-* -depth -exec touch -c -t "$filestamp" '{}' +
+  find libssh2-* -depth -exec touch -c -t "$filestamp" -- '{}' +
   tar --create --format=ustar --owner=0 --group=0 --numeric-owner --sort=name libssh2-* | gzip --best --no-name > out.tar.gz
   mv out.tar.gz ../
   cd ..

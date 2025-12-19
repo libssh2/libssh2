@@ -6,8 +6,8 @@
 #
 # Input variables:
 #
-# - `WOLFSSL_INCLUDE_DIR`:  The wolfSSL include directory.
-# - `WOLFSSL_LIBRARY`:      Path to `wolfssl` library.
+# - `WOLFSSL_INCLUDE_DIR`:  Absolute path to wolfSSL include directory.
+# - `WOLFSSL_LIBRARY`:      Absolute path to `wolfssl` library.
 #
 # Defines:
 #
@@ -61,8 +61,28 @@ else()
 endif()
 
 if(WOLFSSL_FOUND)
-  if(WIN32)
+  if(APPLE)
+    find_library(SECURITY_FRAMEWORK NAMES "Security")
+    mark_as_advanced(SECURITY_FRAMEWORK)
+    if(NOT SECURITY_FRAMEWORK)
+      message(FATAL_ERROR "Security framework not found")
+    endif()
+    list(APPEND _wolfssl_LIBRARIES "-framework Security")
+
+    find_library(COREFOUNDATION_FRAMEWORK NAMES "CoreFoundation")
+    mark_as_advanced(COREFOUNDATION_FRAMEWORK)
+    if(NOT COREFOUNDATION_FRAMEWORK)
+      message(FATAL_ERROR "CoreFoundation framework not found")
+    endif()
+    list(APPEND _wolfssl_LIBRARIES "-framework CoreFoundation")
+  elseif(WIN32)
     list(APPEND _wolfssl_LIBRARIES "crypt32")
+  else()
+    find_library(MATH_LIBRARY NAMES "m")
+    if(MATH_LIBRARY)
+      list(APPEND _wolfssl_LIBRARIES ${MATH_LIBRARY})  # for log and pow
+    endif()
+    mark_as_advanced(MATH_LIBRARY)
   endif()
 
   if(CMAKE_VERSION VERSION_LESS 3.13)

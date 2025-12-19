@@ -23,6 +23,14 @@
 
 #include <stdio.h>
 
+#ifdef _WIN32
+#undef stat
+#define stat _stat
+#undef fstat
+#define fstat _fstat
+#define fileno _fileno
+#endif
+
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";
 static const char *username = "username";
@@ -87,7 +95,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    stat(loclfile, &fileinfo);
+    if(fstat(fileno(local), &fileinfo) != 0) {
+        fprintf(stderr, "error: could not stat file %s\n", loclfile);
+        fclose(local);
+        return 1;
+    }
 
     /* Ultra basic "connect to port 22 on localhost".  Your code is
      * responsible for creating the socket establishing the connection

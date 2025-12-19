@@ -32,7 +32,7 @@ cd "$(dirname "$0")"/..
     # strip off the leading ./ to make the grep regexes work properly
     find . -type f | sed 's@^\./@@'
   fi
-} | grep -E '(^CMake|/CMake|\.cmake$)' | grep -v -E '(\.h\.cmake|\.in|\.c)$' \
+} | grep -E '(^CMake|/CMake|\.cmake$|\.cmake\.in$)' | grep -v -E '(\.h\.cmake|\.c)$' \
   | xargs \
   cmake-lint \
     --suppress-decorations \
@@ -57,4 +57,5 @@ cd "$(dirname "$0")"/..
     --max-branches 12 \
     --max-arguments 5 \
     --max-localvars 15 \
-    --max-statements 50
+    --max-statements 50 \
+    --

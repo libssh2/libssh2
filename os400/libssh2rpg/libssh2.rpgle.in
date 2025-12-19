@@ -1639,7 +1639,7 @@
      d  typemask                           value like(libssh2_Cint)
      d  knownhost                      *                                        libssh2_knownhost *
 
-      * this function is identital to the above one, but also takes a port
+      * this function is identical to the above one, but also takes a port
       * argument that allows libssh2 to do a better check.
      d libssh2_knownhost_checkp...
      d                 pr                  extproc('libssh2_knownhost_checkp')

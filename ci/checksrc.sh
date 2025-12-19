@@ -6,5 +6,17 @@ set -eu
 
 cd "$(dirname "$0")"/..
 
-git ls-files "*.[ch]" "*.cc" | xargs -n1 \
-ci/checksrc.pl -i4 -m79 -AFOPENMODE -ASNPRINTF -ATYPEDEFSTRUCT
+git ls-files '*.[ch]' '*.cc' | xargs -n1 \
+ci/checksrc.pl -i4 -m79 -AFIXME -AERRNOVAR -AFOPENMODE -ATYPEDEFSTRUCT \
+  -aaccept \
+  -afclose \
+  -afopen \
+  -afprintf \
+  -aprintf \
+  -arecv \
+  -asend \
+  -asnprintf \
+  -asocket \
+  -asocketpair \
+  -astrtol \
+  -avsnprintf

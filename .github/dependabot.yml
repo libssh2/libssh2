@@ -1,0 +1,45 @@
+# Copyright (C) The libssh2 project and its contributors.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+# https://docs.github.com/code-security/dependabot/working-with-dependabot/dependabot-options-reference
+
+version: 2
+updates:
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    cooldown:
+      default-days: 7
+    groups:
+      gha-dependencies:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: 'GHA:'
+
+  - package-ecosystem: 'pip'
+    directory: '.github/workflows'
+    schedule:
+      interval: 'monthly'
+    cooldown:
+      default-days: 7
+      semver-major-days: 15
+      semver-minor-days: 7
+      semver-patch-days: 3
+    groups:
+      pip-dependencies:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: 'GHA:'
+
+  - package-ecosystem: 'docker'
+    directory: 'tests/openssh_server'
+    schedule:
+      interval: 'monthly'
+    cooldown:
+      default-days: 15
+    commit-message:
+      prefix: 'GHA:'
