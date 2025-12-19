@@ -4151,7 +4151,7 @@ _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
         key_state->state = libssh2_NB_state_sent2;
     }
 
-    if(rc == 0 && session->kex) {
+    if(rc == 0 && session->kex && session->kex->exchange_keys) {
         if(key_state->state == libssh2_NB_state_sent2) {
             retcode = session->kex->exchange_keys(session,
                                                   &key_state->key_state_low);
