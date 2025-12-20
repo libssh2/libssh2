@@ -95,8 +95,6 @@ if(NOT DEFINED STATIC_LIB_SUFFIX)
   set(STATIC_LIB_SUFFIX "")
 endif()
 
-message( "----------- SUFF?" ${STATIC_LIB_SUFFIX} )
-
 # Ensure that the static library and import library filenames are different,
 # when building both static and shared library. On Windows, with certain
 # toolchains (e.g. MSVC) these libraries get the same by default, overwriting

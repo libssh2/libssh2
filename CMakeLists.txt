@@ -150,11 +150,11 @@ if(NOT DEFINED CMAKE_UNITY_BUILD_BATCH_SIZE)
   set(CMAKE_UNITY_BUILD_BATCH_SIZE 0)
 endif()
 
-#option(BUILD_STATIC_LIBS "Build static libraries" ON)
-#add_feature_info("Static library" BUILD_STATIC_LIBS "creating libssh2 static library")
+option(BUILD_STATIC_LIBS "Build static libraries" ON)
+add_feature_info("Static library" BUILD_STATIC_LIBS "creating libssh2 static library")
 
-#option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-#add_feature_info("Shared library" BUILD_SHARED_LIBS "creating libssh2 shared library (.so/.dll)")
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+add_feature_info("Shared library" BUILD_SHARED_LIBS "creating libssh2 shared library (.so/.dll)")
 
 # Parse version
 
@@ -178,6 +178,7 @@ option(LIBSSH2_BUILD_DOCS "Build libssh2 test suite" ON)
 option(LIBSSH2_BUILD_STATIC_LIBS "Build libssh2 static libraries(default if not set)" ${BUILD_STATIC_LIBS})
 option(LIBSSH2_BUILD_SHARED_LIBS "Build libssh2 shared libraries" ${BUILD_SHARED_LIBS})
 option(LIBSSH2_BUILD_OBJECT_LIBRARY "Build static library as an object library instead of static library" OFF)
+
 option(CRYPTO_NO_OPENSSL "OpenSSL Should not be used, even if somewhat auto found" ON )
 
 if( NOT LIBSSH2_SKIP_INSTALL )
