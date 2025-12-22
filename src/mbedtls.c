@@ -212,7 +212,8 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,
                algo == MBEDTLS_CIPHER_AES_192_CBC ||
                algo == MBEDTLS_CIPHER_AES_256_CBC ||
                algo == MBEDTLS_CIPHER_DES_EDE3_CBC) {
-                ret = mbedtls_cipher_set_padding_mode(&cctx->ctx.cipher_ctx, MBEDTLS_PADDING_NONE);
+                ret = mbedtls_cipher_set_padding_mode(&cctx->ctx.cipher_ctx,
+                                                      MBEDTLS_PADDING_NONE);
             }
         }
 
@@ -316,7 +317,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
             size_t olen_finish = 0;
             unsigned char finish_buf[16];
             int i;
-            
+
             ret = mbedtls_gcm_finish(&cctx->ctx.gcm.gcm_ctx,
                                     finish_buf, sizeof(finish_buf),
                                     &olen_finish, tag, authlen);
@@ -333,7 +334,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
 
             /* Increment IV for next packet */
             for(i = 11; i >= 4; i--) {
-                if(++cctx->ctx.gcm.iv[i] != 0)
+                if(++cctx->ctx.gcm.iv[i])
                     break;
             }
         }
@@ -349,17 +350,20 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
 
         (void)firstlast;
 
-        osize = blocklen + mbedtls_cipher_get_block_size(&cctx->ctx.cipher_ctx);
+        osize = blocklen +
+                mbedtls_cipher_get_block_size(&cctx->ctx.cipher_ctx);
 
         output = (unsigned char *)mbedtls_calloc(osize, sizeof(char));
         if(output) {
             ret = mbedtls_cipher_reset(&cctx->ctx.cipher_ctx);
 
             if(!ret)
-                ret = mbedtls_cipher_update(&cctx->ctx.cipher_ctx, block, blocklen, output, &olen);
+                ret = mbedtls_cipher_update(&cctx->ctx.cipher_ctx, block,
+                                            blocklen, output, &olen);
 
             if(!ret)
-                ret = mbedtls_cipher_finish(&cctx->ctx.cipher_ctx, output + olen, &finish_olen);
+                ret = mbedtls_cipher_finish(&cctx->ctx.cipher_ctx,
+                                            output + olen, &finish_olen);
 
             if(!ret) {
                 olen += finish_olen;
@@ -379,7 +383,7 @@ void
 _libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx)
 {
     _libssh2_mbedtls_cipher_ctx *cctx = *(_libssh2_mbedtls_cipher_ctx **)ctx;
-    
+
     if(!cctx)
         return;
 
