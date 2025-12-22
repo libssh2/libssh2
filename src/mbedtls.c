@@ -61,6 +61,28 @@ static mbedtls_ctr_drbg_context _libssh2_mbedtls_ctr_drbg;
 
 /*******************************************************************/
 /*
+ * mbedTLS backend: Unified cipher context structure
+ *
+ * This structure handles both regular ciphers and AEAD ciphers (GCM)
+ * using a union to optimize memory usage.
+ */
+
+typedef struct {
+    mbedtls_cipher_type_t algo;
+    int encrypt;
+    union {
+        mbedtls_cipher_context_t cipher_ctx;
+#if LIBSSH2_AES_GCM
+        struct {
+            mbedtls_gcm_context gcm_ctx;
+            unsigned char iv[12];
+        } gcm;
+#endif
+    } ctx;
+} _libssh2_mbedtls_cipher_ctx;
+
+/*******************************************************************/
+/*
  * mbedTLS backend: Generic functions
  */
 
@@ -113,31 +135,107 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *ctx,
                              unsigned char *secret,
                              int encrypt)
 {
-    const mbedtls_cipher_info_t *cipher_info;
-    int ret, op;
+    _libssh2_mbedtls_cipher_ctx *cctx;
+    int ret;
 
     if(!ctx)
         return -1;
 
-    op = encrypt == 0 ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT;
-
-    cipher_info = mbedtls_cipher_info_from_type(algo);
-    if(!cipher_info)
+    /* Allocate unified context structure */
+    cctx = (_libssh2_mbedtls_cipher_ctx *)
+           mbedtls_calloc(1, sizeof(_libssh2_mbedtls_cipher_ctx));
+    if(!cctx)
         return -1;
 
-    mbedtls_cipher_init(ctx);
-    ret = mbedtls_cipher_setup(ctx, cipher_info);
-    if(!ret)
-        ret = mbedtls_cipher_setkey(ctx,
-                  secret,
-                  (int)mbedtls_cipher_info_get_key_bitlen(cipher_info),
-                  op);
+    /* Store algorithm type and encryption flag */
+    cctx->algo = algo;
+    cctx->encrypt = encrypt;
 
-    if(!ret)
-        ret = mbedtls_cipher_set_iv(ctx, iv,
-                  mbedtls_cipher_info_get_iv_size(cipher_info));
+#if LIBSSH2_AES_GCM
+    /* Check if this is a GCM algorithm */
+    if(algo == MBEDTLS_CIPHER_AES_128_GCM ||
+       algo == MBEDTLS_CIPHER_AES_256_GCM) {
+        unsigned int keybits;
 
-    return ret == 0 ? 0 : -1;
+        /* Store the initial IV (will be incremented per packet) */
+        memcpy(cctx->ctx.gcm.iv, iv, 12);
+
+        /* Initialize GCM context */
+        mbedtls_gcm_init(&cctx->ctx.gcm.gcm_ctx);
+
+        /* Set key length based on algorithm */
+        if(algo == MBEDTLS_CIPHER_AES_128_GCM)
+            keybits = 128;
+        else /* MBEDTLS_CIPHER_AES_256_GCM */
+            keybits = 256;
+
+        /* Setup GCM with AES cipher and key */
+        ret = mbedtls_gcm_setkey(&cctx->ctx.gcm.gcm_ctx,
+                                 MBEDTLS_CIPHER_ID_AES,
+                                 secret,
+                                 keybits);
+
+        if(ret) {
+            mbedtls_gcm_free(&cctx->ctx.gcm.gcm_ctx);
+            mbedtls_free(cctx);
+            return -1;
+        }
+
+            /* Store the context pointer */
+        *(void **)ctx = cctx;
+        return 0;
+    }
+#endif
+
+    /* Non-GCM algorithms: use standard cipher API */
+    {
+        const mbedtls_cipher_info_t *cipher_info;
+        int op;
+
+        op = encrypt ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT;
+
+        cipher_info = mbedtls_cipher_info_from_type(algo);
+        if(!cipher_info) {
+            mbedtls_free(cctx);
+            return -1;
+        }
+
+        mbedtls_cipher_init(&cctx->ctx.cipher_ctx);
+        ret = mbedtls_cipher_setup(&cctx->ctx.cipher_ctx, cipher_info);
+
+        /* libssh2 computes and adds SSH packet padding itself, so for CBC
+         * tell mbedTLS to expect no padding on the cipher layer. Only call
+         * set_padding_mode for CBC ciphers since other modes (CTR, stream)
+         * are not applicable and will cause an error. */
+        if(!ret) {
+            if(algo == MBEDTLS_CIPHER_AES_128_CBC ||
+               algo == MBEDTLS_CIPHER_AES_192_CBC ||
+               algo == MBEDTLS_CIPHER_AES_256_CBC ||
+               algo == MBEDTLS_CIPHER_DES_EDE3_CBC) {
+                ret = mbedtls_cipher_set_padding_mode(&cctx->ctx.cipher_ctx, MBEDTLS_PADDING_NONE);
+            }
+        }
+
+        if(!ret)
+            ret = mbedtls_cipher_setkey(&cctx->ctx.cipher_ctx,
+                      secret,
+                      (int)mbedtls_cipher_info_get_key_bitlen(cipher_info),
+                      op);
+
+        if(!ret)
+            ret = mbedtls_cipher_set_iv(&cctx->ctx.cipher_ctx, iv,
+                      mbedtls_cipher_info_get_iv_size(cipher_info));
+
+        if(ret) {
+            mbedtls_cipher_free(&cctx->ctx.cipher_ctx);
+            mbedtls_free(cctx);
+            return -1;
+        }
+
+        /* Store the context pointer */
+        *(void **)ctx = cctx;
+        return 0;
+    }
 }
 
 int
@@ -147,43 +245,156 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
                               unsigned char *block,
                               size_t blocklen, int firstlast)
 {
+    _libssh2_mbedtls_cipher_ctx *cctx;
     int ret;
-    unsigned char *output;
-    size_t osize, olen, finish_olen;
 
-    (void)encrypt;
+    cctx = *(_libssh2_mbedtls_cipher_ctx **)ctx;
+    if(!cctx)
+        return -1;
+
     (void)algo;
-    (void)firstlast;
+    (void)encrypt;
 
-    osize = blocklen + mbedtls_cipher_get_block_size(ctx);
+#if LIBSSH2_AES_GCM
+    /* Check if this is a GCM algorithm based on stored algo type */
+    if(cctx->algo == MBEDTLS_CIPHER_AES_128_GCM ||
+       cctx->algo == MBEDTLS_CIPHER_AES_256_GCM) {
+        const int authlen = 16;  /* GCM authentication tag length */
+        const int aadlen = (IS_FIRST(firstlast)) ? 4 : 0;
+        const int authenticationtag = IS_LAST(firstlast) ? authlen : 0;
+        const int cryptlen = (int)blocklen - aadlen - authenticationtag;
+        unsigned char tag[16];
+        unsigned char *buf = NULL;
 
-    output = (unsigned char *)mbedtls_calloc(osize, sizeof(char));
-    if(output) {
-        ret = mbedtls_cipher_reset(ctx);
-
-        if(!ret)
-            ret = mbedtls_cipher_update(ctx, block, blocklen, output, &olen);
-
-        if(!ret)
-            ret = mbedtls_cipher_finish(ctx, output + olen, &finish_olen);
-
-        if(!ret) {
-            olen += finish_olen;
-            memcpy(block, output, olen);
+        /* Allocate temporary buffer for output */
+        if(cryptlen > 0) {
+            buf = (unsigned char *)mbedtls_calloc(cryptlen, 1);
+            if(!buf)
+                return -1;
         }
 
-        _libssh2_mbedtls_safe_free(output, osize);
-    }
-    else
-        ret = -1;
+        /* First block: start GCM operation */
+        if(IS_FIRST(firstlast)) {
+            ret = mbedtls_gcm_starts(&cctx->ctx.gcm.gcm_ctx,
+                                     cctx->encrypt ? MBEDTLS_GCM_ENCRYPT :
+                                                     MBEDTLS_GCM_DECRYPT,
+                                     cctx->ctx.gcm.iv, 12);
+            if(ret) {
+                if(buf)
+                    mbedtls_free(buf);
+                return -1;
+            }
 
-    return ret == 0 ? 0 : -1;
+            /* Process AAD (Additional Authenticated Data) */
+            if(aadlen) {
+                ret = mbedtls_gcm_update_ad(&cctx->ctx.gcm.gcm_ctx,
+                                            block, aadlen);
+                if(ret) {
+                    if(buf)
+                        mbedtls_free(buf);
+                    return -1;
+                }
+            }
+        }
+
+        /* Process payload */
+        if(cryptlen > 0) {
+            size_t olen = 0;
+            ret = mbedtls_gcm_update(&cctx->ctx.gcm.gcm_ctx,
+                                     block + aadlen, cryptlen,
+                                     buf, cryptlen, &olen);
+            if(ret) {
+                mbedtls_free(buf);
+                return -1;
+            }
+            memcpy(block + aadlen, buf, olen);
+            mbedtls_free(buf);
+        }
+
+        /* Last block: finalize and handle authentication tag */
+        if(IS_LAST(firstlast)) {
+            size_t olen_finish = 0;
+            unsigned char finish_buf[16];
+            int i;
+            
+            ret = mbedtls_gcm_finish(&cctx->ctx.gcm.gcm_ctx,
+                                    finish_buf, sizeof(finish_buf),
+                                    &olen_finish, tag, authlen);
+            if(ret)
+                return -1;
+
+            if(cctx->encrypt) {
+                memcpy(block + blocklen - authlen, tag, authlen);
+            }
+            else {
+                if(memcmp(tag, block + blocklen - authlen, authlen) != 0)
+                    return MBEDTLS_ERR_GCM_AUTH_FAILED;
+            }
+
+            /* Increment IV for next packet */
+            for(i = 11; i >= 4; i--) {
+                if(++cctx->ctx.gcm.iv[i] != 0)
+                    break;
+            }
+        }
+
+        return 0;
+    }
+#endif
+
+    /* Non-GCM algorithms: use standard cipher API */
+    {
+        unsigned char *output;
+        size_t osize, olen, finish_olen;
+
+        (void)firstlast;
+
+        osize = blocklen + mbedtls_cipher_get_block_size(&cctx->ctx.cipher_ctx);
+
+        output = (unsigned char *)mbedtls_calloc(osize, sizeof(char));
+        if(output) {
+            ret = mbedtls_cipher_reset(&cctx->ctx.cipher_ctx);
+
+            if(!ret)
+                ret = mbedtls_cipher_update(&cctx->ctx.cipher_ctx, block, blocklen, output, &olen);
+
+            if(!ret)
+                ret = mbedtls_cipher_finish(&cctx->ctx.cipher_ctx, output + olen, &finish_olen);
+
+            if(!ret) {
+                olen += finish_olen;
+                memcpy(block, output, olen);
+            }
+
+            _libssh2_mbedtls_safe_free(output, osize);
+        }
+        else
+            ret = -1;
+
+        return ret == 0 ? 0 : -1;
+    }
 }
 
 void
 _libssh2_mbedtls_cipher_dtor(_libssh2_cipher_ctx *ctx)
 {
-    mbedtls_cipher_free(ctx);
+    _libssh2_mbedtls_cipher_ctx *cctx = *(_libssh2_mbedtls_cipher_ctx **)ctx;
+    
+    if(!cctx)
+        return;
+
+#if LIBSSH2_AES_GCM
+    if(cctx->algo == MBEDTLS_CIPHER_AES_128_GCM ||
+       cctx->algo == MBEDTLS_CIPHER_AES_256_GCM) {
+        mbedtls_gcm_free(&cctx->ctx.gcm.gcm_ctx);
+        mbedtls_free(cctx);
+        return;
+    }
+#endif
+
+    /* Regular cipher context */
+    mbedtls_cipher_free(&cctx->ctx.cipher_ctx);
+    mbedtls_free(cctx);
 }
 
 
