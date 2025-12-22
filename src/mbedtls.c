@@ -208,7 +208,8 @@ _libssh2_mbedtls_cipher_init(_libssh2_cipher_ctx *h,
                algo == MBEDTLS_CIPHER_AES_192_CBC ||
                algo == MBEDTLS_CIPHER_AES_256_CBC ||
                algo == MBEDTLS_CIPHER_DES_EDE3_CBC) {
-                ret = mbedtls_cipher_set_padding_mode(&cctx->ctx.cipher_ctx, MBEDTLS_PADDING_NONE);
+                ret = mbedtls_cipher_set_padding_mode(&cctx->ctx.cipher_ctx,
+                                                      MBEDTLS_PADDING_NONE);
             }
         }
 
@@ -329,7 +330,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
 
             /* Increment IV for next packet */
             for(i = 11; i >= 4; i--) {
-                if(++cctx->ctx.gcm.iv[i] != 0)
+                if(++cctx->ctx.gcm.iv[i])
                     break;
             }
         }
@@ -345,17 +346,20 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
 
         (void)firstlast;
 
-        osize = blocksize + mbedtls_cipher_get_block_size(&cctx->ctx.cipher_ctx);
+        osize = blocksize +
+                mbedtls_cipher_get_block_size(&cctx->ctx.cipher_ctx);
 
         output = (unsigned char *)mbedtls_calloc(osize, sizeof(char));
         if(output) {
             ret = mbedtls_cipher_reset(&cctx->ctx.cipher_ctx);
 
             if(!ret)
-                ret = mbedtls_cipher_update(&cctx->ctx.cipher_ctx, block, blocksize, output, &olen);
+                ret = mbedtls_cipher_update(&cctx->ctx.cipher_ctx, block,
+                                            blocksize, output, &olen);
 
             if(!ret)
-                ret = mbedtls_cipher_finish(&cctx->ctx.cipher_ctx, output + olen, &finish_olen);
+                ret = mbedtls_cipher_finish(&cctx->ctx.cipher_ctx,
+                                            output + olen, &finish_olen);
 
             if(!ret) {
                 olen += finish_olen;
