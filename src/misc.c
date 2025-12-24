@@ -303,6 +303,28 @@ int _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
     return len_stored == len;
 }
 
+/* _libssh2_store_str
+ */
+int _libssh2_store_hybrid_str(unsigned char **buf, const char *str_1,
+                        size_t len_1, const char *str_2, size_t len_2)
+{
+    uint32_t len_stored = (uint32_t)len_1 + (uint32_t)len_2;
+
+    _libssh2_store_u32(buf, len_stored);
+    if(len_1) {
+        memcpy(*buf, str_1, len_1);
+        *buf += len_1;
+    }
+
+    if(len_2) {
+        memcpy(*buf, str_2, len_2);
+        *buf += len_2;
+    }
+
+    assert(len_stored == len_1 + len_2);
+    return len_stored == len_1 + len_2;
+}
+
 /* _libssh2_store_bignum2_bytes
  */
 int _libssh2_store_bignum2_bytes(unsigned char **buf,

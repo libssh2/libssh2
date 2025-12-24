@@ -155,6 +155,12 @@
 # define LIBSSH2_ED25519 0
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x30500000L && \
+    !defined(LIBRESSL_VERSION_NUMBER)
+# define LIBSSH2_MLKEM 1
+#else
+# define LIBSSH2_MLKEM 0
+#endif
 
 #ifdef OPENSSL_NO_MD5
 # define LIBSSH2_MD5 0
