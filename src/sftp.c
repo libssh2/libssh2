@@ -2624,7 +2624,7 @@ static void sftp_packet_flush(LIBSSH2_SFTP *sftp)
         LIBSSH2_SFTP_PACKET *next;
 
         /* check next struct in the list */
-        next =  _libssh2_list_next(&packet->node);
+        next = _libssh2_list_next(&packet->node);
         _libssh2_list_remove(&packet->node);
         LIBSSH2_FREE(session, packet->data);
         LIBSSH2_FREE(session, packet);

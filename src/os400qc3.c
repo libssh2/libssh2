@@ -192,7 +192,7 @@ static int  parse_iv(LIBSSH2_SESSION *session, pkcs5params *pkcs5,
                      pkcs5algo *algo, asn1Element *param);
 static const pkcs5algo  desCBC = {
     OID_desCBC, parse_iv,   Qc3_DES,    8,  Qc3_CBC,    Qc3_Pad_Counter,
-   '\0',   8,   0,  0,  8,  8,  0
+    '\0',   8,   0,  0,  8,  8,  0
 };
 
 /* des-EDE3-CBC OID: 1.2.840.113549.3.7 */

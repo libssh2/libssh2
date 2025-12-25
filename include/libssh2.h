@@ -144,7 +144,7 @@ typedef int libssh2_socket_t;
 
 /* Compile-time deprecation macros */
 #if !defined(LIBSSH2_DISABLE_DEPRECATION) && !defined(LIBSSH2_LIBRARY)
-#  if defined(_MSC_VER)
+#  ifdef _MSC_VER
 #    define LIBSSH2_DEPRECATED(version, message) \
        __declspec(deprecated("since libssh2 " # version ". " message))
 #  elif defined(__GNUC__) && !defined(__INTEL_COMPILER)
