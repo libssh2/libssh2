@@ -88,13 +88,6 @@ environment:
       CRYPTO_BACKEND: 'OpenSSL'
       OPENSSL_ROOT_DIR: 'C:/OpenSSL-v111-Win64'
 
-    - job_name: 'VS2008, WinCNG, x86, Build-only'
-      APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
-      GENERATOR: 'Visual Studio 9 2008'
-      PLATFORM: 'x86'
-      CRYPTO_BACKEND: 'WinCNG'
-      ENABLE_ECDSA_WINCNG: 'ON'
-
     - job_name: 'VS2010, WinCNG, x64, Build-only, non-unity'
       APPVEYOR_BUILD_WORKER_IMAGE: 'Visual Studio 2015'
       GENERATOR: 'Visual Studio 10 2010'

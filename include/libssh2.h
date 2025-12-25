@@ -123,20 +123,9 @@ extern "C" {
 # include <sys/uio.h>
 #endif
 
-#if defined(_MSC_VER) && (_MSC_VER < 1600)
-typedef unsigned char uint8_t;
-typedef unsigned short int uint16_t;
-typedef unsigned int uint32_t;
-typedef __int32 int32_t;
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-typedef unsigned __int64 libssh2_uint64_t;
-typedef __int64 libssh2_int64_t;
-#else
 #include <stdint.h>
 typedef unsigned long long libssh2_uint64_t;
 typedef long long libssh2_int64_t;
-#endif
 
 #if defined(_MSC_VER) && !defined(HAVE_SSIZE_T) && !defined(ssize_t)
 typedef SSIZE_T ssize_t;
@@ -156,13 +145,8 @@ typedef int libssh2_socket_t;
 /* Compile-time deprecation macros */
 #if !defined(LIBSSH2_DISABLE_DEPRECATION) && !defined(LIBSSH2_LIBRARY)
 #  if defined(_MSC_VER)
-#    if _MSC_VER >= 1400
-#      define LIBSSH2_DEPRECATED(version, message) \
-         __declspec(deprecated("since libssh2 " # version ". " message))
-#    elif _MSC_VER >= 1310
-#      define LIBSSH2_DEPRECATED(version, message) \
-         __declspec(deprecated)
-#   endif
+#    define LIBSSH2_DEPRECATED(version, message) \
+       __declspec(deprecated("since libssh2 " # version ". " message))
 #  elif defined(__GNUC__) && !defined(__INTEL_COMPILER)
 #    if (defined(__clang__) && __clang_major__ >= 3) || \
         (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5))
@@ -187,11 +171,7 @@ typedef int libssh2_socket_t;
  */
 
 #if defined(_MSC_VER) && !defined(_WIN32_WCE)
-#  if (_MSC_VER >= 900) && (_INTEGRAL_MAX_BITS >= 64)
-#    define LIBSSH2_USE_WIN32_LARGE_FILES
-#  else
-#    define LIBSSH2_USE_WIN32_SMALL_FILES
-#  endif
+#  define LIBSSH2_USE_WIN32_LARGE_FILES
 #endif
 
 #if defined(__MINGW32__) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES)
