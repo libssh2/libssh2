@@ -264,7 +264,7 @@ char *srcdir_path(const char *file)
                 snprintf(filepath[curpath], (size_t)len + 1, "%s/%s", p, file);
             }
             else {
-               return NULL;
+                return NULL;
             }
         }
         else {
@@ -274,7 +274,7 @@ char *srcdir_path(const char *file)
                 snprintf(filepath[curpath], (size_t)len + 1, "%s", file);
             }
             else {
-               return NULL;
+                return NULL;
             }
         }
         return filepath[curpath++];
