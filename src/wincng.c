@@ -1033,8 +1033,8 @@ _libssh2_wincng_bn_ltob(unsigned char *pbInput,
     }
 
     pbOutput[0] = 0;
-    for(index = 0; ((index + offset) < cbOutput)
-                    && (index < cbInput); index++) {
+    for(index = 0; ((index + offset) < cbOutput) &&
+                   (index < cbInput); index++) {
         pbOutput[index + offset] = pbInput[length - index];
     }
 

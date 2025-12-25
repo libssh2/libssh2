@@ -345,8 +345,8 @@ cleanup:
         *total += bytes_transferred;                                   \
         if(!ret) {                                                     \
             err = GetLastError();                                      \
-            if((!agent->pending_io && ERROR_IO_PENDING == err)         \
-               || (agent->pending_io && ERROR_IO_INCOMPLETE == err)) { \
+            if((!agent->pending_io && ERROR_IO_PENDING == err) ||      \
+               (agent->pending_io && ERROR_IO_INCOMPLETE == err)) {    \
                 agent->pending_io = TRUE;                              \
                 return LIBSSH2_ERROR_EAGAIN;                           \
             }                                                          \

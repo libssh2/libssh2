@@ -3543,8 +3543,8 @@ _libssh2_kex_agree_instr(unsigned char *haystack, size_t haystack_len,
 
         /* Needle at X position */
         if((strncmp((char *) s, (const char *) needle, needle_len) == 0) &&
-            (((s - haystack) + needle_len) == haystack_len
-             || s[needle_len] == ',')) {
+            (((s - haystack) + needle_len) == haystack_len ||
+             s[needle_len] == ',')) {
             return s;
         }
     }
@@ -3952,26 +3952,27 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
         return -1;
     }
 
-    if(kex_agree_crypt(session, &session->local, crypt_cs, crypt_cs_len)
-       || kex_agree_crypt(session, &session->remote, crypt_sc, crypt_sc_len)) {
+    if(kex_agree_crypt(session, &session->local, crypt_cs, crypt_cs_len) ||
+       kex_agree_crypt(session, &session->remote, crypt_sc, crypt_sc_len)) {
         return -1;
     }
 
     /* This must happen after kex_agree_crypt since some MACs depend on the
        negotiated crypto method */
-    if(kex_agree_mac(session, &session->local, mac_cs, mac_cs_len)
-       || kex_agree_mac(session, &session->remote, mac_sc, mac_sc_len)) {
+    if(kex_agree_mac(session, &session->local, mac_cs, mac_cs_len) ||
+       kex_agree_mac(session, &session->remote, mac_sc, mac_sc_len)) {
         return -1;
     }
 
-    if(kex_agree_comp(session, &session->local, comp_cs, comp_cs_len)
-       || kex_agree_comp(session, &session->remote, comp_sc, comp_sc_len)) {
+    if(kex_agree_comp(session, &session->local, comp_cs, comp_cs_len) ||
+       kex_agree_comp(session, &session->remote, comp_sc, comp_sc_len)) {
         return -1;
     }
 
 #if 0
-    if(libssh2_kex_agree_lang(session, &session->local, lang_cs, lang_cs_len)
-       || libssh2_kex_agree_lang(session, &session->remote, lang_sc,
+    if(libssh2_kex_agree_lang(session, &session->local, lang_cs,
+                              lang_cs_len) ||
+       libssh2_kex_agree_lang(session, &session->remote, lang_sc,
                                  lang_sc_len)) {
         return -1;
     }
