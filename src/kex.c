@@ -227,7 +227,6 @@ static void _libssh2_sha_algo_value_hash(int sha_algo,
     }
 }
 
-
 static void
 diffie_hellman_state_cleanup(LIBSSH2_SESSION * session,
                              kmdhgGPshakex_state_t *exchange_state)
@@ -280,7 +279,6 @@ kex_diffie_hellman_cleanup(LIBSSH2_SESSION * session,
         diffie_hellman_state_cleanup(session, &key_state->exchange_state);
     }
 }
-
 
 /*!
  * @function diffie_hellman_sha_algo
@@ -511,7 +509,7 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
                            "Server's MD5 Fingerprint: %s", fingerprint));
         }
 #endif /* LIBSSH2DEBUG */
-#endif /* ! LIBSSH2_MD5 */
+#endif /* !LIBSSH2_MD5 */
 
         {
             libssh2_sha1_ctx fingerprint_ctx;
@@ -569,7 +567,6 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
             }
         }
 #endif /* LIBSSH2DEBUG */
-
 
         if(!session->hostkey) {
             ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
@@ -1022,8 +1019,6 @@ clean_exit:
     return ret;
 }
 
-
-
 /* kex_method_diffie_hellman_group1_sha1_key_exchange
  * Diffie-Hellman Group1 (Actually Group2) Key Exchange using SHA1
  */
@@ -1091,7 +1086,6 @@ clean_exit:
 
     return ret;
 }
-
 
 /* kex_method_diffie_hellman_group14_key_exchange
  * Diffie-Hellman Group14 Key Exchange with hash function callback
@@ -1189,8 +1183,6 @@ clean_exit:
     return ret;
 }
 
-
-
 /* kex_method_diffie_hellman_group14_sha1_key_exchange
  * Diffie-Hellman Group14 Key Exchange using SHA1
  */
@@ -1205,8 +1197,6 @@ kex_method_diffie_hellman_group14_sha1_key_exchange(LIBSSH2_SESSION *session,
                                                       &ctx,
                                                       diffie_hellman_sha_algo);
 }
-
-
 
 /* kex_method_diffie_hellman_group14_sha256_key_exchange
  * Diffie-Hellman Group14 Key Exchange using SHA256
@@ -1574,8 +1564,6 @@ dh_gex_clean_exit:
     return ret;
 }
 
-
-
 /* kex_method_diffie_hellman_group_exchange_sha256_key_exchange
  * Diffie-Hellman Group Exchange Key Exchange using SHA256
  * Negotiates random(ish) group for secret derivation
@@ -1840,7 +1828,6 @@ kex_session_ecdh_curve_type(const char *name, libssh2_curve_type *out_type)
     return 0;
 }
 
-
 static void
 ecdh_exchange_state_cleanup(LIBSSH2_SESSION * session,
                             kmdhgGPshakex_state_t *exchange_state)
@@ -1855,7 +1842,6 @@ ecdh_exchange_state_cleanup(LIBSSH2_SESSION * session,
 
     exchange_state->state = libssh2_NB_state_idle;
 }
-
 
 static void
 kex_method_ecdh_cleanup
@@ -1883,11 +1869,9 @@ kex_method_ecdh_cleanup
     }
 }
 
-
 /* ecdh_sha2_nistp
  * Elliptic Curve Diffie Hellman Key Exchange
  */
-
 static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                            unsigned char *data, size_t data_len,
                            unsigned char *public_key,
@@ -1961,7 +1945,7 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
                            "Server's MD5 Fingerprint: %s", fingerprint));
         }
 #endif /* LIBSSH2DEBUG */
-#endif /* ! LIBSSH2_MD5 */
+#endif /* !LIBSSH2_MD5 */
 
         {
             libssh2_sha1_ctx fingerprint_ctx;
@@ -2489,7 +2473,6 @@ ecdh_clean_exit:
 
 #endif /* LIBSSH2_ECDSA */
 
-
 #if LIBSSH2_ED25519
 
 static void
@@ -2627,7 +2610,7 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
                            "Server's MD5 Fingerprint: %s", fingerprint));
         }
 #endif /* LIBSSH2DEBUG */
-#endif /* ! LIBSSH2_MD5 */
+#endif /* !LIBSSH2_MD5 */
 
         {
             libssh2_sha1_ctx fingerprint_ctx;
@@ -3127,9 +3110,7 @@ clean_exit:
     return ret;
 }
 
-
 #endif /* LIBSSH2_ED25519 */
-
 
 #define LIBSSH2_KEX_METHOD_FLAG_REQ_ENC_HOSTKEY     0x0001
 #define LIBSSH2_KEX_METHOD_FLAG_REQ_SIGN_HOSTKEY    0x0002
@@ -3299,8 +3280,6 @@ kex_method_strlen(const LIBSSH2_COMMON_METHOD ** method)
     return len - 1;
 }
 
-
-
 /* kex_method_list
  * Generate formatted preference list in buf
  */
@@ -3325,8 +3304,6 @@ kex_method_list(unsigned char *buf, uint32_t list_strlen,
 
     return list_strlen + 4;
 }
-
-
 
 #define LIBSSH2_METHOD_PREFS_LEN(prefvar, defaultvar)           \
     (uint32_t)((prefvar) ? strlen(prefvar) :                    \
@@ -3575,10 +3552,7 @@ _libssh2_kex_agree_instr(unsigned char *haystack, size_t haystack_len,
     return NULL;
 }
 
-
-
-/* kex_get_method_by_name
- */
+/* kex_get_method_by_name */
 static const LIBSSH2_COMMON_METHOD *
 kex_get_method_by_name(const char *name, size_t name_len,
                        const LIBSSH2_COMMON_METHOD ** methodlist)
@@ -3592,8 +3566,6 @@ kex_get_method_by_name(const char *name, size_t name_len,
     }
     return NULL;
 }
-
-
 
 /* kex_agree_hostkey
  * Agree on a Hostkey which works with this kex
@@ -3669,8 +3641,6 @@ static int kex_agree_hostkey(LIBSSH2_SESSION * session,
 
     return -1;
 }
-
-
 
 /* kex_agree_kex_hostkey
  * Agree on a Key Exchange method and a hostkey encoding type
@@ -3752,8 +3722,6 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, unsigned char *kex,
     return -1;
 }
 
-
-
 /* kex_agree_crypt
  * Agree on a cipher algo
  */
@@ -3808,8 +3776,6 @@ static int kex_agree_crypt(LIBSSH2_SESSION * session,
 
     return -1;
 }
-
-
 
 /* kex_agree_mac
  * Agree on a message authentication hash
@@ -3872,8 +3838,6 @@ static int kex_agree_mac(LIBSSH2_SESSION * session,
     return -1;
 }
 
-
-
 /* kex_agree_comp
  * Agree on a compression scheme
  */
@@ -3926,7 +3890,6 @@ static int kex_agree_comp(LIBSSH2_SESSION *session,
 
     return -1;
 }
-
 
 /* TODO: When in server mode we need to turn this logic on its head
  * The Client gets to make the final call on "agreed methods"
@@ -4041,8 +4004,6 @@ static int kex_agree_methods(LIBSSH2_SESSION * session, unsigned char *data,
 
     return 0;
 }
-
-
 
 /* _libssh2_kex_exchange
  * Exchange keys
@@ -4185,8 +4146,6 @@ _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
 
     return rc;
 }
-
-
 
 /* libssh2_session_method_pref
  * Set preferred method

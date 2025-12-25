@@ -1516,7 +1516,6 @@ libssh2_channel_x11_req_ex(LIBSSH2_CHANNEL *channel, int single_connection,
     return rc;
 }
 
-
 /*
  * _libssh2_channel_process_startup
  *
@@ -1646,7 +1645,6 @@ libssh2_channel_process_startup(LIBSSH2_CHANNEL *channel,
                                                   msg, msg_len));
     return rc;
 }
-
 
 /*
  * libssh2_channel_set_blocking
@@ -2055,7 +2053,6 @@ libssh2_channel_handle_extended_data(LIBSSH2_CHANNEL *channel,
     (void)libssh2_channel_handle_extended_data2(channel, ignore_mode);
 }
 #endif
-
 
 /*
  * _libssh2_channel_read

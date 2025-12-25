@@ -117,13 +117,11 @@ debugdump(LIBSSH2_SESSION * session,
 #define debugdump(a,x,y,z) do {} while(0)
 #endif
 
-
 /* decrypt() decrypts 'len' bytes from 'source' to 'dest' in units of
  * blocksize.
  *
  * returns 0 on success and negative on failure
  */
-
 static int
 decrypt(LIBSSH2_SESSION * session, unsigned char *source,
         unsigned char *dest, ssize_t len, int firstlast)
@@ -348,7 +346,6 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
     return session->fullpacket_packet_type;
 }
 
-
 /*
  * _libssh2_transport_read
  *
@@ -524,7 +521,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                                  fields */
 
             /* packet length is not encrypted in encode-then-mac mode
-               and we donøt need to decrypt first block */
+               and we do not need to decrypt first block */
             ssize_t required_size = etm ? 4 : blocksize;
 
             /* No payload package area allocated yet. To know the
@@ -532,7 +529,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                blocksize data. */
 
             if(numbytes < required_size) {
-                /* we can't act on anything less than blocksize, but this
+                /* we cannot act on anything less than blocksize, but this
                    check is only done for the initial block since once we have
                    got the start of a block we can in fact deal with fractions
                 */
@@ -1110,7 +1107,6 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
             memcpy(&p->outbuf[5 + data_len], data2, data2_len);
         data_len += data2_len; /* use the combined length */
     }
-
 
     /* RFC4253 says: Note that the length of the concatenation of
        'packet_length', 'padding_length', 'payload', and 'random padding'

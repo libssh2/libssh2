@@ -204,7 +204,6 @@
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 #undef size_t
 
-
 #ifndef LIBSSH2_DISABLE_QADRT_EXT
 /* Remap zlib procedures to ASCII versions. */
 #pragma map(inflateInit_, "_libssh2_os400_inflateInit_")

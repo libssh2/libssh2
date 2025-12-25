@@ -50,7 +50,6 @@
 
 #include <arpa/inet.h>
 
-
 #ifdef OS400_DEBUG
 /* In debug mode, all system library errors cause an exception. */
 #define set_EC_length(ec, length)   ((ec).Bytes_Provided =                  \
@@ -59,12 +58,10 @@
 #define set_EC_length(ec, length)   ((ec).Bytes_Provided = (length))
 #endif
 
-
 /* Ensure va_list operations are not on an array. */
 typedef struct {
     va_list     list;
 }       valiststr;
-
 
 typedef int (*loadkeyproc)(LIBSSH2_SESSION *session,
                            const unsigned char *data, unsigned int datalen,
@@ -76,7 +73,6 @@ typedef struct {
     const unsigned char *   data;
     unsigned int            length;
 }       loadpubkeydata;
-
 
 /* Support for ASN.1 elements. */
 
@@ -116,7 +112,6 @@ static int  sshdsapubkey(LIBSSH2_SESSION *session, char **sshpubkey,
 
 static unsigned char    OID_dhKeyAgreement[] =
                             {9, 40 + 2, 0x86, 0x48, 0x86, 0xF7, 0x0D, 1, 3, 1};
-
 
 /* PKCS#5 support. */
 
@@ -293,7 +288,6 @@ static const pkcs5algo *    kdf2prftable[] = {
     NULL
 };
 
-
 /* Public key extraction support. */
 static struct {
     unsigned char *oid;
@@ -321,7 +315,6 @@ static const char   beginrsaprivkeyhdr[] = "-----BEGIN RSA PRIVATE KEY-----";
 static const char   endrsaprivkeyhdr[] = "-----END RSA PRIVATE KEY-----";
 static const char   fopenrmode[] = "r";
 static const char   fopenrbmode[] = "rb";
-
 
 /* The rest of character literals in this module are in EBCDIC. */
 #pragma convert(37)
@@ -353,7 +346,6 @@ static const Qus_EC_t ecnull = {0};     /* Error causes an exception. */
 static asn1Element  lastbytebitcount = {
     (char *) &zero, NULL, (char *) &zero + 1
 };
-
 
 /*******************************************************************
  *
@@ -516,7 +508,6 @@ _libssh2_bn_from_bn(_libssh2_bn *to, _libssh2_bn *from)
 
     return 0;
 }
-
 
 /*******************************************************************
  *
@@ -897,7 +888,6 @@ rsaprivatekeyinfo(asn1Element *privkey)
     return privkeyinfo;
 }
 
-
 /*******************************************************************
  *
  * OS/400 QC3 crypto-library backend: crypto context support.
@@ -1187,7 +1177,6 @@ _libssh2_cipher_crypt(_libssh2_cipher_ctx *ctx,
     return errcode.Bytes_Available ? -1 : 0;
 }
 
-
 /*******************************************************************
  *
  * OS/400 QC3 crypto-library backend: RSA support.
@@ -1292,7 +1281,6 @@ _libssh2_rsa_new(libssh2_rsa_ctx **rsa,
     return ret;
 }
 
-
 /*******************************************************************
  *
  * OS/400 QC3 crypto-library backend: Diffie-Hellman support.
@@ -1387,7 +1375,6 @@ _libssh2_os400qc3_dh_dtor(_libssh2_dh_ctx *dhctx)
         memset((char *) dhctx, 0, sizeof(*dhctx));
     }
 }
-
 
 /*******************************************************************
  *
@@ -2512,7 +2499,6 @@ _libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session,
  * Return supported key hash algo upgrades, see crypto.h
  *
  */
-
 const char *
 _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        unsigned char *key_method,

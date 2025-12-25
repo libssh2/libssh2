@@ -734,7 +734,7 @@ struct _LIBSSH2_SESSION
 #if LIBSSH2_MD5
     unsigned char server_hostkey_md5[MD5_DIGEST_LENGTH];
     int server_hostkey_md5_valid;
-#endif /* ! LIBSSH2_MD5 */
+#endif /* !LIBSSH2_MD5 */
     unsigned char server_hostkey_sha1[SHA_DIGEST_LENGTH];
     int server_hostkey_sha1_valid;
 
@@ -1205,7 +1205,6 @@ ssize_t _libssh2_send(libssh2_socket_t socket, const void *buffer,
 
 #define LIBSSH2_DEFAULT_READ_TIMEOUT 60 /* generic timeout in seconds used when
                                            waiting for more data to arrive */
-
 
 int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
                           key_exchange_state_t * state);

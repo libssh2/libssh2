@@ -767,7 +767,6 @@ AC_DEFUN([CURL_CHECK_NEED_REENTRANT_SYSTEM], [
   esac
 ])
 
-
 dnl CURL_CONFIGURE_FROM_NOW_ON_WITH_REENTRANT
 dnl -------------------------------------------------
 dnl This macro ensures that configuration tests done
@@ -786,7 +785,6 @@ cat >>confdefs.h <<_EOF
 #endif
 _EOF
 ])
-
 
 dnl CURL_CONFIGURE_REENTRANT
 dnl -------------------------------------------------
@@ -930,7 +928,6 @@ m4_case([$1],
 "
 fi
 ])
-
 
 dnl LIBSSH2_CHECK_OPTION_WERROR
 dnl -------------------------------------------------

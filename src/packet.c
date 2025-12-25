@@ -930,7 +930,6 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                                    (int)len, data + 5, want_reply));
                 }
 
-
                 if(want_reply) {
                     static const unsigned char packet =
                         SSH_MSG_REQUEST_FAILURE;
@@ -1194,7 +1193,6 @@ libssh2_packet_add_jump_point1:
                         }
                     }
                 }
-
 
                 if(want_reply) {
                     unsigned char packet[5];

@@ -65,7 +65,6 @@
 # include <zlib.h>
 #endif
 
-
 /**
 ***     QADRT OS/400 ASCII runtime defines only the most used procedures, but
 ***             a lot of them are not supported. This module implements
@@ -74,7 +73,6 @@
 **/
 
 #pragma convert(37)                             /* Restore EBCDIC. */
-
 
 static int
 convert_sockaddr(struct sockaddr_storage *dstaddr,
@@ -112,7 +110,6 @@ convert_sockaddr(struct sockaddr_storage *dstaddr,
     return srclen;
 }
 
-
 int
 _libssh2_os400_connect(int sd, struct sockaddr *destaddr, int addrlen)
 {
@@ -126,7 +123,6 @@ _libssh2_os400_connect(int sd, struct sockaddr *destaddr, int addrlen)
 
     return connect(sd, (struct sockaddr *) &laddr, i);
 }
-
 
 #ifdef LIBSSH2_HAVE_ZLIB
 int

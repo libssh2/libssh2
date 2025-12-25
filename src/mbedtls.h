@@ -104,7 +104,6 @@
 
 #define EC_MAX_POINT_LEN ((528 * 2 / 8) + 1)
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Generic functions
@@ -120,14 +119,12 @@
 
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: HMAC functions
  */
 
 #define libssh2_hmac_ctx    mbedtls_md_context_t
-
 
 /*******************************************************************/
 /*
@@ -145,7 +142,6 @@
 #define libssh2_sha1(data, datalen, hash) \
     _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA1, hash)
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: SHA256 functions
@@ -161,7 +157,6 @@
     _libssh2_mbedtls_hash_final(&ctx, hash)
 #define libssh2_sha256(data, datalen, hash) \
     _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA256, hash)
-
 
 /*******************************************************************/
 /*
@@ -179,7 +174,6 @@
 #define libssh2_sha384(data, datalen, hash) \
     _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA384, hash)
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: SHA512 functions
@@ -195,7 +189,6 @@
     _libssh2_mbedtls_hash_final(&ctx, hash)
 #define libssh2_sha512(data, datalen, hash) \
     _libssh2_mbedtls_hash(data, datalen, MBEDTLS_MD_SHA512, hash)
-
 
 /*******************************************************************/
 /*
@@ -241,7 +234,6 @@
 #define _libssh2_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len) \
     _libssh2_mbedtls_rsa_sha2_sign(s, rsactx, hash, hash_len, sig, sig_len)
 
-
 #define _libssh2_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len) \
     _libssh2_mbedtls_rsa_sha1_verify(rsactx, sig, sig_len, m, m_len)
 
@@ -250,7 +242,6 @@
 
 #define _libssh2_rsa_free(rsactx) \
     _libssh2_mbedtls_rsa_free(rsactx)
-
 
 /*******************************************************************/
 /*
@@ -281,7 +272,6 @@ typedef enum {
 #else
 # define _libssh2_ec_key void
 #endif /* LIBSSH2_ECDSA */
-
 
 /*******************************************************************/
 /*
@@ -325,7 +315,6 @@ typedef enum {
 
 #endif /* LIBSSH2_ECDSA */
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Key functions
@@ -341,7 +330,6 @@ typedef enum {
                                       f, kh, kh_len, pk, pk_len, pw) \
     _libssh2_mbedtls_sk_pub_keyfilememory(s, m, m_len, p, p_len, alg, app, \
                                           f, kh, kh_len, pk, pk_len, pw)
-
 
 /*******************************************************************/
 /*
@@ -367,7 +355,6 @@ typedef enum {
 #define _libssh2_cipher_3des      MBEDTLS_CIPHER_DES_EDE3_CBC
 #define _libssh2_cipher_chacha20  MBEDTLS_CIPHER_CHACHA20_POLY1305
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Cipher functions
@@ -379,7 +366,6 @@ typedef enum {
     _libssh2_mbedtls_cipher_crypt(ctx, type, encrypt, block, blocklen, fl)
 #define _libssh2_cipher_dtor(ctx) \
     _libssh2_mbedtls_cipher_dtor(ctx)
-
 
 /*******************************************************************/
 /*
@@ -409,7 +395,6 @@ typedef enum {
 #define _libssh2_bn_free(bn) \
     _libssh2_mbedtls_bignum_free(bn)
 
-
 /*******************************************************************/
 /*
  * mbedTLS backend: Diffie-Hellman support.
@@ -430,7 +415,6 @@ typedef enum {
 #define libssh2_dh_secret(dhctx, secret, f, p, bnctx) \
     _libssh2_dh_secret(dhctx, secret, f, p)
 #define libssh2_dh_dtor(dhctx) _libssh2_dh_dtor(dhctx)
-
 
 /*******************************************************************/
 /*

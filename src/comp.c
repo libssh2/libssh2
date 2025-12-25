@@ -98,8 +98,6 @@ comp_method_none_decomp(LIBSSH2_SESSION * session,
     return 0;
 }
 
-
-
 static const LIBSSH2_COMP_METHOD comp_method_none = {
     "none",
     0, /* not really compressing */
@@ -135,8 +133,6 @@ comp_method_zlib_free(voidpf opaque, voidpf address)
 
     LIBSSH2_FREE(session, address);
 }
-
-
 
 /* libssh2_comp_method_zlib_init
  * All your bandwidth are belong to us (so save some)
@@ -321,7 +317,6 @@ comp_method_zlib_decomp(LIBSSH2_SESSION * session,
 
     return 0;
 }
-
 
 /* libssh2_comp_method_zlib_dtor
  * All done, no more compression for you

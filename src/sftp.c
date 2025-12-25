@@ -452,7 +452,6 @@ static void sftp_packetlist_flush(LIBSSH2_SFTP_HANDLE *handle)
     }
 }
 
-
 /*
  * sftp_packet_ask
  *
@@ -1136,9 +1135,9 @@ libssh2_sftp_shutdown(LIBSSH2_SFTP *sftp)
     return rc;
 }
 
-/* *******************************
+/*******************************
  * SFTP File and Directory Ops *
- ******************************* */
+ *******************************/
 
 /* sftp_open
  */
@@ -2424,7 +2423,6 @@ libssh2_sftp_fsync(LIBSSH2_SFTP_HANDLE *hnd)
     return rc;
 }
 
-
 /* sftp_fstat
  * Get or Set stat on a file
  */
@@ -2548,7 +2546,6 @@ libssh2_sftp_fstat_ex(LIBSSH2_SFTP_HANDLE *hnd,
                  sftp_fstat(hnd, attrs, setstat));
     return rc;
 }
-
 
 /* libssh2_sftp_seek64
  * Set the read/write pointer to an arbitrary position within the file
@@ -3480,7 +3477,6 @@ libssh2_sftp_statvfs(LIBSSH2_SFTP *sftp, const char *path,
                  sftp_statvfs(sftp, path, (unsigned int)path_len, st));
     return rc;
 }
-
 
 /* sftp_mkdir
  * Create an SFTP directory

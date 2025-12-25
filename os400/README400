@@ -1,4 +1,3 @@
-
 Implementation notes:
 
   This is a true OS/400 implementation, not a PASE implementation (for PASE,
@@ -21,15 +20,12 @@ transcoding procedures may be used.
 Crypto API is provided by the IBM QC3 API library. It supports RSA and EC,
 but not DSA.
 
-
   Standard compilation environment does support neither autotools nor make;
 in fact, very few common utilities are available. As a consequence, the
 libssh2_config.h has been coded manually and the compilation scripts are
 a set of shell scripts stored in subdirectory os400.
 
   The test environment is currently not supported on OS/400.
-
-
 
 Compiling on OS/400:
 
@@ -82,8 +78,6 @@ _ Source file LIBSSH2RPG. It contains all the ILE/RPG /INCLUDE members
 _ LIBSSH2, SSH2_PKEY, SSH2_SFTP members in file LIBSSH2RPG. These are
   ILE/RPG translations of the corresponding C header files.
 
-
-
 Special programming consideration:
 
 QADRT being used, the following points must be considered:
@@ -97,8 +91,6 @@ _ The EBCDIC CCSID used by QADRT is 37 by default, NOT THE JOB'S CCSID. If
   object path before executing the program.
 _ Do not use original source include files unless you know what you are doing.
   Use the installed members instead (in /QSYS.LIB/LIBSSH2.LIB/H.FILE).
-
-
 
 String transcoding support:
 
@@ -156,8 +148,6 @@ receives the effective byte length of the (cached) translated string, or -1
 in case of error.
 
   Please take care to never mix different sessions into the same cache.
-
-
 
 ILE/RPG support:
 

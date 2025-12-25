@@ -50,8 +50,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-
 #define CCSID_UTF8      1208
 #define CCSID_UTF16BE   13488
 #define STRING_GRANULE  256
@@ -64,18 +62,14 @@
                                   realloc((p), (sz)))
 #define FREE(s, p)          ((s)? LIBSSH2_FREE((s), (p)): free(p))
 
-
 struct _libssh2_string_cache {
     libssh2_string_cache *  next;
     char                    string[1];
 };
 
-
 static const QtqCode_T  utf8code = { CCSID_UTF8 };
 
-
-static ssize_t
-terminator_size(unsigned short ccsid)
+static ssize_t terminator_size(unsigned short ccsid)
 {
     QtqCode_T outcode;
     iconv_t cd;

@@ -242,7 +242,6 @@ void stop_session_fixture(void)
     stop_openssh_fixture();
 }
 
-
 /* Return a static string that contains a file path relative to the srcdir
  * variable, if found.
  */

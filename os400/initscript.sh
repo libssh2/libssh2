@@ -11,7 +11,6 @@ setenv()
         export "${1?}"
 }
 
-
 case "${SCRIPTDIR}" in
 /*)     ;;
 *)      SCRIPTDIR="$(pwd)/${SCRIPTDIR}"
@@ -75,7 +74,6 @@ export LIBSSH2_VERSION_NUM LIBSSH2_TIMESTAMP
 
 LIBIFSNAME="/QSYS.LIB/${TARGETLIB}.LIB"
 
-
 ################################################################################
 #
 #                               Procedures.
@@ -98,7 +96,6 @@ action_needed()
         [ "${1}" -ot "${2}" ] && return 0
         return 1
 }
-
 
 #       canonicalize_path path
 #
@@ -133,7 +130,6 @@ canonicalize_path()
         IFS="${IFSSAVE}"
         echo "/$(expr "${R}" : '^\(.*\)/')"
 }
-
 
 #       make_module module_name source_name [additional_definitions]
 #
@@ -199,7 +195,6 @@ make_module()
         LINK=YES
 }
 
-
 #       Determine DB2 object name from IFS name.
 
 db2_name()
@@ -216,7 +211,6 @@ db2_name()
                     -e 's/^SPUBLICKEY$/SSH2_PKEY/'
         fi
 }
-
 
 #       Copy stream replacing version info.
 
