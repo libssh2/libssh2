@@ -218,7 +218,7 @@ if(NOT LIBSSH2_DISABLE_INSTALL)
   export(PACKAGE ${PROJECT_NAME})  # register it
 
   # Generate libssh2-config.cmake into build tree and install it with dependencies
-  configure_file("${PROJECT_SOURCE_DIR}/cmake/libssh2-config.cmake.in" "${PROJECT_NAME}-config.cmake" @ONLY)
+  configure_file("${PROJECT_SOURCE_DIR}/cmake/libssh2-config.in.cmake" "${PROJECT_NAME}-config.cmake" @ONLY)
   install(
     FILES
       "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
