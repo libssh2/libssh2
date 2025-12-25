@@ -39,6 +39,8 @@ Deprecation notices:
 - This release drops support for Visual Studio 2008 and older.
   Requiring 2010 or newer (`_MSC_VER` >= 1600).
 
+- This release always enables large file support on Windows.
+
 This release includes the following enhancements and bugfixes:
 
 - agent: pageant backend, bound reply copy, handle missing reply (8ddf3b31 #1711)
