@@ -170,7 +170,7 @@ typedef int libssh2_socket_t;
  * Determine whether there is small or large file support on windows.
  */
 
-#if defined(_MSC_VER) && !defined(_WIN32_WCE)
+#ifdef _MSC_VER
 #  define LIBSSH2_USE_WIN32_LARGE_FILES
 #endif
 
@@ -207,11 +207,9 @@ typedef __int64 libssh2_struct_stat_size;
  */
 
 #ifdef LIBSSH2_USE_WIN32_SMALL_FILES
-#  ifndef _WIN32_WCE
-#    define LIBSSH2_STRUCT_STAT_SIZE_FORMAT    "%d"
+#  define LIBSSH2_STRUCT_STAT_SIZE_FORMAT    "%d"
 typedef struct _stat libssh2_struct_stat;
 typedef off_t libssh2_struct_stat_size;
-#  endif
 #endif
 
 #ifndef LIBSSH2_STRUCT_STAT_SIZE_FORMAT
