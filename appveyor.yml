@@ -131,7 +131,6 @@ environment:
       PLATFORM: 'x86'
       CRYPTO_BACKEND: 'WinCNG'
       ENABLE_ECDSA_WINCNG: 'ON'
-      SKIP_CTEST: 'no'
 
 matrix:
   fast_finish: true
