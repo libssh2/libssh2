@@ -167,52 +167,14 @@ typedef int libssh2_socket_t;
 #endif
 
 /*
- * Determine whether there is small or large file support on windows.
- */
-
-#ifdef _MSC_VER
-#  define LIBSSH2_USE_WIN32_LARGE_FILES
-#endif
-
-#if defined(__MINGW32__) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES)
-#  define LIBSSH2_USE_WIN32_LARGE_FILES
-#endif
-
-#if defined(__WATCOMC__) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES)
-#  define LIBSSH2_USE_WIN32_LARGE_FILES
-#endif
-
-#if defined(__POCC__)
-#  undef LIBSSH2_USE_WIN32_LARGE_FILES
-#endif
-
-#if defined(_WIN32) && !defined(LIBSSH2_USE_WIN32_LARGE_FILES) && \
-    !defined(LIBSSH2_USE_WIN32_SMALL_FILES)
-#  define LIBSSH2_USE_WIN32_SMALL_FILES
-#endif
-
-/*
  * Large file (>2Gb) support using WIN32 functions.
  */
-
-#ifdef LIBSSH2_USE_WIN32_LARGE_FILES
+#ifdef _WIN32
 #  include <io.h>
 #  define LIBSSH2_STRUCT_STAT_SIZE_FORMAT    "%I64d"
 typedef struct _stati64 libssh2_struct_stat;
 typedef __int64 libssh2_struct_stat_size;
-#endif
-
-/*
- * Small file (<2Gb) support using WIN32 functions.
- */
-
-#ifdef LIBSSH2_USE_WIN32_SMALL_FILES
-#  define LIBSSH2_STRUCT_STAT_SIZE_FORMAT    "%d"
-typedef struct _stat libssh2_struct_stat;
-typedef off_t libssh2_struct_stat_size;
-#endif
-
-#ifndef LIBSSH2_STRUCT_STAT_SIZE_FORMAT
+#else
 #  ifdef __VMS
 /* We have to roll our own format here because %z is a C99-ism we don't
    have. */
