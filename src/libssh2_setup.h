@@ -88,9 +88,6 @@
 #   define snprintf _snprintf
 #  endif
 # endif
-# if _MSC_VER < 1500
-#  define vsnprintf _vsnprintf
-# endif
 # if _MSC_VER < 1900
 #  define strdup _strdup
 /* Silence bogus warning C4127: conditional expression is constant */
