@@ -41,8 +41,8 @@ my @double_empty_lines = (
 );
 
 my @non_ascii = (
-    "AUTHORS",
     "RELEASE-NOTES",
+    "docs/AUTHORS",
 );
 
 sub fn_match {
