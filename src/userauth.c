@@ -299,10 +299,12 @@ userauth_password(LIBSSH2_SESSION *session,
                   LIBSSH2_PASSWD_CHANGEREQ_FUNC((*passwd_change_cb)))
 {
     unsigned char *s;
-    static const unsigned char reply_codes[4] =
-        { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
-          SSH_MSG_USERAUTH_PASSWD_CHANGEREQ, 0
-        };
+    static const unsigned char reply_codes[4] = {
+        SSH_MSG_USERAUTH_SUCCESS,
+        SSH_MSG_USERAUTH_FAILURE,
+        SSH_MSG_USERAUTH_PASSWD_CHANGEREQ,
+        0
+    };
     int rc;
 
     if(session->userauth_pswd_state == libssh2_NB_state_idle) {
@@ -1285,7 +1287,7 @@ size_t plain_method(char *method, size_t method_len)
        !strncmp("rsa-sha2-512-cert-v01@openssh.com",
                 method,
                 method_len)) {
-       return 12;
+        return 12;
     }
 
     if(!strncmp("ecdsa-sha2-nistp256-cert-v01@openssh.com",
@@ -1538,10 +1540,12 @@ _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                             ((*sign_callback)),
                             void *abstract)
 {
-    unsigned char reply_codes[4] =
-        { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE,
-          SSH_MSG_USERAUTH_PK_OK, 0
-        };
+    unsigned char reply_codes[4] = {
+        SSH_MSG_USERAUTH_SUCCESS,
+        SSH_MSG_USERAUTH_FAILURE,
+        SSH_MSG_USERAUTH_PK_OK,
+        0
+    };
     int rc;
     unsigned char *s;
     int auth_attempts = 0;
