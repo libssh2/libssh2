@@ -155,7 +155,6 @@
 # define LIBSSH2_ED25519 0
 #endif
 
-
 #ifdef OPENSSL_NO_MD5
 # define LIBSSH2_MD5 0
 #else

@@ -732,7 +732,6 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
  * returns key curve type that maps to libssh2_curve_type
  *
  */
-
 libssh2_curve_type
 _libssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
 {
@@ -762,7 +761,6 @@ _libssh2_ecdsa_get_curve_type(libssh2_ecdsa_ctx *ec_ctx)
  * returns 0 for success, key curve type that maps to libssh2_curve_type
  *
  */
-
 int
 _libssh2_ecdsa_curve_type_from_name(const char *name,
                                     libssh2_curve_type *out_type)
@@ -794,7 +792,6 @@ _libssh2_ecdsa_curve_type_from_name(const char *name,
  * Creates a new public key given an octal string, length and type
  *
  */
-
 int
 _libssh2_ecdsa_curve_name_with_octal_new(libssh2_ecdsa_ctx ** ec_ctx,
      const unsigned char *k,
@@ -2091,7 +2088,6 @@ int _libssh2_ecdsa_new_private_frommemory_sk(libssh2_ecdsa_ctx ** ec_ctx,
 
 #endif /* LIBSSH2_ECDSA */
 
-
 #if LIBSSH2_ED25519
 
 int
@@ -2161,7 +2157,6 @@ clean_exit:
     return rc;
 }
 
-
 static int
 gen_publickey_from_ed_evp(LIBSSH2_SESSION *session,
                           unsigned char **method,
@@ -2229,7 +2224,6 @@ fail:
         LIBSSH2_FREE(session, keyBuf);
     return -1;
 }
-
 
 static int
 gen_publickey_from_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
@@ -2752,7 +2746,6 @@ _libssh2_ed25519_new_public(libssh2_ed25519_ctx ** ed_ctx,
     return 0;
 }
 #endif /* LIBSSH2_ED25519 */
-
 
 #if LIBSSH2_RSA
 int
@@ -3860,7 +3853,6 @@ fail:
     return rc;
 }
 
-
 static int
 _libssh2_ecdsa_new_openssh_private(libssh2_ecdsa_ctx ** ec_ctx,
                                    LIBSSH2_SESSION * session,
@@ -4053,7 +4045,6 @@ _libssh2_ecdsa_new_private_sk(libssh2_ecdsa_ctx ** ec_ctx,
 
     return rc;
 }
-
 
 /*
  * _libssh2_ecdsa_create_key
@@ -4364,7 +4355,6 @@ clean_exit:
 #endif
 }
 
-
 #endif /* LIBSSH2_ECDSA */
 
 #if LIBSSH2_ED25519
@@ -4491,7 +4481,6 @@ clean_exit:
 
     return (rc == 1) ? 0 : -1;
 }
-
 
 int
 _libssh2_ed25519_verify(libssh2_ed25519_ctx *ctx, const uint8_t *s,
@@ -5184,7 +5173,6 @@ _libssh2_bn_from_bin(_libssh2_bn *bn, size_t len, const unsigned char *val)
  * Return supported key hash algo upgrades, see crypto.h
  *
  */
-
 const char *
 _libssh2_supported_key_sign_algorithms(LIBSSH2_SESSION *session,
                                        unsigned char *key_method,

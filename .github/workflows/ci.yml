@@ -87,6 +87,9 @@ jobs:
           shellcheck --version
           ci/shellcheck.sh
 
+      - name: 'spacecheck'
+        run: ci/spacecheck.pl
+
       - name: 'cmakelint'
         run: |
           source ~/venv/bin/activate

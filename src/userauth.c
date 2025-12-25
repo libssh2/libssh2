@@ -289,8 +289,6 @@ libssh2_userauth_authenticated(LIBSSH2_SESSION * session)
     return (session->state & LIBSSH2_STATE_AUTHENTICATED) ? 1 : 0;
 }
 
-
-
 /* userauth_password
  * Plain ol' login
  */
@@ -2111,8 +2109,6 @@ libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                                              sign_callback, abstract));
     return rc;
 }
-
-
 
 /*
  * userauth_keyboard_interactive

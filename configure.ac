@@ -334,7 +334,6 @@ esac], [build_examples='yes'])
 AC_MSG_RESULT($build_examples)
 AM_CONDITIONAL([BUILD_EXAMPLES], [test "x$build_examples" != "xno"])
 
-
 # Build OSS fuzzing targets?
 AC_ARG_ENABLE([ossfuzzers],
   [AS_HELP_STRING([--enable-ossfuzzers],
@@ -342,12 +341,10 @@ AC_ARG_ENABLE([ossfuzzers],
   [have_ossfuzzers=yes], [have_ossfuzzers=no])
 AM_CONDITIONAL([USE_OSSFUZZERS], [test "x$have_ossfuzzers" = "xyes"])
 
-
 # Set the correct flags for the given fuzzing engine.
 AC_SUBST([LIB_FUZZING_ENGINE])
 AM_CONDITIONAL([USE_OSSFUZZ_FLAG], [test "x$LIB_FUZZING_ENGINE" = "x-fsanitize=fuzzer"])
 AM_CONDITIONAL([USE_OSSFUZZ_STATIC], [test -f "$LIB_FUZZING_ENGINE"])
-
 
 # Checks for header files.
 AC_CHECK_HEADERS([errno.h fcntl.h stdio.h unistd.h sys/uio.h])

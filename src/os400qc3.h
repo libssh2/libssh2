@@ -47,7 +47,6 @@
 
 #include <qc3cci.h>
 
-
 /* Redefine character/string literals as always EBCDIC. */
 #undef Qc3_Alg_Token
 #define Qc3_Alg_Token       "\xC1\xD3\xC7\xC4\xF0\xF1\xF0\xF0"  /* ALGD0100 */
@@ -349,7 +348,6 @@ typedef struct {        /* Diffie-Hellman context. */
 #define libssh2_dh_secret(dhctx, secret, f, p, bnctx)                       \
             _libssh2_os400qc3_dh_secret(dhctx, secret, f, p)
 #define libssh2_dh_dtor(dhctx)  _libssh2_os400qc3_dh_dtor(dhctx)
-
 
 /*******************************************************************
  *

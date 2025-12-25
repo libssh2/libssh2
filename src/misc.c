@@ -223,8 +223,7 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
     return rc;
 }
 
-/* libssh2_ntohu32
- */
+/* libssh2_ntohu32 */
 uint32_t
 _libssh2_ntohu32(const unsigned char *buf)
 {
@@ -234,9 +233,7 @@ _libssh2_ntohu32(const unsigned char *buf)
          | ((uint32_t)buf[3]);
 }
 
-
-/* _libssh2_ntohu64
- */
+/* _libssh2_ntohu64 */
 libssh2_uint64_t
 _libssh2_ntohu64(const unsigned char *buf)
 {
@@ -250,8 +247,7 @@ _libssh2_ntohu64(const unsigned char *buf)
          | ((libssh2_uint64_t)buf[7]);
 }
 
-/* _libssh2_htonu32
- */
+/* _libssh2_htonu32 */
 void
 _libssh2_htonu32(unsigned char *buf, uint32_t value)
 {
@@ -261,16 +257,14 @@ _libssh2_htonu32(unsigned char *buf, uint32_t value)
     buf[3] = value & 0xFF;
 }
 
-/* _libssh2_store_u32
- */
+/* _libssh2_store_u32 */
 void _libssh2_store_u32(unsigned char **buf, uint32_t value)
 {
     _libssh2_htonu32(*buf, value);
     *buf += sizeof(uint32_t);
 }
 
-/* _libssh2_store_u64
- */
+/* _libssh2_store_u64 */
 void _libssh2_store_u64(unsigned char **buf, libssh2_uint64_t value)
 {
     unsigned char *ptr = *buf;
@@ -287,8 +281,7 @@ void _libssh2_store_u64(unsigned char **buf, libssh2_uint64_t value)
     *buf += sizeof(libssh2_uint64_t);
 }
 
-/* _libssh2_store_str
- */
+/* _libssh2_store_str */
 int _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
 {
     uint32_t len_stored = (uint32_t)len;
@@ -303,8 +296,7 @@ int _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
     return len_stored == len;
 }
 
-/* _libssh2_store_bignum2_bytes
- */
+/* _libssh2_store_bignum2_bytes */
 int _libssh2_store_bignum2_bytes(unsigned char **buf,
                                  const unsigned char *bytes,
                                  size_t len)
@@ -839,7 +831,6 @@ int _libssh2_get_boolean(struct string_buf *buf, unsigned char *out)
     if(!_libssh2_check_length(buf, 1)) {
         return -1;
     }
-
 
     *out = buf->dataptr[0] == 0 ? 0 : 1;
     buf->dataptr += 1;

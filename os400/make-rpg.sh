@@ -9,7 +9,6 @@ SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/initscript.sh"
 cd "${TOPDIR}/os400/libssh2rpg" || exit 1
 
-
 #       Create the OS/400 source program file for the ILE/RPG header files.
 
 SRCPF="${LIBIFSNAME}/LIBSSH2RPG.FILE"
@@ -19,7 +18,6 @@ then    CMD="CRTSRCPF FILE(${TARGETLIB}/LIBSSH2RPG) RCDLEN(112)"
         CMD="${CMD} CCSID(${TGTCCSID}) TEXT('libssh2: ILE/RPG header files')"
         system "${CMD}"
 fi
-
 
 #       Map file names to DB2 name syntax.
 
@@ -37,7 +35,6 @@ done > tmpsubstfile1
 
 sort -r tmpsubstfile1 | sed 's/^[^ ]*[ ]*//' > tmpsubstfile2
 
-
 change_include()
 
 {
@@ -48,7 +45,6 @@ change_include()
             -e 's#.*#      /include libssh2rpg,&#'                      \
             -e '}'
 }
-
 
 #       Create the IFS directory for the ILE/RPG header files.
 

@@ -187,7 +187,6 @@
 #define _libssh2_cipher_chacha20 \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_CHACHA20, GCRY_CIPHER_MODE_STREAM)
 
-
 #define _libssh2_cipher_dtor(ctx) gcry_cipher_close(*(ctx))
 
 #define _libssh2_bn struct gcry_mpi

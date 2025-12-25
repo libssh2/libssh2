@@ -347,7 +347,6 @@ hostkey_method_ssh_rsa_sha2_256_signv(LIBSSH2_SESSION * session,
  *
  * Verify signature created by remote
  */
-
 static int
 hostkey_method_ssh_rsa_sha2_512_sig_verify(LIBSSH2_SESSION * session,
                                            const unsigned char *sig,
@@ -368,7 +367,6 @@ hostkey_method_ssh_rsa_sha2_512_sig_verify(LIBSSH2_SESSION * session,
     return _libssh2_rsa_sha2_verify(rsactx, SHA512_DIGEST_LENGTH, sig,
                                     sig_len, m, m_len);
 }
-
 
 /*
  * hostkey_method_ssh_rsa_sha2_512_signv
@@ -418,7 +416,6 @@ hostkey_method_ssh_rsa_sha2_512_signv(LIBSSH2_SESSION * session,
 }
 
 #endif /* LIBSSH2_RSA_SHA2 */
-
 
 /*
  * hostkey_method_ssh_rsa_dtor
@@ -963,7 +960,6 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
     return _libssh2_ecdsa_verify(ctx, r, r_len, s, s_len, m, m_len);
 }
 
-
 #define LIBSSH2_HOSTKEY_METHOD_EC_SIGNV_HASH(digest_type)                \
     do {                                                                 \
         unsigned char hash[SHA##digest_type##_DIGEST_LENGTH];            \
@@ -992,7 +988,6 @@ hostkey_method_ssh_ecdsa_sig_verify(LIBSSH2_SESSION * session,
                                   SHA##digest_type##_DIGEST_LENGTH,      \
                                   signature, signature_len);             \
     } while(0)
-
 
 /*
  * hostkey_method_ecdsa_signv
@@ -1296,7 +1291,6 @@ hostkey_method_ssh_ed25519_signv(LIBSSH2_SESSION * session,
                                  datavec[0].iov_len);
 }
 
-
 /*
  * hostkey_method_ssh_ed25519_dtor
  *
@@ -1341,7 +1335,6 @@ static const LIBSSH2_HOSTKEY_METHOD hostkey_method_ssh_ed25519_cert = {
 };
 
 #endif /* LIBSSH2_ED25519 */
-
 
 static const LIBSSH2_HOSTKEY_METHOD *hostkey_methods[] = {
 #if LIBSSH2_ECDSA

@@ -293,7 +293,6 @@ _libssh2_ed25519_new_private_frommemory_sk(libssh2_ed25519_ctx **ed_ctx,
 
 #endif /* LIBSSH2_ED25519 */
 
-
 int _libssh2_cipher_init(_libssh2_cipher_ctx * h,
                          _libssh2_cipher_type(algo),
                          unsigned char *iv,
@@ -320,7 +319,6 @@ int _libssh2_pub_priv_keyfilememory(LIBSSH2_SESSION *session,
                                     const char *privatekeydata,
                                     size_t privatekeydata_len,
                                     const char *passphrase);
-
 
 int _libssh2_sk_pub_keyfilememory(LIBSSH2_SESSION *session,
                                   unsigned char **method,

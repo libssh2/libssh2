@@ -573,8 +573,6 @@ libssh2_publickey_init(LIBSSH2_SESSION *session)
     return ptr;
 }
 
-
-
 /*
  * libssh2_publickey_add_ex
  *

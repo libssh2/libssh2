@@ -301,7 +301,6 @@ error:
  * The keylen parameter may be omitted (zero) if the key is provided as a
  * NULL-terminated base64-encoded string.
  */
-
 LIBSSH2_API int
 libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
                       const char *host, const char *salt,
@@ -311,7 +310,6 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     return knownhost_add(hosts, host, salt, NULL, 0, key, keylen, NULL,
                          0, typemask, store);
 }
-
 
 /*
  * libssh2_knownhost_addc
@@ -339,7 +337,6 @@ libssh2_knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
  * The keylen parameter may be omitted (zero) if the key is provided as a
  * NULL-terminated base64-encoded string.
  */
-
 LIBSSH2_API int
 libssh2_knownhost_addc(LIBSSH2_KNOWNHOSTS *hosts,
                        const char *host, const char *salt,
@@ -580,7 +577,6 @@ libssh2_knownhost_checkp(LIBSSH2_KNOWNHOSTS *hosts,
                            typemask, ext);
 }
 
-
 /*
  * libssh2_knownhost_del
  *
@@ -632,7 +628,6 @@ libssh2_knownhost_free(LIBSSH2_KNOWNHOSTS *hosts)
     }
     LIBSSH2_FREE(hosts->session, hosts);
 }
-
 
 /* old style plain text: [name]([,][name])*
 
@@ -977,7 +972,6 @@ libssh2_knownhost_readline(LIBSSH2_KNOWNHOSTS *hosts,
  * Returns a negative value for error or number of successfully added hosts.
  *
  */
-
 LIBSSH2_API int
 libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
                            const char *filename, int type)
@@ -1262,7 +1256,6 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
 
     return rc;
 }
-
 
 /*
  * libssh2_knownhost_get

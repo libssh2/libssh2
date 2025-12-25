@@ -47,7 +47,6 @@
 
 typedef struct _libssh2_string_cache    libssh2_string_cache;
 
-
 LIBSSH2_API char *
 libssh2_from_ccsid(LIBSSH2_SESSION *session, libssh2_string_cache **cache,
                    unsigned short ccsid, const char *string, ssize_t inlen,
