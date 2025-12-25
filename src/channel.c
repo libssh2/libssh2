@@ -331,8 +331,7 @@ channel_error:
         while((_libssh2_packet_ask(session, SSH_MSG_CHANNEL_DATA,
                                    &session->open_data,
                                    &session->open_data_len, 1,
-                                   channel_id, 4) >= 0)
-              ||
+                                   channel_id, 4) >= 0) ||
               (_libssh2_packet_ask(session, SSH_MSG_CHANNEL_EXTENDED_DATA,
                                    &session->open_data,
                                    &session->open_data_len, 1,
@@ -1687,11 +1686,10 @@ _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
 
             packet_type = packet->data[0];
 
-            if(((packet_type == SSH_MSG_CHANNEL_DATA)
-                || (packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA))
-               && ((packet->data_len >= 5)
-                   && (_libssh2_ntohu32(packet->data + 1)
-                       == channel->local.id))) {
+            if(((packet_type == SSH_MSG_CHANNEL_DATA) ||
+                (packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA)) &&
+               ((packet->data_len >= 5) &&
+                (_libssh2_ntohu32(packet->data + 1) == channel->local.id))) {
                 /* It's our channel at least */
                 int packet_stream_id;
 
@@ -1708,12 +1706,12 @@ _libssh2_channel_flush(LIBSSH2_CHANNEL *channel, int streamid)
                                           "Unexpected packet length");
                 }
 
-                if((streamid == LIBSSH2_CHANNEL_FLUSH_ALL)
-                    || ((packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA)
-                        && ((streamid == LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA)
-                            || (streamid == packet_stream_id)))
-                    || ((packet_type == SSH_MSG_CHANNEL_DATA)
-                        && (streamid == 0))) {
+                if((streamid == LIBSSH2_CHANNEL_FLUSH_ALL) ||
+                   ((packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA) &&
+                    ((streamid == LIBSSH2_CHANNEL_FLUSH_EXTENDED_DATA) ||
+                     (streamid == packet_stream_id))) ||
+                    ((packet_type == SSH_MSG_CHANNEL_DATA) &&
+                     (streamid == 0))) {
                     size_t bytes_to_flush = packet->data_len -
                         packet->data_head;
 
@@ -1877,9 +1875,8 @@ _libssh2_channel_receive_window_adjust(LIBSSH2_CHANNEL * channel,
         *store = channel->remote.window_size;
 
     if(channel->adjust_state == libssh2_NB_state_idle) {
-        if(!force
-            && (adjustment + channel->adjust_queue <
-                LIBSSH2_CHANNEL_MINADJUST)) {
+        if(!force &&
+           (adjustment + channel->adjust_queue < LIBSSH2_CHANNEL_MINADJUST)) {
             _libssh2_debug((channel->session, LIBSSH2_TRACE_CONN,
                            "Queueing %u bytes for receive window adjustment "
                            "for channel %u/%u",
@@ -2150,18 +2147,18 @@ ssize_t _libssh2_channel_read(LIBSSH2_CHANNEL *channel, int stream_id,
          * or the standard stream with extended_data_merge
          * enabled and data was available
          */
-        if((stream_id
-             && (readpkt->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
-             && (channel->local.id == channel->read_local_id)
-             && (readpkt->data_len >= 9)
-             && (stream_id == (int) _libssh2_ntohu32(readpkt->data + 5)))
-            || (!stream_id && (readpkt->data[0] == SSH_MSG_CHANNEL_DATA)
-                && (channel->local.id == channel->read_local_id))
-            || (!stream_id
-                && (readpkt->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
-                && (channel->local.id == channel->read_local_id)
-                && (channel->remote.extended_data_ignore_mode ==
-                    LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
+        if((stream_id &&
+            (readpkt->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) &&
+            (channel->local.id == channel->read_local_id) &&
+            (readpkt->data_len >= 9) &&
+            (stream_id == (int)_libssh2_ntohu32(readpkt->data + 5))) ||
+           (!stream_id && (readpkt->data[0] == SSH_MSG_CHANNEL_DATA) &&
+            (channel->local.id == channel->read_local_id)) ||
+           (!stream_id &&
+            (readpkt->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) &&
+            (channel->local.id == channel->read_local_id) &&
+            (channel->remote.extended_data_ignore_mode ==
+                LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
 
             /* figure out much more data we want to read */
             bytes_want = buflen - bytes_read;
@@ -2297,21 +2294,19 @@ _libssh2_channel_packet_data_len(LIBSSH2_CHANNEL * channel, int stream_id)
          * or the standard stream with extended_data_merge
          * enabled and data was available
          */
-        if((stream_id
-             && (read_packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
-             && (channel->local.id == read_local_id)
-             && (read_packet->data_len >= 9)
-             && (stream_id == (int) _libssh2_ntohu32(read_packet->data + 5)))
-            ||
-            (!stream_id
-             && (read_packet->data[0] == SSH_MSG_CHANNEL_DATA)
-             && (channel->local.id == read_local_id))
-            ||
-            (!stream_id
-             && (read_packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)
-             && (channel->local.id == read_local_id)
-             && (channel->remote.extended_data_ignore_mode
-                 == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
+        if((stream_id &&
+            (read_packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) &&
+            (channel->local.id == read_local_id) &&
+            (read_packet->data_len >= 9) &&
+            (stream_id == (int) _libssh2_ntohu32(read_packet->data + 5))) ||
+           (!stream_id &&
+            (read_packet->data[0] == SSH_MSG_CHANNEL_DATA) &&
+            (channel->local.id == read_local_id)) ||
+           (!stream_id &&
+            (read_packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA) &&
+            (channel->local.id == read_local_id) &&
+            (channel->remote.extended_data_ignore_mode
+                == LIBSSH2_CHANNEL_EXTENDED_DATA_MERGE))) {
             return read_packet->data_len - read_packet->data_head;
         }
 
@@ -2562,10 +2557,10 @@ libssh2_channel_eof(LIBSSH2_CHANNEL * channel)
             continue;
         }
 
-        if(((packet->data[0] == SSH_MSG_CHANNEL_DATA)
-            || (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA))
-            && ((packet->data_len >= 5)
-            && (channel->local.id == _libssh2_ntohu32(packet->data + 1)))) {
+        if(((packet->data[0] == SSH_MSG_CHANNEL_DATA) ||
+            (packet->data[0] == SSH_MSG_CHANNEL_EXTENDED_DATA)) &&
+           ((packet->data_len >= 5) &&
+            (channel->local.id == _libssh2_ntohu32(packet->data + 1)))) {
             /* There's data waiting to be read yet, mask the EOF status */
             return 0;
         }
@@ -2829,8 +2824,8 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     }
 
     /* Allow channel freeing even when the socket has lost its connection */
-    if(!channel->local.close
-        && (session->socket_state == LIBSSH2_SOCKET_CONNECTED)) {
+    if(!channel->local.close &&
+       (session->socket_state == LIBSSH2_SOCKET_CONNECTED)) {
         rc = _libssh2_channel_close(channel);
 
         if(rc == LIBSSH2_ERROR_EAGAIN)
@@ -2855,8 +2850,7 @@ int _libssh2_channel_free(LIBSSH2_CHANNEL *channel)
     /* Clear out packets meant for this channel */
     _libssh2_htonu32(channel_id, channel->local.id);
     while((_libssh2_packet_ask(session, SSH_MSG_CHANNEL_DATA, &data,
-                               &data_len, 1, channel_id, 4) >= 0)
-          ||
+                               &data_len, 1, channel_id, 4) >= 0) ||
           (_libssh2_packet_ask(session, SSH_MSG_CHANNEL_EXTENDED_DATA, &data,
                                &data_len, 1, channel_id, 4) >= 0)) {
         LIBSSH2_FREE(session, data);
@@ -2947,11 +2941,10 @@ libssh2_channel_window_read_ex(LIBSSH2_CHANNEL *channel,
 
             packet_type = packet->data[0];
 
-            if(((packet_type == SSH_MSG_CHANNEL_DATA)
-                || (packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA))
-               && ((packet->data_len >= 5)
-                   && (_libssh2_ntohu32(packet->data + 1) ==
-                       channel->local.id))) {
+            if(((packet_type == SSH_MSG_CHANNEL_DATA) ||
+                (packet_type == SSH_MSG_CHANNEL_EXTENDED_DATA)) &&
+               ((packet->data_len >= 5) &&
+                (_libssh2_ntohu32(packet->data + 1) == channel->local.id))) {
                 bytes_queued += packet->data_len - packet->data_head;
             }
 

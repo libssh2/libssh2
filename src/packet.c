@@ -1130,10 +1130,9 @@ libssh2_packet_add_jump_point1:
                                "Channel %u received request type %.*s (wr %X)",
                                channel, (int)len, data + 9, want_reply));
 
-                if(len == strlen("exit-status")
-                    && (strlen("exit-status") + 9) <= datalen
-                    && !memcmp("exit-status", data + 9,
-                               strlen("exit-status"))) {
+                if(len == strlen("exit-status") &&
+                   (strlen("exit-status") + 9) <= datalen &&
+                   !memcmp("exit-status", data + 9, strlen("exit-status"))) {
 
                     /* we've got "exit-status" packet. Set the session value */
                     if(datalen >= 20)
@@ -1153,10 +1152,10 @@ libssh2_packet_add_jump_point1:
                     }
 
                 }
-                else if(len == strlen("exit-signal")
-                         && (strlen("exit-signal") + 9) <= datalen
-                         && !memcmp("exit-signal", data + 9,
-                                    strlen("exit-signal"))) {
+                else if(len == strlen("exit-signal") &&
+                        (strlen("exit-signal") + 9) <= datalen &&
+                        !memcmp("exit-signal", data + 9,
+                                strlen("exit-signal"))) {
                     /* command terminated due to signal */
                     if(datalen >= 20)
                         channelp = _libssh2_channel_locate(session, channel);
@@ -1249,11 +1248,10 @@ libssh2_packet_add_jump_point4:
             if(datalen < 17)
                 ;
             else if((datalen >= (strlen("forwarded-tcpip") + 5)) &&
-                     (strlen("forwarded-tcpip") ==
-                      _libssh2_ntohu32(data + 1))
-                     &&
-                     (memcmp(data + 5, "forwarded-tcpip",
-                             strlen("forwarded-tcpip")) == 0)) {
+                    (strlen("forwarded-tcpip") ==
+                     _libssh2_ntohu32(data + 1)) &&
+                    (memcmp(data + 5, "forwarded-tcpip",
+                            strlen("forwarded-tcpip")) == 0)) {
 
                 /* init the state struct */
                 memset(&session->packAdd_Qlstn_state, 0,
@@ -1413,11 +1411,10 @@ _libssh2_packet_ask(LIBSSH2_SESSION * session, unsigned char packet_type,
                    (unsigned int)packet_type));
 
     while(packet) {
-        if(packet->data[0] == packet_type
-            && (packet->data_len >= (match_ofs + match_len))
-            && (!match_buf ||
-                (memcmp(packet->data + match_ofs, match_buf,
-                        match_len) == 0))) {
+        if(packet->data[0] == packet_type &&
+           (packet->data_len >= (match_ofs + match_len)) &&
+           (!match_buf ||
+            (memcmp(packet->data + match_ofs, match_buf, match_len) == 0))) {
             *data = packet->data;
             *data_len = packet->data_len;
 

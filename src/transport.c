@@ -147,8 +147,8 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
         /* If the last block would be less than a whole blocksize, combine it
            with the previous block to make it larger. This ensures that the
            whole MAC is included in a single decrypt call. */
-        if(CRYPT_FLAG_R(session, PKTLEN_AAD) && IS_LAST(firstlast)
-           && (len < blocksize*2)) {
+        if(CRYPT_FLAG_R(session, PKTLEN_AAD) && IS_LAST(firstlast) &&
+           (len < blocksize*2)) {
             decryptlen = len;
             lowerfirstlast = LAST_BLOCK;
         }
@@ -462,8 +462,8 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
         assert(remainbuf >= 0);
 
         if(remainbuf < blocksize ||
-           (CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET)
-            && ((ssize_t)p->total_num) > remainbuf)) {
+           (CRYPT_FLAG_R(session, REQUIRES_FULL_PACKET) &&
+            ((ssize_t)p->total_num) > remainbuf)) {
             /* If we have less than a blocksize left, it is too
                little data to deal with, read more */
             ssize_t nread;
@@ -1209,8 +1209,8 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
                 /* The INTEGRATED_MAC case always has an extra call below, so
                    it will never be LAST_BLOCK up here. */
                 int firstlast = i == 0 ? FIRST_BLOCK :
-                (!CRYPT_FLAG_L(session, INTEGRATED_MAC)
-                 && (i == packet_length - session->local.crypt->blocksize)
+                (!CRYPT_FLAG_L(session, INTEGRATED_MAC) &&
+                 (i == packet_length - session->local.crypt->blocksize)
                  ? LAST_BLOCK : MIDDLE_BLOCK);
                 /* In the AAD case, the last block would be only 4 bytes
                    because everything is offset by 4 since the initial

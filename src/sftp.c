@@ -231,8 +231,8 @@ sftp_packet_add(LIBSSH2_SFTP *sftp, unsigned char *data,
                    request_id));
 
     /* Don't add the packet if it answers a request we've given up on. */
-    if((data[0] == SSH_FXP_STATUS || data[0] == SSH_FXP_DATA)
-       && find_zombie_request(sftp, request_id)) {
+    if((data[0] == SSH_FXP_STATUS || data[0] == SSH_FXP_DATA) &&
+       find_zombie_request(sftp, request_id)) {
 
         /* If we get here, the file ended before the response arrived. We
            are no longer interested in the request so we discard it */
@@ -1000,8 +1000,8 @@ static LIBSSH2_SFTP *sftp_init(LIBSSH2_SESSION *session)
             extversion = (uint32_t)strtol(extversion_str, NULL, 10);
             LIBSSH2_FREE(session, extversion_str);
         }
-        if(extname_len == 24
-           && strncmp("posix-rename@openssh.com", (char *)extname, 24) == 0) {
+        if(extname_len == 24 &&
+           strncmp("posix-rename@openssh.com", (char *)extname, 24) == 0) {
             sftp_handle->posix_rename_version = extversion;
         }
 

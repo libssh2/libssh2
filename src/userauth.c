@@ -367,9 +367,9 @@ userauth_password(LIBSSH2_SESSION *session,
 
 password_response:
 
-    if((session->userauth_pswd_state == libssh2_NB_state_sent)
-        || (session->userauth_pswd_state == libssh2_NB_state_sent1)
-        || (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
+    if((session->userauth_pswd_state == libssh2_NB_state_sent) ||
+       (session->userauth_pswd_state == libssh2_NB_state_sent1) ||
+       (session->userauth_pswd_state == libssh2_NB_state_sent2)) {
         if(session->userauth_pswd_state == libssh2_NB_state_sent) {
             rc = _libssh2_packet_requirev(session, reply_codes,
                                           &session->userauth_pswd_data,
@@ -426,9 +426,9 @@ password_response:
         }
 
         if((session->userauth_pswd_data[0] ==
-             SSH_MSG_USERAUTH_PASSWD_CHANGEREQ)
-            || (session->userauth_pswd_data0 ==
-                SSH_MSG_USERAUTH_PASSWD_CHANGEREQ)) {
+             SSH_MSG_USERAUTH_PASSWD_CHANGEREQ) ||
+           (session->userauth_pswd_data0 ==
+             SSH_MSG_USERAUTH_PASSWD_CHANGEREQ)) {
             session->userauth_pswd_data0 = SSH_MSG_USERAUTH_PASSWD_CHANGEREQ;
 
             if((session->userauth_pswd_state == libssh2_NB_state_sent1) ||
@@ -759,9 +759,9 @@ memory_read_privatekey(LIBSSH2_SESSION * session,
     *hostkey_method = NULL;
     *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
-        if((*hostkey_methods_avail)->initPEMFromMemory
-             && strncmp((*hostkey_methods_avail)->name, (const char *) method,
-                        method_len) == 0) {
+        if((*hostkey_methods_avail)->initPEMFromMemory &&
+           strncmp((*hostkey_methods_avail)->name, (const char *) method,
+                   method_len) == 0) {
             *hostkey_method = *hostkey_methods_avail;
             break;
         }
@@ -801,9 +801,9 @@ file_read_privatekey(LIBSSH2_SESSION * session,
     *hostkey_method = NULL;
     *hostkey_abstract = NULL;
     while(*hostkey_methods_avail && (*hostkey_methods_avail)->name) {
-        if((*hostkey_methods_avail)->initPEM
-            && strncmp((*hostkey_methods_avail)->name, (const char *) method,
-                       method_len) == 0) {
+        if((*hostkey_methods_avail)->initPEM &&
+           strncmp((*hostkey_methods_avail)->name, (const char *) method,
+                   method_len) == 0) {
             *hostkey_method = *hostkey_methods_avail;
             break;
         }
