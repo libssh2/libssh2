@@ -50,8 +50,8 @@
 
 #ifdef _WIN32
 /* Force parameter type. */
-#define libssh2_recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
-#define libssh2_send(s, b, l, f)  send((s), (b), (int)(l), (f))
+#define libssh2_recv(s, b, l, f)  recv(s, b, (int)(l), f)
+#define libssh2_send(s, b, l, f)  send(s, b, (int)(l), f)
 #else
 #define libssh2_recv  recv
 #define libssh2_send  send
