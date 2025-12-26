@@ -229,58 +229,58 @@ struct iovec {
 #define MAX_SHA_DIGEST_LEN SHA512_DIGEST_LENGTH
 
 #define LIBSSH2_ALLOC(session, count) \
-    session->alloc((count), &(session)->abstract)
+    session->alloc(count, &(session)->abstract)
 #define LIBSSH2_CALLOC(session, count) _libssh2_calloc(session, count)
 #define LIBSSH2_REALLOC(session, ptr, count) \
-    ((ptr) ? session->realloc((ptr), (count), &(session)->abstract) : \
-             session->alloc((count), &(session)->abstract))
+    ((ptr) ? (session)->realloc(ptr, count, &(session)->abstract) : \
+             (session)->alloc(count, &(session)->abstract))
 #define LIBSSH2_FREE(session, ptr) \
-    session->free((ptr), &(session)->abstract)
+    session->free(ptr, &(session)->abstract)
 #define LIBSSH2_IGNORE(session, data, datalen) \
-    session->ssh_msg_ignore((session), (data), (int)(datalen), \
+    session->ssh_msg_ignore(session, data, (int)(datalen), \
                             &(session)->abstract)
 #define LIBSSH2_DEBUG(session, always_display, message, message_len, \
                       language, language_len) \
-    session->ssh_msg_debug((session), (always_display), \
-                           (message), (int)(message_len), \
-                           (language), (int)(language_len), \
+    session->ssh_msg_debug(session, always_display, \
+                           message, (int)(message_len), \
+                           language, (int)(language_len), \
                            &(session)->abstract)
 #define LIBSSH2_DISCONNECT(session, reason, message, message_len, \
                            language, language_len) \
-    session->ssh_msg_disconnect((session), (reason), \
-                                (message), (int)(message_len), \
-                                (language), (int)(language_len), \
+    session->ssh_msg_disconnect(session, reason, \
+                                message, (int)(message_len), \
+                                language, (int)(language_len), \
                                 &(session)->abstract)
 
 #define LIBSSH2_MACERROR(session, data, datalen) \
-    session->macerror((session), (data), (int)(datalen), &(session)->abstract)
+    session->macerror(session, data, (int)(datalen), &(session)->abstract)
 #define LIBSSH2_X11_OPEN(channel, shost, sport) \
-    channel->session->x11(((channel)->session), (channel), \
-                          (shost), (sport), (&(channel)->session->abstract))
+    channel->session->x11((channel)->session, channel, \
+                          shost, sport, &(channel)->session->abstract)
 
 #define LIBSSH2_AUTHAGENT(channel) \
-    channel->session->authagent(((channel)->session), (channel), \
+    channel->session->authagent((channel)->session, channel, \
                                 (&(channel)->session->abstract))
 
 #define LIBSSH2_ADD_IDENTITIES(session, buffer, agentPath) \
-    session->addLocalIdentities((session), (buffer), \
-                                (agentPath), (&(session->abstract)))
+    session->addLocalIdentities(session, buffer, \
+                                agentPath, &((session)->abstract))
 
 #define LIBSSH2_AUTHAGENT_SIGN(session, blob, blen, \
                                data, dlen, sig, sigLen, \
                                agentPath) \
-    session->agentSignCallback((session), (blob), (blen), \
-                               (data), (dlen), (sig), (sigLen), \
-                               (agentPath), (&(session->abstract)))
+    session->agentSignCallback(session, blob, blen, \
+                               data, dlen, sig, sigLen, \
+                               agentPath, &(session)->abstract)
 
 #define LIBSSH2_CHANNEL_CLOSE(session, channel) \
-    channel->close_cb((session), &(session)->abstract, \
-                      (channel), &(channel)->abstract)
+    channel->close_cb(session, &(session)->abstract, \
+                      channel, &(channel)->abstract)
 
 #define LIBSSH2_SEND_FD(session, fd, buffer, length, flags) \
-    (session->send)(fd, buffer, length, flags, &session->abstract)
+    (session->send)(fd, buffer, length, flags, &(session)->abstract)
 #define LIBSSH2_RECV_FD(session, fd, buffer, length, flags) \
-    (session->recv)(fd, buffer, length, flags, &session->abstract)
+    (session->recv)(fd, buffer, length, flags, &(session)->abstract)
 
 #define LIBSSH2_SEND(session, buffer, length, flags) \
     LIBSSH2_SEND_FD(session, session->socket_fd, buffer, length, flags)
