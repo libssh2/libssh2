@@ -260,7 +260,7 @@ struct iovec {
 
 #define LIBSSH2_AUTHAGENT(channel) \
     channel->session->authagent((channel)->session, channel, \
-                                (&(channel)->session->abstract))
+                                &(channel)->session->abstract)
 
 #define LIBSSH2_ADD_IDENTITIES(session, buffer, agentPath) \
     session->addLocalIdentities(session, buffer, \
