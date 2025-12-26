@@ -1258,7 +1258,7 @@ void _libssh2_init_if_needed(void);
 /* Utility function for certificate auth */
 size_t plain_method(char *method, size_t method_len);
 
-#define ARRAY_SIZE(a) (sizeof ((a)) / sizeof ((a)[0]))
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 /* define to output the libssh2_int64_t type in a *printf() */
 #if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER >= 1800))
