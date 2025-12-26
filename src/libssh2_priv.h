@@ -278,14 +278,14 @@ struct iovec {
                       channel, &(channel)->abstract)
 
 #define LIBSSH2_SEND_FD(session, fd, buffer, length, flags) \
-    (session->send)(fd, buffer, length, flags, &(session)->abstract)
+    ((session)->send)(fd, buffer, length, flags, &(session)->abstract)
 #define LIBSSH2_RECV_FD(session, fd, buffer, length, flags) \
-    (session->recv)(fd, buffer, length, flags, &(session)->abstract)
+    ((session)->recv)(fd, buffer, length, flags, &(session)->abstract)
 
 #define LIBSSH2_SEND(session, buffer, length, flags) \
-    LIBSSH2_SEND_FD(session, session->socket_fd, buffer, length, flags)
+    LIBSSH2_SEND_FD(session, (session)->socket_fd, buffer, length, flags)
 #define LIBSSH2_RECV(session, buffer, length, flags) \
-    LIBSSH2_RECV_FD(session, session->socket_fd, buffer, length, flags)
+    LIBSSH2_RECV_FD(session, (session)->socket_fd, buffer, length, flags)
 
 typedef struct _LIBSSH2_KEX_METHOD LIBSSH2_KEX_METHOD;
 typedef struct _LIBSSH2_HOSTKEY_METHOD LIBSSH2_HOSTKEY_METHOD;
