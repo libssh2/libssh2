@@ -195,7 +195,7 @@ struct iovec {
 
 #ifdef __OS400__
 /* Force parameter type. */
-#define send(s, b, l, f)    send((s), (unsigned char *) (b), (l), (f))
+#define send(s, b, l, f)  send(s, (unsigned char *)(b), l, f)
 #endif
 
 #include "crypto.h"
