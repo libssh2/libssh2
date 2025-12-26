@@ -57,10 +57,9 @@
 
 #define OFFSET_OF(t, f) ((size_t) ((char *) &((t *) 0)->f - (char *) 0))
 
-#define ALLOC(s, sz)        ((s)? LIBSSH2_ALLOC((s), (sz)): malloc(sz))
-#define REALLOC(s, p, sz)   ((s)? LIBSSH2_REALLOC((s), (p), (sz)):      \
-                                  realloc((p), (sz)))
-#define FREE(s, p)          ((s)? LIBSSH2_FREE((s), (p)): free(p))
+#define ALLOC(s, sz)        ((s) ? LIBSSH2_ALLOC(s, sz) : malloc(sz))
+#define REALLOC(s, p, sz)   ((s) ? LIBSSH2_REALLOC(s, p, sz) : realloc(p, sz))
+#define FREE(s, p)          ((s) ? LIBSSH2_FREE(s, p) : free(p))
 
 struct _libssh2_string_cache {
     libssh2_string_cache *  next;
