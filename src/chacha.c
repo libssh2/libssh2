@@ -13,8 +13,6 @@
 
 /* $OpenBSD: chacha.c,v 1.1 2013/11/21 00:45:44 djm Exp $ */
 
-typedef struct chacha_ctx chacha_ctx;
-
 #define U8C(v) (v##U)
 #define U32C(v) (v##U)
 
@@ -52,7 +50,7 @@ typedef struct chacha_ctx chacha_ctx;
 static const char sigma[17] = "expand 32-byte k";
 static const char tau[17] = "expand 16-byte k";
 
-void chacha_keysetup(chacha_ctx *x, const u8 *k, u32 kbits)
+void chacha_keysetup(struct chacha_ctx *x, const u8 *k, u32 kbits)
 {
     const char *constants;
 
@@ -77,7 +75,7 @@ void chacha_keysetup(chacha_ctx *x, const u8 *k, u32 kbits)
     x->input[3] = U8TO32_LITTLE(constants + 12);
 }
 
-void chacha_ivsetup(chacha_ctx *x, const u8 *iv, const u8 *counter)
+void chacha_ivsetup(struct chacha_ctx *x, const u8 *iv, const u8 *counter)
 {
     x->input[12] = counter == NULL ? 0 : U8TO32_LITTLE(counter + 0);
     x->input[13] = counter == NULL ? 0 : U8TO32_LITTLE(counter + 4);
@@ -85,7 +83,7 @@ void chacha_ivsetup(chacha_ctx *x, const u8 *iv, const u8 *counter)
     x->input[15] = U8TO32_LITTLE(iv + 4);
 }
 
-void chacha_encrypt_bytes(chacha_ctx *x, const u8 *m, u8 *c, size_t bytes)
+void chacha_encrypt_bytes(struct chacha_ctx *x, const u8 *m, u8 *c, size_t bytes)
 {
     u32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
     u32 j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, j10, j11, j12, j13, j14, j15;
