@@ -181,22 +181,17 @@ option(LIBSSH2_BUILD_OBJECT_LIBRARY "Build static library as an object library i
 
 option(CRYPTO_NO_OPENSSL "OpenSSL Should not be used, even if somewhat auto found" ON )
 
-if( NOT LIBSSH2_SKIP_INSTALL )
-include(GNUInstallDirs)
-install(
-  FILES
-    COPYING NEWS README RELEASE-NOTES
-    docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
-  DESTINATION ${CMAKE_INSTALL_DOCDIR})
-endif() 
 option(LIBSSH2_DISABLE_INSTALL "Disable installation targets" OFF)
-if(NOT LIBSSH2_DISABLE_INSTALL)
+
+if(NOT LIBSSH2_DISABLE_INSTALL OR NOT LIBSSH2_SKIP_INSTALL )
   include(GNUInstallDirs)
+if( LIBSSH2_BUILD_DOCS)
   install(
     FILES
       COPYING NEWS README RELEASE-NOTES
       docs/AUTHORS docs/BINDINGS.md docs/HACKING.md
     DESTINATION ${CMAKE_INSTALL_DOCDIR})
+endif() 
 endif()
 
 include(PickyWarnings)

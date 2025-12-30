@@ -105,7 +105,7 @@ extern "C" {
 /* Allow alternate API prefix from CFLAGS or calling app */
 #ifndef LIBSSH2_API
 # ifdef _WIN32
-#  if defined(LIBSSH2_EXPORTS) //|| defined(_WINDLL)
+#  if defined(LIBSSH2_EXPORTS) || defined(_WINDLL)
 #   ifdef LIBSSH2_LIBRARY
 #    define LIBSSH2_API __declspec(dllexport)
 #   else
@@ -778,8 +778,7 @@ libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                            size_t pubkeydata_len,
                            LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
                                ((*sign_callback)),
-                           void **
-    t);
+                           void **abstract);
 
 LIBSSH2_API int
 libssh2_userauth_hostbased_fromfile_ex(LIBSSH2_SESSION *session,
