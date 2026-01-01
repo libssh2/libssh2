@@ -51,7 +51,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
 
@@ -66,7 +66,7 @@ jobs:
           HASH: '${{ steps.hash.outputs.hash }}'
         run: docker manifest inspect "ghcr.io/${GITHUB_REPOSITORY_OWNER}/ci_tests_openssh_server:${HASH}"
 
-      - uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
+      - uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         if: ${{ steps.poll.outcome == 'failure' }}
         id: meta
         with:
