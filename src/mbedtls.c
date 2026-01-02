@@ -261,7 +261,7 @@ _libssh2_mbedtls_cipher_crypt(_libssh2_cipher_ctx *ctx,
     if(cctx->algo == MBEDTLS_CIPHER_AES_128_GCM ||
        cctx->algo == MBEDTLS_CIPHER_AES_256_GCM) {
         const int authlen = 16;  /* GCM authentication tag length */
-        const int aadlen = (IS_FIRST(firstlast)) ? 4 : 0;
+        const int aadlen = IS_FIRST(firstlast) ? 4 : 0;
         const int authenticationtag = IS_LAST(firstlast) ? authlen : 0;
         const int cryptlen = (int)blocklen - aadlen - authenticationtag;
         unsigned char tag[16];
