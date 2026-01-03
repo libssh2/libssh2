@@ -31,7 +31,7 @@ jobs:
         with:
           persist-credentials: false
       - name: 'checksrc'
-        run: ci/checksrc.sh
+        run: ci/checksrc-all.pl
 
   linters:
     name: 'linters'
