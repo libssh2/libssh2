@@ -1421,11 +1421,10 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
         }
         else {
             int i;
-            /* note: the extra +1 below is necessary since the sprintf()
-               loop will always write 3 bytes so the last one will write
-               the trailing zero at the LIBSSH2_X11_RANDOM_COOKIE_LEN/2
-               border */
-            unsigned char buffer[(LIBSSH2_X11_RANDOM_COOKIE_LEN / 2) + 1];
+            /* note: the snprintf() loop will always write 3 bytes so the last one will write
+               the trailing zero after the LIBSSH2_X11_RANDOM_COOKIE_LEN
+               border in s, but s has extra 4 bytes of size (for screen_number) */
+            unsigned char buffer[LIBSSH2_X11_RANDOM_COOKIE_LEN / 2];
 
             if(_libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2)) {
                 return _libssh2_error(session, LIBSSH2_ERROR_RANDGEN,
