@@ -3382,6 +3382,7 @@ static int kexinit(LIBSSH2_SESSION * session)
         *(s++) = SSH_MSG_KEXINIT;
 
         if(_libssh2_random(s, 16)) {
+            LIBSSH2_FREE(session, data);
             return _libssh2_error(session, LIBSSH2_ERROR_RANDGEN,
                                   "Unable to get random bytes "
                                   "for KEXINIT cookie");
