@@ -545,7 +545,11 @@ if(LINT OR LIBSSH2_BUILD_DOCS)
 endif()
 
 if(LINT)
-  add_custom_target(lint ALL COMMAND "${PERL_EXECUTABLE}" "ci/checksrc-all.pl" WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  add_custom_target(lint ALL
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMAND "${PERL_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/ci/checksrc-all.pl"
+    DEPENDS "${PROJECT_SOURCE_DIR}/ci/checksrc-all.pl" "${PROJECT_SOURCE_DIR}/ci/checksrc.pl"
+  )
   if(BUILD_STATIC_LIBS)
     add_dependencies(${LIB_STATIC} lint)
   else()
