@@ -137,7 +137,6 @@ jobs:
             rm -f bin.zip
             printf '%s' ~/cmake-"${OLD_CMAKE_VERSION}"-win64-x64/bin/cmake.exe > ~/old-cmake-path.txt
           elif [[ "${MATRIX_IMAGE}" = *'ubuntu'* ]]; then
-            sudo rm -f /var/lib/man-db/auto-update
             sudo apt-get -o Dpkg::Use-Pty=0 install libgcrypt-dev libssl-dev libmbedtls-dev libwolfssl-dev
             cd ~
             curl --disable --fail --silent --show-error --connect-timeout 15 --max-time 60 --retry 3 --retry-connrefused \
@@ -309,9 +308,8 @@ jobs:
         if: ${{ matrix.arch != 'amd64' }}
         run: |
           sudo dpkg --add-architecture "${MATRIX_ARCH}"
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo rm -f /etc/apt/sources.list.d/{azure-cli.sources,microsoft-prod.list,ondrej-ubuntu-php-noble.sources}
           sudo apt-get -o Dpkg::Use-Pty=0 update
-          sudo rm -f /var/lib/man-db/auto-update
           sudo apt-get -o Dpkg::Use-Pty=0 install gcc-multilib build-essential zlib1g-dev:"${MATRIX_ARCH}"
 
       - name: 'install packages'
@@ -593,10 +591,7 @@ jobs:
       - name: 'install packages'
         env:
           INSTALL_PACKAGES: ${{ matrix.compiler == 'clang-tidy' && 'clang' || '' }}
-        run: |
-          sudo rm -f /var/lib/man-db/auto-update
-          sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 \
-          ${INSTALL_PACKAGES}
+        run: sudo apt-get -o Dpkg::Use-Pty=0 install mingw-w64 ${INSTALL_PACKAGES}
 
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:

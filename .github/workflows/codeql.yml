@@ -60,9 +60,8 @@ jobs:
         if: ${{ matrix.platform == 'Linux' }}
         timeout-minutes: 5
         run: |
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo rm -f /etc/apt/sources.list.d/{azure-cli.sources,microsoft-prod.list,ondrej-ubuntu-php-noble.sources}
           sudo apt-get -o Dpkg::Use-Pty=0 update
-          sudo rm -f /var/lib/man-db/auto-update
           sudo apt-get -o Dpkg::Use-Pty=0 install zlib1g-dev libssl-dev libgcrypt-dev libmbedtls-dev libwolfssl-dev
 
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
