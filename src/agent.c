@@ -502,10 +502,9 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
     }
 
     s_un.sun_family = AF_UNIX;
-    /* !checksrc! disable BANNEDFUNC 1 */ /* FIXME */
-    strncpy(s_un.sun_path, path, sizeof(s_un.sun_path));
-    s_un.sun_path[sizeof(s_un.sun_path)-1] = 0; /* make sure there's a trailing
-                                                   zero */
+    memcpy(s_un.sun_path, path, plen);
+    s_un.sun_path[plen] = '\0';
+
     if(connect(agent->fd, (struct sockaddr*)(&s_un), sizeof(s_un)) != 0) {
         close(agent->fd);
         return _libssh2_error(agent->session, LIBSSH2_ERROR_AGENT_PROTOCOL,
