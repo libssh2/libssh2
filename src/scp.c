@@ -1,4 +1,4 @@
-scpSend/* Copyright (C) Daniel Stenberg
+/* Copyright (C) Daniel Stenberg
  * Copyright (C) Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
