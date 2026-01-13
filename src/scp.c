@@ -1,4 +1,4 @@
-/* Copyright (C) Daniel Stenberg
+scpSend/* Copyright (C) Daniel Stenberg
  * Copyright (C) Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
@@ -995,7 +995,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                          LIBSSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n",
                          (long)mtime, (long)atime);
             _libssh2_debug((session, LIBSSH2_TRACE_SCP, "Sent %.*s",
-                session->scpSend_response_len,
+                (int)session->scpSend_response_len,
                 session->scpSend_response));
         }
 
