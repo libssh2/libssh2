@@ -832,7 +832,7 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
             }
 
             _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
-                           "Debug Packet: %.*s", message_len, message));
+                           "Debug Packet: %.*s", (int)message_len, message));
             LIBSSH2_FREE(session, data);
             session->packAdd_state = libssh2_NB_state_idle;
             return 0;
