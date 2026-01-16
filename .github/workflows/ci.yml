@@ -644,7 +644,7 @@ jobs:
     timeout-minutes: 30
     defaults:
       run:
-        shell: D:\cygwin\bin\bash.exe '{0}'
+        shell: D:\cygwin\bin\bash.exe '{0}'  # zizmor: ignore[misfeature]
     env:
       MATRIX_BUILD: '${{ matrix.build }}'
       SHELLOPTS: 'igncr'
@@ -723,7 +723,7 @@ jobs:
     timeout-minutes: 30
     defaults:
       run:
-        shell: msys2 {0}
+        shell: msys2 {0}  # zizmor: ignore[misfeature]
     env:
       MATRIX_BUILD: '${{ matrix.build }}'
       MATRIX_CRYPTO: '${{ matrix.crypto }}'
