@@ -3457,7 +3457,7 @@ static int kexinit(LIBSSH2_SESSION * session)
                            "Sent LANG_SC: %.*s", (int)lang_sc_len, p));
             p += lang_sc_len;
             _libssh2_debug((session, LIBSSH2_TRACE_KEX,
-                "Sent first_kex_packet_follows: %02x", p[0]));
+                           "Sent first_kex_packet_follows: %02x", p[0]));
 
         }
 #endif /* LIBSSH2DEBUG */
