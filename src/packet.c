@@ -774,8 +774,8 @@ _libssh2_packet_add(LIBSSH2_SESSION * session, unsigned char *data,
                 }
 
                 _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
-                               "Disconnect(%d): %s(%s)", reason,
-                               message, language));
+                               "Disconnect(%d): %.*s(%.*s)", reason,
+                               message_len, message, language_len, language));
             }
 
             LIBSSH2_FREE(session, data);
