@@ -994,8 +994,9 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                 snprintf((char *) session->scpSend_response,
                          LIBSSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n",
                          (long)mtime, (long)atime);
-            _libssh2_debug((session, LIBSSH2_TRACE_SCP, "Sent %s",
-                           session->scpSend_response));
+            _libssh2_debug((session, LIBSSH2_TRACE_SCP, "Sent %.*s",
+                (int)session->scpSend_response_len,
+                session->scpSend_response));
         }
 
         session->scpSend_state = libssh2_NB_state_sent2;
