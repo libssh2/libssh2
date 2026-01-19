@@ -61,9 +61,11 @@ may use keyboard-interactive authentication type too.
 
 # RETURN VALUE
 
-Return 0 on success or negative on failure. It returns LIBSSH2_ERROR_EAGAIN
-when it would otherwise block. While LIBSSH2_ERROR_EAGAIN is a negative
-number, it is not really a failure per se.
+Return 0 on success or negative on failure. A partial successful 
+authentication returns LIBSSH2_ERROR_PARTIAL_SUCCESS and further 
+authentication is needed. It returns LIBSSH2_ERROR_EAGAIN when it
+would otherwise block. While LIBSSH2_ERROR_PARTIAL_SUCCESS and
+LIBSSH2_ERROR_EAGAIN are negative numbers, they are not really failures per se.
 
 # ERRORS
 
