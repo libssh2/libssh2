@@ -505,6 +505,19 @@ int main(int argc, char *argv[])
         libssh2_channel_free(channel);
         channel = NULL;
     }
+
+    if(session) {
+        libssh2_session_disconnect(session, "Normal Shutdown");
+        libssh2_session_free(session);
+    }
+
+    if(sock != LIBSSH2_INVALID_SOCKET) {
+        shutdown(sock, 2);
+        LIBSSH2_SOCKET_CLOSE(sock);
+    }
+
+    fprintf(stderr, "all done\n");
+
     _normal_mode();
 
     libssh2_exit();
