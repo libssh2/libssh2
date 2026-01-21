@@ -53,6 +53,8 @@
 #include <windows.h>
 #include <bcrypt.h>
 
+#define LIBSSH2_MD5_ENABLE
+#define LIBSSH2_MD5_PEM_ENABLE
 #define LIBSSH2_MD5 1
 
 #define LIBSSH2_HMAC_RIPEMD 0

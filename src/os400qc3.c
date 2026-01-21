@@ -2249,6 +2249,7 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
        --> PKCS#8 EncryptedPrivateKeyInfo */
     ret = _libssh2_pem_parse_memory(session,
                                     beginencprivkeyhdr, endencprivkeyhdr,
+                                    passphrase,
                                     filedata, filedata_len, &data, &datalen);
 
     /* Try with "PRIVATE KEY" PEM armor.
@@ -2256,6 +2257,7 @@ _libssh2_rsa_new_private_frommemory(libssh2_rsa_ctx **rsa,
     if(ret)
         ret = _libssh2_pem_parse_memory(session,
                                         beginprivkeyhdr, endprivkeyhdr,
+                                        passphrase,
                                         filedata, filedata_len,
                                         &data, &datalen);
 
