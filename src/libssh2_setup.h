@@ -75,7 +75,7 @@
 # if !defined(LIBSSH2_LIBRARY) || defined(LIBSSH2_TESTS)
    /* apply to examples and tests only */
 #  ifndef _CRT_NONSTDC_NO_DEPRECATE
-#  define _CRT_NONSTDC_NO_DEPRECATE  /* for strdup(), write() */
+#  define _CRT_NONSTDC_NO_DEPRECATE  /* for write() */
 #  endif
 #  ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
 #  define _WINSOCK_DEPRECATED_NO_WARNINGS  /* for inet_addr() */
@@ -89,7 +89,6 @@
 #  endif
 # endif
 # if _MSC_VER < 1900
-#  define strdup _strdup
 /* Silence bogus warning C4127: conditional expression is constant */
 #  pragma warning(disable:4127)
 # endif

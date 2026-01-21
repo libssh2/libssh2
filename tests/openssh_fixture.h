@@ -46,4 +46,6 @@ libssh2_socket_t open_socket_to_openssh_server(void);
 void close_socket_to_openssh_server(libssh2_socket_t sock);
 int openssh_fixture_have_docker(void);
 
+char *libssh2_strdup(const char *str);
+
 #endif
