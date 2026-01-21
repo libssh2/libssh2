@@ -1426,6 +1426,7 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
                the trailing zero at the LIBSSH2_X11_RANDOM_COOKIE_LEN/2
                border */
             unsigned char buffer[(LIBSSH2_X11_RANDOM_COOKIE_LEN / 2) + 1];
+            char hex[3];
 
             if(_libssh2_random(buffer, LIBSSH2_X11_RANDOM_COOKIE_LEN / 2)) {
                 return _libssh2_error(session, LIBSSH2_ERROR_RANDGEN,
@@ -1433,7 +1434,8 @@ channel_x11_req(LIBSSH2_CHANNEL *channel, int single_connection,
                                       "for x11-req cookie");
             }
             for(i = 0; i < (LIBSSH2_X11_RANDOM_COOKIE_LEN / 2); i++) {
-                snprintf((char *)&s[i*2], 3, "%02X", buffer[i]);
+                snprintf(hex, sizeof(hex), "%02X", buffer[i]);
+                memcpy(&s[i*2], hex, 2);
             }
         }
         s += cookie_len;
