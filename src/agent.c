@@ -525,6 +525,8 @@ agent_connect_unix(LIBSSH2_AGENT *agent)
                       flags, abstract);                              \
             if(rc < 0)                                               \
                 return rc;                                           \
+            if(rc == 0)                                              \
+                break;                                               \
                                                                      \
             finished += rc;                                          \
         }                                                            \
