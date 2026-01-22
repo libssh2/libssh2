@@ -26,7 +26,7 @@
 #endif
 
 #ifdef __QNX__
-#  include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 #include <stdio.h>
