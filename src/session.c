@@ -494,7 +494,8 @@ libssh2_session_init_ex(LIBSSH2_ALLOC_FUNC((*my_alloc)),
 #pragma clang diagnostic ignored "-Wcast-function-type"
 #endif
 LIBSSH2_API libssh2_cb_generic *
-libssh2_session_callback_set2(LIBSSH2_SESSION *session, enum LIBSSH2_SESSION_CALLBACK cbtype,
+libssh2_session_callback_set2(LIBSSH2_SESSION *session,
+                              enum LIBSSH2_SESSION_CALLBACK cbtype,
                               libssh2_cb_generic *callback)
 {
     libssh2_cb_generic *oldcb;
@@ -582,7 +583,8 @@ libssh2_session_callback_set2(LIBSSH2_SESSION *session, enum LIBSSH2_SESSION_CAL
 #endif
 LIBSSH2_API void *
 libssh2_session_callback_set(LIBSSH2_SESSION * session,
-                             enum LIBSSH2_SESSION_CALLBACK cbtype, void *callback)
+                             enum LIBSSH2_SESSION_CALLBACK cbtype,
+                             void *callback)
 {
     return (void *)libssh2_session_callback_set2(session, cbtype,
                                                (libssh2_cb_generic *)callback);
@@ -1274,7 +1276,8 @@ libssh2_session_disconnect_ex(LIBSSH2_SESSION *session, int reason,
  * regardless of actual negotiation Strings should NOT be freed
  */
 LIBSSH2_API const char *
-libssh2_session_methods(LIBSSH2_SESSION * session, enum LIBSSH2_KEY_EXCHANGE_METHOD method_type)
+libssh2_session_methods(LIBSSH2_SESSION * session,
+                        enum LIBSSH2_KEY_EXCHANGE_METHOD method_type)
 {
     /* All methods have char *name as their first element */
     const LIBSSH2_KEX_METHOD *method = NULL;

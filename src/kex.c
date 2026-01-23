@@ -4153,7 +4153,8 @@ _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange,
  * Set preferred method
  */
 LIBSSH2_API int
-libssh2_session_method_pref(LIBSSH2_SESSION * session, enum LIBSSH2_KEY_EXCHANGE_METHOD method_type,
+libssh2_session_method_pref(LIBSSH2_SESSION * session,
+                            enum LIBSSH2_KEY_EXCHANGE_METHOD method_type,
                             const char *prefs)
 {
     char **prefvar, *s, *newprefs;
@@ -4302,7 +4303,8 @@ libssh2_session_method_pref(LIBSSH2_SESSION * session, enum LIBSSH2_KEY_EXCHANGE
  */
 
 LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
-                                               enum LIBSSH2_KEY_EXCHANGE_METHOD method_type,
+                                               enum LIBSSH2_KEY_EXCHANGE_METHOD
+                                               method_type,
                                                const char ***algs)
 {
     unsigned int i;
