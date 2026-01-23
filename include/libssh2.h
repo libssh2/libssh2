@@ -336,31 +336,31 @@ typedef struct _LIBSSH2_SK_SIG_INFO {
 
 /* libssh2_session_callback_set() constants */
 enum LIBSSH2_SESSION_CALLBACK {
-	LIBSSH2_CALLBACK_IGNORE               = 0,
-	LIBSSH2_CALLBACK_DEBUG                = 1,
-	LIBSSH2_CALLBACK_DISCONNECT           = 2,
-	LIBSSH2_CALLBACK_MACERROR             = 3,
-	LIBSSH2_CALLBACK_X11                  = 4,
-	LIBSSH2_CALLBACK_SEND                 = 5,
-	LIBSSH2_CALLBACK_RECV                 = 6,
-	LIBSSH2_CALLBACK_AUTHAGENT            = 7,
-	LIBSSH2_CALLBACK_AUTHAGENT_IDENTITIES = 8,
-	LIBSSH2_CALLBACK_AUTHAGENT_SIGN       = 9
+    LIBSSH2_CALLBACK_IGNORE               = 0,
+    LIBSSH2_CALLBACK_DEBUG                = 1,
+    LIBSSH2_CALLBACK_DISCONNECT           = 2,
+    LIBSSH2_CALLBACK_MACERROR             = 3,
+    LIBSSH2_CALLBACK_X11                  = 4,
+    LIBSSH2_CALLBACK_SEND                 = 5,
+    LIBSSH2_CALLBACK_RECV                 = 6,
+    LIBSSH2_CALLBACK_AUTHAGENT            = 7,
+    LIBSSH2_CALLBACK_AUTHAGENT_IDENTITIES = 8,
+    LIBSSH2_CALLBACK_AUTHAGENT_SIGN       = 9
 };
 
 /* libssh2_session_method_pref() constants */
 enum LIBSSH2_KEY_EXCHANGE_METHOD {
-	LIBSSH2_METHOD_KEX          = 0,
-	LIBSSH2_METHOD_HOSTKEY      = 1,
-	LIBSSH2_METHOD_CRYPT_CS     = 2,
-	LIBSSH2_METHOD_CRYPT_SC     = 3,
-	LIBSSH2_METHOD_MAC_CS       = 4,
-	LIBSSH2_METHOD_MAC_SC       = 5,
-	LIBSSH2_METHOD_COMP_CS      = 6,
-	LIBSSH2_METHOD_COMP_SC      = 7,
-	LIBSSH2_METHOD_LANG_CS      = 8,
-	LIBSSH2_METHOD_LANG_SC      = 9,
-	LIBSSH2_METHOD_SIGN_ALGO    = 10
+    LIBSSH2_METHOD_KEX          = 0,
+    LIBSSH2_METHOD_HOSTKEY      = 1,
+    LIBSSH2_METHOD_CRYPT_CS     = 2,
+    LIBSSH2_METHOD_CRYPT_SC     = 3,
+    LIBSSH2_METHOD_MAC_CS       = 4,
+    LIBSSH2_METHOD_MAC_SC       = 5,
+    LIBSSH2_METHOD_COMP_CS      = 6,
+    LIBSSH2_METHOD_COMP_SC      = 7,
+    LIBSSH2_METHOD_LANG_CS      = 8,
+    LIBSSH2_METHOD_LANG_SC      = 9,
+    LIBSSH2_METHOD_SIGN_ALGO    = 10
 };
 
 /* flags */
@@ -585,8 +585,8 @@ LIBSSH2_API void libssh2_free(LIBSSH2_SESSION *session, void *ptr);
  * not needed anymore
  */
 LIBSSH2_API int libssh2_session_supported_algs(LIBSSH2_SESSION* session,
-                                               enum LIBSSH2_KEY_EXCHANGE_METHOD method_type,
-                                               const char ***algs);
+                                 enum LIBSSH2_KEY_EXCHANGE_METHOD method_type,
+                                 const char ***algs);
 
 /* Session API */
 LIBSSH2_API LIBSSH2_SESSION *
@@ -600,12 +600,14 @@ LIBSSH2_API void **libssh2_session_abstract(LIBSSH2_SESSION *session);
 typedef void (libssh2_cb_generic)(void);
 
 LIBSSH2_API libssh2_cb_generic *
-libssh2_session_callback_set2(LIBSSH2_SESSION *session, enum LIBSSH2_SESSION_CALLBACK cbtype,
+libssh2_session_callback_set2(LIBSSH2_SESSION *session,
+                              enum LIBSSH2_SESSION_CALLBACK cbtype,
                               libssh2_cb_generic *callback);
 
 LIBSSH2_DEPRECATED(1.11.1, "Use libssh2_session_callback_set2()")
 LIBSSH2_API void *libssh2_session_callback_set(LIBSSH2_SESSION *session,
-                                               enum LIBSSH2_SESSION_CALLBACK cbtype, void *callback);
+                                         enum LIBSSH2_SESSION_CALLBACK cbtype,
+                                         void *callback);
 LIBSSH2_API int libssh2_session_banner_set(LIBSSH2_SESSION *session,
                                            const char *banner);
 #ifndef LIBSSH2_NO_DEPRECATED
@@ -635,10 +637,10 @@ LIBSSH2_API const char *libssh2_session_hostkey(LIBSSH2_SESSION *session,
                                                 size_t *len, int *type);
 
 LIBSSH2_API int libssh2_session_method_pref(LIBSSH2_SESSION *session,
-                                            enum LIBSSH2_KEY_EXCHANGE_METHOD method_type,
-                                            const char *prefs);
+                                 enum LIBSSH2_KEY_EXCHANGE_METHOD method_type,
+                                 const char *prefs);
 LIBSSH2_API const char *libssh2_session_methods(LIBSSH2_SESSION *session,
-                                                enum LIBSSH2_KEY_EXCHANGE_METHOD method_type);
+                                enum LIBSSH2_KEY_EXCHANGE_METHOD method_type);
 LIBSSH2_API int libssh2_session_last_error(LIBSSH2_SESSION *session,
                                            char **errmsg,
                                            int *errmsg_len, int want_buf);
