@@ -1095,7 +1095,7 @@ jobs:
           environment_variables: 'CC'
           run: |
             # https://ports.freebsd.org/
-            sudo pkg install -y autoconf automake gettext libtool
+            sudo pkg install -y autoconf automake libtool
             autoreconf -fi
             mkdir bld && cd bld
             ../configure --enable-option-checking=fatal --enable-werror --enable-debug \
