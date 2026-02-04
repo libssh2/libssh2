@@ -854,7 +854,8 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         session->startup_service_length =
             _libssh2_ntohu32(session->startup_data + 1);
 
-        if((session->startup_service_length != (sizeof("ssh-userauth") - 1)) ||
+        if((session->startup_service_length > session->startup_data_len - 5) ||
+           (session->startup_service_length != (sizeof("ssh-userauth") - 1)) ||
            strncmp("ssh-userauth",
                    (const char *) session->startup_data + 5,
                    session->startup_service_length)) {
