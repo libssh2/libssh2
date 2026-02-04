@@ -850,19 +850,19 @@ session_startup(LIBSSH2_SESSION *session, libssh2_socket_t sock)
         buf.data = session->startup_data;
         buf.dataptr = buf.data;
         buf.len = session->startup_data_len;
-        
+
         /* advance past packet type */
         buf.dataptr++;
-        
+
         if(_libssh2_match_string(&buf, "ssh-userauth")) {
             LIBSSH2_FREE(session, session->startup_data);
             session->startup_data = NULL;
             return _libssh2_error(session, LIBSSH2_ERROR_PROTO,
                                   "Invalid response received from server");
         }
-        
+
         session->startup_service_length = (sizeof("ssh-userauth") - 1);
-        
+
         LIBSSH2_FREE(session, session->startup_data);
         session->startup_data = NULL;
 
