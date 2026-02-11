@@ -499,9 +499,10 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         }
 #ifdef LIBSSH2DEBUG
         {
-            char fingerprint[50], *fprint = fingerprint;
+            char fingerprint[MD5_DIGEST_LENGTH * 3 + 1]
+            char *fprint = fingerprint;
             int i;
-            for(i = 0; i < 16; i++, fprint += 3) {
+            for(i = 0; i < MD5_DIGEST_LENGTH; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_md5[i]);
             }
             *(--fprint) = '\0';
@@ -527,9 +528,9 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
         }
 #ifdef LIBSSH2DEBUG
         {
-            char fingerprint[64], *fprint = fingerprint;
+            char fingerprint[SHA_DIGEST_LENGTH * 3 + 1], *fprint = fingerprint;
             int i;
-            for(i = 0; i < 20; i++, fprint += 3) {
+            for(i = 0; i < SHA_DIGEST_LENGTH; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
             }
             *(--fprint) = '\0';
@@ -1935,9 +1936,9 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         }
 #ifdef LIBSSH2DEBUG
         {
-            char fingerprint[50], *fprint = fingerprint;
+            char fingerprint[MD5_DIGEST_LENGTH * 3 + 1], *fprint = fingerprint;
             int i;
-            for(i = 0; i < 16; i++, fprint += 3) {
+            for(i = 0; i < MD5_DIGEST_LENGTH; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_md5[i]);
             }
             *(--fprint) = '\0';
@@ -1963,9 +1964,9 @@ static int ecdh_sha2_nistp(LIBSSH2_SESSION *session, libssh2_curve_type type,
         }
 #ifdef LIBSSH2DEBUG
         {
-            char fingerprint[64], *fprint = fingerprint;
+            char fingerprint[SHA_DIGEST_LENGTH * 3 + 1], *fprint = fingerprint;
             int i;
-            for(i = 0; i < 20; i++, fprint += 3) {
+            for(i = 0; i < SHA_DIGEST_LENGTH; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
             }
             *(--fprint) = '\0';
@@ -2600,9 +2601,9 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
 #ifdef LIBSSH2DEBUG
         {
-            char fingerprint[50], *fprint = fingerprint;
+            char fingerprint[MD5_DIGEST_LENGTH *3 + 1], *fprint = fingerprint;
             int i;
-            for(i = 0; i < 16; i++, fprint += 3) {
+            for(i = 0; i < MD5_DIGEST_LENGTH; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_md5[i]);
             }
             *(--fprint) = '\0';
@@ -2628,9 +2629,9 @@ curve25519_sha256(LIBSSH2_SESSION *session, unsigned char *data,
         }
 #ifdef LIBSSH2DEBUG
         {
-            char fingerprint[64], *fprint = fingerprint;
+            char fingerprint[SHA_DIGEST_LENGTH * 3 + 1], *fprint = fingerprint;
             int i;
-            for(i = 0; i < 20; i++, fprint += 3) {
+            for(i = 0; i < SHA_DIGEST_LENGTH; i++, fprint += 3) {
                 snprintf(fprint, 4, "%02x:", session->server_hostkey_sha1[i]);
             }
             *(--fprint) = '\0';
