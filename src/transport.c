@@ -157,6 +157,7 @@ decrypt(LIBSSH2_SESSION * session, unsigned char *source,
                                         &session->remote.crypt_abstract,
                                         lowerfirstlast)) {
             LIBSSH2_FREE(session, p->payload);
+            p->payload = NULL;
             return LIBSSH2_ERROR_DECRYPT;
         }
 
@@ -692,6 +693,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
                     else {
                         if(p->payload)
                             LIBSSH2_FREE(session, p->payload);
+                        p->payload = NULL;
                         return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
                     }
                 }
@@ -851,6 +853,7 @@ int _libssh2_transport_read(LIBSSH2_SESSION * session)
             else {
                 if(p->payload)
                     LIBSSH2_FREE(session, p->payload);
+                p->payload = NULL;
                 return LIBSSH2_ERROR_OUT_OF_BOUNDARY;
             }
 
