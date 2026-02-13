@@ -29,8 +29,13 @@
 
 static const char *pubkey = "/home/username/.ssh/id_rsa.pub";
 static const char *privkey = "/home/username/.ssh/id_rsa";
+#ifdef __QNX__
+static const char *username = "qnxuser";
+static const char *password = "qnxuser";
+#else
 static const char *username = "username";
 static const char *password = "password";
+#endif
 static const char *scppath = "/tmp/TEST";
 
 int main(int argc, char *argv[])

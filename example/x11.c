@@ -12,6 +12,11 @@
 
 #include <stdio.h>
 
+#ifdef __QNX__
+#include <sys/select.h>
+#include <time.h>
+#endif
+
 #ifdef HAVE_SYS_UN_H
 
 #ifdef HAVE_SYS_IOCTL_H

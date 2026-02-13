@@ -24,6 +24,11 @@
 #include <arpa/inet.h>
 #endif
 
+#ifdef __QNX__
+#include <sys/select.h>
+#include <time.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
