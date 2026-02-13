@@ -2421,7 +2421,7 @@ gen_publickey_from_sk_ed25519_openssh_priv_data(LIBSSH2_SESSION *session,
         if(*handle_len > 0) {
             *key_handle = LIBSSH2_ALLOC(session, *handle_len);
 
-            if(key_handle) {
+            if(key_handle && *key_handle) {
                 memcpy((void *)LIBSSH2_UNCONST(*key_handle),
                        handle, *handle_len);
             }
@@ -2507,12 +2507,12 @@ clean_exit:
         LIBSSH2_FREE(session, key);
 
     if(application && *application) {
-        LIBSSH2_FREE(session, (void *)application);
+        LIBSSH2_FREE(session, (void *)*application);
         *application = NULL;
     }
 
     if(key_handle && *key_handle) {
-        LIBSSH2_FREE(session, (void *)key_handle);
+        LIBSSH2_FREE(session, (void *)*key_handle);
         *key_handle = NULL;
     }
 
