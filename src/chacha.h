@@ -14,8 +14,11 @@
 
 #include <stdlib.h>
 
+typedef unsigned char u8;
+typedef unsigned int u32;
+
 struct chacha_ctx {
-    u_int input[16];
+    u32 input[16];
 };
 
 #define CHACHA_MINKEYLEN    16
@@ -24,9 +27,9 @@ struct chacha_ctx {
 #define CHACHA_STATELEN     (CHACHA_NONCELEN+CHACHA_CTRLEN)
 #define CHACHA_BLOCKLEN     64
 
-void chacha_keysetup(struct chacha_ctx *x, const u_char *k, u_int kbits);
-void chacha_ivsetup(struct chacha_ctx *x, const u_char *iv, const u_char *ctr);
-void chacha_encrypt_bytes(struct chacha_ctx *x, const u_char *m,
-                          u_char *c, u_int bytes);
+void chacha_keysetup(struct chacha_ctx *x, const u8 *k, u32 kbits);
+void chacha_ivsetup(struct chacha_ctx *x, const u8 *iv, const u8 *ctr);
+void chacha_encrypt_bytes(struct chacha_ctx *x, const u8 *m,
+                          u8 *c, size_t bytes);
 
 #endif /* CHACHA_H */

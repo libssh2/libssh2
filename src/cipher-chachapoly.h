@@ -30,12 +30,12 @@ struct chachapoly_ctx {
 };
 
 int chachapoly_init(struct chachapoly_ctx *cpctx,
-                    const u_char *key, u_int keylen);
-int chachapoly_crypt(struct chachapoly_ctx *cpctx, u_int seqnr,
-                     u_char *dest, const u_char *src, u_int len, u_int aadlen,
-                     int do_encrypt);
+                    const unsigned char *key, size_t keylen);
+int chachapoly_crypt(struct chachapoly_ctx *cpctx, libssh2_uint64_t seqnr,
+                     unsigned char *dest, const unsigned char *src, size_t len,
+                     size_t aadlen, int do_encrypt);
 int chachapoly_get_length(struct chachapoly_ctx *cpctx,
-                          u_int *plenp, u_int seqnr, const u_char *cp,
-                          u_int len);
+                          unsigned int *plenp, libssh2_uint64_t seqnr,
+                          const unsigned char *cp, size_t len);
 
 #endif /* CHACHA_POLY_AEAD_H */
