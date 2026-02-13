@@ -2507,12 +2507,12 @@ clean_exit:
         LIBSSH2_FREE(session, key);
 
     if(application && *application) {
-        LIBSSH2_FREE(session, (void *)*application);
+        LIBSSH2_FREE(session, (void *)LIBSSH2_UNCONST(*application));
         *application = NULL;
     }
 
     if(key_handle && *key_handle) {
-        LIBSSH2_FREE(session, (void *)*key_handle);
+        LIBSSH2_FREE(session, (void *)LIBSSH2_UNCONST(*key_handle));
         *key_handle = NULL;
     }
 
