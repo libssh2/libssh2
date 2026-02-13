@@ -310,6 +310,7 @@ fullpacket(LIBSSH2_SESSION * session, int encrypted /* 1 or 0 */ )
                                               session->fullpacket_payload_len,
                                               &session->remote.comp_abstract);
             LIBSSH2_FREE(session, p->payload);
+            p->payload = NULL;
             if(rc)
                 return rc;
 
