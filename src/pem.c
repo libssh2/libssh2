@@ -251,7 +251,8 @@ _libssh2_pem_parse(LIBSSH2_SESSION * session,
         if(method->init(session, method, iv, &free_iv, secret,
                          &free_secret, 0, &abstract)) {
             _libssh2_explicit_zero((char *)secret, sizeof(secret));
-            LIBSSH2_FREE(session, data);
+            _libssh2_explicit_zero(*data, *datalen);
+            LIBSSH2_FREE(session, *data);
             ret = -1;
             goto out;
         }
