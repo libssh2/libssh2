@@ -655,7 +655,7 @@ jobs:
           - { build: 'autotools', platform: 'x86_64', compiler: 'gcc' }
           - { build: 'cmake'    , platform: 'x86_64', compiler: 'gcc' }
     steps:
-      - uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6
+      - uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d # v6.0
         with:
           platform: ${{ matrix.platform }}
           packages: ${{ matrix.build == 'autotools' && 'autoconf automake libtool make' || 'cmake ninja' }} gcc-core gcc-g++ binutils libssl-devel zlib-devel
