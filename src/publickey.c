@@ -1109,9 +1109,16 @@ libssh2_publickey_list_fetch(LIBSSH2_PUBLICKEY * pkey, unsigned long *num_keys,
                 }
 
                 if(list[keys].num_attrs) {
+                    size_t count = (size_t)list[keys].num_attrs;
+                    if(count > SIZE_MAX /
+                                sizeof(libssh2_publickey_attribute)) {
+                        _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
+                                       "Too many publickey attributes");
+                        goto err_exit;
+                    }
                     list[keys].attrs =
                         LIBSSH2_ALLOC(session,
-                                      list[keys].num_attrs *
+                                      count *
                                       sizeof(libssh2_publickey_attribute));
                     if(!list[keys].attrs) {
                         _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
